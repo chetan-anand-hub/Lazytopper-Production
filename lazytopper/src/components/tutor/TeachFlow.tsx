@@ -819,7 +819,7 @@ const s: Record<string, React.CSSProperties> = {
   },
 
   chatArea: {
-    background: "#f8f9fb", padding: "16px 12px", minHeight: 300, maxHeight: 500,
+    background: "#f8f9fb", padding: "16px 12px", minHeight: 300, maxHeight: "60vh",
     overflowY: "auto", borderLeft: "1px solid #e5e7eb", borderRight: "1px solid #e5e7eb",
   },
 

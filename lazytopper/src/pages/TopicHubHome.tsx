@@ -320,9 +320,12 @@ function TopicHubHomeContent() {
     }
   };
 
-  const playSelectedTopic = async () => {
+  const playSelectedTopic = () => {
     if (!selectedTopicKey) return;
-    await startChapterSession(selectedTopicKey);
+    const target = `/topic-hub/${encodeURIComponent(grade)}/${encodeURIComponent(
+      subject
+    )}/${encodeURIComponent(selectedTopicKey)}?tab=learn`;
+    navigate(target);
   };
 
   const goToLastRoute = () => {
@@ -666,10 +669,10 @@ function TopicHubHomeContent() {
               className="lt-pill"
               style={{ padding: "10px 14px" }}
               data-ux-above-fold-cta="topichub"
-              onClick={() => void playSelectedTopic()}
+              onClick={() => playSelectedTopic()}
               disabled={!selectedTopicKey}
             >
-              Start Learning
+              Learn with Ravi Sir
             </button>
             <button
               type="button"
@@ -677,9 +680,9 @@ function TopicHubHomeContent() {
               style={{ padding: "10px 14px" }}
               data-ux-above-fold-cta="topichub"
               onClick={goToSelectedTopic}
-              disabled={!selectedTopicKey || sessionBusy}
+              disabled={!selectedTopicKey}
             >
-              {sessionBusy ? "Starting..." : "Open Topic Hub"}
+              Explore Topic
             </button>
             <button
               type="button"
