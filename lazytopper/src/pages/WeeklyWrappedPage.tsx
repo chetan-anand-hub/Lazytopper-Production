@@ -37,10 +37,9 @@ function buildShareText(summary: WeeklyWrappedSummary, streakDays: number): stri
     `🔥 ${streakDays} day streak`,
   ];
 
-  const biggestWin = [...summary.topics].sort((a, b) => b.accuracy - a.accuracy)[0];
-  if (biggestWin) {
-    const name = (biggestWin.topicName || biggestWin.topicKey).replace(/-/g, " ");
-    lines.push(`🏆 Best: ${name} (${Math.round(biggestWin.accuracy * 100)}%)`);
+  if (summary.biggestWinTopic) {
+    const name = (summary.biggestWinTopic.topicName || summary.biggestWinTopic.topicKey).replace(/-/g, " ");
+    lines.push(`🏆 Most improved: ${name} (+${Math.round(summary.biggestWinTopic.delta * 100)}%)`);
   }
 
   lines.push("", "#LazyTopper #CBSE #NoZeroDays");
@@ -70,7 +69,8 @@ export default function WeeklyWrappedPage() {
 
   const focusArea = useMemo(() => {
     if (!summary.topics.length) return null;
-    return [...summary.topics].sort((a, b) => a.accuracy - b.accuracy)[0];
+    const weakest = [...summary.topics].sort((a, b) => a.accuracy - b.accuracy)[0];
+    return weakest && weakest.accuracy < 0.8 ? weakest : null;
   }, [summary]);
 
   const handleClose = () => navigate("/dashboard");
@@ -260,7 +260,7 @@ export default function WeeklyWrappedPage() {
           </div>
 
           <div style={{ marginTop: 16, display: "flex", gap: 10, flexWrap: "wrap" }}>
-            {focusArea && focusArea.accuracy < 0.8 && (
+            {focusArea && (
               <div
                 style={{
                   flex: 1,
@@ -278,6 +278,23 @@ export default function WeeklyWrappedPage() {
                 <div style={{ fontSize: 12, opacity: 0.8, marginTop: 4, color: "#92400e" }}>
                   {Math.round(focusArea.accuracy * 100)}% accuracy — extra practice here will pay off big!
                 </div>
+                <button
+                  type="button"
+                  onClick={() => navigate(`/class10/${focusArea.subject || "math"}/${focusArea.topicKey}`)}
+                  style={{
+                    marginTop: 10,
+                    padding: "6px 16px",
+                    background: "#92400e",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: 8,
+                    fontWeight: 700,
+                    fontSize: 12,
+                    cursor: "pointer",
+                  }}
+                >
+                  Practice Now →
+                </button>
               </div>
             )}
 

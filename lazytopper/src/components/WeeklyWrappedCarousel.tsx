@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { WeeklyWrappedSummary, TopicPerformance } from "../services/weeklyWrappedGenerator";
+import type { WeeklyWrappedSummary, TopicPerformance, DailyCount } from "../services/weeklyWrappedGenerator";
 
 export interface WeeklyWrappedCarouselProps {
   summary: WeeklyWrappedSummary;
@@ -16,42 +16,30 @@ const GRADIENTS = [
   "linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)",
 ];
 
-function ActivityBarChart({ summary }: { summary: WeeklyWrappedSummary }) {
-  const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-  const dayCounts: number[] = new Array(7).fill(0);
+const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-  for (const topic of summary.topics) {
-    const idx = Math.abs(topic.topicKey.charCodeAt(0)) % 7;
-    dayCounts[idx] += topic.total;
-  }
-
-  const attempts = summary.totalAttempts;
-  const spread = Math.max(1, Math.ceil(attempts / 7));
-  const startDate = new Date(summary.startDate);
-  for (let i = 0; i < 7; i++) {
-    const d = new Date(startDate.getTime() + i * 86400000);
-    const dayIdx = (d.getDay() + 6) % 7;
-    if (dayCounts[dayIdx] === 0) {
-      dayCounts[dayIdx] = Math.max(0, spread + Math.floor(Math.random() * 3) - 1);
-    }
-  }
-
-  const max = Math.max(...dayCounts, 1);
+function ActivityBarChart({ dailyCounts }: { dailyCounts: DailyCount[] }) {
+  const bars = dailyCounts.map((dc) => {
+    const d = new Date(dc.date + "T00:00:00");
+    return { label: DAY_LABELS[d.getDay()], count: dc.count };
+  });
+  const max = Math.max(...bars.map((b) => b.count), 1);
 
   return (
     <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 80, marginTop: 16 }}>
-      {days.map((day, i) => (
-        <div key={day} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+      {bars.map((bar, i) => (
+        <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+          <div style={{ fontSize: 9, fontWeight: 700, opacity: 0.7 }}>{bar.count > 0 ? bar.count : ""}</div>
           <div
             style={{
               width: "100%",
-              height: `${Math.max(4, (dayCounts[i] / max) * 60)}px`,
-              background: dayCounts[i] > 0 ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.2)",
+              height: `${Math.max(4, (bar.count / max) * 60)}px`,
+              background: bar.count > 0 ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.2)",
               borderRadius: 4,
               transition: "height 0.4s ease",
             }}
           />
-          <span style={{ fontSize: 10, opacity: 0.8 }}>{day}</span>
+          <span style={{ fontSize: 10, opacity: 0.8 }}>{bar.label}</span>
         </div>
       ))}
     </div>
@@ -105,7 +93,7 @@ export const WeeklyWrappedCarousel: React.FC<WeeklyWrappedCarouselProps> = ({
 }) => {
   const [index, setIndex] = useState(0);
 
-  const biggestWin = [...summary.topics].sort((a, b) => b.accuracy - a.accuracy)[0];
+  const biggestWin = summary.biggestWinTopic;
   const focusArea = [...summary.topics].sort((a, b) => a.accuracy - b.accuracy)[0];
   const maxTopicTotal = Math.max(...summary.topics.map((t) => t.total), 1);
   const topTopics = summary.topics.slice(0, 5);
@@ -130,7 +118,7 @@ export const WeeklyWrappedCarousel: React.FC<WeeklyWrappedCarouselProps> = ({
               <div style={{ fontSize: 12, opacity: 0.8 }}>Minutes</div>
             </div>
           </div>
-          <ActivityBarChart summary={summary} />
+          <ActivityBarChart dailyCounts={summary.dailyCounts} />
         </div>
       ),
     },
@@ -187,14 +175,14 @@ export const WeeklyWrappedCarousel: React.FC<WeeklyWrappedCarouselProps> = ({
             {(biggestWin.topicName || biggestWin.topicKey).replace(/-/g, " ")}
           </div>
           <div style={{ fontSize: 28, fontWeight: 900, marginTop: 4 }}>
-            {Math.round(biggestWin.accuracy * 100)}% accuracy
+            +{Math.round(biggestWin.delta * 100)}% improvement
           </div>
           <div style={{ fontSize: 13, opacity: 0.8, marginTop: 8 }}>
-            {biggestWin.correct}/{biggestWin.total} correct — your strongest topic this week!
+            {Math.round(biggestWin.firstHalfAccuracy * 100)}% → {Math.round(biggestWin.secondHalfAccuracy * 100)}% accuracy — most improved topic this week!
           </div>
         </div>
       ) : (
-        <div style={{ textAlign: "center", marginTop: 20, opacity: 0.7 }}>Practice more to find your biggest win!</div>
+        <div style={{ textAlign: "center", marginTop: 20, opacity: 0.7 }}>Practice more topics to see your biggest improvement!</div>
       ),
     },
     {

@@ -9,6 +9,19 @@ export interface TopicPerformance {
   accuracy: number;
 }
 
+export interface DailyCount {
+  date: string;
+  count: number;
+}
+
+export interface TopicImprovement {
+  topicKey: string;
+  topicName?: string;
+  firstHalfAccuracy: number;
+  secondHalfAccuracy: number;
+  delta: number;
+}
+
 export interface WeeklyWrappedSummary {
   startDate: string;
   endDate: string;
@@ -25,6 +38,9 @@ export interface WeeklyWrappedSummary {
   powerHourLabel: string;
   consistencyPercentile: number;
   topicsConquered: number;
+  dailyCounts: DailyCount[];
+  topicImprovements: TopicImprovement[];
+  biggestWinTopic: TopicImprovement | null;
 }
 
 function estimateAttemptMinutes(level: DifficultyLevel): number {
@@ -139,6 +155,50 @@ export function generateWeeklyWrapped(
     .sort((a, b) => b.count - a.count)[0];
   const powerHourLabel = powerHour ? formatPowerHour(powerHour.hour) : "No peak hour yet";
 
+  const dailyCountMap: Record<string, number> = {};
+  for (let d = start; d < end; d += 86400000) {
+    dailyCountMap[toDateKey(d)] = 0;
+  }
+  for (const attempt of attempts) {
+    if (attempt.timestamp >= start && attempt.timestamp < end) {
+      const dk = toDateKey(attempt.timestamp);
+      dailyCountMap[dk] = (dailyCountMap[dk] || 0) + 1;
+    }
+  }
+  const dailyCounts: DailyCount[] = Object.entries(dailyCountMap)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([date, count]) => ({ date, count }));
+
+  const midpoint = start + (end - start) / 2;
+  const topicFirstHalf: Record<string, { correct: number; total: number }> = {};
+  const topicSecondHalf: Record<string, { correct: number; total: number }> = {};
+  for (const attempt of attempts) {
+    if (attempt.timestamp < start || attempt.timestamp >= end) continue;
+    const bucket = attempt.timestamp < midpoint ? topicFirstHalf : topicSecondHalf;
+    if (!bucket[attempt.topicKey]) bucket[attempt.topicKey] = { correct: 0, total: 0 };
+    bucket[attempt.topicKey].total += 1;
+    if (attempt.correct) bucket[attempt.topicKey].correct += 1;
+  }
+  const topicImprovements: TopicImprovement[] = [];
+  for (const tp of topics) {
+    const first = topicFirstHalf[tp.topicKey];
+    const second = topicSecondHalf[tp.topicKey];
+    if (!first || !second || first.total === 0 || second.total === 0) continue;
+    const firstAcc = first.correct / first.total;
+    const secondAcc = second.correct / second.total;
+    topicImprovements.push({
+      topicKey: tp.topicKey,
+      topicName: tp.topicName,
+      firstHalfAccuracy: firstAcc,
+      secondHalfAccuracy: secondAcc,
+      delta: secondAcc - firstAcc,
+    });
+  }
+  topicImprovements.sort((a, b) => b.delta - a.delta);
+  const biggestWinTopic = topicImprovements.length > 0 && topicImprovements[0].delta > 0
+    ? topicImprovements[0]
+    : null;
+
   return {
     startDate,
     endDate,
@@ -155,5 +215,8 @@ export function generateWeeklyWrapped(
     powerHourLabel,
     consistencyPercentile,
     topicsConquered,
+    dailyCounts,
+    topicImprovements,
+    biggestWinTopic,
   };
 }
