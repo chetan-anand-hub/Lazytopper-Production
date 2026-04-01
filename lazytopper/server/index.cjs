@@ -5757,15 +5757,48 @@ ${userPrompt}` }];
       });
 
       const parsed = extractJsonObjectFromText(reply.text);
-      if (parsed && Array.isArray(parsed.steps)) {
-        return sendJson(res, 200, {
-          totalMarks: parsed.totalMarks || marks,
-          steps: parsed.steps.map((s, i) => ({
-            stepNumber: s.stepNumber || i + 1,
+      if (parsed && Array.isArray(parsed.steps) && parsed.steps.length > 0) {
+        let steps = parsed.steps
+          .filter((s) => s && (s.description || s.working))
+          .map((s, i) => ({
+            stepNumber: i + 1,
             description: String(s.description || '').trim(),
             working: String(s.working || '').trim(),
-            marks: Number(s.marks) || 0,
-          })),
+            marks: Math.max(0, Math.round(Number(s.marks) || 0)),
+          }));
+
+        if (steps.length === 0) {
+          return sendJson(res, 200, buildStubStepSolution(question, marks, subject));
+        }
+
+        const rawSum = steps.reduce((acc, s) => acc + s.marks, 0);
+        if (rawSum !== marks) {
+          if (rawSum > 0) {
+            let remaining = marks;
+            for (let i = 0; i < steps.length; i++) {
+              const proportion = steps[i].marks / rawSum;
+              const allocated = i < steps.length - 1
+                ? Math.max(1, Math.round(marks * proportion))
+                : remaining;
+              steps[i].marks = Math.max(0, allocated);
+              remaining -= steps[i].marks;
+            }
+          } else {
+            const base = Math.floor(marks / steps.length);
+            let remainder = marks - base * steps.length;
+            steps = steps.map((s) => {
+              const m = base + (remainder > 0 ? 1 : 0);
+              if (remainder > 0) remainder--;
+              return { ...s, marks: m };
+            });
+          }
+        }
+
+        const normalizedTotal = steps.reduce((acc, s) => acc + s.marks, 0);
+
+        return sendJson(res, 200, {
+          totalMarks: normalizedTotal,
+          steps,
           commonMistakes: Array.isArray(parsed.commonMistakes) ? parsed.commonMistakes.map(String) : [],
           examTip: String(parsed.examTip || '').trim() || undefined,
           provider: ACTIVE_PROVIDER,
