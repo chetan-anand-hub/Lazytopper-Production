@@ -580,60 +580,120 @@ function buildStubMoreLikeThis(payload) {
   return { subject, topicKey, variants, model: 'stub' };
 }
 
-function buildFallbackSteps(answer, explanation, totalMarks) {
-  const combined = [answer, explanation].filter(Boolean).join('\n');
-  const sentences = combined.split(/[.\n]+/).map(s => s.trim()).filter(Boolean);
-  const stepLabels = [
-    'Writing given data and identifying what is to be found',
-    'Stating the relevant formula / concept',
-    'Substituting the values',
-    'Simplifying / computing the result',
-    'Writing the final answer with proper units',
-  ];
-  const useHalf = totalMarks >= 2;
-  const stepCount = Math.max(1, Math.min(sentences.length, useHalf ? totalMarks * 2 : totalMarks));
+function isObjectiveType(qType, section) {
+  const t = (qType || '').toLowerCase();
+  const s = (section || '').toUpperCase();
+  return t === 'mcq' || t === 'assertionreason' || t === 'assertion-reason' || t === 'ar' || t === 'objective' || t === 'fillblank' || s === 'A';
+}
+
+function buildFallbackSteps(answer, explanation, totalMarks, qType, section, subject) {
+  const isObj = isObjectiveType(qType, section);
+
+  if (isObj || totalMarks <= 1) {
+    const isAR = /assertion/i.test(qType || '');
+    return {
+      totalMarks,
+      steps: [
+        {
+          stepNumber: 1,
+          description: isAR ? 'Evaluating assertion and reason' : 'Correct answer',
+          working: answer || 'Identify the correct option based on the concept.',
+          marks: totalMarks,
+        },
+        ...(explanation ? [{
+          stepNumber: 2,
+          description: 'Why this is correct',
+          working: explanation,
+          marks: 0,
+        }] : []),
+      ],
+      commonMistakes: isAR
+        ? ['Assuming both A and R are correct means R explains A — check the causal link separately', 'Not reading each statement independently before checking the relationship']
+        : ['Not reading all options before marking — similar-sounding options trap you', 'Confusing related concepts (e.g., HCF vs LCM, displacement vs distance)'],
+      examTip: isAR
+        ? 'Read Assertion and Reason independently first. Then check: does R actually explain A? Many students pick (a) without verifying the causal link.'
+        : 'For MCQs: read all 4 options first, eliminate obviously wrong ones, then pick. No negative marking in CBSE — never leave blank.',
+    };
+  }
+
+  const combined = [answer, explanation].filter(Boolean).join('. ');
+  const sentences = combined.split(/[.;]\s+|\n+/).map(s => s.trim()).filter(s => s.length > 5);
+
+  const stepLabels2 = ['Writing the approach', 'Solving and writing the final answer'];
+  const stepLabels3 = ['Writing the given information and formula', 'Applying the method / computing', 'Writing the final answer with conclusion'];
+  const stepLabels5 = ['Writing given data and what is to be found', 'Stating the formula / theorem / definition', 'Setting up the equation / applying the concept', 'Solving step by step', 'Writing the final answer with proper conclusion'];
+
+  const labels = totalMarks <= 2 ? stepLabels2 : totalMarks <= 3 ? stepLabels3 : stepLabels5;
+  const stepCount = Math.min(labels.length, Math.max(2, sentences.length));
   const steps = [];
-  let marksLeft = totalMarks;
+  const useHalf = totalMarks >= 2;
+
   for (let i = 0; i < stepCount; i++) {
-    const isFirst = i === 0;
-    const isLast = i === stepCount - 1;
-    let stepMarks;
-    if (useHalf && stepCount > totalMarks) {
-      stepMarks = (isFirst || isLast) ? 0.5 : (marksLeft > 0.5 ? 0.5 : marksLeft);
-    } else {
-      stepMarks = i < totalMarks ? 1 : 0;
-    }
-    if (stepMarks > marksLeft) stepMarks = marksLeft;
-    marksLeft -= stepMarks;
+    const isSetup = i === 0;
+    const isConclusion = i === stepCount - 1;
+    let m = (useHalf && (isSetup || isConclusion)) ? 0.5 : 1;
     steps.push({
       stepNumber: i + 1,
-      description: stepLabels[i % stepLabels.length] || 'Step ' + (i + 1),
-      working: sentences[i] || '',
-      marks: stepMarks,
+      description: labels[i] || 'Step ' + (i + 1),
+      working: sentences[i] || (labels[i] || ''),
+      marks: m,
     });
   }
-  if (marksLeft > 0 && steps.length > 0) {
-    steps[steps.length - 1].marks += marksLeft;
+
+  const sum = steps.reduce((a, s) => a + s.marks, 0);
+  if (sum !== totalMarks && steps.length > 0) {
+    const diff = totalMarks - sum;
+    const mid = Math.floor(steps.length / 2);
+    steps[mid].marks = Math.max(0.5, steps[mid].marks + diff);
   }
+
+  const isMaths = /math/i.test(subject || '');
   return {
     totalMarks,
     steps,
-    commonMistakes: [
-      'Not writing the formula before substituting — CBSE deducts ½ mark',
-      'Missing units or not stating "rejected" for negative values in word problems',
-    ],
-    examTip: 'CBSE awards step marks even if the final answer is wrong — always show complete working with formula → substitution → calculation → answer.',
+    commonMistakes: isMaths
+      ? ['Not writing the formula before substituting — CBSE deducts ½ mark', 'Missing units or not stating "rejected" for negative values in word problems']
+      : ['Not writing balanced equations with state symbols (s/l/g/aq)', 'Using informal language instead of NCERT-standard key terms'],
+    examTip: totalMarks <= 2
+      ? (isMaths ? 'For 2-mark questions: show formula + substitution + answer. Even partial working can earn 1 mark.' : 'For 2-mark questions: define the concept clearly, then state the answer with key terms from NCERT.')
+      : (isMaths ? 'CBSE board pattern: Given → Formula → Substitution → Calculation → Final Answer with units. Each step carries marks independently.' : 'CBSE board pattern: Define → State equation/law → Explain mechanism → Conclude. Use NCERT key terms exactly.'),
   };
 }
 
-function buildStubStepSolution(question, totalMarks, subject) {
+function buildStubStepSolution(question, totalMarks, subject, qType, section) {
+  const isObj = isObjectiveType(qType, section);
   const isMaths = /math/i.test(subject);
+
+  if (isObj || totalMarks <= 1) {
+    const isAR = /assertion/i.test(qType || '');
+    return {
+      totalMarks,
+      steps: [
+        {
+          stepNumber: 1,
+          description: isAR ? 'Evaluating assertion and reason independently' : 'Identifying the correct option',
+          working: isAR
+            ? 'Read the Assertion (A) and Reason (R) separately. Check if each is true/false. Then check if R correctly explains A.'
+            : 'Read all options carefully. Apply the relevant concept to identify the correct answer.',
+          marks: totalMarks,
+        },
+      ],
+      commonMistakes: isAR
+        ? ['Assuming both correct means R explains A — check the causal link', 'Not evaluating Assertion and Reason independently first']
+        : ['Not reading all options before answering — similar options can trap you', 'Confusing related but different concepts (e.g., HCF vs LCM)'],
+      examTip: isAR
+        ? 'Assertion-Reason: evaluate each statement on its own FIRST. Then check whether R is the correct explanation of A. Many students assume (a) without verifying.'
+        : 'MCQ strategy: eliminate 2 obviously wrong options first, then choose between remaining 2. No negative marking — never leave any MCQ blank.',
+      model: 'stub',
+    };
+  }
+
   const stepTemplates = isMaths ? [
     { desc: 'Writing the given information', work: 'Given: [extract data from the question]. To find: [what is asked].', m: 0.5 },
     { desc: 'Stating the formula / theorem', work: 'Using the relevant formula: [formula]. This is a standard NCERT result.', m: 0.5 },
-    { desc: 'Substituting the values', work: 'Substituting the given values into the formula and simplifying.', m: 1 },
-    { desc: 'Computing the result', work: 'Performing the arithmetic/algebraic computation step by step.', m: 1 },
-    { desc: 'Writing the final answer', work: 'Therefore, the required answer = [value] [units]. (with proper statement)', m: 0.5 },
+    { desc: 'Substituting the values and computing', work: 'Substituting the given values into the formula and simplifying step by step.', m: 1 },
+    { desc: 'Solving further / simplifying', work: 'Performing the arithmetic/algebraic computation to reach the result.', m: 1 },
+    { desc: 'Writing the final answer with conclusion', work: 'Therefore, the required answer = [value] [units]. (with proper concluding statement)', m: 0.5 },
   ] : [
     { desc: 'Identifying the concept / phenomenon', work: 'This question involves [concept]. Definition: [key term definition from NCERT].', m: 0.5 },
     { desc: 'Writing the relevant equation / principle', work: 'The relevant equation/principle: [balanced equation with state symbols / scientific law].', m: 1 },
@@ -642,14 +702,12 @@ function buildStubStepSolution(question, totalMarks, subject) {
     { desc: 'Writing the final answer with key terms', work: 'Final answer: [concise answer using NCERT terminology and units where applicable].', m: 0.5 },
   ];
 
-  let stepsUsed = stepTemplates.slice(0, Math.max(2, Math.min(stepTemplates.length, totalMarks <= 1 ? 2 : totalMarks <= 2 ? 3 : totalMarks <= 3 ? 4 : 5)));
+  let stepsUsed = stepTemplates.slice(0, Math.max(2, Math.min(stepTemplates.length, totalMarks <= 2 ? 3 : totalMarks <= 3 ? 4 : 5)));
   const rawSum = stepsUsed.reduce((a, s) => a + s.m, 0);
   const scale = totalMarks / rawSum;
-  let cumulative = 0;
   const steps = stepsUsed.map((t, i) => {
     let m = Math.round(t.m * scale * 2) / 2;
     if (m < 0.5) m = 0.5;
-    cumulative += m;
     return { stepNumber: i + 1, description: t.desc, working: t.work, marks: m };
   });
   const actualSum = steps.reduce((a, s) => a + s.marks, 0);
@@ -672,8 +730,12 @@ function buildStubStepSolution(question, totalMarks, subject) {
       'Not labelling diagrams or missing arrows in ray diagrams',
     ],
     examTip: isMaths
-      ? 'CBSE board pattern: Given → Formula → Substitution → Calculation → Final Answer with units. Each step carries marks independently — never skip any.'
-      : 'CBSE board pattern: Define → State equation/law → Explain mechanism → Conclude. Use NCERT key terms exactly as written. Draw labelled diagrams where applicable.',
+      ? (totalMarks <= 2
+        ? 'For 2-mark questions: show formula + substitution + answer. Even partial working earns 1 mark.'
+        : 'CBSE board pattern: Given → Formula → Substitution → Calculation → Final Answer with units. Each step carries marks independently — never skip any.')
+      : (totalMarks <= 2
+        ? 'For 2-mark questions: state the definition/concept, then give the answer with key NCERT terms.'
+        : 'CBSE board pattern: Define → State equation/law → Explain mechanism → Conclude. Use NCERT key terms exactly as written.'),
     model: 'stub',
   };
 }
@@ -5750,6 +5812,7 @@ ${userPrompt}` }];
     const subject = String(payload.subject || 'Maths').trim();
     const topic = String(payload.topic || '').trim();
     const qType = String(payload.type || '').trim();
+    const section = String(payload.section || '').trim();
     const existingAnswer = String(payload.answer || '').trim();
     const existingExplanation = String(payload.explanation || '').trim();
 
@@ -5757,13 +5820,11 @@ ${userPrompt}` }];
       return sendJson(res, 400, { error: 'Missing question text' });
     }
 
-    if (existingAnswer || existingExplanation) {
-      const fallbackSteps = buildFallbackSteps(existingAnswer, existingExplanation, marks);
-      return sendJson(res, 200, fallbackSteps);
-    }
-
     if (isStubMode()) {
-      return sendJson(res, 200, buildStubStepSolution(question, marks, subject));
+      if (existingAnswer || existingExplanation) {
+        return sendJson(res, 200, buildFallbackSteps(existingAnswer, existingExplanation, marks, qType, section, subject));
+      }
+      return sendJson(res, 200, buildStubStepSolution(question, marks, subject, qType, section));
     }
 
     try {
@@ -5798,6 +5859,28 @@ ${userPrompt}` }];
         'Step 2: desc="Stating Snell\'s law", working="The ratio of sine of angle of incidence to sine of angle of refraction is constant for a given pair of media. This constant is called refractive index.", marks=1\n' +
         'Step 3: desc="Writing the formula", working="sin i / sin r = n₂₁ (refractive index of medium 2 w.r.t. medium 1)", marks=1\n';
 
+      const isObj = isObjectiveType(qType, section);
+
+      const mcqInstructions = isObj ? (
+        '\n\nIMPORTANT — THIS IS AN OBJECTIVE/MCQ QUESTION (Section A, ' + marks + ' mark):\n' +
+        '- Do NOT use step patterns like "Writing given data" or "Stating the formula" — these don\'t apply to MCQs.\n' +
+        '- Structure: ONE step with the correct answer + clear justification. Then one BONUS step (marks=0) explaining WHY this is correct, to help the student learn.\n' +
+        '- The "description" for step 1 should be "Correct answer" (not "Writing given data").\n' +
+        '- The "working" for step 1 should state: "Option (X) is correct: [brief reason]".\n' +
+        '- Step 2 (marks=0): "description"="Why this is correct", "working"="[detailed conceptual explanation that helps the student understand and remember]".\n' +
+        '- commonMistakes: what wrong option students commonly pick and why.\n' +
+        '- examTip: MCQ-specific tip (e.g., elimination strategy, common traps).\n' +
+        '- For Assertion-Reason: evaluate A and R independently, then check if R explains A.\n'
+      ) : '';
+
+      const answerContext = (existingAnswer || existingExplanation) ? (
+        '\n\nKNOWN ANSWER (use this to build your detailed solution — expand on this, don\'t just repeat it):\n' +
+        (existingAnswer ? 'Answer: ' + existingAnswer + '\n' : '') +
+        (existingExplanation ? 'Explanation: ' + existingExplanation + '\n' : '') +
+        'IMPORTANT: Your solution must EXPAND on this answer to create a full, self-explanatory CBSE marking scheme solution.\n' +
+        'Show the complete working/derivation that leads to this answer. A student reading your solution should LEARN how to solve this type of question.\n'
+      ) : '';
+
       const userPrompt =
         'Generate the OFFICIAL CBSE board marking scheme solution for this Class 10 question.\n\n' +
         'Question: ' + question + '\n' +
@@ -5805,7 +5888,10 @@ ${userPrompt}` }];
         'Subject: ' + subject + '\n' +
         (topic ? 'Chapter/Topic: ' + topic + '\n' : '') +
         (qType ? 'Question type: ' + qType + '\n' : '') +
-        '\n' + (isMaths ? mathsExample : scienceExample) + '\n' +
+        (section ? 'Section: ' + section + '\n' : '') +
+        answerContext +
+        mcqInstructions +
+        '\n' + (isObj ? '' : (isMaths ? mathsExample : scienceExample)) + '\n' +
         'RESPOND with this exact JSON structure:\n' +
         '{\n' +
         '  "totalMarks": ' + marks + ',\n' +
@@ -5817,17 +5903,18 @@ ${userPrompt}` }];
         '}\n\n' +
         'STRICT CBSE MARKING SCHEME RULES:\n' +
         '1. The marks of all steps MUST sum to EXACTLY ' + marks + '\n' +
-        '2. Use HALF MARKS (0.5) — CBSE marking schemes use ½ marks extensively for setup steps (writing given/formula) and final answer steps\n' +
+        (isObj ? '2. For MCQ/Objective: only 1 scored step + 1 explanatory step (marks=0)\n' :
+        '2. Use HALF MARKS (0.5) — CBSE marking schemes use ½ marks extensively for setup steps (writing given/formula) and final answer steps\n') +
         '3. The "description" field = what the examiner looks for (e.g. "Writing the formula", "Substituting values", "Computing discriminant")\n' +
         '4. The "working" field = the EXACT content a student should write in their answer sheet — show real formulas, real numbers, real calculations\n' +
         '5. For Maths: show actual mathematical working with symbols (√, ², ±, ∴, ∵) — not descriptions of what to do\n' +
         '6. For Science: use NCERT-standard terminology, balanced equations with state symbols (s/l/g/aq), proper scientific notation\n' +
-        '7. Follow CBSE step pattern: Given/Definition → Formula/Law → Substitution/Application → Simplification → Final Answer\n' +
-        '8. Each "working" must be self-contained — a student copying it verbatim should score full marks for that step\n' +
+        (isObj ? '' : '7. Follow CBSE step pattern: Given/Definition → Formula/Law → Substitution/Application → Simplification → Final Answer\n') +
+        '8. Each "working" must be self-contained and DETAILED ENOUGH that a student can LEARN from it — not just see the answer\n' +
         '9. commonMistakes must be SPECIFIC to this question (not generic advice)\n' +
         '10. examTip must reference the CBSE board marking pattern for this question type\n' +
-        '11. For word problems: include step for framing the equation AND step for rejecting invalid values with reason\n' +
-        '12. Total steps: 2-mark Q → 3 steps, 3-mark Q → 4 steps, 5-mark Q → 5-6 steps (matching CBSE scheme density)';
+        (isObj ? '' : '11. For word problems: include step for framing the equation AND step for rejecting invalid values with reason\n') +
+        '12. Total steps: ' + (isObj ? '1-mark MCQ → 2 steps (1 scored + 1 explanatory)' : '2-mark Q → 3 steps, 3-mark Q → 4 steps, 5-mark Q → 5-6 steps (matching CBSE scheme density)');
 
       const contents = [
         { role: 'user', parts: [{ text: systemPrompt + '\n\n' + userPrompt }] },
@@ -5850,7 +5937,10 @@ ${userPrompt}` }];
           }));
 
         if (steps.length === 0) {
-          return sendJson(res, 200, buildStubStepSolution(question, marks, subject));
+          if (existingAnswer || existingExplanation) {
+            return sendJson(res, 200, buildFallbackSteps(existingAnswer, existingExplanation, marks, qType, section, subject));
+          }
+          return sendJson(res, 200, buildStubStepSolution(question, marks, subject, qType, section));
         }
 
         const maxSteps = Math.floor(marks / 0.5);
@@ -5907,10 +5997,16 @@ ${userPrompt}` }];
         });
       }
 
-      return sendJson(res, 200, buildStubStepSolution(question, marks, subject));
+      if (existingAnswer || existingExplanation) {
+        return sendJson(res, 200, buildFallbackSteps(existingAnswer, existingExplanation, marks, qType, section, subject));
+      }
+      return sendJson(res, 200, buildStubStepSolution(question, marks, subject, qType, section));
     } catch (err) {
       console.error('[step-solution]', err);
-      return sendJson(res, 200, buildStubStepSolution(question, marks, subject));
+      if (existingAnswer || existingExplanation) {
+        return sendJson(res, 200, buildFallbackSteps(existingAnswer, existingExplanation, marks, qType, section, subject));
+      }
+      return sendJson(res, 200, buildStubStepSolution(question, marks, subject, qType, section));
     }
   }
 

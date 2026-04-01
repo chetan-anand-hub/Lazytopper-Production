@@ -25,6 +25,17 @@ Replaced synthetic/circular historical data with real CBSE board exam pattern da
 - `lazytopper/src/prediction/probabilisticScoring.ts` — calibrated NEP policy boosts to reflect actual CBSE post-2023 observed shifts (case-based 1.52x, assertion-reasoning 1.38x)
 - AI "Generate Similar" feature was already implemented (server endpoint `/api/more-like-this`, client `generateMoreLikeThis()`, full HPQ card UI)
 
+## CBSE Solution Quality Overhaul (Phase 1 & 2)
+
+Step-by-step solutions now match official CBSE marking scheme format:
+- **MCQ detection**: `isObjectiveType(qType, section)` detects MCQ/AR/Section A questions; MCQ solutions show 1 scored step + optional 0-mark explanation step
+- **Half-mark support**: 0.5-mark steps display as "½ mark" throughout; marks badge handles all fractional values
+- **0-mark explanatory steps**: Show "Explanation" badge in grey (#f3f4f6) instead of blue marks badge
+- **Practice page integration**: Inline step-by-step solution panel on Practice page (same as HPQ); loads on "Show solution" click via `fetchStepSolution`; solution cache clears on question regeneration
+- **Fallback improvements**: All error/empty paths now use `buildFallbackSteps` when answer/explanation exist (uses real answer content instead of generic template); all fallback paths pass `qType` and `section` params
+- **AI context**: AI prompt now receives existing answer/explanation as context to EXPAND on, not just repeat; MCQ-specific instructions disable "Writing given data" pattern
+- Files: `lazytopper/server/index.cjs` (server), `lazytopper/src/pages/PracticePage.tsx`, `lazytopper/src/pages/HighlyProbableQuestions.tsx`, `lazytopper/src/ai/aiClient.ts`
+
 ## Homepage Redesign (revised)
 
 Light-theme, student-friendly educational landing page:

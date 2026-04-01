@@ -14,7 +14,7 @@ import {
   resolveTopicKey as resolveCanonicalTopicKey,
   toPracticePackKey,
 } from "../utils/topicResolver";
-import { generateMoreLikeThis } from "../ai/aiClient";
+import { generateMoreLikeThis, fetchStepSolution, type StepSolutionResponse } from "../ai/aiClient";
 import boardSteps_2025_26 from "../data/boardSteps";
 import { QuestionVisualAid } from "../components/question/QuestionVisualAid";
 import { DiagramBlock } from "../components/DiagramBlock";
@@ -769,6 +769,9 @@ useEffect(() => {
     () => createSessionTracker(topicParam)
   );
   const [selfAssessments, setSelfAssessments] = useState<Record<string, "got_it" | "need_practice">>({});
+  const [practiceSolutionData, setPracticeSolutionData] = useState<Record<string, StepSolutionResponse>>({});
+  const [practiceSolutionLoading, setPracticeSolutionLoading] = useState<Record<string, boolean>>({});
+  const [practiceSolutionError, setPracticeSolutionError] = useState<Record<string, string | undefined>>({});
 // Practice Mentor Drawer (Solve With Me / Board Steps)
 const [mentorDrawerOpen, setMentorDrawerOpen] = useState(false);
 const [mentorSolveStyle, setMentorSolveStyle] = useState<"socratic" | "board">("socratic");
@@ -949,12 +952,18 @@ const packTopicKey = useMemo(() => {
           setQuestions(next);
           setExpandedAnswers({});
           setSelfAssessments({});
+          setPracticeSolutionData({});
+          setPracticeSolutionLoading({});
+          setPracticeSolutionError({});
           setSessionTracker(createSessionTracker(canonicalTopicKey || topicParam));
         }
       } catch (e) {
         console.error("Error generating practice questions:", e);
         if (!cancelled) {
           setQuestions([]);
+          setPracticeSolutionData({});
+          setPracticeSolutionLoading({});
+          setPracticeSolutionError({});
           setError(
             "Could not generate practice questions right now. Please try again."
           );
@@ -1013,11 +1022,34 @@ const packTopicKey = useMemo(() => {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
 
-  const handleToggleAnswer = (id: string) => {
+  const handleToggleAnswer = async (id: string, q?: PracticeQuestion) => {
+    const willOpen = !expandedAnswers[id];
     setExpandedAnswers((prev) => ({
       ...prev,
-      [id]: !prev[id],
+      [id]: willOpen,
     }));
+
+    if (willOpen && q && !practiceSolutionData[id] && !practiceSolutionLoading[id]) {
+      setPracticeSolutionLoading((prev) => ({ ...prev, [id]: true }));
+      setPracticeSolutionError((prev) => ({ ...prev, [id]: undefined }));
+      try {
+        const result = await fetchStepSolution({
+          subject: subjectKey,
+          topic: topicParam || "",
+          question: q.questionText,
+          marks: q.marks || 1,
+          type: (q as any).type || "",
+          section: q.section || "",
+          answer: (q as any).answer || "",
+          explanation: (q as any).explanation || "",
+        });
+        setPracticeSolutionData((prev) => ({ ...prev, [id]: result }));
+      } catch (err: any) {
+        setPracticeSolutionError((prev) => ({ ...prev, [id]: err?.message || "Failed to load solution" }));
+      } finally {
+        setPracticeSolutionLoading((prev) => ({ ...prev, [id]: false }));
+      }
+    }
   };
 
   const openMentorForQuestion = useCallback(
@@ -1729,7 +1761,7 @@ const packTopicKey = useMemo(() => {
                         type="button"
                         onClick={() => {
                           setActiveQuestionId(String(q.id));
-                          handleToggleAnswer(q.id);
+                          handleToggleAnswer(q.id, q);
                         }}
                         style={{
                           borderRadius: 999,
@@ -1858,6 +1890,92 @@ const packTopicKey = useMemo(() => {
                         </div>
                       </details>
                     </div>
+
+                    {isOpen && (
+                      <div style={{
+                        marginTop: 10,
+                        padding: "12px 14px",
+                        background: "#f8fafc",
+                        borderRadius: 12,
+                        border: "1px solid #e2e8f0",
+                      }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                          <strong style={{ fontSize: "0.82rem", color: "#1e293b" }}>
+                            Step-by-Step Solution ({q.marks} {q.marks === 1 ? "mark" : "marks"})
+                          </strong>
+                        </div>
+
+                        {practiceSolutionLoading[q.id] && (
+                          <div style={{ fontSize: "0.82rem", color: "#1d4ed8", padding: "8px 0" }}>
+                            Loading step-by-step solution...
+                          </div>
+                        )}
+                        {practiceSolutionError[q.id] && (
+                          <div style={{ fontSize: "0.82rem", color: "#b91c1c", padding: "8px 0" }}>
+                            {practiceSolutionError[q.id]}
+                          </div>
+                        )}
+                        {practiceSolutionData[q.id] && (
+                          <div>
+                            {practiceSolutionData[q.id].steps.map((step) => (
+                              <div key={step.stepNumber} style={{
+                                display: "flex", gap: 10, marginBottom: 8,
+                                padding: "8px 10px", background: "#ffffff",
+                                borderRadius: 8, border: "1px solid #e2e8f0",
+                              }}>
+                                <div style={{
+                                  minWidth: 28, height: 28, borderRadius: "50%",
+                                  background: "#1e40af", color: "#fff",
+                                  display: "flex", alignItems: "center", justifyContent: "center",
+                                  fontSize: "0.75rem", fontWeight: 700, flexShrink: 0,
+                                }}>{step.stepNumber}</div>
+                                <div style={{ flex: 1 }}>
+                                  <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "#1e293b", marginBottom: 2 }}>
+                                    {step.description}
+                                    <span style={{
+                                      marginLeft: 8, fontSize: "0.7rem", fontWeight: 700,
+                                      color: step.marks === 0 ? "#6b7280" : "#1e40af",
+                                      background: step.marks === 0 ? "#f3f4f6" : "#dbeafe",
+                                      borderRadius: 999, padding: "1px 7px",
+                                    }}>
+                                      {step.marks === 0 ? "Explanation" : step.marks === 0.5 ? "½ mark" : step.marks % 1 === 0.5 ? `${Math.floor(step.marks)}½ marks` : `${step.marks} ${step.marks === 1 ? "mark" : "marks"}`}
+                                    </span>
+                                  </div>
+                                  <div style={{ fontSize: "0.78rem", color: "#475569", lineHeight: 1.5 }}>
+                                    {step.working}
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+
+                            {practiceSolutionData[q.id].commonMistakes && practiceSolutionData[q.id].commonMistakes!.length > 0 && (
+                              <div style={{
+                                marginTop: 8, padding: "8px 10px",
+                                background: "#fef2f2", borderRadius: 8, border: "1px solid #fecaca",
+                              }}>
+                                <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#991b1b", marginBottom: 4 }}>
+                                  Common Mistakes
+                                </div>
+                                {practiceSolutionData[q.id].commonMistakes!.map((m, i) => (
+                                  <div key={i} style={{ fontSize: "0.75rem", color: "#7f1d1d", marginBottom: 2 }}>
+                                    {"\u2022"} {m}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                            {practiceSolutionData[q.id].examTip && (
+                              <div style={{
+                                marginTop: 8, padding: "8px 10px",
+                                background: "#f0fdf4", borderRadius: 8, border: "1px solid #bbf7d0",
+                                fontSize: "0.75rem", color: "#166534",
+                              }}>
+                                <strong>Exam Tip:</strong> {practiceSolutionData[q.id].examTip}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
 
                     {isOpen && !selfAssessments[q.id] && (
                       <div

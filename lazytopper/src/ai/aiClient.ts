@@ -162,6 +162,7 @@ export async function fetchStepSolution(req: {
   question: string;
   marks: number;
   type?: string;
+  section?: string;
   answer?: string;
   explanation?: string;
 }): Promise<StepSolutionResponse> {

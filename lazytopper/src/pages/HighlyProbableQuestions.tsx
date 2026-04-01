@@ -568,6 +568,7 @@ const HighlyProbableQuestions: React.FC = () => {
         question: q.question,
         marks: q.marks || 1,
         type: q.type,
+        section: q.section,
         answer: q.answer,
         explanation: q.explanation,
       });
@@ -2210,13 +2211,13 @@ const HighlyProbableQuestions: React.FC = () => {
                                                 marginLeft: 8,
                                                 fontSize: "0.7rem",
                                                 fontWeight: 700,
-                                                color: "#1e40af",
-                                                background: "#dbeafe",
+                                                color: step.marks === 0 ? "#6b7280" : "#1e40af",
+                                                background: step.marks === 0 ? "#f3f4f6" : "#dbeafe",
                                                 borderRadius: 999,
                                                 padding: "1px 7px",
                                               }}
                                             >
-                                              {step.marks === 0.5 ? "½" : step.marks % 1 === 0.5 ? `${Math.floor(step.marks)}½` : step.marks} {step.marks === 1 ? "mark" : "marks"}
+                                              {step.marks === 0 ? "Explanation" : step.marks === 0.5 ? "½ mark" : step.marks % 1 === 0.5 ? `${Math.floor(step.marks)}½ marks` : `${step.marks} ${step.marks === 1 ? "mark" : "marks"}`}
                                             </span>
                                           </div>
                                           <div
