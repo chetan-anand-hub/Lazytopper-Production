@@ -36,6 +36,14 @@ import {
   resolveCanonicalTopicForStrategy,
 } from "../services/questionTypeFirstResolver";
 import { trackUxEvent } from "../services/uxTelemetry";
+import {
+  computeAdaptiveDifficultyMix,
+  createSessionTracker,
+  getAdaptiveLevelInfo,
+  recordSelfAssessment,
+  getSessionStats,
+  type PracticeSessionTracker,
+} from "../services/adaptivePracticeEngine";
 import { getTrigRubric } from "../data/contentStrategy/trigonometry/trigonometryRubrics";
 import { getTrianglesRubric } from "../data/contentStrategy/triangles";
 import type {
@@ -169,12 +177,13 @@ function buildPracticeQuestionsFromEngine(args: {
   subtopicHint?: string;
   focusBankIds?: string[];
   boardPattern?: string;
+  adaptiveMix?: Partial<Record<InternalDifficultyBucket, number>>;
+  priorityConceptKeys?: string[];
 }): PracticeQuestion[] {
   const safeCount = Math.max(MIN_QUESTION_COUNT, Math.min(MAX_QUESTION_COUNT, args.count || 10));
   const difficultyMix = difficultyChoiceToMix(args.difficulty);
 
   const practiceSet = generatePracticeSet({
-    // practiceSetGenerator expects lower-case subject keys.
     subject: (args.subjectKey.toLowerCase() as any),
     topicKey: args.topicKey,
     totalQuestions: safeCount,
@@ -182,6 +191,8 @@ function buildPracticeQuestionsFromEngine(args: {
     difficultyMix: Object.keys(difficultyMix).length
       ? (difficultyMix as any)
       : undefined,
+    adaptiveMix: args.adaptiveMix as any,
+    priorityConceptKeys: args.priorityConceptKeys,
   });
 
   let candidates = [...(practiceSet.questions as any[])];
@@ -357,6 +368,8 @@ interface AiTopupArgs {
   focusBankIds?: string[];
   strictFocus?: boolean;
   sectionFilter?: string;
+  adaptiveMix?: Partial<Record<InternalDifficultyBucket, number>>;
+  priorityConceptKeys?: string[];
 }
 
 function mapUnifiedQuestionToPractice(question: any, fallbackId: string): PracticeQuestion {
@@ -382,7 +395,6 @@ async function buildPracticeQuestionsWithAiTopup(
 ): Promise<PracticeQuestion[]> {
   const safeCount = Math.max(MIN_QUESTION_COUNT, Math.min(MAX_QUESTION_COUNT, args.count || 10));
 
-  // 1) Try the canonical/trends engine first (uses display-topic keys)
   const engineQuestions = buildPracticeQuestionsFromEngine({
     subjectKey: args.subjectKey,
     topicKey: args.topicLabel,
@@ -391,6 +403,8 @@ async function buildPracticeQuestionsWithAiTopup(
     subtopicHint: args.subtopicHint,
     focusBankIds: args.focusBankIds,
     boardPattern: args.sectionFilter,
+    adaptiveMix: args.adaptiveMix,
+    priorityConceptKeys: args.priorityConceptKeys,
   });
 
   // 2) If the engine has no coverage for this topic, fall back to Prompt-D packs
@@ -733,6 +747,10 @@ useEffect(() => {
     Record<string, boolean>
   >({});
   const [regenerationKey, setRegenerationKey] = useState<number>(0);
+  const [sessionTracker, setSessionTracker] = useState<PracticeSessionTracker>(
+    () => createSessionTracker(topicParam)
+  );
+  const [selfAssessments, setSelfAssessments] = useState<Record<string, "got_it" | "need_practice">>({});
 // Practice Mentor Drawer (Solve With Me / Board Steps)
 const [mentorDrawerOpen, setMentorDrawerOpen] = useState(false);
 const [mentorSolveStyle, setMentorSolveStyle] = useState<"socratic" | "board">("socratic");
@@ -884,6 +902,16 @@ const packTopicKey = useMemo(() => {
       setIsLoading(true);
       setError(null);
       try {
+        const adaptiveMix = difficulty === "All"
+          ? computeAdaptiveDifficultyMix(canonicalTopicKey || topicParam)
+          : undefined;
+        const wrongConcepts = adaptiveMix
+          ? (await import("../services/adaptivePracticeEngine")).getWrongConceptsForTopic(canonicalTopicKey || topicParam)
+          : [];
+        const priorityConceptKeys = wrongConcepts.length > 0
+          ? wrongConcepts.map((e) => e.conceptKey)
+          : undefined;
+
         const next = await buildPracticeQuestionsWithAiTopup({
           grade,
           subjectKey,
@@ -895,11 +923,15 @@ const packTopicKey = useMemo(() => {
           focusBankIds,
           strictFocus,
           sectionFilter: sectionFilter === "ALL" ? undefined : sectionFilter,
+          adaptiveMix,
+          priorityConceptKeys,
         });
 
         if (!cancelled) {
           setQuestions(next);
           setExpandedAnswers({});
+          setSelfAssessments({});
+          setSessionTracker(createSessionTracker(canonicalTopicKey || topicParam));
         }
       } catch (e) {
         console.error("Error generating practice questions:", e);
@@ -1139,16 +1171,39 @@ const packTopicKey = useMemo(() => {
           >
             Class {grade} - {subjectKey} - Practice
           </div>
-          <h1
-            style={{
-              fontSize: "2rem",
-              lineHeight: 1.15,
-              fontWeight: 650,
-              marginBottom: 6,
-            }}
-          >
-            {title}
-          </h1>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+            <h1
+              style={{
+                fontSize: "2rem",
+                lineHeight: 1.15,
+                fontWeight: 650,
+                marginBottom: 6,
+              }}
+            >
+              {title}
+            </h1>
+            {topicParam !== "Generic" && (() => {
+              const levelInfo = getAdaptiveLevelInfo(canonicalTopicKey || topicParam);
+              return (
+                <span
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 5,
+                    padding: "4px 12px",
+                    borderRadius: 999,
+                    backgroundColor: levelInfo.bgColor,
+                    color: levelInfo.color,
+                    fontSize: "0.75rem",
+                    fontWeight: 700,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {levelInfo.emoji} {levelInfo.label}
+                </span>
+              );
+            })()}
+          </div>
           <p
             style={{
               fontSize: "0.9rem",
@@ -1158,9 +1213,9 @@ const packTopicKey = useMemo(() => {
             }}
           >
             Auto-generated{" "}
-            <strong>{questionCount}</strong> questions from your trends engine
-            for this topic. Try them like a mini drill: solve on paper first,
-            then tap <strong>"Show solution"</strong> or <strong>"Get help"</strong> to open mentor modes.
+            <strong>{questionCount}</strong> questions adapted to your mastery level.
+            Solve on paper first, then self-assess with{" "}
+            <strong>"Got it"</strong> or <strong>"Need practice"</strong>.
           </p>
         </section>
 
@@ -1785,11 +1840,109 @@ const packTopicKey = useMemo(() => {
                         </div>
                       </details>
                     </div>
+
+                    {isOpen && !selfAssessments[q.id] && (
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: 8,
+                          marginTop: 10,
+                          padding: "10px 0 2px",
+                          borderTop: "1px solid rgba(148,163,184,0.2)",
+                        }}
+                      >
+                        <span style={{ fontSize: "0.78rem", color: "#64748b", alignSelf: "center" }}>
+                          How did you do?
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelfAssessments((prev) => ({ ...prev, [q.id]: "got_it" }));
+                            const conceptKey = String((q as any).conceptKey ?? (q as any).subtopicKey ?? "");
+                            const diff = String(q.difficulty ?? "Medium");
+                            setSessionTracker((prev) => recordSelfAssessment(prev, q.id, "got_it", conceptKey, diff));
+                          }}
+                          style={{
+                            borderRadius: 999,
+                            padding: "4px 14px",
+                            border: "1px solid rgba(34,197,94,0.6)",
+                            backgroundColor: "#f0fdf4",
+                            fontSize: "0.76rem",
+                            color: "#166534",
+                            cursor: "pointer",
+                            fontWeight: 700,
+                          }}
+                        >
+                          Got it
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelfAssessments((prev) => ({ ...prev, [q.id]: "need_practice" }));
+                            const conceptKey = String((q as any).conceptKey ?? (q as any).subtopicKey ?? "");
+                            const diff = String(q.difficulty ?? "Medium");
+                            setSessionTracker((prev) => recordSelfAssessment(prev, q.id, "need_practice", conceptKey, diff));
+                          }}
+                          style={{
+                            borderRadius: 999,
+                            padding: "4px 14px",
+                            border: "1px solid rgba(239,68,68,0.5)",
+                            backgroundColor: "#fef2f2",
+                            fontSize: "0.76rem",
+                            color: "#991b1b",
+                            cursor: "pointer",
+                            fontWeight: 700,
+                          }}
+                        >
+                          Need practice
+                        </button>
+                      </div>
+                    )}
+                    {selfAssessments[q.id] && (
+                      <div
+                        style={{
+                          marginTop: 8,
+                          fontSize: "0.76rem",
+                          fontWeight: 600,
+                          color: selfAssessments[q.id] === "got_it" ? "#166534" : "#991b1b",
+                        }}
+                      >
+                        {selfAssessments[q.id] === "got_it" ? "✓ Marked as understood" : "⟳ Follow-up queued"}
+                      </div>
+                    )}
 </article>
                 );
               })}
             </div>
           )}
+
+          {(() => {
+            const stats = getSessionStats(sessionTracker);
+            if (stats.total === 0) return null;
+            return (
+              <div
+                style={{
+                  marginTop: 16,
+                  padding: "12px 16px",
+                  borderRadius: 16,
+                  background: "linear-gradient(135deg, #f0fdf4, #ecfdf5)",
+                  border: "1px solid rgba(34,197,94,0.3)",
+                  display: "flex",
+                  gap: 16,
+                  flexWrap: "wrap",
+                  alignItems: "center",
+                  fontSize: "0.8rem",
+                }}
+              >
+                <span style={{ fontWeight: 700, color: "#0f172a" }}>Session Progress</span>
+                <span style={{ color: "#166534" }}>✓ {stats.gotIt} got it</span>
+                <span style={{ color: "#991b1b" }}>⟳ {stats.needPractice} need practice</span>
+                <span style={{ color: "#64748b" }}>
+                  {Math.round(stats.accuracy * 100)}% accuracy
+                </span>
+              </div>
+            );
+          })()}
         </section>
 
 <MentorSolveDrawer

@@ -32,6 +32,8 @@ export interface PracticeSetConfig {
   difficultyMix?: Partial<Record<DifficultyLevel, number>>;
   boardPattern?: BoardPattern;   // optional: Board pattern A–E (derived from section/marks)
   shuffle?: boolean;            // default: true
+  adaptiveMix?: Partial<Record<DifficultyLevel, number>>;
+  priorityConceptKeys?: string[];
 }
 
 export interface ResolvedPracticeSetConfig {
@@ -244,10 +246,28 @@ export function generatePracticeSet(
     return { config: emptyConfig, questions: [] };
   }
 
+  if (cfg.priorityConceptKeys && cfg.priorityConceptKeys.length > 0) {
+    const prioritySet = new Set(cfg.priorityConceptKeys.map((k) => k.toLowerCase()));
+    const priority: CanonicalQuestion[] = [];
+    const rest: CanonicalQuestion[] = [];
+    for (const q of candidates) {
+      const concept = String(
+        (q as any).conceptKey ?? (q as any).subtopicKey ?? ""
+      ).toLowerCase();
+      if (concept && prioritySet.has(concept)) {
+        priority.push(q);
+      } else {
+        rest.push(q);
+      }
+    }
+    candidates = [...priority, ...rest];
+  }
+
   // Group by difficulty.
   const buckets = groupByDifficulty(candidates);
   const hasHard = buckets.Hard.length > 0;
-  const difficultyMix = normaliseDifficultyMix(cfg.difficultyMix, hasHard);
+  const rawMix = cfg.adaptiveMix && !cfg.difficultyMix ? cfg.adaptiveMix : cfg.difficultyMix;
+  const difficultyMix = normaliseDifficultyMix(rawMix, hasHard);
 
   // Compute target counts per difficulty.
   const targetEasy = Math.round(totalQuestions * difficultyMix.Easy);
