@@ -5,6 +5,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import { type PracticeQuestion } from "../data/predictionDataService";
 import { generatePracticeSet, inferBoardPatternFromQuestion, normalizeBoardPattern } from "../data/practiceSetGenerator";
+import { PredictionCore } from "../data/predictionCore";
 import { generateUnifiedPracticeQuestions } from "../data/questionGenerator";
 import { promptDPracticePacks } from "../data/promptDPracticePacks";
 import {
@@ -42,8 +43,15 @@ import {
   getAdaptiveLevelInfo,
   recordSelfAssessment,
   getSessionStats,
+  findFollowUpQuestion,
+  markFollowUpInjected,
   type PracticeSessionTracker,
 } from "../services/adaptivePracticeEngine";
+import {
+  upsertNodeProgress,
+  loadTopicMasterySnapshot,
+  saveTopicMasterySnapshot,
+} from "../services/topicHubMastery";
 import { getTrigRubric } from "../data/contentStrategy/trigonometry/trigonometryRubrics";
 import { getTrianglesRubric } from "../data/contentStrategy/triangles";
 import type {
@@ -250,6 +258,10 @@ function buildPracticeQuestionsFromEngine(args: {
       solutionSteps: anyQ.solutionSteps ?? [],
       explanation: anyQ.explanation ?? "",
       answer: anyQ.answer ?? "",
+      subject: anyQ.subject ?? "",
+      topicKey: anyQ.topicKey ?? "",
+      subtopic: anyQ.subtopic ?? anyQ.conceptKey ?? anyQ.subtopicKey ?? "",
+      format: anyQ.format ?? "",
     } as PracticeQuestion;
   });
 }
@@ -383,6 +395,10 @@ function mapUnifiedQuestionToPractice(question: any, fallbackId: string): Practi
     solutionSteps: Array.isArray(question?.solutionSteps) ? question.solutionSteps : [],
     explanation: String(question?.explanation ?? ""),
     answer: String(question?.answer ?? ""),
+    subject: String(question?.subject ?? ""),
+    topicKey: String(question?.topicKey ?? ""),
+    subtopic: String(question?.subtopic ?? question?.conceptKey ?? question?.subtopicKey ?? ""),
+    format: String(question?.format ?? ""),
   } as PracticeQuestion;
 }
 
@@ -1857,10 +1873,15 @@ const packTopicKey = useMemo(() => {
                         <button
                           type="button"
                           onClick={() => {
-                            setSelfAssessments((prev) => ({ ...prev, [q.id]: "got_it" }));
-                            const conceptKey = String((q as any).conceptKey ?? (q as any).subtopicKey ?? "");
+                            const concept = String(q.subtopic ?? "");
                             const diff = String(q.difficulty ?? "Medium");
-                            setSessionTracker((prev) => recordSelfAssessment(prev, q.id, "got_it", conceptKey, diff));
+                            setSelfAssessments((prev) => ({ ...prev, [q.id]: "got_it" }));
+                            setSessionTracker((prev) => recordSelfAssessment(prev, q.id, "got_it", concept, diff));
+                            const topicK = canonicalTopicKey || topicParam;
+                            const snap = loadTopicMasterySnapshot(topicK);
+                            const nodeId = concept || q.id;
+                            const updated = upsertNodeProgress(snap, nodeId, { score: 100, status: "correct" });
+                            saveTopicMasterySnapshot(updated, topicK);
                           }}
                           style={{
                             borderRadius: 999,
@@ -1878,10 +1899,46 @@ const packTopicKey = useMemo(() => {
                         <button
                           type="button"
                           onClick={() => {
-                            setSelfAssessments((prev) => ({ ...prev, [q.id]: "need_practice" }));
-                            const conceptKey = String((q as any).conceptKey ?? (q as any).subtopicKey ?? "");
+                            const concept = String(q.subtopic ?? "");
                             const diff = String(q.difficulty ?? "Medium");
-                            setSessionTracker((prev) => recordSelfAssessment(prev, q.id, "need_practice", conceptKey, diff));
+                            setSelfAssessments((prev) => ({ ...prev, [q.id]: "need_practice" }));
+                            const nextTracker = recordSelfAssessment(sessionTracker, q.id, "need_practice", concept, diff);
+
+                            const pendingFollowUp = nextTracker.followUpQueue.find(
+                              (f) => f.sourceQuestionId === q.id && f.injectedAtIndex === -1
+                            );
+                            if (pendingFollowUp) {
+                              const currentIds = new Set(filteredQuestions.map((fq) => String(fq.id)));
+                              const allCandidates = PredictionCore.getLikelyQuestionsForConcept(
+                                canonicalTopicKey || topicParam, undefined
+                              );
+                              const followUp = findFollowUpQuestion(
+                                allCandidates,
+                                currentIds,
+                                pendingFollowUp.conceptKey,
+                                pendingFollowUp.difficulty,
+                              );
+                              if (followUp) {
+                                const insertAt = Math.min(idx + 2, filteredQuestions.length);
+                                const mapped = mapUnifiedQuestionToPractice(followUp, `followup-${q.id}`);
+                                setQuestions((prev) => {
+                                  const copy = [...prev];
+                                  copy.splice(insertAt, 0, mapped);
+                                  return copy;
+                                });
+                                setSessionTracker(markFollowUpInjected(nextTracker, q.id, insertAt));
+                              } else {
+                                setSessionTracker(nextTracker);
+                              }
+                            } else {
+                              setSessionTracker(nextTracker);
+                            }
+
+                            const topicK = canonicalTopicKey || topicParam;
+                            const snap = loadTopicMasterySnapshot(topicK);
+                            const nodeId = concept || q.id;
+                            const updated = upsertNodeProgress(snap, nodeId, { score: 20, status: "incorrect" });
+                            saveTopicMasterySnapshot(updated, topicK);
                           }}
                           style={{
                             borderRadius: 999,
