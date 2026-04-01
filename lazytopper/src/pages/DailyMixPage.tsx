@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
-import { generateDailyMix, type DailyMixContext } from "../services/dailyMixGenerator";
+import { generateDailyMix } from "../services/dailyMixService";
+import type { DailyMixContext } from "../services/dailyMixGenerator";
 import { useDailyMixPlayback, type DailyMixItem } from "../services/dailyMixPlayback";
-import { class10TopicRegistry } from "../data/class10TopicRegistry";
+import { canonicalChapters } from "../data/syllabus/cbse10Canonical";
 import {
   loadTopicMasterySnapshot,
   saveTopicMasterySnapshot,
@@ -48,12 +49,15 @@ function computeMasteryScore(snap: TopicHubMasterySnapshot): number {
   return total / nodes.length;
 }
 
-function pickWeightedTopics(_subject: "Maths" | "Science", count: number): string[] {
+function pickWeightedTopics(subject: "Maths" | "Science", count: number): string[] {
+  const subjectId = subject === "Science" ? "science" : "maths";
+  const subjectChapters = canonicalChapters.filter((ch) => ch.subjectId === subjectId);
   const weighted: { key: string; weight: number }[] = [];
-  for (const reg of class10TopicRegistry) {
-    const snap = loadTopicMasterySnapshot(normalizeTopicKey(reg.topicKey) || reg.topicKey);
+  for (const ch of subjectChapters) {
+    const slug = ch.canonicalSlug;
+    const snap = loadTopicMasterySnapshot(normalizeTopicKey(slug) || slug);
     const mastery = computeMasteryScore(snap);
-    weighted.push({ key: reg.topicKey, weight: Math.max(0.1, 1 - mastery) });
+    weighted.push({ key: slug, weight: Math.max(0.1, 1 - mastery) });
   }
   weighted.sort((a, b) => b.weight - a.weight);
   return weighted.slice(0, count).map((w) => w.key);
@@ -132,8 +136,7 @@ export default function DailyMixPage() {
   const [showCelebration, setShowCelebration] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  const sessionLogs = useMemo(() => loadSessionLogs(), []);
-  const streakDays = useMemo(() => computeGlobalStreak(sessionLogs), [sessionLogs]);
+  const [streakDays, setStreakDays] = useState(() => computeGlobalStreak(loadSessionLogs()));
   const currentBadge = useMemo(() => getUnlockedBadge(streakDays), [streakDays]);
   const nextBadge = useMemo(() => getNextBadge(streakDays), [streakDays]);
 
@@ -223,6 +226,9 @@ export default function DailyMixPage() {
       }],
     };
     saveSessionLog(log);
+
+    const updatedLogs = loadSessionLogs();
+    setStreakDays(computeGlobalStreak(updatedLogs));
 
     setTimeout(() => setShowCelebration(false), 4000);
   }, [safeSubject]);
@@ -339,7 +345,7 @@ export default function DailyMixPage() {
             <div style={{ fontSize: 64, marginBottom: 12 }}>🎉</div>
             <h2 style={{ fontWeight: 900, fontSize: 24, margin: 0 }}>Daily Mix Complete!</h2>
             <p style={{ opacity: 0.7, marginTop: 8, fontSize: 15 }}>
-              {streakDays + 1} day streak — keep it going!
+              {streakDays} day streak — keep it going!
             </p>
             {currentBadge && (
               <div style={{ marginTop: 12, padding: "8px 16px", background: "linear-gradient(135deg, #f0f9ff, #e0f2fe)", borderRadius: 12, fontSize: 14, fontWeight: 700 }}>
@@ -549,7 +555,7 @@ export default function DailyMixPage() {
           <div style={{ fontSize: 32 }}>🎉</div>
           <div style={{ fontWeight: 900, fontSize: 18, marginTop: 4 }}>Daily Mix Complete!</div>
           <div style={{ opacity: 0.7, fontSize: 14, marginTop: 4 }}>
-            {streakDays + 1} day streak
+            {streakDays} day streak
             {currentBadge ? ` • ${currentBadge.name}` : ""}
           </div>
           <div style={{ opacity: 0.5, fontSize: 12, marginTop: 8 }}>Come back tomorrow to keep your streak alive!</div>
