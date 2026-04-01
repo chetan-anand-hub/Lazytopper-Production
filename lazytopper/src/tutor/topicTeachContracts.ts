@@ -156,9 +156,9 @@ const topicSpecificSeeds: Record<string, TeachContractSeed> = {
       "close with Therefore/Hence and required proportionality/result.",
     ],
     checkpointQuestion:
-      "Board checkpoint: Which similarity criterion is valid in this {topic} question? Use Given, To Prove, criterion, and Therefore/Hence format.",
+      "Board checkpoint: In △ABC, DE ∥ BC where D is on AB and E is on AC. If AD = 3 cm, DB = 5 cm, and AE = 4.5 cm, find EC. Write Given, theorem, and Therefore/Hence.",
     checkpointAnswer:
-      "Expected answer: Given: [matching angle/side data]. To Prove: [triangles are similar or required relation]. Criterion/Theorem: [AA/SAS/SSS/BPT exact name]. Therefore/Hence: [final similarity/proportionality line].",
+      "Expected answer: Given: △ABC, DE ∥ BC, AD = 3 cm, DB = 5 cm, AE = 4.5 cm. By BPT (Basic Proportionality Theorem): AD/DB = AE/EC. 3/5 = 4.5/EC. EC = (4.5 × 5)/3 = 7.5 cm. Therefore EC = 7.5 cm.",
     commonMistake:
       "Common mistake: skipping correspondence order or criterion name in similarity proofs. This can lose marks in CBSE board checking.",
   },
@@ -166,49 +166,49 @@ const topicSpecificSeeds: Record<string, TeachContractSeed> = {
     ...mathsGeneric,
     goalLine: "Learn {topic} with formula setup and coordinate substitution in CBSE board-writing format.",
     keyIdeas: [
-      "state coordinate points and required relation clearly.",
-      "name the distance/section formula before substitution.",
-      "substitute coordinates carefully with sign discipline.",
-      "conclude with final coordinate/distance statement.",
+      "identify the coordinates of given points and what is to be found (distance, midpoint, section ratio, area).",
+      "name the distance formula √[(x₂−x₁)² + (y₂−y₁)²] or section formula before substitution.",
+      "substitute coordinates carefully with sign discipline — negative coordinates need brackets.",
+      "conclude with the final numerical value including correct units.",
     ],
     checkpointQuestion:
-      "Board checkpoint: In this {topic} question, write Given points, To Find, formula used, and Therefore/Hence final value.",
+      "Board checkpoint: Find the distance between points A(3, −4) and B(−2, 8). Write Given, formula, substitution, and Therefore/Hence.",
     checkpointAnswer:
-      "Expected answer: Given: [coordinates]. To Find: [distance/section]. Criterion/Theorem/Formula: [distance/section formula]. Therefore/Hence: [final computed result].",
+      "Expected answer: Given: A(3, −4), B(−2, 8). Distance formula: d = √[(x₂−x₁)² + (y₂−y₁)²]. d = √[(−2−3)² + (8−(−4))²] = √[(−5)² + (12)²] = √[25 + 144] = √169 = 13 units. Therefore AB = 13 units.",
     commonMistake:
-      "Common mistake: sign errors during coordinate substitution. This can lose marks in CBSE board checking.",
+      "Common mistake: sign errors during coordinate substitution, especially with negative coordinates. This can lose marks in CBSE board checking.",
   },
   trigonometry: {
     ...mathsGeneric,
     goalLine: "Learn {topic} with ratio selection and identity discipline in CBSE board-writing format.",
     keyIdeas: [
-      "define ratio/identity with respect to the chosen angle.",
-      "state the exact identity/formula before substitution.",
-      "track opposite-adjacent-hypotenuse and sign carefully.",
-      "conclude with simplified final value/result and units if needed.",
+      "define sin/cos/tan with respect to the angle in a right triangle: sin θ = opposite/hypotenuse, cos θ = adjacent/hypotenuse.",
+      "state the identity being used (sin²θ + cos²θ = 1, 1 + tan²θ = sec²θ, etc.) before applying it.",
+      "track which side is opposite/adjacent/hypotenuse relative to the chosen angle.",
+      "simplify LHS to match RHS (or vice versa) step by step, never move terms across the equals sign in proofs.",
     ],
     checkpointQuestion:
-      "Board checkpoint: For this {topic} item, write Given, To Find, formula used, and Therefore/Hence conclusion.",
+      "Board checkpoint: Prove that (sin θ / (1 + cos θ)) + ((1 + cos θ) / sin θ) = 2 cosec θ. Write LHS simplification with identity used.",
     checkpointAnswer:
-      "Expected answer: Given: [angle/side data]. To Find: [ratio/value]. Criterion/Theorem/Formula: [trigonometric identity or ratio]. Therefore/Hence: [final simplified value].",
+      "Expected answer: LHS = (sin θ / (1 + cos θ)) + ((1 + cos θ) / sin θ). Take LCM: = [sin²θ + (1 + cos θ)²] / [sin θ(1 + cos θ)]. Expand numerator: sin²θ + 1 + 2cos θ + cos²θ = (sin²θ + cos²θ) + 1 + 2cos θ = 1 + 1 + 2cos θ = 2(1 + cos θ). LHS = 2(1 + cos θ) / [sin θ(1 + cos θ)] = 2/sin θ = 2 cosec θ = RHS. Therefore proved.",
     commonMistake:
-      "Common mistake: selecting the wrong ratio or identity for the given angle setup. This can lose marks in CBSE board checking.",
+      "Common mistake: moving terms across the equals sign in a proof instead of simplifying one side, or selecting the wrong identity. This can lose marks in CBSE board checking.",
   },
   "maths-applications-trigonometry": {
     ...mathsGeneric,
     goalLine: "Learn {topic} with angle-based application setup in CBSE board-writing format.",
     keyIdeas: [
-      "identify the angle of elevation/depression and sketch the relation.",
-      "state the exact formula or trigonometric relation before substitution.",
-      "map distances/heights to the selected ratio with clear correspondence.",
-      "end with the final numerical result and therefore/hence line.",
+      "identify the angle of elevation/depression and draw the right triangle with the horizontal.",
+      "label the height (perpendicular), distance (base), and line of sight (hypotenuse) clearly.",
+      "select the correct ratio: tan θ = height/distance for most height-distance problems.",
+      "substitute the trigonometric value (tan 30° = 1/√3, tan 45° = 1, tan 60° = √3) and solve.",
     ],
     checkpointQuestion:
-      "Board checkpoint: For this {topic} item, write Given data, To Find, formula used, and final Therefore/Hence result.",
+      "Board checkpoint: The angle of elevation of the top of a tower from a point 30 m away from the base is 60°. Find the height of the tower.",
     checkpointAnswer:
-      "Expected answer: Given: [angle and distance data]. To Find: [height/distance result]. Criterion/Theorem/Formula: [chosen trigonometric formula]. Therefore/Hence: [final computed result].",
+      "Expected answer: Given: distance from base = 30 m, angle of elevation = 60°. In the right triangle: tan 60° = height/30. √3 = height/30. Height = 30√3 m ≈ 51.96 m. Therefore the height of the tower is 30√3 m.",
     commonMistake:
-      "Common mistake: choosing the wrong angle or formula in height-distance applications. This can lose marks in CBSE board checking.",
+      "Common mistake: using the wrong trigonometric ratio (sin instead of tan when base and height are given) or confusing angle of elevation with angle of depression. This can lose marks in CBSE board checking.",
   },
   circles: {
     ...mathsGeneric,
@@ -374,17 +374,17 @@ const topicSpecificSeeds: Record<string, TeachContractSeed> = {
     ...scienceGeneric,
     goalLine: "Learn {topic} with process-sequence clarity in CBSE board-writing format.",
     keyIdeas: [
-      "define the biological process and key term first.",
-      "name the governing concept/process relation explicitly.",
-      "explain the sequence with cause-effect logic, body system context, and labels.",
-      "conclude with the asked function/result in crisp exam language.",
+      "define the life process (nutrition, respiration, transportation, excretion) and its key organs.",
+      "name the specific mechanism: e.g., peristalsis, diffusion, osmosis, double circulation.",
+      "trace the process sequence with cause-effect logic: input → organ action → output.",
+      "distinguish plant and animal processes with specific examples (stomata vs alveoli, xylem vs arteries).",
     ],
     checkpointQuestion:
-      "Board checkpoint: For this {topic} question, write Given context, process principle, one reasoning step, and final Therefore/Hence line.",
+      "Board checkpoint: Describe the process of double circulation in human beings. Why is it necessary? Write the pathway of blood flow.",
     checkpointAnswer:
-      "Expected answer: Given: [biological context]. To Prove/Find: [function/outcome]. Principle/Law: [named process concept]. Therefore/Hence: [final biologically correct conclusion].",
+      "Expected answer: Double circulation: blood passes through the heart twice in one complete cycle. Pulmonary circulation: Right ventricle → Pulmonary artery → Lungs (oxygenation) → Pulmonary vein → Left atrium. Systemic circulation: Left ventricle → Aorta → Body organs (oxygen delivery) → Vena cava → Right atrium. It is necessary to keep oxygenated and deoxygenated blood separate for efficient oxygen supply. Therefore double circulation ensures body tissues receive fully oxygenated blood.",
     commonMistake:
-      "Common mistake: listing facts without process sequence or correct terminology. This can lose marks in CBSE board checking.",
+      "Common mistake: confusing pulmonary and systemic circulation directions, or mixing up arteries (carry blood away from heart) with veins. This can lose marks in CBSE board checking.",
   },
   "control-and-co-ordination": {
     ...scienceGeneric,
@@ -436,35 +436,35 @@ const topicSpecificSeeds: Record<string, TeachContractSeed> = {
   },
   "light-reflection-and-refraction-incl-human-eye-prism": {
     ...scienceGeneric,
-    goalLine: "Learn {topic} with ray-rule reasoning in CBSE board-writing format.",
+    goalLine: "Learn {topic} with ray-rule reasoning and sign convention in CBSE board-writing format.",
     keyIdeas: [
-      "state mirror/lens/ray concept with proper sign convention.",
-      "name the governing law/formula before solving.",
-      "trace rays/labels correctly and justify image nature.",
-      "conclude with final observation/result in exam-safe language.",
+      "state the New Cartesian sign convention before applying mirror/lens formula: distances measured from pole/optical centre, along principal axis.",
+      "name the specific formula (1/v + 1/u = 1/f for mirrors, 1/v − 1/u = 1/f for lenses) before substitution.",
+      "trace at least two rays from the object to locate the image and state its nature (real/virtual, inverted/erect, magnified/diminished).",
+      "for human eye topics, explain accommodation, near/far point, and corrective lenses for myopia (concave) and hypermetropia (convex).",
     ],
     checkpointQuestion:
-      "Board checkpoint: For this {topic} prompt, write Given setup, law/formula used, one reasoned step, and final Therefore/Hence conclusion.",
+      "Board checkpoint: A concave mirror produces a 3× magnified real image of an object placed 10 cm from the mirror. Find the image distance and focal length.",
     checkpointAnswer:
-      "Expected answer: Given: [optical setup]. To Prove/Find: [image or value]. Principle/Law: [reflection/refraction/lens formula]. Therefore/Hence: [final image/result statement].",
+      "Expected answer: Given: u = −10 cm (object in front of mirror), m = −3 (real image is inverted). m = −v/u, so −3 = −v/(−10), v = −30 cm. Using mirror formula: 1/v + 1/u = 1/f → 1/(−30) + 1/(−10) = 1/f → −1/30 − 1/10 = 1/f → −4/30 = 1/f → f = −7.5 cm. Therefore image distance = 30 cm (in front of mirror) and focal length = 7.5 cm.",
     commonMistake:
-      "Common mistake: wrong sign convention or unlabeled ray diagram reasoning. This can lose marks in CBSE board checking.",
+      "Common mistake: forgetting to apply sign convention (all distances behind mirror are positive, in front are negative) or confusing magnification sign for real vs virtual images. This can lose marks in CBSE board checking.",
   },
   electricity: {
     ...scienceGeneric,
-    goalLine: "Learn {topic} with circuit-law reasoning in CBSE board-writing format.",
+    goalLine: "Learn {topic} with circuit-law reasoning and Ohm's law in CBSE board-writing format.",
     keyIdeas: [
-      "define current/voltage/resistance/power in context.",
-      "state Ohm's law or circuit rule before calculation.",
-      "show substitution with units and valid series/parallel logic.",
-      "conclude with interpreted result and unit.",
+      "define V = IR (Ohm's law), P = VI = I²R = V²/R and state conditions for applicability.",
+      "for series circuits: same current through all resistors, R_total = R₁ + R₂ + R₃, voltage divides.",
+      "for parallel circuits: same voltage across all resistors, 1/R_total = 1/R₁ + 1/R₂ + 1/R₃, current divides.",
+      "always include units (Ω, A, V, W) and convert between mA/kΩ before substitution.",
     ],
     checkpointQuestion:
-      "Board checkpoint: For this {topic} circuit case, write Given values, law used, one calculation step, and final Therefore/Hence result.",
+      "Board checkpoint: Three resistors of 2 Ω, 3 Ω, and 6 Ω are connected in parallel. Find the equivalent resistance and the total current if a 12 V battery is connected across the combination.",
     checkpointAnswer:
-      "Expected answer: Given: [circuit values]. To Prove/Find: [required electrical quantity]. Principle/Law: [Ohm's law/series-parallel rule]. Therefore/Hence: [final value with unit].",
+      "Expected answer: Given: R₁ = 2 Ω, R₂ = 3 Ω, R₃ = 6 Ω, V = 12 V. 1/R_eq = 1/2 + 1/3 + 1/6 = 3/6 + 2/6 + 1/6 = 6/6 = 1. R_eq = 1 Ω. Total current I = V/R_eq = 12/1 = 12 A. Therefore equivalent resistance = 1 Ω and total current = 12 A.",
     commonMistake:
-      "Common mistake: mixing series and parallel resistance rules or omitting units. This can lose marks in CBSE board checking.",
+      "Common mistake: adding resistances directly in parallel instead of using the reciprocal formula, or forgetting to take the reciprocal at the end. This can lose marks in CBSE board checking.",
   },
   "magnetic-effects-of-electric-current": {
     ...scienceGeneric,
