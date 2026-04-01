@@ -106,6 +106,7 @@ function loadSessionState(topicKey: string): TeachFlowSessionState | null {
     const teachCard = (parsed.teachCard && typeof parsed.teachCard === "object")
       ? parsed.teachCard as TeachCard
       : null;
+    if (phase === "awaiting_answer" && !teachCard && stepCount === 0) return null;
     return {
       topicKey: normalizedKey,
       phase,
