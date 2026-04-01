@@ -41,6 +41,8 @@ function mapQuestionTypeToFormat(type: string | undefined): string {
       return "Assertion-Reasoning";
     case "CaseBased":
       return "Case-Based";
+    case "SourceBased":
+      return "Source-Based";
     case "VeryShort":
       return "VSA";
     case "Diagram":

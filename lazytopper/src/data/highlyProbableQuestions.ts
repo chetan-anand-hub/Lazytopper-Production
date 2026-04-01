@@ -897,6 +897,7 @@ export type HPQQuestionType =
   | "Long"
   | "CaseBased"
   | "AssertionReason"
+  | "SourceBased"
   | "Diagram";
 
 export type HPQDifficulty = "Easy" | "Medium" | "Hard";
