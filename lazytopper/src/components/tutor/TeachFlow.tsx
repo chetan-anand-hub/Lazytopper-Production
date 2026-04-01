@@ -1,6 +1,10 @@
-// src/components/tutor/TeachFlow.tsx
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { DiagramBlock } from "../DiagramBlock";
+import {
+  loadTopicMasterySnapshot,
+  saveTopicMasterySnapshot,
+  upsertNodeProgress,
+} from "../../services/topicHubMastery";
 
 interface TeachFlowProps {
   topicKey: string;
@@ -10,7 +14,7 @@ interface TeachFlowProps {
   onComplete?: () => void;
 }
 
-type Phase = "intro" | "teaching" | "awaiting_answer" | "responding" | "complete";
+type Phase = "intro" | "teaching" | "awaiting_answer" | "responding" | "complete" | "previously_completed";
 
 interface TeachCard {
   goal?: string;
@@ -21,105 +25,236 @@ interface TeachCard {
   checkpoint?: { question?: string; answer?: string };
 }
 
-function extractFeedbackText(payload: any): string {
-  if (!payload) return "Good effort! Let's continue.";
-  const d = payload.data ?? payload;
-  const structured = d.structured ?? d;
+interface TeachFlowSessionState {
+  topicKey: string;
+  phase: Phase;
+  stepCount: number;
+  teachCard: TeachCard | null;
+  aiFeedback: string;
+  history: { role: string; content: string }[];
+  savedAt: number;
+}
 
-  if (typeof d.feedback === "string" && d.feedback.trim())
-    return d.feedback.trim();
-  if (typeof d.responseText === "string" && d.responseText.trim())
-    return d.responseText.trim();
-  if (typeof structured.feedback === "string" && structured.feedback.trim())
-    return structured.feedback.trim();
+const SESSION_STORAGE_PREFIX = "lazytopper.teachFlow.session.";
+const COMPLETION_STORAGE_PREFIX = "lazytopper.teachFlow.completed.";
+const SESSION_TTL_MS = 30 * 60 * 1000;
+
+const VALID_PHASES: ReadonlySet<Phase> = new Set([
+  "intro", "teaching", "awaiting_answer", "responding", "complete", "previously_completed",
+]);
+
+const RESUMABLE_PHASES: ReadonlySet<Phase> = new Set([
+  "teaching", "awaiting_answer", "responding",
+]);
+
+function normalizeTopicKey(topicKey: string): string {
+  return String(topicKey || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9_-]+/g, "_")
+    .replace(/^_+|_+$/g, "") || "topic";
+}
+
+function getSessionKey(topicKey: string): string {
+  return `${SESSION_STORAGE_PREFIX}${normalizeTopicKey(topicKey)}`;
+}
+
+function getCompletionKey(topicKey: string): string {
+  return `${COMPLETION_STORAGE_PREFIX}${normalizeTopicKey(topicKey)}`;
+}
+
+function saveSessionState(topicKey: string, state: TeachFlowSessionState): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(getSessionKey(topicKey), JSON.stringify(state));
+  } catch { /* ignore quota errors */ }
+}
+
+function isValidHistoryItem(item: unknown): item is { role: string; content: string } {
+  if (typeof item !== "object" || item === null) return false;
+  const obj = item as Record<string, unknown>;
+  return typeof obj.role === "string" && typeof obj.content === "string";
+}
+
+function loadSessionState(topicKey: string): TeachFlowSessionState | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(getSessionKey(topicKey));
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Record<string, unknown>;
+    if (typeof parsed !== "object" || parsed === null) return null;
+    const normalizedKey = normalizeTopicKey(topicKey);
+    const storedKey = normalizeTopicKey(String(parsed.topicKey || ""));
+    if (storedKey !== normalizedKey) return null;
+    const savedAt = Number(parsed.savedAt);
+    if (!Number.isFinite(savedAt) || Date.now() - savedAt > SESSION_TTL_MS) {
+      window.localStorage.removeItem(getSessionKey(topicKey));
+      return null;
+    }
+    const phase = String(parsed.phase || "") as Phase;
+    if (!VALID_PHASES.has(phase) || !RESUMABLE_PHASES.has(phase)) return null;
+    const stepCount = Number(parsed.stepCount);
+    if (!Number.isFinite(stepCount) || stepCount < 0 || stepCount > 10) return null;
+    const history = Array.isArray(parsed.history) ? parsed.history.filter(isValidHistoryItem) : [];
+    const aiFeedback = typeof parsed.aiFeedback === "string" ? parsed.aiFeedback : "";
+    const teachCard = (parsed.teachCard && typeof parsed.teachCard === "object")
+      ? parsed.teachCard as TeachCard
+      : null;
+    return {
+      topicKey: normalizedKey,
+      phase,
+      stepCount,
+      teachCard,
+      aiFeedback,
+      history,
+      savedAt,
+    };
+  } catch {
+    return null;
+  }
+}
+
+function clearSessionState(topicKey: string): void {
+  if (typeof window === "undefined") return;
+  try { window.localStorage.removeItem(getSessionKey(topicKey)); } catch { /* */ }
+}
+
+function markTopicCompleted(topicKey: string): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(
+      getCompletionKey(topicKey),
+      JSON.stringify({ topicKey, completedAt: new Date().toISOString() })
+    );
+  } catch { /* */ }
+}
+
+function hasTopicBeenCompleted(topicKey: string): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    return window.localStorage.getItem(getCompletionKey(topicKey)) !== null;
+  } catch {
+    return false;
+  }
+}
+
+function getTopicCompletionDate(topicKey: string): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(getCompletionKey(topicKey));
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return parsed.completedAt || null;
+  } catch {
+    return null;
+  }
+}
+
+function extractFeedbackText(payload: Record<string, unknown>): string {
+  if (!payload) return "Good effort! Let's continue.";
+  const d = (payload.data as Record<string, unknown>) ?? payload;
+  const structured = (d.structured as Record<string, unknown>) ?? d;
+
+  if (typeof d.feedback === "string" && (d.feedback as string).trim())
+    return (d.feedback as string).trim();
+  if (typeof d.responseText === "string" && (d.responseText as string).trim())
+    return (d.responseText as string).trim();
+  if (typeof structured.feedback === "string" && (structured.feedback as string).trim())
+    return (structured.feedback as string).trim();
 
   if (structured.tutor && typeof structured.tutor === "object") {
-    const tutor = structured.tutor;
+    const tutor = structured.tutor as Record<string, unknown>;
     if (tutor.diagnosis && typeof tutor.diagnosis === "object") {
+      const diagnosis = tutor.diagnosis as Record<string, unknown>;
       const parts: string[] = [];
-      if (tutor.diagnosis.analysis) parts.push(String(tutor.diagnosis.analysis));
-      if (tutor.diagnosis.verdict) parts.push(String(tutor.diagnosis.verdict));
+      if (diagnosis.analysis) parts.push(String(diagnosis.analysis));
+      if (diagnosis.verdict) parts.push(String(diagnosis.verdict));
       if (parts.length > 0) return parts.join(" ");
     }
-    if (typeof tutor.explanation === "string" && tutor.explanation.trim())
-      return tutor.explanation.trim();
-    if (typeof tutor.tutor === "string" && tutor.tutor.trim())
-      return tutor.tutor.trim();
+    if (typeof tutor.explanation === "string" && (tutor.explanation as string).trim())
+      return (tutor.explanation as string).trim();
+    if (typeof tutor.tutor === "string" && (tutor.tutor as string).trim())
+      return (tutor.tutor as string).trim();
   }
 
-  if (typeof structured.commonMistake === "string" && structured.commonMistake.trim())
-    return "Watch out: " + structured.commonMistake.trim();
-  if (typeof structured.checkpointAnswer === "string" && structured.checkpointAnswer.trim())
-    return structured.checkpointAnswer.trim();
+  if (typeof structured.commonMistake === "string" && (structured.commonMistake as string).trim())
+    return "Watch out: " + (structured.commonMistake as string).trim();
+  if (typeof structured.checkpointAnswer === "string" && (structured.checkpointAnswer as string).trim())
+    return (structured.checkpointAnswer as string).trim();
 
-  if (typeof d.text === "string" && d.text.trim()) {
+  if (typeof d.text === "string" && (d.text as string).trim()) {
     try {
-      const parsed = JSON.parse(d.text);
+      const parsed = JSON.parse(d.text as string) as Record<string, unknown>;
       if (parsed.checkpointAnswer) return String(parsed.checkpointAnswer).trim();
       if (parsed.commonMistake) return "Watch out: " + String(parsed.commonMistake).trim();
       if (parsed.goalLine) return String(parsed.goalLine).trim();
-    } catch {}
-    return d.text.trim().slice(0, 500);
+    } catch { /* not JSON */ }
+    return (d.text as string).trim().slice(0, 500);
   }
 
-  if (typeof payload.message === "string" && payload.message.trim())
-    return payload.message.trim();
+  if (typeof payload.message === "string" && (payload.message as string).trim())
+    return (payload.message as string).trim();
 
   return "Good effort! Let's continue.";
 }
 
-function extractTeachCard(payload: any): TeachCard | null {
+function extractTeachCard(payload: Record<string, unknown> | null | undefined): TeachCard | null {
   if (!payload) return null;
   if (payload.teach && typeof payload.teach === "object")
     return payload.teach as TeachCard;
-  if (payload.data?.teach && typeof payload.data.teach === "object")
-    return payload.data.teach as TeachCard;
+  const payloadData = payload.data as Record<string, unknown> | undefined;
+  if (payloadData?.teach && typeof payloadData.teach === "object")
+    return payloadData.teach as TeachCard;
 
-  const data = payload.data ?? null;
-  const structured = (data && data.structured) || payload.structured || null;
+  const data = payloadData ?? null;
+  const structured = ((data && (data.structured as Record<string, unknown>)) ||
+    (payload.structured as Record<string, unknown>) ||
+    null) as Record<string, unknown> | null;
   if (structured && (structured.goalLine || structured.keyIdeas || structured.checkpointQuestion)) {
+    const cp = structured.checkpoint as Record<string, unknown> | undefined;
     return {
-      goal: structured.goalLine ?? "",
-      goalLine: structured.goalLine ?? "",
-      keyIdeas: Array.isArray(structured.keyIdeas) ? structured.keyIdeas : [],
+      goal: (structured.goalLine as string) ?? "",
+      goalLine: (structured.goalLine as string) ?? "",
+      keyIdeas: Array.isArray(structured.keyIdeas) ? structured.keyIdeas as string[] : [],
       checkpoint: {
-        question: structured.checkpointQuestion ?? structured.checkpoint?.question ?? "",
-        answer: structured.checkpointAnswer ?? structured.checkpoint?.answer ?? "",
+        question: (structured.checkpointQuestion as string) ?? (cp?.question as string) ?? "",
+        answer: (structured.checkpointAnswer as string) ?? (cp?.answer as string) ?? "",
       },
-      diagram: structured.diagram ?? undefined,
+      diagram: (structured.diagram as TeachCard["diagram"]) ?? undefined,
     };
   }
 
-  const d = data ?? payload;
+  const d = (data ?? payload) as Record<string, unknown>;
   if (d && (d.goalLine || d.keyIdeas || d.checkpointQuestion)) {
+    const cp = d.checkpoint as Record<string, unknown> | undefined;
     return {
-      goal: d.goalLine ?? "",
-      goalLine: d.goalLine ?? "",
-      keyIdeas: Array.isArray(d.keyIdeas) ? d.keyIdeas : [],
+      goal: (d.goalLine as string) ?? "",
+      goalLine: (d.goalLine as string) ?? "",
+      keyIdeas: Array.isArray(d.keyIdeas) ? d.keyIdeas as string[] : [],
       checkpoint: {
-        question: d.checkpointQuestion ?? d.checkpoint?.question ?? "",
-        answer: d.checkpointAnswer ?? d.checkpoint?.answer ?? "",
+        question: (d.checkpointQuestion as string) ?? (cp?.question as string) ?? "",
+        answer: (d.checkpointAnswer as string) ?? (cp?.answer as string) ?? "",
       },
-      diagram: d.diagram ?? undefined,
+      diagram: (d.diagram as TeachCard["diagram"]) ?? undefined,
     };
   }
 
-  if (typeof d?.text === "string" && d.text.trim()) {
+  if (typeof d?.text === "string" && (d.text as string).trim()) {
     try {
-      const parsed = JSON.parse(d.text);
+      const parsed = JSON.parse(d.text as string) as Record<string, unknown>;
       if (parsed.goalLine || parsed.keyIdeas) {
         return {
-          goal: parsed.goalLine ?? "",
-          goalLine: parsed.goalLine ?? "",
-          keyIdeas: Array.isArray(parsed.keyIdeas) ? parsed.keyIdeas : [],
+          goal: (parsed.goalLine as string) ?? "",
+          goalLine: (parsed.goalLine as string) ?? "",
+          keyIdeas: Array.isArray(parsed.keyIdeas) ? parsed.keyIdeas as string[] : [],
           checkpoint: {
-            question: parsed.checkpointQuestion ?? "",
-            answer: parsed.checkpointAnswer ?? "",
+            question: (parsed.checkpointQuestion as string) ?? "",
+            answer: (parsed.checkpointAnswer as string) ?? "",
           },
-          diagram: parsed.diagram ?? undefined,
+          diagram: (parsed.diagram as TeachCard["diagram"]) ?? undefined,
         };
       }
-    } catch {}
+    } catch { /* not JSON */ }
   }
 
   return null;
@@ -132,6 +267,16 @@ function getGoal(card: TeachCard): string {
 function getKeyIdeas(card: TeachCard): string[] {
   const raw = card.keyIdeas || card.keyIdeaBullets || [];
   return Array.isArray(raw) ? raw.map((s) => String(s).trim()).filter(Boolean) : [];
+}
+
+function formatCompletionDate(isoDate: string | null): string {
+  if (!isoDate) return "";
+  try {
+    const d = new Date(isoDate);
+    return d.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+  } catch {
+    return "";
+  }
 }
 
 const styles = {
@@ -155,20 +300,96 @@ const styles = {
   completeTick: { fontSize: 40, marginBottom: 12 } as React.CSSProperties,
   completeMsg: { fontSize: 16, fontWeight: 600, color: "#1a1a2e", marginBottom: 8 } as React.CSSProperties,
   completeSub: { fontSize: 14, color: "#666", marginBottom: 24 } as React.CSSProperties,
+  completedBanner: { background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 12, padding: 24, textAlign: "center", marginBottom: 16 } as React.CSSProperties,
+  completedDate: { fontSize: 13, color: "#888", marginTop: 4 } as React.CSSProperties,
 };
 
 export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete }: TeachFlowProps) {
-  const [phase, setPhase] = useState<Phase>("intro");
-  const [stepCount, setStepCount] = useState(0);
-  const [teachCard, setTeachCard] = useState<TeachCard | null>(null);
+  const wasCompleted = hasTopicBeenCompleted(topicKey);
+  const savedSession = loadSessionState(topicKey);
+
+  const [phase, setPhase] = useState<Phase>(
+    savedSession ? savedSession.phase : wasCompleted ? "previously_completed" : "intro"
+  );
+  const [stepCount, setStepCount] = useState(savedSession?.stepCount ?? 0);
+  const [teachCard, setTeachCard] = useState<TeachCard | null>(savedSession?.teachCard ?? null);
   const [studentAnswer, setStudentAnswer] = useState("");
-  const [aiFeedback, setAiFeedback] = useState("");
+  const [aiFeedback, setAiFeedback] = useState(savedSession?.aiFeedback ?? "");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [history, setHistory] = useState<{ role: string; content: string }[]>([]);
+  const [history, setHistory] = useState<{ role: string; content: string }[]>(savedSession?.history ?? []);
   const abortRef = useRef<AbortController | null>(null);
 
-  async function callMentor(body: object): Promise<any> {
+  const persistSession = useCallback(() => {
+    if (phase === "complete" || phase === "previously_completed" || phase === "intro") return;
+    saveSessionState(topicKey, {
+      topicKey,
+      phase,
+      stepCount,
+      teachCard,
+      aiFeedback,
+      history,
+      savedAt: Date.now(),
+    });
+  }, [topicKey, phase, stepCount, teachCard, aiFeedback, history]);
+
+  useEffect(() => {
+    persistSession();
+  }, [persistSession]);
+
+  useEffect(() => {
+    function handleVisibilityChange() {
+      if (document.visibilityState === "hidden") {
+        persistSession();
+      }
+    }
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, [persistSession]);
+
+  const prevTopicKeyRef = useRef(topicKey);
+  useEffect(() => {
+    if (prevTopicKeyRef.current === topicKey) return;
+    prevTopicKeyRef.current = topicKey;
+    const restored = loadSessionState(topicKey);
+    if (restored) {
+      setPhase(restored.phase);
+      setStepCount(restored.stepCount);
+      setTeachCard(restored.teachCard);
+      setAiFeedback(restored.aiFeedback);
+      setHistory(restored.history);
+    } else if (hasTopicBeenCompleted(topicKey)) {
+      setPhase("previously_completed");
+      setStepCount(0);
+      setTeachCard(null);
+      setAiFeedback("");
+      setHistory([]);
+    } else {
+      setPhase("intro");
+      setStepCount(0);
+      setTeachCard(null);
+      setAiFeedback("");
+      setHistory([]);
+    }
+    setStudentAnswer("");
+    setError(null);
+    setLoading(false);
+  }, [topicKey]);
+
+  function markComplete() {
+    markTopicCompleted(topicKey);
+    clearSessionState(topicKey);
+    const snapshot = loadTopicMasterySnapshot(topicKey);
+    const effectiveNodeId = nodeId ?? topicKey;
+    const updated = upsertNodeProgress(snapshot, effectiveNodeId, {
+      score: 65,
+      status: "partially_correct",
+      band: "checkpoint_passed",
+    });
+    saveTopicMasterySnapshot(updated, topicKey);
+  }
+
+  async function callMentor(body: Record<string, unknown>): Promise<Record<string, unknown>> {
     if (abortRef.current) abortRef.current.abort();
     const controller = new AbortController();
     abortRef.current = controller;
@@ -178,21 +399,21 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete }: Teac
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          mode: (body as any).mode,
-          messages: (body as any).messages,
+          mode: body.mode,
+          messages: body.messages,
           payload: body,
         }),
         signal: controller.signal,
       });
       clearTimeout(timeoutId);
       const raw = await res.text();
-      let payload: any = {};
-      try { payload = raw ? JSON.parse(raw) : {}; } catch { payload = { text: raw }; }
-      if (!res.ok) throw new Error(payload?.error || payload?.message || `Server error ${res.status}`);
+      let payload: Record<string, unknown> = {};
+      try { payload = raw ? JSON.parse(raw) as Record<string, unknown> : {}; } catch { payload = { text: raw }; }
+      if (!res.ok) throw new Error((payload?.error as string) || (payload?.message as string) || `Server error ${res.status}`);
       return payload;
-    } catch (err: any) {
+    } catch (err: unknown) {
       clearTimeout(timeoutId);
-      if (err?.name === "AbortError") throw new Error("The tutor is taking too long. Please try again.");
+      if (err instanceof Error && err.name === "AbortError") throw new Error("The tutor is taking too long. Please try again.");
       throw err;
     }
   }
@@ -213,7 +434,7 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete }: Teac
         nodeId: nodeId ?? `${topicKey}-step-1`,
         messages: [],
       });
-      const card = extractTeachCard(payload) || extractTeachCard(payload?.data);
+      const card = extractTeachCard(payload) || extractTeachCard(payload?.data as Record<string, unknown> | undefined);
       if (card) {
         setTeachCard(card);
         setHistory([{ role: "assistant", content: `${getGoal(card)}. ${getKeyIdeas(card).join(". ")}` }]);
@@ -225,8 +446,9 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete }: Teac
         });
       }
       setPhase("awaiting_answer");
-    } catch (e: any) {
-      setError(e.message || "Something went wrong. Please try again.");
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Something went wrong. Please try again.";
+      setError(msg);
       setPhase("intro");
     } finally {
       setLoading(false);
@@ -252,7 +474,7 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete }: Teac
         messages: newHistory,
         attempt_loop: { student_attempt: { raw_text: studentAnswer.trim() } },
       });
-      const data = payload?.data ?? payload;
+      const data = (payload?.data as Record<string, unknown>) ?? payload;
       const feedback = extractFeedbackText(data);
       const nextCard = extractTeachCard(data);
       setAiFeedback(feedback);
@@ -261,9 +483,15 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete }: Teac
       setStudentAnswer("");
       const nextStep = stepCount + 1;
       setStepCount(nextStep);
-      setPhase(nextStep >= 3 ? "complete" : "awaiting_answer");
-    } catch (e: any) {
-      setError(e.message || "Something went wrong. Please try again.");
+      if (nextStep >= 3) {
+        markComplete();
+        setPhase("complete");
+      } else {
+        setPhase("awaiting_answer");
+      }
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Something went wrong. Please try again.";
+      setError(msg);
       setPhase("awaiting_answer");
     } finally {
       setLoading(false);
@@ -277,6 +505,7 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete }: Teac
   }
 
   function reset() {
+    clearSessionState(topicKey);
     setPhase("intro");
     setStepCount(0);
     setTeachCard(null);
@@ -284,6 +513,38 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete }: Teac
     setAiFeedback("");
     setError(null);
     setHistory([]);
+  }
+
+  function handleSkipToComplete() {
+    markComplete();
+    setPhase("complete");
+  }
+
+  if (phase === "previously_completed") {
+    const completedDate = getTopicCompletionDate(topicKey);
+    return (
+      <div style={styles.container}>
+        <h2 style={styles.heading}>{topicKey}</h2>
+        <div style={styles.completedBanner}>
+          <div style={styles.completeTick}>✓</div>
+          <p style={styles.completeMsg}>Completed — Review Again</p>
+          <p style={styles.completeSub}>
+            You've already completed this lesson. Want to go through it again?
+          </p>
+          {completedDate && (
+            <p style={styles.completedDate}>Completed on {formatCompletionDate(completedDate)}</p>
+          )}
+          <div style={{ marginTop: 16 }}>
+            <button style={styles.primaryBtn} onClick={() => { reset(); startLearning(); }}>
+              Review Again
+            </button>
+            <button style={styles.secondaryBtn} onClick={() => onComplete?.()}>
+              Go to Practice
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (phase === "intro") {
@@ -381,7 +642,7 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete }: Teac
             {loading ? "Checking…" : "Submit Answer"}
           </button>
           {stepCount >= 1 && (
-            <button style={styles.skipBtn} onClick={() => setPhase("complete")}>
+            <button style={styles.skipBtn} onClick={handleSkipToComplete}>
               I already understand this — skip to practice
             </button>
           )}
