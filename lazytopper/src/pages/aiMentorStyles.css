@@ -1,0 +1,389 @@
+/*
+ * Styles for the AI Mentor and Study Plan pages
+ * These styles aim to improve readability, introduce high contrast,
+ * and create a modern, Gen‑Z‑friendly aesthetic. Cards use soft
+ * backgrounds, rounded corners and gentle shadows. Chips and badges
+ * highlight important metadata like tiers and targets.
+ */
+
+/* Variables for colours and spacing */
+:root {
+  --primary-bg: #f5f7fb;
+  --card-bg: #ffffff;
+  --card-border: rgba(0, 0, 0, 0.08);
+  --accent-blue: #537ded;
+  --accent-purple: #6f50ff;
+  --accent-green: #38b37b;
+  --accent-red: #e83b54;
+  --text-dark: #1a1a1a;
+  --text-muted: #6e6e73;
+  --chip-bg-must: rgba(232, 59, 84, 0.1);
+  --chip-bg-high: rgba(111, 80, 255, 0.1);
+  --chip-bg-good: rgba(56, 179, 123, 0.1);
+  --chip-text-must: #e83b54;
+  --chip-text-high: #6f50ff;
+  --chip-text-good: #38b37b;
+  --shadow-light: 0 2px 6px rgba(0,0,0,0.04);
+  --shadow-medium: 0 4px 12px rgba(0,0,0,0.06);
+  --border-radius: 12px;
+  --spacing-small: 8px;
+  --spacing-medium: 16px;
+  --spacing-large: 24px;
+  --font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+
+  /* Study plan specific colours */
+  --math-bg: #eef3fe;
+  --science-bg: #f1f9f2;
+  --tab-bg: #f2f2f7;
+}
+
+body {
+  font-family: var(--font-family);
+  background: var(--primary-bg);
+  color: var(--text-dark);
+  margin: 0;
+  padding: 0;
+}
+
+/* Generic card component */
+.mentor-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-light);
+  padding: var(--spacing-large);
+  margin-bottom: var(--spacing-medium);
+}
+
+.mentor-card h2 {
+  margin-top: 0;
+  font-size: 1.2rem;
+  margin-bottom: var(--spacing-small);
+}
+
+.mentor-card h3 {
+  margin-top: var(--spacing-medium);
+  font-size: 1rem;
+  margin-bottom: var(--spacing-small);
+}
+
+/* Board exam snapshot styling */
+.mentor-board-card {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--spacing-medium);
+}
+
+.mentor-board-card input[type="number"],
+.mentor-board-card input[type="text"],
+.mentor-board-card select {
+  width: 100%;
+  padding: var(--spacing-small);
+  border: 1px solid var(--card-border);
+  border-radius: var(--border-radius);
+  font-size: 0.95rem;
+  background: #f8f9fc;
+  color: var(--text-dark);
+}
+
+.mentor-board-card label span {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+/* Subject and chapter selectors */
+.mentor-subject-row,
+.mentor-chapter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-small);
+  margin-bottom: var(--spacing-medium);
+}
+
+.pill-button {
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  background: var(--chip-bg-good);
+  color: var(--chip-text-good);
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.pill-button--active {
+  background: var(--accent-blue);
+  color: #fff;
+}
+
+.mentor-select {
+  width: 100%;
+  padding: var(--spacing-small);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--card-border);
+  background: #f8f9fc;
+  color: var(--text-dark);
+}
+
+/* Trend & HPQ layout */
+.mentor-trend-hpq {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-medium);
+}
+
+.mentor-trend-hpq .mentor-card {
+  flex: 1;
+}
+
+/* Tier chips */
+.tier-chip {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.tier-chip.must-crack {
+  background: var(--chip-bg-must);
+  color: var(--chip-text-must);
+}
+
+.tier-chip.high-roi {
+  background: var(--chip-bg-high);
+  color: var(--chip-text-high);
+}
+
+.tier-chip.good-to-do {
+  background: var(--chip-bg-good);
+  color: var(--chip-text-good);
+}
+
+/* HPQ stats list */
+.hpq-stats-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+.hpq-stats-list li {
+  margin-bottom: 4px;
+  font-size: 0.9rem;
+}
+
+/* Difficulty mix bar */
+.difficulty-bar {
+  display: flex;
+  width: 100%;
+  height: 10px;
+  margin-top: var(--spacing-small);
+  border-radius: 4px;
+  overflow: hidden;
+  background: #e9ecf5;
+}
+.difficulty-bar span {
+  display: block;
+  height: 100%;
+}
+.difficulty-bar .easy {
+  background: var(--accent-green);
+}
+.difficulty-bar .medium {
+  background: var(--accent-purple);
+}
+.difficulty-bar .hard {
+  background: var(--accent-red);
+}
+
+/* JSON preview collapsible */
+.payload-collapse {
+  margin-top: var(--spacing-medium);
+}
+.payload-collapse details {
+  background: #f8f9fc;
+  border: 1px solid var(--card-border);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-medium);
+}
+.payload-collapse summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--accent-blue);
+}
+
+/* Study plan table */
+.plan-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: var(--spacing-medium);
+}
+.plan-table-header {
+  background: var(--accent-blue);
+  color: #fff;
+  font-weight: 600;
+  border-top-left-radius: var(--border-radius);
+  border-top-right-radius: var(--border-radius);
+}
+.plan-table-header span,
+.plan-table-row span {
+  padding: var(--spacing-small) var(--spacing-medium);
+  display: inline-block;
+  font-size: 0.85rem;
+}
+.plan-table-row:nth-child(even) {
+  background: var(--primary-bg);
+}
+.plan-table-row:nth-child(odd) {
+  background: #fff;
+}
+.plan-actions {
+  display: flex;
+  gap: var(--spacing-small);
+  flex-wrap: wrap;
+}
+.plan-hours {
+  font-weight: 600;
+  margin-right: var(--spacing-small);
+}
+.chip-link {
+  background: var(--chip-bg-good);
+  color: var(--chip-text-good);
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+}
+.chip-link--alt {
+  background: var(--chip-bg-high);
+  color: var(--chip-text-high);
+}
+.chip-link--alt2 {
+  background: var(--chip-bg-must);
+  color: var(--chip-text-must);
+}
+
+/* Summary tags */
+.summary-tags {
+  display: flex;
+  gap: var(--spacing-small);
+  flex-wrap: wrap;
+  margin-bottom: var(--spacing-medium);
+}
+.summary-tag {
+  background: var(--chip-bg-high);
+  color: var(--chip-text-high);
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Tabbed navigation for study plan */
+.plan-tabs {
+  display: flex;
+  margin-bottom: var(--spacing-medium);
+}
+.plan-tab {
+  flex: 1;
+  text-align: center;
+  padding: var(--spacing-small);
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  font-weight: 600;
+}
+.plan-tab.active {
+  border-color: var(--accent-blue);
+  color: var(--accent-blue);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .mentor-trend-hpq {
+    flex-direction: column;
+  }
+  .mentor-board-card {
+    grid-template-columns: 1fr;
+  }
+  .plan-table-header span,
+  .plan-table-row span {
+    font-size: 0.75rem;
+    padding: var(--spacing-small);
+  }
+}
+
+/* Study plan page styling */
+.page.study-plan-page {
+  /* Soft gradient background for Gen‑Z appeal */
+  background: linear-gradient(135deg, #f5f7ff 0%, #fdf6ff 100%);
+  padding-top: var(--spacing-large);
+  padding-bottom: var(--spacing-large);
+}
+
+/* Card container for the study plan */
+.study-plan-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-medium);
+  max-width: 960px;
+  margin: auto;
+  padding: var(--spacing-large);
+}
+
+/* Tabs for switching between Maths and Science */
+.plan-tabs {
+  display: flex;
+  justify-content: center;
+  background: var(--tab-bg);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  margin-bottom: var(--spacing-medium);
+}
+
+.plan-tab {
+  flex: 1;
+  text-align: center;
+  padding: var(--spacing-small) 0;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  user-select: none;
+}
+
+.plan-tab.active {
+  background: var(--accent-blue);
+  color: #fff;
+}
+
+/* Plan blocks with subject-specific backgrounds */
+.plan-block {
+  background: var(--math-bg);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-medium);
+  margin-top: var(--spacing-medium);
+}
+.plan-block.plan-block--science {
+  background: var(--science-bg);
+}
+
+/* Adjust table styling inside plan blocks */
+.plan-table-header {
+  background: none;
+  color: var(--text-dark);
+  font-weight: 600;
+}
+.plan-table-row:nth-child(odd) {
+  background: rgba(83, 125, 237, 0.05);
+}
+.plan-table-row:nth-child(even) {
+  background: rgba(83, 125, 237, 0.02);
+}
+.plan-table-row span {
+  font-size: 0.85rem;
+}

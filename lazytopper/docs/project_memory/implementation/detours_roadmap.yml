@@ -1,0 +1,16 @@
+﻿detours:
+  title: "Detours / Experiments"
+  # Optional: restrict what “safe” files detours can touch (used by drift logic)
+  allowedSystemTouchPrefixes:
+    - "docs/project_memory/"
+    - "scripts/"
+    - "package.json"
+  stages:
+    - id: "D1"
+      title: "Blackbox-ext / automation experiments"
+    - id: "D2"
+      title: "Performance / profiling / bundle size"
+    - id: "D3"
+      title: "Design overhaul / UI polish sprint"
+    - id: "D4"
+      title: "Infra / hosting / deployment experiments"

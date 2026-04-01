@@ -1,0 +1,4 @@
+[tutor] request { tab: "teach", nodeId: "gAA", reason: "open_drawer" }
+[tutor] request { tab: "teach", nodeId: "gSAS", reason: "next_concept" }
+[tutor] request { tab: "examples", nodeId: "gSAS", reason: "tab_examples" }
+[tutor] request { tab: "examples", nodeId: "gSAS", reason: "retry" }

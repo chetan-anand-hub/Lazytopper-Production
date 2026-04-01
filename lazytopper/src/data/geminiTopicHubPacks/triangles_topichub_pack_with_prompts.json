@@ -1,0 +1,171 @@
+{
+  "generator": {
+    "tool": "Gemini",
+    "notes": "TopicHub packs are generated offline and baked into repo (no runtime AI for TopicHub)."
+  },
+  "sourcePromptV1": "SYSTEM / INSTRUCTION\n\nYou are LazyTopper’s “TopicHub Content Generator” for CBSE Class 10 students. Output must be ONLY valid JSON (no markdown, no backticks, no explanations).   INPUTS  grade: {GRADE}\nsubject: {SUBJECT}  (Maths or Science)\ntopicKey: {TOPIC_KEY}  (slug like “triangles”)\ntopicName: {TOPIC_NAME} (like “Triangles”)  OUTPUT FORMAT (strict JSON) Return a single JSON object with these keys exactly: subject (string: “Maths” or “Science”)\ntopicKey (string)\ntopicName (string)\ntier (string: “must-crack” | “high-roi” | “good-to-do”)\noverview (array of 3–5 short strings)\ndefinitions (array of 5–9 objects: {title, description})\nexamPatterns (array of 4–8 strings; CBSE-style question patterns)\nmarkingTips (array of 4–8 strings; common mistakes + what examiner expects)\nscoreTips (array of 4–8 strings; “what to do to score”)\nworkedExamples (array; can be empty OR 1–3 examples)\n\nIf present, each example object must be:\n\n{ title, question, steps (array of strings), finalAnswer }\nquickQuiz (array of 2–5 objects: {title, question})  CONTENT RULES: Be extremely exam-relevant. No motivational fluff.\nPrefer “write this in exam” phrasing in markingTips where needed.\nKeep items short, scannable, Gen-Z readable but still CBSE-serious.\nEnsure correctness (math/science accuracy).\nDon’t include LaTeX unless necessary; if used, keep it minimal.\nMake “definitions” concrete (not vague).\n“workedExamples” steps should be Socratic-friendly: small steps, no jumps.   FINAL CONSTRAINT\nReturn ONLY JSON.",
+  "promptV2_hardened": "SYSTEM / INSTRUCTION\n\nYou are LazyTopper’s “TopicHub Content Generator” for CBSE Class 10 students.\nReturn ONLY valid JSON (no markdown/backticks/explanations). Do not output anything before or after the JSON.\n\nINPUTS\ngrade: {GRADE}\nsubject: {SUBJECT}        // must be exactly \"Maths\" or \"Science\"\ntopicKey: {TOPIC_KEY}     // must match exactly, e.g., \"triangles\"\ntopicName: {TOPIC_NAME}   // must match exactly, e.g., \"Triangles\"\n\nHARD CONSTRAINTS (must follow)\n1) Echo subject/topicKey/topicName EXACTLY as given (character-for-character).\n2) Output ONLY the keys defined in the schema below. No extra keys.\n3) Do NOT rename topics, do NOT drift to other chapters, do NOT mix in unrelated subtopics.\n4) Use CBSE/NCERT standard naming. For similarity, prefer \"AA Similarity\" (not \"AAA\").\n5) Keep counts within bounds (overview 3–5, definitions 5–9, etc.). If unsure, stay in-range.\n6) Worked example steps must be short, Socratic-friendly, and numerically correct.\n\nOUTPUT SCHEMA (strict JSON)\n{\n  \"subject\": \"Maths\" | \"Science\",\n  \"topicKey\": string,\n  \"topicName\": string,\n  \"tier\": \"must-crack\" | \"high-roi\" | \"good-to-do\",\n  \"overview\": string[3..5],\n  \"definitions\": { \"title\": string, \"description\": string }[5..9],\n  \"examPatterns\": string[4..8],\n  \"markingTips\": string[4..8],\n  \"scoreTips\": string[4..8],\n  \"workedExamples\": { \"title\": string, \"question\": string, \"steps\": string[], \"finalAnswer\": string }[0..3],\n  \"quickQuiz\": { \"title\": string, \"question\": string }[2..5]\n}\n\nCONTENT RULES\n- Exam-relevant only. No motivational fluff.\n- Use “write this in exam” phrasing when helpful.\n- Keep it scannable and CBSE-serious.\n- Avoid LaTeX unless absolutely necessary.\n\nFINAL CONSTRAINT\nReturn ONLY JSON.",
+  "topicPackRaw": {
+    "subject": "Maths",
+    "topicKey": "triangles",
+    "topicName": "Triangles",
+    "tier": "must-crack",
+    "overview": [
+      "Focus on Similarity of Triangles (same shape, proportional sizes).",
+      "BPT (Basic Proportionality Theorem) / Thales Theorem is the most critical proof.",
+      "Criteria for Similarity: AAA, SSS, and SAS.",
+      "Applications of similarity in finding heights and distances."
+    ],
+    "definitions": [
+      {
+        "title": "Similar Figures",
+        "description": "Two figures having the same shape but not necessarily the same size."
+      },
+      {
+        "title": "Basic Proportionality Theorem (BPT)",
+        "description": "If a line is drawn parallel to one side of a triangle intersecting the other two sides, the other two sides are divided in the same ratio."
+      },
+      {
+        "title": "AAA Similarity",
+        "description": "If in two triangles, corresponding angles are equal, then their corresponding sides are in the same ratio."
+      },
+      {
+        "title": "SAS Similarity",
+        "description": "If one angle of a triangle is equal to one angle of another triangle and the sides including these angles are proportional, the triangles are similar."
+      },
+      {
+        "title": "SSS Similarity",
+        "description": "If in two triangles, sides of one triangle are proportional to the sides of the other triangle, then their corresponding angles are equal."
+      }
+    ],
+    "examPatterns": [
+      "State and prove Basic Proportionality Theorem (BPT).",
+      "Find the value of x given DE || BC using BPT.",
+      "Prove that two given triangles are similar using SAS/AAA and find missing side.",
+      "Word problems involving shadows and poles (Similarity application)."
+    ],
+    "markingTips": [
+      "Always draw a neat diagram. No diagram often leads to mark deductions.",
+      "Explicitly write 'Given', 'To Prove', and 'Construction' for theorem proofs.",
+      "Mention the specific criterion used (e.g., 'By AA Similarity') next to the step.",
+      "When writing ratios (e.g., AB/DE), ensure vertices correspond correctly (A to D, B to E)."
+    ],
+    "scoreTips": [
+      "Memorize the BPT proof steps; it's a high-frequency 5-marker.",
+      "For MCQ: Remember if triangles are similar, ratio of corresponding altitudes/medians equals the ratio of sides.",
+      "In BPT questions, check if you need AD/DB (part/part) or AD/AB (part/whole).",
+      "Double-check angle correspondence before writing triangle names (e.g., ΔABC ~ ΔDEF)."
+    ],
+    "workedExamples": [
+      {
+        "title": "Applying BPT",
+        "question": "In ΔABC, DE || BC. If AD = 1.5 cm, DB = 3 cm, and AE = 1 cm, find EC.",
+        "steps": [
+          "Identify that DE || BC, so BPT applies.",
+          "Write the BPT formula: AD/DB = AE/EC.",
+          "Substitute values: 1.5/3 = 1/EC.",
+          "Simplify LHS: 1.5/3 = 1/2.",
+          "Equate: 1/2 = 1/EC => EC = 2."
+        ],
+        "finalAnswer": "EC = 2 cm"
+      }
+    ],
+    "quickQuiz": [
+      {
+        "title": "Similarity Check",
+        "question": "Are all equilateral triangles similar?"
+      },
+      {
+        "title": "BPT Condition",
+        "question": "For BPT to apply in ΔABC with line DE intersecting AB and AC, what is the relation between DE and BC?"
+      },
+      {
+        "title": "Symbol Test",
+        "question": "Which symbol denotes similarity: ≅ or ~?"
+      }
+    ]
+  },
+  "topicPackCorrected": {
+    "subject": "Maths",
+    "topicKey": "triangles",
+    "topicName": "Triangles",
+    "tier": "must-crack",
+    "overview": [
+      "Focus on Similarity of Triangles (same shape, proportional sizes).",
+      "BPT (Basic Proportionality Theorem) / Thales Theorem is the most critical proof.",
+      "Criteria for Similarity: AA, SSS, and SAS.",
+      "Applications of similarity in finding heights and distances."
+    ],
+    "definitions": [
+      {
+        "title": "Similar Figures",
+        "description": "Two figures having the same shape but not necessarily the same size."
+      },
+      {
+        "title": "Basic Proportionality Theorem (BPT)",
+        "description": "If a line is drawn parallel to one side of a triangle intersecting the other two sides, the other two sides are divided in the same ratio."
+      },
+      {
+        "title": "AA Similarity",
+        "description": "If in two triangles, two corresponding angles are equal, then the triangles are similar and corresponding sides are proportional."
+      },
+      {
+        "title": "SAS Similarity",
+        "description": "If one angle of a triangle is equal to one angle of another triangle and the sides including these angles are proportional, the triangles are similar."
+      },
+      {
+        "title": "SSS Similarity",
+        "description": "If in two triangles, sides of one triangle are proportional to the sides of the other triangle, then their corresponding angles are equal."
+      }
+    ],
+    "examPatterns": [
+      "State and prove Basic Proportionality Theorem (BPT).",
+      "Find the value of x given DE || BC using BPT.",
+      "Prove that two given triangles are similar using SAS/AA and find missing side.",
+      "Word problems involving shadows and poles (Similarity application)."
+    ],
+    "markingTips": [
+      "Always draw a neat diagram. No diagram often leads to mark deductions.",
+      "Explicitly write 'Given', 'To Prove', and 'Construction' for theorem proofs.",
+      "Mention the specific criterion used (e.g., 'By AA Similarity') next to the step.",
+      "When writing ratios (e.g., AB/DE), ensure vertices correspond correctly (A to D, B to E)."
+    ],
+    "scoreTips": [
+      "Memorize the BPT proof steps; it's a high-frequency 5-marker.",
+      "For MCQ: Remember if triangles are similar, ratio of corresponding altitudes/medians equals the ratio of sides.",
+      "In BPT questions, check if you need AD/DB (part/part) or AD/AB (part/whole).",
+      "Double-check angle correspondence before writing triangle names (e.g., ΔABC ~ ΔDEF)."
+    ],
+    "workedExamples": [
+      {
+        "title": "Applying BPT",
+        "question": "In ΔABC, DE || BC. If AD = 1.5 cm, DB = 3 cm, and AE = 1 cm, find EC.",
+        "steps": [
+          "Identify that DE || BC, so BPT applies.",
+          "Write the BPT formula: AD/DB = AE/EC.",
+          "Substitute values: 1.5/3 = 1/EC.",
+          "Simplify LHS: 1.5/3 = 1/2.",
+          "Equate: 1/2 = 1/EC => EC = 2."
+        ],
+        "finalAnswer": "EC = 2 cm"
+      }
+    ],
+    "quickQuiz": [
+      {
+        "title": "Similarity Check",
+        "question": "Are all equilateral triangles similar?"
+      },
+      {
+        "title": "BPT Condition",
+        "question": "For BPT to apply in ΔABC with line DE intersecting AB and AC, what is the relation between DE and BC?"
+      },
+      {
+        "title": "Symbol Test",
+        "question": "Which symbol denotes similarity: ≅ or ~?"
+      }
+    ]
+  },
+  "correctionsApplied": [
+    "Changed similarity naming to CBSE-standard: AAA -> AA (overview, definition title/description, examPatterns)."
+  ]
+}

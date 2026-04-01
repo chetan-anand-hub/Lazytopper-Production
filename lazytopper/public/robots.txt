@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Ignore private and non-product paths
+Disallow: /api/
+Disallow: /.codex_runs/
+Disallow: /node_modules/
+
+Sitemap: https://lazytopper.app/sitemap.xml

@@ -1,0 +1,4040 @@
+{
+  "summary": {
+    "generatedAt": "2026-03-05T01:32:06.950Z",
+    "filesScanned": 258,
+    "dependencyEdges": 388,
+    "unresolvedLocalImports": 2,
+    "externalImportRefs": 354,
+    "routes": 28,
+    "backendEndpoints": 15,
+    "frontendApiConsumers": 4
+  },
+  "graph": {
+    "nodes": [
+      {
+        "file": "scripts/blackbox.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/bomGuard.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/check-mojibake.cjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/contextpack.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/deploySmoke.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/fix-mojibake-oneoff.cjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/lintCi.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/lintDebtCheck.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/lintDebtFreeze.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/memoryContracts.ts",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/agent2_test_guard.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/agent3_uiux_guard.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/backlog_1_19_acceptance.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/bsre_spike_acceptance.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/canonical_generator_acceptance.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/cbse_registry_alignment_acceptance.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/deletion_batch_regression_acceptance.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/dependency_risk_classification.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/feature_file_matrix.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/half_built_impact_analysis.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/hpq_drift_monitor.entry.ts",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 1
+      },
+      {
+        "file": "scripts/ops/hpq_drift_monitor.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/hpq_phase2_acceptance.entry.ts",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 10
+      },
+      {
+        "file": "scripts/ops/hpq_phase2_acceptance.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/hpq_practice_predictive_standards_acceptance.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/human_tutor_gap_audit.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/llm_path_audit_acceptance.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/matrix_execution_acceptance.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/mojibake_acceptance.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/mojibake_cleaner.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/persona_audit_acceptance.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/phases_1_3_acceptance.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/phases_4_6_acceptance.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/planner_mentor_realism_acceptance.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/practice_weightage_mix_acceptance.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/prediction_bank_health_acceptance.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/pro_tips_product_acceptance.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/repo_boundary_acceptance.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/repo_deep_audit.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/step2_refactor_connectivity_acceptance.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/student_bots_product_experience_acceptance.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/student_progress_acceptance.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/styles_change_impact_acceptance.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/styles_change_impact_graph.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 1
+      },
+      {
+        "file": "scripts/ops/styles_connectivity_acceptance.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/styles_connectivity_graph.mjs",
+        "category": "tooling-script",
+        "indegree": 1,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/styles_delete_change_pass_acceptance.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/styles_restructure_audit_acceptance.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/styles_trim_acceptance.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/styles_trim_candidates.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/styles_uiux_audit.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/topic_diagram_coverage_acceptance.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/topic_grind_contracts_acceptance.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/topichub_doc_alignment_acceptance.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/topichub_human_tutor_all_topics_acceptance.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/topichub_intended_functionality_acceptance.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/triangles_audit.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/triangles_human_tutor_acceptance.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/trig_legacy_retire_acceptance.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/ux_focus_acceptance.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/ux_priority_pack_acceptance.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/ux_priority_step_acceptance.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/work_buddy_auditor.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/ops/work_buddy_full_auditor.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/prebuild.cjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/rulesDigest.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/scopeGuard.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/smoke/mentor-contract-smoke.cjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/smoke/mentor-examples-smoke.cjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/smoke/mentor-gate-smoke.cjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/smoke/mentor-teach-json-smoke.cjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/smoke/mentor-teach-viewmodel-smoke.cjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/stageTracker.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/startSafe.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/trackerAll.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/trackerDoctor.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/trackerServe.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/trackerUi.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/trackerUiLive.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/trackerWatch.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "scripts/tutorEval.mjs",
+        "category": "tooling-script",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "server/index.cjs",
+        "category": "backend",
+        "indegree": 0,
+        "outdegree": 12
+      },
+      {
+        "file": "server/sessionHandlers.cjs",
+        "category": "backend",
+        "indegree": 1,
+        "outdegree": 1
+      },
+      {
+        "file": "server/sessionStore.cjs",
+        "category": "backend",
+        "indegree": 1,
+        "outdegree": 0
+      },
+      {
+        "file": "server/telemetry.cjs",
+        "category": "backend",
+        "indegree": 1,
+        "outdegree": 0
+      },
+      {
+        "file": "server/tutorOrchestrator.cjs",
+        "category": "backend",
+        "indegree": 1,
+        "outdegree": 2
+      },
+      {
+        "file": "src/App.css",
+        "category": "style",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "src/App.tsx",
+        "category": "app-shell",
+        "indegree": 1,
+        "outdegree": 25
+      },
+      {
+        "file": "src/ai/aiClient.ts",
+        "category": "other",
+        "indegree": 3,
+        "outdegree": 1
+      },
+      {
+        "file": "src/components/BackLink.tsx",
+        "category": "component",
+        "indegree": 1,
+        "outdegree": 1
+      },
+      {
+        "file": "src/components/DailyMixPlayer.tsx",
+        "category": "component",
+        "indegree": 2,
+        "outdegree": 1
+      },
+      {
+        "file": "src/components/DailyMixWidget.tsx",
+        "category": "component",
+        "indegree": 1,
+        "outdegree": 3
+      },
+      {
+        "file": "src/components/DiagramBlock.tsx",
+        "category": "component",
+        "indegree": 2,
+        "outdegree": 4
+      },
+      {
+        "file": "src/components/MentorPanel.tsx",
+        "category": "component",
+        "indegree": 1,
+        "outdegree": 7
+      },
+      {
+        "file": "src/components/SessionPlayer.tsx",
+        "category": "component",
+        "indegree": 1,
+        "outdegree": 3
+      },
+      {
+        "file": "src/components/WeeklyWrappedCarousel.tsx",
+        "category": "component",
+        "indegree": 1,
+        "outdegree": 1
+      },
+      {
+        "file": "src/components/WeeklyWrappedWidget.tsx",
+        "category": "component",
+        "indegree": 0,
+        "outdegree": 2
+      },
+      {
+        "file": "src/components/auth/RequireAuth.tsx",
+        "category": "component",
+        "indegree": 2,
+        "outdegree": 1
+      },
+      {
+        "file": "src/components/diagrams/DiagramRenderer.tsx",
+        "category": "component",
+        "indegree": 1,
+        "outdegree": 2
+      },
+      {
+        "file": "src/components/diagrams/TriangleBasicDiagram.tsx",
+        "category": "component",
+        "indegree": 1,
+        "outdegree": 1
+      },
+      {
+        "file": "src/components/mentor/HumanGradeCoachView.tsx",
+        "category": "component",
+        "indegree": 2,
+        "outdegree": 1
+      },
+      {
+        "file": "src/components/planner/StudyPlannerView.tsx",
+        "category": "component",
+        "indegree": 1,
+        "outdegree": 5
+      },
+      {
+        "file": "src/components/question/QuestionVisualAid.tsx",
+        "category": "component",
+        "indegree": 3,
+        "outdegree": 0
+      },
+      {
+        "file": "src/components/tutor/TutorDrawerV2.tsx",
+        "category": "component",
+        "indegree": 1,
+        "outdegree": 8
+      },
+      {
+        "file": "src/components/ux/JourneyStrip.tsx",
+        "category": "component",
+        "indegree": 4,
+        "outdegree": 0
+      },
+      {
+        "file": "src/components/ux/ReturnContextBar.tsx",
+        "category": "component",
+        "indegree": 4,
+        "outdegree": 0
+      },
+      {
+        "file": "src/config/cbseDates.ts",
+        "category": "other",
+        "indegree": 1,
+        "outdegree": 0
+      },
+      {
+        "file": "src/context/AuthContext.tsx",
+        "category": "context",
+        "indegree": 8,
+        "outdegree": 3
+      },
+      {
+        "file": "src/context/ProfileContext.tsx",
+        "category": "context",
+        "indegree": 3,
+        "outdegree": 3
+      },
+      {
+        "file": "src/context/vibeModeContext.tsx",
+        "category": "context",
+        "indegree": 7,
+        "outdegree": 0
+      },
+      {
+        "file": "src/contracts/tutorContracts.ts",
+        "category": "other",
+        "indegree": 2,
+        "outdegree": 0
+      },
+      {
+        "file": "src/data/_final/maths-triangles/boardSteps.json",
+        "category": "data",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "src/data/_final/maths-triangles/mentor.json",
+        "category": "data",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "src/data/_final/maths-triangles/mindmap.json",
+        "category": "data",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "src/data/_final/maths-triangles/topicHub.json",
+        "category": "data",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "src/data/_finalGenerated/triangles.mentor.ts",
+        "category": "data",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "src/data/blueprintConfig.ts",
+        "category": "data",
+        "indegree": 0,
+        "outdegree": 1
+      },
+      {
+        "file": "src/data/boardSteps/boardSteps_maths_2025_26.ts",
+        "category": "data",
+        "indegree": 1,
+        "outdegree": 1
+      },
+      {
+        "file": "src/data/boardSteps/boardSteps_science_2025_26.ts",
+        "category": "data",
+        "indegree": 1,
+        "outdegree": 1
+      },
+      {
+        "file": "src/data/boardSteps/index.ts",
+        "category": "data",
+        "indegree": 1,
+        "outdegree": 3
+      },
+      {
+        "file": "src/data/boardSteps/types.ts",
+        "category": "data",
+        "indegree": 3,
+        "outdegree": 0
+      },
+      {
+        "file": "src/data/bsre/bsre_schema_v1.json",
+        "category": "data",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "src/data/bsre/triangles_bsre_fixtures_v1.json",
+        "category": "data",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "src/data/bsre/triangles_bsre_rubrics_v1.json",
+        "category": "data",
+        "indegree": 1,
+        "outdegree": 0
+      },
+      {
+        "file": "src/data/canonicalQuestionBank.ts",
+        "category": "data",
+        "indegree": 2,
+        "outdegree": 1
+      },
+      {
+        "file": "src/data/cbseCompetencyPolicy.ts",
+        "category": "data",
+        "indegree": 1,
+        "outdegree": 0
+      },
+      {
+        "file": "src/data/class10ContentConfig.ts",
+        "category": "data",
+        "indegree": 1,
+        "outdegree": 0
+      },
+      {
+        "file": "src/data/class10MathTopicTrends.ts",
+        "category": "data",
+        "indegree": 16,
+        "outdegree": 0
+      },
+      {
+        "file": "src/data/class10MathTopicWeights.ts",
+        "category": "data",
+        "indegree": 2,
+        "outdegree": 0
+      },
+      {
+        "file": "src/data/class10SciencePredictiveEngine.ts",
+        "category": "data",
+        "indegree": 2,
+        "outdegree": 1
+      },
+      {
+        "file": "src/data/class10ScienceTopicTrends.ts",
+        "category": "data",
+        "indegree": 18,
+        "outdegree": 0
+      },
+      {
+        "file": "src/data/class10TopicRegistry.ts",
+        "category": "data",
+        "indegree": 0,
+        "outdegree": 1
+      },
+      {
+        "file": "src/data/geminiTopicHubPacks/trianglesTopicHubPack.ts",
+        "category": "data",
+        "indegree": 1,
+        "outdegree": 0
+      },
+      {
+        "file": "src/data/geminiTopicHubPacks/triangles_topichub_pack_with_prompts.json",
+        "category": "data",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "src/data/highlyProbableQuestions.ts",
+        "category": "data",
+        "indegree": 8,
+        "outdegree": 5
+      },
+      {
+        "file": "src/data/hpqAdditionsAndDailyMixSeeds.ts",
+        "category": "data",
+        "indegree": 1,
+        "outdegree": 1
+      },
+      {
+        "file": "src/data/practiceFilters.ts",
+        "category": "data",
+        "indegree": 0,
+        "outdegree": 1
+      },
+      {
+        "file": "src/data/practiceSetGenerator.ts",
+        "category": "data",
+        "indegree": 2,
+        "outdegree": 3
+      },
+      {
+        "file": "src/data/predictedQuestions.ts",
+        "category": "data",
+        "indegree": 14,
+        "outdegree": 2
+      },
+      {
+        "file": "src/data/predictedQuestionsAdditions.ts",
+        "category": "data",
+        "indegree": 2,
+        "outdegree": 1
+      },
+      {
+        "file": "src/data/predictedQuestionsScience.ts",
+        "category": "data",
+        "indegree": 11,
+        "outdegree": 1
+      },
+      {
+        "file": "src/data/predictedScienceQuestions.ts",
+        "category": "data",
+        "indegree": 1,
+        "outdegree": 2
+      },
+      {
+        "file": "src/data/prediction.ts",
+        "category": "data",
+        "indegree": 0,
+        "outdegree": 4
+      },
+      {
+        "file": "src/data/predictionCore.ts",
+        "category": "data",
+        "indegree": 5,
+        "outdegree": 9
+      },
+      {
+        "file": "src/data/predictionDataService.ts",
+        "category": "data",
+        "indegree": 2,
+        "outdegree": 2
+      },
+      {
+        "file": "src/data/predictionScoring.ts",
+        "category": "data",
+        "indegree": 1,
+        "outdegree": 1
+      },
+      {
+        "file": "src/data/predictionTypes.ts",
+        "category": "data",
+        "indegree": 7,
+        "outdegree": 0
+      },
+      {
+        "file": "src/data/predictivePapers.ts",
+        "category": "data",
+        "indegree": 4,
+        "outdegree": 1
+      },
+      {
+        "file": "src/data/promptDPracticePacks.ts",
+        "category": "data",
+        "indegree": 1,
+        "outdegree": 0
+      },
+      {
+        "file": "src/data/questionGenerator.ts",
+        "category": "data",
+        "indegree": 1,
+        "outdegree": 6
+      },
+      {
+        "file": "src/data/scienceQuestionAdditions.ts",
+        "category": "data",
+        "indegree": 1,
+        "outdegree": 1
+      },
+      {
+        "file": "src/data/scienceQuestionGenerator.ts",
+        "category": "data",
+        "indegree": 1,
+        "outdegree": 2
+      },
+      {
+        "file": "src/data/syllabus/cbse10Canonical.ts",
+        "category": "data",
+        "indegree": 5,
+        "outdegree": 1
+      },
+      {
+        "file": "src/data/syllabus/cbse10Registry_2025_26.json",
+        "category": "data",
+        "indegree": 1,
+        "outdegree": 0
+      },
+      {
+        "file": "src/data/syllabus/scopePolicy.ts",
+        "category": "data",
+        "indegree": 1,
+        "outdegree": 3
+      },
+      {
+        "file": "src/data/syllabus/topicAliasMap.ts",
+        "category": "data",
+        "indegree": 6,
+        "outdegree": 0
+      },
+      {
+        "file": "src/data/topicHubContent.ts",
+        "category": "data",
+        "indegree": 1,
+        "outdegree": 0
+      },
+      {
+        "file": "src/data/topicHubV2Enrichment.ts",
+        "category": "data",
+        "indegree": 2,
+        "outdegree": 2
+      },
+      {
+        "file": "src/data/topicHubV2Full.ts",
+        "category": "data",
+        "indegree": 7,
+        "outdegree": 1
+      },
+      {
+        "file": "src/data/trianglesGrindMindmap.ts",
+        "category": "data",
+        "indegree": 1,
+        "outdegree": 0
+      },
+      {
+        "file": "src/data/trianglesGuidedMindmap.ts",
+        "category": "data",
+        "indegree": 1,
+        "outdegree": 0
+      },
+      {
+        "file": "src/engine/bsre/evaluator.ts",
+        "category": "engine",
+        "indegree": 2,
+        "outdegree": 1
+      },
+      {
+        "file": "src/engine/bsre/types.ts",
+        "category": "engine",
+        "indegree": 2,
+        "outdegree": 0
+      },
+      {
+        "file": "src/engine/paperEngine.ts",
+        "category": "engine",
+        "indegree": 0,
+        "outdegree": 6
+      },
+      {
+        "file": "src/engine/smartLearningStore.tsx",
+        "category": "engine",
+        "indegree": 5,
+        "outdegree": 3
+      },
+      {
+        "file": "src/engine/smartLearningTypes.ts",
+        "category": "engine",
+        "indegree": 7,
+        "outdegree": 2
+      },
+      {
+        "file": "src/engine/studyPlanner.ts",
+        "category": "engine",
+        "indegree": 1,
+        "outdegree": 1
+      },
+      {
+        "file": "src/main.tsx",
+        "category": "entrypoint",
+        "indegree": 0,
+        "outdegree": 6
+      },
+      {
+        "file": "src/mentors/centralPersona.ts",
+        "category": "other",
+        "indegree": 1,
+        "outdegree": 1
+      },
+      {
+        "file": "src/navigation/practiceNavigation.ts",
+        "category": "other",
+        "indegree": 2,
+        "outdegree": 0
+      },
+      {
+        "file": "src/pages/AiMentorPage.tsx",
+        "category": "page",
+        "indegree": 1,
+        "outdegree": 9
+      },
+      {
+        "file": "src/pages/DailyMixPage.tsx",
+        "category": "page",
+        "indegree": 1,
+        "outdegree": 4
+      },
+      {
+        "file": "src/pages/Dashboard.tsx",
+        "category": "page",
+        "indegree": 1,
+        "outdegree": 13
+      },
+      {
+        "file": "src/pages/HighlyProbableQuestions.tsx",
+        "category": "page",
+        "indegree": 1,
+        "outdegree": 13
+      },
+      {
+        "file": "src/pages/Home.tsx",
+        "category": "page",
+        "indegree": 1,
+        "outdegree": 2
+      },
+      {
+        "file": "src/pages/Login.tsx",
+        "category": "page",
+        "indegree": 1,
+        "outdegree": 5
+      },
+      {
+        "file": "src/pages/MockBuilder.tsx",
+        "category": "page",
+        "indegree": 1,
+        "outdegree": 3
+      },
+      {
+        "file": "src/pages/MockPaper.tsx",
+        "category": "page",
+        "indegree": 1,
+        "outdegree": 7
+      },
+      {
+        "file": "src/pages/Onboarding.tsx",
+        "category": "page",
+        "indegree": 1,
+        "outdegree": 3
+      },
+      {
+        "file": "src/pages/PracticePage.tsx",
+        "category": "page",
+        "indegree": 1,
+        "outdegree": 12
+      },
+      {
+        "file": "src/pages/PredictivePapers.tsx",
+        "category": "page",
+        "indegree": 1,
+        "outdegree": 1
+      },
+      {
+        "file": "src/pages/SessionPlayPage.tsx",
+        "category": "page",
+        "indegree": 1,
+        "outdegree": 2
+      },
+      {
+        "file": "src/pages/StudyPlanPage.tsx",
+        "category": "page",
+        "indegree": 1,
+        "outdegree": 4
+      },
+      {
+        "file": "src/pages/TopicHub.tsx",
+        "category": "page",
+        "indegree": 1,
+        "outdegree": 20
+      },
+      {
+        "file": "src/pages/TopicHubHome.tsx",
+        "category": "page",
+        "indegree": 1,
+        "outdegree": 9
+      },
+      {
+        "file": "src/pages/TrendsPage.tsx",
+        "category": "page",
+        "indegree": 1,
+        "outdegree": 11
+      },
+      {
+        "file": "src/pages/WeeklyWrappedPage.tsx",
+        "category": "page",
+        "indegree": 1,
+        "outdegree": 4
+      },
+      {
+        "file": "src/pages/aiMentorStyles.css",
+        "category": "page",
+        "indegree": 1,
+        "outdegree": 0
+      },
+      {
+        "file": "src/pages/home.css",
+        "category": "page",
+        "indegree": 1,
+        "outdegree": 0
+      },
+      {
+        "file": "src/prediction/backtesting.ts",
+        "category": "other",
+        "indegree": 1,
+        "outdegree": 3
+      },
+      {
+        "file": "src/prediction/bankHealth.ts",
+        "category": "other",
+        "indegree": 2,
+        "outdegree": 1
+      },
+      {
+        "file": "src/prediction/buildTopicKeySources.ts",
+        "category": "other",
+        "indegree": 1,
+        "outdegree": 3
+      },
+      {
+        "file": "src/prediction/constrainedPaperConstructor.ts",
+        "category": "other",
+        "indegree": 4,
+        "outdegree": 0
+      },
+      {
+        "file": "src/prediction/difficultyAutoSuggest.ts",
+        "category": "other",
+        "indegree": 3,
+        "outdegree": 1
+      },
+      {
+        "file": "src/prediction/difficultyAwarePractice.ts",
+        "category": "other",
+        "indegree": 0,
+        "outdegree": 2
+      },
+      {
+        "file": "src/prediction/driftMonitor.ts",
+        "category": "other",
+        "indegree": 2,
+        "outdegree": 2
+      },
+      {
+        "file": "src/prediction/historicalDataset.ts",
+        "category": "other",
+        "indegree": 6,
+        "outdegree": 3
+      },
+      {
+        "file": "src/prediction/hpqConfidence.ts",
+        "category": "other",
+        "indegree": 2,
+        "outdegree": 3
+      },
+      {
+        "file": "src/prediction/probabilisticScoring.ts",
+        "category": "other",
+        "indegree": 5,
+        "outdegree": 1
+      },
+      {
+        "file": "src/print.css",
+        "category": "style",
+        "indegree": 1,
+        "outdegree": 0
+      },
+      {
+        "file": "src/prompts/grind/trianglesGrindContract.ts",
+        "category": "other",
+        "indegree": 1,
+        "outdegree": 0
+      },
+      {
+        "file": "src/services/abFlags.ts",
+        "category": "service",
+        "indegree": 2,
+        "outdegree": 0
+      },
+      {
+        "file": "src/services/cbseExamDate.ts",
+        "category": "service",
+        "indegree": 2,
+        "outdegree": 0
+      },
+      {
+        "file": "src/services/commandIntent.ts",
+        "category": "service",
+        "indegree": 1,
+        "outdegree": 1
+      },
+      {
+        "file": "src/services/commandPaletteConfig.ts",
+        "category": "service",
+        "indegree": 2,
+        "outdegree": 0
+      },
+      {
+        "file": "src/services/dailyMixGenerator.ts",
+        "category": "service",
+        "indegree": 1,
+        "outdegree": 5
+      },
+      {
+        "file": "src/services/dailyMixPlayback.ts",
+        "category": "service",
+        "indegree": 4,
+        "outdegree": 0
+      },
+      {
+        "file": "src/services/dailyMixService.ts",
+        "category": "service",
+        "indegree": 1,
+        "outdegree": 4
+      },
+      {
+        "file": "src/services/firebaseClient.ts",
+        "category": "service",
+        "indegree": 7,
+        "outdegree": 0
+      },
+      {
+        "file": "src/services/mentorServerGate.ts",
+        "category": "service",
+        "indegree": 3,
+        "outdegree": 0
+      },
+      {
+        "file": "src/services/planStorage.ts",
+        "category": "service",
+        "indegree": 2,
+        "outdegree": 3
+      },
+      {
+        "file": "src/services/practiceInsights.ts",
+        "category": "service",
+        "indegree": 6,
+        "outdegree": 1
+      },
+      {
+        "file": "src/services/sessionApi.ts",
+        "category": "service",
+        "indegree": 5,
+        "outdegree": 2
+      },
+      {
+        "file": "src/services/sessionLogger.ts",
+        "category": "service",
+        "indegree": 4,
+        "outdegree": 1
+      },
+      {
+        "file": "src/services/sessionService.ts",
+        "category": "service",
+        "indegree": 0,
+        "outdegree": 1
+      },
+      {
+        "file": "src/services/sessionTypes.ts",
+        "category": "service",
+        "indegree": 2,
+        "outdegree": 0
+      },
+      {
+        "file": "src/services/strategyEngine.ts",
+        "category": "service",
+        "indegree": 3,
+        "outdegree": 1
+      },
+      {
+        "file": "src/services/strategyStorage.ts",
+        "category": "service",
+        "indegree": 1,
+        "outdegree": 1
+      },
+      {
+        "file": "src/services/streakService.ts",
+        "category": "service",
+        "indegree": 0,
+        "outdegree": 1
+      },
+      {
+        "file": "src/services/studentCloudStore.ts",
+        "category": "service",
+        "indegree": 3,
+        "outdegree": 2
+      },
+      {
+        "file": "src/services/studentProgressStore.ts",
+        "category": "service",
+        "indegree": 5,
+        "outdegree": 4
+      },
+      {
+        "file": "src/services/topicHubMastery.ts",
+        "category": "service",
+        "indegree": 3,
+        "outdegree": 1
+      },
+      {
+        "file": "src/services/uxTelemetry.ts",
+        "category": "service",
+        "indegree": 5,
+        "outdegree": 0
+      },
+      {
+        "file": "src/services/weeklyWrapService.ts",
+        "category": "service",
+        "indegree": 0,
+        "outdegree": 1
+      },
+      {
+        "file": "src/services/weeklyWrappedGenerator.ts",
+        "category": "service",
+        "indegree": 3,
+        "outdegree": 1
+      },
+      {
+        "file": "src/styles.css",
+        "category": "style",
+        "indegree": 1,
+        "outdegree": 0
+      },
+      {
+        "file": "src/styles/tokens.css",
+        "category": "style",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "src/tutor/diagram/DiagramSvg.tsx",
+        "category": "tutor-core",
+        "indegree": 1,
+        "outdegree": 1
+      },
+      {
+        "file": "src/tutor/diagram/diagramTemplates.ts",
+        "category": "tutor-core",
+        "indegree": 1,
+        "outdegree": 1
+      },
+      {
+        "file": "src/tutor/diagram/diagramTypes.ts",
+        "category": "tutor-core",
+        "indegree": 4,
+        "outdegree": 0
+      },
+      {
+        "file": "src/tutor/hintLadder.ts",
+        "category": "tutor-core",
+        "indegree": 2,
+        "outdegree": 0
+      },
+      {
+        "file": "src/tutor/retrieval/trianglesRetriever.ts",
+        "category": "tutor-core",
+        "indegree": 1,
+        "outdegree": 0
+      },
+      {
+        "file": "src/tutor/rubricScore.ts",
+        "category": "tutor-core",
+        "indegree": 2,
+        "outdegree": 0
+      },
+      {
+        "file": "src/tutor/topicTeachContracts.ts",
+        "category": "tutor-core",
+        "indegree": 1,
+        "outdegree": 4
+      },
+      {
+        "file": "src/types/MentorRequest.ts",
+        "category": "other",
+        "indegree": 2,
+        "outdegree": 1
+      },
+      {
+        "file": "src/types/mentor.ts",
+        "category": "other",
+        "indegree": 9,
+        "outdegree": 0
+      },
+      {
+        "file": "src/types/navigation.ts",
+        "category": "other",
+        "indegree": 1,
+        "outdegree": 0
+      },
+      {
+        "file": "src/ui/components/CommandPalette.tsx",
+        "category": "ui",
+        "indegree": 1,
+        "outdegree": 2
+      },
+      {
+        "file": "src/ui/components/VibeToggle.tsx",
+        "category": "ui",
+        "indegree": 1,
+        "outdegree": 2
+      },
+      {
+        "file": "src/ui/microcopy/vibeCommandBadgeCopy.ts",
+        "category": "ui",
+        "indegree": 2,
+        "outdegree": 0
+      },
+      {
+        "file": "src/utils/buildStudyPlan.ts",
+        "category": "utility",
+        "indegree": 1,
+        "outdegree": 2
+      },
+      {
+        "file": "src/utils/buildUrl.ts",
+        "category": "utility",
+        "indegree": 5,
+        "outdegree": 0
+      },
+      {
+        "file": "src/utils/getTopicV2Content.ts",
+        "category": "utility",
+        "indegree": 4,
+        "outdegree": 3
+      },
+      {
+        "file": "src/utils/mergeBucketsByTopic.ts",
+        "category": "utility",
+        "indegree": 1,
+        "outdegree": 1
+      },
+      {
+        "file": "src/utils/mockBlueprint.ts",
+        "category": "utility",
+        "indegree": 0,
+        "outdegree": 1
+      },
+      {
+        "file": "src/utils/mockBuilder.ts",
+        "category": "utility",
+        "indegree": 0,
+        "outdegree": 4
+      },
+      {
+        "file": "src/utils/mockPaperEngine.ts",
+        "category": "utility",
+        "indegree": 1,
+        "outdegree": 2
+      },
+      {
+        "file": "src/utils/mockPaperEngineScience.ts",
+        "category": "utility",
+        "indegree": 2,
+        "outdegree": 5
+      },
+      {
+        "file": "src/utils/planEngine.ts",
+        "category": "utility",
+        "indegree": 0,
+        "outdegree": 2
+      },
+      {
+        "file": "src/utils/shareImage.ts",
+        "category": "utility",
+        "indegree": 1,
+        "outdegree": 0
+      },
+      {
+        "file": "src/utils/strategy.ts",
+        "category": "utility",
+        "indegree": 2,
+        "outdegree": 0
+      },
+      {
+        "file": "src/utils/topicHubV2Store.ts",
+        "category": "utility",
+        "indegree": 2,
+        "outdegree": 4
+      },
+      {
+        "file": "src/utils/topicMix.ts",
+        "category": "utility",
+        "indegree": 0,
+        "outdegree": 1
+      },
+      {
+        "file": "src/utils/topicResolver.ts",
+        "category": "utility",
+        "indegree": 9,
+        "outdegree": 2
+      },
+      {
+        "file": "src/utils/useCurrentURL.ts",
+        "category": "utility",
+        "indegree": 4,
+        "outdegree": 0
+      },
+      {
+        "file": "tools/bsre/runFixtures.ts",
+        "category": "tooling-runtime",
+        "indegree": 0,
+        "outdegree": 2
+      },
+      {
+        "file": "tools/pmem/pmem-runner.cjs",
+        "category": "tooling-runtime",
+        "indegree": 0,
+        "outdegree": 0
+      },
+      {
+        "file": "tools/project-memory-blackbox-ext/src/core/keyLoader.ts",
+        "category": "tooling-runtime",
+        "indegree": 0,
+        "outdegree": 0
+      }
+    ],
+    "edges": [
+      {
+        "from": "scripts/ops/hpq_drift_monitor.entry.ts",
+        "to": "src/prediction/driftMonitor.ts"
+      },
+      {
+        "from": "scripts/ops/hpq_phase2_acceptance.entry.ts",
+        "to": "src/data/highlyProbableQuestions.ts"
+      },
+      {
+        "from": "scripts/ops/hpq_phase2_acceptance.entry.ts",
+        "to": "src/data/predictedQuestionsScience.ts"
+      },
+      {
+        "from": "scripts/ops/hpq_phase2_acceptance.entry.ts",
+        "to": "src/data/predictivePapers.ts"
+      },
+      {
+        "from": "scripts/ops/hpq_phase2_acceptance.entry.ts",
+        "to": "src/prediction/backtesting.ts"
+      },
+      {
+        "from": "scripts/ops/hpq_phase2_acceptance.entry.ts",
+        "to": "src/prediction/constrainedPaperConstructor.ts"
+      },
+      {
+        "from": "scripts/ops/hpq_phase2_acceptance.entry.ts",
+        "to": "src/prediction/driftMonitor.ts"
+      },
+      {
+        "from": "scripts/ops/hpq_phase2_acceptance.entry.ts",
+        "to": "src/prediction/historicalDataset.ts"
+      },
+      {
+        "from": "scripts/ops/hpq_phase2_acceptance.entry.ts",
+        "to": "src/prediction/hpqConfidence.ts"
+      },
+      {
+        "from": "scripts/ops/hpq_phase2_acceptance.entry.ts",
+        "to": "src/prediction/probabilisticScoring.ts"
+      },
+      {
+        "from": "scripts/ops/hpq_phase2_acceptance.entry.ts",
+        "to": "src/utils/mockPaperEngineScience.ts"
+      },
+      {
+        "from": "scripts/ops/styles_change_impact_graph.mjs",
+        "to": "scripts/ops/styles_connectivity_graph.mjs"
+      },
+      {
+        "from": "server/index.cjs",
+        "to": "src/contracts/tutorContracts.ts"
+      },
+      {
+        "from": "server/index.cjs",
+        "to": "src/data/bsre/triangles_bsre_rubrics_v1.json"
+      },
+      {
+        "from": "server/index.cjs",
+        "to": "src/engine/bsre/evaluator.ts"
+      },
+      {
+        "from": "server/index.cjs",
+        "to": "src/prompts/grind/trianglesGrindContract.ts"
+      },
+      {
+        "from": "server/index.cjs",
+        "to": "src/tutor/diagram/diagramTemplates.ts"
+      },
+      {
+        "from": "server/index.cjs",
+        "to": "src/tutor/hintLadder.ts"
+      },
+      {
+        "from": "server/index.cjs",
+        "to": "src/tutor/retrieval/trianglesRetriever.ts"
+      },
+      {
+        "from": "server/index.cjs",
+        "to": "src/tutor/rubricScore.ts"
+      },
+      {
+        "from": "server/index.cjs",
+        "to": "src/tutor/topicTeachContracts.ts"
+      },
+      {
+        "from": "server/index.cjs",
+        "to": "server/sessionHandlers.cjs"
+      },
+      {
+        "from": "server/index.cjs",
+        "to": "server/telemetry.cjs"
+      },
+      {
+        "from": "server/index.cjs",
+        "to": "server/tutorOrchestrator.cjs"
+      },
+      {
+        "from": "server/sessionHandlers.cjs",
+        "to": "server/sessionStore.cjs"
+      },
+      {
+        "from": "server/tutorOrchestrator.cjs",
+        "to": "src/tutor/hintLadder.ts"
+      },
+      {
+        "from": "server/tutorOrchestrator.cjs",
+        "to": "src/tutor/rubricScore.ts"
+      },
+      {
+        "from": "src/App.tsx",
+        "to": "src/components/auth/RequireAuth.tsx"
+      },
+      {
+        "from": "src/App.tsx",
+        "to": "src/components/planner/StudyPlannerView.tsx"
+      },
+      {
+        "from": "src/App.tsx",
+        "to": "src/context/AuthContext.tsx"
+      },
+      {
+        "from": "src/App.tsx",
+        "to": "src/context/vibeModeContext.tsx"
+      },
+      {
+        "from": "src/App.tsx",
+        "to": "src/pages/AiMentorPage.tsx"
+      },
+      {
+        "from": "src/App.tsx",
+        "to": "src/pages/DailyMixPage.tsx"
+      },
+      {
+        "from": "src/App.tsx",
+        "to": "src/pages/Dashboard.tsx"
+      },
+      {
+        "from": "src/App.tsx",
+        "to": "src/pages/HighlyProbableQuestions.tsx"
+      },
+      {
+        "from": "src/App.tsx",
+        "to": "src/pages/Home.tsx"
+      },
+      {
+        "from": "src/App.tsx",
+        "to": "src/pages/Login.tsx"
+      },
+      {
+        "from": "src/App.tsx",
+        "to": "src/pages/MockBuilder.tsx"
+      },
+      {
+        "from": "src/App.tsx",
+        "to": "src/pages/MockPaper.tsx"
+      },
+      {
+        "from": "src/App.tsx",
+        "to": "src/pages/Onboarding.tsx"
+      },
+      {
+        "from": "src/App.tsx",
+        "to": "src/pages/PracticePage.tsx"
+      },
+      {
+        "from": "src/App.tsx",
+        "to": "src/pages/PredictivePapers.tsx"
+      },
+      {
+        "from": "src/App.tsx",
+        "to": "src/pages/SessionPlayPage.tsx"
+      },
+      {
+        "from": "src/App.tsx",
+        "to": "src/pages/StudyPlanPage.tsx"
+      },
+      {
+        "from": "src/App.tsx",
+        "to": "src/pages/TopicHub.tsx"
+      },
+      {
+        "from": "src/App.tsx",
+        "to": "src/pages/TopicHubHome.tsx"
+      },
+      {
+        "from": "src/App.tsx",
+        "to": "src/pages/TrendsPage.tsx"
+      },
+      {
+        "from": "src/App.tsx",
+        "to": "src/pages/WeeklyWrappedPage.tsx"
+      },
+      {
+        "from": "src/App.tsx",
+        "to": "src/services/commandIntent.ts"
+      },
+      {
+        "from": "src/App.tsx",
+        "to": "src/ui/components/CommandPalette.tsx"
+      },
+      {
+        "from": "src/App.tsx",
+        "to": "src/ui/components/VibeToggle.tsx"
+      },
+      {
+        "from": "src/App.tsx",
+        "to": "src/utils/topicResolver.ts"
+      },
+      {
+        "from": "src/ai/aiClient.ts",
+        "to": "src/types/mentor.ts"
+      },
+      {
+        "from": "src/components/BackLink.tsx",
+        "to": "src/types/navigation.ts"
+      },
+      {
+        "from": "src/components/DailyMixPlayer.tsx",
+        "to": "src/services/dailyMixPlayback.ts"
+      },
+      {
+        "from": "src/components/DailyMixWidget.tsx",
+        "to": "src/services/dailyMixPlayback.ts"
+      },
+      {
+        "from": "src/components/DailyMixWidget.tsx",
+        "to": "src/services/dailyMixService.ts"
+      },
+      {
+        "from": "src/components/DailyMixWidget.tsx",
+        "to": "src/components/DailyMixPlayer.tsx"
+      },
+      {
+        "from": "src/components/DiagramBlock.tsx",
+        "to": "src/tutor/diagram/DiagramSvg.tsx"
+      },
+      {
+        "from": "src/components/DiagramBlock.tsx",
+        "to": "src/tutor/diagram/diagramTypes.ts"
+      },
+      {
+        "from": "src/components/DiagramBlock.tsx",
+        "to": "src/types/mentor.ts"
+      },
+      {
+        "from": "src/components/DiagramBlock.tsx",
+        "to": "src/components/diagrams/DiagramRenderer.tsx"
+      },
+      {
+        "from": "src/components/MentorPanel.tsx",
+        "to": "src/ai/aiClient.ts"
+      },
+      {
+        "from": "src/components/MentorPanel.tsx",
+        "to": "src/services/abFlags.ts"
+      },
+      {
+        "from": "src/components/MentorPanel.tsx",
+        "to": "src/services/planStorage.ts"
+      },
+      {
+        "from": "src/components/MentorPanel.tsx",
+        "to": "src/services/sessionLogger.ts"
+      },
+      {
+        "from": "src/components/MentorPanel.tsx",
+        "to": "src/types/MentorRequest.ts"
+      },
+      {
+        "from": "src/components/MentorPanel.tsx",
+        "to": "src/types/mentor.ts"
+      },
+      {
+        "from": "src/components/MentorPanel.tsx",
+        "to": "src/components/mentor/HumanGradeCoachView.tsx"
+      },
+      {
+        "from": "src/components/SessionPlayer.tsx",
+        "to": "src/services/dailyMixPlayback.ts"
+      },
+      {
+        "from": "src/components/SessionPlayer.tsx",
+        "to": "src/services/sessionTypes.ts"
+      },
+      {
+        "from": "src/components/SessionPlayer.tsx",
+        "to": "src/components/DailyMixPlayer.tsx"
+      },
+      {
+        "from": "src/components/WeeklyWrappedCarousel.tsx",
+        "to": "src/services/weeklyWrappedGenerator.ts"
+      },
+      {
+        "from": "src/components/WeeklyWrappedWidget.tsx",
+        "to": "src/services/practiceInsights.ts"
+      },
+      {
+        "from": "src/components/WeeklyWrappedWidget.tsx",
+        "to": "src/services/weeklyWrappedGenerator.ts"
+      },
+      {
+        "from": "src/components/auth/RequireAuth.tsx",
+        "to": "src/context/AuthContext.tsx"
+      },
+      {
+        "from": "src/components/diagrams/DiagramRenderer.tsx",
+        "to": "src/types/mentor.ts"
+      },
+      {
+        "from": "src/components/diagrams/DiagramRenderer.tsx",
+        "to": "src/components/diagrams/TriangleBasicDiagram.tsx"
+      },
+      {
+        "from": "src/components/diagrams/TriangleBasicDiagram.tsx",
+        "to": "src/types/mentor.ts"
+      },
+      {
+        "from": "src/components/mentor/HumanGradeCoachView.tsx",
+        "to": "src/types/mentor.ts"
+      },
+      {
+        "from": "src/components/planner/StudyPlannerView.tsx",
+        "to": "src/data/class10MathTopicTrends.ts"
+      },
+      {
+        "from": "src/components/planner/StudyPlannerView.tsx",
+        "to": "src/data/class10ScienceTopicTrends.ts"
+      },
+      {
+        "from": "src/components/planner/StudyPlannerView.tsx",
+        "to": "src/data/predictedQuestions.ts"
+      },
+      {
+        "from": "src/components/planner/StudyPlannerView.tsx",
+        "to": "src/data/predictedScienceQuestions.ts"
+      },
+      {
+        "from": "src/components/planner/StudyPlannerView.tsx",
+        "to": "src/engine/studyPlanner.ts"
+      },
+      {
+        "from": "src/components/tutor/TutorDrawerV2.tsx",
+        "to": "src/contracts/tutorContracts.ts"
+      },
+      {
+        "from": "src/components/tutor/TutorDrawerV2.tsx",
+        "to": "src/services/abFlags.ts"
+      },
+      {
+        "from": "src/components/tutor/TutorDrawerV2.tsx",
+        "to": "src/services/mentorServerGate.ts"
+      },
+      {
+        "from": "src/components/tutor/TutorDrawerV2.tsx",
+        "to": "src/services/sessionApi.ts"
+      },
+      {
+        "from": "src/components/tutor/TutorDrawerV2.tsx",
+        "to": "src/services/sessionLogger.ts"
+      },
+      {
+        "from": "src/components/tutor/TutorDrawerV2.tsx",
+        "to": "src/types/mentor.ts"
+      },
+      {
+        "from": "src/components/tutor/TutorDrawerV2.tsx",
+        "to": "src/components/DiagramBlock.tsx"
+      },
+      {
+        "from": "src/components/tutor/TutorDrawerV2.tsx",
+        "to": "src/components/mentor/HumanGradeCoachView.tsx"
+      },
+      {
+        "from": "src/context/AuthContext.tsx",
+        "to": "src/services/firebaseClient.ts"
+      },
+      {
+        "from": "src/context/AuthContext.tsx",
+        "to": "src/services/studentCloudStore.ts"
+      },
+      {
+        "from": "src/context/AuthContext.tsx",
+        "to": "src/services/studentProgressStore.ts"
+      },
+      {
+        "from": "src/context/ProfileContext.tsx",
+        "to": "src/services/studentCloudStore.ts"
+      },
+      {
+        "from": "src/context/ProfileContext.tsx",
+        "to": "src/utils/strategy.ts"
+      },
+      {
+        "from": "src/context/ProfileContext.tsx",
+        "to": "src/context/AuthContext.tsx"
+      },
+      {
+        "from": "src/data/blueprintConfig.ts",
+        "to": "src/data/predictionTypes.ts"
+      },
+      {
+        "from": "src/data/boardSteps/boardSteps_maths_2025_26.ts",
+        "to": "src/data/boardSteps/types.ts"
+      },
+      {
+        "from": "src/data/boardSteps/boardSteps_science_2025_26.ts",
+        "to": "src/data/boardSteps/types.ts"
+      },
+      {
+        "from": "src/data/boardSteps/index.ts",
+        "to": "src/data/boardSteps/boardSteps_maths_2025_26.ts"
+      },
+      {
+        "from": "src/data/boardSteps/index.ts",
+        "to": "src/data/boardSteps/boardSteps_science_2025_26.ts"
+      },
+      {
+        "from": "src/data/boardSteps/index.ts",
+        "to": "src/data/boardSteps/types.ts"
+      },
+      {
+        "from": "src/data/canonicalQuestionBank.ts",
+        "to": "src/data/predictionTypes.ts"
+      },
+      {
+        "from": "src/data/class10SciencePredictiveEngine.ts",
+        "to": "src/data/predictedQuestions.ts"
+      },
+      {
+        "from": "src/data/class10TopicRegistry.ts",
+        "to": "src/data/class10MathTopicTrends.ts"
+      },
+      {
+        "from": "src/data/highlyProbableQuestions.ts",
+        "to": "src/prediction/hpqConfidence.ts"
+      },
+      {
+        "from": "src/data/highlyProbableQuestions.ts",
+        "to": "src/utils/mergeBucketsByTopic.ts"
+      },
+      {
+        "from": "src/data/highlyProbableQuestions.ts",
+        "to": "src/data/class10ScienceTopicTrends.ts"
+      },
+      {
+        "from": "src/data/highlyProbableQuestions.ts",
+        "to": "src/data/hpqAdditionsAndDailyMixSeeds.ts"
+      },
+      {
+        "from": "src/data/highlyProbableQuestions.ts",
+        "to": "src/data/predictedQuestions.ts"
+      },
+      {
+        "from": "src/data/hpqAdditionsAndDailyMixSeeds.ts",
+        "to": "src/data/highlyProbableQuestions.ts"
+      },
+      {
+        "from": "src/data/practiceFilters.ts",
+        "to": "src/data/predictionDataService.ts"
+      },
+      {
+        "from": "src/data/practiceSetGenerator.ts",
+        "to": "src/prediction/difficultyAutoSuggest.ts"
+      },
+      {
+        "from": "src/data/practiceSetGenerator.ts",
+        "to": "src/data/predictionCore.ts"
+      },
+      {
+        "from": "src/data/practiceSetGenerator.ts",
+        "to": "src/data/predictionTypes.ts"
+      },
+      {
+        "from": "src/data/predictedQuestions.ts",
+        "to": "src/data/class10MathTopicTrends.ts"
+      },
+      {
+        "from": "src/data/predictedQuestions.ts",
+        "to": "src/data/predictedQuestionsAdditions.ts"
+      },
+      {
+        "from": "src/data/predictedQuestionsAdditions.ts",
+        "to": "src/data/predictedQuestions.ts"
+      },
+      {
+        "from": "src/data/predictedQuestionsScience.ts",
+        "to": "src/data/class10ScienceTopicTrends.ts"
+      },
+      {
+        "from": "src/data/predictedScienceQuestions.ts",
+        "to": "src/data/class10SciencePredictiveEngine.ts"
+      },
+      {
+        "from": "src/data/predictedScienceQuestions.ts",
+        "to": "src/data/scienceQuestionAdditions.ts"
+      },
+      {
+        "from": "src/data/prediction.ts",
+        "to": "src/data/class10MathTopicTrends.ts"
+      },
+      {
+        "from": "src/data/prediction.ts",
+        "to": "src/data/class10ScienceTopicTrends.ts"
+      },
+      {
+        "from": "src/data/prediction.ts",
+        "to": "src/data/predictedQuestions.ts"
+      },
+      {
+        "from": "src/data/prediction.ts",
+        "to": "src/data/predictedQuestionsScience.ts"
+      },
+      {
+        "from": "src/data/predictionCore.ts",
+        "to": "src/data/cbseCompetencyPolicy.ts"
+      },
+      {
+        "from": "src/data/predictionCore.ts",
+        "to": "src/prediction/historicalDataset.ts"
+      },
+      {
+        "from": "src/data/predictionCore.ts",
+        "to": "src/prediction/probabilisticScoring.ts"
+      },
+      {
+        "from": "src/data/predictionCore.ts",
+        "to": "src/data/canonicalQuestionBank.ts"
+      },
+      {
+        "from": "src/data/predictionCore.ts",
+        "to": "src/data/class10ScienceTopicTrends.ts"
+      },
+      {
+        "from": "src/data/predictionCore.ts",
+        "to": "src/data/predictedQuestions.ts"
+      },
+      {
+        "from": "src/data/predictionCore.ts",
+        "to": "src/data/predictedQuestionsScience.ts"
+      },
+      {
+        "from": "src/data/predictionCore.ts",
+        "to": "src/data/predictionScoring.ts"
+      },
+      {
+        "from": "src/data/predictionCore.ts",
+        "to": "src/data/predictionTypes.ts"
+      },
+      {
+        "from": "src/data/predictionDataService.ts",
+        "to": "src/data/predictionCore.ts"
+      },
+      {
+        "from": "src/data/predictionDataService.ts",
+        "to": "src/data/predictionTypes.ts"
+      },
+      {
+        "from": "src/data/predictionScoring.ts",
+        "to": "src/data/predictionTypes.ts"
+      },
+      {
+        "from": "src/data/predictivePapers.ts",
+        "to": "src/data/predictedQuestions.ts"
+      },
+      {
+        "from": "src/data/questionGenerator.ts",
+        "to": "src/data/class10MathTopicTrends.ts"
+      },
+      {
+        "from": "src/data/questionGenerator.ts",
+        "to": "src/data/class10ScienceTopicTrends.ts"
+      },
+      {
+        "from": "src/data/questionGenerator.ts",
+        "to": "src/data/predictedQuestions.ts"
+      },
+      {
+        "from": "src/data/questionGenerator.ts",
+        "to": "src/data/predictedQuestionsAdditions.ts"
+      },
+      {
+        "from": "src/data/questionGenerator.ts",
+        "to": "src/data/predictedQuestionsScience.ts"
+      },
+      {
+        "from": "src/data/questionGenerator.ts",
+        "to": "src/data/scienceQuestionGenerator.ts"
+      },
+      {
+        "from": "src/data/scienceQuestionAdditions.ts",
+        "to": "src/data/class10SciencePredictiveEngine.ts"
+      },
+      {
+        "from": "src/data/scienceQuestionGenerator.ts",
+        "to": "src/data/class10ScienceTopicTrends.ts"
+      },
+      {
+        "from": "src/data/scienceQuestionGenerator.ts",
+        "to": "src/data/predictedQuestionsScience.ts"
+      },
+      {
+        "from": "src/data/syllabus/cbse10Canonical.ts",
+        "to": "src/data/syllabus/topicAliasMap.ts"
+      },
+      {
+        "from": "src/data/syllabus/scopePolicy.ts",
+        "to": "src/data/syllabus/cbse10Canonical.ts"
+      },
+      {
+        "from": "src/data/syllabus/scopePolicy.ts",
+        "to": "src/data/syllabus/cbse10Registry_2025_26.json"
+      },
+      {
+        "from": "src/data/syllabus/scopePolicy.ts",
+        "to": "src/data/syllabus/topicAliasMap.ts"
+      },
+      {
+        "from": "src/data/topicHubV2Enrichment.ts",
+        "to": "src/utils/getTopicV2Content.ts"
+      },
+      {
+        "from": "src/data/topicHubV2Enrichment.ts",
+        "to": "src/data/geminiTopicHubPacks/trianglesTopicHubPack.ts"
+      },
+      {
+        "from": "src/data/topicHubV2Full.ts",
+        "to": "src/utils/getTopicV2Content.ts"
+      },
+      {
+        "from": "src/engine/bsre/evaluator.ts",
+        "to": "src/engine/bsre/types.ts"
+      },
+      {
+        "from": "src/engine/paperEngine.ts",
+        "to": "src/data/class10MathTopicTrends.ts"
+      },
+      {
+        "from": "src/engine/paperEngine.ts",
+        "to": "src/data/class10ScienceTopicTrends.ts"
+      },
+      {
+        "from": "src/engine/paperEngine.ts",
+        "to": "src/data/predictedQuestions.ts"
+      },
+      {
+        "from": "src/engine/paperEngine.ts",
+        "to": "src/data/predictedQuestionsScience.ts"
+      },
+      {
+        "from": "src/engine/paperEngine.ts",
+        "to": "src/data/predictivePapers.ts"
+      },
+      {
+        "from": "src/engine/paperEngine.ts",
+        "to": "src/prediction/constrainedPaperConstructor.ts"
+      },
+      {
+        "from": "src/engine/smartLearningStore.tsx",
+        "to": "src/context/AuthContext.tsx"
+      },
+      {
+        "from": "src/engine/smartLearningStore.tsx",
+        "to": "src/services/studentProgressStore.ts"
+      },
+      {
+        "from": "src/engine/smartLearningStore.tsx",
+        "to": "src/engine/smartLearningTypes.ts"
+      },
+      {
+        "from": "src/engine/smartLearningTypes.ts",
+        "to": "src/data/class10ContentConfig.ts"
+      },
+      {
+        "from": "src/engine/smartLearningTypes.ts",
+        "to": "src/data/highlyProbableQuestions.ts"
+      },
+      {
+        "from": "src/engine/studyPlanner.ts",
+        "to": "src/engine/smartLearningTypes.ts"
+      },
+      {
+        "from": "src/main.tsx",
+        "to": "src/App.tsx"
+      },
+      {
+        "from": "src/main.tsx",
+        "to": "src/context/AuthContext.tsx"
+      },
+      {
+        "from": "src/main.tsx",
+        "to": "src/context/ProfileContext.tsx"
+      },
+      {
+        "from": "src/main.tsx",
+        "to": "src/context/vibeModeContext.tsx"
+      },
+      {
+        "from": "src/main.tsx",
+        "to": "src/engine/smartLearningStore.tsx"
+      },
+      {
+        "from": "src/main.tsx",
+        "to": "src/styles.css"
+      },
+      {
+        "from": "src/mentors/centralPersona.ts",
+        "to": "src/types/MentorRequest.ts"
+      },
+      {
+        "from": "src/pages/AiMentorPage.tsx",
+        "to": "src/components/BackLink.tsx"
+      },
+      {
+        "from": "src/pages/AiMentorPage.tsx",
+        "to": "src/components/MentorPanel.tsx"
+      },
+      {
+        "from": "src/pages/AiMentorPage.tsx",
+        "to": "src/data/class10MathTopicTrends.ts"
+      },
+      {
+        "from": "src/pages/AiMentorPage.tsx",
+        "to": "src/data/class10ScienceTopicTrends.ts"
+      },
+      {
+        "from": "src/pages/AiMentorPage.tsx",
+        "to": "src/data/highlyProbableQuestions.ts"
+      },
+      {
+        "from": "src/pages/AiMentorPage.tsx",
+        "to": "src/mentors/centralPersona.ts"
+      },
+      {
+        "from": "src/pages/AiMentorPage.tsx",
+        "to": "src/utils/buildUrl.ts"
+      },
+      {
+        "from": "src/pages/AiMentorPage.tsx",
+        "to": "src/utils/useCurrentURL.ts"
+      },
+      {
+        "from": "src/pages/AiMentorPage.tsx",
+        "to": "src/pages/aiMentorStyles.css"
+      },
+      {
+        "from": "src/pages/DailyMixPage.tsx",
+        "to": "src/components/DailyMixWidget.tsx"
+      },
+      {
+        "from": "src/pages/DailyMixPage.tsx",
+        "to": "src/context/vibeModeContext.tsx"
+      },
+      {
+        "from": "src/pages/DailyMixPage.tsx",
+        "to": "src/data/topicHubV2Full.ts"
+      },
+      {
+        "from": "src/pages/DailyMixPage.tsx",
+        "to": "src/utils/topicResolver.ts"
+      },
+      {
+        "from": "src/pages/Dashboard.tsx",
+        "to": "src/context/AuthContext.tsx"
+      },
+      {
+        "from": "src/pages/Dashboard.tsx",
+        "to": "src/context/ProfileContext.tsx"
+      },
+      {
+        "from": "src/pages/Dashboard.tsx",
+        "to": "src/context/vibeModeContext.tsx"
+      },
+      {
+        "from": "src/pages/Dashboard.tsx",
+        "to": "src/data/topicHubV2Full.ts"
+      },
+      {
+        "from": "src/pages/Dashboard.tsx",
+        "to": "src/engine/smartLearningStore.tsx"
+      },
+      {
+        "from": "src/pages/Dashboard.tsx",
+        "to": "src/engine/smartLearningTypes.ts"
+      },
+      {
+        "from": "src/pages/Dashboard.tsx",
+        "to": "src/services/cbseExamDate.ts"
+      },
+      {
+        "from": "src/pages/Dashboard.tsx",
+        "to": "src/services/planStorage.ts"
+      },
+      {
+        "from": "src/pages/Dashboard.tsx",
+        "to": "src/services/practiceInsights.ts"
+      },
+      {
+        "from": "src/pages/Dashboard.tsx",
+        "to": "src/services/sessionApi.ts"
+      },
+      {
+        "from": "src/pages/Dashboard.tsx",
+        "to": "src/services/strategyEngine.ts"
+      },
+      {
+        "from": "src/pages/Dashboard.tsx",
+        "to": "src/services/studentCloudStore.ts"
+      },
+      {
+        "from": "src/pages/Dashboard.tsx",
+        "to": "src/utils/topicResolver.ts"
+      },
+      {
+        "from": "src/pages/HighlyProbableQuestions.tsx",
+        "to": "src/ai/aiClient.ts"
+      },
+      {
+        "from": "src/pages/HighlyProbableQuestions.tsx",
+        "to": "src/components/question/QuestionVisualAid.tsx"
+      },
+      {
+        "from": "src/pages/HighlyProbableQuestions.tsx",
+        "to": "src/components/ux/JourneyStrip.tsx"
+      },
+      {
+        "from": "src/pages/HighlyProbableQuestions.tsx",
+        "to": "src/components/ux/ReturnContextBar.tsx"
+      },
+      {
+        "from": "src/pages/HighlyProbableQuestions.tsx",
+        "to": "src/data/highlyProbableQuestions.ts"
+      },
+      {
+        "from": "src/pages/HighlyProbableQuestions.tsx",
+        "to": "src/engine/smartLearningStore.tsx"
+      },
+      {
+        "from": "src/pages/HighlyProbableQuestions.tsx",
+        "to": "src/engine/smartLearningTypes.ts"
+      },
+      {
+        "from": "src/pages/HighlyProbableQuestions.tsx",
+        "to": "src/navigation/practiceNavigation.ts"
+      },
+      {
+        "from": "src/pages/HighlyProbableQuestions.tsx",
+        "to": "src/prediction/bankHealth.ts"
+      },
+      {
+        "from": "src/pages/HighlyProbableQuestions.tsx",
+        "to": "src/prediction/buildTopicKeySources.ts"
+      },
+      {
+        "from": "src/pages/HighlyProbableQuestions.tsx",
+        "to": "src/services/uxTelemetry.ts"
+      },
+      {
+        "from": "src/pages/HighlyProbableQuestions.tsx",
+        "to": "src/utils/buildUrl.ts"
+      },
+      {
+        "from": "src/pages/HighlyProbableQuestions.tsx",
+        "to": "src/utils/useCurrentURL.ts"
+      },
+      {
+        "from": "src/pages/Home.tsx",
+        "to": "src/context/AuthContext.tsx"
+      },
+      {
+        "from": "src/pages/Home.tsx",
+        "to": "src/pages/home.css"
+      },
+      {
+        "from": "src/pages/Login.tsx",
+        "to": "src/context/AuthContext.tsx"
+      },
+      {
+        "from": "src/pages/Login.tsx",
+        "to": "src/context/vibeModeContext.tsx"
+      },
+      {
+        "from": "src/pages/Login.tsx",
+        "to": "src/services/firebaseClient.ts"
+      },
+      {
+        "from": "src/pages/Login.tsx",
+        "to": "src/services/sessionApi.ts"
+      },
+      {
+        "from": "src/pages/Login.tsx",
+        "to": "src/services/uxTelemetry.ts"
+      },
+      {
+        "from": "src/pages/MockBuilder.tsx",
+        "to": "src/data/predictedQuestions.ts"
+      },
+      {
+        "from": "src/pages/MockBuilder.tsx",
+        "to": "src/data/predictedQuestionsScience.ts"
+      },
+      {
+        "from": "src/pages/MockBuilder.tsx",
+        "to": "src/utils/buildUrl.ts"
+      },
+      {
+        "from": "src/pages/MockPaper.tsx",
+        "to": "src/components/question/QuestionVisualAid.tsx"
+      },
+      {
+        "from": "src/pages/MockPaper.tsx",
+        "to": "src/data/predictedQuestions.ts"
+      },
+      {
+        "from": "src/pages/MockPaper.tsx",
+        "to": "src/data/predictedQuestionsScience.ts"
+      },
+      {
+        "from": "src/pages/MockPaper.tsx",
+        "to": "src/data/predictivePapers.ts"
+      },
+      {
+        "from": "src/pages/MockPaper.tsx",
+        "to": "src/print.css"
+      },
+      {
+        "from": "src/pages/MockPaper.tsx",
+        "to": "src/utils/mockPaperEngine.ts"
+      },
+      {
+        "from": "src/pages/MockPaper.tsx",
+        "to": "src/utils/mockPaperEngineScience.ts"
+      },
+      {
+        "from": "src/pages/Onboarding.tsx",
+        "to": "src/config/cbseDates.ts"
+      },
+      {
+        "from": "src/pages/Onboarding.tsx",
+        "to": "src/context/ProfileContext.tsx"
+      },
+      {
+        "from": "src/pages/Onboarding.tsx",
+        "to": "src/services/cbseExamDate.ts"
+      },
+      {
+        "from": "src/pages/PracticePage.tsx",
+        "to": "src/ai/aiClient.ts"
+      },
+      {
+        "from": "src/pages/PracticePage.tsx",
+        "to": "src/components/question/QuestionVisualAid.tsx"
+      },
+      {
+        "from": "src/pages/PracticePage.tsx",
+        "to": "src/components/ux/JourneyStrip.tsx"
+      },
+      {
+        "from": "src/pages/PracticePage.tsx",
+        "to": "src/components/ux/ReturnContextBar.tsx"
+      },
+      {
+        "from": "src/pages/PracticePage.tsx",
+        "to": "src/data/boardSteps/index.ts"
+      },
+      {
+        "from": "src/pages/PracticePage.tsx",
+        "to": "src/data/practiceSetGenerator.ts"
+      },
+      {
+        "from": "src/pages/PracticePage.tsx",
+        "to": "src/data/predictionDataService.ts"
+      },
+      {
+        "from": "src/pages/PracticePage.tsx",
+        "to": "src/data/promptDPracticePacks.ts"
+      },
+      {
+        "from": "src/pages/PracticePage.tsx",
+        "to": "src/data/questionGenerator.ts"
+      },
+      {
+        "from": "src/pages/PracticePage.tsx",
+        "to": "src/services/mentorServerGate.ts"
+      },
+      {
+        "from": "src/pages/PracticePage.tsx",
+        "to": "src/services/uxTelemetry.ts"
+      },
+      {
+        "from": "src/pages/PracticePage.tsx",
+        "to": "src/utils/topicResolver.ts"
+      },
+      {
+        "from": "src/pages/PredictivePapers.tsx",
+        "to": "src/data/predictivePapers.ts"
+      },
+      {
+        "from": "src/pages/SessionPlayPage.tsx",
+        "to": "src/components/SessionPlayer.tsx"
+      },
+      {
+        "from": "src/pages/SessionPlayPage.tsx",
+        "to": "src/services/sessionApi.ts"
+      },
+      {
+        "from": "src/pages/StudyPlanPage.tsx",
+        "to": "src/data/class10MathTopicTrends.ts"
+      },
+      {
+        "from": "src/pages/StudyPlanPage.tsx",
+        "to": "src/data/class10ScienceTopicTrends.ts"
+      },
+      {
+        "from": "src/pages/StudyPlanPage.tsx",
+        "to": "src/utils/buildUrl.ts"
+      },
+      {
+        "from": "src/pages/StudyPlanPage.tsx",
+        "to": "src/utils/useCurrentURL.ts"
+      },
+      {
+        "from": "src/pages/TopicHub.tsx",
+        "to": "src/components/DiagramBlock.tsx"
+      },
+      {
+        "from": "src/pages/TopicHub.tsx",
+        "to": "src/components/tutor/TutorDrawerV2.tsx"
+      },
+      {
+        "from": "src/pages/TopicHub.tsx",
+        "to": "src/components/ux/JourneyStrip.tsx"
+      },
+      {
+        "from": "src/pages/TopicHub.tsx",
+        "to": "src/components/ux/ReturnContextBar.tsx"
+      },
+      {
+        "from": "src/pages/TopicHub.tsx",
+        "to": "src/context/vibeModeContext.tsx"
+      },
+      {
+        "from": "src/pages/TopicHub.tsx",
+        "to": "src/data/practiceSetGenerator.ts"
+      },
+      {
+        "from": "src/pages/TopicHub.tsx",
+        "to": "src/data/predictionCore.ts"
+      },
+      {
+        "from": "src/pages/TopicHub.tsx",
+        "to": "src/data/syllabus/cbse10Canonical.ts"
+      },
+      {
+        "from": "src/pages/TopicHub.tsx",
+        "to": "src/data/syllabus/topicAliasMap.ts"
+      },
+      {
+        "from": "src/pages/TopicHub.tsx",
+        "to": "src/data/topicHubV2Full.ts"
+      },
+      {
+        "from": "src/pages/TopicHub.tsx",
+        "to": "src/data/trianglesGrindMindmap.ts"
+      },
+      {
+        "from": "src/pages/TopicHub.tsx",
+        "to": "src/data/trianglesGuidedMindmap.ts"
+      },
+      {
+        "from": "src/pages/TopicHub.tsx",
+        "to": "src/navigation/practiceNavigation.ts"
+      },
+      {
+        "from": "src/pages/TopicHub.tsx",
+        "to": "src/services/mentorServerGate.ts"
+      },
+      {
+        "from": "src/pages/TopicHub.tsx",
+        "to": "src/services/topicHubMastery.ts"
+      },
+      {
+        "from": "src/pages/TopicHub.tsx",
+        "to": "src/services/uxTelemetry.ts"
+      },
+      {
+        "from": "src/pages/TopicHub.tsx",
+        "to": "src/tutor/diagram/diagramTypes.ts"
+      },
+      {
+        "from": "src/pages/TopicHub.tsx",
+        "to": "src/types/mentor.ts"
+      },
+      {
+        "from": "src/pages/TopicHub.tsx",
+        "to": "src/utils/getTopicV2Content.ts"
+      },
+      {
+        "from": "src/pages/TopicHub.tsx",
+        "to": "src/utils/topicHubV2Store.ts"
+      },
+      {
+        "from": "src/pages/TopicHubHome.tsx",
+        "to": "src/components/auth/RequireAuth.tsx"
+      },
+      {
+        "from": "src/pages/TopicHubHome.tsx",
+        "to": "src/data/syllabus/cbse10Canonical.ts"
+      },
+      {
+        "from": "src/pages/TopicHubHome.tsx",
+        "to": "src/data/syllabus/topicAliasMap.ts"
+      },
+      {
+        "from": "src/pages/TopicHubHome.tsx",
+        "to": "src/data/topicHubV2Full.ts"
+      },
+      {
+        "from": "src/pages/TopicHubHome.tsx",
+        "to": "src/engine/smartLearningStore.tsx"
+      },
+      {
+        "from": "src/pages/TopicHubHome.tsx",
+        "to": "src/engine/smartLearningTypes.ts"
+      },
+      {
+        "from": "src/pages/TopicHubHome.tsx",
+        "to": "src/services/sessionApi.ts"
+      },
+      {
+        "from": "src/pages/TopicHubHome.tsx",
+        "to": "src/services/topicHubMastery.ts"
+      },
+      {
+        "from": "src/pages/TopicHubHome.tsx",
+        "to": "src/utils/topicHubV2Store.ts"
+      },
+      {
+        "from": "src/pages/TrendsPage.tsx",
+        "to": "src/components/ux/JourneyStrip.tsx"
+      },
+      {
+        "from": "src/pages/TrendsPage.tsx",
+        "to": "src/components/ux/ReturnContextBar.tsx"
+      },
+      {
+        "from": "src/pages/TrendsPage.tsx",
+        "to": "src/data/class10MathTopicTrends.ts"
+      },
+      {
+        "from": "src/pages/TrendsPage.tsx",
+        "to": "src/data/class10MathTopicWeights.ts"
+      },
+      {
+        "from": "src/pages/TrendsPage.tsx",
+        "to": "src/data/class10ScienceTopicTrends.ts"
+      },
+      {
+        "from": "src/pages/TrendsPage.tsx",
+        "to": "src/engine/smartLearningStore.tsx"
+      },
+      {
+        "from": "src/pages/TrendsPage.tsx",
+        "to": "src/engine/smartLearningTypes.ts"
+      },
+      {
+        "from": "src/pages/TrendsPage.tsx",
+        "to": "src/services/uxTelemetry.ts"
+      },
+      {
+        "from": "src/pages/TrendsPage.tsx",
+        "to": "src/utils/buildUrl.ts"
+      },
+      {
+        "from": "src/pages/TrendsPage.tsx",
+        "to": "src/utils/topicResolver.ts"
+      },
+      {
+        "from": "src/pages/TrendsPage.tsx",
+        "to": "src/utils/useCurrentURL.ts"
+      },
+      {
+        "from": "src/pages/WeeklyWrappedPage.tsx",
+        "to": "src/components/WeeklyWrappedCarousel.tsx"
+      },
+      {
+        "from": "src/pages/WeeklyWrappedPage.tsx",
+        "to": "src/services/practiceInsights.ts"
+      },
+      {
+        "from": "src/pages/WeeklyWrappedPage.tsx",
+        "to": "src/services/weeklyWrappedGenerator.ts"
+      },
+      {
+        "from": "src/pages/WeeklyWrappedPage.tsx",
+        "to": "src/utils/shareImage.ts"
+      },
+      {
+        "from": "src/prediction/backtesting.ts",
+        "to": "src/prediction/constrainedPaperConstructor.ts"
+      },
+      {
+        "from": "src/prediction/backtesting.ts",
+        "to": "src/prediction/historicalDataset.ts"
+      },
+      {
+        "from": "src/prediction/backtesting.ts",
+        "to": "src/prediction/probabilisticScoring.ts"
+      },
+      {
+        "from": "src/prediction/bankHealth.ts",
+        "to": "src/prediction/difficultyAutoSuggest.ts"
+      },
+      {
+        "from": "src/prediction/buildTopicKeySources.ts",
+        "to": "src/data/class10MathTopicTrends.ts"
+      },
+      {
+        "from": "src/prediction/buildTopicKeySources.ts",
+        "to": "src/data/class10ScienceTopicTrends.ts"
+      },
+      {
+        "from": "src/prediction/buildTopicKeySources.ts",
+        "to": "src/prediction/bankHealth.ts"
+      },
+      {
+        "from": "src/prediction/difficultyAutoSuggest.ts",
+        "to": "src/data/predictionCore.ts"
+      },
+      {
+        "from": "src/prediction/difficultyAwarePractice.ts",
+        "to": "src/data/predictionCore.ts"
+      },
+      {
+        "from": "src/prediction/difficultyAwarePractice.ts",
+        "to": "src/prediction/difficultyAutoSuggest.ts"
+      },
+      {
+        "from": "src/prediction/driftMonitor.ts",
+        "to": "src/data/class10MathTopicTrends.ts"
+      },
+      {
+        "from": "src/prediction/driftMonitor.ts",
+        "to": "src/data/class10ScienceTopicTrends.ts"
+      },
+      {
+        "from": "src/prediction/historicalDataset.ts",
+        "to": "src/data/class10ScienceTopicTrends.ts"
+      },
+      {
+        "from": "src/prediction/historicalDataset.ts",
+        "to": "src/data/predictedQuestions.ts"
+      },
+      {
+        "from": "src/prediction/historicalDataset.ts",
+        "to": "src/data/predictedQuestionsScience.ts"
+      },
+      {
+        "from": "src/prediction/hpqConfidence.ts",
+        "to": "src/data/highlyProbableQuestions.ts"
+      },
+      {
+        "from": "src/prediction/hpqConfidence.ts",
+        "to": "src/prediction/historicalDataset.ts"
+      },
+      {
+        "from": "src/prediction/hpqConfidence.ts",
+        "to": "src/prediction/probabilisticScoring.ts"
+      },
+      {
+        "from": "src/prediction/probabilisticScoring.ts",
+        "to": "src/prediction/historicalDataset.ts"
+      },
+      {
+        "from": "src/services/commandIntent.ts",
+        "to": "src/services/commandPaletteConfig.ts"
+      },
+      {
+        "from": "src/services/dailyMixGenerator.ts",
+        "to": "src/data/highlyProbableQuestions.ts"
+      },
+      {
+        "from": "src/services/dailyMixGenerator.ts",
+        "to": "src/data/topicHubV2Full.ts"
+      },
+      {
+        "from": "src/services/dailyMixGenerator.ts",
+        "to": "src/utils/topicResolver.ts"
+      },
+      {
+        "from": "src/services/dailyMixGenerator.ts",
+        "to": "src/services/dailyMixPlayback.ts"
+      },
+      {
+        "from": "src/services/dailyMixGenerator.ts",
+        "to": "src/services/practiceInsights.ts"
+      },
+      {
+        "from": "src/services/dailyMixService.ts",
+        "to": "src/data/canonicalQuestionBank.ts"
+      },
+      {
+        "from": "src/services/dailyMixService.ts",
+        "to": "src/data/predictionTypes.ts"
+      },
+      {
+        "from": "src/services/dailyMixService.ts",
+        "to": "src/data/topicHubContent.ts"
+      },
+      {
+        "from": "src/services/dailyMixService.ts",
+        "to": "src/services/dailyMixGenerator.ts"
+      },
+      {
+        "from": "src/services/planStorage.ts",
+        "to": "src/services/strategyEngine.ts"
+      },
+      {
+        "from": "src/services/planStorage.ts",
+        "to": "src/services/strategyStorage.ts"
+      },
+      {
+        "from": "src/services/planStorage.ts",
+        "to": "src/services/studentProgressStore.ts"
+      },
+      {
+        "from": "src/services/practiceInsights.ts",
+        "to": "src/services/studentProgressStore.ts"
+      },
+      {
+        "from": "src/services/sessionApi.ts",
+        "to": "src/services/firebaseClient.ts"
+      },
+      {
+        "from": "src/services/sessionApi.ts",
+        "to": "src/services/sessionTypes.ts"
+      },
+      {
+        "from": "src/services/sessionLogger.ts",
+        "to": "src/services/firebaseClient.ts"
+      },
+      {
+        "from": "src/services/sessionService.ts",
+        "to": "src/services/firebaseClient.ts"
+      },
+      {
+        "from": "src/services/strategyEngine.ts",
+        "to": "src/utils/buildStudyPlan.ts"
+      },
+      {
+        "from": "src/services/strategyStorage.ts",
+        "to": "src/services/strategyEngine.ts"
+      },
+      {
+        "from": "src/services/streakService.ts",
+        "to": "src/services/sessionLogger.ts"
+      },
+      {
+        "from": "src/services/studentCloudStore.ts",
+        "to": "src/utils/strategy.ts"
+      },
+      {
+        "from": "src/services/studentCloudStore.ts",
+        "to": "src/services/firebaseClient.ts"
+      },
+      {
+        "from": "src/services/studentProgressStore.ts",
+        "to": "src/engine/smartLearningTypes.ts"
+      },
+      {
+        "from": "src/services/studentProgressStore.ts",
+        "to": "src/services/firebaseClient.ts"
+      },
+      {
+        "from": "src/services/studentProgressStore.ts",
+        "to": "src/services/practiceInsights.ts"
+      },
+      {
+        "from": "src/services/studentProgressStore.ts",
+        "to": "src/services/topicHubMastery.ts"
+      },
+      {
+        "from": "src/services/topicHubMastery.ts",
+        "to": "src/services/studentProgressStore.ts"
+      },
+      {
+        "from": "src/services/weeklyWrapService.ts",
+        "to": "src/services/sessionLogger.ts"
+      },
+      {
+        "from": "src/services/weeklyWrappedGenerator.ts",
+        "to": "src/services/practiceInsights.ts"
+      },
+      {
+        "from": "src/tutor/diagram/DiagramSvg.tsx",
+        "to": "src/tutor/diagram/diagramTypes.ts"
+      },
+      {
+        "from": "src/tutor/diagram/diagramTemplates.ts",
+        "to": "src/tutor/diagram/diagramTypes.ts"
+      },
+      {
+        "from": "src/tutor/topicTeachContracts.ts",
+        "to": "src/data/syllabus/cbse10Canonical.ts"
+      },
+      {
+        "from": "src/tutor/topicTeachContracts.ts",
+        "to": "src/data/syllabus/scopePolicy.ts"
+      },
+      {
+        "from": "src/tutor/topicTeachContracts.ts",
+        "to": "src/data/syllabus/topicAliasMap.ts"
+      },
+      {
+        "from": "src/tutor/topicTeachContracts.ts",
+        "to": "src/utils/topicResolver.ts"
+      },
+      {
+        "from": "src/types/MentorRequest.ts",
+        "to": "src/types/mentor.ts"
+      },
+      {
+        "from": "src/ui/components/CommandPalette.tsx",
+        "to": "src/services/commandPaletteConfig.ts"
+      },
+      {
+        "from": "src/ui/components/CommandPalette.tsx",
+        "to": "src/ui/microcopy/vibeCommandBadgeCopy.ts"
+      },
+      {
+        "from": "src/ui/components/VibeToggle.tsx",
+        "to": "src/context/vibeModeContext.tsx"
+      },
+      {
+        "from": "src/ui/components/VibeToggle.tsx",
+        "to": "src/ui/microcopy/vibeCommandBadgeCopy.ts"
+      },
+      {
+        "from": "src/utils/buildStudyPlan.ts",
+        "to": "src/data/class10MathTopicTrends.ts"
+      },
+      {
+        "from": "src/utils/buildStudyPlan.ts",
+        "to": "src/data/class10ScienceTopicTrends.ts"
+      },
+      {
+        "from": "src/utils/getTopicV2Content.ts",
+        "to": "src/data/topicHubV2Enrichment.ts"
+      },
+      {
+        "from": "src/utils/getTopicV2Content.ts",
+        "to": "src/data/topicHubV2Full.ts"
+      },
+      {
+        "from": "src/utils/getTopicV2Content.ts",
+        "to": "src/utils/topicResolver.ts"
+      },
+      {
+        "from": "src/utils/mergeBucketsByTopic.ts",
+        "to": "src/data/highlyProbableQuestions.ts"
+      },
+      {
+        "from": "src/utils/mockBlueprint.ts",
+        "to": "src/data/class10MathTopicTrends.ts"
+      },
+      {
+        "from": "src/utils/mockBuilder.ts",
+        "to": "src/data/class10MathTopicTrends.ts"
+      },
+      {
+        "from": "src/utils/mockBuilder.ts",
+        "to": "src/data/class10ScienceTopicTrends.ts"
+      },
+      {
+        "from": "src/utils/mockBuilder.ts",
+        "to": "src/data/predictedQuestions.ts"
+      },
+      {
+        "from": "src/utils/mockBuilder.ts",
+        "to": "src/data/predictedQuestionsScience.ts"
+      },
+      {
+        "from": "src/utils/mockPaperEngine.ts",
+        "to": "src/data/class10MathTopicTrends.ts"
+      },
+      {
+        "from": "src/utils/mockPaperEngine.ts",
+        "to": "src/data/predictedQuestions.ts"
+      },
+      {
+        "from": "src/utils/mockPaperEngineScience.ts",
+        "to": "src/data/class10ScienceTopicTrends.ts"
+      },
+      {
+        "from": "src/utils/mockPaperEngineScience.ts",
+        "to": "src/data/predictedQuestionsScience.ts"
+      },
+      {
+        "from": "src/utils/mockPaperEngineScience.ts",
+        "to": "src/prediction/constrainedPaperConstructor.ts"
+      },
+      {
+        "from": "src/utils/mockPaperEngineScience.ts",
+        "to": "src/prediction/historicalDataset.ts"
+      },
+      {
+        "from": "src/utils/mockPaperEngineScience.ts",
+        "to": "src/prediction/probabilisticScoring.ts"
+      },
+      {
+        "from": "src/utils/planEngine.ts",
+        "to": "src/data/class10MathTopicTrends.ts"
+      },
+      {
+        "from": "src/utils/planEngine.ts",
+        "to": "src/data/class10ScienceTopicTrends.ts"
+      },
+      {
+        "from": "src/utils/topicHubV2Store.ts",
+        "to": "src/data/topicHubV2Enrichment.ts"
+      },
+      {
+        "from": "src/utils/topicHubV2Store.ts",
+        "to": "src/data/topicHubV2Full.ts"
+      },
+      {
+        "from": "src/utils/topicHubV2Store.ts",
+        "to": "src/utils/getTopicV2Content.ts"
+      },
+      {
+        "from": "src/utils/topicHubV2Store.ts",
+        "to": "src/utils/topicResolver.ts"
+      },
+      {
+        "from": "src/utils/topicMix.ts",
+        "to": "src/data/class10MathTopicWeights.ts"
+      },
+      {
+        "from": "src/utils/topicResolver.ts",
+        "to": "src/data/syllabus/cbse10Canonical.ts"
+      },
+      {
+        "from": "src/utils/topicResolver.ts",
+        "to": "src/data/syllabus/topicAliasMap.ts"
+      },
+      {
+        "from": "tools/bsre/runFixtures.ts",
+        "to": "src/engine/bsre/evaluator.ts"
+      },
+      {
+        "from": "tools/bsre/runFixtures.ts",
+        "to": "src/engine/bsre/types.ts"
+      }
+    ],
+    "topInbound": [
+      {
+        "file": "src/data/class10ScienceTopicTrends.ts",
+        "value": 18
+      },
+      {
+        "file": "src/data/class10MathTopicTrends.ts",
+        "value": 16
+      },
+      {
+        "file": "src/data/predictedQuestions.ts",
+        "value": 14
+      },
+      {
+        "file": "src/data/predictedQuestionsScience.ts",
+        "value": 11
+      },
+      {
+        "file": "src/types/mentor.ts",
+        "value": 9
+      },
+      {
+        "file": "src/utils/topicResolver.ts",
+        "value": 9
+      },
+      {
+        "file": "src/context/AuthContext.tsx",
+        "value": 8
+      },
+      {
+        "file": "src/data/highlyProbableQuestions.ts",
+        "value": 8
+      },
+      {
+        "file": "src/context/vibeModeContext.tsx",
+        "value": 7
+      },
+      {
+        "file": "src/data/predictionTypes.ts",
+        "value": 7
+      },
+      {
+        "file": "src/data/topicHubV2Full.ts",
+        "value": 7
+      },
+      {
+        "file": "src/engine/smartLearningTypes.ts",
+        "value": 7
+      },
+      {
+        "file": "src/services/firebaseClient.ts",
+        "value": 7
+      },
+      {
+        "file": "src/data/syllabus/topicAliasMap.ts",
+        "value": 6
+      },
+      {
+        "file": "src/prediction/historicalDataset.ts",
+        "value": 6
+      },
+      {
+        "file": "src/services/practiceInsights.ts",
+        "value": 6
+      },
+      {
+        "file": "src/data/predictionCore.ts",
+        "value": 5
+      },
+      {
+        "file": "src/data/syllabus/cbse10Canonical.ts",
+        "value": 5
+      },
+      {
+        "file": "src/engine/smartLearningStore.tsx",
+        "value": 5
+      },
+      {
+        "file": "src/prediction/probabilisticScoring.ts",
+        "value": 5
+      }
+    ],
+    "topOutbound": [
+      {
+        "file": "src/App.tsx",
+        "value": 25
+      },
+      {
+        "file": "src/pages/TopicHub.tsx",
+        "value": 20
+      },
+      {
+        "file": "src/pages/Dashboard.tsx",
+        "value": 13
+      },
+      {
+        "file": "src/pages/HighlyProbableQuestions.tsx",
+        "value": 13
+      },
+      {
+        "file": "server/index.cjs",
+        "value": 12
+      },
+      {
+        "file": "src/pages/PracticePage.tsx",
+        "value": 12
+      },
+      {
+        "file": "src/pages/TrendsPage.tsx",
+        "value": 11
+      },
+      {
+        "file": "scripts/ops/hpq_phase2_acceptance.entry.ts",
+        "value": 10
+      },
+      {
+        "file": "src/data/predictionCore.ts",
+        "value": 9
+      },
+      {
+        "file": "src/pages/AiMentorPage.tsx",
+        "value": 9
+      },
+      {
+        "file": "src/pages/TopicHubHome.tsx",
+        "value": 9
+      },
+      {
+        "file": "src/components/tutor/TutorDrawerV2.tsx",
+        "value": 8
+      },
+      {
+        "file": "src/components/MentorPanel.tsx",
+        "value": 7
+      },
+      {
+        "file": "src/pages/MockPaper.tsx",
+        "value": 7
+      },
+      {
+        "file": "src/data/questionGenerator.ts",
+        "value": 6
+      },
+      {
+        "file": "src/engine/paperEngine.ts",
+        "value": 6
+      },
+      {
+        "file": "src/main.tsx",
+        "value": 6
+      },
+      {
+        "file": "src/components/planner/StudyPlannerView.tsx",
+        "value": 5
+      },
+      {
+        "file": "src/data/highlyProbableQuestions.ts",
+        "value": 5
+      },
+      {
+        "file": "src/pages/Login.tsx",
+        "value": 5
+      }
+    ],
+    "unresolvedLocalImports": [
+      {
+        "file": "scripts/ops/backlog_1_19_acceptance.mjs",
+        "specifier": "./sessionHandlers.cjs"
+      },
+      {
+        "file": "scripts/ops/topichub_intended_functionality_acceptance.mjs",
+        "specifier": "./pages/TopicHubHome"
+      }
+    ],
+    "potentialOrphans": [
+      "scripts/blackbox.mjs",
+      "scripts/bomGuard.mjs",
+      "scripts/check-mojibake.cjs",
+      "scripts/contextpack.mjs",
+      "scripts/deploySmoke.mjs",
+      "scripts/fix-mojibake-oneoff.cjs",
+      "scripts/lintCi.mjs",
+      "scripts/lintDebtCheck.mjs",
+      "scripts/lintDebtFreeze.mjs",
+      "scripts/memoryContracts.ts",
+      "scripts/ops/agent2_test_guard.mjs",
+      "scripts/ops/agent3_uiux_guard.mjs",
+      "scripts/ops/backlog_1_19_acceptance.mjs",
+      "scripts/ops/bsre_spike_acceptance.mjs",
+      "scripts/ops/canonical_generator_acceptance.mjs",
+      "scripts/ops/cbse_registry_alignment_acceptance.mjs",
+      "scripts/ops/deletion_batch_regression_acceptance.mjs",
+      "scripts/ops/dependency_risk_classification.mjs",
+      "scripts/ops/feature_file_matrix.mjs",
+      "scripts/ops/half_built_impact_analysis.mjs",
+      "scripts/ops/hpq_drift_monitor.mjs",
+      "scripts/ops/hpq_phase2_acceptance.mjs",
+      "scripts/ops/hpq_practice_predictive_standards_acceptance.mjs",
+      "scripts/ops/human_tutor_gap_audit.mjs",
+      "scripts/ops/llm_path_audit_acceptance.mjs",
+      "scripts/ops/matrix_execution_acceptance.mjs",
+      "scripts/ops/mojibake_acceptance.mjs",
+      "scripts/ops/mojibake_cleaner.mjs",
+      "scripts/ops/persona_audit_acceptance.mjs",
+      "scripts/ops/phases_1_3_acceptance.mjs",
+      "scripts/ops/phases_4_6_acceptance.mjs",
+      "scripts/ops/planner_mentor_realism_acceptance.mjs",
+      "scripts/ops/practice_weightage_mix_acceptance.mjs",
+      "scripts/ops/prediction_bank_health_acceptance.mjs",
+      "scripts/ops/pro_tips_product_acceptance.mjs",
+      "scripts/ops/repo_boundary_acceptance.mjs",
+      "scripts/ops/repo_deep_audit.mjs",
+      "scripts/ops/step2_refactor_connectivity_acceptance.mjs",
+      "scripts/ops/student_bots_product_experience_acceptance.mjs",
+      "scripts/ops/student_progress_acceptance.mjs",
+      "scripts/ops/styles_change_impact_acceptance.mjs",
+      "scripts/ops/styles_connectivity_acceptance.mjs",
+      "scripts/ops/styles_delete_change_pass_acceptance.mjs",
+      "scripts/ops/styles_restructure_audit_acceptance.mjs",
+      "scripts/ops/styles_trim_acceptance.mjs",
+      "scripts/ops/styles_trim_candidates.mjs",
+      "scripts/ops/styles_uiux_audit.mjs",
+      "scripts/ops/topic_diagram_coverage_acceptance.mjs",
+      "scripts/ops/topic_grind_contracts_acceptance.mjs",
+      "scripts/ops/topichub_doc_alignment_acceptance.mjs",
+      "scripts/ops/topichub_human_tutor_all_topics_acceptance.mjs",
+      "scripts/ops/topichub_intended_functionality_acceptance.mjs",
+      "scripts/ops/triangles_audit.mjs",
+      "scripts/ops/triangles_human_tutor_acceptance.mjs",
+      "scripts/ops/trig_legacy_retire_acceptance.mjs",
+      "scripts/ops/ux_focus_acceptance.mjs",
+      "scripts/ops/ux_priority_pack_acceptance.mjs",
+      "scripts/ops/ux_priority_step_acceptance.mjs",
+      "scripts/ops/work_buddy_auditor.mjs",
+      "scripts/ops/work_buddy_full_auditor.mjs",
+      "scripts/prebuild.cjs",
+      "scripts/rulesDigest.mjs",
+      "scripts/scopeGuard.mjs",
+      "scripts/smoke/mentor-contract-smoke.cjs",
+      "scripts/smoke/mentor-examples-smoke.cjs",
+      "scripts/smoke/mentor-gate-smoke.cjs",
+      "scripts/smoke/mentor-teach-json-smoke.cjs",
+      "scripts/smoke/mentor-teach-viewmodel-smoke.cjs",
+      "scripts/stageTracker.mjs",
+      "scripts/startSafe.mjs",
+      "scripts/trackerAll.mjs",
+      "scripts/trackerDoctor.mjs",
+      "scripts/trackerServe.mjs",
+      "scripts/trackerUi.mjs",
+      "scripts/trackerUiLive.mjs",
+      "scripts/trackerWatch.mjs",
+      "scripts/tutorEval.mjs",
+      "src/data/_finalGenerated/triangles.mentor.ts",
+      "tools/pmem/pmem-runner.cjs",
+      "tools/project-memory-blackbox-ext/src/core/keyLoader.ts"
+    ],
+    "routeUnreachableRuntimeFiles": [
+      "src/components/WeeklyWrappedWidget.tsx",
+      "src/engine/bsre/evaluator.ts",
+      "src/engine/bsre/types.ts",
+      "src/engine/paperEngine.ts",
+      "src/services/sessionService.ts",
+      "src/services/streakService.ts",
+      "src/services/weeklyWrapService.ts",
+      "src/tutor/diagram/diagramTemplates.ts",
+      "src/tutor/hintLadder.ts",
+      "src/tutor/retrieval/trianglesRetriever.ts",
+      "src/tutor/rubricScore.ts",
+      "src/tutor/topicTeachContracts.ts",
+      "src/utils/mockBlueprint.ts",
+      "src/utils/mockBuilder.ts",
+      "src/utils/planEngine.ts",
+      "src/utils/topicMix.ts"
+    ]
+  },
+  "runtime": {
+    "routes": [
+      {
+        "path": "/",
+        "line": 268,
+        "requiresAuth": false,
+        "componentNames": [
+          "Home"
+        ],
+        "mappedFiles": [
+          "src/pages/Home.tsx"
+        ],
+        "entryFiles": [
+          "src/pages/Home.tsx"
+        ]
+      },
+      {
+        "path": "/login",
+        "line": 271,
+        "requiresAuth": false,
+        "componentNames": [
+          "Login"
+        ],
+        "mappedFiles": [
+          "src/pages/Login.tsx"
+        ],
+        "entryFiles": [
+          "src/pages/Login.tsx"
+        ]
+      },
+      {
+        "path": "/onboarding",
+        "line": 272,
+        "requiresAuth": true,
+        "componentNames": [
+          "Onboarding",
+          "RequireAuth"
+        ],
+        "mappedFiles": [
+          "src/components/auth/RequireAuth.tsx",
+          "src/pages/Onboarding.tsx"
+        ],
+        "entryFiles": [
+          "src/pages/Onboarding.tsx"
+        ]
+      },
+      {
+        "path": "/dashboard",
+        "line": 273,
+        "requiresAuth": true,
+        "componentNames": [
+          "Dashboard",
+          "RequireAuth"
+        ],
+        "mappedFiles": [
+          "src/components/auth/RequireAuth.tsx",
+          "src/pages/Dashboard.tsx"
+        ],
+        "entryFiles": [
+          "src/pages/Dashboard.tsx"
+        ]
+      },
+      {
+        "path": "/planner/:grade/:subject",
+        "line": 276,
+        "requiresAuth": true,
+        "componentNames": [
+          "RequireAuth",
+          "StudyPlannerView"
+        ],
+        "mappedFiles": [
+          "src/components/auth/RequireAuth.tsx",
+          "src/components/planner/StudyPlannerView.tsx"
+        ],
+        "entryFiles": [
+          "src/components/planner/StudyPlannerView.tsx"
+        ]
+      },
+      {
+        "path": "/planner",
+        "line": 278,
+        "requiresAuth": true,
+        "componentNames": [
+          "RequireAuth",
+          "StudyPlannerView"
+        ],
+        "mappedFiles": [
+          "src/components/auth/RequireAuth.tsx",
+          "src/components/planner/StudyPlannerView.tsx"
+        ],
+        "entryFiles": [
+          "src/components/planner/StudyPlannerView.tsx"
+        ]
+      },
+      {
+        "path": "/topics/:topicKey",
+        "line": 282,
+        "requiresAuth": true,
+        "componentNames": [
+          "RequireAuth",
+          "TopicHub"
+        ],
+        "mappedFiles": [
+          "src/components/auth/RequireAuth.tsx",
+          "src/pages/TopicHub.tsx"
+        ],
+        "entryFiles": [
+          "src/pages/TopicHub.tsx"
+        ]
+      },
+      {
+        "path": "/topic-hub/:grade/:subject",
+        "line": 285,
+        "requiresAuth": true,
+        "componentNames": [
+          "RequireAuth",
+          "TopicHub"
+        ],
+        "mappedFiles": [
+          "src/components/auth/RequireAuth.tsx",
+          "src/pages/TopicHub.tsx"
+        ],
+        "entryFiles": [
+          "src/pages/TopicHub.tsx"
+        ]
+      },
+      {
+        "path": "/topic-hub/:grade/:subject/:topicKey",
+        "line": 286,
+        "requiresAuth": true,
+        "componentNames": [
+          "RequireAuth",
+          "TopicHub"
+        ],
+        "mappedFiles": [
+          "src/components/auth/RequireAuth.tsx",
+          "src/pages/TopicHub.tsx"
+        ],
+        "entryFiles": [
+          "src/pages/TopicHub.tsx"
+        ]
+      },
+      {
+        "path": "/topic-hub",
+        "line": 289,
+        "requiresAuth": false,
+        "componentNames": [
+          "TopicHubHome"
+        ],
+        "mappedFiles": [
+          "src/pages/TopicHubHome.tsx"
+        ],
+        "entryFiles": [
+          "src/pages/TopicHubHome.tsx"
+        ]
+      },
+      {
+        "path": "/trends/:grade/:subject",
+        "line": 294,
+        "requiresAuth": false,
+        "componentNames": [
+          "TrendsPage"
+        ],
+        "mappedFiles": [
+          "src/pages/TrendsPage.tsx"
+        ],
+        "entryFiles": [
+          "src/pages/TrendsPage.tsx"
+        ]
+      },
+      {
+        "path": "/mock-paper/:slug",
+        "line": 297,
+        "requiresAuth": false,
+        "componentNames": [
+          "MockPaper"
+        ],
+        "mappedFiles": [
+          "src/pages/MockPaper.tsx"
+        ],
+        "entryFiles": [
+          "src/pages/MockPaper.tsx"
+        ]
+      },
+      {
+        "path": "/mock-builder/:grade/:subject",
+        "line": 300,
+        "requiresAuth": false,
+        "componentNames": [
+          "MockBuilder"
+        ],
+        "mappedFiles": [
+          "src/pages/MockBuilder.tsx"
+        ],
+        "entryFiles": [
+          "src/pages/MockBuilder.tsx"
+        ]
+      },
+      {
+        "path": "/mock-builder",
+        "line": 302,
+        "requiresAuth": false,
+        "componentNames": [
+          "MockBuilder"
+        ],
+        "mappedFiles": [
+          "src/pages/MockBuilder.tsx"
+        ],
+        "entryFiles": [
+          "src/pages/MockBuilder.tsx"
+        ]
+      },
+      {
+        "path": "/highly-probable/:grade/:subject",
+        "line": 305,
+        "requiresAuth": false,
+        "componentNames": [
+          "HighlyProbableQuestions"
+        ],
+        "mappedFiles": [
+          "src/pages/HighlyProbableQuestions.tsx"
+        ],
+        "entryFiles": [
+          "src/pages/HighlyProbableQuestions.tsx"
+        ]
+      },
+      {
+        "path": "/highly-probable",
+        "line": 310,
+        "requiresAuth": false,
+        "componentNames": [
+          "HighlyProbableQuestions"
+        ],
+        "mappedFiles": [
+          "src/pages/HighlyProbableQuestions.tsx"
+        ],
+        "entryFiles": [
+          "src/pages/HighlyProbableQuestions.tsx"
+        ]
+      },
+      {
+        "path": "/predictive-papers",
+        "line": 316,
+        "requiresAuth": false,
+        "componentNames": [
+          "PredictivePapersPage"
+        ],
+        "mappedFiles": [
+          "src/pages/PredictivePapers.tsx"
+        ],
+        "entryFiles": [
+          "src/pages/PredictivePapers.tsx"
+        ]
+      },
+      {
+        "path": "/practice/:grade/:subject",
+        "line": 321,
+        "requiresAuth": false,
+        "componentNames": [
+          "PracticePage"
+        ],
+        "mappedFiles": [
+          "src/pages/PracticePage.tsx"
+        ],
+        "entryFiles": [
+          "src/pages/PracticePage.tsx"
+        ]
+      },
+      {
+        "path": "/study-plan/:grade/:subject",
+        "line": 324,
+        "requiresAuth": true,
+        "componentNames": [
+          "RequireAuth",
+          "StudyPlanPage"
+        ],
+        "mappedFiles": [
+          "src/components/auth/RequireAuth.tsx",
+          "src/pages/StudyPlanPage.tsx"
+        ],
+        "entryFiles": [
+          "src/pages/StudyPlanPage.tsx"
+        ]
+      },
+      {
+        "path": "/study-plan",
+        "line": 326,
+        "requiresAuth": true,
+        "componentNames": [
+          "RequireAuth",
+          "StudyPlanPage"
+        ],
+        "mappedFiles": [
+          "src/components/auth/RequireAuth.tsx",
+          "src/pages/StudyPlanPage.tsx"
+        ],
+        "entryFiles": [
+          "src/pages/StudyPlanPage.tsx"
+        ]
+      },
+      {
+        "path": "/ai-mentor/:grade/:subject",
+        "line": 329,
+        "requiresAuth": false,
+        "componentNames": [
+          "AiMentorPage"
+        ],
+        "mappedFiles": [
+          "src/pages/AiMentorPage.tsx"
+        ],
+        "entryFiles": [
+          "src/pages/AiMentorPage.tsx"
+        ]
+      },
+      {
+        "path": "/ai-mentor",
+        "line": 330,
+        "requiresAuth": false,
+        "componentNames": [
+          "AiMentorPage"
+        ],
+        "mappedFiles": [
+          "src/pages/AiMentorPage.tsx"
+        ],
+        "entryFiles": [
+          "src/pages/AiMentorPage.tsx"
+        ]
+      },
+      {
+        "path": "/mentor/:grade/:subject",
+        "line": 332,
+        "requiresAuth": false,
+        "componentNames": [
+          "AiMentorPage"
+        ],
+        "mappedFiles": [
+          "src/pages/AiMentorPage.tsx"
+        ],
+        "entryFiles": [
+          "src/pages/AiMentorPage.tsx"
+        ]
+      },
+      {
+        "path": "/mentor",
+        "line": 333,
+        "requiresAuth": false,
+        "componentNames": [
+          "AiMentorPage"
+        ],
+        "mappedFiles": [
+          "src/pages/AiMentorPage.tsx"
+        ],
+        "entryFiles": [
+          "src/pages/AiMentorPage.tsx"
+        ]
+      },
+      {
+        "path": "/daily-mix/:grade/:subject",
+        "line": 336,
+        "requiresAuth": true,
+        "componentNames": [
+          "DailyMixPage",
+          "RequireAuth"
+        ],
+        "mappedFiles": [
+          "src/components/auth/RequireAuth.tsx",
+          "src/pages/DailyMixPage.tsx"
+        ],
+        "entryFiles": [
+          "src/pages/DailyMixPage.tsx"
+        ]
+      },
+      {
+        "path": "/play/:sessionId",
+        "line": 342,
+        "requiresAuth": true,
+        "componentNames": [
+          "RequireAuth",
+          "SessionPlayPage"
+        ],
+        "mappedFiles": [
+          "src/components/auth/RequireAuth.tsx",
+          "src/pages/SessionPlayPage.tsx"
+        ],
+        "entryFiles": [
+          "src/pages/SessionPlayPage.tsx"
+        ]
+      },
+      {
+        "path": "/weekly-wrapped",
+        "line": 348,
+        "requiresAuth": true,
+        "componentNames": [
+          "RequireAuth",
+          "WeeklyWrappedPage"
+        ],
+        "mappedFiles": [
+          "src/components/auth/RequireAuth.tsx",
+          "src/pages/WeeklyWrappedPage.tsx"
+        ],
+        "entryFiles": [
+          "src/pages/WeeklyWrappedPage.tsx"
+        ]
+      },
+      {
+        "path": "*",
+        "line": 355,
+        "requiresAuth": false,
+        "componentNames": [
+          "Navigate"
+        ],
+        "mappedFiles": [],
+        "entryFiles": []
+      }
+    ],
+    "backendEndpoints": [
+      {
+        "method": "OPTIONS",
+        "path": "/api/mentor",
+        "match": "exact",
+        "line": 4347
+      },
+      {
+        "method": "OPTIONS",
+        "path": "/api/more-like-this",
+        "match": "exact",
+        "line": 4347
+      },
+      {
+        "method": "OPTIONS",
+        "path": "/api/tutor-feedback",
+        "match": "exact",
+        "line": 4347
+      },
+      {
+        "method": "OPTIONS",
+        "path": "/api/session/start",
+        "match": "exact",
+        "line": 4347
+      },
+      {
+        "method": "OPTIONS",
+        "path": "/^\\/api\\/session\\/[^/]+$/",
+        "match": "regex",
+        "line": 4347
+      },
+      {
+        "method": "OPTIONS",
+        "path": "/^\\/api\\/session\\/[^/]+\\/submit$/",
+        "match": "regex",
+        "line": 4347
+      },
+      {
+        "method": "GET",
+        "path": "/health",
+        "match": "exact",
+        "line": 4368
+      },
+      {
+        "method": "GET",
+        "path": "/api/health",
+        "match": "exact",
+        "line": 4368
+      },
+      {
+        "method": "GET",
+        "path": "/api/cbse-exam-date",
+        "match": "prefix",
+        "line": 4382
+      },
+      {
+        "method": "POST",
+        "path": "/api/session/start",
+        "match": "exact",
+        "line": 4397
+      },
+      {
+        "method": "GET",
+        "path": "/^\\/api\\/session\\/[^/]+$/",
+        "match": "regex",
+        "line": 4408
+      },
+      {
+        "method": "POST",
+        "path": "/^\\/api\\/session\\/[^/]+\\/submit$/",
+        "match": "regex",
+        "line": 4414
+      },
+      {
+        "method": "POST",
+        "path": "/api/tutor-feedback",
+        "match": "exact",
+        "line": 4427
+      },
+      {
+        "method": "POST",
+        "path": "/api/mentor",
+        "match": "exact",
+        "line": 4444
+      },
+      {
+        "method": "POST",
+        "path": "/api/more-like-this",
+        "match": "exact",
+        "line": 5256
+      }
+    ],
+    "frontendApiUsage": [
+      {
+        "file": "src/components/tutor/TutorDrawerV2.tsx",
+        "apiPaths": [
+          "/api/mentor",
+          "/api/tutor-feedback"
+        ]
+      },
+      {
+        "file": "src/pages/PracticePage.tsx",
+        "apiPaths": [
+          "/api/mentor"
+        ]
+      },
+      {
+        "file": "src/pages/TopicHub.tsx",
+        "apiPaths": [
+          "/api/mentor"
+        ]
+      },
+      {
+        "file": "src/types/mentor.ts",
+        "apiPaths": [
+          "/api/mentor"
+        ]
+      }
+    ]
+  },
+  "domains": [
+    {
+      "name": "Auth and Identity",
+      "summary": "Login, auth gating, Firebase initialization, and user/session identity context.",
+      "files": [
+        "src/context/AuthContext.tsx",
+        "src/components/auth/RequireAuth.tsx",
+        "src/pages/Login.tsx",
+        "src/services/firebaseClient.ts",
+        "src/context/ProfileContext.tsx"
+      ],
+      "routes": [
+        "/dashboard",
+        "/login",
+        "/onboarding"
+      ]
+    },
+    {
+      "name": "Topic Hub + Human Tutor",
+      "summary": "Concept-map learning, grind drawer, mentor chat/fallback, and topic mastery state.",
+      "files": [
+        "src/pages/TopicHub.tsx",
+        "src/pages/TopicHubHome.tsx",
+        "src/components/tutor/TutorDrawerV2.tsx",
+        "src/services/topicHubMastery.ts",
+        "src/services/mentorServerGate.ts",
+        "src/services/sessionLogger.ts",
+        "server/index.cjs",
+        "server/tutorOrchestrator.cjs"
+      ],
+      "routes": [
+        "/topic-hub",
+        "/topic-hub/:grade/:subject",
+        "/topic-hub/:grade/:subject/:topicKey",
+        "/topics/:topicKey"
+      ]
+    },
+    {
+      "name": "Practice and Session Playback",
+      "summary": "Practice setup, cloud/local session bootstrapping, and active session player flow.",
+      "files": [
+        "src/pages/PracticePage.tsx",
+        "src/pages/SessionPlayPage.tsx",
+        "src/components/SessionPlayer.tsx",
+        "src/services/sessionApi.ts",
+        "src/services/sessionService.ts",
+        "src/services/sessionTypes.ts",
+        "server/sessionHandlers.cjs",
+        "server/sessionStore.cjs"
+      ],
+      "routes": [
+        "/play/:sessionId",
+        "/practice/:grade/:subject"
+      ]
+    },
+    {
+      "name": "Daily Mix + Weekly Wrapped",
+      "summary": "Daily personalized study mix and weekly recap/wrap storytelling widgets.",
+      "files": [
+        "src/pages/DailyMixPage.tsx",
+        "src/pages/WeeklyWrappedPage.tsx",
+        "src/components/DailyMixWidget.tsx",
+        "src/components/DailyMixPlayer.tsx",
+        "src/components/WeeklyWrappedWidget.tsx",
+        "src/components/WeeklyWrappedCarousel.tsx",
+        "src/services/dailyMixGenerator.ts",
+        "src/services/dailyMixService.ts",
+        "src/services/weeklyWrappedGenerator.ts",
+        "src/services/weeklyWrapService.ts"
+      ],
+      "routes": [
+        "/daily-mix/:grade/:subject",
+        "/weekly-wrapped"
+      ]
+    },
+    {
+      "name": "Predictive / Mock / HPQ Surfaces",
+      "summary": "Trends, predictive papers, mock builder, mock paper viewer, and HPQ entry points.",
+      "files": [
+        "src/pages/TrendsPage.tsx",
+        "src/pages/PredictivePapers.tsx",
+        "src/pages/MockBuilder.tsx",
+        "src/pages/MockPaper.tsx",
+        "src/pages/HighlyProbableQuestions.tsx"
+      ],
+      "routes": [
+        "/highly-probable/:grade/:subject",
+        "/mock-builder/:grade/:subject",
+        "/mock-paper/:slug",
+        "/predictive-papers",
+        "/trends/:grade/:subject"
+      ]
+    },
+    {
+      "name": "Planner / Mentor / UX Control Layer",
+      "summary": "Study planner, AI mentor page, command palette navigation intents, and vibe mode toggle.",
+      "files": [
+        "src/components/planner/StudyPlannerView.tsx",
+        "src/pages/StudyPlanPage.tsx",
+        "src/pages/AiMentorPage.tsx",
+        "src/ui/components/CommandPalette.tsx",
+        "src/ui/components/VibeToggle.tsx",
+        "src/services/commandIntent.ts",
+        "src/services/commandPaletteConfig.ts",
+        "src/context/vibeModeContext.tsx"
+      ],
+      "routes": [
+        "/ai-mentor/:grade/:subject",
+        "/mentor/:grade/:subject",
+        "/planner/:grade/:subject"
+      ]
+    }
+  ]
+}

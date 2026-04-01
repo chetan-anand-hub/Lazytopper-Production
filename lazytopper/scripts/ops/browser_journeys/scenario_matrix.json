@@ -1,0 +1,106 @@
+{
+  "journeys": {
+    "topichub_guided_entry_journey": [
+      {
+        "scenarioId": "new-student-trigonometry",
+        "studentState": "new_student",
+        "startingPath": "/topic-hub/10/Maths/trigonometry?tab=learn",
+        "expectations": {
+          "requiresGuidedCue": true,
+          "maxPrimaryCtas": 8,
+          "requiresLowConfusion": true
+        }
+      },
+      {
+        "scenarioId": "advanced-trigonometry",
+        "studentState": "advanced_value_seeking_student",
+        "startingPath": "/topic-hub/10/Maths/trigonometry?tab=learn",
+        "expectations": {
+          "requiresGuidedCue": true,
+          "requiresDepthCue": true,
+          "maxPrimaryCtas": 9
+        }
+      }
+    ],
+    "practice_help_escalation_journey": [
+      {
+        "scenarioId": "weak-student-practice",
+        "studentState": "weak_student",
+        "startingPath": "/practice/10/Maths?topic=trigonometry&count=5",
+        "expectations": {
+          "helpReachableWithinClicks": 2,
+          "requiresWhyPanel": true
+        }
+      },
+      {
+        "scenarioId": "returning-student-practice",
+        "studentState": "returning_student",
+        "startingPath": "/practice/10/Maths?topic=trigonometry&count=10",
+        "expectations": {
+          "helpReachableWithinClicks": 2,
+          "requiresQuickValue": true
+        }
+      }
+    ],
+    "mentor_kindness_and_recovery_journey": [
+      {
+        "scenarioId": "new-student-mentor-recovery",
+        "studentState": "new_student",
+        "startingPath": "/practice/10/Maths?topic=trigonometry&count=3&journeyMentor=hint",
+        "expectations": {
+          "requiresConstructiveFallback": true
+        }
+      },
+      {
+        "scenarioId": "doubt-heavy-mentor-recovery",
+        "studentState": "doubt_heavy_student",
+        "startingPath": "/practice/10/Maths?topic=trigonometry&count=3&journeyMentor=hint",
+        "expectations": {
+          "requiresConstructiveFallback": true,
+          "requiresRetryControls": true
+        }
+      }
+    ],
+    "board_readiness_journey": [
+      {
+        "scenarioId": "revision-mode-board-readiness",
+        "studentState": "revision_mode_student",
+        "startingPath": "/practice/10/Maths?topic=trigonometry&count=4",
+        "expectations": {
+          "requiresBoardCues": true,
+          "requiresFastExamValue": true
+        }
+      },
+      {
+        "scenarioId": "advanced-board-readiness",
+        "studentState": "advanced_value_seeking_student",
+        "startingPath": "/practice/10/Maths?topic=trigonometry&count=6",
+        "expectations": {
+          "requiresBoardCues": true,
+          "requiresReasoningDepth": true
+        }
+      }
+    ],
+    "triangles_human_tutor_browser_journey": [
+      {
+        "scenarioId": "weak-student-triangles",
+        "studentState": "weak_student",
+        "startingPath": "/topic-hub/10/Maths/triangles?tab=learn",
+        "expectations": {
+          "requiresGuidedCue": true,
+          "requiresHonestMaturity": true
+        }
+      },
+      {
+        "scenarioId": "advanced-triangles",
+        "studentState": "advanced_value_seeking_student",
+        "startingPath": "/topic-hub/10/Maths/triangles?tab=learn",
+        "expectations": {
+          "requiresGuidedCue": true,
+          "requiresDepthCue": true,
+          "requiresHonestMaturity": true
+        }
+      }
+    ]
+  }
+}

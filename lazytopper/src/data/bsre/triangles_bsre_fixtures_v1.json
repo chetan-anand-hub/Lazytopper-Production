@@ -1,0 +1,238 @@
+{
+  "fixtures": [
+    {
+      "id": "fixture1",
+      "rubricId": "congruence_proof_sss_sas_asa_rhs",
+      "studentAnswer": "Given triangles ABC and DEF with AB=DE, BC=EF and CA=FD, we have all three corresponding sides equal. Therefore by the SSS congruence condition the triangles are congruent.",
+      "expected": {
+        "score": 10,
+        "stepResults": [
+          { "stepId": "c1_step1", "passed": true },
+          { "stepId": "c1_step2", "passed": true },
+          { "stepId": "c1_step3", "passed": true },
+          { "stepId": "c1_step4", "passed": true }
+        ],
+        "misconceptionTags": [],
+        "feedback": "Excellent work – you stated the triangles, chose the correct SSS rule, matched corresponding sides and concluded congruence."
+      }
+    },
+    {
+      "id": "fixture2",
+      "rubricId": "congruence_proof_sss_sas_asa_rhs",
+      "studentAnswer": "Triangles PQR and XYZ have PQ=XY and QR=YZ and angle Q equals angle Y, so by SAS they are congruent and hence \u0394PQR ≅ \u0394XYZ.",
+      "expected": {
+        "score": 10,
+        "stepResults": [
+          { "stepId": "c1_step1", "passed": true },
+          { "stepId": "c1_step2", "passed": true },
+          { "stepId": "c1_step3", "passed": true },
+          { "stepId": "c1_step4", "passed": true }
+        ],
+        "misconceptionTags": [],
+        "feedback": "You correctly used the SAS criterion to show the triangles are congruent."
+      }
+    },
+    {
+      "id": "fixture3",
+      "rubricId": "congruence_proof_sss_sas_asa_rhs",
+      "studentAnswer": "Consider \u0394ABC and \u0394DEF. We have AB=DE and BC=EF. Also angle A equals angle D. Therefore the triangles are similar by AA and hence congruent.",
+      "expected": {
+        "score": 4,
+        "stepResults": [
+          { "stepId": "c1_step1", "passed": true },
+          { "stepId": "c1_step2", "passed": false },
+          { "stepId": "c1_step3", "passed": true },
+          { "stepId": "c1_step4", "passed": false }
+        ],
+        "misconceptionTags": ["mis_rule_congruence", "mis_conclusion_congruence"],
+        "feedback": "You listed some equal parts but invoked a similarity rule (AA) instead of a valid congruence rule and did not properly conclude congruence."
+      }
+    },
+    {
+      "id": "fixture4",
+      "rubricId": "congruence_proof_sss_sas_asa_rhs",
+      "studentAnswer": "Triangles ABC and DEF are proven congruent because their corresponding angles are equal (AAA). Since AAA shows similarity, the triangles must also be congruent.",
+      "expected": {
+        "score": 2,
+        "stepResults": [
+          { "stepId": "c1_step1", "passed": false },
+          { "stepId": "c1_step2", "passed": false },
+          { "stepId": "c1_step3", "passed": false },
+          { "stepId": "c1_step4", "passed": false }
+        ],
+        "misconceptionTags": ["mis_rule_congruence", "mis_conclusion_congruence"],
+        "feedback": "AAA only proves similarity; it does not guarantee congruence. State the triangles and use one of SSS/SAS/ASA/RHS to prove congruence."
+      }
+    },
+    {
+      "id": "fixture5",
+      "rubricId": "congruence_proof_sss_sas_asa_rhs",
+      "studentAnswer": "In right triangles ABC and DEF, the hypotenuse AC equals DF and one leg AB equals DE. Therefore by the RHS criterion the triangles are congruent.",
+      "expected": {
+        "score": 10,
+        "stepResults": [
+          { "stepId": "c1_step1", "passed": true },
+          { "stepId": "c1_step2", "passed": true },
+          { "stepId": "c1_step3", "passed": true },
+          { "stepId": "c1_step4", "passed": true }
+        ],
+        "misconceptionTags": [],
+        "feedback": "Correct application of the RHS (right‑angle hypotenuse side) criterion."
+      }
+    },
+    {
+      "id": "fixture6",
+      "rubricId": "similarity_proof_aa_sas_sss",
+      "studentAnswer": "Given \u0394ABC and \u0394DEF, angle A = angle D and angle B = angle E. Two equal angles imply \u0394ABC ~ \u0394DEF by the AA similarity criterion, hence the ratios of corresponding sides are proportional and the triangles are similar.",
+      "expected": {
+        "score": 10,
+        "stepResults": [
+          { "stepId": "c2_step1", "passed": true },
+          { "stepId": "c2_step2", "passed": true },
+          { "stepId": "c2_step3", "passed": true },
+          { "stepId": "c2_step4", "passed": true }
+        ],
+        "misconceptionTags": [],
+        "feedback": "You correctly used the AA criterion and concluded similarity with proportional sides."
+      }
+    },
+    {
+      "id": "fixture7",
+      "rubricId": "similarity_proof_aa_sas_sss",
+      "studentAnswer": "Triangles PQR and XYZ have PQ=XY, QR=YZ and angle Q equals angle Y. Therefore the triangles are similar by SAS.",
+      "expected": {
+        "score": 7,
+        "stepResults": [
+          { "stepId": "c2_step1", "passed": true },
+          { "stepId": "c2_step2", "passed": true },
+          { "stepId": "c2_step3", "passed": false },
+          { "stepId": "c2_step4", "passed": true }
+        ],
+        "misconceptionTags": ["mis_ratio_similarity"],
+        "feedback": "You invoked SAS similarity but did not explicitly compare the ratio of corresponding sides. Show the proportionality of sides to complete the proof."
+      }
+    },
+    {
+      "id": "fixture8",
+      "rubricId": "similarity_proof_aa_sas_sss",
+      "studentAnswer": "Triangles ABC and DEF are similar because all three sides are equal (AB=DE, BC=EF, CA=FD). Therefore \u0394ABC ≅ \u0394DEF.",
+      "expected": {
+        "score": 3,
+        "stepResults": [
+          { "stepId": "c2_step1", "passed": true },
+          { "stepId": "c2_step2", "passed": false },
+          { "stepId": "c2_step3", "passed": false },
+          { "stepId": "c2_step4", "passed": false }
+        ],
+        "misconceptionTags": ["mis_rule_similarity", "mis_ratio_similarity", "mis_conclusion_similarity"],
+        "feedback": "Listing equal sides without establishing proportional ratios does not satisfy SSS similarity. Also, you concluded congruence instead of similarity."
+      }
+    },
+    {
+      "id": "fixture9",
+      "rubricId": "midpoint_basic_proportionality_theorem",
+      "studentAnswer": "In triangle ABC, D and E are midpoints of AB and AC respectively. Since DE is parallel to BC, by the basic proportionality theorem we have AD/DB = AE/EC and hence the segments are proportional.",
+      "expected": {
+        "score": 8,
+        "stepResults": [
+          { "stepId": "c3_step1", "passed": true },
+          { "stepId": "c3_step2", "passed": true },
+          { "stepId": "c3_step3", "passed": true }
+        ],
+        "misconceptionTags": [],
+        "feedback": "You correctly identified the midpoints, stated the basic proportionality theorem and set up the ratio."
+      }
+    },
+    {
+      "id": "fixture10",
+      "rubricId": "midpoint_basic_proportionality_theorem",
+      "studentAnswer": "In triangle ABC, D is the midpoint of AB. Therefore AD = DB, so the triangle is isosceles.",
+      "expected": {
+        "score": 2,
+        "stepResults": [
+          { "stepId": "c3_step1", "passed": true },
+          { "stepId": "c3_step2", "passed": false },
+          { "stepId": "c3_step3", "passed": false }
+        ],
+        "misconceptionTags": ["mis_no_parallel", "mis_no_ratio_bpt"],
+        "feedback": "You identified a midpoint but did not state the basic proportionality theorem or set up a proportional ratio."
+      }
+    },
+    {
+      "id": "fixture11",
+      "rubricId": "midpoint_basic_proportionality_theorem",
+      "studentAnswer": "In triangle ABC with DE parallel to BC, the ratio AD/AB equals AE/AC.",
+      "expected": {
+        "score": 4,
+        "stepResults": [
+          { "stepId": "c3_step1", "passed": true },
+          { "stepId": "c3_step2", "passed": false },
+          { "stepId": "c3_step3", "passed": false }
+        ],
+        "misconceptionTags": ["mis_no_ratio_bpt"],
+        "feedback": "The ratio should involve segments on the same sides (AD/DB = AE/EC). Ensure you set up the correct proportionality."
+      }
+    },
+    {
+      "id": "fixture12",
+      "rubricId": "angle_bisector_theorem",
+      "studentAnswer": "In triangle ABC, AD bisects angle A. According to the angle bisector theorem, BD/DC = AB/AC, so the sides are divided proportionally.",
+      "expected": {
+        "score": 8,
+        "stepResults": [
+          { "stepId": "c4_step1", "passed": true },
+          { "stepId": "c4_step2", "passed": true },
+          { "stepId": "c4_step3", "passed": true }
+        ],
+        "misconceptionTags": [],
+        "feedback": "You clearly identified the angle bisector, stated the theorem and set up the correct ratio."
+      }
+    },
+    {
+      "id": "fixture13",
+      "rubricId": "angle_bisector_theorem",
+      "studentAnswer": "In triangle ABC, the bisector of angle A divides BC into segments BD and DC so that BD = DC.",
+      "expected": {
+        "score": 3,
+        "stepResults": [
+          { "stepId": "c4_step1", "passed": true },
+          { "stepId": "c4_step2", "passed": false },
+          { "stepId": "c4_step3", "passed": false }
+        ],
+        "misconceptionTags": ["mis_wrong_ratio_bisector"],
+        "feedback": "The angle bisector theorem relates the ratio of adjacent sides to the segments on the opposite side; it does not assert BD = DC."
+      }
+    },
+    {
+      "id": "fixture14",
+      "rubricId": "angle_bisector_theorem",
+      "studentAnswer": "In triangle ABC with bisector AD, the theorem gives AB/BC = BD/DC.",
+      "expected": {
+        "score": 4,
+        "stepResults": [
+          { "stepId": "c4_step1", "passed": true },
+          { "stepId": "c4_step2", "passed": true },
+          { "stepId": "c4_step3", "passed": false }
+        ],
+        "misconceptionTags": ["mis_wrong_ratio_bisector"],
+        "feedback": "The correct ratio is BD/DC = AB/AC; ensure you relate the segments adjacent to the bisected angle."
+      }
+    },
+    {
+      "id": "fixture15",
+      "rubricId": "prove_triangles_congruent_standard",
+      "studentAnswer": "Given triangles ABC and DEF where AB = DE, BC = EF and angle B = angle E, to prove the triangles are congruent. From the given data we know two sides and the included angle are equal, so by SAS the triangles are congruent.",
+      "expected": {
+        "score": 12,
+        "stepResults": [
+          { "stepId": "c5_step1", "passed": true },
+          { "stepId": "c5_step2", "passed": true },
+          { "stepId": "c5_step3", "passed": true },
+          { "stepId": "c5_step4", "passed": true }
+        ],
+        "misconceptionTags": [],
+        "feedback": "You clearly stated the given information, what to prove, matched the equal parts and applied the SAS criterion to conclude congruence."
+      }
+    }
+  ]
+}

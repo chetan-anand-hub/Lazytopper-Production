@@ -1,0 +1,24 @@
+{
+  "subjectKey": "Maths",
+  "topicKeyCanonical": "maths-triangles",
+  "mentorResponse": {
+    "correctAnswerFeedback": [
+      "Spot on — you used the correct similarity criterion AND wrote it explicitly. That’s full-marks style.",
+      "Nice! Your vertex correspondence is consistent, so CPST ratios will be correct.",
+      "Good exam move: you stated the theorem name (BPT / AA / Pythagoras). Examiners love explicit reasoning."
+    ],
+    "incorrectAnswerFeedback": [
+      "Pause: check the order of vertices. If you write ΔABC ~ ΔPQR, then AB ↔ PQ, BC ↔ QR, AC ↔ PR.",
+      "You jumped to ratios before proving similarity/parallelism. Add the criterion line to earn the missing marks.",
+      "This looks like a right-angle problem — confirm with Pythagoras (or its converse) before applying similarity."
+    ],
+    "examinerWarning": [
+      "If you miss the final statement ('Hence proved' / theorem name / units), you often lose 0.5–1 mark.",
+      "Writing CPST without declaring similarity first can cost 1–2 marks even if the final number is correct."
+    ],
+    "nextStepSuggestion": [
+      "Try one BPT proof (5m) and one Pythagoras proof (4m) back-to-back — it builds unstoppable confidence.",
+      "Want help solving a question? Say **Board Mode** (step-by-step with marks) or **Solve With Me** (Socratic hints + marks)."
+    ]
+  }
+}

@@ -1,0 +1,26 @@
+subject_id,subject_name,unit_id,unit_name,chapter_id,chapter_title,tier,recommended_concept_packs,visual_min,trends_map,content_config,topichub_pack,predicted_bank,hpq_bank,daily_mix_seed,predicted_match_count,hpq_match_count,topichub_match_count,content_match_count,trends_match_count,dailymix_match_count,completeness_score_pct,missing_components
+maths,Mathematics,M10_U1,Number Systems,M10_CH_REAL_NUM,Real Numbers,high-roi,6,2,true,true,true,true,true,true,6,10,2,4,1,1,100,
+maths,Mathematics,M10_U2,Algebra,M10_CH_AP,Arithmetic Progressions,high-roi,8,2,true,true,true,true,true,true,10,4,2,5,1,1,100,
+maths,Mathematics,M10_U2,Algebra,M10_CH_PAIR_LINEAR,Pair of Linear Equations in Two Variables,must-crack,10,3,true,true,true,true,true,true,14,8,2,5,1,1,100,
+maths,Mathematics,M10_U2,Algebra,M10_CH_POLY,Polynomials,high-roi,7,3,true,true,true,true,true,true,11,3,2,2,1,1,100,
+maths,Mathematics,M10_U2,Algebra,M10_CH_QUADRATIC,Quadratic Equations,must-crack,10,2,true,true,true,true,true,true,13,8,2,4,1,1,100,
+maths,Mathematics,M10_U3,Coordinate Geometry,M10_CH_COORD_GEOM,Coordinate Geometry,high-roi,7,3,true,true,true,true,false,true,11,0,2,4,1,1,83.33,hpq_bank
+maths,Mathematics,M10_U4,Geometry,M10_CH_CIRCLES,Circles,high-roi,8,4,true,true,true,true,false,false,11,0,1,2,1,0,66.67,hpq_bank|daily_mix_seed
+maths,Mathematics,M10_U4,Geometry,M10_CH_TRIANGLES,Triangles,must-crack,14,5,true,true,true,true,true,true,12,11,2,2,1,1,100,
+maths,Mathematics,M10_U5,Trigonometry,M10_CH_TRIG,Trigonometry,must-crack,14,5,true,true,true,true,true,true,16,8,6,4,1,1,100,
+maths,Mathematics,M10_U6,Mensuration,M10_CH_AREA_CIRC,Areas Related to Circles,good-to-do,8,4,true,true,true,true,false,false,5,0,1,4,1,0,66.67,hpq_bank|daily_mix_seed
+maths,Mathematics,M10_U6,Mensuration,M10_CH_SA_VOLUMES,Surface Areas and Volumes,high-roi,10,4,true,true,true,true,false,false,9,0,1,4,1,0,66.67,hpq_bank|daily_mix_seed
+maths,Mathematics,M10_U7,Statistics and Probability,M10_CH_PROB,Probability,must-crack,6,1,true,true,true,true,true,true,14,7,2,2,1,1,100,
+maths,Mathematics,M10_U7,Statistics and Probability,M10_CH_STATS,Statistics,must-crack,10,4,true,true,true,true,true,true,14,6,2,2,1,1,100,
+science,Science,S10_U1,Chemical Substances – Nature and Behaviour,S10_CH_ACIDS_BASES,"Acids, Bases and Salts",must-crack,14,4,true,true,true,true,true,false,7,4,1,2,2,0,83.33,daily_mix_seed
+science,Science,S10_U1,Chemical Substances – Nature and Behaviour,S10_CH_CARBON,Carbon and its Compounds,high-roi,18,4,true,true,true,true,true,false,7,5,2,4,2,0,83.33,daily_mix_seed
+science,Science,S10_U1,Chemical Substances – Nature and Behaviour,S10_CH_CHEM_REAC,Chemical Reactions and Equations,must-crack,12,3,true,true,true,true,true,false,5,4,1,2,2,0,83.33,daily_mix_seed
+science,Science,S10_U1,Chemical Substances – Nature and Behaviour,S10_CH_METALS,Metals and Non-metals,high-roi,14,4,true,true,true,true,true,false,6,12,1,2,2,0,83.33,daily_mix_seed
+science,Science,S10_U2,World of Living,S10_CH_CONTROL_COORD,Control and Co-ordination,high-roi,14,5,true,false,true,true,true,false,6,4,1,0,2,0,66.67,content_config|daily_mix_seed
+science,Science,S10_U2,World of Living,S10_CH_HEREDITY_EVOL,Heredity and Evolution,high-roi,12,3,true,false,true,true,true,false,6,4,1,0,2,0,66.67,content_config|daily_mix_seed
+science,Science,S10_U2,World of Living,S10_CH_LIFE_PROC,Life Processes,must-crack,18,5,true,true,true,false,true,true,0,10,2,4,1,1,83.33,predicted_bank
+science,Science,S10_U2,World of Living,S10_CH_REPROD,Reproduction,must-crack,14,4,true,false,true,true,true,false,7,1,1,0,1,0,66.67,content_config|daily_mix_seed
+science,Science,S10_U3,Natural Phenomena,S10_CH_LIGHT,"Light – Reflection and Refraction (incl. Human Eye, Prism)",must-crack,20,8,true,true,true,true,true,false,23,4,2,3,4,0,83.33,daily_mix_seed
+science,Science,S10_U4,Effects of Current,S10_CH_ELECTRICITY,Electricity,must-crack,16,6,true,true,true,true,true,false,12,5,2,2,2,0,83.33,daily_mix_seed
+science,Science,S10_U4,Effects of Current,S10_CH_MAGNETISM,Magnetic Effects of Electric Current,high-roi,16,6,true,true,true,true,true,false,8,4,2,4,2,0,83.33,daily_mix_seed
+science,Science,S10_U5,Natural Resources,S10_CH_ENV,Our Environment,good-to-do,10,3,true,false,true,true,true,false,6,12,3,0,2,0,66.67,content_config|daily_mix_seed

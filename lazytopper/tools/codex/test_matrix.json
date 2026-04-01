@@ -1,0 +1,335 @@
+{
+  "always": {
+    "verifyFast": true,
+    "substantialTaskMinChangedFiles": 5,
+    "requiredVerifyFields": ["LOG_PATH", "SUMMARY_PATH", "FINAL_STATUS"]
+  },
+  "rules": [
+    {
+      "id": "topichub_surface",
+      "match": {
+        "prefixes": [
+          "src/pages/TopicHub.tsx",
+          "src/data/topicHubV2",
+          "src/data/geminiTopicHubPacks",
+          "src/utils/topicHubV2Store.ts"
+        ]
+      },
+      "tests": [
+        {
+          "label": "topichub_doc_alignment",
+          "command": "npm run test:topichub:doc-alignment",
+          "severity": "targeted",
+          "expectedReport": ".project_memory/ops/out/topichub_doc_alignment_acceptance.json"
+        },
+        {
+          "label": "human_tutor_gap_audit",
+          "command": "node scripts/ops/human_tutor_gap_audit.mjs",
+          "severity": "targeted",
+          "expectedReport": ".project_memory/ops/out/human_tutor_gap_audit.json"
+        },
+        {
+          "label": "persona_gate",
+          "command": "npm run test:persona-gate",
+          "severity": "targeted",
+          "expectedReport": ".project_memory/ops/out/persona_gate_audit.json"
+        },
+        {
+          "label": "browser_topichub_journey",
+          "command": "npm run test:browser:topichub",
+          "severity": "targeted",
+          "expectedReport": ".project_memory/ops/out/browser_journey_gate_audit.json"
+        },
+        {
+          "label": "browser_persona_gate",
+          "command": "npm run test:persona-browser-gate",
+          "severity": "targeted",
+          "expectedReport": ".project_memory/ops/out/browser_persona_gate_audit.json"
+        }
+      ],
+      "proof": {
+        "manualQaRequired": true,
+        "reviewPacketRequired": true
+      }
+    },
+    {
+      "id": "practice_surface",
+      "match": {
+        "prefixes": [
+          "src/pages/PracticePage.tsx",
+          "src/navigation/practiceNavigation.ts",
+          "src/data/practiceSetGenerator.ts",
+          "src/data/predictionCore.ts",
+          "src/data/questionGenerator.ts"
+        ]
+      },
+      "tests": [
+        {
+          "label": "practice_weightage_mix",
+          "command": "npm run test:practice:weightage-mix",
+          "severity": "targeted",
+          "expectedReport": ".project_memory/ops/out/practice_weightage_mix_acceptance.json"
+        },
+        {
+          "label": "student_progress",
+          "command": "npm run test:student-progress:acceptance",
+          "severity": "targeted",
+          "expectedReport": ".project_memory/ops/out/student_progress_acceptance.json"
+        },
+        {
+          "label": "persona_gate",
+          "command": "npm run test:persona-gate",
+          "severity": "targeted",
+          "expectedReport": ".project_memory/ops/out/persona_gate_audit.json"
+        },
+        {
+          "label": "browser_practice_journey",
+          "command": "npm run test:browser:practice",
+          "severity": "targeted",
+          "expectedReport": ".project_memory/ops/out/browser_journey_gate_audit.json"
+        },
+        {
+          "label": "browser_persona_gate",
+          "command": "npm run test:persona-browser-gate",
+          "severity": "targeted",
+          "expectedReport": ".project_memory/ops/out/browser_persona_gate_audit.json"
+        }
+      ],
+      "proof": {
+        "manualQaRequired": true,
+        "reviewPacketRequired": true
+      }
+    },
+    {
+      "id": "mentor_surface",
+      "match": {
+        "prefixes": [
+          "src/components/MentorPanel.tsx",
+          "src/pages/AiMentorPage.tsx",
+          "src/mentors/",
+          "src/tutor/",
+          "server/",
+          "src/types/mentor.ts",
+          "src/types/MentorRequest.ts",
+          "src/utils/mentorImage.ts"
+        ]
+      },
+      "tests": [
+        {
+          "label": "persona_gate",
+          "command": "npm run test:persona-gate",
+          "severity": "targeted",
+          "expectedReport": ".project_memory/ops/out/persona_gate_audit.json"
+        },
+        {
+          "label": "pro_tips_acceptance",
+          "command": "npm run test:pro-tips:acceptance",
+          "severity": "targeted",
+          "expectedReport": ".project_memory/ops/out/pro_tips_product_acceptance.json"
+        },
+        {
+          "label": "mentor_image_support",
+          "command": "node scripts/ops/codex_testing/test_mentor_image_support.cjs",
+          "severity": "targeted"
+        },
+        {
+          "label": "browser_mentor_journey",
+          "command": "npm run test:browser:mentor",
+          "severity": "targeted",
+          "expectedReport": ".project_memory/ops/out/browser_journey_gate_audit.json"
+        },
+        {
+          "label": "browser_persona_gate",
+          "command": "npm run test:persona-browser-gate",
+          "severity": "targeted",
+          "expectedReport": ".project_memory/ops/out/browser_persona_gate_audit.json"
+        }
+      ],
+      "proof": {
+        "manualQaRequired": true,
+        "reviewPacketRequired": true
+      }
+    },
+    {
+      "id": "content_banks",
+      "match": {
+        "prefixes": [
+          "src/data/predictedQuestions.ts",
+          "src/data/predictedQuestionsScience.ts",
+          "src/data/highlyProbableQuestions.ts",
+          "src/data/questionBanks/",
+          "src/data/canonicalQuestionBank.ts",
+          "src/data/predictivePapers.ts"
+        ]
+      },
+      "tests": [
+        {
+          "label": "prediction_bank_health",
+          "command": "npm run test:prediction:bank-health",
+          "severity": "targeted",
+          "expectedReport": ".project_memory/ops/out/prediction_bank_health_acceptance.json"
+        },
+        {
+          "label": "hpq_standards",
+          "command": "npm run test:hpq:standards",
+          "severity": "targeted",
+          "expectedReport": ".project_memory/ops/out/hpq_practice_predictive_standards_acceptance.json"
+        },
+        {
+          "label": "practice_weightage_mix",
+          "command": "npm run test:practice:weightage-mix",
+          "severity": "targeted",
+          "expectedReport": ".project_memory/ops/out/practice_weightage_mix_acceptance.json"
+        }
+      ],
+      "proof": {
+        "manualQaRequired": false,
+        "reviewPacketRequired": true
+      }
+    },
+    {
+      "id": "content_strategy_and_tutor_paths",
+      "match": {
+        "prefixes": [
+          "src/data/contentStrategy/",
+          "src/services/questionTypeFirstResolver.ts",
+          "src/data/tutor/",
+          "src/utils/getChapterTutorPath.ts"
+        ]
+      },
+      "tests": [
+        {
+          "label": "cbse_registry_alignment",
+          "command": "npm run test:cbse:registry-alignment",
+          "severity": "targeted",
+          "expectedReport": ".project_memory/ops/out/cbse_registry_alignment_acceptance.json"
+        },
+        {
+          "label": "validate_tutor_content_architecture",
+          "command": "node scripts/ops/codex_testing/validate_tutor_content_architecture.cjs",
+          "severity": "targeted"
+        },
+        {
+          "label": "persona_gate",
+          "command": "npm run test:persona-gate",
+          "severity": "targeted",
+          "expectedReport": ".project_memory/ops/out/persona_gate_audit.json"
+        },
+        {
+          "label": "browser_triangles_journey",
+          "command": "npm run test:browser:triangles",
+          "severity": "targeted",
+          "expectedReport": ".project_memory/ops/out/browser_journey_gate_audit.json"
+        },
+        {
+          "label": "review_packet_semantic",
+          "command": "npm run test:review-packet:semantic",
+          "severity": "targeted",
+          "expectedReport": ".project_memory/ops/out/review_packet_semantic_validation.json"
+        }
+      ],
+      "proof": {
+        "manualQaRequired": true,
+        "reviewPacketRequired": true
+      }
+    },
+    {
+      "id": "routes_and_navigation",
+      "match": {
+        "prefixes": [
+          "src/App.tsx",
+          "src/navigation/"
+        ]
+      },
+      "tests": [
+        {
+          "label": "repo_boundary",
+          "command": "npm run test:repo-boundary",
+          "severity": "targeted",
+          "expectedReport": ".project_memory/ops/out/repo_boundary_acceptance.json"
+        },
+        {
+          "label": "persona_gate",
+          "command": "npm run test:persona-gate",
+          "severity": "targeted",
+          "expectedReport": ".project_memory/ops/out/persona_gate_audit.json"
+        },
+        {
+          "label": "browser_journeys",
+          "command": "npm run test:browser:journeys",
+          "severity": "targeted",
+          "expectedReport": ".project_memory/ops/out/browser_journey_gate_audit.json"
+        },
+        {
+          "label": "browser_persona_gate",
+          "command": "npm run test:persona-browser-gate",
+          "severity": "targeted",
+          "expectedReport": ".project_memory/ops/out/browser_persona_gate_audit.json"
+        },
+        {
+          "label": "review_packet_semantic",
+          "command": "npm run test:review-packet:semantic",
+          "severity": "targeted",
+          "expectedReport": ".project_memory/ops/out/review_packet_semantic_validation.json"
+        }
+      ],
+      "proof": {
+        "manualQaRequired": true,
+        "reviewPacketRequired": true
+      }
+    },
+    {
+      "id": "quality_gate_tooling",
+      "match": {
+        "prefixes": [
+          "tools/codex/",
+          "scripts/ops/browser_journeys/",
+          "scripts/ops/browser_persona_gate_auditor.mjs",
+          "scripts/ops/student_bots/",
+          "scripts/ops/tutor_bots/",
+          "scripts/ops/persona_bot_lib.mjs",
+          "scripts/ops/persona_gate_auditor.mjs",
+          "scripts/ops/codex_testing/codex_verify.ps1",
+          "package.json",
+          "docs/project_memory/review_packets/"
+        ]
+      },
+      "tests": [
+        {
+          "label": "repo_boundary",
+          "command": "npm run test:repo-boundary",
+          "severity": "targeted",
+          "expectedReport": ".project_memory/ops/out/repo_boundary_acceptance.json"
+        },
+        {
+          "label": "persona_gate",
+          "command": "npm run test:persona-gate",
+          "severity": "targeted",
+          "expectedReport": ".project_memory/ops/out/persona_gate_audit.json"
+        },
+        {
+          "label": "browser_journeys",
+          "command": "npm run test:browser:journeys",
+          "severity": "targeted",
+          "expectedReport": ".project_memory/ops/out/browser_journey_gate_audit.json"
+        },
+        {
+          "label": "browser_persona_gate",
+          "command": "npm run test:persona-browser-gate",
+          "severity": "targeted",
+          "expectedReport": ".project_memory/ops/out/browser_persona_gate_audit.json"
+        },
+        {
+          "label": "review_packet_semantic",
+          "command": "npm run test:review-packet:semantic",
+          "severity": "targeted",
+          "expectedReport": ".project_memory/ops/out/review_packet_semantic_validation.json"
+        }
+      ],
+      "proof": {
+        "manualQaRequired": false,
+        "reviewPacketRequired": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,238 @@
+{
+  "rubrics": [
+    {
+      "id": "congruence_proof_sss_sas_asa_rhs",
+      "title": "Congruence Proof (SSS/SAS/ASA/RHS)",
+      "totalMarks": 10,
+      "steps": [
+        {
+          "stepId": "c1_step1",
+          "description": "State the two triangles and given information",
+          "requiredKeywords": ["triangle", "given"],
+          "requiredIdeas": [],
+          "allowedVariants": ["Δ"],
+          "marks": 2
+        },
+        {
+          "stepId": "c1_step2",
+          "description": "Identify the congruence condition used (SSS, SAS, ASA or RHS)",
+          "requiredKeywords": ["SSS", "SAS", "ASA", "RHS"],
+          "requiredIdeas": [],
+          "allowedVariants": ["right angle hypotenuse side"],
+          "marks": 3
+        },
+        {
+          "stepId": "c1_step3",
+          "description": "Show the corresponding sides or angles match",
+          "requiredKeywords": ["corresponding", "equal"],
+          "requiredIdeas": [],
+          "allowedVariants": ["equivalent"],
+          "marks": 3
+        },
+        {
+          "stepId": "c1_step4",
+          "description": "Conclude that the triangles are congruent",
+          "requiredKeywords": ["congruent"],
+          "requiredIdeas": [],
+          "allowedVariants": ["≅"],
+          "marks": 2
+        }
+      ],
+      "commonMistakes": [
+        { "id": "mis_rule_congruence", "description": "Incorrectly selects or confuses SSS/SAS/ASA/RHS" },
+        { "id": "mis_correspondence", "description": "Fails to match corresponding sides or angles correctly" },
+        { "id": "mis_conclusion_congruence", "description": "Omits the final statement that triangles are congruent" }
+      ],
+      "feedbackTemplates": [
+        { "id": "fb_mis_rule_congruence", "condition": "mis_rule_congruence", "text": "Review the definitions of SSS, SAS, ASA and RHS to select the correct congruence test." },
+        { "id": "fb_mis_correspondence", "condition": "mis_correspondence", "text": "Check that you have matched the correct corresponding sides or angles between the two triangles." },
+        { "id": "fb_mis_conclusion_congruence", "condition": "mis_conclusion_congruence", "text": "After establishing the conditions, state explicitly that the triangles are congruent." }
+      ],
+      "misconceptionTags": ["mis_rule_congruence", "mis_correspondence", "mis_conclusion_congruence"]
+    },
+
+    {
+      "id": "similarity_proof_aa_sas_sss",
+      "title": "Similarity Proof (AA/SAS/SSS)",
+      "totalMarks": 10,
+      "steps": [
+        {
+          "stepId": "c2_step1",
+          "description": "State the two triangles and given information",
+          "requiredKeywords": ["triangle", "given"],
+          "requiredIdeas": [],
+          "allowedVariants": ["Δ"],
+          "marks": 2
+        },
+        {
+          "stepId": "c2_step2",
+          "description": "Identify the similarity condition used (AA, SAS or SSS)",
+          "requiredKeywords": ["AA", "SAS", "SSS"],
+          "requiredIdeas": [],
+          "allowedVariants": ["angle‑angle", "side‑angle‑side", "side‑side‑side"],
+          "marks": 3
+        },
+        {
+          "stepId": "c2_step3",
+          "description": "Compare the ratios of corresponding sides or angles",
+          "requiredKeywords": ["ratio", "proportional"],
+          "requiredIdeas": [],
+          "allowedVariants": ["equal angles"],
+          "marks": 3
+        },
+        {
+          "stepId": "c2_step4",
+          "description": "Conclude that the triangles are similar",
+          "requiredKeywords": ["similar"],
+          "requiredIdeas": [],
+          "allowedVariants": [],
+          "marks": 2
+        }
+      ],
+      "commonMistakes": [
+        { "id": "mis_rule_similarity", "description": "Uses an incorrect similarity criterion" },
+        { "id": "mis_ratio_similarity", "description": "Fails to correctly set up or interpret side ratios" },
+        { "id": "mis_conclusion_similarity", "description": "Omits the final statement that triangles are similar" }
+      ],
+      "feedbackTemplates": [
+        { "id": "fb_mis_rule_similarity", "condition": "mis_rule_similarity", "text": "Recall that AA, SAS and SSS are the valid criteria for triangle similarity." },
+        { "id": "fb_mis_ratio_similarity", "condition": "mis_ratio_similarity", "text": "Ensure the ratios of corresponding sides are proportional and clearly stated." },
+        { "id": "fb_mis_conclusion_similarity", "condition": "mis_conclusion_similarity", "text": "After verifying the conditions, conclude that the triangles are similar." }
+      ],
+      "misconceptionTags": ["mis_rule_similarity", "mis_ratio_similarity", "mis_conclusion_similarity"]
+    },
+
+    {
+      "id": "midpoint_basic_proportionality_theorem",
+      "title": "Mid‑Point / Basic Proportionality Theorem (BPT)",
+      "totalMarks": 8,
+      "steps": [
+        {
+          "stepId": "c3_step1",
+          "description": "Identify the triangle and the mid‑point or parallel line given",
+          "requiredKeywords": ["midpoint", "parallel"],
+          "requiredIdeas": [],
+          "allowedVariants": ["mid‑point", "bisects"],
+          "marks": 2
+        },
+        {
+          "stepId": "c3_step2",
+          "description": "State or apply the basic proportionality theorem",
+          "requiredKeywords": ["proportionality theorem", "mid‑point theorem"],
+          "requiredIdeas": [],
+          "allowedVariants": ["BPT"],
+          "marks": 3
+        },
+        {
+          "stepId": "c3_step3",
+          "description": "Set up the equality of ratios and solve",
+          "requiredKeywords": ["ratio", "equal"],
+          "requiredIdeas": [],
+          "allowedVariants": ["proportional"],
+          "marks": 3
+        }
+      ],
+      "commonMistakes": [
+        { "id": "mis_no_parallel", "description": "Fails to identify the parallel line or mid‑point condition" },
+        { "id": "mis_no_ratio_bpt", "description": "Does not set up the proportionality ratio correctly" }
+      ],
+      "feedbackTemplates": [
+        { "id": "fb_mis_no_parallel", "condition": "mis_no_parallel", "text": "Look for a parallel line or midpoint condition which triggers the basic proportionality theorem." },
+        { "id": "fb_mis_no_ratio_bpt", "condition": "mis_no_ratio_bpt", "text": "State the correct ratio of corresponding sides implied by the theorem." }
+      ],
+      "misconceptionTags": ["mis_no_parallel", "mis_no_ratio_bpt"]
+    },
+
+    {
+      "id": "angle_bisector_theorem",
+      "title": "Angle Bisector Theorem",
+      "totalMarks": 8,
+      "steps": [
+        {
+          "stepId": "c4_step1",
+          "description": "Identify the angle bisector in the triangle",
+          "requiredKeywords": ["angle bisector"],
+          "requiredIdeas": [],
+          "allowedVariants": ["bisects angle"],
+          "marks": 2
+        },
+        {
+          "stepId": "c4_step2",
+          "description": "State the angle bisector theorem",
+          "requiredKeywords": ["angle bisector theorem", "ratio of sides"],
+          "requiredIdeas": [],
+          "allowedVariants": ["bisector theorem"],
+          "marks": 3
+        },
+        {
+          "stepId": "c4_step3",
+          "description": "Set up the ratio of adjacent sides and relate to opposite sides",
+          "requiredKeywords": ["ratio", "adjacent", "opposite"],
+          "requiredIdeas": [],
+          "allowedVariants": ["proportional"],
+          "marks": 3
+        }
+      ],
+      "commonMistakes": [
+        { "id": "mis_no_bisector", "description": "Fails to identify or mention the angle bisector" },
+        { "id": "mis_wrong_ratio_bisector", "description": "Sets up an incorrect ratio for the bisector theorem" }
+      ],
+      "feedbackTemplates": [
+        { "id": "fb_mis_no_bisector", "condition": "mis_no_bisector", "text": "Identify the angle bisector in the triangle and denote it clearly." },
+        { "id": "fb_mis_wrong_ratio_bisector", "condition": "mis_wrong_ratio_bisector", "text": "Ensure the ratio is of the adjacent sides and relates them to the opposite sides cut by the bisector." }
+      ],
+      "misconceptionTags": ["mis_no_bisector", "mis_wrong_ratio_bisector"]
+    },
+
+    {
+      "id": "prove_triangles_congruent_standard",
+      "title": "Prove Triangles Congruent (Board‑Style)",
+      "totalMarks": 12,
+      "steps": [
+        {
+          "stepId": "c5_step1",
+          "description": "Write the given data clearly",
+          "requiredKeywords": ["given"],
+          "requiredIdeas": [],
+          "allowedVariants": [],
+          "marks": 2
+        },
+        {
+          "stepId": "c5_step2",
+          "description": "State what needs to be proved",
+          "requiredKeywords": ["to prove"],
+          "requiredIdeas": [],
+          "allowedVariants": ["prove that"],
+          "marks": 2
+        },
+        {
+          "stepId": "c5_step3",
+          "description": "Use given equalities to show sides and/or angles are equal",
+          "requiredKeywords": ["equal", "side", "angle"],
+          "requiredIdeas": [],
+          "allowedVariants": ["corresponding"],
+          "marks": 4
+        },
+        {
+          "stepId": "c5_step4",
+          "description": "Apply a congruence criterion (SSS, SAS, ASA or RHS) and conclude",
+          "requiredKeywords": ["congruence", "SSS", "SAS", "ASA", "RHS"],
+          "requiredIdeas": [],
+          "allowedVariants": ["congruent"],
+          "marks": 4
+        }
+      ],
+      "commonMistakes": [
+        { "id": "mis_missing_given", "description": "Neglects to state the given information" },
+        { "id": "mis_missing_to_prove", "description": "Does not specify what needs to be proved" },
+        { "id": "mis_wrong_congruence_application", "description": "Applies an incorrect congruence criterion or fails to match sides/angles properly" }
+      ],
+      "feedbackTemplates": [
+        { "id": "fb_mis_missing_given", "condition": "mis_missing_given", "text": "Always begin by stating the given data clearly." },
+        { "id": "fb_mis_missing_to_prove", "condition": "mis_missing_to_prove", "text": "Specify exactly what you are trying to prove before starting the proof." },
+        { "id": "fb_mis_wrong_congruence_application", "condition": "mis_wrong_congruence_application", "text": "Ensure the chosen congruence criterion matches the equalities you have established." }
+      ],
+      "misconceptionTags": ["mis_missing_given", "mis_missing_to_prove", "mis_wrong_congruence_application"]
+    }
+  ]
+}

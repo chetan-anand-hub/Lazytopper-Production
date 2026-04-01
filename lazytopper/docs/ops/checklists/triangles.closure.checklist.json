@@ -1,0 +1,25 @@
+{
+  "_comment": "Category: Tracked Tooling; Purpose: Deterministic triangles audit gate checklist schema.",
+  "meta": {
+    "id": "triangles_closure",
+    "version": 1
+  },
+  "gates": {
+    "build": {
+      "status": false,
+      "details": "Build needs to be rerun."
+    },
+    "mojibake_scan": {
+      "status": true,
+      "details": "No mojibake tokens were found."
+    },
+    "required_files": {
+      "status": false,
+      "details": "src/pages/OpsChecklist.tsx"
+    },
+    "wiring_checks": {
+      "status": true,
+      "details": "Wiring checks passed."
+    }
+  }
+}

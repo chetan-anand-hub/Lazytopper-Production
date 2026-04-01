@@ -1,0 +1,12 @@
+#!/bin/sh
+set -e
+
+powershell -ExecutionPolicy Bypass -File scripts/clean-windows-metadata.ps1
+
+staged=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '(^|/)(desktop\.ini|Thumbs\.db|ehthumbs\.db)$' || true)
+if [ -n "$staged" ]; then
+  echo "Windows metadata files cannot be committed. Cleaning them and aborting commit." 1>&2
+  git reset -q HEAD -- $staged
+  rm -f -- $staged
+  exit 1
+fi

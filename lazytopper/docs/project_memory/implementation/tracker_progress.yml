@@ -1,0 +1,50 @@
+﻿progress:
+  tracks:
+    lazytopper:
+      current: "R8"
+      states:
+        R8: "DOING"
+        R8-3: "TODO"
+        R9: "TODO"
+        R10: "TODO"
+        R11: "TODO"
+        R12: "TODO"
+        R13: "TODO"
+        R14: "TODO"
+        R15: "TODO"
+        R16: "TODO"
+        R17: "TODO"
+    governance_gates:
+      current: "G1"
+      states:
+        G1: "DONE" # BLOCK-1 / Triangles / Batch-3 Closeout (QA-Grind Fixtures Evidence) - Evidence ZIP: LT_BLOCK1_TRIANGLES_BATCH3_CLOSEOUT_20260131_114047.zip
+    blackbox:
+      states:
+        S0: "DONE"
+        S1: "DONE"
+        S2: "DONE"
+        S3: "DONE"
+        S4: "DONE"
+        S5: "DONE"
+
+    detours:
+      # This is your “branch lane” for side quests not on the main roadmap.
+      # States: TODO | DOING | DONE | BLOCKED | SKIP
+      states:
+        D1: "DONE"
+        D2: "DONE"
+        D3: "DONE"
+        D4: "DONE"
+
+    tutor_rag:
+      current: "B7"
+      states:
+        B0: "DONE" # Tooling Health Pre-Block (build + tracker + doctor)
+        B1: "DONE" # Triangles tutor contracts canonicalized; server validates + fallback; commit: TBD
+        B2: "DONE" # Attempt loop + BSRE (attempt_loop + fallback); commit: TBD
+        B3: "DONE" # Hint ladder runtime (L0?L5); commit: TBD
+        B4: "DONE" # Rubric scoring + mastery bands; commit: TBD
+        B5: "DONE" # Retrieval + sources (local knowledge); commit: TBD
+        B6: "DONE" # Evaluation harness + regression tests (Triangles-first)
+        B7: "DOING" # Public ship MVP (deploy + feedback loop)
+

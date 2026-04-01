@@ -1,0 +1,21 @@
+#!/bin/sh
+set -euo pipefail
+
+echo "Running LazyTopper memory blackbox checks..."
+if ! npm run blackbox; then
+  echo "Blackbox failed. Please run 'npm run blackbox:full' and upload contextpack.md + latest.json before committing." >&2
+  exit 1
+fi
+
+echo "Generating context pack..."
+if ! npm run contextpack; then
+  echo "Context pack generation failed. Resolve issues above before committing." >&2
+  exit 1
+fi
+
+if npm run lint; then
+  echo "Lint passed."
+else
+  echo "Lint failed. Fix lint issues (or run 'npm run lint') before committing." >&2
+  exit 1
+fi

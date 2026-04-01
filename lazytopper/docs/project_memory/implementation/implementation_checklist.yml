@@ -1,0 +1,58 @@
+﻿blackbox:
+  title: "Blackbox Automation Stages"
+  allowedSystemTouchPrefixes:
+    - "scripts/"
+    - ".github/workflows/"
+    - "docs/project_memory/"
+    - ".project_memory/blackbox/"
+    - "package.json"
+  stages:
+    - id: "S0"
+      title: "Contracts & Configuration"
+      evidence:
+        - file: "scripts/memoryContracts.ts"
+    - id: "S1"
+      title: "Snapshot Generator"
+      evidence:
+        - file: "scripts/blackbox.mjs"
+        - file: ".project_memory/blackbox/latest.json"
+    - id: "S2"
+      title: "Context Pack Generator"
+      evidence:
+        - file: "scripts/contextpack.mjs"
+        - file: ".project_memory/blackbox/contextpack.md"
+        - file: ".project_memory/blackbox/contextpack.json"
+    - id: "S3"
+      title: "Governance Digest (Rules + Learnings)"
+      evidence:
+        - file: "scripts/rulesDigest.mjs"
+        - file: ".project_memory/blackbox/rules_digest.md"
+        - file: "docs/project_memory/governance/inputs"
+    - id: "S4"
+      title: "CI Artifacts"
+      evidence:
+        - file: ".github/workflows/blackbox.yml"
+    - id: "S5"
+      title: "Stage Tracker + Drift Detection"
+      evidence:
+        - file: "scripts/stageTracker.mjs"
+        - file: ".project_memory/blackbox/stage_status.json"
+        - file: ".project_memory/blackbox/stage_status.md"
+
+
+tracker:
+  title: "Tracker Automation"
+  status:
+    - item: "LIVE tracking certified PASS"
+      evidence:
+        - file: 'C:\Users\Chetan\OneDrive\Desktop\Lazytopper\wayforward\01-02-2026\output\LazyTopper_CODEX_RUN_LT_TRACKER_T011_20260128_081159_CERTIFY_LIVE_TRACKING.zip'
+    - item: "tracker:open opens HTTP to avoid FAILED_TO_LOAD"
+      evidence:
+        - commit: "86ee7d136456204ecf7c6f0f8310b3f0d0bf62e4"
+    - item: "Certification note recorded in repo"
+      evidence:
+        - file: "docs/project_memory/implementation/tracker_live_certification.md"
+        - commit: "40344ea2eb20608b030a26f3c102ca8a9c289fc5"
+    - item: "Tutor RAG blocks integrated into tracker (tutor_rag: B0..B6)"
+      evidence:
+        - commit: "TBD"

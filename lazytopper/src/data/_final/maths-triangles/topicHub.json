@@ -1,0 +1,52 @@
+{
+  "subjectKey": "Maths",
+  "topicKeyCanonical": "maths-triangles",
+  "whyImportant": [
+    "High ROI chapter: Geometry unit usually contributes ~6–10 marks; Triangles is a frequent scorer.",
+    "Similarity + BPT unlock multiple case-study/numerical questions (including real-life applications like shadows).",
+    "Pythagoras (and its converse) is a classic 3–4 mark target and also supports coordinate geometry & trigonometry later."
+  ],
+  "examPatterns": [
+    "5-mark proof: Basic Proportionality Theorem (BPT / Thales) OR Pythagoras Theorem proof.",
+    "3-mark numericals: Similarity → CPST ratios → find missing length/height (must show similarity first).",
+    "2-mark quick hits: Identify similarity criterion (AA/SAS/SSS), find ratio of corresponding sides, or apply BPT directly.",
+    "Case-study style: diagram-based questions where you choose BPT vs Similarity vs Pythagoras by spotting cues."
+  ],
+  "highROIConcepts": [
+    "Basic Proportionality Theorem (BPT / Thales): DE ∥ BC ⇒ AD/DB = AE/EC.",
+    "Similarity criteria: AA / SAS / SSS + correct vertex correspondence.",
+    "CPST: ratios of corresponding sides & angles once triangles are proven similar.",
+    "Areas of similar triangles: ratio of areas = (ratio of corresponding sides)^2 (used in 3–4 markers).",
+    "Pythagoras Theorem + Converse: right-angle detection + length finding."
+  ],
+  "commonMistakes": [
+    "Assuming parallel lines or similarity without stating the criterion/theorem.",
+    "Wrong vertex correspondence (order of letters) → wrong CPST ratios.",
+    "Skipping the final line: 'Hence proved' / theorem name / units (costs easy marks).",
+    "Using Pythagoras when the triangle is NOT right-angled (or forgetting converse check)."
+  ],
+  "examTips": [
+    "For any similarity question: write (i) ∠ = ∠, (ii) ∠ = ∠, (iii) therefore Δ ~ Δ by AA (or SAS/SSS).",
+    "Always write the CPST ratio line clearly (this is where examiners award marks).",
+    "For proofs: write Given / To Prove / Construction (if any) / Proof steps / Hence proved.",
+    "Use units in the final answer and box/underline the result (small habit, real marks)."
+  ],
+  "microExamples": [
+    {
+      "question": "In ΔABC, DE ∥ BC. Write the proportionality relation.",
+      "expectedAnswer": "AD/DB = AE/EC (by BPT)."
+    },
+    {
+      "question": "If ΔABC ~ ΔPQR, write two equal ratios of corresponding sides.",
+      "expectedAnswer": "AB/PQ = BC/QR = AC/PR."
+    },
+    {
+      "question": "If two triangles are similar and AB/PQ = 2/3, what is the ratio of their areas?",
+      "expectedAnswer": "Area(ΔABC)/Area(ΔPQR) = (2/3)^2 = 4/9."
+    },
+    {
+      "question": "A triangle has sides 6, 8, 10. Is it right-angled?",
+      "expectedAnswer": "Yes, because 6^2 + 8^2 = 10^2 (converse of Pythagoras)."
+    }
+  ]
+}

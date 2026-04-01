@@ -1,0 +1,174 @@
+# GENERATED EVIDENCE — NEVER COMMIT
+.project_memory/
+docs/ops/out/
+RUN_*/
+**/RUN_*/
+.codex_runs/
+node_modules
+dist
+build
+Reports/
+
+# Dependencies / builds
+node_modules
+dist
+build
+
+# Env files
+.env
+.env.*
+**/.env
+**/.env.*
+*.log
+
+# OS junk
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+**/desktop.ini
+
+# Editor
+.vscode
+src/lazytopper_patch.diff
+
+# ---- LazyTopper guard: OS junk ----
+.BIN/
+*.lnk
+
+
+# --- LazyTopper AI secrets (do not commit) ---
+server/.env
+server/.env.*
+.env
+.env.*
+**/.env
+**/.env.*
+*.key
+*.pem
+*.p12
+*.keystore
+
+!server/.env.example
+_rollback/
+_handoff/
+git/
+powershell/
+docs/session/_untracked_notes/
+
+# Playwright outputs
+test-results/
+playwright-report/
+.project_memory/snapshots/
+.project_memory/cache/
+.codex_runs/
+!.project_memory/LATEST.md
+!.project_memory/LATEST.json
+!.project_memory/PROMPT_SEED.md
+# --- Project Memory Blackbox (clean history) ---
+# High-churn / bulk: never commit
+.project_memory/
+docs/session/*_blackbox.md
+.codex_runs/
+RUN_*/
+**/RUN_*/
+LazyTopper_CODEX_RUN_*.zip
+
+# Allow curated, stable notes
+!docs/project_notes/
+!docs/project_notes/**
+# --- Local debug / evidence (do not commit) ---
+debugDiaryChain.js
+tempDiaryDebug.js
+todo_scan.txt
+
+# --- Windows metadata ---
+**/desktop.ini
+
+# local-only dev logs (ignored forever)
+docs/project_notes/issues.md
+
+
+# local-only dev log (ignore even though docs/project_notes is allowed)
+docs/project_notes/issues.md
+
+docs/project_notes/issues_backup_*.md
+
+
+# --- local tracker UI (do not commit) ---
+.project_memory/tracker_ui/
+
+
+# generated tracker outputs (json/md)
+.project_memory/tracker/
+
+
+# local reports evidence
+Reports/
+# --- Evidence / audit artifacts (keep OUT of repo) ---
+evidence_pack_*.zip
+LazyTopper_Audit_*.zip
+audit_*/
+Audit_*/
+
+# evidence output (must live outside repo)
+REPORT.md
+
+
+codex_tutor_snapshot.ps1
+
+_codex_output/
+_debug_bundle/
+_handover_evidence/
+src/pages/TopicHub.tsx.bak2
+# backup artifacts (never commit)
+_patch_backup_*/
+.patch_backups/
+*.bak
+*.bak_*
+*.bak2
+# --- HARD BOUNDARY OVERRIDE (last-match wins) ---
+.project_memory/**
+docs/project_memory/test_runs/**
+docs/project_memory/strategy_reports/**
+docs/project_memory/review_packets/20*.md
+docs/project_memory/review_packets/20*.json
+docs/project_memory/review_packets/*_review.md
+docs/project_memory/review_packets/*_review.json
+!docs/project_memory/review_packets/README.md
+!docs/project_memory/review_packets/templates/
+!docs/project_memory/review_packets/templates/**
+docs/session/**
+docs/ops/out/**
+RUN_*/**
+**/RUN_*/**
+.codex_runs/**
+Reports/**
+reports/**
+tools/.local_ops/**
+dist/**
+build/**
+node_modules/**
+_codex_output/**
+_debug_bundle/**
+_handover_evidence/**
+_patch_backup_*/**
+.patch_backups/**
+**/*.bak
+**/*.bak_*
+**/*.bak2
+_handoff/**
+_rollback/**
+
+# --- Local-only tracked artifact cleanup ---
+/fix_patch.diff
+/gate_git_status.txt
+/mojibake_pre_stdout.txt
+/mojibake_pre_stderr.txt
+/mojibake_post_stdout.txt
+/mojibake_post_stderr.txt
+/repo_folders.txt
+/repo_paths.txt
+/tsc_noemit_stdout.txt
+/tsc_noemit_stderr.txt
+/set

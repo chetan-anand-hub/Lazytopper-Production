@@ -1,0 +1,206 @@
+[
+  {
+    "subjectKey": "Maths",
+    "topicKeyCanonical": "maths-triangles",
+    "questionType": "proof",
+    "examWeight": "5m",
+    "boardSteps": {
+      "given": [
+        "Triangle ABC with line DE parallel to BC",
+        "D lies on AB, E lies on AC"
+      ],
+      "toProve": [
+        "AD / DB = AE / EC"
+      ],
+      "construction": [
+        "Join BE and CD. Draw DM ⟂ AC and EN ⟂ AB (heights for area ratios)."
+      ],
+      "steps": [
+        {
+          "step": "[1M] Area(ΔADE) = (1/2) × AD × EN",
+          "reason": "Area of triangle = 1/2 × base × height"
+        },
+        {
+          "step": "[1M] Area(ΔBDE) = (1/2) × DB × EN",
+          "reason": "Same height EN for bases AD and DB"
+        },
+        {
+          "step": "[1M] Area(ΔADE) / Area(ΔBDE) = AD / DB",
+          "reason": "Dividing the two area expressions"
+        },
+        {
+          "step": "[1M] Area(ΔADE) = (1/2) × AE × DM and Area(ΔCDE) = (1/2) × EC × DM",
+          "reason": "Using AC as base; same height DM"
+        },
+        {
+          "step": "[1M] Area(ΔADE) / Area(ΔCDE) = AE / EC",
+          "reason": "Dividing the two area expressions"
+        },
+        {
+          "step": "[1M] Area(ΔBDE) = Area(ΔCDE)",
+          "reason": "Triangles on same base DE and between same parallels DE and BC are equal in area"
+        },
+        {
+          "step": "[1M] Therefore AD / DB = AE / EC",
+          "reason": "From area-ratio equalities"
+        }
+      ],
+      "result": "Hence proved (Basic Proportionality Theorem / Thales)"
+    },
+    "commonMistakes": [
+      "Skipping construction lines in the diagram.",
+      "Not writing the 'same base and between same parallels' area property.",
+      "Not naming the theorem in the final line."
+    ],
+    "examinerNotes": [
+      "Even if you remember the proof, write it cleanly: Given → To Prove → Construction → Proof → Hence proved.",
+      "Use consistent triangle naming: ΔBDE and ΔCDE (avoid swapping letters)."
+    ]
+  },
+  {
+    "subjectKey": "Maths",
+    "topicKeyCanonical": "maths-triangles",
+    "questionType": "numerical",
+    "examWeight": "3m",
+    "boardSteps": {
+      "given": [
+        "Vertical pole height = 6 m, shadow = 4 m",
+        "Tower shadow = 28 m at the same time"
+      ],
+      "toProve": [
+        "Height of tower (h)"
+      ],
+      "construction": [
+        "Draw two right triangles: (pole, shadow) and (tower, shadow). Mark the sun ray angle same."
+      ],
+      "steps": [
+        {
+          "step": "[1M] ∠B = ∠Q = 90°",
+          "reason": "Vertical object to ground makes right angle"
+        },
+        {
+          "step": "[1M] ∠C = ∠R",
+          "reason": "Angle of elevation of sun is same at the same instant"
+        },
+        {
+          "step": "[1M] Therefore ΔABC ~ ΔPQR",
+          "reason": "AA similarity"
+        },
+        {
+          "step": "[1M] AB / PQ = BC / QR",
+          "reason": "CPST"
+        },
+        {
+          "step": "[1M] 6 / h = 4 / 28 ⇒ h = 42 m",
+          "reason": "Substitution + cross-multiplication"
+        }
+      ],
+      "result": "Height of tower is 42 m."
+    },
+    "commonMistakes": [
+      "Using ratio directly without proving similarity.",
+      "Wrong correspondence of sides (height with shadow swapped).",
+      "Forgetting units in final answer."
+    ],
+    "examinerNotes": [
+      "Write the similarity line explicitly; it is a mark by itself.",
+      "Mention CPST before substitution for full credit."
+    ]
+  },
+  {
+    "subjectKey": "Maths",
+    "topicKeyCanonical": "maths-triangles",
+    "questionType": "numerical",
+    "examWeight": "2m",
+    "boardSteps": {
+      "given": [
+        "Triangle ABC, DE ∥ BC",
+        "AD/DB = 3/5, AC = 4.8 cm"
+      ],
+      "toProve": [
+        "Length of AE"
+      ],
+      "construction": [
+        "None"
+      ],
+      "steps": [
+        {
+          "step": "[1M] AD / DB = AE / EC",
+          "reason": "Basic Proportionality Theorem"
+        },
+        {
+          "step": "[1M] Let AE = x ⇒ EC = 4.8 − x",
+          "reason": "AC = AE + EC"
+        },
+        {
+          "step": "[1M] 3/5 = x/(4.8 − x)",
+          "reason": "Substitution"
+        },
+        {
+          "step": "[1M] Solve ⇒ x = 1.8 cm",
+          "reason": "Cross-multiplication + simplification"
+        }
+      ],
+      "result": "AE = 1.8 cm."
+    },
+    "commonMistakes": [
+      "Taking EC = x without using AC = AE + EC correctly.",
+      "Decimal arithmetic mistakes.",
+      "Not naming BPT."
+    ],
+    "examinerNotes": [
+      "Alternative accepted: AD/AB = AE/AC after proving triangles similar.",
+      "Write cm in final answer."
+    ]
+  },
+  {
+    "subjectKey": "Maths",
+    "topicKeyCanonical": "maths-triangles",
+    "questionType": "proof",
+    "examWeight": "4m",
+    "boardSteps": {
+      "given": [
+        "Right-angled triangle ABC with ∠B = 90°",
+        "Perpendicular from B meets hypotenuse AC at D"
+      ],
+      "toProve": [
+        "AB² + BC² = AC²"
+      ],
+      "construction": [
+        "Draw BD ⟂ AC (altitude to hypotenuse)."
+      ],
+      "steps": [
+        {
+          "step": "[1M] ΔABD ~ ΔABC",
+          "reason": "AA similarity (∠A common, right angles)"
+        },
+        {
+          "step": "[1M] From CPST: AB/AC = AD/AB ⇒ AB² = AD·AC",
+          "reason": "CPST + cross-multiplication"
+        },
+        {
+          "step": "[1M] ΔCBD ~ ΔCBA",
+          "reason": "AA similarity (∠C common, right angles)"
+        },
+        {
+          "step": "[1M] From CPST: BC/AC = DC/BC ⇒ BC² = DC·AC",
+          "reason": "CPST + cross-multiplication"
+        },
+        {
+          "step": "[1M] Add: AB² + BC² = (AD·AC) + (DC·AC) = (AD+DC)·AC = AC·AC = AC²",
+          "reason": "D lies on AC ⇒ AD+DC=AC"
+        }
+      ],
+      "result": "Hence proved (Pythagoras Theorem)."
+    },
+    "commonMistakes": [
+      "Not stating similarity triangles before CPST.",
+      "Mixing up AD and DC in the final addition.",
+      "Forgetting to mention D lies on AC."
+    ],
+    "examinerNotes": [
+      "This is a standard board-proof approach via similarity; neat and high-scoring.",
+      "If you write the final line clearly, you secure the conclusion mark."
+    ]
+  }
+]

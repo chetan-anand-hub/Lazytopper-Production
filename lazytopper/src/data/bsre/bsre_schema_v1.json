@@ -1,0 +1,84 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "BSRE Rubric Schema V1",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier for the rubric" },
+    "title": { "type": "string", "description": "Human‑readable rubric title" },
+    "totalMarks": { "type": "number", "description": "Maximum marks achievable" },
+    "criteria": {
+      "type": "array",
+      "description": "Optional high‑level scoring criteria with weights",
+      "items": {
+        "type": "object",
+        "properties": {
+          "description": { "type": "string" },
+          "weight": { "type": "number" }
+        },
+        "required": ["description", "weight"]
+      }
+    },
+    "steps": {
+      "type": "array",
+      "description": "Ordered evaluation steps with keyword checks and marks",
+      "items": {
+        "type": "object",
+        "properties": {
+          "stepId": { "type": "string", "description": "Stable step identifier" },
+          "description": { "type": "string", "description": "What the student must do" },
+          "requiredKeywords": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Keywords/phrases that must appear (case‑insensitive)"
+          },
+          "requiredIdeas": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Concepts or facts that must be present"
+          },
+          "allowedVariants": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Acceptable alternate phrasings or synonyms"
+          },
+          "marks": {
+            "type": "number",
+            "description": "Marks allocated to this step"
+          }
+        },
+        "required": ["stepId", "description", "marks"]
+      }
+    },
+    "commonMistakes": {
+      "type": "array",
+      "description": "Known misconceptions with stable IDs",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "description": { "type": "string" }
+        },
+        "required": ["id", "description"]
+      }
+    },
+    "feedbackTemplates": {
+      "type": "array",
+      "description": "Generic feedback messages to reuse across fixtures",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "condition": { "type": "string", "description": "When to trigger this feedback (e.g. missing stepId)" },
+          "text": { "type": "string", "description": "Feedback message" }
+        },
+        "required": ["id", "condition", "text"]
+      }
+    },
+    "misconceptionTags": {
+      "type": "array",
+      "description": "List of stable misconception tag IDs used in this rubric",
+      "items": { "type": "string" }
+    }
+  },
+  "required": ["id", "title", "totalMarks", "steps"]
+}

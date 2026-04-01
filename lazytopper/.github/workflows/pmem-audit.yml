@@ -1,0 +1,29 @@
+name: pmem-audit
+
+on:
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+      - run: npm ci
+      - run: npm run blackbox
+      - run: npm run contextpack
+      - name: Upload pmem context
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lazymemory-blackbox-context
+          path: |
+            .project_memory/blackbox/latest.json
+            .project_memory/blackbox/contextpack.md
+            .project_memory/blackbox/contextpack.json
+            .project_memory/blackbox/rules_digest.md
+          retention-days: 14
+          if-no-files-found: warn

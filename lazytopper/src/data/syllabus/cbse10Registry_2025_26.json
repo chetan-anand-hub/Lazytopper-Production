@@ -1,0 +1,408 @@
+{
+  "meta": {
+    "board": "CBSE",
+    "class": 10,
+    "academic_session": "2025-26",
+    "generated_on": "2026-02-15",
+    "notes": [
+      "Unit marks and topic scope are sourced from CBSE Secondary curriculum PDFs for 2025-26.",
+      "This registry is designed as a seed file for LazyTopper syllabus + content tracking tables.",
+      "v2 fix: Class X Maths 'Triangles' scope updated to match CBSE 2025-26 curriculum PDF; removed 'areas of similar triangles' and 'Pythagoras theorem' from assessed scope."
+    ],
+    "sources": [
+      {
+        "name": "CBSE Maths Secondary Curriculum 2025-26 (Class X)",
+        "url": "https://cbseacademic.nic.in/web_material/CurriculumMain26/Sec/Maths_Sec_2025-26.pdf"
+      },
+      {
+        "name": "CBSE Science Secondary Curriculum 2025-26 (Class X)",
+        "url": "https://cbseacademic.nic.in/web_material/CurriculumMain26/Sec/Science_Sec_2025-26.pdf"
+      },
+      {
+        "name": "CBSE SQP & Marking Schemes 2025-26 (Class X)",
+        "url": "https://cbseacademic.nic.in/SQP_CLASSX_2025-26.html"
+      }
+    ]
+  },
+  "subjects": [
+    {
+      "subject_id": "maths",
+      "display_name": "Mathematics",
+      "codes": [
+        "041",
+        "241"
+      ],
+      "theory_marks": 80,
+      "units": [
+        {
+          "unit_id": "M10_U1",
+          "name": "Number Systems",
+          "marks": 6
+        },
+        {
+          "unit_id": "M10_U2",
+          "name": "Algebra",
+          "marks": 20
+        },
+        {
+          "unit_id": "M10_U3",
+          "name": "Coordinate Geometry",
+          "marks": 6
+        },
+        {
+          "unit_id": "M10_U4",
+          "name": "Geometry",
+          "marks": 15
+        },
+        {
+          "unit_id": "M10_U5",
+          "name": "Trigonometry",
+          "marks": 12
+        },
+        {
+          "unit_id": "M10_U6",
+          "name": "Mensuration",
+          "marks": 10
+        },
+        {
+          "unit_id": "M10_U7",
+          "name": "Statistics and Probability",
+          "marks": 11
+        }
+      ],
+      "chapters": [
+        {
+          "chapter_id": "M10_CH_REAL_NUM",
+          "unit_id": "M10_U1",
+          "title": "Real Numbers",
+          "cbse_scope_bullets": [
+            "Fundamental Theorem of Arithmetic (statement, examples; review prior work).",
+            "Proofs of irrationality of √2, √3, √5 (and similar forms as indicated in curriculum competencies)."
+          ],
+          "recommended_concept_packs": 6,
+          "visual_min": 2
+        },
+        {
+          "chapter_id": "M10_CH_POLY",
+          "unit_id": "M10_U2",
+          "title": "Polynomials",
+          "cbse_scope_bullets": [
+            "Zeros of a polynomial (graphical & algebraic).",
+            "Relationship between zeros and coefficients of quadratic polynomials."
+          ],
+          "recommended_concept_packs": 7,
+          "visual_min": 3
+        },
+        {
+          "chapter_id": "M10_CH_PAIR_LINEAR",
+          "unit_id": "M10_U2",
+          "title": "Pair of Linear Equations in Two Variables",
+          "cbse_scope_bullets": [
+            "Graphical solution; consistency/inconsistency.",
+            "Algebraic conditions for number of solutions.",
+            "Algebraic solution by substitution and elimination; simple situational problems."
+          ],
+          "recommended_concept_packs": 10,
+          "visual_min": 3
+        },
+        {
+          "chapter_id": "M10_CH_QUADRATIC",
+          "unit_id": "M10_U2",
+          "title": "Quadratic Equations",
+          "cbse_scope_bullets": [
+            "Standard form ax^2 + bx + c = 0 (a ≠ 0).",
+            "Solutions by factorization and quadratic formula (real roots only).",
+            "Discriminant and nature of roots.",
+            "Situational problems."
+          ],
+          "recommended_concept_packs": 10,
+          "visual_min": 2
+        },
+        {
+          "chapter_id": "M10_CH_AP",
+          "unit_id": "M10_U2",
+          "title": "Arithmetic Progressions",
+          "cbse_scope_bullets": [
+            "Motivation for studying AP.",
+            "Derivation of nth term and sum of first n terms; applications in daily life problems."
+          ],
+          "recommended_concept_packs": 8,
+          "visual_min": 2
+        },
+        {
+          "chapter_id": "M10_CH_COORD_GEOM",
+          "unit_id": "M10_U3",
+          "title": "Coordinate Geometry",
+          "cbse_scope_bullets": [
+            "Review of coordinate geometry concepts.",
+            "Distance formula.",
+            "Section formula (internal division)."
+          ],
+          "recommended_concept_packs": 7,
+          "visual_min": 3
+        },
+        {
+          "chapter_id": "M10_CH_TRIANGLES",
+          "unit_id": "M10_U4",
+          "title": "Triangles",
+          "cbse_scope_bullets": [
+            "Similar triangles: definitions, examples and counterexamples.",
+            "Basic Proportionality Theorem (BPT): proof; and its converse (statement).",
+            "Similarity criteria statements (as per CBSE curriculum): (i) corresponding angles equal ⇒ sides proportional ⇒ triangles similar; (ii) corresponding sides proportional ⇒ corresponding angles equal ⇒ triangles similar; (iii) one angle equal and including sides proportional ⇒ triangles similar; and applications in problem solving."
+          ],
+          "recommended_concept_packs": 14,
+          "visual_min": 5
+        },
+        {
+          "chapter_id": "M10_CH_CIRCLES",
+          "unit_id": "M10_U4",
+          "title": "Circles",
+          "cbse_scope_bullets": [
+            "Tangent to a circle at a point; theorem (radius ⟂ tangent) and converse.",
+            "Number of tangents from an external point."
+          ],
+          "recommended_concept_packs": 8,
+          "visual_min": 4
+        },
+        {
+          "chapter_id": "M10_CH_TRIG",
+          "unit_id": "M10_U5",
+          "title": "Trigonometry",
+          "cbse_scope_bullets": [
+            "Trigonometric ratios of acute angles; values at 30°, 45°, 60°.",
+            "Trigonometric identities.",
+            "Heights and distances: angles of elevation/depression; simple problems with 30°,45°,60°."
+          ],
+          "recommended_concept_packs": 14,
+          "visual_min": 5
+        },
+        {
+          "chapter_id": "M10_CH_AREA_CIRC",
+          "unit_id": "M10_U6",
+          "title": "Areas Related to Circles",
+          "cbse_scope_bullets": [
+            "Area of a sector and segment of a circle.",
+            "Problems involving areas of combinations of plane figures (circle + polygon)."
+          ],
+          "recommended_concept_packs": 8,
+          "visual_min": 4
+        },
+        {
+          "chapter_id": "M10_CH_SA_VOLUMES",
+          "unit_id": "M10_U6",
+          "title": "Surface Areas and Volumes",
+          "cbse_scope_bullets": [
+            "Surface area and volume of combinations of cubes, cuboids, spheres, hemispheres, right circular cylinders and cones."
+          ],
+          "recommended_concept_packs": 10,
+          "visual_min": 4
+        },
+        {
+          "chapter_id": "M10_CH_STATS",
+          "unit_id": "M10_U7",
+          "title": "Statistics",
+          "cbse_scope_bullets": [
+            "Mean, median, mode of grouped data (beyond simple cases).",
+            "Empirical relationship between mean, median and mode."
+          ],
+          "recommended_concept_packs": 10,
+          "visual_min": 4
+        },
+        {
+          "chapter_id": "M10_CH_PROB",
+          "unit_id": "M10_U7",
+          "title": "Probability",
+          "cbse_scope_bullets": [
+            "Classical definition of probability.",
+            "Simple problems."
+          ],
+          "recommended_concept_packs": 6,
+          "visual_min": 1
+        }
+      ]
+    },
+    {
+      "subject_id": "science",
+      "display_name": "Science",
+      "code": "086",
+      "theory_marks": 80,
+      "units": [
+        {
+          "unit_id": "S10_U1",
+          "name": "Chemical Substances – Nature and Behaviour",
+          "marks": 25
+        },
+        {
+          "unit_id": "S10_U2",
+          "name": "World of Living",
+          "marks": 25
+        },
+        {
+          "unit_id": "S10_U3",
+          "name": "Natural Phenomena",
+          "marks": 12
+        },
+        {
+          "unit_id": "S10_U4",
+          "name": "Effects of Current",
+          "marks": 13
+        },
+        {
+          "unit_id": "S10_U5",
+          "name": "Natural Resources",
+          "marks": 5
+        }
+      ],
+      "chapters": [
+        {
+          "chapter_id": "S10_CH_CHEM_REAC",
+          "unit_id": "S10_U1",
+          "title": "Chemical Reactions and Equations",
+          "cbse_scope_bullets": [
+            "Chemical reactions; chemical equations; balanced equations.",
+            "Types: combination, decomposition, displacement, double displacement, precipitation, endothermic/exothermic, oxidation and reduction."
+          ],
+          "recommended_concept_packs": 12,
+          "visual_min": 3
+        },
+        {
+          "chapter_id": "S10_CH_ACIDS_BASES",
+          "unit_id": "S10_U1",
+          "title": "Acids, Bases and Salts",
+          "cbse_scope_bullets": [
+            "Definitions in terms of H+ and OH– ions.",
+            "Indicators; chemical properties; neutralization; examples/uses.",
+            "pH scale (log definition not required); importance in everyday life.",
+            "Preparation and uses of sodium hydroxide, bleaching powder, baking soda, washing soda, plaster of Paris."
+          ],
+          "recommended_concept_packs": 14,
+          "visual_min": 4
+        },
+        {
+          "chapter_id": "S10_CH_METALS",
+          "unit_id": "S10_U1",
+          "title": "Metals and Non-metals",
+          "cbse_scope_bullets": [
+            "Properties; reactivity series.",
+            "Ionic compounds: formation and properties.",
+            "Basic metallurgical processes.",
+            "Corrosion and prevention."
+          ],
+          "recommended_concept_packs": 14,
+          "visual_min": 4
+        },
+        {
+          "chapter_id": "S10_CH_CARBON",
+          "unit_id": "S10_U1",
+          "title": "Carbon and its Compounds",
+          "cbse_scope_bullets": [
+            "Covalent bonds: formation & properties.",
+            "Versatile nature of carbon; hydrocarbons (saturated/unsaturated); homologous series.",
+            "Nomenclature: alkanes, alkenes, alkyne; and functional groups (halogens, alcohol, ketones, aldehydes).",
+            "Reactions: combustion, oxidation, addition, substitution.",
+            "Ethanol and ethanoic acid (properties & uses).",
+            "Soaps and detergents."
+          ],
+          "recommended_concept_packs": 18,
+          "visual_min": 4
+        },
+        {
+          "chapter_id": "S10_CH_LIFE_PROC",
+          "unit_id": "S10_U2",
+          "title": "Life Processes",
+          "cbse_scope_bullets": [
+            "Living being; nutrition, respiration, transport, excretion in plants & animals."
+          ],
+          "recommended_concept_packs": 18,
+          "visual_min": 5
+        },
+        {
+          "chapter_id": "S10_CH_CONTROL_COORD",
+          "unit_id": "S10_U2",
+          "title": "Control and Co-ordination",
+          "cbse_scope_bullets": [
+            "Tropic movements in plants; plant hormones (intro).",
+            "Animals: nervous system; voluntary/involuntary/reflex action.",
+            "Chemical coordination: animal hormones."
+          ],
+          "recommended_concept_packs": 14,
+          "visual_min": 5
+        },
+        {
+          "chapter_id": "S10_CH_REPROD",
+          "unit_id": "S10_U2",
+          "title": "Reproduction",
+          "cbse_scope_bullets": [
+            "Asexual and sexual reproduction in animals and plants.",
+            "Reproductive health: need and methods of family planning; safe sex vs HIV/AIDS; child bearing and women’s health."
+          ],
+          "recommended_concept_packs": 14,
+          "visual_min": 4
+        },
+        {
+          "chapter_id": "S10_CH_HEREDITY_EVOL",
+          "unit_id": "S10_U2",
+          "title": "Heredity and Evolution",
+          "cbse_scope_bullets": [
+            "Heredity; Mendel’s contribution; laws for inheritance of traits.",
+            "Sex determination (brief introduction)."
+          ],
+          "recommended_concept_packs": 12,
+          "visual_min": 3
+        },
+        {
+          "chapter_id": "S10_CH_LIGHT",
+          "unit_id": "S10_U3",
+          "title": "Light – Reflection and Refraction (incl. Human Eye, Prism)",
+          "cbse_scope_bullets": [
+            "Reflection by curved surfaces; images by spherical mirrors; mirror formula (derivation not required); magnification.",
+            "Refraction; laws; refractive index.",
+            "Refraction by spherical lenses; lens formula (derivation not required); magnification; power of lens.",
+            "Human eye: functioning; defects and corrections; applications of mirrors and lenses.",
+            "Prism: refraction, dispersion; scattering; applications in daily life (excluding colour of sun at sunrise/sunset)."
+          ],
+          "recommended_concept_packs": 20,
+          "visual_min": 8
+        },
+        {
+          "chapter_id": "S10_CH_ELECTRICITY",
+          "unit_id": "S10_U4",
+          "title": "Electricity",
+          "cbse_scope_bullets": [
+            "Electric current, potential difference, Ohm’s law.",
+            "Resistance, resistivity; factors.",
+            "Series/parallel combination; applications.",
+            "Heating effect; applications.",
+            "Electric power; relation among P, V, I, R."
+          ],
+          "recommended_concept_packs": 16,
+          "visual_min": 6
+        },
+        {
+          "chapter_id": "S10_CH_MAGNETISM",
+          "unit_id": "S10_U4",
+          "title": "Magnetic Effects of Electric Current",
+          "cbse_scope_bullets": [
+            "Magnetic field and field lines.",
+            "Field due to current carrying conductor/coil/solenoid.",
+            "Force on current-carrying conductor; Fleming’s Left Hand Rule.",
+            "DC and AC (frequency); advantage of AC over DC; domestic circuits."
+          ],
+          "recommended_concept_packs": 16,
+          "visual_min": 6
+        },
+        {
+          "chapter_id": "S10_CH_ENV",
+          "unit_id": "S10_U5",
+          "title": "Our Environment",
+          "cbse_scope_bullets": [
+            "Ecosystem; environmental problems; ozone depletion; waste production and solutions.",
+            "Biodegradable vs non-biodegradable."
+          ],
+          "recommended_concept_packs": 10,
+          "visual_min": 3
+        }
+      ]
+    }
+  ]
+}
