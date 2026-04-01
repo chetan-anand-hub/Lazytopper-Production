@@ -4098,6 +4098,83 @@ function buildLearnSolveWithMeFallback(payload) {
   };
 }
 
+function buildConversationalTeachSystemPrompt(payload) {
+  const subject = payload.subject || 'Maths';
+  const grade = payload.grade != null ? payload.grade : 10;
+  const topicKey = payload.topicKey || payload.topic || '';
+  const stepIndex = Number(payload.stepIndex) || 0;
+  const nearCompletion = Boolean(payload.nearCompletion);
+  const studentAttempt = payload.attempt_loop?.student_attempt?.raw_text || '';
+
+  const topicName = topicKey.replace(/[-_]+/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+
+  const isFirstStep = stepIndex === 0;
+  const hasStudentResponse = Boolean(studentAttempt);
+
+  let stepGuidance = '';
+  if (isFirstStep) {
+    stepGuidance = [
+      `This is the FIRST message. Start by warmly greeting the student.`,
+      `Begin with a relatable real-life example or analogy that connects ${topicName} to something a teenager would understand.`,
+      `Explain ONE core concept clearly with a concrete example (numbers, visuals, scenarios).`,
+      `End with a thought-provoking question that makes the student think — NOT a yes/no question.`,
+      `Example question styles: "What do you think would happen if...?", "Can you guess why...?", "If I gave you the number X, how would you..."`,
+    ].join('\n');
+  } else if (nearCompletion) {
+    stepGuidance = [
+      `This is the FINAL step. Wrap up the topic.`,
+      `Summarize the 2-3 most important things the student learned.`,
+      `Give one CBSE board exam tip specific to this topic.`,
+      `End with an encouraging message.`,
+    ].join('\n');
+  } else {
+    stepGuidance = [
+      `Continue building on the conversation so far.`,
+      hasStudentResponse ? `The student just responded. Acknowledge their answer specifically — say what was right, gently correct what was wrong, and explain WHY.` : '',
+      `Teach the NEXT concept with a worked example (show actual numbers and steps).`,
+      `Use analogies that a 15-year-old Indian student would relate to (cricket scores, phone batteries, sharing pizza, etc).`,
+      `End with a question that tests understanding of what you just taught. Make it specific, not generic.`,
+    ].filter(Boolean).join('\n');
+  }
+
+  return [
+    `You are Ravi Sir, a beloved CBSE Class ${grade} ${subject} tutor known for making ${topicName} click for every student.`,
+    '',
+    'YOUR PERSONALITY:',
+    '- Warm, patient, encouraging — like a favourite teacher who genuinely cares',
+    '- You explain through EXAMPLES first, theory second',
+    '- You use everyday analogies a 15-year-old Indian student relates to',
+    '- You ask thought-provoking questions, not yes/no questions',
+    '- When a student is wrong, you never say "wrong" — you say "interesting thinking! let me show you something..."',
+    '- You celebrate small wins: "Exactly!", "You\'re getting it!", "Sharp thinking!"',
+    '',
+    'YOUR TEACHING METHOD (Socratic + Example-first):',
+    '1. Start with a real example or story that introduces the concept',
+    '2. Walk through the example step by step with actual numbers',
+    '3. State the rule/formula AFTER the student has seen it in action',
+    '4. Ask a question that makes the student apply what they just learned',
+    '5. If the student asks a question or says they don\'t understand, re-explain using a DIFFERENT example',
+    '',
+    'RULES:',
+    '- Write in natural conversational language — NOT bullet points or JSON',
+    '- Use short paragraphs (2-3 sentences max each)',
+    '- Use **bold** for key terms and formulas',
+    '- Include actual worked examples with real numbers',
+    '- Every response must end with a question for the student',
+    '- If the student asks "why", give the deeper reason with another example',
+    '- If the student says "I don\'t understand", use a completely different analogy',
+    '- Keep responses under 250 words — be concise but complete',
+    '- Reference CBSE board exam patterns naturally: "This type of question comes for 2 marks in board exams"',
+    '',
+    'CURRENT STEP GUIDANCE:',
+    stepGuidance,
+    '',
+    `Topic: ${topicName}`,
+    `Subject: ${subject}, Grade: ${grade}`,
+    `Step: ${stepIndex + 1}`,
+  ].filter(Boolean).join('\n');
+}
+
 function buildStructuredFallback(mode, payload, opts = {}) {
   if (mode === 'board_steps_ms') return buildProofFallbackBoardSteps(payload);
   if (mode === 'solve_with_me') {
@@ -4605,6 +4682,7 @@ async function handleRequest(req, res) {
     }
     const isMisconceptionExplain = isLearnMisconceptionPayload(payload);
     const isCompetencyExplain = isLearnCompetencyPayload(payload);
+    const isConversationalTeach = Boolean(payload?.conversational);
     const isTeachTab = isTeachTabPayload(payload);
     const isMindmapTeach = isLearnMindmapPayload(payload);
     const isProofWriting = isProofWritingPayload(payload);
@@ -4806,6 +4884,8 @@ async function handleRequest(req, res) {
     } else if (isCompetencyExplain) {
       systemPrompt =
         'You are a strict CBSE Class 10 teacher. Output must follow the exact five-section format for competencies.';
+    } else if (isConversationalTeach) {
+      systemPrompt = buildConversationalTeachSystemPrompt(payload);
     } else if (isTeachTabPayload(payload)) {
       systemPrompt =
         'You are a strict CBSE Class 10 teacher. Return only the LearnTeachContract JSON schema.';
@@ -4837,9 +4917,22 @@ async function handleRequest(req, res) {
           userPrompt = buildBoardStepsMSPrompt(payload);
           break;
         case 'learn_teach':
-          userPrompt = isTeachTabPayload(payload)
-            ? buildLearnTeachContractPrompt(payload)
-            : buildLearnKeyDefinitionsPrompt(payload);
+          if (isConversationalTeach) {
+            const topicName = (payload.topic || payload.topicKey || '').replace(/[-_]+/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+            const stepIdx = Number(payload.stepIndex) || 0;
+            const studentText = payload.attempt_loop?.student_attempt?.raw_text || '';
+            if (stepIdx === 0) {
+              userPrompt = `Start teaching "${topicName}" to a CBSE Class ${payload.grade || 10} student. This is the very first message — introduce the topic with a real-life example and ask an engaging opening question.`;
+            } else if (studentText) {
+              userPrompt = `The student responded: "${studentText}"\n\nAcknowledge their response, explain further with a new example, and ask the next question.`;
+            } else {
+              userPrompt = `Continue teaching "${topicName}" — move to the next concept with a worked example and a question.`;
+            }
+          } else {
+            userPrompt = isTeachTabPayload(payload)
+              ? buildLearnTeachContractPrompt(payload)
+              : buildLearnKeyDefinitionsPrompt(payload);
+          }
           break;
         case 'learn_mindmap':
           userPrompt = buildLearnMindmapPrompt(payload);
@@ -4909,6 +5002,44 @@ async function handleRequest(req, res) {
       const marksRaw = payload && (payload.marks ?? payload.totalMarks ?? payload.total_marks);
       const marksNum = Number(marksRaw);
       const safeMarks = Number.isFinite(marksNum) && marksNum > 0 ? marksNum : 5;
+
+      if (isConversationalTeach) {
+        const history = toGeminiContents(reqJson && reqJson.messages);
+        const contents = [
+          { role: 'user', parts: [{ text: systemPrompt }] },
+          { role: 'model', parts: [{ text: 'Understood. I will teach as Ravi Sir using the Socratic method with examples and questions.' }] },
+          ...history,
+          { role: 'user', parts: [{ text: userPrompt }] },
+        ].filter((c) => c && c.parts && c.parts[0] && String(c.parts[0].text || '').trim());
+
+        const reply = await callGemini(GEMINI_MODEL, contents, {
+          maxOutputTokens: 800,
+          temperature: 0.7,
+        });
+
+        const responseText = (reply.text || '').trim();
+        const trace = {
+          normalized_mode: normalisedMode,
+          handler_used: 'conversational_teach',
+          schema_used: 'text',
+          repair_used: false,
+        };
+        return {
+          status: 200,
+          body: {
+            ok: true,
+            data: {
+              text: responseText,
+              structured: null,
+              responseText,
+              trace,
+            },
+          },
+          structured: null,
+          trace,
+          text: responseText,
+        };
+      }
 
       const maxOutputTokens =
         normalisedMode === 'board_steps_ms' || normalisedMode === 'learn_proof'

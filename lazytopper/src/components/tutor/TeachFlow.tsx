@@ -47,6 +47,13 @@ const NORMALIZE_PHASE_ON_RESTORE: Partial<Record<Phase, Phase>> = {
   responding: "awaiting_answer",
 };
 
+const QUICK_ACTIONS = [
+  { label: "I don't understand \u{1F914}", message: "I don't understand this. Can you explain it in a simpler way with a different example?" },
+  { label: "Give me an example \u{1F4A1}", message: "Can you give me a concrete example with numbers to help me understand this better?" },
+  { label: "Why is this important? \u{1F3AF}", message: "Why is this important? How does this come in CBSE board exams?" },
+  { label: "Show me the steps \u{270F}\u{FE0F}", message: "Can you show me the step-by-step solution? I want to see how to write it in the exam." },
+];
+
 function normalizeTopicKey(topicKey: string): string {
   return String(topicKey || "")
     .trim()
@@ -150,6 +157,10 @@ function formatCompletionDate(isoDate: string | null): string {
 
 function extractTutorText(payload: Record<string, unknown>): string {
   if (!payload) return "";
+
+  if (typeof payload.responseText === "string" && (payload.responseText as string).trim())
+    return (payload.responseText as string).trim();
+
   const data = (payload.data as Record<string, unknown>) ?? payload;
   const structured = (data.structured as Record<string, unknown>) ?? data;
 
@@ -218,23 +229,6 @@ function extractTutorText(payload: Record<string, unknown>): string {
   if (typeof payload.message === "string" && (payload.message as string).trim())
     return (payload.message as string).trim();
 
-  return "";
-}
-
-function extractCheckpointQuestion(payload: Record<string, unknown>): string {
-  if (!payload) return "";
-  const data = (payload.data as Record<string, unknown>) ?? payload;
-  const structured = (data.structured as Record<string, unknown>) ?? data;
-  if (typeof structured.checkpointQuestion === "string") return (structured.checkpointQuestion as string).trim();
-  if (typeof structured.checkQuestion === "string") return (structured.checkQuestion as string).trim();
-  const teach = (structured.teach as Record<string, unknown>) ?? (data.teach as Record<string, unknown>);
-  if (teach && typeof teach.checkpointQuestion === "string") return (teach.checkpointQuestion as string).trim();
-  try {
-    if (typeof data.text === "string") {
-      const parsed = JSON.parse(data.text as string) as Record<string, unknown>;
-      if (parsed.checkpointQuestion) return String(parsed.checkpointQuestion).trim();
-    }
-  } catch { /* */ }
   return "";
 }
 
@@ -435,7 +429,7 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete }: Teac
     if (abortRef.current) abortRef.current.abort();
     const controller = new AbortController();
     abortRef.current = controller;
-    const timeoutId = setTimeout(() => controller.abort(), 25000);
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
     try {
       const res = await fetch("/api/mentor", {
         method: "POST",
@@ -487,19 +481,14 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete }: Teac
       });
 
       let tutorText = extractTutorText(payload);
-      const checkpoint = extractCheckpointQuestion(payload);
 
       if (!tutorText) {
-        tutorText = `Let's learn **${topicDisplayName}** together!\n\nI'll explain the key concepts step by step, and check your understanding along the way. Think of me as your study buddy who happens to know the CBSE marking scheme really well.\n\nReady? Let's start with the basics.`;
+        tutorText = `Hey there! \u{1F44B} I'm Ravi Sir, and I'm excited to explore **${topicDisplayName}** with you today!\n\nLet me start with something you already know. Think about when you share a pizza equally among friends \u2014 that's actually math in action!\n\nReady to dive in? Tell me \u2014 what do you already know about ${topicDisplayName}?`;
       }
 
       const newMessages: ChatMessage[] = [
         { role: "tutor", content: tutorText },
       ];
-
-      if (checkpoint) {
-        newMessages.push({ role: "tutor", content: checkpoint, isCheckpoint: true });
-      }
 
       setChatMessages(newMessages);
       setStepCount(1);
@@ -513,13 +502,13 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete }: Teac
     }
   }
 
-  async function sendMessage() {
-    const text = studentInput.trim();
+  async function sendMessage(overrideText?: string) {
+    const text = (overrideText ?? studentInput).trim();
     if (!text) return;
     setLoading(true);
     setError(null);
     setPhase("responding");
-    setStudentInput("");
+    if (!overrideText) setStudentInput("");
 
     const updatedMessages: ChatMessage[] = [...chatMessages, { role: "student", content: text }];
     setChatMessages(updatedMessages);
@@ -548,22 +537,17 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete }: Teac
       });
 
       let tutorText = extractTutorText(payload);
-      const checkpoint = extractCheckpointQuestion(payload);
 
       if (!tutorText) {
         tutorText = nextStep < MAX_TEACH_STEPS
-          ? "Good effort! Let me explain the next part..."
-          : "Well done working through this topic! You've covered the essentials.";
+          ? "Great thinking! Let me build on that with the next idea..."
+          : "Brilliant work today! You've covered the core concepts of this topic. Keep practicing and you'll ace this in the board exam! \u{1F4AA}";
       }
 
       const newTutorMessages: ChatMessage[] = [
         ...updatedMessages,
         { role: "tutor", content: tutorText },
       ];
-
-      if (checkpoint && nextStep < MAX_TEACH_STEPS) {
-        newTutorMessages.push({ role: "tutor", content: checkpoint, isCheckpoint: true });
-      }
 
       setChatMessages(newTutorMessages);
       setStepCount(nextStep);
@@ -582,6 +566,10 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete }: Teac
       setLoading(false);
       setTimeout(() => inputRef.current?.focus(), 100);
     }
+  }
+
+  function handleQuickAction(message: string) {
+    sendMessage(message);
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
@@ -628,27 +616,27 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete }: Teac
     return (
       <div style={s.container}>
         <div style={s.introCard}>
-          <div style={s.introIcon}>&#128218;</div>
+          <div style={s.introAvatarLarge}>RS</div>
           <h2 style={s.introTitle}>{topicDisplayName}</h2>
           <p style={s.introSub}>
-            Your AI tutor will explain {topicDisplayName} step by step, ask you questions to check understanding,
-            and give feedback just like a real teacher would.
+            Meet Ravi Sir &mdash; your personal AI tutor. He'll explain {topicDisplayName} through real examples,
+            ask you questions, and help you understand at your own pace. Ask anything!
           </p>
           <div style={s.introFeatures}>
             <div style={s.introFeature}>
               <span style={s.featureIcon}>&#128172;</span>
-              <span>Conversational explanations</span>
+              <span>Learn through examples</span>
             </div>
             <div style={s.introFeature}>
-              <span style={s.featureIcon}>&#9989;</span>
-              <span>Checkpoint questions</span>
+              <span style={s.featureIcon}>&#10067;</span>
+              <span>Ask any question</span>
             </div>
             <div style={s.introFeature}>
-              <span style={s.featureIcon}>&#128161;</span>
+              <span style={s.featureIcon}>&#127919;</span>
               <span>Board exam tips</span>
             </div>
           </div>
-          {loading && <p style={s.loadingText}>Preparing your lesson...</p>}
+          {loading && <p style={s.loadingText}>Ravi Sir is preparing your lesson...</p>}
           {error && (
             <div style={s.errorBox}>
               <p style={s.errorText}>{error}</p>
@@ -657,7 +645,7 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete }: Teac
           )}
           {!loading && !error && (
             <button style={s.startBtn} onClick={startLearning}>
-              Start Learning
+              Start Learning with Ravi Sir
             </button>
           )}
         </div>
@@ -665,48 +653,22 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete }: Teac
     );
   }
 
-  if (phase === "complete") {
-    return (
-      <div style={s.container}>
-        <div style={s.chatArea}>
-          {chatMessages.map((msg, idx) => (
-            <div key={idx} style={msg.role === "tutor" ? s.tutorBubbleWrap : s.studentBubbleWrap}>
-              {msg.role === "tutor" && <div style={s.tutorAvatar}>T</div>}
-              <div style={{
-                ...(msg.role === "tutor" ? s.tutorBubble : s.studentBubble),
-                ...(msg.isCheckpoint ? s.checkpointBubble : {}),
-              }}>
-                {msg.isCheckpoint && <div style={s.checkpointLabel}>Checkpoint Question</div>}
-                {msg.role === "tutor" ? renderTutorContent(msg.content) : <p style={s.studentText}>{msg.content}</p>}
-              </div>
-            </div>
-          ))}
-        </div>
-        <div style={s.completeCard}>
-          <div style={s.completeTick}>&#10003;</div>
-          <p style={s.completeMsg}>Great work on {topicDisplayName}!</p>
-          <p style={s.completeSub}>You've covered the key concepts. Ready to test yourself with practice questions?</p>
-          <div style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 16 }}>
-            <button style={s.primaryBtn} onClick={() => onComplete?.()}>
-              Try Practice Questions
-            </button>
-            <button style={s.secondaryBtn} onClick={reset}>
-              Review Again
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const showChatUI = phase === "teaching" || phase === "awaiting_answer" || phase === "responding" || phase === "complete";
+
+  if (!showChatUI) return null;
 
   return (
     <div style={s.container}>
       <div style={s.chatHeader}>
         <div style={s.chatHeaderLeft}>
-          <div style={s.headerAvatar}>T</div>
+          <div style={s.headerAvatar}>RS</div>
           <div>
-            <div style={s.headerTitle}>{topicDisplayName}</div>
-            <div style={s.headerSub}>Step {stepCount} of {MAX_TEACH_STEPS}</div>
+            <div style={s.headerTitle}>Ravi Sir &middot; {topicDisplayName}</div>
+            <div style={s.headerSub}>
+              {phase === "complete"
+                ? "Lesson complete!"
+                : `Step ${stepCount} of ${MAX_TEACH_STEPS}`}
+            </div>
           </div>
         </div>
         <div style={s.progressBar}>
@@ -717,12 +679,12 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete }: Teac
       <div style={s.chatArea}>
         {chatMessages.map((msg, idx) => (
           <div key={idx} style={msg.role === "tutor" ? s.tutorBubbleWrap : s.studentBubbleWrap}>
-            {msg.role === "tutor" && <div style={s.tutorAvatar}>T</div>}
+            {msg.role === "tutor" && <div style={s.tutorAvatar}>RS</div>}
             <div style={{
               ...(msg.role === "tutor" ? s.tutorBubble : s.studentBubble),
               ...(msg.isCheckpoint ? s.checkpointBubble : {}),
             }}>
-              {msg.isCheckpoint && <div style={s.checkpointLabel}>Checkpoint Question</div>}
+              {msg.isCheckpoint && <div style={s.checkpointLabel}>Think about this</div>}
               {msg.role === "tutor" ? renderTutorContent(msg.content) : <p style={s.studentText}>{msg.content}</p>}
             </div>
           </div>
@@ -730,9 +692,10 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete }: Teac
 
         {loading && (
           <div style={s.tutorBubbleWrap}>
-            <div style={s.tutorAvatar}>T</div>
+            <div style={s.tutorAvatar}>RS</div>
             <div style={s.typingBubble}>
               <span style={s.dot1} /><span style={s.dot2} /><span style={s.dot3} />
+              <span style={s.typingLabel}>Ravi Sir is typing...</span>
             </div>
           </div>
         )}
@@ -747,12 +710,42 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete }: Teac
         </div>
       )}
 
-      {phase === "awaiting_answer" && (
+      {phase === "complete" && (
+        <div style={s.completeCard}>
+          <div style={s.completeTick}>&#127942;</div>
+          <p style={s.completeMsg}>Great session on {topicDisplayName}!</p>
+          <p style={s.completeSub}>You've worked through the key concepts with Ravi Sir. Ready to test yourself?</p>
+          <div style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 16 }}>
+            <button style={s.primaryBtn} onClick={() => onComplete?.()}>
+              Try Practice Questions
+            </button>
+            <button style={s.secondaryBtn} onClick={reset}>
+              Learn Again
+            </button>
+          </div>
+        </div>
+      )}
+
+      {phase === "awaiting_answer" && !loading && (
+        <div style={s.quickActionsWrap}>
+          {QUICK_ACTIONS.map((action, idx) => (
+            <button
+              key={idx}
+              style={s.quickActionBtn}
+              onClick={() => handleQuickAction(action.message)}
+            >
+              {action.label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {(phase === "awaiting_answer" || phase === "responding") && (
         <div style={s.inputArea}>
           <textarea
             ref={inputRef}
             style={s.chatInput}
-            placeholder="Type your answer or ask a question..."
+            placeholder="Type your answer, ask a question, or say 'I don't understand'..."
             value={studentInput}
             onChange={(e) => setStudentInput(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -764,7 +757,7 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete }: Teac
               ...s.sendBtn,
               opacity: loading || !studentInput.trim() ? 0.5 : 1,
             }}
-            onClick={sendMessage}
+            onClick={() => sendMessage()}
             disabled={loading || !studentInput.trim()}
           >
             Send
@@ -788,15 +781,20 @@ const s: Record<string, React.CSSProperties> = {
   container: { maxWidth: 680, margin: "0 auto", padding: "16px 16px 24px", display: "flex", flexDirection: "column" },
 
   introCard: { background: "white", borderRadius: 16, padding: "32px 24px", textAlign: "center", border: "1px solid #e5e7eb" },
-  introIcon: { fontSize: 40, marginBottom: 12 },
+  introAvatarLarge: {
+    width: 56, height: 56, borderRadius: "50%", background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)",
+    color: "white", display: "flex", alignItems: "center", justifyContent: "center",
+    fontSize: 20, fontWeight: 700, margin: "0 auto 16px", letterSpacing: 1,
+  },
   introTitle: { fontSize: 22, fontWeight: 700, color: "#1a1a2e", margin: "0 0 8px" },
   introSub: { fontSize: 14, color: "#666", lineHeight: 1.6, maxWidth: 440, margin: "0 auto 20px" },
   introFeatures: { display: "flex", justifyContent: "center", gap: 20, marginBottom: 24, flexWrap: "wrap" },
   introFeature: { display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "#555" },
   featureIcon: { fontSize: 16 },
   startBtn: {
-    background: "#4f46e5", color: "white", border: "none", borderRadius: 10, padding: "12px 32px",
-    fontSize: 15, fontWeight: 600, cursor: "pointer", transition: "background 0.2s",
+    background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)", color: "white", border: "none",
+    borderRadius: 10, padding: "12px 32px", fontSize: 15, fontWeight: 600, cursor: "pointer",
+    transition: "transform 0.2s, box-shadow 0.2s", boxShadow: "0 2px 8px rgba(99,102,241,0.3)",
   },
 
   chatHeader: {
@@ -805,8 +803,10 @@ const s: Record<string, React.CSSProperties> = {
   },
   chatHeaderLeft: { display: "flex", alignItems: "center", gap: 10, marginBottom: 8 },
   headerAvatar: {
-    width: 32, height: 32, borderRadius: "50%", background: "#4f46e5", color: "white",
-    display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700,
+    width: 36, height: 36, borderRadius: "50%",
+    background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)", color: "white",
+    display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700,
+    letterSpacing: 0.5,
   },
   headerTitle: { fontSize: 15, fontWeight: 600, color: "#1a1a2e" },
   headerSub: { fontSize: 12, color: "#888" },
@@ -814,7 +814,8 @@ const s: Record<string, React.CSSProperties> = {
     height: 4, background: "#e5e7eb", borderRadius: 2, overflow: "hidden",
   },
   progressFill: {
-    height: "100%", background: "#4f46e5", borderRadius: 2, transition: "width 0.4s ease",
+    height: "100%", background: "linear-gradient(90deg, #6366f1, #8b5cf6)", borderRadius: 2,
+    transition: "width 0.4s ease",
   },
 
   chatArea: {
@@ -822,20 +823,21 @@ const s: Record<string, React.CSSProperties> = {
     overflowY: "auto", borderLeft: "1px solid #e5e7eb", borderRight: "1px solid #e5e7eb",
   },
 
-  tutorBubbleWrap: { display: "flex", alignItems: "flex-start", gap: 8, marginBottom: 12 },
-  studentBubbleWrap: { display: "flex", justifyContent: "flex-end", marginBottom: 12 },
+  tutorBubbleWrap: { display: "flex", alignItems: "flex-start", gap: 8, marginBottom: 14 },
+  studentBubbleWrap: { display: "flex", justifyContent: "flex-end", marginBottom: 14 },
   tutorAvatar: {
-    width: 28, height: 28, borderRadius: "50%", background: "#4f46e5", color: "white",
-    display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700,
-    flexShrink: 0, marginTop: 2,
+    width: 30, height: 30, borderRadius: "50%",
+    background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)", color: "white",
+    display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700,
+    flexShrink: 0, marginTop: 2, letterSpacing: 0.5,
   },
   tutorBubble: {
-    background: "white", borderRadius: "4px 12px 12px 12px", padding: "12px 16px",
-    maxWidth: "85%", border: "1px solid #e5e7eb", boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
+    background: "white", borderRadius: "4px 14px 14px 14px", padding: "12px 16px",
+    maxWidth: "85%", border: "1px solid #e5e7eb", boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
   },
   studentBubble: {
-    background: "#4f46e5", borderRadius: "12px 4px 12px 12px", padding: "10px 16px",
-    maxWidth: "75%", color: "white",
+    background: "linear-gradient(135deg, #6366f1 0%, #818cf8 100%)", borderRadius: "14px 4px 14px 14px",
+    padding: "10px 16px", maxWidth: "75%", color: "white",
   },
   studentText: { fontSize: 14, lineHeight: 1.6, margin: 0, color: "inherit" },
   checkpointBubble: {
@@ -847,20 +849,33 @@ const s: Record<string, React.CSSProperties> = {
   },
 
   typingBubble: {
-    background: "white", borderRadius: "4px 12px 12px 12px", padding: "14px 20px",
+    background: "white", borderRadius: "4px 14px 14px 14px", padding: "12px 18px",
     border: "1px solid #e5e7eb", display: "flex", gap: 4, alignItems: "center",
   },
   dot1: {
-    width: 6, height: 6, borderRadius: "50%", background: "#aaa",
+    width: 6, height: 6, borderRadius: "50%", background: "#8b5cf6",
     animation: "bounce 1.4s infinite", animationDelay: "0s",
   },
   dot2: {
-    width: 6, height: 6, borderRadius: "50%", background: "#aaa",
+    width: 6, height: 6, borderRadius: "50%", background: "#8b5cf6",
     animation: "bounce 1.4s infinite", animationDelay: "0.2s",
   },
   dot3: {
-    width: 6, height: 6, borderRadius: "50%", background: "#aaa",
+    width: 6, height: 6, borderRadius: "50%", background: "#8b5cf6",
     animation: "bounce 1.4s infinite", animationDelay: "0.4s",
+  },
+  typingLabel: {
+    fontSize: 12, color: "#888", marginLeft: 8, fontStyle: "italic",
+  },
+
+  quickActionsWrap: {
+    display: "flex", flexWrap: "wrap", gap: 8, padding: "10px 16px",
+    background: "white", borderLeft: "1px solid #e5e7eb", borderRight: "1px solid #e5e7eb",
+  },
+  quickActionBtn: {
+    background: "#f3f4f6", border: "1px solid #e5e7eb", borderRadius: 20,
+    padding: "6px 14px", fontSize: 12, color: "#555", cursor: "pointer",
+    transition: "all 0.2s", fontWeight: 500, whiteSpace: "nowrap",
   },
 
   inputArea: {
@@ -874,8 +889,8 @@ const s: Record<string, React.CSSProperties> = {
     minHeight: 42, maxHeight: 120,
   },
   sendBtn: {
-    background: "#4f46e5", color: "white", border: "none", borderRadius: 10,
-    padding: "10px 20px", fontSize: 14, fontWeight: 600, cursor: "pointer", flexShrink: 0,
+    background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)", color: "white", border: "none",
+    borderRadius: 10, padding: "10px 20px", fontSize: 14, fontWeight: 600, cursor: "pointer", flexShrink: 0,
   },
 
   skipLink: {
@@ -892,17 +907,17 @@ const s: Record<string, React.CSSProperties> = {
   loadingText: { fontSize: 14, color: "#888", marginTop: 16 },
 
   completedBanner: { background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 16, padding: "32px 24px", textAlign: "center" },
-  completeCard: { background: "white", border: "1px solid #e5e7eb", borderRadius: 16, padding: "32px 24px", textAlign: "center", marginTop: 16 },
-  completeTick: { fontSize: 36, marginBottom: 8, color: "#22c55e" },
+  completeCard: { background: "white", border: "1px solid #e5e7eb", borderRadius: "0 0 16px 16px", padding: "32px 24px", textAlign: "center" },
+  completeTick: { fontSize: 36, marginBottom: 8 },
   completeMsg: { fontSize: 18, fontWeight: 600, color: "#1a1a2e", margin: "0 0 6px" },
   completeSub: { fontSize: 14, color: "#666", lineHeight: 1.5, margin: "0 0 4px" },
   completedDate: { fontSize: 13, color: "#888", marginTop: 4 },
   primaryBtn: {
-    background: "#4f46e5", color: "white", border: "none", borderRadius: 10,
-    padding: "10px 24px", fontSize: 14, fontWeight: 600, cursor: "pointer",
+    background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)", color: "white", border: "none",
+    borderRadius: 10, padding: "10px 24px", fontSize: 14, fontWeight: 600, cursor: "pointer",
   },
   secondaryBtn: {
-    background: "transparent", color: "#4f46e5", border: "1px solid #4f46e5", borderRadius: 10,
+    background: "transparent", color: "#6366f1", border: "1px solid #6366f1", borderRadius: 10,
     padding: "10px 24px", fontSize: 14, fontWeight: 600, cursor: "pointer",
   },
 };
