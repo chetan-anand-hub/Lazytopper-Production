@@ -24,3 +24,9 @@ expertMode = true
 [postMerge]
 path = "scripts/post-merge.sh"
 timeoutMs = 20000
+
+[userenv]
+
+[userenv.shared]
+GEMINI_API_KEY = "AIzaSyA_9W2ss6X5MxnVLnJcN6s8Zk4WNf0f-yc"
+AI_PROVIDER = "gemini"
