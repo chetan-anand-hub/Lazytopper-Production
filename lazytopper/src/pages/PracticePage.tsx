@@ -1910,7 +1910,7 @@ const packTopicKey = useMemo(() => {
                               (f) => f.sourceQuestionId === q.id && f.injectedAtIndex === -1
                             );
                             if (pendingFollowUp) {
-                              const currentIds = new Set(filteredQuestions.map((fq) => String(fq.id)));
+                              const currentIds = new Set(questions.map((fq) => String(fq.id)));
                               const allCandidates = PredictionCore.getLikelyQuestionsForConcept(
                                 canonicalTopicKey || topicParam, undefined
                               );
@@ -1921,7 +1921,10 @@ const packTopicKey = useMemo(() => {
                                 pendingFollowUp.difficulty,
                               );
                               if (followUp) {
-                                const insertAt = Math.min(idx + 2, filteredQuestions.length);
+                                const sourceIdx = questions.findIndex((fq) => String(fq.id) === q.id);
+                                const insertAt = sourceIdx >= 0
+                                  ? Math.min(sourceIdx + 2, questions.length)
+                                  : Math.min(idx + 2, questions.length);
                                 const mapped = mapUnifiedQuestionToPractice(followUp, `followup-${q.id}`);
                                 setQuestions((prev) => {
                                   const copy = [...prev];
