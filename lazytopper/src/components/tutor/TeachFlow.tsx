@@ -44,8 +44,13 @@ const VALID_PHASES: ReadonlySet<Phase> = new Set([
 ]);
 
 const RESUMABLE_PHASES: ReadonlySet<Phase> = new Set([
-  "awaiting_answer",
+  "teaching", "awaiting_answer", "responding",
 ]);
+
+const NORMALIZE_PHASE_ON_RESTORE: Partial<Record<Phase, Phase>> = {
+  teaching: "awaiting_answer",
+  responding: "awaiting_answer",
+};
 
 function normalizeTopicKey(topicKey: string): string {
   return String(topicKey || "")
@@ -91,8 +96,9 @@ function loadSessionState(topicKey: string): TeachFlowSessionState | null {
       window.localStorage.removeItem(getSessionKey(topicKey));
       return null;
     }
-    const phase = String(parsed.phase || "") as Phase;
-    if (!VALID_PHASES.has(phase) || !RESUMABLE_PHASES.has(phase)) return null;
+    const rawPhase = String(parsed.phase || "") as Phase;
+    if (!VALID_PHASES.has(rawPhase) || !RESUMABLE_PHASES.has(rawPhase)) return null;
+    const phase = NORMALIZE_PHASE_ON_RESTORE[rawPhase] ?? rawPhase;
     const stepCount = Number(parsed.stepCount);
     if (!Number.isFinite(stepCount) || stepCount < 0 || stepCount > 10) return null;
     const history = Array.isArray(parsed.history) ? parsed.history.filter(isValidHistoryItem) : [];
