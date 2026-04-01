@@ -61,10 +61,10 @@ function archetypeKeyOf(item: {
 }): string {
   return [
     item.subject,
-    item.topic.trim().toLowerCase(),
-    item.subtopic.trim().toLowerCase(),
+    item.topic.trim().toLowerCase().replace(/[^a-z0-9]+/g, " ").trim(),
+    item.subtopic.trim().toLowerCase().replace(/[^a-z0-9]+/g, " ").trim(),
     String(item.marks),
-    item.format,
+    item.format.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim(),
   ].join("|");
 }
 

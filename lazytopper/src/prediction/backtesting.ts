@@ -203,10 +203,10 @@ export function runLeaveOneYearOutBacktest(dataset: HistoricalDataset): LeaveOne
       sourceLabel: `Predicted ${holdoutYear}`,
       archetypeKey: [
         row.subject,
-        row.topicKey.toLowerCase(),
-        row.subtopic.toLowerCase(),
+        row.topicKey.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim(),
+        row.subtopic.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim(),
         String(row.marks),
-        row.format,
+        row.format.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim(),
       ].join("|"),
     }));
 
