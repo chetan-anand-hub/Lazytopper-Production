@@ -65,7 +65,6 @@ function BottomNav() {
   // Consider both /trends and /topic-hub as part of the Trends flow
   const isTrends =
     current.startsWith("/trends") ||
-    current.startsWith("/topics/") ||
     current.startsWith("/topic-hub");
   const isDashboard = current === "/dashboard";
   const isPredictive =
