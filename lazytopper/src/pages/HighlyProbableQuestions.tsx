@@ -2216,7 +2216,7 @@ const HighlyProbableQuestions: React.FC = () => {
                                                 padding: "1px 7px",
                                               }}
                                             >
-                                              {step.marks} {step.marks === 1 ? "mark" : "marks"}
+                                              {step.marks === 0.5 ? "½" : step.marks % 1 === 0.5 ? `${Math.floor(step.marks)}½` : step.marks} {step.marks === 1 ? "mark" : "marks"}
                                             </span>
                                           </div>
                                           <div

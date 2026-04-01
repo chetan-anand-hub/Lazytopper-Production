@@ -583,51 +583,97 @@ function buildStubMoreLikeThis(payload) {
 function buildFallbackSteps(answer, explanation, totalMarks) {
   const combined = [answer, explanation].filter(Boolean).join('\n');
   const sentences = combined.split(/[.\n]+/).map(s => s.trim()).filter(Boolean);
-  const stepCount = Math.max(1, Math.min(sentences.length, totalMarks));
-  const marksPerStep = Math.floor(totalMarks / stepCount);
-  const remainder = totalMarks - marksPerStep * stepCount;
+  const stepLabels = [
+    'Writing given data and identifying what is to be found',
+    'Stating the relevant formula / concept',
+    'Substituting the values',
+    'Simplifying / computing the result',
+    'Writing the final answer with proper units',
+  ];
+  const useHalf = totalMarks >= 2;
+  const stepCount = Math.max(1, Math.min(sentences.length, useHalf ? totalMarks * 2 : totalMarks));
   const steps = [];
+  let marksLeft = totalMarks;
   for (let i = 0; i < stepCount; i++) {
+    const isFirst = i === 0;
+    const isLast = i === stepCount - 1;
+    let stepMarks;
+    if (useHalf && stepCount > totalMarks) {
+      stepMarks = (isFirst || isLast) ? 0.5 : (marksLeft > 0.5 ? 0.5 : marksLeft);
+    } else {
+      stepMarks = i < totalMarks ? 1 : 0;
+    }
+    if (stepMarks > marksLeft) stepMarks = marksLeft;
+    marksLeft -= stepMarks;
     steps.push({
       stepNumber: i + 1,
-      description: 'Step ' + (i + 1),
+      description: stepLabels[i % stepLabels.length] || 'Step ' + (i + 1),
       working: sentences[i] || '',
-      marks: marksPerStep + (i < remainder ? 1 : 0),
+      marks: stepMarks,
     });
   }
-  return { totalMarks, steps, commonMistakes: [], examTip: '' };
-}
-
-function buildStubStepSolution(question, totalMarks, subject) {
-  const stepCount = Math.max(1, Math.min(totalMarks, 4));
-  const marksPerStep = Math.floor(totalMarks / stepCount);
-  const remainder = totalMarks - marksPerStep * stepCount;
-  const labels = [
-    'Identify given information and what needs to be found',
-    'Apply relevant formula or theorem',
-    'Substitute values and compute',
-    'Write final answer with units/conclusion',
-  ];
-  const workings = [
-    'Given: Information from the question. To find: The required answer.',
-    'Using the appropriate ' + subject + ' formula/concept for this problem type.',
-    'Substituting the given values and simplifying step by step.',
-    'Therefore, the final answer is obtained as required.',
-  ];
-  const steps = [];
-  for (let i = 0; i < stepCount; i++) {
-    steps.push({
-      stepNumber: i + 1,
-      description: labels[i] || 'Step ' + (i + 1),
-      working: workings[i] || 'Complete this step carefully.',
-      marks: marksPerStep + (i < remainder ? 1 : 0),
-    });
+  if (marksLeft > 0 && steps.length > 0) {
+    steps[steps.length - 1].marks += marksLeft;
   }
   return {
     totalMarks,
     steps,
-    commonMistakes: ['Not writing the formula before substituting values', 'Missing units in the final answer'],
-    examTip: 'Always show your working clearly — CBSE awards step marks even if the final answer is wrong.',
+    commonMistakes: [
+      'Not writing the formula before substituting — CBSE deducts ½ mark',
+      'Missing units or not stating "rejected" for negative values in word problems',
+    ],
+    examTip: 'CBSE awards step marks even if the final answer is wrong — always show complete working with formula → substitution → calculation → answer.',
+  };
+}
+
+function buildStubStepSolution(question, totalMarks, subject) {
+  const isMaths = /math/i.test(subject);
+  const stepTemplates = isMaths ? [
+    { desc: 'Writing the given information', work: 'Given: [extract data from the question]. To find: [what is asked].', m: 0.5 },
+    { desc: 'Stating the formula / theorem', work: 'Using the relevant formula: [formula]. This is a standard NCERT result.', m: 0.5 },
+    { desc: 'Substituting the values', work: 'Substituting the given values into the formula and simplifying.', m: 1 },
+    { desc: 'Computing the result', work: 'Performing the arithmetic/algebraic computation step by step.', m: 1 },
+    { desc: 'Writing the final answer', work: 'Therefore, the required answer = [value] [units]. (with proper statement)', m: 0.5 },
+  ] : [
+    { desc: 'Identifying the concept / phenomenon', work: 'This question involves [concept]. Definition: [key term definition from NCERT].', m: 0.5 },
+    { desc: 'Writing the relevant equation / principle', work: 'The relevant equation/principle: [balanced equation with state symbols / scientific law].', m: 1 },
+    { desc: 'Explaining the process / mechanism', work: 'The process works as follows: [step-by-step mechanism as per NCERT].', m: 1 },
+    { desc: 'Stating the observation / conclusion', work: 'Therefore, [observation/conclusion]. This is because [reason linked to concept].', m: 0.5 },
+    { desc: 'Writing the final answer with key terms', work: 'Final answer: [concise answer using NCERT terminology and units where applicable].', m: 0.5 },
+  ];
+
+  let stepsUsed = stepTemplates.slice(0, Math.max(2, Math.min(stepTemplates.length, totalMarks <= 1 ? 2 : totalMarks <= 2 ? 3 : totalMarks <= 3 ? 4 : 5)));
+  const rawSum = stepsUsed.reduce((a, s) => a + s.m, 0);
+  const scale = totalMarks / rawSum;
+  let cumulative = 0;
+  const steps = stepsUsed.map((t, i) => {
+    let m = Math.round(t.m * scale * 2) / 2;
+    if (m < 0.5) m = 0.5;
+    cumulative += m;
+    return { stepNumber: i + 1, description: t.desc, working: t.work, marks: m };
+  });
+  const actualSum = steps.reduce((a, s) => a + s.marks, 0);
+  if (actualSum !== totalMarks) {
+    const diff = totalMarks - actualSum;
+    const midIdx = Math.floor(steps.length / 2);
+    steps[midIdx].marks = Math.max(0.5, steps[midIdx].marks + diff);
+  }
+
+  return {
+    totalMarks,
+    steps,
+    commonMistakes: isMaths ? [
+      'Not writing the formula before substituting values — loses ½ mark in CBSE marking scheme',
+      'Skipping "Given" and "To Find" — examiner cannot award setup marks',
+      'Missing units or not rejecting invalid values (e.g., negative length)',
+    ] : [
+      'Not writing balanced chemical equations with state symbols (s/l/g/aq) — loses ½ mark',
+      'Using informal language instead of NCERT-standard terminology',
+      'Not labelling diagrams or missing arrows in ray diagrams',
+    ],
+    examTip: isMaths
+      ? 'CBSE board pattern: Given → Formula → Substitution → Calculation → Final Answer with units. Each step carries marks independently — never skip any.'
+      : 'CBSE board pattern: Define → State equation/law → Explain mechanism → Conclude. Use NCERT key terms exactly as written. Draw labelled diagrams where applicable.',
     model: 'stub',
   };
 }
@@ -3891,10 +3937,14 @@ function buildBoardStepsMSPrompt(payload) {
     buildMentorRuntimeRouteContext(payload),
     '',
     'TASK:',
-    '- Create a CBSE marking-scheme style solution for the given question.',
-    '- Use clear steps that would fetch marks in a board exam.',
+    '- Create a solution EXACTLY matching the CBSE official marking scheme format.',
+    '- Each step must show what to WRITE in the answer sheet — not what to "think" or "do".',
+    '- Use HALF MARKS (0.5) for setup steps (writing given/formula) and final answer steps, as CBSE does.',
     '- Assign marks per step so that the total equals the question marks.',
+    '- For Maths: show actual mathematical working with symbols (√, ², ±, ∴, ∵), real numbers, real calculations.',
+    '- For Science: use NCERT-standard terminology, balanced equations with state symbols (s/l/g/aq).',
     '- Keep wording short and exam-like (no long essays).',
+    '- Follow CBSE step pattern: Given/Definition → Formula/Law → Substitution/Application → Simplification → Final Answer.',
     '',
     'IF MARKS NOT PROVIDED:',
     '- Infer marks from section if possible (A=1, B=2, C=3, D=5, E=4). Otherwise choose the most reasonable marks based on the work required.',
@@ -3911,10 +3961,10 @@ function buildBoardStepsMSPrompt(payload) {
     '  "totalMarks": number,',
     '  "steps": [',
     '    {',
-    '      "text": "One exam step (what to write)",',
-    '      "marks": number,',
-    '      "whyThisGetsMarks": "1 line: what examiner awards marks for",',
-    '      "commonMistake": "1 line: typical mistake that loses marks"',
+    '      "text": "EXACT content to write in answer sheet — formulas, equations, calculations with proper notation",',
+    '      "marks": 0.5 or 1 or 1.5 etc (CBSE uses half marks for setup/conclusion steps),',
+    '      "whyThisGetsMarks": "1 line: what examiner awards marks for in the official marking scheme",',
+    '      "commonMistake": "1 line: specific mistake that loses marks in board evaluation"',
     '    }',
     '  ],',
     '  "finalAnswer": "string",',
@@ -5717,42 +5767,75 @@ ${userPrompt}` }];
     }
 
     try {
+      const isMaths = /math/i.test(subject);
       const systemPrompt =
-        'You are an expert CBSE Class 10 board exam evaluator and marking scheme author for ' +
-        subject + '. You produce step-by-step solutions that exactly match CBSE marking scheme format. ' +
+        'You are a CBSE Class 10 board exam evaluator who authors the OFFICIAL marking scheme for ' +
+        subject + ' (Subject Code: ' + (isMaths ? '041' : '086') + '). ' +
+        'You have access to CBSE marking scheme PDFs from 2020-2025 and follow their EXACT format. ' +
+        'You produce step-by-step solutions identical to what CBSE publishes in their official marking scheme documents. ' +
         'You must respond ONLY with valid JSON, no markdown fences.';
 
+      const mathsExample =
+        'CBSE MARKING SCHEME FORMAT EXAMPLES (Maths):\n' +
+        '--- Example: 3-mark question "Solve 2x² − 5x + 3 = 0 using quadratic formula" ---\n' +
+        'Step 1: desc="Writing the quadratic formula", working="For ax² + bx + c = 0, x = (−b ± √(b²−4ac)) / 2a. Here a = 2, b = −5, c = 3", marks=0.5\n' +
+        'Step 2: desc="Computing the discriminant", working="D = b² − 4ac = (−5)² − 4(2)(3) = 25 − 24 = 1", marks=1\n' +
+        'Step 3: desc="Substituting in the formula", working="x = (5 ± √1) / 4 = (5 ± 1) / 4", marks=1\n' +
+        'Step 4: desc="Writing both roots", working="x = (5+1)/4 = 3/2 or x = (5−1)/4 = 1 ∴ x = 3/2, 1", marks=0.5\n' +
+        '--- Example: 2-mark question "Find the 10th term of AP: 2, 7, 12, ..." ---\n' +
+        'Step 1: desc="Identifying a, d and writing formula", working="Here a = 2, d = 7 − 2 = 5. Using aₙ = a + (n−1)d", marks=0.5\n' +
+        'Step 2: desc="Substituting n = 10", working="a₁₀ = 2 + (10−1)(5) = 2 + 45 = 47", marks=1\n' +
+        'Step 3: desc="Stating the answer", working="∴ The 10th term of the AP is 47.", marks=0.5\n';
+
+      const scienceExample =
+        'CBSE MARKING SCHEME FORMAT EXAMPLES (Science):\n' +
+        '--- Example: 2-mark question "Write the balanced chemical equation when iron reacts with copper sulphate" ---\n' +
+        'Step 1: desc="Writing reactants and products", working="Fe + CuSO₄ → FeSO₄ + Cu", marks=0.5\n' +
+        'Step 2: desc="Balanced equation with state symbols", working="Fe(s) + CuSO₄(aq) → FeSO₄(aq) + Cu(s)", marks=1\n' +
+        'Step 3: desc="Identifying type of reaction", working="This is a displacement reaction (Fe displaces Cu).", marks=0.5\n' +
+        '--- Example: 3-mark question "What is refraction? State Snell\'s law with formula" ---\n' +
+        'Step 1: desc="Defining refraction", working="Refraction is the change in direction of light when it passes from one transparent medium to another.", marks=1\n' +
+        'Step 2: desc="Stating Snell\'s law", working="The ratio of sine of angle of incidence to sine of angle of refraction is constant for a given pair of media. This constant is called refractive index.", marks=1\n' +
+        'Step 3: desc="Writing the formula", working="sin i / sin r = n₂₁ (refractive index of medium 2 w.r.t. medium 1)", marks=1\n';
+
       const userPrompt =
-        'Generate a CBSE board marking scheme style step-by-step solution for this question.\n\n' +
+        'Generate the OFFICIAL CBSE board marking scheme solution for this Class 10 question.\n\n' +
         'Question: ' + question + '\n' +
         'Total marks: ' + marks + '\n' +
-        (topic ? 'Topic: ' + topic + '\n' : '') +
+        'Subject: ' + subject + '\n' +
+        (topic ? 'Chapter/Topic: ' + topic + '\n' : '') +
         (qType ? 'Question type: ' + qType + '\n' : '') +
-        '\nRespond with a JSON object in this exact format:\n' +
+        '\n' + (isMaths ? mathsExample : scienceExample) + '\n' +
+        'RESPOND with this exact JSON structure:\n' +
         '{\n' +
         '  "totalMarks": ' + marks + ',\n' +
         '  "steps": [\n' +
-        '    { "stepNumber": 1, "description": "brief label", "working": "actual working/formula/calculation shown", "marks": <marks for this step> },\n' +
-        '    ...\n' +
+        '    { "stepNumber": 1, "description": "what the student must write (e.g. Writing the formula)", "working": "the EXACT content to write in the answer sheet — formulas, equations, calculations, with proper notation", "marks": 0.5 }\n' +
         '  ],\n' +
-        '  "commonMistakes": ["mistake 1", "mistake 2"],\n' +
-        '  "examTip": "one line exam tip"\n' +
+        '  "commonMistakes": ["specific mistake that loses marks in CBSE board evaluation"],\n' +
+        '  "examTip": "specific board exam writing tip for this type of question"\n' +
         '}\n\n' +
-        'Rules:\n' +
-        '- The marks of all steps MUST sum to exactly ' + marks + '\n' +
-        '- Each step description should be concise (what is being done)\n' +
-        '- Each step working should show the actual mathematical/scientific working\n' +
-        '- Use proper mathematical notation where needed\n' +
-        '- Include 2-3 common mistakes students make\n' +
-        '- Include one practical exam tip';
+        'STRICT CBSE MARKING SCHEME RULES:\n' +
+        '1. The marks of all steps MUST sum to EXACTLY ' + marks + '\n' +
+        '2. Use HALF MARKS (0.5) — CBSE marking schemes use ½ marks extensively for setup steps (writing given/formula) and final answer steps\n' +
+        '3. The "description" field = what the examiner looks for (e.g. "Writing the formula", "Substituting values", "Computing discriminant")\n' +
+        '4. The "working" field = the EXACT content a student should write in their answer sheet — show real formulas, real numbers, real calculations\n' +
+        '5. For Maths: show actual mathematical working with symbols (√, ², ±, ∴, ∵) — not descriptions of what to do\n' +
+        '6. For Science: use NCERT-standard terminology, balanced equations with state symbols (s/l/g/aq), proper scientific notation\n' +
+        '7. Follow CBSE step pattern: Given/Definition → Formula/Law → Substitution/Application → Simplification → Final Answer\n' +
+        '8. Each "working" must be self-contained — a student copying it verbatim should score full marks for that step\n' +
+        '9. commonMistakes must be SPECIFIC to this question (not generic advice)\n' +
+        '10. examTip must reference the CBSE board marking pattern for this question type\n' +
+        '11. For word problems: include step for framing the equation AND step for rejecting invalid values with reason\n' +
+        '12. Total steps: 2-mark Q → 3 steps, 3-mark Q → 4 steps, 5-mark Q → 5-6 steps (matching CBSE scheme density)';
 
       const contents = [
         { role: 'user', parts: [{ text: systemPrompt + '\n\n' + userPrompt }] },
       ];
 
       const reply = await callGemini(GEMINI_MODEL, contents, {
-        temperature: 0.3,
-        maxOutputTokens: 1200,
+        temperature: 0.2,
+        maxOutputTokens: 1800,
       });
 
       const parsed = extractJsonObjectFromText(reply.text);
@@ -5763,38 +5846,54 @@ ${userPrompt}` }];
             stepNumber: i + 1,
             description: String(s.description || '').trim(),
             working: String(s.working || '').trim(),
-            marks: Math.max(0, Math.round(Number(s.marks) || 0)),
+            marks: Math.max(0, Math.round(Number(s.marks) * 2) / 2),
           }));
 
         if (steps.length === 0) {
           return sendJson(res, 200, buildStubStepSolution(question, marks, subject));
         }
 
+        const maxSteps = Math.floor(marks / 0.5);
+        if (steps.length > maxSteps) {
+          steps = steps.slice(0, maxSteps);
+          for (let i = 0; i < steps.length; i++) steps[i].stepNumber = i + 1;
+        }
+
         const rawSum = steps.reduce((acc, s) => acc + s.marks, 0);
-        if (rawSum !== marks) {
-          if (rawSum > 0 && marks >= steps.length) {
+        if (Math.abs(rawSum - marks) > 0.01) {
+          if (rawSum > 0) {
             for (let i = 0; i < steps.length; i++) {
-              steps[i].marks = Math.max(1, Math.floor((steps[i].marks / rawSum) * marks));
+              steps[i].marks = Math.max(0.5, Math.round((steps[i].marks / rawSum) * marks * 2) / 2);
             }
           } else {
+            const perStep = Math.round((marks / steps.length) * 2) / 2;
             for (let i = 0; i < steps.length; i++) {
-              steps[i].marks = i < marks ? 1 : 0;
+              steps[i].marks = Math.max(0.5, perStep);
             }
           }
           let currentSum = steps.reduce((a, s) => a + s.marks, 0);
           let idx = 0;
-          while (currentSum < marks) {
-            steps[idx % steps.length].marks += 1;
-            currentSum += 1;
-            idx++;
-          }
-          while (currentSum > marks && idx < steps.length * marks) {
+          while (Math.abs(currentSum - marks) > 0.01 && idx < steps.length * 20) {
             const j = idx % steps.length;
-            if (steps[j].marks > 0) {
-              steps[j].marks -= 1;
-              currentSum -= 1;
+            if (currentSum < marks) {
+              steps[j].marks += 0.5;
+              currentSum += 0.5;
+            } else if (currentSum > marks && steps[j].marks > 0.5) {
+              steps[j].marks -= 0.5;
+              currentSum -= 0.5;
             }
             idx++;
+          }
+          if (Math.abs(currentSum - marks) > 0.01) {
+            while (steps.length > 1 && currentSum > marks) {
+              const removed = steps.pop();
+              currentSum -= removed.marks;
+            }
+            if (steps.length > 0) {
+              steps[steps.length - 1].marks += (marks - currentSum);
+              steps[steps.length - 1].marks = Math.round(steps[steps.length - 1].marks * 2) / 2;
+            }
+            for (let i = 0; i < steps.length; i++) steps[i].stepNumber = i + 1;
           }
         }
 
