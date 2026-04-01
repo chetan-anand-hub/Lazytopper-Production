@@ -11,7 +11,7 @@ import {
   type ConstrainedPaperCandidate,
 } from "../prediction/constrainedPaperConstructor";
 import { getCanonicalHistoricalDataset } from "../prediction/historicalDataset";
-import { scoreArchetypeWithBayesianSmoothing } from "../prediction/probabilisticScoring";
+import { scoreTopicRecurrenceConfidence } from "../prediction/probabilisticScoring";
 
 // --- Types for the built Science mock paper -------------------------
 
@@ -201,7 +201,7 @@ export function buildScienceMockPaperFromBank(
   const byId = new Map(candidateBank.map((question) => [question.id, question]));
   const constrainedCandidates: ConstrainedPaperCandidate[] = candidateBank.map(
     (question) => {
-      const scored = scoreArchetypeWithBayesianSmoothing({
+      const scored = scoreTopicRecurrenceConfidence({
         input: {
           subject: "Science",
           topic: scienceTopicDisplay(question.topicKey),

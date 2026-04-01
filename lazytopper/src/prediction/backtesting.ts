@@ -1,6 +1,6 @@
 import type { HistoricalDataset, HistoricalQuestionItem } from "./historicalDataset";
 import type { ProbabilisticContext } from "./probabilisticScoring";
-import { scoreArchetypeWithBayesianSmoothing } from "./probabilisticScoring";
+import { scoreTopicRecurrenceConfidence } from "./probabilisticScoring";
 import {
   buildConstrainedPaper,
   type ConstrainedPaperCandidate,
@@ -152,7 +152,7 @@ export function runLeaveOneYearOutBacktest(dataset: HistoricalDataset): LeaveOne
     const context = contextForYear(holdoutYear);
 
     const scoredCandidates: ConstrainedPaperCandidate[] = candidates.map((c) => {
-      const scored = scoreArchetypeWithBayesianSmoothing({
+      const scored = scoreTopicRecurrenceConfidence({
         input: {
           subject: c.subject,
           topic: c.topic,

@@ -1,6 +1,6 @@
 import type { HPQQuestion, HPQSubject } from "../data/highlyProbableQuestions";
 import { getCanonicalHistoricalDataset } from "./historicalDataset";
-import { scoreArchetypeWithBayesianSmoothing } from "./probabilisticScoring";
+import { scoreTopicRecurrenceConfidence } from "./probabilisticScoring";
 
 export interface HPQConfidence {
   confidenceScore: number;
@@ -69,7 +69,7 @@ export function deriveHPQConfidence(args: {
     Number(question.pastBoardYear || "") ||
     mapLikelihoodToYearHint(question.likelihood);
 
-  const scored = scoreArchetypeWithBayesianSmoothing({
+  const scored = scoreTopicRecurrenceConfidence({
     input: {
       subject,
       topic,

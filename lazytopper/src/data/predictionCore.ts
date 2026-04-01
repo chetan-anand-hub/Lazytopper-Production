@@ -13,7 +13,7 @@ import { class10ScienceTopicTrends } from "./class10ScienceTopicTrends";
 import { QUESTION_TYPE_MULTIPLIER } from "../data/cbseCompetencyPolicy";
 import { computePredictionScore } from "./predictionScoring";
 import { getCanonicalHistoricalDataset } from "../prediction/historicalDataset";
-import { scoreArchetypeWithBayesianSmoothing } from "../prediction/probabilisticScoring";
+import { scoreTopicRecurrenceConfidence } from "../prediction/probabilisticScoring";
 
 type CanonicalQuestionWithScore = CanonicalQuestion & { _adjustedScore?: number };
 
@@ -161,7 +161,7 @@ function getBayesianMultiplier(q: CanonicalQuestionWithScore): number {
   if (cached != null) return cached;
 
   const targetYear = predictionTargetYear();
-  const scored = scoreArchetypeWithBayesianSmoothing({
+  const scored = scoreTopicRecurrenceConfidence({
     input: {
       subject: q.subject,
       topic: q.topicKey,

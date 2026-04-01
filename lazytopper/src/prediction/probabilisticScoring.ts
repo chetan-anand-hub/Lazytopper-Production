@@ -77,7 +77,7 @@ function policyBoost(context: ProbabilisticContext, input: ProbabilisticScoreInp
   return 1.0;
 }
 
-export function scoreArchetypeWithBayesianSmoothing(args: {
+export function scoreTopicRecurrenceConfidence(args: {
   input: ProbabilisticScoreInput;
   context: ProbabilisticContext;
   historicalItems: HistoricalQuestionItem[];
