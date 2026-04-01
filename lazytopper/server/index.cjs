@@ -5773,31 +5773,34 @@ ${userPrompt}` }];
 
         const rawSum = steps.reduce((acc, s) => acc + s.marks, 0);
         if (rawSum !== marks) {
-          if (rawSum > 0) {
-            let remaining = marks;
+          if (rawSum > 0 && marks >= steps.length) {
             for (let i = 0; i < steps.length; i++) {
-              const proportion = steps[i].marks / rawSum;
-              const allocated = i < steps.length - 1
-                ? Math.max(1, Math.round(marks * proportion))
-                : remaining;
-              steps[i].marks = Math.max(0, allocated);
-              remaining -= steps[i].marks;
+              steps[i].marks = Math.max(1, Math.floor((steps[i].marks / rawSum) * marks));
             }
           } else {
-            const base = Math.floor(marks / steps.length);
-            let remainder = marks - base * steps.length;
-            steps = steps.map((s) => {
-              const m = base + (remainder > 0 ? 1 : 0);
-              if (remainder > 0) remainder--;
-              return { ...s, marks: m };
-            });
+            for (let i = 0; i < steps.length; i++) {
+              steps[i].marks = i < marks ? 1 : 0;
+            }
+          }
+          let currentSum = steps.reduce((a, s) => a + s.marks, 0);
+          let idx = 0;
+          while (currentSum < marks) {
+            steps[idx % steps.length].marks += 1;
+            currentSum += 1;
+            idx++;
+          }
+          while (currentSum > marks && idx < steps.length * marks) {
+            const j = idx % steps.length;
+            if (steps[j].marks > 0) {
+              steps[j].marks -= 1;
+              currentSum -= 1;
+            }
+            idx++;
           }
         }
 
-        const normalizedTotal = steps.reduce((acc, s) => acc + s.marks, 0);
-
         return sendJson(res, 200, {
-          totalMarks: normalizedTotal,
+          totalMarks: marks,
           steps,
           commonMistakes: Array.isArray(parsed.commonMistakes) ? parsed.commonMistakes.map(String) : [],
           examTip: String(parsed.examTip || '').trim() || undefined,
