@@ -280,7 +280,7 @@ export default function WeeklyWrappedPage() {
                 </div>
                 <button
                   type="button"
-                  onClick={() => navigate(`/class10/${focusArea.subject || "math"}/${focusArea.topicKey}`)}
+                  onClick={() => navigate(`/class10/${focusArea.subject || "maths"}/${focusArea.topicKey}`)}
                   style={{
                     marginTop: 10,
                     padding: "6px 16px",
@@ -341,22 +341,6 @@ export default function WeeklyWrappedPage() {
                shareStatus === "copied" ? "✓ Copied to Clipboard!" :
                shareStatus === "error" ? "Try Again" :
                "📋 Copy Summary"}
-            </button>
-            <button
-              type="button"
-              onClick={handleClose}
-              style={{
-                padding: "10px 20px",
-                background: "#f1f5f9",
-                color: "#64748b",
-                border: "1px solid #e2e8f0",
-                borderRadius: 10,
-                fontWeight: 600,
-                fontSize: 14,
-                cursor: "pointer",
-              }}
-            >
-              Back to Dashboard
             </button>
           </div>
         </>
