@@ -35,6 +35,27 @@ function toBloomLevel(raw: HPQQuestion["bloomSkill"]) {
   return "Understanding" as const;
 }
 
+function mapQuestionTypeToFormat(type: string | undefined): string {
+  switch (type) {
+    case "AssertionReason":
+      return "Assertion-Reasoning";
+    case "CaseBased":
+      return "Case-Based";
+    case "VeryShort":
+      return "VSA";
+    case "Diagram":
+      return "Short";
+    case "MCQ":
+      return "MCQ";
+    case "Short":
+      return "Short";
+    case "Long":
+      return "Long";
+    default:
+      return type || "Short";
+  }
+}
+
 export function deriveHPQConfidence(args: {
   subject: HPQSubject;
   topic: string;
@@ -52,12 +73,7 @@ export function deriveHPQConfidence(args: {
       topic,
       subtopic: question.subtopic || question.concept || "general",
       marks: question.marks ?? 1,
-      format:
-        question.type === "AssertionReason"
-          ? "Assertion-Reasoning"
-          : question.type === "CaseBased"
-          ? "Case-Based"
-          : question.type || "Short",
+      format: mapQuestionTypeToFormat(question.type),
       bloom: toBloomLevel(question.bloomSkill),
       policyTag: question.policyTag,
       sourceYearHint: yearHint,

@@ -106,11 +106,12 @@ export function scoreArchetypeWithBayesianSmoothing(args: {
   const trend = Math.max(0.7, Math.min(1.35, context.topicTrendWeight ?? 1.0));
   const combined = Math.max(0, Math.min(1, posterior * policy * trend));
 
-  // Confidence grows with recurrence across years + posterior mass.
   const recurrence = Math.min(1, yearHits.size / 4);
+  const rawConfidence = combined * 0.7 + recurrence * 0.3;
+  const HPQ_CONFIDENCE_FLOOR = 0.18;
   const confidence = Math.max(
-    0,
-    Math.min(1, combined * 0.7 + recurrence * 0.3)
+    HPQ_CONFIDENCE_FLOOR,
+    Math.min(1, rawConfidence)
   );
 
   const confidenceBand: "low" | "medium" | "high" =

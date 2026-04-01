@@ -3,6 +3,7 @@ import type { PredictedQuestionId } from "./predictedQuestions";
 import { mergeBucketsByTopic } from "../utils/mergeBucketsByTopic.ts";
 import { class10ScienceTopicTrends } from "./class10ScienceTopicTrends";
 import { deriveHPQConfidence } from "../prediction/hpqConfidence";
+import { hpqCompetencyAdditions } from "./hpqCompetencyAdditions";
 
 const hpqAdditions: HPQTopicBucket[] = [
   {
@@ -2856,6 +2857,7 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
 const _rawHpqBuckets: HPQTopicBucket[] = [
   ...highlyProbableQuestionsSeed,
   ...hpqAdditions,
+  ...hpqCompetencyAdditions,
 ];
 
 export const highlyProbableQuestions: HPQTopicBucket[] = [

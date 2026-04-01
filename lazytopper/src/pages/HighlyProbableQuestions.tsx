@@ -145,6 +145,14 @@ function getChapterIdForBucket(
   return `${grade}-${safeSubject}-${topicKey}` as ChapterId;
 }
 
+const COMPETENCY_TYPES = new Set(["CaseBased", "AssertionReason"]);
+
+function isCompetencyQuestion(q: HPQQuestion): boolean {
+  return COMPETENCY_TYPES.has(q.type || "");
+}
+
+type CompetencyFilter = "all" | "competency";
+
 // ---------- Component ----------
 
 const HighlyProbableQuestions: React.FC = () => {
@@ -182,6 +190,7 @@ const HighlyProbableQuestions: React.FC = () => {
   const [difficultyFilter, setDifficultyFilter] =
     useState<DifficultyFilter>("all");
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [competencyFilter, setCompetencyFilter] = useState<CompetencyFilter>("all");
 
   // Topic filter (dropdown + deep-link from Trends)
   const topicParam = searchParams.get("topic");
@@ -210,6 +219,7 @@ const HighlyProbableQuestions: React.FC = () => {
     setTierFilter("all");
     setDifficultyFilter("all");
     setShowAdvancedFilters(false);
+    setCompetencyFilter("all");
     setExpandedTopics({});
     setHpqFeedback({});
     setTopicFilter("all");
@@ -426,12 +436,10 @@ const HighlyProbableQuestions: React.FC = () => {
   // Handlers
 
   const handleSubjectToggle = (next: HPQSubject) => {
-    // Full reset on subject toggle:
-    // - don't carry query params (topic/filters) to the next subject
-    // - reset local UI state to avoid leakage when the component instance is reused
     setActiveStream("all");
     setTierFilter("all");
     setDifficultyFilter("all");
+    setCompetencyFilter("all");
     setExpandedTopics({});
     setHpqFeedback({});
     setTopicFilter("all");
@@ -682,6 +690,7 @@ const HighlyProbableQuestions: React.FC = () => {
   const handleClearAllFilters = () => {
     setTierFilter("all");
     setDifficultyFilter("all");
+    setCompetencyFilter("all");
     setActiveStream("all");
     setTopicFilter("all");
     const nextParams = new URLSearchParams(searchParams.toString());
@@ -732,6 +741,15 @@ const HighlyProbableQuestions: React.FC = () => {
         .filter((bucket) => bucket.questions.length > 0);
     }
 
+    if (competencyFilter === "competency") {
+      buckets = buckets
+        .map((bucket) => ({
+          ...bucket,
+          questions: bucket.questions.filter(isCompetencyQuestion),
+        }))
+        .filter((bucket) => bucket.questions.length > 0);
+    }
+
     return buckets;
   }, [
     subjectBuckets,
@@ -739,6 +757,7 @@ const HighlyProbableQuestions: React.FC = () => {
     activeStream,
     tierFilter,
     difficultyFilter,
+    competencyFilter,
     topicFilter,
   ]);
 
@@ -849,6 +868,25 @@ const HighlyProbableQuestions: React.FC = () => {
           }}
         >
           {q.bloomSkill}
+        </span>
+      );
+    }
+
+    if (isCompetencyQuestion(q)) {
+      chips.push(
+        <span
+          key="competency"
+          style={{
+            borderRadius: 999,
+            padding: "3px 8px",
+            backgroundColor: "#fef3c7",
+            border: "1px solid rgba(217,119,6,0.6)",
+            fontSize: "0.7rem",
+            color: "#92400e",
+            fontWeight: 600,
+          }}
+        >
+          {q.type === "CaseBased" ? "Case-Based" : "Assertion-Reasoning"}
         </span>
       );
     }
@@ -1073,6 +1111,47 @@ const HighlyProbableQuestions: React.FC = () => {
                             ? "rgba(248,250,252,0.95)"
                             : "transparent",
                           color: active ? "#020617" : "#e5e7eb",
+                          cursor: "pointer",
+                          transition: "all 0.15s ease-out",
+                        }}
+                      >
+                        {item.label}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div
+                  style={{
+                    marginTop: 10,
+                    display: "flex",
+                    gap: 8,
+                    flexWrap: "wrap",
+                    fontSize: "0.78rem",
+                  }}
+                >
+                  {(
+                    [
+                      { id: "all", label: "All questions" },
+                      { id: "competency", label: "Competency-Based Only" },
+                    ] as { id: CompetencyFilter; label: string }[]
+                  ).map((item) => {
+                    const active = competencyFilter === item.id;
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => setCompetencyFilter(item.id)}
+                        style={{
+                          borderRadius: 999,
+                          padding: "5px 11px",
+                          border: active
+                            ? "1px solid rgba(217,119,6,0.8)"
+                            : "1px solid rgba(248,250,252,0.35)",
+                          background: active
+                            ? "rgba(254,243,199,0.95)"
+                            : "transparent",
+                          color: active ? "#92400e" : "#e5e7eb",
+                          fontWeight: active ? 600 : 400,
                           cursor: "pointer",
                           transition: "all 0.15s ease-out",
                         }}
