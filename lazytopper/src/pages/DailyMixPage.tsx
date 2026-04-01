@@ -49,7 +49,7 @@ function computeMasteryScore(snap: TopicHubMasterySnapshot): number {
   return total / nodes.length;
 }
 
-function pickWeightedTopics(subject: "Maths" | "Science", count: number): string[] {
+function pickWeightedTopics(subject: "Maths" | "Science", count: number, seed: string): string[] {
   const subjectId = subject === "Science" ? "science" : "maths";
   const subjectChapters = canonicalChapters.filter((ch) => ch.subjectId === subjectId);
   const weighted: { key: string; weight: number }[] = [];
@@ -59,8 +59,29 @@ function pickWeightedTopics(subject: "Maths" | "Science", count: number): string
     const mastery = computeMasteryScore(snap);
     weighted.push({ key: slug, weight: Math.max(0.1, 1 - mastery) });
   }
-  weighted.sort((a, b) => b.weight - a.weight);
-  return weighted.slice(0, count).map((w) => w.key);
+
+  let rng = 2166136261;
+  for (let i = 0; i < seed.length; i++) {
+    rng ^= seed.charCodeAt(i);
+    rng = Math.imul(rng, 16777619);
+  }
+  rng = rng >>> 0;
+
+  const picked: string[] = [];
+  const pool = [...weighted];
+  for (let n = 0; n < count && pool.length > 0; n++) {
+    const totalWeight = pool.reduce((s, w) => s + w.weight, 0);
+    rng = (rng * 1664525 + 1013904223) >>> 0;
+    let r = (rng / 4294967296) * totalWeight;
+    let idx = 0;
+    for (let i = 0; i < pool.length; i++) {
+      r -= pool[i].weight;
+      if (r <= 0) { idx = i; break; }
+    }
+    picked.push(pool[idx].key);
+    pool.splice(idx, 1);
+  }
+  return picked;
 }
 
 function loadSessionLogs(): StudySessionLog[] {
@@ -134,6 +155,7 @@ export default function DailyMixPage() {
   const [questionStates, setQuestionStates] = useState<QuestionState[]>([]);
   const [completed, setCompleted] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
+  const [resumeIndex, setResumeIndex] = useState<number | null>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const [streakDays, setStreakDays] = useState(() => computeGlobalStreak(loadSessionLogs()));
@@ -143,15 +165,22 @@ export default function DailyMixPage() {
   const playback = useDailyMixPlayback(items);
 
   useEffect(() => {
+    if (resumeIndex !== null && items.length > 0) {
+      playback.seek(resumeIndex);
+      setResumeIndex(null);
+    }
+  }, [resumeIndex, items.length, playback]);
+
+  useEffect(() => {
     const saved = loadSavedMix(safeSubject);
     if (saved) {
       setItems(saved.items);
       setQuestionStates(saved.questionStates);
       setCompleted(saved.completed);
       const firstUnanswered = saved.questionStates.findIndex((s) => !s.submitted);
-      if (firstUnanswered >= 0) playback.seek(firstUnanswered);
+      if (firstUnanswered >= 0) setResumeIndex(firstUnanswered);
     } else {
-      const topicKeys = pickWeightedTopics(safeSubject, MIX_TOPIC_COUNT);
+      const topicKeys = pickWeightedTopics(safeSubject, MIX_TOPIC_COUNT, todayKey());
       const allItems: DailyMixItem[] = [];
       for (const tk of topicKeys) {
         const ctx: DailyMixContext = {
@@ -326,6 +355,7 @@ export default function DailyMixPage() {
   const itemTopic = String(currentItem?.payload?.topic || "");
   const itemDifficulty = String(currentItem?.description || "").split("|")[0]?.trim() || "Medium";
   const itemMarks = Number(currentItem?.description?.match(/(\d+)\s*mark/)?.[1]) || 2;
+  const itemExpectedMins = (currentItem as any)?.duration ?? (itemMarks <= 1 ? 1 : itemMarks <= 3 ? 2 : 4);
 
   return (
     <div className="lt-page" style={{ maxWidth: 680, margin: "0 auto", padding: "24px 16px" }}>
@@ -439,7 +469,7 @@ export default function DailyMixPage() {
             </span>
           )}
           <span style={{ fontSize: 11, opacity: 0.6 }}>
-            {itemMarks} mark{itemMarks !== 1 ? "s" : ""} • Item {playback.currentIndex + 1}/{items.length}
+            {itemMarks} mark{itemMarks !== 1 ? "s" : ""} • ~{itemExpectedMins} min • Item {playback.currentIndex + 1}/{items.length}
           </span>
         </div>
 
