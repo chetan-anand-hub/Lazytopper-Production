@@ -355,7 +355,7 @@ export default function DailyMixPage() {
   const itemTopic = String(currentItem?.payload?.topic || "");
   const itemDifficulty = String(currentItem?.description || "").split("|")[0]?.trim() || "Medium";
   const itemMarks = Number(currentItem?.description?.match(/(\d+)\s*mark/)?.[1]) || 2;
-  const itemExpectedMins = (currentItem as any)?.duration ?? (itemMarks <= 1 ? 1 : itemMarks <= 3 ? 2 : 4);
+  const itemExpectedMins = itemMarks <= 1 ? 1 : itemMarks <= 3 ? 2 : 4;
 
   return (
     <div className="lt-page" style={{ maxWidth: 680, margin: "0 auto", padding: "24px 16px" }}>
