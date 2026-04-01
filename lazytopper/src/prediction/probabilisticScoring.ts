@@ -33,23 +33,28 @@ export interface ProbabilisticScoreResult {
 function norm(raw: string): string {
   return String(raw || "")
     .toLowerCase()
+    .replace(/&/g, " and ")
     .replace(/[^a-z0-9]+/g, " ")
+    .replace(/\s+/g, " ")
     .trim();
 }
 
-function archetypeKeyOf(input: ProbabilisticScoreInput): string {
-  return [
-    input.subject,
-    norm(input.topic),
-    norm(input.subtopic),
-    String(input.marks),
-    norm(input.format),
-  ].join("|");
+function stripPlural(s: string): string {
+  return s.replace(/s$/, "");
 }
 
-function recencyWeight(targetYear: number, year: number): number {
-  const delta = Math.max(0, targetYear - year);
-  return Math.exp(-0.22 * delta);
+function fuzzyTopicMatch(a: string, b: string): boolean {
+  const na = norm(a);
+  const nb = norm(b);
+  if (na === nb) return true;
+  if (stripPlural(na) === stripPlural(nb)) return true;
+  if (na.includes(nb) || nb.includes(na)) return true;
+  const wordsA = new Set(na.split(" "));
+  const wordsB = new Set(nb.split(" "));
+  let overlap = 0;
+  for (const w of wordsA) if (wordsB.has(w)) overlap++;
+  const minLen = Math.min(wordsA.size, wordsB.size);
+  return minLen >= 2 && overlap / minLen >= 0.7;
 }
 
 function policyBoost(context: ProbabilisticContext, input: ProbabilisticScoreInput): number {
@@ -78,36 +83,41 @@ export function scoreArchetypeWithBayesianSmoothing(args: {
   historicalItems: HistoricalQuestionItem[];
 }): ProbabilisticScoreResult {
   const { input, context, historicalItems } = args;
-  const archetypeKey = archetypeKeyOf(input);
   const subjectItems = historicalItems.filter((x) => x.subject === input.subject);
 
-  // Dirichlet-like smoothing at archetype level.
-  const uniqueArchetypes = new Set(subjectItems.map((x) => x.archetypeKey)).size || 1;
-  const alpha = 1.5;
+  const inputFormat = norm(input.format);
 
-  let weightedTotal = 0;
-  let weightedArchetype = 0;
-  const yearHits = new Set<number>();
+  const allYears = new Set(subjectItems.map((x) => x.sourceYear));
+  const totalYearSpan = Math.max(allYears.size, 1);
+
+  const yearHitsTopicFormat = new Set<number>();
+  const yearHitsTopic = new Set<number>();
 
   for (const item of subjectItems) {
-    const w = recencyWeight(context.targetYear, item.sourceYear);
-    weightedTotal += w;
-    if (item.archetypeKey === archetypeKey) {
-      weightedArchetype += w;
-      yearHits.add(item.sourceYear);
+    const topicMatch = fuzzyTopicMatch(item.topic, input.topic);
+    if (topicMatch) {
+      yearHitsTopic.add(item.sourceYear);
+      if (norm(item.format) === inputFormat) {
+        yearHitsTopicFormat.add(item.sourceYear);
+      }
     }
   }
 
-  const posterior =
-    (weightedArchetype + alpha) /
-    (weightedTotal + alpha * uniqueArchetypes);
+  const topicRecurrence = Math.min(1, yearHitsTopic.size / totalYearSpan);
+
+  const formatBonus = yearHitsTopicFormat.size > 0
+    ? Math.min(0.15, (yearHitsTopicFormat.size / totalYearSpan) * 0.2)
+    : 0;
+
+  const baseScore = topicRecurrence * 0.75 + formatBonus;
 
   const policy = policyBoost(context, input);
   const trend = Math.max(0.7, Math.min(1.35, context.topicTrendWeight ?? 1.0));
-  const combined = Math.max(0, Math.min(1, posterior * policy * trend));
+  const combined = Math.max(0, Math.min(1, baseScore * policy * trend));
 
-  const recurrence = Math.min(1, yearHits.size / 4);
-  const rawConfidence = combined * 0.7 + recurrence * 0.3;
+  const yearHits = yearHitsTopicFormat.size > 0 ? yearHitsTopicFormat : yearHitsTopic;
+  const recurrence = Math.min(1, yearHits.size / 5);
+  const rawConfidence = combined * 0.55 + recurrence * 0.45;
   const HPQ_CONFIDENCE_FLOOR = 0.18;
   const confidence = Math.max(
     HPQ_CONFIDENCE_FLOOR,
