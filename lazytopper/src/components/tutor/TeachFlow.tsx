@@ -44,7 +44,7 @@ const VALID_PHASES: ReadonlySet<Phase> = new Set([
 ]);
 
 const RESUMABLE_PHASES: ReadonlySet<Phase> = new Set([
-  "teaching", "awaiting_answer", "responding",
+  "awaiting_answer",
 ]);
 
 function normalizeTopicKey(topicKey: string): string {
