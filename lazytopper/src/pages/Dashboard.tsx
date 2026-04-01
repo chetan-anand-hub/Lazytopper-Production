@@ -19,13 +19,6 @@ import {
   setCbseExamDateAdminOverride,
 } from "../services/cbseExamDate";
 import { loadDashboardPrefs, saveDashboardPrefs } from "../services/studentCloudStore";
-import {
-  SESSION_AUTH_TIMEOUT,
-  SESSION_AUTH_UNAVAILABLE,
-  SESSION_FIRESTORE_UNAVAILABLE,
-  getSessionApiErrorCode,
-  startSession,
-} from "../services/sessionApi";
 
 type SubjectTitle = "Maths" | "Science";
 
@@ -109,11 +102,6 @@ function formatIsoDate(isoDate: string): string {
   return new Intl.DateTimeFormat("en-IN", { day: "2-digit", month: "short", year: "numeric" }).format(d);
 }
 
-function toCloudSessionErrorMessage(error: unknown): string {
-  const detail = error instanceof Error ? error.message : "Unknown cloud error.";
-  return `Cloud session start failed: ${detail}`;
-}
-
 export default function Dashboard() {
   const { user } = useAuth();
   const { profile, strategy, loadingProfile, setProfileAndCompute } = useProfile();
@@ -131,42 +119,11 @@ export default function Dashboard() {
   const [adminDateInput, setAdminDateInput] = useState("");
   const [adminNoteInput, setAdminNoteInput] = useState("Admin confirmed official CBSE date.");
   const [plannerMessage, setPlannerMessage] = useState("");
-  const [sessionLaunchError, setSessionLaunchError] = useState("");
-  const [retrySessionConfig, setRetrySessionConfig] = useState<{
-    subject: SubjectTitle;
-    chapterId: string;
-  } | null>(null);
 
   const [planRecord, setPlanRecord] = useState<StrategyPlan | null>(() => getStrategyPlan());
   const mixItems = useMemo<string[]>(() => (planRecord ? computeDailyMix(planRecord) : []), [planRecord]);
   const [streak] = useState<number>(() => updateAndGetStreak());
   const attempts = getAttempts();
-
-  const openGuestDailyMixSession = async () => {
-    setSessionLaunchError("");
-    try {
-      const started = await startSession({
-        kind: "daily_mix",
-        subjectId: "maths",
-        chapterId: "triangles",
-        vibe: mode === "zombie" ? "low" : "high",
-      });
-      navigate(`/play/${encodeURIComponent(started.sessionId)}`);
-    } catch (error) {
-      const code = getSessionApiErrorCode(error);
-      if (
-        code === SESSION_AUTH_TIMEOUT ||
-        code === SESSION_AUTH_UNAVAILABLE ||
-        code === SESSION_FIRESTORE_UNAVAILABLE
-      ) {
-        setSessionLaunchError(
-          "Cloud session start is blocked because authentication is not ready. Please retry."
-        );
-        return;
-      }
-      setSessionLaunchError(toCloudSessionErrorMessage(error));
-    }
-  };
 
   useEffect(() => {
     const uid = user?.uid;
@@ -315,16 +272,13 @@ export default function Dashboard() {
             <button className="cta-btn" onClick={() => navigate("/onboarding")}>
               Fill My Study Details
             </button>
-            <button className="pill-btn" type="button" onClick={() => void openGuestDailyMixSession()}>
+            <button className="pill-btn" type="button" onClick={() => navigate("/daily-mix/10/Maths")}>
               Start Daily Mix
             </button>
           </div>
           <p style={{ marginTop: 10, opacity: 0.82 }}>
             Match Score is enabled after your first Learn/Practice attempts.
           </p>
-          {sessionLaunchError ? (
-            <p style={{ marginTop: 6, color: "#991b1b", fontWeight: 700 }}>{sessionLaunchError}</p>
-          ) : null}
         </div>
       </div>
     );
@@ -422,33 +376,8 @@ export default function Dashboard() {
     setPlannerMessage("Admin override cleared.");
   };
 
-  const openDailyMixSession = async (subject: SubjectTitle, chapterId: string) => {
-    setSessionLaunchError("");
-    setRetrySessionConfig({ subject, chapterId });
-    try {
-      const started = await startSession({
-        kind: "daily_mix",
-        subjectId: subject === "Science" ? "science" : "maths",
-        chapterId,
-        vibe: mode === "zombie" ? "low" : "high",
-      });
-      setSessionLaunchError("");
-      setRetrySessionConfig(null);
-      navigate(`/play/${encodeURIComponent(started.sessionId)}`);
-    } catch (error) {
-      const code = getSessionApiErrorCode(error);
-      if (
-        code === SESSION_AUTH_TIMEOUT ||
-        code === SESSION_AUTH_UNAVAILABLE ||
-        code === SESSION_FIRESTORE_UNAVAILABLE
-      ) {
-        setSessionLaunchError(
-          "Cloud session start is blocked because authentication is not ready. Please retry."
-        );
-        return;
-      }
-      setSessionLaunchError(toCloudSessionErrorMessage(error));
-    }
+  const openDailyMix = (subject: SubjectTitle) => {
+    navigate(`/daily-mix/${gradeNum}/${subject}`);
   };
 
   return (
@@ -464,7 +393,7 @@ export default function Dashboard() {
           <button
             className="cta-btn small"
             data-ux-above-fold-cta="dashboard"
-            onClick={() => void openDailyMixSession(subjectForQuickActions, weakestTopicKey)}
+            onClick={() => openDailyMix(subjectForQuickActions)}
           >
             Start Daily Mix
           </button>
@@ -493,37 +422,11 @@ export default function Dashboard() {
             <button
               type="button"
               className="pill-btn"
-              onClick={() => void openDailyMixSession(subjectForQuickActions, weakestTopicKey)}
+              onClick={() => openDailyMix(subjectForQuickActions)}
             >
               Play Mix
             </button>
           </p>
-        ) : null}
-        {sessionLaunchError ? (
-          <div
-            style={{
-              marginTop: 10,
-              border: "1px solid rgba(185,28,28,0.35)",
-              background: "rgba(254,242,242,0.95)",
-              borderRadius: 10,
-              padding: "10px 12px",
-            }}
-          >
-            <div style={{ color: "#991b1b", fontWeight: 800, fontSize: 13 }}>{sessionLaunchError}</div>
-            <div style={{ marginTop: 8 }}>
-              <button
-                type="button"
-                className="pill-btn"
-                onClick={() => {
-                  if (!retrySessionConfig) return;
-                  void openDailyMixSession(retrySessionConfig.subject, retrySessionConfig.chapterId);
-                }}
-                disabled={!retrySessionConfig}
-              >
-                Retry session start
-              </button>
-            </div>
-          </div>
         ) : null}
       </div>
 
@@ -664,7 +567,7 @@ export default function Dashboard() {
             <button
               className="cta-btn"
               style={{ fontWeight: 800, minWidth: 220 }}
-              onClick={() => void openDailyMixSession(planRecord.subject, weakestTopicKey)}
+              onClick={() => openDailyMix(planRecord.subject)}
             >
               Play {mixTitle}
             </button>

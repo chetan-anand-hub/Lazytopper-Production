@@ -4,7 +4,6 @@ import { useAuth } from "../context/AuthContext";
 import { useVibeMode } from "../context/vibeModeContext";
 import { firebaseProjectId } from "../services/firebaseClient";
 import { trackUxEvent } from "../services/uxTelemetry";
-import { startSession } from "../services/sessionApi";
 
 type LocationState = { from?: string };
 
@@ -81,24 +80,10 @@ export default function Login() {
     }
   };
 
-  const handleLocalQuickStart = async () => {
-    setBusy(true);
-    setError("");
+  const handleLocalQuickStart = () => {
     trackUxEvent("login_google_click", "login", { nextPath, flow: "local_quick_start" });
-    try {
-      continueLocalSession();
-      const started = await startSession({
-        kind: "chapter",
-        subjectId: "maths",
-        chapterId: "real-numbers",
-        vibe: mode === "zombie" ? "low" : "high",
-      });
-      navigate(`/play/${encodeURIComponent(started.sessionId)}`, { replace: true });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Local quick start failed.");
-    } finally {
-      setBusy(false);
-    }
+    continueLocalSession();
+    navigate("/dashboard", { replace: true });
   };
 
   const handleSendOtp = async () => {

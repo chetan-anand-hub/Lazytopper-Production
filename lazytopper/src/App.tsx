@@ -1,5 +1,5 @@
 import type React from "react";
-import { Routes, Route, useLocation, useNavigate, Navigate } from "react-router-dom";
+import { Routes, Route, useLocation, useNavigate, Navigate, useParams } from "react-router-dom";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Onboarding from "./pages/Onboarding";
@@ -24,12 +24,10 @@ const HighlyProbableQuestions = lazy(() => import("./pages/HighlyProbableQuestio
 const PredictivePapersPage = lazy(() => import("./pages/PredictivePapers"));
 const TopicHub = lazy(() => import("./pages/TopicHub"));
 const MockBuilder = lazy(() => import("./pages/MockBuilder"));
-const AiMentorPage = lazy(() => import("./pages/AiMentorPage"));
 const StudyPlanPage = lazy(() => import("./pages/StudyPlanPage"));
 const PracticePage = lazy(() => import("./pages/PracticePage"));
 const DailyMixPage = lazy(() => import("./pages/DailyMixPage"));
 const WeeklyWrappedPage = lazy(() => import("./pages/WeeklyWrappedPage"));
-const SessionPlayPage = lazy(() => import("./pages/SessionPlayPage"));
 
 function RouteFallback() {
   return (
@@ -43,6 +41,11 @@ function RouteFallback() {
 
 function withRouteSuspense(node: React.ReactNode) {
   return <Suspense fallback={<RouteFallback />}>{node}</Suspense>;
+}
+
+function MentorRedirect() {
+  const { grade, subject } = useParams<{ grade: string; subject: string }>();
+  return <Navigate to={`/topic-hub/${grade || "10"}/${subject || "Maths"}`} replace />;
 }
 
 /**
@@ -278,10 +281,7 @@ export default function App() {
           <Route path="/planner" element={<RequireAuth><StudyPlannerView /></RequireAuth>} />
 
 
-          {/* Legacy Topic content hub – maths topics via :topicKey param */}
-          <Route path="/topics/:topicKey" element={<RequireAuth>{withRouteSuspense(<TopicHub />)}</RequireAuth>} />
-
-          {/* Preferred Topic Hub entry with grade & subject in path */}
+          {/* Topic Hub entry with grade & subject in path */}
           <Route path="/topic-hub/:grade/:subject" element={<RequireAuth>{withRouteSuspense(<TopicHub />)}</RequireAuth>} />
           <Route path="/topic-hub/:grade/:subject/:topicKey" element={<RequireAuth>{withRouteSuspense(<TopicHub />)}</RequireAuth>} />
 
@@ -325,23 +325,16 @@ export default function App() {
           {/* Legacy Study Plan route */}
           <Route path="/study-plan" element={<RequireAuth>{withRouteSuspense(<StudyPlanPage />)}</RequireAuth>} />
 
-          {/* AI Mentor / Planner routes with mandatory grade & subject */}
-          <Route path="/ai-mentor/:grade/:subject" element={withRouteSuspense(<AiMentorPage />)} />
-          <Route path="/ai-mentor" element={withRouteSuspense(<AiMentorPage />)} />
-          {/* Provide both /mentor and /ai-mentor so links remain backwards compatible */}
-          <Route path="/mentor/:grade/:subject" element={withRouteSuspense(<AiMentorPage />)} />
-          <Route path="/mentor" element={withRouteSuspense(<AiMentorPage />)} />
+          {/* AI Mentor routes redirect to TopicHub preserving context */}
+          <Route path="/ai-mentor/:grade/:subject" element={<MentorRedirect />} />
+          <Route path="/ai-mentor" element={<Navigate to="/topic-hub" replace />} />
+          <Route path="/mentor/:grade/:subject" element={<MentorRedirect />} />
+          <Route path="/mentor" element={<Navigate to="/topic-hub" replace />} />
 
           {/* Daily Mix route for personalised study mixes */}
           <Route
             path="/daily-mix/:grade/:subject"
             element={<RequireAuth>{withRouteSuspense(<DailyMixPage />)}</RequireAuth>}
-          />
-
-          {/* Unified session player route */}
-          <Route
-            path="/play/:sessionId"
-            element={<RequireAuth>{withRouteSuspense(<SessionPlayPage />)}</RequireAuth>}
           />
 
           {/* Weekly Wrapped recap route */}

@@ -16,6 +16,17 @@ pnpm workspace monorepo using TypeScript. Each package manages its own dependenc
 - **API codegen**: Orval (from OpenAPI spec)
 - **Build**: esbuild (CJS bundle)
 
+## Dead Code Cleanup (Task #6 — completed)
+
+Removed dead session/play infrastructure:
+- Deleted: `sessionService.ts`, `SessionPlayPage.tsx`, `SessionPlayer.tsx`, `AiMentorPage.tsx`, `aiMentorStyles.css`
+- Removed `/play/:sessionId` route and legacy `/topics/:topicKey` route from App.tsx
+- `/ai-mentor` and `/mentor` routes now redirect to `/topic-hub` (preserving grade/subject context)
+- Dashboard daily mix buttons navigate to `/daily-mix/:grade/:subject` instead of creating cloud sessions
+- Login quick start navigates to `/dashboard` instead of creating a cloud session
+- TopicHubHome: removed dead `startChapterSession` function and related state
+- Cleaned docs bloat (`.docx` files, `NOTES/` directory)
+
 ## Structure
 
 ```text
