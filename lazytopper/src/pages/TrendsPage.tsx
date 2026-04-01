@@ -777,6 +777,63 @@ const TrendsPage: React.FC = () => {
           </div>
         </section>
 
+        {/* Blueprint source attribution */}
+        <section
+          style={{
+            marginTop: 16,
+            borderRadius: 16,
+            padding: "14px 18px",
+            background: "linear-gradient(135deg, rgba(236,253,245,0.9), rgba(209,250,229,0.85))",
+            border: "1px solid rgba(16,185,129,0.3)",
+            fontSize: "0.78rem",
+            color: "#065f46",
+          }}
+        >
+          <div style={{ fontWeight: 600, marginBottom: 6 }}>
+            Based on CBSE 2025-26 Blueprint (80-mark theory paper)
+          </div>
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 8,
+              fontSize: "0.72rem",
+            }}
+          >
+            {(subjectKey === "Maths"
+              ? [
+                  { unit: "Number Systems", marks: 6 },
+                  { unit: "Algebra", marks: 20 },
+                  { unit: "Coordinate Geometry", marks: 6 },
+                  { unit: "Geometry", marks: 15 },
+                  { unit: "Trigonometry", marks: 12 },
+                  { unit: "Mensuration", marks: 10 },
+                  { unit: "Statistics & Probability", marks: 11 },
+                ]
+              : [
+                  { unit: "Chemical Substances", marks: 25 },
+                  { unit: "World of Living", marks: 25 },
+                  { unit: "Natural Phenomena", marks: 12 },
+                  { unit: "Effects of Current", marks: 13 },
+                  { unit: "Natural Resources", marks: 5 },
+                ]
+            ).map((item) => (
+              <span
+                key={item.unit}
+                style={{
+                  borderRadius: 999,
+                  padding: "3px 10px",
+                  background: "rgba(255,255,255,0.8)",
+                  border: "1px solid rgba(16,185,129,0.25)",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {item.unit}: {item.marks} marks ({((item.marks / 80) * 100).toFixed(1)}%)
+              </span>
+            ))}
+          </div>
+        </section>
+
         {/* Topic list */}
         <section style={{ marginTop: 24 }}>
           <div
@@ -820,7 +877,7 @@ const TrendsPage: React.FC = () => {
             >
               Total weightage covered:{" "}
               <span style={{ fontWeight: 600, color: "#020617" }}>
-                {totalWeightage}%
+                {Math.round(totalWeightage * 10) / 10}%
               </span>
             </div>
           </div>

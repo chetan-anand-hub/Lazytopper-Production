@@ -62,8 +62,8 @@ export const class10ScienceTopicTrends: Class10ScienceTrendsRoot = {
     ChemicalReactions: {
       topicKey: "ChemicalReactions",
       topicName: "Chemical Reactions & Equations",
-      tier: "must-crack",
-      weightagePercent: 8,
+      tier: "high-roi",
+      weightagePercent: 8.75,
       concepts: [
         {
           name: "Balancing Equations & Types of Reactions",
@@ -85,8 +85,8 @@ export const class10ScienceTopicTrends: Class10ScienceTrendsRoot = {
     AcidsBasesSalts: {
       topicKey: "AcidsBasesSalts",
       topicName: "Acids, Bases & Salts",
-      tier: "must-crack",
-      weightagePercent: 8,
+      tier: "high-roi",
+      weightagePercent: 8.75,
       concepts: [
         {
           name: "pH, Indicators & Strength",
@@ -109,7 +109,7 @@ export const class10ScienceTopicTrends: Class10ScienceTrendsRoot = {
       topicKey: "MetalsNonMetals",
       topicName: "Metals & Non-metals",
       tier: "high-roi",
-      weightagePercent: 7,
+      weightagePercent: 7.5,
       concepts: [
         {
           name: "Reactivity Series & Displacement",
@@ -132,7 +132,7 @@ export const class10ScienceTopicTrends: Class10ScienceTrendsRoot = {
       topicKey: "CarbonCompounds",
       topicName: "Carbon & its Compounds",
       tier: "high-roi",
-      weightagePercent: 7,
+      weightagePercent: 6.25,
       concepts: [
         {
           name: "Homologous Series & Nomenclature",
@@ -155,7 +155,7 @@ export const class10ScienceTopicTrends: Class10ScienceTrendsRoot = {
       topicKey: "LifeProcesses",
       topicName: "Life Processes",
       tier: "must-crack",
-      weightagePercent: 10,
+      weightagePercent: 12.5,
       concepts: [
         {
           name: "Nutrition & Respiration (Human + Plants)",
@@ -178,7 +178,7 @@ export const class10ScienceTopicTrends: Class10ScienceTrendsRoot = {
       topicKey: "ControlAndCoordination",
       topicName: "Control & Coordination",
       tier: "high-roi",
-      weightagePercent: 7,
+      weightagePercent: 6.25,
       concepts: [
         {
           name: "Nervous System & Reflex Actions",
@@ -200,8 +200,8 @@ export const class10ScienceTopicTrends: Class10ScienceTrendsRoot = {
     Reproduction: {
       topicKey: "Reproduction",
       topicName: "How do Organisms Reproduce?",
-      tier: "must-crack",
-      weightagePercent: 8,
+      tier: "high-roi",
+      weightagePercent: 7.5,
       concepts: [
         {
           name: "Asexual Reproduction & Diagrams",
@@ -223,8 +223,8 @@ export const class10ScienceTopicTrends: Class10ScienceTrendsRoot = {
     HeredityEvolution: {
       topicKey: "HeredityEvolution",
       topicName: "Heredity & Evolution",
-      tier: "high-roi",
-      weightagePercent: 6,
+      tier: "good-to-do",
+      weightagePercent: 5,
       concepts: [
         {
           name: "Mendel’s Experiments & Ratios",
@@ -247,7 +247,7 @@ export const class10ScienceTopicTrends: Class10ScienceTrendsRoot = {
       topicKey: "Light",
       topicName: "Light – Reflection & Refraction",
       tier: "must-crack",
-      weightagePercent: 9,
+      weightagePercent: 10,
       concepts: [
         {
           name: "Mirror / Lens Formula & Ray Diagrams",
@@ -269,7 +269,7 @@ export const class10ScienceTopicTrends: Class10ScienceTrendsRoot = {
     HumanEyeAndColourfulWorld: {
       topicKey: "HumanEyeAndColourfulWorld",
       topicName: "The Human Eye & the Colourful World",
-      tier: "high-roi",
+      tier: "good-to-do",
       weightagePercent: 5,
       concepts: [
         {
@@ -293,7 +293,7 @@ export const class10ScienceTopicTrends: Class10ScienceTrendsRoot = {
       topicKey: "Electricity",
       topicName: "Electricity",
       tier: "must-crack",
-      weightagePercent: 9,
+      weightagePercent: 11.25,
       concepts: [
         {
           name: "Ohm’s Law & Circuit Numericals",
@@ -315,8 +315,8 @@ export const class10ScienceTopicTrends: Class10ScienceTrendsRoot = {
     MagneticEffects: {
       topicKey: "MagneticEffects",
       topicName: "Magnetic Effects of Electric Current",
-      tier: "high-roi",
-      weightagePercent: 6,
+      tier: "good-to-do",
+      weightagePercent: 5,
       concepts: [
         {
           name: "Right-hand Rules & Field Lines",
@@ -338,8 +338,8 @@ export const class10ScienceTopicTrends: Class10ScienceTrendsRoot = {
     OurEnvironment: {
       topicKey: "OurEnvironment",
       topicName: "Our Environment / Sources of Energy",
-      tier: "good-to-do",
-      weightagePercent: 5,
+      tier: "high-roi",
+      weightagePercent: 6.25,
       concepts: [
         {
           name: "Food Chains & Trophic Levels",

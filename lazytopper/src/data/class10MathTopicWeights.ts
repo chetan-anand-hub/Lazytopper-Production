@@ -13,28 +13,28 @@ export interface Class10TopicWeight {
 
 // Your JSON data, unchanged:
 const rawTopicWeights: Record<string, { weightage_percent: number }> = {
-  "Real Numbers": { weightage_percent: 7 },
-  "Polynomials": { weightage_percent: 6 },
-  "Pair of Linear Equations in Two Variables": { weightage_percent: 11 },
-  "Quadratic Equations": { weightage_percent: 8 },
-  "Arithmetic Progression": { weightage_percent: 7 },
-  "Triangles": { weightage_percent: 10 },
-  "Coordinate Geometry": { weightage_percent: 7 },
-  "Introduction to Trigonometry": { weightage_percent: 10 },
-  "Circles": { weightage_percent: 6 },
-  "Constructions": { weightage_percent: 4 },
-  "Areas Related to Circles": { weightage_percent: 4 },
-  "Surface Areas and Volumes": { weightage_percent: 7 },
-  "Statistics": { weightage_percent: 7 },
-  "Probability": { weightage_percent: 6 },
+  "Real Numbers": { weightage_percent: 7.5 },
+  "Polynomials": { weightage_percent: 3.75 },
+  "Pair of Linear Equations in Two Variables": { weightage_percent: 8.75 },
+  "Quadratic Equations": { weightage_percent: 7.5 },
+  "Arithmetic Progression": { weightage_percent: 5 },
+  "Triangles": { weightage_percent: 11.25 },
+  "Coordinate Geometry": { weightage_percent: 7.5 },
+  "Introduction to Trigonometry": { weightage_percent: 15 },
+  "Circles": { weightage_percent: 5 },
+  "Constructions": { weightage_percent: 2.5 },
+  "Areas Related to Circles": { weightage_percent: 5 },
+  "Surface Areas and Volumes": { weightage_percent: 7.5 },
+  "Statistics": { weightage_percent: 8.75 },
+  "Probability": { weightage_percent: 5 },
 };
 
 // Simple tiering logic for the UI chips.
 // Tweak thresholds any time without touching the data.
 function tierFor(weight: number): WeightTier {
-  if (weight >= 10) return "must-crack";    // 10%+ = big boi chapters
-  if (weight >= 7) return "high-roi";       // solid, medium-weight
-  return "good-to-do";                      // lighter but not useless
+  if (weight >= 10) return "must-crack";
+  if (weight >= 6) return "high-roi";
+  return "good-to-do";
 }
 
 function slugify(name: string): string {
