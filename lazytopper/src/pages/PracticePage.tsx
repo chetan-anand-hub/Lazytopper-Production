@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import { type PracticeQuestion } from "../data/predictionDataService";
+import type { DifficultyLevel, LTSubjectKey } from "../data/predictionTypes";
 import { generatePracticeSet, inferBoardPatternFromQuestion, normalizeBoardPattern } from "../data/practiceSetGenerator";
 import { PredictionCore } from "../data/predictionCore";
 import { generateUnifiedPracticeQuestions } from "../data/questionGenerator";
@@ -45,6 +46,7 @@ import {
   getSessionStats,
   findFollowUpQuestion,
   markFollowUpInjected,
+  getWrongConceptsForTopic,
   type PracticeSessionTracker,
 } from "../services/adaptivePracticeEngine";
 import {
@@ -185,21 +187,21 @@ function buildPracticeQuestionsFromEngine(args: {
   subtopicHint?: string;
   focusBankIds?: string[];
   boardPattern?: string;
-  adaptiveMix?: Partial<Record<InternalDifficultyBucket, number>>;
+  adaptiveMix?: Partial<Record<DifficultyLevel, number>>;
   priorityConceptKeys?: string[];
 }): PracticeQuestion[] {
   const safeCount = Math.max(MIN_QUESTION_COUNT, Math.min(MAX_QUESTION_COUNT, args.count || 10));
   const difficultyMix = difficultyChoiceToMix(args.difficulty);
 
   const practiceSet = generatePracticeSet({
-    subject: (args.subjectKey.toLowerCase() as any),
+    subject: args.subjectKey.toLowerCase() as LTSubjectKey,
     topicKey: args.topicKey,
     totalQuestions: safeCount,
     boardPattern: normalizeBoardPattern(args.boardPattern),
     difficultyMix: Object.keys(difficultyMix).length
-      ? (difficultyMix as any)
+      ? (difficultyMix as Partial<Record<DifficultyLevel, number>>)
       : undefined,
-    adaptiveMix: args.adaptiveMix as any,
+    adaptiveMix: args.adaptiveMix,
     priorityConceptKeys: args.priorityConceptKeys,
   });
 
@@ -380,7 +382,7 @@ interface AiTopupArgs {
   focusBankIds?: string[];
   strictFocus?: boolean;
   sectionFilter?: string;
-  adaptiveMix?: Partial<Record<InternalDifficultyBucket, number>>;
+  adaptiveMix?: Partial<Record<DifficultyLevel, number>>;
   priorityConceptKeys?: string[];
 }
 
@@ -922,7 +924,7 @@ const packTopicKey = useMemo(() => {
           ? computeAdaptiveDifficultyMix(canonicalTopicKey || topicParam)
           : undefined;
         const wrongConcepts = adaptiveMix
-          ? (await import("../services/adaptivePracticeEngine")).getWrongConceptsForTopic(canonicalTopicKey || topicParam)
+          ? getWrongConceptsForTopic(canonicalTopicKey || topicParam)
           : [];
         const priorityConceptKeys = wrongConcepts.length > 0
           ? wrongConcepts.map((e) => e.conceptKey)
