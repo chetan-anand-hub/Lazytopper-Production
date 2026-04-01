@@ -9,51 +9,6 @@ const SEO_TITLE = "LazyTopper | Human-Grade CBSE Tutor, Trends, HPQ and Predicti
 const SEO_DESCRIPTION =
   "LazyTopper helps CBSE Class 10 students master Maths and Science with a human-like AI tutor, clear trends, HPQ predicted questions, and exam-ready practice.";
 
-const JOURNEY_STEPS = [
-  {
-    title: "Diagnose",
-    body: "Pick chapter and spot weak concepts quickly.",
-  },
-  {
-    title: "Learn",
-    body: "Use Teach mode for human-style explanation and checkpoints.",
-  },
-  {
-    title: "Practice",
-    body: "Move to Grind and Practice with auto-filtered question drills.",
-  },
-  {
-    title: "Master",
-    body: "Close the loop with HPQ and predictive papers before tests.",
-  },
-];
-
-const PRODUCT_PILLARS = [
-  {
-    title: "Topic Trends (Maths + Science)",
-    body: "See chapter-wise trend signals so study time goes to high-impact topics first.",
-  },
-  {
-    title: "Predictive Papers + HPQ",
-    body: "Practice likely question patterns using competency-aware and case-based preparation.",
-  },
-  {
-    title: "Human-Like Tutor",
-    body: "Interactive teaching with hints, checkpoints, board-answer framing, and next-step guidance.",
-  },
-  {
-    title: "Pro-Tips Study Planning",
-    body: "Personal planning flow that helps students stay consistent and move to mastery.",
-  },
-];
-
-const WEEK_ONE_OUTCOMES = [
-  "Clear starting chapter and revision priority",
-  "Daily Learn -> Grind -> Practice flow without confusion",
-  "At least one full predictive paper attempt",
-  "Weak-topic list with focused next actions",
-];
-
 const FAQ = [
   {
     q: "Is LazyTopper only for Class 10 CBSE?",
@@ -66,6 +21,29 @@ const FAQ = [
   {
     q: "How should I start in 30 seconds?",
     a: "Open TopicHub, choose your chapter, start Teach mode, then move to Grind and Practice from the same flow.",
+  },
+];
+
+const VALUE_PROPS = [
+  {
+    icon: "📊",
+    title: "See what CBSE will ask",
+    body: "Topic-wise trend signals show you exactly where to focus — stop guessing, start scoring.",
+  },
+  {
+    icon: "🧠",
+    title: "Learn with an AI tutor",
+    body: "Human-style explanations with hints, checkpoints, and board-answer framing. Like a tutor who never gets tired.",
+  },
+  {
+    icon: "⚡",
+    title: "Practice smarter",
+    body: "HPQ and predictive papers target exam-relevant patterns. Every question you solve actually matters.",
+  },
+  {
+    icon: "📈",
+    title: "Track your progress",
+    body: "See weak spots, daily streaks, and weekly recaps. Know exactly where you stand before the exam.",
   },
 ];
 
@@ -105,19 +83,8 @@ const Home: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const scrollToQuickTour = () => {
-    const target = document.getElementById("quick-tour");
-    if (target) {
-      target.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  };
-
-  const goToLearningStart = () => {
-    if (user) {
-      navigate("/topic-hub");
-      return;
-    }
-    navigate("/login", { state: { from: "/topic-hub" } });
+  const goToTrends = () => {
+    navigate("/trends/10/Maths");
   };
 
   useEffect(() => {
@@ -195,114 +162,71 @@ const Home: React.FC = () => {
         <header className="lt-home__header">
           <div className="lt-home__brand">
             <span className="lt-home__logo">LT</span>
-            <div>
-              <p className="lt-home__name">LazyTopper</p>
-              <p className="lt-home__tag">Human-grade tutor for CBSE Class 10 Maths and Science</p>
-            </div>
+            <p className="lt-home__name">LazyTopper</p>
           </div>
-          <div className="lt-home__authActions">
-            <button
-              type="button"
-              className="lt-home__authBtn"
-              onClick={() => navigate(user ? "/dashboard" : "/login")}
-            >
-              {user ? "Open Dashboard" : "Login (Email/Phone)"}
-            </button>
-            <p className="lt-home__headerNote">Web + Mobile | Low cognitive load learning flow</p>
-          </div>
+          <button
+            type="button"
+            className="lt-home__loginBtn"
+            onClick={() => navigate(user ? "/dashboard" : "/login")}
+          >
+            {user ? "Dashboard" : "Log in"}
+          </button>
         </header>
 
         <section className="lt-home__hero" aria-label="Hero">
-          <div className="lt-home__heroCopy">
-            <p className="lt-home__eyebrow">One clear start path for every student</p>
-            <h1>Learn with a human-like AI tutor, then score higher with smarter practice.</h1>
-            <p className="lt-home__lead">
-              LazyTopper gives Class 10 students a single study loop: learn concepts, practice weak topics, and revise
-              likely exam questions with confidence.
-            </p>
-
-            <div className="lt-home__ctaRow" data-ux-priority-block="home-primary-actions">
-              <button
-                type="button"
-                className="lt-home__ctaPrimary"
-                data-ux-above-fold-cta="home"
-                onClick={goToLearningStart}
-              >
-                Start Learning Now
-              </button>
-              <button
-                type="button"
-                className="lt-home__ctaGhost"
-                data-ux-above-fold-cta="home"
-                onClick={scrollToQuickTour}
-              >
-                Watch 60s Tour
-              </button>
-            </div>
-
-            <p className="lt-home__hint">New student? Click "Start Learning Now" and pick your chapter.</p>
-          </div>
-
-          <aside className="lt-home__heroPanel" aria-label="Student first actions">
-            <h2>First 30 seconds</h2>
-            <ol>
-              <li>Open TopicHub</li>
-              <li>Choose chapter</li>
-              <li>Start Teach mode</li>
-              <li>Move to Grind and Practice</li>
-            </ol>
-          </aside>
-        </section>
-
-        <section id="quick-tour" className="lt-home__section" aria-label="Quick tour">
-          <h2>{"Quick tour: Diagnose -> Learn -> Practice -> Master"}</h2>
-          <div className="lt-home__journeyRow">
-            {JOURNEY_STEPS.map((step, index) => (
-              <article key={step.title} className="lt-home__journeyCard">
-                <p className="lt-home__journeyIndex">Step {index + 1}</p>
-                <h3>{step.title}</h3>
-                <p>{step.body}</p>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="lt-home__section" aria-label="Core product pillars">
-          <h2>Core product pillars</h2>
-          <div className="lt-home__grid">
-            {PRODUCT_PILLARS.map((card) => (
-              <article key={card.title} className="lt-home__card">
-                <h3>{card.title}</h3>
-                <p>{card.body}</p>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="lt-home__section" aria-label="First week proof">
-          <h2>What a student should get in first 7 days</h2>
-          <ul className="lt-home__outcomes">
-            {WEEK_ONE_OUTCOMES.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-        </section>
-
-        <section className="lt-home__strip" aria-label="HPQ and predictive USP">
-          <p>
-            <strong>USP:</strong> HPQ and Predictive Papers focus revision on exam-relevant patterns, while the tutor
-            keeps concept clarity and answer-writing quality high.
+          <p className="lt-home__eyebrow">CBSE Class 10 — Maths & Science</p>
+          <h1 className="lt-home__headline">
+            Know what's <span className="lt-home__gradient-text">most likely</span> to come in your exam.
+          </h1>
+          <p className="lt-home__lead">
+            LazyTopper analyses 10 years of CBSE patterns to show you exactly which topics matter most — then helps you master them with an AI tutor.
           </p>
-          <button type="button" className="lt-home__ctaInline" onClick={() => navigate("/predictive-papers")}>
-            Try Predictive Papers
+          <button
+            type="button"
+            className="lt-home__ctaPrimary"
+            onClick={goToTrends}
+          >
+            See What's Most Likely to Come →
           </button>
         </section>
-      </div>
 
-      <div className="lt-home__mobileSticky" aria-hidden={false}>
-        <button type="button" className="lt-home__mobileStickyBtn" onClick={goToLearningStart}>
-          Start Learning Now
-        </button>
+        <section className="lt-home__values" aria-label="How it works">
+          <h2 className="lt-home__sectionTitle">Everything you need to score big</h2>
+          <div className="lt-home__valueGrid">
+            {VALUE_PROPS.map((item) => (
+              <article key={item.title} className="lt-home__valueCard">
+                <span className="lt-home__valueIcon">{item.icon}</span>
+                <h3>{item.title}</h3>
+                <p>{item.body}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="lt-home__social-proof" aria-label="Social proof">
+          <p className="lt-home__proofText">
+            Built for students who'd rather study smart than study long.
+          </p>
+          <div className="lt-home__proofStats">
+            <div className="lt-home__stat">
+              <span className="lt-home__statNum">10yr</span>
+              <span className="lt-home__statLabel">of CBSE data analysed</span>
+            </div>
+            <div className="lt-home__stat">
+              <span className="lt-home__statNum">2</span>
+              <span className="lt-home__statLabel">subjects covered</span>
+            </div>
+            <div className="lt-home__stat">
+              <span className="lt-home__statNum">100%</span>
+              <span className="lt-home__statLabel">free to use</span>
+            </div>
+          </div>
+        </section>
+
+        <section className="lt-home__finalCta" aria-label="Final call to action">
+          <h2>Stop guessing. Start with trends.</h2>
+          <p>See which topics CBSE loves — and start your prep from there.</p>
+        </section>
       </div>
     </div>
   );
