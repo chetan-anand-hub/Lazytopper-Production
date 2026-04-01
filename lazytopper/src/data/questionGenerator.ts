@@ -20,7 +20,6 @@ import type {
   SectionKey,
 } from "./predictedQuestions";
 import { predictedQuestions } from "./predictedQuestions";
-import { predictedQuestionsAdditions } from "./predictedQuestionsAdditions";
 
 import type {
   PredictedQuestionScience,
@@ -87,11 +86,7 @@ export interface UnifiedGeneratorRequest {
   mixMode?: MixMode;
 }
 
-// ✅ Single source of truth for Maths bank questions (seed + append-only additions)
-const ALL_MATHS_BANK_QUESTIONS: PredictedQuestion[] = [
-  ...predictedQuestions,
-  ...predictedQuestionsAdditions,
-];
+const ALL_MATHS_BANK_QUESTIONS: PredictedQuestion[] = predictedQuestions;
 
 // ---------------------------------------------------------------------------
 // Internal helpers – random sampling

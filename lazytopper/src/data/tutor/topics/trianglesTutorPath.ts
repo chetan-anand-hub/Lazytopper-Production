@@ -126,7 +126,7 @@ export const trianglesTutorPath: ChapterTutorPath = {
         },
         {
           kind: "questionId",
-          path: "src/data/predictedQuestionsAdditions.ts",
+          path: "src/data/predictedQuestions.ts",
           value: "2026-TRI-SA-07",
           label: "Triangles live predicted BPT question",
         },

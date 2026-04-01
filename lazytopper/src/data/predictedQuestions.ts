@@ -3118,9 +3118,6 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
 
 // --- Helper exports for lookup & type-safety -----------------------------
 
-// All valid IDs from the predictedQuestions bank
-export { predictedQuestionsAdditions };
-
 export const predictedQuestions: PredictedQuestion[] = [
   ...predictedQuestionsBase,
   ...predictedQuestionsAdditions,
