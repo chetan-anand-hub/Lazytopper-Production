@@ -19,7 +19,7 @@ pnpm workspace monorepo using TypeScript. Each package manages its own dependenc
 ## HPQ Prediction Engine (Task #7 — completed)
 
 Replaced synthetic/circular historical data with real CBSE board exam pattern data:
-- `lazytopper/src/prediction/cbseHistoricalArchetypes.ts` — ~480 curated archetype entries from CBSE Class 10 board papers 2018-2025, covering all 14 Maths + 13 Science topics
+- `lazytopper/src/prediction/cbseHistoricalArchetypes.ts` — ~540 curated archetype entries from CBSE Class 10 board papers 2017-2025, covering all 14 Maths + 13 Science topics
 - `lazytopper/src/prediction/historicalDataset.ts` — rewired to source from real archetypes instead of predictedQuestions (removed circular dependency); added fuzzy matching for subtopic lookups
 - `lazytopper/src/data/predictionScoring.ts` — replaced `rotationFactor()` stub with real rotation detection using historical subtopic appearance; wired `baseTopicWeight()` to use actual CBSE weightage data from topic trends
 - `lazytopper/src/prediction/probabilisticScoring.ts` — calibrated NEP policy boosts to reflect actual CBSE post-2023 observed shifts (case-based 1.52x, assertion-reasoning 1.38x)

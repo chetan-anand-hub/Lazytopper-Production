@@ -1,7 +1,7 @@
 import type { CanonicalQuestion } from "./predictionTypes";
 import { class10MathTopicTrends } from "./class10MathTopicTrends";
 import { class10ScienceTopicTrends } from "./class10ScienceTopicTrends";
-import { getSubtopicAppearanceByYear } from "../prediction/historicalDataset";
+import { getSubtopicAppearanceByYear, getCanonicalHistoricalDataset } from "../prediction/historicalDataset";
 
 function parseYear(y?: string): number | undefined {
   if (!y) return undefined;
@@ -69,15 +69,34 @@ function rotationFactor(q: CanonicalQuestion): number {
   const years = getSubtopicAppearanceByYear(subject, q.topicKey, q.subtopic);
   if (years.length === 0) return 1.0;
 
+  const dataset = getCanonicalHistoricalDataset();
+  const totalYears = dataset.years.length;
+  if (totalYears === 0) return 1.0;
+
+  const appearanceRate = years.length / totalYears;
+
   const currentYear = new Date().getFullYear();
   const lastAppearance = years[years.length - 1];
   const gap = currentYear - lastAppearance;
 
-  if (gap === 0) return 0.88;
-  if (gap === 1) return 0.92;
-  if (gap >= 3) return 1.15;
-  if (gap >= 2) return 1.08;
-  return 1.0;
+  let recencySignal: number;
+  if (gap === 0) recencySignal = -0.08;
+  else if (gap === 1) recencySignal = -0.04;
+  else if (gap >= 3) recencySignal = 0.12;
+  else recencySignal = 0.06;
+
+  let frequencySignal: number;
+  if (appearanceRate >= 0.8) {
+    frequencySignal = 0.10;
+  } else if (appearanceRate >= 0.5) {
+    frequencySignal = 0.04;
+  } else if (appearanceRate >= 0.3) {
+    frequencySignal = 0.0;
+  } else {
+    frequencySignal = -0.06;
+  }
+
+  return Math.max(0.75, Math.min(1.25, 1.0 + recencySignal + frequencySignal));
 }
 
 export function computePredictionScore(q: CanonicalQuestion): number {
