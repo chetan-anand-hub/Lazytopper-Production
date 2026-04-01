@@ -31,7 +31,6 @@ import { useCurrentURL } from "../utils/useCurrentURL";
 import {
   buildTrendsUrl,
   buildMockBuilderUrl,
-  buildAiMentorUrl,
   buildTopicHubUrl,
 } from "../utils/buildUrl";
 
@@ -42,7 +41,12 @@ import { QuestionVisualAid } from "../components/question/QuestionVisualAid";
 // Import AI helpers to generate HPQ variants.  MoreLikeThisVariant is the
 // return type for each AI-generated question variant.  We also pull in
 // generateMoreLikeThis so that the HPQ page can request variants on-demand.
-import { generateMoreLikeThis, type MoreLikeThisVariant } from "../ai/aiClient";
+import {
+  generateMoreLikeThis,
+  type MoreLikeThisVariant,
+  fetchStepSolution,
+  type StepSolutionResponse,
+} from "../ai/aiClient";
 import { buildBankHealthReport } from "../prediction/bankHealth";
 import { buildTopicKeySources } from "../prediction/buildTopicKeySources";
 import JourneyStrip from "../components/ux/JourneyStrip";
@@ -223,6 +227,10 @@ const HighlyProbableQuestions: React.FC = () => {
     setExpandedTopics({});
     setHpqFeedback({});
     setTopicFilter("all");
+    setSolutionData({});
+    setSolutionLoading({});
+    setSolutionError({});
+    setSolutionOpen({});
     // Ensure URL query doesn't carry stale filters across subjects.
     setSearchParams(new URLSearchParams());
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -235,6 +243,11 @@ const HighlyProbableQuestions: React.FC = () => {
   const [aiVariants, setAiVariants] = useState<Record<string, MoreLikeThisVariant[]>>({});
   const [aiLoading, setAiLoading] = useState<Record<string, boolean>>({});
   const [aiError, setAiError] = useState<Record<string, string | undefined>>({});
+
+  const [solutionData, setSolutionData] = useState<Record<string, StepSolutionResponse>>({});
+  const [solutionLoading, setSolutionLoading] = useState<Record<string, boolean>>({});
+  const [solutionError, setSolutionError] = useState<Record<string, string | undefined>>({});
+  const [solutionOpen, setSolutionOpen] = useState<Record<string, "solve" | "explain" | undefined>>({});
 
   const isInBasket = React.useCallback(
     (id: string) => basket.some((item) => item.id === id),
@@ -531,24 +544,42 @@ const HighlyProbableQuestions: React.FC = () => {
     });
   };
 
-  const handleAskAiMentor = (bucket: HPQTopicBucket, q: HPQQuestion) => {
-    navigate(buildAiMentorUrl(grade, subjectKey), {
-      state: {
-        back: currentURL,
-        backLabel: "Back to HPQ",
-        payload: {
-          topic: bucket.topic,
-          hpqQuestionId: q.id,
-          hpqQuestion: q.question,
-        },
-        // set solve mode for HPQ question
-        mode: "solve",
-        gpt_directive:
-          "Think like an expert CBSE Class 10 " +
-          (subjectKey === "Maths" ? "Mathematics" : "Science") +
-          " tutor. Explain this question step by step, show working, common mistakes, and give exam-friendly presentation.",
-      },
-    });
+  const handleInlineSolution = async (
+    bucket: HPQTopicBucket,
+    q: HPQQuestion,
+    mode: "solve" | "explain"
+  ) => {
+    const qId = q.id;
+    const currentMode = solutionOpen[qId];
+    if (currentMode === mode) {
+      setSolutionOpen((prev) => ({ ...prev, [qId]: undefined }));
+      return;
+    }
+    setSolutionOpen((prev) => ({ ...prev, [qId]: mode }));
+
+    if (solutionData[qId]) return;
+
+    setSolutionLoading((prev) => ({ ...prev, [qId]: true }));
+    setSolutionError((prev) => ({ ...prev, [qId]: undefined }));
+    try {
+      const result = await fetchStepSolution({
+        subject: subjectKey,
+        topic: bucket.topic,
+        question: q.question,
+        marks: q.marks || 1,
+        type: q.type,
+        answer: q.answer,
+        explanation: q.explanation,
+      });
+      setSolutionData((prev) => ({ ...prev, [qId]: result }));
+    } catch (err: any) {
+      setSolutionError((prev) => ({
+        ...prev,
+        [qId]: err?.message || "Failed to load solution",
+      }));
+    } finally {
+      setSolutionLoading((prev) => ({ ...prev, [qId]: false }));
+    }
   };
 
   const handleMoreLikeThisPractice = (bucket: HPQTopicBucket, q: HPQQuestion) => {
@@ -576,34 +607,6 @@ const HighlyProbableQuestions: React.FC = () => {
     });
   };
 
-  /**
-   * Ask the AI mentor to explain a given HPQ.  This navigates to the
-   * unified mentor page with `explain` mode and passes along the
-   * question context so the backend can generate a concise concept
-   * explanation.  We include a GPT directive to nudge the assistant
-   * towards CBSE-friendly language and highlight key concepts.
-   */
-  const handleExplainAiMentor = (
-    bucket: HPQTopicBucket,
-    q: HPQQuestion
-  ) => {
-    navigate(buildAiMentorUrl(grade, subjectKey), {
-      state: {
-        back: currentURL,
-        backLabel: "Back to HPQ",
-        payload: {
-          topic: bucket.topic,
-          hpqQuestionId: q.id,
-          hpqQuestion: q.question,
-        },
-        mode: "explain",
-        gpt_directive:
-          "Think like an expert CBSE Class 10 " +
-          (subjectKey === "Maths" ? "Mathematics" : "Science") +
-          " tutor. Provide a clear explanation of this question including key concepts, formulas and common pitfalls.",
-      },
-    });
-  };
 
   /**
    * Generate AI variants for a given HPQ.  We call the more-like-this
@@ -1962,34 +1965,44 @@ const HighlyProbableQuestions: React.FC = () => {
                                 flexWrap: "wrap",
                               }}
                             >
-                              {/* Mentor & practice actions */}
+                              {/* Inline solution actions */}
                               <button
-                                onClick={() => handleAskAiMentor(bucket, q)}
+                                onClick={() => handleInlineSolution(bucket, q, "solve")}
                                 style={{
                                   borderRadius: 999,
-                                  border: "1px solid rgba(59,130,246,0.8)",
+                                  border: solutionOpen[q.id] === "solve"
+                                    ? "1px solid #1d4ed8"
+                                    : "1px solid rgba(59,130,246,0.8)",
                                   padding: "4px 10px",
                                   fontSize: "0.75rem",
-                                  background: "#eff6ff",
+                                  background: solutionOpen[q.id] === "solve"
+                                    ? "#dbeafe"
+                                    : "#eff6ff",
                                   color: "#1d4ed8",
                                   cursor: "pointer",
+                                  fontWeight: solutionOpen[q.id] === "solve" ? 600 : 400,
                                 }}
                               >
-                                Solve
+                                {solutionOpen[q.id] === "solve" ? "Hide Solution" : "Solve"}
                               </button>
                               <button
-                                onClick={() => handleExplainAiMentor(bucket, q)}
+                                onClick={() => handleInlineSolution(bucket, q, "explain")}
                                 style={{
                                   borderRadius: 999,
-                                  border: "1px dashed rgba(59,130,246,0.8)",
+                                  border: solutionOpen[q.id] === "explain"
+                                    ? "1px solid #1d4ed8"
+                                    : "1px dashed rgba(59,130,246,0.8)",
                                   padding: "4px 10px",
                                   fontSize: "0.75rem",
-                                  background: "rgba(219,234,254,0.8)",
+                                  background: solutionOpen[q.id] === "explain"
+                                    ? "#dbeafe"
+                                    : "rgba(219,234,254,0.8)",
                                   color: "#1d4ed8",
                                   cursor: "pointer",
+                                  fontWeight: solutionOpen[q.id] === "explain" ? 600 : 400,
                                 }}
                               >
-                                Explain
+                                {solutionOpen[q.id] === "explain" ? "Hide Explanation" : "Explain"}
                               </button>
                               <button
                                 onClick={() => handleGenerateAiVariants(bucket, q)}
@@ -2088,6 +2101,201 @@ const HighlyProbableQuestions: React.FC = () => {
                                 </div>
                               )}
                             </div>
+
+                            {solutionOpen[q.id] && (
+                              <div
+                                style={{
+                                  marginTop: 10,
+                                  padding: "14px 16px",
+                                  border: "1px solid rgba(59,130,246,0.3)",
+                                  borderRadius: 10,
+                                  background: "linear-gradient(135deg, #f0f9ff 0%, #eff6ff 100%)",
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    alignItems: "center",
+                                    marginBottom: 10,
+                                  }}
+                                >
+                                  <span
+                                    style={{
+                                      fontSize: "0.85rem",
+                                      fontWeight: 700,
+                                      color: "#1e40af",
+                                    }}
+                                  >
+                                    {solutionOpen[q.id] === "solve"
+                                      ? "Step-by-Step Solution"
+                                      : "Explanation"}
+                                    {solutionData[q.id] && (
+                                      <span style={{ fontWeight: 400, color: "#64748b", marginLeft: 8 }}>
+                                        ({solutionData[q.id].totalMarks} marks)
+                                      </span>
+                                    )}
+                                  </span>
+                                  <button
+                                    onClick={() =>
+                                      setSolutionOpen((prev) => ({
+                                        ...prev,
+                                        [q.id]: undefined,
+                                      }))
+                                    }
+                                    style={{
+                                      background: "none",
+                                      border: "1px solid #cbd5e1",
+                                      borderRadius: 999,
+                                      padding: "2px 10px",
+                                      fontSize: "0.7rem",
+                                      color: "#64748b",
+                                      cursor: "pointer",
+                                    }}
+                                  >
+                                    Close
+                                  </button>
+                                </div>
+
+                                {solutionLoading[q.id] && (
+                                  <div style={{ fontSize: "0.82rem", color: "#1d4ed8", padding: "8px 0" }}>
+                                    Loading step-by-step solution...
+                                  </div>
+                                )}
+
+                                {solutionError[q.id] && (
+                                  <div style={{ fontSize: "0.82rem", color: "#b91c1c", padding: "8px 0" }}>
+                                    {solutionError[q.id]}
+                                  </div>
+                                )}
+
+                                {solutionData[q.id] && (
+                                  <div>
+                                    {solutionData[q.id].steps.map((step) => (
+                                      <div
+                                        key={step.stepNumber}
+                                        style={{
+                                          display: "flex",
+                                          gap: 10,
+                                          marginBottom: 8,
+                                          padding: "8px 10px",
+                                          background: "#ffffff",
+                                          borderRadius: 8,
+                                          border: "1px solid #e2e8f0",
+                                        }}
+                                      >
+                                        <div
+                                          style={{
+                                            minWidth: 28,
+                                            height: 28,
+                                            borderRadius: "50%",
+                                            background: "#1e40af",
+                                            color: "#fff",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            fontSize: "0.75rem",
+                                            fontWeight: 700,
+                                            flexShrink: 0,
+                                          }}
+                                        >
+                                          {step.stepNumber}
+                                        </div>
+                                        <div style={{ flex: 1 }}>
+                                          <div
+                                            style={{
+                                              fontSize: "0.8rem",
+                                              fontWeight: 600,
+                                              color: "#1e293b",
+                                              marginBottom: 2,
+                                            }}
+                                          >
+                                            {step.description}
+                                            <span
+                                              style={{
+                                                marginLeft: 8,
+                                                fontSize: "0.7rem",
+                                                fontWeight: 700,
+                                                color: "#1e40af",
+                                                background: "#dbeafe",
+                                                borderRadius: 999,
+                                                padding: "1px 7px",
+                                              }}
+                                            >
+                                              {step.marks} {step.marks === 1 ? "mark" : "marks"}
+                                            </span>
+                                          </div>
+                                          <div
+                                            style={{
+                                              fontSize: "0.78rem",
+                                              color: "#475569",
+                                              lineHeight: 1.5,
+                                            }}
+                                          >
+                                            {step.working}
+                                          </div>
+                                        </div>
+                                      </div>
+                                    ))}
+
+                                    {solutionData[q.id].commonMistakes &&
+                                      solutionData[q.id].commonMistakes!.length > 0 && (
+                                        <div
+                                          style={{
+                                            marginTop: 8,
+                                            padding: "8px 10px",
+                                            background: "#fef2f2",
+                                            borderRadius: 8,
+                                            border: "1px solid #fecaca",
+                                          }}
+                                        >
+                                          <div
+                                            style={{
+                                              fontSize: "0.75rem",
+                                              fontWeight: 700,
+                                              color: "#991b1b",
+                                              marginBottom: 4,
+                                            }}
+                                          >
+                                            Common Mistakes
+                                          </div>
+                                          {solutionData[q.id].commonMistakes!.map(
+                                            (m, i) => (
+                                              <div
+                                                key={i}
+                                                style={{
+                                                  fontSize: "0.75rem",
+                                                  color: "#7f1d1d",
+                                                  marginBottom: 2,
+                                                }}
+                                              >
+                                                • {m}
+                                              </div>
+                                            )
+                                          )}
+                                        </div>
+                                      )}
+
+                                    {solutionData[q.id].examTip && (
+                                      <div
+                                        style={{
+                                          marginTop: 8,
+                                          padding: "8px 10px",
+                                          background: "#f0fdf4",
+                                          borderRadius: 8,
+                                          border: "1px solid #bbf7d0",
+                                          fontSize: "0.75rem",
+                                          color: "#166534",
+                                        }}
+                                      >
+                                        <strong>Exam Tip:</strong>{" "}
+                                        {solutionData[q.id].examTip}
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            )}
                           </div>
                         </div>
                       );

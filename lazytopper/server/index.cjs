@@ -581,6 +581,58 @@ function buildStubMoreLikeThis(payload) {
   return { subject, topicKey, variants, model: 'stub' };
 }
 
+function buildFallbackSteps(answer, explanation, totalMarks) {
+  const combined = [answer, explanation].filter(Boolean).join('\n');
+  const sentences = combined.split(/[.\n]+/).map(s => s.trim()).filter(Boolean);
+  const stepCount = Math.max(1, Math.min(sentences.length, totalMarks));
+  const marksPerStep = Math.floor(totalMarks / stepCount);
+  const remainder = totalMarks - marksPerStep * stepCount;
+  const steps = [];
+  for (let i = 0; i < stepCount; i++) {
+    steps.push({
+      stepNumber: i + 1,
+      description: 'Step ' + (i + 1),
+      working: sentences[i] || '',
+      marks: marksPerStep + (i < remainder ? 1 : 0),
+    });
+  }
+  return { totalMarks, steps, commonMistakes: [], examTip: '' };
+}
+
+function buildStubStepSolution(question, totalMarks, subject) {
+  const stepCount = Math.max(1, Math.min(totalMarks, 4));
+  const marksPerStep = Math.floor(totalMarks / stepCount);
+  const remainder = totalMarks - marksPerStep * stepCount;
+  const labels = [
+    'Identify given information and what needs to be found',
+    'Apply relevant formula or theorem',
+    'Substitute values and compute',
+    'Write final answer with units/conclusion',
+  ];
+  const workings = [
+    'Given: Information from the question. To find: The required answer.',
+    'Using the appropriate ' + subject + ' formula/concept for this problem type.',
+    'Substituting the given values and simplifying step by step.',
+    'Therefore, the final answer is obtained as required.',
+  ];
+  const steps = [];
+  for (let i = 0; i < stepCount; i++) {
+    steps.push({
+      stepNumber: i + 1,
+      description: labels[i] || 'Step ' + (i + 1),
+      working: workings[i] || 'Complete this step carefully.',
+      marks: marksPerStep + (i < remainder ? 1 : 0),
+    });
+  }
+  return {
+    totalMarks,
+    steps,
+    commonMistakes: ['Not writing the formula before substituting values', 'Missing units in the final answer'],
+    examTip: 'Always show your working clearly — CBSE awards step marks even if the final answer is wrong.',
+    model: 'stub',
+  };
+}
+
 
 /**
  * Read request body as JSON.
@@ -4570,6 +4622,7 @@ async function handleRequest(req, res) {
     (
       reqPath === '/api/mentor' ||
       reqPath === '/api/more-like-this' ||
+      reqPath === '/api/step-solution' ||
       reqPath === '/api/tutor-feedback' ||
       reqPath === '/api/session/start' ||
       /^\/api\/session\/[^/]+$/.test(reqPath) ||
@@ -5632,6 +5685,98 @@ ${userPrompt}` }];
         error: 'Failed to generate variants',
         details: err.message,
       });
+    }
+  }
+
+  if (req.method === 'POST' && req.url === '/api/step-solution') {
+    let payload;
+    try {
+      payload = await readJson(req);
+    } catch (e) {
+      return sendJson(res, 400, { error: 'Invalid JSON' });
+    }
+
+    const question = String(payload.question || '').trim();
+    const marks = Number(payload.marks) || 1;
+    const subject = String(payload.subject || 'Maths').trim();
+    const topic = String(payload.topic || '').trim();
+    const qType = String(payload.type || '').trim();
+    const existingAnswer = String(payload.answer || '').trim();
+    const existingExplanation = String(payload.explanation || '').trim();
+
+    if (!question) {
+      return sendJson(res, 400, { error: 'Missing question text' });
+    }
+
+    if (existingAnswer || existingExplanation) {
+      const fallbackSteps = buildFallbackSteps(existingAnswer, existingExplanation, marks);
+      return sendJson(res, 200, fallbackSteps);
+    }
+
+    if (isStubMode()) {
+      return sendJson(res, 200, buildStubStepSolution(question, marks, subject));
+    }
+
+    try {
+      const systemPrompt =
+        'You are an expert CBSE Class 10 board exam evaluator and marking scheme author for ' +
+        subject + '. You produce step-by-step solutions that exactly match CBSE marking scheme format. ' +
+        'You must respond ONLY with valid JSON, no markdown fences.';
+
+      const userPrompt =
+        'Generate a CBSE board marking scheme style step-by-step solution for this question.\n\n' +
+        'Question: ' + question + '\n' +
+        'Total marks: ' + marks + '\n' +
+        (topic ? 'Topic: ' + topic + '\n' : '') +
+        (qType ? 'Question type: ' + qType + '\n' : '') +
+        '\nRespond with a JSON object in this exact format:\n' +
+        '{\n' +
+        '  "totalMarks": ' + marks + ',\n' +
+        '  "steps": [\n' +
+        '    { "stepNumber": 1, "description": "brief label", "working": "actual working/formula/calculation shown", "marks": <marks for this step> },\n' +
+        '    ...\n' +
+        '  ],\n' +
+        '  "commonMistakes": ["mistake 1", "mistake 2"],\n' +
+        '  "examTip": "one line exam tip"\n' +
+        '}\n\n' +
+        'Rules:\n' +
+        '- The marks of all steps MUST sum to exactly ' + marks + '\n' +
+        '- Each step description should be concise (what is being done)\n' +
+        '- Each step working should show the actual mathematical/scientific working\n' +
+        '- Use proper mathematical notation where needed\n' +
+        '- Include 2-3 common mistakes students make\n' +
+        '- Include one practical exam tip';
+
+      const contents = [
+        { role: 'user', parts: [{ text: systemPrompt + '\n\n' + userPrompt }] },
+      ];
+
+      const reply = await callGemini(GEMINI_MODEL, contents, {
+        temperature: 0.3,
+        maxOutputTokens: 1200,
+      });
+
+      const parsed = extractJsonObjectFromText(reply.text);
+      if (parsed && Array.isArray(parsed.steps)) {
+        return sendJson(res, 200, {
+          totalMarks: parsed.totalMarks || marks,
+          steps: parsed.steps.map((s, i) => ({
+            stepNumber: s.stepNumber || i + 1,
+            description: String(s.description || '').trim(),
+            working: String(s.working || '').trim(),
+            marks: Number(s.marks) || 0,
+          })),
+          commonMistakes: Array.isArray(parsed.commonMistakes) ? parsed.commonMistakes.map(String) : [],
+          examTip: String(parsed.examTip || '').trim() || undefined,
+          provider: ACTIVE_PROVIDER,
+          model: GEMINI_MODEL,
+        });
+      }
+
+      return sendJson(res, 200, buildStubStepSolution(question, marks, subject));
+    } catch (err) {
+      console.error('[step-solution]', err);
+      return sendJson(res, 200, buildStubStepSolution(question, marks, subject));
     }
   }
 

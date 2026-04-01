@@ -141,3 +141,34 @@ export async function generateMoreLikeThis(
 
   return handleJsonResponse<MoreLikeThisResponse>(res);
 }
+
+export interface StepSolutionStep {
+  stepNumber: number;
+  description: string;
+  working: string;
+  marks: number;
+}
+
+export interface StepSolutionResponse {
+  totalMarks: number;
+  steps: StepSolutionStep[];
+  commonMistakes?: string[];
+  examTip?: string;
+}
+
+export async function fetchStepSolution(req: {
+  subject: string;
+  topic: string;
+  question: string;
+  marks: number;
+  type?: string;
+  answer?: string;
+  explanation?: string;
+}): Promise<StepSolutionResponse> {
+  const res = await fetch(`${API_BASE}/step-solution`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(req),
+  });
+  return handleJsonResponse<StepSolutionResponse>(res);
+}
