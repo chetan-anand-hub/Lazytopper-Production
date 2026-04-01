@@ -1435,7 +1435,7 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
     defaultTier: "must-crack",
     questions: [
       {
-        id: "cg-comp-02",
+        id: "cg-comp-03",
         subject: "Maths",
         topic: "Coordinate Geometry",
         subtopic: "Section Formula",
@@ -1602,7 +1602,7 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
     defaultTier: "must-crack",
     questions: [
       {
-        id: "sci-lp-comp-02",
+        id: "sci-lp-comp-03",
         subject: "Science",
         stream: "Biology",
         topic: "Life Processes",
@@ -1630,7 +1630,7 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
     defaultTier: "must-crack",
     questions: [
       {
-        id: "sci-lrr-comp-02",
+        id: "sci-lrr-comp-03",
         subject: "Science",
         stream: "Physics",
         topic: "Light – Reflection & Refraction",
