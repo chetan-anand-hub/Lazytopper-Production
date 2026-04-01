@@ -1,14 +1,7 @@
-// src/data/predictionScoring.ts
-// Phase 0 – scoring helpers for CanonicalQuestion.
-// This is a *non-destructive* scoring stub: it adds a predictionScore
-// field but does NOT change which questions your existing engine picks.
-// Later phases can refine the math using topic trends, HPQ tiers, etc.
-
 import type { CanonicalQuestion } from "./predictionTypes";
-
-// -------------------------
-// Helper: year → recency
-// -------------------------
+import { class10MathTopicTrends } from "./class10MathTopicTrends";
+import { class10ScienceTopicTrends } from "./class10ScienceTopicTrends";
+import { getSubtopicAppearanceByYear } from "../prediction/historicalDataset";
 
 function parseYear(y?: string): number | undefined {
   if (!y) return undefined;
@@ -18,17 +11,12 @@ function parseYear(y?: string): number | undefined {
 
 function recencyScore(pastBoardYear?: string): number {
   const year = parseYear(pastBoardYear);
-  if (!year) return 1; // neutral if unknown
-  // Very rough: newer papers get slightly higher weight.
+  if (!year) return 1;
   if (year >= 2023) return 1.3;
   if (year >= 2020) return 1.15;
   if (year >= 2017) return 1.05;
   return 1.0;
 }
-
-// -------------------------
-// Helper: policy tags → boost
-// -------------------------
 
 function policyBoost(tag?: string): number {
   if (!tag) return 1;
@@ -39,50 +27,72 @@ function policyBoost(tag?: string): number {
   return 1.0;
 }
 
-// -------------------------
-// Helper: base topic weight
-// (Phase 0 stub – can be wired to topic trends later)
-// -------------------------
+const mathWeightageCache = new Map<string, number>();
+const scienceWeightageCache = new Map<string, number>();
 
-function baseTopicWeight(_topicKey: string): number {
-  // For now, give all topics equal base weight = 1.
-  // In Phase 1 we will read from class10MathTopicTrends / ScienceTopicTrends.
+function normKey(raw: string): string {
+  return raw.trim().toLowerCase().replace(/[^a-z0-9]+/g, " ");
+}
+
+function buildMathWeightageMap(): void {
+  if (mathWeightageCache.size > 0) return;
+  const topics = class10MathTopicTrends.topics as Record<string, { weightagePercent: number }>;
+  for (const [key, val] of Object.entries(topics)) {
+    mathWeightageCache.set(normKey(key), val.weightagePercent);
+  }
+}
+
+function buildScienceWeightageMap(): void {
+  if (scienceWeightageCache.size > 0) return;
+  const topics = class10ScienceTopicTrends.topics;
+  for (const val of Object.values(topics)) {
+    scienceWeightageCache.set(normKey(val.topicName), val.weightagePercent);
+  }
+}
+
+function baseTopicWeight(topicKey: string, subject?: string): number {
+  const nk = normKey(topicKey);
+  if (subject === "Science") {
+    buildScienceWeightageMap();
+    const pct = scienceWeightageCache.get(nk);
+    if (pct != null) return 0.7 + (pct / 10) * 0.6;
+  } else {
+    buildMathWeightageMap();
+    const pct = mathWeightageCache.get(nk);
+    if (pct != null) return 0.7 + (pct / 11) * 0.6;
+  }
   return 1.0;
 }
 
-// -------------------------
-// Helper: rotation factor
-// (Phase 0: neutral – rotation engine lives elsewhere)
-// -------------------------
+function rotationFactor(q: CanonicalQuestion): number {
+  const subject = (q.subject === "Science" ? "Science" : "Maths") as "Maths" | "Science";
+  const years = getSubtopicAppearanceByYear(subject, q.topicKey, q.subtopic);
+  if (years.length === 0) return 1.0;
 
-function rotationFactor(_q: CanonicalQuestion): number {
-  // Later we can down-weight questions over-used in mocks or practice.
+  const currentYear = new Date().getFullYear();
+  const lastAppearance = years[years.length - 1];
+  const gap = currentYear - lastAppearance;
+
+  if (gap === 0) return 0.88;
+  if (gap === 1) return 0.92;
+  if (gap >= 3) return 1.15;
+  if (gap >= 2) return 1.08;
   return 1.0;
 }
-
-// -------------------------
-// Main scoring function
-// -------------------------
 
 export function computePredictionScore(q: CanonicalQuestion): number {
-  const freqComponent = baseTopicWeight(q.topicKey);
+  const freqComponent = baseTopicWeight(q.topicKey, q.subject);
   const recencyComponent = recencyScore(q.pastBoardYear);
   const policyComponent = policyBoost(q.policyTag);
   const rotationComponent = rotationFactor(q);
 
-  // Multiply components, keep numbers small & interpretable.
   const raw =
     freqComponent * recencyComponent * policyComponent * rotationComponent;
 
-  // Clamp to a reasonable range if needed.
   const score = Math.max(0.5, Math.min(raw, 5));
   return score;
 }
 
-/**
- * Apply predictionScore to an array of CanonicalQuestion.
- * This is pure: it returns a new array and does not mutate inputs.
- */
 export function applyPredictionScoring(
   questions: CanonicalQuestion[]
 ): CanonicalQuestion[] {
@@ -91,4 +101,3 @@ export function applyPredictionScoring(
     predictionScore: computePredictionScore(q),
   }));
 }
-

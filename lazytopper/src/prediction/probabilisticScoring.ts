@@ -55,13 +55,15 @@ function recencyWeight(targetYear: number, year: number): number {
 function policyBoost(context: ProbabilisticContext, input: ProbabilisticScoreInput): number {
   const fmt = norm(input.format);
   if (context.policyRegime === "nep_competency_2023_plus") {
-    if (fmt.includes("case")) return 1.28;
-    if (fmt.includes("assertion")) return 1.22;
-    if (input.bloom === "Applying" || input.bloom === "Analysing") return 1.12;
+    if (fmt.includes("case")) return 1.52;
+    if (fmt.includes("assertion")) return 1.38;
+    if (input.bloom === "Applying" || input.bloom === "Analysing") return 1.18;
+    if (input.bloom === "Evaluating") return 1.10;
   }
   if (context.policyRegime === "nep_transition_2020_2022") {
-    if (fmt.includes("case")) return 1.12;
-    if (fmt.includes("assertion")) return 1.08;
+    if (fmt.includes("case")) return 1.15;
+    if (fmt.includes("assertion")) return 1.10;
+    if (input.bloom === "Applying") return 1.05;
   }
   return 1.0;
 }
