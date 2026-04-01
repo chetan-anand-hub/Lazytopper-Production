@@ -75,9 +75,9 @@ function rotationFactor(q: CanonicalQuestion): number {
 
   const appearanceRate = years.length / totalYears;
 
-  const currentYear = new Date().getFullYear();
+  const targetYear = dataset.years[dataset.years.length - 1] + 1;
   const lastAppearance = years[years.length - 1];
-  const gap = currentYear - lastAppearance;
+  const gap = targetYear - lastAppearance;
 
   let recencySignal: number;
   if (gap === 0) recencySignal = -0.08;
