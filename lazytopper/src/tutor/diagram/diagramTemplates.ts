@@ -133,23 +133,6 @@ const GENERIC_SIMILARITY: DiagramSpec = {
   ],
 };
 
-const GENERIC_TRIANGLE: DiagramSpec = {
-  kind: "tutor_diagram_v1",
-  width: 360,
-  height: 220,
-  title: "Triangle",
-  caption: "Label the vertices clearly.",
-  points: [
-    { id: "A", x: 70, y: 170, label: "A" },
-    { id: "B", x: 250, y: 170, label: "B" },
-    { id: "C", x: 160, y: 55, label: "C" },
-  ],
-  edges: [
-    { from: "A", to: "B" },
-    { from: "B", to: "C" },
-    { from: "C", to: "A" },
-  ],
-};
 
 const GENERIC_TRIGONOMETRIC_TRIANGLE: DiagramSpec = {
   kind: "tutor_diagram_v1",
@@ -335,6 +318,173 @@ const GENERIC_BIOLOGY_PROCESS: DiagramSpec = {
   ],
 };
 
+const GENERIC_NUMBER_LINE: DiagramSpec = {
+  kind: "tutor_diagram_v1",
+  width: 420,
+  height: 120,
+  title: "Number Line",
+  caption: "Use a number line to visualise real numbers, HCF/LCM, and irrational positions.",
+  points: [
+    { id: "L", x: 40, y: 70, label: "0" },
+    { id: "M1", x: 120, y: 70, label: "1" },
+    { id: "M2", x: 200, y: 70, label: "2" },
+    { id: "M3", x: 280, y: 70, label: "3" },
+    { id: "R", x: 380, y: 70, label: "" },
+    { id: "S", x: 153, y: 70, label: "\u221A2" },
+  ],
+  edges: [
+    { from: "L", to: "R" },
+    { from: "S", to: "S", highlight: true },
+  ],
+};
+
+const GENERIC_POLYNOMIAL_GRAPH: DiagramSpec = {
+  kind: "tutor_diagram_v1",
+  width: 420,
+  height: 220,
+  title: "Polynomial Graph",
+  caption: "Identify zeroes where the curve crosses the x-axis.",
+  points: [
+    { id: "O", x: 60, y: 160, label: "O" },
+    { id: "X", x: 380, y: 160, label: "x" },
+    { id: "Y", x: 60, y: 30, label: "y" },
+    { id: "Z1", x: 150, y: 160, label: "\u03B1" },
+    { id: "Z2", x: 290, y: 160, label: "\u03B2" },
+    { id: "V", x: 220, y: 60, label: "vertex" },
+  ],
+  edges: [
+    { from: "O", to: "X" },
+    { from: "O", to: "Y" },
+    { from: "Z1", to: "V", highlight: true },
+    { from: "V", to: "Z2", highlight: true },
+  ],
+};
+
+const GENERIC_LINEAR_PAIR: DiagramSpec = {
+  kind: "tutor_diagram_v1",
+  width: 420,
+  height: 220,
+  title: "Pair of Linear Equations",
+  caption: "Two lines on a plane: intersecting = unique solution, parallel = no solution.",
+  points: [
+    { id: "O", x: 60, y: 180, label: "O" },
+    { id: "X", x: 380, y: 180, label: "x" },
+    { id: "Y", x: 60, y: 30, label: "y" },
+    { id: "A1", x: 100, y: 170, label: "" },
+    { id: "A2", x: 340, y: 50, label: "L\u2081" },
+    { id: "B1", x: 120, y: 40, label: "" },
+    { id: "B2", x: 360, y: 140, label: "L\u2082" },
+    { id: "P", x: 230, y: 100, label: "(x,y)" },
+  ],
+  edges: [
+    { from: "O", to: "X" },
+    { from: "O", to: "Y" },
+    { from: "A1", to: "A2", highlight: true },
+    { from: "B1", to: "B2", highlight: true },
+  ],
+};
+
+const GENERIC_CIRCLE_TANGENT: DiagramSpec = {
+  kind: "tutor_diagram_v1",
+  width: 420,
+  height: 240,
+  title: "Tangent to a Circle",
+  caption: "Tangent is perpendicular to the radius at the point of contact.",
+  points: [
+    { id: "O", x: 210, y: 120, label: "O" },
+    { id: "P", x: 310, y: 120, label: "P" },
+    { id: "T1", x: 310, y: 40, label: "" },
+    { id: "T2", x: 310, y: 200, label: "" },
+    { id: "A", x: 370, y: 80, label: "A" },
+  ],
+  edges: [
+    { from: "O", to: "P", highlight: true },
+    { from: "T1", to: "T2" },
+    { from: "O", to: "A", dashed: true },
+  ],
+};
+
+const GENERIC_AP_SEQUENCE: DiagramSpec = {
+  kind: "tutor_diagram_v1",
+  width: 420,
+  height: 120,
+  title: "Arithmetic Progression",
+  caption: "Each term increases by common difference d.",
+  points: [
+    { id: "A1", x: 50, y: 60, label: "a" },
+    { id: "A2", x: 140, y: 60, label: "a+d" },
+    { id: "A3", x: 240, y: 60, label: "a+2d" },
+    { id: "A4", x: 350, y: 60, label: "a+(n-1)d" },
+  ],
+  edges: [
+    { from: "A1", to: "A2", highlight: true },
+    { from: "A2", to: "A3", highlight: true },
+    { from: "A3", to: "A4", dashed: true },
+  ],
+};
+
+const GENERIC_SECTOR_DIAGRAM: DiagramSpec = {
+  kind: "tutor_diagram_v1",
+  width: 420,
+  height: 240,
+  title: "Sector of a Circle",
+  caption: "Area = (\u03B8/360) \u00D7 \u03C0r\u00B2. Identify the sector angle and radius.",
+  points: [
+    { id: "O", x: 180, y: 140, label: "O" },
+    { id: "A", x: 320, y: 140, label: "A" },
+    { id: "B", x: 280, y: 50, label: "B" },
+    { id: "R", x: 250, y: 145, label: "r" },
+    { id: "T", x: 240, y: 80, label: "\u03B8" },
+  ],
+  edges: [
+    { from: "O", to: "A", highlight: true },
+    { from: "O", to: "B", highlight: true },
+    { from: "A", to: "B", dashed: true },
+  ],
+};
+
+const GENERIC_STATS_TABLE: DiagramSpec = {
+  kind: "tutor_diagram_v1",
+  width: 420,
+  height: 200,
+  title: "Frequency Distribution",
+  caption: "Organise grouped data into class intervals and frequencies for mean/median/mode.",
+  points: [
+    { id: "H1", x: 60, y: 40, label: "CI" },
+    { id: "H2", x: 160, y: 40, label: "f\u1D62" },
+    { id: "H3", x: 260, y: 40, label: "cf" },
+    { id: "H4", x: 350, y: 40, label: "f\u1D62x\u1D62" },
+    { id: "R1", x: 60, y: 80, label: "10-20" },
+    { id: "R2", x: 160, y: 80, label: "5" },
+    { id: "R3", x: 260, y: 80, label: "5" },
+    { id: "R4", x: 60, y: 120, label: "20-30" },
+    { id: "R5", x: 160, y: 120, label: "8" },
+    { id: "R6", x: 260, y: 120, label: "13" },
+    { id: "R7", x: 60, y: 160, label: "30-40" },
+    { id: "R8", x: 160, y: 160, label: "12" },
+    { id: "R9", x: 260, y: 160, label: "25" },
+  ],
+  edges: [
+    { from: "H1", to: "H4" },
+  ],
+};
+
+const NO_DIAGRAM_TOPICS = new Set([
+  "probability",
+  "chemical reactions and equations",
+  "acids bases and salts",
+  "metals and non metals",
+  "carbon and its compounds",
+  "periodic classification of elements",
+  "management of natural resources",
+  "sources of energy",
+]);
+
+function topicNeedsNoDiagram(topicKey: string): boolean {
+  const lower = String(topicKey || "").toLowerCase().replace(/[-_]+/g, " ").trim();
+  return NO_DIAGRAM_TOPICS.has(lower);
+}
+
 function pickAaVariant(seed: string): DiagramSpec {
   const idx = hashSeed(seed) % AA_SIMILARITY_VARIANTS.length;
   return cloneSpec(AA_SIMILARITY_VARIANTS[idx]);
@@ -359,13 +509,41 @@ export function getDiagramTemplate(
   nodeId?: string | null,
   stepSlugOrTitle?: string | null,
   diagramType?: string | null
-): DiagramSpec {
+): DiagramSpec | null {
   const seed = normalizeSeed({ topicKey, nodeId, stepSlugOrTitle, diagramType });
   const lower = seed.toLowerCase();
   const typeHint = String(diagramType || "").toLowerCase();
   const hint = `${typeHint} ${lower}`.replace(/[_-]+/g, " ");
+  const topicLower = String(topicKey || "").toLowerCase().replace(/[-_]+/g, " ").trim();
   const hasTrigWord = /\b(trigonometry|trigonometric|sin|cos|tan|sine|cosine|tangent|theta)\b/.test(hint);
   const isTriangles = lower.includes("triangle");
+
+  if (topicNeedsNoDiagram(topicLower)) return null;
+
+  if (topicLower.includes("real number") || topicLower === "real numbers") {
+    return cloneSpec(GENERIC_NUMBER_LINE);
+  }
+  if (topicLower.includes("polynomial")) {
+    return cloneSpec(GENERIC_POLYNOMIAL_GRAPH);
+  }
+  if (topicLower.includes("pair of linear") || topicLower.includes("linear equation")) {
+    return cloneSpec(GENERIC_LINEAR_PAIR);
+  }
+  if (topicLower.includes("quadratic equation")) {
+    return cloneSpec(GENERIC_POLYNOMIAL_GRAPH);
+  }
+  if (topicLower.includes("arithmetic progression")) {
+    return cloneSpec(GENERIC_AP_SEQUENCE);
+  }
+  if (topicLower === "circles" || topicLower.includes("tangent")) {
+    return cloneSpec(GENERIC_CIRCLE_TANGENT);
+  }
+  if (topicLower.includes("areas related to circles") || topicLower.includes("sector")) {
+    return cloneSpec(GENERIC_SECTOR_DIAGRAM);
+  }
+  if (topicLower.includes("statistics") || topicLower.includes("frequency")) {
+    return cloneSpec(GENERIC_STATS_TABLE);
+  }
   if (
     hint.includes("magnetic_field") ||
     hint.includes("magnetic") ||
@@ -444,7 +622,7 @@ export function getDiagramTemplate(
   if (isAaSimilaritySeed(lower, nodeId)) return pickAaVariant(seed);
   if (isTriangles && lower.includes("similar")) return pickAaVariant(seed);
   if (isTriangles) return cloneSpec(GENERIC_SIMILARITY);
-  return cloneSpec(GENERIC_TRIANGLE);
+  return null;
 }
 
 export function isDiagramTemplateSpec(value: unknown): value is DiagramSpec {
