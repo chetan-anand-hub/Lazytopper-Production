@@ -145,7 +145,7 @@ function getChapterIdForBucket(
   return `${grade}-${safeSubject}-${topicKey}` as ChapterId;
 }
 
-const COMPETENCY_TYPES = new Set(["CaseBased", "AssertionReason"]);
+const COMPETENCY_TYPES = new Set(["CaseBased", "AssertionReason", "SourceBased"]);
 
 function isCompetencyQuestion(q: HPQQuestion): boolean {
   return COMPETENCY_TYPES.has(q.type || "");
@@ -886,7 +886,7 @@ const HighlyProbableQuestions: React.FC = () => {
             fontWeight: 600,
           }}
         >
-          {q.type === "CaseBased" ? "Case-Based" : "Assertion-Reasoning"}
+          {q.type === "CaseBased" ? "Case-Based" : q.type === "SourceBased" ? "Source-Based" : "Assertion-Reasoning"}
         </span>
       );
     }
