@@ -270,29 +270,35 @@ export function markFollowUpInjected(
   };
 }
 
-export function findFollowUpQuestion<T extends { id?: string; conceptKey?: string; subtopicKey?: string; difficulty?: string }>(
+function extractConcept(q: Record<string, unknown>): string {
+  return String(
+    q.subtopic ?? q.conceptKey ?? q.subtopicKey ?? ""
+  ).toLowerCase().trim();
+}
+
+export function findFollowUpQuestion<T>(
   allQuestions: T[],
   currentQuestionIds: Set<string>,
   conceptKey: string,
   _difficulty: string
 ): T | null {
+  const target = conceptKey.toLowerCase().trim();
+  if (!target) return null;
   for (const q of allQuestions) {
-    const qId = String((q as Record<string, unknown>).id ?? "");
+    const rec = q as Record<string, unknown>;
+    const qId = String(rec.id ?? "");
     if (currentQuestionIds.has(qId)) continue;
-    const qConcept = String(
-      (q as Record<string, unknown>).conceptKey ?? (q as Record<string, unknown>).subtopicKey ?? ""
-    ).toLowerCase();
-    if (qConcept && qConcept === conceptKey.toLowerCase()) {
+    const qConcept = extractConcept(rec);
+    if (qConcept && qConcept === target) {
       return q;
     }
   }
   for (const q of allQuestions) {
-    const qId = String((q as Record<string, unknown>).id ?? "");
+    const rec = q as Record<string, unknown>;
+    const qId = String(rec.id ?? "");
     if (currentQuestionIds.has(qId)) continue;
-    const qConcept = String(
-      (q as Record<string, unknown>).conceptKey ?? (q as Record<string, unknown>).subtopicKey ?? ""
-    ).toLowerCase();
-    if (qConcept && conceptKey.toLowerCase().includes(qConcept)) {
+    const qConcept = extractConcept(rec);
+    if (qConcept && (target.includes(qConcept) || qConcept.includes(target))) {
       return q;
     }
   }

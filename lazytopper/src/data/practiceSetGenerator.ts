@@ -252,7 +252,7 @@ export function generatePracticeSet(
     const rest: CanonicalQuestion[] = [];
     for (const q of candidates) {
       const concept = String(
-        (q as any).conceptKey ?? (q as any).subtopicKey ?? ""
+        (q as any).subtopic ?? (q as any).conceptKey ?? (q as any).subtopicKey ?? ""
       ).toLowerCase();
       if (concept && prioritySet.has(concept)) {
         priority.push(q);
@@ -312,9 +312,20 @@ export function generatePracticeSet(
     selected.push(...topUp);
   }
 
-  // Optionally shuffle final set so students don't always see questions
-  // in the same order. Order is not important for predictive value.
-  const finalQuestions = shuffle ? shuffleArray(selected) : selected;
+  const isAdaptiveMode = !!(cfg.adaptiveMix && !cfg.difficultyMix);
+  let finalQuestions: CanonicalQuestion[];
+  if (isAdaptiveMode) {
+    const diffOrder: Record<string, number> = { Easy: 0, Medium: 1, Hard: 2 };
+    finalQuestions = [...selected].sort((a, b) => {
+      const aLevel = String((a as any).canonicalDifficulty ?? (a as any).difficulty ?? "Medium");
+      const bLevel = String((b as any).canonicalDifficulty ?? (b as any).difficulty ?? "Medium");
+      const aKey = aLevel.charAt(0).toUpperCase() + aLevel.slice(1).toLowerCase();
+      const bKey = bLevel.charAt(0).toUpperCase() + bLevel.slice(1).toLowerCase();
+      return (diffOrder[aKey] ?? 1) - (diffOrder[bKey] ?? 1);
+    });
+  } else {
+    finalQuestions = shuffle ? shuffleArray(selected) : selected;
+  }
 
   const resolvedConfig: ResolvedPracticeSetConfig = {
     subject: cfg.subject,
