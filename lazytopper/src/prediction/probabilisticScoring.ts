@@ -119,15 +119,16 @@ export function scoreTopicRecurrenceConfidence(args: {
   const recurrence = Math.min(1, yearHits.size / 5);
   const rawConfidence = combined * 0.55 + recurrence * 0.45;
   const HPQ_CONFIDENCE_FLOOR = 0.18;
+  const HPQ_CONFIDENCE_CEILING = 0.92;
   const confidence = Math.max(
     HPQ_CONFIDENCE_FLOOR,
-    Math.min(1, rawConfidence)
+    Math.min(HPQ_CONFIDENCE_CEILING, rawConfidence)
   );
 
   const confidenceBand: "low" | "medium" | "high" =
     confidence >= 0.67 ? "high" : confidence >= 0.4 ? "medium" : "low";
 
-  const rationale = `Confidence ${confidenceBand}: seen in ${yearHits.size} historical year(s), policy-fit x${policy.toFixed(
+  const rationale = `Likelihood ${confidenceBand}: seen in ${yearHits.size} historical year(s), policy-fit x${policy.toFixed(
     2
   )}, trend-weight x${trend.toFixed(2)}.`;
 

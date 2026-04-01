@@ -25,19 +25,19 @@ Replaced synthetic/circular historical data with real CBSE board exam pattern da
 - `lazytopper/src/prediction/probabilisticScoring.ts` — calibrated NEP policy boosts to reflect actual CBSE post-2023 observed shifts (case-based 1.52x, assertion-reasoning 1.38x)
 - AI "Generate Similar" feature was already implemented (server endpoint `/api/more-like-this`, client `generateMoreLikeThis()`, full HPQ card UI)
 
-## Homepage Redesign (Task #11 — completed)
+## Homepage Redesign (revised)
 
-Redesigned the homepage into a clean Gen Z marketing page:
-- Dark theme with bold typography, gradient accents, high contrast
-- Single primary CTA "See What's Most Likely to Come →" leading to `/trends/10/Maths`
-- 4 value proposition cards (trends, AI tutor, smart practice, progress tracking)
-- Social proof section with key stats
-- Final section is non-interactive supportive copy (no competing CTA)
-- Login accessible via header pill button (non-competing)
-- Removed: Watch 60s Tour, Try Predictive Papers, mobile sticky CTA, First 30 seconds sidebar, Quick Tour steps, Product Pillars grid, Week One Outcomes, USP Strip
-- SEO metadata fully preserved (title, description, OG, Twitter, JSON-LD, canonical)
-- Mobile-first responsive design with breakpoint at 560px
-- Files changed: `lazytopper/src/pages/Home.tsx`, `lazytopper/src/pages/home.css`
+Light-theme, student-friendly educational landing page:
+- Clean white background with blue brand (#2563eb) and teal accent (#0d9488)
+- Two subject entry buttons (Maths Trends / Science Trends) instead of single generic CTA
+- Honest language: "most likely to appear" not "will ask"; disclaimer under hero
+- 3-step "How it works" section: See trends → Learn → Practice
+- 4 feature cards: Trends, AI tutor, HPQ predicted questions, Mock builder
+- Trust section with honest stats (10 yrs data, Free, Both subjects)
+- Bottom CTA reinforces the main action
+- Mobile-first responsive (560px breakpoint)
+- Full SEO preserved (title, description, OG, Twitter, JSON-LD, canonical, FAQ schema)
+- Files: `lazytopper/src/pages/Home.tsx`, `lazytopper/src/pages/home.css`
 
 ## Dead Code Cleanup (Task #6 — completed)
 

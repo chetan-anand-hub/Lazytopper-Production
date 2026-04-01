@@ -572,7 +572,6 @@ function buildStubMoreLikeThis(payload) {
     return {
       index: idx,
       text,
-      questionText: text,
       marks,
       difficulty,
       bloomSkill,
@@ -5638,7 +5637,7 @@ ${userPrompt}` }];
         const parsed = JSON.parse(reply.text);
         if (parsed && Array.isArray(parsed.questions)) {
           variants = parsed.questions.map((q, idx) => ({
-            questionText: String(q.questionText || q.text || '').trim(),
+            text: String(q.questionText || q.text || '').trim(),
             marks:
               q.marks != null
                 ? q.marks
@@ -5664,7 +5663,7 @@ ${userPrompt}` }];
           .map((l) => l.trim())
           .filter(Boolean);
         variants = lines.slice(0, numVariants).map((line, idx) => ({
-          questionText: line.replace(/^\d+[.)]\s*/, ''),
+          text: line.replace(/^\d+[.)]\s*/, ''),
           marks: seed.marks,
           difficulty: seed.difficulty,
           bloomSkill: seed.bloomSkill,

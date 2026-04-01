@@ -5,45 +5,63 @@ import { useAuth } from "../context/AuthContext";
 
 type MetaAttr = "name" | "property";
 
-const SEO_TITLE = "LazyTopper | Human-Grade CBSE Tutor, Trends, HPQ and Predictive Papers";
+const SEO_TITLE = "LazyTopper | CBSE Class 10 Exam Prep — Trends, AI Tutor & Predicted Questions";
 const SEO_DESCRIPTION =
-  "LazyTopper helps CBSE Class 10 students master Maths and Science with a human-like AI tutor, clear trends, HPQ predicted questions, and exam-ready practice.";
+  "LazyTopper helps CBSE Class 10 students focus on what's most likely to appear in Maths and Science board exams. 10 years of pattern analysis, AI tutoring, and predicted questions — free.";
 
 const FAQ = [
   {
     q: "Is LazyTopper only for Class 10 CBSE?",
-    a: "The strongest current journey is Class 10 CBSE Maths and Science with human-tutor style learning.",
+    a: "Currently yes — LazyTopper is built specifically for CBSE Class 10 Maths and Science board exams.",
   },
   {
-    q: "What makes HPQ useful?",
-    a: "HPQ gives likely, exam-relevant practice sets so students can spend less time on low-impact questions.",
+    q: "Are these guaranteed exam questions?",
+    a: "No. LazyTopper analyses 10 years of CBSE patterns to identify likely topics and question types. These are data-driven predictions, not guarantees.",
   },
   {
-    q: "How should I start in 30 seconds?",
-    a: "Open TopicHub, choose your chapter, start Teach mode, then move to Grind and Practice from the same flow.",
+    q: "How should I start?",
+    a: "Pick your subject, check the Trends page to see which topics matter most, then open TopicHub to learn and practice chapter by chapter.",
   },
 ];
 
-const VALUE_PROPS = [
+const STEPS = [
+  {
+    num: "1",
+    title: "See the trends",
+    body: "Which topics keep appearing? Which ones carry the most marks? We've crunched 10 years of papers so you can see it instantly.",
+  },
+  {
+    num: "2",
+    title: "Learn chapter by chapter",
+    body: "Open any topic, get taught by an AI tutor that explains like a real teacher — with hints, checkpoints, and board-style framing.",
+  },
+  {
+    num: "3",
+    title: "Practice what matters",
+    body: "Solve predicted questions, take mock papers, and track your weak spots. Every question is aligned to real exam patterns.",
+  },
+];
+
+const FEATURES = [
   {
     icon: "📊",
-    title: "See what CBSE will ask",
-    body: "Topic-wise trend signals show you exactly where to focus — stop guessing, start scoring.",
+    title: "Topic-wise exam trends",
+    body: "See exactly which chapters and question types appear most often — backed by 10 years of CBSE data.",
   },
   {
-    icon: "🧠",
-    title: "Learn with an AI tutor",
-    body: "Human-style explanations with hints, checkpoints, and board-answer framing. Like a tutor who never gets tired.",
+    icon: "🎓",
+    title: "AI tutor that teaches like a person",
+    body: "Step-by-step explanations, hints when you're stuck, and answers framed the way examiners expect.",
   },
   {
-    icon: "⚡",
-    title: "Practice smarter",
-    body: "HPQ and predictive papers target exam-relevant patterns. Every question you solve actually matters.",
+    icon: "🎯",
+    title: "Predicted questions (HPQ)",
+    body: "Questions most likely to appear based on historical patterns. Great for focused last-month revision.",
   },
   {
-    icon: "📈",
-    title: "Track your progress",
-    body: "See weak spots, daily streaks, and weekly recaps. Know exactly where you stand before the exam.",
+    icon: "📝",
+    title: "Mock paper builder",
+    body: "Build your own practice papers from predicted questions. Simulate the real exam experience.",
   },
 ];
 
@@ -83,10 +101,6 @@ const Home: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const goToTrends = () => {
-    navigate("/trends/10/Maths");
-  };
-
   useEffect(() => {
     const host = window.location.hostname.toLowerCase();
     const localHost = host === "localhost" || host === "127.0.0.1";
@@ -98,7 +112,7 @@ const Home: React.FC = () => {
     upsertMeta(
       "name",
       "keywords",
-      "CBSE Class 10, CBSE Maths, CBSE Science, AI tutor, human tutor, HPQ, predictive papers, board exam prep",
+      "CBSE Class 10, CBSE Maths, CBSE Science, AI tutor, predicted questions, board exam prep, exam trends",
     );
     upsertMeta("name", "robots", "index,follow,max-image-preview:large");
     upsertMeta("name", "googlebot", "index,follow,max-image-preview:large");
@@ -134,11 +148,10 @@ const Home: React.FC = () => {
           offers: { "@type": "Offer", price: "0", priceCurrency: "INR" },
           description: SEO_DESCRIPTION,
           featureList: [
-            "Human-grade AI tutoring",
-            "CBSE trend analysis",
-            "HPQ predicted questions",
-            "Predictive papers with exam-style flow",
-            "Pro-tips based study planning",
+            "CBSE exam trend analysis from 10 years of papers",
+            "AI tutoring with board-style explanations",
+            "Predicted questions based on historical patterns",
+            "Mock paper builder for exam simulation",
           ],
         },
         {
@@ -176,26 +189,62 @@ const Home: React.FC = () => {
         <section className="lt-home__hero" aria-label="Hero">
           <p className="lt-home__eyebrow">CBSE Class 10 — Maths & Science</p>
           <h1 className="lt-home__headline">
-            Know what's <span className="lt-home__gradient-text">most likely</span> to come in your exam.
+            Know what's{" "}
+            <span className="lt-home__gradient-text">most likely to appear</span>{" "}
+            in your board exam.
           </h1>
           <p className="lt-home__lead">
-            LazyTopper analyses 10 years of CBSE patterns to show you exactly which topics matter most — then helps you master them with an AI tutor.
+            We analysed 10 years of CBSE papers to show you which topics
+            and question types matter most — then help you master them
+            with an AI tutor.
           </p>
-          <button
-            type="button"
-            className="lt-home__ctaPrimary"
-            onClick={goToTrends}
-          >
-            See What's Most Likely to Come →
-          </button>
+          <div className="lt-home__subjectPicker">
+            <button
+              type="button"
+              className="lt-home__subjectBtn lt-home__subjectBtn--maths"
+              onClick={() => navigate("/trends/10/Maths")}
+            >
+              <span className="lt-home__subjectIcon">📐</span>
+              Maths Trends
+            </button>
+            <button
+              type="button"
+              className="lt-home__subjectBtn lt-home__subjectBtn--science"
+              onClick={() => navigate("/trends/10/Science")}
+            >
+              <span className="lt-home__subjectIcon">🔬</span>
+              Science Trends
+            </button>
+          </div>
+          <p className="lt-home__disclaimer">
+            Predictions based on historical patterns — not guaranteed exam content.
+          </p>
         </section>
 
-        <section className="lt-home__values" aria-label="How it works">
-          <h2 className="lt-home__sectionTitle">Everything you need to score big</h2>
-          <div className="lt-home__valueGrid">
-            {VALUE_PROPS.map((item) => (
-              <article key={item.title} className="lt-home__valueCard">
-                <span className="lt-home__valueIcon">{item.icon}</span>
+        <section className="lt-home__journey" aria-label="How it works">
+          <h2 className="lt-home__sectionTitle">How it works</h2>
+          <p className="lt-home__sectionSub">
+            Three steps from "I don't know where to start" to "I'm ready for boards."
+          </p>
+          <div className="lt-home__steps">
+            {STEPS.map((step) => (
+              <article key={step.num} className="lt-home__step">
+                <span className="lt-home__stepNum">{step.num}</span>
+                <div className="lt-home__stepContent">
+                  <h3>{step.title}</h3>
+                  <p>{step.body}</p>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="lt-home__features" aria-label="Features">
+          <h2 className="lt-home__sectionTitle">What you get</h2>
+          <div className="lt-home__featureGrid">
+            {FEATURES.map((item) => (
+              <article key={item.title} className="lt-home__featureCard">
+                <span className="lt-home__featureIcon">{item.icon}</span>
                 <h3>{item.title}</h3>
                 <p>{item.body}</p>
               </article>
@@ -203,29 +252,38 @@ const Home: React.FC = () => {
           </div>
         </section>
 
-        <section className="lt-home__social-proof" aria-label="Social proof">
-          <p className="lt-home__proofText">
+        <section className="lt-home__trust" aria-label="Trust signals">
+          <p className="lt-home__trustText">
             Built for students who'd rather study smart than study long.
           </p>
-          <div className="lt-home__proofStats">
+          <div className="lt-home__trustStats">
             <div className="lt-home__stat">
-              <span className="lt-home__statNum">10yr</span>
+              <span className="lt-home__statNum">10 yrs</span>
               <span className="lt-home__statLabel">of CBSE data analysed</span>
             </div>
             <div className="lt-home__stat">
-              <span className="lt-home__statNum">2</span>
-              <span className="lt-home__statLabel">subjects covered</span>
+              <span className="lt-home__statNum">Free</span>
+              <span className="lt-home__statLabel">no payment needed</span>
             </div>
             <div className="lt-home__stat">
-              <span className="lt-home__statNum">100%</span>
-              <span className="lt-home__statLabel">free to use</span>
+              <span className="lt-home__statNum">Maths + Science</span>
+              <span className="lt-home__statLabel">both subjects covered</span>
             </div>
           </div>
         </section>
 
-        <section className="lt-home__finalCta" aria-label="Final call to action">
-          <h2>Stop guessing. Start with trends.</h2>
-          <p>See which topics CBSE loves — and start your prep from there.</p>
+        <section className="lt-home__bottom" aria-label="Get started">
+          <h2>Ready to see what's likely to come?</h2>
+          <p>
+            Pick your subject and start with the topics that matter most.
+          </p>
+          <button
+            type="button"
+            className="lt-home__bottomCta"
+            onClick={() => navigate("/trends/10/Maths")}
+          >
+            Start with Maths Trends
+          </button>
         </section>
       </div>
     </div>

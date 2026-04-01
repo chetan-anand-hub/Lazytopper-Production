@@ -987,11 +987,23 @@ const HighlyProbableQuestions: React.FC = () => {
                 opacity: 0.96,
               }}
             >
-              Your high-impact revision zone for exam week:
-              topic-wise questions that keep coming back. Switch between{" "}
+              Questions most likely to appear based on 10 years of CBSE pattern
+              analysis. Use these for focused revision — switch between{" "}
               <strong>Maths</strong> and{" "}
-              <strong>Science + Physics/Chem/Bio filters</strong>, then send a
-              selected question straight into your mock paper.
+              <strong>Science</strong>, then send questions into your mock paper.
+            </p>
+            <p
+              style={{
+                fontSize: "0.78rem",
+                lineHeight: 1.5,
+                opacity: 0.75,
+                fontStyle: "italic",
+                marginTop: 6,
+              }}
+            >
+              Disclaimer: These are data-driven predictions, not guaranteed exam
+              questions. Likelihood scores reflect historical patterns and should
+              guide — not replace — thorough preparation.
             </p>
 
             <div
@@ -1845,14 +1857,17 @@ const HighlyProbableQuestions: React.FC = () => {
                               title={q.confidenceRationale || ""}
                             >
                               <strong style={{ textTransform: "capitalize" }}>
-                                Confidence: {q.confidenceBand || "medium"}
+                                Likelihood: {q.confidenceBand || "medium"}
                               </strong>
                               {q.confidenceScore != null && (
-                                <span> ({Math.round(q.confidenceScore * 100)}%)</span>
+                                <span> (~{Math.round(q.confidenceScore * 100)}%)</span>
                               )}
                               {q.confidenceRationale ? (
                                 <div style={{ marginTop: 2 }}>{q.confidenceRationale}</div>
                               ) : null}
+                              <div style={{ marginTop: 2, fontSize: "0.68rem", color: "#94a3b8", fontStyle: "italic" }}>
+                                Based on pattern analysis — not a guarantee
+                              </div>
                             </div>
                           )}
 
@@ -1965,44 +1980,25 @@ const HighlyProbableQuestions: React.FC = () => {
                                 flexWrap: "wrap",
                               }}
                             >
-                              {/* Inline solution actions */}
+                              {/* Inline step-by-step solution */}
                               <button
                                 onClick={() => handleInlineSolution(bucket, q, "solve")}
                                 style={{
                                   borderRadius: 999,
-                                  border: solutionOpen[q.id] === "solve"
+                                  border: solutionOpen[q.id]
                                     ? "1px solid #1d4ed8"
                                     : "1px solid rgba(59,130,246,0.8)",
                                   padding: "4px 10px",
                                   fontSize: "0.75rem",
-                                  background: solutionOpen[q.id] === "solve"
+                                  background: solutionOpen[q.id]
                                     ? "#dbeafe"
                                     : "#eff6ff",
                                   color: "#1d4ed8",
                                   cursor: "pointer",
-                                  fontWeight: solutionOpen[q.id] === "solve" ? 600 : 400,
+                                  fontWeight: solutionOpen[q.id] ? 600 : 400,
                                 }}
                               >
-                                {solutionOpen[q.id] === "solve" ? "Hide Solution" : "Solve"}
-                              </button>
-                              <button
-                                onClick={() => handleInlineSolution(bucket, q, "explain")}
-                                style={{
-                                  borderRadius: 999,
-                                  border: solutionOpen[q.id] === "explain"
-                                    ? "1px solid #1d4ed8"
-                                    : "1px dashed rgba(59,130,246,0.8)",
-                                  padding: "4px 10px",
-                                  fontSize: "0.75rem",
-                                  background: solutionOpen[q.id] === "explain"
-                                    ? "#dbeafe"
-                                    : "rgba(219,234,254,0.8)",
-                                  color: "#1d4ed8",
-                                  cursor: "pointer",
-                                  fontWeight: solutionOpen[q.id] === "explain" ? 600 : 400,
-                                }}
-                              >
-                                {solutionOpen[q.id] === "explain" ? "Hide Explanation" : "Explain"}
+                                {solutionOpen[q.id] ? "Hide Solution" : "Step-by-Step Solution"}
                               </button>
                               <button
                                 onClick={() => handleGenerateAiVariants(bucket, q)}
@@ -2127,9 +2123,7 @@ const HighlyProbableQuestions: React.FC = () => {
                                       color: "#1e40af",
                                     }}
                                   >
-                                    {solutionOpen[q.id] === "solve"
-                                      ? "Step-by-Step Solution"
-                                      : "Explanation"}
+                                    Step-by-Step Solution
                                     {solutionData[q.id] && (
                                       <span style={{ fontWeight: 400, color: "#64748b", marginLeft: 8 }}>
                                         ({solutionData[q.id].totalMarks} marks)
