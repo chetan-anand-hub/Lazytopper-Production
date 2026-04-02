@@ -192,6 +192,7 @@ function buildPracticeQuestionsFromEngine(args: {
   boardPattern?: string;
   adaptiveMix?: Partial<Record<DifficultyLevel, number>>;
   priorityConceptKeys?: string[];
+  marksFilter?: number;
 }): PracticeQuestion[] {
   const safeCount = Math.max(MIN_QUESTION_COUNT, Math.min(MAX_QUESTION_COUNT, args.count || 10));
   const difficultyMix = difficultyChoiceToMix(args.difficulty);
@@ -226,14 +227,13 @@ function buildPracticeQuestionsFromEngine(args: {
     candidates = [...focused, ...others];
   }
 
-  // Prefer questions whose concept/subtopic matches the subtopic hint, if provided.
   if (args.subtopicHint && args.subtopicHint.trim()) {
     const hint = args.subtopicHint.trim().toLowerCase();
     const matches: any[] = [];
     const nonMatches: any[] = [];
     for (const q of candidates) {
       const concept = String(
-        (q as any).conceptKey ?? (q as any).subtopicKey ?? ""
+        (q as any).subtopic ?? (q as any).conceptKey ?? (q as any).subtopicKey ?? ""
       ).toLowerCase();
       if (concept && concept.includes(hint)) {
         matches.push(q);
@@ -242,6 +242,21 @@ function buildPracticeQuestionsFromEngine(args: {
       }
     }
     candidates = [...matches, ...nonMatches];
+  }
+
+  if (typeof args.marksFilter === "number" && args.marksFilter > 0) {
+    const targetMarks = args.marksFilter;
+    const marksMatch: any[] = [];
+    const marksOther: any[] = [];
+    for (const q of candidates) {
+      const qMarks = (q as any).marks ?? (q as any).totalMarks ?? 0;
+      if (Number(qMarks) === targetMarks) {
+        marksMatch.push(q);
+      } else {
+        marksOther.push(q);
+      }
+    }
+    candidates = [...marksMatch, ...marksOther];
   }
 
   const sliced = candidates.slice(0, safeCount);
@@ -369,10 +384,6 @@ function parseBooleanFlag(raw: unknown): boolean | undefined {
 interface AiTopupArgs {
   grade: string;
   subjectKey: SubjectKey;
-  /**
-   * Human-readable topic label (matches canonicalQuestionBank topicKey values).
-   * Example: "Real Numbers", "Polynomials".
-   */
   topicLabel: string;
   /**
    * Normalised topic key used by Prompt-D practice packs.
@@ -387,6 +398,7 @@ interface AiTopupArgs {
   sectionFilter?: string;
   adaptiveMix?: Partial<Record<DifficultyLevel, number>>;
   priorityConceptKeys?: string[];
+  marksFilter?: number;
 }
 
 function mapUnifiedQuestionToPractice(question: any, fallbackId: string): PracticeQuestion {
@@ -426,6 +438,7 @@ async function buildPracticeQuestionsWithAiTopup(
     boardPattern: args.sectionFilter,
     adaptiveMix: args.adaptiveMix,
     priorityConceptKeys: args.priorityConceptKeys,
+    marksFilter: args.marksFilter,
   });
 
   // 2) If the engine has no coverage for this topic, fall back to Prompt-D packs
@@ -654,6 +667,7 @@ const PracticePage: React.FC = () => {
     strictFocus?: boolean;
     recommendedCount?: number;
     difficultyPreset?: DifficultyChoice;
+    marksFilter?: number;
   };
 
   const initialPracticeDefaults = useMemo(() => {
@@ -664,13 +678,14 @@ const PracticePage: React.FC = () => {
     const navStrictFocus = Boolean(practiceFilters.strictFocus);
     const navRecommendedCount = parsePositiveInt(practiceFilters.recommendedCount);
     const navDifficultyPreset = parseDifficultyChoice(practiceFilters.difficultyPreset);
+    const navMarksFilter = typeof practiceFilters.marksFilter === "number" ? practiceFilters.marksFilter : undefined;
 
-    // Precedence (initial load only): URL query params -> location.state.practiceFilters -> defaults.
     const querySubtopicHint = String(qp.get("subtopicHint") || "").trim() || undefined;
     const queryFocusBankIds = parseFocusBankIds(qp.get("focusBankIds"));
     const queryStrictFocus = parseBooleanFlag(qp.get("strictFocus"));
     const queryRecommendedCount = parsePositiveInt(qp.get("count"));
     const queryDifficultyPreset = parseDifficultyChoice(qp.get("difficulty"));
+    const queryMarksFilter = parsePositiveInt(qp.get("marks"));
 
     const recommendedCount = queryRecommendedCount ?? navRecommendedCount ?? 10;
     const clampedCount = Math.max(
@@ -684,6 +699,7 @@ const PracticePage: React.FC = () => {
       strictFocus: queryStrictFocus ?? navStrictFocus ?? false,
       recommendedCount: clampedCount,
       difficultyPreset: queryDifficultyPreset ?? navDifficultyPreset ?? "All",
+      marksFilter: queryMarksFilter ?? navMarksFilter,
     };
   }, [practiceFilters, qp]);
 
@@ -705,6 +721,9 @@ const PracticePage: React.FC = () => {
   const [difficulty, setDifficulty] = useState<DifficultyChoice>(
     () => initialPracticeDefaults.difficultyPreset
   );
+  const [marksFilter, setMarksFilter] = useState<number | undefined>(
+    () => initialPracticeDefaults.marksFilter
+  );
   const [questions, setQuestions] = useState<PracticeQuestion[]>([]);
 
   useEffect(() => {
@@ -714,6 +733,7 @@ const PracticePage: React.FC = () => {
     setStrictFocus(Boolean(initialPracticeDefaults.strictFocus));
     setQuestionCount(initialPracticeDefaults.recommendedCount);
     setDifficulty(initialPracticeDefaults.difficultyPreset);
+    setMarksFilter(initialPracticeDefaults.marksFilter);
     didInitFromUrlRef.current = true;
   }, [initialPracticeDefaults]);
 
@@ -964,6 +984,7 @@ const packTopicKey = useMemo(() => {
           sectionFilter: sectionFilter === "ALL" ? undefined : sectionFilter,
           adaptiveMix,
           priorityConceptKeys,
+          marksFilter,
         });
 
         if (!cancelled) {
@@ -1009,6 +1030,7 @@ const packTopicKey = useMemo(() => {
     focusBankIds,
     strictFocus,
     sectionFilter,
+    marksFilter,
     regenerationKey,
   ]);
 
@@ -2176,6 +2198,16 @@ const packTopicKey = useMemo(() => {
   subjectTitle={subjectTitle}
   topicKey={canonicalTopicKey}
 />
+
+      {conceptDrawerContext && (
+        <Suspense fallback={null}>
+          <ConceptTeachDrawer
+            open={conceptDrawerOpen}
+            onClose={() => setConceptDrawerOpen(false)}
+            context={conceptDrawerContext}
+          />
+        </Suspense>
+      )}
       </div>
     </div>
   );
@@ -3178,15 +3210,6 @@ function MentorSolveDrawer(props: {
         </div>
       </div>
 
-      {conceptDrawerContext && (
-        <Suspense fallback={null}>
-          <ConceptTeachDrawer
-            open={conceptDrawerOpen}
-            onClose={() => setConceptDrawerOpen(false)}
-            context={conceptDrawerContext}
-          />
-        </Suspense>
-      )}
     </div>
   );
 }

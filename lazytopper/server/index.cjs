@@ -4293,21 +4293,25 @@ function buildConversationalTeachSystemPrompt(payload, isConceptTeach) {
   const conceptMarks = conceptCtx.marks ? Number(conceptCtx.marks) : null;
   const hasConceptContext = isConceptTeach && (conceptQuestionText || conceptSubtopic);
 
+  const conceptFocusName = conceptSubtopic || conceptConcept || topicName;
+
   let stepGuidance = '';
   if (isFirstStep && hasConceptContext) {
     const focusLines = [];
-    focusLines.push(`The student just saw this exam question and wants to understand the underlying concept:`);
-    if (conceptQuestionText) focusLines.push(`Question: "${conceptQuestionText}"`);
+    focusLines.push(`IMPORTANT: The student is stuck on a SPECIFIC question and needs help with ONE concept only.`);
+    focusLines.push(`DO NOT teach the entire chapter "${topicName}". ONLY teach "${conceptFocusName}".`);
+    focusLines.push('');
+    focusLines.push(`The student's question: "${conceptQuestionText}"`);
     if (conceptMarks) focusLines.push(`(${conceptMarks} marks)`);
-    if (conceptSubtopic) focusLines.push(`Subtopic/concept: ${conceptSubtopic}`);
-    if (conceptConcept) focusLines.push(`Concept tag: ${conceptConcept}`);
+    focusLines.push(`Specific concept needed: ${conceptFocusName}`);
+    if (conceptConcept && conceptConcept !== conceptSubtopic) focusLines.push(`Concept tag: ${conceptConcept}`);
     focusLines.push('');
-    focusLines.push('YOUR 3-PHASE APPROACH for this concept explanation:');
-    focusLines.push('Phase 1 (this message): Explain the NCERT theory behind this specific concept/subtopic. Use a simple real-life analogy, then state the key formula/rule. Focus ONLY on the concept needed for this question, not the entire chapter.');
-    focusLines.push('Phase 2 (next 2-3 messages): Walk through 2-3 solved examples similar to this question, showing step-by-step board-exam style working.');
-    focusLines.push('Phase 3 (final message): Give a checkpoint question testing this concept. After the student answers, wrap up and congratulate them.');
+    focusLines.push('YOUR 3-PHASE APPROACH (focused ONLY on this specific concept):');
+    focusLines.push(`Phase 1 (this message): Explain ONLY "${conceptFocusName}" — the specific method/formula/rule needed to solve this exact question. Use a simple analogy, then demonstrate the key steps. Do NOT cover other subtopics of ${topicName}.`);
+    focusLines.push('Phase 2 (next 1-2 messages): Walk through solving THIS exact question step-by-step, then one similar example.');
+    focusLines.push('Phase 3 (final message): Give a checkpoint question testing this same concept. After the student answers, wrap up.');
     focusLines.push('');
-    focusLines.push('Start Phase 1 now: Greet warmly, explain the specific concept with an analogy, state the key rule, and end with a question to check understanding.');
+    focusLines.push(`Start Phase 1 now: Greet warmly, then teach ONLY "${conceptFocusName}" with an analogy and the key rule. End with a question.`);
     stepGuidance = focusLines.join('\n');
   } else if (isFirstStep) {
     stepGuidance = [
@@ -4334,8 +4338,10 @@ function buildConversationalTeachSystemPrompt(payload, isConceptTeach) {
     ].filter(Boolean).join('\n');
   }
 
+  const focusLabel = isConceptTeach && conceptFocusName ? conceptFocusName : topicName;
+
   return [
-    `You are Ravi Sir, a beloved CBSE Class ${grade} ${subject} tutor known for making ${topicName} click for every student.`,
+    `You are Ravi Sir, a beloved CBSE Class ${grade} ${subject} tutor known for making ${focusLabel} click for every student.`,
     '',
     'YOUR PERSONALITY:',
     '- Warm, patient, encouraging — like a favourite teacher who genuinely cares',
@@ -4366,7 +4372,7 @@ function buildConversationalTeachSystemPrompt(payload, isConceptTeach) {
     'CURRENT STEP GUIDANCE:',
     stepGuidance,
     '',
-    `Topic: ${topicName}`,
+    `Topic: ${focusLabel}`,
     `Subject: ${subject}, Grade: ${grade}`,
     `Step: ${stepIndex + 1}`,
   ].filter(Boolean).join('\n');

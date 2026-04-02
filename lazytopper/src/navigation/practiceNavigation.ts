@@ -17,6 +17,7 @@ export interface PracticeNavRequest {
   strictFocus?: boolean; // if true, treat focusBankIds as strict-first filter
   recommendedCount?: number; // suggested number of questions (UI can override)
   difficultyPreset?: PracticeDifficultyPreset;
+  marksFilter?: number; // filter by marks value (e.g. 1, 2, 3, 5)
   source?: string;
 }
 
@@ -44,6 +45,7 @@ export function navigateToPractice(
     strictFocus = false,
     recommendedCount,
     difficultyPreset = "All",
+    marksFilter,
     source = "hpq",
   } = request;
 
@@ -80,6 +82,10 @@ export function navigateToPractice(
     search.set("difficulty", difficultyPreset);
   }
 
+  if (typeof marksFilter === "number" && marksFilter > 0) {
+    search.set("marks", String(marksFilter));
+  }
+
   const searchStr = search.toString();
   const url = `/practice/${grade}/${subject}${
     searchStr ? `?${searchStr}` : ""
@@ -97,6 +103,7 @@ export function navigateToPractice(
         strictFocus,
         recommendedCount,
         difficultyPreset,
+        marksFilter,
       },
       ...(sectionFilter ? { sectionFilter } : {}),
     },

@@ -23,7 +23,7 @@ Replaced synthetic/circular historical data with real CBSE board exam pattern da
 - `lazytopper/src/prediction/historicalDataset.ts` — rewired to source from real archetypes instead of predictedQuestions (removed circular dependency); added fuzzy matching for subtopic lookups
 - `lazytopper/src/data/predictionScoring.ts` — replaced `rotationFactor()` stub with real rotation detection using historical subtopic appearance; wired `baseTopicWeight()` to use actual CBSE weightage data from topic trends
 - `lazytopper/src/prediction/probabilisticScoring.ts` — calibrated NEP policy boosts to reflect actual CBSE post-2023 observed shifts (case-based 1.52x, assertion-reasoning 1.38x)
-- AI "Generate Similar" feature was already implemented (server endpoint `/api/more-like-this`, client `generateMoreLikeThis()`, full HPQ card UI)
+- AI "Generate Similar" endpoint still available on server (`/api/more-like-this`) but removed from HPQ UI — replaced by "Practice similar" smart filtering
 
 ## AI Provider — Replit AI Integration Proxy
 
@@ -33,6 +33,15 @@ The server uses Replit's AI Integration proxy for Gemini access, eliminating fre
 - Model: `gemini-2.5-flash` (configurable via `GEMINI_MODEL` env var)
 - All endpoints use the proxy: `/api/step-solution`, `/api/more-like-this`, `/api/mentor`, `/api/variants`
 - Charges are billed to Replit credits (no separate API key needed)
+
+## HPQ UX Improvements (Post-Task #14)
+
+- **Removed AI variants** from HPQ cards — button, state, handler, and display all removed; cleaner card layout
+- **"Practice similar" button** replaces old "Bank practice" — navigates to Practice page with smart filters: `subtopicHint` (from `q.subtopic`), `sectionFilter` (from `q.section`), `marksFilter` (from `q.marks`), `difficultyPreset`
+- **marksFilter support** added end-to-end: `practiceNavigation.ts` (query param + state), `PracticePage.tsx` (priority-first ordering for matching marks)
+- **Concept teach focus fix**: `openConceptDrawer` now passes `q.subtopic || q.concept || bucket.topic` as `topicKey` (was always `bucket.topic`). Server prompt hardened to say "DO NOT teach entire chapter, ONLY teach [concept]"
+- **Button sizing fix**: Added `whiteSpace: "nowrap"` + `alignItems: "center"` to action button row so buttons don't overflow when solution panel is open
+- Files: `HighlyProbableQuestions.tsx`, `practiceNavigation.ts`, `PracticePage.tsx`, `server/index.cjs`
 
 ## CBSE Solution Quality Overhaul (Phase 1 & 2)
 
