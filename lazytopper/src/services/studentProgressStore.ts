@@ -25,6 +25,18 @@ type LearnerRecentActivity = {
   at: string;
 };
 
+export interface LearnerEarnedBadge {
+  id: string;
+  earnedAt: string;
+}
+
+export interface LearnerJourneyMilestone {
+  id: string;
+  label: string;
+  date: string;
+  icon: string;
+}
+
 export interface LearnerProgressSnapshot {
   uid: string;
   statsByChapter?: Record<string, UserChapterStats>;
@@ -32,6 +44,8 @@ export interface LearnerProgressSnapshot {
   topicMasteryByTopic?: Record<string, TopicHubMasterySnapshot>;
   streak?: number;
   recentActivity?: LearnerRecentActivity[];
+  badges?: LearnerEarnedBadge[];
+  journeyMilestones?: LearnerJourneyMilestone[];
   updatedAt?: string;
 }
 
@@ -84,6 +98,12 @@ function sanitizeSnapshot(uid: string, input: unknown): LearnerProgressSnapshot 
     ? (rec.recentActivity as LearnerRecentActivity[])
     : undefined;
   const streak = Number(rec.streak);
+  const badges = Array.isArray(rec.badges)
+    ? (rec.badges as LearnerEarnedBadge[])
+    : undefined;
+  const journeyMilestones = Array.isArray(rec.journeyMilestones)
+    ? (rec.journeyMilestones as LearnerJourneyMilestone[])
+    : undefined;
   return {
     uid,
     statsByChapter,
@@ -91,6 +111,8 @@ function sanitizeSnapshot(uid: string, input: unknown): LearnerProgressSnapshot 
     topicMasteryByTopic,
     streak: Number.isFinite(streak) ? streak : undefined,
     recentActivity,
+    badges,
+    journeyMilestones,
     updatedAt: typeof rec.updatedAt === "string" ? rec.updatedAt : undefined,
   };
 }
@@ -113,6 +135,8 @@ function mergeSnapshots(
       : prev.topicMasteryByTopic,
     streak: patch.streak ?? prev.streak,
     recentActivity: patch.recentActivity ?? prev.recentActivity,
+    badges: patch.badges ?? prev.badges,
+    journeyMilestones: patch.journeyMilestones ?? prev.journeyMilestones,
     updatedAt: new Date().toISOString(),
   };
 }

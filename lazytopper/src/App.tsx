@@ -28,6 +28,7 @@ const StudyPlanPage = lazy(() => import("./pages/StudyPlanPage"));
 const PracticePage = lazy(() => import("./pages/PracticePage"));
 const DailyMixPage = lazy(() => import("./pages/DailyMixPage"));
 const WeeklyWrappedPage = lazy(() => import("./pages/WeeklyWrappedPage"));
+const ProfilePage = lazy(() => import("./pages/ProfilePage"));
 
 function RouteFallback() {
   return (
@@ -62,7 +63,6 @@ function BottomNav() {
 
   // Determine which nav item is active.
   const isHome = current === "/";
-  // Consider both /trends and /topic-hub as part of the Trends flow
   const isTrends =
     current.startsWith("/trends") ||
     current.startsWith("/topic-hub");
@@ -71,6 +71,7 @@ function BottomNav() {
     current.startsWith("/predictive-papers") ||
     current.startsWith("/mock-paper") ||
     current.startsWith("/mock-builder");
+  const isProfile = current === "/profile";
 
   const baseBtnStyle: React.CSSProperties = {
     background: "transparent",
@@ -147,6 +148,17 @@ function BottomNav() {
       >
         Dashboard
       </button>
+
+      <button
+        onClick={() => go("/profile")}
+        style={{
+          ...baseBtnStyle,
+          color: isProfile ? activeColor : inactiveColor,
+          fontWeight: isProfile ? 700 : 500,
+        }}
+      >
+        Profile
+      </button>
     </div>
   );
 }
@@ -214,7 +226,10 @@ export default function App() {
         navigate(`/mentor/${g}/${s}`);
         break;
       case 'navigateToStats':
-        navigate('/dashboard');
+        navigate('/profile');
+        break;
+      case 'navigateToProfile':
+        navigate('/profile');
         break;
       case 'navigateToWeeklyWrap':
         navigate('/weekly-wrapped');
@@ -279,16 +294,39 @@ export default function App() {
           <span style={{ fontSize: "0.78rem", opacity: 0.8 }}>Press Ctrl/Cmd + K to search</span>
           <VibeToggle variant="navbar" />
           {user ? (
-            <button
-              type="button"
-              className="pill-btn"
-              style={{ padding: "5px 12px", fontSize: "0.8rem" }}
-              onClick={handleLogout}
-              disabled={logoutBusy}
-              title="Log out"
-            >
-              {logoutBusy ? "Logging out..." : "Log out"}
-            </button>
+            <>
+              <button
+                type="button"
+                onClick={() => navigate("/profile")}
+                title="Your Profile"
+                style={{
+                  width: 30,
+                  height: 30,
+                  borderRadius: "50%",
+                  background: "linear-gradient(135deg, #3b82f6, #8b5cf6)",
+                  border: "none",
+                  color: "#fff",
+                  fontWeight: 800,
+                  fontSize: 13,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                {(user.displayName || user.email || "S").charAt(0).toUpperCase()}
+              </button>
+              <button
+                type="button"
+                className="pill-btn"
+                style={{ padding: "5px 12px", fontSize: "0.8rem" }}
+                onClick={handleLogout}
+                disabled={logoutBusy}
+                title="Log out"
+              >
+                {logoutBusy ? "Logging out..." : "Log out"}
+              </button>
+            </>
           ) : null}
         </div>
       </div>
@@ -374,6 +412,11 @@ export default function App() {
             element={<RequireAuth>{withRouteSuspense(<WeeklyWrappedPage />)}</RequireAuth>}
           />
 
+          {/* Student Profile & Growth Journey */}
+          <Route
+            path="/profile"
+            element={<RequireAuth>{withRouteSuspense(<ProfilePage />)}</RequireAuth>}
+          />
 
           {/* Catch-all: redirect unknown routes to a sensible default */}
           <Route path="*" element={<Navigate to="/trends/10/Maths" replace />} />

@@ -1,5 +1,22 @@
 # Workspace
 
+## Student Profile & Growth Journey (Task #17)
+
+Full-featured student profile page at `/profile` with three tabs:
+- **Overview**: Subject-wise chapter mastery rings (Maths/Science toggle), growth journey timeline with milestones
+- **Achievements**: 14 badge definitions across 5 categories (streak, practice, mastery, accuracy, milestone); badge evaluation engine in `badgeEngine.ts`; earned badges synced to `LearnerProgressSnapshot`
+- **Stats**: Weekly accuracy chart, difficulty breakdown, summary stats (questions solved, streak, topics started/mastered, strongest/weakest topics)
+
+Key files:
+- `lazytopper/src/pages/ProfilePage.tsx` — Profile page with 3 tabs
+- `lazytopper/src/services/badgeEngine.ts` — Badge definitions, evaluation, journey milestones, cloud sync
+- `lazytopper/src/services/studentProgressStore.ts` — Extended `LearnerProgressSnapshot` with `badges` and `journeyMilestones` fields
+
+Access points:
+- Profile avatar button in top navbar (shows user initial, gradient background)
+- "Profile" tab in bottom navigation
+- Command palette: "Stats" and "Profile" commands navigate to `/profile`
+
 ## Overview
 
 pnpm workspace monorepo using TypeScript. Each package manages its own dependencies.
