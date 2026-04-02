@@ -67,6 +67,31 @@ export function triggerSparkle(x: number, y: number): void {
   setTimeout(() => burst.remove(), 1200);
 }
 
+export function incrementDailyGoal(): void {
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    const raw = localStorage.getItem("lazytopper.dailyGoal");
+    let data = { date: today, done: 0, goal: 5 };
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed?.date === today) {
+        data = { ...parsed, done: (parsed.done || 0) + 1 };
+      } else {
+        data.done = 1;
+        data.goal = parsed?.goal || 5;
+      }
+    } else {
+      data.done = 1;
+    }
+    localStorage.setItem("lazytopper.dailyGoal", JSON.stringify(data));
+    if (data.done === data.goal) {
+      triggerConfetti();
+      showXPToast(25);
+      awardXP(25);
+    }
+  } catch {}
+}
+
 export function celebrateMilestone(xpAmount: number): void {
   triggerConfetti();
   showXPToast(xpAmount);

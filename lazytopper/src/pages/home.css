@@ -498,6 +498,65 @@
   }
 }
 
+/* Topic mastery tree */
+.lt-home__topicTree {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  margin-top: 8px;
+  padding: 0 16px;
+}
+
+.lt-home__topicNode {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.lt-home__topicConnector {
+  width: 3px;
+  height: 20px;
+  background: #e5e5e5;
+  border-radius: 2px;
+}
+
+.lt-home__topicInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+.lt-home__topicTitle {
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: var(--text);
+}
+
+.lt-home__topicMastery {
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+@media (min-width: 560px) {
+  .lt-home__topicTree {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .lt-home__topicConnector {
+    width: 20px;
+    height: 3px;
+    margin-top: 26px;
+    align-self: flex-start;
+  }
+}
+
 @media (max-width: 559px) {
   .lt-home__shell {
     padding: 12px 0 80px;

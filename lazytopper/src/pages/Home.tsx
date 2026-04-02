@@ -1,7 +1,8 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./home.css";
 import { useAuth } from "../context/AuthContext";
+import { canonicalChapters, type CanonicalChapter } from "../data/syllabus/cbse10Canonical";
 
 type MetaAttr = "name" | "property";
 
@@ -99,23 +100,6 @@ function upsertJsonLd(id: string, payload: Record<string, unknown>) {
 
 type MasteryLevel = "locked" | "started" | "progressing" | "mastered";
 
-function getNodeMastery(nodeLabel: string): MasteryLevel {
-  try {
-    const statsRaw = localStorage.getItem("lazytopper.chapterStats");
-    if (!statsRaw) return "locked";
-    const stats: Record<string, { attempted?: number; correct?: number }> = JSON.parse(statsRaw);
-    const totalAttempted = Object.values(stats).reduce((s, c) => s + (c.attempted || 0), 0);
-    const totalCorrect = Object.values(stats).reduce((s, c) => s + (c.correct || 0), 0);
-    const accuracy = totalAttempted > 0 ? totalCorrect / totalAttempted : 0;
-
-    if (nodeLabel === "Trends") return totalAttempted > 0 ? "mastered" : "started";
-    if (nodeLabel === "TopicHub") return totalAttempted >= 5 ? "progressing" : totalAttempted > 0 ? "started" : "locked";
-    if (nodeLabel === "Practice") return totalAttempted >= 10 ? (accuracy >= 0.7 ? "mastered" : "progressing") : totalAttempted >= 3 ? "started" : "locked";
-    if (nodeLabel === "Master") return accuracy >= 0.8 && totalAttempted >= 15 ? "mastered" : totalAttempted >= 10 ? "progressing" : "locked";
-  } catch {}
-  return "locked";
-}
-
 const MASTERY_COLORS: Record<MasteryLevel, string> = {
   locked: "#e5e5e5",
   started: "#1cb0f6",
@@ -123,9 +107,60 @@ const MASTERY_COLORS: Record<MasteryLevel, string> = {
   mastered: "#ffc800",
 };
 
+function getChapterMastery(chapterId: string): { level: MasteryLevel; pct: number } {
+  try {
+    const raw = localStorage.getItem("lazytopper.smartLearning.stats.v1");
+    if (!raw) return { level: "locked", pct: 0 };
+    const stats = JSON.parse(raw);
+    const ch = stats[chapterId];
+    if (!ch) return { level: "locked", pct: 0 };
+    const attempted = ch.totalAttempts ?? 0;
+    const correct = ch.correctAnswers ?? 0;
+    const accuracy = attempted > 0 ? correct / attempted : 0;
+    const mastery = ch.lastComputedMastery ?? 0;
+    const pct = Math.min(100, Math.round(mastery * 100));
+    if (mastery >= 0.8 && attempted >= 3) return { level: "mastered", pct };
+    if (mastery >= 0.4 || attempted >= 3) return { level: "progressing", pct };
+    if (attempted > 0) return { level: "started", pct };
+    return { level: "locked", pct: 0 };
+  } catch {
+    return { level: "locked", pct: 0 };
+  }
+}
+
+function getStreakData(): { count: number; lastDate: string } {
+  try {
+    const raw = localStorage.getItem("lazytopper.streak");
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      return { count: Number(parsed?.count || 0), lastDate: parsed?.lastDate || "" };
+    }
+  } catch {}
+  return { count: 0, lastDate: "" };
+}
+
+function getDailyGoalProgress(): { done: number; goal: number } {
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    const raw = localStorage.getItem("lazytopper.dailyGoal");
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed?.date === today) return { done: Number(parsed.done || 0), goal: Number(parsed.goal || 5) };
+    }
+  } catch {}
+  return { done: 0, goal: 5 };
+}
+
+const MATHS_CHAPTERS = canonicalChapters.filter(c => c.subjectId === "maths").slice(0, 6);
+const SCIENCE_CHAPTERS = canonicalChapters.filter(c => c.subjectId === "science").slice(0, 6);
+
 const Home: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [topicSubject, setTopicSubject] = useState<"maths" | "science">("maths");
+  const streak = useMemo(() => getStreakData(), []);
+  const dailyGoal = useMemo(() => getDailyGoalProgress(), []);
+  const chapters = topicSubject === "maths" ? MATHS_CHAPTERS : SCIENCE_CHAPTERS;
 
   useEffect(() => {
     const host = window.location.hostname.toLowerCase();
@@ -247,52 +282,108 @@ const Home: React.FC = () => {
           </p>
         </section>
 
-        {/* Skill tree path - Duolingo-style learning journey */}
+        {/* Streak + Daily Goal widget */}
+        {user && (
+          <section className="lt-home__streakGoal" aria-label="Your streak and daily goal" style={{
+            display: "flex", gap: 16, marginBottom: 24, marginTop: 8, flexWrap: "wrap",
+          }}>
+            <div style={{
+              flex: "1 1 140px", background: "#fff7e6", border: "2px solid #ff9600",
+              borderRadius: 16, padding: "14px 18px", display: "flex", alignItems: "center", gap: 12,
+            }}>
+              <span style={{ fontSize: "2rem" }}>🔥</span>
+              <div>
+                <div style={{ fontSize: "1.5rem", fontWeight: 900, color: "#ff9600" }}>{streak.count}</div>
+                <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#777", textTransform: "uppercase" }}>Day streak</div>
+              </div>
+            </div>
+            <div style={{
+              flex: "1 1 200px", background: "#e6f9e0", border: "2px solid #58cc02",
+              borderRadius: 16, padding: "14px 18px",
+            }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                <span style={{ fontSize: "0.8rem", fontWeight: 800, color: "#3c3c3c" }}>Daily Goal</span>
+                <span style={{ fontSize: "0.8rem", fontWeight: 900, color: "#58cc02" }}>{dailyGoal.done}/{dailyGoal.goal}</span>
+              </div>
+              <div style={{ background: "#d4edcc", borderRadius: 8, height: 10, overflow: "hidden" }}>
+                <div style={{
+                  width: `${Math.min(100, (dailyGoal.done / dailyGoal.goal) * 100)}%`,
+                  height: "100%", background: "#58cc02", borderRadius: 8,
+                  transition: "width 0.4s ease-out",
+                }} />
+              </div>
+              <div style={{ fontSize: "0.7rem", color: "#777", marginTop: 4 }}>
+                {dailyGoal.done >= dailyGoal.goal ? "Goal reached! Keep going!" : `${dailyGoal.goal - dailyGoal.done} more to go`}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Topic mastery tree - real chapter-based skill path */}
         <section className="lt-home__skillTree" aria-label="Your learning path">
           <h2 className="lt-home__sectionTitle">Your learning path</h2>
           <p className="lt-home__sectionSub">
-            Follow the path from basics to board-ready — one step at a time.
+            Master each topic from basics to board-ready — one chapter at a time.
           </p>
-          <div className="lt-home__treePath">
-            {[
-              { icon: "📊", label: "Trends", desc: "See what appears most", defaultColor: "#58cc02", to: "/trends/10/Maths" },
-              { icon: "📚", label: "TopicHub", desc: "Learn chapter by chapter", defaultColor: "#1cb0f6", to: "/topic-hub/10/Maths" },
-              { icon: "🎯", label: "Practice", desc: "Solve predicted questions", defaultColor: "#ff9600", to: "/predictive-papers" },
-              { icon: "🏆", label: "Master", desc: "Track your progress", defaultColor: "#ce82ff", to: "/dashboard" },
-            ].map((node, i) => {
-              const mastery = user ? getNodeMastery(node.label) : "locked";
-              const color = mastery === "locked" ? node.defaultColor : MASTERY_COLORS[mastery];
-              const ringPct = mastery === "mastered" ? 100 : mastery === "progressing" ? 66 : mastery === "started" ? 33 : 0;
+
+          <div style={{ display: "flex", justifyContent: "center", gap: 8, marginBottom: 16 }}>
+            {(["maths", "science"] as const).map(s => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => setTopicSubject(s)}
+                style={{
+                  padding: "6px 18px", borderRadius: 12, border: "none",
+                  fontWeight: 800, fontSize: "0.85rem", cursor: "pointer", textTransform: "capitalize",
+                  background: topicSubject === s ? "#58cc02" : "#f0f0f0",
+                  color: topicSubject === s ? "#fff" : "#777",
+                }}
+              >
+                {s === "maths" ? "📐 Maths" : "🔬 Science"}
+              </button>
+            ))}
+          </div>
+
+          <div className="lt-home__topicTree">
+            {chapters.map((ch, i) => {
+              const m = getChapterMastery(ch.chapterId);
+              const nodeColor = m.level === "locked" ? "#e5e5e5" : MASTERY_COLORS[m.level];
+              const subjectTitle = ch.subjectId === "maths" ? "Maths" : "Science";
               return (
-                <div key={node.label} className="lt-home__treeNode">
-                  {i > 0 && <div className="lt-home__treeConnector" />}
-                  <div className="lt-home__treeCircleWrap" style={{ position: "relative" }}>
-                    {user && ringPct > 0 && (
-                      <svg className="lt-home__progressRing" viewBox="0 0 80 80" style={{ position: "absolute", inset: -4, width: "calc(100% + 8px)", height: "calc(100% + 8px)", transform: "rotate(-90deg)" }}>
-                        <circle cx="40" cy="40" r="36" fill="none" stroke="#e5e5e5" strokeWidth="4" />
-                        <circle cx="40" cy="40" r="36" fill="none" stroke={color} strokeWidth="4"
-                          strokeDasharray={`${2 * Math.PI * 36}`}
-                          strokeDashoffset={`${2 * Math.PI * 36 * (1 - ringPct / 100)}`}
-                          strokeLinecap="round"
-                        />
-                      </svg>
-                    )}
+                <div key={ch.chapterId} className="lt-home__topicNode">
+                  {i > 0 && <div className="lt-home__topicConnector" />}
+                  <div style={{ position: "relative", display: "inline-block" }}>
+                    <svg viewBox="0 0 60 60" style={{ width: 56, height: 56, transform: "rotate(-90deg)" }}>
+                      <circle cx="30" cy="30" r="26" fill="none" stroke="#e5e5e5" strokeWidth="4" />
+                      <circle cx="30" cy="30" r="26" fill="none" stroke={nodeColor} strokeWidth="4"
+                        className="lt-progress-ring"
+                        strokeDasharray={`${2 * Math.PI * 26}`}
+                        strokeDashoffset={`${2 * Math.PI * 26 * (1 - m.pct / 100)}`}
+                        strokeLinecap="round"
+                      />
+                    </svg>
                     <button
                       type="button"
-                      className="lt-home__treeCircle"
-                      style={{ background: color, borderColor: color }}
-                      onClick={() => navigate(node.to)}
+                      className="lt-home__topicCircle"
+                      style={{
+                        position: "absolute", inset: 6, borderRadius: "50%",
+                        background: m.level === "locked" ? "#f7f7f7" : nodeColor,
+                        border: "none", cursor: "pointer",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        fontSize: 18, color: m.level === "locked" ? "#afafaf" : "#fff",
+                        fontWeight: 900,
+                      }}
+                      onClick={() => navigate(`/topic-hub/10/${subjectTitle}?topic=${ch.canonicalSlug}`)}
                     >
-                      <span className="lt-home__treeIcon">{node.icon}</span>
+                      {m.level === "mastered" ? "⭐" : m.level === "locked" ? "🔒" : (i + 1)}
                     </button>
                   </div>
-                  <span className="lt-home__treeLabel">{node.label}</span>
-                  <span className="lt-home__treeDesc">{node.desc}</span>
-                  {user && mastery !== "locked" && (
-                    <span className="lt-home__masteryBadge" style={{ color, fontSize: 10, fontWeight: 800, textTransform: "uppercase", marginTop: 2 }}>
-                      {mastery === "mastered" ? "⭐ Mastered" : mastery === "progressing" ? "🟢 In progress" : "🔵 Started"}
+                  <div className="lt-home__topicInfo">
+                    <span className="lt-home__topicTitle">{ch.title}</span>
+                    <span className="lt-home__topicMastery" style={{ color: nodeColor, fontSize: 11, fontWeight: 800 }}>
+                      {m.level === "mastered" ? "Mastered" : m.level === "progressing" ? `${m.pct}% complete` : m.level === "started" ? "Started" : "Not started"}
                     </span>
-                  )}
+                  </div>
                 </div>
               );
             })}

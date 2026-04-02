@@ -619,7 +619,7 @@ const HighlyProbableQuestions: React.FC = () => {
 
 
   // Smart Learning: log HPQ attempts (correct / incorrect)
-  const handleMarkHpqAttempt = (
+  const handleMarkHpqAttempt = async (
     bucket: HPQTopicBucket,
     q: HPQQuestion,
     wasCorrect: boolean
@@ -646,14 +646,15 @@ const HighlyProbableQuestions: React.FC = () => {
         ...prev,
         [q.id]: wasCorrect ? "correct" : "incorrect",
       }));
-      if (wasCorrect) {
-        try {
-          const { awardXP, showXPToast, triggerSparkle } = await import("../utils/gamification");
-          awardXP(10);
-          showXPToast(10);
-          triggerSparkle(window.innerWidth / 2, window.innerHeight / 2);
-        } catch {}
-      }
+      try {
+        const gam = await import("../utils/gamification");
+        gam.incrementDailyGoal();
+        if (wasCorrect) {
+          gam.awardXP(10);
+          gam.showXPToast(10);
+          gam.triggerSparkle(window.innerWidth / 2, window.innerHeight / 2);
+        }
+      } catch {}
     } catch (err) {
       // Fail silently for now - Smart Learning is a bonus layer, not critical path.
       console.error("Failed to record HPQ attempt", err);
