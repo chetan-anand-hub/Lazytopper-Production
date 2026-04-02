@@ -191,14 +191,19 @@ function takeFromBucket<T>(
   bucket: T[],
   targetCount: number,
   alreadyTaken: Set<string>,
-  getId: (item: T) => string
+  getId: (item: T) => string,
+  takenTexts?: Set<string>
 ): T[] {
   const result: T[] = [];
+  const texts = takenTexts ?? new Set<string>();
   for (const item of bucket) {
     const id = getId(item);
     if (alreadyTaken.has(id)) continue;
+    const qText = String((item as any).questionText ?? (item as any).text ?? "").trim().toLowerCase().slice(0, 120);
+    if (qText && texts.has(qText)) continue;
     result.push(item);
     alreadyTaken.add(id);
+    if (qText) texts.add(qText);
     if (result.length >= targetCount) break;
   }
   return result;
@@ -275,14 +280,15 @@ export function generatePracticeSet(
   const targetHard = totalQuestions - targetEasy - targetMedium; // remainder to Hard
 
   const takenIds = new Set<string>();
+  const takenTexts = new Set<string>();
   const selected: CanonicalQuestion[] = [];
 
-  // Always respect predictionScore ordering by using candidates as-is in buckets.
   const easyPicked = takeFromBucket(
     buckets.Easy,
     targetEasy,
     takenIds,
-    (q) => q.id
+    (q) => q.id,
+    takenTexts
   );
   selected.push(...easyPicked);
 
@@ -290,24 +296,29 @@ export function generatePracticeSet(
     buckets.Medium,
     targetMedium,
     takenIds,
-    (q) => q.id
+    (q) => q.id,
+    takenTexts
   );
   selected.push(...mediumPicked);
 
   const hardPicked = targetHard > 0
-    ? takeFromBucket(buckets.Hard, targetHard, takenIds, (q) => q.id)
+    ? takeFromBucket(buckets.Hard, targetHard, takenIds, (q) => q.id, takenTexts)
     : [];
   selected.push(...hardPicked);
 
-  // If we still have fewer than totalQuestions (not enough in some buckets),
-  // top up from the global candidate list in predictionScore order.
-  if (selected.length < totalQuestions) {
+  const isSingleDifficultyFilter =
+    (difficultyMix.Easy === 1 && difficultyMix.Medium === 0 && difficultyMix.Hard === 0) ||
+    (difficultyMix.Easy === 0 && difficultyMix.Medium === 1 && difficultyMix.Hard === 0) ||
+    (difficultyMix.Easy === 0 && difficultyMix.Medium === 0 && difficultyMix.Hard === 1);
+
+  if (selected.length < totalQuestions && !isSingleDifficultyFilter) {
     const remainingNeeded = totalQuestions - selected.length;
     const topUp = takeFromBucket(
       candidates,
       remainingNeeded,
       takenIds,
-      (q) => q.id
+      (q) => q.id,
+      takenTexts
     );
     selected.push(...topUp);
   }

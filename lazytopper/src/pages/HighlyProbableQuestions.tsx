@@ -1804,6 +1804,29 @@ const HighlyProbableQuestions: React.FC = () => {
                             ) : (
                               <MathText text={q.question} />
                             )}
+
+                            {Array.isArray((q as any).options) && (q as any).options.length > 0 && !(q as any).aROptions?.length && (
+                              <div style={{ marginTop: 6, paddingLeft: 4 }}>
+                                {((q as any).options as string[]).map((opt: string, oi: number) => (
+                                  <div
+                                    key={oi}
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "baseline",
+                                      gap: 8,
+                                      padding: "3px 0",
+                                      fontSize: "0.84rem",
+                                      color: "#1e293b",
+                                    }}
+                                  >
+                                    <span style={{ fontWeight: 600, color: "#475569", minWidth: 20 }}>
+                                      {String.fromCharCode(65 + oi)}.
+                                    </span>
+                                    <MathText text={opt} />
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                           </div>
                           <QuestionVisualAid
                             subject={bucket.subject ?? subjectKey}

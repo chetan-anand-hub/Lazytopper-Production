@@ -173,11 +173,11 @@ function difficultyChoiceToMix(
 ): Partial<Record<InternalDifficultyBucket, number>> {
   switch (choice) {
     case "Easy":
-      return { Easy: 1 };
+      return { Easy: 1, Medium: 0, Hard: 0 };
     case "Medium":
-      return { Medium: 1 };
+      return { Easy: 0, Medium: 1, Hard: 0 };
     case "Hard":
-      return { Hard: 1 };
+      return { Easy: 0, Medium: 0, Hard: 1 };
     case "All":
     default:
       return {};
@@ -261,7 +261,16 @@ function buildPracticeQuestionsFromEngine(args: {
     candidates = [...marksMatch, ...marksOther];
   }
 
-  const sliced = candidates.slice(0, safeCount);
+  const seenTexts = new Set<string>();
+  const deduped: any[] = [];
+  for (const q of candidates) {
+    const key = String((q as any).questionText ?? (q as any).text ?? "").trim().toLowerCase().slice(0, 120);
+    if (key && seenTexts.has(key)) continue;
+    if (key) seenTexts.add(key);
+    deduped.push(q);
+    if (deduped.length >= safeCount) break;
+  }
+  const sliced = deduped;
 
   return sliced.map((q, index) => {
     const anyQ: any = q;
@@ -277,6 +286,7 @@ function buildPracticeQuestionsFromEngine(args: {
       section: anyQ.section ?? anyQ.sectionLabel ?? "",
       bloomSkill: anyQ.bloomSkill ?? anyQ.bloomLevel ?? "",
       questionText: anyQ.questionText ?? anyQ.text ?? "",
+      options: anyQ.options,
       solutionSteps: anyQ.solutionSteps ?? [],
       explanation: anyQ.explanation ?? "",
       answer: anyQ.answer ?? "",
@@ -494,25 +504,21 @@ const baseQuestions = focusIdSet
 
 function expandQuestionsForDrill(source: PracticeQuestion[], targetCount: number): PracticeQuestion[] {
   if (!Array.isArray(source) || source.length === 0) return [];
-  const out = [...source];
-  let cursor = 0;
-  while (out.length < targetCount) {
-    const base = source[cursor % source.length];
-    const variantNo = Math.floor(cursor / source.length) + 1;
-    out.push({
-      ...base,
-      id: `${String(base.id || "Q")}-DRILL-${variantNo}-${cursor + 1}`,
-      questionText: `${String(base.questionText || "").trim()} (Drill ${variantNo})`,
-    });
-    cursor += 1;
+  const seen = new Set<string>();
+  const unique: PracticeQuestion[] = [];
+  for (const q of source) {
+    const key = String(q.questionText || "").trim().toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    unique.push(q);
   }
-  return out.slice(0, targetCount);
+  return unique.slice(0, targetCount);
 }
 
   const missing = safeCount - baseQuestions.length;
 
   if (missing <= 0) {
-    return baseQuestions.slice(0, safeCount);
+    return enforceDifficultyFilter(baseQuestions.slice(0, safeCount), args.difficulty);
   }
 
   const canonicalFallback = generateUnifiedPracticeQuestions({
@@ -528,11 +534,19 @@ function expandQuestionsForDrill(source: PracticeQuestion[], targetCount: number
     )
     .filter((question) => (desiredSection ? inferBoardPatternFromQuestion(question) === desiredSection : true));
 
-  const mergedWithCanonical = [...baseQuestions, ...canonicalFallback].slice(0, safeCount);
+  const mergeSeenTexts = new Set<string>();
+  const mergedUnique: PracticeQuestion[] = [];
+  for (const q of [...baseQuestions, ...canonicalFallback]) {
+    const key = String(q.questionText || "").trim().toLowerCase().slice(0, 120);
+    if (key && mergeSeenTexts.has(key)) continue;
+    if (key) mergeSeenTexts.add(key);
+    mergedUnique.push(q);
+  }
+  const mergedWithCanonical = mergedUnique.slice(0, safeCount);
   const missingAfterCanonical = safeCount - mergedWithCanonical.length;
 
   if (missingAfterCanonical <= 0) {
-    return mergedWithCanonical.slice(0, safeCount);
+    return enforceDifficultyFilter(mergedWithCanonical.slice(0, safeCount), args.difficulty);
   }
 
   // Build a seed question so AI has context even if the bank is empty.
@@ -623,11 +637,20 @@ function normaliseQuestionText(s: string | undefined | null): string {
         });
 
     const merged = [...mergedWithCanonical, ...aiQuestions];
-    return expandQuestionsForDrill(merged, safeCount);
+    return enforceDifficultyFilter(expandQuestionsForDrill(merged, safeCount), args.difficulty);
   } catch (err) {
     console.error("AI top-up failed for practice set:", err);
-    return expandQuestionsForDrill(mergedWithCanonical, safeCount);
+    return enforceDifficultyFilter(expandQuestionsForDrill(mergedWithCanonical, safeCount), args.difficulty);
   }
+}
+
+function enforceDifficultyFilter(questions: PracticeQuestion[], difficulty: DifficultyChoice): PracticeQuestion[] {
+  if (difficulty === "All") return questions;
+  const target = difficulty.toLowerCase();
+  return questions.filter((q) => {
+    const d = String(q.difficulty ?? "").toLowerCase();
+    return d === target;
+  });
 }
 
 const PracticePage: React.FC = () => {
@@ -1781,6 +1804,30 @@ const packTopicKey = useMemo(() => {
                     >
                       <MathText text={q.questionText} />
                     </p>
+
+                    {Array.isArray((q as any).options) && (q as any).options.length > 0 && (
+                      <div style={{ marginBottom: 10, paddingLeft: 4 }}>
+                        {((q as any).options as string[]).map((opt: string, oi: number) => (
+                          <div
+                            key={oi}
+                            style={{
+                              display: "flex",
+                              alignItems: "baseline",
+                              gap: 8,
+                              padding: "4px 0",
+                              fontSize: "0.88rem",
+                              color: "#1e293b",
+                            }}
+                          >
+                            <span style={{ fontWeight: 600, color: "#475569", minWidth: 22 }}>
+                              {String.fromCharCode(65 + oi)}.
+                            </span>
+                            <MathText text={opt} />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
                     <QuestionVisualAid
                       subject={subjectKey}
                       topicKey={topicLabel}

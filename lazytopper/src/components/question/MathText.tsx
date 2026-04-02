@@ -63,6 +63,53 @@ function renderKatexToHtml(latex: string, displayMode: boolean): string | null {
   }
 }
 
+function preprocessBarePatterns(text: string): string {
+  let result = text;
+
+  result = result.replace(/(?<![\\a-zA-Z])sqrt(\d+)/g, (_m, num) => `\\(\\sqrt{${num}}\\)`);
+  result = result.replace(/(?<![\\a-zA-Z])sqrt\{([^}]+)\}/g, (_m, inner) => `\\(\\sqrt{${inner}}\\)`);
+
+  result = result.replace(/(?<![\\a-zA-Z])frac(\d+)\/(\d+)/g, (_m, n, d) => `\\(\\frac{${n}}{${d}}\\)`);
+  result = result.replace(/(?<![\\a-zA-Z])frac\{([^}]+)\}\{([^}]+)\}/g, (_m, n, d) => `\\(\\frac{${n}}{${d}}\\)`);
+
+  const insideDelimiterRe = /\\\(.*?\\\)/gs;
+  const delimitedRanges: Array<[number, number]> = [];
+  for (const m of result.matchAll(insideDelimiterRe)) {
+    if (m.index !== undefined) delimitedRanges.push([m.index, m.index + m[0].length]);
+  }
+  function isInsideDelimiter(pos: number): boolean {
+    return delimitedRanges.some(([s, e]) => pos >= s && pos < e);
+  }
+
+  result = result.replace(/(\d+)\^(\d+)/g, (match, base, exp, offset) => {
+    if (isInsideDelimiter(offset)) return match;
+    return `\\(${base}^{${exp}}\\)`;
+  });
+  result = result.replace(/([a-zA-Z])\^(\d+)/g, (match, base, exp, offset) => {
+    if (isInsideDelimiter(offset)) return match;
+    return `\\(${base}^{${exp}}\\)`;
+  });
+  result = result.replace(/(\d+)_(\d+)/g, (match, base, sub, offset) => {
+    if (isInsideDelimiter(offset)) return match;
+    return `\\(${base}_{${sub}}\\)`;
+  });
+  result = result.replace(/([a-zA-Z])_(\d+)/g, (match, base, sub, offset) => {
+    if (isInsideDelimiter(offset)) return match;
+    return `\\(${base}_{${sub}}\\)`;
+  });
+
+  result = result.replace(/(?<![\\(])\\sqrt\{([^}]+)\}(?![\\)])/g, (match, inner, offset) => {
+    if (isInsideDelimiter(offset)) return match;
+    return `\\(\\sqrt{${inner}}\\)`;
+  });
+  result = result.replace(/(?<![\\(])\\frac\{([^}]+)\}\{([^}]+)\}(?![\\)])/g, (match, n, d, offset) => {
+    if (isInsideDelimiter(offset)) return match;
+    return `\\(\\frac{${n}}{${d}}\\)`;
+  });
+
+  return result;
+}
+
 function applyUnicodeFallbacks(text: string): string {
   let result = text;
   for (const [cmd, symbol] of Object.entries(UNICODE_MAP)) {
@@ -96,18 +143,22 @@ const MATH_DELIMITERS_RE = /\\\((.+?)\\\)|\\\[(.+?)\\\]/gs;
 function parseTextToSegments(text: string): Segment[] {
   if (!text) return [];
 
+  const preprocessed = preprocessBarePatterns(text);
+
   const segments: Segment[] = [];
   let lastIndex = 0;
 
-  for (const match of text.matchAll(MATH_DELIMITERS_RE)) {
+  for (const match of preprocessed.matchAll(MATH_DELIMITERS_RE)) {
     if (match.index !== undefined && match.index > lastIndex) {
-      segments.push({ type: "text", content: applyUnicodeFallbacks(text.slice(lastIndex, match.index)) });
+      segments.push({ type: "text", content: applyUnicodeFallbacks(preprocessed.slice(lastIndex, match.index)) });
     }
 
     const inlineLatex = match[1];
     const displayLatex = match[2];
-    const latex = (inlineLatex || displayLatex || "").trim();
+    let latex = (inlineLatex || displayLatex || "").trim();
     const isDisplay = !!displayLatex;
+
+    latex = latex.replace(/\\\\(sqrt|frac|times|div|pm|leq|geq|neq|infty|pi|alpha|beta|gamma|theta|Delta|angle|triangle|cdot|circ)/g, "\\$1");
 
     const html = renderKatexToHtml(latex, isDisplay);
     if (html) {
@@ -119,12 +170,12 @@ function parseTextToSegments(text: string): Segment[] {
     lastIndex = (match.index ?? 0) + match[0].length;
   }
 
-  if (lastIndex < text.length) {
-    segments.push({ type: "text", content: applyUnicodeFallbacks(text.slice(lastIndex)) });
+  if (lastIndex < preprocessed.length) {
+    segments.push({ type: "text", content: applyUnicodeFallbacks(preprocessed.slice(lastIndex)) });
   }
 
   if (segments.length === 0) {
-    segments.push({ type: "text", content: applyUnicodeFallbacks(text) });
+    segments.push({ type: "text", content: applyUnicodeFallbacks(preprocessed) });
   }
 
   return segments;
@@ -161,5 +212,5 @@ export function MathText({ text, style, className }: MathTextProps) {
 }
 
 export function renderMathInText(text: string): string {
-  return applyUnicodeFallbacks(text);
+  return applyUnicodeFallbacks(preprocessBarePatterns(text));
 }
