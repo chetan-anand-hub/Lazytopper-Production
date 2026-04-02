@@ -3,21 +3,11 @@ import { useNavigate, useParams, useSearchParams, useLocation } from "react-rout
 import { getCanonicalChapters, toCanonicalSubjectId } from "../data/syllabus/cbse10Canonical";
 import { getTopicV2Content, normalizeTopicKey } from "../utils/topicHubV2Store";
 import { generatePracticeSet } from "../data/practiceSetGenerator";
-import JourneyStrip from "../components/ux/JourneyStrip";
 import ConceptTeachDrawer, { type ConceptTeachContext } from "../components/tutor/ConceptTeachDrawer";
-import {
-  navigateToPractice,
-} from "../navigation/practiceNavigation";
-import {
-  ensureTopicMasterySnapshot,
-  loadTopicMasterySnapshot,
-  saveTopicMasterySnapshot,
-  markNodeLearning,
-  getMasteryCounts,
-  type TopicHubMasterySnapshot,
-} from "../services/topicHubMastery";
+import { navigateToPractice } from "../navigation/practiceNavigation";
 import { trackUxEvent } from "../services/uxTelemetry";
-import type { V2Definition, V2Example } from "../utils/getTopicV2Content";
+import type { V2Definition } from "../utils/getTopicV2Content";
+import type { CanonicalQuestion } from "../data/predictionTypes";
 
 type SubjectKey = "maths" | "science";
 
@@ -52,23 +42,45 @@ type RecentTopicRecord = {
 const TOPICHUB_LAST_ROUTE_KEY = "lazytopper.topicHub.lastRoute.v1";
 const TOPICHUB_RECENT_TOPICS_KEY = "lazytopper.topicHub.recentTopics.v1";
 const MAX_RECENT_TOPICS = 10;
+const TOPIC_MASTERY_KEY_PREFIX = "lazytopper.topicHub.mastery.v1.";
 
 function upsertRecentTopic(list: RecentTopicRecord[], entry: RecentTopicRecord): RecentTopicRecord[] {
   const filtered = list.filter((r) => r.topicKey !== entry.topicKey);
   return [entry, ...filtered].slice(0, MAX_RECENT_TOPICS);
 }
 
-type LessonStep = "overview" | "concepts" | "exam-patterns" | "quiz" | "practice";
+interface TopicLevelMastery {
+  conceptsCompleted: string[];
+  quizCorrect: number;
+  quizTotal: number;
+  lessonCompleted: boolean;
+}
 
-const STEP_META: Record<LessonStep, { label: string; icon: string }> = {
-  overview: { label: "Overview", icon: "📖" },
-  concepts: { label: "Key Concepts", icon: "💡" },
-  "exam-patterns": { label: "Exam Patterns", icon: "🎯" },
-  quiz: { label: "Quick Quiz", icon: "⚡" },
-  practice: { label: "Practice", icon: "🏆" },
+function loadTopicLevelMastery(topicKey: string): TopicLevelMastery {
+  if (typeof window === "undefined") return { conceptsCompleted: [], quizCorrect: 0, quizTotal: 0, lessonCompleted: false };
+  try {
+    const raw = window.localStorage.getItem(TOPIC_MASTERY_KEY_PREFIX + topicKey);
+    if (!raw) return { conceptsCompleted: [], quizCorrect: 0, quizTotal: 0, lessonCompleted: false };
+    return JSON.parse(raw) as TopicLevelMastery;
+  } catch {
+    return { conceptsCompleted: [], quizCorrect: 0, quizTotal: 0, lessonCompleted: false };
+  }
+}
+
+function saveTopicLevelMastery(topicKey: string, mastery: TopicLevelMastery): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(TOPIC_MASTERY_KEY_PREFIX + topicKey, JSON.stringify(mastery));
+  } catch { /* ignore */ }
+}
+
+type LessonPhase = "landing" | "learning" | "summary";
+
+const TIER_STYLES: Record<string, { bg: string; text: string; label: string }> = {
+  "must-crack": { bg: "#fef2f2", text: "#dc2626", label: "Must Crack" },
+  "high-roi": { bg: "#fffbeb", text: "#d97706", label: "High ROI" },
+  "good-to-do": { bg: "#f0fdf4", text: "#16a34a", label: "Good to Do" },
 };
-
-const STEPS: LessonStep[] = ["overview", "concepts", "exam-patterns", "quiz", "practice"];
 
 export default function TopicHub() {
   const params = useParams();
@@ -101,6 +113,8 @@ export default function TopicHub() {
 
   const v2 = useMemo(() => getTopicV2Content(topicKey), [topicKey]);
   const title = String(v2?.topicName || topicKey || "").trim() || "Topic";
+  const tier = String(v2?.tier || "good-to-do");
+  const tierStyle = TIER_STYLES[tier] || TIER_STYLES["good-to-do"];
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -119,7 +133,7 @@ export default function TopicHub() {
       const nextRecent = upsertRecentTopic(Array.isArray(recent) ? recent : [], payload);
       window.localStorage.setItem(TOPICHUB_RECENT_TOPICS_KEY, JSON.stringify(nextRecent));
     } catch { /* ignore */ }
-  }, [grade, subjectTitle, title, topicKey]);
+  }, [grade, subject, subjectTitle, title, topicKey]);
 
   const topicOptions = useMemo(() => buildTopicOptions(subject), [subject]);
   const onChangeTopic = useCallback(
@@ -156,38 +170,25 @@ export default function TopicHub() {
     return Array.isArray(raw) ? raw.map((s) => String(s || "").trim()).filter(Boolean) : [];
   }, [v2]);
 
-  const quickQuizFromPractice = useMemo(() => {
+  const checkpointQuestions = useMemo<CanonicalQuestion[]>(() => {
     const practiceTopicKey = normalizeTopicKey(topicKey) || topicKey;
     const practiceSet = generatePracticeSet({
       subject: subject as "Maths" | "Science",
       topicKey: practiceTopicKey,
-      totalQuestions: 5,
+      totalQuestions: Math.max(definitions.length, 5),
       shuffle: true,
     });
-    return (practiceSet.questions || [])
-      .map((q, idx: number) => {
-        const text = String(q?.questionText ?? "").trim();
-        if (!text) return null;
-        return { title: `Q${idx + 1}`, question: text } as V2Example;
-      })
-      .filter(Boolean) as V2Example[];
-  }, [subject, topicKey]);
+    return (practiceSet.questions || []).filter(
+      (q) => Boolean(q.questionText) && Array.isArray(q.options) && q.options.length >= 2 && Boolean(q.answer)
+    );
+  }, [subject, topicKey, definitions.length]);
 
-  const rawQuickQuiz = useMemo(() => {
-    const raw = (v2 as Record<string, unknown> | null)?.quickQuiz;
-    return Array.isArray(raw) ? raw.filter((q): q is V2Example => Boolean(q?.question)) : [];
-  }, [v2]);
+  const [phase, setPhase] = useState<LessonPhase>("landing");
+  const [conceptIdx, setConceptIdx] = useState(0);
+  const [showingCheckpoint, setShowingCheckpoint] = useState(false);
+  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
+  const [answerRevealed, setAnswerRevealed] = useState(false);
 
-  const quickQuiz = quickQuizFromPractice.length
-    ? quickQuizFromPractice.slice(0, 5)
-    : rawQuickQuiz.length
-      ? rawQuickQuiz.slice(0, 5)
-      : [];
-
-  const tier = String(v2?.tier || "good-to-do");
-
-  const [currentStep, setCurrentStep] = useState<LessonStep>("overview");
-  const [expandedQuizIdx, setExpandedQuizIdx] = useState<number | null>(null);
   const [teachDrawerOpen, setTeachDrawerOpen] = useState(false);
   const [teachContext, setTeachContext] = useState<ConceptTeachContext>({
     topicKey,
@@ -195,58 +196,103 @@ export default function TopicHub() {
     questionText: "",
   });
 
+  const [mastery, setMastery] = useState<TopicLevelMastery>(() => loadTopicLevelMastery(topicKey));
+
   useEffect(() => {
-    setCurrentStep("overview");
-    setExpandedQuizIdx(null);
+    setPhase("landing");
+    setConceptIdx(0);
+    setShowingCheckpoint(false);
+    setSelectedAnswer(null);
+    setAnswerRevealed(false);
+    setMastery(loadTopicLevelMastery(topicKey));
   }, [topicKey]);
 
-  const nodeIds = useMemo(() => definitions.map((_, i) => `concept-${i}`), [definitions]);
-
-  const [topicMastery, setTopicMastery] = useState<TopicHubMasterySnapshot>(() =>
-    loadTopicMasterySnapshot(topicKey)
-  );
-  useEffect(() => {
-    setTopicMastery(loadTopicMasterySnapshot(topicKey));
-  }, [topicKey]);
-
-  const masteryCounts = useMemo(
-    () => getMasteryCounts(nodeIds, topicMastery),
-    [nodeIds, topicMastery]
-  );
-
-  const masteryPercent = masteryCounts.total > 0
-    ? Math.round((masteryCounts.mastered / masteryCounts.total) * 100)
+  const totalConcepts = definitions.length;
+  const masteryPercent = totalConcepts > 0
+    ? Math.round((mastery.conceptsCompleted.length / totalConcepts) * 100)
     : 0;
 
-  const updateTopicMastery = useCallback(
-    (updater: (prev: TopicHubMasterySnapshot) => TopicHubMasterySnapshot) => {
-      setTopicMastery((prev) => {
-        const base = ensureTopicMasterySnapshot(topicKey, prev);
-        const next = ensureTopicMasterySnapshot(topicKey, updater(base));
-        saveTopicMasterySnapshot(next, topicKey);
+  const updateMastery = useCallback(
+    (updater: (prev: TopicLevelMastery) => TopicLevelMastery) => {
+      setMastery((prev) => {
+        const next = updater(prev);
+        saveTopicLevelMastery(topicKey, next);
         return next;
       });
     },
     [topicKey]
   );
 
+  const markConceptCompleted = useCallback(
+    (conceptTitle: string) => {
+      updateMastery((prev) => {
+        if (prev.conceptsCompleted.includes(conceptTitle)) return prev;
+        return { ...prev, conceptsCompleted: [...prev.conceptsCompleted, conceptTitle] };
+      });
+    },
+    [updateMastery]
+  );
+
+  const recordQuizAnswer = useCallback(
+    (correct: boolean) => {
+      updateMastery((prev) => ({
+        ...prev,
+        quizCorrect: prev.quizCorrect + (correct ? 1 : 0),
+        quizTotal: prev.quizTotal + 1,
+      }));
+    },
+    [updateMastery]
+  );
+
+  const markLessonCompleted = useCallback(() => {
+    updateMastery((prev) => ({ ...prev, lessonCompleted: true }));
+  }, [updateMastery]);
+
+  const startLearning = useCallback(() => {
+    setPhase("learning");
+    setConceptIdx(0);
+    setShowingCheckpoint(false);
+    setSelectedAnswer(null);
+    setAnswerRevealed(false);
+  }, []);
+
+  const currentDef = definitions[conceptIdx] as V2Definition | undefined;
+  const currentCheckpoint = checkpointQuestions[conceptIdx % checkpointQuestions.length] as CanonicalQuestion | undefined;
+
+  const advanceToNext = useCallback(() => {
+    if (currentDef) {
+      markConceptCompleted(currentDef.title);
+    }
+
+    if (conceptIdx < totalConcepts - 1) {
+      setShowingCheckpoint(false);
+      setSelectedAnswer(null);
+      setAnswerRevealed(false);
+      setConceptIdx((prev) => prev + 1);
+    } else {
+      markLessonCompleted();
+      setPhase("summary");
+    }
+  }, [conceptIdx, totalConcepts, currentDef, markConceptCompleted, markLessonCompleted]);
+
+  const handleCheckpointAnswer = useCallback(
+    (option: string) => {
+      if (answerRevealed) return;
+      setSelectedAnswer(option);
+      setAnswerRevealed(true);
+      const isCorrect = option.trim().toLowerCase() === (currentCheckpoint?.answer || "").trim().toLowerCase();
+      recordQuizAnswer(isCorrect);
+    },
+    [answerRevealed, currentCheckpoint, recordQuizAnswer]
+  );
+
   const openTeachDrawer = useCallback(
     (concept: string, questionText: string, subtopic?: string) => {
-      setTeachContext({
-        topicKey,
-        subject: subjectTitle,
-        questionText,
-        subtopic,
-        concept,
-      });
+      setTeachContext({ topicKey, subject: subjectTitle, questionText, subtopic, concept });
       setTeachDrawerOpen(true);
-      const nodeId = `concept-${definitions.findIndex((d) => d.title === concept)}`;
-      if (nodeId !== "concept--1") {
-        updateTopicMastery((snap) => markNodeLearning(snap, nodeId));
-      }
       trackUxEvent("topichub_open_practice", "TopicHub", { topicKey, concept });
     },
-    [topicKey, subjectTitle, definitions, updateTopicMastery]
+    [topicKey, subjectTitle]
   );
 
   const goToPractice = useCallback(() => {
@@ -262,61 +308,31 @@ export default function TopicHub() {
     });
   }, [grade, navigate, subject, subjectTitle, title, topicKey]);
 
-  const currentStepIdx = STEPS.indexOf(currentStep);
-  const canGoNext = currentStepIdx < STEPS.length - 1;
-  const canGoPrev = currentStepIdx > 0;
-
-  const tierColors: Record<string, { bg: string; text: string; label: string }> = {
-    "must-crack": { bg: "#fef2f2", text: "#dc2626", label: "Must Crack" },
-    "high-roi": { bg: "#fffbeb", text: "#d97706", label: "High ROI" },
-    "good-to-do": { bg: "#f0fdf4", text: "#16a34a", label: "Good to Do" },
-  };
-  const tierStyle = tierColors[tier] || tierColors["good-to-do"];
-
   return (
     <div style={{ minHeight: "100vh", background: "#f8fafc" }}>
       <div style={{ maxWidth: 820, margin: "0 auto", padding: "16px 16px 80px" }}>
 
-        <JourneyStrip current="topichub" grade={grade} subject={subjectTitle} topic={topicKey} />
-
-        <div style={{ marginTop: 16, display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <button
             type="button"
             onClick={() => navigate(backTo)}
             style={{
               background: "none", border: "none", cursor: "pointer",
-              fontSize: "0.85rem", color: "#6366f1", fontWeight: 500,
-              padding: "4px 0",
+              fontSize: "0.85rem", color: "#6366f1", fontWeight: 500, padding: "4px 0",
             }}
           >
             ← {backLabel}
           </button>
         </div>
 
-        <div style={{ marginTop: 12 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-            <h1 style={{
-              fontSize: "1.5rem", fontWeight: 800, color: "#1e293b", margin: 0,
-              lineHeight: 1.3,
-            }}>
-              {title}
-            </h1>
-            <span style={{
-              fontSize: "0.72rem", fontWeight: 700, padding: "3px 10px",
-              borderRadius: 999, background: tierStyle.bg, color: tierStyle.text,
-            }}>
-              {tierStyle.label}
-            </span>
-          </div>
-
-          <div style={{ marginTop: 8 }}>
+        {phase !== "learning" && (
+          <div style={{ marginTop: 12 }}>
             <select
               value={topicKey}
               onChange={(e) => onChangeTopic(e.target.value)}
               style={{
                 padding: "6px 12px", borderRadius: 10, border: "1px solid #e2e8f0",
-                fontSize: "0.82rem", color: "#475569", background: "#fff",
-                cursor: "pointer",
+                fontSize: "0.82rem", color: "#475569", background: "#fff", cursor: "pointer",
               }}
             >
               {topicOptions.map((opt) => (
@@ -324,399 +340,421 @@ export default function TopicHub() {
               ))}
             </select>
           </div>
-        </div>
+        )}
 
-        <div style={{
-          marginTop: 16, background: "#fff", borderRadius: 16, padding: "12px 16px",
-          border: "1px solid #e2e8f0",
-        }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "#475569" }}>
-              Progress
-            </span>
-            <span style={{ fontSize: "0.78rem", color: "#94a3b8" }}>
-              {masteryCounts.mastered}/{masteryCounts.total} concepts mastered
-            </span>
-          </div>
+        {phase === "landing" && (
           <div style={{
-            marginTop: 8, height: 8, borderRadius: 999, background: "#f1f5f9",
-            overflow: "hidden",
+            marginTop: 20, background: "#fff", borderRadius: 20, padding: "28px 24px",
+            border: "1px solid #e2e8f0", textAlign: "center",
+            boxShadow: "0 2px 12px rgba(99,102,241,0.06)",
           }}>
-            <div style={{
-              height: "100%", borderRadius: 999, transition: "width 0.4s ease",
-              width: `${masteryPercent}%`,
-              background: masteryPercent >= 80
-                ? "linear-gradient(90deg, #22c55e, #16a34a)"
-                : masteryPercent >= 40
-                  ? "linear-gradient(90deg, #3b82f6, #6366f1)"
-                  : "linear-gradient(90deg, #94a3b8, #64748b)",
-            }} />
-          </div>
-        </div>
-
-        <div style={{
-          marginTop: 20, display: "flex", gap: 6, overflowX: "auto",
-          paddingBottom: 4,
-        }}>
-          {STEPS.map((step, idx) => {
-            const meta = STEP_META[step];
-            const isActive = step === currentStep;
-            const isCompleted = idx < currentStepIdx;
-            return (
-              <button
-                key={step}
-                type="button"
-                onClick={() => setCurrentStep(step)}
-                style={{
-                  flex: "0 0 auto",
-                  padding: "8px 14px",
-                  borderRadius: 12,
-                  border: isActive ? "2px solid #6366f1" : "1px solid #e2e8f0",
-                  background: isActive ? "#eef2ff" : isCompleted ? "#f0fdf4" : "#fff",
-                  color: isActive ? "#4338ca" : isCompleted ? "#16a34a" : "#64748b",
-                  fontWeight: isActive ? 700 : 500,
-                  fontSize: "0.8rem",
-                  cursor: "pointer",
-                  whiteSpace: "nowrap",
-                  transition: "all 0.2s",
-                }}
-              >
-                {meta.icon} {meta.label}
-              </button>
-            );
-          })}
-        </div>
-
-        <div style={{ marginTop: 16 }}>
-
-          {currentStep === "overview" && (
-            <div style={{ display: "grid", gap: 12 }}>
-              {overview.length > 0 ? overview.map((line, idx) => (
-                <div key={idx} style={{
-                  background: "#fff", borderRadius: 14, padding: "14px 18px",
-                  border: "1px solid #e2e8f0", fontSize: "0.88rem", color: "#334155",
-                  lineHeight: 1.6,
-                }}>
-                  {line}
-                </div>
-              )) : (
-                <div style={{
-                  background: "#fff", borderRadius: 14, padding: "20px 18px",
-                  border: "1px solid #e2e8f0", textAlign: "center", color: "#94a3b8",
-                }}>
-                  No overview available for this topic yet.
-                </div>
-              )}
-              {scoreTips.length > 0 && (
-                <div style={{
-                  background: "linear-gradient(135deg, #eff6ff, #f5f3ff)",
-                  borderRadius: 14, padding: "16px 18px",
-                  border: "1px solid #c7d2fe",
-                }}>
-                  <div style={{ fontWeight: 700, fontSize: "0.88rem", color: "#4338ca", marginBottom: 8 }}>
-                    Score Maximizer Tips
-                  </div>
-                  <ul style={{ margin: 0, paddingLeft: 18 }}>
-                    {scoreTips.map((tip, idx) => (
-                      <li key={idx} style={{ fontSize: "0.82rem", color: "#475569", marginBottom: 4, lineHeight: 1.5 }}>
-                        {tip}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, flexWrap: "wrap" }}>
+              <h1 style={{ fontSize: "1.6rem", fontWeight: 800, color: "#1e293b", margin: 0 }}>
+                {title}
+              </h1>
+              <span style={{
+                fontSize: "0.72rem", fontWeight: 700, padding: "3px 10px",
+                borderRadius: 999, background: tierStyle.bg, color: tierStyle.text,
+              }}>
+                {tierStyle.label}
+              </span>
             </div>
-          )}
 
-          {currentStep === "concepts" && (
-            <div style={{ display: "grid", gap: 12 }}>
-              {definitions.length > 0 ? definitions.map((def, idx) => (
-                <div key={idx} style={{
-                  background: "#fff", borderRadius: 14, padding: "16px 18px",
-                  border: "1px solid #e2e8f0",
+            {overview.length > 0 && (
+              <p style={{ fontSize: "0.88rem", color: "#64748b", lineHeight: 1.6, marginTop: 12, maxWidth: 560, marginInline: "auto" }}>
+                {overview[0]}
+              </p>
+            )}
+
+            <div style={{
+              marginTop: 20, display: "flex", gap: 24, justifyContent: "center", flexWrap: "wrap",
+            }}>
+              <div>
+                <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#6366f1" }}>{totalConcepts}</div>
+                <div style={{ fontSize: "0.75rem", color: "#94a3b8", fontWeight: 500 }}>Concepts</div>
+              </div>
+              <div>
+                <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#f59e0b" }}>{examPatterns.length}</div>
+                <div style={{ fontSize: "0.75rem", color: "#94a3b8", fontWeight: 500 }}>Exam Patterns</div>
+              </div>
+              <div>
+                <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#22c55e" }}>{masteryPercent}%</div>
+                <div style={{ fontSize: "0.75rem", color: "#94a3b8", fontWeight: 500 }}>Mastery</div>
+              </div>
+            </div>
+
+            {masteryPercent > 0 && (
+              <div style={{
+                marginTop: 16, height: 8, borderRadius: 999, background: "#f1f5f9",
+                overflow: "hidden", maxWidth: 300, marginInline: "auto",
+              }}>
+                <div style={{
+                  height: "100%", borderRadius: 999, transition: "width 0.4s ease",
+                  width: `${masteryPercent}%`,
+                  background: masteryPercent >= 80 ? "#22c55e" : masteryPercent >= 40 ? "#6366f1" : "#94a3b8",
+                }} />
+              </div>
+            )}
+
+            <button
+              type="button"
+              onClick={startLearning}
+              style={{
+                marginTop: 24, padding: "14px 40px", borderRadius: 14,
+                background: "linear-gradient(135deg, #6366f1, #4f46e5)",
+                border: "none", color: "#fff", fontWeight: 700, fontSize: "1rem",
+                cursor: "pointer", boxShadow: "0 4px 14px rgba(99,102,241,0.3)",
+                transition: "transform 0.15s",
+              }}
+              onMouseDown={(e) => { (e.target as HTMLElement).style.transform = "scale(0.97)"; }}
+              onMouseUp={(e) => { (e.target as HTMLElement).style.transform = "scale(1)"; }}
+            >
+              {mastery.lessonCompleted ? "Review Again" : masteryPercent > 0 ? "Continue Learning" : "Start Learning"}
+            </button>
+
+            {scoreTips.length > 0 && (
+              <div style={{
+                marginTop: 24, background: "linear-gradient(135deg, #eff6ff, #f5f3ff)",
+                borderRadius: 14, padding: "16px 18px", border: "1px solid #c7d2fe",
+                textAlign: "left",
+              }}>
+                <div style={{ fontWeight: 700, fontSize: "0.85rem", color: "#4338ca", marginBottom: 8 }}>
+                  💡 Score Maximizer Tips
+                </div>
+                <ul style={{ margin: 0, paddingLeft: 18 }}>
+                  {scoreTips.slice(0, 3).map((tip, idx) => (
+                    <li key={idx} style={{ fontSize: "0.8rem", color: "#475569", marginBottom: 4, lineHeight: 1.5 }}>
+                      {tip}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
+
+        {phase === "learning" && (
+          <div style={{ marginTop: 16 }}>
+            <div style={{
+              display: "flex", alignItems: "center", justifyContent: "space-between",
+              marginBottom: 12,
+            }}>
+              <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "#475569" }}>
+                {title} — Concept {conceptIdx + 1} of {totalConcepts}
+              </span>
+              <span style={{ fontSize: "0.75rem", color: "#94a3b8" }}>
+                {Math.round(((conceptIdx + 1) / totalConcepts) * 100)}%
+              </span>
+            </div>
+
+            <div style={{
+              height: 6, borderRadius: 999, background: "#f1f5f9", overflow: "hidden",
+              marginBottom: 20,
+            }}>
+              <div style={{
+                height: "100%", borderRadius: 999, transition: "width 0.3s ease",
+                width: `${((conceptIdx + 1) / totalConcepts) * 100}%`,
+                background: "linear-gradient(90deg, #6366f1, #8b5cf6)",
+              }} />
+            </div>
+
+            {!showingCheckpoint && currentDef && (
+              <div style={{
+                background: "#fff", borderRadius: 18, padding: "22px 22px",
+                border: "1px solid #e2e8f0",
+                boxShadow: "0 2px 12px rgba(0,0,0,0.04)",
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+                  <span style={{
+                    width: 32, height: 32, borderRadius: 999,
+                    background: "#eef2ff", color: "#6366f1",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontWeight: 800, fontSize: "0.85rem", flexShrink: 0,
+                  }}>
+                    {conceptIdx + 1}
+                  </span>
+                  <h2 style={{ fontSize: "1.1rem", fontWeight: 700, color: "#1e293b", margin: 0 }}>
+                    {currentDef.title}
+                  </h2>
+                </div>
+
+                <div style={{
+                  fontSize: "0.9rem", color: "#334155", lineHeight: 1.7,
+                  padding: "12px 16px", background: "#f8fafc", borderRadius: 12,
                 }}>
-                  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
-                    <div>
-                      <div style={{
-                        display: "flex", alignItems: "center", gap: 8,
-                      }}>
-                        <span style={{
-                          width: 28, height: 28, borderRadius: 999,
-                          background: "#eef2ff", color: "#6366f1",
-                          display: "flex", alignItems: "center", justifyContent: "center",
-                          fontWeight: 800, fontSize: "0.78rem", flexShrink: 0,
-                        }}>
-                          {idx + 1}
-                        </span>
-                        <span style={{ fontWeight: 700, fontSize: "0.9rem", color: "#1e293b" }}>
-                          {def.title}
-                        </span>
-                      </div>
-                      <div style={{ marginTop: 6, fontSize: "0.82rem", color: "#475569", lineHeight: 1.55, paddingLeft: 36 }}>
-                        {def.description}
-                      </div>
-                      {def.examTip && (
-                        <div style={{
-                          marginTop: 6, fontSize: "0.78rem", color: "#d97706",
-                          paddingLeft: 36, fontStyle: "italic",
-                        }}>
-                          Exam tip: {def.examTip}
-                        </div>
-                      )}
-                    </div>
+                  <div style={{ fontWeight: 600, fontSize: "0.78rem", color: "#6366f1", marginBottom: 4 }}>
+                    What it means
+                  </div>
+                  {currentDef.description}
+                </div>
+
+                {currentDef.examTip && (
+                  <div style={{
+                    marginTop: 12, fontSize: "0.82rem", color: "#d97706",
+                    padding: "10px 16px", background: "#fffbeb", borderRadius: 12,
+                    border: "1px solid #fde68a",
+                  }}>
+                    <span style={{ fontWeight: 700 }}>🎯 Exam line: </span>
+                    {currentDef.examTip}
+                  </div>
+                )}
+
+                {examPatterns[conceptIdx] && (
+                  <div style={{
+                    marginTop: 10, fontSize: "0.82rem", color: "#475569",
+                    padding: "10px 16px", background: "#f0fdf4", borderRadius: 12,
+                    border: "1px solid #bbf7d0",
+                  }}>
+                    <span style={{ fontWeight: 700, color: "#16a34a" }}>📋 When to use: </span>
+                    {examPatterns[conceptIdx]}
+                  </div>
+                )}
+
+                {markingTips[conceptIdx] && (
+                  <div style={{
+                    marginTop: 10, fontSize: "0.82rem", color: "#7f1d1d",
+                    padding: "10px 16px", background: "#fef2f2", borderRadius: 12,
+                    border: "1px solid #fecaca",
+                  }}>
+                    <span style={{ fontWeight: 700 }}>⚠️ Trap: </span>
+                    {markingTips[conceptIdx]}
+                  </div>
+                )}
+
+                <div style={{ marginTop: 16, display: "flex", gap: 10, flexWrap: "wrap" }}>
+                  <button
+                    type="button"
+                    onClick={() => openTeachDrawer(
+                      currentDef.title,
+                      `Teach me about "${currentDef.title}" in ${title}. ${currentDef.description}`,
+                      currentDef.title
+                    )}
+                    style={{
+                      padding: "8px 16px", borderRadius: 10,
+                      background: "#eef2ff", border: "1px solid #c7d2fe",
+                      color: "#4338ca", fontWeight: 600, fontSize: "0.82rem",
+                      cursor: "pointer",
+                    }}
+                  >
+                    🧑‍🏫 Teach Me
+                  </button>
+                  {currentCheckpoint && currentCheckpoint.options && currentCheckpoint.options.length >= 2 ? (
                     <button
                       type="button"
-                      onClick={() => openTeachDrawer(
-                        def.title,
-                        `Teach me about "${def.title}" in ${title}. ${def.description}`,
-                        def.title
-                      )}
+                      onClick={() => {
+                        markConceptCompleted(currentDef.title);
+                        setShowingCheckpoint(true);
+                        setSelectedAnswer(null);
+                        setAnswerRevealed(false);
+                      }}
                       style={{
-                        flexShrink: 0, padding: "6px 12px", borderRadius: 10,
-                        background: "#eef2ff", border: "1px solid #c7d2fe",
-                        color: "#4338ca", fontWeight: 600, fontSize: "0.75rem",
-                        cursor: "pointer", whiteSpace: "nowrap",
+                        padding: "8px 20px", borderRadius: 10,
+                        background: "linear-gradient(135deg, #6366f1, #4f46e5)",
+                        border: "none", color: "#fff", fontWeight: 600,
+                        fontSize: "0.82rem", cursor: "pointer",
                       }}
                     >
-                      Teach Me
+                      Got it → Quick Check ⚡
                     </button>
-                  </div>
-                </div>
-              )) : (
-                <div style={{
-                  background: "#fff", borderRadius: 14, padding: "20px 18px",
-                  border: "1px solid #e2e8f0", textAlign: "center", color: "#94a3b8",
-                }}>
-                  No concepts available for this topic yet.
-                </div>
-              )}
-            </div>
-          )}
-
-          {currentStep === "exam-patterns" && (
-            <div style={{ display: "grid", gap: 12 }}>
-              {examPatterns.length > 0 ? examPatterns.map((pattern, idx) => (
-                <div key={idx} style={{
-                  background: "#fff", borderRadius: 14, padding: "14px 18px",
-                  border: "1px solid #e2e8f0", display: "flex", gap: 10, alignItems: "flex-start",
-                }}>
-                  <span style={{
-                    width: 24, height: 24, borderRadius: 999,
-                    background: "#fef3c7", color: "#d97706",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    fontWeight: 800, fontSize: "0.72rem", flexShrink: 0, marginTop: 1,
-                  }}>
-                    {idx + 1}
-                  </span>
-                  <span style={{ fontSize: "0.85rem", color: "#334155", lineHeight: 1.55 }}>
-                    {pattern}
-                  </span>
-                </div>
-              )) : (
-                <div style={{
-                  background: "#fff", borderRadius: 14, padding: "20px 18px",
-                  border: "1px solid #e2e8f0", textAlign: "center", color: "#94a3b8",
-                }}>
-                  No exam patterns available for this topic yet.
-                </div>
-              )}
-              {markingTips.length > 0 && (
-                <div style={{
-                  background: "#fef2f2", borderRadius: 14, padding: "16px 18px",
-                  border: "1px solid #fecaca",
-                }}>
-                  <div style={{ fontWeight: 700, fontSize: "0.88rem", color: "#dc2626", marginBottom: 8 }}>
-                    Common Mistakes to Avoid
-                  </div>
-                  <ul style={{ margin: 0, paddingLeft: 18 }}>
-                    {markingTips.map((tip, idx) => (
-                      <li key={idx} style={{ fontSize: "0.82rem", color: "#7f1d1d", marginBottom: 4, lineHeight: 1.5 }}>
-                        {tip}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          )}
-
-          {currentStep === "quiz" && (
-            <div style={{ display: "grid", gap: 12 }}>
-              {quickQuiz.length > 0 ? quickQuiz.map((q, idx) => (
-                <div key={idx} style={{
-                  background: "#fff", borderRadius: 14, padding: "14px 18px",
-                  border: expandedQuizIdx === idx ? "2px solid #6366f1" : "1px solid #e2e8f0",
-                  cursor: "pointer", transition: "border 0.2s",
-                }}
-                  onClick={() => setExpandedQuizIdx(expandedQuizIdx === idx ? null : idx)}
-                >
-                  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10 }}>
-                    <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
-                      <span style={{
-                        width: 28, height: 28, borderRadius: 999,
-                        background: "#f0fdf4", color: "#16a34a",
-                        display: "flex", alignItems: "center", justifyContent: "center",
-                        fontWeight: 800, fontSize: "0.78rem", flexShrink: 0,
-                      }}>
-                        {idx + 1}
-                      </span>
-                      <span style={{ fontSize: "0.85rem", color: "#1e293b", lineHeight: 1.5 }}>
-                        {q.question}
-                      </span>
-                    </div>
-                    <span style={{ fontSize: "0.7rem", color: "#94a3b8", flexShrink: 0 }}>
-                      {expandedQuizIdx === idx ? "▲" : "▼"}
-                    </span>
-                  </div>
-                  {expandedQuizIdx === idx && (
-                    <div style={{ marginTop: 12, paddingLeft: 38, display: "flex", gap: 8, flexWrap: "wrap" }}>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          openTeachDrawer(
-                            q.title || `Quiz Q${idx + 1}`,
-                            q.question,
-                            q.title
-                          );
-                        }}
-                        style={{
-                          padding: "7px 14px", borderRadius: 10,
-                          background: "#eef2ff", border: "1px solid #c7d2fe",
-                          color: "#4338ca", fontWeight: 600, fontSize: "0.78rem",
-                          cursor: "pointer",
-                        }}
-                      >
-                        Teach Me This
-                      </button>
-                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        markConceptCompleted(currentDef.title);
+                        advanceToNext();
+                      }}
+                      style={{
+                        padding: "8px 20px", borderRadius: 10,
+                        background: "linear-gradient(135deg, #6366f1, #4f46e5)",
+                        border: "none", color: "#fff", fontWeight: 600,
+                        fontSize: "0.82rem", cursor: "pointer",
+                      }}
+                    >
+                      Got it → Next
+                    </button>
                   )}
                 </div>
-              )) : (
+              </div>
+            )}
+
+            {showingCheckpoint && currentCheckpoint && (
+              <div style={{
+                background: "#fff", borderRadius: 18, padding: "22px 22px",
+                border: "2px solid #6366f1",
+                boxShadow: "0 2px 12px rgba(99,102,241,0.08)",
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
+                  <span style={{
+                    fontSize: "0.78rem", fontWeight: 700, padding: "3px 10px",
+                    borderRadius: 999, background: "#eef2ff", color: "#6366f1",
+                  }}>
+                    ⚡ Quick Check
+                  </span>
+                </div>
+
+                <div style={{ fontSize: "0.92rem", color: "#1e293b", lineHeight: 1.6, fontWeight: 600, marginBottom: 16 }}>
+                  {currentCheckpoint.questionText}
+                </div>
+
+                <div style={{ display: "grid", gap: 8 }}>
+                  {(currentCheckpoint.options || []).map((option, idx) => {
+                    const isSelected = selectedAnswer === option;
+                    const correctAnswer = (currentCheckpoint.answer || "").trim().toLowerCase();
+                    const isCorrect = option.trim().toLowerCase() === correctAnswer;
+                    let borderColor = "#e2e8f0";
+                    let bg = "#fff";
+                    let textColor = "#334155";
+                    if (answerRevealed) {
+                      if (isCorrect) {
+                        borderColor = "#22c55e";
+                        bg = "#f0fdf4";
+                        textColor = "#16a34a";
+                      } else if (isSelected && !isCorrect) {
+                        borderColor = "#ef4444";
+                        bg = "#fef2f2";
+                        textColor = "#dc2626";
+                      }
+                    } else if (isSelected) {
+                      borderColor = "#6366f1";
+                      bg = "#eef2ff";
+                    }
+                    return (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => handleCheckpointAnswer(option)}
+                        disabled={answerRevealed}
+                        style={{
+                          padding: "12px 16px", borderRadius: 12,
+                          border: `2px solid ${borderColor}`, background: bg,
+                          color: textColor, fontWeight: 500, fontSize: "0.85rem",
+                          cursor: answerRevealed ? "default" : "pointer",
+                          textAlign: "left", transition: "all 0.15s",
+                          opacity: answerRevealed && !isSelected && !isCorrect ? 0.5 : 1,
+                        }}
+                      >
+                        <span style={{ fontWeight: 700, marginRight: 8 }}>
+                          {String.fromCharCode(65 + idx)}.
+                        </span>
+                        {option}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {answerRevealed && (
+                  <div style={{ marginTop: 16 }}>
+                    {selectedAnswer?.trim().toLowerCase() === (currentCheckpoint.answer || "").trim().toLowerCase() ? (
+                      <div style={{
+                        fontSize: "0.88rem", color: "#16a34a", fontWeight: 600, marginBottom: 12,
+                        padding: "10px 14px", background: "#f0fdf4", borderRadius: 10,
+                      }}>
+                        ✅ Correct! Great job!
+                      </div>
+                    ) : (
+                      <div style={{
+                        fontSize: "0.88rem", color: "#dc2626", fontWeight: 600, marginBottom: 12,
+                        padding: "10px 14px", background: "#fef2f2", borderRadius: 10,
+                      }}>
+                        ❌ Not quite. The correct answer is: {currentCheckpoint.answer}
+                        {currentCheckpoint.explanation && (
+                          <div style={{ marginTop: 6, fontWeight: 400, fontSize: "0.82rem", color: "#7f1d1d" }}>
+                            {currentCheckpoint.explanation}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    <button
+                      type="button"
+                      onClick={advanceToNext}
+                      style={{
+                        padding: "10px 24px", borderRadius: 12,
+                        background: "linear-gradient(135deg, #6366f1, #4f46e5)",
+                        border: "none", color: "#fff", fontWeight: 600,
+                        fontSize: "0.88rem", cursor: "pointer",
+                      }}
+                    >
+                      {conceptIdx < totalConcepts - 1 ? "Next Concept →" : "See Summary 🎉"}
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {phase === "summary" && (
+          <div style={{
+            marginTop: 20, background: "#fff", borderRadius: 20, padding: "28px 24px",
+            border: "1px solid #e2e8f0", textAlign: "center",
+            boxShadow: "0 2px 12px rgba(99,102,241,0.06)",
+          }}>
+            <div style={{ fontSize: "2.5rem", marginBottom: 8 }}>🎉</div>
+            <h2 style={{ fontSize: "1.4rem", fontWeight: 800, color: "#1e293b", margin: 0 }}>
+              Lesson Complete!
+            </h2>
+            <p style={{ fontSize: "0.88rem", color: "#64748b", marginTop: 8 }}>
+              You've covered all {totalConcepts} concepts in {title}
+            </p>
+
+            <div style={{
+              marginTop: 20, display: "flex", gap: 24, justifyContent: "center", flexWrap: "wrap",
+            }}>
+              <div style={{
+                padding: "16px 24px", background: "#f0fdf4", borderRadius: 14,
+                border: "1px solid #bbf7d0",
+              }}>
+                <div style={{ fontSize: "1.6rem", fontWeight: 800, color: "#16a34a" }}>
+                  {mastery.conceptsCompleted.length}/{totalConcepts}
+                </div>
+                <div style={{ fontSize: "0.75rem", color: "#64748b", fontWeight: 500, marginTop: 2 }}>
+                  Concepts Learned
+                </div>
+              </div>
+              {mastery.quizTotal > 0 && (
                 <div style={{
-                  background: "#fff", borderRadius: 14, padding: "20px 18px",
-                  border: "1px solid #e2e8f0", textAlign: "center", color: "#94a3b8",
+                  padding: "16px 24px", background: "#eef2ff", borderRadius: 14,
+                  border: "1px solid #c7d2fe",
                 }}>
-                  No quiz questions available for this topic yet.
+                  <div style={{ fontSize: "1.6rem", fontWeight: 800, color: "#6366f1" }}>
+                    {mastery.quizCorrect}/{mastery.quizTotal}
+                  </div>
+                  <div style={{ fontSize: "0.75rem", color: "#64748b", fontWeight: 500, marginTop: 2 }}>
+                    Quiz Score
+                  </div>
                 </div>
               )}
             </div>
-          )}
 
-          {currentStep === "practice" && (
-            <div style={{ display: "grid", gap: 16 }}>
-              <div style={{
-                background: "linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%)",
-                borderRadius: 20, padding: "28px 24px", textAlign: "center",
-                border: "1px solid #c7d2fe",
-              }}>
-                <div style={{ fontSize: "2.5rem", marginBottom: 8 }}>🏆</div>
-                <div style={{ fontWeight: 800, fontSize: "1.2rem", color: "#312e81" }}>
-                  Ready to practice {title}?
-                </div>
-                <div style={{ fontSize: "0.85rem", color: "#4338ca", marginTop: 6, lineHeight: 1.5 }}>
-                  Apply what you learned with real board-style questions.
-                  Focus on writing clean, exam-ready answers.
-                </div>
-                <button
-                  type="button"
-                  onClick={goToPractice}
-                  style={{
-                    marginTop: 16, padding: "12px 32px", borderRadius: 14,
-                    background: "linear-gradient(135deg, #6366f1, #4f46e5)",
-                    color: "#fff", fontWeight: 700, fontSize: "0.95rem",
-                    border: "none", cursor: "pointer",
-                    boxShadow: "0 4px 16px rgba(99,102,241,0.35)",
-                  }}
-                >
-                  Start Practice
-                </button>
-              </div>
-              <div style={{
-                display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12,
-              }}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    navigateToPractice(navigate, {
-                      grade,
-                      subject: subjectTitle as "Maths" | "Science",
-                      topicKey,
-                      topicName: title,
-                      difficultyPreset: "Easy",
-                      backPath: `/topic-hub/${grade}/${subject}/${topicKey}`,
-                      backLabel: `Back to ${title}`,
-                      source: "topichub",
-                    });
-                  }}
-                  style={{
-                    padding: "14px 16px", borderRadius: 14, background: "#f0fdf4",
-                    border: "1px solid #bbf7d0", color: "#16a34a", fontWeight: 600,
-                    fontSize: "0.82rem", cursor: "pointer", textAlign: "center",
-                  }}
-                >
-                  Easy Questions
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    navigateToPractice(navigate, {
-                      grade,
-                      subject: subjectTitle as "Maths" | "Science",
-                      topicKey,
-                      topicName: title,
-                      difficultyPreset: "Hard",
-                      backPath: `/topic-hub/${grade}/${subject}/${topicKey}`,
-                      backLabel: `Back to ${title}`,
-                      source: "topichub",
-                    });
-                  }}
-                  style={{
-                    padding: "14px 16px", borderRadius: 14, background: "#fef2f2",
-                    border: "1px solid #fecaca", color: "#dc2626", fontWeight: 600,
-                    fontSize: "0.82rem", cursor: "pointer", textAlign: "center",
-                  }}
-                >
-                  Hard Questions
-                </button>
-              </div>
+            <button
+              type="button"
+              onClick={goToPractice}
+              style={{
+                marginTop: 24, padding: "14px 40px", borderRadius: 14,
+                background: "linear-gradient(135deg, #22c55e, #16a34a)",
+                border: "none", color: "#fff", fontWeight: 700, fontSize: "1rem",
+                cursor: "pointer", boxShadow: "0 4px 14px rgba(34,197,94,0.3)",
+              }}
+            >
+              Practice Now →
+            </button>
+
+            <div style={{ marginTop: 12 }}>
+              <button
+                type="button"
+                onClick={startLearning}
+                style={{
+                  padding: "8px 20px", borderRadius: 10,
+                  background: "none", border: "1px solid #e2e8f0",
+                  color: "#64748b", fontWeight: 500, fontSize: "0.82rem",
+                  cursor: "pointer",
+                }}
+              >
+                Review Again
+              </button>
             </div>
-          )}
-        </div>
-
-        <div style={{
-          marginTop: 20, display: "flex", justifyContent: "space-between", gap: 12,
-        }}>
-          {canGoPrev ? (
-            <button
-              type="button"
-              onClick={() => setCurrentStep(STEPS[currentStepIdx - 1])}
-              style={{
-                padding: "10px 20px", borderRadius: 12,
-                background: "#fff", border: "1px solid #e2e8f0",
-                color: "#64748b", fontWeight: 600, fontSize: "0.85rem",
-                cursor: "pointer",
-              }}
-            >
-              ← {STEP_META[STEPS[currentStepIdx - 1]].label}
-            </button>
-          ) : <div />}
-          {canGoNext ? (
-            <button
-              type="button"
-              onClick={() => setCurrentStep(STEPS[currentStepIdx + 1])}
-              style={{
-                padding: "10px 20px", borderRadius: 12,
-                background: "linear-gradient(135deg, #6366f1, #4f46e5)",
-                border: "none", color: "#fff", fontWeight: 600, fontSize: "0.85rem",
-                cursor: "pointer",
-                boxShadow: "0 2px 8px rgba(99,102,241,0.25)",
-              }}
-            >
-              {STEP_META[STEPS[currentStepIdx + 1]].label} →
-            </button>
-          ) : null}
-        </div>
+          </div>
+        )}
       </div>
 
       <ConceptTeachDrawer
