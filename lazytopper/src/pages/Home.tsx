@@ -97,6 +97,32 @@ function upsertJsonLd(id: string, payload: Record<string, unknown>) {
   node.text = JSON.stringify(payload);
 }
 
+type MasteryLevel = "locked" | "started" | "progressing" | "mastered";
+
+function getNodeMastery(nodeLabel: string): MasteryLevel {
+  try {
+    const statsRaw = localStorage.getItem("lazytopper.chapterStats");
+    if (!statsRaw) return "locked";
+    const stats: Record<string, { attempted?: number; correct?: number }> = JSON.parse(statsRaw);
+    const totalAttempted = Object.values(stats).reduce((s, c) => s + (c.attempted || 0), 0);
+    const totalCorrect = Object.values(stats).reduce((s, c) => s + (c.correct || 0), 0);
+    const accuracy = totalAttempted > 0 ? totalCorrect / totalAttempted : 0;
+
+    if (nodeLabel === "Trends") return totalAttempted > 0 ? "mastered" : "started";
+    if (nodeLabel === "TopicHub") return totalAttempted >= 5 ? "progressing" : totalAttempted > 0 ? "started" : "locked";
+    if (nodeLabel === "Practice") return totalAttempted >= 10 ? (accuracy >= 0.7 ? "mastered" : "progressing") : totalAttempted >= 3 ? "started" : "locked";
+    if (nodeLabel === "Master") return accuracy >= 0.8 && totalAttempted >= 15 ? "mastered" : totalAttempted >= 10 ? "progressing" : "locked";
+  } catch {}
+  return "locked";
+}
+
+const MASTERY_COLORS: Record<MasteryLevel, string> = {
+  locked: "#e5e5e5",
+  started: "#1cb0f6",
+  progressing: "#58cc02",
+  mastered: "#ffc800",
+};
+
 const Home: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -229,25 +255,47 @@ const Home: React.FC = () => {
           </p>
           <div className="lt-home__treePath">
             {[
-              { icon: "📊", label: "Trends", desc: "See what appears most", color: "#58cc02", to: "/trends/10/Maths" },
-              { icon: "📚", label: "TopicHub", desc: "Learn chapter by chapter", color: "#1cb0f6", to: "/topic-hub/10/Maths" },
-              { icon: "🎯", label: "Practice", desc: "Solve predicted questions", color: "#ff9600", to: "/predictive-papers" },
-              { icon: "🏆", label: "Master", desc: "Track your progress", color: "#ce82ff", to: "/dashboard" },
-            ].map((node, i) => (
-              <div key={node.label} className="lt-home__treeNode">
-                {i > 0 && <div className="lt-home__treeConnector" />}
-                <button
-                  type="button"
-                  className="lt-home__treeCircle"
-                  style={{ background: node.color, borderColor: node.color }}
-                  onClick={() => navigate(node.to)}
-                >
-                  <span className="lt-home__treeIcon">{node.icon}</span>
-                </button>
-                <span className="lt-home__treeLabel">{node.label}</span>
-                <span className="lt-home__treeDesc">{node.desc}</span>
-              </div>
-            ))}
+              { icon: "📊", label: "Trends", desc: "See what appears most", defaultColor: "#58cc02", to: "/trends/10/Maths" },
+              { icon: "📚", label: "TopicHub", desc: "Learn chapter by chapter", defaultColor: "#1cb0f6", to: "/topic-hub/10/Maths" },
+              { icon: "🎯", label: "Practice", desc: "Solve predicted questions", defaultColor: "#ff9600", to: "/predictive-papers" },
+              { icon: "🏆", label: "Master", desc: "Track your progress", defaultColor: "#ce82ff", to: "/dashboard" },
+            ].map((node, i) => {
+              const mastery = user ? getNodeMastery(node.label) : "locked";
+              const color = mastery === "locked" ? node.defaultColor : MASTERY_COLORS[mastery];
+              const ringPct = mastery === "mastered" ? 100 : mastery === "progressing" ? 66 : mastery === "started" ? 33 : 0;
+              return (
+                <div key={node.label} className="lt-home__treeNode">
+                  {i > 0 && <div className="lt-home__treeConnector" />}
+                  <div className="lt-home__treeCircleWrap" style={{ position: "relative" }}>
+                    {user && ringPct > 0 && (
+                      <svg className="lt-home__progressRing" viewBox="0 0 80 80" style={{ position: "absolute", inset: -4, width: "calc(100% + 8px)", height: "calc(100% + 8px)", transform: "rotate(-90deg)" }}>
+                        <circle cx="40" cy="40" r="36" fill="none" stroke="#e5e5e5" strokeWidth="4" />
+                        <circle cx="40" cy="40" r="36" fill="none" stroke={color} strokeWidth="4"
+                          strokeDasharray={`${2 * Math.PI * 36}`}
+                          strokeDashoffset={`${2 * Math.PI * 36 * (1 - ringPct / 100)}`}
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                    )}
+                    <button
+                      type="button"
+                      className="lt-home__treeCircle"
+                      style={{ background: color, borderColor: color }}
+                      onClick={() => navigate(node.to)}
+                    >
+                      <span className="lt-home__treeIcon">{node.icon}</span>
+                    </button>
+                  </div>
+                  <span className="lt-home__treeLabel">{node.label}</span>
+                  <span className="lt-home__treeDesc">{node.desc}</span>
+                  {user && mastery !== "locked" && (
+                    <span className="lt-home__masteryBadge" style={{ color, fontSize: 10, fontWeight: 800, textTransform: "uppercase", marginTop: 2 }}>
+                      {mastery === "mastered" ? "⭐ Mastered" : mastery === "progressing" ? "🟢 In progress" : "🔵 Started"}
+                    </span>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </section>
 

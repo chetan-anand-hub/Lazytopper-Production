@@ -540,18 +540,38 @@ export default function Dashboard() {
           borderRadius: 16, padding: "14px 16px", textAlign: "center",
           boxShadow: "0 2px 0 rgba(28,176,246,0.3)",
         }}>
-          <div style={{ fontSize: "1.6rem" }}>🎯</div>
-          <div style={{ fontSize: "1.4rem", fontWeight: 900, color: "#1cb0f6" }}>{avgAccuracy}%</div>
-          <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#777", textTransform: "uppercase" }}>Accuracy</div>
+          <div style={{ position: "relative", display: "inline-block", width: 52, height: 52 }}>
+            <svg viewBox="0 0 52 52" style={{ width: 52, height: 52, transform: "rotate(-90deg)" }}>
+              <circle cx="26" cy="26" r="22" fill="none" stroke="#e5e5e5" strokeWidth="4" />
+              <circle cx="26" cy="26" r="22" fill="none" stroke="#1cb0f6" strokeWidth="4"
+                className="lt-progress-ring"
+                strokeDasharray={`${2 * Math.PI * 22}`}
+                strokeDashoffset={`${2 * Math.PI * 22 * (1 - avgAccuracy / 100)}`}
+                strokeLinecap="round"
+              />
+            </svg>
+            <span style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.7rem", fontWeight: 900, color: "#1cb0f6" }}>{avgAccuracy}%</span>
+          </div>
+          <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#777", textTransform: "uppercase", marginTop: 4 }}>Accuracy</div>
         </div>
         <div style={{
           flex: "1 1 100px", background: "#f3e8ff", border: "2px solid #ce82ff",
           borderRadius: 16, padding: "14px 16px", textAlign: "center",
           boxShadow: "0 2px 0 rgba(206,130,255,0.3)",
         }}>
-          <div style={{ fontSize: "1.6rem" }}>🏆</div>
-          <div style={{ fontSize: "1.4rem", fontWeight: 900, color: "#ce82ff" }}>{topicsMastered}/{topicsStarted}</div>
-          <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#777", textTransform: "uppercase" }}>Mastered</div>
+          <div style={{ position: "relative", display: "inline-block", width: 52, height: 52 }}>
+            <svg viewBox="0 0 52 52" style={{ width: 52, height: 52, transform: "rotate(-90deg)" }}>
+              <circle cx="26" cy="26" r="22" fill="none" stroke="#e5e5e5" strokeWidth="4" />
+              <circle cx="26" cy="26" r="22" fill="none" stroke="#ce82ff" strokeWidth="4"
+                className="lt-progress-ring"
+                strokeDasharray={`${2 * Math.PI * 22}`}
+                strokeDashoffset={`${2 * Math.PI * 22 * (1 - (topicsStarted > 0 ? topicsMastered / topicsStarted : 0))}`}
+                strokeLinecap="round"
+              />
+            </svg>
+            <span style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.7rem", fontWeight: 900, color: "#ce82ff" }}>{topicsMastered}/{topicsStarted}</span>
+          </div>
+          <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#777", textTransform: "uppercase", marginTop: 4 }}>Mastered</div>
         </div>
       </div>
 

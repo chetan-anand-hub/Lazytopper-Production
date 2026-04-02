@@ -552,7 +552,7 @@ function StatsTab({ badgeCtx, statsByChapter }: { badgeCtx: BadgeContext; statsB
 export default function ProfilePage() {
   const navigate = useNavigate();
   const { profile } = useProfile();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { statsByChapter } = useSmartLearning();
   const [tab, setTab] = useState<ProfileTab>("overview");
   const [subjectTab, setSubjectTab] = useState<"Maths" | "Science">("Maths");
@@ -682,22 +682,75 @@ export default function ProfilePage() {
       {tab === "achievements" && <AchievementsTab earned={earnedBadges} />}
       {tab === "stats" && <StatsTab badgeCtx={badgeCtx} statsByChapter={statsByChapter} />}
 
-      <button
-        type="button"
-        onClick={() => navigate("/dashboard")}
-        style={{
-          marginTop: 24,
-          padding: "10px 20px",
-          borderRadius: 20,
-          border: "none",
-          background: "#f0f0f0",
-          fontWeight: 600,
-          fontSize: 13,
-          cursor: "pointer",
-        }}
-      >
-        Back to Dashboard
-      </button>
+      <div style={{ display: "flex", gap: 10, marginTop: 24 }}>
+        <button
+          type="button"
+          onClick={() => navigate("/dashboard")}
+          style={{
+            flex: 1,
+            padding: "10px 20px",
+            borderRadius: 16,
+            border: "none",
+            background: "#f0f0f0",
+            fontWeight: 700,
+            fontSize: 13,
+            cursor: "pointer",
+          }}
+        >
+          Back to Dashboard
+        </button>
+        {user && (
+          <button
+            type="button"
+            onClick={async () => {
+              try {
+                localStorage.removeItem("lazytopper.streak");
+                await logout();
+              } catch {}
+              window.location.href = "/login";
+            }}
+            style={{
+              padding: "10px 20px",
+              borderRadius: 16,
+              border: "2px solid #e5e5e5",
+              background: "#fff",
+              fontWeight: 700,
+              fontSize: 13,
+              cursor: "pointer",
+              color: "#ff4b4b",
+            }}
+          >
+            Log out
+          </button>
+        )}
+      </div>
+
+      {/* Mode toggle (Beast/Zombie) — relocated from header */}
+      <div style={{ marginTop: 16, padding: "12px 16px", background: "#f7f7f7", borderRadius: 12, border: "2px solid #e5e5e5" }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#3c3c3c", marginBottom: 6 }}>Study Mode</div>
+        <div style={{ display: "flex", gap: 8 }}>
+          {(["beast", "zombie"] as const).map(m => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => {
+                try {
+                  localStorage.setItem("lazytopper.vibeMode", JSON.stringify(m));
+                  window.location.reload();
+                } catch {}
+              }}
+              style={{
+                flex: 1, padding: "8px 0", borderRadius: 10, border: "none",
+                fontWeight: 700, fontSize: 13, cursor: "pointer", textTransform: "capitalize",
+                background: (localStorage.getItem("lazytopper.vibeMode") || "").includes(m) ? "#58cc02" : "#e5e5e5",
+                color: (localStorage.getItem("lazytopper.vibeMode") || "").includes(m) ? "#fff" : "#3c3c3c",
+              }}
+            >
+              {m === "beast" ? "🔥 Beast" : "🧟 Zombie"}
+            </button>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

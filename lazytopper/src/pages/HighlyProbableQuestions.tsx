@@ -642,12 +642,18 @@ const HighlyProbableQuestions: React.FC = () => {
         timeTakenSeconds: 30, // rough default; we can improve later
         attemptedAt: new Date().toISOString(),
       });
-      // (Optional micro-feedback in future: small toast / chip)
       setHpqFeedback((prev) => ({
         ...prev,
         [q.id]: wasCorrect ? "correct" : "incorrect",
       }));
-      // (Optional micro-feedback in future: small toast / chip)
+      if (wasCorrect) {
+        try {
+          const { awardXP, showXPToast, triggerSparkle } = await import("../utils/gamification");
+          awardXP(10);
+          showXPToast(10);
+          triggerSparkle(window.innerWidth / 2, window.innerHeight / 2);
+        } catch {}
+      }
     } catch (err) {
       // Fail silently for now - Smart Learning is a bonus layer, not critical path.
       console.error("Failed to record HPQ attempt", err);

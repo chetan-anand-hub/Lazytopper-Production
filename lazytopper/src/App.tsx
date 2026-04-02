@@ -195,9 +195,29 @@ function BottomNav() {
 export default function App() {
   const [isPaletteOpen, setPaletteOpen] = useState(false);
   const [logoutBusy, setLogoutBusy] = useState(false);
+  const [headerStreak, setHeaderStreak] = useState(0);
   const navigate = useNavigate();
   const { mode, setMode } = useVibeMode();
   const { user, logout } = useAuth();
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("lazytopper.streak");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        setHeaderStreak(Number(parsed?.count || 0));
+      }
+    } catch {}
+    const handler = () => {
+      try {
+        const raw = localStorage.getItem("lazytopper.streak");
+        if (raw) setHeaderStreak(Number(JSON.parse(raw)?.count || 0));
+      } catch {}
+    };
+    window.addEventListener("storage", handler);
+    const interval = setInterval(handler, 5000);
+    return () => { window.removeEventListener("storage", handler); clearInterval(interval); };
+  }, []);
 
   const getSubjectContext = (): { grade: string; subject: string } => {
     const loc = window.location.pathname;
@@ -321,6 +341,21 @@ export default function App() {
           <span style={{ fontWeight: 800, fontSize: "1.1rem", color: "#3c3c3c" }}>LazyTopper</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          {/* Streak counter */}
+          {user && headerStreak > 0 && (
+            <div
+              style={{
+                display: "flex", alignItems: "center", gap: 4,
+                background: "#fff7e6", border: "2px solid #ff9600",
+                borderRadius: 12, padding: "4px 10px",
+                fontWeight: 900, fontSize: "0.85rem", color: "#ff9600",
+              }}
+              title={`${headerStreak} day streak`}
+            >
+              <span>🔥</span>
+              <span>{headerStreak}</span>
+            </div>
+          )}
           <button
             type="button"
             onClick={() => setPaletteOpen(true)}
