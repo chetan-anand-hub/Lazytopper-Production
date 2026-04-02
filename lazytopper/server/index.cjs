@@ -4597,7 +4597,7 @@ function buildMoreLikeThisUserPrompt(payload) {
  */
 async function callGemini(model, finalContents, config) {
   if (!GEMINI_API_KEY) {
-    throw new Error('API_KEY is not set or AI_PROVIDER is not "gemini". Set AI_PROVIDER=gemini and API_KEY in server/.env or environment.');
+    throw new Error('No Gemini auth available. Set AI_INTEGRATIONS_GEMINI_BASE_URL + AI_INTEGRATIONS_GEMINI_API_KEY (Replit proxy), or AI_PROVIDER=gemini and API_KEY in server/.env.');
   }
 
   const buildBody = (includeMimeType) => {
