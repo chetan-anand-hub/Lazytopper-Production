@@ -892,7 +892,7 @@ const HighlyProbableQuestions: React.FC = () => {
       style={{
         minHeight: "100vh",
         background:
-          "radial-gradient(circle at top, #e0f2ff 0, #dde7ff 30%, #e5edff 60%, #f7f7f7 100%)",
+          "linear-gradient(180deg, #f0fdf4 0%, #f7f7f7 100%)",
         paddingBottom: "80px",
       }}
     >

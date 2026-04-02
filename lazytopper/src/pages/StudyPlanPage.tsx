@@ -269,8 +269,8 @@ const StudyPlanPage: React.FC = () => {
         <div
           style={{
             borderRadius: 24,
-            backgroundColor: "rgba(248,250,252,0.98)",
-            border: "1px solid rgba(148,163,184,0.35)",
+            backgroundColor: "#f7f7f7",
+            border: "1px solid rgba(0,0,0,0.08)",
             padding: "18px 20px",
             marginTop: 16,
           }}
@@ -296,9 +296,9 @@ const StudyPlanPage: React.FC = () => {
         style={{
           marginTop: 18,
           borderRadius: 24,
-          backgroundColor: "rgba(248,250,252,0.98)",
-          border: "1px solid rgba(148,163,184,0.35)",
-          boxShadow: "0 22px 50px rgba(148,163,184,0.32)",
+          backgroundColor: "#f7f7f7",
+          border: "1px solid rgba(0,0,0,0.08)",
+          boxShadow: "0 22px 50px rgba(0,0,0,0.06)",
           padding: "20px 22px 18px",
         }}
       >
@@ -347,7 +347,7 @@ const StudyPlanPage: React.FC = () => {
                 style={{
                   borderRadius: 999,
                   padding: "6px 14px",
-                  border: "1px solid rgba(148,163,184,0.5)",
+                  border: "1px solid rgba(0,0,0,0.12)",
                   backgroundColor: meta.chipBg,
                   color: meta.chipText,
                   fontSize: "0.8rem",
@@ -419,7 +419,7 @@ const StudyPlanPage: React.FC = () => {
                   color: "#777777",
                   padding: "4px 10px",
                   borderRadius: 8,
-                  backgroundColor: "rgba(230,236,255,0.6)",
+                  backgroundColor: "rgba(88,204,2,0.08)",
                   marginBottom: 4,
                 }}
               >
@@ -443,7 +443,7 @@ const StudyPlanPage: React.FC = () => {
                         padding: "8px 10px",
                         borderRadius: 14,
                         backgroundColor: "#ffffff",
-                        border: "1px solid rgba(226,232,240,0.9)",
+                        border: "1px solid rgba(0,0,0,0.08)",
                         alignItems: "center",
                         gap: 8,
                       }}
@@ -509,7 +509,7 @@ const StudyPlanPage: React.FC = () => {
                             borderRadius: 999,
                             padding: "4px 10px",
                             fontSize: "0.74rem",
-                            border: "1px solid rgba(59,130,246,0.8)",
+                            border: "1px solid rgba(28,176,246,0.8)",
                             backgroundColor: "#eef2ff",
                             color: "#1cb0f6",
                             cursor: "pointer",
@@ -524,7 +524,7 @@ const StudyPlanPage: React.FC = () => {
                             borderRadius: 999,
                             padding: "4px 10px",
                             fontSize: "0.74rem",
-                            border: "1px solid rgba(147,51,234,0.7)",
+                            border: "1px solid rgba(206,130,255,0.7)",
                             backgroundColor: "#f5f3ff",
                             color: "#6d28d9",
                             cursor: "pointer",
@@ -539,7 +539,7 @@ const StudyPlanPage: React.FC = () => {
                             borderRadius: 999,
                             padding: "4px 10px",
                             fontSize: "0.74rem",
-                            border: "1px solid rgba(34,197,94,0.7)",
+                            border: "1px solid rgba(88,204,2,0.7)",
                             backgroundColor: "#ecfdf3",
                             color: "#15803d",
                             cursor: "pointer",
@@ -614,7 +614,7 @@ const StudyPlanPage: React.FC = () => {
             borderRadius: 32,
             padding: "24px 24px 24px 28px",
             backgroundColor: "#ffffff",
-            boxShadow: "0 24px 60px rgba(148,163,184,0.35)",
+            boxShadow: "0 24px 60px rgba(0,0,0,0.08)",
           }}
         >
           <h1
@@ -683,7 +683,7 @@ const StudyPlanPage: React.FC = () => {
                     backgroundColor: active ? "#1cb0f6" : "transparent",
                     color: active ? "#f9fafb" : "#3c3c3c",
                     boxShadow: active
-                      ? "0 10px 25px rgba(79,70,229,0.45)"
+                      ? "0 10px 25px rgba(88,204,2,0.3)"
                       : "none",
                     transition: "all 0.15s ease-out",
                   }}
