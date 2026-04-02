@@ -173,6 +173,14 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
     category: "accuracy",
     check: (ctx) => ctx.totalQuestions >= 20 && (ctx.totalCorrect / ctx.totalQuestions) >= 0.9,
   },
+  {
+    id: "perfect-set",
+    name: "Flawless",
+    description: "Scored 100% on a practice set (5+ questions)",
+    icon: "✨",
+    category: "practice",
+    check: (ctx) => ctx.perfectSets >= 1,
+  },
 ];
 
 function countMasteryStates(topicKeys: string[]): { mastered: number; started: number } {
@@ -216,6 +224,21 @@ export function buildBadgeContext(): BadgeContext {
     uniqueDays.add(`${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`);
   }
 
+  let perfectSets = 0;
+  const byTopic = new Map<string, { correct: number; total: number }>();
+  for (const a of attempts) {
+    const key = a.topicKey || "unknown";
+    const e = byTopic.get(key) || { correct: 0, total: 0 };
+    e.total++;
+    if (a.correct) e.correct++;
+    byTopic.set(key, e);
+  }
+  for (const [, v] of byTopic) {
+    if (v.total >= 5 && v.correct === v.total) {
+      perfectSets++;
+    }
+  }
+
   return {
     streak,
     totalQuestions,
@@ -223,7 +246,7 @@ export function buildBadgeContext(): BadgeContext {
     topicsMastered: mastered,
     topicsStarted: started,
     totalTopics: ALL_TOPIC_KEYS.length,
-    perfectSets: 0,
+    perfectSets,
     daysActive: uniqueDays.size,
   };
 }
