@@ -280,6 +280,7 @@ export default function TopicHub() {
         isCorrect,
         timeTakenSeconds: 0,
         source: "other",
+        attemptedAt: new Date().toISOString(),
       });
     },
     [smartLearning, chapterId, grade, subjectTitle]
