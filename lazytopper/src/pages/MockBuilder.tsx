@@ -110,15 +110,15 @@ const difficultyChipStyle: Record<
   React.CSSProperties
 > = {
   Easy: {
-    background: "rgba(34,197,94,0.12)",
+    background: "rgba(88,204,2,0.12)",
     color: "#16a34a",
   },
   Medium: {
-    background: "rgba(234,179,8,0.12)",
+    background: "rgba(255,150,0,0.12)",
     color: "#b45309",
   },
   Hard: {
-    background: "rgba(248,113,113,0.12)",
+    background: "rgba(255,75,75,0.12)",
     color: "#dc2626",
   },
 };
@@ -481,7 +481,7 @@ const MockBuilder: React.FC = () => {
             borderRadius: 999,
             background: "#3c3c3c",
             boxShadow: "0 12px 30px rgba(0,0,0,0.3)",
-            border: "1px solid rgba(148,163,184,0.5)",
+            border: "1px solid rgba(0,0,0,0.08)",
             gap: 4,
           }}
         >
@@ -519,7 +519,7 @@ const MockBuilder: React.FC = () => {
           borderRadius: 32,
           padding: "22px 22px 24px",
           background:
-            "linear-gradient(135deg,#58cc02,rgba(37,99,235,0.95))",
+            "linear-gradient(135deg,#58cc02,rgba(28,176,246,0.95))",
           color: "#e5e7eb",
           boxShadow: "0 26px 70px rgba(88,204,2,0.4)",
           marginBottom: 18,
@@ -567,7 +567,7 @@ const MockBuilder: React.FC = () => {
           background: "#58cc02",
           color: "#e5e7eb",
           boxShadow: "0 20px 55px rgba(0,0,0,0.35)",
-          border: "1px solid rgba(148,163,184,0.35)",
+          border: "1px solid rgba(0,0,0,0.08)",
           marginBottom: 20,
         }}
       >
@@ -622,7 +622,7 @@ const MockBuilder: React.FC = () => {
               borderRadius: 26,
               padding: "16px 18px 14px",
               background: "#f9fafb",
-              boxShadow: "0 18px 40px rgba(148,163,184,0.35)",
+              boxShadow: "0 18px 40px rgba(0,0,0,0.08)",
               border: "1px solid #e5e7eb",
               marginBottom: 16,
             }}

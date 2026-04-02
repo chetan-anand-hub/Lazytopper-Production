@@ -1115,8 +1115,8 @@ const TrendsPage: React.FC = () => {
                                 style={{
                                   borderRadius: 10,
                                   padding: "6px 10px",
-                                  border: "1px solid rgba(234,88,12,0.6)",
-                                  background: "rgba(255,237,213,0.95)",
+                                  border: "1px solid rgba(255,150,0,0.5)",
+                                  background: "rgba(255,150,0,0.08)",
                                   fontSize: "0.74rem",
                                   color: "#c2410c",
                                   cursor: "pointer",
@@ -1242,9 +1242,9 @@ const TrendsPage: React.FC = () => {
               style={{
                 borderRadius: 24,
                 padding: "14px 18px",
-                border: "1px solid rgba(129,140,248,0.5)",
+                border: "1px solid rgba(28,176,246,0.4)",
                 background:
-                  "linear-gradient(135deg, rgba(239,246,255,0.95), rgba(224,231,255,0.95))",
+                  "linear-gradient(135deg, rgba(28,176,246,0.06), rgba(28,176,246,0.08))",
                 textAlign: "left",
                 cursor: "pointer",
                 boxShadow: "0 12px 26px rgba(28,176,246,0.35)",
@@ -1334,7 +1334,7 @@ const TrendsPage: React.FC = () => {
                 padding: "14px 18px",
                 border: "1px solid rgba(88,204,2,0.5)",
                 background:
-                  "linear-gradient(135deg, rgba(236,253,245,0.96), rgba(209,250,229,0.96))",
+                  "linear-gradient(135deg, rgba(88,204,2,0.06), rgba(88,204,2,0.08))",
                 textAlign: "left",
                 cursor: "pointer",
                 boxShadow: "0 12px 26px rgba(88,204,2,0.3)",

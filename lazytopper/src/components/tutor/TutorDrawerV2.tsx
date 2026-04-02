@@ -195,33 +195,33 @@ const masteryMeta: Record<
 > = {
   unseen: {
     label: "Unseen",
-    bg: "rgba(148,163,184,0.16)",
-    color: "rgba(30,41,59,0.9)",
-    border: "rgba(148,163,184,0.35)",
+    bg: "rgba(0,0,0,0.08)",
+    color: "#3c3c3c",
+    border: "rgba(0,0,0,0.08)",
   },
   learning: {
     label: "Learning",
-    bg: "rgba(59,130,246,0.12)",
-    color: "rgba(30,64,175,0.95)",
-    border: "rgba(59,130,246,0.35)",
+    bg: "rgba(28,176,246,0.15)",
+    color: "#0a6daa",
+    border: "rgba(28,176,246,0.15)",
   },
   checkpoint_passed: {
     label: "Checkpoint Passed",
-    bg: "rgba(14,165,233,0.12)",
-    color: "rgba(12,74,110,0.95)",
-    border: "rgba(14,165,233,0.35)",
+    bg: "rgba(28,176,246,0.15)",
+    color: "#0a6daa",
+    border: "rgba(28,176,246,0.15)",
   },
   needs_practice: {
     label: "Needs Practice",
-    bg: "rgba(245,158,11,0.16)",
-    color: "rgba(146,64,14,0.95)",
-    border: "rgba(245,158,11,0.40)",
+    bg: "rgba(255,150,0,0.15)",
+    color: "#b86800",
+    border: "rgba(255,150,0,0.15)",
   },
   mastered: {
     label: "Mastered",
-    bg: "rgba(34,197,94,0.14)",
-    color: "rgba(20,83,45,0.95)",
-    border: "rgba(34,197,94,0.38)",
+    bg: "rgba(88,204,2,0.15)",
+    color: "#2d7a00",
+    border: "rgba(88,204,2,0.15)",
   },
 };
 
@@ -1434,13 +1434,13 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
       maxWidth: "82%",
       borderRadius: 14,
       padding: "10px 12px",
-      border: role === "assistant" ? "1px solid rgba(0,0,0,0.10)" : "1px solid rgba(59,130,246,0.35)",
+      border: role === "assistant" ? "1px solid rgba(0,0,0,0.10)" : "1px solid rgba(28,176,246,0.15)",
       background:
         role === "assistant"
           ? tone === "warn"
-            ? "rgba(245,158,11,0.10)"
+            ? "rgba(255,150,0,0.15)"
             : "rgba(255,255,255,0.92)"
-          : "rgba(59,130,246,0.12)",
+          : "rgba(28,176,246,0.15)",
     });
     const previewIdeas = view.keyIdeas.slice(0, 2);
     const exampleSteps = view.workedSteps.slice(0, 2);
@@ -1491,7 +1491,7 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
               style={{
                 borderRadius: 12,
                 padding: "10px 12px",
-                background: "rgba(248,250,252,0.95)",
+                background: "#f7f7f7",
                 border: "1px solid rgba(0,0,0,0.02)",
               }}
             >
@@ -1515,7 +1515,7 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
               style={{
                 borderRadius: 12,
                 padding: "10px 12px",
-                background: "rgba(248,250,252,0.95)",
+                background: "#f7f7f7",
                 border: "1px solid rgba(0,0,0,0.02)",
               }}
             >
@@ -1530,8 +1530,8 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
               style={{
                 borderRadius: 12,
                 padding: "10px 12px",
-                background: "rgba(254,249,195,0.45)",
-                border: "1px solid rgba(202,138,4,0.18)",
+                background: "rgba(255,200,0,0.15)",
+                border: "1px solid rgba(255,150,0,0.2)",
               }}
             >
               <div style={{ fontWeight: 800, marginBottom: 6 }}>Watch out</div>
@@ -1564,7 +1564,7 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
                 style={{
                   borderRadius: 12,
                   padding: "10px 12px",
-                  background: "rgba(248,250,252,0.95)",
+                  background: "#f7f7f7",
                   border: "1px solid rgba(0,0,0,0.02)",
                 }}
               >
@@ -1592,7 +1592,7 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
                 style={{
                   borderRadius: 12,
                   padding: "10px 12px",
-                  background: "rgba(248,250,252,0.95)",
+                  background: "#f7f7f7",
                   border: "1px solid rgba(0,0,0,0.02)",
                 }}
               >
@@ -1899,8 +1899,8 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
               marginTop: 10,
               borderRadius: 12,
               padding: "8px 10px",
-              border: "1px solid rgba(14,165,233,0.35)",
-              background: "rgba(14,165,233,0.10)",
+              border: "1px solid rgba(28,176,246,0.15)",
+              background: "rgba(28,176,246,0.15)",
               fontSize: 12,
             }}
           >
@@ -1914,8 +1914,8 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
               marginTop: 10,
               borderRadius: 12,
               padding: "10px 12px",
-              border: "1px solid rgba(245,158,11,0.45)",
-              background: "rgba(245,158,11,0.12)",
+              border: "1px solid rgba(255,150,0,0.15)",
+              background: "rgba(255,150,0,0.15)",
             }}
           >
             <div style={{ fontWeight: 800 }}>Checkpoint not yet passed for this node.</div>
@@ -2151,7 +2151,7 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
                   type="button"
                   className="lt-pill"
                   onClick={() => setFeedbackChoice("yes")}
-                  style={{ background: feedbackChoice === "yes" ? "rgba(34,197,94,0.15)" : "white" }}
+                  style={{ background: feedbackChoice === "yes" ? "rgba(88,204,2,0.15)" : "white" }}
                 >
                   Yes
                 </button>
@@ -2159,7 +2159,7 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
                   type="button"
                   className="lt-pill"
                   onClick={() => setFeedbackChoice("no")}
-                  style={{ background: feedbackChoice === "no" ? "rgba(239,68,68,0.15)" : "white" }}
+                  style={{ background: feedbackChoice === "no" ? "rgba(255,75,75,0.12)" : "white" }}
                 >
                   No
                 </button>

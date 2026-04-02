@@ -1137,8 +1137,8 @@ Give me hint level ${targetLevel} only (keep it short).`
             marginBottom: 10,
             padding: 10,
             borderRadius: 14,
-            border: "1px solid rgba(148,163,184,0.3)",
-            background: "rgba(248,250,252,0.92)",
+            border: "1px solid rgba(0,0,0,0.08)",
+            background: "#f7f7f7",
           }}
         >
           <div
@@ -1188,7 +1188,7 @@ Give me hint level ${targetLevel} only (keep it short).`
                   maxHeight: 180,
                   display: "block",
                   borderRadius: 12,
-                  border: "1px solid rgba(148,163,184,0.35)",
+                  border: "1px solid rgba(0,0,0,0.08)",
                   objectFit: "cover",
                 }}
               />

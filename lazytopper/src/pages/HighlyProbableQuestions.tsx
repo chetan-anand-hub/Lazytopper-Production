@@ -1167,7 +1167,7 @@ const HighlyProbableQuestions: React.FC = () => {
                     style={{
                       borderRadius: 999,
                       padding: "4px 10px",
-                      border: "1px dashed rgba(248,250,252,0.7)",
+                      border: "1px dashed rgba(0,0,0,0.06)",
                       background: "rgba(0,0,0,0.1)",
                       color: "#e5e7eb",
                       cursor: "pointer",
@@ -1542,15 +1542,15 @@ const HighlyProbableQuestions: React.FC = () => {
                       backgroundColor: "rgba(255,255,255,0.95)",
                       border:
                         tier === "must-crack"
-                          ? "1px solid rgba(248,113,113,0.7)"
+                          ? "1px solid rgba(255,75,75,0.6)"
                           : tier === "high-roi"
-                          ? "1px solid rgba(129,140,248,0.7)"
+                          ? "1px solid rgba(28,176,246,0.5)"
                           : "1px solid rgba(0,0,0,0.15)",
                       boxShadow:
                         tier === "must-crack"
-                          ? "0 14px 30px rgba(248,113,113,0.35)"
+                          ? "0 14px 30px rgba(255,75,75,0.2)"
                           : tier === "high-roi"
-                          ? "0 14px 30px rgba(129,140,248,0.35)"
+                          ? "0 14px 30px rgba(28,176,246,0.25)"
                           : "0 10px 24px rgba(0,0,0,0.15)",
                     }}
                   >
@@ -1674,8 +1674,8 @@ const HighlyProbableQuestions: React.FC = () => {
                               borderRadius: 999,
                               padding: "4px 10px",
                               border:
-                                "1px solid rgba(34,197,94,0.6)",
-                              background: "rgba(220,252,231,0.95)",
+                                "1px solid rgba(88,204,2,0.5)",
+                              background: "rgba(88,204,2,0.1)",
                               fontSize: "0.75rem",
                               color: "#15803d",
                               cursor: "pointer",
@@ -1763,7 +1763,7 @@ const HighlyProbableQuestions: React.FC = () => {
                             backgroundColor:
                               "rgba(255,255,255,0.95)",
                             border:
-                              "1px solid rgba(203,213,225,0.8)",
+                              "1px solid rgba(0,0,0,0.12)",
                           }}
                         >
                           {renderQuestionMetaChips(q)}
@@ -1929,7 +1929,7 @@ const HighlyProbableQuestions: React.FC = () => {
                                   border:
                                     feedback === "correct"
                                       ? "1px solid #16a34a"
-                                      : "1px solid rgba(22,163,74,0.6)",
+                                      : "1px solid rgba(88,204,2,0.5)",
                                   backgroundColor:
                                     feedback === "correct"
                                       ? "#16a34a"
@@ -1955,7 +1955,7 @@ const HighlyProbableQuestions: React.FC = () => {
                                   border:
                                     feedback === "incorrect"
                                       ? "1px solid #ea580c"
-                                      : "1px solid rgba(234,179,8,0.7)",
+                                      : "1px solid rgba(255,150,0,0.6)",
                                   backgroundColor:
                                     feedback === "incorrect"
                                       ? "#ea580c"
@@ -1987,7 +1987,7 @@ const HighlyProbableQuestions: React.FC = () => {
                                   borderRadius: 999,
                                   border: solutionOpen[q.id]
                                     ? "1px solid #1cb0f6"
-                                    : "1px solid rgba(59,130,246,0.8)",
+                                    : "1px solid rgba(28,176,246,0.5)",
                                   padding: "4px 10px",
                                   fontSize: "0.75rem",
                                   background: solutionOpen[q.id]
@@ -2005,10 +2005,10 @@ const HighlyProbableQuestions: React.FC = () => {
                                 onClick={() => handleMoreLikeThisPractice(bucket, q)}
                                 style={{
                                   borderRadius: 999,
-                                  border: "1px solid rgba(59,130,246,0.7)",
+                                  border: "1px solid rgba(28,176,246,0.5)",
                                   padding: "4px 10px",
                                   fontSize: "0.75rem",
-                                  background: "rgba(239,246,255,0.6)",
+                                  background: "rgba(28,176,246,0.06)",
                                   color: "#1cb0f6",
                                   cursor: "pointer",
                                   whiteSpace: "nowrap",
@@ -2026,12 +2026,12 @@ const HighlyProbableQuestions: React.FC = () => {
                                 style={{
                                   borderRadius: 999,
                                   border: isInBasket(q.id)
-                                    ? "1px solid rgba(79,70,229,0.85)"
+                                    ? "1px solid rgba(88,204,2,0.8)"
                                     : "1px solid rgba(0,0,0,0.15)",
                                   padding: "4px 10px",
                                   fontSize: "0.75rem",
                                   background: isInBasket(q.id)
-                                    ? "rgba(79,70,229,0.08)"
+                                    ? "rgba(88,204,2,0.06)"
                                     : "#ffffff",
                                   color: isInBasket(q.id) ? "#3730a3" : "#3c3c3c",
                                   cursor: isInBasket(q.id) ? "default" : "pointer",
@@ -2048,7 +2048,7 @@ const HighlyProbableQuestions: React.FC = () => {
                                 style={{
                                   marginTop: 10,
                                   padding: "14px 16px",
-                                  border: "1px solid rgba(59,130,246,0.3)",
+                                  border: "1px solid rgba(28,176,246,0.5)",
                                   borderRadius: 10,
                                   background: "linear-gradient(135deg, #f0f9ff 0%, #eff6ff 100%)",
                                 }}
@@ -2239,8 +2239,8 @@ const HighlyProbableQuestions: React.FC = () => {
                                         width: "100%",
                                         padding: "10px 14px",
                                         borderRadius: 10,
-                                        border: "1px solid rgba(139,92,246,0.3)",
-                                        background: "linear-gradient(135deg, rgba(245,243,255,0.9), rgba(237,233,254,0.7))",
+                                        border: "1px solid rgba(206,130,255,0.3)",
+                                        background: "linear-gradient(135deg, rgba(206,130,255,0.06), rgba(206,130,255,0.08))",
                                         color: "#6d28d9",
                                         fontSize: "0.82rem",
                                         fontWeight: 600,

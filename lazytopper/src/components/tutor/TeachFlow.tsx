@@ -833,7 +833,7 @@ const s: Record<string, React.CSSProperties> = {
   startBtn: {
     background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)", color: "white", border: "none",
     borderRadius: 10, padding: "12px 32px", fontSize: 15, fontWeight: 600, cursor: "pointer",
-    transition: "transform 0.2s, box-shadow 0.2s", boxShadow: "0 2px 8px rgba(99,102,241,0.3)",
+    transition: "transform 0.2s, box-shadow 0.2s", boxShadow: "0 2px 8px rgba(28,176,246,0.2)",
   },
 
   chatHeader: {

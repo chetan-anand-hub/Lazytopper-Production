@@ -1526,9 +1526,9 @@ const packTopicKey = useMemo(() => {
             style={{
               marginBottom: 12,
               borderRadius: 16,
-              border: "1px solid rgba(59,130,246,0.28)",
-              background: "rgba(239,246,255,0.82)",
-              boxShadow: "0 8px 22px rgba(148,163,184,0.22)",
+              border: "1px solid rgba(28,176,246,0.28)",
+              background: "rgba(28,176,246,0.06)",
+              boxShadow: "0 8px 22px rgba(0,0,0,0.06)",
               overflow: "hidden",
             }}
           >
@@ -1543,8 +1543,8 @@ const packTopicKey = useMemo(() => {
                 justifyContent: "space-between",
                 gap: 8,
                 border: "none",
-                borderBottom: isWhyPanelOpen ? "1px solid rgba(59,130,246,0.2)" : "none",
-                background: "rgba(219,234,254,0.7)",
+                borderBottom: isWhyPanelOpen ? "1px solid rgba(28,176,246,0.2)" : "none",
+                background: "rgba(28,176,246,0.08)",
                 color: "#1e3a8a",
                 padding: "10px 12px",
                 cursor: "pointer",
@@ -1572,9 +1572,9 @@ const packTopicKey = useMemo(() => {
                             fontSize: "0.73rem",
                             borderRadius: 999,
                             padding: "3px 9px",
-                            background: "rgba(30,64,175,0.12)",
+                            background: "rgba(28,176,246,0.12)",
                             color: "#1e40af",
-                            border: "1px solid rgba(30,64,175,0.2)",
+                            border: "1px solid rgba(28,176,246,0.2)",
                           }}
                         >
                           Skill: {activeQuestionMeta.skillFamily}
@@ -1586,9 +1586,9 @@ const packTopicKey = useMemo(() => {
                             fontSize: "0.73rem",
                             borderRadius: 999,
                             padding: "3px 9px",
-                            background: "rgba(14,116,144,0.12)",
+                            background: "rgba(88,204,2,0.12)",
                             color: "#155e75",
-                            border: "1px solid rgba(14,116,144,0.2)",
+                            border: "1px solid rgba(88,204,2,0.2)",
                           }}
                         >
                           CBSE format: {activeQuestionMeta.cbseFormat}
@@ -1633,8 +1633,8 @@ const packTopicKey = useMemo(() => {
                         <div
                           style={{
                             borderRadius: 10,
-                            border: "1px solid rgba(14,116,144,0.2)",
-                            background: "rgba(236,254,255,0.75)",
+                            border: "1px solid rgba(88,204,2,0.2)",
+                            background: "rgba(28,176,246,0.06)",
                             padding: "8px 10px",
                             fontSize: "0.78rem",
                             color: "#164e63",
@@ -1713,8 +1713,8 @@ const packTopicKey = useMemo(() => {
                       borderRadius: 18,
                       padding: "14px 16px 12px",
                       backgroundColor: "#f9fafb",
-                      border: "1px solid rgba(148,163,184,0.35)",
-                      boxShadow: "0 10px 24px rgba(148,163,184,0.25)",
+                      border: "1px solid rgba(0,0,0,0.08)",
+                      boxShadow: "0 10px 24px rgba(0,0,0,0.08)",
                     }}
                   >
                     <header
@@ -1842,9 +1842,9 @@ const packTopicKey = useMemo(() => {
                         style={{
                           borderRadius: 999,
                           padding: "5px 12px",
-                          border: "1px solid rgba(37,99,235,0.6)",
+                          border: "1px solid rgba(28,176,246,0.5)",
                           backgroundColor: isOpen
-                            ? "rgba(239,246,255,0.9)"
+                            ? "rgba(28,176,246,0.06)"
                             : "#eff6ff",
                           fontSize: "0.78rem",
                           color: "#1cb0f6",
@@ -1947,8 +1947,8 @@ const packTopicKey = useMemo(() => {
                                 width: "100%",
                                 padding: "10px 14px",
                                 borderRadius: 10,
-                                border: "1px solid rgba(139,92,246,0.3)",
-                                background: "linear-gradient(135deg, rgba(245,243,255,0.9), rgba(237,233,254,0.7))",
+                                border: "1px solid rgba(206,130,255,0.3)",
+                                background: "linear-gradient(135deg, rgba(206,130,255,0.06), rgba(206,130,255,0.08))",
                                 color: "#6d28d9",
                                 fontSize: "0.82rem",
                                 fontWeight: 600,
@@ -1980,7 +1980,7 @@ const packTopicKey = useMemo(() => {
                           gap: 8,
                           marginTop: 10,
                           padding: "10px 0 2px",
-                          borderTop: "1px solid rgba(148,163,184,0.2)",
+                          borderTop: "1px solid rgba(0,0,0,0.08)",
                         }}
                       >
                         <span style={{ fontSize: "0.78rem", color: "#777777", alignSelf: "center" }}>
@@ -2002,7 +2002,7 @@ const packTopicKey = useMemo(() => {
                           style={{
                             borderRadius: 999,
                             padding: "4px 14px",
-                            border: "1px solid rgba(34,197,94,0.6)",
+                            border: "1px solid rgba(88,204,2,0.4)",
                             backgroundColor: "#f0fdf4",
                             fontSize: "0.76rem",
                             color: "#166534",
@@ -2062,7 +2062,7 @@ const packTopicKey = useMemo(() => {
                           style={{
                             borderRadius: 999,
                             padding: "4px 14px",
-                            border: "1px solid rgba(239,68,68,0.5)",
+                            border: "1px solid rgba(255,75,75,0.45)",
                             backgroundColor: "#fef2f2",
                             fontSize: "0.76rem",
                             color: "#991b1b",
@@ -2102,7 +2102,7 @@ const packTopicKey = useMemo(() => {
                   padding: "12px 16px",
                   borderRadius: 16,
                   background: "linear-gradient(135deg, #f0fdf4, #ecfdf5)",
-                  border: "1px solid rgba(34,197,94,0.3)",
+                  border: "1px solid rgba(88,204,2,0.4)",
                   display: "flex",
                   gap: 16,
                   flexWrap: "wrap",
@@ -2756,7 +2756,7 @@ function MentorSolveDrawer(props: {
       style={{
         position: "fixed",
         inset: 0,
-        background: "rgba(2,6,23,0.55)",
+        background: "rgba(0,0,0,0.5)",
         zIndex: 60,
         display: "flex",
         alignItems: "flex-end",
@@ -2775,7 +2775,7 @@ function MentorSolveDrawer(props: {
           borderRadius: 22,
           background: "rgba(255,255,255,0.92)",
           border: "1px solid rgba(255,255,255,0.35)",
-          boxShadow: "0 30px 90px rgba(2,6,23,0.35)",
+          boxShadow: "0 30px 90px rgba(0,0,0,0.2)",
           display: "flex",
           flexDirection: "column",
         }}
@@ -2853,8 +2853,8 @@ function MentorSolveDrawer(props: {
                   marginBottom: 12,
                   padding: 12,
                   borderRadius: 16,
-                  background: "rgba(238,242,255,0.92)",
-                  border: "1px solid rgba(99,102,241,0.28)",
+                  background: "rgba(28,176,246,0.06)",
+                  border: "1px solid rgba(28,176,246,0.2)",
                 }}
               >
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
@@ -2882,7 +2882,7 @@ function MentorSolveDrawer(props: {
                         padding: 10,
                         borderRadius: 14,
                         background: "rgba(255,255,255,0.85)",
-                        border: "1px solid rgba(148,163,184,0.28)",
+                        border: "1px solid rgba(0,0,0,0.08)",
                       }}
                     >
                       <div style={{ display: "flex", gap: 8, alignItems: "baseline" }}>
@@ -2938,8 +2938,8 @@ function MentorSolveDrawer(props: {
                       gap: 10,
                       padding: 12,
                       borderRadius: 16,
-                      background: "rgba(248,250,252,0.9)",
-                      border: "1px solid rgba(148,163,184,0.35)",
+                      background: "#f7f7f7",
+                      border: "1px solid rgba(0,0,0,0.08)",
                     }}
                   >
                     {bodyText ? (
@@ -2992,8 +2992,8 @@ function MentorSolveDrawer(props: {
                 marginTop: 12,
                 padding: 12,
                 borderRadius: 14,
-                background: "rgba(248,250,252,0.9)",
-                border: "1px solid rgba(148,163,184,0.32)",
+                background: "#f7f7f7",
+                border: "1px solid rgba(0,0,0,0.08)",
               }}
             >
               <input
@@ -3048,7 +3048,7 @@ function MentorSolveDrawer(props: {
                     maxHeight: 180,
                     display: "block",
                     borderRadius: 12,
-                    border: "1px solid rgba(148,163,184,0.35)",
+                    border: "1px solid rgba(0,0,0,0.08)",
                     objectFit: "cover",
                   }}
                 />

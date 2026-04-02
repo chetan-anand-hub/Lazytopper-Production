@@ -118,7 +118,7 @@ export default function WeeklyWrappedPage() {
             alignItems: "center",
             gap: 8,
             padding: "6px 14px",
-            background: streakDays > 0 ? "linear-gradient(135deg, #fff7ed, #ffedd5)" : "#f1f5f9",
+            background: streakDays > 0 ? "linear-gradient(135deg, #fff9ed, #fff4d4)" : "#f7f7f7",
             borderRadius: 999,
             fontWeight: 800,
             fontSize: 14,
@@ -140,9 +140,9 @@ export default function WeeklyWrappedPage() {
             marginTop: 24,
             padding: 32,
             textAlign: "center",
-            background: "linear-gradient(135deg, #f8fafc, #f1f5f9)",
+            background: "linear-gradient(135deg, #f7f7f7, #f7f7f7)",
             borderRadius: 20,
-            border: "1px solid #e2e8f0",
+            border: "1px solid #e5e5e5",
           }}
         >
           <div style={{ fontSize: 48, marginBottom: 12 }}>📚</div>
@@ -156,7 +156,7 @@ export default function WeeklyWrappedPage() {
             style={{
               marginTop: 16,
               padding: "10px 24px",
-              background: "#2563eb",
+              background: "#1cb0f6",
               color: "#fff",
               border: "none",
               borderRadius: 10,
@@ -173,7 +173,7 @@ export default function WeeklyWrappedPage() {
           style={{
             marginTop: 24,
             padding: 28,
-            background: "linear-gradient(135deg, #667eea, #764ba2)",
+            background: "linear-gradient(135deg, #58cc02, #46a302)",
             borderRadius: 20,
             color: "#fff",
             textAlign: "center",
@@ -239,7 +239,7 @@ export default function WeeklyWrappedPage() {
                 style={{
                   padding: "14px 12px",
                   background: "#fff",
-                  border: "1px solid #e2e8f0",
+                  border: "1px solid #e5e5e5",
                   borderRadius: 14,
                   textAlign: "center",
                 }}
@@ -266,16 +266,16 @@ export default function WeeklyWrappedPage() {
                   flex: 1,
                   minWidth: 200,
                   padding: 16,
-                  background: "linear-gradient(135deg, #fef3c7, #fde68a)",
+                  background: "linear-gradient(135deg, #fff4d4, #ffe699)",
                   borderRadius: 14,
-                  border: "1px solid #fcd34d",
+                  border: "1px solid #ffcc00",
                 }}
               >
-                <div style={{ fontSize: 13, fontWeight: 800, color: "#92400e" }}>🎯 Next Week's Focus</div>
-                <div style={{ fontSize: 16, fontWeight: 700, marginTop: 6, textTransform: "capitalize", color: "#78350f" }}>
+                <div style={{ fontSize: 13, fontWeight: 800, color: "#b86800" }}>🎯 Next Week's Focus</div>
+                <div style={{ fontSize: 16, fontWeight: 700, marginTop: 6, textTransform: "capitalize", color: "#b86800" }}>
                   {(focusArea.topicName || focusArea.topicKey).replace(/-/g, " ")}
                 </div>
-                <div style={{ fontSize: 12, opacity: 0.8, marginTop: 4, color: "#92400e" }}>
+                <div style={{ fontSize: 12, opacity: 0.8, marginTop: 4, color: "#b86800" }}>
                   {Math.round(focusArea.accuracy * 100)}% accuracy — extra practice here will pay off big!
                 </div>
                 <button
@@ -284,7 +284,7 @@ export default function WeeklyWrappedPage() {
                   style={{
                     marginTop: 10,
                     padding: "6px 16px",
-                    background: "#92400e",
+                    background: "#b86800",
                     color: "#fff",
                     border: "none",
                     borderRadius: 8,
@@ -304,16 +304,16 @@ export default function WeeklyWrappedPage() {
                   flex: 1,
                   minWidth: 200,
                   padding: 16,
-                  background: "linear-gradient(135deg, #f0f9ff, #e0f2fe)",
+                  background: "linear-gradient(135deg, #e8f8ff, #d1efff)",
                   borderRadius: 14,
-                  border: "1px solid #bae6fd",
+                  border: "1px solid #a3d9ff",
                 }}
               >
-                <div style={{ fontSize: 13, fontWeight: 800, color: "#0c4a6e" }}>🔥 Streak Goal</div>
-                <div style={{ fontSize: 16, fontWeight: 700, marginTop: 6, color: "#075985" }}>
+                <div style={{ fontSize: 13, fontWeight: 800, color: "#0a6daa" }}>🔥 Streak Goal</div>
+                <div style={{ fontSize: 16, fontWeight: 700, marginTop: 6, color: "#0a6daa" }}>
                   {nextBadge.name}
                 </div>
-                <div style={{ fontSize: 12, opacity: 0.8, marginTop: 4, color: "#0c4a6e" }}>
+                <div style={{ fontSize: 12, opacity: 0.8, marginTop: 4, color: "#0a6daa" }}>
                   {nextBadge.requiredDays - streakDays} more day{nextBadge.requiredDays - streakDays !== 1 ? "s" : ""} to unlock!
                 </div>
               </div>
@@ -327,7 +327,7 @@ export default function WeeklyWrappedPage() {
               disabled={shareStatus === "copying"}
               style={{
                 padding: "10px 24px",
-                background: shareStatus === "copied" ? "#22c55e" : "#2563eb",
+                background: shareStatus === "copied" ? "#58cc02" : "#1cb0f6",
                 color: "#fff",
                 border: "none",
                 borderRadius: 10,
@@ -353,11 +353,11 @@ export default function WeeklyWrappedPage() {
           style={{
             padding: "8px 20px",
             background: "transparent",
-            border: "1px solid #e2e8f0",
+            border: "1px solid #e5e5e5",
             borderRadius: 10,
             fontWeight: 600,
             fontSize: 13,
-            color: "#64748b",
+            color: "#afafaf",
             cursor: "pointer",
           }}
         >

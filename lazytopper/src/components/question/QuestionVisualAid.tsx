@@ -219,9 +219,9 @@ export function QuestionVisualAid(props: QuestionVisualAidProps): React.ReactEle
   return (
     <div
       style={{
-        border: "1px solid rgba(148,163,184,0.45)",
+        border: "1px solid rgba(0,0,0,0.08)",
         borderRadius: 12,
-        background: "rgba(241,245,249,0.8)",
+        background: "#f7f7f7",
         padding: "8px 10px",
         marginBottom: 8,
       }}

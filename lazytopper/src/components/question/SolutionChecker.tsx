@@ -99,8 +99,8 @@ export function SolutionChecker({ question, marks, subject, topic }: SolutionChe
       marginTop: 12,
       padding: "14px 16px",
       borderRadius: 14,
-      border: "1px solid rgba(139,92,246,0.25)",
-      background: "linear-gradient(135deg, rgba(250,245,255,0.6), rgba(243,232,255,0.3))",
+      border: "1px solid rgba(206,130,255,0.3)",
+      background: "linear-gradient(135deg, rgba(206,130,255,0.06), rgba(206,130,255,0.04))",
     }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
         <span style={{ fontSize: "1.1rem" }}>{"\uD83D\uDCF8"}</span>
@@ -128,7 +128,7 @@ export function SolutionChecker({ question, marks, subject, topic }: SolutionChe
             width: "100%",
             padding: "16px 14px",
             borderRadius: 12,
-            border: "2px dashed rgba(139,92,246,0.35)",
+            border: "2px dashed rgba(206,130,255,0.3)",
             background: "rgba(255,255,255,0.7)",
             color: "#7c3aed",
             fontSize: "0.82rem",
@@ -328,7 +328,7 @@ export function SolutionChecker({ question, marks, subject, topic }: SolutionChe
               width: "100%",
               padding: "8px 12px",
               borderRadius: 8,
-              border: "1px solid rgba(139,92,246,0.3)",
+              border: "1px solid rgba(206,130,255,0.3)",
               background: "rgba(255,255,255,0.8)",
               color: "#7c3aed",
               fontSize: "0.78rem",

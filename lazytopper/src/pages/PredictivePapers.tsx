@@ -93,7 +93,7 @@ const PredictivePapersPage: React.FC = () => {
                 background: "#f9fafb",
                 border: "1px solid #e5e7eb",
                 cursor: "pointer",
-                boxShadow: "0 18px 40px rgba(148,163,184,0.3)",
+                boxShadow: "0 18px 40px rgba(0,0,0,0.08)",
                 display: "flex",
                 flexDirection: "column",
                 gap: 6,

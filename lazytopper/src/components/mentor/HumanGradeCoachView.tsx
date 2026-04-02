@@ -163,7 +163,7 @@ export const HumanGradeCoachView: React.FC<HumanGradeCoachViewProps> = ({
         ) : null}
 
         {watchOut ? (
-          <div style={compact ? { padding: "8px 10px", borderRadius: 10, background: "rgba(254,249,195,0.5)", border: "1px solid rgba(202,138,4,0.18)" } : { padding: "10px 12px", borderRadius: 12, background: "rgba(254,249,195,0.5)", border: "1px solid rgba(202,138,4,0.18)" }}>
+          <div style={compact ? { padding: "8px 10px", borderRadius: 10, background: "rgba(255,200,0,0.15)", border: "1px solid rgba(255,150,0,0.2)" } : { padding: "10px 12px", borderRadius: 12, background: "rgba(255,200,0,0.15)", border: "1px solid rgba(255,150,0,0.2)" }}>
             <div style={{ fontWeight: compact ? 700 : 800, marginBottom: 4 }}>Watch out</div>
             <div style={{ lineHeight: 1.5 }}>{watchOut}</div>
             {watchOutFix ? (

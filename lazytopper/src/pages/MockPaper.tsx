@@ -273,7 +273,7 @@ const MockPaperPage: React.FC = () => {
                   fontSize: "0.8rem",
                   fontWeight: 600,
                   cursor: "pointer",
-                  boxShadow: "0 12px 30px rgba(34,197,94,0.35)",
+                  boxShadow: "0 12px 30px rgba(88,204,2,0.25)",
                 }}
               >
                 🖨️ Print paper / Download PDF
@@ -305,7 +305,7 @@ const MockPaperPage: React.FC = () => {
             borderRadius: 24,
             border: "1px solid #e5e7eb",
             padding: "20px 22px 26px",
-            boxShadow: "0 20px 45px rgba(148,163,184,0.35)",
+            boxShadow: "0 20px 45px rgba(0,0,0,0.08)",
           }}
         >
           <h2
