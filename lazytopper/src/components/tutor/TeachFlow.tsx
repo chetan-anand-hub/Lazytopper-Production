@@ -362,6 +362,7 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
   const [phase, setPhase] = useState<Phase>(
     savedSession ? savedSession.phase : wasCompleted ? "previously_completed" : "intro"
   );
+  const conceptAutoStartRef = useRef(false);
   const [stepCount, setStepCount] = useState(savedSession?.stepCount ?? 0);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>(savedSession?.chatMessages ?? []);
   const [studentInput, setStudentInput] = useState("");
@@ -421,6 +422,13 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
     setError(null);
     setLoading(false);
   }, [topicKey]);
+
+  useEffect(() => {
+    if (isConceptMode && phase === "intro" && !conceptAutoStartRef.current) {
+      conceptAutoStartRef.current = true;
+      startLearning();
+    }
+  });
 
   function markComplete() {
     if (!isConceptMode) {
