@@ -7,7 +7,6 @@ import {
   loadTopicMasterySnapshot,
   saveTopicMasterySnapshot,
   upsertNodeProgress,
-  type TopicHubMasterySnapshot,
 } from "../services/topicHubMastery";
 import { computeGlobalStreak, getUnlockedBadge, getNextBadge } from "../services/streakService";
 import type { StudySessionLog } from "../services/sessionLogger";

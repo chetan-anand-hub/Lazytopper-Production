@@ -310,7 +310,7 @@ export default function Dashboard() {
             if (!s || s.completed) continue;
             const items = Array.isArray(s.items) ? s.items : [];
             const cursor = Number(s.cursor || 0);
-            if (cursor > 0 && cursor < items.length) {
+            if (cursor >= 0 && cursor < items.length) {
               return {
                 kind: String(s.kind || "daily_mix"),
                 subject: String(s.subjectId || "maths") === "science" ? "Science" : "Maths",
