@@ -6,8 +6,11 @@ import { generatePracticeSet } from "../data/practiceSetGenerator";
 import ConceptTeachDrawer, { type ConceptTeachContext } from "../components/tutor/ConceptTeachDrawer";
 import { navigateToPractice } from "../navigation/practiceNavigation";
 import { trackUxEvent } from "../services/uxTelemetry";
+import { useSmartLearning } from "../engine/smartLearningStore";
+import { class10TopicRegistry } from "../data/class10TopicRegistry";
 import type { V2Definition } from "../utils/getTopicV2Content";
 import type { CanonicalQuestion } from "../data/predictionTypes";
+import type { ChapterId } from "../engine/smartLearningTypes";
 
 type SubjectKey = "maths" | "science";
 
@@ -30,6 +33,18 @@ function buildTopicOptions(subject: SubjectKey) {
   }));
 }
 
+function buildChapterId(grade: string, subject: string, topicKey: string): ChapterId {
+  return `${grade}-${subject}-${topicKey}`;
+}
+
+function lookupWeightage(topicKey: string): number {
+  const entry = class10TopicRegistry.find(
+    (r) => r.topicKey.toLowerCase().replace(/\s+/g, "-") === topicKey ||
+      r.topicName.toLowerCase().replace(/\s+/g, "-") === topicKey
+  );
+  return entry?.approxWeightagePercent ?? 0;
+}
+
 type RecentTopicRecord = {
   grade: string;
   subject: string;
@@ -43,6 +58,8 @@ const TOPICHUB_LAST_ROUTE_KEY = "lazytopper.topicHub.lastRoute.v1";
 const TOPICHUB_RECENT_TOPICS_KEY = "lazytopper.topicHub.recentTopics.v1";
 const MAX_RECENT_TOPICS = 10;
 const TOPIC_MASTERY_KEY_PREFIX = "lazytopper.topicHub.mastery.v1.";
+const MAX_CONCEPT_CARDS = 5;
+const MIN_CONCEPT_CARDS = 3;
 
 function upsertRecentTopic(list: RecentTopicRecord[], entry: RecentTopicRecord): RecentTopicRecord[] {
   const filtered = list.filter((r) => r.topicKey !== entry.topicKey);
@@ -87,6 +104,7 @@ export default function TopicHub() {
   const [sp] = useSearchParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const smartLearning = useSmartLearning();
   const grade = String(params.grade || sp.get("grade") || "10");
   const subject = asSubjectKey(String(params.subject || sp.get("subject") || "maths"));
   const subjectTitle = subject === "science" ? "Science" : "Maths";
@@ -115,6 +133,16 @@ export default function TopicHub() {
   const title = String(v2?.topicName || topicKey || "").trim() || "Topic";
   const tier = String(v2?.tier || "good-to-do");
   const tierStyle = TIER_STYLES[tier] || TIER_STYLES["good-to-do"];
+  const weightage = useMemo(() => lookupWeightage(topicKey), [topicKey]);
+
+  const chapterId = useMemo(
+    () => buildChapterId(grade, subjectTitle, topicKey),
+    [grade, subjectTitle, topicKey]
+  );
+
+  const chapterStats = smartLearning.getStatsForChapter(chapterId);
+  const smartMastery = chapterStats?.lastComputedMastery ?? 0;
+  const smartMasteryPercent = Math.round(smartMastery * 100);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -150,10 +178,15 @@ export default function TopicHub() {
     return Array.isArray(raw) ? raw.map((s) => String(s || "").trim()).filter(Boolean) : [];
   }, [v2]);
 
-  const definitions = useMemo(() => {
+  const allDefinitions = useMemo(() => {
     const raw = v2?.definitions;
     return Array.isArray(raw) ? raw.filter((d): d is V2Definition => Boolean(d?.title)) : [];
   }, [v2]);
+
+  const definitions = useMemo(() => {
+    if (allDefinitions.length <= MAX_CONCEPT_CARDS) return allDefinitions;
+    return allDefinitions.slice(0, MAX_CONCEPT_CARDS);
+  }, [allDefinitions]);
 
   const examPatterns = useMemo(() => {
     const raw = v2?.examPatterns;
@@ -175,7 +208,7 @@ export default function TopicHub() {
     const practiceSet = generatePracticeSet({
       subject: subject as "Maths" | "Science",
       topicKey: practiceTopicKey,
-      totalQuestions: Math.max(definitions.length, 5),
+      totalQuestions: Math.max(definitions.length, MIN_CONCEPT_CARDS),
       shuffle: true,
     });
     return (practiceSet.questions || []).filter(
@@ -208,9 +241,10 @@ export default function TopicHub() {
   }, [topicKey]);
 
   const totalConcepts = definitions.length;
-  const masteryPercent = totalConcepts > 0
+  const localMasteryPercent = totalConcepts > 0
     ? Math.round((mastery.conceptsCompleted.length / totalConcepts) * 100)
     : 0;
+  const displayMasteryPercent = Math.max(localMasteryPercent, smartMasteryPercent);
 
   const updateMastery = useCallback(
     (updater: (prev: TopicLevelMastery) => TopicLevelMastery) => {
@@ -233,15 +267,34 @@ export default function TopicHub() {
     [updateMastery]
   );
 
+  const recordCheckpointToSmartLearning = useCallback(
+    (isCorrect: boolean, question: CanonicalQuestion) => {
+      smartLearning.recordHpqAttempt({
+        userId: "local",
+        chapterId,
+        grade,
+        subject: subjectTitle as "Maths" | "Science",
+        questionId: question.id,
+        marks: question.marks,
+        difficulty: (question.difficulty as "Easy" | "Medium" | "Hard") || undefined,
+        isCorrect,
+        timeTakenSeconds: 0,
+        source: "other",
+      });
+    },
+    [smartLearning, chapterId, grade, subjectTitle]
+  );
+
   const recordQuizAnswer = useCallback(
-    (correct: boolean) => {
+    (correct: boolean, question: CanonicalQuestion) => {
       updateMastery((prev) => ({
         ...prev,
         quizCorrect: prev.quizCorrect + (correct ? 1 : 0),
         quizTotal: prev.quizTotal + 1,
       }));
+      recordCheckpointToSmartLearning(correct, question);
     },
-    [updateMastery]
+    [updateMastery, recordCheckpointToSmartLearning]
   );
 
   const markLessonCompleted = useCallback(() => {
@@ -257,7 +310,7 @@ export default function TopicHub() {
   }, []);
 
   const currentDef = definitions[conceptIdx] as V2Definition | undefined;
-  const currentCheckpoint = checkpointQuestions[conceptIdx % checkpointQuestions.length] as CanonicalQuestion | undefined;
+  const currentCheckpoint = checkpointQuestions[conceptIdx % Math.max(checkpointQuestions.length, 1)] as CanonicalQuestion | undefined;
 
   const advanceToNext = useCallback(() => {
     if (currentDef) {
@@ -277,11 +330,11 @@ export default function TopicHub() {
 
   const handleCheckpointAnswer = useCallback(
     (option: string) => {
-      if (answerRevealed) return;
+      if (answerRevealed || !currentCheckpoint) return;
       setSelectedAnswer(option);
       setAnswerRevealed(true);
-      const isCorrect = option.trim().toLowerCase() === (currentCheckpoint?.answer || "").trim().toLowerCase();
-      recordQuizAnswer(isCorrect);
+      const isCorrect = option.trim().toLowerCase() === (currentCheckpoint.answer || "").trim().toLowerCase();
+      recordQuizAnswer(isCorrect, currentCheckpoint);
     },
     [answerRevealed, currentCheckpoint, recordQuizAnswer]
   );
@@ -307,6 +360,8 @@ export default function TopicHub() {
       source: "topichub",
     });
   }, [grade, navigate, subject, subjectTitle, title, topicKey]);
+
+  const hasEnoughContent = totalConcepts >= MIN_CONCEPT_CARDS || totalConcepts > 0;
 
   return (
     <div style={{ minHeight: "100vh", background: "#f8fafc" }}>
@@ -373,44 +428,73 @@ export default function TopicHub() {
                 <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#6366f1" }}>{totalConcepts}</div>
                 <div style={{ fontSize: "0.75rem", color: "#94a3b8", fontWeight: 500 }}>Concepts</div>
               </div>
+              {weightage > 0 && (
+                <div>
+                  <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#f59e0b" }}>~{weightage}%</div>
+                  <div style={{ fontSize: "0.75rem", color: "#94a3b8", fontWeight: 500 }}>Exam Weightage</div>
+                </div>
+              )}
               <div>
-                <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#f59e0b" }}>{examPatterns.length}</div>
-                <div style={{ fontSize: "0.75rem", color: "#94a3b8", fontWeight: 500 }}>Exam Patterns</div>
-              </div>
-              <div>
-                <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#22c55e" }}>{masteryPercent}%</div>
+                <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#22c55e" }}>{displayMasteryPercent}%</div>
                 <div style={{ fontSize: "0.75rem", color: "#94a3b8", fontWeight: 500 }}>Mastery</div>
               </div>
             </div>
 
-            {masteryPercent > 0 && (
+            {displayMasteryPercent > 0 && (
               <div style={{
                 marginTop: 16, height: 8, borderRadius: 999, background: "#f1f5f9",
                 overflow: "hidden", maxWidth: 300, marginInline: "auto",
               }}>
                 <div style={{
                   height: "100%", borderRadius: 999, transition: "width 0.4s ease",
-                  width: `${masteryPercent}%`,
-                  background: masteryPercent >= 80 ? "#22c55e" : masteryPercent >= 40 ? "#6366f1" : "#94a3b8",
+                  width: `${displayMasteryPercent}%`,
+                  background: displayMasteryPercent >= 80 ? "#22c55e" : displayMasteryPercent >= 40 ? "#6366f1" : "#94a3b8",
                 }} />
+              </div>
+            )}
+
+            {allDefinitions.length > 0 && (
+              <div style={{
+                marginTop: 20, textAlign: "left",
+                background: "#f8fafc", borderRadius: 14, padding: "14px 18px",
+                border: "1px solid #e2e8f0",
+              }}>
+                <div style={{ fontWeight: 700, fontSize: "0.82rem", color: "#475569", marginBottom: 8 }}>
+                  Key Definitions Preview
+                </div>
+                {allDefinitions.slice(0, 3).map((d, idx) => (
+                  <div key={idx} style={{ fontSize: "0.8rem", color: "#64748b", marginBottom: 4, lineHeight: 1.5 }}>
+                    <span style={{ fontWeight: 600, color: "#334155" }}>{d.title}</span> — {d.description?.slice(0, 80)}{(d.description?.length ?? 0) > 80 ? "…" : ""}
+                  </div>
+                ))}
               </div>
             )}
 
             <button
               type="button"
               onClick={startLearning}
+              disabled={!hasEnoughContent}
               style={{
                 marginTop: 24, padding: "14px 40px", borderRadius: 14,
-                background: "linear-gradient(135deg, #6366f1, #4f46e5)",
+                background: hasEnoughContent
+                  ? "linear-gradient(135deg, #6366f1, #4f46e5)"
+                  : "#cbd5e1",
                 border: "none", color: "#fff", fontWeight: 700, fontSize: "1rem",
-                cursor: "pointer", boxShadow: "0 4px 14px rgba(99,102,241,0.3)",
+                cursor: hasEnoughContent ? "pointer" : "not-allowed",
+                boxShadow: hasEnoughContent ? "0 4px 14px rgba(99,102,241,0.3)" : "none",
                 transition: "transform 0.15s",
               }}
-              onMouseDown={(e) => { (e.target as HTMLElement).style.transform = "scale(0.97)"; }}
+              onMouseDown={(e) => { if (hasEnoughContent) (e.target as HTMLElement).style.transform = "scale(0.97)"; }}
               onMouseUp={(e) => { (e.target as HTMLElement).style.transform = "scale(1)"; }}
             >
-              {mastery.lessonCompleted ? "Review Again" : masteryPercent > 0 ? "Continue Learning" : "Start Learning"}
+              {mastery.lessonCompleted ? "Review Again" : localMasteryPercent > 0 ? "Continue Learning" : "Start Learning"}
             </button>
+
+            {!hasEnoughContent && (
+              <p style={{ fontSize: "0.8rem", color: "#94a3b8", marginTop: 8 }}>
+                Content for this topic is being prepared.
+              </p>
+            )}
 
             {scoreTips.length > 0 && (
               <div style={{
@@ -419,7 +503,7 @@ export default function TopicHub() {
                 textAlign: "left",
               }}>
                 <div style={{ fontWeight: 700, fontSize: "0.85rem", color: "#4338ca", marginBottom: 8 }}>
-                  💡 Score Maximizer Tips
+                  Score Maximizer Tips
                 </div>
                 <ul style={{ margin: 0, paddingLeft: 18 }}>
                   {scoreTips.slice(0, 3).map((tip, idx) => (
@@ -494,7 +578,7 @@ export default function TopicHub() {
                     padding: "10px 16px", background: "#fffbeb", borderRadius: 12,
                     border: "1px solid #fde68a",
                   }}>
-                    <span style={{ fontWeight: 700 }}>🎯 Exam line: </span>
+                    <span style={{ fontWeight: 700 }}>Exam line: </span>
                     {currentDef.examTip}
                   </div>
                 )}
@@ -505,7 +589,7 @@ export default function TopicHub() {
                     padding: "10px 16px", background: "#f0fdf4", borderRadius: 12,
                     border: "1px solid #bbf7d0",
                   }}>
-                    <span style={{ fontWeight: 700, color: "#16a34a" }}>📋 When to use: </span>
+                    <span style={{ fontWeight: 700, color: "#16a34a" }}>When to use: </span>
                     {examPatterns[conceptIdx]}
                   </div>
                 )}
@@ -516,7 +600,7 @@ export default function TopicHub() {
                     padding: "10px 16px", background: "#fef2f2", borderRadius: 12,
                     border: "1px solid #fecaca",
                   }}>
-                    <span style={{ fontWeight: 700 }}>⚠️ Trap: </span>
+                    <span style={{ fontWeight: 700 }}>Trap: </span>
                     {markingTips[conceptIdx]}
                   </div>
                 )}
@@ -536,7 +620,7 @@ export default function TopicHub() {
                       cursor: "pointer",
                     }}
                   >
-                    🧑‍🏫 Teach Me
+                    Teach Me
                   </button>
                   {currentCheckpoint && currentCheckpoint.options && currentCheckpoint.options.length >= 2 ? (
                     <button
@@ -554,7 +638,7 @@ export default function TopicHub() {
                         fontSize: "0.82rem", cursor: "pointer",
                       }}
                     >
-                      Got it → Quick Check ⚡
+                      Got it → Quick Check
                     </button>
                   ) : (
                     <button
@@ -588,7 +672,7 @@ export default function TopicHub() {
                     fontSize: "0.78rem", fontWeight: 700, padding: "3px 10px",
                     borderRadius: 999, background: "#eef2ff", color: "#6366f1",
                   }}>
-                    ⚡ Quick Check
+                    Quick Check
                   </span>
                 </div>
 
@@ -649,14 +733,14 @@ export default function TopicHub() {
                         fontSize: "0.88rem", color: "#16a34a", fontWeight: 600, marginBottom: 12,
                         padding: "10px 14px", background: "#f0fdf4", borderRadius: 10,
                       }}>
-                        ✅ Correct! Great job!
+                        Correct! Great job!
                       </div>
                     ) : (
                       <div style={{
                         fontSize: "0.88rem", color: "#dc2626", fontWeight: 600, marginBottom: 12,
                         padding: "10px 14px", background: "#fef2f2", borderRadius: 10,
                       }}>
-                        ❌ Not quite. The correct answer is: {currentCheckpoint.answer}
+                        Not quite. The correct answer is: {currentCheckpoint.answer}
                         {currentCheckpoint.explanation && (
                           <div style={{ marginTop: 6, fontWeight: 400, fontSize: "0.82rem", color: "#7f1d1d" }}>
                             {currentCheckpoint.explanation}
@@ -674,10 +758,33 @@ export default function TopicHub() {
                         fontSize: "0.88rem", cursor: "pointer",
                       }}
                     >
-                      {conceptIdx < totalConcepts - 1 ? "Next Concept →" : "See Summary 🎉"}
+                      {conceptIdx < totalConcepts - 1 ? "Next Concept →" : "See Summary"}
                     </button>
                   </div>
                 )}
+              </div>
+            )}
+
+            {!currentDef && (
+              <div style={{
+                background: "#fff", borderRadius: 18, padding: "24px", textAlign: "center",
+                border: "1px solid #e2e8f0",
+              }}>
+                <p style={{ color: "#94a3b8", fontSize: "0.88rem" }}>
+                  No more concepts to review. You've covered everything!
+                </p>
+                <button
+                  type="button"
+                  onClick={() => { markLessonCompleted(); setPhase("summary"); }}
+                  style={{
+                    marginTop: 12, padding: "10px 24px", borderRadius: 12,
+                    background: "linear-gradient(135deg, #6366f1, #4f46e5)",
+                    border: "none", color: "#fff", fontWeight: 600,
+                    fontSize: "0.88rem", cursor: "pointer",
+                  }}
+                >
+                  See Summary
+                </button>
               </div>
             )}
           </div>
@@ -689,7 +796,6 @@ export default function TopicHub() {
             border: "1px solid #e2e8f0", textAlign: "center",
             boxShadow: "0 2px 12px rgba(99,102,241,0.06)",
           }}>
-            <div style={{ fontSize: "2.5rem", marginBottom: 8 }}>🎉</div>
             <h2 style={{ fontSize: "1.4rem", fontWeight: 800, color: "#1e293b", margin: 0 }}>
               Lesson Complete!
             </h2>
