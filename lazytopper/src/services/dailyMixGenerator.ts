@@ -5,6 +5,8 @@ import { topicHubV2Content } from "../data/topicHubV2Full";
 import type { PracticeInsightSnapshot } from "./practiceInsights";
 import { computePracticeInsights } from "./practiceInsights";
 import { normalizeTopicKey } from "../utils/topicResolver";
+import { canonicalChapters } from "../data/syllabus/cbse10Canonical";
+import { loadTopicMasterySnapshot, type TopicHubMasterySnapshot } from "./topicHubMastery";
 
 export type DailyMixIntensity = "light" | "normal" | "hard";
 
@@ -200,4 +202,70 @@ export function generateDailyMix(ctx: DailyMixContext): DailyMixItem[] {
 
   const contractPlaylist = [conceptItem, ...questionItems, revisionItem];
   return contractPlaylist.slice(0, Math.max(5, count));
+}
+
+function computeMasteryScore(snap: TopicHubMasterySnapshot): number {
+  const nodes = Object.values(snap.nodes);
+  if (!nodes.length) return 0;
+  const stateScores: Record<string, number> = {
+    unseen: 0, learning: 0.2, needs_practice: 0.4, checkpoint_passed: 0.7, mastered: 1.0,
+  };
+  const total = nodes.reduce((sum, n) => sum + (stateScores[n.state] ?? 0), 0);
+  return total / nodes.length;
+}
+
+export function pickWeightedTopics(subject: "Maths" | "Science", count: number, seed: string): string[] {
+  const subjectId = subject === "Science" ? "science" : "maths";
+  const subjectChapters = canonicalChapters.filter((ch) => ch.subjectId === subjectId);
+  const weighted: { key: string; weight: number }[] = [];
+  for (const ch of subjectChapters) {
+    const slug = ch.canonicalSlug;
+    const snap = loadTopicMasterySnapshot(normalizeTopicKey(slug) || slug);
+    const mastery = computeMasteryScore(snap);
+    weighted.push({ key: slug, weight: Math.max(0.1, 1 - mastery) });
+  }
+
+  let rng = seededHash(seed);
+
+  const picked: string[] = [];
+  const pool = [...weighted];
+  for (let n = 0; n < count && pool.length > 0; n++) {
+    const totalWeight = pool.reduce((s, w) => s + w.weight, 0);
+    rng = (rng * 1664525 + 1013904223) >>> 0;
+    let r = (rng / 4294967296) * totalWeight;
+    let idx = 0;
+    for (let i = 0; i < pool.length; i++) {
+      r -= pool[i].weight;
+      if (r <= 0) { idx = i; break; }
+    }
+    picked.push(pool[idx].key);
+    pool.splice(idx, 1);
+  }
+  return picked;
+}
+
+export function generateMultiTopicDailyMix(opts: {
+  grade: number;
+  subject: "Maths" | "Science";
+  seedKey: string;
+  topicCount?: number;
+  itemsPerTopic?: number;
+  maxItems?: number;
+  intensity?: DailyMixIntensity;
+}): DailyMixItem[] {
+  const { grade, subject, seedKey, topicCount = 3, itemsPerTopic = 4, maxItems = 10, intensity = "normal" } = opts;
+  const topicKeys = pickWeightedTopics(subject, topicCount, seedKey);
+  const allItems: DailyMixItem[] = [];
+  for (const tk of topicKeys) {
+    const topicItems = generateDailyMix({
+      grade,
+      subject,
+      topic: tk,
+      seedKey,
+      count: itemsPerTopic,
+      intensity,
+    });
+    allItems.push(...topicItems);
+  }
+  return allItems.slice(0, maxItems);
 }

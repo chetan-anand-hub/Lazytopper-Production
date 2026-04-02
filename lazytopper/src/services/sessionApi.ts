@@ -114,11 +114,6 @@ function readLocalAuthSession(): LocalAuthSession | null {
   }
 }
 
-function isLocalSessionMode(): boolean {
-  const local = readLocalAuthSession();
-  return Boolean(local?.uid && local?.isLocalSession);
-}
-
 function readLocalSessions(): LocalSessionMap {
   if (typeof window === "undefined") return {};
   try {

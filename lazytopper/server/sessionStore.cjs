@@ -22,26 +22,7 @@ function buildSessionItems(input) {
   const subjectId = toSubjectId(input.subjectId);
   const subject = subjectId === "science" ? "Science" : "Maths";
 
-  try {
-    const { generateDailyMix } = require("../lazytopper/src/services/dailyMixGenerator");
-    const mixItems = generateDailyMix({
-      grade: 10,
-      subject,
-      topic: topicKey,
-      seedKey: `session-${Date.now()}`,
-      count: 6,
-      intensity: vibe === "high" ? "hard" : "normal",
-    });
-    return mixItems.map((item) => ({
-      id: item.id,
-      itemType: item.type === "question" ? "practice_question" : item.type === "video" ? "concept_micro" : "revision_card",
-      title: item.title,
-      description: item.description,
-      payload: item.payload,
-    }));
-  } catch {
-    return buildFallbackSessionItems(topicKey, chapterLabel, chapterId, subject, vibe);
-  }
+  return buildFallbackSessionItems(topicKey, chapterLabel, chapterId, subject, vibe);
 }
 
 function buildFallbackSessionItems(topicKey, chapterLabel, chapterId, subject, vibe) {

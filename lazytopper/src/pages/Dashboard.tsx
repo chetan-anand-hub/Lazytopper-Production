@@ -8,7 +8,7 @@ import { useSmartLearning } from "../engine/smartLearningStore";
 import type { ChapterMeta } from "../engine/smartLearningTypes";
 import { getAttempts } from "../services/practiceInsights";
 import { getStrategyPlan, saveStrategyPlan, updateAndGetStreak } from "../services/planStorage";
-import { generateDailyMix } from "../services/dailyMixGenerator";
+import { generateMultiTopicDailyMix } from "../services/dailyMixGenerator";
 import type { DailyMixItem } from "../services/dailyMixPlayback";
 import type { StrategyPlan } from "../services/strategyEngine";
 import { generateStrategyPlan } from "../services/strategyEngine";
@@ -130,12 +130,13 @@ export default function Dashboard() {
     const subject = planRecord?.subject === "Science" ? "Science" as const : plannerSubject;
     const d = new Date();
     const seedKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-    return generateDailyMix({
+    return generateMultiTopicDailyMix({
       grade: 10,
       subject,
-      topic: planRecord?.dailyMix?.topicKey || "triangles",
       seedKey,
-      count: 5,
+      topicCount: 3,
+      itemsPerTopic: 4,
+      maxItems: 5,
       intensity: "normal",
     });
   }, [planRecord, plannerSubject]);
@@ -329,24 +330,41 @@ export default function Dashboard() {
     } catch { return false; }
   }, [subjectForQuickActions]);
 
-  const incompleteSession = useMemo<{ sessionId: string; kind: string; subject: string; cursor: number; total: number } | null>(() => {
+  const incompleteSession = useMemo<{ kind: string; subject: string; cursor: number; total: number } | null>(() => {
     try {
+      for (const subj of ["Maths", "Science"] as const) {
+        const raw = localStorage.getItem(`lazytopper.dailyMix.v1.${subj}`);
+        if (!raw) continue;
+        const saved = JSON.parse(raw) as { date?: string; subject?: string; items?: unknown[]; questionStates?: { submitted?: boolean }[]; completed?: boolean };
+        if (!saved || saved.completed) continue;
+        const d = new Date();
+        const todayStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+        if (saved.date !== todayStr) continue;
+        const items = Array.isArray(saved.items) ? saved.items : [];
+        const states = Array.isArray(saved.questionStates) ? saved.questionStates : [];
+        const answered = states.filter((s) => s?.submitted).length;
+        if (answered > 0 && answered < items.length) {
+          return { kind: "daily_mix", subject: subj, cursor: answered, total: items.length };
+        }
+      }
+
       const raw = localStorage.getItem("lazytopper.session.local.v1");
-      if (!raw) return null;
-      const sessions = JSON.parse(raw) as Record<string, { sessionId?: string; kind?: string; subjectId?: string; completed?: boolean; cursor?: number; items?: unknown[] }>;
-      if (!sessions || typeof sessions !== "object") return null;
-      for (const [sid, s] of Object.entries(sessions)) {
-        if (!s || s.completed) continue;
-        const items = Array.isArray(s.items) ? s.items : [];
-        const cursor = Number(s.cursor || 0);
-        if (cursor > 0 && cursor < items.length) {
-          return {
-            sessionId: sid,
-            kind: String(s.kind || "daily_mix"),
-            subject: String(s.subjectId || "maths") === "science" ? "Science" : "Maths",
-            cursor,
-            total: items.length,
-          };
+      if (raw) {
+        const sessions = JSON.parse(raw) as Record<string, { kind?: string; subjectId?: string; completed?: boolean; cursor?: number; items?: unknown[] }>;
+        if (sessions && typeof sessions === "object") {
+          for (const [, s] of Object.entries(sessions)) {
+            if (!s || s.completed) continue;
+            const items = Array.isArray(s.items) ? s.items : [];
+            const cursor = Number(s.cursor || 0);
+            if (cursor > 0 && cursor < items.length) {
+              return {
+                kind: String(s.kind || "daily_mix"),
+                subject: String(s.subjectId || "maths") === "science" ? "Science" : "Maths",
+                cursor,
+                total: items.length,
+              };
+            }
+          }
         }
       }
     } catch {}
