@@ -431,10 +431,9 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
   });
 
   function markComplete() {
-    if (!isConceptMode) {
-      markTopicCompleted(topicKey);
-      clearSessionState(topicKey);
-    }
+    if (isConceptMode) return;
+    markTopicCompleted(topicKey);
+    clearSessionState(topicKey);
     const snapshot = loadTopicMasterySnapshot(topicKey);
     const effectiveNodeId = nodeId ?? topicKey;
     const updated = upsertNodeProgress(snapshot, effectiveNodeId, {
