@@ -278,7 +278,7 @@ const StudyPlanPage: React.FC = () => {
           <p
             style={{
               fontSize: "0.85rem",
-              color: "#475569",
+              color: "#777777",
             }}
           >
             To generate a roadmap, go back to <strong>AI Mentor</strong> and
@@ -306,7 +306,7 @@ const StudyPlanPage: React.FC = () => {
           style={{
             fontSize: "1.4rem",
             fontWeight: 650,
-            color: "#020617",
+            color: "#3c3c3c",
             marginBottom: 4,
           }}
         >
@@ -315,7 +315,7 @@ const StudyPlanPage: React.FC = () => {
         <p
           style={{
             fontSize: "0.9rem",
-            color: "#475569",
+            color: "#777777",
             marginBottom: 14,
           }}
         >
@@ -405,7 +405,7 @@ const StudyPlanPage: React.FC = () => {
                 >
                   {tierMeta[tier].emoji} {tierMeta[tier].label}
                 </span>
-                <span style={{ fontSize: "0.85rem", color: "#475569" }}>
+                <span style={{ fontSize: "0.85rem", color: "#777777" }}>
                   {totalHours} hrs total
                 </span>
               </div>
@@ -416,7 +416,7 @@ const StudyPlanPage: React.FC = () => {
                   gridTemplateColumns: "2.2fr 1fr 1.2fr 2.2fr",
                   fontSize: "0.78rem",
                   fontWeight: 600,
-                  color: "#64748b",
+                  color: "#777777",
                   padding: "4px 10px",
                   borderRadius: 8,
                   backgroundColor: "rgba(230,236,255,0.6)",
@@ -452,7 +452,7 @@ const StudyPlanPage: React.FC = () => {
                         style={{
                           fontSize: "0.9rem",
                           fontWeight: 600,
-                          color: "#020617",
+                          color: "#3c3c3c",
                         }}
                       >
                         {row.topicLabel}
@@ -477,7 +477,7 @@ const StudyPlanPage: React.FC = () => {
                       <div
                         style={{
                           fontSize: "0.8rem",
-                          color: "#475569",
+                          color: "#777777",
                         }}
                       >
                         ≈ {row.weightagePercent || "?"}% of paper
@@ -495,7 +495,7 @@ const StudyPlanPage: React.FC = () => {
                           style={{
                             fontSize: "0.9rem",
                             fontWeight: 600,
-                            color: "#0f172a",
+                            color: "#3c3c3c",
                           }}
                         >
                           {row.hours} hrs
@@ -511,7 +511,7 @@ const StudyPlanPage: React.FC = () => {
                             fontSize: "0.74rem",
                             border: "1px solid rgba(59,130,246,0.8)",
                             backgroundColor: "#eef2ff",
-                            color: "#1d4ed8",
+                            color: "#1cb0f6",
                             cursor: "pointer",
                           }}
                         >
@@ -578,8 +578,7 @@ const StudyPlanPage: React.FC = () => {
     <div
       style={{
         minHeight: "100vh",
-        background:
-          "radial-gradient(circle at top, #e0f2ff 0, #dde7ff 30%, #e5edff 60%, #f1f5f9 100%)",
+        background: "#ffffff",
         paddingBottom: "80px",
       }}
     >
@@ -623,7 +622,7 @@ const StudyPlanPage: React.FC = () => {
               fontSize: "2.1rem",
               lineHeight: 1.15,
               fontWeight: 650,
-              color: "#020617",
+              color: "#3c3c3c",
               marginBottom: 6,
             }}
           >
@@ -632,7 +631,7 @@ const StudyPlanPage: React.FC = () => {
           <p
             style={{
               fontSize: "0.95rem",
-              color: "#475569",
+              color: "#777777",
               lineHeight: 1.6,
             }}
           >
@@ -681,8 +680,8 @@ const StudyPlanPage: React.FC = () => {
                     fontSize: "0.95rem",
                     fontWeight: 600,
                     cursor: "pointer",
-                    backgroundColor: active ? "#4f46e5" : "transparent",
-                    color: active ? "#f9fafb" : "#1e293b",
+                    backgroundColor: active ? "#1cb0f6" : "transparent",
+                    color: active ? "#f9fafb" : "#3c3c3c",
                     boxShadow: active
                       ? "0 10px 25px rgba(79,70,229,0.45)"
                       : "none",

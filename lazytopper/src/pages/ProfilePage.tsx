@@ -294,7 +294,7 @@ function OverviewTab({ milestones, subjectTab, setSubjectTab }: {
               padding: "6px 16px",
               borderRadius: 20,
               border: "none",
-              background: subjectTab === s ? "#3b82f6" : "#f0f0f0",
+              background: subjectTab === s ? "#1cb0f6" : "#f0f0f0",
               color: subjectTab === s ? "#fff" : "#333",
               fontWeight: 600,
               fontSize: 13,
@@ -337,10 +337,10 @@ function OverviewTab({ milestones, subjectTab, setSubjectTab }: {
         <>
           <h3 style={{ fontWeight: 800, fontSize: 16, marginTop: 24, marginBottom: 12 }}>Your Journey</h3>
           <div style={{ position: "relative", paddingLeft: 24 }}>
-            <div style={{ position: "absolute", left: 8, top: 0, bottom: 0, width: 3, background: "linear-gradient(to bottom, #3b82f6, #a78bfa)", borderRadius: 4 }} />
+            <div style={{ position: "absolute", left: 8, top: 0, bottom: 0, width: 3, background: "linear-gradient(to bottom, #58cc02, #1cb0f6)", borderRadius: 4 }} />
             {milestones.map((m) => (
               <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14, position: "relative" }}>
-                <div style={{ position: "absolute", left: -20, width: 18, height: 18, borderRadius: "50%", background: "#fff", border: "3px solid #3b82f6", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10 }}>
+                <div style={{ position: "absolute", left: -20, width: 18, height: 18, borderRadius: "50%", background: "#fff", border: "3px solid #1cb0f6", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10 }}>
                   {m.icon}
                 </div>
                 <div>
@@ -430,9 +430,9 @@ function StatsTab({ badgeCtx, statsByChapter }: { badgeCtx: BadgeContext; statsB
     <div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))", gap: 12, marginBottom: 20 }}>
         {[
-          { label: "Questions Solved", value: String(badgeCtx.totalQuestions), color: "#3b82f6" },
+          { label: "Questions Solved", value: String(badgeCtx.totalQuestions), color: "#1cb0f6" },
           { label: "Overall Accuracy", value: `${overallAccuracy}%`, color: overallAccuracy >= 70 ? "#34d399" : "#f87171" },
-          { label: "Total Time Studied", value: formatStudyTime(totalTimeSec), color: "#8b5cf6" },
+          { label: "Total Time Studied", value: formatStudyTime(totalTimeSec), color: "#ff9600" },
           { label: "Topics Mastered", value: String(badgeCtx.topicsMastered), color: "#f59e0b" },
           { label: "Current Streak", value: `${badgeCtx.streak} days`, color: "#ef4444" },
           { label: "Days Active", value: String(badgeCtx.daysActive), color: "#06b6d4" },
@@ -514,7 +514,7 @@ function StatsTab({ badgeCtx, statsByChapter }: { badgeCtx: BadgeContext; statsB
               const x = i * 52 + 10;
               return (
                 <g key={w.weekLabel}>
-                  <rect x={x} y={110 - h} width={36} height={h} rx={4} fill="#8b5cf6" opacity={0.75} />
+                  <rect x={x} y={110 - h} width={36} height={h} rx={4} fill="#ff9600" opacity={0.75} />
                   <text x={x + 18} y={110 - h - 4} textAnchor="middle" fontSize={10} fontWeight={600} fill="#333">
                     {w.avgSeconds}s
                   </text>
@@ -605,8 +605,8 @@ export default function ProfilePage() {
   return (
     <div className="lt-page" style={{ maxWidth: 680, margin: "0 auto", padding: "24px 16px" }}>
       <div style={{
-        background: "linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)",
-        borderRadius: 20,
+        background: "linear-gradient(135deg, #58cc02 0%, #1cb0f6 100%)",
+        borderRadius: 16,
         padding: "24px 20px",
         color: "#fff",
         marginBottom: 20,

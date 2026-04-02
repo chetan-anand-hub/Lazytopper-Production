@@ -1223,8 +1223,7 @@ const packTopicKey = useMemo(() => {
     <div
       style={{
         minHeight: "100vh",
-        background:
-          "radial-gradient(circle at top, #e0f2ff 0, #dde7ff 30%, #e5edff 60%, #f1f5f9 100%)",
+        background: "#ffffff",
         paddingBottom: "80px",
       }}
     >
@@ -1266,12 +1265,11 @@ const packTopicKey = useMemo(() => {
         {/* Hero */}
         <section
           style={{
-            borderRadius: 32,
+            borderRadius: 16,
             padding: "20px 18px 22px",
-            background:
-              "linear-gradient(135deg,rgba(15,23,42,0.98),rgba(37,99,235,0.95))",
-            color: "#e5e7eb",
-            boxShadow: "0 26px 70px rgba(15,23,42,0.7)",
+            background: "linear-gradient(135deg, #58cc02 0%, #1cb0f6 100%)",
+            color: "#ffffff",
+            boxShadow: "0 4px 0 rgba(70,163,2,0.3)",
             marginBottom: 18,
           }}
         >
@@ -1357,7 +1355,7 @@ const packTopicKey = useMemo(() => {
             <span
               style={{
                 fontSize: "0.8rem",
-                color: "#64748b",
+                color: "#777777",
                 marginRight: 4,
               }}
             >
@@ -1377,8 +1375,8 @@ const packTopicKey = useMemo(() => {
                       border: active
                         ? "1px solid rgba(37,99,235,0.85)"
                         : "1px solid rgba(148,163,184,0.75)",
-                      backgroundColor: active ? "#1d4ed8" : "#ffffff",
-                      color: active ? "#f9fafb" : "#0f172a",
+                      backgroundColor: active ? "#1cb0f6" : "#ffffff",
+                      color: active ? "#f9fafb" : "#3c3c3c",
                       fontSize: "0.75rem",
                       cursor: "pointer",
                       boxShadow: active
@@ -1402,7 +1400,7 @@ const packTopicKey = useMemo(() => {
               flexWrap: "wrap",
             }}
           >
-            <span style={{ fontSize: "0.8rem", color: "#64748b" }}>Type:</span>
+            <span style={{ fontSize: "0.8rem", color: "#777777" }}>Type:</span>
             <select
               value={sectionFilter}
               onChange={(e) => setSectionFilter(e.target.value as any)}
@@ -1436,7 +1434,7 @@ const packTopicKey = useMemo(() => {
             <label
               style={{
                 fontSize: "0.8rem",
-                color: "#64748b",
+                color: "#777777",
               }}
             >
               Questions:{" "}
@@ -1510,7 +1508,7 @@ const packTopicKey = useMemo(() => {
         </section>
 
         <section style={{ marginBottom: 10, display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-          <span style={{ fontSize: "0.75rem", color: "#64748b" }}>Fast drill presets:</span>
+          <span style={{ fontSize: "0.75rem", color: "#777777" }}>Fast drill presets:</span>
           {[10, 20, 40, 60, 100].map((count) => (
             <button
               key={count}
@@ -1522,7 +1520,7 @@ const packTopicKey = useMemo(() => {
               {count}Q
             </button>
           ))}
-          <span style={{ fontSize: "0.72rem", color: "#64748b" }}>
+          <span style={{ fontSize: "0.72rem", color: "#777777" }}>
             Shortcut: Alt+1/2/3/4/5 and Alt+R.
           </span>
         </section>
@@ -1605,11 +1603,11 @@ const packTopicKey = useMemo(() => {
 
                     <div style={{ display: "grid", gap: 10 }}>
                       <div>
-                        <div style={{ fontSize: "0.78rem", fontWeight: 800, color: "#0f172a", marginBottom: 4 }}>
+                        <div style={{ fontSize: "0.78rem", fontWeight: 800, color: "#3c3c3c", marginBottom: 4 }}>
                           Learning objects
                         </div>
                         {activeQuestionLearningObjects.length > 0 ? (
-                          <ul style={{ margin: 0, paddingLeft: 18, fontSize: "0.78rem", color: "#334155", lineHeight: 1.45 }}>
+                          <ul style={{ margin: 0, paddingLeft: 18, fontSize: "0.78rem", color: "#3c3c3c", lineHeight: 1.45 }}>
                             {activeQuestionLearningObjects.map((lo) => (
                               <li key={lo.loId}>
                                 <strong>{lo.title}:</strong> {lo.description}
@@ -1617,7 +1615,7 @@ const packTopicKey = useMemo(() => {
                             ))}
                           </ul>
                         ) : (
-                          <div style={{ fontSize: "0.78rem", color: "#475569" }}>
+                          <div style={{ fontSize: "0.78rem", color: "#777777" }}>
                             Learning objects are being mapped for this question.
                           </div>
                         )}
@@ -1625,10 +1623,10 @@ const packTopicKey = useMemo(() => {
 
                       {whyCommonMistakes.length > 0 && (
                         <div>
-                          <div style={{ fontSize: "0.78rem", fontWeight: 800, color: "#0f172a", marginBottom: 4 }}>
+                          <div style={{ fontSize: "0.78rem", fontWeight: 800, color: "#3c3c3c", marginBottom: 4 }}>
                             Common mistakes
                           </div>
-                          <ul style={{ margin: 0, paddingLeft: 18, fontSize: "0.78rem", color: "#334155", lineHeight: 1.45 }}>
+                          <ul style={{ margin: 0, paddingLeft: 18, fontSize: "0.78rem", color: "#3c3c3c", lineHeight: 1.45 }}>
                             {whyCommonMistakes.map((mistake) => (
                               <li key={mistake}>{mistake}</li>
                             ))}
@@ -1654,7 +1652,7 @@ const packTopicKey = useMemo(() => {
                     </div>
                   </>
                 ) : (
-                  <div style={{ fontSize: "0.8rem", color: "#475569" }}>
+                  <div style={{ fontSize: "0.8rem", color: "#777777" }}>
                     This question isn&apos;t tagged yet. Practice normally.
                   </div>
                 )}
@@ -1669,7 +1667,7 @@ const packTopicKey = useMemo(() => {
             <p
               style={{
                 fontSize: "0.85rem",
-                color: "#64748b",
+                color: "#777777",
                 marginBottom: 8,
               }}
             >
@@ -1693,7 +1691,7 @@ const packTopicKey = useMemo(() => {
             <p
               style={{
                 fontSize: "0.85rem",
-                color: "#64748b",
+                color: "#777777",
               }}
             >
               No practice questions available yet for this topic. Try picking a
@@ -1750,7 +1748,7 @@ const packTopicKey = useMemo(() => {
                         <div
                           style={{
                             fontSize: "0.8rem",
-                            color: "#64748b",
+                            color: "#777777",
                           }}
                         >
                           <span
@@ -1816,10 +1814,10 @@ const packTopicKey = useMemo(() => {
                               gap: 8,
                               padding: "4px 0",
                               fontSize: "0.88rem",
-                              color: "#1e293b",
+                              color: "#3c3c3c",
                             }}
                           >
-                            <span style={{ fontWeight: 600, color: "#475569", minWidth: 22 }}>
+                            <span style={{ fontWeight: 600, color: "#777777", minWidth: 22 }}>
                               {String.fromCharCode(65 + oi)}.
                             </span>
                             <MathText text={opt} />
@@ -1860,7 +1858,7 @@ const packTopicKey = useMemo(() => {
                             ? "rgba(239,246,255,0.9)"
                             : "#eff6ff",
                           fontSize: "0.78rem",
-                          color: "#1d4ed8",
+                          color: "#1cb0f6",
                           cursor: "pointer",
                           display: "inline-flex",
                           alignItems: "center",
@@ -1875,18 +1873,18 @@ const packTopicKey = useMemo(() => {
                       <div style={{
                         marginTop: 10,
                         padding: "12px 14px",
-                        background: "#f8fafc",
+                        background: "#f7f7f7",
                         borderRadius: 12,
-                        border: "1px solid #e2e8f0",
+                        border: "1px solid #e5e5e5",
                       }}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                          <strong style={{ fontSize: "0.82rem", color: "#1e293b" }}>
+                          <strong style={{ fontSize: "0.82rem", color: "#3c3c3c" }}>
                             Step-by-Step Solution ({q.marks} {q.marks === 1 ? "mark" : "marks"})
                           </strong>
                         </div>
 
                         {practiceSolutionLoading[q.id] && (
-                          <div style={{ fontSize: "0.82rem", color: "#1d4ed8", padding: "8px 0" }}>
+                          <div style={{ fontSize: "0.82rem", color: "#1cb0f6", padding: "8px 0" }}>
                             Loading step-by-step solution...
                           </div>
                         )}
@@ -1901,7 +1899,7 @@ const packTopicKey = useMemo(() => {
                               <div key={step.stepNumber} style={{
                                 display: "flex", gap: 10, marginBottom: 8,
                                 padding: "8px 10px", background: "#ffffff",
-                                borderRadius: 8, border: "1px solid #e2e8f0",
+                                borderRadius: 8, border: "1px solid #e5e5e5",
                               }}>
                                 <div style={{
                                   minWidth: 28, height: 28, borderRadius: "50%",
@@ -1910,7 +1908,7 @@ const packTopicKey = useMemo(() => {
                                   fontSize: "0.75rem", fontWeight: 700, flexShrink: 0,
                                 }}>{step.stepNumber}</div>
                                 <div style={{ flex: 1 }}>
-                                  <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "#1e293b", marginBottom: 2 }}>
+                                  <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "#3c3c3c", marginBottom: 2 }}>
                                     <MathText text={step.description} />
                                     <span style={{
                                       marginLeft: 8, fontSize: "0.7rem", fontWeight: 700,
@@ -1921,7 +1919,7 @@ const packTopicKey = useMemo(() => {
                                       {step.marks === 0 ? "Explanation" : step.marks === 0.5 ? "½ mark" : step.marks % 1 === 0.5 ? `${Math.floor(step.marks)}½ marks` : `${step.marks} ${step.marks === 1 ? "mark" : "marks"}`}
                                     </span>
                                   </div>
-                                  <div style={{ fontSize: "0.78rem", color: "#475569", lineHeight: 1.5 }}>
+                                  <div style={{ fontSize: "0.78rem", color: "#777777", lineHeight: 1.5 }}>
                                     <MathText text={step.working} />
                                   </div>
                                 </div>
@@ -1996,7 +1994,7 @@ const packTopicKey = useMemo(() => {
                           borderTop: "1px solid rgba(148,163,184,0.2)",
                         }}
                       >
-                        <span style={{ fontSize: "0.78rem", color: "#64748b", alignSelf: "center" }}>
+                        <span style={{ fontSize: "0.78rem", color: "#777777", alignSelf: "center" }}>
                           How did you do?
                         </span>
                         <button
@@ -2123,10 +2121,10 @@ const packTopicKey = useMemo(() => {
                   fontSize: "0.8rem",
                 }}
               >
-                <span style={{ fontWeight: 700, color: "#0f172a" }}>Session Progress</span>
+                <span style={{ fontWeight: 700, color: "#3c3c3c" }}>Session Progress</span>
                 <span style={{ color: "#166534" }}>✓ {stats.gotIt} got it</span>
                 <span style={{ color: "#991b1b" }}>⟳ {stats.needPractice} need practice</span>
-                <span style={{ color: "#64748b" }}>
+                <span style={{ color: "#777777" }}>
                   {Math.round(stats.accuracy * 100)}% accuracy
                 </span>
               </div>
@@ -2808,12 +2806,12 @@ function MentorSolveDrawer(props: {
               {mentorTitle} - {seed.title}
             </div>
             {seed.questionFamilyLabel ? (
-              <div style={{ fontSize: 12, color: "#334155" }}>
+              <div style={{ fontSize: 12, color: "#3c3c3c" }}>
                 Family: {seed.questionFamilyLabel}
               </div>
             ) : null}
             {seed.strategyContextHeader && (
-              <div style={{ fontSize: 12, color: "#475569" }}>
+              <div style={{ fontSize: 12, color: "#777777" }}>
                 Strategy context is being used for this question.
               </div>
             )}

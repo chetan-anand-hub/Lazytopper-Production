@@ -505,9 +505,9 @@ export default function Dashboard() {
     <div className="lt-page">
       <h2 className="title">Your Personal Dashboard</h2>
 
-      <div className="card" data-ux-priority-block="dashboard-next-best-actions" data-testid="dashboard-priority-block" style={{ background: "linear-gradient(135deg, #eff6ff, #f0fdf4)", border: "2px solid #bfdbfe" }}>
-        <h3 style={{ fontSize: "1.15rem", fontWeight: 900 }}>{heroAction.title}</h3>
-        <p style={{ marginTop: 6, opacity: 0.82 }}>{heroAction.description}</p>
+      <div className="card" data-ux-priority-block="dashboard-next-best-actions" data-testid="dashboard-priority-block" style={{ background: "#e6f9e0", border: "2px solid #58cc02", borderRadius: 16, boxShadow: "0 2px 0 #46a302" }}>
+        <h3 style={{ fontSize: "1.15rem", fontWeight: 900, color: "#3c3c3c" }}>{heroAction.title}</h3>
+        <p style={{ marginTop: 6, color: "#777777" }}>{heroAction.description}</p>
         <div className="focus-cta-row" style={{ marginTop: 12 }}>
           <button
             className="cta-btn"

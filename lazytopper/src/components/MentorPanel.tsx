@@ -1145,7 +1145,7 @@ Give me hint level ${targetLevel} only (keep it short).`
             style={{
               marginBottom: 8,
               fontSize: 12,
-              color: "#334155",
+              color: "#3c3c3c",
             }}
           >
             Tip: Paste your full working. I'll check it like CBSE and tell where marks may be cut.
@@ -1165,7 +1165,7 @@ Give me hint level ${targetLevel} only (keep it short).`
             >
               Upload solution photo
             </button>
-            <div style={{ fontSize: 12, color: "#475569" }}>
+            <div style={{ fontSize: 12, color: "#777777" }}>
               {attachedImage ? attachedImage.name : "Accepts JPG or PNG up to 3 MB."}
             </div>
             {attachedImage && (

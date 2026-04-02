@@ -396,8 +396,7 @@ const TrendsPage: React.FC = () => {
     <div
       style={{
         minHeight: "100vh",
-        background:
-          "radial-gradient(circle at top, #e0f2ff 0, #dde7ff 30%, #e5edff 60%, #f1f5f9 100%)",
+        background: "#ffffff",
         paddingBottom: "80px",
       }}
     >
@@ -423,12 +422,11 @@ const TrendsPage: React.FC = () => {
         {/* Hero card */}
         <section
           style={{
-            borderRadius: 32,
+            borderRadius: 16,
             padding: "24px 24px 24px 28px",
-            background:
-              "linear-gradient(135deg, #020617 0%, #0f172a 15%, #1d4ed8 60%, #22c1c3 100%)",
-            color: "#f9fafb",
-            boxShadow: "0 24px 60px rgba(15,23,42,0.55)",
+            background: "linear-gradient(135deg, #58cc02 0%, #1cb0f6 100%)",
+            color: "#ffffff",
+            boxShadow: "0 4px 0 rgba(70,163,2,0.3)",
             display: "flex",
             flexDirection: "row",
             alignItems: "stretch",
@@ -499,22 +497,20 @@ const TrendsPage: React.FC = () => {
                       )
                     }
                     style={{
-                      borderRadius: 999,
+                      borderRadius: 12,
                       padding: "6px 14px",
                       border: active
-                        ? "1px solid rgba(15,23,42,0.2)"
-                        : "1px solid rgba(241,245,249,0.3)",
+                        ? "2px solid #ffffff"
+                        : "2px solid rgba(255,255,255,0.4)",
                       background: active
-                        ? "#f9fafb"
-                        : "rgba(15,23,42,0.35)",
-                      color: active ? "#020617" : "#e5e7eb",
+                        ? "#ffffff"
+                        : "rgba(255,255,255,0.15)",
+                      color: active ? "#3c3c3c" : "#ffffff",
                       fontSize: "0.75rem",
-                      fontWeight: active ? 600 : 500,
+                      fontWeight: active ? 800 : 600,
                       cursor: "pointer",
-                      boxShadow: active
-                        ? "0 6px 18px rgba(15,23,42,0.4)"
-                        : "none",
-                      transition: "all 0.15s ease-out",
+                      boxShadow: "none",
+                      transition: "all 0.1s ease-out",
                     }}
                   >
                     {item.label}
@@ -537,9 +533,9 @@ const TrendsPage: React.FC = () => {
             <div
               style={{
                 alignSelf: "flex-end",
-                borderRadius: 999,
+                borderRadius: 12,
                 padding: 4,
-                background: "rgba(15,23,42,0.85)",
+                background: "rgba(255,255,255,0.2)",
                 display: "inline-flex",
                 gap: 4,
               }}
@@ -552,17 +548,15 @@ const TrendsPage: React.FC = () => {
                     onClick={() => handleSubjectToggle(subj)}
                     style={{
                       padding: "6px 16px",
-                      borderRadius: 999,
+                      borderRadius: 10,
                       border: "none",
                       fontSize: "0.8rem",
-                      fontWeight: 600,
+                      fontWeight: 800,
                       cursor: "pointer",
-                      background: active ? "#f9fafb" : "transparent",
-                      color: active ? "#020617" : "#e5e7eb",
-                      boxShadow: active
-                        ? "0 6px 16px rgba(15,23,42,0.45)"
-                        : "none",
-                      transition: "all 0.15s ease-out",
+                      background: active ? "#ffffff" : "transparent",
+                      color: active ? "#3c3c3c" : "#ffffff",
+                      boxShadow: "none",
+                      transition: "all 0.1s ease-out",
                     }}
                   >
                     {subj}
@@ -577,8 +571,8 @@ const TrendsPage: React.FC = () => {
                 style={{
                   marginTop: 18,
                   padding: "10px 12px",
-                  borderRadius: 999,
-                  background: "rgba(15,23,42,0.7)",
+                  borderRadius: 12,
+                  background: "rgba(255,255,255,0.2)",
                   display: "flex",
                   flexDirection: "column",
                   gap: 4,
@@ -590,7 +584,7 @@ const TrendsPage: React.FC = () => {
                     fontSize: "0.7rem",
                     letterSpacing: "0.15em",
                     textTransform: "uppercase",
-                    color: "#cbd5f5",
+                    color: "#ffffff",
                     opacity: 0.85,
                   }}
                 >
@@ -618,18 +612,19 @@ const TrendsPage: React.FC = () => {
                         key={stream.id}
                         onClick={() => setActiveStream(stream.id)}
                         style={{
-                          borderRadius: 999,
+                          borderRadius: 10,
                           padding: "4px 10px",
                           fontSize: "0.75rem",
                           border: active
-                            ? "1px solid rgba(248,250,252,0.9)"
-                            : "1px solid rgba(248,250,252,0.35)",
+                            ? "2px solid #ffffff"
+                            : "2px solid rgba(255,255,255,0.4)",
                           background: active
-                            ? "rgba(248,250,252,0.95)"
+                            ? "#ffffff"
                             : "transparent",
-                          color: active ? "#020617" : "#e5e7eb",
+                          color: active ? "#3c3c3c" : "#ffffff",
+                          fontWeight: active ? 800 : 600,
                           cursor: "pointer",
-                          transition: "all 0.15s ease-out",
+                          transition: "all 0.1s ease-out",
                         }}
                       >
                         {stream.label}
@@ -664,7 +659,7 @@ const TrendsPage: React.FC = () => {
               style={{
                 fontSize: "0.9rem",
                 fontWeight: 600,
-                color: "#0f172a",
+                color: "#3c3c3c",
               }}
             >
               Difficulty mix
@@ -749,7 +744,7 @@ const TrendsPage: React.FC = () => {
                 flexWrap: "wrap",
                 gap: 8,
                 fontSize: "0.75rem",
-                color: "#334155",
+                color: "#3c3c3c",
                 paddingTop: 6,
               }}
             >
@@ -850,7 +845,7 @@ const TrendsPage: React.FC = () => {
                 style={{
                   fontSize: "1.25rem",
                   fontWeight: 650,
-                  color: "#020617",
+                  color: "#3c3c3c",
                   marginBottom: 4,
                 }}
               >
@@ -859,7 +854,7 @@ const TrendsPage: React.FC = () => {
               <p
                 style={{
                   fontSize: "0.8rem",
-                  color: "#64748b",
+                  color: "#777777",
                 }}
               >
                 Darker / bolder cards are heavier. Hit the{" "}
@@ -871,12 +866,12 @@ const TrendsPage: React.FC = () => {
             <div
               style={{
                 fontSize: "0.75rem",
-                color: "#475569",
+                color: "#777777",
                 whiteSpace: "nowrap",
               }}
             >
               Total weightage covered:{" "}
-              <span style={{ fontWeight: 600, color: "#020617" }}>
+              <span style={{ fontWeight: 600, color: "#3c3c3c" }}>
                 {Math.round(totalWeightage * 10) / 10}%
               </span>
             </div>
@@ -886,7 +881,7 @@ const TrendsPage: React.FC = () => {
             <p
               style={{
                 fontSize: "0.82rem",
-                color: "#64748b",
+                color: "#777777",
                 padding: "8px 4px",
               }}
             >
@@ -963,7 +958,7 @@ const TrendsPage: React.FC = () => {
                             style={{
                               fontSize: "1rem",
                               fontWeight: 650,
-                              color: "#020617",
+                              color: "#3c3c3c",
                             }}
                           >
                             {topicName}
@@ -1012,7 +1007,7 @@ const TrendsPage: React.FC = () => {
                         <p
                           style={{
                             fontSize: "0.85rem",
-                            color: "#475569",
+                            color: "#777777",
                             marginBottom: 6,
                           }}
                         >
@@ -1035,7 +1030,7 @@ const TrendsPage: React.FC = () => {
                               border: "1px solid rgba(59,130,246,0.6)",
                               background: "rgba(219,234,254,0.95)",
                               fontSize: "0.75rem",
-                              color: "#1d4ed8",
+                              color: "#1cb0f6",
                               cursor: "pointer",
                             }}
                           >
@@ -1065,7 +1060,7 @@ const TrendsPage: React.FC = () => {
                                 border: "1px solid rgba(148,163,184,0.6)",
                                 background: "rgba(248,250,252,0.95)",
                                 fontSize: "0.75rem",
-                                color: "#475569",
+                                color: "#777777",
                                 cursor: "pointer",
                                 listStyle: "none",
                               }}
@@ -1082,7 +1077,7 @@ const TrendsPage: React.FC = () => {
                                 borderRadius: 12,
                                 border: "1px solid rgba(148,163,184,0.45)",
                                 background: "rgba(255,255,255,0.98)",
-                                boxShadow: "0 10px 26px rgba(15,23,42,0.16)",
+                                boxShadow: "0 10px 26px rgba(0,0,0,0.06)",
                               }}
                             >
                               <button
@@ -1093,7 +1088,7 @@ const TrendsPage: React.FC = () => {
                                   border: "1px solid rgba(37,99,235,0.4)",
                                   background: "rgba(239,246,255,0.9)",
                                   fontSize: "0.74rem",
-                                  color: "#1d4ed8",
+                                  color: "#1cb0f6",
                                   cursor: "pointer",
                                   textAlign: "left",
                                 }}
@@ -1138,7 +1133,7 @@ const TrendsPage: React.FC = () => {
                                   border: "1px solid rgba(148,163,184,0.6)",
                                   background: "rgba(248,250,252,0.95)",
                                   fontSize: "0.74rem",
-                                  color: "#475569",
+                                  color: "#777777",
                                   cursor: "pointer",
                                   textAlign: "left",
                                 }}
@@ -1153,7 +1148,7 @@ const TrendsPage: React.FC = () => {
                       <div
                         style={{
                           fontSize: "0.8rem",
-                          color: "#64748b",
+                          color: "#777777",
                           whiteSpace: "nowrap",
                           textAlign: "right",
                         }}
@@ -1174,7 +1169,7 @@ const TrendsPage: React.FC = () => {
                         <p
                           style={{
                             fontSize: "0.78rem",
-                            color: "#64748b",
+                            color: "#777777",
                             marginBottom: 4,
                           }}
                         >
@@ -1187,7 +1182,7 @@ const TrendsPage: React.FC = () => {
                               "repeat(auto-fit,minmax(180px,1fr))",
                             gap: 6,
                             fontSize: "0.8rem",
-                            color: "#0f172a",
+                            color: "#3c3c3c",
                           }}
                         >
                           {sortedConcepts.map(([concept, pct]) => (
@@ -1200,7 +1195,7 @@ const TrendsPage: React.FC = () => {
                               }}
                             >
                               <span>{concept}</span>
-                              <span style={{ color: "#64748b" }}>
+                              <span style={{ color: "#777777" }}>
                                 ~{pct}%
                               </span>
                             </div>
@@ -1221,7 +1216,7 @@ const TrendsPage: React.FC = () => {
             style={{
               marginBottom: 8,
               fontSize: "0.8rem",
-              color: "#475569",
+              color: "#777777",
             }}
           >
             Pick your mode:
@@ -1296,7 +1291,7 @@ const TrendsPage: React.FC = () => {
                     padding: "5px 11px",
                     border: "1px solid rgba(59,130,246,0.6)",
                     background: "#ffffff",
-                    color: "#1d4ed8",
+                    color: "#1cb0f6",
                     fontSize: "0.74rem",
                     cursor: "pointer",
                   }}
@@ -1314,7 +1309,7 @@ const TrendsPage: React.FC = () => {
                     padding: "5px 11px",
                     border: "1px solid rgba(59,130,246,0.6)",
                     background: "#ffffff",
-                    color: "#1d4ed8",
+                    color: "#1cb0f6",
                     fontSize: "0.74rem",
                     cursor: "pointer",
                   }}

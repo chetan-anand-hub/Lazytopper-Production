@@ -363,7 +363,7 @@ export default function DailyMixPage() {
         <div
           style={{
             display: "flex", alignItems: "center", gap: 8, padding: "6px 14px",
-            background: streakDays > 0 ? "linear-gradient(135deg, #fff7ed, #ffedd5)" : "#f1f5f9",
+            background: streakDays > 0 ? "linear-gradient(135deg, #fff7ed, #ffedd5)" : "#f7f7f7",
             borderRadius: 999, fontWeight: 800, fontSize: 14,
           }}
         >
@@ -382,11 +382,11 @@ export default function DailyMixPage() {
           <span>Progress</span>
           <span>{answeredCount}/{items.length} answered</span>
         </div>
-        <div style={{ height: 8, background: "#e2e8f0", borderRadius: 999, overflow: "hidden" }}>
+        <div style={{ height: 8, background: "#e5e5e5", borderRadius: 999, overflow: "hidden" }}>
           <div
             style={{
               height: "100%", width: `${progressPct}%`,
-              background: completed ? "linear-gradient(90deg, #22c55e, #16a34a)" : "linear-gradient(90deg, #3b82f6, #2563eb)",
+              background: completed ? "#58cc02" : "#1cb0f6",
               borderRadius: 999, transition: "width 0.4s ease",
             }}
           />
@@ -401,12 +401,12 @@ export default function DailyMixPage() {
             onClick={() => playback.seek(i)}
             style={{
               width: 36, height: 36, borderRadius: 10,
-              border: i === playback.currentIndex ? "2px solid #2563eb" : "1px solid #e2e8f0",
+              border: i === playback.currentIndex ? "2px solid #1cb0f6" : "1px solid #e5e5e5",
               background: questionStates[i]?.submitted
                 ? questionStates[i]?.correct === false ? "#fef2f2" : "#f0fdf4"
                 : i === playback.currentIndex ? "#eff6ff" : "#fff",
               fontWeight: 700, fontSize: 14, cursor: "pointer",
-              color: i === playback.currentIndex ? "#2563eb" : "#64748b",
+              color: i === playback.currentIndex ? "#1cb0f6" : "#777777",
             }}
           >
             {questionStates[i]?.submitted ? (questionStates[i]?.correct === false ? "✗" : "✓") : i + 1}
@@ -416,7 +416,7 @@ export default function DailyMixPage() {
 
       <div
         style={{
-          marginTop: 18, border: "1px solid #e2e8f0", borderRadius: 16, padding: 20,
+          marginTop: 18, border: "1px solid #e5e5e5", borderRadius: 16, padding: 20,
           background: "#fff", boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
         }}
       >
@@ -424,7 +424,7 @@ export default function DailyMixPage() {
           <span
             style={{
               fontSize: 11, fontWeight: 800, padding: "2px 10px", borderRadius: 999,
-              background: isQuestionItem ? (difficultyColors[itemDifficulty] || "#94a3b8") : (currentItem?.type === "video" ? "#8b5cf6" : "#0ea5e9"),
+              background: isQuestionItem ? (difficultyColors[itemDifficulty] || "#afafaf") : (currentItem?.type === "video" ? "#ff9600" : "#0ea5e9"),
               color: "#fff",
               textTransform: "uppercase", letterSpacing: 0.5,
             }}
@@ -432,7 +432,7 @@ export default function DailyMixPage() {
             {isQuestionItem ? itemDifficulty : itemTypeLabel}
           </span>
           {itemTopic && (
-            <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 10px", borderRadius: 999, border: "1px solid #e2e8f0", color: "#475569" }}>
+            <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 10px", borderRadius: 999, border: "1px solid #e5e5e5", color: "#777777" }}>
               {itemTopic}
             </span>
           )}
@@ -467,7 +467,7 @@ export default function DailyMixPage() {
                 disabled={!qs?.studentAnswer?.trim()}
                 style={{
                   padding: "10px 24px",
-                  background: qs?.studentAnswer?.trim() ? "#2563eb" : "#94a3b8",
+                  background: qs?.studentAnswer?.trim() ? "#1cb0f6" : "#afafaf",
                   color: "#fff", border: "none", borderRadius: 10, fontWeight: 700, fontSize: 14,
                   cursor: qs?.studentAnswer?.trim() ? "pointer" : "default",
                 }}
@@ -478,8 +478,8 @@ export default function DailyMixPage() {
                 type="button"
                 onClick={() => handleSkip(playback.currentIndex)}
                 style={{
-                  padding: "10px 20px", background: "#f1f5f9", color: "#64748b",
-                  border: "1px solid #e2e8f0", borderRadius: 10, fontWeight: 600, fontSize: 14, cursor: "pointer",
+                  padding: "10px 20px", background: "#f7f7f7", color: "#777777",
+                  border: "1px solid #e5e5e5", borderRadius: 10, fontWeight: 600, fontSize: 14, cursor: "pointer",
                 }}
               >
                 Skip
@@ -503,18 +503,18 @@ export default function DailyMixPage() {
           <div
             style={{
               marginTop: 16, padding: 16, borderRadius: 12,
-              background: qs.correct === false ? "#fef2f2" : qs.correct === true ? "#f0fdf4" : "#f8fafc",
-              border: `1px solid ${qs.correct === false ? "#fecaca" : qs.correct === true ? "#bbf7d0" : "#e2e8f0"}`,
+              background: qs.correct === false ? "#fef2f2" : qs.correct === true ? "#f0fdf4" : "#f7f7f7",
+              border: `1px solid ${qs.correct === false ? "#fecaca" : qs.correct === true ? "#bbf7d0" : "#e5e5e5"}`,
             }}
           >
             {qs.feedbackLoading ? (
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <div style={{ width: 16, height: 16, border: "2px solid #3b82f6", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+                <div style={{ width: 16, height: 16, border: "2px solid #1cb0f6", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
                 <span style={{ fontSize: 14, opacity: 0.7 }}>Getting feedback...</span>
               </div>
             ) : (
               <>
-                <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 6, color: "#475569" }}>
+                <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 6, color: "#777777" }}>
                   {qs.studentAnswer === "(read)" ? "✅ Reviewed" : qs.correct === true ? "✅ Correct!" : qs.correct === false ? "❌ Needs improvement" : "📝 Feedback"}
                 </div>
                 {qs.studentAnswer !== "(skipped)" && qs.studentAnswer !== "(read)" && (
@@ -535,7 +535,7 @@ export default function DailyMixPage() {
           onClick={() => playback.prev()}
           disabled={!playback.canPrev}
           style={{
-            padding: "8px 20px", border: "1px solid #e2e8f0", borderRadius: 10, background: "#fff",
+            padding: "8px 20px", border: "1px solid #e5e5e5", borderRadius: 10, background: "#fff",
             fontWeight: 600, fontSize: 13, cursor: playback.canPrev ? "pointer" : "default",
             opacity: playback.canPrev ? 1 : 0.4,
           }}
@@ -546,7 +546,7 @@ export default function DailyMixPage() {
           <button
             type="button"
             onClick={() => playback.next()}
-            style={{ padding: "8px 20px", border: "1px solid #e2e8f0", borderRadius: 10, background: "#fff", fontWeight: 600, fontSize: 13, cursor: "pointer" }}
+            style={{ padding: "8px 20px", border: "1px solid #e5e5e5", borderRadius: 10, background: "#fff", fontWeight: 600, fontSize: 13, cursor: "pointer" }}
           >
             Next →
           </button>
@@ -577,7 +577,7 @@ export default function DailyMixPage() {
         <button
           type="button"
           onClick={() => navigate("/dashboard")}
-          style={{ padding: "8px 20px", background: "transparent", border: "1px solid #e2e8f0", borderRadius: 10, fontWeight: 600, fontSize: 13, color: "#64748b", cursor: "pointer" }}
+          style={{ padding: "8px 20px", background: "transparent", border: "1px solid #e5e5e5", borderRadius: 10, fontWeight: 600, fontSize: 13, color: "#777777", cursor: "pointer" }}
         >
           Back to Dashboard
         </button>

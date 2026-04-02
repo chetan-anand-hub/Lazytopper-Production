@@ -8,7 +8,7 @@ import { StudyPlannerView } from "./components/planner/StudyPlannerView";
 
 
 // Import the new Vibe toggle and command palette components.
-import { VibeToggle } from './ui/components/VibeToggle';
+
 import { CommandPalette } from './ui/components/CommandPalette';
 import { useState, useEffect, lazy, Suspense } from "react";
 import { useVibeMode } from './context/vibeModeContext';
@@ -61,7 +61,6 @@ function BottomNav() {
   const current = location.pathname;
   const go = (path: string) => navigate(path);
 
-  // Determine which nav item is active.
   const isHome = current === "/";
   const isTrends =
     current.startsWith("/trends") ||
@@ -73,15 +72,74 @@ function BottomNav() {
     current.startsWith("/mock-builder");
   const isProfile = current === "/profile";
 
-  const baseBtnStyle: React.CSSProperties = {
-    background: "transparent",
-    border: "none",
-    fontSize: "0.9rem",
-    cursor: "pointer",
-  };
+  const activeColor = "#58cc02";
+  const inactiveColor = "#afafaf";
 
-  const activeColor = "#ffb400";
-  const inactiveColor = "#f1f1f1";
+  const navItems = [
+    {
+      label: "Home",
+      icon: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+      ),
+      active: isHome,
+      onClick: () => go("/"),
+    },
+    {
+      label: "Learn",
+      icon: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+        </svg>
+      ),
+      active: isTrends,
+      onClick: () => {
+        let ctx = { grade: "10", subject: "Maths" };
+        try {
+          const raw = localStorage.getItem("lazytopper.lastSubjectContext");
+          if (raw) { const p = JSON.parse(raw); if (p?.grade && p?.subject) ctx = p; }
+        } catch {}
+        go(`/trends/${ctx.grade}/${ctx.subject}`);
+      },
+    },
+    {
+      label: "Practice",
+      icon: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M12 8v4l3 3"/>
+        </svg>
+      ),
+      active: isPredictive,
+      onClick: () => go("/predictive-papers"),
+    },
+    {
+      label: "Progress",
+      icon: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="18" y1="20" x2="18" y2="10"/>
+          <line x1="12" y1="20" x2="12" y2="4"/>
+          <line x1="6" y1="20" x2="6" y2="14"/>
+        </svg>
+      ),
+      active: isDashboard,
+      onClick: () => go("/dashboard"),
+    },
+    {
+      label: "Profile",
+      icon: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+      ),
+      active: isProfile,
+      onClick: () => go("/profile"),
+    },
+  ];
 
   return (
     <div
@@ -92,73 +150,38 @@ function BottomNav() {
         right: 0,
         display: "flex",
         justifyContent: "space-around",
-        padding: "10px 12px",
-        background: "#111",
-        borderTop: "1px solid #333",
+        padding: "6px 8px 10px",
+        background: "#ffffff",
+        borderTop: "2px solid #e5e5e5",
         zIndex: 20,
       }}
     >
-      <button
-        onClick={() => go("/")}
-        style={{
-          ...baseBtnStyle,
-          color: isHome ? activeColor : inactiveColor,
-          fontWeight: isHome ? 700 : 500,
-        }}
-      >
-        Home
-      </button>
-
-      <button
-        onClick={() => {
-          let ctx = { grade: "10", subject: "Maths" };
-          try {
-            const raw = localStorage.getItem("lazytopper.lastSubjectContext");
-            if (raw) { const p = JSON.parse(raw); if (p?.grade && p?.subject) ctx = p; }
-          } catch {}
-          go(`/trends/${ctx.grade}/${ctx.subject}`);
-        }}
-        style={{
-          ...baseBtnStyle,
-          color: isTrends ? activeColor : inactiveColor,
-          fontWeight: isTrends ? 700 : 500,
-        }}
-      >
-        Trends
-      </button>
-
-      <button
-        onClick={() => go("/predictive-papers")}
-        style={{
-          ...baseBtnStyle,
-          color: isPredictive ? activeColor : inactiveColor,
-          fontWeight: isPredictive ? 700 : 500,
-        }}
-      >
-        Predict
-      </button>
-
-      <button
-        onClick={() => go("/dashboard")}
-        style={{
-          ...baseBtnStyle,
-          color: isDashboard ? activeColor : inactiveColor,
-          fontWeight: isDashboard ? 700 : 500,
-        }}
-      >
-        Dashboard
-      </button>
-
-      <button
-        onClick={() => go("/profile")}
-        style={{
-          ...baseBtnStyle,
-          color: isProfile ? activeColor : inactiveColor,
-          fontWeight: isProfile ? 700 : 500,
-        }}
-      >
-        Profile
-      </button>
+      {navItems.map((item) => (
+        <button
+          key={item.label}
+          onClick={item.onClick}
+          style={{
+            background: "transparent",
+            border: "none",
+            cursor: "pointer",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 2,
+            color: item.active ? activeColor : inactiveColor,
+            fontWeight: item.active ? 800 : 700,
+            fontSize: "0.65rem",
+            letterSpacing: "0.02em",
+            textTransform: "uppercase",
+            padding: "4px 8px",
+            borderRadius: 8,
+            transition: "color 0.15s ease",
+          }}
+        >
+          {item.icon}
+          <span>{item.label}</span>
+        </button>
+      ))}
     </div>
   );
 }
@@ -287,46 +310,44 @@ export default function App() {
 
   return (
     <>
-      {/* Top navigation bar with brand name and vibe toggle */}
+      {/* Top navigation bar — Duolingo-style clean header */}
       <div className="navbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span>LazyTopper</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{
+            width: 32, height: 32, borderRadius: 10,
+            background: "#58cc02", display: "flex", alignItems: "center", justifyContent: "center",
+            color: "#fff", fontWeight: 900, fontSize: 14,
+          }}>LT</div>
+          <span style={{ fontWeight: 800, fontSize: "1.1rem", color: "#3c3c3c" }}>LazyTopper</span>
+        </div>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <span style={{ fontSize: "0.78rem", opacity: 0.8 }}>Press Ctrl/Cmd + K to search</span>
-          <VibeToggle variant="navbar" />
+          <button
+            type="button"
+            onClick={() => setPaletteOpen(true)}
+            title="Search (Ctrl+K)"
+            style={{
+              background: "#f7f7f7", border: "2px solid #e5e5e5", borderRadius: 12,
+              padding: "6px 12px", fontSize: "0.78rem", fontWeight: 700,
+              color: "#afafaf", cursor: "pointer", display: "flex", alignItems: "center", gap: 4,
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            Search
+          </button>
           {user ? (
-            <>
-              <button
-                type="button"
-                onClick={() => navigate("/profile")}
-                title="Your Profile"
-                style={{
-                  width: 30,
-                  height: 30,
-                  borderRadius: "50%",
-                  background: "linear-gradient(135deg, #3b82f6, #8b5cf6)",
-                  border: "none",
-                  color: "#fff",
-                  fontWeight: 800,
-                  fontSize: 13,
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                {(user.displayName || user.email || "S").charAt(0).toUpperCase()}
-              </button>
-              <button
-                type="button"
-                className="pill-btn"
-                style={{ padding: "5px 12px", fontSize: "0.8rem" }}
-                onClick={handleLogout}
-                disabled={logoutBusy}
-                title="Log out"
-              >
-                {logoutBusy ? "Logging out..." : "Log out"}
-              </button>
-            </>
+            <button
+              type="button"
+              onClick={() => navigate("/profile")}
+              title="Your Profile"
+              style={{
+                width: 34, height: 34, borderRadius: "50%",
+                background: "#58cc02", border: "3px solid #46a302",
+                color: "#fff", fontWeight: 900, fontSize: 14,
+                cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+              }}
+            >
+              {(user.displayName || user.email || "S").charAt(0).toUpperCase()}
+            </button>
           ) : null}
         </div>
       </div>
