@@ -2,6 +2,7 @@ import { type User, onAuthStateChanged } from "firebase/auth";
 import { collection, doc, getDoc, setDoc, updateDoc, type Firestore } from "firebase/firestore";
 import { authClient, firestoreDb } from "./firebaseClient";
 import type { SessionItem } from "./sessionTypes";
+import { generateDailyMix } from "./dailyMixGenerator";
 
 export type SessionKind = "daily_mix" | "chapter" | "hpq" | "revision" | "mock";
 export type SessionSubjectId = "maths" | "science";
@@ -140,19 +141,43 @@ function writeLocalSessions(value: LocalSessionMap): void {
   }
 }
 
-function buildMockItem(): SessionItem {
-  return {
-    id: "temp_q_1",
-    itemType: "practice_question",
-    title: "Placeholder Question",
-    description: "Placeholder Question for cloud session continuity verification.",
-    payload: {
-      question: "Placeholder Question: verify cloud-backed session continuity.",
-      options: ["Okay, got it", "Wait, what?"],
-      answer: "Okay, got it",
-      explanation: "This is a temporary verification item before full content import.",
-    },
-  };
+function buildSessionItems(req: StartSessionRequest): SessionItem[] {
+  const subjectId = req.subjectId || "maths";
+  const subject: "Maths" | "Science" = subjectId === "science" ? "Science" : "Maths";
+  const chapterId = req.chapterId || "";
+  const topicKey = chapterId.replace(/^\d+-\w+-/, "") || "triangles";
+  const vibe = req.vibe || "high";
+
+  try {
+    const mixItems = generateDailyMix({
+      grade: 10,
+      subject,
+      topic: topicKey,
+      seedKey: `session-${Date.now()}`,
+      count: 6,
+      intensity: vibe === "high" ? "hard" : "normal",
+    });
+
+    return mixItems.map((item) => ({
+      id: item.id,
+      itemType: (item.type === "question" ? "practice_question" : item.type === "video" ? "concept_micro" : "revision_card") as SessionItem["itemType"],
+      title: item.title,
+      description: item.description,
+      payload: item.payload,
+    }));
+  } catch {
+    return [{
+      id: `session-q-${Date.now()}`,
+      itemType: "practice_question" as const,
+      title: `Practice: ${subject} - ${topicKey.replace(/[-_]/g, " ")}`,
+      description: `Write a complete board-style answer for this ${subject} question.`,
+      payload: {
+        question: `Solve a board-style ${topicKey.replace(/[-_]/g, " ")} question. Show all steps with proper reasoning.`,
+        topic: topicKey,
+        subject,
+      },
+    }];
+  }
 }
 
 function buildSessionDoc(
@@ -170,7 +195,7 @@ function buildSessionDoc(
     subjectId: req.subjectId || "maths",
     chapterId: req.chapterId,
     vibe: req.vibe || "high",
-    items: [buildMockItem()],
+    items: buildSessionItems(req),
     cursor: 0,
     completed: false,
     answers: {},
@@ -366,69 +391,64 @@ export async function startSession(req: StartSessionRequest): Promise<StartSessi
   const sessionId = generateId();
   const now = Date.now();
   const localAuth = readLocalAuthSession();
+  const owner = localAuth?.uid || "local";
+  const newSession = buildSessionDoc(req, owner, sessionId, now);
+
+  const sessions = readLocalSessions();
+  sessions[sessionId] = newSession;
+  writeLocalSessions(sessions);
 
   try {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const user: any = await waitForUser();
+    const user: any = await waitForUser(2000);
     const db = requireFirestore();
     const uid = String(user?.uid || "").trim();
-    if (!uid) {
-      throw createSessionError(SESSION_AUTH_UNAVAILABLE, "Signed-in user UID is unavailable.");
+    if (uid) {
+      newSession.owner = uid;
+      sessions[sessionId] = newSession;
+      writeLocalSessions(sessions);
+      void upsertLearnerProfileBaseline(db, uid, now).catch(() => {});
+      const sessionRef = doc(db, "learnerProfiles", uid, "sessions", sessionId);
+      void setDoc(sessionRef, newSession).catch(() => {});
+      void writeTranscript(uid, sessionId, {
+        itemId: "session_start",
+        role: "system",
+        kind: "session_start",
+        content: `Session started (${newSession.kind}) for ${newSession.subjectId}.`,
+        cursor: 0,
+        completed: false,
+      }).catch(() => {});
     }
+  } catch {}
 
-    await upsertLearnerProfileBaseline(db, uid, now);
-
-    const newSession = buildSessionDoc(req, uid, sessionId, now);
-    const sessionRef = doc(db, "learnerProfiles", uid, "sessions", sessionId);
-    await setDoc(sessionRef, newSession);
-    await writeTranscript(uid, sessionId, {
-      itemId: "session_start",
-      role: "system",
-      kind: "session_start",
-      content: `Session started (${newSession.kind}) for ${newSession.subjectId}.`,
-      cursor: 0,
-      completed: false,
-    });
-    return { ok: true, sessionId, session: newSession };
-  } catch (error) {
-    if (!isLocalSessionMode() || !localAuth?.uid) {
-      throw error;
-    }
-    const localSession = buildSessionDoc(req, String(localAuth.uid), sessionId, now);
-    const sessions = readLocalSessions();
-    sessions[sessionId] = localSession;
-    writeLocalSessions(sessions);
-    return { ok: true, sessionId, session: localSession };
-  }
+  return { ok: true, sessionId, session: newSession };
 }
 
 export async function getSession(sessionId: string): Promise<GetSessionResponse> {
-  const localAuth = readLocalAuthSession();
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const user: any = await waitForUser();
-    const db = requireFirestore();
-    const uid = String(user?.uid || "").trim();
-    if (!uid) {
-      throw createSessionError(SESSION_AUTH_UNAVAILABLE, "Signed-in user UID is unavailable.");
-    }
-
-    const ref = doc(db, "learnerProfiles", uid, "sessions", sessionId);
-    const snap = await getDoc(ref);
-    if (!snap.exists()) {
-      throw createSessionError(SESSION_NOT_FOUND, "Session not found.");
-    }
-    return { ok: true, session: snap.data() as SessionDoc };
-  } catch (error) {
-    if (!isLocalSessionMode() || !localAuth?.uid) {
-      throw error;
-    }
-    const localSession = readLocalSessions()[sessionId];
-    if (!localSession) {
-      throw createSessionError(SESSION_NOT_FOUND, "Session not found.");
-    }
+  const localSession = readLocalSessions()[sessionId];
+  if (localSession) {
     return { ok: true, session: localSession };
   }
+
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const user: any = await waitForUser(2000);
+    const db = requireFirestore();
+    const uid = String(user?.uid || "").trim();
+    if (uid) {
+      const ref = doc(db, "learnerProfiles", uid, "sessions", sessionId);
+      const snap = await getDoc(ref);
+      if (snap.exists()) {
+        const session = snap.data() as SessionDoc;
+        const sessions = readLocalSessions();
+        sessions[sessionId] = session;
+        writeLocalSessions(sessions);
+        return { ok: true, session };
+      }
+    }
+  } catch {}
+
+  throw createSessionError(SESSION_NOT_FOUND, "Session not found.");
 }
 
 export async function submitSessionAnswer(
@@ -436,81 +456,62 @@ export async function submitSessionAnswer(
   itemId: string,
   answer: string
 ): Promise<SubmitSessionResponse> {
-  const localAuth = readLocalAuthSession();
+  const sessions = readLocalSessions();
+  const localSession = sessions[sessionId];
+  if (!localSession) {
+    throw createSessionError(SESSION_NOT_FOUND, "Session not found.");
+  }
+
+  const { currentItem, previousCursor, updatedSession, feedback } = applyAnswerToSession(
+    localSession,
+    itemId,
+    answer
+  );
+
+  sessions[sessionId] = updatedSession;
+  writeLocalSessions(sessions);
 
   try {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const user: any = await waitForUser();
+    const user: any = await waitForUser(2000);
     const db = requireFirestore();
     const uid = String(user?.uid || "").trim();
-    if (!uid) {
-      throw createSessionError(SESSION_AUTH_UNAVAILABLE, "Signed-in user UID is unavailable.");
-    }
-
-    const sessionRef = doc(db, "learnerProfiles", uid, "sessions", sessionId);
-    const snap = await getDoc(sessionRef);
-    if (!snap.exists()) {
-      throw createSessionError(SESSION_NOT_FOUND, "Session not found.");
-    }
-
-    const session = snap.data() as SessionDoc;
-    const { currentItem, previousCursor, updatedSession, feedback } = applyAnswerToSession(
-      session,
-      itemId,
-      answer
-    );
-
-    await updateDoc(sessionRef, {
-      answers: updatedSession.answers,
-      cursor: updatedSession.cursor,
-      completed: updatedSession.completed,
-      metrics: updatedSession.metrics,
-      updatedAt: updatedSession.updatedAt,
-    });
-
-    await Promise.all([
-      writeTranscript(uid, sessionId, {
-        itemId: currentItem.id,
-        role: "student",
-        kind: "answer_submission",
-        content: String(answer || ""),
-        cursor: previousCursor,
+    if (uid) {
+      const sessionRef = doc(db, "learnerProfiles", uid, "sessions", sessionId);
+      void updateDoc(sessionRef, {
+        answers: updatedSession.answers,
+        cursor: updatedSession.cursor,
         completed: updatedSession.completed,
-      }),
-      writeTranscript(uid, sessionId, {
-        itemId: currentItem.id,
-        role: "system",
-        kind: "feedback",
-        content: feedback.correct ? "Correct path." : "Needs improvement.",
-        score: feedback.score,
-        correct: feedback.correct,
-        missingKeywords: feedback.missingKeywords,
-        cursor: feedback.nextCursor,
-        completed: feedback.completed,
-      }),
-    ]);
+        metrics: updatedSession.metrics,
+        updatedAt: updatedSession.updatedAt,
+      }).catch(() => {});
+      void Promise.all([
+        writeTranscript(uid, sessionId, {
+          itemId: currentItem.id,
+          role: "student",
+          kind: "answer_submission",
+          content: String(answer || ""),
+          cursor: previousCursor,
+          completed: updatedSession.completed,
+        }),
+        writeTranscript(uid, sessionId, {
+          itemId: currentItem.id,
+          role: "system",
+          kind: "feedback",
+          content: feedback.correct ? "Correct path." : "Needs improvement.",
+          score: feedback.score,
+          correct: feedback.correct,
+          missingKeywords: feedback.missingKeywords,
+          cursor: feedback.nextCursor,
+          completed: feedback.completed,
+        }),
+      ]).catch(() => {});
+    }
+  } catch {}
 
-    return {
-      ok: true,
-      feedback,
-      session: updatedSession,
-    };
-  } catch (error) {
-    if (!isLocalSessionMode() || !localAuth?.uid) {
-      throw error;
-    }
-    const sessions = readLocalSessions();
-    const localSession = sessions[sessionId];
-    if (!localSession) {
-      throw createSessionError(SESSION_NOT_FOUND, "Session not found.");
-    }
-    const { updatedSession, feedback } = applyAnswerToSession(localSession, itemId, answer);
-    sessions[sessionId] = updatedSession;
-    writeLocalSessions(sessions);
-    return {
-      ok: true,
-      feedback,
-      session: updatedSession,
-    };
-  }
+  return {
+    ok: true,
+    feedback,
+    session: updatedSession,
+  };
 }

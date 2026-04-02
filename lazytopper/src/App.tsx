@@ -109,7 +109,14 @@ function BottomNav() {
       </button>
 
       <button
-        onClick={() => go("/trends/10/Maths")}
+        onClick={() => {
+          let ctx = { grade: "10", subject: "Maths" };
+          try {
+            const raw = localStorage.getItem("lazytopper.lastSubjectContext");
+            if (raw) { const p = JSON.parse(raw); if (p?.grade && p?.subject) ctx = p; }
+          } catch {}
+          go(`/trends/${ctx.grade}/${ctx.subject}`);
+        }}
         style={{
           ...baseBtnStyle,
           color: isTrends ? activeColor : inactiveColor,
@@ -157,37 +164,54 @@ export default function App() {
   const { mode, setMode } = useVibeMode();
   const { user, logout } = useAuth();
 
+  const getSubjectContext = (): { grade: string; subject: string } => {
+    const loc = window.location.pathname;
+    const match = loc.match(/\/(\d+)\/(Maths|Science)/i);
+    if (match) return { grade: match[1], subject: match[2] };
+    try {
+      const raw = localStorage.getItem("lazytopper.lastSubjectContext");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed?.grade && parsed?.subject) return parsed;
+      }
+    } catch {}
+    return { grade: "10", subject: "Maths" };
+  };
+
   const handleCommandSelect = (action: { id: string; handler: string }, query: string) => {
     const parsed = parseCommandIntent(query);
     const resolvedHandler = parsed.recognized ? parsed.handler : action.handler;
     const normalizedTopic = normalizeTopicKey(parsed.topic || "");
     const topicParam = normalizedTopic ? `?topic=${encodeURIComponent(normalizedTopic)}` : "";
+    const ctx = getSubjectContext();
+    const g = ctx.grade;
+    const s = ctx.subject;
 
     switch (resolvedHandler) {
       case 'navigateToDashboard':
         navigate('/dashboard');
         break;
       case 'navigateToPractice':
-        navigate(`/practice/10/Maths${topicParam}`);
+        navigate(`/practice/${g}/${s}${topicParam}`);
         break;
       case 'navigateToHPQ':
-        navigate('/highly-probable/10/Maths');
+        navigate(`/highly-probable/${g}/${s}`);
         break;
       case 'navigateToMockTest':
         navigate('/predictive-papers');
         break;
       case 'navigateToMockBuilder':
-        navigate('/mock-builder/10/Maths');
+        navigate(`/mock-builder/${g}/${s}`);
         break;
       case 'navigateToTopicHub':
         if (normalizedTopic) {
-          navigate(`/topic-hub/10/Maths/${encodeURIComponent(normalizedTopic)}`);
+          navigate(`/topic-hub/${g}/${s}/${encodeURIComponent(normalizedTopic)}`);
         } else {
-          navigate('/topic-hub');
+          navigate(`/topic-hub/${g}/${s}`);
         }
         break;
       case 'navigateToMentor':
-        navigate('/mentor/10/Maths');
+        navigate(`/mentor/${g}/${s}`);
         break;
       case 'navigateToStats':
         navigate('/dashboard');
@@ -196,7 +220,7 @@ export default function App() {
         navigate('/weekly-wrapped');
         break;
       case 'navigateToDailyMix':
-        navigate(`/daily-mix/10/Maths${topicParam}`);
+        navigate(`/daily-mix/${g}/${s}${topicParam}`);
         break;
       case "setVibeLow":
         setMode("zombie");
@@ -208,13 +232,21 @@ export default function App() {
         setMode(mode === 'beast' ? 'zombie' : 'beast');
         break;
       default:
-        console.log('Executing command:', action.handler);
         break;
     }
     setPaletteOpen(false);
   };
 
-  // Keyboard shortcut to open the command palette (Cmd/Ctrl + K)
+  const location = useLocation();
+  useEffect(() => {
+    const match = location.pathname.match(/\/(\d+)\/(Maths|Science)/i);
+    if (match) {
+      try {
+        localStorage.setItem("lazytopper.lastSubjectContext", JSON.stringify({ grade: match[1], subject: match[2] }));
+      } catch {}
+    }
+  }, [location.pathname]);
+
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {

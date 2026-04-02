@@ -76,6 +76,16 @@ Light-theme, student-friendly educational landing page:
 - Full SEO preserved (title, description, OG, Twitter, JSON-LD, canonical, FAQ schema)
 - Files: `lazytopper/src/pages/Home.tsx`, `lazytopper/src/pages/home.css`
 
+## Core Loop Fixes (Task #16 — completed)
+
+Unified the student learning loop:
+- **Daily Mix unified**: Removed duplicate `computeDailyMix()` from planStorage.ts. Dashboard and all surfaces now use `generateDailyMix` from `dailyMixGenerator.ts` — single code path for daily mix content generation
+- **Session continuity real**: Replaced placeholder session items ("Placeholder Question") in sessionApi.ts and sessionStore.cjs with real content from the daily mix generator. Sessions now store actual questions, concepts, and revision items
+- **Local-first sessions**: Client-side localStorage is the primary session store (always works offline). Firestore sync happens in the background for cross-device continuity — no more blocking on Firebase auth
+- **Adaptive Dashboard hero**: Dashboard shows ONE clear adaptive hero card at the top based on priority: daily mix not done → weakest topic needs practice → streak maintenance. Secondary actions shown below
+- **Context-aware Command Palette**: All command palette routes (Ctrl/Cmd+K) now use the current grade/subject from the URL or last-visited context (persisted in localStorage) instead of hardcoded "10/Maths". BottomNav also uses dynamic context
+- Files: `planStorage.ts`, `Dashboard.tsx`, `sessionApi.ts`, `sessionStore.cjs`, `App.tsx`
+
 ## Dead Code Cleanup (Task #6 — completed)
 
 Removed dead session/play infrastructure:

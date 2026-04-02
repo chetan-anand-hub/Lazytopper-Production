@@ -7,7 +7,9 @@ import { topicHubV2Content } from "../data/topicHubV2Full";
 import { useSmartLearning } from "../engine/smartLearningStore";
 import type { ChapterMeta } from "../engine/smartLearningTypes";
 import { getAttempts } from "../services/practiceInsights";
-import { computeDailyMix, getStrategyPlan, saveStrategyPlan, updateAndGetStreak } from "../services/planStorage";
+import { getStrategyPlan, saveStrategyPlan, updateAndGetStreak } from "../services/planStorage";
+import { generateDailyMix } from "../services/dailyMixGenerator";
+import type { DailyMixItem } from "../services/dailyMixPlayback";
 import type { StrategyPlan } from "../services/strategyEngine";
 import { generateStrategyPlan } from "../services/strategyEngine";
 import { normalizeTopicKey } from "../utils/topicResolver";
@@ -121,9 +123,22 @@ export default function Dashboard() {
   const [plannerMessage, setPlannerMessage] = useState("");
 
   const [planRecord, setPlanRecord] = useState<StrategyPlan | null>(() => getStrategyPlan());
-  const mixItems = useMemo<string[]>(() => (planRecord ? computeDailyMix(planRecord) : []), [planRecord]);
   const [streak] = useState<number>(() => updateAndGetStreak());
   const attempts = getAttempts();
+
+  const dailyMixPreview = useMemo<DailyMixItem[]>(() => {
+    const subject = planRecord?.subject === "Science" ? "Science" as const : plannerSubject;
+    const d = new Date();
+    const seedKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    return generateDailyMix({
+      grade: 10,
+      subject,
+      topic: planRecord?.dailyMix?.topicKey || "triangles",
+      seedKey,
+      count: 5,
+      intensity: "normal",
+    });
+  }, [planRecord, plannerSubject]);
 
   useEffect(() => {
     const uid = user?.uid;
@@ -301,8 +316,57 @@ export default function Dashboard() {
 
   const gradeNum = String((studentClass || "").replace(/\D/g, "")) || "10";
   const dailyMixMinutes = mode === "zombie" ? 20 : 40;
-  const mixTitle = `Your ${nowDayLabel()} Mix (${dailyMixMinutes} mins)`;
   const subjectForQuickActions: SubjectTitle = planRecord?.subject === "Science" ? "Science" : plannerSubject;
+
+  const dailyMixDoneToday = useMemo(() => {
+    try {
+      const d = new Date();
+      const todayStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      const raw = localStorage.getItem(`lazytopper.dailyMix.v1.${subjectForQuickActions}`);
+      if (!raw) return false;
+      const parsed = JSON.parse(raw);
+      return parsed?.date === todayStr && parsed?.completed === true;
+    } catch { return false; }
+  }, [subjectForQuickActions]);
+
+  type HeroAction = { type: string; title: string; description: string; ctaLabel: string; onAction: () => void };
+  const heroAction = useMemo<HeroAction>(() => {
+    if (!dailyMixDoneToday) {
+      return {
+        type: "daily_mix",
+        title: `Your ${nowDayLabel()} Mix (${dailyMixMinutes} mins)`,
+        description: `${dailyMixPreview.filter(i => i.type === "question").length} questions + concept + revision. Complete it to keep your streak going!`,
+        ctaLabel: "Start Daily Mix",
+        onAction: () => navigate(`/daily-mix/${gradeNum}/${subjectForQuickActions}`),
+      };
+    }
+    const weakRow = performanceRows.find(r => r.attempted >= 2 && r.accuracy < 50);
+    if (weakRow) {
+      return {
+        type: "weak_topic",
+        title: `Focus: ${weakRow.topicName}`,
+        description: `Your accuracy on ${weakRow.topicName} is ${weakRow.accuracy}%. Practice this topic to improve your score.`,
+        ctaLabel: `Practice ${weakRow.topicName}`,
+        onAction: () => navigate(`/practice/${gradeNum}/${weakRow.subject}?topic=${encodeURIComponent(weakRow.topicKey)}`),
+      };
+    }
+    if (streak > 0) {
+      return {
+        type: "streak",
+        title: `${streak} Day Streak! Keep it alive`,
+        description: "You've done your daily mix. Keep momentum with a quick practice session or explore TopicHub.",
+        ctaLabel: "Continue in TopicHub",
+        onAction: () => navigate(`/topic-hub/${gradeNum}/${subjectForQuickActions}`),
+      };
+    }
+    return {
+      type: "daily_mix",
+      title: "Start Your Study Session",
+      description: "Begin with today's Daily Mix to build consistency and grow your streak.",
+      ctaLabel: "Start Daily Mix",
+      onAction: () => navigate(`/daily-mix/${gradeNum}/${subjectForQuickActions}`),
+    };
+  }, [dailyMixDoneToday, dailyMixMinutes, dailyMixPreview, performanceRows, streak, gradeNum, subjectForQuickActions, navigate]);
 
   const handleGeneratePlanner = () => {
     if (!targetPercentValue || !hoursPerDayValue || !daysLeftValue) {
@@ -384,50 +448,37 @@ export default function Dashboard() {
     <div className="lt-page">
       <h2 className="title">Your Personal Dashboard</h2>
 
-      <div className="card" data-ux-priority-block="dashboard-next-best-actions" data-testid="dashboard-priority-block">
-        <h3>Today - Start Here</h3>
-        <p style={{ marginTop: 6, opacity: 0.82 }}>
-          Pick one action and continue your Learn to Practice to Mastery loop.
-        </p>
-        <div className="focus-cta-row">
+      <div className="card" data-ux-priority-block="dashboard-next-best-actions" data-testid="dashboard-priority-block" style={{ background: "linear-gradient(135deg, #eff6ff, #f0fdf4)", border: "2px solid #bfdbfe" }}>
+        <h3 style={{ fontSize: "1.15rem", fontWeight: 900 }}>{heroAction.title}</h3>
+        <p style={{ marginTop: 6, opacity: 0.82 }}>{heroAction.description}</p>
+        <div className="focus-cta-row" style={{ marginTop: 12 }}>
           <button
-            className="cta-btn small"
+            className="cta-btn"
             data-ux-above-fold-cta="dashboard"
-            onClick={() => openDailyMix(subjectForQuickActions)}
+            style={{ fontWeight: 800, minWidth: 200 }}
+            onClick={heroAction.onAction}
           >
-            Start Daily Mix
-          </button>
-          <button
-            className="cta-btn small"
-            data-ux-above-fold-cta="dashboard"
-            onClick={() => navigate(`/topic-hub/${gradeNum}/${subjectForQuickActions}`)}
-          >
-            Continue in TopicHub
-          </button>
-          <button
-            className="cta-btn small"
-            data-ux-above-fold-cta="dashboard"
-            onClick={() =>
-              navigate(
-                `/practice/${gradeNum}/${subjectForQuickActions}?topic=${encodeURIComponent(weakestTopicKey)}`
-              )
-            }
-          >
-            Practice Weakest Topic
+            {heroAction.ctaLabel}
           </button>
         </div>
-        {planRecord ? (
-          <p style={{ marginTop: 10, fontSize: "0.85rem", opacity: 0.82 }}>
-            Need a quick daily sprint?{" "}
-            <button
-              type="button"
-              className="pill-btn"
-              onClick={() => openDailyMix(subjectForQuickActions)}
-            >
-              Play Mix
+        <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
+          {heroAction.type !== "daily_mix" && (
+            <button className="cta-btn small" onClick={() => openDailyMix(subjectForQuickActions)}>
+              Start Daily Mix
             </button>
-          </p>
-        ) : null}
+          )}
+          {heroAction.type !== "weak_topic" && (
+            <button
+              className="cta-btn small"
+              onClick={() => navigate(`/practice/${gradeNum}/${subjectForQuickActions}?topic=${encodeURIComponent(weakestTopicKey)}`)}
+            >
+              Practice Weakest Topic
+            </button>
+          )}
+          <button className="cta-btn small" onClick={() => navigate(`/topic-hub/${gradeNum}/${subjectForQuickActions}`)}>
+            Open TopicHub
+          </button>
+        </div>
       </div>
 
       <div className="card">
@@ -530,12 +581,15 @@ export default function Dashboard() {
         {plannerMessage ? <p style={{ marginTop: 10, opacity: 0.88 }}>{plannerMessage}</p> : null}
       </div>
 
-      {planRecord && mixItems.length > 0 ? (
+      {dailyMixPreview.length > 0 ? (
         <div className="card focus-card">
-          <h3>{mixTitle}</h3>
+          <h3>Today's Mix Preview</h3>
           <ul className="mix-list">
-            {mixItems.map((item, idx) => (
-              <li key={idx}>{item}</li>
+            {dailyMixPreview.map((item) => (
+              <li key={item.id}>
+                <span style={{ fontWeight: 600 }}>{item.title}</span>
+                {item.description ? <span style={{ opacity: 0.7, fontSize: "0.85rem" }}> - {item.description}</span> : null}
+              </li>
             ))}
           </ul>
           <div style={{ marginTop: 10, fontSize: "0.9rem", opacity: 0.86 }}>
@@ -567,12 +621,9 @@ export default function Dashboard() {
             <button
               className="cta-btn"
               style={{ fontWeight: 800, minWidth: 220 }}
-              onClick={() => openDailyMix(planRecord.subject)}
+              onClick={() => openDailyMix(subjectForQuickActions)}
             >
-              Play {mixTitle}
-            </button>
-            <button className="cta-btn small" onClick={() => navigate(`/topic-hub/${gradeNum}/${planRecord.subject}`)}>
-              Open TopicHub
+              Play Daily Mix ({dailyMixMinutes} mins)
             </button>
           </div>
           <p style={{ marginTop: 10, fontSize: "0.84rem", opacity: 0.82 }}>

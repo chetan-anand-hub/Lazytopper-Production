@@ -17,73 +17,74 @@ function createSessionId() {
 function buildSessionItems(input) {
   const kind = String(input.kind || "daily_mix").trim();
   const chapterId = String(input.chapterId || "").trim();
-  const chapterLabel = chapterId || "selected chapter";
+  const topicKey = chapterId.replace(/^\d+-\w+-/, "") || "triangles";
+  const chapterLabel = topicKey.replace(/[-_]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
   const vibe = String(input.vibe || "high").toLowerCase() === "low" ? "low" : "high";
   const hardMode = vibe === "high";
   const questionDifficulty = hardMode ? "Medium/Hard" : "Easy/Medium";
+  const subjectId = toSubjectId(input.subjectId);
+  const subject = subjectId === "science" ? "Science" : "Maths";
 
-  const base = [
+  const items = [
     {
-      id: "lesson_1",
+      id: `concept-${topicKey}`,
       itemType: "concept_micro",
-      title: `Learn: ${chapterLabel}`,
-      description: "Read one focused concept card before solving.",
-      payload: { chapterId, vibe },
+      title: `Concept: ${chapterLabel}`,
+      description: `Understand ${chapterLabel} with one quick explanation before practice.`,
+      payload: { chapterId, topicKey, subject, vibe, mode: "concept" },
     },
     {
-      id: "worked_1",
-      itemType: "worked_example",
-      title: "Worked Example",
-      description: "Follow the board-writing sequence and identify each reason.",
-      payload: { chapterId },
-    },
-    {
-      id: "question_1",
+      id: `q1-${topicKey}`,
       itemType: "practice_question",
-      title: `${questionDifficulty} Practice`,
-      description: "Write Given, To Find/Prove, criterion/law, and final conclusion.",
+      title: `${questionDifficulty} Practice 1: ${chapterLabel}`,
+      description: `Solve a board-style ${chapterLabel} question. Show all steps.`,
       payload: {
-        expectedAnswer:
-          "Given, To Find/Prove, Criterion/Theorem/Law, Therefore/Hence",
-        keywords: ["given", "to", "criterion", "theorem", "law", "therefore", "hence"],
+        topic: chapterLabel,
+        topicKey,
+        subject,
+        stem: `Solve a board-style ${chapterLabel} question and write the final answer in exam format.`,
+        tier: "must-crack",
+        mode: "must-crack",
       },
     },
     {
-      id: "mistake_1",
-      itemType: "mistake_fix_micro",
-      title: "Mistake Fix",
-      description: "Review your last mistake and attempt one corrected step.",
-      payload: { chapterId },
+      id: `q2-${topicKey}`,
+      itemType: "practice_question",
+      title: `${questionDifficulty} Practice 2: ${chapterLabel}`,
+      description: `Another board-style ${chapterLabel} question.`,
+      payload: {
+        topic: chapterLabel,
+        topicKey,
+        subject,
+        stem: `Practice one more board-style ${chapterLabel} question.`,
+        tier: "must-crack",
+        mode: "must-crack",
+      },
     },
     {
-      id: "tip_1",
-      itemType: "exam_tip_card",
-      title: "Exam Tip",
-      description: "Score safely by naming the exact theorem/law before applying it.",
-      payload: { chapterId },
+      id: `q3-${topicKey}`,
+      itemType: "practice_question",
+      title: `${questionDifficulty} Practice 3: ${chapterLabel}`,
+      description: `Final practice question for ${chapterLabel}.`,
+      payload: {
+        topic: chapterLabel,
+        topicKey,
+        subject,
+        stem: `Complete one final ${chapterLabel} practice question.`,
+        tier: kind === "hpq" ? "must-crack" : "high-roi",
+        mode: kind === "hpq" ? "must-crack" : "practice",
+      },
     },
     {
-      id: "done_1",
-      itemType: "mastery_quiz",
-      title: "Session Complete",
-      description: "Quick recap: what improved and what to do next.",
-      payload: { chapterId },
+      id: `revision-${topicKey}`,
+      itemType: "revision_card",
+      title: `Revision Card: ${chapterLabel}`,
+      description: `Revise key formulas, diagram labels, and exam patterns for ${chapterLabel}.`,
+      payload: { chapterId, topicKey, subject, mode: "revision" },
     },
   ];
 
-  if (kind === "chapter") return base;
-  if (kind === "hpq") {
-    return base.map((item, idx) =>
-      idx === 2
-        ? {
-            ...item,
-            title: "HPQ Drill",
-            description: "Solve one high-probability board-style question.",
-          }
-        : item
-    );
-  }
-  return base;
+  return items;
 }
 
 function createSession(input) {

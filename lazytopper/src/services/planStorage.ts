@@ -1,12 +1,3 @@
-// src/services/planStorage.ts
-//
-// Thin wrapper around StrategyPlan localStorage + streak helpers.
-// We keep this module name because existing pages import from it.
-
-// Import the v2 StrategyPlan type from our strategy engine.  The latest
-// engine exports `StrategyPlan` rather than the deprecated `StrategyPlanV1`.
-// Keeping our wrapper thin means we simply re-export helpers for saving
-// and loading the plan without imposing any additional shape on the data.
 import type { StrategyPlan } from "./strategyEngine";
 import {
   loadStrategyPlanV1 as _loadStrategyPlan,
@@ -22,39 +13,14 @@ function streakCountKey(): string {
   return `lazytopper.streak.count:${getActiveProgressUser() || "anonymous"}`;
 }
 
-/** Save the structured strategy plan to localStorage. */
 export function saveStrategyPlan(plan: StrategyPlan): void {
-  // Delegate to the underlying storage helper.  We alias the V1 save
-  // function here for backwards compatibility; the function signature
-  // accepts our new StrategyPlan type which is structurally
-  // compatible with the v1 interface (both expose a `dailyMix`).
   _saveStrategyPlan(plan);
 }
 
-/** Load the structured strategy plan from localStorage. */
 export function getStrategyPlan(): StrategyPlan | null {
   return _loadStrategyPlan();
 }
 
-/** Derive a small “daily mix” list from the plan. */
-export function computeDailyMix(plan: StrategyPlan): string[] {
-  const mix = plan?.dailyMix;
-  if (!mix) return [];
-  const topic = mix.topicLabel || "Today’s focus";
-  const mins = typeof mix.minutes === "number" ? mix.minutes : undefined;
-  const line1 = mins ? `${topic} • ~${mins} min` : `${topic}`;
-  // lightweight 3-step scaffold that works even without extra metadata
-  return [
-    line1,
-    "Practice: 10–15 questions (HPQs or mixed practice)",
-    "Revision: quick notes + 5 min recap",
-  ];
-}
-
-/**
- * Updates and returns the user's streak count.
- * Streak increases when user visits on consecutive calendar days.
- */
 export function updateAndGetStreak(): number {
   try {
     const dateKey = streakDateKey();
