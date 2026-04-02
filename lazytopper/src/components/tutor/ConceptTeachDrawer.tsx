@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { TeachFlow } from "./TeachFlow";
+import { TeachFlow, type ConceptContext } from "./TeachFlow";
 
 export interface ConceptTeachContext {
   topicKey: string;
@@ -43,6 +43,13 @@ export default function ConceptTeachDrawer({ open, onClose, context }: ConceptTe
     .replace(/^(MATH|SCI)-/i, "")
     .replace(/[-_]+/g, " ")
     .replace(/\b\w/g, (c) => c.toUpperCase());
+
+  const conceptCtx: ConceptContext = {
+    questionText: context.questionText,
+    marks: context.marks,
+    subtopic: context.subtopic,
+    concept: context.concept,
+  };
 
   return (
     <div
@@ -115,6 +122,7 @@ export default function ConceptTeachDrawer({ open, onClose, context }: ConceptTe
             grade="10"
             nodeId={context.subtopic || context.concept || undefined}
             onComplete={onClose}
+            conceptContext={conceptCtx}
           />
         </div>
       </div>

@@ -5,12 +5,20 @@ import {
   upsertNodeProgress,
 } from "../../services/topicHubMastery";
 
+export interface ConceptContext {
+  questionText?: string;
+  marks?: number;
+  subtopic?: string;
+  concept?: string;
+}
+
 interface TeachFlowProps {
   topicKey: string;
   subject: string;
   grade: string;
   nodeId?: string;
   onComplete?: () => void;
+  conceptContext?: ConceptContext;
 }
 
 type Phase = "intro" | "teaching" | "awaiting_answer" | "responding" | "complete" | "previously_completed";
@@ -345,9 +353,10 @@ function renderInlineFormatting(text: string): React.ReactNode {
   return parts.length === 1 ? parts[0] : <>{parts}</>;
 }
 
-export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete }: TeachFlowProps) {
-  const wasCompleted = hasTopicBeenCompleted(topicKey);
-  const savedSession = loadSessionState(topicKey);
+export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, conceptContext }: TeachFlowProps) {
+  const isConceptMode = Boolean(conceptContext);
+  const wasCompleted = isConceptMode ? false : hasTopicBeenCompleted(topicKey);
+  const savedSession = isConceptMode ? null : loadSessionState(topicKey);
   const topicDisplayName = formatTopicName(topicKey);
 
   const [phase, setPhase] = useState<Phase>(
@@ -367,6 +376,7 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete }: Teac
   }, [chatMessages, loading]);
 
   const persistSession = useCallback(() => {
+    if (isConceptMode) return;
     if (phase === "complete" || phase === "previously_completed" || phase === "intro") return;
     saveSessionState(topicKey, {
       topicKey,
@@ -375,7 +385,7 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete }: Teac
       chatMessages,
       savedAt: Date.now(),
     });
-  }, [topicKey, phase, stepCount, chatMessages]);
+  }, [topicKey, phase, stepCount, chatMessages, isConceptMode]);
 
   useEffect(() => {
     persistSession();
@@ -413,8 +423,10 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete }: Teac
   }, [topicKey]);
 
   function markComplete() {
-    markTopicCompleted(topicKey);
-    clearSessionState(topicKey);
+    if (!isConceptMode) {
+      markTopicCompleted(topicKey);
+      clearSessionState(topicKey);
+    }
     const snapshot = loadTopicMasterySnapshot(topicKey);
     const effectiveNodeId = nodeId ?? topicKey;
     const updated = upsertNodeProgress(snapshot, effectiveNodeId, {
@@ -467,9 +479,9 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete }: Teac
     setPhase("teaching");
     try {
       const payload = await callMentor({
-        mode: "learn_teach",
+        mode: conceptContext ? "concept_teach" : "learn_teach",
         section: "learn",
-        subSection: "teach",
+        subSection: conceptContext ? "concept_teach" : "teach",
         selectedTab: "teach",
         topic: topicKey,
         subject,
@@ -478,6 +490,14 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete }: Teac
         messages: [],
         conversational: true,
         stepIndex: 0,
+        ...(conceptContext ? {
+          conceptContext: {
+            questionText: conceptContext.questionText,
+            marks: conceptContext.marks,
+            subtopic: conceptContext.subtopic,
+            concept: conceptContext.concept,
+          },
+        } : {}),
       });
 
       let tutorText = extractTutorText(payload);
@@ -521,9 +541,9 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete }: Teac
       const isNearEnd = nextStep >= MAX_TEACH_STEPS;
 
       const payload = await callMentor({
-        mode: "learn_teach",
+        mode: conceptContext ? "concept_teach" : "learn_teach",
         section: "learn",
-        subSection: "teach",
+        subSection: conceptContext ? "concept_teach" : "teach",
         selectedTab: "teach",
         topic: topicKey,
         subject,
@@ -534,6 +554,7 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete }: Teac
         conversational: true,
         stepIndex: nextStep,
         nearCompletion: isNearEnd,
+        ...(conceptContext ? { conceptContext } : {}),
       });
 
       let tutorText = extractTutorText(payload);

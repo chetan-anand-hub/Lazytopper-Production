@@ -1333,7 +1333,7 @@ function isLearnCompetencyPayload(payload) {
   return false;
 }
 
-const STRUCTURED_MODES = ['board_steps_ms', 'solve_with_me', 'learn_teach', 'learn_proof', 'learn_mindmap'];
+const STRUCTURED_MODES = ['board_steps_ms', 'solve_with_me', 'learn_teach', 'learn_proof', 'learn_mindmap', 'concept_teach'];
 const MODE_ALIASES = {
   planner: 'plan',
   examcoach: 'coach',
@@ -1344,6 +1344,7 @@ const MODE_ALIASES = {
   board_steps_ms: 'board_steps_ms',
   board_steps: 'board_steps_ms',
   learn_teach: 'learn_teach',
+  concept_teach: 'concept_teach',
   learn_proof: 'learn_proof',
   learn_mindmap: 'learn_mindmap',
   grind_triangles_v1: 'grind_triangles_v1',
@@ -4272,21 +4273,43 @@ function buildLearnSolveWithMeFallback(payload) {
   };
 }
 
-function buildConversationalTeachSystemPrompt(payload) {
+function buildConversationalTeachSystemPrompt(payload, isConceptTeach) {
   const subject = payload.subject || 'Maths';
   const grade = payload.grade != null ? payload.grade : 10;
   const topicKey = payload.topicKey || payload.topic || '';
   const stepIndex = Number(payload.stepIndex) || 0;
   const nearCompletion = Boolean(payload.nearCompletion);
   const studentAttempt = payload.attempt_loop?.student_attempt?.raw_text || '';
+  const conceptCtx = payload.conceptContext || {};
 
   const topicName = topicKey.replace(/[-_]+/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 
   const isFirstStep = stepIndex === 0;
   const hasStudentResponse = Boolean(studentAttempt);
 
+  const conceptQuestionText = String(conceptCtx.questionText || '').trim();
+  const conceptSubtopic = String(conceptCtx.subtopic || '').trim();
+  const conceptConcept = String(conceptCtx.concept || '').trim();
+  const conceptMarks = conceptCtx.marks ? Number(conceptCtx.marks) : null;
+  const hasConceptContext = isConceptTeach && (conceptQuestionText || conceptSubtopic);
+
   let stepGuidance = '';
-  if (isFirstStep) {
+  if (isFirstStep && hasConceptContext) {
+    const focusLines = [];
+    focusLines.push(`The student just saw this exam question and wants to understand the underlying concept:`);
+    if (conceptQuestionText) focusLines.push(`Question: "${conceptQuestionText}"`);
+    if (conceptMarks) focusLines.push(`(${conceptMarks} marks)`);
+    if (conceptSubtopic) focusLines.push(`Subtopic/concept: ${conceptSubtopic}`);
+    if (conceptConcept) focusLines.push(`Concept tag: ${conceptConcept}`);
+    focusLines.push('');
+    focusLines.push('YOUR 3-PHASE APPROACH for this concept explanation:');
+    focusLines.push('Phase 1 (this message): Explain the NCERT theory behind this specific concept/subtopic. Use a simple real-life analogy, then state the key formula/rule. Focus ONLY on the concept needed for this question, not the entire chapter.');
+    focusLines.push('Phase 2 (next 2-3 messages): Walk through 2-3 solved examples similar to this question, showing step-by-step board-exam style working.');
+    focusLines.push('Phase 3 (final message): Give a checkpoint question testing this concept. After the student answers, wrap up and congratulate them.');
+    focusLines.push('');
+    focusLines.push('Start Phase 1 now: Greet warmly, explain the specific concept with an analogy, state the key rule, and end with a question to check understanding.');
+    stepGuidance = focusLines.join('\n');
+  } else if (isFirstStep) {
     stepGuidance = [
       `This is the FIRST message. Start by warmly greeting the student.`,
       `Begin with a relatable real-life example or analogy that connects ${topicName} to something a teenager would understand.`,
@@ -4936,8 +4959,10 @@ async function handleRequest(req, res) {
 
     if (!mode) return sendJson(res, 400, { error: 'Missing "mode" in request body' });
 
+    const isConceptTeach = mode === 'concept_teach';
     let normalisedMode = normalizeIncomingMode(mode) || mode;
-    if (isTeachTab) normalisedMode = 'learn_teach';
+    if (isConceptTeach) normalisedMode = 'learn_teach';
+    if (isTeachTab && !isConceptTeach) normalisedMode = 'learn_teach';
     else if (isMindmapTeach) normalisedMode = 'learn_mindmap';
     if (isMisconceptionExplain || isCompetencyExplain) normalisedMode = 'explain';
     if (isTrianglesEvaluation) {
@@ -5081,8 +5106,8 @@ async function handleRequest(req, res) {
     } else if (isCompetencyExplain) {
       systemPrompt =
         'You are a strict CBSE Class 10 teacher. Output must follow the exact five-section format for competencies.';
-    } else if (isConversationalTeach) {
-      systemPrompt = buildConversationalTeachSystemPrompt(payload);
+    } else if (isConceptTeach || isConversationalTeach) {
+      systemPrompt = buildConversationalTeachSystemPrompt(payload, isConceptTeach);
     } else if (isTeachTabPayload(payload)) {
       systemPrompt =
         'You are a strict CBSE Class 10 teacher. Return only the LearnTeachContract JSON schema.';
@@ -5114,11 +5139,18 @@ async function handleRequest(req, res) {
           userPrompt = buildBoardStepsMSPrompt(payload);
           break;
         case 'learn_teach':
-          if (isConversationalTeach) {
+          if (isConceptTeach || isConversationalTeach) {
             const topicName = (payload.topic || payload.topicKey || '').replace(/[-_]+/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
             const stepIdx = Number(payload.stepIndex) || 0;
             const studentText = payload.attempt_loop?.student_attempt?.raw_text || '';
-            if (stepIdx === 0) {
+            const cCtx = payload.conceptContext || {};
+            if (stepIdx === 0 && isConceptTeach && (cCtx.questionText || cCtx.subtopic)) {
+              const parts = [`Teach the concept behind this specific question from "${topicName}".`];
+              if (cCtx.questionText) parts.push(`The question was: "${cCtx.questionText}"`);
+              if (cCtx.subtopic) parts.push(`Subtopic: ${cCtx.subtopic}`);
+              parts.push('Start with Phase 1: explain the NCERT theory for this specific concept with a real-life analogy and end with a check question.');
+              userPrompt = parts.join('\n');
+            } else if (stepIdx === 0) {
               userPrompt = `Start teaching "${topicName}" to a CBSE Class ${payload.grade || 10} student. This is the very first message — introduce the topic with a real-life example and ask an engaging opening question.`;
             } else if (studentText) {
               userPrompt = `The student responded: "${studentText}"\n\nAcknowledge their response, explain further with a new example, and ask the next question.`;

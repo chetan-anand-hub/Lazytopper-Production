@@ -780,14 +780,12 @@ useEffect(() => {
   const [conceptDrawerContext, setConceptDrawerContext] = useState<ConceptTeachContext | null>(null);
 
   const openConceptDrawer = (q: PracticeQuestion) => {
-    const anyQ = q as any;
     setConceptDrawerContext({
-      topicKey: anyQ.topicKey || canonicalTopicKey || topicParam,
+      topicKey: q.topicKey || canonicalTopicKey || topicParam,
       subject: subjectKey,
       questionText: q.questionText,
       marks: q.marks,
-      subtopic: anyQ.subtopic || anyQ.conceptKey || anyQ.subtopicKey,
-      concept: anyQ.concept,
+      subtopic: q.subtopic,
     });
     setConceptDrawerOpen(true);
   };

@@ -261,8 +261,8 @@ const HighlyProbableQuestions: React.FC = () => {
       subject: subjectKey,
       questionText: q.question,
       marks: q.marks,
-      subtopic: (q as any).subtopic,
-      concept: (q as any).concept,
+      subtopic: q.subtopic,
+      concept: q.concept,
     });
     setConceptDrawerOpen(true);
   };
