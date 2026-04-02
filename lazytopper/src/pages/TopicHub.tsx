@@ -7,6 +7,7 @@ import ConceptTeachDrawer, { type ConceptTeachContext } from "../components/tuto
 import { navigateToPractice } from "../navigation/practiceNavigation";
 import { trackUxEvent } from "../services/uxTelemetry";
 import { useSmartLearning } from "../engine/smartLearningStore";
+import * as gam from "../utils/gamification";
 import type { V2Definition } from "../utils/getTopicV2Content";
 import type { CanonicalQuestion } from "../data/predictionTypes";
 import type { ChapterId } from "../engine/smartLearningTypes";
@@ -334,6 +335,11 @@ export default function TopicHub() {
         source: "other",
         attemptedAt: new Date().toISOString(),
       });
+      gam.incrementDailyGoal();
+      if (isCorrect) {
+        gam.awardXP(10);
+        gam.showXPToast(10);
+      }
     },
     [smartLearning, chapterId, grade, subjectTitle]
   );
