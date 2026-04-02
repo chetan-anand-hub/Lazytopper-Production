@@ -575,7 +575,11 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
 
       if (nextStep >= MAX_TEACH_STEPS) {
         markComplete();
-        setPhase("complete");
+        if (isConceptMode && onComplete) {
+          onComplete();
+        } else {
+          setPhase("complete");
+        }
       } else {
         setPhase("awaiting_answer");
       }
@@ -789,9 +793,16 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
       {stepCount >= 2 && phase === "awaiting_answer" && (
         <button
           style={s.skipLink}
-          onClick={() => { markComplete(); setPhase("complete"); }}
+          onClick={() => {
+            markComplete();
+            if (isConceptMode && onComplete) {
+              onComplete();
+            } else {
+              setPhase("complete");
+            }
+          }}
         >
-          I understand this topic — skip to practice
+          {isConceptMode ? "I understand — close" : "I understand this topic — skip to practice"}
         </button>
       )}
     </div>
