@@ -7,7 +7,6 @@ import ConceptTeachDrawer, { type ConceptTeachContext } from "../components/tuto
 import { navigateToPractice } from "../navigation/practiceNavigation";
 import { trackUxEvent } from "../services/uxTelemetry";
 import { useSmartLearning } from "../engine/smartLearningStore";
-import { class10TopicRegistry } from "../data/class10TopicRegistry";
 import type { V2Definition } from "../utils/getTopicV2Content";
 import type { CanonicalQuestion } from "../data/predictionTypes";
 import type { ChapterId } from "../engine/smartLearningTypes";
@@ -37,12 +36,37 @@ function buildChapterId(grade: string, subject: string, topicKey: string): Chapt
   return `${grade}-${subject}-${topicKey}`;
 }
 
+const CANONICAL_WEIGHTAGE: Record<string, number> = {
+  "real-numbers": 7,
+  "polynomials": 6,
+  "pair-of-linear-equations": 11,
+  "pair-of-linear-equations-in-two-variables": 11,
+  "quadratic-equations": 8,
+  "arithmetic-progressions": 7,
+  "triangles": 10,
+  "coordinate-geometry": 7,
+  "trigonometry": 10,
+  "circles": 6,
+  "areas-related-to-circles": 4,
+  "surface-areas-and-volumes": 7,
+  "statistics": 7,
+  "probability": 6,
+  "chemical-reactions-and-equations": 8,
+  "acids-bases-and-salts": 8,
+  "metals-and-non-metals": 8,
+  "carbon-and-its-compounds": 8,
+  "life-processes": 9,
+  "control-and-co-ordination": 7,
+  "reproduction": 7,
+  "heredity-and-evolution": 6,
+  "light-reflection-and-refraction-incl-human-eye-prism": 10,
+  "electricity": 9,
+  "magnetic-effects-of-electric-current": 7,
+  "our-environment": 5,
+};
+
 function lookupWeightage(topicKey: string): number {
-  const entry = class10TopicRegistry.find(
-    (r) => r.topicKey.toLowerCase().replace(/\s+/g, "-") === topicKey ||
-      r.topicName.toLowerCase().replace(/\s+/g, "-") === topicKey
-  );
-  return entry?.approxWeightagePercent ?? 0;
+  return CANONICAL_WEIGHTAGE[topicKey] ?? 5;
 }
 
 type RecentTopicRecord = {
@@ -66,29 +90,53 @@ function upsertRecentTopic(list: RecentTopicRecord[], entry: RecentTopicRecord):
   return [entry, ...filtered].slice(0, MAX_RECENT_TOPICS);
 }
 
-interface TopicLevelMastery {
+interface LessonProgress {
   conceptsCompleted: string[];
   quizCorrect: number;
   quizTotal: number;
   lessonCompleted: boolean;
 }
 
-function loadTopicLevelMastery(topicKey: string): TopicLevelMastery {
+function loadLessonProgress(topicKey: string): LessonProgress {
   if (typeof window === "undefined") return { conceptsCompleted: [], quizCorrect: 0, quizTotal: 0, lessonCompleted: false };
   try {
     const raw = window.localStorage.getItem(TOPIC_MASTERY_KEY_PREFIX + topicKey);
     if (!raw) return { conceptsCompleted: [], quizCorrect: 0, quizTotal: 0, lessonCompleted: false };
-    return JSON.parse(raw) as TopicLevelMastery;
+    return JSON.parse(raw) as LessonProgress;
   } catch {
     return { conceptsCompleted: [], quizCorrect: 0, quizTotal: 0, lessonCompleted: false };
   }
 }
 
-function saveTopicLevelMastery(topicKey: string, mastery: TopicLevelMastery): void {
+function saveLessonProgress(topicKey: string, progress: LessonProgress): void {
   if (typeof window === "undefined") return;
   try {
-    window.localStorage.setItem(TOPIC_MASTERY_KEY_PREFIX + topicKey, JSON.stringify(mastery));
+    window.localStorage.setItem(TOPIC_MASTERY_KEY_PREFIX + topicKey, JSON.stringify(progress));
   } catch { /* ignore */ }
+}
+
+function buildFallbackCheckpoint(def: V2Definition, topicName: string): CanonicalQuestion {
+  const correctAnswer = def.description.slice(0, 60) + (def.description.length > 60 ? "…" : "");
+  return {
+    id: `fallback-${def.title.replace(/\s+/g, "-").toLowerCase()}`,
+    subject: "Maths",
+    topicKey: "",
+    subtopic: def.title,
+    section: "A",
+    marks: 1,
+    format: "MCQ" as CanonicalQuestion["format"],
+    difficulty: "Easy" as CanonicalQuestion["difficulty"],
+    bloomSkill: "Remember" as CanonicalQuestion["bloomSkill"],
+    questionText: `What is "${def.title}" in ${topicName}?`,
+    options: [
+      correctAnswer,
+      "This concept is not covered in this chapter",
+      "None of the above",
+      "All of the above",
+    ],
+    answer: correctAnswer,
+    explanation: def.description,
+  };
 }
 
 type LessonPhase = "landing" | "learning" | "summary";
@@ -203,7 +251,7 @@ export default function TopicHub() {
     return Array.isArray(raw) ? raw.map((s) => String(s || "").trim()).filter(Boolean) : [];
   }, [v2]);
 
-  const checkpointQuestions = useMemo<CanonicalQuestion[]>(() => {
+  const mcqPool = useMemo<CanonicalQuestion[]>(() => {
     const practiceTopicKey = normalizeTopicKey(topicKey) || topicKey;
     const practiceSet = generatePracticeSet({
       subject: subject as "Maths" | "Science",
@@ -215,6 +263,13 @@ export default function TopicHub() {
       (q) => Boolean(q.questionText) && Array.isArray(q.options) && q.options.length >= 2 && Boolean(q.answer)
     );
   }, [subject, topicKey, definitions.length]);
+
+  const conceptCheckpoints = useMemo<CanonicalQuestion[]>(() => {
+    return definitions.map((def, idx) => {
+      if (idx < mcqPool.length) return mcqPool[idx];
+      return buildFallbackCheckpoint(def, title);
+    });
+  }, [definitions, mcqPool, title]);
 
   const [phase, setPhase] = useState<LessonPhase>("landing");
   const [conceptIdx, setConceptIdx] = useState(0);
@@ -229,7 +284,7 @@ export default function TopicHub() {
     questionText: "",
   });
 
-  const [mastery, setMastery] = useState<TopicLevelMastery>(() => loadTopicLevelMastery(topicKey));
+  const [progress, setProgress] = useState<LessonProgress>(() => loadLessonProgress(topicKey));
 
   useEffect(() => {
     setPhase("landing");
@@ -237,20 +292,17 @@ export default function TopicHub() {
     setShowingCheckpoint(false);
     setSelectedAnswer(null);
     setAnswerRevealed(false);
-    setMastery(loadTopicLevelMastery(topicKey));
+    setProgress(loadLessonProgress(topicKey));
   }, [topicKey]);
 
   const totalConcepts = definitions.length;
-  const localMasteryPercent = totalConcepts > 0
-    ? Math.round((mastery.conceptsCompleted.length / totalConcepts) * 100)
-    : 0;
-  const displayMasteryPercent = Math.max(localMasteryPercent, smartMasteryPercent);
+  const masteryPercent = smartMasteryPercent;
 
-  const updateMastery = useCallback(
-    (updater: (prev: TopicLevelMastery) => TopicLevelMastery) => {
-      setMastery((prev) => {
+  const updateProgress = useCallback(
+    (updater: (prev: LessonProgress) => LessonProgress) => {
+      setProgress((prev) => {
         const next = updater(prev);
-        saveTopicLevelMastery(topicKey, next);
+        saveLessonProgress(topicKey, next);
         return next;
       });
     },
@@ -259,12 +311,12 @@ export default function TopicHub() {
 
   const markConceptCompleted = useCallback(
     (conceptTitle: string) => {
-      updateMastery((prev) => {
+      updateProgress((prev) => {
         if (prev.conceptsCompleted.includes(conceptTitle)) return prev;
         return { ...prev, conceptsCompleted: [...prev.conceptsCompleted, conceptTitle] };
       });
     },
-    [updateMastery]
+    [updateProgress]
   );
 
   const recordCheckpointToSmartLearning = useCallback(
@@ -288,19 +340,19 @@ export default function TopicHub() {
 
   const recordQuizAnswer = useCallback(
     (correct: boolean, question: CanonicalQuestion) => {
-      updateMastery((prev) => ({
+      updateProgress((prev) => ({
         ...prev,
         quizCorrect: prev.quizCorrect + (correct ? 1 : 0),
         quizTotal: prev.quizTotal + 1,
       }));
       recordCheckpointToSmartLearning(correct, question);
     },
-    [updateMastery, recordCheckpointToSmartLearning]
+    [updateProgress, recordCheckpointToSmartLearning]
   );
 
   const markLessonCompleted = useCallback(() => {
-    updateMastery((prev) => ({ ...prev, lessonCompleted: true }));
-  }, [updateMastery]);
+    updateProgress((prev) => ({ ...prev, lessonCompleted: true }));
+  }, [updateProgress]);
 
   const startLearning = useCallback(() => {
     setPhase("learning");
@@ -311,7 +363,7 @@ export default function TopicHub() {
   }, []);
 
   const currentDef = definitions[conceptIdx] as V2Definition | undefined;
-  const currentCheckpoint = checkpointQuestions[conceptIdx % Math.max(checkpointQuestions.length, 1)] as CanonicalQuestion | undefined;
+  const currentCheckpoint = conceptCheckpoints[conceptIdx] as CanonicalQuestion | undefined;
 
   const advanceToNext = useCallback(() => {
     if (currentDef) {
@@ -436,20 +488,20 @@ export default function TopicHub() {
                 </div>
               )}
               <div>
-                <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#22c55e" }}>{displayMasteryPercent}%</div>
+                <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#22c55e" }}>{masteryPercent}%</div>
                 <div style={{ fontSize: "0.75rem", color: "#94a3b8", fontWeight: 500 }}>Mastery</div>
               </div>
             </div>
 
-            {displayMasteryPercent > 0 && (
+            {masteryPercent > 0 && (
               <div style={{
                 marginTop: 16, height: 8, borderRadius: 999, background: "#f1f5f9",
                 overflow: "hidden", maxWidth: 300, marginInline: "auto",
               }}>
                 <div style={{
                   height: "100%", borderRadius: 999, transition: "width 0.4s ease",
-                  width: `${displayMasteryPercent}%`,
-                  background: displayMasteryPercent >= 80 ? "#22c55e" : displayMasteryPercent >= 40 ? "#6366f1" : "#94a3b8",
+                  width: `${masteryPercent}%`,
+                  background: masteryPercent >= 80 ? "#22c55e" : masteryPercent >= 40 ? "#6366f1" : "#94a3b8",
                 }} />
               </div>
             )}
@@ -488,7 +540,7 @@ export default function TopicHub() {
               onMouseDown={(e) => { if (hasEnoughContent) (e.target as HTMLElement).style.transform = "scale(0.97)"; }}
               onMouseUp={(e) => { (e.target as HTMLElement).style.transform = "scale(1)"; }}
             >
-              {mastery.lessonCompleted ? "Review Again" : localMasteryPercent > 0 ? "Continue Learning" : "Start Learning"}
+              {progress.lessonCompleted ? "Review Again" : masteryPercent > 0 ? "Continue Learning" : "Start Learning"}
             </button>
 
             {!hasEnoughContent && (
@@ -623,41 +675,23 @@ export default function TopicHub() {
                   >
                     Teach Me
                   </button>
-                  {currentCheckpoint && currentCheckpoint.options && currentCheckpoint.options.length >= 2 ? (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        markConceptCompleted(currentDef.title);
-                        setShowingCheckpoint(true);
-                        setSelectedAnswer(null);
-                        setAnswerRevealed(false);
-                      }}
-                      style={{
-                        padding: "8px 20px", borderRadius: 10,
-                        background: "linear-gradient(135deg, #6366f1, #4f46e5)",
-                        border: "none", color: "#fff", fontWeight: 600,
-                        fontSize: "0.82rem", cursor: "pointer",
-                      }}
-                    >
-                      Got it → Quick Check
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        markConceptCompleted(currentDef.title);
-                        advanceToNext();
-                      }}
-                      style={{
-                        padding: "8px 20px", borderRadius: 10,
-                        background: "linear-gradient(135deg, #6366f1, #4f46e5)",
-                        border: "none", color: "#fff", fontWeight: 600,
-                        fontSize: "0.82rem", cursor: "pointer",
-                      }}
-                    >
-                      Got it → Next
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      markConceptCompleted(currentDef.title);
+                      setShowingCheckpoint(true);
+                      setSelectedAnswer(null);
+                      setAnswerRevealed(false);
+                    }}
+                    style={{
+                      padding: "8px 20px", borderRadius: 10,
+                      background: "linear-gradient(135deg, #6366f1, #4f46e5)",
+                      border: "none", color: "#fff", fontWeight: 600,
+                      fontSize: "0.82rem", cursor: "pointer",
+                    }}
+                  >
+                    Got it → Quick Check
+                  </button>
                 </div>
               </div>
             )}
@@ -812,19 +846,19 @@ export default function TopicHub() {
                 border: "1px solid #bbf7d0",
               }}>
                 <div style={{ fontSize: "1.6rem", fontWeight: 800, color: "#16a34a" }}>
-                  {mastery.conceptsCompleted.length}/{totalConcepts}
+                  {progress.conceptsCompleted.length}/{totalConcepts}
                 </div>
                 <div style={{ fontSize: "0.75rem", color: "#64748b", fontWeight: 500, marginTop: 2 }}>
                   Concepts Learned
                 </div>
               </div>
-              {mastery.quizTotal > 0 && (
+              {progress.quizTotal > 0 && (
                 <div style={{
                   padding: "16px 24px", background: "#eef2ff", borderRadius: 14,
                   border: "1px solid #c7d2fe",
                 }}>
                   <div style={{ fontSize: "1.6rem", fontWeight: 800, color: "#6366f1" }}>
-                    {mastery.quizCorrect}/{mastery.quizTotal}
+                    {progress.quizCorrect}/{progress.quizTotal}
                   </div>
                   <div style={{ fontSize: "0.75rem", color: "#64748b", fontWeight: 500, marginTop: 2 }}>
                     Quiz Score
