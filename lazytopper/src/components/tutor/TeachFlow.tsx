@@ -5,6 +5,7 @@ import {
   upsertNodeProgress,
 } from "../../services/topicHubMastery";
 import { TutorMessageRenderer } from "./TutorMessageRenderer";
+import { extractTutorText as sharedExtractTutorText, extractStructuredSection } from "./tutorStructuredExtract";
 
 export interface ConceptContext {
   questionText?: string;
@@ -28,6 +29,7 @@ interface ChatMessage {
   role: "tutor" | "student";
   content: string;
   isCheckpoint?: boolean;
+  structured?: import("./TutorMessageRenderer").StructuredSection | null;
 }
 
 interface TeachFlowSessionState {
@@ -164,82 +166,7 @@ function formatCompletionDate(isoDate: string | null): string {
   }
 }
 
-function extractTutorText(payload: Record<string, unknown>): string {
-  if (!payload) return "";
-
-  if (typeof payload.responseText === "string" && (payload.responseText as string).trim())
-    return (payload.responseText as string).trim();
-
-  const data = (payload.data as Record<string, unknown>) ?? payload;
-  const structured = (data.structured as Record<string, unknown>) ?? data;
-
-  if (typeof data.responseText === "string" && (data.responseText as string).trim())
-    return (data.responseText as string).trim();
-  if (typeof data.feedback === "string" && (data.feedback as string).trim())
-    return (data.feedback as string).trim();
-  if (typeof structured.feedback === "string" && (structured.feedback as string).trim())
-    return (structured.feedback as string).trim();
-
-  const teach = (structured.teach as Record<string, unknown>) ?? (data.teach as Record<string, unknown>);
-  if (teach) {
-    const parts: string[] = [];
-    if (typeof teach.goalLine === "string") parts.push(teach.goalLine as string);
-    if (Array.isArray(teach.simpleExplanation)) {
-      parts.push(...(teach.simpleExplanation as string[]).map(String));
-    }
-    if (Array.isArray(teach.keyIdeas)) {
-      parts.push(...(teach.keyIdeas as string[]).map(String));
-    }
-    if (typeof teach.cbseExamSentence === "string") parts.push(teach.cbseExamSentence as string);
-    if (Array.isArray(teach.cbseExamSentence)) {
-      parts.push(...(teach.cbseExamSentence as string[]).map(String));
-    }
-    if (parts.length > 0) return parts.filter(Boolean).join("\n\n");
-  }
-
-  if (structured.goalLine || structured.keyIdeas) {
-    const parts: string[] = [];
-    if (typeof structured.goalLine === "string") parts.push(structured.goalLine as string);
-    if (Array.isArray(structured.keyIdeas)) parts.push(...(structured.keyIdeas as string[]).map(String));
-    if (typeof structured.checkpointQuestion === "string") parts.push("\n" + (structured.checkpointQuestion as string));
-    if (parts.length > 0) return parts.filter(Boolean).join("\n\n");
-  }
-
-  if (structured.tutor && typeof structured.tutor === "object") {
-    const tutor = structured.tutor as Record<string, unknown>;
-    const parts: string[] = [];
-    if (tutor.diagnosis && typeof tutor.diagnosis === "object") {
-      const diag = tutor.diagnosis as Record<string, unknown>;
-      if (diag.analysis) parts.push(String(diag.analysis));
-      if (diag.verdict) parts.push(String(diag.verdict));
-    }
-    if (typeof tutor.explanation === "string") parts.push(tutor.explanation as string);
-    if (typeof tutor.text === "string") parts.push(tutor.text as string);
-    if (parts.length > 0) return parts.filter(Boolean).join("\n\n");
-  }
-
-  if (typeof structured.commonMistake === "string" && (structured.commonMistake as string).trim())
-    return "Watch out: " + (structured.commonMistake as string).trim();
-  if (typeof structured.checkpointAnswer === "string" && (structured.checkpointAnswer as string).trim())
-    return (structured.checkpointAnswer as string).trim();
-
-  if (typeof data.text === "string" && (data.text as string).trim()) {
-    try {
-      const parsed = JSON.parse(data.text as string) as Record<string, unknown>;
-      const subParts: string[] = [];
-      if (parsed.goalLine) subParts.push(String(parsed.goalLine));
-      if (Array.isArray(parsed.keyIdeas)) subParts.push(...(parsed.keyIdeas as string[]).map(String));
-      if (parsed.checkpointQuestion) subParts.push(String(parsed.checkpointQuestion));
-      if (subParts.length > 0) return subParts.filter(Boolean).join("\n\n");
-    } catch { /* not JSON */ }
-    return (data.text as string).trim();
-  }
-
-  if (typeof payload.message === "string" && (payload.message as string).trim())
-    return (payload.message as string).trim();
-
-  return "";
-}
+const extractTutorText = sharedExtractTutorText;
 
 function formatTopicName(topicKey: string): string {
   return topicKey
@@ -407,8 +334,9 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
         tutorText = `Hey there! \u{1F44B} I'm Ravi Sir, and I'm excited to explore **${topicDisplayName}** with you today!\n\nLet me start with something you already know. Think about when you share a pizza equally among friends \u2014 that's actually math in action!\n\nReady to dive in? Tell me \u2014 what do you already know about ${topicDisplayName}?`;
       }
 
+      const structuredData = extractStructuredSection(payload);
       const newMessages: ChatMessage[] = [
-        { role: "tutor", content: tutorText },
+        { role: "tutor", content: tutorText, structured: structuredData },
       ];
 
       setChatMessages(newMessages);
@@ -466,9 +394,10 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
           : "Brilliant work today! You've covered the core concepts of this topic. Keep practicing and you'll ace this in the board exam! \u{1F4AA}";
       }
 
+      const responseStructured = extractStructuredSection(payload);
       const newTutorMessages: ChatMessage[] = [
         ...updatedMessages,
-        { role: "tutor", content: tutorText },
+        { role: "tutor", content: tutorText, structured: responseStructured },
       ];
 
       setChatMessages(newTutorMessages);
@@ -610,7 +539,7 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
               ...(msg.role === "tutor" ? s.tutorBubble : s.studentBubble),
               ...(msg.isCheckpoint ? s.checkpointBubble : {}),
             }}>
-              {msg.role === "tutor" ? <TutorMessageRenderer content={msg.content} isCheckpoint={msg.isCheckpoint} /> : <p style={s.studentText}>{msg.content}</p>}
+              {msg.role === "tutor" ? <TutorMessageRenderer content={msg.content} isCheckpoint={msg.isCheckpoint} structured={msg.structured} /> : <p style={s.studentText}>{msg.content}</p>}
             </div>
           </div>
         ))}

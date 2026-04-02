@@ -19,6 +19,7 @@ import {
 } from "../../services/sessionApi";
 import { HumanGradeCoachView } from "../mentor/HumanGradeCoachView";
 import { TutorMessageRenderer } from "./TutorMessageRenderer";
+import { extractStructuredSection } from "./tutorStructuredExtract";
 import {
   canUseMentorServer,
   isMentorNetworkFailure,
@@ -1560,7 +1561,7 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
                     lineHeight: 1.5,
                   }}
                 >
-                  {safeTutorText}
+                  <TutorMessageRenderer content={safeTutorText} structured={extractStructuredSection(obj)} />
                 </div>
               ) : null}
               <div
@@ -1654,27 +1655,11 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
         />
         {tutorText ? (
           <div style={{ padding: "10px 12px", borderRadius: 12, background: "#f7f7f7", border: "1px solid #e5e5e5" }}>
-            <TutorMessageRenderer content={cleanDisplayText(String(tutorText))} />
+            <TutorMessageRenderer content={cleanDisplayText(String(tutorText))} structured={extractStructuredSection(obj)} />
           </div>
         ) : null}
         {coachProps ? <HumanGradeCoachView {...coachProps} /> : null}
         {renderAttemptFeedback(obj)}
-        <div>
-          <div style={{ fontWeight: 800, marginBottom: 6 }}>Teach bullets</div>
-          <ul style={{ margin: 0, paddingLeft: 18 }}>
-            {view.keyIdeas.map((b, idx: number) => (
-              <li key={idx} style={{ marginBottom: 6 }}>{String(b)}</li>
-            ))}
-          </ul>
-        </div>
-        <div>
-          <div style={{ fontWeight: 800, marginBottom: 6 }}>Exam line</div>
-          {view.examLines.map((l, idx: number) => (
-            <div key={idx} style={{ marginBottom: 6, padding: "6px 8px", borderRadius: 10, background: "#f7f7f7", border: "1px solid #e5e5e5" }}>
-              {String(l)}
-            </div>
-          ))}
-        </div>
         <div>
           <div style={{ fontWeight: 800, marginBottom: 6 }}>Worked examples</div>
           {view.workedExamples.map((ex, exIdx: number) => {
