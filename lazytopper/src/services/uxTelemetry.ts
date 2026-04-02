@@ -7,6 +7,7 @@ type UxEventName =
   | "trends_topic_practice_click"
   | "trends_topic_more_click"
   | "topichub_open_practice"
+  | "topichub_open_teach"
   | "hpq_open_practice"
   | "hpq_open_topic_hub"
   | "practice_regenerate_click";

@@ -126,7 +126,7 @@ function buildFallbackCheckpoint(def: V2Definition, topicName: string): Canonica
     marks: 1,
     format: "MCQ" as CanonicalQuestion["format"],
     difficulty: "Easy" as CanonicalQuestion["difficulty"],
-    bloomSkill: "Remember" as CanonicalQuestion["bloomSkill"],
+    bloomSkill: "Remembering" as CanonicalQuestion["bloomSkill"],
     questionText: `What is "${def.title}" in ${topicName}?`,
     options: [
       correctAnswer,
@@ -396,7 +396,7 @@ export default function TopicHub() {
     (concept: string, questionText: string, subtopic?: string) => {
       setTeachContext({ topicKey, subject: subjectTitle, questionText, subtopic, concept });
       setTeachDrawerOpen(true);
-      trackUxEvent("topichub_open_practice", "TopicHub", { topicKey, concept });
+      trackUxEvent("topichub_open_teach", "TopicHub", { topicKey, concept });
     },
     [topicKey, subjectTitle]
   );
@@ -414,7 +414,7 @@ export default function TopicHub() {
     });
   }, [grade, navigate, subject, subjectTitle, title, topicKey]);
 
-  const hasEnoughContent = totalConcepts >= MIN_CONCEPT_CARDS || totalConcepts > 0;
+  const hasEnoughContent = totalConcepts >= 1;
 
   return (
     <div style={{ minHeight: "100vh", background: "#f8fafc" }}>
