@@ -194,11 +194,10 @@ function BottomNav() {
  */
 export default function App() {
   const [isPaletteOpen, setPaletteOpen] = useState(false);
-  const [logoutBusy, setLogoutBusy] = useState(false);
   const [headerStreak, setHeaderStreak] = useState(0);
   const navigate = useNavigate();
   const { mode, setMode } = useVibeMode();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
 
   useEffect(() => {
     try {
@@ -315,18 +314,6 @@ export default function App() {
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, []);
-
-  const handleLogout = async () => {
-    setLogoutBusy(true);
-    try {
-      await logout();
-      navigate("/login", { replace: true });
-    } catch {
-      navigate("/login", { replace: true });
-    } finally {
-      setLogoutBusy(false);
-    }
-  };
 
   return (
     <>

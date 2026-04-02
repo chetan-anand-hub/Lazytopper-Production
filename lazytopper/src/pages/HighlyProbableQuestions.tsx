@@ -2256,7 +2256,7 @@ const HighlyProbableQuestions: React.FC = () => {
                                     </button>
                                     <SolutionChecker
                                       question={q.question}
-                                      marks={q.marks}
+                                      marks={q.marks ?? 0}
                                       subject={bucket.subject ?? subjectKey}
                                       topic={bucket.topic}
                                     />

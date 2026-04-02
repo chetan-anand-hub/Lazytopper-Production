@@ -112,8 +112,8 @@ export const SmartLearningProvider: React.FC<ProviderProps> = ({
       const prevStats = prev[attempt.chapterId];
       const nextStats = applyHpqAttemptToStats(prevStats, attempt);
 
-      if (nextStats.lastComputedMastery >= 0.8 && nextStats.totalAttempts >= 3) {
-        const wasMastered = prevStats && prevStats.lastComputedMastery >= 0.8 && prevStats.totalAttempts >= 3;
+      if ((nextStats.lastComputedMastery ?? 0) >= 0.8 && nextStats.totalQuestionsAttempted >= 3) {
+        const wasMastered = prevStats && (prevStats.lastComputedMastery ?? 0) >= 0.8 && prevStats.totalQuestionsAttempted >= 3;
         if (!wasMastered) {
           import("../utils/gamification").then(gam => {
             gam.celebrateMilestone(50);

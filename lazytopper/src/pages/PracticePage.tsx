@@ -1214,11 +1214,6 @@ const packTopicKey = useMemo(() => {
   const activeQuestionLearningObjects = activeQuestionStrategyDetails?.learningObjects || [];
   const whyCommonMistakes = activeQuestionStrategyDetails?.commonMistakes || [];
   const whyBoardWritingTip = activeQuestionStrategyDetails?.boardWritingTip || "";
-  const mentorDefaultIntent = useMemo(
-    () => deriveMentorDefaultIntent(activeQuestionMeta),
-    [activeQuestionMeta]
-  );
-
   return (
     <div
       style={{
@@ -1708,12 +1703,7 @@ const packTopicKey = useMemo(() => {
             >
               {filteredQuestions.map((q, idx) => {
                 const isOpen = !!expandedAnswers[q.id];
-                const questionStrategyDetails = getQuestionStrategyDetails(q);
-                const questionMentorDefaultIntent =
-                  activeQuestion && String(activeQuestion.id) === String(q.id)
-                    ? mentorDefaultIntent
-                    : deriveMentorDefaultIntent(questionStrategyDetails?.meta || null);
-
+                void getQuestionStrategyDetails(q);
                 return (
                   <article
                     key={q.id}

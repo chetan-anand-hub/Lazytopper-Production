@@ -735,15 +735,15 @@ export default function ProfilePage() {
               type="button"
               onClick={() => {
                 try {
-                  localStorage.setItem("lazytopper.vibeMode", JSON.stringify(m));
+                  localStorage.setItem("vibeMode", m);
                   window.location.reload();
                 } catch {}
               }}
               style={{
                 flex: 1, padding: "8px 0", borderRadius: 10, border: "none",
                 fontWeight: 700, fontSize: 13, cursor: "pointer", textTransform: "capitalize",
-                background: (localStorage.getItem("lazytopper.vibeMode") || "").includes(m) ? "#58cc02" : "#e5e5e5",
-                color: (localStorage.getItem("lazytopper.vibeMode") || "").includes(m) ? "#fff" : "#3c3c3c",
+                background: (localStorage.getItem("vibeMode") || "") === m ? "#58cc02" : "#e5e5e5",
+                color: (localStorage.getItem("vibeMode") || "") === m ? "#fff" : "#3c3c3c",
               }}
             >
               {m === "beast" ? "🔥 Beast" : "🧟 Zombie"}

@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./home.css";
 import { useAuth } from "../context/AuthContext";
-import { canonicalChapters, type CanonicalChapter } from "../data/syllabus/cbse10Canonical";
+import { canonicalChapters } from "../data/syllabus/cbse10Canonical";
 
 type MetaAttr = "name" | "property";
 
@@ -115,8 +115,7 @@ function getChapterMastery(chapterId: string): { level: MasteryLevel; pct: numbe
     const ch = stats[chapterId];
     if (!ch) return { level: "locked", pct: 0 };
     const attempted = ch.totalAttempts ?? 0;
-    const correct = ch.correctAnswers ?? 0;
-    const accuracy = attempted > 0 ? correct / attempted : 0;
+
     const mastery = ch.lastComputedMastery ?? 0;
     const pct = Math.min(100, Math.round(mastery * 100));
     if (mastery >= 0.8 && attempted >= 3) return { level: "mastered", pct };

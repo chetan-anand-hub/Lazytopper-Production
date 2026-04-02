@@ -1,5 +1,4 @@
 const XP_KEY = "lazytopper.xp";
-const STREAK_KEY = "lazytopper.streak";
 
 export function awardXP(amount: number): number {
   let current = 0;
