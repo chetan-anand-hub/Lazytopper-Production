@@ -20,6 +20,8 @@ import type { ConceptTeachContext } from "../components/tutor/ConceptTeachDrawer
 const ConceptTeachDrawer = lazy(() => import("../components/tutor/ConceptTeachDrawer"));
 import boardSteps_2025_26 from "../data/boardSteps";
 import { QuestionVisualAid } from "../components/question/QuestionVisualAid";
+import { MathText } from "../components/question/MathText";
+import { SolutionChecker } from "../components/question/SolutionChecker";
 import { DiagramBlock } from "../components/DiagramBlock";
 import { HumanGradeCoachView } from "../components/mentor/HumanGradeCoachView";
 import JourneyStrip from "../components/ux/JourneyStrip";
@@ -1777,7 +1779,7 @@ const packTopicKey = useMemo(() => {
                         marginBottom: 8,
                       }}
                     >
-                      {q.questionText}
+                      <MathText text={q.questionText} />
                     </p>
                     <QuestionVisualAid
                       subject={subjectKey}
@@ -1818,117 +1820,8 @@ const packTopicKey = useMemo(() => {
                           gap: 6,
                         }}
                       >
-                        <span>{isOpen ? "Hide solution" : "Show solution"}</span>
+                        <span>{isOpen ? "Hide solution" : "Step-by-Step Solution"}</span>
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setActiveQuestionId(String(q.id));
-                          openMentorForQuestion(q, idx, "auto");
-                        }}
-                        style={{
-                          borderRadius: 999,
-                          padding: "5px 12px",
-                          border: "1px solid rgba(14,116,144,0.45)",
-                          backgroundColor: "rgba(236,254,255,0.95)",
-                          fontSize: "0.78rem",
-                          color: "#155e75",
-                          cursor: "pointer",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: 6,
-                          fontWeight: 800,
-                        }}
-                        title={`Open mentor in ${PRACTICE_MENTOR_LABELS[questionMentorDefaultIntent]} mode for this question`}
-                      >
-                        <span>Ask mentor about this question</span>
-                      </button>
-                    </div>
-
-                    <div
-                      style={{
-                        display: "flex",
-                        flexWrap: "wrap",
-                        alignItems: "center",
-                        gap: 8,
-                        marginBottom: 8,
-                      }}
-                    >
-                      <details>
-                        <summary
-                          data-testid="practice-mentor-help-toggle"
-                          style={{
-                            borderRadius: 999,
-                            padding: "5px 12px",
-                            border: "1px solid rgba(34,197,94,0.65)",
-                            backgroundColor: "rgba(240,253,244,0.92)",
-                            fontSize: "0.78rem",
-                            color: "#166534",
-                            cursor: "pointer",
-                            listStyle: "none",
-                            fontWeight: 900,
-                          }}
-                        >
-                          Mentor help
-                        </summary>
-                        <div
-                          style={{
-                            marginTop: 6,
-                            display: "grid",
-                            gap: 6,
-                            minWidth: 180,
-                            padding: 8,
-                            borderRadius: 12,
-                            border: "1px solid rgba(148,163,184,0.45)",
-                            background: "rgba(255,255,255,0.98)",
-                            boxShadow: "0 10px 26px rgba(15,23,42,0.16)",
-                          }}
-                        >
-                          <button
-                            data-testid="practice-board-steps-cta"
-                            type="button"
-                            onClick={(event) => {
-                              setActiveQuestionId(String(q.id));
-                              openMentorForQuestion(q, idx, "hint", event.currentTarget);
-                            }}
-                            style={{
-                              borderRadius: 10,
-                              padding: "6px 10px",
-                              border: "1px solid rgba(34,197,94,0.65)",
-                              backgroundColor: "rgba(240,253,244,0.92)",
-                              fontSize: "0.76rem",
-                              color: "#166534",
-                              cursor: "pointer",
-                              textAlign: "left",
-                              fontWeight: 800,
-                            }}
-                            title="Solve With Me (mentor asks 1 question at a time)"
-                          >
-                            Solve With Me
-                          </button>
-                          <button
-                            type="button"
-                            onClick={(event) => {
-                              setActiveQuestionId(String(q.id));
-                              openMentorForQuestion(q, idx, "check_cbse", event.currentTarget);
-                            }}
-                            style={{
-                              borderRadius: 10,
-                              padding: "6px 10px",
-                              border: "1px solid rgba(99,102,241,0.55)",
-                              backgroundColor: "rgba(238,242,255,0.92)",
-                              fontSize: "0.76rem",
-                              color: "#3730a3",
-                              cursor: "pointer",
-                              textAlign: "left",
-                              fontWeight: 800,
-                            }}
-                            title="Board Steps + Marking Scheme"
-                          >
-                            Board Steps
-                          </button>
-                        </div>
-                      </details>
                     </div>
 
                     {isOpen && (
@@ -1971,7 +1864,7 @@ const packTopicKey = useMemo(() => {
                                 }}>{step.stepNumber}</div>
                                 <div style={{ flex: 1 }}>
                                   <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "#1e293b", marginBottom: 2 }}>
-                                    {step.description}
+                                    <MathText text={step.description} />
                                     <span style={{
                                       marginLeft: 8, fontSize: "0.7rem", fontWeight: 700,
                                       color: step.marks === 0 ? "#6b7280" : "#1e40af",
@@ -1982,7 +1875,7 @@ const packTopicKey = useMemo(() => {
                                     </span>
                                   </div>
                                   <div style={{ fontSize: "0.78rem", color: "#475569", lineHeight: 1.5 }}>
-                                    {step.working}
+                                    <MathText text={step.working} />
                                   </div>
                                 </div>
                               </div>
@@ -2035,6 +1928,12 @@ const packTopicKey = useMemo(() => {
                               <span style={{ fontSize: "1rem" }}>{"\uD83D\uDCA1"}</span>
                               Teach me this concept
                             </button>
+                            <SolutionChecker
+                              question={q.questionText}
+                              marks={q.marks}
+                              subject={subjectKey}
+                              topic={topicLabel}
+                            />
                           </div>
                         )}
                       </div>

@@ -37,11 +37,19 @@ The server uses Replit's AI Integration proxy for Gemini access, eliminating fre
 ## HPQ UX Improvements (Post-Task #14)
 
 - **Removed AI variants** from HPQ cards — button, state, handler, and display all removed; cleaner card layout
-- **"Practice similar" button** replaces old "Bank practice" — navigates to Practice page with smart filters: `subtopicHint` (from `q.subtopic`), `sectionFilter` (from `q.section`), `marksFilter` (from `q.marks`), `difficultyPreset`
-- **marksFilter support** added end-to-end: `practiceNavigation.ts` (query param + state), `PracticePage.tsx` (priority-first ordering for matching marks)
+- **"Practice similar" button** replaces old "Bank practice" — navigates to Practice page with smart filters: `subtopicHint` (from `q.subtopic`), `difficultyPreset: "All"` (no marks/section constraints)
 - **Concept teach focus fix**: `openConceptDrawer` now passes `q.subtopic || q.concept || bucket.topic` as `topicKey` (was always `bucket.topic`). Server prompt hardened to say "DO NOT teach entire chapter, ONLY teach [concept]"
 - **Button sizing fix**: Added `whiteSpace: "nowrap"` + `alignItems: "center"` to action button row so buttons don't overflow when solution panel is open
 - Files: `HighlyProbableQuestions.tsx`, `practiceNavigation.ts`, `PracticePage.tsx`, `server/index.cjs`
+
+## UX Polish & New Features (Post-Task #14 Phase 2)
+
+- **Practice page button cleanup**: Removed "Ask mentor about this question" and "Mentor help" dropdown buttons; single "Step-by-Step Solution" button is now the primary action; "Teach me this concept" + "Check My Solution" live inside the solution panel
+- **LaTeX/Math rendering**: `MathText` component (`components/question/MathText.tsx`) renders LaTeX expressions using KaTeX library; handles `\(...\)` inline math and `\[...\]` display math delimiters; Unicode fallbacks for bare LaTeX commands (`\sqrt`, `\times`, etc.); XSS-safe — only KaTeX-rendered output uses `dangerouslySetInnerHTML`, all plain text uses React safe rendering; applied to question text, solution steps, and assertions in both HPQ and Practice pages
+- **Tutor response truncation fix**: Conversational teach `maxOutputTokens` increased from 800 to 1600 to prevent opening statements from being cut off
+- **Image upload solution checking**: New `/api/check-solution` endpoint accepts student's handwritten solution image + question context; uses Gemini vision to evaluate against CBSE marking scheme; returns step-by-step feedback with marks awarded per step, overall score, and improvement tips; `SolutionChecker` component (`components/question/SolutionChecker.tsx`) provides upload UI with preview, evaluation results, and retry
+- **Server body size limit**: `readJson()` now enforces 5 MB max request body to prevent DoS
+- Files: `MathText.tsx`, `SolutionChecker.tsx`, `aiClient.ts`, `PracticePage.tsx`, `HighlyProbableQuestions.tsx`, `server/index.cjs`
 
 ## CBSE Solution Quality Overhaul (Phase 1 & 2)
 

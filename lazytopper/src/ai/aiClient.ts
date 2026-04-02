@@ -175,3 +175,38 @@ export async function fetchStepSolution(req: {
   });
   return handleJsonResponse<StepSolutionResponse>(res);
 }
+
+export interface CheckSolutionStep {
+  stepNumber: number;
+  description: string;
+  status: "correct" | "partial" | "incorrect" | "missing";
+  feedback: string;
+  marksGiven: number;
+}
+
+export interface CheckSolutionResponse {
+  ok: boolean;
+  totalMarks: number;
+  marksAwarded: number;
+  percentage: number;
+  steps: CheckSolutionStep[];
+  overallFeedback: string;
+  improvementTips: string[];
+  error?: string;
+}
+
+export async function checkSolutionImage(req: {
+  subject: string;
+  topic: string;
+  question: string;
+  marks: number;
+  imageBase64: string;
+  imageMimeType: string;
+}): Promise<CheckSolutionResponse> {
+  const res = await fetch(`${API_BASE}/check-solution`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(req),
+  });
+  return handleJsonResponse<CheckSolutionResponse>(res);
+}

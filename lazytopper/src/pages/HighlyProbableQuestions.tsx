@@ -37,6 +37,8 @@ import {
 import { useSmartLearning } from "../engine/smartLearningStore";
 import type { ChapterId, ChapterMeta } from "../engine/smartLearningTypes";
 import { QuestionVisualAid } from "../components/question/QuestionVisualAid";
+import { MathText } from "../components/question/MathText";
+import { SolutionChecker } from "../components/question/SolutionChecker";
 
 import {
   fetchStepSolution,
@@ -608,11 +610,9 @@ const HighlyProbableQuestions: React.FC = () => {
       backPath,
       backLabel: "Back to HPQ",
       subtopicHint: q.subtopic || q.concept || bucket.topic,
-      sectionFilter: q.section as any,
       focusBankIds: q.id ? [q.id] : undefined,
       recommendedCount,
-      difficultyPreset: (q.difficulty as any) || "All",
-      marksFilter: q.marks,
+      difficultyPreset: "All",
       source: "hpq_similar",
     });
   };
@@ -1778,16 +1778,16 @@ const HighlyProbableQuestions: React.FC = () => {
                             (q as any).type === "AssertionReason" ? (
                               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                                 <div style={{ fontWeight: 600 }}>
-                                  {q.question || "Assertion-Reason: refer to assertion and reason below."}
+                                  <MathText text={q.question || "Assertion-Reason: refer to assertion and reason below."} />
                                 </div>
                                 {q.assertion && (
                                   <div>
-                                    <strong>Assertion:</strong> {q.assertion}
+                                    <strong>Assertion:</strong> <MathText text={q.assertion} />
                                   </div>
                                 )}
                                 {q.reason && (
                                   <div>
-                                    <strong>Reason:</strong> {q.reason}
+                                    <strong>Reason:</strong> <MathText text={q.reason} />
                                   </div>
                                 )}
                                 {/* Render AR options if present */}
@@ -1802,7 +1802,7 @@ const HighlyProbableQuestions: React.FC = () => {
                                 ) : null}
                               </div>
                             ) : (
-                              <>{q.question}</>
+                              <MathText text={q.question} />
                             )}
                           </div>
                           <QuestionVisualAid
@@ -2119,7 +2119,7 @@ const HighlyProbableQuestions: React.FC = () => {
                                               marginBottom: 2,
                                             }}
                                           >
-                                            {step.description}
+                                            <MathText text={step.description} />
                                             <span
                                               style={{
                                                 marginLeft: 8,
@@ -2141,7 +2141,7 @@ const HighlyProbableQuestions: React.FC = () => {
                                               lineHeight: 1.5,
                                             }}
                                           >
-                                            {step.working}
+                                            <MathText text={step.working} />
                                           </div>
                                         </div>
                                       </div>
@@ -2224,6 +2224,12 @@ const HighlyProbableQuestions: React.FC = () => {
                                       <span style={{ fontSize: "1rem" }}>{"\uD83D\uDCA1"}</span>
                                       Teach me this concept
                                     </button>
+                                    <SolutionChecker
+                                      question={q.question}
+                                      marks={q.marks}
+                                      subject={bucket.subject ?? subjectKey}
+                                      topic={bucket.topic}
+                                    />
                                   </div>
                                 )}
                               </div>
