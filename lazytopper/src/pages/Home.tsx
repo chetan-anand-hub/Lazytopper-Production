@@ -1,8 +1,9 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./home.css";
 import { useAuth } from "../context/AuthContext";
 import { canonicalChapters } from "../data/syllabus/cbse10Canonical";
+import { useSmartLearning } from "../engine/smartLearningStore";
 
 type MetaAttr = "name" | "property";
 
@@ -107,27 +108,7 @@ const MASTERY_COLORS: Record<MasteryLevel, string> = {
   mastered: "#ffc800",
 };
 
-function getChapterMastery(chapterId: string): { level: MasteryLevel; pct: number } {
-  try {
-    const raw = localStorage.getItem("lazytopper.smartLearning.stats.v1");
-    if (!raw) return { level: "locked", pct: 0 };
-    const stats = JSON.parse(raw);
-    const ch = stats[chapterId];
-    if (!ch) return { level: "locked", pct: 0 };
-    const attempted = ch.totalAttempts ?? 0;
-
-    const mastery = ch.lastComputedMastery ?? 0;
-    const pct = Math.min(100, Math.round(mastery * 100));
-    if (mastery >= 0.8 && attempted >= 3) return { level: "mastered", pct };
-    if (mastery >= 0.4 || attempted >= 3) return { level: "progressing", pct };
-    if (attempted > 0) return { level: "started", pct };
-    return { level: "locked", pct: 0 };
-  } catch {
-    return { level: "locked", pct: 0 };
-  }
-}
-
-function getStreakData(): { count: number; lastDate: string } {
+function readStreakData(): { count: number; lastDate: string } {
   try {
     const raw = localStorage.getItem("lazytopper.streak");
     if (raw) {
@@ -138,7 +119,7 @@ function getStreakData(): { count: number; lastDate: string } {
   return { count: 0, lastDate: "" };
 }
 
-function getDailyGoalProgress(): { done: number; goal: number } {
+function readDailyGoalProgress(): { done: number; goal: number } {
   try {
     const today = new Date().toISOString().slice(0, 10);
     const raw = localStorage.getItem("lazytopper.dailyGoal");
@@ -156,10 +137,34 @@ const SCIENCE_CHAPTERS = canonicalChapters.filter(c => c.subjectId === "science"
 const Home: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const smartLearning = useSmartLearning();
   const [topicSubject, setTopicSubject] = useState<"maths" | "science">("maths");
-  const streak = useMemo(() => getStreakData(), []);
-  const dailyGoal = useMemo(() => getDailyGoalProgress(), []);
+  const [streak, setStreak] = useState(() => readStreakData());
+  const [dailyGoal, setDailyGoal] = useState(() => readDailyGoalProgress());
   const chapters = topicSubject === "maths" ? MATHS_CHAPTERS : SCIENCE_CHAPTERS;
+
+  const refreshGamification = useCallback(() => {
+    setStreak(readStreakData());
+    setDailyGoal(readDailyGoalProgress());
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("storage", refreshGamification);
+    const interval = setInterval(refreshGamification, 3000);
+    return () => { window.removeEventListener("storage", refreshGamification); clearInterval(interval); };
+  }, [refreshGamification]);
+
+  const getChapterMastery = useCallback((chapterId: string): { level: MasteryLevel; pct: number } => {
+    const ch = smartLearning.getStatsForChapter(chapterId);
+    if (!ch) return { level: "locked", pct: 0 };
+    const attempted = ch.totalQuestionsAttempted ?? 0;
+    const mastery = ch.lastComputedMastery ?? 0;
+    const pct = Math.min(100, Math.round(mastery * 100));
+    if (mastery >= 0.8 && attempted >= 3) return { level: "mastered", pct };
+    if (mastery >= 0.4 || attempted >= 3) return { level: "progressing", pct };
+    if (attempted > 0) return { level: "started", pct };
+    return { level: "locked", pct: 0 };
+  }, [smartLearning]);
 
   useEffect(() => {
     const host = window.location.hostname.toLowerCase();
