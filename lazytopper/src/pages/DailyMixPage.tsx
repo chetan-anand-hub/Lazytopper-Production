@@ -282,6 +282,24 @@ export default function DailyMixPage() {
     [items, questionStates, updateState, completed, handleMixComplete]
   );
 
+  const handleMarkRead = useCallback(
+    (idx: number) => {
+      updateState(idx, {
+        submitted: true,
+        studentAnswer: "(read)",
+        feedback: "Great! You reviewed this content.",
+        correct: true,
+        feedbackLoading: false,
+      });
+
+      const newAnswered = questionStates.filter((s, i) => i === idx || s.submitted).length;
+      if (newAnswered >= items.length && !completed) {
+        handleMixComplete();
+      }
+    },
+    [questionStates, items, updateState, completed, handleMixComplete]
+  );
+
   if (!items.length) {
     return (
       <div className="lt-page" style={{ maxWidth: 680, margin: "0 auto", padding: "24px 16px" }}>
@@ -306,24 +324,6 @@ export default function DailyMixPage() {
   const itemMarks = isQuestionItem ? (Number(currentItem?.description?.match(/(\d+)\s*mark/)?.[1]) || 2) : 0;
   const itemExpectedMins = isQuestionItem ? (itemMarks <= 1 ? 1 : itemMarks <= 3 ? 2 : 4) : 1;
   const itemTypeLabel = currentItem?.type === "video" ? "Concept" : currentItem?.type === "revision" ? "Revision" : "Practice";
-
-  const handleMarkRead = useCallback(
-    (idx: number) => {
-      updateState(idx, {
-        submitted: true,
-        studentAnswer: "(read)",
-        feedback: "Great! You reviewed this content.",
-        correct: true,
-        feedbackLoading: false,
-      });
-
-      const newAnswered = questionStates.filter((s, i) => i === idx || s.submitted).length;
-      if (newAnswered >= items.length && !completed) {
-        handleMixComplete();
-      }
-    },
-    [questionStates, items, updateState, completed, handleMixComplete]
-  );
 
   return (
     <div className="lt-page" style={{ maxWidth: 680, margin: "0 auto", padding: "24px 16px" }}>

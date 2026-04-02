@@ -268,53 +268,7 @@ export default function Dashboard() {
     return sorted[0]?.topicKey || "triangles";
   }, [performanceRows, planRecord]);
 
-  if (loadingProfile) {
-    return (
-      <div className="lt-page">
-        <div className="card">
-          <h3>Loading your dashboard...</h3>
-        </div>
-      </div>
-    );
-  }
-
-  if (!profile || !strategy) {
-    return (
-      <div className="lt-page">
-        <h2 className="title">Your Personal Dashboard</h2>
-        <div className="card">
-          <p>We need your study details to create a plan.</p>
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 10 }}>
-            <button className="cta-btn" onClick={() => navigate("/onboarding")}>
-              Fill My Study Details
-            </button>
-            <button className="pill-btn" type="button" onClick={() => navigate("/daily-mix/10/Maths")}>
-              Start Daily Mix
-            </button>
-          </div>
-          <p style={{ marginTop: 10, opacity: 0.82 }}>
-            Match Score is enabled after your first Learn/Practice attempts.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  const autoDays = examDate ? Math.max(1, daysLeftFromIsoDate(examDate)) : profile.daysLeft;
-  const targetPercentValue = toPositiveNumber(plannerTargetInput || profile.targetPercent);
-  const hoursPerDayValue = toPositiveNumber(plannerHoursInput || profile.hoursPerDay);
-  const daysLeftValue = toPositiveNumber(plannerDaysInput || autoDays || profile.daysLeft);
-
-  const { studentClass } = profile;
-  const { realisticMin, realisticMax, hoursPerDayRequired, effortStatus } = strategy;
-
-  const effortMessage =
-    effortStatus === "high"
-      ? "You are putting in strong effort and can exceed your target with consistency."
-      : effortStatus === "ok"
-        ? "Your plan is realistic and achievable with regular study."
-        : "Your daily effort is below what is needed. Increase hours or adjust target.";
-
+  const studentClass = profile?.studentClass || "";
   const gradeNum = String((studentClass || "").replace(/\D/g, "")) || "10";
   const dailyMixMinutes = mode === "zombie" ? 20 : 40;
   const subjectForQuickActions: SubjectTitle = planRecord?.subject === "Science" ? "Science" : plannerSubject;
@@ -375,12 +329,17 @@ export default function Dashboard() {
   const heroAction = useMemo<HeroAction>(() => {
     if (incompleteSession) {
       const kindLabel = incompleteSession.kind === "daily_mix" ? "Daily Mix" : incompleteSession.kind === "hpq" ? "HPQ" : "Study Session";
+      const resumeRoute = incompleteSession.kind === "daily_mix"
+        ? `/daily-mix/${gradeNum}/${incompleteSession.subject}`
+        : incompleteSession.kind === "hpq"
+          ? `/practice/${gradeNum}/${incompleteSession.subject}`
+          : `/topic-hub/${gradeNum}/${incompleteSession.subject}`;
       return {
         type: "resume_session",
         title: `Continue Your ${kindLabel}`,
         description: `You have an incomplete ${kindLabel} (${incompleteSession.cursor}/${incompleteSession.total} items done). Pick up where you left off!`,
         ctaLabel: `Resume ${kindLabel}`,
-        onAction: () => navigate(`/daily-mix/${gradeNum}/${incompleteSession.subject}`),
+        onAction: () => navigate(resumeRoute),
       };
     }
     if (!dailyMixDoneToday) {
@@ -419,6 +378,52 @@ export default function Dashboard() {
       onAction: () => navigate(`/daily-mix/${gradeNum}/${subjectForQuickActions}`),
     };
   }, [incompleteSession, dailyMixDoneToday, dailyMixMinutes, dailyMixPreview, performanceRows, streak, gradeNum, subjectForQuickActions, navigate]);
+
+  if (loadingProfile) {
+    return (
+      <div className="lt-page">
+        <div className="card">
+          <h3>Loading your dashboard...</h3>
+        </div>
+      </div>
+    );
+  }
+
+  if (!profile || !strategy) {
+    return (
+      <div className="lt-page">
+        <h2 className="title">Your Personal Dashboard</h2>
+        <div className="card">
+          <p>We need your study details to create a plan.</p>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 10 }}>
+            <button className="cta-btn" onClick={() => navigate("/onboarding")}>
+              Fill My Study Details
+            </button>
+            <button className="pill-btn" type="button" onClick={() => navigate("/daily-mix/10/Maths")}>
+              Start Daily Mix
+            </button>
+          </div>
+          <p style={{ marginTop: 10, opacity: 0.82 }}>
+            Match Score is enabled after your first Learn/Practice attempts.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const autoDays = examDate ? Math.max(1, daysLeftFromIsoDate(examDate)) : profile.daysLeft;
+  const targetPercentValue = toPositiveNumber(plannerTargetInput || profile.targetPercent);
+  const hoursPerDayValue = toPositiveNumber(plannerHoursInput || profile.hoursPerDay);
+  const daysLeftValue = toPositiveNumber(plannerDaysInput || autoDays || profile.daysLeft);
+
+  const { realisticMin, realisticMax, hoursPerDayRequired, effortStatus } = strategy;
+
+  const effortMessage =
+    effortStatus === "high"
+      ? "You are putting in strong effort and can exceed your target with consistency."
+      : effortStatus === "ok"
+        ? "Your plan is realistic and achievable with regular study."
+        : "Your daily effort is below what is needed. Increase hours or adjust target.";
 
   const handleGeneratePlanner = () => {
     if (!targetPercentValue || !hoursPerDayValue || !daysLeftValue) {
