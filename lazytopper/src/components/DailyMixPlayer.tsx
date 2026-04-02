@@ -100,7 +100,7 @@ export function DailyMixPlayer({
       <div
         style={{
           marginTop: 14,
-          border: "1px solid rgba(15,23,42,0.14)",
+          border: "1px solid rgba(0,0,0,0.06)",
           borderRadius: 14,
           background: "rgba(255,255,255,0.9)",
           padding: 12,
@@ -112,7 +112,7 @@ export function DailyMixPlayer({
               fontSize: 11,
               fontWeight: 800,
               borderRadius: 999,
-              border: "1px solid rgba(15,23,42,0.2)",
+              border: "1px solid rgba(0,0,0,0.1)",
               padding: "2px 8px",
               textTransform: "uppercase",
             }}

@@ -479,8 +479,8 @@ const MockBuilder: React.FC = () => {
             display: "inline-flex",
             padding: 4,
             borderRadius: 999,
-            background: "#0f172a",
-            boxShadow: "0 12px 30px rgba(15,23,42,0.55)",
+            background: "#3c3c3c",
+            boxShadow: "0 12px 30px rgba(0,0,0,0.3)",
             border: "1px solid rgba(148,163,184,0.5)",
             gap: 4,
           }}
@@ -501,7 +501,7 @@ const MockBuilder: React.FC = () => {
                   background: active
                     ? "linear-gradient(135deg,#facc15,#f97316)"
                     : "transparent",
-                  color: active ? "#111827" : "#e5e7eb",
+                  color: active ? "#3c3c3c" : "#e5e7eb",
                   transition: "all 0.15s ease",
                   minWidth: 80,
                 }}
@@ -519,9 +519,9 @@ const MockBuilder: React.FC = () => {
           borderRadius: 32,
           padding: "22px 22px 24px",
           background:
-            "linear-gradient(135deg,rgba(15,23,42,0.98),rgba(37,99,235,0.95))",
+            "linear-gradient(135deg,#58cc02,rgba(37,99,235,0.95))",
           color: "#e5e7eb",
-          boxShadow: "0 26px 70px rgba(15,23,42,0.7)",
+          boxShadow: "0 26px 70px rgba(88,204,2,0.4)",
           marginBottom: 18,
         }}
       >
@@ -564,9 +564,9 @@ const MockBuilder: React.FC = () => {
         style={{
           borderRadius: 26,
           padding: "16px 18px 18px",
-          background: "rgba(15,23,42,0.96)",
+          background: "#58cc02",
           color: "#e5e7eb",
-          boxShadow: "0 20px 55px rgba(15,23,42,0.65)",
+          boxShadow: "0 20px 55px rgba(0,0,0,0.35)",
           border: "1px solid rgba(148,163,184,0.35)",
           marginBottom: 20,
         }}
@@ -758,7 +758,7 @@ const MockBuilder: React.FC = () => {
                             style={{
                               borderRadius: 999,
                               padding: "4px 10px",
-                              background: "#020617",
+                              background: "#3c3c3c",
                               color: "#f9fafb",
                               fontWeight: 600,
                             }}
@@ -807,8 +807,8 @@ const MockBuilder: React.FC = () => {
                               padding: "4px 10px",
                               fontSize: "0.78rem",
                               cursor: "pointer",
-                              background: solOpen ? "#020617" : "#ffffff",
-                              color: solOpen ? "#f9fafb" : "#111827",
+                              background: solOpen ? "#3c3c3c" : "#ffffff",
+                              color: solOpen ? "#f9fafb" : "#3c3c3c",
                               display: "inline-flex",
                               alignItems: "center",
                               gap: 6,
@@ -823,7 +823,7 @@ const MockBuilder: React.FC = () => {
                           style={{
                             fontSize: "0.95rem",
                             lineHeight: 1.6,
-                            color: "#111827",
+                            color: "#3c3c3c",
                           }}
                         >
                           {q.questionText}
@@ -839,7 +839,7 @@ const MockBuilder: React.FC = () => {
                               background: "#eff6ff",
                               border: "1px dashed #bfdbfe",
                               fontSize: "0.85rem",
-                              color: "#1e3a8a",
+                              color: "#1cb0f6",
                             }}
                           >
                             <div

@@ -155,7 +155,7 @@ export default function Login() {
             <button
               type="button"
               className="pill-btn"
-              style={{ background: mode === "zombie" ? "#1e293b" : undefined, color: mode === "zombie" ? "#fff" : undefined }}
+              style={{ background: mode === "zombie" ? "#3c3c3c" : undefined, color: mode === "zombie" ? "#fff" : undefined }}
               onClick={() => setMode("zombie")}
             >
               Low
@@ -163,7 +163,7 @@ export default function Login() {
             <button
               type="button"
               className="pill-btn"
-              style={{ background: mode === "beast" ? "#1e293b" : undefined, color: mode === "beast" ? "#fff" : undefined }}
+              style={{ background: mode === "beast" ? "#3c3c3c" : undefined, color: mode === "beast" ? "#fff" : undefined }}
               onClick={() => setMode("beast")}
             >
               High
@@ -253,7 +253,7 @@ export default function Login() {
             <p className="subtitle" style={{ marginTop: 8 }}>
               Firebase is not configured in this environment. Set `VITE_FIREBASE_*` env keys to enable Gmail/Phone auth.
             </p>
-            <div style={{ marginTop: 8, background: "#f8fafc", border: "1px solid #cbd5e1", borderRadius: 10, padding: 10 }}>
+            <div style={{ marginTop: 8, background: "#f7f7f7", border: "1px solid #cbd5e1", borderRadius: 10, padding: 10 }}>
               <p style={{ margin: 0, fontWeight: 700 }}>Firebase setup (one-time)</p>
               <p style={{ marginTop: 6, marginBottom: 6, fontSize: "0.86rem" }}>
                 1. Enable <strong>Google</strong> and <strong>Phone</strong> providers in Firebase Auth.
@@ -266,8 +266,8 @@ export default function Login() {
                   whiteSpace: "pre-wrap",
                   wordBreak: "break-word",
                   fontSize: "0.8rem",
-                  background: "#0f172a",
-                  color: "#e2e8f0",
+                  background: "#3c3c3c",
+                  color: "#e5e5e5",
                   padding: 10,
                   borderRadius: 8,
                 }}

@@ -221,6 +221,36 @@ const Home: React.FC = () => {
           </p>
         </section>
 
+        {/* Skill tree path - Duolingo-style learning journey */}
+        <section className="lt-home__skillTree" aria-label="Your learning path">
+          <h2 className="lt-home__sectionTitle">Your learning path</h2>
+          <p className="lt-home__sectionSub">
+            Follow the path from basics to board-ready — one step at a time.
+          </p>
+          <div className="lt-home__treePath">
+            {[
+              { icon: "📊", label: "Trends", desc: "See what appears most", color: "#58cc02", to: "/trends/10/Maths" },
+              { icon: "📚", label: "TopicHub", desc: "Learn chapter by chapter", color: "#1cb0f6", to: "/topic-hub/10/Maths" },
+              { icon: "🎯", label: "Practice", desc: "Solve predicted questions", color: "#ff9600", to: "/predictive-papers" },
+              { icon: "🏆", label: "Master", desc: "Track your progress", color: "#ce82ff", to: "/dashboard" },
+            ].map((node, i) => (
+              <div key={node.label} className="lt-home__treeNode">
+                {i > 0 && <div className="lt-home__treeConnector" />}
+                <button
+                  type="button"
+                  className="lt-home__treeCircle"
+                  style={{ background: node.color, borderColor: node.color }}
+                  onClick={() => navigate(node.to)}
+                >
+                  <span className="lt-home__treeIcon">{node.icon}</span>
+                </button>
+                <span className="lt-home__treeLabel">{node.label}</span>
+                <span className="lt-home__treeDesc">{node.desc}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+
         <section className="lt-home__journey" aria-label="How it works">
           <h2 className="lt-home__sectionTitle">How it works</h2>
           <p className="lt-home__sectionSub">

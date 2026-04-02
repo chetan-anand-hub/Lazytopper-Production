@@ -501,9 +501,59 @@ export default function Dashboard() {
     navigate(`/daily-mix/${gradeNum}/${subject}`);
   };
 
+  const totalAttempted = performanceRows.reduce((s, r) => s + r.attempted, 0);
+  const avgAccuracy = performanceRows.length > 0
+    ? Math.round(performanceRows.reduce((s, r) => s + r.accuracy, 0) / performanceRows.length)
+    : 0;
+  const topicsStarted = performanceRows.length;
+  const topicsMastered = performanceRows.filter(r => r.accuracy >= 80 && r.attempted >= 3).length;
+  const xpEstimate = totalAttempted * 10 + streak * 25 + topicsMastered * 50;
+
   return (
     <div className="lt-page">
-      <h2 className="title">Your Personal Dashboard</h2>
+      <h2 className="title" style={{ marginBottom: 8 }}>Your Dashboard</h2>
+
+      {/* Gamification stats bar */}
+      <div style={{
+        display: "flex", gap: 12, marginBottom: 16, flexWrap: "wrap",
+      }}>
+        <div style={{
+          flex: "1 1 100px", background: "#fff7e6", border: "2px solid #ff9600",
+          borderRadius: 16, padding: "14px 16px", textAlign: "center",
+          boxShadow: "0 2px 0 rgba(255,150,0,0.3)",
+        }}>
+          <div style={{ fontSize: "1.6rem" }}>🔥</div>
+          <div style={{ fontSize: "1.4rem", fontWeight: 900, color: "#ff9600" }}>{streak}</div>
+          <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#777", textTransform: "uppercase" }}>Day streak</div>
+        </div>
+        <div style={{
+          flex: "1 1 100px", background: "#e6f9e0", border: "2px solid #58cc02",
+          borderRadius: 16, padding: "14px 16px", textAlign: "center",
+          boxShadow: "0 2px 0 rgba(88,204,2,0.3)",
+        }}>
+          <div style={{ fontSize: "1.6rem" }}>⚡</div>
+          <div style={{ fontSize: "1.4rem", fontWeight: 900, color: "#58cc02" }}>{xpEstimate}</div>
+          <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#777", textTransform: "uppercase" }}>Total XP</div>
+        </div>
+        <div style={{
+          flex: "1 1 100px", background: "#ddf4ff", border: "2px solid #1cb0f6",
+          borderRadius: 16, padding: "14px 16px", textAlign: "center",
+          boxShadow: "0 2px 0 rgba(28,176,246,0.3)",
+        }}>
+          <div style={{ fontSize: "1.6rem" }}>🎯</div>
+          <div style={{ fontSize: "1.4rem", fontWeight: 900, color: "#1cb0f6" }}>{avgAccuracy}%</div>
+          <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#777", textTransform: "uppercase" }}>Accuracy</div>
+        </div>
+        <div style={{
+          flex: "1 1 100px", background: "#f3e8ff", border: "2px solid #ce82ff",
+          borderRadius: 16, padding: "14px 16px", textAlign: "center",
+          boxShadow: "0 2px 0 rgba(206,130,255,0.3)",
+        }}>
+          <div style={{ fontSize: "1.6rem" }}>🏆</div>
+          <div style={{ fontSize: "1.4rem", fontWeight: 900, color: "#ce82ff" }}>{topicsMastered}/{topicsStarted}</div>
+          <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#777", textTransform: "uppercase" }}>Mastered</div>
+        </div>
+      </div>
 
       <div className="card" data-ux-priority-block="dashboard-next-best-actions" data-testid="dashboard-priority-block" style={{ background: "#e6f9e0", border: "2px solid #58cc02", borderRadius: 16, boxShadow: "0 2px 0 #46a302" }}>
         <h3 style={{ fontSize: "1.15rem", fontWeight: 900, color: "#3c3c3c" }}>{heroAction.title}</h3>
@@ -581,7 +631,7 @@ export default function Dashboard() {
         </div>
 
         {planRecord?.meta ? (
-          <div style={{ marginTop: 10, padding: 10, borderRadius: 10, background: "rgba(241,245,249,0.8)" }}>
+          <div style={{ marginTop: 10, padding: 10, borderRadius: 12, background: "#f7f7f7", border: "2px solid #e5e5e5" }}>
             <strong>Plan realism check</strong>
             <p style={{ marginTop: 6, fontSize: "0.9rem", opacity: 0.9 }}>
               Feasibility: <b>{planRecord.meta.feasibilityBand}</b> | Effective hours: <b>{planRecord.meta.effectiveHours}</b> |
@@ -594,7 +644,7 @@ export default function Dashboard() {
           </div>
         ) : null}
 
-        <div style={{ marginTop: 12, padding: 10, borderRadius: 10, border: "1px dashed rgba(15,23,42,0.3)" }}>
+        <div style={{ marginTop: 12, padding: 10, borderRadius: 12, border: "2px dashed #e5e5e5" }}>
           <strong>Admin exam-date override</strong>
           <p style={{ marginTop: 6, fontSize: "0.85rem", opacity: 0.85 }}>
             Use this only after manually confirming official CBSE date sheet.
@@ -658,7 +708,7 @@ export default function Dashboard() {
               type="button"
               className="lt-pill"
               onClick={() => setMode("zombie")}
-              style={{ background: mode === "zombie" ? "rgba(30,41,59,0.92)" : undefined, color: mode === "zombie" ? "#fff" : undefined }}
+              style={{ background: mode === "zombie" ? "#58cc02" : undefined, color: mode === "zombie" ? "#fff" : undefined }}
             >
               Low
             </button>
@@ -666,7 +716,7 @@ export default function Dashboard() {
               type="button"
               className="lt-pill"
               onClick={() => setMode("beast")}
-              style={{ background: mode === "beast" ? "rgba(30,41,59,0.92)" : undefined, color: mode === "beast" ? "#fff" : undefined }}
+              style={{ background: mode === "beast" ? "#58cc02" : undefined, color: mode === "beast" ? "#fff" : undefined }}
             >
               High
             </button>
@@ -732,25 +782,25 @@ export default function Dashboard() {
             <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 760 }}>
               <thead>
                 <tr>
-                  <th style={{ textAlign: "left", padding: "8px 6px", borderBottom: "1px solid rgba(15,23,42,0.15)" }}>Topic</th>
-                  <th style={{ textAlign: "left", padding: "8px 6px", borderBottom: "1px solid rgba(15,23,42,0.15)" }}>Subject</th>
-                  <th style={{ textAlign: "right", padding: "8px 6px", borderBottom: "1px solid rgba(15,23,42,0.15)" }}>Attempted</th>
-                  <th style={{ textAlign: "right", padding: "8px 6px", borderBottom: "1px solid rgba(15,23,42,0.15)" }}>Accuracy</th>
-                  <th style={{ textAlign: "right", padding: "8px 6px", borderBottom: "1px solid rgba(15,23,42,0.15)" }}>Match Score</th>
-                  <th style={{ textAlign: "left", padding: "8px 6px", borderBottom: "1px solid rgba(15,23,42,0.15)" }}>Last activity</th>
+                  <th style={{ textAlign: "left", padding: "8px 6px", borderBottom: "1px solid rgba(0,0,0,0.08)" }}>Topic</th>
+                  <th style={{ textAlign: "left", padding: "8px 6px", borderBottom: "1px solid rgba(0,0,0,0.08)" }}>Subject</th>
+                  <th style={{ textAlign: "right", padding: "8px 6px", borderBottom: "1px solid rgba(0,0,0,0.08)" }}>Attempted</th>
+                  <th style={{ textAlign: "right", padding: "8px 6px", borderBottom: "1px solid rgba(0,0,0,0.08)" }}>Accuracy</th>
+                  <th style={{ textAlign: "right", padding: "8px 6px", borderBottom: "1px solid rgba(0,0,0,0.08)" }}>Match Score</th>
+                  <th style={{ textAlign: "left", padding: "8px 6px", borderBottom: "1px solid rgba(0,0,0,0.08)" }}>Last activity</th>
                 </tr>
               </thead>
               <tbody>
                 {performanceRows.map((row) => (
                   <tr key={row.chapterId}>
-                    <td style={{ padding: "8px 6px", borderBottom: "1px solid rgba(15,23,42,0.08)", fontWeight: 600 }}>{row.topicName}</td>
-                    <td style={{ padding: "8px 6px", borderBottom: "1px solid rgba(15,23,42,0.08)" }}>{row.subject}</td>
-                    <td style={{ padding: "8px 6px", borderBottom: "1px solid rgba(15,23,42,0.08)", textAlign: "right" }}>{row.attempted}</td>
-                    <td style={{ padding: "8px 6px", borderBottom: "1px solid rgba(15,23,42,0.08)", textAlign: "right" }}>{row.accuracy}%</td>
-                    <td style={{ padding: "8px 6px", borderBottom: "1px solid rgba(15,23,42,0.08)", textAlign: "right", fontWeight: 700 }}>
+                    <td style={{ padding: "8px 6px", borderBottom: "1px solid rgba(0,0,0,0.04)", fontWeight: 600 }}>{row.topicName}</td>
+                    <td style={{ padding: "8px 6px", borderBottom: "1px solid rgba(0,0,0,0.04)" }}>{row.subject}</td>
+                    <td style={{ padding: "8px 6px", borderBottom: "1px solid rgba(0,0,0,0.04)", textAlign: "right" }}>{row.attempted}</td>
+                    <td style={{ padding: "8px 6px", borderBottom: "1px solid rgba(0,0,0,0.04)", textAlign: "right" }}>{row.accuracy}%</td>
+                    <td style={{ padding: "8px 6px", borderBottom: "1px solid rgba(0,0,0,0.04)", textAlign: "right", fontWeight: 700 }}>
                       Match Score: {row.matchScore}%
                     </td>
-                    <td style={{ padding: "8px 6px", borderBottom: "1px solid rgba(15,23,42,0.08)", opacity: 0.8 }}>
+                    <td style={{ padding: "8px 6px", borderBottom: "1px solid rgba(0,0,0,0.04)", opacity: 0.8 }}>
                       {row.lastPracticedAt ? new Date(row.lastPracticedAt).toLocaleDateString() : "-"}
                     </td>
                   </tr>

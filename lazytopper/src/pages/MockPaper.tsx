@@ -181,9 +181,9 @@ const MockPaperPage: React.FC = () => {
             borderRadius: 32,
             padding: "22px 22px 24px",
             background:
-              "linear-gradient(135deg,rgba(15,23,42,0.98),rgba(37,99,235,0.95))",
+              "linear-gradient(135deg,rgba(88,204,2,0.98),rgba(28,176,246,0.95))",
             color: "#e5e7eb",
-            boxShadow: "0 26px 70px rgba(15,23,42,0.7)",
+            boxShadow: "0 26px 70px rgba(88,204,2,0.3)",
             marginBottom: 20,
             display: "flex",
             flexDirection: "column",
@@ -251,7 +251,7 @@ const MockPaperPage: React.FC = () => {
                   borderRadius: 999,
                   padding: "6px 14px",
                   border: "1px solid #e5e7eb",
-                  background: "rgba(15,23,42,0.8)",
+                  background: "#58cc02",
                   color: "#e5e7eb",
                   fontSize: "0.8rem",
                   cursor: "pointer",
@@ -269,7 +269,7 @@ const MockPaperPage: React.FC = () => {
                   padding: "7px 16px",
                   border: "none",
                   background: "#22c55e",
-                  color: "#0f172a",
+                  color: "#3c3c3c",
                   fontSize: "0.8rem",
                   fontWeight: 600,
                   cursor: "pointer",
@@ -343,7 +343,7 @@ const MockPaperPage: React.FC = () => {
                   style={{
                     margin: "12px 0 6px",
                     fontSize: "0.98rem",
-                    color: "#111827",
+                    color: "#3c3c3c",
                   }}
                 >
                   Section {sec} • {section.questions.length} questions ·{" "}
@@ -354,7 +354,7 @@ const MockPaperPage: React.FC = () => {
                     margin: "0 0 4px 1.2rem",
                     padding: 0,
                     fontSize: "0.9rem",
-                    color: "#111827",
+                    color: "#3c3c3c",
                   }}
                 >
                   {section.questions.map((q) => (

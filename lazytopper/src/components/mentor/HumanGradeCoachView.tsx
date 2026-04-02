@@ -130,14 +130,14 @@ export const HumanGradeCoachView: React.FC<HumanGradeCoachViewProps> = ({
     <div style={containerStyle}>
       <div style={{ display: "grid", gap: compact ? 10 : 12 }}>
         {diagnosisSummary ? (
-          <div style={compact ? { padding: "8px 10px", borderRadius: 10, background: "rgba(255,255,255,0.92)", border: "1px solid rgba(15,23,42,0.08)" } : { padding: "10px 12px", borderRadius: 12, background: "rgba(255,255,255,0.92)", border: "1px solid rgba(15,23,42,0.08)" }}>
+          <div style={compact ? { padding: "8px 10px", borderRadius: 10, background: "rgba(255,255,255,0.92)", border: "1px solid rgba(0,0,0,0.02)" } : { padding: "10px 12px", borderRadius: 12, background: "rgba(255,255,255,0.92)", border: "1px solid rgba(0,0,0,0.02)" }}>
             <div style={{ fontWeight: compact ? 700 : 800, marginBottom: 4 }}>What this is</div>
             <div style={{ lineHeight: 1.5 }}>{diagnosisSummary}</div>
           </div>
         ) : null}
 
         {primaryAction ? (
-          <div style={compact ? { padding: "8px 10px", borderRadius: 10, background: "rgba(255,255,255,0.92)", border: "1px solid rgba(15,23,42,0.08)" } : { padding: "10px 12px", borderRadius: 12, background: "rgba(255,255,255,0.92)", border: "1px solid rgba(15,23,42,0.08)" }}>
+          <div style={compact ? { padding: "8px 10px", borderRadius: 10, background: "rgba(255,255,255,0.92)", border: "1px solid rgba(0,0,0,0.02)" } : { padding: "10px 12px", borderRadius: 12, background: "rgba(255,255,255,0.92)", border: "1px solid rgba(0,0,0,0.02)" }}>
             <div style={{ fontWeight: compact ? 700 : 800, marginBottom: 4 }}>Do this now</div>
             <div style={{ lineHeight: 1.5 }}>{primaryAction}</div>
             {hintWarning ? (
@@ -175,7 +175,7 @@ export const HumanGradeCoachView: React.FC<HumanGradeCoachViewProps> = ({
         ) : null}
 
         {(practiceNext || tryOneMore) ? (
-          <div style={compact ? { padding: "8px 10px", borderRadius: 10, background: "rgba(255,255,255,0.92)", border: "1px solid rgba(15,23,42,0.08)" } : { padding: "10px 12px", borderRadius: 12, background: "rgba(255,255,255,0.92)", border: "1px solid rgba(15,23,42,0.08)" }}>
+          <div style={compact ? { padding: "8px 10px", borderRadius: 10, background: "rgba(255,255,255,0.92)", border: "1px solid rgba(0,0,0,0.02)" } : { padding: "10px 12px", borderRadius: 12, background: "rgba(255,255,255,0.92)", border: "1px solid rgba(0,0,0,0.02)" }}>
             <div style={{ fontWeight: compact ? 700 : 800, marginBottom: 4 }}>Try one more</div>
             {practiceNextRecord?.family_label ? (
               <div style={{ marginBottom: 4 }}>{String(practiceNextRecord.family_label)}</div>
@@ -214,7 +214,7 @@ export const HumanGradeCoachView: React.FC<HumanGradeCoachViewProps> = ({
                         : {
                             padding: "2px 8px",
                             borderRadius: 999,
-                            background: "rgba(15,23,42,0.08)",
+                            background: "rgba(0,0,0,0.02)",
                             fontSize: 12,
                           }
                     }

@@ -1459,7 +1459,7 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
             borderRadius: 16,
             padding: "12px 12px",
             background: "rgba(255,255,255,0.92)",
-            border: "1px solid rgba(15,23,42,0.10)",
+            border: "1px solid rgba(0,0,0,0.06)",
             display: "grid",
             gap: 10,
           }}
@@ -1492,7 +1492,7 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
                 borderRadius: 12,
                 padding: "10px 12px",
                 background: "rgba(248,250,252,0.95)",
-                border: "1px solid rgba(15,23,42,0.08)",
+                border: "1px solid rgba(0,0,0,0.02)",
               }}
             >
               <div style={{ fontWeight: 800, marginBottom: 6 }}>One example</div>
@@ -1516,7 +1516,7 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
                 borderRadius: 12,
                 padding: "10px 12px",
                 background: "rgba(248,250,252,0.95)",
-                border: "1px solid rgba(15,23,42,0.08)",
+                border: "1px solid rgba(0,0,0,0.02)",
               }}
             >
               <div style={{ fontWeight: 800, marginBottom: 6 }}>Your turn</div>
@@ -1565,7 +1565,7 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
                   borderRadius: 12,
                   padding: "10px 12px",
                   background: "rgba(248,250,252,0.95)",
-                  border: "1px solid rgba(15,23,42,0.08)",
+                  border: "1px solid rgba(0,0,0,0.02)",
                 }}
               >
                 <div style={{ fontWeight: 800, marginBottom: 6 }}>Full worked example</div>
@@ -1593,7 +1593,7 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
                   borderRadius: 12,
                   padding: "10px 12px",
                   background: "rgba(248,250,252,0.95)",
-                  border: "1px solid rgba(15,23,42,0.08)",
+                  border: "1px solid rgba(0,0,0,0.02)",
                 }}
               >
                 <div style={{ fontWeight: 800, marginBottom: 6 }}>Continue</div>
@@ -2026,9 +2026,9 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
             style={{
               padding: "9px 14px",
               fontWeight: 900,
-              background: "rgba(15,23,42,0.92)",
+              background: "#58cc02",
               color: "#fff",
-              borderColor: "rgba(15,23,42,0.92)",
+              borderColor: "#58cc02",
             }}
             onClick={runPrimaryAction}
             disabled={doubtLoading}

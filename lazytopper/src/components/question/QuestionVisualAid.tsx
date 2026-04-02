@@ -63,7 +63,7 @@ function inferVisualKind(props: QuestionVisualAidProps): VisualKind | null {
 }
 
 function svgForKind(kind: VisualKind): React.ReactElement {
-  const stroke = "#0f172a";
+  const stroke = "#3c3c3c";
   const accent = "#0ea5e9";
   const faint = "#94a3b8";
   const baseProps = {

@@ -29,9 +29,9 @@ const PredictivePapersPage: React.FC = () => {
           borderRadius: 32,
           padding: "22px 22px 24px",
           background:
-            "linear-gradient(135deg,rgba(15,23,42,0.98),rgba(37,99,235,0.95))",
+            "linear-gradient(135deg,rgba(88,204,2,0.98),rgba(28,176,246,0.95))",
           color: "#e5e7eb",
-          boxShadow: "0 26px 70px rgba(15,23,42,0.7)",
+          boxShadow: "0 26px 70px rgba(88,204,2,0.3)",
           marginBottom: 20,
         }}
       >
@@ -113,7 +113,7 @@ const PredictivePapersPage: React.FC = () => {
                 style={{
                   fontSize: "1.05rem",
                   fontWeight: 600,
-                  color: "#0f172a",
+                  color: "#3c3c3c",
                 }}
               >
                 {paper.title}
@@ -140,7 +140,7 @@ const PredictivePapersPage: React.FC = () => {
                   marginTop: 8,
                   padding: "8px 10px",
                   borderRadius: 999,
-                  background: "#0f172a",
+                  background: "#3c3c3c",
                   color: "#e5e7eb",
                   fontSize: "0.8rem",
                   display: "inline-flex",
@@ -162,7 +162,7 @@ const PredictivePapersPage: React.FC = () => {
                 style={{
                   marginTop: 6,
                   fontSize: "0.8rem",
-                  color: "#2563eb",
+                  color: "#1cb0f6",
                   fontWeight: 500,
                 }}
               >
