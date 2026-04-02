@@ -2075,7 +2075,7 @@ const HighlyProbableQuestions: React.FC = () => {
                                     color: "#1d4ed8",
                                   }}
                                 >
-                                  <span style={{ animation: "spin 1s linear infinite", display: "inline-block" }}>&#9881;</span>
+                                  <span style={{ display: "inline-block" }}>&#8987;</span>
                                   Generating AI variants...
                                 </div>
                               )}
