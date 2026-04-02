@@ -25,6 +25,15 @@ Replaced synthetic/circular historical data with real CBSE board exam pattern da
 - `lazytopper/src/prediction/probabilisticScoring.ts` — calibrated NEP policy boosts to reflect actual CBSE post-2023 observed shifts (case-based 1.52x, assertion-reasoning 1.38x)
 - AI "Generate Similar" feature was already implemented (server endpoint `/api/more-like-this`, client `generateMoreLikeThis()`, full HPQ card UI)
 
+## AI Provider — Replit AI Integration Proxy
+
+The server uses Replit's AI Integration proxy for Gemini access, eliminating free-tier rate limits (429 errors):
+- Environment variables: `AI_INTEGRATIONS_GEMINI_BASE_URL` and `AI_INTEGRATIONS_GEMINI_API_KEY` (auto-provisioned, never modify manually)
+- Fallback: If proxy vars are missing, falls back to `GEMINI_API_KEY` / `API_KEY` direct key
+- Model: `gemini-2.5-flash` (configurable via `GEMINI_MODEL` env var)
+- All endpoints use the proxy: `/api/step-solution`, `/api/more-like-this`, `/api/mentor`, `/api/variants`
+- Charges are billed to Replit credits (no separate API key needed)
+
 ## CBSE Solution Quality Overhaul (Phase 1 & 2)
 
 Step-by-step solutions now match official CBSE marking scheme format:

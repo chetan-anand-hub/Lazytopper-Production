@@ -112,6 +112,15 @@ const RAW_GEMINI_API_KEY = String(process.env.GEMINI_API_KEY || '').trim();
 const RAW_AI_PROVIDER = String(process.env.AI_PROVIDER || '').trim();
 const ENV_USED = [];
 
+const REPLIT_GEMINI_BASE_URL_RAW = String(process.env.AI_INTEGRATIONS_GEMINI_BASE_URL || '').trim().replace(/\/+$/, '');
+const REPLIT_GEMINI_API_KEY = String(process.env.AI_INTEGRATIONS_GEMINI_API_KEY || '').trim();
+const HAS_REPLIT_PROXY = Boolean(REPLIT_GEMINI_BASE_URL_RAW && REPLIT_GEMINI_API_KEY);
+const REPLIT_GEMINI_BASE_URL = REPLIT_GEMINI_BASE_URL_RAW;
+
+if (HAS_REPLIT_PROXY) {
+  ENV_USED.push('AI_INTEGRATIONS_GEMINI (Replit proxy)');
+}
+
 if (!RAW_API_KEY && RAW_GEMINI_API_KEY) {
   process.env.API_KEY = RAW_GEMINI_API_KEY;
   ENV_USED.push('GEMINI_API_KEY');
@@ -120,7 +129,7 @@ if (!RAW_API_KEY && RAW_GEMINI_API_KEY) {
 }
 
 const HAS_API_KEY = Boolean(String(process.env.API_KEY || '').trim());
-if (!RAW_AI_PROVIDER && HAS_API_KEY) {
+if (!RAW_AI_PROVIDER && (HAS_API_KEY || HAS_REPLIT_PROXY)) {
   process.env.AI_PROVIDER = 'gemini';
 } else if (RAW_AI_PROVIDER) {
   ENV_USED.push('AI_PROVIDER');
@@ -131,9 +140,11 @@ const AI_PROVIDER = String(process.env.AI_PROVIDER || '').trim();
 const API_KEY = String(process.env.API_KEY || '').trim();
 const CORS_ORIGIN = String(process.env.CORS_ORIGIN || 'http://localhost:5173').trim();
 const AI_PROVIDER_NORMALIZED = AI_PROVIDER.toLowerCase();
-const STUB_MODE = !AI_PROVIDER || !API_KEY || AI_PROVIDER_NORMALIZED !== 'gemini';
-const ACTIVE_PROVIDER = STUB_MODE ? 'stub' : AI_PROVIDER_NORMALIZED;
-const GEMINI_API_KEY = AI_PROVIDER_NORMALIZED === 'gemini' ? API_KEY : '';
+const HAS_DIRECT_KEY = AI_PROVIDER_NORMALIZED === 'gemini' && Boolean(API_KEY);
+const STUB_MODE = !HAS_REPLIT_PROXY && !HAS_DIRECT_KEY;
+const ACTIVE_PROVIDER = STUB_MODE ? 'stub' : 'gemini';
+const GEMINI_API_KEY = HAS_REPLIT_PROXY ? REPLIT_GEMINI_API_KEY : (HAS_DIRECT_KEY ? API_KEY : '');
+const DIRECT_GEMINI_API_KEY = HAS_DIRECT_KEY ? API_KEY : '';
 const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 const GEMINI_TIMEOUT_MS = Math.max(5000, Number(process.env.GEMINI_TIMEOUT_MS || 20000) || 20000);
 const IS_DEV = String(process.env.NODE_ENV || '').toLowerCase() !== 'production';
@@ -4589,8 +4600,6 @@ async function callGemini(model, finalContents, config) {
     throw new Error('API_KEY is not set or AI_PROVIDER is not "gemini". Set AI_PROVIDER=gemini and API_KEY in server/.env or environment.');
   }
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
-
   const buildBody = (includeMimeType) => {
     const body = {
       contents: finalContents,
@@ -4610,15 +4619,15 @@ async function callGemini(model, finalContents, config) {
     return body;
   };
 
-  const doRequest = async (includeMimeType) => {
+  const doRequest = async (includeMimeType, reqUrl, apiKey) => {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), GEMINI_TIMEOUT_MS);
     try {
-      const response = await fetch(url, {
+      const response = await fetch(reqUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-goog-api-key': GEMINI_API_KEY,
+          'x-goog-api-key': apiKey,
         },
         body: JSON.stringify(buildBody(includeMimeType)),
         signal: controller.signal,
@@ -4637,7 +4646,15 @@ async function callGemini(model, finalContents, config) {
     }
   };
 
-  let { response, rawText } = await doRequest(true);
+  const proxyUrl = HAS_REPLIT_PROXY
+    ? `${REPLIT_GEMINI_BASE_URL}/models/${encodeURIComponent(model)}:generateContent`
+    : null;
+  const directUrl = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
+
+  const primaryUrl = proxyUrl || directUrl;
+  const primaryKey = HAS_REPLIT_PROXY ? REPLIT_GEMINI_API_KEY : GEMINI_API_KEY;
+
+  let { response, rawText } = await doRequest(true, primaryUrl, primaryKey);
   if (
     !response.ok &&
     config &&
@@ -4646,7 +4663,23 @@ async function callGemini(model, finalContents, config) {
   ) {
     const retryMimeRegex = /responseMimeType|response_mime_type|Unknown name.*responseMimeType/i;
     if (retryMimeRegex.test(rawText)) {
-      ({ response, rawText } = await doRequest(false));
+      ({ response, rawText } = await doRequest(false, primaryUrl, primaryKey));
+    }
+  }
+
+  if (!response.ok && HAS_REPLIT_PROXY && DIRECT_GEMINI_API_KEY) {
+    console.warn(`[callGemini] Proxy failed (${response.status}), falling back to direct Gemini key`);
+    ({ response, rawText } = await doRequest(true, directUrl, DIRECT_GEMINI_API_KEY));
+    if (
+      !response.ok &&
+      config &&
+      typeof config.responseMimeType === 'string' &&
+      config.responseMimeType.trim()
+    ) {
+      const retryMimeRegex = /responseMimeType|response_mime_type|Unknown name.*responseMimeType/i;
+      if (retryMimeRegex.test(rawText)) {
+        ({ response, rawText } = await doRequest(false, directUrl, DIRECT_GEMINI_API_KEY));
+      }
     }
   }
 
@@ -6026,7 +6059,7 @@ server.listen(PORT, () => {
   console.log(`LazyTopper AI server running on port ${PORT}`);
   const envUsedLabel = ENV_USED.length ? ENV_USED.join(',') : '';
   console.log(
-    `Provider: ${ACTIVE_PROVIDER} | Model: ${GEMINI_MODEL} | KeyPresent: ${Boolean(API_KEY)} | Stub: ${STUB_MODE} | EnvUsed: ${envUsedLabel}`
+    `Provider: ${ACTIVE_PROVIDER} | Model: ${GEMINI_MODEL} | Auth: ${HAS_REPLIT_PROXY ? 'proxy' : (HAS_DIRECT_KEY ? 'direct-key' : 'none')} | Stub: ${STUB_MODE} | EnvUsed: ${envUsedLabel}`
   );
 });
 function messagesToGeminiContents(messages, systemPrompt) {
