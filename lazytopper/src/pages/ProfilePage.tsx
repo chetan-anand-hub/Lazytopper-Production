@@ -162,6 +162,88 @@ function computeDifficultyProgress(): DifficultyProgress {
   };
 }
 
+interface WeeklyDifficultyPoint {
+  weekLabel: string;
+  easyPct: number;
+  medPct: number;
+  hardPct: number;
+}
+
+function computeWeeklyDifficultyProgression(): WeeklyDifficultyPoint[] {
+  const insights = loadInsights();
+  const attempts = insights.attempts || [];
+  if (attempts.length === 0) return [];
+
+  const byWeek = new Map<string, { easy: number; med: number; hard: number; total: number }>();
+  for (const a of attempts) {
+    const d = new Date(a.timestamp);
+    const ws = new Date(d);
+    ws.setDate(d.getDate() - d.getDay());
+    const key = `${ws.getFullYear()}-${String(ws.getMonth() + 1).padStart(2, "0")}-${String(ws.getDate()).padStart(2, "0")}`;
+    const e = byWeek.get(key) || { easy: 0, med: 0, hard: 0, total: 0 };
+    e.total++;
+    if (a.difficulty === "Easy") e.easy++;
+    else if (a.difficulty === "Medium") e.med++;
+    else if (a.difficulty === "Hard") e.hard++;
+    byWeek.set(key, e);
+  }
+
+  return Array.from(byWeek.entries())
+    .sort(([a], [b]) => a.localeCompare(b))
+    .slice(-8)
+    .map(([k, v]) => ({
+      weekLabel: k.slice(5),
+      easyPct: v.total > 0 ? Math.round((v.easy / v.total) * 100) : 0,
+      medPct: v.total > 0 ? Math.round((v.med / v.total) * 100) : 0,
+      hardPct: v.total > 0 ? Math.round((v.hard / v.total) * 100) : 0,
+    }));
+}
+
+function computeTotalTimeStudied(statsByChapter: Record<string, { totalTimeSeconds?: number }>): number {
+  let total = 0;
+  for (const s of Object.values(statsByChapter)) {
+    total += s.totalTimeSeconds || 0;
+  }
+  return total;
+}
+
+function formatStudyTime(seconds: number): string {
+  if (seconds < 60) return `${seconds}s`;
+  const mins = Math.floor(seconds / 60);
+  if (mins < 60) return `${mins}m`;
+  const hrs = Math.floor(mins / 60);
+  const remMins = mins % 60;
+  return remMins > 0 ? `${hrs}h ${remMins}m` : `${hrs}h`;
+}
+
+interface WeeklyTimePerQ {
+  weekLabel: string;
+  avgSeconds: number;
+}
+
+function computeWeeklyTimePerQuestion(statsByChapter: Record<string, { totalTimeSeconds?: number; totalQuestionsAttempted?: number; lastPracticedAt?: string }>): WeeklyTimePerQ[] {
+  const byWeek = new Map<string, { totalTime: number; totalQ: number }>();
+  for (const s of Object.values(statsByChapter)) {
+    if (!s.lastPracticedAt || !s.totalQuestionsAttempted) continue;
+    const d = new Date(s.lastPracticedAt);
+    const ws = new Date(d);
+    ws.setDate(d.getDate() - d.getDay());
+    const key = `${ws.getFullYear()}-${String(ws.getMonth() + 1).padStart(2, "0")}-${String(ws.getDate()).padStart(2, "0")}`;
+    const e = byWeek.get(key) || { totalTime: 0, totalQ: 0 };
+    e.totalTime += s.totalTimeSeconds || 0;
+    e.totalQ += s.totalQuestionsAttempted || 0;
+    byWeek.set(key, e);
+  }
+
+  return Array.from(byWeek.entries())
+    .sort(([a], [b]) => a.localeCompare(b))
+    .slice(-8)
+    .map(([k, v]) => ({
+      weekLabel: k.slice(5),
+      avgSeconds: v.totalQ > 0 ? Math.round(v.totalTime / v.totalQ) : 0,
+    }));
+}
+
 function AccuracyChart({ data }: { data: WeeklyAccuracy[] }) {
   if (data.length === 0) {
     return <p style={{ opacity: 0.5, fontSize: 14 }}>No practice data yet. Start solving to see your accuracy trend.</p>;
@@ -261,7 +343,10 @@ function OverviewTab({ milestones, subjectTab, setSubjectTab }: {
                 <div style={{ position: "absolute", left: -20, width: 18, height: 18, borderRadius: "50%", background: "#fff", border: "3px solid #3b82f6", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10 }}>
                   {m.icon}
                 </div>
-                <span style={{ fontSize: 14, fontWeight: 500 }}>{m.label}</span>
+                <div>
+                  <span style={{ fontSize: 14, fontWeight: 500 }}>{m.label}</span>
+                  {m.date && <span style={{ fontSize: 11, opacity: 0.5, marginLeft: 8 }}>{m.date}</span>}
+                </div>
               </div>
             ))}
           </div>
@@ -305,9 +390,12 @@ function AchievementsTab({ earned }: { earned: EarnedBadge[] }) {
   );
 }
 
-function StatsTab({ badgeCtx }: { badgeCtx: BadgeContext }) {
+function StatsTab({ badgeCtx, statsByChapter }: { badgeCtx: BadgeContext; statsByChapter: Record<string, { totalTimeSeconds?: number; totalQuestionsAttempted?: number; lastPracticedAt?: string }> }) {
   const weeklyData = useMemo(() => computeWeeklyAccuracy(), []);
   const diffProg = useMemo(() => computeDifficultyProgress(), []);
+  const weeklyDiffProg = useMemo(() => computeWeeklyDifficultyProgression(), []);
+  const totalTimeSec = useMemo(() => computeTotalTimeStudied(statsByChapter), [statsByChapter]);
+  const timePerQTrend = useMemo(() => computeWeeklyTimePerQuestion(statsByChapter), [statsByChapter]);
   const overallAccuracy = badgeCtx.totalQuestions > 0
     ? Math.round((badgeCtx.totalCorrect / badgeCtx.totalQuestions) * 100)
     : 0;
@@ -344,7 +432,7 @@ function StatsTab({ badgeCtx }: { badgeCtx: BadgeContext }) {
         {[
           { label: "Questions Solved", value: String(badgeCtx.totalQuestions), color: "#3b82f6" },
           { label: "Overall Accuracy", value: `${overallAccuracy}%`, color: overallAccuracy >= 70 ? "#34d399" : "#f87171" },
-          { label: "Topics Started", value: `${badgeCtx.topicsStarted} / ${badgeCtx.totalTopics}`, color: "#8b5cf6" },
+          { label: "Total Time Studied", value: formatStudyTime(totalTimeSec), color: "#8b5cf6" },
           { label: "Topics Mastered", value: String(badgeCtx.topicsMastered), color: "#f59e0b" },
           { label: "Current Streak", value: `${badgeCtx.streak} days`, color: "#ef4444" },
           { label: "Days Active", value: String(badgeCtx.daysActive), color: "#06b6d4" },
@@ -388,7 +476,61 @@ function StatsTab({ badgeCtx }: { badgeCtx: BadgeContext }) {
       <h3 style={{ fontWeight: 800, fontSize: 16, marginBottom: 8 }}>Weekly Accuracy</h3>
       <AccuracyChart data={weeklyData} />
 
-      <h3 style={{ fontWeight: 800, fontSize: 16, marginTop: 20, marginBottom: 8 }}>Difficulty Breakdown</h3>
+      <h3 style={{ fontWeight: 800, fontSize: 16, marginTop: 20, marginBottom: 8 }}>Difficulty Progression (Weekly)</h3>
+      {weeklyDiffProg.length > 0 ? (
+        <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", fontSize: 12, borderCollapse: "collapse" }}>
+            <thead>
+              <tr>
+                <th style={{ textAlign: "left", padding: "4px 8px", borderBottom: "1px solid #eee" }}>Week</th>
+                <th style={{ textAlign: "center", padding: "4px 8px", borderBottom: "1px solid #eee", color: "#34d399" }}>Easy</th>
+                <th style={{ textAlign: "center", padding: "4px 8px", borderBottom: "1px solid #eee", color: "#60a5fa" }}>Medium</th>
+                <th style={{ textAlign: "center", padding: "4px 8px", borderBottom: "1px solid #eee", color: "#f87171" }}>Hard</th>
+              </tr>
+            </thead>
+            <tbody>
+              {weeklyDiffProg.map((w) => (
+                <tr key={w.weekLabel}>
+                  <td style={{ padding: "4px 8px", borderBottom: "1px solid #f5f5f5" }}>{w.weekLabel}</td>
+                  <td style={{ textAlign: "center", padding: "4px 8px", borderBottom: "1px solid #f5f5f5" }}>{w.easyPct}%</td>
+                  <td style={{ textAlign: "center", padding: "4px 8px", borderBottom: "1px solid #f5f5f5" }}>{w.medPct}%</td>
+                  <td style={{ textAlign: "center", padding: "4px 8px", borderBottom: "1px solid #f5f5f5" }}>{w.hardPct}%</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <p style={{ opacity: 0.5, fontSize: 14 }}>Solve more questions to see your difficulty progression.</p>
+      )}
+
+      <h3 style={{ fontWeight: 800, fontSize: 16, marginTop: 20, marginBottom: 8 }}>Time per Question (Weekly)</h3>
+      {timePerQTrend.length > 0 ? (
+        <div style={{ overflowX: "auto" }}>
+          <svg width={timePerQTrend.length * 52 + 20} height={150}>
+            {timePerQTrend.map((w, i) => {
+              const maxSec = Math.max(...timePerQTrend.map((t) => t.avgSeconds), 1);
+              const h = (w.avgSeconds / maxSec) * 110;
+              const x = i * 52 + 10;
+              return (
+                <g key={w.weekLabel}>
+                  <rect x={x} y={110 - h} width={36} height={h} rx={4} fill="#8b5cf6" opacity={0.75} />
+                  <text x={x + 18} y={110 - h - 4} textAnchor="middle" fontSize={10} fontWeight={600} fill="#333">
+                    {w.avgSeconds}s
+                  </text>
+                  <text x={x + 18} y={130} textAnchor="middle" fontSize={9} fill="#888">
+                    {w.weekLabel}
+                  </text>
+                </g>
+              );
+            })}
+          </svg>
+        </div>
+      ) : (
+        <p style={{ opacity: 0.5, fontSize: 14 }}>Practice more to see your speed improvement.</p>
+      )}
+
+      <h3 style={{ fontWeight: 800, fontSize: 16, marginTop: 20, marginBottom: 8 }}>Overall Difficulty Mix</h3>
       <div style={{ display: "flex", gap: 8 }}>
         {[
           { label: "Easy", pct: diffProg.easy, color: "#34d399" },
@@ -538,7 +680,7 @@ export default function ProfilePage() {
         />
       )}
       {tab === "achievements" && <AchievementsTab earned={earnedBadges} />}
-      {tab === "stats" && <StatsTab badgeCtx={badgeCtx} />}
+      {tab === "stats" && <StatsTab badgeCtx={badgeCtx} statsByChapter={statsByChapter} />}
 
       <button
         type="button"

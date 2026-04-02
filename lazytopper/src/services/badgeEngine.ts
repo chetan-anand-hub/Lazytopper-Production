@@ -243,19 +243,34 @@ export function evaluateBadges(ctx: BadgeContext, existingBadges: EarnedBadge[])
 
 export function buildJourneyMilestones(ctx: BadgeContext): JourneyMilestone[] {
   const milestones: JourneyMilestone[] = [];
+
+  const insights = loadInsights();
+  const attempts = insights.attempts || [];
+  const sortedAttempts = [...attempts].sort((a, b) => a.timestamp - b.timestamp);
+
+  function dateOfNthAttempt(n: number): string {
+    if (sortedAttempts.length >= n) {
+      return new Date(sortedAttempts[n - 1].timestamp).toLocaleDateString();
+    }
+    return "";
+  }
+
   if (ctx.totalQuestions >= 1) {
     milestones.push({
       id: "first-question",
       label: "Solved your first question",
-      date: "",
+      date: dateOfNthAttempt(1),
       icon: "🎯",
     });
   }
   if (ctx.topicsStarted >= 1) {
+    const firstTopicDate = sortedAttempts.length > 0
+      ? new Date(sortedAttempts[0].timestamp).toLocaleDateString()
+      : "";
     milestones.push({
       id: "first-topic",
       label: "Started your first topic",
-      date: "",
+      date: firstTopicDate,
       icon: "📖",
     });
   }
@@ -271,7 +286,7 @@ export function buildJourneyMilestones(ctx: BadgeContext): JourneyMilestone[] {
     milestones.push({
       id: "50-questions",
       label: "Crossed 50 questions",
-      date: "",
+      date: dateOfNthAttempt(50),
       icon: "🏏",
     });
   }
@@ -295,7 +310,7 @@ export function buildJourneyMilestones(ctx: BadgeContext): JourneyMilestone[] {
     milestones.push({
       id: "100-questions",
       label: "Century of questions solved",
-      date: "",
+      date: dateOfNthAttempt(100),
       icon: "💯",
     });
   }
