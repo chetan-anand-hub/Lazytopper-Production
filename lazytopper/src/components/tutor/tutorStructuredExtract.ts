@@ -107,7 +107,7 @@ export function extractStructuredSection(payload: AnyObj | null | undefined): St
 }
 
 export function extractStepsBlock(text: string): { cleanText: string; stepsData: AnyObj | null } {
-  const regex = /```steps\s*\n([\s\S]*?)\n```/;
+  const regex = /```[Ss]teps?\s*\n?([\s\S]*?)\n?```/;
   const match = text.match(regex);
   if (!match) return { cleanText: text, stepsData: null };
   try {

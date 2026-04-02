@@ -4370,7 +4370,9 @@ function buildConversationalTeachSystemPrompt(payload, isConceptTeach) {
     '5. If the student asks a question or says they don\'t understand, re-explain using a DIFFERENT example',
     '',
     'RULES:',
-    '- Write in natural conversational language — NOT bullet points or JSON',
+    isStepRequest
+      ? '- Write in natural conversational language for the explanation, then append a structured ```steps JSON block at the end (see STEP-BY-STEP FORMAT INSTRUCTION below)'
+      : '- Write in natural conversational language — NOT bullet points or JSON',
     '- Use short paragraphs (2-3 sentences max each)',
     '- Use **bold** for key terms and formulas',
     '- Include actual worked examples with real numbers',
