@@ -74,7 +74,9 @@ export interface MoreLikeThisResponse {
   subject: string;
   topicKey: string;
   model?: string;
+  provider?: string;
   variants: MoreLikeThisVariant[];
+  error?: string;
 }
 
 const API_BASE = "/api"; // Vite dev proxy or same origin in production

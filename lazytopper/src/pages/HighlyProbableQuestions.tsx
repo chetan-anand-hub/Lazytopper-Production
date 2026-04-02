@@ -640,9 +640,8 @@ const HighlyProbableQuestions: React.FC = () => {
         numVariants,
       };
       const resp = await generateMoreLikeThis(payload);
-      const respAny = resp as any;
-      if (respAny.error && (!resp.variants || resp.variants.length === 0)) {
-        setAiError((prev) => ({ ...prev, [qId]: respAny.error }));
+      if (resp.error && (!resp.variants || resp.variants.length === 0)) {
+        setAiError((prev) => ({ ...prev, [qId]: resp.error }));
         setAiVariants((prev) => ({ ...prev, [qId]: undefined }));
       } else {
         setAiVariants((prev) => ({ ...prev, [qId]: resp.variants }));
