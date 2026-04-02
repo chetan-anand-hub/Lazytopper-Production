@@ -52,6 +52,9 @@ import { buildTopicKeySources } from "../prediction/buildTopicKeySources";
 import JourneyStrip from "../components/ux/JourneyStrip";
 import ReturnContextBar from "../components/ux/ReturnContextBar";
 import { trackUxEvent } from "../services/uxTelemetry";
+import { lazy, Suspense } from "react";
+import type { ConceptTeachContext } from "../components/tutor/ConceptTeachDrawer";
+const ConceptTeachDrawer = lazy(() => import("../components/tutor/ConceptTeachDrawer"));
 
 // NEW: same normalisation constant as TopicHub
 const MAX_BOARD_WEIGHTAGE_FOR_CLASS10 = 14;
@@ -248,6 +251,21 @@ const HighlyProbableQuestions: React.FC = () => {
   const [solutionLoading, setSolutionLoading] = useState<Record<string, boolean>>({});
   const [solutionError, setSolutionError] = useState<Record<string, string | undefined>>({});
   const [solutionOpen, setSolutionOpen] = useState<Record<string, "solve" | "explain" | undefined>>({});
+
+  const [conceptDrawerOpen, setConceptDrawerOpen] = useState(false);
+  const [conceptDrawerContext, setConceptDrawerContext] = useState<ConceptTeachContext | null>(null);
+
+  const openConceptDrawer = (bucket: HPQTopicBucket, q: HPQQuestion) => {
+    setConceptDrawerContext({
+      topicKey: bucket.topic,
+      subject: subjectKey,
+      questionText: q.question,
+      marks: q.marks,
+      subtopic: (q as any).subtopic,
+      concept: (q as any).concept,
+    });
+    setConceptDrawerOpen(true);
+  };
 
   const isInBasket = React.useCallback(
     (id: string) => basket.some((item) => item.id === id),
@@ -2402,6 +2420,29 @@ const HighlyProbableQuestions: React.FC = () => {
                                         {solutionData[q.id].examTip}
                                       </div>
                                     )}
+
+                                    <button
+                                      onClick={() => openConceptDrawer(bucket, q)}
+                                      style={{
+                                        marginTop: 12,
+                                        width: "100%",
+                                        padding: "10px 14px",
+                                        borderRadius: 10,
+                                        border: "1px solid rgba(139,92,246,0.3)",
+                                        background: "linear-gradient(135deg, rgba(245,243,255,0.9), rgba(237,233,254,0.7))",
+                                        color: "#6d28d9",
+                                        fontSize: "0.82rem",
+                                        fontWeight: 600,
+                                        cursor: "pointer",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        gap: 8,
+                                      }}
+                                    >
+                                      <span style={{ fontSize: "1rem" }}>{"\uD83D\uDCA1"}</span>
+                                      Teach me this concept
+                                    </button>
                                   </div>
                                 )}
                               </div>
@@ -2420,6 +2461,16 @@ const HighlyProbableQuestions: React.FC = () => {
           </section>
         )}
       </div>
+
+      {conceptDrawerContext && (
+        <Suspense fallback={null}>
+          <ConceptTeachDrawer
+            open={conceptDrawerOpen}
+            onClose={() => setConceptDrawerOpen(false)}
+            context={conceptDrawerContext}
+          />
+        </Suspense>
+      )}
     </div>
   );
 };

@@ -15,6 +15,9 @@ import {
   toPracticePackKey,
 } from "../utils/topicResolver";
 import { generateMoreLikeThis, fetchStepSolution, type StepSolutionResponse } from "../ai/aiClient";
+import { lazy, Suspense } from "react";
+import type { ConceptTeachContext } from "../components/tutor/ConceptTeachDrawer";
+const ConceptTeachDrawer = lazy(() => import("../components/tutor/ConceptTeachDrawer"));
 import boardSteps_2025_26 from "../data/boardSteps";
 import { QuestionVisualAid } from "../components/question/QuestionVisualAid";
 import { DiagramBlock } from "../components/DiagramBlock";
@@ -772,6 +775,23 @@ useEffect(() => {
   const [practiceSolutionData, setPracticeSolutionData] = useState<Record<string, StepSolutionResponse>>({});
   const [practiceSolutionLoading, setPracticeSolutionLoading] = useState<Record<string, boolean>>({});
   const [practiceSolutionError, setPracticeSolutionError] = useState<Record<string, string | undefined>>({});
+
+  const [conceptDrawerOpen, setConceptDrawerOpen] = useState(false);
+  const [conceptDrawerContext, setConceptDrawerContext] = useState<ConceptTeachContext | null>(null);
+
+  const openConceptDrawer = (q: PracticeQuestion) => {
+    const anyQ = q as any;
+    setConceptDrawerContext({
+      topicKey: anyQ.topicKey || canonicalTopicKey || topicParam,
+      subject: subjectKey,
+      questionText: q.questionText,
+      marks: q.marks,
+      subtopic: anyQ.subtopic || anyQ.conceptKey || anyQ.subtopicKey,
+      concept: anyQ.concept,
+    });
+    setConceptDrawerOpen(true);
+  };
+
 // Practice Mentor Drawer (Solve With Me / Board Steps)
 const [mentorDrawerOpen, setMentorDrawerOpen] = useState(false);
 const [mentorSolveStyle, setMentorSolveStyle] = useState<"socratic" | "board">("socratic");
@@ -1972,6 +1992,29 @@ const packTopicKey = useMemo(() => {
                                 <strong>Exam Tip:</strong> {practiceSolutionData[q.id].examTip}
                               </div>
                             )}
+
+                            <button
+                              onClick={() => openConceptDrawer(q)}
+                              style={{
+                                marginTop: 12,
+                                width: "100%",
+                                padding: "10px 14px",
+                                borderRadius: 10,
+                                border: "1px solid rgba(139,92,246,0.3)",
+                                background: "linear-gradient(135deg, rgba(245,243,255,0.9), rgba(237,233,254,0.7))",
+                                color: "#6d28d9",
+                                fontSize: "0.82rem",
+                                fontWeight: 600,
+                                cursor: "pointer",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                gap: 8,
+                              }}
+                            >
+                              <span style={{ fontSize: "1rem" }}>{"\uD83D\uDCA1"}</span>
+                              Teach me this concept
+                            </button>
                           </div>
                         )}
                       </div>
@@ -3136,6 +3179,16 @@ function MentorSolveDrawer(props: {
           )}
         </div>
       </div>
+
+      {conceptDrawerContext && (
+        <Suspense fallback={null}>
+          <ConceptTeachDrawer
+            open={conceptDrawerOpen}
+            onClose={() => setConceptDrawerOpen(false)}
+            context={conceptDrawerContext}
+          />
+        </Suspense>
+      )}
     </div>
   );
 }
