@@ -18,28 +18,28 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     ],
     "definitions": [
       {
-        "title": "General form",
-        "description": "a₁x + b₁y + c₁ = 0, a₂x + b₂y + c₂ = 0."
+        "title": "General form of linear equations",
+        "description": "A pair of linear equations in two variables is written as a₁x + b₁y + c₁ = 0 and a₂x + b₂y + c₂ = 0, where x and y are the unknowns."
       },
       {
-        "title": "Methods of solving",
-        "description": "Graphical, Substitution, Elimination, Cross: multiplication."
+        "title": "Methods of solving linear equations",
+        "description": "A pair of linear equations can be solved by graphical method, substitution, elimination, or cross-multiplication; each method has its own advantages depending on the problem."
       },
       {
-        "title": "Condition for unique, no,",
-        "description": "Condition for unique, no, and infinite solutions using a₁/a₂, b₁/b₂, c₁/c₂."
+        "title": "Conditions for consistency of a system",
+        "description": "A pair of linear equations can have a unique solution, no solution, or infinitely many solutions depending on the ratios a₁/a₂, b₁/b₂, and c₁/c₂."
       },
       {
-        "title": "Word problems → converting",
-        "description": "Word problems → converting to equations in x and y."
+        "title": "Word problems modelled as linear equations",
+        "description": "Real-life situations involving age, money, speed, or mixtures are translated into a pair of linear equations in two variables x and y, then solved algebraically."
       },
       {
-        "title": "Graph interpretation",
-        "description": "intersection point = common solution."
+        "title": "Graphical interpretation of solutions",
+        "description": "The solution of a pair of linear equations corresponds to the point of intersection of their graphs; the coordinates of that point give the values of x and y."
       },
       {
-        "title": "Relation with lines",
-        "description": "intersecting, parallel, coincident."
+        "title": "Types of lines representing equations",
+        "description": "Depending on the ratio of coefficients, the two lines may be intersecting (unique solution), parallel (no solution), or coincident (infinitely many solutions)."
       }
     ],
     "examPatterns": [
@@ -86,24 +86,24 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     ],
     "definitions": [
       {
-        "title": "Mean of grouped and ungrouped data (including step",
-        "description": "deviation method)."
+        "title": "Mean of grouped data",
+        "description": "The arithmetic mean of grouped data can be calculated using direct, assumed mean, or step-deviation methods depending on the size of the data values."
       },
       {
-        "title": "Median for grouped data",
-        "description": "Median for grouped data (median class, cumulative frequency)."
+        "title": "Median of grouped data",
+        "description": "The median is the middle value of a data set; for grouped data it is found using the median class, cumulative frequency, and the median formula."
       },
       {
-        "title": "Mode for grouped data (modal class, formula",
-        "description": "based)."
+        "title": "Mode of grouped data",
+        "description": "The mode is the most frequently occurring value; for grouped data it is calculated using the modal class (class with highest frequency) and the mode formula."
       },
       {
-        "title": "Construction and reading of",
-        "description": "Construction and reading of frequency tables."
+        "title": "Frequency distribution table",
+        "description": "A frequency table organises raw data into class intervals with their corresponding frequencies, making it easier to compute central tendency measures."
       },
       {
-        "title": "Interpretation of central tendency",
-        "description": "Interpretation of central tendency (which measure to use when)."
+        "title": "Choosing the right central tendency measure",
+        "description": "Mean is best for symmetric data, median for skewed data, and mode for identifying the most common category; the choice depends on the data distribution and context."
       }
     ],
     "examPatterns": [
@@ -150,28 +150,28 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     ],
     "definitions": [
       {
-        "title": "Basic trigonometric ratios (sin, cos, tan, cot, sec, cosec) in a right",
-        "description": "angled triangle."
+        "title": "Trigonometric ratios in a right triangle",
+        "description": "The six ratios — sin, cos, tan, cot, sec, and cosec — are defined using the sides (opposite, adjacent, hypotenuse) of a right-angled triangle relative to a given acute angle."
       },
       {
-        "title": "Standard angle values (0°,",
-        "description": "Standard angle values (0°, 30°, 45°, 60°, 90°) and their ratio table."
+        "title": "Standard angle values table",
+        "description": "The exact values of all six trigonometric ratios at 0°, 30°, 45°, 60°, and 90° form a standard table that must be memorised for quick recall in exams."
       },
       {
-        "title": "Reciprocal and co",
-        "description": "function relationships."
+        "title": "Reciprocal and co-function relationships",
+        "description": "Each trigonometric ratio has a reciprocal pair (sin–cosec, cos–sec, tan–cot) and co-function identities such as sin θ = cos(90° − θ)."
       },
       {
-        "title": "Pythagorean identities, especially sin²θ",
-        "description": "Pythagorean identities, especially sin²θ + cos²θ = 1."
+        "title": "Pythagorean trigonometric identity",
+        "description": "The fundamental identity sin²θ + cos²θ = 1, along with its derived forms 1 + tan²θ = sec²θ and 1 + cot²θ = cosec²θ."
       },
       {
-        "title": "Simple trigonometric identities and",
-        "description": "Simple trigonometric identities and transformations."
+        "title": "Simplifying trigonometric expressions",
+        "description": "Using identities and standard values to simplify or evaluate compound trigonometric expressions is a frequently tested exam skill."
       },
       {
-        "title": "Using trigonometric ratios in simple height",
-        "description": "distance style questions."
+        "title": "Applying trigonometric ratios to height and distance",
+        "description": "Basic problems involving heights and distances use trig ratios to find unknown lengths or angles in right-angled triangle models."
       }
     ],
     "examPatterns": [
@@ -218,28 +218,28 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     ],
     "definitions": [
       {
-        "title": "Electric current I =",
-        "description": "Electric current I = Q/t and potential difference V = W/Q."
+        "title": "Electric current and potential difference",
+        "description": "Electric current (I = Q/t) is the rate of flow of charge, and potential difference (V = W/Q) is the work done per unit charge between two points."
       },
       {
         "title": "Ohm’s law",
         "description": "V = IR, resistance and factors affecting resistance."
       },
       {
-        "title": "Resistivity and its SI",
-        "description": "Resistivity and its SI unit; conductor vs insulator."
+        "title": "Resistivity",
+        "description": "Resistivity (ρ) is a material property measured in Ω·m that indicates how strongly a material opposes electric current; it distinguishes conductors from insulators."
       },
       {
-        "title": "Series vs parallel combination",
-        "description": "Series vs parallel combination of resistors, equivalent resistance."
+        "title": "Series and parallel combination of resistors",
+        "description": "In a series circuit, equivalent resistance is the sum of individual resistances; in parallel, the reciprocal of equivalent resistance equals the sum of reciprocals."
       },
       {
-        "title": "Electric power P =",
-        "description": "Electric power P = VI, P = I²R, P = V²/R and electrical energy (kWh)."
+        "title": "Electric power and energy",
+        "description": "Electric power P = VI (also P = I²R and P = V²/R) measures the rate of energy consumption; electrical energy is measured in kilowatt-hours (kWh)."
       },
       {
-        "title": "Safe use of domestic",
-        "description": "Safe use of domestic circuits basics (fuse, overloading, short circuit)."
+        "title": "Safety in domestic electric circuits",
+        "description": "Domestic circuits use fuses, MCBs, and earth wires to prevent hazards from overloading, short circuits, and current leakage."
       }
     ],
     "examPatterns": [
@@ -286,24 +286,24 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     ],
     "definitions": [
       {
-        "title": "Nutrition types",
-        "description": "autotrophic vs heterotrophic; human digestive system."
+        "title": "Types of nutrition",
+        "description": "Autotrophic nutrition involves making food from inorganic substances (plants); heterotrophic nutrition involves consuming ready-made food (animals). The human digestive system breaks down food mechanically and chemically."
       },
       {
-        "title": "Respiration",
-        "description": "aerobic vs anaerobic, human respiratory system."
+        "title": "Respiration in organisms",
+        "description": "Aerobic respiration uses oxygen to break down glucose completely (yielding CO₂, H₂O, and energy); anaerobic respiration occurs without oxygen (yielding ethanol or lactic acid). The human respiratory system includes the nose, trachea, bronchi, and lungs."
       },
       {
-        "title": "Transportation",
-        "description": "structure and function of heart, blood vessels, double circulation."
+        "title": "Transportation in humans",
+        "description": "The human circulatory system uses the heart (a four-chambered pump), arteries, veins, and capillaries to transport blood; double circulation ensures efficient separation of oxygenated and deoxygenated blood."
       },
       {
-        "title": "Excretion",
-        "description": "nephron structure and human excretory system."
+        "title": "Excretion in humans",
+        "description": "The human excretory system removes metabolic wastes; the nephron (the functional unit of the kidney) filters blood through glomerular filtration, tubular reabsorption, and secretion to form urine."
       },
       {
-        "title": "Basic plant processes",
-        "description": "transpiration, transport in xylem and phloem."
+        "title": "Transport in plants",
+        "description": "Xylem transports water and minerals upward from roots using transpiration pull, and phloem translocates prepared food (sucrose) from leaves to other parts of the plant."
       }
     ],
     "examPatterns": [
@@ -350,24 +350,24 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     ],
     "definitions": [
       {
-        "title": "Similar triangles (SSS, SAS,",
-        "description": "Similar triangles (SSS, SAS, AA criteria)."
+        "title": "Criteria for similarity of triangles",
+        "description": "Two triangles are similar if their corresponding angles are equal and corresponding sides are proportional; the three criteria are AA, SSS, and SAS similarity."
       },
       {
-        "title": "Basic proportionality theorem (Thales",
-        "description": "Basic proportionality theorem (Thales theorem) and converse."
+        "title": "Basic Proportionality Theorem (Thales' Theorem)",
+        "description": "If a line is drawn parallel to one side of a triangle, it divides the other two sides in the same ratio. The converse also holds true."
       },
       {
-        "title": "Pythagoras theorem and converse.",
-        "description": "Pythagoras theorem and converse."
+        "title": "Pythagoras Theorem and its converse",
+        "description": "In a right-angled triangle, the square of the hypotenuse equals the sum of the squares of the other two sides; conversely, if this relation holds, the triangle is right-angled."
       },
       {
-        "title": "Properties of similar triangles",
-        "description": "ratio of corresponding sides = ratio of perimeters = ratio of areas (squared)."
+        "title": "Ratios in similar triangles",
+        "description": "For similar triangles, the ratio of corresponding sides equals the ratio of perimeters, and the ratio of areas equals the square of the ratio of corresponding sides."
       },
       {
-        "title": "Applying similarity to problems",
-        "description": "Applying similarity to problems involving heights and lengths."
+        "title": "Applications of similarity",
+        "description": "Similarity results are applied to find unknown heights, lengths, and distances in real-life geometry problems involving proportional figures."
       }
     ],
     "examPatterns": [
@@ -414,24 +414,24 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     ],
     "definitions": [
       {
-        "title": "Experimental vs theoretical probability",
-        "description": "Experimental vs theoretical probability (Class 10 mainly uses theoretical)."
+        "title": "Theoretical vs experimental probability",
+        "description": "Theoretical probability is calculated using reasoning (favourable outcomes ÷ total outcomes), while experimental probability is based on actual observations from repeated trials."
       },
       {
-        "title": "Sample space and equally",
-        "description": "Sample space and equally likely outcomes."
+        "title": "Sample space and equally likely outcomes",
+        "description": "The sample space is the set of all possible outcomes of an experiment; outcomes are equally likely when each has the same chance of occurring."
       },
       {
-        "title": "Complement of an event",
-        "description": "P(not E) = 1: P(E)."
+        "title": "Complementary events",
+        "description": "For any event E, the probability of its complement is P(not E) = 1 − P(E); the event and its complement together cover the entire sample space."
       },
       {
-        "title": "Simple events",
-        "description": "coin toss, dice throw, cards, balls from a bag."
+        "title": "Classical probability experiments",
+        "description": "Standard experiments include tossing coins, throwing dice, drawing cards from a deck, and picking balls from a bag — each with well-defined sample spaces."
       },
       {
-        "title": "Basic combined events (not",
-        "description": "Basic combined events (not using heavy set theory)."
+        "title": "Combined events",
+        "description": "Events involving more than one outcome (e.g., getting at least one head in two tosses) are solved by listing favourable outcomes or using the complement rule."
       }
     ],
     "examPatterns": [
@@ -478,24 +478,24 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     ],
     "definitions": [
       {
-        "title": "Covalent bonding in carbon;",
-        "description": "Covalent bonding in carbon; tetravalency and catenation."
+        "title": "Covalent bonding, tetravalency, and catenation",
+        "description": "Carbon forms four covalent bonds (tetravalency) and can link with other carbon atoms to form long chains, branched chains, and rings (catenation)."
       },
       {
-        "title": "Saturated vs unsaturated compounds,",
-        "description": "Saturated vs unsaturated compounds, single/double/triple bonds."
+        "title": "Saturated and unsaturated hydrocarbons",
+        "description": "Saturated hydrocarbons contain only single bonds (alkanes), while unsaturated hydrocarbons have double (alkenes) or triple (alkynes) bonds between carbon atoms."
       },
       {
-        "title": "Homologous series and functional groups (",
-        "description": "OH,: COOH,: CHO,: Cl, etc.)."
+        "title": "Homologous series and functional groups",
+        "description": "A homologous series is a family of compounds with the same functional group (e.g., –OH, –COOH, –CHO) and a general formula, differing by a –CH₂– unit."
       },
       {
-        "title": "Ethanol and ethanoic acid",
-        "description": "properties and uses."
+        "title": "Properties of ethanol and ethanoic acid",
+        "description": "Ethanol (C₂H₅OH) is used as a solvent and in beverages; ethanoic acid (CH₃COOH) is the acid in vinegar. Both have characteristic chemical reactions."
       },
       {
-        "title": "Soap and detergent basics,",
-        "description": "Soap and detergent basics, micelles and cleansing action."
+        "title": "Soaps, detergents, and cleansing action",
+        "description": "Soaps are sodium/potassium salts of fatty acids that form micelles to trap grease in water; detergents work similarly but are effective in hard water too."
       }
     ],
     "examPatterns": [
@@ -542,24 +542,24 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     ],
     "definitions": [
       {
-        "title": "Word equation → formula",
-        "description": "Word equation → formula equation → balanced equation."
+        "title": "Writing and balancing chemical equations",
+        "description": "A chemical reaction is first written as a word equation, then converted to a formula equation, and finally balanced so that atoms are equal on both sides."
       },
       {
-        "title": "Types of reactions",
-        "description": "combination, decomposition, displacement, double displacement, redox."
+        "title": "Types of chemical reactions",
+        "description": "Chemical reactions are classified as combination, decomposition, displacement, double displacement, and redox (oxidation-reduction) based on how reactants change."
       },
       {
-        "title": "Exothermic vs endothermic reactions.",
-        "description": "Exothermic vs endothermic reactions."
+        "title": "Exothermic and endothermic reactions",
+        "description": "Exothermic reactions release heat energy to the surroundings (e.g., burning), while endothermic reactions absorb heat (e.g., thermal decomposition)."
       },
       {
-        "title": "Effects of oxidation in",
-        "description": "Effects of oxidation in daily life (rusting, rancidity)."
+        "title": "Oxidation in daily life",
+        "description": "Oxidation reactions in everyday life include rusting of iron (corrosion) and rancidity of fats/oils; both can be prevented by specific measures."
       },
       {
-        "title": "Use of symbols (s),",
-        "description": "Use of symbols (s), (l), (g), (aq) and conditions over arrow."
+        "title": "State symbols and reaction conditions",
+        "description": "Physical states are shown as (s), (l), (g), and (aq) after each formula; reaction conditions like heat or catalyst are written above the arrow."
       }
     ],
     "examPatterns": [
@@ -606,23 +606,23 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     "definitions": [
       {
         "title": "Magnetic field and field lines",
-        "description": "direction and properties."
+        "description": "A magnetic field is the region around a magnet or current-carrying conductor where a magnetic force is experienced; field lines show its direction and relative strength."
       },
       {
-        "title": "Right",
-        "description": "hand thumb rule and magnetic field around straight conductor."
+        "title": "Right-hand thumb rule",
+        "description": "If a straight current-carrying conductor is held in the right hand with the thumb pointing in the direction of current, the curled fingers show the direction of the magnetic field."
       },
       {
-        "title": "Force on a current",
-        "description": "carrying conductor in a magnetic field."
+        "title": "Force on a current-carrying conductor",
+        "description": "A current-carrying conductor placed in a magnetic field experiences a force whose direction depends on the directions of the current and the field."
       },
       {
-        "title": "Fleming’s left",
-        "description": "hand rule and electric motor principle."
+        "title": "Fleming’s left-hand rule and electric motor",
+        "description": "Fleming’s left-hand rule gives the direction of force on a conductor in a magnetic field; this principle is used in the electric motor to convert electrical energy to mechanical energy."
       },
       {
-        "title": "Domestic use",
-        "description": "simple understanding of electromagnets."
+        "title": "Electromagnets and their applications",
+        "description": "An electromagnet is a temporary magnet made by passing current through a coil wound around a soft iron core; it is used in doorbells, cranes, and circuit breakers."
       }
     ],
     "examPatterns": [
@@ -669,28 +669,28 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     ],
     "definitions": [
       {
-        "title": "Standard form ax² +",
-        "description": "Standard form ax² + bx + c = 0, a ≠ 0."
+        "title": "Standard form of a quadratic equation",
+        "description": "A quadratic equation is written as ax² + bx + c = 0 where a ≠ 0; 'a' is the leading coefficient, 'b' the linear coefficient, and 'c' the constant term."
       },
       {
-        "title": "Methods",
-        "description": "factorisation, completing square (rare in Class 10), quadratic formula."
+        "title": "Methods of solving quadratic equations",
+        "description": "Quadratic equations can be solved by factorisation, completing the square, or using the quadratic formula x = (−b ± √D) / 2a."
       },
       {
-        "title": "Discriminant D = b²",
-        "description": "Discriminant D = b² − 4ac and nature of roots."
+        "title": "Discriminant and nature of roots",
+        "description": "The discriminant D = b² − 4ac determines the nature of roots: D > 0 gives two distinct real roots, D = 0 gives equal roots, and D < 0 means no real roots."
       },
       {
-        "title": "Relationship between roots and",
-        "description": "Relationship between roots and coefficients (sum and product)."
+        "title": "Sum and product of roots",
+        "description": "For ax² + bx + c = 0 with roots α and β, the sum α + β = −b/a and the product αβ = c/a."
       },
       {
-        "title": "Forming quadratic equations from",
-        "description": "Forming quadratic equations from given roots."
+        "title": "Forming a quadratic equation from given roots",
+        "description": "If α and β are the roots, the quadratic equation is x² − (α + β)x + αβ = 0."
       },
       {
-        "title": "Simple word problems modelled",
-        "description": "Simple word problems modelled by quadratic equations."
+        "title": "Word problems using quadratic equations",
+        "description": "Real-life situations involving areas, speeds, ages, or money are modelled as quadratic equations and solved; extraneous roots are rejected based on context."
       }
     ],
     "examPatterns": [
@@ -736,24 +736,24 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     ],
     "definitions": [
       {
-        "title": "Euclid’s division lemma and",
-        "description": "Euclid’s division lemma and Euclid’s algorithm for HCF."
+        "title": "Euclid’s Division Lemma and Algorithm",
+        "description": "Euclid’s division lemma states a = bq + r (0 ≤ r < b); Euclid’s algorithm uses repeated division to find the HCF of two positive integers."
       },
       {
         "title": "Fundamental Theorem of Arithmetic",
-        "description": "unique prime factorisation of a composite number."
+        "description": "Every composite number can be expressed as a product of prime numbers in a unique way (apart from the order of factors)."
       },
       {
-        "title": "HCF × LCM =",
-        "description": "HCF × LCM = product of two numbers (for positive integers)."
+        "title": "HCF and LCM relationship",
+        "description": "For any two positive integers, HCF × LCM = product of the two numbers; this is used to find one value when the other is known."
       },
       {
-        "title": "Terminating vs non",
-        "description": "terminating recurring decimals and the link to prime factors of the denominator."
+        "title": "Terminating and non-terminating decimals",
+        "description": "A rational number p/q has a terminating decimal if the prime factors of q (in lowest terms) are only 2 and/or 5; otherwise it is non-terminating recurring."
       },
       {
-        "title": "Expressing rational numbers in",
-        "description": "Expressing rational numbers in the form p/q with constraints."
+        "title": "Rational number representation",
+        "description": "A rational number is any number that can be expressed in the form p/q where p and q are integers and q ≠ 0."
       }
     ],
     "examPatterns": [
@@ -796,24 +796,24 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     ],
     "definitions": [
       {
-        "title": "Definition of polynomial, degree,",
-        "description": "Definition of polynomial, degree, linear/quadratic/cubic forms."
+        "title": "Polynomial and its degree",
+        "description": "A polynomial is an algebraic expression with non-negative integer exponents; its degree is the highest power of the variable. Linear (degree 1), quadratic (degree 2), and cubic (degree 3) are common forms."
       },
       {
-        "title": "Zeroes of a polynomial and the graphical meaning (x",
-        "description": "intercepts)."
+        "title": "Zeroes of a polynomial",
+        "description": "The zeroes (or roots) of a polynomial are the values of x for which the polynomial equals zero; graphically, they are the x-intercepts of the polynomial curve."
       },
       {
-        "title": "For quadratic",
-        "description": "sum and product of zeroes in terms of coefficients."
+        "title": "Sum and product of zeroes of a quadratic",
+        "description": "For a quadratic polynomial ax² + bx + c, the sum of zeroes = −b/a and the product of zeroes = c/a."
       },
       {
-        "title": "For a given polynomial,",
-        "description": "For a given polynomial, forming one with given roots and vice versa."
+        "title": "Forming polynomials from given zeroes",
+        "description": "Given the zeroes of a polynomial, you can form the polynomial using the relations between zeroes and coefficients, and vice versa."
       },
       {
-        "title": "Behaviour of polynomial graphs",
-        "description": "Behaviour of polynomial graphs (number of zeroes ≤ degree)."
+        "title": "Graph of a polynomial",
+        "description": "The graph of a polynomial of degree n can have at most n zeroes (x-intercepts); the shape of the curve depends on the leading coefficient and degree."
       }
     ],
     "examPatterns": [
@@ -855,24 +855,24 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     ],
     "definitions": [
       {
-        "title": "AP definition, first term",
-        "description": "AP definition, first term a and common difference d."
+        "title": "Arithmetic Progression basics",
+        "description": "An arithmetic progression (AP) is a sequence where each term differs from the previous by a constant called the common difference (d); 'a' denotes the first term."
       },
       {
-        "title": "nth term",
-        "description": "aₙ = a + (n − 1)d."
+        "title": "nth term of an AP",
+        "description": "The nth term of an AP is given by aₙ = a + (n − 1)d, where a is the first term, d is the common difference, and n is the position."
       },
       {
         "title": "Sum of first n terms",
         "description": "Sₙ = n/2 [2a + (n − 1)d] or Sₙ = n/2 (first term + last term)."
       },
       {
-        "title": "Identifying if a given",
-        "description": "Identifying if a given sequence is an AP."
+        "title": "Checking if a sequence is an AP",
+        "description": "A sequence is an AP if the difference between consecutive terms is constant; compute each pair’s difference and verify they are all equal."
       },
       {
-        "title": "Word problems using nth",
-        "description": "Word problems using nth term and sum."
+        "title": "Word problems on AP",
+        "description": "Real-life problems on savings, seating arrangements, and patterns are modelled using the nth term or sum formula of an AP."
       }
     ],
     "examPatterns": [
@@ -915,24 +915,24 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     ],
     "definitions": [
       {
-        "title": "Cartesian plane, quadrants, and",
-        "description": "Cartesian plane, quadrants, and coordinates (x, y)."
+        "title": "Cartesian plane and coordinates",
+        "description": "The Cartesian plane is formed by two perpendicular number lines (x-axis and y-axis) dividing the plane into four quadrants; every point is represented as an ordered pair (x, y)."
       },
       {
-        "title": "Distance formula between two",
-        "description": "Distance formula between two points."
+        "title": "Distance formula",
+        "description": "The distance between two points (x₁, y₁) and (x₂, y₂) is √[(x₂ − x₁)² + (y₂ − y₁)²]."
       },
       {
-        "title": "Mid",
-        "description": "point and section formula (internal division)."
+        "title": "Mid-point and section formula",
+        "description": "The mid-point of a segment is the average of the endpoints’ coordinates; the section formula finds the point dividing a segment internally in a given ratio m:n."
       },
       {
-        "title": "Area of triangle using",
-        "description": "Area of triangle using coordinates of vertices."
+        "title": "Area of a triangle using coordinates",
+        "description": "The area of a triangle with vertices (x₁, y₁), (x₂, y₂), (x₃, y₃) is ½ |x₁(y₂ − y₃) + x₂(y₃ − y₁) + x₃(y₁ − y₂)|."
       },
       {
-        "title": "Collinearity check using area",
-        "description": "Collinearity check using area = 0."
+        "title": "Collinearity condition",
+        "description": "Three points are collinear (lie on the same straight line) if the area of the triangle formed by them is zero."
       }
     ],
     "examPatterns": [
@@ -974,24 +974,24 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     ],
     "definitions": [
       {
-        "title": "Defining sin, cos, tan,",
-        "description": "Defining sin, cos, tan, cot, sec, cosec in a right triangle."
+        "title": "Trigonometric ratios in a right triangle",
+        "description": "In a right triangle, sin, cos, tan, cot, sec, and cosec are defined as ratios of the sides (opposite, adjacent, hypotenuse) relative to a given acute angle."
       },
       {
-        "title": "Standard values at 0°,",
-        "description": "Standard values at 0°, 30°, 45°, 60°, 90°."
+        "title": "Standard trigonometric values",
+        "description": "The exact values of all six trigonometric ratios at the standard angles 0°, 30°, 45°, 60°, and 90° must be memorised for quick calculations."
       },
       {
-        "title": "Reciprocal and co",
-        "description": "function relations (e.g. sin θ = cos(90° − θ))."
+        "title": "Reciprocal and co-function relations",
+        "description": "Reciprocal pairs (sin–cosec, cos–sec, tan–cot) and co-function identities like sin θ = cos(90° − θ) connect different trigonometric ratios."
       },
       {
-        "title": "Fundamental identity",
-        "description": "sin²θ + cos²θ = 1."
+        "title": "Fundamental trigonometric identity",
+        "description": "The identity sin²θ + cos²θ = 1 is the most important trigonometric identity; it leads to 1 + tan²θ = sec²θ and 1 + cot²θ = cosec²θ."
       },
       {
-        "title": "Evaluating and simplifying trig",
-        "description": "Evaluating and simplifying trig expressions."
+        "title": "Evaluating trigonometric expressions",
+        "description": "Simplifying and evaluating trigonometric expressions involves substituting standard values and applying identities to reduce complex expressions."
       }
     ],
     "examPatterns": [
@@ -1034,20 +1034,20 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     ],
     "definitions": [
       {
-        "title": "Angle of elevation and",
-        "description": "Angle of elevation and angle of depression."
+        "title": "Angle of elevation and angle of depression",
+        "description": "The angle of elevation is measured upward from the horizontal to a higher object; the angle of depression is measured downward from the horizontal to a lower object."
       },
       {
-        "title": "Modelling vertical object and",
-        "description": "Modelling vertical object and horizontal ground as a right triangle."
+        "title": "Right-triangle model for height and distance",
+        "description": "A vertical object (tower, tree, building) with a horizontal ground forms a right triangle, allowing trigonometric ratios to be applied."
       },
       {
-        "title": "Using tan, sin, cos",
-        "description": "Using tan, sin, cos to find height or distance."
+        "title": "Finding height or distance using trig ratios",
+        "description": "Depending on which sides are known or required, tan, sin, or cos is chosen to calculate the unknown height or distance in a right-triangle setup."
       },
       {
-        "title": "Two",
-        "description": "point observation problems (two angles, two distances)."
+        "title": "Two-observation problems",
+        "description": "Problems where two angles of elevation or depression are given from different points require setting up two right triangles and solving simultaneously."
       }
     ],
     "examPatterns": [
@@ -1090,19 +1090,19 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     "definitions": [
       {
         "title": "Tangent to a circle",
-        "description": "definition and uniqueness at a point."
+        "description": "A tangent is a line that touches the circle at exactly one point called the point of contact; at any given point on a circle, there is exactly one tangent."
       },
       {
-        "title": "Radius to point of",
-        "description": "Radius to point of tangency is perpendicular to tangent."
+        "title": "Perpendicularity of radius and tangent",
+        "description": "The radius drawn to the point of contact of a tangent is always perpendicular to the tangent at that point."
       },
       {
-        "title": "From an external point,",
-        "description": "From an external point, lengths of tangents to a circle are equal."
+        "title": "Equal tangents from an external point",
+        "description": "The two tangents drawn from an external point to a circle are equal in length; this property is frequently used in proofs and calculations."
       },
       {
-        "title": "Basic configurations involving two",
-        "description": "Basic configurations involving two tangents and radii."
+        "title": "Tangent-radius configurations",
+        "description": "Problems often involve two tangents from a point forming a kite shape with the radii; the angles and lengths in such figures follow standard geometric properties."
       }
     ],
     "examPatterns": [
@@ -1143,16 +1143,16 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     ],
     "definitions": [
       {
-        "title": "Constructing triangle with given criteria (side",
-        "description": "angle: side, etc.)."
+        "title": "Constructing a triangle from given measurements",
+        "description": "A triangle can be constructed using compass and ruler when measurements like side-angle-side (SAS), angle-side-angle (ASA), or side-side-side (SSS) are given."
       },
       {
-        "title": "Constructing triangle similar to",
-        "description": "Constructing triangle similar to a given triangle with given scale factor (k > 1 or k < 1)."
+        "title": "Similar triangle construction with scale factor",
+        "description": "A triangle similar to a given triangle is constructed using a scale factor k; if k > 1 the new triangle is larger, and if k < 1 it is smaller."
       },
       {
-        "title": "Dividing a line segment",
-        "description": "Dividing a line segment internally in a given ratio."
+        "title": "Dividing a line segment in a given ratio",
+        "description": "A line segment can be divided internally in a given ratio m:n using the basic proportionality theorem with compass and straightedge."
       }
     ],
     "examPatterns": [
@@ -1192,24 +1192,24 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     ],
     "definitions": [
       {
-        "title": "Area of circle πr²",
-        "description": "Area of circle πr² and circumference 2πr."
+        "title": "Circle area and circumference",
+        "description": "The area of a circle is πr² and the circumference is 2πr, where r is the radius of the circle."
       },
       {
-        "title": "Area of sector (θ/360)",
-        "description": "Area of sector (θ/360) × πr² and length of arc."
+        "title": "Area of a sector and arc length",
+        "description": "The area of a sector with central angle θ is (θ/360) × πr², and the arc length is (θ/360) × 2πr."
       },
       {
-        "title": "Area of segment (sector",
-        "description": "Area of segment (sector ± triangle)."
+        "title": "Area of a segment",
+        "description": "A segment is the region between a chord and its arc; its area equals the area of the corresponding sector minus (or plus) the area of the triangle formed."
       },
       {
-        "title": "Ring/annulus area (difference of",
-        "description": "Ring/annulus area (difference of two circles)."
+        "title": "Area of a ring (annulus)",
+        "description": "The area of a ring (annulus) is the difference between the areas of the outer and inner circles: π(R² − r²)."
       },
       {
-        "title": "Simple composite shapes using",
-        "description": "Simple composite shapes using semicircles and quadrants."
+        "title": "Composite shapes with circles",
+        "description": "Many exam problems involve composite figures made of semicircles, quadrants, and rectangles; the shaded area is found by adding or subtracting individual areas."
       }
     ],
     "examPatterns": [
@@ -1250,24 +1250,24 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     ],
     "definitions": [
       {
-        "title": "TSA and CSA of",
-        "description": "TSA and CSA of cube, cuboid, cylinder, cone, sphere, hemisphere."
+        "title": "Total and curved surface areas",
+        "description": "TSA (Total Surface Area) and CSA (Curved Surface Area) formulas exist for cube, cuboid, cylinder, cone, sphere, and hemisphere; TSA includes all faces while CSA excludes flat bases."
       },
       {
-        "title": "Volumes",
-        "description": "cube/cuboid (lbh), cylinder (πr²h), cone ((1/3)πr²h), sphere ((4/3)πr³), etc."
+        "title": "Volume formulas for standard solids",
+        "description": "Key volume formulas: cuboid = l×b×h, cylinder = πr²h, cone = (1/3)πr²h, sphere = (4/3)πr³, hemisphere = (2/3)πr³."
       },
       {
-        "title": "Combination of solids (cylinder",
-        "description": "Combination of solids (cylinder + hemisphere, etc.)."
+        "title": "Combination of solids",
+        "description": "When two or more basic solids are joined (e.g., cylinder + hemisphere), the total surface area and volume are calculated by combining individual measurements."
       },
       {
-        "title": "Melting and recasting problems",
-        "description": "Melting and recasting problems (volume conservation)."
+        "title": "Melting and recasting",
+        "description": "When a solid is melted and recast into a different shape, the volume remains constant; this principle is used to find the dimensions or count of new shapes."
       },
       {
-        "title": "Unit conversions (cm³ to",
-        "description": "Unit conversions (cm³ to m³, etc.)."
+        "title": "Unit conversions in mensuration",
+        "description": "Converting between units (e.g., 1 m³ = 10⁶ cm³, 1 litre = 1000 cm³) is essential for correctly solving surface area and volume problems."
       }
     ],
     "examPatterns": [
@@ -1309,24 +1309,24 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     ],
     "definitions": [
       {
-        "title": "Physical and chemical properties",
-        "description": "Physical and chemical properties of acids and bases."
+        "title": "Properties of acids and bases",
+        "description": "Acids taste sour, turn blue litmus red, and produce H⁺ ions in solution; bases taste bitter, turn red litmus blue, and produce OH⁻ ions in solution."
       },
       {
-        "title": "pH scale, importance of",
-        "description": "pH scale, importance of pH in everyday life (tooth decay, soil, digestion)."
+        "title": "pH scale and its importance",
+        "description": "The pH scale (0–14) measures acidity or basicity; pH < 7 is acidic, pH = 7 is neutral, pH > 7 is basic. It matters in digestion, soil health, and tooth decay prevention."
       },
       {
-        "title": "Types of indicators (litmus,",
-        "description": "Types of indicators (litmus, methyl orange, phenolphthalein, natural indicators)."
+        "title": "Acid-base indicators",
+        "description": "Indicators like litmus, methyl orange, phenolphthalein, and natural indicators (turmeric, china rose) change colour in acidic or basic solutions to help identify the nature of a substance."
       },
       {
-        "title": "Preparation and uses of common salts",
-        "description": "baking soda, washing soda, Plaster of Paris."
+        "title": "Common salts and their uses",
+        "description": "Important salts include baking soda (NaHCO₃), washing soda (Na₂CO₃·10H₂O), and Plaster of Paris (CaSO₄·½H₂O); each has specific preparation methods and everyday uses."
       },
       {
-        "title": "Neutralisation reactions.",
-        "description": "Neutralisation reactions."
+        "title": "Neutralisation reaction",
+        "description": "When an acid reacts with a base, they neutralise each other to form a salt and water; the heat produced makes it an exothermic process."
       }
     ],
     "examPatterns": [
@@ -1368,24 +1368,24 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     ],
     "definitions": [
       {
-        "title": "Physical and chemical properties of metals vs non",
-        "description": "metals."
+        "title": "Properties of metals vs non-metals",
+        "description": "Metals are generally lustrous, malleable, ductile, and good conductors; non-metals are usually brittle, dull, and poor conductors. Chemical differences include oxide type and reactivity."
       },
       {
-        "title": "Reactivity series and metal",
-        "description": "Reactivity series and metal displacement reactions."
+        "title": "Reactivity series",
+        "description": "The reactivity series arranges metals in decreasing order of reactivity; a more reactive metal can displace a less reactive one from its salt solution."
       },
       {
-        "title": "Corrosion (rusting of iron)",
-        "description": "Corrosion (rusting of iron) and prevention methods."
+        "title": "Corrosion and its prevention",
+        "description": "Corrosion is the slow deterioration of metals by chemical reaction with the environment; rusting of iron requires both oxygen and moisture, and is prevented by painting, oiling, galvanising, or alloying."
       },
       {
-        "title": "Basic metallurgy (ore, gangue,",
-        "description": "Basic metallurgy (ore, gangue, concentration, reduction, refining)."
+        "title": "Basic metallurgical processes",
+        "description": "Extraction of metals from ores involves steps like concentration of ore, reduction (using carbon or electrolysis), and refining to obtain pure metal."
       },
       {
-        "title": "Ionic bond formation between metals and non",
-        "description": "metals."
+        "title": "Ionic bond formation",
+        "description": "Metals transfer electrons to non-metals, forming positively charged cations and negatively charged anions that are held together by strong electrostatic forces (ionic bonds)."
       }
     ],
     "examPatterns": [
@@ -1428,19 +1428,19 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     "definitions": [
       {
         "title": "Modern periodic table",
-        "description": "groups, periods, layout."
+        "description": "The modern periodic table arranges elements by increasing atomic number into 18 groups (vertical columns) and 7 periods (horizontal rows)."
       },
       {
-        "title": "Trends",
-        "description": "atomic size, valency, metallic and non: metallic nature."
+        "title": "Periodic trends",
+        "description": "Across a period, atomic size decreases and non-metallic character increases; down a group, atomic size increases and metallic character increases. Valency follows a pattern based on the group number."
       },
       {
-        "title": "Dobereiner’s triads, Newlands’ law",
-        "description": "Dobereiner’s triads, Newlands’ law of octaves (historical background)."
+        "title": "Historical classification attempts",
+        "description": "Döbereiner’s triads grouped elements in threes with the middle element’s atomic mass being the average; Newlands’ law of octaves noted that every eighth element had similar properties."
       },
       {
-        "title": "Predicting properties (metals, non",
-        "description": "metals, valency) from position."
+        "title": "Predicting properties from periodic table position",
+        "description": "An element’s group and period reveal its valency, metallic/non-metallic nature, and likely chemical behaviour."
       }
     ],
     "examPatterns": [
@@ -1481,24 +1481,24 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     ],
     "definitions": [
       {
-        "title": "Structure and function of",
-        "description": "Structure and function of neuron (dendrite, axon, cell body, synapse)."
+        "title": "Structure and function of a neuron",
+        "description": "A neuron consists of a cell body, dendrites (receive impulses), and an axon (transmits impulses). Neurons communicate across a synapse using chemical signals."
       },
       {
-        "title": "Reflex action and reflex",
-        "description": "Reflex action and reflex arc pathway."
+        "title": "Reflex action and reflex arc",
+        "description": "A reflex action is a rapid, involuntary response to a stimulus; the reflex arc pathway runs from receptor → sensory neuron → spinal cord → motor neuron → effector."
       },
       {
-        "title": "Human brain parts and functions",
-        "description": "cerebrum, cerebellum, medulla."
+        "title": "Parts and functions of the human brain",
+        "description": "The cerebrum handles thinking and voluntary actions, the cerebellum controls balance and coordination, and the medulla regulates involuntary functions like breathing and heartbeat."
       },
       {
-        "title": "Endocrine glands",
-        "description": "pituitary, thyroid, adrenal, pancreas, etc."
+        "title": "Endocrine glands and hormones",
+        "description": "Endocrine glands (pituitary, thyroid, adrenal, pancreas, etc.) secrete hormones directly into the blood to regulate growth, metabolism, and other body functions."
       },
       {
-        "title": "Plant hormones and tropic",
-        "description": "Plant hormones and tropic movements (phototropism, geotropism)."
+        "title": "Plant hormones and tropic movements",
+        "description": "Plant hormones like auxin, gibberellin, and cytokinin control growth; tropic movements such as phototropism (towards light) and geotropism (towards gravity) are hormone-mediated."
       }
     ],
     "examPatterns": [
@@ -1540,19 +1540,19 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     "definitions": [
       {
         "title": "Asexual reproduction methods",
-        "description": "fission, budding, fragmentation, regeneration, spore formation."
+        "description": "Organisms reproduce asexually through fission (binary/multiple), budding (Hydra), fragmentation (Spirogyra), regeneration (Planaria), and spore formation (Rhizopus)."
       },
       {
-        "title": "Sexual reproduction in flowering",
-        "description": "Sexual reproduction in flowering plants."
+        "title": "Sexual reproduction in flowering plants",
+        "description": "In flowers, pollination transfers pollen to the stigma, followed by fertilisation where the male gamete fuses with the egg cell to form a zygote that develops into a seed."
       },
       {
-        "title": "Human reproductive system basics",
-        "description": "Human reproductive system basics and menstrual cycle."
+        "title": "Human reproductive system",
+        "description": "The male reproductive system produces sperm, and the female system produces eggs and supports pregnancy; the menstrual cycle prepares the uterus for implantation every ~28 days."
       },
       {
-        "title": "Reproductive health basics and",
-        "description": "Reproductive health basics and family planning awareness."
+        "title": "Reproductive health and family planning",
+        "description": "Reproductive health includes awareness of contraceptive methods, prevention of sexually transmitted diseases, and understanding the importance of planned parenthood."
       }
     ],
     "examPatterns": [
@@ -1594,19 +1594,19 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     "definitions": [
       {
         "title": "Mendel’s laws of inheritance",
-        "description": "Mendel’s laws of inheritance and monohybrid cross."
+        "description": "Mendel’s experiments on pea plants established the laws of dominance, segregation, and independent assortment; a monohybrid cross studies inheritance of one trait at a time."
       },
       {
-        "title": "Dominant vs recessive traits;",
-        "description": "Dominant vs recessive traits; genotype vs phenotype."
+        "title": "Dominant and recessive traits",
+        "description": "A dominant trait is expressed when at least one dominant allele is present; a recessive trait appears only when both alleles are recessive. Genotype is the allele combination; phenotype is the visible trait."
       },
       {
         "title": "Sex determination in humans",
-        "description": "Sex determination in humans (XX, XY)."
+        "description": "Sex in humans is determined by the 23rd pair of chromosomes: XX produces a female and XY produces a male; the father’s sperm determines the sex of the child."
       },
       {
-        "title": "Evolution evidence",
-        "description": "fossils, homologous vs analogous organs."
+        "title": "Evidence for evolution",
+        "description": "Evidence includes fossils (preserved remains), homologous organs (same structure, different function) indicating common ancestry, and analogous organs (different structure, same function) showing convergent evolution."
       }
     ],
     "examPatterns": [
@@ -1647,24 +1647,24 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     ],
     "definitions": [
       {
-        "title": "Laws of reflection; plane",
-        "description": "Laws of reflection; plane mirror basics."
+        "title": "Laws of reflection",
+        "description": "The angle of incidence equals the angle of reflection, and the incident ray, reflected ray, and normal all lie in the same plane. Plane mirrors form virtual, erect, and same-size images."
       },
       {
-        "title": "Spherical mirrors",
-        "description": "principal focus, centre of curvature, radius of curvature."
+        "title": "Spherical mirrors and their terms",
+        "description": "Concave and convex mirrors have key terms: centre of curvature (C), radius of curvature (R), principal focus (F), and principal axis. R = 2f."
       },
       {
-        "title": "Mirror formula and magnification.",
-        "description": "Mirror formula and magnification."
+        "title": "Mirror formula and magnification",
+        "description": "The mirror formula 1/v + 1/u = 1/f relates object distance (u), image distance (v), and focal length (f); magnification m = −v/u gives the size and nature of the image."
       },
       {
-        "title": "Refraction of light, Snell’s",
-        "description": "Refraction of light, Snell’s law, refractive index."
+        "title": "Refraction and Snell’s law",
+        "description": "Refraction is the bending of light as it passes from one medium to another; Snell’s law (n₁ sin i = n₂ sin r) relates the angles and refractive indices of the two media."
       },
       {
-        "title": "Lens formula, power of",
-        "description": "Lens formula, power of lens, and image formation by convex/concave lenses."
+        "title": "Lens formula and power of a lens",
+        "description": "The lens formula 1/v − 1/u = 1/f applies to thin lenses; the power of a lens P = 1/f (in dioptres) measures its ability to converge or diverge light."
       }
     ],
     "examPatterns": [
@@ -1706,20 +1706,20 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     ],
     "definitions": [
       {
-        "title": "Structure of human eye",
-        "description": "Structure of human eye (cornea, lens, retina, iris, pupil, ciliary muscles)."
+        "title": "Structure of the human eye",
+        "description": "The human eye has key parts: cornea (refracts light), iris (controls pupil size), lens (fine-focuses), retina (has photoreceptors), and ciliary muscles (adjust lens shape for accommodation)."
       },
       {
-        "title": "Defects",
-        "description": "myopia, hypermetropia, presbyopia and their correction with lenses."
+        "title": "Defects of vision and their correction",
+        "description": "Myopia (short-sightedness) is corrected with concave lenses, hypermetropia (long-sightedness) with convex lenses, and presbyopia (age-related) with bifocal lenses."
       },
       {
-        "title": "Dispersion and formation of",
-        "description": "Dispersion and formation of rainbow."
+        "title": "Dispersion of light and rainbow formation",
+        "description": "White light splits into seven colours (VIBGYOR) when passing through a prism; a rainbow forms when sunlight is dispersed by water droplets acting as tiny prisms."
       },
       {
-        "title": "Atmospheric refraction",
-        "description": "twinkling of stars, advanced sunrise, delayed sunset."
+        "title": "Atmospheric refraction phenomena",
+        "description": "Atmospheric refraction causes the twinkling of stars, advanced sunrise and delayed sunset, and the apparent flattening of the Sun near the horizon."
       }
     ],
     "examPatterns": [
@@ -1760,24 +1760,24 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     ],
     "definitions": [
       {
-        "title": "Ecosystem",
-        "description": "biotic and abiotic components."
+        "title": "Ecosystem components",
+        "description": "An ecosystem consists of biotic components (producers, consumers, decomposers) and abiotic components (sunlight, water, soil, temperature) that interact with each other."
       },
       {
-        "title": "Food chains, food webs,",
-        "description": "Food chains, food webs, and trophic levels."
+        "title": "Food chains, food webs, and trophic levels",
+        "description": "A food chain shows a linear sequence of who eats whom; food webs are interconnected chains. Trophic levels include producers (T1), primary consumers (T2), secondary consumers (T3), etc."
       },
       {
-        "title": "10% law of energy",
-        "description": "10% law of energy transfer."
+        "title": "Ten percent law of energy transfer",
+        "description": "Only about 10% of the energy at one trophic level is transferred to the next; the rest is lost as heat during life processes. This limits the number of trophic levels."
       },
       {
-        "title": "Biological magnification and impact of non",
-        "description": "biodegradable substances."
+        "title": "Biological magnification",
+        "description": "Non-biodegradable substances (like pesticides) accumulate at higher trophic levels through biological magnification, reaching harmful concentrations in top consumers."
       },
       {
-        "title": "Waste management basics.",
-        "description": "Waste management basics."
+        "title": "Waste management",
+        "description": "Proper waste management includes segregation of biodegradable and non-biodegradable waste, composting, recycling, and safe disposal to reduce environmental pollution."
       }
     ],
     "examPatterns": [
@@ -1818,20 +1818,20 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     ],
     "definitions": [
       {
-        "title": "3 R’s",
-        "description": "Reduce, Reuse, Recycle."
+        "title": "The 3 R’s of sustainability",
+        "description": "Reduce (use less), Reuse (use again without processing), and Recycle (reprocess waste into new products) are the key principles of sustainable resource management."
       },
       {
-        "title": "Sustainable management of forests,",
-        "description": "Sustainable management of forests, wildlife, water, coal, petroleum."
+        "title": "Sustainable management of natural resources",
+        "description": "Forests, wildlife, water, coal, and petroleum must be managed sustainably through conservation, afforestation, rainwater harvesting, and efficient use of fossil fuels."
       },
       {
-        "title": "Community",
-        "description": "based resource management (Chipko movement, etc.)."
+        "title": "Community-based resource management",
+        "description": "Local communities play a vital role in conservation; movements like the Chipko movement (tree-hugging) and traditional water harvesting systems demonstrate effective people-led resource management."
       },
       {
-        "title": "Pollution and long",
-        "description": "term resource depletion."
+        "title": "Pollution and resource depletion",
+        "description": "Excessive use of resources leads to pollution and long-term depletion; understanding the environmental impact of human activities is essential for sustainable development."
       }
     ],
     "examPatterns": [

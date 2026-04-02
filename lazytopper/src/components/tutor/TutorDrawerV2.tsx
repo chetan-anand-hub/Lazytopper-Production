@@ -18,7 +18,7 @@ import {
   type SessionDoc,
 } from "../../services/sessionApi";
 import { HumanGradeCoachView } from "../mentor/HumanGradeCoachView";
-import { TutorMessageRenderer } from "./TutorMessageRenderer";
+import { TutorMessageRenderer, StepsWithMarks } from "./TutorMessageRenderer";
 import { extractStructuredSection } from "./tutorStructuredExtract";
 import {
   canUseMentorServer,
@@ -1574,19 +1574,13 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
               >
                 <div style={{ fontWeight: 800, marginBottom: 6 }}>Full worked example</div>
                 <div style={{ lineHeight: 1.5 }}>{view.workedQuestion}</div>
-                <ol style={{ margin: "8px 0 0", paddingLeft: 18 }}>
-                  {view.workedSteps.map((step, idx) => (
-                    <li key={`${step.text}-${idx}`} style={{ marginBottom: 6, lineHeight: 1.5 }}>
-                      {String(step.text)}
-                      {Number.isFinite(Number(step.marks)) ? (
-                        <span style={{ fontSize: 12, opacity: 0.72 }}>
-                          {" "}
-                          ({Number(step.marks)}M)
-                        </span>
-                      ) : null}
-                    </li>
-                  ))}
-                </ol>
+                <div style={{ marginTop: 8 }}>
+                  <StepsWithMarks
+                    steps={view.workedSteps}
+                    totalMarks={view.workedSteps.reduce((acc, s) => acc + (Number.isFinite(Number(s.marks)) ? Number(s.marks) : 0), 0) || undefined}
+                    commonMistake={view.commonMistake}
+                  />
+                </div>
                 <div style={{ marginTop: 8, fontSize: 12, opacity: 0.78 }}>
                   Final line: {view.workedFinal}
                 </div>
@@ -1662,41 +1656,33 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
         {renderAttemptFeedback(obj)}
         <div>
           <div style={{ fontWeight: 800, marginBottom: 6 }}>Worked examples</div>
-          {view.workedExamples.map((ex, exIdx: number) => {
-            const sumMarks = ex.steps.reduce(
-              (acc: number, s) => acc + (Number.isFinite(Number(s.marks)) ? Number(s.marks) : 0),
-              0
-            );
-            const total = Number(ex.totalMarks);
-            return (
+          {view.workedExamples.map((ex, exIdx: number) => (
               <div key={exIdx} style={{ borderRadius: 12, padding: "10px 12px", border: "2px solid #e5e5e5", marginBottom: 10, boxShadow: "0 2px 0 #e5e5e5" }}>
-                <div style={{ fontWeight: 800 }}>
+                <div style={{ fontWeight: 800, marginBottom: 6 }}>
                   {exIdx === 0 ? "Example 1: Basic" : "Example 2: Board-style"}
                 </div>
                 {ex.question ? <div style={{ marginTop: 6 }}>{String(ex.question)}</div> : null}
                 {ex.steps.length ? (
-                  <ol style={{ margin: "8px 0 0", paddingLeft: 18 }}>
-                    {ex.steps.map((s, idx: number) => (
-                      <li key={idx} style={{ marginBottom: 6 }}>
-                        {Number.isFinite(Number(s.marks)) ? <b>[{Number(s.marks)}]</b> : null} {String(s.text || "")}
-                      </li>
-                    ))}
-                  </ol>
-                ) : null}
-                {Number.isFinite(total) ? (
-                  <div style={{ marginTop: 6, fontWeight: 700 }}>Total marks: {total}</div>
-                ) : null}
-                {Number.isFinite(total) && Number.isFinite(sumMarks) && total !== sumMarks ? (
-                  <div style={{ marginTop: 6, fontSize: 12, color: "#9b5a00" }}>
-                    Marking check: step marks sum to {sumMarks}, expected {total}.
+                  <div style={{ marginTop: 8 }}>
+                    <StepsWithMarks steps={ex.steps} totalMarks={ex.totalMarks} />
                   </div>
                 ) : null}
                 {ex.finalAnswer ? (
-                  <div style={{ marginTop: 6, fontWeight: 700 }}>Final: {String(ex.finalAnswer)}</div>
+                  <div style={{
+                    marginTop: 8,
+                    padding: "8px 12px",
+                    background: "#f0fdf4",
+                    borderRadius: 10,
+                    border: "1px solid #bbf7d0",
+                    fontSize: 14,
+                    fontWeight: 600,
+                    color: "#15803d",
+                  }}>
+                    Final: {String(ex.finalAnswer)}
+                  </div>
                 ) : null}
               </div>
-            );
-          })}
+          ))}
         </div>
         {mistakes.length ? (
           <div>

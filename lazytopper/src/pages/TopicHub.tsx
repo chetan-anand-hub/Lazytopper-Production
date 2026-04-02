@@ -6,6 +6,8 @@ import { generatePracticeSet } from "../data/practiceSetGenerator";
 import ConceptTeachDrawer, { type ConceptTeachContext } from "../components/tutor/ConceptTeachDrawer";
 import { navigateToPractice } from "../navigation/practiceNavigation";
 import { trackUxEvent } from "../services/uxTelemetry";
+import ReturnContextBar from "../components/ux/ReturnContextBar";
+import { QuestionVisualAid } from "../components/question/QuestionVisualAid";
 import { useSmartLearning } from "../engine/smartLearningStore";
 import * as gam from "../utils/gamification";
 import type { V2Definition } from "../utils/getTopicV2Content";
@@ -117,7 +119,11 @@ function saveLessonProgress(topicKey: string, progress: LessonProgress): void {
 }
 
 function buildFallbackCheckpoint(def: V2Definition, topicName: string): CanonicalQuestion {
-  const correctAnswer = def.description.slice(0, 60) + (def.description.length > 60 ? "…" : "");
+  const desc = def.description || "";
+  const maxLen = 90;
+  const correctAnswer = desc.length > maxLen ? desc.slice(0, maxLen) + "…" : desc;
+  const wrongA = `This is a concept from a different chapter, not ${topicName}`;
+  const wrongB = `${def.title} is not part of the CBSE Class 10 syllabus`;
   return {
     id: `fallback-${def.title.replace(/\s+/g, "-").toLowerCase()}`,
     subject: "Maths",
@@ -128,15 +134,15 @@ function buildFallbackCheckpoint(def: V2Definition, topicName: string): Canonica
     format: "MCQ" as CanonicalQuestion["format"],
     difficulty: "Easy" as CanonicalQuestion["difficulty"],
     bloomSkill: "Remembering" as CanonicalQuestion["bloomSkill"],
-    questionText: `What is "${def.title}" in ${topicName}?`,
+    questionText: `Which of the following best describes "${def.title}" in ${topicName}?`,
     options: [
       correctAnswer,
-      "This concept is not covered in this chapter",
+      wrongA,
+      wrongB,
       "None of the above",
-      "All of the above",
     ],
     answer: correctAnswer,
-    explanation: def.description,
+    explanation: desc,
   };
 }
 
@@ -426,18 +432,7 @@ export default function TopicHub() {
     <div style={{ minHeight: "100vh", background: "#f8fafc" }}>
       <div style={{ maxWidth: 820, margin: "0 auto", padding: "16px 16px 80px" }}>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <button
-            type="button"
-            onClick={() => navigate(backTo)}
-            style={{
-              background: "none", border: "none", cursor: "pointer",
-              fontSize: "0.85rem", color: "#6366f1", fontWeight: 500, padding: "4px 0",
-            }}
-          >
-            ← {backLabel}
-          </button>
-        </div>
+        <ReturnContextBar backTo={backTo} backLabel={backLabel} />
 
         {phase !== "learning" && (
           <div style={{ marginTop: 12 }}>
@@ -523,7 +518,7 @@ export default function TopicHub() {
                 </div>
                 {allDefinitions.slice(0, 3).map((d, idx) => (
                   <div key={idx} style={{ fontSize: "0.8rem", color: "#64748b", marginBottom: 4, lineHeight: 1.5 }}>
-                    <span style={{ fontWeight: 600, color: "#334155" }}>{d.title}</span> — {d.description?.slice(0, 80)}{(d.description?.length ?? 0) > 80 ? "…" : ""}
+                    <span style={{ fontWeight: 600, color: "#334155" }}>{d.title}</span> — {d.description}
                   </div>
                 ))}
               </div>
@@ -536,7 +531,7 @@ export default function TopicHub() {
               style={{
                 marginTop: 24, padding: "14px 40px", borderRadius: 14,
                 background: hasEnoughContent
-                  ? "linear-gradient(135deg, #6366f1, #4f46e5)"
+                  ? "#58cc02"
                   : "#cbd5e1",
                 border: "none", color: "#fff", fontWeight: 700, fontSize: "1rem",
                 cursor: hasEnoughContent ? "pointer" : "not-allowed",
@@ -620,6 +615,12 @@ export default function TopicHub() {
                     {currentDef.title}
                   </h2>
                 </div>
+
+                <QuestionVisualAid
+                  subject={subjectTitle}
+                  topicKey={topicKey}
+                  questionText={`${currentDef.title} ${currentDef.description || ""}`}
+                />
 
                 <div style={{
                   fontSize: "0.9rem", color: "#334155", lineHeight: 1.7,

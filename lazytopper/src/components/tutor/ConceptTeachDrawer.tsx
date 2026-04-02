@@ -63,7 +63,7 @@ export default function ConceptTeachDrawer({ open, onClose, context }: ConceptTe
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        padding: 16,
+        padding: 0,
         animation: "conceptDrawerFadeIn 0.2s ease",
       }}
     >
@@ -73,11 +73,15 @@ export default function ConceptTeachDrawer({ open, onClose, context }: ConceptTe
       `}</style>
       <div
         style={{
-          width: "min(820px, 96vw)",
-          maxHeight: "92vh",
+          position: "absolute",
+          inset: 0,
+          width: "100vw",
+          height: "100vh",
+          maxHeight: "100vh",
+          minHeight: "100vh",
           background: "#ffffff",
-          borderRadius: 20,
-          boxShadow: "0 24px 80px rgba(0,0,0,0.25), 0 4px 24px rgba(0,0,0,0.15)",
+          borderRadius: 0,
+          boxShadow: "none",
           display: "flex",
           flexDirection: "column",
           animation: "conceptDrawerScaleIn 0.25s ease",

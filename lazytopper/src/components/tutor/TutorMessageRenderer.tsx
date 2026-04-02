@@ -344,6 +344,104 @@ function ExamLinesSection({ lines }: { lines: string[] }) {
   );
 }
 
+export function StepsWithMarks({ steps, totalMarks, commonMistake }: {
+  steps: Array<{ text: string; marks?: number }>;
+  totalMarks?: number;
+  commonMistake?: string;
+}) {
+  if (!steps || steps.length === 0) return null;
+  const sumMarks = steps.reduce((acc, s) => acc + (s.marks != null && Number.isFinite(s.marks) ? s.marks : 0), 0);
+  const displayTotal = totalMarks != null && Number.isFinite(totalMarks) ? totalMarks : sumMarks > 0 ? sumMarks : null;
+  const formatMarks = (m: number) => m % 1 === 0 ? String(m) : m.toFixed(1);
+
+  return (
+    <div>
+      {displayTotal != null && (
+        <div style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          marginBottom: 10,
+          padding: "8px 14px",
+          background: "#f0fdf4",
+          borderRadius: 12,
+          border: "2px solid #bbf7d0",
+        }}>
+          <span style={{ fontSize: 20, fontWeight: 800, color: "#58cc02" }}>{formatMarks(displayTotal)}</span>
+          <span style={{ fontSize: 13, fontWeight: 700, color: "#15803d" }}>marks total</span>
+        </div>
+      )}
+      <div style={{ display: "grid", gap: 8 }}>
+        {steps.map((step, idx) => (
+          <div key={idx} style={{
+            display: "flex",
+            gap: 10,
+            alignItems: "flex-start",
+            padding: "10px 14px",
+            background: "#ffffff",
+            borderRadius: 12,
+            border: "2px solid #e5e5e5",
+            boxShadow: "0 2px 0 #e5e5e5",
+          }}>
+            <div style={{
+              width: 28,
+              height: 28,
+              borderRadius: "50%",
+              background: "#58cc02",
+              color: "#ffffff",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 13,
+              fontWeight: 800,
+              flexShrink: 0,
+              boxShadow: "0 2px 0 #46a302",
+            }}>
+              {idx + 1}
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 14, lineHeight: 1.7, color: "#3c3c3c" }}>
+                <MathText text={step.text} />
+              </div>
+            </div>
+            {step.marks != null && Number.isFinite(step.marks) && (
+              <div style={{
+                flexShrink: 0,
+                padding: "4px 10px",
+                borderRadius: 999,
+                background: "#f7f7f7",
+                border: "2px solid #e5e5e5",
+                fontSize: 12,
+                fontWeight: 800,
+                color: "#3c3c3c",
+                whiteSpace: "nowrap",
+              }}>
+                {formatMarks(step.marks)}M
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+      {commonMistake && (
+        <div style={{
+          marginTop: 10,
+          padding: "8px 14px",
+          background: "#fef2f2",
+          borderRadius: 12,
+          border: "2px solid #fecaca",
+          borderLeft: "4px solid #ef4444",
+          fontSize: 13,
+          lineHeight: 1.6,
+          color: "#991b1b",
+        }}>
+          <span style={{ fontWeight: 800 }}>Common mistake: </span>
+          <MathText text={commonMistake} />
+        </div>
+      )}
+    </div>
+  );
+}
+
 function WorkedExampleCard({ example, index }: { example: StructuredExample; index: number }) {
   return (
     <div style={{
@@ -363,18 +461,7 @@ function WorkedExampleCard({ example, index }: { example: StructuredExample; ind
         </div>
       )}
       {example.steps && example.steps.length > 0 && (
-        <ol style={{ margin: "8px 0", paddingLeft: 22 }}>
-          {example.steps.map((step, j) => (
-            <li key={j} style={{ fontSize: 14, lineHeight: 1.7, marginBottom: 6, color: "#3c3c3c" }}>
-              <MathText text={step.text} />
-              {step.marks != null && Number.isFinite(step.marks) && (
-                <span style={{ fontSize: 12, color: "#1cb0f6", fontWeight: 700, marginLeft: 6 }}>
-                  [{step.marks}M]
-                </span>
-              )}
-            </li>
-          ))}
-        </ol>
+        <StepsWithMarks steps={example.steps} totalMarks={example.totalMarks} />
       )}
       {example.finalAnswer && (
         <div style={{
@@ -388,11 +475,6 @@ function WorkedExampleCard({ example, index }: { example: StructuredExample; ind
           color: "#15803d",
         }}>
           Final: <MathText text={example.finalAnswer} />
-        </div>
-      )}
-      {example.totalMarks != null && Number.isFinite(example.totalMarks) && (
-        <div style={{ marginTop: 6, fontSize: 12, color: "#777", fontWeight: 600 }}>
-          Total: {example.totalMarks} marks
         </div>
       )}
     </div>

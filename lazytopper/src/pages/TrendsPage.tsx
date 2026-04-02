@@ -264,21 +264,6 @@ const TrendsPage: React.FC = () => {
     );
   };
 
-  const handleGoToTopicHub = (topicName: string) => {
-    const canonicalTopicKey = resolveCanonicalTopicKey({
-      subjectKey,
-      topicParam: topicName,
-    });
-    navigate(
-      buildTopicHubUrl(grade, subjectKey, canonicalTopicKey || topicName),
-      {
-        state: {
-          back: currentURL,
-          backLabel: "Back to trends",
-        },
-      }
-    );
-  };
 
 
   const handleQuickTopicMock = (topicName: string) => {
@@ -1025,85 +1010,95 @@ const TrendsPage: React.FC = () => {
                           <button
                             onClick={() => handleExplainTopic(topicName)}
                             style={{
-                              borderRadius: 999,
-                              padding: "5px 11px",
-                              border: "1px solid rgba(28,176,246,0.5)",
-                              background: "rgba(28,176,246,0.08)",
-                              fontSize: "0.75rem",
-                              color: "#1cb0f6",
+                              borderRadius: 12,
+                              padding: "7px 14px",
+                              border: "2px solid #46a302",
+                              borderBottom: "4px solid #46a302",
+                              background: "#58cc02",
+                              fontSize: "0.78rem",
+                              fontWeight: 700,
+                              color: "#ffffff",
                               cursor: "pointer",
+                              textTransform: "uppercase",
+                              letterSpacing: "0.5px",
                             }}
                           >
-                            Teach this topic
-                          </button>
-
-                          <button
-                            onClick={() => handlePracticeFromTopic(topicName)}
-                            style={{
-                              borderRadius: 999,
-                              padding: "5px 11px",
-                              border: "1px solid rgba(206,130,255,0.5)",
-                              background: "rgba(206,130,255,0.06)",
-                              fontSize: "0.75rem",
-                              color: "#6d28d9",
-                              cursor: "pointer",
-                            }}
-                          >
-                            Practice this topic
+                            Learn & Practice
                           </button>
 
                           <details style={{ position: "relative" }}>
                             <summary
                               style={{
-                                borderRadius: 999,
-                                padding: "5px 11px",
-                                border: "1px solid rgba(0,0,0,0.12)",
-                                background: "#f7f7f7",
-                                fontSize: "0.75rem",
-                                color: "#777777",
+                                borderRadius: 12,
+                                padding: "7px 14px",
+                                border: "2px solid #e5e5e5",
+                                background: "#ffffff",
+                                fontSize: "0.78rem",
+                                fontWeight: 700,
+                                color: "#3c3c3c",
                                 cursor: "pointer",
                                 listStyle: "none",
                               }}
                             >
-                              More
+                              More ▾
                             </summary>
                             <div
                               style={{
+                                position: "absolute",
+                                zIndex: 10,
                                 marginTop: 6,
                                 display: "grid",
-                                gap: 6,
-                                minWidth: 190,
+                                gap: 4,
+                                minWidth: 200,
                                 padding: 8,
                                 borderRadius: 12,
-                                border: "1px solid rgba(0,0,0,0.1)",
-                                background: "rgba(255,255,255,0.98)",
-                                boxShadow: "0 10px 26px rgba(0,0,0,0.06)",
+                                border: "2px solid #e5e5e5",
+                                background: "#ffffff",
+                                boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
                               }}
                             >
                               <button
-                                onClick={() => handleSampleQuestion(topicName)}
+                                onClick={() => handlePracticeFromTopic(topicName)}
                                 style={{
                                   borderRadius: 10,
-                                  padding: "6px 10px",
-                                  border: "1px solid rgba(28,176,246,0.35)",
-                                  background: "rgba(28,176,246,0.06)",
-                                  fontSize: "0.74rem",
-                                  color: "#1cb0f6",
+                                  padding: "8px 12px",
+                                  border: "none",
+                                  background: "#f7f7f7",
+                                  fontSize: "0.78rem",
+                                  fontWeight: 600,
+                                  color: "#3c3c3c",
                                   cursor: "pointer",
                                   textAlign: "left",
                                 }}
                               >
-                                Open HPQ for topic
+                                Practice questions
+                              </button>
+                              <button
+                                onClick={() => handleSampleQuestion(topicName)}
+                                style={{
+                                  borderRadius: 10,
+                                  padding: "8px 12px",
+                                  border: "none",
+                                  background: "#f7f7f7",
+                                  fontSize: "0.78rem",
+                                  fontWeight: 600,
+                                  color: "#3c3c3c",
+                                  cursor: "pointer",
+                                  textAlign: "left",
+                                }}
+                              >
+                                Highly probable questions
                               </button>
                               <button
                                 onClick={() => handleQuickTopicMock(topicName)}
                                 style={{
                                   borderRadius: 10,
-                                  padding: "6px 10px",
-                                  border: "1px solid rgba(88,204,2,0.5)",
-                                  background: "rgba(88,204,2,0.1)",
-                                  fontSize: "0.74rem",
-                                  color: "#15803d",
+                                  padding: "8px 12px",
+                                  border: "none",
+                                  background: "#f7f7f7",
+                                  fontSize: "0.78rem",
+                                  fontWeight: 600,
+                                  color: "#3c3c3c",
                                   cursor: "pointer",
                                   textAlign: "left",
                                 }}
@@ -1114,31 +1109,17 @@ const TrendsPage: React.FC = () => {
                                 onClick={() => handleExamTips(topicName)}
                                 style={{
                                   borderRadius: 10,
-                                  padding: "6px 10px",
-                                  border: "1px solid rgba(255,150,0,0.5)",
-                                  background: "rgba(255,150,0,0.08)",
-                                  fontSize: "0.74rem",
-                                  color: "#c2410c",
-                                  cursor: "pointer",
-                                  textAlign: "left",
-                                }}
-                              >
-                                Ask exam tips
-                              </button>
-                              <button
-                                onClick={() => handleGoToTopicHub(topicName)}
-                                style={{
-                                  borderRadius: 10,
-                                  padding: "6px 10px",
-                                  border: "1px solid rgba(0,0,0,0.12)",
+                                  padding: "8px 12px",
+                                  border: "none",
                                   background: "#f7f7f7",
-                                  fontSize: "0.74rem",
-                                  color: "#777777",
+                                  fontSize: "0.78rem",
+                                  fontWeight: 600,
+                                  color: "#3c3c3c",
                                   cursor: "pointer",
                                   textAlign: "left",
                                 }}
                               >
-                                Open topic in Tutor
+                                Exam tips
                               </button>
                             </div>
                           </details>

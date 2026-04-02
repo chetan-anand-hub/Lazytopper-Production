@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams, useLocation } from "react-router-dom";
+import ReturnContextBar from "../components/ux/ReturnContextBar";
 
 import { generateMultiTopicDailyMix } from "../services/dailyMixGenerator";
 import { useDailyMixPlayback, type DailyMixItem } from "../services/dailyMixPlayback";
@@ -95,6 +96,14 @@ function persistMasteryForQuestion(
 const difficultyColors: Record<string, string> = {
   Easy: "#22c55e", Medium: "#f59e0b", Hard: "#ef4444",
 };
+
+function DailyMixBackNav() {
+  const location = useLocation();
+  const navState = (location.state as { back?: string; backLabel?: string } | null) || null;
+  const backTo = String(navState?.back || "/");
+  const backLabel = String(navState?.backLabel || "Back to home");
+  return <ReturnContextBar backTo={backTo} backLabel={backLabel} />;
+}
 
 export default function DailyMixPage() {
   const navigate = useNavigate();
@@ -326,6 +335,7 @@ export default function DailyMixPage() {
 
   return (
     <div className="lt-page" style={{ maxWidth: 680, margin: "0 auto", padding: "24px 16px" }}>
+      <DailyMixBackNav />
       {showCelebration && (
         <div
           style={{

@@ -10,6 +10,7 @@ import {
 } from "react-router-dom";
 
 import { navigateToPractice } from "../navigation/practiceNavigation";
+import { resolveCanonicalTopicKey, normalizeTopicSlug, getRuntimeTopicCandidates } from "../data/syllabus/topicAliasMap";
 import {
   type HPQTopicBucket,
   type HPQQuestion,
@@ -682,10 +683,21 @@ const HighlyProbableQuestions: React.FC = () => {
   const filteredBuckets: HPQTopicBucket[] = useMemo(() => {
     let buckets = subjectBuckets;
 
-    // Topic filter (dropdown or deep link)
     if (topicFilter !== "all") {
-      const topicLower = topicFilter.toLowerCase();
-      buckets = buckets.filter((b) => b.topic.toLowerCase() === topicLower);
+      const candidates = new Set(getRuntimeTopicCandidates(topicFilter).map(c => c.toLowerCase()));
+      const canonicalFilter = resolveCanonicalTopicKey(topicFilter).toLowerCase();
+      const normalizedFilter = normalizeTopicSlug(topicFilter).toLowerCase();
+      candidates.add(canonicalFilter);
+      candidates.add(normalizedFilter);
+      candidates.add(topicFilter.toLowerCase());
+      buckets = buckets.filter((b) => {
+        const bucketNorm = normalizeTopicSlug(b.topic).toLowerCase();
+        const bucketCanon = resolveCanonicalTopicKey(b.topic).toLowerCase();
+        return candidates.has(b.topic.toLowerCase()) ||
+               candidates.has(bucketNorm) ||
+               candidates.has(bucketCanon) ||
+               canonicalFilter === bucketCanon;
+      });
     }
 
     // Stream filter - only for Science
