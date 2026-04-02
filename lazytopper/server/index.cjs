@@ -5774,46 +5774,118 @@ ${userPrompt}` }];
 
       const reply = await callGemini(GEMINI_MODEL, contents, {
         temperature: 0.6,
-        maxOutputTokens: 900,
+        maxOutputTokens: 2048,
       });
 
       let variants = [];
-      try {
-        const parsed = JSON.parse(reply.text);
-        if (parsed && Array.isArray(parsed.questions)) {
-          variants = parsed.questions.map((q, idx) => ({
-            text: String(q.questionText || q.text || '').trim(),
-            marks:
-              q.marks != null
-                ? q.marks
-                : payload.seedQuestion && payload.seedQuestion.marks != null
-                ? payload.seedQuestion.marks
-                : undefined,
-            difficulty:
-              q.difficulty ||
-              (payload.seedQuestion && payload.seedQuestion.difficulty) ||
-              undefined,
-            bloomSkill:
-              q.bloomSkill ||
-              (payload.seedQuestion && payload.seedQuestion.bloomSkill) ||
-              undefined,
-            index: idx,
-          }));
+      const seed = payload.seedQuestion || {};
+
+      const mapQuestion = (q, idx) => ({
+        text: String(q.questionText || q.text || '').trim(),
+        marks: q.marks != null ? q.marks : (seed.marks != null ? seed.marks : undefined),
+        difficulty: q.difficulty || seed.difficulty || undefined,
+        bloomSkill: q.bloomSkill || seed.bloomSkill || undefined,
+        index: idx,
+      });
+
+      const extractVariantsJson = (rawText) => {
+        if (typeof rawText !== 'string') return null;
+        const trimmed = rawText.trim();
+        if (!trimmed) return null;
+
+        const tryParse = (str) => {
+          try { return JSON.parse(str); } catch (_) { return null; }
+        };
+
+        let fenceMatch = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i);
+        if (!fenceMatch) {
+          fenceMatch = trimmed.match(/```(?:json)?\s*([\s\S]+)/i);
         }
-      } catch (e) {
-        // Fallback: treat each non-empty line as a question
-        const seed = payload.seedQuestion || {};
+        const jsonStr = fenceMatch ? fenceMatch[1].trim() : trimmed;
+
+        const repairAndParse = (s) => {
+          let result = tryParse(s);
+          if (result) return result;
+          let repaired = s.replace(/,\s*([}\]])/g, '$1');
+          result = tryParse(repaired);
+          if (result) return result;
+          const openBraces = (s.match(/\{/g) || []).length;
+          const closeBraces = (s.match(/\}/g) || []).length;
+          const openBrackets = (s.match(/\[/g) || []).length;
+          const closeBrackets = (s.match(/\]/g) || []).length;
+          let suffix = '';
+          for (let i = 0; i < openBraces - closeBraces; i++) suffix += '}';
+          for (let i = 0; i < openBrackets - closeBrackets; i++) suffix += ']';
+          if (suffix) {
+            let truncated = repaired.replace(/,\s*$/, '');
+            const lastComma = truncated.lastIndexOf(',');
+            const lastCloseBrace = truncated.lastIndexOf('}');
+            if (lastComma > lastCloseBrace) {
+              truncated = truncated.slice(0, lastComma);
+            }
+            result = tryParse(truncated + suffix);
+            if (result) return result;
+            result = tryParse(truncated.replace(/,\s*$/, '') + suffix);
+            if (result) return result;
+          }
+          return null;
+        };
+
+        let obj = repairAndParse(jsonStr);
+        if (!obj) {
+          const fb = jsonStr.indexOf('{');
+          const lb = jsonStr.lastIndexOf('}');
+          if (fb !== -1 && lb > fb) obj = repairAndParse(jsonStr.slice(fb, lb + 1));
+          if (!obj && fb !== -1) obj = repairAndParse(jsonStr.slice(fb));
+        }
+        if (!obj) {
+          const fa = jsonStr.indexOf('[');
+          const la = jsonStr.lastIndexOf(']');
+          if (fa !== -1 && la > fa) obj = repairAndParse(jsonStr.slice(fa, la + 1));
+          if (!obj && fa !== -1) obj = repairAndParse(jsonStr.slice(fa));
+        }
+
+        if (Array.isArray(obj)) return obj;
+        if (obj && typeof obj === 'object' && Array.isArray(obj.questions)) return obj.questions;
+        return null;
+      };
+
+      const replyText = String(reply.text || '');
+      const questionsArr = extractVariantsJson(replyText);
+      if (questionsArr && questionsArr.length > 0) {
+        variants = questionsArr.filter(q => q && (q.questionText || q.text)).map(mapQuestion);
+      } else {
         const lines = String(reply.text)
           .split(/\n+/)
           .map((l) => l.trim())
-          .filter(Boolean);
-        variants = lines.slice(0, numVariants).map((line, idx) => ({
-          text: line.replace(/^\d+[.)]\s*/, ''),
-          marks: seed.marks,
-          difficulty: seed.difficulty,
-          bloomSkill: seed.bloomSkill,
-          index: idx,
-        }));
+          .filter(Boolean)
+          .filter((l) => {
+            if (l.length < 15) return false;
+            if (/^[\[{\]}`",]/.test(l)) return false;
+            if (/^```/.test(l)) return false;
+            if (/^\w+["']?\s*:/.test(l)) return false;
+            return true;
+          });
+        if (lines.length > 0) {
+          variants = lines.slice(0, numVariants).map((line, idx) => ({
+            text: line.replace(/^\d+[.)]\s*/, '').trim(),
+            marks: seed.marks,
+            difficulty: seed.difficulty,
+            bloomSkill: seed.bloomSkill,
+            index: idx,
+          }));
+        }
+      }
+
+      if (variants.length === 0) {
+        return sendJson(res, 200, {
+          subject,
+          topicKey: payload.topicKey || null,
+          provider: ACTIVE_PROVIDER,
+          model: GEMINI_MODEL,
+          variants: [],
+          error: 'Could not parse AI response into valid question variants',
+        });
       }
 
       return sendJson(res, 200, {

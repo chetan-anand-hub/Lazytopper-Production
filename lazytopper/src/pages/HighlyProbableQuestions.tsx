@@ -240,7 +240,7 @@ const HighlyProbableQuestions: React.FC = () => {
   // When students request AI-generated variants of an HPQ, we store
   // loading/error flags and the resulting variants keyed by question ID.
   // This ensures each question's variant state is tracked independently.
-  const [aiVariants, setAiVariants] = useState<Record<string, MoreLikeThisVariant[]>>({});
+  const [aiVariants, setAiVariants] = useState<Record<string, MoreLikeThisVariant[] | undefined>>({});
   const [aiLoading, setAiLoading] = useState<Record<string, boolean>>({});
   const [aiError, setAiError] = useState<Record<string, string | undefined>>({});
 
@@ -640,10 +640,17 @@ const HighlyProbableQuestions: React.FC = () => {
         numVariants,
       };
       const resp = await generateMoreLikeThis(payload);
-      setAiVariants((prev) => ({ ...prev, [qId]: resp.variants }));
+      const respAny = resp as any;
+      if (respAny.error && (!resp.variants || resp.variants.length === 0)) {
+        setAiError((prev) => ({ ...prev, [qId]: respAny.error }));
+        setAiVariants((prev) => ({ ...prev, [qId]: undefined }));
+      } else {
+        setAiVariants((prev) => ({ ...prev, [qId]: resp.variants }));
+      }
     } catch (err: any) {
       const msg = err?.message || "Failed to generate variants";
       setAiError((prev) => ({ ...prev, [qId]: msg }));
+      setAiVariants((prev) => ({ ...prev, [qId]: undefined }));
     } finally {
       setAiLoading((prev) => ({ ...prev, [qId]: false }));
     }
@@ -2058,41 +2065,150 @@ const HighlyProbableQuestions: React.FC = () => {
                               {aiLoading[q.id] && (
                                 <div
                                   style={{
-                                    marginTop: 4,
-                                    fontSize: "0.8rem",
+                                    marginTop: 8,
+                                    padding: "12px 16px",
+                                    background: "rgba(239,246,255,0.7)",
+                                    borderRadius: 10,
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 8,
+                                    fontSize: "0.82rem",
                                     color: "#1d4ed8",
                                   }}
                                 >
+                                  <span style={{ animation: "spin 1s linear infinite", display: "inline-block" }}>&#9881;</span>
                                   Generating AI variants...
                                 </div>
                               )}
-                              {aiError[q.id] && (
-                                <div
-                                  style={{
-                                    marginTop: 4,
-                                    fontSize: "0.8rem",
-                                    color: "#b91c1c",
-                                  }}
-                                >
-                                  {aiError[q.id]}
-                                </div>
-                              )}
-                              {aiVariants[q.id] && aiVariants[q.id].length > 0 && (
+                              {aiError[q.id] && !aiLoading[q.id] && (
                                 <div
                                   style={{
                                     marginTop: 8,
-                                    padding: "8px 12px",
-                                    border: "1px dashed rgba(59,130,246,0.4)",
-                                    borderRadius: 8,
-                                    background: "rgba(239,246,255,0.6)",
+                                    padding: "10px 14px",
+                                    background: "rgba(254,226,226,0.5)",
+                                    borderRadius: 10,
+                                    border: "1px solid rgba(239,68,68,0.2)",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "space-between",
+                                    gap: 8,
                                   }}
                                 >
+                                  <span style={{ fontSize: "0.8rem", color: "#b91c1c" }}>
+                                    {aiError[q.id]}
+                                  </span>
+                                  <button
+                                    onClick={() => handleGenerateAiVariants(bucket, q)}
+                                    style={{
+                                      borderRadius: 999,
+                                      border: "1px solid rgba(239,68,68,0.4)",
+                                      padding: "3px 10px",
+                                      fontSize: "0.72rem",
+                                      background: "white",
+                                      color: "#b91c1c",
+                                      cursor: "pointer",
+                                      whiteSpace: "nowrap",
+                                      fontWeight: 500,
+                                    }}
+                                  >
+                                    Retry
+                                  </button>
+                                </div>
+                              )}
+                              {!aiError[q.id] && aiVariants[q.id] && aiVariants[q.id].length > 0 && (
+                                <div
+                                  style={{
+                                    marginTop: 10,
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    gap: 8,
+                                  }}
+                                >
+                                  <div style={{ fontSize: "0.75rem", color: "#6b7280", fontWeight: 500, marginBottom: 2 }}>
+                                    AI-Generated Variants
+                                  </div>
                                   {aiVariants[q.id].map((v: MoreLikeThisVariant, i: number) => (
                                     <div
                                       key={String(v.index ?? i)}
-                                      style={{ marginBottom: 6 }}
+                                      style={{
+                                        padding: "10px 14px",
+                                        background: "linear-gradient(135deg, rgba(239,246,255,0.8), rgba(243,232,255,0.4))",
+                                        borderRadius: 10,
+                                        border: "1px solid rgba(59,130,246,0.15)",
+                                      }}
                                     >
-                                      <strong>Variant {i + 1}:</strong> {v.text}
+                                      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6, flexWrap: "wrap" }}>
+                                        <span style={{
+                                          fontSize: "0.68rem",
+                                          fontWeight: 600,
+                                          color: "#1d4ed8",
+                                          background: "rgba(59,130,246,0.1)",
+                                          padding: "1px 7px",
+                                          borderRadius: 999,
+                                        }}>
+                                          V{i + 1}
+                                        </span>
+                                        {v.marks != null && (
+                                          <span style={{
+                                            fontSize: "0.68rem",
+                                            fontWeight: 500,
+                                            color: "#1e40af",
+                                            background: "rgba(59,130,246,0.08)",
+                                            padding: "1px 7px",
+                                            borderRadius: 999,
+                                          }}>
+                                            {v.marks} {v.marks === 1 ? "mark" : "marks"}
+                                          </span>
+                                        )}
+                                        {v.difficulty && (
+                                          <span style={{
+                                            fontSize: "0.68rem",
+                                            fontWeight: 500,
+                                            color: v.difficulty === "Hard" ? "#b91c1c" : v.difficulty === "Medium" ? "#b45309" : "#15803d",
+                                            background: v.difficulty === "Hard" ? "rgba(239,68,68,0.08)" : v.difficulty === "Medium" ? "rgba(245,158,11,0.08)" : "rgba(34,197,94,0.08)",
+                                            padding: "1px 7px",
+                                            borderRadius: 999,
+                                          }}>
+                                            {v.difficulty}
+                                          </span>
+                                        )}
+                                      </div>
+                                      <div style={{ fontSize: "0.82rem", color: "#1e293b", lineHeight: 1.5 }}>
+                                        {v.text}
+                                      </div>
+                                      <div style={{ marginTop: 8, display: "flex", gap: 6 }}>
+                                        <button
+                                          onClick={() => {
+                                            const variantId = `variant-${q.id}-${i}`;
+                                            const variantAsHPQ: HPQQuestion = {
+                                              id: variantId,
+                                              question: v.text,
+                                              marks: v.marks ?? q.marks,
+                                              difficulty: (v.difficulty as HPQDifficulty) ?? q.difficulty,
+                                              section: q.section,
+                                              likelihood: q.likelihood,
+                                              answer: "",
+                                              patternYears: [],
+                                            };
+                                            handleAddToBasket(bucket, variantAsHPQ);
+                                          }}
+                                          disabled={isInBasket(`variant-${q.id}-${i}`)}
+                                          style={{
+                                            borderRadius: 999,
+                                            border: isInBasket(`variant-${q.id}-${i}`)
+                                              ? "1px solid rgba(99,102,241,0.3)"
+                                              : "1px solid rgba(59,130,246,0.3)",
+                                            padding: "3px 10px",
+                                            fontSize: "0.7rem",
+                                            background: isInBasket(`variant-${q.id}-${i}`) ? "rgba(238,242,255,0.8)" : "white",
+                                            color: isInBasket(`variant-${q.id}-${i}`) ? "#3730a3" : "#1d4ed8",
+                                            cursor: isInBasket(`variant-${q.id}-${i}`) ? "default" : "pointer",
+                                            fontWeight: 500,
+                                          }}
+                                        >
+                                          {isInBasket(`variant-${q.id}-${i}`) ? "Added" : "Add to mock"}
+                                        </button>
+                                      </div>
                                     </div>
                                   ))}
                                 </div>
