@@ -1368,14 +1368,14 @@ const packTopicKey = useMemo(() => {
                       borderRadius: 999,
                       padding: "4px 10px",
                       border: active
-                        ? "1px solid rgba(37,99,235,0.85)"
-                        : "1px solid rgba(148,163,184,0.75)",
+                        ? "1px solid rgba(28,176,246,0.85)"
+                        : "1px solid rgba(0,0,0,0.15)",
                       backgroundColor: active ? "#1cb0f6" : "#ffffff",
                       color: active ? "#f9fafb" : "#3c3c3c",
                       fontSize: "0.75rem",
                       cursor: "pointer",
                       boxShadow: active
-                        ? "0 6px 16px rgba(37,99,235,0.42)"
+                        ? "0 6px 16px rgba(28,176,246,0.3)"
                         : "none",
                     }}
                   >
@@ -1401,7 +1401,7 @@ const packTopicKey = useMemo(() => {
               onChange={(e) => setSectionFilter(e.target.value as any)}
               style={{
                 borderRadius: 999,
-                border: "1px solid rgba(148,163,184,0.75)",
+                border: "1px solid rgba(0,0,0,0.15)",
                 padding: "4px 10px",
                 fontSize: "0.78rem",
                 background: "#ffffff",
@@ -1467,7 +1467,7 @@ const packTopicKey = useMemo(() => {
               style={{
                 borderRadius: 999,
                 padding: "5px 12px",
-                border: "1px solid rgba(22,163,74,0.8)",
+                border: "1px solid rgba(88,204,2,0.8)",
                 backgroundColor: "#22c55e",
                 color: "#052e16",
                 fontSize: "0.78rem",
@@ -1489,7 +1489,7 @@ const packTopicKey = useMemo(() => {
               style={{
                 borderRadius: 999,
                 padding: "5px 12px",
-                border: "1px solid rgba(37,99,235,0.8)",
+                border: "1px solid rgba(28,176,246,0.8)",
                 backgroundColor: "#dbeafe",
                 color: "#1e3a8a",
                 fontSize: "0.78rem",
@@ -1703,7 +1703,6 @@ const packTopicKey = useMemo(() => {
             >
               {filteredQuestions.map((q, idx) => {
                 const isOpen = !!expandedAnswers[q.id];
-                void getQuestionStrategyDetails(q);
                 return (
                   <article
                     key={q.id}

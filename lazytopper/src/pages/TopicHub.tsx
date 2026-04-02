@@ -454,7 +454,7 @@ export default function TopicHub() {
           <div style={{
             marginTop: 20, background: "#fff", borderRadius: 20, padding: "28px 24px",
             border: "1px solid #e2e8f0", textAlign: "center",
-            boxShadow: "0 2px 12px rgba(99,102,241,0.06)",
+            boxShadow: "0 2px 12px rgba(88,204,2,0.12)",
           }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, flexWrap: "wrap" }}>
               <h1 style={{ fontSize: "1.6rem", fontWeight: 800, color: "#1e293b", margin: 0 }}>
@@ -534,7 +534,7 @@ export default function TopicHub() {
                   : "#cbd5e1",
                 border: "none", color: "#fff", fontWeight: 700, fontSize: "1rem",
                 cursor: hasEnoughContent ? "pointer" : "not-allowed",
-                boxShadow: hasEnoughContent ? "0 4px 14px rgba(99,102,241,0.3)" : "none",
+                boxShadow: hasEnoughContent ? "0 4px 14px rgba(88,204,2,0.12)" : "none",
                 transition: "transform 0.15s",
               }}
               onMouseDown={(e) => { if (hasEnoughContent) (e.target as HTMLElement).style.transform = "scale(0.97)"; }}
@@ -700,7 +700,7 @@ export default function TopicHub() {
               <div style={{
                 background: "#fff", borderRadius: 18, padding: "22px 22px",
                 border: "2px solid #6366f1",
-                boxShadow: "0 2px 12px rgba(99,102,241,0.08)",
+                boxShadow: "0 2px 12px rgba(88,204,2,0.12)",
               }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
                   <span style={{
@@ -829,7 +829,7 @@ export default function TopicHub() {
           <div style={{
             marginTop: 20, background: "#fff", borderRadius: 20, padding: "28px 24px",
             border: "1px solid #e2e8f0", textAlign: "center",
-            boxShadow: "0 2px 12px rgba(99,102,241,0.06)",
+            boxShadow: "0 2px 12px rgba(88,204,2,0.12)",
           }}>
             <h2 style={{ fontSize: "1.4rem", fontWeight: 800, color: "#1e293b", margin: 0 }}>
               Lesson Complete!
@@ -874,7 +874,7 @@ export default function TopicHub() {
                 marginTop: 24, padding: "14px 40px", borderRadius: 14,
                 background: "linear-gradient(135deg, #22c55e, #16a34a)",
                 border: "none", color: "#fff", fontWeight: 700, fontSize: "1rem",
-                cursor: "pointer", boxShadow: "0 4px 14px rgba(34,197,94,0.3)",
+                cursor: "pointer", boxShadow: "0 4px 14px rgba(88,204,2,0.3)",
               }}
             >
               Practice Now →

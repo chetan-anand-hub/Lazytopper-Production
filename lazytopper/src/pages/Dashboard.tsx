@@ -507,7 +507,8 @@ export default function Dashboard() {
     : 0;
   const topicsStarted = performanceRows.length;
   const topicsMastered = performanceRows.filter(r => r.accuracy >= 80 && r.attempted >= 3).length;
-  const xpEstimate = totalAttempted * 10 + streak * 25 + topicsMastered * 50;
+  const persistedXp = (() => { try { return Number(localStorage.getItem("lazytopper.xp") || 0); } catch { return 0; } })();
+  const xpEstimate = Math.max(persistedXp, totalAttempted * 10 + streak * 25 + topicsMastered * 50);
 
   return (
     <div className="lt-page">

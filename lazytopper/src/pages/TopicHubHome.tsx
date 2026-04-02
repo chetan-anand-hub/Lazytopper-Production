@@ -324,8 +324,8 @@ function TopicHubHomeContent() {
           <div
             style={{
               borderRadius: 18,
-              border: "1px solid rgba(37,99,235,0.28)",
-              background: "rgba(239,246,255,0.75)",
+              border: "1px solid rgba(28,176,246,0.28)",
+              background: "#f0f9ff",
               padding: 16,
               marginBottom: 14,
             }}
@@ -482,7 +482,7 @@ function TopicHubHomeContent() {
               marginTop: 14,
               borderRadius: 14,
               border: "1px solid rgba(0,0,0,0.06)",
-              background: "rgba(248,250,252,0.9)",
+              background: "#f7f7f7",
               padding: 12,
             }}
           >
@@ -495,10 +495,10 @@ function TopicHubHomeContent() {
                     fontSize: 11,
                     fontWeight: 900,
                     borderRadius: 999,
-                    border: "1px solid rgba(22,163,74,0.45)",
+                    border: "1px solid rgba(88,204,2,0.45)",
                     padding: "2px 8px",
-                    background: "rgba(220,252,231,0.95)",
-                    color: "rgba(22,101,52,1)",
+                    background: "rgba(88,204,2,0.1)",
+                    color: "#2d7a00",
                   }}
                 >
                   Match Score: {matchScoreByTopic[selectedTopic.key] ?? 0}%
@@ -513,10 +513,10 @@ function TopicHubHomeContent() {
                   padding: "2px 8px",
                   background:
                     selectedTier === "must-crack"
-                      ? "rgba(254,226,226,0.9)"
+                      ? "#fee2e2"
                       : selectedTier === "high-roi"
-                      ? "rgba(254,249,195,0.95)"
-                      : "rgba(220,252,231,0.95)",
+                      ? "#fef9c3"
+                      : "rgba(88,204,2,0.1)",
                 }}
               >
                 {selectedTier}
