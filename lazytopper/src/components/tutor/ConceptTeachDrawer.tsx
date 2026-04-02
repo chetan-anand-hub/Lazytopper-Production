@@ -77,7 +77,7 @@ export default function ConceptTeachDrawer({ open, onClose, context }: ConceptTe
           maxHeight: "92vh",
           background: "#ffffff",
           borderRadius: 20,
-          boxShadow: "0 24px 80px rgba(0,0,0,0.4), 0 4px 24px rgba(0,0,0,0.4)",
+          boxShadow: "0 24px 80px rgba(0,0,0,0.25), 0 4px 24px rgba(0,0,0,0.15)",
           display: "flex",
           flexDirection: "column",
           animation: "conceptDrawerScaleIn 0.25s ease",
@@ -88,7 +88,7 @@ export default function ConceptTeachDrawer({ open, onClose, context }: ConceptTe
           style={{
             padding: "16px 24px",
             borderBottom: "1px solid #e2e8f0",
-            background: "linear-gradient(135deg, #eff6ff 0%, #f5f3ff 100%)",
+            background: "#f7f7f7",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",

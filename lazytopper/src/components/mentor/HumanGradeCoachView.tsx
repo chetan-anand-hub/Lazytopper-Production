@@ -122,22 +122,22 @@ export const HumanGradeCoachView: React.FC<HumanGradeCoachViewProps> = ({
     : {
         borderRadius: 12,
         padding: "10px 12px",
-        border: "1px solid rgba(0,0,0,0.08)",
-        background: "rgba(0,0,0,0.03)",
+        border: "1px solid #e5e5e5",
+        background: "#f7f7f7",
       };
 
   return (
     <div style={containerStyle}>
       <div style={{ display: "grid", gap: compact ? 10 : 12 }}>
         {diagnosisSummary ? (
-          <div style={compact ? { padding: "8px 10px", borderRadius: 10, background: "rgba(255,255,255,0.92)", border: "1px solid rgba(0,0,0,0.02)" } : { padding: "10px 12px", borderRadius: 12, background: "rgba(255,255,255,0.92)", border: "1px solid rgba(0,0,0,0.02)" }}>
+          <div style={compact ? { padding: "8px 10px", borderRadius: 10, background: "#ffffff", border: "1px solid #e5e5e5" } : { padding: "10px 12px", borderRadius: 12, background: "#ffffff", border: "1px solid #e5e5e5" }}>
             <div style={{ fontWeight: compact ? 700 : 800, marginBottom: 4 }}>What this is</div>
             <div style={{ lineHeight: 1.5 }}>{diagnosisSummary}</div>
           </div>
         ) : null}
 
         {primaryAction ? (
-          <div style={compact ? { padding: "8px 10px", borderRadius: 10, background: "rgba(255,255,255,0.92)", border: "1px solid rgba(0,0,0,0.02)" } : { padding: "10px 12px", borderRadius: 12, background: "rgba(255,255,255,0.92)", border: "1px solid rgba(0,0,0,0.02)" }}>
+          <div style={compact ? { padding: "8px 10px", borderRadius: 10, background: "#ffffff", border: "1px solid #e5e5e5" } : { padding: "10px 12px", borderRadius: 12, background: "#ffffff", border: "1px solid #e5e5e5" }}>
             <div style={{ fontWeight: compact ? 700 : 800, marginBottom: 4 }}>Do this now</div>
             <div style={{ lineHeight: 1.5 }}>{primaryAction}</div>
             {hintWarning ? (
@@ -163,7 +163,7 @@ export const HumanGradeCoachView: React.FC<HumanGradeCoachViewProps> = ({
         ) : null}
 
         {watchOut ? (
-          <div style={compact ? { padding: "8px 10px", borderRadius: 10, background: "rgba(255,200,0,0.15)", border: "1px solid rgba(255,150,0,0.2)" } : { padding: "10px 12px", borderRadius: 12, background: "rgba(255,200,0,0.15)", border: "1px solid rgba(255,150,0,0.2)" }}>
+          <div style={compact ? { padding: "8px 10px", borderRadius: 10, background: "#fffbeb", border: "1px solid #fde68a" } : { padding: "10px 12px", borderRadius: 12, background: "#fffbeb", border: "1px solid #fde68a" }}>
             <div style={{ fontWeight: compact ? 700 : 800, marginBottom: 4 }}>Watch out</div>
             <div style={{ lineHeight: 1.5 }}>{watchOut}</div>
             {watchOutFix ? (
@@ -175,7 +175,7 @@ export const HumanGradeCoachView: React.FC<HumanGradeCoachViewProps> = ({
         ) : null}
 
         {(practiceNext || tryOneMore) ? (
-          <div style={compact ? { padding: "8px 10px", borderRadius: 10, background: "rgba(255,255,255,0.92)", border: "1px solid rgba(0,0,0,0.02)" } : { padding: "10px 12px", borderRadius: 12, background: "rgba(255,255,255,0.92)", border: "1px solid rgba(0,0,0,0.02)" }}>
+          <div style={compact ? { padding: "8px 10px", borderRadius: 10, background: "#ffffff", border: "1px solid #e5e5e5" } : { padding: "10px 12px", borderRadius: 12, background: "#ffffff", border: "1px solid #e5e5e5" }}>
             <div style={{ fontWeight: compact ? 700 : 800, marginBottom: 4 }}>Try one more</div>
             {practiceNextRecord?.family_label ? (
               <div style={{ marginBottom: 4 }}>{String(practiceNextRecord.family_label)}</div>
@@ -214,7 +214,7 @@ export const HumanGradeCoachView: React.FC<HumanGradeCoachViewProps> = ({
                         : {
                             padding: "2px 8px",
                             borderRadius: 999,
-                            background: "rgba(0,0,0,0.02)",
+                            background: "#f7f7f7",
                             fontSize: 12,
                           }
                     }

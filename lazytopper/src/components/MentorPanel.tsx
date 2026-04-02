@@ -11,6 +11,7 @@ import { callMentor } from "../ai/aiClient";
 import { getHintVariant } from "../services/abFlags";
 import { logActivity } from "../services/sessionLogger";
 import { HumanGradeCoachView } from "./mentor/HumanGradeCoachView";
+import { TutorMessageRenderer } from "./tutor/TutorMessageRenderer";
 import { DiagramBlock } from "./DiagramBlock";
 import { isRecord } from "../types/mentor";
 import {
@@ -1137,7 +1138,7 @@ Give me hint level ${targetLevel} only (keep it short).`
             marginBottom: 10,
             padding: 10,
             borderRadius: 14,
-            border: "1px solid rgba(0,0,0,0.08)",
+            border: "1px solid #e5e5e5",
             background: "#f7f7f7",
           }}
         >
@@ -1188,7 +1189,7 @@ Give me hint level ${targetLevel} only (keep it short).`
                   maxHeight: 180,
                   display: "block",
                   borderRadius: 12,
-                  border: "1px solid rgba(0,0,0,0.08)",
+                  border: "1px solid #e5e5e5",
                   objectFit: "cover",
                 }}
               />
@@ -1298,9 +1299,7 @@ Give me hint level ${targetLevel} only (keep it short).`
                   }
                 >
                   <div className="mentor-panel__bubble">
-                    {sanitizeMentorOutput(msg.content).split("\n").map((line, i) => (
-                      <p key={i}>{line}</p>
-                    ))}
+                    <TutorMessageRenderer content={sanitizeMentorOutput(msg.content)} />
                   </div>
                   {messageDiagram ? (
                     <div style={{ marginTop: 10 }}>
@@ -1321,9 +1320,7 @@ Give me hint level ${targetLevel} only (keep it short).`
         {messages.length === 0 && planPreview && resolvedMode === "plan" && (
           <div className="mentor-panel__message mentor-panel__message--assistant">
             <div className="mentor-panel__bubble">
-              {planPreview.split("\n").map((line, i) => (
-                <p key={i}>{line}</p>
-              ))}
+              <TutorMessageRenderer content={planPreview} />
             </div>
           </div>
         )}

@@ -18,6 +18,7 @@ import {
   type SessionDoc,
 } from "../../services/sessionApi";
 import { HumanGradeCoachView } from "../mentor/HumanGradeCoachView";
+import { TutorMessageRenderer } from "./TutorMessageRenderer";
 import {
   canUseMentorServer,
   isMentorNetworkFailure,
@@ -195,33 +196,33 @@ const masteryMeta: Record<
 > = {
   unseen: {
     label: "Unseen",
-    bg: "rgba(0,0,0,0.08)",
+    bg: "#f7f7f7",
     color: "#3c3c3c",
-    border: "rgba(0,0,0,0.08)",
+    border: "#e5e5e5",
   },
   learning: {
     label: "Learning",
-    bg: "rgba(28,176,246,0.15)",
+    bg: "#e0f2fe",
     color: "#0a6daa",
-    border: "rgba(28,176,246,0.15)",
+    border: "#7dd3fc",
   },
   checkpoint_passed: {
     label: "Checkpoint Passed",
-    bg: "rgba(28,176,246,0.15)",
+    bg: "#dbeafe",
     color: "#0a6daa",
-    border: "rgba(28,176,246,0.15)",
+    border: "#93c5fd",
   },
   needs_practice: {
     label: "Needs Practice",
-    bg: "rgba(255,150,0,0.15)",
+    bg: "#fff7ed",
     color: "#b86800",
-    border: "rgba(255,150,0,0.15)",
+    border: "#fdba74",
   },
   mastered: {
     label: "Mastered",
-    bg: "rgba(88,204,2,0.15)",
+    bg: "#f0fdf4",
     color: "#2d7a00",
-    border: "rgba(88,204,2,0.15)",
+    border: "#86efac",
   },
 };
 
@@ -1023,8 +1024,8 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
 
   const drawerBg =
     mode === "beast"
-      ? "linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(245,247,255,0.98) 100%)"
-      : "linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(245,255,248,0.98) 100%)";
+      ? "#ffffff"
+      : "#ffffff";
 
   const handleTabChange = (nextTab: TutorTab) => {
     if (nextTab === tab) return;
@@ -1076,7 +1077,7 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
     const prompt = String(nextAction.prompt || "");
     const brief = isRecord(loop.bsre) && loop.bsre.brief ? String(loop.bsre.brief) : "";
     return (
-      <div style={{ borderRadius: 12, padding: "10px 12px", border: "1px solid rgba(0,0,0,0.08)", background: "rgba(56,189,248,0.10)" }}>
+      <div style={{ borderRadius: 12, padding: "10px 12px", border: "1px solid #7dd3fc", background: "#e0f2fe" }}>
         <div style={{ fontWeight: 800 }}>Attempt Feedback</div>
         <div style={{ marginTop: 6 }}>Diagnosis: <b>{verdict}</b></div>
         {tags.length ? (
@@ -1106,7 +1107,7 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
           </button>
         ) : null}
         {rubric ? (
-          <div style={{ marginTop: 10, fontSize: 12, borderTop: '1px dashed rgba(0,0,0,0.12)', paddingTop: 8 }}>
+          <div style={{ marginTop: 10, fontSize: 12, borderTop: '1px dashed #e5e5e5', paddingTop: 8 }}>
             {sources.length ? (
               <div style={{ marginTop: 8 }}>
                 <div style={{ fontWeight: 800 }}>Sources</div>
@@ -1431,16 +1432,18 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
         : []),
     ];
     const bubbleStyle = (role: "assistant" | "user", tone?: "neutral" | "warn") => ({
-      maxWidth: "82%",
-      borderRadius: 14,
-      padding: "10px 12px",
-      border: role === "assistant" ? "1px solid rgba(0,0,0,0.10)" : "1px solid rgba(28,176,246,0.15)",
-      background:
-        role === "assistant"
-          ? tone === "warn"
-            ? "rgba(255,150,0,0.15)"
-            : "rgba(255,255,255,0.92)"
-          : "rgba(28,176,246,0.15)",
+      maxWidth: "85%",
+      borderRadius: role === "assistant" ? "4px 16px 16px 16px" : "16px 4px 16px 16px",
+      padding: "14px 18px",
+      border: role === "assistant"
+        ? tone === "warn" ? "2px solid #fde68a" : "2px solid #e5e5e5"
+        : "2px solid #93c5fd",
+      background: role === "assistant"
+        ? tone === "warn" ? "#fffbeb" : "#ffffff"
+        : "#dbeafe",
+      boxShadow: role === "assistant"
+        ? tone === "warn" ? "0 2px 0 #fde68a" : "0 2px 0 #e5e5e5"
+        : "0 2px 0 #93c5fd",
     });
     const previewIdeas = view.keyIdeas.slice(0, 2);
     const exampleSteps = view.workedSteps.slice(0, 2);
@@ -1458,8 +1461,8 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
           style={{
             borderRadius: 16,
             padding: "12px 12px",
-            background: "rgba(255,255,255,0.92)",
-            border: "1px solid rgba(0,0,0,0.06)",
+            background: "#ffffff",
+            border: "2px solid #e5e5e5",
             display: "grid",
             gap: 10,
           }}
@@ -1492,7 +1495,7 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
                 borderRadius: 12,
                 padding: "10px 12px",
                 background: "#f7f7f7",
-                border: "1px solid rgba(0,0,0,0.02)",
+                border: "1px solid #e5e5e5",
               }}
             >
               <div style={{ fontWeight: 800, marginBottom: 6 }}>One example</div>
@@ -1516,7 +1519,7 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
                 borderRadius: 12,
                 padding: "10px 12px",
                 background: "#f7f7f7",
-                border: "1px solid rgba(0,0,0,0.02)",
+                border: "1px solid #e5e5e5",
               }}
             >
               <div style={{ fontWeight: 800, marginBottom: 6 }}>Your turn</div>
@@ -1530,8 +1533,8 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
               style={{
                 borderRadius: 12,
                 padding: "10px 12px",
-                background: "rgba(255,200,0,0.15)",
-                border: "1px solid rgba(255,150,0,0.2)",
+                background: "#fffbeb",
+                border: "1px solid #fde68a",
               }}
             >
               <div style={{ fontWeight: 800, marginBottom: 6 }}>Watch out</div>
@@ -1552,8 +1555,8 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
                   style={{
                     padding: "10px 12px",
                     borderRadius: 12,
-                    background: "rgba(255,255,255,0.9)",
-                    border: "1px solid rgba(0,0,0,0.08)",
+                    background: "#ffffff",
+                    border: "1px solid #e5e5e5",
                     lineHeight: 1.5,
                   }}
                 >
@@ -1565,7 +1568,7 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
                   borderRadius: 12,
                   padding: "10px 12px",
                   background: "#f7f7f7",
-                  border: "1px solid rgba(0,0,0,0.02)",
+                  border: "1px solid #e5e5e5",
                 }}
               >
                 <div style={{ fontWeight: 800, marginBottom: 6 }}>Full worked example</div>
@@ -1593,7 +1596,7 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
                   borderRadius: 12,
                   padding: "10px 12px",
                   background: "#f7f7f7",
-                  border: "1px solid rgba(0,0,0,0.02)",
+                  border: "1px solid #e5e5e5",
                 }}
               >
                 <div style={{ fontWeight: 800, marginBottom: 6 }}>Continue</div>
@@ -1618,9 +1621,7 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
                     >
                       <div style={bubbleStyle(msg.role, msg.tone)}>
                         <div style={{ fontSize: 12, fontWeight: 800, marginBottom: 4, opacity: 0.8 }}>{msg.title}</div>
-                        <div style={{ whiteSpace: "pre-wrap", lineHeight: 1.45 }}>
-                          {cleanDisplayText(msg.text)}
-                        </div>
+                        <TutorMessageRenderer content={cleanDisplayText(msg.text)} />
                       </div>
                     </div>
                   ))}
@@ -1652,8 +1653,8 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
           note="CBSE diagram block"
         />
         {tutorText ? (
-          <div style={{ padding: "10px 12px", borderRadius: 12, background: "rgba(0,0,0,0.04)" }}>
-            {cleanDisplayText(String(tutorText))}
+          <div style={{ padding: "10px 12px", borderRadius: 12, background: "#f7f7f7", border: "1px solid #e5e5e5" }}>
+            <TutorMessageRenderer content={cleanDisplayText(String(tutorText))} />
           </div>
         ) : null}
         {coachProps ? <HumanGradeCoachView {...coachProps} /> : null}
@@ -1669,7 +1670,7 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
         <div>
           <div style={{ fontWeight: 800, marginBottom: 6 }}>Exam line</div>
           {view.examLines.map((l, idx: number) => (
-            <div key={idx} style={{ marginBottom: 6, padding: "6px 8px", borderRadius: 10, background: "rgba(0,0,0,0.04)" }}>
+            <div key={idx} style={{ marginBottom: 6, padding: "6px 8px", borderRadius: 10, background: "#f7f7f7", border: "1px solid #e5e5e5" }}>
               {String(l)}
             </div>
           ))}
@@ -1683,7 +1684,7 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
             );
             const total = Number(ex.totalMarks);
             return (
-              <div key={exIdx} style={{ borderRadius: 12, padding: "10px 12px", border: "1px solid rgba(0,0,0,0.08)", marginBottom: 10 }}>
+              <div key={exIdx} style={{ borderRadius: 12, padding: "10px 12px", border: "2px solid #e5e5e5", marginBottom: 10, boxShadow: "0 2px 0 #e5e5e5" }}>
                 <div style={{ fontWeight: 800 }}>
                   {exIdx === 0 ? "Example 1: Basic" : "Example 2: Board-style"}
                 </div>
@@ -1725,7 +1726,7 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
         {view.checkpointQuestion ? (
           <div>
             <div style={{ fontWeight: 800, marginBottom: 6 }}>Check question</div>
-            <div style={{ padding: "8px 10px", borderRadius: 12, background: "rgba(0,0,0,0.04)" }}>
+            <div style={{ padding: "8px 10px", borderRadius: 12, background: "#fffbeb", border: "1px solid #fde68a" }}>
               {view.checkpointQuestion}
             </div>
           </div>
@@ -1742,7 +1743,7 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
   const drawerContent = () => {
     if (currentError) {
       return (
-        <div style={{ padding: 12, borderRadius: 12, border: "1px solid rgba(255,0,0,0.2)", background: "rgba(255,0,0,0.06)" }}>
+        <div style={{ padding: 12, borderRadius: 12, border: "1px solid #fecaca", background: "#fef2f2" }}>
           <div>{cleanDisplayText(currentError)}</div>
           <button
             type="button"
@@ -1822,7 +1823,7 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
         position: "fixed",
         inset: 0,
         zIndex: 60,
-        background: "rgba(0,0,0,0.35)",
+        background: "rgba(0,0,0,0.4)",
       }}
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) onClose();
@@ -1865,7 +1866,7 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
               type="button"
               className="lt-pill"
               onClick={() => handleTabChange("teach")}
-              style={{ background: tab === "teach" ? "rgba(0,0,0,0.08)" : "white", padding: "6px 10px" }}
+              style={{ background: tab === "teach" ? "#e5e5e5" : "white", padding: "6px 10px" }}
             >
               Teach
             </button>
@@ -1873,7 +1874,7 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
               type="button"
               className="lt-pill"
               onClick={() => handleTabChange("examples")}
-              style={{ background: tab === "examples" ? "rgba(0,0,0,0.08)" : "white", padding: "6px 10px" }}
+              style={{ background: tab === "examples" ? "#e5e5e5" : "white", padding: "6px 10px" }}
             >
               Board Examples
             </button>
@@ -1899,8 +1900,8 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
               marginTop: 10,
               borderRadius: 12,
               padding: "8px 10px",
-              border: "1px solid rgba(28,176,246,0.15)",
-              background: "rgba(28,176,246,0.15)",
+              border: "1px solid #7dd3fc",
+              background: "#e0f2fe",
               fontSize: 12,
             }}
           >
@@ -1914,8 +1915,8 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
               marginTop: 10,
               borderRadius: 12,
               padding: "10px 12px",
-              border: "1px solid rgba(255,150,0,0.15)",
-              background: "rgba(255,150,0,0.15)",
+              border: "1px solid #fdba74",
+              background: "#fff7ed",
             }}
           >
             <div style={{ fontWeight: 800 }}>Checkpoint not yet passed for this node.</div>
@@ -1983,7 +1984,7 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
               style={{
                 borderRadius: 999,
                 padding: "6px 10px",
-                border: "1px solid rgba(0,0,0,0.12)",
+                border: "1px solid #e5e5e5",
                 background: "white",
                 fontWeight: 700,
               }}
@@ -2005,8 +2006,8 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
             overflow: "auto",
             padding: 10,
             borderRadius: 14,
-            border: "1px solid rgba(0,0,0,0.08)",
-            background: "rgba(255,255,255,0.72)",
+            border: "2px solid #e5e5e5",
+            background: "#ffffff",
             minHeight: 280,
           }}
         >
@@ -2014,7 +2015,7 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
         </div>
 
         {doubtError ? (
-          <div style={{ marginTop: 10, padding: 10, borderRadius: 12, background: "rgba(255,0,0,0.06)" }}>
+          <div style={{ marginTop: 10, padding: 10, borderRadius: 12, background: "#fef2f2", border: "1px solid #fecaca" }}>
             {cleanDisplayText(doubtError)}
           </div>
         ) : null}
@@ -2104,7 +2105,7 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
             style={{
               flex: 1,
               borderRadius: 14,
-              border: "1px solid rgba(0,0,0,0.14)",
+              border: "1px solid #e5e5e5",
               padding: "10px 12px",
               fontSize: 14,
               outline: "none",
@@ -2141,7 +2142,7 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
           </div>
         ) : null}
 
-        <details style={{ marginTop: 12, borderRadius: 12, padding: "10px 12px", background: "rgba(0,0,0,0.03)" }}>
+        <details style={{ marginTop: 12, borderRadius: 12, padding: "10px 12px", background: "#f7f7f7" }}>
           <summary style={{ cursor: "pointer", fontWeight: 800, fontSize: 13 }}>
             Was this helpful? Add feedback (optional)
           </summary>
@@ -2151,7 +2152,7 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
                   type="button"
                   className="lt-pill"
                   onClick={() => setFeedbackChoice("yes")}
-                  style={{ background: feedbackChoice === "yes" ? "rgba(88,204,2,0.15)" : "white" }}
+                  style={{ background: feedbackChoice === "yes" ? "#f0fdf4" : "white" }}
                 >
                   Yes
                 </button>
@@ -2159,7 +2160,7 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
                   type="button"
                   className="lt-pill"
                   onClick={() => setFeedbackChoice("no")}
-                  style={{ background: feedbackChoice === "no" ? "rgba(255,75,75,0.12)" : "white" }}
+                  style={{ background: feedbackChoice === "no" ? "#fef2f2" : "white" }}
                 >
                   No
                 </button>
@@ -2173,7 +2174,7 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
                   marginTop: 8,
                   width: "100%",
                   borderRadius: 12,
-                  border: "1px solid rgba(0,0,0,0.12)",
+                  border: "1px solid #e5e5e5",
                   padding: "8px 10px",
                   fontSize: 13,
                   resize: "vertical",

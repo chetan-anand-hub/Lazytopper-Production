@@ -4,6 +4,7 @@ import {
   saveTopicMasterySnapshot,
   upsertNodeProgress,
 } from "../../services/topicHubMastery";
+import { TutorMessageRenderer } from "./TutorMessageRenderer";
 
 export interface ConceptContext {
   questionText?: string;
@@ -231,7 +232,7 @@ function extractTutorText(payload: Record<string, unknown>): string {
       if (parsed.checkpointQuestion) subParts.push(String(parsed.checkpointQuestion));
       if (subParts.length > 0) return subParts.filter(Boolean).join("\n\n");
     } catch { /* not JSON */ }
-    return (data.text as string).trim().slice(0, 1500);
+    return (data.text as string).trim();
   }
 
   if (typeof payload.message === "string" && (payload.message as string).trim())
@@ -244,113 +245,6 @@ function formatTopicName(topicKey: string): string {
   return topicKey
     .replace(/[-_]+/g, " ")
     .replace(/\b\w/g, (c) => c.toUpperCase());
-}
-
-function renderTutorContent(content: string) {
-  const lines = content.split("\n");
-  const elements: React.ReactNode[] = [];
-  let listItems: string[] = [];
-
-  const flushList = () => {
-    if (listItems.length > 0) {
-      elements.push(
-        <ul key={`list-${elements.length}`} style={{ paddingLeft: 20, margin: "8px 0" }}>
-          {listItems.map((item, i) => (
-            <li key={i} style={{ fontSize: 14, lineHeight: 1.8, color: "#333", marginBottom: 2 }}>
-              {renderInlineFormatting(item)}
-            </li>
-          ))}
-        </ul>
-      );
-      listItems = [];
-    }
-  };
-
-  for (const line of lines) {
-    const trimmed = line.trim();
-    if (!trimmed) {
-      flushList();
-      continue;
-    }
-
-    const bulletMatch = trimmed.match(/^[-*\u2022]\s+(.+)/);
-    const numberedMatch = trimmed.match(/^\d+[.)]\s+(.+)/);
-    if (bulletMatch) {
-      listItems.push(bulletMatch[1]);
-      continue;
-    }
-    if (numberedMatch) {
-      listItems.push(numberedMatch[1]);
-      continue;
-    }
-
-    flushList();
-
-    if (trimmed.startsWith("##")) {
-      elements.push(
-        <p key={`h-${elements.length}`} style={{ fontSize: 15, fontWeight: 700, color: "#1a1a2e", margin: "12px 0 4px" }}>
-          {trimmed.replace(/^#+\s*/, "")}
-        </p>
-      );
-    } else {
-      elements.push(
-        <p key={`p-${elements.length}`} style={{ fontSize: 14, lineHeight: 1.75, color: "#333", margin: "6px 0" }}>
-          {renderInlineFormatting(trimmed)}
-        </p>
-      );
-    }
-  }
-  flushList();
-  return <>{elements}</>;
-}
-
-function renderInlineFormatting(text: string): React.ReactNode {
-  const parts: React.ReactNode[] = [];
-  let remaining = text;
-  let key = 0;
-
-  while (remaining.length > 0) {
-    const boldMatch = remaining.match(/\*\*(.+?)\*\*/);
-    const codeMatch = remaining.match(/`([^`]+)`/);
-
-    let earliest = remaining.length;
-    let matchType: "bold" | "code" | null = null;
-    let match: RegExpMatchArray | null = null;
-
-    if (boldMatch && boldMatch.index !== undefined && boldMatch.index < earliest) {
-      earliest = boldMatch.index;
-      matchType = "bold";
-      match = boldMatch;
-    }
-    if (codeMatch && codeMatch.index !== undefined && codeMatch.index < earliest) {
-      earliest = codeMatch.index;
-      matchType = "code";
-      match = codeMatch;
-    }
-
-    if (!matchType || !match || match.index === undefined) {
-      parts.push(remaining);
-      break;
-    }
-
-    if (match.index > 0) {
-      parts.push(remaining.slice(0, match.index));
-    }
-
-    if (matchType === "bold") {
-      parts.push(<strong key={key++}>{match[1]}</strong>);
-    } else {
-      parts.push(
-        <code key={key++} style={{ background: "#f0f0f5", padding: "1px 5px", borderRadius: 4, fontSize: 13, fontFamily: "monospace" }}>
-          {match[1]}
-        </code>
-      );
-    }
-
-    remaining = remaining.slice(match.index + match[0].length);
-  }
-
-  return parts.length === 1 ? parts[0] : <>{parts}</>;
 }
 
 export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, conceptContext }: TeachFlowProps) {
@@ -716,8 +610,7 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
               ...(msg.role === "tutor" ? s.tutorBubble : s.studentBubble),
               ...(msg.isCheckpoint ? s.checkpointBubble : {}),
             }}>
-              {msg.isCheckpoint && <div style={s.checkpointLabel}>Think about this</div>}
-              {msg.role === "tutor" ? renderTutorContent(msg.content) : <p style={s.studentText}>{msg.content}</p>}
+              {msg.role === "tutor" ? <TutorMessageRenderer content={msg.content} isCheckpoint={msg.isCheckpoint} /> : <p style={s.studentText}>{msg.content}</p>}
             </div>
           </div>
         ))}
@@ -821,9 +714,10 @@ const s: Record<string, React.CSSProperties> = {
 
   introCard: { background: "white", borderRadius: 16, padding: "32px 24px", textAlign: "center", border: "1px solid #e5e7eb" },
   introAvatarLarge: {
-    width: 56, height: 56, borderRadius: "50%", background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)",
+    width: 56, height: 56, borderRadius: "50%", background: "#58cc02",
     color: "white", display: "flex", alignItems: "center", justifyContent: "center",
     fontSize: 20, fontWeight: 700, margin: "0 auto 16px", letterSpacing: 1,
+    boxShadow: "0 4px 0 #46a302",
   },
   introTitle: { fontSize: 22, fontWeight: 700, color: "#1a1a2e", margin: "0 0 8px" },
   introSub: { fontSize: 14, color: "#666", lineHeight: 1.6, maxWidth: 440, margin: "0 auto 20px" },
@@ -831,9 +725,9 @@ const s: Record<string, React.CSSProperties> = {
   introFeature: { display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "#555" },
   featureIcon: { fontSize: 16 },
   startBtn: {
-    background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)", color: "white", border: "none",
-    borderRadius: 10, padding: "12px 32px", fontSize: 15, fontWeight: 600, cursor: "pointer",
-    transition: "transform 0.2s, box-shadow 0.2s", boxShadow: "0 2px 8px rgba(28,176,246,0.2)",
+    background: "#58cc02", color: "white", border: "none",
+    borderRadius: 12, padding: "12px 32px", fontSize: 15, fontWeight: 700, cursor: "pointer",
+    transition: "transform 0.2s", boxShadow: "0 4px 0 #46a302",
   },
 
   chatHeader: {
@@ -843,9 +737,9 @@ const s: Record<string, React.CSSProperties> = {
   chatHeaderLeft: { display: "flex", alignItems: "center", gap: 10, marginBottom: 8 },
   headerAvatar: {
     width: 36, height: 36, borderRadius: "50%",
-    background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)", color: "white",
-    display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700,
-    letterSpacing: 0.5,
+    background: "#58cc02", color: "white",
+    display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 800,
+    letterSpacing: 0.5, boxShadow: "0 2px 0 #46a302",
   },
   headerTitle: { fontSize: 15, fontWeight: 600, color: "#1a1a2e" },
   headerSub: { fontSize: 12, color: "#888" },
@@ -853,7 +747,7 @@ const s: Record<string, React.CSSProperties> = {
     height: 4, background: "#e5e7eb", borderRadius: 2, overflow: "hidden",
   },
   progressFill: {
-    height: "100%", background: "linear-gradient(90deg, #6366f1, #8b5cf6)", borderRadius: 2,
+    height: "100%", background: "#58cc02", borderRadius: 2,
     transition: "width 0.4s ease",
   },
 
@@ -866,17 +760,18 @@ const s: Record<string, React.CSSProperties> = {
   studentBubbleWrap: { display: "flex", justifyContent: "flex-end", marginBottom: 14 },
   tutorAvatar: {
     width: 30, height: 30, borderRadius: "50%",
-    background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)", color: "white",
-    display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700,
-    flexShrink: 0, marginTop: 2, letterSpacing: 0.5,
+    background: "#58cc02", color: "white",
+    display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 800,
+    flexShrink: 0, marginTop: 2, letterSpacing: 0.5, boxShadow: "0 2px 0 #46a302",
   },
   tutorBubble: {
-    background: "white", borderRadius: "4px 14px 14px 14px", padding: "12px 16px",
-    maxWidth: "85%", border: "1px solid #e5e7eb", boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+    background: "white", borderRadius: "4px 16px 16px 16px", padding: "14px 18px",
+    maxWidth: "85%", border: "2px solid #e5e5e5", boxShadow: "0 2px 0 #e5e5e5",
   },
   studentBubble: {
-    background: "linear-gradient(135deg, #6366f1 0%, #818cf8 100%)", borderRadius: "14px 4px 14px 14px",
-    padding: "10px 16px", maxWidth: "75%", color: "white",
+    background: "#dbeafe", borderRadius: "16px 4px 16px 16px",
+    padding: "14px 18px", maxWidth: "75%", color: "#3c3c3c",
+    border: "2px solid #93c5fd", boxShadow: "0 2px 0 #93c5fd",
   },
   studentText: { fontSize: 14, lineHeight: 1.6, margin: 0, color: "inherit" },
   checkpointBubble: {
@@ -892,15 +787,15 @@ const s: Record<string, React.CSSProperties> = {
     border: "1px solid #e5e7eb", display: "flex", gap: 4, alignItems: "center",
   },
   dot1: {
-    width: 6, height: 6, borderRadius: "50%", background: "#8b5cf6",
+    width: 6, height: 6, borderRadius: "50%", background: "#58cc02",
     animation: "bounce 1.4s infinite", animationDelay: "0s",
   },
   dot2: {
-    width: 6, height: 6, borderRadius: "50%", background: "#8b5cf6",
+    width: 6, height: 6, borderRadius: "50%", background: "#58cc02",
     animation: "bounce 1.4s infinite", animationDelay: "0.2s",
   },
   dot3: {
-    width: 6, height: 6, borderRadius: "50%", background: "#8b5cf6",
+    width: 6, height: 6, borderRadius: "50%", background: "#58cc02",
     animation: "bounce 1.4s infinite", animationDelay: "0.4s",
   },
   typingLabel: {
@@ -928,8 +823,9 @@ const s: Record<string, React.CSSProperties> = {
     minHeight: 42, maxHeight: 120,
   },
   sendBtn: {
-    background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)", color: "white", border: "none",
-    borderRadius: 10, padding: "10px 20px", fontSize: 14, fontWeight: 600, cursor: "pointer", flexShrink: 0,
+    background: "#58cc02", color: "white", border: "none",
+    borderRadius: 12, padding: "10px 20px", fontSize: 14, fontWeight: 700, cursor: "pointer", flexShrink: 0,
+    boxShadow: "0 4px 0 #46a302",
   },
 
   skipLink: {
@@ -952,11 +848,12 @@ const s: Record<string, React.CSSProperties> = {
   completeSub: { fontSize: 14, color: "#666", lineHeight: 1.5, margin: "0 0 4px" },
   completedDate: { fontSize: 13, color: "#888", marginTop: 4 },
   primaryBtn: {
-    background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)", color: "white", border: "none",
-    borderRadius: 10, padding: "10px 24px", fontSize: 14, fontWeight: 600, cursor: "pointer",
+    background: "#58cc02", color: "white", border: "none",
+    borderRadius: 12, padding: "10px 24px", fontSize: 14, fontWeight: 700, cursor: "pointer",
+    boxShadow: "0 4px 0 #46a302",
   },
   secondaryBtn: {
-    background: "transparent", color: "#6366f1", border: "1px solid #6366f1", borderRadius: 10,
-    padding: "10px 24px", fontSize: 14, fontWeight: 600, cursor: "pointer",
+    background: "transparent", color: "#1cb0f6", border: "2px solid #1cb0f6", borderRadius: 12,
+    padding: "10px 24px", fontSize: 14, fontWeight: 700, cursor: "pointer",
   },
 };
