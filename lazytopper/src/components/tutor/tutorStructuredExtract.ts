@@ -106,6 +106,39 @@ export function extractStructuredSection(payload: AnyObj | null | undefined): St
   };
 }
 
+export function extractStepsBlock(text: string): { cleanText: string; stepsData: AnyObj | null } {
+  const regex = /```steps\s*\n([\s\S]*?)\n```/;
+  const match = text.match(regex);
+  if (!match) return { cleanText: text, stepsData: null };
+  try {
+    const parsed = JSON.parse(match[1].trim());
+    if (isObj(parsed) && Array.isArray(parsed.steps)) {
+      const cleanText = text.replace(regex, "").trim();
+      return { cleanText, stepsData: parsed };
+    }
+  } catch { /* invalid JSON */ }
+  return { cleanText: text, stepsData: null };
+}
+
+export function stepsDataToStructured(stepsData: AnyObj): import("./TutorMessageRenderer").StructuredSection {
+  const steps = Array.isArray(stepsData.steps)
+    ? (stepsData.steps as AnyObj[]).filter(isObj).map((s) => ({
+        text: safeStr(s.text),
+        marks: typeof s.marks === "number" ? s.marks : undefined,
+      }))
+    : [];
+  const example: import("./TutorMessageRenderer").StructuredExample = {
+    question: safeStr(stepsData.question),
+    steps,
+    totalMarks: typeof stepsData.totalMarks === "number" ? stepsData.totalMarks : undefined,
+    finalAnswer: safeStr(stepsData.finalAnswer),
+  };
+  return {
+    workedExamples: [example],
+    commonMistake: safeStr(stepsData.commonMistake) || undefined,
+  };
+}
+
 export function extractTutorText(payload: AnyObj | null | undefined): string {
   if (!payload) return "";
 

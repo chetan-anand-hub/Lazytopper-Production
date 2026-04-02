@@ -5,7 +5,7 @@ import {
   upsertNodeProgress,
 } from "../../services/topicHubMastery";
 import { TutorMessageRenderer } from "./TutorMessageRenderer";
-import { extractTutorText as sharedExtractTutorText, extractStructuredSection } from "./tutorStructuredExtract";
+import { extractTutorText as sharedExtractTutorText, extractStructuredSection, extractStepsBlock, stepsDataToStructured } from "./tutorStructuredExtract";
 
 export interface ConceptContext {
   questionText?: string;
@@ -334,7 +334,17 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
         tutorText = `Hey there! \u{1F44B} I'm Ravi Sir, and I'm excited to explore **${topicDisplayName}** with you today!\n\nLet me start with something you already know. Think about when you share a pizza equally among friends \u2014 that's actually math in action!\n\nReady to dive in? Tell me \u2014 what do you already know about ${topicDisplayName}?`;
       }
 
-      const structuredData = extractStructuredSection(payload);
+      let structuredData = extractStructuredSection(payload);
+
+      const { cleanText: cleanedStart, stepsData: startSteps } = extractStepsBlock(tutorText);
+      if (startSteps) {
+        tutorText = cleanedStart;
+        const startStructured = stepsDataToStructured(startSteps);
+        structuredData = structuredData
+          ? { ...structuredData, workedExamples: [...(structuredData.workedExamples || []), ...(startStructured.workedExamples || [])] }
+          : startStructured;
+      }
+
       const newMessages: ChatMessage[] = [
         { role: "tutor", content: tutorText, structured: structuredData },
       ];
@@ -394,7 +404,25 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
           : "Brilliant work today! You've covered the core concepts of this topic. Keep practicing and you'll ace this in the board exam! \u{1F4AA}";
       }
 
-      const responseStructured = extractStructuredSection(payload);
+      let responseStructured = extractStructuredSection(payload);
+
+      const { cleanText, stepsData } = extractStepsBlock(tutorText);
+      if (stepsData) {
+        tutorText = cleanText;
+        const stepsStructured = stepsDataToStructured(stepsData);
+        if (responseStructured) {
+          responseStructured.workedExamples = [
+            ...(responseStructured.workedExamples || []),
+            ...(stepsStructured.workedExamples || []),
+          ];
+          if (!responseStructured.commonMistake && stepsStructured.commonMistake) {
+            responseStructured.commonMistake = stepsStructured.commonMistake;
+          }
+        } else {
+          responseStructured = stepsStructured;
+        }
+      }
+
       const newTutorMessages: ChatMessage[] = [
         ...updatedMessages,
         { role: "tutor", content: tutorText, structured: responseStructured },
@@ -639,7 +667,7 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
 }
 
 const s: Record<string, React.CSSProperties> = {
-  container: { maxWidth: 680, margin: "0 auto", padding: "16px 16px 24px", display: "flex", flexDirection: "column" },
+  container: { maxWidth: 920, margin: "0 auto", padding: "16px 16px 24px", display: "flex", flexDirection: "column", width: "100%" },
 
   introCard: { background: "white", borderRadius: 16, padding: "32px 24px", textAlign: "center", border: "1px solid #e5e7eb" },
   introAvatarLarge: {
@@ -681,7 +709,7 @@ const s: Record<string, React.CSSProperties> = {
   },
 
   chatArea: {
-    background: "#f8f9fb", padding: "16px 12px", minHeight: 300, maxHeight: "60vh",
+    background: "#f8f9fb", padding: "16px 16px", minHeight: 300, maxHeight: "70vh",
     overflowY: "auto", borderLeft: "1px solid #e5e7eb", borderRight: "1px solid #e5e7eb",
   },
 
@@ -695,11 +723,11 @@ const s: Record<string, React.CSSProperties> = {
   },
   tutorBubble: {
     background: "white", borderRadius: "4px 16px 16px 16px", padding: "14px 18px",
-    maxWidth: "85%", border: "2px solid #e5e5e5", boxShadow: "0 2px 0 #e5e5e5",
+    maxWidth: "92%", border: "2px solid #e5e5e5", boxShadow: "0 2px 0 #e5e5e5",
   },
   studentBubble: {
     background: "#dbeafe", borderRadius: "16px 4px 16px 16px",
-    padding: "14px 18px", maxWidth: "75%", color: "#3c3c3c",
+    padding: "14px 18px", maxWidth: "85%", color: "#3c3c3c",
     border: "2px solid #93c5fd", boxShadow: "0 2px 0 #93c5fd",
   },
   studentText: { fontSize: 14, lineHeight: 1.6, margin: 0, color: "inherit" },

@@ -4304,6 +4304,8 @@ function buildConversationalTeachSystemPrompt(payload, isConceptTeach) {
 
   const conceptFocusName = conceptSubtopic || conceptConcept || topicName;
 
+  const isStepRequest = /step[- ]by[- ]step|show me the steps|stepwise|marking scheme/i.test(studentAttempt);
+
   let stepGuidance = '';
   if (isFirstStep && hasConceptContext) {
     const focusLines = [];
@@ -4384,6 +4386,18 @@ function buildConversationalTeachSystemPrompt(payload, isConceptTeach) {
     `Topic: ${focusLabel}`,
     `Subject: ${subject}, Grade: ${grade}`,
     `Step: ${stepIndex + 1}`,
+    ...(isStepRequest ? [
+      '',
+      'STEP-BY-STEP FORMAT INSTRUCTION:',
+      'The student wants a step-by-step solution with CBSE board marking scheme.',
+      'After your conversational explanation, you MUST append a structured block at the very end.',
+      'The block must start with ```steps on its own line, then valid JSON, then ``` on its own line.',
+      'JSON format: {"question":"<the question being solved>","steps":[{"text":"<step description>","marks":<number>},...],"totalMarks":<number>,"commonMistake":"<one common mistake>","finalAnswer":"<the final answer line>"}',
+      'Each step.marks should reflect CBSE marking (0.5, 1, 1.5, 2 etc). totalMarks = sum of all step marks.',
+      'Include 3-6 steps that match how CBSE examiners would award marks.',
+      'Example: {"question":"Find HCF of 225 and 135","steps":[{"text":"Apply Euclid division: 225 = 135 × 1 + 90","marks":1},{"text":"Continue: 135 = 90 × 1 + 45","marks":1},{"text":"Continue: 90 = 45 × 2 + 0","marks":1},{"text":"Since remainder = 0, HCF = 45","marks":1}],"totalMarks":4,"commonMistake":"Stopping before remainder becomes 0","finalAnswer":"HCF(225, 135) = 45"}',
+      'IMPORTANT: The ```steps block must be valid JSON. Put it at the very END of your response after the conversational text.',
+    ] : []),
   ].filter(Boolean).join('\n');
 }
 
