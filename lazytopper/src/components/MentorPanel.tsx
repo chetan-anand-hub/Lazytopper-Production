@@ -168,13 +168,13 @@ const CHAPTERS_BY_SUBJECT: Record<"Maths" | "Science", string[]> = {
  * accidentally mixed with plain text. We sanitize the display so students never see raw JSON.
  * This is UI-only hardening; backend can still be strict, but we defend here too.
  */
-function stripCodeFences(raw: string): string {
+function stripJsonCodeFences(raw: string): string {
   const t = String(raw || "");
-  return t.replace(/```[a-zA-Z0-9_-]*\n?/g, "").replace(/```/g, "").trim();
+  return t.replace(/```(?:json)?\s*\n(\s*\{[\s\S]*?\})\s*\n```/g, "$1").trim();
 }
 
 function extractAllJsonObjects(raw: string): Array<{ start: number; end: number; text: string }> {
-  const t = stripCodeFences(raw ?? "");
+  const t = stripJsonCodeFences(raw ?? "");
   const out: Array<{ start: number; end: number; text: string }> = [];
   const len = t.length;
 
@@ -367,7 +367,7 @@ function formatSolveWithMe(obj: unknown): string {
 }
 
 function sanitizeMentorOutput(raw: string): string {
-  const stripped = stripCodeFences(raw ?? "");
+  const stripped = stripJsonCodeFences(raw ?? "");
   const candidates = extractAllJsonObjects(stripped);
 
   // 1) Try to parse a protocol object (board_steps_ms / solve_with_me)

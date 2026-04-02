@@ -15,10 +15,20 @@ function isObj(v: unknown): v is AnyObj {
   return typeof v === "object" && v !== null && !Array.isArray(v);
 }
 
+function resolveStructured(payload: AnyObj): AnyObj {
+  if (isObj(payload.structured)) return payload.structured as AnyObj;
+  if (isObj(payload.data)) {
+    const data = payload.data as AnyObj;
+    if (isObj(data.structured)) return data.structured as AnyObj;
+    return data;
+  }
+  return payload;
+}
+
 export function extractStructuredSection(payload: AnyObj | null | undefined): StructuredSection | null {
   if (!payload) return null;
 
-  const structured = (payload.structured ?? payload.data ?? payload) as AnyObj;
+  const structured = resolveStructured(payload);
   const teach = isObj(structured.teach) ? structured.teach : structured;
 
   const goalLine =
