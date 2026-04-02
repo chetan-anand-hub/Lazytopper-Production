@@ -166,17 +166,52 @@ function buildSessionItems(req: StartSessionRequest): SessionItem[] {
       payload: item.payload,
     }));
   } catch {
-    return [{
-      id: `session-q-${Date.now()}`,
-      itemType: "practice_question" as const,
-      title: `Practice: ${subject} - ${topicKey.replace(/[-_]/g, " ")}`,
-      description: `Write a complete board-style answer for this ${subject} question.`,
-      payload: {
-        question: `Solve a board-style ${topicKey.replace(/[-_]/g, " ")} question. Show all steps with proper reasoning.`,
-        topic: topicKey,
-        subject,
+    const chapterLabel = topicKey.replace(/[-_]+/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase());
+    const questionDifficulty = vibe === "high" ? "Medium/Hard" : "Easy/Medium";
+    return [
+      {
+        id: `concept-${topicKey}-${Date.now()}`,
+        itemType: "concept_micro" as const,
+        title: `Concept: ${chapterLabel}`,
+        description: `Understand ${chapterLabel} with one quick explanation before practice.`,
+        payload: { topicKey, subject, mode: "concept" },
       },
-    }];
+      {
+        id: `q1-${topicKey}-${Date.now()}`,
+        itemType: "practice_question" as const,
+        title: `${questionDifficulty} Practice 1: ${chapterLabel}`,
+        description: `Solve a board-style ${chapterLabel} question. Show all steps.`,
+        payload: {
+          topic: chapterLabel,
+          topicKey,
+          subject,
+          stem: `Solve a board-style ${chapterLabel} question and write the final answer in exam format.`,
+          tier: "must-crack",
+          mode: "must-crack",
+        },
+      },
+      {
+        id: `q2-${topicKey}-${Date.now()}`,
+        itemType: "practice_question" as const,
+        title: `${questionDifficulty} Practice 2: ${chapterLabel}`,
+        description: `Another board-style ${chapterLabel} question.`,
+        payload: {
+          topic: chapterLabel,
+          topicKey,
+          subject,
+          stem: `Practice one more board-style ${chapterLabel} question.`,
+          tier: "must-crack",
+          mode: "must-crack",
+        },
+      },
+      {
+        id: `revision-${topicKey}-${Date.now()}`,
+        itemType: "revision_card" as const,
+        title: `Revision Card: ${chapterLabel}`,
+        description: `Revise key formulas, diagram labels, and exam patterns for ${chapterLabel}.`,
+        payload: { topicKey, subject, mode: "revision" },
+      },
+    ];
   }
 }
 

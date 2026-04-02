@@ -82,7 +82,9 @@ Unified the student learning loop:
 - **Daily Mix unified**: Removed duplicate `computeDailyMix()` from planStorage.ts. Dashboard and all surfaces now use `generateDailyMix` from `dailyMixGenerator.ts` — single code path for daily mix content generation
 - **Session continuity real**: Replaced placeholder session items ("Placeholder Question") in sessionApi.ts and sessionStore.cjs with real content from the daily mix generator. Sessions now store actual questions, concepts, and revision items
 - **Local-first sessions**: Client-side localStorage is the primary session store (always works offline). Firestore sync happens in the background for cross-device continuity — no more blocking on Firebase auth
-- **Adaptive Dashboard hero**: Dashboard shows ONE clear adaptive hero card at the top based on priority: daily mix not done → weakest topic needs practice → streak maintenance. Secondary actions shown below
+- **Adaptive Dashboard hero**: Dashboard shows ONE adaptive hero card with priority: incomplete session resume → daily mix not done → weakest topic → streak. Secondary actions shown below
+- **Unified DailyMixPage**: DailyMixPage now includes concept + revision items (not just questions), matching the same `generateDailyMix` contract as Dashboard. Concept/revision items show "Got it" button instead of textarea
+- **Collapsed server sessions**: `sessionStore.cjs` attempts to use `generateDailyMix` first, falls back to aligned multi-item structure (concept → questions → revision) matching the client contract. `sessionApi.ts` fallback also generates full multi-item sessions instead of a single synthetic question
 - **Context-aware Command Palette**: All command palette routes (Ctrl/Cmd+K) now use the current grade/subject from the URL or last-visited context (persisted in localStorage) instead of hardcoded "10/Maths". BottomNav also uses dynamic context
 - Files: `planStorage.ts`, `Dashboard.tsx`, `sessionApi.ts`, `sessionStore.cjs`, `App.tsx`
 

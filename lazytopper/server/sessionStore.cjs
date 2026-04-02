@@ -15,17 +15,40 @@ function createSessionId() {
 }
 
 function buildSessionItems(input) {
-  const kind = String(input.kind || "daily_mix").trim();
   const chapterId = String(input.chapterId || "").trim();
   const topicKey = chapterId.replace(/^\d+-\w+-/, "") || "triangles";
   const chapterLabel = topicKey.replace(/[-_]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
   const vibe = String(input.vibe || "high").toLowerCase() === "low" ? "low" : "high";
-  const hardMode = vibe === "high";
-  const questionDifficulty = hardMode ? "Medium/Hard" : "Easy/Medium";
   const subjectId = toSubjectId(input.subjectId);
   const subject = subjectId === "science" ? "Science" : "Maths";
 
-  const items = [
+  try {
+    const { generateDailyMix } = require("../lazytopper/src/services/dailyMixGenerator");
+    const mixItems = generateDailyMix({
+      grade: 10,
+      subject,
+      topic: topicKey,
+      seedKey: `session-${Date.now()}`,
+      count: 6,
+      intensity: vibe === "high" ? "hard" : "normal",
+    });
+    return mixItems.map((item) => ({
+      id: item.id,
+      itemType: item.type === "question" ? "practice_question" : item.type === "video" ? "concept_micro" : "revision_card",
+      title: item.title,
+      description: item.description,
+      payload: item.payload,
+    }));
+  } catch {
+    return buildFallbackSessionItems(topicKey, chapterLabel, chapterId, subject, vibe);
+  }
+}
+
+function buildFallbackSessionItems(topicKey, chapterLabel, chapterId, subject, vibe) {
+  const hardMode = vibe === "high";
+  const questionDifficulty = hardMode ? "Medium/Hard" : "Easy/Medium";
+
+  return [
     {
       id: `concept-${topicKey}`,
       itemType: "concept_micro",
@@ -71,8 +94,8 @@ function buildSessionItems(input) {
         topicKey,
         subject,
         stem: `Complete one final ${chapterLabel} practice question.`,
-        tier: kind === "hpq" ? "must-crack" : "high-roi",
-        mode: kind === "hpq" ? "must-crack" : "practice",
+        tier: "must-crack",
+        mode: "practice",
       },
     },
     {
@@ -83,8 +106,6 @@ function buildSessionItems(input) {
       payload: { chapterId, topicKey, subject, mode: "revision" },
     },
   ];
-
-  return items;
 }
 
 function createSession(input) {

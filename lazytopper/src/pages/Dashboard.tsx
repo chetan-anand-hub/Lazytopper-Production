@@ -329,8 +329,42 @@ export default function Dashboard() {
     } catch { return false; }
   }, [subjectForQuickActions]);
 
+  const incompleteSession = useMemo<{ sessionId: string; kind: string; subject: string; cursor: number; total: number } | null>(() => {
+    try {
+      const raw = localStorage.getItem("lazytopper.session.local.v1");
+      if (!raw) return null;
+      const sessions = JSON.parse(raw) as Record<string, { sessionId?: string; kind?: string; subjectId?: string; completed?: boolean; cursor?: number; items?: unknown[] }>;
+      if (!sessions || typeof sessions !== "object") return null;
+      for (const [sid, s] of Object.entries(sessions)) {
+        if (!s || s.completed) continue;
+        const items = Array.isArray(s.items) ? s.items : [];
+        const cursor = Number(s.cursor || 0);
+        if (cursor > 0 && cursor < items.length) {
+          return {
+            sessionId: sid,
+            kind: String(s.kind || "daily_mix"),
+            subject: String(s.subjectId || "maths") === "science" ? "Science" : "Maths",
+            cursor,
+            total: items.length,
+          };
+        }
+      }
+    } catch {}
+    return null;
+  }, []);
+
   type HeroAction = { type: string; title: string; description: string; ctaLabel: string; onAction: () => void };
   const heroAction = useMemo<HeroAction>(() => {
+    if (incompleteSession) {
+      const kindLabel = incompleteSession.kind === "daily_mix" ? "Daily Mix" : incompleteSession.kind === "hpq" ? "HPQ" : "Study Session";
+      return {
+        type: "resume_session",
+        title: `Continue Your ${kindLabel}`,
+        description: `You have an incomplete ${kindLabel} (${incompleteSession.cursor}/${incompleteSession.total} items done). Pick up where you left off!`,
+        ctaLabel: `Resume ${kindLabel}`,
+        onAction: () => navigate(`/daily-mix/${gradeNum}/${incompleteSession.subject}`),
+      };
+    }
     if (!dailyMixDoneToday) {
       return {
         type: "daily_mix",
@@ -366,7 +400,7 @@ export default function Dashboard() {
       ctaLabel: "Start Daily Mix",
       onAction: () => navigate(`/daily-mix/${gradeNum}/${subjectForQuickActions}`),
     };
-  }, [dailyMixDoneToday, dailyMixMinutes, dailyMixPreview, performanceRows, streak, gradeNum, subjectForQuickActions, navigate]);
+  }, [incompleteSession, dailyMixDoneToday, dailyMixMinutes, dailyMixPreview, performanceRows, streak, gradeNum, subjectForQuickActions, navigate]);
 
   const handleGeneratePlanner = () => {
     if (!targetPercentValue || !hoursPerDayValue || !daysLeftValue) {

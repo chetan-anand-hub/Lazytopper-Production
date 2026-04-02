@@ -188,14 +188,13 @@ export default function DailyMixPage() {
           subject: safeSubject,
           topic: tk,
           seedKey: todayKey(),
-          count: 3,
+          count: 4,
           intensity: "normal",
         };
         const topicItems = generateDailyMix(ctx);
-        const questionItems = topicItems.filter((it) => it.type === "question");
-        allItems.push(...questionItems.slice(0, 2));
+        allItems.push(...topicItems);
       }
-      const finalItems = allItems.slice(0, 7);
+      const finalItems = allItems.slice(0, 10);
       setItems(finalItems);
       setQuestionStates(
         finalItems.map(() => ({
@@ -350,12 +349,32 @@ export default function DailyMixPage() {
 
   const currentItem = playback.current;
   const qs = questionStates[playback.currentIndex];
+  const isQuestionItem = currentItem?.type === "question";
   const itemTitle = currentItem?.title ?? "Question";
   const itemStem = String(currentItem?.payload?.stem || currentItem?.description || "");
   const itemTopic = String(currentItem?.payload?.topic || "");
-  const itemDifficulty = String(currentItem?.description || "").split("|")[0]?.trim() || "Medium";
-  const itemMarks = Number(currentItem?.description?.match(/(\d+)\s*mark/)?.[1]) || 2;
-  const itemExpectedMins = itemMarks <= 1 ? 1 : itemMarks <= 3 ? 2 : 4;
+  const itemDifficulty = isQuestionItem ? (String(currentItem?.description || "").split("|")[0]?.trim() || "Medium") : "";
+  const itemMarks = isQuestionItem ? (Number(currentItem?.description?.match(/(\d+)\s*mark/)?.[1]) || 2) : 0;
+  const itemExpectedMins = isQuestionItem ? (itemMarks <= 1 ? 1 : itemMarks <= 3 ? 2 : 4) : 1;
+  const itemTypeLabel = currentItem?.type === "video" ? "Concept" : currentItem?.type === "revision" ? "Revision" : "Practice";
+
+  const handleMarkRead = useCallback(
+    (idx: number) => {
+      updateState(idx, {
+        submitted: true,
+        studentAnswer: "(read)",
+        feedback: "Great! You reviewed this content.",
+        correct: true,
+        feedbackLoading: false,
+      });
+
+      const newAnswered = questionStates.filter((s, i) => i === idx || s.submitted).length;
+      if (newAnswered >= items.length && !completed) {
+        handleMixComplete();
+      }
+    },
+    [questionStates, items, updateState, completed, handleMixComplete]
+  );
 
   return (
     <div className="lt-page" style={{ maxWidth: 680, margin: "0 auto", padding: "24px 16px" }}>
@@ -457,11 +476,12 @@ export default function DailyMixPage() {
           <span
             style={{
               fontSize: 11, fontWeight: 800, padding: "2px 10px", borderRadius: 999,
-              background: difficultyColors[itemDifficulty] || "#94a3b8", color: "#fff",
+              background: isQuestionItem ? (difficultyColors[itemDifficulty] || "#94a3b8") : (currentItem?.type === "video" ? "#8b5cf6" : "#0ea5e9"),
+              color: "#fff",
               textTransform: "uppercase", letterSpacing: 0.5,
             }}
           >
-            {itemDifficulty}
+            {isQuestionItem ? itemDifficulty : itemTypeLabel}
           </span>
           {itemTopic && (
             <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 10px", borderRadius: 999, border: "1px solid #e2e8f0", color: "#475569" }}>
@@ -469,14 +489,14 @@ export default function DailyMixPage() {
             </span>
           )}
           <span style={{ fontSize: 11, opacity: 0.6 }}>
-            {itemMarks} mark{itemMarks !== 1 ? "s" : ""} • ~{itemExpectedMins} min • Item {playback.currentIndex + 1}/{items.length}
+            {isQuestionItem ? `${itemMarks} mark${itemMarks !== 1 ? "s" : ""} • ` : ""}~{itemExpectedMins} min • Item {playback.currentIndex + 1}/{items.length}
           </span>
         </div>
 
         <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 6 }}>{itemTitle}</div>
         {itemStem && <div style={{ fontSize: 15, lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{itemStem}</div>}
 
-        {!qs?.submitted ? (
+        {!qs?.submitted && isQuestionItem ? (
           <div style={{ marginTop: 16 }}>
             <textarea
               ref={inputRef}
@@ -518,6 +538,19 @@ export default function DailyMixPage() {
               </button>
             </div>
           </div>
+        ) : !qs?.submitted && !isQuestionItem ? (
+          <div style={{ marginTop: 16 }}>
+            <button
+              type="button"
+              onClick={() => handleMarkRead(playback.currentIndex)}
+              style={{
+                padding: "10px 24px", background: "#22c55e", color: "#fff",
+                border: "none", borderRadius: 10, fontWeight: 700, fontSize: 14, cursor: "pointer",
+              }}
+            >
+              Got it — Next
+            </button>
+          </div>
         ) : (
           <div
             style={{
@@ -534,9 +567,9 @@ export default function DailyMixPage() {
             ) : (
               <>
                 <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 6, color: "#475569" }}>
-                  {qs.correct === true ? "✅ Correct!" : qs.correct === false ? "❌ Needs improvement" : "📝 Feedback"}
+                  {qs.studentAnswer === "(read)" ? "✅ Reviewed" : qs.correct === true ? "✅ Correct!" : qs.correct === false ? "❌ Needs improvement" : "📝 Feedback"}
                 </div>
-                {qs.studentAnswer !== "(skipped)" && (
+                {qs.studentAnswer !== "(skipped)" && qs.studentAnswer !== "(read)" && (
                   <div style={{ fontSize: 13, opacity: 0.7, marginBottom: 8 }}>
                     Your answer: <em>{qs.studentAnswer}</em>
                   </div>
