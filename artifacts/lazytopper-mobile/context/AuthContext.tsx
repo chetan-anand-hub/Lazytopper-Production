@@ -232,6 +232,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isGuest: false,
     };
     await persistUser(phoneUser);
+
+    if (authClient) {
+      try {
+        await authClient.updateCurrentUser(authClient.currentUser);
+      } catch (_e) {
+        // no-op
+      }
+    }
   };
 
   const handleSignOut = async () => {
