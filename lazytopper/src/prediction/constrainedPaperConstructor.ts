@@ -166,7 +166,13 @@ function repairForConstraints(args: {
 }
 
 function norm(raw: string): string {
-  return raw.trim().toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/\s+/g, " ").trim();
+  return raw
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function fuzzyMatchPaper(a: string, b: string): boolean {

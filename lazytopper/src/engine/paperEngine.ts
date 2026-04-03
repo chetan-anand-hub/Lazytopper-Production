@@ -252,15 +252,28 @@ export function generatePaper(paperId: string): GeneratedPaper {
   });
 
   const constrainedRows = constrained.selected;
+  const missingGuaranteed = constrained.diagnostics.guaranteedArchetypes
+    .filter((g: { included: boolean; reason: string }) => !g.included)
+    .filter((g: { reason: string }) => g.reason !== "no matching candidate in question bank");
+
+  if (missingGuaranteed.length > 0) {
+    console.error(
+      `[PaperEngine] HARD FAIL: ${missingGuaranteed.length} guaranteed archetype(s) missing for ${paperId}:`,
+      missingGuaranteed.map((g: { topic: string; subtopic: string; reason: string }) => `${g.topic}/${g.subtopic} (${g.reason})`)
+    );
+    throw new Error(
+      `Guaranteed archetype enforcement failed for ${subject}: ` +
+      missingGuaranteed.map((g: { topic: string; subtopic: string }) => `${g.topic}/${g.subtopic}`).join(", ") +
+      ". Paper generation aborted."
+    );
+  }
+
   if (!constrained.diagnostics.constraintsSatisfied && constrainedRows.length > 0) {
     console.warn(
-      `[PaperEngine] Constraints not fully satisfied for ${paperId}:`,
+      `[PaperEngine] Soft constraints not fully satisfied for ${paperId}:`,
       `guaranteed=${constrained.diagnostics.guaranteedAllIncluded}`,
       `focused=${(constrained.diagnostics.competencyFocusedShare * 100).toFixed(0)}%`,
-      `case=${constrained.diagnostics.caseBasedCount}`,
-      constrained.diagnostics.guaranteedArchetypes
-        .filter((g: { included: boolean }) => !g.included)
-        .map((g: { topic: string; subtopic: string; reason: string }) => `MISSING: ${g.topic}/${g.subtopic} (${g.reason})`)
+      `case=${constrained.diagnostics.caseBasedCount}`
     );
   }
   if (constrainedRows.length > 0) {
