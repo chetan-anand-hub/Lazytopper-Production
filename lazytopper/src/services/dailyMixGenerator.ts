@@ -266,20 +266,8 @@ export function generateMultiTopicDailyMix(opts: {
   intensity?: DailyMixIntensity;
 }): DailyMixItem[] {
   const { grade, subject, seedKey, topicCount = 3, itemsPerTopic = 4, maxItems = 10, intensity = "normal" } = opts;
-  const topicKeys = pickWeightedTopics(subject, topicCount, seedKey);
-  const allItems: DailyMixItem[] = [];
-  for (const tk of topicKeys) {
-    const topicItems = generateDailyMix({
-      grade,
-      subject,
-      topic: tk,
-      seedKey,
-      count: itemsPerTopic,
-      intensity,
-    });
-    allItems.push(...topicItems);
-  }
 
+  const srItems: DailyMixItem[] = [];
   try {
     const dueReviews = getSRDueReviews({ subject, limit: 5 });
     if (dueReviews && dueReviews.length > 0) {
@@ -296,10 +284,28 @@ export function generateMultiTopicDailyMix(opts: {
         for (const item of reviewItems) {
           (item as DailyMixItem & { isReview?: boolean }).isReview = true;
         }
-        allItems.push(...reviewItems);
+        srItems.push(...reviewItems);
       }
     }
   } catch {}
 
-  return allItems.slice(0, maxItems);
+  const reservedSRSlots = srItems.length;
+  const remainingSlots = Math.max(0, maxItems - reservedSRSlots);
+
+  const topicKeys = pickWeightedTopics(subject, topicCount, seedKey);
+  const topicItems: DailyMixItem[] = [];
+  for (const tk of topicKeys) {
+    const items = generateDailyMix({
+      grade,
+      subject,
+      topic: tk,
+      seedKey,
+      count: itemsPerTopic,
+      intensity,
+    });
+    topicItems.push(...items);
+  }
+
+  const combined = [...srItems, ...topicItems.slice(0, remainingSlots)];
+  return combined.slice(0, maxItems);
 }

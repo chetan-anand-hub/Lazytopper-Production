@@ -147,12 +147,33 @@ function WeeklyChart({ data }: { data: { week: string; accuracy: number; count: 
   );
 }
 
+function parseShareParams(): { shareToken: string | null; studentName: string | null; sharedUid: string | null } {
+  const params = new URLSearchParams(window.location.search);
+  const shareToken = params.get("share");
+  const studentName = params.get("student");
+  let sharedUid: string | null = null;
+  if (shareToken) {
+    try {
+      const decoded = atob(shareToken);
+      const parts = decoded.split(":");
+      if (parts[0] === "lt" && parts[1]) {
+        sharedUid = parts[1];
+      }
+    } catch {}
+  }
+  return { shareToken, studentName, sharedUid };
+}
+
 export default function ParentDashboardPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { statsByChapter } = useSmartLearning();
   const [subjectTab, setSubjectTab] = useState<"Maths" | "Science">("Maths");
   const [shareLink, setShareLink] = useState("");
+
+  const { studentName: sharedStudentName, sharedUid } = parseShareParams();
+  const isSharedView = !!sharedUid;
+  const displayName = isSharedView ? (sharedStudentName || "Student") : (user?.displayName || "Student");
 
   const weakSummary = useMemo<WeakAreaSummary>(() => getWeakAreas({ limit: 10 }), []);
   const mockScores = useMemo(() => getLatestMockScores(10), []);
@@ -229,7 +250,7 @@ export default function ParentDashboardPage() {
         <div>
           <h2 style={{ fontWeight: 900, fontSize: 22, margin: 0 }}>Progress Report</h2>
           <p style={{ color: "#888", fontSize: 13, margin: "4px 0 0" }}>
-            {user?.displayName || "Student"} - Class 10
+            {displayName} - Class 10
           </p>
         </div>
         <div style={{ display: "flex", gap: 6 }}>

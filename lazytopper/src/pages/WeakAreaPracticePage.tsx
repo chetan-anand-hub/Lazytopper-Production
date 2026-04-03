@@ -321,6 +321,14 @@ export default function WeakAreaPracticePage() {
     navigate(`/practice/10/${area.subject}?topic=${encodeURIComponent(area.topicKey)}&count=12&difficulty=${diff}&weakMode=1`);
   };
 
+  const handleStartTargetedSession = () => {
+    if (!summary || summary.weakAreas.length === 0) return;
+    const topWeak = summary.weakAreas.slice(0, 3);
+    const topicParams = topWeak.map((w) => w.topicKey).join(",");
+    const subject = topWeak[0].subject;
+    navigate(`/practice/10/${subject}?topics=${encodeURIComponent(topicParams)}&count=12&difficulty=Easy&weakMode=1&scaffold=1`);
+  };
+
   const handleGeneratePath = async () => {
     setIsGenerating(true);
     const subj = subjectFilter === "All" ? undefined : subjectFilter;
@@ -476,9 +484,29 @@ export default function WeakAreaPracticePage() {
               </p>
             </div>
           ) : (
-            summary.weakAreas.map((area) => (
-              <WeakAreaCard key={area.topicKey} area={area} onPractice={handlePractice} />
-            ))
+            <>
+              <button
+                onClick={handleStartTargetedSession}
+                style={{
+                  width: "100%",
+                  padding: "14px 0",
+                  borderRadius: 14,
+                  border: "none",
+                  background: "linear-gradient(135deg, #ff9600, #ef4444)",
+                  color: "#fff",
+                  fontWeight: 800,
+                  fontSize: 15,
+                  cursor: "pointer",
+                  marginBottom: 16,
+                  boxShadow: "0 4px 12px rgba(255,150,0,0.3)",
+                }}
+              >
+                Start Targeted Session ({Math.min(3, summary.weakAreas.length)} weak topics, Easy → Hard)
+              </button>
+              {summary.weakAreas.map((area) => (
+                <WeakAreaCard key={area.topicKey} area={area} onPractice={handlePractice} />
+              ))}
+            </>
           )}
 
           {summary && summary.weakAreas.length > 0 && (
