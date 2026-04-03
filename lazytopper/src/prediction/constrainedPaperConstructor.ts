@@ -110,8 +110,9 @@ function repairForConstraints(args: {
   initial: ConstrainedPaperCandidate[];
   allCandidates: ConstrainedPaperCandidate[];
   blueprint: ConstrainedBlueprint;
+  subject: "Maths" | "Science";
 }): ConstrainedPaperCandidate[] {
-  const { initial, allCandidates, blueprint } = args;
+  const { initial, allCandidates, blueprint, subject } = args;
   const out = [...initial];
 
   const focusedMinShare = blueprint.competencyFocusedMinShare ?? 0.5;
@@ -123,7 +124,6 @@ function repairForConstraints(args: {
     String(q.format || "").toLowerCase().includes("case")
   ).length;
 
-  // swap-in better competency/case questions section-wise (marks preserved).
   for (const section of SECTION_ORDER) {
     if (focusedCount / totalCount >= focusedMinShare && caseCount >= caseMinCount) {
       break;
@@ -142,6 +142,7 @@ function repairForConstraints(args: {
       const replaceIdx = out.findIndex((q) => {
         if (q.section !== section) return false;
         if (q.marks !== candidate.marks) return false;
+        if (isGuaranteedArchetype(subject, q.topicKey, q.subtopic) !== null) return false;
         const qFocused = isCompetencyFocused(q);
         const qCase = String(q.format || "").toLowerCase().includes("case");
         return (!qFocused || !qCase) && q.score <= candidate.score;
@@ -287,6 +288,25 @@ export function buildConstrainedPaper(args: {
     initial: guaranteedEnforcement.result,
     allCandidates: candidates,
     blueprint,
+    subject,
+  });
+
+  const guaranteedList = getGuaranteedArchetypes(subject);
+  const finalDiagnostics: GuaranteedArchetypeDiagnostic[] = guaranteedList.map(arch => {
+    const present = repaired.some(
+      q => fuzzyMatchPaper(q.topicKey, arch.topic) && fuzzyMatchPaper(q.subtopic, arch.subtopic)
+    );
+    const preDiag = guaranteedEnforcement.diagnostics.find(
+      d => d.topic === arch.topic && d.subtopic === arch.subtopic
+    );
+    return {
+      topic: arch.topic,
+      subtopic: arch.subtopic,
+      included: present,
+      reason: present
+        ? (preDiag?.reason || "present in final output")
+        : "removed during constraint repair or not available",
+    };
   });
 
   const finalBySection: Record<PaperSection, ConstrainedPaperCandidate[]> = {
@@ -304,7 +324,7 @@ export function buildConstrainedPaper(args: {
   ).length;
   const competencyFocusedShare =
     repaired.length > 0 ? focusedCount / repaired.length : 0;
-  const guaranteedAllIncluded = guaranteedEnforcement.diagnostics.every(d => d.included);
+  const guaranteedAllIncluded = finalDiagnostics.every(d => d.included);
   const constraintsSatisfied =
     competencyFocusedShare >= (blueprint.competencyFocusedMinShare ?? 0.5) &&
     caseBasedCount >= (blueprint.caseBasedMinCount ?? 3) &&
@@ -319,7 +339,7 @@ export function buildConstrainedPaper(args: {
       caseBasedCount,
       objectiveScore: objectiveValue(repaired),
       constraintsSatisfied,
-      guaranteedArchetypes: guaranteedEnforcement.diagnostics,
+      guaranteedArchetypes: finalDiagnostics,
       guaranteedAllIncluded,
     },
   };
