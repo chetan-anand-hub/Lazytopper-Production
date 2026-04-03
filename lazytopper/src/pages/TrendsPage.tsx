@@ -10,7 +10,6 @@ import {
 import { class10TopicByName } from "../data/class10MathTopicWeights";
 import {
   class10ScienceTopicTrends,
-  type Class10ScienceTopicKey,
   type Class10ScienceTrendsRoot,
   type ScienceTopicTrend,
 } from "../data/class10ScienceTopicTrends";

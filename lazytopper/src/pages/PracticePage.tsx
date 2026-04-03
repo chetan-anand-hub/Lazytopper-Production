@@ -1033,15 +1033,16 @@ const packTopicKey = useMemo(() => {
           setPracticeSolutionError({});
           setSessionTracker(createSessionTracker(canonicalTopicKey || topicParam));
         }
-      } catch (e: any) {
-        console.error("Error generating practice questions:", e);
+      } catch (err) {
+        const errMsg = err instanceof Error ? err.message : "";
+        console.error("Error generating practice questions:", err);
         if (!cancelled) {
           setQuestions([]);
           setPracticeSolutionData({});
           setPracticeSolutionLoading({});
           setPracticeSolutionError({});
           setError(
-            e?.message === "__timeout__"
+            errMsg === "__timeout__"
               ? "Loading took too long. Please try again or pick a different topic."
               : "Could not generate practice questions right now. Please try again."
           );
@@ -1823,20 +1824,21 @@ const packTopicKey = useMemo(() => {
                       <MathText text={q.questionText} />
                     </p>
 
-                    {Array.isArray((q as any).options) && (q as any).options.length > 0 && (() => {
-                      const opts = (q as any).options as string[];
+                    {Array.isArray(q.options) && q.options.length > 0 && (() => {
+                      const opts = q.options;
                       const qId = String(q.id);
                       const selected = mcqSelections[qId];
                       const result = mcqResults[qId];
                       const correctIdx = (() => {
-                        const co = (q as any).correctOption;
+                        const co = (q as PracticeQuestion & { correctOption?: string }).correctOption;
                         if (co && typeof co === "string" && co.length === 1) {
                           return co.charCodeAt(0) - 65;
                         }
                         if (q.answer) {
-                          const ai = opts.findIndex(o => o.trim().toLowerCase() === q.answer!.trim().toLowerCase());
+                          const ansLower = q.answer.trim().toLowerCase();
+                          const ai = opts.findIndex(o => o.trim().toLowerCase() === ansLower);
                           if (ai >= 0) return ai;
-                          const pi = opts.findIndex(o => q.answer!.trim().toLowerCase().includes(o.trim().toLowerCase()) || o.trim().toLowerCase().includes(q.answer!.trim().toLowerCase()));
+                          const pi = opts.findIndex(o => ansLower.includes(o.trim().toLowerCase()) || o.trim().toLowerCase().includes(ansLower));
                           if (pi >= 0) return pi;
                         }
                         return -1;
@@ -2741,8 +2743,8 @@ function MentorSolveDrawer(props: {
         ...prev,
         { role: "assistant", content: reply.text || "...", structured: reply.structured },
       ]);
-    } catch (e: any) {
-      setErrorText(e?.message || "Failed to load mentor response.");
+    } catch (err) {
+      setErrorText(err instanceof Error ? err.message : "Failed to load mentor response.");
     } finally {
       setLoading(false);
     }
@@ -2788,8 +2790,8 @@ function MentorSolveDrawer(props: {
         ...prev,
         { role: "assistant", content: reply.text || "...", structured: reply.structured },
       ]);
-    } catch (e: any) {
-      nextError = e?.message || "Failed to send.";
+    } catch (err) {
+      nextError = err instanceof Error ? err.message : "Failed to send.";
       setErrorText(nextError);
     } finally {
       if (imageForRequest) clearAttachedImage(nextError);

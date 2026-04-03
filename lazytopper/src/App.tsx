@@ -380,7 +380,27 @@ export default function App() {
             >
               {(user.displayName || user.email || "S").charAt(0).toUpperCase()}
             </button>
-          ) : null}
+          ) : (
+            <button
+              type="button"
+              onClick={() => navigate("/login")}
+              style={{
+                border: "2px solid #e5e5e5",
+                borderBottom: "3px solid #e5e5e5",
+                borderRadius: 12,
+                background: "#fff",
+                color: "#3c3c3c",
+                fontWeight: 800,
+                fontSize: "0.78rem",
+                padding: "6px 14px",
+                cursor: "pointer",
+                textTransform: "uppercase",
+                letterSpacing: "0.3px",
+              }}
+            >
+              Log in
+            </button>
+          )}
         </div>
       </div>
       {/* Command palette overlay */}

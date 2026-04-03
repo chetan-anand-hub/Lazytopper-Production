@@ -307,6 +307,15 @@ function OverviewTab({ milestones, subjectTab, setSubjectTab }: {
       </div>
 
       <h3 style={{ fontWeight: 800, fontSize: 16, marginBottom: 12 }}>Chapter Mastery</h3>
+      {topics.every((tk) => getTopicMasteryPercent(tk) === 0) ? (
+        <div style={{ textAlign: "center", padding: "24px 16px", background: "#f9fafb", borderRadius: 14, border: "1px solid #eee", marginBottom: 16 }}>
+          <div style={{ fontSize: "2rem", marginBottom: 8 }}>🌱</div>
+          <p style={{ fontWeight: 700, fontSize: "0.95rem", margin: "0 0 4px" }}>No mastery data yet</p>
+          <p style={{ fontSize: "0.82rem", color: "#888", margin: 0, lineHeight: 1.5 }}>
+            Practice any chapter to start filling in your mastery grid. Every question counts!
+          </p>
+        </div>
+      ) : null}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))", gap: 12 }}>
         {topics.map((tk) => {
           const pct = getTopicMasteryPercent(tk);
@@ -425,6 +434,31 @@ function StatsTab({ badgeCtx, statsByChapter }: { badgeCtx: BadgeContext; statsB
     if (m === 0 && s === 0) return "N/A";
     return m >= s ? "Maths" : "Science";
   })();
+
+  if (badgeCtx.totalQuestions === 0) {
+    return (
+      <div style={{ textAlign: "center", padding: "32px 16px" }}>
+        <div style={{ fontSize: "2.5rem", marginBottom: 12 }}>📊</div>
+        <h3 style={{ fontSize: "1.1rem", fontWeight: 800, marginBottom: 6 }}>
+          Your stats will appear here
+        </h3>
+        <p style={{ fontSize: "0.88rem", color: "#777", marginBottom: 16, lineHeight: 1.5 }}>
+          Start practicing any topic to see your accuracy, streak, mastery progress, and badges.
+        </p>
+        <button
+          type="button"
+          onClick={() => window.location.assign("/trends/10/Maths")}
+          style={{
+            padding: "10px 24px", borderRadius: 12,
+            background: "#58cc02", border: "none", borderBottom: "3px solid #46a302",
+            color: "#fff", fontWeight: 800, fontSize: "0.88rem", cursor: "pointer",
+          }}
+        >
+          Start Practicing
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div>

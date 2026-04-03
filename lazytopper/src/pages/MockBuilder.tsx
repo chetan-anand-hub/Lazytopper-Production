@@ -591,9 +591,11 @@ const MockBuilder: React.FC = () => {
           }}
         >
           {totalQuestions} questions · {totalMarks} marks{" "}
-          <span style={{ fontWeight: 400 }}>
-            (target vibe: {targetMarks} marks)
-          </span>
+          {totalMarks > targetMarks && (
+            <span style={{ fontWeight: 400 }}>
+              (includes internal choice extras — CBSE target: {targetMarks} marks)
+            </span>
+          )}
         </div>
         <p
           style={{

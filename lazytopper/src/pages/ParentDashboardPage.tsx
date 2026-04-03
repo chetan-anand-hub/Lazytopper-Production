@@ -376,6 +376,16 @@ export default function ParentDashboardPage() {
         </div>
       </div>
 
+      {overallStats.totalQuestions === 0 && !isSharedView && (
+        <div style={{ textAlign: "center", padding: "28px 16px", marginBottom: 20, background: "#f9fafb", borderRadius: 14, border: "1px solid #eee" }}>
+          <div style={{ fontSize: "2rem", marginBottom: 8 }}>📈</div>
+          <h3 style={{ fontWeight: 800, fontSize: "1rem", margin: "0 0 4px" }}>No activity yet</h3>
+          <p style={{ fontSize: "0.85rem", color: "#888", margin: 0, lineHeight: 1.5 }}>
+            Once your child starts practicing, their accuracy trends, mock test scores, and chapter mastery will appear here.
+          </p>
+        </div>
+      )}
+
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, marginBottom: 20 }}>
         <div style={{ padding: 14, borderRadius: 14, background: "#eff6ff", textAlign: "center" }}>
           <div style={{ fontSize: 26, fontWeight: 900, color: "#3b82f6" }}>{overallStats.totalQuestions}</div>
