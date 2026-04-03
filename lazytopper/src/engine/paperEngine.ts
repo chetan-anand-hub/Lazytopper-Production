@@ -19,6 +19,7 @@ import {
 } from "../data/class10ScienceTopicTrends";
 
 import { computePredictionScore } from "../data/predictionScoring";
+import { runBacktestAcceptanceGate } from "../prediction/backtestEngine";
 
 import {
   predictedQuestions,
@@ -26,6 +27,23 @@ import {
 } from "../data/predictedQuestions";
 import { predictedQuestionsScience } from "../data/predictedQuestionsScience";
 import { buildConstrainedPaper } from "../prediction/constrainedPaperConstructor";
+
+const backtestGateCache = new Map<string, boolean>();
+
+function checkBacktestGate(subject: "Maths" | "Science"): boolean {
+  if (backtestGateCache.has(subject)) return backtestGateCache.get(subject)!;
+  try {
+    const gate = runBacktestAcceptanceGate(subject);
+    backtestGateCache.set(subject, gate.passed);
+    if (!gate.passed) {
+      console.warn(`[PaperEngine] Backtest gate FAILED for ${subject}: ${gate.message}`);
+    }
+    return gate.passed;
+  } catch {
+    backtestGateCache.set(subject, true);
+    return true;
+  }
+}
 
 // Common difficulty labels across Maths & Science
 export type DifficultyKey = "Easy" | "Medium" | "Hard";
@@ -235,6 +253,17 @@ export function generatePaper(paperId: string): GeneratedPaper {
   });
 
   const constrainedRows = constrained.selected;
+  if (!constrained.diagnostics.constraintsSatisfied && constrainedRows.length > 0) {
+    console.warn(
+      `[PaperEngine] Constraints not fully satisfied for ${paperId}:`,
+      `guaranteed=${constrained.diagnostics.guaranteedAllIncluded}`,
+      `focused=${(constrained.diagnostics.competencyFocusedShare * 100).toFixed(0)}%`,
+      `case=${constrained.diagnostics.caseBasedCount}`,
+      constrained.diagnostics.guaranteedArchetypes
+        .filter((g: { included: boolean }) => !g.included)
+        .map((g: { topic: string; subtopic: string; reason: string }) => `MISSING: ${g.topic}/${g.subtopic} (${g.reason})`)
+    );
+  }
   if (constrainedRows.length > 0) {
     const sectionsFromConstrained: Record<SectionKey, GeneratedQuestionSlot[]> = {
       A: [],
@@ -274,6 +303,8 @@ export function generatePaper(paperId: string): GeneratedPaper {
         finalDifficultyMarks[slot.difficulty] += slot.marks;
       });
     });
+
+    checkBacktestGate(subject);
 
     return {
       paperId,

@@ -248,7 +248,21 @@ function enforceGuaranteedArchetypes(args: {
       continue;
     }
 
-    diagnostics.push({ topic: arch.topic, subtopic: arch.subtopic, included: false, reason: "no compatible swap slot found (marks mismatch across all sections)" });
+    const anyNonGuaranteedIdx = out.findIndex(q => {
+      const qGuaranteed = isGuaranteedArchetype(subject, q.topicKey, q.subtopic);
+      return qGuaranteed === null;
+    });
+
+    if (anyNonGuaranteedIdx >= 0) {
+      const displaced = out[anyNonGuaranteedIdx];
+      replacement.section = displaced.section as PaperSection;
+      replacement.marks = displaced.marks;
+      out[anyNonGuaranteedIdx] = replacement;
+      diagnostics.push({ topic: arch.topic, subtopic: arch.subtopic, included: true, reason: `forced inclusion (marks adjusted from ${replacement.marks} to ${displaced.marks}, section ${displaced.section})` });
+      continue;
+    }
+
+    diagnostics.push({ topic: arch.topic, subtopic: arch.subtopic, included: false, reason: "no candidate in question bank for this archetype" });
   }
 
   return { result: out, diagnostics };
