@@ -1,31 +1,7 @@
 import type { CanonicalQuestion } from "./predictionTypes";
 import { class10MathTopicTrends } from "./class10MathTopicTrends";
 import { class10ScienceTopicTrends } from "./class10ScienceTopicTrends";
-import { getSubtopicAppearanceByYear, getCanonicalHistoricalDataset } from "../prediction/historicalDataset";
-
-function parseYear(y?: string): number | undefined {
-  if (!y) return undefined;
-  const n = parseInt(y, 10);
-  return Number.isNaN(n) ? undefined : n;
-}
-
-function recencyScore(pastBoardYear?: string): number {
-  const year = parseYear(pastBoardYear);
-  if (!year) return 1;
-  if (year >= 2023) return 1.3;
-  if (year >= 2020) return 1.15;
-  if (year >= 2017) return 1.05;
-  return 1.0;
-}
-
-function policyBoost(tag?: string): number {
-  if (!tag) return 1;
-  const key = tag.toLowerCase();
-  if (key.includes("must-crack") || key.includes("core")) return 1.4;
-  if (key.includes("high-roi") || key.includes("high_yield")) return 1.2;
-  if (key.includes("good-to-do")) return 1.05;
-  return 1.0;
-}
+import { compute5SignalScore, type FiveSignalResult } from "../prediction/cbse5SignalScoring";
 
 const mathWeightageCache = new Map<string, number>();
 const scienceWeightageCache = new Map<string, number>();
@@ -64,52 +40,64 @@ function baseTopicWeight(topicKey: string, subject?: string): number {
   return 1.0;
 }
 
-function rotationFactor(q: CanonicalQuestion): number {
-  const subject = (q.subject === "Science" ? "Science" : "Maths") as "Maths" | "Science";
-  const years = getSubtopicAppearanceByYear(subject, q.topicKey, q.subtopic);
-  if (years.length === 0) return 1.0;
+function predictionTargetYear(): number {
+  try {
+    const envValue = Number(import.meta.env?.VITE_PREDICTION_TARGET_YEAR || "");
+    if (Number.isFinite(envValue) && envValue >= 2018) return envValue;
+  } catch {}
+  return new Date().getFullYear();
+}
 
-  const dataset = getCanonicalHistoricalDataset();
-  const totalYears = dataset.years.length;
-  if (totalYears === 0) return 1.0;
+const fiveSignalCache = new Map<string, FiveSignalResult>();
 
-  const appearanceRate = years.length / totalYears;
+function get5SignalResult(q: CanonicalQuestion): FiveSignalResult {
+  const targetYear = predictionTargetYear();
+  const cacheKey = `${q.subject}|${q.topicKey}|${q.subtopic}|${q.marks}|${q.format}|${q.bloomSkill}|${q.difficulty}|${q.policyTag || ""}|${targetYear}`;
+  const cached = fiveSignalCache.get(cacheKey);
+  if (cached) return cached;
+  const result = compute5SignalScore(
+    {
+      subject: (q.subject === "Science" ? "Science" : "Maths") as "Maths" | "Science",
+      topic: q.topicKey,
+      subtopic: q.subtopic,
+      marks: q.marks,
+      format: q.format,
+      bloom: q.bloomSkill,
+      difficulty: q.difficulty,
+      policyTag: q.policyTag,
+      pastBoardYear: q.pastBoardYear,
+    },
+    targetYear
+  );
 
-  const targetYear = dataset.years[dataset.years.length - 1] + 1;
-  const lastAppearance = years[years.length - 1];
-  const gap = targetYear - lastAppearance;
-
-  let recencySignal: number;
-  if (gap === 0) recencySignal = -0.08;
-  else if (gap === 1) recencySignal = -0.04;
-  else if (gap >= 3) recencySignal = 0.12;
-  else recencySignal = 0.06;
-
-  let frequencySignal: number;
-  if (appearanceRate >= 0.8) {
-    frequencySignal = 0.10;
-  } else if (appearanceRate >= 0.5) {
-    frequencySignal = 0.04;
-  } else if (appearanceRate >= 0.3) {
-    frequencySignal = 0.0;
-  } else {
-    frequencySignal = -0.06;
-  }
-
-  return Math.max(0.75, Math.min(1.25, 1.0 + recencySignal + frequencySignal));
+  fiveSignalCache.set(cacheKey, result);
+  return result;
 }
 
 export function computePredictionScore(q: CanonicalQuestion): number {
-  const freqComponent = baseTopicWeight(q.topicKey, q.subject);
-  const recencyComponent = recencyScore(q.pastBoardYear);
-  const policyComponent = policyBoost(q.policyTag);
-  const rotationComponent = rotationFactor(q);
+  const fiveSignal = get5SignalResult(q);
+  const topicWeight = baseTopicWeight(q.topicKey, q.subject);
+  const raw = topicWeight * (0.6 + fiveSignal.compositeScore * 1.8);
+  return Math.max(0.5, Math.min(raw, 5));
+}
 
-  const raw =
-    freqComponent * recencyComponent * policyComponent * rotationComponent;
+export function computePredictionConfidence(q: CanonicalQuestion): {
+  confidencePercent: number;
+  confidenceBand: "low" | "medium" | "high";
+  confidenceRationale: string;
+  isGuaranteed: boolean;
+} {
+  const result = get5SignalResult(q);
+  return {
+    confidencePercent: result.confidencePercent,
+    confidenceBand: result.confidenceBand,
+    confidenceRationale: result.confidenceRationale,
+    isGuaranteed: result.isGuaranteed,
+  };
+}
 
-  const score = Math.max(0.5, Math.min(raw, 5));
-  return score;
+export function get5SignalBreakdown(q: CanonicalQuestion): FiveSignalResult {
+  return get5SignalResult(q);
 }
 
 export function applyPredictionScoring(

@@ -1,38 +1,10 @@
 import type { HPQQuestion, HPQSubject } from "../data/highlyProbableQuestions";
-import { getCanonicalHistoricalDataset } from "./historicalDataset";
-import { scoreTopicRecurrenceConfidence } from "./probabilisticScoring";
+import { compute5SignalScore } from "./cbse5SignalScoring";
 
 export interface HPQConfidence {
   confidenceScore: number;
   confidenceBand: "low" | "medium" | "high";
   confidenceRationale: string;
-}
-
-function mapLikelihoodToYearHint(likelihood: string | undefined): number {
-  const v = String(likelihood || "").toLowerCase();
-  if (v.includes("very high")) return 2025;
-  if (v.includes("high")) return 2024;
-  if (v.includes("medium-high")) return 2023;
-  return 2022;
-}
-
-function toPolicyRegime(targetYear: number) {
-  if (targetYear >= 2023) return "nep_competency_2023_plus" as const;
-  if (targetYear >= 2020) return "nep_transition_2020_2022" as const;
-  return "nep_pre_2020" as const;
-}
-
-function toBloomLevel(raw: HPQQuestion["bloomSkill"]) {
-  if (
-    raw === "Remembering" ||
-    raw === "Understanding" ||
-    raw === "Applying" ||
-    raw === "Analysing" ||
-    raw === "Evaluating"
-  ) {
-    return raw;
-  }
-  return "Understanding" as const;
 }
 
 function mapQuestionTypeToFormat(type: string | undefined): string {
@@ -58,39 +30,53 @@ function mapQuestionTypeToFormat(type: string | undefined): string {
   }
 }
 
+function toBloomStr(raw: HPQQuestion["bloomSkill"]): string {
+  if (
+    raw === "Remembering" ||
+    raw === "Understanding" ||
+    raw === "Applying" ||
+    raw === "Analysing" ||
+    raw === "Evaluating"
+  ) {
+    return raw;
+  }
+  return "Understanding";
+}
+
+function predictionTargetYear(): number {
+  try {
+    const envValue = Number(import.meta.env?.VITE_PREDICTION_TARGET_YEAR || "");
+    if (Number.isFinite(envValue) && envValue >= 2018) return envValue;
+  } catch {}
+  return new Date().getFullYear();
+}
+
 export function deriveHPQConfidence(args: {
   subject: HPQSubject;
   topic: string;
   question: HPQQuestion;
 }): HPQConfidence {
   const { subject, topic, question } = args;
-  const dataset = getCanonicalHistoricalDataset();
-  const yearHint =
-    Number(question.pastBoardYear || "") ||
-    mapLikelihoodToYearHint(question.likelihood);
+  const targetYear = predictionTargetYear();
 
-  const scored = scoreTopicRecurrenceConfidence({
-    input: {
+  const result = compute5SignalScore(
+    {
       subject,
       topic,
       subtopic: question.subtopic || question.concept || "general",
       marks: question.marks ?? 1,
       format: mapQuestionTypeToFormat(question.type),
-      bloom: toBloomLevel(question.bloomSkill),
+      bloom: toBloomStr(question.bloomSkill),
+      difficulty: question.difficulty || "Medium",
       policyTag: question.policyTag,
-      sourceYearHint: yearHint,
+      pastBoardYear: question.pastBoardYear,
     },
-    context: {
-      targetYear: yearHint,
-      policyRegime: toPolicyRegime(yearHint),
-      topicTrendWeight: question.tier === "must-crack" ? 1.18 : question.tier === "high-roi" ? 1.08 : 0.96,
-    },
-    historicalItems: dataset.items,
-  });
+    targetYear
+  );
 
   return {
-    confidenceScore: scored.confidence,
-    confidenceBand: scored.confidenceBand,
-    confidenceRationale: scored.rationale,
+    confidenceScore: result.compositeScore,
+    confidenceBand: result.confidenceBand,
+    confidenceRationale: result.confidenceRationale,
   };
 }

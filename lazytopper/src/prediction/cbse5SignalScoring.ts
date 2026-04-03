@@ -1,0 +1,258 @@
+import { getCanonicalHistoricalDataset, type HistoricalQuestionItem } from "./historicalDataset";
+import { computeRotationSignal, type RotationSignal } from "./rotationPairTracker";
+import { computeSQPSignal, type SQPSignal } from "./sqpIngestionPipeline";
+import { isGuaranteedArchetype, getGuaranteedBoost } from "./guaranteedArchetypes";
+
+export interface FiveSignalWeights {
+  historicalFrequency: number;
+  rotation: number;
+  sqpAlignment: number;
+  nepPolicy: number;
+  difficultyDistribution: number;
+}
+
+export const DEFAULT_SIGNAL_WEIGHTS: FiveSignalWeights = {
+  historicalFrequency: 0.30,
+  rotation: 0.20,
+  sqpAlignment: 0.25,
+  nepPolicy: 0.15,
+  difficultyDistribution: 0.10,
+};
+
+export interface FiveSignalResult {
+  compositeScore: number;
+  confidencePercent: number;
+  confidenceBand: "low" | "medium" | "high";
+  confidenceRationale: string;
+  signals: {
+    historicalFrequency: number;
+    rotation: number;
+    sqpAlignment: number;
+    nepPolicy: number;
+    difficultyDistribution: number;
+  };
+  rotationDetail: RotationSignal;
+  sqpDetail: SQPSignal;
+  isGuaranteed: boolean;
+  guaranteedBoost: number;
+}
+
+export interface FiveSignalInput {
+  subject: "Maths" | "Science";
+  topic: string;
+  subtopic: string;
+  marks: number;
+  format: string;
+  bloom: string;
+  difficulty: string;
+  policyTag?: string;
+  pastBoardYear?: string;
+}
+
+export interface FiveSignalOptions {
+  weights?: FiveSignalWeights;
+  cutoffYear?: number;
+}
+
+function norm(raw: string): string {
+  return raw.trim().toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/\s+/g, " ").trim();
+}
+
+function fuzzyMatch(a: string, b: string): boolean {
+  const na = norm(a);
+  const nb = norm(b);
+  if (na === nb) return true;
+  if (na.includes(nb) || nb.includes(na)) return true;
+  const wordsA = new Set(na.split(" "));
+  const wordsB = new Set(nb.split(" "));
+  let overlap = 0;
+  for (const w of wordsA) if (wordsB.has(w)) overlap++;
+  return Math.min(wordsA.size, wordsB.size) >= 2 && overlap / Math.min(wordsA.size, wordsB.size) >= 0.7;
+}
+
+function getFilteredItems(cutoffYear?: number): HistoricalQuestionItem[] {
+  const dataset = getCanonicalHistoricalDataset();
+  if (cutoffYear == null) return dataset.items;
+  return dataset.items.filter(i => i.sourceYear < cutoffYear);
+}
+
+function computeHistoricalFrequencySignal(
+  subject: "Maths" | "Science",
+  topic: string,
+  subtopic: string,
+  targetYear: number,
+  cutoffYear?: number
+): number {
+  const items = getFilteredItems(cutoffYear).filter(i => i.subject === subject);
+  const boardYears = [...new Set(items.filter(i => i.sourceType === "official_board").map(i => i.sourceYear))];
+  const totalBoardYears = Math.max(boardYears.length, 1);
+
+  const yearsWithSubtopic = new Set<number>();
+  const yearsWithTopic = new Set<number>();
+
+  for (const item of items) {
+    if (item.sourceType !== "official_board") continue;
+    if (fuzzyMatch(item.topic, topic)) {
+      yearsWithTopic.add(item.sourceYear);
+      if (fuzzyMatch(item.subtopic, subtopic)) {
+        yearsWithSubtopic.add(item.sourceYear);
+      }
+    }
+  }
+
+  const subtopicRate = yearsWithSubtopic.size / totalBoardYears;
+  const topicRate = yearsWithTopic.size / totalBoardYears;
+
+  const recentYears = boardYears.filter(y => y >= targetYear - 3);
+  let recentHits = 0;
+  for (const y of recentYears) {
+    if (yearsWithSubtopic.has(y)) recentHits++;
+  }
+  const recentRate = recentYears.length > 0 ? recentHits / recentYears.length : 0;
+
+  const signal = subtopicRate * 0.5 + topicRate * 0.3 + recentRate * 0.2;
+  return Math.min(1, Math.max(0, signal));
+}
+
+function computeNEPPolicySignal(
+  format: string,
+  bloom: string,
+  policyTag?: string
+): number {
+  const fmt = norm(format);
+  const bl = norm(bloom);
+  let signal = 0.5;
+
+  if (fmt.includes("case")) signal += 0.25;
+  else if (fmt.includes("assertion")) signal += 0.20;
+
+  if (bl === "applying" || bl === "analysing") signal += 0.15;
+  else if (bl === "evaluating") signal += 0.10;
+  else if (bl === "remembering") signal -= 0.10;
+
+  if (policyTag) {
+    const tag = policyTag.toLowerCase();
+    if (tag.includes("must-crack") || tag.includes("core")) signal += 0.10;
+    else if (tag.includes("high-roi") || tag.includes("high_yield")) signal += 0.05;
+  }
+
+  return Math.min(1, Math.max(0, signal));
+}
+
+function computeDifficultyDistributionSignal(
+  difficulty: string,
+  marks: number
+): number {
+  const d = norm(difficulty);
+  if (d === "easy" && marks <= 2) return 0.7;
+  if (d === "easy" && marks > 2) return 0.5;
+  if (d === "medium") return 0.8;
+  if (d === "hard" && marks >= 3) return 0.7;
+  if (d === "hard" && marks < 3) return 0.5;
+  return 0.6;
+}
+
+export function compute5SignalScore(
+  input: FiveSignalInput,
+  targetYear: number,
+  weightsOrOptions?: FiveSignalWeights | FiveSignalOptions
+): FiveSignalResult {
+  let weights = DEFAULT_SIGNAL_WEIGHTS;
+  let cutoffYear: number | undefined;
+
+  if (weightsOrOptions) {
+    if ("historicalFrequency" in weightsOrOptions) {
+      weights = weightsOrOptions;
+    } else {
+      weights = weightsOrOptions.weights ?? DEFAULT_SIGNAL_WEIGHTS;
+      cutoffYear = weightsOrOptions.cutoffYear;
+    }
+  }
+
+  const histSignal = computeHistoricalFrequencySignal(
+    input.subject, input.topic, input.subtopic, targetYear, cutoffYear
+  );
+
+  const rotationDetail = computeRotationSignal({
+    subject: input.subject,
+    topic: input.topic,
+    subtopic: input.subtopic,
+    targetYear,
+    cutoffYear,
+  });
+  const rotationSignal = Math.min(1, Math.max(0, 0.5 + rotationDetail.rotationBoost));
+
+  const sqpDetail = computeSQPSignal({
+    subject: input.subject,
+    topic: input.topic,
+    subtopic: input.subtopic,
+    marks: input.marks,
+    format: input.format,
+    targetYear,
+  });
+  const sqpSignal = Math.min(1, Math.max(0, sqpDetail.sqpBoost));
+
+  const nepSignal = computeNEPPolicySignal(input.format, input.bloom, input.policyTag);
+
+  const diffSignal = computeDifficultyDistributionSignal(input.difficulty, input.marks);
+
+  const signals = {
+    historicalFrequency: histSignal,
+    rotation: rotationSignal,
+    sqpAlignment: sqpSignal,
+    nepPolicy: nepSignal,
+    difficultyDistribution: diffSignal,
+  };
+
+  let compositeScore =
+    signals.historicalFrequency * weights.historicalFrequency +
+    signals.rotation * weights.rotation +
+    signals.sqpAlignment * weights.sqpAlignment +
+    signals.nepPolicy * weights.nepPolicy +
+    signals.difficultyDistribution * weights.difficultyDistribution;
+
+  const arch = isGuaranteedArchetype(input.subject, input.topic, input.subtopic);
+  const isGuaranteed = arch !== null;
+  const guaranteedBoostVal = getGuaranteedBoost(input.subject, input.topic, input.subtopic);
+
+  if (isGuaranteed) {
+    compositeScore = Math.min(1, compositeScore + guaranteedBoostVal);
+  }
+
+  compositeScore = Math.min(1, Math.max(0, compositeScore));
+
+  const confidencePercent = Math.round(compositeScore * 100);
+
+  const confidenceBand: "low" | "medium" | "high" =
+    confidencePercent >= 70 ? "high" : confidencePercent >= 40 ? "medium" : "low";
+
+  const parts: string[] = [];
+  if (histSignal >= 0.7) parts.push(`appears ${Math.round(histSignal * 100)}% of years`);
+  if (sqpDetail.matchesSQP) parts.push(`matches SQP ${sqpDetail.sqpYear || ""}`);
+  if (isGuaranteed) parts.push("guaranteed archetype");
+  if (rotationDetail.gapYears >= 3) parts.push(`${rotationDetail.gapYears}yr gap (rotation due)`);
+  if (nepSignal >= 0.7) parts.push("NEP-aligned");
+  if (parts.length === 0) parts.push(`${confidencePercent}% composite likelihood`);
+
+  const confidenceRationale = `${confidencePercent}% likely — ${parts.join(", ")}`;
+
+  return {
+    compositeScore,
+    confidencePercent,
+    confidenceBand,
+    confidenceRationale,
+    signals,
+    rotationDetail,
+    sqpDetail,
+    isGuaranteed,
+    guaranteedBoost: guaranteedBoostVal,
+  };
+}
+
+export function compute5SignalScoreBatch(
+  inputs: FiveSignalInput[],
+  targetYear: number,
+  weightsOrOptions?: FiveSignalWeights | FiveSignalOptions
+): FiveSignalResult[] {
+  return inputs.map(input => compute5SignalScore(input, targetYear, weightsOrOptions));
+}
