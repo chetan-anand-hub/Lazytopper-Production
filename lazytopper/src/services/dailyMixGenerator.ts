@@ -202,7 +202,7 @@ export function generateDailyMix(ctx: DailyMixContext): DailyMixItem[] {
   };
 
   const contractPlaylist = [conceptItem, ...questionItems, revisionItem];
-  return contractPlaylist.slice(0, Math.max(5, count));
+  return contractPlaylist.slice(0, count);
 }
 
 function computeMasteryScore(snap: TopicHubMasterySnapshot): number {

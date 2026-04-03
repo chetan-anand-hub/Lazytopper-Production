@@ -4892,7 +4892,7 @@ async function handleRequest(req, res) {
       }
 
       const body = await readJson(req);
-      const studentName = String(body.studentName || 'Student');
+      const studentName = String(body.studentName || 'Student').slice(0, 100);
 
       const expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000;
       const payload = JSON.stringify({ uid, studentName, expiresAt });
