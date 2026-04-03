@@ -22,6 +22,7 @@ import {
   buildHPQUrl,
   buildStudyPlanUrl,
 } from "../utils/buildUrl";
+import { QuestionVisualAid } from "../components/question/QuestionVisualAid";
 
 // ----- Shared/local types -----
 
@@ -828,6 +829,11 @@ const MockBuilder: React.FC = () => {
                         >
                           {q.questionText}
                         </div>
+
+                        <QuestionVisualAid
+                          questionText={q.questionText}
+                          topic={q.subtopic || q.topicKey || ""}
+                        />
 
                         {/* Solution box */}
                         {solOpen && (
