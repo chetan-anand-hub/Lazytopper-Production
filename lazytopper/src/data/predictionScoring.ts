@@ -3,6 +3,18 @@ import { class10MathTopicTrends } from "./class10MathTopicTrends";
 import { class10ScienceTopicTrends } from "./class10ScienceTopicTrends";
 import { compute5SignalScore, type FiveSignalResult } from "../prediction/cbse5SignalScoring";
 
+export interface PredictionScoreInput {
+  subject: string;
+  topicKey: string;
+  subtopic: string;
+  marks: number;
+  format: string;
+  bloomSkill: string;
+  difficulty: string;
+  policyTag?: string;
+  pastBoardYear?: string;
+}
+
 const mathWeightageCache = new Map<string, number>();
 const scienceWeightageCache = new Map<string, number>();
 
@@ -50,7 +62,7 @@ function predictionTargetYear(): number {
 
 const fiveSignalCache = new Map<string, FiveSignalResult>();
 
-function get5SignalResult(q: CanonicalQuestion): FiveSignalResult {
+function get5SignalResult(q: PredictionScoreInput): FiveSignalResult {
   const targetYear = predictionTargetYear();
   const cacheKey = `${q.subject}|${q.topicKey}|${q.subtopic}|${q.marks}|${q.format}|${q.bloomSkill}|${q.difficulty}|${q.policyTag || ""}|${targetYear}`;
   const cached = fiveSignalCache.get(cacheKey);
@@ -74,14 +86,14 @@ function get5SignalResult(q: CanonicalQuestion): FiveSignalResult {
   return result;
 }
 
-export function computePredictionScore(q: CanonicalQuestion): number {
+export function computePredictionScore(q: PredictionScoreInput): number {
   const fiveSignal = get5SignalResult(q);
   const topicWeight = baseTopicWeight(q.topicKey, q.subject);
   const raw = topicWeight * (0.6 + fiveSignal.compositeScore * 1.8);
   return Math.max(0.5, Math.min(raw, 5));
 }
 
-export function computePredictionConfidence(q: CanonicalQuestion): {
+export function computePredictionConfidence(q: PredictionScoreInput): {
   confidencePercent: number;
   confidenceBand: "low" | "medium" | "high";
   confidenceRationale: string;
@@ -96,7 +108,7 @@ export function computePredictionConfidence(q: CanonicalQuestion): {
   };
 }
 
-export function get5SignalBreakdown(q: CanonicalQuestion): FiveSignalResult {
+export function get5SignalBreakdown(q: PredictionScoreInput): FiveSignalResult {
   return get5SignalResult(q);
 }
 
