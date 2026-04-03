@@ -11,7 +11,8 @@
   },
   "dependencies": {
     "@workspace/shared-data": "workspace:*",
-    "firebase": "^11.8.1"
+    "firebase": "^11.8.1",
+    "react-native-webview": "^13.16.1"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

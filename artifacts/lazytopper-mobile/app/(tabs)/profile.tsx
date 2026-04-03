@@ -16,11 +16,12 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "@/context/AuthContext";
 import { useSubscription } from "@/context/SubscriptionContext";
 import { useColors } from "@/hooks/useColors";
+import { FirebasePhoneAuth } from "@/components/FirebasePhoneAuth";
 
 export default function ProfileScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { user, signInAsGuest, signInWithGoogle, signInWithPhone, sendPhoneOtp, firebaseAvailable, signOut } = useAuth();
+  const { user, signInAsGuest, signInWithGoogle, signInWithPhone, sendPhoneOtp, signInFromNativePhoneAuth, firebaseAvailable, signOut } = useAuth();
   const { tier, isPremium, isTrialActive, isTrialExpired, daysLeftInTrial, startTrial } = useSubscription();
   const topPad = Platform.OS === "web" ? 67 : 0;
 
@@ -29,6 +30,7 @@ export default function ProfileScreen() {
   const [otpCode, setOtpCode] = useState("");
   const [verificationId, setVerificationId] = useState<string | null>(null);
   const [phoneLoading, setPhoneLoading] = useState(false);
+  const [nativePhoneModalVisible, setNativePhoneModalVisible] = useState(false);
 
   const handleSendOtp = async () => {
     const cleanNumber = phoneNumber.replace(/\s/g, "");
@@ -58,6 +60,14 @@ export default function ProfileScreen() {
     setVerificationId(null);
   };
 
+  const handlePhonePress = () => {
+    if (Platform.OS === "web") {
+      setPhoneModalVisible(true);
+    } else {
+      setNativePhoneModalVisible(true);
+    }
+  };
+
   if (!user) {
     return (
       <View style={[styles.authContainer, { backgroundColor: colors.background, paddingTop: topPad + insets.top }]}>
@@ -80,15 +90,13 @@ export default function ProfileScreen() {
                 <Text style={[styles.authBtnText, { color: "#333" }]}>Sign in with Google</Text>
               </Pressable>
 
-              {Platform.OS === "web" && (
-                <Pressable
-                  style={[styles.authBtn, { backgroundColor: "#fff", borderColor: colors.border, borderWidth: 1 }]}
-                  onPress={() => setPhoneModalVisible(true)}
-                >
-                  <Feather name="phone" size={18} color="#34A853" />
-                  <Text style={[styles.authBtnText, { color: "#333" }]}>Sign in with Phone</Text>
-                </Pressable>
-              )}
+              <Pressable
+                style={[styles.authBtn, { backgroundColor: "#fff", borderColor: colors.border, borderWidth: 1 }]}
+                onPress={handlePhonePress}
+              >
+                <Feather name="phone" size={18} color="#34A853" />
+                <Text style={[styles.authBtnText, { color: "#333" }]}>Sign in with Phone</Text>
+              </Pressable>
             </>
           )}
 
@@ -112,89 +120,99 @@ export default function ProfileScreen() {
           </Pressable>
         </View>
 
-        <Modal
-          visible={phoneModalVisible}
-          transparent
-          animationType="slide"
-          onRequestClose={() => setPhoneModalVisible(false)}
-        >
-          <View style={styles.modalOverlay}>
-            <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
-              <View style={styles.modalHeader}>
-                <Text style={[styles.modalTitle, { color: colors.foreground }]}>
-                  {verificationId ? "Enter OTP" : "Phone Sign-in"}
-                </Text>
-                <Pressable onPress={() => {
-                  setPhoneModalVisible(false);
-                  setVerificationId(null);
-                  setOtpCode("");
-                }}>
-                  <Feather name="x" size={22} color={colors.foreground} />
-                </Pressable>
-              </View>
+        {Platform.OS === "web" && (
+          <Modal
+            visible={phoneModalVisible}
+            transparent
+            animationType="slide"
+            onRequestClose={() => setPhoneModalVisible(false)}
+          >
+            <View style={styles.modalOverlay}>
+              <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
+                <View style={styles.modalHeader}>
+                  <Text style={[styles.modalTitle, { color: colors.foreground }]}>
+                    {verificationId ? "Enter OTP" : "Phone Sign-in"}
+                  </Text>
+                  <Pressable onPress={() => {
+                    setPhoneModalVisible(false);
+                    setVerificationId(null);
+                    setOtpCode("");
+                  }}>
+                    <Feather name="x" size={22} color={colors.foreground} />
+                  </Pressable>
+                </View>
 
-              {!verificationId ? (
-                <>
-                  <Text style={[styles.modalLabel, { color: colors.mutedForeground }]}>
-                    Enter your phone number with country code
-                  </Text>
-                  <TextInput
-                    style={[styles.modalInput, { color: colors.foreground, borderColor: colors.border, backgroundColor: colors.background }]}
-                    value={phoneNumber}
-                    onChangeText={setPhoneNumber}
-                    keyboardType="phone-pad"
-                    placeholder="+91 9876543210"
-                    placeholderTextColor={colors.mutedForeground}
-                    autoFocus
-                  />
-                  <Pressable
-                    style={[styles.modalBtn, { backgroundColor: colors.primary, opacity: phoneLoading ? 0.6 : 1 }]}
-                    onPress={handleSendOtp}
-                    disabled={phoneLoading}
-                  >
-                    <Text style={styles.modalBtnText}>
-                      {phoneLoading ? "Sending..." : "Send OTP"}
+                {!verificationId ? (
+                  <>
+                    <Text style={[styles.modalLabel, { color: colors.mutedForeground }]}>
+                      Enter your phone number with country code
                     </Text>
-                  </Pressable>
-                </>
-              ) : (
-                <>
-                  <Text style={[styles.modalLabel, { color: colors.mutedForeground }]}>
-                    Enter the 6-digit code sent to {phoneNumber}
-                  </Text>
-                  <TextInput
-                    style={[styles.modalInput, styles.otpInput, { color: colors.foreground, borderColor: colors.border, backgroundColor: colors.background }]}
-                    value={otpCode}
-                    onChangeText={setOtpCode}
-                    keyboardType="number-pad"
-                    maxLength={6}
-                    placeholder="000000"
-                    placeholderTextColor={colors.mutedForeground}
-                    autoFocus
-                  />
-                  <Pressable
-                    style={[styles.modalBtn, { backgroundColor: colors.primary, opacity: phoneLoading ? 0.6 : 1 }]}
-                    onPress={handleVerifyOtp}
-                    disabled={phoneLoading}
-                  >
-                    <Text style={styles.modalBtnText}>
-                      {phoneLoading ? "Verifying..." : "Verify & Sign In"}
+                    <TextInput
+                      style={[styles.modalInput, { color: colors.foreground, borderColor: colors.border, backgroundColor: colors.background }]}
+                      value={phoneNumber}
+                      onChangeText={setPhoneNumber}
+                      keyboardType="phone-pad"
+                      placeholder="+91 9876543210"
+                      placeholderTextColor={colors.mutedForeground}
+                      autoFocus
+                    />
+                    <Pressable
+                      style={[styles.modalBtn, { backgroundColor: colors.primary, opacity: phoneLoading ? 0.6 : 1 }]}
+                      onPress={handleSendOtp}
+                      disabled={phoneLoading}
+                    >
+                      <Text style={styles.modalBtnText}>
+                        {phoneLoading ? "Sending..." : "Send OTP"}
+                      </Text>
+                    </Pressable>
+                  </>
+                ) : (
+                  <>
+                    <Text style={[styles.modalLabel, { color: colors.mutedForeground }]}>
+                      Enter the 6-digit code sent to {phoneNumber}
                     </Text>
-                  </Pressable>
-                  <Pressable
-                    style={[styles.resendBtn]}
-                    onPress={() => {
-                      setVerificationId(null);
-                      setOtpCode("");
-                    }}
-                  >
-                    <Text style={[styles.resendText, { color: colors.primary }]}>Change number</Text>
-                  </Pressable>
-                </>
-              )}
+                    <TextInput
+                      style={[styles.modalInput, styles.otpInput, { color: colors.foreground, borderColor: colors.border, backgroundColor: colors.background }]}
+                      value={otpCode}
+                      onChangeText={setOtpCode}
+                      keyboardType="number-pad"
+                      maxLength={6}
+                      placeholder="000000"
+                      placeholderTextColor={colors.mutedForeground}
+                      autoFocus
+                    />
+                    <Pressable
+                      style={[styles.modalBtn, { backgroundColor: colors.primary, opacity: phoneLoading ? 0.6 : 1 }]}
+                      onPress={handleVerifyOtp}
+                      disabled={phoneLoading}
+                    >
+                      <Text style={styles.modalBtnText}>
+                        {phoneLoading ? "Verifying..." : "Verify & Sign In"}
+                      </Text>
+                    </Pressable>
+                    <Pressable
+                      style={[styles.resendBtn]}
+                      onPress={() => {
+                        setVerificationId(null);
+                        setOtpCode("");
+                      }}
+                    >
+                      <Text style={[styles.resendText, { color: colors.primary }]}>Change number</Text>
+                    </Pressable>
+                  </>
+                )}
+              </View>
             </View>
-          </View>
-        </Modal>
+          </Modal>
+        )}
+
+        {Platform.OS !== "web" && (
+          <FirebasePhoneAuth
+            visible={nativePhoneModalVisible}
+            onClose={() => setNativePhoneModalVisible(false)}
+            onAuthenticated={signInFromNativePhoneAuth}
+          />
+        )}
       </View>
     );
   }

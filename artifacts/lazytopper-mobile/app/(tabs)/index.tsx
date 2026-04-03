@@ -1,6 +1,6 @@
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
-import React from "react";
+import React, { useMemo } from "react";
 import {
   Platform,
   Pressable,
@@ -14,20 +14,41 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "@/context/AuthContext";
 import { useSubscription } from "@/context/SubscriptionContext";
 import { useColors } from "@/hooks/useColors";
+import { mathTopicTrends, scienceTopicTrends } from "@workspace/shared-data";
 
 const FEATURES = [
-  { icon: "trending-up" as const, title: "Topic Trends", desc: "10 yrs of CBSE data analysed", color: "#58cc02" },
-  { icon: "file-text" as const, title: "Mock Papers", desc: "AI-predicted exam papers", color: "#1cb0f6" },
-  { icon: "bar-chart-2" as const, title: "Progress", desc: "Track your mastery", color: "#ff9600" },
-  { icon: "award" as const, title: "Smart Practice", desc: "500+ board-style questions", color: "#ce82ff" },
+  { icon: "trending-up" as const, title: "Topic Trends", desc: "10 yrs of CBSE data analysed", color: "#58cc02", route: "/(tabs)/trends" },
+  { icon: "file-text" as const, title: "Mock Papers", desc: "AI-predicted exam papers", color: "#1cb0f6", route: "/(tabs)/practice" },
+  { icon: "bar-chart-2" as const, title: "Progress", desc: "Track your mastery", color: "#ff9600", route: "/(tabs)/progress" },
+  { icon: "award" as const, title: "Smart Practice", desc: "1200+ board-style questions", color: "#ce82ff", route: "/(tabs)/practice" },
 ];
+
+const SKILL_TREE_COLORS: Record<string, string> = {
+  "must-crack": "#58cc02",
+  "high-roi": "#1cb0f6",
+  "good-to-do": "#ff9600",
+};
 
 export default function HomeScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { user, signInAsGuest } = useAuth();
+  const { user } = useAuth();
   const { isTrialActive, daysLeftInTrial, tier } = useSubscription();
   const topPad = Platform.OS === "web" ? 67 : 0;
+
+  const skillTree = useMemo(() => {
+    const mathNodes = mathTopicTrends.slice(0, 6).map((t) => ({
+      name: t.topicKey,
+      tier: t.tier,
+      weightage: t.weightagePercent,
+    }));
+    const sciNodes = scienceTopicTrends.slice(0, 6).map((t) => ({
+      name: t.topicName,
+      tier: t.tier,
+      weightage: t.weightagePercent,
+    }));
+    return { maths: mathNodes, science: sciNodes };
+  }, []);
 
   return (
     <ScrollView
@@ -129,10 +150,73 @@ export default function HomeScreen() {
         </View>
       </View>
 
+      <View style={styles.skillTreeSection}>
+        <View style={styles.skillTreeHeader}>
+          <Text style={[styles.sectionTitle, { color: colors.foreground }]}>Skill Tree</Text>
+          <Pressable onPress={() => router.push("/(tabs)/progress")}>
+            <Text style={[styles.seeAllText, { color: colors.primary }]}>See all</Text>
+          </Pressable>
+        </View>
+
+        <View style={[styles.skillTreeCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <View style={styles.skillTreeSubject}>
+            <View style={[styles.skillSubjectBadge, { backgroundColor: colors.primary + "15" }]}>
+              <Feather name="triangle" size={14} color={colors.primary} />
+              <Text style={[styles.skillSubjectText, { color: colors.primary }]}>Maths</Text>
+            </View>
+          </View>
+          <View style={styles.skillNodesRow}>
+            {skillTree.maths.map((node, i) => (
+              <View key={node.name} style={styles.skillNodeCol}>
+                <View style={[
+                  styles.skillNode,
+                  { backgroundColor: SKILL_TREE_COLORS[node.tier] + "20", borderColor: SKILL_TREE_COLORS[node.tier] },
+                ]}>
+                  <Text style={[styles.skillNodePercent, { color: SKILL_TREE_COLORS[node.tier] }]}>{node.weightage}%</Text>
+                </View>
+                {i < skillTree.maths.length - 1 && (
+                  <View style={[styles.skillConnector, { backgroundColor: colors.border }]} />
+                )}
+                <Text numberOfLines={1} style={[styles.skillNodeLabel, { color: colors.mutedForeground }]}>{node.name}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+
+        <View style={[styles.skillTreeCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <View style={styles.skillTreeSubject}>
+            <View style={[styles.skillSubjectBadge, { backgroundColor: colors.secondary + "15" }]}>
+              <Feather name="zap" size={14} color={colors.secondary} />
+              <Text style={[styles.skillSubjectText, { color: colors.secondary }]}>Science</Text>
+            </View>
+          </View>
+          <View style={styles.skillNodesRow}>
+            {skillTree.science.map((node, i) => (
+              <View key={node.name} style={styles.skillNodeCol}>
+                <View style={[
+                  styles.skillNode,
+                  { backgroundColor: SKILL_TREE_COLORS[node.tier] + "20", borderColor: SKILL_TREE_COLORS[node.tier] },
+                ]}>
+                  <Text style={[styles.skillNodePercent, { color: SKILL_TREE_COLORS[node.tier] }]}>{node.weightage}%</Text>
+                </View>
+                {i < skillTree.science.length - 1 && (
+                  <View style={[styles.skillConnector, { backgroundColor: colors.border }]} />
+                )}
+                <Text numberOfLines={1} style={[styles.skillNodeLabel, { color: colors.mutedForeground }]}>{node.name}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+      </View>
+
       <View style={styles.featuresSection}>
         <Text style={[styles.sectionTitle, { color: colors.foreground }]}>Features</Text>
         {FEATURES.map((f) => (
-          <View key={f.title} style={[styles.featureRow, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <Pressable
+            key={f.title}
+            style={[styles.featureRow, { backgroundColor: colors.card, borderColor: colors.border }]}
+            onPress={() => router.push(f.route as never)}
+          >
             <View style={[styles.featureIconBg, { backgroundColor: f.color + "20" }]}>
               <Feather name={f.icon} size={20} color={f.color} />
             </View>
@@ -141,7 +225,7 @@ export default function HomeScreen() {
               <Text style={[styles.featureDesc, { color: colors.mutedForeground }]}>{f.desc}</Text>
             </View>
             <Feather name="chevron-right" size={16} color={colors.mutedForeground} />
-          </View>
+          </Pressable>
         ))}
       </View>
 
@@ -263,6 +347,77 @@ const styles = StyleSheet.create({
   subjectMeta: {
     fontFamily: "Inter_400Regular",
     fontSize: 12,
+  },
+  skillTreeSection: {
+    marginBottom: 24,
+  },
+  skillTreeHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 14,
+  },
+  seeAllText: {
+    fontFamily: "Inter_500Medium",
+    fontSize: 13,
+  },
+  skillTreeCard: {
+    borderRadius: 14,
+    borderWidth: 1,
+    padding: 14,
+    marginBottom: 10,
+  },
+  skillTreeSubject: {
+    marginBottom: 12,
+  },
+  skillSubjectBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    alignSelf: "flex-start",
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 8,
+  },
+  skillSubjectText: {
+    fontFamily: "Inter_600SemiBold",
+    fontSize: 12,
+  },
+  skillNodesRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 4,
+  },
+  skillNodeCol: {
+    flex: 1,
+    alignItems: "center",
+    maxWidth: 54,
+  },
+  skillNode: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 2,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 4,
+  },
+  skillNodePercent: {
+    fontFamily: "Inter_700Bold",
+    fontSize: 10,
+  },
+  skillConnector: {
+    position: "absolute",
+    right: -12,
+    top: 18,
+    width: 12,
+    height: 2,
+    borderRadius: 1,
+  },
+  skillNodeLabel: {
+    fontFamily: "Inter_400Regular",
+    fontSize: 9,
+    textAlign: "center",
   },
   featuresSection: {
     marginBottom: 16,

@@ -3,7 +3,6 @@ import * as WebBrowser from "expo-web-browser";
 import * as Linking from "expo-linking";
 import {
   GoogleAuthProvider,
-  PhoneAuthProvider,
   RecaptchaVerifier,
   onAuthStateChanged,
   signInWithPopup,
@@ -35,6 +34,7 @@ interface AuthContextType {
   signInWithGoogle: () => Promise<void>;
   signInWithPhone: (verificationId: string, code: string) => Promise<void>;
   sendPhoneOtp: (phoneNumber: string) => Promise<string | null>;
+  signInFromNativePhoneAuth: (uid: string, displayName: string, phoneNumber: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -47,6 +47,7 @@ const AuthContext = createContext<AuthContextType>({
   signInWithGoogle: async () => {},
   signInWithPhone: async () => {},
   sendPhoneOtp: async () => null,
+  signInFromNativePhoneAuth: async () => {},
   signOut: async () => {},
 });
 
@@ -178,10 +179,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     if (Platform.OS !== "web") {
-      const msg = "Phone OTP sign-in is only supported in the web version. Please use Google sign-in or guest mode on mobile.";
-      setAuthError(msg);
-      showAuthError(msg);
-      return null;
+      return "native-webview";
     }
 
     try {
@@ -226,12 +224,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setAuthError(msg);
         showAuthError(msg);
       }
-      return;
     }
+  };
 
-    const msg = "Phone sign-in is only supported in the web version.";
-    setAuthError(msg);
-    showAuthError(msg);
+  const handleSignInFromNativePhoneAuth = async (uid: string, displayName: string, phoneNumber: string) => {
+    const phoneUser: User = {
+      uid,
+      displayName: displayName || phoneNumber || "Student",
+      email: null,
+      isGuest: false,
+    };
+    await persistUser(phoneUser);
   };
 
   const handleSignOut = async () => {
@@ -262,6 +265,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signInWithGoogle: handleSignInWithGoogle,
         signInWithPhone: handleSignInWithPhone,
         sendPhoneOtp: handleSendPhoneOtp,
+        signInFromNativePhoneAuth: handleSignInFromNativePhoneAuth,
         signOut: handleSignOut,
       }}
     >
