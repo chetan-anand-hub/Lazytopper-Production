@@ -317,7 +317,8 @@ export default function WeakAreaPracticePage() {
   const [isGenerating, setIsGenerating] = useState(false);
 
   const handlePractice = (area: WeakArea) => {
-    navigate(`/practice/10/${area.subject}?topic=${encodeURIComponent(area.topicKey)}&count=12&difficulty=Easy&weakMode=1`);
+    const diff = area.masteryPercent < 20 ? "Easy" : area.masteryPercent < 50 ? "Medium" : "Hard";
+    navigate(`/practice/10/${area.subject}?topic=${encodeURIComponent(area.topicKey)}&count=12&difficulty=${diff}&weakMode=1`);
   };
 
   const handleGeneratePath = async () => {

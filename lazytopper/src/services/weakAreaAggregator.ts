@@ -3,6 +3,7 @@ import { loadWrongAnswerLog, type WrongAnswerEntry } from "./adaptivePracticeEng
 import { loadTopicMasterySnapshot, type TopicHubNodeMasteryState } from "./topicHubMastery";
 import { canonicalChapters } from "../data/syllabus/cbse10Canonical";
 import { normalizeTopicKey } from "../utils/topicResolver";
+import { getMockTopicScores } from "./mockScoreHistory";
 
 export interface WeakArea {
   topicKey: string;
@@ -113,6 +114,7 @@ export function getWeakAreas(options?: { subject?: "Maths" | "Science"; limit?: 
 
   const attemptMap = aggregateAttemptsByTopic(insights.attempts);
   const wrongMap = aggregateWrongAnswersByTopic(Object.values(wrongLog.entries));
+  const mockTopicScores = getMockTopicScores();
 
   const allTopics = canonicalChapters.map((ch) => ({
     topicKey: normalizeTopicKey(ch.canonicalSlug) || ch.canonicalSlug,
@@ -135,12 +137,15 @@ export function getWeakAreas(options?: { subject?: "Maths" | "Science"; limit?: 
 
     const accuracy = attemptData.total > 0 ? (attemptData.correct / attemptData.total) * 100 : 0;
 
+    const mockData = mockTopicScores.get(topicKey);
+
     let confidenceScore = 0;
     if (masteryPercent < 50) confidenceScore += (50 - masteryPercent) * 0.4;
     if (accuracy < 60 && attemptData.total >= 2) confidenceScore += (60 - accuracy) * 0.3;
     if (wrongData.count > 0) confidenceScore += Math.min(wrongData.count * 5, 30);
     if (attemptData.total === 0) confidenceScore += 15;
     if (masteryState === "unseen") confidenceScore += 10;
+    if (mockData && mockData.avgPercent < 50) confidenceScore += (50 - mockData.avgPercent) * 0.25;
 
     if (confidenceScore > 5) {
       weakAreas.push({

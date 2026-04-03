@@ -5,6 +5,7 @@ import { loadTopicMasterySnapshot } from "../services/topicHubMastery";
 import { getWeakAreas, type WeakAreaSummary } from "../services/weakAreaAggregator";
 import { useSmartLearning } from "../engine/smartLearningStore";
 import { useAuth } from "../context/AuthContext";
+import { getLatestMockScores, type MockScoreEntry } from "../services/mockScoreHistory";
 
 const TOPIC_NAMES: Record<string, string> = {
   "real-numbers": "Real Numbers", polynomials: "Polynomials",
@@ -83,6 +84,41 @@ function HeatmapCell({ value, label }: { value: number; label: string }) {
   );
 }
 
+const CBSE_BENCHMARK_PERCENT = 65;
+
+function MockScoreChart({ scores }: { scores: MockScoreEntry[] }) {
+  if (scores.length === 0) return <p style={{ color: "#888", fontSize: 13 }}>No mock tests taken yet.</p>;
+  const sorted = [...scores].sort((a, b) => a.timestamp - b.timestamp).slice(-8);
+  const barW = Math.min(36, Math.floor(280 / sorted.length));
+  const chartH = 100;
+  return (
+    <svg width={sorted.length * (barW + 10) + 20} height={chartH + 28}>
+      <line x1={0} y1={chartH - (CBSE_BENCHMARK_PERCENT / 100) * chartH} x2={sorted.length * (barW + 10) + 20} y2={chartH - (CBSE_BENCHMARK_PERCENT / 100) * chartH} stroke="#f59e0b" strokeDasharray="4,3" strokeWidth={1} />
+      <text x={sorted.length * (barW + 10)} y={chartH - (CBSE_BENCHMARK_PERCENT / 100) * chartH - 3} fontSize={8} fill="#f59e0b">CBSE {CBSE_BENCHMARK_PERCENT}%</text>
+      {sorted.map((d, i) => {
+        const h = (d.percent / 100) * chartH;
+        const x = i * (barW + 10) + 10;
+        const color = d.percent >= CBSE_BENCHMARK_PERCENT ? "#22c55e" : d.percent >= 45 ? "#3b82f6" : "#ef4444";
+        const dateLabel = new Date(d.timestamp).toLocaleDateString("en-IN", { month: "short", day: "numeric" });
+        return (
+          <g key={d.id}>
+            <rect x={x} y={chartH - h} width={barW} height={h} rx={3} fill={color} opacity={0.8} />
+            <text x={x + barW / 2} y={chartH - h - 3} textAnchor="middle" fontSize={9} fontWeight={700} fill="#333">
+              {d.percent}%
+            </text>
+            <text x={x + barW / 2} y={chartH + 12} textAnchor="middle" fontSize={7} fill="#888">
+              {dateLabel}
+            </text>
+            <text x={x + barW / 2} y={chartH + 22} textAnchor="middle" fontSize={7} fill="#aaa">
+              {d.subject.slice(0, 4)}
+            </text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
 function WeeklyChart({ data }: { data: { week: string; accuracy: number; count: number }[] }) {
   if (data.length === 0) return <p style={{ color: "#888", fontSize: 13 }}>No data available yet.</p>;
   const maxAcc = 100;
@@ -118,6 +154,7 @@ export default function ParentDashboardPage() {
   const [shareLink, setShareLink] = useState("");
 
   const weakSummary = useMemo<WeakAreaSummary>(() => getWeakAreas({ limit: 10 }), []);
+  const mockScores = useMemo(() => getLatestMockScores(10), []);
 
   const insights = useMemo(() => loadInsights(), []);
   const attempts = insights.attempts || [];
@@ -248,6 +285,28 @@ export default function ParentDashboardPage() {
         <div style={{ overflowX: "auto" }}>
           <WeeklyChart data={weeklyAccuracy} />
         </div>
+      </div>
+
+      <div style={{ marginBottom: 20 }}>
+        <h3 style={{ fontWeight: 800, fontSize: 16, marginBottom: 10 }}>Mock Test Scores</h3>
+        <div style={{ overflowX: "auto" }}>
+          <MockScoreChart scores={mockScores} />
+        </div>
+        {mockScores.length > 0 && (() => {
+          const avg = Math.round(mockScores.reduce((s, m) => s + m.percent, 0) / mockScores.length);
+          const aboveBenchmark = avg >= CBSE_BENCHMARK_PERCENT;
+          return (
+            <div style={{
+              marginTop: 10, padding: 10, borderRadius: 10,
+              background: aboveBenchmark ? "#f0fdf4" : "#fef2f2",
+              border: `1px solid ${aboveBenchmark ? "#bbf7d0" : "#fecaca"}`,
+            }}>
+              <span style={{ fontWeight: 700, fontSize: 13, color: aboveBenchmark ? "#22c55e" : "#ef4444" }}>
+                Average: {avg}% — {aboveBenchmark ? "Above" : "Below"} CBSE benchmark ({CBSE_BENCHMARK_PERCENT}%)
+              </span>
+            </div>
+          );
+        })()}
       </div>
 
       <div style={{ marginBottom: 20 }}>

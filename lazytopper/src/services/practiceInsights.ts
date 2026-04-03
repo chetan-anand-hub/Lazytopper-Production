@@ -114,7 +114,7 @@ export function recordAttempt(attempt: Omit<PracticeAttempt, "id"> & { id?: stri
   void import("./spacedRepetitionEngine").then((sr) => {
     try {
       const conceptKey = attempt.bloomSkill || attempt.questionId;
-      const subject = (attempt.subject === "Science" ? "Science" : "Maths") as "Maths" | "Science";
+      const subject = (attempt.subject.toLowerCase() === "science" ? "Science" : "Maths") as "Maths" | "Science";
 
       if (!attempt.correct) {
         sr.addWrongAnswerToSR(attempt.topicKey, conceptKey, subject);

@@ -218,21 +218,30 @@ function computeMasteryScore(snap: TopicHubMasterySnapshot): number {
 export function pickWeightedTopics(subject: "Maths" | "Science", count: number, seed: string): string[] {
   const subjectId = subject === "Science" ? "science" : "maths";
   const subjectChapters = canonicalChapters.filter((ch) => ch.subjectId === subjectId);
-  const weighted: { key: string; weight: number }[] = [];
+  const weighted: { key: string; weight: number; mastery: number }[] = [];
   for (const ch of subjectChapters) {
     const slug = ch.canonicalSlug;
     const snap = loadTopicMasterySnapshot(normalizeTopicKey(slug) || slug);
     const mastery = computeMasteryScore(snap);
     const baseWeight = Math.max(0.1, 1 - mastery);
     const weakBoost = mastery < 0.4 ? 3.0 : mastery < 0.6 ? 1.8 : 1.0;
-    weighted.push({ key: slug, weight: baseWeight * weakBoost });
+    weighted.push({ key: slug, weight: baseWeight * weakBoost, mastery });
   }
 
-  let rng = seededHash(seed);
+  const weakTopics = weighted.filter((w) => w.mastery < 0.5).sort((a, b) => a.mastery - b.mastery);
+  const minWeakSlots = Math.ceil(count * 0.5);
 
+  let rng = seededHash(seed);
   const picked: string[] = [];
-  const pool = [...weighted];
-  for (let n = 0; n < count && pool.length > 0; n++) {
+  const usedKeys = new Set<string>();
+
+  for (let i = 0; i < Math.min(minWeakSlots, weakTopics.length); i++) {
+    picked.push(weakTopics[i].key);
+    usedKeys.add(weakTopics[i].key);
+  }
+
+  const pool = weighted.filter((w) => !usedKeys.has(w.key));
+  while (picked.length < count && pool.length > 0) {
     const totalWeight = pool.reduce((s, w) => s + w.weight, 0);
     rng = (rng * 1664525 + 1013904223) >>> 0;
     let r = (rng / 4294967296) * totalWeight;
