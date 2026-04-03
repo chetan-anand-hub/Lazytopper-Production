@@ -54,6 +54,55 @@ export interface FiveSignalOptions {
   cutoffYear?: number;
 }
 
+const TOPIC_KEY_TO_LABEL: Record<string, string> = {
+  "chemicalreactions": "Chemical Reactions & Equations",
+  "chemicalreactionsandequations": "Chemical Reactions & Equations",
+  "acidsbasessalts": "Acids, Bases & Salts",
+  "acidsbasesandsalts": "Acids, Bases & Salts",
+  "metalsandnonmetals": "Metals and Non-metals",
+  "metalsnonmetals": "Metals and Non-metals",
+  "carbonanditscompounds": "Carbon & its Compounds",
+  "carboncompounds": "Carbon & its Compounds",
+  "electricity": "Electricity",
+  "magneticeffectsofelectriccurrent": "Magnetic Effects of Electric Current",
+  "magneticeffects": "Magnetic Effects of Electric Current",
+  "lightreflectionandrefraction": "Light – Reflection & Refraction",
+  "lightreflectionrefraction": "Light – Reflection & Refraction",
+  "humaneyeandcolourfulworld": "Human Eye and the Colourful World",
+  "humaneyecolourfulworld": "Human Eye and the Colourful World",
+  "lifeprocesses": "Life Processes",
+  "howdoorganismsreproduce": "How do Organisms Reproduce?",
+  "reproduction": "How do Organisms Reproduce?",
+  "heredityevolution": "Heredity & Evolution",
+  "heredityandevolution": "Heredity & Evolution",
+  "ourenvironment": "Our Environment",
+  "managementofnaturalresources": "Management of Natural Resources",
+  "realnumbers": "Real Numbers",
+  "polynomials": "Polynomials",
+  "pairoflinearequationsintwovariables": "Pair of Linear Equations in Two Variables",
+  "linearequations": "Pair of Linear Equations in Two Variables",
+  "quadraticequations": "Quadratic Equations",
+  "arithmeticprogression": "Arithmetic Progression",
+  "arithmeticprogressions": "Arithmetic Progression",
+  "triangles": "Triangles",
+  "coordinategeometry": "Coordinate Geometry",
+  "trigonometry": "Trigonometry",
+  "trigonometricidentities": "Trigonometry",
+  "circles": "Circles",
+  "constructions": "Constructions",
+  "areasrelatedtocircles": "Areas Related to Circles",
+  "surfaceareasandvolumes": "Surface Areas and Volumes",
+  "statistics": "Statistics",
+  "probability": "Probability",
+};
+
+function normalizeTopicKey(raw: string): string {
+  const compact = raw.trim().toLowerCase().replace(/[^a-z0-9]/g, "");
+  const mapped = TOPIC_KEY_TO_LABEL[compact];
+  if (mapped) return mapped;
+  return raw.replace(/([a-z])([A-Z])/g, "$1 $2").replace(/[^a-zA-Z0-9]+/g, " ").trim();
+}
+
 function norm(raw: string): string {
   return raw.trim().toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/\s+/g, " ").trim();
 }
@@ -169,13 +218,15 @@ export function compute5SignalScore(
     }
   }
 
+  const resolvedTopic = normalizeTopicKey(input.topic);
+
   const histSignal = computeHistoricalFrequencySignal(
-    input.subject, input.topic, input.subtopic, targetYear, cutoffYear
+    input.subject, resolvedTopic, input.subtopic, targetYear, cutoffYear
   );
 
   const rotationDetail = computeRotationSignal({
     subject: input.subject,
-    topic: input.topic,
+    topic: resolvedTopic,
     subtopic: input.subtopic,
     targetYear,
     cutoffYear,
@@ -184,7 +235,7 @@ export function compute5SignalScore(
 
   const sqpDetail = computeSQPSignal({
     subject: input.subject,
-    topic: input.topic,
+    topic: resolvedTopic,
     subtopic: input.subtopic,
     marks: input.marks,
     format: input.format,
@@ -211,9 +262,9 @@ export function compute5SignalScore(
     signals.nepPolicy * weights.nepPolicy +
     signals.difficultyDistribution * weights.difficultyDistribution;
 
-  const arch = isGuaranteedArchetype(input.subject, input.topic, input.subtopic);
+  const arch = isGuaranteedArchetype(input.subject, resolvedTopic, input.subtopic);
   const isGuaranteed = arch !== null;
-  const guaranteedBoostVal = getGuaranteedBoost(input.subject, input.topic, input.subtopic);
+  const guaranteedBoostVal = getGuaranteedBoost(input.subject, resolvedTopic, input.subtopic);
 
   if (isGuaranteed) {
     compositeScore = Math.min(1, compositeScore + guaranteedBoostVal);

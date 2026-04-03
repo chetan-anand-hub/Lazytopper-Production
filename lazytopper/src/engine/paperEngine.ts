@@ -89,6 +89,7 @@ interface SectionTarget {
 }
 
 interface CandidateScoreContext {
+  subject: "Maths" | "Science";
   topicWeights: Record<string, number>;
   topicMultipliers: Record<string, number>;
   difficultyTargetMarks: Record<DifficultyKey, number>;
@@ -194,6 +195,7 @@ export function generatePaper(paperId: string): GeneratedPaper {
   const usedQuestionIds = new Set<string>();
 
   const scoreContext: CandidateScoreContext = {
+    subject: subject as "Maths" | "Science",
     topicWeights: trendsBundle.topicWeights,
     topicMultipliers,
     difficultyTargetMarks,
@@ -684,9 +686,8 @@ function scoreQuestion(
   const topicWeight = topicWeights[topicKey] ?? 0;
   const topicMult = topicMultipliers[topicKey] ?? 1;
 
-  const subject = ((q as any).topicKey || "").startsWith("sci") ? "Science" : "Maths";
   const fiveSignalScore = computePredictionScore({
-    subject: subject as "Maths" | "Science",
+    subject: ctx.subject,
     topicKey,
     subtopic: (q as any).subtopic || "",
     marks: q.marks,
