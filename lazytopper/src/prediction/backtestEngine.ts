@@ -175,7 +175,7 @@ export function runBacktest(
   const totalCorrect = yearResults.reduce((s, r) => s + r.predictedCorrectly, 0);
   const overallAccuracy = totalActual > 0 ? totalCorrect / totalActual : 0;
 
-  const allCorrectConf = yearResults.flatMap(r => r.topCorrect.map(c => c.confidence));
+  const allCorrectConf = yearResults.map(r => r.avgConfidenceCorrect).filter(c => c > 0);
   const allMissedConf = yearResults.map(r => r.avgConfidenceMissed).filter(c => c > 0);
 
   const averageConfidenceWhenCorrect = allCorrectConf.length > 0

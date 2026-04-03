@@ -30,16 +30,28 @@ import { buildConstrainedPaper } from "../prediction/constrainedPaperConstructor
 
 const backtestGateCache = new Map<string, boolean>();
 
+let backtestStrictMode = false;
+
+export function setBacktestStrictMode(strict: boolean): void {
+  backtestStrictMode = strict;
+  backtestGateCache.clear();
+}
+
 function checkBacktestGate(subject: "Maths" | "Science"): boolean {
   if (backtestGateCache.has(subject)) return backtestGateCache.get(subject)!;
   try {
     const gate = runBacktestAcceptanceGate(subject);
     backtestGateCache.set(subject, gate.passed);
     if (!gate.passed) {
-      console.warn(`[PaperEngine] Backtest gate FAILED for ${subject}: ${gate.message}`);
+      const msg = `[PaperEngine] Backtest gate FAILED for ${subject}: ${gate.message}`;
+      if (backtestStrictMode) {
+        throw new Error(msg);
+      }
+      console.warn(msg);
     }
     return gate.passed;
-  } catch {
+  } catch (e) {
+    if (backtestStrictMode) throw e;
     backtestGateCache.set(subject, true);
     return true;
   }
