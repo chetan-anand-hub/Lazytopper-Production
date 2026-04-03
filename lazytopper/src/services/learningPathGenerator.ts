@@ -1,7 +1,9 @@
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { getWeakAreas, type WeakArea } from "./weakAreaAggregator";
 import { getDueReviews } from "./spacedRepetitionEngine";
 import { getActiveProgressUser } from "./studentProgressStore";
 import { callMentor } from "../ai/aiClient";
+import { firestoreDb } from "./firebaseClient";
 
 export interface LearningPathDay {
   day: number;
@@ -154,13 +156,130 @@ export function loadLearningPath(): LearningPath | null {
   }
 }
 
-export function saveLearningPath(path: LearningPath): void {
+export async function loadLearningPathWithSync(): Promise<LearningPath | null> {
+  const local = loadLearningPath();
+  const uid = getActiveProgressUser();
+  if (firestoreDb && uid && uid !== "anonymous") {
+    try {
+      const snap = await getDoc(doc(firestoreDb, "learningPaths", uid));
+      if (snap.exists()) {
+        const remote = snap.data() as LearningPath;
+        if (!local || remote.updatedAt > local.updatedAt) {
+          saveLocalLearningPath(remote);
+          return remote;
+        }
+      }
+    } catch {}
+  }
+  return local;
+}
+
+function saveLocalLearningPath(path: LearningPath): void {
   if (typeof window === "undefined") return;
   try {
     const key = getUserScopedKey();
-    path.updatedAt = new Date().toISOString();
     window.localStorage.setItem(key, JSON.stringify(path));
   } catch {}
+}
+
+export function saveLearningPath(path: LearningPath): void {
+  path.updatedAt = new Date().toISOString();
+  saveLocalLearningPath(path);
+
+  const uid = getActiveProgressUser();
+  if (firestoreDb && uid && uid !== "anonymous") {
+    void setDoc(doc(firestoreDb, "learningPaths", uid), { ...path }, { merge: true }).catch(() => {});
+  }
+}
+
+function parseAIDayPlan(
+  aiText: string,
+  weakAreas: WeakArea[],
+  totalDays: number,
+  minutesPerDay: number
+): LearningPathDay[] | null {
+  const weakByName = new Map<string, WeakArea>();
+  const weakByKey = new Map<string, WeakArea>();
+  for (const w of weakAreas) {
+    weakByName.set(w.topicName.toLowerCase(), w);
+    weakByKey.set(w.topicKey.toLowerCase(), w);
+  }
+
+  function findWeakArea(text: string): WeakArea | undefined {
+    const lower = text.toLowerCase();
+    for (const [name, area] of weakByName) {
+      if (lower.includes(name)) return area;
+    }
+    for (const [key, area] of weakByKey) {
+      if (lower.includes(key.replace(/-/g, " "))) return area;
+    }
+    return undefined;
+  }
+
+  const dayBlocks = aiText.split(/(?:^|\n)(?:\*{0,2})?[Dd]ay\s*(\d+)/gm);
+  if (dayBlocks.length < 3) return null;
+
+  const days: LearningPathDay[] = [];
+  const now = new Date();
+
+  for (let i = 1; i < dayBlocks.length; i += 2) {
+    const dayNum = parseInt(dayBlocks[i], 10);
+    const content = dayBlocks[i + 1] || "";
+    if (dayNum < 1 || dayNum > totalDays || !content) continue;
+
+    const topics: LearningPathTopic[] = [];
+    const lines = content.split("\n").filter((l) => l.trim());
+    const reviewTopics: string[] = [];
+    let isReviewDay = false;
+
+    for (const line of lines) {
+      if (/review/i.test(line)) {
+        isReviewDay = true;
+        const area = findWeakArea(line);
+        if (area) reviewTopics.push(area.topicKey);
+        continue;
+      }
+
+      const area = findWeakArea(line);
+      if (!area) continue;
+
+      let difficulty: "Easy" | "Medium" | "Hard" = "Easy";
+      if (/hard/i.test(line)) difficulty = "Hard";
+      else if (/medium/i.test(line)) difficulty = "Medium";
+
+      const qMatch = line.match(/(\d+)\s*(?:questions?|q(?:s|uestions?)?)/i);
+      const targetQuestions = qMatch ? Math.min(15, Math.max(5, parseInt(qMatch[1], 10))) : 10;
+
+      const conceptsMatch = line.match(/(?:focus|concepts?|key):\s*(.+)/i);
+      const focusConcepts = conceptsMatch
+        ? conceptsMatch[1].split(/[,;]/).map((c) => c.trim()).filter(Boolean).slice(0, 3)
+        : area.weakConcepts.slice(0, 3);
+
+      topics.push({
+        topicKey: area.topicKey,
+        topicName: area.topicName,
+        subject: area.subject,
+        targetQuestions,
+        difficulty,
+        focusConcepts,
+      });
+    }
+
+    if (topics.length === 0 && !isReviewDay) continue;
+
+    const isMilestone = dayNum === Math.floor(totalDays / 2) || dayNum === totalDays;
+
+    days.push({
+      day: dayNum,
+      date: addDaysToDate(now, dayNum - 1),
+      topics,
+      reviewTopics,
+      estimatedMinutes: topics.length > 0 ? minutesPerDay : 30,
+      isMilestone,
+    });
+  }
+
+  return days.length >= Math.min(3, totalDays) ? days : null;
 }
 
 export async function generateAILearningPath(options?: {
@@ -189,11 +308,13 @@ export async function generateAILearningPath(options?: {
         `Weak areas identified:\n${weakSummary}`,
         `Requirements:`,
         `- Order topics by prerequisites (foundational first)`,
-        `- Start each topic with Easy difficulty, progress to Hard`,
+        `- Start each topic with Easy difficulty, progress to Hard over multiple sessions`,
         `- Include review days every 3-4 days`,
         `- Mark day ${Math.floor(totalDays / 2)} and day ${totalDays} as milestones`,
-        `- For each day provide: topic names, difficulty level (Easy/Medium/Hard), number of questions (5-15), key concepts to focus on`,
-        `Respond with a structured day-by-day plan.`,
+        `Format each day as:`,
+        `Day N:`,
+        `- TopicName: difficulty (Easy/Medium/Hard), X questions, focus: concept1, concept2`,
+        `- Review: PreviousTopicName`,
       ].join("\n"),
       daysLeft: totalDays,
       hoursPerDayTotal: minutesPerDay / 60,
@@ -201,25 +322,26 @@ export async function generateAILearningPath(options?: {
 
     const aiText = response?.data?.text || "";
 
-    const localPath = generateLearningPath(options);
-
     if (aiText.length > 50) {
-      localPath.id = `ai-lp-${Date.now().toString(36)}`;
+      const parsedDays = parseAIDayPlan(aiText, weakAreas, totalDays, minutesPerDay);
 
-      const dayMentions = aiText.match(/day\s*(\d+)/gi) || [];
-      for (const mention of dayMentions) {
-        const dayNum = parseInt(mention.replace(/day\s*/i, ""), 10);
-        if (dayNum > 0 && dayNum <= localPath.days.length) {
-          const dayObj = localPath.days[dayNum - 1];
-          if (aiText.toLowerCase().includes("review") && dayNum % 3 === 0) {
-            dayObj.reviewTopics = weakAreas.slice(0, 3).map((w) => w.topicKey);
-          }
-        }
+      if (parsedDays && parsedDays.length > 0) {
+        const path: LearningPath = {
+          id: `ai-lp-${Date.now().toString(36)}`,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          totalDays: parsedDays.length,
+          daysCompleted: 0,
+          days: parsedDays,
+          weakAreasAtStart: weakAreas.length,
+          status: "active",
+        };
+        saveLearningPath(path);
+        return path;
       }
     }
 
-    saveLearningPath(localPath);
-    return localPath;
+    return generateLearningPath(options);
   } catch (err) {
     console.warn("AI learning path generation failed, falling back to local:", err);
     return generateLearningPath(options);

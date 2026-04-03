@@ -20,6 +20,7 @@ import {
   type SubjectKey,
 } from "../data/predictivePapers";
 import { QuestionVisualAid } from "../components/question/QuestionVisualAid";
+import { saveMockScore } from "../services/mockScoreHistory";
 import "../print.css"; // print styles
 
 type AnyPredictedQuestion = PredictedQuestion | PredictedQuestionScience;
@@ -155,12 +156,41 @@ const MockPaperPage: React.FC = () => {
   }, [paperMeta, questionBank, subject]);
 
   const { sections, totalMarks } = mockResult;
+  const [scoreInput, setScoreInput] = React.useState("");
+  const [scoreSaved, setScoreSaved] = React.useState(false);
+
+  const handleLogScore = () => {
+    const scored = parseInt(scoreInput, 10);
+    if (isNaN(scored) || scored < 0 || scored > totalMarks) return;
+
+    const topicBreakdown: Record<string, { scored: number; maxPossible: number }> = {};
+    for (const sec of Object.values(sections)) {
+      for (const q of (sec as { questions: AnyPredictedQuestion[] }).questions) {
+        const tk = q.topicKey || "unknown";
+        if (!topicBreakdown[tk]) topicBreakdown[tk] = { scored: 0, maxPossible: 0 };
+        topicBreakdown[tk].maxPossible += q.marks ?? 0;
+      }
+    }
+
+    const ratio = totalMarks > 0 ? scored / totalMarks : 0;
+    for (const tk of Object.keys(topicBreakdown)) {
+      topicBreakdown[tk].scored = Math.round(topicBreakdown[tk].maxPossible * ratio);
+    }
+
+    saveMockScore({
+      subject: (subject === "Science" ? "Science" : "Maths") as "Maths" | "Science",
+      totalMarks: scored,
+      maxMarks: totalMarks,
+      percent: Math.round(ratio * 100),
+      topicBreakdown,
+    });
+    setScoreSaved(true);
+  };
 
   const handleBack = () => {
     navigate("/predictive-papers");
   };
 
-  // 🖨️ Print / Download as PDF (browser print dialog)
   const handlePrint = () => {
     window.print();
   };
@@ -278,6 +308,44 @@ const MockPaperPage: React.FC = () => {
               >
                 🖨️ Print paper / Download PDF
               </button>
+            </div>
+
+            <div style={{ marginTop: 10, display: "flex", alignItems: "center", gap: 8 }}>
+              {scoreSaved ? (
+                <span style={{ color: "#22c55e", fontWeight: 700, fontSize: "0.85rem" }}>
+                  Score saved! ({scoreInput}/{totalMarks})
+                </span>
+              ) : (
+                <>
+                  <span style={{ fontSize: "0.8rem", opacity: 0.9 }}>Log my score:</span>
+                  <input
+                    type="number"
+                    min={0}
+                    max={totalMarks}
+                    value={scoreInput}
+                    onChange={(e) => setScoreInput(e.target.value)}
+                    placeholder={`0-${totalMarks}`}
+                    style={{
+                      width: 70, padding: "5px 8px", borderRadius: 8,
+                      border: "1px solid rgba(255,255,255,0.3)", background: "rgba(255,255,255,0.15)",
+                      color: "#fff", fontSize: "0.85rem", fontWeight: 600,
+                    }}
+                  />
+                  <span style={{ fontSize: "0.8rem", opacity: 0.7 }}>/ {totalMarks}</span>
+                  <button
+                    type="button"
+                    onClick={handleLogScore}
+                    disabled={!scoreInput}
+                    style={{
+                      padding: "5px 14px", borderRadius: 16, border: "none",
+                      background: scoreInput ? "#3b82f6" : "#555", color: "#fff",
+                      fontSize: "0.8rem", fontWeight: 600, cursor: scoreInput ? "pointer" : "default",
+                    }}
+                  >
+                    Save
+                  </button>
+                </>
+              )}
             </div>
           </div>
 
@@ -413,6 +481,23 @@ const MockPaperPage: React.FC = () => {
         </main>
       </div>
       {/* 👆 end of #print-area */}
+
+      {scoreSaved && (
+        <div style={{ textAlign: "center", margin: "24px 0" }}>
+          <button
+            type="button"
+            onClick={() => navigate("/weak-area-practice")}
+            style={{
+              padding: "12px 28px", borderRadius: 16, border: "none",
+              background: "#ff9600", color: "#fff", fontWeight: 800,
+              fontSize: "0.95rem", cursor: "pointer",
+              boxShadow: "0 4px 12px rgba(255,150,0,0.3)",
+            }}
+          >
+            Fix My Weak Areas
+          </button>
+        </div>
+      )}
     </div>
   );
 };

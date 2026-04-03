@@ -1,8 +1,10 @@
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import {
   buildProgressScopeKey,
   getActiveProgressUser,
   saveLearnerProgressSegment,
 } from "./studentProgressStore";
+import { firestoreDb } from "./firebaseClient";
 
 export type SRStage = "new" | "learning" | "review" | "mastered";
 
@@ -72,8 +74,31 @@ export function saveSRSchedule(schedule: SRSchedule): void {
       void saveLearnerProgressSegment(uid, "recentActivity", [
         { kind: "sr_update", at: nowIso() },
       ]);
+      if (firestoreDb && uid !== "anonymous") {
+        void setDoc(doc(firestoreDb, "srSchedules", uid), { ...schedule }, { merge: true }).catch(() => {});
+      }
     }
   } catch {}
+}
+
+export async function loadSRScheduleWithSync(): Promise<SRSchedule> {
+  const local = loadSRSchedule();
+  const uid = getActiveProgressUser();
+  if (firestoreDb && uid && uid !== "anonymous") {
+    try {
+      const snap = await getDoc(doc(firestoreDb, "srSchedules", uid));
+      if (snap.exists()) {
+        const remote = snap.data() as SRSchedule;
+        if (remote?.version === 1 && remote?.cards && remote.updatedAt > local.updatedAt) {
+          if (typeof window !== "undefined") {
+            window.localStorage.setItem(getStorageKey(), JSON.stringify(remote));
+          }
+          return remote;
+        }
+      }
+    } catch {}
+  }
+  return local;
 }
 
 function computeCardKey(topicKey: string, conceptKey: string): string {

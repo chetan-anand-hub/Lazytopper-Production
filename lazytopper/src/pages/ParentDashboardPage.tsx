@@ -6,6 +6,7 @@ import { getWeakAreas, type WeakAreaSummary } from "../services/weakAreaAggregat
 import { useSmartLearning } from "../engine/smartLearningStore";
 import { useAuth } from "../context/AuthContext";
 import { getLatestMockScores, type MockScoreEntry } from "../services/mockScoreHistory";
+import { getActiveProgressUser } from "../services/studentProgressStore";
 
 const TOPIC_NAMES: Record<string, string> = {
   "real-numbers": "Real Numbers", polynomials: "Polynomials",
@@ -202,11 +203,13 @@ export default function ParentDashboardPage() {
   const topicList = subjectTab === "Science" ? ALL_SCIENCE_TOPICS : ALL_MATHS_TOPICS;
 
   const handleCopyLink = () => {
-    const url = window.location.href;
-    navigator.clipboard?.writeText(url).then(() => {
+    const uid = getActiveProgressUser();
+    const shareToken = btoa(`lt:${uid}:${Date.now()}`);
+    const shareUrl = `${window.location.origin}${window.location.pathname}?share=${shareToken}&student=${encodeURIComponent(user?.displayName || "Student")}`;
+    navigator.clipboard?.writeText(shareUrl).then(() => {
       setShareLink("Link copied!");
       setTimeout(() => setShareLink(""), 2000);
-    }).catch(() => setShareLink(url));
+    }).catch(() => setShareLink(shareUrl));
   };
 
   const handlePrintReport = () => {
