@@ -2,6 +2,8 @@
 import type { CanonicalQuestion } from './predictionTypes';
 import { TRIANGLES_PACK1_QUESTIONS } from './questionBanks/class10/maths/triangles.pack1';
 import { TRIG_PACK1_QUESTIONS } from './questionBanks/class10/maths/trigonometry.pack1';
+import { trianglesPack2Questions } from './questionBanks/class10/maths/triangles.pack2';
+import { trigonometryPack2Questions } from './questionBanks/class10/maths/trigonometry.pack2';
 import { REAL_NUMBERS_PACK1 } from './questionBanks/class10/maths/realNumbers.pack1';
 import { POLYNOMIALS_PACK1 } from './questionBanks/class10/maths/polynomials.pack1';
 import { PAIR_LINEAR_EQUATIONS_PACK1 } from './questionBanks/class10/maths/pairOfLinearEquations.pack1';
@@ -30,7 +32,9 @@ import { OUR_ENVIRONMENT_PACK1 } from './questionBanks/class10/science/ourEnviro
 
 export const canonicalQuestionBank: CanonicalQuestion[] = [
   ...TRIANGLES_PACK1_QUESTIONS,
+  ...trianglesPack2Questions,
   ...TRIG_PACK1_QUESTIONS,
+  ...trigonometryPack2Questions,
   ...REAL_NUMBERS_PACK1,
   ...POLYNOMIALS_PACK1,
   ...PAIR_LINEAR_EQUATIONS_PACK1,

@@ -507,19 +507,13 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
   {
     id: "POLY-H13", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
     section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Evaluating",
-    questionText: "If α, β are zeroes of kx² − 5x + 4 and α² + β² = 25, find k.",
+    questionText: "If α, β are zeroes of 2x² − 5x + 4, find the value of α² + β².",
     solutionSteps: [
-      "α + β = 5/k, αβ = 4/k",
-      "α² + β² = (α+β)² − 2αβ = 25/k² − 8/k = 25",
-      "25 − 8k = 25k²",
-      "25k² + 8k − 25 = 0 ⟹ not clean... Let me recheck.",
-      "Actually: 25/k² − 8/k = 25. Multiply by k²: 25 − 8k = 25k²",
-      "Hmm this gives a messy equation. Let me try k = −5/4 or k=1...",
-      "If k=1: 25−8=17≠25. Let me restate as given in many CBSE papers: This equation gives k² values.",
-      "But commonly this is set with α²+β² = 17/4 and the answer is k=2."
+      "α + β = 5/2, αβ = 4/2 = 2",
+      "α² + β² = (α+β)² − 2αβ = 25/4 − 4 = 25/4 − 16/4 = 9/4"
     ],
-    answer: "Refer to the commonly seen CBSE variant with α²+β² = 17/4, giving k = 2",
-    finalAnswer: "k depends on the exact value of α²+β²"
+    answer: "9/4",
+    finalAnswer: "α² + β² = 9/4"
   },
   {
     id: "POLY-H14", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
@@ -544,4 +538,5 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     ],
     finalAnswer: "k = 2; zeroes are −1/2 and −2"
   },
+  { id: "POLY-AR05", subject: "Maths", topicKey: "Polynomials", subtopic: "Relationship between Zeroes and Coefficients", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): A quadratic polynomial can have at most 2 zeroes.\nReason (R): The degree of a polynomial determines the maximum number of zeroes it can have.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." },
 ];
