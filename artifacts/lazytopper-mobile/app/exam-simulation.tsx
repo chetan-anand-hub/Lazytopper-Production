@@ -12,54 +12,13 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useColors } from "@/hooks/useColors";
-import type { LTSubjectKey } from "@workspace/shared-data";
+import {
+  mathsExamQuestions,
+  scienceExamQuestions,
+} from "@workspace/shared-data";
+import type { LTSubjectKey, ExamQuestion } from "@workspace/shared-data";
 
 type Phase = "setup" | "exam" | "review";
-
-interface ExamQuestion {
-  id: number;
-  section: string;
-  marks: number;
-  text: string;
-  type: "mcq" | "short" | "long" | "case";
-  options?: string[];
-}
-
-function generateQuestions(subject: LTSubjectKey): ExamQuestion[] {
-  const mathQuestions: ExamQuestion[] = [
-    { id: 1, section: "A", marks: 1, text: "If HCF(336, 54) = 6, find LCM(336, 54).", type: "mcq", options: ["3__(a) 3024", "(b) 2_(c) 1_(d) 5765024", "(c) 1008", "(d) 576"] },
-    { id: 2, section: "A", marks: 1, text: "The zeroes of the polynomial x² − 3x − 4 are:", type: "mcq", options: ["(a) 4, −1", "(b) −4, 1", "(c) 4, 1", "(d) −4, −1"] },
-    { id: 3, section: "A", marks: 1, text: "If tan θ = 5/12, then the value of sin θ is:", type: "mcq", options: ["(a) 5/13", "(b) 12/13", "(c) 13/5", "(d) 13/12"] },
-    { id: 4, section: "A", marks: 1, text: "The distance between (2, 3) and (−1, 7) is:", type: "mcq", options: ["(a) 4", "(b) 5", "(c) 6", "(d) 7"] },
-    { id: 5, section: "A", marks: 1, text: "Which of the following is irrational?", type: "mcq", options: ["(a) √4", "(b) √9/√16", "(c) √5", "(d) 0.¯3"] },
-    { id: 6, section: "B", marks: 2, text: "Find the roots of the quadratic equation 2x² + x − 6 = 0.", type: "short" },
-    { id: 7, section: "B", marks: 2, text: "Prove that √3 is irrational.", type: "short" },
-    { id: 8, section: "B", marks: 2, text: "Find the 20th term of the AP: 3, 8, 13, 18, ...", type: "short" },
-    { id: 9, section: "C", marks: 3, text: "A triangle ABC with vertices A(1,−1), B(0,4) and C(−5,3). Find the area of the triangle.", type: "short" },
-    { id: 10, section: "C", marks: 3, text: "Two concentric circles are of radii 5 cm and 3 cm. Find the length of the chord of the larger circle which touches the smaller circle.", type: "short" },
-    { id: 11, section: "D", marks: 5, text: "State and prove the Basic Proportionality Theorem (Thales' Theorem). Using this, if DE ∥ BC in △ABC where D and E lie on AB and AC respectively, and AD/DB = 2/3, find AE/EC.", type: "long" },
-    { id: 12, section: "D", marks: 5, text: "Draw a pair of tangents to a circle of radius 4 cm from a point 6 cm away from the centre. Describe the steps of construction.", type: "long" },
-    { id: 13, section: "E", marks: 4, text: "Case Study: A survey was conducted on 30 families in a locality regarding their monthly expenditure on education. The data is: 1000-1500: 2, 1500-2000: 5, 2000-2500: 8, 2500-3000: 7, 3000-3500: 5, 3500-4000: 3. Find the mean expenditure using the step-deviation method.", type: "case" },
-  ];
-
-  const scienceQuestions: ExamQuestion[] = [
-    { id: 1, section: "A", marks: 1, text: "The chemical formula of baking soda is:", type: "mcq", options: ["(a) Na₂CO₃", "(b) NaHCO₃", "(c) NaCl", "(d) NaOH"] },
-    { id: 2, section: "A", marks: 1, text: "Which of the following is not a type of mirror?", type: "mcq", options: ["(a) Concave", "(b) Convex", "(c) Plane", "(d) Refractive"] },
-    { id: 3, section: "A", marks: 1, text: "The SI unit of electric current is:", type: "mcq", options: ["(a) Volt", "(b) Watt", "(c) Ampere", "(d) Ohm"] },
-    { id: 4, section: "A", marks: 1, text: "Which gas is evolved when zinc reacts with dilute HCl?", type: "mcq", options: ["(a) O₂", "(b) CO₂", "(c) H₂", "(d) Cl₂"] },
-    { id: 5, section: "A", marks: 1, text: "Stomata open and close due to:", type: "mcq", options: ["(a) Xylem", "(b) Phloem", "(c) Guard cells", "(d) Companion cells"] },
-    { id: 6, section: "B", marks: 2, text: "What is a homologous series? Give an example with the first three members.", type: "short" },
-    { id: 7, section: "B", marks: 2, text: "Define reflex arc. Draw a neat labelled diagram.", type: "short" },
-    { id: 8, section: "B", marks: 2, text: "State Ohm's law. What is the resistance of a conductor if V = 12V and I = 3A?", type: "short" },
-    { id: 9, section: "C", marks: 3, text: "Explain the process of nutrition in Amoeba with the help of diagrams.", type: "short" },
-    { id: 10, section: "C", marks: 3, text: "What happens when dilute hydrochloric acid is added to iron filings? Write balanced chemical equation.", type: "short" },
-    { id: 11, section: "D", marks: 5, text: "Draw a ray diagram to show the image formed by a convex lens when the object is placed (i) beyond 2F₁ (ii) at F₁. State the nature, position and size of the image in each case.", type: "long" },
-    { id: 12, section: "D", marks: 5, text: "Describe the structure of human heart with a labelled diagram. How does blood flow through the four chambers?", type: "long" },
-    { id: 13, section: "E", marks: 4, text: "Case Study: A student set up a circuit with a 9V battery, an ammeter, a voltmeter and three resistors of 2Ω, 3Ω and 4Ω connected in series. (i) Find total resistance. (ii) Find current. (iii) Find potential difference across the 3Ω resistor.", type: "case" },
-  ];
-
-  return subject === "Maths" ? mathQuestions : scienceQuestions;
-}
 
 function formatTime(seconds: number): string {
   const h = Math.floor(seconds / 3600);
@@ -76,18 +35,22 @@ export default function ExamSimulationScreen() {
 
   const [phase, setPhase] = useState<Phase>("setup");
   const [currentIdx, setCurrentIdx] = useState(0);
-  const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [orChoices, setOrChoices] = useState<Record<string, "main" | "alt">>({});
   const [timeLeft, setTimeLeft] = useState(3 * 60 * 60);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const questions = useMemo(() => generateQuestions(subject), [subject]);
+  const questions = useMemo(
+    () => (subject === "Maths" ? mathsExamQuestions : scienceExamQuestions),
+    [subject]
+  );
 
   useEffect(() => {
     if (phase === "exam" && timeLeft > 0) {
       timerRef.current = setInterval(() => {
         setTimeLeft((prev) => {
           if (prev <= 1) {
-            clearInterval(timerRef.current!);
+            if (timerRef.current) clearInterval(timerRef.current);
             setPhase("review");
             return 0;
           }
@@ -98,16 +61,20 @@ export default function ExamSimulationScreen() {
         if (timerRef.current) clearInterval(timerRef.current);
       };
     }
-  }, [phase]);
+  }, [phase, timeLeft]);
 
-  const handleSelectAnswer = useCallback((questionId: number, answer: string) => {
+  const handleSelectAnswer = useCallback((questionId: string, answer: string) => {
     setAnswers((prev) => ({ ...prev, [questionId]: answer }));
+  }, []);
+
+  const handleOrChoice = useCallback((questionId: string, choice: "main" | "alt") => {
+    setOrChoices((prev) => ({ ...prev, [questionId]: choice }));
   }, []);
 
   const handleSubmit = useCallback(() => {
     Alert.alert(
       "Submit Exam?",
-      "Are you sure you want to submit your exam? You cannot change your answers after submission.",
+      "Are you sure you want to submit? You cannot change answers after submission.",
       [
         { text: "Cancel", style: "cancel" },
         {
@@ -125,6 +92,14 @@ export default function ExamSimulationScreen() {
   const totalMarks = questions.reduce((sum, q) => sum + q.marks, 0);
   const attemptedCount = Object.keys(answers).length;
   const currentQ = questions[currentIdx];
+
+  const activeQuestion = useMemo((): ExamQuestion => {
+    if (!currentQ) return questions[0];
+    if (currentQ.orAlternative && orChoices[currentQ.id] === "alt") {
+      return currentQ.orAlternative;
+    }
+    return currentQ;
+  }, [currentQ, orChoices, questions]);
 
   if (phase === "setup") {
     return (
@@ -150,12 +125,13 @@ export default function ExamSimulationScreen() {
           </Text>
 
           <View style={[styles.detailsCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-            {[
+            {([
               { icon: "clock" as const, label: "Duration", value: "3 Hours" },
               { icon: "award" as const, label: "Total Marks", value: `${totalMarks}` },
               { icon: "list" as const, label: "Questions", value: `${questions.length}` },
-              { icon: "layers" as const, label: "Sections", value: "A – E" },
-            ].map((item) => (
+              { icon: "layers" as const, label: "Sections", value: "A \u2013 E" },
+              { icon: "git-branch" as const, label: "Internal Choice", value: "Available" },
+            ]).map((item) => (
               <View key={item.label} style={styles.detailRow}>
                 <View style={[styles.detailIcon, { backgroundColor: colors.muted }]}>
                   <Feather name={item.icon} size={16} color={colors.primary} />
@@ -171,12 +147,13 @@ export default function ExamSimulationScreen() {
             <View style={{ flex: 1 }}>
               <Text style={[styles.rulesTitle, { color: colors.foreground }]}>Instructions</Text>
               <Text style={[styles.rulesText, { color: colors.mutedForeground }]}>
-                • Answer all questions{"\n"}
-                • Section A: MCQs (1 mark each){"\n"}
-                • Section B: Short answer (2 marks each){"\n"}
-                • Section C: Short answer (3 marks each){"\n"}
-                • Section D: Long answer (5 marks each){"\n"}
-                • Section E: Case-based (4 marks each)
+                {"\u2022"} Answer all questions{"\n"}
+                {"\u2022"} Section A: MCQs (1 mark each){"\n"}
+                {"\u2022"} Section B: Short answer (2 marks each){"\n"}
+                {"\u2022"} Section C: Short answer (3 marks each){"\n"}
+                {"\u2022"} Section D: Long answer (5 marks each){"\n"}
+                {"\u2022"} Section E: Case-based (4 marks each){"\n"}
+                {"\u2022"} Questions with OR have internal choice
               </Text>
             </View>
           </View>
@@ -211,15 +188,15 @@ export default function ExamSimulationScreen() {
 
           <Text style={[styles.setupHeading, { color: colors.foreground }]}>Exam Completed!</Text>
           <Text style={[styles.setupSubheading, { color: colors.mutedForeground }]}>
-            {subject} – Predictive Paper #{params.paperId || "1"}
+            {subject} \u2013 Predictive Paper #{params.paperId || "1"}
           </Text>
 
           <View style={[styles.detailsCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-            {[
+            {([
               { icon: "check-square" as const, label: "Attempted", value: `${attemptedCount}/${questions.length}` },
               { icon: "clock" as const, label: "Time Used", value: formatTime(3 * 60 * 60 - timeLeft) },
               { icon: "percent" as const, label: "Completion", value: `${Math.round((attemptedCount / questions.length) * 100)}%` },
-            ].map((item) => (
+            ]).map((item) => (
               <View key={item.label} style={styles.detailRow}>
                 <View style={[styles.detailIcon, { backgroundColor: colors.muted }]}>
                   <Feather name={item.icon} size={16} color={colors.primary} />
@@ -231,28 +208,35 @@ export default function ExamSimulationScreen() {
           </View>
 
           <Text style={[styles.sectionTitle, { color: colors.foreground }]}>Question Summary</Text>
-          {questions.map((q) => (
-            <View
-              key={q.id}
-              style={[styles.reviewRow, { backgroundColor: colors.card, borderColor: colors.border }]}
-            >
-              <View style={[
-                styles.reviewDot,
-                { backgroundColor: answers[q.id] ? colors.primary : colors.destructive + "60" },
-              ]} />
-              <View style={{ flex: 1 }}>
-                <Text style={[styles.reviewQLabel, { color: colors.foreground }]}>
-                  Q{q.id} (Sec {q.section}, {q.marks}m)
-                </Text>
-                <Text numberOfLines={1} style={[styles.reviewQText, { color: colors.mutedForeground }]}>
-                  {q.text}
+          {questions.map((q) => {
+            const chosenAlt = orChoices[q.id] === "alt" && q.orAlternative;
+            const displayQ = chosenAlt ? q.orAlternative! : q;
+            const answerId = chosenAlt ? q.orAlternative!.id : q.id;
+
+            return (
+              <View
+                key={q.id}
+                style={[styles.reviewRow, { backgroundColor: colors.card, borderColor: colors.border }]}
+              >
+                <View style={[
+                  styles.reviewDot,
+                  { backgroundColor: answers[answerId] ? colors.primary : colors.destructive + "60" },
+                ]} />
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.reviewQLabel, { color: colors.foreground }]}>
+                    {displayQ.id} (Sec {displayQ.section}, {displayQ.marks}m)
+                    {q.orAlternative ? (chosenAlt ? " [OR]" : "") : ""}
+                  </Text>
+                  <Text numberOfLines={1} style={[styles.reviewQText, { color: colors.mutedForeground }]}>
+                    {displayQ.questionText}
+                  </Text>
+                </View>
+                <Text style={[styles.reviewStatus, { color: answers[answerId] ? colors.primary : colors.mutedForeground }]}>
+                  {answers[answerId] ? "Done" : "Skipped"}
                 </Text>
               </View>
-              <Text style={[styles.reviewStatus, { color: answers[q.id] ? colors.primary : colors.mutedForeground }]}>
-                {answers[q.id] ? "Done" : "Skipped"}
-              </Text>
-            </View>
-          ))}
+            );
+          })}
 
           <Pressable
             style={[styles.startBtn, { backgroundColor: colors.primary, marginTop: 16 }]}
@@ -297,20 +281,60 @@ export default function ExamSimulationScreen() {
       <ScrollView style={styles.examScrollArea} contentContainerStyle={styles.examScrollContent}>
         <View style={styles.qHeader}>
           <View style={[styles.sectionBadge, { backgroundColor: colors.primary + "20" }]}>
-            <Text style={[styles.sectionBadgeText, { color: colors.primary }]}>Section {currentQ.section}</Text>
+            <Text style={[styles.sectionBadgeText, { color: colors.primary }]}>Section {activeQuestion.section}</Text>
           </View>
           <View style={[styles.marksBadge, { backgroundColor: colors.gold + "20" }]}>
-            <Text style={[styles.marksBadgeText, { color: colors.gold }]}>{currentQ.marks} mark{currentQ.marks > 1 ? "s" : ""}</Text>
+            <Text style={[styles.marksBadgeText, { color: colors.gold }]}>{activeQuestion.marks} mark{activeQuestion.marks > 1 ? "s" : ""}</Text>
           </View>
+          {currentQ.orAlternative && (
+            <View style={[styles.orBadge, { backgroundColor: colors.secondary + "20" }]}>
+              <Text style={[styles.orBadgeText, { color: colors.secondary }]}>OR available</Text>
+            </View>
+          )}
         </View>
 
         <Text style={[styles.qNumber, { color: colors.mutedForeground }]}>Question {currentIdx + 1} of {questions.length}</Text>
-        <Text style={[styles.qText, { color: colors.foreground }]}>{currentQ.text}</Text>
 
-        {currentQ.type === "mcq" && currentQ.options && (
+        {currentQ.orAlternative && (
+          <View style={styles.orToggleRow}>
+            <Pressable
+              style={[
+                styles.orToggleBtn,
+                {
+                  backgroundColor: (orChoices[currentQ.id] || "main") === "main" ? colors.primary + "15" : colors.card,
+                  borderColor: (orChoices[currentQ.id] || "main") === "main" ? colors.primary : colors.border,
+                },
+              ]}
+              onPress={() => handleOrChoice(currentQ.id, "main")}
+            >
+              <Text style={[styles.orToggleText, { color: (orChoices[currentQ.id] || "main") === "main" ? colors.primary : colors.mutedForeground }]}>
+                Option A
+              </Text>
+            </Pressable>
+            <Text style={[styles.orLabel, { color: colors.mutedForeground }]}>OR</Text>
+            <Pressable
+              style={[
+                styles.orToggleBtn,
+                {
+                  backgroundColor: orChoices[currentQ.id] === "alt" ? colors.secondary + "15" : colors.card,
+                  borderColor: orChoices[currentQ.id] === "alt" ? colors.secondary : colors.border,
+                },
+              ]}
+              onPress={() => handleOrChoice(currentQ.id, "alt")}
+            >
+              <Text style={[styles.orToggleText, { color: orChoices[currentQ.id] === "alt" ? colors.secondary : colors.mutedForeground }]}>
+                Option B
+              </Text>
+            </Pressable>
+          </View>
+        )}
+
+        <Text style={[styles.qText, { color: colors.foreground }]}>{activeQuestion.questionText}</Text>
+
+        {activeQuestion.format === "MCQ" && activeQuestion.options && (
           <View style={styles.optionsContainer}>
-            {currentQ.options.map((opt, idx) => {
-              const selected = answers[currentQ.id] === opt;
+            {activeQuestion.options.map((opt, idx) => {
+              const selected = answers[activeQuestion.id] === opt;
               return (
                 <Pressable
                   key={idx}
@@ -321,7 +345,7 @@ export default function ExamSimulationScreen() {
                       borderColor: selected ? colors.primary : colors.border,
                     },
                   ]}
-                  onPress={() => handleSelectAnswer(currentQ.id, opt)}
+                  onPress={() => handleSelectAnswer(activeQuestion.id, opt)}
                 >
                   <View style={[
                     styles.optionRadio,
@@ -339,7 +363,7 @@ export default function ExamSimulationScreen() {
           </View>
         )}
 
-        {currentQ.type !== "mcq" && (
+        {activeQuestion.format !== "MCQ" && (
           <View style={[styles.writeBox, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <Feather name="edit-2" size={16} color={colors.mutedForeground} />
             <Text style={[styles.writeHint, { color: colors.mutedForeground }]}>
@@ -349,19 +373,19 @@ export default function ExamSimulationScreen() {
               style={[
                 styles.markDoneBtn,
                 {
-                  backgroundColor: answers[currentQ.id] ? colors.primary + "15" : colors.muted,
-                  borderColor: answers[currentQ.id] ? colors.primary : colors.border,
+                  backgroundColor: answers[activeQuestion.id] ? colors.primary + "15" : colors.muted,
+                  borderColor: answers[activeQuestion.id] ? colors.primary : colors.border,
                 },
               ]}
-              onPress={() => handleSelectAnswer(currentQ.id, "answered")}
+              onPress={() => handleSelectAnswer(activeQuestion.id, "answered")}
             >
               <Feather
-                name={answers[currentQ.id] ? "check-circle" : "circle"}
+                name={answers[activeQuestion.id] ? "check-circle" : "circle"}
                 size={16}
-                color={answers[currentQ.id] ? colors.primary : colors.mutedForeground}
+                color={answers[activeQuestion.id] ? colors.primary : colors.mutedForeground}
               />
-              <Text style={{ color: answers[currentQ.id] ? colors.primary : colors.mutedForeground, fontFamily: "Inter_600SemiBold", fontSize: 13 }}>
-                {answers[currentQ.id] ? "Marked as Done" : "Mark as Done"}
+              <Text style={{ color: answers[activeQuestion.id] ? colors.primary : colors.mutedForeground, fontFamily: "Inter_600SemiBold", fontSize: 13 }}>
+                {answers[activeQuestion.id] ? "Marked as Done" : "Mark as Done"}
               </Text>
             </Pressable>
           </View>
@@ -379,7 +403,7 @@ export default function ExamSimulationScreen() {
                 {
                   backgroundColor:
                     i === currentIdx ? colors.primary
-                    : answers[q.id] ? colors.primary + "40"
+                    : answers[q.id] || (q.orAlternative && answers[q.orAlternative.id]) ? colors.primary + "40"
                     : colors.muted,
                 },
               ]}
@@ -558,6 +582,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 8,
     marginBottom: 12,
+    flexWrap: "wrap",
   },
   sectionBadge: {
     paddingHorizontal: 10,
@@ -576,6 +601,36 @@ const styles = StyleSheet.create({
   marksBadgeText: {
     fontFamily: "Inter_600SemiBold",
     fontSize: 12,
+  },
+  orBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  orBadgeText: {
+    fontFamily: "Inter_600SemiBold",
+    fontSize: 12,
+  },
+  orToggleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    marginBottom: 14,
+  },
+  orToggleBtn: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    alignItems: "center",
+  },
+  orToggleText: {
+    fontFamily: "Inter_600SemiBold",
+    fontSize: 13,
+  },
+  orLabel: {
+    fontFamily: "Inter_700Bold",
+    fontSize: 13,
   },
   qNumber: {
     fontFamily: "Inter_400Regular",

@@ -30,3 +30,39 @@ export interface SubscriptionStatus {
   trialStartDate: string | null;
   trialEndDate: string | null;
 }
+
+export type DifficultyLevel = "Easy" | "Medium" | "Hard";
+
+export type QuestionFormat =
+  | "MCQ"
+  | "Short"
+  | "Assertion-Reasoning"
+  | "Case-Based"
+  | "Long"
+  | "VSA";
+
+export interface ExamQuestion {
+  id: string;
+  subject: LTSubjectKey;
+  topicKey: string;
+  subtopic: string;
+  section: string;
+  marks: number;
+  format: QuestionFormat;
+  difficulty: DifficultyLevel;
+  questionText: string;
+  options?: string[];
+  orAlternative?: ExamQuestion;
+}
+
+export interface HPQQuestion {
+  id: string;
+  subject: LTSubjectKey;
+  topic: string;
+  subtopic: string;
+  text: string;
+  marks: number;
+  difficulty: DifficultyLevel;
+  confidencePercent: number;
+  rationale: string;
+}

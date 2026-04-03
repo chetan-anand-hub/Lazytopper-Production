@@ -2,7 +2,6 @@ import { Feather } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useMemo, useState } from "react";
 import {
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -13,126 +12,10 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useColors } from "@/hooks/useColors";
 import { useSubscription } from "@/context/SubscriptionContext";
-import type { LTSubjectKey } from "@workspace/shared-data";
+import { mathsHPQ, scienceHPQ } from "@workspace/shared-data";
+import type { LTSubjectKey, DifficultyLevel } from "@workspace/shared-data";
 
-interface HPQQuestion {
-  id: string;
-  topic: string;
-  subtopic: string;
-  text: string;
-  marks: number;
-  difficulty: "Easy" | "Medium" | "Hard";
-  confidencePercent: number;
-  rationale: string;
-}
-
-const MATHS_HPQ: HPQQuestion[] = [
-  {
-    id: "HPQ-M1",
-    topic: "Trigonometry",
-    subtopic: "Heights & Distances",
-    text: "From the top of a 7m high building, the angle of elevation of the top of a tower is 60° and the angle of depression of its foot is 45°. Find the height of the tower.",
-    marks: 5,
-    difficulty: "Hard",
-    confidencePercent: 94,
-    rationale: "Appears 9/10 years, matches SQP 2025, NEP application focus",
-  },
-  {
-    id: "HPQ-M2",
-    topic: "Triangles",
-    subtopic: "BPT (Thales' Theorem)",
-    text: "State and prove the Basic Proportionality Theorem. Using this, if in △ABC, DE ∥ BC with AD = 4cm, DB = 5cm and AE = 4.5cm, find EC.",
-    marks: 5,
-    difficulty: "Hard",
-    confidencePercent: 92,
-    rationale: "Must-appear archetype — guaranteed proof every year",
-  },
-  {
-    id: "HPQ-M3",
-    topic: "Statistics",
-    subtopic: "Mean (Step Deviation)",
-    text: "The following table gives production yield per hectare of wheat of 100 farms. Find the mean using step deviation: 50-55: 2, 55-60: 8, 60-65: 12, 65-70: 24, 70-75: 38, 75-80: 16.",
-    marks: 3,
-    difficulty: "Medium",
-    confidencePercent: 89,
-    rationale: "High frequency 8/10 years, SQP aligned, easy scoring",
-  },
-  {
-    id: "HPQ-M4",
-    topic: "Coordinate Geometry",
-    subtopic: "Section Formula",
-    text: "Find the ratio in which the y-axis divides the line segment joining the points (5, −6) and (−1, −4). Also find the point of intersection.",
-    marks: 3,
-    difficulty: "Medium",
-    confidencePercent: 87,
-    rationale: "Alternates with distance formula; due this year per rotation",
-  },
-  {
-    id: "HPQ-M5",
-    topic: "Quadratic Equations",
-    subtopic: "Word Problems",
-    text: "The sum of the ages of two friends is 20 years. Four years ago, the product of their ages was 48. Find their present ages.",
-    marks: 3,
-    difficulty: "Medium",
-    confidencePercent: 85,
-    rationale: "NEP real-life context emphasis, appears 7/10 years",
-  },
-];
-
-const SCIENCE_HPQ: HPQQuestion[] = [
-  {
-    id: "HPQ-S1",
-    topic: "Electricity",
-    subtopic: "Ohm's Law Numerical",
-    text: "A wire of resistance 20Ω is drawn so that its length increases to 3 times its original length. Calculate the new resistance of the wire.",
-    marks: 3,
-    difficulty: "Medium",
-    confidencePercent: 93,
-    rationale: "Must-appear archetype — Ohm's law appears every year",
-  },
-  {
-    id: "HPQ-S2",
-    topic: "Light – Reflection & Refraction",
-    subtopic: "Convex Lens Ray Diagram",
-    text: "Draw ray diagrams for image formation by a convex lens for objects placed (i) between F and 2F, (ii) at 2F. State nature, size and position of image.",
-    marks: 5,
-    difficulty: "Hard",
-    confidencePercent: 91,
-    rationale: "High ROI topic, appears 9/10 years with diagrams",
-  },
-  {
-    id: "HPQ-S3",
-    topic: "Life Processes",
-    subtopic: "Human Heart",
-    text: "Describe the structure and working of the human heart. Draw a labelled diagram. Why is double circulation necessary?",
-    marks: 5,
-    difficulty: "Hard",
-    confidencePercent: 90,
-    rationale: "Guaranteed biology long answer, SQP 2025 aligned",
-  },
-  {
-    id: "HPQ-S4",
-    topic: "Chemical Reactions",
-    subtopic: "Balancing Equations",
-    text: "What happens when zinc granules are treated with dilute hydrochloric acid? Write the balanced chemical equation. What type of reaction is this?",
-    marks: 2,
-    difficulty: "Easy",
-    confidencePercent: 88,
-    rationale: "Most frequent chemistry question type, 8/10 years",
-  },
-  {
-    id: "HPQ-S5",
-    topic: "Carbon & its Compounds",
-    subtopic: "Homologous Series",
-    text: "What is a homologous series? Write the first three members of the alcohol series. What are the characteristics of a homologous series?",
-    marks: 3,
-    difficulty: "Medium",
-    confidencePercent: 86,
-    rationale: "NEP-aligned conceptual question, rising frequency trend",
-  },
-];
-
-const DIFFICULTY_COLORS: Record<string, string> = {
+const DIFFICULTY_COLORS: Record<DifficultyLevel, string> = {
   Easy: "#58cc02",
   Medium: "#ff9600",
   Hard: "#ff4b4b",
@@ -148,7 +31,7 @@ export default function HPQScreen() {
   const { isPremium } = useSubscription();
 
   const questions = useMemo(
-    () => (subject === "Maths" ? MATHS_HPQ : SCIENCE_HPQ),
+    () => (subject === "Maths" ? mathsHPQ : scienceHPQ),
     [subject]
   );
 

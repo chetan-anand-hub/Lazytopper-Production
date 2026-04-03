@@ -1,5 +1,15 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as WebBrowser from "expo-web-browser";
+import * as Linking from "expo-linking";
+import {
+  GoogleAuthProvider,
+  PhoneAuthProvider,
+  onAuthStateChanged,
+  signInWithPopup,
+  signInWithCredential,
+  signOut as fbSignOut,
+} from "firebase/auth";
+import type { User as FirebaseUser } from "firebase/auth";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { Alert, Platform } from "react-native";
 
@@ -40,6 +50,15 @@ const AuthContext = createContext<AuthContextType>({
 
 const AUTH_STORAGE_KEY = "lt_auth_user";
 
+function mapFirebaseUser(fbUser: FirebaseUser): User {
+  return {
+    uid: fbUser.uid,
+    displayName: fbUser.displayName || fbUser.email || fbUser.phoneNumber || "Student",
+    email: fbUser.email,
+    isGuest: false,
+  };
+}
+
 function showAuthError(message: string) {
   if (Platform.OS === "web") {
     console.error("[Auth]", message);
@@ -66,15 +85,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
 
     if (firebaseConfigured && authClient) {
-      const { onAuthStateChanged } = require("firebase/auth");
-      const unsubscribe = onAuthStateChanged(authClient, (fbUser: any) => {
+      const unsubscribe = onAuthStateChanged(authClient, (fbUser: FirebaseUser | null) => {
         if (fbUser) {
-          const mapped: User = {
-            uid: fbUser.uid,
-            displayName: fbUser.displayName || fbUser.email || "Student",
-            email: fbUser.email,
-            isGuest: false,
-          };
+          const mapped = mapFirebaseUser(fbUser);
           setUser(mapped);
           AsyncStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(mapped));
         }
@@ -100,7 +113,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await persistUser(guestUser);
   };
 
-  const signInWithGoogle = async () => {
+  const handleSignInWithGoogle = async () => {
     if (!firebaseConfigured || !authClient) {
       const msg = "Google sign-in is unavailable. Firebase is not configured.";
       setAuthError(msg);
@@ -108,18 +121,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
     try {
-      const { GoogleAuthProvider, signInWithPopup } = require("firebase/auth");
       const provider = new GoogleAuthProvider();
 
       if (Platform.OS === "web") {
         const result = await signInWithPopup(authClient, provider);
-        const fbUser = result.user;
-        await persistUser({
-          uid: fbUser.uid,
-          displayName: fbUser.displayName || "Student",
-          email: fbUser.email,
-          isGuest: false,
-        });
+        await persistUser(mapFirebaseUser(result.user));
       } else {
         const clientId = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID;
         if (!clientId) {
@@ -129,9 +135,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           return;
         }
 
-        const { makeRedirectUri } = require("expo-linking");
-        const { signInWithCredential } = require("firebase/auth");
-        const redirectUri = makeRedirectUri({ scheme: "lazytopper" });
+        const redirectUri = Linking.createURL("auth/callback");
 
         const authUrl =
           `https://accounts.google.com/o/oauth2/v2/auth?` +
@@ -151,24 +155,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (idToken) {
             const credential = GoogleAuthProvider.credential(idToken);
             const fbResult = await signInWithCredential(authClient, credential);
-            const fbUser = fbResult.user;
-            await persistUser({
-              uid: fbUser.uid,
-              displayName: fbUser.displayName || "Student",
-              email: fbUser.email,
-              isGuest: false,
-            });
+            await persistUser(mapFirebaseUser(fbResult.user));
           }
         }
       }
-    } catch (error: any) {
-      const msg = error?.message || "Google sign-in failed. Please try again.";
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : "Google sign-in failed. Please try again.";
       setAuthError(msg);
       showAuthError(msg);
     }
   };
 
-  const sendPhoneOtp = async (phoneNumber: string): Promise<string | null> => {
+  const handleSendPhoneOtp = async (phoneNumber: string): Promise<string | null> => {
     if (!firebaseConfigured || !authClient) {
       const msg = "Phone OTP is unavailable. Firebase is not configured.";
       setAuthError(msg);
@@ -176,19 +174,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return null;
     }
     try {
-      const { PhoneAuthProvider } = require("firebase/auth");
       const phoneProvider = new PhoneAuthProvider(authClient);
-      const verificationId = await phoneProvider.verifyPhoneNumber(phoneNumber);
+      const verificationId = await phoneProvider.verifyPhoneNumber(phoneNumber, undefined as never);
       return verificationId;
-    } catch (error: any) {
-      const msg = error?.message || "Failed to send OTP. Please try again.";
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : "Failed to send OTP. Please try again.";
       setAuthError(msg);
       showAuthError(msg);
       return null;
     }
   };
 
-  const signInWithPhone = async (verificationId: string, code: string) => {
+  const handleSignInWithPhone = async (verificationId: string, code: string) => {
     if (!firebaseConfigured || !authClient) {
       const msg = "Phone sign-in is unavailable. Firebase is not configured.";
       setAuthError(msg);
@@ -196,33 +193,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
     try {
-      const { PhoneAuthProvider, signInWithCredential } = require("firebase/auth");
       const credential = PhoneAuthProvider.credential(verificationId, code);
       const result = await signInWithCredential(authClient, credential);
-      const fbUser = result.user;
-      await persistUser({
-        uid: fbUser.uid,
-        displayName: fbUser.displayName || fbUser.phoneNumber || "Student",
-        email: fbUser.email,
-        isGuest: false,
-      });
-    } catch (error: any) {
-      const msg = error?.message || "Phone sign-in failed. Check code and try again.";
+      await persistUser(mapFirebaseUser(result.user));
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : "Phone sign-in failed. Check code and try again.";
       setAuthError(msg);
       showAuthError(msg);
     }
   };
 
-  const signOut = async () => {
+  const handleSignOut = async () => {
     if (user) {
       await AsyncStorage.removeItem(`lt_subscription_${user.uid}`);
     }
     if (firebaseConfigured && authClient) {
       try {
-        const { signOut: fbSignOut } = require("firebase/auth");
         await fbSignOut(authClient);
-      } catch (error: any) {
-        console.warn("[Auth] Firebase sign-out error:", error?.message);
+      } catch (error: unknown) {
+        const msg = error instanceof Error ? error.message : "Sign-out error";
+        console.warn("[Auth] Firebase sign-out error:", msg);
       }
     }
     setUser(null);
@@ -238,10 +228,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         firebaseAvailable: firebaseConfigured,
         authError,
         signInAsGuest,
-        signInWithGoogle,
-        signInWithPhone,
-        sendPhoneOtp,
-        signOut,
+        signInWithGoogle: handleSignInWithGoogle,
+        signInWithPhone: handleSignInWithPhone,
+        sendPhoneOtp: handleSendPhoneOtp,
+        signOut: handleSignOut,
       }}
     >
       {children}
