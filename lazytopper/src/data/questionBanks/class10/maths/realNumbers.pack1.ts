@@ -100,9 +100,8 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering",
     questionText: "The number of prime factors of 3 × 5 × 7 + 7 is:",
     options: ["1", "2", "3", "4"],
-    answer: "1",
-    solutionSteps: ["3 × 5 × 7 + 7 = 7(3 × 5 + 1) = 7 × 16 = 112", "112 = 2⁴ × 7", "Wait, recalculate: 7(15+1) = 7 × 16 = 112 = 2⁴ × 7, so 2 prime factors.", "Actually answer is 2"],
     answer: "2",
+    solutionSteps: ["3 × 5 × 7 + 7 = 7(3 × 5 + 1) = 7 × 16 = 112", "112 = 2⁴ × 7, so it has 2 prime factors (2 and 7)"],
     finalAnswer: "2"
   },
   {

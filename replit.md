@@ -61,3 +61,11 @@ The project is structured as a pnpm workspace monorepo.
 - **AI Provider**: Replit AI Integration proxy for Gemini API (`gemini-2.5-flash`), configured via `AI_INTEGRATIONS_GEMINI_BASE_URL` and `AI_INTEGRATIONS_GEMINI_API_KEY`. Falls back to direct `GEMINI_API_KEY` if proxy is unavailable.
 - **LaTeX Rendering**: KaTeX library (`MathText` component)
 - **Image Upload for Solution Checking**: Gemini Vision API for image analysis.
+
+# Question Bank
+
+The canonical question bank (`lazytopper/src/data/canonicalQuestionBank.ts`) aggregates pack files from `questionBanks/class10/`:
+- **Maths** (14 chapters × 55 questions = 770): 20 Easy / 20 Medium / 15 Hard per chapter. Covers MCQ, A-R, Short, Long, Case-Based, proofs (BPT, Pythagoras, tangent-radius), and constructions.
+- **Science** (13 chapters × 40 questions = 520): 15 Easy / 15 Medium / 10 Hard per chapter. Covers MCQ, A-R, Short, Long, Case-Based.
+- Pack files use `CanonicalQuestion` type from `predictionTypes.ts`. Each has a unique 2–4 letter prefix for IDs (e.g., RN-, POLY-, CARB-, CC-).
+- AI "more-like-this" generation enforces requested difficulty and avoids near-duplicates.

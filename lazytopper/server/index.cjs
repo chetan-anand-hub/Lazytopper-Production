@@ -4608,6 +4608,9 @@ function buildMoreLikeThisUserPrompt(payload) {
   const numVariantsRaw = payload.numVariants != null ? payload.numVariants : 3;
   const numVariants = Math.max(1, Math.min(10, Number(numVariantsRaw) || 3));
 
+  const requestedDifficulty = payload.requestedDifficulty || difficulty || '';
+  const enforcedDifficulty = requestedDifficulty || 'same as seed';
+
   const lines = [
     `We are building an exam-style practice set for CBSE Class 10 ${subject}.`,
     topicKey ? `Topic key (chapter) in our system: ${topicKey}.` : '',
@@ -4617,12 +4620,14 @@ function buildMoreLikeThisUserPrompt(payload) {
     'Seed question:',
     seedText,
     '',
-    `Metadata: marks=${marks || 'same as seed'}, difficulty=${difficulty || 'same band'}, bloomSkill=${bloom || 'same as seed'}.`,
+    `Metadata: marks=${marks || 'same as seed'}, difficulty=${enforcedDifficulty}, bloomSkill=${bloom || 'same as seed'}.`,
     '',
     `Generate ${numVariants} new CBSE board-style questions that:`,
     '- Keep the same marks value as the seed (or as close as reasonable).',
-    '- Stay in the same difficulty band (Easy/Medium/Hard) and Bloom level.',
+    `- MANDATORY: Every generated question MUST have difficulty "${enforcedDifficulty}". Do NOT vary the difficulty across variants.`,
+    '- Stay in the same Bloom level as the seed.',
     '- Change numbers, scenarios, or wording so they are not copies of the seed.',
+    '- Avoid near-duplicate questions: each variant must test a meaningfully different aspect, use different numerical values, or present a different scenario.',
     '',
     'Return ONLY a single JSON object with this exact shape:',
     '{',
@@ -4630,7 +4635,7 @@ function buildMoreLikeThisUserPrompt(payload) {
     '    {',
     '      "questionText": "...",',
     '      "marks": <number>,',
-    '      "difficulty": "Easy | Medium | Hard",',
+    `      "difficulty": "${enforcedDifficulty}",`,
     '      "bloomSkill": "Remembering | Understanding | Applying | Analysing | Evaluating | Creating"',
     '    }',
     '  ]',
@@ -5896,10 +5901,11 @@ ${userPrompt}` }];
       let variants = [];
       const seed = payload.seedQuestion || {};
 
+      const enforcedDiff = payload.requestedDifficulty || seed.difficulty || undefined;
       const mapQuestion = (q, idx) => ({
         text: String(q.questionText || q.text || '').trim(),
         marks: q.marks != null ? q.marks : (seed.marks != null ? seed.marks : undefined),
-        difficulty: q.difficulty || seed.difficulty || undefined,
+        difficulty: enforcedDiff || q.difficulty || undefined,
         bloomSkill: q.bloomSkill || seed.bloomSkill || undefined,
         index: idx,
       });
