@@ -3,6 +3,7 @@ import type { CanonicalQuestion, SectionKey, LTSubjectKey } from "../data/predic
 import { getActiveProgressUser } from "../services/studentProgressStore";
 import { class10TopicTrendList } from "../data/class10MathTopicTrends";
 import { class10ScienceTopicTrendList } from "../data/class10ScienceTopicTrends";
+import type { Class10ScienceTopicKey } from "../data/class10ScienceTopicTrends";
 import {
   getGuaranteedArchetypes,
   type GuaranteedArchetype,
@@ -92,6 +93,9 @@ const HISTORY_KEY_PREFIX = "lazytopper.unlimitedPaperHistory";
 const MAX_HISTORY = 5;
 const MAX_OVERLAP_PERCENT = 30;
 
+const MIN_GUARANTEED_ARCHETYPES = 2;
+const MAX_GUARANTEED_ARCHETYPES = 3;
+
 function norm(raw: string): string {
   return raw.trim().toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/\s+/g, " ").trim();
 }
@@ -127,7 +131,7 @@ const MATHS_TOPIC_ALIASES: Record<string, string> = {
   "Probability": "Probability",
 };
 
-const SCIENCE_TOPIC_TO_SLUG: Record<string, string> = {
+const SCIENCE_TOPIC_TO_SLUG: Record<string, Class10ScienceTopicKey> = {
   "Chemical Reactions & Equations": "ChemicalReactions",
   "Chemical Reactions and Equations": "ChemicalReactions",
   "ChemicalReactions": "ChemicalReactions",
@@ -176,21 +180,25 @@ function canonicalTopicKey(topicKey: string, subject: LTSubjectKey): string {
   return SCIENCE_TOPIC_TO_SLUG[topicKey] ?? topicKey;
 }
 
-const SCIENCE_STREAM_BY_SLUG: Record<string, "Physics" | "Chemistry" | "Biology"> = {
-  Light: "Physics",
-  HumanEyeAndColourfulWorld: "Physics",
-  Electricity: "Physics",
-  MagneticEffects: "Physics",
-  ChemicalReactions: "Chemistry",
-  AcidsBasesSalts: "Chemistry",
-  MetalsNonMetals: "Chemistry",
-  CarbonCompounds: "Chemistry",
-  LifeProcesses: "Biology",
-  ControlAndCoordination: "Biology",
-  Reproduction: "Biology",
-  HeredityEvolution: "Biology",
-  OurEnvironment: "Biology",
-};
+const PHYSICS_SLUGS: Set<Class10ScienceTopicKey> = new Set([
+  "Light", "HumanEyeAndColourfulWorld", "Electricity", "MagneticEffects",
+]);
+const CHEMISTRY_SLUGS: Set<Class10ScienceTopicKey> = new Set([
+  "ChemicalReactions", "AcidsBasesSalts", "MetalsNonMetals", "CarbonCompounds",
+]);
+const BIOLOGY_SLUGS: Set<Class10ScienceTopicKey> = new Set([
+  "LifeProcesses", "ControlAndCoordination", "Reproduction",
+  "HeredityEvolution", "OurEnvironment",
+]);
+
+function getScienceStream(topicKey: string, subject: LTSubjectKey): "Physics" | "Chemistry" | "Biology" | null {
+  if (subject !== "Science") return null;
+  const slug = canonicalTopicKey(topicKey, subject) as Class10ScienceTopicKey;
+  if (PHYSICS_SLUGS.has(slug)) return "Physics";
+  if (CHEMISTRY_SLUGS.has(slug)) return "Chemistry";
+  if (BIOLOGY_SLUGS.has(slug)) return "Biology";
+  return null;
+}
 
 const SCIENCE_STREAM_TARGETS: Record<string, number> = {
   Physics: 27,
@@ -266,12 +274,7 @@ function getTopicWeightageMap(subject: LTSubjectKey): Map<string, number> {
   return map;
 }
 
-function getScienceStream(topicKey: string, subject: LTSubjectKey): "Physics" | "Chemistry" | "Biology" | null {
-  const slug = canonicalTopicKey(topicKey, subject);
-  return SCIENCE_STREAM_BY_SLUG[slug] ?? null;
-}
-
-function checkScienceStreamBalance(paper: ExamPaper): boolean {
+function computeStreamMarks(paper: ExamPaper): Record<string, number> {
   const streamMarks: Record<string, number> = { Physics: 0, Chemistry: 0, Biology: 0 };
   for (const sec of paper.sections) {
     for (const q of sec.questions) {
@@ -279,10 +282,41 @@ function checkScienceStreamBalance(paper: ExamPaper): boolean {
       if (stream) streamMarks[stream] += sec.marksPerQuestion;
     }
   }
+  return streamMarks;
+}
+
+function checkScienceStreamBalance(paper: ExamPaper): boolean {
+  const streamMarks = computeStreamMarks(paper);
   for (const [stream, target] of Object.entries(SCIENCE_STREAM_TARGETS)) {
     if (Math.abs(streamMarks[stream] - target) > SCIENCE_STREAM_TOLERANCE) return false;
   }
   return true;
+}
+
+function countArchetypesInPaper(
+  paper: ExamPaper,
+  archetypes: GuaranteedArchetype[],
+): number {
+  let count = 0;
+  const matched = new Set<number>();
+  for (const sec of paper.sections) {
+    for (const q of sec.questions) {
+      for (let ai = 0; ai < archetypes.length; ai++) {
+        if (matched.has(ai)) continue;
+        const arch = archetypes[ai];
+        if (
+          fuzzyMatch(q.main.topicKey, arch.topic) &&
+          q.main.subtopic &&
+          fuzzyMatch(q.main.subtopic, arch.subtopic)
+        ) {
+          matched.add(ai);
+          count++;
+          break;
+        }
+      }
+    }
+  }
+  return count;
 }
 
 function weightedSelect(
@@ -291,6 +325,7 @@ function weightedSelect(
   rng: () => number,
   topicNeedMap: Map<string, number>,
   subject: LTSubjectKey,
+  streamBias?: Record<string, number>,
 ): CanonicalQuestion | undefined {
   const candidates: { q: CanonicalQuestion; weight: number }[] = [];
 
@@ -304,7 +339,13 @@ function weightedSelect(
     const topicNeed = topicNeedMap.get(canonical) ?? 0;
     const topicWeight = Math.max(0, topicNeed);
 
-    const combinedWeight = predWeight * 0.6 + topicWeight * 0.4 + rng() * 0.3;
+    let streamBoost = 0;
+    if (streamBias && subject === "Science") {
+      const stream = getScienceStream(q.topicKey, subject);
+      if (stream) streamBoost = streamBias[stream] ?? 0;
+    }
+
+    const combinedWeight = predWeight * 0.6 + topicWeight * 0.4 + streamBoost + rng() * 0.3;
     candidates.push({ q, weight: Math.max(0.01, combinedWeight) });
   }
 
@@ -329,10 +370,11 @@ export function generateUnlimitedPaper(subject: LTSubjectKey, seed?: number): Ex
 
   let bestPaper: ExamPaper | null = null;
   let bestScore = Infinity;
+  let streamBias: Record<string, number> = {};
 
-  for (let attempt = 0; attempt < 50; attempt++) {
+  for (let attempt = 0; attempt < 80; attempt++) {
     const rng = seededRandom(actualSeed + attempt * 7919);
-    const paper = buildSinglePaper(all, subject, rng, actualSeed + attempt, archetypes);
+    const paper = buildSinglePaper(all, subject, rng, actualSeed + attempt, archetypes, streamBias);
 
     const allIds = new Set<string>();
     for (const sec of paper.sections) {
@@ -344,18 +386,33 @@ export function generateUnlimitedPaper(subject: LTSubjectKey, seed?: number): Ex
 
     const overlapOk = overlapOkWithHistory(allIds, history);
     const streamOk = subject !== "Science" || checkScienceStreamBalance(paper);
+    const archetypeCount = countArchetypesInPaper(paper, archetypes);
+    const archetypeOk = archetypeCount >= MIN_GUARANTEED_ARCHETYPES;
 
-    if (overlapOk && streamOk) {
+    if (overlapOk && streamOk && archetypeOk) {
       bestPaper = paper;
       break;
     }
 
     const maxOverlap = history.reduce((mx, prev) => Math.max(mx, computeOverlap(allIds, prev)), 0);
-    const penalty = streamOk ? 0 : 10;
+    let penalty = 0;
+    if (!streamOk) penalty += 20;
+    if (!archetypeOk) penalty += (MIN_GUARANTEED_ARCHETYPES - archetypeCount) * 5;
     const score = maxOverlap + penalty;
     if (score < bestScore) {
       bestScore = score;
       bestPaper = paper;
+    }
+
+    if (subject === "Science" && !streamOk && attempt > 0 && attempt % 10 === 0) {
+      const sm = computeStreamMarks(paper);
+      streamBias = {};
+      for (const [stream, target] of Object.entries(SCIENCE_STREAM_TARGETS)) {
+        const diff = target - sm[stream];
+        if (Math.abs(diff) > SCIENCE_STREAM_TOLERANCE) {
+          streamBias[stream] = diff > 0 ? 2.0 : -0.5;
+        }
+      }
     }
   }
 
@@ -379,6 +436,7 @@ function buildSinglePaper(
   rng: () => number,
   seedVal: number,
   archetypes: GuaranteedArchetype[],
+  streamBias: Record<string, number>,
 ): ExamPaper {
   const usedIds = new Set<string>();
   const sections: ExamSection[] = [];
@@ -393,7 +451,7 @@ function buildSinglePaper(
   }
   const accumulatedMarksByTopic = new Map<string, number>();
 
-  const coveredArchetypes = new Set<number>();
+  const prefilledArchetypes = prefillArchetypeQuestions(pool, archetypes, usedIds, rng);
 
   for (const bp of BLUEPRINT) {
     const sectionPool = pool.filter(q => q.section === bp.section && q.marks === bp.marks);
@@ -403,17 +461,23 @@ function buildSinglePaper(
     const choiceCount = hasChoice ? 2 : 0;
     let choicesMade = 0;
 
-    for (let i = 0; i < bp.count; i++) {
-      const topicNeedMap = buildTopicNeedMap(targetMarksByTopic, accumulatedMarksByTopic, bp.marks, subject);
+    const prefilledForSection = prefilledArchetypes.filter(
+      q => q.section === bp.section && q.marks === bp.marks,
+    );
+    for (const pq of prefilledForSection) {
+      if (questions.length >= bp.count) break;
+      const canonical = canonicalTopicKey(pq.topicKey, subject);
+      accumulatedMarksByTopic.set(
+        canonical,
+        (accumulatedMarksByTopic.get(canonical) ?? 0) + bp.marks,
+      );
+      questions.push({ main: pq });
+    }
 
-      let mainQ: CanonicalQuestion | undefined;
+    for (let i = questions.length; i < bp.count; i++) {
+      const topicNeedMap = buildTopicNeedMap(targetMarksByTopic, accumulatedMarksByTopic, bp.marks);
 
-      if (i < 3) {
-        mainQ = pickArchetypeQuestion(sectionPool, usedIds, archetypes, coveredArchetypes, bp.marks, rng);
-      }
-      if (!mainQ) {
-        mainQ = weightedSelect(sectionPool, usedIds, rng, topicNeedMap, subject);
-      }
+      const mainQ = weightedSelect(sectionPool, usedIds, rng, topicNeedMap, subject, streamBias);
       if (!mainQ) break;
 
       usedIds.add(mainQ.id);
@@ -425,7 +489,7 @@ function buildSinglePaper(
 
       let orQ: CanonicalQuestion | undefined;
       if (hasChoice && choicesMade < choiceCount) {
-        orQ = weightedSelect(sectionPool, usedIds, rng, topicNeedMap, subject);
+        orQ = weightedSelect(sectionPool, usedIds, rng, topicNeedMap, subject, streamBias);
         if (orQ) {
           usedIds.add(orQ.id);
           choicesMade++;
@@ -461,13 +525,49 @@ function buildSinglePaper(
   };
 }
 
+function prefillArchetypeQuestions(
+  pool: CanonicalQuestion[],
+  archetypes: GuaranteedArchetype[],
+  usedIds: Set<string>,
+  rng: () => number,
+): CanonicalQuestion[] {
+  const selected: CanonicalQuestion[] = [];
+  const shuffledIndices = Array.from({ length: archetypes.length }, (_, i) => i);
+  for (let i = shuffledIndices.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [shuffledIndices[i], shuffledIndices[j]] = [shuffledIndices[j], shuffledIndices[i]];
+  }
+
+  for (const ai of shuffledIndices) {
+    if (selected.length >= MAX_GUARANTEED_ARCHETYPES) break;
+    const arch = archetypes[ai];
+
+    const matches = pool.filter(
+      q =>
+        !usedIds.has(q.id) &&
+        q.marks >= arch.minMarks &&
+        q.marks <= arch.maxMarks &&
+        fuzzyMatch(q.topicKey, arch.topic) &&
+        q.subtopic != null &&
+        fuzzyMatch(q.subtopic, arch.subtopic),
+    );
+
+    if (matches.length > 0) {
+      const idx = Math.floor(rng() * matches.length);
+      const picked = matches[idx];
+      usedIds.add(picked.id);
+      selected.push(picked);
+    }
+  }
+
+  return selected;
+}
+
 function buildTopicNeedMap(
   targets: Map<string, number>,
   accumulated: Map<string, number>,
   marksPerQ: number,
-  subject: LTSubjectKey,
 ): Map<string, number> {
-  void subject;
   const needMap = new Map<string, number>();
   for (const [topic, target] of targets) {
     const got = accumulated.get(topic) ?? 0;
@@ -475,37 +575,6 @@ function buildTopicNeedMap(
     needMap.set(topic, remaining / marksPerQ);
   }
   return needMap;
-}
-
-function pickArchetypeQuestion(
-  pool: CanonicalQuestion[],
-  usedIds: Set<string>,
-  archetypes: GuaranteedArchetype[],
-  coveredArchetypes: Set<number>,
-  marks: number,
-  rng: () => number,
-): CanonicalQuestion | undefined {
-  for (let ai = 0; ai < archetypes.length; ai++) {
-    if (coveredArchetypes.has(ai)) continue;
-    const arch = archetypes[ai];
-
-    if (marks < arch.minMarks || marks > arch.maxMarks) continue;
-
-    const matches = pool.filter(
-      q =>
-        !usedIds.has(q.id) &&
-        q.subtopic &&
-        fuzzyMatch(q.subtopic, arch.subtopic) &&
-        fuzzyMatch(q.topicKey, arch.topic),
-    );
-
-    if (matches.length > 0) {
-      coveredArchetypes.add(ai);
-      const idx = Math.floor(rng() * matches.length);
-      return matches[idx];
-    }
-  }
-  return undefined;
 }
 
 export function computeExamAnalytics(
