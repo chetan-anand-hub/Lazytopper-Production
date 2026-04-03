@@ -1,3 +1,5 @@
+import { getGuaranteedArchetypes, isGuaranteedArchetype } from "./guaranteedArchetypes";
+
 export type PaperSection = "A" | "B" | "C" | "D" | "E";
 
 export interface ConstrainedPaperCandidate {
@@ -153,6 +155,66 @@ function repairForConstraints(args: {
   return out;
 }
 
+function norm(raw: string): string {
+  return raw.trim().toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/\s+/g, " ").trim();
+}
+
+function fuzzyMatchPaper(a: string, b: string): boolean {
+  const na = norm(a);
+  const nb = norm(b);
+  if (na === nb) return true;
+  if (na.includes(nb) || nb.includes(na)) return true;
+  const wordsA = new Set(na.split(" "));
+  const wordsB = new Set(nb.split(" "));
+  let overlap = 0;
+  for (const w of wordsA) if (wordsB.has(w)) overlap++;
+  return Math.min(wordsA.size, wordsB.size) >= 2 && overlap / Math.min(wordsA.size, wordsB.size) >= 0.7;
+}
+
+function enforceGuaranteedArchetypes(args: {
+  current: ConstrainedPaperCandidate[];
+  allCandidates: ConstrainedPaperCandidate[];
+  subject: "Maths" | "Science";
+}): ConstrainedPaperCandidate[] {
+  const { current, allCandidates, subject } = args;
+  const out = [...current];
+  const guaranteedList = getGuaranteedArchetypes(subject);
+
+  for (const arch of guaranteedList) {
+    const alreadyIncluded = out.some(
+      q => fuzzyMatchPaper(q.topicKey, arch.topic) && fuzzyMatchPaper(q.subtopic, arch.subtopic)
+    );
+    if (alreadyIncluded) continue;
+
+    const replacement = allCandidates.find(
+      c => fuzzyMatchPaper(c.topicKey, arch.topic) && fuzzyMatchPaper(c.subtopic, arch.subtopic)
+    );
+    if (!replacement) continue;
+
+    const swapIdx = out.findIndex(q => {
+      if (q.section !== replacement.section) return false;
+      if (q.marks !== replacement.marks) return false;
+      const qGuaranteed = isGuaranteedArchetype(subject, q.topicKey, q.subtopic);
+      return qGuaranteed === null && q.score <= replacement.score;
+    });
+
+    if (swapIdx >= 0) {
+      out[swapIdx] = replacement;
+    } else {
+      const fallbackIdx = out.findIndex(q => {
+        if (q.marks !== replacement.marks) return false;
+        const qGuaranteed = isGuaranteedArchetype(subject, q.topicKey, q.subtopic);
+        return qGuaranteed === null;
+      });
+      if (fallbackIdx >= 0) {
+        out[fallbackIdx] = replacement;
+      }
+    }
+  }
+
+  return out;
+}
+
 export function buildConstrainedPaper(args: {
   candidates: ConstrainedPaperCandidate[];
   blueprint: ConstrainedBlueprint;
@@ -175,8 +237,16 @@ export function buildConstrainedPaper(args: {
   }
 
   const initial = SECTION_ORDER.flatMap((s) => bySection[s]);
+
+  const subject = candidates.length > 0 ? candidates[0].subject : "Maths";
+  const withGuaranteed = enforceGuaranteedArchetypes({
+    current: initial,
+    allCandidates: candidates,
+    subject,
+  });
+
   const repaired = repairForConstraints({
-    initial,
+    initial: withGuaranteed,
     allCandidates: candidates,
     blueprint,
   });

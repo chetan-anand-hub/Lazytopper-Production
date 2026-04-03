@@ -100,8 +100,8 @@ function computeHistoricalFrequencySignal(
     }
   }
 
-  const subtopicRate = yearsWithSubtopic.size / totalBoardYears;
-  const topicRate = yearsWithTopic.size / totalBoardYears;
+  const subtopicRate = (yearsWithSubtopic.size + 1) / (totalBoardYears + 2);
+  const topicRate = (yearsWithTopic.size + 1) / (totalBoardYears + 2);
 
   const recentYears = boardYears.filter(y => y >= targetYear - 3);
   let recentHits = 0;

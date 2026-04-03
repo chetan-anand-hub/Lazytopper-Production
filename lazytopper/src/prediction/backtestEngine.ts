@@ -197,3 +197,68 @@ export function runBacktest(
     calibrationScore,
   };
 }
+
+export interface CalibrationResult {
+  bestWeights: FiveSignalWeights;
+  bestAccuracy: number;
+  iterations: number;
+  history: { weights: FiveSignalWeights; accuracy: number }[];
+}
+
+export function calibrateWeights(
+  subject: "Maths" | "Science",
+  testYears: number[] = [2023, 2024],
+  targetAccuracy: number = 0.60,
+  maxIterations: number = 50
+): CalibrationResult {
+  const signalNames: (keyof FiveSignalWeights)[] = [
+    "historicalFrequency", "rotation", "sqpAlignment", "nepPolicy", "difficultyDistribution"
+  ];
+
+  let bestWeights = { ...DEFAULT_SIGNAL_WEIGHTS };
+  let bestAccuracy = 0;
+  const history: { weights: FiveSignalWeights; accuracy: number }[] = [];
+
+  const baseResult = runBacktest(subject, testYears, bestWeights);
+  bestAccuracy = baseResult.overallAccuracy;
+  history.push({ weights: { ...bestWeights }, accuracy: bestAccuracy });
+
+  if (bestAccuracy >= targetAccuracy) {
+    return { bestWeights, bestAccuracy, iterations: 1, history };
+  }
+
+  const perturbations = [0.05, -0.05, 0.10, -0.10];
+
+  for (let iter = 0; iter < maxIterations; iter++) {
+    let improved = false;
+
+    for (const signal of signalNames) {
+      for (const delta of perturbations) {
+        const candidate = { ...bestWeights };
+        candidate[signal] = Math.max(0.01, Math.min(0.60, candidate[signal] + delta));
+
+        const total = Object.values(candidate).reduce((s, v) => s + v, 0);
+        for (const key of signalNames) {
+          candidate[key] = candidate[key] / total;
+        }
+
+        const result = runBacktest(subject, testYears, candidate);
+        history.push({ weights: { ...candidate }, accuracy: result.overallAccuracy });
+
+        if (result.overallAccuracy > bestAccuracy) {
+          bestAccuracy = result.overallAccuracy;
+          bestWeights = { ...candidate };
+          improved = true;
+
+          if (bestAccuracy >= targetAccuracy) {
+            return { bestWeights, bestAccuracy, iterations: history.length, history };
+          }
+        }
+      }
+    }
+
+    if (!improved) break;
+  }
+
+  return { bestWeights, bestAccuracy, iterations: history.length, history };
+}

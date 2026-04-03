@@ -8,6 +8,24 @@ export interface SQPSignal {
   sqpMatchDetails: string;
 }
 
+export interface SQPIngestionInput {
+  subject: "Maths" | "Science";
+  topic: string;
+  subtopic: string;
+  marks: number;
+  format: string;
+  bloom: string;
+  competencyType: string;
+  year: number;
+}
+
+export interface SQPIngestionResult {
+  accepted: number;
+  rejected: number;
+  errors: string[];
+  activeSQPYear: number;
+}
+
 function norm(raw: string): string {
   return raw.trim().toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/\s+/g, " ").trim();
 }
@@ -25,11 +43,63 @@ function fuzzyMatch(a: string, b: string): boolean {
 }
 
 let sqpCache: CbseArchetypeEntry[] | null = null;
+let dynamicSQPEntries: CbseArchetypeEntry[] = [];
 
 function getSQPEntries(): CbseArchetypeEntry[] {
   if (sqpCache) return sqpCache;
-  sqpCache = CBSE_HISTORICAL_ARCHETYPES.filter(e => e.sourceType === "official_sqp");
+  sqpCache = [
+    ...CBSE_HISTORICAL_ARCHETYPES.filter(e => e.sourceType === "official_sqp"),
+    ...dynamicSQPEntries,
+  ];
   return sqpCache;
+}
+
+export function ingestSQPData(entries: SQPIngestionInput[]): SQPIngestionResult {
+  const errors: string[] = [];
+  let accepted = 0;
+  let rejected = 0;
+
+  for (const entry of entries) {
+    if (!entry.subject || !entry.topic || !entry.subtopic || !entry.marks || !entry.year) {
+      errors.push(`Rejected: missing required field in ${entry.topic}/${entry.subtopic}`);
+      rejected++;
+      continue;
+    }
+
+    if (entry.marks < 1 || entry.marks > 6) {
+      errors.push(`Rejected: invalid marks (${entry.marks}) for ${entry.topic}/${entry.subtopic}`);
+      rejected++;
+      continue;
+    }
+
+    dynamicSQPEntries.push({
+      subject: entry.subject,
+      topic: entry.topic,
+      subtopic: entry.subtopic,
+      marks: entry.marks,
+      format: entry.format as CbseArchetypeEntry["format"],
+      bloom: entry.bloom as CbseArchetypeEntry["bloom"],
+      competencyType: entry.competencyType as CbseArchetypeEntry["competencyType"],
+      sourceYear: entry.year,
+      sourceType: "official_sqp",
+    });
+    accepted++;
+  }
+
+  sqpCache = null;
+
+  const activeSQPYear = getLatestSQPYear() ?? 0;
+
+  return { accepted, rejected, errors, activeSQPYear };
+}
+
+export function clearDynamicSQPData(): void {
+  dynamicSQPEntries = [];
+  sqpCache = null;
+}
+
+export function getActiveSQPEntryCount(): number {
+  return getSQPEntries().length;
 }
 
 export function getLatestSQPYear(): number | null {
