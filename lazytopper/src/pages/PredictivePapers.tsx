@@ -11,8 +11,13 @@ const PredictivePapersPage: React.FC = () => {
   const navigate = useNavigate();
 
   const openPaper = (paper: PredictivePaper) => {
-    // Navigate using slug in the URL so MockPaper can read it via useParams
     navigate(`/mock-paper/${paper.slug}`);
+  };
+
+  const startExamSimulation = (subject: "Maths" | "Science") => {
+    navigate(`/exam-simulation?subject=${subject}`, {
+      state: { back: "/predictive-papers", backLabel: "Back to papers" },
+    });
   };
 
   return (
@@ -23,7 +28,6 @@ const PredictivePapersPage: React.FC = () => {
         paddingBottom: 60,
       }}
     >
-      {/* Hero */}
       <header
         style={{
           borderRadius: 32,
@@ -44,7 +48,7 @@ const PredictivePapersPage: React.FC = () => {
             marginBottom: 6,
           }}
         >
-          Class 10 • Maths • Prediction Engine
+          Class 10 • Maths & Science • Prediction Engine
         </div>
         <h1
           style={{
@@ -53,7 +57,7 @@ const PredictivePapersPage: React.FC = () => {
             lineHeight: 1.2,
           }}
         >
-          Predictive Papers hub
+          Predictive Papers Hub
         </h1>
         <p
           style={{
@@ -63,12 +67,61 @@ const PredictivePapersPage: React.FC = () => {
             maxWidth: 760,
           }}
         >
-          Ten AI-assisted <strong>80-mark mock papers</strong>, built from your
-          high-probability question pool. Pick a paper, launch it into the{" "}
-          <strong>Auto-mock Paper</strong> view, and print or attempt it like a
-          real CBSE board paper.
+          Curated AI-assisted <strong>80-mark mock papers</strong> plus{" "}
+          <strong>unlimited exam simulations</strong> with a 3-hour timer,
+          section navigation, internal choice, and deep analytics.
         </p>
       </header>
+
+      <div style={{
+        display: "flex", gap: 16, marginBottom: 24, flexWrap: "wrap",
+      }}>
+        <button
+          onClick={() => startExamSimulation("Maths")}
+          style={{
+            flex: "1 1 240px", padding: "20px 24px", borderRadius: 20,
+            background: "linear-gradient(135deg, #1e293b 0%, #334155 100%)",
+            color: "#fff", border: "none", cursor: "pointer", textAlign: "left",
+            boxShadow: "0 4px 16px rgba(0,0,0,0.15)",
+          }}
+        >
+          <div style={{ fontSize: "0.68rem", letterSpacing: "0.15em", textTransform: "uppercase", opacity: 0.7, marginBottom: 4 }}>
+            Exam Simulation
+          </div>
+          <div style={{ fontSize: "1.15rem", fontWeight: 700, marginBottom: 6 }}>
+            Maths — Unlimited Mock
+          </div>
+          <div style={{ fontSize: "0.82rem", opacity: 0.8 }}>
+            80 marks · 3hr timer · Internal choice · Auto-submit · Deep analytics
+          </div>
+          <div style={{ marginTop: 10, fontSize: "0.78rem", color: "#58cc02", fontWeight: 600 }}>
+            Generate & Start →
+          </div>
+        </button>
+
+        <button
+          onClick={() => startExamSimulation("Science")}
+          style={{
+            flex: "1 1 240px", padding: "20px 24px", borderRadius: 20,
+            background: "linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%)",
+            color: "#fff", border: "none", cursor: "pointer", textAlign: "left",
+            boxShadow: "0 4px 16px rgba(0,0,0,0.15)",
+          }}
+        >
+          <div style={{ fontSize: "0.68rem", letterSpacing: "0.15em", textTransform: "uppercase", opacity: 0.7, marginBottom: 4 }}>
+            Exam Simulation
+          </div>
+          <div style={{ fontSize: "1.15rem", fontWeight: 700, marginBottom: 6 }}>
+            Science — Unlimited Mock
+          </div>
+          <div style={{ fontSize: "0.82rem", opacity: 0.8 }}>
+            80 marks · 3hr timer · Internal choice · Auto-submit · Deep analytics
+          </div>
+          <div style={{ marginTop: 10, fontSize: "0.78rem", color: "#38bdf8", fontWeight: 600 }}>
+            Generate & Start →
+          </div>
+        </button>
+      </div>
 
       {/* Cards grid */}
       <div

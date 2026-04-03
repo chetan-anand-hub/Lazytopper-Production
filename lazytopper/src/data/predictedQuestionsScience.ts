@@ -2188,6 +2188,274 @@ Food chains usually have 3–4 levels because a lot of energy is lost (about 90%
     policyTag: "Electricity 5-mark competency numerical with diagram",
     pastBoardYear: "2025",
   },
+
+  {
+    id: "2026-LP-LA-06",
+    topicKey: "LifeProcesses",
+    subtopic: "Human Digestive System",
+    kind: "Short",
+    section: "D",
+    marks: 5,
+    difficulty: "Medium",
+    bloomSkill: "Understanding",
+    questionText:
+      "Draw a labelled diagram of the human digestive system. Explain the role of: (i) hydrochloric acid in the stomach, (ii) bile juice in the small intestine, (iii) villi in absorption.",
+    answer:
+      "(i) HCl creates acidic medium, activates pepsinogen to pepsin, kills ingested bacteria. (ii) Bile juice emulsifies fats into smaller droplets for lipase action. (iii) Villi increase surface area for efficient absorption of digested food into blood.",
+    explanation:
+      "The digestive system has specialised structures and secretions at each stage to ensure complete digestion and absorption.",
+    solutionSteps: [
+      "Draw a neat, labelled diagram of the human digestive system.",
+      "Explain role of HCl in the stomach.",
+      "Explain role of bile juice in fat emulsification.",
+      "Explain how villi aid absorption.",
+      "Conclude with overall significance.",
+    ],
+    strategyHint: "Always start with the diagram, then explain each part asked.",
+    pastBoardYear: "2023",
+    policyTag: "Life Processes 5-mark digestive system",
+  },
+
+  {
+    id: "2026-LP-LA-07",
+    topicKey: "LifeProcesses",
+    subtopic: "Transportation in Humans",
+    kind: "Short",
+    section: "D",
+    marks: 5,
+    difficulty: "Medium",
+    bloomSkill: "Understanding",
+    questionText:
+      "Draw a neat diagram of the human heart and label: (i) aorta, (ii) pulmonary artery, (iii) vena cava, (iv) left ventricle. Explain double circulation in humans and why it is necessary.",
+    answer:
+      "Double circulation: blood passes through the heart twice in one complete cycle — once through pulmonary circuit (heart→lungs→heart) and once through systemic circuit (heart→body→heart). It is necessary to maintain separation of oxygenated and deoxygenated blood for efficient oxygen supply to body tissues.",
+    explanation:
+      "Double circulation ensures that oxygenated blood does not mix with deoxygenated blood, maintaining high efficiency in warm-blooded animals.",
+    solutionSteps: [
+      "Draw and label the heart diagram.",
+      "Define double circulation with both circuits.",
+      "Explain pulmonary circulation path.",
+      "Explain systemic circulation path.",
+      "State why separation is advantageous.",
+    ],
+    strategyHint: "Use arrows to show blood flow direction in the diagram.",
+    pastBoardYear: "2024",
+    policyTag: "Life Processes 5-mark heart & circulation",
+  },
+
+  {
+    id: "2026-CC-LA-06",
+    topicKey: "ControlAndCoordination",
+    subtopic: "Nervous System & Reflex Arc",
+    kind: "Short",
+    section: "D",
+    marks: 5,
+    difficulty: "Medium",
+    bloomSkill: "Understanding",
+    questionText:
+      "Draw a labelled diagram of a reflex arc. Explain the sequence of events that occur during a reflex action when you accidentally touch a hot object. Differentiate between reflex action and walking.",
+    answer:
+      "Reflex arc: receptor → sensory neuron → spinal cord → motor neuron → effector. When touching hot object: heat receptor detects stimulus → impulse travels via sensory nerve to spinal cord → spinal cord processes and sends response via motor nerve → hand muscles contract to withdraw. Difference: reflex action is involuntary and controlled by spinal cord; walking is voluntary and controlled by brain.",
+    explanation:
+      "Reflex actions are rapid, involuntary responses that protect the body from harm without waiting for brain processing.",
+    solutionSteps: [
+      "Draw and label the reflex arc components.",
+      "Describe the stimulus detection.",
+      "Trace the nerve impulse pathway.",
+      "Explain the response mechanism.",
+      "Contrast reflex action with voluntary action.",
+    ],
+    strategyHint: "Draw the reflex arc first, then trace the impulse path step by step.",
+    pastBoardYear: "2023",
+    policyTag: "Control & Coordination 5-mark reflex arc",
+  },
+
+  {
+    id: "2026-REPRO-LA-06",
+    topicKey: "Reproduction",
+    subtopic: "Human Reproductive System",
+    kind: "Short",
+    section: "D",
+    marks: 5,
+    difficulty: "Medium",
+    bloomSkill: "Understanding",
+    questionText:
+      "Draw a labelled diagram of the female reproductive system. Explain the following: (i) Role of ovary, (ii) Function of fallopian tube, (iii) Where does implantation occur and what happens after it?",
+    answer:
+      "(i) Ovary produces eggs (ova) and female hormones (oestrogen, progesterone). (ii) Fallopian tube is the site of fertilisation; it carries the egg from ovary to uterus. (iii) Implantation occurs in the uterus wall; after implantation, the embryo develops and the placenta forms for nutrient and waste exchange.",
+    explanation:
+      "The female reproductive system is designed for egg production, fertilisation, implantation, and nurturing the developing embryo.",
+    solutionSteps: [
+      "Draw a neat labelled diagram.",
+      "Explain the role of each part asked.",
+      "Describe what happens post-implantation.",
+    ],
+    strategyHint: "Label at least 5 parts in the diagram for full marks.",
+    pastBoardYear: "2022",
+    policyTag: "Reproduction 5-mark female reproductive system",
+  },
+
+  {
+    id: "2026-LIGHT-LA-06",
+    topicKey: "Light",
+    subtopic: "Image Formation by Lenses",
+    kind: "Short",
+    section: "D",
+    marks: 5,
+    difficulty: "Hard",
+    bloomSkill: "Applying",
+    questionText:
+      "An object 5 cm tall is placed at a distance of 30 cm from a convex lens of focal length 15 cm. Find: (i) the position of the image, (ii) the magnification, (iii) the nature and size of the image. Draw a ray diagram to show the image formation.",
+    answer:
+      "Using 1/v − 1/u = 1/f: 1/v = 1/15 + 1/(−30) = 1/15 − 1/30 = 1/30. v = 30 cm. Magnification m = v/u = 30/(−30) = −1. Image size = |m| × 5 = 5 cm. Image is real, inverted, same size, formed at 2F on the other side.",
+    explanation:
+      "At u = 2f, the image is formed at 2f on the other side, real, inverted, and same size as the object.",
+    solutionSteps: [
+      "Write lens formula: 1/v − 1/u = 1/f.",
+      "Substitute u = −30 cm, f = 15 cm.",
+      "Solve for v.",
+      "Calculate magnification m = v/u.",
+      "Determine image size and nature.",
+      "Draw ray diagram with two standard rays.",
+    ],
+    strategyHint: "Use sign convention: u is negative, f is positive for convex lens.",
+    pastBoardYear: "2024",
+    policyTag: "Light 5-mark lens numerical + ray diagram",
+  },
+
+  {
+    id: "2026-MNM-LA-05",
+    topicKey: "MetalsNonMetals",
+    subtopic: "Extraction of Metals & Reactivity",
+    kind: "Short",
+    section: "D",
+    marks: 5,
+    difficulty: "Medium",
+    bloomSkill: "Understanding",
+    questionText:
+      "Explain the steps involved in the extraction of metals of medium reactivity from their sulphide ores with the help of an example. Draw a flowchart showing the major steps.",
+    answer:
+      "Example: Zinc from zinc blende (ZnS). Steps: (i) Concentration of ore by froth floatation. (ii) Roasting: 2ZnS + 3O₂ → 2ZnO + 2SO₂. (iii) Reduction: ZnO + C → Zn + CO. (iv) Refining by electrolytic refining.",
+    explanation:
+      "Medium-reactivity metals are first converted to oxides (by roasting if sulphide, calcination if carbonate), then reduced using carbon.",
+    solutionSteps: [
+      "State the ore and metal.",
+      "Describe concentration method.",
+      "Write the roasting equation.",
+      "Write the reduction equation.",
+      "Mention the refining step.",
+    ],
+    strategyHint: "Remember: sulphide ores are roasted, carbonate ores are calcinated.",
+    pastBoardYear: "2023",
+    policyTag: "Metals & Non-Metals 5-mark extraction",
+  },
+
+  {
+    id: "2026-MAG-LA-05",
+    topicKey: "MagneticEffects",
+    subtopic: "Electromagnetic Induction & Generator",
+    kind: "Short",
+    section: "D",
+    marks: 5,
+    difficulty: "Hard",
+    bloomSkill: "Understanding",
+    questionText:
+      "Explain the principle of an electric generator. Draw a labelled diagram of an AC generator and explain its working. What is the function of slip rings in the generator?",
+    answer:
+      "Principle: Electromagnetic induction — when a coil rotates in a magnetic field, the magnetic flux through it changes, inducing an EMF. Working: As the armature rotates, it cuts magnetic field lines; by Faraday's law, an EMF is induced that changes direction every half rotation, producing AC. Slip rings maintain continuous contact between the rotating coil and external circuit, allowing current to flow out.",
+    explanation:
+      "AC generators convert mechanical energy to electrical energy using electromagnetic induction, with slip rings enabling continuous AC output.",
+    solutionSteps: [
+      "State the principle (electromagnetic induction).",
+      "Draw labelled diagram with armature, magnets, slip rings, brushes.",
+      "Explain rotation and flux change.",
+      "Explain why AC is produced.",
+      "State the function of slip rings.",
+    ],
+    strategyHint: "Focus on how rotation causes changing flux, which induces EMF.",
+    pastBoardYear: "2024",
+    policyTag: "Magnetic Effects 5-mark AC generator",
+  },
+
+  {
+    id: "2026-HE-LA-06",
+    topicKey: "HeredityEvolution",
+    subtopic: "Mendel's Laws & Inheritance",
+    kind: "Short",
+    section: "D",
+    marks: 5,
+    difficulty: "Medium",
+    bloomSkill: "Applying",
+    questionText:
+      "Explain Mendel's experiment with pea plants on the inheritance of one trait (monohybrid cross). Show a cross between a tall (TT) and short (tt) pea plant up to F₂ generation. What phenotypic and genotypic ratios are obtained in F₂?",
+    answer:
+      "P: TT × tt → F₁: all Tt (tall). F₁ × F₁: Tt × Tt → F₂: TT, Tt, Tt, tt. Phenotypic ratio: 3 tall : 1 short. Genotypic ratio: 1 TT : 2 Tt : 1 tt.",
+    explanation:
+      "Mendel's Law of Dominance and Law of Segregation are demonstrated through the monohybrid cross, showing 3:1 phenotypic ratio in F₂.",
+    solutionSteps: [
+      "State the P generation cross.",
+      "Show F₁ generation — all heterozygous tall.",
+      "Set up Punnett square for F₁ × F₁.",
+      "List all genotypes in F₂.",
+      "State phenotypic ratio 3:1 and genotypic ratio 1:2:1.",
+    ],
+    strategyHint: "Always draw the Punnett square for full marks.",
+    pastBoardYear: "2023",
+    policyTag: "Heredity 5-mark monohybrid cross",
+  },
+
+  {
+    id: "2026-ABS-LA-06",
+    topicKey: "AcidsBasesSalts",
+    subtopic: "Preparation & Properties of Salts",
+    kind: "Short",
+    section: "D",
+    marks: 5,
+    difficulty: "Medium",
+    bloomSkill: "Understanding",
+    questionText:
+      "(a) How is washing soda prepared from baking soda? Write the chemical equations involved.\n(b) State two uses each of washing soda and baking soda.\n(c) Why does dry HCl gas not change the colour of dry litmus paper?",
+    answer:
+      "(a) 2NaHCO₃ → Na₂CO₃ + H₂O + CO₂, then Na₂CO₃ + 10H₂O → Na₂CO₃·10H₂O. (b) Washing soda: used in glass/soap/paper industries and as cleaning agent. Baking soda: used in baking and as antacid. (c) Dry HCl does not produce H⁺ ions; acids produce H⁺ only in aqueous solution.",
+    explanation:
+      "Washing soda is hydrated sodium carbonate obtained by heating baking soda then recrystallising. Acids need water to ionise.",
+    solutionSteps: [
+      "Write equation for thermal decomposition of NaHCO₃.",
+      "Write equation for hydration of Na₂CO₃.",
+      "List uses of washing soda.",
+      "List uses of baking soda.",
+      "Explain the role of water in acid ionisation.",
+    ],
+    strategyHint: "Remember: baking soda → soda ash (heat) → washing soda (recrystallise with water).",
+    pastBoardYear: "2022",
+    policyTag: "Acids Bases Salts 5-mark preparation of salts",
+  },
+
+  {
+    id: "2026-ENV-LA-05",
+    topicKey: "OurEnvironment",
+    subtopic: "Ecosystem & Food Chains",
+    kind: "Short",
+    section: "D",
+    marks: 5,
+    difficulty: "Medium",
+    bloomSkill: "Understanding",
+    questionText:
+      "(a) What is an ecosystem? List its two components.\n(b) Construct a food chain comprising four trophic levels.\n(c) What will happen if we kill all the organisms in one trophic level?\n(d) Why is the flow of energy in an ecosystem unidirectional?",
+    answer:
+      "(a) An ecosystem is a self-sustaining unit of living organisms interacting with their physical environment. Components: biotic (living) and abiotic (non-living). (b) Grass → Grasshopper → Frog → Snake. (c) The organisms in the next trophic level will starve and the previous level will overpopulate. (d) Energy flows from producers to consumers and is lost as heat at each level; it cannot be recycled.",
+    explanation:
+      "Energy flow is unidirectional because energy is used up and lost as heat at each trophic level, unlike nutrients which can be recycled.",
+    solutionSteps: [
+      "Define ecosystem and its components.",
+      "Construct a 4-level food chain.",
+      "Explain impact of removing one level.",
+      "Explain unidirectional energy flow with 10% rule.",
+    ],
+    strategyHint: "Mention the 10% law for energy transfer between trophic levels.",
+    pastBoardYear: "2024",
+    policyTag: "Environment 5-mark ecosystem & food chain",
+  },
 ];
 export type PredictedQuestionScience = SciencePredictedQuestion;
 // Back-compat alias expected by older mock builders

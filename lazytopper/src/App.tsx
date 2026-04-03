@@ -32,6 +32,7 @@ const ProfilePage = lazy(() => import("./pages/ProfilePage"));
 const WeakAreaPracticePage = lazy(() => import("./pages/WeakAreaPracticePage"));
 const ParentDashboardPage = lazy(() => import("./pages/ParentDashboardPage"));
 const TopicMockPage = lazy(() => import("./pages/TopicMockPage"));
+const ExamSimulationPage = lazy(() => import("./pages/ExamSimulationPage"));
 
 function RouteFallback() {
   return (
@@ -440,6 +441,12 @@ export default function App() {
           <Route
             path="/predictive-papers"
             element={withRouteSuspense(<PredictivePapersPage />)}
+          />
+
+          {/* Exam Simulation — unlimited full-length mock */}
+          <Route
+            path="/exam-simulation"
+            element={withRouteSuspense(<ExamSimulationPage />)}
           />
 
           <Route path="/practice/:grade/:subject" element={withRouteSuspense(<PracticePage />)} />

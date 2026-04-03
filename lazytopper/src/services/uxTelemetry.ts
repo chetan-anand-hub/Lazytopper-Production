@@ -13,7 +13,9 @@ type UxEventName =
   | "practice_regenerate_click"
   | "topichub_topic_mock_click"
   | "topic_mock_start"
-  | "topic_mock_complete";
+  | "topic_mock_complete"
+  | "exam_simulation_start"
+  | "exam_simulation_complete";
 
 export type UxTelemetryEvent = {
   name: UxEventName;

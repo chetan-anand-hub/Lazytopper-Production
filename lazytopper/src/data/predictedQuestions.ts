@@ -3114,6 +3114,291 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
     policyTag: "Trigonometry 5-mark competency application",
     pastBoardYear: "2024",
   },
+
+  {
+    id: "2026-CG-LA-05",
+    topicKey: "Coordinate Geometry",
+    subtopic: "Area of Triangle & Collinearity",
+    kind: "Short",
+    section: "D",
+    marks: 5,
+    difficulty: "Medium",
+    bloomSkill: "Applying",
+    questionText:
+      "Find the area of the triangle formed by the points A(2, −1), B(3, 4) and C(−2, 3). Also determine whether the points P(1, 1), Q(3, 5) and R(−1, −3) are collinear.",
+    answer:
+      "Area = ½|2(4−3) + 3(3−(−1)) + (−2)((−1)−4)| = ½|2+12+10| = 12 sq units. For P,Q,R: ½|1(5−(−3))+3((−3)−1)+(−1)(1−5)| = ½|8−12+4| = 0, so collinear.",
+    finalAnswer: "Area of triangle ABC = 12 sq units; P, Q, R are collinear.",
+    explanation:
+      "Use the coordinate geometry formula for area of a triangle using vertices. If the area is zero, the points are collinear.",
+    solutionSteps: [
+      "Apply area formula: ½|x₁(y₂−y₃) + x₂(y₃−y₁) + x₃(y₁−y₂)|.",
+      "Substitute A(2,−1), B(3,4), C(−2,3).",
+      "Compute and simplify to get area.",
+      "Repeat for P(1,1), Q(3,5), R(−1,−3).",
+      "If area = 0, state that the points are collinear.",
+    ],
+    strategyHint: "For collinearity, show that the area of the triangle formed by the three points is zero.",
+    pastBoardYear: "2023",
+    policyTag: "Coordinate Geometry 5-mark area & collinearity",
+  },
+
+  {
+    id: "2026-AP-LA-03",
+    topicKey: "Arithmetic Progression",
+    subtopic: "Sum of n Terms & Applications",
+    kind: "Short",
+    section: "D",
+    marks: 5,
+    difficulty: "Medium",
+    bloomSkill: "Applying",
+    questionText:
+      "The sum of first n terms of an AP is given by Sₙ = 3n² + 5n. Determine the AP and find its 20th term. Also find the sum of its first 15 terms.",
+    answer:
+      "aₙ = Sₙ − Sₙ₋₁ = 3n²+5n − 3(n−1)²−5(n−1) = 6n+2. So a₁ = 8, d = 6. The 20th term = 8+19×6 = 122. S₁₅ = 3(225)+5(15) = 675+75 = 750.",
+    finalAnswer: "AP: 8, 14, 20, ...; a₂₀ = 122; S₁₅ = 750.",
+    explanation:
+      "Find the nth term by computing Sₙ − Sₙ₋₁, then identify a and d. Use these to find specific terms and sums.",
+    solutionSteps: [
+      "Find a₁ = S₁ = 3+5 = 8.",
+      "Find a₂ = S₂ − S₁ = (12+10) − 8 = 14.",
+      "Common difference d = a₂ − a₁ = 6.",
+      "General term aₙ = 8 + (n−1)×6 = 6n + 2.",
+      "Compute a₂₀ = 6(20)+2 = 122.",
+      "Compute S₁₅ using the given formula.",
+    ],
+    strategyHint: "When sum is given as a formula, use aₙ = Sₙ − Sₙ₋₁ to extract the AP.",
+    pastBoardYear: "2022",
+    policyTag: "AP 5-mark sum formula application",
+  },
+
+  {
+    id: "2026-RN-LA-03",
+    topicKey: "Real Numbers",
+    subtopic: "HCF & LCM Applications",
+    kind: "Short",
+    section: "D",
+    marks: 5,
+    difficulty: "Medium",
+    bloomSkill: "Applying",
+    questionText:
+      "Three alarm clocks ring at intervals of 4, 7 and 14 minutes respectively. If they ring together at 6:00 AM, when will they next ring together? Also prove that √5 is irrational.",
+    answer:
+      "LCM(4,7,14) = 28 minutes. They ring together next at 6:28 AM. For √5: assume √5 = p/q, then 5q² = p², so 5|p, let p = 5k, then q² = 5k², so 5|q. This contradicts p/q being in lowest terms.",
+    finalAnswer: "Next ring together at 6:28 AM; √5 is irrational (proved by contradiction).",
+    explanation:
+      "LCM gives the interval at which all three clocks synchronise. Irrationality of √5 follows the standard proof by contradiction.",
+    solutionSteps: [
+      "Find prime factorisations: 4=2², 7=7, 14=2×7.",
+      "LCM = 2²×7 = 28 minutes.",
+      "Add 28 minutes to 6:00 AM.",
+      "For irrationality: assume √5 = p/q in lowest terms.",
+      "Square both sides and derive contradiction.",
+      "Conclude √5 is irrational.",
+    ],
+    strategyHint: "Combine an LCM word problem with a standard irrationality proof for 5 marks.",
+    pastBoardYear: "2024",
+    policyTag: "Real Numbers 5-mark combined LCM + irrationality",
+  },
+
+  {
+    id: "2026-CIRCLE-LA-02",
+    topicKey: "Circles",
+    subtopic: "Tangent Proofs & Properties",
+    kind: "Short",
+    section: "D",
+    marks: 5,
+    difficulty: "Hard",
+    bloomSkill: "Analysing",
+    questionText:
+      "Prove that the tangent at any point of a circle is perpendicular to the radius through the point of contact. Using this result, find the length of the tangent drawn from an external point 13 cm away from the centre of a circle of radius 5 cm.",
+    answer:
+      "Proof: If tangent is not perpendicular, then the foot of the perpendicular from the centre would be shorter than the radius, contradicting that the point lies on the circle. Length = √(13²−5²) = √(169−25) = √144 = 12 cm.",
+    finalAnswer: "Tangent ⊥ radius (proved); tangent length = 12 cm.",
+    explanation:
+      "Standard theorem proof followed by a numerical application using Pythagoras' theorem in the right triangle formed by centre, external point, and point of tangency.",
+    solutionSteps: [
+      "State the theorem and draw a labelled diagram.",
+      "Assume tangent is not perpendicular and derive contradiction.",
+      "Hence tangent is perpendicular to radius.",
+      "For numerical: OA = 13 cm (distance), OB = 5 cm (radius).",
+      "In right triangle OBA: AB² = OA² − OB².",
+      "AB = √(169−25) = 12 cm.",
+    ],
+    strategyHint: "Always prove the theorem first, then apply Pythagoras for the numerical part.",
+    pastBoardYear: "2023",
+    policyTag: "Circles 5-mark theorem + numerical",
+  },
+
+  {
+    id: "2026-STAT-LA-02",
+    topicKey: "Statistics",
+    subtopic: "Mean, Median, Mode of Grouped Data",
+    kind: "Short",
+    section: "D",
+    marks: 5,
+    difficulty: "Medium",
+    bloomSkill: "Applying",
+    questionText:
+      "The following data gives the distribution of total monthly household expenditure (in ₹) of 200 families:\n0–1000: 24, 1000–2000: 40, 2000–3000: 33, 3000–4000: 28, 4000–5000: 30, 5000–6000: 22, 6000–7000: 16, 7000–8000: 7.\nFind the median expenditure and the modal class.",
+    answer:
+      "N/2 = 100. Cumulative frequencies: 24, 64, 97, 125, ... Median class is 3000–4000. Median = 3000 + ((100−97)/28)×1000 = 3000 + 107.14 ≈ ₹3107.14. Modal class: 1000–2000 (highest frequency 40).",
+    finalAnswer: "Median ≈ ₹3107.14; Modal class = 1000–2000.",
+    explanation:
+      "Use the median formula for grouped data and identify the modal class as the class with highest frequency.",
+    solutionSteps: [
+      "Write cumulative frequencies.",
+      "Find N/2 = 100 and identify median class.",
+      "Apply median formula: l + ((N/2 − cf)/f) × h.",
+      "Substitute values and compute.",
+      "Identify modal class as the class with maximum frequency.",
+    ],
+    strategyHint: "Build the CF column carefully; the median class is the first class whose CF ≥ N/2.",
+    pastBoardYear: "2024",
+    policyTag: "Statistics 5-mark median + mode grouped data",
+  },
+
+  {
+    id: "2026-PROB-LA-02",
+    topicKey: "Probability",
+    subtopic: "Classical Probability Applications",
+    kind: "Short",
+    section: "D",
+    marks: 5,
+    difficulty: "Medium",
+    bloomSkill: "Applying",
+    questionText:
+      "A bag contains 5 red, 4 white and 3 black balls. A ball is drawn at random. Find the probability that the ball drawn is: (i) red (ii) not black (iii) either red or white. If two more red balls are added to the bag, find the new probability of drawing a red ball.",
+    answer:
+      "Total = 12. (i) P(red) = 5/12, (ii) P(not black) = 9/12 = 3/4, (iii) P(red or white) = 9/12 = 3/4. With 2 more red: total = 14, red = 7, P(red) = 7/14 = 1/2.",
+    finalAnswer: "P(red)=5/12, P(not black)=3/4, P(red or white)=3/4, new P(red)=1/2.",
+    explanation:
+      "Apply classical probability formula P(E) = favourable outcomes / total outcomes for each part.",
+    solutionSteps: [
+      "Count total balls: 5+4+3 = 12.",
+      "P(red) = 5/12.",
+      "P(not black) = (5+4)/12 = 9/12 = 3/4.",
+      "P(red or white) = 9/12 = 3/4.",
+      "After adding 2 red: total = 14, red = 7.",
+      "New P(red) = 7/14 = 1/2.",
+    ],
+    strategyHint: "Count favourable and total outcomes carefully for each sub-part.",
+    pastBoardYear: "2023",
+    policyTag: "Probability 5-mark multi-part",
+  },
+
+  {
+    id: "2026-POLY-LA-03",
+    topicKey: "Polynomials",
+    subtopic: "Zeroes & Coefficients",
+    kind: "Short",
+    section: "D",
+    marks: 5,
+    difficulty: "Hard",
+    bloomSkill: "Applying",
+    questionText:
+      "If α and β are zeroes of the quadratic polynomial f(x) = x² − x − 2, find a polynomial whose zeroes are 2α + 1 and 2β + 1. Also verify the relationship between zeroes and coefficients of the new polynomial.",
+    answer:
+      "f(x) = x²−x−2 ⇒ α+β = 1, αβ = −2. New zeroes: 2α+1 and 2β+1. Sum = 2(α+β)+2 = 4. Product = (2α+1)(2β+1) = 4αβ+2(α+β)+1 = −8+2+1 = −5. Polynomial: x²−4x−5. Verify: sum = 4/1 = 4 ✓, product = −5/1 = −5 ✓.",
+    finalAnswer: "Required polynomial: x² − 4x − 5.",
+    explanation:
+      "Use sum and product of zeroes of the original polynomial to compute sum and product of new zeroes, then form the new polynomial.",
+    solutionSteps: [
+      "Find α+β and αβ from original polynomial.",
+      "Compute sum of new zeroes: 2(α+β)+2.",
+      "Compute product of new zeroes: 4αβ+2(α+β)+1.",
+      "Form polynomial: x² − (sum)x + (product).",
+      "Verify using relationship between zeroes and coefficients.",
+    ],
+    strategyHint: "Express new zeroes in terms of old ones and use Vieta's formulas.",
+    pastBoardYear: "2022",
+    policyTag: "Polynomials 5-mark zeroes transformation",
+  },
+
+  {
+    id: "2026-TRIANGLE-LA-03",
+    topicKey: "Triangles",
+    subtopic: "BPT & Similar Triangles",
+    kind: "Short",
+    section: "D",
+    marks: 5,
+    difficulty: "Hard",
+    bloomSkill: "Analysing",
+    questionText:
+      "State and prove the Basic Proportionality Theorem (Thales' Theorem). Using this theorem, in △ABC, if DE ∥ BC, AD = 4 cm, DB = 5 cm and AE = 8 cm, find EC.",
+    answer:
+      "BPT: If a line is drawn parallel to one side of a triangle, it divides the other two sides proportionally. Proof uses equal area triangles. AD/DB = AE/EC ⇒ 4/5 = 8/EC ⇒ EC = 10 cm.",
+    finalAnswer: "EC = 10 cm (with BPT proof).",
+    explanation:
+      "Standard CBSE theorem proof followed by direct application of the proportionality result.",
+    solutionSteps: [
+      "State BPT clearly.",
+      "Draw triangle with DE ∥ BC.",
+      "Prove using area ratios of triangles with same base and between parallels.",
+      "Apply result: AD/DB = AE/EC.",
+      "Substitute values and solve for EC.",
+    ],
+    strategyHint: "BPT proof always uses equal-base-equal-height area argument.",
+    pastBoardYear: "2024",
+    policyTag: "Triangles 5-mark theorem + application",
+  },
+
+  {
+    id: "2026-SA-LA-03",
+    topicKey: "Surface Areas and Volumes",
+    subtopic: "Combination of Solids",
+    kind: "Short",
+    section: "D",
+    marks: 5,
+    difficulty: "Medium",
+    bloomSkill: "Applying",
+    questionText:
+      "A solid is in the shape of a cone surmounted on a hemisphere. The radius of each is 3.5 cm and the total height of the solid is 9.5 cm. Find the total surface area of the solid. (Take π = 22/7)",
+    answer:
+      "Height of cone = 9.5 − 3.5 = 6 cm. Slant height l = √(6²+3.5²) = √(36+12.25) = √48.25 ≈ 6.95 cm. CSA of cone = πrl = 22/7 × 3.5 × 6.95 ≈ 76.45 cm². CSA of hemisphere = 2πr² = 2×22/7×3.5² = 77 cm². Total = 76.45+77 = 153.45 cm².",
+    finalAnswer: "Total surface area ≈ 153.45 cm².",
+    explanation:
+      "For combined solids, add CSA of cone (no base) and CSA of hemisphere (no flat face) since they share the circular face.",
+    solutionSteps: [
+      "Find height of cone = total height − radius of hemisphere.",
+      "Calculate slant height of cone using Pythagoras.",
+      "Find CSA of cone = πrl.",
+      "Find CSA of hemisphere = 2πr².",
+      "Total surface area = CSA of cone + CSA of hemisphere.",
+    ],
+    strategyHint: "In combined solids, exclude the common circular face from the total.",
+    pastBoardYear: "2023",
+    policyTag: "Surface Areas 5-mark combined solid",
+  },
+
+  {
+    id: "2026-QE-LA-05",
+    topicKey: "Quadratic Equations",
+    subtopic: "Word/Application Problems",
+    kind: "Short",
+    section: "D",
+    marks: 5,
+    difficulty: "Hard",
+    bloomSkill: "Applying",
+    questionText:
+      "A train travels 360 km at a uniform speed. If the speed had been 5 km/h more, it would have taken 1 hour less. Find the speed of the train.",
+    answer:
+      "Let speed = x km/h. Time = 360/x. New time = 360/(x+5). 360/x − 360/(x+5) = 1. Solving: 360×5 = x(x+5) ⇒ x²+5x−1800=0 ⇒ (x+45)(x−40)=0. x = 40 km/h.",
+    finalAnswer: "Speed of the train = 40 km/h.",
+    explanation:
+      "Classic board-style speed-distance-time word problem that reduces to a quadratic equation.",
+    solutionSteps: [
+      "Let speed be x km/h, time = 360/x hours.",
+      "With increased speed: time = 360/(x+5) hours.",
+      "Set up equation: 360/x − 360/(x+5) = 1.",
+      "Cross-multiply and simplify to get quadratic.",
+      "Solve and reject negative root.",
+      "State speed with units.",
+    ],
+    strategyHint: "Speed-distance-time problems always give a quadratic; set up time difference equation.",
+    pastBoardYear: "2022",
+    policyTag: "QE 5-mark speed-distance application",
+  },
 ];
 
 // --- Helper exports for lookup & type-safety -----------------------------
