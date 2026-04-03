@@ -4823,6 +4823,7 @@ async function handleRequest(req, res) {
       reqPath === '/api/step-solution' ||
       reqPath === '/api/check-solution' ||
       reqPath === '/api/tutor-feedback' ||
+      reqPath === '/api/generate-diagram' ||
       reqPath === '/api/session/start' ||
       /^\/api\/session\/[^/]+$/.test(reqPath) ||
       /^\/api\/session\/[^/]+\/submit$/.test(reqPath)
@@ -4864,6 +4865,57 @@ async function handleRequest(req, res) {
         error: 'Failed to resolve CBSE exam date',
         details: err?.message || String(err),
       });
+    }
+  }
+
+  if (req.method === "POST" && reqPath === "/api/generate-diagram") {
+    let reqJson;
+    try {
+      reqJson = await readJson(req);
+    } catch (e) {
+      return sendJson(res, 400, { ok: false, error: "Invalid JSON" });
+    }
+    const questionText = String(reqJson?.questionText || '').trim();
+    if (!questionText || questionText.length < 10) {
+      return sendJson(res, 400, { ok: false, error: "questionText too short" });
+    }
+    if (STUB_MODE) {
+      return sendJson(res, 200, { ok: true, svg: null });
+    }
+    try {
+      const diagramPrompt = `You are a CBSE Class 10 educational diagram generator. Given a question, produce a clean SVG diagram that helps a student visualize the concept.
+
+RULES:
+- Output ONLY valid SVG markup, nothing else. No markdown, no backticks, no explanation.
+- The SVG must have viewBox="0 0 400 280", width="100%", height="auto".
+- Use these colors: stroke="#3c3c3c", accent="#0ea5e9", red="#dc2626", green="#22c55e", faint="#94a3b8".
+- Label all important parts clearly with <text> elements.
+- Keep it simple and educational — like a textbook diagram.
+- Do NOT include <script>, <style>, or any interactive elements.
+- If the question doesn't warrant a diagram, output exactly: NO_DIAGRAM
+
+Question: ${questionText}`;
+
+      const contents = [{ role: 'user', parts: [{ text: diagramPrompt }] }];
+      const geminiResult = await callGemini(GEMINI_MODEL, contents, {
+        temperature: 0.3,
+        maxOutputTokens: 2000,
+      });
+      const text = String(geminiResult?.text || '');
+      if (!text || text.includes('NO_DIAGRAM') || !text.includes('<svg')) {
+        return sendJson(res, 200, { ok: true, svg: null });
+      }
+      const svgMatch = text.match(/<svg[\s\S]*?<\/svg>/i);
+      if (!svgMatch) {
+        return sendJson(res, 200, { ok: true, svg: null });
+      }
+      let svg = svgMatch[0];
+      svg = svg.replace(/<script[\s\S]*?<\/script>/gi, '');
+      svg = svg.replace(/on\w+="[^"]*"/gi, '');
+      return sendJson(res, 200, { ok: true, svg });
+    } catch (err) {
+      console.error('[generate-diagram] Error:', err?.message || err);
+      return sendJson(res, 200, { ok: true, svg: null });
     }
   }
 
