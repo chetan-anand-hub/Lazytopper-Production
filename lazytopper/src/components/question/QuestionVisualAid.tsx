@@ -1217,6 +1217,20 @@ function ensureResponsiveStyle() {
   document.head.appendChild(style);
 }
 
+const PARAM_SPECIFIC_KINDS = new Set<VisualKind>([
+  "lens", "concave-mirror", "convex-mirror", "ray-diagram",
+  "circuit", "construction", "height-distance",
+]);
+const PARAM_PATTERN = /\b(\d+\s*(?:cm|m|mm|ohm|volt|ampere|degree|°|f\b|2f\b|at focus|beyond 2f|between f and 2f|at infinity|at centre|radius|focal length))/i;
+
+function shouldPreferAiDiagram(qt: string, kind: VisualKind): boolean {
+  if (!PARAM_SPECIFIC_KINDS.has(kind)) return false;
+  if (!PARAM_PATTERN.test(qt)) return false;
+  if (/\b(draw|diagram|figure|sketch|illustrate)\b/.test(qt)) return true;
+  if (/\b(object (?:is )?(?:placed|kept|at)|image (?:formed|is)|position of)\b/i.test(qt)) return true;
+  return false;
+}
+
 export function QuestionVisualAid(props: QuestionVisualAidProps): React.ReactElement | null {
   ensureResponsiveStyle();
   const kind = inferVisualKind(props);
@@ -1228,12 +1242,33 @@ export function QuestionVisualAid(props: QuestionVisualAidProps): React.ReactEle
     margin: "6px auto 8px",
   };
 
+  const qt = norm(props.questionText);
+
   if (!kind) {
-    const qt = norm(props.questionText);
     const needsDiagram = /\b(draw|diagram|figure|sketch|illustrate|label|labelled)\b/.test(qt);
     if (!needsDiagram) return null;
     return (
       <div className="qva-container" style={containerStyle}>
+        <AiDiagramFallback questionText={props.questionText || ""} />
+      </div>
+    );
+  }
+
+  if (shouldPreferAiDiagram(qt, kind)) {
+    return (
+      <div
+        className="qva-container"
+        style={{
+          ...containerStyle,
+          border: "1px solid rgba(0,0,0,0.08)",
+          borderRadius: 12,
+          background: "#f7f7f7",
+          padding: "8px 10px",
+        }}
+      >
+        <div style={{ fontSize: "0.72rem", color: "#475569", marginBottom: 4 }}>
+          AI-generated diagram
+        </div>
         <AiDiagramFallback questionText={props.questionText || ""} />
       </div>
     );
