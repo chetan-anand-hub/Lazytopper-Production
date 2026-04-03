@@ -12,14 +12,14 @@ export const vibeCommandBadgeCopy = {
     subtitle: 'Pick your study vibe — we’ll tune everything to match.',
     headerEmoji: '🙂',
     beast: {
-      label: '⚡ Beast Mode',
+      label: '⚡ Challenge Mode',
       subtextShort: 'Hard practice, full rigour.',
       subtextLong: 'Tough questions, longer sessions, full exam grind.',
       tooltip:
         'Best when you’ve got energy for serious board prep — more Medium/Hard questions, longer mixes.',
     },
     zombie: {
-      label: '😴 Zombie Mode',
+      label: '😴 Relaxed Mode',
       subtextShort: '10 min light revision.',
       subtextLong: 'Easy MCQs, short videos, low‑pressure revision only.',
       tooltip:
@@ -28,9 +28,9 @@ export const vibeCommandBadgeCopy = {
     globalTooltip:
       'Vibe Mode tells LazyTopper how intense today’s session should be. You can switch anytime.',
     hints: {
-      zombieStillCounts: 'Tip: Zombie days still count as “No Zero Days” 💫',
-      beastHeader: 'Mode: ⚡ Beast',
-      zombieHeader: 'Mode: 😴 Zombie',
+      zombieStillCounts: 'Tip: Relaxed days still count as “No Zero Days” 💫',
+      beastHeader: 'Mode: ⚡ Challenge',
+      zombieHeader: 'Mode: 😌 Relaxed',
     },
   },
   commandPalette: {
@@ -61,22 +61,22 @@ export const vibeCommandBadgeCopy = {
           'See hours, streaks, accuracy and Match % for each topic. 📊',
       },
       toggleBeast: {
-        label: 'Switch to Beast Mode',
+        label: 'Switch to Challenge Mode',
         description:
           'Harder questions, longer sessions, serious exam grind. ⚡',
       },
       toggleZombie: {
-        label: 'Switch to Zombie Mode',
+        label: 'Switch to Relaxed Mode',
         description:
           'Chill mode: short revision, easy MCQs, streak-safe sessions. 😴',
       },
       practiceTrigoHPQ: {
-        label: 'Practice Trigonometry – HPQ set',
+        label: 'Practice Trigonometry – Predicted set',
         description:
-          'Jump into high‑yield Trigo questions picked from HPQ engine. 🎯',
+          'Jump into high‑yield Trigo questions picked from predicted question engine. 🎯',
       },
       openTopicHubRealNumbers: {
-        label: 'Real Numbers – TopicHub',
+        label: 'Real Numbers – Chapter Hub',
         description:
           'Why it matters, core ideas, common mistakes and 95+ tips in one place. 📘',
       },
@@ -109,8 +109,8 @@ export const vibeCommandBadgeCopy = {
         title: 'You did a No Zero Week ⚡',
         body: '7 days non‑stop. This is exactly how toppers start.',
       },
-      streakBeast: {
-        title: 'Streak Beast unlocked 💪',
+      streakChampion: {
+        title: 'Streak Champion unlocked 💪',
         body:
           '14 days of No Zero Days. You’re more consistent than most students now.',
       },
@@ -137,9 +137,9 @@ export const vibeCommandBadgeCopy = {
           '{{count}} Daily Mixes done. You’ve turned playlists into marks.',
       },
       hpqHustler: {
-        title: 'HPQ Hustler unlocked 🔥',
+        title: 'Predicted Q Hustler unlocked 🔥',
         body:
-          'You’ve attacked {{count}} must‑crack questions this streak. Boards are looking nervous.',
+          'You’ve attacked {{count}} predicted questions this streak. Boards are looking nervous.',
       },
       weekendWarrior: {
         title: 'Weekend Warrior 🛡️',
@@ -149,7 +149,7 @@ export const vibeCommandBadgeCopy = {
     },
     dashboardBadgeBanner: {
       headingTemplate: 'New badge unlocked: {{badgeName}}',
-      streakBeastExampleBody:
+      streakChampionExampleBody:
         '14 days of No Zero Days. Keep riding this wave into exam season. ⚡',
       cta: 'View all badges',
     },
@@ -190,8 +190,8 @@ export const vibeCommandBadgeCopy = {
         'Nice! {{completed}}/{{total}} items done. Keep going for one more? 💪',
       pausedHint:
         'Paused. Tap “Next” when you’re ready to continue. No rush. 🙂',
-      zombieNudge:
-        'Zombie day? Chill. Finish one more light item and call it a win. 😴✨',
+      relaxedNudge:
+        'Relaxed day? Chill. Finish one more light item and call it a win. 😴✨',
     },
   },
 };

@@ -570,7 +570,7 @@ function TopicHubHomeContent() {
                 {selectedTopicContent.heroTagline}
               </div>
               <div style={{ marginTop: 10, fontSize: 13, opacity: 0.82, lineHeight: 1.55 }}>
-                First move: similarity basics {"->"} BPT {"->"} one clean proof. Strong students can jump to Grind or HPQ once theorem naming feels stable.
+                First move: similarity basics {"->"} BPT {"->"} one clean proof. Strong students can jump to practice or predicted questions once theorem naming feels stable.
               </div>
               <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
                 <button
@@ -607,7 +607,7 @@ function TopicHubHomeContent() {
                     )
                   }
                 >
-                  Open HPQ
+                  Open Predicted Q's
                 </button>
               </div>
             </div>

@@ -805,7 +805,7 @@ export default function Dashboard() {
         <p style={{ marginTop: 6, opacity: 0.8 }}>Topic-wise view of attempts, accuracy, and Match score.</p>
         {performanceRows.length === 0 ? (
           <p style={{ marginTop: 10, opacity: 0.8 }}>
-            No performance data yet. Attempt a few HPQs or practice sets to unlock the matrix.
+            No performance data yet. Attempt a few predicted questions or practice sets to unlock the matrix.
           </p>
         ) : (
           <div style={{ marginTop: 12, overflowX: "auto" }}>
