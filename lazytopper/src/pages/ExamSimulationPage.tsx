@@ -99,6 +99,15 @@ export default function ExamSimulationPage() {
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [phase]);
 
+  useEffect(() => {
+    if (phase !== "taking") return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [phase]);
+
   const handleAnswer = useCallback((questionId: string, selected: string, correctAnswer: string) => {
     const correct = selected.trim().toLowerCase() === correctAnswer.trim().toLowerCase();
     const now = TOTAL_TIME_SECONDS - remainingTime;
@@ -679,17 +688,35 @@ function ExamReviewView({ paper, analytics, answers, subject, wallClockSec, onNe
             border: "1px solid #fecaca",
           }}>
             <h3 style={{ fontSize: "0.92rem", fontWeight: 700, color: "#dc2626", marginBottom: 12 }}>
-              Weak Areas
+              Weak Areas — Focus on These
             </h3>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               {analytics.weakAreas.map(sub => (
-                <span key={sub} style={{
-                  padding: "6px 14px", borderRadius: 10, border: "1px solid #fca5a5",
-                  background: "#fff", color: "#dc2626", fontSize: "0.78rem", fontWeight: 600,
-                }}>
-                  {sub}
-                </span>
+                <button
+                  key={sub}
+                  onClick={() => {
+                    const topicKey = analytics.topicHeatmap.find(
+                      t => t.topicKey.toLowerCase().includes(sub.toLowerCase()) ||
+                        sub.toLowerCase().includes(t.topicKey.toLowerCase())
+                    )?.topicKey;
+                    if (topicKey) {
+                      window.location.href = `/topic-hub/10/${encodeURIComponent(subject)}/${encodeURIComponent(topicKey)}`;
+                    } else {
+                      window.location.href = `/weak-area-practice`;
+                    }
+                  }}
+                  style={{
+                    padding: "6px 14px", borderRadius: 10, border: "1px solid #fca5a5",
+                    background: "#fff", color: "#dc2626", fontSize: "0.78rem", fontWeight: 600,
+                    cursor: "pointer",
+                  }}
+                >
+                  {sub} →
+                </button>
               ))}
+            </div>
+            <div style={{ marginTop: 10, fontSize: "0.72rem", color: "#b91c1c" }}>
+              Tap a topic to practice and strengthen it
             </div>
           </div>
         )}

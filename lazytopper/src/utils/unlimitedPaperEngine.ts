@@ -147,8 +147,9 @@ export function generateUnlimitedPaper(subject: LTSubjectKey, seed?: number): Ex
   const actualSeed = seed ?? (Date.now() ^ Math.floor(Math.random() * 0xffffffff));
 
   let bestPaper: ExamPaper | null = null;
+  let bestOverlapMax = Infinity;
 
-  for (let attempt = 0; attempt < 30; attempt++) {
+  for (let attempt = 0; attempt < 50; attempt++) {
     const rng = seededRandom(actualSeed + attempt * 7919);
     const paper = buildSinglePaper(all, subject, rng, actualSeed + attempt);
 
@@ -164,7 +165,12 @@ export function generateUnlimitedPaper(subject: LTSubjectKey, seed?: number): Ex
       bestPaper = paper;
       break;
     }
-    if (!bestPaper) bestPaper = paper;
+
+    const maxOverlap = history.reduce((mx, prev) => Math.max(mx, computeOverlap(allIds, prev)), 0);
+    if (maxOverlap < bestOverlapMax) {
+      bestOverlapMax = maxOverlap;
+      bestPaper = paper;
+    }
   }
 
   const finalPaper = bestPaper!;
