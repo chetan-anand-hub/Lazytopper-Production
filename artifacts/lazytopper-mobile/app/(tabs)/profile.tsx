@@ -80,13 +80,15 @@ export default function ProfileScreen() {
                 <Text style={[styles.authBtnText, { color: "#333" }]}>Sign in with Google</Text>
               </Pressable>
 
-              <Pressable
-                style={[styles.authBtn, { backgroundColor: "#fff", borderColor: colors.border, borderWidth: 1 }]}
-                onPress={() => setPhoneModalVisible(true)}
-              >
-                <Feather name="phone" size={18} color="#34A853" />
-                <Text style={[styles.authBtnText, { color: "#333" }]}>Sign in with Phone</Text>
-              </Pressable>
+              {Platform.OS === "web" && (
+                <Pressable
+                  style={[styles.authBtn, { backgroundColor: "#fff", borderColor: colors.border, borderWidth: 1 }]}
+                  onPress={() => setPhoneModalVisible(true)}
+                >
+                  <Feather name="phone" size={18} color="#34A853" />
+                  <Text style={[styles.authBtnText, { color: "#333" }]}>Sign in with Phone</Text>
+                </Pressable>
+              )}
             </>
           )}
 

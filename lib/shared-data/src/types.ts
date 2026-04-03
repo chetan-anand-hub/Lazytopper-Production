@@ -33,6 +33,14 @@ export interface SubscriptionStatus {
 
 export type DifficultyLevel = "Easy" | "Medium" | "Hard";
 
+export type BloomLevel =
+  | "Remembering"
+  | "Understanding"
+  | "Applying"
+  | "Analysing"
+  | "Evaluating"
+  | "Creating";
+
 export type QuestionFormat =
   | "MCQ"
   | "Short"
@@ -40,6 +48,32 @@ export type QuestionFormat =
   | "Case-Based"
   | "Long"
   | "VSA";
+
+export type SectionKey = "A" | "B" | "C" | "D" | "E";
+
+export interface CanonicalQuestion {
+  id: string;
+  subject: LTSubjectKey;
+  topicKey: string;
+  subtopic: string;
+  section: string;
+  marks: number;
+  format: QuestionFormat;
+  difficulty: DifficultyLevel;
+  bloomSkill: BloomLevel;
+  questionText: string;
+  options?: string[];
+  answer?: string;
+  explanation?: string;
+  solutionSteps?: string[];
+  finalAnswer?: string;
+  strategyHint?: string;
+  predictionScore?: number;
+  predictionStrength?: string;
+  blueprintSlotId?: string;
+  pastBoardYear?: string;
+  policyTag?: string;
+}
 
 export interface ExamQuestion {
   id: string;

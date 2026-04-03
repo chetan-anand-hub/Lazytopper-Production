@@ -4,13 +4,15 @@ import * as Linking from "expo-linking";
 import {
   GoogleAuthProvider,
   PhoneAuthProvider,
+  RecaptchaVerifier,
   onAuthStateChanged,
   signInWithPopup,
   signInWithCredential,
+  signInWithPhoneNumber,
   signOut as fbSignOut,
 } from "firebase/auth";
-import type { User as FirebaseUser } from "firebase/auth";
-import React, { createContext, useContext, useEffect, useState } from "react";
+import type { User as FirebaseUser, ConfirmationResult } from "firebase/auth";
+import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 import { Alert, Platform } from "react-native";
 
 import { firebaseConfigured, authClient } from "@/services/firebaseConfig";
@@ -71,6 +73,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [authError, setAuthError] = useState<string | null>(null);
+  const confirmationResultRef = useRef<ConfirmationResult | null>(null);
 
   useEffect(() => {
     AsyncStorage.getItem(AUTH_STORAGE_KEY).then((stored) => {
@@ -173,10 +176,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       showAuthError(msg);
       return null;
     }
+
+    if (Platform.OS !== "web") {
+      const msg = "Phone OTP sign-in is only supported in the web version. Please use Google sign-in or guest mode on mobile.";
+      setAuthError(msg);
+      showAuthError(msg);
+      return null;
+    }
+
     try {
-      const phoneProvider = new PhoneAuthProvider(authClient);
-      const verificationId = await phoneProvider.verifyPhoneNumber(phoneNumber, undefined as never);
-      return verificationId;
+      let recaptchaContainer = document.getElementById("recaptcha-container");
+      if (!recaptchaContainer) {
+        recaptchaContainer = document.createElement("div");
+        recaptchaContainer.id = "recaptcha-container";
+        recaptchaContainer.style.display = "none";
+        document.body.appendChild(recaptchaContainer);
+      }
+
+      const recaptchaVerifier = new RecaptchaVerifier(authClient, "recaptcha-container", {
+        size: "invisible",
+      });
+
+      const confirmation = await signInWithPhoneNumber(authClient, phoneNumber, recaptchaVerifier);
+      confirmationResultRef.current = confirmation;
+      return "web-confirmation";
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : "Failed to send OTP. Please try again.";
       setAuthError(msg);
@@ -185,22 +208,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const handleSignInWithPhone = async (verificationId: string, code: string) => {
+  const handleSignInWithPhone = async (_verificationId: string, code: string) => {
     if (!firebaseConfigured || !authClient) {
       const msg = "Phone sign-in is unavailable. Firebase is not configured.";
       setAuthError(msg);
       showAuthError(msg);
       return;
     }
-    try {
-      const credential = PhoneAuthProvider.credential(verificationId, code);
-      const result = await signInWithCredential(authClient, credential);
-      await persistUser(mapFirebaseUser(result.user));
-    } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : "Phone sign-in failed. Check code and try again.";
-      setAuthError(msg);
-      showAuthError(msg);
+
+    if (Platform.OS === "web" && confirmationResultRef.current) {
+      try {
+        const result = await confirmationResultRef.current.confirm(code);
+        confirmationResultRef.current = null;
+        await persistUser(mapFirebaseUser(result.user));
+      } catch (error: unknown) {
+        const msg = error instanceof Error ? error.message : "Invalid OTP code. Please try again.";
+        setAuthError(msg);
+        showAuthError(msg);
+      }
+      return;
     }
+
+    const msg = "Phone sign-in is only supported in the web version.";
+    setAuthError(msg);
+    showAuthError(msg);
   };
 
   const handleSignOut = async () => {

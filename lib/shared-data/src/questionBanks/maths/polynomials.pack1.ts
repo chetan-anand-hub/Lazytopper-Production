@@ -1,0 +1,542 @@
+import type { CanonicalQuestion } from "../../types";
+
+export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
+  {
+    id: "POLY-E01", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
+    section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering",
+    questionText: "The zeroes of the polynomial x² − 3 are:",
+    options: ["±√3", "±3", "3, 0", "√3, 0"],
+    answer: "±√3",
+    finalAnswer: "±√3"
+  },
+  {
+    id: "POLY-E02", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
+    section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering",
+    questionText: "If α and β are zeroes of x² − 5x + 6, then α + β is:",
+    options: ["5", "6", "−5", "−6"],
+    answer: "5",
+    solutionSteps: ["Sum of zeroes = −(−5)/1 = 5"],
+    finalAnswer: "5"
+  },
+  {
+    id: "POLY-E03", subject: "Maths", topicKey: "Polynomials", subtopic: "Graph & Type of Polynomial",
+    section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding",
+    questionText: "The graph of a quadratic polynomial p(x) = ax² + bx + c opens upward when:",
+    options: ["a > 0", "a < 0", "a = 0", "c > 0"],
+    answer: "a > 0",
+    finalAnswer: "a > 0"
+  },
+  {
+    id: "POLY-E04", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
+    section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering",
+    questionText: "How many zeroes can a cubic polynomial have at most?",
+    options: ["1", "2", "3", "4"],
+    answer: "3",
+    finalAnswer: "3"
+  },
+  {
+    id: "POLY-E05", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
+    section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering",
+    questionText: "If one zero of 2x² − 8x + k is the reciprocal of the other, then k is:",
+    options: ["2", "4", "−2", "8"],
+    answer: "2",
+    solutionSteps: ["Let zeroes be α and 1/α", "Product = α × (1/α) = 1", "Product of zeroes = k/2 = 1", "k = 2"],
+    finalAnswer: "2"
+  },
+  {
+    id: "POLY-E06", subject: "Maths", topicKey: "Polynomials", subtopic: "Graph & Type of Polynomial",
+    section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding",
+    questionText: "The number of zeroes of a polynomial is equal to the number of points where the graph:",
+    options: ["touches x-axis", "touches y-axis", "intersects x-axis", "intersects or touches x-axis"],
+    answer: "intersects or touches x-axis",
+    finalAnswer: "intersects or touches x-axis"
+  },
+  {
+    id: "POLY-E07", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
+    section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying",
+    questionText: "If p(x) = x² − 4x + 3, then p(1) is:",
+    options: ["0", "1", "−1", "3"],
+    answer: "0",
+    solutionSteps: ["p(1) = 1 − 4 + 3 = 0"],
+    finalAnswer: "0"
+  },
+  {
+    id: "POLY-E08", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
+    section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering",
+    questionText: "If α, β are zeroes of p(x) = ax² + bx + c, then αβ =",
+    options: ["−b/a", "b/a", "c/a", "−c/a"],
+    answer: "c/a",
+    finalAnswer: "c/a"
+  },
+  {
+    id: "POLY-E09", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
+    section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
+    questionText: "Find the zeroes of the polynomial p(x) = x² − 2x − 8 and verify the relationship between the zeroes and the coefficients.",
+    solutionSteps: ["x² − 2x − 8 = (x − 4)(x + 2)", "Zeroes: 4 and −2", "Sum = 4 + (−2) = 2 = −(−2)/1 ✓", "Product = 4 × (−2) = −8 = −8/1 ✓"],
+    finalAnswer: "Zeroes: 4, −2"
+  },
+  {
+    id: "POLY-E10", subject: "Maths", topicKey: "Polynomials", subtopic: "Graph & Type of Polynomial",
+    section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding",
+    questionText: "A polynomial of degree n has at most:",
+    options: ["n zeroes", "n + 1 zeroes", "n − 1 zeroes", "2n zeroes"],
+    answer: "n zeroes",
+    finalAnswer: "n zeroes"
+  },
+  {
+    id: "POLY-E11", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
+    section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
+    questionText: "Find a quadratic polynomial whose zeroes are 3 and −1.",
+    solutionSteps: ["Sum = 3 + (−1) = 2", "Product = 3 × (−1) = −3", "Polynomial = x² − (sum)x + product = x² − 2x − 3"],
+    finalAnswer: "x² − 2x − 3"
+  },
+  {
+    id: "POLY-E12", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
+    section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding",
+    questionText: "Assertion (A): The polynomial x² + 1 has no real zeroes.\nReason (R): x² ≥ 0 for all real x, so x² + 1 ≥ 1 > 0.",
+    options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
+    answer: "Both A and R are true, and R is the correct explanation of A.",
+    finalAnswer: "Both A and R are true, and R is the correct explanation of A."
+  },
+  {
+    id: "POLY-E13", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
+    section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering",
+    questionText: "The value of k for which x = 2 is a zero of p(x) = x² − kx + 2 is:",
+    options: ["1", "2", "3", "4"],
+    answer: "3",
+    solutionSteps: ["p(2) = 0 ⟹ 4 − 2k + 2 = 0 ⟹ 2k = 6 ⟹ k = 3"],
+    finalAnswer: "3"
+  },
+  {
+    id: "POLY-E14", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
+    section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying",
+    questionText: "If α, β are the zeroes of x² − 7x + 10, then 1/α + 1/β =",
+    options: ["7/10", "10/7", "3/10", "−7/10"],
+    answer: "7/10",
+    solutionSteps: ["1/α + 1/β = (α + β)/(αβ) = 7/10"],
+    finalAnswer: "7/10"
+  },
+  {
+    id: "POLY-E15", subject: "Maths", topicKey: "Polynomials", subtopic: "Graph & Type of Polynomial",
+    section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding",
+    questionText: "The zeroes of a polynomial p(x) are the x-coordinates of the points where the graph of y = p(x) intersects the:",
+    options: ["y-axis", "x-axis", "both axes", "origin only"],
+    answer: "x-axis",
+    finalAnswer: "x-axis"
+  },
+  {
+    id: "POLY-E16", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
+    section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
+    questionText: "Find the zeroes of p(x) = 4x² − 12x + 9.",
+    solutionSteps: ["4x² − 12x + 9 = (2x − 3)²", "Zero: x = 3/2 (repeated)"],
+    finalAnswer: "x = 3/2 (repeated zero)"
+  },
+  {
+    id: "POLY-E17", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
+    section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering",
+    questionText: "For a quadratic polynomial ax² + bx + c, the sum of zeroes is:",
+    options: ["b/a", "−b/a", "c/a", "a/c"],
+    answer: "−b/a",
+    finalAnswer: "−b/a"
+  },
+  {
+    id: "POLY-E18", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
+    section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying",
+    questionText: "The zeroes of 6x² − 3 − 7x are:",
+    options: ["3/2 and −1/3", "−3/2 and 1/3", "3/2 and 1/3", "−3/2 and −1/3"],
+    answer: "3/2 and −1/3",
+    solutionSteps: ["6x² − 7x − 3 = 0", "(2x − 3)(3x + 1) = 0", "x = 3/2 or x = −1/3"],
+    finalAnswer: "3/2 and −1/3"
+  },
+  {
+    id: "POLY-E19", subject: "Maths", topicKey: "Polynomials", subtopic: "Graph & Type of Polynomial",
+    section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding",
+    questionText: "Assertion (A): A linear polynomial has exactly one zero.\nReason (R): The graph of a linear polynomial is a straight line intersecting the x-axis at exactly one point.",
+    options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
+    answer: "Both A and R are true, and R is the correct explanation of A.",
+    finalAnswer: "Both A and R are true, and R is the correct explanation of A."
+  },
+  {
+    id: "POLY-E20", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
+    section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
+    questionText: "Find a quadratic polynomial with zeroes 1/4 and −1.",
+    solutionSteps: ["Sum = 1/4 + (−1) = −3/4", "Product = (1/4)(−1) = −1/4", "Polynomial = x² − (−3/4)x + (−1/4) = x² + 3x/4 − 1/4", "Multiply by 4: 4x² + 3x − 1"],
+    finalAnswer: "4x² + 3x − 1"
+  },
+  {
+    id: "POLY-M01", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
+    section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "If α, β are zeroes of p(x) = 2x² − 5x + 7, find the value of α² + β².",
+    solutionSteps: ["α + β = 5/2, αβ = 7/2", "α² + β² = (α + β)² − 2αβ = 25/4 − 7 = 25/4 − 28/4 = −3/4"],
+    finalAnswer: "−3/4"
+  },
+  {
+    id: "POLY-M02", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
+    section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "Find a quadratic polynomial, the sum and product of whose zeroes are −3 and 2 respectively.",
+    solutionSteps: ["p(x) = x² − (sum)x + product = x² − (−3)x + 2 = x² + 3x + 2"],
+    finalAnswer: "x² + 3x + 2"
+  },
+  {
+    id: "POLY-M03", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
+    section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "If α, β are zeroes of 3x² + 2x − 6, find the value of (i) α/β + β/α (ii) α³ + β³.",
+    solutionSteps: [
+      "α + β = −2/3, αβ = −6/3 = −2",
+      "(i) α/β + β/α = (α² + β²)/(αβ) = [(α+β)² − 2αβ]/αβ = [4/9 + 4]/(−2) = [40/9]/(−2) = −20/9",
+      "(ii) α³ + β³ = (α+β)(α² − αβ + β²) = (−2/3)(40/9 − (−2)) = (−2/3)(40/9 + 2) = (−2/3)(58/9) = −116/27"
+    ],
+    finalAnswer: "(i) −20/9, (ii) −116/27"
+  },
+  {
+    id: "POLY-M04", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
+    section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "Find all the zeroes of 2x⁴ − 3x³ − 3x² + 6x − 2, if you know that two of its zeroes are √2 and −√2.",
+    solutionSteps: [
+      "(x − √2)(x + √2) = x² − 2 is a factor",
+      "Divide: 2x⁴ − 3x³ − 3x² + 6x − 2 ÷ (x² − 2) = 2x² − 3x + 1",
+      "2x² − 3x + 1 = (2x − 1)(x − 1)",
+      "All zeroes: √2, −√2, 1/2, 1"
+    ],
+    finalAnswer: "√2, −√2, 1/2, 1"
+  },
+  {
+    id: "POLY-M05", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
+    section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing",
+    questionText: "Assertion (A): If one zero of p(x) = 4x² − 8kx − 9 is the negative of the other, then k = 0.\nReason (R): Sum of zeroes = −b/a.",
+    options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
+    answer: "Both A and R are true, and R is the correct explanation of A.",
+    solutionSteps: ["If zeroes are α and −α, sum = 0", "−(−8k)/4 = 0 ⟹ 2k = 0 ⟹ k = 0"],
+    finalAnswer: "Both A and R are true, and R is the correct explanation of A."
+  },
+  {
+    id: "POLY-M06", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
+    section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "Obtain all zeroes of f(x) = x³ − 6x² + 11x − 6, if x = 1 is a zero.",
+    solutionSteps: [
+      "Since x = 1 is a zero, (x − 1) is a factor.",
+      "Divide: x³ − 6x² + 11x − 6 ÷ (x − 1) = x² − 5x + 6",
+      "x² − 5x + 6 = (x − 2)(x − 3)",
+      "All zeroes: 1, 2, 3"
+    ],
+    finalAnswer: "1, 2, 3"
+  },
+  {
+    id: "POLY-M07", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
+    section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "If the zeroes of the polynomial x² + px + q are double in value to the zeroes of 2x² − 5x − 3, find the values of p and q.",
+    solutionSteps: [
+      "Zeroes of 2x² − 5x − 3: sum = 5/2, product = −3/2",
+      "2x² − 5x − 3 = (2x + 1)(x − 3), zeroes: −1/2 and 3",
+      "Doubled zeroes: −1 and 6",
+      "p = −(sum) = −(−1 + 6) = −5",
+      "q = product = (−1)(6) = −6"
+    ],
+    finalAnswer: "p = −5, q = −6"
+  },
+  {
+    id: "POLY-M08", subject: "Maths", topicKey: "Polynomials", subtopic: "Graph & Type of Polynomial",
+    section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
+    questionText: "If the graph of a quadratic polynomial p(x) touches the x-axis at exactly one point, then p(x) has:",
+    options: ["two distinct real zeroes", "two equal real zeroes", "no real zeroes", "one real zero only"],
+    answer: "two equal real zeroes",
+    finalAnswer: "two equal real zeroes"
+  },
+  {
+    id: "POLY-M09", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
+    section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "Find a quadratic polynomial whose zeroes are 5 − 3√2 and 5 + 3√2.",
+    solutionSteps: ["Sum = 10", "Product = (5)² − (3√2)² = 25 − 18 = 7", "p(x) = x² − 10x + 7"],
+    finalAnswer: "x² − 10x + 7"
+  },
+  {
+    id: "POLY-M10", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
+    section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "If α, β are zeroes of x² − x − 2, form a polynomial whose zeroes are (2α + 1) and (2β + 1).",
+    solutionSteps: [
+      "α + β = 1, αβ = −2",
+      "New sum = (2α + 1) + (2β + 1) = 2(α + β) + 2 = 2 + 2 = 4",
+      "New product = (2α + 1)(2β + 1) = 4αβ + 2(α + β) + 1 = −8 + 2 + 1 = −5",
+      "Polynomial = x² − 4x − 5"
+    ],
+    finalAnswer: "x² − 4x − 5"
+  },
+  {
+    id: "POLY-M11", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
+    section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing",
+    questionText: "A parabolic arch is modelled by the polynomial p(x) = −x² + 4x − 3. The x-axis represents the ground.\n(i) Find the zeroes of p(x).\n(ii) What is the maximum height of the arch?\n(iii) At what value of x does the arch reach its maximum height?\n(iv) Does the parabola open upward or downward?",
+    solutionSteps: [
+      "(i) −x² + 4x − 3 = 0 ⟹ x² − 4x + 3 = 0 ⟹ (x−1)(x−3) = 0, zeroes: 1, 3",
+      "(ii) Vertex x = −b/(2a) = −4/(−2) = 2, p(2) = −4 + 8 − 3 = 1, max height = 1",
+      "(iii) x = 2",
+      "(iv) Downward (a = −1 < 0)"
+    ],
+    finalAnswer: "(i) 1, 3 (ii) 1 (iii) x = 2 (iv) Downward"
+  },
+  {
+    id: "POLY-M12", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
+    section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "If α, β are zeroes of x² − 6x + k and 3α + 2β = 20, then k =",
+    options: ["−16", "8", "2", "−8"],
+    answer: "−16",
+    solutionSteps: ["α + β = 6", "3α + 2β = 20 and α + β = 6", "Subtract: 2α + β = 14", "From α + β = 6: β = 6 − α, so 2α + 6 − α = 14, α = 8, β = −2", "k = αβ = 8(−2) = −16"],
+    finalAnswer: "−16"
+  },
+  {
+    id: "POLY-M13", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
+    section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "If the polynomial f(x) = x⁴ − 6x³ + 16x² − 25x + 10 is divided by x² − 2x + k, the remainder is (x + a). Find k and a.",
+    solutionSteps: [
+      "Perform polynomial division of f(x) by (x² − 2x + k)",
+      "Quotient = x² − 4x + (8 − k), Remainder = (2k − 9)x + (10 − k(8−k))",
+      "Set remainder = x + a: 2k − 9 = 1 ⟹ k = 5",
+      "a = 10 − 5(8−5) = 10 − 15 = −5"
+    ],
+    finalAnswer: "k = 5, a = −5"
+  },
+  {
+    id: "POLY-M14", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
+    section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing",
+    questionText: "Assertion (A): A quadratic polynomial whose zeroes are −3 and 4 is x² − x − 12.\nReason (R): If α, β are zeroes, the polynomial is x² − (α+β)x + αβ.",
+    options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
+    answer: "Both A and R are true, and R is the correct explanation of A.",
+    finalAnswer: "Both A and R are true, and R is the correct explanation of A."
+  },
+  {
+    id: "POLY-M15", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
+    section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "Find the zeroes of p(x) = 3x² − x − 4 and verify the relation between zeroes and coefficients.",
+    solutionSteps: ["3x² − x − 4 = (3x − 4)(x + 1)", "Zeroes: 4/3 and −1", "Sum = 4/3 − 1 = 1/3 = −(−1)/3 ✓", "Product = (4/3)(−1) = −4/3 = −4/3 ✓"],
+    finalAnswer: "4/3 and −1"
+  },
+  {
+    id: "POLY-M16", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
+    section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "If α, β are zeroes of p(x) = 6x² + x − 2, find the value of α/β + β/α + 2(1/α + 1/β) + 3αβ.",
+    solutionSteps: [
+      "α + β = −1/6, αβ = −2/6 = −1/3",
+      "α/β + β/α = (α²+β²)/(αβ) = [(α+β)² − 2αβ]/(αβ) = [1/36 + 2/3]/(−1/3) = [25/36]/(−1/3) = −25/12",
+      "1/α + 1/β = (α+β)/(αβ) = (−1/6)/(−1/3) = 1/2",
+      "Result = −25/12 + 2(1/2) + 3(−1/3) = −25/12 + 1 − 1 = −25/12"
+    ],
+    finalAnswer: "−25/12"
+  },
+  {
+    id: "POLY-M17", subject: "Maths", topicKey: "Polynomials", subtopic: "Graph & Type of Polynomial",
+    section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing",
+    questionText: "The graph of a polynomial p(x) passes through points (−2, 0), (0, −8), (2, 0) and (4, 24).\n(i) How many zeroes does p(x) have? Name them.\n(ii) What is the value of p(0)?\n(iii) Is the polynomial linear, quadratic or cubic?\n(iv) Write a possible expression for p(x).",
+    solutionSteps: [
+      "(i) Zeroes where p(x) = 0: x = −2 and x = 2, so 2 zeroes",
+      "(ii) p(0) = −8",
+      "(iii) At least quadratic (2 zeroes)",
+      "(iv) p(x) = a(x+2)(x−2) = a(x²−4). p(0) = −4a = −8 ⟹ a = 2. p(x) = 2x² − 8. Check: p(4) = 32−8 = 24 ✓"
+    ],
+    finalAnswer: "(i) 2 zeroes: −2, 2 (ii) −8 (iii) Quadratic (iv) p(x) = 2x² − 8"
+  },
+  {
+    id: "POLY-M18", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
+    section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "For what value of k, is −2 a zero of the polynomial 3x² + 4x + 2k?",
+    solutionSteps: ["p(−2) = 3(4) + 4(−2) + 2k = 0", "12 − 8 + 2k = 0", "2k = −4, k = −2"],
+    finalAnswer: "k = −2"
+  },
+  {
+    id: "POLY-M19", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
+    section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "If α, β are zeroes of x² − (k + 6)x + 2(2k − 1), and α + β = αβ/2, find the value of k.",
+    solutionSteps: ["α + β = k + 6, αβ = 2(2k−1) = 4k − 2", "Given: k + 6 = (4k−2)/2 = 2k − 1", "k + 6 = 2k − 1 ⟹ k = 7"],
+    finalAnswer: "k = 7"
+  },
+  {
+    id: "POLY-M20", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
+    section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "If α, β are zeroes of x² − 4x + 3, then (α − β)² =",
+    options: ["4", "10", "16", "2"],
+    answer: "4",
+    solutionSteps: ["(α−β)² = (α+β)² − 4αβ = 16 − 12 = 4"],
+    finalAnswer: "4"
+  },
+  {
+    id: "POLY-H01", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
+    section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
+    questionText: "Obtain all zeroes of 3x⁴ + 6x³ − 2x² − 10x − 5, if two of its zeroes are √(5/3) and −√(5/3).",
+    solutionSteps: [
+      "(x − √(5/3))(x + √(5/3)) = x² − 5/3 is a factor",
+      "3(x² − 5/3) = 3x² − 5",
+      "Divide 3x⁴ + 6x³ − 2x² − 10x − 5 by (3x² − 5) to get x² + 2x + 1 = (x+1)²",
+      "All zeroes: √(5/3), −√(5/3), −1, −1"
+    ],
+    finalAnswer: "√(5/3), −√(5/3), −1 (repeated)"
+  },
+  {
+    id: "POLY-H02", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
+    section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing",
+    questionText: "If α, β, γ are zeroes of the polynomial p(x) = x³ − 12x² + 44x + c, and α + β + γ = 12, αβ + βγ + γα = 44, find c if the zeroes are in AP.",
+    solutionSteps: [
+      "Zeroes in AP: α = a−d, β = a, γ = a+d",
+      "Sum = 3a = 12 ⟹ a = 4, so β = 4",
+      "αβ + βγ + γα = (4−d)(4) + 4(4+d) + (4−d)(4+d) = 16−4d+16+4d+16−d² = 48−d²",
+      "48 − d² = 44 ⟹ d² = 4 ⟹ d = ±2",
+      "Zeroes: 2, 4, 6 (or 6, 4, 2)",
+      "c = −αβγ = −(2)(4)(6) = −48"
+    ],
+    finalAnswer: "c = −48"
+  },
+  {
+    id: "POLY-H03", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
+    section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
+    questionText: "Find all zeroes of p(x) = 2x⁴ − 9x³ + 5x² + 3x − 1, if two of its zeroes are (2 + √3) and (2 − √3).",
+    solutionSteps: [
+      "Factor from known zeroes: [x − (2+√3)][x − (2−√3)] = x² − 4x + 1",
+      "Divide 2x⁴ − 9x³ + 5x² + 3x − 1 by (x² − 4x + 1)",
+      "Quotient = 2x² − x − 1 = (2x + 1)(x − 1)",
+      "Remaining zeroes: x = −1/2 and x = 1",
+      "All zeroes: 2+√3, 2−√3, 1, −1/2"
+    ],
+    finalAnswer: "2+√3, 2−√3, 1, −1/2"
+  },
+  {
+    id: "POLY-H04", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
+    section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing",
+    questionText: "If α, β are zeroes of ax² + bx + c, form the quadratic whose zeroes are 1/(α+1) and 1/(β+1).",
+    solutionSteps: [
+      "α + β = −b/a, αβ = c/a",
+      "New sum = 1/(α+1) + 1/(β+1) = (α+β+2)/((α+1)(β+1))",
+      "(α+1)(β+1) = αβ + α + β + 1 = c/a − b/a + 1 = (a − b + c)/a",
+      "New sum = (−b/a + 2)/((a−b+c)/a) = (2a − b)/(a − b + c)",
+      "New product = 1/((α+1)(β+1)) = a/(a − b + c)",
+      "Polynomial: (a−b+c)x² − (2a−b)x + a"
+    ],
+    finalAnswer: "(a−b+c)x² − (2a−b)x + a"
+  },
+  {
+    id: "POLY-H05", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
+    section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
+    questionText: "If x³ + ax² + bx + 6 has (x − 2) as a factor and leaves remainder 3 when divided by (x − 3), find a and b.",
+    solutionSteps: [
+      "p(2) = 0: 8 + 4a + 2b + 6 = 0 ⟹ 4a + 2b = −14 ⟹ 2a + b = −7 …(i)",
+      "p(3) = 3: 27 + 9a + 3b + 6 = 3 ⟹ 9a + 3b = −30 ⟹ 3a + b = −10 …(ii)",
+      "From (ii) − (i): a = −3",
+      "b = −7 − 2(−3) = −1"
+    ],
+    finalAnswer: "a = −3, b = −1"
+  },
+  {
+    id: "POLY-H06", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
+    section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing",
+    questionText: "If α, β are zeroes of x² − p(x + 1) − c, show that (α + 1)(β + 1) = 1 − c.",
+    solutionSteps: [
+      "x² − px − p − c = 0, so α + β = p, αβ = −p − c",
+      "(α+1)(β+1) = αβ + α + β + 1 = (−p − c) + p + 1 = 1 − c"
+    ],
+    finalAnswer: "(α+1)(β+1) = 1 − c"
+  },
+  {
+    id: "POLY-H07", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
+    section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
+    questionText: "If the polynomial x⁴ − 6x³ + 16x² − 25x + 10 is divided by another polynomial x² − 2x + k, the remainder comes out to be (x + a). Find k and a.",
+    solutionSteps: [
+      "Divide x⁴ − 6x³ + 16x² − 25x + 10 by x² − 2x + k",
+      "Quotient = x² − 4x + (8−k)",
+      "Remainder = (2k − 9)x + (10 + k² − 8k)",
+      "Given remainder = x + a: coefficient of x: 2k − 9 = 1 ⟹ k = 5",
+      "Constant: a = 10 + 25 − 40 = −5"
+    ],
+    finalAnswer: "k = 5, a = −5"
+  },
+  {
+    id: "POLY-H08", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
+    section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing",
+    questionText: "If α, β are zeroes of p(x) = x² − 2x + 3 with α > β, find the value of (α² − β²)/(α − β).",
+    solutionSteps: [
+      "(α² − β²)/(α − β) = α + β = 2"
+    ],
+    finalAnswer: "2"
+  },
+  {
+    id: "POLY-H09", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
+    section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
+    questionText: "On dividing x³ − 3x² + x + 2 by a polynomial g(x), the quotient and remainder were (x − 2) and (−2x + 4) respectively. Find g(x).",
+    solutionSteps: [
+      "Dividend = Divisor × Quotient + Remainder",
+      "x³ − 3x² + x + 2 = g(x)(x − 2) + (−2x + 4)",
+      "g(x)(x − 2) = x³ − 3x² + x + 2 + 2x − 4 = x³ − 3x² + 3x − 2",
+      "Note x = 2: 8 − 12 + 6 − 2 = 0, so (x−2) divides x³ − 3x² + 3x − 2",
+      "g(x) = (x³ − 3x² + 3x − 2)/(x − 2) = x² − x + 1"
+    ],
+    finalAnswer: "g(x) = x² − x + 1"
+  },
+  {
+    id: "POLY-H10", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
+    section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Analysing",
+    questionText: "A rectangular garden has area given by A(x) = 6x² + x − 2 square units.\n(i) Find the dimensions (as linear factors) of the garden.\n(ii) If x = 3, find the actual dimensions.\n(iii) Find the zeroes of A(x).\n(iv) For what values of x is the area positive?",
+    solutionSteps: [
+      "(i) 6x² + x − 2 = (2x − 1)(3x + 2)",
+      "(ii) x = 3: length = 2(3)−1 = 5, breadth = 3(3)+2 = 11, area = 55",
+      "(iii) Zeroes: x = 1/2 and x = −2/3",
+      "(iv) A(x) > 0 when x > 1/2 or x < −2/3 (practically x > 1/2 since dimensions must be positive)"
+    ],
+    finalAnswer: "(i) (2x−1)(3x+2), (ii) 5×11=55, (iii) 1/2, −2/3, (iv) x > 1/2"
+  },
+  {
+    id: "POLY-H11", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
+    section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
+    questionText: "Find a cubic polynomial with zeroes 3, 1/2 and −1.",
+    solutionSteps: [
+      "p(x) = k(x − 3)(x − 1/2)(x + 1)",
+      "Take k = 2 for integer coefficients: 2(x−3)(x−1/2)(x+1) = (x−3)(2x−1)(x+1)",
+      "= (x−3)(2x²+x−1) = 2x³+x²−x−6x²−3x+3 = 2x³ − 5x² − 4x + 3"
+    ],
+    finalAnswer: "2x³ − 5x² − 4x + 3"
+  },
+  {
+    id: "POLY-H12", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
+    section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing",
+    questionText: "If the zeroes of the polynomial f(x) = 2x³ − 15x² + 37x − 30 are in AP, find them.",
+    solutionSteps: [
+      "Let zeroes be a−d, a, a+d",
+      "Sum = 3a = 15/2, so a = 5/2",
+      "Sum of products taken two at a time: a(a−d) + a(a+d) + (a−d)(a+d) = 37/2",
+      "a² − ad + a² + ad + a² − d² = 37/2",
+      "3a² − d² = 37/2",
+      "3(25/4) − d² = 37/2 → 75/4 − d² = 74/4 → d² = 1/4 → d = 1/2",
+      "Zeroes: 2, 5/2, 3"
+    ],
+    finalAnswer: "2, 5/2, 3"
+  },
+  {
+    id: "POLY-H13", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
+    section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Evaluating",
+    questionText: "If α, β are zeroes of 2x² − 5x + 4, find the value of α² + β².",
+    solutionSteps: [
+      "α + β = 5/2, αβ = 4/2 = 2",
+      "α² + β² = (α+β)² − 2αβ = 25/4 − 4 = 25/4 − 16/4 = 9/4"
+    ],
+    answer: "9/4",
+    finalAnswer: "α² + β² = 9/4"
+  },
+  {
+    id: "POLY-H14", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
+    section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
+    questionText: "Find a polynomial of degree 4 whose zeroes are 1, −1, 2 and −2.",
+    solutionSteps: [
+      "p(x) = (x−1)(x+1)(x−2)(x+2) = (x²−1)(x²−4) = x⁴ − 5x² + 4"
+    ],
+    finalAnswer: "x⁴ − 5x² + 4"
+  },
+  {
+    id: "POLY-H15", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
+    section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing",
+    questionText: "If α, β are zeroes of p(x) = 2x² + 5x + k, such that α² + β² + αβ = 21/4, find k. Also find the zeroes.",
+    solutionSteps: [
+      "α + β = −5/2, αβ = k/2",
+      "α² + β² + αβ = (α+β)² − 2αβ + αβ = (α+β)² − αβ",
+      "25/4 − k/2 = 21/4",
+      "k/2 = 25/4 − 21/4 = 1 ⟹ k = 2",
+      "2x² + 5x + 2 = (2x + 1)(x + 2)",
+      "Zeroes: −1/2 and −2"
+    ],
+    finalAnswer: "k = 2; zeroes are −1/2 and −2"
+  },
+  { id: "POLY-AR05", subject: "Maths", topicKey: "Polynomials", subtopic: "Relationship between Zeroes and Coefficients", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): A quadratic polynomial can have at most 2 zeroes.\nReason (R): The degree of a polynomial determines the maximum number of zeroes it can have.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." },
+];
