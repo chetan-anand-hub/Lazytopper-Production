@@ -18,6 +18,7 @@ import {
   setActiveProgressUser,
 } from "../services/studentProgressStore";
 import { ensureLearnerCloudBaseline } from "../services/studentCloudStore";
+import { activateTrial, hydrateSubscriptionFromCloud } from "../services/subscriptionService";
 
 export type AuthUser = {
   uid: string;
@@ -164,6 +165,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           ensureLearnerCloudBaseline(uid),
           ensureLearnerProgressBaseline(uid),
           hydrateLocalProgressFromCloud(uid),
+          hydrateSubscriptionFromCloud(uid).then(() => {
+            activateTrial(uid);
+          }),
         ]);
       })();
     }

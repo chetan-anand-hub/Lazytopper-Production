@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { trackUxEvent } from "../services/uxTelemetry";
-import { activateTrial } from "../services/subscriptionService";
 
 type LocationState = { from?: string };
 
@@ -41,7 +40,6 @@ export default function Login() {
 
   useEffect(() => {
     if (user) {
-      activateTrial(user.uid);
       navigate(nextPath, { replace: true });
     }
   }, [user, nextPath, navigate]);

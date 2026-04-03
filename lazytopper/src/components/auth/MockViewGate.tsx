@@ -5,11 +5,26 @@ import { UpgradeModal } from "../UpgradeModal";
 
 const MOCK_VIEW_KEY = "lazytopper.dailyMockViews";
 const FREE_MOCK_LIMIT = 1;
+const GUEST_SESSION_KEY = "lazytopper.guestSessionId";
 
-function getDailyMockViews(): number {
+function getGuestSessionId(): string {
+  let id = sessionStorage.getItem(GUEST_SESSION_KEY);
+  if (!id) {
+    id = `guest_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    sessionStorage.setItem(GUEST_SESSION_KEY, id);
+  }
+  return id;
+}
+
+function getScopedKey(uid: string | null): string {
+  const scope = uid || getGuestSessionId();
+  return `${MOCK_VIEW_KEY}:${scope}`;
+}
+
+function getDailyMockViews(uid: string | null): number {
   try {
     const today = new Date().toISOString().slice(0, 10);
-    const raw = localStorage.getItem(MOCK_VIEW_KEY);
+    const raw = localStorage.getItem(getScopedKey(uid));
     if (!raw) return 0;
     const parsed = JSON.parse(raw);
     if (parsed?.date !== today) return 0;
@@ -19,11 +34,11 @@ function getDailyMockViews(): number {
   }
 }
 
-function incrementDailyMockViews(): void {
+function incrementDailyMockViews(uid: string | null): void {
   const today = new Date().toISOString().slice(0, 10);
-  const count = getDailyMockViews() + 1;
+  const count = getDailyMockViews(uid) + 1;
   try {
-    localStorage.setItem(MOCK_VIEW_KEY, JSON.stringify({ date: today, count }));
+    localStorage.setItem(getScopedKey(uid), JSON.stringify({ date: today, count }));
   } catch {}
 }
 
@@ -42,43 +57,41 @@ export function MockViewGate({ children }: { children: ReactNode }) {
     );
   }
 
-  if (!user) {
-    const views = getDailyMockViews();
-    if (views >= FREE_MOCK_LIMIT) {
-      return (
-        <div className="lt-page" style={{ textAlign: "center", paddingTop: 60 }}>
-          <div style={{ fontSize: "3rem", marginBottom: 12 }}>📄</div>
-          <h2 style={{ fontWeight: 900, fontSize: "1.3rem", marginBottom: 8 }}>
-            Sign in to View More
-          </h2>
-          <p style={{ color: "#888", fontSize: "0.92rem", marginBottom: 20, lineHeight: 1.5 }}>
-            You've viewed your free mock paper for today. Sign in to unlock more.
-          </p>
-          <a
-            href="/login"
-            style={{
-              display: "inline-block", textDecoration: "none",
-              border: "none", borderBottom: "4px solid #46a302", borderRadius: 16,
-              padding: "14px 28px", background: "#58cc02", color: "#fff",
-              fontSize: "1rem", fontWeight: 800, cursor: "pointer",
-              textTransform: "uppercase",
-            }}
-          >
-            Sign In
-          </a>
-        </div>
-      );
-    }
-    incrementDailyMockViews();
+  const uid = user?.uid || null;
+
+  if (user && isPremium) {
     return <>{children}</>;
   }
 
-  if (isPremium) {
-    return <>{children}</>;
+  const views = getDailyMockViews(uid);
+
+  if (!user && views >= FREE_MOCK_LIMIT) {
+    return (
+      <div className="lt-page" style={{ textAlign: "center", paddingTop: 60 }}>
+        <div style={{ fontSize: "3rem", marginBottom: 12 }}>📄</div>
+        <h2 style={{ fontWeight: 900, fontSize: "1.3rem", marginBottom: 8 }}>
+          Sign in to View More
+        </h2>
+        <p style={{ color: "#888", fontSize: "0.92rem", marginBottom: 20, lineHeight: 1.5 }}>
+          You've viewed your free sample mock paper. Sign in to unlock more.
+        </p>
+        <a
+          href="/login"
+          style={{
+            display: "inline-block", textDecoration: "none",
+            border: "none", borderBottom: "4px solid #46a302", borderRadius: 16,
+            padding: "14px 28px", background: "#58cc02", color: "#fff",
+            fontSize: "1rem", fontWeight: 800, cursor: "pointer",
+            textTransform: "uppercase",
+          }}
+        >
+          Sign In
+        </a>
+      </div>
+    );
   }
 
-  const views = getDailyMockViews();
-  if (views >= FREE_MOCK_LIMIT) {
+  if (user && views >= FREE_MOCK_LIMIT) {
     return (
       <div className="lt-page" style={{ textAlign: "center", paddingTop: 60 }}>
         <div style={{ fontSize: "3rem", marginBottom: 12 }}>📄</div>
@@ -112,6 +125,6 @@ export function MockViewGate({ children }: { children: ReactNode }) {
     );
   }
 
-  incrementDailyMockViews();
+  incrementDailyMockViews(uid);
   return <>{children}</>;
 }

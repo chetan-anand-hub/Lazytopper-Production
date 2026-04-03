@@ -63,10 +63,10 @@ export function getPremiumFeatureList(): { id: FeatureId; label: string }[] {
 
 const DAILY_PRACTICE_KEY = "lazytopper.dailyPracticeCount";
 
-export function getDailyPracticeCount(): number {
+export function getDailyPracticeCount(uid: string): number {
   try {
     const today = new Date().toISOString().slice(0, 10);
-    const raw = localStorage.getItem(DAILY_PRACTICE_KEY);
+    const raw = localStorage.getItem(`${DAILY_PRACTICE_KEY}:${uid}`);
     if (!raw) return 0;
     const parsed = JSON.parse(raw);
     if (parsed?.date !== today) return 0;
@@ -76,12 +76,12 @@ export function getDailyPracticeCount(): number {
   }
 }
 
-export function incrementDailyPracticeCount(): number {
+export function incrementDailyPracticeCount(uid: string): number {
   const today = new Date().toISOString().slice(0, 10);
-  let count = getDailyPracticeCount();
+  let count = getDailyPracticeCount(uid);
   count++;
   try {
-    localStorage.setItem(DAILY_PRACTICE_KEY, JSON.stringify({ date: today, count }));
+    localStorage.setItem(`${DAILY_PRACTICE_KEY}:${uid}`, JSON.stringify({ date: today, count }));
   } catch {}
   return count;
 }

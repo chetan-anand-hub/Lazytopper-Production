@@ -30,7 +30,7 @@ export function PracticeLimitGate({ children }: { children: ReactNode }) {
     return <>{children}</>;
   }
 
-  const dailyCount = getDailyPracticeCount();
+  const dailyCount = getDailyPracticeCount(user.uid);
   if (dailyCount >= FREE_DAILY_LIMIT) {
     return (
       <div className="lt-page" style={{ textAlign: "center", paddingTop: 60 }}>
@@ -65,6 +65,6 @@ export function PracticeLimitGate({ children }: { children: ReactNode }) {
     );
   }
 
-  incrementDailyPracticeCount();
+  incrementDailyPracticeCount(user.uid);
   return <>{children}</>;
 }
