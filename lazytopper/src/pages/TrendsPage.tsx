@@ -20,6 +20,7 @@ import {
   buildTopicHubUrl,
   buildHPQUrl,
   buildMockBuilderUrl,
+  buildTopicMockUrl,
   buildAiMentorUrl,
 } from "../utils/buildUrl";
 import { normalizeTopicKey, resolveTopicKey as resolveCanonicalTopicKey } from "../utils/topicResolver";
@@ -267,12 +268,13 @@ const TrendsPage: React.FC = () => {
 
 
   const handleQuickTopicMock = (topicName: string) => {
-    trackUxEvent("trends_topic_more_click", "trends", { action: "mock", topicName, subject: subjectKey });
+    const canonicalTopicKey = resolveCanonicalTopicKey({
+      subjectKey,
+      topicParam: topicName,
+    });
+    trackUxEvent("trends_topic_more_click", "trends", { action: "topic_mock", topicName, subject: subjectKey });
     navigate(
-      buildMockBuilderUrl(grade, subjectKey, {
-        from: "trends-topic",
-        topic: topicName,
-      }),
+      buildTopicMockUrl(grade, subjectKey, canonicalTopicKey || topicName),
       {
         state: {
           back: currentURL,

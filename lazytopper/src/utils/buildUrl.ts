@@ -86,6 +86,25 @@ export function buildMockBuilderUrl(
 }
 
 /**
+ * Topic Mock Paper
+ * Example: /topic-mock/10/Science/electricity?set=2
+ */
+export function buildTopicMockUrl(
+  grade: string,
+  subject: string,
+  topicKey: string,
+  options?: { set?: number }
+): string {
+  const base = `/topic-mock/${encodeURIComponent(grade)}/${encodeURIComponent(
+    subject
+  )}/${encodeURIComponent(topicKey)}`;
+  if (options?.set && options.set > 1) {
+    return `${base}?set=${options.set}`;
+  }
+  return base;
+}
+
+/**
  * AI Mentor page
  * Path only holds grade + subject; mode + payload are passed via
  * react-router `state` rather than query parameters.

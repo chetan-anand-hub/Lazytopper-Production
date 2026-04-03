@@ -5,6 +5,7 @@ import { getTopicV2Content, normalizeTopicKey } from "../utils/topicHubV2Store";
 import { generatePracticeSet } from "../data/practiceSetGenerator";
 import ConceptTeachDrawer, { type ConceptTeachContext } from "../components/tutor/ConceptTeachDrawer";
 import { navigateToPractice } from "../navigation/practiceNavigation";
+import { buildTopicMockUrl } from "../utils/buildUrl";
 import { trackUxEvent } from "../services/uxTelemetry";
 import ReturnContextBar from "../components/ux/ReturnContextBar";
 import { QuestionVisualAid } from "../components/question/QuestionVisualAid";
@@ -542,6 +543,34 @@ export default function TopicHub() {
               onMouseUp={(e) => { (e.target as HTMLElement).style.transform = "scale(1)"; }}
             >
               {progress.lessonCompleted ? "Review Again" : masteryPercent > 0 ? "Continue Learning" : "Start Learning"}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                trackUxEvent("topichub_topic_mock_click", "TopicHub", { topicKey });
+                navigate(
+                  buildTopicMockUrl(grade, subjectTitle, topicKey),
+                  {
+                    state: {
+                      back: `/topic-hub/${grade}/${subject}/${topicKey}`,
+                      backLabel: `Back to ${title}`,
+                    },
+                  }
+                );
+              }}
+              style={{
+                marginTop: 10, padding: "10px 28px", borderRadius: 14,
+                background: "#6366f1",
+                border: "none", color: "#fff", fontWeight: 700, fontSize: "0.88rem",
+                cursor: "pointer",
+                boxShadow: "0 4px 14px rgba(99,102,241,0.12)",
+                transition: "transform 0.15s",
+              }}
+              onMouseDown={(e) => { (e.target as HTMLElement).style.transform = "scale(0.97)"; }}
+              onMouseUp={(e) => { (e.target as HTMLElement).style.transform = "scale(1)"; }}
+            >
+              Topic Mock Paper
             </button>
 
             {!hasEnoughContent && (

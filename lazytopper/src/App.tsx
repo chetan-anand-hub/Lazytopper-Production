@@ -31,6 +31,7 @@ const WeeklyWrappedPage = lazy(() => import("./pages/WeeklyWrappedPage"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
 const WeakAreaPracticePage = lazy(() => import("./pages/WeakAreaPracticePage"));
 const ParentDashboardPage = lazy(() => import("./pages/ParentDashboardPage"));
+const TopicMockPage = lazy(() => import("./pages/TopicMockPage"));
 
 function RouteFallback() {
   return (
@@ -415,6 +416,9 @@ export default function App() {
 
           {/* Auto-mock paper view (legacy + predictive) */}
           <Route path="/mock-paper/:slug" element={withRouteSuspense(<MockPaper />)} />
+
+          {/* Topic Mock Paper */}
+          <Route path="/topic-mock/:grade/:subject/:topicKey" element={withRouteSuspense(<TopicMockPage />)} />
 
           {/* New Mock Builder v1 with mandatory grade & subject */}
           <Route path="/mock-builder/:grade/:subject" element={withRouteSuspense(<MockBuilder />)} />
