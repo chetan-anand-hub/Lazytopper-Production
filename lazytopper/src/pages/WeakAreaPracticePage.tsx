@@ -7,6 +7,7 @@ import {
   generateAILearningPath,
   loadLearningPath,
   markDayCompleted,
+  checkAndAdaptPath,
   type LearningPath,
 } from "../services/learningPathGenerator";
 
@@ -304,7 +305,8 @@ export default function WeakAreaPracticePage() {
   useEffect(() => {
     const subj = subjectFilter === "All" ? undefined : subjectFilter;
     setSummary(getWeakAreas({ subject: subj }));
-    setLearningPath(loadLearningPath());
+    const adaptedPath = checkAndAdaptPath();
+    setLearningPath(adaptedPath || loadLearningPath());
   }, [subjectFilter, refreshKey]);
 
   const dueReviews = useMemo(() => {
@@ -323,10 +325,8 @@ export default function WeakAreaPracticePage() {
 
   const handleStartTargetedSession = () => {
     if (!summary || summary.weakAreas.length === 0) return;
-    const topWeak = summary.weakAreas.slice(0, 3);
-    const topicParams = topWeak.map((w) => w.topicKey).join(",");
-    const subject = topWeak[0].subject;
-    navigate(`/practice/10/${subject}?topics=${encodeURIComponent(topicParams)}&count=12&difficulty=Easy&weakMode=1&scaffold=1`);
+    const weakest = summary.weakAreas[0];
+    navigate(`/practice/10/${weakest.subject}/${encodeURIComponent(weakest.topicKey)}?count=15&difficulty=Easy&weakMode=1`);
   };
 
   const handleGeneratePath = async () => {
@@ -501,7 +501,7 @@ export default function WeakAreaPracticePage() {
                   boxShadow: "0 4px 12px rgba(255,150,0,0.3)",
                 }}
               >
-                Start Targeted Session ({Math.min(3, summary.weakAreas.length)} weak topics, Easy → Hard)
+                Start Targeted Session — {summary.weakAreas[0]?.topicName} (15 questions, Easy → Hard)
               </button>
               {summary.weakAreas.map((area) => (
                 <WeakAreaCard key={area.topicKey} area={area} onPractice={handlePractice} />

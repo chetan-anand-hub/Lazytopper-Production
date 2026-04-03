@@ -5,11 +5,13 @@
  * Daily Mix and Weekly Wrapped.
  */
 
+import { doc, setDoc } from "firebase/firestore";
 import {
   buildProgressScopeKey,
   getActiveProgressUser,
   saveLearnerProgressSegment,
 } from "./studentProgressStore";
+import { firestoreDb } from "./firebaseClient";
 
 export type LTSubject = "maths" | "science";
 export type DifficultyLevel = "Easy" | "Medium" | "Hard";
@@ -95,6 +97,9 @@ export function saveInsights(data: PracticeInsights): void {
     const uid = getActiveProgressUser();
     if (uid) {
       void saveLearnerProgressSegment(uid, "attempts", data.attempts);
+      if (firestoreDb && uid !== "anonymous") {
+        void setDoc(doc(firestoreDb, "practiceInsights", uid), { ...data, updatedAt: new Date().toISOString() }, { merge: true }).catch(() => {});
+      }
     }
   } catch (err) {
     console.warn("Failed to save practice insights:", err);

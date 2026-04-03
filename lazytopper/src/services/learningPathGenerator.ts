@@ -348,6 +348,44 @@ export async function generateAILearningPath(options?: {
   }
 }
 
+export function checkAndAdaptPath(): LearningPath | null {
+  const path = loadLearningPath();
+  if (!path || path.status !== "active") return null;
+
+  const lastUpdate = new Date(path.updatedAt).getTime();
+  const weekMs = 7 * 24 * 60 * 60 * 1000;
+  if (Date.now() - lastUpdate < weekMs) return path;
+
+  const { weakAreas } = getWeakAreas({ limit: 15 });
+  const currentWeakKeys = new Set(weakAreas.map((w) => w.topicKey));
+
+  let adapted = false;
+  for (let d = path.daysCompleted; d < path.days.length; d++) {
+    const day = path.days[d];
+    for (let t = 0; t < day.topics.length; t++) {
+      const topic = day.topics[t];
+      const weakArea = weakAreas.find((w) => w.topicKey === topic.topicKey);
+      if (weakArea) {
+        const newDiff: "Easy" | "Medium" | "Hard" =
+          weakArea.masteryPercent < 20 ? "Easy" :
+          weakArea.masteryPercent < 50 ? "Medium" : "Hard";
+        if (newDiff !== topic.difficulty) {
+          day.topics[t] = { ...topic, difficulty: newDiff };
+          adapted = true;
+        }
+      } else if (!currentWeakKeys.has(topic.topicKey)) {
+        day.topics[t] = { ...topic, targetQuestions: Math.max(3, topic.targetQuestions - 3) };
+        adapted = true;
+      }
+    }
+  }
+
+  if (adapted) {
+    saveLearningPath(path);
+  }
+  return path;
+}
+
 export function markDayCompleted(dayIndex: number): LearningPath | null {
   const path = loadLearningPath();
   if (!path) return null;

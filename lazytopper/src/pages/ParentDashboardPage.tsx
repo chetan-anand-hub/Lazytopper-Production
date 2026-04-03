@@ -1,12 +1,14 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { loadInsights } from "../services/practiceInsights";
+import { loadInsights, type PracticeInsights } from "../services/practiceInsights";
 import { loadTopicMasterySnapshot } from "../services/topicHubMastery";
 import { getWeakAreas, type WeakAreaSummary } from "../services/weakAreaAggregator";
 import { useSmartLearning } from "../engine/smartLearningStore";
 import { useAuth } from "../context/AuthContext";
 import { getLatestMockScores, type MockScoreEntry } from "../services/mockScoreHistory";
 import { getActiveProgressUser } from "../services/studentProgressStore";
+import { doc, getDoc } from "firebase/firestore";
+import { firestoreDb } from "../services/firebaseClient";
 
 const TOPIC_NAMES: Record<string, string> = {
   "real-numbers": "Real Numbers", polynomials: "Polynomials",
@@ -175,10 +177,44 @@ export default function ParentDashboardPage() {
   const isSharedView = !!sharedUid;
   const displayName = isSharedView ? (sharedStudentName || "Student") : (user?.displayName || "Student");
 
-  const weakSummary = useMemo<WeakAreaSummary>(() => getWeakAreas({ limit: 10 }), []);
-  const mockScores = useMemo(() => getLatestMockScores(10), []);
+  const [sharedData, setSharedData] = useState<{
+    insights?: PracticeInsights;
+    mockScores?: MockScoreEntry[];
+    loaded: boolean;
+  }>({ loaded: false });
 
-  const insights = useMemo(() => loadInsights(), []);
+  useEffect(() => {
+    if (!isSharedView || !sharedUid || !firestoreDb) {
+      setSharedData({ loaded: true });
+      return;
+    }
+    (async () => {
+      try {
+        const [insightsSnap, mockSnap] = await Promise.all([
+          getDoc(doc(firestoreDb, "practiceInsights", sharedUid)),
+          getDoc(doc(firestoreDb, "mockScoreHistory", sharedUid)),
+        ]);
+        setSharedData({
+          insights: insightsSnap.exists() ? (insightsSnap.data() as PracticeInsights) : undefined,
+          mockScores: mockSnap.exists() ? ((mockSnap.data() as { entries: MockScoreEntry[] }).entries || []) : undefined,
+          loaded: true,
+        });
+      } catch {
+        setSharedData({ loaded: true });
+      }
+    })();
+  }, [isSharedView, sharedUid]);
+
+  const weakSummary = useMemo<WeakAreaSummary>(() => getWeakAreas({ limit: 10 }), []);
+  const mockScores = useMemo(() => {
+    if (isSharedView && sharedData.mockScores) return sharedData.mockScores.slice(0, 10);
+    return getLatestMockScores(10);
+  }, [isSharedView, sharedData]);
+
+  const insights = useMemo(() => {
+    if (isSharedView && sharedData.insights) return sharedData.insights;
+    return loadInsights();
+  }, [isSharedView, sharedData]);
   const attempts = insights.attempts || [];
 
   const overallStats = useMemo(() => {

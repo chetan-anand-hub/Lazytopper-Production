@@ -1,4 +1,6 @@
+import { doc, setDoc } from "firebase/firestore";
 import { getActiveProgressUser } from "./studentProgressStore";
+import { firestoreDb } from "./firebaseClient";
 
 export interface MockScoreEntry {
   id: string;
@@ -33,6 +35,11 @@ export function loadMockScoreHistory(): MockScoreHistory {
 function saveMockScoreHistory(history: MockScoreHistory): void {
   if (typeof window === "undefined") return;
   window.localStorage.setItem(getStorageKey(), JSON.stringify(history));
+
+  const uid = getActiveProgressUser();
+  if (firestoreDb && uid && uid !== "anonymous") {
+    void setDoc(doc(firestoreDb, "mockScoreHistory", uid), { ...history, updatedAt: new Date().toISOString() }, { merge: true }).catch(() => {});
+  }
 }
 
 export function saveMockScore(entry: Omit<MockScoreEntry, "id" | "timestamp">): void {
