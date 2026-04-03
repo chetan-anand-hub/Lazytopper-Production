@@ -832,7 +832,7 @@ const MockBuilder: React.FC = () => {
 
                         <QuestionVisualAid
                           questionText={q.questionText}
-                          topic={q.subtopic || q.topicKey || ""}
+                          topicKey={q.subtopic || q.topicKey || ""}
                         />
 
                         {/* Solution box */}
