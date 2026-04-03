@@ -10,7 +10,10 @@ type UxEventName =
   | "topichub_open_teach"
   | "hpq_open_practice"
   | "hpq_open_topic_hub"
-  | "practice_regenerate_click";
+  | "practice_regenerate_click"
+  | "topichub_topic_mock_click"
+  | "topic_mock_start"
+  | "topic_mock_complete";
 
 export type UxTelemetryEvent = {
   name: UxEventName;

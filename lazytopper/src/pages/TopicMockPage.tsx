@@ -7,6 +7,7 @@ import {
   type TopicMockPaper,
   type TopicMockQuestion,
   type TopicMockAnalytics,
+  type TopicMockAnswer,
 } from "../utils/topicMockEngine";
 import type { SectionKey, LTSubjectKey } from "../data/predictionTypes";
 import { resolveTopicDisplayName, normalizeTopicKey } from "../utils/topicResolver";
@@ -59,8 +60,7 @@ export default function TopicMockPage() {
   const [phase, setPhase] = useState<Phase>("preview");
   const [timerEnabled, setTimerEnabled] = useState(true);
   const [elapsed, setElapsed] = useState(0);
-  const [sectionTimes, setSectionTimes] = useState<Record<string, number>>({});
-  const [answers, setAnswers] = useState<Record<string, { questionId: string; selected: string; correct: boolean; timeSec: number }>>({});
+  const [answers, setAnswers] = useState<Record<string, TopicMockAnswer>>({});
   const [analytics, setAnalytics] = useState<TopicMockAnalytics | null>(null);
   const [currentSectionIdx, setCurrentSectionIdx] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -83,7 +83,6 @@ export default function TopicMockPage() {
     setPhase("taking");
     setElapsed(0);
     setAnswers({});
-    setSectionTimes({});
     setCurrentSectionIdx(0);
     sectionStartRef.current = 0;
     trackUxEvent("topic_mock_start", "TopicMockPage", { topicKey, set: currentSet, subject });
@@ -112,10 +111,6 @@ export default function TopicMockPage() {
   }, [elapsed]);
 
   const nextSection = useCallback(() => {
-    const sec = paper.sections[currentSectionIdx];
-    if (sec) {
-      setSectionTimes(prev => ({ ...prev, [sec.section]: elapsed - sectionStartRef.current }));
-    }
     sectionStartRef.current = elapsed;
     if (currentSectionIdx < paper.sections.length - 1) {
       setCurrentSectionIdx(i => i + 1);
@@ -371,7 +366,7 @@ function QuestionDisplay({ q, idx, section, showAnswer, selectedAnswer, chosenBr
 
 function TakingPhase({ paper, currentSectionIdx, elapsed, timerEnabled, answers, onAnswer, onNextSection }: {
   paper: TopicMockPaper; currentSectionIdx: number; elapsed: number; timerEnabled: boolean;
-  answers: Record<string, any>; onAnswer: (qId: string, sel: string, correct: string) => void;
+  answers: Record<string, TopicMockAnswer>; onAnswer: (qId: string, sel: string, correct: string) => void;
   onNextSection: () => void;
 }) {
   const sec = paper.sections[currentSectionIdx];
@@ -434,7 +429,7 @@ function TakingPhase({ paper, currentSectionIdx, elapsed, timerEnabled, answers,
 
 function ReviewPhase({ paper, analytics, answers, onGoToWeakPractice, onRetake, onNextSet, onPrint }: {
   paper: TopicMockPaper; analytics: TopicMockAnalytics;
-  answers: Record<string, any>;
+  answers: Record<string, TopicMockAnswer>;
   onGoToWeakPractice: (subtopic: string) => void;
   onRetake: () => void; onNextSet: () => void; onPrint: () => void;
 }) {

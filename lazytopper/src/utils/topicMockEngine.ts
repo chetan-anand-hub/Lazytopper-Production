@@ -26,6 +26,14 @@ export interface TopicMockPaper {
   questionCount: number;
 }
 
+export interface TopicMockAnswer {
+  questionId: string;
+  selected: string;
+  correct: boolean;
+  timeSec: number;
+  branch: "main" | "or";
+}
+
 export interface TopicMockAnalytics {
   totalMarks: number;
   marksScored: number;
@@ -56,7 +64,6 @@ const FULL_BLUEPRINT: { section: SectionKey; count: number; marks: number; timeM
   { section: "D", count: 4, marks: 5, timeMinutes: 40 },
   { section: "E", count: 3, marks: 4, timeMinutes: 21 },
 ];
-const FULL_PAPER_MARKS = 80;
 const INTERNAL_CHOICE_SECTIONS = new Set<SectionKey>(["B", "C", "D", "E"]);
 
 const TOPIC_WEIGHTAGE: Record<string, number> = {
@@ -262,8 +269,7 @@ export function buildTopicMockPaper(
 export function getAvailableSetCount(topicKey: string, subject: LTSubjectKey): number {
   const pool = getTopicPool(topicKey, subject);
   const totalAvailable = pool.length;
-  if (totalAvailable < 5) return Math.max(1, Math.floor(totalAvailable / 3));
-  if (totalAvailable < 15) return 3;
+  if (totalAvailable === 0) return 5;
   if (totalAvailable < 30) return 5;
   return Math.min(8, Math.floor(totalAvailable / 5));
 }
@@ -288,7 +294,7 @@ export function computeOverlapPercent(paperA: TopicMockPaper, paperB: TopicMockP
 
 export function computeAnalytics(
   paper: TopicMockPaper,
-  answers: Record<string, { questionId: string; selected: string; correct: boolean; timeSec: number; branch?: "main" | "or" }>,
+  answers: Record<string, TopicMockAnswer>,
 ): TopicMockAnalytics {
   let marksScored = 0;
   const sectionBreakdown: TopicMockAnalytics["sectionBreakdown"] = [];
