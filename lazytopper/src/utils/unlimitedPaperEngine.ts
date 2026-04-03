@@ -207,10 +207,13 @@ const SCIENCE_STREAM_TARGETS: Record<string, number> = {
 };
 const SCIENCE_STREAM_TOLERANCE = 8;
 
+interface QuestionWithAdjustedScore extends CanonicalQuestion {
+  _adjustedScore?: number;
+}
+
 function getEffectiveScore(q: CanonicalQuestion): number {
-  const qAny = q as Record<string, unknown>;
-  const adjusted = Number(qAny._adjustedScore ?? 0);
-  if (adjusted > 0) return adjusted;
+  const adjusted = (q as QuestionWithAdjustedScore)._adjustedScore;
+  if (adjusted != null && adjusted > 0) return adjusted;
   return q.predictionScore ?? 2.5;
 }
 
@@ -416,7 +419,15 @@ export function generateUnlimitedPaper(subject: LTSubjectKey, seed?: number): Ex
     }
   }
 
-  const finalPaper = bestPaper!;
+  let finalPaper = bestPaper!;
+
+  if (subject === "Science" && !checkScienceStreamBalance(finalPaper)) {
+    finalPaper = repairStreamBalance(finalPaper, all);
+  }
+
+  if (countArchetypesInPaper(finalPaper, archetypes) < MIN_GUARANTEED_ARCHETYPES) {
+    finalPaper = repairArchetypes(finalPaper, all, archetypes);
+  }
 
   const allIds: string[] = [];
   for (const sec of finalPaper.sections) {
@@ -428,6 +439,142 @@ export function generateUnlimitedPaper(subject: LTSubjectKey, seed?: number): Ex
   saveRecentPaperIds(subject, allIds);
 
   return finalPaper;
+}
+
+function repairStreamBalance(
+  paper: ExamPaper,
+  pool: CanonicalQuestion[],
+): ExamPaper {
+  const sections = paper.sections.map(s => ({
+    ...s,
+    questions: [...s.questions],
+  }));
+  const usedIds = new Set<string>();
+  for (const sec of sections) {
+    for (const q of sec.questions) {
+      usedIds.add(q.main.id);
+      if (q.or) usedIds.add(q.or.id);
+    }
+  }
+
+  for (let pass = 0; pass < 5; pass++) {
+    const streamMarks: Record<string, number> = { Physics: 0, Chemistry: 0, Biology: 0 };
+    for (const sec of sections) {
+      for (const q of sec.questions) {
+        const stream = getScienceStream(q.main.topicKey, "Science");
+        if (stream) streamMarks[stream] += sec.marksPerQuestion;
+      }
+    }
+
+    let overStream: string | null = null;
+    let underStream: string | null = null;
+    for (const [stream, target] of Object.entries(SCIENCE_STREAM_TARGETS)) {
+      const diff = streamMarks[stream] - target;
+      if (diff > SCIENCE_STREAM_TOLERANCE) overStream = stream;
+      if (diff < -SCIENCE_STREAM_TOLERANCE) underStream = stream;
+    }
+    if (!overStream || !underStream) break;
+
+    let swapped = false;
+    for (const sec of sections) {
+      if (swapped) break;
+      for (let qi = 0; qi < sec.questions.length; qi++) {
+        const q = sec.questions[qi];
+        const qStream = getScienceStream(q.main.topicKey, "Science");
+        if (qStream !== overStream) continue;
+
+        const replacement = pool.find(
+          c =>
+            !usedIds.has(c.id) &&
+            c.section === sec.section &&
+            c.marks === sec.marksPerQuestion &&
+            getScienceStream(c.topicKey, "Science") === underStream,
+        );
+        if (replacement) {
+          usedIds.delete(q.main.id);
+          usedIds.add(replacement.id);
+          sec.questions[qi] = { main: replacement, or: q.or };
+          swapped = true;
+          break;
+        }
+      }
+    }
+    if (!swapped) break;
+  }
+
+  const totalMarks = sections.reduce((s, sec) => s + sec.sectionMarks, 0);
+  return { ...paper, sections, totalMarks };
+}
+
+function repairArchetypes(
+  paper: ExamPaper,
+  pool: CanonicalQuestion[],
+  archetypes: GuaranteedArchetype[],
+): ExamPaper {
+  const sections = paper.sections.map(s => ({
+    ...s,
+    questions: [...s.questions],
+  }));
+  const usedIds = new Set<string>();
+  for (const sec of sections) {
+    for (const q of sec.questions) {
+      usedIds.add(q.main.id);
+      if (q.or) usedIds.add(q.or.id);
+    }
+  }
+
+  const matched = new Set<number>();
+  for (const sec of sections) {
+    for (const q of sec.questions) {
+      for (let ai = 0; ai < archetypes.length; ai++) {
+        if (matched.has(ai)) continue;
+        const arch = archetypes[ai];
+        if (
+          fuzzyMatch(q.main.topicKey, arch.topic) &&
+          q.main.subtopic &&
+          fuzzyMatch(q.main.subtopic, arch.subtopic)
+        ) {
+          matched.add(ai);
+          break;
+        }
+      }
+    }
+  }
+
+  if (matched.size >= MIN_GUARANTEED_ARCHETYPES) return paper;
+
+  for (let ai = 0; ai < archetypes.length; ai++) {
+    if (matched.size >= MIN_GUARANTEED_ARCHETYPES) break;
+    if (matched.has(ai)) continue;
+    const arch = archetypes[ai];
+
+    const candidate = pool.find(
+      c =>
+        !usedIds.has(c.id) &&
+        c.marks >= arch.minMarks &&
+        c.marks <= arch.maxMarks &&
+        fuzzyMatch(c.topicKey, arch.topic) &&
+        c.subtopic != null &&
+        fuzzyMatch(c.subtopic, arch.subtopic),
+    );
+    if (!candidate) continue;
+
+    for (const sec of sections) {
+      if (sec.marksPerQuestion !== candidate.marks) continue;
+      if (sec.questions.length === 0) continue;
+
+      const lastIdx = sec.questions.length - 1;
+      const removed = sec.questions[lastIdx];
+      usedIds.delete(removed.main.id);
+      usedIds.add(candidate.id);
+      sec.questions[lastIdx] = { main: candidate, or: removed.or };
+      matched.add(ai);
+      break;
+    }
+  }
+
+  const totalMarks = sections.reduce((s, sec) => s + sec.sectionMarks, 0);
+  return { ...paper, sections, totalMarks };
 }
 
 function buildSinglePaper(
