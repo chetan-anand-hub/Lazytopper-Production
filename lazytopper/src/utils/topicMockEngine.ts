@@ -191,15 +191,14 @@ function weightedShuffleByScore(arr: CanonicalQuestion[], rng: () => number): Ca
   return scored.map(s => s.q);
 }
 
-export function buildTopicMockPaper(
+function buildSinglePaper(
   topicKey: string,
   subject: LTSubjectKey,
   setIndex: number,
+  seed: number,
   topicDisplayName?: string,
 ): TopicMockPaper {
-  const seed = hashString(`${topicKey}-${subject}-set${setIndex}`) + setIndex * 7919;
   const rng = seededRandom(seed);
-
   const pool = getTopicPool(topicKey, subject);
 
   const poolBySection = new Map<SectionKey, number>();
@@ -280,6 +279,69 @@ export function buildTopicMockPaper(
   };
 }
 
+function getQuestionIds(paper: TopicMockPaper): Set<string> {
+  const ids = new Set<string>();
+  paper.sections.forEach(s => s.questions.forEach(q => {
+    ids.add(q.main.id);
+    if (q.or) ids.add(q.or.id);
+  }));
+  return ids;
+}
+
+function pairwiseOverlapOk(paper: TopicMockPaper, existingPapers: TopicMockPaper[], maxOverlap: number): boolean {
+  const newIds = getQuestionIds(paper);
+  for (const existing of existingPapers) {
+    const existingIds = getQuestionIds(existing);
+    let shared = 0;
+    for (const id of newIds) {
+      if (existingIds.has(id)) shared++;
+    }
+    const overlapPct = newIds.size > 0 ? (shared / newIds.size) * 100 : 0;
+    if (overlapPct > maxOverlap) return false;
+  }
+  return true;
+}
+
+const MAX_OVERLAP_PERCENT = 20;
+const setFamilyCache = new Map<string, TopicMockPaper[]>();
+
+function buildSetFamily(topicKey: string, subject: LTSubjectKey, count: number, topicDisplayName?: string): TopicMockPaper[] {
+  const cacheKey = `${topicKey}:${subject}:${count}`;
+  if (setFamilyCache.has(cacheKey)) return setFamilyCache.get(cacheKey)!;
+
+  const family: TopicMockPaper[] = [];
+  const baseSeed = hashString(`${topicKey}-${subject}`);
+
+  for (let setIdx = 1; setIdx <= count; setIdx++) {
+    let bestPaper: TopicMockPaper | null = null;
+    for (let attempt = 0; attempt < 5; attempt++) {
+      const seed = baseSeed + setIdx * 7919 + attempt * 3571;
+      const candidate = buildSinglePaper(topicKey, subject, setIdx, seed, topicDisplayName);
+      if (pairwiseOverlapOk(candidate, family, MAX_OVERLAP_PERCENT)) {
+        bestPaper = candidate;
+        break;
+      }
+      if (!bestPaper) bestPaper = candidate;
+    }
+    family.push(bestPaper!);
+  }
+
+  setFamilyCache.set(cacheKey, family);
+  return family;
+}
+
+export function buildTopicMockPaper(
+  topicKey: string,
+  subject: LTSubjectKey,
+  setIndex: number,
+  topicDisplayName?: string,
+): TopicMockPaper {
+  const count = getAvailableSetCount(topicKey, subject);
+  const family = buildSetFamily(topicKey, subject, count, topicDisplayName);
+  const idx = Math.max(0, Math.min(setIndex - 1, family.length - 1));
+  return family[idx];
+}
+
 export function getAvailableSetCount(topicKey: string, subject: LTSubjectKey): number {
   const pool = getTopicPool(topicKey, subject);
   const totalAvailable = pool.length;
@@ -289,21 +351,15 @@ export function getAvailableSetCount(topicKey: string, subject: LTSubjectKey): n
 }
 
 export function computeOverlapPercent(paperA: TopicMockPaper, paperB: TopicMockPaper): number {
-  const idsA = new Set<string>();
-  paperA.sections.forEach(s => s.questions.forEach(q => {
-    idsA.add(q.main.id);
-    if (q.or) idsA.add(q.or.id);
-  }));
+  const idsA = getQuestionIds(paperA);
+  const idsB = getQuestionIds(paperB);
 
-  let overlap = 0;
-  let total = 0;
-  paperB.sections.forEach(s => s.questions.forEach(q => {
-    total++;
-    if (idsA.has(q.main.id)) overlap++;
-    if (q.or && idsA.has(q.or.id)) overlap++;
-  }));
+  let shared = 0;
+  for (const id of idsB) {
+    if (idsA.has(id)) shared++;
+  }
 
-  return total > 0 ? (overlap / total) * 100 : 0;
+  return idsB.size > 0 ? (shared / idsB.size) * 100 : 0;
 }
 
 export function computeAnalytics(

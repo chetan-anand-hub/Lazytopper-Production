@@ -283,13 +283,16 @@ function QuestionDisplay({ q, idx, section, showAnswer, selectedAnswer, chosenBr
   const answeredMain = chosenBranch === "main";
   const answeredOr = chosenBranch === "or";
 
+  const hasMcqOptions = (question: typeof q.main) =>
+    question.options && question.options.length > 0;
+
   function renderOptions(question: typeof q.main, branch: "main" | "or") {
-    if (!question.options || question.options.length === 0) return null;
+    if (!hasMcqOptions(question)) return null;
     const isThisBranch = chosenBranch === branch;
     const otherBranchAnswered = chosenBranch && chosenBranch !== branch;
     return (
       <div style={{ marginTop: 8, paddingLeft: 20 }}>
-        {question.options.map((opt, oi) => {
+        {question.options!.map((opt, oi) => {
           const letter = String.fromCharCode(97 + oi);
           const isSelected = isThisBranch && selectedAnswer === opt;
           const isCorrect = showAnswer && opt.trim().toLowerCase() === (question.answer || "").trim().toLowerCase();
@@ -320,6 +323,45 @@ function QuestionDisplay({ q, idx, section, showAnswer, selectedAnswer, chosenBr
     );
   }
 
+  function renderSelfMark(question: typeof q.main, branch: "main" | "or") {
+    if (hasMcqOptions(question)) return null;
+    if (showAnswer) return null;
+    if (!isInteractive) return null;
+    const otherBranchAnswered = chosenBranch && chosenBranch !== branch;
+    if (otherBranchAnswered) return null;
+    const isThisBranch = chosenBranch === branch;
+    if (isThisBranch) {
+      return (
+        <div style={{ marginTop: 8, padding: "6px 12px", borderRadius: 8, background: selectedAnswer === "correct" ? "#dcfce7" : "#fee2e2", fontSize: "0.78rem", color: "#334155" }}>
+          Self-marked: <strong>{selectedAnswer === "correct" ? "Correct" : "Incorrect"}</strong>
+        </div>
+      );
+    }
+    const qIdSuffix = branch === "or" ? "__or" : "";
+    return (
+      <div style={{ marginTop: 8, display: "flex", gap: 8 }}>
+        <button
+          onClick={() => onSelect?.(q.main.id + qIdSuffix, "correct", "correct")}
+          style={{
+            padding: "5px 14px", borderRadius: 8, border: "1px solid #22c55e",
+            background: "#f0fdf4", color: "#16a34a", fontSize: "0.78rem", fontWeight: 600, cursor: "pointer",
+          }}
+        >
+          I got it right
+        </button>
+        <button
+          onClick={() => onSelect?.(q.main.id + qIdSuffix, "incorrect", "correct")}
+          style={{
+            padding: "5px 14px", borderRadius: 8, border: "1px solid #ef4444",
+            background: "#fef2f2", color: "#dc2626", fontSize: "0.78rem", fontWeight: 600, cursor: "pointer",
+          }}
+        >
+          I got it wrong
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div style={{ marginBottom: 16, paddingBottom: 12, borderBottom: "1px solid #f1f5f9" }}>
       <div style={{ fontSize: "0.84rem", color: answeredOr ? "#94a3b8" : "#334155", lineHeight: 1.6 }}>
@@ -331,6 +373,7 @@ function QuestionDisplay({ q, idx, section, showAnswer, selectedAnswer, chosenBr
       </div>
 
       {renderOptions(q.main, "main")}
+      {renderSelfMark(q.main, "main")}
 
       {showAnswer && q.main.answer && (answeredMain || !chosenBranch) && (
         <div style={{ marginTop: 8, padding: "8px 12px", background: "#f0fdf4", borderRadius: 8, fontSize: "0.78rem", color: "#166534" }}>
@@ -353,6 +396,7 @@ function QuestionDisplay({ q, idx, section, showAnswer, selectedAnswer, chosenBr
             )}
           </div>
           {renderOptions(q.or, "or")}
+          {renderSelfMark(q.or, "or")}
           {showAnswer && q.or.answer && (answeredOr || !chosenBranch) && (
             <div style={{ marginTop: 6, fontSize: "0.78rem", color: "#166534" }}>
               <strong>OR Answer:</strong> {q.or.answer}
@@ -375,7 +419,6 @@ function TakingPhase({ paper, currentSectionIdx, elapsed, timerEnabled, answers,
   const answeredCount = sec.questions.filter(q => answers[q.main.id]).length;
   const allAnswered = answeredCount === sec.questions.length;
   const isLast = currentSectionIdx === paper.sections.length - 1;
-  const hasMCQs = sec.questions.some(q => q.main.options && q.main.options.length > 0);
 
   return (
     <div style={{ marginTop: 24 }}>
@@ -413,10 +456,10 @@ function TakingPhase({ paper, currentSectionIdx, elapsed, timerEnabled, answers,
 
         <button
           onClick={onNextSection}
-          disabled={!allAnswered && hasMCQs}
+          disabled={!allAnswered}
           style={{
             marginTop: 16, padding: "10px 28px", borderRadius: 14, border: "none", cursor: "pointer",
-            background: allAnswered || !hasMCQs ? "#58cc02" : "#94a3b8", color: "#fff", fontWeight: 700, fontSize: "0.88rem",
+            background: allAnswered ? "#58cc02" : "#94a3b8", color: "#fff", fontWeight: 700, fontSize: "0.88rem",
             boxShadow: "0 3px 0 rgba(0,0,0,0.15)",
           }}
         >
