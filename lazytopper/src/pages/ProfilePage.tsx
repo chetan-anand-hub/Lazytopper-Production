@@ -2,6 +2,8 @@ import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useProfile } from "../context/ProfileContext";
 import { useAuth } from "../context/AuthContext";
+import { useSubscription } from "../hooks/useSubscription";
+import { UpgradeModal } from "../components/UpgradeModal";
 import { useSmartLearning } from "../engine/smartLearningStore";
 import { loadInsights } from "../services/practiceInsights";
 import { loadTopicMasterySnapshot } from "../services/topicHubMastery";
@@ -588,6 +590,8 @@ export default function ProfilePage() {
   const { profile } = useProfile();
   const { user, logout } = useAuth();
   const { statsByChapter } = useSmartLearning();
+  const sub = useSubscription();
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [tab, setTab] = useState<ProfileTab>("overview");
   const [subjectTab, setSubjectTab] = useState<"Maths" | "Science">("Maths");
 
@@ -680,6 +684,45 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
+
+      <div style={{
+        borderRadius: 14, padding: "14px 16px", marginBottom: 20,
+        border: "2px solid",
+        borderColor: sub.tier === "premium" ? "#58cc02" : sub.isTrialActive ? "#1cb0f6" : "#e5e5e5",
+        background: sub.tier === "premium" ? "#f0fdf4" : sub.isTrialActive ? "#eff6ff" : "#fafafa",
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+      }}>
+        <div>
+          <div style={{ fontWeight: 800, fontSize: "0.92rem", color: "#3c3c3c" }}>
+            {sub.tier === "premium" ? "Premium" : sub.isTrialActive ? "Trial" : "Free Plan"}
+          </div>
+          <div style={{ fontSize: "0.8rem", color: "#888", marginTop: 2 }}>
+            {sub.tier === "premium"
+              ? "Full access to all features"
+              : sub.isTrialActive
+                ? `${sub.daysLeftInTrial} day${sub.daysLeftInTrial !== 1 ? "s" : ""} remaining in trial`
+                : sub.isTrialExpired
+                  ? "Trial ended — upgrade to continue"
+                  : "Limited features available"}
+          </div>
+        </div>
+        {sub.tier !== "premium" && (
+          <button
+            type="button"
+            onClick={() => setShowUpgradeModal(true)}
+            style={{
+              border: "none", borderBottom: "3px solid #46a302", borderRadius: 12,
+              padding: "8px 16px", background: "#58cc02", color: "#fff",
+              fontWeight: 800, fontSize: "0.82rem", cursor: "pointer",
+              textTransform: "uppercase", whiteSpace: "nowrap",
+            }}
+          >
+            {sub.isTrialExpired ? "Upgrade" : "Go Premium"}
+          </button>
+        )}
+      </div>
+
+      <UpgradeModal open={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} />
 
       <div style={{ display: "flex", gap: 0, marginBottom: 20, background: "#f0f0f0", borderRadius: 12, padding: 3 }}>
         {(["overview", "achievements", "stats"] as ProfileTab[]).map((t) => (

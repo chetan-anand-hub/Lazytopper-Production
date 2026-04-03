@@ -43,6 +43,15 @@ The project is structured as a pnpm workspace monorepo.
 - **API Server:** Express 5 server with routes for various functionalities, including AI interactions and health checks.
 - **Database:** PostgreSQL with Drizzle ORM for schema definition and interaction.
 
+## Subscription & Auth System
+- **Subscription Tiers:** Free, Trial (7-day), Premium. Managed via `subscriptionService.ts` with localStorage persistence per user UID.
+- **Feature Gates:** 13 features mapped to tiers in `featureGates.ts`. Free: Trends. Logged-in: practice (3/day), mock papers (1 view). Premium/Trial: everything else (unlimited mocks, exam simulation, predicted Qs, chapter hub, study planner, daily mix, weak area practice, full analytics, parent dashboard, mock builder).
+- **Trial:** Auto-activated on first sign-in via `activateTrial(uid)` in Login.tsx. Auto-expires to free tier after 7 days.
+- **Route Protection:** `RequireAuth` (requires login), `RequirePremium` (requires login + premium/trial tier). Premium routes show branded paywall with "Unlock Full Access" CTA when non-premium.
+- **UpgradeModal:** Branded modal listing premium features, trial status/countdown, "Start 7-Day Free Trial" or "Upgrade to Premium" CTA. Placeholder upgrade sets premium in localStorage.
+- **Login Page:** Clean branded page with Google OAuth, Phone OTP (with reCAPTCHA), and "Explore as Guest". Falls back to guest-only when Firebase is unavailable.
+- **Trial Countdown UI:** Navbar shows "⏳ Xd trial" badge for trial users, red "Upgrade" button for expired trial. Profile page shows subscription status card with tier, countdown, and upgrade button.
+
 ## System Design Choices
 - **TypeScript:** Used consistently across the monorepo for type safety.
 - **Composite Projects:** All packages use TypeScript composite projects with project references for efficient type-checking and build processes.

@@ -14,8 +14,9 @@ import { useState, useEffect, lazy, Suspense } from "react";
 import { useVibeMode } from './context/vibeModeContext';
 import { parseCommandIntent } from "./services/commandIntent";
 import { normalizeTopicKey } from "./utils/topicResolver";
-import { RequireAuth } from "./components/auth/RequireAuth";
+import { RequireAuth, RequirePremium } from "./components/auth/RequireAuth";
 import { useAuth } from "./context/AuthContext";
+import { useSubscription } from "./hooks/useSubscription";
 
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const TrendsPage = lazy(() => import("./pages/TrendsPage"));
@@ -202,6 +203,7 @@ export default function App() {
   const navigate = useNavigate();
   const { mode, setMode } = useVibeMode();
   const { user } = useAuth();
+  const { isTrialActive, isTrialExpired, daysLeftInTrial, isPremium } = useSubscription();
 
   useEffect(() => {
     try {
@@ -338,7 +340,35 @@ export default function App() {
           <span style={{ fontWeight: 800, fontSize: "1.1rem", color: "#3c3c3c" }}>LazyTopper</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          {/* Streak counter */}
+          {user && isTrialActive && (
+            <div
+              style={{
+                display: "flex", alignItems: "center", gap: 4,
+                background: "#eff6ff", border: "2px solid #1cb0f6",
+                borderRadius: 12, padding: "4px 10px",
+                fontWeight: 800, fontSize: "0.78rem", color: "#1cb0f6",
+              }}
+              title={`${daysLeftInTrial} days left in trial`}
+            >
+              <span>⏳</span>
+              <span>{daysLeftInTrial}d trial</span>
+            </div>
+          )}
+          {user && isTrialExpired && !isPremium && (
+            <button
+              type="button"
+              onClick={() => navigate("/profile")}
+              style={{
+                display: "flex", alignItems: "center", gap: 4,
+                background: "#fef2f2", border: "2px solid #fca5a5",
+                borderRadius: 12, padding: "4px 10px",
+                fontWeight: 800, fontSize: "0.78rem", color: "#dc2626",
+                cursor: "pointer",
+              }}
+            >
+              Upgrade
+            </button>
+          )}
           {user && headerStreak > 0 && (
             <div
               style={{
@@ -417,15 +447,16 @@ export default function App() {
           <Route path="/onboarding" element={<RequireAuth><Onboarding /></RequireAuth>} />
           <Route path="/dashboard" element={<RequireAuth>{withRouteSuspense(<Dashboard />)}</RequireAuth>} />
 
+
           {/* New Smart Study Planner (grade + subject aware) */}
-          <Route path="/planner/:grade/:subject" element={<RequireAuth><StudyPlannerView /></RequireAuth>} />
+          <Route path="/planner/:grade/:subject" element={<RequirePremium featureLabel="Smart Study Planner"><StudyPlannerView /></RequirePremium>} />
           {/* Legacy planner route (no params) */}
-          <Route path="/planner" element={<RequireAuth><StudyPlannerView /></RequireAuth>} />
+          <Route path="/planner" element={<RequirePremium featureLabel="Smart Study Planner"><StudyPlannerView /></RequirePremium>} />
 
 
           {/* Topic Hub entry with grade & subject in path */}
-          <Route path="/topic-hub/:grade/:subject" element={<RequireAuth>{withRouteSuspense(<TopicHub />)}</RequireAuth>} />
-          <Route path="/topic-hub/:grade/:subject/:topicKey" element={<RequireAuth>{withRouteSuspense(<TopicHub />)}</RequireAuth>} />
+          <Route path="/topic-hub/:grade/:subject" element={<RequirePremium featureLabel="Chapter Hub (AI Tutor)">{withRouteSuspense(<TopicHub />)}</RequirePremium>} />
+          <Route path="/topic-hub/:grade/:subject/:topicKey" element={<RequirePremium featureLabel="Chapter Hub (AI Tutor)">{withRouteSuspense(<TopicHub />)}</RequirePremium>} />
 
           {/* TopicHub launcher page */}
           <Route path="/topic-hub" element={<TopicHubHome />} />
@@ -442,19 +473,19 @@ export default function App() {
           <Route path="/topic-mock/:grade/:subject/:topicKey" element={withRouteSuspense(<TopicMockPage />)} />
 
           {/* New Mock Builder v1 with mandatory grade & subject */}
-          <Route path="/mock-builder/:grade/:subject" element={withRouteSuspense(<MockBuilder />)} />
+          <Route path="/mock-builder/:grade/:subject" element={<RequirePremium featureLabel="Mock Builder">{withRouteSuspense(<MockBuilder />)}</RequirePremium>} />
           {/* Legacy Mock Builder route (no params) */}
-          <Route path="/mock-builder" element={withRouteSuspense(<MockBuilder />)} />
+          <Route path="/mock-builder" element={<RequirePremium featureLabel="Mock Builder">{withRouteSuspense(<MockBuilder />)}</RequirePremium>} />
 
-          {/* Highly Probable Questions with mandatory grade & subject */}
+          {/* Predicted Questions with mandatory grade & subject */}
           <Route
             path="/highly-probable/:grade/:subject"
-            element={withRouteSuspense(<HighlyProbableQuestions />)}
+            element={<RequirePremium featureLabel="Predicted Questions">{withRouteSuspense(<HighlyProbableQuestions />)}</RequirePremium>}
           />
-          {/* Legacy HPQ route */}
+          {/* Legacy route */}
           <Route
             path="/highly-probable"
-            element={withRouteSuspense(<HighlyProbableQuestions />)}
+            element={<RequirePremium featureLabel="Predicted Questions">{withRouteSuspense(<HighlyProbableQuestions />)}</RequirePremium>}
           />
 
           {/* Predictive papers hub */}
@@ -466,15 +497,15 @@ export default function App() {
           {/* Exam Simulation — unlimited full-length mock */}
           <Route
             path="/exam-simulation"
-            element={withRouteSuspense(<ExamSimulationPage />)}
+            element={<RequirePremium featureLabel="Exam Simulation">{withRouteSuspense(<ExamSimulationPage />)}</RequirePremium>}
           />
 
           <Route path="/practice/:grade/:subject" element={withRouteSuspense(<PracticePage />)} />
 
           {/* Study Plan with mandatory grade & subject */}
-          <Route path="/study-plan/:grade/:subject" element={<RequireAuth>{withRouteSuspense(<StudyPlanPage />)}</RequireAuth>} />
+          <Route path="/study-plan/:grade/:subject" element={<RequirePremium featureLabel="Smart Study Planner">{withRouteSuspense(<StudyPlanPage />)}</RequirePremium>} />
           {/* Legacy Study Plan route */}
-          <Route path="/study-plan" element={<RequireAuth>{withRouteSuspense(<StudyPlanPage />)}</RequireAuth>} />
+          <Route path="/study-plan" element={<RequirePremium featureLabel="Smart Study Planner">{withRouteSuspense(<StudyPlanPage />)}</RequirePremium>} />
 
           {/* AI Mentor routes redirect to TopicHub preserving context */}
           <Route path="/ai-mentor/:grade/:subject" element={<MentorRedirect />} />
@@ -485,7 +516,7 @@ export default function App() {
           {/* Daily Mix route for personalised study mixes */}
           <Route
             path="/daily-mix/:grade/:subject"
-            element={<RequireAuth>{withRouteSuspense(<DailyMixPage />)}</RequireAuth>}
+            element={<RequirePremium featureLabel="Daily Focus Mix">{withRouteSuspense(<DailyMixPage />)}</RequirePremium>}
           />
 
           {/* Weekly Wrapped recap route */}
@@ -497,13 +528,13 @@ export default function App() {
           {/* Weak Area Practice & Learning Paths */}
           <Route
             path="/weak-area-practice"
-            element={<RequireAuth>{withRouteSuspense(<WeakAreaPracticePage />)}</RequireAuth>}
+            element={<RequirePremium featureLabel="Weak Area Practice">{withRouteSuspense(<WeakAreaPracticePage />)}</RequirePremium>}
           />
 
-          {/* Parent/Teacher Progress Report Dashboard (accessible without auth for sharing) */}
+          {/* Parent/Teacher Progress Report Dashboard */}
           <Route
             path="/parent-dashboard"
-            element={withRouteSuspense(<ParentDashboardPage />)}
+            element={<RequirePremium featureLabel="Parent Dashboard">{withRouteSuspense(<ParentDashboardPage />)}</RequirePremium>}
           />
 
           {/* Student Profile & Growth Journey */}
