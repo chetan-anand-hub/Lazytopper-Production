@@ -530,7 +530,7 @@ const StudyPlanPage: React.FC = () => {
                             cursor: "pointer",
                           }}
                         >
-                          Practice Predicted Q's
+                          Predicted Questions
                         </button>
                         <button
                           type="button"

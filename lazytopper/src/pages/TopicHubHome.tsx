@@ -607,7 +607,7 @@ function TopicHubHomeContent() {
                     )
                   }
                 >
-                  Open Predicted Q's
+                  Predicted Questions
                 </button>
               </div>
             </div>
