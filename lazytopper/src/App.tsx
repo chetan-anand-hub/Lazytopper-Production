@@ -471,8 +471,8 @@ export default function App() {
           {/* Auto-mock paper view (legacy + predictive) — free users get 1/day */}
           <Route path="/mock-paper/:slug" element={<MockViewGate>{withRouteSuspense(<MockPaper />)}</MockViewGate>} />
 
-          {/* Topic Mock Paper — requires auth */}
-          <Route path="/topic-mock/:grade/:subject/:topicKey" element={<RequireAuth>{withRouteSuspense(<TopicMockPage />)}</RequireAuth>} />
+          {/* Topic Mock Paper — auth + mock view limit */}
+          <Route path="/topic-mock/:grade/:subject/:topicKey" element={<MockViewGate>{withRouteSuspense(<TopicMockPage />)}</MockViewGate>} />
 
           {/* New Mock Builder v1 with mandatory grade & subject */}
           <Route path="/mock-builder/:grade/:subject" element={<RequirePremium featureLabel="Mock Builder">{withRouteSuspense(<MockBuilder />)}</RequirePremium>} />
