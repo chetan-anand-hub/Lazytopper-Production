@@ -3,8 +3,8 @@ import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
 import { UpgradeModal } from "../UpgradeModal";
 
-const MOCK_VIEW_KEY = "lazytopper.dailyMockViews";
-const FREE_MOCK_LIMIT = 1;
+const MOCK_VIEW_KEY = "lazytopper.weeklyMockViews";
+const FREE_WEEKLY_MOCK_LIMIT = 1;
 const GUEST_SESSION_KEY = "lazytopper.guestSessionId";
 
 function getGuestSessionId(): string {
@@ -21,24 +21,31 @@ function getScopedKey(uid: string | null): string {
   return `${MOCK_VIEW_KEY}:${scope}`;
 }
 
-function getDailyMockViews(uid: string | null): number {
+function getISOWeek(): string {
+  const now = new Date();
+  const startOfYear = new Date(now.getFullYear(), 0, 1);
+  const weekNum = Math.ceil(((now.getTime() - startOfYear.getTime()) / 86400000 + startOfYear.getDay() + 1) / 7);
+  return `${now.getFullYear()}-W${weekNum}`;
+}
+
+function getWeeklyMockViews(uid: string | null): number {
   try {
-    const today = new Date().toISOString().slice(0, 10);
+    const week = getISOWeek();
     const raw = localStorage.getItem(getScopedKey(uid));
     if (!raw) return 0;
     const parsed = JSON.parse(raw);
-    if (parsed?.date !== today) return 0;
+    if (parsed?.week !== week) return 0;
     return parsed.count || 0;
   } catch {
     return 0;
   }
 }
 
-function incrementDailyMockViews(uid: string | null): void {
-  const today = new Date().toISOString().slice(0, 10);
-  const count = getDailyMockViews(uid) + 1;
+function incrementWeeklyMockViews(uid: string | null): void {
+  const week = getISOWeek();
+  const count = getWeeklyMockViews(uid) + 1;
   try {
-    localStorage.setItem(getScopedKey(uid), JSON.stringify({ date: today, count }));
+    localStorage.setItem(getScopedKey(uid), JSON.stringify({ week, count }));
   } catch {}
 }
 
@@ -62,12 +69,12 @@ export function MockViewGate({ children }: { children: ReactNode }) {
       setReady(true);
       return;
     }
-    const views = getDailyMockViews(uid);
-    if (views >= FREE_MOCK_LIMIT) {
+    const views = getWeeklyMockViews(uid);
+    if (views >= FREE_WEEKLY_MOCK_LIMIT) {
       setLimitReached(true);
       setReady(true);
     } else {
-      incrementDailyMockViews(uid);
+      incrementWeeklyMockViews(uid);
       incrementedRef.current = true;
       setReady(true);
     }
@@ -121,10 +128,10 @@ export function MockViewGate({ children }: { children: ReactNode }) {
           Mock Paper Limit Reached
         </h2>
         <p style={{ color: "#888", fontSize: "0.92rem", marginBottom: 8, lineHeight: 1.5 }}>
-          Free users can view {FREE_MOCK_LIMIT} mock paper per day.
+          Free users can take {FREE_WEEKLY_MOCK_LIMIT} mock test per week.
         </p>
         <p style={{ color: "#888", fontSize: "0.88rem", marginBottom: 20, lineHeight: 1.5 }}>
-          Upgrade to Premium for unlimited mock tests.
+          Unlock unlimited mock tests for ₹149/month.
         </p>
         <button
           type="button"

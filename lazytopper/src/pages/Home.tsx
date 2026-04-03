@@ -315,6 +315,17 @@ const Home: React.FC = () => {
             acceptedAnswer: { "@type": "Answer", text: item.a },
           })),
         },
+        {
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            {
+              "@type": "ListItem",
+              position: 1,
+              name: "Home",
+              item: canonical,
+            },
+          ],
+        },
       ],
     });
   }, []);
@@ -645,6 +656,41 @@ const Home: React.FC = () => {
                 <span></span> App Store — Coming Soon
               </div>
             </div>
+            <div className="lt-mobile__qr">
+              <div className="lt-mobile__qr-code" aria-label="QR code to download app">
+                <svg viewBox="0 0 100 100" width="80" height="80">
+                  <rect width="100" height="100" fill="#fff" rx="4"/>
+                  <rect x="10" y="10" width="25" height="25" fill="#3c3c3c" rx="2"/>
+                  <rect x="13" y="13" width="19" height="19" fill="#fff" rx="1"/>
+                  <rect x="16" y="16" width="13" height="13" fill="#3c3c3c" rx="1"/>
+                  <rect x="65" y="10" width="25" height="25" fill="#3c3c3c" rx="2"/>
+                  <rect x="68" y="13" width="19" height="19" fill="#fff" rx="1"/>
+                  <rect x="71" y="16" width="13" height="13" fill="#3c3c3c" rx="1"/>
+                  <rect x="10" y="65" width="25" height="25" fill="#3c3c3c" rx="2"/>
+                  <rect x="13" y="68" width="19" height="19" fill="#fff" rx="1"/>
+                  <rect x="16" y="71" width="13" height="13" fill="#3c3c3c" rx="1"/>
+                  <rect x="40" y="10" width="6" height="6" fill="#3c3c3c"/>
+                  <rect x="40" y="22" width="6" height="6" fill="#3c3c3c"/>
+                  <rect x="48" y="16" width="6" height="6" fill="#3c3c3c"/>
+                  <rect x="40" y="40" width="6" height="6" fill="#3c3c3c"/>
+                  <rect x="48" y="40" width="6" height="6" fill="#3c3c3c"/>
+                  <rect x="56" y="40" width="6" height="6" fill="#3c3c3c"/>
+                  <rect x="10" y="40" width="6" height="6" fill="#3c3c3c"/>
+                  <rect x="22" y="48" width="6" height="6" fill="#3c3c3c"/>
+                  <rect x="40" y="56" width="6" height="6" fill="#3c3c3c"/>
+                  <rect x="56" y="56" width="6" height="6" fill="#3c3c3c"/>
+                  <rect x="65" y="48" width="6" height="6" fill="#3c3c3c"/>
+                  <rect x="71" y="56" width="6" height="6" fill="#3c3c3c"/>
+                  <rect x="84" y="40" width="6" height="6" fill="#3c3c3c"/>
+                  <rect x="84" y="56" width="6" height="6" fill="#3c3c3c"/>
+                  <rect x="65" y="65" width="6" height="6" fill="#3c3c3c"/>
+                  <rect x="78" y="65" width="6" height="6" fill="#3c3c3c"/>
+                  <rect x="84" y="78" width="6" height="6" fill="#3c3c3c"/>
+                  <rect x="71" y="84" width="6" height="6" fill="#3c3c3c"/>
+                </svg>
+              </div>
+              <span className="lt-mobile__qr-label">Scan to download</span>
+            </div>
           </div>
           <div className="lt-mobile__mockup">
             <div className="lt-mobile__phone">
@@ -730,9 +776,9 @@ const Home: React.FC = () => {
             </div>
             <div className="lt-footer__links">
               <h4>Legal</h4>
-              <button type="button" onClick={() => {}}>Privacy Policy</button>
-              <button type="button" onClick={() => {}}>Terms of Service</button>
-              <button type="button" onClick={() => {}}>Refund Policy</button>
+              <button type="button" onClick={() => navigate("/legal/privacy")}>Privacy Policy</button>
+              <button type="button" onClick={() => navigate("/legal/terms")}>Terms of Service</button>
+              <button type="button" onClick={() => navigate("/legal/refund")}>Refund Policy</button>
             </div>
           </div>
           <div className="lt-footer__bottom">

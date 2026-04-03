@@ -36,6 +36,7 @@ const WeakAreaPracticePage = lazy(() => import("./pages/WeakAreaPracticePage"));
 const ParentDashboardPage = lazy(() => import("./pages/ParentDashboardPage"));
 const TopicMockPage = lazy(() => import("./pages/TopicMockPage"));
 const ExamSimulationPage = lazy(() => import("./pages/ExamSimulationPage"));
+const LegalPage = lazy(() => import("./pages/LegalPage"));
 
 function RouteFallback() {
   return (
@@ -446,6 +447,7 @@ export default function App() {
           {/* Core Routes */}
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/legal/:slug" element={withRouteSuspense(<LegalPage />)} />
           <Route path="/onboarding" element={<RequireAuth><Onboarding /></RequireAuth>} />
           <Route path="/dashboard" element={<RequireAuth>{withRouteSuspense(<Dashboard />)}</RequireAuth>} />
 

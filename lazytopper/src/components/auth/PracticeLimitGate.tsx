@@ -5,7 +5,7 @@ import { getDailyPracticeCount, incrementDailyPracticeCount } from "../../servic
 import { UpgradeModal } from "../UpgradeModal";
 import { Navigate } from "react-router-dom";
 
-const FREE_DAILY_LIMIT = 3;
+const FREE_DAILY_LIMIT = 10;
 
 export function PracticeLimitGate({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
@@ -51,10 +51,10 @@ export function PracticeLimitGate({ children }: { children: ReactNode }) {
           Daily Limit Reached
         </h2>
         <p style={{ color: "#888", fontSize: "0.92rem", marginBottom: 8, lineHeight: 1.5 }}>
-          You've completed {FREE_DAILY_LIMIT} practice sessions today.
+          You've used your {FREE_DAILY_LIMIT} free questions for today.
         </p>
         <p style={{ color: "#888", fontSize: "0.88rem", marginBottom: 20, lineHeight: 1.5 }}>
-          Upgrade to Premium for unlimited daily practice.
+          Unlock unlimited practice for ₹149/month.
         </p>
         <button
           type="button"
