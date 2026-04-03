@@ -18,6 +18,8 @@ import {
   type Class10ScienceTrendsRoot,
 } from "../data/class10ScienceTopicTrends";
 
+import { computePredictionScore } from "../data/predictionScoring";
+
 import {
   predictedQuestions,
   type PredictedQuestion,
@@ -663,10 +665,8 @@ function pickMostUnderfilledDifficulty(
 }
 
 /**
- * Score a question for selection:
- * - Topic score = topicWeight × topicMultiplier
- * - Difficulty score prefers the desired difficulty and penalises over-supply
- * - HPQ + board-history give small bonuses
+ * Score a question for selection using the 5-signal prediction engine as
+ * primary signal, with difficulty balance and topic diversity adjustments.
  */
 function scoreQuestion(
   q: PredictedQuestion,
@@ -684,9 +684,24 @@ function scoreQuestion(
   const topicWeight = topicWeights[topicKey] ?? 0;
   const topicMult = topicMultipliers[topicKey] ?? 1;
 
-  const baseTopicScore = topicWeight * topicMult;
+  const subject = ((q as any).topicKey || "").startsWith("sci") ? "Science" : "Maths";
+  const fiveSignalScore = computePredictionScore({
+    subject: subject as "Maths" | "Science",
+    topicKey,
+    subtopic: (q as any).subtopic || "",
+    marks: q.marks,
+    format: (q as any).kind || "Short",
+    bloomSkill: (q as any).bloomSkill || "Applying",
+    difficulty: (q as any).difficulty || "Medium",
+    policyTag: (q as any).policyTag || "",
+    pastBoardYear: (q as any).pastBoardYear || "",
+  });
 
-  // Difficulty priority
+  const predictionSignal = fiveSignalScore / 5.0;
+
+  const topicDiversityBoost = topicWeight * topicMult;
+  const normalizedTopicBoost = Math.min(1, topicDiversityBoost);
+
   const difficulty = (q as any).difficulty as DifficultyKey;
   let difficultyScore = 1;
 
@@ -694,7 +709,6 @@ function scoreQuestion(
     difficultyScore += 0.5;
   }
 
-  // Penalise overfilling a difficulty
   const target = difficultyTargetMarks[difficulty] || 1;
   const used = difficultyUsedMarks[difficulty] || 0;
   const ratio = used / target;
@@ -702,15 +716,5 @@ function scoreQuestion(
     difficultyScore *= 0.5;
   }
 
-  // HPQ bias (default true if undefined)
-  const hpqFlag = (q as any).isHPQ ?? true;
-  const hpqScore = hpqFlag ? 1.2 : 0.9;
-
-  // Board-history bonus
-  const hasBoardHistory =
-    !!(q as any).pastBoardYear ||
-    !!((q as any).yearsSeen && (q as any).yearsSeen.length > 0);
-  const historyScore = hasBoardHistory ? 1.1 : 1.0;
-
-  return baseTopicScore * difficultyScore * hpqScore * historyScore;
+  return (predictionSignal * 0.6 + normalizedTopicBoost * 0.25 + difficultyScore * 0.15);
 }

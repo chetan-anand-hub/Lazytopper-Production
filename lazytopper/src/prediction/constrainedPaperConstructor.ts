@@ -202,6 +202,7 @@ function enforceGuaranteedArchetypes(args: {
       out[swapIdx] = replacement;
     } else {
       const fallbackIdx = out.findIndex(q => {
+        if (q.section !== replacement.section) return false;
         if (q.marks !== replacement.marks) return false;
         const qGuaranteed = isGuaranteedArchetype(subject, q.topicKey, q.subtopic);
         return qGuaranteed === null;

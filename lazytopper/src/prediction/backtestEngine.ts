@@ -262,3 +262,40 @@ export function calibrateWeights(
 
   return { bestWeights, bestAccuracy, iterations: history.length, history };
 }
+
+export interface BacktestGateResult {
+  passed: boolean;
+  overallAccuracy: number;
+  targetAccuracy: number;
+  yearBreakdown: { year: number; accuracy: number; passed: boolean }[];
+  message: string;
+}
+
+export function runBacktestAcceptanceGate(
+  subject: "Maths" | "Science",
+  testYears: number[] = [2023, 2024],
+  targetAccuracy: number = 0.60,
+  weights: FiveSignalWeights = DEFAULT_SIGNAL_WEIGHTS
+): BacktestGateResult {
+  const summary = runBacktest(subject, testYears, weights);
+
+  const yearBreakdown = summary.yearResults.map(yr => ({
+    year: yr.targetYear,
+    accuracy: yr.accuracy,
+    passed: yr.accuracy >= targetAccuracy,
+  }));
+
+  const passed = summary.overallAccuracy >= targetAccuracy;
+
+  const message = passed
+    ? `PASS: ${subject} backtest achieved ${(summary.overallAccuracy * 100).toFixed(1)}% overlap (target: ${(targetAccuracy * 100).toFixed(0)}%)`
+    : `FAIL: ${subject} backtest achieved only ${(summary.overallAccuracy * 100).toFixed(1)}% overlap (target: ${(targetAccuracy * 100).toFixed(0)}%)`;
+
+  return {
+    passed,
+    overallAccuracy: summary.overallAccuracy,
+    targetAccuracy,
+    yearBreakdown,
+    message,
+  };
+}
