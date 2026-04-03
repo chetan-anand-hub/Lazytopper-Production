@@ -235,7 +235,7 @@ export function generatePaper(paperId: string): GeneratedPaper {
   });
 
   const constrainedRows = constrained.selected;
-  if (constrainedRows.length > 0 && constrained.diagnostics.constraintsSatisfied) {
+  if (constrainedRows.length > 0) {
     const sectionsFromConstrained: Record<SectionKey, GeneratedQuestionSlot[]> = {
       A: [],
       B: [],

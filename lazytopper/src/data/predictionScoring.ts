@@ -62,6 +62,12 @@ function predictionTargetYear(): number {
 
 const fiveSignalCache = new Map<string, FiveSignalResult>();
 
+export function invalidatePredictionCaches(): void {
+  fiveSignalCache.clear();
+  mathWeightageCache.clear();
+  scienceWeightageCache.clear();
+}
+
 function get5SignalResult(q: PredictionScoreInput): FiveSignalResult {
   const targetYear = predictionTargetYear();
   const cacheKey = `${q.subject}|${q.topicKey}|${q.subtopic}|${q.marks}|${q.format}|${q.bloomSkill}|${q.difficulty}|${q.policyTag || ""}|${targetYear}`;
@@ -120,3 +126,6 @@ export function applyPredictionScoring(
     predictionScore: computePredictionScore(q),
   }));
 }
+
+export { runBacktest, runBacktestAcceptanceGate, calibrateWeights } from "../prediction/backtestEngine";
+export type { BacktestSummary, BacktestGateResult, CalibrationResult } from "../prediction/backtestEngine";

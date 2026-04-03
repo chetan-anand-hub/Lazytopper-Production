@@ -1,4 +1,5 @@
 import { CBSE_HISTORICAL_ARCHETYPES, type CbseArchetypeEntry } from "./cbseHistoricalArchetypes";
+import { invalidatePredictionCaches } from "../data/predictionScoring";
 
 export interface SQPSignal {
   matchesSQP: boolean;
@@ -87,6 +88,7 @@ export function ingestSQPData(entries: SQPIngestionInput[]): SQPIngestionResult 
   }
 
   sqpCache = null;
+  invalidatePredictionCaches();
 
   const activeSQPYear = getLatestSQPYear() ?? 0;
 
