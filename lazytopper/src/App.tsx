@@ -29,6 +29,8 @@ const PracticePage = lazy(() => import("./pages/PracticePage"));
 const DailyMixPage = lazy(() => import("./pages/DailyMixPage"));
 const WeeklyWrappedPage = lazy(() => import("./pages/WeeklyWrappedPage"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
+const WeakAreaPracticePage = lazy(() => import("./pages/WeakAreaPracticePage"));
+const ParentDashboardPage = lazy(() => import("./pages/ParentDashboardPage"));
 
 function RouteFallback() {
   return (
@@ -279,6 +281,12 @@ export default function App() {
       case 'navigateToDailyMix':
         navigate(`/daily-mix/${g}/${s}${topicParam}`);
         break;
+      case 'navigateToWeakAreas':
+        navigate('/weak-area-practice');
+        break;
+      case 'navigateToParentDashboard':
+        navigate('/parent-dashboard');
+        break;
       case "setVibeLow":
         setMode("zombie");
         break;
@@ -453,6 +461,18 @@ export default function App() {
           <Route
             path="/weekly-wrapped"
             element={<RequireAuth>{withRouteSuspense(<WeeklyWrappedPage />)}</RequireAuth>}
+          />
+
+          {/* Weak Area Practice & Learning Paths */}
+          <Route
+            path="/weak-area-practice"
+            element={<RequireAuth>{withRouteSuspense(<WeakAreaPracticePage />)}</RequireAuth>}
+          />
+
+          {/* Parent/Teacher Progress Report Dashboard */}
+          <Route
+            path="/parent-dashboard"
+            element={<RequireAuth>{withRouteSuspense(<ParentDashboardPage />)}</RequireAuth>}
           />
 
           {/* Student Profile & Growth Journey */}

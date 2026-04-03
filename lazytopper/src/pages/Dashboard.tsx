@@ -402,6 +402,9 @@ export default function Dashboard() {
             <button className="pill-btn" type="button" onClick={() => navigate("/daily-mix/10/Maths")}>
               Start Daily Mix
             </button>
+            <button className="cta-btn small" onClick={() => navigate("/weak-area-practice")} style={{ background: "#ff9600", border: "2px solid #e08600", boxShadow: "0 2px 0 #cc7a00" }}>
+              Fix My Weak Areas
+            </button>
           </div>
           <p style={{ marginTop: 10, opacity: 0.82 }}>
             Match Score is enabled after your first Learn/Practice attempts.
@@ -605,6 +608,9 @@ export default function Dashboard() {
           )}
           <button className="cta-btn small" onClick={() => navigate(`/topic-hub/${gradeNum}/${subjectForQuickActions}`)}>
             Open TopicHub
+          </button>
+          <button className="cta-btn small" onClick={() => navigate("/weak-area-practice")} style={{ background: "#ff9600", border: "2px solid #e08600", boxShadow: "0 2px 0 #cc7a00" }}>
+            Fix My Weak Areas
           </button>
         </div>
       </div>

@@ -222,7 +222,9 @@ export function pickWeightedTopics(subject: "Maths" | "Science", count: number, 
     const slug = ch.canonicalSlug;
     const snap = loadTopicMasterySnapshot(normalizeTopicKey(slug) || slug);
     const mastery = computeMasteryScore(snap);
-    weighted.push({ key: slug, weight: Math.max(0.1, 1 - mastery) });
+    const baseWeight = Math.max(0.1, 1 - mastery);
+    const weakBoost = mastery < 0.4 ? 3.0 : mastery < 0.6 ? 1.8 : 1.0;
+    weighted.push({ key: slug, weight: baseWeight * weakBoost });
   }
 
   let rng = seededHash(seed);

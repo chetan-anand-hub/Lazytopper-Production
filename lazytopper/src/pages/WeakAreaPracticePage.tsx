@@ -1,0 +1,542 @@
+import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { getWeakAreas, type WeakArea, type WeakAreaSummary } from "../services/weakAreaAggregator";
+import { getDueReviews, getSRStats, type SRConceptCard } from "../services/spacedRepetitionEngine";
+import {
+  generateLearningPath,
+  loadLearningPath,
+  markDayCompleted,
+  type LearningPath,
+} from "../services/learningPathGenerator";
+
+type ViewTab = "weak-areas" | "learning-path" | "reviews";
+
+function ProgressBar({ value, max, color }: { value: number; max: number; color: string }) {
+  const pct = max > 0 ? Math.min(100, (value / max) * 100) : 0;
+  return (
+    <div style={{ height: 8, background: "#eee", borderRadius: 4, overflow: "hidden", width: "100%" }}>
+      <div
+        style={{
+          height: "100%",
+          width: `${pct}%`,
+          background: color,
+          borderRadius: 4,
+          transition: "width 0.4s ease",
+        }}
+      />
+    </div>
+  );
+}
+
+function WeakAreaCard({ area, onPractice }: { area: WeakArea; onPractice: (area: WeakArea) => void }) {
+  const urgencyColor = area.confidenceScore >= 40 ? "#ef4444" : area.confidenceScore >= 20 ? "#f59e0b" : "#3b82f6";
+  return (
+    <div
+      style={{
+        padding: "14px 16px",
+        borderRadius: 14,
+        background: "#fff",
+        border: `2px solid ${urgencyColor}20`,
+        marginBottom: 10,
+      }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+        <div>
+          <div style={{ fontWeight: 700, fontSize: 15 }}>{area.topicName}</div>
+          <div style={{ fontSize: 12, color: "#888", marginTop: 2 }}>{area.subject}</div>
+        </div>
+        <div
+          style={{
+            padding: "4px 10px",
+            borderRadius: 20,
+            background: `${urgencyColor}15`,
+            color: urgencyColor,
+            fontWeight: 700,
+            fontSize: 12,
+          }}
+        >
+          {area.confidenceScore >= 40 ? "Critical" : area.confidenceScore >= 20 ? "Needs Work" : "Review"}
+        </div>
+      </div>
+
+      <div style={{ display: "flex", gap: 16, marginBottom: 10, fontSize: 12 }}>
+        <div>
+          <span style={{ color: "#888" }}>Accuracy: </span>
+          <span style={{ fontWeight: 700 }}>{area.accuracy}%</span>
+        </div>
+        <div>
+          <span style={{ color: "#888" }}>Mastery: </span>
+          <span style={{ fontWeight: 700 }}>{area.masteryPercent}%</span>
+        </div>
+        <div>
+          <span style={{ color: "#888" }}>Attempts: </span>
+          <span style={{ fontWeight: 700 }}>{area.totalAttempts}</span>
+        </div>
+      </div>
+
+      <ProgressBar value={area.masteryPercent} max={100} color={urgencyColor} />
+
+      {area.weakConcepts.length > 0 && (
+        <div style={{ marginTop: 8, display: "flex", gap: 6, flexWrap: "wrap" }}>
+          {area.weakConcepts.map((c) => (
+            <span
+              key={c}
+              style={{
+                fontSize: 11,
+                padding: "2px 8px",
+                borderRadius: 10,
+                background: "#f5f5f5",
+                color: "#666",
+              }}
+            >
+              {c}
+            </span>
+          ))}
+        </div>
+      )}
+
+      <button
+        onClick={() => onPractice(area)}
+        style={{
+          marginTop: 12,
+          width: "100%",
+          padding: "10px 0",
+          borderRadius: 12,
+          border: "none",
+          background: "#58cc02",
+          color: "#fff",
+          fontWeight: 800,
+          fontSize: 14,
+          cursor: "pointer",
+        }}
+      >
+        Practice Now
+      </button>
+    </div>
+  );
+}
+
+function LearningPathView({
+  path,
+  onRefresh,
+}: {
+  path: LearningPath;
+  onRefresh: () => void;
+}) {
+  const navigate = useNavigate();
+  const today = new Date().toISOString().slice(0, 10);
+
+  return (
+    <div>
+      <div
+        style={{
+          padding: 16,
+          borderRadius: 14,
+          background: "linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%)",
+          marginBottom: 16,
+        }}
+      >
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div>
+            <div style={{ fontWeight: 800, fontSize: 18 }}>
+              {path.status === "completed" ? "Path Completed!" : `Day ${path.daysCompleted + 1} of ${path.totalDays}`}
+            </div>
+            <div style={{ fontSize: 13, color: "#666", marginTop: 4 }}>
+              {path.weakAreasAtStart} weak areas targeted
+            </div>
+          </div>
+          <div style={{ textAlign: "right" }}>
+            <div style={{ fontSize: 28, fontWeight: 900, color: "#58cc02" }}>
+              {Math.round((path.daysCompleted / path.totalDays) * 100)}%
+            </div>
+            <div style={{ fontSize: 11, color: "#888" }}>complete</div>
+          </div>
+        </div>
+        <ProgressBar value={path.daysCompleted} max={path.totalDays} color="#58cc02" />
+      </div>
+
+      {path.days.map((day, idx) => {
+        const isCompleted = idx < path.daysCompleted;
+        const isToday = day.date === today;
+        const isFuture = day.date > today;
+
+        return (
+          <div
+            key={day.day}
+            style={{
+              padding: "12px 14px",
+              borderRadius: 12,
+              background: isCompleted ? "#f0fdf4" : isToday ? "#fffbeb" : "#fafafa",
+              border: isToday ? "2px solid #f59e0b" : "1px solid #eee",
+              marginBottom: 8,
+              opacity: isFuture ? 0.6 : 1,
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ fontSize: 18 }}>
+                  {isCompleted ? "\u2705" : day.isMilestone ? "\uD83C\uDFC6" : isToday ? "\uD83D\uDCCD" : "\u25CB"}
+                </span>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 14 }}>Day {day.day}</div>
+                  <div style={{ fontSize: 11, color: "#888" }}>{day.date} - {day.estimatedMinutes} min</div>
+                </div>
+              </div>
+              {isToday && !isCompleted && (
+                <button
+                  onClick={() => {
+                    markDayCompleted(idx);
+                    if (day.topics.length > 0) {
+                      const t = day.topics[0];
+                      navigate(`/practice/10/${t.subject}?topic=${encodeURIComponent(t.topicKey)}&difficulty=${t.difficulty}&count=${t.targetQuestions}`);
+                    }
+                  }}
+                  style={{
+                    padding: "6px 16px",
+                    borderRadius: 20,
+                    border: "none",
+                    background: "#58cc02",
+                    color: "#fff",
+                    fontWeight: 700,
+                    fontSize: 12,
+                    cursor: "pointer",
+                  }}
+                >
+                  Start
+                </button>
+              )}
+            </div>
+
+            {day.topics.length > 0 && (
+              <div style={{ marginTop: 8, display: "flex", gap: 6, flexWrap: "wrap" }}>
+                {day.topics.map((t) => (
+                  <span
+                    key={t.topicKey}
+                    style={{
+                      fontSize: 11,
+                      padding: "3px 10px",
+                      borderRadius: 10,
+                      background: t.subject === "Science" ? "#dbeafe" : "#fef3c7",
+                      fontWeight: 600,
+                    }}
+                  >
+                    {t.topicName} ({t.difficulty})
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })}
+
+      <button
+        onClick={onRefresh}
+        style={{
+          marginTop: 12,
+          width: "100%",
+          padding: "10px 0",
+          borderRadius: 12,
+          border: "2px solid #e5e5e5",
+          background: "#fff",
+          color: "#333",
+          fontWeight: 700,
+          fontSize: 13,
+          cursor: "pointer",
+        }}
+      >
+        Regenerate Path
+      </button>
+    </div>
+  );
+}
+
+function ReviewCard({ card }: { card: SRConceptCard }) {
+  const stageColors: Record<string, string> = {
+    new: "#3b82f6",
+    learning: "#f59e0b",
+    review: "#8b5cf6",
+    mastered: "#22c55e",
+  };
+  return (
+    <div
+      style={{
+        padding: "10px 14px",
+        borderRadius: 12,
+        background: "#fff",
+        border: "1px solid #eee",
+        marginBottom: 8,
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+      }}
+    >
+      <div>
+        <div style={{ fontWeight: 600, fontSize: 14 }}>{card.conceptKey}</div>
+        <div style={{ fontSize: 12, color: "#888" }}>{card.topicKey} - {card.subject}</div>
+      </div>
+      <span
+        style={{
+          padding: "3px 10px",
+          borderRadius: 10,
+          background: `${stageColors[card.stage]}15`,
+          color: stageColors[card.stage],
+          fontWeight: 700,
+          fontSize: 11,
+          textTransform: "capitalize",
+        }}
+      >
+        {card.stage}
+      </span>
+    </div>
+  );
+}
+
+export default function WeakAreaPracticePage() {
+  const navigate = useNavigate();
+  const [tab, setTab] = useState<ViewTab>("weak-areas");
+  const [subjectFilter, setSubjectFilter] = useState<"All" | "Maths" | "Science">("All");
+  const [summary, setSummary] = useState<WeakAreaSummary | null>(null);
+  const [learningPath, setLearningPath] = useState<LearningPath | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [showCelebration, setShowCelebration] = useState(false);
+
+  useEffect(() => {
+    const subj = subjectFilter === "All" ? undefined : subjectFilter;
+    setSummary(getWeakAreas({ subject: subj }));
+    setLearningPath(loadLearningPath());
+  }, [subjectFilter, refreshKey]);
+
+  const dueReviews = useMemo(() => {
+    const subj = subjectFilter === "All" ? undefined : subjectFilter;
+    return getDueReviews({ subject: subj, limit: 20 });
+  }, [subjectFilter, refreshKey]);
+
+  const srStats = useMemo(() => getSRStats(), [refreshKey]);
+
+  const handlePractice = (area: WeakArea) => {
+    navigate(`/practice/10/${area.subject}?topic=${encodeURIComponent(area.topicKey)}&count=12&difficulty=All`);
+  };
+
+  const handleGeneratePath = () => {
+    const subj = subjectFilter === "All" ? undefined : subjectFilter;
+    const path = generateLearningPath({ subject: subj, daysAvailable: 14, minutesPerDay: 60 });
+    setLearningPath(path);
+    setTab("learning-path");
+  };
+
+  useEffect(() => {
+    if (summary && summary.closedThisWeek > 0) {
+      setShowCelebration(true);
+      const timer = setTimeout(() => setShowCelebration(false), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [summary?.closedThisWeek]);
+
+  return (
+    <div className="lt-page" style={{ paddingTop: 8 }}>
+      <button
+        onClick={() => navigate(-1)}
+        style={{
+          background: "none",
+          border: "none",
+          color: "#1cb0f6",
+          fontWeight: 700,
+          fontSize: 14,
+          cursor: "pointer",
+          marginBottom: 8,
+          padding: 0,
+        }}
+      >
+        &larr; Back
+      </button>
+
+      <h2 style={{ fontWeight: 900, fontSize: 22, marginBottom: 4 }}>Fix My Weak Areas</h2>
+      <p style={{ color: "#888", fontSize: 14, marginBottom: 16 }}>
+        Targeted practice to close your gaps and boost your score.
+      </p>
+
+      {showCelebration && summary && summary.closedThisWeek > 0 && (
+        <div
+          style={{
+            padding: "12px 16px",
+            borderRadius: 14,
+            background: "linear-gradient(135deg, #fef3c7 0%, #d1fae5 100%)",
+            border: "2px solid #f59e0b",
+            marginBottom: 16,
+            textAlign: "center",
+            animation: "fadeIn 0.5s ease",
+          }}
+        >
+          <div style={{ fontSize: 32 }}>&#127881;</div>
+          <div style={{ fontWeight: 800, fontSize: 16, color: "#b45309" }}>
+            {summary.closedThisWeek} weak area{summary.closedThisWeek > 1 ? "s" : ""} closed this week!
+          </div>
+        </div>
+      )}
+
+      {summary && (
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gap: 10,
+            marginBottom: 16,
+          }}
+        >
+          <div style={{ padding: "12px 8px", borderRadius: 12, background: "#fef2f2", textAlign: "center" }}>
+            <div style={{ fontSize: 22, fontWeight: 900, color: "#ef4444" }}>{summary.totalWeak}</div>
+            <div style={{ fontSize: 11, fontWeight: 600, color: "#888" }}>Weak Areas</div>
+          </div>
+          <div style={{ padding: "12px 8px", borderRadius: 12, background: "#f0fdf4", textAlign: "center" }}>
+            <div style={{ fontSize: 22, fontWeight: 900, color: "#22c55e" }}>{summary.closedThisWeek}</div>
+            <div style={{ fontSize: 11, fontWeight: 600, color: "#888" }}>Closed This Week</div>
+          </div>
+          <div style={{ padding: "12px 8px", borderRadius: 12, background: "#eff6ff", textAlign: "center" }}>
+            <div style={{ fontSize: 22, fontWeight: 900, color: "#3b82f6" }}>{summary.overallMasteryPercent}%</div>
+            <div style={{ fontSize: 11, fontWeight: 600, color: "#888" }}>Overall Mastery</div>
+          </div>
+        </div>
+      )}
+
+      <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+        {(["All", "Maths", "Science"] as const).map((s) => (
+          <button
+            key={s}
+            onClick={() => setSubjectFilter(s)}
+            style={{
+              padding: "6px 14px",
+              borderRadius: 20,
+              border: "none",
+              background: subjectFilter === s ? "#1cb0f6" : "#f0f0f0",
+              color: subjectFilter === s ? "#fff" : "#333",
+              fontWeight: 600,
+              fontSize: 12,
+              cursor: "pointer",
+            }}
+          >
+            {s}
+          </button>
+        ))}
+      </div>
+
+      <div style={{ display: "flex", gap: 6, marginBottom: 16, overflowX: "auto" }}>
+        {([
+          { id: "weak-areas" as ViewTab, label: "Weak Areas", count: summary?.totalWeak },
+          { id: "learning-path" as ViewTab, label: "Learning Path" },
+          { id: "reviews" as ViewTab, label: "Reviews", count: srStats.dueToday },
+        ]).map((t) => (
+          <button
+            key={t.id}
+            onClick={() => {
+              if (t.id === "learning-path" && !learningPath) {
+                handleGeneratePath();
+              } else {
+                setTab(t.id);
+              }
+            }}
+            style={{
+              padding: "8px 16px",
+              borderRadius: 12,
+              border: tab === t.id ? "2px solid #58cc02" : "2px solid #e5e5e5",
+              background: tab === t.id ? "#f0fdf4" : "#fff",
+              color: tab === t.id ? "#16a34a" : "#555",
+              fontWeight: 700,
+              fontSize: 13,
+              cursor: "pointer",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {t.label}
+            {t.count != null && t.count > 0 && (
+              <span style={{ marginLeft: 4, fontSize: 11, color: "#ef4444" }}>({t.count})</span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {tab === "weak-areas" && (
+        <div>
+          {!summary || summary.weakAreas.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "40px 20px" }}>
+              <div style={{ fontSize: 48, marginBottom: 12 }}>&#127881;</div>
+              <h3 style={{ fontWeight: 800, fontSize: 18, color: "#22c55e" }}>No Weak Areas!</h3>
+              <p style={{ color: "#888", fontSize: 14, marginTop: 8 }}>
+                All your topics are looking strong. Keep practicing to maintain your skills.
+              </p>
+            </div>
+          ) : (
+            summary.weakAreas.map((area) => (
+              <WeakAreaCard key={area.topicKey} area={area} onPractice={handlePractice} />
+            ))
+          )}
+
+          {summary && summary.weakAreas.length > 0 && (
+            <button
+              onClick={handleGeneratePath}
+              style={{
+                marginTop: 8,
+                width: "100%",
+                padding: "14px 0",
+                borderRadius: 14,
+                border: "none",
+                background: "linear-gradient(135deg, #1cb0f6, #58cc02)",
+                color: "#fff",
+                fontWeight: 800,
+                fontSize: 15,
+                cursor: "pointer",
+              }}
+            >
+              Generate AI Learning Path
+            </button>
+          )}
+        </div>
+      )}
+
+      {tab === "learning-path" && learningPath && (
+        <LearningPathView
+          path={learningPath}
+          onRefresh={() => {
+            handleGeneratePath();
+          }}
+        />
+      )}
+
+      {tab === "reviews" && (
+        <div>
+          {srStats.total === 0 ? (
+            <div style={{ textAlign: "center", padding: "40px 20px" }}>
+              <div style={{ fontSize: 48, marginBottom: 12 }}>&#128218;</div>
+              <h3 style={{ fontWeight: 800, fontSize: 18 }}>No Reviews Yet</h3>
+              <p style={{ color: "#888", fontSize: 14, marginTop: 8 }}>
+                Practice some topics and concepts will be added to your review schedule automatically.
+              </p>
+            </div>
+          ) : (
+            <>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 16 }}>
+                {[
+                  { label: "Due Today", value: srStats.dueToday, color: "#ef4444" },
+                  { label: "Learning", value: srStats.learning, color: "#f59e0b" },
+                  { label: "Review", value: srStats.review, color: "#8b5cf6" },
+                  { label: "Mastered", value: srStats.mastered, color: "#22c55e" },
+                ].map((s) => (
+                  <div key={s.label} style={{ padding: "10px 4px", borderRadius: 10, background: "#fafafa", textAlign: "center" }}>
+                    <div style={{ fontSize: 18, fontWeight: 900, color: s.color }}>{s.value}</div>
+                    <div style={{ fontSize: 10, fontWeight: 600, color: "#888" }}>{s.label}</div>
+                  </div>
+                ))}
+              </div>
+              {dueReviews.length > 0 ? (
+                dueReviews.map((card) => <ReviewCard key={`${card.topicKey}::${card.conceptKey}`} card={card} />)
+              ) : (
+                <p style={{ textAlign: "center", color: "#888", fontSize: 14, padding: 20 }}>
+                  No reviews due today. Check back tomorrow!
+                </p>
+              )}
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}

@@ -682,7 +682,44 @@ export default function ProfilePage() {
       {tab === "achievements" && <AchievementsTab earned={earnedBadges} />}
       {tab === "stats" && <StatsTab badgeCtx={badgeCtx} statsByChapter={statsByChapter} />}
 
-      <div style={{ display: "flex", gap: 10, marginTop: 24 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 24 }}>
+        <div style={{ display: "flex", gap: 10 }}>
+          <button
+            type="button"
+            onClick={() => navigate("/weak-area-practice")}
+            style={{
+              flex: 1,
+              padding: "12px 20px",
+              borderRadius: 16,
+              border: "none",
+              background: "#ff9600",
+              color: "#fff",
+              fontWeight: 800,
+              fontSize: 14,
+              cursor: "pointer",
+              boxShadow: "0 3px 0 #cc7a00",
+            }}
+          >
+            Fix My Weak Areas
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate("/parent-dashboard")}
+            style={{
+              flex: 1,
+              padding: "12px 20px",
+              borderRadius: 16,
+              border: "2px solid #1cb0f6",
+              background: "#fff",
+              color: "#1cb0f6",
+              fontWeight: 700,
+              fontSize: 13,
+              cursor: "pointer",
+            }}
+          >
+            Share Report
+          </button>
+        </div>
         <button
           type="button"
           onClick={() => navigate("/dashboard")}
