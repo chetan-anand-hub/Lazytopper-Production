@@ -303,22 +303,26 @@ function buildSetFamily(topicKey: string, subject: LTSubjectKey, count: number, 
 
   const family: TopicMockPaper[] = [];
   const baseSeed = hashString(`${topicKey}-${subject}`);
-  const overlapThresholds = [MAX_OVERLAP_PERCENT, 35, 50, 80, 100];
 
   for (let setIdx = 1; setIdx <= count; setIdx++) {
     let accepted: TopicMockPaper | null = null;
-    for (const threshold of overlapThresholds) {
-      for (let attempt = 0; attempt < 5; attempt++) {
-        const seed = baseSeed + setIdx * 7919 + attempt * 3571;
-        const candidate = buildSinglePaper(topicKey, subject, setIdx, seed, topicDisplayName);
-        if (pairwiseOverlapOk(candidate, family, threshold)) {
-          accepted = candidate;
-          break;
-        }
+    for (let attempt = 0; attempt < 50; attempt++) {
+      const seed = baseSeed + setIdx * 7919 + attempt * 3571 + attempt * attempt * 13;
+      const candidate = buildSinglePaper(topicKey, subject, setIdx, seed, topicDisplayName);
+      if (pairwiseOverlapOk(candidate, family, MAX_OVERLAP_PERCENT)) {
+        accepted = candidate;
+        break;
       }
-      if (accepted) break;
     }
-    family.push(accepted || buildSinglePaper(topicKey, subject, setIdx, baseSeed + setIdx * 7919, topicDisplayName));
+    if (accepted) {
+      family.push(accepted);
+    }
+  }
+
+  while (family.length < count) {
+    const setIdx = family.length + 1;
+    const seed = baseSeed + setIdx * 13337 + family.length * 9929;
+    family.push(buildSinglePaper(topicKey, subject, setIdx, seed, topicDisplayName));
   }
 
   setFamilyCache.set(cacheKey, family);
