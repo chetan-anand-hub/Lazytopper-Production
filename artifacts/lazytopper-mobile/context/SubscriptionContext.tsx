@@ -2,7 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
 
 import { useAuth } from "./AuthContext";
-import type { SubscriptionStatus } from "@/data/types";
+import type { SubscriptionStatus } from "@workspace/shared-data";
 
 const TRIAL_DAYS = 7;
 function storageKey(uid: string) {

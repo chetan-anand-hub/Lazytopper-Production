@@ -12,9 +12,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { SubjectToggle } from "@/components/SubjectToggle";
 import { useAuth } from "@/context/AuthContext";
 import { useColors } from "@/hooks/useColors";
-import { mathTopicTrends } from "@/data/mathsTrends";
-import { scienceTopicTrends } from "@/data/scienceTrends";
-import type { LTSubjectKey } from "@/data/types";
+import { mathTopicTrends, scienceTopicTrends } from "@workspace/shared-data";
+import type { LTSubjectKey } from "@workspace/shared-data";
 
 function ProgressRing({ percent, color, size = 56 }: { percent: number; color: string; size?: number }) {
   const strokeWidth = 5;

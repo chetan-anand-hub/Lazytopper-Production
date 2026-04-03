@@ -2,7 +2,7 @@ import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 
 import { useColors } from "@/hooks/useColors";
-import type { TopicTier } from "@/data/types";
+import type { TopicTier } from "@workspace/shared-data";
 
 const TIER_LABELS: Record<TopicTier, string> = {
   "must-crack": "Must Crack",

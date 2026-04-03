@@ -9,6 +9,10 @@
     "serve": "node server/serve.js",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
+  "dependencies": {
+    "@workspace/shared-data": "workspace:*",
+    "firebase": "^11.8.1"
+  },
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@expo-google-fonts/inter": "^0.4.0",

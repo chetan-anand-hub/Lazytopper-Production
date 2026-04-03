@@ -53,11 +53,13 @@ The project is structured as a pnpm workspace monorepo.
 - **Trial Countdown UI:** Navbar shows "⏳ Xd trial" badge for trial users, red "Upgrade" button for expired trial. Profile page shows subscription status card with tier, countdown, and upgrade button.
 
 ## Mobile App (Expo)
-- **Artifact:** `artifacts/lazytopper-mobile` — Expo React Native app with 5 tabs (Home, Trends, Mock Tests, Progress, Profile).
+- **Artifact:** `artifacts/lazytopper-mobile` — Expo React Native app with 5 tabs (Home, Trends, Practice, Progress, Profile).
 - **Design:** Duolingo-inspired palette matching the web app (#58cc02 green, #1cb0f6 blue, #ff9600 orange, #ffc800 gold).
-- **Data:** Copied trend data from `lazytopper/src/data/` into `data/mathsTrends.ts` and `data/scienceTrends.ts` (14 Maths + 13 Science topics with tiers, weightages, concepts).
-- **Auth:** Guest-only auth via AsyncStorage (`context/AuthContext.tsx`). Real Firebase auth to be added later.
+- **Shared Data:** Trend data lives in `lib/shared-data/` workspace package (`@workspace/shared-data`), containing types, maths, and science topic trends (14 + 13 topics with tiers, weightages, concepts). Mobile imports from this package instead of maintaining local copies.
+- **Auth:** Firebase JS SDK (`firebase` package) with Google Sign-In and Phone OTP support, graceful fallback to guest-only auth when Firebase is not configured. Auth state persisted in AsyncStorage. `EXPO_PUBLIC_FIREBASE_*` env vars required for Firebase features.
 - **Subscription:** User-scoped AsyncStorage-based subscription context (`context/SubscriptionContext.tsx`) with free/trial/premium tiers, matching the web model.
+- **Practice Tab:** Combines predictive papers hub with exam simulation entry. Shows 3 predictive papers with premium gating, "Start Exam Simulation" CTA card.
+- **Exam Simulation:** Full-screen modal (`app/exam-simulation.tsx`) with 3 phases: setup (instructions + exam details), exam (question-by-question navigation, 3-hour countdown timer, MCQ selection, mark-as-done for subjective questions, question dot palette), and review (completion stats + question summary).
 - **Components:** `TopicCard`, `SubjectToggle`, `TierBadge` — reusable across screens.
 - **Navigation:** NativeTabs (iOS 26 liquid glass) with classic Tabs fallback. Headers hidden, content uses `useSafeAreaInsets`.
 - **No backend dependency:** Uses AsyncStorage for all persistence. No API server or database needed.

@@ -18,7 +18,7 @@ import { useColors } from "@/hooks/useColors";
 export default function ProfileScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { user, signInAsGuest, signOut } = useAuth();
+  const { user, signInAsGuest, signInWithGoogle, firebaseAvailable, signOut } = useAuth();
   const { tier, isPremium, isTrialActive, isTrialExpired, daysLeftInTrial, startTrial } = useSubscription();
   const topPad = Platform.OS === "web" ? 67 : 0;
 
@@ -34,6 +34,16 @@ export default function ProfileScreen() {
         </Text>
 
         <View style={styles.authButtons}>
+          {firebaseAvailable && (
+            <Pressable
+              style={[styles.authBtn, { backgroundColor: "#fff", borderColor: colors.border, borderWidth: 1 }]}
+              onPress={signInWithGoogle}
+            >
+              <Feather name="mail" size={18} color="#4285F4" />
+              <Text style={[styles.authBtnText, { color: "#333" }]}>Sign in with Google</Text>
+            </Pressable>
+          )}
+
           <Pressable
             style={[styles.authBtn, { backgroundColor: colors.primary }]}
             onPress={async () => {

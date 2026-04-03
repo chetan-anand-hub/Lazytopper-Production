@@ -20,9 +20,9 @@ function NativeTabLayout() {
         <Icon sf={{ default: "chart.line.uptrend.xyaxis", selected: "chart.line.uptrend.xyaxis" }} />
         <Label>Trends</Label>
       </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="mock-tests">
+      <NativeTabs.Trigger name="practice">
         <Icon sf={{ default: "doc.text", selected: "doc.text.fill" }} />
-        <Label>Tests</Label>
+        <Label>Practice</Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="progress">
         <Icon sf={{ default: "chart.bar", selected: "chart.bar.fill" }} />
@@ -99,9 +99,9 @@ function ClassicTabLayout() {
         }}
       />
       <Tabs.Screen
-        name="mock-tests"
+        name="practice"
         options={{
-          title: "Tests",
+          title: "Practice",
           tabBarIcon: ({ color }) =>
             isIOS ? (
               <SymbolView name="doc.text" tintColor={color} size={24} />

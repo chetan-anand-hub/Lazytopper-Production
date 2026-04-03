@@ -3,7 +3,7 @@ import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { useColors } from "@/hooks/useColors";
-import type { LTSubjectKey } from "@/data/types";
+import type { LTSubjectKey } from "@workspace/shared-data";
 
 interface Props {
   selected: LTSubjectKey;

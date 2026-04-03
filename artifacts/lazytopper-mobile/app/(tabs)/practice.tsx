@@ -1,4 +1,5 @@
 import { Feather } from "@expo/vector-icons";
+import { router } from "expo-router";
 import React, { useState } from "react";
 import {
   Platform,
@@ -13,7 +14,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { SubjectToggle } from "@/components/SubjectToggle";
 import { useColors } from "@/hooks/useColors";
 import { useSubscription } from "@/context/SubscriptionContext";
-import type { LTSubjectKey } from "@/data/types";
+import type { LTSubjectKey } from "@workspace/shared-data";
 
 const MOCK_PAPERS = [
   { id: 1, title: "Predictive Paper #1", questions: 38, marks: 80, duration: "3 hrs", difficulty: "Moderate" },
@@ -21,7 +22,7 @@ const MOCK_PAPERS = [
   { id: 3, title: "Predictive Paper #3", questions: 38, marks: 80, duration: "3 hrs", difficulty: "Easy-Moderate" },
 ];
 
-export default function MockTestsScreen() {
+export default function PracticeScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const [subject, setSubject] = useState<LTSubjectKey>("Maths");
@@ -34,12 +35,44 @@ export default function MockTestsScreen() {
       contentContainerStyle={[styles.content, { paddingTop: topPad + insets.top + 16 }]}
       showsVerticalScrollIndicator={false}
     >
-      <Text style={[styles.heading, { color: colors.foreground }]}>Mock Tests</Text>
+      <Text style={[styles.heading, { color: colors.foreground }]}>Practice</Text>
       <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
-        AI-predicted exam papers matching CBSE blueprint
+        AI-predicted exam papers & practice questions
       </Text>
 
       <SubjectToggle selected={subject} onChange={setSubject} />
+
+      <Pressable
+        style={[styles.examCard, { backgroundColor: colors.primary }]}
+        onPress={() => router.push({ pathname: "/exam-simulation", params: { subject } })}
+      >
+        <View style={styles.examCardContent}>
+          <View style={[styles.examIcon, { backgroundColor: "rgba(255,255,255,0.2)" }]}>
+            <Feather name="clock" size={24} color="#fff" />
+          </View>
+          <View style={styles.examTextCol}>
+            <Text style={styles.examTitle}>Start Exam Simulation</Text>
+            <Text style={styles.examSubtitle}>Full 80-mark, 3-hour mock test with timer</Text>
+          </View>
+          <Feather name="chevron-right" size={20} color="rgba(255,255,255,0.8)" />
+        </View>
+      </Pressable>
+
+      <Pressable
+        style={[styles.hpqCard, { backgroundColor: colors.gold + "15", borderColor: colors.gold }]}
+        onPress={() => router.push({ pathname: "/hpq", params: { subject } })}
+      >
+        <View style={styles.examCardContent}>
+          <View style={[styles.examIcon, { backgroundColor: colors.gold + "30" }]}>
+            <Feather name="zap" size={24} color={colors.gold} />
+          </View>
+          <View style={styles.examTextCol}>
+            <Text style={[styles.hpqTitle, { color: colors.foreground }]}>Predicted Questions</Text>
+            <Text style={[styles.hpqSubtitle, { color: colors.mutedForeground }]}>AI-predicted highly probable questions</Text>
+          </View>
+          <Feather name="chevron-right" size={20} color={colors.gold} />
+        </View>
+      </Pressable>
 
       <View style={[styles.infoCard, { backgroundColor: colors.secondary + "15", borderColor: colors.secondary }]}>
         <Feather name="info" size={16} color={colors.secondary} />
@@ -47,6 +80,8 @@ export default function MockTestsScreen() {
           Each paper follows the exact CBSE blueprint: Sections A-E, 80 marks, 3 hours
         </Text>
       </View>
+
+      <Text style={[styles.sectionTitle, { color: colors.foreground }]}>Predictive Papers</Text>
 
       {MOCK_PAPERS.map((paper) => (
         <View
@@ -87,6 +122,7 @@ export default function MockTestsScreen() {
             </Pressable>
             <Pressable
               style={[styles.actionBtn, styles.primaryBtn, { backgroundColor: colors.primary }]}
+              onPress={() => router.push({ pathname: "/exam-simulation", params: { subject, paperId: String(paper.id) } })}
             >
               <Feather name="play" size={14} color="#fff" />
               <Text style={[styles.actionText, { color: "#fff" }]}>Start Exam</Text>
@@ -130,6 +166,58 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 16,
   },
+  examCard: {
+    borderRadius: 16,
+    padding: 18,
+    marginTop: 16,
+    marginBottom: 12,
+  },
+  hpqCard: {
+    borderRadius: 16,
+    padding: 18,
+    marginBottom: 12,
+    borderWidth: 1,
+  },
+  hpqTitle: {
+    fontFamily: "Inter_700Bold",
+    fontSize: 15,
+  },
+  hpqSubtitle: {
+    fontFamily: "Inter_400Regular",
+    fontSize: 12,
+    marginTop: 2,
+  },
+  examCardContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  examIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  examTextCol: {
+    flex: 1,
+  },
+  examTitle: {
+    fontFamily: "Inter_700Bold",
+    fontSize: 16,
+    color: "#fff",
+  },
+  examSubtitle: {
+    fontFamily: "Inter_400Regular",
+    fontSize: 12,
+    color: "rgba(255,255,255,0.85)",
+    marginTop: 2,
+  },
+  sectionTitle: {
+    fontFamily: "Inter_700Bold",
+    fontSize: 16,
+    marginBottom: 12,
+  },
   infoCard: {
     flexDirection: "row",
     alignItems: "center",
@@ -137,7 +225,6 @@ const styles = StyleSheet.create({
     padding: 14,
     borderRadius: 12,
     borderWidth: 1,
-    marginTop: 16,
     marginBottom: 20,
   },
   infoText: {

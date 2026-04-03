@@ -4,7 +4,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { useColors } from "@/hooks/useColors";
 import { TierBadge } from "./TierBadge";
-import type { TopicTier } from "@/data/types";
+import type { TopicTier } from "@workspace/shared-data";
 
 interface Props {
   topicName: string;

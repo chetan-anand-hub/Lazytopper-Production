@@ -25,7 +25,7 @@ const FEATURES = [
 export default function HomeScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { user } = useAuth();
+  const { user, signInAsGuest } = useAuth();
   const { isTrialActive, daysLeftInTrial, tier } = useSubscription();
   const topPad = Platform.OS === "web" ? 67 : 0;
 
@@ -51,10 +51,10 @@ export default function HomeScreen() {
             </Pressable>
             <Pressable
               style={[styles.heroCta, { backgroundColor: "rgba(255,255,255,0.2)" }]}
-              onPress={() => router.push("/(tabs)/mock-tests")}
+              onPress={() => router.push("/(tabs)/practice")}
             >
               <Feather name="file-text" size={16} color="#ffffff" />
-              <Text style={[styles.heroCtaText, { color: "#ffffff" }]}>Mock Tests</Text>
+              <Text style={[styles.heroCtaText, { color: "#ffffff" }]}>Practice</Text>
             </Pressable>
           </View>
         </View>

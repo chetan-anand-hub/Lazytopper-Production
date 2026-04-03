@@ -12,9 +12,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { SubjectToggle } from "@/components/SubjectToggle";
 import { TopicCard } from "@/components/TopicCard";
 import { useColors } from "@/hooks/useColors";
-import { mathTopicTrends } from "@/data/mathsTrends";
-import { scienceTopicTrends } from "@/data/scienceTrends";
-import type { LTSubjectKey, TopicTier } from "@/data/types";
+import { mathTopicTrends, scienceTopicTrends } from "@workspace/shared-data";
+import type { LTSubjectKey, TopicTier } from "@workspace/shared-data";
 
 const TIER_FILTERS: { label: string; value: TopicTier | "all" }[] = [
   { label: "All", value: "all" },
