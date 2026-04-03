@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useState, useEffect, useRef, type ReactNode } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
 import { UpgradeModal } from "../UpgradeModal";
@@ -46,8 +46,34 @@ export function MockViewGate({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
   const { isPremium } = useSubscription();
   const [showUpgrade, setShowUpgrade] = useState(false);
+  const [limitReached, setLimitReached] = useState(false);
+  const [ready, setReady] = useState(false);
+  const incrementedRef = useRef(false);
 
-  if (loading) {
+  const uid = user?.uid || null;
+
+  useEffect(() => {
+    if (loading) return;
+    if (user && isPremium) {
+      setReady(true);
+      return;
+    }
+    if (incrementedRef.current) {
+      setReady(true);
+      return;
+    }
+    const views = getDailyMockViews(uid);
+    if (views >= FREE_MOCK_LIMIT) {
+      setLimitReached(true);
+      setReady(true);
+    } else {
+      incrementDailyMockViews(uid);
+      incrementedRef.current = true;
+      setReady(true);
+    }
+  }, [loading, user, isPremium, uid]);
+
+  if (loading || !ready) {
     return (
       <div className="lt-page">
         <div className="card">
@@ -57,15 +83,11 @@ export function MockViewGate({ children }: { children: ReactNode }) {
     );
   }
 
-  const uid = user?.uid || null;
-
   if (user && isPremium) {
     return <>{children}</>;
   }
 
-  const views = getDailyMockViews(uid);
-
-  if (!user && views >= FREE_MOCK_LIMIT) {
+  if (!user && limitReached) {
     return (
       <div className="lt-page" style={{ textAlign: "center", paddingTop: 60 }}>
         <div style={{ fontSize: "3rem", marginBottom: 12 }}>📄</div>
@@ -91,7 +113,7 @@ export function MockViewGate({ children }: { children: ReactNode }) {
     );
   }
 
-  if (user && views >= FREE_MOCK_LIMIT) {
+  if (user && limitReached) {
     return (
       <div className="lt-page" style={{ textAlign: "center", paddingTop: 60 }}>
         <div style={{ fontSize: "3rem", marginBottom: 12 }}>📄</div>
@@ -125,6 +147,5 @@ export function MockViewGate({ children }: { children: ReactNode }) {
     );
   }
 
-  incrementDailyMockViews(uid);
   return <>{children}</>;
 }

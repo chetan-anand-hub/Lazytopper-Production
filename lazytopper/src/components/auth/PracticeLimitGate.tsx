@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useState, useEffect, useRef, type ReactNode } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
 import { getDailyPracticeCount, incrementDailyPracticeCount } from "../../services/featureGates";
@@ -11,6 +11,19 @@ export function PracticeLimitGate({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
   const { isPremium } = useSubscription();
   const [showUpgrade, setShowUpgrade] = useState(false);
+  const [limitReached, setLimitReached] = useState(false);
+  const incrementedRef = useRef(false);
+
+  useEffect(() => {
+    if (loading || !user || isPremium || incrementedRef.current) return;
+    const count = getDailyPracticeCount(user.uid);
+    if (count >= FREE_DAILY_LIMIT) {
+      setLimitReached(true);
+    } else {
+      incrementDailyPracticeCount(user.uid);
+      incrementedRef.current = true;
+    }
+  }, [loading, user, isPremium]);
 
   if (loading) {
     return (
@@ -30,8 +43,7 @@ export function PracticeLimitGate({ children }: { children: ReactNode }) {
     return <>{children}</>;
   }
 
-  const dailyCount = getDailyPracticeCount(user.uid);
-  if (dailyCount >= FREE_DAILY_LIMIT) {
+  if (limitReached) {
     return (
       <div className="lt-page" style={{ textAlign: "center", paddingTop: 60 }}>
         <div style={{ fontSize: "3rem", marginBottom: 12 }}>📝</div>
@@ -65,6 +77,5 @@ export function PracticeLimitGate({ children }: { children: ReactNode }) {
     );
   }
 
-  incrementDailyPracticeCount(user.uid);
   return <>{children}</>;
 }
