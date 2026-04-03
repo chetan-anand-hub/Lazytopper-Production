@@ -1,0 +1,8 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "iRUBeKti6UrnZ5JflcwH7"
+uri = "file://artifacts/lazytopper-mobile/assets/images/icon.png"
+type = "image"
+title = "generated_image"

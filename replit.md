@@ -52,6 +52,16 @@ The project is structured as a pnpm workspace monorepo.
 - **Login Page:** Clean branded page with Google OAuth, Phone OTP (with reCAPTCHA), and "Explore as Guest". Falls back to guest-only when Firebase is unavailable.
 - **Trial Countdown UI:** Navbar shows "⏳ Xd trial" badge for trial users, red "Upgrade" button for expired trial. Profile page shows subscription status card with tier, countdown, and upgrade button.
 
+## Mobile App (Expo)
+- **Artifact:** `artifacts/lazytopper-mobile` — Expo React Native app with 5 tabs (Home, Trends, Mock Tests, Progress, Profile).
+- **Design:** Duolingo-inspired palette matching the web app (#58cc02 green, #1cb0f6 blue, #ff9600 orange, #ffc800 gold).
+- **Data:** Copied trend data from `lazytopper/src/data/` into `data/mathsTrends.ts` and `data/scienceTrends.ts` (14 Maths + 13 Science topics with tiers, weightages, concepts).
+- **Auth:** Guest-only auth via AsyncStorage (`context/AuthContext.tsx`). Real Firebase auth to be added later.
+- **Subscription:** User-scoped AsyncStorage-based subscription context (`context/SubscriptionContext.tsx`) with free/trial/premium tiers, matching the web model.
+- **Components:** `TopicCard`, `SubjectToggle`, `TierBadge` — reusable across screens.
+- **Navigation:** NativeTabs (iOS 26 liquid glass) with classic Tabs fallback. Headers hidden, content uses `useSafeAreaInsets`.
+- **No backend dependency:** Uses AsyncStorage for all persistence. No API server or database needed.
+
 ## System Design Choices
 - **TypeScript:** Used consistently across the monorepo for type safety.
 - **Composite Projects:** All packages use TypeScript composite projects with project references for efficient type-checking and build processes.
