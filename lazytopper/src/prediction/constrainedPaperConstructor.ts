@@ -191,6 +191,8 @@ function enforceGuaranteedArchetypes(args: {
   const guaranteedList = getGuaranteedArchetypes(subject);
   const diagnostics: GuaranteedArchetypeDiagnostic[] = [];
 
+  const usedIds = new Set(out.map(q => q.id));
+
   for (const arch of guaranteedList) {
     const alreadyIncluded = out.some(
       q => fuzzyMatchPaper(q.topicKey, arch.topic) && fuzzyMatchPaper(q.subtopic, arch.subtopic)
@@ -201,7 +203,7 @@ function enforceGuaranteedArchetypes(args: {
     }
 
     const replacement = allCandidates.find(
-      c => fuzzyMatchPaper(c.topicKey, arch.topic) && fuzzyMatchPaper(c.subtopic, arch.subtopic)
+      c => fuzzyMatchPaper(c.topicKey, arch.topic) && fuzzyMatchPaper(c.subtopic, arch.subtopic) && !usedIds.has(c.id)
     );
     if (!replacement) {
       diagnostics.push({ topic: arch.topic, subtopic: arch.subtopic, included: false, reason: "no matching candidate in question bank" });
@@ -216,7 +218,10 @@ function enforceGuaranteedArchetypes(args: {
     });
 
     if (swapIdx >= 0) {
-      out[swapIdx] = replacement;
+      const clone = { ...replacement };
+      usedIds.delete(out[swapIdx].id);
+      out[swapIdx] = clone;
+      usedIds.add(clone.id);
       diagnostics.push({ topic: arch.topic, subtopic: arch.subtopic, included: true, reason: "swapped in (same section, same marks, lower score)" });
       continue;
     }
@@ -229,7 +234,10 @@ function enforceGuaranteedArchetypes(args: {
     });
 
     if (fallbackIdx >= 0) {
-      out[fallbackIdx] = replacement;
+      const clone = { ...replacement };
+      usedIds.delete(out[fallbackIdx].id);
+      out[fallbackIdx] = clone;
+      usedIds.add(clone.id);
       diagnostics.push({ topic: arch.topic, subtopic: arch.subtopic, included: true, reason: "swapped in (same section, same marks, fallback)" });
       continue;
     }
@@ -242,27 +250,15 @@ function enforceGuaranteedArchetypes(args: {
 
     if (crossSectionIdx >= 0) {
       const displaced = out[crossSectionIdx];
-      replacement.section = displaced.section as PaperSection;
-      out[crossSectionIdx] = replacement;
+      const clone = { ...replacement, section: displaced.section as PaperSection };
+      usedIds.delete(displaced.id);
+      out[crossSectionIdx] = clone;
+      usedIds.add(clone.id);
       diagnostics.push({ topic: arch.topic, subtopic: arch.subtopic, included: true, reason: `forced inclusion (cross-section swap from ${displaced.section})` });
       continue;
     }
 
-    const anyNonGuaranteedIdx = out.findIndex(q => {
-      const qGuaranteed = isGuaranteedArchetype(subject, q.topicKey, q.subtopic);
-      return qGuaranteed === null;
-    });
-
-    if (anyNonGuaranteedIdx >= 0) {
-      const displaced = out[anyNonGuaranteedIdx];
-      replacement.section = displaced.section as PaperSection;
-      replacement.marks = displaced.marks;
-      out[anyNonGuaranteedIdx] = replacement;
-      diagnostics.push({ topic: arch.topic, subtopic: arch.subtopic, included: true, reason: `forced inclusion (marks adjusted from ${replacement.marks} to ${displaced.marks}, section ${displaced.section})` });
-      continue;
-    }
-
-    diagnostics.push({ topic: arch.topic, subtopic: arch.subtopic, included: false, reason: "no candidate in question bank for this archetype" });
+    diagnostics.push({ topic: arch.topic, subtopic: arch.subtopic, included: false, reason: "no compatible swap slot found" });
   }
 
   return { result: out, diagnostics };

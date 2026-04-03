@@ -63,14 +63,13 @@ export interface GeneratedPaper {
   subject: SubjectKey;
   totalMarks: number;
 
-  // Per-section list of selected questions
   sections: Record<SectionKey, GeneratedQuestionSlot[]>;
 
-  // Marks distribution by topic (key as in trends objects)
   topicMarks: Record<string, number>;
 
-  // Marks distribution by difficulty
   difficultyMarks: Record<DifficultyKey, number>;
+
+  backtestGatePassed?: boolean;
 }
 
 // ----------------- Debug summary types -----------------
@@ -304,7 +303,7 @@ export function generatePaper(paperId: string): GeneratedPaper {
       });
     });
 
-    checkBacktestGate(subject);
+    const gatePassed = checkBacktestGate(subject);
 
     return {
       paperId,
@@ -313,6 +312,7 @@ export function generatePaper(paperId: string): GeneratedPaper {
       sections: sectionsFromConstrained,
       topicMarks,
       difficultyMarks: finalDifficultyMarks,
+      backtestGatePassed: gatePassed,
     };
   }
 

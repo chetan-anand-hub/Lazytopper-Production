@@ -273,7 +273,7 @@ export interface BacktestGateResult {
 
 export function runBacktestAcceptanceGate(
   subject: "Maths" | "Science",
-  testYears: number[] = [2023, 2024],
+  testYears: number[] = [2023, 2024, 2025],
   targetAccuracy: number = 0.60,
   weights: FiveSignalWeights = DEFAULT_SIGNAL_WEIGHTS
 ): BacktestGateResult {
