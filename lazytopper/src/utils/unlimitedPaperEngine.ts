@@ -2,12 +2,15 @@ import { PredictionCore } from "../data/predictionCore";
 import type { CanonicalQuestion, SectionKey, LTSubjectKey } from "../data/predictionTypes";
 import { getActiveProgressUser } from "../services/studentProgressStore";
 import { class10TopicTrendList } from "../data/class10MathTopicTrends";
-import { class10ScienceTopicTrendList } from "../data/class10ScienceTopicTrends";
-import type { Class10ScienceTopicKey } from "../data/class10ScienceTopicTrends";
+import {
+  class10ScienceTopicTrendList,
+  type Class10ScienceTopicKey,
+} from "../data/class10ScienceTopicTrends";
 import {
   getGuaranteedArchetypes,
   type GuaranteedArchetype,
 } from "../prediction/guaranteedArchetypes";
+import { SCIENCE_STREAM_BY_TOPIC } from "./scienceStreamMap";
 
 export interface ExamQuestion {
   main: CanonicalQuestion;
@@ -180,24 +183,10 @@ function canonicalTopicKey(topicKey: string, subject: LTSubjectKey): string {
   return SCIENCE_TOPIC_TO_SLUG[topicKey] ?? topicKey;
 }
 
-const PHYSICS_SLUGS: Set<Class10ScienceTopicKey> = new Set([
-  "Light", "HumanEyeAndColourfulWorld", "Electricity", "MagneticEffects",
-]);
-const CHEMISTRY_SLUGS: Set<Class10ScienceTopicKey> = new Set([
-  "ChemicalReactions", "AcidsBasesSalts", "MetalsNonMetals", "CarbonCompounds",
-]);
-const BIOLOGY_SLUGS: Set<Class10ScienceTopicKey> = new Set([
-  "LifeProcesses", "ControlAndCoordination", "Reproduction",
-  "HeredityEvolution", "OurEnvironment",
-]);
-
 function getScienceStream(topicKey: string, subject: LTSubjectKey): "Physics" | "Chemistry" | "Biology" | null {
   if (subject !== "Science") return null;
   const slug = canonicalTopicKey(topicKey, subject) as Class10ScienceTopicKey;
-  if (PHYSICS_SLUGS.has(slug)) return "Physics";
-  if (CHEMISTRY_SLUGS.has(slug)) return "Chemistry";
-  if (BIOLOGY_SLUGS.has(slug)) return "Biology";
-  return null;
+  return SCIENCE_STREAM_BY_TOPIC[slug] ?? null;
 }
 
 const SCIENCE_STREAM_TARGETS: Record<string, number> = {
@@ -421,12 +410,19 @@ export function generateUnlimitedPaper(subject: LTSubjectKey, seed?: number): Ex
 
   let finalPaper = bestPaper!;
 
-  if (subject === "Science" && !checkScienceStreamBalance(finalPaper)) {
-    finalPaper = repairStreamBalance(finalPaper, all);
-  }
+  for (let repairPass = 0; repairPass < 3; repairPass++) {
+    const streamOk = subject !== "Science" || checkScienceStreamBalance(finalPaper);
+    const archetypeOk = countArchetypesInPaper(finalPaper, archetypes) >= MIN_GUARANTEED_ARCHETYPES;
 
-  if (countArchetypesInPaper(finalPaper, archetypes) < MIN_GUARANTEED_ARCHETYPES) {
-    finalPaper = repairArchetypes(finalPaper, all, archetypes);
+    if (streamOk && archetypeOk) break;
+
+    if (!archetypeOk) {
+      finalPaper = repairArchetypes(finalPaper, all, archetypes);
+    }
+
+    if (subject === "Science" && !checkScienceStreamBalance(finalPaper)) {
+      finalPaper = repairStreamBalance(finalPaper, all);
+    }
   }
 
   const allIds: string[] = [];

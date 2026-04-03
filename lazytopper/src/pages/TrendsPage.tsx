@@ -82,26 +82,7 @@ function normaliseSubject(raw?: string): SubjectKey {
   return "Maths";
 }
 
-// Map each science topic to a stream so the filter works
-const SCIENCE_STREAM_BY_TOPIC: Partial<
-  Record<Class10ScienceTopicKey, "Physics" | "Chemistry" | "Biology">
-> = {
-  ChemicalReactions: "Chemistry",
-  AcidsBasesSalts: "Chemistry",
-  MetalsNonMetals: "Chemistry",
-  CarbonCompounds: "Chemistry",
-
-  LifeProcesses: "Biology",
-  ControlAndCoordination: "Biology",
-  Reproduction: "Biology",
-  HeredityEvolution: "Biology",
-  OurEnvironment: "Biology",
-
-  Light: "Physics",
-  HumanEyeAndColourfulWorld: "Physics",
-  Electricity: "Physics",
-  MagneticEffects: "Physics",
-};
+import { SCIENCE_STREAM_BY_TOPIC } from "../utils/scienceStreamMap";
 
 interface NormalisedDataset {
   topicEntries: [string, TopicMeta][];
