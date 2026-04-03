@@ -466,7 +466,12 @@ function ReviewPhase({ paper, analytics, answers, onGoToWeakPractice, onRetake, 
             }}>
               <div style={{ fontSize: "0.72rem", fontWeight: 700, color: SECTION_COLORS[sb.section] }}>Section {sb.section}</div>
               <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "#1e293b" }}>{sb.scored}/{sb.maxMarks}</div>
-              <div style={{ fontSize: "0.72rem", color: "#94a3b8" }}>{sb.percent}%</div>
+              <div style={{ fontSize: "0.72rem", color: "#94a3b8" }}>{sb.percent}% accuracy</div>
+              {analytics.timeAnalysis.perSectionSeconds[sb.section] != null && (
+                <div style={{ fontSize: "0.68rem", color: "#64748b", marginTop: 2 }}>
+                  {formatTime(analytics.timeAnalysis.perSectionSeconds[sb.section])}
+                </div>
+              )}
             </div>
           ))}
         </div>

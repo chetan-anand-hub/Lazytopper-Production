@@ -182,6 +182,15 @@ function matchesSection(q: CanonicalQuestion, section: SectionKey, marks: number
   return false;
 }
 
+function weightedShuffleByScore(arr: CanonicalQuestion[], rng: () => number): CanonicalQuestion[] {
+  const scored = arr.map(q => ({
+    q,
+    weight: (q.predictionScore ?? 50) / 100 + 0.3 + rng() * 0.4,
+  }));
+  scored.sort((a, b) => b.weight - a.weight);
+  return scored.map(s => s.q);
+}
+
 export function buildTopicMockPaper(
   topicKey: string,
   subject: LTSubjectKey,
@@ -213,27 +222,32 @@ export function buildTopicMockPaper(
     const sectionPool = pool
       .filter(q => matchesSection(q, bp.section, bp.marks) && !usedIds.has(q.id));
 
-    const shuffled = shuffleWithSeed(sectionPool, rng);
+    const ranked = weightedShuffleByScore(sectionPool, rng);
     const hasChoice = INTERNAL_CHOICE_SECTIONS.has(bp.section);
-
-    const needed = hasChoice ? bp.count * 2 : bp.count;
-    const selected = shuffled.slice(0, needed);
 
     const questions: TopicMockQuestion[] = [];
     if (hasChoice) {
-      for (let i = 0; i < bp.count; i++) {
-        const main = selected[i * 2];
-        const or = selected[i * 2 + 1];
-        if (main) {
-          usedIds.add(main.id);
-          if (or) usedIds.add(or.id);
-          questions.push({ main, or: or || undefined });
+      let cursor = 0;
+      for (let i = 0; i < bp.count && cursor < ranked.length; i++) {
+        const main = ranked[cursor++];
+        usedIds.add(main.id);
+        let or: CanonicalQuestion | undefined;
+        while (cursor < ranked.length) {
+          const candidate = ranked[cursor];
+          if (!usedIds.has(candidate.id)) {
+            or = candidate;
+            usedIds.add(candidate.id);
+            cursor++;
+            break;
+          }
+          cursor++;
         }
+        questions.push({ main, or });
       }
     } else {
-      for (let i = 0; i < bp.count && i < selected.length; i++) {
-        usedIds.add(selected[i].id);
-        questions.push({ main: selected[i] });
+      for (let i = 0; i < bp.count && i < ranked.length; i++) {
+        usedIds.add(ranked[i].id);
+        questions.push({ main: ranked[i] });
       }
     }
 
