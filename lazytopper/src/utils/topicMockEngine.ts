@@ -91,14 +91,6 @@ function seededRandom(seed: number): () => number {
   };
 }
 
-function shuffleWithSeed<T>(arr: T[], rng: () => number): T[] {
-  const out = arr.slice();
-  for (let i = out.length - 1; i > 0; i--) {
-    const j = Math.floor(rng() * (i + 1));
-    [out[i], out[j]] = [out[j], out[i]];
-  }
-  return out;
-}
 
 function hashString(str: string): number {
   let h = 0;
@@ -313,17 +305,23 @@ function buildSetFamily(topicKey: string, subject: LTSubjectKey, count: number, 
   const baseSeed = hashString(`${topicKey}-${subject}`);
 
   for (let setIdx = 1; setIdx <= count; setIdx++) {
-    let bestPaper: TopicMockPaper | null = null;
-    for (let attempt = 0; attempt < 5; attempt++) {
+    let accepted: TopicMockPaper | null = null;
+    for (let attempt = 0; attempt < 10; attempt++) {
       const seed = baseSeed + setIdx * 7919 + attempt * 3571;
       const candidate = buildSinglePaper(topicKey, subject, setIdx, seed, topicDisplayName);
       if (pairwiseOverlapOk(candidate, family, MAX_OVERLAP_PERCENT)) {
-        bestPaper = candidate;
+        accepted = candidate;
         break;
       }
-      if (!bestPaper) bestPaper = candidate;
     }
-    family.push(bestPaper!);
+    if (accepted) {
+      family.push(accepted);
+    }
+  }
+
+  if (family.length === 0) {
+    const fallback = buildSinglePaper(topicKey, subject, 1, baseSeed + 7919, topicDisplayName);
+    family.push(fallback);
   }
 
   setFamilyCache.set(cacheKey, family);
@@ -336,18 +334,24 @@ export function buildTopicMockPaper(
   setIndex: number,
   topicDisplayName?: string,
 ): TopicMockPaper {
-  const count = getAvailableSetCount(topicKey, subject);
+  const count = targetSetCount(topicKey, subject);
   const family = buildSetFamily(topicKey, subject, count, topicDisplayName);
   const idx = Math.max(0, Math.min(setIndex - 1, family.length - 1));
   return family[idx];
 }
 
-export function getAvailableSetCount(topicKey: string, subject: LTSubjectKey): number {
+function targetSetCount(topicKey: string, subject: LTSubjectKey): number {
   const pool = getTopicPool(topicKey, subject);
   const totalAvailable = pool.length;
   if (totalAvailable === 0) return 5;
   if (totalAvailable < 30) return 5;
   return Math.min(8, Math.floor(totalAvailable / 5));
+}
+
+export function getAvailableSetCount(topicKey: string, subject: LTSubjectKey): number {
+  const count = targetSetCount(topicKey, subject);
+  const family = buildSetFamily(topicKey, subject, count);
+  return family.length;
 }
 
 export function computeOverlapPercent(paperA: TopicMockPaper, paperB: TopicMockPaper): number {

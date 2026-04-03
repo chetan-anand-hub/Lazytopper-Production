@@ -50,7 +50,8 @@ export default function TopicMockPage() {
   const rawTopicKey = params.topicKey || sp.get("topic") || "";
   const topicKey = normalizeTopicKey(rawTopicKey) || rawTopicKey;
   const topicName = resolveTopicDisplayName(subject, topicKey);
-  const setFromUrl = parseInt(sp.get("set") || "1", 10);
+  const parsedSet = parseInt(sp.get("set") || "1", 10);
+  const setFromUrl = Number.isFinite(parsedSet) && parsedSet >= 1 ? parsedSet : 1;
 
   const navState = (location.state as { back?: string; backLabel?: string } | null) || null;
   const backTo = navState?.back || `/topic-hub/${grade}/${subject.toLowerCase()}/${topicKey}`;
