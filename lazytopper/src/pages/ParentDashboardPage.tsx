@@ -6,8 +6,6 @@ import { getWeakAreas, type WeakAreaSummary } from "../services/weakAreaAggregat
 import { useSmartLearning } from "../engine/smartLearningStore";
 import { useAuth } from "../context/AuthContext";
 import { getLatestMockScores, type MockScoreEntry } from "../services/mockScoreHistory";
-import { doc, getDoc } from "firebase/firestore";
-import { firestoreDb } from "../services/firebaseClient";
 
 const TOPIC_NAMES: Record<string, string> = {
   "real-numbers": "Real Numbers", polynomials: "Polynomials",
@@ -155,11 +153,27 @@ function parseShareParams(): { shareToken: string | null; studentName: string | 
   return { shareToken, studentName, sharedUid: null };
 }
 
-async function verifyShareToken(token: string): Promise<{ uid: string; studentName: string } | null> {
+interface SharedReportData {
+  studentName: string;
+  insights: PracticeInsights | null;
+  mockScores: MockScoreEntry[];
+  weakAreas: WeakAreaSummary | null;
+  topicMastery: Record<string, number> | null;
+}
+
+async function fetchSharedReport(token: string): Promise<SharedReportData | null> {
   try {
-    const res = await fetch(`/api/verify-share-token?token=${encodeURIComponent(token)}`);
+    const res = await fetch(`/api/shared-report?token=${encodeURIComponent(token)}`);
     const data = await res.json();
-    if (data.ok && data.uid) return { uid: data.uid, studentName: data.studentName || "Student" };
+    if (data.ok) {
+      return {
+        studentName: data.studentName || "Student",
+        insights: data.insights || null,
+        mockScores: data.mockScores || [],
+        weakAreas: data.weakAreas || null,
+        topicMastery: data.topicMastery || null,
+      };
+    }
   } catch {}
   return null;
 }
@@ -173,72 +187,42 @@ export default function ParentDashboardPage() {
 
   const { shareToken } = parseShareParams();
 
-  const [verifiedShare, setVerifiedShare] = useState<{ uid: string; studentName: string } | null>(null);
+  const [sharedReport, setSharedReport] = useState<SharedReportData | null>(null);
   const [shareVerified, setShareVerified] = useState(!shareToken);
+  const [shareError, setShareError] = useState(false);
 
   useEffect(() => {
     if (!shareToken) return;
-    verifyShareToken(shareToken).then((result) => {
-      setVerifiedShare(result);
+    fetchSharedReport(shareToken).then((result) => {
+      if (result) {
+        setSharedReport(result);
+      } else {
+        setShareError(true);
+      }
       setShareVerified(true);
     });
   }, [shareToken]);
 
-  const isSharedView = !!verifiedShare;
-  const sharedUid = verifiedShare?.uid || null;
-  const displayName = isSharedView ? (verifiedShare.studentName || "Student") : (user?.displayName || "Student");
-
-  const [sharedData, setSharedData] = useState<{
-    insights?: PracticeInsights;
-    mockScores?: MockScoreEntry[];
-    weakAreas?: WeakAreaSummary;
-    topicMastery?: Record<string, number>;
-    loaded: boolean;
-  }>({ loaded: false });
-
-  useEffect(() => {
-    if (!isSharedView || !sharedUid || !firestoreDb) {
-      setSharedData({ loaded: true });
-      return;
-    }
-    (async () => {
-      try {
-        const [insightsSnap, mockSnap, weakSnap, masterySnap] = await Promise.all([
-          getDoc(doc(firestoreDb, "practiceInsights", sharedUid)),
-          getDoc(doc(firestoreDb, "mockScoreHistory", sharedUid)),
-          getDoc(doc(firestoreDb, "weakAreaSummary", sharedUid)),
-          getDoc(doc(firestoreDb, "topicMastery", sharedUid)),
-        ]);
-        setSharedData({
-          insights: insightsSnap.exists() ? (insightsSnap.data() as PracticeInsights) : undefined,
-          mockScores: mockSnap.exists() ? ((mockSnap.data() as { entries: MockScoreEntry[] }).entries || []) : undefined,
-          weakAreas: weakSnap.exists() ? (weakSnap.data() as WeakAreaSummary) : undefined,
-          topicMastery: masterySnap.exists() ? (masterySnap.data() as Record<string, number>) : undefined,
-          loaded: true,
-        });
-      } catch {
-        setSharedData({ loaded: true });
-      }
-    })();
-  }, [isSharedView, sharedUid]);
+  const isSharedView = !!sharedReport;
+  const displayName = isSharedView ? (sharedReport.studentName || "Student") : (user?.displayName || "Student");
 
   const weakSummary = useMemo<WeakAreaSummary>(() => {
-    if (isSharedView) return sharedData.weakAreas || { weakAreas: [], totalWeak: 0, closedThisWeek: 0, overallMasteryPercent: 0 };
+    if (isSharedView) return sharedReport.weakAreas || { weakAreas: [], totalWeak: 0, closedThisWeek: 0, overallMasteryPercent: 0 };
     return getWeakAreas({ limit: 10 });
-  }, [isSharedView, sharedData]);
+  }, [isSharedView, sharedReport]);
 
   const mockScores = useMemo(() => {
-    if (isSharedView) return (sharedData.mockScores || []).slice(0, 10);
+    if (isSharedView) return (sharedReport.mockScores || []).slice(0, 10);
     return getLatestMockScores(10);
-  }, [isSharedView, sharedData]);
+  }, [isSharedView, sharedReport]);
 
   const insights = useMemo(() => {
-    if (isSharedView) return sharedData.insights || { attempts: [], totalCorrect: 0, totalAttempted: 0, subjects: {} } as PracticeInsights;
+    if (isSharedView) return sharedReport.insights || { attempts: [], totalCorrect: 0, totalAttempted: 0, subjects: {} } as PracticeInsights;
     return loadInsights();
-  }, [isSharedView, sharedData]);
+  }, [isSharedView, sharedReport]);
   const attempts = insights.attempts || [];
 
-  const sharedTopicMastery = isSharedView ? (sharedData.topicMastery || {}) : null;
+  const sharedTopicMastery = isSharedView ? (sharedReport.topicMastery || {}) : null;
 
   const overallStats = useMemo(() => {
     let correct = 0;
@@ -331,7 +315,7 @@ export default function ParentDashboardPage() {
     );
   }
 
-  if (shareToken && !verifiedShare) {
+  if (shareToken && shareError) {
     return (
       <div className="lt-page" style={{ paddingTop: 40, textAlign: "center" }}>
         <h2 style={{ color: "#e74c3c", fontWeight: 800 }}>Invalid or Expired Link</h2>

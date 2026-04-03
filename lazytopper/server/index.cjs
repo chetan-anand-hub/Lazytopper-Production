@@ -22,6 +22,22 @@ const fs = require('fs');
 const path = require('path');
 const ts = require('typescript');
 
+let firebaseAdmin = null;
+let adminFirestore = null;
+try {
+  const admin = require('firebase-admin');
+  const projectId = process.env.VITE_FIREBASE_PROJECT_ID;
+  if (projectId) {
+    if (!admin.apps.length) {
+      admin.initializeApp({ projectId });
+    }
+    firebaseAdmin = admin;
+    adminFirestore = admin.firestore();
+  }
+} catch (e) {
+  console.warn('[share] firebase-admin not available:', e.message);
+}
+
 require.extensions['.ts'] = (module, filename) => {
   try {
     const source = fs.readFileSync(filename, 'utf8');
@@ -4849,45 +4865,34 @@ async function handleRequest(req, res) {
   const SHARE_SECRET = process.env.SESSION_SECRET;
   if (!SHARE_SECRET && (
     (req.method === 'POST' && req.url === '/api/share-token') ||
-    (req.method === 'GET' && String(req.url || '').startsWith('/api/verify-share-token'))
+    (req.method === 'GET' && String(req.url || '').startsWith('/api/verify-share-token')) ||
+    (req.method === 'GET' && String(req.url || '').startsWith('/api/shared-report'))
   )) {
     return sendJson(res, 503, { ok: false, error: 'Share feature unavailable: SESSION_SECRET not configured' });
   }
 
   if (req.method === 'POST' && req.url === '/api/share-token') {
     try {
-      const body = await readJson(req);
-      const authHeader = String(req.headers['authorization'] || '');
-      const idToken = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
-
-      let uid = '';
-      let studentName = String(body.studentName || 'Student');
-
-      if (idToken) {
-        const parts = idToken.split('.');
-        if (parts.length === 3) {
-          try {
-            const payloadJson = Buffer.from(parts[1], 'base64url').toString('utf-8');
-            const claims = JSON.parse(payloadJson);
-            const firebaseProjectId = process.env.VITE_FIREBASE_PROJECT_ID || '';
-            if (claims.iss !== `https://securetoken.google.com/${firebaseProjectId}`) {
-              return sendJson(res, 401, { ok: false, error: 'Invalid token issuer' });
-            }
-            if (claims.exp && claims.exp < Math.floor(Date.now() / 1000)) {
-              return sendJson(res, 401, { ok: false, error: 'Firebase token expired' });
-            }
-            uid = String(claims.sub || claims.user_id || '');
-          } catch {
-            return sendJson(res, 401, { ok: false, error: 'Malformed Firebase token' });
-          }
-        } else {
-          return sendJson(res, 401, { ok: false, error: 'Invalid token format' });
-        }
-      } else {
-        uid = String(req.headers['x-lazytopper-uid'] || body.uid || '').trim();
+      if (!firebaseAdmin) {
+        return sendJson(res, 503, { ok: false, error: 'Firebase Admin not configured' });
       }
 
-      if (!uid) return sendJson(res, 401, { ok: false, error: 'Authentication required' });
+      const authHeader = String(req.headers['authorization'] || '');
+      const idToken = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
+      if (!idToken) {
+        return sendJson(res, 401, { ok: false, error: 'Authentication required: Bearer token missing' });
+      }
+
+      let uid = '';
+      try {
+        const decodedToken = await firebaseAdmin.auth().verifyIdToken(idToken);
+        uid = decodedToken.uid;
+      } catch (verifyErr) {
+        return sendJson(res, 401, { ok: false, error: 'Invalid Firebase token: ' + String(verifyErr.code || verifyErr.message || 'verification failed') });
+      }
+
+      const body = await readJson(req);
+      const studentName = String(body.studentName || 'Student');
 
       const expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000;
       const payload = JSON.stringify({ uid, studentName, expiresAt });
@@ -4924,6 +4929,58 @@ async function handleRequest(req, res) {
       }
 
       return sendJson(res, 200, { ok: true, uid: data.uid, studentName: data.studentName });
+    } catch (err) {
+      return sendJson(res, 500, { ok: false, error: String(err && err.message || err) });
+    }
+  }
+
+  // Shared report data endpoint — validates share token and returns scoped data from Firestore
+  if (req.method === 'GET' && String(req.url || '').startsWith('/api/shared-report')) {
+    try {
+      if (!adminFirestore) {
+        return sendJson(res, 503, { ok: false, error: 'Firestore Admin not configured' });
+      }
+
+      const reqUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+      const token = reqUrl.searchParams.get('token');
+      if (!token) return sendJson(res, 400, { ok: false, error: 'Missing token' });
+
+      const tokenParts = token.split('.');
+      if (tokenParts.length !== 2) return sendJson(res, 400, { ok: false, error: 'Invalid token format' });
+
+      const [payloadB64, sig] = tokenParts;
+      const tokenPayload = Buffer.from(payloadB64, 'base64url').toString('utf-8');
+      const expectedSig = crypto.createHmac('sha256', SHARE_SECRET).update(tokenPayload).digest('hex');
+
+      const sigBuf = Buffer.from(sig, 'hex');
+      const expectedBuf = Buffer.from(expectedSig, 'hex');
+      if (sigBuf.length !== expectedBuf.length || !crypto.timingSafeEqual(sigBuf, expectedBuf)) {
+        return sendJson(res, 403, { ok: false, error: 'Invalid token signature' });
+      }
+
+      const tokenData = JSON.parse(tokenPayload);
+      if (tokenData.expiresAt && Date.now() > tokenData.expiresAt) {
+        return sendJson(res, 403, { ok: false, error: 'Token expired' });
+      }
+
+      const studentUid = tokenData.uid;
+      const studentName = tokenData.studentName || 'Student';
+
+      const [insightsDoc, mockScoresDoc, weakAreasDoc, topicMasteryDoc] = await Promise.all([
+        adminFirestore.collection('practiceInsights').doc(studentUid).get(),
+        adminFirestore.collection('mockScoreHistory').doc(studentUid).get(),
+        adminFirestore.collection('weakAreaSummary').doc(studentUid).get(),
+        adminFirestore.collection('topicMastery').doc(studentUid).get(),
+      ]);
+
+      return sendJson(res, 200, {
+        ok: true,
+        studentName,
+        insights: insightsDoc.exists ? insightsDoc.data() : null,
+        mockScores: mockScoresDoc.exists ? (mockScoresDoc.data().entries || []) : [],
+        weakAreas: weakAreasDoc.exists ? weakAreasDoc.data() : null,
+        topicMastery: topicMasteryDoc.exists ? topicMasteryDoc.data() : null,
+      });
     } catch (err) {
       return sendJson(res, 500, { ok: false, error: String(err && err.message || err) });
     }
