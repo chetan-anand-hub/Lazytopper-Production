@@ -156,21 +156,24 @@ function useCountdown() {
   return cd;
 }
 
-function useAnimatedCounter(target: number, duration = 2000) {
-  const [value, setValue] = useState(0);
+function useAnimatedCounters(targets: number[], duration = 2000) {
+  const [values, setValues] = useState<number[]>(targets.map(() => 0));
   const ref = useRef<HTMLDivElement>(null);
+  const animatedRef = useRef(false);
+
   useEffect(() => {
     const el = ref.current;
-    if (!el) return;
+    if (!el || animatedRef.current) return;
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
+        if (entry.isIntersecting && !animatedRef.current) {
+          animatedRef.current = true;
           const start = performance.now();
           const animate = (now: number) => {
             const elapsed = now - start;
             const progress = Math.min(elapsed / duration, 1);
             const eased = 1 - Math.pow(1 - progress, 3);
-            setValue(Math.round(eased * target));
+            setValues(targets.map((t) => Math.round(eased * t)));
             if (progress < 1) requestAnimationFrame(animate);
           };
           requestAnimationFrame(animate);
@@ -181,8 +184,9 @@ function useAnimatedCounter(target: number, duration = 2000) {
     );
     observer.observe(el);
     return () => observer.disconnect();
-  }, [target, duration]);
-  return { value, ref };
+  }, [targets, duration]);
+
+  return { values, ref };
 }
 
 function FAQAccordion({ items }: { items: typeof FAQ }) {
@@ -235,9 +239,8 @@ function WhatsAppShareButton() {
 const Home: React.FC = () => {
   const navigate = useNavigate();
   const countdown = useCountdown();
-  const studentsCounter = useAnimatedCounter(12847);
-  const questionsCounter = useAnimatedCounter(500);
-  const accuracyCounter = useAnimatedCounter(94);
+  const COUNTER_TARGETS = [12847, 500, 94];
+  const counters = useAnimatedCounters(COUNTER_TARGETS);
 
   useEffect(() => {
     const host = window.location.hostname.toLowerCase();
@@ -422,17 +425,17 @@ const Home: React.FC = () => {
         </section>
 
         {/* TRUST BAR */}
-        <section className="lt-trust-bar" aria-label="Trust statistics" ref={studentsCounter.ref}>
+        <section className="lt-trust-bar" aria-label="Trust statistics" ref={counters.ref}>
           <div className="lt-trust-bar__item">
-            <span className="lt-trust-bar__num">{studentsCounter.value.toLocaleString("en-IN")}+</span>
+            <span className="lt-trust-bar__num">{counters.values[0].toLocaleString("en-IN")}+</span>
             <span className="lt-trust-bar__label">Students joined</span>
           </div>
           <div className="lt-trust-bar__item">
-            <span className="lt-trust-bar__num">{questionsCounter.value}+</span>
+            <span className="lt-trust-bar__num">{counters.values[1]}+</span>
             <span className="lt-trust-bar__label">Practice questions</span>
           </div>
           <div className="lt-trust-bar__item">
-            <span className="lt-trust-bar__num">{accuracyCounter.value}%</span>
+            <span className="lt-trust-bar__num">{counters.values[2]}%</span>
             <span className="lt-trust-bar__label">Topic prediction accuracy</span>
           </div>
           <div className="lt-trust-bar__item">
