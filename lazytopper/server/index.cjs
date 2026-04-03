@@ -28,11 +28,25 @@ try {
   const admin = require('firebase-admin');
   const projectId = process.env.VITE_FIREBASE_PROJECT_ID;
   if (projectId) {
+    const hasCredentials = !!(
+      process.env.GOOGLE_APPLICATION_CREDENTIALS ||
+      process.env.FIREBASE_SERVICE_ACCOUNT_KEY ||
+      process.env.GCLOUD_PROJECT
+    );
+    const initConfig = { projectId };
+    if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
+      try {
+        initConfig.credential = admin.credential.cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY));
+      } catch {}
+    }
     if (!admin.apps.length) {
-      admin.initializeApp({ projectId });
+      admin.initializeApp(initConfig);
     }
     firebaseAdmin = admin;
     adminFirestore = admin.firestore();
+    console.log(`[share] Firebase Admin initialized (projectId=${projectId}, credentials=${hasCredentials ? 'explicit' : 'default/ADC'})`);
+  } else {
+    console.warn('[share] Firebase Admin not initialized: VITE_FIREBASE_PROJECT_ID not set. Share features disabled.');
   }
 } catch (e) {
   console.warn('[share] firebase-admin not available:', e.message);

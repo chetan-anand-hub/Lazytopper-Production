@@ -1248,6 +1248,7 @@ const packTopicKey = useMemo(() => {
                   ? `/highly-probable/${grade}/${subjectKey}?topic=${encodeURIComponent(canonicalTopicKey)}`
                   : `/highly-probable/${grade}/${subjectKey}`,
             },
+            { label: "Fix Weak Areas", to: "/weak-area-practice" },
           ]}
         />
         <JourneyStrip
