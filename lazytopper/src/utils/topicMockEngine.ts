@@ -304,6 +304,7 @@ function buildSetFamily(topicKey: string, subject: LTSubjectKey, count: number, 
   const family: TopicMockPaper[] = [];
   const baseSeed = hashString(`${topicKey}-${subject}`);
 
+  let fallbackCount = 0;
   for (let setIdx = 1; setIdx <= count; setIdx++) {
     let accepted: TopicMockPaper | null = null;
     for (let attempt = 0; attempt < 50; attempt++) {
@@ -320,9 +321,14 @@ function buildSetFamily(topicKey: string, subject: LTSubjectKey, count: number, 
   }
 
   while (family.length < count) {
+    fallbackCount++;
     const setIdx = family.length + 1;
     const seed = baseSeed + setIdx * 13337 + family.length * 9929;
     family.push(buildSinglePaper(topicKey, subject, setIdx, seed, topicDisplayName));
+  }
+
+  if (fallbackCount > 0 && typeof console !== "undefined") {
+    console.debug(`[TopicMock] ${topicKey}: ${fallbackCount}/${count} sets used overlap fallback`);
   }
 
   setFamilyCache.set(cacheKey, family);
