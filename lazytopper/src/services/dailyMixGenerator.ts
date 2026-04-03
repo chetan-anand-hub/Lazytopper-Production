@@ -292,5 +292,5 @@ export function generateMultiTopicDailyMix(opts: {
     }
   } catch {}
 
-  return allItems.slice(0, maxItems + 4);
+  return allItems.slice(0, maxItems);
 }

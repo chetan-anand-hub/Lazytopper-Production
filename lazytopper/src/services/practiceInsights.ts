@@ -110,6 +110,20 @@ export function recordAttempt(attempt: Omit<PracticeAttempt, "id"> & { id?: stri
     attempt.id ?? `${attempt.questionId}-${attempt.topicKey}-${Date.now().toString(36)}`;
   data.attempts.push({ ...attempt, id });
   saveInsights(data);
+
+  void import("./spacedRepetitionEngine").then((sr) => {
+    try {
+      const conceptKey = attempt.bloomSkill || attempt.questionId;
+      const subject = (attempt.subject === "Science" ? "Science" : "Maths") as "Maths" | "Science";
+
+      if (!attempt.correct) {
+        sr.addWrongAnswerToSR(attempt.topicKey, conceptKey, subject);
+      } else {
+        sr.addConceptToSR(attempt.topicKey, conceptKey, subject);
+        sr.reviewConcept(attempt.topicKey, conceptKey, 4);
+      }
+    } catch {}
+  }).catch(() => {});
 }
 
 /**

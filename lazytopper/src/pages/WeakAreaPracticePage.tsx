@@ -508,6 +508,7 @@ export default function WeakAreaPracticePage() {
           path={learningPath}
           onRefresh={() => {
             handleGeneratePath();
+            setRefreshKey((k) => k + 1);
           }}
         />
       )}

@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { loadInsights } from "../services/practiceInsights";
 import { loadTopicMasterySnapshot } from "../services/topicHubMastery";
@@ -163,8 +163,6 @@ export default function ParentDashboardPage() {
   }, [attempts]);
 
   const topicList = subjectTab === "Science" ? ALL_SCIENCE_TOPICS : ALL_MATHS_TOPICS;
-
-  const reportRef = useRef<HTMLDivElement>(null);
 
   const handleCopyLink = () => {
     const url = window.location.href;

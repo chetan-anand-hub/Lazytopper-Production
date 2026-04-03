@@ -1,6 +1,6 @@
 import { getWeakAreas, type WeakArea } from "./weakAreaAggregator";
 import { getDueReviews } from "./spacedRepetitionEngine";
-import { buildProgressScopeKey, getActiveProgressUser } from "./studentProgressStore";
+import { getActiveProgressUser } from "./studentProgressStore";
 import { callMentor } from "../ai/aiClient";
 
 export interface LearningPathDay {
@@ -35,7 +35,8 @@ export interface LearningPath {
 const STORAGE_KEY = "lazytopper.learningPath.v1";
 
 function getUserScopedKey(): string {
-  return buildProgressScopeKey("learningPath", getActiveProgressUser()) || STORAGE_KEY;
+  const uid = getActiveProgressUser() || "anonymous";
+  return `lazytopper.user.${uid}.learningPath.v1`;
 }
 const PREREQUISITE_ORDER: Record<string, string[]> = {
   "quadratic-equations": ["polynomials"],
@@ -198,7 +199,7 @@ export async function generateAILearningPath(options?: {
       hoursPerDayTotal: minutesPerDay / 60,
     });
 
-    const aiText = response?.data?.text || response?.data?.markdown || "";
+    const aiText = response?.data?.text || "";
 
     const localPath = generateLearningPath(options);
 
