@@ -682,20 +682,19 @@ function scoreQuestion(
     difficultyUsedMarks,
   } = ctx;
 
-  const topicKey = String((q as any).topicKey);
-  const topicWeight = topicWeights[topicKey] ?? 0;
-  const topicMult = topicMultipliers[topicKey] ?? 1;
+  const topicWeight = topicWeights[q.topicKey] ?? 0;
+  const topicMult = topicMultipliers[q.topicKey] ?? 1;
 
   const fiveSignalScore = computePredictionScore({
     subject: ctx.subject,
-    topicKey,
-    subtopic: (q as any).subtopic || "",
+    topicKey: q.topicKey,
+    subtopic: q.subtopic || "",
     marks: q.marks,
-    format: (q as any).kind || "Short",
-    bloomSkill: (q as any).bloomSkill || "Applying",
-    difficulty: (q as any).difficulty || "Medium",
-    policyTag: (q as any).policyTag || "",
-    pastBoardYear: (q as any).pastBoardYear || "",
+    format: q.kind || "Short",
+    bloomSkill: q.bloomSkill || "Applying",
+    difficulty: q.difficulty || "Medium",
+    policyTag: q.policyTag || "",
+    pastBoardYear: q.pastBoardYear || "",
   });
 
   const predictionSignal = fiveSignalScore / 5.0;
@@ -703,15 +702,14 @@ function scoreQuestion(
   const topicDiversityBoost = topicWeight * topicMult;
   const normalizedTopicBoost = Math.min(1, topicDiversityBoost);
 
-  const difficulty = (q as any).difficulty as DifficultyKey;
   let difficultyScore = 1;
 
-  if (difficulty === desiredDifficulty) {
+  if (q.difficulty === desiredDifficulty) {
     difficultyScore += 0.5;
   }
 
-  const target = difficultyTargetMarks[difficulty] || 1;
-  const used = difficultyUsedMarks[difficulty] || 0;
+  const target = difficultyTargetMarks[q.difficulty] || 1;
+  const used = difficultyUsedMarks[q.difficulty] || 0;
   const ratio = used / target;
   if (ratio > 1.1) {
     difficultyScore *= 0.5;

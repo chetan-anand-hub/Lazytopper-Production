@@ -20,6 +20,13 @@ export interface ConstrainedBlueprint {
   caseBasedMinCount?: number; // e.g. 3
 }
 
+export interface GuaranteedArchetypeDiagnostic {
+  topic: string;
+  subtopic: string;
+  included: boolean;
+  reason: string;
+}
+
 export interface ConstrainedPaperResult {
   selected: ConstrainedPaperCandidate[];
   bySection: Record<PaperSection, ConstrainedPaperCandidate[]>;
@@ -29,6 +36,8 @@ export interface ConstrainedPaperResult {
     caseBasedCount: number;
     objectiveScore: number;
     constraintsSatisfied: boolean;
+    guaranteedArchetypes: GuaranteedArchetypeDiagnostic[];
+    guaranteedAllIncluded: boolean;
   };
 }
 
@@ -175,21 +184,28 @@ function enforceGuaranteedArchetypes(args: {
   current: ConstrainedPaperCandidate[];
   allCandidates: ConstrainedPaperCandidate[];
   subject: "Maths" | "Science";
-}): ConstrainedPaperCandidate[] {
+}): { result: ConstrainedPaperCandidate[]; diagnostics: GuaranteedArchetypeDiagnostic[] } {
   const { current, allCandidates, subject } = args;
   const out = [...current];
   const guaranteedList = getGuaranteedArchetypes(subject);
+  const diagnostics: GuaranteedArchetypeDiagnostic[] = [];
 
   for (const arch of guaranteedList) {
     const alreadyIncluded = out.some(
       q => fuzzyMatchPaper(q.topicKey, arch.topic) && fuzzyMatchPaper(q.subtopic, arch.subtopic)
     );
-    if (alreadyIncluded) continue;
+    if (alreadyIncluded) {
+      diagnostics.push({ topic: arch.topic, subtopic: arch.subtopic, included: true, reason: "already selected by scoring" });
+      continue;
+    }
 
     const replacement = allCandidates.find(
       c => fuzzyMatchPaper(c.topicKey, arch.topic) && fuzzyMatchPaper(c.subtopic, arch.subtopic)
     );
-    if (!replacement) continue;
+    if (!replacement) {
+      diagnostics.push({ topic: arch.topic, subtopic: arch.subtopic, included: false, reason: "no matching candidate in question bank" });
+      continue;
+    }
 
     const swapIdx = out.findIndex(q => {
       if (q.section !== replacement.section) return false;
@@ -200,20 +216,41 @@ function enforceGuaranteedArchetypes(args: {
 
     if (swapIdx >= 0) {
       out[swapIdx] = replacement;
-    } else {
-      const fallbackIdx = out.findIndex(q => {
-        if (q.section !== replacement.section) return false;
-        if (q.marks !== replacement.marks) return false;
-        const qGuaranteed = isGuaranteedArchetype(subject, q.topicKey, q.subtopic);
-        return qGuaranteed === null;
-      });
-      if (fallbackIdx >= 0) {
-        out[fallbackIdx] = replacement;
-      }
+      diagnostics.push({ topic: arch.topic, subtopic: arch.subtopic, included: true, reason: "swapped in (same section, same marks, lower score)" });
+      continue;
     }
+
+    const fallbackIdx = out.findIndex(q => {
+      if (q.section !== replacement.section) return false;
+      if (q.marks !== replacement.marks) return false;
+      const qGuaranteed = isGuaranteedArchetype(subject, q.topicKey, q.subtopic);
+      return qGuaranteed === null;
+    });
+
+    if (fallbackIdx >= 0) {
+      out[fallbackIdx] = replacement;
+      diagnostics.push({ topic: arch.topic, subtopic: arch.subtopic, included: true, reason: "swapped in (same section, same marks, fallback)" });
+      continue;
+    }
+
+    const crossSectionIdx = out.findIndex(q => {
+      if (q.marks !== replacement.marks) return false;
+      const qGuaranteed = isGuaranteedArchetype(subject, q.topicKey, q.subtopic);
+      return qGuaranteed === null;
+    });
+
+    if (crossSectionIdx >= 0) {
+      const displaced = out[crossSectionIdx];
+      replacement.section = displaced.section as PaperSection;
+      out[crossSectionIdx] = replacement;
+      diagnostics.push({ topic: arch.topic, subtopic: arch.subtopic, included: true, reason: `forced inclusion (cross-section swap from ${displaced.section})` });
+      continue;
+    }
+
+    diagnostics.push({ topic: arch.topic, subtopic: arch.subtopic, included: false, reason: "no compatible swap slot found (marks mismatch across all sections)" });
   }
 
-  return out;
+  return { result: out, diagnostics };
 }
 
 export function buildConstrainedPaper(args: {
@@ -240,14 +277,14 @@ export function buildConstrainedPaper(args: {
   const initial = SECTION_ORDER.flatMap((s) => bySection[s]);
 
   const subject = candidates.length > 0 ? candidates[0].subject : "Maths";
-  const withGuaranteed = enforceGuaranteedArchetypes({
+  const guaranteedEnforcement = enforceGuaranteedArchetypes({
     current: initial,
     allCandidates: candidates,
     subject,
   });
 
   const repaired = repairForConstraints({
-    initial: withGuaranteed,
+    initial: guaranteedEnforcement.result,
     allCandidates: candidates,
     blueprint,
   });
@@ -267,9 +304,11 @@ export function buildConstrainedPaper(args: {
   ).length;
   const competencyFocusedShare =
     repaired.length > 0 ? focusedCount / repaired.length : 0;
+  const guaranteedAllIncluded = guaranteedEnforcement.diagnostics.every(d => d.included);
   const constraintsSatisfied =
     competencyFocusedShare >= (blueprint.competencyFocusedMinShare ?? 0.5) &&
-    caseBasedCount >= (blueprint.caseBasedMinCount ?? 3);
+    caseBasedCount >= (blueprint.caseBasedMinCount ?? 3) &&
+    guaranteedAllIncluded;
 
   return {
     selected: repaired,
@@ -280,6 +319,8 @@ export function buildConstrainedPaper(args: {
       caseBasedCount,
       objectiveScore: objectiveValue(repaired),
       constraintsSatisfied,
+      guaranteedArchetypes: guaranteedEnforcement.diagnostics,
+      guaranteedAllIncluded,
     },
   };
 }
