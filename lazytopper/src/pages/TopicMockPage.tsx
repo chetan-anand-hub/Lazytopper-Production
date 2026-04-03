@@ -423,20 +423,30 @@ function TakingPhase({ paper, currentSectionIdx, elapsed, timerEnabled, answers,
 
   return (
     <div style={{ marginTop: 24 }}>
-      {timerEnabled && (
-        <div style={{
-          position: "sticky", top: 0, zIndex: 10, background: "#fff", padding: "10px 16px",
-          borderRadius: 12, marginBottom: 16, display: "flex", justifyContent: "space-between",
-          alignItems: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.08)", border: "1px solid #e2e8f0",
-        }}>
-          <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "#475569" }}>
-            Time: {formatTime(elapsed)}
-          </span>
+      <div style={{
+        position: "sticky", top: 0, zIndex: 10, background: "#fff", padding: "10px 16px",
+        borderRadius: 12, marginBottom: 16,
+        boxShadow: "0 2px 8px rgba(0,0,0,0.08)", border: "1px solid #e2e8f0",
+      }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+          {timerEnabled && (
+            <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "#475569" }}>
+              Time: {formatTime(elapsed)}
+            </span>
+          )}
           <span style={{ fontSize: "0.78rem", color: "#94a3b8" }}>
             Section {sec.section} — {answeredCount}/{sec.questions.length} answered
           </span>
         </div>
-      )}
+        <div style={{ height: 6, borderRadius: 999, background: "#f1f5f9", overflow: "hidden" }}>
+          <div style={{
+            height: "100%", borderRadius: 999,
+            width: `${sec.questions.length > 0 ? (answeredCount / sec.questions.length) * 100 : 0}%`,
+            background: SECTION_COLORS[sec.section],
+            transition: "width 0.3s ease",
+          }} />
+        </div>
+      </div>
 
       <div style={{
         background: "#fff", borderRadius: 16, padding: "20px", border: `2px solid ${SECTION_COLORS[sec.section]}`,

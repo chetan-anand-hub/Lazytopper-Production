@@ -303,25 +303,22 @@ function buildSetFamily(topicKey: string, subject: LTSubjectKey, count: number, 
 
   const family: TopicMockPaper[] = [];
   const baseSeed = hashString(`${topicKey}-${subject}`);
+  const overlapThresholds = [MAX_OVERLAP_PERCENT, 35, 50, 80, 100];
 
   for (let setIdx = 1; setIdx <= count; setIdx++) {
     let accepted: TopicMockPaper | null = null;
-    for (let attempt = 0; attempt < 10; attempt++) {
-      const seed = baseSeed + setIdx * 7919 + attempt * 3571;
-      const candidate = buildSinglePaper(topicKey, subject, setIdx, seed, topicDisplayName);
-      if (pairwiseOverlapOk(candidate, family, MAX_OVERLAP_PERCENT)) {
-        accepted = candidate;
-        break;
+    for (const threshold of overlapThresholds) {
+      for (let attempt = 0; attempt < 5; attempt++) {
+        const seed = baseSeed + setIdx * 7919 + attempt * 3571;
+        const candidate = buildSinglePaper(topicKey, subject, setIdx, seed, topicDisplayName);
+        if (pairwiseOverlapOk(candidate, family, threshold)) {
+          accepted = candidate;
+          break;
+        }
       }
+      if (accepted) break;
     }
-    if (accepted) {
-      family.push(accepted);
-    }
-  }
-
-  if (family.length === 0) {
-    const fallback = buildSinglePaper(topicKey, subject, 1, baseSeed + 7919, topicDisplayName);
-    family.push(fallback);
+    family.push(accepted || buildSinglePaper(topicKey, subject, setIdx, baseSeed + setIdx * 7919, topicDisplayName));
   }
 
   setFamilyCache.set(cacheKey, family);
@@ -349,9 +346,7 @@ function targetSetCount(topicKey: string, subject: LTSubjectKey): number {
 }
 
 export function getAvailableSetCount(topicKey: string, subject: LTSubjectKey): number {
-  const count = targetSetCount(topicKey, subject);
-  const family = buildSetFamily(topicKey, subject, count);
-  return family.length;
+  return targetSetCount(topicKey, subject);
 }
 
 export function computeOverlapPercent(paperA: TopicMockPaper, paperB: TopicMockPaper): number {
