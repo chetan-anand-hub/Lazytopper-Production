@@ -34,7 +34,7 @@ interface SubscriptionContextType {
   isTrialActive: boolean;
   isTrialExpired: boolean;
   daysLeftInTrial: number;
-  startTrial: () => Promise<void>;
+  startTrial: (forceUid?: string) => Promise<void>;
 }
 
 const SubscriptionContext = createContext<SubscriptionContextType>({
@@ -71,8 +71,9 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
     });
   }, [user?.uid]);
 
-  const startTrial = useCallback(async () => {
-    if (!user) return;
+  const startTrial = useCallback(async (forceUid?: string) => {
+    const uid = forceUid || user?.uid;
+    if (!uid) return;
     if (status.tier === "trial" || status.tier === "premium") return;
     if (status.trialStartDate) return;
     const now = new Date();
@@ -84,7 +85,7 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
       trialEndDate: end.toISOString(),
     };
     setStatus(updated);
-    await AsyncStorage.setItem(storageKey(user.uid), JSON.stringify(updated));
+    await AsyncStorage.setItem(storageKey(uid), JSON.stringify(updated));
   }, [status, user]);
 
   const isPremium = status.tier === "trial" || status.tier === "premium";

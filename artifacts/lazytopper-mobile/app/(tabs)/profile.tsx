@@ -103,8 +103,8 @@ export default function ProfileScreen() {
           <Pressable
             style={[styles.authBtn, { backgroundColor: colors.primary }]}
             onPress={async () => {
-              await signInAsGuest();
-              await startTrial();
+              const uid = await signInAsGuest();
+              await startTrial(uid);
             }}
           >
             <Feather name="play" size={18} color="#fff" />

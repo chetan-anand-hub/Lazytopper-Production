@@ -30,7 +30,7 @@ interface AuthContextType {
   isLoading: boolean;
   firebaseAvailable: boolean;
   authError: string | null;
-  signInAsGuest: () => Promise<void>;
+  signInAsGuest: () => Promise<string>;
   signInWithGoogle: () => Promise<void>;
   signInWithPhone: (verificationId: string, code: string) => Promise<void>;
   sendPhoneOtp: (phoneNumber: string) => Promise<string | null>;
@@ -43,7 +43,7 @@ const AuthContext = createContext<AuthContextType>({
   isLoading: true,
   firebaseAvailable: false,
   authError: null,
-  signInAsGuest: async () => {},
+  signInAsGuest: async () => "",
   signInWithGoogle: async () => {},
   signInWithPhone: async () => {},
   sendPhoneOtp: async () => null,
@@ -112,14 +112,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await AsyncStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(u));
   };
 
-  const signInAsGuest = async () => {
+  const signInAsGuest = async (): Promise<string> => {
+    const uid = `guest_${Date.now().toString()}${Math.random().toString(36).substr(2, 9)}`;
     const guestUser: User = {
-      uid: `guest_${Date.now().toString()}${Math.random().toString(36).substr(2, 9)}`,
+      uid,
       displayName: "Explorer",
       email: null,
       isGuest: true,
     };
     await persistUser(guestUser);
+    return uid;
   };
 
   const handleSignInWithGoogle = async () => {
@@ -232,14 +234,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isGuest: false,
     };
     await persistUser(phoneUser);
-
-    if (authClient) {
-      try {
-        await authClient.updateCurrentUser(authClient.currentUser);
-      } catch (_e) {
-        // no-op
-      }
-    }
   };
 
   const handleSignOut = async () => {

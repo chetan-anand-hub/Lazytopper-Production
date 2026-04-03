@@ -32,13 +32,19 @@ const SCIENCE_STREAMS: { label: string; value: ScienceStream; icon: "layers" | "
   { label: "Biology", value: "Biology", icon: "heart" },
 ];
 
-const PHYSICS_TOPICS = ["Light", "Electricity", "Magnetic Effects", "Human Eye"];
-const CHEMISTRY_TOPICS = ["Chemical Reactions", "Acids Bases Salts", "Metals Non-Metals", "Carbon Compounds"];
+const STREAM_MAP: Record<string, ScienceStream> = {
+  Light: "Physics",
+  Electricity: "Physics",
+  MagneticEffects: "Physics",
+  HumanEyeAndColourfulWorld: "Physics",
+  ChemicalReactions: "Chemistry",
+  AcidsBasesSalts: "Chemistry",
+  MetalsNonMetals: "Chemistry",
+  CarbonCompounds: "Chemistry",
+};
 
 function classifyScienceStream(topicKey: string): ScienceStream {
-  if (PHYSICS_TOPICS.some((t) => topicKey.toLowerCase().includes(t.toLowerCase()))) return "Physics";
-  if (CHEMISTRY_TOPICS.some((t) => topicKey.toLowerCase().includes(t.toLowerCase()))) return "Chemistry";
-  return "Biology";
+  return STREAM_MAP[topicKey] ?? "Biology";
 }
 
 export default function TrendsScreen() {
