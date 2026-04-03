@@ -25,11 +25,11 @@ const TIER_FILTERS: { label: string; value: TopicTier | "all" }[] = [
   { label: "Good to Do", value: "good-to-do" },
 ];
 
-const SCIENCE_STREAMS: { label: string; value: ScienceStream; icon: "layers" | "flask-conical" | "leaf" | "zap" }[] = [
+const SCIENCE_STREAMS: { label: string; value: ScienceStream; icon: "layers" | "droplet" | "heart" | "zap" }[] = [
   { label: "All", value: "all", icon: "layers" },
   { label: "Physics", value: "Physics", icon: "zap" },
-  { label: "Chemistry", value: "Chemistry", icon: "layers" },
-  { label: "Biology", value: "Biology", icon: "leaf" },
+  { label: "Chemistry", value: "Chemistry", icon: "droplet" },
+  { label: "Biology", value: "Biology", icon: "heart" },
 ];
 
 const PHYSICS_TOPICS = ["Light", "Electricity", "Magnetic Effects", "Human Eye"];
@@ -119,7 +119,7 @@ export default function TrendsScreen() {
                 ]}
               >
                 <Feather
-                  name={s.icon === "flask-conical" ? "droplet" : s.icon}
+                  name={s.icon}
                   size={13}
                   color={active ? colors.secondary : colors.mutedForeground}
                 />
