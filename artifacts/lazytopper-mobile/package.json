@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@workspace/shared-data": "workspace:*",
+    "expo-auth-session": "^55.0.10",
+    "expo-crypto": "^55.0.10",
     "firebase": "^11.8.1",
     "react-native-webview": "^13.16.1"
   },

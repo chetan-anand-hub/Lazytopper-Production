@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as AuthSession from "expo-auth-session";
 import * as WebBrowser from "expo-web-browser";
-import * as Linking from "expo-linking";
 import {
   GoogleAuthProvider,
   RecaptchaVerifier,
@@ -53,6 +53,11 @@ const AuthContext = createContext<AuthContextType>({
 
 const AUTH_STORAGE_KEY = "lt_auth_user";
 
+const GOOGLE_DISCOVERY = {
+  authorizationEndpoint: "https://accounts.google.com/o/oauth2/v2/auth",
+  tokenEndpoint: "https://oauth2.googleapis.com/token",
+};
+
 function mapFirebaseUser(fbUser: FirebaseUser): User {
   return {
     uid: fbUser.uid,
@@ -82,7 +87,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         try {
           setUser(JSON.parse(stored));
         } catch (e) {
-          console.warn("[Auth] Failed to parse stored user:", e);
+          console.warn("[Auth] Failed to parse stored user");
         }
       }
       setIsLoading(false);
@@ -125,43 +130,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
     try {
-      const provider = new GoogleAuthProvider();
-
       if (Platform.OS === "web") {
+        const provider = new GoogleAuthProvider();
         const result = await signInWithPopup(authClient, provider);
         await persistUser(mapFirebaseUser(result.user));
-      } else {
-        const clientId = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID;
-        if (!clientId) {
-          const msg = "Google Client ID not configured. Set EXPO_PUBLIC_GOOGLE_CLIENT_ID.";
-          setAuthError(msg);
-          showAuthError(msg);
-          return;
-        }
+        return;
+      }
 
-        const redirectUri = Linking.createURL("auth/callback");
+      const clientId = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID;
+      if (!clientId) {
+        const msg = "Google Client ID not configured. Set EXPO_PUBLIC_GOOGLE_CLIENT_ID.";
+        setAuthError(msg);
+        showAuthError(msg);
+        return;
+      }
 
-        const authUrl =
-          `https://accounts.google.com/o/oauth2/v2/auth?` +
-          `client_id=${clientId}` +
-          `&redirect_uri=${encodeURIComponent(redirectUri)}` +
-          `&response_type=id_token` +
-          `&scope=openid%20profile%20email` +
-          `&nonce=${Math.random().toString(36).substring(2)}`;
+      const redirectUri = AuthSession.makeRedirectUri({ scheme: "lazytopper-mobile" });
+      const request = new AuthSession.AuthRequest({
+        clientId,
+        redirectUri,
+        scopes: ["openid", "profile", "email"],
+        responseType: AuthSession.ResponseType.IdToken,
+        usePKCE: false,
+      });
 
-        const result = await WebBrowser.openAuthSessionAsync(authUrl, redirectUri);
-        if (result.type === "success" && result.url) {
-          const url = new URL(result.url);
-          const fragment = url.hash.substring(1);
-          const params = new URLSearchParams(fragment);
-          const idToken = params.get("id_token");
-
-          if (idToken) {
-            const credential = GoogleAuthProvider.credential(idToken);
-            const fbResult = await signInWithCredential(authClient, credential);
-            await persistUser(mapFirebaseUser(fbResult.user));
-          }
-        }
+      const result = await request.promptAsync(GOOGLE_DISCOVERY);
+      if (result.type === "success" && result.params.id_token) {
+        const credential = GoogleAuthProvider.credential(result.params.id_token);
+        const fbResult = await signInWithCredential(authClient, credential);
+        await persistUser(mapFirebaseUser(fbResult.user));
       }
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : "Google sign-in failed. Please try again.";
@@ -245,8 +242,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         await fbSignOut(authClient);
       } catch (error: unknown) {
-        const msg = error instanceof Error ? error.message : "Sign-out error";
-        console.warn("[Auth] Firebase sign-out error:", msg);
+        console.warn("[Auth] Firebase sign-out error");
       }
     }
     setUser(null);

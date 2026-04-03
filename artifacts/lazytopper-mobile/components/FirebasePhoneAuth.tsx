@@ -26,8 +26,9 @@ export function FirebasePhoneAuth({ visible, onClose, onAuthenticated }: Firebas
   const webViewRef = useRef<WebView>(null);
   const [phoneNumber, setPhoneNumber] = useState("+91 ");
   const [otpCode, setOtpCode] = useState("");
-  const [step, setStep] = useState<"phone" | "otp" | "webview">("phone");
+  const [step, setStep] = useState<"phone" | "verifying" | "otp">("phone");
   const [loading, setLoading] = useState(false);
+  const [showCaptcha, setShowCaptcha] = useState(false);
 
   const apiKey = process.env.EXPO_PUBLIC_FIREBASE_API_KEY || "";
   const authDomain = process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN || "";
@@ -42,49 +43,59 @@ export function FirebasePhoneAuth({ visible, onClose, onAuthenticated }: Firebas
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
   <style>
-    body { margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; background: #f5f5f5; font-family: sans-serif; }
-    .status { text-align: center; padding: 20px; color: #666; }
+    body {
+      margin: 0; padding: 20px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      min-height: 100vh;
+      background: transparent;
+      font-family: -apple-system, sans-serif;
+    }
+    #recaptcha-container { margin: 20px auto; }
+    .status { text-align: center; padding: 16px; color: #666; font-size: 14px; }
   </style>
 </head>
 <body>
   <div id="recaptcha-container"></div>
-  <div class="status" id="status">Initializing verification...</div>
+  <div class="status" id="status">Setting up verification...</div>
   <script>
-    const config = {
+    firebase.initializeApp({
       apiKey: "${apiKey}",
       authDomain: "${authDomain}",
       projectId: "${projectId}",
       appId: "${appId}"
-    };
-    firebase.initializeApp(config);
-
-    window.addEventListener('message', function(event) {
-      try {
-        const data = JSON.parse(event.data);
-        if (data.action === 'sendOtp') {
-          sendOtp(data.phoneNumber);
-        } else if (data.action === 'verifyOtp') {
-          verifyOtp(data.code);
-        }
-      } catch(e) {}
     });
 
     let confirmationResult = null;
 
+    window.addEventListener('message', function(event) {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.action === 'sendOtp') sendOtp(data.phoneNumber);
+        else if (data.action === 'verifyOtp') verifyOtp(data.code);
+      } catch(e) {}
+    });
+
     function sendOtp(phoneNumber) {
-      document.getElementById('status').textContent = 'Setting up verification...';
+      document.getElementById('status').textContent = 'Verifying...';
       const verifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
-        size: 'invisible',
-        callback: function() {}
+        size: 'normal',
+        callback: function() {
+          window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'captchaResolved' }));
+        },
+        'expired-callback': function() {
+          window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'captchaExpired' }));
+        }
       });
-      firebase.auth().signInWithPhoneNumber(phoneNumber, verifier)
-        .then(function(result) {
-          confirmationResult = result;
-          window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'otpSent' }));
-        })
-        .catch(function(error) {
-          window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'error', message: error.message }));
-        });
+      verifier.render().then(function() {
+        window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'captchaRendered' }));
+        return firebase.auth().signInWithPhoneNumber(phoneNumber, verifier);
+      }).then(function(result) {
+        confirmationResult = result;
+        window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'otpSent' }));
+      }).catch(function(error) {
+        window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'error', message: error.message }));
+      });
     }
 
     function verifyOtp(code) {
@@ -92,19 +103,17 @@ export function FirebasePhoneAuth({ visible, onClose, onAuthenticated }: Firebas
         window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'error', message: 'No verification in progress' }));
         return;
       }
-      confirmationResult.confirm(code)
-        .then(function(result) {
-          const user = result.user;
-          window.ReactNativeWebView.postMessage(JSON.stringify({
-            type: 'authenticated',
-            uid: user.uid,
-            displayName: user.displayName || user.phoneNumber || 'Student',
-            phoneNumber: user.phoneNumber || ''
-          }));
-        })
-        .catch(function(error) {
-          window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'error', message: error.message }));
-        });
+      confirmationResult.confirm(code).then(function(result) {
+        var user = result.user;
+        window.ReactNativeWebView.postMessage(JSON.stringify({
+          type: 'authenticated',
+          uid: user.uid,
+          displayName: user.displayName || user.phoneNumber || 'Student',
+          phoneNumber: user.phoneNumber || ''
+        }));
+      }).catch(function(error) {
+        window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'error', message: error.message }));
+      });
     }
   </script>
 </body>
@@ -113,16 +122,34 @@ export function FirebasePhoneAuth({ visible, onClose, onAuthenticated }: Firebas
   const handleWebViewMessage = (event: WebViewMessageEvent) => {
     try {
       const data = JSON.parse(event.nativeEvent.data);
-      if (data.type === "otpSent") {
-        setStep("otp");
-        setLoading(false);
-      } else if (data.type === "authenticated") {
-        setLoading(false);
-        onAuthenticated(data.uid, data.displayName, data.phoneNumber);
-        handleClose();
-      } else if (data.type === "error") {
-        setLoading(false);
-        Alert.alert("Error", data.message);
+      switch (data.type) {
+        case "captchaRendered":
+          setShowCaptcha(true);
+          setLoading(false);
+          break;
+        case "captchaResolved":
+          setShowCaptcha(false);
+          setLoading(true);
+          break;
+        case "captchaExpired":
+          setShowCaptcha(true);
+          break;
+        case "otpSent":
+          setStep("otp");
+          setShowCaptcha(false);
+          setLoading(false);
+          break;
+        case "authenticated":
+          setLoading(false);
+          onAuthenticated(data.uid, data.displayName, data.phoneNumber);
+          handleClose();
+          break;
+        case "error":
+          setLoading(false);
+          setShowCaptcha(false);
+          setStep("phone");
+          Alert.alert("Error", data.message);
+          break;
       }
     } catch (e) {
       setLoading(false);
@@ -136,12 +163,12 @@ export function FirebasePhoneAuth({ visible, onClose, onAuthenticated }: Firebas
       return;
     }
     setLoading(true);
-    setStep("webview");
+    setStep("verifying");
     setTimeout(() => {
       webViewRef.current?.injectJavaScript(
         `window.postMessage('${JSON.stringify({ action: "sendOtp", phoneNumber: cleanNumber })}', '*'); true;`
       );
-    }, 1500);
+    }, 1000);
   };
 
   const handleVerifyOtp = () => {
@@ -160,6 +187,7 @@ export function FirebasePhoneAuth({ visible, onClose, onAuthenticated }: Firebas
     setPhoneNumber("+91 ");
     setOtpCode("");
     setLoading(false);
+    setShowCaptcha(false);
     onClose();
   };
 
@@ -202,16 +230,27 @@ export function FirebasePhoneAuth({ visible, onClose, onAuthenticated }: Firebas
             </>
           )}
 
-          {(step === "webview" || step === "otp") && (
-            <View style={styles.webviewContainer}>
+          {(step === "verifying" || step === "otp") && (
+            <View style={[styles.webviewContainer, showCaptcha && styles.webviewExpanded]}>
               <WebView
                 ref={webViewRef}
                 source={{ html: recaptchaHtml }}
                 onMessage={handleWebViewMessage}
                 javaScriptEnabled
-                style={step === "webview" && !loading ? styles.webviewVisible : styles.webviewHidden}
+                style={styles.webview}
               />
+              {showCaptcha && (
+                <Text style={[styles.captchaHint, { color: colors.mutedForeground }]}>
+                  Complete the verification above to continue
+                </Text>
+              )}
             </View>
+          )}
+
+          {step === "verifying" && !showCaptcha && loading && (
+            <Text style={[styles.label, { color: colors.mutedForeground, textAlign: "center" }]}>
+              Setting up verification...
+            </Text>
           )}
 
           {step === "otp" && (
@@ -258,6 +297,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 24,
     padding: 24,
     paddingBottom: 40,
+    maxHeight: "85%",
   },
   header: {
     flexDirection: "row",
@@ -309,13 +349,21 @@ const styles = StyleSheet.create({
   webviewContainer: {
     height: 1,
     overflow: "hidden",
+    marginBottom: 8,
   },
-  webviewVisible: {
-    height: 100,
-    opacity: 1,
+  webviewExpanded: {
+    height: 320,
+    overflow: "visible",
+    borderRadius: 12,
   },
-  webviewHidden: {
-    height: 1,
-    opacity: 0,
+  webview: {
+    flex: 1,
+    backgroundColor: "transparent",
+  },
+  captchaHint: {
+    fontFamily: "Inter_400Regular",
+    fontSize: 12,
+    textAlign: "center",
+    marginTop: 8,
   },
 });
