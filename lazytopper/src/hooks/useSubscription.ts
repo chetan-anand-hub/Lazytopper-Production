@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import {
   loadSubscription,
@@ -6,6 +6,7 @@ import {
   isPremiumAccess,
   activateTrial,
   activatePremium,
+  hydrateSubscriptionFromCloud,
   type SubscriptionStatus,
   type SubscriptionTier,
 } from "../services/subscriptionService";
@@ -25,7 +26,18 @@ export function useSubscription(): UseSubscriptionResult {
   const { user } = useAuth();
   const uid = user?.uid || "";
 
-  const status = useMemo(() => loadSubscription(uid), [uid]);
+  const localStatus = useMemo(() => loadSubscription(uid), [uid]);
+  const [status, setStatus] = useState<SubscriptionStatus>(localStatus);
+
+  useEffect(() => {
+    setStatus(loadSubscription(uid));
+    if (!uid) return;
+    let cancelled = false;
+    hydrateSubscriptionFromCloud(uid).then((cloud) => {
+      if (!cancelled) setStatus(cloud);
+    }).catch(() => {});
+    return () => { cancelled = true; };
+  }, [uid]);
 
   const daysLeft = getDaysLeftInTrial(status);
   const isTrialActive = status.tier === "trial" && daysLeft > 0;
@@ -39,10 +51,16 @@ export function useSubscription(): UseSubscriptionResult {
     daysLeftInTrial: daysLeft,
     status,
     startTrial: () => {
-      if (uid) activateTrial(uid);
+      if (uid) {
+        const updated = activateTrial(uid);
+        setStatus(updated);
+      }
     },
     upgradeToPremium: () => {
-      if (uid) activatePremium(uid);
+      if (uid) {
+        const updated = activatePremium(uid);
+        setStatus(updated);
+      }
     },
   };
 }

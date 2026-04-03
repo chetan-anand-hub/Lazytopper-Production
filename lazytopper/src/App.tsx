@@ -15,6 +15,8 @@ import { useVibeMode } from './context/vibeModeContext';
 import { parseCommandIntent } from "./services/commandIntent";
 import { normalizeTopicKey } from "./utils/topicResolver";
 import { RequireAuth, RequirePremium } from "./components/auth/RequireAuth";
+import { PracticeLimitGate } from "./components/auth/PracticeLimitGate";
+import { MockViewGate } from "./components/auth/MockViewGate";
 import { useAuth } from "./context/AuthContext";
 import { useSubscription } from "./hooks/useSubscription";
 
@@ -466,11 +468,11 @@ export default function App() {
           {/* Dynamic Trends Page (Maths + Science with toggle) */}
           <Route path="/trends/:grade/:subject" element={withRouteSuspense(<TrendsPage />)} />
 
-          {/* Auto-mock paper view (legacy + predictive) */}
-          <Route path="/mock-paper/:slug" element={withRouteSuspense(<MockPaper />)} />
+          {/* Auto-mock paper view (legacy + predictive) — free users get 1/day */}
+          <Route path="/mock-paper/:slug" element={<MockViewGate>{withRouteSuspense(<MockPaper />)}</MockViewGate>} />
 
-          {/* Topic Mock Paper */}
-          <Route path="/topic-mock/:grade/:subject/:topicKey" element={withRouteSuspense(<TopicMockPage />)} />
+          {/* Topic Mock Paper — requires auth */}
+          <Route path="/topic-mock/:grade/:subject/:topicKey" element={<RequireAuth>{withRouteSuspense(<TopicMockPage />)}</RequireAuth>} />
 
           {/* New Mock Builder v1 with mandatory grade & subject */}
           <Route path="/mock-builder/:grade/:subject" element={<RequirePremium featureLabel="Mock Builder">{withRouteSuspense(<MockBuilder />)}</RequirePremium>} />
@@ -488,10 +490,10 @@ export default function App() {
             element={<RequirePremium featureLabel="Predicted Questions">{withRouteSuspense(<HighlyProbableQuestions />)}</RequirePremium>}
           />
 
-          {/* Predictive papers hub */}
+          {/* Predictive papers hub — requires auth */}
           <Route
             path="/predictive-papers"
-            element={withRouteSuspense(<PredictivePapersPage />)}
+            element={<RequireAuth>{withRouteSuspense(<PredictivePapersPage />)}</RequireAuth>}
           />
 
           {/* Exam Simulation — unlimited full-length mock */}
@@ -500,7 +502,7 @@ export default function App() {
             element={<RequirePremium featureLabel="Exam Simulation">{withRouteSuspense(<ExamSimulationPage />)}</RequirePremium>}
           />
 
-          <Route path="/practice/:grade/:subject" element={withRouteSuspense(<PracticePage />)} />
+          <Route path="/practice/:grade/:subject" element={<PracticeLimitGate>{withRouteSuspense(<PracticePage />)}</PracticeLimitGate>} />
 
           {/* Study Plan with mandatory grade & subject */}
           <Route path="/study-plan/:grade/:subject" element={<RequirePremium featureLabel="Smart Study Planner">{withRouteSuspense(<StudyPlanPage />)}</RequirePremium>} />
