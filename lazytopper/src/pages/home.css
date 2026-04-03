@@ -406,6 +406,85 @@
   }
 }
 
+/* Social proof testimonials */
+.lt-home__socialProof {
+  margin-top: 56px;
+}
+
+.lt-home__testimonials {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+.lt-home__testimonial {
+  border: 2px solid var(--border);
+  border-radius: 16px;
+  background: var(--bg);
+  padding: 20px 24px;
+  box-shadow: 0 2px 0 var(--border);
+}
+
+.lt-home__testimonialStars {
+  color: #ffc800;
+  font-size: 1rem;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+
+.lt-home__testimonialText {
+  margin: 0 0 10px;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--text);
+  font-style: italic;
+}
+
+.lt-home__testimonialAuthor {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+@media (min-width: 560px) {
+  .lt-home__testimonials {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Subject toggle pills */
+.lt-home__subjectToggle {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.lt-home__subjectToggleBtn {
+  padding: 8px 22px;
+  border: 2px solid var(--border);
+  border-bottom: 3px solid var(--border);
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-transform: capitalize;
+  background: var(--bg);
+  color: var(--text-secondary);
+  transition: all 0.15s;
+}
+
+.lt-home__subjectToggleBtn--active {
+  background: var(--brand);
+  color: #fff;
+  border-color: var(--brand-dark);
+}
+
+.lt-home__subjectToggleBtn:hover:not(.lt-home__subjectToggleBtn--active) {
+  border-color: var(--brand);
+  background: var(--brand-light);
+}
+
 /* Skill tree path */
 .lt-home__skillTree {
   margin-top: 56px;
@@ -498,7 +577,7 @@
   }
 }
 
-/* Topic mastery tree */
+/* Topic mastery tree — Duolingo zigzag path */
 .lt-home__topicTree {
   display: flex;
   flex-direction: column;
@@ -513,32 +592,56 @@
   flex-direction: column;
   align-items: center;
   position: relative;
+  transition: transform 0.15s;
+}
+
+.lt-home__topicNode--left {
+  transform: translateX(-28px);
+}
+
+.lt-home__topicNode--right {
+  transform: translateX(28px);
 }
 
 .lt-home__topicConnector {
   width: 3px;
   height: 20px;
-  background: #e5e5e5;
+  background: linear-gradient(to bottom, #e5e5e5, #d4d4d4);
   border-radius: 2px;
+}
+
+.lt-home__topicCircle:hover {
+  transform: scale(1.1);
+}
+
+.lt-home__topicCircle:active {
+  transform: scale(0.92) translateY(2px);
 }
 
 .lt-home__topicInfo {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 4px;
-  margin-bottom: 4px;
+  margin-top: 6px;
+  margin-bottom: 6px;
 }
 
 .lt-home__topicTitle {
   font-weight: 800;
   font-size: 0.85rem;
   color: var(--text);
+  max-width: 120px;
+  text-align: center;
+  line-height: 1.2;
 }
 
 .lt-home__topicMastery {
   font-size: 0.7rem;
   font-weight: 700;
+}
+
+.lt-progress-ring {
+  transition: stroke-dashoffset 0.6s ease-out;
 }
 
 @media (min-width: 560px) {
@@ -549,10 +652,15 @@
     gap: 8px;
   }
 
+  .lt-home__topicNode--left,
+  .lt-home__topicNode--right {
+    transform: none;
+  }
+
   .lt-home__topicConnector {
     width: 20px;
     height: 3px;
-    margin-top: 26px;
+    margin-top: 30px;
     align-self: flex-start;
   }
 }
@@ -592,5 +700,69 @@
   .lt-home__bottom {
     margin-top: 36px;
     padding: 28px 16px;
+  }
+
+  .lt-home__socialProof {
+    margin-top: 40px;
+  }
+
+  .lt-home__testimonial {
+    padding: 16px 18px;
+  }
+}
+
+@media (max-width: 380px) {
+  .lt-home__shell {
+    width: 96vw;
+    padding: 8px 0 80px;
+  }
+
+  .lt-home__headline {
+    font-size: 1.5rem;
+  }
+
+  .lt-home__lead {
+    font-size: 0.92rem;
+  }
+
+  .lt-home__subjectBtn {
+    min-width: 140px;
+    padding: 10px 16px;
+    font-size: 0.82rem;
+  }
+
+  .lt-home__step {
+    padding: 14px 16px;
+    gap: 12px;
+  }
+
+  .lt-home__featureCard {
+    padding: 14px 16px;
+  }
+
+  .lt-home__statNum {
+    font-size: 1.3rem;
+  }
+
+  .lt-home__trustStats {
+    gap: 16px;
+  }
+
+  .lt-home__topicNode--left {
+    transform: translateX(-16px);
+  }
+
+  .lt-home__topicNode--right {
+    transform: translateX(16px);
+  }
+
+  .lt-home__topicTitle {
+    font-size: 0.78rem;
+    max-width: 100px;
+  }
+
+  .lt-home__bottomCta {
+    padding: 12px 22px;
+    font-size: 0.88rem;
   }
 }

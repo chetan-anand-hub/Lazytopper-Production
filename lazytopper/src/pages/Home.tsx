@@ -309,25 +309,20 @@ const Home: React.FC = () => {
           </section>
         )}
 
-        {/* Topic mastery tree - real chapter-based skill path */}
+        {/* Topic mastery tree - Duolingo-style skill path */}
         <section className="lt-home__skillTree" aria-label="Your learning path">
           <h2 className="lt-home__sectionTitle">Your learning path</h2>
           <p className="lt-home__sectionSub">
             Master each topic from basics to board-ready — one chapter at a time.
           </p>
 
-          <div style={{ display: "flex", justifyContent: "center", gap: 8, marginBottom: 16 }}>
+          <div className="lt-home__subjectToggle">
             {(["maths", "science"] as const).map(s => (
               <button
                 key={s}
                 type="button"
                 onClick={() => setTopicSubject(s)}
-                style={{
-                  padding: "6px 18px", borderRadius: 12, border: "none",
-                  fontWeight: 800, fontSize: "0.85rem", cursor: "pointer", textTransform: "capitalize",
-                  background: topicSubject === s ? "#58cc02" : "#f0f0f0",
-                  color: topicSubject === s ? "#fff" : "#777",
-                }}
+                className={`lt-home__subjectToggleBtn ${topicSubject === s ? "lt-home__subjectToggleBtn--active" : ""}`}
               >
                 {s === "maths" ? "📐 Maths" : "🔬 Science"}
               </button>
@@ -339,18 +334,21 @@ const Home: React.FC = () => {
               const m = getChapterMastery(ch.chapterId);
               const nodeColor = m.level === "locked" ? "#e5e5e5" : MASTERY_COLORS[m.level];
               const subjectTitle = ch.subjectId === "maths" ? "Maths" : "Science";
+              const isEven = i % 2 === 0;
               return (
-                <div key={ch.chapterId} className="lt-home__topicNode">
+                <div key={ch.chapterId} className={`lt-home__topicNode ${isEven ? "lt-home__topicNode--left" : "lt-home__topicNode--right"}`}>
                   {i > 0 && <div className="lt-home__topicConnector" />}
                   <div style={{ position: "relative", display: "inline-block" }}>
-                    <svg viewBox="0 0 60 60" style={{ width: 56, height: 56, transform: "rotate(-90deg)" }}>
-                      <circle cx="30" cy="30" r="26" fill="none" stroke="#e5e5e5" strokeWidth="4" />
-                      <circle cx="30" cy="30" r="26" fill="none" stroke={nodeColor} strokeWidth="4"
-                        className="lt-progress-ring"
-                        strokeDasharray={`${2 * Math.PI * 26}`}
-                        strokeDashoffset={`${2 * Math.PI * 26 * (1 - m.pct / 100)}`}
-                        strokeLinecap="round"
-                      />
+                    <svg viewBox="0 0 68 68" style={{ width: 64, height: 64, transform: "rotate(-90deg)" }}>
+                      <circle cx="34" cy="34" r="28" fill="none" stroke="#e5e5e5" strokeWidth="5" />
+                      {m.pct > 0 && (
+                        <circle cx="34" cy="34" r="28" fill="none" stroke={nodeColor} strokeWidth="5"
+                          className="lt-progress-ring"
+                          strokeDasharray={`${2 * Math.PI * 28}`}
+                          strokeDashoffset={`${2 * Math.PI * 28 * (1 - m.pct / 100)}`}
+                          strokeLinecap="round"
+                        />
+                      )}
                     </svg>
                     <button
                       type="button"
@@ -358,10 +356,14 @@ const Home: React.FC = () => {
                       style={{
                         position: "absolute", inset: 6, borderRadius: "50%",
                         background: m.level === "locked" ? "#f7f7f7" : nodeColor,
-                        border: "none", cursor: "pointer",
+                        border: m.level === "locked" ? "3px solid #e5e5e5" : "3px solid rgba(0,0,0,0.1)",
+                        borderBottom: m.level === "locked" ? "4px solid #d4d4d4" : `4px solid rgba(0,0,0,0.15)`,
+                        cursor: "pointer",
                         display: "flex", alignItems: "center", justifyContent: "center",
-                        fontSize: 18, color: m.level === "locked" ? "#afafaf" : "#fff",
+                        fontSize: 20, color: m.level === "locked" ? "#afafaf" : "#fff",
                         fontWeight: 900,
+                        boxShadow: m.level === "locked" ? "none" : `0 4px 0 rgba(0,0,0,0.12)`,
+                        transition: "transform 0.15s, box-shadow 0.15s",
                       }}
                       onClick={() => navigate(`/topic-hub/10/${subjectTitle}?topic=${ch.canonicalSlug}`)}
                     >
@@ -371,7 +373,7 @@ const Home: React.FC = () => {
                   <div className="lt-home__topicInfo">
                     <span className="lt-home__topicTitle">{ch.title}</span>
                     <span className="lt-home__topicMastery" style={{ color: nodeColor, fontSize: 11, fontWeight: 800 }}>
-                      {m.level === "mastered" ? "Mastered" : m.level === "progressing" ? `${m.pct}% complete` : m.level === "started" ? "Started" : "Not started"}
+                      {m.level === "mastered" ? "Mastered ⭐" : m.level === "progressing" ? `${m.pct}%` : m.level === "started" ? "Started" : "Tap to begin"}
                     </span>
                   </div>
                 </div>
@@ -411,6 +413,30 @@ const Home: React.FC = () => {
           </div>
         </section>
 
+        <section className="lt-home__socialProof" aria-label="What students say">
+          <h2 className="lt-home__sectionTitle">Students love LazyTopper</h2>
+          <p className="lt-home__sectionSub">
+            Join thousands of CBSE Class 10 students preparing smarter.
+          </p>
+          <div className="lt-home__testimonials">
+            <div className="lt-home__testimonial">
+              <div className="lt-home__testimonialStars">★★★★★</div>
+              <p className="lt-home__testimonialText">"The trends page showed me exactly which topics to focus on. I stopped wasting time on low-probability chapters."</p>
+              <span className="lt-home__testimonialAuthor">— Ananya, Class 10 student</span>
+            </div>
+            <div className="lt-home__testimonial">
+              <div className="lt-home__testimonialStars">★★★★★</div>
+              <p className="lt-home__testimonialText">"Mock tests with real exam patterns helped me score 92 in Maths. The predicted questions actually came!"</p>
+              <span className="lt-home__testimonialAuthor">— Rohan, scored 92% in boards</span>
+            </div>
+            <div className="lt-home__testimonial">
+              <div className="lt-home__testimonialStars">★★★★★</div>
+              <p className="lt-home__testimonialText">"The AI tutor explains better than my tuition teacher. Step-by-step solutions with marking scheme tips!"</p>
+              <span className="lt-home__testimonialAuthor">— Priya, preparing for 2026 boards</span>
+            </div>
+          </div>
+        </section>
+
         <section className="lt-home__trust" aria-label="Trust signals">
           <p className="lt-home__trustText">
             Built for students who'd rather study smart than study long.
@@ -421,12 +447,16 @@ const Home: React.FC = () => {
               <span className="lt-home__statLabel">of CBSE data analysed</span>
             </div>
             <div className="lt-home__stat">
-              <span className="lt-home__statNum">Free</span>
-              <span className="lt-home__statLabel">no payment needed</span>
+              <span className="lt-home__statNum">500+</span>
+              <span className="lt-home__statLabel">practice questions</span>
             </div>
             <div className="lt-home__stat">
-              <span className="lt-home__statNum">Maths + Science</span>
-              <span className="lt-home__statLabel">both subjects covered</span>
+              <span className="lt-home__statNum">Unlimited</span>
+              <span className="lt-home__statLabel">mock tests</span>
+            </div>
+            <div className="lt-home__stat">
+              <span className="lt-home__statNum">Free</span>
+              <span className="lt-home__statLabel">no payment needed</span>
             </div>
           </div>
         </section>

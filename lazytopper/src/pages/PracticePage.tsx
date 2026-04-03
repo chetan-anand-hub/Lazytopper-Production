@@ -817,6 +817,8 @@ useEffect(() => {
     () => createSessionTracker(topicParam)
   );
   const [selfAssessments, setSelfAssessments] = useState<Record<string, "got_it" | "need_practice">>({});
+  const [mcqSelections, setMcqSelections] = useState<Record<string, number>>({});
+  const [mcqResults, setMcqResults] = useState<Record<string, "correct" | "wrong">>({});
   const [practiceSolutionData, setPracticeSolutionData] = useState<Record<string, StepSolutionResponse>>({});
   const [practiceSolutionLoading, setPracticeSolutionLoading] = useState<Record<string, boolean>>({});
   const [practiceSolutionError, setPracticeSolutionError] = useState<Record<string, string | undefined>>({});
@@ -985,6 +987,11 @@ const packTopicKey = useMemo(() => {
     const run = async () => {
       setIsLoading(true);
       setError(null);
+
+      const timeout = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error("__timeout__")), 15000)
+      );
+
       try {
         const adaptiveMix = difficulty === "All"
           ? computeAdaptiveDifficultyMix(canonicalTopicKey || topicParam)
@@ -996,32 +1003,37 @@ const packTopicKey = useMemo(() => {
           ? wrongConcepts.map((e) => e.conceptKey)
           : undefined;
 
-        const next = await buildPracticeQuestionsWithAiTopup({
-          grade,
-          subjectKey,
-          topicLabel,
-          packTopicKey,
-          count: questionCount,
-          difficulty,
-          subtopicHint,
-          focusBankIds,
-          strictFocus,
-          sectionFilter: sectionFilter === "ALL" ? undefined : sectionFilter,
-          adaptiveMix,
-          priorityConceptKeys,
-          marksFilter,
-        });
+        const next = await Promise.race([
+          buildPracticeQuestionsWithAiTopup({
+            grade,
+            subjectKey,
+            topicLabel,
+            packTopicKey,
+            count: questionCount,
+            difficulty,
+            subtopicHint,
+            focusBankIds,
+            strictFocus,
+            sectionFilter: sectionFilter === "ALL" ? undefined : sectionFilter,
+            adaptiveMix,
+            priorityConceptKeys,
+            marksFilter,
+          }),
+          timeout,
+        ]);
 
         if (!cancelled) {
           setQuestions(next);
           setExpandedAnswers({});
           setSelfAssessments({});
+          setMcqSelections({});
+          setMcqResults({});
           setPracticeSolutionData({});
           setPracticeSolutionLoading({});
           setPracticeSolutionError({});
           setSessionTracker(createSessionTracker(canonicalTopicKey || topicParam));
         }
-      } catch (e) {
+      } catch (e: any) {
         console.error("Error generating practice questions:", e);
         if (!cancelled) {
           setQuestions([]);
@@ -1029,7 +1041,9 @@ const packTopicKey = useMemo(() => {
           setPracticeSolutionLoading({});
           setPracticeSolutionError({});
           setError(
-            "Could not generate practice questions right now. Please try again."
+            e?.message === "__timeout__"
+              ? "Loading took too long. Please try again or pick a different topic."
+              : "Could not generate practice questions right now. Please try again."
           );
         }
       } finally {
@@ -1809,28 +1823,85 @@ const packTopicKey = useMemo(() => {
                       <MathText text={q.questionText} />
                     </p>
 
-                    {Array.isArray((q as any).options) && (q as any).options.length > 0 && (
-                      <div style={{ marginBottom: 10, paddingLeft: 4 }}>
-                        {((q as any).options as string[]).map((opt: string, oi: number) => (
-                          <div
-                            key={oi}
-                            style={{
-                              display: "flex",
-                              alignItems: "baseline",
-                              gap: 8,
-                              padding: "4px 0",
-                              fontSize: "0.88rem",
-                              color: "#3c3c3c",
-                            }}
-                          >
-                            <span style={{ fontWeight: 600, color: "#777777", minWidth: 22 }}>
-                              {String.fromCharCode(65 + oi)}.
-                            </span>
-                            <MathText text={opt} />
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                    {Array.isArray((q as any).options) && (q as any).options.length > 0 && (() => {
+                      const opts = (q as any).options as string[];
+                      const qId = String(q.id);
+                      const selected = mcqSelections[qId];
+                      const result = mcqResults[qId];
+                      const correctIdx = (() => {
+                        const co = (q as any).correctOption;
+                        if (co && typeof co === "string" && co.length === 1) {
+                          return co.charCodeAt(0) - 65;
+                        }
+                        if (q.answer) {
+                          const ai = opts.findIndex(o => o.trim().toLowerCase() === q.answer!.trim().toLowerCase());
+                          if (ai >= 0) return ai;
+                          const pi = opts.findIndex(o => q.answer!.trim().toLowerCase().includes(o.trim().toLowerCase()) || o.trim().toLowerCase().includes(q.answer!.trim().toLowerCase()));
+                          if (pi >= 0) return pi;
+                        }
+                        return -1;
+                      })();
+                      const handleMcqClick = (oi: number) => {
+                        if (result) return;
+                        setMcqSelections(prev => ({ ...prev, [qId]: oi }));
+                        if (correctIdx >= 0) {
+                          setMcqResults(prev => ({ ...prev, [qId]: oi === correctIdx ? "correct" : "wrong" }));
+                        }
+                      };
+                      return (
+                        <div style={{ marginBottom: 10, paddingLeft: 4 }}>
+                          {opts.map((opt: string, oi: number) => {
+                            const isSelected = selected === oi;
+                            const isCorrect = result && oi === correctIdx;
+                            const isWrongChoice = result === "wrong" && isSelected;
+                            let bg = "transparent";
+                            let border = "1px solid transparent";
+                            let optColor = "#3c3c3c";
+                            if (isCorrect) { bg = "#e6f9e0"; border = "1px solid #58cc02"; optColor = "#2d7a00"; }
+                            else if (isWrongChoice) { bg = "#fef2f2"; border = "1px solid #ef4444"; optColor = "#b91c1c"; }
+                            else if (isSelected && !result) { bg = "#eff6ff"; border = "1px solid #1cb0f6"; }
+                            return (
+                              <button
+                                key={oi}
+                                type="button"
+                                onClick={() => handleMcqClick(oi)}
+                                style={{
+                                  display: "flex",
+                                  alignItems: "baseline",
+                                  gap: 8,
+                                  padding: "8px 12px",
+                                  fontSize: "0.88rem",
+                                  color: optColor,
+                                  background: bg,
+                                  border,
+                                  borderRadius: 12,
+                                  cursor: result ? "default" : "pointer",
+                                  width: "100%",
+                                  textAlign: "left",
+                                  marginBottom: 4,
+                                  transition: "all 0.15s",
+                                }}
+                              >
+                                <span style={{ fontWeight: 700, minWidth: 22, color: isCorrect ? "#58cc02" : isWrongChoice ? "#ef4444" : "#777777" }}>
+                                  {isCorrect ? "✓" : isWrongChoice ? "✗" : String.fromCharCode(65 + oi) + "."}
+                                </span>
+                                <MathText text={opt} />
+                              </button>
+                            );
+                          })}
+                          {result && (
+                            <div style={{
+                              marginTop: 6, padding: "8px 12px", borderRadius: 10,
+                              fontSize: "0.82rem", fontWeight: 700,
+                              background: result === "correct" ? "#e6f9e0" : "#fef2f2",
+                              color: result === "correct" ? "#2d7a00" : "#b91c1c",
+                            }}>
+                              {result === "correct" ? "Correct! Well done." : `Incorrect. The correct answer is ${String.fromCharCode(65 + correctIdx)}.`}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
 
                     <QuestionVisualAid
                       subject={subjectKey}

@@ -30,9 +30,9 @@ export default function JourneyStrip(props: {
 
   const steps: JourneyStep[] = [
     { key: "trends", label: "1. Trends", to: `/trends/${grade}/${safeSubject}` },
-    { key: "topichub", label: "2. TopicHub", to: topic ? `/topic-hub/${grade}/${safeSubject}/${encodeURIComponent(topic)}` : `/topic-hub/${grade}/${safeSubject}` },
+    { key: "topichub", label: "2. Chapter Hub", to: topic ? `/topic-hub/${grade}/${safeSubject}/${encodeURIComponent(topic)}` : `/topic-hub/${grade}/${safeSubject}` },
     { key: "practice", label: "3. Practice", to: `/practice/${grade}/${safeSubject}${topicQuery}` },
-    { key: "hpq", label: "4. HPQ", to: `/highly-probable/${grade}/${safeSubject}${topicQuery}` },
+    { key: "hpq", label: "4. Predicted Q's", to: `/highly-probable/${grade}/${safeSubject}${topicQuery}` },
   ];
 
   return (

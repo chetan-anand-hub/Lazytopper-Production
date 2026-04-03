@@ -967,7 +967,7 @@ const HighlyProbableQuestions: React.FC = () => {
                 marginBottom: 10,
               }}
             >
-              Highly Probable Questions Hub
+              Predicted Questions Hub
             </h1>
             <p
               style={{
@@ -1371,7 +1371,7 @@ const HighlyProbableQuestions: React.FC = () => {
                   marginBottom: 4,
                 }}
               >
-                Class {grade} {subjectKey} - Highly Probable Questions
+                Class {grade} {subjectKey} - Predicted Questions
               </h2>
               <p
                 style={{

@@ -416,7 +416,7 @@ const TrendsPage: React.FC = () => {
             </div>
             <h1
               style={{
-                fontSize: "2.1rem",
+                fontSize: "clamp(1.4rem, 5vw, 2.1rem)",
                 lineHeight: 1.15,
                 fontWeight: 650,
                 marginBottom: 10,
