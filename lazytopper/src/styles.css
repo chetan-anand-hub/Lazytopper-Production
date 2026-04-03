@@ -6571,6 +6571,15 @@ select:focus {
   transition: stroke-dashoffset 0.6s ease-out;
 }
 
+.lt-desktop-only {
+  display: inline;
+}
+@media (max-width: 768px) {
+  .lt-desktop-only {
+    display: none !important;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

@@ -1235,14 +1235,14 @@ const packTopicKey = useMemo(() => {
           quickLinks={[
             { label: "Trends", to: `/trends/${grade}/${subjectKey}` },
             {
-              label: "TopicHub",
+              label: "Chapter Hub",
               to:
                 canonicalTopicKey && topicParam !== "Generic"
                   ? `/topic-hub/${grade}/${subjectKey}/${encodeURIComponent(canonicalTopicKey)}`
                   : `/topic-hub/${grade}/${subjectKey}`,
             },
             {
-              label: "HPQ",
+              label: "Predicted Q's",
               to:
                 canonicalTopicKey && topicParam !== "Generic"
                   ? `/highly-probable/${grade}/${subjectKey}?topic=${encodeURIComponent(canonicalTopicKey)}`
@@ -1516,7 +1516,7 @@ const packTopicKey = useMemo(() => {
               {count}Q
             </button>
           ))}
-          <span style={{ fontSize: "0.72rem", color: "#777777" }}>
+          <span className="lt-desktop-only" style={{ fontSize: "0.72rem", color: "#777777" }}>
             Shortcut: Alt+1/2/3/4/5 and Alt+R.
           </span>
         </section>
@@ -1660,15 +1660,24 @@ const packTopicKey = useMemo(() => {
         {/* Questions list */}
         <section>
           {isLoading && (
-            <p
+            <div
               style={{
-                fontSize: "0.85rem",
-                color: "#777777",
-                marginBottom: 8,
+                padding: "32px 16px",
+                textAlign: "center",
+                borderRadius: 16,
+                background: "#f8fafc",
+                border: "1px solid #e5e5e5",
+                marginBottom: 12,
               }}
             >
-              Generating fresh questions for this topic...
-            </p>
+              <div style={{ fontSize: "2rem", marginBottom: 8 }}>📝</div>
+              <p style={{ fontSize: "0.95rem", fontWeight: 700, color: "#3c3c3c", marginBottom: 4 }}>
+                Preparing your questions...
+              </p>
+              <p style={{ fontSize: "0.82rem", color: "#777777" }}>
+                Picking the best questions based on your topic and difficulty level.
+              </p>
+            </div>
           )}
 
           {error && (
@@ -1684,16 +1693,23 @@ const packTopicKey = useMemo(() => {
           )}
 
           {!isLoading && !error && questions.length === 0 ? (
-            <p
+            <div
               style={{
-                fontSize: "0.85rem",
-                color: "#777777",
+                padding: "32px 16px",
+                textAlign: "center",
+                borderRadius: 16,
+                background: "#f8fafc",
+                border: "1px solid #e5e5e5",
               }}
             >
-              No practice questions available yet for this topic. Try picking a
-              different topic from the Trends page, or refresh once the bank is
-              updated.
-            </p>
+              <div style={{ fontSize: "2rem", marginBottom: 8 }}>🔍</div>
+              <p style={{ fontSize: "0.95rem", fontWeight: 700, color: "#3c3c3c", marginBottom: 4 }}>
+                No questions found for this topic yet
+              </p>
+              <p style={{ fontSize: "0.82rem", color: "#777777" }}>
+                Try picking a different topic from the Trends page, or check back soon as we keep adding new questions.
+              </p>
+            </div>
           ) : (
             <div
               style={{

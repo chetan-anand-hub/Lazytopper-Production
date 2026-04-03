@@ -138,7 +138,7 @@ export default function Onboarding() {
           </button>
         </div>
         <div style={{ marginTop: 10, fontSize: "0.86rem", opacity: 0.82, lineHeight: 1.55 }}>
-          1. Fill quick details. 2. Generate your study strategy. 3. Start from TopicHub Learn and move to Grind + Practice.
+          1. Fill quick details. 2. Generate your study strategy. 3. Start from Chapter Hub and move to Practice.
         </div>
       </div>
 

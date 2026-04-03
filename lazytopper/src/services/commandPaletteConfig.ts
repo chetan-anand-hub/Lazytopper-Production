@@ -47,8 +47,8 @@ export const defaultQuickActions: QuickAction[] = [
   },
   {
     id: 'practice-hpq',
-    label: 'Practice HPQ',
-    description: 'Highly Probable Questions for fast marks gain',
+    label: 'Practice Predicted Questions',
+    description: 'Predicted questions for fast marks gain',
     handler: 'navigateToHPQ',
   },
   {
@@ -67,7 +67,7 @@ export const defaultQuickActions: QuickAction[] = [
   // Content & guidance
   {
     id: 'open-topic-hub',
-    label: 'Open TopicHub',
+    label: 'Open Chapter Hub',
     description: 'Core ideas, common mistakes, exam patterns, 95+ tips',
     handler: 'navigateToTopicHub',
   },
@@ -87,8 +87,8 @@ export const defaultQuickActions: QuickAction[] = [
   },
   {
     id: 'toggle-vibe-mode',
-    label: 'Toggle Vibe (Beast / Zombie)',
-    description: 'Switch difficulty + pace: Beast = harder, Zombie = lighter',
+    label: 'Toggle Study Mode (Challenge / Relaxed)',
+    description: 'Switch difficulty + pace: Challenge = harder, Relaxed = lighter',
     handler: 'toggleVibeMode',
   },
 

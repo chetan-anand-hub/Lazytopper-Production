@@ -328,7 +328,7 @@ export default function Dashboard() {
   type HeroAction = { type: string; title: string; description: string; ctaLabel: string; onAction: () => void };
   const heroAction = useMemo<HeroAction>(() => {
     if (incompleteSession) {
-      const kindLabel = incompleteSession.kind === "daily_mix" ? "Daily Mix" : incompleteSession.kind === "hpq" ? "HPQ" : "Study Session";
+      const kindLabel = incompleteSession.kind === "daily_mix" ? "Daily Mix" : incompleteSession.kind === "hpq" ? "Predicted Q's" : "Study Session";
       const resumeRoute = incompleteSession.kind === "daily_mix"
         ? `/daily-mix/${gradeNum}/${incompleteSession.subject}`
         : incompleteSession.kind === "hpq"
@@ -365,8 +365,8 @@ export default function Dashboard() {
       return {
         type: "streak",
         title: `${streak} Day Streak! Keep it alive`,
-        description: "You've done your daily mix. Keep momentum with a quick practice session or explore TopicHub.",
-        ctaLabel: "Continue in TopicHub",
+        description: "You've done your daily mix. Keep momentum with a quick practice session or explore Chapter Hub.",
+        ctaLabel: "Continue in Chapter Hub",
         onAction: () => navigate(`/topic-hub/${gradeNum}/${subjectForQuickActions}`),
       };
     }
@@ -393,21 +393,24 @@ export default function Dashboard() {
     return (
       <div className="lt-page">
         <h2 className="title">Your Personal Dashboard</h2>
-        <div className="card">
-          <p>We need your study details to create a plan.</p>
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 10 }}>
+        <div className="card" style={{ textAlign: "center", padding: "32px 20px" }}>
+          <div style={{ fontSize: "2.5rem", marginBottom: 12 }}>🎯</div>
+          <h3 style={{ fontSize: "1.15rem", fontWeight: 800, marginBottom: 6 }}>
+            Let's set up your study plan!
+          </h3>
+          <p style={{ fontSize: "0.9rem", color: "#777", marginBottom: 16, lineHeight: 1.5 }}>
+            Tell us your target score, available study time, and exam date. We'll create a personalised strategy just for you.
+          </p>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center" }}>
             <button className="cta-btn" onClick={() => navigate("/onboarding")}>
-              Fill My Study Details
+              Set Up My Study Plan
             </button>
             <button className="pill-btn" type="button" onClick={() => navigate("/daily-mix/10/Maths")}>
               Start Daily Mix
             </button>
-            <button className="cta-btn small" onClick={() => navigate("/weak-area-practice")} style={{ background: "#ff9600", border: "2px solid #e08600", boxShadow: "0 2px 0 #cc7a00" }}>
-              Fix My Weak Areas
-            </button>
           </div>
-          <p style={{ marginTop: 10, opacity: 0.82 }}>
-            Match Score is enabled after your first Learn/Practice attempts.
+          <p style={{ marginTop: 14, opacity: 0.7, fontSize: "0.82rem" }}>
+            Your progress tracking and personalised recommendations will appear here once you start.
           </p>
         </div>
       </div>
@@ -607,7 +610,7 @@ export default function Dashboard() {
             </button>
           )}
           <button className="cta-btn small" onClick={() => navigate(`/topic-hub/${gradeNum}/${subjectForQuickActions}`)}>
-            Open TopicHub
+            Open Chapter Hub
           </button>
           <button className="cta-btn small" onClick={() => navigate("/weak-area-practice")} style={{ background: "#ff9600", border: "2px solid #e08600", boxShadow: "0 2px 0 #cc7a00" }}>
             Fix My Weak Areas
@@ -737,7 +740,7 @@ export default function Dashboard() {
               onClick={() => setMode("zombie")}
               style={{ background: mode === "zombie" ? "#58cc02" : undefined, color: mode === "zombie" ? "#fff" : undefined }}
             >
-              Low
+              Relaxed
             </button>
             <button
               type="button"
@@ -745,10 +748,10 @@ export default function Dashboard() {
               onClick={() => setMode("beast")}
               style={{ background: mode === "beast" ? "#58cc02" : undefined, color: mode === "beast" ? "#fff" : undefined }}
             >
-              High
+              Challenge
             </button>
             <span style={{ fontSize: "0.85rem", opacity: 0.8 }}>
-              {mode === "zombie" ? "Low energy mode: short and lighter practice." : "High energy mode: full rigor and harder drills."}
+              {mode === "zombie" ? "Relaxed mode: short and lighter practice." : "Challenge mode: full rigor and harder drills."}
             </span>
           </div>
           <div className="focus-cta-row" style={{ marginTop: 12 }}>

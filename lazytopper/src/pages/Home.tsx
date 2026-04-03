@@ -22,7 +22,7 @@ const FAQ = [
   },
   {
     q: "How should I start?",
-    a: "Pick your subject, check the Trends page to see which topics matter most, then open TopicHub to learn and practice chapter by chapter.",
+    a: "Pick your subject, check the Trends page to see which topics matter most, then open any chapter to learn and practice step by step.",
   },
 ];
 
@@ -57,7 +57,7 @@ const FEATURES = [
   },
   {
     icon: "🎯",
-    title: "Predicted questions (HPQ)",
+    title: "Predicted questions",
     body: "Questions most likely to appear based on historical patterns. Great for focused last-month revision.",
   },
   {
@@ -237,20 +237,6 @@ const Home: React.FC = () => {
   return (
     <div className="lt-home" data-testid="home-page">
       <div className="lt-home__shell">
-        <header className="lt-home__header">
-          <div className="lt-home__brand">
-            <span className="lt-home__logo">LT</span>
-            <p className="lt-home__name">LazyTopper</p>
-          </div>
-          <button
-            type="button"
-            className="lt-home__loginBtn"
-            onClick={() => navigate(user ? "/dashboard" : "/login")}
-          >
-            {user ? "Dashboard" : "Log in"}
-          </button>
-        </header>
-
         <section className="lt-home__hero" aria-label="Hero">
           <p className="lt-home__eyebrow">CBSE Class 10 — Maths & Science</p>
           <h1 className="lt-home__headline">

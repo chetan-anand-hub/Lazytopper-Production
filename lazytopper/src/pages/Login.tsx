@@ -158,7 +158,7 @@ export default function Login() {
               style={{ background: mode === "zombie" ? "#3c3c3c" : undefined, color: mode === "zombie" ? "#fff" : undefined }}
               onClick={() => setMode("zombie")}
             >
-              Low
+              Relaxed
             </button>
             <button
               type="button"
@@ -166,12 +166,12 @@ export default function Login() {
               style={{ background: mode === "beast" ? "#3c3c3c" : undefined, color: mode === "beast" ? "#fff" : undefined }}
               onClick={() => setMode("beast")}
             >
-              High
+              Challenge
             </button>
             <span style={{ fontSize: "0.86rem", opacity: 0.85 }}>
               {mode === "zombie"
                 ? "Got it. Let's just do 10 mins of light revision today. No heavy lifting."
-                : "Nice. Full-rigor mode is active for harder drills."}
+                : "Nice. Challenge mode is active for harder drills."}
             </span>
           </div>
         </div>

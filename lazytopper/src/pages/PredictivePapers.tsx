@@ -95,7 +95,7 @@ const PredictivePapersPage: React.FC = () => {
             80 marks · 3hr timer · Internal choice · Auto-submit · Deep analytics
           </div>
           <div style={{ marginTop: 10, fontSize: "0.78rem", color: "#58cc02", fontWeight: 600 }}>
-            Generate & Start →
+            Start Mock →
           </div>
         </button>
 
@@ -118,7 +118,7 @@ const PredictivePapersPage: React.FC = () => {
             80 marks · 3hr timer · Internal choice · Auto-submit · Deep analytics
           </div>
           <div style={{ marginTop: 10, fontSize: "0.78rem", color: "#38bdf8", fontWeight: 600 }}>
-            Generate & Start →
+            Start Mock →
           </div>
         </button>
       </div>
@@ -219,7 +219,7 @@ const PredictivePapersPage: React.FC = () => {
                   fontWeight: 500,
                 }}
               >
-                Launch paper → Auto-mock view
+                Start Mock →
               </div>
             </button>
           );

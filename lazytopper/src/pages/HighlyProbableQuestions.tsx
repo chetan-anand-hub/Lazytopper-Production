@@ -467,7 +467,7 @@ const HighlyProbableQuestions: React.FC = () => {
     setSearchParams(new URLSearchParams());
 
     navigate(`/highly-probable/${grade}/${next}`, {
-      state: { back: currentURL, backLabel: "Back to HPQ" },
+      state: { back: currentURL, backLabel: "Back to Predicted Q's" },
       replace: true,
     });
   };
@@ -482,7 +482,7 @@ const HighlyProbableQuestions: React.FC = () => {
     navigate(buildMockBuilderUrl(grade, subjectKey), {
       state: {
         back: currentURL,
-        backLabel: "Back to HPQ",
+        backLabel: "Back to Predicted Q's",
       },
     });
   };
@@ -497,7 +497,7 @@ const HighlyProbableQuestions: React.FC = () => {
       {
         state: {
           back: currentURL,
-          backLabel: "Back to HPQ",
+          backLabel: "Back to Predicted Q's",
         },
       }
     );
@@ -609,7 +609,7 @@ const HighlyProbableQuestions: React.FC = () => {
       topicKey,
       topicName,
       backPath,
-      backLabel: "Back to HPQ",
+      backLabel: "Back to Predicted Q's",
       subtopicHint: q.subtopic || q.concept || bucket.topic,
       focusBankIds: q.id ? [q.id] : undefined,
       recommendedCount,
@@ -920,7 +920,7 @@ const HighlyProbableQuestions: React.FC = () => {
           backLabel={backLabel}
           quickLinks={[
             { label: "Trends", to: buildTrendsUrl(grade, subjectKey) },
-            { label: "TopicHub", to: buildTopicHubUrl(grade, subjectKey, currentTopicKey && currentTopicKey !== "all" ? currentTopicKey : "") },
+            { label: "Chapter Hub", to: buildTopicHubUrl(grade, subjectKey, currentTopicKey && currentTopicKey !== "all" ? currentTopicKey : "") },
             { label: "Practice", to: `/practice/${grade}/${subjectKey}${currentTopicKey && currentTopicKey !== "all" ? `?topic=${encodeURIComponent(currentTopicKey)}` : ""}` },
           ]}
         />
@@ -957,7 +957,7 @@ const HighlyProbableQuestions: React.FC = () => {
                 marginBottom: 8,
               }}
             >
-              Class {grade} - {subjectKey} - HPQ Bank
+              Class {grade} - {subjectKey} - Predicted Questions
             </div>
             <h1
               style={{
@@ -1380,7 +1380,7 @@ const HighlyProbableQuestions: React.FC = () => {
                 }}
               >
                 Each card = one chapter. Inside you get a mini{" "}
-                <strong>HPQ stack</strong>: quick MCQs, ARs, short/long,
+                <strong>predicted question stack</strong>: quick MCQs, ARs, short/long,
                 case-based - exactly the pattern that keeps repeating in boards.
               </p>
 
@@ -1712,7 +1712,7 @@ const HighlyProbableQuestions: React.FC = () => {
                               cursor: "pointer",
                             }}
                           >
-                            Revise full topic in TopicHub
+                            Revise full topic in Chapter Hub
                           </button>
                         </div>
 

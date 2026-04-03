@@ -380,9 +380,9 @@ const TrendsPage: React.FC = () => {
           backTo={backTo}
           backLabel={backLabel}
           quickLinks={[
-            { label: "TopicHub", to: `/topic-hub/${grade}/${subjectKey}` },
+            { label: "Chapter Hub", to: `/topic-hub/${grade}/${subjectKey}` },
             { label: "Practice", to: `/practice/${grade}/${subjectKey}` },
-            { label: "HPQ", to: `/highly-probable/${grade}/${subjectKey}` },
+            { label: "Predicted Q's", to: `/highly-probable/${grade}/${subjectKey}` },
           ]}
         />
         <JourneyStrip current="trends" grade={grade} subject={subjectKey} />
@@ -1241,7 +1241,7 @@ const TrendsPage: React.FC = () => {
                   color: "#4b5563",
                 }}
               >
-                Jump to your curated HPQ bank, then build a full mock when exam date is near.
+                Jump to your curated predicted questions bank, then build a full mock when exam date is near.
               </p>
               <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap" }}>
                 <button
@@ -1260,7 +1260,7 @@ const TrendsPage: React.FC = () => {
                     cursor: "pointer",
                   }}
                 >
-                  Open HPQ bank
+                  Open Predicted Q's
                 </button>
                 <button
                   type="button"
@@ -1331,7 +1331,7 @@ const TrendsPage: React.FC = () => {
                   color: "#4b5563",
                 }}
               >
-                Use Teach + Practice loop through TopicHub for daily progression through the year.
+                Use Teach + Practice loop through Chapter Hub for daily progression through the year.
               </p>
             </div>
           </div>

@@ -762,7 +762,6 @@ export default function ProfilePage() {
         )}
       </div>
 
-      {/* Mode toggle (Beast/Zombie) — relocated from header */}
       <div style={{ marginTop: 16, padding: "12px 16px", background: "#f7f7f7", borderRadius: 12, border: "2px solid #e5e5e5" }}>
         <div style={{ fontSize: 13, fontWeight: 700, color: "#3c3c3c", marginBottom: 6 }}>Study Mode</div>
         <div style={{ display: "flex", gap: 8 }}>
@@ -778,12 +777,12 @@ export default function ProfilePage() {
               }}
               style={{
                 flex: 1, padding: "8px 0", borderRadius: 10, border: "none",
-                fontWeight: 700, fontSize: 13, cursor: "pointer", textTransform: "capitalize",
+                fontWeight: 700, fontSize: 13, cursor: "pointer",
                 background: (localStorage.getItem("vibeMode") || "") === m ? "#58cc02" : "#e5e5e5",
                 color: (localStorage.getItem("vibeMode") || "") === m ? "#fff" : "#3c3c3c",
               }}
             >
-              {m === "beast" ? "🔥 Beast" : "🧟 Zombie"}
+              {m === "beast" ? "🔥 Challenge" : "😌 Relaxed"}
             </button>
           ))}
         </div>

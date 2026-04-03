@@ -10,9 +10,9 @@ type JourneyStep = {
 
 const DEFAULT_STEPS: JourneyStep[] = [
   { key: "trends", label: "1. Trends", to: "/trends/10/Maths" },
-  { key: "topichub", label: "2. TopicHub", to: "/topic-hub" },
+  { key: "topichub", label: "2. Chapter Hub", to: "/topic-hub" },
   { key: "practice", label: "3. Practice", to: "/practice/10/Maths" },
-  { key: "hpq", label: "4. HPQ", to: "/highly-probable/10/Maths" },
+  { key: "hpq", label: "4. Predicted Q's", to: "/highly-probable/10/Maths" },
 ];
 
 export default function JourneyStrip(props: {

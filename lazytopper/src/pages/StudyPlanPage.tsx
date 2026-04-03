@@ -515,7 +515,7 @@ const StudyPlanPage: React.FC = () => {
                             cursor: "pointer",
                           }}
                         >
-                          Study in TopicHub
+                          Study in Chapter Hub
                         </button>
                         <button
                           type="button"

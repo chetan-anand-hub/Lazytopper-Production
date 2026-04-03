@@ -72,7 +72,7 @@ const SECTION_CONFIGS: SectionConfig[] = [
     subtitle: "Very short answers. Two-step reasoning.",
     icon: "💬",
     marksPerQuestion: 2,
-    targetQuestions: 6,
+    targetQuestions: 5,
     description: "Concept application with 2–3 key steps in the solution.",
   },
   {
@@ -81,16 +81,16 @@ const SECTION_CONFIGS: SectionConfig[] = [
     subtitle: "Short answers. Multi-step questions with some working.",
     icon: "🧠",
     marksPerQuestion: 3,
-    targetQuestions: 8,
+    targetQuestions: 6,
     description: "Heavier reasoning, but still within 3-mark CBSE style.",
   },
   {
     id: "D",
-    title: "Section D — 4 marks",
+    title: "Section D — 5 marks",
     subtitle: "Long answers. Full working and presentation.",
     icon: "📜",
-    marksPerQuestion: 4,
-    targetQuestions: 6,
+    marksPerQuestion: 5,
+    targetQuestions: 4,
     description: "Full-length questions with proper steps and justification.",
   },
   {
@@ -175,15 +175,15 @@ const MockBuilder: React.FC = () => {
   } else if (navState.back && navState.back.includes("/study-plan")) {
     backLabel = "Back to study plan";
   } else if (navState.back && navState.back.includes("/highly-probable")) {
-    backLabel = "Back to HPQ hub";
+    backLabel = "Back to Predicted Q's";
   } else if (fromPath && fromPath.includes("/study-plan")) {
     backLabel = "Back to study plan";
   } else if (fromPath && fromPath.includes("/highly-probable")) {
-    backLabel = "Back to HPQ hub";
+    backLabel = "Back to Predicted Q's";
   } else if (fromTag === "study-plan") {
     backLabel = "Back to study plan";
   } else if (fromTag === "hpq" || fromTag === "highly-probable") {
-    backLabel = "Back to HPQ hub";
+    backLabel = "Back to Predicted Q's";
   } else {
     backLabel = "Back to chapter trends";
   }
@@ -604,8 +604,8 @@ const MockBuilder: React.FC = () => {
           }}
         >
           Sections follow the latest CBSE-style pattern:{" "}
-          <strong>A: 20 × 1 mark</strong>, <strong>B: 6 × 2 marks</strong>,{" "}
-          <strong>C: 8 × 3 marks</strong>, <strong>D: 6 × 4 marks</strong>,{" "}
+          <strong>A: 20 × 1 mark</strong>, <strong>B: 5 × 2 marks</strong>,{" "}
+          <strong>C: 6 × 3 marks</strong>, <strong>D: 4 × 5 marks</strong>,{" "}
           <strong>E: 3 × 4-mark case-studies</strong>. Everything here is built
           from your <strong>prediction bank</strong> for {subjectKey}.
         </p>

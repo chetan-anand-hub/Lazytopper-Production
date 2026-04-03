@@ -297,9 +297,9 @@ function TopicHubHomeContent() {
             marginBottom: 14,
           }}
         >
-          <div style={{ fontSize: 28, fontWeight: 900, letterSpacing: -0.2 }}>TopicHub</div>
+          <div style={{ fontSize: 28, fontWeight: 900, letterSpacing: -0.2 }}>Chapter Hub</div>
           <div style={{ marginTop: 6, opacity: 0.76 }}>
-            One place to Learn, Grind, and revise with human-tutor flow.
+            One place to learn, practice, and revise with human-tutor flow.
           </div>
         </div>
 
