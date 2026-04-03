@@ -1207,20 +1207,33 @@ function AiDiagramFallback({ questionText }: { questionText: string }): React.Re
   );
 }
 
+const QVA_STYLE_ID = "qva-responsive-style";
+function ensureResponsiveStyle() {
+  if (typeof document === "undefined") return;
+  if (document.getElementById(QVA_STYLE_ID)) return;
+  const style = document.createElement("style");
+  style.id = QVA_STYLE_ID;
+  style.textContent = `@media(max-width:480px){.qva-container{max-width:260px!important}}`;
+  document.head.appendChild(style);
+}
+
 export function QuestionVisualAid(props: QuestionVisualAidProps): React.ReactElement | null {
+  ensureResponsiveStyle();
   const kind = inferVisualKind(props);
+
+  const containerStyle: React.CSSProperties = {
+    maxWidth: 320,
+    maxHeight: 220,
+    overflow: "hidden",
+    margin: "6px auto 8px",
+  };
 
   if (!kind) {
     const qt = norm(props.questionText);
     const needsDiagram = /\b(draw|diagram|figure|sketch|illustrate|label|labelled)\b/.test(qt);
     if (!needsDiagram) return null;
     return (
-      <div
-        style={{
-          maxWidth: 340,
-          margin: "6px auto 8px",
-        }}
-      >
+      <div className="qva-container" style={containerStyle}>
         <AiDiagramFallback questionText={props.questionText || ""} />
       </div>
     );
@@ -1228,14 +1241,13 @@ export function QuestionVisualAid(props: QuestionVisualAidProps): React.ReactEle
 
   return (
     <div
+      className="qva-container"
       style={{
+        ...containerStyle,
         border: "1px solid rgba(0,0,0,0.08)",
         borderRadius: 12,
         background: "#f7f7f7",
         padding: "8px 10px",
-        marginBottom: 8,
-        maxWidth: 340,
-        margin: "6px auto 8px",
       }}
     >
       <div style={{ fontSize: "0.72rem", color: "#475569", marginBottom: 4 }}>
