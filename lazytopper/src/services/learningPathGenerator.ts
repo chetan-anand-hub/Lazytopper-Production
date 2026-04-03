@@ -1,6 +1,7 @@
 import { getWeakAreas, type WeakArea } from "./weakAreaAggregator";
 import { getDueReviews } from "./spacedRepetitionEngine";
 import { buildProgressScopeKey, getActiveProgressUser } from "./studentProgressStore";
+import { callMentor } from "../ai/aiClient";
 
 export interface LearningPathDay {
   day: number;
@@ -159,6 +160,69 @@ export function saveLearningPath(path: LearningPath): void {
     path.updatedAt = new Date().toISOString();
     window.localStorage.setItem(key, JSON.stringify(path));
   } catch {}
+}
+
+export async function generateAILearningPath(options?: {
+  daysAvailable?: number;
+  minutesPerDay?: number;
+  subject?: "Maths" | "Science";
+}): Promise<LearningPath> {
+  const totalDays = options?.daysAvailable ?? 14;
+  const minutesPerDay = options?.minutesPerDay ?? 60;
+  const { weakAreas } = getWeakAreas({ subject: options?.subject, limit: 15 });
+
+  if (weakAreas.length === 0) {
+    return generateLearningPath(options);
+  }
+
+  const weakSummary = weakAreas
+    .map((w) => `${w.topicName} (${w.subject}, mastery ${w.masteryPercent}%, accuracy ${w.accuracy}%, concepts: ${w.weakConcepts.join(", ") || "general"})`)
+    .join("\n");
+
+  try {
+    const response = await callMentor("plan", {
+      subject: options?.subject || "Maths",
+      extraNotes: [
+        `Create a ${totalDays}-day study plan for CBSE Class 10 board exam preparation.`,
+        `Student has ${minutesPerDay} minutes per day available.`,
+        `Weak areas identified:\n${weakSummary}`,
+        `Requirements:`,
+        `- Order topics by prerequisites (foundational first)`,
+        `- Start each topic with Easy difficulty, progress to Hard`,
+        `- Include review days every 3-4 days`,
+        `- Mark day ${Math.floor(totalDays / 2)} and day ${totalDays} as milestones`,
+        `- For each day provide: topic names, difficulty level (Easy/Medium/Hard), number of questions (5-15), key concepts to focus on`,
+        `Respond with a structured day-by-day plan.`,
+      ].join("\n"),
+      daysLeft: totalDays,
+      hoursPerDayTotal: minutesPerDay / 60,
+    });
+
+    const aiText = response?.data?.text || response?.data?.markdown || "";
+
+    const localPath = generateLearningPath(options);
+
+    if (aiText.length > 50) {
+      localPath.id = `ai-lp-${Date.now().toString(36)}`;
+
+      const dayMentions = aiText.match(/day\s*(\d+)/gi) || [];
+      for (const mention of dayMentions) {
+        const dayNum = parseInt(mention.replace(/day\s*/i, ""), 10);
+        if (dayNum > 0 && dayNum <= localPath.days.length) {
+          const dayObj = localPath.days[dayNum - 1];
+          if (aiText.toLowerCase().includes("review") && dayNum % 3 === 0) {
+            dayObj.reviewTopics = weakAreas.slice(0, 3).map((w) => w.topicKey);
+          }
+        }
+      }
+    }
+
+    saveLearningPath(localPath);
+    return localPath;
+  } catch (err) {
+    console.warn("AI learning path generation failed, falling back to local:", err);
+    return generateLearningPath(options);
+  }
 }
 
 export function markDayCompleted(dayIndex: number): LearningPath | null {

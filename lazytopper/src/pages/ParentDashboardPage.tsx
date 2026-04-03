@@ -1,6 +1,6 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { loadInsights, type PracticeAttempt } from "../services/practiceInsights";
+import { loadInsights } from "../services/practiceInsights";
 import { loadTopicMasterySnapshot } from "../services/topicHubMastery";
 import { getWeakAreas, type WeakAreaSummary } from "../services/weakAreaAggregator";
 import { useSmartLearning } from "../engine/smartLearningStore";
@@ -164,12 +164,18 @@ export default function ParentDashboardPage() {
 
   const topicList = subjectTab === "Science" ? ALL_SCIENCE_TOPICS : ALL_MATHS_TOPICS;
 
+  const reportRef = useRef<HTMLDivElement>(null);
+
   const handleCopyLink = () => {
     const url = window.location.href;
     navigator.clipboard?.writeText(url).then(() => {
       setShareLink("Link copied!");
       setTimeout(() => setShareLink(""), 2000);
     }).catch(() => setShareLink(url));
+  };
+
+  const handlePrintReport = () => {
+    window.print();
   };
 
   return (
@@ -188,21 +194,38 @@ export default function ParentDashboardPage() {
             {user?.displayName || "Student"} - Class 10
           </p>
         </div>
-        <button
-          onClick={handleCopyLink}
-          style={{
-            padding: "8px 14px",
-            borderRadius: 10,
-            border: "2px solid #e5e5e5",
-            background: "#fff",
-            fontWeight: 700,
-            fontSize: 12,
-            cursor: "pointer",
-            color: "#333",
-          }}
-        >
-          {shareLink || "Share Link"}
-        </button>
+        <div style={{ display: "flex", gap: 6 }}>
+          <button
+            onClick={handleCopyLink}
+            style={{
+              padding: "8px 14px",
+              borderRadius: 10,
+              border: "2px solid #e5e5e5",
+              background: "#fff",
+              fontWeight: 700,
+              fontSize: 12,
+              cursor: "pointer",
+              color: "#333",
+            }}
+          >
+            {shareLink || "Share Link"}
+          </button>
+          <button
+            onClick={handlePrintReport}
+            style={{
+              padding: "8px 14px",
+              borderRadius: 10,
+              border: "2px solid #1cb0f6",
+              background: "#eff6ff",
+              fontWeight: 700,
+              fontSize: 12,
+              cursor: "pointer",
+              color: "#1cb0f6",
+            }}
+          >
+            Print / PDF
+          </button>
+        </div>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, marginBottom: 20 }}>

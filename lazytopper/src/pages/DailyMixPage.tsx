@@ -580,6 +580,24 @@ export default function DailyMixPage() {
             {currentBadge ? ` • ${currentBadge.name}` : ""}
           </div>
           <div style={{ opacity: 0.5, fontSize: 12, marginTop: 8 }}>Come back tomorrow to keep your streak alive!</div>
+          <button
+            type="button"
+            onClick={() => navigate("/weak-area-practice")}
+            style={{
+              marginTop: 12,
+              padding: "10px 24px",
+              borderRadius: 12,
+              border: "none",
+              background: "#ff9600",
+              color: "#fff",
+              fontWeight: 800,
+              fontSize: 14,
+              cursor: "pointer",
+              boxShadow: "0 3px 0 #cc7a00",
+            }}
+          >
+            Fix My Weak Areas
+          </button>
         </div>
       )}
 

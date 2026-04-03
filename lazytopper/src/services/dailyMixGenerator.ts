@@ -7,6 +7,7 @@ import { computePracticeInsights } from "./practiceInsights";
 import { normalizeTopicKey } from "../utils/topicResolver";
 import { canonicalChapters } from "../data/syllabus/cbse10Canonical";
 import { loadTopicMasterySnapshot, type TopicHubMasterySnapshot } from "./topicHubMastery";
+import { getDueReviews as getSRDueReviews } from "./spacedRepetitionEngine";
 
 export type DailyMixIntensity = "light" | "normal" | "hard";
 
@@ -269,5 +270,27 @@ export function generateMultiTopicDailyMix(opts: {
     });
     allItems.push(...topicItems);
   }
-  return allItems.slice(0, maxItems);
+
+  try {
+    const dueReviews = getSRDueReviews({ subject, limit: 5 });
+    if (dueReviews && dueReviews.length > 0) {
+      const reviewTopicKeys = [...new Set(dueReviews.map((r: { topicKey: string }) => r.topicKey))];
+      for (const rtk of reviewTopicKeys.slice(0, 2)) {
+        const reviewItems = generateDailyMix({
+          grade,
+          subject,
+          topic: rtk as string,
+          seedKey: seedKey + "-sr-review",
+          count: 2,
+          intensity: "light",
+        });
+        for (const item of reviewItems) {
+          (item as DailyMixItem & { isReview?: boolean }).isReview = true;
+        }
+        allItems.push(...reviewItems);
+      }
+    }
+  } catch {}
+
+  return allItems.slice(0, maxItems + 4);
 }

@@ -469,10 +469,10 @@ export default function App() {
             element={<RequireAuth>{withRouteSuspense(<WeakAreaPracticePage />)}</RequireAuth>}
           />
 
-          {/* Parent/Teacher Progress Report Dashboard */}
+          {/* Parent/Teacher Progress Report Dashboard (accessible without auth for sharing) */}
           <Route
             path="/parent-dashboard"
-            element={<RequireAuth>{withRouteSuspense(<ParentDashboardPage />)}</RequireAuth>}
+            element={withRouteSuspense(<ParentDashboardPage />)}
           />
 
           {/* Student Profile & Growth Journey */}

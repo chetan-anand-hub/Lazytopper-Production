@@ -4,6 +4,7 @@ import { getWeakAreas, type WeakArea, type WeakAreaSummary } from "../services/w
 import { getDueReviews, getSRStats, type SRConceptCard } from "../services/spacedRepetitionEngine";
 import {
   generateLearningPath,
+  generateAILearningPath,
   loadLearningPath,
   markDayCompleted,
   type LearningPath,
@@ -313,14 +314,23 @@ export default function WeakAreaPracticePage() {
 
   const srStats = useMemo(() => getSRStats(), [refreshKey]);
 
+  const [isGenerating, setIsGenerating] = useState(false);
+
   const handlePractice = (area: WeakArea) => {
-    navigate(`/practice/10/${area.subject}?topic=${encodeURIComponent(area.topicKey)}&count=12&difficulty=All`);
+    navigate(`/practice/10/${area.subject}?topic=${encodeURIComponent(area.topicKey)}&count=12&difficulty=Easy&weakMode=1`);
   };
 
-  const handleGeneratePath = () => {
+  const handleGeneratePath = async () => {
+    setIsGenerating(true);
     const subj = subjectFilter === "All" ? undefined : subjectFilter;
-    const path = generateLearningPath({ subject: subj, daysAvailable: 14, minutesPerDay: 60 });
-    setLearningPath(path);
+    try {
+      const path = await generateAILearningPath({ subject: subj, daysAvailable: 14, minutesPerDay: 60 });
+      setLearningPath(path);
+    } catch {
+      const path = generateLearningPath({ subject: subj, daysAvailable: 14, minutesPerDay: 60 });
+      setLearningPath(path);
+    }
+    setIsGenerating(false);
     setTab("learning-path");
   };
 
@@ -473,20 +483,21 @@ export default function WeakAreaPracticePage() {
           {summary && summary.weakAreas.length > 0 && (
             <button
               onClick={handleGeneratePath}
+              disabled={isGenerating}
               style={{
                 marginTop: 8,
                 width: "100%",
                 padding: "14px 0",
                 borderRadius: 14,
                 border: "none",
-                background: "linear-gradient(135deg, #1cb0f6, #58cc02)",
+                background: isGenerating ? "#ccc" : "linear-gradient(135deg, #1cb0f6, #58cc02)",
                 color: "#fff",
                 fontWeight: 800,
                 fontSize: 15,
-                cursor: "pointer",
+                cursor: isGenerating ? "wait" : "pointer",
               }}
             >
-              Generate AI Learning Path
+              {isGenerating ? "Generating AI Path..." : "Generate AI Learning Path"}
             </button>
           )}
         </div>
