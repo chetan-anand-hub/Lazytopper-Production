@@ -657,7 +657,7 @@ function enforceDifficultyFilter(questions: PracticeQuestion[], difficulty: Diff
 const PracticePage: React.FC = () => {
   const location = useLocation();
   const params = useParams<{ grade?: string; subject?: string }>();
-  const { recordQuestionAnswered, canAskMore } = usePracticeLimit();
+  const { recordQuestionAnswered } = usePracticeLimit();
 
   const grade = params.grade || "10";
   const subjectKey: SubjectKey = normaliseSubject(params.subject ?? "Maths");
