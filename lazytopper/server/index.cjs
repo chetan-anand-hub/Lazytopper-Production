@@ -17,6 +17,7 @@
 // If AI_PROVIDER or API_KEY is missing, the server runs in deterministic STUB mode.
 
 const http = require('http');
+const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const ts = require('typescript');
@@ -4830,6 +4831,7 @@ async function handleRequest(req, res) {
       reqPath === '/api/tutor-feedback' ||
       reqPath === '/api/generate-diagram' ||
       reqPath === '/api/session/start' ||
+      reqPath === '/api/share-token' ||
       /^\/api\/session\/[^/]+$/.test(reqPath) ||
       /^\/api\/session\/[^/]+\/submit$/.test(reqPath)
     )
@@ -4841,6 +4843,67 @@ async function handleRequest(req, res) {
       'Access-Control-Max-Age': '86400',
     });
     return res.end();
+  }
+
+  // Share token generation & verification
+  const SHARE_SECRET = process.env.SESSION_SECRET;
+  if (!SHARE_SECRET && (
+    (req.method === 'POST' && req.url === '/api/share-token') ||
+    (req.method === 'GET' && String(req.url || '').startsWith('/api/verify-share-token'))
+  )) {
+    return sendJson(res, 503, { ok: false, error: 'Share feature unavailable: SESSION_SECRET not configured' });
+  }
+
+  if (req.method === 'POST' && req.url === '/api/share-token') {
+    try {
+      const body = await readJson(req);
+      const headerUid = String(req.headers['x-lazytopper-uid'] || '').trim();
+      const bodyUid = String(body.uid || '').trim();
+      const uid = headerUid || bodyUid;
+      const studentName = String(body.studentName || 'Student');
+      if (!uid) return sendJson(res, 400, { ok: false, error: 'Missing uid' });
+      if (headerUid && bodyUid && headerUid !== bodyUid) {
+        return sendJson(res, 403, { ok: false, error: 'UID mismatch between header and body' });
+      }
+
+      const expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000;
+      const payload = JSON.stringify({ uid, studentName, expiresAt });
+      const hmac = crypto.createHmac('sha256', SHARE_SECRET).update(payload).digest('hex');
+      const token = Buffer.from(payload).toString('base64url') + '.' + hmac;
+      return sendJson(res, 200, { ok: true, token });
+    } catch (err) {
+      return sendJson(res, 500, { ok: false, error: String(err && err.message || err) });
+    }
+  }
+
+  if (req.method === 'GET' && String(req.url || '').startsWith('/api/verify-share-token')) {
+    try {
+      const reqUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+      const token = reqUrl.searchParams.get('token');
+      if (!token) return sendJson(res, 400, { ok: false, error: 'Missing token' });
+
+      const parts = token.split('.');
+      if (parts.length !== 2) return sendJson(res, 400, { ok: false, error: 'Invalid token format' });
+
+      const [payloadB64, sig] = parts;
+      const payload = Buffer.from(payloadB64, 'base64url').toString('utf-8');
+      const expectedSig = crypto.createHmac('sha256', SHARE_SECRET).update(payload).digest('hex');
+
+      const sigBuf = Buffer.from(sig, 'hex');
+      const expectedBuf = Buffer.from(expectedSig, 'hex');
+      if (sigBuf.length !== expectedBuf.length || !crypto.timingSafeEqual(sigBuf, expectedBuf)) {
+        return sendJson(res, 403, { ok: false, error: 'Invalid token signature' });
+      }
+
+      const data = JSON.parse(payload);
+      if (data.expiresAt && Date.now() > data.expiresAt) {
+        return sendJson(res, 403, { ok: false, error: 'Token expired' });
+      }
+
+      return sendJson(res, 200, { ok: true, uid: data.uid, studentName: data.studentName });
+    } catch (err) {
+      return sendJson(res, 500, { ok: false, error: String(err && err.message || err) });
+    }
   }
 
   // Health checks

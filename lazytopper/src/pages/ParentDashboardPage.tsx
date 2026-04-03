@@ -153,17 +153,16 @@ function parseShareParams(): { shareToken: string | null; studentName: string | 
   const params = new URLSearchParams(window.location.search);
   const shareToken = params.get("share");
   const studentName = params.get("student");
-  let sharedUid: string | null = null;
-  if (shareToken) {
-    try {
-      const decoded = atob(shareToken);
-      const parts = decoded.split(":");
-      if (parts[0] === "lt" && parts[1]) {
-        sharedUid = parts[1];
-      }
-    } catch {}
-  }
-  return { shareToken, studentName, sharedUid };
+  return { shareToken, studentName, sharedUid: null };
+}
+
+async function verifyShareToken(token: string): Promise<{ uid: string; studentName: string } | null> {
+  try {
+    const res = await fetch(`/api/verify-share-token?token=${encodeURIComponent(token)}`);
+    const data = await res.json();
+    if (data.ok && data.uid) return { uid: data.uid, studentName: data.studentName || "Student" };
+  } catch {}
+  return null;
 }
 
 export default function ParentDashboardPage() {
@@ -173,13 +172,28 @@ export default function ParentDashboardPage() {
   const [subjectTab, setSubjectTab] = useState<"Maths" | "Science">("Maths");
   const [shareLink, setShareLink] = useState("");
 
-  const { studentName: sharedStudentName, sharedUid } = parseShareParams();
-  const isSharedView = !!sharedUid;
-  const displayName = isSharedView ? (sharedStudentName || "Student") : (user?.displayName || "Student");
+  const { shareToken } = parseShareParams();
+
+  const [verifiedShare, setVerifiedShare] = useState<{ uid: string; studentName: string } | null>(null);
+  const [shareVerified, setShareVerified] = useState(!shareToken);
+
+  useEffect(() => {
+    if (!shareToken) return;
+    verifyShareToken(shareToken).then((result) => {
+      setVerifiedShare(result);
+      setShareVerified(true);
+    });
+  }, [shareToken]);
+
+  const isSharedView = !!verifiedShare;
+  const sharedUid = verifiedShare?.uid || null;
+  const displayName = isSharedView ? (verifiedShare.studentName || "Student") : (user?.displayName || "Student");
 
   const [sharedData, setSharedData] = useState<{
     insights?: PracticeInsights;
     mockScores?: MockScoreEntry[];
+    weakAreas?: WeakAreaSummary;
+    topicMastery?: Record<string, number>;
     loaded: boolean;
   }>({ loaded: false });
 
@@ -190,13 +204,17 @@ export default function ParentDashboardPage() {
     }
     (async () => {
       try {
-        const [insightsSnap, mockSnap] = await Promise.all([
+        const [insightsSnap, mockSnap, weakSnap, masterySnap] = await Promise.all([
           getDoc(doc(firestoreDb, "practiceInsights", sharedUid)),
           getDoc(doc(firestoreDb, "mockScoreHistory", sharedUid)),
+          getDoc(doc(firestoreDb, "weakAreaSummary", sharedUid)),
+          getDoc(doc(firestoreDb, "topicMastery", sharedUid)),
         ]);
         setSharedData({
           insights: insightsSnap.exists() ? (insightsSnap.data() as PracticeInsights) : undefined,
           mockScores: mockSnap.exists() ? ((mockSnap.data() as { entries: MockScoreEntry[] }).entries || []) : undefined,
+          weakAreas: weakSnap.exists() ? (weakSnap.data() as WeakAreaSummary) : undefined,
+          topicMastery: masterySnap.exists() ? (masterySnap.data() as Record<string, number>) : undefined,
           loaded: true,
         });
       } catch {
@@ -205,17 +223,23 @@ export default function ParentDashboardPage() {
     })();
   }, [isSharedView, sharedUid]);
 
-  const weakSummary = useMemo<WeakAreaSummary>(() => getWeakAreas({ limit: 10 }), []);
+  const weakSummary = useMemo<WeakAreaSummary>(() => {
+    if (isSharedView) return sharedData.weakAreas || { weakAreas: [], totalWeak: 0, closedThisWeek: 0, overallMasteryPercent: 0 };
+    return getWeakAreas({ limit: 10 });
+  }, [isSharedView, sharedData]);
+
   const mockScores = useMemo(() => {
-    if (isSharedView && sharedData.mockScores) return sharedData.mockScores.slice(0, 10);
+    if (isSharedView) return (sharedData.mockScores || []).slice(0, 10);
     return getLatestMockScores(10);
   }, [isSharedView, sharedData]);
 
   const insights = useMemo(() => {
-    if (isSharedView && sharedData.insights) return sharedData.insights;
+    if (isSharedView) return sharedData.insights || { attempts: [], totalCorrect: 0, totalAttempted: 0, subjects: {} } as PracticeInsights;
     return loadInsights();
   }, [isSharedView, sharedData]);
   const attempts = insights.attempts || [];
+
+  const sharedTopicMastery = isSharedView ? (sharedData.topicMastery || {}) : null;
 
   const overallStats = useMemo(() => {
     let correct = 0;
@@ -259,19 +283,51 @@ export default function ParentDashboardPage() {
 
   const topicList = subjectTab === "Science" ? ALL_SCIENCE_TOPICS : ALL_MATHS_TOPICS;
 
-  const handleCopyLink = () => {
+  const handleCopyLink = async () => {
     const uid = getActiveProgressUser();
-    const shareToken = btoa(`lt:${uid}:${Date.now()}`);
-    const shareUrl = `${window.location.origin}${window.location.pathname}?share=${shareToken}&student=${encodeURIComponent(user?.displayName || "Student")}`;
-    navigator.clipboard?.writeText(shareUrl).then(() => {
+    const studentName = user?.displayName || "Student";
+    try {
+      const res = await fetch("/api/share-token", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Lazytopper-Uid": uid },
+        body: JSON.stringify({ uid, studentName }),
+      });
+      const data = await res.json();
+      if (!data.ok || !data.token) {
+        setShareLink("Failed to generate link");
+        setTimeout(() => setShareLink(""), 2000);
+        return;
+      }
+      const shareUrl = `${window.location.origin}${window.location.pathname}?share=${encodeURIComponent(data.token)}`;
+      await navigator.clipboard?.writeText(shareUrl);
       setShareLink("Link copied!");
       setTimeout(() => setShareLink(""), 2000);
-    }).catch(() => setShareLink(shareUrl));
+    } catch {
+      setShareLink("Failed to generate link");
+      setTimeout(() => setShareLink(""), 2000);
+    }
   };
 
   const handlePrintReport = () => {
     window.print();
   };
+
+  if (!shareVerified) {
+    return (
+      <div className="lt-page" style={{ paddingTop: 40, textAlign: "center" }}>
+        <p style={{ color: "#888", fontSize: 16 }}>Verifying share link...</p>
+      </div>
+    );
+  }
+
+  if (shareToken && !verifiedShare) {
+    return (
+      <div className="lt-page" style={{ paddingTop: 40, textAlign: "center" }}>
+        <h2 style={{ color: "#e74c3c", fontWeight: 800 }}>Invalid or Expired Link</h2>
+        <p style={{ color: "#888", fontSize: 14 }}>This share link is invalid or has expired. Please ask the student to generate a new one.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="lt-page" style={{ paddingTop: 8 }}>
@@ -391,7 +447,7 @@ export default function ParentDashboardPage() {
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(80px, 1fr))", gap: 6 }}>
           {topicList.map((tk) => (
-            <HeatmapCell key={tk} value={getTopicMasteryPercent(tk)} label={TOPIC_NAMES[tk] || tk} />
+            <HeatmapCell key={tk} value={sharedTopicMastery ? (sharedTopicMastery[tk] ?? 0) : getTopicMasteryPercent(tk)} label={TOPIC_NAMES[tk] || tk} />
           ))}
         </div>
       </div>

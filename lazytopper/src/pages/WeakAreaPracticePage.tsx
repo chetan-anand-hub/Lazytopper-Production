@@ -326,7 +326,7 @@ export default function WeakAreaPracticePage() {
   const handleStartTargetedSession = () => {
     if (!summary || summary.weakAreas.length === 0) return;
     const weakest = summary.weakAreas[0];
-    navigate(`/practice/10/${weakest.subject}/${encodeURIComponent(weakest.topicKey)}?count=15&difficulty=Easy&weakMode=1`);
+    navigate(`/practice/10/${weakest.subject}?topic=${encodeURIComponent(weakest.topicKey)}&count=15&difficulty=Easy&weakMode=1`);
   };
 
   const handleGeneratePath = async () => {

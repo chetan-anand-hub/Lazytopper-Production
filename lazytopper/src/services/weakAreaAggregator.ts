@@ -1,9 +1,12 @@
+import { doc, setDoc } from "firebase/firestore";
 import { loadInsights, type PracticeAttempt } from "./practiceInsights";
 import { loadWrongAnswerLog, type WrongAnswerEntry } from "./adaptivePracticeEngine";
 import { loadTopicMasterySnapshot, type TopicHubNodeMasteryState } from "./topicHubMastery";
 import { canonicalChapters } from "../data/syllabus/cbse10Canonical";
 import { normalizeTopicKey } from "../utils/topicResolver";
 import { getMockTopicScores } from "./mockScoreHistory";
+import { getActiveProgressUser } from "./studentProgressStore";
+import { firestoreDb } from "./firebaseClient";
 
 export interface WeakArea {
   topicKey: string;
@@ -187,12 +190,25 @@ export function getWeakAreas(options?: { subject?: "Maths" | "Science"; limit?: 
   }
 
   const limit = options?.limit ?? 20;
-  return {
+  const result: WeakAreaSummary = {
     weakAreas: weakAreas.slice(0, limit),
     totalWeak: weakAreas.length,
     closedThisWeek,
     overallMasteryPercent: topicCount > 0 ? Math.round(totalMastery / topicCount) : 0,
   };
+
+  const uid = getActiveProgressUser();
+  if (firestoreDb && uid && uid !== "anonymous") {
+    const topicMasteryMap: Record<string, number> = {};
+    for (const { topicKey } of allTopics) {
+      const { percent } = computeTopicMastery(topicKey);
+      topicMasteryMap[topicKey] = Math.round(percent);
+    }
+    void setDoc(doc(firestoreDb, "weakAreaSummary", uid), { ...result, updatedAt: new Date().toISOString() }, { merge: true }).catch(() => {});
+    void setDoc(doc(firestoreDb, "topicMastery", uid), { ...topicMasteryMap, updatedAt: new Date().toISOString() }, { merge: true }).catch(() => {});
+  }
+
+  return result;
 }
 
 export function getWeakTopicKeys(subject?: "Maths" | "Science", limit = 5): string[] {
