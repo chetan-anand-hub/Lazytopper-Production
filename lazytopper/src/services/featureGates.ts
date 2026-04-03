@@ -23,7 +23,7 @@ interface FeatureGate {
 
 const FEATURE_GATES: Record<FeatureId, FeatureGate> = {
   trends:              { requiredTier: "free", label: "Exam Trends" },
-  practice:            { requiredTier: "logged_in", freeLimit: 3, label: "Practice Sessions" },
+  practice:            { requiredTier: "logged_in", freeLimit: 10, label: "Practice Questions" },
   mock_papers:         { requiredTier: "logged_in", freeLimit: 1, label: "Mock Papers" },
   unlimited_mocks:     { requiredTier: "premium", label: "Unlimited Mock Tests" },
   exam_simulation:     { requiredTier: "premium", label: "Exam Simulation" },

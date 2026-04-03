@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, type ReactNode } from "react";
+import { useState, useEffect, createContext, useContext, useCallback, type ReactNode } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
 import { getDailyPracticeCount, incrementDailyPracticeCount } from "../../services/featureGates";
@@ -7,23 +7,48 @@ import { Navigate } from "react-router-dom";
 
 const FREE_DAILY_LIMIT = 10;
 
+interface PracticeLimitCtx {
+  questionsUsed: number;
+  canAskMore: boolean;
+  recordQuestionAnswered: () => boolean;
+}
+
+const PracticeLimitContext = createContext<PracticeLimitCtx>({
+  questionsUsed: 0,
+  canAskMore: true,
+  recordQuestionAnswered: () => true,
+});
+
+export function usePracticeLimit() {
+  return useContext(PracticeLimitContext);
+}
+
 export function PracticeLimitGate({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
   const { isPremium } = useSubscription();
   const [showUpgrade, setShowUpgrade] = useState(false);
+  const [questionsUsed, setQuestionsUsed] = useState(0);
   const [limitReached, setLimitReached] = useState(false);
-  const incrementedRef = useRef(false);
 
   useEffect(() => {
-    if (loading || !user || isPremium || incrementedRef.current) return;
+    if (loading || !user || isPremium) return;
     const count = getDailyPracticeCount(user.uid);
+    setQuestionsUsed(count);
     if (count >= FREE_DAILY_LIMIT) {
       setLimitReached(true);
-    } else {
-      incrementDailyPracticeCount(user.uid);
-      incrementedRef.current = true;
     }
   }, [loading, user, isPremium]);
+
+  const recordQuestionAnswered = useCallback(() => {
+    if (!user || isPremium) return true;
+    const newCount = incrementDailyPracticeCount(user.uid);
+    setQuestionsUsed(newCount);
+    if (newCount >= FREE_DAILY_LIMIT) {
+      setLimitReached(true);
+      return false;
+    }
+    return true;
+  }, [user, isPremium]);
 
   if (loading) {
     return (
@@ -40,7 +65,13 @@ export function PracticeLimitGate({ children }: { children: ReactNode }) {
   }
 
   if (isPremium) {
-    return <>{children}</>;
+    return (
+      <PracticeLimitContext.Provider
+        value={{ questionsUsed: 0, canAskMore: true, recordQuestionAnswered: () => true }}
+      >
+        {children}
+      </PracticeLimitContext.Provider>
+    );
   }
 
   if (limitReached) {
@@ -77,5 +108,11 @@ export function PracticeLimitGate({ children }: { children: ReactNode }) {
     );
   }
 
-  return <>{children}</>;
+  return (
+    <PracticeLimitContext.Provider
+      value={{ questionsUsed, canAskMore: questionsUsed < FREE_DAILY_LIMIT, recordQuestionAnswered }}
+    >
+      {children}
+    </PracticeLimitContext.Provider>
+  );
 }

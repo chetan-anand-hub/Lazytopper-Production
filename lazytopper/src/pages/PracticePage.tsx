@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, react-hooks/exhaustive-deps */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { usePracticeLimit } from "../components/auth/PracticeLimitGate";
 
 import { type PracticeQuestion } from "../data/predictionDataService";
 import type { DifficultyLevel, LTSubjectKey } from "../data/predictionTypes";
@@ -656,6 +657,7 @@ function enforceDifficultyFilter(questions: PracticeQuestion[], difficulty: Diff
 const PracticePage: React.FC = () => {
   const location = useLocation();
   const params = useParams<{ grade?: string; subject?: string }>();
+  const { recordQuestionAnswered, canAskMore } = usePracticeLimit();
 
   const grade = params.grade || "10";
   const subjectKey: SubjectKey = normaliseSubject(params.subject ?? "Maths");
@@ -2082,6 +2084,7 @@ const packTopicKey = useMemo(() => {
                             const concept = String(q.subtopic ?? "");
                             const diff = String(q.difficulty ?? "Medium");
                             setSelfAssessments((prev) => ({ ...prev, [q.id]: "got_it" }));
+                            recordQuestionAnswered();
                             setSessionTracker((prev) => recordSelfAssessment(prev, q.id, "got_it", concept, diff));
                             const topicK = canonicalTopicKey || topicParam;
                             const snap = loadTopicMasterySnapshot(topicK);
@@ -2108,6 +2111,7 @@ const packTopicKey = useMemo(() => {
                             const concept = String(q.subtopic ?? "");
                             const diff = String(q.difficulty ?? "Medium");
                             setSelfAssessments((prev) => ({ ...prev, [q.id]: "need_practice" }));
+                            recordQuestionAnswered();
                             const nextTracker = recordSelfAssessment(sessionTracker, q.id, "need_practice", concept, diff);
 
                             const pendingFollowUp = nextTracker.followUpQueue.find(
