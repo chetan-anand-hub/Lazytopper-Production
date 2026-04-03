@@ -6,7 +6,6 @@ import { getWeakAreas, type WeakAreaSummary } from "../services/weakAreaAggregat
 import { useSmartLearning } from "../engine/smartLearningStore";
 import { useAuth } from "../context/AuthContext";
 import { getLatestMockScores, type MockScoreEntry } from "../services/mockScoreHistory";
-import { getActiveProgressUser } from "../services/studentProgressStore";
 import { doc, getDoc } from "firebase/firestore";
 import { firestoreDb } from "../services/firebaseClient";
 
@@ -249,15 +248,17 @@ export default function ParentDashboardPage() {
       total++;
       if (a.correct) correct++;
     }
-    for (const s of Object.values(statsByChapter || {})) {
-      totalTimeSeconds += (s as { totalTimeSeconds?: number }).totalTimeSeconds || 0;
+    if (!isSharedView) {
+      for (const s of Object.values(statsByChapter || {})) {
+        totalTimeSeconds += (s as { totalTimeSeconds?: number }).totalTimeSeconds || 0;
+      }
     }
     return {
       totalQuestions: total,
       accuracy: total > 0 ? Math.round((correct / total) * 100) : 0,
       studyTimeMinutes: Math.round(totalTimeSeconds / 60),
     };
-  }, [attempts, statsByChapter]);
+  }, [attempts, statsByChapter, isSharedView]);
 
   const weeklyAccuracy = useMemo(() => {
     const byWeek = new Map<string, { correct: number; total: number }>();
@@ -284,13 +285,23 @@ export default function ParentDashboardPage() {
   const topicList = subjectTab === "Science" ? ALL_SCIENCE_TOPICS : ALL_MATHS_TOPICS;
 
   const handleCopyLink = async () => {
-    const uid = getActiveProgressUser();
     const studentName = user?.displayName || "Student";
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    try {
+      if (user) {
+        const { getAuth } = await import("firebase/auth");
+        const auth = getAuth();
+        if (auth.currentUser) {
+          const idToken = await auth.currentUser.getIdToken();
+          headers["Authorization"] = `Bearer ${idToken}`;
+        }
+      }
+    } catch {}
     try {
       const res = await fetch("/api/share-token", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "X-Lazytopper-Uid": uid },
-        body: JSON.stringify({ uid, studentName }),
+        headers,
+        body: JSON.stringify({ studentName }),
       });
       const data = await res.json();
       if (!data.ok || !data.token) {
@@ -346,21 +357,23 @@ export default function ParentDashboardPage() {
           </p>
         </div>
         <div style={{ display: "flex", gap: 6 }}>
-          <button
-            onClick={handleCopyLink}
-            style={{
-              padding: "8px 14px",
-              borderRadius: 10,
-              border: "2px solid #e5e5e5",
-              background: "#fff",
-              fontWeight: 700,
-              fontSize: 12,
-              cursor: "pointer",
-              color: "#333",
-            }}
-          >
-            {shareLink || "Share Link"}
-          </button>
+          {!isSharedView && (
+            <button
+              onClick={handleCopyLink}
+              style={{
+                padding: "8px 14px",
+                borderRadius: 10,
+                border: "2px solid #e5e5e5",
+                background: "#fff",
+                fontWeight: 700,
+                fontSize: 12,
+                cursor: "pointer",
+                color: "#333",
+              }}
+            >
+              {shareLink || "Share Link"}
+            </button>
+          )}
           <button
             onClick={handlePrintReport}
             style={{

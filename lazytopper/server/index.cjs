@@ -4857,14 +4857,37 @@ async function handleRequest(req, res) {
   if (req.method === 'POST' && req.url === '/api/share-token') {
     try {
       const body = await readJson(req);
-      const headerUid = String(req.headers['x-lazytopper-uid'] || '').trim();
-      const bodyUid = String(body.uid || '').trim();
-      const uid = headerUid || bodyUid;
-      const studentName = String(body.studentName || 'Student');
-      if (!uid) return sendJson(res, 400, { ok: false, error: 'Missing uid' });
-      if (headerUid && bodyUid && headerUid !== bodyUid) {
-        return sendJson(res, 403, { ok: false, error: 'UID mismatch between header and body' });
+      const authHeader = String(req.headers['authorization'] || '');
+      const idToken = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
+
+      let uid = '';
+      let studentName = String(body.studentName || 'Student');
+
+      if (idToken) {
+        const parts = idToken.split('.');
+        if (parts.length === 3) {
+          try {
+            const payloadJson = Buffer.from(parts[1], 'base64url').toString('utf-8');
+            const claims = JSON.parse(payloadJson);
+            const firebaseProjectId = process.env.VITE_FIREBASE_PROJECT_ID || '';
+            if (claims.iss !== `https://securetoken.google.com/${firebaseProjectId}`) {
+              return sendJson(res, 401, { ok: false, error: 'Invalid token issuer' });
+            }
+            if (claims.exp && claims.exp < Math.floor(Date.now() / 1000)) {
+              return sendJson(res, 401, { ok: false, error: 'Firebase token expired' });
+            }
+            uid = String(claims.sub || claims.user_id || '');
+          } catch {
+            return sendJson(res, 401, { ok: false, error: 'Malformed Firebase token' });
+          }
+        } else {
+          return sendJson(res, 401, { ok: false, error: 'Invalid token format' });
+        }
+      } else {
+        uid = String(req.headers['x-lazytopper-uid'] || body.uid || '').trim();
       }
+
+      if (!uid) return sendJson(res, 401, { ok: false, error: 'Authentication required' });
 
       const expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000;
       const payload = JSON.stringify({ uid, studentName, expiresAt });
