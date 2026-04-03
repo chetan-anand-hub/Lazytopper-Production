@@ -1218,8 +1218,8 @@ function ensureResponsiveStyle() {
 }
 
 const PARAM_SPECIFIC_KINDS = new Set<VisualKind>([
-  "lens", "concave-mirror", "convex-mirror", "ray-diagram",
-  "circuit", "construction", "height-distance",
+  "lens", "ray", "circuit", "circuit-parallel",
+  "construction", "height-distance",
 ]);
 const PARAM_PATTERN = /\b(\d+\s*(?:cm|m|mm|ohm|volt|ampere|degree|°|f\b|2f\b|at focus|beyond 2f|between f and 2f|at infinity|at centre|radius|focal length))/i;
 
