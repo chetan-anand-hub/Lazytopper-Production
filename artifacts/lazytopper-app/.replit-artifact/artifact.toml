@@ -14,7 +14,7 @@ kind = "web"
 
   [services.production]
   serve = "static"
-  publicDir = "dist/public"
+  publicDir = "artifacts/lazytopper-app/dist/public"
 
   [services.production.build]
   args = ["pnpm", "--filter", "@workspace/lazytopper-app", "run", "build"]
