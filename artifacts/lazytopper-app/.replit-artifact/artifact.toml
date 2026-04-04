@@ -1,36 +1,41 @@
 kind = "web"
-previewPath = "/"
-title = "LazyTopper"
-version = "1.0.0"
-id = "artifacts/lazytopper-app"
-router = "path"
+  previewPath = "/"
+  title = "LazyTopper"
+  version = "1.0.0"
+  id = "artifacts/lazytopper-app"
+  router = "path"
 
-[[integratedSkills]]
-name = "react-vite"
-version = "1.0.0"
+  [[integratedSkills]]
+  name = "react-vite"
+  version = "1.0.0"
 
-[[services]]
-name = "web"
-paths = [ "/" ]
-localPort = 25246
+  [[services]]
+  name = "web"
+  paths = ["/"]
+  localPort = 25246
 
-[services.development]
-run = "cd /home/runner/workspace/lazytopper && PORT=$PORT npx vite"
+  [services.development]
+  run = "cd /home/runner/workspace/lazytopper && PORT=$PORT npx vite"
 
-[services.production]
-publicDir = "artifacts/lazytopper-app/dist/public"
-serve = "static"
+  [services.production]
 
-[services.production.build]
-args = ["pnpm", "--filter", "@workspace/lazytopper-app", "run", "build"]
+  [services.production.build]
+  args = ["pnpm", "--filter", "@workspace/lazytopper-app", "run", "build"]
 
-[services.production.build.env]
-NODE_ENV = "production"
+  [services.production.build.env]
+  NODE_ENV = "production"
 
-[[services.production.rewrites]]
-from = "/*"
-to = "/index.html"
+  [services.production.run]
+  args = ["node", "artifacts/lazytopper-app/serve-production.cjs"]
 
-[services.env]
-PORT = "25246"
-BASE_PATH = "/"
+  [services.production.run.env]
+  PORT = "25246"
+  NODE_ENV = "production"
+
+  [services.production.health.startup]
+  path = "/"
+
+  [services.env]
+  PORT = "25246"
+  BASE_PATH = "/"
+  
