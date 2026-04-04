@@ -123,11 +123,11 @@ globalThis.__dirname = __bannerPath.dirname(globalThis.__filename);
 
 async function buildFrontendAndCopy() {
   const workspaceRoot = path.resolve(artifactDir, "../..");
-  const frontendDist = path.resolve(workspaceRoot, "artifacts/lazytopper-app/dist/public");
+  const frontendDist = path.resolve(workspaceRoot, "lazytopper/dist");
   const targetDir = path.resolve(artifactDir, "dist/public");
 
-  console.log("Building frontend (lazytopper-app)...");
-  execSync("pnpm --filter @workspace/lazytopper-app run build", {
+  console.log("Building original LazyTopper frontend...");
+  execSync("cd lazytopper && npx vite build", {
     cwd: workspaceRoot,
     stdio: "inherit",
     env: { ...process.env, NODE_ENV: "production" },
