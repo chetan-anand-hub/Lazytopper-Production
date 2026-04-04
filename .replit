@@ -1,57 +1,64 @@
 modules = ["nodejs-24"]
 
-[[artifacts]]
-id = "artifacts/api-server"
+  [[artifacts]]
+  id = "artifacts/api-server"
 
-[[artifacts]]
-id = "artifacts/mockup-sandbox"
+  [[artifacts]]
+  id = "artifacts/mockup-sandbox"
 
-[deployment]
-router = "application"
-deploymentTarget = "autoscale"
+  [deployment]
+  router = "application"
+  deploymentTarget = "autoscale"
 
-[deployment.postBuild]
-args = ["pnpm", "store", "prune"]
-env = { "CI" = "true" }
+  [deployment.build]
+  args = ["pnpm", "run", "build"]
 
-[workflows]
-runButton = "Project"
+  [deployment.build.env]
+  NODE_ENV = "production"
 
-[[workflows.workflow]]
-name = "Project"
-mode = "parallel"
-author = "agent"
+  [deployment.postBuild]
+  args = ["pnpm", "store", "prune"]
+  env = { "CI" = "true" }
 
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "LazyTopper Gateway"
+  [workflows]
+  runButton = "Project"
 
-[[workflows.workflow]]
-name = "LazyTopper Gateway"
-author = "agent"
+  [[workflows.workflow]]
+  name = "Project"
+  mode = "parallel"
+  author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd lazytopper && node server/index.cjs"
-waitForPort = 3001
+  [[workflows.workflow.tasks]]
+  task = "workflow.run"
+  args = "LazyTopper Gateway"
 
-[workflows.workflow.metadata]
-outputType = "console"
+  [[workflows.workflow]]
+  name = "LazyTopper Gateway"
+  author = "agent"
 
-[agent]
-stack = "PNPM_WORKSPACE"
-expertMode = true
-integrations = ["github:1.0.0"]
+  [[workflows.workflow.tasks]]
+  task = "shell.exec"
+  args = "cd lazytopper && node server/index.cjs"
+  waitForPort = 3001
 
-[postMerge]
-path = "scripts/post-merge.sh"
-timeoutMs = 20000
+  [workflows.workflow.metadata]
+  outputType = "console"
 
-[userenv]
+  [agent]
+  stack = "PNPM_WORKSPACE"
+  expertMode = true
+  integrations = ["github:1.0.0"]
 
-[userenv.shared]
-GEMINI_API_KEY = "AIzaSyA_9W2ss6X5MxnVLnJcN6s8Zk4WNf0f-yc"
-AI_PROVIDER = "gemini"
+  [postMerge]
+  path = "scripts/post-merge.sh"
+  timeoutMs = 20000
 
-[nix]
-channel = "stable-25_05"
+  [userenv]
+
+  [userenv.shared]
+  GEMINI_API_KEY = "AIzaSyA_9W2ss6X5MxnVLnJcN6s8Zk4WNf0f-yc"
+  AI_PROVIDER = "gemini"
+
+  [nix]
+  channel = "stable-25_05"
+  

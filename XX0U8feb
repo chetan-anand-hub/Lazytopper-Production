@@ -1,0 +1,61 @@
+modules = ["nodejs-24"]
+
+[[artifacts]]
+id = "artifacts/api-server"
+
+[[artifacts]]
+id = "artifacts/mockup-sandbox"
+
+[deployment]
+
+[deployment.build]
+args = ["pnpm", "run", "build"]
+
+router = "application"
+deploymentTarget = "autoscale"
+
+[deployment.postBuild]
+args = ["pnpm", "store", "prune"]
+env = { "CI" = "true" }
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "LazyTopper Gateway"
+
+[[workflows.workflow]]
+name = "LazyTopper Gateway"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd lazytopper && node server/index.cjs"
+waitForPort = 3001
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[agent]
+stack = "PNPM_WORKSPACE"
+expertMode = true
+integrations = ["github:1.0.0"]
+
+[postMerge]
+path = "scripts/post-merge.sh"
+timeoutMs = 20000
+
+[userenv]
+
+[userenv.shared]
+GEMINI_API_KEY = "AIzaSyA_9W2ss6X5MxnVLnJcN6s8Zk4WNf0f-yc"
+AI_PROVIDER = "gemini"
+
+[nix]
+channel = "stable-25_05"
