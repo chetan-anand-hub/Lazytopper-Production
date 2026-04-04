@@ -88,7 +88,10 @@ The project is structured as a pnpm workspace monorepo.
 
 # Deployment Notes
 
-- **Production artifacts** registered in `.replit`: `api-server` (API at `/shared-api`), `lazytopper-app` (static SPA at `/`), `mockup-sandbox` (design tool, stubbed no-op build via `build-prod.cjs` — not a real production app).
+- **Production architecture**: `api-server` is the sole runnable production artifact. It serves both the API at `/shared-api` and the frontend SPA at `/` via Express static middleware. The frontend is built from `lazytopper/` (the original full LazyTopper app) and copied into `api-server/dist/public/` during the build step.
+- **Production artifacts** registered in `.replit`: `api-server` (paths: `/` and `/shared-api`), `mockup-sandbox` (design tool, static, stubbed no-op build).
+- **lazytopper-app**: Dev-only artifact for Vite dev server. Not included in production deployment. Its `artifact.toml` has no `[services.production]` section.
+- **Build flow**: `api-server/build.mjs` runs `fullBuild()` which: (1) builds the Express API server via esbuild, (2) builds the LazyTopper frontend via `npx vite build` in `lazytopper/`, (3) copies `lazytopper/dist/` to `api-server/dist/public/`.
 - **lazytopper-mobile** has a no-op production build (`echo`). Mobile deployment should be configured separately when needed.
 - **Pre-build hook**: `.replit` `[deployment.build]` runs `pnpm run build` which typechecks and builds all deployment-relevant artifacts.
 

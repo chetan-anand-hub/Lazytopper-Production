@@ -34,7 +34,11 @@ app.use("/shared-api", router);
 
 const publicDir = path.resolve(__dirname, "public");
 app.use(express.static(publicDir));
-app.get("/{*splat}", (_req, res) => {
+app.get("/{*splat}", (req, res) => {
+  if (req.path.startsWith("/shared-api")) {
+    res.status(404).json({ error: "Not found" });
+    return;
+  }
   res.sendFile(path.join(publicDir, "index.html"));
 });
 
