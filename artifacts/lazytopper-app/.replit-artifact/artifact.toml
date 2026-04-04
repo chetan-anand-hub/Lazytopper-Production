@@ -1,37 +1,17 @@
 kind = "web"
-  previewPath = "/"
-  title = "LazyTopper"
+  previewPath = "/__vite-dev"
+  title = "LazyTopper Dev (HMR)"
   version = "1.0.0"
   id = "artifacts/lazytopper-app"
-  router = "path"
-
-  [[integratedSkills]]
-  name = "react-vite"
-  version = "1.0.0"
 
   [[services]]
-  name = "web"
-  paths = ["/"]
+  name = "vite-dev"
+  paths = ["/__vite-dev"]
   localPort = 25246
 
   [services.development]
   run = "cd /home/runner/workspace/lazytopper && PORT=$PORT npx vite"
 
-  [services.production]
-  publicDir = "artifacts/lazytopper-app/dist/public"
-  serve = "static"
-
-  [services.production.build]
-  args = ["pnpm", "--filter", "@workspace/lazytopper-app", "run", "build"]
-
-  [services.production.build.env]
-  NODE_ENV = "production"
-
-  [[services.production.rewrites]]
-  from = "/*"
-  to = "/index.html"
-
   [services.env]
   PORT = "25246"
-  BASE_PATH = "/"
   

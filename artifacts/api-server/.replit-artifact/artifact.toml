@@ -1,13 +1,13 @@
-kind = "api"
-  previewPath = "/shared-api"
-  title = "API Server"
+kind = "web"
+  previewPath = "/"
+  title = "LazyTopper"
   version = "1.0.0"
   id = "3B4_FFSkEVBkAeYMFRJ2e"
 
   [[services]]
   localPort = 8080
-  name = "API Server"
-  paths = ["/shared-api", "/"]
+  name = "web"
+  paths = ["/"]
 
   [services.development]
   run = "pnpm --filter @workspace/api-server run dev"
@@ -29,4 +29,7 @@ kind = "api"
 
   [services.production.health.startup]
   path = "/"
+
+  [services.env]
+  PORT = "8080"
   
