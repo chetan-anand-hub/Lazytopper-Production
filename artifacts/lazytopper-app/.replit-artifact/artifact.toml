@@ -18,8 +18,8 @@ localPort = 25246
 run = "cd /home/runner/workspace/lazytopper && PORT=$PORT npx vite"
 
 [services.production]
-build = [ "bash", "-c", "cd lazytopper && npm install --prefer-offline --no-audit --no-fund --ignore-scripts && npx vite build" ]
-publicDir = "lazytopper/dist"
+build = [ "bash", "-c", "pnpm --filter @workspace/lazytopper-app run build" ]
+publicDir = "artifacts/lazytopper-app/dist/public"
 serve = "static"
 
 [[services.production.rewrites]]
