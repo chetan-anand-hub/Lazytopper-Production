@@ -15,7 +15,7 @@ run = "pnpm --filter @workspace/api-server run dev"
 [services.production]
 
 [services.production.build]
-args = ["bash", "-c", "pnpm --filter @workspace/api-server run build && pnpm --filter @workspace/lazytopper-app run build && cp -r artifacts/lazytopper-app/dist/public artifacts/api-server/dist/public"]
+args = ["pnpm", "--filter", "@workspace/api-server", "run", "build"]
 
 [services.production.build.env]
 NODE_ENV = "production"

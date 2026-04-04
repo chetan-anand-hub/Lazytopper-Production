@@ -21,4 +21,4 @@ publicDir = "artifacts/mockup-sandbox/dist"
 serve = "static"
 
 [services.production.build]
-args = ["bash", "-c", "mkdir -p artifacts/mockup-sandbox/dist && echo ok > artifacts/mockup-sandbox/dist/index.html"]
+args = ["node", "-e", "const fs=require('fs');fs.mkdirSync('artifacts/mockup-sandbox/dist',{recursive:true});fs.writeFileSync('artifacts/mockup-sandbox/dist/index.html','ok')"]
