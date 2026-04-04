@@ -18,6 +18,8 @@ kind = "web"
   run = "cd /home/runner/workspace/lazytopper && PORT=$PORT npx vite"
 
   [services.production]
+  publicDir = "artifacts/lazytopper-app/dist/public"
+  serve = "static"
 
   [services.production.build]
   args = ["pnpm", "--filter", "@workspace/lazytopper-app", "run", "build"]
@@ -25,15 +27,9 @@ kind = "web"
   [services.production.build.env]
   NODE_ENV = "production"
 
-  [services.production.run]
-  args = ["node", "artifacts/lazytopper-app/serve-production.cjs"]
-
-  [services.production.run.env]
-  PORT = "25246"
-  NODE_ENV = "production"
-
-  [services.production.health.startup]
-  path = "/"
+  [[services.production.rewrites]]
+  from = "/*"
+  to = "/index.html"
 
   [services.env]
   PORT = "25246"

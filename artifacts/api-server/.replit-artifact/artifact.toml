@@ -7,7 +7,7 @@ kind = "api"
   [[services]]
   localPort = 8080
   name = "API Server"
-  paths = ["/shared-api"]
+  paths = ["/shared-api", "/"]
 
   [services.development]
   run = "pnpm --filter @workspace/api-server run dev"
@@ -28,5 +28,5 @@ kind = "api"
   NODE_ENV = "production"
 
   [services.production.health.startup]
-  path = "/shared-api/healthz"
+  path = "/"
   
