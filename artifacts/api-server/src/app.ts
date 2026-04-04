@@ -1,5 +1,6 @@
 import express, { type Express } from "express";
 import path from "path";
+import http from "http";
 import cors from "cors";
 import pinoHttp from "pino-http";
 import router from "./routes";
@@ -31,6 +32,35 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/shared-api", router);
+
+const GATEWAY_PORT = parseInt(process.env["GATEWAY_PORT"] || "3001", 10);
+
+app.use("/api", (req, res) => {
+  const options: http.RequestOptions = {
+    hostname: "127.0.0.1",
+    port: GATEWAY_PORT,
+    path: `/api${req.url}`,
+    method: req.method,
+    headers: {
+      ...req.headers,
+      host: `127.0.0.1:${GATEWAY_PORT}`,
+    },
+  };
+
+  const proxyReq = http.request(options, (proxyRes) => {
+    res.writeHead(proxyRes.statusCode || 502, proxyRes.headers);
+    proxyRes.pipe(res, { end: true });
+  });
+
+  proxyReq.on("error", (err) => {
+    logger.error({ err }, "Gateway proxy error");
+    if (!res.headersSent) {
+      res.status(502).json({ error: "AI Gateway unavailable" });
+    }
+  });
+
+  req.pipe(proxyReq, { end: true });
+});
 
 const publicDir = path.resolve(__dirname, "public");
 app.use(express.static(publicDir));
