@@ -1,13 +1,13 @@
 kind = "web"
-  previewPath = "/"
-  title = "LazyTopper"
+  previewPath = "/shared-api"
+  title = "LazyTopper API"
   version = "1.0.0"
   id = "3B4_FFSkEVBkAeYMFRJ2e"
 
   [[services]]
   localPort = 8080
   name = "web"
-  paths = ["/"]
+  paths = ["/shared-api"]
 
   [services.development]
   run = "pnpm --filter @workspace/api-server run dev"
@@ -28,8 +28,7 @@ kind = "web"
   NODE_ENV = "production"
 
   [services.production.health.startup]
-  path = "/"
+  path = "/shared-api/healthz"
 
   [services.env]
   PORT = "8080"
-  

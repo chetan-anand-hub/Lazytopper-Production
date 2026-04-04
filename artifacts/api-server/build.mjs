@@ -3,8 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { build as esbuild } from "esbuild";
 import esbuildPluginPino from "esbuild-plugin-pino";
-import { rm, cp, mkdir } from "node:fs/promises";
-import { execSync } from "node:child_process";
+import { rm } from "node:fs/promises";
 
 // Plugins (e.g. 'esbuild-plugin-pino') may use `require` to resolve dependencies
 globalThis.require = createRequire(import.meta.url);
@@ -121,30 +120,7 @@ globalThis.__dirname = __bannerPath.dirname(globalThis.__filename);
   });
 }
 
-async function buildFrontendAndCopy() {
-  const workspaceRoot = path.resolve(artifactDir, "../..");
-  const frontendDist = path.resolve(workspaceRoot, "artifacts/lazytopper-app/dist/public");
-  const targetDir = path.resolve(artifactDir, "dist/public");
-
-  console.log("Building frontend (lazytopper-app)...");
-  execSync("pnpm --filter @workspace/lazytopper-app run build", {
-    cwd: workspaceRoot,
-    stdio: "inherit",
-    env: { ...process.env, NODE_ENV: "production" },
-  });
-
-  console.log("Copying frontend files to api-server/dist/public...");
-  await mkdir(targetDir, { recursive: true });
-  await cp(frontendDist, targetDir, { recursive: true });
-  console.log("Frontend files copied successfully.");
-}
-
-async function fullBuild() {
-  await buildAll();
-  await buildFrontendAndCopy();
-}
-
-fullBuild().catch((err) => {
+buildAll().catch((err) => {
   console.error(err);
   process.exit(1);
 });
