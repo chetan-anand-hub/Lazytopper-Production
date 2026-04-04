@@ -3,12 +3,6 @@ modules = ["nodejs-24"]
   [[artifacts]]
   id = "artifacts/api-server"
 
-  [[artifacts]]
-  id = "artifacts/mockup-sandbox"
-
-  [[artifacts]]
-  id = "artifacts/lazytopper-app"
-
   [deployment]
   router = "application"
   deploymentTarget = "autoscale"
