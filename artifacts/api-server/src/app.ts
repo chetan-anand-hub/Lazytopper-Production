@@ -36,15 +36,24 @@ app.use("/shared-api", router);
 const GATEWAY_PORT = parseInt(process.env["GATEWAY_PORT"] || "3001", 10);
 
 app.use("/api", (req, res) => {
+  const bodyData = req.body ? JSON.stringify(req.body) : "";
+  const fwdHeaders: Record<string, string> = {};
+  for (const [k, v] of Object.entries(req.headers)) {
+    if (k === "host" || k === "connection" || k === "content-length") continue;
+    if (typeof v === "string") fwdHeaders[k] = v;
+  }
+  if (bodyData) {
+    fwdHeaders["content-type"] = "application/json";
+    fwdHeaders["content-length"] = String(Buffer.byteLength(bodyData));
+  }
+  fwdHeaders["host"] = `127.0.0.1:${GATEWAY_PORT}`;
+
   const options: http.RequestOptions = {
     hostname: "127.0.0.1",
     port: GATEWAY_PORT,
     path: `/api${req.url}`,
     method: req.method,
-    headers: {
-      ...req.headers,
-      host: `127.0.0.1:${GATEWAY_PORT}`,
-    },
+    headers: fwdHeaders,
   };
 
   const proxyReq = http.request(options, (proxyRes) => {
@@ -59,7 +68,11 @@ app.use("/api", (req, res) => {
     }
   });
 
-  req.pipe(proxyReq, { end: true });
+  if (bodyData) {
+    proxyReq.end(bodyData);
+  } else {
+    req.pipe(proxyReq, { end: true });
+  }
 });
 
 const publicDir = path.resolve(__dirname, "public");
