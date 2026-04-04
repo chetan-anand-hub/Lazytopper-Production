@@ -25,6 +25,7 @@ export default function Login() {
     initPhoneRecaptcha,
     sendPhoneOtp,
     verifyPhoneOtp,
+    continueLocalSession,
   } = useAuth();
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
@@ -105,7 +106,8 @@ export default function Login() {
 
   const handleGuest = () => {
     trackUxEvent("login_guest_explore", "login", {});
-    navigate("/");
+    continueLocalSession();
+    navigate(nextPath, { replace: true });
   };
 
   return (
