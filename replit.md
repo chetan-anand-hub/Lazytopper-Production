@@ -86,6 +86,12 @@ The project is structured as a pnpm workspace monorepo.
 - **LaTeX Rendering**: KaTeX library (`MathText` component)
 - **Image Upload for Solution Checking**: Gemini Vision API for image analysis.
 
+# Deployment Notes
+
+- **Production artifacts** registered in `.replit`: `api-server` (API at `/shared-api`), `lazytopper-app` (static SPA at `/`), `mockup-sandbox` (design tool, stubbed no-op build via `build-prod.cjs` — not a real production app).
+- **lazytopper-mobile** has a no-op production build (`echo`). Mobile deployment should be configured separately when needed.
+- **Pre-build hook**: `.replit` `[deployment.build]` runs `pnpm run build` which typechecks and builds all deployment-relevant artifacts.
+
 # Question Bank
 
 The canonical question bank (`lazytopper/src/data/canonicalQuestionBank.ts`) aggregates pack files from `questionBanks/class10/`:
