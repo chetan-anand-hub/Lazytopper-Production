@@ -20,38 +20,82 @@ if (Number.isNaN(port) || port <= 0) {
 const GATEWAY_PORT = process.env["GATEWAY_PORT"] || "3001";
 
 function startGateway() {
-  const gatewayPath = path.resolve("lazytopper/server/index.cjs");
-  try {
-    const child = spawn("node", [gatewayPath], {
-      env: {
-        ...process.env,
-        PORT: GATEWAY_PORT,
-        NODE_ENV: process.env["NODE_ENV"] || "production",
-      },
-      stdio: ["ignore", "pipe", "pipe"],
-    });
+  const candidates = [
+    path.join(process.cwd(), "lazytopper", "server", "index.cjs"),
+    path.resolve(__dirname, "..", "..", "..", "lazytopper", "server", "index.cjs"),
+    path.resolve(__dirname, "..", "lazytopper", "server", "index.cjs"),
+  ];
 
-    child.stdout?.on("data", (data: Buffer) => {
-      logger.info({ gateway: true }, data.toString().trim());
-    });
+  const fs = require("fs") as typeof import("fs");
+  const gatewayPath = candidates.find((p) => fs.existsSync(p));
+  const workspaceRoot = gatewayPath ? path.resolve(gatewayPath, "..", "..", "..") : process.cwd();
 
-    child.stderr?.on("data", (data: Buffer) => {
-      logger.warn({ gateway: true }, data.toString().trim());
-    });
-
-    child.on("exit", (code) => {
-      logger.warn({ code }, "Gateway process exited, restarting in 2s...");
-      setTimeout(startGateway, 2000);
-    });
-
-    child.on("error", (err) => {
-      logger.error({ err }, "Failed to start gateway");
-    });
-
-    logger.info({ port: GATEWAY_PORT }, "AI Gateway started");
-  } catch (err) {
-    logger.error({ err }, "Failed to spawn gateway");
+  if (!gatewayPath) {
+    logger.warn({ candidates }, "Gateway file not found, AI features disabled");
+    return;
   }
+
+  const net = require("net") as typeof import("net");
+  const checkPort = new (net.Socket)();
+  checkPort.setTimeout(1000);
+  checkPort.once("connect", () => {
+    checkPort.destroy();
+    logger.info({ port: GATEWAY_PORT }, "Gateway already running on port, skipping spawn");
+  });
+  checkPort.once("error", () => {
+    checkPort.destroy();
+    logger.info("No existing gateway, spawning child process...");
+    spawnGatewayProcess();
+  });
+  checkPort.once("timeout", () => {
+    checkPort.destroy();
+    spawnGatewayProcess();
+  });
+  checkPort.connect(parseInt(GATEWAY_PORT, 10), "127.0.0.1");
+
+  let restarts = 0;
+  const MAX_RESTARTS = 5;
+
+  function spawnGatewayProcess() {
+    try {
+      const child = spawn("node", [gatewayPath], {
+        cwd: workspaceRoot,
+        env: {
+          ...process.env,
+          PORT: GATEWAY_PORT,
+          NODE_ENV: process.env["NODE_ENV"] || "production",
+        },
+        stdio: ["ignore", "pipe", "pipe"],
+      });
+
+      child.stdout?.on("data", (data: Buffer) => {
+        logger.info({ gateway: true }, data.toString().trim());
+      });
+
+      child.stderr?.on("data", (data: Buffer) => {
+        logger.warn({ gateway: true }, data.toString().trim());
+      });
+
+      child.on("exit", (code) => {
+        restarts++;
+        if (restarts <= MAX_RESTARTS) {
+          logger.warn({ code, restarts }, "Gateway exited, restarting in 3s...");
+          setTimeout(spawnGatewayProcess, 3000);
+        } else {
+          logger.error({ code, restarts }, "Gateway exceeded max restarts, giving up");
+        }
+      });
+
+      child.on("error", (err) => {
+        logger.error({ err }, "Failed to start gateway");
+      });
+
+      logger.info({ port: GATEWAY_PORT, gatewayPath }, "AI Gateway started");
+    } catch (err) {
+      logger.error({ err }, "Failed to spawn gateway");
+    }
+  }
+
 }
 
 startGateway();
