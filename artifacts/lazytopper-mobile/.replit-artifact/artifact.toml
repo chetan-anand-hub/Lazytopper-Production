@@ -18,6 +18,11 @@ localPort = 23207
 [services.development]
 run = "pnpm --filter @workspace/lazytopper-mobile run dev"
 
+[services.production]
+
+[services.production.build]
+args = ["echo", "mobile: no production build"]
+
 [services.env]
 PORT = "23207"
 BASE_PATH = "/lazytopper-mobile/"
