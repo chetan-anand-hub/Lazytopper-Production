@@ -629,7 +629,7 @@ export default function TopicHub() {
               <div style={{
                 background: "rgba(255,255,255,0.03)", borderRadius: 18, padding: "22px 22px",
                 border: "1px solid rgba(255,255,255,0.06)",
-                boxShadow: "0 2px 12px rgba(0,0,0,0.04)",
+                boxShadow: "0 2px 12px rgba(0,0,0,0.3)",
               }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
                   <span style={{

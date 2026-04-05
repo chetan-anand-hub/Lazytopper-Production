@@ -1387,7 +1387,7 @@ const packTopicKey = useMemo(() => {
                       padding: "4px 10px",
                       border: active
                         ? "1px solid rgba(28,176,246,0.85)"
-                        : "1px solid rgba(0,0,0,0.15)",
+                        : "1px solid rgba(255,255,255,0.1)",
                       backgroundColor: active ? "#3b82f6" : "rgba(255,255,255,0.03)",
                       color: active ? "#f9fafb" : "rgba(255,255,255,0.7)",
                       fontSize: "0.75rem",
@@ -1546,7 +1546,7 @@ const packTopicKey = useMemo(() => {
               borderRadius: 16,
               border: "1px solid rgba(28,176,246,0.28)",
               background: "rgba(59,130,246,0.06)",
-              boxShadow: "0 8px 22px rgba(0,0,0,0.06)",
+              boxShadow: "0 8px 22px rgba(0,0,0,0.3)",
               overflow: "hidden",
             }}
           >
@@ -3180,7 +3180,7 @@ function MentorSolveDrawer(props: {
                   fontSize: 14,
                   fontWeight: 900,
                   cursor: loading || !input.trim() ? "not-allowed" : "pointer",
-                  background: loading || !input.trim() ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.03)",
+                  background: loading || !input.trim() ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.03)",
                 }}
               >
                 Send
@@ -3223,7 +3223,7 @@ function MentorSolveDrawer(props: {
                         : "pointer",
                     background:
                       loading || (!input.trim() && !attachedImage)
-                        ? "rgba(0,0,0,0.05)"
+                        ? "rgba(255,255,255,0.05)"
                         : "rgba(255,255,255,0.03)",
                   }}
                 >

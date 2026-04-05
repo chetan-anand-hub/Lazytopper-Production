@@ -355,7 +355,7 @@ function TopicHubHomeContent() {
           <div
             style={{
               borderRadius: 18,
-              border: "1px solid rgba(0,0,0,0.05)",
+              border: "1px solid rgba(255,255,255,0.06)",
               background: "rgba(255,255,255,0.03)",
               padding: 14,
               marginBottom: 14,
