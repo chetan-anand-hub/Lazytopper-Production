@@ -2975,7 +2975,7 @@ function MentorSolveDrawer(props: {
                       style={{
                         padding: 10,
                         borderRadius: 14,
-                        background: "rgba(255,255,255,0.85)",
+                        background: "rgba(255,255,255,0.03)",
                         border: "1px solid rgba(255,255,255,0.08)",
                       }}
                     >
