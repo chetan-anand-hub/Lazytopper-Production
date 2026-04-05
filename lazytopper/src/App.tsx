@@ -84,7 +84,6 @@ function BottomNav() {
   const isTrends =
     current.startsWith("/trends") ||
     current.startsWith("/topic-hub");
-  const isDashboard = current === "/dashboard";
   const isPredictive =
     current.startsWith("/predictive-papers") ||
     current.startsWith("/mock-paper") ||
@@ -150,8 +149,8 @@ function BottomNav() {
           <line x1="6" y1="20" x2="6" y2="14"/>
         </svg>
       ),
-      active: isDashboard,
-      onClick: () => go("/dashboard"),
+      active: current === "/weekly-wrapped",
+      onClick: () => go("/weekly-wrapped"),
     },
     {
       label: "Profile",
