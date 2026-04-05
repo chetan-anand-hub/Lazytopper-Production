@@ -1,8 +1,8 @@
 import type React from "react";
 import { Routes, Route, useLocation, useNavigate, Navigate, useParams } from "react-router-dom";
-import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Onboarding from "./pages/Onboarding";
+import Welcome from "./pages/Welcome";
 import TopicHubHome from "./pages/TopicHubHome";
 import { StudyPlannerView } from "./components/planner/StudyPlannerView";
 
@@ -92,8 +92,17 @@ function BottomNav() {
           <polyline points="9 22 9 12 15 12 15 22"/>
         </svg>
       ),
-      active: isHome,
-      onClick: () => { window.location.href = "/"; },
+      active: isHome || current === "/dashboard",
+      onClick: () => {
+        try {
+          const raw = localStorage.getItem("lazytopper.profile");
+          if (raw && JSON.parse(raw)?.studentClass) {
+            go("/dashboard");
+            return;
+          }
+        } catch {}
+        window.location.href = "/";
+      },
     },
     {
       label: "Trends",
@@ -446,6 +455,7 @@ export default function App() {
         <Routes>
           {/* Core Routes */}
           <Route path="/" element={<Navigate to="/trends/10/Maths" replace />} />
+          <Route path="/welcome" element={<Welcome />} />
           <Route path="/login" element={<Login />} />
           <Route path="/legal/:slug" element={withRouteSuspense(<LegalPage />)} />
           <Route path="/onboarding" element={<RequireAuth><Onboarding /></RequireAuth>} />
