@@ -6388,7 +6388,6 @@ input::placeholder {
 .vibe-toggle button[data-active="true"] {
   background: var(--primary);
   border-color: var(--primary);
-  background: rgba(255,255,255,0.08);
   color: #ffffff;
   transform: translateY(-1px);
 }
