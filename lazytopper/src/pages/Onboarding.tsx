@@ -14,13 +14,6 @@ function formatIsoDate(iso: string): string {
   }).format(date);
 }
 
-const DARK_STYLES = `
-  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
-  .ob-root { min-height:100vh; background:#0a0a0a; color:#fff; font-family:'Inter',sans-serif; }
-  .ob-root .font-display { font-family:'Space Grotesk',sans-serif; }
-  .ob-root .glass-card { background:rgba(255,255,255,0.03); backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,0.06); border-radius:16px; }
-  .ob-root * { box-sizing:border-box; }
-`;
 
 export default function Onboarding() {
   const navigate = useNavigate();
@@ -110,8 +103,7 @@ export default function Onboarding() {
 
   if (loadingProfile) {
     return (
-      <div className="ob-root">
-        <style dangerouslySetInnerHTML={{ __html: DARK_STYLES }} />
+      <div className="dark-page">
         <div style={{ padding: "40px 20px", textAlign: "center" }}>
           <div className="glass-card" style={{ padding: 24 }}>
             <p className="font-display" style={{ fontSize: 16, fontWeight: 700 }}>Preparing your onboarding...</p>
@@ -122,8 +114,7 @@ export default function Onboarding() {
   }
 
   return (
-    <div className="ob-root">
-      <style dangerouslySetInnerHTML={{ __html: DARK_STYLES }} />
+    <div className="dark-page">
       <div style={{ padding: "16px 16px 100px", maxWidth: 480, margin: "0 auto" }}>
 
         <h2 className="font-display" style={{ fontSize: 24, fontWeight: 700, textAlign: "center", marginBottom: 24 }}>Tell us about you</h2>

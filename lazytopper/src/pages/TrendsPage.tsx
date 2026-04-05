@@ -119,14 +119,6 @@ function tierColor(tier: TierKey): string {
   return "#f97316";
 }
 
-const DARK_STYLES = `
-  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
-  .trends-root { min-height:100vh; background:#0a0a0a; color:#fff; font-family:'Inter',sans-serif; }
-  .trends-root .font-display { font-family:'Space Grotesk',sans-serif; }
-  .trends-root .glass-card { background:rgba(255,255,255,0.03); backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,0.06); border-radius:16px; }
-  .trends-root * { box-sizing:border-box; }
-`;
-
 const TrendsPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -225,8 +217,7 @@ const TrendsPage: React.FC = () => {
   };
 
   return (
-    <div className="trends-root">
-      <style dangerouslySetInnerHTML={{ __html: DARK_STYLES }} />
+    <div className="dark-page">
       <div style={{ maxWidth: 1120, margin: "0 auto", padding: "16px 16px 100px" }}>
 
         <ReturnContextBar
