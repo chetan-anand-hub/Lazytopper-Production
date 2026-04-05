@@ -39,3 +39,4 @@ TypeScript is used consistently. All packages utilize TypeScript composite proje
 - **AI Provider**: Replit AI Integration proxy for Gemini API (`gemini-2.5-flash`)
 - **LaTeX Rendering**: KaTeX library (`MathText` component)
 - **Image Upload for Solution Checking**: Gemini Vision API
+- **Animated Video**: artifacts/lazytopper-video — 15-20 sec product explainer using React, Framer Motion, Tailwind CSS with 5 scenes (target score, must-crack topics, AI tutor chat, practice, streak celebration). Uses Space Grotesk + DM Sans fonts, dark palette with #22c55e green accent. Embedded as iframe in Design C (StoryScroll.tsx) mockup.

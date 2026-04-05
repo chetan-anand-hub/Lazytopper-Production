@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { ArrowRight, CheckCircle2, TrendingUp, Target, Calendar, BrainCircuit, MessageSquare, Zap, ShieldCheck, ChevronRight, Flame, Award, Star, LayoutDashboard, Play } from "lucide-react";
+import { ArrowRight, CheckCircle2, TrendingUp, Target, Calendar, BrainCircuit, MessageSquare, Zap, ShieldCheck, ChevronRight, Flame, Award, Star, LayoutDashboard } from "lucide-react";
 
 export function StoryScroll() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -321,20 +321,14 @@ export function StoryScroll() {
           </div>
 
           <div className="w-full max-w-3xl mx-auto">
-            <div className="relative aspect-video rounded-2xl overflow-hidden border border-white/10 bg-gradient-to-br from-gray-900 via-gray-950 to-black group cursor-pointer">
-              <div className="absolute inset-0 bg-[#22c55e]/5 group-hover:bg-[#22c55e]/10 transition-colors"></div>
-              <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -skew-x-12" style={{ animation: 'shimmer 3s infinite' }}></div>
-              </div>
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 z-10">
-                <div className="w-16 h-16 rounded-full bg-[#22c55e] flex items-center justify-center shadow-lg" style={{ animation: 'video-pulse 2s ease-in-out infinite' }}>
-                  <Play className="w-7 h-7 text-black fill-black ml-1" />
-                </div>
-                <span className="text-sm font-bold text-gray-300 tracking-wide">See how it works — 15 sec</span>
-              </div>
-              <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/10">
-                <div className="h-full w-0 bg-[#22c55e] rounded-r-full group-hover:w-1/3 transition-all duration-1000"></div>
-              </div>
+            <div className="relative aspect-video rounded-2xl overflow-hidden border border-white/10 bg-black">
+              <iframe
+                src="/lazytopper-video/"
+                className="absolute inset-0 w-full h-full"
+                style={{ border: 'none' }}
+                allow="autoplay"
+                title="LazyTopper Explainer Video"
+              />
             </div>
           </div>
         </div>
