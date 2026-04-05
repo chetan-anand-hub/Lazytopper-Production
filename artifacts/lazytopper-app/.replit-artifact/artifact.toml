@@ -12,5 +12,15 @@ kind = "web"
   [services.development]
   run = "pnpm --filter @workspace/lazytopper-app run dev"
 
+  [services.production]
+  serve = "static"
+  publicDir = "artifacts/lazytopper-app/dist/public"
+
+  [services.production.build]
+  args = ["pnpm", "--filter", "@workspace/lazytopper-app", "run", "build"]
+
+  [services.production.build.env]
+  NODE_ENV = "production"
+
   [services.env]
   PORT = "25246"
