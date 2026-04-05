@@ -1066,7 +1066,7 @@ const HighlyProbableQuestions: React.FC = () => {
                           background: active
                             ? "rgba(255,255,255,0.12)"
                             : "rgba(255,255,255,0.08)",
-                          color: active ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.2)",
+                          color: active ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.45)",
                           fontSize: "0.75rem",
                           fontWeight: active ? 600 : 500,
                           cursor: "pointer",
@@ -1114,7 +1114,7 @@ const HighlyProbableQuestions: React.FC = () => {
                           background: active
                             ? "rgba(255,255,255,0.12)"
                             : "transparent",
-                          color: active ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.2)",
+                          color: active ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.45)",
                           cursor: "pointer",
                           transition: "all 0.15s ease-out",
                         }}
@@ -1154,7 +1154,7 @@ const HighlyProbableQuestions: React.FC = () => {
                           background: active
                             ? "rgba(255,243,199,0.95)"
                             : "transparent",
-                          color: active ? "#f59e0b" : "rgba(255,255,255,0.2)",
+                          color: active ? "#f59e0b" : "rgba(255,255,255,0.45)",
                           fontWeight: active ? 600 : 400,
                           cursor: "pointer",
                           transition: "all 0.15s ease-out",
@@ -1228,7 +1228,7 @@ const HighlyProbableQuestions: React.FC = () => {
                       fontWeight: 600,
                       cursor: "pointer",
                       background: active ? "rgba(255,255,255,0.08)" : "transparent",
-                      color: active ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.2)",
+                      color: active ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.45)",
                       boxShadow: active
                         ? "0 6px 16px rgba(88,204,2,0.25)"
                         : "none",
@@ -1297,7 +1297,7 @@ const HighlyProbableQuestions: React.FC = () => {
                           background: active
                             ? "rgba(255,255,255,0.12)"
                             : "transparent",
-                          color: active ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.2)",
+                          color: active ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.45)",
                           cursor: "pointer",
                           transition: "all 0.15s ease-out",
                         }}
@@ -1975,8 +1975,8 @@ const HighlyProbableQuestions: React.FC = () => {
                                   fontSize: "0.75rem",
                                   color:
                                     feedback === "incorrect"
-                                      ? "rgba(245,158,11,0.1)"
-                                      : "#92400e",
+                                      ? "#f59e0b"
+                                      : "#f59e0b",
                                   cursor: "pointer",
                                 }}
                               >
