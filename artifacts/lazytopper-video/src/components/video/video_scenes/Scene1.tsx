@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
+import { sceneTransitions, charVariants } from '@/lib/video/animations';
 
 export function Scene1() {
   const [phase, setPhase] = useState(0);
@@ -7,9 +8,9 @@ export function Scene1() {
   useEffect(() => {
     const timers = [
       setTimeout(() => setPhase(1), 300),
-      setTimeout(() => setPhase(2), 1000),
+      setTimeout(() => setPhase(2), 800),
       setTimeout(() => setPhase(3), 1500),
-      setTimeout(() => setPhase(4), 2800),
+      setTimeout(() => setPhase(4), 3800),
     ];
     return () => timers.forEach(t => clearTimeout(t));
   }, []);
@@ -17,58 +18,66 @@ export function Scene1() {
   return (
     <motion.div 
       className="absolute inset-0 flex flex-col items-center justify-center"
-      initial={{ opacity: 0, scale: 1.1 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, y: -50, scale: 0.95 }}
-      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      {...sceneTransitions.fadeBlur}
     >
-      <div className="relative z-10 w-full max-w-[60vw] flex flex-col items-center">
+      <div className="relative z-10 w-full h-full flex flex-col items-center justify-center">
         
-        <motion.div
-          className="text-[2vw] text-[var(--color-text-secondary)] font-medium mb-[2vh]"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-        >
-          Step 1. Set your goal
+        {/* Floating Chaos Elements */}
+        <motion.div className="absolute inset-0 pointer-events-none">
+          <motion.div 
+            className="absolute top-[20%] left-[20%] w-[15vw] h-[20vh] bg-white/5 border border-white/10 rounded-lg flex items-center justify-center text-[1vw] text-white/50 backdrop-blur-sm"
+            animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }}
+            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+          >Math Notes.pdf</motion.div>
+          <motion.div 
+            className="absolute top-[60%] left-[10%] w-[20vw] h-[15vh] bg-[var(--color-error)]/10 border border-[var(--color-error)]/20 rounded-lg flex items-center justify-center text-[1vw] text-[var(--color-error)]/80 backdrop-blur-sm"
+            animate={{ y: [0, 30, 0], rotate: [0, -10, 0] }}
+            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+          >Overdue Assignment</motion.div>
+          <motion.div 
+            className="absolute top-[30%] right-[15%] w-[18vw] h-[25vh] bg-white/5 border border-white/10 rounded-lg flex flex-col items-center justify-center gap-2 backdrop-blur-sm"
+            animate={{ y: [0, -30, 0], rotate: [0, -5, 0] }}
+            transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+          >
+            <div className="w-[80%] h-2 bg-white/20 rounded-full" />
+            <div className="w-[60%] h-2 bg-white/20 rounded-full" />
+            <div className="w-[90%] h-2 bg-white/20 rounded-full" />
+          </motion.div>
         </motion.div>
 
         <motion.h1 
-          className="text-[6vw] font-display font-bold leading-none tracking-tighter text-center mb-[6vh]"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
+          className="text-[5vw] font-display font-bold leading-none tracking-tighter text-center z-20"
+          initial="hidden"
+          animate={phase >= 2 ? "visible" : "hidden"}
+          variants={{
+            visible: { transition: { staggerChildren: 0.05 } }
+          }}
         >
-          What's your target <br/>
-          <span className="text-[var(--color-primary)]">CBSE score?</span>
+          {"Board prep shouldn't".split(' ').map((word, i) => (
+            <span key={i} className="inline-block mr-[1.5vw]">
+              {word.split('').map((char, j) => (
+                <motion.span key={j} className="inline-block" variants={charVariants}>{char}</motion.span>
+              ))}
+            </span>
+          ))}
+          <br/>
+          {"feel like this.".split(' ').map((word, i) => (
+            <span key={i} className="inline-block mr-[1.5vw] text-[var(--color-error)]">
+              {word.split('').map((char, j) => (
+                <motion.span key={j} className="inline-block" variants={charVariants}>{char}</motion.span>
+              ))}
+            </span>
+          ))}
         </motion.h1>
 
-        <div className="relative w-full max-w-[40vw] h-[10vh] bg-[var(--color-bg-muted)] rounded-2xl flex items-center p-[1vw] border border-white/5 overflow-hidden">
+        {phase >= 3 && (
           <motion.div 
-            className="absolute left-0 top-0 bottom-0 bg-[var(--color-primary)]/20"
-            initial={{ width: "0%" }}
-            animate={{ width: phase >= 2 ? "95%" : "0%" }}
-            transition={{ duration: 1, type: "spring", bounce: 0.2 }}
+            className="absolute bottom-[20%] w-[40vw] h-[10vh] bg-[var(--color-error)]/20 blur-[100px] rounded-full"
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1 }}
           />
-          <motion.div 
-            className="absolute left-[95%] top-1/2 -translate-y-1/2 -translate-x-1/2 w-[3vh] h-[3vh] bg-[var(--color-primary)] rounded-full shadow-[0_0_20px_var(--color-primary)]"
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: phase >= 2 ? 1 : 0, opacity: phase >= 2 ? 1 : 0 }}
-            transition={{ delay: 0.5, type: "spring" }}
-          />
-          <div className="relative z-10 flex justify-between w-full font-display text-[2vw] font-bold">
-            <span className="text-white/40">50%</span>
-            <motion.span 
-              className="text-[var(--color-primary)]"
-              initial={{ opacity: 0, scale: 0.5 }}
-              animate={phase >= 3 ? { opacity: 1, scale: 1.2 } : { opacity: 0, scale: 0.5 }}
-              transition={{ type: "spring", stiffness: 300, damping: 15 }}
-            >
-              95%+
-            </motion.span>
-          </div>
-        </div>
-
+        )}
       </div>
     </motion.div>
   );

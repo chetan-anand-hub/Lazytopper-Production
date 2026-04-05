@@ -1,79 +1,80 @@
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
+import { sceneTransitions } from '@/lib/video/animations';
 
 export function Scene2() {
   const [phase, setPhase] = useState(0);
 
   useEffect(() => {
     const timers = [
-      setTimeout(() => setPhase(1), 300),
-      setTimeout(() => setPhase(2), 800),
-      setTimeout(() => setPhase(3), 1200),
-      setTimeout(() => setPhase(4), 1600),
+      setTimeout(() => setPhase(1), 500),
+      setTimeout(() => setPhase(2), 1200),
+      setTimeout(() => setPhase(3), 2000),
+      setTimeout(() => setPhase(4), 2800),
+      setTimeout(() => setPhase(5), 4000),
     ];
     return () => timers.forEach(t => clearTimeout(t));
   }, []);
 
-  const topics = [
-    { title: "Quadratic Equations", prob: "98%", color: "var(--color-primary)" },
-    { title: "Carbon & Its Compounds", prob: "92%", color: "var(--color-secondary)" },
-    { title: "Trigonometry Identities", prob: "89%", color: "var(--color-accent)" },
-  ];
-
   return (
     <motion.div 
       className="absolute inset-0 flex flex-col items-center justify-center"
-      initial={{ opacity: 0, y: 50 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 1.05, filter: 'blur(10px)' }}
-      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      {...sceneTransitions.slideUp}
     >
-      <div className="w-[70vw] flex justify-between items-center gap-[4vw]">
+      <div className="relative z-10 w-full h-full flex items-center justify-center gap-[10vw]">
         
-        <div className="flex-1">
-          <motion.div
-            className="text-[2vw] text-[var(--color-secondary)] font-medium mb-[1vh]"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            Board Exam Trends
-          </motion.div>
-          <motion.h2 
-            className="text-[4.5vw] font-display font-bold leading-tight tracking-tighter"
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-          >
-            AI reveals your <br/>
-            <span className="text-[var(--color-primary)]">Must-Crack</span> topics.
-          </motion.h2>
-        </div>
-
-        <div className="flex-1 flex flex-col gap-[2vh]">
-          {topics.map((topic, i) => (
+        {/* Phone UI Mockup */}
+        <motion.div 
+          className="relative w-[22vw] h-[45vw] bg-black border-[0.5vw] border-white/20 rounded-[3vw] overflow-hidden flex flex-col p-[2vw] shadow-2xl shadow-[var(--color-primary)]/20"
+          initial={{ rotateY: 90, opacity: 0, scale: 0.8 }}
+          animate={{ rotateY: 0, opacity: 1, scale: 1 }}
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        >
+          {phase >= 1 && (
             <motion.div 
-              key={i}
-              className="bg-[var(--color-bg-light)]/80 backdrop-blur-md border border-white/10 rounded-2xl p-[2vw] flex justify-between items-center"
-              initial={{ opacity: 0, x: 50, scale: 0.9 }}
-              animate={phase >= i + 1 ? { opacity: 1, x: 0, scale: 1 } : { opacity: 0, x: 50, scale: 0.9 }}
-              transition={{ type: "spring", stiffness: 200, damping: 20 }}
+              className="w-full bg-white/10 rounded-xl p-[1vw] mb-[1vw]"
+              initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
             >
-              <div>
-                <div className="text-[1vw] text-white/50 uppercase tracking-widest font-bold mb-[0.5vh]">High Probability</div>
-                <div className="text-[1.8vw] font-display font-bold">{topic.title}</div>
-              </div>
-              <motion.div 
-                className="text-[2.5vw] font-display font-black"
-                style={{ color: topic.color }}
-                initial={{ opacity: 0, scale: 0.5 }}
-                animate={phase >= i + 2 ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.5 }}
-                transition={{ type: "spring", stiffness: 300, damping: 15 }}
-              >
-                {topic.prob}
-              </motion.div>
+              <div className="text-[1vw] text-white/50">Subjects</div>
+              <div className="text-[1.5vw] text-white font-bold">Physics & Math</div>
             </motion.div>
-          ))}
+          )}
+
+          {phase >= 2 && (
+            <motion.div 
+              className="w-full bg-[var(--color-primary)]/20 border border-[var(--color-primary)]/50 rounded-xl p-[1vw] mb-[1vw]"
+              initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
+              transition={{ type: "spring" }}
+            >
+              <div className="text-[1vw] text-[var(--color-primary)]">Target Score</div>
+              <div className="text-[2vw] text-white font-bold tracking-tight">95%+</div>
+            </motion.div>
+          )}
+
+          {phase >= 3 && (
+            <motion.div 
+              className="w-full bg-white/10 rounded-xl p-[1vw]"
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+            >
+              <div className="text-[1vw] text-white/50">Mentor Vibe</div>
+              <div className="flex gap-[0.5vw] mt-[0.5vw]">
+                <div className="px-[1vw] py-[0.5vw] bg-[var(--color-secondary)]/30 border border-[var(--color-secondary)] rounded-full text-[1vw]">Friendly</div>
+                <div className="px-[1vw] py-[0.5vw] bg-white/5 rounded-full text-[1vw] text-white/50">Strict</div>
+              </div>
+            </motion.div>
+          )}
+        </motion.div>
+
+        {/* Copy */}
+        <div className="w-[30vw]">
+          <motion.h2 
+            className="text-[4vw] font-display font-bold leading-tight"
+            initial={{ opacity: 0, x: 50 }}
+            animate={phase >= 4 ? { opacity: 1, x: 0 } : { opacity: 0, x: 50 }}
+            transition={{ type: "spring", stiffness: 200, damping: 20 }}
+          >
+            Built for <br/><span className="text-[var(--color-primary)]">your success.</span>
+          </motion.h2>
         </div>
 
       </div>

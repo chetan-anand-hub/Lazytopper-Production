@@ -5,13 +5,15 @@ import { Scene2 } from './video_scenes/Scene2';
 import { Scene3 } from './video_scenes/Scene3';
 import { Scene4 } from './video_scenes/Scene4';
 import { Scene5 } from './video_scenes/Scene5';
+import { Scene6 } from './video_scenes/Scene6';
 
 const SCENE_DURATIONS = {
-  target: 3500,
-  topics: 3500,
-  tutor: 4000,
-  practice: 3500,
-  celebration: 4500,
+  problem: 5000,
+  setup: 5000,
+  habit: 5000,
+  adaptive: 5000,
+  mentor: 5000,
+  reward: 5000,
 };
 
 export default function VideoTemplate() {
@@ -46,7 +48,7 @@ export default function VideoTemplate() {
       {/* Persistent UI Elements */}
       <motion.div 
         className="absolute top-[5vh] left-[4vw] font-display font-bold text-[2vw] tracking-tighter text-white z-50 flex items-center gap-[1vw]"
-        animate={{ opacity: currentScene === 4 ? 0 : 1 }}
+        animate={{ opacity: currentScene === 5 ? 0 : 1 }}
       >
         <div className="w-[2vw] h-[2vw] bg-[var(--color-primary)] rounded flex items-center justify-center text-white text-[1.2vw]">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-[1.2vw] h-[1.2vw]"><path d="m13 2-2 2.5h3L11 22l2-2.5h-3L13 2z"/></svg>
@@ -55,11 +57,12 @@ export default function VideoTemplate() {
       </motion.div>
 
       <AnimatePresence mode="popLayout">
-        {currentScene === 0 && <Scene1 key="target" />}
-        {currentScene === 1 && <Scene2 key="topics" />}
-        {currentScene === 2 && <Scene3 key="tutor" />}
-        {currentScene === 3 && <Scene4 key="practice" />}
-        {currentScene === 4 && <Scene5 key="celebration" />}
+        {currentScene === 0 && <Scene1 key="problem" />}
+        {currentScene === 1 && <Scene2 key="setup" />}
+        {currentScene === 2 && <Scene3 key="habit" />}
+        {currentScene === 3 && <Scene4 key="adaptive" />}
+        {currentScene === 4 && <Scene5 key="mentor" />}
+        {currentScene === 5 && <Scene6 key="reward" />}
       </AnimatePresence>
     </div>
   );
