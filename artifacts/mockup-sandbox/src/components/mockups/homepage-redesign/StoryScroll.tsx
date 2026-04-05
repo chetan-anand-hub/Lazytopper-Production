@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { ArrowRight, Play, CheckCircle2, TrendingUp, Target, Calendar, Trophy, BrainCircuit, MessageSquare, Zap, BookOpen, ShieldCheck, ChevronRight } from "lucide-react";
+import { ArrowRight, CheckCircle2, TrendingUp, Target, Calendar, Trophy, BrainCircuit, MessageSquare, Zap, ShieldCheck, ChevronRight, Flame, Award, Star } from "lucide-react";
 
 export function StoryScroll() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -78,7 +78,22 @@ export function StoryScroll() {
               ))}
               <div className="w-10 h-10 rounded-full border-2 border-[#0a0410] bg-white/10 backdrop-blur-md flex items-center justify-center text-xs font-bold">+</div>
             </div>
-            <p className="text-sm text-gray-400 font-medium">12,800+ students cracking boards</p>
+            <span className="text-sm text-gray-400 font-medium">12,800+ students cracking boards</span>
+          </div>
+
+          <div className="mt-6 flex items-center gap-3 flex-wrap justify-center">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/30">
+              <Flame className="w-4 h-4 text-orange-400 fill-orange-400" />
+              <span className="text-xs font-bold text-orange-300">12 day streak</span>
+            </div>
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/30">
+              <Star className="w-4 h-4 text-purple-400 fill-purple-400" />
+              <span className="text-xs font-bold text-purple-300">2,450 XP</span>
+            </div>
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/30">
+              <Award className="w-4 h-4 text-blue-400" />
+              <span className="text-xs font-bold text-blue-300">Level 8</span>
+            </div>
           </div>
         </div>
       </section>
@@ -151,7 +166,7 @@ export function StoryScroll() {
                 </div>
                 <div>
                   <h3 className="font-display font-bold text-lg">Ravi Sir</h3>
-                  <p className="text-xs text-blue-600 font-bold tracking-wider uppercase">AI Tutor • Online</p>
+                  <span className="text-xs text-blue-600 font-bold tracking-wider uppercase block">AI Tutor • Online</span>
                 </div>
               </div>
 
@@ -163,8 +178,7 @@ export function StoryScroll() {
                 </div>
                 <div className="flex gap-4 w-full md:w-5/6">
                   <div className="bg-white border border-gray-200 shadow-sm p-4 rounded-2xl rounded-tl-sm text-sm">
-                    <p className="mb-2">Let's break it down together! Look at <strong>△ABC</strong> and <strong>△PQR</strong>.</p>
-                    <p>What's the relationship between angle A and angle P?</p>
+                    <span>Compare <strong>△ABC</strong> and <strong>△PQR</strong>. What links ∠A to ∠P?</span>
                   </div>
                 </div>
               </div>

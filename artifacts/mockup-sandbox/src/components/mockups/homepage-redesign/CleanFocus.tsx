@@ -13,7 +13,10 @@ import {
   Sparkles, 
   ChevronRight,
   TrendingUp,
-  Brain
+  Brain,
+  Flame,
+  Award,
+  Star
 } from 'lucide-react';
 
 const Avatar = ({ src, fallback, index }: { src?: string, fallback: string, index: number }) => (
@@ -25,7 +28,7 @@ const Avatar = ({ src, fallback, index }: { src?: string, fallback: string, inde
   </div>
 );
 
-const ProgressBar = ({ label, percentage, marks, tier, colorClass }: any) => (
+const ProgressBar = ({ label, percentage, marks, tier, colorClass }: { label: string; percentage: number; marks: string; tier: string; colorClass: string }) => (
   <div className="mb-4">
     <div className="flex justify-between items-end mb-2">
       <div>
@@ -83,7 +86,7 @@ export default function CleanFocus() {
             <ArrowRight className="w-5 h-5" />
           </button>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 mb-8">
             <div className="flex">
               <Avatar fallback="A" index={0} />
               <Avatar fallback="R" index={1} />
@@ -92,6 +95,21 @@ export default function CleanFocus() {
             </div>
             <div className="text-sm font-medium text-slate-600">
               <strong className="text-slate-900">12,800+</strong> students
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4 flex-wrap justify-center">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-50 border border-orange-200">
+              <Flame className="w-4 h-4 text-orange-500 fill-orange-500" />
+              <span className="text-xs font-bold text-orange-700">12 day streak</span>
+            </div>
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-purple-50 border border-purple-200">
+              <Star className="w-4 h-4 text-purple-500 fill-purple-500" />
+              <span className="text-xs font-bold text-purple-700">2,450 XP</span>
+            </div>
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-200">
+              <Award className="w-4 h-4 text-blue-500" />
+              <span className="text-xs font-bold text-blue-700">Level 8</span>
             </div>
           </div>
         </section>
@@ -141,13 +159,13 @@ export default function CleanFocus() {
                 
                 <div className="space-y-4">
                   <div className="bg-slate-50 rounded-2xl rounded-tl-sm p-4 text-sm text-slate-700 max-w-[85%]">
-                    Let's break down this Trigonometry problem step by step. What's the formula for tan(θ)?
+                    What's the formula for tan(θ)?
                   </div>
                   <div className="bg-[#58cc02] text-white rounded-2xl rounded-tr-sm p-4 text-sm max-w-[85%] ml-auto">
-                    Is it Opposite / Adjacent?
+                    Opposite / Adjacent?
                   </div>
                   <div className="bg-slate-50 rounded-2xl rounded-tl-sm p-4 text-sm text-slate-700 max-w-[85%]">
-                    Perfect! Now, looking at the diagram, what is the length of the opposite side?
+                    Correct! Find the opposite side length.
                   </div>
                 </div>
               </div>

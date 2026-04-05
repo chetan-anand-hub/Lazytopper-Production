@@ -14,7 +14,9 @@ import {
   ChevronRight,
   Brain,
   Star,
-  TrendingUp
+  TrendingUp,
+  Flame,
+  Award
 } from "lucide-react";
 
 export function NeonCampus() {
@@ -65,6 +67,21 @@ export function NeonCampus() {
                   {[1, 2, 3, 4, 5].map((i) => <Star key={i} className="w-4 h-4 fill-current" />)}
                 </div>
                 <div className="text-sm text-slate-400 font-medium">12,800+ students leveled up</div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 pt-6 flex-wrap justify-center">
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/30 shadow-[0_0_12px_rgba(249,115,22,0.15)]">
+                <Flame className="w-4 h-4 text-orange-400 fill-orange-400" />
+                <span className="text-xs font-bold text-orange-300">12 day streak</span>
+              </div>
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/30 shadow-[0_0_12px_rgba(168,85,247,0.15)]">
+                <Zap className="w-4 h-4 text-purple-400 fill-purple-400" />
+                <span className="text-xs font-bold text-purple-300">2,450 XP</span>
+              </div>
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/30 shadow-[0_0_12px_rgba(59,130,246,0.15)]">
+                <Award className="w-4 h-4 text-blue-400" />
+                <span className="text-xs font-bold text-blue-300">Level 8</span>
               </div>
             </div>
           </div>
@@ -153,16 +170,15 @@ export function NeonCampus() {
                 </div>
                 
                 <div className="bg-slate-800/50 rounded-2xl p-4 rounded-tl-none self-start max-w-[85%] border border-slate-700/50">
-                  <p className="text-slate-200">Let's crack that tricky trigonometry proof. Where are you stuck?</p>
+                  <span className="text-slate-200">Where are you stuck on this proof?</span>
                 </div>
                 
                 <div className="bg-indigo-600 rounded-2xl p-4 rounded-tr-none self-end max-w-[85%] shadow-[0_0_15px_rgba(79,70,229,0.3)] text-white">
-                  <p>I can't figure out step 2. Why divide by cos²θ?</p>
+                  <span>Why divide by cos²θ?</span>
                 </div>
                 
                 <div className="bg-slate-800/50 rounded-2xl p-5 rounded-tl-none self-start max-w-[90%] border border-slate-700/50">
-                  <p className="text-slate-200 mb-3">Great question! Look at what we need on the RHS: <span className="font-mono text-lime-300 bg-slate-900 px-2 py-1 rounded">sec²θ</span></p>
-                  <p className="text-slate-300 text-sm">Since secθ = 1/cosθ, dividing the entire LHS by cos²θ forces a sec²θ to appear. Try writing it out now.</p>
+                  <span className="text-slate-200">We need <span className="font-mono text-lime-300 bg-slate-900 px-2 py-1 rounded">sec²θ</span> on the RHS. Try it!</span>
                 </div>
               </div>
             </div>
