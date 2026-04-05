@@ -18,6 +18,7 @@ import { RequireAuth, RequirePremium } from "./components/auth/RequireAuth";
 import { PracticeLimitGate } from "./components/auth/PracticeLimitGate";
 import { MockViewGate } from "./components/auth/MockViewGate";
 import { useAuth } from "./context/AuthContext";
+import { useProfile } from "./context/ProfileContext";
 import { useSubscription } from "./hooks/useSubscription";
 
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -57,6 +58,13 @@ function MentorRedirect() {
   return <Navigate to={`/topic-hub/${grade || "10"}/${subject || "Maths"}`} replace />;
 }
 
+function HomeRedirect() {
+  const { user } = useAuth();
+  const { profile } = useProfile();
+  if (user && profile?.studentClass) return <Navigate to="/dashboard" replace />;
+  return <Navigate to="/trends/10/Maths" replace />;
+}
+
 /**
  * BottomNav component renders a simple bottom navigation bar for the mobile view.
  * It highlights the active page based on the current location and provides
@@ -93,16 +101,7 @@ function BottomNav() {
         </svg>
       ),
       active: isHome || current === "/dashboard",
-      onClick: () => {
-        try {
-          const raw = localStorage.getItem("lazytopper.profile");
-          if (raw && JSON.parse(raw)?.studentClass) {
-            go("/dashboard");
-            return;
-          }
-        } catch {}
-        window.location.href = "/";
-      },
+      onClick: () => go("/"),
     },
     {
       label: "Trends",
@@ -454,7 +453,7 @@ export default function App() {
       <div style={{ paddingBottom: '60px' }}>
         <Routes>
           {/* Core Routes */}
-          <Route path="/" element={<Navigate to="/trends/10/Maths" replace />} />
+          <Route path="/" element={<HomeRedirect />} />
           <Route path="/welcome" element={<Welcome />} />
           <Route path="/login" element={<Login />} />
           <Route path="/legal/:slug" element={withRouteSuspense(<LegalPage />)} />
@@ -558,7 +557,7 @@ export default function App() {
           />
 
           {/* Catch-all: redirect unknown routes to a sensible default */}
-          <Route path="*" element={<Navigate to="/trends/10/Maths" replace />} />
+          <Route path="*" element={<HomeRedirect />} />
         </Routes>
       </div>
       <BottomNav />
