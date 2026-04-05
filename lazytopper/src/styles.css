@@ -1,6 +1,6 @@
 
-/* THEME: DUOLINGO-INSPIRED BRIGHT ------------------------------------ */
-@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap");
+/* THEME: DARK PREMIUM ------------------------------------------------ */
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap");
 
 /* Reset */
 *,
@@ -12,24 +12,25 @@
 }
 
 :root {
-  --bg: #ffffff;
-  --bg-card: #ffffff;
-  --text: #3c3c3c;
-  --text-muted: #777777;
+  --bg: #0a0a0a;
+  --bg-card: rgba(255,255,255,0.03);
+  --bg-card-border: rgba(255,255,255,0.06);
+  --text: #ffffff;
+  --text-muted: rgba(255,255,255,0.45);
 
-  --primary: #58cc02;
-  --primary-dark: #46a302;
-  --mint: #1cb0f6;
+  --primary: #22c55e;
+  --primary-dark: #16a34a;
+  --mint: #3b82f6;
   --yellow: #ffc800;
-  --purple: #ce82ff;
-  --amber: #ff9600;
-  --red: #ff4b4b;
+  --purple: #a855f7;
+  --amber: #f97316;
+  --red: #ef4444;
 
   --radius: 16px;
-  --shadow: 0 2px 0 #e5e5e5;
+  --shadow: none;
   --lt-page-padding: 24px 16px 40px;
-  --font-body: "Nunito", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-display: "Nunito", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
   --lt-ux-return-back-padding: 6px 12px;
   --lt-ux-return-back-font-size: 0.84rem;
   --lt-ux-chip-padding: 4px 10px;
@@ -51,14 +52,14 @@ body {
 }
 
 .navbar {
-  background: #ffffff;
+  background: #0a0a0a;
   padding: 12px 20px;
   text-align: center;
   font-weight: 800;
   font-size: 1.1rem;
   letter-spacing: 0;
   text-transform: none;
-  border-bottom: 2px solid #e5e5e5;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
   box-shadow: none;
 }
 
@@ -79,17 +80,18 @@ body {
 /* Cards */
 .card {
   background: var(--bg-card);
+  backdrop-filter: blur(16px);
   border-radius: var(--radius);
   padding: 20px 20px 22px;
   margin-bottom: 24px;
-  border: 2px solid #e5e5e5;
-  box-shadow: 0 2px 0 #e5e5e5;
+  border: 1px solid var(--bg-card-border);
+  box-shadow: none;
   transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
 }
 
 .card:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 0 #e5e5e5;
+  box-shadow: 0 4px 20px rgba(255,255,255,0.02);
 }
 
 /* Titles */
@@ -98,7 +100,7 @@ body {
   font-size: 1.9rem;
   font-weight: 700;
   margin-bottom: 10px;
-  color: #3c3c3c;
+  color: #ffffff;
 }
 
 .subtitle {
@@ -128,8 +130,8 @@ select {
   margin-top: 4px;
   margin-bottom: 6px;
   border-radius: 12px;
-  border: 2px solid #e5e5e5;
-  background: #f7f7f7;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.05);
   color: var(--text);
   font-size: 1rem;
   font-weight: 600;
@@ -141,9 +143,13 @@ select {
 
 input:focus,
 select:focus {
-  border-color: #1cb0f6;
-  background: #ffffff;
-  box-shadow: 0 0 0 3px rgba(28,176,246,.2);
+  border-color: #22c55e;
+  background: rgba(255,255,255,0.08);
+  box-shadow: 0 0 0 3px rgba(34,197,94,.15);
+}
+
+input::placeholder {
+  color: rgba(255,255,255,0.25);
 }
 
 /* class + subject row */
@@ -161,16 +167,15 @@ select:focus {
   margin-top: 20px;
   width: 100%;
   border: none;
-  border-bottom: 4px solid #46a302;
-  border-radius: 16px;
+  border-radius: 14px;
   padding: 14px 20px;
-  background: #58cc02;
-  color: #ffffff;
+  background: #22c55e;
+  color: #000000;
   font-size: 1rem;
   font-weight: 800;
   cursor: pointer;
   font-family: var(--font-display);
-  box-shadow: none;
+  box-shadow: 0 0 24px rgba(34,197,94,0.3);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   transition: transform 0.1s ease-out, filter 0.1s ease-out;
@@ -183,14 +188,12 @@ select:focus {
 
 .cta-btn:active {
   transform: translateY(2px);
-  border-bottom-width: 2px;
 }
 
 .cta-btn.ghost {
-  background: #ffffff;
-  color: var(--text);
-  border: 2px solid #e5e5e5;
-  border-bottom: 4px solid #e5e5e5;
+  background: rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.5);
+  border: 1px solid rgba(255,255,255,0.08);
   box-shadow: none;
 }
 
@@ -243,11 +246,11 @@ select:focus {
   justify-content: center;
   padding: 4px 10px;
   border-radius: 999px;
-  border: 1px solid rgba(148, 163, 184, 0.7);
+  border: 1px solid rgba(255,255,255,0.1);
   font-size: 0.8rem;
   font-weight: 600;
-  color: #3c3c3c;
-  background: rgba(226, 232, 240, 0.8);
+  color: rgba(255,255,255,0.7);
+  background: rgba(255,255,255,0.05);
 }
 
 .tool-row {

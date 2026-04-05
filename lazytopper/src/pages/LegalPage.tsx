@@ -1,5 +1,5 @@
 import React from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 const PAGES: Record<string, { title: string; content: React.ReactNode }> = {
   privacy: {
@@ -76,7 +76,6 @@ const PAGES: Record<string, { title: string; content: React.ReactNode }> = {
 
 const LegalPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
-  const navigate = useNavigate();
   const page = PAGES[slug || ""];
 
   if (!page) {

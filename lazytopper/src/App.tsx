@@ -40,9 +40,12 @@ const LegalPage = lazy(() => import("./pages/LegalPage"));
 
 function RouteFallback() {
   return (
-    <div className="lt-page">
-      <div className="card">
-        <h3>Loading...</h3>
+    <div style={{ minHeight: "50vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{
+        background: "rgba(255,255,255,0.03)", backdropFilter: "blur(16px)",
+        border: "1px solid rgba(255,255,255,0.06)", borderRadius: 16, padding: 24,
+      }}>
+        <h3 style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: 16, color: "#fff" }}>Loading...</h3>
       </div>
     </div>
   );
@@ -90,8 +93,8 @@ function BottomNav() {
     current.startsWith("/mock-builder");
   const isProfile = current === "/profile";
 
-  const activeColor = "#58cc02";
-  const inactiveColor = "#afafaf";
+  const activeColor = "#22c55e";
+  const inactiveColor = "rgba(255,255,255,0.3)";
 
   const navItems = [
     {
@@ -175,8 +178,9 @@ function BottomNav() {
         display: "flex",
         justifyContent: "space-around",
         padding: "6px 8px 10px",
-        background: "#ffffff",
-        borderTop: "2px solid #e5e5e5",
+        background: "rgba(10,10,10,0.95)",
+        backdropFilter: "blur(16px)",
+        borderTop: "1px solid rgba(255,255,255,0.06)",
         zIndex: 20,
       }}
     >
@@ -348,24 +352,24 @@ export default function App() {
 
   return (
     <>
-      {/* Top navigation bar — Duolingo-style clean header */}
+      {/* Top navigation bar — dark premium header */}
       <div className="navbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <div style={{
             width: 32, height: 32, borderRadius: 10,
-            background: "#58cc02", display: "flex", alignItems: "center", justifyContent: "center",
-            color: "#fff", fontWeight: 900, fontSize: 14,
+            background: "linear-gradient(135deg, #22c55e, #3b82f6)", display: "flex", alignItems: "center", justifyContent: "center",
+            color: "#000", fontWeight: 900, fontSize: 14,
           }}>LT</div>
-          <span style={{ fontWeight: 800, fontSize: "1.1rem", color: "#3c3c3c" }}>LazyTopper</span>
+          <span style={{ fontWeight: 800, fontSize: "1.1rem", color: "#fff", fontFamily: "'Space Grotesk', sans-serif" }}>LazyTopper</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           {user && isTrialActive && (
             <div
               style={{
                 display: "flex", alignItems: "center", gap: 4,
-                background: "#eff6ff", border: "2px solid #1cb0f6",
+                background: "rgba(59,130,246,0.12)", border: "1px solid rgba(59,130,246,0.25)",
                 borderRadius: 12, padding: "4px 10px",
-                fontWeight: 800, fontSize: "0.78rem", color: "#1cb0f6",
+                fontWeight: 800, fontSize: "0.78rem", color: "#60a5fa",
               }}
               title={`${daysLeftInTrial} days left in trial`}
             >
@@ -379,9 +383,9 @@ export default function App() {
               onClick={() => navigate("/profile")}
               style={{
                 display: "flex", alignItems: "center", gap: 4,
-                background: "#fef2f2", border: "2px solid #fca5a5",
+                background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.25)",
                 borderRadius: 12, padding: "4px 10px",
-                fontWeight: 800, fontSize: "0.78rem", color: "#dc2626",
+                fontWeight: 800, fontSize: "0.78rem", color: "#f87171",
                 cursor: "pointer",
               }}
             >
@@ -392,9 +396,9 @@ export default function App() {
             <div
               style={{
                 display: "flex", alignItems: "center", gap: 4,
-                background: "#fff7e6", border: "2px solid #ff9600",
-                borderRadius: 12, padding: "4px 10px",
-                fontWeight: 900, fontSize: "0.85rem", color: "#ff9600",
+                background: "rgba(249,115,22,0.12)", border: "1px solid rgba(249,115,22,0.25)",
+                borderRadius: 20, padding: "4px 10px",
+                fontWeight: 900, fontSize: "0.85rem", color: "#fb923c",
               }}
               title={`${headerStreak} day streak`}
             >
@@ -407,9 +411,9 @@ export default function App() {
             onClick={() => setPaletteOpen(true)}
             title="Search (Ctrl+K)"
             style={{
-              background: "#f7f7f7", border: "2px solid #e5e5e5", borderRadius: 12,
+              background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12,
               padding: "6px 12px", fontSize: "0.78rem", fontWeight: 700,
-              color: "#afafaf", cursor: "pointer", display: "flex", alignItems: "center", gap: 4,
+              color: "rgba(255,255,255,0.35)", cursor: "pointer", display: "flex", alignItems: "center", gap: 4,
             }}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -422,8 +426,8 @@ export default function App() {
               title="Your Profile"
               style={{
                 width: 34, height: 34, borderRadius: "50%",
-                background: "#58cc02", border: "3px solid #46a302",
-                color: "#fff", fontWeight: 900, fontSize: 14,
+                background: "linear-gradient(135deg, #22c55e, #3b82f6)", border: "none",
+                color: "#000", fontWeight: 900, fontSize: 14,
                 cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
               }}
             >
@@ -434,11 +438,10 @@ export default function App() {
               type="button"
               onClick={() => navigate("/login")}
               style={{
-                border: "2px solid #e5e5e5",
-                borderBottom: "3px solid #e5e5e5",
+                border: "1px solid rgba(255,255,255,0.1)",
                 borderRadius: 12,
-                background: "#fff",
-                color: "#3c3c3c",
+                background: "rgba(255,255,255,0.04)",
+                color: "rgba(255,255,255,0.6)",
                 fontWeight: 800,
                 fontSize: "0.78rem",
                 padding: "6px 14px",

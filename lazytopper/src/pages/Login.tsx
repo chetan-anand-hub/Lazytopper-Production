@@ -113,46 +113,50 @@ export default function Login() {
   return (
     <div style={{
       minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center",
-      background: "linear-gradient(135deg, #58cc02 0%, #1cb0f6 100%)",
+      background: "#0a0a0a",
       padding: 16,
     }}>
       <div style={{
-        background: "#fff", borderRadius: 20, maxWidth: 400, width: "100%",
-        padding: "36px 28px", border: "2px solid #e5e5e5", boxShadow: "0 4px 0 #e5e5e5",
+        background: "rgba(255,255,255,0.03)", backdropFilter: "blur(16px)",
+        borderRadius: 20, maxWidth: 400, width: "100%",
+        padding: "36px 28px", border: "1px solid rgba(255,255,255,0.06)",
       }}>
         <div style={{ textAlign: "center", marginBottom: 28 }}>
           <div style={{
-            width: 56, height: 56, borderRadius: 16, background: "#58cc02",
+            width: 56, height: 56, borderRadius: 16,
+            background: "linear-gradient(135deg, #22c55e, #3b82f6)",
             display: "inline-flex", alignItems: "center", justifyContent: "center",
-            color: "#fff", fontWeight: 900, fontSize: 22, marginBottom: 12,
+            color: "#000", fontWeight: 900, fontSize: 22, marginBottom: 12,
+            boxShadow: "0 0 30px rgba(34,197,94,0.3)",
           }}>
             LT
           </div>
-          <h1 style={{ fontSize: "1.5rem", fontWeight: 900, margin: "0 0 6px", color: "#3c3c3c" }}>
+          <h1 style={{ fontSize: "1.5rem", fontWeight: 900, margin: "0 0 6px", color: "#fff", fontFamily: "'Space Grotesk', sans-serif" }}>
             LazyTopper
           </h1>
-          <p style={{ fontSize: "0.92rem", color: "#777", margin: 0, lineHeight: 1.4 }}>
+          <p style={{ fontSize: "0.92rem", color: "rgba(255,255,255,0.45)", margin: 0, lineHeight: 1.4 }}>
             CBSE Class 10 Board Exam Prep
           </p>
-          <p style={{ fontSize: "0.82rem", color: "#aaa", margin: "6px 0 0" }}>
+          <p style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.25)", margin: "6px 0 0" }}>
             Maths & Science — AI-powered, exam-focused
           </p>
         </div>
 
         {!firebaseReady ? (
           <div style={{ textAlign: "center" }}>
-            <p style={{ fontSize: "0.88rem", color: "#888", marginBottom: 16, lineHeight: 1.5 }}>
+            <p style={{ fontSize: "0.88rem", color: "rgba(255,255,255,0.4)", marginBottom: 16, lineHeight: 1.5 }}>
               Sign-in is currently unavailable. You can still explore the app as a guest.
             </p>
             <button
               type="button"
               onClick={handleGuest}
               style={{
-                width: "100%", border: "none", borderBottom: "4px solid #46a302",
-                borderRadius: 16, padding: "14px 20px",
-                background: "#58cc02", color: "#fff",
+                width: "100%", border: "none",
+                borderRadius: 14, padding: "14px 20px",
+                background: "#22c55e", color: "#000",
                 fontSize: "1rem", fontWeight: 800, cursor: "pointer",
-                textTransform: "uppercase",
+                textTransform: "uppercase", fontFamily: "'Space Grotesk', sans-serif",
+                boxShadow: "0 0 24px rgba(34,197,94,0.3)",
               }}
             >
               Explore as Guest
@@ -165,9 +169,9 @@ export default function Login() {
               onClick={handleGoogle}
               disabled={busy}
               style={{
-                width: "100%", border: "2px solid #e5e5e5",
-                borderBottom: "4px solid #e5e5e5", borderRadius: 16,
-                padding: "14px 20px", background: "#fff", color: "#3c3c3c",
+                width: "100%", border: "1px solid rgba(255,255,255,0.1)",
+                borderRadius: 14,
+                padding: "14px 20px", background: "rgba(255,255,255,0.05)", color: "#fff",
                 fontSize: "0.95rem", fontWeight: 800, cursor: "pointer",
                 display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
                 opacity: busy ? 0.6 : 1,
@@ -184,11 +188,11 @@ export default function Login() {
 
             <div style={{
               display: "flex", alignItems: "center", gap: 12,
-              margin: "18px 0", color: "#ccc", fontSize: "0.82rem",
+              margin: "18px 0", color: "rgba(255,255,255,0.2)", fontSize: "0.82rem",
             }}>
-              <div style={{ flex: 1, height: 1, background: "#e5e5e5" }} />
+              <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.08)" }} />
               <span>or</span>
-              <div style={{ flex: 1, height: 1, background: "#e5e5e5" }} />
+              <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.08)" }} />
             </div>
 
             <button
@@ -196,9 +200,9 @@ export default function Login() {
               onClick={() => setAuthMode("phone")}
               disabled={busy}
               style={{
-                width: "100%", border: "2px solid #e5e5e5",
-                borderBottom: "4px solid #e5e5e5", borderRadius: 16,
-                padding: "14px 20px", background: "#fff", color: "#3c3c3c",
+                width: "100%", border: "1px solid rgba(255,255,255,0.1)",
+                borderRadius: 14,
+                padding: "14px 20px", background: "rgba(255,255,255,0.05)", color: "#fff",
                 fontSize: "0.95rem", fontWeight: 800, cursor: "pointer",
                 display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
               }}
@@ -212,7 +216,7 @@ export default function Login() {
               onClick={handleGuest}
               style={{
                 width: "100%", marginTop: 16, border: "none",
-                background: "transparent", color: "#1cb0f6",
+                background: "transparent", color: "#22c55e",
                 fontSize: "0.88rem", fontWeight: 700, cursor: "pointer",
                 padding: "8px 0",
               }}
@@ -226,7 +230,7 @@ export default function Login() {
               type="button"
               onClick={() => { setAuthMode("choice"); setOtpSent(false); setError(""); }}
               style={{
-                background: "none", border: "none", color: "#1cb0f6",
+                background: "none", border: "none", color: "#22c55e",
                 fontWeight: 700, fontSize: "0.88rem", cursor: "pointer",
                 padding: 0, marginBottom: 16,
               }}
@@ -236,14 +240,14 @@ export default function Login() {
 
             {!otpSent ? (
               <div>
-                <label style={{ fontSize: "0.88rem", fontWeight: 700, color: "#555", display: "block", marginBottom: 6 }}>
+                <label style={{ fontSize: "0.88rem", fontWeight: 700, color: "rgba(255,255,255,0.45)", display: "block", marginBottom: 6 }}>
                   Phone Number
                 </label>
                 <div style={{ display: "flex", gap: 8 }}>
                   <div style={{
                     padding: "12px 14px", borderRadius: 12,
-                    border: "2px solid #e5e5e5", background: "#f7f7f7",
-                    fontWeight: 700, color: "#555", fontSize: "0.95rem",
+                    border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.05)",
+                    fontWeight: 700, color: "rgba(255,255,255,0.6)", fontSize: "0.95rem",
                     display: "flex", alignItems: "center",
                   }}>
                     +91
@@ -255,8 +259,8 @@ export default function Login() {
                     placeholder="98XXXXXXXX"
                     style={{
                       flex: 1, padding: "12px 14px", borderRadius: 12,
-                      border: "2px solid #e5e5e5", background: "#f7f7f7",
-                      fontSize: "1rem", fontWeight: 600, outline: "none",
+                      border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.05)",
+                      fontSize: "1rem", fontWeight: 600, outline: "none", color: "#fff",
                     }}
                     maxLength={10}
                     autoFocus
@@ -269,10 +273,12 @@ export default function Login() {
                   disabled={busy || phoneRecaptchaStatus === "idle"}
                   style={{
                     width: "100%", marginTop: 12, border: "none",
-                    borderBottom: "4px solid #46a302", borderRadius: 16,
-                    padding: "14px 20px", background: "#58cc02", color: "#fff",
+                    borderRadius: 14,
+                    padding: "14px 20px", background: "#22c55e", color: "#000",
                     fontSize: "1rem", fontWeight: 800, cursor: "pointer",
                     textTransform: "uppercase", opacity: busy ? 0.6 : 1,
+                    fontFamily: "'Space Grotesk', sans-serif",
+                    boxShadow: "0 0 24px rgba(34,197,94,0.3)",
                   }}
                 >
                   {busy ? "Sending..." : "Send OTP"}
@@ -280,7 +286,7 @@ export default function Login() {
               </div>
             ) : (
               <div>
-                <p style={{ fontSize: "0.88rem", color: "#555", marginBottom: 12 }}>
+                <p style={{ fontSize: "0.88rem", color: "rgba(255,255,255,0.45)", marginBottom: 12 }}>
                   We sent a 6-digit code to your phone. Enter it below.
                 </p>
                 <input
@@ -290,9 +296,9 @@ export default function Login() {
                   placeholder="Enter 6-digit OTP"
                   style={{
                     width: "100%", padding: "14px", borderRadius: 12,
-                    border: "2px solid #e5e5e5", background: "#f7f7f7",
+                    border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.05)",
                     fontSize: "1.2rem", fontWeight: 700, outline: "none",
-                    textAlign: "center", letterSpacing: "0.3em",
+                    textAlign: "center", letterSpacing: "0.3em", color: "#fff",
                   }}
                   maxLength={6}
                   autoFocus
@@ -303,10 +309,12 @@ export default function Login() {
                   disabled={busy}
                   style={{
                     width: "100%", marginTop: 12, border: "none",
-                    borderBottom: "4px solid #46a302", borderRadius: 16,
-                    padding: "14px 20px", background: "#58cc02", color: "#fff",
+                    borderRadius: 14,
+                    padding: "14px 20px", background: "#22c55e", color: "#000",
                     fontSize: "1rem", fontWeight: 800, cursor: "pointer",
                     textTransform: "uppercase", opacity: busy ? 0.6 : 1,
+                    fontFamily: "'Space Grotesk', sans-serif",
+                    boxShadow: "0 0 24px rgba(34,197,94,0.3)",
                   }}
                 >
                   {busy ? "Verifying..." : "Verify OTP"}
@@ -316,7 +324,7 @@ export default function Login() {
                   onClick={() => { setOtpSent(false); setOtp(""); setError(""); }}
                   style={{
                     width: "100%", marginTop: 8, background: "none",
-                    border: "none", color: "#1cb0f6", fontWeight: 700,
+                    border: "none", color: "#22c55e", fontWeight: 700,
                     fontSize: "0.85rem", cursor: "pointer",
                   }}
                 >
@@ -330,8 +338,8 @@ export default function Login() {
         {error && (
           <p style={{
             marginTop: 14, padding: "10px 14px", borderRadius: 12,
-            background: "#fef2f2", border: "1px solid #fecaca",
-            color: "#dc2626", fontSize: "0.85rem", fontWeight: 600,
+            background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.25)",
+            color: "#f87171", fontSize: "0.85rem", fontWeight: 600,
           }}>
             {error}
           </p>
@@ -339,7 +347,7 @@ export default function Login() {
 
         <p style={{
           textAlign: "center", marginTop: 20, fontSize: "0.75rem",
-          color: "#ccc", lineHeight: 1.4,
+          color: "rgba(255,255,255,0.2)", lineHeight: 1.4,
         }}>
           By signing in, you agree to our Terms of Service
         </p>

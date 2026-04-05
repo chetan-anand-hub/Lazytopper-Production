@@ -14,6 +14,14 @@ function formatIsoDate(iso: string): string {
   }).format(date);
 }
 
+const DARK_STYLES = `
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
+  .ob-root { min-height:100vh; background:#0a0a0a; color:#fff; font-family:'Inter',sans-serif; }
+  .ob-root .font-display { font-family:'Space Grotesk',sans-serif; }
+  .ob-root .glass-card { background:rgba(255,255,255,0.03); backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,0.06); border-radius:16px; }
+  .ob-root * { box-sizing:border-box; }
+`;
+
 export default function Onboarding() {
   const navigate = useNavigate();
   const { profile, loadingProfile, setProfileAndCompute } = useProfile();
@@ -102,102 +110,170 @@ export default function Onboarding() {
 
   if (loadingProfile) {
     return (
-      <div className="lt-page">
-        <div className="card">
-          <h3>Preparing your onboarding...</h3>
+      <div className="ob-root">
+        <style dangerouslySetInnerHTML={{ __html: DARK_STYLES }} />
+        <div style={{ padding: "40px 20px", textAlign: "center" }}>
+          <div className="glass-card" style={{ padding: 24 }}>
+            <p className="font-display" style={{ fontSize: 16, fontWeight: 700 }}>Preparing your onboarding...</p>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="lt-page">
-      <h2 className="title center">Tell us about you</h2>
+    <div className="ob-root">
+      <style dangerouslySetInnerHTML={{ __html: DARK_STYLES }} />
+      <div style={{ padding: "16px 16px 100px", maxWidth: 480, margin: "0 auto" }}>
 
-      <div className="card" data-testid="onboarding-support-cues">
-        <h3 style={{ marginBottom: 8 }}>Choose your start mode</h3>
-        <p className="subtitle" style={{ marginBottom: 10 }}>
-          If you feel weak in basics, pick guided mode. We will keep the plan lighter and step-by-step.
-        </p>
-        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+        <h2 className="font-display" style={{ fontSize: 24, fontWeight: 700, textAlign: "center", marginBottom: 24 }}>Tell us about you</h2>
+
+        <div className="glass-card" style={{ padding: 20, marginBottom: 16 }}>
+          <h3 className="font-display" style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>Choose your start mode</h3>
+          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", marginBottom: 12, lineHeight: 1.5 }}>
+            If you feel weak in basics, pick guided mode. We will keep the plan lighter and step-by-step.
+          </p>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+            <button
+              type="button"
+              onClick={applyGuidedDefaults}
+              style={{
+                padding: "8px 16px", borderRadius: 12, border: "none", cursor: "pointer",
+                fontWeight: 700, fontSize: 13,
+                background: learningSupportMode === "guided" ? "#22c55e" : "rgba(255,255,255,0.06)",
+                color: learningSupportMode === "guided" ? "#000" : "rgba(255,255,255,0.5)",
+                boxShadow: learningSupportMode === "guided" ? "0 0 16px rgba(34,197,94,0.3)" : "none",
+              }}
+            >
+              Guided start (recommended)
+            </button>
+            <button
+              type="button"
+              onClick={applyStandardDefaults}
+              style={{
+                padding: "8px 16px", borderRadius: 12, border: "none", cursor: "pointer",
+                fontWeight: 700, fontSize: 13,
+                background: learningSupportMode === "standard" ? "#3b82f6" : "rgba(255,255,255,0.06)",
+                color: learningSupportMode === "standard" ? "#fff" : "rgba(255,255,255,0.5)",
+                boxShadow: learningSupportMode === "standard" ? "0 0 16px rgba(59,130,246,0.3)" : "none",
+              }}
+            >
+              Standard start
+            </button>
+          </div>
+          <div style={{ marginTop: 12, fontSize: 12, color: "rgba(255,255,255,0.35)", lineHeight: 1.55 }}>
+            1. Fill quick details. 2. Generate your study strategy. 3. Start from Chapter Hub and move to Practice.
+          </div>
+        </div>
+
+        <div className="glass-card" style={{ padding: 20, marginBottom: 16 }}>
+          <label style={{ color: "rgba(255,255,255,0.45)", fontWeight: 700, fontSize: 13 }}>Class</label>
+          <select value={studentClass} disabled style={{
+            background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)",
+            color: "rgba(255,255,255,0.6)", borderRadius: 12, padding: "10px 14px", width: "100%",
+            fontSize: 14, fontWeight: 600, marginTop: 4,
+          }}>
+            <option value="10">Class 10 (CBSE)</option>
+          </select>
+
+          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", marginTop: 12, lineHeight: 1.6 }}>
+            Approx. board exam date for Class {studentClass}:{" "}
+            <strong style={{ color: "#fff" }}>{formatIsoDate(examDate)}</strong>{" "}
+            <span style={{ fontWeight: 700, color: examDateSource === "official" ? "#22c55e" : "#f97316" }}>
+              ({examDateSource})
+            </span>
+            <br />
+            That is around{" "}
+            <strong style={{ color: "#fff" }}>
+              {autoDaysLeft} {autoDaysLeft === 1 ? "day" : "days"}
+            </strong>{" "}
+            from today. You can adjust it if your school schedule differs.
+            {examDateNote ? <><br /><span style={{ color: "rgba(255,255,255,0.35)" }}>{examDateNote}</span></> : null}
+          </p>
+
+          <label style={{ color: "rgba(255,255,255,0.45)", fontWeight: 700, fontSize: 13, marginTop: 14 }}>Days left for your board exam (editable)</label>
+          <input
+            type="number"
+            placeholder="e.g., 40"
+            value={days || String(profile?.daysLeft || autoDaysLeft)}
+            onChange={(e) => setDays(e.target.value)}
+            style={{
+              background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)",
+              color: "#fff", borderRadius: 12, padding: "10px 14px", width: "100%",
+              fontSize: 14, fontWeight: 600, marginTop: 4,
+            }}
+          />
+        </div>
+
+        <div className="glass-card" style={{ padding: 20, marginBottom: 16 }}>
+          <h3 className="font-display" style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>How should we estimate your level?</h3>
+          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", marginBottom: 12, lineHeight: 1.5 }}>
+            We currently use board marks mode.
+          </p>
+          <p style={{ fontSize: 12, color: "rgba(255,255,255,0.3)", marginBottom: 12 }}>
+            Diagnostic onboarding will be re-enabled after its full scoring flow lands.
+          </p>
+          {[
+            { label: "Last test / pre-board % (latest)", value: mark1, setter: setMark1, placeholder: "e.g., 72" },
+            { label: "Second last test %", value: mark2, setter: setMark2, placeholder: "e.g., 68" },
+            { label: "Third last test %", value: mark3, setter: setMark3, placeholder: "e.g., 65" },
+          ].map((field) => (
+            <div key={field.label}>
+              <label style={{ color: "rgba(255,255,255,0.45)", fontWeight: 700, fontSize: 13, marginTop: 10 }}>{field.label}</label>
+              <input
+                type="number"
+                value={field.value || String(Math.round(Number(profile?.currentPercent || 0)) || "")}
+                onChange={(e) => field.setter(e.target.value)}
+                placeholder={field.placeholder}
+                style={{
+                  background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)",
+                  color: "#fff", borderRadius: 12, padding: "10px 14px", width: "100%",
+                  fontSize: 14, fontWeight: 600, marginTop: 4,
+                }}
+              />
+            </div>
+          ))}
+        </div>
+
+        <div className="glass-card" style={{ padding: 20, marginBottom: 16 }}>
+          <label style={{ color: "rgba(255,255,255,0.45)", fontWeight: 700, fontSize: 13 }}>Your target percentage</label>
+          <input
+            type="number"
+            value={target || String(profile?.targetPercent || "")}
+            onChange={(e) => setTarget(e.target.value)}
+            placeholder="e.g., 85"
+            style={{
+              background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)",
+              color: "#fff", borderRadius: 12, padding: "10px 14px", width: "100%",
+              fontSize: 14, fontWeight: 600, marginTop: 4,
+            }}
+          />
+
+          <label style={{ color: "rgba(255,255,255,0.45)", fontWeight: 700, fontSize: 13, marginTop: 14 }}>Hours you can study per day</label>
+          <input
+            type="number"
+            value={hours || String(profile?.hoursPerDay || "")}
+            onChange={(e) => setHours(e.target.value)}
+            placeholder="e.g., 2"
+            style={{
+              background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)",
+              color: "#fff", borderRadius: 12, padding: "10px 14px", width: "100%",
+              fontSize: 14, fontWeight: 600, marginTop: 4,
+            }}
+          />
+
           <button
-            type="button"
-            className="pill-btn"
-            style={{ background: learningSupportMode === "guided" ? "#3467d6" : "#2e2e2e" }}
-            onClick={applyGuidedDefaults}
+            onClick={handleSubmit}
+            style={{
+              width: "100%", marginTop: 20, padding: "14px 0", borderRadius: 14, border: "none",
+              background: "#22c55e", color: "#000", fontWeight: 800, fontSize: 16,
+              fontFamily: "'Space Grotesk', sans-serif", cursor: "pointer",
+              boxShadow: "0 0 24px rgba(34,197,94,0.3)",
+            }}
           >
-            Guided start (recommended)
-          </button>
-          <button
-            type="button"
-            className="pill-btn"
-            style={{ background: learningSupportMode === "standard" ? "#3467d6" : "#2e2e2e" }}
-            onClick={applyStandardDefaults}
-          >
-            Standard start
+            Generate My Strategy
           </button>
         </div>
-        <div style={{ marginTop: 10, fontSize: "0.86rem", opacity: 0.82, lineHeight: 1.55 }}>
-          1. Fill quick details. 2. Generate your study strategy. 3. Start from Chapter Hub and move to Practice.
-        </div>
-      </div>
-
-      <div className="card">
-        <label>Class</label>
-        <select value={studentClass} disabled>
-          <option value="10">Class 10 (CBSE)</option>
-        </select>
-
-        <p className="subtitle" style={{ marginTop: 12 }}>
-          Approx. board exam date for Class {studentClass}:{" "}
-          <strong>{formatIsoDate(examDate)}</strong>{" "}
-          <span style={{ fontWeight: 700, color: examDateSource === "official" ? "#065f46" : "#92400e" }}>
-            ({examDateSource})
-          </span>
-          <br />
-          That is around{" "}
-          <strong>
-            {autoDaysLeft} {autoDaysLeft === 1 ? "day" : "days"}
-          </strong>{" "}
-          from today. You can adjust it if your school schedule differs.
-          {examDateNote ? <><br />{examDateNote}</> : null}
-        </p>
-
-        <label>Days left for your board exam (editable)</label>
-        <input
-          type="number"
-          placeholder="e.g., 40"
-          value={days || String(profile?.daysLeft || autoDaysLeft)}
-          onChange={(e) => setDays(e.target.value)}
-        />
-      </div>
-
-      <div className="card">
-        <h3 style={{ marginBottom: 8 }}>How should we estimate your level?</h3>
-        <p className="subtitle" style={{ marginBottom: 12 }}>
-          We currently use board marks mode.
-        </p>
-        <p className="subtitle" style={{ marginTop: 4 }}>
-          Diagnostic onboarding will be re-enabled after its full scoring flow lands.
-        </p>
-        <label>Last test / pre-board % (latest)</label>
-        <input type="number" value={mark1 || String(Math.round(Number(profile?.currentPercent || 0)) || "")} onChange={(e) => setMark1(e.target.value)} placeholder="e.g., 72" />
-        <label>Second last test %</label>
-        <input type="number" value={mark2 || String(Math.round(Number(profile?.currentPercent || 0)) || "")} onChange={(e) => setMark2(e.target.value)} placeholder="e.g., 68" />
-        <label>Third last test %</label>
-        <input type="number" value={mark3 || String(Math.round(Number(profile?.currentPercent || 0)) || "")} onChange={(e) => setMark3(e.target.value)} placeholder="e.g., 65" />
-      </div>
-
-      <div className="card">
-        <label>Your target percentage</label>
-        <input type="number" value={target || String(profile?.targetPercent || "")} onChange={(e) => setTarget(e.target.value)} placeholder="e.g., 85" />
-
-        <label>Hours you can study per day</label>
-        <input type="number" value={hours || String(profile?.hoursPerDay || "")} onChange={(e) => setHours(e.target.value)} placeholder="e.g., 2" />
-
-        <button className="cta-btn" onClick={handleSubmit}>
-          Generate My Strategy
-        </button>
       </div>
     </div>
   );
