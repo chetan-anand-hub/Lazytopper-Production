@@ -1152,7 +1152,7 @@ const HighlyProbableQuestions: React.FC = () => {
                             ? "1px solid rgba(255,150,0,0.4)"
                             : "1px solid rgba(255,255,255,0.06)",
                           background: active
-                            ? "rgba(255,243,199,0.95)"
+                            ? "rgba(245,158,11,0.12)"
                             : "transparent",
                           color: active ? "#f59e0b" : "rgba(255,255,255,0.45)",
                           fontWeight: active ? 600 : 400,
@@ -1773,7 +1773,7 @@ const HighlyProbableQuestions: React.FC = () => {
                             borderRadius: 16,
                             padding: "8px 10px",
                             backgroundColor:
-                              "rgba(255,255,255,0.95)",
+                              "rgba(255,255,255,0.06)",
                             border:
                               "1px solid rgba(255,255,255,0.08)",
                           }}
