@@ -6,3 +6,21 @@ id = "iRUBeKti6UrnZ5JflcwH7"
 uri = "file://artifacts/lazytopper-mobile/assets/images/icon.png"
 type = "image"
 title = "generated_image"
+
+[[generated]]
+id = "rECaHjPDmJTiYTLmuBHOe"
+uri = "file://artifacts/mockup-sandbox/public/images/story-scroll-hero-bg.png"
+type = "image"
+title = "Abstract deep purple background"
+
+[[generated]]
+id = "wP1FCz4h8HTZwF35xgbNf"
+uri = "file://artifacts/mockup-sandbox/public/images/ai-tutor-avatar.png"
+type = "image"
+title = "AI tutor character"
+
+[[generated]]
+id = "a9CQyYd2IfoIF65U_isf4"
+uri = "file://artifacts/mockup-sandbox/public/images/story-scroll-test-bg.png"
+type = "image"
+title = "Abstract test pattern background"
