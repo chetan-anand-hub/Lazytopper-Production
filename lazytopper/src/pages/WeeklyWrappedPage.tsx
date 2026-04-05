@@ -118,7 +118,7 @@ export default function WeeklyWrappedPage() {
             alignItems: "center",
             gap: 8,
             padding: "6px 14px",
-            background: streakDays > 0 ? "linear-gradient(135deg, #fff9ed, #fff4d4)" : "#f7f7f7",
+            background: streakDays > 0 ? "linear-gradient(135deg, rgba(245,158,11,0.08), rgba(245,158,11,0.12))" : "rgba(255,255,255,0.03)",
             borderRadius: 999,
             fontWeight: 800,
             fontSize: 14,
@@ -140,9 +140,9 @@ export default function WeeklyWrappedPage() {
             marginTop: 24,
             padding: 32,
             textAlign: "center",
-            background: "linear-gradient(135deg, #f7f7f7, #f7f7f7)",
+            background: "linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.03))",
             borderRadius: 20,
-            border: "1px solid #e5e5e5",
+            border: "1px solid rgba(255,255,255,0.06)",
           }}
         >
           <div style={{ fontSize: 48, marginBottom: 12 }}>📚</div>
@@ -238,8 +238,8 @@ export default function WeeklyWrappedPage() {
                 key={stat.label}
                 style={{
                   padding: "14px 12px",
-                  background: "#fff",
-                  border: "1px solid #e5e5e5",
+                  background: "rgba(255,255,255,0.03)",
+                  border: "1px solid rgba(255,255,255,0.06)",
                   borderRadius: 14,
                   textAlign: "center",
                 }}
@@ -266,16 +266,16 @@ export default function WeeklyWrappedPage() {
                   flex: 1,
                   minWidth: 200,
                   padding: 16,
-                  background: "linear-gradient(135deg, #fff4d4, #ffe699)",
+                  background: "linear-gradient(135deg, rgba(245,158,11,0.1), rgba(245,158,11,0.15))",
                   borderRadius: 14,
-                  border: "1px solid #ffcc00",
+                  border: "1px solid rgba(245,158,11,0.3)",
                 }}
               >
-                <div style={{ fontSize: 13, fontWeight: 800, color: "#b86800" }}>🎯 Next Week's Focus</div>
-                <div style={{ fontSize: 16, fontWeight: 700, marginTop: 6, textTransform: "capitalize", color: "#b86800" }}>
+                <div style={{ fontSize: 13, fontWeight: 800, color: "#f59e0b" }}>🎯 Next Week's Focus</div>
+                <div style={{ fontSize: 16, fontWeight: 700, marginTop: 6, textTransform: "capitalize", color: "#f59e0b" }}>
                   {(focusArea.topicName || focusArea.topicKey).replace(/-/g, " ")}
                 </div>
-                <div style={{ fontSize: 12, opacity: 0.8, marginTop: 4, color: "#b86800" }}>
+                <div style={{ fontSize: 12, opacity: 0.8, marginTop: 4, color: "#f59e0b" }}>
                   {Math.round(focusArea.accuracy * 100)}% accuracy — extra practice here will pay off big!
                 </div>
                 <button
@@ -304,16 +304,16 @@ export default function WeeklyWrappedPage() {
                   flex: 1,
                   minWidth: 200,
                   padding: 16,
-                  background: "linear-gradient(135deg, #e8f8ff, #d1efff)",
+                  background: "linear-gradient(135deg, rgba(56,189,248,0.08), rgba(56,189,248,0.12))",
                   borderRadius: 14,
-                  border: "1px solid #a3d9ff",
+                  border: "1px solid rgba(56,189,248,0.2)",
                 }}
               >
-                <div style={{ fontSize: 13, fontWeight: 800, color: "#0a6daa" }}>🔥 Streak Goal</div>
-                <div style={{ fontSize: 16, fontWeight: 700, marginTop: 6, color: "#0a6daa" }}>
+                <div style={{ fontSize: 13, fontWeight: 800, color: "#38bdf8" }}>🔥 Streak Goal</div>
+                <div style={{ fontSize: 16, fontWeight: 700, marginTop: 6, color: "#38bdf8" }}>
                   {nextBadge.name}
                 </div>
-                <div style={{ fontSize: 12, opacity: 0.8, marginTop: 4, color: "#0a6daa" }}>
+                <div style={{ fontSize: 12, opacity: 0.8, marginTop: 4, color: "#38bdf8" }}>
                   {nextBadge.requiredDays - streakDays} more day{nextBadge.requiredDays - streakDays !== 1 ? "s" : ""} to unlock!
                 </div>
               </div>
@@ -353,11 +353,11 @@ export default function WeeklyWrappedPage() {
           style={{
             padding: "8px 20px",
             background: "transparent",
-            border: "1px solid #e5e5e5",
+            border: "1px solid rgba(255,255,255,0.06)",
             borderRadius: 10,
             fontWeight: 600,
             fontSize: 13,
-            color: "#afafaf",
+            color: "rgba(255,255,255,0.4)",
             cursor: "pointer",
           }}
         >

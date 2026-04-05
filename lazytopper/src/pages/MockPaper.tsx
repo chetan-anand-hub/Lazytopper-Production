@@ -212,7 +212,7 @@ const MockPaperPage: React.FC = () => {
             padding: "22px 22px 24px",
             background:
               "linear-gradient(135deg,rgba(88,204,2,0.98),rgba(28,176,246,0.95))",
-            color: "#e5e7eb",
+            color: "rgba(255,255,255,0.6)",
             boxShadow: "0 26px 70px rgba(88,204,2,0.3)",
             marginBottom: 20,
             display: "flex",
@@ -280,9 +280,9 @@ const MockPaperPage: React.FC = () => {
                 style={{
                   borderRadius: 999,
                   padding: "6px 14px",
-                  border: "1px solid #e5e7eb",
+                  border: "1px solid rgba(255,255,255,0.06)",
                   background: "#58cc02",
-                  color: "#e5e7eb",
+                  color: "rgba(255,255,255,0.6)",
                   fontSize: "0.8rem",
                   cursor: "pointer",
                 }}
@@ -299,7 +299,7 @@ const MockPaperPage: React.FC = () => {
                   padding: "7px 16px",
                   border: "none",
                   background: "#22c55e",
-                  color: "#3c3c3c",
+                  color: "rgba(255,255,255,0.85)",
                   fontSize: "0.8rem",
                   fontWeight: 600,
                   cursor: "pointer",
@@ -369,9 +369,9 @@ const MockPaperPage: React.FC = () => {
         {/* Paper body */}
         <main
           style={{
-            background: "#ffffff",
+            background: "rgba(255,255,255,0.03)",
             borderRadius: 24,
-            border: "1px solid #e5e7eb",
+            border: "1px solid rgba(255,255,255,0.06)",
             padding: "20px 22px 26px",
             boxShadow: "0 20px 45px rgba(0,0,0,0.08)",
           }}
@@ -383,7 +383,7 @@ const MockPaperPage: React.FC = () => {
               fontSize: "1rem",
               textTransform: "uppercase",
               letterSpacing: "0.12em",
-              color: "#6b7280",
+              color: "rgba(255,255,255,0.45)",
             }}
           >
             CBSE Board-style Mock Paper • {subject} • Class 10
@@ -393,7 +393,7 @@ const MockPaperPage: React.FC = () => {
               marginTop: 0,
               marginBottom: 16,
               fontSize: "0.85rem",
-              color: "#4b5563",
+              color: "rgba(255,255,255,0.5)",
             }}
           >
             General instructions: Attempt all questions. Use log tables or
@@ -411,7 +411,7 @@ const MockPaperPage: React.FC = () => {
                   style={{
                     margin: "12px 0 6px",
                     fontSize: "0.98rem",
-                    color: "#3c3c3c",
+                    color: "rgba(255,255,255,0.85)",
                   }}
                 >
                   Section {sec} • {section.questions.length} questions ·{" "}
@@ -422,7 +422,7 @@ const MockPaperPage: React.FC = () => {
                     margin: "0 0 4px 1.2rem",
                     padding: 0,
                     fontSize: "0.9rem",
-                    color: "#3c3c3c",
+                    color: "rgba(255,255,255,0.85)",
                   }}
                 >
                   {section.questions.map((q) => (
@@ -466,7 +466,7 @@ const MockPaperPage: React.FC = () => {
                         style={{
                           marginTop: 2,
                           fontSize: "0.75rem",
-                          color: "#6b7280",
+                          color: "rgba(255,255,255,0.45)",
                         }}
                       >
                         Topic: {q.topicKey} • Marks: {q.marks} • Difficulty:{" "}

@@ -58,12 +58,12 @@ function getTopicMasteryPercent(topicKey: string): number {
 
 function HeatmapCell({ value, label }: { value: number; label: string }) {
   const bg =
-    value === 0 ? "#f5f5f5" :
-    value < 25 ? "#fee2e2" :
-    value < 50 ? "#fef3c7" :
-    value < 75 ? "#d1fae5" :
-    "#bbf7d0";
-  const textColor = value === 0 ? "#ccc" : "#333";
+    value === 0 ? "rgba(255,255,255,0.06)" :
+    value < 25 ? "rgba(239,68,68,0.15)" :
+    value < 50 ? "rgba(245,158,11,0.15)" :
+    value < 75 ? "rgba(34,197,94,0.15)" :
+    "rgba(34,197,94,0.25)";
+  const textColor = value === 0 ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.85)";
 
   return (
     <div
@@ -87,7 +87,7 @@ function HeatmapCell({ value, label }: { value: number; label: string }) {
 const CBSE_BENCHMARK_PERCENT = 65;
 
 function MockScoreChart({ scores }: { scores: MockScoreEntry[] }) {
-  if (scores.length === 0) return <p style={{ color: "#888", fontSize: 13 }}>No mock tests taken yet.</p>;
+  if (scores.length === 0) return <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 13 }}>No mock tests taken yet.</p>;
   const sorted = [...scores].sort((a, b) => a.timestamp - b.timestamp).slice(-8);
   const barW = Math.min(36, Math.floor(280 / sorted.length));
   const chartH = 100;
@@ -103,13 +103,13 @@ function MockScoreChart({ scores }: { scores: MockScoreEntry[] }) {
         return (
           <g key={d.id}>
             <rect x={x} y={chartH - h} width={barW} height={h} rx={3} fill={color} opacity={0.8} />
-            <text x={x + barW / 2} y={chartH - h - 3} textAnchor="middle" fontSize={9} fontWeight={700} fill="#333">
+            <text x={x + barW / 2} y={chartH - h - 3} textAnchor="middle" fontSize={9} fontWeight={700} fill="rgba(255,255,255,0.85)">
               {d.percent}%
             </text>
-            <text x={x + barW / 2} y={chartH + 12} textAnchor="middle" fontSize={7} fill="#888">
+            <text x={x + barW / 2} y={chartH + 12} textAnchor="middle" fontSize={7} fill="rgba(255,255,255,0.45)">
               {dateLabel}
             </text>
-            <text x={x + barW / 2} y={chartH + 22} textAnchor="middle" fontSize={7} fill="#aaa">
+            <text x={x + barW / 2} y={chartH + 22} textAnchor="middle" fontSize={7} fill="rgba(255,255,255,0.35)">
               {d.subject.slice(0, 4)}
             </text>
           </g>
@@ -120,7 +120,7 @@ function MockScoreChart({ scores }: { scores: MockScoreEntry[] }) {
 }
 
 function WeeklyChart({ data }: { data: { week: string; accuracy: number; count: number }[] }) {
-  if (data.length === 0) return <p style={{ color: "#888", fontSize: 13 }}>No data available yet.</p>;
+  if (data.length === 0) return <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 13 }}>No data available yet.</p>;
   const maxAcc = 100;
   const barW = Math.min(36, Math.floor(280 / data.length));
   const chartH = 100;
@@ -133,10 +133,10 @@ function WeeklyChart({ data }: { data: { week: string; accuracy: number; count: 
         return (
           <g key={d.week}>
             <rect x={x} y={chartH - h} width={barW} height={h} rx={3} fill={color} opacity={0.8} />
-            <text x={x + barW / 2} y={chartH - h - 3} textAnchor="middle" fontSize={9} fontWeight={700} fill="#333">
+            <text x={x + barW / 2} y={chartH - h - 3} textAnchor="middle" fontSize={9} fontWeight={700} fill="rgba(255,255,255,0.85)">
               {d.accuracy}%
             </text>
-            <text x={x + barW / 2} y={chartH + 12} textAnchor="middle" fontSize={8} fill="#888">
+            <text x={x + barW / 2} y={chartH + 12} textAnchor="middle" fontSize={8} fill="rgba(255,255,255,0.45)">
               {d.week}
             </text>
           </g>
@@ -310,7 +310,7 @@ export default function ParentDashboardPage() {
   if (!shareVerified) {
     return (
       <div className="lt-page" style={{ paddingTop: 40, textAlign: "center" }}>
-        <p style={{ color: "#888", fontSize: 16 }}>Verifying share link...</p>
+        <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 16 }}>Verifying share link...</p>
       </div>
     );
   }
@@ -319,7 +319,7 @@ export default function ParentDashboardPage() {
     return (
       <div className="lt-page" style={{ paddingTop: 40, textAlign: "center" }}>
         <h2 style={{ color: "#e74c3c", fontWeight: 800 }}>Invalid or Expired Link</h2>
-        <p style={{ color: "#888", fontSize: 14 }}>This share link is invalid or has expired. Please ask the student to generate a new one.</p>
+        <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 14 }}>This share link is invalid or has expired. Please ask the student to generate a new one.</p>
       </div>
     );
   }
@@ -336,7 +336,7 @@ export default function ParentDashboardPage() {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
         <div>
           <h2 style={{ fontWeight: 900, fontSize: 22, margin: 0 }}>Progress Report</h2>
-          <p style={{ color: "#888", fontSize: 13, margin: "4px 0 0" }}>
+          <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 13, margin: "4px 0 0" }}>
             {displayName} - Class 10
           </p>
         </div>
@@ -347,12 +347,12 @@ export default function ParentDashboardPage() {
               style={{
                 padding: "8px 14px",
                 borderRadius: 10,
-                border: "2px solid #e5e5e5",
-                background: "#fff",
+                border: "2px solid rgba(255,255,255,0.08)",
+                background: "rgba(255,255,255,0.03)",
                 fontWeight: 700,
                 fontSize: 12,
                 cursor: "pointer",
-                color: "#333",
+                color: "rgba(255,255,255,0.85)",
               }}
             >
               {shareLink || "Share Link"}
@@ -364,7 +364,7 @@ export default function ParentDashboardPage() {
               padding: "8px 14px",
               borderRadius: 10,
               border: "2px solid #1cb0f6",
-              background: "#eff6ff",
+              background: "rgba(59,130,246,0.08)",
               fontWeight: 700,
               fontSize: 12,
               cursor: "pointer",
@@ -377,29 +377,29 @@ export default function ParentDashboardPage() {
       </div>
 
       {overallStats.totalQuestions === 0 && !isSharedView && (
-        <div style={{ textAlign: "center", padding: "28px 16px", marginBottom: 20, background: "#f9fafb", borderRadius: 14, border: "1px solid #eee" }}>
+        <div style={{ textAlign: "center", padding: "28px 16px", marginBottom: 20, background: "rgba(255,255,255,0.03)", borderRadius: 14, border: "1px solid rgba(255,255,255,0.06)" }}>
           <div style={{ fontSize: "2rem", marginBottom: 8 }}>📈</div>
           <h3 style={{ fontWeight: 800, fontSize: "1rem", margin: "0 0 4px" }}>No activity yet</h3>
-          <p style={{ fontSize: "0.85rem", color: "#888", margin: 0, lineHeight: 1.5 }}>
+          <p style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.45)", margin: 0, lineHeight: 1.5 }}>
             Once your child starts practicing, their accuracy trends, mock test scores, and chapter mastery will appear here.
           </p>
         </div>
       )}
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, marginBottom: 20 }}>
-        <div style={{ padding: 14, borderRadius: 14, background: "#eff6ff", textAlign: "center" }}>
+        <div style={{ padding: 14, borderRadius: 14, background: "rgba(59,130,246,0.08)", textAlign: "center" }}>
           <div style={{ fontSize: 26, fontWeight: 900, color: "#3b82f6" }}>{overallStats.totalQuestions}</div>
-          <div style={{ fontSize: 11, fontWeight: 600, color: "#888" }}>Questions Solved</div>
+          <div style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.45)" }}>Questions Solved</div>
         </div>
-        <div style={{ padding: 14, borderRadius: 14, background: overallStats.accuracy >= 70 ? "#f0fdf4" : "#fef2f2", textAlign: "center" }}>
+        <div style={{ padding: 14, borderRadius: 14, background: overallStats.accuracy >= 70 ? "rgba(34,197,94,0.08)" : "rgba(239,68,68,0.08)", textAlign: "center" }}>
           <div style={{ fontSize: 26, fontWeight: 900, color: overallStats.accuracy >= 70 ? "#22c55e" : "#ef4444" }}>
             {overallStats.accuracy}%
           </div>
-          <div style={{ fontSize: 11, fontWeight: 600, color: "#888" }}>Accuracy</div>
+          <div style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.45)" }}>Accuracy</div>
         </div>
-        <div style={{ padding: 14, borderRadius: 14, background: "#fffbeb", textAlign: "center" }}>
+        <div style={{ padding: 14, borderRadius: 14, background: "rgba(245,158,11,0.08)", textAlign: "center" }}>
           <div style={{ fontSize: 26, fontWeight: 900, color: "#f59e0b" }}>{weakSummary.overallMasteryPercent}%</div>
-          <div style={{ fontSize: 11, fontWeight: 600, color: "#888" }}>Overall Mastery</div>
+          <div style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.45)" }}>Overall Mastery</div>
         </div>
       </div>
 
@@ -421,8 +421,8 @@ export default function ParentDashboardPage() {
           return (
             <div style={{
               marginTop: 10, padding: 10, borderRadius: 10,
-              background: aboveBenchmark ? "#f0fdf4" : "#fef2f2",
-              border: `1px solid ${aboveBenchmark ? "#bbf7d0" : "#fecaca"}`,
+              background: aboveBenchmark ? "rgba(34,197,94,0.08)" : "rgba(239,68,68,0.08)",
+              border: `1px solid ${aboveBenchmark ? "rgba(34,197,94,0.2)" : "rgba(239,68,68,0.2)"}`,
             }}>
               <span style={{ fontWeight: 700, fontSize: 13, color: aboveBenchmark ? "#22c55e" : "#ef4444" }}>
                 Average: {avg}% — {aboveBenchmark ? "Above" : "Below"} CBSE benchmark ({CBSE_BENCHMARK_PERCENT}%)
@@ -442,8 +442,8 @@ export default function ParentDashboardPage() {
                 onClick={() => setSubjectTab(s)}
                 style={{
                   padding: "4px 12px", borderRadius: 16, border: "none",
-                  background: subjectTab === s ? "#1cb0f6" : "#f0f0f0",
-                  color: subjectTab === s ? "#fff" : "#333",
+                  background: subjectTab === s ? "#1cb0f6" : "rgba(255,255,255,0.06)",
+                  color: subjectTab === s ? "#fff" : "rgba(255,255,255,0.85)",
                   fontWeight: 600, fontSize: 11, cursor: "pointer",
                 }}
               >
@@ -468,8 +468,8 @@ export default function ParentDashboardPage() {
               style={{
                 padding: "10px 14px",
                 borderRadius: 10,
-                background: "#fef2f2",
-                border: "1px solid #fecaca",
+                background: "rgba(239,68,68,0.08)",
+                border: "1px solid rgba(239,68,68,0.2)",
                 marginBottom: 6,
                 display: "flex",
                 justifyContent: "space-between",
@@ -478,14 +478,14 @@ export default function ParentDashboardPage() {
             >
               <div>
                 <div style={{ fontWeight: 700, fontSize: 14 }}>{w.topicName}</div>
-                <div style={{ fontSize: 11, color: "#888" }}>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)" }}>
                   {w.subject} - Accuracy: {w.accuracy}% - Mastery: {w.masteryPercent}%
                 </div>
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                 <div
                   style={{
-                    width: 40, height: 6, borderRadius: 3, background: "#fee2e2",
+                    width: 40, height: 6, borderRadius: 3, background: "rgba(239,68,68,0.1)",
                     overflow: "hidden",
                   }}
                 >
@@ -507,16 +507,16 @@ export default function ParentDashboardPage() {
       <div style={{ marginBottom: 20 }}>
         <h3 style={{ fontWeight: 800, fontSize: 16, marginBottom: 10 }}>Study Summary</h3>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-          <div style={{ padding: 12, borderRadius: 12, background: "#fafafa", border: "1px solid #eee" }}>
-            <div style={{ fontSize: 12, fontWeight: 600, color: "#888" }}>Total Study Time</div>
+          <div style={{ padding: 12, borderRadius: 12, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.45)" }}>Total Study Time</div>
             <div style={{ fontSize: 18, fontWeight: 800, marginTop: 4 }}>
               {overallStats.studyTimeMinutes >= 60
                 ? `${Math.floor(overallStats.studyTimeMinutes / 60)}h ${overallStats.studyTimeMinutes % 60}m`
                 : `${overallStats.studyTimeMinutes}m`}
             </div>
           </div>
-          <div style={{ padding: 12, borderRadius: 12, background: "#fafafa", border: "1px solid #eee" }}>
-            <div style={{ fontSize: 12, fontWeight: 600, color: "#888" }}>Weak Areas Remaining</div>
+          <div style={{ padding: 12, borderRadius: 12, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.45)" }}>Weak Areas Remaining</div>
             <div style={{ fontSize: 18, fontWeight: 800, marginTop: 4, color: "#ef4444" }}>
               {weakSummary.totalWeak}
             </div>
@@ -524,7 +524,7 @@ export default function ParentDashboardPage() {
         </div>
       </div>
 
-      <p style={{ fontSize: 11, color: "#aaa", textAlign: "center", marginTop: 24 }}>
+      <p style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", textAlign: "center", marginTop: 24 }}>
         Generated by LazyTopper - CBSE Class 10 Board Prep
       </p>
     </div>

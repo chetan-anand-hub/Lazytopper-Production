@@ -98,7 +98,7 @@ const LegalPage: React.FC = () => {
     <div style={{
       maxWidth: 720, margin: "0 auto", padding: "40px 20px 80px",
       fontFamily: '"Nunito", "Segoe UI", system-ui, sans-serif',
-      color: "#3c3c3c", lineHeight: 1.7,
+      color: "rgba(255,255,255,0.85)", lineHeight: 1.7,
     }}>
       <button type="button" onClick={() => { window.location.href = "/"; }} style={{
         background: "none", border: "none", color: "#58cc02", fontWeight: 700,

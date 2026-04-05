@@ -112,15 +112,15 @@ const difficultyChipStyle: Record<
 > = {
   Easy: {
     background: "rgba(88,204,2,0.12)",
-    color: "#16a34a",
+    color: "#22c55e",
   },
   Medium: {
     background: "rgba(255,150,0,0.12)",
-    color: "#b45309",
+    color: "#f59e0b",
   },
   Hard: {
     background: "rgba(255,75,75,0.12)",
-    color: "#dc2626",
+    color: "#ef4444",
   },
 };
 
@@ -455,7 +455,7 @@ const MockBuilder: React.FC = () => {
         style={{
           border: "none",
           background: "transparent",
-          color: "#4b5563",
+          color: "rgba(255,255,255,0.5)",
           fontSize: "0.9rem",
           display: "flex",
           alignItems: "center",
@@ -480,7 +480,7 @@ const MockBuilder: React.FC = () => {
             display: "inline-flex",
             padding: 4,
             borderRadius: 999,
-            background: "#3c3c3c",
+            background: "rgba(255,255,255,0.08)",
             boxShadow: "0 12px 30px rgba(0,0,0,0.3)",
             border: "1px solid rgba(0,0,0,0.08)",
             gap: 4,
@@ -502,7 +502,7 @@ const MockBuilder: React.FC = () => {
                   background: active
                     ? "linear-gradient(135deg,#facc15,#f97316)"
                     : "transparent",
-                  color: active ? "#3c3c3c" : "#e5e7eb",
+                  color: active ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.2)",
                   transition: "all 0.15s ease",
                   minWidth: 80,
                 }}
@@ -521,7 +521,7 @@ const MockBuilder: React.FC = () => {
           padding: "22px 22px 24px",
           background:
             "linear-gradient(135deg,#58cc02,rgba(28,176,246,0.95))",
-          color: "#e5e7eb",
+          color: "rgba(255,255,255,0.6)",
           boxShadow: "0 26px 70px rgba(88,204,2,0.4)",
           marginBottom: 18,
         }}
@@ -566,7 +566,7 @@ const MockBuilder: React.FC = () => {
           borderRadius: 26,
           padding: "16px 18px 18px",
           background: "#58cc02",
-          color: "#e5e7eb",
+          color: "rgba(255,255,255,0.6)",
           boxShadow: "0 20px 55px rgba(0,0,0,0.35)",
           border: "1px solid rgba(0,0,0,0.08)",
           marginBottom: 20,
@@ -624,9 +624,9 @@ const MockBuilder: React.FC = () => {
             style={{
               borderRadius: 26,
               padding: "16px 18px 14px",
-              background: "#f9fafb",
+              background: "rgba(255,255,255,0.03)",
               boxShadow: "0 18px 40px rgba(0,0,0,0.08)",
-              border: "1px solid #e5e7eb",
+              border: "1px solid rgba(255,255,255,0.06)",
               marginBottom: 16,
             }}
           >
@@ -657,7 +657,7 @@ const MockBuilder: React.FC = () => {
                   style={{
                     margin: 0,
                     fontSize: "0.9rem",
-                    color: "#4b5563",
+                    color: "rgba(255,255,255,0.5)",
                   }}
                 >
                   {section.subtitle}
@@ -666,7 +666,7 @@ const MockBuilder: React.FC = () => {
                   style={{
                     margin: "4px 0 0",
                     fontSize: "0.82rem",
-                    color: "#6b7280",
+                    color: "rgba(255,255,255,0.45)",
                   }}
                 >
                   {section.questions.length} / {section.targetQuestions}{" "}
@@ -678,8 +678,8 @@ const MockBuilder: React.FC = () => {
                 onClick={() => toggleSection(section.id)}
                 style={{
                   borderRadius: 999,
-                  border: "1px solid #d1d5db",
-                  background: "#ffffff",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  background: "rgba(255,255,255,0.03)",
                   padding: "6px 12px",
                   fontSize: "0.8rem",
                   cursor: "pointer",
@@ -699,7 +699,7 @@ const MockBuilder: React.FC = () => {
                 marginTop: 10,
                 marginBottom: isOpen ? 8 : 0,
                 fontSize: "0.86rem",
-                color: "#4b5563",
+                color: "rgba(255,255,255,0.5)",
               }}
             >
               {section.description}
@@ -719,7 +719,7 @@ const MockBuilder: React.FC = () => {
                   <p
                     style={{
                       fontSize: "0.85rem",
-                      color: "#6b7280",
+                      color: "rgba(255,255,255,0.45)",
                       marginTop: 6,
                       marginBottom: 2,
                     }}
@@ -742,8 +742,8 @@ const MockBuilder: React.FC = () => {
                         style={{
                           borderRadius: 18,
                           padding: "10px 12px 9px",
-                          background: "#ffffff",
-                          border: "1px solid #e5e7eb",
+                          background: "rgba(255,255,255,0.03)",
+                          border: "1px solid rgba(255,255,255,0.06)",
                         }}
                       >
                         {/* Meta chips row */}
@@ -761,8 +761,8 @@ const MockBuilder: React.FC = () => {
                             style={{
                               borderRadius: 999,
                               padding: "4px 10px",
-                              background: "#3c3c3c",
-                              color: "#f9fafb",
+                              background: "rgba(255,255,255,0.08)",
+                              color: "rgba(255,255,255,0.95)",
                               fontWeight: 600,
                             }}
                           >
@@ -772,8 +772,8 @@ const MockBuilder: React.FC = () => {
                             style={{
                               borderRadius: 999,
                               padding: "4px 10px",
-                              background: "#eef2ff",
-                              color: "#3730a3",
+                              background: "rgba(99,102,241,0.1)",
+                              color: "#818cf8",
                             }}
                           >
                             {q.kind} · Sec {q.section}
@@ -792,8 +792,8 @@ const MockBuilder: React.FC = () => {
                             style={{
                               borderRadius: 999,
                               padding: "4px 10px",
-                              background: "#ecfeff",
-                              color: "#0e7490",
+                              background: "rgba(14,116,144,0.1)",
+                              color: "#22d3ee",
                             }}
                           >
                             {q.subtopic}
@@ -806,12 +806,12 @@ const MockBuilder: React.FC = () => {
                             onClick={() => toggleSolution(q.id)}
                             style={{
                               borderRadius: 999,
-                              border: "1px solid #d1d5db",
+                              border: "1px solid rgba(255,255,255,0.1)",
                               padding: "4px 10px",
                               fontSize: "0.78rem",
                               cursor: "pointer",
-                              background: solOpen ? "#3c3c3c" : "#ffffff",
-                              color: solOpen ? "#f9fafb" : "#3c3c3c",
+                              background: solOpen ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.03)",
+                              color: solOpen ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.85)",
                               display: "inline-flex",
                               alignItems: "center",
                               gap: 6,
@@ -826,7 +826,7 @@ const MockBuilder: React.FC = () => {
                           style={{
                             fontSize: "0.95rem",
                             lineHeight: 1.6,
-                            color: "#3c3c3c",
+                            color: "rgba(255,255,255,0.85)",
                           }}
                         >
                           {q.questionText}
@@ -844,7 +844,7 @@ const MockBuilder: React.FC = () => {
                               marginTop: 8,
                               borderRadius: 14,
                               padding: "8px 10px",
-                              background: "#eff6ff",
+                              background: "rgba(59,130,246,0.08)",
                               border: "1px dashed #bfdbfe",
                               fontSize: "0.85rem",
                               color: "#1cb0f6",

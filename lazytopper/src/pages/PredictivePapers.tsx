@@ -34,7 +34,7 @@ const PredictivePapersPage: React.FC = () => {
           padding: "22px 22px 24px",
           background:
             "linear-gradient(135deg,rgba(88,204,2,0.98),rgba(28,176,246,0.95))",
-          color: "#e5e7eb",
+          color: "rgba(255,255,255,0.6)",
           boxShadow: "0 26px 70px rgba(88,204,2,0.3)",
           marginBottom: 20,
         }}
@@ -143,8 +143,8 @@ const PredictivePapersPage: React.FC = () => {
                 textAlign: "left",
                 borderRadius: 24,
                 padding: "14px 14px 16px",
-                background: "#f9fafb",
-                border: "1px solid #e5e7eb",
+                background: "rgba(255,255,255,0.03)",
+                border: "1px solid rgba(255,255,255,0.06)",
                 cursor: "pointer",
                 boxShadow: "0 18px 40px rgba(0,0,0,0.08)",
                 display: "flex",
@@ -157,7 +157,7 @@ const PredictivePapersPage: React.FC = () => {
                   fontSize: "0.8rem",
                   letterSpacing: "0.08em",
                   textTransform: "uppercase",
-                  color: "#6b7280",
+                  color: "rgba(255,255,255,0.45)",
                 }}
               >
                 Paper {paper.id.replace("P", "")}
@@ -166,7 +166,7 @@ const PredictivePapersPage: React.FC = () => {
                 style={{
                   fontSize: "1.05rem",
                   fontWeight: 600,
-                  color: "#3c3c3c",
+                  color: "rgba(255,255,255,0.85)",
                 }}
               >
                 {paper.title}
@@ -174,7 +174,7 @@ const PredictivePapersPage: React.FC = () => {
               <div
                 style={{
                   fontSize: "0.9rem",
-                  color: "#4b5563",
+                  color: "rgba(255,255,255,0.5)",
                 }}
               >
                 {paper.vibe}
@@ -182,7 +182,7 @@ const PredictivePapersPage: React.FC = () => {
               <div
                 style={{
                   fontSize: "0.8rem",
-                  color: "#6b7280",
+                  color: "rgba(255,255,255,0.45)",
                 }}
               >
                 {paper.tagline}
@@ -193,8 +193,8 @@ const PredictivePapersPage: React.FC = () => {
                   marginTop: 8,
                   padding: "8px 10px",
                   borderRadius: 999,
-                  background: "#3c3c3c",
-                  color: "#e5e7eb",
+                  background: "rgba(255,255,255,0.08)",
+                  color: "rgba(255,255,255,0.6)",
                   fontSize: "0.8rem",
                   display: "inline-flex",
                   alignItems: "center",

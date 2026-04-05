@@ -148,7 +148,7 @@ export default function TopicMockPage() {
   }, [navigate, grade, subject, topicKey, location]);
 
   return (
-    <div style={{ minHeight: "100vh", background: "#f8fafc", paddingBottom: 80 }}>
+    <div style={{ minHeight: "100vh", background: "#0a0a0a", paddingBottom: 80 }}>
       <div style={{ maxWidth: 900, margin: "0 auto", padding: "16px 16px 32px" }}>
         <ReturnContextBar backTo={backTo} backLabel={backLabel} />
 
@@ -159,9 +159,9 @@ export default function TopicMockPage() {
               onClick={() => switchSet(s)}
               style={{
                 padding: "6px 16px", borderRadius: 12, cursor: "pointer",
-                border: s === currentSet ? "2px solid #58cc02" : "1px solid #e2e8f0",
-                background: s === currentSet ? "#58cc02" : "#fff",
-                color: s === currentSet ? "#fff" : "#475569",
+                border: s === currentSet ? "2px solid #58cc02" : "1px solid rgba(255,255,255,0.06)",
+                background: s === currentSet ? "#58cc02" : "rgba(255,255,255,0.06)",
+                color: s === currentSet ? "#fff" : "rgba(255,255,255,0.5)",
                 fontWeight: s === currentSet ? 700 : 500, fontSize: "0.82rem",
               }}
             >
@@ -209,7 +209,7 @@ export default function TopicMockPage() {
                   onClick={startMock}
                   style={{
                     padding: "10px 28px", borderRadius: 14, border: "none", cursor: "pointer",
-                    background: "#fff", color: "#6366f1", fontWeight: 700, fontSize: "0.9rem",
+                    background: "rgba(255,255,255,0.03)", color: "#6366f1", fontWeight: 700, fontSize: "0.9rem",
                     boxShadow: "0 2px 0 rgba(0,0,0,0.1)",
                   }}
                 >
@@ -230,7 +230,7 @@ export default function TopicMockPage() {
             <div className="print-paper" style={{ marginTop: 24 }}>
               {paper.sections.map(sec => (
                 <div key={sec.section} style={{
-                  background: "#fff", borderRadius: 16, padding: "20px 20px 16px", marginBottom: 16,
+                  background: "rgba(255,255,255,0.03)", borderRadius: 16, padding: "20px 20px 16px", marginBottom: 16,
                   border: `1px solid ${SECTION_COLORS[sec.section]}22`,
                 }}>
                   <h3 style={{ fontSize: "0.9rem", fontWeight: 700, color: SECTION_COLORS[sec.section], marginBottom: 12 }}>
@@ -297,11 +297,11 @@ function QuestionDisplay({ q, idx, section, showAnswer, selectedAnswer, chosenBr
           const letter = String.fromCharCode(97 + oi);
           const isSelected = isThisBranch && selectedAnswer === opt;
           const isCorrect = showAnswer && opt.trim().toLowerCase() === (question.answer || "").trim().toLowerCase();
-          let bg = "#f8fafc";
-          if (showAnswer && isCorrect) bg = "#dcfce7";
-          else if (showAnswer && isSelected && !isCorrect) bg = "#fee2e2";
-          else if (isSelected) bg = "#e0e7ff";
-          if (otherBranchAnswered) bg = "#f1f5f9";
+          let bg = "rgba(255,255,255,0.03)";
+          if (showAnswer && isCorrect) bg = "rgba(34,197,94,0.15)";
+          else if (showAnswer && isSelected && !isCorrect) bg = "rgba(239,68,68,0.15)";
+          else if (isSelected) bg = "rgba(99,102,241,0.15)";
+          if (otherBranchAnswered) bg = "rgba(255,255,255,0.06)";
 
           return (
             <div
@@ -311,8 +311,8 @@ function QuestionDisplay({ q, idx, section, showAnswer, selectedAnswer, chosenBr
               style={{
                 padding: "6px 12px", borderRadius: 8, marginBottom: 4, fontSize: "0.82rem",
                 background: bg, cursor: (!showAnswer && isInteractive && !otherBranchAnswered) ? "pointer" : "default",
-                border: isSelected ? "1px solid #6366f1" : "1px solid #e2e8f0",
-                color: otherBranchAnswered ? "#94a3b8" : "#334155",
+                border: isSelected ? "1px solid #6366f1" : "1px solid rgba(255,255,255,0.06)",
+                color: otherBranchAnswered ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.85)",
                 opacity: otherBranchAnswered ? 0.5 : 1,
               }}
             >
@@ -333,7 +333,7 @@ function QuestionDisplay({ q, idx, section, showAnswer, selectedAnswer, chosenBr
     const isThisBranch = chosenBranch === branch;
     if (isThisBranch) {
       return (
-        <div style={{ marginTop: 8, padding: "6px 12px", borderRadius: 8, background: selectedAnswer === "correct" ? "#dcfce7" : "#fee2e2", fontSize: "0.78rem", color: "#334155" }}>
+        <div style={{ marginTop: 8, padding: "6px 12px", borderRadius: 8, background: selectedAnswer === "correct" ? "rgba(34,197,94,0.15)" : "rgba(239,68,68,0.15)", fontSize: "0.78rem", color: "rgba(255,255,255,0.85)" }}>
           Self-marked: <strong>{selectedAnswer === "correct" ? "Correct" : "Incorrect"}</strong>
         </div>
       );
@@ -345,7 +345,7 @@ function QuestionDisplay({ q, idx, section, showAnswer, selectedAnswer, chosenBr
           onClick={() => onSelect?.(q.main.id + qIdSuffix, "correct", "correct")}
           style={{
             padding: "5px 14px", borderRadius: 8, border: "1px solid #22c55e",
-            background: "#f0fdf4", color: "#16a34a", fontSize: "0.78rem", fontWeight: 600, cursor: "pointer",
+            background: "rgba(34,197,94,0.08)", color: "#22c55e", fontSize: "0.78rem", fontWeight: 600, cursor: "pointer",
           }}
         >
           I got it right
@@ -354,7 +354,7 @@ function QuestionDisplay({ q, idx, section, showAnswer, selectedAnswer, chosenBr
           onClick={() => onSelect?.(q.main.id + qIdSuffix, "incorrect", "correct")}
           style={{
             padding: "5px 14px", borderRadius: 8, border: "1px solid #ef4444",
-            background: "#fef2f2", color: "#dc2626", fontSize: "0.78rem", fontWeight: 600, cursor: "pointer",
+            background: "rgba(239,68,68,0.08)", color: "#ef4444", fontSize: "0.78rem", fontWeight: 600, cursor: "pointer",
           }}
         >
           I got it wrong
@@ -364,12 +364,12 @@ function QuestionDisplay({ q, idx, section, showAnswer, selectedAnswer, chosenBr
   }
 
   return (
-    <div style={{ marginBottom: 16, paddingBottom: 12, borderBottom: "1px solid #f1f5f9" }}>
-      <div style={{ fontSize: "0.84rem", color: answeredOr ? "#94a3b8" : "#334155", lineHeight: 1.6 }}>
+    <div style={{ marginBottom: 16, paddingBottom: 12, borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+      <div style={{ fontSize: "0.84rem", color: answeredOr ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.85)", lineHeight: 1.6 }}>
         <strong style={{ color: SECTION_COLORS[section] }}>Q{qNum}.</strong>{" "}
         {q.main.questionText}
         {q.main.subtopic && (
-          <span style={{ fontSize: "0.72rem", color: "#94a3b8", marginLeft: 8 }}>[{q.main.subtopic}]</span>
+          <span style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.4)", marginLeft: 8 }}>[{q.main.subtopic}]</span>
         )}
       </div>
 
@@ -377,29 +377,29 @@ function QuestionDisplay({ q, idx, section, showAnswer, selectedAnswer, chosenBr
       {renderSelfMark(q.main, "main")}
 
       {showAnswer && q.main.answer && (answeredMain || !chosenBranch) && (
-        <div style={{ marginTop: 8, padding: "8px 12px", background: "#f0fdf4", borderRadius: 8, fontSize: "0.78rem", color: "#166534" }}>
+        <div style={{ marginTop: 8, padding: "8px 12px", background: "rgba(34,197,94,0.08)", borderRadius: 8, fontSize: "0.78rem", color: "#22c55e" }}>
           <strong>Answer:</strong> {q.main.answer}
-          {q.main.explanation && <div style={{ marginTop: 4, color: "#475569" }}>{q.main.explanation}</div>}
+          {q.main.explanation && <div style={{ marginTop: 4, color: "rgba(255,255,255,0.6)" }}>{q.main.explanation}</div>}
         </div>
       )}
 
       {q.or && (
         <div style={{
           marginTop: 12, padding: "10px 14px", borderRadius: 10, borderLeft: "3px solid #f59e0b",
-          background: answeredMain ? "#fefce810" : "#fefce8",
+          background: answeredMain ? "rgba(245,158,11,0.04)" : "rgba(245,158,11,0.08)",
           opacity: answeredMain ? 0.5 : 1,
         }}>
-          <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "#b45309", marginBottom: 4 }}>OR</div>
-          <div style={{ fontSize: "0.84rem", color: answeredMain ? "#94a3b8" : "#334155", lineHeight: 1.6 }}>
+          <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "#f59e0b", marginBottom: 4 }}>OR</div>
+          <div style={{ fontSize: "0.84rem", color: answeredMain ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.85)", lineHeight: 1.6 }}>
             {q.or.questionText}
             {q.or.subtopic && (
-              <span style={{ fontSize: "0.72rem", color: "#94a3b8", marginLeft: 8 }}>[{q.or.subtopic}]</span>
+              <span style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.4)", marginLeft: 8 }}>[{q.or.subtopic}]</span>
             )}
           </div>
           {renderOptions(q.or, "or")}
           {renderSelfMark(q.or, "or")}
           {showAnswer && q.or.answer && (answeredOr || !chosenBranch) && (
-            <div style={{ marginTop: 6, fontSize: "0.78rem", color: "#166534" }}>
+            <div style={{ marginTop: 6, fontSize: "0.78rem", color: "#22c55e" }}>
               <strong>OR Answer:</strong> {q.or.answer}
             </div>
           )}
@@ -424,21 +424,21 @@ function TakingPhase({ paper, currentSectionIdx, elapsed, timerEnabled, answers,
   return (
     <div style={{ marginTop: 24 }}>
       <div style={{
-        position: "sticky", top: 0, zIndex: 10, background: "#fff", padding: "10px 16px",
+        position: "sticky", top: 0, zIndex: 10, background: "rgba(255,255,255,0.03)", padding: "10px 16px",
         borderRadius: 12, marginBottom: 16,
-        boxShadow: "0 2px 8px rgba(0,0,0,0.08)", border: "1px solid #e2e8f0",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.06)",
       }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
           {timerEnabled && (
-            <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "#475569" }}>
+            <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "rgba(255,255,255,0.6)" }}>
               Time: {formatTime(elapsed)}
             </span>
           )}
-          <span style={{ fontSize: "0.78rem", color: "#94a3b8" }}>
+          <span style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.4)" }}>
             Section {sec.section} — {answeredCount}/{sec.questions.length} answered
           </span>
         </div>
-        <div style={{ height: 6, borderRadius: 999, background: "#f1f5f9", overflow: "hidden" }}>
+        <div style={{ height: 6, borderRadius: 999, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
           <div style={{
             height: "100%", borderRadius: 999,
             width: `${sec.questions.length > 0 ? (answeredCount / sec.questions.length) * 100 : 0}%`,
@@ -449,7 +449,7 @@ function TakingPhase({ paper, currentSectionIdx, elapsed, timerEnabled, answers,
       </div>
 
       <div style={{
-        background: "#fff", borderRadius: 16, padding: "20px", border: `2px solid ${SECTION_COLORS[sec.section]}`,
+        background: "rgba(255,255,255,0.03)", borderRadius: 16, padding: "20px", border: `2px solid ${SECTION_COLORS[sec.section]}`,
       }}>
         <h3 style={{ fontSize: "0.9rem", fontWeight: 700, color: SECTION_COLORS[sec.section], marginBottom: 16 }}>
           {SECTION_LABELS[sec.section]}
@@ -492,26 +492,26 @@ function ReviewPhase({ paper, analytics, answers, onGoToWeakPractice, onRetake, 
   return (
     <div style={{ marginTop: 24 }}>
       <div style={{
-        background: "#fff", borderRadius: 20, padding: "28px 24px", textAlign: "center",
-        border: "1px solid #e2e8f0", boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
+        background: "rgba(255,255,255,0.03)", borderRadius: 20, padding: "28px 24px", textAlign: "center",
+        border: "1px solid rgba(255,255,255,0.06)", boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
       }}>
-        <div style={{ fontSize: "0.72rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "#94a3b8", marginBottom: 8 }}>
+        <div style={{ fontSize: "0.72rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)", marginBottom: 8 }}>
           Mock Result — {paper.topicDisplayName} — Set {paper.setIndex}
         </div>
         <div style={{ fontSize: "3rem", fontWeight: 800, color: scoreColor }}>{analytics.percentScore}%</div>
-        <div style={{ fontSize: "0.9rem", color: "#475569", marginTop: 4 }}>
+        <div style={{ fontSize: "0.9rem", color: "rgba(255,255,255,0.6)", marginTop: 4 }}>
           {analytics.marksScored} / {analytics.totalMarks} marks
         </div>
-        <div style={{ fontSize: "0.78rem", color: "#94a3b8", marginTop: 4 }}>
+        <div style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.4)", marginTop: 4 }}>
           Time: {formatTime(analytics.timeAnalysis.totalSeconds)}
         </div>
       </div>
 
       <div style={{
-        marginTop: 20, background: "#fff", borderRadius: 16, padding: "20px",
-        border: "1px solid #e2e8f0",
+        marginTop: 20, background: "rgba(255,255,255,0.03)", borderRadius: 16, padding: "20px",
+        border: "1px solid rgba(255,255,255,0.06)",
       }}>
-        <h3 style={{ fontSize: "0.88rem", fontWeight: 700, color: "#1e293b", marginBottom: 12 }}>Section Breakdown</h3>
+        <h3 style={{ fontSize: "0.88rem", fontWeight: 700, color: "rgba(255,255,255,0.9)", marginBottom: 12 }}>Section Breakdown</h3>
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
           {analytics.sectionBreakdown.map(sb => (
             <div key={sb.section} style={{
@@ -519,10 +519,10 @@ function ReviewPhase({ paper, analytics, answers, onGoToWeakPractice, onRetake, 
               background: `${SECTION_COLORS[sb.section]}10`, border: `1px solid ${SECTION_COLORS[sb.section]}30`,
             }}>
               <div style={{ fontSize: "0.72rem", fontWeight: 700, color: SECTION_COLORS[sb.section] }}>Section {sb.section}</div>
-              <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "#1e293b" }}>{sb.scored}/{sb.maxMarks}</div>
-              <div style={{ fontSize: "0.72rem", color: "#94a3b8" }}>{sb.percent}% accuracy</div>
+              <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "rgba(255,255,255,0.9)" }}>{sb.scored}/{sb.maxMarks}</div>
+              <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.4)" }}>{sb.percent}% accuracy</div>
               {analytics.timeAnalysis.perSectionSeconds[sb.section] != null && (
-                <div style={{ fontSize: "0.68rem", color: "#64748b", marginTop: 2 }}>
+                <div style={{ fontSize: "0.68rem", color: "rgba(255,255,255,0.45)", marginTop: 2 }}>
                   {formatTime(analytics.timeAnalysis.perSectionSeconds[sb.section])}
                 </div>
               )}
@@ -532,19 +532,19 @@ function ReviewPhase({ paper, analytics, answers, onGoToWeakPractice, onRetake, 
       </div>
 
       <div style={{
-        marginTop: 20, background: "#fff", borderRadius: 16, padding: "20px",
-        border: "1px solid #e2e8f0",
+        marginTop: 20, background: "rgba(255,255,255,0.03)", borderRadius: 16, padding: "20px",
+        border: "1px solid rgba(255,255,255,0.06)",
       }}>
-        <h3 style={{ fontSize: "0.88rem", fontWeight: 700, color: "#1e293b", marginBottom: 12 }}>Subtopic Heatmap</h3>
+        <h3 style={{ fontSize: "0.88rem", fontWeight: 700, color: "rgba(255,255,255,0.9)", marginBottom: 12 }}>Subtopic Heatmap</h3>
         {analytics.subtopicHeatmap.map(s => (
           <div key={s.subtopic} style={{ marginBottom: 8 }}>
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem", marginBottom: 3 }}>
-              <span style={{ color: "#334155" }}>{s.subtopic}</span>
+              <span style={{ color: "rgba(255,255,255,0.85)" }}>{s.subtopic}</span>
               <span style={{ fontWeight: 600, color: s.percent >= 70 ? "#16a34a" : s.percent >= 40 ? "#f59e0b" : "#ef4444" }}>
                 {s.correct}/{s.total} ({s.percent}%)
               </span>
             </div>
-            <div style={{ height: 6, borderRadius: 999, background: "#f1f5f9", overflow: "hidden" }}>
+            <div style={{ height: 6, borderRadius: 999, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
               <div style={{
                 height: "100%", borderRadius: 999, width: `${s.percent}%`,
                 background: s.percent >= 70 ? "#22c55e" : s.percent >= 40 ? "#f59e0b" : "#ef4444",
@@ -557,10 +557,10 @@ function ReviewPhase({ paper, analytics, answers, onGoToWeakPractice, onRetake, 
 
       {analytics.weakAreas.length > 0 && (
         <div style={{
-          marginTop: 20, background: "#fef2f2", borderRadius: 16, padding: "20px",
-          border: "1px solid #fecaca",
+          marginTop: 20, background: "rgba(239,68,68,0.08)", borderRadius: 16, padding: "20px",
+          border: "1px solid rgba(239,68,68,0.2)",
         }}>
-          <h3 style={{ fontSize: "0.88rem", fontWeight: 700, color: "#dc2626", marginBottom: 12 }}>
+          <h3 style={{ fontSize: "0.88rem", fontWeight: 700, color: "#ef4444", marginBottom: 12 }}>
             Weak Areas — Tap to practice
           </h3>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -570,7 +570,7 @@ function ReviewPhase({ paper, analytics, answers, onGoToWeakPractice, onRetake, 
                 onClick={() => onGoToWeakPractice(sub)}
                 style={{
                   padding: "6px 14px", borderRadius: 10, border: "1px solid #fca5a5",
-                  background: "#fff", color: "#dc2626", fontSize: "0.78rem", fontWeight: 600,
+                  background: "rgba(255,255,255,0.03)", color: "#ef4444", fontSize: "0.78rem", fontWeight: 600,
                   cursor: "pointer",
                 }}
               >
@@ -582,11 +582,11 @@ function ReviewPhase({ paper, analytics, answers, onGoToWeakPractice, onRetake, 
       )}
 
       <div style={{ marginTop: 20 }}>
-        <h3 style={{ fontSize: "0.88rem", fontWeight: 700, color: "#1e293b", marginBottom: 12 }}>Full Paper Review</h3>
+        <h3 style={{ fontSize: "0.88rem", fontWeight: 700, color: "rgba(255,255,255,0.9)", marginBottom: 12 }}>Full Paper Review</h3>
         {paper.sections.map(sec => (
           <div key={sec.section} style={{
-            background: "#fff", borderRadius: 16, padding: "16px", marginBottom: 12,
-            border: "1px solid #e2e8f0",
+            background: "rgba(255,255,255,0.03)", borderRadius: 16, padding: "16px", marginBottom: 12,
+            border: "1px solid rgba(255,255,255,0.06)",
           }}>
             <h4 style={{ fontSize: "0.82rem", fontWeight: 700, color: SECTION_COLORS[sec.section], marginBottom: 10 }}>
               {SECTION_LABELS[sec.section]}
@@ -612,13 +612,13 @@ function ReviewPhase({ paper, analytics, answers, onGoToWeakPractice, onRetake, 
         </button>
         <button onClick={onNextSet} style={{
           padding: "10px 24px", borderRadius: 14, border: "2px solid #6366f1",
-          background: "#fff", color: "#6366f1", fontWeight: 700, fontSize: "0.85rem", cursor: "pointer",
+          background: "rgba(255,255,255,0.03)", color: "#6366f1", fontWeight: 700, fontSize: "0.85rem", cursor: "pointer",
         }}>
           Try Next Set
         </button>
         <button onClick={onPrint} style={{
-          padding: "10px 24px", borderRadius: 14, border: "1px solid #e2e8f0",
-          background: "#f8fafc", color: "#475569", fontWeight: 600, fontSize: "0.85rem", cursor: "pointer",
+          padding: "10px 24px", borderRadius: 14, border: "1px solid rgba(255,255,255,0.06)",
+          background: "#0a0a0a", color: "rgba(255,255,255,0.6)", fontWeight: 600, fontSize: "0.85rem", cursor: "pointer",
         }}>
           Print / PDF
         </button>

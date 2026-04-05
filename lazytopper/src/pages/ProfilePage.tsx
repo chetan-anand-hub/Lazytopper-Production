@@ -55,7 +55,7 @@ function MasteryRing({ percent, size = 56, color }: { percent: number; size?: nu
   const filled = (percent / 100) * circ;
   return (
     <svg width={size} height={size} style={{ display: "block" }}>
-      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#e8e8e8" strokeWidth={5} />
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth={5} />
       <circle
         cx={size / 2}
         cy={size / 2}
@@ -83,7 +83,7 @@ function MasteryRing({ percent, size = 56, color }: { percent: number; size?: nu
 }
 
 function getMasteryColor(percent: number): string {
-  if (percent === 0) return "#ccc";
+  if (percent === 0) return "rgba(255,255,255,0.2)";
   if (percent < 40) return "#60a5fa";
   if (percent < 70) return "#34d399";
   return "#f59e0b";
@@ -263,10 +263,10 @@ function AccuracyChart({ data }: { data: WeeklyAccuracy[] }) {
           return (
             <g key={w.weekLabel}>
               <rect x={x} y={chartH - h} width={barW} height={h} rx={4} fill={color} opacity={0.85} />
-              <text x={x + barW / 2} y={chartH - h - 4} textAnchor="middle" fontSize={10} fontWeight={600} fill="#333">
+              <text x={x + barW / 2} y={chartH - h - 4} textAnchor="middle" fontSize={10} fontWeight={600} fill="rgba(255,255,255,0.85)">
                 {w.accuracy}%
               </text>
-              <text x={x + barW / 2} y={chartH + 14} textAnchor="middle" fontSize={9} fill="#888">
+              <text x={x + barW / 2} y={chartH + 14} textAnchor="middle" fontSize={9} fill="rgba(255,255,255,0.45)">
                 {w.weekLabel}
               </text>
             </g>
@@ -296,8 +296,8 @@ function OverviewTab({ milestones, subjectTab, setSubjectTab }: {
               padding: "6px 16px",
               borderRadius: 20,
               border: "none",
-              background: subjectTab === s ? "#1cb0f6" : "#f0f0f0",
-              color: subjectTab === s ? "#fff" : "#333",
+              background: subjectTab === s ? "#1cb0f6" : "rgba(255,255,255,0.06)",
+              color: subjectTab === s ? "#fff" : "rgba(255,255,255,0.85)",
               fontWeight: 600,
               fontSize: 13,
               cursor: "pointer",
@@ -310,10 +310,10 @@ function OverviewTab({ milestones, subjectTab, setSubjectTab }: {
 
       <h3 style={{ fontWeight: 800, fontSize: 16, marginBottom: 12 }}>Chapter Mastery</h3>
       {topics.every((tk) => getTopicMasteryPercent(tk) === 0) ? (
-        <div style={{ textAlign: "center", padding: "24px 16px", background: "#f9fafb", borderRadius: 14, border: "1px solid #eee", marginBottom: 16 }}>
+        <div style={{ textAlign: "center", padding: "24px 16px", background: "rgba(255,255,255,0.03)", borderRadius: 14, border: "1px solid rgba(255,255,255,0.06)", marginBottom: 16 }}>
           <div style={{ fontSize: "2rem", marginBottom: 8 }}>🌱</div>
           <p style={{ fontWeight: 700, fontSize: "0.95rem", margin: "0 0 4px" }}>No mastery data yet</p>
-          <p style={{ fontSize: "0.82rem", color: "#888", margin: 0, lineHeight: 1.5 }}>
+          <p style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.45)", margin: 0, lineHeight: 1.5 }}>
             Practice any chapter to start filling in your mastery grid. Every question counts!
           </p>
         </div>
@@ -331,8 +331,8 @@ function OverviewTab({ milestones, subjectTab, setSubjectTab }: {
                 alignItems: "center",
                 padding: "10px 6px",
                 borderRadius: 12,
-                background: "#fafafa",
-                border: "1px solid #eee",
+                background: "rgba(255,255,255,0.03)",
+                border: "1px solid rgba(255,255,255,0.06)",
               }}
             >
               <MasteryRing percent={pct} size={52} color={color} />
@@ -351,7 +351,7 @@ function OverviewTab({ milestones, subjectTab, setSubjectTab }: {
             <div style={{ position: "absolute", left: 8, top: 0, bottom: 0, width: 3, background: "linear-gradient(to bottom, #58cc02, #1cb0f6)", borderRadius: 4 }} />
             {milestones.map((m) => (
               <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14, position: "relative" }}>
-                <div style={{ position: "absolute", left: -20, width: 18, height: 18, borderRadius: "50%", background: "#fff", border: "3px solid #1cb0f6", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10 }}>
+                <div style={{ position: "absolute", left: -20, width: 18, height: 18, borderRadius: "50%", background: "rgba(255,255,255,0.03)", border: "3px solid #1cb0f6", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10 }}>
                   {m.icon}
                 </div>
                 <div>
@@ -383,7 +383,7 @@ function AchievementsTab({ earned }: { earned: EarnedBadge[] }) {
               style={{
                 padding: "14px 10px",
                 borderRadius: 14,
-                background: isEarned ? "#fffbeb" : "#f5f5f5",
+                background: isEarned ? "rgba(245,158,11,0.08)" : "rgba(255,255,255,0.06)",
                 border: isEarned ? "2px solid #f59e0b" : "1px solid #e5e5e5",
                 textAlign: "center",
                 opacity: isEarned ? 1 : 0.5,
@@ -444,7 +444,7 @@ function StatsTab({ badgeCtx, statsByChapter }: { badgeCtx: BadgeContext; statsB
         <h3 style={{ fontSize: "1.1rem", fontWeight: 800, marginBottom: 6 }}>
           Your stats will appear here
         </h3>
-        <p style={{ fontSize: "0.88rem", color: "#777", marginBottom: 16, lineHeight: 1.5 }}>
+        <p style={{ fontSize: "0.88rem", color: "rgba(255,255,255,0.45)", marginBottom: 16, lineHeight: 1.5 }}>
           Start practicing any topic to see your accuracy, streak, mastery progress, and badges.
         </p>
         <button
@@ -478,8 +478,8 @@ function StatsTab({ badgeCtx, statsByChapter }: { badgeCtx: BadgeContext; statsB
             style={{
               padding: "14px 12px",
               borderRadius: 14,
-              background: "#fafafa",
-              border: "1px solid #eee",
+              background: "rgba(255,255,255,0.03)",
+              border: "1px solid rgba(255,255,255,0.06)",
               textAlign: "center",
             }}
           >
@@ -490,13 +490,13 @@ function StatsTab({ badgeCtx, statsByChapter }: { badgeCtx: BadgeContext; statsB
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 20 }}>
-        <div style={{ padding: 12, borderRadius: 12, background: "#f0fdf4", border: "1px solid #bbf7d0" }}>
+        <div style={{ padding: 12, borderRadius: 12, background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.2)" }}>
           <div style={{ fontSize: 12, fontWeight: 600, opacity: 0.7 }}>Strongest Topic</div>
           <div style={{ fontSize: 14, fontWeight: 700, marginTop: 2 }}>
             {strongest ? (TOPIC_DISPLAY_NAMES[strongest[0]] || strongest[0]) : "Keep practicing!"}
           </div>
         </div>
-        <div style={{ padding: 12, borderRadius: 12, background: "#fef2f2", border: "1px solid #fecaca" }}>
+        <div style={{ padding: 12, borderRadius: 12, background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)" }}>
           <div style={{ fontSize: 12, fontWeight: 600, opacity: 0.7 }}>Needs Work</div>
           <div style={{ fontSize: 14, fontWeight: 700, marginTop: 2 }}>
             {weakest ? (TOPIC_DISPLAY_NAMES[weakest[0]] || weakest[0]) : "Looking good!"}
@@ -518,19 +518,19 @@ function StatsTab({ badgeCtx, statsByChapter }: { badgeCtx: BadgeContext; statsB
           <table style={{ width: "100%", fontSize: 12, borderCollapse: "collapse" }}>
             <thead>
               <tr>
-                <th style={{ textAlign: "left", padding: "4px 8px", borderBottom: "1px solid #eee" }}>Week</th>
-                <th style={{ textAlign: "center", padding: "4px 8px", borderBottom: "1px solid #eee", color: "#34d399" }}>Easy</th>
-                <th style={{ textAlign: "center", padding: "4px 8px", borderBottom: "1px solid #eee", color: "#60a5fa" }}>Medium</th>
-                <th style={{ textAlign: "center", padding: "4px 8px", borderBottom: "1px solid #eee", color: "#f87171" }}>Hard</th>
+                <th style={{ textAlign: "left", padding: "4px 8px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>Week</th>
+                <th style={{ textAlign: "center", padding: "4px 8px", borderBottom: "1px solid rgba(255,255,255,0.06)", color: "#34d399" }}>Easy</th>
+                <th style={{ textAlign: "center", padding: "4px 8px", borderBottom: "1px solid rgba(255,255,255,0.06)", color: "#60a5fa" }}>Medium</th>
+                <th style={{ textAlign: "center", padding: "4px 8px", borderBottom: "1px solid rgba(255,255,255,0.06)", color: "#f87171" }}>Hard</th>
               </tr>
             </thead>
             <tbody>
               {weeklyDiffProg.map((w) => (
                 <tr key={w.weekLabel}>
-                  <td style={{ padding: "4px 8px", borderBottom: "1px solid #f5f5f5" }}>{w.weekLabel}</td>
-                  <td style={{ textAlign: "center", padding: "4px 8px", borderBottom: "1px solid #f5f5f5" }}>{w.easyPct}%</td>
-                  <td style={{ textAlign: "center", padding: "4px 8px", borderBottom: "1px solid #f5f5f5" }}>{w.medPct}%</td>
-                  <td style={{ textAlign: "center", padding: "4px 8px", borderBottom: "1px solid #f5f5f5" }}>{w.hardPct}%</td>
+                  <td style={{ padding: "4px 8px", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>{w.weekLabel}</td>
+                  <td style={{ textAlign: "center", padding: "4px 8px", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>{w.easyPct}%</td>
+                  <td style={{ textAlign: "center", padding: "4px 8px", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>{w.medPct}%</td>
+                  <td style={{ textAlign: "center", padding: "4px 8px", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>{w.hardPct}%</td>
                 </tr>
               ))}
             </tbody>
@@ -551,10 +551,10 @@ function StatsTab({ badgeCtx, statsByChapter }: { badgeCtx: BadgeContext; statsB
               return (
                 <g key={w.weekLabel}>
                   <rect x={x} y={110 - h} width={36} height={h} rx={4} fill="#ff9600" opacity={0.75} />
-                  <text x={x + 18} y={110 - h - 4} textAnchor="middle" fontSize={10} fontWeight={600} fill="#333">
+                  <text x={x + 18} y={110 - h - 4} textAnchor="middle" fontSize={10} fontWeight={600} fill="rgba(255,255,255,0.85)">
                     {w.avgSeconds}s
                   </text>
-                  <text x={x + 18} y={130} textAnchor="middle" fontSize={9} fill="#888">
+                  <text x={x + 18} y={130} textAnchor="middle" fontSize={9} fill="rgba(255,255,255,0.45)">
                     {w.weekLabel}
                   </text>
                 </g>
@@ -574,7 +574,7 @@ function StatsTab({ badgeCtx, statsByChapter }: { badgeCtx: BadgeContext; statsB
           { label: "Hard", pct: diffProg.hard, color: "#f87171" },
         ].map((d) => (
           <div key={d.label} style={{ flex: 1, textAlign: "center" }}>
-            <div style={{ height: 8, borderRadius: 4, background: "#eee", overflow: "hidden", marginBottom: 4 }}>
+            <div style={{ height: 8, borderRadius: 4, background: "rgba(255,255,255,0.06)", overflow: "hidden", marginBottom: 4 }}>
               <div style={{ height: "100%", width: `${d.pct}%`, background: d.color, borderRadius: 4, transition: "width 0.5s ease" }} />
             </div>
             <div style={{ fontSize: 11, fontWeight: 600, color: d.color }}>{d.pct}% {d.label}</div>
@@ -688,15 +688,15 @@ export default function ProfilePage() {
       <div style={{
         borderRadius: 14, padding: "14px 16px", marginBottom: 20,
         border: "2px solid",
-        borderColor: sub.tier === "premium" ? "#58cc02" : sub.isTrialActive ? "#1cb0f6" : "#e5e5e5",
-        background: sub.tier === "premium" ? "#f0fdf4" : sub.isTrialActive ? "#eff6ff" : "#fafafa",
+        borderColor: sub.tier === "premium" ? "#58cc02" : sub.isTrialActive ? "#1cb0f6" : "rgba(255,255,255,0.08)",
+        background: sub.tier === "premium" ? "rgba(34,197,94,0.08)" : sub.isTrialActive ? "rgba(59,130,246,0.08)" : "rgba(255,255,255,0.03)",
         display: "flex", alignItems: "center", justifyContent: "space-between",
       }}>
         <div>
-          <div style={{ fontWeight: 800, fontSize: "0.92rem", color: "#3c3c3c" }}>
+          <div style={{ fontWeight: 800, fontSize: "0.92rem", color: "rgba(255,255,255,0.85)" }}>
             {sub.tier === "premium" ? "Premium" : sub.isTrialActive ? "Trial" : "Free Plan"}
           </div>
-          <div style={{ fontSize: "0.8rem", color: "#888", marginTop: 2 }}>
+          <div style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.45)", marginTop: 2 }}>
             {sub.tier === "premium"
               ? "Full access to all features"
               : sub.isTrialActive
@@ -724,7 +724,7 @@ export default function ProfilePage() {
 
       <UpgradeModal open={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} />
 
-      <div style={{ display: "flex", gap: 0, marginBottom: 20, background: "#f0f0f0", borderRadius: 12, padding: 3 }}>
+      <div style={{ display: "flex", gap: 0, marginBottom: 20, background: "rgba(255,255,255,0.06)", borderRadius: 12, padding: 3 }}>
         {(["overview", "achievements", "stats"] as ProfileTab[]).map((t) => (
           <button
             key={t}
@@ -735,12 +735,12 @@ export default function ProfilePage() {
               padding: "8px 0",
               borderRadius: 10,
               border: "none",
-              background: tab === t ? "#fff" : "transparent",
+              background: tab === t ? "rgba(255,255,255,0.1)" : "transparent",
               fontWeight: tab === t ? 700 : 500,
               fontSize: 13,
               cursor: "pointer",
-              color: tab === t ? "#333" : "#888",
-              boxShadow: tab === t ? "0 1px 4px rgba(0,0,0,0.08)" : "none",
+              color: tab === t ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.45)",
+              boxShadow: tab === t ? "0 1px 4px rgba(0,0,0,0.3)" : "none",
               textTransform: "capitalize",
             }}
           >
@@ -787,7 +787,7 @@ export default function ProfilePage() {
               padding: "12px 20px",
               borderRadius: 16,
               border: "2px solid #1cb0f6",
-              background: "#fff",
+              background: "rgba(255,255,255,0.03)",
               color: "#1cb0f6",
               fontWeight: 700,
               fontSize: 13,
@@ -805,7 +805,7 @@ export default function ProfilePage() {
             padding: "10px 20px",
             borderRadius: 16,
             border: "none",
-            background: "#f0f0f0",
+            background: "rgba(255,255,255,0.06)",
             fontWeight: 700,
             fontSize: 13,
             cursor: "pointer",
@@ -826,8 +826,8 @@ export default function ProfilePage() {
             style={{
               padding: "10px 20px",
               borderRadius: 16,
-              border: "2px solid #e5e5e5",
-              background: "#fff",
+              border: "2px solid rgba(255,255,255,0.08)",
+              background: "rgba(255,255,255,0.03)",
               fontWeight: 700,
               fontSize: 13,
               cursor: "pointer",
@@ -839,8 +839,8 @@ export default function ProfilePage() {
         )}
       </div>
 
-      <div style={{ marginTop: 16, padding: "12px 16px", background: "#f7f7f7", borderRadius: 12, border: "2px solid #e5e5e5" }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#3c3c3c", marginBottom: 6 }}>Study Mode</div>
+      <div style={{ marginTop: 16, padding: "12px 16px", background: "rgba(255,255,255,0.06)", borderRadius: 12, border: "2px solid rgba(255,255,255,0.08)" }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.85)", marginBottom: 6 }}>Study Mode</div>
         <div style={{ display: "flex", gap: 8 }}>
           {(["beast", "zombie"] as const).map(m => (
             <button
@@ -855,8 +855,8 @@ export default function ProfilePage() {
               style={{
                 flex: 1, padding: "8px 0", borderRadius: 10, border: "none",
                 fontWeight: 700, fontSize: 13, cursor: "pointer",
-                background: (localStorage.getItem("vibeMode") || "") === m ? "#58cc02" : "#e5e5e5",
-                color: (localStorage.getItem("vibeMode") || "") === m ? "#fff" : "#3c3c3c",
+                background: (localStorage.getItem("vibeMode") || "") === m ? "#58cc02" : "rgba(255,255,255,0.08)",
+                color: (localStorage.getItem("vibeMode") || "") === m ? "#fff" : "rgba(255,255,255,0.85)",
               }}
             >
               {m === "beast" ? "🔥 Challenge" : "😌 Relaxed"}
