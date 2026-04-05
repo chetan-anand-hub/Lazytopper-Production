@@ -18,7 +18,6 @@ import { RequireAuth, RequirePremium } from "./components/auth/RequireAuth";
 import { PracticeLimitGate } from "./components/auth/PracticeLimitGate";
 import { MockViewGate } from "./components/auth/MockViewGate";
 import { useAuth } from "./context/AuthContext";
-import { useProfile } from "./context/ProfileContext";
 import { useSubscription } from "./hooks/useSubscription";
 
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -59,10 +58,13 @@ function MentorRedirect() {
 }
 
 function HomeRedirect() {
-  const { user } = useAuth();
-  const { profile } = useProfile();
-  if (user && profile?.studentClass) return <Navigate to="/dashboard" replace />;
-  return <Navigate to="/trends/10/Maths" replace />;
+  const { user, loading } = useAuth();
+  useEffect(() => {
+    if (!loading && !user) window.location.href = "/";
+  }, [user, loading]);
+  if (loading) return null;
+  if (user) return <Navigate to="/dashboard" replace />;
+  return null;
 }
 
 /**
@@ -73,6 +75,7 @@ function HomeRedirect() {
 function BottomNav() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user: navUser } = useAuth();
 
   const current = location.pathname;
   const go = (path: string) => navigate(path);
@@ -101,7 +104,13 @@ function BottomNav() {
         </svg>
       ),
       active: isHome || current === "/dashboard",
-      onClick: () => go("/"),
+      onClick: () => {
+        if (navUser) {
+          go("/dashboard");
+        } else {
+          window.location.href = "/";
+        }
+      },
     },
     {
       label: "Trends",
