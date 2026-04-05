@@ -58,7 +58,7 @@ export function NeonCampus() {
               <div className="flex -space-x-4">
                 {[1, 2, 3, 4].map((i) => (
                   <div key={i} className="w-12 h-12 rounded-full border-2 border-[#0a0a0f] bg-slate-800 flex items-center justify-center overflow-hidden">
-                    <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${i}&backgroundColor=1e293b`} alt="avatar" className="w-full h-full object-cover" />
+                    <span className="text-sm font-bold text-slate-400">{['A','R','P','S'][i-1]}</span>
                   </div>
                 ))}
               </div>
@@ -196,7 +196,7 @@ export function NeonCampus() {
                   <Calendar className="w-8 h-8 text-lime-400" />
                 </div>
                 <h3 className="text-2xl font-bold mb-2">Daily Mix</h3>
-                <p className="text-slate-400">Your daily 20-min session</p>
+                <span className="text-slate-400 block">Your daily 20-min session</span>
               </div>
 
               <div className="group bg-slate-900/60 backdrop-blur-md border border-slate-800 p-8 rounded-3xl hover:bg-slate-800/60 transition-all duration-300 hover:border-red-500/30 hover:shadow-[0_0_30px_rgba(239,68,68,0.1)]">
@@ -204,7 +204,7 @@ export function NeonCampus() {
                   <Target className="w-8 h-8 text-red-400" />
                 </div>
                 <h3 className="text-2xl font-bold mb-2">Weak Areas</h3>
-                <p className="text-slate-400">AI finds your gaps</p>
+                <span className="text-slate-400 block">AI finds your gaps</span>
               </div>
 
               <div className="group bg-slate-900/60 backdrop-blur-md border border-slate-800 p-8 rounded-3xl hover:bg-slate-800/60 transition-all duration-300 hover:border-blue-500/30 hover:shadow-[0_0_30px_rgba(59,130,246,0.1)]">
@@ -212,7 +212,7 @@ export function NeonCampus() {
                   <BarChart3 className="w-8 h-8 text-blue-400" />
                 </div>
                 <h3 className="text-2xl font-bold mb-2">Study Planner</h3>
-                <p className="text-slate-400">Custom plan to your target</p>
+                <span className="text-slate-400 block">Custom plan to your target</span>
               </div>
 
               <div className="group bg-slate-900/60 backdrop-blur-md border border-slate-800 p-8 rounded-3xl hover:bg-slate-800/60 transition-all duration-300 hover:border-amber-500/30 hover:shadow-[0_0_30px_rgba(245,158,11,0.1)]">
@@ -220,7 +220,7 @@ export function NeonCampus() {
                   <Trophy className="w-8 h-8 text-amber-400" />
                 </div>
                 <h3 className="text-2xl font-bold mb-2">Weekly Report</h3>
-                <p className="text-slate-400">Track your growth</p>
+                <span className="text-slate-400 block">Track your growth</span>
               </div>
             </div>
           </div>
@@ -328,9 +328,9 @@ export function NeonCampus() {
               <ChevronRight className="w-8 h-8 ml-2 transition-transform group-hover:translate-x-2" />
             </button>
             
-            <p className="text-sm text-slate-500 uppercase tracking-widest font-medium mt-12">
+            <span className="text-sm text-slate-500 uppercase tracking-widest font-medium mt-12 block">
               Data-driven predictions, not guaranteed exam content
-            </p>
+            </span>
           </div>
         </section>
       </div>

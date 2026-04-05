@@ -73,7 +73,7 @@ export function StoryScroll() {
             <div className="flex -space-x-3">
               {[1,2,3,4].map(i => (
                 <div key={i} className="w-10 h-10 rounded-full border-2 border-[#0a0410] bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center overflow-hidden">
-                  <img src={`https://i.pravatar.cc/100?img=${i+10}`} alt="avatar" />
+                  <span className="text-xs font-bold text-gray-400">{['A','R','P','S'][i-1]}</span>
                 </div>
               ))}
               <div className="w-10 h-10 rounded-full border-2 border-[#0a0410] bg-white/10 backdrop-blur-md flex items-center justify-center text-xs font-bold">+</div>
@@ -103,7 +103,7 @@ export function StoryScroll() {
         <div className="max-w-6xl mx-auto w-full flex flex-col lg:flex-row items-center gap-16">
           <div className="lg:w-1/2">
             <h2 className="font-display text-4xl md:text-6xl font-bold mb-6">See the future. <br/><span className="text-purple-400">Study the trends.</span></h2>
-            <p className="text-xl text-gray-400 mb-8 max-w-md hidden">Real data. Real predictions. Know exactly where to focus your energy for maximum marks.</p>
+            <span className="text-xl text-gray-400 mb-8 max-w-md hidden block">Focus on what matters most.</span>
           </div>
 
           <div className="lg:w-1/2 w-full">
@@ -113,7 +113,7 @@ export function StoryScroll() {
               <div className="flex justify-between items-end mb-8 border-b border-white/10 pb-4">
                 <div>
                   <h3 className="font-display text-2xl font-bold">Exam Predictor</h3>
-                  <p className="text-sm text-gray-400">Maths • Class 10</p>
+                  <span className="text-sm text-gray-400 block">Maths • Class 10</span>
                 </div>
                 <div className="flex items-center gap-2 text-[#22c55e] text-sm font-bold bg-[#22c55e]/10 px-3 py-1 rounded-full">
                   <TrendingUp className="w-4 h-4" /> Live
@@ -216,25 +216,25 @@ export function StoryScroll() {
             <div className="bg-gradient-to-br from-gray-900 to-black border border-white/10 p-8 rounded-3xl hover:border-amber-400/50 transition-colors group">
               <Calendar className="w-10 h-10 text-amber-400 mb-6 group-hover:scale-110 transition-transform" />
               <h3 className="text-2xl font-bold mb-2">Daily Mix</h3>
-              <p className="text-gray-400">Your daily 20-min session</p>
+              <span className="text-gray-400 block">Your daily 20-min session</span>
             </div>
             
             <div className="bg-gradient-to-br from-gray-900 to-black border border-white/10 p-8 rounded-3xl hover:border-red-400/50 transition-colors group">
               <Target className="w-10 h-10 text-red-400 mb-6 group-hover:scale-110 transition-transform" />
               <h3 className="text-2xl font-bold mb-2">Weak Areas</h3>
-              <p className="text-gray-400">AI finds your gaps</p>
+              <span className="text-gray-400 block">AI finds your gaps</span>
             </div>
 
             <div className="bg-gradient-to-br from-gray-900 to-black border border-white/10 p-8 rounded-3xl hover:border-blue-400/50 transition-colors group">
               <TrendingUp className="w-10 h-10 text-blue-400 mb-6 group-hover:scale-110 transition-transform" />
               <h3 className="text-2xl font-bold mb-2">Study Planner</h3>
-              <p className="text-gray-400">Custom plan to your target</p>
+              <span className="text-gray-400 block">Custom plan to your target</span>
             </div>
 
             <div className="bg-gradient-to-br from-gray-900 to-black border border-white/10 p-8 rounded-3xl hover:border-[#22c55e]/50 transition-colors group">
               <Trophy className="w-10 h-10 text-[#22c55e] mb-6 group-hover:scale-110 transition-transform" />
               <h3 className="text-2xl font-bold mb-2">Weekly Report</h3>
-              <p className="text-gray-400">Track your growth</p>
+              <span className="text-gray-400 block">Track your growth</span>
             </div>
           </div>
         </div>
@@ -326,8 +326,8 @@ export function StoryScroll() {
                 <div className="absolute top-0 right-0 w-32 h-32 bg-[#22c55e]/10 blur-3xl rounded-full group-hover:bg-[#22c55e]/20 transition-colors"></div>
                 
                 <div className="mb-8">
-                  <p className="text-gray-400 text-sm mb-1">{story.name}, {story.city}</p>
-                  <p className="font-bold text-lg text-white">{story.subj}</p>
+                  <span className="text-gray-400 text-sm mb-1 block">{story.name}, {story.city}</span>
+                  <span className="font-bold text-lg text-white block">{story.subj}</span>
                 </div>
 
                 <div className="flex items-center justify-center gap-4">
@@ -355,9 +355,9 @@ export function StoryScroll() {
             <ChevronRight className="ml-2 w-6 h-6 group-hover:translate-x-1 transition-transform" />
           </button>
 
-          <p className="text-xs text-gray-500 uppercase tracking-widest font-bold">
+          <span className="text-xs text-gray-500 uppercase tracking-widest font-bold block">
             Data-driven predictions, not guaranteed exam content
-          </p>
+          </span>
         </div>
       </section>
     </div>

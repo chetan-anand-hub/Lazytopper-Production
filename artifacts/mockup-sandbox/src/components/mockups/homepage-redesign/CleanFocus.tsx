@@ -153,7 +153,7 @@ export default function CleanFocus() {
                   </div>
                   <div>
                     <h4 className="font-bold text-slate-900 text-sm">Ravi Sir</h4>
-                    <p className="text-xs text-green-600 font-medium">AI Personal Tutor</p>
+                    <span className="text-xs text-green-600 font-medium block">AI Personal Tutor</span>
                   </div>
                 </div>
                 
@@ -219,7 +219,7 @@ export default function CleanFocus() {
                   <Calendar className="w-6 h-6" />
                 </div>
                 <h3 className="font-bold text-lg text-slate-900 mb-2">Daily Mix</h3>
-                <p className="text-slate-500 text-sm font-medium">Your daily 20-min session</p>
+                <span className="text-slate-500 text-sm font-medium block">Your daily 20-min session</span>
               </div>
               
               <div className="bg-slate-50 border border-slate-100 rounded-3xl p-8 flex flex-col items-center text-center transition-transform hover:-translate-y-1">
@@ -227,7 +227,7 @@ export default function CleanFocus() {
                   <Target className="w-6 h-6" />
                 </div>
                 <h3 className="font-bold text-lg text-slate-900 mb-2">Weak Areas</h3>
-                <p className="text-slate-500 text-sm font-medium">AI finds your gaps</p>
+                <span className="text-slate-500 text-sm font-medium block">AI finds your gaps</span>
               </div>
               
               <div className="bg-slate-50 border border-slate-100 rounded-3xl p-8 flex flex-col items-center text-center transition-transform hover:-translate-y-1">
@@ -235,7 +235,7 @@ export default function CleanFocus() {
                   <BarChart3 className="w-6 h-6" />
                 </div>
                 <h3 className="font-bold text-lg text-slate-900 mb-2">Study Planner</h3>
-                <p className="text-slate-500 text-sm font-medium">Custom plan to your target</p>
+                <span className="text-slate-500 text-sm font-medium block">Custom plan to your target</span>
               </div>
               
               <div className="bg-slate-50 border border-slate-100 rounded-3xl p-8 flex flex-col items-center text-center transition-transform hover:-translate-y-1">
@@ -243,7 +243,7 @@ export default function CleanFocus() {
                   <Trophy className="w-6 h-6" />
                 </div>
                 <h3 className="font-bold text-lg text-slate-900 mb-2">Weekly Report</h3>
-                <p className="text-slate-500 text-sm font-medium">Track your growth</p>
+                <span className="text-slate-500 text-sm font-medium block">Track your growth</span>
               </div>
             </div>
           </div>
@@ -311,7 +311,7 @@ export default function CleanFocus() {
 
         {/* SECTION 6: Score Transformations */}
         <section className="min-h-[100dvh] flex flex-col items-center justify-center px-6 py-20 bg-white">
-          <h2 className="text-4xl font-bold tracking-tight mb-16 text-center max-w-2xl mx-auto">They put in the work. We showed the way.</h2>
+          <h2 className="text-4xl font-bold tracking-tight mb-16 text-center max-w-2xl mx-auto">Real students. Real results.</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto w-full">
             <div className="bg-slate-50 border border-slate-100 rounded-3xl p-8 relative overflow-hidden group">
@@ -366,9 +366,9 @@ export default function CleanFocus() {
             <ChevronRight className="w-5 h-5" />
           </button>
           
-          <p className="text-xs font-medium text-slate-400 max-w-sm">
+          <span className="text-xs font-medium text-slate-400 max-w-sm block">
             *Data-driven predictions, not guaranteed exam content
-          </p>
+          </span>
         </section>
 
       </div>
