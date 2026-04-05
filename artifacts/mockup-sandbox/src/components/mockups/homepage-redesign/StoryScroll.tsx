@@ -323,6 +323,9 @@ export function StoryScroll() {
           <div className="w-full max-w-3xl mx-auto">
             <div className="relative aspect-video rounded-2xl overflow-hidden border border-white/10 bg-gradient-to-br from-gray-900 via-gray-950 to-black group cursor-pointer">
               <div className="absolute inset-0 bg-[#22c55e]/5 group-hover:bg-[#22c55e]/10 transition-colors"></div>
+              <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -skew-x-12" style={{ animation: 'shimmer 3s infinite' }}></div>
+              </div>
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 z-10">
                 <div className="w-16 h-16 rounded-full bg-[#22c55e] flex items-center justify-center shadow-lg" style={{ animation: 'video-pulse 2s ease-in-out infinite' }}>
                   <Play className="w-7 h-7 text-black fill-black ml-1" />
@@ -446,7 +449,7 @@ export function StoryScroll() {
         <div className="relative z-10 text-center max-w-3xl mx-auto">
           <button className="group inline-flex items-center justify-center px-10 py-5 font-bold text-black bg-[#22c55e] rounded-full text-xl transition-all hover:scale-105 hover:shadow-[0_0_50px_rgba(34,197,94,0.5)]">
             Start Free
-            <ChevronRight className="ml-2 w-6 h-6 group-hover:translate-x-1 transition-transform" />
+            <ChevronRight className="ml-2 w-6 h-6 anim-bounce group-hover:translate-x-1 transition-transform" />
           </button>
         </div>
       </section>
