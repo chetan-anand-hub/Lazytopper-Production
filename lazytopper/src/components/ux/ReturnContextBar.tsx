@@ -18,7 +18,13 @@ export default function ReturnContextBar(props: {
       <button
         type="button"
         className="ux-return-bar__back"
-        onClick={() => navigate(props.backTo)}
+        onClick={() => {
+          if (props.backTo === "/") {
+            window.location.href = "/";
+          } else {
+            navigate(props.backTo);
+          }
+        }}
         aria-label={props.backLabel}
       >
         {"<-"} {props.backLabel}

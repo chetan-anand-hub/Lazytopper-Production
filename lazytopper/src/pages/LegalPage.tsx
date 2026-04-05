@@ -83,7 +83,7 @@ const LegalPage: React.FC = () => {
     return (
       <div style={{ padding: "60px 20px", textAlign: "center" }}>
         <h2>Page not found</h2>
-        <button type="button" onClick={() => navigate("/")} style={{
+        <button type="button" onClick={() => { window.location.href = "/"; }} style={{
           marginTop: 16, border: "none", borderBottom: "4px solid #46a302",
           borderRadius: 16, padding: "12px 24px", background: "#58cc02",
           color: "#fff", fontWeight: 800, fontSize: "0.9rem", cursor: "pointer",
@@ -101,7 +101,7 @@ const LegalPage: React.FC = () => {
       fontFamily: '"Nunito", "Segoe UI", system-ui, sans-serif',
       color: "#3c3c3c", lineHeight: 1.7,
     }}>
-      <button type="button" onClick={() => navigate("/")} style={{
+      <button type="button" onClick={() => { window.location.href = "/"; }} style={{
         background: "none", border: "none", color: "#58cc02", fontWeight: 700,
         fontSize: "0.88rem", cursor: "pointer", padding: 0, marginBottom: 16,
       }}>

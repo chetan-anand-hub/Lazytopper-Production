@@ -93,7 +93,7 @@ function BottomNav() {
         </svg>
       ),
       active: isHome,
-      onClick: () => go("/"),
+      onClick: () => { window.location.href = "/"; },
     },
     {
       label: "Trends",
@@ -445,7 +445,7 @@ export default function App() {
       <div style={{ paddingBottom: '60px' }}>
         <Routes>
           {/* Core Routes */}
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Navigate to="/trends/10/Maths" replace />} />
           <Route path="/login" element={<Login />} />
           <Route path="/legal/:slug" element={withRouteSuspense(<LegalPage />)} />
           <Route path="/onboarding" element={<RequireAuth><Onboarding /></RequireAuth>} />
