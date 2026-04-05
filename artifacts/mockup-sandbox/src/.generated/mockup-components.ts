@@ -5,5 +5,6 @@ export const modules: ModuleMap = {
   "./components/mockups/homepage-redesign/NeonCampus.tsx": () => import("../components/mockups/homepage-redesign/NeonCampus.tsx"),
   "./components/mockups/homepage-redesign/StoryScroll.tsx": () => import("../components/mockups/homepage-redesign/StoryScroll.tsx"),
   "./components/mockups/homepage-redesign/StoryScrollLight.tsx": () => import("../components/mockups/homepage-redesign/StoryScrollLight.tsx"),
-  "./components/mockups/homepage-redesign/StoryScrollLightBg.tsx": () => import("../components/mockups/homepage-redesign/StoryScrollLightBg.tsx")
+  "./components/mockups/homepage-redesign/StoryScrollLightBg.tsx": () => import("../components/mockups/homepage-redesign/StoryScrollLightBg.tsx"),
+  "./components/mockups/student-dashboard/DashboardMobile.tsx": () => import("../components/mockups/student-dashboard/DashboardMobile.tsx")
 };
