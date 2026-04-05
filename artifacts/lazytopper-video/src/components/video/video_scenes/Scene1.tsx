@@ -22,6 +22,24 @@ export function Scene1() {
     >
       <div className="relative z-10 w-full h-full flex flex-col items-center justify-center">
         
+        {/* Student at desk silhouette */}
+        <motion.div 
+          className="absolute bottom-[10%] left-1/2 -translate-x-1/2 z-10 pointer-events-none"
+          initial={{ opacity: 0 }}
+          animate={phase >= 1 ? { opacity: 0.3 } : { opacity: 0 }}
+          transition={{ duration: 0.8 }}
+        >
+          <svg width="12vw" height="12vw" viewBox="0 0 120 120" fill="none" className="w-[12vw] h-[12vw]">
+            <rect x="20" y="70" width="80" height="6" rx="2" fill="white" opacity="0.4" />
+            <rect x="30" y="60" width="15" height="12" rx="2" fill="white" opacity="0.3" />
+            <rect x="50" y="55" width="12" height="17" rx="2" fill="white" opacity="0.3" />
+            <rect x="70" y="58" width="20" height="14" rx="2" fill="white" opacity="0.3" />
+            <circle cx="60" cy="35" r="10" fill="white" opacity="0.4" />
+            <path d="M48 45 Q60 60 72 45" fill="white" opacity="0.3" />
+            <rect x="52" y="45" width="16" height="20" rx="3" fill="white" opacity="0.35" />
+          </svg>
+        </motion.div>
+
         {/* Floating Chaos Elements */}
         <motion.div className="absolute inset-0 pointer-events-none">
           <motion.div 

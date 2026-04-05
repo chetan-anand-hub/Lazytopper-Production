@@ -70,7 +70,6 @@ export function Scene3() {
           className="w-[8vw] h-[8vw] bg-[var(--color-primary)] rounded-full flex items-center justify-center shadow-[0_0_40px_var(--color-primary)]"
           initial={{ opacity: 0, scale: 0 }}
           animate={phase >= 4 ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0 }}
-          whileHover={{ scale: 1.1 }}
           transition={{ type: "spring", stiffness: 400, damping: 15 }}
         >
           <motion.div
