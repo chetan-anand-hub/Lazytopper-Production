@@ -76,12 +76,8 @@ app.use("/api", (req, res) => {
 });
 
 const publicDir = path.resolve(__dirname, "public");
-app.use(express.static(publicDir));
-app.get("/{*splat}", (req, res) => {
-  if (req.path.startsWith("/shared-api")) {
-    res.status(404).json({ error: "Not found" });
-    return;
-  }
+app.use("/app", express.static(publicDir));
+app.get("/app/{*splat}", (_req, res) => {
   res.sendFile(path.join(publicDir, "index.html"));
 });
 

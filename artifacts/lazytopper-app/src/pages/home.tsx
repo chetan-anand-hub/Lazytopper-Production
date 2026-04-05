@@ -91,10 +91,10 @@ export default function HomePage() {
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#22c55e] to-[#3b82f6]">The CBSE Board Exam.</span>
           </h1>
 
-          <button className="group relative inline-flex items-center justify-center px-8 py-4 font-bold text-black bg-[#22c55e] rounded-full text-lg transition-all hover:scale-105 hover:shadow-[0_0_40px_rgba(34,197,94,0.4)]">
+          <a href="/app/login" className="group relative inline-flex items-center justify-center px-8 py-4 font-bold text-black bg-[#22c55e] rounded-full text-lg transition-all hover:scale-105 hover:shadow-[0_0_40px_rgba(34,197,94,0.4)] no-underline">
             Start Free
             <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-          </button>
+          </a>
 
           <div className="mt-12 flex flex-col items-center gap-3">
             <div className="flex -space-x-3">
@@ -130,6 +130,9 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto w-full flex flex-col lg:flex-row items-center gap-16">
           <div className="lg:w-1/2">
             <h2 className="font-display text-4xl md:text-6xl font-bold mb-6">See the future. <br/><span className="text-purple-400">Study the trends.</span></h2>
+            <a href="/app/trends/10/Maths" className="inline-flex items-center gap-2 mt-4 px-6 py-3 rounded-full bg-purple-500/20 border border-purple-500/40 text-purple-300 font-bold text-sm hover:bg-purple-500/30 transition-colors no-underline">
+              Explore Predictions <ChevronRight className="w-4 h-4" />
+            </a>
           </div>
 
           <div className="lg:w-1/2 w-full">
@@ -248,7 +251,10 @@ export default function HomePage() {
           </div>
 
           <div className="lg:w-1/2">
-            <h2 className="font-display text-4xl md:text-6xl font-bold mb-10 leading-tight">Your 24/7 <br/>personal coach.</h2>
+            <h2 className="font-display text-4xl md:text-6xl font-bold mb-6 leading-tight">Your 24/7 <br/>personal coach.</h2>
+            <a href="/app/topic-hub/10/Maths" className="inline-flex items-center gap-2 mb-8 px-6 py-3 rounded-full bg-blue-500/20 border border-blue-500/40 text-blue-400 font-bold text-sm hover:bg-blue-500/30 transition-colors no-underline">
+              Try Ravi Sir <ChevronRight className="w-4 h-4" />
+            </a>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {[
@@ -275,37 +281,37 @@ export default function HomePage() {
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full mb-10">
-            <div className="bg-gradient-to-br from-gray-900 to-black border border-white/10 p-8 rounded-3xl hover:border-amber-400/50 transition-colors group">
+            <a href="/app/daily-mix/10/Maths" className="bg-gradient-to-br from-gray-900 to-black border border-white/10 p-8 rounded-3xl hover:border-amber-400/50 transition-colors group no-underline text-white">
               <div className="anim-wiggle inline-block">
                 <Calendar className="w-10 h-10 text-amber-400 mb-6 group-hover:scale-110 transition-transform" />
               </div>
               <h3 className="text-2xl font-bold mb-2">Daily Mix</h3>
               <span className="text-gray-400 block">Your daily 20-min session</span>
-            </div>
+            </a>
             
-            <div className="bg-gradient-to-br from-gray-900 to-black border border-white/10 p-8 rounded-3xl hover:border-red-400/50 transition-colors group">
+            <a href="/app/weak-area-practice" className="bg-gradient-to-br from-gray-900 to-black border border-white/10 p-8 rounded-3xl hover:border-red-400/50 transition-colors group no-underline text-white">
               <div className="anim-pulse-glow inline-block">
                 <Target className="w-10 h-10 text-red-400 mb-6 group-hover:scale-110 transition-transform" />
               </div>
               <h3 className="text-2xl font-bold mb-2">Weak Areas</h3>
               <span className="text-gray-400 block">AI finds your gaps</span>
-            </div>
+            </a>
 
-            <div className="bg-gradient-to-br from-gray-900 to-black border border-white/10 p-8 rounded-3xl hover:border-blue-400/50 transition-colors group">
+            <a href="/app/planner/10/Maths" className="bg-gradient-to-br from-gray-900 to-black border border-white/10 p-8 rounded-3xl hover:border-blue-400/50 transition-colors group no-underline text-white">
               <div className="anim-float inline-block">
                 <TrendingUp className="w-10 h-10 text-blue-400 mb-6 group-hover:scale-110 transition-transform" />
               </div>
               <h3 className="text-2xl font-bold mb-2">Study Planner</h3>
               <span className="text-gray-400 block">Custom plan to your target</span>
-            </div>
+            </a>
 
-            <div className="bg-gradient-to-br from-gray-900 to-black border border-white/10 p-8 rounded-3xl hover:border-[#22c55e]/50 transition-colors group">
+            <a href="/app/dashboard" className="bg-gradient-to-br from-gray-900 to-black border border-white/10 p-8 rounded-3xl hover:border-[#22c55e]/50 transition-colors group no-underline text-white">
               <div className="anim-spin-slow inline-block">
                 <LayoutDashboard className="w-10 h-10 text-[#22c55e] mb-6 group-hover:scale-110 transition-transform" />
               </div>
               <h3 className="text-2xl font-bold mb-2">Personalised Dashboard</h3>
               <span className="text-gray-400 block">Your progress, your way</span>
-            </div>
+            </a>
           </div>
 
           <div className="w-full max-w-3xl mx-auto">
@@ -330,7 +336,10 @@ export default function HomePage() {
         
         <div className="max-w-6xl mx-auto w-full z-10 relative flex flex-col lg:flex-row items-center gap-16">
           <div className="lg:w-1/2">
-            <h2 className="font-display text-4xl md:text-6xl font-bold mb-10 leading-tight">Practice like <br/>it's the real thing.</h2>
+            <h2 className="font-display text-4xl md:text-6xl font-bold mb-6 leading-tight">Practice like <br/>it's the real thing.</h2>
+            <a href="/app/exam-simulation" className="inline-flex items-center gap-2 mb-8 px-6 py-3 rounded-full bg-red-500/20 border border-red-500/40 text-red-300 font-bold text-sm hover:bg-red-500/30 transition-colors no-underline">
+              Take a Mock Exam <ChevronRight className="w-4 h-4" />
+            </a>
             
             <div className="space-y-6">
               {[
@@ -429,10 +438,11 @@ export default function HomePage() {
         </div>
 
         <div className="relative z-10 text-center max-w-3xl mx-auto">
-          <button className="group inline-flex items-center justify-center px-10 py-5 font-bold text-black bg-[#22c55e] rounded-full text-xl transition-all hover:scale-105 hover:shadow-[0_0_50px_rgba(34,197,94,0.5)]">
+          <h2 className="font-display text-4xl md:text-6xl font-bold mb-8">Your board exam, <span className="text-[#22c55e]">sorted.</span></h2>
+          <a href="/app/login" className="group inline-flex items-center justify-center px-10 py-5 font-bold text-black bg-[#22c55e] rounded-full text-xl transition-all hover:scale-105 hover:shadow-[0_0_50px_rgba(34,197,94,0.5)] no-underline">
             Start Free
             <ChevronRight className="ml-2 w-6 h-6 anim-bounce group-hover:translate-x-1 transition-transform" />
-          </button>
+          </a>
         </div>
       </section>
     </div>
