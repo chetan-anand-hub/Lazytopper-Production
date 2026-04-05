@@ -16,7 +16,7 @@ export function DashboardMobile() {
     { name: "Statistics", accuracy: 58, subject: "Maths", attempted: 11 },
   ];
 
-  const topicMastery = [
+  const mathsMastery = [
     { name: "Quadratic Eq.", pct: 92, tier: "must-crack" },
     { name: "Arithmetic Prog.", pct: 85, tier: "must-crack" },
     { name: "Real Numbers", pct: 78, tier: "high-roi" },
@@ -25,6 +25,13 @@ export function DashboardMobile() {
     { name: "Coord. Geometry", pct: 63, tier: "high-roi" },
     { name: "Circles", pct: 55, tier: "good-to-do" },
     { name: "Statistics", pct: 58, tier: "high-roi" },
+  ];
+
+  const scienceMastery = [
+    { name: "Light", pct: 80, tier: "must-crack" },
+    { name: "Chemical Rxns", pct: 68, tier: "must-crack" },
+    { name: "Electricity", pct: 52, tier: "must-crack" },
+    { name: "Heredity", pct: 40, tier: "high-roi" },
   ];
 
   const recentActivity = [
@@ -211,6 +218,14 @@ export function DashboardMobile() {
               </div>
             ))}
           </div>
+          <button style={{
+            width: "100%", padding: "12px 0", borderRadius: 10, border: "none",
+            background: "rgba(59,130,246,0.15)", color: "#60a5fa", fontWeight: 700, fontSize: 13,
+            fontFamily: "'Space Grotesk', sans-serif", cursor: "pointer",
+            border: "1px solid rgba(59,130,246,0.25)", marginTop: 10,
+          }}>
+            Play Daily Mix
+          </button>
         </div>
 
         {/* WEAK AREAS */}
@@ -244,12 +259,27 @@ export function DashboardMobile() {
 
         {/* TOPIC MASTERY GRID */}
         <div className="glass-card" style={{ padding: 16, marginBottom: 16 }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-            <span className="font-display" style={{ fontSize: 14, fontWeight: 700 }}>Topic Mastery</span>
-            <span style={{ fontSize: 11, color: "rgba(255,255,255,0.35)" }}>Maths</span>
+          <span className="font-display" style={{ fontSize: 14, fontWeight: 700, display: "block", marginBottom: 14 }}>Topic Mastery</span>
+
+          <div style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>Maths</div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 10, marginBottom: 16 }}>
+            {mathsMastery.map((t, i) => (
+              <div key={i} style={{ textAlign: "center" }}>
+                <div style={{ position: "relative", width: 48, height: 48, margin: "0 auto 4px" }}>
+                  <RingChart value={t.pct} size={48} strokeWidth={3.5} color={tierColor(t.tier)} />
+                  <span style={{
+                    position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center",
+                    fontSize: 10, fontWeight: 800, color: tierColor(t.tier),
+                  }}>{t.pct}%</span>
+                </div>
+                <div style={{ fontSize: 9, fontWeight: 600, color: "rgba(255,255,255,0.5)", lineHeight: 1.2 }}>{t.name}</div>
+              </div>
+            ))}
           </div>
+
+          <div style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>Science</div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 10 }}>
-            {topicMastery.map((t, i) => (
+            {scienceMastery.map((t, i) => (
               <div key={i} style={{ textAlign: "center" }}>
                 <div style={{ position: "relative", width: 48, height: 48, margin: "0 auto 4px" }}>
                   <RingChart value={t.pct} size={48} strokeWidth={3.5} color={tierColor(t.tier)} />
