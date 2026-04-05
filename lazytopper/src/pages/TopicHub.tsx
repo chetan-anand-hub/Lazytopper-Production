@@ -150,9 +150,9 @@ function buildFallbackCheckpoint(def: V2Definition, topicName: string): Canonica
 type LessonPhase = "landing" | "learning" | "summary";
 
 const TIER_STYLES: Record<string, { bg: string; text: string; label: string }> = {
-  "must-crack": { bg: "#fef2f2", text: "#dc2626", label: "Must Crack" },
-  "high-roi": { bg: "#fffbeb", text: "#d97706", label: "High ROI" },
-  "good-to-do": { bg: "#f0fdf4", text: "#16a34a", label: "Good to Do" },
+  "must-crack": { bg: "rgba(239,68,68,0.1)", text: "#ef4444", label: "Must Crack" },
+  "high-roi": { bg: "rgba(59,130,246,0.1)", text: "#3b82f6", label: "High ROI" },
+  "good-to-do": { bg: "rgba(249,115,22,0.1)", text: "#f97316", label: "Good to Do" },
 };
 
 export default function TopicHub() {
@@ -430,7 +430,7 @@ export default function TopicHub() {
   const hasEnoughContent = totalConcepts >= 1;
 
   return (
-    <div style={{ minHeight: "100vh", background: "#f8fafc" }}>
+    <div style={{ minHeight: "100vh", background: "#0a0a0a" }}>
       <div style={{ maxWidth: 820, margin: "0 auto", padding: "16px 16px 80px" }}>
 
         <ReturnContextBar backTo={backTo} backLabel={backLabel} />
@@ -441,8 +441,8 @@ export default function TopicHub() {
               value={topicKey}
               onChange={(e) => onChangeTopic(e.target.value)}
               style={{
-                padding: "6px 12px", borderRadius: 10, border: "1px solid #e2e8f0",
-                fontSize: "0.82rem", color: "#475569", background: "#fff", cursor: "pointer",
+                padding: "6px 12px", borderRadius: 10, border: "1px solid rgba(255,255,255,0.06)",
+                fontSize: "0.82rem", color: "rgba(255,255,255,0.45)", background: "rgba(255,255,255,0.03)", cursor: "pointer",
               }}
             >
               {topicOptions.map((opt) => (
@@ -454,12 +454,12 @@ export default function TopicHub() {
 
         {phase === "landing" && (
           <div style={{
-            marginTop: 20, background: "#fff", borderRadius: 20, padding: "28px 24px",
-            border: "1px solid #e2e8f0", textAlign: "center",
+            marginTop: 20, background: "rgba(255,255,255,0.03)", borderRadius: 20, padding: "28px 24px",
+            border: "1px solid rgba(255,255,255,0.06)", textAlign: "center",
             boxShadow: "0 2px 12px rgba(88,204,2,0.12)",
           }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, flexWrap: "wrap" }}>
-              <h1 style={{ fontSize: "1.6rem", fontWeight: 800, color: "#1e293b", margin: 0 }}>
+              <h1 style={{ fontSize: "1.6rem", fontWeight: 800, color: "#fff", margin: 0 }}>
                 {title}
               </h1>
               <span style={{
@@ -471,7 +471,7 @@ export default function TopicHub() {
             </div>
 
             {overview.length > 0 && (
-              <p style={{ fontSize: "0.88rem", color: "#64748b", lineHeight: 1.6, marginTop: 12, maxWidth: 560, marginInline: "auto" }}>
+              <p style={{ fontSize: "0.88rem", color: "rgba(255,255,255,0.45)", lineHeight: 1.6, marginTop: 12, maxWidth: 560, marginInline: "auto" }}>
                 {overview[0]}
               </p>
             )}
@@ -480,24 +480,24 @@ export default function TopicHub() {
               marginTop: 20, display: "flex", gap: 24, justifyContent: "center", flexWrap: "wrap",
             }}>
               <div>
-                <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#6366f1" }}>{totalConcepts}</div>
-                <div style={{ fontSize: "0.75rem", color: "#94a3b8", fontWeight: 500 }}>Concepts</div>
+                <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#818cf8" }}>{totalConcepts}</div>
+                <div style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.4)", fontWeight: 500 }}>Concepts</div>
               </div>
               {weightage > 0 && (
                 <div>
                   <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#f59e0b" }}>~{weightage}%</div>
-                  <div style={{ fontSize: "0.75rem", color: "#94a3b8", fontWeight: 500 }}>Exam Weightage</div>
+                  <div style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.4)", fontWeight: 500 }}>Exam Weightage</div>
                 </div>
               )}
               <div>
                 <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#22c55e" }}>{masteryPercent}%</div>
-                <div style={{ fontSize: "0.75rem", color: "#94a3b8", fontWeight: 500 }}>Mastery</div>
+                <div style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.4)", fontWeight: 500 }}>Mastery</div>
               </div>
             </div>
 
             {masteryPercent > 0 && (
               <div style={{
-                marginTop: 16, height: 8, borderRadius: 999, background: "#f1f5f9",
+                marginTop: 16, height: 8, borderRadius: 999, background: "rgba(255,255,255,0.05)",
                 overflow: "hidden", maxWidth: 300, marginInline: "auto",
               }}>
                 <div style={{
@@ -511,15 +511,15 @@ export default function TopicHub() {
             {allDefinitions.length > 0 && (
               <div style={{
                 marginTop: 20, textAlign: "left",
-                background: "#f8fafc", borderRadius: 14, padding: "14px 18px",
-                border: "1px solid #e2e8f0",
+                background: "#0a0a0a", borderRadius: 14, padding: "14px 18px",
+                border: "1px solid rgba(255,255,255,0.06)",
               }}>
-                <div style={{ fontWeight: 700, fontSize: "0.82rem", color: "#475569", marginBottom: 8 }}>
+                <div style={{ fontWeight: 700, fontSize: "0.82rem", color: "rgba(255,255,255,0.45)", marginBottom: 8 }}>
                   Key Definitions Preview
                 </div>
                 {allDefinitions.slice(0, 3).map((d, idx) => (
-                  <div key={idx} style={{ fontSize: "0.8rem", color: "#64748b", marginBottom: 4, lineHeight: 1.5 }}>
-                    <span style={{ fontWeight: 600, color: "#334155" }}>{d.title}</span> — {d.description}
+                  <div key={idx} style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.45)", marginBottom: 4, lineHeight: 1.5 }}>
+                    <span style={{ fontWeight: 600, color: "rgba(255,255,255,0.7)" }}>{d.title}</span> — {d.description}
                   </div>
                 ))}
               </div>
@@ -532,8 +532,8 @@ export default function TopicHub() {
               style={{
                 marginTop: 24, padding: "14px 40px", borderRadius: 14,
                 background: hasEnoughContent
-                  ? "#58cc02"
-                  : "#cbd5e1",
+                  ? "#22c55e"
+                  : "rgba(255,255,255,0.1)",
                 border: "none", color: "#fff", fontWeight: 700, fontSize: "1rem",
                 cursor: hasEnoughContent ? "pointer" : "not-allowed",
                 boxShadow: hasEnoughContent ? "0 4px 14px rgba(88,204,2,0.12)" : "none",
@@ -574,15 +574,15 @@ export default function TopicHub() {
             </button>
 
             {!hasEnoughContent && (
-              <p style={{ fontSize: "0.8rem", color: "#94a3b8", marginTop: 8 }}>
+              <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.4)", marginTop: 8 }}>
                 Content for this topic is being prepared.
               </p>
             )}
 
             {scoreTips.length > 0 && (
               <div style={{
-                marginTop: 24, background: "linear-gradient(135deg, #eff6ff, #f5f3ff)",
-                borderRadius: 14, padding: "16px 18px", border: "1px solid #c7d2fe",
+                marginTop: 24, background: "rgba(99,102,241,0.06)",
+                borderRadius: 14, padding: "16px 18px", border: "1px solid rgba(99,102,241,0.2)",
                 textAlign: "left",
               }}>
                 <div style={{ fontWeight: 700, fontSize: "0.85rem", color: "#4338ca", marginBottom: 8 }}>
@@ -590,7 +590,7 @@ export default function TopicHub() {
                 </div>
                 <ul style={{ margin: 0, paddingLeft: 18 }}>
                   {scoreTips.slice(0, 3).map((tip, idx) => (
-                    <li key={idx} style={{ fontSize: "0.8rem", color: "#475569", marginBottom: 4, lineHeight: 1.5 }}>
+                    <li key={idx} style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.45)", marginBottom: 4, lineHeight: 1.5 }}>
                       {tip}
                     </li>
                   ))}
@@ -606,16 +606,16 @@ export default function TopicHub() {
               display: "flex", alignItems: "center", justifyContent: "space-between",
               marginBottom: 12,
             }}>
-              <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "#475569" }}>
+              <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "rgba(255,255,255,0.45)" }}>
                 {title} — Concept {conceptIdx + 1} of {totalConcepts}
               </span>
-              <span style={{ fontSize: "0.75rem", color: "#94a3b8" }}>
+              <span style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.4)" }}>
                 {Math.round(((conceptIdx + 1) / totalConcepts) * 100)}%
               </span>
             </div>
 
             <div style={{
-              height: 6, borderRadius: 999, background: "#f1f5f9", overflow: "hidden",
+              height: 6, borderRadius: 999, background: "rgba(255,255,255,0.05)", overflow: "hidden",
               marginBottom: 20,
             }}>
               <div style={{
@@ -627,20 +627,20 @@ export default function TopicHub() {
 
             {!showingCheckpoint && currentDef && (
               <div style={{
-                background: "#fff", borderRadius: 18, padding: "22px 22px",
-                border: "1px solid #e2e8f0",
+                background: "rgba(255,255,255,0.03)", borderRadius: 18, padding: "22px 22px",
+                border: "1px solid rgba(255,255,255,0.06)",
                 boxShadow: "0 2px 12px rgba(0,0,0,0.04)",
               }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
                   <span style={{
                     width: 32, height: 32, borderRadius: 999,
-                    background: "#eef2ff", color: "#6366f1",
+                    background: "rgba(99,102,241,0.08)", color: "#818cf8",
                     display: "flex", alignItems: "center", justifyContent: "center",
                     fontWeight: 800, fontSize: "0.85rem", flexShrink: 0,
                   }}>
                     {conceptIdx + 1}
                   </span>
-                  <h2 style={{ fontSize: "1.1rem", fontWeight: 700, color: "#1e293b", margin: 0 }}>
+                  <h2 style={{ fontSize: "1.1rem", fontWeight: 700, color: "#fff", margin: 0 }}>
                     {currentDef.title}
                   </h2>
                 </div>
@@ -652,10 +652,10 @@ export default function TopicHub() {
                 />
 
                 <div style={{
-                  fontSize: "0.9rem", color: "#334155", lineHeight: 1.7,
-                  padding: "12px 16px", background: "#f8fafc", borderRadius: 12,
+                  fontSize: "0.9rem", color: "rgba(255,255,255,0.7)", lineHeight: 1.7,
+                  padding: "12px 16px", background: "#0a0a0a", borderRadius: 12,
                 }}>
-                  <div style={{ fontWeight: 600, fontSize: "0.78rem", color: "#6366f1", marginBottom: 4 }}>
+                  <div style={{ fontWeight: 600, fontSize: "0.78rem", color: "#818cf8", marginBottom: 4 }}>
                     What it means
                   </div>
                   {currentDef.description}
@@ -664,8 +664,8 @@ export default function TopicHub() {
                 {currentDef.examTip && (
                   <div style={{
                     marginTop: 12, fontSize: "0.82rem", color: "#d97706",
-                    padding: "10px 16px", background: "#fffbeb", borderRadius: 12,
-                    border: "1px solid #fde68a",
+                    padding: "10px 16px", background: "rgba(250,204,21,0.06)", borderRadius: 12,
+                    border: "1px solid rgba(250,204,21,0.2)",
                   }}>
                     <span style={{ fontWeight: 700 }}>Exam line: </span>
                     {currentDef.examTip}
@@ -674,9 +674,9 @@ export default function TopicHub() {
 
                 {examPatterns[conceptIdx] && (
                   <div style={{
-                    marginTop: 10, fontSize: "0.82rem", color: "#475569",
-                    padding: "10px 16px", background: "#f0fdf4", borderRadius: 12,
-                    border: "1px solid #bbf7d0",
+                    marginTop: 10, fontSize: "0.82rem", color: "rgba(255,255,255,0.45)",
+                    padding: "10px 16px", background: "rgba(34,197,94,0.06)", borderRadius: 12,
+                    border: "1px solid rgba(34,197,94,0.2)",
                   }}>
                     <span style={{ fontWeight: 700, color: "#16a34a" }}>When to use: </span>
                     {examPatterns[conceptIdx]}
@@ -686,8 +686,8 @@ export default function TopicHub() {
                 {markingTips[conceptIdx] && (
                   <div style={{
                     marginTop: 10, fontSize: "0.82rem", color: "#7f1d1d",
-                    padding: "10px 16px", background: "#fef2f2", borderRadius: 12,
-                    border: "1px solid #fecaca",
+                    padding: "10px 16px", background: "rgba(239,68,68,0.06)", borderRadius: 12,
+                    border: "1px solid rgba(239,68,68,0.2)",
                   }}>
                     <span style={{ fontWeight: 700 }}>Trap: </span>
                     {markingTips[conceptIdx]}
@@ -704,7 +704,7 @@ export default function TopicHub() {
                     )}
                     style={{
                       padding: "8px 16px", borderRadius: 10,
-                      background: "#eef2ff", border: "1px solid #c7d2fe",
+                      background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.2)",
                       color: "#4338ca", fontWeight: 600, fontSize: "0.82rem",
                       cursor: "pointer",
                     }}
@@ -734,20 +734,20 @@ export default function TopicHub() {
 
             {showingCheckpoint && currentCheckpoint && (
               <div style={{
-                background: "#fff", borderRadius: 18, padding: "22px 22px",
+                background: "rgba(255,255,255,0.03)", borderRadius: 18, padding: "22px 22px",
                 border: "2px solid #6366f1",
                 boxShadow: "0 2px 12px rgba(88,204,2,0.12)",
               }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
                   <span style={{
                     fontSize: "0.78rem", fontWeight: 700, padding: "3px 10px",
-                    borderRadius: 999, background: "#eef2ff", color: "#6366f1",
+                    borderRadius: 999, background: "rgba(99,102,241,0.08)", color: "#818cf8",
                   }}>
                     Quick Check
                   </span>
                 </div>
 
-                <div style={{ fontSize: "0.92rem", color: "#1e293b", lineHeight: 1.6, fontWeight: 600, marginBottom: 16 }}>
+                <div style={{ fontSize: "0.92rem", color: "#fff", lineHeight: 1.6, fontWeight: 600, marginBottom: 16 }}>
                   {currentCheckpoint.questionText}
                 </div>
 
@@ -756,22 +756,22 @@ export default function TopicHub() {
                     const isSelected = selectedAnswer === option;
                     const correctAnswer = (currentCheckpoint.answer || "").trim().toLowerCase();
                     const isCorrect = option.trim().toLowerCase() === correctAnswer;
-                    let borderColor = "#e2e8f0";
-                    let bg = "#fff";
-                    let textColor = "#334155";
+                    let borderColor = "rgba(255,255,255,0.06)";
+                    let bg = "rgba(255,255,255,0.03)";
+                    let textColor = "rgba(255,255,255,0.7)";
                     if (answerRevealed) {
                       if (isCorrect) {
-                        borderColor = "#22c55e";
-                        bg = "#f0fdf4";
-                        textColor = "#16a34a";
+                        borderColor = "rgba(34,197,94,0.3)";
+                        bg = "rgba(34,197,94,0.08)";
+                        textColor = "#22c55e";
                       } else if (isSelected && !isCorrect) {
-                        borderColor = "#ef4444";
-                        bg = "#fef2f2";
-                        textColor = "#dc2626";
+                        borderColor = "rgba(239,68,68,0.3)";
+                        bg = "rgba(239,68,68,0.08)";
+                        textColor = "#ef4444";
                       }
                     } else if (isSelected) {
-                      borderColor = "#6366f1";
-                      bg = "#eef2ff";
+                      borderColor = "rgba(99,102,241,0.4)";
+                      bg = "rgba(99,102,241,0.08)";
                     }
                     return (
                       <button
@@ -802,14 +802,14 @@ export default function TopicHub() {
                     {selectedAnswer?.trim().toLowerCase() === (currentCheckpoint.answer || "").trim().toLowerCase() ? (
                       <div style={{
                         fontSize: "0.88rem", color: "#16a34a", fontWeight: 600, marginBottom: 12,
-                        padding: "10px 14px", background: "#f0fdf4", borderRadius: 10,
+                        padding: "10px 14px", background: "rgba(34,197,94,0.06)", borderRadius: 10,
                       }}>
                         Correct! Great job!
                       </div>
                     ) : (
                       <div style={{
                         fontSize: "0.88rem", color: "#dc2626", fontWeight: 600, marginBottom: 12,
-                        padding: "10px 14px", background: "#fef2f2", borderRadius: 10,
+                        padding: "10px 14px", background: "rgba(239,68,68,0.06)", borderRadius: 10,
                       }}>
                         Not quite. The correct answer is: {currentCheckpoint.answer}
                         {currentCheckpoint.explanation && (
@@ -838,10 +838,10 @@ export default function TopicHub() {
 
             {!currentDef && (
               <div style={{
-                background: "#fff", borderRadius: 18, padding: "24px", textAlign: "center",
-                border: "1px solid #e2e8f0",
+                background: "rgba(255,255,255,0.03)", borderRadius: 18, padding: "24px", textAlign: "center",
+                border: "1px solid rgba(255,255,255,0.06)",
               }}>
-                <p style={{ color: "#94a3b8", fontSize: "0.88rem" }}>
+                <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.88rem" }}>
                   No more concepts to review. You've covered everything!
                 </p>
                 <button
@@ -863,14 +863,14 @@ export default function TopicHub() {
 
         {phase === "summary" && (
           <div style={{
-            marginTop: 20, background: "#fff", borderRadius: 20, padding: "28px 24px",
-            border: "1px solid #e2e8f0", textAlign: "center",
+            marginTop: 20, background: "rgba(255,255,255,0.03)", borderRadius: 20, padding: "28px 24px",
+            border: "1px solid rgba(255,255,255,0.06)", textAlign: "center",
             boxShadow: "0 2px 12px rgba(88,204,2,0.12)",
           }}>
-            <h2 style={{ fontSize: "1.4rem", fontWeight: 800, color: "#1e293b", margin: 0 }}>
+            <h2 style={{ fontSize: "1.4rem", fontWeight: 800, color: "#fff", margin: 0 }}>
               Lesson Complete!
             </h2>
-            <p style={{ fontSize: "0.88rem", color: "#64748b", marginTop: 8 }}>
+            <p style={{ fontSize: "0.88rem", color: "rgba(255,255,255,0.45)", marginTop: 8 }}>
               You've covered all {totalConcepts} concepts in {title}
             </p>
 
@@ -878,25 +878,25 @@ export default function TopicHub() {
               marginTop: 20, display: "flex", gap: 24, justifyContent: "center", flexWrap: "wrap",
             }}>
               <div style={{
-                padding: "16px 24px", background: "#f0fdf4", borderRadius: 14,
-                border: "1px solid #bbf7d0",
+                padding: "16px 24px", background: "rgba(34,197,94,0.06)", borderRadius: 14,
+                border: "1px solid rgba(34,197,94,0.2)",
               }}>
                 <div style={{ fontSize: "1.6rem", fontWeight: 800, color: "#16a34a" }}>
                   {progress.conceptsCompleted.length}/{totalConcepts}
                 </div>
-                <div style={{ fontSize: "0.75rem", color: "#64748b", fontWeight: 500, marginTop: 2 }}>
+                <div style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.45)", fontWeight: 500, marginTop: 2 }}>
                   Concepts Learned
                 </div>
               </div>
               {progress.quizTotal > 0 && (
                 <div style={{
-                  padding: "16px 24px", background: "#eef2ff", borderRadius: 14,
-                  border: "1px solid #c7d2fe",
+                  padding: "16px 24px", background: "rgba(99,102,241,0.08)", borderRadius: 14,
+                  border: "1px solid rgba(99,102,241,0.2)",
                 }}>
-                  <div style={{ fontSize: "1.6rem", fontWeight: 800, color: "#6366f1" }}>
+                  <div style={{ fontSize: "1.6rem", fontWeight: 800, color: "#818cf8" }}>
                     {progress.quizCorrect}/{progress.quizTotal}
                   </div>
-                  <div style={{ fontSize: "0.75rem", color: "#64748b", fontWeight: 500, marginTop: 2 }}>
+                  <div style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.45)", fontWeight: 500, marginTop: 2 }}>
                     Quiz Score
                   </div>
                 </div>
@@ -922,8 +922,8 @@ export default function TopicHub() {
                 onClick={startLearning}
                 style={{
                   padding: "8px 20px", borderRadius: 10,
-                  background: "none", border: "1px solid #e2e8f0",
-                  color: "#64748b", fontWeight: 500, fontSize: "0.82rem",
+                  background: "none", border: "1px solid rgba(255,255,255,0.06)",
+                  color: "rgba(255,255,255,0.45)", fontWeight: 500, fontSize: "0.82rem",
                   cursor: "pointer",
                 }}
               >

@@ -9,10 +9,10 @@ interface SolutionCheckerProps {
 }
 
 const STATUS_COLORS: Record<string, { bg: string; border: string; text: string; icon: string }> = {
-  correct: { bg: "#f0fdf4", border: "#bbf7d0", text: "#166534", icon: "\u2705" },
-  partial: { bg: "#fffbeb", border: "#fde68a", text: "#92400e", icon: "\u26A0\uFE0F" },
-  incorrect: { bg: "#fef2f2", border: "#fecaca", text: "#991b1b", icon: "\u274C" },
-  missing: { bg: "#f8fafc", border: "#e2e8f0", text: "#64748b", icon: "\u2796" },
+  correct: { bg: "rgba(34,197,94,0.08)", border: "rgba(34,197,94,0.2)", text: "#22c55e", icon: "\u2705" },
+  partial: { bg: "rgba(250,204,21,0.08)", border: "rgba(250,204,21,0.2)", text: "#fbbf24", icon: "\u26A0\uFE0F" },
+  incorrect: { bg: "rgba(239,68,68,0.08)", border: "rgba(239,68,68,0.2)", text: "#ef4444", icon: "\u274C" },
+  missing: { bg: "rgba(255,255,255,0.03)", border: "rgba(255,255,255,0.06)", text: "rgba(255,255,255,0.45)", icon: "\u2796" },
 };
 
 export function SolutionChecker({ question, marks, subject, topic }: SolutionCheckerProps) {
@@ -89,10 +89,10 @@ export function SolutionChecker({ question, marks, subject, topic }: SolutionChe
   }, []);
 
   const percentColor = result
-    ? result.percentage >= 80 ? "#166534"
-      : result.percentage >= 50 ? "#92400e"
-        : "#991b1b"
-    : "#64748b";
+    ? result.percentage >= 80 ? "#22c55e"
+      : result.percentage >= 50 ? "#fbbf24"
+        : "#ef4444"
+    : "rgba(255,255,255,0.45)";
 
   return (
     <div style={{
@@ -104,10 +104,10 @@ export function SolutionChecker({ question, marks, subject, topic }: SolutionChe
     }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
         <span style={{ fontSize: "1.1rem" }}>{"\uD83D\uDCF8"}</span>
-        <strong style={{ fontSize: "0.85rem", color: "#6d28d9" }}>
+        <strong style={{ fontSize: "0.85rem", color: "#c4b5fd" }}>
           Check My Solution
         </strong>
-        <span style={{ fontSize: "0.72rem", color: "#8b5cf6", fontWeight: 500 }}>
+        <span style={{ fontSize: "0.72rem", color: "#c4b5fd", fontWeight: 500 }}>
           Upload your handwritten answer
         </span>
       </div>
@@ -128,9 +128,9 @@ export function SolutionChecker({ question, marks, subject, topic }: SolutionChe
             width: "100%",
             padding: "16px 14px",
             borderRadius: 12,
-            border: "2px dashed rgba(206,130,255,0.3)",
-            background: "rgba(255,255,255,0.7)",
-            color: "#7c3aed",
+            border: "2px dashed rgba(168,85,247,0.3)",
+            background: "rgba(255,255,255,0.04)",
+            color: "#c4b5fd",
             fontSize: "0.82rem",
             fontWeight: 600,
             cursor: "pointer",
@@ -142,7 +142,7 @@ export function SolutionChecker({ question, marks, subject, topic }: SolutionChe
         >
           <span style={{ fontSize: "1.5rem" }}>{"\uD83D\uDCF7"}</span>
           <span>Tap to upload photo of your solution</span>
-          <span style={{ fontSize: "0.7rem", fontWeight: 400, color: "#a78bfa" }}>
+          <span style={{ fontSize: "0.7rem", fontWeight: 400, color: "#c4b5fd" }}>
             JPG or PNG, max 3 MB
           </span>
         </button>
@@ -158,7 +158,7 @@ export function SolutionChecker({ question, marks, subject, topic }: SolutionChe
                 maxWidth: "100%",
                 maxHeight: 200,
                 borderRadius: 10,
-                border: "1px solid #e2e8f0",
+                border: "1px solid rgba(255,255,255,0.06)",
               }}
             />
             <button
@@ -216,9 +216,9 @@ export function SolutionChecker({ question, marks, subject, topic }: SolutionChe
         <div style={{
           padding: "8px 12px",
           borderRadius: 8,
-          background: "#fef2f2",
-          border: "1px solid #fecaca",
-          color: "#991b1b",
+          background: "rgba(239,68,68,0.06)",
+          border: "1px solid rgba(239,68,68,0.2)",
+          color: "#ef4444",
           fontSize: "0.78rem",
           marginBottom: 8,
         }}>
@@ -234,15 +234,15 @@ export function SolutionChecker({ question, marks, subject, topic }: SolutionChe
             gap: 12,
             padding: "12px 14px",
             borderRadius: 12,
-            background: result.percentage >= 80 ? "#f0fdf4" : result.percentage >= 50 ? "#fffbeb" : "#fef2f2",
-            border: `1px solid ${result.percentage >= 80 ? "#bbf7d0" : result.percentage >= 50 ? "#fde68a" : "#fecaca"}`,
+            background: result.percentage >= 80 ? "rgba(34,197,94,0.06)" : result.percentage >= 50 ? "rgba(250,204,21,0.06)" : "rgba(239,68,68,0.06)",
+            border: `1px solid ${result.percentage >= 80 ? "rgba(34,197,94,0.3)" : result.percentage >= 50 ? "rgba(250,204,21,0.3)" : "rgba(239,68,68,0.3)"}`,
             marginBottom: 10,
           }}>
             <div style={{
               minWidth: 52,
               height: 52,
               borderRadius: "50%",
-              background: result.percentage >= 80 ? "#166534" : result.percentage >= 50 ? "#92400e" : "#991b1b",
+              background: result.percentage >= 80 ? "#22c55e" : result.percentage >= 50 ? "#fbbf24" : "#ef4444",
               color: "#fff",
               display: "flex",
               flexDirection: "column",
@@ -259,7 +259,7 @@ export function SolutionChecker({ question, marks, subject, topic }: SolutionChe
               <div style={{ fontSize: "0.85rem", fontWeight: 700, color: percentColor }}>
                 {result.percentage}% — {result.percentage >= 80 ? "Excellent!" : result.percentage >= 50 ? "Good effort!" : "Needs improvement"}
               </div>
-              <div style={{ fontSize: "0.75rem", color: "#475569", marginTop: 2 }}>
+              <div style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.45)", marginTop: 2 }}>
                 {result.overallFeedback}
               </div>
             </div>
@@ -287,13 +287,13 @@ export function SolutionChecker({ question, marks, subject, topic }: SolutionChe
                       fontWeight: 700,
                       padding: "1px 6px",
                       borderRadius: 999,
-                      background: step.marksGiven > 0 ? "#dbeafe" : "#f3f4f6",
-                      color: step.marksGiven > 0 ? "#1e40af" : "#6b7280",
+                      background: step.marksGiven > 0 ? "rgba(59,130,246,0.1)" : "rgba(255,255,255,0.04)",
+                      color: step.marksGiven > 0 ? "#60a5fa" : "rgba(255,255,255,0.4)",
                     }}>
                       {step.marksGiven > 0 ? `+${step.marksGiven}` : "0"} {step.marksGiven === 1 ? "mark" : "marks"}
                     </span>
                   </div>
-                  <div style={{ fontSize: "0.74rem", color: "#475569", marginTop: 2 }}>
+                  <div style={{ fontSize: "0.74rem", color: "rgba(255,255,255,0.45)", marginTop: 2 }}>
                     {step.feedback}
                   </div>
                 </div>
@@ -306,14 +306,14 @@ export function SolutionChecker({ question, marks, subject, topic }: SolutionChe
               marginTop: 8,
               padding: "8px 12px",
               borderRadius: 8,
-              background: "#eff6ff",
-              border: "1px solid #bfdbfe",
+              background: "rgba(59,130,246,0.06)",
+              border: "1px solid rgba(59,130,246,0.2)",
             }}>
-              <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#1e40af", marginBottom: 4 }}>
+              <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#60a5fa", marginBottom: 4 }}>
                 {"\uD83D\uDCA1"} Tips to score more
               </div>
               {result.improvementTips.map((tip, i) => (
-                <div key={i} style={{ fontSize: "0.74rem", color: "#1e3a5f", marginBottom: 2 }}>
+                <div key={i} style={{ fontSize: "0.74rem", color: "rgba(255,255,255,0.7)", marginBottom: 2 }}>
                   {"\u2022"} {tip}
                 </div>
               ))}
@@ -329,8 +329,8 @@ export function SolutionChecker({ question, marks, subject, topic }: SolutionChe
               padding: "8px 12px",
               borderRadius: 8,
               border: "1px solid rgba(206,130,255,0.3)",
-              background: "rgba(255,255,255,0.8)",
-              color: "#7c3aed",
+              background: "rgba(255,255,255,0.04)",
+              color: "#c4b5fd",
               fontSize: "0.78rem",
               fontWeight: 600,
               cursor: "pointer",

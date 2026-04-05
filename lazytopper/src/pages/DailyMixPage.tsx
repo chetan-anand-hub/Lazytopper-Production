@@ -345,8 +345,8 @@ export default function DailyMixPage() {
         >
           <div
             style={{
-              background: "white", borderRadius: 20, padding: "40px 32px", textAlign: "center",
-              maxWidth: 400, boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
+              background: "rgba(255,255,255,0.03)", borderRadius: 20, padding: "40px 32px", textAlign: "center",
+              maxWidth: 400, boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
             }}
           >
             <div style={{ fontSize: 64, marginBottom: 12 }}>🎉</div>
@@ -355,7 +355,7 @@ export default function DailyMixPage() {
               {streakDays} day streak — keep it going!
             </p>
             {currentBadge && (
-              <div style={{ marginTop: 12, padding: "8px 16px", background: "linear-gradient(135deg, #f0f9ff, #e0f2fe)", borderRadius: 12, fontSize: 14, fontWeight: 700 }}>
+              <div style={{ marginTop: 12, padding: "8px 16px", background: "rgba(59,130,246,0.1)", borderRadius: 12, fontSize: 14, fontWeight: 700, color: "#60a5fa" }}>
                 {currentBadge.description}
               </div>
             )}
@@ -373,7 +373,7 @@ export default function DailyMixPage() {
         <div
           style={{
             display: "flex", alignItems: "center", gap: 8, padding: "6px 14px",
-            background: streakDays > 0 ? "linear-gradient(135deg, #fff7ed, #ffedd5)" : "#f7f7f7",
+            background: streakDays > 0 ? "rgba(249,115,22,0.1)" : "rgba(255,255,255,0.06)",
             borderRadius: 999, fontWeight: 800, fontSize: 14,
           }}
         >
@@ -392,11 +392,11 @@ export default function DailyMixPage() {
           <span>Progress</span>
           <span>{answeredCount}/{items.length} answered</span>
         </div>
-        <div style={{ height: 8, background: "#e5e5e5", borderRadius: 999, overflow: "hidden" }}>
+        <div style={{ height: 8, background: "rgba(255,255,255,0.08)", borderRadius: 999, overflow: "hidden" }}>
           <div
             style={{
               height: "100%", width: `${progressPct}%`,
-              background: completed ? "#58cc02" : "#1cb0f6",
+              background: completed ? "#22c55e" : "#3b82f6",
               borderRadius: 999, transition: "width 0.4s ease",
             }}
           />
@@ -411,12 +411,12 @@ export default function DailyMixPage() {
             onClick={() => playback.seek(i)}
             style={{
               width: 36, height: 36, borderRadius: 10,
-              border: i === playback.currentIndex ? "2px solid #1cb0f6" : "1px solid #e5e5e5",
+              border: i === playback.currentIndex ? "2px solid #3b82f6" : "1px solid rgba(255,255,255,0.06)",
               background: questionStates[i]?.submitted
-                ? questionStates[i]?.correct === false ? "#fef2f2" : "#f0fdf4"
-                : i === playback.currentIndex ? "#eff6ff" : "#fff",
+                ? questionStates[i]?.correct === false ? "rgba(239,68,68,0.08)" : "rgba(34,197,94,0.08)"
+                : i === playback.currentIndex ? "rgba(59,130,246,0.1)" : "rgba(255,255,255,0.03)",
               fontWeight: 700, fontSize: 14, cursor: "pointer",
-              color: i === playback.currentIndex ? "#1cb0f6" : "#777777",
+              color: i === playback.currentIndex ? "#3b82f6" : "rgba(255,255,255,0.45)",
             }}
           >
             {questionStates[i]?.submitted ? (questionStates[i]?.correct === false ? "✗" : "✓") : i + 1}
@@ -426,15 +426,15 @@ export default function DailyMixPage() {
 
       <div
         style={{
-          marginTop: 18, border: "1px solid #e5e5e5", borderRadius: 16, padding: 20,
-          background: "#fff", boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+          marginTop: 18, border: "1px solid rgba(255,255,255,0.06)", borderRadius: 16, padding: 20,
+          background: "rgba(255,255,255,0.03)", boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
         }}
       >
         <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", marginBottom: 12 }}>
           <span
             style={{
               fontSize: 11, fontWeight: 800, padding: "2px 10px", borderRadius: 999,
-              background: isQuestionItem ? (difficultyColors[itemDifficulty] || "#afafaf") : (currentItem?.type === "video" ? "#ff9600" : "#0ea5e9"),
+              background: isQuestionItem ? (difficultyColors[itemDifficulty] || "rgba(255,255,255,0.2)") : (currentItem?.type === "video" ? "#ff9600" : "#0ea5e9"),
               color: "#fff",
               textTransform: "uppercase", letterSpacing: 0.5,
             }}
@@ -442,7 +442,7 @@ export default function DailyMixPage() {
             {isQuestionItem ? itemDifficulty : itemTypeLabel}
           </span>
           {itemTopic && (
-            <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 10px", borderRadius: 999, border: "1px solid #e5e5e5", color: "#777777" }}>
+            <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 10px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.45)" }}>
               {itemTopic}
             </span>
           )}
@@ -463,8 +463,9 @@ export default function DailyMixPage() {
               placeholder="Type your answer here..."
               rows={4}
               style={{
-                width: "100%", padding: 12, border: "1px solid #cbd5e1", borderRadius: 10,
+                width: "100%", padding: 12, border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10,
                 fontSize: 14, resize: "vertical", fontFamily: "inherit", boxSizing: "border-box",
+                background: "rgba(255,255,255,0.03)", color: "#fff",
               }}
               onKeyDown={(e) => {
                 if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) handleSubmit(playback.currentIndex);
@@ -477,7 +478,7 @@ export default function DailyMixPage() {
                 disabled={!qs?.studentAnswer?.trim()}
                 style={{
                   padding: "10px 24px",
-                  background: qs?.studentAnswer?.trim() ? "#1cb0f6" : "#afafaf",
+                  background: qs?.studentAnswer?.trim() ? "#3b82f6" : "rgba(255,255,255,0.1)",
                   color: "#fff", border: "none", borderRadius: 10, fontWeight: 700, fontSize: 14,
                   cursor: qs?.studentAnswer?.trim() ? "pointer" : "default",
                 }}
@@ -488,8 +489,8 @@ export default function DailyMixPage() {
                 type="button"
                 onClick={() => handleSkip(playback.currentIndex)}
                 style={{
-                  padding: "10px 20px", background: "#f7f7f7", color: "#777777",
-                  border: "1px solid #e5e5e5", borderRadius: 10, fontWeight: 600, fontSize: 14, cursor: "pointer",
+                  padding: "10px 20px", background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.45)",
+                  border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, fontWeight: 600, fontSize: 14, cursor: "pointer",
                 }}
               >
                 Skip
@@ -513,18 +514,18 @@ export default function DailyMixPage() {
           <div
             style={{
               marginTop: 16, padding: 16, borderRadius: 12,
-              background: qs.correct === false ? "#fef2f2" : qs.correct === true ? "#f0fdf4" : "#f7f7f7",
-              border: `1px solid ${qs.correct === false ? "#fecaca" : qs.correct === true ? "#bbf7d0" : "#e5e5e5"}`,
+              background: qs.correct === false ? "rgba(239,68,68,0.06)" : qs.correct === true ? "rgba(34,197,94,0.06)" : "rgba(255,255,255,0.04)",
+              border: `1px solid ${qs.correct === false ? "rgba(239,68,68,0.2)" : qs.correct === true ? "rgba(34,197,94,0.2)" : "rgba(255,255,255,0.06)"}`,
             }}
           >
             {qs.feedbackLoading ? (
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <div style={{ width: 16, height: 16, border: "2px solid #1cb0f6", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+                <div style={{ width: 16, height: 16, border: "2px solid #3b82f6", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
                 <span style={{ fontSize: 14, opacity: 0.7 }}>Getting feedback...</span>
               </div>
             ) : (
               <>
-                <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 6, color: "#777777" }}>
+                <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 6, color: "rgba(255,255,255,0.45)" }}>
                   {qs.studentAnswer === "(read)" ? "✅ Reviewed" : qs.correct === true ? "✅ Correct!" : qs.correct === false ? "❌ Needs improvement" : "📝 Feedback"}
                 </div>
                 {qs.studentAnswer !== "(skipped)" && qs.studentAnswer !== "(read)" && (
@@ -545,7 +546,7 @@ export default function DailyMixPage() {
           onClick={() => playback.prev()}
           disabled={!playback.canPrev}
           style={{
-            padding: "8px 20px", border: "1px solid #e5e5e5", borderRadius: 10, background: "#fff",
+            padding: "8px 20px", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, background: "rgba(255,255,255,0.03)",
             fontWeight: 600, fontSize: 13, cursor: playback.canPrev ? "pointer" : "default",
             opacity: playback.canPrev ? 1 : 0.4,
           }}
@@ -556,7 +557,7 @@ export default function DailyMixPage() {
           <button
             type="button"
             onClick={() => playback.next()}
-            style={{ padding: "8px 20px", border: "1px solid #e5e5e5", borderRadius: 10, background: "#fff", fontWeight: 600, fontSize: 13, cursor: "pointer" }}
+            style={{ padding: "8px 20px", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, background: "rgba(255,255,255,0.03)", fontWeight: 600, fontSize: 13, cursor: "pointer" }}
           >
             Next →
           </button>
@@ -572,7 +573,7 @@ export default function DailyMixPage() {
       </div>
 
       {completed && !showCelebration && (
-        <div style={{ marginTop: 20, padding: 20, background: "linear-gradient(135deg, #f0fdf4, #ecfdf5)", borderRadius: 16, textAlign: "center", border: "1px solid #bbf7d0" }}>
+        <div style={{ marginTop: 20, padding: 20, background: "rgba(34,197,94,0.06)", borderRadius: 16, textAlign: "center", border: "1px solid rgba(34,197,94,0.2)" }}>
           <div style={{ fontSize: 32 }}>🎉</div>
           <div style={{ fontWeight: 900, fontSize: 18, marginTop: 4 }}>Daily Mix Complete!</div>
           <div style={{ opacity: 0.7, fontSize: 14, marginTop: 4 }}>
@@ -605,7 +606,7 @@ export default function DailyMixPage() {
         <button
           type="button"
           onClick={() => navigate("/dashboard")}
-          style={{ padding: "8px 20px", background: "transparent", border: "1px solid #e5e5e5", borderRadius: 10, fontWeight: 600, fontSize: 13, color: "#777777", cursor: "pointer" }}
+          style={{ padding: "8px 20px", background: "transparent", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, fontWeight: 600, fontSize: 13, color: "rgba(255,255,255,0.45)", cursor: "pointer" }}
         >
           Back to Dashboard
         </button>

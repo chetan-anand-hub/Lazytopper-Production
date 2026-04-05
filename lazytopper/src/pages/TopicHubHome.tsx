@@ -291,8 +291,8 @@ function TopicHubHomeContent() {
         <div
           style={{
             borderRadius: 18,
-            border: "1px solid rgba(0,0,0,0.04)",
-            background: "rgba(255,255,255,0.9)",
+            border: "1px solid rgba(255,255,255,0.06)",
+            background: "rgba(255,255,255,0.03)",
             padding: 16,
             marginBottom: 14,
           }}
@@ -306,8 +306,8 @@ function TopicHubHomeContent() {
         <div
           style={{
             borderRadius: 18,
-            border: "1px solid rgba(0,0,0,0.06)",
-            background: "rgba(255,255,255,0.88)",
+            border: "1px solid rgba(255,255,255,0.06)",
+            background: "rgba(255,255,255,0.03)",
             padding: 16,
             marginBottom: 14,
           }}
@@ -325,7 +325,7 @@ function TopicHubHomeContent() {
             style={{
               borderRadius: 18,
               border: "1px solid rgba(28,176,246,0.28)",
-              background: "#f0f9ff",
+              background: "rgba(59,130,246,0.06)",
               padding: 16,
               marginBottom: 14,
             }}
@@ -356,7 +356,7 @@ function TopicHubHomeContent() {
             style={{
               borderRadius: 18,
               border: "1px solid rgba(0,0,0,0.05)",
-              background: "rgba(255,255,255,0.86)",
+              background: "rgba(255,255,255,0.03)",
               padding: 14,
               marginBottom: 14,
             }}
@@ -381,8 +381,8 @@ function TopicHubHomeContent() {
         <div
           style={{
             borderRadius: 18,
-            border: "1px solid rgba(0,0,0,0.04)",
-            background: "rgba(255,255,255,0.86)",
+            border: "1px solid rgba(255,255,255,0.06)",
+            background: "rgba(255,255,255,0.03)",
             padding: 16,
           }}
         >
@@ -394,11 +394,11 @@ function TopicHubHomeContent() {
                 onChange={(event) => setGrade(String(event.target.value || "10"))}
                 style={{
                   width: "100%",
-                  border: "1px solid rgba(0,0,0,0.08)",
+                  border: "1px solid rgba(255,255,255,0.08)",
                   borderRadius: 12,
                   padding: "10px 12px",
                   fontSize: 15,
-                  background: "#fff",
+                  background: "rgba(255,255,255,0.03)",
                 }}
               >
                 <option value="10">Class 10</option>
@@ -417,9 +417,9 @@ function TopicHubHomeContent() {
                       className="lt-pill"
                       style={{
                         padding: "8px 12px",
-                        background: active ? "#58cc02" : "rgba(255,255,255,0.9)",
-                        color: active ? "#fff" : "#3c3c3c",
-                        borderColor: active ? "#58cc02" : "rgba(0,0,0,0.1)",
+                        background: active ? "#22c55e" : "rgba(255,255,255,0.03)",
+                        color: active ? "#fff" : "rgba(255,255,255,0.7)",
+                        borderColor: active ? "#22c55e" : "rgba(255,255,255,0.06)",
                       }}
                       onClick={() => setSubject(value)}
                     >
@@ -439,11 +439,11 @@ function TopicHubHomeContent() {
                 placeholder="Search topic"
                 style={{
                   width: "100%",
-                  border: "1px solid rgba(0,0,0,0.08)",
+                  border: "1px solid rgba(255,255,255,0.08)",
                   borderRadius: 12,
                   padding: "10px 12px",
                   fontSize: 15,
-                  background: "#fff",
+                  background: "rgba(255,255,255,0.03)",
                 }}
               />
             </div>
@@ -455,11 +455,11 @@ function TopicHubHomeContent() {
                 onChange={(event) => setSelectedTopicKeyRaw(String(event.target.value || ""))}
                 style={{
                   width: "100%",
-                  border: "1px solid rgba(0,0,0,0.08)",
+                  border: "1px solid rgba(255,255,255,0.08)",
                   borderRadius: 12,
                   padding: "10px 12px",
                   fontSize: 15,
-                  background: "#fff",
+                  background: "rgba(255,255,255,0.03)",
                 }}
               >
                 {filteredOptions.length ? (
@@ -481,8 +481,8 @@ function TopicHubHomeContent() {
             style={{
               marginTop: 14,
               borderRadius: 14,
-              border: "1px solid rgba(0,0,0,0.06)",
-              background: "#f7f7f7",
+              border: "1px solid rgba(255,255,255,0.06)",
+              background: "rgba(255,255,255,0.06)",
               padding: 12,
             }}
           >
@@ -509,14 +509,14 @@ function TopicHubHomeContent() {
                   fontSize: 11,
                   fontWeight: 900,
                   borderRadius: 999,
-                  border: "1px solid rgba(0,0,0,0.1)",
+                  border: "1px solid rgba(255,255,255,0.08)",
                   padding: "2px 8px",
                   background:
                     selectedTier === "must-crack"
-                      ? "#fee2e2"
+                      ? "rgba(239,68,68,0.12)"
                       : selectedTier === "high-roi"
-                      ? "#fef9c3"
-                      : "rgba(88,204,2,0.1)",
+                      ? "rgba(59,130,246,0.12)"
+                      : "rgba(34,197,94,0.1)",
                 }}
               >
                 {selectedTier}
@@ -530,9 +530,9 @@ function TopicHubHomeContent() {
               style={{
                 marginTop: 14,
                 borderRadius: 18,
-                border: "1px solid rgba(0,0,0,0.06)",
+                border: "1px solid rgba(255,255,255,0.06)",
                 background:
-                  "linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(239,246,255,0.94) 52%, rgba(254,249,195,0.42) 100%)",
+                  "rgba(255,255,255,0.03)",
                 padding: 14,
               }}
               data-testid="triangles-topic-preview"
@@ -544,8 +544,8 @@ function TopicHubHomeContent() {
                     fontWeight: 900,
                     padding: "3px 9px",
                     borderRadius: 999,
-                    border: "1px solid rgba(0,0,0,0.08)",
-                    background: "rgba(255,255,255,0.9)",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    background: "rgba(255,255,255,0.03)",
                   }}
                 >
                   Start here
@@ -556,8 +556,8 @@ function TopicHubHomeContent() {
                     fontWeight: 900,
                     padding: "3px 9px",
                     borderRadius: 999,
-                    border: "1px solid rgba(0,0,0,0.08)",
-                    background: "rgba(255,255,255,0.9)",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    background: "rgba(255,255,255,0.03)",
                   }}
                 >
                   ~{selectedTopicContent.weightagePercent}% boards signal

@@ -58,20 +58,20 @@ const tierMeta: Record<
   "must-crack": {
     label: "Must-crack",
     emoji: "🔥",
-    chipBg: "#fee2e2",
-    chipText: "#b91c1c",
+    chipBg: "rgba(239,68,68,0.12)",
+    chipText: "#ef4444",
   },
   "high-roi": {
     label: "High-ROI",
     emoji: "💎",
-    chipBg: "#e0e7ff",
-    chipText: "#3730a3",
+    chipBg: "rgba(99,102,241,0.12)",
+    chipText: "#a5b4fc",
   },
   "good-to-do": {
     label: "Good-to-do",
     emoji: "🌈",
-    chipBg: "#e0f2fe",
-    chipText: "#0369a1",
+    chipBg: "rgba(59,130,246,0.12)",
+    chipText: "#60a5fa",
   },
 };
 
@@ -269,8 +269,8 @@ const StudyPlanPage: React.FC = () => {
         <div
           style={{
             borderRadius: 24,
-            backgroundColor: "#f7f7f7",
-            border: "1px solid rgba(0,0,0,0.08)",
+            backgroundColor: "rgba(255,255,255,0.06)",
+            border: "1px solid rgba(255,255,255,0.08)",
             padding: "18px 20px",
             marginTop: 16,
           }}
@@ -278,7 +278,7 @@ const StudyPlanPage: React.FC = () => {
           <p
             style={{
               fontSize: "0.85rem",
-              color: "#777777",
+              color: "rgba(255,255,255,0.45)",
             }}
           >
             To generate a roadmap, go back to <strong>AI Mentor</strong> and
@@ -296,9 +296,9 @@ const StudyPlanPage: React.FC = () => {
         style={{
           marginTop: 18,
           borderRadius: 24,
-          backgroundColor: "#f7f7f7",
-          border: "1px solid rgba(0,0,0,0.08)",
-          boxShadow: "0 22px 50px rgba(0,0,0,0.06)",
+          backgroundColor: "rgba(255,255,255,0.06)",
+          border: "1px solid rgba(255,255,255,0.08)",
+          boxShadow: "0 22px 50px rgba(0,0,0,0.3)",
           padding: "20px 22px 18px",
         }}
       >
@@ -306,7 +306,7 @@ const StudyPlanPage: React.FC = () => {
           style={{
             fontSize: "1.4rem",
             fontWeight: 650,
-            color: "#3c3c3c",
+            color: "rgba(255,255,255,0.85)",
             marginBottom: 4,
           }}
         >
@@ -315,7 +315,7 @@ const StudyPlanPage: React.FC = () => {
         <p
           style={{
             fontSize: "0.9rem",
-            color: "#777777",
+            color: "rgba(255,255,255,0.45)",
             marginBottom: 14,
           }}
         >
@@ -347,7 +347,7 @@ const StudyPlanPage: React.FC = () => {
                 style={{
                   borderRadius: 999,
                   padding: "6px 14px",
-                  border: "1px solid rgba(0,0,0,0.12)",
+                  border: "1px solid rgba(255,255,255,0.08)",
                   backgroundColor: meta.chipBg,
                   color: meta.chipText,
                   fontSize: "0.8rem",
@@ -405,7 +405,7 @@ const StudyPlanPage: React.FC = () => {
                 >
                   {tierMeta[tier].emoji} {tierMeta[tier].label}
                 </span>
-                <span style={{ fontSize: "0.85rem", color: "#777777" }}>
+                <span style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.45)" }}>
                   {totalHours} hrs total
                 </span>
               </div>
@@ -416,10 +416,10 @@ const StudyPlanPage: React.FC = () => {
                   gridTemplateColumns: "2.2fr 1fr 1.2fr 2.2fr",
                   fontSize: "0.78rem",
                   fontWeight: 600,
-                  color: "#777777",
+                  color: "rgba(255,255,255,0.45)",
                   padding: "4px 10px",
                   borderRadius: 8,
-                  backgroundColor: "rgba(88,204,2,0.08)",
+                  backgroundColor: "rgba(34,197,94,0.08)",
                   marginBottom: 4,
                 }}
               >
@@ -442,8 +442,8 @@ const StudyPlanPage: React.FC = () => {
                         gridTemplateColumns: "2.2fr 1fr 1.2fr 2.2fr",
                         padding: "8px 10px",
                         borderRadius: 14,
-                        backgroundColor: "#ffffff",
-                        border: "1px solid rgba(0,0,0,0.08)",
+                        backgroundColor: "rgba(255,255,255,0.03)",
+                        border: "1px solid rgba(255,255,255,0.08)",
                         alignItems: "center",
                         gap: 8,
                       }}
@@ -452,7 +452,7 @@ const StudyPlanPage: React.FC = () => {
                         style={{
                           fontSize: "0.9rem",
                           fontWeight: 600,
-                          color: "#3c3c3c",
+                          color: "rgba(255,255,255,0.85)",
                         }}
                       >
                         {row.topicLabel}
@@ -477,7 +477,7 @@ const StudyPlanPage: React.FC = () => {
                       <div
                         style={{
                           fontSize: "0.8rem",
-                          color: "#777777",
+                          color: "rgba(255,255,255,0.45)",
                         }}
                       >
                         ≈ {row.weightagePercent || "?"}% of paper
@@ -495,7 +495,7 @@ const StudyPlanPage: React.FC = () => {
                           style={{
                             fontSize: "0.9rem",
                             fontWeight: 600,
-                            color: "#3c3c3c",
+                            color: "rgba(255,255,255,0.85)",
                           }}
                         >
                           {row.hours} hrs
@@ -510,8 +510,8 @@ const StudyPlanPage: React.FC = () => {
                             padding: "4px 10px",
                             fontSize: "0.74rem",
                             border: "1px solid rgba(28,176,246,0.8)",
-                            backgroundColor: "#eef2ff",
-                            color: "#1cb0f6",
+                            backgroundColor: "rgba(99,102,241,0.08)",
+                            color: "#60a5fa",
                             cursor: "pointer",
                           }}
                         >
@@ -525,8 +525,8 @@ const StudyPlanPage: React.FC = () => {
                             padding: "4px 10px",
                             fontSize: "0.74rem",
                             border: "1px solid rgba(206,130,255,0.7)",
-                            backgroundColor: "#f5f3ff",
-                            color: "#6d28d9",
+                            backgroundColor: "rgba(168,85,247,0.08)",
+                            color: "#c4b5fd",
                             cursor: "pointer",
                           }}
                         >
@@ -540,7 +540,7 @@ const StudyPlanPage: React.FC = () => {
                             padding: "4px 10px",
                             fontSize: "0.74rem",
                             border: "1px solid rgba(88,204,2,0.7)",
-                            backgroundColor: "#ecfdf3",
+                            backgroundColor: "rgba(34,197,94,0.08)",
                             color: "#15803d",
                             cursor: "pointer",
                           }}
@@ -570,7 +570,7 @@ const StudyPlanPage: React.FC = () => {
     borderRadius: 999,
     padding: "6px 12px",
     fontSize: "0.78rem",
-    backgroundColor: "#eef2ff",
+    backgroundColor: "rgba(99,102,241,0.08)",
     color: "#4338ca",
   };
 
@@ -578,7 +578,7 @@ const StudyPlanPage: React.FC = () => {
     <div
       style={{
         minHeight: "100vh",
-        background: "#ffffff",
+        background: "rgba(255,255,255,0.03)",
         paddingBottom: "80px",
       }}
     >
@@ -595,7 +595,7 @@ const StudyPlanPage: React.FC = () => {
           style={{
             background: "none",
             border: "none",
-            color: "#4b5563",
+            color: "rgba(255,255,255,0.45)",
             fontSize: "0.85rem",
             display: "flex",
             alignItems: "center",
@@ -613,7 +613,7 @@ const StudyPlanPage: React.FC = () => {
           style={{
             borderRadius: 32,
             padding: "24px 24px 24px 28px",
-            backgroundColor: "#ffffff",
+            backgroundColor: "rgba(255,255,255,0.03)",
             boxShadow: "0 24px 60px rgba(0,0,0,0.08)",
           }}
         >
@@ -622,7 +622,7 @@ const StudyPlanPage: React.FC = () => {
               fontSize: "2.1rem",
               lineHeight: 1.15,
               fontWeight: 650,
-              color: "#3c3c3c",
+              color: "rgba(255,255,255,0.85)",
               marginBottom: 6,
             }}
           >
@@ -631,7 +631,7 @@ const StudyPlanPage: React.FC = () => {
           <p
             style={{
               fontSize: "0.95rem",
-              color: "#777777",
+              color: "rgba(255,255,255,0.45)",
               lineHeight: 1.6,
             }}
           >
@@ -661,7 +661,7 @@ const StudyPlanPage: React.FC = () => {
             style={{
               marginTop: 22,
               borderRadius: 999,
-              backgroundColor: "#eef2ff",
+              backgroundColor: "rgba(99,102,241,0.08)",
               display: "flex",
             }}
           >
@@ -680,8 +680,8 @@ const StudyPlanPage: React.FC = () => {
                     fontSize: "0.95rem",
                     fontWeight: 600,
                     cursor: "pointer",
-                    backgroundColor: active ? "#1cb0f6" : "transparent",
-                    color: active ? "#f9fafb" : "#3c3c3c",
+                    backgroundColor: active ? "#3b82f6" : "rgba(255,255,255,0.03)",
+                    color: active ? "#fff" : "rgba(255,255,255,0.7)",
                     boxShadow: active
                       ? "0 10px 25px rgba(88,204,2,0.3)"
                       : "none",
