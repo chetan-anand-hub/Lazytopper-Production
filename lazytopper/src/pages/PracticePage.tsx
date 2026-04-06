@@ -81,7 +81,7 @@ import {
   getMentorTutorText,
   parseMentorStructuredText,
 } from "../utils/mentorStructured";
-import { recordDetour } from "../services/guidedJourneyService";
+import { recordDetour, recordPracticeInPhase } from "../services/guidedJourneyService";
 import { useAuth } from "../context/AuthContext";
 type SubjectKey = "Maths" | "Science";
 type DifficultyChoice = "All" | "Easy" | "Medium" | "Hard";
@@ -969,7 +969,7 @@ const [mentorSeedExample, setMentorSeedExample] = useState<{
   useEffect(() => {
     const slug = canonicalTopicKey || topicParam;
     if (slug && slug !== "Generic") {
-      try { recordDetour(slug, topicLabel || slug, authUserForJourney?.uid); } catch {}
+      recordDetour(slug, topicLabel || slug, authUserForJourney?.uid);
     }
   }, [canonicalTopicKey, topicParam, topicLabel, authUserForJourney?.uid]);
 
@@ -2098,6 +2098,7 @@ const packTopicKey = useMemo(() => {
                             const diff = String(q.difficulty ?? "Medium");
                             setSelfAssessments((prev) => ({ ...prev, [q.id]: "got_it" }));
                             recordQuestionAnswered();
+                            recordPracticeInPhase(authUserForJourney?.uid);
                             setSessionTracker((prev) => recordSelfAssessment(prev, q.id, "got_it", concept, diff));
                             const topicK = canonicalTopicKey || topicParam;
                             const snap = loadTopicMasterySnapshot(topicK);

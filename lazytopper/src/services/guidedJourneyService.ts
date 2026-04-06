@@ -131,9 +131,11 @@ export function initOrResumeGuidedChapter(uid?: string | null): GuidedJourneySta
   return state;
 }
 
-export function advancePhase(uid?: string | null): GuidedJourneyState {
+export function advancePhase(fromPhase?: JourneyPhase, uid?: string | null): GuidedJourneyState {
   const state = loadState(uid);
   if (!state.currentChapter) return initOrResumeGuidedChapter(uid);
+
+  if (fromPhase && state.currentChapter.phase !== fromPhase) return state;
 
   const phaseOrder: JourneyPhase[] = ["learn", "practice", "mock", "review"];
   const idx = phaseOrder.indexOf(state.currentChapter.phase);
@@ -165,11 +167,17 @@ export function clearDetour(uid?: string | null): void {
   saveState(state, uid);
 }
 
+const PRACTICE_THRESHOLD = 10;
+
 export function recordPracticeInPhase(uid?: string | null): void {
   const state = loadState(uid);
   if (!state.currentChapter) return;
+  if (state.currentChapter.phase !== "practice") return;
   state.currentChapter.practiceCount += 1;
   saveState(state, uid);
+  if (state.currentChapter.practiceCount >= PRACTICE_THRESHOLD) {
+    advancePhase("practice", uid);
+  }
 }
 
 export function markMockDone(uid?: string | null): void {
@@ -177,6 +185,9 @@ export function markMockDone(uid?: string | null): void {
   if (!state.currentChapter) return;
   state.currentChapter.mockDone = true;
   saveState(state, uid);
+  if (state.currentChapter.phase === "mock") {
+    advancePhase("mock", uid);
+  }
 }
 
 export function getTotalChapterCount(): number {

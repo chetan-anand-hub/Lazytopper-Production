@@ -14,6 +14,8 @@ import { resolveTopicDisplayName, normalizeTopicKey } from "../utils/topicResolv
 import ReturnContextBar from "../components/ux/ReturnContextBar";
 import { trackUxEvent } from "../services/uxTelemetry";
 import * as gam from "../utils/gamification";
+import { markMockDone } from "../services/guidedJourneyService";
+import { useAuth } from "../context/AuthContext";
 
 type Phase = "preview" | "taking" | "review";
 
@@ -44,6 +46,7 @@ export default function TopicMockPage() {
   const [sp] = useSearchParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const { user: authUserForJourney } = useAuth();
 
   const grade = params.grade || "10";
   const subject = subjectFromParam(params.subject || sp.get("subject") || "Maths");
@@ -125,8 +128,9 @@ export default function TopicMockPage() {
       trackUxEvent("topic_mock_complete", "TopicMockPage", {
         topicKey, set: currentSet, score: result.percentScore, totalSeconds: elapsed,
       });
+      markMockDone(authUserForJourney?.uid);
     }
-  }, [currentSectionIdx, paper, answers, elapsed, currentSet, topicKey]);
+  }, [currentSectionIdx, paper, answers, elapsed, currentSet, topicKey, authUserForJourney?.uid]);
 
   const switchSet = useCallback((set: number) => {
     setCurrentSet(set);

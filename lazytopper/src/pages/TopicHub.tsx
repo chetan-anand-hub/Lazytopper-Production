@@ -14,6 +14,8 @@ import * as gam from "../utils/gamification";
 import type { V2Definition } from "../utils/getTopicV2Content";
 import type { CanonicalQuestion } from "../data/predictionTypes";
 import type { ChapterId } from "../engine/smartLearningTypes";
+import { recordDetour, advancePhase, getGuidedJourneyState } from "../services/guidedJourneyService";
+import { useAuth } from "../context/AuthContext";
 
 type SubjectKey = "maths" | "science";
 
@@ -161,6 +163,7 @@ export default function TopicHub() {
   const navigate = useNavigate();
   const location = useLocation();
   const smartLearning = useSmartLearning();
+  const { user: authUserForJourney } = useAuth();
   const grade = String(params.grade || sp.get("grade") || "10");
   const subject = asSubjectKey(String(params.subject || sp.get("subject") || "maths"));
   const subjectTitle = subject === "science" ? "Science" : "Maths";
@@ -187,6 +190,16 @@ export default function TopicHub() {
 
   const v2 = useMemo(() => getTopicV2Content(topicKey), [topicKey]);
   const title = String(v2?.topicName || topicKey || "").trim() || "Topic";
+
+  useEffect(() => {
+    if (!topicKey) return;
+    const uid = authUserForJourney?.uid;
+    recordDetour(topicKey, title, uid);
+    const state = getGuidedJourneyState(uid);
+    if (state.currentChapter && normalizeTopicKey(topicKey) === normalizeTopicKey(state.currentChapter.slug)) {
+      advancePhase("learn", uid);
+    }
+  }, [topicKey, title, authUserForJourney?.uid]);
   const tier = String(v2?.tier || "good-to-do");
   const tierStyle = TIER_STYLES[tier] || TIER_STYLES["good-to-do"];
   const weightage = useMemo(() => lookupWeightage(topicKey), [topicKey]);
