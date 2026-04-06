@@ -496,7 +496,7 @@ export default function App() {
 
           {/* Topic Mock Paper — auth + mock view limit */}
           <Route path="/topic-mock/:grade/:subject/:topicKey" element={<MockViewGate>{withRouteSuspense(<TopicMockPage />)}</MockViewGate>} />
-          <Route path="/chapter-test/:grade/:subject/:topicKey" element={<RequirePremium featureLabel="Chapter Test">{withRouteSuspense(<ChapterTestPage />)}</RequirePremium>} />
+          <Route path="/chapter-test/:grade/:subject/:topicKey" element={withRouteSuspense(<ChapterTestPage />)} />
 
           {/* New Mock Builder v1 with mandatory grade & subject */}
           <Route path="/mock-builder/:grade/:subject" element={<RequirePremium featureLabel="Mock Builder">{withRouteSuspense(<MockBuilder />)}</RequirePremium>} />

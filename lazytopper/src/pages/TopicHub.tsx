@@ -341,13 +341,16 @@ export default function TopicHub() {
         const q = pickUnique(mcqs) || buildFallbackCheckpoint(def, title);
         quiz.push(q);
       }
-      const shortAnswer = pickUnique(nonMcqs) || buildFallbackStepQuestion(def, title);
+      const shortAnswer = pickUnique(nonMcqs) || (() => {
+        const fb = buildFallbackStepQuestion(def, title);
+        fb.id = `fallback-short-${def.title.replace(/\s+/g, "-").toLowerCase()}`;
+        fb.questionText = `In your own words, explain what "${def.title}" means in ${title} and give one example.`;
+        return fb;
+      })();
       quiz.push(shortAnswer);
 
       const stepQ = pickUnique(nonMcqs) || buildFallbackStepQuestion(def, title);
-      if (stepQ.id !== shortAnswer.id) {
-        quiz.push(stepQ);
-      }
+      quiz.push(stepQ);
 
       return quiz;
     });

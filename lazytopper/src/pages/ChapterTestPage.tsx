@@ -21,6 +21,16 @@ import {
 type Phase = "preview" | "taking" | "review";
 type SubjectKey = "Maths" | "Science";
 
+const TOPIC_MASTERY_KEY_PREFIX = "lazytopper.topicHub.mastery.v1.";
+function areAllConceptsCompleted(topicKey: string): boolean {
+  try {
+    const raw = window.localStorage.getItem(TOPIC_MASTERY_KEY_PREFIX + topicKey);
+    if (!raw) return false;
+    const data = JSON.parse(raw);
+    return data?.lessonCompleted === true;
+  } catch { return false; }
+}
+
 function subjectFromParam(raw: string): SubjectKey {
   return raw?.toLowerCase().includes("science") ? "Science" : "Maths";
 }
@@ -224,7 +234,7 @@ export default function ChapterTestPage() {
                 {questions.length} questions &middot; 15 minutes &middot; CBSE format
               </p>
               <p style={{ fontSize: "0.82rem", opacity: 0.8, marginTop: 8 }}>
-                Score 100% while Proficient to reach <strong>Mastered</strong> level
+                Score ≥85% while Proficient to reach <strong>Mastered</strong> level
               </p>
 
               <div
@@ -245,22 +255,43 @@ export default function ChapterTestPage() {
               </div>
 
               <div style={{ marginTop: 24 }}>
-                <button
-                  onClick={startTest}
-                  disabled={questions.length === 0}
-                  style={{
-                    padding: "12px 36px",
-                    borderRadius: 14,
-                    border: "none",
-                    cursor: "pointer",
-                    background: "#fff",
-                    color: "#16a34a",
-                    fontWeight: 800,
-                    fontSize: "1rem",
-                  }}
-                >
-                  Start Chapter Test
-                </button>
+                {areAllConceptsCompleted(topicKey) ? (
+                  <button
+                    onClick={startTest}
+                    disabled={questions.length === 0}
+                    style={{
+                      padding: "12px 36px",
+                      borderRadius: 14,
+                      border: "none",
+                      cursor: "pointer",
+                      background: "#fff",
+                      color: "#16a34a",
+                      fontWeight: 800,
+                      fontSize: "1rem",
+                    }}
+                  >
+                    Start Chapter Test
+                  </button>
+                ) : (
+                  <div style={{ padding: "16px 20px", borderRadius: 14, background: "rgba(255,255,255,0.1)" }}>
+                    <p style={{ fontWeight: 700, fontSize: "0.9rem", marginBottom: 6 }}>
+                      Complete all concepts first
+                    </p>
+                    <p style={{ fontSize: "0.8rem", opacity: 0.8 }}>
+                      Finish all concept lessons in the Topic Hub before attempting the Chapter Test.
+                    </p>
+                    <button
+                      onClick={() => navigate(backTo)}
+                      style={{
+                        marginTop: 12, padding: "10px 28px", borderRadius: 12,
+                        border: "none", cursor: "pointer", background: "#fff",
+                        color: "#16a34a", fontWeight: 700, fontSize: "0.88rem",
+                      }}
+                    >
+                      Go to Topic Hub
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
