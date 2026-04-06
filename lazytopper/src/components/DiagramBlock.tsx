@@ -32,7 +32,7 @@ const DEFAULT_LABELS: DiagramLabels = {
 
 function normalizeDiagramType(raw?: string | null) {
   const t = String(raw || "").trim().toUpperCase();
-  return t || "TRIANGLE_GENERIC";
+  return t || "";
 }
 
 function normalizeLabels(raw: Props["diagramLabels"]): DiagramLabels {
