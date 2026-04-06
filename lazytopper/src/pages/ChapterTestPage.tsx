@@ -155,13 +155,12 @@ export default function ChapterTestPage() {
     };
   }, [answers, questions]);
 
-  const masteryRecord = useMemo(() => {
-    if (phase !== "review") return null;
-    return recordQuizResult(chapterKey, quizResult, true);
-  }, [phase, chapterKey, quizResult]);
+  const [masteryRecord, setMasteryRecord] = useState<ReturnType<typeof recordQuizResult> | null>(null);
 
   useEffect(() => {
     if (phase === "review" && quizResult.totalQuestions > 0) {
+      const rec = recordQuizResult(chapterKey, quizResult, true);
+      setMasteryRecord(rec);
       for (const [idxStr, ans] of Object.entries(answers)) {
         const q = questions[Number(idxStr)];
         if (!q) continue;

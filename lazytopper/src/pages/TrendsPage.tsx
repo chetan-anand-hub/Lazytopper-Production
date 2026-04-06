@@ -24,6 +24,12 @@ import { normalizeTopicKey, resolveTopicKey as resolveCanonicalTopicKey } from "
 import JourneyStrip from "../components/ux/JourneyStrip";
 import ReturnContextBar from "../components/ux/ReturnContextBar";
 import { trackUxEvent } from "../services/uxTelemetry";
+import {
+  getChapterMasteryLevel,
+  MASTERY_LABELS,
+  MASTERY_COLORS,
+  MASTERY_ICONS,
+} from "../services/masteryLevelService";
 
 type TierKey = "must-crack" | "high-roi" | "good-to-do";
 type TierFilter = "all" | TierKey | "none";
@@ -504,6 +510,21 @@ const TrendsPage: React.FC = () => {
                           }}>
                             {matchScore}% Match
                           </span>
+                          {(() => {
+                            const ml = getChapterMasteryLevel(`${grade}-${subjectKey}-${topicKey}`);
+                            if (ml === "not_started") return null;
+                            return (
+                              <span style={{
+                                display: "inline-flex", alignItems: "center", gap: 3,
+                                borderRadius: 999, padding: "4px 10px", fontSize: "0.75rem", fontWeight: 700,
+                                background: `${MASTERY_COLORS[ml]}15`, color: MASTERY_COLORS[ml],
+                                border: `1px solid ${MASTERY_COLORS[ml]}30`,
+                              }}>
+                                <span>{MASTERY_ICONS[ml]}</span>
+                                <span>{MASTERY_LABELS[ml]}</span>
+                              </span>
+                            );
+                          })()}
                         </div>
                         <p style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.4)", marginBottom: 6 }}>
                           {meta.summary || tierInfo.blurb}

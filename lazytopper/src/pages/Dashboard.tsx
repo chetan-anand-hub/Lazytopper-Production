@@ -333,7 +333,7 @@ export default function Dashboard() {
   const avgAccuracy = performanceRows.length > 0 ? Math.round(performanceRows.reduce((s, r) => s + r.accuracy, 0) / performanceRows.length) : 0;
   const topicsStarted = performanceRows.length;
   const getRowMasteryLevel = (r: PerformanceRow): MasteryLevel => {
-    const canonical = getChapterMasteryLevel(`${r.subject}-${r.topicKey}`);
+    const canonical = getChapterMasteryLevel(`${gradeNum}-${r.subject}-${r.topicKey}`);
     return canonical !== "not_started" ? canonical : masteryFromLegacyPercent(r.accuracy);
   };
   const topicsMastered = performanceRows.filter(r => {

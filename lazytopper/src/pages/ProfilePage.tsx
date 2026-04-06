@@ -93,8 +93,8 @@ function MasteryRing({ level, size = 56 }: { level: MasteryLevel; size?: number 
   );
 }
 
-function getTopicMasteryLevel(topicKey: string): MasteryLevel {
-  const canonical = getChapterMasteryLevel(topicKey);
+function getTopicMasteryLevel(topicKey: string, grade: string = "10", subject: string = "Maths"): MasteryLevel {
+  const canonical = getChapterMasteryLevel(`${grade}-${subject}-${topicKey}`);
   if (canonical !== "not_started") return canonical;
   const snap = loadTopicMasterySnapshot(topicKey);
   if (!snap?.nodes) return "not_started";
@@ -284,10 +284,11 @@ function AccuracyChart({ data }: { data: WeeklyAccuracy[] }) {
   );
 }
 
-function OverviewTab({ milestones, subjectTab, setSubjectTab }: {
+function OverviewTab({ milestones, subjectTab, setSubjectTab, grade }: {
   milestones: JourneyMilestone[];
   subjectTab: "Maths" | "Science";
   setSubjectTab: (s: "Maths" | "Science") => void;
+  grade: string;
 }) {
   const topics = ALL_TOPICS_BY_SUBJECT[subjectTab] || [];
 
@@ -316,7 +317,7 @@ function OverviewTab({ milestones, subjectTab, setSubjectTab }: {
       </div>
 
       <h3 style={{ fontWeight: 800, fontSize: 16, marginBottom: 12 }}>Chapter Mastery</h3>
-      {topics.every((tk) => getTopicMasteryLevel(tk) === "not_started") ? (
+      {topics.every((tk) => getTopicMasteryLevel(tk, grade, subjectTab) === "not_started") ? (
         <div style={{ textAlign: "center", padding: "24px 16px", background: "rgba(255,255,255,0.03)", borderRadius: 14, border: "1px solid rgba(255,255,255,0.06)", marginBottom: 16 }}>
           <div style={{ fontSize: "2rem", marginBottom: 8 }}>🌱</div>
           <p style={{ fontWeight: 700, fontSize: "0.95rem", margin: "0 0 4px" }}>No mastery data yet</p>
@@ -327,7 +328,7 @@ function OverviewTab({ milestones, subjectTab, setSubjectTab }: {
       ) : null}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))", gap: 12 }}>
         {topics.map((tk) => {
-          const level = getTopicMasteryLevel(tk);
+          const level = getTopicMasteryLevel(tk, grade, subjectTab);
           return (
             <div
               key={tk}
@@ -763,6 +764,7 @@ export default function ProfilePage() {
           milestones={milestones}
           subjectTab={subjectTab}
           setSubjectTab={setSubjectTab}
+          grade={String((studentClass || "").replace(/\D/g, "")) || "10"}
         />
       )}
       {tab === "achievements" && <AchievementsTab earned={earnedBadges} />}
