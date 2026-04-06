@@ -127,7 +127,7 @@ async function buildFrontendAndCopy() {
   const targetDir = path.resolve(artifactDir, "dist/public");
 
   console.log("Building original LazyTopper frontend...");
-  execSync("cd lazytopper && npx vite build", {
+  execSync("cd lazytopper && pnpm exec vite build", {
     cwd: workspaceRoot,
     stdio: "inherit",
     env: { ...process.env, NODE_ENV: "production" },

@@ -1829,26 +1829,11 @@ const packTopicKey = useMemo(() => {
                             {idx + 1}
                           </span>
                           <span>
-                            {q.marks} mark{q.marks !== 1 ? "s" : ""} -{" "}
-                            {q.difficulty} - {q.section}
+                            {q.marks} mark{q.marks !== 1 ? "s" : ""} - {q.section}
                           </span>
                         </div>
                       </div>
 
-                      {q.bloomSkill && (
-                        <span
-                          style={{
-                            fontSize: "0.75rem",
-                            padding: "2px 8px",
-                            borderRadius: 999,
-                            backgroundColor: "rgba(99,102,241,0.08)",
-                            color: "#a5b4fc",
-                            fontWeight: 500,
-                          }}
-                        >
-                          {q.bloomSkill}
-                        </span>
-                      )}
                     </header>
 
                     <p

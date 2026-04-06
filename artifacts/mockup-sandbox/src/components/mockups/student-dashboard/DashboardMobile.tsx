@@ -219,7 +219,7 @@ export function DashboardMobile() {
             ))}
           </div>
           <button style={{
-            width: "100%", padding: "12px 0", borderRadius: 10, border: "none",
+            width: "100%", padding: "12px 0", borderRadius: 10,
             background: "rgba(59,130,246,0.15)", color: "#60a5fa", fontWeight: 700, fontSize: 13,
             fontFamily: "'Space Grotesk', sans-serif", cursor: "pointer",
             border: "1px solid rgba(59,130,246,0.25)", marginTop: 10,

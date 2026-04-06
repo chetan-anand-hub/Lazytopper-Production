@@ -98,13 +98,6 @@ const tierMeta: Record<
     },
   };
 
-const difficultyChipStyle: Record<HPQDifficulty, { bg: string; color: string }> =
-  {
-    Easy: { bg: "rgba(34,197,94,0.1)", color: "#22c55e" },
-    Medium: { bg: "rgba(245,158,11,0.1)", color: "#f59e0b" },
-    Hard: { bg: "rgba(239,68,68,0.1)", color: "#ef4444" },
-  };
-
 // Decide bucket tier from bucket.defaultTier or first question with a tier
 function getBucketTier(bucket: HPQTopicBucket): HPQTier {
   if (bucket.defaultTier) return bucket.defaultTier;
@@ -810,24 +803,6 @@ const HighlyProbableQuestions: React.FC = () => {
       );
     }
 
-    if (q.difficulty) {
-      const style = difficultyChipStyle[q.difficulty];
-      chips.push(
-        <span
-          key="diff"
-          style={{
-            borderRadius: 999,
-            padding: "3px 8px",
-            backgroundColor: style.bg,
-            color: style.color,
-            fontSize: "0.7rem",
-          }}
-        >
-          {q.difficulty}
-        </span>
-      );
-    }
-
     if (q.likelihood) {
       chips.push(
         <span
@@ -842,24 +817,6 @@ const HighlyProbableQuestions: React.FC = () => {
           }}
         >
           {q.likelihood} chance
-        </span>
-      );
-    }
-
-    if (q.bloomSkill) {
-      chips.push(
-        <span
-          key="bloom"
-          style={{
-            borderRadius: 999,
-            padding: "3px 8px",
-            backgroundColor: "rgba(255,255,255,0.03)",
-            border: "1px dashed rgba(255,255,255,0.1)",
-            fontSize: "0.7rem",
-            color: "rgba(255,255,255,0.4)",
-          }}
-        >
-          {q.bloomSkill}
         </span>
       );
     }
