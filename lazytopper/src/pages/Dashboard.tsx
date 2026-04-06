@@ -46,6 +46,7 @@ import {
   isMissionCompletedToday,
   getMissionResumeInfo,
 } from "../services/dailyMissionService";
+import { getSRStats, checkMasteryDemotions } from "../services/spacedRepetitionEngine";
 import {
   checkAndUpdateProfile,
   loadPaceProfile,
@@ -192,6 +193,11 @@ export default function Dashboard() {
     return n && !n.dismissed ? n : null;
   });
   const [showPaceSelector, setShowPaceSelector] = useState(false);
+  const [srStats, setSrStats] = useState(() => getSRStats());
+  useEffect(() => {
+    checkMasteryDemotions();
+    setSrStats(getSRStats());
+  }, []);
 
   const subjectForQuickActions: SubjectTitle = planRecord?.subject === "Science" ? "Science" : plannerSubject;
 
@@ -818,6 +824,31 @@ export default function Dashboard() {
             </div>
           ))}
         </div>
+
+        {srStats.dueToday > 0 && (
+          <div
+            onClick={() => navigate("/weak-areas")}
+            style={{
+              padding: "12px 16px", marginBottom: 16, borderRadius: 14,
+              background: "rgba(168,85,247,0.08)", border: "1px solid rgba(168,85,247,0.2)",
+              display: "flex", alignItems: "center", justifyContent: "space-between",
+              cursor: "pointer",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <span style={{ fontSize: 18 }}>🧠</span>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: "#a855f7" }}>
+                  {srStats.dueToday} item{srStats.dueToday === 1 ? "" : "s"} due for review
+                </div>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)" }}>
+                  ~{Math.max(5, srStats.dueToday * 2)} min estimated
+                </div>
+              </div>
+            </div>
+            <span style={{ color: "rgba(255,255,255,0.3)", fontSize: 16 }}>→</span>
+          </div>
+        )}
 
         {/* DAILY MIX PREVIEW */}
         {dailyMixPreview.length > 0 && (
