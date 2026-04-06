@@ -238,10 +238,6 @@ export default function TopicHub() {
     [grade, subjectTitle, topicKey]
   );
 
-  const chapterStats = smartLearning.getStatsForChapter(chapterId);
-  const smartMastery = chapterStats?.lastComputedMastery ?? 0;
-  const smartMasteryPercent = Math.round(smartMastery * 100);
-
   useEffect(() => {
     if (typeof window === "undefined") return;
     const payload: RecentTopicRecord = {
@@ -385,8 +381,6 @@ export default function TopicHub() {
   }, [topicKey]);
 
   const totalConcepts = definitions.length;
-  const masteryPercent = smartMasteryPercent;
-
   const updateProgress = useCallback(
     (updater: (prev: LessonProgress) => LessonProgress) => {
       setProgress((prev) => {
@@ -685,7 +679,7 @@ export default function TopicHub() {
               onMouseDown={(e) => { if (hasEnoughContent) (e.target as HTMLElement).style.transform = "scale(0.97)"; }}
               onMouseUp={(e) => { (e.target as HTMLElement).style.transform = "scale(1)"; }}
             >
-              {progress.lessonCompleted ? "Review Again" : masteryPercent > 0 ? "Continue Learning" : "Start Learning"}
+              {progress.lessonCompleted ? "Review Again" : chapterMasteryLevel !== "not_started" ? "Continue Learning" : "Start Learning"}
             </button>
 
             <button
