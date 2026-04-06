@@ -7,7 +7,8 @@ import type { CanonicalQuestion } from "../data/predictionTypes";
 import { normalizeTopicKey } from "../utils/topicResolver";
 import { getGuidedJourneyState, initOrResumeGuidedChapter, scoreAndSortChapters } from "./guidedJourneyService";
 import type { StudySessionLog } from "./sessionLogger";
-import { getActivePaceProfile, getProfileConfig, type PaceProfileType } from "./paceProfileService";
+import { getActivePaceProfile, getProfileConfig, loadPaceProfile, type PaceProfileType } from "./paceProfileService";
+import { loadTopicMasterySnapshot } from "./topicHubMastery";
 
 interface PracticeQuestionView {
   id: string;
@@ -482,6 +483,26 @@ function applyDuration(seg: MissionSegment, minutes: number): MissionSegment {
   return { ...seg, durationMinutes: minutes };
 }
 
+function isMockDay(frequency: "daily" | "biweekly" | "weekly", daysLeft: number): boolean {
+  if (frequency === "daily") return true;
+  const dayOfWeek = new Date().getDay();
+  if (frequency === "weekly") {
+    return daysLeft < 150 && dayOfWeek === 0;
+  }
+  const weekNumber = Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000));
+  return weekNumber % 2 === 0 && dayOfWeek === 0;
+}
+
+function isTopicStrong(topicSlug: string): boolean {
+  try {
+    const snapshot = loadTopicMasterySnapshot(topicSlug);
+    const total = snapshot.totalAttempted || 0;
+    const correct = snapshot.totalCorrect || 0;
+    if (total < 5) return false;
+    return (correct / total) >= 0.8;
+  } catch { return false; }
+}
+
 function buildSegmentsForProfile(
   profile: PaceProfileType,
   topicSlug: string,
@@ -493,16 +514,17 @@ function buildSegmentsForProfile(
   const mix = config.missionMix;
   const baseMins = 30;
   const segments: MissionSegment[] = [];
+  const mockScheduled = isMockDay(config.mockFrequency, loadPaceProfile()?.daysLeft ?? 90);
 
   if (profile === "crash") {
     const revMin = Math.round(baseMins * mix.revision);
     const pracMin = Math.round(baseMins * mix.practice);
     const examMin = Math.max(1, baseMins - revMin - pracMin);
     segments.push(applyDuration(buildRevisionSegment(subject, seed), revMin));
-    segments.push(applyDuration(buildPracticeSegment(topicSlug, subject, seed), pracMin));
     segments.push(applyDuration(buildExamSegment(subject, seed), Math.ceil(examMin / 2)));
     segments.push(applyDuration(buildExamSegment(subject, seed + 100), Math.floor(examMin / 2)));
-    if (extended || config.mockFrequency === "daily") {
+    segments.push(applyDuration(buildExamSegment(subject, seed + 200), pracMin));
+    if (extended || mockScheduled) {
       segments.push(applyDuration(buildMockTestSegment(topicSlug, subject, seed), 15));
       segments.push(applyDuration(buildWeakDrillSegment(subject, topicSlug, seed), 15));
     }
@@ -512,12 +534,14 @@ function buildSegmentsForProfile(
     const revMin = Math.round(baseMins * mix.revision);
     const examMin = Math.max(1, baseMins - learnMin - pracMin - revMin);
     segments.push(applyDuration(buildRevisionSegment(subject, seed), revMin));
-    if (learnMin > 0) {
+    if (learnMin > 0 && !isTopicStrong(topicSlug)) {
       segments.push(applyDuration(buildLearningSegment(topicSlug, subject, seed), learnMin));
+    } else if (learnMin > 0) {
+      segments.push(applyDuration(buildPracticeSegment(topicSlug, subject, seed + 50), learnMin));
     }
     segments.push(applyDuration(buildPracticeSegment(topicSlug, subject, seed), pracMin));
     segments.push(applyDuration(buildExamSegment(subject, seed), examMin));
-    if (extended) {
+    if (extended || mockScheduled) {
       segments.push(applyDuration(buildMockTestSegment(topicSlug, subject, seed), 15));
       segments.push(applyDuration(buildWeakDrillSegment(subject, topicSlug, seed), 15));
     }
@@ -530,7 +554,7 @@ function buildSegmentsForProfile(
     segments.push(applyDuration(buildLearningSegment(topicSlug, subject, seed), learnMin));
     segments.push(applyDuration(buildPracticeSegment(topicSlug, subject, seed), pracMin));
     segments.push(applyDuration(buildExamSegment(subject, seed), examMin));
-    if (extended) {
+    if (extended || mockScheduled) {
       segments.push(applyDuration(buildMockTestSegment(topicSlug, subject, seed), 15));
       segments.push(applyDuration(buildWeakDrillSegment(subject, topicSlug, seed), 15));
     }
