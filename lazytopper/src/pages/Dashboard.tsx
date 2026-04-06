@@ -302,6 +302,11 @@ export default function Dashboard() {
     return raw.currentChapter ? raw : initOrResumeGuidedChapter(user?.uid);
   });
 
+  useEffect(() => {
+    const raw = getGuidedJourneyState(user?.uid);
+    setJourneyState(raw.currentChapter ? raw : initOrResumeGuidedChapter(user?.uid));
+  }, [user?.uid]);
+
   const journeyProgress = useMemo(() => getJourneyProgress(user?.uid), [user?.uid, journeyState]);
   const raviMessage = useMemo(() => getRaviMessage(journeyState), [journeyState]);
 
