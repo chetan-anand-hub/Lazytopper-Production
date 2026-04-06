@@ -198,6 +198,13 @@ function ParallelAngleDiagram({ labels }: { labels: DiagramLabels }) {
 }
 
 
+function isMentorDiagramRenderable(spec: unknown): boolean {
+  if (!spec || typeof spec !== "object" || Array.isArray(spec)) return false;
+  const obj = spec as Record<string, unknown>;
+  return obj.type === "triangle" &&
+    (obj.templateId === "triangle-basic" || obj.template === "triangle-basic");
+}
+
 function hasRenderableDiagram(
   normalizedDiagram: LazytopperDiagramBlock | null | undefined,
   diagramSpec: Props["diagramSpec"],
@@ -207,9 +214,7 @@ function hasRenderableDiagram(
   if (normalizedDiagram) return true;
   if (diagramSpec) {
     if (isDiagramSpec(diagramSpec)) return true;
-    const t = (diagramSpec as any).type ?? "";
-    const tid = (diagramSpec as any).templateId ?? (diagramSpec as any).template ?? "";
-    if (t === "triangle" && tid === "triangle-basic") return true;
+    if (isMentorDiagramRenderable(diagramSpec)) return true;
     return false;
   }
   const knownTypes = new Set([

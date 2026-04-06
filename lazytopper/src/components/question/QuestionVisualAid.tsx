@@ -159,16 +159,22 @@ function svgForKind(kind: VisualKind, questionText: string): React.ReactElement 
   }
 
   if (kind === "right-triangle") {
+    const base = extractNumber(qt, /base\s*(?:=|of|is)?\s*(\d+(?:\.\d+)?)\s*(?:cm|m)?/i);
+    const height = extractNumber(qt, /(?:height|perpendicular)\s*(?:=|of|is)?\s*(\d+(?:\.\d+)?)\s*(?:cm|m)?/i);
+    const hyp = extractNumber(qt, /hypotenuse\s*(?:=|of|is)?\s*(\d+(?:\.\d+)?)\s*(?:cm|m)?/i);
+    const baseLabel = base ? `${base} cm` : "base";
+    const heightLabel = height ? `${height} cm` : "height";
+    const hypLabel = hyp ? `${hyp} cm` : "hypotenuse";
     return (
-      <svg {...baseProps} aria-label="Right triangle visual aid">
+      <svg {...baseProps} aria-label={`Right triangle: base=${baseLabel}, height=${heightLabel}`}>
         <polygon points="50,240 350,240 350,50" fill="none" stroke={stroke} strokeWidth="2.2" />
         <rect x="340" y="230" width="10" height="10" fill="none" stroke={faint} strokeWidth="1.5" />
         <text x="35" y="256" fontSize="15" fill={stroke} fontWeight="600">A</text>
         <text x="352" y="256" fontSize="15" fill={stroke} fontWeight="600">B</text>
         <text x="352" y="46" fontSize="15" fill={stroke} fontWeight="600">C</text>
-        <text x="190" y="260" fontSize="14" fill={accent}>base</text>
-        <text x="356" y="155" fontSize="14" fill={green}>height</text>
-        <text x="170" y="140" fontSize="14" fill={red}>hypotenuse</text>
+        <text x="170" y="260" fontSize="14" fill={accent} fontWeight="600">{baseLabel}</text>
+        <text x="356" y="155" fontSize="14" fill={green} fontWeight="600">{heightLabel}</text>
+        <text x="155" y="135" fontSize="14" fill={red} fontWeight="600">{hypLabel}</text>
       </svg>
     );
   }
@@ -335,19 +341,24 @@ function svgForKind(kind: VisualKind, questionText: string): React.ReactElement 
   }
 
   if (kind === "circuit") {
+    const resistance = extractNumber(qt, /(\d+(?:\.\d+)?)\s*(?:ohm|Ω|omega)/i);
+    const voltage = extractNumber(qt, /(\d+(?:\.\d+)?)\s*(?:volt|V\b)/i);
+    const current = extractNumber(qt, /(\d+(?:\.\d+)?)\s*(?:ampere|A\b|amp)/i);
+    const rLabel = resistance ? `${resistance} Ω` : "R";
+    const vLabel = voltage ? `V = ${voltage} V` : "";
     return (
-      <svg {...baseProps} aria-label="Series electric circuit diagram">
+      <svg {...baseProps} aria-label={`Series circuit: ${rLabel}${vLabel ? `, ${vLabel}` : ""}`}>
         <rect x="60" y="50" width="280" height="180" fill="none" stroke={stroke} strokeWidth="2.2" rx="8" />
         <line x1="82" y1="140" x2="94" y2="140" stroke={accent} strokeWidth="3" />
         <line x1="82" y1="128" x2="82" y2="152" stroke={accent} strokeWidth="3" />
         <line x1="98" y1="133" x2="98" y2="147" stroke={accent} strokeWidth="2" />
         <text x="78" y="170" fontSize="12" fill={accent} fontWeight="600">+ −</text>
-        <text x="72" y="120" fontSize="13" fill={stroke} fontWeight="600">Battery</text>
+        <text x="72" y="120" fontSize="13" fill={stroke} fontWeight="600">{vLabel || "Battery"}</text>
         <path d="M190 130 L200 110 L210 150 L220 110 L230 150 L240 130" fill="none" stroke={stroke} strokeWidth="2" />
-        <text x="200" y="105" fontSize="13" fill={stroke} fontWeight="600">R</text>
+        <text x="200" y="105" fontSize="13" fill={stroke} fontWeight="600">{rLabel}</text>
         <circle cx="300" cy="140" r="16" fill="none" stroke={stroke} strokeWidth="2" />
         <text x="294" y="146" fontSize="14" fill={stroke} fontWeight="600">A</text>
-        <text x="280" y="118" fontSize="12" fill={faint}>Ammeter</text>
+        <text x="280" y="118" fontSize="12" fill={faint}>{current ? `I = ${current} A` : "Ammeter"}</text>
         <line x1="148" y1="50" x2="148" y2="38" stroke={stroke} strokeWidth="2" />
         <line x1="148" y1="38" x2="172" y2="38" stroke={stroke} strokeWidth="2" />
         <line x1="172" y1="38" x2="172" y2="50" stroke={stroke} strokeWidth="2" />
