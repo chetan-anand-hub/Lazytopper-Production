@@ -225,8 +225,8 @@ export function getJourneyProgress(uid?: string | null): {
 } {
   const state = loadState(uid);
   const total = canonicalChapters.length;
-  const completed = state.completedChapterIds.length;
-  return { completed, total, percent: total > 0 ? Math.round((completed / total) * 100) : 0 };
+  const touched = state.completedChapterIds.length + (state.currentChapter ? 1 : 0);
+  return { completed: touched, total, percent: total > 0 ? Math.round((touched / total) * 100) : 0 };
 }
 
 export function getPhaseLabel(phase: JourneyPhase): string {

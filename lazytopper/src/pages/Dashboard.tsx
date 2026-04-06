@@ -434,7 +434,7 @@ export default function Dashboard() {
                 background: "#22c55e", color: "#000", fontWeight: 800, fontSize: 15,
                 fontFamily: "'Space Grotesk', sans-serif", cursor: "pointer",
                 boxShadow: "0 0 24px rgba(34,197,94,0.3)",
-              }}>{journeyState.currentChapter?.phase === "review" ? "Complete Chapter ✓" : "Continue Learning"}</button>
+              }}>{journeyState.currentChapter?.phase === "review" ? "Complete Chapter ✓" : journeyState.detour ? "Resume Learning" : "Continue Learning"}</button>
             </div>
           )}
 
