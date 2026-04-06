@@ -2126,6 +2126,7 @@ const packTopicKey = useMemo(() => {
                             const diff = String(q.difficulty ?? "Medium");
                             setSelfAssessments((prev) => ({ ...prev, [q.id]: "need_practice" }));
                             recordQuestionAnswered();
+                            recordPracticeInPhase(authUserForJourney?.uid);
                             const nextTracker = recordSelfAssessment(sessionTracker, q.id, "need_practice", concept, diff);
 
                             const pendingFollowUp = nextTracker.followUpQueue.find(

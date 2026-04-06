@@ -13,6 +13,7 @@ export interface GuidedChapterState {
   phase: JourneyPhase;
   practiceCount: number;
   mockDone: boolean;
+  learnStartedAt: number;
 }
 
 export interface DetourInfo {
@@ -126,6 +127,7 @@ export function initOrResumeGuidedChapter(uid?: string | null): GuidedJourneySta
     phase: "learn",
     practiceCount: 0,
     mockDone: false,
+    learnStartedAt: 0,
   };
   saveState(state, uid);
   return state;
@@ -150,6 +152,26 @@ export function advancePhase(fromPhase?: JourneyPhase, uid?: string | null): Gui
   state.currentChapter = null;
   saveState(state, uid);
   return initOrResumeGuidedChapter(uid);
+}
+
+const LEARN_MIN_SECONDS = 120;
+
+export function recordLearnEngagement(topicSlug: string, uid?: string | null): void {
+  const state = loadState(uid);
+  if (!state.currentChapter) return;
+  if (state.currentChapter.phase !== "learn") return;
+  if (normalizeTopicKey(topicSlug) !== normalizeTopicKey(state.currentChapter.slug)) return;
+
+  if (!state.currentChapter.learnStartedAt) {
+    state.currentChapter.learnStartedAt = Date.now();
+    saveState(state, uid);
+    return;
+  }
+
+  const elapsed = (Date.now() - state.currentChapter.learnStartedAt) / 1000;
+  if (elapsed >= LEARN_MIN_SECONDS) {
+    advancePhase("learn", uid);
+  }
 }
 
 export function recordDetour(topicSlug: string, topicTitle: string, uid?: string | null): void {
@@ -230,6 +252,23 @@ export function getPhaseRoute(
       return `/topic-mock/${grade}/${subject.toLowerCase()}/${slug}`;
     case "review":
       return `/topic-hub/${grade}/${subject}/${slug}?tab=revision`;
+  }
+}
+
+export function getPhaseProgressText(chapter: GuidedChapterState): string {
+  switch (chapter.phase) {
+    case "learn": {
+      if (!chapter.learnStartedAt) return "Start learning";
+      const elapsed = Math.floor((Date.now() - chapter.learnStartedAt) / 1000);
+      const mins = Math.floor(elapsed / 60);
+      return mins >= 2 ? "Ready to practice" : `${mins}m studied`;
+    }
+    case "practice":
+      return `${chapter.practiceCount}/${PRACTICE_THRESHOLD} questions`;
+    case "mock":
+      return chapter.mockDone ? "Mock complete" : "Take chapter mock";
+    case "review":
+      return "Review & complete";
   }
 }
 

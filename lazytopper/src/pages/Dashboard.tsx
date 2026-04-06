@@ -25,6 +25,7 @@ import {
   clearDetour,
   getJourneyProgress,
   getPhaseLabel,
+  getPhaseProgressText,
   getPhaseRoute,
   getRaviMessage,
   type GuidedJourneyState,
@@ -417,6 +418,9 @@ export default function Dashboard() {
                   );
                 })}
               </div>
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", marginBottom: 8, fontWeight: 600 }}>
+                {getPhaseProgressText(journeyState.currentChapter!)}
+              </div>
               <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 12 }}>
                 <div style={{ flex: 1, height: 4, borderRadius: 2, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
                   <div style={{ width: `${journeyProgress.percent}%`, height: "100%", borderRadius: 2, background: "#22c55e", transition: "width 0.6s ease" }} />
@@ -540,6 +544,10 @@ export default function Dashboard() {
                   })}
                 </div>
               </div>
+            </div>
+
+            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", marginBottom: 8, fontWeight: 600 }}>
+              {getPhaseProgressText(journeyState.currentChapter!)}
             </div>
 
             <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 12 }}>

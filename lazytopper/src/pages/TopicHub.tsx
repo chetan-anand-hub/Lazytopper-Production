@@ -14,7 +14,7 @@ import * as gam from "../utils/gamification";
 import type { V2Definition } from "../utils/getTopicV2Content";
 import type { CanonicalQuestion } from "../data/predictionTypes";
 import type { ChapterId } from "../engine/smartLearningTypes";
-import { recordDetour, advancePhase, getGuidedJourneyState } from "../services/guidedJourneyService";
+import { recordDetour, recordLearnEngagement, getGuidedJourneyState } from "../services/guidedJourneyService";
 import { useAuth } from "../context/AuthContext";
 
 type SubjectKey = "maths" | "science";
@@ -195,10 +195,7 @@ export default function TopicHub() {
     if (!topicKey) return;
     const uid = authUserForJourney?.uid;
     recordDetour(topicKey, title, uid);
-    const state = getGuidedJourneyState(uid);
-    if (state.currentChapter && normalizeTopicKey(topicKey) === normalizeTopicKey(state.currentChapter.slug)) {
-      advancePhase("learn", uid);
-    }
+    recordLearnEngagement(topicKey, uid);
   }, [topicKey, title, authUserForJourney?.uid]);
   const tier = String(v2?.tier || "good-to-do");
   const tierStyle = TIER_STYLES[tier] || TIER_STYLES["good-to-do"];
