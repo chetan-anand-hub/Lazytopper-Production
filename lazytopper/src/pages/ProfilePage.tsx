@@ -786,7 +786,7 @@ export default function ProfilePage() {
         <div style={{ display: "flex", gap: 10 }}>
           <button
             type="button"
-            onClick={() => navigate("/weak-area-practice")}
+            onClick={() => navigate("/weak-area-practice", { state: { back: "/profile", backLabel: "Back to Profile" } })}
             style={{
               flex: 1,
               padding: "12px 20px",
@@ -804,7 +804,7 @@ export default function ProfilePage() {
           </button>
           <button
             type="button"
-            onClick={() => navigate("/parent-dashboard")}
+            onClick={() => navigate("/parent-dashboard", { state: { back: "/profile", backLabel: "Back to Profile" } })}
             style={{
               flex: 1,
               padding: "12px 20px",

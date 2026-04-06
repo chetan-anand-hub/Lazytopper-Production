@@ -11,7 +11,7 @@ const PredictivePapersPage: React.FC = () => {
   const navigate = useNavigate();
 
   const openPaper = (paper: PredictivePaper) => {
-    navigate(`/mock-paper/${paper.slug}`);
+    navigate(`/mock-paper/${paper.slug}`, { state: { back: "/predictive-papers", backLabel: "Back to Mock Tests" } });
   };
 
   const startExamSimulation = (subject: "Maths" | "Science") => {

@@ -1,7 +1,7 @@
 // src/pages/MockPaper.tsx
 
 import React from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import {
   predictedQuestions as predictedMathQuestions,
   predictedQuestionsById,
@@ -39,6 +39,8 @@ function toMathSectionBlueprint(sectionMarks: Record<SectionKey, number>) {
 
 const MockPaperPage: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const navState = (location.state as { back?: string; backLabel?: string } | null) || null;
   const params = useParams<{ slug?: string }>();
 
   // 1️⃣ Which predictive paper are we showing? (slug from URL)
@@ -188,7 +190,7 @@ const MockPaperPage: React.FC = () => {
   };
 
   const handleBack = () => {
-    navigate("/predictive-papers");
+    navigate(navState?.back || "/predictive-papers");
   };
 
   const handlePrint = () => {
@@ -486,7 +488,7 @@ const MockPaperPage: React.FC = () => {
         <div style={{ textAlign: "center", margin: "24px 0" }}>
           <button
             type="button"
-            onClick={() => navigate("/weak-area-practice")}
+            onClick={() => navigate("/weak-area-practice", { state: { back: "/predictive-papers", backLabel: "Back to Mock Tests" } })}
             style={{
               padding: "12px 28px", borderRadius: 16, border: "none",
               background: "#ff9600", color: "#fff", fontWeight: 800,
