@@ -77,7 +77,10 @@ export function computeWeightedAccuracy(result: QuizResult): number {
   const mcqWeight = 0.75;
   const weightedCorrect =
     result.mcqCorrect * mcqWeight + result.nonMcqCorrect * 1.0;
-  return Math.round((weightedCorrect / result.totalQuestions) * 100);
+  const weightedMax =
+    result.mcqCount * mcqWeight + result.nonMcqCount * 1.0;
+  if (weightedMax <= 0) return 0;
+  return Math.round((weightedCorrect / weightedMax) * 100);
 }
 
 export function computeSimpleAccuracy(result: QuizResult): number {
@@ -119,7 +122,7 @@ export function updateMasteryLevel(
   isChapterTest: boolean = false
 ): MasteryLevel {
   if (result.totalQuestions <= 0) return current;
-  const accuracy = computeSimpleAccuracy(result);
+  const accuracy = computeWeightedAccuracy(result);
 
   if (current === "not_started") {
     return promoteMastery("attempted", accuracy, isChapterTest);
