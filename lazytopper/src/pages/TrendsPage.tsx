@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useSmartLearning } from "../engine/smartLearningStore";
 import type { ChapterMeta } from "../engine/smartLearningTypes";
@@ -142,6 +142,30 @@ const TrendsPage: React.FC = () => {
   const [activeTier, setActiveTier] = useState<TierFilter>("all");
   const [activeStream, setActiveStream] = useState<StreamKey>("all");
   const [showPaperDetails, setShowPaperDetails] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const toggleDropdown = useCallback((topicName: string) => {
+    setOpenDropdown((prev) => (prev === topicName ? null : topicName));
+  }, []);
+
+  useEffect(() => {
+    if (!openDropdown) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setOpenDropdown(null);
+      }
+    };
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpenDropdown(null);
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [openDropdown]);
 
   const { topicEntries, difficultyMix } = useMemo(() => getNormalisedDataset(subjectKey), [subjectKey]);
 
@@ -450,10 +474,14 @@ const TrendsPage: React.FC = () => {
                 const tc = tierColor(tier);
                 const ml = getChapterMasteryLevel(`${grade}-${subjectKey}-${topicKey}`);
 
+                const isDropdownOpen = openDropdown === topicName;
+
                 return (
                   <div key={topicName} className="glass-card" style={{
                     padding: "14px 16px 12px",
                     borderColor: `${tc}25`,
+                    position: "relative",
+                    zIndex: isDropdownOpen ? 20 : 0,
                   }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
                       <div style={{ flex: 1, minWidth: 0 }}>
@@ -494,43 +522,49 @@ const TrendsPage: React.FC = () => {
                             Learn & Practice
                           </button>
 
-                          <details style={{ position: "relative" }}>
-                            <summary style={{
-                              borderRadius: 10, padding: "6px 12px",
-                              border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.03)",
-                              fontSize: "0.72rem", fontWeight: 600, color: "rgba(255,255,255,0.5)",
-                              cursor: "pointer", listStyle: "none",
-                            }}>
-                              More ▾
-                            </summary>
-                            <div style={{
-                              position: "absolute", zIndex: 10, marginTop: 4,
-                              display: "grid", gap: 3, minWidth: 190, padding: 6,
-                              borderRadius: 10, border: "1px solid rgba(255,255,255,0.08)",
-                              background: "rgba(18,18,18,0.95)", backdropFilter: "blur(16px)",
-                              boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
-                            }}>
-                              {[
-                                { label: "Practice questions", handler: () => handlePracticeFromTopic(topicName) },
-                                { label: "Predicted questions", handler: () => handleSampleQuestion(topicName) },
-                                { label: "Build topic mock", handler: () => handleQuickTopicMock(topicName) },
-                                { label: "Exam tips", handler: () => handleExamTips(topicName) },
-                              ].map((action) => (
-                                <button
-                                  key={action.label}
-                                  onClick={action.handler}
-                                  style={{
-                                    borderRadius: 8, padding: "7px 10px", border: "none",
-                                    background: "rgba(255,255,255,0.03)", fontSize: "0.72rem",
-                                    fontWeight: 500, color: "rgba(255,255,255,0.55)",
-                                    cursor: "pointer", textAlign: "left",
-                                  }}
-                                >
-                                  {action.label}
-                                </button>
-                              ))}
-                            </div>
-                          </details>
+                          <div style={{ position: "relative" }} ref={isDropdownOpen ? dropdownRef : undefined}>
+                            <button
+                              type="button"
+                              onClick={() => toggleDropdown(topicName)}
+                              style={{
+                                borderRadius: 10, padding: "6px 12px",
+                                border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.03)",
+                                fontSize: "0.72rem", fontWeight: 600, color: "rgba(255,255,255,0.5)",
+                                cursor: "pointer",
+                              }}
+                            >
+                              More {isDropdownOpen ? "▴" : "▾"}
+                            </button>
+                            {isDropdownOpen && (
+                              <div style={{
+                                position: "absolute", zIndex: 50, marginTop: 4,
+                                display: "grid", gap: 3, minWidth: 190, padding: 6,
+                                borderRadius: 10, border: "1px solid rgba(255,255,255,0.08)",
+                                background: "rgba(18,18,18,0.97)", backdropFilter: "blur(16px)",
+                                boxShadow: "0 4px 20px rgba(0,0,0,0.5)",
+                              }}>
+                                {[
+                                  { label: "Practice questions", handler: () => handlePracticeFromTopic(topicName) },
+                                  { label: "Predicted questions", handler: () => handleSampleQuestion(topicName) },
+                                  { label: "Build topic mock", handler: () => handleQuickTopicMock(topicName) },
+                                  { label: "Exam tips", handler: () => handleExamTips(topicName) },
+                                ].map((action) => (
+                                  <button
+                                    key={action.label}
+                                    onClick={() => { action.handler(); setOpenDropdown(null); }}
+                                    style={{
+                                      borderRadius: 8, padding: "7px 10px", border: "none",
+                                      background: "rgba(255,255,255,0.03)", fontSize: "0.72rem",
+                                      fontWeight: 500, color: "rgba(255,255,255,0.55)",
+                                      cursor: "pointer", textAlign: "left",
+                                    }}
+                                  >
+                                    {action.label}
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
 
