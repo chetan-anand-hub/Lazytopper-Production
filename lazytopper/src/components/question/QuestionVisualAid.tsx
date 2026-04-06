@@ -118,7 +118,7 @@ function inferVisualKind(props: QuestionVisualAidProps): VisualKind | null {
   return null;
 }
 
-function svgForKind(kind: VisualKind, questionText: string): React.ReactElement {
+function svgForKind(kind: VisualKind, questionText: string): React.ReactElement | null {
   const stroke = "#3c3c3c";
   const accent = "#0ea5e9";
   const faint = "#94a3b8";
@@ -1066,7 +1066,7 @@ function svgForKind(kind: VisualKind, questionText: string): React.ReactElement 
     );
   }
 
-  return null as unknown as React.ReactElement;
+  return null;
 }
 
 const AI_DIAGRAM_CACHE = new Map<string, string>();
@@ -1278,6 +1278,9 @@ export function QuestionVisualAid(props: QuestionVisualAidProps): React.ReactEle
     );
   }
 
+  const svg = svgForKind(kind, props.questionText || "");
+  if (!svg) return null;
+
   return (
     <div
       className="qva-container"
@@ -1292,7 +1295,7 @@ export function QuestionVisualAid(props: QuestionVisualAidProps): React.ReactEle
       <div style={{ fontSize: "0.72rem", color: "#475569", marginBottom: 4 }}>
         Visual aid (not to scale)
       </div>
-      {svgForKind(kind, props.questionText || "")}
+      {svg}
     </div>
   );
 }

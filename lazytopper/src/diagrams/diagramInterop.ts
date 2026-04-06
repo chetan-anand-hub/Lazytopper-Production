@@ -102,7 +102,7 @@ export function buildDiagramBlockFromLegacy(
 
   if (isDiagramSpec(input.diagramSpec)) {
     return createDiagramBlock({
-      diagramType,
+      diagramType: diagramType ?? "geometry_triangle",
       diagramIntent: input.diagramIntent ?? "mentor_support",
       title: input.title || input.diagramSpec.title,
       caption: input.caption || input.diagramSpec.caption,
