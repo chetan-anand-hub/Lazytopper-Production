@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useProfile } from "../context/ProfileContext";
 import { daysLeftFromIsoDate, fetchCbseExamDate } from "../services/cbseExamDate";
 import { cbseDates } from "../config/cbseDates";
+import { checkAndUpdateProfile, detectProfileFromDays, getProfileSummary, getProfileConfig } from "../services/paceProfileService";
 
 function formatIsoDate(iso: string): string {
   const date = new Date(`${iso}T00:00:00`);
@@ -97,6 +98,7 @@ export default function Onboarding() {
       hoursPerDay,
       currentPercent,
     };
+    checkAndUpdateProfile(daysLeft);
     setProfileAndCompute(nextProfile);
     navigate("/dashboard");
   };
@@ -252,6 +254,33 @@ export default function Onboarding() {
               fontSize: 14, fontWeight: 600, marginTop: 4,
             }}
           />
+
+          {(() => {
+            const daysNum = Number(days || autoDaysLeft);
+            if (daysNum > 0) {
+              const profileType = detectProfileFromDays(daysNum);
+              const config = getProfileConfig(profileType);
+              const summary = getProfileSummary(profileType, daysNum);
+              const profileColors: Record<string, string> = { marathon: "#3b82f6", sprint: "#f97316", crash: "#ef4444" };
+              return (
+                <div style={{
+                  marginTop: 16, padding: "12px 16px", borderRadius: 12,
+                  background: `${profileColors[profileType]}10`,
+                  border: `1px solid ${profileColors[profileType]}30`,
+                }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                    <span style={{
+                      padding: "2px 10px", borderRadius: 999, fontSize: 11, fontWeight: 800,
+                      background: profileColors[profileType], color: "#000", textTransform: "uppercase",
+                    }}>{config.label}</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: profileColors[profileType] }}>mode</span>
+                  </div>
+                  <p style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", lineHeight: 1.5, margin: 0 }}>{summary}</p>
+                </div>
+              );
+            }
+            return null;
+          })()}
 
           <button
             onClick={handleSubmit}

@@ -2,6 +2,7 @@ import { canonicalChapters, type CanonicalChapter } from "../data/syllabus/cbse1
 import { topicHubV2Content } from "../data/topicHubV2Full";
 import { normalizeTopicKey } from "../utils/topicResolver";
 import { loadTopicMasterySnapshot } from "./topicHubMastery";
+import { getActivePaceProfile, type PaceProfileType } from "./paceProfileService";
 
 export type JourneyPhase = "learn" | "practice" | "mock" | "review";
 
@@ -61,7 +62,8 @@ export interface ScoredChapter {
   weightage: number;
 }
 
-export function scoreAndSortChapters(excludeIds?: Set<string>): ScoredChapter[] {
+export function scoreAndSortChapters(excludeIds?: Set<string>, paceProfile?: PaceProfileType): ScoredChapter[] {
+  const profile = paceProfile ?? getActivePaceProfile();
   const subjectMaxWeightage: Record<string, number> = {};
   for (const ch of canonicalChapters) {
     const meta = toTopicMeta(ch.canonicalSlug);
@@ -77,11 +79,37 @@ export function scoreAndSortChapters(excludeIds?: Set<string>): ScoredChapter[] 
     const maxW = subjectMaxWeightage[ch.subjectId] || 14;
     const baseYield = maxW > 0 ? meta.weightagePercent / maxW : 0;
     const weakness = 1 - mastery;
-    const matchScore = Math.round((0.6 * baseYield + 0.4 * weakness) * 100);
+
+    let matchScore: number;
+    if (profile === "crash") {
+      matchScore = Math.round((0.8 * baseYield * weakness + 0.2 * baseYield) * 100);
+    } else if (profile === "marathon") {
+      const pedagogicalOrder = ch.recommendedConceptPacks > 0 ? 1 / ch.recommendedConceptPacks : 0.5;
+      matchScore = Math.round((0.3 * baseYield + 0.3 * weakness + 0.4 * pedagogicalOrder) * 100);
+    } else {
+      matchScore = Math.round((0.6 * baseYield + 0.4 * weakness) * 100);
+    }
     scored.push({ chapter: ch, matchScore, mastery, weightage: meta.weightagePercent });
   }
 
-  scored.sort((a, b) => b.matchScore - a.matchScore);
+  if (profile === "crash") {
+    scored.sort((a, b) => {
+      const isMustCrackA = a.chapter.canonicalSlug && toTopicMeta(a.chapter.canonicalSlug).tier === "must-crack" ? 1 : 0;
+      const isMustCrackB = b.chapter.canonicalSlug && toTopicMeta(b.chapter.canonicalSlug).tier === "must-crack" ? 1 : 0;
+      if (isMustCrackA !== isMustCrackB) return isMustCrackB - isMustCrackA;
+      return b.matchScore - a.matchScore;
+    });
+  } else if (profile === "sprint") {
+    scored.sort((a, b) => {
+      const isMustCrackA = toTopicMeta(a.chapter.canonicalSlug).tier === "must-crack" ? 1 : 0;
+      const isMustCrackB = toTopicMeta(b.chapter.canonicalSlug).tier === "must-crack" ? 1 : 0;
+      if (isMustCrackA !== isMustCrackB) return isMustCrackB - isMustCrackA;
+      return b.matchScore - a.matchScore;
+    });
+  } else {
+    scored.sort((a, b) => b.matchScore - a.matchScore);
+  }
+
   return scored;
 }
 
@@ -119,12 +147,14 @@ export function initOrResumeGuidedChapter(uid?: string | null): GuidedJourneySta
   if (sorted.length === 0) return state;
 
   const best = sorted[0];
+  const activeProfile = getActivePaceProfile();
+  const startPhase: JourneyPhase = activeProfile === "crash" ? "practice" : "learn";
   state.currentChapter = {
     chapterId: best.chapter.chapterId,
     slug: best.chapter.canonicalSlug,
     title: best.chapter.title,
     subject: best.chapter.subjectId,
-    phase: "learn",
+    phase: startPhase,
     practiceCount: 0,
     mockDone: false,
     learnStartedAt: 0,

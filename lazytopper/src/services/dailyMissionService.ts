@@ -7,6 +7,7 @@ import type { CanonicalQuestion } from "../data/predictionTypes";
 import { normalizeTopicKey } from "../utils/topicResolver";
 import { getGuidedJourneyState, initOrResumeGuidedChapter, scoreAndSortChapters } from "./guidedJourneyService";
 import type { StudySessionLog } from "./sessionLogger";
+import { getActivePaceProfile, getProfileConfig, type PaceProfileType } from "./paceProfileService";
 
 interface PracticeQuestionView {
   id: string;
@@ -477,30 +478,65 @@ function getCurrentTopicSlug(subject: "Maths" | "Science", uid?: string | null):
   return match?.chapter.canonicalSlug || (subject === "Science" ? "ChemicalReactions" : "RealNumbers");
 }
 
+function buildSegmentsForProfile(
+  profile: PaceProfileType,
+  topicSlug: string,
+  subject: "Maths" | "Science",
+  seed: number,
+  extended: boolean
+): MissionSegment[] {
+  const config = getProfileConfig(profile);
+  const mix = config.missionMix;
+  const segments: MissionSegment[] = [];
+
+  if (profile === "crash") {
+    segments.push(buildRevisionSegment(subject, seed));
+    segments.push(buildPracticeSegment(topicSlug, subject, seed));
+    segments.push(buildExamSegment(subject, seed));
+    segments.push(buildExamSegment(subject, seed + 100));
+    if (extended || config.mockFrequency === "daily") {
+      segments.push(buildMockTestSegment(topicSlug, subject, seed));
+      segments.push(buildWeakDrillSegment(subject, topicSlug, seed));
+    }
+  } else if (profile === "sprint") {
+    segments.push(buildRevisionSegment(subject, seed));
+    if (mix.learn > 0) {
+      segments.push(buildLearningSegment(topicSlug, subject, seed));
+    }
+    segments.push(buildPracticeSegment(topicSlug, subject, seed));
+    segments.push(buildExamSegment(subject, seed));
+    if (extended) {
+      segments.push(buildMockTestSegment(topicSlug, subject, seed));
+      segments.push(buildWeakDrillSegment(subject, topicSlug, seed));
+    }
+  } else {
+    segments.push(buildRevisionSegment(subject, seed));
+    segments.push(buildLearningSegment(topicSlug, subject, seed));
+    segments.push(buildPracticeSegment(topicSlug, subject, seed));
+    segments.push(buildExamSegment(subject, seed));
+    if (extended) {
+      segments.push(buildMockTestSegment(topicSlug, subject, seed));
+      segments.push(buildWeakDrillSegment(subject, topicSlug, seed));
+    }
+  }
+
+  return segments;
+}
+
 export function generateDailyMission(
   grade: number,
   subject: "Maths" | "Science",
   uid?: string | null,
-  options?: { extended?: boolean }
+  options?: { extended?: boolean; paceProfile?: PaceProfileType }
 ): DailyMission {
   const date = todayKey();
   const weekend = isWeekendDay();
   const useExtended = options?.extended ?? weekend;
   const seed = seededHash(`${date}-${subject}-mission`);
   const topicSlug = getCurrentTopicSlug(subject, uid);
+  const profile = options?.paceProfile ?? getActivePaceProfile();
 
-  const segments: MissionSegment[] = [
-    buildRevisionSegment(subject, seed),
-    buildLearningSegment(topicSlug, subject, seed),
-    buildPracticeSegment(topicSlug, subject, seed),
-    buildExamSegment(subject, seed),
-  ];
-
-  if (useExtended) {
-    segments.push(buildMockTestSegment(topicSlug, subject, seed));
-    segments.push(buildWeakDrillSegment(subject, topicSlug, seed));
-  }
-
+  const segments = buildSegmentsForProfile(profile, topicSlug, subject, seed, useExtended);
   const totalMinutes = segments.reduce((sum, s) => sum + s.durationMinutes, 0);
 
   return { date, subject, grade, isWeekend: useExtended, segments, totalMinutes };
@@ -532,7 +568,15 @@ export function getMissionResumeInfo(subject: string): { segmentIndex: number; i
   if (!progress || progress.completed) return null;
   const answeredCount = progress.answers.filter((a) => a.submitted).length;
   if (answeredCount === 0) return null;
-  const totalSegments = Math.max(progress.completedSegments.length + 1, progress.segmentIndex + 1, isWeekendDay() ? 6 : 4);
+  const profile = getActivePaceProfile();
+  const profileCfg = getProfileConfig(profile);
+  const weekend = isWeekendDay();
+  const useExtended = profile === "crash" || weekend;
+  const baseSegments = useExtended ? 6 : 4;
+  const adjustedSegments = profileCfg.missionMix.learn === 0
+    ? Math.max(baseSegments, 5)
+    : baseSegments;
+  const totalSegments = Math.max(progress.completedSegments.length + 1, progress.segmentIndex + 1, adjustedSegments);
   const totalMinutes = totalSegments <= 4 ? 30 : 60;
   const elapsedMinutes = Math.round(progress.elapsedSeconds / 60);
   const remainingMinutes = Math.max(0, totalMinutes - elapsedMinutes);

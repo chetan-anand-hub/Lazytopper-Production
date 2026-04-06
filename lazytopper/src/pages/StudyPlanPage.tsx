@@ -18,6 +18,7 @@ import {
   buildHPQUrl,
   buildMockBuilderUrl,
 } from "../utils/buildUrl";
+import { detectProfileFromDays, getProfileConfig, getProfileSummary, loadPaceProfile } from "../services/paceProfileService";
 
 /* ------------------------------------------------------------------ */
 /* Types                                                              */
@@ -655,6 +656,30 @@ const StudyPlanPage: React.FC = () => {
               {scienceHoursPerDay}
             </span>
           </div>
+
+          {(() => {
+            const stored = loadPaceProfile();
+            const profileType = stored?.type ?? detectProfileFromDays(daysLeft);
+            const cfg = getProfileConfig(profileType);
+            const summary = getProfileSummary(profileType, daysLeft);
+            const profileColors: Record<string, string> = { marathon: "#3b82f6", sprint: "#f97316", crash: "#ef4444" };
+            const color = profileColors[profileType];
+            return (
+              <div style={{
+                marginTop: 14, padding: "12px 16px", borderRadius: 14,
+                background: `${color}08`, border: `1px solid ${color}25`,
+                display: "flex", alignItems: "flex-start", gap: 10,
+              }}>
+                <span style={{
+                  padding: "3px 10px", borderRadius: 999, fontSize: 10, fontWeight: 800,
+                  background: color, color: "#000", textTransform: "uppercase", whiteSpace: "nowrap", flexShrink: 0,
+                }}>{cfg.label}</span>
+                <p style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", lineHeight: 1.5, margin: 0 }}>
+                  {summary}
+                </p>
+              </div>
+            );
+          })()}
 
           {/* Subject tabs */}
           <div

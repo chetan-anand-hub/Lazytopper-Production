@@ -45,6 +45,18 @@ import {
   isMissionCompletedToday,
   getMissionResumeInfo,
 } from "../services/dailyMissionService";
+import {
+  checkAndUpdateProfile,
+  loadPaceProfile,
+  loadTransitionNotification,
+  dismissTransitionNotification,
+  setManualOverride,
+  clearManualOverride,
+  getProfileConfig,
+  getProfileSummary,
+  type PaceProfileType,
+  type PaceTransitionNotification,
+} from "../services/paceProfileService";
 
 type SubjectTitle = "Maths" | "Science";
 
@@ -173,6 +185,12 @@ export default function Dashboard() {
   const [planRecord] = useState<StrategyPlan | null>(() => getStrategyPlan());
   const [streak] = useState<number>(() => updateAndGetStreak());
   const attempts = getAttempts();
+  const [paceProfile, setPaceProfile] = useState(() => loadPaceProfile());
+  const [paceTransition, setPaceTransition] = useState<PaceTransitionNotification | null>(() => {
+    const n = loadTransitionNotification();
+    return n && !n.dismissed ? n : null;
+  });
+  const [showPaceSelector, setShowPaceSelector] = useState(false);
 
   const subjectForQuickActions: SubjectTitle = planRecord?.subject === "Science" ? "Science" : plannerSubject;
 
@@ -188,6 +206,12 @@ export default function Dashboard() {
       const dateResult = await fetchCbseExamDate(studentClass);
       if (cancelled) return;
       setExamDate(dateResult.examDate);
+      const daysLeft = Math.max(1, daysLeftFromIsoDate(dateResult.examDate));
+      const result = checkAndUpdateProfile(daysLeft);
+      setPaceProfile(result.profile);
+      if (result.transition && !result.transition.dismissed) {
+        setPaceTransition(result.transition);
+      }
     })();
     return () => { cancelled = true; };
   }, [user?.uid, profile?.studentClass]);
@@ -559,6 +583,19 @@ export default function Dashboard() {
             </div>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            {paceProfile && (() => {
+              const pc: Record<string, string> = { marathon: "#3b82f6", sprint: "#f97316", crash: "#ef4444" };
+              const color = pc[paceProfile.type] || "#3b82f6";
+              const cfg = getProfileConfig(paceProfile.type);
+              return (
+                <button type="button" onClick={() => setShowPaceSelector((p) => !p)} style={{
+                  display: "flex", alignItems: "center", gap: 4, padding: "4px 10px", borderRadius: 20,
+                  background: `${color}18`, border: `1px solid ${color}40`, cursor: "pointer",
+                }}>
+                  <span style={{ fontSize: 10, fontWeight: 800, color, textTransform: "uppercase" }}>{cfg.label}</span>
+                </button>
+              );
+            })()}
             <div style={{ display: "flex", alignItems: "center", gap: 4, padding: "4px 10px", borderRadius: 20, background: "rgba(249,115,22,0.12)", border: "1px solid rgba(249,115,22,0.25)" }}>
               <span style={{ fontSize: 14 }}>🔥</span>
               <span style={{ fontSize: 12, fontWeight: 800, color: "#fb923c" }}>{streak}</span>
@@ -670,6 +707,75 @@ export default function Dashboard() {
         </div>
 
         {/* HERO ACTION */}
+        {paceTransition && (
+          <div style={{
+            padding: "14px 16px", marginBottom: 16, borderRadius: 16,
+            background: "rgba(249,115,22,0.08)", border: "1px solid rgba(249,115,22,0.25)",
+          }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 800, color: "#f97316", marginBottom: 4 }}>
+                  {paceTransition.daysLeft} days to boards — switching to {getProfileConfig(paceTransition.to).label} mode
+                </div>
+                <p style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", margin: 0, lineHeight: 1.5 }}>
+                  {getProfileSummary(paceTransition.to, paceTransition.daysLeft)}
+                </p>
+              </div>
+              <button type="button" onClick={() => { dismissTransitionNotification(); setPaceTransition(null); }} style={{
+                background: "none", border: "none", color: "rgba(255,255,255,0.4)", cursor: "pointer",
+                fontSize: 16, padding: "0 4px", flexShrink: 0,
+              }}>✕</button>
+            </div>
+          </div>
+        )}
+
+        {showPaceSelector && paceProfile && (
+          <div className="glass-card" style={{ padding: 16, marginBottom: 16 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 10 }}>Study Pace Profile</div>
+            <p style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", marginBottom: 12, lineHeight: 1.5 }}>
+              {paceProfile.isManualOverride
+                ? `You manually set ${getProfileConfig(paceProfile.type).label} mode. Auto-detected: ${getProfileConfig(paceProfile.detectedType).label}.`
+                : `Auto-detected based on ${paceProfile.daysLeft} days until exam.`}
+            </p>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              {(["marathon", "sprint", "crash"] as PaceProfileType[]).map((pt) => {
+                const pc: Record<string, string> = { marathon: "#3b82f6", sprint: "#f97316", crash: "#ef4444" };
+                const color = pc[pt];
+                const cfg = getProfileConfig(pt);
+                const isActive = paceProfile.type === pt;
+                return (
+                  <button key={pt} type="button" onClick={() => {
+                    const updated = setManualOverride(pt);
+                    setPaceProfile(updated);
+                  }} style={{
+                    flex: 1, padding: "10px 8px", borderRadius: 12,
+                    border: isActive ? `2px solid ${color}` : "1px solid rgba(255,255,255,0.08)",
+                    background: isActive ? `${color}15` : "rgba(255,255,255,0.03)",
+                    cursor: "pointer",
+                  }}>
+                    <div style={{ fontSize: 11, fontWeight: 800, color: isActive ? color : "rgba(255,255,255,0.5)", textTransform: "uppercase" }}>
+                      {cfg.label}
+                    </div>
+                    <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>{cfg.tagline}</div>
+                  </button>
+                );
+              })}
+            </div>
+            {paceProfile.isManualOverride && (
+              <button type="button" onClick={() => {
+                const updated = clearManualOverride();
+                if (updated) setPaceProfile(updated);
+              }} style={{
+                marginTop: 8, padding: "6px 12px", borderRadius: 8, border: "none",
+                background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.5)",
+                fontSize: 11, fontWeight: 600, cursor: "pointer",
+              }}>
+                Reset to auto-detect
+              </button>
+            )}
+          </div>
+        )}
+
         <div className="glass-accent" style={{ padding: 20, marginBottom: 16 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
             <span style={{ fontSize: 20 }}>{heroAction.type === "resume_session" ? "⏩" : heroAction.type === "weak_topic" ? "⚠️" : "🎯"}</span>
