@@ -282,47 +282,57 @@ export default function TopicHub() {
     return Array.isArray(raw) ? raw.map((s) => String(s || "").trim()).filter(Boolean) : [];
   }, [v2]);
 
-  const MINI_QUIZ_SIZE = 3;
-
-  const fullQuestionPool = useMemo<CanonicalQuestion[]>(() => {
-    const practiceTopicKey = normalizeTopicKey(topicKey) || topicKey;
-    const practiceSet = generatePracticeSet({
-      subject: subject as "Maths" | "Science",
-      topicKey: practiceTopicKey,
-      totalQuestions: Math.max(definitions.length * MINI_QUIZ_SIZE, 15),
-      shuffle: true,
-    });
-    return (practiceSet.questions || []).filter(
-      (q) => Boolean(q.questionText) && Boolean(q.answer)
-    );
-  }, [subject, topicKey, definitions.length]);
-
   const conceptMiniQuizzes = useMemo<CanonicalQuestion[][]>(() => {
-    const mcqs = fullQuestionPool.filter((q) => Array.isArray(q.options) && q.options.length >= 2);
-    const nonMcqs = fullQuestionPool.filter((q) => !Array.isArray(q.options) || q.options.length < 2);
-    let mcqIdx = 0;
-    let nonMcqIdx = 0;
+    const practiceTopicKey = normalizeTopicKey(topicKey) || topicKey;
     return definitions.map((def) => {
+      const conceptSet = generatePracticeSet({
+        subject: subject as "Maths" | "Science",
+        topicKey: practiceTopicKey,
+        conceptKey: def.title,
+        totalQuestions: 10,
+        shuffle: true,
+      });
+      const conceptPool = (conceptSet.questions || []).filter(
+        (q) => Boolean(q.questionText) && Boolean(q.answer)
+      );
+
+      const fallbackSet = conceptPool.length < 4 ? generatePracticeSet({
+        subject: subject as "Maths" | "Science",
+        topicKey: practiceTopicKey,
+        totalQuestions: 10,
+        shuffle: true,
+      }) : { questions: [] };
+      const fallbackPool = ((fallbackSet.questions || []) as CanonicalQuestion[]).filter(
+        (q) => Boolean(q.questionText) && Boolean(q.answer)
+      );
+
+      const pool = [...conceptPool, ...fallbackPool];
+      const mcqs = pool.filter((q) => Array.isArray(q.options) && q.options.length >= 2);
+      const nonMcqs = pool.filter((q) => !Array.isArray(q.options) || q.options.length < 2);
+
       const quiz: CanonicalQuestion[] = [];
-      for (let i = 0; i < 2; i++) {
-        if (mcqIdx < mcqs.length) {
-          quiz.push(mcqs[mcqIdx++]);
-        } else if (nonMcqIdx < nonMcqs.length) {
-          quiz.push(nonMcqs[nonMcqIdx++]);
-        } else {
-          quiz.push(buildFallbackCheckpoint(def, title));
+      const used = new Set<string>();
+      const pickUnique = (arr: CanonicalQuestion[]): CanonicalQuestion | null => {
+        for (const q of arr) {
+          const key = q.id || q.questionText;
+          if (!used.has(key)) { used.add(key); return q; }
         }
+        return null;
+      };
+
+      for (let i = 0; i < 2; i++) {
+        const q = pickUnique(mcqs) || pickUnique(nonMcqs) || buildFallbackCheckpoint(def, title);
+        quiz.push(q);
       }
-      if (nonMcqIdx < nonMcqs.length) {
-        quiz.push(nonMcqs[nonMcqIdx++]);
-      } else if (mcqIdx < mcqs.length) {
-        quiz.push(mcqs[mcqIdx++]);
-      } else {
-        quiz.push(buildFallbackCheckpoint(def, title));
-      }
+      const sa = pickUnique(nonMcqs) || pickUnique(mcqs) || buildFallbackCheckpoint(def, title);
+      quiz.push(sa);
+
+      const extra = pickUnique(nonMcqs) || pickUnique(mcqs);
+      if (extra) quiz.push(extra);
+
       return quiz;
     });
-  }, [definitions, fullQuestionPool, title]);
+  }, [definitions, subject, topicKey, title]);
 
   const [phase, setPhase] = useState<LessonPhase>("landing");
   const [conceptIdx, setConceptIdx] = useState(0);
