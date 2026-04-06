@@ -227,7 +227,7 @@ export function getPhaseRoute(
     case "practice":
       return `/practice/${grade}/${subject}?topicKey=${slug}`;
     case "mock":
-      return `/practice/${grade}/${subject}?topicKey=${slug}&count=15&mode=mock`;
+      return `/topic-mock/${grade}/${subject.toLowerCase()}/${slug}`;
     case "review":
       return `/topic-hub/${grade}/${subject}/${slug}?tab=revision`;
   }
