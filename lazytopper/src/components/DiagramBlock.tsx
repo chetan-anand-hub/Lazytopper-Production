@@ -197,20 +197,6 @@ function ParallelAngleDiagram({ labels }: { labels: DiagramLabels }) {
   );
 }
 
-function DiagramPlaceholder({ labels }: { labels: DiagramLabels }) {
-  const labelKeys = Object.keys(labels);
-  return (
-    <svg viewBox="0 0 220 120" width="100%" height="auto" role="img" aria-label="Diagram placeholder">
-      <rect x="10" y="10" width="200" height="100" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="6 4" />
-      <text x="20" y="30" fontSize="10">Diagram placeholder</text>
-      {labelKeys.slice(0, 8).map((k, idx) => (
-        <text key={k} x={20} y={50 + idx * 10} fontSize="10">
-          {k}: {getLabel(labels, k)}
-        </text>
-      ))}
-    </svg>
-  );
-}
 
 export function DiagramBlock({
   diagram,
@@ -299,13 +285,11 @@ export function DiagramBlock({
         <SimilarityDiagram labels={labels} />
       ) : type === "TRIANGLE_GENERIC" ? (
         <TriangleGeneric labels={labels} />
-      ) : (
-        <DiagramPlaceholder labels={labels} />
-      )}
+      ) : null}
       </div>
-      {!normalizedDiagram || note ? (
+      {note ? (
         <div style={{ marginTop: 6, fontSize: 11, opacity: 0.7 }}>
-          {note || `Type: ${type}`}
+          {note}
         </div>
       ) : null}
     </div>

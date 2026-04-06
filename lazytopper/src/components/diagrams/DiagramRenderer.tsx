@@ -33,7 +33,6 @@ export function DiagramRenderer({
   const templateId = (diagramSpec as any).templateId ?? (diagramSpec as any).template ?? "unknown";
   const type = (diagramSpec as any).type ?? "unknown";
 
-  // Template router
   if (type === "triangle" && templateId === "triangle-basic") {
     return (
       <TriangleBasicDiagram
@@ -44,13 +43,5 @@ export function DiagramRenderer({
     );
   }
 
-  // Fallback (safe): show the raw spec so we never crash in UI.
-  return (
-    <div className="diagram-fallback">
-      <div style={{ fontWeight: 700, marginBottom: 8 }}>Diagram (unhandled template)</div>
-      <pre style={{ whiteSpace: "pre-wrap", fontSize: 12 }}>
-        {JSON.stringify({ type, templateId, diagramSpec, anchors }, null, 2)}
-      </pre>
-    </div>
-  );
+  return null;
 }

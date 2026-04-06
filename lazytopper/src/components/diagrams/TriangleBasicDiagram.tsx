@@ -63,10 +63,6 @@ export function TriangleBasicDiagram({ spec, anchors, highlightAnchorIds }: Prop
             );
           })}
       </svg>
-      {/* Spec meta (small) */}
-      <div style={{ fontSize: 12, opacity: 0.8, marginTop: 6 }}>
-        Template: {(spec as any).templateId ?? "triangle-basic"}
-      </div>
     </div>
   );
 }
