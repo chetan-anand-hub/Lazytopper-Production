@@ -94,7 +94,10 @@ export default function DailyMissionPage() {
   const [showSegmentTransition, setShowSegmentTransition] = useState(false);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [startedAt, setStartedAt] = useState(Date.now());
-  const [extendedMode, setExtendedMode] = useState(false);
+  const [extendedMode, setExtendedMode] = useState(() => {
+    const day = new Date().getDay();
+    return day === 0 || day === 6;
+  });
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 

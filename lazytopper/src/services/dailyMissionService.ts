@@ -553,9 +553,10 @@ export function computeMissionXP(progress: MissionProgress): { xp: number; strea
   const baseXP = correctAnswers * 10;
   const segmentBonus = completedSegs * 25;
   const fullCompletionBonus = progress.completed ? 50 : 0;
+  const coreSegmentsDone = progress.completedSegments.filter((si) => si < 4).length;
   return {
     xp: baseXP + segmentBonus + fullCompletionBonus,
-    streakEligible: completedSegs >= 4,
+    streakEligible: coreSegmentsDone >= 4,
   };
 }
 
