@@ -2098,7 +2098,7 @@ const packTopicKey = useMemo(() => {
                             const diff = String(q.difficulty ?? "Medium");
                             setSelfAssessments((prev) => ({ ...prev, [q.id]: "got_it" }));
                             recordQuestionAnswered();
-                            recordPracticeInPhase(authUserForJourney?.uid);
+                            recordPracticeInPhase(canonicalTopicKey || topicParam, authUserForJourney?.uid);
                             setSessionTracker((prev) => recordSelfAssessment(prev, q.id, "got_it", concept, diff));
                             const topicK = canonicalTopicKey || topicParam;
                             const snap = loadTopicMasterySnapshot(topicK);
@@ -2126,7 +2126,7 @@ const packTopicKey = useMemo(() => {
                             const diff = String(q.difficulty ?? "Medium");
                             setSelfAssessments((prev) => ({ ...prev, [q.id]: "need_practice" }));
                             recordQuestionAnswered();
-                            recordPracticeInPhase(authUserForJourney?.uid);
+                            recordPracticeInPhase(canonicalTopicKey || topicParam, authUserForJourney?.uid);
                             const nextTracker = recordSelfAssessment(sessionTracker, q.id, "need_practice", concept, diff);
 
                             const pendingFollowUp = nextTracker.followUpQueue.find(

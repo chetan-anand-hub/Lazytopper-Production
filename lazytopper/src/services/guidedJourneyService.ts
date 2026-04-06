@@ -191,10 +191,11 @@ export function clearDetour(uid?: string | null): void {
 
 const PRACTICE_THRESHOLD = 10;
 
-export function recordPracticeInPhase(uid?: string | null): void {
+export function recordPracticeInPhase(topicSlug: string, uid?: string | null): void {
   const state = loadState(uid);
   if (!state.currentChapter) return;
   if (state.currentChapter.phase !== "practice") return;
+  if (normalizeTopicKey(topicSlug) !== normalizeTopicKey(state.currentChapter.slug)) return;
   state.currentChapter.practiceCount += 1;
   saveState(state, uid);
   if (state.currentChapter.practiceCount >= PRACTICE_THRESHOLD) {
@@ -202,9 +203,10 @@ export function recordPracticeInPhase(uid?: string | null): void {
   }
 }
 
-export function markMockDone(uid?: string | null): void {
+export function markMockDone(topicSlug: string, uid?: string | null): void {
   const state = loadState(uid);
   if (!state.currentChapter) return;
+  if (normalizeTopicKey(topicSlug) !== normalizeTopicKey(state.currentChapter.slug)) return;
   state.currentChapter.mockDone = true;
   saveState(state, uid);
   if (state.currentChapter.phase === "mock") {

@@ -128,7 +128,7 @@ export default function TopicMockPage() {
       trackUxEvent("topic_mock_complete", "TopicMockPage", {
         topicKey, set: currentSet, score: result.percentScore, totalSeconds: elapsed,
       });
-      markMockDone(authUserForJourney?.uid);
+      markMockDone(topicKey, authUserForJourney?.uid);
     }
   }, [currentSectionIdx, paper, answers, elapsed, currentSet, topicKey, authUserForJourney?.uid]);
 

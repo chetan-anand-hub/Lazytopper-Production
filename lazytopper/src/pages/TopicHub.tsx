@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams, useSearchParams, useLocation } from "react-router-dom";
 import { getCanonicalChapters, toCanonicalSubjectId } from "../data/syllabus/cbse10Canonical";
 import { getTopicV2Content, normalizeTopicKey } from "../utils/topicHubV2Store";
@@ -196,6 +196,10 @@ export default function TopicHub() {
     const uid = authUserForJourney?.uid;
     recordDetour(topicKey, title, uid);
     recordLearnEngagement(topicKey, uid);
+    const interval = setInterval(() => {
+      recordLearnEngagement(topicKey, uid);
+    }, 30_000);
+    return () => clearInterval(interval);
   }, [topicKey, title, authUserForJourney?.uid]);
   const tier = String(v2?.tier || "good-to-do");
   const tierStyle = TIER_STYLES[tier] || TIER_STYLES["good-to-do"];
