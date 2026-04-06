@@ -440,11 +440,11 @@ export default function Dashboard() {
 
           <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4, marginBottom: 16 }}>
             {[
-              { label: "Practice", icon: "✏️", path: "/practice/10/Maths" },
+              { label: "Practice", icon: "✏️", path: `/practice/${gradeNum}/${subjectForQuickActions}` },
               { label: "Mock Tests", icon: "📝", path: "/predictive-papers" },
-              { label: "Predicted Q's", icon: "🎯", path: "/highly-probable/10/Maths" },
-              { label: "Daily Mix", icon: "🔥", path: "/daily-mix/10/Maths" },
-              { label: "All Chapters", icon: "📚", path: "/topic-hub/10/Maths" },
+              { label: "Predicted Q's", icon: "🎯", path: `/highly-probable/${gradeNum}/${subjectForQuickActions}` },
+              { label: "Daily Mix", icon: "🔥", path: `/daily-mix/${gradeNum}/${subjectForQuickActions}` },
+              { label: "All Chapters", icon: "📚", path: `/topic-hub/${gradeNum}/${subjectForQuickActions}` },
             ].map((a) => (
               <button key={a.label} onClick={() => navigate(a.path)} style={{
                 display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
