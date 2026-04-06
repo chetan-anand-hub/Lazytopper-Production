@@ -82,6 +82,7 @@ import {
   parseMentorStructuredText,
 } from "../utils/mentorStructured";
 import { recordDetour } from "../services/guidedJourneyService";
+import { useAuth } from "../context/AuthContext";
 type SubjectKey = "Maths" | "Science";
 type DifficultyChoice = "All" | "Easy" | "Medium" | "Hard";
 
@@ -659,6 +660,7 @@ const PracticePage: React.FC = () => {
   const location = useLocation();
   const params = useParams<{ grade?: string; subject?: string }>();
   const { recordQuestionAnswered } = usePracticeLimit();
+  const { user: authUserForJourney } = useAuth();
 
   const grade = params.grade || "10";
   const subjectKey: SubjectKey = normaliseSubject(params.subject ?? "Maths");
@@ -887,13 +889,6 @@ const [mentorSeedExample, setMentorSeedExample] = useState<{
     return getStrategyPackForTopic(strategyCanonicalTopicKey);
   }, [isWhyThisQuestionEnabled, strategyCanonicalTopicKey]);
 
-  useEffect(() => {
-    const slug = canonicalTopicKey || topicParam;
-    if (slug && slug !== "Generic") {
-      try { recordDetour(slug, topicLabel || slug); } catch {}
-    }
-  }, [canonicalTopicKey, topicParam, topicLabel]);
-
   const getQuestionStrategyDetails = useCallback(
     (question: PracticeQuestion | null): QuestionStrategyDetails | null => {
       if (!isWhyThisQuestionEnabled || !strategyPack || !question) return null;
@@ -970,6 +965,13 @@ const [mentorSeedExample, setMentorSeedExample] = useState<{
     if (!topicParam || topicParam === "Generic") return topicParam;
     return resolveTopicDisplayName(subjectKey, canonicalTopicKey || topicParam);
   }, [subjectKey, canonicalTopicKey, topicParam]);
+
+  useEffect(() => {
+    const slug = canonicalTopicKey || topicParam;
+    if (slug && slug !== "Generic") {
+      try { recordDetour(slug, topicLabel || slug, authUserForJourney?.uid); } catch {}
+    }
+  }, [canonicalTopicKey, topicParam, topicLabel, authUserForJourney?.uid]);
 
 const packTopicKey = useMemo(() => {
   const explicitFromState = (navState as any)?.topicKey as string | undefined;
