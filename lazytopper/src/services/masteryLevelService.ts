@@ -74,12 +74,17 @@ export interface QuizResult {
 
 export function computeWeightedAccuracy(result: QuizResult): number {
   if (result.totalQuestions <= 0) return 0;
-  const mcqPenalty = 0.75;
+  const mcqWeight = 0.75;
   const weightedCorrect =
-    result.mcqCorrect * mcqPenalty + result.nonMcqCorrect * 1.0;
-  const weightedTotal = result.totalQuestions;
-  if (weightedTotal <= 0) return 0;
-  return Math.round((weightedCorrect / weightedTotal) * 100);
+    result.mcqCorrect * mcqWeight + result.nonMcqCorrect * 1.0;
+  const weightedMax =
+    result.mcqCount * mcqWeight + result.nonMcqCount * 1.0;
+  if (weightedMax <= 0) return 0;
+  const raw = (weightedCorrect / weightedMax) * 100;
+  if (result.nonMcqCount === 0 && result.mcqCount > 0) {
+    return Math.round(Math.min(raw, 85));
+  }
+  return Math.round(raw);
 }
 
 export function computeSimpleAccuracy(result: QuizResult): number {
@@ -140,7 +145,7 @@ export function updateMasteryLevel(
 
 export function masteryFromLegacyPercent(percent: number): MasteryLevel {
   if (percent <= 0) return "not_started";
-  if (percent < 40) return "attempted";
+  if (percent < 70) return "attempted";
   if (percent < 100) return "familiar";
   return "proficient";
 }
