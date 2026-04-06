@@ -60,27 +60,28 @@ export function TrialBanner() {
   }
 
   const isLastDay = daysLeftInTrial <= 1;
-  const isUrgent = daysLeftInTrial <= 2;
+  const isDay6 = daysLeftInTrial === 2;
 
-  const accentColor = isLastDay ? "#ef4444" : isUrgent ? "#f59e0b" : "#3b82f6";
+  const accentColor = isLastDay ? "#ef4444" : isDay6 ? "#f59e0b" : "#22c55e";
   const bgGradient = isLastDay
     ? "linear-gradient(135deg, rgba(239,68,68,0.10), rgba(239,68,68,0.04))"
-    : isUrgent
+    : isDay6
     ? "linear-gradient(135deg, rgba(245,158,11,0.10), rgba(245,158,11,0.04))"
-    : "linear-gradient(135deg, rgba(59,130,246,0.06), rgba(59,130,246,0.02))";
+    : "linear-gradient(135deg, rgba(34,197,94,0.06), rgba(34,197,94,0.02))";
   const borderColor = isLastDay
     ? "rgba(239,68,68,0.15)"
-    : isUrgent
+    : isDay6
     ? "rgba(245,158,11,0.15)"
-    : "rgba(59,130,246,0.08)";
+    : "rgba(34,197,94,0.08)";
+  const isUrgent = isLastDay || isDay6;
 
   let message: string;
   let subMessage: string | null = null;
   if (isLastDay) {
-    message = "Trial ends today!";
+    message = "Last day!";
     subMessage = "Upgrade to keep your streak and mastery data";
-  } else if (isUrgent) {
-    message = `${daysLeftInTrial} day${daysLeftInTrial !== 1 ? "s" : ""} left!`;
+  } else if (isDay6) {
+    message = "1 day left!";
     subMessage = "Don't lose your progress";
   } else {
     message = `Day ${currentDay} of ${TRIAL_DAYS} — Free Trial`;
@@ -123,18 +124,33 @@ export function TrialBanner() {
           )}
         </div>
 
-        <button
-          type="button"
-          onClick={() => setShowUpgrade(true)}
-          style={{
-            border: "none", borderRadius: 8,
-            padding: "3px 10px", background: accentColor, color: "#fff",
-            fontSize: "0.72rem", fontWeight: 800, cursor: "pointer",
-            whiteSpace: "nowrap", opacity: 0.9,
-          }}
-        >
-          Upgrade
-        </button>
+        {isUrgent ? (
+          <button
+            type="button"
+            onClick={() => setShowUpgrade(true)}
+            style={{
+              border: "none", borderRadius: 8,
+              padding: "3px 10px", background: accentColor, color: "#fff",
+              fontSize: "0.72rem", fontWeight: 800, cursor: "pointer",
+              whiteSpace: "nowrap", opacity: 0.9,
+            }}
+          >
+            Upgrade
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setShowUpgrade(true)}
+            style={{
+              background: "none", border: "none",
+              color: accentColor, fontSize: "0.72rem", fontWeight: 700,
+              cursor: "pointer", whiteSpace: "nowrap",
+              textDecoration: "underline", textUnderlineOffset: 2,
+            }}
+          >
+            Upgrade
+          </button>
+        )}
 
         {!isUrgent && (
           <button
