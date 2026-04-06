@@ -163,6 +163,26 @@ export function initOrResumeGuidedChapter(uid?: string | null): GuidedJourneySta
   return state;
 }
 
+export function reconcileProfileTransition(uid?: string | null): GuidedJourneyState {
+  const state = loadState(uid);
+  const profile = getActivePaceProfile();
+  if (!state.currentChapter) return state;
+
+  if (profile === "crash") {
+    if (state.currentChapter.phase === "learn") {
+      state.currentChapter.phase = "practice";
+      saveState(state, uid);
+    }
+    const meta = toTopicMeta(state.currentChapter.slug);
+    if (meta.tier !== "must-crack") {
+      state.currentChapter = null;
+      saveState(state, uid);
+      return initOrResumeGuidedChapter(uid);
+    }
+  }
+  return state;
+}
+
 export function advancePhase(fromPhase?: JourneyPhase, uid?: string | null): GuidedJourneyState {
   const state = loadState(uid);
   if (!state.currentChapter) return initOrResumeGuidedChapter(uid);

@@ -40,6 +40,7 @@ import {
   getRaviMessage,
   type GuidedJourneyState,
   type JourneyPhase,
+  reconcileProfileTransition,
 } from "../services/guidedJourneyService";
 import {
   isMissionCompletedToday,
@@ -211,6 +212,7 @@ export default function Dashboard() {
       setPaceProfile(result.profile);
       if (result.transition && !result.transition.dismissed) {
         setPaceTransition(result.transition);
+        reconcileProfileTransition(uid);
       }
     })();
     return () => { cancelled = true; };
