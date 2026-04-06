@@ -81,10 +81,10 @@ export function PracticeLimitGate({ children }: { children: ReactNode }) {
         <h2 style={{ fontWeight: 900, fontSize: "1.3rem", marginBottom: 8 }}>
           Daily Limit Reached
         </h2>
-        <p style={{ color: "#888", fontSize: "0.92rem", marginBottom: 8, lineHeight: 1.5 }}>
+        <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.92rem", marginBottom: 8, lineHeight: 1.5 }}>
           You've used your {FREE_DAILY_LIMIT} free questions for today.
         </p>
-        <p style={{ color: "#888", fontSize: "0.88rem", marginBottom: 20, lineHeight: 1.5 }}>
+        <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.88rem", marginBottom: 20, lineHeight: 1.5 }}>
           Unlock unlimited practice for ₹149/month.
         </p>
         <button

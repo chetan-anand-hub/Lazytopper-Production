@@ -222,8 +222,15 @@ function normalizeDateToIso(raw) {
 function predictCbseExamDate(studentClass) {
   const now = new Date();
   const currentMonth = now.getMonth() + 1;
-  const year = currentMonth >= 8 ? now.getFullYear() + 1 : now.getFullYear();
-  const day = String(studentClass === '12' ? 16 : 15).padStart(2, '0');
+  let year = currentMonth >= 8 ? now.getFullYear() + 1 : now.getFullYear();
+  const dayNum = studentClass === '12' ? 16 : 15;
+  const todayUtc = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+  let examUtc = Date.UTC(year, 1, dayNum);
+  if (examUtc < todayUtc) {
+    year += 1;
+    examUtc = Date.UTC(year, 1, dayNum);
+  }
+  const day = String(dayNum).padStart(2, '0');
   return `${year}-02-${day}`;
 }
 

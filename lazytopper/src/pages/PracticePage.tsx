@@ -1882,7 +1882,7 @@ const packTopicKey = useMemo(() => {
                             const isWrongChoice = result === "wrong" && isSelected;
                             let bg = "transparent";
                             let border = "1px solid transparent";
-                            let optColor = "#3c3c3c";
+                            let optColor = "rgba(255,255,255,0.9)";
                             if (isCorrect) { bg = "rgba(34,197,94,0.08)"; border = "1px solid rgba(34,197,94,0.3)"; optColor = "#22c55e"; }
                             else if (isWrongChoice) { bg = "rgba(239,68,68,0.08)"; border = "1px solid rgba(239,68,68,0.3)"; optColor = "#ef4444"; }
                             else if (isSelected && !result) { bg = "rgba(59,130,246,0.08)"; border = "1px solid rgba(59,130,246,0.4)"; }

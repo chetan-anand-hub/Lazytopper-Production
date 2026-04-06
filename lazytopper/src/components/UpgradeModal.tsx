@@ -46,7 +46,7 @@ export function UpgradeModal({ open, onClose, featureLabel }: UpgradeModalProps)
           onClick={onClose}
           style={{
             position: "absolute", top: 12, right: 14,
-            background: "none", border: "none", fontSize: 20, cursor: "pointer", color: "#aaa",
+            background: "none", border: "none", fontSize: 20, cursor: "pointer", color: "#999",
           }}
         >
           ✕
@@ -54,11 +54,11 @@ export function UpgradeModal({ open, onClose, featureLabel }: UpgradeModalProps)
 
         <div style={{ textAlign: "center", marginBottom: 20 }}>
           <div style={{ fontSize: "2.5rem", marginBottom: 8 }}>🔓</div>
-          <h2 style={{ fontSize: "1.3rem", fontWeight: 900, margin: "0 0 6px" }}>
+          <h2 style={{ fontSize: "1.3rem", fontWeight: 900, margin: "0 0 6px", color: "#1a1a2e" }}>
             Unlock Full Access
           </h2>
           {featureLabel && (
-            <p style={{ fontSize: "0.88rem", color: "#888", margin: 0 }}>
+            <p style={{ fontSize: "0.88rem", color: "#666", margin: 0 }}>
               <strong>{featureLabel}</strong> is a premium feature
             </p>
           )}
@@ -87,7 +87,7 @@ export function UpgradeModal({ open, onClose, featureLabel }: UpgradeModalProps)
         )}
 
         <div style={{ marginBottom: 20 }}>
-          <p style={{ fontWeight: 800, fontSize: "0.92rem", marginBottom: 10 }}>
+          <p style={{ fontWeight: 800, fontSize: "0.92rem", marginBottom: 10, color: "#1a1a2e" }}>
             Premium includes:
           </p>
           <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
@@ -96,7 +96,7 @@ export function UpgradeModal({ open, onClose, featureLabel }: UpgradeModalProps)
                 key={f.id}
                 style={{
                   display: "flex", alignItems: "center", gap: 8,
-                  padding: "6px 0", fontSize: "0.88rem",
+                  padding: "6px 0", fontSize: "0.88rem", color: "#3c3c3c",
                 }}
               >
                 <span style={{ color: "#58cc02", fontWeight: 800 }}>✓</span>
@@ -123,7 +123,7 @@ export function UpgradeModal({ open, onClose, featureLabel }: UpgradeModalProps)
         </button>
 
         <p style={{
-          textAlign: "center", fontSize: "0.78rem", color: "#aaa",
+          textAlign: "center", fontSize: "0.78rem", color: "#999",
           marginTop: 10,
         }}>
           {tier === "free" && !isTrialExpired

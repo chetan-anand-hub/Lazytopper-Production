@@ -54,7 +54,7 @@ export function RequirePremium({ children, featureLabel }: { children: ReactNode
         <h2 style={{ fontWeight: 900, fontSize: "1.3rem", marginBottom: 8 }}>
           Premium Feature
         </h2>
-        <p style={{ color: "#888", fontSize: "0.92rem", marginBottom: 20, lineHeight: 1.5 }}>
+        <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.92rem", marginBottom: 20, lineHeight: 1.5 }}>
           {featureLabel || "This feature"} requires a premium subscription.
           <br />Start your free 7-day trial to unlock everything.
         </p>

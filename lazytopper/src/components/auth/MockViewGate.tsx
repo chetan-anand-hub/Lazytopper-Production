@@ -154,7 +154,7 @@ export function MockViewGate({ children }: { children: ReactNode }) {
         <h2 style={{ fontWeight: 900, fontSize: "1.3rem", marginBottom: 8 }}>
           Sign in to View More
         </h2>
-        <p style={{ color: "#888", fontSize: "0.92rem", marginBottom: 20, lineHeight: 1.5 }}>
+        <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.92rem", marginBottom: 20, lineHeight: 1.5 }}>
           You've viewed your free sample mock paper. Sign in to unlock more.
         </p>
         <a
@@ -180,10 +180,10 @@ export function MockViewGate({ children }: { children: ReactNode }) {
         <h2 style={{ fontWeight: 900, fontSize: "1.3rem", marginBottom: 8 }}>
           Mock Paper Limit Reached
         </h2>
-        <p style={{ color: "#888", fontSize: "0.92rem", marginBottom: 8, lineHeight: 1.5 }}>
+        <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.92rem", marginBottom: 8, lineHeight: 1.5 }}>
           Free users can take {FREE_WEEKLY_MOCK_LIMIT} mock test per week.
         </p>
-        <p style={{ color: "#888", fontSize: "0.88rem", marginBottom: 20, lineHeight: 1.5 }}>
+        <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.88rem", marginBottom: 20, lineHeight: 1.5 }}>
           Unlock unlimited mock tests for ₹149/month.
         </p>
         <button

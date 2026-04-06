@@ -91,10 +91,15 @@ export function clearCbseExamDateAdminOverride(studentClass: "10" | "12"): void 
 export function predictCbseExamDate(studentClass: "10" | "12"): string {
   const now = new Date();
   const month = now.getMonth() + 1;
-  const year = month >= 8 ? now.getFullYear() + 1 : now.getFullYear();
+  let year = month >= 8 ? now.getFullYear() + 1 : now.getFullYear();
   const tentativeDay = studentClass === "10" ? 15 : 16;
-  const d = new Date(Date.UTC(year, 1, tentativeDay));
-  return d.toISOString().slice(0, 10);
+  const todayUtc = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+  let examUtc = Date.UTC(year, 1, tentativeDay);
+  if (examUtc < todayUtc) {
+    year += 1;
+    examUtc = Date.UTC(year, 1, tentativeDay);
+  }
+  return new Date(examUtc).toISOString().slice(0, 10);
 }
 
 export function daysLeftFromIsoDate(isoDate: string): number {
