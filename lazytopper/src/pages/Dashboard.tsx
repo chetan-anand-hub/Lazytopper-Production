@@ -24,6 +24,7 @@ import {
   MASTERY_LABELS,
   MASTERY_COLORS,
   MASTERY_ICONS,
+  MASTERY_POINTS,
   MASTERY_RING_FRACTION,
   type MasteryLevel,
 } from "../services/masteryLevelService";
@@ -754,6 +755,7 @@ export default function Dashboard() {
                           </svg>
                         </div>
                         <div style={{ fontSize: 8, fontWeight: 700, color: MASTERY_COLORS[level], marginBottom: 1 }}>{MASTERY_LABELS[level]}</div>
+                        <div style={{ fontSize: 7, fontWeight: 600, color: "rgba(255,255,255,0.3)" }}>{MASTERY_POINTS[level]}pts</div>
                         <div style={{ fontSize: 9, fontWeight: 600, color: "rgba(255,255,255,0.5)", lineHeight: 1.2 }}>{t.topicName.length > 14 ? t.topicName.slice(0, 12) + "…" : t.topicName}</div>
                       </div>
                     );
@@ -780,6 +782,7 @@ export default function Dashboard() {
                           </svg>
                         </div>
                         <div style={{ fontSize: 8, fontWeight: 700, color: MASTERY_COLORS[level], marginBottom: 1 }}>{MASTERY_LABELS[level]}</div>
+                        <div style={{ fontSize: 7, fontWeight: 600, color: "rgba(255,255,255,0.3)" }}>{MASTERY_POINTS[level]}pts</div>
                         <div style={{ fontSize: 9, fontWeight: 600, color: "rgba(255,255,255,0.5)", lineHeight: 1.2 }}>{t.topicName.length > 14 ? t.topicName.slice(0, 12) + "…" : t.topicName}</div>
                       </div>
                     );

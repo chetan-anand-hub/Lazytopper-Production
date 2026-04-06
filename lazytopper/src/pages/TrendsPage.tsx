@@ -29,6 +29,7 @@ import {
   MASTERY_LABELS,
   MASTERY_COLORS,
   MASTERY_ICONS,
+  MASTERY_POINTS,
 } from "../services/masteryLevelService";
 
 type TierKey = "must-crack" | "high-roi" | "good-to-do";
@@ -522,6 +523,7 @@ const TrendsPage: React.FC = () => {
                               }}>
                                 <span>{MASTERY_ICONS[ml]}</span>
                                 <span>{MASTERY_LABELS[ml]}</span>
+                                <span style={{ fontSize: "0.65rem", opacity: 0.7 }}>{MASTERY_POINTS[ml]}pts</span>
                               </span>
                             );
                           })()}

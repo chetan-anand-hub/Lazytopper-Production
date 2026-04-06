@@ -13,6 +13,7 @@ import {
   MASTERY_LABELS,
   MASTERY_COLORS,
   MASTERY_ICONS,
+  MASTERY_POINTS,
   MASTERY_RING_FRACTION,
   type MasteryLevel,
 } from "../services/masteryLevelService";
@@ -346,6 +347,7 @@ function OverviewTab({ milestones, subjectTab, setSubjectTab, grade }: {
               <span style={{ marginTop: 4, fontSize: 10, fontWeight: 700, color: MASTERY_COLORS[level] }}>
                 {MASTERY_LABELS[level]}
               </span>
+              <span style={{ fontSize: 8, fontWeight: 600, color: "rgba(255,255,255,0.3)" }}>{MASTERY_POINTS[level]}pts</span>
               <span style={{ marginTop: 2, fontSize: 11, fontWeight: 600, textAlign: "center", lineHeight: 1.2, color: "rgba(255,255,255,0.6)" }}>
                 {TOPIC_DISPLAY_NAMES[tk] || tk}
               </span>

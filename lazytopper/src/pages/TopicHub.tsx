@@ -23,6 +23,8 @@ import {
   MASTERY_COLORS,
   MASTERY_ICONS,
   MASTERY_RING_FRACTION,
+  MASTERY_POINTS,
+  computeWeightedAccuracy,
   type QuizResult,
 } from "../services/masteryLevelService";
 
@@ -483,9 +485,7 @@ export default function TopicHub() {
       recordQuizResult(chapterId, quizResult, false);
       setMasteryVersion((v) => v + 1);
 
-      const accuracy = miniQuizAnswers.length > 0
-        ? (miniQuizAnswers.filter((a) => a.correct).length / miniQuizAnswers.length) * 100
-        : 0;
+      const accuracy = computeWeightedAccuracy(quizResult);
       const passed = accuracy >= 70;
 
       if (passed && currentDef) {
@@ -631,6 +631,9 @@ export default function TopicHub() {
                 </div>
                 <div style={{ fontSize: "0.75rem", color: MASTERY_COLORS[chapterMasteryLevel], fontWeight: 600 }}>
                   {MASTERY_LABELS[chapterMasteryLevel]}
+                </div>
+                <div style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.35)", fontWeight: 600 }}>
+                  {MASTERY_POINTS[chapterMasteryLevel]}pts
                 </div>
               </div>
             </div>

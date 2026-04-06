@@ -14,6 +14,7 @@ import {
   MASTERY_LABELS,
   MASTERY_COLORS,
   MASTERY_ICONS,
+  MASTERY_POINTS,
   getChapterMasteryLevel,
   type QuizResult,
 } from "../services/masteryLevelService";
@@ -70,15 +71,39 @@ export default function ChapterTestPage() {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const questions = useMemo<CanonicalQuestion[]>(() => {
-    const practiceSet = generatePracticeSet({
+    const normalizedKey = normalizeTopicKey(topicKey) || topicKey;
+    const pool = generatePracticeSet({
       subject,
-      topicKey: normalizeTopicKey(topicKey) || topicKey,
-      totalQuestions: CHAPTER_TEST_QUESTIONS,
+      topicKey: normalizedKey,
+      totalQuestions: 30,
       shuffle: true,
     });
-    return (practiceSet.questions || [])
-      .filter((q) => Boolean(q.questionText) && Boolean(q.answer))
-      .slice(0, CHAPTER_TEST_QUESTIONS);
+    const valid = (pool.questions || []).filter(
+      (q) => Boolean(q.questionText) && Boolean(q.answer)
+    );
+    const mcqs = valid.filter((q) => Array.isArray(q.options) && q.options.length >= 2);
+    const nonMcqs = valid.filter((q) => !Array.isArray(q.options) || q.options.length < 2);
+
+    const selected: CanonicalQuestion[] = [];
+    const used = new Set<string>();
+    const pick = (arr: CanonicalQuestion[], count: number) => {
+      let remaining = count;
+      for (const q of arr) {
+        if (remaining <= 0) break;
+        const key = q.id || q.questionText;
+        if (!used.has(key)) { used.add(key); selected.push(q); remaining--; }
+      }
+    };
+    pick(mcqs, 4);
+    pick(nonMcqs, 4);
+    const remaining = [...mcqs, ...nonMcqs].filter((q) => !used.has(q.id || q.questionText));
+    pick(remaining, CHAPTER_TEST_QUESTIONS - selected.length);
+
+    for (let i = selected.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [selected[i], selected[j]] = [selected[j], selected[i]];
+    }
+    return selected.slice(0, CHAPTER_TEST_QUESTIONS);
   }, [subject, topicKey]);
 
   useEffect(() => {
@@ -417,6 +442,7 @@ export default function ChapterTestPage() {
                   <div style={{ fontSize: "1rem", fontWeight: 800, color: MASTERY_COLORS[masteryRecord.level] }}>
                     {MASTERY_LABELS[masteryRecord.level]}
                   </div>
+                  <div style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.4)" }}>{MASTERY_POINTS[masteryRecord.level]}pts</div>
                 </div>
               </div>
 
