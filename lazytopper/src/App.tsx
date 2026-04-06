@@ -31,6 +31,7 @@ const MockBuilder = lazy(() => import("./pages/MockBuilder"));
 const StudyPlanPage = lazy(() => import("./pages/StudyPlanPage"));
 const PracticePage = lazy(() => import("./pages/PracticePage"));
 const DailyMixPage = lazy(() => import("./pages/DailyMixPage"));
+const DailyMissionPage = lazy(() => import("./pages/DailyMissionPage"));
 const WeeklyWrappedPage = lazy(() => import("./pages/WeeklyWrappedPage"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
 const WeakAreaPracticePage = lazy(() => import("./pages/WeakAreaPracticePage"));
@@ -540,6 +541,12 @@ export default function App() {
           <Route path="/ai-mentor" element={<Navigate to="/topic-hub" replace />} />
           <Route path="/mentor/:grade/:subject" element={<MentorRedirect />} />
           <Route path="/mentor" element={<Navigate to="/topic-hub" replace />} />
+
+          {/* Daily Mission — structured 30-min study session */}
+          <Route
+            path="/daily-mission/:grade/:subject"
+            element={<RequirePremium featureLabel="Daily Mission">{withRouteSuspense(<DailyMissionPage />)}</RequirePremium>}
+          />
 
           {/* Daily Mix route for personalised study mixes */}
           <Route

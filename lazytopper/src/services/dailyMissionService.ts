@@ -1,0 +1,554 @@
+import type { DailyMixItem } from "./dailyMixPlayback";
+import { getDueReviews, type SRConceptCard } from "./spacedRepetitionEngine";
+import { getHighlyProbableQuestions, type HPQQuestion } from "../data/highlyProbableQuestions";
+import { topicHubV2Content } from "../data/topicHubV2Full";
+import { generatePracticeSet } from "../data/practiceSetGenerator";
+import { normalizeTopicKey } from "../utils/topicResolver";
+import { getGuidedJourneyState, initOrResumeGuidedChapter, scoreAndSortChapters } from "./guidedJourneyService";
+import type { StudySessionLog } from "./sessionLogger";
+
+export type SegmentType = "revision" | "learning" | "practice" | "exam" | "mock" | "weakdrill";
+
+export interface MissionSegment {
+  type: SegmentType;
+  label: string;
+  color: string;
+  durationMinutes: number;
+  items: DailyMixItem[];
+}
+
+export interface DailyMission {
+  date: string;
+  subject: "Maths" | "Science";
+  grade: number;
+  isWeekend: boolean;
+  segments: MissionSegment[];
+  totalMinutes: number;
+}
+
+export interface MissionProgress {
+  date: string;
+  subject: string;
+  segmentIndex: number;
+  itemIndex: number;
+  answers: MissionAnswer[];
+  completedSegments: number[];
+  startedAt: number;
+  elapsedSeconds: number;
+  completed: boolean;
+}
+
+export interface MissionAnswer {
+  segmentIndex: number;
+  itemIndex: number;
+  studentAnswer: string;
+  feedback: string | null;
+  correct: boolean | null;
+  submitted: boolean;
+}
+
+const STORAGE_KEY = "lazytopper.dailyMission.v1";
+
+const SEGMENT_COLORS: Record<SegmentType, string> = {
+  revision: "#3b82f6",
+  learning: "#22c55e",
+  practice: "#f97316",
+  exam: "#ef4444",
+  mock: "#a855f7",
+  weakdrill: "#eab308",
+};
+
+function todayKey(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function isWeekendDay(): boolean {
+  const day = new Date().getDay();
+  return day === 0 || day === 6;
+}
+
+function seededHash(str: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+function seededShuffle<T>(arr: T[], seed: number): T[] {
+  const a = [...arr];
+  let s = seed;
+  for (let i = a.length - 1; i > 0; i--) {
+    s = (s * 1664525 + 1013904223) >>> 0;
+    const j = s % (i + 1);
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function getTopicMeta(slug: string): { topicName: string; overview: string[]; definitions: Array<{ title?: string; description?: string }> } {
+  const rec = (topicHubV2Content as Record<string, unknown>)[slug] as Record<string, unknown> | undefined;
+  if (!rec) return { topicName: slug, overview: [], definitions: [] };
+  return {
+    topicName: String(rec.topicName || slug).replace(/[-_]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
+    overview: Array.isArray(rec.overview) ? (rec.overview as string[]) : [],
+    definitions: Array.isArray(rec.definitions) ? (rec.definitions as Array<{ title?: string; description?: string }>) : [],
+  };
+}
+
+function buildRevisionSegment(subject: "Maths" | "Science", seed: number): MissionSegment {
+  const dueCards = getDueReviews({ subject, limit: 4 });
+  const items: DailyMixItem[] = dueCards.map((card: SRConceptCard, i: number) => {
+    const meta = getTopicMeta(card.topicKey);
+    return {
+      id: `mission-rev-${i}`,
+      type: "revision" as const,
+      title: `Review: ${meta.topicName}`,
+      description: `Concept: ${card.conceptKey.replace(/[-_]+/g, " ")}`,
+      payload: {
+        topicKey: card.topicKey,
+        conceptKey: card.conceptKey,
+        topic: meta.topicName,
+        stem: meta.overview[0] || `Recall and review ${card.conceptKey.replace(/[-_]+/g, " ")} from ${meta.topicName}.`,
+      },
+    };
+  });
+
+  if (items.length < 3) {
+    const hpqBuckets = getHighlyProbableQuestions(subject);
+    const shuffled = seededShuffle(hpqBuckets, seed);
+    for (const bucket of shuffled) {
+      if (items.length >= 4) break;
+      const q = bucket.questions[0];
+      if (!q) continue;
+      items.push({
+        id: `mission-rev-fill-${items.length}`,
+        type: "revision" as const,
+        title: `Quick Recall: ${bucket.topic}`,
+        description: `Review this high-probability concept`,
+        payload: {
+          topicKey: normalizeTopicKey(bucket.topic) || bucket.topic,
+          topic: bucket.topic,
+          stem: String(q.question || "").split("\n")[0] || `Review key concepts from ${bucket.topic}.`,
+        },
+      });
+    }
+  }
+
+  return {
+    type: "revision",
+    label: "Quick Revision",
+    color: SEGMENT_COLORS.revision,
+    durationMinutes: 5,
+    items: items.slice(0, 4),
+  };
+}
+
+function buildLearningSegment(topicSlug: string, subject: "Maths" | "Science", seed: number): MissionSegment {
+  const meta = getTopicMeta(topicSlug);
+  const items: DailyMixItem[] = [];
+
+  let conceptText = "";
+  if (meta.overview.length > 0) {
+    conceptText = meta.overview.slice(0, 2).join("\n\n");
+  } else if (meta.definitions.length > 0) {
+    const def = meta.definitions[0];
+    conceptText = `${def.title || ""}: ${def.description || ""}`.trim();
+  }
+  if (!conceptText) {
+    conceptText = `Learn the core concepts of ${meta.topicName}. Focus on definitions, formulas, and key principles.`;
+  }
+
+  items.push({
+    id: `mission-learn-concept-0`,
+    type: "video" as const,
+    title: `Concept: ${meta.topicName}`,
+    description: conceptText,
+    payload: {
+      topicKey: topicSlug,
+      topic: meta.topicName,
+      stem: conceptText,
+    },
+  });
+
+  const hpqBuckets = getHighlyProbableQuestions(subject);
+  const topicNorm = normalizeTopicKey(topicSlug);
+  const matchBucket = hpqBuckets.find((b) => normalizeTopicKey(b.topic) === topicNorm) || hpqBuckets.find((b) => normalizeTopicKey(b.topic).includes(topicNorm));
+
+  if (matchBucket) {
+    const shuffledQs = seededShuffle(matchBucket.questions, seed + 1);
+    const quizQs = shuffledQs.filter((q) => Number(q.marks || 1) <= 2).slice(0, 5);
+    for (let i = 0; i < quizQs.length && items.length < 6; i++) {
+      const q = quizQs[i];
+      items.push({
+        id: `mission-learn-q-${i}`,
+        type: "question" as const,
+        title: `Quiz: ${meta.topicName}`,
+        description: `${String(q.difficulty || "Medium")} | ${q.marks || 1} mark${(q.marks || 1) === 1 ? "" : "s"}`,
+        payload: {
+          questionId: String(q.id),
+          topicKey: topicSlug,
+          topic: meta.topicName,
+          stem: String(q.question || ""),
+          marks: q.marks || 1,
+          difficulty: String(q.difficulty || "Medium"),
+          modelAnswer: String(q.answer || ""),
+        },
+      });
+    }
+  }
+
+  if (items.length < 4) {
+    const practiceResult = generatePracticeSet({
+      subject,
+      topicKey: topicSlug,
+      totalQuestions: 5 - items.length + 1,
+      difficultyMix: { Easy: 0.6, Medium: 0.4, Hard: 0 },
+    });
+    for (const q of practiceResult.questions) {
+      if (items.length >= 6) break;
+      items.push({
+        id: `mission-learn-pq-${items.length}`,
+        type: "question" as const,
+        title: `Quiz: ${meta.topicName}`,
+        description: `${String((q as any).difficulty || "Easy")} | Quick check`,
+        payload: {
+          questionId: q.id,
+          topicKey: topicSlug,
+          topic: meta.topicName,
+          stem: String((q as any).questionText || (q as any).text || ""),
+          marks: (q as any).marks || 1,
+          difficulty: String((q as any).difficulty || "Easy"),
+          modelAnswer: String((q as any).answer || (q as any).modelAnswer || ""),
+        },
+      });
+    }
+  }
+
+  return {
+    type: "learning",
+    label: "New Concept",
+    color: SEGMENT_COLORS.learning,
+    durationMinutes: 10,
+    items,
+  };
+}
+
+function buildPracticeSegment(topicSlug: string, subject: "Maths" | "Science", seed: number): MissionSegment {
+  const meta = getTopicMeta(topicSlug);
+  const items: DailyMixItem[] = [];
+
+  const practiceResult = generatePracticeSet({
+    subject,
+    topicKey: topicSlug,
+    totalQuestions: 7,
+    difficultyMix: { Easy: 0.3, Medium: 0.5, Hard: 0.2 },
+    shuffle: true,
+  });
+
+  for (let i = 0; i < practiceResult.questions.length; i++) {
+    const q = practiceResult.questions[i];
+    items.push({
+      id: `mission-practice-${i}`,
+      type: "question" as const,
+      title: `Practice: ${meta.topicName}`,
+      description: `${String((q as any).canonicalDifficulty || (q as any).difficulty || "Medium")} | ${(q as any).marks || 2} mark${((q as any).marks || 2) === 1 ? "" : "s"}`,
+      payload: {
+        questionId: q.id,
+        topicKey: topicSlug,
+        topic: meta.topicName,
+        stem: String((q as any).questionText || (q as any).text || ""),
+        marks: (q as any).marks || 2,
+        difficulty: String((q as any).canonicalDifficulty || (q as any).difficulty || "Medium"),
+        modelAnswer: String((q as any).answer || (q as any).modelAnswer || ""),
+      },
+    });
+  }
+
+  if (items.length < 5) {
+    const hpqBuckets = getHighlyProbableQuestions(subject);
+    const topicNorm = normalizeTopicKey(topicSlug);
+    const bucket = hpqBuckets.find((b) => normalizeTopicKey(b.topic) === topicNorm);
+    if (bucket) {
+      const shuffled = seededShuffle(bucket.questions, seed + 2);
+      for (const q of shuffled) {
+        if (items.length >= 7) break;
+        items.push({
+          id: `mission-practice-hpq-${items.length}`,
+          type: "question" as const,
+          title: `Practice: ${meta.topicName}`,
+          description: `${String(q.difficulty || "Medium")} | ${q.marks || 2} marks`,
+          payload: {
+            questionId: String(q.id),
+            topicKey: topicSlug,
+            topic: meta.topicName,
+            stem: String(q.question || ""),
+            marks: q.marks || 2,
+            difficulty: String(q.difficulty || "Medium"),
+            modelAnswer: String(q.answer || ""),
+          },
+        });
+      }
+    }
+  }
+
+  return {
+    type: "practice",
+    label: "Adaptive Practice",
+    color: SEGMENT_COLORS.practice,
+    durationMinutes: 10,
+    items: items.slice(0, 7),
+  };
+}
+
+function buildExamSegment(subject: "Maths" | "Science", seed: number): MissionSegment {
+  const hpqBuckets = getHighlyProbableQuestions(subject);
+  const shuffledBuckets = seededShuffle(hpqBuckets, seed + 3);
+  const items: DailyMixItem[] = [];
+
+  for (const bucket of shuffledBuckets) {
+    if (items.length >= 3) break;
+    const highMarksQs = bucket.questions.filter((q: HPQQuestion) => (q.marks || 1) >= 3);
+    const q = highMarksQs[0] || bucket.questions[0];
+    if (!q) continue;
+    items.push({
+      id: `mission-exam-${items.length}`,
+      type: "question" as const,
+      title: `Exam Mode: ${bucket.topic}`,
+      description: `${String(q.difficulty || "Hard")} | ${q.marks || 3} marks | Timed`,
+      payload: {
+        questionId: String(q.id),
+        topicKey: normalizeTopicKey(bucket.topic) || bucket.topic,
+        topic: bucket.topic,
+        stem: String(q.question || ""),
+        marks: q.marks || 3,
+        difficulty: String(q.difficulty || "Hard"),
+        modelAnswer: String(q.answer || ""),
+        timed: true,
+      },
+    });
+  }
+
+  return {
+    type: "exam",
+    label: "Exam Simulation",
+    color: SEGMENT_COLORS.exam,
+    durationMinutes: 5,
+    items: items.slice(0, 3),
+  };
+}
+
+function buildMockTestSegment(topicSlug: string, subject: "Maths" | "Science", _seed: number): MissionSegment {
+  const meta = getTopicMeta(topicSlug);
+  const practiceResult = generatePracticeSet({
+    subject,
+    topicKey: topicSlug,
+    totalQuestions: 10,
+    difficultyMix: { Easy: 0.2, Medium: 0.5, Hard: 0.3 },
+    shuffle: true,
+  });
+
+  const items: DailyMixItem[] = practiceResult.questions.map((q, i) => ({
+    id: `mission-mock-${i}`,
+    type: "question" as const,
+    title: `Mock Test: ${meta.topicName}`,
+    description: `${String((q as any).canonicalDifficulty || (q as any).difficulty || "Medium")} | ${(q as any).marks || 2} marks | Timed`,
+    payload: {
+      questionId: q.id,
+      topicKey: topicSlug,
+      topic: meta.topicName,
+      stem: String((q as any).questionText || (q as any).text || ""),
+      marks: (q as any).marks || 2,
+      difficulty: String((q as any).canonicalDifficulty || (q as any).difficulty || "Medium"),
+      modelAnswer: String((q as any).answer || (q as any).modelAnswer || ""),
+      timed: true,
+    },
+  }));
+
+  return {
+    type: "mock",
+    label: "Chapter Mock Test",
+    color: SEGMENT_COLORS.mock,
+    durationMinutes: 15,
+    items: items.slice(0, 10),
+  };
+}
+
+function buildWeakDrillSegment(subject: "Maths" | "Science", excludeSlug: string, _seed: number): MissionSegment {
+  const scored = scoreAndSortChapters();
+  const subjectChapters = scored.filter((s) => {
+    const subj = s.chapter.subjectId === "science" ? "Science" : "Maths";
+    return subj === subject && s.chapter.canonicalSlug !== excludeSlug && s.mastery > 0 && s.mastery < 0.5;
+  });
+
+  subjectChapters.sort((a, b) => a.mastery - b.mastery);
+  const weakChapter = subjectChapters[0];
+  if (!weakChapter) {
+    return {
+      type: "weakdrill",
+      label: "Weak Area Drill",
+      color: SEGMENT_COLORS.weakdrill,
+      durationMinutes: 10,
+      items: [],
+    };
+  }
+
+  const slug = weakChapter.chapter.canonicalSlug;
+  const meta = getTopicMeta(slug);
+  const practiceResult = generatePracticeSet({
+    subject,
+    topicKey: slug,
+    totalQuestions: 5,
+    difficultyMix: { Easy: 0.4, Medium: 0.4, Hard: 0.2 },
+    shuffle: true,
+  });
+
+  const items: DailyMixItem[] = practiceResult.questions.map((q, i) => ({
+    id: `mission-weak-${i}`,
+    type: "question" as const,
+    title: `Weak Area: ${meta.topicName}`,
+    description: `${String((q as any).canonicalDifficulty || (q as any).difficulty || "Medium")} | Focus drill`,
+    payload: {
+      questionId: q.id,
+      topicKey: slug,
+      topic: meta.topicName,
+      stem: String((q as any).questionText || (q as any).text || ""),
+      marks: (q as any).marks || 2,
+      difficulty: String((q as any).canonicalDifficulty || (q as any).difficulty || "Medium"),
+      modelAnswer: String((q as any).answer || (q as any).modelAnswer || ""),
+    },
+  }));
+
+  return {
+    type: "weakdrill",
+    label: "Weak Area Drill",
+    color: SEGMENT_COLORS.weakdrill,
+    durationMinutes: 10,
+    items: items.slice(0, 5),
+  };
+}
+
+function getCurrentTopicSlug(subject: "Maths" | "Science", uid?: string | null): string {
+  const journey = getGuidedJourneyState(uid);
+  if (journey.currentChapter) {
+    const chSubject = journey.currentChapter.subject === "science" ? "Science" : "Maths";
+    if (chSubject === subject) return journey.currentChapter.slug;
+  }
+
+  const init = initOrResumeGuidedChapter(uid);
+  if (init.currentChapter) {
+    const chSubject = init.currentChapter.subject === "science" ? "Science" : "Maths";
+    if (chSubject === subject) return init.currentChapter.slug;
+  }
+
+  const scored = scoreAndSortChapters();
+  const match = scored.find((s) => {
+    const subj = s.chapter.subjectId === "science" ? "Science" : "Maths";
+    return subj === subject;
+  });
+  return match?.chapter.canonicalSlug || (subject === "Science" ? "ChemicalReactions" : "RealNumbers");
+}
+
+export function generateDailyMission(
+  grade: number,
+  subject: "Maths" | "Science",
+  uid?: string | null
+): DailyMission {
+  const date = todayKey();
+  const weekend = isWeekendDay();
+  const seed = seededHash(`${date}-${subject}-mission`);
+  const topicSlug = getCurrentTopicSlug(subject, uid);
+
+  const segments: MissionSegment[] = [
+    buildRevisionSegment(subject, seed),
+    buildLearningSegment(topicSlug, subject, seed),
+    buildPracticeSegment(topicSlug, subject, seed),
+    buildExamSegment(subject, seed),
+  ];
+
+  if (weekend) {
+    segments.push(buildMockTestSegment(topicSlug, subject, seed));
+    segments.push(buildWeakDrillSegment(subject, topicSlug, seed));
+  }
+
+  const totalMinutes = segments.reduce((sum, s) => sum + s.durationMinutes, 0);
+
+  return { date, subject, grade, isWeekend: weekend, segments, totalMinutes };
+}
+
+export function saveMissionProgress(subject: string, progress: MissionProgress): void {
+  try {
+    localStorage.setItem(`${STORAGE_KEY}.${subject}`, JSON.stringify(progress));
+  } catch {}
+}
+
+export function loadMissionProgress(subject: string): MissionProgress | null {
+  try {
+    const raw = localStorage.getItem(`${STORAGE_KEY}.${subject}`);
+    if (!raw) return null;
+    const parsed: MissionProgress = JSON.parse(raw);
+    if (parsed.date === todayKey() && parsed.subject === subject) return parsed;
+  } catch {}
+  return null;
+}
+
+export function isMissionCompletedToday(subject: string): boolean {
+  const progress = loadMissionProgress(subject);
+  return progress?.completed === true;
+}
+
+export function getMissionResumeInfo(subject: string): { segmentIndex: number; itemIndex: number; completedSegments: number; totalSegments: number } | null {
+  const progress = loadMissionProgress(subject);
+  if (!progress || progress.completed) return null;
+  const answeredCount = progress.answers.filter((a) => a.submitted).length;
+  if (answeredCount === 0) return null;
+  const totalSegments = Math.max(progress.completedSegments.length + 1, progress.segmentIndex + 1, isWeekendDay() ? 6 : 4);
+  return {
+    segmentIndex: progress.segmentIndex,
+    itemIndex: progress.itemIndex,
+    completedSegments: progress.completedSegments.length,
+    totalSegments,
+  };
+}
+
+export function computeMissionXP(progress: MissionProgress): { xp: number; streakEligible: boolean } {
+  const completedSegs = progress.completedSegments.length;
+  const correctAnswers = progress.answers.filter((a) => a.correct === true).length;
+  const baseXP = correctAnswers * 10;
+  const segmentBonus = completedSegs * 25;
+  const fullCompletionBonus = progress.completed ? 50 : 0;
+  return {
+    xp: baseXP + segmentBonus + fullCompletionBonus,
+    streakEligible: completedSegs >= 4,
+  };
+}
+
+const SESSION_LOG_KEY = "lazytopper.sessionLogs.v1";
+
+export function logMissionSession(subject: string, progress: MissionProgress): void {
+  try {
+    const log: StudySessionLog = {
+      id: `mission-${progress.date}-${subject}`,
+      userId: "local",
+      startTime: new Date(progress.startedAt).toISOString(),
+      endTime: new Date().toISOString(),
+      platform: "web",
+      status: progress.completed ? "completed" : "partial",
+      activities: [{
+        timestamp: new Date().toISOString(),
+        type: "dailyMission",
+        topicKey: subject,
+        durationMinutes: Math.round(progress.elapsedSeconds / 60),
+      }],
+    };
+    const logs: StudySessionLog[] = [];
+    try {
+      const raw = localStorage.getItem(SESSION_LOG_KEY);
+      if (raw) logs.push(...JSON.parse(raw));
+    } catch {}
+    logs.push(log);
+    localStorage.setItem(SESSION_LOG_KEY, JSON.stringify(logs.slice(-200)));
+  } catch {}
+}

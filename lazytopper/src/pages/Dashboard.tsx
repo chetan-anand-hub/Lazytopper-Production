@@ -41,6 +41,10 @@ import {
   type GuidedJourneyState,
   type JourneyPhase,
 } from "../services/guidedJourneyService";
+import {
+  isMissionCompletedToday,
+  getMissionResumeInfo,
+} from "../services/dailyMissionService";
 
 type SubjectTitle = "Maths" | "Science";
 
@@ -257,6 +261,16 @@ export default function Dashboard() {
   const gradeNum = String((studentClass || "").replace(/\D/g, "")) || "10";
   const dailyMixMinutes = mode === "zombie" ? 20 : 40;
 
+  const missionDoneToday = useMemo(() => isMissionCompletedToday(subjectForQuickActions), [subjectForQuickActions]);
+
+  const missionResumeInfo = useMemo(() => {
+    for (const subj of ["Maths", "Science"] as const) {
+      const info = getMissionResumeInfo(subj);
+      if (info) return { ...info, subject: subj };
+    }
+    return null;
+  }, []);
+
   const dailyMixDoneToday = useMemo(() => {
     try {
       const d = new Date();
@@ -287,21 +301,44 @@ export default function Dashboard() {
     return null;
   }, []);
 
+  const isWeekend = useMemo(() => { const d = new Date().getDay(); return d === 0 || d === 6; }, []);
+
   type HeroAction = { type: string; title: string; description: string; ctaLabel: string; onAction: () => void };
   const heroAction = useMemo<HeroAction>(() => {
+    if (missionResumeInfo) {
+      return {
+        type: "resume_mission",
+        title: "Resume Your Mission",
+        description: `You have an incomplete mission (${missionResumeInfo.completedSegments}/${missionResumeInfo.totalSegments} segments done). Pick up where you left off!`,
+        ctaLabel: "Resume Mission",
+        onAction: () => navigate(`/daily-mission/${gradeNum}/${missionResumeInfo.subject}`),
+      };
+    }
+    if (!missionDoneToday) {
+      const missionMinutes = isWeekend ? 60 : 30;
+      return {
+        type: "daily_mission",
+        title: isWeekend ? `Weekend Mission` : `${nowDayLabel()} Mission`,
+        description: isWeekend
+          ? "Extended session: revision + concept + practice + exam + mock test + weak area drill. Build mastery!"
+          : "4 segments: revision, concept, practice, exam. Complete all to maintain your streak!",
+        ctaLabel: `Start ${isWeekend ? "Weekend" : "Daily"} Mission — ${missionMinutes} min`,
+        onAction: () => navigate(`/daily-mission/${gradeNum}/${subjectForQuickActions}`),
+      };
+    }
     if (incompleteSession) {
       const kindLabel = incompleteSession.kind === "daily_mix" ? "Daily Mix" : "Study Session";
       return { type: "resume_session", title: `Continue Your ${kindLabel}`, description: `You have an incomplete ${kindLabel} (${incompleteSession.cursor}/${incompleteSession.total} done). Pick up where you left off!`, ctaLabel: `Resume ${kindLabel}`, onAction: () => navigate(`/daily-mix/${gradeNum}/${incompleteSession.subject}`) };
     }
     if (!dailyMixDoneToday) {
-      return { type: "daily_mix", title: `Your ${nowDayLabel()} Mix`, description: `${dailyMixPreview.filter(i => i.type === "question").length} questions + concept + revision. Complete to keep your streak!`, ctaLabel: `Start Daily Mix — ${dailyMixMinutes} min`, onAction: () => navigate(`/daily-mix/${gradeNum}/${subjectForQuickActions}`) };
+      return { type: "daily_mix", title: `Extra Practice`, description: `${dailyMixPreview.filter(i => i.type === "question").length} questions + concept + revision. Keep building momentum!`, ctaLabel: `Start Daily Mix — ${dailyMixMinutes} min`, onAction: () => navigate(`/daily-mix/${gradeNum}/${subjectForQuickActions}`) };
     }
     const weakRow = performanceRows.find(r => r.attempted >= 2 && r.accuracy < 50);
     if (weakRow) {
       return { type: "weak_topic", title: `Focus: ${weakRow.topicName}`, description: `Your accuracy on ${weakRow.topicName} is ${weakRow.accuracy}%. Practice to improve.`, ctaLabel: `Practice ${weakRow.topicName}`, onAction: () => navigate(`/practice/${gradeNum}/${weakRow.subject}?topic=${encodeURIComponent(weakRow.topicKey)}`) };
     }
-    return { type: "daily_mix", title: "Start Your Study Session", description: "Begin with today's Daily Mix to build consistency.", ctaLabel: "Start Daily Mix", onAction: () => navigate(`/daily-mix/${gradeNum}/${subjectForQuickActions}`) };
-  }, [incompleteSession, dailyMixDoneToday, dailyMixMinutes, dailyMixPreview, performanceRows, gradeNum, subjectForQuickActions, navigate]);
+    return { type: "daily_mission", title: "All done for today!", description: "Great work! Come back tomorrow for your next mission.", ctaLabel: "Start Extra Practice", onAction: () => navigate(`/daily-mix/${gradeNum}/${subjectForQuickActions}`) };
+  }, [missionResumeInfo, missionDoneToday, isWeekend, incompleteSession, dailyMixDoneToday, dailyMixMinutes, dailyMixPreview, performanceRows, gradeNum, subjectForQuickActions, navigate]);
 
   const [journeyState, setJourneyState] = useState<GuidedJourneyState>(() => {
     const raw = getGuidedJourneyState(user?.uid);

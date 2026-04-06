@@ -11,6 +11,7 @@ import {
 export type ActivityType =
   | "practice"
   | "dailyMix"
+  | "dailyMission"
   | "hpq"
   | "topicHub"
   | "mock"
@@ -33,7 +34,7 @@ export interface StudySessionLog {
   energyLevel?: "Low" | "High";
   activities: StudySessionActivity[];
   platform: "web";
-  status: "active" | "completed";
+  status: "active" | "completed" | "partial";
 }
 
 // Keep local copy for instant UI updates
