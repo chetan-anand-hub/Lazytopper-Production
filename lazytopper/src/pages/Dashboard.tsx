@@ -310,7 +310,7 @@ export default function Dashboard() {
         type: "resume_mission",
         title: "Resume Your Mission",
         description: `You have an incomplete mission (${missionResumeInfo.completedSegments}/${missionResumeInfo.totalSegments} segments done). Pick up where you left off!`,
-        ctaLabel: "Resume Mission",
+        ctaLabel: `Resume Mission (${missionResumeInfo.remainingMinutes} min left)`,
         onAction: () => navigate(`/daily-mission/${gradeNum}/${missionResumeInfo.subject}`),
       };
     }

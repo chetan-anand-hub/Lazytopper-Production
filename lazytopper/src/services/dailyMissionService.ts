@@ -3,9 +3,28 @@ import { getDueReviews, type SRConceptCard } from "./spacedRepetitionEngine";
 import { getHighlyProbableQuestions, type HPQQuestion } from "../data/highlyProbableQuestions";
 import { topicHubV2Content } from "../data/topicHubV2Full";
 import { generatePracticeSet } from "../data/practiceSetGenerator";
+import type { CanonicalQuestion } from "../data/predictionTypes";
 import { normalizeTopicKey } from "../utils/topicResolver";
 import { getGuidedJourneyState, initOrResumeGuidedChapter, scoreAndSortChapters } from "./guidedJourneyService";
 import type { StudySessionLog } from "./sessionLogger";
+
+interface PracticeQuestionView {
+  id: string;
+  questionText: string;
+  difficulty: string;
+  marks: number;
+  answer: string;
+}
+
+function toPracticeView(q: CanonicalQuestion): PracticeQuestionView {
+  return {
+    id: q.id,
+    questionText: q.questionText || "",
+    difficulty: q.difficulty || "Medium",
+    marks: q.marks || 2,
+    answer: q.answer || "",
+  };
+}
 
 export type SegmentType = "revision" | "learning" | "practice" | "exam" | "mock" | "weakdrill";
 
@@ -207,21 +226,22 @@ function buildLearningSegment(topicSlug: string, subject: "Maths" | "Science", s
       totalQuestions: 5 - items.length + 1,
       difficultyMix: { Easy: 0.6, Medium: 0.4, Hard: 0 },
     });
-    for (const q of practiceResult.questions) {
+    for (const rawQ of practiceResult.questions) {
       if (items.length >= 6) break;
+      const pq = toPracticeView(rawQ);
       items.push({
         id: `mission-learn-pq-${items.length}`,
         type: "question" as const,
         title: `Quiz: ${meta.topicName}`,
-        description: `${String((q as any).difficulty || "Easy")} | Quick check`,
+        description: `${pq.difficulty} | Quick check`,
         payload: {
-          questionId: q.id,
+          questionId: pq.id,
           topicKey: topicSlug,
           topic: meta.topicName,
-          stem: String((q as any).questionText || (q as any).text || ""),
-          marks: (q as any).marks || 1,
-          difficulty: String((q as any).difficulty || "Easy"),
-          modelAnswer: String((q as any).answer || (q as any).modelAnswer || ""),
+          stem: pq.questionText,
+          marks: pq.marks || 1,
+          difficulty: pq.difficulty,
+          modelAnswer: pq.answer,
         },
       });
     }
@@ -249,20 +269,20 @@ function buildPracticeSegment(topicSlug: string, subject: "Maths" | "Science", s
   });
 
   for (let i = 0; i < practiceResult.questions.length; i++) {
-    const q = practiceResult.questions[i];
+    const pq = toPracticeView(practiceResult.questions[i]);
     items.push({
       id: `mission-practice-${i}`,
       type: "question" as const,
       title: `Practice: ${meta.topicName}`,
-      description: `${String((q as any).canonicalDifficulty || (q as any).difficulty || "Medium")} | ${(q as any).marks || 2} mark${((q as any).marks || 2) === 1 ? "" : "s"}`,
+      description: `${pq.difficulty} | ${pq.marks} mark${pq.marks === 1 ? "" : "s"}`,
       payload: {
-        questionId: q.id,
+        questionId: pq.id,
         topicKey: topicSlug,
         topic: meta.topicName,
-        stem: String((q as any).questionText || (q as any).text || ""),
-        marks: (q as any).marks || 2,
-        difficulty: String((q as any).canonicalDifficulty || (q as any).difficulty || "Medium"),
-        modelAnswer: String((q as any).answer || (q as any).modelAnswer || ""),
+        stem: pq.questionText,
+        marks: pq.marks,
+        difficulty: pq.difficulty,
+        modelAnswer: pq.answer,
       },
     });
   }
@@ -350,22 +370,25 @@ function buildMockTestSegment(topicSlug: string, subject: "Maths" | "Science", _
     shuffle: true,
   });
 
-  const items: DailyMixItem[] = practiceResult.questions.map((q, i) => ({
-    id: `mission-mock-${i}`,
-    type: "question" as const,
-    title: `Mock Test: ${meta.topicName}`,
-    description: `${String((q as any).canonicalDifficulty || (q as any).difficulty || "Medium")} | ${(q as any).marks || 2} marks | Timed`,
-    payload: {
-      questionId: q.id,
-      topicKey: topicSlug,
-      topic: meta.topicName,
-      stem: String((q as any).questionText || (q as any).text || ""),
-      marks: (q as any).marks || 2,
-      difficulty: String((q as any).canonicalDifficulty || (q as any).difficulty || "Medium"),
-      modelAnswer: String((q as any).answer || (q as any).modelAnswer || ""),
-      timed: true,
-    },
-  }));
+  const items: DailyMixItem[] = practiceResult.questions.map((rawQ, i) => {
+    const pq = toPracticeView(rawQ);
+    return {
+      id: `mission-mock-${i}`,
+      type: "question" as const,
+      title: `Mock Test: ${meta.topicName}`,
+      description: `${pq.difficulty} | ${pq.marks} marks | Timed`,
+      payload: {
+        questionId: pq.id,
+        topicKey: topicSlug,
+        topic: meta.topicName,
+        stem: pq.questionText,
+        marks: pq.marks,
+        difficulty: pq.difficulty,
+        modelAnswer: pq.answer,
+        timed: true,
+      },
+    };
+  });
 
   return {
     type: "mock",
@@ -405,21 +428,24 @@ function buildWeakDrillSegment(subject: "Maths" | "Science", excludeSlug: string
     shuffle: true,
   });
 
-  const items: DailyMixItem[] = practiceResult.questions.map((q, i) => ({
-    id: `mission-weak-${i}`,
-    type: "question" as const,
-    title: `Weak Area: ${meta.topicName}`,
-    description: `${String((q as any).canonicalDifficulty || (q as any).difficulty || "Medium")} | Focus drill`,
-    payload: {
-      questionId: q.id,
-      topicKey: slug,
-      topic: meta.topicName,
-      stem: String((q as any).questionText || (q as any).text || ""),
-      marks: (q as any).marks || 2,
-      difficulty: String((q as any).canonicalDifficulty || (q as any).difficulty || "Medium"),
-      modelAnswer: String((q as any).answer || (q as any).modelAnswer || ""),
-    },
-  }));
+  const items: DailyMixItem[] = practiceResult.questions.map((rawQ, i) => {
+    const pq = toPracticeView(rawQ);
+    return {
+      id: `mission-weak-${i}`,
+      type: "question" as const,
+      title: `Weak Area: ${meta.topicName}`,
+      description: `${pq.difficulty} | Focus drill`,
+      payload: {
+        questionId: pq.id,
+        topicKey: slug,
+        topic: meta.topicName,
+        stem: pq.questionText,
+        marks: pq.marks,
+        difficulty: pq.difficulty,
+        modelAnswer: pq.answer,
+      },
+    };
+  });
 
   return {
     type: "weakdrill",
@@ -454,10 +480,12 @@ function getCurrentTopicSlug(subject: "Maths" | "Science", uid?: string | null):
 export function generateDailyMission(
   grade: number,
   subject: "Maths" | "Science",
-  uid?: string | null
+  uid?: string | null,
+  options?: { extended?: boolean }
 ): DailyMission {
   const date = todayKey();
   const weekend = isWeekendDay();
+  const useExtended = options?.extended ?? weekend;
   const seed = seededHash(`${date}-${subject}-mission`);
   const topicSlug = getCurrentTopicSlug(subject, uid);
 
@@ -468,14 +496,14 @@ export function generateDailyMission(
     buildExamSegment(subject, seed),
   ];
 
-  if (weekend) {
+  if (useExtended) {
     segments.push(buildMockTestSegment(topicSlug, subject, seed));
     segments.push(buildWeakDrillSegment(subject, topicSlug, seed));
   }
 
   const totalMinutes = segments.reduce((sum, s) => sum + s.durationMinutes, 0);
 
-  return { date, subject, grade, isWeekend: weekend, segments, totalMinutes };
+  return { date, subject, grade, isWeekend: useExtended, segments, totalMinutes };
 }
 
 export function saveMissionProgress(subject: string, progress: MissionProgress): void {
@@ -499,17 +527,23 @@ export function isMissionCompletedToday(subject: string): boolean {
   return progress?.completed === true;
 }
 
-export function getMissionResumeInfo(subject: string): { segmentIndex: number; itemIndex: number; completedSegments: number; totalSegments: number } | null {
+export function getMissionResumeInfo(subject: string): { segmentIndex: number; itemIndex: number; completedSegments: number; totalSegments: number; elapsedMinutes: number; totalMinutes: number; remainingMinutes: number } | null {
   const progress = loadMissionProgress(subject);
   if (!progress || progress.completed) return null;
   const answeredCount = progress.answers.filter((a) => a.submitted).length;
   if (answeredCount === 0) return null;
   const totalSegments = Math.max(progress.completedSegments.length + 1, progress.segmentIndex + 1, isWeekendDay() ? 6 : 4);
+  const totalMinutes = totalSegments <= 4 ? 30 : 60;
+  const elapsedMinutes = Math.round(progress.elapsedSeconds / 60);
+  const remainingMinutes = Math.max(0, totalMinutes - elapsedMinutes);
   return {
     segmentIndex: progress.segmentIndex,
     itemIndex: progress.itemIndex,
     completedSegments: progress.completedSegments.length,
     totalSegments,
+    elapsedMinutes,
+    totalMinutes,
+    remainingMinutes,
   };
 }
 
@@ -523,6 +557,29 @@ export function computeMissionXP(progress: MissionProgress): { xp: number; strea
     xp: baseXP + segmentBonus + fullCompletionBonus,
     streakEligible: completedSegs >= 4,
   };
+}
+
+const XP_KEY = "lazytopper.xp";
+const XP_AWARDED_KEY = "lazytopper.dailyMission.xpAwarded.v1";
+
+export function persistMissionXP(subject: string, progress: MissionProgress): number {
+  const xpInfo = computeMissionXP(progress);
+  if (xpInfo.xp <= 0) return 0;
+  try {
+    const awardedRaw = localStorage.getItem(`${XP_AWARDED_KEY}.${subject}`);
+    let alreadyAwarded = 0;
+    if (awardedRaw) {
+      const parsed = JSON.parse(awardedRaw);
+      if (parsed.date === progress.date) alreadyAwarded = parsed.xp;
+    }
+    const delta = Math.max(0, xpInfo.xp - alreadyAwarded);
+    if (delta > 0) {
+      const prev = Number(localStorage.getItem(XP_KEY) || 0);
+      localStorage.setItem(XP_KEY, String(prev + delta));
+      localStorage.setItem(`${XP_AWARDED_KEY}.${subject}`, JSON.stringify({ date: progress.date, xp: xpInfo.xp }));
+    }
+    return delta;
+  } catch { return 0; }
 }
 
 const SESSION_LOG_KEY = "lazytopper.sessionLogs.v1";

@@ -17,6 +17,7 @@ import {
   loadMissionProgress,
   computeMissionXP,
   logMissionSession,
+  persistMissionXP,
   type DailyMission,
   type MissionProgress,
   type MissionAnswer,
@@ -93,6 +94,7 @@ export default function DailyMissionPage() {
   const [showSegmentTransition, setShowSegmentTransition] = useState(false);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [startedAt, setStartedAt] = useState(Date.now());
+  const [extendedMode, setExtendedMode] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -101,7 +103,7 @@ export default function DailyMissionPage() {
 
   useEffect(() => {
     const saved = loadMissionProgress(safeSubject);
-    const gen = generateDailyMission(gradeNum, safeSubject, user?.uid);
+    const gen = generateDailyMission(gradeNum, safeSubject, user?.uid, { extended: extendedMode });
     setMission(gen);
 
     if (saved && saved.date === todayKey()) {
@@ -134,7 +136,7 @@ export default function DailyMissionPage() {
       setStartedAt(Date.now());
       setElapsedSeconds(0);
     }
-  }, [safeSubject, gradeNum, user?.uid]);
+  }, [safeSubject, gradeNum, user?.uid, extendedMode]);
 
   useEffect(() => {
     if (completed) return;
@@ -211,9 +213,26 @@ export default function DailyMissionPage() {
     if (itemIndex < seg.items.length - 1) {
       setItemIndex(itemIndex + 1);
     } else {
-      if (!completedSegments.includes(segmentIndex)) {
-        setCompletedSegments((prev) => [...prev, segmentIndex]);
+      const newCompleted = completedSegments.includes(segmentIndex)
+        ? completedSegments
+        : [...completedSegments, segmentIndex];
+      setCompletedSegments(newCompleted);
+
+      const partialProgress: MissionProgress = {
+        date: todayKey(),
+        subject: safeSubject,
+        segmentIndex,
+        itemIndex,
+        answers,
+        completedSegments: newCompleted,
+        startedAt,
+        elapsedSeconds,
+        completed: false,
+      };
+      if (newCompleted.length >= 2) {
+        persistMissionXP(safeSubject, partialProgress);
       }
+
       if (segmentIndex < mission.segments.length - 1) {
         setShowSegmentTransition(true);
         setTimeout(() => {
@@ -222,29 +241,17 @@ export default function DailyMissionPage() {
           setShowSegmentTransition(false);
         }, 1500);
       } else {
-        const finalCompletedSegs = [...completedSegments, segmentIndex];
-        setCompletedSegments(finalCompletedSegs);
         setCompleted(true);
         setShowCelebration(true);
         if (timerRef.current) clearInterval(timerRef.current);
 
-        const progress: MissionProgress = {
-          date: todayKey(),
-          subject: safeSubject,
-          segmentIndex,
-          itemIndex,
-          answers,
-          completedSegments: finalCompletedSegs,
-          startedAt,
-          elapsedSeconds,
+        const finalProgress: MissionProgress = {
+          ...partialProgress,
+          completedSegments: newCompleted,
           completed: true,
         };
-        logMissionSession(safeSubject, progress);
-        const xp = computeMissionXP(progress);
-        try {
-          const prev = Number(localStorage.getItem("lazytopper.xp") || 0);
-          localStorage.setItem("lazytopper.xp", String(prev + xp.xp));
-        } catch {}
+        logMissionSession(safeSubject, finalProgress);
+        persistMissionXP(safeSubject, finalProgress);
         setTimeout(() => setShowCelebration(false), 5000);
       }
     }
@@ -425,18 +432,30 @@ export default function DailyMissionPage() {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>
         <div>
           <h1 style={{ fontWeight: 900, fontSize: 24, margin: 0 }}>
-            {mission.isWeekend ? "Weekend Mission" : "Daily Mission"}
+            {mission.isWeekend ? "Extended Mission" : "Daily Mission"}
           </h1>
           <p style={{ opacity: 0.65, fontSize: 12, marginTop: 4 }}>
             Class {gradeNum} {safeSubject} • {mission.totalMinutes} min
           </p>
         </div>
-        <div style={{
-          display: "flex", alignItems: "center", gap: 6, padding: "5px 12px",
-          background: "rgba(255,255,255,0.04)", borderRadius: 999, fontSize: 13, fontWeight: 700,
-        }}>
-          <span>⏱</span>
-          <span>{formatTime(elapsedSeconds)}</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          {!completed && completedSegments.length === 0 && (
+            <button type="button" onClick={() => setExtendedMode((p) => !p)} style={{
+              padding: "5px 10px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.1)",
+              background: extendedMode ? "rgba(168,85,247,0.15)" : "rgba(255,255,255,0.04)",
+              color: extendedMode ? "#a855f7" : "rgba(255,255,255,0.6)",
+              fontSize: 11, fontWeight: 700, cursor: "pointer",
+            }}>
+              {extendedMode ? "60 min ✓" : "Extend to 60 min"}
+            </button>
+          )}
+          <div style={{
+            display: "flex", alignItems: "center", gap: 6, padding: "5px 12px",
+            background: "rgba(255,255,255,0.04)", borderRadius: 999, fontSize: 13, fontWeight: 700,
+          }}>
+            <span>⏱</span>
+            <span>{formatTime(elapsedSeconds)}</span>
+          </div>
         </div>
       </div>
 
@@ -473,7 +492,7 @@ export default function DailyMissionPage() {
       <div style={{ marginTop: 12 }}>
         <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, fontWeight: 600, opacity: 0.6, marginBottom: 4 }}>
           <span>{currentSegment?.label} — {segmentAnswered}/{currentSegment?.items.length ?? 0}</span>
-          <span>Overall {totalAnswered}/{totalItems}</span>
+          <span>{Math.min(Math.round(elapsedSeconds / 60), mission.totalMinutes)} of {mission.totalMinutes} min</span>
         </div>
         <div style={{ height: 6, background: "rgba(255,255,255,0.06)", borderRadius: 999, overflow: "hidden" }}>
           <div style={{
