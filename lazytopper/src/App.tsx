@@ -17,6 +17,7 @@ import { normalizeTopicKey } from "./utils/topicResolver";
 import { RequireAuth, RequirePremium } from "./components/auth/RequireAuth";
 import { PracticeLimitGate } from "./components/auth/PracticeLimitGate";
 import { MockViewGate } from "./components/auth/MockViewGate";
+import { TrialBanner } from "./components/ux/TrialBanner";
 import { useAuth } from "./context/AuthContext";
 import { useSubscription } from "./hooks/useSubscription";
 
@@ -462,6 +463,7 @@ export default function App() {
         onClose={() => setPaletteOpen(false)}
         onSelect={handleCommandSelect}
       />
+      <TrialBanner />
       <div style={{ paddingBottom: '60px' }}>
         <Routes>
           {/* Core Routes */}
@@ -496,7 +498,7 @@ export default function App() {
 
           {/* Topic Mock Paper — auth + mock view limit */}
           <Route path="/topic-mock/:grade/:subject/:topicKey" element={<MockViewGate>{withRouteSuspense(<TopicMockPage />)}</MockViewGate>} />
-          <Route path="/chapter-test/:grade/:subject/:topicKey" element={withRouteSuspense(<ChapterTestPage />)} />
+          <Route path="/chapter-test/:grade/:subject/:topicKey" element={<MockViewGate>{withRouteSuspense(<ChapterTestPage />)}</MockViewGate>} />
 
           {/* New Mock Builder v1 with mandatory grade & subject */}
           <Route path="/mock-builder/:grade/:subject" element={<RequirePremium featureLabel="Mock Builder">{withRouteSuspense(<MockBuilder />)}</RequirePremium>} />

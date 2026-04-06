@@ -51,7 +51,7 @@ function incrementWeeklyMockViews(uid: string | null): void {
 
 export function MockViewGate({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
-  const { isPremium } = useSubscription();
+  const { isPremium, isTrialExpired } = useSubscription();
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [limitReached, setLimitReached] = useState(false);
   const [ready, setReady] = useState(false);
@@ -62,6 +62,10 @@ export function MockViewGate({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (loading) return;
     if (user && isPremium) {
+      setReady(true);
+      return;
+    }
+    if (user && isTrialExpired) {
       setReady(true);
       return;
     }
@@ -78,7 +82,7 @@ export function MockViewGate({ children }: { children: ReactNode }) {
       incrementedRef.current = true;
       setReady(true);
     }
-  }, [loading, user, isPremium, uid]);
+  }, [loading, user, isPremium, isTrialExpired, uid]);
 
   if (loading || !ready) {
     return (
@@ -92,6 +96,55 @@ export function MockViewGate({ children }: { children: ReactNode }) {
 
   if (user && isPremium) {
     return <>{children}</>;
+  }
+
+  if (user && isTrialExpired) {
+    return (
+      <div className="lt-page" style={{ textAlign: "center", paddingTop: 60 }}>
+        <div style={{ fontSize: "3rem", marginBottom: 12 }}>⏰</div>
+        <h2 style={{ fontWeight: 900, fontSize: "1.3rem", marginBottom: 8, color: "#fff" }}>
+          Your Free Trial Has Ended
+        </h2>
+        <p style={{ color: "rgba(255,255,255,0.55)", fontSize: "0.92rem", marginBottom: 6, lineHeight: 1.5 }}>
+          Mock tests were unlocked during your trial.
+        </p>
+        <p style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.85rem", marginBottom: 6, lineHeight: 1.6 }}>
+          Upgrade now to keep access to:
+        </p>
+        <div style={{
+          display: "inline-flex", flexDirection: "column", gap: 6,
+          textAlign: "left", marginBottom: 20,
+          background: "rgba(255,255,255,0.03)", borderRadius: 12, padding: "12px 20px",
+          border: "1px solid rgba(255,255,255,0.06)",
+        }}>
+          {["Unlimited mock tests", "Your mastery progress & streak", "Practice history & weak-area insights"].map(item => (
+            <div key={item} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.84rem", color: "rgba(255,255,255,0.7)" }}>
+              <span style={{ color: "#22c55e", fontWeight: 800 }}>✓</span>
+              {item}
+            </div>
+          ))}
+        </div>
+        <div>
+          <button
+            type="button"
+            onClick={() => setShowUpgrade(true)}
+            style={{
+              border: "none", borderBottom: "4px solid #46a302", borderRadius: 16,
+              padding: "14px 28px", background: "#58cc02", color: "#fff",
+              fontSize: "1rem", fontWeight: 800, cursor: "pointer",
+              textTransform: "uppercase",
+            }}
+          >
+            Upgrade to Premium
+          </button>
+        </div>
+        <UpgradeModal
+          open={showUpgrade}
+          onClose={() => setShowUpgrade(false)}
+          featureLabel="Unlimited Mock Tests"
+        />
+      </div>
+    );
   }
 
   if (!user && limitReached) {

@@ -1,0 +1,157 @@
+import { useState } from "react";
+import { useAuth } from "../../context/AuthContext";
+import { useSubscription } from "../../hooks/useSubscription";
+import { UpgradeModal } from "../UpgradeModal";
+
+const TRIAL_DAYS = 7;
+
+export function TrialBanner() {
+  const { user } = useAuth();
+  const { isTrialExpired, daysLeftInTrial, tier } = useSubscription();
+  const [showUpgrade, setShowUpgrade] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
+
+  if (!user) return null;
+  if (tier === "premium") return null;
+  const isTrialActive = tier === "trial";
+  if (!isTrialActive && !isTrialExpired) return null;
+  if (dismissed && !isTrialExpired && daysLeftInTrial > 2) return null;
+
+  const currentDay = isTrialActive ? TRIAL_DAYS - daysLeftInTrial + 1 : TRIAL_DAYS;
+  const progress = currentDay / TRIAL_DAYS;
+
+  if (isTrialExpired) {
+    return (
+      <>
+        <div style={{
+          background: "linear-gradient(135deg, rgba(239,68,68,0.12), rgba(239,68,68,0.06))",
+          borderBottom: "1px solid rgba(239,68,68,0.2)",
+          padding: "10px 16px",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          gap: 12, flexWrap: "wrap",
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", justifyContent: "center" }}>
+            <span style={{ fontSize: "1rem" }}>⚠️</span>
+            <span style={{
+              fontWeight: 800, fontSize: "0.82rem", color: "#f87171",
+            }}>
+              Trial ended
+            </span>
+            <span style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.5)" }}>
+              — Upgrade to keep your streak, mastery data & practice history
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowUpgrade(true)}
+            style={{
+              border: "none", borderRadius: 10,
+              padding: "5px 14px", background: "#ef4444", color: "#fff",
+              fontSize: "0.78rem", fontWeight: 800, cursor: "pointer",
+              whiteSpace: "nowrap",
+            }}
+          >
+            Upgrade Now
+          </button>
+        </div>
+        <UpgradeModal open={showUpgrade} onClose={() => setShowUpgrade(false)} featureLabel="Full Access" />
+      </>
+    );
+  }
+
+  const isLastDay = daysLeftInTrial <= 1;
+  const isUrgent = daysLeftInTrial <= 2;
+
+  const accentColor = isLastDay ? "#ef4444" : isUrgent ? "#f59e0b" : "#3b82f6";
+  const bgGradient = isLastDay
+    ? "linear-gradient(135deg, rgba(239,68,68,0.10), rgba(239,68,68,0.04))"
+    : isUrgent
+    ? "linear-gradient(135deg, rgba(245,158,11,0.10), rgba(245,158,11,0.04))"
+    : "linear-gradient(135deg, rgba(59,130,246,0.06), rgba(59,130,246,0.02))";
+  const borderColor = isLastDay
+    ? "rgba(239,68,68,0.15)"
+    : isUrgent
+    ? "rgba(245,158,11,0.15)"
+    : "rgba(59,130,246,0.08)";
+
+  let message: string;
+  let subMessage: string | null = null;
+  if (isLastDay) {
+    message = "Trial ends today!";
+    subMessage = "Upgrade to keep your streak and mastery data";
+  } else if (isUrgent) {
+    message = `${daysLeftInTrial} day${daysLeftInTrial !== 1 ? "s" : ""} left!`;
+    subMessage = "Don't lose your progress";
+  } else {
+    message = `Day ${currentDay} of ${TRIAL_DAYS} — Free Trial`;
+  }
+
+  return (
+    <>
+      <div style={{
+        background: bgGradient,
+        borderBottom: `1px solid ${borderColor}`,
+        padding: "6px 16px",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        gap: 10, flexWrap: "wrap",
+        position: "relative",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", justifyContent: "center" }}>
+          <span style={{ fontSize: "0.85rem" }}>{isLastDay ? "🔥" : isUrgent ? "⏳" : "✨"}</span>
+          <span style={{
+            fontWeight: 800, fontSize: "0.78rem", color: accentColor,
+          }}>
+            {message}
+          </span>
+
+          <div style={{
+            width: 80, height: 5, borderRadius: 999,
+            background: "rgba(255,255,255,0.06)", overflow: "hidden",
+          }}>
+            <div style={{
+              height: "100%", borderRadius: 999,
+              width: `${progress * 100}%`,
+              background: accentColor,
+              transition: "width 0.3s ease",
+            }} />
+          </div>
+
+          {subMessage && (
+            <span style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.45)" }}>
+              — {subMessage}
+            </span>
+          )}
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setShowUpgrade(true)}
+          style={{
+            border: "none", borderRadius: 8,
+            padding: "3px 10px", background: accentColor, color: "#fff",
+            fontSize: "0.72rem", fontWeight: 800, cursor: "pointer",
+            whiteSpace: "nowrap", opacity: 0.9,
+          }}
+        >
+          Upgrade
+        </button>
+
+        {!isUrgent && (
+          <button
+            type="button"
+            onClick={() => setDismissed(true)}
+            style={{
+              position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)",
+              background: "none", border: "none", color: "rgba(255,255,255,0.25)",
+              fontSize: "0.82rem", cursor: "pointer", padding: "2px 4px",
+            }}
+            title="Dismiss"
+          >
+            ✕
+          </button>
+        )}
+      </div>
+      <UpgradeModal open={showUpgrade} onClose={() => setShowUpgrade(false)} featureLabel="Full Access" />
+    </>
+  );
+}
