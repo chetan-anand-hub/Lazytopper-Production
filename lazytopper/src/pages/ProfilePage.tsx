@@ -9,6 +9,7 @@ import { loadInsights } from "../services/practiceInsights";
 import { loadTopicMasterySnapshot } from "../services/topicHubMastery";
 import {
   masteryFromLegacyPercent,
+  getChapterMasteryLevel,
   MASTERY_LABELS,
   MASTERY_COLORS,
   MASTERY_ICONS,
@@ -93,6 +94,8 @@ function MasteryRing({ level, size = 56 }: { level: MasteryLevel; size?: number 
 }
 
 function getTopicMasteryLevel(topicKey: string): MasteryLevel {
+  const canonical = getChapterMasteryLevel(topicKey);
+  if (canonical !== "not_started") return canonical;
   const snap = loadTopicMasterySnapshot(topicKey);
   if (!snap?.nodes) return "not_started";
   const nodes = Object.values(snap.nodes);

@@ -144,7 +144,7 @@ export function masteryFromLegacyPercent(percent: number): MasteryLevel {
   if (percent <= 0) return "not_started";
   if (percent < 40) return "attempted";
   if (percent < 70) return "familiar";
-  if (percent < 90) return "proficient";
+  if (percent < 100) return "proficient";
   return "mastered";
 }
 

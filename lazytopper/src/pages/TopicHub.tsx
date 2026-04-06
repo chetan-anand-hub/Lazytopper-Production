@@ -298,14 +298,26 @@ export default function TopicHub() {
   }, [subject, topicKey, definitions.length]);
 
   const conceptMiniQuizzes = useMemo<CanonicalQuestion[][]>(() => {
-    let poolIdx = 0;
+    const mcqs = fullQuestionPool.filter((q) => Array.isArray(q.options) && q.options.length >= 2);
+    const nonMcqs = fullQuestionPool.filter((q) => !Array.isArray(q.options) || q.options.length < 2);
+    let mcqIdx = 0;
+    let nonMcqIdx = 0;
     return definitions.map((def) => {
       const quiz: CanonicalQuestion[] = [];
-      for (let i = 0; i < MINI_QUIZ_SIZE && poolIdx < fullQuestionPool.length; i++) {
-        quiz.push(fullQuestionPool[poolIdx]);
-        poolIdx++;
+      for (let i = 0; i < 2; i++) {
+        if (mcqIdx < mcqs.length) {
+          quiz.push(mcqs[mcqIdx++]);
+        } else if (nonMcqIdx < nonMcqs.length) {
+          quiz.push(nonMcqs[nonMcqIdx++]);
+        } else {
+          quiz.push(buildFallbackCheckpoint(def, title));
+        }
       }
-      while (quiz.length < MINI_QUIZ_SIZE) {
+      if (nonMcqIdx < nonMcqs.length) {
+        quiz.push(nonMcqs[nonMcqIdx++]);
+      } else if (mcqIdx < mcqs.length) {
+        quiz.push(mcqs[mcqIdx++]);
+      } else {
         quiz.push(buildFallbackCheckpoint(def, title));
       }
       return quiz;
@@ -402,7 +414,8 @@ export default function TopicHub() {
     updateProgress((prev) => ({ ...prev, lessonCompleted: true }));
   }, [updateProgress]);
 
-  const chapterMasteryLevel = useMemo(() => getChapterMasteryLevel(chapterId), [chapterId]);
+  const [masteryVersion, setMasteryVersion] = useState(0);
+  const chapterMasteryLevel = useMemo(() => getChapterMasteryLevel(chapterId), [chapterId, masteryVersion]);
 
   const startLearning = useCallback(() => {
     setPhase("learning");
@@ -419,6 +432,8 @@ export default function TopicHub() {
   const currentMiniQuiz = conceptMiniQuizzes[conceptIdx] || [];
   const currentMiniQuestion = currentMiniQuiz[miniQuizIdx] as CanonicalQuestion | undefined;
 
+  const [conceptFailed, setConceptFailed] = useState(false);
+
   const advanceMiniQuiz = useCallback(() => {
     if (miniQuizIdx < currentMiniQuiz.length - 1) {
       setMiniQuizIdx((i) => i + 1);
@@ -434,16 +449,29 @@ export default function TopicHub() {
         nonMcqCorrect: miniQuizAnswers.filter((a) => !a.isMcq && a.correct).length,
       };
       recordQuizResult(chapterId, quizResult, false);
+      setMasteryVersion((v) => v + 1);
 
-      if (currentDef) {
+      const accuracy = miniQuizAnswers.length > 0
+        ? (miniQuizAnswers.filter((a) => a.correct).length / miniQuizAnswers.length) * 100
+        : 0;
+      const passed = accuracy >= 70;
+
+      if (passed && currentDef) {
         markConceptCompleted(currentDef.title);
       }
+
+      if (!passed) {
+        setConceptFailed(true);
+        return;
+      }
+
       if (conceptIdx < totalConcepts - 1) {
         setShowingCheckpoint(false);
         setSelectedAnswer(null);
         setAnswerRevealed(false);
         setMiniQuizIdx(0);
         setMiniQuizAnswers([]);
+        setConceptFailed(false);
         setConceptIdx((prev) => prev + 1);
       } else {
         markLessonCompleted();
@@ -451,6 +479,15 @@ export default function TopicHub() {
       }
     }
   }, [miniQuizIdx, currentMiniQuiz, miniQuizAnswers, currentDef, conceptIdx, totalConcepts, markConceptCompleted, markLessonCompleted, chapterId]);
+
+  const retryConcept = useCallback(() => {
+    setShowingCheckpoint(true);
+    setSelectedAnswer(null);
+    setAnswerRevealed(false);
+    setMiniQuizIdx(0);
+    setMiniQuizAnswers([]);
+    setConceptFailed(false);
+  }, []);
 
   const advanceToNext = useCallback(() => {
     advanceMiniQuiz();
@@ -870,7 +907,21 @@ export default function TopicHub() {
                   )
                 )}
 
-                {answerRevealed && (
+                {conceptFailed && (
+                  <div style={{ marginTop: 16, textAlign: "center", padding: 20, background: "rgba(249,115,22,0.06)", borderRadius: 14, border: "1px solid rgba(249,115,22,0.2)" }}>
+                    <div style={{ fontSize: "1.5rem", marginBottom: 8 }}>📝</div>
+                    <div style={{ fontSize: "0.95rem", fontWeight: 700, color: "#fb923c", marginBottom: 6 }}>Not quite there yet</div>
+                    <p style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.5)", lineHeight: 1.5, marginBottom: 14 }}>
+                      You need 70%+ to mark this concept as familiar. Review the material and try again.
+                    </p>
+                    <button type="button" onClick={retryConcept}
+                      style={{ padding: "10px 24px", borderRadius: 12, background: "linear-gradient(135deg, #f97316, #ea580c)", border: "none", color: "#fff", fontWeight: 700, fontSize: "0.88rem", cursor: "pointer" }}>
+                      Retry Quiz
+                    </button>
+                  </div>
+                )}
+
+                {answerRevealed && !conceptFailed && (
                   <div style={{ marginTop: 16 }}>
                     {(selectedAnswer === "correct" || (selectedAnswer && selectedAnswer !== "incorrect" && selectedAnswer.trim().toLowerCase() === (currentMiniQuestion.answer || "").trim().toLowerCase())) ? (
                       <div style={{ fontSize: "0.88rem", color: "#16a34a", fontWeight: 600, marginBottom: 12, padding: "10px 14px", background: "rgba(34,197,94,0.06)", borderRadius: 10 }}>

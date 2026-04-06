@@ -20,6 +20,7 @@ import { loadDashboardPrefs } from "../services/studentCloudStore";
 import { buildBadgeContext, evaluateBadges, BADGE_DEFINITIONS } from "../services/badgeEngine";
 import {
   masteryFromLegacyPercent,
+  getChapterMasteryLevel,
   MASTERY_LABELS,
   MASTERY_COLORS,
   MASTERY_ICONS,
@@ -139,12 +140,6 @@ function ProgressBar({ value, color, height = 6 }: { value: number; color: strin
       <div style={{ width: `${Math.min(value, 100)}%`, height: "100%", borderRadius: height, background: color, transition: "width 0.6s ease" }} />
     </div>
   );
-}
-
-function tierColor(tier: string) {
-  if (tier === "must-crack") return "#22c55e";
-  if (tier === "high-roi") return "#3b82f6";
-  return "#f97316";
 }
 
 const DARK_STYLES = `
@@ -337,8 +332,12 @@ export default function Dashboard() {
   const totalAttempted = performanceRows.reduce((s, r) => s + r.attempted, 0);
   const avgAccuracy = performanceRows.length > 0 ? Math.round(performanceRows.reduce((s, r) => s + r.accuracy, 0) / performanceRows.length) : 0;
   const topicsStarted = performanceRows.length;
+  const getRowMasteryLevel = (r: PerformanceRow): MasteryLevel => {
+    const canonical = getChapterMasteryLevel(`${r.subject}-${r.topicKey}`);
+    return canonical !== "not_started" ? canonical : masteryFromLegacyPercent(r.accuracy);
+  };
   const topicsMastered = performanceRows.filter(r => {
-    const level = masteryFromLegacyPercent(r.accuracy);
+    const level = getRowMasteryLevel(r);
     return level === "mastered" || level === "proficient";
   }).length;
   const persistedXp = (() => { try { return Number(localStorage.getItem("lazytopper.xp") || 0); } catch { return 0; } })();
@@ -742,7 +741,7 @@ export default function Dashboard() {
                 <div style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>Maths</div>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginBottom: scienceMastery.length > 0 ? 16 : 0 }}>
                   {mathsMastery.map((t) => {
-                    const level = masteryFromLegacyPercent(t.accuracy);
+                    const level = getRowMasteryLevel(t);
                     return (
                       <div key={t.topicKey} style={{ textAlign: "center", cursor: "pointer" }} onClick={() => navigate(`/topic-hub/${gradeNum}/Maths/${encodeURIComponent(t.topicKey)}`)}>
                         <div style={{ position: "relative", width: 48, height: 48, margin: "0 auto 4px" }}>
@@ -768,7 +767,7 @@ export default function Dashboard() {
                 <div style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>Science</div>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
                   {scienceMastery.map((t) => {
-                    const level = masteryFromLegacyPercent(t.accuracy);
+                    const level = getRowMasteryLevel(t);
                     return (
                       <div key={t.topicKey} style={{ textAlign: "center", cursor: "pointer" }} onClick={() => navigate(`/topic-hub/${gradeNum}/Science/${encodeURIComponent(t.topicKey)}`)}>
                         <div style={{ position: "relative", width: 48, height: 48, margin: "0 auto 4px" }}>
