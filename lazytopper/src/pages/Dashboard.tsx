@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useProfile } from "../context/ProfileContext";
@@ -18,6 +18,17 @@ import {
 } from "../services/cbseExamDate";
 import { loadDashboardPrefs } from "../services/studentCloudStore";
 import { buildBadgeContext, evaluateBadges, BADGE_DEFINITIONS } from "../services/badgeEngine";
+import {
+  getGuidedJourneyState,
+  initOrResumeGuidedChapter,
+  clearDetour,
+  getJourneyProgress,
+  getPhaseLabel,
+  getPhaseRoute,
+  getRaviMessage,
+  type GuidedJourneyState,
+  type JourneyPhase,
+} from "../services/guidedJourneyService";
 
 type SubjectTitle = "Maths" | "Science";
 
@@ -286,6 +297,23 @@ export default function Dashboard() {
     return { type: "daily_mix", title: "Start Your Study Session", description: "Begin with today's Daily Mix to build consistency.", ctaLabel: "Start Daily Mix", onAction: () => navigate(`/daily-mix/${gradeNum}/${subjectForQuickActions}`) };
   }, [incompleteSession, dailyMixDoneToday, dailyMixMinutes, dailyMixPreview, performanceRows, gradeNum, subjectForQuickActions, navigate]);
 
+  const [journeyState, setJourneyState] = useState<GuidedJourneyState>(() => {
+    const raw = getGuidedJourneyState(user?.uid);
+    return raw.currentChapter ? raw : initOrResumeGuidedChapter(user?.uid);
+  });
+
+  const journeyProgress = useMemo(() => getJourneyProgress(user?.uid), [user?.uid, journeyState]);
+  const raviMessage = useMemo(() => getRaviMessage(journeyState), [journeyState]);
+
+  const handleContinueJourney = useCallback(() => {
+    if (!journeyState.currentChapter) return;
+    if (journeyState.detour) {
+      clearDetour(user?.uid);
+      setJourneyState(getGuidedJourneyState(user?.uid));
+    }
+    navigate(getPhaseRoute(journeyState.currentChapter, gradeNum));
+  }, [journeyState, user?.uid, gradeNum, navigate]);
+
   const totalAttempted = performanceRows.reduce((s, r) => s + r.attempted, 0);
   const avgAccuracy = performanceRows.length > 0 ? Math.round(performanceRows.reduce((s, r) => s + r.accuracy, 0) / performanceRows.length) : 0;
   const topicsStarted = performanceRows.length;
@@ -344,23 +372,89 @@ export default function Dashboard() {
     return (
       <div className="db-root">
         <style dangerouslySetInnerHTML={{ __html: DARK_STYLES }} />
-        <div style={{ padding: "40px 20px", maxWidth: 430, margin: "0 auto", textAlign: "center" }}>
-          <div style={{ fontSize: 48, marginBottom: 16 }}>🎯</div>
-          <h2 className="font-display" style={{ fontSize: 22, fontWeight: 700, marginBottom: 8 }}>Let's set up your study plan!</h2>
-          <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", marginBottom: 20, lineHeight: 1.6 }}>
-            Tell us your target score, study time, and exam date. We'll create a personalised strategy just for you.
-          </p>
-          <button onClick={() => navigate("/onboarding")} style={{
-            width: "100%", padding: "14px 0", borderRadius: 12, border: "none",
-            background: "#22c55e", color: "#000", fontWeight: 800, fontSize: 15,
-            fontFamily: "'Space Grotesk', sans-serif", cursor: "pointer",
-            boxShadow: "0 0 24px rgba(34,197,94,0.3)", marginBottom: 10,
-          }}>Set Up My Study Plan</button>
-          <button onClick={() => navigate(`/daily-mix/10/Maths`)} style={{
-            width: "100%", padding: "12px 0", borderRadius: 12,
-            background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
-            color: "rgba(255,255,255,0.5)", fontWeight: 600, fontSize: 14, cursor: "pointer",
-          }}>Start Daily Mix</button>
+        <div style={{ padding: "20px 16px 100px", maxWidth: 430, margin: "0 auto" }}>
+
+          {journeyState.currentChapter && (
+            <div style={{ padding: 20, marginBottom: 16, background: "rgba(34,197,94,0.06)", backdropFilter: "blur(16px)", border: "1px solid rgba(34,197,94,0.15)", borderRadius: 16 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+                <div style={{
+                  width: 32, height: 32, borderRadius: "50%",
+                  background: "linear-gradient(135deg, #22c55e, #3b82f6)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 14, fontWeight: 800, color: "#000", flexShrink: 0,
+                }}>R</div>
+                <span className="font-display" style={{ fontSize: 14, fontWeight: 700, color: "#22c55e" }}>Ravi Sir's Recommendation</span>
+              </div>
+              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", lineHeight: 1.5, marginBottom: 12 }}>
+                "{raviMessage}"
+              </p>
+              <div className="font-display" style={{ fontSize: 15, fontWeight: 700, marginBottom: 8 }}>{journeyState.currentChapter.title}</div>
+              <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginBottom: 12 }}>
+                {(["learn", "practice", "mock", "review"] as JourneyPhase[]).map((p) => {
+                  const isCurrent = journeyState.currentChapter!.phase === p;
+                  const phaseIdx = ["learn", "practice", "mock", "review"].indexOf(p);
+                  const currentIdx = ["learn", "practice", "mock", "review"].indexOf(journeyState.currentChapter!.phase);
+                  const isDone = phaseIdx < currentIdx;
+                  return (
+                    <span key={p} style={{
+                      fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 6,
+                      background: isCurrent ? "rgba(34,197,94,0.2)" : isDone ? "rgba(34,197,94,0.08)" : "rgba(255,255,255,0.04)",
+                      color: isCurrent ? "#22c55e" : isDone ? "rgba(34,197,94,0.6)" : "rgba(255,255,255,0.3)",
+                      border: isCurrent ? "1px solid rgba(34,197,94,0.4)" : "1px solid transparent",
+                      textTransform: "uppercase", letterSpacing: 0.5,
+                    }}>{isDone ? "✓ " : ""}{getPhaseLabel(p)}</span>
+                  );
+                })}
+              </div>
+              <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 12 }}>
+                <div style={{ flex: 1, height: 4, borderRadius: 2, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
+                  <div style={{ width: `${journeyProgress.percent}%`, height: "100%", borderRadius: 2, background: "#22c55e", transition: "width 0.6s ease" }} />
+                </div>
+                <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.4)", whiteSpace: "nowrap" }}>
+                  {journeyProgress.completed} of {journeyProgress.total} chapters
+                </span>
+              </div>
+              <button onClick={handleContinueJourney} style={{
+                width: "100%", padding: "13px 0", borderRadius: 12, border: "none",
+                background: "#22c55e", color: "#000", fontWeight: 800, fontSize: 15,
+                fontFamily: "'Space Grotesk', sans-serif", cursor: "pointer",
+                boxShadow: "0 0 24px rgba(34,197,94,0.3)",
+              }}>Continue Learning</button>
+            </div>
+          )}
+
+          <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4, marginBottom: 16 }}>
+            {[
+              { label: "Practice", icon: "✏️", path: "/practice/10/Maths" },
+              { label: "Mock Tests", icon: "📝", path: "/predictive-papers" },
+              { label: "Predicted Q's", icon: "🎯", path: "/highly-probable/10/Maths" },
+              { label: "Daily Mix", icon: "🔥", path: "/daily-mix/10/Maths" },
+              { label: "All Chapters", icon: "📚", path: "/topic-hub/10/Maths" },
+            ].map((a) => (
+              <button key={a.label} onClick={() => navigate(a.path)} style={{
+                display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
+                padding: "10px 14px", borderRadius: 12, border: "1px solid rgba(255,255,255,0.06)",
+                background: "rgba(255,255,255,0.03)", color: "#fff", fontSize: 10, fontWeight: 600,
+                cursor: "pointer", fontFamily: "'Inter', sans-serif", flexShrink: 0, minWidth: 72,
+              }}>
+                <span style={{ fontSize: 18 }}>{a.icon}</span>
+                {a.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="glass-card" style={{ padding: 20, textAlign: "center", marginBottom: 16 }}>
+            <div style={{ fontSize: 36, marginBottom: 12 }}>🎯</div>
+            <h2 className="font-display" style={{ fontSize: 18, fontWeight: 700, marginBottom: 8 }}>Personalise your study plan</h2>
+            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginBottom: 16, lineHeight: 1.6 }}>
+              Set your target score, study time, and exam date for a smarter experience.
+            </p>
+            <button onClick={() => navigate("/onboarding")} style={{
+              width: "100%", padding: "12px 0", borderRadius: 12, border: "none",
+              background: "rgba(59,130,246,0.15)", color: "#3b82f6", fontWeight: 700, fontSize: 14,
+              fontFamily: "'Space Grotesk', sans-serif", cursor: "pointer",
+            }}>Set Up My Study Plan</button>
+          </div>
         </div>
       </div>
     );
@@ -395,6 +489,85 @@ export default function Dashboard() {
               <span style={{ fontSize: 12, fontWeight: 800, color: "#c084fc" }}>{xpEstimate.toLocaleString()}</span>
             </div>
           </div>
+        </div>
+
+        {/* RAVI SIR'S RECOMMENDATION */}
+        {journeyState.currentChapter && (
+          <div style={{ padding: 20, marginBottom: 16, background: "rgba(34,197,94,0.06)", backdropFilter: "blur(16px)", border: "1px solid rgba(34,197,94,0.15)", borderRadius: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+              <div style={{
+                width: 32, height: 32, borderRadius: "50%",
+                background: "linear-gradient(135deg, #22c55e, #3b82f6)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: 14, fontWeight: 800, color: "#000", flexShrink: 0,
+              }}>R</div>
+              <span className="font-display" style={{ fontSize: 14, fontWeight: 700, color: "#22c55e" }}>Ravi Sir's Recommendation</span>
+            </div>
+
+            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", lineHeight: 1.5, marginBottom: 12, fontStyle: journeyState.detour ? "italic" : "normal" }}>
+              "{raviMessage}"
+            </p>
+
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+              <div style={{ flex: 1 }}>
+                <div className="font-display" style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>{journeyState.currentChapter.title}</div>
+                <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+                  {(["learn", "practice", "mock", "review"] as JourneyPhase[]).map((p) => {
+                    const isCurrent = journeyState.currentChapter!.phase === p;
+                    const phaseIdx = ["learn", "practice", "mock", "review"].indexOf(p);
+                    const currentIdx = ["learn", "practice", "mock", "review"].indexOf(journeyState.currentChapter!.phase);
+                    const isDone = phaseIdx < currentIdx;
+                    return (
+                      <span key={p} style={{
+                        fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 6,
+                        background: isCurrent ? "rgba(34,197,94,0.2)" : isDone ? "rgba(34,197,94,0.08)" : "rgba(255,255,255,0.04)",
+                        color: isCurrent ? "#22c55e" : isDone ? "rgba(34,197,94,0.6)" : "rgba(255,255,255,0.3)",
+                        border: isCurrent ? "1px solid rgba(34,197,94,0.4)" : "1px solid transparent",
+                        textTransform: "uppercase", letterSpacing: 0.5,
+                      }}>{isDone ? "✓ " : ""}{getPhaseLabel(p)}</span>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 12 }}>
+              <div style={{ flex: 1, height: 4, borderRadius: 2, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
+                <div style={{ width: `${journeyProgress.percent}%`, height: "100%", borderRadius: 2, background: "#22c55e", transition: "width 0.6s ease" }} />
+              </div>
+              <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.4)", whiteSpace: "nowrap" }}>
+                {journeyProgress.completed} of {journeyProgress.total} chapters
+              </span>
+            </div>
+
+            <button onClick={handleContinueJourney} style={{
+              width: "100%", padding: "13px 0", borderRadius: 12, border: "none",
+              background: "#22c55e", color: "#000", fontWeight: 800, fontSize: 15,
+              fontFamily: "'Space Grotesk', sans-serif", cursor: "pointer",
+              boxShadow: "0 0 24px rgba(34,197,94,0.3)",
+            }}>{journeyState.detour ? "Resume Learning" : "Continue Learning"}</button>
+          </div>
+        )}
+
+        {/* QUICK ACCESS */}
+        <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4, marginBottom: 16 }}>
+          {[
+            { label: "Practice", icon: "✏️", path: `/practice/${gradeNum}/${subjectForQuickActions}` },
+            { label: "Mock Tests", icon: "📝", path: "/predictive-papers" },
+            { label: "Predicted Q's", icon: "🎯", path: `/highly-probable/${gradeNum}/${subjectForQuickActions}` },
+            { label: "Daily Mix", icon: "🔥", path: `/daily-mix/${gradeNum}/${subjectForQuickActions}` },
+            { label: "All Chapters", icon: "📚", path: `/topic-hub/${gradeNum}/${subjectForQuickActions}` },
+          ].map((a) => (
+            <button key={a.label} onClick={() => navigate(a.path)} style={{
+              display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
+              padding: "10px 14px", borderRadius: 12, border: "1px solid rgba(255,255,255,0.06)",
+              background: "rgba(255,255,255,0.03)", color: "#fff", fontSize: 10, fontWeight: 600,
+              cursor: "pointer", fontFamily: "'Inter', sans-serif", flexShrink: 0, minWidth: 72,
+            }}>
+              <span style={{ fontSize: 18 }}>{a.icon}</span>
+              {a.label}
+            </button>
+          ))}
         </div>
 
         {/* HERO ACTION */}
@@ -613,23 +786,26 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* QUICK ACTIONS */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-          {[
-            { label: "Trends", icon: "📈", bg: "rgba(34,197,94,0.08)", border: "rgba(34,197,94,0.2)", path: `/trends/${gradeNum}/${subjectForQuickActions}` },
-            { label: "Chapter Hub", icon: "📚", bg: "rgba(59,130,246,0.08)", border: "rgba(59,130,246,0.2)", path: `/topic-hub/${gradeNum}/${subjectForQuickActions}` },
-            { label: "Mock Test", icon: "📝", bg: "rgba(168,85,247,0.08)", border: "rgba(168,85,247,0.2)", path: "/predictive-papers" },
-            { label: "Weekly Wrapped", icon: "📊", bg: "rgba(249,115,22,0.08)", border: "rgba(249,115,22,0.2)", path: "/weekly-wrapped" },
-          ].map((a) => (
-            <button key={a.label} onClick={() => navigate(a.path)} style={{
-              display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-              padding: "14px 12px", borderRadius: 12, border: `1px solid ${a.border}`,
-              background: a.bg, color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "'Inter', sans-serif",
-            }}>
-              <span style={{ fontSize: 16 }}>{a.icon}</span>
-              {a.label}
-            </button>
-          ))}
+        {/* EXPLORE MORE */}
+        <div className="glass-card" style={{ padding: 16, marginBottom: 0 }}>
+          <span className="font-display" style={{ fontSize: 14, fontWeight: 700, display: "block", marginBottom: 12 }}>Explore More</span>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+            {[
+              { label: "Trends", icon: "📈", bg: "rgba(34,197,94,0.08)", border: "rgba(34,197,94,0.2)", path: `/trends/${gradeNum}/${subjectForQuickActions}` },
+              { label: "Chapter Hub", icon: "📚", bg: "rgba(59,130,246,0.08)", border: "rgba(59,130,246,0.2)", path: `/topic-hub/${gradeNum}/${subjectForQuickActions}` },
+              { label: "Mock Test", icon: "📝", bg: "rgba(168,85,247,0.08)", border: "rgba(168,85,247,0.2)", path: "/predictive-papers" },
+              { label: "Weekly Wrapped", icon: "📊", bg: "rgba(249,115,22,0.08)", border: "rgba(249,115,22,0.2)", path: "/weekly-wrapped" },
+            ].map((a) => (
+              <button key={a.label} onClick={() => navigate(a.path)} style={{
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                padding: "14px 12px", borderRadius: 12, border: `1px solid ${a.border}`,
+                background: a.bg, color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "'Inter', sans-serif",
+              }}>
+                <span style={{ fontSize: 16 }}>{a.icon}</span>
+                {a.label}
+              </button>
+            ))}
+          </div>
         </div>
 
       </div>
