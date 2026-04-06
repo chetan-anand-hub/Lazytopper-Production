@@ -318,13 +318,13 @@ export default function Dashboard() {
       clearDetour(user?.uid);
       setJourneyState(getGuidedJourneyState(user?.uid));
     }
-    if (journeyState.currentChapter.phase === "review") {
-      const next = advancePhase("review", user?.uid);
-      setJourneyState(next);
-      return;
-    }
     navigate(getPhaseRoute(journeyState.currentChapter, gradeNum));
   }, [journeyState, user?.uid, gradeNum, navigate]);
+
+  const handleCompleteChapter = useCallback(() => {
+    const next = advancePhase("review", user?.uid);
+    setJourneyState(next);
+  }, [user?.uid]);
 
   const totalAttempted = performanceRows.reduce((s, r) => s + r.attempted, 0);
   const avgAccuracy = performanceRows.length > 0 ? Math.round(performanceRows.reduce((s, r) => s + r.accuracy, 0) / performanceRows.length) : 0;
@@ -429,12 +429,28 @@ export default function Dashboard() {
                   {journeyProgress.completed} of {journeyProgress.total} chapters
                 </span>
               </div>
-              <button onClick={handleContinueJourney} style={{
-                width: "100%", padding: "13px 0", borderRadius: 12, border: "none",
-                background: "#22c55e", color: "#000", fontWeight: 800, fontSize: 15,
-                fontFamily: "'Space Grotesk', sans-serif", cursor: "pointer",
-                boxShadow: "0 0 24px rgba(34,197,94,0.3)",
-              }}>{journeyState.currentChapter?.phase === "review" ? "Complete Chapter ✓" : journeyState.detour ? "Resume Learning" : "Continue Learning"}</button>
+              {journeyState.currentChapter?.phase === "review" ? (
+                <div style={{ display: "flex", gap: 8 }}>
+                  <button onClick={handleContinueJourney} style={{
+                    flex: 1, padding: "13px 0", borderRadius: 12, border: "1px solid rgba(34,197,94,0.3)",
+                    background: "rgba(34,197,94,0.1)", color: "#22c55e", fontWeight: 800, fontSize: 14,
+                    fontFamily: "'Space Grotesk', sans-serif", cursor: "pointer",
+                  }}>Open Review</button>
+                  <button onClick={handleCompleteChapter} style={{
+                    flex: 1, padding: "13px 0", borderRadius: 12, border: "none",
+                    background: "#22c55e", color: "#000", fontWeight: 800, fontSize: 14,
+                    fontFamily: "'Space Grotesk', sans-serif", cursor: "pointer",
+                    boxShadow: "0 0 24px rgba(34,197,94,0.3)",
+                  }}>Complete Chapter ✓</button>
+                </div>
+              ) : (
+                <button onClick={handleContinueJourney} style={{
+                  width: "100%", padding: "13px 0", borderRadius: 12, border: "none",
+                  background: "#22c55e", color: "#000", fontWeight: 800, fontSize: 15,
+                  fontFamily: "'Space Grotesk', sans-serif", cursor: "pointer",
+                  boxShadow: "0 0 24px rgba(34,197,94,0.3)",
+                }}>{journeyState.detour ? "Resume Learning" : "Continue Learning"}</button>
+              )}
             </div>
           )}
 
@@ -559,12 +575,28 @@ export default function Dashboard() {
               </span>
             </div>
 
-            <button onClick={handleContinueJourney} style={{
-              width: "100%", padding: "13px 0", borderRadius: 12, border: "none",
-              background: "#22c55e", color: "#000", fontWeight: 800, fontSize: 15,
-              fontFamily: "'Space Grotesk', sans-serif", cursor: "pointer",
-              boxShadow: "0 0 24px rgba(34,197,94,0.3)",
-            }}>{journeyState.currentChapter?.phase === "review" ? "Complete Chapter ✓" : journeyState.detour ? "Resume Learning" : "Continue Learning"}</button>
+            {journeyState.currentChapter?.phase === "review" ? (
+              <div style={{ display: "flex", gap: 8 }}>
+                <button onClick={handleContinueJourney} style={{
+                  flex: 1, padding: "13px 0", borderRadius: 12, border: "1px solid rgba(34,197,94,0.3)",
+                  background: "rgba(34,197,94,0.1)", color: "#22c55e", fontWeight: 800, fontSize: 14,
+                  fontFamily: "'Space Grotesk', sans-serif", cursor: "pointer",
+                }}>Open Review</button>
+                <button onClick={handleCompleteChapter} style={{
+                  flex: 1, padding: "13px 0", borderRadius: 12, border: "none",
+                  background: "#22c55e", color: "#000", fontWeight: 800, fontSize: 14,
+                  fontFamily: "'Space Grotesk', sans-serif", cursor: "pointer",
+                  boxShadow: "0 0 24px rgba(34,197,94,0.3)",
+                }}>Complete Chapter ✓</button>
+              </div>
+            ) : (
+              <button onClick={handleContinueJourney} style={{
+                width: "100%", padding: "13px 0", borderRadius: 12, border: "none",
+                background: "#22c55e", color: "#000", fontWeight: 800, fontSize: 15,
+                fontFamily: "'Space Grotesk', sans-serif", cursor: "pointer",
+                boxShadow: "0 0 24px rgba(34,197,94,0.3)",
+              }}>{journeyState.detour ? "Resume Learning" : "Continue Learning"}</button>
+            )}
           </div>
         )}
 
