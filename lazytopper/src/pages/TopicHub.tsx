@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams, useLocation } from "react-router-dom";
 import { getCanonicalChapters, toCanonicalSubjectId } from "../data/syllabus/cbse10Canonical";
 import { getTopicV2Content, normalizeTopicKey } from "../utils/topicHubV2Store";
@@ -14,7 +14,7 @@ import * as gam from "../utils/gamification";
 import type { V2Definition } from "../utils/getTopicV2Content";
 import type { CanonicalQuestion } from "../data/predictionTypes";
 import type { ChapterId } from "../engine/smartLearningTypes";
-import { recordDetour, recordLearnEngagement, getGuidedJourneyState } from "../services/guidedJourneyService";
+import { recordDetour, recordLearnEngagement } from "../services/guidedJourneyService";
 import { useAuth } from "../context/AuthContext";
 
 type SubjectKey = "maths" | "science";
