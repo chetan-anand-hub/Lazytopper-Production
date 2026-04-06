@@ -237,11 +237,14 @@ export async function loadSRScheduleWithSync(): Promise<SRSchedule> {
         }
         if (remote?.version === 1 && remote?.cards) {
           const migrated = migrateScheduleV1toV2(remote);
-          if (typeof window !== "undefined") {
-            window.localStorage.setItem(getStorageKey(), JSON.stringify(migrated));
+          const remoteUpdatedAt = typeof remote.updatedAt === "string" ? remote.updatedAt : "";
+          if (remoteUpdatedAt > local.updatedAt || Object.keys(local.cards).length === 0) {
+            if (typeof window !== "undefined") {
+              window.localStorage.setItem(getStorageKey(), JSON.stringify(migrated));
+            }
+            void setDoc(doc(firestoreDb, "srSchedules", uid), { ...migrated }, { merge: true }).catch(() => {});
+            return migrated;
           }
-          void setDoc(doc(firestoreDb, "srSchedules", uid), { ...migrated }, { merge: true }).catch(() => {});
-          return migrated;
         }
       }
     } catch { /* best effort */ }
@@ -367,6 +370,7 @@ export function getSRStats(): {
   mastered: number;
   dueToday: number;
 } {
+  checkMasteryDemotions();
   const schedule = loadSRSchedule();
   const today = todayIso();
   const cards = Object.values(schedule.cards);
