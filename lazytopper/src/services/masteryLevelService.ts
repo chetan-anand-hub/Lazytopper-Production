@@ -90,10 +90,10 @@ export function promoteMastery(
   accuracy: number,
   isChapterTest: boolean
 ): MasteryLevel {
-  if (accuracy >= 85 && isChapterTest && current === "proficient") {
+  if (accuracy >= 100 && isChapterTest && current === "proficient") {
     return "mastered";
   }
-  if (accuracy >= 85) {
+  if (accuracy >= 100) {
     const next = Math.max(levelIndex(current), levelIndex("proficient"));
     return clampLevel(next);
   }
@@ -119,14 +119,11 @@ export function updateMasteryLevel(
   isChapterTest: boolean = false
 ): MasteryLevel {
   if (result.totalQuestions <= 0) return current;
+  const accuracy = computeSimpleAccuracy(result);
 
   if (current === "not_started") {
-    const next = "attempted" as MasteryLevel;
-    const accuracy = computeWeightedAccuracy(result);
-    return promoteMastery(next, accuracy, isChapterTest);
+    return promoteMastery("attempted", accuracy, isChapterTest);
   }
-
-  const accuracy = computeWeightedAccuracy(result);
 
   const demoted = demoteMastery(current, accuracy);
   if (levelIndex(demoted) < levelIndex(current)) {

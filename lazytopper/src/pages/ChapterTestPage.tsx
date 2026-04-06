@@ -234,7 +234,7 @@ export default function ChapterTestPage() {
                 {questions.length} questions &middot; 15 minutes &middot; CBSE format
               </p>
               <p style={{ fontSize: "0.82rem", opacity: 0.8, marginTop: 8 }}>
-                Score ≥85% while Proficient to reach <strong>Mastered</strong> level
+                Score 100% while Proficient to reach <strong>Mastered</strong> level
               </p>
 
               <div
