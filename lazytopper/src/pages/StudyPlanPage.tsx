@@ -87,7 +87,8 @@ const coerceTier = (t: any): UITier => {
  */
 function buildSubjectPlan(
   subject: SubjectKey,
-  totalHours: number
+  totalHours: number,
+  daysLeft?: number
 ): PlanRow[] {
   const rawList =
     subject === "Maths"
@@ -97,7 +98,7 @@ function buildSubjectPlan(
   if (!totalHours || totalHours <= 0) return [];
 
   const stored = loadPaceProfile();
-  const profileType = stored?.type ?? detectProfileFromDays(90);
+  const profileType = stored?.type ?? detectProfileFromDays(daysLeft ?? stored?.daysLeft ?? 90);
 
   const tierBoosts: Record<string, Record<UITier, number>> = {
     crash:    { "must-crack": 2.0, "high-roi": 0.7, "good-to-do": 0.3 },
@@ -169,12 +170,12 @@ const StudyPlanPage: React.FC = () => {
   const totalScienceHours = daysLeft * scienceHoursPerDay;
 
   const mathsPlan = useMemo(
-    () => buildSubjectPlan("Maths", totalMathHours),
-    [totalMathHours]
+    () => buildSubjectPlan("Maths", totalMathHours, daysLeft),
+    [totalMathHours, daysLeft]
   );
   const sciencePlan = useMemo(
-    () => buildSubjectPlan("Science", totalScienceHours),
-    [totalScienceHours]
+    () => buildSubjectPlan("Science", totalScienceHours, daysLeft),
+    [totalScienceHours, daysLeft]
   );
 
   // When navigating back to AI Mentor, preserve the state/back info if possible
