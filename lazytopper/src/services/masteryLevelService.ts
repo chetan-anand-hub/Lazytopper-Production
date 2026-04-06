@@ -80,11 +80,7 @@ export function computeWeightedAccuracy(result: QuizResult): number {
   const weightedMax =
     result.mcqCount * mcqWeight + result.nonMcqCount * 1.0;
   if (weightedMax <= 0) return 0;
-  const raw = (weightedCorrect / weightedMax) * 100;
-  if (result.nonMcqCount === 0 && result.mcqCount > 0) {
-    return Math.round(Math.min(raw, 85));
-  }
-  return Math.round(raw);
+  return Math.round((weightedCorrect / weightedMax) * 100);
 }
 
 export function computeSimpleAccuracy(result: QuizResult): number {

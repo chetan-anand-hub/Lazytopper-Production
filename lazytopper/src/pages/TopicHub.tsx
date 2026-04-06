@@ -130,6 +130,23 @@ function saveLessonProgress(topicKey: string, progress: LessonProgress): void {
   } catch { /* ignore */ }
 }
 
+function buildFallbackStepQuestion(def: V2Definition, topicName: string): CanonicalQuestion {
+  return {
+    id: `fallback-step-${def.title.replace(/\s+/g, "-").toLowerCase()}`,
+    subject: "Maths",
+    topicKey: "",
+    subtopic: def.title,
+    section: "B",
+    marks: 3,
+    format: "Short" as CanonicalQuestion["format"],
+    difficulty: "Medium" as CanonicalQuestion["difficulty"],
+    bloomSkill: "Applying" as CanonicalQuestion["bloomSkill"],
+    questionText: `Explain the key steps involved in solving a problem related to "${def.title}" in ${topicName}. Write each step clearly.`,
+    answer: def.description || `Apply the concept of ${def.title} step by step as taught in ${topicName}.`,
+    explanation: def.description || "",
+  };
+}
+
 function buildFallbackCheckpoint(def: V2Definition, topicName: string): CanonicalQuestion {
   const desc = def.description || "";
   const maxLen = 90;
@@ -321,14 +338,16 @@ export default function TopicHub() {
       };
 
       for (let i = 0; i < 2; i++) {
-        const q = pickUnique(mcqs) || pickUnique(nonMcqs) || buildFallbackCheckpoint(def, title);
+        const q = pickUnique(mcqs) || buildFallbackCheckpoint(def, title);
         quiz.push(q);
       }
-      const sa = pickUnique(nonMcqs) || pickUnique(mcqs) || buildFallbackCheckpoint(def, title);
-      quiz.push(sa);
+      const shortAnswer = pickUnique(nonMcqs) || buildFallbackStepQuestion(def, title);
+      quiz.push(shortAnswer);
 
-      const extra = pickUnique(nonMcqs) || pickUnique(mcqs);
-      if (extra) quiz.push(extra);
+      const stepQ = pickUnique(nonMcqs) || buildFallbackStepQuestion(def, title);
+      if (stepQ.id !== shortAnswer.id) {
+        quiz.push(stepQ);
+      }
 
       return quiz;
     });

@@ -36,6 +36,7 @@ import {
   isMentorNetworkFailure,
   markMentorServerUnavailable,
 } from "../services/mentorServerGate";
+import { recordQuizResult, type QuizResult } from "../services/masteryLevelService";
 import {
   getQuestionFamiliesForTopic,
   getQuestionMeta,
@@ -972,6 +973,29 @@ const [mentorSeedExample, setMentorSeedExample] = useState<{
       recordDetour(slug, topicLabel || slug, authUserForJourney?.uid);
     }
   }, [canonicalTopicKey, topicParam, topicLabel, authUserForJourney?.uid]);
+
+  const practiceSessionMasteryRef = useRef(false);
+  useEffect(() => {
+    if (questions.length === 0) { practiceSessionMasteryRef.current = false; return; }
+    const answeredCount = Object.keys(mcqResults).length + Object.keys(selfAssessments).length;
+    if (answeredCount < questions.length || practiceSessionMasteryRef.current) return;
+    practiceSessionMasteryRef.current = true;
+
+    const mcqTotal = Object.keys(mcqResults).length;
+    const mcqCorrectCount = Object.values(mcqResults).filter((r) => r === "correct").length;
+    const nonMcqTotal = Object.keys(selfAssessments).length;
+    const nonMcqCorrectCount = Object.values(selfAssessments).filter((r) => r === "got_it").length;
+    const chapterId = `${grade}-${subjectKey}-${canonicalTopicKey || topicParam}`;
+    const result: QuizResult = {
+      totalQuestions: questions.length,
+      correctAnswers: mcqCorrectCount + nonMcqCorrectCount,
+      mcqCount: mcqTotal,
+      mcqCorrect: mcqCorrectCount,
+      nonMcqCount: nonMcqTotal,
+      nonMcqCorrect: nonMcqCorrectCount,
+    };
+    recordQuizResult(chapterId, result, false);
+  }, [questions, mcqResults, selfAssessments, grade, subjectKey, canonicalTopicKey, topicParam]);
 
 const packTopicKey = useMemo(() => {
   const explicitFromState = (navState as any)?.topicKey as string | undefined;
