@@ -283,7 +283,7 @@ export default function WeeklyWrappedPage() {
                 </div>
                 <button
                   type="button"
-                  onClick={() => navigate(`/class10/${focusArea.subject || "maths"}/${focusArea.topicKey}`, { state: { back: "/weekly-wrapped", backLabel: "Back to Weekly Wrapped" } })}
+                  onClick={() => navigate(`/practice/10/${focusArea.subject || "Maths"}?topic=${encodeURIComponent(focusArea.topicKey)}`, { state: { back: "/weekly-wrapped", backLabel: "Back to Weekly Wrapped" } })}
                   style={{
                     marginTop: 10,
                     padding: "6px 16px",
