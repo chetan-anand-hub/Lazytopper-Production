@@ -521,9 +521,9 @@ function buildSegmentsForProfile(
     const pracMin = Math.round(baseMins * mix.practice);
     const examMin = Math.max(1, baseMins - revMin - pracMin);
     segments.push(applyDuration(buildRevisionSegment(subject, seed), revMin));
+    segments.push(applyDuration(buildPracticeSegment(topicSlug, subject, seed), pracMin));
     segments.push(applyDuration(buildExamSegment(subject, seed), Math.ceil(examMin / 2)));
     segments.push(applyDuration(buildExamSegment(subject, seed + 100), Math.floor(examMin / 2)));
-    segments.push(applyDuration(buildExamSegment(subject, seed + 200), pracMin));
     if (extended || mockScheduled) {
       segments.push(applyDuration(buildMockTestSegment(topicSlug, subject, seed), 15));
       segments.push(applyDuration(buildWeakDrillSegment(subject, topicSlug, seed), 15));
