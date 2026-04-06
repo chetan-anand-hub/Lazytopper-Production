@@ -478,6 +478,10 @@ function getCurrentTopicSlug(subject: "Maths" | "Science", uid?: string | null):
   return match?.chapter.canonicalSlug || (subject === "Science" ? "ChemicalReactions" : "RealNumbers");
 }
 
+function applyDuration(seg: MissionSegment, minutes: number): MissionSegment {
+  return { ...seg, durationMinutes: minutes };
+}
+
 function buildSegmentsForProfile(
   profile: PaceProfileType,
   topicSlug: string,
@@ -487,36 +491,48 @@ function buildSegmentsForProfile(
 ): MissionSegment[] {
   const config = getProfileConfig(profile);
   const mix = config.missionMix;
+  const baseMins = 30;
   const segments: MissionSegment[] = [];
 
   if (profile === "crash") {
-    segments.push(buildRevisionSegment(subject, seed));
-    segments.push(buildPracticeSegment(topicSlug, subject, seed));
-    segments.push(buildExamSegment(subject, seed));
-    segments.push(buildExamSegment(subject, seed + 100));
+    const revMin = Math.round(baseMins * mix.revision);
+    const pracMin = Math.round(baseMins * mix.practice);
+    const examMin = Math.max(1, baseMins - revMin - pracMin);
+    segments.push(applyDuration(buildRevisionSegment(subject, seed), revMin));
+    segments.push(applyDuration(buildPracticeSegment(topicSlug, subject, seed), pracMin));
+    segments.push(applyDuration(buildExamSegment(subject, seed), Math.ceil(examMin / 2)));
+    segments.push(applyDuration(buildExamSegment(subject, seed + 100), Math.floor(examMin / 2)));
     if (extended || config.mockFrequency === "daily") {
-      segments.push(buildMockTestSegment(topicSlug, subject, seed));
-      segments.push(buildWeakDrillSegment(subject, topicSlug, seed));
+      segments.push(applyDuration(buildMockTestSegment(topicSlug, subject, seed), 15));
+      segments.push(applyDuration(buildWeakDrillSegment(subject, topicSlug, seed), 15));
     }
   } else if (profile === "sprint") {
-    segments.push(buildRevisionSegment(subject, seed));
-    if (mix.learn > 0) {
-      segments.push(buildLearningSegment(topicSlug, subject, seed));
+    const learnMin = Math.round(baseMins * mix.learn);
+    const pracMin = Math.round(baseMins * mix.practice);
+    const revMin = Math.round(baseMins * mix.revision);
+    const examMin = Math.max(1, baseMins - learnMin - pracMin - revMin);
+    segments.push(applyDuration(buildRevisionSegment(subject, seed), revMin));
+    if (learnMin > 0) {
+      segments.push(applyDuration(buildLearningSegment(topicSlug, subject, seed), learnMin));
     }
-    segments.push(buildPracticeSegment(topicSlug, subject, seed));
-    segments.push(buildExamSegment(subject, seed));
+    segments.push(applyDuration(buildPracticeSegment(topicSlug, subject, seed), pracMin));
+    segments.push(applyDuration(buildExamSegment(subject, seed), examMin));
     if (extended) {
-      segments.push(buildMockTestSegment(topicSlug, subject, seed));
-      segments.push(buildWeakDrillSegment(subject, topicSlug, seed));
+      segments.push(applyDuration(buildMockTestSegment(topicSlug, subject, seed), 15));
+      segments.push(applyDuration(buildWeakDrillSegment(subject, topicSlug, seed), 15));
     }
   } else {
-    segments.push(buildRevisionSegment(subject, seed));
-    segments.push(buildLearningSegment(topicSlug, subject, seed));
-    segments.push(buildPracticeSegment(topicSlug, subject, seed));
-    segments.push(buildExamSegment(subject, seed));
+    const learnMin = Math.round(baseMins * mix.learn);
+    const pracMin = Math.round(baseMins * mix.practice);
+    const revMin = Math.round(baseMins * mix.revision);
+    const examMin = Math.max(1, baseMins - learnMin - pracMin - revMin);
+    segments.push(applyDuration(buildRevisionSegment(subject, seed), revMin));
+    segments.push(applyDuration(buildLearningSegment(topicSlug, subject, seed), learnMin));
+    segments.push(applyDuration(buildPracticeSegment(topicSlug, subject, seed), pracMin));
+    segments.push(applyDuration(buildExamSegment(subject, seed), examMin));
     if (extended) {
-      segments.push(buildMockTestSegment(topicSlug, subject, seed));
-      segments.push(buildWeakDrillSegment(subject, topicSlug, seed));
+      segments.push(applyDuration(buildMockTestSegment(topicSlug, subject, seed), 15));
+      segments.push(applyDuration(buildWeakDrillSegment(subject, topicSlug, seed), 15));
     }
   }
 

@@ -93,12 +93,12 @@ export function scoreAndSortChapters(excludeIds?: Set<string>, paceProfile?: Pac
   }
 
   if (profile === "crash") {
-    scored.sort((a, b) => {
-      const isMustCrackA = a.chapter.canonicalSlug && toTopicMeta(a.chapter.canonicalSlug).tier === "must-crack" ? 1 : 0;
-      const isMustCrackB = b.chapter.canonicalSlug && toTopicMeta(b.chapter.canonicalSlug).tier === "must-crack" ? 1 : 0;
-      if (isMustCrackA !== isMustCrackB) return isMustCrackB - isMustCrackA;
-      return b.matchScore - a.matchScore;
-    });
+    const mustCrackOnly = scored.filter((s) =>
+      toTopicMeta(s.chapter.canonicalSlug).tier === "must-crack"
+    );
+    const pool = mustCrackOnly.length > 0 ? mustCrackOnly : scored;
+    pool.sort((a, b) => b.matchScore - a.matchScore);
+    return pool;
   } else if (profile === "sprint") {
     scored.sort((a, b) => {
       const isMustCrackA = toTopicMeta(a.chapter.canonicalSlug).tier === "must-crack" ? 1 : 0;

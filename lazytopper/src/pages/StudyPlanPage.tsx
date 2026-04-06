@@ -96,11 +96,20 @@ function buildSubjectPlan(
 
   if (!totalHours || totalHours <= 0) return [];
 
+  const stored = loadPaceProfile();
+  const profileType = stored?.type ?? detectProfileFromDays(90);
+
+  const tierBoosts: Record<string, Record<UITier, number>> = {
+    crash:    { "must-crack": 2.0, "high-roi": 0.7, "good-to-do": 0.3 },
+    sprint:   { "must-crack": 1.6, "high-roi": 1.1, "good-to-do": 0.7 },
+    marathon: { "must-crack": 1.3, "high-roi": 1.1, "good-to-do": 0.9 },
+  };
+  const boosts = tierBoosts[profileType] || tierBoosts.marathon;
+
   const rows = rawList.map((entry: any) => {
     const tier = coerceTier(entry.tier as TopicTier);
     const weight = Number(entry.weightagePercent ?? 0);
-    const tierBoost =
-      tier === "must-crack" ? 1.3 : tier === "high-roi" ? 1.1 : 0.9;
+    const tierBoost = boosts[tier] ?? 1;
 
     return {
       topicKey: entry.topicKey ?? entry.topicName ?? "",
