@@ -20,6 +20,7 @@ import { MockViewGate } from "./components/auth/MockViewGate";
 import { TrialBanner } from "./components/ux/TrialBanner";
 import { useAuth } from "./context/AuthContext";
 import { useSubscription } from "./hooks/useSubscription";
+import { initPaceProfileFromExamDate } from "./services/paceProfileService";
 
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const TrendsPage = lazy(() => import("./pages/TrendsPage"));
@@ -248,6 +249,17 @@ export default function App() {
     window.addEventListener("storage", handler);
     const interval = setInterval(handler, 5000);
     return () => { window.removeEventListener("storage", handler); clearInterval(interval); };
+  }, []);
+
+  useEffect(() => {
+    const DAILY_CHECK_KEY = "lazytopper.paceProfile.dailyCheck";
+    const today = new Date().toISOString().slice(0, 10);
+    try {
+      if (localStorage.getItem(DAILY_CHECK_KEY) === today) return;
+    } catch {}
+    void initPaceProfileFromExamDate("10").then(() => {
+      try { localStorage.setItem(DAILY_CHECK_KEY, today); } catch {}
+    }).catch(() => {});
   }, []);
 
   const getSubjectContext = (): { grade: string; subject: string } => {

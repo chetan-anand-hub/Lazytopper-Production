@@ -8,6 +8,14 @@ import { useSmartLearning } from "../engine/smartLearningStore";
 import { loadInsights } from "../services/practiceInsights";
 import { loadTopicMasterySnapshot } from "../services/topicHubMastery";
 import {
+  loadPaceProfile,
+  setManualOverride,
+  clearManualOverride,
+  getProfileConfig,
+  type PaceProfileType,
+  type StoredPaceProfile,
+} from "../services/paceProfileService";
+import {
   masteryFromLegacyPercent,
   getChapterMasteryLevel,
   MASTERY_LABELS,
@@ -877,6 +885,59 @@ export default function ProfilePage() {
           ))}
         </div>
       </div>
+
+      <PaceProfileSelector />
+    </div>
+  );
+}
+
+function PaceProfileSelector() {
+  const [paceProfile, setPaceProfile] = useState<StoredPaceProfile | null>(() => loadPaceProfile());
+  if (!paceProfile) return null;
+  const profileColors: Record<string, string> = { marathon: "#3b82f6", sprint: "#f97316", crash: "#ef4444" };
+  return (
+    <div style={{ marginTop: 16, padding: "12px 16px", background: "rgba(255,255,255,0.06)", borderRadius: 12, border: "2px solid rgba(255,255,255,0.08)" }}>
+      <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.85)", marginBottom: 4 }}>Study Pace</div>
+      <p style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", marginBottom: 10, lineHeight: 1.4 }}>
+        {paceProfile.isManualOverride
+          ? `Manual override active. Auto-detected: ${getProfileConfig(paceProfile.detectedType).label}.`
+          : `Auto-detected from ${paceProfile.daysLeft} days until exam.`}
+      </p>
+      <div style={{ display: "flex", gap: 8 }}>
+        {(["marathon", "sprint", "crash"] as PaceProfileType[]).map((pt) => {
+          const color = profileColors[pt];
+          const cfg = getProfileConfig(pt);
+          const isActive = paceProfile.type === pt;
+          return (
+            <button key={pt} type="button" onClick={() => {
+              const updated = setManualOverride(pt);
+              setPaceProfile(updated);
+            }} style={{
+              flex: 1, padding: "8px 4px", borderRadius: 10,
+              border: isActive ? `2px solid ${color}` : "1px solid rgba(255,255,255,0.08)",
+              background: isActive ? `${color}15` : "rgba(255,255,255,0.08)",
+              cursor: "pointer",
+            }}>
+              <div style={{ fontSize: 11, fontWeight: 800, color: isActive ? color : "rgba(255,255,255,0.5)", textTransform: "uppercase" }}>
+                {cfg.label}
+              </div>
+              <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>{cfg.tagline}</div>
+            </button>
+          );
+        })}
+      </div>
+      {paceProfile.isManualOverride && (
+        <button type="button" onClick={() => {
+          const updated = clearManualOverride();
+          if (updated) setPaceProfile(updated);
+        }} style={{
+          marginTop: 8, padding: "6px 12px", borderRadius: 8, border: "none",
+          background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.5)",
+          fontSize: 11, fontWeight: 600, cursor: "pointer", width: "100%",
+        }}>
+          Reset to auto-detect
+        </button>
+      )}
     </div>
   );
 }
