@@ -257,7 +257,15 @@ export default function App() {
     try {
       if (localStorage.getItem(DAILY_CHECK_KEY) === today) return;
     } catch {}
-    void initPaceProfileFromExamDate("10").then(() => {
+    let studentClass: "10" | "12" = "10";
+    try {
+      const profileRaw = localStorage.getItem("lazytopper.profile");
+      if (profileRaw) {
+        const parsed = JSON.parse(profileRaw);
+        if (parsed?.studentClass === "12") studentClass = "12";
+      }
+    } catch {}
+    void initPaceProfileFromExamDate(studentClass).then(() => {
       try { localStorage.setItem(DAILY_CHECK_KEY, today); } catch {}
     }).catch(() => {});
   }, []);
