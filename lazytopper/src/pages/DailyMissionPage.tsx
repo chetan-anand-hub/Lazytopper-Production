@@ -79,6 +79,9 @@ function MissionBackNav() {
 
 export default function DailyMissionPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const navState = (location.state as { back?: string; backLabel?: string } | null) || null;
+  const backTarget = navState?.back || "/dashboard";
   const { user } = useAuth();
   const { grade, subject: subjectParam } = useParams<RouteParams>();
   const safeSubject = useMemo(() => normalizeSubject(String(subjectParam || "Maths")), [subjectParam]);
@@ -339,7 +342,7 @@ export default function DailyMissionPage() {
         <MissionBackNav />
         <h2 style={{ fontWeight: 900, fontSize: 24 }}>Daily Mission</h2>
         <p style={{ opacity: 0.7, marginTop: 8 }}>No questions available for {safeSubject} today. Try again tomorrow!</p>
-        <button type="button" className="lt-pill" onClick={() => navigate("/dashboard")} style={{ marginTop: 16 }}>
+        <button type="button" className="lt-pill" onClick={() => navigate(backTarget)} style={{ marginTop: 16 }}>
           Back to Dashboard
         </button>
       </div>
@@ -405,7 +408,7 @@ export default function DailyMissionPage() {
                 {currentBadge.description}
               </div>
             )}
-            <button type="button" onClick={() => navigate("/dashboard")} style={{
+            <button type="button" onClick={() => navigate(backTarget)} style={{
               marginTop: 20, padding: "12px 32px", borderRadius: 12, border: "none",
               background: "#22c55e", color: "#000", fontWeight: 800, fontSize: 15, cursor: "pointer",
             }}>
@@ -670,7 +673,7 @@ export default function DailyMissionPage() {
               <div style={{ opacity: 0.5, fontSize: 11 }}>Correct</div>
             </div>
           </div>
-          <button type="button" onClick={() => navigate("/dashboard")} style={{
+          <button type="button" onClick={() => navigate(backTarget)} style={{
             marginTop: 16, padding: "12px 32px", borderRadius: 12, border: "none",
             background: "#22c55e", color: "#000", fontWeight: 800, fontSize: 15, cursor: "pointer",
           }}>

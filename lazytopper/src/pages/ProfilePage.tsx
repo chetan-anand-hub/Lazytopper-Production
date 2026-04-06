@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useProfile } from "../context/ProfileContext";
 import { useAuth } from "../context/AuthContext";
 import { useSubscription } from "../hooks/useSubscription";
@@ -607,6 +607,8 @@ function StatsTab({ badgeCtx, statsByChapter }: { badgeCtx: BadgeContext; statsB
 
 export default function ProfilePage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const navState = (location.state as { back?: string; backLabel?: string } | null) || null;
   const { profile } = useProfile();
   const { user, logout } = useAuth();
   const { statsByChapter } = useSmartLearning();
@@ -820,7 +822,7 @@ export default function ProfilePage() {
         </div>
         <button
           type="button"
-          onClick={() => navigate("/dashboard")}
+          onClick={() => navigate(navState?.back || "/dashboard")}
           style={{
             flex: 1,
             padding: "10px 20px",

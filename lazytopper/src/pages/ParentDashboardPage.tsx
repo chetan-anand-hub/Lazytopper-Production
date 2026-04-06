@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { loadInsights, type PracticeInsights } from "../services/practiceInsights";
 import { loadTopicMasterySnapshot } from "../services/topicHubMastery";
 import { getWeakAreas, type WeakAreaSummary } from "../services/weakAreaAggregator";
@@ -180,6 +180,8 @@ async function fetchSharedReport(token: string): Promise<SharedReportData | null
 
 export default function ParentDashboardPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const navState = (location.state as { back?: string; backLabel?: string } | null) || null;
   const { user } = useAuth();
   const { statsByChapter } = useSmartLearning();
   const [subjectTab, setSubjectTab] = useState<"Maths" | "Science">("Maths");
@@ -327,7 +329,7 @@ export default function ParentDashboardPage() {
   return (
     <div className="lt-page" style={{ paddingTop: 8 }}>
       <button
-        onClick={() => navigate(-1)}
+        onClick={() => navigate(navState?.back || "/dashboard")}
         style={{ background: "none", border: "none", color: "#1cb0f6", fontWeight: 700, fontSize: 14, cursor: "pointer", marginBottom: 8, padding: 0 }}
       >
         &larr; Back

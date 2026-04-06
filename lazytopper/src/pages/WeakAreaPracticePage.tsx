@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { getWeakAreas, type WeakArea, type WeakAreaSummary } from "../services/weakAreaAggregator";
 import { getDueReviews, getSRStats, type SRConceptCard } from "../services/spacedRepetitionEngine";
 import {
@@ -295,6 +295,8 @@ function ReviewCard({ card }: { card: SRConceptCard }) {
 
 export default function WeakAreaPracticePage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const navState = (location.state as { back?: string; backLabel?: string } | null) || null;
   const [tab, setTab] = useState<ViewTab>("weak-areas");
   const [subjectFilter, setSubjectFilter] = useState<"All" | "Maths" | "Science">("All");
   const [summary, setSummary] = useState<WeakAreaSummary | null>(null);
@@ -354,7 +356,7 @@ export default function WeakAreaPracticePage() {
   return (
     <div className="lt-page" style={{ paddingTop: 8 }}>
       <button
-        onClick={() => navigate(-1)}
+        onClick={() => navigate(navState?.back || "/dashboard")}
         style={{
           background: "none",
           border: "none",

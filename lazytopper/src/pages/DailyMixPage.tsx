@@ -107,6 +107,9 @@ function DailyMixBackNav() {
 
 export default function DailyMixPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const navState = (location.state as { back?: string; backLabel?: string } | null) || null;
+  const backTarget = navState?.back || "/dashboard";
   const [searchParams] = useSearchParams();
   const { grade, subject: subjectParam } = useParams<RouteParams>();
   const safeSubject = useMemo(
@@ -315,7 +318,7 @@ export default function DailyMixPage() {
         <p style={{ opacity: 0.7, marginTop: 8 }}>
           No questions available for {safeSubject} today.
         </p>
-        <button type="button" className="lt-pill" onClick={() => navigate("/dashboard")} style={{ marginTop: 16 }}>
+        <button type="button" className="lt-pill" onClick={() => navigate(backTarget)} style={{ marginTop: 16 }}>
           Back to Dashboard
         </button>
       </div>
@@ -564,7 +567,7 @@ export default function DailyMixPage() {
         ) : completed ? (
           <button
             type="button"
-            onClick={() => navigate("/dashboard")}
+            onClick={() => navigate(backTarget)}
             style={{ padding: "8px 24px", background: "#22c55e", color: "#fff", border: "none", borderRadius: 10, fontWeight: 700, fontSize: 14, cursor: "pointer" }}
           >
             Done — Back to Dashboard
@@ -605,7 +608,7 @@ export default function DailyMixPage() {
       <div style={{ marginTop: 16, textAlign: "center" }}>
         <button
           type="button"
-          onClick={() => navigate("/dashboard")}
+          onClick={() => navigate(backTarget)}
           style={{ padding: "8px 20px", background: "transparent", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, fontWeight: 600, fontSize: 13, color: "rgba(255,255,255,0.45)", cursor: "pointer" }}
         >
           Back to Dashboard

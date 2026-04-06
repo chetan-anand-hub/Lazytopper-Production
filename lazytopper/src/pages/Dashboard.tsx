@@ -343,7 +343,7 @@ export default function Dashboard() {
         title: "Resume Your Mission",
         description: `You have an incomplete mission (${missionResumeInfo.completedSegments}/${missionResumeInfo.totalSegments} segments done). Pick up where you left off!`,
         ctaLabel: `Resume Mission (${missionResumeInfo.remainingMinutes} min left)`,
-        onAction: () => navigate(`/daily-mission/${gradeNum}/${missionResumeInfo.subject}`),
+        onAction: () => navigate(`/daily-mission/${gradeNum}/${missionResumeInfo.subject}`, { state: { back: "/dashboard", backLabel: "Back to Dashboard" } }),
       };
     }
     if (!missionDoneToday) {
@@ -355,21 +355,21 @@ export default function Dashboard() {
           ? "Extended session: revision + concept + practice + exam + mock test + weak area drill. Build mastery!"
           : "4 segments: revision, concept, practice, exam. Complete all to maintain your streak!",
         ctaLabel: `Start ${isWeekend ? "Weekend" : "Daily"} Mission — ${missionMinutes} min`,
-        onAction: () => navigate(`/daily-mission/${gradeNum}/${subjectForQuickActions}`),
+        onAction: () => navigate(`/daily-mission/${gradeNum}/${subjectForQuickActions}`, { state: { back: "/dashboard", backLabel: "Back to Dashboard" } }),
       };
     }
     if (incompleteSession) {
       const kindLabel = incompleteSession.kind === "daily_mix" ? "Daily Mix" : "Study Session";
-      return { type: "resume_session", title: `Continue Your ${kindLabel}`, description: `You have an incomplete ${kindLabel} (${incompleteSession.cursor}/${incompleteSession.total} done). Pick up where you left off!`, ctaLabel: `Resume ${kindLabel}`, onAction: () => navigate(`/daily-mix/${gradeNum}/${incompleteSession.subject}`) };
+      return { type: "resume_session", title: `Continue Your ${kindLabel}`, description: `You have an incomplete ${kindLabel} (${incompleteSession.cursor}/${incompleteSession.total} done). Pick up where you left off!`, ctaLabel: `Resume ${kindLabel}`, onAction: () => navigate(`/daily-mix/${gradeNum}/${incompleteSession.subject}`, { state: { back: "/dashboard", backLabel: "Back to Dashboard" } }) };
     }
     if (!dailyMixDoneToday) {
-      return { type: "daily_mix", title: `Extra Practice`, description: `${dailyMixPreview.filter(i => i.type === "question").length} questions + concept + revision. Keep building momentum!`, ctaLabel: `Start Daily Mix — ${dailyMixMinutes} min`, onAction: () => navigate(`/daily-mix/${gradeNum}/${subjectForQuickActions}`) };
+      return { type: "daily_mix", title: `Extra Practice`, description: `${dailyMixPreview.filter(i => i.type === "question").length} questions + concept + revision. Keep building momentum!`, ctaLabel: `Start Daily Mix — ${dailyMixMinutes} min`, onAction: () => navigate(`/daily-mix/${gradeNum}/${subjectForQuickActions}`, { state: { back: "/dashboard", backLabel: "Back to Dashboard" } }) };
     }
     const weakRow = performanceRows.find(r => r.attempted >= 2 && r.accuracy < 50);
     if (weakRow) {
-      return { type: "weak_topic", title: `Focus: ${weakRow.topicName}`, description: `Your accuracy on ${weakRow.topicName} is ${weakRow.accuracy}%. Practice to improve.`, ctaLabel: `Practice ${weakRow.topicName}`, onAction: () => navigate(`/practice/${gradeNum}/${weakRow.subject}?topic=${encodeURIComponent(weakRow.topicKey)}`) };
+      return { type: "weak_topic", title: `Focus: ${weakRow.topicName}`, description: `Your accuracy on ${weakRow.topicName} is ${weakRow.accuracy}%. Practice to improve.`, ctaLabel: `Practice ${weakRow.topicName}`, onAction: () => navigate(`/practice/${gradeNum}/${weakRow.subject}?topic=${encodeURIComponent(weakRow.topicKey)}`, { state: { back: "/dashboard", backLabel: "Back to Dashboard" } }) };
     }
-    return { type: "daily_mission", title: "All done for today!", description: "Great work! Come back tomorrow for your next mission.", ctaLabel: "Start Extra Practice", onAction: () => navigate(`/daily-mix/${gradeNum}/${subjectForQuickActions}`) };
+    return { type: "daily_mission", title: "All done for today!", description: "Great work! Come back tomorrow for your next mission.", ctaLabel: "Start Extra Practice", onAction: () => navigate(`/daily-mix/${gradeNum}/${subjectForQuickActions}`, { state: { back: "/dashboard", backLabel: "Back to Dashboard" } }) };
   }, [missionResumeInfo, missionDoneToday, isWeekend, incompleteSession, dailyMixDoneToday, dailyMixMinutes, dailyMixPreview, performanceRows, gradeNum, subjectForQuickActions, navigate]);
 
   const [journeyState, setJourneyState] = useState<GuidedJourneyState>(() => {
@@ -391,7 +391,7 @@ export default function Dashboard() {
       clearDetour(user?.uid);
       setJourneyState(getGuidedJourneyState(user?.uid));
     }
-    navigate(getPhaseRoute(journeyState.currentChapter, gradeNum));
+    navigate(getPhaseRoute(journeyState.currentChapter, gradeNum), { state: { back: "/dashboard", backLabel: "Back to Dashboard" } });
   }, [journeyState, user?.uid, gradeNum, navigate]);
 
   const handleCompleteChapter = useCallback(() => {
@@ -542,7 +542,7 @@ export default function Dashboard() {
               { label: "Daily Mix", icon: "🔥", path: `/daily-mix/${gradeNum}/${subjectForQuickActions}` },
               { label: "All Chapters", icon: "📚", path: `/topic-hub/${gradeNum}/${subjectForQuickActions}` },
             ].map((a) => (
-              <button key={a.label} onClick={() => navigate(a.path)} style={{
+              <button key={a.label} onClick={() => navigate(a.path, { state: { back: "/dashboard", backLabel: "Back to Dashboard" } })} style={{
                 display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
                 padding: "10px 14px", borderRadius: 12, border: "1px solid rgba(255,255,255,0.06)",
                 background: "rgba(255,255,255,0.03)", color: "#fff", fontSize: 10, fontWeight: 600,
@@ -560,7 +560,7 @@ export default function Dashboard() {
             <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginBottom: 16, lineHeight: 1.6 }}>
               Set your target score, study time, and exam date for a smarter experience.
             </p>
-            <button onClick={() => navigate("/onboarding")} style={{
+            <button onClick={() => navigate("/onboarding", { state: { back: "/dashboard", backLabel: "Back to Dashboard" } })} style={{
               width: "100%", padding: "12px 0", borderRadius: 12, border: "none",
               background: "rgba(59,130,246,0.15)", color: "#3b82f6", fontWeight: 700, fontSize: 14,
               fontFamily: "'Space Grotesk', sans-serif", cursor: "pointer",
@@ -702,7 +702,7 @@ export default function Dashboard() {
             { label: "Daily Mix", icon: "🔥", path: `/daily-mix/${gradeNum}/${subjectForQuickActions}` },
             { label: "All Chapters", icon: "📚", path: `/topic-hub/${gradeNum}/${subjectForQuickActions}` },
           ].map((a) => (
-            <button key={a.label} onClick={() => navigate(a.path)} style={{
+            <button key={a.label} onClick={() => navigate(a.path, { state: { back: "/dashboard", backLabel: "Back to Dashboard" } })} style={{
               display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
               padding: "10px 14px", borderRadius: 12, border: "1px solid rgba(255,255,255,0.06)",
               background: "rgba(255,255,255,0.03)", color: "#fff", fontSize: 10, fontWeight: 600,
@@ -827,7 +827,7 @@ export default function Dashboard() {
 
         {srStats.dueToday > 0 && (
           <div
-            onClick={() => navigate("/weak-areas")}
+            onClick={() => navigate("/weak-area-practice", { state: { back: "/dashboard", backLabel: "Back to Dashboard" } })}
             style={{
               padding: "12px 16px", marginBottom: 16, borderRadius: 14,
               background: "rgba(168,85,247,0.08)", border: "1px solid rgba(168,85,247,0.2)",
@@ -870,7 +870,7 @@ export default function Dashboard() {
                 </div>
               ))}
             </div>
-            <button onClick={() => navigate(`/daily-mix/${gradeNum}/${subjectForQuickActions}`)} style={{
+            <button onClick={() => navigate(`/daily-mix/${gradeNum}/${subjectForQuickActions}`, { state: { back: "/dashboard", backLabel: "Back to Dashboard" } })} style={{
               width: "100%", padding: "12px 0", borderRadius: 10, background: "rgba(59,130,246,0.15)", border: "1px solid rgba(59,130,246,0.25)",
               color: "#60a5fa", fontWeight: 700, fontSize: 13, fontFamily: "'Space Grotesk', sans-serif", cursor: "pointer", marginTop: 10,
             }}>Play Daily Mix</button>
@@ -894,7 +894,7 @@ export default function Dashboard() {
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                       <span style={{ fontSize: 12, fontWeight: 800, color: w.accuracy < 50 ? "#ef4444" : "#fb923c" }}>{w.accuracy}%</span>
-                      <button onClick={() => navigate(`/practice/${gradeNum}/${w.subject}?topic=${encodeURIComponent(w.topicKey)}`)} style={{
+                      <button onClick={() => navigate(`/practice/${gradeNum}/${w.subject}?topic=${encodeURIComponent(w.topicKey)}`, { state: { back: "/dashboard", backLabel: "Back to Dashboard" } })} style={{
                         fontSize: 10, fontWeight: 700, padding: "4px 10px", borderRadius: 8,
                         background: "rgba(249,115,22,0.15)", border: "1px solid rgba(249,115,22,0.3)",
                         color: "#fb923c", cursor: "pointer", textTransform: "uppercase", letterSpacing: 0.5,
@@ -920,7 +920,7 @@ export default function Dashboard() {
                   {mathsMastery.map((t) => {
                     const level = getRowMasteryLevel(t);
                     return (
-                      <div key={t.topicKey} style={{ textAlign: "center", cursor: "pointer" }} onClick={() => navigate(`/topic-hub/${gradeNum}/Maths/${encodeURIComponent(t.topicKey)}`)}>
+                      <div key={t.topicKey} style={{ textAlign: "center", cursor: "pointer" }} onClick={() => navigate(`/topic-hub/${gradeNum}/Maths/${encodeURIComponent(t.topicKey)}`, { state: { back: "/dashboard", backLabel: "Back to Dashboard" } })}>
                         <div style={{ position: "relative", width: 48, height: 48, margin: "0 auto 4px" }}>
                           <svg width={48} height={48} style={{ display: "block" }}>
                             <circle cx={24} cy={24} r={20} fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth={4} />
@@ -947,7 +947,7 @@ export default function Dashboard() {
                   {scienceMastery.map((t) => {
                     const level = getRowMasteryLevel(t);
                     return (
-                      <div key={t.topicKey} style={{ textAlign: "center", cursor: "pointer" }} onClick={() => navigate(`/topic-hub/${gradeNum}/Science/${encodeURIComponent(t.topicKey)}`)}>
+                      <div key={t.topicKey} style={{ textAlign: "center", cursor: "pointer" }} onClick={() => navigate(`/topic-hub/${gradeNum}/Science/${encodeURIComponent(t.topicKey)}`, { state: { back: "/dashboard", backLabel: "Back to Dashboard" } })}>
                         <div style={{ position: "relative", width: 48, height: 48, margin: "0 auto 4px" }}>
                           <svg width={48} height={48} style={{ display: "block" }}>
                             <circle cx={24} cy={24} r={20} fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth={4} />
@@ -1054,7 +1054,7 @@ export default function Dashboard() {
               { label: "Mock Test", icon: "📝", bg: "rgba(168,85,247,0.08)", border: "rgba(168,85,247,0.2)", path: "/predictive-papers" },
               { label: "Weekly Wrapped", icon: "📊", bg: "rgba(249,115,22,0.08)", border: "rgba(249,115,22,0.2)", path: "/weekly-wrapped" },
             ].map((a) => (
-              <button key={a.label} onClick={() => navigate(a.path)} style={{
+              <button key={a.label} onClick={() => navigate(a.path, { state: { back: "/dashboard", backLabel: "Back to Dashboard" } })} style={{
                 display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
                 padding: "14px 12px", borderRadius: 12, border: `1px solid ${a.border}`,
                 background: a.bg, color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "'Inter', sans-serif",

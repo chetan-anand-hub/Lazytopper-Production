@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 import { getAttempts } from "../services/practiceInsights";
 import { generateWeeklyWrapped, type WeeklyWrappedSummary } from "../services/weeklyWrappedGenerator";
@@ -48,6 +48,9 @@ function buildShareText(summary: WeeklyWrappedSummary, streakDays: number): stri
 
 export default function WeeklyWrappedPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const navState = (location.state as { back?: string; backLabel?: string } | null) || null;
+  const backTarget = navState?.back || "/dashboard";
   const captureRef = useRef<HTMLDivElement | null>(null);
 
   const [end] = useState(() => Date.now());
@@ -73,7 +76,7 @@ export default function WeeklyWrappedPage() {
     return weakest && weakest.accuracy < 0.8 ? weakest : null;
   }, [summary]);
 
-  const handleClose = () => navigate("/dashboard");
+  const handleClose = () => navigate(backTarget);
 
   const handleShare = async () => {
     setShareStatus("copying");
@@ -152,7 +155,7 @@ export default function WeeklyWrappedPage() {
           </p>
           <button
             type="button"
-            onClick={() => navigate("/dashboard")}
+            onClick={() => navigate(backTarget)}
             style={{
               marginTop: 16,
               padding: "10px 24px",
@@ -349,7 +352,7 @@ export default function WeeklyWrappedPage() {
       <div style={{ marginTop: 24, textAlign: "center" }}>
         <button
           type="button"
-          onClick={() => navigate("/dashboard")}
+          onClick={() => navigate(backTarget)}
           style={{
             padding: "8px 20px",
             background: "transparent",
