@@ -137,65 +137,79 @@ const GENERIC_SIMILARITY: DiagramSpec = {
 const GENERIC_TRIGONOMETRIC_TRIANGLE: DiagramSpec = {
   kind: "tutor_diagram_v1",
   width: 380,
-  height: 220,
-  title: "Trigonometric Triangle",
-  caption: "Identify opposite, adjacent, and hypotenuse with respect to theta.",
+  height: 240,
+  title: "Right Triangle — Trigonometric Ratios",
+  caption: "sin \u03B8 = Opp/Hyp, cos \u03B8 = Adj/Hyp, tan \u03B8 = Opp/Adj",
   points: [
-    { id: "A", x: 70, y: 170, label: "A" },
-    { id: "B", x: 70, y: 60, label: "B" },
-    { id: "C", x: 280, y: 170, label: "C" },
-    { id: "Theta", x: 240, y: 150, label: "theta" },
+    { id: "A", x: 70, y: 190, label: "A" },
+    { id: "B", x: 70, y: 50, label: "B" },
+    { id: "C", x: 290, y: 190, label: "C" },
+    { id: "OppLabel", x: 42, y: 125, label: "Opp" },
+    { id: "AdjLabel", x: 165, y: 210, label: "Adj" },
+    { id: "HypLabel", x: 195, y: 108, label: "Hyp" },
   ],
   edges: [
-    { from: "A", to: "B" },
+    { from: "A", to: "B", highlight: true },
     { from: "B", to: "C" },
     { from: "C", to: "A" },
   ],
-  angleMarks: [{ at: "A", from: "B", to: "C", radius: 20, highlight: true }],
+  angleMarks: [{ at: "C", from: "A", to: "B", radius: 22, highlight: true }],
+  rightAngleMarks: [{ at: "A", alongA: "B", alongB: "C", size: 14 }],
 };
 
 const GENERIC_COORDINATE_PLANE: DiagramSpec = {
   kind: "tutor_diagram_v1",
   width: 420,
-  height: 240,
-  title: "Coordinate Plane",
-  caption: "Plot points and project to axes for graph/geometry questions.",
+  height: 260,
+  title: "Coordinate Geometry",
+  caption: "Distance = \u221A[(x\u2082\u2013x\u2081)\u00B2 + (y\u2082\u2013y\u2081)\u00B2], Mid-point = ((x\u2081+x\u2082)/2, (y\u2081+y\u2082)/2)",
   points: [
-    { id: "O", x: 70, y: 190, label: "O" },
-    { id: "X", x: 360, y: 190, label: "x" },
-    { id: "Y", x: 70, y: 40, label: "y" },
-    { id: "P", x: 250, y: 90, label: "P" },
-    { id: "Px", x: 250, y: 190, label: "" },
-    { id: "Py", x: 70, y: 90, label: "" },
+    { id: "O", x: 70, y: 200, label: "O(0,0)" },
+    { id: "X", x: 380, y: 200, label: "x" },
+    { id: "Y", x: 70, y: 30, label: "y" },
+    { id: "P", x: 180, y: 100, label: "P(x\u2081,y\u2081)", labelOffset: { x: -60, y: -8 } },
+    { id: "Q", x: 320, y: 140, label: "Q(x\u2082,y\u2082)", labelOffset: { x: 8, y: -8 } },
+    { id: "Px", x: 180, y: 200, label: "x\u2081" },
+    { id: "Py", x: 70, y: 100, label: "y\u2081" },
+    { id: "Qx", x: 320, y: 200, label: "x\u2082" },
+    { id: "Qy", x: 70, y: 140, label: "y\u2082" },
   ],
   edges: [
     { from: "O", to: "X" },
     { from: "O", to: "Y" },
     { from: "P", to: "Px", dashed: true },
     { from: "P", to: "Py", dashed: true },
+    { from: "Q", to: "Qx", dashed: true },
+    { from: "Q", to: "Qy", dashed: true },
+    { from: "P", to: "Q", highlight: true },
   ],
 };
 
 const GENERIC_CIRCUIT: DiagramSpec = {
   kind: "tutor_diagram_v1",
   width: 420,
-  height: 220,
-  title: "Electric Circuit",
-  caption: "Simple closed circuit with source, resistor, and measurement points.",
+  height: 240,
+  title: "Series Circuit — Ohm\u2019s Law",
+  caption: "V = IR. Current is same throughout a series circuit.",
   points: [
-    { id: "A", x: 80, y: 60, label: "A" },
-    { id: "B", x: 300, y: 60, label: "B" },
-    { id: "C", x: 300, y: 160, label: "C" },
-    { id: "D", x: 80, y: 160, label: "D" },
-    { id: "R", x: 230, y: 60, label: "R" },
-    { id: "V", x: 250, y: 120, label: "V" },
+    { id: "A", x: 80, y: 60, label: "+" },
+    { id: "B", x: 340, y: 60, label: "S (switch)" },
+    { id: "C", x: 340, y: 180, label: "\u2013" },
+    { id: "D", x: 80, y: 180, label: "Battery" },
+    { id: "R", x: 210, y: 60, label: "R (\u03A9)" },
+    { id: "Am", x: 340, y: 120, label: "A (ammeter)" },
+    { id: "Vm1", x: 140, y: 30, label: "" },
+    { id: "Vm2", x: 280, y: 30, label: "V (voltmeter)" },
   ],
   edges: [
     { from: "A", to: "B" },
     { from: "B", to: "C" },
     { from: "C", to: "D" },
     { from: "D", to: "A" },
-    { from: "R", to: "V", dashed: true },
+    { from: "Vm1", to: "Vm2", dashed: true },
+  ],
+  arrows: [
+    { from: "A", to: "R", label: "I", highlight: true },
   ],
 };
 
@@ -299,22 +313,24 @@ const GENERIC_BIOLOGY_PROCESS: DiagramSpec = {
   kind: "tutor_diagram_v1",
   width: 460,
   height: 240,
-  title: "Biology Process Flow",
-  caption: "Use labelled flow sequence and arrows in CBSE biology answers.",
+  title: "Life Process — Stepwise Flow",
+  caption: "CBSE requires labelled stepwise diagrams for biological processes.",
   points: [
-    { id: "A", x: 70, y: 120, label: "Input" },
-    { id: "B", x: 170, y: 120, label: "Stage 1" },
-    { id: "C", x: 270, y: 120, label: "Stage 2" },
-    { id: "D", x: 370, y: 120, label: "Output" },
-    { id: "E", x: 170, y: 70, label: "Control" },
-    { id: "F", x: 270, y: 170, label: "Effect" },
+    { id: "A", x: 70, y: 120, label: "Intake" },
+    { id: "B", x: 170, y: 120, label: "Breakdown" },
+    { id: "C", x: 280, y: 120, label: "Absorption" },
+    { id: "D", x: 390, y: 120, label: "Product" },
+    { id: "E", x: 170, y: 55, label: "Enzyme/Hormone" },
+    { id: "F", x: 280, y: 185, label: "Waste/By-product" },
   ],
   edges: [
-    { from: "A", to: "B", highlight: true },
-    { from: "B", to: "C", highlight: true },
-    { from: "C", to: "D", highlight: true },
     { from: "E", to: "B", dashed: true },
     { from: "C", to: "F", dashed: true },
+  ],
+  arrows: [
+    { from: "A", to: "B", label: "", highlight: true },
+    { from: "B", to: "C", label: "", highlight: true },
+    { from: "C", to: "D", label: "", highlight: true },
   ],
 };
 
@@ -469,6 +485,50 @@ const GENERIC_STATS_TABLE: DiagramSpec = {
   ],
 };
 
+const GENERIC_HEIGHT_DISTANCE: DiagramSpec = {
+  kind: "tutor_diagram_v1",
+  width: 420,
+  height: 260,
+  title: "Height and Distance",
+  caption: "tan \u03B8 = height/distance. Draw the right triangle from the observation point.",
+  points: [
+    { id: "A", x: 60, y: 220, label: "Observer (A)" },
+    { id: "B", x: 340, y: 220, label: "B (base)" },
+    { id: "C", x: 340, y: 50, label: "C (top)" },
+    { id: "dLabel", x: 190, y: 240, label: "d (distance)" },
+    { id: "hLabel", x: 355, y: 140, label: "h (height)" },
+  ],
+  edges: [
+    { from: "A", to: "B" },
+    { from: "B", to: "C" },
+    { from: "A", to: "C", highlight: true, dashed: true },
+  ],
+  angleMarks: [{ at: "A", from: "B", to: "C", radius: 28, highlight: true }],
+  rightAngleMarks: [{ at: "B", alongA: "A", alongB: "C", size: 14 }],
+};
+
+const GENERIC_PYTHAGORAS: DiagramSpec = {
+  kind: "tutor_diagram_v1",
+  width: 380,
+  height: 240,
+  title: "Pythagoras Theorem",
+  caption: "In a right triangle: a\u00B2 + b\u00B2 = c\u00B2 (hypotenuse\u00B2)",
+  points: [
+    { id: "A", x: 60, y: 200, label: "A" },
+    { id: "B", x: 300, y: 200, label: "B" },
+    { id: "C", x: 300, y: 50, label: "C" },
+    { id: "aLabel", x: 170, y: 218, label: "a (base)" },
+    { id: "bLabel", x: 315, y: 130, label: "b" },
+    { id: "cLabel", x: 155, y: 110, label: "c (hyp)" },
+  ],
+  edges: [
+    { from: "A", to: "B" },
+    { from: "B", to: "C" },
+    { from: "A", to: "C", highlight: true },
+  ],
+  rightAngleMarks: [{ at: "B", alongA: "A", alongB: "C", size: 14 }],
+};
+
 const NO_DIAGRAM_TOPICS = new Set([
   "probability",
   "chemical reactions and equations",
@@ -520,6 +580,22 @@ export function getDiagramTemplate(
 
   if (topicNeedsNoDiagram(topicLower)) return null;
 
+  if (
+    hint.includes("height and distance") ||
+    hint.includes("angle of elevation") ||
+    hint.includes("angle of depression") ||
+    hint.includes("tower") ||
+    hint.includes("building") && hint.includes("shadow")
+  ) {
+    return cloneSpec(GENERIC_HEIGHT_DISTANCE);
+  }
+  if (
+    hint.includes("pythagoras") ||
+    hint.includes("pythagorean") ||
+    hint.includes("hypotenuse")
+  ) {
+    return cloneSpec(GENERIC_PYTHAGORAS);
+  }
   if (topicLower.includes("real number") || topicLower === "real numbers") {
     return cloneSpec(GENERIC_NUMBER_LINE);
   }

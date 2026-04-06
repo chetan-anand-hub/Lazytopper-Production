@@ -133,8 +133,14 @@ function svgForKind(kind: VisualKind, questionText: string): React.ReactElement 
 
   if (kind === "height-distance") {
     const angle = extractNumber(qt, /(\d+)\s*(?:degree|°|deg)/i) ?? 60;
+    const height = extractNumber(qt, /(?:height|tall|high)\s*(?:=|of|is)?\s*(\d+(?:\.\d+)?)\s*(?:m|cm|ft)?/i);
+    const distance = extractNumber(qt, /(?:distance|away|from the (?:foot|base))\s*(?:=|of|is)?\s*(\d+(?:\.\d+)?)\s*(?:m|cm|ft)?/i);
+    const hLabel = height ? `${height} m` : "h";
+    const dLabel = distance ? `${distance} m` : "d";
+    const isDepression = /\b(depression|downward|below)\b/.test(qt);
+    const angleType = isDepression ? "depression" : "elevation";
     return (
-      <svg {...baseProps} aria-label="Height and distance visual aid">
+      <svg {...baseProps} aria-label={`Height and distance: angle of ${angleType} = ${angle}°`}>
         <line x1="60" y1="240" x2="340" y2="240" stroke={stroke} strokeWidth="2" />
         <line x1="300" y1="240" x2="300" y2="50" stroke={stroke} strokeWidth="2.2" />
         <line x1="60" y1="240" x2="300" y2="50" stroke={accent} strokeWidth="2" strokeDasharray="6 3" />
@@ -142,10 +148,12 @@ function svgForKind(kind: VisualKind, questionText: string): React.ReactElement 
         <text x="45" y="256" fontSize="15" fill={stroke} fontWeight="600">A</text>
         <text x="294" y="256" fontSize="15" fill={stroke} fontWeight="600">B</text>
         <text x="306" y="48" fontSize="15" fill={stroke} fontWeight="600">C</text>
-        <text x="155" y="235" fontSize="14" fill={accent} fontWeight="600">d (distance)</text>
-        <text x="306" y="150" fontSize="14" fill={accent} fontWeight="600">h (height)</text>
+        <text x="155" y="235" fontSize="14" fill={accent} fontWeight="600">{dLabel}</text>
+        <text x="306" y="150" fontSize="14" fill={accent} fontWeight="600">{hLabel}</text>
         <path d="M 100 240 A 40 40 0 0 0 88 222" fill="none" stroke={accent} strokeWidth="1.5" />
         <text x="104" y="232" fontSize="14" fill={accent} fontWeight="600">{angle}°</text>
+        <text x="60" y="28" fontSize="12" fill={faint}>Angle of {angleType}</text>
+        <text x="60" y="44" fontSize="12" fill={faint}>tan {angle}° = {hLabel}/{dLabel}</text>
       </svg>
     );
   }
@@ -1058,11 +1066,7 @@ function svgForKind(kind: VisualKind, questionText: string): React.ReactElement 
     );
   }
 
-  return (
-    <svg {...baseProps} aria-label="Diagram visual aid">
-      <text x="200" y="140" fontSize="14" fill={faint} textAnchor="middle">Diagram not available</text>
-    </svg>
-  );
+  return null as unknown as React.ReactElement;
 }
 
 const AI_DIAGRAM_CACHE = new Map<string, string>();

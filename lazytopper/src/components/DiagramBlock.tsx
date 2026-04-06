@@ -198,6 +198,29 @@ function ParallelAngleDiagram({ labels }: { labels: DiagramLabels }) {
 }
 
 
+function hasRenderableDiagram(
+  normalizedDiagram: LazytopperDiagramBlock | null | undefined,
+  diagramSpec: Props["diagramSpec"],
+  type: string,
+  isSimilarity: boolean,
+): boolean {
+  if (normalizedDiagram) return true;
+  if (diagramSpec) {
+    if (isDiagramSpec(diagramSpec)) return true;
+    const t = (diagramSpec as any).type ?? "";
+    const tid = (diagramSpec as any).templateId ?? (diagramSpec as any).template ?? "";
+    if (t === "triangle" && tid === "triangle-basic") return true;
+    return false;
+  }
+  const knownTypes = new Set([
+    "BPT", "PYTHAGORAS", "PARALLEL_LINE_ANGLE_RELATIONS",
+    "SIMILARITY_AA", "SIMILARITY_SAS", "SIMILARITY_SSS", "TRIANGLE_GENERIC",
+  ]);
+  if (knownTypes.has(type)) return true;
+  if (isSimilarity) return true;
+  return false;
+}
+
 export function DiagramBlock({
   diagram,
   diagramType,
@@ -227,6 +250,10 @@ export function DiagramBlock({
   const isAa = type === "SIMILARITY_AA";
   const isSas = type === "SIMILARITY_SAS";
   const isSss = type === "SIMILARITY_SSS";
+
+  if (!hasRenderableDiagram(normalizedDiagram, diagramSpec, type, isSimilarity)) {
+    return null;
+  }
 
   return (
     <div

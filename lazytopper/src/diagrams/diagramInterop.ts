@@ -43,19 +43,20 @@ function normalizeLabels(
   }, {});
 }
 
-function mapLegacyType(raw?: string | null): LazytopperDiagramType {
+function mapLegacyType(raw?: string | null): LazytopperDiagramType | null {
   const value = String(raw || "").trim().toLowerCase();
-  if (!value) return "geometry_triangle";
+  if (!value) return null;
   if (value.includes("similar")) return "geometry_similarity";
   if (value.includes("bpt") || value.includes("parallel")) return "geometry_parallel_lines";
   if (value.includes("height") || value.includes("distance")) return "heights_distance";
   if (value.includes("pyth") || value.includes("trigon") || value.includes("right")) {
     return "geometry_right_triangle";
   }
+  if (value.includes("triangle")) return "geometry_triangle";
   if (value.includes("ray")) return "ray_optics";
   if (value.includes("biology")) return "biology_process";
   if (value.includes("circuit")) return "circuit_basic";
-  return "geometry_triangle";
+  return null;
 }
 
 function buildTriangleSpecFromLegacyPayload(payload: Record<string, unknown>): DiagramSpec | null {
@@ -137,6 +138,8 @@ export function buildDiagramBlockFromLegacy(
     }
   }
 
+  if (!diagramType) return null;
+
   const base = {
     title: input.title,
     caption: input.caption,
@@ -154,7 +157,8 @@ export function buildDiagramBlockFromLegacy(
     case "heights_distance":
       return buildHeightsDistanceDiagram(base);
     case "geometry_triangle":
-    default:
       return buildTriangleDiagram({ ...base, labels });
+    default:
+      return null;
   }
 }
