@@ -16,7 +16,9 @@ type UxEventName =
   | "topic_mock_complete"
   | "exam_simulation_start"
   | "exam_simulation_complete"
-  | "login_guest_explore";
+  | "login_guest_explore"
+  | "chapter_test_start"
+  | "chapter_test_complete";
 
 export type UxTelemetryEvent = {
   name: UxEventName;

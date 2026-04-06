@@ -16,6 +16,15 @@ import type { CanonicalQuestion } from "../data/predictionTypes";
 import type { ChapterId } from "../engine/smartLearningTypes";
 import { recordDetour, recordLearnEngagement } from "../services/guidedJourneyService";
 import { useAuth } from "../context/AuthContext";
+import {
+  getChapterMasteryLevel,
+  recordQuizResult,
+  MASTERY_LABELS,
+  MASTERY_COLORS,
+  MASTERY_ICONS,
+  MASTERY_RING_FRACTION,
+  type QuizResult,
+} from "../services/masteryLevelService";
 
 type SubjectKey = "maths" | "science";
 
@@ -89,7 +98,7 @@ const TOPICHUB_RECENT_TOPICS_KEY = "lazytopper.topicHub.recentTopics.v1";
 const MAX_RECENT_TOPICS = 10;
 const TOPIC_MASTERY_KEY_PREFIX = "lazytopper.topicHub.mastery.v1.";
 const MAX_CONCEPT_CARDS = 5;
-const MIN_CONCEPT_CARDS = 3;
+
 
 function upsertRecentTopic(list: RecentTopicRecord[], entry: RecentTopicRecord): RecentTopicRecord[] {
   const filtered = list.filter((r) => r.topicKey !== entry.topicKey);
@@ -273,31 +282,43 @@ export default function TopicHub() {
     return Array.isArray(raw) ? raw.map((s) => String(s || "").trim()).filter(Boolean) : [];
   }, [v2]);
 
-  const mcqPool = useMemo<CanonicalQuestion[]>(() => {
+  const MINI_QUIZ_SIZE = 3;
+
+  const fullQuestionPool = useMemo<CanonicalQuestion[]>(() => {
     const practiceTopicKey = normalizeTopicKey(topicKey) || topicKey;
     const practiceSet = generatePracticeSet({
       subject: subject as "Maths" | "Science",
       topicKey: practiceTopicKey,
-      totalQuestions: Math.max(definitions.length, MIN_CONCEPT_CARDS),
+      totalQuestions: Math.max(definitions.length * MINI_QUIZ_SIZE, 15),
       shuffle: true,
     });
     return (practiceSet.questions || []).filter(
-      (q) => Boolean(q.questionText) && Array.isArray(q.options) && q.options.length >= 2 && Boolean(q.answer)
+      (q) => Boolean(q.questionText) && Boolean(q.answer)
     );
   }, [subject, topicKey, definitions.length]);
 
-  const conceptCheckpoints = useMemo<CanonicalQuestion[]>(() => {
-    return definitions.map((def, idx) => {
-      if (idx < mcqPool.length) return mcqPool[idx];
-      return buildFallbackCheckpoint(def, title);
+  const conceptMiniQuizzes = useMemo<CanonicalQuestion[][]>(() => {
+    let poolIdx = 0;
+    return definitions.map((def) => {
+      const quiz: CanonicalQuestion[] = [];
+      for (let i = 0; i < MINI_QUIZ_SIZE && poolIdx < fullQuestionPool.length; i++) {
+        quiz.push(fullQuestionPool[poolIdx]);
+        poolIdx++;
+      }
+      while (quiz.length < MINI_QUIZ_SIZE) {
+        quiz.push(buildFallbackCheckpoint(def, title));
+      }
+      return quiz;
     });
-  }, [definitions, mcqPool, title]);
+  }, [definitions, fullQuestionPool, title]);
 
   const [phase, setPhase] = useState<LessonPhase>("landing");
   const [conceptIdx, setConceptIdx] = useState(0);
   const [showingCheckpoint, setShowingCheckpoint] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [answerRevealed, setAnswerRevealed] = useState(false);
+  const [miniQuizIdx, setMiniQuizIdx] = useState(0);
+  const [miniQuizAnswers, setMiniQuizAnswers] = useState<{ correct: boolean; isMcq: boolean }[]>([]);
 
   const [teachDrawerOpen, setTeachDrawerOpen] = useState(false);
   const [teachContext, setTeachContext] = useState<ConceptTeachContext>({
@@ -381,42 +402,74 @@ export default function TopicHub() {
     updateProgress((prev) => ({ ...prev, lessonCompleted: true }));
   }, [updateProgress]);
 
+  const chapterMasteryLevel = useMemo(() => getChapterMasteryLevel(chapterId), [chapterId]);
+
   const startLearning = useCallback(() => {
     setPhase("learning");
     setConceptIdx(0);
     setShowingCheckpoint(false);
     setSelectedAnswer(null);
     setAnswerRevealed(false);
+    setMiniQuizIdx(0);
+    setMiniQuizAnswers([]);
   }, []);
 
   const currentDef = definitions[conceptIdx] as V2Definition | undefined;
-  const currentCheckpoint = conceptCheckpoints[conceptIdx] as CanonicalQuestion | undefined;
 
-  const advanceToNext = useCallback(() => {
-    if (currentDef) {
-      markConceptCompleted(currentDef.title);
-    }
+  const currentMiniQuiz = conceptMiniQuizzes[conceptIdx] || [];
+  const currentMiniQuestion = currentMiniQuiz[miniQuizIdx] as CanonicalQuestion | undefined;
 
-    if (conceptIdx < totalConcepts - 1) {
-      setShowingCheckpoint(false);
+  const advanceMiniQuiz = useCallback(() => {
+    if (miniQuizIdx < currentMiniQuiz.length - 1) {
+      setMiniQuizIdx((i) => i + 1);
       setSelectedAnswer(null);
       setAnswerRevealed(false);
-      setConceptIdx((prev) => prev + 1);
     } else {
-      markLessonCompleted();
-      setPhase("summary");
+      const quizResult: QuizResult = {
+        totalQuestions: miniQuizAnswers.length,
+        correctAnswers: miniQuizAnswers.filter((a) => a.correct).length,
+        mcqCount: miniQuizAnswers.filter((a) => a.isMcq).length,
+        mcqCorrect: miniQuizAnswers.filter((a) => a.isMcq && a.correct).length,
+        nonMcqCount: miniQuizAnswers.filter((a) => !a.isMcq).length,
+        nonMcqCorrect: miniQuizAnswers.filter((a) => !a.isMcq && a.correct).length,
+      };
+      recordQuizResult(chapterId, quizResult, false);
+
+      if (currentDef) {
+        markConceptCompleted(currentDef.title);
+      }
+      if (conceptIdx < totalConcepts - 1) {
+        setShowingCheckpoint(false);
+        setSelectedAnswer(null);
+        setAnswerRevealed(false);
+        setMiniQuizIdx(0);
+        setMiniQuizAnswers([]);
+        setConceptIdx((prev) => prev + 1);
+      } else {
+        markLessonCompleted();
+        setPhase("summary");
+      }
     }
-  }, [conceptIdx, totalConcepts, currentDef, markConceptCompleted, markLessonCompleted]);
+  }, [miniQuizIdx, currentMiniQuiz, miniQuizAnswers, currentDef, conceptIdx, totalConcepts, markConceptCompleted, markLessonCompleted, chapterId]);
+
+  const advanceToNext = useCallback(() => {
+    advanceMiniQuiz();
+  }, [advanceMiniQuiz]);
 
   const handleCheckpointAnswer = useCallback(
     (option: string) => {
-      if (answerRevealed || !currentCheckpoint) return;
+      if (answerRevealed || !currentMiniQuestion) return;
       setSelectedAnswer(option);
       setAnswerRevealed(true);
-      const isCorrect = option.trim().toLowerCase() === (currentCheckpoint.answer || "").trim().toLowerCase();
-      recordQuizAnswer(isCorrect, currentCheckpoint);
+      const isSelfMark = option === "correct" || option === "incorrect";
+      const isCorrect = isSelfMark
+        ? option === "correct"
+        : option.trim().toLowerCase() === (currentMiniQuestion.answer || "").trim().toLowerCase();
+      const isMcq = Array.isArray(currentMiniQuestion.options) && currentMiniQuestion.options.length >= 2;
+      setMiniQuizAnswers((prev) => [...prev, { correct: isCorrect, isMcq }]);
+      recordQuizAnswer(isCorrect, currentMiniQuestion);
     },
-    [answerRevealed, currentCheckpoint, recordQuizAnswer]
+    [answerRevealed, currentMiniQuestion, recordQuizAnswer]
   );
 
   const openTeachDrawer = useCallback(
@@ -503,21 +556,25 @@ export default function TopicHub() {
                   <div style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.4)", fontWeight: 500 }}>Exam Weightage</div>
                 </div>
               )}
-              <div>
-                <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#22c55e" }}>{masteryPercent}%</div>
-                <div style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.4)", fontWeight: 500 }}>Mastery</div>
+              <div style={{ textAlign: "center" }}>
+                <div style={{ fontSize: "1.4rem", fontWeight: 800, color: MASTERY_COLORS[chapterMasteryLevel] }}>
+                  {MASTERY_ICONS[chapterMasteryLevel]}
+                </div>
+                <div style={{ fontSize: "0.75rem", color: MASTERY_COLORS[chapterMasteryLevel], fontWeight: 600 }}>
+                  {MASTERY_LABELS[chapterMasteryLevel]}
+                </div>
               </div>
             </div>
 
-            {masteryPercent > 0 && (
+            {chapterMasteryLevel !== "not_started" && (
               <div style={{
                 marginTop: 16, height: 8, borderRadius: 999, background: "rgba(255,255,255,0.05)",
                 overflow: "hidden", maxWidth: 300, marginInline: "auto",
               }}>
                 <div style={{
                   height: "100%", borderRadius: 999, transition: "width 0.4s ease",
-                  width: `${masteryPercent}%`,
-                  background: masteryPercent >= 80 ? "#22c55e" : masteryPercent >= 40 ? "#6366f1" : "#94a3b8",
+                  width: `${MASTERY_RING_FRACTION[chapterMasteryLevel] * 100}%`,
+                  background: MASTERY_COLORS[chapterMasteryLevel],
                 }} />
               </div>
             )}
@@ -728,10 +785,11 @@ export default function TopicHub() {
                   <button
                     type="button"
                     onClick={() => {
-                      markConceptCompleted(currentDef.title);
                       setShowingCheckpoint(true);
                       setSelectedAnswer(null);
                       setAnswerRevealed(false);
+                      setMiniQuizIdx(0);
+                      setMiniQuizAnswers([]);
                     }}
                     style={{
                       padding: "8px 20px", borderRadius: 10,
@@ -746,7 +804,7 @@ export default function TopicHub() {
               </div>
             )}
 
-            {showingCheckpoint && currentCheckpoint && (
+            {showingCheckpoint && currentMiniQuestion && (
               <div style={{
                 background: "rgba(255,255,255,0.03)", borderRadius: 18, padding: "22px 22px",
                 border: "2px solid #6366f1",
@@ -757,93 +815,75 @@ export default function TopicHub() {
                     fontSize: "0.78rem", fontWeight: 700, padding: "3px 10px",
                     borderRadius: 999, background: "rgba(99,102,241,0.08)", color: "#818cf8",
                   }}>
-                    Quick Check
+                    Mini Quiz — Q{miniQuizIdx + 1}/{currentMiniQuiz.length}
                   </span>
+                  <div style={{ display: "flex", gap: 4, marginLeft: "auto" }}>
+                    {currentMiniQuiz.map((_, qi) => (
+                      <div key={qi} style={{
+                        width: 8, height: 8, borderRadius: 4,
+                        background: qi < miniQuizAnswers.length
+                          ? miniQuizAnswers[qi]?.correct ? "#22c55e" : "#ef4444"
+                          : qi === miniQuizIdx ? "#818cf8" : "rgba(255,255,255,0.1)",
+                      }} />
+                    ))}
+                  </div>
                 </div>
 
                 <div style={{ fontSize: "0.92rem", color: "#fff", lineHeight: 1.6, fontWeight: 600, marginBottom: 16 }}>
-                  {currentCheckpoint.questionText}
+                  {currentMiniQuestion.questionText}
                 </div>
 
-                <div style={{ display: "grid", gap: 8 }}>
-                  {(currentCheckpoint.options || []).map((option, idx) => {
-                    const isSelected = selectedAnswer === option;
-                    const correctAnswer = (currentCheckpoint.answer || "").trim().toLowerCase();
-                    const isCorrect = option.trim().toLowerCase() === correctAnswer;
-                    let borderColor = "rgba(255,255,255,0.06)";
-                    let bg = "rgba(255,255,255,0.03)";
-                    let textColor = "rgba(255,255,255,0.7)";
-                    if (answerRevealed) {
-                      if (isCorrect) {
-                        borderColor = "rgba(34,197,94,0.3)";
-                        bg = "rgba(34,197,94,0.08)";
-                        textColor = "#22c55e";
-                      } else if (isSelected && !isCorrect) {
-                        borderColor = "rgba(239,68,68,0.3)";
-                        bg = "rgba(239,68,68,0.08)";
-                        textColor = "#ef4444";
-                      }
-                    } else if (isSelected) {
-                      borderColor = "rgba(99,102,241,0.4)";
-                      bg = "rgba(99,102,241,0.08)";
-                    }
-                    return (
-                      <button
-                        key={idx}
-                        type="button"
-                        onClick={() => handleCheckpointAnswer(option)}
-                        disabled={answerRevealed}
-                        style={{
-                          padding: "12px 16px", borderRadius: 12,
-                          border: `2px solid ${borderColor}`, background: bg,
-                          color: textColor, fontWeight: 500, fontSize: "0.85rem",
-                          cursor: answerRevealed ? "default" : "pointer",
-                          textAlign: "left", transition: "all 0.15s",
-                          opacity: answerRevealed && !isSelected && !isCorrect ? 0.5 : 1,
-                        }}
-                      >
-                        <span style={{ fontWeight: 700, marginRight: 8 }}>
-                          {String.fromCharCode(65 + idx)}.
-                        </span>
-                        {option}
+                {Array.isArray(currentMiniQuestion.options) && currentMiniQuestion.options.length >= 2 ? (
+                  <div style={{ display: "grid", gap: 8 }}>
+                    {currentMiniQuestion.options.map((option, idx) => {
+                      const isSelected = selectedAnswer === option;
+                      const correctAnswer = (currentMiniQuestion.answer || "").trim().toLowerCase();
+                      const isCorrect = option.trim().toLowerCase() === correctAnswer;
+                      let borderColor = "rgba(255,255,255,0.06)";
+                      let bg = "rgba(255,255,255,0.03)";
+                      let textColor = "rgba(255,255,255,0.7)";
+                      if (answerRevealed) {
+                        if (isCorrect) { borderColor = "rgba(34,197,94,0.3)"; bg = "rgba(34,197,94,0.08)"; textColor = "#22c55e"; }
+                        else if (isSelected && !isCorrect) { borderColor = "rgba(239,68,68,0.3)"; bg = "rgba(239,68,68,0.08)"; textColor = "#ef4444"; }
+                      } else if (isSelected) { borderColor = "rgba(99,102,241,0.4)"; bg = "rgba(99,102,241,0.08)"; }
+                      return (
+                        <button key={idx} type="button" onClick={() => handleCheckpointAnswer(option)} disabled={answerRevealed}
+                          style={{ padding: "12px 16px", borderRadius: 12, border: `2px solid ${borderColor}`, background: bg, color: textColor, fontWeight: 500, fontSize: "0.85rem", cursor: answerRevealed ? "default" : "pointer", textAlign: "left", transition: "all 0.15s", opacity: answerRevealed && !isSelected && !isCorrect ? 0.5 : 1 }}>
+                          <span style={{ fontWeight: 700, marginRight: 8 }}>{String.fromCharCode(65 + idx)}.</span>
+                          {option}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  !answerRevealed && (
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <button type="button" onClick={() => handleCheckpointAnswer("correct")}
+                        style={{ padding: "8px 18px", borderRadius: 10, border: "1px solid #22c55e", background: "rgba(34,197,94,0.08)", color: "#22c55e", fontSize: "0.82rem", fontWeight: 600, cursor: "pointer" }}>
+                        I got it right
                       </button>
-                    );
-                  })}
-                </div>
+                      <button type="button" onClick={() => handleCheckpointAnswer("incorrect")}
+                        style={{ padding: "8px 18px", borderRadius: 10, border: "1px solid #ef4444", background: "rgba(239,68,68,0.08)", color: "#ef4444", fontSize: "0.82rem", fontWeight: 600, cursor: "pointer" }}>
+                        I got it wrong
+                      </button>
+                    </div>
+                  )
+                )}
 
                 {answerRevealed && (
                   <div style={{ marginTop: 16 }}>
-                    {selectedAnswer?.trim().toLowerCase() === (currentCheckpoint.answer || "").trim().toLowerCase() ? (
-                      <div style={{
-                        fontSize: "0.88rem", color: "#16a34a", fontWeight: 600, marginBottom: 12,
-                        padding: "10px 14px", background: "rgba(34,197,94,0.06)", borderRadius: 10,
-                      }}>
-                        Correct! Great job!
+                    {(selectedAnswer === "correct" || (selectedAnswer && selectedAnswer !== "incorrect" && selectedAnswer.trim().toLowerCase() === (currentMiniQuestion.answer || "").trim().toLowerCase())) ? (
+                      <div style={{ fontSize: "0.88rem", color: "#16a34a", fontWeight: 600, marginBottom: 12, padding: "10px 14px", background: "rgba(34,197,94,0.06)", borderRadius: 10 }}>
+                        Correct!
                       </div>
                     ) : (
-                      <div style={{
-                        fontSize: "0.88rem", color: "#dc2626", fontWeight: 600, marginBottom: 12,
-                        padding: "10px 14px", background: "rgba(239,68,68,0.06)", borderRadius: 10,
-                      }}>
-                        Not quite. The correct answer is: {currentCheckpoint.answer}
-                        {currentCheckpoint.explanation && (
-                          <div style={{ marginTop: 6, fontWeight: 400, fontSize: "0.82rem", color: "#7f1d1d" }}>
-                            {currentCheckpoint.explanation}
-                          </div>
-                        )}
+                      <div style={{ fontSize: "0.88rem", color: "#dc2626", fontWeight: 600, marginBottom: 12, padding: "10px 14px", background: "rgba(239,68,68,0.06)", borderRadius: 10 }}>
+                        Not quite. The correct answer is: {currentMiniQuestion.answer}
                       </div>
                     )}
-                    <button
-                      type="button"
-                      onClick={advanceToNext}
-                      style={{
-                        padding: "10px 24px", borderRadius: 12,
-                        background: "linear-gradient(135deg, #6366f1, #4f46e5)",
-                        border: "none", color: "#fff", fontWeight: 600,
-                        fontSize: "0.88rem", cursor: "pointer",
-                      }}
-                    >
-                      {conceptIdx < totalConcepts - 1 ? "Next Concept →" : "See Summary"}
+                    <button type="button" onClick={advanceToNext}
+                      style={{ padding: "10px 24px", borderRadius: 12, background: "linear-gradient(135deg, #6366f1, #4f46e5)", border: "none", color: "#fff", fontWeight: 600, fontSize: "0.88rem", cursor: "pointer" }}>
+                      {miniQuizIdx < currentMiniQuiz.length - 1 ? `Next Question (${miniQuizIdx + 2}/${currentMiniQuiz.length})` : conceptIdx < totalConcepts - 1 ? "Next Concept →" : "See Summary"}
                     </button>
                   </div>
                 )}
@@ -917,18 +957,49 @@ export default function TopicHub() {
               )}
             </div>
 
-            <button
-              type="button"
-              onClick={goToPractice}
-              style={{
-                marginTop: 24, padding: "14px 40px", borderRadius: 14,
-                background: "linear-gradient(135deg, #22c55e, #16a34a)",
-                border: "none", color: "#fff", fontWeight: 700, fontSize: "1rem",
-                cursor: "pointer", boxShadow: "0 4px 14px rgba(88,204,2,0.3)",
-              }}
-            >
-              Practice Now →
-            </button>
+            <div style={{
+              marginTop: 20, display: "inline-flex", alignItems: "center", gap: 10,
+              padding: "10px 18px", borderRadius: 14,
+              background: `${MASTERY_COLORS[chapterMasteryLevel]}15`,
+              border: `1px solid ${MASTERY_COLORS[chapterMasteryLevel]}40`,
+            }}>
+              <span style={{ fontSize: 18 }}>{MASTERY_ICONS[chapterMasteryLevel]}</span>
+              <div style={{ textAlign: "left" }}>
+                <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.5)" }}>Mastery Level</div>
+                <div style={{ fontSize: "0.92rem", fontWeight: 800, color: MASTERY_COLORS[chapterMasteryLevel] }}>
+                  {MASTERY_LABELS[chapterMasteryLevel]}
+                </div>
+              </div>
+            </div>
+
+            <div style={{ marginTop: 24, display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+              <button
+                type="button"
+                onClick={goToPractice}
+                style={{
+                  padding: "14px 28px", borderRadius: 14,
+                  background: "linear-gradient(135deg, #22c55e, #16a34a)",
+                  border: "none", color: "#fff", fontWeight: 700, fontSize: "0.95rem",
+                  cursor: "pointer", boxShadow: "0 4px 14px rgba(88,204,2,0.3)",
+                }}
+              >
+                Practice Now →
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate(`/chapter-test/${grade}/${subject}/${topicKey}`, {
+                  state: { back: `/topic-hub/${grade}/${subject}/${topicKey}`, backLabel: `Back to ${title}` },
+                })}
+                style={{
+                  padding: "14px 28px", borderRadius: 14,
+                  background: "linear-gradient(135deg, #f59e0b, #d97706)",
+                  border: "none", color: "#fff", fontWeight: 700, fontSize: "0.95rem",
+                  cursor: "pointer",
+                }}
+              >
+                Take Chapter Test 🏆
+              </button>
+            </div>
 
             <div style={{ marginTop: 12 }}>
               <button

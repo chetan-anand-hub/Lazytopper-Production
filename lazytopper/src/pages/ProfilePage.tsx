@@ -8,6 +8,14 @@ import { useSmartLearning } from "../engine/smartLearningStore";
 import { loadInsights } from "../services/practiceInsights";
 import { loadTopicMasterySnapshot } from "../services/topicHubMastery";
 import {
+  masteryFromLegacyPercent,
+  MASTERY_LABELS,
+  MASTERY_COLORS,
+  MASTERY_ICONS,
+  MASTERY_RING_FRACTION,
+  type MasteryLevel,
+} from "../services/masteryLevelService";
+import {
   buildBadgeContext,
   evaluateBadges,
   buildJourneyMilestones,
@@ -49,10 +57,12 @@ const TOPIC_DISPLAY_NAMES: Record<string, string> = {
   "light-reflection-refraction": "Light & Refraction",
 };
 
-function MasteryRing({ percent, size = 56, color }: { percent: number; size?: number; color: string }) {
+function MasteryRing({ level, size = 56 }: { level: MasteryLevel; size?: number }) {
+  const color = MASTERY_COLORS[level];
+  const fraction = MASTERY_RING_FRACTION[level];
   const r = (size - 8) / 2;
   const circ = 2 * Math.PI * r;
-  const filled = (percent / 100) * circ;
+  const filled = fraction * circ;
   return (
     <svg width={size} height={size} style={{ display: "block" }}>
       <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth={5} />
@@ -70,30 +80,23 @@ function MasteryRing({ percent, size = 56, color }: { percent: number; size?: nu
       />
       <text
         x={size / 2}
-        y={size / 2 + 4}
+        y={size / 2 + 5}
         textAnchor="middle"
-        fontSize={size < 50 ? 10 : 12}
+        fontSize={size < 50 ? 13 : 16}
         fontWeight={700}
         fill={color}
       >
-        {Math.round(percent)}%
+        {MASTERY_ICONS[level]}
       </text>
     </svg>
   );
 }
 
-function getMasteryColor(percent: number): string {
-  if (percent === 0) return "rgba(255,255,255,0.2)";
-  if (percent < 40) return "#60a5fa";
-  if (percent < 70) return "#34d399";
-  return "#f59e0b";
-}
-
-function getTopicMasteryPercent(topicKey: string): number {
+function getTopicMasteryLevel(topicKey: string): MasteryLevel {
   const snap = loadTopicMasterySnapshot(topicKey);
-  if (!snap?.nodes) return 0;
+  if (!snap?.nodes) return "not_started";
   const nodes = Object.values(snap.nodes);
-  if (nodes.length === 0) return 0;
+  if (nodes.length === 0) return "not_started";
   let score = 0;
   for (const n of nodes) {
     const st = (n as { state: string }).state;
@@ -102,7 +105,8 @@ function getTopicMasteryPercent(topicKey: string): number {
     else if (st === "needs_practice") score += 40;
     else if (st === "learning") score += 20;
   }
-  return score / nodes.length;
+  const percent = score / nodes.length;
+  return masteryFromLegacyPercent(percent);
 }
 
 interface WeeklyAccuracy {
@@ -309,7 +313,7 @@ function OverviewTab({ milestones, subjectTab, setSubjectTab }: {
       </div>
 
       <h3 style={{ fontWeight: 800, fontSize: 16, marginBottom: 12 }}>Chapter Mastery</h3>
-      {topics.every((tk) => getTopicMasteryPercent(tk) === 0) ? (
+      {topics.every((tk) => getTopicMasteryLevel(tk) === "not_started") ? (
         <div style={{ textAlign: "center", padding: "24px 16px", background: "rgba(255,255,255,0.03)", borderRadius: 14, border: "1px solid rgba(255,255,255,0.06)", marginBottom: 16 }}>
           <div style={{ fontSize: "2rem", marginBottom: 8 }}>🌱</div>
           <p style={{ fontWeight: 700, fontSize: "0.95rem", margin: "0 0 4px" }}>No mastery data yet</p>
@@ -320,8 +324,7 @@ function OverviewTab({ milestones, subjectTab, setSubjectTab }: {
       ) : null}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))", gap: 12 }}>
         {topics.map((tk) => {
-          const pct = getTopicMasteryPercent(tk);
-          const color = getMasteryColor(pct);
+          const level = getTopicMasteryLevel(tk);
           return (
             <div
               key={tk}
@@ -332,11 +335,14 @@ function OverviewTab({ milestones, subjectTab, setSubjectTab }: {
                 padding: "10px 6px",
                 borderRadius: 12,
                 background: "rgba(255,255,255,0.03)",
-                border: "1px solid rgba(255,255,255,0.06)",
+                border: `1px solid ${level !== "not_started" ? MASTERY_COLORS[level] + "30" : "rgba(255,255,255,0.06)"}`,
               }}
             >
-              <MasteryRing percent={pct} size={52} color={color} />
-              <span style={{ marginTop: 6, fontSize: 11, fontWeight: 600, textAlign: "center", lineHeight: 1.2 }}>
+              <MasteryRing level={level} size={52} />
+              <span style={{ marginTop: 4, fontSize: 10, fontWeight: 700, color: MASTERY_COLORS[level] }}>
+                {MASTERY_LABELS[level]}
+              </span>
+              <span style={{ marginTop: 2, fontSize: 11, fontWeight: 600, textAlign: "center", lineHeight: 1.2, color: "rgba(255,255,255,0.6)" }}>
                 {TOPIC_DISPLAY_NAMES[tk] || tk}
               </span>
             </div>

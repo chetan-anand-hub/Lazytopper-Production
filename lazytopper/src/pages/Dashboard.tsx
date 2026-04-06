@@ -19,6 +19,14 @@ import {
 import { loadDashboardPrefs } from "../services/studentCloudStore";
 import { buildBadgeContext, evaluateBadges, BADGE_DEFINITIONS } from "../services/badgeEngine";
 import {
+  masteryFromLegacyPercent,
+  MASTERY_LABELS,
+  MASTERY_COLORS,
+  MASTERY_ICONS,
+  MASTERY_RING_FRACTION,
+  type MasteryLevel,
+} from "../services/masteryLevelService";
+import {
   getGuidedJourneyState,
   initOrResumeGuidedChapter,
   advancePhase,
@@ -329,7 +337,10 @@ export default function Dashboard() {
   const totalAttempted = performanceRows.reduce((s, r) => s + r.attempted, 0);
   const avgAccuracy = performanceRows.length > 0 ? Math.round(performanceRows.reduce((s, r) => s + r.accuracy, 0) / performanceRows.length) : 0;
   const topicsStarted = performanceRows.length;
-  const topicsMastered = performanceRows.filter(r => r.accuracy >= 80 && r.attempted >= 3).length;
+  const topicsMastered = performanceRows.filter(r => {
+    const level = masteryFromLegacyPercent(r.accuracy);
+    return level === "mastered" || level === "proficient";
+  }).length;
   const persistedXp = (() => { try { return Number(localStorage.getItem("lazytopper.xp") || 0); } catch { return 0; } })();
   const xpEstimate = Math.max(persistedXp, totalAttempted * 10 + streak * 25 + topicsMastered * 50);
 
@@ -730,15 +741,24 @@ export default function Dashboard() {
               <>
                 <div style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>Maths</div>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginBottom: scienceMastery.length > 0 ? 16 : 0 }}>
-                  {mathsMastery.map((t) => (
-                    <div key={t.topicKey} style={{ textAlign: "center", cursor: "pointer" }} onClick={() => navigate(`/topic-hub/${gradeNum}/Maths/${encodeURIComponent(t.topicKey)}`)}>
-                      <div style={{ position: "relative", width: 48, height: 48, margin: "0 auto 4px" }}>
-                        <RingChart value={t.accuracy} size={48} color={tierColor(t.tier)} />
-                        <span style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 800, color: tierColor(t.tier) }}>{t.accuracy}%</span>
+                  {mathsMastery.map((t) => {
+                    const level = masteryFromLegacyPercent(t.accuracy);
+                    return (
+                      <div key={t.topicKey} style={{ textAlign: "center", cursor: "pointer" }} onClick={() => navigate(`/topic-hub/${gradeNum}/Maths/${encodeURIComponent(t.topicKey)}`)}>
+                        <div style={{ position: "relative", width: 48, height: 48, margin: "0 auto 4px" }}>
+                          <svg width={48} height={48} style={{ display: "block" }}>
+                            <circle cx={24} cy={24} r={20} fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth={4} />
+                            <circle cx={24} cy={24} r={20} fill="none" stroke={MASTERY_COLORS[level]} strokeWidth={4}
+                              strokeDasharray={`${MASTERY_RING_FRACTION[level] * 2 * Math.PI * 20} ${(1 - MASTERY_RING_FRACTION[level]) * 2 * Math.PI * 20}`}
+                              strokeDashoffset={2 * Math.PI * 20 / 4} strokeLinecap="round" style={{ transition: "stroke-dasharray 0.5s ease" }} />
+                            <text x={24} y={28} textAnchor="middle" fontSize={16} fill={MASTERY_COLORS[level]}>{MASTERY_ICONS[level]}</text>
+                          </svg>
+                        </div>
+                        <div style={{ fontSize: 8, fontWeight: 700, color: MASTERY_COLORS[level], marginBottom: 1 }}>{MASTERY_LABELS[level]}</div>
+                        <div style={{ fontSize: 9, fontWeight: 600, color: "rgba(255,255,255,0.5)", lineHeight: 1.2 }}>{t.topicName.length > 14 ? t.topicName.slice(0, 12) + "…" : t.topicName}</div>
                       </div>
-                      <div style={{ fontSize: 9, fontWeight: 600, color: "rgba(255,255,255,0.5)", lineHeight: 1.2 }}>{t.topicName.length > 14 ? t.topicName.slice(0, 12) + "…" : t.topicName}</div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </>
             )}
@@ -747,15 +767,24 @@ export default function Dashboard() {
               <>
                 <div style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>Science</div>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
-                  {scienceMastery.map((t) => (
-                    <div key={t.topicKey} style={{ textAlign: "center", cursor: "pointer" }} onClick={() => navigate(`/topic-hub/${gradeNum}/Science/${encodeURIComponent(t.topicKey)}`)}>
-                      <div style={{ position: "relative", width: 48, height: 48, margin: "0 auto 4px" }}>
-                        <RingChart value={t.accuracy} size={48} color={tierColor(t.tier)} />
-                        <span style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 800, color: tierColor(t.tier) }}>{t.accuracy}%</span>
+                  {scienceMastery.map((t) => {
+                    const level = masteryFromLegacyPercent(t.accuracy);
+                    return (
+                      <div key={t.topicKey} style={{ textAlign: "center", cursor: "pointer" }} onClick={() => navigate(`/topic-hub/${gradeNum}/Science/${encodeURIComponent(t.topicKey)}`)}>
+                        <div style={{ position: "relative", width: 48, height: 48, margin: "0 auto 4px" }}>
+                          <svg width={48} height={48} style={{ display: "block" }}>
+                            <circle cx={24} cy={24} r={20} fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth={4} />
+                            <circle cx={24} cy={24} r={20} fill="none" stroke={MASTERY_COLORS[level]} strokeWidth={4}
+                              strokeDasharray={`${MASTERY_RING_FRACTION[level] * 2 * Math.PI * 20} ${(1 - MASTERY_RING_FRACTION[level]) * 2 * Math.PI * 20}`}
+                              strokeDashoffset={2 * Math.PI * 20 / 4} strokeLinecap="round" style={{ transition: "stroke-dasharray 0.5s ease" }} />
+                            <text x={24} y={28} textAnchor="middle" fontSize={16} fill={MASTERY_COLORS[level]}>{MASTERY_ICONS[level]}</text>
+                          </svg>
+                        </div>
+                        <div style={{ fontSize: 8, fontWeight: 700, color: MASTERY_COLORS[level], marginBottom: 1 }}>{MASTERY_LABELS[level]}</div>
+                        <div style={{ fontSize: 9, fontWeight: 600, color: "rgba(255,255,255,0.5)", lineHeight: 1.2 }}>{t.topicName.length > 14 ? t.topicName.slice(0, 12) + "…" : t.topicName}</div>
                       </div>
-                      <div style={{ fontSize: 9, fontWeight: 600, color: "rgba(255,255,255,0.5)", lineHeight: 1.2 }}>{t.topicName.length > 14 ? t.topicName.slice(0, 12) + "…" : t.topicName}</div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </>
             )}
