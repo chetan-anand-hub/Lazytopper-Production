@@ -332,7 +332,7 @@ export default function ParentDashboardPage() {
         onClick={() => navigate(navState?.back || "/dashboard")}
         style={{ background: "none", border: "none", color: "#1cb0f6", fontWeight: 700, fontSize: 14, cursor: "pointer", marginBottom: 8, padding: 0 }}
       >
-        &larr; Back
+        &larr; {navState?.backLabel || "Back"}
       </button>
 
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>

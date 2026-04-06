@@ -289,7 +289,7 @@ const MockPaperPage: React.FC = () => {
                   cursor: "pointer",
                 }}
               >
-                ← Back to Predictive Papers hub
+                ← {navState?.backLabel || "Back to Predictive Papers hub"}
               </button>
 
               {/* Print / Download PDF button */}

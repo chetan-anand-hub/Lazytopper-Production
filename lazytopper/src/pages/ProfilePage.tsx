@@ -834,7 +834,7 @@ export default function ProfilePage() {
             cursor: "pointer",
           }}
         >
-          Back to Dashboard
+          {navState?.backLabel || "Back to Dashboard"}
         </button>
         {user && (
           <button

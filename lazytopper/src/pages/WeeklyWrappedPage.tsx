@@ -364,7 +364,7 @@ export default function WeeklyWrappedPage() {
             cursor: "pointer",
           }}
         >
-          Back to Dashboard
+          {navState?.backLabel || "Back to Dashboard"}
         </button>
       </div>
     </div>
