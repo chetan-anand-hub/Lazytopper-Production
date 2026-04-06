@@ -956,6 +956,9 @@ const [mentorSeedExample, setMentorSeedExample] = useState<{
   // - topicLabel: display name used by the canonical bank (e.g., "Real Numbers")
   // - packTopicKey: snake_case key used by Prompt-D packs (e.g., "real_numbers")
   const topicLabel = useMemo(() => {
+    if (canonicalTopicKey && canonicalTopicKey !== "Generic") {
+      return resolveTopicDisplayName(subjectKey, canonicalTopicKey);
+    }
     if (!topicParam || topicParam === "Generic") return topicParam;
     return resolveTopicDisplayName(subjectKey, canonicalTopicKey || topicParam);
   }, [subjectKey, canonicalTopicKey, topicParam]);

@@ -58,7 +58,6 @@ async function run() {
       PORT: String(port),
       AI_PROVIDER: "",
       API_KEY: "",
-      GEMINI_API_KEY: "",
       NODE_ENV: "test",
     },
     stdio: ["ignore", "pipe", "pipe"],

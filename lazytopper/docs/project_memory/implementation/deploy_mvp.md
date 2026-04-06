@@ -14,7 +14,7 @@
 
 ## Environment variables
 - None required for MVP.
-- (If you want live AI responses, set GEMINI_API_KEY in the hosting provider and run the server separately.)
+- (If you want live AI responses, set API_KEY in the hosting provider or configure AI_INTEGRATIONS_GEMINI via Replit proxy and run the server separately.)
 
 ## Smoke-test checklist (post-deploy)
 1) Landing page loads without console errors.

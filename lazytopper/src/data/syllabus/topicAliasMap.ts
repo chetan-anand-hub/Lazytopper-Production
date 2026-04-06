@@ -1,8 +1,11 @@
 export type CanonicalSubjectId = "maths" | "science";
 
 export function normalizeTopicSlug(raw: string): string {
-  const s = String(raw ?? "").trim().toLowerCase();
-  if (!s) return "";
+  const trimmed = String(raw ?? "").trim();
+  if (!trimmed) return "";
+  const s = trimmed
+    .replace(/([a-z0-9])([A-Z])/g, "$1-$2")
+    .toLowerCase();
   return s
     .replace(/&/g, " and ")
     .replace(/[/\\]/g, " ")
@@ -48,6 +51,8 @@ export const canonicalTopicAliasMap: Record<string, string[]> = {
   ],
   "chemical-reactions-and-equations": [
     "chemical-reactions-equations",
+    "chemical-reactions",
+    "chemical-reactions-and-equations",
   ],
   "metals-and-non-metals": [
     "metals-non-metals",
@@ -68,9 +73,26 @@ export const canonicalTopicAliasMap: Record<string, string[]> = {
   ],
   "light-reflection-and-refraction-incl-human-eye-prism": [
     "light-reflection-refraction",
+    "light-reflection-and-refraction",
+    "light",
     "human-eye-colourful-world",
     "science_light_reflection_refraction",
     "science_human_eye_colourful_world",
+  ],
+  electricity: [
+    "science_electricity",
+  ],
+  "carbon-and-its-compounds": [
+    "carbon-compounds",
+    "carbon-compounds-and-their-nomenclature",
+    "science_carbon_compounds",
+  ],
+  "life-processes": [
+    "science_life_processes",
+  ],
+  "magnetic-effects-of-electric-current": [
+    "magnetic-effects",
+    "science_magnetic_effects",
   ],
 };
 

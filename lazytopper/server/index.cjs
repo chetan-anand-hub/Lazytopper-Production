@@ -139,7 +139,6 @@ function loadDotEnvIfPresent() {
 loadDotEnvIfPresent();
 
 const RAW_API_KEY = String(process.env.API_KEY || '').trim();
-const RAW_GEMINI_API_KEY = String(process.env.GEMINI_API_KEY || '').trim();
 const RAW_AI_PROVIDER = String(process.env.AI_PROVIDER || '').trim();
 const ENV_USED = [];
 
@@ -152,10 +151,7 @@ if (HAS_REPLIT_PROXY) {
   ENV_USED.push('AI_INTEGRATIONS_GEMINI (Replit proxy)');
 }
 
-if (!RAW_API_KEY && RAW_GEMINI_API_KEY) {
-  process.env.API_KEY = RAW_GEMINI_API_KEY;
-  ENV_USED.push('GEMINI_API_KEY');
-} else if (RAW_API_KEY) {
+if (RAW_API_KEY) {
   ENV_USED.push('API_KEY');
 }
 
