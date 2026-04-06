@@ -1166,7 +1166,7 @@ Give me hint level ${targetLevel} only (keep it short).`
             >
               Upload solution photo
             </button>
-            <div style={{ fontSize: 12, color: "#777777" }}>
+            <div style={{ fontSize: 12, color: "#666666" }}>
               {attachedImage ? attachedImage.name : "Accepts JPG or PNG up to 3 MB."}
             </div>
             {attachedImage && (
