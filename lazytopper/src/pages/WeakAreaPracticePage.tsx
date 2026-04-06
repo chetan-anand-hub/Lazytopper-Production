@@ -190,7 +190,7 @@ function LearningPathView({
                     markDayCompleted(idx);
                     if (day.topics.length > 0) {
                       const t = day.topics[0];
-                      navigate(`/practice/10/${t.subject}?topic=${encodeURIComponent(t.topicKey)}&difficulty=${t.difficulty}&count=${t.targetQuestions}`);
+                      navigate(`/practice/10/${t.subject}?topic=${encodeURIComponent(t.topicKey)}&difficulty=${t.difficulty}&count=${t.targetQuestions}`, { state: { back: "/weak-area-practice", backLabel: "Back to Weak Areas" } });
                     }
                   }}
                   style={{
@@ -322,13 +322,13 @@ export default function WeakAreaPracticePage() {
 
   const handlePractice = (area: WeakArea) => {
     const diff = area.masteryPercent < 20 ? "Easy" : area.masteryPercent < 50 ? "Medium" : "Hard";
-    navigate(`/practice/10/${area.subject}?topic=${encodeURIComponent(area.topicKey)}&count=12&difficulty=${diff}&weakMode=1`);
+    navigate(`/practice/10/${area.subject}?topic=${encodeURIComponent(area.topicKey)}&count=12&difficulty=${diff}&weakMode=1`, { state: { back: "/weak-area-practice", backLabel: "Back to Weak Areas" } });
   };
 
   const handleStartTargetedSession = () => {
     if (!summary || summary.weakAreas.length === 0) return;
     const weakest = summary.weakAreas[0];
-    navigate(`/practice/10/${weakest.subject}?topic=${encodeURIComponent(weakest.topicKey)}&count=15&difficulty=Easy&weakMode=1`);
+    navigate(`/practice/10/${weakest.subject}?topic=${encodeURIComponent(weakest.topicKey)}&count=15&difficulty=Easy&weakMode=1`, { state: { back: "/weak-area-practice", backLabel: "Back to Weak Areas" } });
   };
 
   const handleGeneratePath = async () => {
@@ -368,7 +368,7 @@ export default function WeakAreaPracticePage() {
           padding: 0,
         }}
       >
-        &larr; Back
+        &larr; {navState?.backLabel || "Back"}
       </button>
 
       <h2 style={{ fontWeight: 900, fontSize: 22, marginBottom: 4 }}>Fix My Weak Areas</h2>

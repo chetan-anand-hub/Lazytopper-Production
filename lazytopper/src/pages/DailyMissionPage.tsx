@@ -343,7 +343,7 @@ export default function DailyMissionPage() {
         <h2 style={{ fontWeight: 900, fontSize: 24 }}>Daily Mission</h2>
         <p style={{ opacity: 0.7, marginTop: 8 }}>No questions available for {safeSubject} today. Try again tomorrow!</p>
         <button type="button" className="lt-pill" onClick={() => navigate(backTarget)} style={{ marginTop: 16 }}>
-          Back to Dashboard
+          {navState?.backLabel || "Back to Dashboard"}
         </button>
       </div>
     );
@@ -412,7 +412,7 @@ export default function DailyMissionPage() {
               marginTop: 20, padding: "12px 32px", borderRadius: 12, border: "none",
               background: "#22c55e", color: "#000", fontWeight: 800, fontSize: 15, cursor: "pointer",
             }}>
-              Back to Dashboard
+              {navState?.backLabel || "Back to Dashboard"}
             </button>
           </div>
         </div>
@@ -677,7 +677,7 @@ export default function DailyMissionPage() {
             marginTop: 16, padding: "12px 32px", borderRadius: 12, border: "none",
             background: "#22c55e", color: "#000", fontWeight: 800, fontSize: 15, cursor: "pointer",
           }}>
-            Back to Dashboard
+            {navState?.backLabel || "Back to Dashboard"}
           </button>
         </div>
       )}

@@ -319,7 +319,7 @@ export default function DailyMixPage() {
           No questions available for {safeSubject} today.
         </p>
         <button type="button" className="lt-pill" onClick={() => navigate(backTarget)} style={{ marginTop: 16 }}>
-          Back to Dashboard
+          {navState?.backLabel || "Back to Dashboard"}
         </button>
       </div>
     );
@@ -570,7 +570,7 @@ export default function DailyMixPage() {
             onClick={() => navigate(backTarget)}
             style={{ padding: "8px 24px", background: "#22c55e", color: "#fff", border: "none", borderRadius: 10, fontWeight: 700, fontSize: 14, cursor: "pointer" }}
           >
-            Done — Back to Dashboard
+            {navState?.backLabel ? `Done — ${navState.backLabel}` : "Done — Back to Dashboard"}
           </button>
         ) : null}
       </div>
@@ -586,7 +586,7 @@ export default function DailyMixPage() {
           <div style={{ opacity: 0.5, fontSize: 12, marginTop: 8 }}>Come back tomorrow to keep your streak alive!</div>
           <button
             type="button"
-            onClick={() => navigate("/weak-area-practice")}
+            onClick={() => navigate("/weak-area-practice", { state: { back: `/daily-mix/${grade || "10"}/${safeSubject}`, backLabel: "Back to Daily Mix" } })}
             style={{
               marginTop: 12,
               padding: "10px 24px",
@@ -611,7 +611,7 @@ export default function DailyMixPage() {
           onClick={() => navigate(backTarget)}
           style={{ padding: "8px 20px", background: "transparent", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, fontWeight: 600, fontSize: 13, color: "rgba(255,255,255,0.45)", cursor: "pointer" }}
         >
-          Back to Dashboard
+          {navState?.backLabel || "Back to Dashboard"}
         </button>
       </div>
 
