@@ -55,48 +55,40 @@ export default function Welcome() {
         * { box-sizing: border-box; margin: 0; padding: 0; }
       ` }} />
 
-      <div style={{ width: "100%", maxWidth: 480, padding: "40px 20px 60px" }}>
-        <div style={{ textAlign: "center", marginBottom: 32 }}>
+      <div style={{ width: "100%", maxWidth: 480, padding: "48px 24px 80px" }}>
+        <div style={{ textAlign: "center", marginBottom: 48 }}>
           <div style={{
-            width: 72, height: 72, borderRadius: "50%", margin: "0 auto 16px",
+            width: 88, height: 88, borderRadius: "50%", margin: "0 auto 24px",
             background: "linear-gradient(135deg, #22c55e, #3b82f6)",
             display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 32, fontWeight: 900, color: "#000",
+            fontSize: 44, fontWeight: 900, color: "#000",
             boxShadow: "0 0 40px rgba(34,197,94,0.3)",
           }}>R</div>
           <h1 className="font-display" style={{
-            fontSize: 28, fontWeight: 700, lineHeight: 1.2, marginBottom: 8,
+            fontSize: 40, fontWeight: 800, lineHeight: 1.2, marginBottom: 16,
           }}>
             Hey! I'm <span style={{ color: "#22c55e" }}>Ravi Sir</span>
           </h1>
-          <p style={{ fontSize: 15, color: "rgba(255,255,255,0.5)", lineHeight: 1.6 }}>
+          <p style={{ fontSize: 17, color: "rgba(255,255,255,0.6)", lineHeight: 1.7, maxWidth: 380 }}>
             Your AI tutor for CBSE Class 10 boards.<br/>
             Let me show you how we'll crack this together.
           </p>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 36 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: 48 }}>
           {steps.map((step, i) => (
             <div key={i} className="glass-card" style={{
-              padding: "16px 18px", display: "flex", alignItems: "flex-start", gap: 14,
+              padding: "20px 22px", display: "flex", alignItems: "flex-start", gap: 16,
             }}>
               <div style={{
-                width: 44, height: 44, borderRadius: 12, flexShrink: 0,
+                width: 52, height: 52, borderRadius: 14, flexShrink: 0,
                 background: `${step.color}15`, border: `1px solid ${step.color}30`,
                 display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 20,
+                fontSize: 28,
               }}>{step.icon}</div>
-              <div style={{ flex: 1 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                  <span style={{
-                    width: 20, height: 20, borderRadius: "50%", flexShrink: 0,
-                    background: `${step.color}20`, border: `1px solid ${step.color}40`,
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    fontSize: 10, fontWeight: 800, color: step.color,
-                  }}>{i + 1}</span>
-                  <span className="font-display" style={{ fontSize: 15, fontWeight: 700 }}>{step.title}</span>
-                </div>
-                <p style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", lineHeight: 1.5 }}>{step.desc}</p>
+              <div style={{ flex: 1, paddingTop: 2 }}>
+                <span className="font-display" style={{ fontSize: 18, fontWeight: 700, display: "block", marginBottom: 6 }}>{step.title}</span>
+                <p style={{ fontSize: 15, color: "rgba(255,255,255,0.5)", lineHeight: 1.6 }}>{step.desc}</p>
               </div>
             </div>
           ))}
@@ -107,10 +99,10 @@ export default function Welcome() {
           background: "rgba(34,197,94,0.06)", border: "1px solid rgba(34,197,94,0.15)",
           textAlign: "center", marginBottom: 12,
         }}>
-          <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", marginBottom: 4 }}>
+          <p style={{ fontSize: 16, color: "rgba(255,255,255,0.55)", marginBottom: 6 }}>
             Start with a <span style={{ color: "#22c55e", fontWeight: 700 }}>7-day free trial</span> — no payment needed
           </p>
-          <p style={{ fontSize: 11, color: "rgba(255,255,255,0.3)" }}>
+          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)" }}>
             Google or Phone login · All features unlocked
           </p>
         </div>
@@ -124,10 +116,10 @@ export default function Welcome() {
             }
           }}
           style={{
-            width: "100%", padding: "15px 0", borderRadius: 14, border: "none",
-            background: "#22c55e", color: "#000", fontWeight: 800, fontSize: 16,
+            width: "100%", padding: "18px 0", borderRadius: 14, border: "none",
+            background: "#22c55e", color: "#000", fontWeight: 800, fontSize: 18,
             fontFamily: "'Space Grotesk', sans-serif", cursor: "pointer",
-            boxShadow: "0 0 30px rgba(34,197,94,0.3)", marginBottom: 10,
+            boxShadow: "0 0 30px rgba(34,197,94,0.3)", marginBottom: 12,
           }}
         >
           Set My Target →
@@ -136,9 +128,9 @@ export default function Welcome() {
         <button
           onClick={() => navigate("/trends/10/Maths")}
           style={{
-            width: "100%", padding: "13px 0", borderRadius: 14,
+            width: "100%", padding: "16px 0", borderRadius: 14,
             background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
-            color: "rgba(255,255,255,0.5)", fontWeight: 600, fontSize: 14,
+            color: "rgba(255,255,255,0.55)", fontWeight: 600, fontSize: 16,
             fontFamily: "'Inter', sans-serif", cursor: "pointer",
           }}
         >
