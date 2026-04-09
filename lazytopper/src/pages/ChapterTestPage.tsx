@@ -438,7 +438,7 @@ export default function ChapterTestPage() {
               >
                 <span style={{ fontSize: 20 }}>{MASTERY_ICONS[masteryRecord.level]}</span>
                 <div style={{ textAlign: "left" }}>
-                  <div style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.5)" }}>Mastery Level</div>
+                  <div style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.5)" }}>Your Progress</div>
                   <div style={{ fontSize: "1rem", fontWeight: 800, color: MASTERY_COLORS[masteryRecord.level] }}>
                     {MASTERY_LABELS[masteryRecord.level]}
                   </div>
