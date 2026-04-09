@@ -22,6 +22,9 @@ export default function Onboarding() {
 
   const [examDate, setExamDate] = useState("");
   const [examDateSource, setExamDateSource] = useState<"official" | "predicted">("predicted");
+  const [editingDate, setEditingDate] = useState(false);
+  const [customDate, setCustomDate] = useState("");
+  const [isCustomDate, setIsCustomDate] = useState(false);
 
   const [autoDaysLeft, setAutoDaysLeft] = useState<number>(90);
   const [target, setTarget] = useState("80");
@@ -45,6 +48,29 @@ export default function Onboarding() {
     };
   }, [studentClass]);
 
+  const applyCustomDate = () => {
+    if (!customDate) return;
+    const rawLeft = daysLeftFromIsoDate(customDate);
+    if (!Number.isFinite(rawLeft) || rawLeft < 1) return;
+    setExamDate(customDate);
+    setAutoDaysLeft(rawLeft);
+    setIsCustomDate(true);
+    setEditingDate(false);
+  };
+
+  const resetToOfficial = () => {
+    setIsCustomDate(false);
+    setEditingDate(false);
+    const staticDate = String(cbseDates.class10?.boardExam || "");
+    void (async () => {
+      const result = await fetchCbseExamDate(studentClass);
+      setExamDate(result.examDate || staticDate);
+      setExamDateSource(result.source);
+      const rawLeft = daysLeftFromIsoDate(result.examDate || staticDate);
+      setAutoDaysLeft(Number.isFinite(rawLeft) && rawLeft > 0 ? rawLeft : 90);
+    })();
+  };
+
   const handleSubmit = () => {
     const daysLeft = autoDaysLeft;
     const targetPercent = Number(target) || 80;
@@ -58,6 +84,7 @@ export default function Onboarding() {
       targetPercent,
       hoursPerDay,
       currentPercent,
+      examDate: examDate || undefined,
     };
     checkAndUpdateProfile(daysLeft);
     setProfileAndCompute(nextProfile);
@@ -95,17 +122,52 @@ export default function Onboarding() {
         </p>
 
         <div className="glass-card" style={{ padding: 24, marginBottom: 20 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-            <span style={{ fontSize: 13, fontWeight: 700, color: examDateSource === "official" ? "#22c55e" : "#f97316" }}>
-              {examDateSource === "official" ? "Official" : "Expected"} exam date
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+            <span style={{ fontSize: 13, fontWeight: 700, color: isCustomDate ? "#a855f7" : examDateSource === "official" ? "#22c55e" : "#f97316" }}>
+              {isCustomDate ? "Your exam date" : examDateSource === "official" ? "Official exam date" : "Expected exam date"}
             </span>
+            <button type="button" onClick={() => { setEditingDate(!editingDate); setCustomDate(examDate); }} style={{
+              fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 6,
+              background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)",
+              color: "rgba(255,255,255,0.5)", cursor: "pointer",
+            }}>{editingDate ? "Cancel" : "Edit"}</button>
           </div>
-          <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 4 }}>
-            <span className="font-display" style={{ fontSize: 22, fontWeight: 800 }}>{formatIsoDate(examDate)}</span>
-            <span style={{ fontSize: 14, fontWeight: 700, color: profileColor }}>
-              {autoDaysLeft} {autoDaysLeft === 1 ? "day" : "days"} left
-            </span>
-          </div>
+
+          {editingDate ? (
+            <div style={{ marginBottom: 8 }}>
+              <input
+                type="date"
+                value={customDate}
+                onChange={(e) => setCustomDate(e.target.value)}
+                min={new Date().toISOString().slice(0, 10)}
+                style={{
+                  width: "100%", padding: "10px 12px", borderRadius: 10, marginBottom: 8,
+                  background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.15)",
+                  color: "#fff", fontSize: 14, fontFamily: "'Space Grotesk', sans-serif",
+                  outline: "none",
+                }}
+              />
+              <div style={{ display: "flex", gap: 8 }}>
+                <button type="button" onClick={applyCustomDate} style={{
+                  flex: 1, padding: "8px 0", borderRadius: 8, border: "none",
+                  background: "#a855f7", color: "#fff", fontWeight: 700, fontSize: 12, cursor: "pointer",
+                }}>Use This Date</button>
+                {isCustomDate && (
+                  <button type="button" onClick={resetToOfficial} style={{
+                    flex: 1, padding: "8px 0", borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)",
+                    background: "transparent", color: "rgba(255,255,255,0.5)", fontWeight: 700, fontSize: 12, cursor: "pointer",
+                  }}>Reset to Official</button>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 4 }}>
+              <span className="font-display" style={{ fontSize: 22, fontWeight: 800 }}>{formatIsoDate(examDate)}</span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: profileColor }}>
+                {autoDaysLeft} {autoDaysLeft === 1 ? "day" : "days"} left
+              </span>
+            </div>
+          )}
 
           <div style={{
             marginTop: 12, padding: "10px 14px", borderRadius: 12,

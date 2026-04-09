@@ -439,8 +439,9 @@ export default function Dashboard() {
       if (prefs?.plannerSubject) setPlannerSubject(prefs.plannerSubject);
       const dateResult = await fetchCbseExamDate(studentClass);
       if (cancelled) return;
-      setExamDate(dateResult.examDate);
-      const daysLeft = Math.max(1, daysLeftFromIsoDate(dateResult.examDate));
+      const effectiveDate = profile?.examDate || dateResult.examDate;
+      setExamDate(effectiveDate);
+      const daysLeft = Math.max(1, daysLeftFromIsoDate(effectiveDate));
       const result = checkAndUpdateProfile(daysLeft);
       setPaceProfile(result.profile);
       if (result.transition && !result.transition.dismissed) {

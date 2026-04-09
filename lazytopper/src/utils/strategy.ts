@@ -3,8 +3,8 @@ export interface StudentProfile {
   daysLeft: number;
   targetPercent: number;
   hoursPerDay: number;
-  // optional: estimate of current performance (avg of last 3 tests etc.)
   currentPercent?: number;
+  examDate?: string;
 }
 
 export interface StrategyResult {
