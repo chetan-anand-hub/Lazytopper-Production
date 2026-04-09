@@ -206,12 +206,10 @@ const SPRINT_FORMULAS = [
   { subject: "Science", items: ["V = IR, P = VI = I²R", "1/f = 1/v + 1/u (mirror)", "pH 7 = neutral, Acid + Base → Salt + Water", "Fleming's Left Hand = Motor, Right = Generator"] },
 ];
 
-function SprintDashboard({ daysLeft, navigate, gradeNum, weakAreas, subjectForQuickActions }: {
+function SprintDashboard({ daysLeft, navigate, gradeNum }: {
   daysLeft: number;
   navigate: (path: string, opts?: { state?: Record<string, string> }) => void;
-  gradeNum: number;
-  weakAreas: { topicKey: string; topicName: string; subject: string; accuracy: number }[];
-  subjectForQuickActions: string;
+  gradeNum: string;
 }) {
   const likelihoodScore = (l: string) => l === "Very High" ? 4 : l === "High" ? 3 : l === "Medium-High" ? 2 : 1;
 
@@ -225,6 +223,28 @@ function SprintDashboard({ daysLeft, navigate, gradeNum, weakAreas, subjectForQu
     .sort((a, b) => b._score - a._score)
     .slice(0, 10);
 
+  const [checklist, setChecklist] = useState<Record<string, boolean>>(() => {
+    try {
+      const stored = localStorage.getItem(`lazytopper.sprintChecklist.${new Date().toISOString().slice(0, 10)}`);
+      return stored ? JSON.parse(stored) : {};
+    } catch { return {}; }
+  });
+  const toggleCheck = (key: string) => {
+    setChecklist(prev => {
+      const next = { ...prev, [key]: !prev[key] };
+      try { localStorage.setItem(`lazytopper.sprintChecklist.${new Date().toISOString().slice(0, 10)}`, JSON.stringify(next)); } catch { /* noop */ }
+      return next;
+    });
+  };
+
+  const checklistItems = [
+    { key: "formulas", label: "Revise key formulas (Maths + Science)", icon: "📐" },
+    { key: "predicted", label: "Review top predicted questions", icon: "🎯" },
+    { key: "mini-mock", label: "Complete a 15-min mini mock", icon: "📝" },
+  ];
+
+  const completedCount = checklistItems.filter(i => checklist[i.key]).length;
+
   return (
     <>
       <div style={{
@@ -236,8 +256,43 @@ function SprintDashboard({ daysLeft, navigate, gradeNum, weakAreas, subjectForQu
           <span className="font-display" style={{ fontSize: 16, fontWeight: 800, color: "#ef4444" }}>Final Sprint — {daysLeft} days left</span>
         </div>
         <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", lineHeight: 1.5 }}>
-          Only essentials: predicted questions, key formulas & quick revision.
+          Only essentials: predicted questions, key formulas & mini mocks.
         </div>
+      </div>
+
+      <div style={{
+        padding: "16px 18px", marginBottom: 16, borderRadius: 16,
+        background: "rgba(34,197,94,0.06)", border: "1px solid rgba(34,197,94,0.15)",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+          <span className="font-display" style={{ fontSize: 14, fontWeight: 700 }}>Today's Revision Checklist</span>
+          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}>{completedCount}/{checklistItems.length}</span>
+        </div>
+        {checklistItems.map((item) => (
+          <button
+            key={item.key}
+            type="button"
+            onClick={() => toggleCheck(item.key)}
+            style={{
+              display: "flex", alignItems: "center", gap: 10, width: "100%",
+              padding: "10px 0", borderBottom: "1px solid rgba(255,255,255,0.04)",
+              background: "none", border: "none", cursor: "pointer", textAlign: "left",
+            }}
+          >
+            <div style={{
+              width: 22, height: 22, borderRadius: 6, flexShrink: 0,
+              border: checklist[item.key] ? "2px solid #22c55e" : "2px solid rgba(255,255,255,0.15)",
+              background: checklist[item.key] ? "rgba(34,197,94,0.2)" : "transparent",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 12, color: "#22c55e",
+            }}>{checklist[item.key] ? "✓" : ""}</div>
+            <span style={{ fontSize: 12 }}>{item.icon}</span>
+            <span style={{
+              fontSize: 13, color: checklist[item.key] ? "rgba(255,255,255,0.35)" : "rgba(255,255,255,0.7)",
+              textDecoration: checklist[item.key] ? "line-through" : "none",
+            }}>{item.label}</span>
+          </button>
+        ))}
       </div>
 
       <div style={{
@@ -322,68 +377,12 @@ function SprintDashboard({ daysLeft, navigate, gradeNum, weakAreas, subjectForQu
         }}>See All Formulas →</button>
       </div>
 
-      {weakAreas.length > 0 && (
-        <div style={{
-          padding: "16px 18px", marginBottom: 16, borderRadius: 16,
-          background: "rgba(249,115,22,0.06)", border: "1px solid rgba(249,115,22,0.15)",
-        }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-            <span style={{ fontSize: 16 }}>⚠️</span>
-            <span className="font-display" style={{ fontSize: 14, fontWeight: 700 }}>Weak Areas to Revise</span>
-          </div>
-          {weakAreas.slice(0, 5).map((w) => (
-            <div key={w.topicKey} style={{
-              display: "flex", justifyContent: "space-between", alignItems: "center",
-              padding: "8px 0", borderBottom: "1px solid rgba(255,255,255,0.04)",
-            }}>
-              <div>
-                <span style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.7)" }}>{w.topicName}</span>
-                <span style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", marginLeft: 6 }}>{w.subject}</span>
-              </div>
-              <span style={{ fontSize: 12, fontWeight: 800, color: w.accuracy < 50 ? "#ef4444" : "#fb923c" }}>{w.accuracy}%</span>
-            </div>
-          ))}
-        </div>
-      )}
-
-      <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
-        <button type="button" onClick={() => navigate("/predictive-papers")} style={{
-          flex: 1, padding: "14px 0", borderRadius: 12,
-          background: "rgba(168,85,247,0.1)", border: "1px solid rgba(168,85,247,0.2)",
-          color: "#c084fc", fontWeight: 700, fontSize: 13, cursor: "pointer",
-          fontFamily: "'Space Grotesk', sans-serif",
-        }}>📝 Quick Mock</button>
-        <button type="button" onClick={() => navigate("/revision-calendar")} style={{
-          flex: 1, padding: "14px 0", borderRadius: 12,
-          background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)",
-          color: "#60a5fa", fontWeight: 700, fontSize: 13, cursor: "pointer",
-          fontFamily: "'Space Grotesk', sans-serif",
-        }}>📅 Revision Calendar</button>
-      </div>
-
-      <div style={{
-        padding: "16px 18px", borderRadius: 16,
-        background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)",
-      }}>
-        <span className="font-display" style={{ fontSize: 14, fontWeight: 700, display: "block", marginBottom: 10 }}>Quick Links</span>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-          {[
-            { label: "Predicted Q's", icon: "🎯", bg: "rgba(239,68,68,0.08)", border: "rgba(239,68,68,0.2)", path: `/highly-probable/${gradeNum}/${subjectForQuickActions}` },
-            { label: "Weak Areas", icon: "⚠️", bg: "rgba(249,115,22,0.08)", border: "rgba(249,115,22,0.2)", path: "/weak-area-practice" },
-            { label: "Night Before", icon: "🌙", bg: "rgba(34,197,94,0.08)", border: "rgba(34,197,94,0.2)", path: "/night-before" },
-            { label: "Revision Calendar", icon: "📅", bg: "rgba(59,130,246,0.08)", border: "rgba(59,130,246,0.2)", path: "/revision-calendar" },
-          ].map((a) => (
-            <button key={a.label} onClick={() => navigate(a.path, { state: { back: "/dashboard", backLabel: "Back to Dashboard" } })} style={{
-              display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-              padding: "12px 10px", borderRadius: 12, border: `1px solid ${a.border}`,
-              background: a.bg, color: "#fff", fontSize: 12, fontWeight: 600, cursor: "pointer",
-            }}>
-              <span style={{ fontSize: 14 }}>{a.icon}</span>
-              {a.label}
-            </button>
-          ))}
-        </div>
-      </div>
+      <button type="button" onClick={() => navigate("/mini-mock")} style={{
+        width: "100%", padding: "16px 0", borderRadius: 14, border: "none", marginBottom: 16,
+        background: "#a855f7", color: "#fff", fontWeight: 800, fontSize: 15,
+        fontFamily: "'Space Grotesk', sans-serif", cursor: "pointer",
+        boxShadow: "0 0 24px rgba(168,85,247,0.3)",
+      }}>⚡ Start 15-Minute Mini Mock</button>
     </>
   );
 }
@@ -881,7 +880,7 @@ export default function Dashboard() {
         )}
 
         {daysLeftValue <= 7 && daysLeftValue > 1 && (
-          <SprintDashboard daysLeft={daysLeftValue} navigate={navigate} gradeNum={gradeNum} weakAreas={weakAreas} subjectForQuickActions={subjectForQuickActions} />
+          <SprintDashboard daysLeft={daysLeftValue} navigate={navigate} gradeNum={gradeNum} />
         )}
 
         {daysLeftValue > 7 && daysLeftValue <= 30 && (
