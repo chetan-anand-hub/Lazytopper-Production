@@ -27,6 +27,8 @@ export interface TopicHubMasterySnapshot {
   lastTutorNodeId?: string;
   lastGrindNodeId?: string;
   nodes: Record<string, TopicHubNodeMasteryRecord>;
+  totalAttempted?: number;
+  totalCorrect?: number;
 }
 
 export interface TopicHubNodeProgressInput {

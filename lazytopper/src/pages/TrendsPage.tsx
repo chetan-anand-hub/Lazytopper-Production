@@ -468,7 +468,7 @@ const TrendsPage: React.FC = () => {
                   boardWeightage: Number(meta.weightagePercent ?? 0),
                   tier,
                 };
-                const matchScore = getMatchScoreForChapter(chapterMeta, maxBoardWeightage);
+                getMatchScoreForChapter(chapterMeta, maxBoardWeightage);
                 const sortedConcepts = Object.entries(meta.conceptWeightage ?? {}).sort((a, b) => b[1] - a[1]);
                 const tierInfo = tierMeta[tier];
                 const tc = tierColor(tier);

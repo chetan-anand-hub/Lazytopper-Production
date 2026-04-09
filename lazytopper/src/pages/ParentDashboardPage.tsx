@@ -530,7 +530,7 @@ export default function ParentDashboardPage() {
 
     const focusData = getWeeklyFocus();
     const focusScore = focusData.length > 0
-      ? Math.round(focusData.reduce((s, d) => s + d.focusScore, 0) / focusData.length)
+      ? Math.round(focusData.reduce((s, d) => s + (d.totalMs > 0 ? (d.focusedMs / d.totalMs) * 100 : 0), 0) / focusData.length)
       : 0;
 
     const studyRaw = localStorage.getItem("lazytopper.studyHoursThisWeek");
