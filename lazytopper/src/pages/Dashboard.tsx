@@ -17,6 +17,7 @@ import {
   fetchCbseExamDate,
 } from "../services/cbseExamDate";
 import { loadDashboardPrefs } from "../services/studentCloudStore";
+import { getTodayFocus, getSessionFocus, getFocusMessage, isFocusTrackingEnabled } from "../services/focusTracker";
 import { buildBadgeContext, evaluateBadges, BADGE_DEFINITIONS } from "../services/badgeEngine";
 import {
   masteryFromLegacyPercent,
@@ -157,6 +158,47 @@ function ProgressBar({ value, color, height = 6 }: { value: number; color: strin
   return (
     <div style={{ width: "100%", height, borderRadius: height, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
       <div style={{ width: `${Math.min(value, 100)}%`, height: "100%", borderRadius: height, background: color, transition: "width 0.6s ease" }} />
+    </div>
+  );
+}
+
+function FocusScoreCard() {
+  const [tick, setTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setTick((t) => t + 1), 30_000);
+    return () => clearInterval(id);
+  }, []);
+
+  const daily = getTodayFocus();
+  const live = getSessionFocus();
+  const combinedFocusedMs = daily.focusedMs + live.focusedMs;
+  const combinedTotalMs = daily.totalMs + live.totalMs;
+  const activeMin = Math.round(combinedFocusedMs / 60_000);
+  const totalMin = Math.round(combinedTotalMs / 60_000);
+  const pct = combinedTotalMs > 0 ? Math.round((combinedFocusedMs / combinedTotalMs) * 100) : 0;
+  const msg = getFocusMessage(pct);
+  void tick;
+
+  if (totalMin < 1) return null;
+
+  const ringColor = pct >= 75 ? "#22c55e" : pct >= 50 ? "#3b82f6" : "#f97316";
+
+  return (
+    <div className="glass-card" style={{ padding: 16, marginBottom: 16, display: "flex", alignItems: "center", gap: 14 }}>
+      <div style={{ position: "relative", flexShrink: 0 }}>
+        <RingChart value={pct} size={56} strokeWidth={4} color={ringColor} />
+        <span style={{
+          position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%) rotate(0deg)",
+          fontSize: 13, fontWeight: 800, color: ringColor,
+        }}>{pct}%</span>
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.35)", textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 2 }}>Focus Score</div>
+        <div className="font-display" style={{ fontSize: 14, fontWeight: 700, marginBottom: 2 }}>
+          {activeMin} min active / {totalMin} min total
+        </div>
+        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)" }}>{msg}</div>
+      </div>
     </div>
   );
 }
@@ -630,6 +672,8 @@ export default function Dashboard() {
             boxShadow: "0 0 24px rgba(34,197,94,0.3)",
           }}>{heroAction.ctaLabel}</button>
         </div>
+
+        {isFocusTrackingEnabled() && <FocusScoreCard />}
 
         {/* RAVI SIR'S RECOMMENDATION */}
         {journeyState.currentChapter && (

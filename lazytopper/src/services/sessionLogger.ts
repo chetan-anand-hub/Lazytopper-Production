@@ -1,4 +1,3 @@
-// src/services/sessionLogger.ts
 import { firestoreDb } from "./firebaseClient";
 import {
   doc,
@@ -7,6 +6,7 @@ import {
   arrayUnion,
   serverTimestamp,
 } from "firebase/firestore";
+import { getSessionFocus } from "./focusTracker";
 
 export type ActivityType =
   | "practice"
@@ -35,6 +35,8 @@ export interface StudySessionLog {
   activities: StudySessionActivity[];
   platform: "web";
   status: "active" | "completed" | "partial";
+  focusedMinutes?: number;
+  totalMinutes?: number;
 }
 
 // Keep local copy for instant UI updates
@@ -138,15 +140,19 @@ export async function endSession() {
 
   const endTime = new Date().toISOString();
 
-  // 1. Local Update
+  const focus = getSessionFocus();
+  const focusedMinutes = Math.round(focus.focusedMs / 60_000);
+  const totalMinutes = Math.round(focus.totalMs / 60_000);
+
   currentSession.endTime = endTime;
   currentSession.status = "completed";
+  currentSession.focusedMinutes = focusedMinutes;
+  currentSession.totalMinutes = totalMinutes;
   logs.push(currentSession);
 
-  const finalSession = { ...currentSession }; // Copy for async use
+  const finalSession = { ...currentSession };
   currentSession = null;
 
-  // 2. Cloud Update
   if (firestoreDb && finalSession.userId) {
     try {
       const sessionRef = doc(
@@ -157,13 +163,14 @@ export async function endSession() {
         finalSession.id,
       );
       await updateDoc(sessionRef, {
-        endTime: endTime,
+        endTime,
         status: "completed",
+        focusedMinutes,
+        totalMinutes,
         lastUpdated: serverTimestamp(),
       });
-      console.log("☁️ Session ended in Cloud");
     } catch (e) {
-      console.error("🔥 Failed to end cloud session:", e);
+      console.error("Failed to end cloud session:", e);
     }
   }
 }

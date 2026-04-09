@@ -21,6 +21,7 @@ import { TrialBanner } from "./components/ux/TrialBanner";
 import { useAuth } from "./context/AuthContext";
 import { useSubscription } from "./hooks/useSubscription";
 import { initPaceProfileFromExamDate } from "./services/paceProfileService";
+import { startTracking, stopTracking, isFocusTrackingEnabled } from "./services/focusTracker";
 
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const TrendsPage = lazy(() => import("./pages/TrendsPage"));
@@ -210,6 +211,11 @@ export default function App() {
   const { mode, setMode } = useVibeMode();
   const { user } = useAuth();
   const { isTrialActive, isTrialExpired, daysLeftInTrial, isPremium } = useSubscription();
+
+  useEffect(() => {
+    if (isFocusTrackingEnabled()) startTracking();
+    return () => stopTracking();
+  }, []);
 
   useEffect(() => {
     try {

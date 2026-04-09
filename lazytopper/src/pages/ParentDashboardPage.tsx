@@ -6,6 +6,7 @@ import { getWeakAreas, type WeakAreaSummary } from "../services/weakAreaAggregat
 import { useSmartLearning } from "../engine/smartLearningStore";
 import { useAuth } from "../context/AuthContext";
 import { getLatestMockScores, type MockScoreEntry } from "../services/mockScoreHistory";
+import { getWeeklyFocus } from "../services/focusTracker";
 
 const TOPIC_NAMES: Record<string, string> = {
   "real-numbers": "Real Numbers", polynomials: "Polynomials",
@@ -116,6 +117,48 @@ function MockScoreChart({ scores }: { scores: MockScoreEntry[] }) {
         );
       })}
     </svg>
+  );
+}
+
+function WeeklyFocusCard() {
+  const weekly = getWeeklyFocus();
+  if (weekly.length === 0) return null;
+  const totalFocusedMs = weekly.reduce((s, r) => s + r.focusedMs, 0);
+  const totalSessionMs = weekly.reduce((s, r) => s + r.totalMs, 0);
+  if (totalSessionMs < 60_000) return null;
+  const focusedHrs = (totalFocusedMs / 3_600_000).toFixed(1);
+  const totalHrs = (totalSessionMs / 3_600_000).toFixed(1);
+  const pct = Math.round((totalFocusedMs / totalSessionMs) * 100);
+  const ringColor = pct >= 75 ? "#22c55e" : pct >= 50 ? "#3b82f6" : "#f97316";
+  const r = 22;
+  const circ = 2 * Math.PI * r;
+  const offset = circ * (1 - Math.min(pct, 100) / 100);
+  return (
+    <div style={{ marginBottom: 20 }}>
+      <h3 style={{ fontWeight: 800, fontSize: 16, marginBottom: 10 }}>Focus This Week</h3>
+      <div style={{
+        display: "flex", alignItems: "center", gap: 16, padding: 16, borderRadius: 14,
+        background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)",
+      }}>
+        <div style={{ position: "relative", flexShrink: 0 }}>
+          <svg width={52} height={52} style={{ transform: "rotate(-90deg)" }}>
+            <circle cx={26} cy={26} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={4} />
+            <circle cx={26} cy={26} r={r} fill="none" stroke={ringColor} strokeWidth={4}
+              strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round" />
+          </svg>
+          <span style={{
+            position: "absolute", top: "50%", left: "50%",
+            transform: "translate(-50%,-50%)", fontSize: 12, fontWeight: 800, color: ringColor,
+          }}>{pct}%</span>
+        </div>
+        <div>
+          <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 2 }}>{focusedHrs} hrs active / {totalHrs} hrs total</div>
+          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)" }}>
+            {pct >= 75 ? "Strong focus this week!" : pct >= 50 ? "Good effort — room to improve" : "Encourage fewer distractions during study"}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -411,6 +454,8 @@ export default function ParentDashboardPage() {
           <WeeklyChart data={weeklyAccuracy} />
         </div>
       </div>
+
+      <WeeklyFocusCard />
 
       <div style={{ marginBottom: 20 }}>
         <h3 style={{ fontWeight: 800, fontSize: 16, marginBottom: 10 }}>Mock Test Scores</h3>

@@ -15,6 +15,7 @@ import {
   type PaceProfileType,
   type StoredPaceProfile,
 } from "../services/paceProfileService";
+import { isFocusTrackingEnabled, setFocusTrackingEnabled } from "../services/focusTracker";
 import {
   masteryFromLegacyPercent,
   getChapterMasteryLevel,
@@ -888,7 +889,42 @@ export default function ProfilePage() {
         </div>
       </div>
 
+      <FocusTrackingToggle />
+
       <PaceProfileSelector />
+    </div>
+  );
+}
+
+function FocusTrackingToggle() {
+  const [enabled, setEnabled] = useState(isFocusTrackingEnabled);
+  return (
+    <div style={{ marginTop: 16, padding: "12px 16px", background: "rgba(255,255,255,0.06)", borderRadius: 12, border: "2px solid rgba(255,255,255,0.08)" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.85)" }}>Focus Tracking</div>
+          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", marginTop: 2 }}>Track active vs idle study time</div>
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            const next = !enabled;
+            setFocusTrackingEnabled(next);
+            setEnabled(next);
+          }}
+          style={{
+            width: 48, height: 26, borderRadius: 13, border: "none", cursor: "pointer",
+            background: enabled ? "#22c55e" : "rgba(255,255,255,0.15)",
+            position: "relative", transition: "background 0.2s",
+          }}
+        >
+          <div style={{
+            width: 20, height: 20, borderRadius: "50%", background: "#fff",
+            position: "absolute", top: 3,
+            left: enabled ? 25 : 3, transition: "left 0.2s",
+          }} />
+        </button>
+      </div>
     </div>
   );
 }
