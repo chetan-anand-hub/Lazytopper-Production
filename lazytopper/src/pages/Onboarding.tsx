@@ -120,6 +120,32 @@ export default function Onboarding() {
             </div>
             <p style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", lineHeight: 1.5, margin: 0 }}>{summary}</p>
           </div>
+
+          <div style={{
+            marginTop: 12, padding: "12px 14px", borderRadius: 12,
+            background: "rgba(34,197,94,0.06)", border: "1px solid rgba(34,197,94,0.15)",
+          }}>
+            <div style={{ fontSize: 12, color: "#22c55e", fontWeight: 700, marginBottom: 4 }}>
+              With {autoDaysLeft} {autoDaysLeft === 1 ? "day" : "days"} left, here's your best strategy...
+            </div>
+            <p style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", lineHeight: 1.5, margin: 0 }}>
+              {autoDaysLeft <= 1
+                ? "Focus on formulas, top predicted questions, and rest well tonight."
+                : autoDaysLeft <= 7
+                  ? "Target only high-weightage chapters and predicted questions. Skip low-priority topics."
+                  : autoDaysLeft <= 30
+                    ? "Follow the day-by-day revision calendar. Alternate between revision and mini-mocks."
+                    : "Build strong foundations chapter by chapter. You have time to cover everything thoroughly."}
+            </p>
+            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", marginTop: 6 }}>
+              Recommended first action: {
+                autoDaysLeft <= 1 ? "Open Night Before page"
+                : autoDaysLeft <= 7 ? "Start with Predicted Questions"
+                : autoDaysLeft <= 30 ? "Check your Revision Calendar"
+                : "Begin with your weakest chapter"
+              }
+            </div>
+          </div>
         </div>
 
         <div className="glass-card" style={{ padding: 24, marginBottom: 20 }}>

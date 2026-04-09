@@ -43,6 +43,8 @@ const TopicMockPage = lazy(() => import("./pages/TopicMockPage"));
 const ChapterTestPage = lazy(() => import("./pages/ChapterTestPage"));
 const ExamSimulationPage = lazy(() => import("./pages/ExamSimulationPage"));
 const LegalPage = lazy(() => import("./pages/LegalPage"));
+const NightBeforePage = lazy(() => import("./pages/NightBeforePage"));
+const RevisionCalendarPage = lazy(() => import("./pages/RevisionCalendarPage"));
 
 function RouteFallback() {
   return (
@@ -538,6 +540,9 @@ export default function App() {
             path="/exam-simulation"
             element={<RequirePremium featureLabel="Exam Simulation">{withRouteSuspense(<ExamSimulationPage />)}</RequirePremium>}
           />
+
+          <Route path="/night-before" element={<RequireAuth>{withRouteSuspense(<NightBeforePage />)}</RequireAuth>} />
+          <Route path="/revision-calendar" element={<RequireAuth>{withRouteSuspense(<RevisionCalendarPage />)}</RequireAuth>} />
 
           <Route path="/practice/:grade/:subject" element={<PracticeLimitGate>{withRouteSuspense(<PracticePage />)}</PracticeLimitGate>} />
 

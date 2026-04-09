@@ -662,6 +662,79 @@ export default function Dashboard() {
           </div>
         </div>
 
+        {paceProfile && (() => {
+          const msgs: Record<string, string> = {
+            marathon: "You're ahead — build strong foundations now.",
+            sprint: "Smart focus — prioritize high-weightage chapters.",
+            crash: "Every hour counts — let's make them count together.",
+          };
+          const msg = msgs[paceProfile.type];
+          if (!msg) return null;
+          return (
+            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", marginBottom: 12, paddingLeft: 2, fontStyle: "italic" }}>
+              {msg}
+            </div>
+          );
+        })()}
+
+        {daysLeftValue <= 1 && (
+          <button type="button" onClick={() => navigate("/night-before")} style={{
+            width: "100%", padding: "16px 20px", borderRadius: 16, marginBottom: 16,
+            background: "linear-gradient(135deg, rgba(34,197,94,0.12), rgba(59,130,246,0.08))",
+            border: "1px solid rgba(34,197,94,0.3)", cursor: "pointer",
+            display: "flex", alignItems: "center", gap: 12,
+          }}>
+            <span style={{ fontSize: 28 }}>🌙</span>
+            <div style={{ textAlign: "left" }}>
+              <div className="font-display" style={{ fontSize: 15, fontWeight: 800, color: "#22c55e" }}>Night Before Exam</div>
+              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)" }}>Key formulas, top questions & exam tips</div>
+            </div>
+          </button>
+        )}
+
+        {daysLeftValue <= 7 && daysLeftValue > 1 && (
+          <div className="glass-card" style={{ padding: "14px 18px", marginBottom: 16, border: "1px solid rgba(239,68,68,0.25)", background: "rgba(239,68,68,0.06)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+              <span style={{ fontSize: 18 }}>⚡</span>
+              <span className="font-display" style={{ fontSize: 14, fontWeight: 800, color: "#ef4444" }}>Final Sprint Mode — {daysLeftValue} days left</span>
+            </div>
+            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", lineHeight: 1.5, marginBottom: 10 }}>
+              Focus on predicted questions & quick-revision formulas. Non-essential sections hidden.
+            </div>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <button type="button" onClick={() => navigate("/highly-probable")} style={{
+                padding: "8px 14px", borderRadius: 10, background: "rgba(239,68,68,0.15)",
+                border: "1px solid rgba(239,68,68,0.3)", color: "#f87171", fontSize: 12,
+                fontWeight: 700, cursor: "pointer",
+              }}>🎯 Predicted Questions</button>
+              <button type="button" onClick={() => navigate("/revision-calendar")} style={{
+                padding: "8px 14px", borderRadius: 10, background: "rgba(59,130,246,0.15)",
+                border: "1px solid rgba(59,130,246,0.3)", color: "#60a5fa", fontSize: 12,
+                fontWeight: 700, cursor: "pointer",
+              }}>📅 Revision Calendar</button>
+              <button type="button" onClick={() => navigate("/exam-simulation")} style={{
+                padding: "8px 14px", borderRadius: 10, background: "rgba(168,85,247,0.15)",
+                border: "1px solid rgba(168,85,247,0.3)", color: "#c084fc", fontSize: 12,
+                fontWeight: 700, cursor: "pointer",
+              }}>📝 15-min Mini Mock</button>
+            </div>
+          </div>
+        )}
+
+        {daysLeftValue > 7 && daysLeftValue <= 30 && (
+          <button type="button" onClick={() => navigate("/revision-calendar")} style={{
+            width: "100%", padding: "14px 18px", borderRadius: 14, marginBottom: 16,
+            background: "rgba(59,130,246,0.06)", border: "1px solid rgba(59,130,246,0.15)",
+            cursor: "pointer", display: "flex", alignItems: "center", gap: 10,
+          }}>
+            <span style={{ fontSize: 20 }}>📅</span>
+            <div style={{ textAlign: "left" }}>
+              <div className="font-display" style={{ fontSize: 13, fontWeight: 700, color: "#60a5fa" }}>30-Day Revision Calendar</div>
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}>Day-by-day topic plan weighted by board predictions</div>
+            </div>
+          </button>
+        )}
+
         {showStreakReset && (
           <div className="glass-card" style={{ padding: 16, marginBottom: 16, border: "1px solid rgba(34,197,94,0.25)", background: "rgba(34,197,94,0.06)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
@@ -922,8 +995,8 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* DAILY MIX PREVIEW */}
-        {dailyMixPreview.length > 0 && (
+        {/* DAILY MIX PREVIEW — hidden in 7-day sprint mode */}
+        {daysLeftValue > 7 && dailyMixPreview.length > 0 && (
           <div className="glass-card" style={{ padding: 16, marginBottom: 16 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
               <span className="font-display" style={{ fontSize: 14, fontWeight: 700 }}>Today's Mix</span>
@@ -1041,8 +1114,8 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* STUDY PLAN SUMMARY */}
-        <div className="glass-blue" style={{ padding: 16, marginBottom: 16 }}>
+        {/* STUDY PLAN SUMMARY — hidden in 7-day sprint mode */}
+        {daysLeftValue > 7 && <div className="glass-blue" style={{ padding: 16, marginBottom: 16 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
             <span style={{ fontSize: 16 }}>📋</span>
             <span className="font-display" style={{ fontSize: 14, fontWeight: 700 }}>Study Plan</span>
@@ -1072,7 +1145,7 @@ export default function Dashboard() {
               </div>
             </div>
           )}
-        </div>
+        </div>}
 
         {/* RECENT ACTIVITY */}
         {recentActivity.length > 0 && (
@@ -1124,7 +1197,8 @@ export default function Dashboard() {
               { label: "Trends", icon: "📈", bg: "rgba(34,197,94,0.08)", border: "rgba(34,197,94,0.2)", path: `/trends/${gradeNum}/${subjectForQuickActions}` },
               { label: "Chapter Hub", icon: "📚", bg: "rgba(59,130,246,0.08)", border: "rgba(59,130,246,0.2)", path: `/topic-hub/${gradeNum}/${subjectForQuickActions}` },
               { label: "Mock Test", icon: "📝", bg: "rgba(168,85,247,0.08)", border: "rgba(168,85,247,0.2)", path: "/predictive-papers" },
-              { label: "Weekly Wrapped", icon: "📊", bg: "rgba(249,115,22,0.08)", border: "rgba(249,115,22,0.2)", path: "/weekly-wrapped" },
+              ...(daysLeftValue > 7 ? [{ label: "Weekly Wrapped", icon: "📊", bg: "rgba(249,115,22,0.08)", border: "rgba(249,115,22,0.2)", path: "/weekly-wrapped" }] : []),
+              ...(daysLeftValue <= 30 ? [{ label: "Revision Calendar", icon: "📅", bg: "rgba(59,130,246,0.08)", border: "rgba(59,130,246,0.2)", path: "/revision-calendar" }] : []),
             ].map((a) => (
               <button key={a.label} onClick={() => navigate(a.path, { state: { back: "/dashboard", backLabel: "Back to Dashboard" } })} style={{
                 display: "flex", alignItems: "center", justifyContent: "center", gap: 8,

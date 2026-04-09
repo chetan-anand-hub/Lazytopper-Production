@@ -31,6 +31,14 @@ The platform includes several wellness-oriented features to reduce exam stress:
 - **Pre-Mock Breathing Exercise**: Before starting an exam simulation, a 5-second skippable breathing animation (`BreathingMoment.tsx`) helps students calm down. Cycles through "Breathe in" / "Breathe out" with a pulsing circle.
 - **Mental Health Resources**: The Profile page includes helpline information for iCall (TISS) and Vandrevala Foundation with tap-to-call links.
 
+## Exam Timeline Urgency Modes
+The platform adapts its Dashboard and available features based on how many days remain until the exam:
+- **Night Before Page** (`/night-before`): When ≤1 day left, shows key formulas (Maths + Science), top 20 most-predicted questions (weighted by HPQ likelihood: Very High > High > Medium-High > Medium), exam day checklist, and confidence messages. Accessible from Dashboard via prominent CTA.
+- **7-Day Final Sprint Mode**: When ≤7 days left, Dashboard shows a sprint banner with quick access to Predicted Questions, Revision Calendar, and Mini Mocks. Hides Daily Mix Preview, Study Plan Summary, and Weekly Wrapped to reduce noise.
+- **30-Day Revision Calendar** (`/revision-calendar`): Day-by-day topic grid weighted by HPQ prediction confidence + board weightage. Includes mock test days (every 7th day) and a rest day before exam. Print CSS support via `@media print`.
+- **Timeline-Aware Onboarding**: After exam date entry on the Onboarding page, shows a personalized strategy message ("With X days left, here's your best strategy...") with recommended first action based on days remaining.
+- **Profile-Specific Motivational Messaging**: Dashboard header shows italic microcopy per pace profile: Marathon = "You're ahead — build strong foundations now." Sprint = "Smart focus — prioritize high-weightage chapters." Focus Mode = "Every hour counts — let's make them count together."
+
 ## System Design Choices
 TypeScript is used consistently. All packages utilize TypeScript composite projects. API design follows OpenAPI 3.1 with Orval for codegen (React Query hooks, Zod schemas). The API server enforces a 5 MB request body limit. AI tutor responses have increased `maxOutputTokens` (1600) to prevent truncation.
 
