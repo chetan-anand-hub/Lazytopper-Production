@@ -536,7 +536,10 @@ export default function ParentDashboardPage() {
     const studyRaw = localStorage.getItem("lazytopper.studyHoursThisWeek");
     const studyHours = studyRaw ? Math.round(Number(studyRaw) * 10) / 10 : 0;
     const streakRaw = localStorage.getItem("lazytopper.streak");
-    const streak = streakRaw ? parseInt(streakRaw, 10) || 0 : 0;
+    let streak = 0;
+    if (streakRaw) {
+      try { streak = Number(JSON.parse(streakRaw)?.count || 0); } catch { streak = parseInt(streakRaw, 10) || 0; }
+    }
 
     const byTopic = new Map<string, { old: number; recent: number; oldC: number; recC: number }>();
     const mid = weekAgoTs + 3.5 * 86400000;
