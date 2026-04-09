@@ -21,6 +21,7 @@ import { TrialBanner } from "./components/ux/TrialBanner";
 import { BreakReminder } from "./components/ux/BreakReminder";
 import { useAuth } from "./context/AuthContext";
 import { useSubscription } from "./hooks/useSubscription";
+import { ErrorBoundary, SectionErrorBoundary } from "./components/ErrorBoundary";
 import { initPaceProfileFromExamDate } from "./services/paceProfileService";
 import { startTracking, stopTracking, isFocusTrackingEnabled } from "./services/focusTracker";
 
@@ -477,6 +478,7 @@ export default function App() {
       />
       <TrialBanner />
       <BreakReminder />
+      <ErrorBoundary level="global">
       <div style={{ paddingBottom: '60px' }}>
         <Routes>
           {/* Core Routes */}
@@ -488,7 +490,7 @@ export default function App() {
           <Route path="/sign-up/*" element={<SignUpPage />} />
           <Route path="/legal/:slug" element={withRouteSuspense(<LegalPage />)} />
           <Route path="/onboarding" element={<RequireAuth><Onboarding /></RequireAuth>} />
-          <Route path="/dashboard" element={<RequireAuth>{withRouteSuspense(<Dashboard />)}</RequireAuth>} />
+          <Route path="/dashboard" element={<RequireAuth><SectionErrorBoundary>{withRouteSuspense(<Dashboard />)}</SectionErrorBoundary></RequireAuth>} />
 
 
           {/* New Smart Study Planner (grade + subject aware) */}
@@ -510,7 +512,7 @@ export default function App() {
           <Route path="/trends/:grade/:subject" element={withRouteSuspense(<TrendsPage />)} />
 
           {/* Auto-mock paper view (legacy + predictive) — free users get 1/day */}
-          <Route path="/mock-paper/:slug" element={<MockViewGate>{withRouteSuspense(<MockPaper />)}</MockViewGate>} />
+          <Route path="/mock-paper/:slug" element={<MockViewGate><SectionErrorBoundary>{withRouteSuspense(<MockPaper />)}</SectionErrorBoundary></MockViewGate>} />
 
           {/* Topic Mock Paper — auth + mock view limit */}
           <Route path="/topic-mock/:grade/:subject/:topicKey" element={<MockViewGate>{withRouteSuspense(<TopicMockPage />)}</MockViewGate>} />
@@ -550,7 +552,7 @@ export default function App() {
           <Route path="/parent" element={withRouteSuspense(<ParentAccessPage />)} />
           <Route path="/weekly-digest" element={withRouteSuspense(<WeeklyDigestPage />)} />
 
-          <Route path="/practice/:grade/:subject" element={<PracticeLimitGate>{withRouteSuspense(<PracticePage />)}</PracticeLimitGate>} />
+          <Route path="/practice/:grade/:subject" element={<PracticeLimitGate><SectionErrorBoundary>{withRouteSuspense(<PracticePage />)}</SectionErrorBoundary></PracticeLimitGate>} />
 
           {/* Study Plan with mandatory grade & subject */}
           <Route path="/study-plan/:grade/:subject" element={<RequirePremium featureLabel="Smart Study Planner">{withRouteSuspense(<StudyPlanPage />)}</RequirePremium>} />
@@ -603,6 +605,7 @@ export default function App() {
           <Route path="*" element={<HomeRedirect />} />
         </Routes>
       </div>
+      </ErrorBoundary>
       <BottomNav />
     </>
   );

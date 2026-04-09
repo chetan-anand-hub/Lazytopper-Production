@@ -39,6 +39,12 @@ The platform adapts its Dashboard and available features based on how many days 
 - **Timeline-Aware Onboarding**: After exam date entry on the Onboarding page, shows a personalized strategy message ("With X days left, here's your best strategy...") with recommended first action based on days remaining.
 - **Profile-Specific Motivational Messaging**: Dashboard header shows italic microcopy per pace profile: Marathon = "You're ahead — build strong foundations now." Sprint = "Smart focus — prioritize high-weightage chapters." Focus Mode = "Every hour counts — let's make them count together."
 
+## Component Architecture
+Large page components have been split for maintainability:
+- **Dashboard.tsx** (~1160 lines, down from ~1630): Imports from `components/dashboard/` barrel — `dashboardUtils.ts` (types, utils, hooks), `RingChart.tsx`, `FocusScoreCard.tsx`, `SprintDashboard.tsx`, `DashboardWidgets.tsx` (EmptyStateCard, NewBadge, FirstVisitOverlay).
+- **PracticePage.tsx** (~1700 lines, down from ~3270): Builder functions extracted to `components/practice/practiceQuestionBuilder.ts` (~540 lines); MentorSolveDrawer extracted to `components/practice/MentorSolveDrawer.tsx` (~1040 lines).
+- **ErrorBoundary** (`components/ErrorBoundary.tsx`): Class component with global and section levels. Global boundary wraps all routes in App.tsx. Section-level boundaries wrap Dashboard, PracticePage, and MockPaper routes.
+
 ## System Design Choices
 TypeScript is used consistently. All packages utilize TypeScript composite projects. API design follows OpenAPI 3.1 with Orval for codegen (React Query hooks, Zod schemas). The API server enforces a 5 MB request body limit. AI tutor responses have increased `maxOutputTokens` (1600) to prevent truncation.
 
