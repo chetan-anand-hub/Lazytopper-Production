@@ -462,7 +462,7 @@ function FirstVisitOverlay({ onDismiss }: { onDismiss: () => void }) {
   const [step, setStep] = useState(0);
   const tc = useThemeColors();
   const steps = [
-    { icon: "🔥", title: "Start with your Daily Mix", desc: "5 questions, 10 minutes. A smart mix of revision, concepts, and practice tailored to you." },
+    { icon: "🔥", title: "Start with your Daily Mix", desc: "A quick daily mix of revision, concepts, and practice tailored to you." },
     { icon: "📈", title: "Check Trends & Predictions", desc: "See what's most likely to appear in your boards — focus where it matters most." },
     { icon: "📝", title: "Take a Mock Test when ready", desc: "Full paper simulations with AI marking. Track your progress over time." },
   ];
