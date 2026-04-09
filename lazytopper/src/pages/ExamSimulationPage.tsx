@@ -13,6 +13,7 @@ import { trackUxEvent } from "../services/uxTelemetry";
 import * as gam from "../utils/gamification";
 import ReturnContextBar from "../components/ux/ReturnContextBar";
 import { BreathingMoment } from "../components/ux/BreathingMoment";
+import { ExamStrategyTips, TimeGuideChip, InternalChoiceTip } from "../components/exam/ExamStrategyTips";
 
 type Phase = "setup" | "breathing" | "taking" | "review";
 
@@ -235,6 +236,8 @@ export default function ExamSimulationPage() {
               Generate & Start Exam
             </button>
           </div>
+
+          <ExamStrategyTips onDismiss={() => {}} />
         </div>
       </div>
     );
@@ -567,6 +570,7 @@ function ExamQuestionCard({ q, idx, section, answer, isMarked, onAnswer, onToggl
           {q.main.subtopic && (
             <span style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.4)", marginLeft: 6 }}>[{q.main.subtopic}]</span>
           )}
+          <TimeGuideChip marks={q.main.marks} section={section} />
         </div>
         <button
           onClick={onToggleMark}
@@ -598,6 +602,7 @@ function ExamQuestionCard({ q, idx, section, answer, isMarked, onAnswer, onToggl
           </div>
           {renderOptions(q.or, "or")}
           {renderSelfMark(q.or, "or")}
+          {!chosenBranch && <InternalChoiceTip />}
         </div>
       )}
     </div>

@@ -30,6 +30,7 @@ import {
   MASTERY_COLORS,
   MASTERY_ICONS,
 } from "../services/masteryLevelService";
+import { getCanonicalChapterBySlug, formatChapterTitle } from "../data/syllabus/cbse10Canonical";
 
 type TierKey = "must-crack" | "high-roi" | "good-to-do";
 type TierFilter = "all" | TierKey | "none";
@@ -487,7 +488,7 @@ const TrendsPage: React.FC = () => {
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3, flexWrap: "wrap" }}>
                           <h3 className="font-display" style={{ fontSize: "0.95rem", fontWeight: 700, color: "#fff", margin: 0 }}>
-                            {topicName}
+                            {(() => { const ch = getCanonicalChapterBySlug(topicKey); return ch ? formatChapterTitle(ch) : topicName; })()}
                           </h3>
                           <span style={{
                             borderRadius: 999, padding: "2px 8px", fontSize: "0.68rem", fontWeight: 600,
@@ -573,6 +574,16 @@ const TrendsPage: React.FC = () => {
                           ~{meta.weightagePercent ?? 0}%
                         </div>
                         <div style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.3)" }}>of paper</div>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); navigate("/methodology", { state: { from: `/trends/${grade}/${subjectKey}` } }); }}
+                          style={{
+                            background: "transparent", border: "none", padding: 0, marginTop: 2,
+                            fontSize: "0.62rem", color: "rgba(59,130,246,0.6)", cursor: "pointer",
+                            textDecoration: "underline",
+                          }}
+                        >
+                          How we predict
+                        </button>
                       </div>
                     </div>
 

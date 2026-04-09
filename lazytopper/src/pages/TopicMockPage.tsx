@@ -12,6 +12,7 @@ import {
 import type { SectionKey, LTSubjectKey } from "../data/predictionTypes";
 import { resolveTopicDisplayName, normalizeTopicKey } from "../utils/topicResolver";
 import ReturnContextBar from "../components/ux/ReturnContextBar";
+import { ExamStrategyTips, TimeGuideChip, InternalChoiceTip } from "../components/exam/ExamStrategyTips";
 import { trackUxEvent } from "../services/uxTelemetry";
 import * as gam from "../utils/gamification";
 import { markMockDone } from "../services/guidedJourneyService";
@@ -231,6 +232,8 @@ export default function TopicMockPage() {
               </div>
             </div>
 
+            <ExamStrategyTips onDismiss={() => {}} />
+
             <div className="print-paper" style={{ marginTop: 24 }}>
               {paper.sections.map(sec => (
                 <div key={sec.section} style={{
@@ -375,6 +378,7 @@ function QuestionDisplay({ q, idx, section, showAnswer, selectedAnswer, chosenBr
         {q.main.subtopic && (
           <span style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.4)", marginLeft: 8 }}>[{q.main.subtopic}]</span>
         )}
+        <TimeGuideChip marks={q.main.marks} section={section} />
       </div>
 
       {renderOptions(q.main, "main")}
@@ -407,6 +411,7 @@ function QuestionDisplay({ q, idx, section, showAnswer, selectedAnswer, chosenBr
               <strong>OR Answer:</strong> {q.or.answer}
             </div>
           )}
+          {!showAnswer && !chosenBranch && <InternalChoiceTip />}
         </div>
       )}
     </div>

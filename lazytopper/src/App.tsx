@@ -44,6 +44,8 @@ const TopicMockPage = lazy(() => import("./pages/TopicMockPage"));
 const ChapterTestPage = lazy(() => import("./pages/ChapterTestPage"));
 const ExamSimulationPage = lazy(() => import("./pages/ExamSimulationPage"));
 const LegalPage = lazy(() => import("./pages/LegalPage"));
+const MethodologyPage = lazy(() => import("./pages/MethodologyPage"));
+const TeacherDashboardPage = lazy(() => import("./pages/TeacherDashboardPage"));
 const NightBeforePage = lazy(() => import("./pages/NightBeforePage"));
 const RevisionCalendarPage = lazy(() => import("./pages/RevisionCalendarPage"));
 const MiniMockPage = lazy(() => import("./pages/MiniMockPage"));
@@ -489,6 +491,8 @@ export default function App() {
           <Route path="/sign-up" element={<SignUpPage />} />
           <Route path="/sign-up/*" element={<SignUpPage />} />
           <Route path="/legal/:slug" element={withRouteSuspense(<LegalPage />)} />
+          <Route path="/methodology" element={withRouteSuspense(<MethodologyPage />)} />
+          <Route path="/teacher" element={<RequireAuth><SectionErrorBoundary>{withRouteSuspense(<TeacherDashboardPage />)}</SectionErrorBoundary></RequireAuth>} />
           <Route path="/onboarding" element={<RequireAuth><Onboarding /></RequireAuth>} />
           <Route path="/dashboard" element={<RequireAuth><SectionErrorBoundary>{withRouteSuspense(<Dashboard />)}</SectionErrorBoundary></RequireAuth>} />
 

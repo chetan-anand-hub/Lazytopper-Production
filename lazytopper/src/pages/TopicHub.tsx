@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams, useLocation } from "react-router-dom";
-import { getCanonicalChapters, toCanonicalSubjectId } from "../data/syllabus/cbse10Canonical";
+import { getCanonicalChapters, getCanonicalChapterBySlug, formatChapterTitle, toCanonicalSubjectId } from "../data/syllabus/cbse10Canonical";
 import { getTopicV2Content, normalizeTopicKey } from "../utils/topicHubV2Store";
 import { generatePracticeSet } from "../data/practiceSetGenerator";
 import ConceptTeachDrawer, { type ConceptTeachContext } from "../components/tutor/ConceptTeachDrawer";
@@ -217,7 +217,8 @@ export default function TopicHub() {
   }, [grade, subject, topicKey, navigate, params]);
 
   const v2 = useMemo(() => getTopicV2Content(topicKey), [topicKey]);
-  const title = String(v2?.topicName || topicKey || "").trim() || "Topic";
+  const rawTitle = String(v2?.topicName || topicKey || "").trim() || "Topic";
+  const title = (() => { const ch = getCanonicalChapterBySlug(topicKey); return ch ? formatChapterTitle(ch) : rawTitle; })();
 
   useEffect(() => {
     if (!topicKey) return;

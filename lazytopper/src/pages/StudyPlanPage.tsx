@@ -1,7 +1,6 @@
-// src/pages/StudyPlanPage.tsx
-
 import React, { useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { getCanonicalChapterBySlug, formatChapterTitle } from "../data/syllabus/cbse10Canonical";
 
 import {
   class10TopicTrendList,
@@ -114,10 +113,12 @@ function buildSubjectPlan(
 
     return {
       topicKey: entry.topicKey ?? entry.topicName ?? "",
-      topicLabel:
-        subject === "Maths"
-          ? entry.topicKey
-          : entry.topicName ?? entry.topicKey,
+      topicLabel: (() => {
+        const key = entry.topicKey ?? entry.topicName ?? "";
+        const ch = getCanonicalChapterBySlug(key);
+        if (ch) return formatChapterTitle(ch);
+        return subject === "Maths" ? key : (entry.topicName ?? key);
+      })(),
       tier,
       weightagePercent: weight,
       effectiveWeight: weight * tierBoost,
@@ -514,7 +515,7 @@ const StudyPlanPage: React.FC = () => {
                         <button
                           type="button"
                           onClick={() =>
-                            handleOpenTopicHub(subject, row.topicLabel)
+                            handleOpenTopicHub(subject, row.topicKey)
                           }
                           style={{
                             borderRadius: 999,
@@ -530,7 +531,7 @@ const StudyPlanPage: React.FC = () => {
                         </button>
                         <button
                           type="button"
-                          onClick={() => handleOpenHPQ(subject, row.topicLabel)}
+                          onClick={() => handleOpenHPQ(subject, row.topicKey)}
                           style={{
                             borderRadius: 999,
                             padding: "4px 10px",

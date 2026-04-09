@@ -45,6 +45,12 @@ Large page components have been split for maintainability:
 - **PracticePage.tsx** (~1700 lines, down from ~3270): Builder functions extracted to `components/practice/practiceQuestionBuilder.ts` (~540 lines); MentorSolveDrawer extracted to `components/practice/MentorSolveDrawer.tsx` (~1040 lines).
 - **ErrorBoundary** (`components/ErrorBoundary.tsx`): Class component with global and section levels. Global boundary wraps all routes in App.tsx. Section-level boundaries wrap Dashboard, PracticePage, and MockPaper routes.
 
+## Teacher Mode & Methodology
+**Teacher Dashboard** (`/teacher`): Teachers can create classes with auto-generated join codes, view enrolled (demo) students, see a mastery heatmap across NCERT chapters, class readiness score, and struggling students list. Uses localStorage for class data (`lazytopper.teacherClasses`). Route requires authentication.
+**Methodology Page** (`/methodology`): Explains the 5-signal prediction system — Historical Frequency (30%), SQP Alignment (25%), Rotation Prediction (20%), NEP Policy Alignment (15%), Difficulty Distribution (10%). Accessible via "How we predict" links on TrendsPage topic cards. Back navigation is context-aware via location state.
+**NCERT Chapter References**: All canonical chapters (`cbse10Canonical.ts`) have `ncertChapterNum` field. Topics display as "Ch. X — Topic Name" format on TrendsPage, TopicHub, and StudyPlanPage via `formatChapterTitle()` helper.
+**Exam Strategy Training**: `ExamStrategyTips` component shows pre-mock strategy tips (read all questions first, attempt easy first, internal choice strategy). `TimeGuideChip` shows per-question time allocation (MCQ=1min, 2m=3min, 3m=5min, 5m=10min, Case=8min). `InternalChoiceTip` provides OR-question decision tooltips. Integrated into ExamSimulationPage and TopicMockPage.
+
 ## System Design Choices
 TypeScript is used consistently. All packages utilize TypeScript composite projects. API design follows OpenAPI 3.1 with Orval for codegen (React Query hooks, Zod schemas). The API server enforces a 5 MB request body limit. AI tutor responses have increased `maxOutputTokens` (1600) to prevent truncation.
 
