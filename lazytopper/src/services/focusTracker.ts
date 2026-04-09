@@ -148,12 +148,16 @@ export function endStudySession(): FocusSnapshot {
   return snap;
 }
 
-export function getAppFocus(): FocusSnapshot {
-  if (running) heartbeat();
+function snapshotAppFocus(): FocusSnapshot {
   const total = appStartTs > 0 ? Date.now() - appStartTs : 0;
   const focused = Math.min(appFocusedMs, total);
   const pct = total > 0 ? Math.round((focused / total) * 100) : 0;
   return { focusedMs: focused, totalMs: total, percent: pct };
+}
+
+export function getAppFocus(): FocusSnapshot {
+  if (running) heartbeat();
+  return snapshotAppFocus();
 }
 
 function todayKey(): string {
@@ -162,7 +166,7 @@ function todayKey(): string {
 
 function persistDaily(): void {
   if (appStartTs === 0) return;
-  const snap = getAppFocus();
+  const snap = snapshotAppFocus();
   const deltaFocused = snap.focusedMs - persistedFocusedMs;
   const deltaTotal = snap.totalMs - persistedTotalMs;
   if (deltaTotal < 10_000) return;
