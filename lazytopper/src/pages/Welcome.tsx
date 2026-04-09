@@ -100,10 +100,10 @@ export default function Welcome() {
           textAlign: "center", marginBottom: 12,
         }}>
           <p style={{ fontSize: 16, color: "rgba(255,255,255,0.55)", marginBottom: 6 }}>
-            Start with a <span style={{ color: "#22c55e", fontWeight: 700 }}>7-day free trial</span> — no payment needed
+            <span style={{ color: "#22c55e", fontWeight: 700 }}>Free forever</span> — core features always available
           </p>
           <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)" }}>
-            Google or Phone login · All features unlocked
+            Sign in to unlock your personalised study plan
           </p>
         </div>
 

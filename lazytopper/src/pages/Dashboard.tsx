@@ -615,6 +615,22 @@ export default function Dashboard() {
           </div>
         </div>
 
+        {/* YOUR NEXT STEP — prominent first card */}
+        <div className="glass-accent" style={{ padding: 20, marginBottom: 16 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.35)", textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 8 }}>Your Next Step</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+            <span style={{ fontSize: 20 }}>{heroAction.type === "resume_session" ? "⏩" : heroAction.type === "weak_topic" ? "⚠️" : "🎯"}</span>
+            <span className="font-display" style={{ fontSize: 16, fontWeight: 700 }}>{heroAction.title}</span>
+          </div>
+          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.55)", lineHeight: 1.5, marginBottom: 14 }}>{heroAction.description}</p>
+          <button onClick={heroAction.onAction} style={{
+            width: "100%", padding: "13px 0", borderRadius: 12, border: "none",
+            background: "#22c55e", color: "#000", fontWeight: 800, fontSize: 15,
+            fontFamily: "'Space Grotesk', sans-serif", cursor: "pointer",
+            boxShadow: "0 0 24px rgba(34,197,94,0.3)",
+          }}>{heroAction.ctaLabel}</button>
+        </div>
+
         {/* RAVI SIR'S RECOMMENDATION */}
         {journeyState.currentChapter && (
           <div style={{ padding: 20, marginBottom: 16, background: "rgba(34,197,94,0.06)", backdropFilter: "blur(16px)", border: "1px solid rgba(34,197,94,0.15)", borderRadius: 16 }}>
@@ -784,20 +800,6 @@ export default function Dashboard() {
           </div>
         )}
 
-        <div className="glass-accent" style={{ padding: 20, marginBottom: 16 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.35)", textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 8 }}>Your Next Step</div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-            <span style={{ fontSize: 20 }}>{heroAction.type === "resume_session" ? "⏩" : heroAction.type === "weak_topic" ? "⚠️" : "🎯"}</span>
-            <span className="font-display" style={{ fontSize: 16, fontWeight: 700 }}>{heroAction.title}</span>
-          </div>
-          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.55)", lineHeight: 1.5, marginBottom: 14 }}>{heroAction.description}</p>
-          <button onClick={heroAction.onAction} style={{
-            width: "100%", padding: "13px 0", borderRadius: 12, border: "none",
-            background: "#22c55e", color: "#000", fontWeight: 800, fontSize: 15,
-            fontFamily: "'Space Grotesk', sans-serif", cursor: "pointer",
-            boxShadow: "0 0 24px rgba(34,197,94,0.3)",
-          }}>{heroAction.ctaLabel}</button>
-        </div>
 
         {/* STATS ROW */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 8, marginBottom: 16 }}>
