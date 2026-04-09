@@ -1,6 +1,7 @@
 const FOCUS_ENABLED_KEY = "lazytopper.focus.enabled";
 const FOCUS_DAILY_KEY = "lazytopper.focus.daily";
 const HEARTBEAT_INTERVAL = 30_000;
+const GAP_THRESHOLD = HEARTBEAT_INTERVAL * 2;
 
 export interface FocusSnapshot {
   focusedMs: number;
@@ -46,13 +47,19 @@ export function setFocusTrackingEnabled(on: boolean): void {
   if (on && !running) startTracking();
 }
 
+function creditFocusedDelta(fromTs: number, now: number): number {
+  const elapsed = now - fromTs;
+  if (elapsed <= 0) return 0;
+  if (elapsed > GAP_THRESHOLD) return GAP_THRESHOLD;
+  return elapsed;
+}
+
 function flushVisible(now: number) {
   if (lastVisibleTs > 0) {
-    const delta = now - lastVisibleTs;
-    appFocusedMs += delta;
-    if (studySessionActive && studySessionLastVisibleTs > 0) {
-      studySessionFocusedMs += now - studySessionLastVisibleTs;
-    }
+    appFocusedMs += creditFocusedDelta(lastVisibleTs, now);
+  }
+  if (studySessionActive && studySessionLastVisibleTs > 0) {
+    studySessionFocusedMs += creditFocusedDelta(studySessionLastVisibleTs, now);
   }
 }
 
@@ -100,6 +107,9 @@ export function stopTracking(): void {
     clearInterval(heartbeatTimer);
     heartbeatTimer = null;
   }
+  studySessionActive = false;
+  studySessionLastVisibleTs = 0;
+  lastVisibleTs = 0;
   persistDaily();
 }
 
@@ -119,8 +129,9 @@ export function endStudySession(): FocusSnapshot {
   heartbeat();
   studySessionActive = false;
   const total = Date.now() - studySessionStartTs;
-  const pct = total > 0 ? Math.round((studySessionFocusedMs / total) * 100) : 0;
-  const snap: FocusSnapshot = { focusedMs: studySessionFocusedMs, totalMs: total, percent: pct };
+  const focused = Math.min(studySessionFocusedMs, total);
+  const pct = total > 0 ? Math.round((focused / total) * 100) : 0;
+  const snap: FocusSnapshot = { focusedMs: focused, totalMs: total, percent: pct };
   studySessionLastVisibleTs = 0;
   return snap;
 }
@@ -128,8 +139,9 @@ export function endStudySession(): FocusSnapshot {
 export function getAppFocus(): FocusSnapshot {
   if (running) heartbeat();
   const total = appStartTs > 0 ? Date.now() - appStartTs : 0;
-  const pct = total > 0 ? Math.round((appFocusedMs / total) * 100) : 0;
-  return { focusedMs: appFocusedMs, totalMs: total, percent: pct };
+  const focused = Math.min(appFocusedMs, total);
+  const pct = total > 0 ? Math.round((focused / total) * 100) : 0;
+  return { focusedMs: focused, totalMs: total, percent: pct };
 }
 
 function todayKey(): string {
