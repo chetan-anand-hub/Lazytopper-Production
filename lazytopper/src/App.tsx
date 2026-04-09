@@ -469,6 +469,9 @@ export default function App() {
           <Route path="/" element={<HomeRedirect />} />
           <Route path="/welcome" element={<Navigate to="/trends/10/Maths" replace />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/login/*" element={<Login />} />
+          <Route path="/sign-up" element={<Login />} />
+          <Route path="/sign-up/*" element={<Login />} />
           <Route path="/legal/:slug" element={withRouteSuspense(<LegalPage />)} />
           <Route path="/onboarding" element={<RequireAuth><Onboarding /></RequireAuth>} />
           <Route path="/dashboard" element={<RequireAuth>{withRouteSuspense(<Dashboard />)}</RequireAuth>} />

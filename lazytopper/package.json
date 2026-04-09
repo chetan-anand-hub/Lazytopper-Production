@@ -126,6 +126,7 @@
     "start:quick": "npm run blackbox && npx tsc --noEmit && npm run build"
   },
   "dependencies": {
+    "@clerk/react": "^6.2.0",
     "firebase": "^12.9.0",
     "firebase-admin": "^13.7.0",
     "html-to-image": "^1.10.7",
