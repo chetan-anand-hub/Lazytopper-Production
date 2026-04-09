@@ -522,14 +522,51 @@ export default function ParentDashboardPage() {
 
   const topicList = subjectTab === "Science" ? ALL_SCIENCE_TOPICS : ALL_MATHS_TOPICS;
 
+  const buildSnapshotFromLocal = () => {
+    const weekAgoTs = Date.now() - 7 * 86400000;
+    const thisWeek = attempts.filter(a => a.timestamp >= weekAgoTs);
+    const correct = thisWeek.filter(a => a.correct).length;
+    const accuracy = thisWeek.length > 0 ? Math.round((correct / thisWeek.length) * 100) : 0;
+
+    const focusData = getWeeklyFocus();
+    const focusScore = focusData.length > 0
+      ? Math.round(focusData.reduce((s, d) => s + d.focusScore, 0) / focusData.length)
+      : 0;
+
+    const studyRaw = localStorage.getItem("lazytopper.studyHoursThisWeek");
+    const studyHours = studyRaw ? Math.round(Number(studyRaw) * 10) / 10 : 0;
+    const streakRaw = localStorage.getItem("lazytopper.streak");
+    const streak = streakRaw ? parseInt(streakRaw, 10) || 0 : 0;
+
+    const byTopic = new Map<string, { old: number; recent: number; oldC: number; recC: number }>();
+    const mid = weekAgoTs + 3.5 * 86400000;
+    for (const a of thisWeek) {
+      const k = a.topicKey || "unknown";
+      const e = byTopic.get(k) || { old: 0, recent: 0, oldC: 0, recC: 0 };
+      if (a.timestamp < mid) { e.oldC++; if (a.correct) e.old++; }
+      else { e.recC++; if (a.correct) e.recent++; }
+      byTopic.set(k, e);
+    }
+    const topicsImproved = Array.from(byTopic.values())
+      .filter(d => d.oldC >= 2 && d.recC >= 2 && d.recent / d.recC > d.old / d.oldC + 0.1).length;
+
+    return {
+      studyHours, focusScore, accuracy, streak,
+      questionsThisWeek: thisWeek.length, topicsImproved,
+      mockScores: latestMockScores.slice(0, 5).map(m => ({ subject: m.subject, percent: m.percent, timestamp: m.timestamp })),
+      weakAreas: weakAreas.slice(0, 5).map(w => ({ topicName: TOPIC_NAMES[w.topicKey] || w.topicKey, subject: w.subject, accuracy: w.accuracy })),
+    };
+  };
+
   const handleCopyLink = async () => {
     const studentName = user?.displayName || "Student";
     const headers: Record<string, string> = { "Content-Type": "application/json" };
     try {
+      const snapshot = buildSnapshotFromLocal();
       const res = await fetch("/api/share-token", {
         method: "POST",
         headers,
-        body: JSON.stringify({ studentName }),
+        body: JSON.stringify({ studentName, weeklySnapshot: snapshot }),
       });
       const data = await res.json();
       if (!data.ok || !data.token) {
@@ -537,7 +574,7 @@ export default function ParentDashboardPage() {
         setTimeout(() => setShareLink(""), 2000);
         return;
       }
-      const shareUrl = `${window.location.origin}${window.location.pathname}?share=${encodeURIComponent(data.token)}`;
+      const shareUrl = `${window.location.origin}/app/weekly-digest?share=${encodeURIComponent(data.token)}`;
       await navigator.clipboard?.writeText(shareUrl);
       setShareLink("Link copied!");
       setTimeout(() => setShareLink(""), 2000);
