@@ -20,6 +20,8 @@ let appFocusedMs = 0;
 let lastVisibleTs = 0;
 let heartbeatTimer: ReturnType<typeof setInterval> | null = null;
 let running = false;
+let persistedFocusedMs = 0;
+let persistedTotalMs = 0;
 
 let studySessionStartTs = 0;
 let studySessionFocusedMs = 0;
@@ -76,6 +78,9 @@ function onVisibilityChange() {
   }
 }
 
+let lastPersistTs = 0;
+const PERSIST_INTERVAL = 5 * 60_000;
+
 function heartbeat() {
   if (!running) return;
   if (isVisible() && lastVisibleTs > 0) {
@@ -83,6 +88,10 @@ function heartbeat() {
     flushVisible(now);
     lastVisibleTs = now;
     if (studySessionActive) studySessionLastVisibleTs = now;
+    if (now - lastPersistTs > PERSIST_INTERVAL) {
+      persistDaily();
+      lastPersistTs = now;
+    }
   }
 }
 
@@ -92,6 +101,9 @@ export function startTracking(): void {
   running = true;
   appStartTs = Date.now();
   appFocusedMs = 0;
+  persistedFocusedMs = 0;
+  persistedTotalMs = 0;
+  lastPersistTs = appStartTs;
   lastVisibleTs = isVisible() ? appStartTs : 0;
 
   document.addEventListener("visibilitychange", onVisibilityChange);
@@ -151,17 +163,21 @@ function todayKey(): string {
 function persistDaily(): void {
   if (appStartTs === 0) return;
   const snap = getAppFocus();
-  if (snap.totalMs < 10_000) return;
+  const deltaFocused = snap.focusedMs - persistedFocusedMs;
+  const deltaTotal = snap.totalMs - persistedTotalMs;
+  if (deltaTotal < 10_000) return;
+  persistedFocusedMs = snap.focusedMs;
+  persistedTotalMs = snap.totalMs;
   try {
     const raw = localStorage.getItem(FOCUS_DAILY_KEY);
     const records: DailyFocusRecord[] = raw ? JSON.parse(raw) : [];
     const today = todayKey();
     const existing = records.find((r) => r.date === today);
     if (existing) {
-      existing.focusedMs += snap.focusedMs;
-      existing.totalMs += snap.totalMs;
+      existing.focusedMs += deltaFocused;
+      existing.totalMs += deltaTotal;
     } else {
-      records.push({ date: today, focusedMs: snap.focusedMs, totalMs: snap.totalMs });
+      records.push({ date: today, focusedMs: deltaFocused, totalMs: deltaTotal });
     }
     const recent = records.filter((r) => {
       const d = new Date(r.date);
