@@ -1,5 +1,5 @@
-import { useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useMemo } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { loadInsights } from "../services/practiceInsights";
 import { getWeakAreas } from "../services/weakAreaAggregator";
 import { getLatestMockScores } from "../services/mockScoreHistory";
@@ -9,8 +9,7 @@ import ReturnContextBar from "../components/ux/ReturnContextBar";
 
 function getStudyHoursThisWeek(): number {
   const weekly = getWeeklyFocus();
-  const totalMs = weekly.reduce((s, r) => s + r.totalMs, 0);
-  return Math.round((totalMs / 3600000) * 10) / 10;
+  return Math.round((weekly.reduce((s, r) => s + r.totalMs, 0) / 3600000) * 10) / 10;
 }
 
 function getFocusScoreThisWeek(): number {
@@ -32,25 +31,71 @@ function getStreakFromStorage(): number {
       const d = new Date(today);
       d.setDate(d.getDate() - i);
       const key = d.toISOString().slice(0, 10);
-      const hasSession = sessions.some((s: { date?: string }) => s.date === key);
-      if (hasSession) streak++;
+      if (sessions.some((s: { date?: string }) => s.date === key)) streak++;
       else if (i > 0) break;
     }
     return streak;
   } catch { return 0; }
 }
 
+interface SharedDigestData {
+  studentName: string;
+  studyHours: number;
+  focusScore: number;
+  accuracy: number;
+  streak: number;
+  questionsThisWeek: number;
+  topicsImproved: number;
+}
+
+async function fetchSharedDigest(token: string): Promise<SharedDigestData | null> {
+  try {
+    const res = await fetch(`/api/shared-report?token=${encodeURIComponent(token)}`);
+    const data = await res.json();
+    if (data.ok) {
+      return {
+        studentName: data.studentName || "Student",
+        studyHours: 0,
+        focusScore: 0,
+        accuracy: 0,
+        streak: 0,
+        questionsThisWeek: 0,
+        topicsImproved: 0,
+      };
+    }
+  } catch {}
+  return null;
+}
+
 export default function WeeklyDigestPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const shareToken = searchParams.get("share");
   const { user } = useAuth();
-  const studentName = user?.displayName || "Student";
 
-  const studyHours = useMemo(() => getStudyHoursThisWeek(), []);
-  const focusScore = useMemo(() => getFocusScoreThisWeek(), []);
-  const streak = useMemo(() => getStreakFromStorage(), []);
-  const weakSummary = useMemo(() => getWeakAreas({ limit: 5 }), []);
-  const mockScores = useMemo(() => getLatestMockScores(5), []);
-  const insights = useMemo(() => loadInsights(), []);
+  const [sharedData, setSharedData] = useState<SharedDigestData | null>(null);
+  const [shareError, setShareError] = useState(false);
+  const [shareVerifying, setShareVerifying] = useState(!!shareToken);
+
+  useEffect(() => {
+    if (!shareToken) return;
+    fetchSharedDigest(shareToken).then((result) => {
+      if (result) setSharedData(result);
+      else setShareError(true);
+      setShareVerifying(false);
+    });
+  }, [shareToken]);
+
+  const isShared = !!sharedData;
+  const isLocal = !shareToken;
+  const studentName = isShared ? sharedData.studentName : (user?.displayName || "Student");
+
+  const studyHours = useMemo(() => isLocal ? getStudyHoursThisWeek() : (sharedData?.studyHours || 0), [isLocal, sharedData]);
+  const focusScore = useMemo(() => isLocal ? getFocusScoreThisWeek() : (sharedData?.focusScore || 0), [isLocal, sharedData]);
+  const streak = useMemo(() => isLocal ? getStreakFromStorage() : (sharedData?.streak || 0), [isLocal, sharedData]);
+  const weakSummary = useMemo(() => isLocal ? getWeakAreas({ limit: 5 }) : { weakAreas: [], totalWeak: 0, closedThisWeek: 0, overallMasteryPercent: 0 }, [isLocal]);
+  const mockScores = useMemo(() => isLocal ? getLatestMockScores(5) : [], [isLocal]);
+  const insights = useMemo(() => isLocal ? loadInsights() : { attempts: [], totalCorrect: 0, totalAttempted: 0, subjects: {} }, [isLocal]);
 
   const attempts = insights.attempts || [];
   const weekAgo = Date.now() - 7 * 86400000;
@@ -64,36 +109,86 @@ export default function WeeklyDigestPage() {
     for (const a of attempts.filter(att => att.timestamp >= weekAgo)) {
       const key = a.topicKey || "unknown";
       const entry = byTopic.get(key) || { old: 0, recent: 0, oldCount: 0, recentCount: 0 };
-      if (a.timestamp < midpoint) {
-        entry.oldCount++;
-        if (a.correct) entry.old++;
-      } else {
-        entry.recentCount++;
-        if (a.correct) entry.recent++;
-      }
+      if (a.timestamp < midpoint) { entry.oldCount++; if (a.correct) entry.old++; }
+      else { entry.recentCount++; if (a.correct) entry.recent++; }
       byTopic.set(key, entry);
     }
-    const improved: string[] = [];
-    for (const [topic, data] of byTopic) {
-      if (data.oldCount >= 2 && data.recentCount >= 2) {
-        const oldAcc = data.old / data.oldCount;
-        const recentAcc = data.recent / data.recentCount;
-        if (recentAcc > oldAcc + 0.1) improved.push(topic);
-      }
-    }
-    return improved;
+    return Array.from(byTopic.values()).filter(d => d.oldCount >= 2 && d.recentCount >= 2 && d.recent / d.recentCount > d.old / d.oldCount + 0.1).length;
   }, [attempts, weekAgo]);
 
-  const shareText = `${studentName}'s Weekly Progress (LazyTopper):\n📚 ${studyHours}h studied\n🎯 ${thisWeekAccuracy}% accuracy\n🔥 ${streak}-day streak\n📝 ${mockScores.length} mock tests`;
+  const shareUrl = `${window.location.origin}${window.location.pathname}`;
+  const shareText = `${studentName}'s Weekly Progress (LazyTopper):\n📚 ${studyHours}h studied\n🎯 ${thisWeekAccuracy}% accuracy\n🔥 ${streak}-day streak\n📝 ${mockScores.length} mock tests\n\nView full report: ${shareUrl}`;
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+
+  const [generatingLink, setGeneratingLink] = useState(false);
+  const [shareLink, setShareLink] = useState("");
+
+  const handleGenerateShareLink = async () => {
+    setGeneratingLink(true);
+    try {
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (user) {
+        const { getAuth } = await import("firebase/auth");
+        const auth = getAuth();
+        if (auth.currentUser) {
+          const idToken = await auth.currentUser.getIdToken();
+          headers["Authorization"] = `Bearer ${idToken}`;
+        }
+      }
+      const res = await fetch("/api/share-token", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ studentName }),
+      });
+      const data = await res.json();
+      if (data.ok && data.token) {
+        const url = `${window.location.origin}${window.location.pathname}?share=${encodeURIComponent(data.token)}`;
+        await navigator.clipboard?.writeText(url);
+        setShareLink(url);
+      }
+    } catch {}
+    setGeneratingLink(false);
+  };
+
+  if (shareVerifying) {
+    return (
+      <div style={{ minHeight: "100vh", background: "#0a0a0a", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 14 }}>Loading digest...</p>
+      </div>
+    );
+  }
+
+  if (shareToken && shareError) {
+    return (
+      <div style={{ minHeight: "100vh", background: "#0a0a0a", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ textAlign: "center", padding: 24 }}>
+          <div style={{ fontSize: 48, marginBottom: 12 }}>❌</div>
+          <h2 style={{ fontSize: 18, fontWeight: 800, color: "#ef4444", margin: "0 0 8px" }}>Invalid or Expired Link</h2>
+          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.45)" }}>This share link is no longer valid.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isLocal && !isShared) {
+    return (
+      <div style={{ minHeight: "100vh", background: "#0a0a0a", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ textAlign: "center", padding: 24 }}>
+          <div style={{ fontSize: 48, marginBottom: 12 }}>📊</div>
+          <h2 style={{ fontSize: 18, fontWeight: 800, color: "#fff", margin: "0 0 8px" }}>Weekly Digest</h2>
+          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.45)" }}>Sign in to view your weekly progress.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ minHeight: "100vh", background: "#0a0a0a", paddingBottom: 80 }}>
       <div style={{ maxWidth: 500, margin: "0 auto", padding: "16px 16px 32px" }}>
-        <ReturnContextBar backTo="/dashboard" backLabel="Back to Dashboard" />
+        {isLocal && <ReturnContextBar backTo="/dashboard" backLabel="Back to Dashboard" />}
 
         <div style={{
-          marginTop: 16, padding: "24px 20px", borderRadius: 20, textAlign: "center",
+          marginTop: isLocal ? 16 : 0, padding: "24px 20px", borderRadius: 20, textAlign: "center",
           background: "linear-gradient(135deg, rgba(34,197,94,0.1), rgba(59,130,246,0.08))",
           border: "1px solid rgba(34,197,94,0.2)",
         }}>
@@ -132,7 +227,7 @@ export default function WeeklyDigestPage() {
           </div>
           <div style={{ padding: 16, borderRadius: 14, textAlign: "center", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
             <div style={{ fontSize: 20, marginBottom: 4 }}>📈</div>
-            <div style={{ fontSize: 22, fontWeight: 800, color: "#22c55e" }}>{topicsImproved.length}</div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: "#22c55e" }}>{topicsImproved}</div>
             <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", marginTop: 2 }}>Topics Improved</div>
           </div>
         </div>
@@ -186,22 +281,38 @@ export default function WeeklyDigestPage() {
               flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
               padding: "14px 0", borderRadius: 12, border: "none", textDecoration: "none",
               background: "#25D366", color: "#fff", fontWeight: 800, fontSize: 14,
-              fontFamily: "'Space Grotesk', sans-serif", cursor: "pointer",
+              fontFamily: "'Space Grotesk', sans-serif",
             }}
           >
             Share via WhatsApp
           </a>
+          {isLocal && (
+            <button
+              onClick={handleGenerateShareLink}
+              disabled={generatingLink}
+              style={{
+                flex: 1, padding: "14px 0", borderRadius: 12,
+                background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)",
+                color: "#60a5fa", fontWeight: 700, fontSize: 13, cursor: "pointer",
+              }}
+            >
+              {shareLink ? "Link Copied!" : generatingLink ? "Generating..." : "Copy Share Link"}
+            </button>
+          )}
+        </div>
+
+        {isLocal && (
           <button
             onClick={() => navigate("/parent-dashboard", { state: { back: "/weekly-digest", backLabel: "Back to Digest" } })}
             style={{
-              flex: 1, padding: "14px 0", borderRadius: 12,
-              background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)",
-              color: "#60a5fa", fontWeight: 700, fontSize: 13, cursor: "pointer",
+              width: "100%", marginTop: 8, padding: "12px 0", borderRadius: 12,
+              background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
+              color: "rgba(255,255,255,0.5)", fontWeight: 600, fontSize: 12, cursor: "pointer",
             }}
           >
-            Full Report
+            View Full Parent Report
           </button>
-        </div>
+        )}
       </div>
     </div>
   );

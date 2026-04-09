@@ -872,6 +872,12 @@ export default function Dashboard() {
           if (recentMocks.length > 0 && Date.now() - recentMocks[0].timestamp < 24 * 3600000) {
             return <ShareProgressPrompt triggerType="mock" score={recentMocks[0].percent} subject={recentMocks[0].subject} />;
           }
+          if (totalAttempted > 0 && totalAttempted % 100 === 0) {
+            return <ShareProgressPrompt triggerType="milestone" milestone={`${totalAttempted} questions completed!`} />;
+          }
+          if (avgAccuracy >= 80 && totalAttempted >= 50) {
+            return <ShareProgressPrompt triggerType="milestone" milestone={`${avgAccuracy}% overall accuracy across ${totalAttempted} questions!`} />;
+          }
           return null;
         })()}
 

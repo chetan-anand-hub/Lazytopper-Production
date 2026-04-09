@@ -188,6 +188,137 @@ function ParentRecommendations({ weakAreas }: { weakAreas: { topicName: string; 
   );
 }
 
+function FocusScoreTrend() {
+  const weekly = getWeeklyFocus();
+  const last7: { day: string; focusPct: number }[] = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const key = d.toISOString().slice(0, 10);
+    const label = d.toLocaleDateString("en-IN", { weekday: "short" });
+    const rec = weekly.find(r => r.date === key);
+    const pct = rec && rec.totalMs > 60000 ? Math.round((rec.focusedMs / rec.totalMs) * 100) : 0;
+    last7.push({ day: label, focusPct: pct });
+  }
+  const hasData = last7.some(d => d.focusPct > 0);
+  if (!hasData) return null;
+
+  const chartW = 260;
+  const chartH = 80;
+  const padL = 28;
+  const padR = 8;
+  const plotW = chartW - padL - padR;
+  const stepX = plotW / 6;
+
+  const points = last7.map((d, i) => ({
+    x: padL + i * stepX,
+    y: chartH - 4 - (d.focusPct / 100) * (chartH - 16),
+  }));
+  const linePath = points.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
+
+  return (
+    <div style={{ marginBottom: 20 }}>
+      <h3 style={{ fontWeight: 800, fontSize: 16, marginBottom: 10 }}>Focus Score Trend (7 Days)</h3>
+      <div style={{
+        padding: "12px 10px", borderRadius: 14,
+        background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)",
+        overflowX: "auto",
+      }}>
+        <svg width={chartW} height={chartH + 18} style={{ display: "block" }}>
+          <line x1={padL} y1={chartH - 4 - 0.7 * (chartH - 16)} x2={chartW - padR} y2={chartH - 4 - 0.7 * (chartH - 16)} stroke="rgba(34,197,94,0.2)" strokeDasharray="3,3" strokeWidth={1} />
+          <text x={padL - 4} y={chartH - 4 - 0.7 * (chartH - 16) + 3} textAnchor="end" fontSize={7} fill="rgba(34,197,94,0.5)">70%</text>
+          <path d={linePath} fill="none" stroke="#a855f7" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+          {points.map((p, i) => (
+            <g key={i}>
+              <circle cx={p.x} cy={p.y} r={3.5} fill={last7[i].focusPct >= 70 ? "#22c55e" : last7[i].focusPct >= 50 ? "#3b82f6" : "#f97316"} stroke="#0a0a0a" strokeWidth={1.5} />
+              {last7[i].focusPct > 0 && (
+                <text x={p.x} y={p.y - 7} textAnchor="middle" fontSize={8} fontWeight={700} fill="rgba(255,255,255,0.7)">{last7[i].focusPct}%</text>
+              )}
+              <text x={p.x} y={chartH + 12} textAnchor="middle" fontSize={7} fill="rgba(255,255,255,0.35)">{last7[i].day}</text>
+            </g>
+          ))}
+        </svg>
+      </div>
+    </div>
+  );
+}
+
+const RECOMMENDED_DAILY_HOURS = 2;
+
+function StudyHoursComparison() {
+  const weekly = getWeeklyFocus();
+  const last7: { day: string; actual: number; recommended: number }[] = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const key = d.toISOString().slice(0, 10);
+    const label = d.toLocaleDateString("en-IN", { weekday: "short" });
+    const rec = weekly.find(r => r.date === key);
+    const hrs = rec ? Math.round((rec.totalMs / 3600000) * 10) / 10 : 0;
+    last7.push({ day: label, actual: hrs, recommended: RECOMMENDED_DAILY_HOURS });
+  }
+  const totalActual = last7.reduce((s, d) => s + d.actual, 0);
+  const totalRecommended = last7.length * RECOMMENDED_DAILY_HOURS;
+  const pacePercent = totalRecommended > 0 ? Math.round((totalActual / totalRecommended) * 100) : 0;
+
+  const maxH = Math.max(...last7.map(d => Math.max(d.actual, d.recommended)), RECOMMENDED_DAILY_HOURS + 0.5);
+  const barH = 70;
+
+  return (
+    <div style={{ marginBottom: 20 }}>
+      <h3 style={{ fontWeight: 800, fontSize: 16, marginBottom: 10 }}>Recommended vs Actual Study Hours</h3>
+      <div style={{
+        padding: "14px 10px", borderRadius: 14,
+        background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)",
+      }}>
+        <div style={{ display: "flex", alignItems: "flex-end", gap: 4, height: barH + 20 }}>
+          {last7.map((d) => {
+            const actualH = maxH > 0 ? Math.max(2, (d.actual / maxH) * barH) : 2;
+            const recH = maxH > 0 ? (d.recommended / maxH) * barH : 0;
+            return (
+              <div key={d.day} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 2, position: "relative" }}>
+                <span style={{ fontSize: 7, color: "rgba(255,255,255,0.5)", fontWeight: 700 }}>
+                  {d.actual > 0 ? `${d.actual}h` : ""}
+                </span>
+                <div style={{ position: "relative", width: "100%" }}>
+                  <div style={{
+                    width: "100%", height: actualH, borderRadius: 3,
+                    background: d.actual >= d.recommended ? "#22c55e" : d.actual > 0 ? "#f97316" : "rgba(255,255,255,0.04)",
+                  }} />
+                  <div style={{
+                    position: "absolute", bottom: recH, left: 0, right: 0, height: 2,
+                    background: "rgba(59,130,246,0.6)", borderRadius: 1,
+                  }} />
+                </div>
+                <span style={{ fontSize: 7, color: "rgba(255,255,255,0.35)" }}>{d.day}</span>
+              </div>
+            );
+          })}
+        </div>
+        <div style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 10 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            <div style={{ width: 8, height: 8, borderRadius: 2, background: "#22c55e" }} />
+            <span style={{ fontSize: 9, color: "rgba(255,255,255,0.5)" }}>Actual</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            <div style={{ width: 8, height: 2, background: "rgba(59,130,246,0.6)" }} />
+            <span style={{ fontSize: 9, color: "rgba(255,255,255,0.5)" }}>Recommended ({RECOMMENDED_DAILY_HOURS}h/day)</span>
+          </div>
+        </div>
+        <div style={{
+          marginTop: 8, padding: "6px 10px", borderRadius: 8, textAlign: "center",
+          background: pacePercent >= 80 ? "rgba(34,197,94,0.08)" : "rgba(245,158,11,0.08)",
+          border: `1px solid ${pacePercent >= 80 ? "rgba(34,197,94,0.15)" : "rgba(245,158,11,0.15)"}`,
+        }}>
+          <span style={{ fontSize: 12, fontWeight: 700, color: pacePercent >= 80 ? "#22c55e" : "#f59e0b" }}>
+            {pacePercent}% of recommended pace ({Math.round(totalActual * 10) / 10}h / {totalRecommended}h this week)
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function WeeklyFocusCard() {
   const weekly = getWeeklyFocus();
   if (weekly.length === 0) return null;
@@ -517,6 +648,10 @@ export default function ParentDashboardPage() {
       </div>
 
       <DailyStudyChart />
+
+      <StudyHoursComparison />
+
+      <FocusScoreTrend />
 
       <ParentRecommendations weakAreas={weakSummary.weakAreas} />
 

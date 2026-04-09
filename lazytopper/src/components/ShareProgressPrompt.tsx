@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const DISMISS_KEY = "lazytopper.sharePrompt.dismissed";
 
@@ -24,7 +25,10 @@ interface ShareProgressPromptProps {
 
 export default function ShareProgressPrompt({ triggerType, score, subject, milestone }: ShareProgressPromptProps) {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [visible, setVisible] = useState(!isDismissedRecently());
+  const [sharing, setSharing] = useState(false);
+  const [shared, setShared] = useState(false);
 
   if (!visible) return null;
 
@@ -33,9 +37,41 @@ export default function ShareProgressPrompt({ triggerType, score, subject, miles
     setVisible(false);
   };
 
-  const handleShare = () => {
-    dismissPrompt();
-    navigate("/weekly-digest");
+  const handleShare = async () => {
+    setSharing(true);
+    try {
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (user) {
+        const { getAuth } = await import("firebase/auth");
+        const auth = getAuth();
+        if (auth.currentUser) {
+          const idToken = await auth.currentUser.getIdToken();
+          headers["Authorization"] = `Bearer ${idToken}`;
+        }
+      }
+      const studentName = user?.displayName || "Student";
+      const res = await fetch("/api/share-token", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ studentName }),
+      });
+      const data = await res.json();
+      if (data.ok && data.token) {
+        const shareUrl = `${window.location.origin}/app/weekly-digest?share=${encodeURIComponent(data.token)}`;
+        const shareText = triggerType === "mock"
+          ? `I scored ${score}% in ${subject || "my mock test"} on LazyTopper! Check my progress: ${shareUrl}`
+          : `${milestone || "I reached a new milestone"} on LazyTopper! ${shareUrl}`;
+        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+        window.open(whatsappUrl, "_blank");
+        setShared(true);
+        dismissPrompt();
+      } else {
+        navigate("/weekly-digest");
+      }
+    } catch {
+      navigate("/weekly-digest");
+    }
+    setSharing(false);
   };
 
   const message = triggerType === "mock"
@@ -54,10 +90,12 @@ export default function ShareProgressPrompt({ triggerType, score, subject, miles
         <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", marginBottom: 2 }}>{message}</div>
         <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)" }}>Share your progress with your parents?</div>
         <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-          <button onClick={handleShare} style={{
+          <button onClick={handleShare} disabled={sharing || shared} style={{
             padding: "6px 14px", borderRadius: 8, border: "none",
-            background: "#22c55e", color: "#000", fontWeight: 700, fontSize: 11, cursor: "pointer",
-          }}>Share Progress</button>
+            background: shared ? "rgba(34,197,94,0.2)" : "#22c55e",
+            color: shared ? "#4ade80" : "#000",
+            fontWeight: 700, fontSize: 11, cursor: sharing ? "default" : "pointer",
+          }}>{shared ? "Shared!" : sharing ? "Sharing..." : "Share via WhatsApp"}</button>
           <button onClick={handleDismiss} style={{
             padding: "6px 14px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)",
             background: "transparent", color: "rgba(255,255,255,0.4)", fontWeight: 600, fontSize: 11, cursor: "pointer",

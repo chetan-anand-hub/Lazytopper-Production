@@ -548,7 +548,7 @@ export default function App() {
           <Route path="/revision-calendar" element={<RequireAuth>{withRouteSuspense(<RevisionCalendarPage />)}</RequireAuth>} />
           <Route path="/mini-mock" element={<RequireAuth>{withRouteSuspense(<MiniMockPage />)}</RequireAuth>} />
           <Route path="/parent" element={withRouteSuspense(<ParentAccessPage />)} />
-          <Route path="/weekly-digest" element={<RequireAuth>{withRouteSuspense(<WeeklyDigestPage />)}</RequireAuth>} />
+          <Route path="/weekly-digest" element={withRouteSuspense(<WeeklyDigestPage />)} />
 
           <Route path="/practice/:grade/:subject" element={<PracticeLimitGate>{withRouteSuspense(<PracticePage />)}</PracticeLimitGate>} />
 
