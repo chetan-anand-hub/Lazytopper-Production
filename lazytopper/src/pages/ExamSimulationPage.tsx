@@ -651,6 +651,17 @@ function ExamReviewView({ paper, analytics, answers, subject, wallClockSec, onNe
                 <div style={{ fontSize: "1.2rem", fontWeight: 800, color: "rgba(255,255,255,0.9)" }}>{sb.scored}/{sb.maxMarks}</div>
                 <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.4)" }}>{sb.percent}% accuracy</div>
                 <div style={{ fontSize: "0.68rem", color: "rgba(255,255,255,0.45)", marginTop: 2 }}>{formatMinSec(sb.timeSec)}</div>
+                {(() => {
+                  const rec = BLUEPRINT_SUMMARY.find(b => b.section === sb.section);
+                  if (!rec) return null;
+                  const recSec = rec.time * 60;
+                  const diff = sb.timeSec - recSec;
+                  const diffMin = Math.abs(Math.round(diff / 60));
+                  if (diffMin < 2) return <div style={{ fontSize: "0.62rem", color: "#22c55e", marginTop: 1 }}>On pace</div>;
+                  return <div style={{ fontSize: "0.62rem", color: diff > 0 ? "#f59e0b" : "#3b82f6", marginTop: 1 }}>
+                    {diff > 0 ? `${diffMin}m over` : `${diffMin}m under`} (rec: {rec.time}m)
+                  </div>;
+                })()}
               </div>
             ))}
           </div>

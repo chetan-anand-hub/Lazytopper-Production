@@ -57,7 +57,8 @@ const SIGNALS = [
 export default function MethodologyPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const fromPath = (location.state as any)?.from || "/trends/10/Maths";
+  const state = location.state as { from?: string } | null;
+  const fromPath = state?.from || "/trends/10/Maths";
 
   return (
     <div className="dark-page">

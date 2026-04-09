@@ -1,8 +1,8 @@
-
 import { type PracticeQuestion } from "../../data/predictionDataService";
 import { MathText } from "../question/MathText";
 import { QuestionVisualAid } from "../question/QuestionVisualAid";
 import { SolutionChecker } from "../question/SolutionChecker";
+import { TimeGuideChip } from "../exam/ExamStrategyTips";
 import type { StepSolutionResponse } from "../../ai/aiClient";
 
 export interface PracticeQuestionCardProps {
@@ -134,6 +134,7 @@ export function PracticeQuestionCard({
               fontSize: "0.75rem", fontWeight: 600, marginRight: 8,
             }}>{idx + 1}</span>
             <span>{q.marks} mark{q.marks !== 1 ? "s" : ""} - {q.section}</span>
+            <TimeGuideChip marks={q.marks} section={q.section || ""} />
           </div>
         </div>
       </header>
