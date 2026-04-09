@@ -1070,6 +1070,7 @@ function NightBeforeLink() {
 }
 
 function ParentPinManager() {
+  const { profile, setProfileAndCompute } = useProfile();
   const [hasPinState, setHasPinState] = useState(hasParentPin);
   const [editing, setEditing] = useState(false);
   const [digits, setDigits] = useState(["", "", "", ""]);
@@ -1093,6 +1094,9 @@ function ParentPinManager() {
     if (full.length !== 4) return;
     const hash = await hashPin(full);
     saveParentPinHash(hash);
+    if (profile) {
+      setProfileAndCompute({ ...profile, parentPinHash: hash });
+    }
     setHasPinState(true);
     setEditing(false);
     setDigits(["", "", "", ""]);
@@ -1102,6 +1106,11 @@ function ParentPinManager() {
 
   const handleRemove = () => {
     clearParentPin();
+    if (profile) {
+      const next = { ...profile };
+      delete next.parentPinHash;
+      setProfileAndCompute(next);
+    }
     setHasPinState(false);
     setEditing(false);
   };

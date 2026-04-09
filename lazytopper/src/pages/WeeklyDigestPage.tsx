@@ -180,10 +180,38 @@ export default function WeeklyDigestPage() {
     setGeneratingLink(false);
   };
 
-  const shareText = `${studentName}'s Weekly Progress (LazyTopper):\n📚 ${studyHours}h studied\n🎯 ${thisWeekAccuracy}% accuracy\n🔥 ${streak}-day streak\n📝 ${mockScores.length} mock tests`;
-  const whatsappUrl = shareLink
-    ? `https://wa.me/?text=${encodeURIComponent(shareText + `\n\nView full report: ${shareLink}`)}`
-    : `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+  const [whatsAppGenerating, setWhatsAppGenerating] = useState(false);
+
+  const handleWhatsAppShare = async () => {
+    let url = shareLink;
+    if (!url && isLocal && user) {
+      setWhatsAppGenerating(true);
+      try {
+        const headers: Record<string, string> = { "Content-Type": "application/json" };
+        const { getAuth } = await import("firebase/auth");
+        const auth = getAuth();
+        if (auth.currentUser) {
+          const idToken = await auth.currentUser.getIdToken();
+          headers["Authorization"] = `Bearer ${idToken}`;
+        }
+        const snapshot = buildWeeklySnapshot();
+        const res = await fetch("/api/share-token", {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ studentName, weeklySnapshot: snapshot }),
+        });
+        const data = await res.json();
+        if (data.ok && data.token) {
+          url = `${window.location.origin}/app/weekly-digest?share=${encodeURIComponent(data.token)}`;
+          setShareLink(url);
+        }
+      } catch {}
+      setWhatsAppGenerating(false);
+    }
+    const shareText = `${studentName}'s Weekly Progress (LazyTopper):\n📚 ${studyHours}h studied\n🎯 ${thisWeekAccuracy}% accuracy\n🔥 ${streak}-day streak\n📝 ${mockScores.length} mock tests`;
+    const fullText = url ? shareText + `\n\nView full report: ${url}` : shareText;
+    window.open(`https://wa.me/?text=${encodeURIComponent(fullText)}`, "_blank");
+  };
 
   if (shareVerifying) {
     return (
@@ -308,19 +336,18 @@ export default function WeeklyDigestPage() {
         )}
 
         <div style={{ display: "flex", gap: 8, marginTop: 20 }}>
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            onClick={handleWhatsAppShare}
+            disabled={whatsAppGenerating}
             style={{
               flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-              padding: "14px 0", borderRadius: 12, border: "none", textDecoration: "none",
+              padding: "14px 0", borderRadius: 12, border: "none", cursor: "pointer",
               background: "#25D366", color: "#fff", fontWeight: 800, fontSize: 14,
               fontFamily: "'Space Grotesk', sans-serif",
             }}
           >
-            Share via WhatsApp
-          </a>
+            {whatsAppGenerating ? "Generating Link..." : "Share via WhatsApp"}
+          </button>
           {isLocal && (
             <button
               onClick={handleGenerateShareLink}

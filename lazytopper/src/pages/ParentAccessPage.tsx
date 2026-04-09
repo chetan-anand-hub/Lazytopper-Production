@@ -77,11 +77,51 @@ function getRecommendations(weakAreas: { topicName: string; subject: string; acc
   return recs;
 }
 
+const LOCKOUT_KEY = "lazytopper.parentPin.lockout";
+const MAX_ATTEMPTS = 5;
+const LOCKOUT_DURATION_MS = 5 * 60 * 1000;
+
+function getLockoutState(): { locked: boolean; attemptsLeft: number; unlockAt: number } {
+  try {
+    const raw = localStorage.getItem(LOCKOUT_KEY);
+    if (!raw) return { locked: false, attemptsLeft: MAX_ATTEMPTS, unlockAt: 0 };
+    const data = JSON.parse(raw);
+    if (data.lockedUntil && Date.now() < data.lockedUntil) {
+      return { locked: true, attemptsLeft: 0, unlockAt: data.lockedUntil };
+    }
+    if (data.lockedUntil && Date.now() >= data.lockedUntil) {
+      localStorage.removeItem(LOCKOUT_KEY);
+      return { locked: false, attemptsLeft: MAX_ATTEMPTS, unlockAt: 0 };
+    }
+    return { locked: false, attemptsLeft: MAX_ATTEMPTS - (data.failures || 0), unlockAt: 0 };
+  } catch { return { locked: false, attemptsLeft: MAX_ATTEMPTS, unlockAt: 0 }; }
+}
+
+function recordFailedAttempt(): { locked: boolean; attemptsLeft: number } {
+  try {
+    const raw = localStorage.getItem(LOCKOUT_KEY);
+    const data = raw ? JSON.parse(raw) : { failures: 0 };
+    data.failures = (data.failures || 0) + 1;
+    if (data.failures >= MAX_ATTEMPTS) {
+      data.lockedUntil = Date.now() + LOCKOUT_DURATION_MS;
+      localStorage.setItem(LOCKOUT_KEY, JSON.stringify(data));
+      return { locked: true, attemptsLeft: 0 };
+    }
+    localStorage.setItem(LOCKOUT_KEY, JSON.stringify(data));
+    return { locked: false, attemptsLeft: MAX_ATTEMPTS - data.failures };
+  } catch { return { locked: false, attemptsLeft: MAX_ATTEMPTS }; }
+}
+
+function clearLockout(): void {
+  try { localStorage.removeItem(LOCKOUT_KEY); } catch {}
+}
+
 export default function ParentAccessPage() {
   const [pin, setPin] = useState(["", "", "", ""]);
   const [verified, setVerified] = useState(false);
   const [error, setError] = useState("");
   const [noPinSet, setNoPinSet] = useState(false);
+  const [lockout, setLockout] = useState(getLockoutState);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
@@ -90,8 +130,21 @@ export default function ParentAccessPage() {
     }
   }, []);
 
+  useEffect(() => {
+    if (!lockout.locked) return;
+    const interval = setInterval(() => {
+      const state = getLockoutState();
+      if (!state.locked) {
+        setLockout(state);
+        setError("");
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [lockout.locked]);
+
   const handleDigit = (idx: number, value: string) => {
     if (!/^\d?$/.test(value)) return;
+    if (lockout.locked) return;
     const next = [...pin];
     next[idx] = value;
     setPin(next);
@@ -105,9 +158,16 @@ export default function ParentAccessPage() {
       if (hash) {
         void verifyPin(fullPin, hash).then(ok => {
           if (ok) {
+            clearLockout();
             setVerified(true);
           } else {
-            setError("Incorrect PIN. Please try again.");
+            const result = recordFailedAttempt();
+            if (result.locked) {
+              setError("Too many incorrect attempts. Locked for 5 minutes.");
+              setLockout({ locked: true, attemptsLeft: 0, unlockAt: Date.now() + LOCKOUT_DURATION_MS });
+            } else {
+              setError(`Incorrect PIN. ${result.attemptsLeft} attempts remaining.`);
+            }
             setPin(["", "", "", ""]);
             inputRefs.current[0]?.focus();
           }

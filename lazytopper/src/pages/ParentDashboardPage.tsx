@@ -7,6 +7,7 @@ import { useSmartLearning } from "../engine/smartLearningStore";
 import { useAuth } from "../context/AuthContext";
 import { getLatestMockScores, type MockScoreEntry } from "../services/mockScoreHistory";
 import { getWeeklyFocus } from "../services/focusTracker";
+import { loadPaceProfile } from "../services/paceProfileService";
 
 const TOPIC_NAMES: Record<string, string> = {
   "real-numbers": "Real Numbers", polynomials: "Polynomials",
@@ -243,9 +244,18 @@ function FocusScoreTrend() {
   );
 }
 
-const RECOMMENDED_DAILY_HOURS = 2;
+function getRecommendedDailyHours(): number {
+  const pace = loadPaceProfile();
+  if (!pace) return 2;
+  if (pace.type === "crash") return 3;
+  if (pace.type === "sprint") return 2;
+  return 1.5;
+}
 
 function StudyHoursComparison() {
+  const recommendedDailyHours = getRecommendedDailyHours();
+  const pace = loadPaceProfile();
+  const paceLabel = pace ? (pace.type === "crash" ? "Focus Mode" : pace.type === "sprint" ? "Focused Plan" : "Steady Plan") : "Default";
   const weekly = getWeeklyFocus();
   const last7: { day: string; actual: number; recommended: number }[] = [];
   for (let i = 6; i >= 0; i--) {
@@ -255,13 +265,13 @@ function StudyHoursComparison() {
     const label = d.toLocaleDateString("en-IN", { weekday: "short" });
     const rec = weekly.find(r => r.date === key);
     const hrs = rec ? Math.round((rec.totalMs / 3600000) * 10) / 10 : 0;
-    last7.push({ day: label, actual: hrs, recommended: RECOMMENDED_DAILY_HOURS });
+    last7.push({ day: label, actual: hrs, recommended: recommendedDailyHours });
   }
   const totalActual = last7.reduce((s, d) => s + d.actual, 0);
-  const totalRecommended = last7.length * RECOMMENDED_DAILY_HOURS;
+  const totalRecommended = last7.length * recommendedDailyHours;
   const pacePercent = totalRecommended > 0 ? Math.round((totalActual / totalRecommended) * 100) : 0;
 
-  const maxH = Math.max(...last7.map(d => Math.max(d.actual, d.recommended)), RECOMMENDED_DAILY_HOURS + 0.5);
+  const maxH = Math.max(...last7.map(d => Math.max(d.actual, d.recommended)), recommendedDailyHours + 0.5);
   const barH = 70;
 
   return (
@@ -302,7 +312,7 @@ function StudyHoursComparison() {
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
             <div style={{ width: 8, height: 2, background: "rgba(59,130,246,0.6)" }} />
-            <span style={{ fontSize: 9, color: "rgba(255,255,255,0.5)" }}>Recommended ({RECOMMENDED_DAILY_HOURS}h/day)</span>
+            <span style={{ fontSize: 9, color: "rgba(255,255,255,0.5)" }}>Recommended ({recommendedDailyHours}h/day · {paceLabel})</span>
           </div>
         </div>
         <div style={{
