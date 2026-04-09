@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { getAppFocus, isFocusTrackingEnabled } from "../../services/focusTracker";
 import { trackUxEvent } from "../../services/uxTelemetry";
+import { logBreakEvent } from "../../services/sessionLogger";
 
 const BREAK_THRESHOLD_MS = 25 * 60_000;
 const SNOOZE_MS = 10 * 60_000;
@@ -26,6 +27,7 @@ export function BreakReminder() {
       const elapsed = focus.focusedMs - baselineRef.current;
       if (elapsed < BREAK_THRESHOLD_MS) return;
       trackUxEvent("break_reminder_shown", "BreakReminder", { continuousMs: elapsed });
+      logBreakEvent("shown", elapsed);
       setVisible(true);
     };
 
@@ -38,6 +40,7 @@ export function BreakReminder() {
     baselineRef.current = getAppFocus().focusedMs;
     dismissedForSessionRef.current = true;
     trackUxEvent("break_reminder_action", "BreakReminder", { action: "took_break" });
+    logBreakEvent("took_break");
   };
 
   const snooze = () => {
@@ -45,6 +48,7 @@ export function BreakReminder() {
     baselineRef.current = getAppFocus().focusedMs;
     snoozeUntilRef.current = Date.now() + SNOOZE_MS;
     trackUxEvent("break_reminder_action", "BreakReminder", { action: "snoozed" });
+    logBreakEvent("snoozed");
   };
 
   if (!visible) return null;

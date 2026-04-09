@@ -26,6 +26,12 @@ export interface StudySessionActivity {
   durationMinutes?: number;
 }
 
+export interface BreakEvent {
+  timestamp: string;
+  action: "took_break" | "snoozed" | "shown";
+  continuousMs?: number;
+}
+
 export interface StudySessionLog {
   id: string;
   userId: string;
@@ -37,6 +43,7 @@ export interface StudySessionLog {
   status: "active" | "completed" | "partial";
   focusedMinutes?: number;
   totalMinutes?: number;
+  breakEvents?: BreakEvent[];
 }
 
 // Keep local copy for instant UI updates
@@ -172,6 +179,16 @@ export async function endSession() {
       console.error("Failed to end cloud session:", e);
     }
   }
+}
+
+export function logBreakEvent(action: BreakEvent["action"], continuousMs?: number): void {
+  if (!currentSession) return;
+  if (!currentSession.breakEvents) currentSession.breakEvents = [];
+  currentSession.breakEvents.push({
+    timestamp: new Date().toISOString(),
+    action,
+    continuousMs,
+  });
 }
 
 export function getStudyLogs(): StudySessionLog[] {

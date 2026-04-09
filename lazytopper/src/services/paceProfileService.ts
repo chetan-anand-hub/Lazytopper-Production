@@ -36,7 +36,7 @@ const PROFILE_CONFIGS: Record<PaceProfileType, PaceProfileConfig> = {
   },
   crash: {
     type: "crash",
-    label: "Focus Plan",
+    label: "Focus Mode",
     tagline: "Predicted questions + mock tests dominant",
     thresholdDays: { min: 0, max: 59 },
     chapterCoverage: "predicted-only",
