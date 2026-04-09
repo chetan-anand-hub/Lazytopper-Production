@@ -526,20 +526,10 @@ export default function ParentDashboardPage() {
     const studentName = user?.displayName || "Student";
     const headers: Record<string, string> = { "Content-Type": "application/json" };
     try {
-      if (user) {
-        const { getAuth } = await import("firebase/auth");
-        const auth = getAuth();
-        if (auth.currentUser) {
-          const idToken = await auth.currentUser.getIdToken();
-          headers["Authorization"] = `Bearer ${idToken}`;
-        }
-      }
-    } catch {}
-    try {
       const res = await fetch("/api/share-token", {
         method: "POST",
         headers,
-        body: JSON.stringify({ studentName }),
+        body: JSON.stringify({ studentName, uid: user?.uid }),
       });
       const data = await res.json();
       if (!data.ok || !data.token) {
