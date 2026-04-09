@@ -369,9 +369,9 @@ function SprintDashboard({ daysLeft, navigate, gradeNum, weakAreas, subjectForQu
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
           {[
             { label: "Predicted Q's", icon: "🎯", bg: "rgba(239,68,68,0.08)", border: "rgba(239,68,68,0.2)", path: `/highly-probable/${gradeNum}/${subjectForQuickActions}` },
-            { label: "Chapter Hub", icon: "📚", bg: "rgba(59,130,246,0.08)", border: "rgba(59,130,246,0.2)", path: `/topic-hub/${gradeNum}/${subjectForQuickActions}` },
-            { label: "Practice", icon: "✏️", bg: "rgba(34,197,94,0.08)", border: "rgba(34,197,94,0.2)", path: `/practice/${gradeNum}/${subjectForQuickActions}` },
+            { label: "Weak Areas", icon: "⚠️", bg: "rgba(249,115,22,0.08)", border: "rgba(249,115,22,0.2)", path: "/weak-area-practice" },
             { label: "Night Before", icon: "🌙", bg: "rgba(34,197,94,0.08)", border: "rgba(34,197,94,0.2)", path: "/night-before" },
+            { label: "Revision Calendar", icon: "📅", bg: "rgba(59,130,246,0.08)", border: "rgba(59,130,246,0.2)", path: "/revision-calendar" },
           ].map((a) => (
             <button key={a.label} onClick={() => navigate(a.path, { state: { back: "/dashboard", backLabel: "Back to Dashboard" } })} style={{
               display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
@@ -1354,8 +1354,8 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* EXPLORE MORE */}
-        <div className="glass-card" style={{ padding: 16, marginBottom: 0 }}>
+        {/* EXPLORE MORE — hidden in sprint mode */}
+        {daysLeftValue > 7 && <div className="glass-card" style={{ padding: 16, marginBottom: 0 }}>
           <span className="font-display" style={{ fontSize: 14, fontWeight: 700, display: "block", marginBottom: 12 }}>Explore More</span>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
             {[
@@ -1375,7 +1375,7 @@ export default function Dashboard() {
               </button>
             ))}
           </div>
-        </div>
+        </div>}
 
       </div>
     </div>
