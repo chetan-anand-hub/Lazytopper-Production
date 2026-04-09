@@ -94,8 +94,6 @@ function BottomNav() {
     current.startsWith("/predictive-papers") ||
     current.startsWith("/mock-paper") ||
     current.startsWith("/mock-builder");
-  const isProfile = current === "/profile";
-
   const activeColor = "#22c55e";
   const inactiveColor = "rgba(255,255,255,0.3)";
 

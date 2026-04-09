@@ -785,6 +785,7 @@ export default function Dashboard() {
         )}
 
         <div className="glass-accent" style={{ padding: 20, marginBottom: 16 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.35)", textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 8 }}>Your Next Step</div>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
             <span style={{ fontSize: 20 }}>{heroAction.type === "resume_session" ? "⏩" : heroAction.type === "weak_topic" ? "⚠️" : "🎯"}</span>
             <span className="font-display" style={{ fontSize: 16, fontWeight: 700 }}>{heroAction.title}</span>

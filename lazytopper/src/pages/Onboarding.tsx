@@ -18,37 +18,14 @@ function formatIsoDate(iso: string): string {
 
 export default function Onboarding() {
   const navigate = useNavigate();
-  const { profile, loadingProfile, setProfileAndCompute } = useProfile();
-
-  const [learningSupportMode, setLearningSupportMode] = useState<"guided" | "standard">("guided");
+  const { loadingProfile, setProfileAndCompute } = useProfile();
 
   const [examDate, setExamDate] = useState("");
   const [examDateSource, setExamDateSource] = useState<"official" | "predicted">("predicted");
-  const [examDateNote, setExamDateNote] = useState("");
 
   const [autoDaysLeft, setAutoDaysLeft] = useState<number>(90);
-  const [days, setDays] = useState<string>("90");
-  const [target, setTarget] = useState("");
-  const [hours, setHours] = useState("");
-  const [mark1, setMark1] = useState("");
-  const [mark2, setMark2] = useState("");
-  const [mark3, setMark3] = useState("");
+  const [target, setTarget] = useState("80");
   const studentClass = "10" as const;
-
-  const applyGuidedDefaults = () => {
-    setLearningSupportMode("guided");
-    setTarget((prev) => prev || "75");
-    setHours((prev) => prev || "1.5");
-    setMark1((prev) => prev || "55");
-    setMark2((prev) => prev || "58");
-    setMark3((prev) => prev || "60");
-  };
-
-  const applyStandardDefaults = () => {
-    setLearningSupportMode("standard");
-    setTarget((prev) => prev || "85");
-    setHours((prev) => prev || "2");
-  };
 
   useEffect(() => {
     let cancelled = false;
@@ -59,13 +36,9 @@ export default function Onboarding() {
       if (cancelled) return;
       setExamDate(result.examDate || staticDate);
       setExamDateSource(result.source);
-      setExamDateNote(String(result.note || ""));
-      const left = Math.max(1, daysLeftFromIsoDate(result.examDate || staticDate));
+      const rawLeft = daysLeftFromIsoDate(result.examDate || staticDate);
+      const left = Number.isFinite(rawLeft) && rawLeft > 0 ? rawLeft : 90;
       setAutoDaysLeft(left);
-      setDays((prev) => {
-        if (!prev || Number(prev) <= 0 || prev === "90") return String(left);
-        return prev;
-      });
     })();
     return () => {
       cancelled = true;
@@ -73,23 +46,11 @@ export default function Onboarding() {
   }, [studentClass]);
 
   const handleSubmit = () => {
-    const daysLeft = Number(days || profile?.daysLeft || autoDaysLeft);
-    const targetPercent = Number(target || profile?.targetPercent || 0);
-    const hoursPerDay = Number(hours || profile?.hoursPerDay || 0);
+    const daysLeft = autoDaysLeft;
+    const targetPercent = Number(target) || 80;
 
-    if (!daysLeft || !targetPercent || !hoursPerDay) {
-      alert("Please fill days, target %, and hours/day with valid numbers.");
-      return;
-    }
-
-    const m1 = Number(mark1);
-    const m2 = Number(mark2);
-    const m3 = Number(mark3);
-    if (!m1 || !m2 || !m3) {
-      alert("Please enter your last three test percentages.");
-      return;
-    }
-    const currentPercent = (m1 + m2 + m3) / 3;
+    const hoursPerDay = targetPercent >= 85 ? 2.5 : targetPercent >= 70 ? 2 : 1.5;
+    const currentPercent = Math.max(35, targetPercent - 20);
 
     const nextProfile = {
       studentClass,
@@ -108,192 +69,116 @@ export default function Onboarding() {
       <div className="dark-page">
         <div style={{ padding: "40px 20px", textAlign: "center" }}>
           <div className="glass-card" style={{ padding: 24 }}>
-            <p className="font-display" style={{ fontSize: 16, fontWeight: 700 }}>Preparing your onboarding...</p>
+            <p className="font-display" style={{ fontSize: 16, fontWeight: 700 }}>Setting things up...</p>
           </div>
         </div>
       </div>
     );
   }
 
+  const targetNum = Number(target) || 80;
+  const profileType = detectProfileFromDays(autoDaysLeft);
+  const config = getProfileConfig(profileType);
+  const summary = getProfileSummary(profileType, autoDaysLeft);
+  const profileColors: Record<string, string> = { marathon: "#3b82f6", sprint: "#f97316", crash: "#22c55e" };
+  const profileColor = profileColors[profileType] || "#3b82f6";
+
   return (
     <div className="dark-page">
       <div style={{ padding: "16px 16px 100px", maxWidth: 480, margin: "0 auto" }}>
 
-        <h2 className="font-display" style={{ fontSize: 24, fontWeight: 700, textAlign: "center", marginBottom: 24 }}>Tell us about you</h2>
+        <h2 className="font-display" style={{ fontSize: 24, fontWeight: 700, textAlign: "center", marginBottom: 8 }}>
+          One quick question
+        </h2>
+        <p style={{ fontSize: 14, color: "rgba(255,255,255,0.45)", textAlign: "center", marginBottom: 28, lineHeight: 1.5 }}>
+          We'll build your entire study plan from this.
+        </p>
 
-        <div className="glass-card" style={{ padding: 20, marginBottom: 16 }}>
-          <h3 className="font-display" style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>Choose your start mode</h3>
-          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", marginBottom: 12, lineHeight: 1.5 }}>
-            If you feel weak in basics, pick guided mode. We will keep the plan lighter and step-by-step.
-          </p>
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-            <button
-              type="button"
-              onClick={applyGuidedDefaults}
-              style={{
-                padding: "8px 16px", borderRadius: 12, border: "none", cursor: "pointer",
-                fontWeight: 700, fontSize: 13,
-                background: learningSupportMode === "guided" ? "#22c55e" : "rgba(255,255,255,0.06)",
-                color: learningSupportMode === "guided" ? "#000" : "rgba(255,255,255,0.5)",
-                boxShadow: learningSupportMode === "guided" ? "0 0 16px rgba(34,197,94,0.3)" : "none",
-              }}
-            >
-              Guided start (recommended)
-            </button>
-            <button
-              type="button"
-              onClick={applyStandardDefaults}
-              style={{
-                padding: "8px 16px", borderRadius: 12, border: "none", cursor: "pointer",
-                fontWeight: 700, fontSize: 13,
-                background: learningSupportMode === "standard" ? "#3b82f6" : "rgba(255,255,255,0.06)",
-                color: learningSupportMode === "standard" ? "#fff" : "rgba(255,255,255,0.5)",
-                boxShadow: learningSupportMode === "standard" ? "0 0 16px rgba(59,130,246,0.3)" : "none",
-              }}
-            >
-              Standard start
-            </button>
-          </div>
-          <div style={{ marginTop: 12, fontSize: 12, color: "rgba(255,255,255,0.35)", lineHeight: 1.55 }}>
-            1. Fill quick details. 2. Generate your study strategy. 3. Start from Chapter Hub and move to Practice.
-          </div>
-        </div>
-
-        <div className="glass-card" style={{ padding: 20, marginBottom: 16 }}>
-          <label style={{ color: "rgba(255,255,255,0.45)", fontWeight: 700, fontSize: 13 }}>Class</label>
-          <select value={studentClass} disabled style={{
-            background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)",
-            color: "rgba(255,255,255,0.6)", borderRadius: 12, padding: "10px 14px", width: "100%",
-            fontSize: 14, fontWeight: 600, marginTop: 4,
-          }}>
-            <option value="10">Class 10 (CBSE)</option>
-          </select>
-
-          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", marginTop: 12, lineHeight: 1.6 }}>
-            Approx. board exam date for Class {studentClass}:{" "}
-            <strong style={{ color: "#fff" }}>{formatIsoDate(examDate)}</strong>{" "}
-            <span style={{ fontWeight: 700, color: examDateSource === "official" ? "#22c55e" : "#f97316" }}>
-              ({examDateSource})
+        <div className="glass-card" style={{ padding: 24, marginBottom: 20 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+            <span style={{ fontSize: 13, fontWeight: 700, color: examDateSource === "official" ? "#22c55e" : "#f97316" }}>
+              {examDateSource === "official" ? "Official" : "Expected"} exam date
             </span>
-            <br />
-            That is around{" "}
-            <strong style={{ color: "#fff" }}>
-              {autoDaysLeft} {autoDaysLeft === 1 ? "day" : "days"}
-            </strong>{" "}
-            from today. You can adjust it if your school schedule differs.
-            {examDateNote ? <><br /><span style={{ color: "rgba(255,255,255,0.35)" }}>{examDateNote}</span></> : null}
-          </p>
+          </div>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 4 }}>
+            <span className="font-display" style={{ fontSize: 22, fontWeight: 800 }}>{formatIsoDate(examDate)}</span>
+            <span style={{ fontSize: 14, fontWeight: 700, color: profileColor }}>
+              {autoDaysLeft} {autoDaysLeft === 1 ? "day" : "days"} left
+            </span>
+          </div>
 
-          <label style={{ color: "rgba(255,255,255,0.45)", fontWeight: 700, fontSize: 13, marginTop: 14 }}>Days left for your board exam (editable)</label>
-          <input
-            type="number"
-            placeholder="e.g., 40"
-            value={days || String(profile?.daysLeft || autoDaysLeft)}
-            onChange={(e) => setDays(e.target.value)}
-            style={{
-              background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)",
-              color: "#fff", borderRadius: 12, padding: "10px 14px", width: "100%",
-              fontSize: 14, fontWeight: 600, marginTop: 4,
-            }}
-          />
-        </div>
-
-        <div className="glass-card" style={{ padding: 20, marginBottom: 16 }}>
-          <h3 className="font-display" style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>How should we estimate your level?</h3>
-          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", marginBottom: 12, lineHeight: 1.5 }}>
-            We currently use board marks mode.
-          </p>
-          <p style={{ fontSize: 12, color: "rgba(255,255,255,0.3)", marginBottom: 12 }}>
-            Diagnostic onboarding will be re-enabled after its full scoring flow lands.
-          </p>
-          {[
-            { label: "Last test / pre-board % (latest)", value: mark1, setter: setMark1, placeholder: "e.g., 72" },
-            { label: "Second last test %", value: mark2, setter: setMark2, placeholder: "e.g., 68" },
-            { label: "Third last test %", value: mark3, setter: setMark3, placeholder: "e.g., 65" },
-          ].map((field) => (
-            <div key={field.label}>
-              <label style={{ color: "rgba(255,255,255,0.45)", fontWeight: 700, fontSize: 13, marginTop: 10 }}>{field.label}</label>
-              <input
-                type="number"
-                value={field.value || String(Math.round(Number(profile?.currentPercent || 0)) || "")}
-                onChange={(e) => field.setter(e.target.value)}
-                placeholder={field.placeholder}
-                style={{
-                  background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)",
-                  color: "#fff", borderRadius: 12, padding: "10px 14px", width: "100%",
-                  fontSize: 14, fontWeight: 600, marginTop: 4,
-                }}
-              />
+          <div style={{
+            marginTop: 12, padding: "10px 14px", borderRadius: 12,
+            background: `${profileColor}10`,
+            border: `1px solid ${profileColor}30`,
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+              <span style={{
+                padding: "2px 10px", borderRadius: 999, fontSize: 11, fontWeight: 800,
+                background: profileColor, color: "#000",
+              }}>{config.label}</span>
             </div>
-          ))}
+            <p style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", lineHeight: 1.5, margin: 0 }}>{summary}</p>
+          </div>
         </div>
 
-        <div className="glass-card" style={{ padding: 20, marginBottom: 16 }}>
-          <label style={{ color: "rgba(255,255,255,0.45)", fontWeight: 700, fontSize: 13 }}>Your target percentage</label>
-          <input
-            type="number"
-            value={target || String(profile?.targetPercent || "")}
-            onChange={(e) => setTarget(e.target.value)}
-            placeholder="e.g., 85"
-            style={{
-              background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)",
-              color: "#fff", borderRadius: 12, padding: "10px 14px", width: "100%",
-              fontSize: 14, fontWeight: 600, marginTop: 4,
-            }}
-          />
+        <div className="glass-card" style={{ padding: 24, marginBottom: 20 }}>
+          <label className="font-display" style={{ fontSize: 16, fontWeight: 700, display: "block", marginBottom: 16 }}>
+            What score do you want in boards?
+          </label>
 
-          <label style={{ color: "rgba(255,255,255,0.45)", fontWeight: 700, fontSize: 13, marginTop: 14 }}>Hours you can study per day</label>
-          <input
-            type="number"
-            value={hours || String(profile?.hoursPerDay || "")}
-            onChange={(e) => setHours(e.target.value)}
-            placeholder="e.g., 2"
-            style={{
-              background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)",
-              color: "#fff", borderRadius: 12, padding: "10px 14px", width: "100%",
-              fontSize: 14, fontWeight: 600, marginTop: 4,
-            }}
-          />
+          <div style={{ position: "relative", marginBottom: 8 }}>
+            <input
+              type="range"
+              min="50"
+              max="99"
+              step="1"
+              value={target}
+              onChange={(e) => setTarget(e.target.value)}
+              style={{
+                width: "100%", height: 8,
+                appearance: "none", WebkitAppearance: "none",
+                background: `linear-gradient(to right, #22c55e ${((targetNum - 50) / 49) * 100}%, rgba(255,255,255,0.1) ${((targetNum - 50) / 49) * 100}%)`,
+                borderRadius: 4, outline: "none", cursor: "pointer",
+              }}
+            />
+          </div>
 
-          {(() => {
-            const daysNum = Number(days || autoDaysLeft);
-            if (daysNum > 0) {
-              const profileType = detectProfileFromDays(daysNum);
-              const config = getProfileConfig(profileType);
-              const summary = getProfileSummary(profileType, daysNum);
-              const profileColors: Record<string, string> = { marathon: "#3b82f6", sprint: "#f97316", crash: "#ef4444" };
-              return (
-                <div style={{
-                  marginTop: 16, padding: "12px 16px", borderRadius: 12,
-                  background: `${profileColors[profileType]}10`,
-                  border: `1px solid ${profileColors[profileType]}30`,
-                }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-                    <span style={{
-                      padding: "2px 10px", borderRadius: 999, fontSize: 11, fontWeight: 800,
-                      background: profileColors[profileType], color: "#000", textTransform: "uppercase",
-                    }}>{config.label}</span>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: profileColors[profileType] }}>mode</span>
-                  </div>
-                  <p style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", lineHeight: 1.5, margin: 0 }}>{summary}</p>
-                </div>
-              );
-            }
-            return null;
-          })()}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={{ fontSize: 12, color: "rgba(255,255,255,0.35)" }}>50%</span>
+            <span className="font-display" style={{
+              fontSize: 36, fontWeight: 800,
+              color: targetNum >= 90 ? "#22c55e" : targetNum >= 75 ? "#3b82f6" : "#f97316",
+            }}>
+              {targetNum}%
+            </span>
+            <span style={{ fontSize: 12, color: "rgba(255,255,255,0.35)" }}>99%</span>
+          </div>
 
-          <button
-            onClick={handleSubmit}
-            style={{
-              width: "100%", marginTop: 20, padding: "14px 0", borderRadius: 14, border: "none",
-              background: "#22c55e", color: "#000", fontWeight: 800, fontSize: 16,
-              fontFamily: "'Space Grotesk', sans-serif", cursor: "pointer",
-              boxShadow: "0 0 24px rgba(34,197,94,0.3)",
-            }}
-          >
-            Generate My Strategy
-          </button>
+          <p style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", textAlign: "center", marginTop: 8 }}>
+            {targetNum >= 90
+              ? "Aiming high! We'll focus on every chapter with extra practice."
+              : targetNum >= 75
+                ? "Great target! We'll prioritise must-crack chapters."
+                : "Solid goal! We'll make sure you cover the essentials well."}
+          </p>
         </div>
+
+        <button
+          onClick={handleSubmit}
+          style={{
+            width: "100%", padding: "16px 0", borderRadius: 14, border: "none",
+            background: "#22c55e", color: "#000", fontWeight: 800, fontSize: 17,
+            fontFamily: "'Space Grotesk', sans-serif", cursor: "pointer",
+            boxShadow: "0 0 24px rgba(34,197,94,0.3)",
+          }}
+        >
+          Build My Study Plan
+        </button>
+
+        <p style={{ fontSize: 11, color: "rgba(255,255,255,0.25)", textAlign: "center", marginTop: 12 }}>
+          You can update your target and study preferences anytime from your profile.
+        </p>
       </div>
     </div>
   );
