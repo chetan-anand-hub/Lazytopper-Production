@@ -14,11 +14,16 @@ export interface DailyFocusRecord {
   totalMs: number;
 }
 
-let sessionStartTs = 0;
-let focusedMs = 0;
+let appStartTs = 0;
+let appFocusedMs = 0;
 let lastVisibleTs = 0;
 let heartbeatTimer: ReturnType<typeof setInterval> | null = null;
 let running = false;
+
+let studySessionStartTs = 0;
+let studySessionFocusedMs = 0;
+let studySessionLastVisibleTs = 0;
+let studySessionActive = false;
 
 function isVisible(): boolean {
   return typeof document !== "undefined" && document.visibilityState === "visible";
@@ -41,14 +46,26 @@ export function setFocusTrackingEnabled(on: boolean): void {
   if (on && !running) startTracking();
 }
 
+function flushVisible(now: number) {
+  if (lastVisibleTs > 0) {
+    const delta = now - lastVisibleTs;
+    appFocusedMs += delta;
+    if (studySessionActive && studySessionLastVisibleTs > 0) {
+      studySessionFocusedMs += now - studySessionLastVisibleTs;
+    }
+  }
+}
+
 function onVisibilityChange() {
   if (!running) return;
   const now = Date.now();
   if (isVisible()) {
     lastVisibleTs = now;
-  } else if (lastVisibleTs > 0) {
-    focusedMs += now - lastVisibleTs;
+    if (studySessionActive) studySessionLastVisibleTs = now;
+  } else {
+    flushVisible(now);
     lastVisibleTs = 0;
+    if (studySessionActive) studySessionLastVisibleTs = 0;
   }
 }
 
@@ -56,8 +73,9 @@ function heartbeat() {
   if (!running) return;
   if (isVisible() && lastVisibleTs > 0) {
     const now = Date.now();
-    focusedMs += now - lastVisibleTs;
+    flushVisible(now);
     lastVisibleTs = now;
+    if (studySessionActive) studySessionLastVisibleTs = now;
   }
 }
 
@@ -65,9 +83,9 @@ export function startTracking(): void {
   if (!isFocusTrackingEnabled()) return;
   if (running) return;
   running = true;
-  sessionStartTs = Date.now();
-  focusedMs = 0;
-  lastVisibleTs = isVisible() ? sessionStartTs : 0;
+  appStartTs = Date.now();
+  appFocusedMs = 0;
+  lastVisibleTs = isVisible() ? appStartTs : 0;
 
   document.addEventListener("visibilitychange", onVisibilityChange);
   heartbeatTimer = setInterval(heartbeat, HEARTBEAT_INTERVAL);
@@ -85,16 +103,33 @@ export function stopTracking(): void {
   persistDaily();
 }
 
-export function getSessionFocus(): FocusSnapshot {
-  if (!running) {
-    const total = sessionStartTs > 0 ? Date.now() - sessionStartTs : 0;
-    const pct = total > 0 ? Math.round((focusedMs / total) * 100) : 0;
-    return { focusedMs, totalMs: total, percent: pct };
+export function beginStudySession(): void {
+  if (!running) return;
+  heartbeat();
+  studySessionActive = true;
+  studySessionStartTs = Date.now();
+  studySessionFocusedMs = 0;
+  studySessionLastVisibleTs = isVisible() ? studySessionStartTs : 0;
+}
+
+export function endStudySession(): FocusSnapshot {
+  if (!studySessionActive) {
+    return { focusedMs: 0, totalMs: 0, percent: 0 };
   }
   heartbeat();
-  const total = Date.now() - sessionStartTs;
-  const pct = total > 0 ? Math.round((focusedMs / total) * 100) : 0;
-  return { focusedMs, totalMs: total, percent: pct };
+  studySessionActive = false;
+  const total = Date.now() - studySessionStartTs;
+  const pct = total > 0 ? Math.round((studySessionFocusedMs / total) * 100) : 0;
+  const snap: FocusSnapshot = { focusedMs: studySessionFocusedMs, totalMs: total, percent: pct };
+  studySessionLastVisibleTs = 0;
+  return snap;
+}
+
+export function getAppFocus(): FocusSnapshot {
+  if (running) heartbeat();
+  const total = appStartTs > 0 ? Date.now() - appStartTs : 0;
+  const pct = total > 0 ? Math.round((appFocusedMs / total) * 100) : 0;
+  return { focusedMs: appFocusedMs, totalMs: total, percent: pct };
 }
 
 function todayKey(): string {
@@ -102,8 +137,8 @@ function todayKey(): string {
 }
 
 function persistDaily(): void {
-  if (sessionStartTs === 0) return;
-  const snap = getSessionFocus();
+  if (appStartTs === 0) return;
+  const snap = getAppFocus();
   if (snap.totalMs < 10_000) return;
   try {
     const raw = localStorage.getItem(FOCUS_DAILY_KEY);

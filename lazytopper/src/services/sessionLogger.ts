@@ -6,7 +6,7 @@ import {
   arrayUnion,
   serverTimestamp,
 } from "firebase/firestore";
-import { getSessionFocus } from "./focusTracker";
+import { beginStudySession, endStudySession } from "./focusTracker";
 
 export type ActivityType =
   | "practice"
@@ -62,7 +62,6 @@ export async function startSession(
   const sessionId = generateId();
   const startTime = new Date().toISOString();
 
-  // 2. Update Local State (Instant UI)
   currentSession = {
     id: sessionId,
     userId,
@@ -73,7 +72,8 @@ export async function startSession(
     status: "active",
   };
 
-  // 3. Save to Cloud (Background)
+  beginStudySession();
+
   if (firestoreDb && userId) {
     try {
       const sessionRef = doc(
@@ -85,12 +85,11 @@ export async function startSession(
       );
       await setDoc(sessionRef, {
         ...currentSession,
-        createdAt: serverTimestamp(), // Server time is more accurate
+        createdAt: serverTimestamp(),
         lastUpdated: serverTimestamp(),
       });
-      console.log("☁️ Session started in Cloud:", sessionId);
     } catch (e) {
-      console.error("🔥 Failed to start cloud session:", e);
+      console.error("Failed to start cloud session:", e);
     }
   }
 }
@@ -140,7 +139,7 @@ export async function endSession() {
 
   const endTime = new Date().toISOString();
 
-  const focus = getSessionFocus();
+  const focus = endStudySession();
   const focusedMinutes = Math.round(focus.focusedMs / 60_000);
   const totalMinutes = Math.round(focus.totalMs / 60_000);
 

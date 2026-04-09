@@ -17,7 +17,7 @@ import {
   fetchCbseExamDate,
 } from "../services/cbseExamDate";
 import { loadDashboardPrefs } from "../services/studentCloudStore";
-import { getTodayFocus, getSessionFocus, getFocusMessage, isFocusTrackingEnabled } from "../services/focusTracker";
+import { getTodayFocus, getAppFocus, getFocusMessage, isFocusTrackingEnabled } from "../services/focusTracker";
 import { buildBadgeContext, evaluateBadges, BADGE_DEFINITIONS } from "../services/badgeEngine";
 import {
   masteryFromLegacyPercent,
@@ -170,7 +170,7 @@ function FocusScoreCard() {
   }, []);
 
   const daily = getTodayFocus();
-  const live = getSessionFocus();
+  const live = getAppFocus();
   const combinedFocusedMs = daily.focusedMs + live.focusedMs;
   const combinedTotalMs = daily.totalMs + live.totalMs;
   const activeMin = Math.round(combinedFocusedMs / 60_000);
