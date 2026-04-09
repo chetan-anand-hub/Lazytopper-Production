@@ -8,6 +8,7 @@ import { AuthProvider } from "./context/AuthContext";
 import { ProfileProvider } from "./context/ProfileContext";
 import { SmartLearningProvider } from "./engine/smartLearningStore";
 import { VibeProvider } from "./context/vibeModeContext";
+import { ThemeProvider } from "./context/ThemeContext";
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 const clerkProxyUrl = import.meta.env.VITE_CLERK_PROXY_URL || undefined;
@@ -27,7 +28,9 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
           <ProfileProvider>
             <SmartLearningProvider>
               <VibeProvider>
-                <App />
+                <ThemeProvider>
+                  <App />
+                </ThemeProvider>
               </VibeProvider>
             </SmartLearningProvider>
           </ProfileProvider>

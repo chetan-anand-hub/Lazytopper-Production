@@ -17,6 +17,7 @@ import {
   type StoredPaceProfile,
 } from "../services/paceProfileService";
 import { isFocusTrackingEnabled, setFocusTrackingEnabled } from "../services/focusTracker";
+import { useTheme, type AppTheme } from "../context/ThemeContext";
 import {
   masteryFromLegacyPercent,
   getChapterMasteryLevel,
@@ -890,6 +891,8 @@ export default function ProfilePage() {
         </div>
       </div>
 
+      <ThemeToggle />
+
       <FocusTrackingToggle />
 
       <CountdownToggle />
@@ -917,6 +920,35 @@ export default function ProfilePage() {
       </button>
 
       <MentalHealthResources />
+    </div>
+  );
+}
+
+function ThemeToggle() {
+  const { theme, setTheme } = useTheme();
+  return (
+    <div style={{ marginTop: 16, padding: "12px 16px", background: "rgba(255,255,255,0.06)", borderRadius: 12, border: "2px solid rgba(255,255,255,0.08)" }}>
+      <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.85)", marginBottom: 6 }}>Appearance</div>
+      <div style={{ display: "flex", gap: 8 }}>
+        {([
+          { value: "dark" as AppTheme, label: "Dark", icon: "🌙" },
+          { value: "light" as AppTheme, label: "Light", icon: "☀️" },
+        ]).map(opt => (
+          <button
+            key={opt.value}
+            type="button"
+            onClick={() => setTheme(opt.value)}
+            style={{
+              flex: 1, padding: "8px 0", borderRadius: 10, border: "none",
+              fontWeight: 700, fontSize: 13, cursor: "pointer",
+              background: theme === opt.value ? "#58cc02" : "rgba(255,255,255,0.08)",
+              color: theme === opt.value ? "#fff" : "rgba(255,255,255,0.85)",
+            }}
+          >
+            {opt.icon} {opt.label}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

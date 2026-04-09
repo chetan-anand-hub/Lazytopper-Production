@@ -63,6 +63,7 @@ import {
 } from "../services/paceProfileService";
 import { getLatestMockScores } from "../services/mockScoreHistory";
 import ShareProgressPrompt from "../components/ShareProgressPrompt";
+import { useTheme } from "../context/ThemeContext";
 
 type SubjectTitle = "Maths" | "Science";
 
@@ -389,19 +390,162 @@ function SprintDashboard({ daysLeft, navigate, gradeNum }: {
   );
 }
 
-const DARK_STYLES = `
+const THEME_STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
-  .db-root { min-height:100vh; background:#0a0a0a; color:#fff; font-family:'Inter',sans-serif; }
+  .db-root { min-height:100vh; font-family:'Inter',sans-serif; transition: background 0.3s, color 0.3s; }
+  .db-root.theme-dark { background:#0a0a0a; color:#fff; }
+  .db-root.theme-light { background:#f8fafc; color:#1e293b; }
   .db-root .font-display { font-family:'Space Grotesk',sans-serif; }
-  .db-root .glass-card { background:rgba(255,255,255,0.03); backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,0.06); border-radius:16px; }
-  .db-root .glass-accent { background:rgba(34,197,94,0.06); backdrop-filter:blur(16px); border:1px solid rgba(34,197,94,0.15); border-radius:16px; }
-  .db-root .glass-blue { background:rgba(59,130,246,0.06); backdrop-filter:blur(16px); border:1px solid rgba(59,130,246,0.15); border-radius:16px; }
-  .db-root .glass-warn { background:rgba(249,115,22,0.06); backdrop-filter:blur(16px); border:1px solid rgba(249,115,22,0.15); border-radius:16px; }
+  .db-root.theme-dark .glass-card { background:rgba(255,255,255,0.03); backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,0.06); border-radius:16px; }
+  .db-root.theme-light .glass-card { background:#fff; border:1px solid #e2e8f0; border-radius:16px; box-shadow:0 1px 3px rgba(0,0,0,0.06); }
+  .db-root.theme-dark .glass-accent { background:rgba(34,197,94,0.06); backdrop-filter:blur(16px); border:1px solid rgba(34,197,94,0.15); border-radius:16px; }
+  .db-root.theme-light .glass-accent { background:rgba(34,197,94,0.04); border:1px solid rgba(34,197,94,0.2); border-radius:16px; }
+  .db-root.theme-dark .glass-blue { background:rgba(59,130,246,0.06); backdrop-filter:blur(16px); border:1px solid rgba(59,130,246,0.15); border-radius:16px; }
+  .db-root.theme-light .glass-blue { background:rgba(59,130,246,0.04); border:1px solid rgba(59,130,246,0.2); border-radius:16px; }
+  .db-root.theme-dark .glass-warn { background:rgba(249,115,22,0.06); backdrop-filter:blur(16px); border:1px solid rgba(249,115,22,0.15); border-radius:16px; }
+  .db-root.theme-light .glass-warn { background:rgba(249,115,22,0.04); border:1px solid rgba(249,115,22,0.2); border-radius:16px; }
   .db-root * { box-sizing:border-box; }
   .db-root ::-webkit-scrollbar { height:4px; }
   .db-root ::-webkit-scrollbar-track { background:transparent; }
-  .db-root ::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.1); border-radius:2px; }
+  .db-root.theme-dark ::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.1); border-radius:2px; }
+  .db-root.theme-light ::-webkit-scrollbar-thumb { background:rgba(0,0,0,0.1); border-radius:2px; }
 `;
+
+function useThemeColors() {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+  return {
+    isDark,
+    textPrimary: isDark ? "#fff" : "#1e293b",
+    textSecondary: isDark ? "rgba(255,255,255,0.55)" : "rgba(30,41,59,0.6)",
+    textMuted: isDark ? "rgba(255,255,255,0.35)" : "rgba(30,41,59,0.4)",
+    textFaint: isDark ? "rgba(255,255,255,0.25)" : "rgba(30,41,59,0.25)",
+    cardBg: isDark ? "rgba(255,255,255,0.03)" : "#fff",
+    cardBorder: isDark ? "rgba(255,255,255,0.06)" : "#e2e8f0",
+    subtleBg: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)",
+    divider: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.06)",
+    ringTrack: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.08)",
+    overlayBg: isDark ? "rgba(0,0,0,0.85)" : "rgba(0,0,0,0.5)",
+  };
+}
+
+function EmptyStateCard({ icon, title, description, ctaLabel, onAction, color = "#3b82f6" }: {
+  icon: string; title: string; description: string; ctaLabel: string; onAction: () => void; color?: string;
+}) {
+  const tc = useThemeColors();
+  return (
+    <div className="glass-card" style={{ padding: 24, textAlign: "center", marginBottom: 16 }}>
+      <div style={{ fontSize: 40, marginBottom: 12 }}>{icon}</div>
+      <div className="font-display" style={{ fontSize: 15, fontWeight: 700, marginBottom: 6 }}>{title}</div>
+      <p style={{ fontSize: 12, color: tc.textSecondary, lineHeight: 1.6, marginBottom: 16 }}>{description}</p>
+      <button onClick={onAction} style={{
+        width: "100%", padding: "11px 0", borderRadius: 10,
+        background: `${color}20`, border: `1px solid ${color}40`,
+        color, fontWeight: 700, fontSize: 13, cursor: "pointer",
+        fontFamily: "'Space Grotesk', sans-serif",
+      }}>{ctaLabel}</button>
+    </div>
+  );
+}
+
+function NewBadge() {
+  return (
+    <span style={{
+      fontSize: 9, fontWeight: 800, padding: "2px 6px", borderRadius: 4,
+      background: "rgba(34,197,94,0.15)", color: "#22c55e", marginLeft: 8,
+      textTransform: "uppercase", letterSpacing: 0.5, animation: "pulse 2s infinite",
+    }}>New!</span>
+  );
+}
+
+function FirstVisitOverlay({ onDismiss }: { onDismiss: () => void }) {
+  const [step, setStep] = useState(0);
+  const tc = useThemeColors();
+  const steps = [
+    { icon: "🔥", title: "Start with your Daily Mix", desc: "5 questions, 10 minutes. A smart mix of revision, concepts, and practice tailored to you." },
+    { icon: "📈", title: "Check Trends & Predictions", desc: "See what's most likely to appear in your boards — focus where it matters most." },
+    { icon: "📝", title: "Take a Mock Test when ready", desc: "Full paper simulations with AI marking. Track your progress over time." },
+  ];
+  return (
+    <div style={{
+      position: "fixed", inset: 0, zIndex: 9999,
+      background: tc.overlayBg, display: "flex", alignItems: "center", justifyContent: "center",
+      padding: 20,
+    }}>
+      <div style={{
+        width: "100%", maxWidth: 360, borderRadius: 20, padding: 28,
+        background: tc.isDark ? "#1a1a2e" : "#fff",
+        border: tc.isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid #e2e8f0",
+        boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
+      }}>
+        <div style={{ textAlign: "center", marginBottom: 24 }}>
+          <div style={{ fontSize: 48, marginBottom: 12 }}>{steps[step].icon}</div>
+          <div className="font-display" style={{ fontSize: 18, fontWeight: 800, marginBottom: 8 }}>{steps[step].title}</div>
+          <p style={{ fontSize: 13, color: tc.textSecondary, lineHeight: 1.6, margin: 0 }}>{steps[step].desc}</p>
+        </div>
+
+        <div style={{ display: "flex", justifyContent: "center", gap: 8, marginBottom: 20 }}>
+          {steps.map((_, i) => (
+            <div key={i} style={{
+              width: 8, height: 8, borderRadius: "50%",
+              background: i === step ? "#22c55e" : (tc.isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)"),
+              transition: "background 0.3s",
+            }} />
+          ))}
+        </div>
+
+        <div style={{ display: "flex", gap: 8 }}>
+          {step > 0 && (
+            <button onClick={() => setStep(s => s - 1)} style={{
+              flex: 1, padding: "12px 0", borderRadius: 12,
+              border: tc.isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid #e2e8f0",
+              background: "transparent", color: tc.textSecondary,
+              fontWeight: 700, fontSize: 13, cursor: "pointer",
+            }}>Back</button>
+          )}
+          <button onClick={() => {
+            if (step < steps.length - 1) setStep(s => s + 1);
+            else onDismiss();
+          }} style={{
+            flex: 1, padding: "12px 0", borderRadius: 12, border: "none",
+            background: "#22c55e", color: "#000",
+            fontWeight: 800, fontSize: 14, cursor: "pointer",
+            fontFamily: "'Space Grotesk', sans-serif",
+            boxShadow: "0 0 20px rgba(34,197,94,0.3)",
+          }}>{step < steps.length - 1 ? "Next" : "Let's Go!"}</button>
+        </div>
+
+        <button onClick={onDismiss} style={{
+          display: "block", width: "100%", marginTop: 12, padding: 8,
+          background: "none", border: "none",
+          color: tc.textMuted, fontSize: 12, cursor: "pointer",
+        }}>Skip intro</button>
+      </div>
+    </div>
+  );
+}
+
+function isWidgetUnseen(widgetKey: string): boolean {
+  try {
+    return !localStorage.getItem(`lazytopper.widgetSeen.${widgetKey}`);
+  } catch { return false; }
+}
+function markWidgetSeen(widgetKey: string): void {
+  try {
+    localStorage.setItem(`lazytopper.widgetSeen.${widgetKey}`, "1");
+  } catch {}
+}
+
+function isFirstDashboardVisit(): boolean {
+  const key = "lazytopper.firstVisitOverlayShown";
+  try {
+    return !localStorage.getItem(key);
+  } catch { return false; }
+}
+
+function markFirstVisitDone() {
+  try { localStorage.setItem("lazytopper.firstVisitOverlayShown", "1"); } catch {}
+}
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -409,6 +553,8 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const { mode } = useVibeMode();
   const { statsByChapter, getMatchScoreForChapter } = useSmartLearning();
+  const { theme } = useTheme();
+  const tc = useThemeColors();
 
   const [plannerSubject, setPlannerSubject] = useState<SubjectTitle>("Maths");
   const [examDate, setExamDate] = useState("");
@@ -427,6 +573,40 @@ export default function Dashboard() {
     checkMasteryDemotions();
     setSrStats(getSRStats());
   }, []);
+
+  const [showFirstVisit, setShowFirstVisit] = useState(() => isFirstDashboardVisit());
+  const handleDismissOverlay = () => {
+    markFirstVisitDone();
+    setShowFirstVisit(false);
+  };
+
+  const [newBadges, setNewBadges] = useState<Record<string, boolean>>(() => ({
+    topicMastery: isWidgetUnseen("topicMastery"),
+    recentActivity: isWidgetUnseen("recentActivity"),
+    badges: isWidgetUnseen("badges"),
+  }));
+
+  const showTopicMastery = totalAttempted >= 10 && performanceRows.length > 0;
+  const showRecentActivity = recentActivity.length > 0;
+  const showBadges = badges.length > 0;
+
+  useEffect(() => {
+    if (showTopicMastery && newBadges.topicMastery) {
+      markWidgetSeen("topicMastery");
+    }
+  }, [showTopicMastery, newBadges.topicMastery]);
+
+  useEffect(() => {
+    if (showRecentActivity && newBadges.recentActivity) {
+      markWidgetSeen("recentActivity");
+    }
+  }, [showRecentActivity, newBadges.recentActivity]);
+
+  useEffect(() => {
+    if (showBadges && newBadges.badges) {
+      markWidgetSeen("badges");
+    }
+  }, [showBadges, newBadges.badges]);
 
   const subjectForQuickActions: SubjectTitle = planRecord?.subject === "Science" ? "Science" : plannerSubject;
 
@@ -686,8 +866,8 @@ export default function Dashboard() {
 
   if (loadingProfile) {
     return (
-      <div className="db-root">
-        <style dangerouslySetInnerHTML={{ __html: DARK_STYLES }} />
+      <div className={`db-root theme-${theme}`}>
+        <style dangerouslySetInnerHTML={{ __html: THEME_STYLES }} />
         <div style={{ padding: "40px 20px", textAlign: "center" }}>
           <div className="glass-card" style={{ padding: 24 }}>
             <p className="font-display" style={{ fontSize: 16, fontWeight: 700 }}>Loading your dashboard...</p>
@@ -699,8 +879,9 @@ export default function Dashboard() {
 
   if (!profile || !strategy) {
     return (
-      <div className="db-root">
-        <style dangerouslySetInnerHTML={{ __html: DARK_STYLES }} />
+      <div className={`db-root theme-${theme}`}>
+        <style dangerouslySetInnerHTML={{ __html: THEME_STYLES }} />
+        {showFirstVisit && <FirstVisitOverlay onDismiss={handleDismissOverlay} />}
         <div style={{ padding: "20px 16px 100px", maxWidth: 430, margin: "0 auto" }}>
 
           {journeyState.currentChapter && (
@@ -714,7 +895,7 @@ export default function Dashboard() {
                 }}>R</div>
                 <span className="font-display" style={{ fontSize: 14, fontWeight: 700, color: "#22c55e" }}>Ravi Sir's Recommendation</span>
               </div>
-              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", lineHeight: 1.5, marginBottom: 12 }}>
+              <p style={{ fontSize: 13, color: tc.textSecondary, lineHeight: 1.5, marginBottom: 12 }}>
                 "{raviMessage}"
               </p>
               <div className="font-display" style={{ fontSize: 15, fontWeight: 700, marginBottom: 8 }}>{journeyState.currentChapter.title}</div>
@@ -727,22 +908,22 @@ export default function Dashboard() {
                   return (
                     <span key={p} style={{
                       fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 6,
-                      background: isCurrent ? "rgba(34,197,94,0.2)" : isDone ? "rgba(34,197,94,0.08)" : "rgba(255,255,255,0.04)",
-                      color: isCurrent ? "#22c55e" : isDone ? "rgba(34,197,94,0.6)" : "rgba(255,255,255,0.3)",
+                      background: isCurrent ? "rgba(34,197,94,0.2)" : isDone ? "rgba(34,197,94,0.08)" : tc.subtleBg,
+                      color: isCurrent ? "#22c55e" : isDone ? "rgba(34,197,94,0.6)" : tc.textMuted,
                       border: isCurrent ? "1px solid rgba(34,197,94,0.4)" : "1px solid transparent",
                       textTransform: "uppercase", letterSpacing: 0.5,
                     }}>{isDone ? "✓ " : ""}{getPhaseLabel(p)}</span>
                   );
                 })}
               </div>
-              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", marginBottom: 8, fontWeight: 600 }}>
+              <div style={{ fontSize: 11, color: tc.textSecondary, marginBottom: 8, fontWeight: 600 }}>
                 {getPhaseProgressText(journeyState.currentChapter!)}
               </div>
               <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 12 }}>
-                <div style={{ flex: 1, height: 4, borderRadius: 2, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
+                <div style={{ flex: 1, height: 4, borderRadius: 2, background: tc.ringTrack, overflow: "hidden" }}>
                   <div style={{ width: `${journeyProgress.percent}%`, height: "100%", borderRadius: 2, background: "#22c55e", transition: "width 0.6s ease" }} />
                 </div>
-                <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.4)", whiteSpace: "nowrap" }}>
+                <span style={{ fontSize: 10, fontWeight: 700, color: tc.textMuted, whiteSpace: "nowrap" }}>
                   {journeyProgress.completed} of {journeyProgress.total} chapters
                 </span>
               </div>
@@ -781,8 +962,8 @@ export default function Dashboard() {
             ].map((a) => (
               <button key={a.label} onClick={() => navigate(a.path, { state: { back: "/dashboard", backLabel: "Back to Dashboard" } })} style={{
                 display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
-                padding: "10px 14px", borderRadius: 12, border: "1px solid rgba(255,255,255,0.06)",
-                background: "rgba(255,255,255,0.03)", color: "#fff", fontSize: 10, fontWeight: 600,
+                padding: "10px 14px", borderRadius: 12, border: `1px solid ${tc.cardBorder}`,
+                background: tc.cardBg, color: tc.textPrimary, fontSize: 10, fontWeight: 600,
                 cursor: "pointer", fontFamily: "'Inter', sans-serif", flexShrink: 0, minWidth: 72,
               }}>
                 <span style={{ fontSize: 18 }}>{a.icon}</span>
@@ -794,7 +975,7 @@ export default function Dashboard() {
           <div className="glass-card" style={{ padding: 20, textAlign: "center", marginBottom: 16 }}>
             <div style={{ fontSize: 36, marginBottom: 12 }}>🎯</div>
             <h2 className="font-display" style={{ fontSize: 18, fontWeight: 700, marginBottom: 8 }}>Personalise your study plan</h2>
-            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginBottom: 16, lineHeight: 1.6 }}>
+            <p style={{ fontSize: 13, color: tc.textSecondary, marginBottom: 16, lineHeight: 1.6 }}>
               Set your target score, study time, and exam date for a smarter experience.
             </p>
             <button onClick={() => navigate("/onboarding", { state: { back: "/dashboard", backLabel: "Back to Dashboard" } })} style={{
@@ -809,8 +990,9 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="db-root">
-      <style dangerouslySetInnerHTML={{ __html: DARK_STYLES }} />
+    <div className={`db-root theme-${theme}`}>
+      <style dangerouslySetInnerHTML={{ __html: THEME_STYLES }} />
+      {showFirstVisit && <FirstVisitOverlay onDismiss={handleDismissOverlay} />}
       <div style={{ padding: "16px 16px 100px", maxWidth: 430, margin: "0 auto" }}>
 
         {/* HEADER */}
@@ -823,7 +1005,7 @@ export default function Dashboard() {
               fontSize: 18, fontWeight: 800, color: "#000",
             }}>{(user?.displayName || user?.email || "S").charAt(0).toUpperCase()}</div>
             <div>
-              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontWeight: 500, textTransform: "uppercase", letterSpacing: 1 }}>{greetingLabel()}</div>
+              <div style={{ fontSize: 11, color: tc.textMuted, fontWeight: 500, textTransform: "uppercase", letterSpacing: 1 }}>{greetingLabel()}</div>
               <div className="font-display" style={{ fontSize: 20, fontWeight: 700 }}>{user?.displayName || "Student"}</div>
             </div>
           </div>
@@ -861,7 +1043,7 @@ export default function Dashboard() {
           const msg = msgs[paceProfile.type];
           if (!msg) return null;
           return (
-            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", marginBottom: 12, paddingLeft: 2, fontStyle: "italic" }}>
+            <div style={{ fontSize: 12, color: tc.textSecondary, marginBottom: 12, paddingLeft: 2, fontStyle: "italic" }}>
               {msg}
             </div>
           );
@@ -891,7 +1073,7 @@ export default function Dashboard() {
             <span style={{ fontSize: 28 }}>🌙</span>
             <div style={{ textAlign: "left" }}>
               <div className="font-display" style={{ fontSize: 15, fontWeight: 800, color: "#22c55e" }}>Night Before Exam</div>
-              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)" }}>Key formulas, top questions & exam tips</div>
+              <div style={{ fontSize: 12, color: tc.textSecondary }}>Key formulas, top questions & exam tips</div>
             </div>
           </button>
         )}
@@ -909,7 +1091,7 @@ export default function Dashboard() {
             <span style={{ fontSize: 20 }}>📅</span>
             <div style={{ textAlign: "left" }}>
               <div className="font-display" style={{ fontSize: 13, fontWeight: 700, color: "#60a5fa" }}>30-Day Revision Calendar</div>
-              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}>Day-by-day topic plan weighted by board predictions</div>
+              <div style={{ fontSize: 11, color: tc.textMuted }}>Day-by-day topic plan weighted by board predictions</div>
             </div>
           </button>
         )}
@@ -937,12 +1119,12 @@ export default function Dashboard() {
         {/* YOUR NEXT STEP — prominent first card (hidden in sprint mode) */}
         {daysLeftValue > 7 && (
         <div className="glass-accent" style={{ padding: 20, marginBottom: 16 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.35)", textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 8 }}>Your Next Step</div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: tc.textMuted, textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 8 }}>Your Next Step</div>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
             <span style={{ fontSize: 20 }}>{heroAction.type === "resume_session" ? "⏩" : heroAction.type === "weak_topic" ? "⚠️" : "🎯"}</span>
             <span className="font-display" style={{ fontSize: 16, fontWeight: 700 }}>{heroAction.title}</span>
           </div>
-          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.55)", lineHeight: 1.5, marginBottom: 14 }}>{heroAction.description}</p>
+          <p style={{ fontSize: 13, color: tc.textSecondary, lineHeight: 1.5, marginBottom: 14 }}>{heroAction.description}</p>
           <button onClick={heroAction.onAction} style={{
             width: "100%", padding: "13px 0", borderRadius: 12, border: "none",
             background: "#22c55e", color: "#000", fontWeight: 800, fontSize: 15,
@@ -967,7 +1149,7 @@ export default function Dashboard() {
               <span className="font-display" style={{ fontSize: 14, fontWeight: 700, color: "#22c55e" }}>Ravi Sir's Recommendation</span>
             </div>
 
-            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", lineHeight: 1.5, marginBottom: 12, fontStyle: journeyState.detour ? "italic" : "normal" }}>
+            <p style={{ fontSize: 13, color: tc.textSecondary, lineHeight: 1.5, marginBottom: 12, fontStyle: journeyState.detour ? "italic" : "normal" }}>
               "{raviMessage}"
             </p>
 
@@ -983,8 +1165,8 @@ export default function Dashboard() {
                     return (
                       <span key={p} style={{
                         fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 6,
-                        background: isCurrent ? "rgba(34,197,94,0.2)" : isDone ? "rgba(34,197,94,0.08)" : "rgba(255,255,255,0.04)",
-                        color: isCurrent ? "#22c55e" : isDone ? "rgba(34,197,94,0.6)" : "rgba(255,255,255,0.3)",
+                        background: isCurrent ? "rgba(34,197,94,0.2)" : isDone ? "rgba(34,197,94,0.08)" : tc.subtleBg,
+                        color: isCurrent ? "#22c55e" : isDone ? "rgba(34,197,94,0.6)" : tc.textMuted,
                         border: isCurrent ? "1px solid rgba(34,197,94,0.4)" : "1px solid transparent",
                         textTransform: "uppercase", letterSpacing: 0.5,
                       }}>{isDone ? "✓ " : ""}{getPhaseLabel(p)}</span>
@@ -994,15 +1176,15 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", marginBottom: 8, fontWeight: 600 }}>
+            <div style={{ fontSize: 11, color: tc.textSecondary, marginBottom: 8, fontWeight: 600 }}>
               {getPhaseProgressText(journeyState.currentChapter!)}
             </div>
 
             <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 12 }}>
-              <div style={{ flex: 1, height: 4, borderRadius: 2, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
+              <div style={{ flex: 1, height: 4, borderRadius: 2, background: tc.ringTrack, overflow: "hidden" }}>
                 <div style={{ width: `${journeyProgress.percent}%`, height: "100%", borderRadius: 2, background: "#22c55e", transition: "width 0.6s ease" }} />
               </div>
-              <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.4)", whiteSpace: "nowrap" }}>
+              <span style={{ fontSize: 10, fontWeight: 700, color: tc.textMuted, whiteSpace: "nowrap" }}>
                 {journeyProgress.completed} of {journeyProgress.total} chapters
               </span>
             </div>
@@ -1064,12 +1246,12 @@ export default function Dashboard() {
                 <div style={{ fontSize: 14, fontWeight: 800, color: "#f97316", marginBottom: 4 }}>
                   {hideCountdown ? `Switching to ${getProfileConfig(paceTransition.to).label} mode` : `${paceTransition.daysLeft} days to boards — switching to ${getProfileConfig(paceTransition.to).label} mode`}
                 </div>
-                <p style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", margin: 0, lineHeight: 1.5 }}>
+                <p style={{ fontSize: 12, color: tc.textSecondary, margin: 0, lineHeight: 1.5 }}>
                   {hideCountdown ? `Switching to ${getProfileConfig(paceTransition.to).label} for the best results.` : getProfileSummary(paceTransition.to, paceTransition.daysLeft)}
                 </p>
               </div>
               <button type="button" onClick={() => { dismissTransitionNotification(); setPaceTransition(null); }} style={{
-                background: "none", border: "none", color: "rgba(255,255,255,0.4)", cursor: "pointer",
+                background: "none", border: "none", color: tc.textMuted, cursor: "pointer",
                 fontSize: 16, padding: "0 4px", flexShrink: 0,
               }}>✕</button>
             </div>
@@ -1079,7 +1261,7 @@ export default function Dashboard() {
         {daysLeftValue > 7 && showPaceSelector && paceProfile && (
           <div className="glass-card" style={{ padding: 16, marginBottom: 16 }}>
             <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 10 }}>Study Pace Profile</div>
-            <p style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", marginBottom: 12, lineHeight: 1.5 }}>
+            <p style={{ fontSize: 11, color: tc.textSecondary, marginBottom: 12, lineHeight: 1.5 }}>
               {paceProfile.isManualOverride
                 ? `You manually set ${getProfileConfig(paceProfile.type).label} mode. Auto-detected: ${getProfileConfig(paceProfile.detectedType).label}.`
                 : hideCountdown ? `Currently using ${getProfileConfig(paceProfile.type).label} mode.` : `Auto-detected based on ${paceProfile.daysLeft} days until exam.`}
@@ -1096,14 +1278,14 @@ export default function Dashboard() {
                     setPaceProfile(updated);
                   }} style={{
                     flex: 1, padding: "10px 8px", borderRadius: 12,
-                    border: isActive ? `2px solid ${color}` : "1px solid rgba(255,255,255,0.08)",
-                    background: isActive ? `${color}15` : "rgba(255,255,255,0.03)",
+                    border: isActive ? `2px solid ${color}` : `1px solid ${tc.cardBorder}`,
+                    background: isActive ? `${color}15` : tc.cardBg,
                     cursor: "pointer",
                   }}>
-                    <div style={{ fontSize: 11, fontWeight: 800, color: isActive ? color : "rgba(255,255,255,0.5)", textTransform: "uppercase" }}>
+                    <div style={{ fontSize: 11, fontWeight: 800, color: isActive ? color : tc.textSecondary, textTransform: "uppercase" }}>
                       {cfg.label}
                     </div>
-                    <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>{cfg.tagline}</div>
+                    <div style={{ fontSize: 9, color: tc.textMuted, marginTop: 2 }}>{cfg.tagline}</div>
                   </button>
                 );
               })}
@@ -1114,7 +1296,7 @@ export default function Dashboard() {
                 if (updated) setPaceProfile(updated);
               }} style={{
                 marginTop: 8, padding: "6px 12px", borderRadius: 8, border: "none",
-                background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.5)",
+                background: tc.subtleBg, color: tc.textSecondary,
                 fontSize: 11, fontWeight: 600, cursor: "pointer",
               }}>
                 Reset to auto-detect
@@ -1125,7 +1307,16 @@ export default function Dashboard() {
 
 
         {/* STATS ROW — hidden in sprint mode */}
-        {daysLeftValue > 7 && <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 8, marginBottom: 16 }}>
+        {daysLeftValue > 7 && totalAttempted === 0 && streak === 0 ? (
+          <EmptyStateCard
+            icon="🚀"
+            title="Your journey starts here!"
+            description="Answer your first questions to see your streak, XP, accuracy, and mastery stats light up."
+            ctaLabel="Try your first 5 questions"
+            onAction={() => navigate(`/daily-mix/${gradeNum}/${subjectForQuickActions}`, { state: { back: "/dashboard", backLabel: "Back to Dashboard" } })}
+            color="#22c55e"
+          />
+        ) : daysLeftValue > 7 && <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 8, marginBottom: 16 }}>
           {[
             { label: "Streak", value: `${streak}d`, icon: "🔥", color: "#fb923c" },
             { label: "XP", value: xpEstimate.toLocaleString(), icon: "⚡", color: "#c084fc" },
@@ -1146,7 +1337,7 @@ export default function Dashboard() {
                   <div style={{ fontSize: 16, fontWeight: 800, color: s.color }}>{s.value}</div>
                 </>
               )}
-              <div style={{ fontSize: 9, fontWeight: 600, color: "rgba(255,255,255,0.35)", textTransform: "uppercase", letterSpacing: 0.8 }}>{s.label}</div>
+              <div style={{ fontSize: 9, fontWeight: 600, color: tc.textMuted, textTransform: "uppercase", letterSpacing: 0.8 }}>{s.label}</div>
             </div>
           ))}
         </div>}
@@ -1167,12 +1358,12 @@ export default function Dashboard() {
                 <div style={{ fontSize: 13, fontWeight: 700, color: "#a855f7" }}>
                   {srStats.dueToday} item{srStats.dueToday === 1 ? "" : "s"} due for review
                 </div>
-                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)" }}>
+                <div style={{ fontSize: 11, color: tc.textSecondary }}>
                   ~{Math.max(5, srStats.dueToday * 2)} min estimated
                 </div>
               </div>
             </div>
-            <span style={{ color: "rgba(255,255,255,0.3)", fontSize: 16 }}>→</span>
+            <span style={{ color: tc.textFaint, fontSize: 16 }}>→</span>
           </div>
         )}
 
@@ -1181,13 +1372,13 @@ export default function Dashboard() {
           <div className="glass-card" style={{ padding: 16, marginBottom: 16 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
               <span className="font-display" style={{ fontSize: 14, fontWeight: 700 }}>Today's Mix</span>
-              <span style={{ fontSize: 11, color: "rgba(255,255,255,0.35)" }}>{dailyMixPreview.length} items · ~{dailyMixMinutes} min</span>
+              <span style={{ fontSize: 11, color: tc.textMuted }}>{dailyMixPreview.length} items · ~{dailyMixMinutes} min</span>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               {dailyMixPreview.map((item) => (
-                <div key={item.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 10px", borderRadius: 10, background: "rgba(255,255,255,0.02)" }}>
+                <div key={item.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 10px", borderRadius: 10, background: tc.subtleBg }}>
                   <span style={{ fontSize: 14, width: 20, textAlign: "center" }}>{item.type === "question" ? "✏️" : item.type === "video" ? "🎬" : "📖"}</span>
-                  <span style={{ fontSize: 12, fontWeight: 500, color: "rgba(255,255,255,0.7)", flex: 1 }}>{item.title}</span>
+                  <span style={{ fontSize: 12, fontWeight: 500, color: tc.textSecondary, flex: 1 }}>{item.title}</span>
                   <span style={{
                     fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.5, padding: "2px 6px", borderRadius: 4,
                     background: item.type === "question" ? "rgba(59,130,246,0.12)" : "rgba(34,197,94,0.12)",
@@ -1234,14 +1425,15 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* TOPIC MASTERY — hidden in 7-day sprint mode */}
-        {daysLeftValue > 7 && performanceRows.length > 0 && (
+        {/* TOPIC MASTERY — progressive disclosure: show after 10+ questions */}
+        {daysLeftValue > 7 && totalAttempted >= 10 && performanceRows.length > 0 && (
           <div className="glass-card" style={{ padding: 16, marginBottom: 16 }}>
-            <span className="font-display" style={{ fontSize: 14, fontWeight: 700, display: "block", marginBottom: 14 }}>Topic Mastery</span>
+            <span className="font-display" style={{ fontSize: 14, fontWeight: 700, display: "inline", marginBottom: 14 }}>Topic Mastery{newBadges.topicMastery && <NewBadge />}</span>
+            <div style={{ marginBottom: 14 }} />
 
             {mathsMastery.length > 0 && (
               <>
-                <div style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>Maths</div>
+                <div style={{ fontSize: 11, fontWeight: 600, color: tc.textMuted, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>Maths</div>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginBottom: scienceMastery.length > 0 ? 16 : 0 }}>
                   {mathsMastery.map((t) => {
                     const level = getRowMasteryLevel(t);
@@ -1249,7 +1441,7 @@ export default function Dashboard() {
                       <div key={t.topicKey} style={{ textAlign: "center", cursor: "pointer" }} onClick={() => navigate(`/topic-hub/${gradeNum}/Maths/${encodeURIComponent(t.topicKey)}`, { state: { back: "/dashboard", backLabel: "Back to Dashboard" } })}>
                         <div style={{ position: "relative", width: 48, height: 48, margin: "0 auto 4px" }}>
                           <svg width={48} height={48} style={{ display: "block" }}>
-                            <circle cx={24} cy={24} r={20} fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth={4} />
+                            <circle cx={24} cy={24} r={20} fill="none" stroke={tc.ringTrack} strokeWidth={4} />
                             <circle cx={24} cy={24} r={20} fill="none" stroke={MASTERY_COLORS[level]} strokeWidth={4}
                               strokeDasharray={`${MASTERY_RING_FRACTION[level] * 2 * Math.PI * 20} ${(1 - MASTERY_RING_FRACTION[level]) * 2 * Math.PI * 20}`}
                               strokeDashoffset={2 * Math.PI * 20 / 4} strokeLinecap="round" style={{ transition: "stroke-dasharray 0.5s ease" }} />
@@ -1257,8 +1449,8 @@ export default function Dashboard() {
                           </svg>
                         </div>
                         <div style={{ fontSize: 8, fontWeight: 700, color: MASTERY_COLORS[level], marginBottom: 1 }}>{MASTERY_LABELS[level]}</div>
-                        <div style={{ fontSize: 7, fontWeight: 600, color: "rgba(255,255,255,0.3)" }}>{MASTERY_POINTS[level]}pts</div>
-                        <div style={{ fontSize: 9, fontWeight: 600, color: "rgba(255,255,255,0.5)", lineHeight: 1.2 }}>{t.topicName.length > 14 ? t.topicName.slice(0, 12) + "…" : t.topicName}</div>
+                        <div style={{ fontSize: 7, fontWeight: 600, color: tc.textFaint }}>{MASTERY_POINTS[level]}pts</div>
+                        <div style={{ fontSize: 9, fontWeight: 600, color: tc.textSecondary, lineHeight: 1.2 }}>{t.topicName.length > 14 ? t.topicName.slice(0, 12) + "…" : t.topicName}</div>
                       </div>
                     );
                   })}
@@ -1268,7 +1460,7 @@ export default function Dashboard() {
 
             {scienceMastery.length > 0 && (
               <>
-                <div style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>Science</div>
+                <div style={{ fontSize: 11, fontWeight: 600, color: tc.textMuted, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>Science</div>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
                   {scienceMastery.map((t) => {
                     const level = getRowMasteryLevel(t);
@@ -1276,7 +1468,7 @@ export default function Dashboard() {
                       <div key={t.topicKey} style={{ textAlign: "center", cursor: "pointer" }} onClick={() => navigate(`/topic-hub/${gradeNum}/Science/${encodeURIComponent(t.topicKey)}`, { state: { back: "/dashboard", backLabel: "Back to Dashboard" } })}>
                         <div style={{ position: "relative", width: 48, height: 48, margin: "0 auto 4px" }}>
                           <svg width={48} height={48} style={{ display: "block" }}>
-                            <circle cx={24} cy={24} r={20} fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth={4} />
+                            <circle cx={24} cy={24} r={20} fill="none" stroke={tc.ringTrack} strokeWidth={4} />
                             <circle cx={24} cy={24} r={20} fill="none" stroke={MASTERY_COLORS[level]} strokeWidth={4}
                               strokeDasharray={`${MASTERY_RING_FRACTION[level] * 2 * Math.PI * 20} ${(1 - MASTERY_RING_FRACTION[level]) * 2 * Math.PI * 20}`}
                               strokeDashoffset={2 * Math.PI * 20 / 4} strokeLinecap="round" style={{ transition: "stroke-dasharray 0.5s ease" }} />
@@ -1284,8 +1476,8 @@ export default function Dashboard() {
                           </svg>
                         </div>
                         <div style={{ fontSize: 8, fontWeight: 700, color: MASTERY_COLORS[level], marginBottom: 1 }}>{MASTERY_LABELS[level]}</div>
-                        <div style={{ fontSize: 7, fontWeight: 600, color: "rgba(255,255,255,0.3)" }}>{MASTERY_POINTS[level]}pts</div>
-                        <div style={{ fontSize: 9, fontWeight: 600, color: "rgba(255,255,255,0.5)", lineHeight: 1.2 }}>{t.topicName.length > 14 ? t.topicName.slice(0, 12) + "…" : t.topicName}</div>
+                        <div style={{ fontSize: 7, fontWeight: 600, color: tc.textFaint }}>{MASTERY_POINTS[level]}pts</div>
+                        <div style={{ fontSize: 9, fontWeight: 600, color: tc.textSecondary, lineHeight: 1.2 }}>{t.topicName.length > 14 ? t.topicName.slice(0, 12) + "…" : t.topicName}</div>
                       </div>
                     );
                   })}
@@ -1328,32 +1520,54 @@ export default function Dashboard() {
           )}
         </div>}
 
-        {/* RECENT ACTIVITY — hidden in 7-day sprint mode */}
+        {/* RECENT ACTIVITY — empty state when no activity */}
+        {daysLeftValue > 7 && recentActivity.length === 0 && totalAttempted === 0 && (
+          <EmptyStateCard
+            icon="📖"
+            title="No activity yet"
+            description="Start practicing any topic and your recent activity will show up here."
+            ctaLabel="Start Practicing"
+            onAction={() => navigate(`/practice/${gradeNum}/${subjectForQuickActions}`, { state: { back: "/dashboard", backLabel: "Back to Dashboard" } })}
+            color="#3b82f6"
+          />
+        )}
         {daysLeftValue > 7 && recentActivity.length > 0 && (
           <div className="glass-card" style={{ padding: 16, marginBottom: 16 }}>
-            <span className="font-display" style={{ fontSize: 14, fontWeight: 700, display: "block", marginBottom: 12 }}>Recent Activity</span>
+            <span className="font-display" style={{ fontSize: 14, fontWeight: 700, display: "inline" }}>Recent Activity{newBadges.recentActivity && <NewBadge />}</span>
+            <div style={{ marginBottom: 12 }} />
             <div style={{ display: "flex", flexDirection: "column" }}>
               {recentActivity.map((a, i) => (
                 <div key={i} style={{
                   display: "flex", alignItems: "center", gap: 12, padding: "10px 0",
-                  borderBottom: i < recentActivity.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none",
+                  borderBottom: i < recentActivity.length - 1 ? `1px solid ${tc.divider}` : "none",
                 }}>
-                  <div style={{ width: 32, height: 32, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255,255,255,0.04)", fontSize: 14, flexShrink: 0 }}>{a.icon}</div>
+                  <div style={{ width: 32, height: 32, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", background: tc.subtleBg, fontSize: 14, flexShrink: 0 }}>{a.icon}</div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 12, fontWeight: 600 }}>{a.action}</div>
-                    {a.subject && <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)" }}>{a.subject}</div>}
+                    {a.subject && <div style={{ fontSize: 10, color: tc.textMuted }}>{a.subject}</div>}
                   </div>
-                  <span style={{ fontSize: 10, color: "rgba(255,255,255,0.25)", whiteSpace: "nowrap" }}>{a.time}</span>
+                  <span style={{ fontSize: 10, color: tc.textFaint, whiteSpace: "nowrap" }}>{a.time}</span>
                 </div>
               ))}
             </div>
           </div>
         )}
 
-        {/* BADGES — hidden in 7-day sprint mode */}
+        {/* BADGES — empty state when none earned, with "New!" badge */}
+        {daysLeftValue > 7 && badges.length === 0 && totalAttempted > 0 && (
+          <EmptyStateCard
+            icon="🏆"
+            title="Earn your first badge!"
+            description="Keep practicing and complete challenges to unlock achievements. You're closer than you think!"
+            ctaLabel="Start Earning Badges"
+            onAction={() => navigate(`/daily-mix/${gradeNum}/${subjectForQuickActions}`, { state: { back: "/dashboard", backLabel: "Back to Dashboard" } })}
+            color="#a855f7"
+          />
+        )}
         {daysLeftValue > 7 && badges.length > 0 && (
           <div className="glass-card" style={{ padding: 16, marginBottom: 16 }}>
-            <span className="font-display" style={{ fontSize: 14, fontWeight: 700, display: "block", marginBottom: 12 }}>Badges & Achievements</span>
+            <span className="font-display" style={{ fontSize: 14, fontWeight: 700, display: "inline" }}>Badges & Achievements{newBadges.badges && <NewBadge />}</span>
+            <div style={{ marginBottom: 12 }} />
             <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 4 }}>
               {badges.map((b, i) => (
                 <div key={i} style={{ flexShrink: 0, width: 64, textAlign: "center", opacity: b.unlocked ? 1 : 0.3 }}>

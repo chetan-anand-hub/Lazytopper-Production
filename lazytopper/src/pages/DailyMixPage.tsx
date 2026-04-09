@@ -27,6 +27,15 @@ interface QuestionState {
 const DAILY_MIX_STORAGE_KEY = "lazytopper.dailyMix.v1";
 const SESSION_LOG_KEY = "lazytopper.sessionLogs.v1";
 const MIX_TOPIC_COUNT = 3;
+const FIRST_SESSION_KEY = "lazytopper.firstDailyMixDone";
+
+function isFirstEverDailyMix(): boolean {
+  try { return !localStorage.getItem(FIRST_SESSION_KEY); } catch { return false; }
+}
+
+function markFirstDailyMixDone(): void {
+  try { localStorage.setItem(FIRST_SESSION_KEY, "1"); } catch {}
+}
 
 function todayKey(): string {
   const d = new Date();
@@ -121,8 +130,10 @@ export default function DailyMixPage() {
   const [questionStates, setQuestionStates] = useState<QuestionState[]>([]);
   const [completed, setCompleted] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
+  const [showQuickWin, setShowQuickWin] = useState(false);
   const [resumeIndex, setResumeIndex] = useState<number | null>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const [isFirstSession] = useState(() => isFirstEverDailyMix());
 
   const [streakDays, setStreakDays] = useState(() => computeGlobalStreak(loadSessionLogs()));
   const currentBadge = useMemo(() => getUnlockedBadge(streakDays), [streakDays]);
@@ -146,14 +157,15 @@ export default function DailyMixPage() {
       const firstUnanswered = saved.questionStates.findIndex((s) => !s.submitted);
       if (firstUnanswered >= 0) setResumeIndex(firstUnanswered);
     } else {
+      const quickWin = isFirstSession;
       const finalItems = generateMultiTopicDailyMix({
         grade: Number(grade) || 10,
         subject: safeSubject,
         seedKey: todayKey(),
-        topicCount: MIX_TOPIC_COUNT,
-        itemsPerTopic: 4,
-        maxItems: 10,
-        intensity: "normal",
+        topicCount: quickWin ? 2 : MIX_TOPIC_COUNT,
+        itemsPerTopic: quickWin ? 2 : 4,
+        maxItems: quickWin ? 3 : 10,
+        intensity: quickWin ? "light" : "normal",
       });
       setItems(finalItems);
       setQuestionStates(
@@ -199,6 +211,12 @@ export default function DailyMixPage() {
     setCompleted(true);
     setShowCelebration(true);
 
+    if (isFirstSession) {
+      markFirstDailyMixDone();
+      setShowQuickWin(true);
+      setShowCelebration(false);
+    }
+
     const log: StudySessionLog = {
       id: `dailymix-${todayKey()}-${safeSubject}`,
       userId: "local",
@@ -219,7 +237,7 @@ export default function DailyMixPage() {
     setStreakDays(computeGlobalStreak(updatedLogs));
 
     setTimeout(() => setShowCelebration(false), 4000);
-  }, [safeSubject]);
+  }, [safeSubject, isFirstSession]);
 
   const handleSubmit = useCallback(
     async (idx: number) => {
@@ -339,7 +357,7 @@ export default function DailyMixPage() {
   return (
     <div className="lt-page" style={{ maxWidth: 680, margin: "0 auto", padding: "24px 16px" }}>
       <DailyMixBackNav />
-      {showCelebration && (
+      {showCelebration && !showQuickWin && (
         <div
           style={{
             position: "fixed", inset: 0, display: "flex", alignItems: "center", justifyContent: "center",
@@ -362,6 +380,46 @@ export default function DailyMixPage() {
                 {currentBadge.description}
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {showQuickWin && (
+        <div
+          style={{
+            position: "fixed", inset: 0, display: "flex", alignItems: "center", justifyContent: "center",
+            background: "rgba(0,0,0,0.85)", zIndex: 9999, padding: 20,
+          }}
+          onClick={() => setShowQuickWin(false)}
+        >
+          <div onClick={e => e.stopPropagation()} style={{
+            background: "#1a1a2e", borderRadius: 24, padding: "36px 28px", textAlign: "center",
+            maxWidth: 380, width: "100%", border: "1px solid rgba(34,197,94,0.3)",
+            boxShadow: "0 0 60px rgba(34,197,94,0.15)",
+          }}>
+            <div style={{ fontSize: 64, marginBottom: 8, animation: "bounceIn 0.5s ease" }}>🏅</div>
+            <h2 style={{ fontWeight: 900, fontSize: 22, margin: "0 0 6px", color: "#22c55e" }}>Amazing first session!</h2>
+            <p style={{ opacity: 0.7, fontSize: 14, lineHeight: 1.6, margin: "0 0 20px" }}>
+              You just completed your first Daily Mix. You're already building momentum!
+            </p>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.5)", marginBottom: 12, textTransform: "uppercase", letterSpacing: 1 }}>What's next?</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
+              <button onClick={() => { setShowQuickWin(false); navigate("/predictive-papers"); }} style={{
+                padding: "12px 16px", borderRadius: 12, border: "1px solid rgba(168,85,247,0.3)",
+                background: "rgba(168,85,247,0.1)", color: "#a855f7", fontWeight: 700, fontSize: 13, cursor: "pointer",
+                display: "flex", alignItems: "center", gap: 8, justifyContent: "center",
+              }}>📝 Try a Mock Test</button>
+              <button onClick={() => { setShowQuickWin(false); navigate(`/practice/${grade || "10"}/${safeSubject}`, { state: { back: "/dashboard" } }); }} style={{
+                padding: "12px 16px", borderRadius: 12, border: "1px solid rgba(59,130,246,0.3)",
+                background: "rgba(59,130,246,0.1)", color: "#3b82f6", fontWeight: 700, fontSize: 13, cursor: "pointer",
+                display: "flex", alignItems: "center", gap: 8, justifyContent: "center",
+              }}>✏️ Practice a Topic</button>
+              <button onClick={() => { setShowQuickWin(false); navigate("/dashboard"); }} style={{
+                padding: "12px 16px", borderRadius: 12, border: "1px solid rgba(34,197,94,0.3)",
+                background: "rgba(34,197,94,0.1)", color: "#22c55e", fontWeight: 700, fontSize: 13, cursor: "pointer",
+                display: "flex", alignItems: "center", gap: 8, justifyContent: "center",
+              }}>📊 Back to Dashboard</button>
+            </div>
           </div>
         </div>
       )}
