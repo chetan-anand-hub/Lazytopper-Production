@@ -586,28 +586,6 @@ export default function Dashboard() {
     badges: isWidgetUnseen("badges"),
   }));
 
-  const showTopicMastery = totalAttempted >= 10 && performanceRows.length > 0;
-  const showRecentActivity = recentActivity.length > 0;
-  const showBadges = badges.length > 0;
-
-  useEffect(() => {
-    if (showTopicMastery && newBadges.topicMastery) {
-      markWidgetSeen("topicMastery");
-    }
-  }, [showTopicMastery, newBadges.topicMastery]);
-
-  useEffect(() => {
-    if (showRecentActivity && newBadges.recentActivity) {
-      markWidgetSeen("recentActivity");
-    }
-  }, [showRecentActivity, newBadges.recentActivity]);
-
-  useEffect(() => {
-    if (showBadges && newBadges.badges) {
-      markWidgetSeen("badges");
-    }
-  }, [showBadges, newBadges.badges]);
-
   const subjectForQuickActions: SubjectTitle = planRecord?.subject === "Science" ? "Science" : plannerSubject;
 
   useEffect(() => {
@@ -851,6 +829,28 @@ export default function Dashboard() {
       });
     } catch { return []; }
   }, []);
+
+  const showTopicMastery = totalAttempted >= 10 && performanceRows.length > 0;
+  const showRecentActivity = recentActivity.length > 0;
+  const showBadges = badges.length > 0;
+
+  useEffect(() => {
+    if (showTopicMastery && newBadges.topicMastery) {
+      markWidgetSeen("topicMastery");
+    }
+  }, [showTopicMastery, newBadges.topicMastery]);
+
+  useEffect(() => {
+    if (showRecentActivity && newBadges.recentActivity) {
+      markWidgetSeen("recentActivity");
+    }
+  }, [showRecentActivity, newBadges.recentActivity]);
+
+  useEffect(() => {
+    if (showBadges && newBadges.badges) {
+      markWidgetSeen("badges");
+    }
+  }, [showBadges, newBadges.badges]);
 
   const autoDays = examDate ? Math.max(1, daysLeftFromIsoDate(examDate)) : profile?.daysLeft || 90;
   const targetPercentValue = toPositiveNumber(profile?.targetPercent || 0);
