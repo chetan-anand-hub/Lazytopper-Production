@@ -553,8 +553,8 @@ export default function ParentDashboardPage() {
     return {
       studyHours, focusScore, accuracy, streak,
       questionsThisWeek: thisWeek.length, topicsImproved,
-      mockScores: latestMockScores.slice(0, 5).map(m => ({ subject: m.subject, percent: m.percent, timestamp: m.timestamp })),
-      weakAreas: weakAreas.slice(0, 5).map(w => ({ topicName: TOPIC_NAMES[w.topicKey] || w.topicKey, subject: w.subject, accuracy: w.accuracy })),
+      mockScores: mockScores.slice(0, 5).map(m => ({ subject: m.subject, percent: m.percent, timestamp: m.timestamp })),
+      weakAreas: (weakSummary.weakAreas || []).slice(0, 5).map(w => ({ topicName: TOPIC_NAMES[w.topicKey] || w.topicKey, subject: w.subject, accuracy: w.accuracy })),
     };
   };
 
