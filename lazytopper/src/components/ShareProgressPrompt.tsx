@@ -1,6 +1,9 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { loadInsights } from "../services/practiceInsights";
+import { getWeakAreas } from "../services/weakAreaAggregator";
+import { getLatestMockScores } from "../services/mockScoreHistory";
+import { getWeeklyFocus } from "../services/focusTracker";
 
 const DISMISS_KEY = "lazytopper.sharePrompt.dismissed";
 
@@ -16,6 +19,45 @@ function dismissPrompt(): void {
   try { localStorage.setItem(DISMISS_KEY, String(Date.now())); } catch {}
 }
 
+function buildWeeklySnapshot() {
+  const weekly = getWeeklyFocus();
+  const studyHours = Math.round((weekly.reduce((s, r) => s + r.totalMs, 0) / 3600000) * 10) / 10;
+  const totalFocused = weekly.reduce((s, r) => s + r.focusedMs, 0);
+  const totalSession = weekly.reduce((s, r) => s + r.totalMs, 0);
+  const focusScore = totalSession > 60000 ? Math.round((totalFocused / totalSession) * 100) : 0;
+
+  let streak = 0;
+  try {
+    const raw = localStorage.getItem("lazytopper.studySessions");
+    if (raw) {
+      const sessions = JSON.parse(raw);
+      if (Array.isArray(sessions)) {
+        const today = new Date();
+        for (let i = 0; i < 365; i++) {
+          const d = new Date(today);
+          d.setDate(d.getDate() - i);
+          const key = d.toISOString().slice(0, 10);
+          if (sessions.some((s: { date?: string }) => s.date === key)) streak++;
+          else if (i > 0) break;
+        }
+      }
+    }
+  } catch {}
+
+  const insights = loadInsights();
+  const attempts = insights.attempts || [];
+  const weekAgo = Date.now() - 7 * 86400000;
+  const thisWeekAttempts = attempts.filter(a => a.timestamp >= weekAgo);
+  const thisWeekCorrect = thisWeekAttempts.filter(a => a.correct).length;
+  const accuracy = thisWeekAttempts.length > 0 ? Math.round((thisWeekCorrect / thisWeekAttempts.length) * 100) : 0;
+
+  const mockScores = getLatestMockScores(5).map(m => ({ subject: m.subject, percent: m.percent, timestamp: m.timestamp }));
+  const weakSummary = getWeakAreas({ limit: 5 });
+  const weakAreas = weakSummary.weakAreas.map(w => ({ topicName: w.topicName, subject: w.subject, accuracy: w.accuracy }));
+
+  return { studyHours, focusScore, accuracy, streak, questionsThisWeek: thisWeekAttempts.length, topicsImproved: 0, mockScores, weakAreas };
+}
+
 interface ShareProgressPromptProps {
   triggerType: "mock" | "milestone";
   score?: number;
@@ -24,7 +66,6 @@ interface ShareProgressPromptProps {
 }
 
 export default function ShareProgressPrompt({ triggerType, score, subject, milestone }: ShareProgressPromptProps) {
-  const navigate = useNavigate();
   const { user } = useAuth();
   const [visible, setVisible] = useState(!isDismissedRecently());
   const [sharing, setSharing] = useState(false);
@@ -50,10 +91,11 @@ export default function ShareProgressPrompt({ triggerType, score, subject, miles
         }
       }
       const studentName = user?.displayName || "Student";
+      const snapshot = buildWeeklySnapshot();
       const res = await fetch("/api/share-token", {
         method: "POST",
         headers,
-        body: JSON.stringify({ studentName }),
+        body: JSON.stringify({ studentName, weeklySnapshot: snapshot }),
       });
       const data = await res.json();
       if (data.ok && data.token) {
@@ -65,12 +107,8 @@ export default function ShareProgressPrompt({ triggerType, score, subject, miles
         window.open(whatsappUrl, "_blank");
         setShared(true);
         dismissPrompt();
-      } else {
-        navigate("/weekly-digest");
       }
-    } catch {
-      navigate("/weekly-digest");
-    }
+    } catch {}
     setSharing(false);
   };
 

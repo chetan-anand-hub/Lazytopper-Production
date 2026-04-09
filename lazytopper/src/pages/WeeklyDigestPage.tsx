@@ -38,7 +38,7 @@ function getStreakFromStorage(): number {
   } catch { return 0; }
 }
 
-interface SharedDigestData {
+interface WeeklySnapshotData {
   studentName: string;
   studyHours: number;
   focusScore: number;
@@ -46,25 +46,71 @@ interface SharedDigestData {
   streak: number;
   questionsThisWeek: number;
   topicsImproved: number;
+  mockScores: { subject: string; percent: number; timestamp: number }[];
+  weakAreas: { topicName: string; subject: string; accuracy: number }[];
 }
 
-async function fetchSharedDigest(token: string): Promise<SharedDigestData | null> {
+async function fetchSharedDigest(token: string): Promise<WeeklySnapshotData | null> {
   try {
-    const res = await fetch(`/api/shared-report?token=${encodeURIComponent(token)}`);
+    const res = await fetch(`/api/verify-share-token?token=${encodeURIComponent(token)}`);
     const data = await res.json();
-    if (data.ok) {
+    if (data.ok && data.weeklySnapshot) {
+      const ws = data.weeklySnapshot;
       return {
         studentName: data.studentName || "Student",
-        studyHours: 0,
-        focusScore: 0,
-        accuracy: 0,
-        streak: 0,
-        questionsThisWeek: 0,
-        topicsImproved: 0,
+        studyHours: ws.studyHours || 0,
+        focusScore: ws.focusScore || 0,
+        accuracy: ws.accuracy || 0,
+        streak: ws.streak || 0,
+        questionsThisWeek: ws.questionsThisWeek || 0,
+        topicsImproved: ws.topicsImproved || 0,
+        mockScores: Array.isArray(ws.mockScores) ? ws.mockScores : [],
+        weakAreas: Array.isArray(ws.weakAreas) ? ws.weakAreas : [],
+      };
+    }
+    if (data.ok && !data.weeklySnapshot) {
+      return {
+        studentName: data.studentName || "Student",
+        studyHours: 0, focusScore: 0, accuracy: 0, streak: 0,
+        questionsThisWeek: 0, topicsImproved: 0, mockScores: [], weakAreas: [],
       };
     }
   } catch {}
   return null;
+}
+
+function buildWeeklySnapshot(): {
+  studyHours: number; focusScore: number; accuracy: number;
+  streak: number; questionsThisWeek: number; topicsImproved: number;
+  mockScores: { subject: string; percent: number; timestamp: number }[];
+  weakAreas: { topicName: string; subject: string; accuracy: number }[];
+} {
+  const studyHours = getStudyHoursThisWeek();
+  const focusScore = getFocusScoreThisWeek();
+  const streak = getStreakFromStorage();
+  const insights = loadInsights();
+  const attempts = insights.attempts || [];
+  const weekAgo = Date.now() - 7 * 86400000;
+  const thisWeekAttempts = attempts.filter(a => a.timestamp >= weekAgo);
+  const thisWeekCorrect = thisWeekAttempts.filter(a => a.correct).length;
+  const accuracy = thisWeekAttempts.length > 0 ? Math.round((thisWeekCorrect / thisWeekAttempts.length) * 100) : 0;
+
+  const byTopic = new Map<string, { old: number; recent: number; oldCount: number; recentCount: number }>();
+  const midpoint = weekAgo + 3.5 * 86400000;
+  for (const a of thisWeekAttempts) {
+    const key = a.topicKey || "unknown";
+    const entry = byTopic.get(key) || { old: 0, recent: 0, oldCount: 0, recentCount: 0 };
+    if (a.timestamp < midpoint) { entry.oldCount++; if (a.correct) entry.old++; }
+    else { entry.recentCount++; if (a.correct) entry.recent++; }
+    byTopic.set(key, entry);
+  }
+  const topicsImproved = Array.from(byTopic.values()).filter(d => d.oldCount >= 2 && d.recentCount >= 2 && d.recent / d.recentCount > d.old / d.oldCount + 0.1).length;
+
+  const mockScores = getLatestMockScores(5).map(m => ({ subject: m.subject, percent: m.percent, timestamp: m.timestamp }));
+  const weakSummary = getWeakAreas({ limit: 5 });
+  const weakAreas = weakSummary.weakAreas.map(w => ({ topicName: w.topicName, subject: w.subject, accuracy: w.accuracy }));
+
+  return { studyHours, focusScore, accuracy, streak, questionsThisWeek: thisWeekAttempts.length, topicsImproved, mockScores, weakAreas };
 }
 
 export default function WeeklyDigestPage() {
@@ -73,7 +119,7 @@ export default function WeeklyDigestPage() {
   const shareToken = searchParams.get("share");
   const { user } = useAuth();
 
-  const [sharedData, setSharedData] = useState<SharedDigestData | null>(null);
+  const [sharedData, setSharedData] = useState<WeeklySnapshotData | null>(null);
   const [shareError, setShareError] = useState(false);
   const [shareVerifying, setShareVerifying] = useState(!!shareToken);
 
@@ -90,35 +136,18 @@ export default function WeeklyDigestPage() {
   const isLocal = !shareToken;
   const studentName = isShared ? sharedData.studentName : (user?.displayName || "Student");
 
-  const studyHours = useMemo(() => isLocal ? getStudyHoursThisWeek() : (sharedData?.studyHours || 0), [isLocal, sharedData]);
-  const focusScore = useMemo(() => isLocal ? getFocusScoreThisWeek() : (sharedData?.focusScore || 0), [isLocal, sharedData]);
-  const streak = useMemo(() => isLocal ? getStreakFromStorage() : (sharedData?.streak || 0), [isLocal, sharedData]);
-  const weakSummary = useMemo(() => isLocal ? getWeakAreas({ limit: 5 }) : { weakAreas: [], totalWeak: 0, closedThisWeek: 0, overallMasteryPercent: 0 }, [isLocal]);
-  const mockScores = useMemo(() => isLocal ? getLatestMockScores(5) : [], [isLocal]);
-  const insights = useMemo(() => isLocal ? loadInsights() : { attempts: [], totalCorrect: 0, totalAttempted: 0, subjects: {} }, [isLocal]);
+  const localSnapshot = useMemo(() => isLocal ? buildWeeklySnapshot() : null, [isLocal]);
 
-  const attempts = insights.attempts || [];
+  const studyHours = isShared ? sharedData.studyHours : (localSnapshot?.studyHours || 0);
+  const focusScore = isShared ? sharedData.focusScore : (localSnapshot?.focusScore || 0);
+  const streak = isShared ? sharedData.streak : (localSnapshot?.streak || 0);
+  const thisWeekAccuracy = isShared ? sharedData.accuracy : (localSnapshot?.accuracy || 0);
+  const questionsThisWeek = isShared ? sharedData.questionsThisWeek : (localSnapshot?.questionsThisWeek || 0);
+  const topicsImproved = isShared ? sharedData.topicsImproved : (localSnapshot?.topicsImproved || 0);
+  const mockScores = isShared ? sharedData.mockScores : (localSnapshot?.mockScores || []);
+  const weakAreas = isShared ? sharedData.weakAreas : (localSnapshot?.weakAreas || []);
+
   const weekAgo = Date.now() - 7 * 86400000;
-  const thisWeekAttempts = attempts.filter(a => a.timestamp >= weekAgo);
-  const thisWeekCorrect = thisWeekAttempts.filter(a => a.correct).length;
-  const thisWeekAccuracy = thisWeekAttempts.length > 0 ? Math.round((thisWeekCorrect / thisWeekAttempts.length) * 100) : 0;
-
-  const topicsImproved = useMemo(() => {
-    const byTopic = new Map<string, { old: number; recent: number; oldCount: number; recentCount: number }>();
-    const midpoint = weekAgo + 3.5 * 86400000;
-    for (const a of attempts.filter(att => att.timestamp >= weekAgo)) {
-      const key = a.topicKey || "unknown";
-      const entry = byTopic.get(key) || { old: 0, recent: 0, oldCount: 0, recentCount: 0 };
-      if (a.timestamp < midpoint) { entry.oldCount++; if (a.correct) entry.old++; }
-      else { entry.recentCount++; if (a.correct) entry.recent++; }
-      byTopic.set(key, entry);
-    }
-    return Array.from(byTopic.values()).filter(d => d.oldCount >= 2 && d.recentCount >= 2 && d.recent / d.recentCount > d.old / d.oldCount + 0.1).length;
-  }, [attempts, weekAgo]);
-
-  const shareUrl = `${window.location.origin}${window.location.pathname}`;
-  const shareText = `${studentName}'s Weekly Progress (LazyTopper):\n📚 ${studyHours}h studied\n🎯 ${thisWeekAccuracy}% accuracy\n🔥 ${streak}-day streak\n📝 ${mockScores.length} mock tests\n\nView full report: ${shareUrl}`;
-  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
 
   const [generatingLink, setGeneratingLink] = useState(false);
   const [shareLink, setShareLink] = useState("");
@@ -135,20 +164,26 @@ export default function WeeklyDigestPage() {
           headers["Authorization"] = `Bearer ${idToken}`;
         }
       }
+      const snapshot = buildWeeklySnapshot();
       const res = await fetch("/api/share-token", {
         method: "POST",
         headers,
-        body: JSON.stringify({ studentName }),
+        body: JSON.stringify({ studentName, weeklySnapshot: snapshot }),
       });
       const data = await res.json();
       if (data.ok && data.token) {
-        const url = `${window.location.origin}${window.location.pathname}?share=${encodeURIComponent(data.token)}`;
+        const url = `${window.location.origin}/app/weekly-digest?share=${encodeURIComponent(data.token)}`;
         await navigator.clipboard?.writeText(url);
         setShareLink(url);
       }
     } catch {}
     setGeneratingLink(false);
   };
+
+  const shareText = `${studentName}'s Weekly Progress (LazyTopper):\n📚 ${studyHours}h studied\n🎯 ${thisWeekAccuracy}% accuracy\n🔥 ${streak}-day streak\n📝 ${mockScores.length} mock tests`;
+  const whatsappUrl = shareLink
+    ? `https://wa.me/?text=${encodeURIComponent(shareText + `\n\nView full report: ${shareLink}`)}`
+    : `https://wa.me/?text=${encodeURIComponent(shareText)}`;
 
   if (shareVerifying) {
     return (
@@ -222,7 +257,7 @@ export default function WeeklyDigestPage() {
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginTop: 10 }}>
           <div style={{ padding: 16, borderRadius: 14, textAlign: "center", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
             <div style={{ fontSize: 20, marginBottom: 4 }}>📝</div>
-            <div style={{ fontSize: 22, fontWeight: 800, color: "#a855f7" }}>{thisWeekAttempts.length}</div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: "#a855f7" }}>{questionsThisWeek}</div>
             <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", marginTop: 2 }}>Questions This Week</div>
           </div>
           <div style={{ padding: 16, borderRadius: 14, textAlign: "center", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
@@ -240,8 +275,8 @@ export default function WeeklyDigestPage() {
             <h3 style={{ fontSize: 14, fontWeight: 700, color: "#fff", margin: "0 0 10px", fontFamily: "'Space Grotesk', sans-serif" }}>
               Mock Test Scores
             </h3>
-            {mockScores.map((m) => (
-              <div key={m.id} style={{
+            {mockScores.map((m, idx) => (
+              <div key={idx} style={{
                 display: "flex", justifyContent: "space-between", padding: "8px 0",
                 borderBottom: "1px solid rgba(255,255,255,0.04)",
               }}>
@@ -252,7 +287,7 @@ export default function WeeklyDigestPage() {
           </div>
         )}
 
-        {weakSummary.weakAreas.length > 0 && (
+        {weakAreas.length > 0 && (
           <div style={{
             padding: "16px 18px", marginTop: 16, borderRadius: 16,
             background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.15)",
@@ -260,8 +295,8 @@ export default function WeeklyDigestPage() {
             <h3 style={{ fontSize: 14, fontWeight: 700, color: "#fff", margin: "0 0 10px", fontFamily: "'Space Grotesk', sans-serif" }}>
               Weak Areas to Focus On
             </h3>
-            {weakSummary.weakAreas.map((w) => (
-              <div key={w.topicKey} style={{
+            {weakAreas.map((w, idx) => (
+              <div key={idx} style={{
                 display: "flex", justifyContent: "space-between", padding: "8px 0",
                 borderBottom: "1px solid rgba(255,255,255,0.04)",
               }}>

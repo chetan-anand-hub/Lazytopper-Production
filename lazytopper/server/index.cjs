@@ -4910,9 +4910,31 @@ async function handleRequest(req, res) {
 
       const body = await readJson(req);
       const studentName = String(body.studentName || 'Student').slice(0, 100);
+      const weeklySnapshot = body.weeklySnapshot || null;
 
       const expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000;
-      const payload = JSON.stringify({ uid, studentName, expiresAt });
+      const tokenPayloadObj = { uid, studentName, expiresAt };
+      if (weeklySnapshot && typeof weeklySnapshot === 'object') {
+        tokenPayloadObj.weeklySnapshot = {
+          studyHours: Number(weeklySnapshot.studyHours) || 0,
+          focusScore: Number(weeklySnapshot.focusScore) || 0,
+          accuracy: Number(weeklySnapshot.accuracy) || 0,
+          streak: Number(weeklySnapshot.streak) || 0,
+          questionsThisWeek: Number(weeklySnapshot.questionsThisWeek) || 0,
+          topicsImproved: Number(weeklySnapshot.topicsImproved) || 0,
+          mockScores: Array.isArray(weeklySnapshot.mockScores) ? weeklySnapshot.mockScores.slice(0, 10).map(m => ({
+            subject: String(m.subject || '').slice(0, 50),
+            percent: Number(m.percent) || 0,
+            timestamp: Number(m.timestamp) || 0,
+          })) : [],
+          weakAreas: Array.isArray(weeklySnapshot.weakAreas) ? weeklySnapshot.weakAreas.slice(0, 8).map(w => ({
+            topicName: String(w.topicName || '').slice(0, 80),
+            subject: String(w.subject || '').slice(0, 30),
+            accuracy: Number(w.accuracy) || 0,
+          })) : [],
+        };
+      }
+      const payload = JSON.stringify(tokenPayloadObj);
       const hmac = crypto.createHmac('sha256', SHARE_SECRET).update(payload).digest('hex');
       const token = Buffer.from(payload).toString('base64url') + '.' + hmac;
       return sendJson(res, 200, { ok: true, token });
@@ -4945,7 +4967,7 @@ async function handleRequest(req, res) {
         return sendJson(res, 403, { ok: false, error: 'Token expired' });
       }
 
-      return sendJson(res, 200, { ok: true, uid: data.uid, studentName: data.studentName });
+      return sendJson(res, 200, { ok: true, uid: data.uid, studentName: data.studentName, weeklySnapshot: data.weeklySnapshot || null });
     } catch (err) {
       return sendJson(res, 500, { ok: false, error: String(err && err.message || err) });
     }
