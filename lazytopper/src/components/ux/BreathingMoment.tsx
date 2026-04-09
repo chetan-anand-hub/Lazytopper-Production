@@ -1,19 +1,23 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 interface Props {
-  onComplete: () => void;
+  onComplete: (skipped: boolean) => void;
 }
 
 export function BreathingMoment({ onComplete }: Props) {
   const [secondsLeft, setSecondsLeft] = useState(5);
   const [phase, setPhase] = useState<"inhale" | "exhale">("inhale");
+  const completedRef = useRef(false);
 
   useEffect(() => {
     const id = setInterval(() => {
       setSecondsLeft((prev) => {
         if (prev <= 1) {
           clearInterval(id);
-          onComplete();
+          if (!completedRef.current) {
+            completedRef.current = true;
+            onComplete(false);
+          }
           return 0;
         }
         return prev - 1;
@@ -73,7 +77,12 @@ export function BreathingMoment({ onComplete }: Props) {
 
       <button
         type="button"
-        onClick={onComplete}
+        onClick={() => {
+          if (!completedRef.current) {
+            completedRef.current = true;
+            onComplete(true);
+          }
+        }}
         style={{
           padding: "10px 24px", borderRadius: 10,
           border: "1px solid rgba(255,255,255,0.15)",

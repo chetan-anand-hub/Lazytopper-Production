@@ -70,7 +70,15 @@ export default function ExamSimulationPage() {
   const backTo = navState?.back || "/predictive-papers";
   const backLabel = navState?.backLabel || "Back to papers";
 
-  const startExamAfterBreathing = useCallback(() => {
+  const breathingStartRef = useRef(0);
+
+  const startExamAfterBreathing = useCallback((skipped?: boolean) => {
+    const duration = breathingStartRef.current ? Date.now() - breathingStartRef.current : 0;
+    trackUxEvent("breathing_moment_complete", "ExamSimulationPage", {
+      subject,
+      skipped: !!skipped,
+      durationMs: duration,
+    });
     setPhase("taking");
     startTimeRef.current = Date.now();
     trackUxEvent("exam_simulation_start", "ExamSimulationPage", { subject });
@@ -80,6 +88,7 @@ export default function ExamSimulationPage() {
     const p = generateUnlimitedPaper(subject);
     setPaper(p);
     setPhase("breathing");
+    breathingStartRef.current = Date.now();
     setRemainingTime(TOTAL_TIME_SECONDS);
     setAnswers({});
     setAnalytics(null);
@@ -176,7 +185,7 @@ export default function ExamSimulationPage() {
   }, []);
 
   if (phase === "breathing") {
-    return <BreathingMoment onComplete={startExamAfterBreathing} />;
+    return <BreathingMoment onComplete={(skipped) => startExamAfterBreathing(skipped)} />;
   }
 
   if (phase === "setup") {

@@ -225,6 +225,7 @@ export default function Dashboard() {
   const [examDate, setExamDate] = useState("");
   const [planRecord] = useState<StrategyPlan | null>(() => getStrategyPlan());
   const [streak] = useState<number>(() => updateAndGetStreak());
+  const [showStreakReset, setShowStreakReset] = useState(() => wasStreakReset());
   const attempts = getAttempts();
   const [paceProfile, setPaceProfile] = useState(() => loadPaceProfile());
   const [paceTransition, setPaceTransition] = useState<PaceTransitionNotification | null>(() => {
@@ -485,7 +486,13 @@ export default function Dashboard() {
   const targetPercentValue = toPositiveNumber(profile?.targetPercent || 0);
   const hoursPerDayValue = toPositiveNumber(profile?.hoursPerDay || 0);
   const daysLeftValue = toPositiveNumber(autoDays || profile?.daysLeft || 0);
-  const hideCountdown = (() => { try { return localStorage.getItem("lazytopper.hideCountdown") === "1"; } catch { return false; } })();
+  const hideCountdown = (() => {
+    try {
+      const stored = localStorage.getItem("lazytopper.hideCountdown");
+      if (stored !== null) return stored === "1";
+      return paceProfile ? (paceProfile.type === "crash" || paceProfile.type === "sprint") : false;
+    } catch { return false; }
+  })();
 
   if (loadingProfile) {
     return (
@@ -655,7 +662,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {wasStreakReset() && (
+        {showStreakReset && (
           <div className="glass-card" style={{ padding: 16, marginBottom: 16, border: "1px solid rgba(34,197,94,0.25)", background: "rgba(34,197,94,0.06)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -667,7 +674,7 @@ export default function Dashboard() {
                   </div>
                 </div>
               </div>
-              <button type="button" onClick={() => { dismissStreakReset(); }} style={{
+              <button type="button" onClick={() => { dismissStreakReset(); setShowStreakReset(false); }} style={{
                 background: "none", border: "none", color: "rgba(255,255,255,0.4)", cursor: "pointer",
                 fontSize: 14, padding: "0 4px", flexShrink: 0,
               }}>✕</button>

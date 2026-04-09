@@ -986,10 +986,18 @@ function PaceProfileSelector() {
 
 const COUNTDOWN_KEY = "lazytopper.hideCountdown";
 
+function isCountdownHidden(): boolean {
+  try {
+    const stored = localStorage.getItem(COUNTDOWN_KEY);
+    if (stored !== null) return stored === "1";
+    const profile = loadPaceProfile();
+    if (profile && (profile.type === "crash" || profile.type === "sprint")) return true;
+    return false;
+  } catch { return false; }
+}
+
 function CountdownToggle() {
-  const [hidden, setHidden] = useState(() => {
-    try { return localStorage.getItem(COUNTDOWN_KEY) === "1"; } catch { return false; }
-  });
+  const [hidden, setHidden] = useState(isCountdownHidden);
   return (
     <div style={{ marginTop: 16, padding: "12px 16px", background: "rgba(255,255,255,0.06)", borderRadius: 12, border: "2px solid rgba(255,255,255,0.08)" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
