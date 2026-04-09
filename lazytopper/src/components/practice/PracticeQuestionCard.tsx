@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { type PracticeQuestion } from "../../data/predictionDataService";
 import { MathText } from "../question/MathText";

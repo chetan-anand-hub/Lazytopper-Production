@@ -30,12 +30,9 @@ import {
   advancePhase,
   clearDetour,
   getJourneyProgress,
-  getPhaseLabel,
-  getPhaseProgressText,
   getPhaseRoute,
   getRaviMessage,
   type GuidedJourneyState,
-  type JourneyPhase,
   reconcileProfileTransition,
 } from "../services/guidedJourneyService";
 import {
@@ -48,11 +45,8 @@ import {
   loadPaceProfile,
   loadTransitionNotification,
   dismissTransitionNotification,
-  setManualOverride,
-  clearManualOverride,
   getProfileConfig,
   getProfileSummary,
-  type PaceProfileType,
   type PaceTransitionNotification,
 } from "../services/paceProfileService";
 import { getLatestMockScores } from "../services/mockScoreHistory";
@@ -88,6 +82,10 @@ import {
   RecentActivityList,
   BadgesSection,
   ExploreMorePanel,
+  JourneyCard,
+  PaceSelectorPanel,
+  HeroActionCard,
+  type HeroAction,
 } from "../components/dashboard";
 
 export default function Dashboard() {
@@ -433,73 +431,13 @@ export default function Dashboard() {
         {showFirstVisit && <FirstVisitOverlay onDismiss={handleDismissOverlay} />}
         <div style={{ padding: "20px 16px 100px", maxWidth: 430, margin: "0 auto" }}>
 
-          {journeyState.currentChapter && (
-            <div style={{ padding: 20, marginBottom: 16, background: "rgba(34,197,94,0.06)", backdropFilter: "blur(16px)", border: "1px solid rgba(34,197,94,0.15)", borderRadius: 16 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-                <div style={{
-                  width: 32, height: 32, borderRadius: "50%",
-                  background: "linear-gradient(135deg, #22c55e, #3b82f6)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: 14, fontWeight: 800, color: "#000", flexShrink: 0,
-                }}>R</div>
-                <span className="font-display" style={{ fontSize: 14, fontWeight: 700, color: "#22c55e" }}>Ravi Sir's Recommendation</span>
-              </div>
-              <p style={{ fontSize: 13, color: tc.textSecondary, lineHeight: 1.5, marginBottom: 12 }}>
-                "{raviMessage}"
-              </p>
-              <div className="font-display" style={{ fontSize: 15, fontWeight: 700, marginBottom: 8 }}>{journeyState.currentChapter.title}</div>
-              <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginBottom: 12 }}>
-                {(["learn", "practice", "mock", "review"] as JourneyPhase[]).map((p) => {
-                  const isCurrent = journeyState.currentChapter!.phase === p;
-                  const phaseIdx = ["learn", "practice", "mock", "review"].indexOf(p);
-                  const currentIdx = ["learn", "practice", "mock", "review"].indexOf(journeyState.currentChapter!.phase);
-                  const isDone = phaseIdx < currentIdx;
-                  return (
-                    <span key={p} style={{
-                      fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 6,
-                      background: isCurrent ? "rgba(34,197,94,0.2)" : isDone ? "rgba(34,197,94,0.08)" : tc.subtleBg,
-                      color: isCurrent ? "#22c55e" : isDone ? "rgba(34,197,94,0.6)" : tc.textMuted,
-                      border: isCurrent ? "1px solid rgba(34,197,94,0.4)" : "1px solid transparent",
-                      textTransform: "uppercase", letterSpacing: 0.5,
-                    }}>{isDone ? "✓ " : ""}{getPhaseLabel(p)}</span>
-                  );
-                })}
-              </div>
-              <div style={{ fontSize: 11, color: tc.textSecondary, marginBottom: 8, fontWeight: 600 }}>
-                {getPhaseProgressText(journeyState.currentChapter!)}
-              </div>
-              <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 12 }}>
-                <div style={{ flex: 1, height: 4, borderRadius: 2, background: tc.ringTrack, overflow: "hidden" }}>
-                  <div style={{ width: `${journeyProgress.percent}%`, height: "100%", borderRadius: 2, background: "#22c55e", transition: "width 0.6s ease" }} />
-                </div>
-                <span style={{ fontSize: 10, fontWeight: 700, color: tc.textMuted, whiteSpace: "nowrap" }}>
-                  {journeyProgress.completed} of {journeyProgress.total} chapters
-                </span>
-              </div>
-              {journeyState.currentChapter?.phase === "review" ? (
-                <div style={{ display: "flex", gap: 8 }}>
-                  <button onClick={handleContinueJourney} style={{
-                    flex: 1, padding: "13px 0", borderRadius: 12, border: "1px solid rgba(34,197,94,0.3)",
-                    background: "rgba(34,197,94,0.1)", color: "#22c55e", fontWeight: 800, fontSize: 14,
-                    fontFamily: "'Space Grotesk', sans-serif", cursor: "pointer",
-                  }}>Open Review</button>
-                  <button onClick={handleCompleteChapter} style={{
-                    flex: 1, padding: "13px 0", borderRadius: 12, border: "none",
-                    background: "#22c55e", color: "#000", fontWeight: 800, fontSize: 14,
-                    fontFamily: "'Space Grotesk', sans-serif", cursor: "pointer",
-                    boxShadow: "0 0 24px rgba(34,197,94,0.3)",
-                  }}>Complete Chapter ✓</button>
-                </div>
-              ) : (
-                <button onClick={handleContinueJourney} style={{
-                  width: "100%", padding: "13px 0", borderRadius: 12, border: "none",
-                  background: "#22c55e", color: "#000", fontWeight: 800, fontSize: 15,
-                  fontFamily: "'Space Grotesk', sans-serif", cursor: "pointer",
-                  boxShadow: "0 0 24px rgba(34,197,94,0.3)",
-                }}>{journeyState.detour ? "Resume Learning" : "Continue Learning"}</button>
-              )}
-            </div>
-          )}
+          <JourneyCard
+            journeyState={journeyState}
+            raviMessage={raviMessage}
+            journeyProgress={journeyProgress}
+            onContinue={handleContinueJourney}
+            onComplete={handleCompleteChapter}
+          />
 
           <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4, marginBottom: 16 }}>
             {[
@@ -634,102 +572,18 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* YOUR NEXT STEP — prominent first card (hidden in sprint mode) */}
-        {daysLeftValue > 7 && (
-        <div className="glass-accent" style={{ padding: 20, marginBottom: 16 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: tc.textMuted, textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 8 }}>Your Next Step</div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-            <span style={{ fontSize: 20 }}>{heroAction.type === "resume_session" ? "⏩" : heroAction.type === "weak_topic" ? "⚠️" : "🎯"}</span>
-            <span className="font-display" style={{ fontSize: 16, fontWeight: 700 }}>{heroAction.title}</span>
-          </div>
-          <p style={{ fontSize: 13, color: tc.textSecondary, lineHeight: 1.5, marginBottom: 14 }}>{heroAction.description}</p>
-          <button onClick={heroAction.onAction} style={{
-            width: "100%", padding: "13px 0", borderRadius: 12, border: "none",
-            background: "#22c55e", color: "#000", fontWeight: 800, fontSize: 15,
-            fontFamily: "'Space Grotesk', sans-serif", cursor: "pointer",
-            boxShadow: "0 0 24px rgba(34,197,94,0.3)",
-          }}>{heroAction.ctaLabel}</button>
-        </div>
-        )}
+        {daysLeftValue > 7 && <HeroActionCard heroAction={heroAction} />}
 
         {daysLeftValue > 7 && isFocusTrackingEnabled() && <FocusScoreCard />}
 
-        {/* RAVI SIR'S RECOMMENDATION — hidden in sprint mode */}
         {daysLeftValue > 7 && journeyState.currentChapter && (
-          <div style={{ padding: 20, marginBottom: 16, background: "rgba(34,197,94,0.06)", backdropFilter: "blur(16px)", border: "1px solid rgba(34,197,94,0.15)", borderRadius: 16 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-              <div style={{
-                width: 32, height: 32, borderRadius: "50%",
-                background: "linear-gradient(135deg, #22c55e, #3b82f6)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 14, fontWeight: 800, color: "#000", flexShrink: 0,
-              }}>R</div>
-              <span className="font-display" style={{ fontSize: 14, fontWeight: 700, color: "#22c55e" }}>Ravi Sir's Recommendation</span>
-            </div>
-
-            <p style={{ fontSize: 13, color: tc.textSecondary, lineHeight: 1.5, marginBottom: 12, fontStyle: journeyState.detour ? "italic" : "normal" }}>
-              "{raviMessage}"
-            </p>
-
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
-              <div style={{ flex: 1 }}>
-                <div className="font-display" style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>{journeyState.currentChapter.title}</div>
-                <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
-                  {(["learn", "practice", "mock", "review"] as JourneyPhase[]).map((p) => {
-                    const isCurrent = journeyState.currentChapter!.phase === p;
-                    const phaseIdx = ["learn", "practice", "mock", "review"].indexOf(p);
-                    const currentIdx = ["learn", "practice", "mock", "review"].indexOf(journeyState.currentChapter!.phase);
-                    const isDone = phaseIdx < currentIdx;
-                    return (
-                      <span key={p} style={{
-                        fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 6,
-                        background: isCurrent ? "rgba(34,197,94,0.2)" : isDone ? "rgba(34,197,94,0.08)" : tc.subtleBg,
-                        color: isCurrent ? "#22c55e" : isDone ? "rgba(34,197,94,0.6)" : tc.textMuted,
-                        border: isCurrent ? "1px solid rgba(34,197,94,0.4)" : "1px solid transparent",
-                        textTransform: "uppercase", letterSpacing: 0.5,
-                      }}>{isDone ? "✓ " : ""}{getPhaseLabel(p)}</span>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-
-            <div style={{ fontSize: 11, color: tc.textSecondary, marginBottom: 8, fontWeight: 600 }}>
-              {getPhaseProgressText(journeyState.currentChapter!)}
-            </div>
-
-            <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 12 }}>
-              <div style={{ flex: 1, height: 4, borderRadius: 2, background: tc.ringTrack, overflow: "hidden" }}>
-                <div style={{ width: `${journeyProgress.percent}%`, height: "100%", borderRadius: 2, background: "#22c55e", transition: "width 0.6s ease" }} />
-              </div>
-              <span style={{ fontSize: 10, fontWeight: 700, color: tc.textMuted, whiteSpace: "nowrap" }}>
-                {journeyProgress.completed} of {journeyProgress.total} chapters
-              </span>
-            </div>
-
-            {journeyState.currentChapter?.phase === "review" ? (
-              <div style={{ display: "flex", gap: 8 }}>
-                <button onClick={handleContinueJourney} style={{
-                  flex: 1, padding: "13px 0", borderRadius: 12, border: "1px solid rgba(34,197,94,0.3)",
-                  background: "rgba(34,197,94,0.1)", color: "#22c55e", fontWeight: 800, fontSize: 14,
-                  fontFamily: "'Space Grotesk', sans-serif", cursor: "pointer",
-                }}>Open Review</button>
-                <button onClick={handleCompleteChapter} style={{
-                  flex: 1, padding: "13px 0", borderRadius: 12, border: "none",
-                  background: "#22c55e", color: "#000", fontWeight: 800, fontSize: 14,
-                  fontFamily: "'Space Grotesk', sans-serif", cursor: "pointer",
-                  boxShadow: "0 0 24px rgba(34,197,94,0.3)",
-                }}>Complete Chapter ✓</button>
-              </div>
-            ) : (
-              <button onClick={handleContinueJourney} style={{
-                width: "100%", padding: "13px 0", borderRadius: 12, border: "none",
-                background: "#22c55e", color: "#000", fontWeight: 800, fontSize: 15,
-                fontFamily: "'Space Grotesk', sans-serif", cursor: "pointer",
-                boxShadow: "0 0 24px rgba(34,197,94,0.3)",
-              }}>{journeyState.detour ? "Resume Learning" : "Continue Learning"}</button>
-            )}
-          </div>
+          <JourneyCard
+            journeyState={journeyState}
+            raviMessage={raviMessage}
+            journeyProgress={journeyProgress}
+            onContinue={handleContinueJourney}
+            onComplete={handleCompleteChapter}
+          />
         )}
 
         {daysLeftValue > 7 && <QuickAccessBar gradeNum={gradeNum} subjectForQuickActions={subjectForQuickActions} navigate={navigate} />}
@@ -758,50 +612,7 @@ export default function Dashboard() {
         )}
 
         {daysLeftValue > 7 && showPaceSelector && paceProfile && (
-          <div className="glass-card" style={{ padding: 16, marginBottom: 16 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 10 }}>Study Pace Profile</div>
-            <p style={{ fontSize: 11, color: tc.textSecondary, marginBottom: 12, lineHeight: 1.5 }}>
-              {paceProfile.isManualOverride
-                ? `You manually set ${getProfileConfig(paceProfile.type).label} mode. Auto-detected: ${getProfileConfig(paceProfile.detectedType).label}.`
-                : hideCountdown ? `Currently using ${getProfileConfig(paceProfile.type).label} mode.` : `Auto-detected based on ${paceProfile.daysLeft} days until exam.`}
-            </p>
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              {(["marathon", "sprint", "crash"] as PaceProfileType[]).map((pt) => {
-                const pc: Record<string, string> = { marathon: "#3b82f6", sprint: "#f97316", crash: "#ef4444" };
-                const color = pc[pt];
-                const cfg = getProfileConfig(pt);
-                const isActive = paceProfile.type === pt;
-                return (
-                  <button key={pt} type="button" onClick={() => {
-                    const updated = setManualOverride(pt);
-                    setPaceProfile(updated);
-                  }} style={{
-                    flex: 1, padding: "10px 8px", borderRadius: 12,
-                    border: isActive ? `2px solid ${color}` : `1px solid ${tc.cardBorder}`,
-                    background: isActive ? `${color}15` : tc.cardBg,
-                    cursor: "pointer",
-                  }}>
-                    <div style={{ fontSize: 11, fontWeight: 800, color: isActive ? color : tc.textSecondary, textTransform: "uppercase" }}>
-                      {cfg.label}
-                    </div>
-                    <div style={{ fontSize: 9, color: tc.textMuted, marginTop: 2 }}>{cfg.tagline}</div>
-                  </button>
-                );
-              })}
-            </div>
-            {paceProfile.isManualOverride && (
-              <button type="button" onClick={() => {
-                const updated = clearManualOverride();
-                if (updated) setPaceProfile(updated);
-              }} style={{
-                marginTop: 8, padding: "6px 12px", borderRadius: 8, border: "none",
-                background: tc.subtleBg, color: tc.textSecondary,
-                fontSize: 11, fontWeight: 600, cursor: "pointer",
-              }}>
-                Reset to auto-detect
-              </button>
-            )}
-          </div>
+          <PaceSelectorPanel paceProfile={paceProfile} hideCountdown={hideCountdown} onUpdateProfile={setPaceProfile} />
         )}
 
 

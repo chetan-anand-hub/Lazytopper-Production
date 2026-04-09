@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { type PracticeQuestion } from "../../data/predictionDataService";
 import type { DifficultyLevel, LTSubjectKey } from "../../data/predictionTypes";
 import { generatePracticeSet, inferBoardPatternFromQuestion, normalizeBoardPattern } from "../../data/practiceSetGenerator";
@@ -20,6 +19,38 @@ import type { StudentMentorIntent } from "../../types/studentMentorIntent";
 export type SubjectKey = "Maths" | "Science";
 export type DifficultyChoice = "All" | "Easy" | "Medium" | "Hard";
 type InternalDifficultyBucket = "Easy" | "Medium" | "Hard";
+
+interface RawQuestion {
+  id?: string | number;
+  questionId?: string;
+  questionText?: string;
+  text?: string;
+  marks?: number;
+  totalMarks?: number;
+  difficulty?: string;
+  canonicalDifficulty?: string;
+  section?: string;
+  sectionLabel?: string;
+  paperSection?: string;
+  boardSection?: string;
+  bloomSkill?: string;
+  bloomLevel?: string;
+  subtopic?: string;
+  conceptKey?: string;
+  subtopicKey?: string;
+  options?: Record<string, string>;
+  solutionSteps?: string[];
+  explanation?: string;
+  answer?: string;
+  subject?: string;
+  topicKey?: string;
+  topicName?: string;
+  format?: string;
+  blueprintSlotId?: string;
+  [key: string]: unknown;
+}
+
+type PracticePackMap = Record<string, { topicName?: string; questions?: RawQuestion[] }>;
 
 export const MIN_QUESTION_COUNT = 3;
 export const MAX_QUESTION_COUNT = 100;
@@ -140,14 +171,14 @@ export function buildPracticeQuestionsFromEngine(args: {
     priorityConceptKeys: args.priorityConceptKeys,
   });
 
-  let candidates = [...(practiceSet.questions as any[])];
+  let candidates: RawQuestion[] = [...(practiceSet.questions as RawQuestion[])];
 
   if (args.focusBankIds && args.focusBankIds.length > 0) {
     const focusSet = new Set(args.focusBankIds.map(String));
-    const focused: any[] = [];
-    const others: any[] = [];
+    const focused: RawQuestion[] = [];
+    const others: RawQuestion[] = [];
     for (const q of candidates) {
-      const id = String((q as any).id ?? "");
+      const id = String(q.id ?? "");
       if (focusSet.has(id)) {
         focused.push(q);
       } else {
@@ -159,11 +190,11 @@ export function buildPracticeQuestionsFromEngine(args: {
 
   if (args.subtopicHint && args.subtopicHint.trim()) {
     const hint = args.subtopicHint.trim().toLowerCase();
-    const matches: any[] = [];
-    const nonMatches: any[] = [];
+    const matches: RawQuestion[] = [];
+    const nonMatches: RawQuestion[] = [];
     for (const q of candidates) {
       const concept = String(
-        (q as any).subtopic ?? (q as any).conceptKey ?? (q as any).subtopicKey ?? ""
+        q.subtopic ?? q.conceptKey ?? q.subtopicKey ?? ""
       ).toLowerCase();
       if (concept && concept.includes(hint)) {
         matches.push(q);
@@ -176,10 +207,10 @@ export function buildPracticeQuestionsFromEngine(args: {
 
   if (typeof args.marksFilter === "number" && args.marksFilter > 0) {
     const targetMarks = args.marksFilter;
-    const marksMatch: any[] = [];
-    const marksOther: any[] = [];
+    const marksMatch: RawQuestion[] = [];
+    const marksOther: RawQuestion[] = [];
     for (const q of candidates) {
-      const qMarks = (q as any).marks ?? (q as any).totalMarks ?? 0;
+      const qMarks = q.marks ?? q.totalMarks ?? 0;
       if (Number(qMarks) === targetMarks) {
         marksMatch.push(q);
       } else {
@@ -190,9 +221,9 @@ export function buildPracticeQuestionsFromEngine(args: {
   }
 
   const seenTexts = new Set<string>();
-  const deduped: any[] = [];
+  const deduped: RawQuestion[] = [];
   for (const q of candidates) {
-    const key = String((q as any).questionText ?? (q as any).text ?? "").trim().toLowerCase().slice(0, 120);
+    const key = String(q.questionText ?? q.text ?? "").trim().toLowerCase().slice(0, 120);
     if (key && seenTexts.has(key)) continue;
     if (key) seenTexts.add(key);
     deduped.push(q);
@@ -201,27 +232,26 @@ export function buildPracticeQuestionsFromEngine(args: {
   const sliced = deduped;
 
   return sliced.map((q, index) => {
-    const anyQ: any = q;
-    const id = anyQ.id ?? anyQ.questionId ?? `Q-${index + 1}`;
-    const marks = anyQ.marks != null ? anyQ.marks : 1;
+    const id = q.id ?? q.questionId ?? `Q-${index + 1}`;
+    const marks = q.marks != null ? q.marks : 1;
     const difficultyLabel =
-      anyQ.canonicalDifficulty ?? anyQ.difficulty ?? args.difficulty ?? "Medium";
+      q.canonicalDifficulty ?? q.difficulty ?? args.difficulty ?? "Medium";
 
     return {
       id: String(id),
       marks,
       difficulty: difficultyLabel,
-      section: anyQ.section ?? anyQ.sectionLabel ?? "",
-      bloomSkill: anyQ.bloomSkill ?? anyQ.bloomLevel ?? "",
-      questionText: anyQ.questionText ?? anyQ.text ?? "",
-      options: anyQ.options,
-      solutionSteps: anyQ.solutionSteps ?? [],
-      explanation: anyQ.explanation ?? "",
-      answer: anyQ.answer ?? "",
-      subject: anyQ.subject ?? "",
-      topicKey: anyQ.topicKey ?? "",
-      subtopic: anyQ.subtopic ?? anyQ.conceptKey ?? anyQ.subtopicKey ?? "",
-      format: anyQ.format ?? "",
+      section: q.section ?? q.sectionLabel ?? "",
+      bloomSkill: q.bloomSkill ?? q.bloomLevel ?? "",
+      questionText: q.questionText ?? q.text ?? "",
+      options: q.options,
+      solutionSteps: q.solutionSteps ?? [],
+      explanation: q.explanation ?? "",
+      answer: q.answer ?? "",
+      subject: q.subject ?? "",
+      topicKey: q.topicKey ?? "",
+      subtopic: q.subtopic ?? q.conceptKey ?? q.subtopicKey ?? "",
+      format: q.format ?? "",
     } as PracticeQuestion;
   });
 }
@@ -243,8 +273,8 @@ export function resolvePracticePackKey(args: {
   explicitTopicKey?: string | null;
 }): string {
   const subjectLower = args.subjectKey.toLowerCase() as "maths" | "science";
-  const packsForSubject = (promptDPracticePacks as any)[subjectLower] as
-    | Record<string, any>
+  const packsForSubject = (promptDPracticePacks as Record<string, PracticePackMap>)[subjectLower] as
+    | PracticePackMap
     | undefined;
 
   if (args.explicitTopicKey) {
@@ -265,7 +295,7 @@ export function resolvePracticePackKey(args: {
   if (packsForSubject) {
     const target = normaliseKey(args.topicParam);
     for (const [key, pack] of Object.entries(packsForSubject)) {
-      const packName = normaliseKey((pack as any)?.topicName ?? "");
+      const packName = normaliseKey(pack?.topicName ?? "");
       if (!packName) continue;
       if (target === packName) return key;
       if (target.startsWith(packName)) return key;
@@ -315,7 +345,7 @@ export function parseBooleanFlag(raw: unknown): boolean | undefined {
   return undefined;
 }
 
-export function mapUnifiedQuestionToPractice(question: any, fallbackId: string): PracticeQuestion {
+export function mapUnifiedQuestionToPractice(question: RawQuestion, fallbackId: string): PracticeQuestion {
   return {
     id: String(question?.id ?? fallbackId),
     marks: Number(question?.marks ?? 1),
@@ -399,20 +429,24 @@ export async function buildPracticeQuestionsWithAiTopup(
   });
 
   const subjectLower = args.subjectKey.toLowerCase() as "maths" | "science";
-  const pack = (promptDPracticePacks as any)?.[subjectLower]?.[args.packTopicKey];
+  const packMap = (promptDPracticePacks as Record<string, PracticePackMap>)[subjectLower];
+  const pack = packMap?.[args.packTopicKey];
   const packQuestions: PracticeQuestion[] = Array.isArray(pack?.questions)
-    ? (pack.questions as any[]).map((q) => ({
+    ? pack.questions.map((q: RawQuestion) => ({
         id: String(q.id ?? ""),
         marks: Number(q.marks ?? 1),
-        difficulty: (q.difficulty ?? "Medium") as any,
-        section: (q.section ?? "") as any,
-        bloomSkill: (q.bloomSkill ?? "Understanding") as any,
+        difficulty: String(q.difficulty ?? "Medium"),
+        section: String(q.section ?? ""),
+        bloomSkill: String(q.bloomSkill ?? "Understanding"),
         questionText: String(q.text ?? q.questionText ?? "").trim(),
-        solutionSteps: (q.solutionSteps ?? []) as any,
-        explanation: (q.explanation ?? "") as any,
-        answer: (q.answer ?? "") as any,
-        ...(q as any),
-      }))
+        solutionSteps: q.solutionSteps ?? [],
+        explanation: String(q.explanation ?? ""),
+        answer: String(q.answer ?? ""),
+        subject: String(q.subject ?? ""),
+        topicKey: String(q.topicKey ?? ""),
+        subtopic: String(q.subtopic ?? q.conceptKey ?? q.subtopicKey ?? ""),
+        format: String(q.format ?? ""),
+      } as PracticeQuestion))
     : [];
 
   const bankQuestions = engineQuestions.length > 0 ? engineQuestions : packQuestions;
@@ -428,13 +462,13 @@ export async function buildPracticeQuestionsWithAiTopup(
       : null;
 
   const strictFocusPool = focusIdSet
-    ? bankQuestionsFiltered.filter((q) => focusIdSet.has(String((q as any).id ?? "")))
+    ? bankQuestionsFiltered.filter((q) => focusIdSet.has(String(q.id ?? "")))
     : bankQuestionsFiltered;
 
   const strictBase = strictFocusPool.slice(0, safeCount);
   const remainingForTopUp = Math.max(0, safeCount - strictBase.length);
   const topUpPool = focusIdSet
-    ? bankQuestionsFiltered.filter((q) => !focusIdSet.has(String((q as any).id ?? "")))
+    ? bankQuestionsFiltered.filter((q) => !focusIdSet.has(String(q.id ?? "")))
     : [];
   const baseQuestions = focusIdSet
     ? [...strictBase, ...topUpPool.slice(0, remainingForTopUp)]
@@ -448,13 +482,13 @@ export async function buildPracticeQuestionsWithAiTopup(
 
   const canonicalFallback = generateUnifiedPracticeQuestions({
     subject: args.subjectKey,
-    topicKey: args.topicLabel as any,
+    topicKey: args.topicLabel,
     count: missing,
     section: desiredSection || undefined,
-    difficulty: args.difficulty === "All" ? undefined : (args.difficulty as any),
+    difficulty: args.difficulty === "All" ? undefined : args.difficulty,
     mixMode: "generated-first",
   })
-    .map((question, index) =>
+    .map((question: RawQuestion, index: number) =>
       mapUnifiedQuestionToPractice(question, `CANONICAL-${index + 1}`)
     )
     .filter((question) => (desiredSection ? inferBoardPatternFromQuestion(question) === desiredSection : true));
@@ -485,7 +519,7 @@ export async function buildPracticeQuestionsWithAiTopup(
   const seedMarks = seed?.marks ?? 3;
   const seedDifficulty: InternalDifficultyBucket =
     (seed?.difficulty as InternalDifficultyBucket) ?? fallbackDifficulty;
-  const seedBloomSkill = (seed as any)?.bloomSkill ?? "Understanding";
+  const seedBloomSkill = (seed as PracticeQuestion & { bloomSkill?: string })?.bloomSkill ?? "Understanding";
   const seedQuestionText =
     seed?.questionText ??
     (`Generate a CBSE Class ${args.grade} ${args.subjectKey} question for topic "${args.topicLabel}" at ${fallbackDifficulty} level.` +
@@ -521,14 +555,13 @@ export async function buildPracticeQuestionsWithAiTopup(
               ((variant.difficulty as PracticeQuestion["difficulty"]) ??
                 (template.difficulty as PracticeQuestion["difficulty"])) ??
               (fallbackDifficulty as PracticeQuestion["difficulty"]),
-            section: desiredSection ?? (template as any).section ?? "",
+            section: desiredSection ?? template.section ?? "",
             bloomSkill:
-              (variant.bloomSkill as any) ??
-              ((template as any).bloomSkill ?? seedBloomSkill ?? ""),
-            questionText: variantText || (template as any).questionText || seedQuestionText,
-            solutionSteps: (template as any).solutionSteps ?? [],
-            explanation: (template as any).explanation ?? "",
-            answer: (template as any).answer ?? "",
+              String(variant.bloomSkill ?? template.bloomSkill ?? seedBloomSkill ?? ""),
+            questionText: variantText || template.questionText || seedQuestionText,
+            solutionSteps: template.solutionSteps ?? [],
+            explanation: template.explanation ?? "",
+            answer: template.answer ?? "",
           };
         });
 

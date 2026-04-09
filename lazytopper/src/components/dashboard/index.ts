@@ -32,3 +32,6 @@ export { WeakAreasPanel } from "./WeakAreasPanel";
 export { RecentActivityList } from "./RecentActivityList";
 export { BadgesSection } from "./BadgesSection";
 export { ExploreMorePanel } from "./ExploreMorePanel";
+export { JourneyCard } from "./JourneyCard";
+export { PaceSelectorPanel } from "./PaceSelectorPanel";
+export { HeroActionCard, type HeroAction } from "./HeroActionCard";

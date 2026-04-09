@@ -1,5 +1,5 @@
 // src/pages/PracticePage.tsx
-/* eslint-disable @typescript-eslint/no-explicit-any, react-hooks/exhaustive-deps */
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { usePracticeLimit } from "../components/auth/PracticeLimitGate";
@@ -67,14 +67,32 @@ import {
   mapUnifiedQuestionToPractice,
 } from "../components/practice/practiceQuestionBuilder";
 import { MentorSolveDrawer } from "../components/practice/MentorSolveDrawer";
-import { PracticeQuestionCard } from "../components/practice/PracticeQuestionCard";
 import { PracticeControls } from "../components/practice/PracticeControls";
-import { SessionProgressBar } from "../components/practice/SessionProgressBar";
+import { PracticeHero } from "../components/practice/PracticeHero";
+import { WhyThisQuestionPanel } from "../components/practice/WhyThisQuestionPanel";
+import { PracticeQuestionList } from "../components/practice/PracticeQuestionList";
 
 const QTYPE_FIRST_TRIG = import.meta.env.VITE_QTYPE_FIRST_TRIGONOMETRY === "true";
 
-/* Builder functions extracted to ../components/practice/practiceQuestionBuilder.ts */
-/* MentorSolveDrawer extracted to ../components/practice/MentorSolveDrawer.tsx */
+interface PracticeNavState {
+  subjectKey?: string;
+  subject?: string;
+  subjectTitle?: string;
+  back?: string;
+  backLabel?: string;
+  topicKey?: string;
+  sectionFilter?: string;
+  practiceFilters?: {
+    subtopicHint?: string;
+    focusBankIds?: string[];
+    strictFocus?: boolean;
+    recommendedCount?: number;
+    difficultyPreset?: DifficultyChoice;
+    marksFilter?: number;
+  };
+}
+
+type SectionFilterValue = "ALL" | "A" | "B" | "C" | "D" | "E";
 
 const PracticePage: React.FC = () => {
   const location = useLocation();
@@ -90,8 +108,7 @@ const PracticePage: React.FC = () => {
   const topicKeyParam = qp.get("topicKey");
   const journeyMentorMode = String(qp.get("journeyMentor") || "").trim().toLowerCase();
 
-  // Navigation state for Back button + label
-  const navState = (location.state as any) || {};
+  const navState = (location.state as PracticeNavState) || {};
   // Support deep-linking via URL query params (e.g., /practice/10/Maths?topic=Triangles&section=A)
   const qpSectionRaw = (qp.get("section") || qp.get("pattern") || qp.get("type") || "").trim();
   const qpSection = qpSectionRaw ? qpSectionRaw.toUpperCase() : "";
@@ -110,15 +127,7 @@ const PracticePage: React.FC = () => {
       ? "Back to trends"
       : "Back");
 
-  // Optional practice filters passed from Trends / HPQ / TopicHub
-  const practiceFilters = (navState.practiceFilters || {}) as {
-    subtopicHint?: string;
-    focusBankIds?: string[];
-    strictFocus?: boolean;
-    recommendedCount?: number;
-    difficultyPreset?: DifficultyChoice;
-    marksFilter?: number;
-  };
+  const practiceFilters = navState.practiceFilters || {};
 
   const initialPracticeDefaults = useMemo(() => {
     const navSubtopicHint = String(practiceFilters.subtopicHint || "").trim() || undefined;
@@ -188,16 +197,15 @@ const PracticePage: React.FC = () => {
   }, [initialPracticeDefaults]);
 
 
-  const [sectionFilter, setSectionFilter] = useState<"ALL" | "A" | "B" | "C" | "D" | "E">(() => {
-  const init = (((navState as any)?.sectionFilter as any) || qpSection || "ALL");
-  return String(init || "ALL").toUpperCase() as any;
+  const [sectionFilter, setSectionFilter] = useState<SectionFilterValue>(() => {
+  const init = String(navState.sectionFilter || qpSection || "ALL").toUpperCase();
+  return (init === "A" || init === "B" || init === "C" || init === "D" || init === "E") ? init : "ALL";
 });
 
-// Keep URL ?section=... authoritative (without breaking hooks order).
 useEffect(() => {
   const s = (qpSection || "").toUpperCase();
   if (s === "A" || s === "B" || s === "C" || s === "D" || s === "E" || s === "ALL") {
-    setSectionFilter(s as any);
+    setSectionFilter(s as SectionFilterValue);
   }
 }, [qpSection]);
   const inferSectionFromMarks = (marks: unknown): "A" | "B" | "C" | "D" | "E" | null => {
@@ -211,12 +219,13 @@ useEffect(() => {
     return null;
   };
 
-  const getQuestionSection = (q: any): "A" | "B" | "C" | "D" | "E" | null => {
-    const direct = String(q?.section || q?.paperSection || q?.boardSection || "").toUpperCase();
-    if (direct === "A" || direct === "B" || direct === "C" || direct === "D" || direct === "E") return direct as any;
-    const byMarks = inferSectionFromMarks(q?.marks ?? q?.mark ?? q?.points);
+  const getQuestionSection = (q: PracticeQuestion): "A" | "B" | "C" | "D" | "E" | null => {
+    const qRecord = q as Record<string, unknown>;
+    const direct = String(qRecord.section || qRecord.paperSection || qRecord.boardSection || "").toUpperCase();
+    if (direct === "A" || direct === "B" || direct === "C" || direct === "D" || direct === "E") return direct;
+    const byMarks = inferSectionFromMarks(qRecord.marks ?? qRecord.mark ?? qRecord.points);
     if (byMarks) return byMarks;
-    const slot = String(q?.blueprintSlotId || "").toUpperCase();
+    const slot = String(qRecord.blueprintSlotId || "").toUpperCase();
     if (slot.startsWith("A")) return "A";
     if (slot.startsWith("B")) return "B";
     if (slot.startsWith("C")) return "C";
@@ -286,7 +295,7 @@ const [mentorSeedExample, setMentorSeedExample] = useState<{
 
 
   const canonicalTopicKey = useMemo(() => {
-  const explicitFromState = (navState as any)?.topicKey as string | undefined;
+  const explicitFromState = navState.topicKey;
   return resolveCanonicalTopicKey({
     subjectKey: String(subjectKey).toLowerCase(),
     topicParam,
@@ -295,7 +304,7 @@ const [mentorSeedExample, setMentorSeedExample] = useState<{
 }, [subjectKey, topicParam, topicKeyParam, navState]);
 
   const strategyTopicSeed = useMemo(() => {
-    const explicitFromState = (navState as any)?.topicKey as string | undefined;
+    const explicitFromState = navState.topicKey;
     return canonicalTopicKey || topicKeyParam || explicitFromState || topicParam || "";
   }, [canonicalTopicKey, topicKeyParam, navState, topicParam]);
   const strategyCanonicalTopicKey = useMemo(
@@ -417,7 +426,7 @@ const [mentorSeedExample, setMentorSeedExample] = useState<{
   }, [questions, mcqResults, selfAssessments, grade, subjectKey, canonicalTopicKey, topicParam]);
 
 const packTopicKey = useMemo(() => {
-  const explicitFromState = (navState as any)?.topicKey as string | undefined;
+  const explicitFromState = navState.topicKey;
   return resolvePracticePackKey({
     subjectKey,
     topicParam,
@@ -576,14 +585,14 @@ const packTopicKey = useMemo(() => {
           topic: topicParam || "",
           question: q.questionText,
           marks: q.marks || 1,
-          type: (q as any).type || "",
+          type: (q as Record<string, unknown>).type as string || "",
           section: q.section || "",
-          answer: (q as any).answer || "",
-          explanation: (q as any).explanation || "",
+          answer: (q as Record<string, unknown>).answer as string || "",
+          explanation: (q as Record<string, unknown>).explanation as string || "",
         });
         setPracticeSolutionData((prev) => ({ ...prev, [id]: result }));
-      } catch (err: any) {
-        setPracticeSolutionError((prev) => ({ ...prev, [id]: err?.message || "Failed to load solution" }));
+      } catch (err: unknown) {
+        setPracticeSolutionError((prev) => ({ ...prev, [id]: err instanceof Error ? err.message : "Failed to load solution" }));
       } finally {
         setPracticeSolutionLoading((prev) => ({ ...prev, [id]: false }));
       }
@@ -610,8 +619,8 @@ const packTopicKey = useMemo(() => {
         title: `Q${idx + 1}`,
         questionId: String(q.id),
         question: String(q.questionText || ""),
-        marks: Number((q as any).marks) || undefined,
-        section: String((q as any).section || ""),
+        marks: Number(q.marks) || undefined,
+        section: String(q.section || ""),
         defaultIntent,
         strategyContextHeader: buildStrategyContextHeader(strategyDetails),
         rubricContextHeader: buildRubricContextHeader(
@@ -625,7 +634,7 @@ const packTopicKey = useMemo(() => {
         chapterStep: family?.tutorNodeId || undefined,
         practiceSectionFilter:
           family?.sectionFilter ||
-          ((String((q as any).section || "").toUpperCase() as PracticeSectionFilter | "") || undefined),
+          ((String(q.section || "").toUpperCase() as PracticeSectionFilter | "") || undefined),
         suggestedPracticeIds: family?.focusBankIds,
         theoremFocus: family ? [family.theoremFamily, family.skillFamily] : undefined,
         recommendedDiagramType: family?.recommendedDiagramType,
@@ -731,81 +740,20 @@ const packTopicKey = useMemo(() => {
           topic={topicParam !== "Generic" ? topicLabel : undefined}
         />
 
-        {/* Hero */}
-        <section
-          style={{
-            borderRadius: 16,
-            padding: "20px 18px 22px",
-            background: "linear-gradient(135deg, #22c55e 0%, #3b82f6 100%)",
-            color: "#fff",
-            boxShadow: "0 4px 0 rgba(70,163,2,0.3)",
-            marginBottom: 18,
-          }}
-        >
-          <div
-            style={{
-              fontSize: "0.7rem",
-              letterSpacing: "0.22em",
-              textTransform: "uppercase",
-              opacity: 0.85,
-              marginBottom: 6,
-            }}
-          >
-            Class {grade} - {subjectKey} - Practice
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-            <h1
-              style={{
-                fontSize: "2rem",
-                lineHeight: 1.15,
-                fontWeight: 650,
-                marginBottom: 6,
-              }}
-            >
-              {title}
-            </h1>
-            {topicParam !== "Generic" && (() => {
-              const levelInfo = getAdaptiveLevelInfo(canonicalTopicKey || topicParam);
-              return (
-                <span
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 5,
-                    padding: "4px 12px",
-                    borderRadius: 999,
-                    backgroundColor: levelInfo.bgColor,
-                    color: levelInfo.color,
-                    fontSize: "0.75rem",
-                    fontWeight: 700,
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  {levelInfo.emoji} {levelInfo.label}
-                </span>
-              );
-            })()}
-          </div>
-          <p
-            style={{
-              fontSize: "0.9rem",
-              lineHeight: 1.6,
-              opacity: 0.96,
-              maxWidth: 640,
-            }}
-          >
-            Auto-generated{" "}
-            <strong>{questionCount}</strong> questions adapted to your progress.
-            Solve on paper first, then self-assess with{" "}
-            <strong>"Got it"</strong> or <strong>"Need practice"</strong>.
-          </p>
-        </section>
+        <PracticeHero
+          grade={grade}
+          subjectKey={subjectKey}
+          title={title}
+          topicParam={topicParam}
+          canonicalTopicKey={canonicalTopicKey || topicParam}
+          questionCount={questionCount}
+        />
 
         <PracticeControls
           difficulty={difficulty}
           onSetDifficulty={setDifficulty}
           sectionFilter={sectionFilter}
-          onSetSectionFilter={(s) => setSectionFilter(s as any)}
+          onSetSectionFilter={(s) => setSectionFilter(s as SectionFilterValue)}
           questionCount={questionCount}
           onSetQuestionCount={setQuestionCount}
           onRegenerate={() => {
@@ -820,290 +768,96 @@ const packTopicKey = useMemo(() => {
         />
 
         {isWhyThisQuestionEnabled && (
-          <section
-            data-testid="practice-why-panel"
-            style={{
-              marginBottom: 12,
-              borderRadius: 16,
-              border: "1px solid rgba(28,176,246,0.28)",
-              background: "rgba(59,130,246,0.06)",
-              boxShadow: "0 8px 22px rgba(0,0,0,0.3)",
-              overflow: "hidden",
-            }}
-          >
-            <button
-              data-testid="practice-why-panel-toggle"
-              type="button"
-              onClick={() => setIsWhyPanelOpen((prev) => !prev)}
-              style={{
-                width: "100%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                gap: 8,
-                border: "none",
-                borderBottom: isWhyPanelOpen ? "1px solid rgba(28,176,246,0.2)" : "none",
-                background: "rgba(28,176,246,0.08)",
-                color: "#1e3a8a",
-                padding: "10px 12px",
-                cursor: "pointer",
-                fontWeight: 800,
-                fontSize: "0.84rem",
-                textAlign: "left",
-              }}
-              aria-expanded={isWhyPanelOpen}
-            >
-              <span>
-                Why this question?
-                {activeQuestionNumber ? ` (Q${activeQuestionNumber})` : ""}
-              </span>
-              <span style={{ fontSize: "0.76rem" }}>{isWhyPanelOpen ? "Hide" : "Show"}</span>
-            </button>
-
-            {isWhyPanelOpen && (
-              <div style={{ padding: "12px 12px 10px" }}>
-                {activeQuestionMeta ? (
-                  <>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 10 }}>
-                      {activeQuestionMeta.skillFamily && (
-                        <span
-                          style={{
-                            fontSize: "0.73rem",
-                            borderRadius: 999,
-                            padding: "3px 9px",
-                            background: "rgba(28,176,246,0.12)",
-                            color: "#60a5fa",
-                            border: "1px solid rgba(28,176,246,0.2)",
-                          }}
-                        >
-                          Skill: {activeQuestionMeta.skillFamily}
-                        </span>
-                      )}
-                      {activeQuestionMeta.cbseFormat && (
-                        <span
-                          style={{
-                            fontSize: "0.73rem",
-                            borderRadius: 999,
-                            padding: "3px 9px",
-                            background: "rgba(88,204,2,0.12)",
-                            color: "#155e75",
-                            border: "1px solid rgba(88,204,2,0.2)",
-                          }}
-                        >
-                          CBSE format: {activeQuestionMeta.cbseFormat}
-                        </span>
-                      )}
-                    </div>
-
-                    <div style={{ display: "grid", gap: 10 }}>
-                      <div>
-                        <div style={{ fontSize: "0.78rem", fontWeight: 800, color: "rgba(255,255,255,0.85)", marginBottom: 4 }}>
-                          Learning objects
-                        </div>
-                        {activeQuestionLearningObjects.length > 0 ? (
-                          <ul style={{ margin: 0, paddingLeft: 18, fontSize: "0.78rem", color: "rgba(255,255,255,0.85)", lineHeight: 1.45 }}>
-                            {activeQuestionLearningObjects.map((lo) => (
-                              <li key={lo.loId}>
-                                <strong>{lo.title}:</strong> {lo.description}
-                              </li>
-                            ))}
-                          </ul>
-                        ) : (
-                          <div style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.45)" }}>
-                            Learning objects are being mapped for this question.
-                          </div>
-                        )}
-                      </div>
-
-                      {whyCommonMistakes.length > 0 && (
-                        <div>
-                          <div style={{ fontSize: "0.78rem", fontWeight: 800, color: "rgba(255,255,255,0.85)", marginBottom: 4 }}>
-                            Common mistakes
-                          </div>
-                          <ul style={{ margin: 0, paddingLeft: 18, fontSize: "0.78rem", color: "rgba(255,255,255,0.85)", lineHeight: 1.45 }}>
-                            {whyCommonMistakes.map((mistake) => (
-                              <li key={mistake}>{mistake}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-
-                      {whyBoardWritingTip && (
-                        <div
-                          style={{
-                            borderRadius: 10,
-                            border: "1px solid rgba(88,204,2,0.2)",
-                            background: "rgba(59,130,246,0.06)",
-                            padding: "8px 10px",
-                            fontSize: "0.78rem",
-                            color: "#164e63",
-                            lineHeight: 1.45,
-                          }}
-                        >
-                          <strong>Board writing tip:</strong> {whyBoardWritingTip}
-                        </div>
-                      )}
-                    </div>
-                  </>
-                ) : (
-                  <div style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.45)" }}>
-                    This question isn&apos;t tagged yet. Practice normally.
-                  </div>
-                )}
-              </div>
-            )}
-          </section>
+          <WhyThisQuestionPanel
+            isOpen={isWhyPanelOpen}
+            onToggle={() => setIsWhyPanelOpen((prev) => !prev)}
+            activeQuestionNumber={activeQuestionNumber}
+            meta={activeQuestionMeta}
+            learningObjects={activeQuestionLearningObjects}
+            commonMistakes={whyCommonMistakes}
+            boardWritingTip={whyBoardWritingTip}
+          />
         )}
 
-        {/* Questions list */}
-        <section>
-          {isLoading && (
-            <div
-              style={{
-                padding: "32px 16px",
-                textAlign: "center",
-                borderRadius: 16,
-                background: "#0a0a0a",
-                border: "1px solid rgba(255,255,255,0.06)",
-                marginBottom: 12,
-              }}
-            >
-              <div style={{ fontSize: "2rem", marginBottom: 8 }}>📝</div>
-              <p style={{ fontSize: "0.95rem", fontWeight: 700, color: "rgba(255,255,255,0.85)", marginBottom: 4 }}>
-                Preparing your questions...
-              </p>
-              <p style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.45)" }}>
-                Picking the best questions based on your topic and difficulty level.
-              </p>
-            </div>
-          )}
-
-          {error && (
-            <p
-              style={{
-                fontSize: "0.85rem",
-                color: "#ef4444",
-                marginBottom: 8,
-              }}
-            >
-              {error}
-            </p>
-          )}
-
-          {!isLoading && !error && questions.length === 0 ? (
-            <div
-              style={{
-                padding: "32px 16px",
-                textAlign: "center",
-                borderRadius: 16,
-                background: "#0a0a0a",
-                border: "1px solid rgba(255,255,255,0.06)",
-              }}
-            >
-              <div style={{ fontSize: "2rem", marginBottom: 8 }}>🔍</div>
-              <p style={{ fontSize: "0.95rem", fontWeight: 700, color: "rgba(255,255,255,0.85)", marginBottom: 4 }}>
-                No questions found for this topic yet
-              </p>
-              <p style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.45)" }}>
-                Try picking a different topic from the Trends page, or check back soon as we keep adding new questions.
-              </p>
-            </div>
-          ) : (
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: 14,
-              }}
-            >
-              {filteredQuestions.map((q, idx) => (
-                <PracticeQuestionCard
-                  key={q.id}
-                  q={q}
-                  idx={idx}
-                  subjectKey={subjectKey}
-                  topicLabel={topicLabel}
-                  isOpen={!!expandedAnswers[q.id]}
-                  selfAssessment={selfAssessments[q.id]}
-                  solutionLoading={!!practiceSolutionLoading[q.id]}
-                  solutionError={practiceSolutionError[q.id]}
-                  solutionData={practiceSolutionData[q.id]}
-                  mcqSelection={mcqSelections[String(q.id)]}
-                  mcqResult={mcqResults[String(q.id)]}
-                  onSetActiveQuestion={(id) => setActiveQuestionId(id)}
-                  onToggleAnswer={(id, question) => handleToggleAnswer(id, question)}
-                  onMcqSelect={(qId, oi) => setMcqSelections((prev) => ({ ...prev, [qId]: oi }))}
-                  onMcqResult={(qId, result) => setMcqResults((prev) => ({ ...prev, [qId]: result }))}
-                  onSelfAssessGotIt={(question) => {
-                    const concept = String(question.subtopic ?? "");
-                    const diff = String(question.difficulty ?? "Medium");
-                    setSelfAssessments((prev) => ({ ...prev, [question.id]: "got_it" }));
-                    recordQuestionAnswered();
-                    recordPracticeInPhase(canonicalTopicKey || topicParam, authUserForJourney?.uid);
-                    setSessionTracker((prev) => recordSelfAssessment(prev, question.id, "got_it", concept, diff));
-                    const topicK = canonicalTopicKey || topicParam;
-                    const snap = loadTopicMasterySnapshot(topicK);
-                    const nodeId = concept || question.id;
-                    const updated = upsertNodeProgress(snap, nodeId, { score: 100, status: "correct" });
-                    saveTopicMasterySnapshot(updated, topicK);
-                  }}
-                  onSelfAssessNeedPractice={(question) => {
-                    const concept = String(question.subtopic ?? "");
-                    const diff = String(question.difficulty ?? "Medium");
-                    setSelfAssessments((prev) => ({ ...prev, [question.id]: "need_practice" }));
-                    recordQuestionAnswered();
-                    recordPracticeInPhase(canonicalTopicKey || topicParam, authUserForJourney?.uid);
-                    const nextTracker = recordSelfAssessment(sessionTracker, question.id, "need_practice", concept, diff);
-                    const pendingFollowUp = nextTracker.followUpQueue.find(
-                      (f) => f.sourceQuestionId === question.id && f.injectedAtIndex === -1
-                    );
-                    if (pendingFollowUp) {
-                      const currentIds = new Set(questions.map((fq) => String(fq.id)));
-                      const allCandidates = PredictionCore.getLikelyQuestionsForConcept(
-                        canonicalTopicKey || topicParam, undefined
-                      );
-                      const followUp = findFollowUpQuestion(
-                        allCandidates, currentIds,
-                        pendingFollowUp.conceptKey, pendingFollowUp.difficulty,
-                      );
-                      if (followUp) {
-                        const sourceIdx = questions.findIndex((fq) => String(fq.id) === question.id);
-                        const insertAt = sourceIdx >= 0
-                          ? Math.min(sourceIdx + 2, questions.length)
-                          : Math.min(idx + 2, questions.length);
-                        const mapped = mapUnifiedQuestionToPractice(followUp, `followup-${question.id}`);
-                        setQuestions((prev) => {
-                          const copy = [...prev];
-                          copy.splice(insertAt, 0, mapped);
-                          return copy;
-                        });
-                        setSessionTracker(markFollowUpInjected(nextTracker, question.id, insertAt));
-                      } else {
-                        setSessionTracker(nextTracker);
-                      }
-                    } else {
-                      setSessionTracker(nextTracker);
-                    }
-                    const topicK = canonicalTopicKey || topicParam;
-                    const snap = loadTopicMasterySnapshot(topicK);
-                    const nodeId = concept || question.id;
-                    const updated = upsertNodeProgress(snap, nodeId, { score: 20, status: "incorrect" });
-                    saveTopicMasterySnapshot(updated, topicK);
-                  }}
-                  onOpenConceptDrawer={openConceptDrawer}
-                  onOpenMentorSocratic={(question) => {
-                    openMentorForQuestion(question, idx, "hint");
-                  }}
-                  onOpenMentorBoard={(question) => {
-                    openMentorForQuestion(question, idx, "check_cbse");
-                  }}
-                />
-              ))}
-            </div>
-          )}
-
-          <SessionProgressBar stats={getSessionStats(sessionTracker)} />
-        </section>
+        <PracticeQuestionList
+          isLoading={isLoading}
+          error={error}
+          questions={questions}
+          filteredQuestions={filteredQuestions}
+          subjectKey={subjectKey}
+          topicLabel={topicLabel}
+          expandedAnswers={expandedAnswers}
+          selfAssessments={selfAssessments}
+          mcqSelections={mcqSelections}
+          mcqResults={mcqResults}
+          practiceSolutionLoading={practiceSolutionLoading}
+          practiceSolutionError={practiceSolutionError}
+          practiceSolutionData={practiceSolutionData}
+          sessionStats={getSessionStats(sessionTracker)}
+          onSetActiveQuestion={setActiveQuestionId}
+          onToggleAnswer={handleToggleAnswer}
+          onMcqSelect={(qId, oi) => setMcqSelections((prev) => ({ ...prev, [qId]: oi }))}
+          onMcqResult={(qId, result) => setMcqResults((prev) => ({ ...prev, [qId]: result }))}
+          onSelfAssessGotIt={(question) => {
+            const concept = String(question.subtopic ?? "");
+            const diff = String(question.difficulty ?? "Medium");
+            setSelfAssessments((prev) => ({ ...prev, [question.id]: "got_it" }));
+            recordQuestionAnswered();
+            recordPracticeInPhase(canonicalTopicKey || topicParam, authUserForJourney?.uid);
+            setSessionTracker((prev) => recordSelfAssessment(prev, question.id, "got_it", concept, diff));
+            const topicK = canonicalTopicKey || topicParam;
+            const snap = loadTopicMasterySnapshot(topicK);
+            const nodeId = concept || question.id;
+            const updated = upsertNodeProgress(snap, nodeId, { score: 100, status: "correct" });
+            saveTopicMasterySnapshot(updated, topicK);
+          }}
+          onSelfAssessNeedPractice={(question, idx) => {
+            const concept = String(question.subtopic ?? "");
+            const diff = String(question.difficulty ?? "Medium");
+            setSelfAssessments((prev) => ({ ...prev, [question.id]: "need_practice" }));
+            recordQuestionAnswered();
+            recordPracticeInPhase(canonicalTopicKey || topicParam, authUserForJourney?.uid);
+            const nextTracker = recordSelfAssessment(sessionTracker, question.id, "need_practice", concept, diff);
+            const pendingFollowUp = nextTracker.followUpQueue.find(
+              (f) => f.sourceQuestionId === question.id && f.injectedAtIndex === -1
+            );
+            if (pendingFollowUp) {
+              const currentIds = new Set(questions.map((fq) => String(fq.id)));
+              const allCandidates = PredictionCore.getLikelyQuestionsForConcept(
+                canonicalTopicKey || topicParam, undefined
+              );
+              const followUp = findFollowUpQuestion(
+                allCandidates, currentIds,
+                pendingFollowUp.conceptKey, pendingFollowUp.difficulty,
+              );
+              if (followUp) {
+                const sourceIdx = questions.findIndex((fq) => String(fq.id) === question.id);
+                const insertAt = sourceIdx >= 0
+                  ? Math.min(sourceIdx + 2, questions.length)
+                  : Math.min(idx + 2, questions.length);
+                const mapped = mapUnifiedQuestionToPractice(followUp, `followup-${question.id}`);
+                setQuestions((prev) => {
+                  const copy = [...prev];
+                  copy.splice(insertAt, 0, mapped);
+                  return copy;
+                });
+                setSessionTracker(markFollowUpInjected(nextTracker, question.id, insertAt));
+              } else {
+                setSessionTracker(nextTracker);
+              }
+            } else {
+              setSessionTracker(nextTracker);
+            }
+            const topicK = canonicalTopicKey || topicParam;
+            const snap = loadTopicMasterySnapshot(topicK);
+            const nodeId = concept || question.id;
+            const updated = upsertNodeProgress(snap, nodeId, { score: 20, status: "incorrect" });
+            saveTopicMasterySnapshot(updated, topicK);
+          }}
+          onOpenConceptDrawer={openConceptDrawer}
+          onOpenMentorSocratic={(question, idx) => openMentorForQuestion(question, idx, "hint")}
+          onOpenMentorBoard={(question, idx) => openMentorForQuestion(question, idx, "check_cbse")}
+        />
 
 <MentorSolveDrawer
   open={mentorDrawerOpen}

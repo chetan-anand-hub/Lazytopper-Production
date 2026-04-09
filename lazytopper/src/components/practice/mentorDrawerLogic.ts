@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { StudentMentorIntent } from "../../types/studentMentorIntent";
 import type { MentorStructured } from "../../types/mentor";
 import {
@@ -289,7 +288,7 @@ export async function requestMentorHybrid(args: {
       throw error;
     }
     const raw = await res.text();
-    let payload: any = {};
+    let payload: Record<string, unknown> = {};
     try {
       payload = raw ? JSON.parse(raw) : {};
     } catch {

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { DiagramBlock } from "../DiagramBlock";
@@ -109,7 +108,7 @@ export function MentorSolveDrawer(props: {
   };
 
   const renderAssistantContent = useCallback((raw: string) => {
-    const obj: any = parseMentorStructuredText(raw);
+    const obj = parseMentorStructuredText(raw);
     if (!obj) return raw;
     const tutorText = getMentorTutorText(obj);
     if (tutorText.trim()) return tutorText;
@@ -118,7 +117,7 @@ export function MentorSolveDrawer(props: {
       const steps = Array.isArray(obj.steps) ? obj.steps : [];
       const lines: string[] = [];
       lines.push(`Board Steps + Marking Scheme${total ? ` (Total: ${total} marks)` : ""}`);
-      steps.forEach((s: any, idx: number) => {
+      steps.forEach((s: Record<string, unknown>, idx: number) => {
         const m = s && s.marks != null ? Number(s.marks) : 0;
         const text = s && s.text ? String(s.text) : "";
         lines.push("", `${idx + 1}) [${m}] ${text}`);
@@ -266,15 +265,16 @@ export function MentorSolveDrawer(props: {
   if (!open || !seed) return null;
 
   const getOfflineBoardSteps = () => {
-    const subj = String(subjectTitle || "").trim() as any;
+    const subj = String(subjectTitle || "").trim();
     const subjectKey = (subj === "Maths" || subj === "Science") ? subj : "Maths";
     const rawSection = String(seed?.section || "").trim().toUpperCase();
-    const marks = Number((seed as any)?.marks);
+    const marks = Number(seed?.marks);
     const inferredSection = marks === 1 ? "A" : marks === 2 ? "B" : marks === 3 ? "C" : marks === 4 ? "D" : marks >= 5 ? "E" : "C";
     const section =
       (rawSection === "A" || rawSection === "B" || rawSection === "C" || rawSection === "D" || rawSection === "E")
         ? rawSection : inferredSection;
-    const tpl = (boardSteps_2025_26 as any)?.[subjectKey]?.[section];
+    const subjectSteps = boardSteps_2025_26[subjectKey as keyof typeof boardSteps_2025_26];
+    const tpl = subjectSteps?.[section as keyof typeof subjectSteps];
     return { subjectKey, section, tpl };
   };
 
@@ -386,7 +386,7 @@ function DrawerHeader({ mentorTitle, seed, loading, onReset, onClose }: {
   );
 }
 
-function OfflineBoardStepsPanel({ getSteps }: { getSteps: () => { subjectKey: string; section: string; tpl: any } }) {
+function OfflineBoardStepsPanel({ getSteps }: { getSteps: () => { subjectKey: string; section: string; tpl: import("../../data/boardSteps/types").BoardStepsTemplate | undefined } }) {
   const { subjectKey, section, tpl } = getSteps();
   if (!tpl) return null;
   return (
@@ -404,7 +404,7 @@ function OfflineBoardStepsPanel({ getSteps }: { getSteps: () => { subjectKey: st
         </div>
       )}
       <div style={{ display: "grid", gap: 10 }}>
-        {tpl.steps.map((s: any) => (
+        {tpl.steps.map((s: import("../../data/boardSteps/types").BoardStep) => (
           <div key={s.id} style={{
             padding: 10, borderRadius: 14, background: "rgba(255,255,255,0.03)",
             border: "1px solid rgba(255,255,255,0.08)",
@@ -437,7 +437,7 @@ function OfflineBoardStepsPanel({ getSteps }: { getSteps: () => { subjectKey: st
 function MentorAssistantMessage({ msg, seed, renderAssistantContent, onPracticeNext }: {
   msg: MentorChatMsg; seed: MentorSeedConfig;
   renderAssistantContent: (raw: string) => string;
-  onPracticeNext: (p: any) => void;
+  onPracticeNext: (p: Record<string, unknown>) => void;
 }) {
   const tutorObj = getMentorTutorObject(msg.structured);
   const diagram = extractMentorDiagramBlock(msg.structured, `${seed.questionFamilyLabel || seed.title} mentor figure`);
