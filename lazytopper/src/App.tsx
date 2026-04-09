@@ -537,7 +537,7 @@ export default function App() {
           {/* Predictive papers hub — requires auth */}
           <Route
             path="/predictive-papers"
-            element={<RequireAuth>{withRouteSuspense(<PredictivePapersPage />)}</RequireAuth>}
+            element={<RequireAuth><SectionErrorBoundary>{withRouteSuspense(<PredictivePapersPage />)}</SectionErrorBoundary></RequireAuth>}
           />
 
           {/* Exam Simulation — unlimited full-length mock */}
