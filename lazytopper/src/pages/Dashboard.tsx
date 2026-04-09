@@ -1109,13 +1109,13 @@ export default function Dashboard() {
                 <span style={{ fontSize: 24 }}>👋</span>
                 <div>
                   <div style={{ fontSize: 14, fontWeight: 800, color: "#22c55e", marginBottom: 2 }}>Welcome back!</div>
-                  <div style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", lineHeight: 1.4 }}>
+                  <div style={{ fontSize: 12, color: tc.textSecondary, lineHeight: 1.4 }}>
                     Your progress is safe — all hours, accuracy gains and badges are still here. Start fresh today!
                   </div>
                 </div>
               </div>
               <button type="button" onClick={() => { dismissStreakReset(); setShowStreakReset(false); }} style={{
-                background: "none", border: "none", color: "rgba(255,255,255,0.4)", cursor: "pointer",
+                background: "none", border: "none", color: tc.textMuted, cursor: "pointer",
                 fontSize: 14, padding: "0 4px", flexShrink: 0,
               }}>✕</button>
             </div>
@@ -1231,8 +1231,8 @@ export default function Dashboard() {
           ].map((a) => (
             <button key={a.label} onClick={() => navigate(a.path, { state: { back: "/dashboard", backLabel: "Back to Dashboard" } })} style={{
               display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
-              padding: "10px 14px", borderRadius: 12, border: "1px solid rgba(255,255,255,0.06)",
-              background: "rgba(255,255,255,0.03)", color: "#fff", fontSize: 10, fontWeight: 600,
+              padding: "10px 14px", borderRadius: 12, border: `1px solid ${tc.cardBorder}`,
+              background: tc.cardBg, color: tc.textPrimary, fontSize: 10, fontWeight: 600,
               cursor: "pointer", fontFamily: "'Inter', sans-serif", flexShrink: 0, minWidth: 72,
             }}>
               <span style={{ fontSize: 18 }}>{a.icon}</span>
@@ -1413,7 +1413,7 @@ export default function Dashboard() {
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
                     <div>
                       <span style={{ fontSize: 13, fontWeight: 600 }}>{w.topicName}</span>
-                      <span style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", marginLeft: 6 }}>{w.subject}</span>
+                      <span style={{ fontSize: 10, color: tc.textMuted, marginLeft: 6 }}>{w.subject}</span>
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                       <span style={{ fontSize: 12, fontWeight: 800, color: w.accuracy < 50 ? "#ef4444" : "#fb923c" }}>{w.accuracy}%</span>
@@ -1505,21 +1505,21 @@ export default function Dashboard() {
               { label: "Hours/day", value: `${hoursPerDayValue || "—"}h`, color: "#22c55e" },
               ...(!hideCountdown ? [{ label: "Days left", value: `${daysLeftValue || "—"}`, color: "#fb923c" }] : []),
             ].map((s, i) => (
-              <div key={i} style={{ textAlign: "center", padding: "10px 6px", borderRadius: 10, background: "rgba(255,255,255,0.03)" }}>
+              <div key={i} style={{ textAlign: "center", padding: "10px 6px", borderRadius: 10, background: tc.subtleBg }}>
                 <div style={{ fontSize: 18, fontWeight: 800, color: s.color }}>{s.value}</div>
-                <div style={{ fontSize: 9, fontWeight: 600, color: "rgba(255,255,255,0.35)", textTransform: "uppercase", letterSpacing: 0.5 }}>{s.label}</div>
+                <div style={{ fontSize: 9, fontWeight: 600, color: tc.textMuted, textTransform: "uppercase", letterSpacing: 0.5 }}>{s.label}</div>
               </div>
             ))}
           </div>
           {strategy && (
             <div style={{ padding: "10px 12px", borderRadius: 10, background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.15)" }}>
-              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", marginBottom: 4 }}>Realistic Score Range</div>
+              <div style={{ fontSize: 11, color: tc.textSecondary, marginBottom: 4 }}>Realistic Score Range</div>
               <div className="font-display" style={{ fontSize: 20, fontWeight: 800 }}>
                 <span style={{ color: "#3b82f6" }}>{strategy.realisticMin}%</span>
-                <span style={{ color: "rgba(255,255,255,0.2)", margin: "0 6px" }}>—</span>
+                <span style={{ color: tc.textFaint, margin: "0 6px" }}>—</span>
                 <span style={{ color: "#22c55e" }}>{strategy.realisticMax}%</span>
               </div>
-              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", marginTop: 2 }}>
+              <div style={{ fontSize: 10, color: tc.textMuted, marginTop: 2 }}>
                 {strategy.effortStatus === "high" ? "Strong effort — you can exceed your target." : strategy.effortStatus === "ok" ? "Plan is realistic with regular study." : "Increase hours or adjust target."}
               </div>
             </div>
@@ -1580,10 +1580,10 @@ export default function Dashboard() {
                   <div style={{
                     width: 48, height: 48, borderRadius: 12, margin: "0 auto 4px",
                     display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22,
-                    background: b.unlocked ? "rgba(34,197,94,0.1)" : "rgba(255,255,255,0.03)",
-                    border: b.unlocked ? "1px solid rgba(34,197,94,0.2)" : "1px solid rgba(255,255,255,0.06)",
+                    background: b.unlocked ? "rgba(34,197,94,0.1)" : tc.subtleBg,
+                    border: b.unlocked ? "1px solid rgba(34,197,94,0.2)" : `1px solid ${tc.cardBorder}`,
                   }}>{b.unlocked ? b.icon : "🔒"}</div>
-                  <div style={{ fontSize: 8, fontWeight: 600, color: "rgba(255,255,255,0.5)", lineHeight: 1.2 }}>{b.name}</div>
+                  <div style={{ fontSize: 8, fontWeight: 600, color: tc.textSecondary, lineHeight: 1.2 }}>{b.name}</div>
                 </div>
               ))}
             </div>
