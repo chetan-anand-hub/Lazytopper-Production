@@ -13,7 +13,9 @@ export default function Login() {
 
   const nextPath = useMemo(() => {
     const st = (location.state || {}) as LocationState;
-    return st.from || "/dashboard";
+    if (st.from) return st.from;
+    const hasProfile = !!window.localStorage.getItem("lazytopper.profile.v2");
+    return hasProfile ? "/dashboard" : "/onboarding";
   }, [location.state]);
 
   useEffect(() => {

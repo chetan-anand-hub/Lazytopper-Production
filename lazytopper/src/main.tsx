@@ -13,14 +13,14 @@ const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 const clerkProxyUrl = import.meta.env.VITE_CLERK_PROXY_URL || undefined;
 
 if (!clerkPubKey) {
-  console.warn("Missing VITE_CLERK_PUBLISHABLE_KEY — Clerk auth will not be available");
+  throw new Error("Missing VITE_CLERK_PUBLISHABLE_KEY — cannot initialize auth");
 }
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <BrowserRouter basename="/app">
       <ClerkProvider
-        publishableKey={clerkPubKey || "pk_test_placeholder"}
+        publishableKey={clerkPubKey}
         proxyUrl={clerkProxyUrl}
       >
         <AuthProvider>
