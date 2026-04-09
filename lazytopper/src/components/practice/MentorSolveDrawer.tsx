@@ -131,14 +131,17 @@ export function MentorSolveDrawer(props: {
     if (obj.kind === "hint") lines.push("Hint:");
     if (obj.kind === "final") lines.push("Final:");
     lines.push(String(obj.tutor || ""));
-    if (obj.mcq && typeof obj.mcq === "object") {
-      const opts = ["A", "B", "C", "D"].filter((k) => obj.mcq && obj.mcq[k]).map((k) => `${k}. ${obj.mcq[k]}`);
+    const mcq = obj.mcq;
+    if (mcq && typeof mcq === "object") {
+      const mcqRecord = mcq as Record<string, unknown>;
+      const opts = ["A", "B", "C", "D"].filter((k) => mcqRecord[k]).map((k) => `${k}. ${String(mcqRecord[k])}`);
       if (opts.length) { lines.push(""); lines.push(...opts); }
     }
-    if (obj.answerFormat) { lines.push(""); lines.push(`Answer format: ${obj.answerFormat}`); }
+    if (obj.answerFormat) { lines.push(""); lines.push(`Answer format: ${String(obj.answerFormat)}`); }
     if (obj.kind === "final") {
       if (obj.finalAnswer) { lines.push(""); lines.push(`Final Answer: ${obj.finalAnswer}`); }
-      if (obj.boardWriteup) { lines.push(""); lines.push("Board Write-up:"); lines.push(obj.boardWriteup); }
+      const boardWriteup = obj.boardWriteup;
+      if (boardWriteup) { lines.push(""); lines.push("Board Write-up:"); lines.push(String(boardWriteup)); }
     }
     return lines.join("\n");
   }, []);
@@ -437,7 +440,7 @@ function OfflineBoardStepsPanel({ getSteps }: { getSteps: () => { subjectKey: st
 function MentorAssistantMessage({ msg, seed, renderAssistantContent, onPracticeNext }: {
   msg: MentorChatMsg; seed: MentorSeedConfig;
   renderAssistantContent: (raw: string) => string;
-  onPracticeNext: (p: Record<string, unknown>) => void;
+  onPracticeNext: (practiceNext: import("../../types/mentor").MentorTutorPracticeNext) => void;
 }) {
   const tutorObj = getMentorTutorObject(msg.structured);
   const diagram = extractMentorDiagramBlock(msg.structured, `${seed.questionFamilyLabel || seed.title} mentor figure`);

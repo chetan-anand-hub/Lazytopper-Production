@@ -1,8 +1,8 @@
 import { type PracticeQuestion } from "../../data/predictionDataService";
-import type { DifficultyLevel, LTSubjectKey } from "../../data/predictionTypes";
+import type { BloomLevel, DifficultyLevel, LTSubjectKey } from "../../data/predictionTypes";
 import { generatePracticeSet, inferBoardPatternFromQuestion, normalizeBoardPattern } from "../../data/practiceSetGenerator";
 import { generateUnifiedPracticeQuestions } from "../../data/questionGenerator";
-import { promptDPracticePacks } from "../../data/promptDPracticePacks";
+import { promptDPracticePacks, type TopicPracticePack } from "../../data/promptDPracticePacks";
 import {
   resolveTopicKey as resolveCanonicalTopicKey,
   toPracticePackKey,
@@ -50,7 +50,6 @@ interface RawQuestion {
   [key: string]: unknown;
 }
 
-type PracticePackMap = Record<string, { topicName?: string; questions?: RawQuestion[] }>;
 
 export const MIN_QUESTION_COUNT = 3;
 export const MAX_QUESTION_COUNT = 100;
@@ -273,9 +272,7 @@ export function resolvePracticePackKey(args: {
   explicitTopicKey?: string | null;
 }): string {
   const subjectLower = args.subjectKey.toLowerCase() as "maths" | "science";
-  const packsForSubject = (promptDPracticePacks as Record<string, PracticePackMap>)[subjectLower] as
-    | PracticePackMap
-    | undefined;
+  const packsForSubject = promptDPracticePacks[subjectLower];
 
   if (args.explicitTopicKey) {
     const explicitPackKey = normaliseKey(args.explicitTopicKey);
@@ -345,7 +342,7 @@ export function parseBooleanFlag(raw: unknown): boolean | undefined {
   return undefined;
 }
 
-export function mapUnifiedQuestionToPractice(question: RawQuestion, fallbackId: string): PracticeQuestion {
+export function mapUnifiedQuestionToPractice(question: RawQuestion | Record<string, unknown>, fallbackId: string): PracticeQuestion {
   return {
     id: String(question?.id ?? fallbackId),
     marks: Number(question?.marks ?? 1),
@@ -429,24 +426,10 @@ export async function buildPracticeQuestionsWithAiTopup(
   });
 
   const subjectLower = args.subjectKey.toLowerCase() as "maths" | "science";
-  const packMap = (promptDPracticePacks as Record<string, PracticePackMap>)[subjectLower];
-  const pack = packMap?.[args.packTopicKey];
+  const packMap = promptDPracticePacks[subjectLower];
+  const pack: TopicPracticePack | undefined = packMap?.[args.packTopicKey];
   const packQuestions: PracticeQuestion[] = Array.isArray(pack?.questions)
-    ? pack.questions.map((q: RawQuestion) => ({
-        id: String(q.id ?? ""),
-        marks: Number(q.marks ?? 1),
-        difficulty: String(q.difficulty ?? "Medium"),
-        section: String(q.section ?? ""),
-        bloomSkill: String(q.bloomSkill ?? "Understanding"),
-        questionText: String(q.text ?? q.questionText ?? "").trim(),
-        solutionSteps: q.solutionSteps ?? [],
-        explanation: String(q.explanation ?? ""),
-        answer: String(q.answer ?? ""),
-        subject: String(q.subject ?? ""),
-        topicKey: String(q.topicKey ?? ""),
-        subtopic: String(q.subtopic ?? q.conceptKey ?? q.subtopicKey ?? ""),
-        format: String(q.format ?? ""),
-      } as PracticeQuestion))
+    ? pack.questions.map((q) => mapUnifiedQuestionToPractice(q as unknown as RawQuestion, String(q.id)))
     : [];
 
   const bankQuestions = engineQuestions.length > 0 ? engineQuestions : packQuestions;
@@ -482,14 +465,14 @@ export async function buildPracticeQuestionsWithAiTopup(
 
   const canonicalFallback = generateUnifiedPracticeQuestions({
     subject: args.subjectKey,
-    topicKey: args.topicLabel,
+    topicKey: args.topicLabel as Parameters<typeof generateUnifiedPracticeQuestions>[0]["topicKey"],
     count: missing,
-    section: desiredSection || undefined,
-    difficulty: args.difficulty === "All" ? undefined : args.difficulty,
+    section: (desiredSection || undefined) as Parameters<typeof generateUnifiedPracticeQuestions>[0]["section"],
+    difficulty: (args.difficulty === "All" ? undefined : args.difficulty) as Parameters<typeof generateUnifiedPracticeQuestions>[0]["difficulty"],
     mixMode: "generated-first",
   })
-    .map((question: RawQuestion, index: number) =>
-      mapUnifiedQuestionToPractice(question, `CANONICAL-${index + 1}`)
+    .map((question, index) =>
+      mapUnifiedQuestionToPractice(question as unknown as RawQuestion, `CANONICAL-${index + 1}`)
     )
     .filter((question) => (desiredSection ? inferBoardPatternFromQuestion(question) === desiredSection : true));
 
@@ -557,7 +540,7 @@ export async function buildPracticeQuestionsWithAiTopup(
               (fallbackDifficulty as PracticeQuestion["difficulty"]),
             section: desiredSection ?? template.section ?? "",
             bloomSkill:
-              String(variant.bloomSkill ?? template.bloomSkill ?? seedBloomSkill ?? ""),
+              (String(variant.bloomSkill ?? template.bloomSkill ?? seedBloomSkill ?? "Understanding") as BloomLevel),
             questionText: variantText || template.questionText || seedQuestionText,
             solutionSteps: template.solutionSteps ?? [],
             explanation: template.explanation ?? "",

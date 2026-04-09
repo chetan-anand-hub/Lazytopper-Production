@@ -85,7 +85,6 @@ import {
   JourneyCard,
   PaceSelectorPanel,
   HeroActionCard,
-  type HeroAction,
 } from "../components/dashboard";
 
 export default function Dashboard() {

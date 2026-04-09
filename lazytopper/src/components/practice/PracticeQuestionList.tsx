@@ -2,7 +2,7 @@ import { type PracticeQuestion } from "../../data/predictionDataService";
 import type { StepSolutionResponse } from "../../ai/aiClient";
 import { PracticeQuestionCard } from "./PracticeQuestionCard";
 import { SessionProgressBar } from "./SessionProgressBar";
-import type { SessionStats } from "../../services/adaptivePracticeEngine";
+type SessionStats = { total: number; gotIt: number; needPractice: number; accuracy: number };
 
 export interface PracticeQuestionListProps {
   isLoading: boolean;

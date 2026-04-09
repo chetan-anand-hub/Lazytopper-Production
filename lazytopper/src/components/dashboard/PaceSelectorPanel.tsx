@@ -4,19 +4,13 @@ import {
   clearManualOverride,
   getProfileConfig,
   type PaceProfileType,
+  type StoredPaceProfile,
 } from "../../services/paceProfileService";
 
-interface PaceProfile {
-  type: PaceProfileType;
-  detectedType: PaceProfileType;
-  isManualOverride: boolean;
-  daysLeft: number;
-}
-
 export interface PaceSelectorPanelProps {
-  paceProfile: PaceProfile;
+  paceProfile: StoredPaceProfile;
   hideCountdown: boolean;
-  onUpdateProfile: (profile: PaceProfile) => void;
+  onUpdateProfile: (profile: StoredPaceProfile) => void;
 }
 
 export function PaceSelectorPanel({ paceProfile, hideCountdown, onUpdateProfile }: PaceSelectorPanelProps) {
@@ -38,7 +32,7 @@ export function PaceSelectorPanel({ paceProfile, hideCountdown, onUpdateProfile 
           return (
             <button key={pt} type="button" onClick={() => {
               const updated = setManualOverride(pt);
-              onUpdateProfile(updated as PaceProfile);
+              onUpdateProfile(updated);
             }} style={{
               flex: 1, padding: "10px 8px", borderRadius: 12,
               border: isActive ? `2px solid ${color}` : `1px solid ${tc.cardBorder}`,
@@ -56,7 +50,7 @@ export function PaceSelectorPanel({ paceProfile, hideCountdown, onUpdateProfile 
       {paceProfile.isManualOverride && (
         <button type="button" onClick={() => {
           const updated = clearManualOverride();
-          if (updated) onUpdateProfile(updated as PaceProfile);
+          if (updated) onUpdateProfile(updated);
         }} style={{
           marginTop: 8, padding: "6px 12px", borderRadius: 8, border: "none",
           background: tc.subtleBg, color: tc.textSecondary,

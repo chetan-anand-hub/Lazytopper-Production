@@ -302,20 +302,21 @@ export async function requestMentorHybrid(args: {
         `Mentor request failed (${res.status}).`;
       throw new Error(errMsg);
     }
-    const data = payload?.data || {};
+    const rawData = payload?.data || {};
+    const data = rawData as Record<string, unknown>;
     if (data && typeof data === "object") {
       if (data.structured && typeof data.structured === "object") {
         return {
           text:
             getMentorTutorText(data.structured as MentorStructured) ||
-            (typeof data.text === "string" ? data.text.trim() : ""),
+            (typeof data.text === "string" ? (data.text as string).trim() : ""),
           structured: data.structured as MentorStructured,
         };
       }
-      if (typeof data.text === "string" && data.text.trim()) {
+      if (typeof data.text === "string" && (data.text as string).trim()) {
         return {
-          text: args.renderAssistantContent(data.text.trim()),
-          structured: parseMentorStructuredText(data.text.trim()) || undefined,
+          text: args.renderAssistantContent((data.text as string).trim()),
+          structured: parseMentorStructuredText((data.text as string).trim()) || undefined,
         };
       }
     }

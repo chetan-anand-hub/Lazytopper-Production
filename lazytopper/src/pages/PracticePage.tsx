@@ -29,7 +29,6 @@ import { trackUxEvent } from "../services/uxTelemetry";
 import {
   computeAdaptiveDifficultyMix,
   createSessionTracker,
-  getAdaptiveLevelInfo,
   recordSelfAssessment,
   getSessionStats,
   findFollowUpQuestion,
@@ -220,12 +219,11 @@ useEffect(() => {
   };
 
   const getQuestionSection = (q: PracticeQuestion): "A" | "B" | "C" | "D" | "E" | null => {
-    const qRecord = q as Record<string, unknown>;
-    const direct = String(qRecord.section || qRecord.paperSection || qRecord.boardSection || "").toUpperCase();
+    const direct = String(q.section || "").toUpperCase();
     if (direct === "A" || direct === "B" || direct === "C" || direct === "D" || direct === "E") return direct;
-    const byMarks = inferSectionFromMarks(qRecord.marks ?? qRecord.mark ?? qRecord.points);
+    const byMarks = inferSectionFromMarks(q.marks);
     if (byMarks) return byMarks;
-    const slot = String(qRecord.blueprintSlotId || "").toUpperCase();
+    const slot = String(q.blueprintSlotId || "").toUpperCase();
     if (slot.startsWith("A")) return "A";
     if (slot.startsWith("B")) return "B";
     if (slot.startsWith("C")) return "C";
@@ -585,10 +583,10 @@ const packTopicKey = useMemo(() => {
           topic: topicParam || "",
           question: q.questionText,
           marks: q.marks || 1,
-          type: (q as Record<string, unknown>).type as string || "",
+          type: q.format || "",
           section: q.section || "",
-          answer: (q as Record<string, unknown>).answer as string || "",
-          explanation: (q as Record<string, unknown>).explanation as string || "",
+          answer: q.answer || "",
+          explanation: q.explanation || "",
         });
         setPracticeSolutionData((prev) => ({ ...prev, [id]: result }));
       } catch (err: unknown) {
@@ -835,7 +833,7 @@ const packTopicKey = useMemo(() => {
                 const insertAt = sourceIdx >= 0
                   ? Math.min(sourceIdx + 2, questions.length)
                   : Math.min(idx + 2, questions.length);
-                const mapped = mapUnifiedQuestionToPractice(followUp, `followup-${question.id}`);
+                const mapped = mapUnifiedQuestionToPractice(followUp as unknown as Record<string, unknown>, `followup-${question.id}`);
                 setQuestions((prev) => {
                   const copy = [...prev];
                   copy.splice(insertAt, 0, mapped);
