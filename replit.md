@@ -22,6 +22,15 @@ Subscription tiers include Free, Trial (7-day), and Premium, managed by `subscri
 ## Mobile App (Expo)
 An Expo React Native app (`artifacts/lazytopper-mobile`) mirrors the web app's design with 5 tabs. It uses shared data from `@workspace/shared-data` for trends, Firebase JS SDK for authentication with AsyncStorage persistence, and a user-scoped subscription context matching the web model. The Practice tab combines predictive papers with exam simulation entry. Exam simulation is a full-screen modal with setup, exam, and review phases. The mobile app is designed to function without a backend, relying on AsyncStorage.
 
+## Student Wellness & Anti-Anxiety Features
+The platform includes several wellness-oriented features to reduce exam stress:
+- **Countdown Toggle**: Students can hide the "days left" countdown from the Dashboard via a toggle in Profile settings (stored in `localStorage` key `lazytopper.hideCountdown`). When enabled, all day-count references in Dashboard (stats card, pace transition notifications, pace selector) are suppressed.
+- **Focus Plan Rename**: The internal "crash" pace profile type now displays as "Focus Plan" (label in `paceProfileService.ts`), avoiding anxiety-inducing terminology. Internal keys remain `crash` for backward compatibility.
+- **Streak Kindness**: When a study streak resets (gap > 1 day from a streak > 1), a dismissible "Welcome back!" card appears on the Dashboard instead of guilt messaging. Detection uses `wasStreakReset()` / `dismissStreakReset()` in `planStorage.ts`.
+- **Break Reminder**: After 25 minutes of continuous focused study, a full-screen overlay reminds students to take a break (`BreakReminder.tsx`). Uses focus tracker data with baseline-relative tracking. "Got it" dismisses for the session; "Remind me in 10 min" snoozes.
+- **Pre-Mock Breathing Exercise**: Before starting an exam simulation, a 5-second skippable breathing animation (`BreathingMoment.tsx`) helps students calm down. Cycles through "Breathe in" / "Breathe out" with a pulsing circle.
+- **Mental Health Resources**: The Profile page includes helpline information for iCall (TISS) and Vandrevala Foundation with tap-to-call links.
+
 ## System Design Choices
 TypeScript is used consistently. All packages utilize TypeScript composite projects. API design follows OpenAPI 3.1 with Orval for codegen (React Query hooks, Zod schemas). The API server enforces a 5 MB request body limit. AI tutor responses have increased `maxOutputTokens` (1600) to prevent truncation.
 

@@ -36,7 +36,7 @@ const PROFILE_CONFIGS: Record<PaceProfileType, PaceProfileConfig> = {
   },
   crash: {
     type: "crash",
-    label: "Intensive Plan",
+    label: "Focus Plan",
     tagline: "Predicted questions + mock tests dominant",
     thresholdDays: { min: 0, max: 59 },
     chapterCoverage: "predicted-only",
@@ -69,7 +69,7 @@ export function getProfileSummary(type: PaceProfileType, daysLeft: number): stri
     case "sprint":
       return `You have ${months} months — great timing! Must-crack chapters first, bi-weekly mocks, extra practice.`;
     case "crash":
-      return `You have ${daysLeft} days — let's make them count! Predicted questions + daily mocks + focused weak area practice.`;
+      return `You have ${daysLeft} days — let's make them count! Focused practice on predicted questions + daily mocks.`;
   }
   return config.tagline;
 }

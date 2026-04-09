@@ -48,8 +48,13 @@ export function updateAndGetStreak(): number {
       (today.getTime() - prevDate.getTime()) / (1000 * 60 * 60 * 24)
     );
 
+    const prevCount = Number(prevCountStr) || 0;
     let next = 1;
-    if (diffDays === 1) next = (Number(prevCountStr) || 0) + 1;
+    if (diffDays === 1) next = prevCount + 1;
+
+    if (diffDays > 1 && prevCount > 1) {
+      try { localStorage.setItem("lazytopper.streakWasReset", "1"); } catch {}
+    }
 
     localStorage.setItem(dateKey, todayStr);
     localStorage.setItem(countKey, String(next));
@@ -59,4 +64,14 @@ export function updateAndGetStreak(): number {
   } catch {
     return 0;
   }
+}
+
+export function wasStreakReset(): boolean {
+  try {
+    return localStorage.getItem("lazytopper.streakWasReset") === "1";
+  } catch { return false; }
+}
+
+export function dismissStreakReset(): void {
+  try { localStorage.removeItem("lazytopper.streakWasReset"); } catch {}
 }

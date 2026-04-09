@@ -891,7 +891,11 @@ export default function ProfilePage() {
 
       <FocusTrackingToggle />
 
+      <CountdownToggle />
+
       <PaceProfileSelector />
+
+      <MentalHealthResources />
     </div>
   );
 }
@@ -976,6 +980,78 @@ function PaceProfileSelector() {
           Reset to auto-detect
         </button>
       )}
+    </div>
+  );
+}
+
+const COUNTDOWN_KEY = "lazytopper.hideCountdown";
+
+function CountdownToggle() {
+  const [hidden, setHidden] = useState(() => {
+    try { return localStorage.getItem(COUNTDOWN_KEY) === "1"; } catch { return false; }
+  });
+  return (
+    <div style={{ marginTop: 16, padding: "12px 16px", background: "rgba(255,255,255,0.06)", borderRadius: 12, border: "2px solid rgba(255,255,255,0.08)" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.85)" }}>Hide Countdown</div>
+          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", marginTop: 2 }}>Hide "days left" from Dashboard</div>
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            const next = !hidden;
+            try { localStorage.setItem(COUNTDOWN_KEY, next ? "1" : "0"); } catch {}
+            setHidden(next);
+          }}
+          style={{
+            width: 48, height: 26, borderRadius: 13, border: "none", cursor: "pointer",
+            background: hidden ? "#22c55e" : "rgba(255,255,255,0.15)",
+            position: "relative", transition: "background 0.2s",
+          }}
+        >
+          <div style={{
+            width: 20, height: 20, borderRadius: "50%", background: "#fff",
+            position: "absolute", top: 3,
+            left: hidden ? 25 : 3, transition: "left 0.2s",
+          }} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function MentalHealthResources() {
+  return (
+    <div style={{ marginTop: 16, padding: "12px 16px", background: "rgba(255,255,255,0.06)", borderRadius: 12, border: "2px solid rgba(255,255,255,0.08)" }}>
+      <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.85)", marginBottom: 8 }}>Feeling overwhelmed?</div>
+      <p style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", lineHeight: 1.5, margin: "0 0 12px" }}>
+        Board exams can be stressful — it's perfectly okay to ask for help.
+      </p>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        <a href="tel:9152987821" style={{
+          display: "flex", alignItems: "center", gap: 10, padding: "10px 12px",
+          background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.25)",
+          borderRadius: 10, textDecoration: "none",
+        }}>
+          <span style={{ fontSize: 18 }}>📞</span>
+          <div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "#60a5fa" }}>iCall — TISS</div>
+            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)" }}>9152987821 · Mon–Sat 8am–10pm</div>
+          </div>
+        </a>
+        <a href="tel:18602662345" style={{
+          display: "flex", alignItems: "center", gap: 10, padding: "10px 12px",
+          background: "rgba(168,85,247,0.1)", border: "1px solid rgba(168,85,247,0.25)",
+          borderRadius: 10, textDecoration: "none",
+        }}>
+          <span style={{ fontSize: 18 }}>💜</span>
+          <div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "#c084fc" }}>Vandrevala Foundation</div>
+            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)" }}>1860-2662-345 · 24/7</div>
+          </div>
+        </a>
+      </div>
     </div>
   );
 }

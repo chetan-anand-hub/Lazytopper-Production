@@ -155,9 +155,9 @@ export const vibeCommandBadgeCopy = {
     },
     streakReset: {
       message:
-        'Streak reset, progress stays. Start a fresh run today with one short Daily Mix. 💫',
+        'Welcome back! Let\'s pick up where you left off. Your progress is safe — start fresh today! 💫',
       tooltip:
-        'Even if streak resets, all your hours, accuracy gains and badges are safe.',
+        'All your hours, accuracy gains and badges are always safe. Every day is a new beginning!',
     },
   },
   dailyMix: {

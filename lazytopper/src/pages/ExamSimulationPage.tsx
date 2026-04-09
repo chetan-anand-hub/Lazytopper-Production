@@ -12,8 +12,9 @@ import { saveMockScore, getMockScoresForSubject } from "../services/mockScoreHis
 import { trackUxEvent } from "../services/uxTelemetry";
 import * as gam from "../utils/gamification";
 import ReturnContextBar from "../components/ux/ReturnContextBar";
+import { BreathingMoment } from "../components/ux/BreathingMoment";
 
-type Phase = "setup" | "taking" | "review";
+type Phase = "setup" | "breathing" | "taking" | "review";
 
 const SECTION_LABELS: Record<SectionKey, string> = {
   A: "Section A — MCQ / VSA (1 mark each)",
@@ -69,19 +70,23 @@ export default function ExamSimulationPage() {
   const backTo = navState?.back || "/predictive-papers";
   const backLabel = navState?.backLabel || "Back to papers";
 
+  const startExamAfterBreathing = useCallback(() => {
+    setPhase("taking");
+    startTimeRef.current = Date.now();
+    trackUxEvent("exam_simulation_start", "ExamSimulationPage", { subject });
+  }, [subject]);
+
   const generatePaper = useCallback(() => {
     const p = generateUnlimitedPaper(subject);
     setPaper(p);
-    setPhase("taking");
+    setPhase("breathing");
     setRemainingTime(TOTAL_TIME_SECONDS);
     setAnswers({});
     setAnalytics(null);
     setCurrentSectionIdx(0);
     setMarkedForReview(new Set());
-    startTimeRef.current = Date.now();
     lastAnswerTimeRef.current = 0;
     sectionTimesRef.current = {};
-    trackUxEvent("exam_simulation_start", "ExamSimulationPage", { subject });
   }, [subject]);
 
   useEffect(() => {
@@ -169,6 +174,10 @@ export default function ExamSimulationPage() {
   const goToSection = useCallback((idx: number) => {
     setCurrentSectionIdx(idx);
   }, []);
+
+  if (phase === "breathing") {
+    return <BreathingMoment onComplete={startExamAfterBreathing} />;
+  }
 
   if (phase === "setup") {
     return (

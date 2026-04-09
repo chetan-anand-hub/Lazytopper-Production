@@ -7,7 +7,7 @@ import { topicHubV2Content } from "../data/topicHubV2Full";
 import { useSmartLearning } from "../engine/smartLearningStore";
 import type { ChapterMeta } from "../engine/smartLearningTypes";
 import { getAttempts } from "../services/practiceInsights";
-import { getStrategyPlan, updateAndGetStreak } from "../services/planStorage";
+import { getStrategyPlan, updateAndGetStreak, wasStreakReset, dismissStreakReset } from "../services/planStorage";
 import { generateMultiTopicDailyMix } from "../services/dailyMixGenerator";
 import type { DailyMixItem } from "../services/dailyMixPlayback";
 import type { StrategyPlan } from "../services/strategyEngine";
@@ -485,6 +485,7 @@ export default function Dashboard() {
   const targetPercentValue = toPositiveNumber(profile?.targetPercent || 0);
   const hoursPerDayValue = toPositiveNumber(profile?.hoursPerDay || 0);
   const daysLeftValue = toPositiveNumber(autoDays || profile?.daysLeft || 0);
+  const hideCountdown = (() => { try { return localStorage.getItem("lazytopper.hideCountdown") === "1"; } catch { return false; } })();
 
   if (loadingProfile) {
     return (
@@ -654,6 +655,26 @@ export default function Dashboard() {
           </div>
         </div>
 
+        {wasStreakReset() && (
+          <div className="glass-card" style={{ padding: 16, marginBottom: 16, border: "1px solid rgba(34,197,94,0.25)", background: "rgba(34,197,94,0.06)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <span style={{ fontSize: 24 }}>👋</span>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: "#22c55e", marginBottom: 2 }}>Welcome back!</div>
+                  <div style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", lineHeight: 1.4 }}>
+                    Your progress is safe — all hours, accuracy gains and badges are still here. Start fresh today!
+                  </div>
+                </div>
+              </div>
+              <button type="button" onClick={() => { dismissStreakReset(); }} style={{
+                background: "none", border: "none", color: "rgba(255,255,255,0.4)", cursor: "pointer",
+                fontSize: 14, padding: "0 4px", flexShrink: 0,
+              }}>✕</button>
+            </div>
+          </div>
+        )}
+
         {/* YOUR NEXT STEP — prominent first card */}
         <div className="glass-accent" style={{ padding: 20, marginBottom: 16 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.35)", textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 8 }}>Your Next Step</div>
@@ -780,10 +801,10 @@ export default function Dashboard() {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
               <div>
                 <div style={{ fontSize: 14, fontWeight: 800, color: "#f97316", marginBottom: 4 }}>
-                  {paceTransition.daysLeft} days to boards — switching to {getProfileConfig(paceTransition.to).label} mode
+                  {hideCountdown ? `Switching to ${getProfileConfig(paceTransition.to).label} mode` : `${paceTransition.daysLeft} days to boards — switching to ${getProfileConfig(paceTransition.to).label} mode`}
                 </div>
                 <p style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", margin: 0, lineHeight: 1.5 }}>
-                  {getProfileSummary(paceTransition.to, paceTransition.daysLeft)}
+                  {hideCountdown ? `Switching to ${getProfileConfig(paceTransition.to).label} for the best results.` : getProfileSummary(paceTransition.to, paceTransition.daysLeft)}
                 </p>
               </div>
               <button type="button" onClick={() => { dismissTransitionNotification(); setPaceTransition(null); }} style={{
@@ -800,7 +821,7 @@ export default function Dashboard() {
             <p style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", marginBottom: 12, lineHeight: 1.5 }}>
               {paceProfile.isManualOverride
                 ? `You manually set ${getProfileConfig(paceProfile.type).label} mode. Auto-detected: ${getProfileConfig(paceProfile.detectedType).label}.`
-                : `Auto-detected based on ${paceProfile.daysLeft} days until exam.`}
+                : hideCountdown ? `Currently using ${getProfileConfig(paceProfile.type).label} mode.` : `Auto-detected based on ${paceProfile.daysLeft} days until exam.`}
             </p>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               {(["marathon", "sprint", "crash"] as PaceProfileType[]).map((pt) => {
@@ -1019,11 +1040,11 @@ export default function Dashboard() {
             <span style={{ fontSize: 16 }}>📋</span>
             <span className="font-display" style={{ fontSize: 14, fontWeight: 700 }}>Study Plan</span>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 12 }}>
+          <div style={{ display: "grid", gridTemplateColumns: hideCountdown ? "1fr 1fr" : "1fr 1fr 1fr", gap: 8, marginBottom: 12 }}>
             {[
               { label: "Target", value: `${targetPercentValue || "—"}%`, color: "#3b82f6" },
               { label: "Hours/day", value: `${hoursPerDayValue || "—"}h`, color: "#22c55e" },
-              { label: "Days left", value: `${daysLeftValue || "—"}`, color: "#fb923c" },
+              ...(!hideCountdown ? [{ label: "Days left", value: `${daysLeftValue || "—"}`, color: "#fb923c" }] : []),
             ].map((s, i) => (
               <div key={i} style={{ textAlign: "center", padding: "10px 6px", borderRadius: 10, background: "rgba(255,255,255,0.03)" }}>
                 <div style={{ fontSize: 18, fontWeight: 800, color: s.color }}>{s.value}</div>

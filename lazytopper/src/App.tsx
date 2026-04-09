@@ -18,6 +18,7 @@ import { RequireAuth, RequirePremium } from "./components/auth/RequireAuth";
 import { PracticeLimitGate } from "./components/auth/PracticeLimitGate";
 import { MockViewGate } from "./components/auth/MockViewGate";
 import { TrialBanner } from "./components/ux/TrialBanner";
+import { BreakReminder } from "./components/ux/BreakReminder";
 import { useAuth } from "./context/AuthContext";
 import { useSubscription } from "./hooks/useSubscription";
 import { initPaceProfileFromExamDate } from "./services/paceProfileService";
@@ -470,6 +471,7 @@ export default function App() {
         onSelect={handleCommandSelect}
       />
       <TrialBanner />
+      <BreakReminder />
       <div style={{ paddingBottom: '60px' }}>
         <Routes>
           {/* Core Routes */}
