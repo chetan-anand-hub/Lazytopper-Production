@@ -1,6 +1,7 @@
 import type React from "react";
 import { Routes, Route, useLocation, useNavigate, Navigate, useParams } from "react-router-dom";
 import Login from "./pages/Login";
+import SignUpPage from "./pages/SignUpPage";
 import Onboarding from "./pages/Onboarding";
 import TopicHubHome from "./pages/TopicHubHome";
 import { StudyPlannerView } from "./components/planner/StudyPlannerView";
@@ -470,8 +471,8 @@ export default function App() {
           <Route path="/welcome" element={<Navigate to="/trends/10/Maths" replace />} />
           <Route path="/login" element={<Login />} />
           <Route path="/login/*" element={<Login />} />
-          <Route path="/sign-up" element={<Login />} />
-          <Route path="/sign-up/*" element={<Login />} />
+          <Route path="/sign-up" element={<SignUpPage />} />
+          <Route path="/sign-up/*" element={<SignUpPage />} />
           <Route path="/legal/:slug" element={withRouteSuspense(<LegalPage />)} />
           <Route path="/onboarding" element={<RequireAuth><Onboarding /></RequireAuth>} />
           <Route path="/dashboard" element={<RequireAuth>{withRouteSuspense(<Dashboard />)}</RequireAuth>} />
