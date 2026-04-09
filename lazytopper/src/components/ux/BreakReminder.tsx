@@ -12,6 +12,7 @@ export function BreakReminder() {
   const baselineRef = useRef(0);
   const dismissedForSessionRef = useRef(false);
   const snoozeUntilRef = useRef(0);
+  const shownRef = useRef(false);
 
   useEffect(() => {
     if (!isFocusTrackingEnabled()) return;
@@ -22,10 +23,12 @@ export function BreakReminder() {
       if (!isFocusTrackingEnabled()) return;
       if (dismissedForSessionRef.current) return;
       if (Date.now() < snoozeUntilRef.current) return;
+      if (shownRef.current) return;
 
       const focus = getAppFocus();
       const elapsed = focus.focusedMs - baselineRef.current;
       if (elapsed < BREAK_THRESHOLD_MS) return;
+      shownRef.current = true;
       trackUxEvent("break_reminder_shown", "BreakReminder", { continuousMs: elapsed });
       logBreakEvent("shown", elapsed);
       setVisible(true);
@@ -39,6 +42,7 @@ export function BreakReminder() {
     setVisible(false);
     baselineRef.current = getAppFocus().focusedMs;
     dismissedForSessionRef.current = true;
+    shownRef.current = false;
     trackUxEvent("break_reminder_action", "BreakReminder", { action: "took_break" });
     logBreakEvent("took_break");
   };
@@ -47,6 +51,7 @@ export function BreakReminder() {
     setVisible(false);
     baselineRef.current = getAppFocus().focusedMs;
     snoozeUntilRef.current = Date.now() + SNOOZE_MS;
+    shownRef.current = false;
     trackUxEvent("break_reminder_action", "BreakReminder", { action: "snoozed" });
     logBreakEvent("snoozed");
   };
