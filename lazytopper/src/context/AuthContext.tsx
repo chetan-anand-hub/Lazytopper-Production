@@ -17,11 +17,17 @@ export type AuthUser = {
   isLocalSession?: boolean;
 };
 
+export type PhoneRecaptchaStatus = "idle" | "ready" | "solved" | "expired" | "error";
+
 type AuthContextType = {
   user: AuthUser | null;
   loading: boolean;
   firebaseReady: boolean;
+  phoneRecaptchaStatus: PhoneRecaptchaStatus;
   signInWithGoogle: () => Promise<void>;
+  initPhoneRecaptcha: (recaptchaContainerId: string) => Promise<void>;
+  sendPhoneOtp: (phoneE164: string, recaptchaContainerId: string) => Promise<void>;
+  verifyPhoneOtp: (code: string) => Promise<void>;
   continueLocalSession: () => void;
   logout: () => Promise<void>;
 };
@@ -140,11 +146,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLocalUser(null);
   };
 
+  const noopAsync = async () => {};
+
   const value: AuthContextType = {
     user,
     loading,
     firebaseReady: true,
+    phoneRecaptchaStatus: "idle",
     signInWithGoogle: signInWithGoogleHandler,
+    initPhoneRecaptcha: noopAsync,
+    sendPhoneOtp: noopAsync,
+    verifyPhoneOtp: noopAsync,
     continueLocalSession,
     logout: logoutHandler,
   };

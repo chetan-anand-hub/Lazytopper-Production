@@ -60,9 +60,6 @@ export default function Login() {
           </p>
         </div>
 
-        {/* Clerk Sign-In widget */}
-        {/* To update login providers, app branding, or OAuth settings use the Auth
-            pane in the workspace toolbar. More information can be found in the Replit docs. */}
         <div style={{ display: "flex", justifyContent: "center", marginBottom: 16 }}>
           <SignIn
             routing="path"
