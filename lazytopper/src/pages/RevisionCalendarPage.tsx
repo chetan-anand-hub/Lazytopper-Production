@@ -87,12 +87,17 @@ export default function RevisionCalendarPage() {
   const [daysLeft, setDaysLeft] = useState(30);
 
   useEffect(() => {
+    if (profile?.examDate) {
+      setExamDate(profile.examDate);
+      setDaysLeft(Math.max(1, daysLeftFromIsoDate(profile.examDate)));
+      return;
+    }
     void (async () => {
       const result = await fetchCbseExamDate(profile?.studentClass || "10");
       setExamDate(result.examDate);
       setDaysLeft(Math.max(1, daysLeftFromIsoDate(result.examDate)));
     })();
-  }, [profile?.studentClass]);
+  }, [profile?.studentClass, profile?.examDate]);
 
   const calendar = useMemo(() => {
     if (!examDate) return [];
