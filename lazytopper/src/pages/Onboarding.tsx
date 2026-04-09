@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useProfile } from "../context/ProfileContext";
 import { daysLeftFromIsoDate, fetchCbseExamDate } from "../services/cbseExamDate";
 import { cbseDates } from "../config/cbseDates";
 import { checkAndUpdateProfile, detectProfileFromDays, getProfileSummary, getProfileConfig } from "../services/paceProfileService";
+import { hashPin, saveParentPinHash } from "../services/parentPinService";
 
 function formatIsoDate(iso: string): string {
   const date = new Date(`${iso}T00:00:00`);
@@ -28,6 +29,9 @@ export default function Onboarding() {
 
   const [autoDaysLeft, setAutoDaysLeft] = useState<number>(90);
   const [target, setTarget] = useState("80");
+  const [parentPin, setParentPin] = useState(["", "", "", ""]);
+  const [pinSkipped, setPinSkipped] = useState(false);
+  const pinRefs = useRef<(HTMLInputElement | null)[]>([]);
   const studentClass = "10" as const;
 
   useEffect(() => {
@@ -71,12 +75,33 @@ export default function Onboarding() {
     })();
   };
 
-  const handleSubmit = () => {
+  const handlePinDigit = (idx: number, value: string) => {
+    if (!/^\d?$/.test(value)) return;
+    const next = [...parentPin];
+    next[idx] = value;
+    setParentPin(next);
+    if (value && idx < 3) pinRefs.current[idx + 1]?.focus();
+  };
+
+  const handlePinKeyDown = (idx: number, e: React.KeyboardEvent) => {
+    if (e.key === "Backspace" && !parentPin[idx] && idx > 0) {
+      pinRefs.current[idx - 1]?.focus();
+    }
+  };
+
+  const handleSubmit = async () => {
     const daysLeft = autoDaysLeft;
     const targetPercent = Number(target) || 80;
 
     const hoursPerDay = targetPercent >= 85 ? 2.5 : targetPercent >= 70 ? 2 : 1.5;
     const currentPercent = Math.max(35, targetPercent - 20);
+
+    const fullPin = parentPin.join("");
+    let pinHash: string | undefined;
+    if (fullPin.length === 4 && !pinSkipped) {
+      pinHash = await hashPin(fullPin);
+      saveParentPinHash(pinHash);
+    }
 
     const nextProfile = {
       studentClass,
@@ -85,6 +110,7 @@ export default function Onboarding() {
       hoursPerDay,
       currentPercent,
       examDate: examDate || undefined,
+      parentPinHash: pinHash,
     };
     checkAndUpdateProfile(daysLeft);
     setProfileAndCompute(nextProfile);
@@ -250,6 +276,52 @@ export default function Onboarding() {
                 ? "Great target! We'll prioritise must-crack chapters."
                 : "Solid goal! We'll make sure you cover the essentials well."}
           </p>
+        </div>
+
+        <div className="glass-card" style={{ padding: 24, marginBottom: 20 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+            <label className="font-display" style={{ fontSize: 16, fontWeight: 700 }}>
+              Set a Parent PIN
+            </label>
+            <span style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", fontWeight: 600 }}>Optional</span>
+          </div>
+          <p style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", margin: "0 0 14px", lineHeight: 1.5 }}>
+            Your parents can check your progress anytime using this 4-digit PIN.
+          </p>
+          {pinSkipped ? (
+            <button type="button" onClick={() => setPinSkipped(false)} style={{
+              width: "100%", padding: "10px 0", borderRadius: 10,
+              background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
+              color: "rgba(255,255,255,0.5)", fontSize: 12, fontWeight: 600, cursor: "pointer",
+            }}>Set a PIN instead</button>
+          ) : (
+            <>
+              <div style={{ display: "flex", gap: 10, justifyContent: "center", marginBottom: 10 }}>
+                {parentPin.map((digit, idx) => (
+                  <input
+                    key={idx}
+                    ref={(el) => { pinRefs.current[idx] = el; }}
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={1}
+                    value={digit}
+                    onChange={(e) => handlePinDigit(idx, e.target.value)}
+                    onKeyDown={(e) => handlePinKeyDown(idx, e)}
+                    style={{
+                      width: 48, height: 52, textAlign: "center", fontSize: 24, fontWeight: 800,
+                      borderRadius: 12, border: "2px solid rgba(255,255,255,0.12)",
+                      background: "rgba(255,255,255,0.04)", color: "#fff", outline: "none",
+                      fontFamily: "'Space Grotesk', sans-serif",
+                    }}
+                  />
+                ))}
+              </div>
+              <button type="button" onClick={() => { setPinSkipped(true); setParentPin(["", "", "", ""]); }} style={{
+                display: "block", margin: "0 auto", background: "none", border: "none",
+                color: "rgba(255,255,255,0.3)", fontSize: 11, cursor: "pointer",
+              }}>Skip for now</button>
+            </>
+          )}
         </div>
 
         <button

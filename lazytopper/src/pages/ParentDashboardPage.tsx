@@ -120,6 +120,74 @@ function MockScoreChart({ scores }: { scores: MockScoreEntry[] }) {
   );
 }
 
+function DailyStudyChart() {
+  const weekly = getWeeklyFocus();
+  const last7: { day: string; minutes: number }[] = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const key = d.toISOString().slice(0, 10);
+    const label = d.toLocaleDateString("en-IN", { weekday: "short" });
+    const rec = weekly.find(r => r.date === key);
+    last7.push({ day: label, minutes: rec ? Math.round(rec.totalMs / 60000) : 0 });
+  }
+  const maxMin = Math.max(...last7.map(d => d.minutes), 60);
+  return (
+    <div style={{ marginBottom: 20 }}>
+      <h3 style={{ fontWeight: 800, fontSize: 16, marginBottom: 10 }}>Daily Study Time (7 Days)</h3>
+      <div style={{
+        display: "flex", alignItems: "flex-end", gap: 6, height: 110, padding: 14, borderRadius: 14,
+        background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)",
+      }}>
+        {last7.map((d) => {
+          const h = maxMin > 0 ? Math.max(4, (d.minutes / maxMin) * 90) : 4;
+          const color = d.minutes >= 60 ? "#22c55e" : d.minutes >= 30 ? "#3b82f6" : d.minutes > 0 ? "#f97316" : "rgba(255,255,255,0.06)";
+          return (
+            <div key={d.day} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+              <span style={{ fontSize: 8, color: "rgba(255,255,255,0.5)", fontWeight: 700 }}>{d.minutes > 0 ? `${d.minutes}m` : ""}</span>
+              <div style={{ width: "100%", height: h, borderRadius: 4, background: color }} />
+              <span style={{ fontSize: 8, color: "rgba(255,255,255,0.35)" }}>{d.day}</span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function ParentRecommendations({ weakAreas }: { weakAreas: { topicName: string; subject: string; accuracy: number }[] }) {
+  const weekly = getWeeklyFocus();
+  const avgMin = weekly.length > 0 ? Math.round(weekly.reduce((s, r) => s + r.totalMs, 0) / 60000 / 7) : 0;
+  const recs: string[] = [];
+  if (weakAreas.length > 0) {
+    recs.push(`Encourage practice on "${weakAreas[0].topicName}" (${weakAreas[0].subject}) — accuracy is only ${weakAreas[0].accuracy}%.`);
+  }
+  if (weakAreas.length > 2) {
+    recs.push(`There are ${weakAreas.length} weak areas. Focusing on one topic per day can help build momentum.`);
+  }
+  if (avgMin < 30) {
+    recs.push("Study time is below 30 min/day this week. Encourage at least 1 hour of focused daily practice.");
+  } else if (avgMin >= 90) {
+    recs.push("Great consistency! Make sure breaks are being taken to avoid burnout.");
+  }
+  if (recs.length === 0) {
+    recs.push("Your child is on track — keep encouraging consistent daily practice!");
+  }
+  return (
+    <div style={{ marginBottom: 20 }}>
+      <h3 style={{ fontWeight: 800, fontSize: 16, marginBottom: 10 }}>💡 Recommendations for You</h3>
+      {recs.map((r, i) => (
+        <div key={i} style={{
+          padding: "10px 14px", marginBottom: 6, borderRadius: 10,
+          background: "rgba(34,197,94,0.06)", border: "1px solid rgba(34,197,94,0.15)",
+        }}>
+          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.7)", lineHeight: 1.5, margin: 0 }}>{r}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function WeeklyFocusCard() {
   const weekly = getWeeklyFocus();
   if (weekly.length === 0) return null;
@@ -447,6 +515,10 @@ export default function ParentDashboardPage() {
           <div style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.45)" }}>Overall Mastery</div>
         </div>
       </div>
+
+      <DailyStudyChart />
+
+      <ParentRecommendations weakAreas={weakSummary.weakAreas} />
 
       <div style={{ marginBottom: 20 }}>
         <h3 style={{ fontWeight: 800, fontSize: 16, marginBottom: 10 }}>Accuracy Trend</h3>

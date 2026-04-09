@@ -5,6 +5,7 @@ export interface StudentProfile {
   hoursPerDay: number;
   currentPercent?: number;
   examDate?: string;
+  parentPinHash?: string;
 }
 
 export interface StrategyResult {

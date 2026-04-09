@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useProfile } from "../context/ProfileContext";
 import { useAuth } from "../context/AuthContext";
@@ -7,6 +7,7 @@ import { UpgradeModal } from "../components/UpgradeModal";
 import { useSmartLearning } from "../engine/smartLearningStore";
 import { loadInsights } from "../services/practiceInsights";
 import { loadTopicMasterySnapshot } from "../services/topicHubMastery";
+import { hasParentPin, hashPin, saveParentPinHash, clearParentPin } from "../services/parentPinService";
 import {
   loadPaceProfile,
   setManualOverride,
@@ -897,6 +898,24 @@ export default function ProfilePage() {
 
       <NightBeforeLink />
 
+      <ParentPinManager />
+
+      <button
+        type="button"
+        onClick={() => navigate("/weekly-digest")}
+        style={{
+          width: "100%", marginTop: 16, padding: "14px 16px", borderRadius: 12,
+          background: "rgba(34,197,94,0.06)", border: "1px solid rgba(34,197,94,0.15)",
+          display: "flex", alignItems: "center", gap: 10, cursor: "pointer",
+        }}
+      >
+        <span style={{ fontSize: 18 }}>📊</span>
+        <div style={{ textAlign: "left" }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "#22c55e" }}>Weekly Progress Digest</div>
+          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}>View and share your weekly summary</div>
+        </div>
+      </button>
+
       <MentalHealthResources />
     </div>
   );
@@ -1046,6 +1065,107 @@ function NightBeforeLink() {
           <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}>Key formulas, top predicted questions & exam tips</div>
         </div>
       </button>
+    </div>
+  );
+}
+
+function ParentPinManager() {
+  const [hasPinState, setHasPinState] = useState(hasParentPin);
+  const [editing, setEditing] = useState(false);
+  const [digits, setDigits] = useState(["", "", "", ""]);
+  const [saved, setSaved] = useState(false);
+  const refs = useRef<(HTMLInputElement | null)[]>([]);
+
+  const handleDigit = (idx: number, value: string) => {
+    if (!/^\d?$/.test(value)) return;
+    const next = [...digits];
+    next[idx] = value;
+    setDigits(next);
+    if (value && idx < 3) refs.current[idx + 1]?.focus();
+  };
+
+  const handleKeyDown = (idx: number, e: React.KeyboardEvent) => {
+    if (e.key === "Backspace" && !digits[idx] && idx > 0) refs.current[idx - 1]?.focus();
+  };
+
+  const handleSave = async () => {
+    const full = digits.join("");
+    if (full.length !== 4) return;
+    const hash = await hashPin(full);
+    saveParentPinHash(hash);
+    setHasPinState(true);
+    setEditing(false);
+    setDigits(["", "", "", ""]);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  };
+
+  const handleRemove = () => {
+    clearParentPin();
+    setHasPinState(false);
+    setEditing(false);
+  };
+
+  return (
+    <div style={{ marginTop: 16, padding: "14px 16px", background: "rgba(255,255,255,0.06)", borderRadius: 12, border: "2px solid rgba(255,255,255,0.08)" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ fontSize: 16 }}>🔑</span>
+          <span style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.85)" }}>Parent PIN</span>
+        </div>
+        {hasPinState && !editing && (
+          <span style={{ fontSize: 11, fontWeight: 600, color: "#22c55e" }}>Active</span>
+        )}
+      </div>
+      <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", margin: "0 0 10px", lineHeight: 1.4 }}>
+        {hasPinState ? "Your parents can access progress at /parent using this PIN." : "Set a 4-digit PIN so parents can check your progress."}
+      </p>
+      {saved && <p style={{ fontSize: 11, color: "#22c55e", fontWeight: 700, margin: "0 0 8px" }}>PIN saved!</p>}
+      {editing ? (
+        <div>
+          <div style={{ display: "flex", gap: 8, justifyContent: "center", marginBottom: 8 }}>
+            {digits.map((d, i) => (
+              <input key={i} ref={(el) => { refs.current[i] = el; }} type="text" inputMode="numeric" maxLength={1}
+                value={d} onChange={(e) => handleDigit(i, e.target.value)} onKeyDown={(e) => handleKeyDown(i, e)}
+                style={{
+                  width: 40, height: 44, textAlign: "center", fontSize: 20, fontWeight: 800,
+                  borderRadius: 10, border: "2px solid rgba(255,255,255,0.12)",
+                  background: "rgba(255,255,255,0.04)", color: "#fff", outline: "none",
+                  fontFamily: "'Space Grotesk', sans-serif",
+                }}
+              />
+            ))}
+          </div>
+          <div style={{ display: "flex", gap: 6 }}>
+            <button type="button" onClick={handleSave} disabled={digits.join("").length !== 4} style={{
+              flex: 1, padding: "8px 0", borderRadius: 8, border: "none",
+              background: digits.join("").length === 4 ? "#22c55e" : "rgba(255,255,255,0.06)",
+              color: digits.join("").length === 4 ? "#000" : "rgba(255,255,255,0.3)",
+              fontWeight: 700, fontSize: 11, cursor: "pointer",
+            }}>Save PIN</button>
+            <button type="button" onClick={() => { setEditing(false); setDigits(["", "", "", ""]); }} style={{
+              flex: 1, padding: "8px 0", borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)",
+              background: "transparent", color: "rgba(255,255,255,0.4)", fontWeight: 600, fontSize: 11, cursor: "pointer",
+            }}>Cancel</button>
+          </div>
+        </div>
+      ) : (
+        <div style={{ display: "flex", gap: 6 }}>
+          <button type="button" onClick={() => setEditing(true)} style={{
+            flex: 1, padding: "8px 0", borderRadius: 8, border: "none",
+            background: hasPinState ? "rgba(59,130,246,0.1)" : "#a855f7",
+            color: hasPinState ? "#60a5fa" : "#fff",
+            fontWeight: 700, fontSize: 11, cursor: "pointer",
+          }}>{hasPinState ? "Change PIN" : "Set PIN"}</button>
+          {hasPinState && (
+            <button type="button" onClick={handleRemove} style={{
+              padding: "8px 14px", borderRadius: 8, border: "1px solid rgba(239,68,68,0.2)",
+              background: "rgba(239,68,68,0.06)", color: "#f87171",
+              fontWeight: 600, fontSize: 11, cursor: "pointer",
+            }}>Remove</button>
+          )}
+        </div>
+      )}
     </div>
   );
 }

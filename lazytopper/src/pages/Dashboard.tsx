@@ -61,6 +61,8 @@ import {
   type PaceProfileType,
   type PaceTransitionNotification,
 } from "../services/paceProfileService";
+import { getLatestMockScores } from "../services/mockScoreHistory";
+import ShareProgressPrompt from "../components/ShareProgressPrompt";
 
 type SubjectTitle = "Maths" | "Science";
 
@@ -863,6 +865,14 @@ export default function Dashboard() {
               {msg}
             </div>
           );
+        })()}
+
+        {(() => {
+          const recentMocks = getLatestMockScores(1);
+          if (recentMocks.length > 0 && Date.now() - recentMocks[0].timestamp < 24 * 3600000) {
+            return <ShareProgressPrompt triggerType="mock" score={recentMocks[0].percent} subject={recentMocks[0].subject} />;
+          }
+          return null;
         })()}
 
         {daysLeftValue <= 1 && (
