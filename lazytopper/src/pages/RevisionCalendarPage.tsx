@@ -4,6 +4,7 @@ import { getHighlyProbableQuestions } from "../data/highlyProbableQuestions";
 import type { HPQTopicBucket } from "../data/highlyProbableQuestions";
 import { useProfile } from "../context/ProfileContext";
 import { daysLeftFromIsoDate, fetchCbseExamDate } from "../services/cbseExamDate";
+import { getTopicContent } from "../data/class10ContentConfig";
 import { useEffect } from "react";
 import ReturnContextBar from "../components/ux/ReturnContextBar";
 
@@ -23,16 +24,18 @@ function generateRevisionCalendar(daysLeft: number, examDateStr: string): DayPla
 
   const likelihoodScore = (l: string) => l === "Very High" ? 4 : l === "High" ? 3 : l === "Medium-High" ? 2 : 1;
 
-  const bucketWeight = (b: HPQTopicBucket) => {
-    let w = 0;
+  const bucketWeight = (b: HPQTopicBucket, subjectKey: "Maths" | "Science") => {
+    let predictionScore = 0;
     for (const q of b.questions) {
-      w += likelihoodScore(q.likelihood);
+      predictionScore += likelihoodScore(q.likelihood);
     }
-    return w;
+    const topicConfig = getTopicContent(subjectKey, b.topic.toLowerCase().replace(/\s+/g, "-"));
+    const boardWeightage = topicConfig.weightagePercent || 5;
+    return predictionScore * 2 + boardWeightage;
   };
 
-  for (const b of mathsBuckets) allTopics.push({ subject: "Maths", topic: b.topic, weight: bucketWeight(b) });
-  for (const b of scienceBuckets) allTopics.push({ subject: "Science", topic: b.topic, weight: bucketWeight(b) });
+  for (const b of mathsBuckets) allTopics.push({ subject: "Maths", topic: b.topic, weight: bucketWeight(b, "Maths") });
+  for (const b of scienceBuckets) allTopics.push({ subject: "Science", topic: b.topic, weight: bucketWeight(b, "Science") });
 
   allTopics.sort((a, b) => b.weight - a.weight);
 

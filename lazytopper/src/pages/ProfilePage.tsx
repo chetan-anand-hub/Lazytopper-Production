@@ -895,6 +895,8 @@ export default function ProfilePage() {
 
       <PaceProfileSelector />
 
+      <NightBeforeLink />
+
       <MentalHealthResources />
     </div>
   );
@@ -1025,6 +1027,25 @@ function CountdownToggle() {
           }} />
         </button>
       </div>
+    </div>
+  );
+}
+
+function NightBeforeLink() {
+  const navigate = useNavigate();
+  return (
+    <div style={{ marginTop: 16 }}>
+      <button type="button" onClick={() => navigate("/night-before")} style={{
+        width: "100%", padding: "14px 16px", borderRadius: 12, cursor: "pointer",
+        display: "flex", alignItems: "center", gap: 12,
+        background: "rgba(34,197,94,0.06)", border: "1px solid rgba(34,197,94,0.15)",
+      }}>
+        <span style={{ fontSize: 20 }}>🌙</span>
+        <div style={{ textAlign: "left" }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "#22c55e" }}>Night Before Exam</div>
+          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}>Key formulas, top predicted questions & exam tips</div>
+        </div>
+      </button>
     </div>
   );
 }

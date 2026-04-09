@@ -712,11 +712,11 @@ export default function Dashboard() {
                 border: "1px solid rgba(59,130,246,0.3)", color: "#60a5fa", fontSize: 12,
                 fontWeight: 700, cursor: "pointer",
               }}>📅 Revision Calendar</button>
-              <button type="button" onClick={() => navigate("/exam-simulation")} style={{
+              <button type="button" onClick={() => navigate("/predictive-papers")} style={{
                 padding: "8px 14px", borderRadius: 10, background: "rgba(168,85,247,0.15)",
                 border: "1px solid rgba(168,85,247,0.3)", color: "#c084fc", fontSize: 12,
                 fontWeight: 700, cursor: "pointer",
-              }}>📝 15-min Mini Mock</button>
+              }}>📝 Quick Mock</button>
             </div>
           </div>
         )}
@@ -1053,8 +1053,8 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* TOPIC MASTERY */}
-        {performanceRows.length > 0 && (
+        {/* TOPIC MASTERY — hidden in 7-day sprint mode */}
+        {daysLeftValue > 7 && performanceRows.length > 0 && (
           <div className="glass-card" style={{ padding: 16, marginBottom: 16 }}>
             <span className="font-display" style={{ fontSize: 14, fontWeight: 700, display: "block", marginBottom: 14 }}>Topic Mastery</span>
 
@@ -1147,8 +1147,8 @@ export default function Dashboard() {
           )}
         </div>}
 
-        {/* RECENT ACTIVITY */}
-        {recentActivity.length > 0 && (
+        {/* RECENT ACTIVITY — hidden in 7-day sprint mode */}
+        {daysLeftValue > 7 && recentActivity.length > 0 && (
           <div className="glass-card" style={{ padding: 16, marginBottom: 16 }}>
             <span className="font-display" style={{ fontSize: 14, fontWeight: 700, display: "block", marginBottom: 12 }}>Recent Activity</span>
             <div style={{ display: "flex", flexDirection: "column" }}>
@@ -1169,8 +1169,8 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* BADGES */}
-        {badges.length > 0 && (
+        {/* BADGES — hidden in 7-day sprint mode */}
+        {daysLeftValue > 7 && badges.length > 0 && (
           <div className="glass-card" style={{ padding: 16, marginBottom: 16 }}>
             <span className="font-display" style={{ fontSize: 14, fontWeight: 700, display: "block", marginBottom: 12 }}>Badges & Achievements</span>
             <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 4 }}>
