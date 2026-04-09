@@ -837,18 +837,24 @@ export default function Dashboard() {
   useEffect(() => {
     if (showTopicMastery && newBadges.topicMastery) {
       markWidgetSeen("topicMastery");
+      const t = setTimeout(() => setNewBadges(prev => ({ ...prev, topicMastery: false })), 5000);
+      return () => clearTimeout(t);
     }
   }, [showTopicMastery, newBadges.topicMastery]);
 
   useEffect(() => {
     if (showRecentActivity && newBadges.recentActivity) {
       markWidgetSeen("recentActivity");
+      const t = setTimeout(() => setNewBadges(prev => ({ ...prev, recentActivity: false })), 5000);
+      return () => clearTimeout(t);
     }
   }, [showRecentActivity, newBadges.recentActivity]);
 
   useEffect(() => {
     if (showBadges && newBadges.badges) {
       markWidgetSeen("badges");
+      const t = setTimeout(() => setNewBadges(prev => ({ ...prev, badges: false })), 5000);
+      return () => clearTimeout(t);
     }
   }, [showBadges, newBadges.badges]);
 
