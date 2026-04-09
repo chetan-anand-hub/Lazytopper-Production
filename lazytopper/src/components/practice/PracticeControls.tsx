@@ -1,4 +1,4 @@
-import React from "react";
+
 import type { DifficultyChoice } from "./practiceQuestionBuilder";
 import { MIN_QUESTION_COUNT, MAX_QUESTION_COUNT } from "./practiceQuestionBuilder";
 

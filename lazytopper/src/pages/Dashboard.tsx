@@ -22,11 +22,6 @@ import { buildBadgeContext, evaluateBadges, BADGE_DEFINITIONS } from "../service
 import {
   masteryFromLegacyPercent,
   getChapterMasteryLevel,
-  MASTERY_LABELS,
-  MASTERY_COLORS,
-  MASTERY_ICONS,
-  MASTERY_POINTS,
-  MASTERY_RING_FRACTION,
   type MasteryLevel,
 } from "../services/masteryLevelService";
 import {
@@ -71,7 +66,6 @@ import {
   displayTopic,
   subjectMaxWeightage,
   nowDayLabel,
-  greetingLabel,
   toPositiveNumber,
   formatTimeAgo,
   isWidgetUnseen,
@@ -80,13 +74,20 @@ import {
   markFirstVisitDone,
   useThemeColors,
   THEME_STYLES,
-  RingChart,
-  ProgressBar,
   FocusScoreCard,
   SprintDashboard,
   EmptyStateCard,
-  NewBadge,
   FirstVisitOverlay,
+  DashboardHeader,
+  QuickAccessBar,
+  StatsRow,
+  DailyMixPreview,
+  TopicMasteryGrid,
+  StudyPlanSummary,
+  WeakAreasPanel,
+  RecentActivityList,
+  BadgesSection,
+  ExploreMorePanel,
 } from "../components/dashboard";
 
 export default function Dashboard() {
@@ -543,44 +544,13 @@ export default function Dashboard() {
       {showFirstVisit && <FirstVisitOverlay onDismiss={handleDismissOverlay} />}
       <div style={{ padding: "16px 16px 100px", maxWidth: 430, margin: "0 auto" }}>
 
-        {/* HEADER */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <div style={{
-              width: 44, height: 44, borderRadius: "50%",
-              background: "linear-gradient(135deg, #22c55e, #3b82f6)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: 18, fontWeight: 800, color: "#000",
-            }}>{(user?.displayName || user?.email || "S").charAt(0).toUpperCase()}</div>
-            <div>
-              <div style={{ fontSize: 11, color: tc.textMuted, fontWeight: 500, textTransform: "uppercase", letterSpacing: 1 }}>{greetingLabel()}</div>
-              <div className="font-display" style={{ fontSize: 20, fontWeight: 700 }}>{user?.displayName || "Student"}</div>
-            </div>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            {paceProfile && (() => {
-              const pc: Record<string, string> = { marathon: "#3b82f6", sprint: "#f97316", crash: "#ef4444" };
-              const color = pc[paceProfile.type] || "#3b82f6";
-              const cfg = getProfileConfig(paceProfile.type);
-              return (
-                <button type="button" onClick={() => setShowPaceSelector((p) => !p)} style={{
-                  display: "flex", alignItems: "center", gap: 4, padding: "4px 10px", borderRadius: 20,
-                  background: `${color}18`, border: `1px solid ${color}40`, cursor: "pointer",
-                }}>
-                  <span style={{ fontSize: 10, fontWeight: 800, color, textTransform: "uppercase" }}>{cfg.label}</span>
-                </button>
-              );
-            })()}
-            <div style={{ display: "flex", alignItems: "center", gap: 4, padding: "4px 10px", borderRadius: 20, background: "rgba(249,115,22,0.12)", border: "1px solid rgba(249,115,22,0.25)" }}>
-              <span style={{ fontSize: 14 }}>🔥</span>
-              <span style={{ fontSize: 12, fontWeight: 800, color: "#fb923c" }}>{streak}</span>
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 4, padding: "4px 10px", borderRadius: 20, background: "rgba(168,85,247,0.12)", border: "1px solid rgba(168,85,247,0.25)" }}>
-              <span style={{ fontSize: 14 }}>⚡</span>
-              <span style={{ fontSize: 12, fontWeight: 800, color: "#c084fc" }}>{xpEstimate.toLocaleString()}</span>
-            </div>
-          </div>
-        </div>
+        <DashboardHeader
+          user={user}
+          streak={streak}
+          xpEstimate={xpEstimate}
+          paceProfile={paceProfile}
+          onTogglePaceSelector={() => setShowPaceSelector((p) => !p)}
+        />
 
         {paceProfile && (() => {
           const msgs: Record<string, string> = {
@@ -762,26 +732,7 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* QUICK ACCESS — hidden in sprint mode */}
-        {daysLeftValue > 7 && <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4, marginBottom: 16 }}>
-          {[
-            { label: "Practice", icon: "✏️", path: `/practice/${gradeNum}/${subjectForQuickActions}` },
-            { label: "Mock Tests", icon: "📝", path: "/predictive-papers" },
-            { label: "Predicted Q's", icon: "🎯", path: `/highly-probable/${gradeNum}/${subjectForQuickActions}` },
-            { label: "Daily Mix", icon: "🔥", path: `/daily-mix/${gradeNum}/${subjectForQuickActions}` },
-            { label: "All Chapters", icon: "📚", path: `/topic-hub/${gradeNum}/${subjectForQuickActions}` },
-          ].map((a) => (
-            <button key={a.label} onClick={() => navigate(a.path, { state: { back: "/dashboard", backLabel: "Back to Dashboard" } })} style={{
-              display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
-              padding: "10px 14px", borderRadius: 12, border: `1px solid ${tc.cardBorder}`,
-              background: tc.cardBg, color: tc.textPrimary, fontSize: 10, fontWeight: 600,
-              cursor: "pointer", fontFamily: "'Inter', sans-serif", flexShrink: 0, minWidth: 72,
-            }}>
-              <span style={{ fontSize: 18 }}>{a.icon}</span>
-              {a.label}
-            </button>
-          ))}
-        </div>}
+        {daysLeftValue > 7 && <QuickAccessBar gradeNum={gradeNum} subjectForQuickActions={subjectForQuickActions} navigate={navigate} />}
 
         {/* HERO ACTION — pace transition (kept visible in sprint) */}
         {paceTransition && (
@@ -854,7 +805,6 @@ export default function Dashboard() {
         )}
 
 
-        {/* STATS ROW — hidden in sprint mode */}
         {daysLeftValue > 7 && totalAttempted === 0 && streak === 0 ? (
           <EmptyStateCard
             icon="🚀"
@@ -864,31 +814,7 @@ export default function Dashboard() {
             onAction={() => navigate(`/daily-mix/${gradeNum}/${subjectForQuickActions}`, { state: { back: "/dashboard", backLabel: "Back to Dashboard" } })}
             color="#22c55e"
           />
-        ) : daysLeftValue > 7 && <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 8, marginBottom: 16 }}>
-          {[
-            { label: "Streak", value: `${streak}d`, icon: "🔥", color: "#fb923c" },
-            { label: "XP", value: xpEstimate.toLocaleString(), icon: "⚡", color: "#c084fc" },
-            { label: "Accuracy", value: `${avgAccuracy}%`, color: "#3b82f6", ring: true, ringVal: avgAccuracy },
-            { label: "Mastered", value: `${topicsMastered}/${topicsStarted}`, color: "#22c55e", ring: true, ringVal: topicsStarted > 0 ? (topicsMastered / topicsStarted) * 100 : 0 },
-          ].map((s, i) => (
-            <div key={i} className="glass-card" style={{ padding: "12px 8px", textAlign: "center" }}>
-              {s.ring ? (
-                <div style={{ display: "flex", justifyContent: "center", marginBottom: 4 }}>
-                  <div style={{ position: "relative", width: 40, height: 40 }}>
-                    <RingChart value={s.ringVal || 0} size={40} strokeWidth={3} color={s.color} />
-                    <span style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 800, color: s.color }}>{s.value}</span>
-                  </div>
-                </div>
-              ) : (
-                <>
-                  <div style={{ fontSize: 16, marginBottom: 2 }}>{s.icon}</div>
-                  <div style={{ fontSize: 16, fontWeight: 800, color: s.color }}>{s.value}</div>
-                </>
-              )}
-              <div style={{ fontSize: 9, fontWeight: 600, color: tc.textMuted, textTransform: "uppercase", letterSpacing: 0.8 }}>{s.label}</div>
-            </div>
-          ))}
-        </div>}
+        ) : daysLeftValue > 7 && <StatsRow streak={streak} xpEstimate={xpEstimate} avgAccuracy={avgAccuracy} topicsMastered={topicsMastered} topicsStarted={topicsStarted} />}
 
         {daysLeftValue > 7 && srStats.dueToday > 0 && (
           <div
@@ -915,158 +841,22 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* DAILY MIX PREVIEW — hidden in 7-day sprint mode */}
-        {daysLeftValue > 7 && dailyMixPreview.length > 0 && (
-          <div className="glass-card" style={{ padding: 16, marginBottom: 16 }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-              <span className="font-display" style={{ fontSize: 14, fontWeight: 700 }}>Today's Mix</span>
-              <span style={{ fontSize: 11, color: tc.textMuted }}>{dailyMixPreview.length} items · ~{dailyMixMinutes} min</span>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              {dailyMixPreview.map((item) => (
-                <div key={item.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 10px", borderRadius: 10, background: tc.subtleBg }}>
-                  <span style={{ fontSize: 14, width: 20, textAlign: "center" }}>{item.type === "question" ? "✏️" : item.type === "video" ? "🎬" : "📖"}</span>
-                  <span style={{ fontSize: 12, fontWeight: 500, color: tc.textSecondary, flex: 1 }}>{item.title}</span>
-                  <span style={{
-                    fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.5, padding: "2px 6px", borderRadius: 4,
-                    background: item.type === "question" ? "rgba(59,130,246,0.12)" : "rgba(34,197,94,0.12)",
-                    color: item.type === "question" ? "#60a5fa" : "#4ade80",
-                  }}>{item.type}</span>
-                </div>
-              ))}
-            </div>
-            <button onClick={() => navigate(`/daily-mix/${gradeNum}/${subjectForQuickActions}`, { state: { back: "/dashboard", backLabel: "Back to Dashboard" } })} style={{
-              width: "100%", padding: "12px 0", borderRadius: 10, background: "rgba(59,130,246,0.15)", border: "1px solid rgba(59,130,246,0.25)",
-              color: "#60a5fa", fontWeight: 700, fontSize: 13, fontFamily: "'Space Grotesk', sans-serif", cursor: "pointer", marginTop: 10,
-            }}>Play Daily Mix</button>
-          </div>
-        )}
+        {daysLeftValue > 7 && <DailyMixPreview items={dailyMixPreview} totalMinutes={dailyMixMinutes} gradeNum={gradeNum} subjectForQuickActions={subjectForQuickActions} navigate={navigate} />}
 
-        {/* WEAK AREAS — hidden in sprint mode (shown inline in SprintDashboard) */}
-        {daysLeftValue > 7 && weakAreas.length > 0 && (
-          <div className="glass-warn" style={{ padding: 16, marginBottom: 16 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
-              <span style={{ fontSize: 16 }}>⚠️</span>
-              <span className="font-display" style={{ fontSize: 14, fontWeight: 700 }}>Weak Areas</span>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {weakAreas.map((w) => (
-                <div key={w.topicKey}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                    <div>
-                      <span style={{ fontSize: 13, fontWeight: 600 }}>{w.topicName}</span>
-                      <span style={{ fontSize: 10, color: tc.textMuted, marginLeft: 6 }}>{w.subject}</span>
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <span style={{ fontSize: 12, fontWeight: 800, color: w.accuracy < 50 ? "#ef4444" : "#fb923c" }}>{w.accuracy}%</span>
-                      <button onClick={() => navigate(`/practice/${gradeNum}/${w.subject}?topic=${encodeURIComponent(w.topicKey)}`, { state: { back: "/dashboard", backLabel: "Back to Dashboard" } })} style={{
-                        fontSize: 10, fontWeight: 700, padding: "4px 10px", borderRadius: 8,
-                        background: "rgba(249,115,22,0.15)", border: "1px solid rgba(249,115,22,0.3)",
-                        color: "#fb923c", cursor: "pointer", textTransform: "uppercase", letterSpacing: 0.5,
-                      }}>Practice</button>
-                    </div>
-                  </div>
-                  <ProgressBar value={w.accuracy} color={w.accuracy < 50 ? "#ef4444" : "#fb923c"} />
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        {daysLeftValue > 7 && <WeakAreasPanel weakAreas={weakAreas} gradeNum={gradeNum} navigate={navigate} />}
 
-        {/* TOPIC MASTERY — progressive disclosure: show after 10+ questions */}
         {daysLeftValue > 7 && totalAttempted >= 10 && performanceRows.length > 0 && (
-          <div className="glass-card" style={{ padding: 16, marginBottom: 16 }}>
-            <span className="font-display" style={{ fontSize: 14, fontWeight: 700, display: "inline", marginBottom: 14 }}>Topic Mastery{newBadges.topicMastery && <NewBadge />}</span>
-            <div style={{ marginBottom: 14 }} />
-
-            {mathsMastery.length > 0 && (
-              <>
-                <div style={{ fontSize: 11, fontWeight: 600, color: tc.textMuted, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>Maths</div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginBottom: scienceMastery.length > 0 ? 16 : 0 }}>
-                  {mathsMastery.map((t) => {
-                    const level = getRowMasteryLevel(t);
-                    return (
-                      <div key={t.topicKey} style={{ textAlign: "center", cursor: "pointer" }} onClick={() => navigate(`/topic-hub/${gradeNum}/Maths/${encodeURIComponent(t.topicKey)}`, { state: { back: "/dashboard", backLabel: "Back to Dashboard" } })}>
-                        <div style={{ position: "relative", width: 48, height: 48, margin: "0 auto 4px" }}>
-                          <svg width={48} height={48} style={{ display: "block" }}>
-                            <circle cx={24} cy={24} r={20} fill="none" stroke={tc.ringTrack} strokeWidth={4} />
-                            <circle cx={24} cy={24} r={20} fill="none" stroke={MASTERY_COLORS[level]} strokeWidth={4}
-                              strokeDasharray={`${MASTERY_RING_FRACTION[level] * 2 * Math.PI * 20} ${(1 - MASTERY_RING_FRACTION[level]) * 2 * Math.PI * 20}`}
-                              strokeDashoffset={2 * Math.PI * 20 / 4} strokeLinecap="round" style={{ transition: "stroke-dasharray 0.5s ease" }} />
-                            <text x={24} y={28} textAnchor="middle" fontSize={16} fill={MASTERY_COLORS[level]}>{MASTERY_ICONS[level]}</text>
-                          </svg>
-                        </div>
-                        <div style={{ fontSize: 8, fontWeight: 700, color: MASTERY_COLORS[level], marginBottom: 1 }}>{MASTERY_LABELS[level]}</div>
-                        <div style={{ fontSize: 7, fontWeight: 600, color: tc.textFaint }}>{MASTERY_POINTS[level]}pts</div>
-                        <div style={{ fontSize: 9, fontWeight: 600, color: tc.textSecondary, lineHeight: 1.2 }}>{t.topicName.length > 14 ? t.topicName.slice(0, 12) + "…" : t.topicName}</div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </>
-            )}
-
-            {scienceMastery.length > 0 && (
-              <>
-                <div style={{ fontSize: 11, fontWeight: 600, color: tc.textMuted, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>Science</div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
-                  {scienceMastery.map((t) => {
-                    const level = getRowMasteryLevel(t);
-                    return (
-                      <div key={t.topicKey} style={{ textAlign: "center", cursor: "pointer" }} onClick={() => navigate(`/topic-hub/${gradeNum}/Science/${encodeURIComponent(t.topicKey)}`, { state: { back: "/dashboard", backLabel: "Back to Dashboard" } })}>
-                        <div style={{ position: "relative", width: 48, height: 48, margin: "0 auto 4px" }}>
-                          <svg width={48} height={48} style={{ display: "block" }}>
-                            <circle cx={24} cy={24} r={20} fill="none" stroke={tc.ringTrack} strokeWidth={4} />
-                            <circle cx={24} cy={24} r={20} fill="none" stroke={MASTERY_COLORS[level]} strokeWidth={4}
-                              strokeDasharray={`${MASTERY_RING_FRACTION[level] * 2 * Math.PI * 20} ${(1 - MASTERY_RING_FRACTION[level]) * 2 * Math.PI * 20}`}
-                              strokeDashoffset={2 * Math.PI * 20 / 4} strokeLinecap="round" style={{ transition: "stroke-dasharray 0.5s ease" }} />
-                            <text x={24} y={28} textAnchor="middle" fontSize={16} fill={MASTERY_COLORS[level]}>{MASTERY_ICONS[level]}</text>
-                          </svg>
-                        </div>
-                        <div style={{ fontSize: 8, fontWeight: 700, color: MASTERY_COLORS[level], marginBottom: 1 }}>{MASTERY_LABELS[level]}</div>
-                        <div style={{ fontSize: 7, fontWeight: 600, color: tc.textFaint }}>{MASTERY_POINTS[level]}pts</div>
-                        <div style={{ fontSize: 9, fontWeight: 600, color: tc.textSecondary, lineHeight: 1.2 }}>{t.topicName.length > 14 ? t.topicName.slice(0, 12) + "…" : t.topicName}</div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </>
-            )}
-          </div>
+          <TopicMasteryGrid
+            mathsMastery={mathsMastery}
+            scienceMastery={scienceMastery}
+            gradeNum={gradeNum}
+            showNewBadge={!!newBadges.topicMastery}
+            navigate={navigate}
+            getRowMasteryLevel={getRowMasteryLevel}
+          />
         )}
 
-        {/* STUDY PLAN SUMMARY — hidden in 7-day sprint mode */}
-        {daysLeftValue > 7 && <div className="glass-blue" style={{ padding: 16, marginBottom: 16 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-            <span style={{ fontSize: 16 }}>📋</span>
-            <span className="font-display" style={{ fontSize: 14, fontWeight: 700 }}>Study Plan</span>
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: hideCountdown ? "1fr 1fr" : "1fr 1fr 1fr", gap: 8, marginBottom: 12 }}>
-            {[
-              { label: "Target", value: `${targetPercentValue || "—"}%`, color: "#3b82f6" },
-              { label: "Hours/day", value: `${hoursPerDayValue || "—"}h`, color: "#22c55e" },
-              ...(!hideCountdown ? [{ label: "Days left", value: `${daysLeftValue || "—"}`, color: "#fb923c" }] : []),
-            ].map((s, i) => (
-              <div key={i} style={{ textAlign: "center", padding: "10px 6px", borderRadius: 10, background: tc.subtleBg }}>
-                <div style={{ fontSize: 18, fontWeight: 800, color: s.color }}>{s.value}</div>
-                <div style={{ fontSize: 9, fontWeight: 600, color: tc.textMuted, textTransform: "uppercase", letterSpacing: 0.5 }}>{s.label}</div>
-              </div>
-            ))}
-          </div>
-          {strategy && (
-            <div style={{ padding: "10px 12px", borderRadius: 10, background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.15)" }}>
-              <div style={{ fontSize: 11, color: tc.textSecondary, marginBottom: 4 }}>Realistic Score Range</div>
-              <div className="font-display" style={{ fontSize: 20, fontWeight: 800 }}>
-                <span style={{ color: "#3b82f6" }}>{strategy.realisticMin}%</span>
-                <span style={{ color: tc.textFaint, margin: "0 6px" }}>—</span>
-                <span style={{ color: "#22c55e" }}>{strategy.realisticMax}%</span>
-              </div>
-              <div style={{ fontSize: 10, color: tc.textMuted, marginTop: 2 }}>
-                {strategy.effortStatus === "high" ? "Strong effort — you can exceed your target." : strategy.effortStatus === "ok" ? "Plan is realistic with regular study." : "Increase hours or adjust target."}
-              </div>
-            </div>
-          )}
-        </div>}
+        {daysLeftValue > 7 && <StudyPlanSummary targetPercent={targetPercentValue} hoursPerDay={hoursPerDayValue} daysLeft={daysLeftValue} hideCountdown={hideCountdown} strategy={strategy} />}
 
         {/* RECENT ACTIVITY — empty state when no activity */}
         {daysLeftValue > 7 && recentActivity.length === 0 && totalAttempted === 0 && (
@@ -1080,25 +870,7 @@ export default function Dashboard() {
           />
         )}
         {daysLeftValue > 7 && recentActivity.length > 0 && (
-          <div className="glass-card" style={{ padding: 16, marginBottom: 16 }}>
-            <span className="font-display" style={{ fontSize: 14, fontWeight: 700, display: "inline" }}>Recent Activity{newBadges.recentActivity && <NewBadge />}</span>
-            <div style={{ marginBottom: 12 }} />
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              {recentActivity.map((a, i) => (
-                <div key={i} style={{
-                  display: "flex", alignItems: "center", gap: 12, padding: "10px 0",
-                  borderBottom: i < recentActivity.length - 1 ? `1px solid ${tc.divider}` : "none",
-                }}>
-                  <div style={{ width: 32, height: 32, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", background: tc.subtleBg, fontSize: 14, flexShrink: 0 }}>{a.icon}</div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 12, fontWeight: 600 }}>{a.action}</div>
-                    {a.subject && <div style={{ fontSize: 10, color: tc.textMuted }}>{a.subject}</div>}
-                  </div>
-                  <span style={{ fontSize: 10, color: tc.textFaint, whiteSpace: "nowrap" }}>{a.time}</span>
-                </div>
-              ))}
-            </div>
-          </div>
+          <RecentActivityList activities={recentActivity} showNewBadge={!!newBadges.recentActivity} />
         )}
 
         {/* BADGES — empty state when none earned, with "New!" badge */}
@@ -1113,47 +885,10 @@ export default function Dashboard() {
           />
         )}
         {daysLeftValue > 7 && badges.length > 0 && (
-          <div className="glass-card" style={{ padding: 16, marginBottom: 16 }}>
-            <span className="font-display" style={{ fontSize: 14, fontWeight: 700, display: "inline" }}>Badges & Achievements{newBadges.badges && <NewBadge />}</span>
-            <div style={{ marginBottom: 12 }} />
-            <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 4 }}>
-              {badges.map((b, i) => (
-                <div key={i} style={{ flexShrink: 0, width: 64, textAlign: "center", opacity: b.unlocked ? 1 : 0.3 }}>
-                  <div style={{
-                    width: 48, height: 48, borderRadius: 12, margin: "0 auto 4px",
-                    display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22,
-                    background: b.unlocked ? "rgba(34,197,94,0.1)" : tc.subtleBg,
-                    border: b.unlocked ? "1px solid rgba(34,197,94,0.2)" : `1px solid ${tc.cardBorder}`,
-                  }}>{b.unlocked ? b.icon : "🔒"}</div>
-                  <div style={{ fontSize: 8, fontWeight: 600, color: tc.textSecondary, lineHeight: 1.2 }}>{b.name}</div>
-                </div>
-              ))}
-            </div>
-          </div>
+          <BadgesSection badges={badges} showNewBadge={!!newBadges.badges} />
         )}
 
-        {/* EXPLORE MORE — hidden in sprint mode */}
-        {daysLeftValue > 7 && <div className="glass-card" style={{ padding: 16, marginBottom: 0 }}>
-          <span className="font-display" style={{ fontSize: 14, fontWeight: 700, display: "block", marginBottom: 12 }}>Explore More</span>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-            {[
-              { label: "Trends", icon: "📈", bg: "rgba(34,197,94,0.08)", border: "rgba(34,197,94,0.2)", path: `/trends/${gradeNum}/${subjectForQuickActions}` },
-              { label: "Chapter Hub", icon: "📚", bg: "rgba(59,130,246,0.08)", border: "rgba(59,130,246,0.2)", path: `/topic-hub/${gradeNum}/${subjectForQuickActions}` },
-              { label: "Mock Test", icon: "📝", bg: "rgba(168,85,247,0.08)", border: "rgba(168,85,247,0.2)", path: "/predictive-papers" },
-              ...(daysLeftValue > 7 ? [{ label: "Weekly Wrapped", icon: "📊", bg: "rgba(249,115,22,0.08)", border: "rgba(249,115,22,0.2)", path: "/weekly-wrapped" }] : []),
-              ...(daysLeftValue <= 30 ? [{ label: "Revision Calendar", icon: "📅", bg: "rgba(59,130,246,0.08)", border: "rgba(59,130,246,0.2)", path: "/revision-calendar" }] : []),
-            ].map((a) => (
-              <button key={a.label} onClick={() => navigate(a.path, { state: { back: "/dashboard", backLabel: "Back to Dashboard" } })} style={{
-                display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-                padding: "14px 12px", borderRadius: 12, border: `1px solid ${a.border}`,
-                background: a.bg, color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "'Inter', sans-serif",
-              }}>
-                <span style={{ fontSize: 16 }}>{a.icon}</span>
-                {a.label}
-              </button>
-            ))}
-          </div>
-        </div>}
+        {daysLeftValue > 7 && <ExploreMorePanel gradeNum={gradeNum} subjectForQuickActions={subjectForQuickActions} daysLeftValue={daysLeftValue} navigate={navigate} />}
 
       </div>
     </div>

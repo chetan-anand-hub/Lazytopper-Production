@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React from "react";
+
 import { type PracticeQuestion } from "../../data/predictionDataService";
 import { MathText } from "../question/MathText";
 import { QuestionVisualAid } from "../question/QuestionVisualAid";
@@ -25,8 +25,8 @@ export interface PracticeQuestionCardProps {
   onSelfAssessGotIt: (q: PracticeQuestion, idx: number) => void;
   onSelfAssessNeedPractice: (q: PracticeQuestion, idx: number) => void;
   onOpenConceptDrawer: (q: PracticeQuestion) => void;
-  onOpenMentorSocratic: (q: PracticeQuestion) => void;
-  onOpenMentorBoard: (q: PracticeQuestion) => void;
+  onOpenMentorSocratic: (q: PracticeQuestion, idx: number) => void;
+  onOpenMentorBoard: (q: PracticeQuestion, idx: number) => void;
 }
 
 export function PracticeQuestionCard({
