@@ -23,10 +23,10 @@ export const MASTERY_POINTS: Record<MasteryLevel, number> = {
 
 export const MASTERY_LABELS: Record<MasteryLevel, string> = {
   not_started: "Not Started",
-  attempted: "Attempted",
-  familiar: "Familiar",
-  proficient: "Proficient",
-  mastered: "Mastered",
+  attempted: "Just Starting",
+  familiar: "Getting Better",
+  proficient: "Strong",
+  mastered: "Nailed It",
 };
 
 export const MASTERY_COLORS: Record<MasteryLevel, string> = {
