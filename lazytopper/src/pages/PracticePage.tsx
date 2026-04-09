@@ -1,12 +1,10 @@
 // src/pages/PracticePage.tsx
 /* eslint-disable @typescript-eslint/no-explicit-any, react-hooks/exhaustive-deps */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { usePracticeLimit } from "../components/auth/PracticeLimitGate";
 
 import { type PracticeQuestion } from "../data/predictionDataService";
-import type { DifficultyLevel } from "../data/predictionTypes";
-import { inferBoardPatternFromQuestion, normalizeBoardPattern } from "../data/practiceSetGenerator";
 import { PredictionCore } from "../data/predictionCore";
 import {
   resolveTopicDisplayName,
@@ -16,16 +14,9 @@ import { fetchStepSolution, type StepSolutionResponse } from "../ai/aiClient";
 import { lazy, Suspense } from "react";
 import type { ConceptTeachContext } from "../components/tutor/ConceptTeachDrawer";
 const ConceptTeachDrawer = lazy(() => import("../components/tutor/ConceptTeachDrawer"));
-import { QuestionVisualAid } from "../components/question/QuestionVisualAid";
-import { MathText } from "../components/question/MathText";
-import { SolutionChecker } from "../components/question/SolutionChecker";
-import { DiagramBlock } from "../components/DiagramBlock";
 import JourneyStrip from "../components/ux/JourneyStrip";
 import ReturnContextBar from "../components/ux/ReturnContextBar";
-import {
-  navigateToPractice,
-  type PracticeSectionFilter,
-} from "../navigation/practiceNavigation";
+import type { PracticeSectionFilter } from "../navigation/practiceNavigation";
 import { recordQuizResult, type QuizResult } from "../services/masteryLevelService";
 import {
   getQuestionFamiliesForTopic,
@@ -66,7 +57,6 @@ import {
   deriveMentorDefaultIntent,
   buildStrategyContextHeader,
   buildRubricContextHeader,
-  buildPracticeQuestionsFromEngine,
   resolvePracticePackKey,
   buildPracticeQuestionsWithAiTopup,
   normaliseSubject,
@@ -74,10 +64,12 @@ import {
   parsePositiveInt,
   parseFocusBankIds,
   parseBooleanFlag,
-  enforceDifficultyFilter,
   mapUnifiedQuestionToPractice,
 } from "../components/practice/practiceQuestionBuilder";
 import { MentorSolveDrawer } from "../components/practice/MentorSolveDrawer";
+import { PracticeQuestionCard } from "../components/practice/PracticeQuestionCard";
+import { PracticeControls } from "../components/practice/PracticeControls";
+import { SessionProgressBar } from "../components/practice/SessionProgressBar";
 
 const QTYPE_FIRST_TRIG = import.meta.env.VITE_QTYPE_FIRST_TRIGONOMETRY === "true";
 
@@ -809,198 +801,23 @@ const packTopicKey = useMemo(() => {
           </p>
         </section>
 
-        {/* Controls row */}
-        <section
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            gap: 10,
-            alignItems: "center",
-            justifyContent: "space-between",
-            marginBottom: 14,
+        <PracticeControls
+          difficulty={difficulty}
+          onSetDifficulty={setDifficulty}
+          sectionFilter={sectionFilter}
+          onSetSectionFilter={(s) => setSectionFilter(s as any)}
+          questionCount={questionCount}
+          onSetQuestionCount={setQuestionCount}
+          onRegenerate={() => {
+            trackUxEvent("practice_regenerate_click", "practice", {
+              action: "regenerate_set",
+              topic: topicParam,
+              subject: subjectKey,
+              questionCount,
+            });
+            regenerateQuestions();
           }}
-        >
-          {/* Difficulty chips */}
-          <div
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              gap: 8,
-              alignItems: "center",
-            }}
-          >
-            <span
-              style={{
-                fontSize: "0.8rem",
-                color: "rgba(255,255,255,0.45)",
-                marginRight: 4,
-              }}
-            >
-              Difficulty:
-            </span>
-            {(["All", "Easy", "Medium", "Hard"] as DifficultyChoice[]).map(
-              (level) => {
-                const active = difficulty === level;
-                return (
-                  <button
-                    key={level}
-                    type="button"
-                    onClick={() => setDifficulty(level)}
-                    style={{
-                      borderRadius: 999,
-                      padding: "4px 10px",
-                      border: active
-                        ? "1px solid rgba(28,176,246,0.85)"
-                        : "1px solid rgba(255,255,255,0.1)",
-                      backgroundColor: active ? "#3b82f6" : "rgba(255,255,255,0.03)",
-                      color: active ? "#f9fafb" : "rgba(255,255,255,0.7)",
-                      fontSize: "0.75rem",
-                      cursor: "pointer",
-                      boxShadow: active
-                        ? "0 6px 16px rgba(28,176,246,0.3)"
-                        : "none",
-                    }}
-                  >
-                    {level === "All" ? "All levels" : level}
-                  </button>
-                );
-              }
-            )}
-          </div>
-
-          {/* Type (A-E) filter */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              flexWrap: "wrap",
-            }}
-          >
-            <span style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.45)" }}>Type:</span>
-            <select
-              value={sectionFilter}
-              onChange={(e) => setSectionFilter(e.target.value as any)}
-              style={{
-                borderRadius: 999,
-                border: "1px solid rgba(255,255,255,0.1)",
-                padding: "4px 10px",
-                fontSize: "0.78rem",
-                background: "rgba(255,255,255,0.03)",
-                cursor: "pointer",
-              }}
-            >
-              <option value="ALL">All</option>
-              <option value="A">A (1m)</option>
-              <option value="B">B (2m)</option>
-              <option value="C">C (3m)</option>
-              <option value="D">D (5m)</option>
-              <option value="E">E (Case, 4m)</option>
-            </select>
-          </div>
-
-          {/* Question count + regenerate */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              flexWrap: "wrap",
-            }}
-          >
-            <label
-              style={{
-                fontSize: "0.8rem",
-                color: "rgba(255,255,255,0.45)",
-              }}
-            >
-              Questions:{" "}
-              <input
-                type="number"
-                min={MIN_QUESTION_COUNT}
-                max={MAX_QUESTION_COUNT}
-                value={questionCount}
-                onChange={(e) =>
-                  setQuestionCount(
-                    Math.max(MIN_QUESTION_COUNT, Math.min(MAX_QUESTION_COUNT, Number(e.target.value) || 0))
-                  )
-                }
-                style={{
-                  width: 56,
-                  borderRadius: 999,
-                  border: "1px solid #cbd5f5",
-                  padding: "3px 8px",
-                  fontSize: "0.78rem",
-                  marginLeft: 4,
-                }}
-              />
-            </label>
-            <button
-              type="button"
-              onClick={() => {
-                trackUxEvent("practice_regenerate_click", "practice", {
-                  action: "regenerate_set",
-                  topic: topicParam,
-                  subject: subjectKey,
-                  questionCount,
-                });
-                regenerateQuestions();
-              }}
-              style={{
-                borderRadius: 999,
-                padding: "5px 12px",
-                border: "1px solid rgba(88,204,2,0.8)",
-                backgroundColor: "#22c55e",
-                color: "#052e16",
-                fontSize: "0.78rem",
-                cursor: "pointer",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-              }}
-            >
-              Regenerate set
-            </button>
-            <button
-              type="button"
-              onClick={() =>
-                setQuestionCount((prev) =>
-                  Math.max(MIN_QUESTION_COUNT, Math.min(MAX_QUESTION_COUNT, prev + 10))
-                )
-              }
-              style={{
-                borderRadius: 999,
-                padding: "5px 12px",
-                border: "1px solid rgba(28,176,246,0.8)",
-                backgroundColor: "rgba(59,130,246,0.1)",
-                color: "#1e3a8a",
-                fontSize: "0.78rem",
-                cursor: "pointer",
-              }}
-              title="Demand 10 more questions for this topic"
-            >
-              +10 more
-            </button>
-          </div>
-        </section>
-
-        <section style={{ marginBottom: 10, display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-          <span style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.45)" }}>Fast drill presets:</span>
-          {[10, 20, 40, 60, 100].map((count) => (
-            <button
-              key={count}
-              type="button"
-              className="lt-pill"
-              style={{ padding: "4px 10px", fontSize: "0.74rem" }}
-              onClick={() => setQuestionCount(Math.max(MIN_QUESTION_COUNT, Math.min(MAX_QUESTION_COUNT, count)))}
-            >
-              {count}Q
-            </button>
-          ))}
-          <span className="lt-desktop-only" style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.45)" }}>
-            Shortcut: Alt+1/2/3/4/5 and Alt+R.
-          </span>
-        </section>
+        />
 
         {isWhyThisQuestionEnabled && (
           <section
@@ -1199,471 +1016,93 @@ const packTopicKey = useMemo(() => {
                 gap: 14,
               }}
             >
-              {filteredQuestions.map((q, idx) => {
-                const isOpen = !!expandedAnswers[q.id];
-                return (
-                  <article
-                    key={q.id}
-                    data-testid="practice-question-card"
-                    data-question-id={String(q.id)}
-                    onClick={() => setActiveQuestionId(String(q.id))}
-                    style={{
-                      borderRadius: 18,
-                      padding: "14px 16px 12px",
-                      backgroundColor: "rgba(255,255,255,0.03)",
-                      border: "1px solid rgba(255,255,255,0.08)",
-                      boxShadow: "0 10px 24px rgba(0,0,0,0.08)",
-                    }}
-                  >
-                    <header
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "flex-start",
-                        marginBottom: 6,
-                        gap: 8,
-                      }}
-                    >
-                      <div
-                        style={{
-                          display: "flex",
-                          flexWrap: "wrap",
-                          gap: 12,
-                          marginBottom: 6,
-                        }}
-                      >
-                        <div
-                          style={{
-                            fontSize: "0.8rem",
-                            color: "rgba(255,255,255,0.45)",
-                          }}
-                        >
-                          <span
-                            style={{
-                              display: "inline-flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              width: 22,
-                              height: 22,
-                              borderRadius: 999,
-                              backgroundColor: "rgba(255,255,255,0.08)",
-                              color: "#fff",
-                              fontSize: "0.75rem",
-                              fontWeight: 600,
-                              marginRight: 8,
-                            }}
-                          >
-                            {idx + 1}
-                          </span>
-                          <span>
-                            {q.marks} mark{q.marks !== 1 ? "s" : ""} - {q.section}
-                          </span>
-                        </div>
-                      </div>
-
-                    </header>
-
-                    <p
-                      style={{
-                        fontSize: "0.9rem",
-                        color: "#fff",
-                        lineHeight: 1.6,
-                        whiteSpace: "pre-wrap",
-                        marginBottom: 8,
-                      }}
-                    >
-                      <MathText text={q.questionText} />
-                    </p>
-
-                    {Array.isArray(q.options) && q.options.length > 0 && (() => {
-                      const opts = q.options;
-                      const qId = String(q.id);
-                      const selected = mcqSelections[qId];
-                      const result = mcqResults[qId];
-                      const correctIdx = (() => {
-                        const co = (q as PracticeQuestion & { correctOption?: string }).correctOption;
-                        if (co && typeof co === "string" && co.length === 1) {
-                          return co.charCodeAt(0) - 65;
-                        }
-                        if (q.answer) {
-                          const ansLower = q.answer.trim().toLowerCase();
-                          const ai = opts.findIndex(o => o.trim().toLowerCase() === ansLower);
-                          if (ai >= 0) return ai;
-                          const pi = opts.findIndex(o => ansLower.includes(o.trim().toLowerCase()) || o.trim().toLowerCase().includes(ansLower));
-                          if (pi >= 0) return pi;
-                        }
-                        return -1;
-                      })();
-                      const handleMcqClick = (oi: number) => {
-                        if (result) return;
-                        setMcqSelections(prev => ({ ...prev, [qId]: oi }));
-                        if (correctIdx >= 0) {
-                          setMcqResults(prev => ({ ...prev, [qId]: oi === correctIdx ? "correct" : "wrong" }));
-                        }
-                      };
-                      return (
-                        <div style={{ marginBottom: 10, paddingLeft: 4 }}>
-                          {opts.map((opt: string, oi: number) => {
-                            const isSelected = selected === oi;
-                            const isCorrect = result && oi === correctIdx;
-                            const isWrongChoice = result === "wrong" && isSelected;
-                            let bg = "transparent";
-                            let border = "1px solid transparent";
-                            let optColor = "rgba(255,255,255,0.9)";
-                            if (isCorrect) { bg = "rgba(34,197,94,0.08)"; border = "1px solid rgba(34,197,94,0.3)"; optColor = "#22c55e"; }
-                            else if (isWrongChoice) { bg = "rgba(239,68,68,0.08)"; border = "1px solid rgba(239,68,68,0.3)"; optColor = "#ef4444"; }
-                            else if (isSelected && !result) { bg = "rgba(59,130,246,0.08)"; border = "1px solid rgba(59,130,246,0.4)"; }
-                            return (
-                              <button
-                                key={oi}
-                                type="button"
-                                onClick={() => handleMcqClick(oi)}
-                                style={{
-                                  display: "flex",
-                                  alignItems: "baseline",
-                                  gap: 8,
-                                  padding: "8px 12px",
-                                  fontSize: "0.88rem",
-                                  color: optColor,
-                                  background: bg,
-                                  border,
-                                  borderRadius: 12,
-                                  cursor: result ? "default" : "pointer",
-                                  width: "100%",
-                                  textAlign: "left",
-                                  marginBottom: 4,
-                                  transition: "all 0.15s",
-                                }}
-                              >
-                                <span style={{ fontWeight: 700, minWidth: 22, color: isCorrect ? "#22c55e" : isWrongChoice ? "#ef4444" : "rgba(255,255,255,0.45)" }}>
-                                  {isCorrect ? "✓" : isWrongChoice ? "✗" : String.fromCharCode(65 + oi) + "."}
-                                </span>
-                                <MathText text={opt} />
-                              </button>
-                            );
-                          })}
-                          {result && (
-                            <div style={{
-                              marginTop: 6, padding: "8px 12px", borderRadius: 10,
-                              fontSize: "0.82rem", fontWeight: 700,
-                              background: result === "correct" ? "rgba(34,197,94,0.08)" : "rgba(239,68,68,0.08)",
-                              color: result === "correct" ? "#22c55e" : "#ef4444",
-                            }}>
-                              {result === "correct" ? "Correct! Well done." : `Incorrect. The correct answer is ${String.fromCharCode(65 + correctIdx)}.`}
-                            </div>
-                          )}
-                        </div>
+              {filteredQuestions.map((q, idx) => (
+                <PracticeQuestionCard
+                  key={q.id}
+                  q={q}
+                  idx={idx}
+                  subjectKey={subjectKey}
+                  topicLabel={topicLabel}
+                  isOpen={!!expandedAnswers[q.id]}
+                  selfAssessment={selfAssessments[q.id]}
+                  solutionLoading={!!practiceSolutionLoading[q.id]}
+                  solutionError={practiceSolutionError[q.id]}
+                  solutionData={practiceSolutionData[q.id]}
+                  mcqSelection={mcqSelections[String(q.id)]}
+                  mcqResult={mcqResults[String(q.id)]}
+                  onSetActiveQuestion={(id) => setActiveQuestionId(id)}
+                  onToggleAnswer={(id, question) => handleToggleAnswer(id, question)}
+                  onMcqSelect={(qId, oi) => setMcqSelections((prev) => ({ ...prev, [qId]: oi }))}
+                  onMcqResult={(qId, result) => setMcqResults((prev) => ({ ...prev, [qId]: result }))}
+                  onSelfAssessGotIt={(question) => {
+                    const concept = String(question.subtopic ?? "");
+                    const diff = String(question.difficulty ?? "Medium");
+                    setSelfAssessments((prev) => ({ ...prev, [question.id]: "got_it" }));
+                    recordQuestionAnswered();
+                    recordPracticeInPhase(canonicalTopicKey || topicParam, authUserForJourney?.uid);
+                    setSessionTracker((prev) => recordSelfAssessment(prev, question.id, "got_it", concept, diff));
+                    const topicK = canonicalTopicKey || topicParam;
+                    const snap = loadTopicMasterySnapshot(topicK);
+                    const nodeId = concept || question.id;
+                    const updated = upsertNodeProgress(snap, nodeId, { score: 100, status: "correct" });
+                    saveTopicMasterySnapshot(updated, topicK);
+                  }}
+                  onSelfAssessNeedPractice={(question) => {
+                    const concept = String(question.subtopic ?? "");
+                    const diff = String(question.difficulty ?? "Medium");
+                    setSelfAssessments((prev) => ({ ...prev, [question.id]: "need_practice" }));
+                    recordQuestionAnswered();
+                    recordPracticeInPhase(canonicalTopicKey || topicParam, authUserForJourney?.uid);
+                    const nextTracker = recordSelfAssessment(sessionTracker, question.id, "need_practice", concept, diff);
+                    const pendingFollowUp = nextTracker.followUpQueue.find(
+                      (f) => f.sourceQuestionId === question.id && f.injectedAtIndex === -1
+                    );
+                    if (pendingFollowUp) {
+                      const currentIds = new Set(questions.map((fq) => String(fq.id)));
+                      const allCandidates = PredictionCore.getLikelyQuestionsForConcept(
+                        canonicalTopicKey || topicParam, undefined
                       );
-                    })()}
-
-                    <QuestionVisualAid
-                      subject={subjectKey}
-                      topicKey={topicLabel}
-                      questionText={q.questionText}
-                      marks={q.marks}
-                    />
-
-                    {/* Primary actions row */}
-                    <div
-                      style={{
-                        display: "flex",
-                        flexWrap: "wrap",
-                        gap: 8,
-                        alignItems: "center",
-                        marginBottom: 8,
-                      }}
-                    >
-                      <button
-                        data-testid="practice-mentor-cta"
-                        type="button"
-                        onClick={() => {
-                          setActiveQuestionId(String(q.id));
-                          handleToggleAnswer(q.id, q);
-                        }}
-                        style={{
-                          borderRadius: 999,
-                          padding: "5px 12px",
-                          border: "1px solid rgba(59,130,246,0.3)",
-                          backgroundColor: isOpen
-                            ? "rgba(59,130,246,0.06)"
-                            : "rgba(59,130,246,0.06)",
-                          fontSize: "0.78rem",
-                          color: "#3b82f6",
-                          cursor: "pointer",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: 6,
-                        }}
-                      >
-                        <span>{isOpen ? "Hide solution" : "Step-by-Step Solution"}</span>
-                      </button>
-                    </div>
-
-                    {isOpen && (
-                      <div style={{
-                        marginTop: 10,
-                        padding: "12px 14px",
-                        background: "rgba(255,255,255,0.06)",
-                        borderRadius: 12,
-                        border: "1px solid rgba(255,255,255,0.06)",
-                      }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                          <strong style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.85)" }}>
-                            Step-by-Step Solution ({q.marks} {q.marks === 1 ? "mark" : "marks"})
-                          </strong>
-                        </div>
-
-                        {practiceSolutionLoading[q.id] && (
-                          <div style={{ fontSize: "0.82rem", color: "#3b82f6", padding: "8px 0" }}>
-                            Loading step-by-step solution...
-                          </div>
-                        )}
-                        {practiceSolutionError[q.id] && (
-                          <div style={{ fontSize: "0.82rem", color: "#ef4444", padding: "8px 0" }}>
-                            {practiceSolutionError[q.id]}
-                          </div>
-                        )}
-                        {practiceSolutionData[q.id] && (
-                          <div>
-                            {practiceSolutionData[q.id].steps.map((step) => (
-                              <div key={step.stepNumber} style={{
-                                display: "flex", gap: 10, marginBottom: 8,
-                                padding: "8px 10px", background: "rgba(255,255,255,0.03)",
-                                borderRadius: 8, border: "1px solid rgba(255,255,255,0.06)",
-                              }}>
-                                <div style={{
-                                  minWidth: 28, height: 28, borderRadius: "50%",
-                                  background: "rgba(59,130,246,0.8)", color: "#fff",
-                                  display: "flex", alignItems: "center", justifyContent: "center",
-                                  fontSize: "0.75rem", fontWeight: 700, flexShrink: 0,
-                                }}>{step.stepNumber}</div>
-                                <div style={{ flex: 1 }}>
-                                  <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "rgba(255,255,255,0.85)", marginBottom: 2 }}>
-                                    <MathText text={step.description} />
-                                    <span style={{
-                                      marginLeft: 8, fontSize: "0.7rem", fontWeight: 700,
-                                      color: step.marks === 0 ? "rgba(255,255,255,0.4)" : "#60a5fa",
-                                      background: step.marks === 0 ? "rgba(255,255,255,0.04)" : "rgba(59,130,246,0.1)",
-                                      borderRadius: 999, padding: "1px 7px",
-                                    }}>
-                                      {step.marks === 0 ? "Explanation" : step.marks === 0.5 ? "½ mark" : step.marks % 1 === 0.5 ? `${Math.floor(step.marks)}½ marks` : `${step.marks} ${step.marks === 1 ? "mark" : "marks"}`}
-                                    </span>
-                                  </div>
-                                  <div style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.45)", lineHeight: 1.5 }}>
-                                    <MathText text={step.working} />
-                                  </div>
-                                </div>
-                              </div>
-                            ))}
-
-                            {practiceSolutionData[q.id].commonMistakes && practiceSolutionData[q.id].commonMistakes!.length > 0 && (
-                              <div style={{
-                                marginTop: 8, padding: "8px 10px",
-                                background: "rgba(239,68,68,0.06)", borderRadius: 8, border: "1px solid rgba(239,68,68,0.2)",
-                              }}>
-                                <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#ef4444", marginBottom: 4 }}>
-                                  Common Mistakes
-                                </div>
-                                {practiceSolutionData[q.id].commonMistakes!.map((m, i) => (
-                                  <div key={i} style={{ fontSize: "0.75rem", color: "rgba(239,68,68,0.8)", marginBottom: 2 }}>
-                                    {"\u2022"} {m}
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                            {practiceSolutionData[q.id].examTip && (
-                              <div style={{
-                                marginTop: 8, padding: "8px 10px",
-                                background: "rgba(34,197,94,0.06)", borderRadius: 8, border: "1px solid rgba(34,197,94,0.2)",
-                                fontSize: "0.75rem", color: "#22c55e",
-                              }}>
-                                <strong>Exam Tip:</strong> {practiceSolutionData[q.id].examTip}
-                              </div>
-                            )}
-
-                            <button
-                              onClick={() => openConceptDrawer(q)}
-                              style={{
-                                marginTop: 12,
-                                width: "100%",
-                                padding: "10px 14px",
-                                borderRadius: 10,
-                                border: "1px solid rgba(206,130,255,0.3)",
-                                background: "linear-gradient(135deg, rgba(206,130,255,0.06), rgba(206,130,255,0.08))",
-                                color: "#c4b5fd",
-                                fontSize: "0.82rem",
-                                fontWeight: 600,
-                                cursor: "pointer",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                gap: 8,
-                              }}
-                            >
-                              <span style={{ fontSize: "1rem" }}>{"\uD83D\uDCA1"}</span>
-                              Teach me this concept
-                            </button>
-                            <SolutionChecker
-                              question={q.questionText}
-                              marks={q.marks}
-                              subject={subjectKey}
-                              topic={topicLabel}
-                            />
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {isOpen && !selfAssessments[q.id] && (
-                      <div
-                        style={{
-                          display: "flex",
-                          gap: 8,
-                          marginTop: 10,
-                          padding: "10px 0 2px",
-                          borderTop: "1px solid rgba(0,0,0,0.08)",
-                        }}
-                      >
-                        <span style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.45)", alignSelf: "center" }}>
-                          How did you do?
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const concept = String(q.subtopic ?? "");
-                            const diff = String(q.difficulty ?? "Medium");
-                            setSelfAssessments((prev) => ({ ...prev, [q.id]: "got_it" }));
-                            recordQuestionAnswered();
-                            recordPracticeInPhase(canonicalTopicKey || topicParam, authUserForJourney?.uid);
-                            setSessionTracker((prev) => recordSelfAssessment(prev, q.id, "got_it", concept, diff));
-                            const topicK = canonicalTopicKey || topicParam;
-                            const snap = loadTopicMasterySnapshot(topicK);
-                            const nodeId = concept || q.id;
-                            const updated = upsertNodeProgress(snap, nodeId, { score: 100, status: "correct" });
-                            saveTopicMasterySnapshot(updated, topicK);
-                          }}
-                          style={{
-                            borderRadius: 999,
-                            padding: "4px 14px",
-                            border: "1px solid rgba(34,197,94,0.3)",
-                            backgroundColor: "rgba(34,197,94,0.08)",
-                            fontSize: "0.76rem",
-                            color: "#22c55e",
-                            cursor: "pointer",
-                            fontWeight: 700,
-                          }}
-                        >
-                          Got it
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const concept = String(q.subtopic ?? "");
-                            const diff = String(q.difficulty ?? "Medium");
-                            setSelfAssessments((prev) => ({ ...prev, [q.id]: "need_practice" }));
-                            recordQuestionAnswered();
-                            recordPracticeInPhase(canonicalTopicKey || topicParam, authUserForJourney?.uid);
-                            const nextTracker = recordSelfAssessment(sessionTracker, q.id, "need_practice", concept, diff);
-
-                            const pendingFollowUp = nextTracker.followUpQueue.find(
-                              (f) => f.sourceQuestionId === q.id && f.injectedAtIndex === -1
-                            );
-                            if (pendingFollowUp) {
-                              const currentIds = new Set(questions.map((fq) => String(fq.id)));
-                              const allCandidates = PredictionCore.getLikelyQuestionsForConcept(
-                                canonicalTopicKey || topicParam, undefined
-                              );
-                              const followUp = findFollowUpQuestion(
-                                allCandidates,
-                                currentIds,
-                                pendingFollowUp.conceptKey,
-                                pendingFollowUp.difficulty,
-                              );
-                              if (followUp) {
-                                const sourceIdx = questions.findIndex((fq) => String(fq.id) === q.id);
-                                const insertAt = sourceIdx >= 0
-                                  ? Math.min(sourceIdx + 2, questions.length)
-                                  : Math.min(idx + 2, questions.length);
-                                const mapped = mapUnifiedQuestionToPractice(followUp, `followup-${q.id}`);
-                                setQuestions((prev) => {
-                                  const copy = [...prev];
-                                  copy.splice(insertAt, 0, mapped);
-                                  return copy;
-                                });
-                                setSessionTracker(markFollowUpInjected(nextTracker, q.id, insertAt));
-                              } else {
-                                setSessionTracker(nextTracker);
-                              }
-                            } else {
-                              setSessionTracker(nextTracker);
-                            }
-
-                            const topicK = canonicalTopicKey || topicParam;
-                            const snap = loadTopicMasterySnapshot(topicK);
-                            const nodeId = concept || q.id;
-                            const updated = upsertNodeProgress(snap, nodeId, { score: 20, status: "incorrect" });
-                            saveTopicMasterySnapshot(updated, topicK);
-                          }}
-                          style={{
-                            borderRadius: 999,
-                            padding: "4px 14px",
-                            border: "1px solid rgba(239,68,68,0.3)",
-                            backgroundColor: "rgba(239,68,68,0.08)",
-                            fontSize: "0.76rem",
-                            color: "#ef4444",
-                            cursor: "pointer",
-                            fontWeight: 700,
-                          }}
-                        >
-                          Need practice
-                        </button>
-                      </div>
-                    )}
-                    {selfAssessments[q.id] && (
-                      <div
-                        style={{
-                          marginTop: 8,
-                          fontSize: "0.76rem",
-                          fontWeight: 600,
-                          color: selfAssessments[q.id] === "got_it" ? "#22c55e" : "#ef4444",
-                        }}
-                      >
-                        {selfAssessments[q.id] === "got_it" ? "✓ Marked as understood" : "⟳ Follow-up queued"}
-                      </div>
-                    )}
-</article>
-                );
-              })}
+                      const followUp = findFollowUpQuestion(
+                        allCandidates, currentIds,
+                        pendingFollowUp.conceptKey, pendingFollowUp.difficulty,
+                      );
+                      if (followUp) {
+                        const sourceIdx = questions.findIndex((fq) => String(fq.id) === question.id);
+                        const insertAt = sourceIdx >= 0
+                          ? Math.min(sourceIdx + 2, questions.length)
+                          : Math.min(idx + 2, questions.length);
+                        const mapped = mapUnifiedQuestionToPractice(followUp, `followup-${question.id}`);
+                        setQuestions((prev) => {
+                          const copy = [...prev];
+                          copy.splice(insertAt, 0, mapped);
+                          return copy;
+                        });
+                        setSessionTracker(markFollowUpInjected(nextTracker, question.id, insertAt));
+                      } else {
+                        setSessionTracker(nextTracker);
+                      }
+                    } else {
+                      setSessionTracker(nextTracker);
+                    }
+                    const topicK = canonicalTopicKey || topicParam;
+                    const snap = loadTopicMasterySnapshot(topicK);
+                    const nodeId = concept || question.id;
+                    const updated = upsertNodeProgress(snap, nodeId, { score: 20, status: "incorrect" });
+                    saveTopicMasterySnapshot(updated, topicK);
+                  }}
+                  onOpenConceptDrawer={openConceptDrawer}
+                  onOpenMentorSocratic={(question) => {
+                    openMentorForQuestion(question, idx, "hint");
+                  }}
+                  onOpenMentorBoard={(question) => {
+                    openMentorForQuestion(question, idx, "check_cbse");
+                  }}
+                />
+              ))}
             </div>
           )}
 
-          {(() => {
-            const stats = getSessionStats(sessionTracker);
-            if (stats.total === 0) return null;
-            return (
-              <div
-                style={{
-                  marginTop: 16,
-                  padding: "12px 16px",
-                  borderRadius: 16,
-                  background: "rgba(34,197,94,0.06)",
-                  border: "1px solid rgba(34,197,94,0.3)",
-                  display: "flex",
-                  gap: 16,
-                  flexWrap: "wrap",
-                  alignItems: "center",
-                  fontSize: "0.8rem",
-                }}
-              >
-                <span style={{ fontWeight: 700, color: "rgba(255,255,255,0.85)" }}>Session Progress</span>
-                <span style={{ color: "#22c55e" }}>✓ {stats.gotIt} got it</span>
-                <span style={{ color: "#ef4444" }}>⟳ {stats.needPractice} need practice</span>
-                <span style={{ color: "rgba(255,255,255,0.45)" }}>
-                  {Math.round(stats.accuracy * 100)}% accuracy
-                </span>
-              </div>
-            );
-          })()}
+          <SessionProgressBar stats={getSessionStats(sessionTracker)} />
         </section>
 
 <MentorSolveDrawer

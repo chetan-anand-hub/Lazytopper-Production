@@ -500,8 +500,8 @@ export default function App() {
 
 
           {/* Topic Hub entry with grade & subject in path */}
-          <Route path="/topic-hub/:grade/:subject" element={<RequirePremium featureLabel="Chapter Hub (AI Tutor)">{withRouteSuspense(<TopicHub />)}</RequirePremium>} />
-          <Route path="/topic-hub/:grade/:subject/:topicKey" element={<RequirePremium featureLabel="Chapter Hub (AI Tutor)">{withRouteSuspense(<TopicHub />)}</RequirePremium>} />
+          <Route path="/topic-hub/:grade/:subject" element={<RequirePremium featureLabel="Chapter Hub (AI Tutor)"><SectionErrorBoundary>{withRouteSuspense(<TopicHub />)}</SectionErrorBoundary></RequirePremium>} />
+          <Route path="/topic-hub/:grade/:subject/:topicKey" element={<RequirePremium featureLabel="Chapter Hub (AI Tutor)"><SectionErrorBoundary>{withRouteSuspense(<TopicHub />)}</SectionErrorBoundary></RequirePremium>} />
 
           {/* TopicHub launcher page */}
           <Route path="/topic-hub" element={<TopicHubHome />} />
@@ -515,8 +515,8 @@ export default function App() {
           <Route path="/mock-paper/:slug" element={<MockViewGate><SectionErrorBoundary>{withRouteSuspense(<MockPaper />)}</SectionErrorBoundary></MockViewGate>} />
 
           {/* Topic Mock Paper — auth + mock view limit */}
-          <Route path="/topic-mock/:grade/:subject/:topicKey" element={<MockViewGate>{withRouteSuspense(<TopicMockPage />)}</MockViewGate>} />
-          <Route path="/chapter-test/:grade/:subject/:topicKey" element={<MockViewGate>{withRouteSuspense(<ChapterTestPage />)}</MockViewGate>} />
+          <Route path="/topic-mock/:grade/:subject/:topicKey" element={<MockViewGate><SectionErrorBoundary>{withRouteSuspense(<TopicMockPage />)}</SectionErrorBoundary></MockViewGate>} />
+          <Route path="/chapter-test/:grade/:subject/:topicKey" element={<MockViewGate><SectionErrorBoundary>{withRouteSuspense(<ChapterTestPage />)}</SectionErrorBoundary></MockViewGate>} />
 
           {/* New Mock Builder v1 with mandatory grade & subject */}
           <Route path="/mock-builder/:grade/:subject" element={<RequirePremium featureLabel="Mock Builder">{withRouteSuspense(<MockBuilder />)}</RequirePremium>} />
@@ -543,7 +543,7 @@ export default function App() {
           {/* Exam Simulation — unlimited full-length mock */}
           <Route
             path="/exam-simulation"
-            element={<RequirePremium featureLabel="Exam Simulation">{withRouteSuspense(<ExamSimulationPage />)}</RequirePremium>}
+            element={<RequirePremium featureLabel="Exam Simulation"><SectionErrorBoundary>{withRouteSuspense(<ExamSimulationPage />)}</SectionErrorBoundary></RequirePremium>}
           />
 
           <Route path="/night-before" element={<RequireAuth>{withRouteSuspense(<NightBeforePage />)}</RequireAuth>} />
