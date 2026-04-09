@@ -1376,7 +1376,7 @@ const packTopicKey = useMemo(() => {
             }}
           >
             Auto-generated{" "}
-            <strong>{questionCount}</strong> questions adapted to your mastery level.
+            <strong>{questionCount}</strong> questions adapted to your progress.
             Solve on paper first, then self-assess with{" "}
             <strong>"Got it"</strong> or <strong>"Need practice"</strong>.
           </p>

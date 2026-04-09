@@ -1045,7 +1045,7 @@ export default function TopicHub() {
             }}>
               <span style={{ fontSize: 18 }}>{MASTERY_ICONS[chapterMasteryLevel]}</span>
               <div style={{ textAlign: "left" }}>
-                <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.5)" }}>Mastery Level</div>
+                <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.5)" }}>Your Progress</div>
                 <div style={{ fontSize: "0.92rem", fontWeight: 800, color: MASTERY_COLORS[chapterMasteryLevel] }}>
                   {MASTERY_LABELS[chapterMasteryLevel]}
                 </div>

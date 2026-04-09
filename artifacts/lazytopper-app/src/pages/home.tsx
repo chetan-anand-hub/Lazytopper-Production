@@ -294,7 +294,8 @@ export default function HomePage() {
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full mb-10">
-            <a href="/app/daily-mix/10/Maths" className="bg-gradient-to-br from-gray-900 to-black border border-white/10 p-8 rounded-3xl hover:border-amber-400/50 transition-colors group no-underline text-white">
+            <a href="/app/daily-mix/10/Maths" className="bg-gradient-to-br from-gray-900 to-black border border-white/10 p-8 rounded-3xl hover:border-amber-400/50 transition-colors group no-underline text-white relative">
+              <span className="absolute top-4 right-4 px-2 py-0.5 rounded-full bg-green-500/20 border border-green-500/40 text-[10px] font-bold text-green-400 uppercase tracking-wider">Free</span>
               <div className="anim-wiggle inline-block">
                 <Calendar className="w-10 h-10 text-amber-400 mb-6 group-hover:scale-110 transition-transform" />
               </div>
@@ -302,7 +303,8 @@ export default function HomePage() {
               <span className="text-gray-400 block">Your daily 20-min session</span>
             </a>
             
-            <a href="/app/weak-area-practice" className="bg-gradient-to-br from-gray-900 to-black border border-white/10 p-8 rounded-3xl hover:border-red-400/50 transition-colors group no-underline text-white">
+            <a href="/app/weak-area-practice" className="bg-gradient-to-br from-gray-900 to-black border border-white/10 p-8 rounded-3xl hover:border-red-400/50 transition-colors group no-underline text-white relative">
+              <span className="absolute top-4 right-4 px-2 py-0.5 rounded-full bg-green-500/20 border border-green-500/40 text-[10px] font-bold text-green-400 uppercase tracking-wider">Free</span>
               <div className="anim-pulse-glow inline-block">
                 <Target className="w-10 h-10 text-red-400 mb-6 group-hover:scale-110 transition-transform" />
               </div>
@@ -310,7 +312,8 @@ export default function HomePage() {
               <span className="text-gray-400 block">AI finds your gaps</span>
             </a>
 
-            <a href="/app/planner/10/Maths" className="bg-gradient-to-br from-gray-900 to-black border border-white/10 p-8 rounded-3xl hover:border-blue-400/50 transition-colors group no-underline text-white">
+            <a href="/app/planner/10/Maths" className="bg-gradient-to-br from-gray-900 to-black border border-white/10 p-8 rounded-3xl hover:border-blue-400/50 transition-colors group no-underline text-white relative">
+              <span className="absolute top-4 right-4 px-2 py-0.5 rounded-full bg-green-500/20 border border-green-500/40 text-[10px] font-bold text-green-400 uppercase tracking-wider">Free</span>
               <div className="anim-float inline-block">
                 <TrendingUp className="w-10 h-10 text-blue-400 mb-6 group-hover:scale-110 transition-transform" />
               </div>
@@ -318,7 +321,8 @@ export default function HomePage() {
               <span className="text-gray-400 block">Custom plan to your target</span>
             </a>
 
-            <a href="/app/dashboard" className="bg-gradient-to-br from-gray-900 to-black border border-white/10 p-8 rounded-3xl hover:border-[#22c55e]/50 transition-colors group no-underline text-white">
+            <a href="/app/dashboard" className="bg-gradient-to-br from-gray-900 to-black border border-white/10 p-8 rounded-3xl hover:border-[#22c55e]/50 transition-colors group no-underline text-white relative">
+              <span className="absolute top-4 right-4 px-2 py-0.5 rounded-full bg-green-500/20 border border-green-500/40 text-[10px] font-bold text-green-400 uppercase tracking-wider">Free</span>
               <div className="anim-spin-slow inline-block">
                 <LayoutDashboard className="w-10 h-10 text-[#22c55e] mb-6 group-hover:scale-110 transition-transform" />
               </div>
