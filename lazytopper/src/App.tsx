@@ -2,7 +2,6 @@ import type React from "react";
 import { Routes, Route, useLocation, useNavigate, Navigate, useParams } from "react-router-dom";
 import Login from "./pages/Login";
 import Onboarding from "./pages/Onboarding";
-import Welcome from "./pages/Welcome";
 import TopicHubHome from "./pages/TopicHubHome";
 import { StudyPlannerView } from "./components/planner/StudyPlannerView";
 
@@ -100,33 +99,20 @@ function BottomNav() {
   const activeColor = "#22c55e";
   const inactiveColor = "rgba(255,255,255,0.3)";
 
+  const isLearn = isTrends || current.startsWith("/topic-hub") || current.startsWith("/daily-mix") || current.startsWith("/daily-mission") || current.startsWith("/study-plan") || current.startsWith("/planner");
+  const isPractice = isPredictive || current.startsWith("/practice") || current.startsWith("/exam-simulation") || current.startsWith("/highly-probable") || current.startsWith("/weak-area") || current.startsWith("/topic-mock") || current.startsWith("/chapter-test");
+  const isMe = isHome || current === "/dashboard" || current === "/profile" || current === "/weekly-wrapped" || current === "/parent-dashboard";
+
   const navItems = [
     {
-      label: "Home",
-      icon: (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-          <polyline points="9 22 9 12 15 12 15 22"/>
-        </svg>
-      ),
-      active: isHome || current === "/dashboard",
-      onClick: () => {
-        if (navUser) {
-          go("/dashboard");
-        } else {
-          window.location.href = "/";
-        }
-      },
-    },
-    {
-      label: "Trends",
+      label: "Learn",
       icon: (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
           <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
         </svg>
       ),
-      active: isTrends,
+      active: isLearn,
       onClick: () => {
         let ctx = { grade: "10", subject: "Maths" };
         try {
@@ -137,38 +123,32 @@ function BottomNav() {
       },
     },
     {
-      label: "Mock Tests",
+      label: "Practice",
       icon: (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="10"/>
           <path d="M12 8v4l3 3"/>
         </svg>
       ),
-      active: isPredictive,
+      active: isPractice,
       onClick: () => go("/predictive-papers"),
     },
     {
-      label: "Progress",
-      icon: (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <line x1="18" y1="20" x2="18" y2="10"/>
-          <line x1="12" y1="20" x2="12" y2="4"/>
-          <line x1="6" y1="20" x2="6" y2="14"/>
-        </svg>
-      ),
-      active: current === "/weekly-wrapped",
-      onClick: () => go("/weekly-wrapped"),
-    },
-    {
-      label: "Profile",
+      label: "Me",
       icon: (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
           <circle cx="12" cy="7" r="4"/>
         </svg>
       ),
-      active: isProfile,
-      onClick: () => go("/profile"),
+      active: isMe,
+      onClick: () => {
+        if (navUser) {
+          go("/dashboard");
+        } else {
+          window.location.href = "/";
+        }
+      },
     },
   ];
 
@@ -489,7 +469,7 @@ export default function App() {
         <Routes>
           {/* Core Routes */}
           <Route path="/" element={<HomeRedirect />} />
-          <Route path="/welcome" element={<Welcome />} />
+          <Route path="/welcome" element={<Navigate to="/trends/10/Maths" replace />} />
           <Route path="/login" element={<Login />} />
           <Route path="/legal/:slug" element={withRouteSuspense(<LegalPage />)} />
           <Route path="/onboarding" element={<RequireAuth><Onboarding /></RequireAuth>} />

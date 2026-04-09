@@ -16,7 +16,7 @@ export interface PaceProfileConfig {
 const PROFILE_CONFIGS: Record<PaceProfileType, PaceProfileConfig> = {
   marathon: {
     type: "marathon",
-    label: "Marathon",
+    label: "Steady Plan",
     tagline: "Deep learning across all chapters",
     thresholdDays: { min: 180, max: 9999 },
     chapterCoverage: "all",
@@ -26,7 +26,7 @@ const PROFILE_CONFIGS: Record<PaceProfileType, PaceProfileConfig> = {
   },
   sprint: {
     type: "sprint",
-    label: "Sprint",
+    label: "Focused Plan",
     tagline: "Must-crack chapters first, more practice",
     thresholdDays: { min: 60, max: 179 },
     chapterCoverage: "must-crack-first",
@@ -36,7 +36,7 @@ const PROFILE_CONFIGS: Record<PaceProfileType, PaceProfileConfig> = {
   },
   crash: {
     type: "crash",
-    label: "Crash",
+    label: "Intensive Plan",
     tagline: "Predicted questions + mock tests dominant",
     thresholdDays: { min: 0, max: 59 },
     chapterCoverage: "predicted-only",
@@ -65,11 +65,11 @@ export function getProfileSummary(type: PaceProfileType, daysLeft: number): stri
   const months = Math.round(daysLeft / 30);
   switch (type) {
     case "marathon":
-      return `You have ${months} months — Marathon mode. We'll cover every chapter deeply with weekly mock tests starting month 3.`;
+      return `You have ${months} months — plenty of time! We'll cover every chapter deeply with weekly mock tests starting month 3.`;
     case "sprint":
-      return `You have ${months} months — Sprint mode. Must-crack chapters first, bi-weekly mocks, extra practice volume.`;
+      return `You have ${months} months — great timing! Must-crack chapters first, bi-weekly mocks, extra practice.`;
     case "crash":
-      return `You have ${daysLeft} days — Crash mode. Predicted questions + daily mocks + weak area surgery. Every minute counts.`;
+      return `You have ${daysLeft} days — let's make them count! Predicted questions + daily mocks + focused weak area practice.`;
   }
   return config.tagline;
 }

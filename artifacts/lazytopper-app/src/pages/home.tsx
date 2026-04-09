@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { ArrowRight, CheckCircle2, TrendingUp, Target, Calendar, BrainCircuit, MessageSquare, Zap, ShieldCheck, ChevronRight, Flame, Award, Star, LayoutDashboard } from "lucide-react";
+import { ArrowRight, CheckCircle2, TrendingUp, Target, Calendar, BrainCircuit, MessageSquare, Zap, ShieldCheck, ChevronRight, LayoutDashboard } from "lucide-react";
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -18,7 +18,7 @@ export default function HomePage() {
         .glass-panel-light { background: rgba(0, 0, 0, 0.03); backdrop-filter: blur(20px); border: 1px solid rgba(0, 0, 0, 0.05); }
         .glow-green { box-shadow: 0 0 40px rgba(34, 197, 94, 0.3); }
         .glow-purple { box-shadow: 0 0 80px rgba(126, 34, 206, 0.3); }
-        .section-h { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; }
+        .section-h { min-height: 70vh; display: flex; flex-direction: column; justify-content: center; }
 
         @keyframes float-y {
           0%, 100% { transform: translateY(0); }
@@ -91,12 +91,40 @@ export default function HomePage() {
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#22c55e] to-[#3b82f6]">The CBSE Board Exam.</span>
           </h1>
 
-          <a href="/app/welcome" className="group relative inline-flex items-center justify-center px-8 py-4 font-bold text-black bg-[#22c55e] rounded-full text-lg transition-all hover:scale-105 hover:shadow-[0_0_40px_rgba(34,197,94,0.4)] no-underline">
-            Start Free
+          <a href="/app/trends/10/Maths" className="group relative inline-flex items-center justify-center px-8 py-4 font-bold text-black bg-[#22c55e] rounded-full text-lg transition-all hover:scale-105 hover:shadow-[0_0_40px_rgba(34,197,94,0.4)] no-underline">
+            See What's Predicted
             <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </a>
 
-          <div className="mt-12 flex flex-col items-center gap-3">
+          <div className="mt-8 w-full max-w-md mx-auto">
+            <div className="glass-panel rounded-2xl p-5">
+              <div className="flex justify-between items-center mb-4">
+                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Top Predicted Topics</span>
+                <span className="flex items-center gap-1.5 text-[#22c55e] text-xs font-bold"><TrendingUp className="w-3 h-3" /> Live</span>
+              </div>
+              <div className="space-y-3">
+                {[
+                  { topic: "Quadratic Equations", prob: 92, color: "bg-[#22c55e]" },
+                  { topic: "Light & Reflection", prob: 88, color: "bg-[#22c55e]" },
+                  { topic: "Arithmetic Progressions", prob: 85, color: "bg-[#3b82f6]" },
+                  { topic: "Chemical Reactions", prob: 82, color: "bg-[#3b82f6]" },
+                  { topic: "Electricity", prob: 78, color: "bg-orange-500" },
+                ].map((item, i) => (
+                  <div key={i}>
+                    <div className="flex justify-between text-xs mb-1">
+                      <span className="font-semibold text-white/80">{item.topic}</span>
+                      <span className="font-bold text-white/60">{item.prob}%</span>
+                    </div>
+                    <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
+                      <div className={`h-full ${item.color} rounded-full`} style={{ width: `${item.prob}%` }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6 flex flex-col items-center gap-3">
             <div className="flex -space-x-3">
               {[1,2,3,4].map(i => (
                 <div key={i} className="w-10 h-10 rounded-full border-2 border-[#0a0410] bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center overflow-hidden">
@@ -105,22 +133,7 @@ export default function HomePage() {
               ))}
               <div className="w-10 h-10 rounded-full border-2 border-[#0a0410] bg-white/10 backdrop-blur-md flex items-center justify-center text-xs font-bold">+</div>
             </div>
-            <span className="text-sm text-gray-400 font-medium">12,800+ students cracking boards</span>
-          </div>
-
-          <div className="mt-6 flex items-center gap-3 flex-wrap justify-center">
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/30">
-              <Flame className="w-4 h-4 text-orange-400 fill-orange-400 anim-wiggle" />
-              <span className="text-xs font-bold text-orange-300">12 day streak</span>
-            </div>
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/30">
-              <Star className="w-4 h-4 text-purple-400 fill-purple-400 anim-pulse-glow" />
-              <span className="text-xs font-bold text-purple-300">2,450 XP</span>
-            </div>
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/30">
-              <Award className="w-4 h-4 text-blue-400 anim-bounce" />
-              <span className="text-xs font-bold text-blue-300">Level 8</span>
-            </div>
+            <span className="text-sm text-gray-400 font-medium">12,800+ students preparing with LazyTopper</span>
           </div>
         </div>
       </section>
@@ -439,8 +452,8 @@ export default function HomePage() {
 
         <div className="relative z-10 text-center max-w-3xl mx-auto">
           <h2 className="font-display text-4xl md:text-6xl font-bold mb-8">Your board exam, <span className="text-[#22c55e]">sorted.</span></h2>
-          <a href="/app/welcome" className="group inline-flex items-center justify-center px-10 py-5 font-bold text-black bg-[#22c55e] rounded-full text-xl transition-all hover:scale-105 hover:shadow-[0_0_50px_rgba(34,197,94,0.5)] no-underline">
-            Start Free
+          <a href="/app/trends/10/Maths" className="group inline-flex items-center justify-center px-10 py-5 font-bold text-black bg-[#22c55e] rounded-full text-xl transition-all hover:scale-105 hover:shadow-[0_0_50px_rgba(34,197,94,0.5)] no-underline">
+            Start Free — See Predictions
             <ChevronRight className="ml-2 w-6 h-6 anim-bounce group-hover:translate-x-1 transition-transform" />
           </a>
         </div>
