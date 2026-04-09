@@ -12,6 +12,7 @@ import { generateMultiTopicDailyMix } from "../services/dailyMixGenerator";
 import type { DailyMixItem } from "../services/dailyMixPlayback";
 import type { StrategyPlan } from "../services/strategyEngine";
 import { normalizeTopicKey } from "../utils/topicResolver";
+import { getHighlyProbableQuestions } from "../data/highlyProbableQuestions";
 import {
   daysLeftFromIsoDate,
   fetchCbseExamDate,
@@ -197,6 +198,193 @@ function FocusScoreCard() {
         <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)" }}>{msg}</div>
       </div>
     </div>
+  );
+}
+
+const SPRINT_FORMULAS = [
+  { subject: "Maths", items: ["x = (−b ± √(b²−4ac)) / 2a", "aₙ = a + (n−1)d, Sₙ = n/2 [2a + (n−1)d]", "sin²θ + cos²θ = 1", "Distance = √[(x₂−x₁)² + (y₂−y₁)²]", "Area of sector = (θ/360) × πr²", "Mode = l + [(f₁−f₀)/(2f₁−f₀−f₂)] × h"] },
+  { subject: "Science", items: ["V = IR, P = VI = I²R", "1/f = 1/v + 1/u (mirror)", "pH 7 = neutral, Acid + Base → Salt + Water", "Fleming's Left Hand = Motor, Right = Generator"] },
+];
+
+function SprintDashboard({ daysLeft, navigate, gradeNum, weakAreas, subjectForQuickActions }: {
+  daysLeft: number;
+  navigate: (path: string, opts?: { state?: Record<string, string> }) => void;
+  gradeNum: number;
+  weakAreas: { topicKey: string; topicName: string; subject: string; accuracy: number }[];
+  subjectForQuickActions: string;
+}) {
+  const likelihoodScore = (l: string) => l === "Very High" ? 4 : l === "High" ? 3 : l === "Medium-High" ? 2 : 1;
+
+  const mathsQ = getHighlyProbableQuestions("Maths")
+    .flatMap(b => b.questions.map(q => ({ ...q, _score: likelihoodScore(q.likelihood) })))
+    .sort((a, b) => b._score - a._score)
+    .slice(0, 10);
+
+  const scienceQ = getHighlyProbableQuestions("Science")
+    .flatMap(b => b.questions.map(q => ({ ...q, _score: likelihoodScore(q.likelihood) })))
+    .sort((a, b) => b._score - a._score)
+    .slice(0, 10);
+
+  return (
+    <>
+      <div style={{
+        padding: "16px 18px", marginBottom: 16, borderRadius: 16,
+        background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.25)",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+          <span style={{ fontSize: 18 }}>⚡</span>
+          <span className="font-display" style={{ fontSize: 16, fontWeight: 800, color: "#ef4444" }}>Final Sprint — {daysLeft} days left</span>
+        </div>
+        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", lineHeight: 1.5 }}>
+          Only essentials: predicted questions, key formulas & quick revision.
+        </div>
+      </div>
+
+      <div style={{
+        padding: "16px 18px", marginBottom: 16, borderRadius: 16,
+        background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+          <span className="font-display" style={{ fontSize: 14, fontWeight: 700, color: "#60a5fa" }}>🎯 Top 10 Predicted — Maths</span>
+          <button type="button" onClick={() => navigate(`/highly-probable/${gradeNum}/Maths`, { state: { back: "/dashboard" } })} style={{
+            fontSize: 10, fontWeight: 700, padding: "4px 10px", borderRadius: 8,
+            background: "rgba(59,130,246,0.15)", border: "1px solid rgba(59,130,246,0.3)",
+            color: "#60a5fa", cursor: "pointer",
+          }}>View All</button>
+        </div>
+        {mathsQ.map((q, i) => (
+          <div key={i} style={{
+            padding: "8px 0",
+            borderBottom: i < mathsQ.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none",
+            display: "flex", gap: 8, alignItems: "flex-start",
+          }}>
+            <span style={{
+              fontSize: 10, fontWeight: 800, color: "#000", minWidth: 20, height: 20,
+              borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
+              background: "#3b82f6", flexShrink: 0, marginTop: 2,
+            }}>{i + 1}</span>
+            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.7)", lineHeight: 1.5 }}>{q.question}</div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{
+        padding: "16px 18px", marginBottom: 16, borderRadius: 16,
+        background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+          <span className="font-display" style={{ fontSize: 14, fontWeight: 700, color: "#4ade80" }}>🎯 Top 10 Predicted — Science</span>
+          <button type="button" onClick={() => navigate(`/highly-probable/${gradeNum}/Science`, { state: { back: "/dashboard" } })} style={{
+            fontSize: 10, fontWeight: 700, padding: "4px 10px", borderRadius: 8,
+            background: "rgba(34,197,94,0.15)", border: "1px solid rgba(34,197,94,0.3)",
+            color: "#4ade80", cursor: "pointer",
+          }}>View All</button>
+        </div>
+        {scienceQ.map((q, i) => (
+          <div key={i} style={{
+            padding: "8px 0",
+            borderBottom: i < scienceQ.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none",
+            display: "flex", gap: 8, alignItems: "flex-start",
+          }}>
+            <span style={{
+              fontSize: 10, fontWeight: 800, color: "#000", minWidth: 20, height: 20,
+              borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
+              background: "#22c55e", flexShrink: 0, marginTop: 2,
+            }}>{i + 1}</span>
+            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.7)", lineHeight: 1.5 }}>{q.question}</div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{
+        padding: "16px 18px", marginBottom: 16, borderRadius: 16,
+        background: "rgba(168,85,247,0.06)", border: "1px solid rgba(168,85,247,0.15)",
+      }}>
+        <span className="font-display" style={{ fontSize: 14, fontWeight: 700, display: "block", marginBottom: 12 }}>📐 Key Formulas</span>
+        {SPRINT_FORMULAS.map((section, idx) => (
+          <div key={idx} style={{ marginBottom: idx < SPRINT_FORMULAS.length - 1 ? 10 : 0 }}>
+            <div style={{
+              fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 4,
+              color: section.subject === "Maths" ? "#60a5fa" : "#4ade80",
+            }}>{section.subject}</div>
+            {section.items.map((f, fi) => (
+              <div key={fi} style={{
+                fontSize: 12, color: "rgba(255,255,255,0.65)", padding: "3px 0",
+                borderBottom: fi < section.items.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none",
+              }}>{f}</div>
+            ))}
+          </div>
+        ))}
+        <button type="button" onClick={() => navigate("/night-before")} style={{
+          width: "100%", marginTop: 10, padding: "10px 0", borderRadius: 10, border: "1px solid rgba(168,85,247,0.3)",
+          background: "rgba(168,85,247,0.1)", color: "#c084fc", fontWeight: 700,
+          fontSize: 12, cursor: "pointer",
+        }}>See All Formulas →</button>
+      </div>
+
+      {weakAreas.length > 0 && (
+        <div style={{
+          padding: "16px 18px", marginBottom: 16, borderRadius: 16,
+          background: "rgba(249,115,22,0.06)", border: "1px solid rgba(249,115,22,0.15)",
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+            <span style={{ fontSize: 16 }}>⚠️</span>
+            <span className="font-display" style={{ fontSize: 14, fontWeight: 700 }}>Weak Areas to Revise</span>
+          </div>
+          {weakAreas.slice(0, 5).map((w) => (
+            <div key={w.topicKey} style={{
+              display: "flex", justifyContent: "space-between", alignItems: "center",
+              padding: "8px 0", borderBottom: "1px solid rgba(255,255,255,0.04)",
+            }}>
+              <div>
+                <span style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.7)" }}>{w.topicName}</span>
+                <span style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", marginLeft: 6 }}>{w.subject}</span>
+              </div>
+              <span style={{ fontSize: 12, fontWeight: 800, color: w.accuracy < 50 ? "#ef4444" : "#fb923c" }}>{w.accuracy}%</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+        <button type="button" onClick={() => navigate("/predictive-papers")} style={{
+          flex: 1, padding: "14px 0", borderRadius: 12,
+          background: "rgba(168,85,247,0.1)", border: "1px solid rgba(168,85,247,0.2)",
+          color: "#c084fc", fontWeight: 700, fontSize: 13, cursor: "pointer",
+          fontFamily: "'Space Grotesk', sans-serif",
+        }}>📝 Quick Mock</button>
+        <button type="button" onClick={() => navigate("/revision-calendar")} style={{
+          flex: 1, padding: "14px 0", borderRadius: 12,
+          background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)",
+          color: "#60a5fa", fontWeight: 700, fontSize: 13, cursor: "pointer",
+          fontFamily: "'Space Grotesk', sans-serif",
+        }}>📅 Revision Calendar</button>
+      </div>
+
+      <div style={{
+        padding: "16px 18px", borderRadius: 16,
+        background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)",
+      }}>
+        <span className="font-display" style={{ fontSize: 14, fontWeight: 700, display: "block", marginBottom: 10 }}>Quick Links</span>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+          {[
+            { label: "Predicted Q's", icon: "🎯", bg: "rgba(239,68,68,0.08)", border: "rgba(239,68,68,0.2)", path: `/highly-probable/${gradeNum}/${subjectForQuickActions}` },
+            { label: "Chapter Hub", icon: "📚", bg: "rgba(59,130,246,0.08)", border: "rgba(59,130,246,0.2)", path: `/topic-hub/${gradeNum}/${subjectForQuickActions}` },
+            { label: "Practice", icon: "✏️", bg: "rgba(34,197,94,0.08)", border: "rgba(34,197,94,0.2)", path: `/practice/${gradeNum}/${subjectForQuickActions}` },
+            { label: "Night Before", icon: "🌙", bg: "rgba(34,197,94,0.08)", border: "rgba(34,197,94,0.2)", path: "/night-before" },
+          ].map((a) => (
+            <button key={a.label} onClick={() => navigate(a.path, { state: { back: "/dashboard", backLabel: "Back to Dashboard" } })} style={{
+              display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+              padding: "12px 10px", borderRadius: 12, border: `1px solid ${a.border}`,
+              background: a.bg, color: "#fff", fontSize: 12, fontWeight: 600, cursor: "pointer",
+            }}>
+              <span style={{ fontSize: 14 }}>{a.icon}</span>
+              {a.label}
+            </button>
+          ))}
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -693,32 +881,7 @@ export default function Dashboard() {
         )}
 
         {daysLeftValue <= 7 && daysLeftValue > 1 && (
-          <div className="glass-card" style={{ padding: "14px 18px", marginBottom: 16, border: "1px solid rgba(239,68,68,0.25)", background: "rgba(239,68,68,0.06)" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-              <span style={{ fontSize: 18 }}>⚡</span>
-              <span className="font-display" style={{ fontSize: 14, fontWeight: 800, color: "#ef4444" }}>Final Sprint Mode — {daysLeftValue} days left</span>
-            </div>
-            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", lineHeight: 1.5, marginBottom: 10 }}>
-              Focus on predicted questions & quick-revision formulas. Non-essential sections hidden.
-            </div>
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              <button type="button" onClick={() => navigate("/highly-probable")} style={{
-                padding: "8px 14px", borderRadius: 10, background: "rgba(239,68,68,0.15)",
-                border: "1px solid rgba(239,68,68,0.3)", color: "#f87171", fontSize: 12,
-                fontWeight: 700, cursor: "pointer",
-              }}>🎯 Predicted Questions</button>
-              <button type="button" onClick={() => navigate("/revision-calendar")} style={{
-                padding: "8px 14px", borderRadius: 10, background: "rgba(59,130,246,0.15)",
-                border: "1px solid rgba(59,130,246,0.3)", color: "#60a5fa", fontSize: 12,
-                fontWeight: 700, cursor: "pointer",
-              }}>📅 Revision Calendar</button>
-              <button type="button" onClick={() => navigate("/predictive-papers")} style={{
-                padding: "8px 14px", borderRadius: 10, background: "rgba(168,85,247,0.15)",
-                border: "1px solid rgba(168,85,247,0.3)", color: "#c084fc", fontSize: 12,
-                fontWeight: 700, cursor: "pointer",
-              }}>📝 Quick Mock</button>
-            </div>
-          </div>
+          <SprintDashboard daysLeft={daysLeftValue} navigate={navigate} gradeNum={gradeNum} weakAreas={weakAreas} subjectForQuickActions={subjectForQuickActions} />
         )}
 
         {daysLeftValue > 7 && daysLeftValue <= 30 && (
@@ -755,7 +918,8 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* YOUR NEXT STEP — prominent first card */}
+        {/* YOUR NEXT STEP — prominent first card (hidden in sprint mode) */}
+        {daysLeftValue > 7 && (
         <div className="glass-accent" style={{ padding: 20, marginBottom: 16 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.35)", textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 8 }}>Your Next Step</div>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
@@ -770,11 +934,12 @@ export default function Dashboard() {
             boxShadow: "0 0 24px rgba(34,197,94,0.3)",
           }}>{heroAction.ctaLabel}</button>
         </div>
+        )}
 
-        {isFocusTrackingEnabled() && <FocusScoreCard />}
+        {daysLeftValue > 7 && isFocusTrackingEnabled() && <FocusScoreCard />}
 
-        {/* RAVI SIR'S RECOMMENDATION */}
-        {journeyState.currentChapter && (
+        {/* RAVI SIR'S RECOMMENDATION — hidden in sprint mode */}
+        {daysLeftValue > 7 && journeyState.currentChapter && (
           <div style={{ padding: 20, marginBottom: 16, background: "rgba(34,197,94,0.06)", backdropFilter: "blur(16px)", border: "1px solid rgba(34,197,94,0.15)", borderRadius: 16 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
               <div style={{
@@ -851,8 +1016,8 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* QUICK ACCESS */}
-        <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4, marginBottom: 16 }}>
+        {/* QUICK ACCESS — hidden in sprint mode */}
+        {daysLeftValue > 7 && <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4, marginBottom: 16 }}>
           {[
             { label: "Practice", icon: "✏️", path: `/practice/${gradeNum}/${subjectForQuickActions}` },
             { label: "Mock Tests", icon: "📝", path: "/predictive-papers" },
@@ -870,9 +1035,9 @@ export default function Dashboard() {
               {a.label}
             </button>
           ))}
-        </div>
+        </div>}
 
-        {/* HERO ACTION */}
+        {/* HERO ACTION — pace transition (kept visible in sprint) */}
         {paceTransition && (
           <div style={{
             padding: "14px 16px", marginBottom: 16, borderRadius: 16,
@@ -895,7 +1060,7 @@ export default function Dashboard() {
           </div>
         )}
 
-        {showPaceSelector && paceProfile && (
+        {daysLeftValue > 7 && showPaceSelector && paceProfile && (
           <div className="glass-card" style={{ padding: 16, marginBottom: 16 }}>
             <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 10 }}>Study Pace Profile</div>
             <p style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", marginBottom: 12, lineHeight: 1.5 }}>
@@ -943,8 +1108,8 @@ export default function Dashboard() {
         )}
 
 
-        {/* STATS ROW */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 8, marginBottom: 16 }}>
+        {/* STATS ROW — hidden in sprint mode */}
+        {daysLeftValue > 7 && <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 8, marginBottom: 16 }}>
           {[
             { label: "Streak", value: `${streak}d`, icon: "🔥", color: "#fb923c" },
             { label: "XP", value: xpEstimate.toLocaleString(), icon: "⚡", color: "#c084fc" },
@@ -968,9 +1133,9 @@ export default function Dashboard() {
               <div style={{ fontSize: 9, fontWeight: 600, color: "rgba(255,255,255,0.35)", textTransform: "uppercase", letterSpacing: 0.8 }}>{s.label}</div>
             </div>
           ))}
-        </div>
+        </div>}
 
-        {srStats.dueToday > 0 && (
+        {daysLeftValue > 7 && srStats.dueToday > 0 && (
           <div
             onClick={() => navigate("/weak-area-practice", { state: { back: "/dashboard", backLabel: "Back to Dashboard" } })}
             style={{
@@ -1022,8 +1187,8 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* WEAK AREAS */}
-        {weakAreas.length > 0 && (
+        {/* WEAK AREAS — hidden in sprint mode (shown inline in SprintDashboard) */}
+        {daysLeftValue > 7 && weakAreas.length > 0 && (
           <div className="glass-warn" style={{ padding: 16, marginBottom: 16 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
               <span style={{ fontSize: 16 }}>⚠️</span>
