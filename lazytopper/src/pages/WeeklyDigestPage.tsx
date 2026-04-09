@@ -160,7 +160,7 @@ export default function WeeklyDigestPage() {
       const res = await fetch("/api/share-token", {
         method: "POST",
         headers,
-        body: JSON.stringify({ studentName, uid: user?.uid, weeklySnapshot: snapshot }),
+        body: JSON.stringify({ studentName, weeklySnapshot: snapshot }),
       });
       const data = await res.json();
       if (data.ok && data.token) {
@@ -184,7 +184,7 @@ export default function WeeklyDigestPage() {
         const res = await fetch("/api/share-token", {
           method: "POST",
           headers,
-          body: JSON.stringify({ studentName, uid: user?.uid, weeklySnapshot: snapshot }),
+          body: JSON.stringify({ studentName, weeklySnapshot: snapshot }),
         });
         const data = await res.json();
         if (data.ok && data.token) {

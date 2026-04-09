@@ -529,7 +529,7 @@ export default function ParentDashboardPage() {
       const res = await fetch("/api/share-token", {
         method: "POST",
         headers,
-        body: JSON.stringify({ studentName, uid: user?.uid }),
+        body: JSON.stringify({ studentName }),
       });
       const data = await res.json();
       if (!data.ok || !data.token) {

@@ -4892,28 +4892,27 @@ async function handleRequest(req, res) {
     try {
       const body = await readJson(req);
       const studentName = String(body.studentName || 'Student').slice(0, 100);
+      const weeklySnapshot = body.weeklySnapshot || null;
 
       let uid = '';
+      let tokenType = 'digest';
       const authHeader = String(req.headers['authorization'] || '');
       const idToken = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
       if (idToken && firebaseAdmin) {
         try {
           const decodedToken = await firebaseAdmin.auth().verifyIdToken(idToken);
           uid = decodedToken.uid;
+          tokenType = 'report';
         } catch (_verifyErr) {
-          // Firebase token invalid, fall through to body uid
+          // Firebase token invalid — digest-only mode
         }
       }
-      if (!uid && body.uid) {
-        uid = String(body.uid).slice(0, 128);
-      }
-      if (!uid) {
-        uid = 'anonymous-' + Date.now();
-      }
-      const weeklySnapshot = body.weeklySnapshot || null;
 
       const expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000;
-      const tokenPayloadObj = { uid, studentName, expiresAt };
+      const tokenPayloadObj = { tokenType, studentName, expiresAt };
+      if (tokenType === 'report' && uid) {
+        tokenPayloadObj.uid = uid;
+      }
       if (weeklySnapshot && typeof weeklySnapshot === 'object') {
         tokenPayloadObj.weeklySnapshot = {
           studyHours: Number(weeklySnapshot.studyHours) || 0,
@@ -4976,10 +4975,6 @@ async function handleRequest(req, res) {
   // Shared report data endpoint — validates share token and returns scoped data from Firestore
   if (req.method === 'GET' && String(req.url || '').startsWith('/api/shared-report')) {
     try {
-      if (!adminFirestore) {
-        return sendJson(res, 503, { ok: false, error: 'Firestore Admin not configured' });
-      }
-
       const reqUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
       const token = reqUrl.searchParams.get('token');
       if (!token) return sendJson(res, 400, { ok: false, error: 'Missing token' });
@@ -5002,7 +4997,19 @@ async function handleRequest(req, res) {
         return sendJson(res, 403, { ok: false, error: 'Token expired' });
       }
 
+      if (tokenData.tokenType && tokenData.tokenType !== 'report') {
+        return sendJson(res, 403, { ok: false, error: 'Token type not authorized for report access. Only authenticated report tokens can access student data.' });
+      }
+
       const studentUid = tokenData.uid;
+      if (!studentUid) {
+        return sendJson(res, 403, { ok: false, error: 'Token does not contain student identity' });
+      }
+
+      if (!adminFirestore) {
+        return sendJson(res, 503, { ok: false, error: 'Firestore Admin not configured' });
+      }
+
       const studentName = tokenData.studentName || 'Student';
 
       const [insightsDoc, mockScoresDoc, weakAreasDoc, topicMasteryDoc] = await Promise.all([
