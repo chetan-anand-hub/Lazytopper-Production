@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Euclid's Division Lemma - Class 10 Maths</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #1e293b; min-height: 100vh; }
+
+  .title-bar {
+    background: linear-gradient(135deg, #1e40af, #3b82f6, #06b6d4);
+    color: white; padding: 14px 20px; text-align: center;
+    box-shadow: 0 4px 20px rgba(59,130,246,0.5);
+  }
+  .title-bar h1 { font-size: 1.3em; font-weight: 700; letter-spacing: 0.5px; }
+  .title-bar p { font-size: 0.8em; opacity: 0.85; margin-top: 2px; }
+
+  .container { max-width: 700px; margin: 0 auto; padding: 16px; }
+
+  .card {
+    background: white; border-radius: 16px; padding: 18px; margin-bottom: 16px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+  }
+
+  .card-title {
+    font-size: 1em; font-weight: 700; color: #1e40af; margin-bottom: 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .badge {
+    background: #eff6ff; color: #3b82f6; font-size: 0.7em;
+    padding: 2px 8px; border-radius: 20px; border: 1px solid #bfdbfe;
+  }
+
+  .formula-box {
+    background: linear-gradient(135deg, #1e293b, #1e40af);
+    border-radius: 14px; padding: 20px; text-align: center; color: white;
+    margin: 10px 0; position: relative; overflow: hidden;
+  }
+  .formula-box::before {
+    content: ''; position: absolute; top: -30px; right: -30px;
+    width: 100px; height: 100px; background: rgba(255,255,255,0.05);
+    border-radius: 50%;
+  }
+  .formula-main { font-size: 1.6em; font-weight: 800; letter-spacing: 1px; color: #fbbf24; }
+  .formula-sub { font-size: 0.8em; opacity: 0.8; margin-top: 6px; }
+  .formula-labels { display: flex; justify-content: center; gap: 16px; margin-top: 12px; flex-wrap: wrap; }
+  .fl { background: rgba(255,255,255,0.1); border-radius: 8px; padding: 4px 10px; font-size: 0.72em; }
+
+  /* Interactive Calculator */
+  .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+  .input-group label { font-size: 0.78em; color: #64748b; font-weight: 600; display: block; margin-bottom: 4px; }
+  .input-group input {
+    width: 100%; padding: 10px 14px; border: 2px solid #e2e8f0; border-radius: 10px;
+    font-size: 1em; font-weight: 700; color: #1e293b; outline: none;
+    transition: border-color 0.2s;
+  }
+  .input-group input:focus { border-color: #3b82f6; }
+
+  .btn {
+    padding: 10px 20px; border: none; border-radius: 10px; cursor: pointer;
+    font-weight: 700; font-size: 0.9em; transition: all 0.2s; width: 100%;
+  }
+  .btn-primary { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(59,130,246,0.4); }
+  .btn-reset { background: #f1f5f9; color: #64748b; margin-top: 8px; }
+
+  .steps-container { margin-top: 14px; }
+  .step {
+    background: #f8fafc; border-radius: 12px; padding: 12px 14px; margin-bottom: 8px;
+    border-left: 4px solid #3b82f6; opacity: 0; transform: translateX(-20px);
+    transition: all 0.4s ease; display: none;
+  }
+  .step.visible { opacity: 1; transform: translateX(0); display: block; }
+  .step.highlight { border-left-color: #22c55e; background: #f0fdf4; }
+  .step-num { font-size: 0.7em; color: #3b82f6; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; }
+  .step-eq { font-size: 1.05em; font-weight: 700; color: #1e293b; font-family: monospace; }
+  .step-note { font-size: 0.75em; color: #64748b; margin-top: 4px; }
+
+  .result-box {
+    background: linear-gradient(135deg, #22c55e, #16a34a); color: white;
+    border-radius: 12px; padding: 14px; text-align: center; display: none;
+    animation: popIn 0.4s ease;
+  }
+  @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .result-box .hcf-val { font-size: 2em; font-weight: 900; }
+  .result-box p { font-size: 0.8em; opacity: 0.9; margin-top: 2px; }
+
+  .btn-next {
+    background: #f59e0b; color: white; border: none; border-radius: 8px;
+    padding: 6px 14px; font-size: 0.8em; font-weight: 700; cursor: pointer;
+    margin-top: 8px; transition: all 0.2s;
+  }
+  .btn-next:hover { background: #d97706; }
+
+  /* Visual Division */
+  .division-visual { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; padding: 10px 0; }
+  .dv-box {
+    padding: 8px 14px; border-radius: 10px; font-weight: 800; font-size: 1em;
+    text-align: center; min-width: 50px;
+  }
+  .dv-a { background: #eff6ff; color: #1d4ed8; border: 2px solid #bfdbfe; }
+  .dv-b { background: #fef3c7; color: #92400e; border: 2px solid #fde68a; }
+  .dv-q { background: #f0fdf4; color: #166534; border: 2px solid #bbf7d0; }
+  .dv-r { background: #fef2f2; color: #991b1b; border: 2px solid #fecaca; }
+  .dv-op { font-size: 1.2em; color: #64748b; font-weight: 700; }
+  .dv-label { font-size: 0.62em; display: block; font-weight: 600; opacity: 0.7; }
+
+  /* Concept tabs */
+  .tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+  .tab {
+    flex: 1; padding: 8px; border: 2px solid #e2e8f0; border-radius: 10px;
+    background: white; cursor: pointer; font-size: 0.78em; font-weight: 600;
+    color: #64748b; transition: all 0.2s; text-align: center;
+  }
+  .tab.active { background: #3b82f6; color: white; border-color: #3b82f6; }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* Blocks visual */
+  .blocks-wrap { overflow-x: auto; padding: 8px 0; }
+  .blocks-row { display: flex; gap: 3px; margin: 6px 0; align-items: center; flex-wrap: wrap; }
+  .block {
+    width: 28px; height: 28px; border-radius: 6px; display: inline-flex;
+    align-items: center; justify-content: center; font-size: 0.6em; font-weight: 700;
+    color: white; flex-shrink: 0;
+  }
+  .block-a { background: #3b82f6; }
+  .block-b { background: #f59e0b; }
+  .block-r { background: #ef4444; }
+  .block-g { background: #22c55e; }
+  .block-label { font-size: 0.72em; color: #64748b; margin-right: 6px; font-weight: 600; min-width: 30px; }
+
+  /* Properties */
+  .prop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .prop-card {
+    background: #f8fafc; border-radius: 12px; padding: 12px;
+    border: 2px solid #e2e8f0; cursor: pointer; transition: all 0.2s;
+    text-align: center;
+  }
+  .prop-card:hover { border-color: #3b82f6; transform: translateY(-2px); }
+  .prop-card.flipped { background: #eff6ff; border-color: #3b82f6; }
+  .prop-front { font-size: 1.4em; }
+  .prop-back { font-size: 0.75em; color: #1e40af; font-weight: 600; display: none; }
+  .prop-card.flipped .prop-front { display: none; }
+  .prop-card.flipped .prop-back { display: block; }
+
+  /* Scroll reveal */
+  .hint { font-size: 0.72em; color: #94a3b8; text-align: center; margin-top: 6px; font-style: italic; }
+
+  /* Progress bar */
+  .progress-bar { height: 6px; background: #e2e8f0; border-radius: 3px; margin: 8px 0; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #3b82f6, #22c55e); border-radius: 3px; transition: width 0.5s ease; width: 0%; }
+
+  @media (max-width: 420px) {
+    .calc-grid { grid-template-columns: 1fr; }
+    .prop-grid { grid-template-columns: 1fr; }
+    .formula-main { font-size: 1.3em; }
+    .tabs { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+
+<div class="title-bar">
+  <h1>📐 Euclid's Division Lemma</h1>
+  <p>यूक्लिड विभाजन प्रमेय | CBSE Class 10 Mathematics | Chapter 1</p>
+</div>
+
+<div class="container">
+
+  <!-- Formula Card -->
+  <div class="card">
+    <div class="card-title">📜 The Lemma (प्रमेय) <span class="badge">Core Formula</span></div>
+    <div class="formula-box">
+      <div class="formula-main">a = b × q + r</div>
+      <div class="formula-sub">For any two positive integers <b>a</b> and <b>b</b>,<br>there exist unique integers <b>q</b> and <b>r</b> such that:</div>
+      <div class="formula-sub" style="color:#86efac; margin-top:6px; font-size:0.85em">0 ≤ r &lt; b</div>
+      <div class="formula-labels">
+        <div class="fl">a = Dividend (भाज्य)</div>
+        <div class="fl">b = Divisor (भाजक)</div>
+        <div class="fl">q = Quotient (भागफल)</div>
+        <div class="fl">r = Remainder (शेषफल)</div>
+      </div>
+    </div>
+    <div class="hint">💡 The remainder r is always: 0 ≤ r &lt; b (less than divisor!)</div>
+  </div>
+
+  <!-- Interactive Tabs -->
+  <div class="card">
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('explore')">🔢 Explore</div>
+      <div class="tab" onclick="switchTab('hcf')">🧮 HCF Finder</div>
+      <div class="tab" onclick="switchTab('visual')">🎨 Visual</div>
+      <div class="tab" onclick="switchTab('quiz')">🃏 Properties</div>
+    </div>
+
+    <!-- Tab 1: Explore -->
+    <div class="tab-content active" id="tab-explore">
+      <div class="card-title">Try It: Enter any two numbers</div>
+      <div class="calc-grid">
+        <div class="input-group">
+          <label>a (Dividend भाज्य)</label>
+          <input type="number" id="exp-a" value="47" min="1" max="9999">
+        </div>
+        <div class="input-group">
+          <label>b (Divisor भाजक)</label>
+          <input type="number" id="exp-b" value="5" min="1" max="9999">
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="exploreIt()">▶ Apply Lemma</button>
+      <div id="explore-result" style="margin-top:12px; display:none;">
+        <div class="division-visual" id="div-visual"></div>
+        <div style="background:#f0f9ff; border-radius:10px; padding:12px; margin-top:10px; border:2px solid #bae6fd;">
+          <div id="explore-eq" style="font-size:1.1em; font-weight:800; text-align:center; color:#0c4a6e; font-family:monospace;"></div>
+          <div id="explore-check" style="font-size:0.78em; color:#0369a1; text-align:center; margin-top:6px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 2: HCF -->
+    <div class="tab-content" id="tab-hcf">
+      <div class="card-title">HCF using Euclid's Algorithm (महत्तम समापवर्तक)</div>
+      <div class="calc-grid">
+        <div class="input-group">
+          <label>First Number</label>
+          <input type="number" id="hcf-a" value="252" min="1" max="9999">
+        </div>
+        <div class="input-group">
+          <label>Second Number</label>
+          <input type="number" id="hcf-b" value="105" min="1" max="9999">
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="findHCF()">🔍 Find HCF Step by Step</button>
+      <button class="btn btn-reset" id="next-step-btn" onclick="nextStep()" style="display:none;">▶ Next Step</button>
+
+      <div class="progress-bar"><div class="progress-fill" id="hcf-progress"></div></div>
+
+      <div class="steps-container" id="steps-container"></div>
+      <div class="result-box" id="hcf-result">
+        <div style="font-size:0.9em; opacity:0.9;">∴ HCF (महत्तम समापवर्तक)</div>
+        <div class="hcf-val" id="hcf-val"></div>
+        <p id="hcf-note"></p>
+      </div>
+    </div>
+
+    <!-- Tab 3: Visual -->
+    <div class="tab-content" id="tab-visual">
+      <div class="card-title">🧱 Block Visualization</div>
+      <p style="font-size:0.78em; color:#64748b; margin-bottom:10px;">See how a = b×q + r works with colored blocks!</p>
+      <div class="calc-grid">
+        <div class="input-group">
+          <label>a (total blocks)</label>
+          <input type="number" id="vis-a" value="17" min="1" max="40">
+        </div>
+        <div class="input-group">
+          <label>b (group size)</label>
+          <input type="number" id="vis-b" value="5" min="1" max="20">
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="showVisual()">🎨 Visualize!</button>
+      <div id="visual-area" style="margin-top:12px;"></div>
+    </div>
+
+    <!-- Tab 4: Properties Quiz -->
+    <div class="tab-content" id="tab-quiz">
+      <div class="card-title">🃏 Flip Cards — Key Properties</div>
+      <p style="font-size:0.78em; color:#64748b; margin-bottom:12px;">Click each card to reveal the property!</p>
+      <div class="prop-grid" id="prop-grid"></div>
+      <div class="hint" style="margin-top:10px;">Tap each card to flip it! 🔄</div>
+    </div>
+  </div>
+
+  <!-- Example Card -->
+  <div class="card">
+    <div class="card-title">📝 Worked Example <span class="badge">CBSE Style</span></div>
+    <p style="font-size:0.82em; color:#64748b; margin-bottom:10px;"><b>Q: Use Euclid's algorithm to find HCF(455, 42)</b></p>
+    <button class="btn btn-primary" id="example-btn" onclick="showExample()">▶ Show Solution</button>
+    <div id="example-steps" style="margin-top:10px;"></div>
+  </div>
+
+  <!-- Footer note -->
+  <div style="text-align:center; color:#475569; font-size:0.72em; padding: 10px 0 20px; opacity:0.7;">
+    ∵ Every integer can be uniquely expressed in the form a = bq + r, where 0 ≤ r &lt; b<br>
+    <b>∴ Euclid's Division Lemma is the foundation of the Division Algorithm</b>
+  </div>
+</div>
+
+<script>
+// Tab switching
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    const names = ['explore','hcf','visual','quiz'];
+    t.classList.toggle('active', names[i] === name);
+  });
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+}
+
+// Explore Tab
+function exploreIt() {
+  const a = parseInt(document.getElementById('exp-a').value) || 47;
+  const b = parseInt(document.getElementById('exp-b').value) || 5;
+  if (b <= 0 || a <= 0) return;
+  const q = Math.floor(a / b);
+  const r = a % b;
+  const res = document.getElementById('explore-result');
+  res.style.display = 'block';
+
+  const vis = document.getElementById('div-visual');
+  vis.innerHTML = `
+    <div class="dv-box dv-a"><span class="dv-label">a</span>${a}</div>
+    <div class="dv-op">=</div>
+    <div class="dv-box dv-b"><span class="dv-label">b</span>${b}</div>
+    <div class="dv-op">×</div>
+    <div class="dv-box dv-q"><span class="dv-label">q</span>${q}</div>
+    <div class="dv-op">+</div>
+    <div class="dv-box dv-r"><span class="dv-label">r</span>${r}</div>
+  `;
+  document.getElementById('explore-eq').textContent = `${a} = ${b} × ${q} + ${r}`;
+  document.getElementById('explore-check').innerHTML =
+    `✅ Check: ${b}×${q}+${r} = ${b*q+r} = ${a} | Remainder condition: 0 ≤ ${r} < ${b} → ${r>=0&&r<b?'✅ Valid':'❌ Error'}`;
+}
+
+// HCF Algorithm
+let hcfSteps = [], currentStep = 0, hcfAnswer = 0;
+
+function findHCF() {
+  let a = parseInt(document.getElementById('hcf-a').value) || 252;
+  let b = parseInt(document.getElementById('hcf-b').value) || 105;
+  if (a <= 0 || b <= 0) return;
+  if (a < b) [a, b] = [b, a];
+
+  hcfSteps = [];
+  currentStep = 0;
+  document.getElementById('steps-container').innerHTML = '';
+  document.getElementById('hcf-result').style.display = 'none';
+  document.getElementById('hcf-progress').style.width = '0%';
+
+  let x = a, y = b;
+  let iterations = 0;
+  while (y !== 0 && iterations < 20) {
+    const q = Math.floor(x / y);
+    const r = x % y;
+    hcfSteps.push({ a: x, b: y, q, r });
+    x = y; y = r;
+    iterations++;
+  }
+  hcfAnswer = x;
+  document.getElementById('next-step-btn').style.display = 'block';
+  nextStep();
+}
+
+function nextStep() {
+  if (currentStep < hcfSteps.length) {
+    const s = hcfSteps[currentStep];
+    const div = document.createElement('div');
+    div.className = 'step';
+    div.innerHTML = `
+      <div class="step-num">Step ${currentStep+1}</div>
+      <div class="step-eq">${s.a} = ${s.b} × ${s.q} + ${s.r}</div>
+      <div class="step-note">Divide ${s.a} by ${s.b} → Quotient = ${s.q}, Remainder = <b style="color:#ef4444">${s.r}</b>${s.r===0?' → 🎉 Remainder is 0! Stop here.':` → Apply lemma again with ${s.b} and ${s.r}`}</div>
+    `;
+    if (s.r === 0) div.classList.add('highlight');
+    document.getElementById('steps-container').appendChild(div);
+    setTimeout(() => div.classList.add('visible'), 50);
+    currentStep++;
+    document.getElementById('hcf-progress').style.width = (currentStep/hcfSteps.length*100)+'%';
+
+    if (currentStep >= hcfSteps.length) {
+      document.getElementById('next-step-btn').style.display = 'none';
+      const a0 = parseInt(document.getElementById('hcf-a').value);
+      const b0 = parseInt(document.getElementById('hcf-b').value);
+      setTimeout(() => {
+        const r = document.getElementById('hcf-result');
+        r.style.display = 'block';
+        document.getElementById('hcf-val').textContent = hcfAnswer;
+        document.getElementById('hcf-note').textContent = `HCF(${a0}, ${b0}) = ${hcfAnswer}`;
+      }, 400);
+    }
+  }
+}
+
+// Visual Tab
+function showVisual() {
+  const a = Math.min(parseInt(document.getElementById('vis-a').value)||17, 40);
+  const b = Math.min(parseInt(document.getElementById('vis-b').value)||5, 20);
+  if (b <= 0 || a <= 0 || b > a) { document.getElementById('visual-area').innerHTML='<p style="color:#ef4444;font-size:0.8em">Please enter valid numbers (b ≤ a, both positive)</p>'; return; }
+  const q = Math.floor(a/b), r = a%b;
+
+  let html = `<div style="background:#f8fafc;border-radius:12px;padding:12px;border:2px solid #e2e8f0;">`;
+  html += `<div style="font-size:0.78em;color:#64748b;margin-bottom:8px;font-weight:600;">📦 ${a} blocks arranged in groups of ${b}:</div>`;
+
+  // Groups
+  for (let g = 0; g < q; g++) {
+    html += `<div class="blocks-row">`;
+    html += `<span class="block-label">Grp${g+1}</span>`;
+    for (let i = 0; i < b; i++) {
+      const colors = ['#3b82f6','#6366f1','#8b5cf6','#0ea5e9'];
+      html += `<div class="block" style="background:${colors[g%4]}">✓</div>`;
+    }
+    html += `</div>`;
+  }
+  // Remainder
+  if (r > 0) {
+    html += `<div class="blocks-row">`;
+    html += `<span class="block-label" style="color:#ef4444">Rem</span>`;
+    for (let i = 0; i < r; i++) html += `<div class="block" style="background:#ef4444">r</div>`;
+    html += `</div>`;
+  }
+  html += `<div style="margin-top:10px;padding:10px;background:#1e293b;border-radius:10px;text-align:center;color:#fbbf24;font-size:1.1em;font-weight:800;font-family:monospace;">${a} = ${b} × ${q} + ${r}</div>`;
+  html += `<div style="font-size:0.75em;color:#64748b;text-align:center;margin-top:6px;">${q} complete group(s) of ${b} + ${r} leftover block(s)</div>`;
+  html += `</div>`;
+  document.getElementById('visual-area').innerHTML = html;
+}
+
+// Properties
+const props = [
+  { q: "What is the condition on remainder r?", a: "0 ≤ r < b\nRemainder is always non-negative and less than divisor!" },
+  { q: "Are q and r unique?", a: "Yes! ✅\nFor given a and b, q and r are ALWAYS unique (Uniqueness property)" },
+  { q: "When is HCF found?", a: "When Remainder = 0\n∴ The divisor at that step IS the HCF" },
+  { q: "What if r = 0?", a: "a = b × q + 0\n∴ b divides a completely\nb is a factor of a" },
+  { q: "What is Euclid's key idea?", a: "HCF(a,b) = HCF(b,r)\nThe HCF doesn't change when we replace (a,b) with (b,r)" },
+  { q: "How to start the algorithm?", a: "Always divide LARGER by SMALLER number first!\na > b always (swap if needed)" },
+];
+
+function buildProps() {
+  const grid = document.getElementById('prop-grid');
+  props.forEach((p, i) => {
+    const card = document.createElement('div');
+    card.className = 'prop-card';
+    card.innerHTML = `<div class="prop-front">❓<div style="font-size:0.65em;color:#64748b;margin-top:6px;font-weight:600;line-height:1.4">${p.q}</div></div><div class="prop-back">${p.a.replace(/\n/g,'<br>')}</div>`;
+    card.onclick = () => card.classList.toggle('flipped');
+    grid.appendChild(card);
+  });
+}
+buildProps();
+
+// Worked Example
+const exSteps = [
+  { num: 1, eq: "455 = 42 × 10 + 35", note: "Divide 455 by 42 → Q=10, R=35. Since R≠0, continue..." },
+  { num: 2, eq: "42 = 35 × 1 + 7", note: "Now divide 42 by 35 → Q=1, R=7. Since R≠0, continue..." },
+  { num: 3, eq: "35 = 7 × 5 + 0", note: "Now divide 35 by 7 → Q=5, R=0. 🎉 Remainder = 0! Stop!", hl: true },
+];
+let exIdx = 0;
+
+function showExample() {
+  const btn = document.getElementById('example-btn');
+  const container = document.getElementById('example-steps');
+
+  if (exIdx === 0) {
+    container.innerHTML = '';
+    btn.textContent = '▶ Next Step';
+  }
+
+  if (exIdx < exSteps.length) {
+    const s = exSteps[exIdx];
+    const div = document.createElement('div');
+    div.className = 'step' + (s.hl ? ' highlight' : '');
+    div.innerHTML = `<div class="step-num">Step ${s.num}</div><div class="step-eq">${s.eq}</div><div class="step-note">${s.note}</div>`;
+    container.appendChild(div);
+    setTimeout(() => div.classList.add('visible'), 50);
+    exIdx++;
+    if (exIdx === exSteps.length) {
+      const res = document.createElement('div');
+      res.style.cssText = 'background:linear-gradient(135deg,#22c55e,#16a34a);color:white;border-radius:12px;padding:14px;text-align:center;margin-top:10px;';
+      res.innerHTML = '<div style="font-size:1.5em;font-weight:900;">∴ HCF(455, 42) = 7</div><div style="font-size:0.8em;opacity:0.9;margin-top:4px;">The divisor when remainder became 0 is our HCF!</div>';
+      container.appendChild(res

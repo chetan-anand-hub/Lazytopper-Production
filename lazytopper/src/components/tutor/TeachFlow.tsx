@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import {
   loadTopicMasterySnapshot,
   saveTopicMasterySnapshot,
@@ -6,6 +6,8 @@ import {
 } from "../../services/topicHubMastery";
 import { TutorMessageRenderer } from "./TutorMessageRenderer";
 import { extractTutorText as sharedExtractTutorText, extractStructuredSection, extractStepsBlock, stepsDataToStructured } from "./tutorStructuredExtract";
+import { VisualExplainer } from "../VisualExplainer";
+import { findVisualForConcept } from "../../data/visualConceptRegistry";
 
 export interface ConceptContext {
   questionText?: string;
@@ -179,6 +181,16 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
   const wasCompleted = isConceptMode ? false : hasTopicBeenCompleted(topicKey);
   const savedSession = isConceptMode ? null : loadSessionState(topicKey);
   const topicDisplayName = formatTopicName(topicKey);
+
+  const visualConcept = useMemo(() => {
+    const searchTerms = [
+      topicKey,
+      conceptContext?.subtopic,
+      conceptContext?.concept,
+      nodeId,
+    ].filter(Boolean) as string[];
+    return findVisualForConcept(subject, topicKey, searchTerms);
+  }, [topicKey, subject, conceptContext?.subtopic, conceptContext?.concept, nodeId]);
 
   const [phase, setPhase] = useState<Phase>(
     savedSession ? savedSession.phase : wasCompleted ? "previously_completed" : "intro"
@@ -559,6 +571,18 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
         </div>
       </div>
 
+      {visualConcept && (
+        <div style={s.visualPanel}>
+          <VisualExplainer
+            src={visualConcept.filePath}
+            title={visualConcept.title}
+            height={360}
+            collapsible={true}
+            defaultCollapsed={false}
+          />
+        </div>
+      )}
+
       <div style={s.chatArea}>
         {chatMessages.map((msg, idx) => (
           <div key={idx} style={msg.role === "tutor" ? s.tutorBubbleWrap : s.studentBubbleWrap}>
@@ -668,6 +692,7 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
 
 const s: Record<string, React.CSSProperties> = {
   container: { maxWidth: 920, margin: "0 auto", padding: "16px 16px 24px", display: "flex", flexDirection: "column", width: "100%" },
+  visualPanel: { padding: "0 0 4px", borderLeft: "1px solid #e5e7eb", borderRight: "1px solid #e5e7eb", background: "#f8f9fb" },
 
   introCard: { background: "white", borderRadius: 16, padding: "32px 24px", textAlign: "center", border: "1px solid #e5e7eb" },
   introAvatarLarge: {

@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "generatedAt": "2026-04-10T22:42:23.947Z",
+  "concepts": {
+    "pythagoras-theorem-visual-proof": {
+      "subject": "maths",
+      "chapter": "triangles",
+      "chapterName": "Triangles",
+      "conceptName": "Pythagoras Theorem Visual Proof",
+      "slug": "pythagoras-theorem-visual-proof",
+      "filePath": "/app/visuals/maths/triangles/pythagoras-theorem-visual-proof.html",
+      "sizeKB": 20.5,
+      "generatedAt": "2026-04-10T22:38:29.990Z"
+    },
+    "euclids-division-lemma": {
+      "subject": "maths",
+      "chapter": "real-numbers",
+      "chapterName": "Real Numbers",
+      "conceptName": "Euclids Division Lemma",
+      "slug": "euclids-division-lemma",
+      "filePath": "/app/visuals/maths/real-numbers/euclids-division-lemma.html",
+      "sizeKB": 20.8,
+      "generatedAt": "2026-04-10T22:42:23.946Z"
+    }
+  }
+}

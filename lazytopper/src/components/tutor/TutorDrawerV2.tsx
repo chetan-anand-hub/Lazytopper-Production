@@ -1,5 +1,7 @@
-﻿import { useCallback, useEffect, useRef, useState } from "react";
+﻿import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { DiagramBlock } from "../DiagramBlock";
+import { VisualExplainer } from "../VisualExplainer";
+import { findVisualForConcept } from "../../data/visualConceptRegistry";
 import {
   buildTutorFallback,
   extractDiagramMeta,
@@ -313,6 +315,10 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
 
   const nodeTitle = String(node?.title || "Concept");
   const nodeText = String(node?.text || core?.means || "");
+  const drawerVisual = useMemo(() => {
+    const terms = [nodeTitle, nodeId, topicKey].filter(Boolean) as string[];
+    return findVisualForConcept(subjectTitle, topicKey, terms);
+  }, [subjectTitle, topicKey, nodeTitle, nodeId]);
   const coreText = core
     ? [
         `What it means: ${core.means}`,
@@ -1451,6 +1457,15 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
     const boardLine = view.examLines[0] || view.goalLine;
     return (
       <div style={{ display: "grid", gap: 12 }}>
+        {drawerVisual && (
+          <VisualExplainer
+            src={drawerVisual.filePath}
+            title={drawerVisual.title}
+            height={320}
+            collapsible={true}
+            defaultCollapsed={false}
+          />
+        )}
         <DiagramBlock
           diagramType={response.diagramType}
           diagramLabels={response.diagramLabels}

@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pythagoras Theorem - Class 10 Maths</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #0f172a, #1e3a5f); min-height: 100vh; color: #1e293b; }
+  
+  .title-bar { background: linear-gradient(90deg, #1e40af, #3b82f6, #0ea5e9); padding: 14px 20px; text-align: center; box-shadow: 0 4px 20px rgba(59,130,246,0.5); }
+  .title-bar h1 { color: white; font-size: clamp(16px,4vw,22px); font-weight: 700; letter-spacing: 0.5px; }
+  .title-bar p { color: #bfdbfe; font-size: clamp(11px,3vw,13px); margin-top: 3px; }
+
+  .container { max-width: 900px; margin: 0 auto; padding: 16px; }
+
+  .card { background: white; border-radius: 16px; padding: 18px; margin-bottom: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
+
+  .formula-box { background: linear-gradient(135deg, #1e40af, #3b82f6); border-radius: 16px; padding: 20px; text-align: center; color: white; margin-bottom: 16px; box-shadow: 0 8px 32px rgba(59,130,246,0.4); }
+  .formula-box h2 { font-size: clamp(13px,3vw,16px); opacity: 0.9; margin-bottom: 10px; }
+  .formula-main { font-size: clamp(28px,8vw,52px); font-weight: 900; letter-spacing: 2px; text-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+  .formula-sub { font-size: clamp(11px,3vw,14px); opacity: 0.85; margin-top: 8px; }
+
+  .section-title { font-size: clamp(14px,4vw,18px); font-weight: 700; color: #1e293b; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .badge { background: #3b82f6; color: white; border-radius: 20px; padding: 2px 10px; font-size: 11px; }
+
+  /* Interactive Triangle Area */
+  .visual-area { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+  #mainCanvas { border-radius: 12px; cursor: crosshair; touch-action: none; }
+  
+  .controls { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  .btn { padding: 9px 18px; border-radius: 30px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+  .btn-blue { background: linear-gradient(135deg,#3b82f6,#2563eb); color: white; }
+  .btn-green { background: linear-gradient(135deg,#22c55e,#16a34a); color: white; }
+  .btn-amber { background: linear-gradient(135deg,#f59e0b,#d97706); color: white; }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.25); }
+  .btn:active { transform: translateY(0); }
+
+  .slider-group { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; width: 100%; }
+  .slider-item { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .slider-item label { font-size: 12px; font-weight: 600; }
+  input[type=range] { width: 120px; accent-color: #3b82f6; }
+
+  /* Proof Steps */
+  .steps-container { counter-reset: step; }
+  .step { display: flex; gap: 12px; margin-bottom: 12px; opacity: 0; transform: translateX(-20px); transition: all 0.4s ease; pointer-events: none; }
+  .step.visible { opacity: 1; transform: translateX(0); pointer-events: auto; }
+  .step-num { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg,#3b82f6,#1d4ed8); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; flex-shrink: 0; }
+  .step-content { background: #f0f9ff; border-left: 3px solid #3b82f6; border-radius: 0 10px 10px 0; padding: 10px 14px; flex: 1; }
+  .step-content h4 { font-size: 13px; color: #1e40af; font-weight: 700; }
+  .step-content p { font-size: 12px; color: #475569; margin-top: 4px; line-height: 1.5; }
+  .step-content .math { font-size: 15px; color: #1e293b; font-weight: 700; background: white; display: inline-block; padding: 3px 8px; border-radius: 6px; margin-top: 4px; }
+
+  /* Area Comparison */
+  .area-display { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  .area-card { border-radius: 12px; padding: 12px; text-align: center; }
+  .area-a { background: linear-gradient(135deg,#fef3c7,#fde68a); border: 2px solid #f59e0b; }
+  .area-b { background: linear-gradient(135deg,#dcfce7,#bbf7d0); border: 2px solid #22c55e; }
+  .area-c { background: linear-gradient(135deg,#dbeafe,#bfdbfe); border: 2px solid #3b82f6; }
+  .area-card .val { font-size: clamp(18px,5vw,28px); font-weight: 900; }
+  .area-card .lbl { font-size: 11px; font-weight: 600; opacity: 0.8; }
+  .area-card .eq { font-size: 11px; margin-top: 4px; color: #475569; }
+
+  .verify-box { text-align: center; padding: 12px; border-radius: 12px; font-weight: 700; font-size: 14px; transition: all 0.4s; }
+  .verify-true { background: linear-gradient(135deg,#dcfce7,#bbf7d0); color: #15803d; border: 2px solid #22c55e; }
+  .verify-false { background: linear-gradient(135deg,#fee2e2,#fecaca); color: #dc2626; border: 2px solid #ef4444; }
+
+  /* Worked Example */
+  .example-steps { }
+  .ex-step { background: #f8fafc; border-radius: 10px; padding: 12px; margin-bottom: 8px; border-left: 4px solid #e2e8f0; display: none; }
+  .ex-step.show { display: block; animation: slideIn 0.3s ease; }
+  @keyframes slideIn { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
+  .ex-step h4 { font-size: 13px; font-weight: 700; color: #1e40af; }
+  .ex-step p { font-size: 13px; color: #334155; margin-top: 4px; }
+  .ex-step .calc { background: #1e293b; color: #7dd3fc; padding: 8px 12px; border-radius: 8px; font-family: monospace; font-size: 14px; margin-top: 6px; display: block; }
+
+  .progress-bar { height: 4px; background: #e2e8f0; border-radius: 2px; overflow: hidden; margin-bottom: 12px; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg,#3b82f6,#22c55e); border-radius: 2px; transition: width 0.4s ease; }
+
+  .hint { font-size: 12px; color: #64748b; text-align: center; font-style: italic; margin-top: 8px; }
+  
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .info-item { background: #f0f9ff; border-radius: 10px; padding: 10px; }
+  .info-item .term { font-size: 11px; color: #64748b; font-weight: 600; }
+  .info-item .val { font-size: 14px; color: #1e293b; font-weight: 700; }
+
+  .tab-row { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+  .tab { padding: 7px 14px; border-radius: 20px; border: 2px solid #e2e8f0; background: white; cursor: pointer; font-size: 12px; font-weight: 600; color: #64748b; transition: all 0.2s; }
+  .tab.active { background: #3b82f6; border-color: #3b82f6; color: white; }
+
+  @media(max-width:500px) { .area-display { grid-template-columns: 1fr; } .info-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="title-bar">
+  <h1>📐 Pythagoras Theorem | पाइथागोरस प्रमेय</h1>
+  <p>CBSE Class 10 Mathematics | Chapter 6 – Triangles</p>
+</div>
+
+<div class="container">
+
+  <!-- Formula Box -->
+  <div class="formula-box">
+    <h2>📌 The Golden Formula (सूत्र)</h2>
+    <div class="formula-main">a² + b² = c²</div>
+    <div class="formula-sub">In a right △, (Perpendicular)² + (Base)² = (Hypotenuse)² (कर्ण)</div>
+  </div>
+
+  <!-- Interactive Visual Proof -->
+  <div class="card">
+    <div class="section-title">🎨 Visual Proof — Drag to Resize! <span class="badge">Interactive</span></div>
+    <p style="font-size:12px;color:#64748b;margin-bottom:12px;">The squares on the two smaller sides together equal the square on the hypotenuse. See it live!</p>
+    
+    <div class="visual-area">
+      <canvas id="mainCanvas" width="500" height="380"></canvas>
+      
+      <div class="slider-group">
+        <div class="slider-item">
+          <label style="color:#d97706">● Side a (आधार)</label>
+          <input type="range" id="sliderA" min="60" max="160" value="90">
+          <span id="valA" style="font-size:12px;font-weight:700;color:#d97706">90</span>
+        </div>
+        <div class="slider-item">
+          <label style="color:#16a34a">● Side b (लम्ब)</label>
+          <input type="range" id="sliderB" min="60" max="160" value="120">
+          <span id="valB" style="font-size:12px;font-weight:700;color:#16a34a">120</span>
+        </div>
+      </div>
+
+      <div class="area-display">
+        <div class="area-card area-a">
+          <div class="val" id="areaA">8100</div>
+          <div class="lbl">a² = Side A²</div>
+          <div class="eq" id="eqA">90² = 8100</div>
+        </div>
+        <div class="area-card area-b">
+          <div class="val" id="areaB">14400</div>
+          <div class="lbl">b² = Side B²</div>
+          <div class="eq" id="eqB">120² = 14400</div>
+        </div>
+        <div class="area-card area-c">
+          <div class="val" id="areaC">22500</div>
+          <div class="lbl">c² = Hypotenuse²</div>
+          <div class="eq" id="eqC">150² = 22500</div>
+        </div>
+      </div>
+
+      <div class="verify-box verify-true" id="verifyBox">
+        ✅ a² + b² = c² &nbsp;|&nbsp; 8100 + 14400 = 22500 ✓ प्रमेय सिद्ध!
+      </div>
+    </div>
+  </div>
+
+  <!-- Step by Step Proof -->
+  <div class="card">
+    <div class="section-title">🔍 Visual Proof — Step by Step <span class="badge">Click to Reveal</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    
+    <div class="steps-container" id="stepsContainer">
+      <div class="step" id="s1">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <h4>Start with a Right Triangle (समकोण त्रिभुज)</h4>
+          <p>Draw a triangle with a 90° angle (∠C = 90°). The sides are: <b>a</b> (base/आधार), <b>b</b> (perpendicular/लम्ब), and <b>c</b> (hypotenuse/कर्ण).</p>
+          <div class="math">∠C = 90° → समकोण त्रिभुज</div>
+        </div>
+      </div>
+      <div class="step" id="s2">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <h4>Draw Squares on Each Side (प्रत्येक भुजा पर वर्ग)</h4>
+          <p>Build a square on each side of the triangle. The square on side <b>a</b> has area <b>a²</b>, on <b>b</b> has area <b>b²</b>, on <b>c</b> has area <b>c²</b>.</p>
+          <div class="math">Area of square = side × side = side²</div>
+        </div>
+      </div>
+      <div class="step" id="s3">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <h4>The Key Insight (मुख्य विचार)</h4>
+          <p>The blue square (c²) on the hypotenuse has the SAME total area as the amber + green squares (a² + b²) combined!</p>
+          <div class="math">🟨 a² + 🟩 b² = 🟦 c²</div>
+        </div>
+      </div>
+      <div class="step" id="s4">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <h4>The Theorem (प्रमेय)</h4>
+          <p>∵ In a right triangle, the square of the hypotenuse equals the sum of squares of the other two sides.</p>
+          <div class="math">∴ a² + b² = c²</div>
+        </div>
+      </div>
+      <div class="step" id="s5">
+        <div class="step-num">5</div>
+        <div class="step-content">
+          <h4>Finding the Hypotenuse (कर्ण ज्ञात करना)</h4>
+          <p>To find the hypotenuse <b>c</b>, take the square root of (a² + b²):</p>
+          <div class="math">c = √(a² + b²)</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="controls" style="margin-top:12px">
+      <button class="btn btn-blue" onclick="nextStep()">Next Step →</button>
+      <button class="btn btn-amber" onclick="resetSteps()">↺ Reset</button>
+    </div>
+    <p class="hint" id="stepHint">Click "Next Step" to begin the proof walkthrough</p>
+  </div>
+
+  <!-- Worked Example -->
+  <div class="card">
+    <div class="section-title">📝 Worked Example (हल किया उदाहरण)</div>
+    
+    <div class="tab-row">
+      <div class="tab active" onclick="setExample(0,this)">Example 1: Find c</div>
+      <div class="tab" onclick="setExample(1,this)">Example 2: Find a</div>
+      <div class="tab" onclick="setExample(2,this)">Example 3: 3-4-5</div>
+    </div>
+
+    <div id="exampleArea"></div>
+
+    <div class="controls" style="margin-top:12px">
+      <button class="btn btn-green" onclick="nextExStep()">Reveal Next Step →</button>
+      <button class="btn btn-amber" onclick="resetEx()">↺ Reset</button>
+    </div>
+  </div>
+
+  <!-- Pythagorean Triples -->
+  <div class="card">
+    <div class="section-title">⭐ Famous Pythagorean Triples (पाइथागोरस त्रिक)</div>
+    <p style="font-size:12px;color:#64748b;margin-bottom:12px;">These are integer sets that perfectly satisfy a² + b² = c². Click any to visualize!</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-blue" onclick="setTriple(3,4,5)">3–4–5</button>
+      <button class="btn btn-green" onclick="setTriple(5,12,13)">5–12–13</button>
+      <button class="btn btn-amber" onclick="setTriple(8,15,17)">8–15–17</button>
+      <button class="btn btn-blue" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed)" onclick="setTriple(7,24,25)">7–24–25</button>
+    </div>
+    <div class="info-grid" id="tripleInfo" style="margin-top:12px">
+      <div class="info-item"><div class="term">Triple (त्रिक)</div><div class="val" id="tpVal">3, 4, 5</div></div>
+      <div class="info-item"><div class="term">Verification (सत्यापन)</div><div class="val" id="tpEq">3²+4²=9+16=25=5²</div></div>
+      <div class="info-item"><div class="term">Multiplied by 2</div><div class="val" id="tpMul">6, 8, 10</div></div>
+      <div class="info-item"><div class="term">Multiplied by 3</div><div class="val" id="tpMul3">9, 12, 15</div></div>
+    </div>
+  </div>
+
+  <!-- Key Points -->
+  <div class="card" style="background:linear-gradient(135deg,#1e3a5f,#1e40af);color:white;">
+    <div class="section-title" style="color:white">💡 Key Points to Remember (याद रखें)</div>
+    <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;line-height:1.6">
+      <div>📌 The theorem applies ONLY to <b>right triangles</b> (समकोण त्रिभुज)</div>
+      <div>📌 Hypotenuse (कर्ण) is ALWAYS opposite the 90° angle</div>
+      <div>📌 Hypotenuse is the <b>longest side</b> of a right triangle</div>
+      <div>📌 Converse: If a²+b²=c², then the triangle IS right-angled (∵ विलोम प्रमेय)</div>
+      <div>📌 ∴ c = √(a²+b²), a = √(c²−b²), b = √(c²−a²)</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const canvas = document.getElementById('mainCanvas');
+const ctx = canvas.getContext('2d');
+let a = 90, b = 120;
+let animFrame = 0;
+let pulseAngle = 0;
+
+const examples = [
+  {
+    title:"Find Hypotenuse | a=6cm, b=8cm",
+    steps:[
+      {h:"Given (दिया है)", p:"Right triangle with base a = 6 cm, perpendicular b = 8 cm. Find hypotenuse c.", code:"a = 6 cm, b = 8 cm, ∠C = 90°"},
+      {h:"Apply Pythagoras Theorem", p:"Using the formula: c² = a² + b²", code:"c² = 6² + 8²"},
+      {h:"Calculate (गणना)", p:"Square each value and add them:", code:"c² = 36 + 64 = 100"},
+      {h:"Find c (कर्ण ज्ञात करें)", p:"Take square root of both sides:", code:"c = √100 = 10 cm ✅"},
+    ]
+  },
+  {
+    title:"Find Missing Side | b=5cm, c=13cm",
+    steps:[
+      {h:"Given (दिया है)", p:"Right triangle with perpendicular b = 5 cm, hypotenuse c = 13 cm. Find base a.", code:"b = 5 cm, c = 13 cm, ∠C = 90°"},
+      {h:"Apply Pythagoras Theorem", p:"Rearrange: a² = c² − b²", code:"a² = c² − b²"},
+      {h:"Calculate (गणना)", p:"Substitute values:", code:"a² = 13² − 5² = 169 − 25 = 144"},
+      {h:"Find a (आधार ज्ञात करें)", p:"Take square root:", code:"a = √144 = 12 cm ✅"},
+    ]
+  },
+  {
+    title:"Verify Triple | Is 3-4-5 right angled?",
+    steps:[
+      {h:"Given Triangle (दिया त्रिभुज)", p:"A triangle with sides 3 cm, 4 cm, 5 cm. Is it right angled?", code:"sides: 3, 4, 5"},
+      {h:"Identify Hypotenuse", p:"Largest side = 5 cm = c (potential hypotenuse)", code:"c = 5, a = 3, b = 4"},
+      {h:"Check: a² + b² = ?", p:"Calculate the sum of squares:", code:"3² + 4² = 9 + 16 = 25"},
+      {h:"Compare with c²", p:"∵ a²+b² = c², ∴ by converse of Pythagoras theorem:", code:"25 = 5² = 25 → ∠C = 90° ✅ RIGHT ANGLED!"},
+    ]
+  }
+];
+
+let curEx = 0, exStep = 0;
+let curStep = 0;
+const totalSteps = 5;
+
+function setExample(i, el) {
+  curEx = i; exStep = 0;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderExample();
+}
+
+function renderExample() {
+  const ex = examples[curEx];
+  let html = `<div style="background:#f0f9ff;border-radius:10px;padding:10px 14px;margin-bottom:10px;font-size:13px;font-weight:700;color:#1e40af">❓ ${ex.title}</div>`;
+  ex.steps.forEach((s,i) => {
+    const shown = i < exStep ? 'show' : '';
+    html += `<div class="ex-step ${shown}">
+      <h4>Step ${i+1}: ${s.h}</h4>
+      <p>${s.p}</p>
+      <code class="calc">${s.code}</code>
+    </div>`;
+  });
+  document.getElementById('exampleArea').innerHTML = html;
+}
+
+function nextExStep() {
+  if(exStep < examples[curEx].steps.length) { exStep++; renderExample(); }
+}
+function resetEx() { exStep = 0; renderExample(); }
+
+function nextStep() {
+  if(curStep < totalSteps) {
+    curStep++;
+    document.getElementById('s'+curStep).classList.add('visible');
+    document.getElementById('progressFill').style.width = (curStep/totalSteps*100)+'%';
+    document.getElementById('stepHint').textContent = curStep >= totalSteps ? '✅ All steps revealed! Proof complete.' : `Step ${curStep} of ${totalSteps} — keep going!`;
+  }
+}
+function resetSteps() {
+  curStep = 0;
+  for(let i=1;i<=totalSteps;i++) document.getElementById('s'+i).classList.remove('visible');
+  document.getElementById('progressFill').style.width = '0%';
+  document.getElementById('stepHint').textContent = 'Click "Next Step" to begin the proof walkthrough';
+}
+
+function setTriple(ta,tb,tc) {
+  document.getElementById('tpVal').textContent = `${ta}, ${tb}, ${tc}`;
+  document.getElementById('tpEq').textContent = `${ta}²+${tb}²=${ta*ta}+${tb*tb}=${ta*ta+tb*tb}=${tc}²`;
+  document.getElementById('tpMul').textContent = `${ta*2}, ${tb*2}, ${tc*2}`;
+  document.getElementById('tpMul3').textContent = `${ta*3}, ${tb*3}, ${tc*3}`;
+  document.getElementById('sliderA').value = Math.min(160,Math.max(60,ta*12));
+  document.getElementById('sliderB').value = Math.min(160,Math.max(60,tb*12));
+  a = parseInt(document.getElementById('sliderA').value);
+  b = parseInt(document.getElementById('sliderB').value);
+  updateAreas();
+  drawCanvas();
+}
+
+function updateAreas() {
+  const c = Math.sqrt(a*a+b*b);
+  const a2=a*a, b2=b*b, c2=Math.round(c*c);
+  document.getElementById('areaA').textContent = a2;
+  document.getElementById('areaB').textContent = b2;
+  document.getElementById('areaC').textContent = c2;
+  document.getElementById('eqA').textContent = `${a}² = ${a2}`;
+  document.getElementById('eqB').textContent = `${b}² = ${b2}`;
+  document.getElementById('eqC').textContent = `${Math.round(c)}² ≈ ${c2}`;
+  const sum = a2+b2;
+  const ok = Math.abs(sum-c2)<2;
+  const vb = document.getElementById('verifyBox');
+  vb.className = 'verify-box '+(ok?'verify-true':'verify-false');
+  vb.textContent = ok ? `✅ a²+b²=c² | ${a2}+${b2}=${c2} ✓ प्रमेय सिद्ध!` : `📊 a²+b²=c² | ${a2}+${b2}=${sum} ≈ c²=${c2} (Approx.)`;
+}
+
+function drawCanvas() {
+  const W=canvas.width, H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#f8fafc';
+  ctx.fillRect(0,0,W,H);
+
+  const ox=140, oy=280;
+  const bx=ox+a, by=oy;
+  const cx2=ox, cy2=oy-b;
+
+  // Draw square on a (amber)
+  drawSquare(ox,oy, a,0, 0,a, 'rgba(251,191,36,0.35)','#f59e0b', 'a² = '+a*a);
+  // Draw square on b (green)
+  drawSquare(ox,oy, 0,-b, -b,0, 'rgba(34,197,94,0.35)','#22c55e', 'b² = '+b*b);
+  // Draw square on hypotenuse (blue)
+  const dx=bx-cx2, dy=by-cy2;
+  const len=Math.sqrt(dx*dx+dy*dy);
+  const nx=dy/len, ny=-dx/len;
+  ctx.beginPath();
+  ctx.moveTo(cx2,cy2);
+  ctx.lineTo(bx,by);
+  ctx.lineTo(bx+nx*len,by+ny*len);
+  ctx.lineTo(cx2+nx*len,cy2+ny*len);
+  ctx.closePath();
+  ctx.fillStyle='rgba(59,130,246,0.3)';
+  ctx.fill();
+  ctx.strokeStyle='#3b82f6';
+  ctx.lineWidth=2.5;
+  ctx.stroke();
+  const mcx=(cx2+bx+bx+nx*len+cx2+nx*len)/4;
+  const mcy=(cy2+by+by+ny*len+cy2+ny*len)/4;
+  ctx.fillStyle='#1e40af';
+  ctx.font='bold 13px Segoe UI';
+  ctx.textAlign='center';
+  ctx.fillText('c² = '+Math.round(len*len), mcx, mcy);
+
+  // Draw triangle
+  ctx.beginPath();
+  ctx.moveTo(ox,oy);
