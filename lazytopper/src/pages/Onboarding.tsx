@@ -236,8 +236,11 @@ export default function Onboarding() {
                 <div style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>Up to 3 subjects</div>
               </div>
             </div>
-            <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", lineHeight: 1.5, margin: 0 }}>
+            <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", lineHeight: 1.5, margin: "0 0 6px 0" }}>
               Phase 1 is the main exam for all students. Phase 2 lets you re-attempt up to 3 subjects to improve your score. The best of the two scores counts.
+            </p>
+            <p style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", lineHeight: 1.5, margin: 0 }}>
+              Both exams cover the full syllabus. 75% attendance required for eligibility.
             </p>
           </div>
 

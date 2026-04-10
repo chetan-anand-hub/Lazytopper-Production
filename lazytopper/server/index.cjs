@@ -3989,6 +3989,7 @@ function buildSolveWithMeProtocolPrompt(payload) {
   return [
     `You are LazyTopper AI Mentor running MODE B: "Solve With Me" for CBSE Class ${grade} ${subject}.`,
     topicKey ? `Chapter/Topic: ${topicKey}.` : '',
+    'CBSE 2025-26 NOTE: "Constructions" removed from Maths syllabus. Two-exam system: Phase 1 (compulsory) + Phase 2 (optional, up to 3 subjects, best score counts).',
     buildMentorBehaviorContract(payload, 'solve_with_me'),
     buildMentorRuntimeRouteContext(payload),
     '',
@@ -4064,6 +4065,7 @@ function buildBoardStepsMSPrompt(payload) {
   return [
     `You are a CBSE Board examiner + Gen-Z friendly tutor for Class ${grade} ${subject}.`,
     topicKey ? `Topic key: ${topicKey}.` : '',
+    'CBSE 2025-26 NOTE: The chapter "Constructions" has been removed from the Maths syllabus. Two-exam system: Phase 1 (compulsory) + Phase 2 (optional re-attempt for up to 3 subjects, best score counts).',
     buildMentorBehaviorContract(payload, 'board_steps_ms'),
     buildMentorRuntimeRouteContext(payload),
     '',
@@ -4401,6 +4403,7 @@ function buildConversationalTeachSystemPrompt(payload, isConceptTeach) {
 
   return [
     `You are Ravi Sir, a beloved CBSE Class ${grade} ${subject} tutor known for making ${focusLabel} click for every student.`,
+    'CBSE 2025-26 NOTE: "Constructions" removed from Maths syllabus. Two-exam system: Phase 1 (compulsory) + Phase 2 (optional, up to 3 subjects, best score counts).',
     '',
     'YOUR PERSONALITY:',
     '- Warm, patient, encouraging — like a favourite teacher who genuinely cares',
@@ -4492,6 +4495,7 @@ function buildLearnKeyDefinitionsPrompt(payload) {
     topicKey ? `Topic: ${topicKey}.` : '',
     nodeTitle ? `Node: ${nodeTitle}.` : '',
     nodeText ? `Node hint: ${nodeText}` : '',
+    'CBSE 2025-26 NOTE: "Constructions" removed from Maths syllabus.',
     buildMentorBehaviorContract(payload, 'learn_teach'),
     buildMentorRuntimeRouteContext(payload),
     '',
@@ -5496,35 +5500,35 @@ Question: ${questionText}`;
       switch (normalisedMode) {
         case 'plan':
           systemPrompt =
-            'You are a CBSE Class 10 study planner. Create realistic, chapter-wise plans using the given context.';
+            'You are a CBSE Class 10 study planner. Create realistic, chapter-wise plans using the given context. CBSE 2025-26: "Constructions" removed from Maths. Two-exam system — Phase 1 (compulsory), Phase 2 (optional, up to 3 subjects, best score counts).';
           break;
         case 'solve':
           systemPrompt =
-            'You are an expert CBSE Class 10 tutor. Use Socratic, step-by-step reasoning and end with a clear final answer.';
+            'You are an expert CBSE Class 10 tutor. Use Socratic, step-by-step reasoning and end with a clear final answer. CBSE 2025-26: "Constructions" removed from Maths syllabus.';
           break;
         case 'explain':
           systemPrompt =
-            'You are a CBSE Class 10 concept explainer. Explain topics in simple steps, aligning with board exam style.';
+            'You are a CBSE Class 10 concept explainer. Explain topics in simple steps, aligning with board exam style. CBSE 2025-26: "Constructions" removed from Maths syllabus.';
           break;
         case 'learn_teach':
           systemPrompt =
-            'You are a strict CBSE Class 10 teacher. Return only the required JSON schema for key definitions.';
+            'You are a strict CBSE Class 10 teacher. Return only the required JSON schema for key definitions. CBSE 2025-26: "Constructions" removed from Maths syllabus.';
           break;
         case 'learn_mindmap':
           systemPrompt =
-            'You are a strict CBSE Class 10 teacher. Return only the required JSON schema for mindmap teaching.';
+            'You are a strict CBSE Class 10 teacher. Return only the required JSON schema for mindmap teaching. CBSE 2025-26: "Constructions" removed from Maths syllabus.';
           break;
         case 'learn_proof':
           systemPrompt =
-            'You are a strict CBSE Class 10 proof-writing teacher. Return only the required JSON schema.';
+            'You are a strict CBSE Class 10 proof-writing teacher. Return only the required JSON schema. CBSE 2025-26: "Constructions" removed from Maths syllabus.';
           break;
         case 'coach':
         case 'mindset':
           systemPrompt =
-            'You are a supportive CBSE exam coach and mindset mentor. Provide practical strategies and encouragement.';
+            'You are a supportive CBSE exam coach and mindset mentor. Provide practical strategies and encouragement. CBSE 2025-26: Two-exam system — Phase 1 (compulsory), Phase 2 (optional, up to 3 subjects, best score counts). "Constructions" removed from Maths.';
           break;
         default:
-          systemPrompt = 'You are a helpful CBSE Class 10 tutor for Maths and Science.';
+          systemPrompt = 'You are a helpful CBSE Class 10 tutor for Maths and Science. CBSE 2025-26: "Constructions" removed from Maths syllabus.';
       }
     }
     if (isMisconceptionExplain) {

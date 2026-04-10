@@ -80,8 +80,11 @@ export function SprintDashboard({ daysLeft, navigate, gradeNum }: {
             <div style={{ fontSize: 10, color: "rgba(255,255,255,0.35)" }}>{phase2DaysLeft} days left</div>
           </div>
         </div>
-        <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", lineHeight: 1.5 }}>
+        <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", lineHeight: 1.5, marginBottom: 6 }}>
           Phase 2 is optional — re-attempt up to 3 subjects to improve. Best score counts.
+        </div>
+        <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", lineHeight: 1.5 }}>
+          Both exams cover the full syllabus. 75% attendance required for eligibility.
         </div>
       </div>
 

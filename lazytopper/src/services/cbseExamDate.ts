@@ -135,6 +135,7 @@ export async function fetchCbseExamDate(studentClass: "10" | "12"): Promise<Cbse
       source: normalized ? source : "predicted",
       noticeUrl: typeof data.noticeUrl === "string" ? data.noticeUrl : undefined,
       note: typeof data.note === "string" ? data.note : undefined,
+      phase: "phase1",
     };
   } catch {
     return {
@@ -142,6 +143,31 @@ export async function fetchCbseExamDate(studentClass: "10" | "12"): Promise<Cbse
       examDate: fallbackDate,
       source: "predicted",
       note: "Using predicted board start date from prior CBSE trends.",
+      phase: "phase1",
     };
   }
+}
+
+export function fetchCbsePhase1Date(studentClass: "10" | "12"): CbseExamDateResult {
+  return {
+    studentClass,
+    examDate: predictCbseExamDate(studentClass),
+    source: "predicted",
+    note: "Phase 1 — compulsory board exam. All subjects. Both exams cover the full syllabus.",
+    phase: "phase1",
+  };
+}
+
+export function fetchCbsePhase2Date(studentClass: "10" | "12"): CbseExamDateResult {
+  return {
+    studentClass,
+    examDate: CBSE_PHASE2_DATE,
+    source: "predicted",
+    note: "Phase 2 — optional re-attempt for up to 3 subjects. Best score counts. Full syllabus covered.",
+    phase: "phase2",
+  };
+}
+
+export function getPhaseDeadline(phase: "phase1" | "phase2", studentClass: "10" | "12"): string {
+  return phase === "phase2" ? CBSE_PHASE2_DATE : predictCbseExamDate(studentClass);
 }
