@@ -68,6 +68,7 @@ export default function TopicMockPage() {
   const [elapsed, setElapsed] = useState(0);
   const [answers, setAnswers] = useState<Record<string, TopicMockAnswer>>({});
   const [analytics, setAnalytics] = useState<TopicMockAnalytics | null>(null);
+  const [previousBest, setPreviousBest] = useState<number | undefined>(undefined);
   const [currentSectionIdx, setCurrentSectionIdx] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const sectionStartRef = useRef(0);
@@ -127,7 +128,7 @@ export default function TopicMockPage() {
       try {
         const prev: number[] = JSON.parse(localStorage.getItem(histKey) || "[]");
         const best = prev.length > 0 ? Math.max(...prev) : undefined;
-        if (best !== undefined) (result as any)._previousBest = best;
+        setPreviousBest(best);
         prev.push(result.percentScore);
         localStorage.setItem(histKey, JSON.stringify(prev.slice(-20)));
       } catch {}
@@ -148,6 +149,7 @@ export default function TopicMockPage() {
     setElapsed(0);
     setAnswers({});
     setAnalytics(null);
+    setPreviousBest(undefined);
     setCurrentSectionIdx(0);
   }, []);
 
@@ -278,6 +280,7 @@ export default function TopicMockPage() {
             paper={paper}
             analytics={analytics}
             answers={answers}
+            previousBest={previousBest}
             onGoToWeakPractice={goToWeakPractice}
             onRetake={() => startMock()}
             onNextSet={() => currentSet < totalSets ? switchSet(currentSet + 1) : switchSet(1)}
@@ -499,9 +502,10 @@ function TakingPhase({ paper, currentSectionIdx, elapsed, timerEnabled, answers,
   );
 }
 
-function ReviewPhase({ paper, analytics, answers, onGoToWeakPractice, onRetake, onNextSet, onPrint }: {
+function ReviewPhase({ paper, analytics, answers, previousBest, onGoToWeakPractice, onRetake, onNextSet, onPrint }: {
   paper: TopicMockPaper; analytics: TopicMockAnalytics;
   answers: Record<string, TopicMockAnswer>;
+  previousBest?: number;
   onGoToWeakPractice: (subtopic: string) => void;
   onRetake: () => void; onNextSet: () => void; onPrint: () => void;
 }) {
@@ -516,7 +520,7 @@ function ReviewPhase({ paper, analytics, answers, onGoToWeakPractice, onRetake, 
         <div style={{ fontSize: "0.72rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)", marginBottom: 8 }}>
           Mock Result — {paper.topicDisplayName} — Set {paper.setIndex}
         </div>
-        <CountUpReveal value={analytics.percentScore} previousBest={(analytics as any)._previousBest} style={{ fontSize: "3rem", fontWeight: 800, color: scoreColor }} />
+        <CountUpReveal value={analytics.percentScore} previousBest={previousBest} style={{ fontSize: "3rem", fontWeight: 800, color: scoreColor }} />
         <div style={{ fontSize: "0.9rem", color: "rgba(255,255,255,0.6)", marginTop: 4 }}>
           {analytics.marksScored} / {analytics.totalMarks} marks
         </div>
