@@ -11,7 +11,6 @@ import { QUADRATIC_EQUATIONS_PACK1 } from './questionBanks/class10/maths/quadrat
 import { ARITHMETIC_PROGRESSION_PACK1 } from './questionBanks/class10/maths/arithmeticProgression.pack1';
 import { COORDINATE_GEOMETRY_PACK1 } from './questionBanks/class10/maths/coordinateGeometry.pack1';
 import { CIRCLES_PACK1 } from './questionBanks/class10/maths/circles.pack1';
-import { CONSTRUCTIONS_PACK1 } from './questionBanks/class10/maths/constructions.pack1';
 import { AREAS_RELATED_TO_CIRCLES_PACK1 } from './questionBanks/class10/maths/areasRelatedToCircles.pack1';
 import { SURFACE_AREAS_VOLUMES_PACK1 } from './questionBanks/class10/maths/surfaceAreasVolumes.pack1';
 import { STATISTICS_PACK1 } from './questionBanks/class10/maths/statistics.pack1';
@@ -42,7 +41,6 @@ export const canonicalQuestionBank: CanonicalQuestion[] = [
   ...ARITHMETIC_PROGRESSION_PACK1,
   ...COORDINATE_GEOMETRY_PACK1,
   ...CIRCLES_PACK1,
-  ...CONSTRUCTIONS_PACK1,
   ...AREAS_RELATED_TO_CIRCLES_PACK1,
   ...SURFACE_AREAS_VOLUMES_PACK1,
   ...STATISTICS_PACK1,
@@ -164,34 +162,6 @@ export const canonicalQuestionBank: CanonicalQuestion[] = [
       "In \u0394OPA and \u0394OPB: OP is common, OA = OB (radii of the same circle), and \u2220OAP = \u2220OBP = 90\u00b0.",
       "Thus, triangles \u0394OPA and \u0394OPB are congruent by RHS congruence criterion.",
       "Hence, PA = PB as corresponding sides of congruent triangles."
-    ],
-    "finalAnswer": "",
-    "strategyHint": "",
-    "predictionScore": 0
-  },
-  {
-    "id": "2026-CONST-SA-01",
-    "subject": "Maths",
-    "topicKey": "Constructions",
-    "subtopic": "Constructions",
-    "section": "B",
-    "marks": 4,
-    "format": "Short",
-    "difficulty": "Medium",
-    "bloomSkill": "Applying",
-    "questionText": "Construct a triangle ABC in which BC = 6 cm, \u2220B = 60\u00b0 and \u2220C = 45\u00b0. Then construct another triangle whose sides are 3/4 of the corresponding sides of \u25b3ABC.",
-    "options": [],
-    "answer": "",
-    "explanation": "",
-    "solutionSteps": [
-      "Draw a line segment BC = 6 cm.",
-      "At point B, construct \u2220CBX = 60\u00b0 and at point C, construct \u2220BCY = 45\u00b0 so that the two rays BX and CY intersect at A, forming \u25b3ABC.",
-      "Join AB and AC to complete triangle ABC with BC = 6 cm, \u2220B = 60\u00b0 and \u2220C = 45\u00b0.",
-      "To construct a triangle whose sides are 3/4 of \u25b3ABC, draw a ray BZ below BC.",
-      "On BZ, mark four equal segments B1, B2, B3, B4 using compass or divider.",
-      "Join B4 to C and draw a line through B3 parallel to B4C, meeting BC at C'.",
-      "Through C', draw a line parallel to AC, meeting the line through B parallel to AB at A'.",
-      "Then \u25b3A'BC' is the required triangle whose sides are 3/4 of the corresponding sides of \u25b3ABC."
     ],
     "finalAnswer": "",
     "strategyHint": "",

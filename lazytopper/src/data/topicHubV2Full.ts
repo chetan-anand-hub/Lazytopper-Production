@@ -1132,56 +1132,7 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
       }
     ]
   },
-  "maths_constructions": {
-    "subject": "Maths",
-    "topicKey": "maths_constructions",
-    "topicName": "Constructions",
-    "tier": "high-roi",
-    "overview": [
-      "Straight geometry-based marks if you remember algorithms.",
-      "Only needs compass + ruler practice; no heavy calculations."
-    ],
-    "definitions": [
-      {
-        "title": "Constructing a triangle from given measurements",
-        "description": "A triangle can be constructed using compass and ruler when measurements like side-angle-side (SAS), angle-side-angle (ASA), or side-side-side (SSS) are given."
-      },
-      {
-        "title": "Similar triangle construction with scale factor",
-        "description": "A triangle similar to a given triangle is constructed using a scale factor k; if k > 1 the new triangle is larger, and if k < 1 it is smaller."
-      },
-      {
-        "title": "Dividing a line segment in a given ratio",
-        "description": "A line segment can be divided internally in a given ratio m:n using the basic proportionality theorem with compass and straightedge."
-      }
-    ],
-    "examPatterns": [
-      "3–4 mark construction question: similar triangle or segment division.",
-      "Sometimes with justification (why it is similar)."
-    ],
-    "markingTips": [
-      "Not writing construction steps in words.",
-      "Inaccurate placement of equal segments on the ray (wrong ratio).",
-      "Forgetting to highlight final required triangle/segment."
-    ],
-    "scoreTips": [
-      "Learn one clean stepwise algorithm for each required construction type.",
-      "Practise with compass and scale to keep arcs accurate and neat.",
-      "In exam, always write steps clearly and shade/highlight final figure."
-    ],
-    "workedExamples": [],
-    "quickQuiz": [
-      {
-        "title": "Construct a triangle similar to ΔABC with scale factor 3/2.",
-        "question": "Construct a triangle similar to ΔABC with scale factor 3/2."
-      },
-      {
-        "title": "Divide segment AB in ratio 2:3.",
-        "question": "Divide segment AB in ratio 2:3."
-      }
-    ]
-  },
-  "maths_areas_circles": {
+"maths_areas_circles": {
     "subject": "Maths",
     "topicKey": "maths_areas_circles",
     "topicName": "Areas Related to Circles",

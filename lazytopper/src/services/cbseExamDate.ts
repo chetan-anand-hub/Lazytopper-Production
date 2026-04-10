@@ -6,6 +6,7 @@ export type CbseExamDateResult = {
   source: ExamDateSource;
   noticeUrl?: string;
   note?: string;
+  phase?: "phase1" | "phase2";
 };
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3001/api";
@@ -39,7 +40,6 @@ function writeAdminOverrideMap(next: AdminOverrideMap): void {
   try {
     window.localStorage.setItem(ADMIN_OVERRIDE_KEY, JSON.stringify(next));
   } catch {
-    // ignore local storage failures
   }
 }
 
@@ -88,11 +88,11 @@ export function clearCbseExamDateAdminOverride(studentClass: "10" | "12"): void 
   writeAdminOverrideMap(map);
 }
 
-export function predictCbseExamDate(studentClass: "10" | "12"): string {
+export function predictCbseExamDate(_studentClass: "10" | "12"): string {
   const now = new Date();
   const month = now.getMonth() + 1;
   let year = month >= 8 ? now.getFullYear() + 1 : now.getFullYear();
-  const tentativeDay = studentClass === "10" ? 15 : 16;
+  const tentativeDay = 17;
   const todayUtc = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
   let examUtc = Date.UTC(year, 1, tentativeDay);
   if (examUtc < todayUtc) {
@@ -100,6 +100,13 @@ export function predictCbseExamDate(studentClass: "10" | "12"): string {
     examUtc = Date.UTC(year, 1, tentativeDay);
   }
   return new Date(examUtc).toISOString().slice(0, 10);
+}
+
+export const CBSE_PHASE2_DATE = "2026-05-15";
+export const CBSE_PHASE2_END = "2026-06-01";
+
+export function predictCbsePhase2Date(): string {
+  return CBSE_PHASE2_DATE;
 }
 
 export function daysLeftFromIsoDate(isoDate: string): number {

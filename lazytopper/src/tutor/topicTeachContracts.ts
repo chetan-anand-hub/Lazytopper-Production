@@ -226,22 +226,6 @@ const topicSpecificSeeds: Record<string, TeachContractSeed> = {
     commonMistake:
       "Common mistake: assuming tangent properties without stating the theorem, or not drawing the construction clearly. This can lose marks in CBSE board checking.",
   },
-  constructions: {
-    ...mathsGeneric,
-    goalLine: "Learn {topic} with step-by-step geometric construction and justification in CBSE board-writing format.",
-    keyIdeas: [
-      "list the steps of construction in numbered order with compass/ruler actions.",
-      "state the geometric principle behind each construction step.",
-      "draw the figure with all arcs, labels, and measurements clearly marked.",
-      "write the justification: why the construction gives the required result.",
-    ],
-    checkpointQuestion:
-      "Board checkpoint: Construct a triangle similar to a given triangle with sides 3/5 of the corresponding sides. Write steps of construction.",
-    checkpointAnswer:
-      "Expected answer: Steps: 1. Draw the given triangle ABC. 2. Draw ray BX making acute angle with BC. 3. Mark 5 points B₁ to B₅ on BX at equal intervals. 4. Join B₅ to C. 5. Through B₃, draw line parallel to B₅C meeting BC at C'. 6. Through C', draw line parallel to CA meeting BA at A'. Therefore △A'BC' ~ △ABC with ratio 3/5.",
-    commonMistake:
-      "Common mistake: marking unequal arcs on the ray or drawing parallel lines without proper construction. This can lose marks in CBSE board checking.",
-  },
   "areas-related-to-circles": {
     ...mathsGeneric,
     goalLine: "Learn {topic} with sector/segment area formulas in CBSE board-writing format.",

@@ -1,8 +1,8 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useProfile } from "../context/ProfileContext";
-import { daysLeftFromIsoDate, fetchCbseExamDate } from "../services/cbseExamDate";
-import { cbseDates } from "../config/cbseDates";
+import { daysLeftFromIsoDate, fetchCbseExamDate, CBSE_PHASE2_DATE } from "../services/cbseExamDate";
+import { cbseDates, formatCbseDate } from "../config/cbseDates";
 import { checkAndUpdateProfile, detectProfileFromDays, getProfileSummary, getProfileConfig } from "../services/paceProfileService";
 import { hashPin, saveParentPinHash } from "../services/parentPinService";
 import { trackUxEvent } from "../services/uxTelemetry";
@@ -215,6 +215,30 @@ export default function Onboarding() {
               }}>{config.label}</span>
             </div>
             <p style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", lineHeight: 1.5, margin: 0 }}>{summary}</p>
+          </div>
+
+          <div style={{
+            marginTop: 12, padding: "12px 14px", borderRadius: 12,
+            background: "rgba(59,130,246,0.06)", border: "1px solid rgba(59,130,246,0.15)",
+          }}>
+            <div style={{ fontSize: 12, color: "#60a5fa", fontWeight: 700, marginBottom: 6 }}>
+              CBSE 2025-26: Two-Exam System
+            </div>
+            <div style={{ display: "flex", gap: 8, marginBottom: 6 }}>
+              <div style={{ flex: 1, padding: "8px 10px", borderRadius: 8, background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.2)" }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: "#22c55e", marginBottom: 2 }}>Phase 1 (Compulsory)</div>
+                <div style={{ fontSize: 12, color: "rgba(255,255,255,0.7)", fontWeight: 600 }}>{formatCbseDate(cbseDates.class10.phase1)}</div>
+                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>All subjects</div>
+              </div>
+              <div style={{ flex: 1, padding: "8px 10px", borderRadius: 8, background: "rgba(168,85,247,0.08)", border: "1px solid rgba(168,85,247,0.2)" }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: "#c084fc", marginBottom: 2 }}>Phase 2 (Optional)</div>
+                <div style={{ fontSize: 12, color: "rgba(255,255,255,0.7)", fontWeight: 600 }}>{formatCbseDate(CBSE_PHASE2_DATE)}</div>
+                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>Up to 3 subjects</div>
+              </div>
+            </div>
+            <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", lineHeight: 1.5, margin: 0 }}>
+              Phase 1 is the main exam for all students. Phase 2 lets you re-attempt up to 3 subjects to improve your score. The best of the two scores counts.
+            </p>
           </div>
 
           <div style={{

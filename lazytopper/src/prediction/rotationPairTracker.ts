@@ -24,7 +24,6 @@ const MATHS_ROTATION_PAIRS: RotationPair[] = [
   { subtopicA: "Algebraic Solution", subtopicB: "Word/Application Problems", topic: "Quadratic Equations", subject: "Maths" },
   { subtopicA: "Trig Identities/Proofs", subtopicB: "Application/Heights & Distances", topic: "Trigonometry", subject: "Maths" },
   { subtopicA: "Cylinder/Cone/Sphere", subtopicB: "Combination/Transformation", topic: "Surface Areas and Volumes", subject: "Maths" },
-  { subtopicA: "Divide Segment", subtopicB: "Construct Tangent", topic: "Constructions", subject: "Maths" },
 ];
 
 const SCIENCE_ROTATION_PAIRS: RotationPair[] = [

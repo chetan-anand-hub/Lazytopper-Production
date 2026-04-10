@@ -14,7 +14,7 @@ const TOPIC_NAMES: Record<string, string> = {
   "pair-of-linear-equations": "Linear Equations", "quadratic-equations": "Quadratic Equations",
   "arithmetic-progression": "Arithmetic Progression", triangles: "Triangles",
   "coordinate-geometry": "Coordinate Geometry", circles: "Circles",
-  constructions: "Constructions", "areas-related-to-circles": "Areas & Circles",
+  "areas-related-to-circles": "Areas & Circles",
   "surface-areas-and-volumes": "Surface Area & Volumes", trigonometry: "Trigonometry",
   statistics: "Statistics", probability: "Probability",
   "chemical-reactions-equations": "Chemical Reactions", "acids-bases-salts": "Acids, Bases & Salts",
@@ -31,7 +31,7 @@ const TOPIC_NAMES: Record<string, string> = {
 const ALL_MATHS_TOPICS = [
   "real-numbers", "polynomials", "pair-of-linear-equations", "quadratic-equations",
   "arithmetic-progression", "triangles", "coordinate-geometry", "circles",
-  "constructions", "areas-related-to-circles", "surface-areas-and-volumes",
+  "areas-related-to-circles", "surface-areas-and-volumes",
   "trigonometry", "statistics", "probability",
 ];
 

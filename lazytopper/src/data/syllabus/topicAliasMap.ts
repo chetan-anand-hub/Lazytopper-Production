@@ -148,7 +148,6 @@ export function getRuntimeTopicCandidates(rawTopicKey: string): string[] {
 }
 
 const supplementalSet = new Set<string>([
-  "constructions",
   "maths-applications-trigonometry",
   "science-periodic-classification",
   "science-natural-resources-management",

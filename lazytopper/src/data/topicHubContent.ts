@@ -848,45 +848,6 @@ export const topicHubContent: TopicHubBlock[] = [
   },
   {
     subject: 'maths',
-    topicKey: 'maths_constructions',
-    topicName: 'Constructions',
-    unitName: 'Geometry',
-    whyItMatters: [
-      'Straight geometry-based marks if you remember algorithms.',
-      'Only needs compass + ruler practice; no heavy calculations.',
-    ],
-    coreIdeas: [
-      'Constructing triangle with given criteria (side–angle–side, etc.).',
-      'Constructing triangle similar to a given triangle with given scale factor (k > 1 or k < 1).',
-      'Dividing a line segment internally in a given ratio.',
-    ],
-    commonMistakes: [
-      'Not writing construction steps in words.',
-      'Inaccurate placement of equal segments on the ray (wrong ratio).',
-      'Forgetting to highlight final required triangle/segment.',
-    ],
-    examPatterns: [
-      '3–4 mark construction question: similar triangle or segment division.',
-      'Sometimes with justification (why it is similar).',
-    ],
-    howToScore95Plus: [
-      'Learn one clean stepwise algorithm for each required construction type.',
-      'Practise with compass and scale to keep arcs accurate and neat.',
-      'In exam, always write steps clearly and shade/highlight final figure.',
-    ],
-    microExamples: [
-      {
-        question: 'Construct a triangle similar to ΔABC with scale factor 3/2.',
-        hint: 'Draw ray from one vertex, mark equal intervals, join and draw parallel line.',
-      },
-      {
-        question: 'Divide segment AB in ratio 2:3.',
-        hint: 'Use ray method and parallel line through second division point.',
-      },
-    ],
-  },
-  {
-    subject: 'maths',
     topicKey: 'maths_areas_circles',
     topicName: 'Areas Related to Circles',
     unitName: 'Mensuration',

@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { getHighlyProbableQuestions } from "../../data/highlyProbableQuestions";
 import { SPRINT_FORMULAS } from "./dashboardUtils";
+import { cbseDates, formatCbseDate } from "../../config/cbseDates";
+import { CBSE_PHASE2_DATE, daysLeftFromIsoDate } from "../../services/cbseExamDate";
 
 export function SprintDashboard({ daysLeft, navigate, gradeNum }: {
   daysLeft: number;
@@ -42,6 +44,8 @@ export function SprintDashboard({ daysLeft, navigate, gradeNum }: {
   const completedCount = checklistItems.filter(i => checklist[i.key]).length;
   void daysLeft;
 
+  const phase2DaysLeft = daysLeftFromIsoDate(CBSE_PHASE2_DATE);
+
   return (
     <>
       <div style={{
@@ -54,6 +58,30 @@ export function SprintDashboard({ daysLeft, navigate, gradeNum }: {
         </div>
         <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", lineHeight: 1.5 }}>
           Only essentials: predicted questions, key formulas & mini mocks.
+        </div>
+      </div>
+
+      <div style={{
+        padding: "14px 18px", marginBottom: 16, borderRadius: 16,
+        background: "rgba(59,130,246,0.06)", border: "1px solid rgba(59,130,246,0.2)",
+      }}>
+        <div style={{ fontSize: 12, color: "#60a5fa", fontWeight: 700, marginBottom: 8 }}>
+          CBSE 2025-26: Two-Exam System
+        </div>
+        <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+          <div style={{ flex: 1, padding: "8px 10px", borderRadius: 8, background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.2)" }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: "#22c55e" }}>Phase 1</div>
+            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.7)", fontWeight: 600 }}>{formatCbseDate(cbseDates.class10.phase1)}</div>
+            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.35)" }}>Compulsory</div>
+          </div>
+          <div style={{ flex: 1, padding: "8px 10px", borderRadius: 8, background: "rgba(168,85,247,0.08)", border: "1px solid rgba(168,85,247,0.2)" }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: "#c084fc" }}>Phase 2</div>
+            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.7)", fontWeight: 600 }}>{formatCbseDate(CBSE_PHASE2_DATE)}</div>
+            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.35)" }}>{phase2DaysLeft} days left</div>
+          </div>
+        </div>
+        <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", lineHeight: 1.5 }}>
+          Phase 2 is optional — re-attempt up to 3 subjects to improve. Best score counts.
         </div>
       </div>
 

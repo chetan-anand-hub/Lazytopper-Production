@@ -2009,8 +2009,6 @@ function isNonNegotiableDiagramTopic(payload) {
     'distances',
     'distance',
     'mensuration',
-    'construction',
-    'constructions',
     'area',
     'surface area',
     'volume',
@@ -3944,7 +3942,9 @@ function buildCoachUserPrompt(payload) {
 
   return [
     `Act as a supportive CBSE Class 10 exam coach for ${subject}.`,
-    `The student has about ${daysLeft} days left to exams and can study ~${hours} hours per day.`,
+    `The student has about ${daysLeft} days left to Phase 1 exams (Feb 17 – Mar 11, 2026, compulsory) and can study ~${hours} hours per day.`,
+    'CBSE 2025-26 has a two-exam system: Phase 1 is the main compulsory exam; Phase 2 (May 15 – Jun 1, 2026) is optional and lets students re-attempt up to 3 subjects — the best score counts.',
+    'Note: The chapter "Constructions" has been removed from the 2025-26 Maths syllabus. Do not recommend studying it.',
     'Give concrete time-management tips, mindset advice, and how to handle stress during prep and on exam day.',
   ].join(' ');
 }

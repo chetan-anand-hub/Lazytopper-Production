@@ -72,7 +72,6 @@ export const CBSE_HISTORICAL_ARCHETYPES: CbseArchetypeEntry[] = [
   m("Trigonometry", "Application/Heights & Distances", 5, "Long", "Applying", "application", 2017),
   m("Circles", "Tangent Properties", 1, "MCQ", "Understanding", "conceptual", 2017),
   m("Circles", "Tangent Theorems & Proofs", 5, "Long", "Applying", "procedural", 2017),
-  m("Constructions", "Divide Segment", 3, "Short", "Applying", "diagram", 2017),
   m("Areas Related to Circles", "Sectors and Segments", 3, "Short", "Applying", "procedural", 2017),
   m("Areas Related to Circles", "Composite Figures", 1, "MCQ", "Applying", "procedural", 2017),
   m("Surface Areas and Volumes", "Cylinder/Cone/Sphere", 3, "Short", "Applying", "procedural", 2017),
@@ -304,17 +303,6 @@ export const CBSE_HISTORICAL_ARCHETYPES: CbseArchetypeEntry[] = [
   m("Circles", "Number/Type of Tangents", 1, "Assertion-Reasoning", "Analysing", "assertion-reasoning", 2024),
   m("Circles", "Tangent Theorems & Proofs", 3, "Short", "Applying", "procedural", 2024),
   m("Circles", "Tangent Properties", 1, "MCQ", "Understanding", "conceptual", 2025, S),
-
-  // ═══════════════════════════════════════════
-  //  MATHS — Constructions
-  // ═══════════════════════════════════════════
-  m("Constructions", "Divide Segment", 3, "Short", "Applying", "diagram", 2018),
-  m("Constructions", "Construct Tangent", 3, "Short", "Applying", "diagram", 2019),
-  m("Constructions", "Similar Triangle", 2, "Short", "Applying", "diagram", 2020),
-  m("Constructions", "Construct Tangent", 3, "Short", "Applying", "diagram", 2022),
-  m("Constructions", "Divide Segment", 2, "Short", "Applying", "diagram", 2023),
-  m("Constructions", "Construct Tangent", 3, "Short", "Applying", "diagram", 2024),
-  m("Constructions", "Similar Triangle", 2, "Short", "Applying", "diagram", 2025, S),
 
   // ═══════════════════════════════════════════
   //  MATHS — Areas Related to Circles
@@ -666,7 +654,6 @@ export const CBSE_HISTORICAL_ARCHETYPES: CbseArchetypeEntry[] = [
   m("Trigonometry", "Application/Heights & Distances", 5, "Long", "Applying", "application", 2021, S),
   m("Circles", "Tangent Properties", 1, "MCQ", "Understanding", "conceptual", 2021, S),
   m("Circles", "Tangent Theorems & Proofs", 3, "Short", "Applying", "procedural", 2021, S),
-  m("Constructions", "Construct Tangent", 3, "Short", "Applying", "diagram", 2021, S),
   m("Areas Related to Circles", "Sectors and Segments", 2, "Short", "Applying", "procedural", 2021, S),
   m("Surface Areas and Volumes", "Cylinder/Cone/Sphere", 3, "Short", "Applying", "procedural", 2021, S),
   m("Surface Areas and Volumes", "Combination/Transformation", 5, "Long", "Applying", "application", 2021, S),

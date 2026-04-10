@@ -38,7 +38,6 @@ const TOPIC_NAMES: Record<string, string> = {
   triangles: "Triangles",
   "coordinate-geometry": "Coordinate Geometry",
   circles: "Circles",
-  constructions: "Constructions",
   "areas-related-to-circles": "Areas & Circles",
   "surface-areas-and-volumes": "Surface Area & Volumes",
   trigonometry: "Trigonometry",

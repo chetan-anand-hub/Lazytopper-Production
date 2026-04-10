@@ -1297,59 +1297,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     policyTag: "Depression pair",
   },
 
-  // ===== CONSTRUCTIONS =====
-  {
-    id: "2026-CONST-SA-01",
-    topicKey: "Constructions",
-    subtopic: "Divide a line segment",
-    kind: "Short",
-    section: "B",
-    marks: 2,
-    difficulty: "Easy",
-    bloomSkill: "Understanding",
-    questionText:
-      "Describe the steps of construction to divide a line segment AB in the ratio 3:5 using a compass and straightedge.",
-    answer:
-      "Draw a ray AX making an acute angle with AB; mark 8 equal points A1...A8 on AX; join A8 to B; draw through A3 a line parallel to A8B meeting AB at P; AP:PB = 3:5.",
-    explanation:
-      "Uses basic proportionality via parallel lines.",
-    policyTag: "Steps-only board style",
-  },
-  {
-    id: "2026-CONST-SA-02",
-    topicKey: "Constructions",
-    subtopic: "Construct a triangle similar to a given triangle",
-    kind: "Short",
-    section: "C",
-    marks: 3,
-    difficulty: "Medium",
-    bloomSkill: "Applying",
-    questionText:
-      "Construct a triangle similar to a given ΔABC with scale factor 3/2 (enlargement). Write steps.",
-    answer:
-      "Draw a ray from A; mark 2+1=3 equal segments; join second point to C; draw parallel through third point to obtain C′; similarly obtain B′; ΔAB′C′ ~ ΔABC with factor 3/2.",
-    explanation:
-      "Use intercept theorem to scale sides proportionally.",
-    policyTag: "Similarity construction",
-  },
-  {
-    id: "2026-CONST-AR-03",
-    topicKey: "Constructions",
-    subtopic: "Tangent to circle",
-    kind: "Assertion-Reasoning",
-    section: "B",
-    marks: 2,
-    difficulty: "Medium",
-    bloomSkill: "Analysing",
-    questionText:
-      "Assertion (A): To draw tangents from an external point P to a circle with centre O, one constructs the circle with OP as diameter. Reason (R): The right angle in a semicircle ensures the constructed points are points of tangency.",
-    answer:
-      "Both A and R are true, and R is the correct explanation of A.",
-    explanation:
-      "Radial right angle gives tangent condition.",
-    policyTag: "AR/tangent construction",
-  },
-
   // ===== COORDINATE GEOMETRY (Richer sets) =====
   {
     id: "2026-CG-CASE-05",
@@ -2997,49 +2944,6 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
     ],
     strategyHint:
       "Paint both inner and outer surfaces except the open top.",
-  },
-
-  // ===== Constructions (good‑to‑do) =====
-  {
-    id: "2026-CONST-MCQ-04",
-    topicKey: "Constructions",
-    subtopic: "Divide Segment",
-    kind: "MCQ",
-    section: "A",
-    marks: 1,
-    difficulty: "Easy",
-    bloomSkill: "Understanding",
-    questionText:
-      "To divide a given line segment AB into 4 equal parts using ruler and compass, how many equal divisions should be marked on an auxiliary ray?",
-    options: ["2", "3", "4", "5"],
-    answer: "4",
-    explanation:
-      "To divide a segment into n equal parts, mark n equal arcs on the auxiliary ray. Therefore 4 equal marks are required.",
-  },
-  {
-    id: "2026-CONST-SA-05",
-    topicKey: "Constructions",
-    subtopic: "Divide Segment",
-    kind: "Short",
-    section: "C",
-    marks: 3,
-    difficulty: "Medium",
-    bloomSkill: "Applying",
-    questionText:
-      "Construct a line segment PQ of length 8 cm and divide it internally in the ratio 3 : 2 using only a straightedge and compass. Describe the steps and justify your construction.",
-    answer:
-      "Draw PQ = 8 cm. Draw an acute ray PR. Mark five equal segments on PR. Join the fifth mark to Q. Through the third mark draw a line parallel to this, meeting PQ at S. Then PS:PQ = 3:5 and SQ:PQ = 2:5, so S divides PQ in the ratio 3:2.",
-    explanation:
-      "Using equal divisions and drawing a parallel line ensures that corresponding segments are proportional (Basic Proportionality Theorem). Hence PS:SQ = 3:2.",
-    solutionSteps: [
-      "Draw PQ = 8 cm and an acute ray PR.",
-      "On PR, mark five equal divisions (since 3 + 2 = 5 parts).",
-      "Join the fifth division point to Q.",
-      "Through the third division point, draw a line parallel to this connecting line to meet PQ at S.",
-      "PS:PQ = 3:5 ⇒ PS = 4.8 cm and SQ = 3.2 cm.",
-    ],
-    strategyHint:
-      "Divide the auxiliary ray into total parts equal to the sum of the ratio terms.",
   },
 
   // ===== Areas Related to Circles (good‑to‑do) =====

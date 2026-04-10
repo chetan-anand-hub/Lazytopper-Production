@@ -573,7 +573,6 @@ function buildTopicMultipliersForPaper(
       "Triangles",
       "Coordinate Geometry",
       "Circles",
-      "Constructions",
       "Areas Related to Circles",
       "Surface Areas and Volumes",
     ];

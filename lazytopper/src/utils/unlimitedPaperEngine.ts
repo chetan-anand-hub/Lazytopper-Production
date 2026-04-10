@@ -127,7 +127,6 @@ const MATHS_TOPIC_ALIASES: Record<string, string> = {
   "Coordinate Geometry": "Coordinate Geometry",
   "Trigonometry": "Trigonometry",
   "Circles": "Circles",
-  "Constructions": "Constructions",
   "Areas Related to Circles": "Areas Related to Circles",
   "Surface Areas and Volumes": "Surface Areas and Volumes",
   "Statistics": "Statistics",

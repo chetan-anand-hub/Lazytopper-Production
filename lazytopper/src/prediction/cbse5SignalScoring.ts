@@ -89,7 +89,6 @@ const TOPIC_KEY_TO_LABEL: Record<string, string> = {
   "trigonometry": "Trigonometry",
   "trigonometricidentities": "Trigonometry",
   "circles": "Circles",
-  "constructions": "Constructions",
   "areasrelatedtocircles": "Areas Related to Circles",
   "surfaceareasandvolumes": "Surface Areas and Volumes",
   "statistics": "Statistics",

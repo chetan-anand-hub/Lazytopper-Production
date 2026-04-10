@@ -77,13 +77,6 @@ export const class10TopicRegistry: TopicMeta[] = [
     approxWeightagePercent: 6,
   },
   {
-    topicKey: "Constructions",
-    topicName: "Constructions",
-    tier: "good-to-do",
-    route: "/class10/math/constructions",
-    approxWeightagePercent: 4,
-  },
-  {
     topicKey: "Areas Related to Circles",
     topicName: "Areas Related to Circles",
     tier: "high-roi",

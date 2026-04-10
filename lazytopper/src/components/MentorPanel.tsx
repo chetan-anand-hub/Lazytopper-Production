@@ -131,7 +131,6 @@ const CHAPTERS_BY_SUBJECT: Record<"Maths" | "Science", string[]> = {
     "Introduction to Trigonometry",
     "Applications of Trigonometry",
     "Circles",
-    "Constructions",
     "Areas Related to Circles",
     "Surface Areas and Volumes",
     "Statistics",

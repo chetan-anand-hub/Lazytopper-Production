@@ -321,43 +321,6 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
     ],
   },
   {
-    topic: "Constructions",
-    subject: "Maths",
-    defaultTier: "good-to-do",
-    questions: [
-      {
-        id: "const-comp-01",
-        subject: "Maths",
-        topic: "Constructions",
-        subtopic: "Divide Segment",
-        concept: "Assertion–Reason",
-        section: "A",
-        type: "AssertionReason",
-        difficulty: "Medium",
-        marks: 1,
-        likelihood: "Medium-High",
-        tier: "good-to-do",
-        bloomSkill: "Analysing",
-        kind: "assertion-reason",
-        question: "Assertion–Reason: refer to assertion and reason below.",
-        assertion:
-          "To divide a line segment in a given ratio m:n, we draw m + n equal arcs on a ray.",
-        reason:
-          "The construction uses Basic Proportionality Theorem.",
-        aROptions: [
-          { label: "A", text: "Both Assertion and Reason are true and Reason is the correct explanation." },
-          { label: "B", text: "Both Assertion and Reason are true but Reason is not the correct explanation." },
-          { label: "C", text: "Assertion is true but Reason is false." },
-          { label: "D", text: "Assertion is false but Reason is true." },
-        ],
-        correctOption: "A",
-        answer: "A",
-        explanation:
-          "We mark (m+n) points at equal intervals on a ray. The division point is determined by joining and drawing parallel lines, which uses BPT.",
-      },
-    ],
-  },
-  {
     topic: "Chemical Reactions & Equations",
     subject: "Science",
     stream: "Chemistry",

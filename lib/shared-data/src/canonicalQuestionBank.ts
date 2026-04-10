@@ -11,7 +11,6 @@ import { QUADRATIC_EQUATIONS_PACK1 } from "./questionBanks/maths/quadraticEquati
 import { ARITHMETIC_PROGRESSION_PACK1 } from "./questionBanks/maths/arithmeticProgression.pack1";
 import { COORDINATE_GEOMETRY_PACK1 } from "./questionBanks/maths/coordinateGeometry.pack1";
 import { CIRCLES_PACK1 } from "./questionBanks/maths/circles.pack1";
-import { CONSTRUCTIONS_PACK1 } from "./questionBanks/maths/constructions.pack1";
 import { AREAS_RELATED_TO_CIRCLES_PACK1 } from "./questionBanks/maths/areasRelatedToCircles.pack1";
 import { SURFACE_AREAS_VOLUMES_PACK1 } from "./questionBanks/maths/surfaceAreasVolumes.pack1";
 import { STATISTICS_PACK1 } from "./questionBanks/maths/statistics.pack1";
@@ -43,7 +42,6 @@ export const canonicalQuestionBank: CanonicalQuestion[] = [
   ...ARITHMETIC_PROGRESSION_PACK1,
   ...COORDINATE_GEOMETRY_PACK1,
   ...CIRCLES_PACK1,
-  ...CONSTRUCTIONS_PACK1,
   ...AREAS_RELATED_TO_CIRCLES_PACK1,
   ...SURFACE_AREAS_VOLUMES_PACK1,
   ...STATISTICS_PACK1,

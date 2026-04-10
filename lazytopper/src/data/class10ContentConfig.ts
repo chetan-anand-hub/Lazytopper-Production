@@ -997,88 +997,6 @@ const circlesConfig: TopicContentConfig = {
   ],
 };
 
-// -----------------------------------------------------------------
-// MATHS: CONSTRUCTIONS
-// -----------------------------------------------------------------
-
-const constructionsBase = buildGenericTopicConfig({
-  subjectKey: "Maths",
-  topicKey: "constructions",
-  topicName: "Constructions",
-  tier: "good-to-do",
-  weightagePercent: 3,
-});
-
-const constructionsConfig: TopicContentConfig = {
-  ...constructionsBase,
-  heroTagline:
-    "Low-volume but pattern-based: learn 3–4 standard constructions and steps, and this chapter becomes easy marks.",
-
-  quickRevisionRoadmap: [
-    "1️⃣ Revise basic construction tools: perpendicular bisectors, angle bisectors and parallel lines using compass and ruler.",
-    "2️⃣ Practise construction of division of a line segment in a given ratio.",
-    "3️⃣ Practise constructing a triangle similar to a given triangle as per required scale factor.",
-    "4️⃣ Do 2–3 mixed board-style questions and write full steps of construction for each.",
-  ],
-
-  keyConceptsSummary:
-    "Main tasks: divide a line segment in given ratio, construct tangents to a circle, and construct similar triangles. Marks come from clear diagrams + stepwise explanations, not just the final picture.",
-
-  boardExamplesSummary:
-    "Standard questions: divide a line segment internally in ratio m:n; draw a triangle similar to a given one with a specified scale; and construct tangents to a circle from an external point.",
-
-  recommendedVideoSummary:
-    "Follow a slow-paced ‘Constructions’ video and physically construct each figure with compass and scale while watching.",
-  recommendedVideoUrl: "https://www.youtube.com/watch?v=5g4MUiYFsZc",
-  recommendedVideo: {
-    title: "Constructions Class 10 | Full Chapter",
-    url: "https://www.youtube.com/watch?v=5g4MUiYFsZc",
-    channel: "Vedantu 9&10",
-    meta: "Live compass + ruler demo",
-  },
-
-  conceptNotes: [
-    {
-      id: "cons-divide-segment",
-      title: "Dividing a line segment in ratio m:n",
-      summary:
-        "Draw a ray at an acute angle from one end, mark m + n equal parts, join the last point to the other end and draw a parallel line through the m-th point.",
-      examTip:
-        "In steps, always mention ‘draw a ray making an acute angle’ and ‘mark equal segments on the ray’.",
-    },
-    {
-      id: "cons-similar-triangle",
-      title: "Constructing similar triangles",
-      summary:
-        "Scale factor k is used to extend or shrink sides using ray markings and parallel lines, then join back to form the required triangle.",
-      examTip:
-        "State the factor clearly (e.g., 3/2) and mark the segments on the auxiliary ray accordingly.",
-    },
-  ],
-
-  commonMistakes: [
-    "Not using equal spacing on the auxiliary ray while dividing segments.",
-    "Missing or unclear steps of construction in the written part.",
-    "Figure not neat or labelled → teacher struggles to check work and marks may drop.",
-  ],
-
-  boardExamples: [
-    {
-      id: "cons-ex1",
-      title: "Segment division",
-      question:
-        "Construct a line segment AB of length 8 cm. Using ruler and compass, divide it in the ratio 3:5. Write steps of construction.",
-      patternTag: "Divide segment",
-    },
-    {
-      id: "cons-ex2",
-      title: "Similar triangle construction",
-      question:
-        "Construct a ΔABC similar to a given ΔPQR with scale factor 3/2. Write all steps of construction.",
-      patternTag: "Triangle similarity construction",
-    },
-  ],
-};
 
 // -----------------------------------------------------------------
 // MATHS: AREAS RELATED TO CIRCLES
@@ -2035,10 +1953,6 @@ const mathsContentRegistry: Record<string, TopicContentConfig> = {
   // Surface Areas and Volumes
   "surface-areas-and-volumes": savConfig,
   "Surface Areas and Volumes": savConfig,
-// Constructions
-  constructions: constructionsConfig,
-  Constructions: constructionsConfig,
-  
   // Statistics
   Sstatistics: statisticsConfig,
   Statistics: statisticsConfig,

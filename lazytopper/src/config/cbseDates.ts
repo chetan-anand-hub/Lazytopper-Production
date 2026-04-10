@@ -1,18 +1,26 @@
+export type CbseExamPhase = "phase1" | "phase2";
+
+export type CbseClassDates = {
+  phase1: string | null;
+  phase2: string | null;
+  boardExam?: string | null;
+};
+
 export type CbseDates = {
-  class10: {
-    boardExam?: string | null;
-  };
-  class12: {
-    boardExam?: string | null;
-  };
+  class10: CbseClassDates;
+  class12: CbseClassDates;
 };
 
 export const cbseDates: CbseDates = {
   class10: {
-    boardExam: null,
+    phase1: "2026-02-17",
+    phase2: "2026-05-15",
+    boardExam: "2026-02-17",
   },
   class12: {
-    boardExam: null,
+    phase1: "2026-02-17",
+    phase2: "2026-05-15",
+    boardExam: "2026-02-17",
   },
 };
 
@@ -33,4 +41,13 @@ export function formatCbseDate(dateStr?: string | null): string {
   }
 
   return dateFormatter.format(parsed);
+}
+
+export function formatCbseDateRange(start?: string | null, end?: string | null): string {
+  const s = formatCbseDate(start);
+  const e = formatCbseDate(end);
+  if (s === 'TBD' && e === 'TBD') return 'TBD';
+  if (s === 'TBD') return e;
+  if (e === 'TBD') return s;
+  return `${s} – ${e}`;
 }

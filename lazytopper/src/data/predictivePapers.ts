@@ -53,7 +53,7 @@ export const predictivePapers: PredictivePaper[] = [
     id: "P3",
     title: "Predictive Paper 3",
     slug: "paper-3-geometry-focus",
-    vibe: "Triangles, circles and constructions in focus.",
+    vibe: "Triangles, circles and coordinate geometry in focus.",
     tagline: "Perfect for a geometry-focused revision mock.",
     markTotal: 80,
     subject: "Maths",

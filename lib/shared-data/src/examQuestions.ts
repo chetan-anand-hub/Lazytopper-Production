@@ -161,17 +161,6 @@ export const mathsExamQuestions: ExamQuestion[] = [
     },
   },
   {
-    id: "M-D2",
-    subject: "Maths",
-    topicKey: "Constructions",
-    subtopic: "Tangent Construction",
-    section: "D",
-    marks: 5,
-    format: "Long",
-    difficulty: "Hard",
-    questionText: "Draw a pair of tangents to a circle of radius 4 cm from a point 6 cm away from the centre. Describe the steps of construction.",
-  },
-  {
     id: "M-E1",
     subject: "Maths",
     topicKey: "Statistics",

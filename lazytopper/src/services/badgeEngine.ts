@@ -40,7 +40,7 @@ export interface BadgeContext {
 const MATHS_TOPICS = [
   "real-numbers", "polynomials", "pair-of-linear-equations",
   "quadratic-equations", "arithmetic-progression", "triangles",
-  "coordinate-geometry", "circles", "constructions",
+  "coordinate-geometry", "circles",
   "areas-related-to-circles", "surface-areas-and-volumes",
   "trigonometry", "statistics", "probability",
 ];
