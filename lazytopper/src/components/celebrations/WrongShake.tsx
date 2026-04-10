@@ -33,7 +33,7 @@ export default function WrongShake({ visible, onDone, children }: Props) {
     const t = setTimeout(() => {
       setShow(false);
       onDone?.();
-    }, reduced ? 100 : 600);
+    }, reduced ? 100 : 500);
     return () => clearTimeout(t);
   }, [visible, reduced, onDone]);
 
