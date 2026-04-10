@@ -29,7 +29,10 @@ import {
   MASTERY_LABELS,
   MASTERY_COLORS,
   MASTERY_ICONS,
+  isNewlyMastered,
+  clearNewlyMastered,
 } from "../services/masteryLevelService";
+import { MasteredBadge } from "../components/celebrations";
 import { getCanonicalChapterBySlug, formatChapterTitle } from "../data/syllabus/cbse10Canonical";
 
 type TierKey = "must-crack" | "high-roi" | "good-to-do";
@@ -498,13 +501,17 @@ const TrendsPage: React.FC = () => {
                             {tierInfo.label}
                           </span>
                           {ml !== "not_started" && (
-                            <span style={{
-                              borderRadius: 999, padding: "2px 8px", fontSize: "0.68rem", fontWeight: 600,
-                              background: `${MASTERY_COLORS[ml]}12`, color: MASTERY_COLORS[ml],
-                              border: `1px solid ${MASTERY_COLORS[ml]}25`,
-                            }}>
-                              {MASTERY_ICONS[ml]} {MASTERY_LABELS[ml]}
-                            </span>
+                            ml === "mastered" ? (
+                              <MasteredBadge animate={(() => { const k = `${grade}-${subjectKey}-${topicKey}`; if (isNewlyMastered(k)) { setTimeout(() => clearNewlyMastered(k), 1000); return true; } return false; })()} />
+                            ) : (
+                              <span style={{
+                                borderRadius: 999, padding: "2px 8px", fontSize: "0.68rem", fontWeight: 600,
+                                background: `${MASTERY_COLORS[ml]}12`, color: MASTERY_COLORS[ml],
+                                border: `1px solid ${MASTERY_COLORS[ml]}25`,
+                              }}>
+                                {MASTERY_ICONS[ml]} {MASTERY_LABELS[ml]}
+                              </span>
+                            )
                           )}
                         </div>
                         <p style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.38)", margin: "2px 0 6px", lineHeight: 1.4 }}>

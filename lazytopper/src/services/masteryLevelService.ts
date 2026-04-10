@@ -136,6 +136,40 @@ export function updateMasteryLevel(
   return promoteMastery(current, accuracy, isChapterTest);
 }
 
+const NEWLY_MASTERED_KEY = "lazytopper.newly_mastered";
+
+export function markNewlyMastered(chapterKey: string): void {
+  try {
+    const raw = localStorage.getItem(NEWLY_MASTERED_KEY);
+    const set: string[] = raw ? JSON.parse(raw) : [];
+    if (!set.includes(chapterKey)) {
+      set.push(chapterKey);
+      localStorage.setItem(NEWLY_MASTERED_KEY, JSON.stringify(set));
+    }
+  } catch {}
+}
+
+export function isNewlyMastered(chapterKey: string): boolean {
+  try {
+    const raw = localStorage.getItem(NEWLY_MASTERED_KEY);
+    if (!raw) return false;
+    const set: string[] = JSON.parse(raw);
+    return set.includes(chapterKey);
+  } catch {
+    return false;
+  }
+}
+
+export function clearNewlyMastered(chapterKey: string): void {
+  try {
+    const raw = localStorage.getItem(NEWLY_MASTERED_KEY);
+    if (!raw) return;
+    const set: string[] = JSON.parse(raw);
+    const filtered = set.filter(k => k !== chapterKey);
+    localStorage.setItem(NEWLY_MASTERED_KEY, JSON.stringify(filtered));
+  } catch {}
+}
+
 export function masteryFromLegacyPercent(percent: number): MasteryLevel {
   if (percent <= 0) return "not_started";
   if (percent < 70) return "attempted";

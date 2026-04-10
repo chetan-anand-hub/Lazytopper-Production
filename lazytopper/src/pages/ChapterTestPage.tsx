@@ -4,6 +4,7 @@ import { generatePracticeSet } from "../data/practiceSetGenerator";
 import { resolveTopicDisplayName, normalizeTopicKey } from "../utils/topicResolver";
 import ReturnContextBar from "../components/ux/ReturnContextBar";
 import { trackUxEvent } from "../services/uxTelemetry";
+import { ConfettiCelebration, MasteredBadge } from "../components/celebrations";
 import * as gam from "../utils/gamification";
 import { useSmartLearning } from "../engine/smartLearningStore";
 import { useAuth } from "../context/AuthContext";
@@ -16,6 +17,7 @@ import {
   MASTERY_ICONS,
   MASTERY_POINTS,
   getChapterMasteryLevel,
+  markNewlyMastered,
   type QuizResult,
 } from "../services/masteryLevelService";
 
@@ -196,6 +198,9 @@ export default function ChapterTestPage() {
     if (phase === "review" && quizResult.totalQuestions > 0) {
       const rec = recordQuizResult(chapterKey, quizResult, true);
       setMasteryRecord(rec);
+      if (rec.level === "mastered") {
+        markNewlyMastered(chapterKey);
+      }
       for (const [idxStr, ans] of Object.entries(answers)) {
         const q = questions[Number(idxStr)];
         if (!q) continue;
@@ -402,6 +407,7 @@ export default function ChapterTestPage() {
 
         {phase === "review" && masteryRecord && (
           <div style={{ marginTop: 24 }}>
+            <ConfettiCelebration visible={masteryRecord.level === "mastered"} duration={3500} />
             <div
               style={{
                 background: "rgba(255,255,255,0.03)",
@@ -439,9 +445,13 @@ export default function ChapterTestPage() {
                 <span style={{ fontSize: 20 }}>{MASTERY_ICONS[masteryRecord.level]}</span>
                 <div style={{ textAlign: "left" }}>
                   <div style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.5)" }}>Your Progress</div>
-                  <div style={{ fontSize: "1rem", fontWeight: 800, color: MASTERY_COLORS[masteryRecord.level] }}>
-                    {MASTERY_LABELS[masteryRecord.level]}
-                  </div>
+                  {masteryRecord.level === "mastered" ? (
+                    <MasteredBadge animate={true} />
+                  ) : (
+                    <div style={{ fontSize: "1rem", fontWeight: 800, color: MASTERY_COLORS[masteryRecord.level] }}>
+                      {MASTERY_LABELS[masteryRecord.level]}
+                    </div>
+                  )}
                   <div style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.4)" }}>{MASTERY_POINTS[masteryRecord.level]}pts</div>
                 </div>
               </div>

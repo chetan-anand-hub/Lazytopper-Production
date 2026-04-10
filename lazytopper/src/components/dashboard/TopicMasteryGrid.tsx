@@ -7,6 +7,8 @@ import {
   MASTERY_ICONS,
   MASTERY_POINTS,
   MASTERY_RING_FRACTION,
+  isNewlyMastered,
+  clearNewlyMastered,
 } from "../../services/masteryLevelService";
 import { NewBadge } from "./DashboardWidgets";
 import { MasteredBadge } from "../celebrations";
@@ -39,7 +41,7 @@ function MasteryRing({ row, subject, gradeNum, navigate, getRowMasteryLevel }: {
         </svg>
       </div>
       {level === "mastered" ? (
-        <MasteredBadge />
+        <MasteredBadge animate={(() => { const k = row.topicKey; if (isNewlyMastered(k)) { setTimeout(() => clearNewlyMastered(k), 1000); return true; } return false; })()} />
       ) : (
         <div style={{ fontSize: 8, fontWeight: 700, color: MASTERY_COLORS[level], marginBottom: 1 }}>{MASTERY_LABELS[level]}</div>
       )}
