@@ -180,8 +180,8 @@ const API_KEY = String(process.env.API_KEY || '').trim();
 const CORS_ORIGIN = String(process.env.CORS_ORIGIN || 'http://localhost:5173').trim();
 const AI_PROVIDER_NORMALIZED = AI_PROVIDER.toLowerCase();
 const HAS_DIRECT_KEY = AI_PROVIDER_NORMALIZED === 'gemini' && Boolean(API_KEY);
-const STUB_MODE = !HAS_REPLIT_PROXY && !HAS_DIRECT_KEY;
-const ACTIVE_PROVIDER = STUB_MODE ? 'stub' : 'gemini';
+const STUB_MODE = !HAS_REPLIT_PROXY && !HAS_DIRECT_KEY && !HAS_ANTHROPIC_PROXY;
+const ACTIVE_PROVIDER = STUB_MODE ? 'stub' : (HAS_REPLIT_PROXY || HAS_DIRECT_KEY ? 'gemini' : 'anthropic');
 const GEMINI_API_KEY = HAS_REPLIT_PROXY ? REPLIT_GEMINI_API_KEY : (HAS_DIRECT_KEY ? API_KEY : '');
 const DIRECT_GEMINI_API_KEY = HAS_DIRECT_KEY ? API_KEY : '';
 const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
@@ -5619,7 +5619,11 @@ Question: ${questionText}`;
       return sendJson(res, 400, { error: 'Invalid payload' });
     }
 
-    const originalQuery = payload?.questionText || payload?.studentQuestion || payload?.prompt || payload?.question || '';
+    let originalQuery = payload?.questionText || payload?.studentQuestion || payload?.prompt || payload?.question || '';
+    if (!originalQuery && Array.isArray(reqJson?.messages) && reqJson.messages.length > 0) {
+      const lastUserMsg = [...reqJson.messages].reverse().find(m => m?.role === 'user');
+      originalQuery = String(lastUserMsg?.content || '').trim();
+    }
     const routingDecision = selectModelForRequest(normalisedMode, originalQuery);
 
     const history = toGeminiContents(reqJson && reqJson.messages);
