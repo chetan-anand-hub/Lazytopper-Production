@@ -46,6 +46,7 @@ const ExamSimulationPage = lazy(() => import("./pages/ExamSimulationPage"));
 const LegalPage = lazy(() => import("./pages/LegalPage"));
 const MethodologyPage = lazy(() => import("./pages/MethodologyPage"));
 const TeacherDashboardPage = lazy(() => import("./pages/TeacherDashboardPage"));
+import { captureIncomingReferral } from "./services/referralService";
 const PricingPage = lazy(() => import("./pages/PricingPage"));
 const FunnelPage = lazy(() => import("./pages/FunnelPage"));
 const NightBeforePage = lazy(() => import("./pages/NightBeforePage"));
@@ -224,6 +225,7 @@ export default function App() {
   const { isTrialActive, isTrialExpired, daysLeftInTrial, isPremium } = useSubscription();
 
   useEffect(() => {
+    captureIncomingReferral();
     if (isFocusTrackingEnabled()) startTracking();
     return () => stopTracking();
   }, []);

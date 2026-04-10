@@ -6,6 +6,7 @@ import { cbseDates } from "../config/cbseDates";
 import { checkAndUpdateProfile, detectProfileFromDays, getProfileSummary, getProfileConfig } from "../services/paceProfileService";
 import { hashPin, saveParentPinHash } from "../services/parentPinService";
 import { trackUxEvent } from "../services/uxTelemetry";
+import { creditPendingReferral } from "../services/referralService";
 
 function formatIsoDate(iso: string): string {
   const date = new Date(`${iso}T00:00:00`);
@@ -120,6 +121,7 @@ export default function Onboarding() {
     checkAndUpdateProfile(daysLeft);
     setProfileAndCompute(nextProfile);
     trackUxEvent("onboarding_complete", "onboarding", { target: String(targetPercent) });
+    creditPendingReferral(`user_${Date.now()}`);
     navigate("/dashboard");
   };
 
