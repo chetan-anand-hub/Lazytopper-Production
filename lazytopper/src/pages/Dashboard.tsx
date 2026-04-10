@@ -8,6 +8,8 @@ import { useSmartLearning } from "../engine/smartLearningStore";
 import type { ChapterMeta } from "../engine/smartLearningTypes";
 import { getAttempts } from "../services/practiceInsights";
 import { getStrategyPlan, updateAndGetStreak, wasStreakReset, dismissStreakReset } from "../services/planStorage";
+import { ConfettiCelebration } from "../components/celebrations";
+import { STREAK_BADGES } from "../services/streakService";
 import { generateMultiTopicDailyMix } from "../services/dailyMixGenerator";
 import type { DailyMixItem } from "../services/dailyMixPlayback";
 import type { StrategyPlan } from "../services/strategyEngine";
@@ -101,6 +103,24 @@ export default function Dashboard() {
   const [planRecord] = useState<StrategyPlan | null>(() => getStrategyPlan());
   const [streak] = useState<number>(() => updateAndGetStreak());
   const [showStreakReset, setShowStreakReset] = useState(() => wasStreakReset());
+  const [streakMilestone, setStreakMilestone] = useState<typeof STREAK_BADGES[number] | null>(null);
+
+  useEffect(() => {
+    const SEEN_KEY = "lazytopper.streak_milestone_seen";
+    const milestones = [3, 7, 14, 30, 60];
+    if (milestones.includes(streak)) {
+      try {
+        const seen = Number(localStorage.getItem(SEEN_KEY) || 0);
+        if (seen < streak) {
+          const badge = STREAK_BADGES.find(b => b.requiredDays === streak);
+          if (badge) {
+            setStreakMilestone(badge);
+            localStorage.setItem(SEEN_KEY, String(streak));
+          }
+        }
+      } catch {}
+    }
+  }, [streak]);
   const attempts = getAttempts();
   const [paceProfile, setPaceProfile] = useState(() => loadPaceProfile());
   const [paceTransition, setPaceTransition] = useState<PaceTransitionNotification | null>(() => {
@@ -570,6 +590,23 @@ export default function Dashboard() {
             </div>
           </div>
         )}
+
+        <ConfettiCelebration
+          visible={!!streakMilestone}
+          badge={streakMilestone ? {
+            emoji: streakMilestone.tier === "Bronze" ? "🔥" : streakMilestone.tier === "Silver" ? "⚡" : streakMilestone.tier === "Gold" ? "💪" : streakMilestone.tier === "Platinum" ? "🏆" : "💎",
+            title: streakMilestone.name,
+            subtitle: streakMilestone.description,
+          } : undefined}
+          shareCard={streakMilestone ? {
+            text: `I just hit a ${streak}-day streak on LazyTopper!`,
+            onShare: () => {
+              const text = encodeURIComponent(`🔥 I just hit a ${streak}-day study streak on LazyTopper! ${streakMilestone?.name} badge unlocked! 💪\n\nhttps://lazytopper.com`);
+              window.open(`https://wa.me/?text=${text}`, "_blank");
+            },
+          } : undefined}
+          onDone={() => setStreakMilestone(null)}
+        />
 
         {daysLeftValue > 7 && <HeroActionCard heroAction={heroAction} />}
 

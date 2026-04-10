@@ -4,6 +4,7 @@ import { QuestionVisualAid } from "../question/QuestionVisualAid";
 import { SolutionChecker } from "../question/SolutionChecker";
 import { TimeGuideChip } from "../exam/ExamStrategyTips";
 import type { StepSolutionResponse } from "../../ai/aiClient";
+import { CorrectBurst, WrongShake } from "../celebrations";
 
 export interface PracticeQuestionCardProps {
   q: PracticeQuestion;
@@ -101,8 +102,21 @@ export function PracticeQuestionCard({
             fontSize: "0.82rem", fontWeight: 700,
             background: result === "correct" ? "rgba(34,197,94,0.08)" : "rgba(239,68,68,0.08)",
             color: result === "correct" ? "#22c55e" : "#ef4444",
+            display: "flex", alignItems: "center", gap: 8,
           }}>
-            {result === "correct" ? "Correct! Well done." : `Incorrect. The correct answer is ${String.fromCharCode(65 + correctIdx)}.`}
+            {result === "correct" ? (
+              <>
+                <CorrectBurst visible={true} size={24} />
+                Correct! Well done.
+              </>
+            ) : (
+              <>
+                <WrongShake visible={true}>
+                  <span style={{ fontSize: 20 }}>✗</span>
+                </WrongShake>
+                {`Incorrect. The correct answer is ${String.fromCharCode(65 + correctIdx)}.`}
+              </>
+            )}
           </div>
         )}
       </div>
@@ -352,8 +366,21 @@ export function PracticeQuestionCard({
         <div style={{
           marginTop: 8, fontSize: "0.76rem", fontWeight: 600,
           color: selfAssessment === "got_it" ? "#22c55e" : "#ef4444",
+          display: "flex", alignItems: "center", gap: 6,
         }}>
-          {selfAssessment === "got_it" ? "\u2713 Marked as understood" : "\u21BB Follow-up queued"}
+          {selfAssessment === "got_it" ? (
+            <>
+              <CorrectBurst visible={true} size={20} />
+              ✓ Marked as understood
+            </>
+          ) : (
+            <>
+              <WrongShake visible={true}>
+                <span style={{ fontSize: 16 }}>↻</span>
+              </WrongShake>
+              Follow-up queued
+            </>
+          )}
         </div>
       )}
     </article>

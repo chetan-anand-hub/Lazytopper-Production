@@ -9,6 +9,7 @@ import {
   MASTERY_RING_FRACTION,
 } from "../../services/masteryLevelService";
 import { NewBadge } from "./DashboardWidgets";
+import { MasteredBadge } from "../celebrations";
 
 export interface TopicMasteryGridProps {
   mathsMastery: PerformanceRow[];
@@ -37,7 +38,11 @@ function MasteryRing({ row, subject, gradeNum, navigate, getRowMasteryLevel }: {
           <text x={24} y={28} textAnchor="middle" fontSize={16} fill={MASTERY_COLORS[level]}>{MASTERY_ICONS[level]}</text>
         </svg>
       </div>
-      <div style={{ fontSize: 8, fontWeight: 700, color: MASTERY_COLORS[level], marginBottom: 1 }}>{MASTERY_LABELS[level]}</div>
+      {level === "mastered" ? (
+        <MasteredBadge />
+      ) : (
+        <div style={{ fontSize: 8, fontWeight: 700, color: MASTERY_COLORS[level], marginBottom: 1 }}>{MASTERY_LABELS[level]}</div>
+      )}
       <div style={{ fontSize: 7, fontWeight: 600, color: tc.textFaint }}>{MASTERY_POINTS[level]}pts</div>
       <div style={{ fontSize: 9, fontWeight: 600, color: tc.textSecondary, lineHeight: 1.2 }}>{row.topicName.length > 14 ? row.topicName.slice(0, 12) + "\u2026" : row.topicName}</div>
     </div>

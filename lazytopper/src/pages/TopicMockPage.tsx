@@ -13,6 +13,7 @@ import type { SectionKey, LTSubjectKey } from "../data/predictionTypes";
 import { resolveTopicDisplayName, normalizeTopicKey } from "../utils/topicResolver";
 import ReturnContextBar from "../components/ux/ReturnContextBar";
 import { ExamStrategyTips, TimeGuideChip, InternalChoiceTip } from "../components/exam/ExamStrategyTips";
+import { CountUpReveal } from "../components/celebrations";
 import { trackUxEvent } from "../services/uxTelemetry";
 import * as gam from "../utils/gamification";
 import { markMockDone } from "../services/guidedJourneyService";
@@ -507,7 +508,7 @@ function ReviewPhase({ paper, analytics, answers, onGoToWeakPractice, onRetake, 
         <div style={{ fontSize: "0.72rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)", marginBottom: 8 }}>
           Mock Result — {paper.topicDisplayName} — Set {paper.setIndex}
         </div>
-        <div style={{ fontSize: "3rem", fontWeight: 800, color: scoreColor }}>{analytics.percentScore}%</div>
+        <CountUpReveal value={analytics.percentScore} style={{ fontSize: "3rem", fontWeight: 800, color: scoreColor }} />
         <div style={{ fontSize: "0.9rem", color: "rgba(255,255,255,0.6)", marginTop: 4 }}>
           {analytics.marksScored} / {analytics.totalMarks} marks
         </div>

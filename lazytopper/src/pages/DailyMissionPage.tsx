@@ -10,6 +10,8 @@ import {
   upsertNodeProgress,
 } from "../services/topicHubMastery";
 import { computeGlobalStreak, getUnlockedBadge } from "../services/streakService";
+import { ConfettiCelebration } from "../components/celebrations";
+import "../components/celebrations/celebrations.css";
 import type { StudySessionLog } from "../services/sessionLogger";
 import {
   generateDailyMission,
@@ -370,16 +372,17 @@ export default function DailyMissionPage() {
     <div className="lt-page" style={{ maxWidth: 680, margin: "0 auto", padding: "24px 16px", minHeight: "100vh" }}>
       <MissionBackNav />
 
+      <ConfettiCelebration visible={showCelebration} duration={5000} />
       {showCelebration && (
         <div style={{
           position: "fixed", inset: 0, display: "flex", alignItems: "center", justifyContent: "center",
-          background: "rgba(0,0,0,0.6)", zIndex: 9999, animation: "fadeIn 0.3s ease",
+          background: "rgba(0,0,0,0.6)", zIndex: 9998, animation: "fadeIn 0.3s ease",
         }}>
-          <div style={{
+          <div className="lt-cel-milestone-card" style={{
             background: "#0a0a0a", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 20,
             padding: "40px 32px", textAlign: "center", maxWidth: 400, boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
           }}>
-            <div style={{ fontSize: 64, marginBottom: 12 }}>🏆</div>
+            <div className="lt-cel-day-complete" style={{ fontSize: 64, marginBottom: 12 }}>🏆</div>
             <h2 style={{ fontWeight: 900, fontSize: 24, margin: 0 }}>Mission Complete!</h2>
             <p style={{ opacity: 0.7, marginTop: 8, fontSize: 15 }}>
               {mission.isWeekend ? "Weekend extended mission" : "30-minute daily mission"} finished!
@@ -394,7 +397,7 @@ export default function DailyMissionPage() {
                 <div style={{ opacity: 0.5, fontSize: 11 }}>Segments</div>
               </div>
               <div style={{ textAlign: "center" }}>
-                <div style={{ fontSize: 24, color: "#3b82f6" }}>{streakDays}</div>
+                <div style={{ fontSize: 36, fontWeight: 800, color: "#ff9600" }}>🔥 <span className="lt-cel-streak-num">{streakDays}</span></div>
                 <div style={{ opacity: 0.5, fontSize: 11 }}>Day streak</div>
               </div>
             </div>

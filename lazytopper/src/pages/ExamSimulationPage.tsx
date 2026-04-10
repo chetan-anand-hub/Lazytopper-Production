@@ -13,6 +13,7 @@ import { trackUxEvent } from "../services/uxTelemetry";
 import * as gam from "../utils/gamification";
 import ReturnContextBar from "../components/ux/ReturnContextBar";
 import { BreathingMoment } from "../components/ux/BreathingMoment";
+import { CountUpReveal } from "../components/celebrations";
 import { ExamStrategyTips, TimeGuideChip, InternalChoiceTip } from "../components/exam/ExamStrategyTips";
 
 type Phase = "setup" | "breathing" | "taking" | "review";
@@ -616,6 +617,9 @@ function ExamReviewView({ paper, analytics, answers, subject, wallClockSec, onNe
   const scoreColor = analytics.percentScore >= 70 ? "#16a34a" : analytics.percentScore >= 40 ? "#f59e0b" : "#ef4444";
   const [showFullReview, setShowFullReview] = useState(false);
   const pastScores = getMockScoresForSubject(subject).sort((a, b) => a.timestamp - b.timestamp).slice(-10);
+  const previousBest = pastScores.length > 1
+    ? Math.max(...pastScores.slice(0, -1).map(s => s.percent ?? 0))
+    : null;
 
   return (
     <div style={{ minHeight: "100vh", background: "#0a0a0a", paddingBottom: 80 }}>
@@ -627,7 +631,7 @@ function ExamReviewView({ paper, analytics, answers, subject, wallClockSec, onNe
           <div style={{ fontSize: "0.72rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)", marginBottom: 8 }}>
             {subject} Full-Length Mock — Result
           </div>
-          <div style={{ fontSize: "3.5rem", fontWeight: 800, color: scoreColor }}>{analytics.percentScore}%</div>
+          <CountUpReveal value={analytics.percentScore} previousBest={previousBest} style={{ fontSize: "3.5rem", fontWeight: 800, color: scoreColor }} />
           <div style={{ fontSize: "1rem", color: "rgba(255,255,255,0.6)", marginTop: 4 }}>
             {analytics.marksScored} / {analytics.totalMarks} marks
           </div>
