@@ -4917,8 +4917,11 @@ function toClaudeMessages(messages) {
  * @returns {{ provider: 'gemini'|'claude', model: string }}
  */
 function selectModelForRequest(mode, userQuery) {
-  const visualModes = ['visual', 'generate_visual', 'concept_teach_visual'];
-  if (visualModes.includes(mode)) {
+  const sonnetModes = [
+    'visual', 'generate_visual', 'concept_teach_visual',
+    'concept_teach', 'diagram',
+  ];
+  if (sonnetModes.includes(mode) && HAS_ANTHROPIC_PROXY) {
     return { provider: 'claude', model: CLAUDE_MODEL_SONNET };
   }
 
@@ -4992,6 +4995,7 @@ async function handleRequest(req, res) {
       reqPath === '/api/check-solution' ||
       reqPath === '/api/tutor-feedback' ||
       reqPath === '/api/generate-diagram' ||
+      reqPath === '/api/generate-visual' ||
       reqPath === '/api/session/start' ||
       reqPath === '/api/share-token' ||
       /^\/api\/session\/[^/]+$/.test(reqPath) ||
@@ -6820,6 +6824,15 @@ The visual should help a student understand this concept deeply and remember it 
       html = html.replace(/<script[^>]*src\s*=\s*["'][^"']*["'][^>]*>[\s\S]*?<\/script>/gi, '');
       html = html.replace(/<link[^>]*href\s*=\s*["']https?:\/\/[^"']*["'][^>]*\/?>/gi, '');
       html = html.replace(/@import\s+url\(['"]?https?:\/\/[^)'"]+['"]?\)\s*;?/gi, '');
+
+      html = html.replace(/fetch\s*\(\s*['"`]https?:\/\/[^)]*\)/gi, '/* blocked external fetch */');
+      html = html.replace(/new\s+XMLHttpRequest/gi, '/* blocked XHR */');
+      html = html.replace(/new\s+WebSocket/gi, '/* blocked WebSocket */');
+      html = html.replace(/new\s+EventSource/gi, '/* blocked EventSource */');
+      html = html.replace(/navigator\s*\.\s*sendBeacon/gi, '/* blocked sendBeacon */');
+      html = html.replace(/document\s*\.\s*createElement\s*\(\s*['"`]script['"`]\s*\)/gi, '/* blocked dynamic script */');
+      html = html.replace(/<iframe[\s\S]*?<\/iframe>/gi, '');
+      html = html.replace(/<iframe[^>]*\/?>/gi, '');
 
       return sendJson(res, 200, {
         ok: true,
