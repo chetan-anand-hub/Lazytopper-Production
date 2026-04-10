@@ -502,7 +502,7 @@ const TrendsPage: React.FC = () => {
                           </span>
                           {ml !== "not_started" && (
                             ml === "mastered" ? (
-                              <MasteredBadge animate={(() => { const k = `${grade}-${subjectKey}-${topicKey}`; if (isNewlyMastered(k)) { setTimeout(() => clearNewlyMastered(k), 1000); return true; } return false; })()} />
+                              <AnimatedMasteredBadge chapterKey={`${grade}-${subjectKey}-${topicKey}`} />
                             ) : (
                               <span style={{
                                 borderRadius: 999, padding: "2px 8px", fontSize: "0.68rem", fontWeight: 600,
@@ -696,5 +696,19 @@ const TrendsPage: React.FC = () => {
     </div>
   );
 };
+
+function AnimatedMasteredBadge({ chapterKey }: { chapterKey: string }) {
+  const [shouldAnimate, setShouldAnimate] = useState(false);
+
+  useEffect(() => {
+    if (isNewlyMastered(chapterKey)) {
+      setShouldAnimate(true);
+      const t = setTimeout(() => clearNewlyMastered(chapterKey), 1000);
+      return () => clearTimeout(t);
+    }
+  }, [chapterKey]);
+
+  return <MasteredBadge animate={shouldAnimate} />;
+}
 
 export default TrendsPage;

@@ -123,6 +123,14 @@ export default function TopicMockPage() {
     } else {
       if (timerRef.current) clearInterval(timerRef.current);
       const result = computeAnalytics(paper, answers);
+      const histKey = `lazytopper.topic_mock_scores.${topicKey}`;
+      try {
+        const prev: number[] = JSON.parse(localStorage.getItem(histKey) || "[]");
+        const best = prev.length > 0 ? Math.max(...prev) : undefined;
+        if (best !== undefined) (result as any)._previousBest = best;
+        prev.push(result.percentScore);
+        localStorage.setItem(histKey, JSON.stringify(prev.slice(-20)));
+      } catch {}
       setAnalytics(result);
       setPhase("review");
       gam.awardXP(25);
@@ -508,7 +516,7 @@ function ReviewPhase({ paper, analytics, answers, onGoToWeakPractice, onRetake, 
         <div style={{ fontSize: "0.72rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)", marginBottom: 8 }}>
           Mock Result — {paper.topicDisplayName} — Set {paper.setIndex}
         </div>
-        <CountUpReveal value={analytics.percentScore} style={{ fontSize: "3rem", fontWeight: 800, color: scoreColor }} />
+        <CountUpReveal value={analytics.percentScore} previousBest={(analytics as any)._previousBest} style={{ fontSize: "3rem", fontWeight: 800, color: scoreColor }} />
         <div style={{ fontSize: "0.9rem", color: "rgba(255,255,255,0.6)", marginTop: 4 }}>
           {analytics.marksScored} / {analytics.totalMarks} marks
         </div>

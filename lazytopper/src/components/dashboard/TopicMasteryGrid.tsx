@@ -1,4 +1,5 @@
 
+import { useState, useEffect } from "react";
 import { useThemeColors, type PerformanceRow } from "./dashboardUtils";
 import {
   getChapterMasteryLevel,
@@ -29,6 +30,17 @@ function MasteryRing({ row, subject, gradeNum, navigate, getRowMasteryLevel }: {
 }) {
   const tc = useThemeColors();
   const level = getRowMasteryLevel(row);
+  const chapterKey = `${gradeNum}-${subject}-${row.topicKey}`;
+  const [shouldAnimate, setShouldAnimate] = useState(false);
+
+  useEffect(() => {
+    if (level === "mastered" && isNewlyMastered(chapterKey)) {
+      setShouldAnimate(true);
+      const t = setTimeout(() => clearNewlyMastered(chapterKey), 1000);
+      return () => clearTimeout(t);
+    }
+  }, [level, chapterKey]);
+
   return (
     <div style={{ textAlign: "center", cursor: "pointer" }} onClick={() => navigate(`/topic-hub/${gradeNum}/${subject}/${encodeURIComponent(row.topicKey)}`, { state: { back: "/dashboard", backLabel: "Back to Dashboard" } })}>
       <div style={{ position: "relative", width: 48, height: 48, margin: "0 auto 4px" }}>
@@ -41,7 +53,7 @@ function MasteryRing({ row, subject, gradeNum, navigate, getRowMasteryLevel }: {
         </svg>
       </div>
       {level === "mastered" ? (
-        <MasteredBadge animate={(() => { const k = row.topicKey; if (isNewlyMastered(k)) { setTimeout(() => clearNewlyMastered(k), 1000); return true; } return false; })()} />
+        <MasteredBadge animate={shouldAnimate} />
       ) : (
         <div style={{ fontSize: 8, fontWeight: 700, color: MASTERY_COLORS[level], marginBottom: 1 }}>{MASTERY_LABELS[level]}</div>
       )}
