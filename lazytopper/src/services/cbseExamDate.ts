@@ -88,9 +88,23 @@ export function clearCbseExamDateAdminOverride(studentClass: "10" | "12"): void 
   writeAdminOverrideMap(map);
 }
 
-export function predictCbseExamDate(_studentClass: "10" | "12"): string {
+export function predictCbseExamDate(studentClass: "10" | "12"): string {
+  const officialDates: Record<string, Record<string, string>> = {
+    "2025-26": { "10": "2026-02-17", "12": "2026-02-17" },
+  };
+
   const now = new Date();
   const month = now.getMonth() + 1;
+  const academicYear = month >= 4 ? now.getFullYear() : now.getFullYear() - 1;
+  const sessionKey = `${academicYear}-${String(academicYear + 1).slice(2)}`;
+
+  const official = officialDates[sessionKey]?.[studentClass];
+  if (official) {
+    const officialUtc = new Date(`${official}T00:00:00Z`).getTime();
+    const todayUtc = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+    if (officialUtc >= todayUtc) return official;
+  }
+
   let year = month >= 8 ? now.getFullYear() + 1 : now.getFullYear();
   const tentativeDay = 17;
   const todayUtc = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
