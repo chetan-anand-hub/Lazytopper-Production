@@ -832,6 +832,12 @@ const packTopicKey = useMemo(() => {
             const diff = String(question.difficulty ?? "Medium");
             setSelfAssessments((prev) => ({ ...prev, [question.id]: "need_practice" }));
             recordQuestionAnswered();
+            try {
+              if (localStorage.getItem(FIRST_PRACTICE_KEY) === "started") {
+                trackUxEvent("first_practice_complete", "practice", {});
+                localStorage.setItem(FIRST_PRACTICE_KEY, "complete");
+              }
+            } catch {}
             recordPracticeInPhase(canonicalTopicKey || topicParam, authUserForJourney?.uid);
             const nextTracker = recordSelfAssessment(sessionTracker, question.id, "need_practice", concept, diff);
             const pendingFollowUp = nextTracker.followUpQueue.find(

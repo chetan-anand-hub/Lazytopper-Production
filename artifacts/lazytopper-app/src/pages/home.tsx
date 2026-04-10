@@ -448,6 +448,43 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* PRICING CTA */}
+      <section className="section-h relative px-6 md:px-12 py-24 bg-gradient-to-b from-[#020617] to-[#0a0410]">
+        <div className="max-w-4xl mx-auto w-full text-center">
+          <h2 className="font-display text-4xl md:text-6xl font-bold mb-6">Start free. <span className="text-[#22c55e]">Upgrade when ready.</span></h2>
+          <p className="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto mb-12">
+            Predictions, AI mentor, mock tests — everything you need to ace boards. Free plan included.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto mb-12">
+            <div className="glass-panel rounded-3xl p-8 text-left">
+              <div className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">Free</div>
+              <div className="font-display text-4xl font-bold mb-4">₹0</div>
+              <ul className="space-y-3 text-gray-300 text-sm">
+                {["Top 5 predicted topics", "3 practice questions/day", "Basic exam trends"].map((f, i) => (
+                  <li key={i} className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-gray-500 flex-shrink-0" />{f}</li>
+                ))}
+              </ul>
+            </div>
+            <div className="relative rounded-3xl p-8 text-left bg-gradient-to-br from-[#22c55e]/10 to-transparent border border-[#22c55e]/30">
+              <div className="absolute -top-3 right-6 bg-[#22c55e] text-black text-xs font-bold px-3 py-1 rounded-full">Popular</div>
+              <div className="text-sm font-bold text-[#22c55e] uppercase tracking-wider mb-2">Premium</div>
+              <div className="font-display text-4xl font-bold mb-1">₹149<span className="text-lg text-gray-400 font-normal">/mo</span></div>
+              <div className="text-xs text-gray-500 mb-4">7-day free trial</div>
+              <ul className="space-y-3 text-gray-300 text-sm">
+                {["All predicted topics + probabilities", "Unlimited AI practice", "Full mock tests & analytics", "AI Mentor (explain, solve, coach)"].map((f, i) => (
+                  <li key={i} className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#22c55e] flex-shrink-0" />{f}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          <a href="/app/pricing" className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-white/5 border border-white/10 text-white font-bold text-sm hover:bg-white/10 transition-colors no-underline">
+            See Full Pricing & FAQ <ChevronRight className="w-4 h-4" />
+          </a>
+        </div>
+      </section>
+
       {/* 7. FINAL CTA */}
       <section className="min-h-[70vh] flex flex-col items-center justify-center px-6 md:px-12 py-24 bg-[#0a0410] relative overflow-hidden">
         <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none">

@@ -17,16 +17,13 @@ export default function FunnelPage() {
 
   const stepCounts = useMemo(() => {
     const counts: Record<string, number> = {};
-    const uniqueByStep = new Map<string, Set<string>>();
-    for (const evt of events) {
-      const step = FUNNEL_STEPS.find(s => s.key === evt.name);
-      if (!step) continue;
-      if (!uniqueByStep.has(step.key)) uniqueByStep.set(step.key, new Set());
-      const sessionId = evt.meta?.sessionId ? String(evt.meta.sessionId) : evt.ts.slice(0, 13);
-      uniqueByStep.get(step.key)!.add(sessionId);
-    }
     for (const step of FUNNEL_STEPS) {
-      counts[step.key] = uniqueByStep.get(step.key)?.size ?? 0;
+      counts[step.key] = 0;
+    }
+    for (const evt of events) {
+      if (counts[evt.name] !== undefined) {
+        counts[evt.name]++;
+      }
     }
     return counts;
   }, [events]);
