@@ -17,7 +17,7 @@ import {
   type StoredPaceProfile,
 } from "../services/paceProfileService";
 import { isFocusTrackingEnabled, setFocusTrackingEnabled } from "../services/focusTracker";
-import { getReferralData, getReferralLink, getWhatsAppShareUrl } from "../services/referralService";
+import { getReferralData, getReferralLink, getWhatsAppShareUrl, generateQRDataUrl } from "../services/referralService";
 import { useTheme, type AppTheme } from "../context/ThemeContext";
 import {
   masteryFromLegacyPercent,
@@ -1251,9 +1251,11 @@ function MentalHealthResources() {
 
 function ReferralSection() {
   const [copied, setCopied] = useState(false);
+  const [showQR, setShowQR] = useState(false);
   const referral = useMemo(() => getReferralData(), []);
   const link = getReferralLink(referral.code);
   const whatsappUrl = getWhatsAppShareUrl(referral.code);
+  const qrDataUrl = useMemo(() => generateQRDataUrl(link, 200), [link]);
   const progress = Math.min(referral.referrals.length, 3);
   const earned = referral.rewardWeeksEarned > 0;
 
@@ -1303,6 +1305,15 @@ function ReferralSection() {
         {referral.code}
       </div>
 
+      {showQR && (
+        <div style={{
+          display: "flex", justifyContent: "center", marginBottom: 12,
+          padding: 12, borderRadius: 10, background: "#fff",
+        }}>
+          <img src={qrDataUrl} alt="Referral QR Code" width={160} height={160} style={{ imageRendering: "pixelated" }} />
+        </div>
+      )}
+
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
         <a
           href={whatsappUrl}
@@ -1330,6 +1341,20 @@ function ReferralSection() {
           }}
         >
           {copied ? "Copied!" : "Copy Link"}
+        </button>
+        <button
+          type="button"
+          onClick={() => setShowQR(q => !q)}
+          style={{
+            flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+            padding: "8px 12px", borderRadius: 10,
+            background: showQR ? "rgba(168,85,247,0.15)" : "rgba(255,255,255,0.06)",
+            border: "1px solid rgba(255,255,255,0.1)",
+            color: showQR ? "#c084fc" : "rgba(255,255,255,0.7)",
+            fontWeight: 700, fontSize: "0.78rem", cursor: "pointer",
+          }}
+        >
+          QR Code
         </button>
       </div>
     </div>

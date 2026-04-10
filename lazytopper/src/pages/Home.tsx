@@ -631,6 +631,17 @@ const Home: React.FC = () => {
               <span className="lt-pricing__pack-save">Save ₹789 — less than ₹3/day</span>
             </div>
           </div>
+
+          <div style={{ textAlign: "center", marginTop: 16 }}>
+            <button
+              type="button"
+              className="lt-hero__cta lt-hero__cta--secondary"
+              style={{ fontSize: "0.85rem", padding: "10px 24px" }}
+              onClick={() => navigate("/pricing")}
+            >
+              See Full Pricing & FAQ
+            </button>
+          </div>
         </section>
 
         {/* MOBILE APP */}
