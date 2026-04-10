@@ -70,7 +70,12 @@ TypeScript is used consistently. All packages utilize TypeScript composite proje
 - **Validation**: Zod (`zod/v4`), `drizzle-zod`
 - **API Codegen**: Orval
 - **Build Tool**: esbuild
-- **AI Provider**: Replit AI Integration proxy for Gemini API (`gemini-2.5-flash`)
+- **AI Providers**: Dual-provider setup via Replit AI Integration proxy:
+  - **Gemini** (`gemini-2.5-flash`): Primary provider for tutoring chat, structured responses, teach contracts, image-based solution checking
+  - **Claude** (Sonnet `claude-sonnet-4-6`, Haiku `claude-haiku-4-5`): Visual explainer generation (Sonnet), simple factual queries (Haiku)
+  - Smart routing via `selectModelForRequest()`: visual modes → Claude Sonnet, short factual queries → Claude Haiku, complex/multi-turn chat → Gemini
+  - Conversation history truncated to last 4 turns (`MAX_HISTORY_TURNS`) for cost optimization
+  - New endpoint: `/api/generate-visual` — generates self-contained interactive HTML visual explainers
 - **LaTeX Rendering**: KaTeX library (`MathText` component)
 - **Image Upload for Solution Checking**: Gemini Vision API
 - **Animated Video**: artifacts/lazytopper-video — 30s 6-scene product explainer (Problem → Setup → Habit → Adaptive Practice → AI Mentor → Reward) using React, Framer Motion, Tailwind CSS. Uses Space Grotesk + DM Sans fonts, dark palette with #22c55e green accent. Embedded as iframe at `/lazytopper-video/` in the homepage.

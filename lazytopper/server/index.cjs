@@ -154,7 +154,7 @@ const REPLIT_ANTHROPIC_BASE_URL = REPLIT_ANTHROPIC_BASE_URL_RAW;
 
 const CLAUDE_MODEL_SONNET = 'claude-sonnet-4-6';
 const CLAUDE_MODEL_HAIKU = 'claude-haiku-4-5';
-const ANTHROPIC_TIMEOUT_MS = Math.max(5000, Number(process.env.ANTHROPIC_TIMEOUT_MS || 30000) || 30000);
+const ANTHROPIC_TIMEOUT_MS = Math.max(5000, Number(process.env.ANTHROPIC_TIMEOUT_MS || 60000) || 60000);
 
 if (HAS_REPLIT_PROXY) {
   ENV_USED.push('AI_INTEGRATIONS_GEMINI (Replit proxy)');
@@ -5615,9 +5615,9 @@ Question: ${questionText}`;
       return sendJson(res, 400, { error: 'Invalid payload' });
     }
 
-    // Gemini content format (multi-turn supported):
-    // We keep the system prompt as a leading instruction message,
-    // then replay prior chat history (if any), then append the latest user prompt.
+    const originalQuery = payload?.questionText || payload?.studentQuestion || payload?.prompt || payload?.question || '';
+    const routingDecision = selectModelForRequest(normalisedMode, originalQuery);
+
     const history = toGeminiContents(reqJson && reqJson.messages);
     const contents = [
       { role: 'user', parts: [{ text: String(systemPrompt || '').trim() }] },
@@ -5650,6 +5650,19 @@ Question: ${questionText}`;
 
     const isTeachContract = isTeachContractRequest(payload, normalisedMode);
 
+    async function callRoutedModel(model, geminiContents, config, sysPrompt) {
+      if (routingDecision.provider === 'claude' && HAS_ANTHROPIC_PROXY) {
+        const claudeMsgs = toClaudeMessages(reqJson && reqJson.messages);
+        claudeMsgs.push({ role: 'user', content: String(config._userPrompt || '') });
+        const claudeConfig = {
+          maxTokens: config.maxOutputTokens || 1024,
+          temperature: config.temperature,
+        };
+        return callClaude(routingDecision.model, claudeMsgs, sysPrompt || '', claudeConfig);
+      }
+      return callGemini(model, geminiContents, config);
+    }
+
     const buildMentorResponse = async () => {
       const marksRaw = payload && (payload.marks ?? payload.totalMarks ?? payload.total_marks);
       const marksNum = Number(marksRaw);
@@ -5664,10 +5677,11 @@ Question: ${questionText}`;
           { role: 'user', parts: [{ text: userPrompt }] },
         ].filter((c) => c && c.parts && c.parts[0] && String(c.parts[0].text || '').trim());
 
-        const reply = await callGemini(GEMINI_MODEL, contents, {
+        const reply = await callRoutedModel(GEMINI_MODEL, contents, {
           maxOutputTokens: 1600,
           temperature: 0.7,
-        });
+          _userPrompt: userPrompt,
+        }, systemPrompt);
 
         const responseText = (reply.text || '').trim();
         const trace = {
@@ -5675,6 +5689,8 @@ Question: ${questionText}`;
           handler_used: 'conversational_teach',
           schema_used: 'text',
           repair_used: false,
+          provider: routingDecision.provider,
+          model_used: routingDecision.model,
         };
         return {
           status: 200,
@@ -5716,16 +5732,21 @@ ${userPrompt}` }];
       }
       const contents = [{ role: 'user', parts: requestParts }];
 
-      const reply = await callGemini(GEMINI_MODEL, contents, {
-        maxOutputTokens,
-        temperature:
-          normalisedMode === 'board_steps_ms' || normalisedMode === 'learn_proof'
-            ? 0.2
-            : normalisedMode === 'learn_teach'
-              ? 0.25
-              : 0.35,
-        responseMimeType,
-      });
+      const temperature =
+        normalisedMode === 'board_steps_ms' || normalisedMode === 'learn_proof'
+          ? 0.2
+          : normalisedMode === 'learn_teach'
+            ? 0.25
+            : 0.35;
+
+      const useGeminiFallback = Boolean(mentorImage) || Boolean(responseMimeType);
+      const reply = useGeminiFallback
+        ? await callGemini(GEMINI_MODEL, contents, { maxOutputTokens, temperature, responseMimeType })
+        : await callRoutedModel(GEMINI_MODEL, contents, {
+            maxOutputTokens,
+            temperature,
+            _userPrompt: userPrompt,
+          }, systemPrompt);
 
       let finalText = reply.text;
       let structured = null;
@@ -6051,11 +6072,15 @@ ${userPrompt}` }];
             : structured && ['learn_teach', 'learn_mindmap', 'learn_proof', 'board_steps_ms'].includes(String(structured.kind || ''))
               ? structured
               : null;
+      const actualProvider = useGeminiFallback ? 'gemini' : routingDecision.provider;
+      const actualModel = useGeminiFallback ? GEMINI_MODEL : routingDecision.model;
       const trace = {
         normalized_mode: normalisedMode,
         handler_used: handlerUsed,
         schema_used: schemaUsedTrace,
         repair_used: repairUsed,
+        provider: actualProvider,
+        model_used: actualModel,
       };
       if (fallbackUsed) trace.fallback_used = true;
       if (isTeachContract) {
