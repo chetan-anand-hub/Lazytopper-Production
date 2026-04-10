@@ -1,3 +1,5 @@
+import QRCode from "qrcode";
+
 const REFERRAL_KEY = "lazytopper.referral.v1";
 const PENDING_REFERRAL_KEY = "lazytopper.pending_referral";
 const REFERRAL_CREDITED_KEY = "lazytopper.referral_credited";
@@ -174,53 +176,11 @@ export function creditPendingReferral(newUserIdentifier: string): void {
   } catch {}
 }
 
-export function generateQRDataUrl(text: string, size: number = 200): string {
-  const modules = encodeToQRModules(text);
-  const n = modules.length;
-  const cellSize = Math.floor(size / n);
-  const totalSize = cellSize * n;
-  let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${totalSize}" height="${totalSize}" viewBox="0 0 ${totalSize} ${totalSize}">`;
-  svg += `<rect width="${totalSize}" height="${totalSize}" fill="white"/>`;
-  for (let r = 0; r < n; r++) {
-    for (let c = 0; c < n; c++) {
-      if (modules[r][c]) {
-        svg += `<rect x="${c * cellSize}" y="${r * cellSize}" width="${cellSize}" height="${cellSize}" fill="black"/>`;
-      }
-    }
-  }
-  svg += `</svg>`;
-  return `data:image/svg+xml;base64,${btoa(svg)}`;
-}
-
-function encodeToQRModules(text: string): boolean[][] {
-  const size = 21;
-  const grid: boolean[][] = Array.from({ length: size }, () => Array(size).fill(false));
-  addFinderPattern(grid, 0, 0);
-  addFinderPattern(grid, 0, size - 7);
-  addFinderPattern(grid, size - 7, 0);
-  const bytes = new TextEncoder().encode(text);
-  let bitIdx = 0;
-  for (let r = 8; r < size - 8; r++) {
-    for (let c = 8; c < size - 8; c++) {
-      if (bitIdx < bytes.length * 8) {
-        const byteIndex = Math.floor(bitIdx / 8);
-        const bitPos = 7 - (bitIdx % 8);
-        grid[r][c] = Boolean((bytes[byteIndex] >> bitPos) & 1);
-        bitIdx++;
-      } else {
-        grid[r][c] = (r + c) % 2 === 0;
-      }
-    }
-  }
-  return grid;
-}
-
-function addFinderPattern(grid: boolean[][], startR: number, startC: number): void {
-  for (let r = 0; r < 7; r++) {
-    for (let c = 0; c < 7; c++) {
-      const isOuter = r === 0 || r === 6 || c === 0 || c === 6;
-      const isInner = r >= 2 && r <= 4 && c >= 2 && c <= 4;
-      grid[startR + r][startC + c] = isOuter || isInner;
-    }
-  }
+export async function generateQRDataUrl(text: string, width: number = 200): Promise<string> {
+  return QRCode.toDataURL(text, {
+    width,
+    margin: 2,
+    color: { dark: "#000000", light: "#ffffff" },
+    errorCorrectionLevel: "M",
+  });
 }

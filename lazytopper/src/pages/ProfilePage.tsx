@@ -1252,10 +1252,14 @@ function MentalHealthResources() {
 function ReferralSection() {
   const [copied, setCopied] = useState(false);
   const [showQR, setShowQR] = useState(false);
+  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const referral = useMemo(() => getReferralData(), []);
   const link = getReferralLink(referral.code);
   const whatsappUrl = getWhatsAppShareUrl(referral.code);
-  const qrDataUrl = useMemo(() => generateQRDataUrl(link, 200), [link]);
+
+  useEffect(() => {
+    generateQRDataUrl(link, 200).then(setQrDataUrl).catch(() => {});
+  }, [link]);
   const progress = Math.min(referral.referrals.length, 3);
   const earned = referral.rewardWeeksEarned > 0;
 
@@ -1305,12 +1309,12 @@ function ReferralSection() {
         {referral.code}
       </div>
 
-      {showQR && (
+      {showQR && qrDataUrl && (
         <div style={{
           display: "flex", justifyContent: "center", marginBottom: 12,
           padding: 12, borderRadius: 10, background: "#fff",
         }}>
-          <img src={qrDataUrl} alt="Referral QR Code" width={160} height={160} style={{ imageRendering: "pixelated" }} />
+          <img src={qrDataUrl} alt="Referral QR Code" width={160} height={160} />
         </div>
       )}
 
