@@ -19,7 +19,12 @@ export default function Login() {
   }, [location.state]);
 
   useEffect(() => {
+    trackUxEvent("login_start", "login", {});
+  }, []);
+
+  useEffect(() => {
     if (user) {
+      trackUxEvent("login_complete", "login", {});
       navigate(nextPath, { replace: true });
     }
   }, [user, nextPath, navigate]);

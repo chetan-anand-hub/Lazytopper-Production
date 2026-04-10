@@ -17,6 +17,7 @@ import {
   type StoredPaceProfile,
 } from "../services/paceProfileService";
 import { isFocusTrackingEnabled, setFocusTrackingEnabled } from "../services/focusTracker";
+import { getReferralData, getReferralLink, getWhatsAppShareUrl } from "../services/referralService";
 import { useTheme, type AppTheme } from "../context/ThemeContext";
 import {
   masteryFromLegacyPercent,
@@ -749,6 +750,8 @@ export default function ProfilePage() {
 
       <UpgradeModal open={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} />
 
+      <ReferralSection />
+
       <div style={{ display: "flex", gap: 0, marginBottom: 20, background: "rgba(255,255,255,0.06)", borderRadius: 12, padding: 3 }}>
         {(["overview", "achievements", "stats"] as ProfileTab[]).map((t) => (
           <button
@@ -1241,6 +1244,93 @@ function MentalHealthResources() {
             <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)" }}>1860-2662-345 · 24/7</div>
           </div>
         </a>
+      </div>
+    </div>
+  );
+}
+
+function ReferralSection() {
+  const [copied, setCopied] = useState(false);
+  const referral = useMemo(() => getReferralData(), []);
+  const link = getReferralLink(referral.code);
+  const whatsappUrl = getWhatsAppShareUrl(referral.code);
+  const progress = Math.min(referral.referrals.length, 3);
+  const earned = referral.rewardWeeksEarned > 0;
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(link).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }).catch(() => {});
+  };
+
+  return (
+    <div style={{
+      borderRadius: 14, padding: "16px", marginBottom: 20,
+      background: "linear-gradient(135deg, rgba(168,85,247,0.08) 0%, rgba(59,130,246,0.06) 100%)",
+      border: "1px solid rgba(168,85,247,0.15)",
+    }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+        <span style={{ fontSize: 18 }}>🎁</span>
+        <div>
+          <div style={{ fontWeight: 800, fontSize: "0.88rem", color: "#c084fc" }}>Invite Friends</div>
+          <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.45)" }}>
+            Invite 3 friends, get 1 week Premium free!
+          </div>
+        </div>
+      </div>
+
+      <div style={{ display: "flex", gap: 4, marginBottom: 10 }}>
+        {[0, 1, 2].map(i => (
+          <div key={i} style={{
+            flex: 1, height: 6, borderRadius: 999,
+            background: i < progress ? "#a855f7" : "rgba(255,255,255,0.08)",
+            transition: "background 0.3s",
+          }} />
+        ))}
+      </div>
+      <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.4)", marginBottom: 12 }}>
+        {progress}/3 friends joined
+        {earned && <span style={{ color: "#22c55e", marginLeft: 8 }}>🎉 {referral.rewardWeeksEarned} week{referral.rewardWeeksEarned > 1 ? "s" : ""} earned!</span>}
+      </div>
+
+      <div style={{
+        padding: "8px 12px", borderRadius: 10,
+        background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
+        fontFamily: "monospace", fontSize: "0.88rem", color: "#c084fc",
+        fontWeight: 700, marginBottom: 10, textAlign: "center", letterSpacing: 2,
+      }}>
+        {referral.code}
+      </div>
+
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <a
+          href={whatsappUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+            padding: "8px 12px", borderRadius: 10,
+            background: "#25D366", border: "none",
+            color: "#fff", fontWeight: 700, fontSize: "0.78rem",
+            textDecoration: "none", cursor: "pointer",
+          }}
+        >
+          WhatsApp
+        </a>
+        <button
+          type="button"
+          onClick={handleCopy}
+          style={{
+            flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+            padding: "8px 12px", borderRadius: 10,
+            background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)",
+            color: copied ? "#22c55e" : "rgba(255,255,255,0.7)",
+            fontWeight: 700, fontSize: "0.78rem", cursor: "pointer",
+          }}
+        >
+          {copied ? "Copied!" : "Copy Link"}
+        </button>
       </div>
     </div>
   );

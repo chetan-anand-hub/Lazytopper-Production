@@ -21,7 +21,14 @@ type UxEventName =
   | "chapter_test_complete"
   | "break_reminder_shown"
   | "break_reminder_action"
-  | "breathing_moment_complete";
+  | "breathing_moment_complete"
+  | "landing_page_visit"
+  | "login_start"
+  | "login_complete"
+  | "onboarding_start"
+  | "onboarding_complete"
+  | "first_practice_start"
+  | "first_practice_complete";
 
 export type UxTelemetryEvent = {
   name: UxEventName;

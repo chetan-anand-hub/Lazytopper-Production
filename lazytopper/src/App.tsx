@@ -46,6 +46,8 @@ const ExamSimulationPage = lazy(() => import("./pages/ExamSimulationPage"));
 const LegalPage = lazy(() => import("./pages/LegalPage"));
 const MethodologyPage = lazy(() => import("./pages/MethodologyPage"));
 const TeacherDashboardPage = lazy(() => import("./pages/TeacherDashboardPage"));
+const PricingPage = lazy(() => import("./pages/PricingPage"));
+const FunnelPage = lazy(() => import("./pages/FunnelPage"));
 const NightBeforePage = lazy(() => import("./pages/NightBeforePage"));
 const RevisionCalendarPage = lazy(() => import("./pages/RevisionCalendarPage"));
 const MiniMockPage = lazy(() => import("./pages/MiniMockPage"));
@@ -425,6 +427,17 @@ export default function App() {
           )}
           <button
             type="button"
+            onClick={() => navigate("/pricing")}
+            style={{
+              background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12,
+              padding: "6px 12px", fontSize: "0.78rem", fontWeight: 700,
+              color: "rgba(255,255,255,0.35)", cursor: "pointer",
+            }}
+          >
+            Pricing
+          </button>
+          <button
+            type="button"
             onClick={() => setPaletteOpen(true)}
             title="Search (Ctrl+K)"
             style={{
@@ -491,6 +504,8 @@ export default function App() {
           <Route path="/sign-up" element={<SignUpPage />} />
           <Route path="/sign-up/*" element={<SignUpPage />} />
           <Route path="/legal/:slug" element={withRouteSuspense(<LegalPage />)} />
+          <Route path="/pricing" element={withRouteSuspense(<PricingPage />)} />
+          <Route path="/admin/funnel" element={<RequireAuth>{withRouteSuspense(<FunnelPage />)}</RequireAuth>} />
           <Route path="/methodology" element={withRouteSuspense(<MethodologyPage />)} />
           <Route path="/teacher" element={<RequireAuth><SectionErrorBoundary>{withRouteSuspense(<TeacherDashboardPage />)}</SectionErrorBoundary></RequireAuth>} />
           <Route path="/onboarding" element={<RequireAuth><Onboarding /></RequireAuth>} />

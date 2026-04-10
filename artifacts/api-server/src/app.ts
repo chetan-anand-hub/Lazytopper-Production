@@ -86,5 +86,9 @@ app.use("/app", express.static(publicDir));
 app.get("/app/{*splat}", (_req, res) => {
   res.sendFile(path.join(publicDir, "index.html"));
 });
+app.use("/shared-api/app", express.static(publicDir));
+app.get("/shared-api/app/{*splat}", (_req, res) => {
+  res.sendFile(path.join(publicDir, "index.html"));
+});
 
 export default app;

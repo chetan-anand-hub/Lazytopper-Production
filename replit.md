@@ -51,6 +51,11 @@ Large page components have been split for maintainability:
 **NCERT Chapter References**: All canonical chapters (`cbse10Canonical.ts`) have `ncertChapterNum` field. Topics display as "Ch. X — Topic Name" format on TrendsPage, TopicHub, and StudyPlanPage via `formatChapterTitle()` helper.
 **Exam Strategy Training**: `ExamStrategyTips` component shows pre-mock strategy tips (read all questions first, attempt easy first, internal choice strategy). `TimeGuideChip` shows per-question time allocation (MCQ=1min, 2m=3min, 3m=5min, 5m=10min, Case=8min). `InternalChoiceTip` provides OR-question decision tooltips. Integrated into ExamSimulationPage and TopicMockPage.
 
+## Pricing, Referral & Funnel Analytics
+**Pricing Page** (`/pricing`): Free vs Premium comparison table with feature checklist, ₹149/month pricing, "Start 7-Day Free Trial" CTA, FAQ section, and "Coming Soon" waitlist for ICSE, State Boards, Class 12 with email/phone capture (stored in localStorage `lazytopper.waitlist.v1`). Navbar includes "Pricing" button.
+**Referral Program** (in Profile): Each user gets a unique "LT-XXXXXX" referral code (stored in `lazytopper.referral.v1`). UI shows invite progress (3 referrals = 1 week Premium free), WhatsApp share button, and copy link. Service in `referralService.ts`.
+**Onboarding Funnel Analytics** (`/admin/funnel`): Auth-protected admin page showing 7-step conversion funnel (landing_page_visit → login_start → login_complete → onboarding_start → onboarding_complete → first_practice_start → first_practice_complete) with bar chart and recent events list. Events tracked via `uxTelemetry.ts`.
+
 ## System Design Choices
 TypeScript is used consistently. All packages utilize TypeScript composite projects. API design follows OpenAPI 3.1 with Orval for codegen (React Query hooks, Zod schemas). The API server enforces a 5 MB request body limit. AI tutor responses have increased `maxOutputTokens` (1600) to prevent truncation.
 

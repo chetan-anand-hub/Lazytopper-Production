@@ -93,11 +93,23 @@ interface PracticeNavState {
 
 type SectionFilterValue = "ALL" | "A" | "B" | "C" | "D" | "E";
 
+const FIRST_PRACTICE_KEY = "lazytopper.first_practice_tracked";
+
 const PracticePage: React.FC = () => {
   const location = useLocation();
   const params = useParams<{ grade?: string; subject?: string }>();
   const { recordQuestionAnswered } = usePracticeLimit();
   const { user: authUserForJourney } = useAuth();
+
+  useEffect(() => {
+    try {
+      const tracked = localStorage.getItem(FIRST_PRACTICE_KEY);
+      if (!tracked) {
+        trackUxEvent("first_practice_start", "practice", {});
+        localStorage.setItem(FIRST_PRACTICE_KEY, "started");
+      }
+    } catch {}
+  }, []);
 
   const grade = params.grade || "10";
   const subjectKey: SubjectKey = normaliseSubject(params.subject ?? "Maths");
@@ -801,6 +813,12 @@ const packTopicKey = useMemo(() => {
             const diff = String(question.difficulty ?? "Medium");
             setSelfAssessments((prev) => ({ ...prev, [question.id]: "got_it" }));
             recordQuestionAnswered();
+            try {
+              if (localStorage.getItem(FIRST_PRACTICE_KEY) === "started") {
+                trackUxEvent("first_practice_complete", "practice", {});
+                localStorage.setItem(FIRST_PRACTICE_KEY, "complete");
+              }
+            } catch {}
             recordPracticeInPhase(canonicalTopicKey || topicParam, authUserForJourney?.uid);
             setSessionTracker((prev) => recordSelfAssessment(prev, question.id, "got_it", concept, diff));
             const topicK = canonicalTopicKey || topicParam;

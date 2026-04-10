@@ -5,6 +5,7 @@ import { daysLeftFromIsoDate, fetchCbseExamDate } from "../services/cbseExamDate
 import { cbseDates } from "../config/cbseDates";
 import { checkAndUpdateProfile, detectProfileFromDays, getProfileSummary, getProfileConfig } from "../services/paceProfileService";
 import { hashPin, saveParentPinHash } from "../services/parentPinService";
+import { trackUxEvent } from "../services/uxTelemetry";
 
 function formatIsoDate(iso: string): string {
   const date = new Date(`${iso}T00:00:00`);
@@ -20,6 +21,10 @@ function formatIsoDate(iso: string): string {
 export default function Onboarding() {
   const navigate = useNavigate();
   const { loadingProfile, setProfileAndCompute } = useProfile();
+
+  useEffect(() => {
+    trackUxEvent("onboarding_start", "onboarding", {});
+  }, []);
 
   const [examDate, setExamDate] = useState("");
   const [examDateSource, setExamDateSource] = useState<"official" | "predicted">("predicted");
@@ -114,6 +119,7 @@ export default function Onboarding() {
     };
     checkAndUpdateProfile(daysLeft);
     setProfileAndCompute(nextProfile);
+    trackUxEvent("onboarding_complete", "onboarding", { target: String(targetPercent) });
     navigate("/dashboard");
   };
 

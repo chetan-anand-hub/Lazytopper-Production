@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { trackUxEvent } from "../services/uxTelemetry";
 import "./home.css";
 
 type MetaAttr = "name" | "property";
@@ -273,6 +274,8 @@ const Home: React.FC = () => {
     upsertMeta("name", "twitter:image", `${baseUrl}/og-image.png`);
 
     upsertCanonical(canonical);
+
+    trackUxEvent("landing_page_visit", "home", {});
 
     upsertJsonLd("lazytopper-home-schema", {
       "@context": "https://schema.org",
