@@ -147,8 +147,20 @@ const REPLIT_GEMINI_API_KEY = String(process.env.AI_INTEGRATIONS_GEMINI_API_KEY 
 const HAS_REPLIT_PROXY = Boolean(REPLIT_GEMINI_BASE_URL_RAW && REPLIT_GEMINI_API_KEY);
 const REPLIT_GEMINI_BASE_URL = REPLIT_GEMINI_BASE_URL_RAW;
 
+const REPLIT_ANTHROPIC_BASE_URL_RAW = String(process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL || '').trim().replace(/\/+$/, '');
+const REPLIT_ANTHROPIC_API_KEY = String(process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY || '').trim();
+const HAS_ANTHROPIC_PROXY = Boolean(REPLIT_ANTHROPIC_BASE_URL_RAW && REPLIT_ANTHROPIC_API_KEY);
+const REPLIT_ANTHROPIC_BASE_URL = REPLIT_ANTHROPIC_BASE_URL_RAW;
+
+const CLAUDE_MODEL_SONNET = 'claude-sonnet-4-6';
+const CLAUDE_MODEL_HAIKU = 'claude-haiku-4-5';
+const ANTHROPIC_TIMEOUT_MS = Math.max(5000, Number(process.env.ANTHROPIC_TIMEOUT_MS || 30000) || 30000);
+
 if (HAS_REPLIT_PROXY) {
   ENV_USED.push('AI_INTEGRATIONS_GEMINI (Replit proxy)');
+}
+if (HAS_ANTHROPIC_PROXY) {
+  ENV_USED.push('AI_INTEGRATIONS_ANTHROPIC (Replit proxy)');
 }
 
 if (RAW_API_KEY) {
@@ -175,9 +187,8 @@ const DIRECT_GEMINI_API_KEY = HAS_DIRECT_KEY ? API_KEY : '';
 const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 const GEMINI_TIMEOUT_MS = Math.max(5000, Number(process.env.GEMINI_TIMEOUT_MS || 20000) || 20000);
 const IS_DEV = String(process.env.NODE_ENV || '').toLowerCase() !== 'production';
-const GEMINI_MODEL_ZOMBIE = process.env.GEMINI_MODEL_ZOMBIE || '';
-const GEMINI_MODEL_BEAST = process.env.GEMINI_MODEL_BEAST || '';
 const REPO_ROOT = process.cwd();
+const MAX_HISTORY_TURNS = 4;
 const FEEDBACK_DIR = path.join(REPO_ROOT, '.project_memory', 'ops', 'feedback');
 const FEEDBACK_FILE = path.join(FEEDBACK_DIR, 'triangles_feedback.jsonl');
 const TEACH_CACHE_TTL_MS = IS_DEV ? 90_000 : 60_000;
@@ -3947,7 +3958,10 @@ function buildCoachUserPrompt(payload) {
 function toGeminiContents(messages) {
   const out = [];
   if (!Array.isArray(messages)) return out;
-  for (const m of messages) {
+  const truncated = messages.length > MAX_HISTORY_TURNS * 2
+    ? messages.slice(-(MAX_HISTORY_TURNS * 2))
+    : messages;
+  for (const m of truncated) {
     if (!m || !m.role) continue;
     const role = m.role === 'assistant' ? 'model' : 'user';
     const text = typeof m.content === 'string' ? m.content : '';
@@ -4807,6 +4821,121 @@ async function callGemini(model, finalContents, config) {
 }
 
 /**
+ * Call Anthropic Claude Messages API (REST).
+ * @param {string} model - e.g. 'claude-sonnet-4-6' or 'claude-haiku-4-5'
+ * @param {Array<{role: string, content: string}>} messages - user/assistant messages
+ * @param {string} systemPrompt - system-level instructions
+ * @param {{temperature?: number, maxTokens?: number}} [config]
+ */
+async function callClaude(model, messages, systemPrompt, config) {
+  if (!HAS_ANTHROPIC_PROXY) {
+    throw new Error('No Anthropic auth available. Set AI_INTEGRATIONS_ANTHROPIC_BASE_URL + AI_INTEGRATIONS_ANTHROPIC_API_KEY (Replit proxy).');
+  }
+
+  const body = {
+    model,
+    max_tokens: config && typeof config.maxTokens === 'number' ? config.maxTokens : 1024,
+    system: systemPrompt || '',
+    messages: (messages || []).map(m => ({
+      role: m.role === 'model' ? 'assistant' : (m.role || 'user'),
+      content: typeof m.content === 'string' ? m.content : (m.parts ? m.parts.map(p => p.text).join('\n') : ''),
+    })).filter(m => m.content.trim()),
+  };
+  if (config && typeof config.temperature === 'number') {
+    body.temperature = config.temperature;
+  }
+
+  const url = `${REPLIT_ANTHROPIC_BASE_URL}/v1/messages`;
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), ANTHROPIC_TIMEOUT_MS);
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': REPLIT_ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+
+    const rawText = await response.text();
+
+    if (!response.ok) {
+      const err = new Error(`Claude request failed: ${response.status} ${response.statusText} - ${rawText}`);
+      err.status = response.status;
+      err.body = rawText;
+      throw err;
+    }
+
+    const data = JSON.parse(rawText || '{}');
+    const text = (data.content || [])
+      .filter(c => c.type === 'text')
+      .map(c => c.text)
+      .join('\n')
+      .trim();
+
+    return { text, raw: data };
+  } catch (err) {
+    if (err && err.name === 'AbortError') {
+      const timeoutErr = new Error(`Claude request timed out after ${ANTHROPIC_TIMEOUT_MS}ms`);
+      timeoutErr.status = 504;
+      throw timeoutErr;
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+/**
+ * Convert app chat messages to Claude messages format, truncated to last N turns.
+ * @param {{role:'user'|'assistant', content:string}[]} messages
+ */
+function toClaudeMessages(messages) {
+  const out = [];
+  if (!Array.isArray(messages)) return out;
+  const truncated = messages.length > MAX_HISTORY_TURNS * 2
+    ? messages.slice(-(MAX_HISTORY_TURNS * 2))
+    : messages;
+  for (const m of truncated) {
+    if (!m || !m.role) continue;
+    const role = m.role === 'assistant' ? 'assistant' : 'user';
+    const text = typeof m.content === 'string' ? m.content : '';
+    if (!text.trim()) continue;
+    out.push({ role, content: text });
+  }
+  return out;
+}
+
+/**
+ * Smart model routing: pick the best model for each request type.
+ * @param {string} mode - normalized mentor mode
+ * @param {string} [userQuery] - the user's query text
+ * @returns {{ provider: 'gemini'|'claude', model: string }}
+ */
+function selectModelForRequest(mode, userQuery) {
+  const visualModes = ['visual', 'generate_visual', 'concept_teach_visual'];
+  if (visualModes.includes(mode)) {
+    return { provider: 'claude', model: CLAUDE_MODEL_SONNET };
+  }
+
+  if (HAS_ANTHROPIC_PROXY) {
+    const queryLen = String(userQuery || '').trim().length;
+    const isSimpleFactual = queryLen > 0 && queryLen < 80 &&
+      /^(what|who|when|where|define|formula|list|name)\b/i.test(String(userQuery || ''));
+
+    if (isSimpleFactual) {
+      return { provider: 'claude', model: CLAUDE_MODEL_HAIKU };
+    }
+  }
+
+  return { provider: 'gemini', model: GEMINI_MODEL };
+}
+
+/**
  * Normalize request shapes:
  * - preferred: { mode, payload, persona? }
  * - legacy/flat: { mode, persona, subject, grade, topicKey, prompt/questionText/... }
@@ -5037,11 +5166,27 @@ async function handleRequest(req, res) {
     return sendJson(res, 200, {
       ok: true,
       service: 'lazytopper-ai-server',
-      provider: ACTIVE_PROVIDER,
-      model: GEMINI_MODEL,
-      modelZombie: GEMINI_MODEL_ZOMBIE || null,
-      modelBeast: GEMINI_MODEL_BEAST || null,
-      hasKey: Boolean(API_KEY),
+      providers: {
+        gemini: {
+          active: !STUB_MODE,
+          model: GEMINI_MODEL,
+          auth: HAS_REPLIT_PROXY ? 'replit-proxy' : (HAS_DIRECT_KEY ? 'direct-key' : 'none'),
+          routes: ['tutoring_chat', 'more_like_this', 'step_solution'],
+        },
+        anthropic: {
+          active: HAS_ANTHROPIC_PROXY,
+          modelSonnet: CLAUDE_MODEL_SONNET,
+          modelHaiku: CLAUDE_MODEL_HAIKU,
+          auth: HAS_ANTHROPIC_PROXY ? 'replit-proxy' : 'none',
+          routes: ['visual_generation', 'factual_queries'],
+        },
+      },
+      routing: {
+        visual: HAS_ANTHROPIC_PROXY ? `claude:${CLAUDE_MODEL_SONNET}` : `gemini:${GEMINI_MODEL}`,
+        factual: HAS_ANTHROPIC_PROXY ? `claude:${CLAUDE_MODEL_HAIKU}` : `gemini:${GEMINI_MODEL}`,
+        chat: `gemini:${GEMINI_MODEL}`,
+      },
+      maxHistoryTurns: MAX_HISTORY_TURNS,
       stub: STUB_MODE,
       node: process.version,
     });
@@ -6567,6 +6712,106 @@ ${userPrompt}` }];
     }
   }
 
+  if (req.method === 'POST' && reqPath === '/api/generate-visual') {
+    let reqJson;
+    try {
+      reqJson = await readJson(req);
+    } catch (e) {
+      return sendJson(res, 400, { ok: false, error: 'Invalid JSON' });
+    }
+    const topic = String(reqJson?.topic || '').trim();
+    const concept = String(reqJson?.concept || '').trim();
+    const subject = String(reqJson?.subject || 'Maths').trim();
+    const grade = Number(reqJson?.grade) || 10;
+
+    if (!topic && !concept) {
+      return sendJson(res, 400, { ok: false, error: 'topic or concept is required' });
+    }
+
+    if (STUB_MODE && !HAS_ANTHROPIC_PROXY) {
+      return sendJson(res, 200, {
+        ok: true,
+        html: `<div style="padding:20px;font-family:sans-serif;"><h3>${concept || topic}</h3><p>Visual explainer stub — AI provider not configured.</p></div>`,
+        provider: 'stub',
+      });
+    }
+
+    const visualSystemPrompt = `You are a CBSE Class ${grade} ${subject} visual explainer.
+Create a single, self-contained HTML document that teaches a concept through an interactive visual.
+
+CRITICAL RULES:
+- Output ONLY valid HTML. No markdown, no backticks, no explanation outside the HTML.
+- The HTML must be fully self-contained: inline CSS via <style>, inline JS via <script>.
+- DO NOT fetch any external resources (no CDN links, no images, no fonts, no external JS/CSS).
+- Use clean, modern CSS with a white background.
+- Make it interactive where appropriate (sliders, toggles, hover effects, click-to-reveal).
+- Use SVG or Canvas for diagrams — no external images.
+- Include clear labels, step-by-step explanations, and CBSE exam tips.
+- Keep the total output under 4000 tokens.
+- The visual should be educational, accurate, and exam-focused.
+- Use these accent colors: primary=#3b82f6, success=#22c55e, warning=#f59e0b, error=#ef4444.
+- All text must be readable (min 14px body, 18px headings).
+- Include a title bar showing the concept name.`;
+
+    const userPrompt = `Create an interactive visual explainer for:
+Topic: ${topic}
+Concept: ${concept || topic}
+Subject: ${subject}
+Grade: Class ${grade} CBSE
+
+The visual should help a student understand this concept deeply and remember it for board exams.`;
+
+    try {
+      let result;
+      if (HAS_ANTHROPIC_PROXY) {
+        const messages = [{ role: 'user', content: userPrompt }];
+        result = await callClaude(CLAUDE_MODEL_SONNET, messages, visualSystemPrompt, {
+          maxTokens: 4096,
+          temperature: 0.4,
+        });
+      } else {
+        const contents = [
+          { role: 'user', parts: [{ text: visualSystemPrompt + '\n\n' + userPrompt }] },
+        ];
+        result = await callGemini(GEMINI_MODEL, contents, {
+          temperature: 0.4,
+          maxOutputTokens: 4096,
+        });
+      }
+
+      let html = String(result?.text || '').trim();
+
+      const htmlMatch = html.match(/<!DOCTYPE html[\s\S]*<\/html>/i) || html.match(/<html[\s\S]*<\/html>/i);
+      if (htmlMatch) {
+        html = htmlMatch[0];
+      } else if (!html.includes('<') || html.length < 50) {
+        return sendJson(res, 200, {
+          ok: false,
+          error: 'AI did not return valid HTML visual',
+          html: null,
+        });
+      }
+
+      html = html.replace(/<script[^>]*src\s*=\s*["'][^"']*["'][^>]*>[\s\S]*?<\/script>/gi, '');
+      html = html.replace(/<link[^>]*href\s*=\s*["']https?:\/\/[^"']*["'][^>]*\/?>/gi, '');
+      html = html.replace(/@import\s+url\(['"]?https?:\/\/[^)'"]+['"]?\)\s*;?/gi, '');
+
+      return sendJson(res, 200, {
+        ok: true,
+        html,
+        provider: HAS_ANTHROPIC_PROXY ? 'claude' : 'gemini',
+        model: HAS_ANTHROPIC_PROXY ? CLAUDE_MODEL_SONNET : GEMINI_MODEL,
+      });
+    } catch (err) {
+      console.error('[generate-visual] Error:', err?.message || err);
+      return sendJson(res, 500, {
+        ok: false,
+        error: 'Failed to generate visual explainer',
+        details: err?.message || String(err),
+      });
+    }
+  }
+
   // 404
   return sendJson(res, 404, { error: 'Not Found' });
 }
@@ -6583,8 +6828,15 @@ server.listen(PORT, () => {
   console.log(`LazyTopper AI server running on port ${PORT}`);
   const envUsedLabel = ENV_USED.length ? ENV_USED.join(',') : '';
   console.log(
-    `Provider: ${ACTIVE_PROVIDER} | Model: ${GEMINI_MODEL} | Auth: ${HAS_REPLIT_PROXY ? 'proxy' : (HAS_DIRECT_KEY ? 'direct-key' : 'none')} | Stub: ${STUB_MODE} | EnvUsed: ${envUsedLabel}`
+    `Gemini: ${STUB_MODE ? 'OFF' : 'ON'} (${GEMINI_MODEL}) | Auth: ${HAS_REPLIT_PROXY ? 'replit-proxy' : (HAS_DIRECT_KEY ? 'direct-key' : 'none')}`
   );
+  console.log(
+    `Claude: ${HAS_ANTHROPIC_PROXY ? 'ON' : 'OFF'} (sonnet=${CLAUDE_MODEL_SONNET}, haiku=${CLAUDE_MODEL_HAIKU}) | Auth: ${HAS_ANTHROPIC_PROXY ? 'replit-proxy' : 'none'}`
+  );
+  console.log(
+    `Routing: visual→${HAS_ANTHROPIC_PROXY ? 'claude-sonnet' : 'gemini'} | factual→${HAS_ANTHROPIC_PROXY ? 'claude-haiku' : 'gemini'} | chat→gemini | MaxHistory: ${MAX_HISTORY_TURNS} turns`
+  );
+  if (envUsedLabel) console.log(`EnvUsed: ${envUsedLabel}`);
 });
 function messagesToGeminiContents(messages, systemPrompt) {
   const contents = [];

@@ -210,3 +210,29 @@ export async function checkSolutionImage(req: {
   });
   return handleJsonResponse<CheckSolutionResponse>(res);
 }
+
+export interface GenerateVisualRequest {
+  topic: string;
+  concept?: string;
+  subject?: string;
+  grade?: number;
+}
+
+export interface GenerateVisualResponse {
+  ok: boolean;
+  html: string | null;
+  provider?: string;
+  model?: string;
+  error?: string;
+}
+
+export async function generateVisual(
+  req: GenerateVisualRequest
+): Promise<GenerateVisualResponse> {
+  const res = await fetch(`${API_BASE}/generate-visual`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(req),
+  });
+  return handleJsonResponse<GenerateVisualResponse>(res);
+}
