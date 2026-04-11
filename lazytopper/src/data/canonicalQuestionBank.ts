@@ -29,35 +29,89 @@ import { ELECTRICITY_PACK1 } from './questionBanks/class10/science/electricity.p
 import { MAGNETIC_EFFECTS_PACK1 } from './questionBanks/class10/science/magneticEffects.pack1';
 import { OUR_ENVIRONMENT_PACK1 } from './questionBanks/class10/science/ourEnvironment.pack1';
 
+import { RN2_PACK2 } from './questionBanks/class10/maths/realNumbers.pack2';
+import { PL2_PACK2 } from './questionBanks/class10/maths/polynomials.pack2';
+import { PLE2_PACK2 } from './questionBanks/class10/maths/pairOfLinearEquations.pack2';
+import { QE2_PACK2 } from './questionBanks/class10/maths/quadraticEquations.pack2';
+import { AP2_PACK2 } from './questionBanks/class10/maths/arithmeticProgression.pack2';
+import { TR3_PACK3 } from './questionBanks/class10/maths/triangles.pack3';
+import { CG2_PACK2 } from './questionBanks/class10/maths/coordinateGeometry.pack2';
+import { TG3_PACK3 } from './questionBanks/class10/maths/trigonometry.pack3';
+import { CI2_PACK2 } from './questionBanks/class10/maths/circles.pack2';
+import { ARC2_PACK2 } from './questionBanks/class10/maths/areasRelatedToCircles.pack2';
+import { SAV2_PACK2 } from './questionBanks/class10/maths/surfaceAreasVolumes.pack2';
+import { ST2_PACK2 } from './questionBanks/class10/maths/statistics.pack2';
+import { PR2_PACK2 } from './questionBanks/class10/maths/probability.pack2';
+
+import { CR2_PACK2 } from './questionBanks/class10/science/chemicalReactions.pack2';
+import { ABS2_PACK2 } from './questionBanks/class10/science/acidsBasesSalts.pack2';
+import { MNM2_PACK2 } from './questionBanks/class10/science/metalsNonMetals.pack2';
+import { CC2_PACK2 } from './questionBanks/class10/science/carbonCompounds.pack2';
+import { LP2_PACK2 } from './questionBanks/class10/science/lifeProcesses.pack2';
+import { CNC2_PACK2 } from './questionBanks/class10/science/controlAndCoordination.pack2';
+import { REP2_PACK2 } from './questionBanks/class10/science/reproduction.pack2';
+import { HE2_PACK2 } from './questionBanks/class10/science/heredityEvolution.pack2';
+import { LT2_PACK2 } from './questionBanks/class10/science/light.pack2';
+import { HEC2_PACK2 } from './questionBanks/class10/science/humanEyeAndColourfulWorld.pack2';
+import { EL2_PACK2 } from './questionBanks/class10/science/electricity.pack2';
+import { ME2_PACK2 } from './questionBanks/class10/science/magneticEffects.pack2';
+import { OE2_PACK2 } from './questionBanks/class10/science/ourEnvironment.pack2';
+
 export const canonicalQuestionBank: CanonicalQuestion[] = [
   ...TRIANGLES_PACK1_QUESTIONS,
   ...trianglesPack2Questions,
+  ...TR3_PACK3,
   ...TRIG_PACK1_QUESTIONS,
   ...trigonometryPack2Questions,
+  ...TG3_PACK3,
   ...REAL_NUMBERS_PACK1,
+  ...RN2_PACK2,
   ...POLYNOMIALS_PACK1,
+  ...PL2_PACK2,
   ...PAIR_LINEAR_EQUATIONS_PACK1,
+  ...PLE2_PACK2,
   ...QUADRATIC_EQUATIONS_PACK1,
+  ...QE2_PACK2,
   ...ARITHMETIC_PROGRESSION_PACK1,
+  ...AP2_PACK2,
   ...COORDINATE_GEOMETRY_PACK1,
+  ...CG2_PACK2,
   ...CIRCLES_PACK1,
+  ...CI2_PACK2,
   ...AREAS_RELATED_TO_CIRCLES_PACK1,
+  ...ARC2_PACK2,
   ...SURFACE_AREAS_VOLUMES_PACK1,
+  ...SAV2_PACK2,
   ...STATISTICS_PACK1,
+  ...ST2_PACK2,
   ...PROBABILITY_PACK1,
+  ...PR2_PACK2,
   ...CHEMICAL_REACTIONS_PACK1,
+  ...CR2_PACK2,
   ...ACIDS_BASES_SALTS_PACK1,
+  ...ABS2_PACK2,
   ...METALS_NON_METALS_PACK1,
+  ...MNM2_PACK2,
   ...CARBON_COMPOUNDS_PACK1,
+  ...CC2_PACK2,
   ...LIFE_PROCESSES_PACK1,
+  ...LP2_PACK2,
   ...CONTROL_AND_COORDINATION_PACK1,
+  ...CNC2_PACK2,
   ...REPRODUCTION_PACK1,
+  ...REP2_PACK2,
   ...HEREDITY_EVOLUTION_PACK1,
+  ...HE2_PACK2,
   ...LIGHT_PACK1,
+  ...LT2_PACK2,
   ...HUMAN_EYE_PACK1,
+  ...HEC2_PACK2,
   ...ELECTRICITY_PACK1,
+  ...EL2_PACK2,
   ...MAGNETIC_EFFECTS_PACK1,
+  ...ME2_PACK2,
   ...OUR_ENVIRONMENT_PACK1,
+  ...OE2_PACK2,
   {
     "id": "2026-TRIG-APP-01",
     "subject": "Maths",

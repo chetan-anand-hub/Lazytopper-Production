@@ -75,6 +75,10 @@ export interface CanonicalQuestion {
    * high‑roi).  Used by the prediction engine to boost scores.
    */
   policyTag?: string;
+  pyqYear?: string;
+  pyqSet?: string;
+  ncertRef?: string;
+  isCompetencyBased?: boolean;
 }
 
 // -----------------------------------------------------------------------------

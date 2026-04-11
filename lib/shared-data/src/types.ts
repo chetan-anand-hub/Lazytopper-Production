@@ -73,6 +73,10 @@ export interface CanonicalQuestion {
   blueprintSlotId?: string;
   pastBoardYear?: string;
   policyTag?: string;
+  pyqYear?: string;
+  pyqSet?: string;
+  ncertRef?: string;
+  isCompetencyBased?: boolean;
 }
 
 export interface ExamQuestion {
