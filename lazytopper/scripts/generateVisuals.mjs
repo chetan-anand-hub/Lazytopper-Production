@@ -11,7 +11,7 @@ const MANIFEST_PATH = path.join(PUBLIC_DIR, "manifest.json");
 const BASE_URL = process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL;
 const API_KEY = process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY;
 const MODEL = "claude-sonnet-4-6";
-const MAX_TOKENS = 8192;
+const MAX_TOKENS = 16384;
 const RATE_LIMIT_MS = 1500;
 const MAX_RETRIES = 3;
 
@@ -444,6 +444,16 @@ async function main() {
 
       if (!html.includes("<html") && !html.includes("<!DOCTYPE")) {
         throw new Error("Response did not contain valid HTML");
+      }
+
+      if (!html.includes("</html>")) {
+        const needsScript = html.includes("<script") && !html.includes("</script>\n</body>");
+        let suffix = "\n";
+        if (needsScript) suffix += "</script>\n";
+        if (html.includes("<body") && !html.includes("</body>")) suffix += "</body>\n";
+        suffix += "</html>";
+        html += suffix;
+        console.log("  WARN: Output truncated, auto-closed tags");
       }
 
       const dir = path.dirname(concept.filePath);
