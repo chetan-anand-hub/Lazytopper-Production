@@ -3021,7 +3021,6 @@ function buildDeterministicCheckQuestion(topicLabel) {
   return `Which condition must be verified before applying ${topic}?`;
 }
 
-/* buildLearnTeachFallback — duplicate removed; canonical version at ~L4206 */
 
 function adaptLegacyLearnTeachToContract(raw, payload) {
   const topic = payload?.topicKey || payload?.chapter || payload?.topic || 'this topic';
