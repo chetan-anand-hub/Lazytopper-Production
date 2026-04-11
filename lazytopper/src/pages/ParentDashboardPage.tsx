@@ -577,7 +577,7 @@ export default function ParentDashboardPage() {
         setTimeout(() => setShareLink(""), 2000);
         return;
       }
-      const shareUrl = `${window.location.origin}/app/weekly-digest?share=${encodeURIComponent(data.token)}`;
+      const shareUrl = `${window.location.origin}/weekly-digest?share=${encodeURIComponent(data.token)}`;
       await navigator.clipboard?.writeText(shareUrl);
       setShareLink("Link copied!");
       setTimeout(() => setShareLink(""), 2000);

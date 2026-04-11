@@ -91,7 +91,7 @@ export default function ShareProgressPrompt({ triggerType, score, subject, miles
       });
       const data = await res.json();
       if (data.ok && data.token) {
-        const shareUrl = `${window.location.origin}/app/weekly-digest?share=${encodeURIComponent(data.token)}`;
+        const shareUrl = `${window.location.origin}/weekly-digest?share=${encodeURIComponent(data.token)}`;
         const shareText = triggerType === "mock"
           ? `I scored ${score}% in ${subject || "my mock test"} on LazyTopper! Check my progress: ${shareUrl}`
           : `${milestone || "I reached a new milestone"} on LazyTopper! ${shareUrl}`;

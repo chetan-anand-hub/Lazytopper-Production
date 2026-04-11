@@ -67,6 +67,19 @@ The LazyTopper AI server has been fully modularized. `server/index.cjs` is now a
 - **3-Layer API Cost Optimization** (DO NOT BREAK): Static question bank → pre-generated visuals → AI fallback
 - **Composition Pattern**: All modules use factory functions with dependency injection. Prompt sub-modules use a shared `ctx` object with ordered registration. Cross-module deps in mentor helpers use late-binding via `bindLateDeps()` to break circular dependencies.
 
+## Routing Architecture (Task #80)
+Single entry point for the frontend. All routes served from `lazytopper-app` artifact at `/`.
+
+**Canonical URL structure:**
+- `/` — LazyTopper frontend (all client-side routes: `/dashboard`, `/practice/:grade/:subject`, `/trends/:grade/:subject`, `/topic-hub/:grade/:subject`, `/highly-probable/:grade/:subject`, `/onboarding`, `/login`, `/sign-up`, etc.)
+- `/shared-api/*` — API server (Express, port 8080) — app API routes, health check at `/shared-api/healthz`
+- `/api/*` — AI Gateway proxy (routed through api-server to AI Gateway on port 3001)
+
+**Dev mode:** Vite dev server (port 25246) serves frontend at `/`, proxies `/api` and `/shared-api` to api-server (port 8080).
+**Production:** Static files served from `lazytopper/dist` at `/`. api-server handles `/shared-api` and `/api`.
+
+**Test base URL:** `http://localhost:25246` (configurable via `E2E_BASE_URL` or `PW_BASE_URL` env vars). Test config helper: `lazytopper/tests/test-config.ts`.
+
 ## System Design Choices
 TypeScript is used throughout, with pnpm workspaces and composite projects. API design follows OpenAPI 3.1 with Orval for codegen. The API server has a 5 MB request body limit. AI tutor responses have increased `maxOutputTokens`.
 
@@ -91,7 +104,7 @@ TypeScript is used throughout, with pnpm workspaces and composite projects. API 
 ## Interactive Visual Explainers (Task #73)
 - **96 interactive visual explainers** generated (50 Maths + 46 Science) covering all 26 CBSE Class 10 chapters
 - Each visual is a self-contained HTML file (~20KB) with inline CSS/JS — interactive animations, bilingual Hindi+English, step-by-step walkthroughs
-- Stored in `lazytopper/public/visuals/{subject}/{chapter}/{slug}.html`, served at `/app/visuals/...`
+- Stored in `lazytopper/public/visuals/{subject}/{chapter}/{slug}.html`, served at `/visuals/...`
 - Registry: `lazytopper/src/data/visualConceptRegistry.ts` maps all chapters→concepts→file paths
 - Generation script: `lazytopper/scripts/generateVisuals.mjs` (Claude Sonnet via Replit proxy, rate limiting, resume support, manifest tracking)
 - Component: `lazytopper/src/components/VisualExplainer.tsx` (sandboxed iframe with loading/error/fullscreen/collapsible states)

@@ -1,5 +1,4 @@
 import express, { type Express } from "express";
-import path from "path";
 import http from "http";
 import cors from "cors";
 import pinoHttp from "pino-http";
@@ -81,17 +80,5 @@ app.use("/api", (req, res) => {
   }
 });
 
-const publicDir = path.resolve(__dirname, "public");
-const visualsDir = path.join(publicDir, "visuals");
-app.use("/app/visuals", express.static(visualsDir, { fallthrough: false }));
-app.use("/shared-api/app/visuals", express.static(visualsDir, { fallthrough: false }));
-app.use("/app", express.static(publicDir));
-app.get("/app/{*splat}", (_req, res) => {
-  res.sendFile(path.join(publicDir, "index.html"));
-});
-app.use("/shared-api/app", express.static(publicDir));
-app.get("/shared-api/app/{*splat}", (_req, res) => {
-  res.sendFile(path.join(publicDir, "index.html"));
-});
 
 export default app;

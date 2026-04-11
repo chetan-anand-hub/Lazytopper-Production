@@ -56,7 +56,7 @@ function resolveConfig() {
   const PORT = process.env.PORT || 3001;
   const AI_PROVIDER = String(process.env.AI_PROVIDER || '').trim();
   const API_KEY = String(process.env.API_KEY || '').trim();
-  const CORS_ORIGIN = String(process.env.CORS_ORIGIN || 'http://localhost:5173').trim();
+  const CORS_ORIGIN = String(process.env.CORS_ORIGIN || 'http://localhost:25246').trim();
   const AI_PROVIDER_NORMALIZED = AI_PROVIDER.toLowerCase();
   const HAS_DIRECT_KEY = AI_PROVIDER_NORMALIZED === 'gemini' && Boolean(API_KEY);
   const STUB_MODE = !HAS_REPLIT_PROXY && !HAS_DIRECT_KEY && !HAS_ANTHROPIC_PROXY;

@@ -164,7 +164,7 @@ export default function WeeklyDigestPage() {
       });
       const data = await res.json();
       if (data.ok && data.token) {
-        const url = `${window.location.origin}/app/weekly-digest?share=${encodeURIComponent(data.token)}`;
+        const url = `${window.location.origin}/weekly-digest?share=${encodeURIComponent(data.token)}`;
         await navigator.clipboard?.writeText(url);
         setShareLink(url);
       }
@@ -188,7 +188,7 @@ export default function WeeklyDigestPage() {
         });
         const data = await res.json();
         if (data.ok && data.token) {
-          url = `${window.location.origin}/app/weekly-digest?share=${encodeURIComponent(data.token)}`;
+          url = `${window.location.origin}/weekly-digest?share=${encodeURIComponent(data.token)}`;
           setShareLink(url);
         }
       } catch {}

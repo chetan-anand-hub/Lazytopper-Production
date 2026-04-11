@@ -10,14 +10,14 @@ kind = "web"
   localPort = 25246
 
   [services.development]
-  run = "pnpm --filter @workspace/lazytopper-app run dev"
+  run = "cd /home/runner/workspace/lazytopper && PORT=25246 npx vite --host 0.0.0.0"
 
   [services.production]
   serve = "static"
-  publicDir = "artifacts/lazytopper-app/dist/public"
+  publicDir = "lazytopper/dist"
 
   [services.production.build]
-  args = ["pnpm", "--filter", "@workspace/lazytopper-app", "run", "build"]
+  args = ["bash", "-c", "cd /home/runner/workspace/lazytopper && npx vite build"]
 
   [services.production.build.env]
   NODE_ENV = "production"

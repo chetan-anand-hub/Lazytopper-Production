@@ -1,6 +1,6 @@
 ﻿import { test, expect, type Locator, type Page } from '@playwright/test';
 
-const BASE_URL = process.env.E2E_BASE_URL ?? 'http://localhost:5173';
+const BASE_URL = process.env.E2E_BASE_URL ?? 'http://localhost:25246';
 const AUTH_INIT_WAIT_MS = 4000;
 
 async function openApp(page: Page) {

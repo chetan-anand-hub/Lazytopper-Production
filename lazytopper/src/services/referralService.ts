@@ -121,7 +121,7 @@ export function addReferral(friendIdentifier: string): ReferralData {
 
 export function getReferralLink(code: string): string {
   const base = typeof window !== "undefined" ? window.location.origin : "https://lazytopper.com";
-  return `${base}/app/?ref=${code}`;
+  return `${base}/?ref=${code}`;
 }
 
 export function getWhatsAppShareUrl(code: string): string {

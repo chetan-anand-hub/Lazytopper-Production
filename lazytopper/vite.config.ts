@@ -1,13 +1,11 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
-// LazyTopper – Vite config
-// Adds a dev-time proxy so that frontend calls to /api/* are forwarded to
-// the local AI gateway (server/index.cjs) running on port 3001.
-const port = parseInt(process.env.PORT || "5173", 10);
+const port = parseInt(process.env.PORT || "25246", 10);
+const apiServerPort = parseInt(process.env.API_SERVER_PORT || "8080", 10);
 
 export default defineConfig({
-  base: "/app/",
+  base: "/",
   plugins: [react()],
   server: {
     host: true,
@@ -15,7 +13,11 @@ export default defineConfig({
     allowedHosts: true,
     proxy: {
       "/api": {
-        target: "http://localhost:3001",
+        target: `http://localhost:${apiServerPort}`,
+        changeOrigin: true,
+      },
+      "/shared-api": {
+        target: `http://localhost:${apiServerPort}`,
         changeOrigin: true,
       },
     },

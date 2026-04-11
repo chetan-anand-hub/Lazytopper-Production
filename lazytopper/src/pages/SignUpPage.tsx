@@ -53,8 +53,8 @@ export default function SignUpPage() {
         <div style={{ display: "flex", justifyContent: "center", marginBottom: 16 }}>
           <SignUp
             routing="path"
-            path="/app/sign-up"
-            signInUrl="/app/login"
+            path="/sign-up"
+            signInUrl="/login"
             appearance={{
               variables: {
                 colorPrimary: "#22c55e",

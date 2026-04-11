@@ -25,7 +25,7 @@ function makePath(subject: string, chapter: string, concept: string): string {
   const s = subject.toLowerCase();
   const ch = chapter.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
   const co = concept.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-  return `/app/visuals/${s}/${ch}/${co}.html`;
+  return `/visuals/${s}/${ch}/${co}.html`;
 }
 
 function c(subject: "maths" | "science", chapter: string, concept: string, keywords: string[]): VisualConcept {

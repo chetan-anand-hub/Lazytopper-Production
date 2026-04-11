@@ -9,7 +9,7 @@ export type CbseExamDateResult = {
   phase?: "phase1" | "phase2";
 };
 
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3001/api";
+const API_BASE = import.meta.env.VITE_API_BASE || "/api";
 const ADMIN_OVERRIDE_KEY = "lazytopper.cbse.exam.admin_override.v1";
 
 function toIsoDate(value: string): string | null {

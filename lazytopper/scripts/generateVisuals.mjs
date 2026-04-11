@@ -678,7 +678,7 @@ async function main() {
         topicKey: concept.topicKey,
         conceptName: concept.conceptName,
         slug: concept.slug,
-        filePath: `/app/visuals/${concept.subject}/${concept.chapter}/${concept.slug}.html`,
+        filePath: `/visuals/${concept.subject}/${concept.chapter}/${concept.slug}.html`,
         sizeKB: parseFloat(sizeKB),
         generatedAt: new Date().toISOString(),
       };
