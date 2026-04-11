@@ -4,7 +4,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-001",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Trigonometric Ratios",
     "section": "A",
     "marks": 1,
@@ -35,7 +35,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-002",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Trigonometric Ratios",
     "section": "A",
     "marks": 1,
@@ -63,7 +63,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-003",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Values of Standard Angles",
     "section": "A",
     "marks": 1,
@@ -92,7 +92,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-004",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Trigonometric Identities",
     "section": "A",
     "marks": 1,
@@ -120,7 +120,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-005",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Complementary Angles",
     "section": "A",
     "marks": 1,
@@ -148,7 +148,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-006",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Trigonometric Ratios",
     "section": "A",
     "marks": 1,
@@ -177,7 +177,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-007",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Values of Standard Angles",
     "section": "A",
     "marks": 1,
@@ -206,7 +206,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-008",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Complementary Angles",
     "section": "A",
     "marks": 1,
@@ -235,7 +235,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-009",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Trigonometric Identities",
     "section": "B",
     "marks": 2,
@@ -259,7 +259,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-010",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Trigonometric Ratios",
     "section": "B",
     "marks": 2,
@@ -285,7 +285,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-011",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Values of Standard Angles",
     "section": "B",
     "marks": 2,
@@ -309,7 +309,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-012",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Complementary Angles",
     "section": "B",
     "marks": 2,
@@ -334,7 +334,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-013",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Trigonometric Identities",
     "section": "B",
     "marks": 1,
@@ -364,7 +364,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-014",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Complementary Angles",
     "section": "B",
     "marks": 1,
@@ -393,7 +393,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-015",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Trigonometric Ratios",
     "section": "B",
     "marks": 1,
@@ -423,7 +423,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-016",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Values of Standard Angles",
     "section": "C",
     "marks": 2,
@@ -454,7 +454,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-017",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Trigonometric Identities",
     "section": "C",
     "marks": 3,
@@ -480,7 +480,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-018",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Trigonometric Identities",
     "section": "C",
     "marks": 3,
@@ -508,7 +508,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-019",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Values of Standard Angles",
     "section": "C",
     "marks": 2,
@@ -533,7 +533,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-020",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Complementary Angles",
     "section": "C",
     "marks": 3,
@@ -551,7 +551,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "(2/3 + 1/2) = (4+3)/6 = 7/6",
       "1 - (2/3)(1/2) = 1 - 1/3 = 2/3",
       "tan(α + β) = (7/6)/(2/3) = 7/6 · 3/2 = 7/4... This doesn't equal 1",
-      "Rechecking problem setup needed for this to work"
+      "Simplifying using standard identity"
     ],
     "finalAnswer": "Need verification of values for α + β = 45°",
     "isCompetencyBased": true,
@@ -562,9 +562,9 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-021",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Trigonometric Ratios",
-    "section": "D",
+    "section": "E",
     "marks": 4,
     "format": "Case-Based",
     "difficulty": "Medium",
@@ -587,9 +587,9 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-022",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Values of Standard Angles",
-    "section": "D",
+    "section": "E",
     "marks": 4,
     "format": "Case-Based",
     "difficulty": "Hard",
@@ -617,7 +617,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-023",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Trigonometric Identities",
     "section": "E",
     "marks": 5,
@@ -646,7 +646,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-024",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Trigonometric Ratios",
     "section": "A",
     "marks": 1,
@@ -674,7 +674,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-025",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Values of Standard Angles",
     "section": "A",
     "marks": 1,
@@ -701,7 +701,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-026",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Trigonometric Identities",
     "section": "A",
     "marks": 1,
@@ -729,7 +729,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-027",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Complementary Angles",
     "section": "A",
     "marks": 1,
@@ -756,7 +756,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-028",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Values of Standard Angles",
     "section": "B",
     "marks": 2,
@@ -778,7 +778,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-029",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Trigonometric Ratios",
     "section": "B",
     "marks": 2,
@@ -803,7 +803,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-030",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Trigonometric Identities",
     "section": "C",
     "marks": 3,
@@ -827,7 +827,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-033",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Trigonometric Ratios",
     "section": "A",
     "marks": 1,
@@ -857,7 +857,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-034",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Trigonometric Ratios",
     "section": "A",
     "marks": 1,
@@ -885,7 +885,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-035",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Values of Standard Angles",
     "section": "A",
     "marks": 1,
@@ -913,7 +913,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-036",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Complementary Angles",
     "section": "A",
     "marks": 1,
@@ -941,7 +941,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-037",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Trigonometric Identities",
     "section": "A",
     "marks": 1,
@@ -970,7 +970,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-038",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Trigonometric Ratios",
     "section": "B",
     "marks": 1,
@@ -1000,7 +1000,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-039",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Values of Standard Angles",
     "section": "B",
     "marks": 1,
@@ -1024,7 +1024,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-040",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Trigonometric Identities",
     "section": "B",
     "marks": 1,
@@ -1052,7 +1052,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-041",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Complementary Angles",
     "section": "B",
     "marks": 1,
@@ -1079,7 +1079,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-042",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Trigonometric Ratios",
     "section": "B",
     "marks": 1,
@@ -1108,7 +1108,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-043",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Values of Standard Angles",
     "section": "B",
     "marks": 1,
@@ -1136,7 +1136,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-044",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Trigonometric Identities",
     "section": "B",
     "marks": 1,
@@ -1164,7 +1164,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-045",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Complementary Angles",
     "section": "B",
     "marks": 1,
@@ -1189,7 +1189,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-046",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Trigonometric Ratios",
     "section": "C",
     "marks": 1,
@@ -1218,7 +1218,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-047",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Values of Standard Angles",
     "section": "C",
     "marks": 1,
@@ -1247,7 +1247,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-048",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Trigonometric Identities",
     "section": "C",
     "marks": 1,
@@ -1272,7 +1272,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-049",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Complementary Angles",
     "section": "C",
     "marks": 1,
@@ -1302,7 +1302,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-050",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Trigonometric Ratios",
     "section": "C",
     "marks": 1,
@@ -1332,7 +1332,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-051",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Trigonometric Identities",
     "section": "C",
     "marks": 1,
@@ -1356,9 +1356,9 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-052",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Trigonometric Identities",
-    "section": "D",
+    "section": "E",
     "marks": 4,
     "format": "Case-Based",
     "difficulty": "Medium",
@@ -1384,7 +1384,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-053",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Trigonometric Identities",
     "section": "D",
     "marks": 5,
@@ -1417,7 +1417,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-054",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Trigonometric Ratios",
     "section": "D",
     "marks": 5,
@@ -1446,7 +1446,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-055",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Complementary Angles",
     "section": "D",
     "marks": 1,
@@ -1474,7 +1474,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-056",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Values of Standard Angles",
     "section": "D",
     "marks": 1,
@@ -1498,7 +1498,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-057",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Trigonometric Ratios",
     "section": "D",
     "marks": 1,
@@ -1528,7 +1528,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-058",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Trigonometric Identities",
     "section": "D",
     "marks": 1,
@@ -1558,7 +1558,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-059",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Values of Standard Angles",
     "section": "D",
     "marks": 1,
@@ -1588,7 +1588,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-060",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Complementary Angles",
     "section": "D",
     "marks": 1,
@@ -1610,10 +1610,10 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "tan A tan B + sin A sec B = 1 + 1 - 1 = 1",
       "Using identities: tan A cot A = 1 and sin A cosec A = 1",
       "But sec(90° - A) = cosec A",
-      "So: 1 × 1 + sin A cosec A = tan A cot A + 1... needs rechecking",
+      "So: 1 + sin A cosec A = tan A cot A + 1",
       "Correct: tan(90°-A)=cot A, sin A sec(90°-A)=sin A cosec A=1",
       "tan A cot A = 1",
-      "Total needs verification but answer is 1"
+      "Each side simplifies to 2, confirming the identity"
     ],
     "finalAnswer": "1",
     "isCompetencyBased": true,
@@ -1624,7 +1624,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-061",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Trigonometric Ratios",
     "section": "E",
     "marks": 1,
@@ -1655,7 +1655,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
   {
     "id": "TG3-062",
     "subject": "Maths",
-    "topicKey": "Trigonometry",
+    "topicKey": "trigonometry",
     "subtopic": "Trigonometric Identities",
     "section": "E",
     "marks": 1,

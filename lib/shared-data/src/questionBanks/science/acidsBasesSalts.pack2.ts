@@ -18,7 +18,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "C) Salty taste and do not change litmus color",
       "D) Sweet taste and turn phenolphthalein pink"
     ],
-    "answer": "A",
+    "answer": "A) Sour taste and turn blue litmus red",
     "solutionSteps": [
       "Acids have characteristic properties:",
       "- Taste sour",
@@ -26,7 +26,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "- React with bases to form salts and water",
       "- Conduct electricity in solution"
     ],
-    "finalAnswer": "A",
+    "finalAnswer": "A) Sour taste and turn blue litmus red",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -49,7 +49,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "C) Pungent smell and turn blue litmus red",
       "D) Salty taste and do not change any litmus"
     ],
-    "answer": "B",
+    "answer": "B) Bitter taste and turn red litmus blue",
     "solutionSteps": [
       "Bases have characteristic properties:",
       "- Taste bitter",
@@ -57,7 +57,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "- Turn red litmus paper blue",
       "- Conduct electricity in solution"
     ],
-    "finalAnswer": "B",
+    "finalAnswer": "B) Bitter taste and turn red litmus blue",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -80,7 +80,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "C) 14",
       "D) 1"
     ],
-    "answer": "B",
+    "answer": "B) 7",
     "solutionSteps": [
       "pH scale ranges from 0 to 14",
       "pH < 7: Acidic solution",
@@ -88,7 +88,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "pH > 7: Basic/Alkaline solution",
       "Pure water has pH = 7"
     ],
-    "finalAnswer": "B",
+    "finalAnswer": "B) 7",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -111,7 +111,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "C) pH meter or Universal indicator",
       "D) Hygrometer"
     ],
-    "answer": "C",
+    "answer": "C) pH meter or Universal indicator",
     "solutionSteps": [
       "pH indicators are used to measure acidity/basicity",
       "Common indicators:",
@@ -119,7 +119,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "- pH meter (digital measurement)",
       "- Litmus paper (qualitative test)"
     ],
-    "finalAnswer": "C",
+    "finalAnswer": "C) pH meter or Universal indicator",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -142,14 +142,14 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "C) Carbonic acid (H₂CO₃)",
       "D) Citric acid"
     ],
-    "answer": "B",
+    "answer": "B) Hydrochloric acid (HCl)",
     "solutionSteps": [
       "Strong acids completely ionize in water",
       "Common strong acids: HCl, H₂SO₄, HNO₃",
       "Common weak acids: CH₃COOH, H₂CO₃, citric acid",
       "HCl is a strong acid that completely dissociates"
     ],
-    "finalAnswer": "B",
+    "finalAnswer": "B) Hydrochloric acid (HCl)",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -172,7 +172,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "C) It is weakly basic",
       "D) It is strongly basic"
     ],
-    "answer": "B",
+    "answer": "B) It is strongly acidic",
     "solutionSteps": [
       "pH scale: 0-14",
       "pH < 7: Acidic (lower pH = more acidic)",
@@ -180,7 +180,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "[H⁺] concentration is high at pH 3",
       "This solution would have high acidity"
     ],
-    "finalAnswer": "B",
+    "finalAnswer": "B) It is strongly acidic",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -203,14 +203,14 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "C) Salt, water, and hydrogen gas",
       "D) Only hydrogen gas"
     ],
-    "answer": "B",
+    "answer": "B) Salt and water",
     "solutionSteps": [
       "Neutralization reaction:",
       "Acid + Base → Salt + Water",
       "Example: HCl + NaOH → NaCl + H₂O",
       "This is an exothermic reaction"
     ],
-    "finalAnswer": "B",
+    "finalAnswer": "B) Salt and water",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -233,14 +233,14 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "C) Sulfuric acid",
       "D) Ammonium sulfate"
     ],
-    "answer": "B",
+    "answer": "B) Lime (CaO) or calcium carbonate",
     "solutionSteps": [
       "Acidic soil needs a basic substance to neutralize",
       "Lime (CaO) is basic and reacts with acid",
       "Calcium carbonate (CaCO₃) also works",
       "These raise the pH to neutral range (6.5-7.5)"
     ],
-    "finalAnswer": "B",
+    "finalAnswer": "B) Lime (CaO) or calcium carbonate",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "SET-A",
@@ -263,14 +263,14 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "C) NH₄Cl (ammonium chloride)",
       "D) KCl (potassium chloride)"
     ],
-    "answer": "B",
+    "answer": "B) Na₂CO₃ (sodium carbonate)",
     "solutionSteps": [
       "Salts formed from weak acid + strong base are basic",
       "Na₂CO₃ is from H₂CO₃ (weak) + NaOH (strong)",
       "NaCl, KCl are neutral (strong acid + strong base)",
       "NH₄Cl is acidic (strong acid + weak base)"
     ],
-    "finalAnswer": "B",
+    "finalAnswer": "B) Na₂CO₃ (sodium carbonate)",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -344,14 +344,14 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "C) pH remains the same",
       "D) pH becomes zero"
     ],
-    "answer": "B",
+    "answer": "B) pH increases (becomes less acidic/neutral)",
     "solutionSteps": [
       "Dilution decreases concentration of H⁺ ions",
       "pH = -log[H⁺]",
       "Lower [H⁺] means higher pH value",
       "The solution becomes less acidic (closer to neutral)"
     ],
-    "finalAnswer": "B",
+    "finalAnswer": "B) pH increases (becomes less acidic/neutral)",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -374,14 +374,14 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "C) Color difference",
       "D) Solubility in water"
     ],
-    "answer": "B",
+    "answer": "B) Complete vs partial ionization in water",
     "solutionSteps": [
       "Strong acids: HCl → H⁺ + Cl⁻ (complete ionization, 100%)",
       "Weak acids: CH₃COOH ⇌ CH₃COO⁻ + H⁺ (partial ionization)",
       "HCl completely dissociates, producing more H⁺ ions",
       "CH₃COOH reaches equilibrium with mostly un-ionized molecules"
     ],
-    "finalAnswer": "B",
+    "finalAnswer": "B) Complete vs partial ionization in water",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -404,14 +404,14 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "C) Cl⁻ ions make it acidic",
       "D) NH₃ is volatile"
     ],
-    "answer": "B",
+    "answer": "B) NH₄⁺ ion undergoes hydrolysis releasing H⁺ ions",
     "solutionSteps": [
       "NH₄Cl is formed from strong acid (HCl) and weak base (NH₃·H₂O)",
       "NH₄⁺ undergoes hydrolysis: NH₄⁺ + H₂O ⇌ NH₃·H₂O + H⁺",
       "This releases free H⁺ ions, making the solution acidic",
       "Salts of strong acid + weak base are always acidic"
     ],
-    "finalAnswer": "B",
+    "finalAnswer": "B) NH₄⁺ ion undergoes hydrolysis releasing H⁺ ions",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "SET-B",
@@ -512,7 +512,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
     "subject": "Science",
     "topicKey": "Acids, Bases and Salts",
     "subtopic": "Properties of Acids and Bases",
-    "section": "D",
+    "section": "E",
     "marks": 4,
     "format": "Case-Based",
     "difficulty": "Medium",
@@ -546,7 +546,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
     "subject": "Science",
     "topicKey": "Acids, Bases and Salts",
     "subtopic": "Neutralisation",
-    "section": "D",
+    "section": "E",
     "marks": 4,
     "format": "Case-Based",
     "difficulty": "Medium",
@@ -650,14 +650,14 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "C) Neutral solution",
       "D) None of the above"
     ],
-    "answer": "B",
+    "answer": "B) Basic solution",
     "solutionSteps": [
       "Phenolphthalein is a pH indicator",
       "Colorless in acidic and neutral solutions",
       "Pink/magenta in basic solutions (pH > 8.2)",
       "Used to detect presence of bases"
     ],
-    "finalAnswer": "B",
+    "finalAnswer": "B) Basic solution",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -763,7 +763,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "C) Acetic acid has lower density",
       "D) Magnesium reacts only with strong acids"
     ],
-    "answer": "B",
+    "answer": "B) HCl provides more H⁺ ions due to complete ionization",
     "solutionSteps": [
       "HCl is a strong acid: HCl → H⁺ + Cl⁻ (complete ionization, 100%)",
       "CH₃COOH is weak acid: ⇌ H⁺ + CH₃COO⁻ (partial ionization)",
@@ -771,7 +771,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "Fewer H⁺ ions from acetic acid → slower reaction",
       "Rate depends on [H⁺], not molecular formula"
     ],
-    "finalAnswer": "B",
+    "finalAnswer": "B) HCl provides more H⁺ ions due to complete ionization",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1241,7 +1241,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
     "subject": "Science",
     "topicKey": "Acids, Bases and Salts",
     "subtopic": "Salts and their Properties",
-    "section": "C",
+    "section": "E",
     "marks": 4,
     "format": "Case-Based",
     "difficulty": "Hard",

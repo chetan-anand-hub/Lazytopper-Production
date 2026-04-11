@@ -18,14 +18,14 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "C) 49/6 cm²",
       "D) 98/6 cm²"
     ],
-    "answer": "49/6 cm²",
+    "answer": "C) 49/6 cm²",
     "solutionSteps": [
       "Area of sector = (θ/360°) × πr²",
       "= (60°/360°) × π × 7²",
       "= (1/6) × 22/7 × 49",
       "= 49/6 cm²"
     ],
-    "finalAnswer": "49/6 cm²",
+    "finalAnswer": "C) 49/6 cm²",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -48,14 +48,14 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "C) 15π cm",
       "D) 20π cm"
     ],
-    "answer": "5π cm",
+    "answer": "A) 5π cm",
     "solutionSteps": [
       "Arc length = (θ/360°) × 2πr",
       "= (90°/360°) × 2π × 10",
       "= (1/4) × 20π",
       "= 5π cm"
     ],
-    "finalAnswer": "5π cm",
+    "finalAnswer": "A) 5π cm",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -78,14 +78,14 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "C) 60°",
       "D) 90°"
     ],
-    "answer": "60°",
+    "answer": "C) 60°",
     "solutionSteps": [
       "Area = (θ/360°) × πr²",
       "18.84 = (θ/360°) × 3.14 × 36",
       "18.84 = (θ/360°) × 113.04",
       "θ = 60°"
     ],
-    "finalAnswer": "60°",
+    "finalAnswer": "C) 60°",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -108,12 +108,12 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "C) Area of triangle - Area of sector",
       "D) Area of sector × Area of triangle"
     ],
-    "answer": "Area of sector - Area of triangle",
+    "answer": "B) Area of sector - Area of triangle",
     "solutionSteps": [
       "A segment is the region between a chord and the arc",
       "Area of segment = Area of sector - Area of triangle formed by two radii and chord"
     ],
-    "finalAnswer": "Area of sector - Area of triangle",
+    "finalAnswer": "B) Area of sector - Area of triangle",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -232,7 +232,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
     "format": "Assertion-Reasoning",
     "difficulty": "Medium",
     "bloomSkill": "Understanding",
-    "questionText": "Assertion (A): If two sectors of different circles have the same central angle, they will have equal areas.\nReason (R): The area of a sector depends only on the central angle and not on the radius.",
+    "questionText": "Assertion (A): If two sectors of different circles have the same central angle, they will have equal areas.\nReason (R): The area of a sector is given by (θ/360°) × πr², and depends on both the angle and the radius.",
     "options": [
       "Both A and R are true, and R is the correct explanation of A.",
       "Both A and R are true, but R is not the correct explanation of A.",
@@ -243,9 +243,9 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Assertion: Two sectors with same angle but different radii will NOT have equal areas",
       "Area = (θ/360°) × πr², so area depends on both θ and r",
-      "Reason: The area depends on BOTH central angle AND radius",
+      "R is true: Area = (θ/360°) × πr², depends on both θ and r",
       "A is false because area also depends on radius",
-      "R is true because it correctly states area depends on radius"
+      "Since A is false and R is true, answer is option 4"
     ],
     "finalAnswer": "A is false, R is true.",
     "isCompetencyBased": true,
@@ -270,14 +270,14 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "C) 60°",
       "D) 90°"
     ],
-    "answer": "60°",
+    "answer": "C) 60°",
     "solutionSteps": [
       "Arc length = (θ/360°) × 2πr",
       "22 = (θ/360°) × 2 × (22/7) × 21",
       "22 = (θ/360°) × 132",
       "θ = (22 × 360°)/132 = 60°"
     ],
-    "finalAnswer": "60°",
+    "finalAnswer": "C) 60°",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "Delhi",
@@ -312,7 +312,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
     "subject": "Maths",
     "topicKey": "Areas Related to Circles",
     "subtopic": "Combined Figures",
-    "section": "C",
+    "section": "E",
     "marks": 4,
     "format": "Case-Based",
     "difficulty": "Hard",
@@ -338,7 +338,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
     "subject": "Maths",
     "topicKey": "Areas Related to Circles",
     "subtopic": "Combined Figures",
-    "section": "C",
+    "section": "E",
     "marks": 4,
     "format": "Case-Based",
     "difficulty": "Hard",
@@ -512,7 +512,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "C) 45 cm²",
       "D) 50 cm²"
     ],
-    "answer": "36 cm²",
+    "answer": "B) 36 cm²",
     "solutionSteps": [
       "For sectors of same circle: Area ∝ Central angle",
       "Let angles be 3x and 5x",
@@ -520,7 +520,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "Area₁/60 = 3/5",
       "Area₁ = (3/5) × 60 = 36 cm²"
     ],
-    "finalAnswer": "36 cm²",
+    "finalAnswer": "B) 36 cm²",
     "isCompetencyBased": true,
     "pyqYear": "2019",
     "pyqSet": "Delhi",
@@ -602,7 +602,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "C) (π - 2)d²/8",
       "D) (11/7 - 1)r²"
     ],
-    "answer": "(π - 2)r²",
+    "answer": "A) (π - 2)r²",
     "solutionSteps": [
       "For largest inscribed square in circle of radius r: diagonal = 2r",
       "Side of square = 2r/√2 = r√2",
@@ -610,7 +610,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "Area of circle = πr²",
       "Difference = πr² - 2r² = (π - 2)r²"
     ],
-    "finalAnswer": "(π - 2)r²",
+    "finalAnswer": "A) (π - 2)r²",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -959,7 +959,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
     "subject": "Maths",
     "topicKey": "Areas Related to Circles",
     "subtopic": "Combined Figures",
-    "section": "C",
+    "section": "E",
     "marks": 4,
     "format": "Case-Based",
     "difficulty": "Hard",

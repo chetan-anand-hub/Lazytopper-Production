@@ -43,10 +43,10 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "A solid toy is made by joining a cone and a hemisphere. Both have radius 3 cm. If the cone's height is 4 cm, the volume of the toy is:",
     "options": [
-      "66π cm³",
+      "30π cm³",
       "48π cm³",
-      "39π cm³",
-      "57π cm³"
+      "36π cm³",
+      "24π cm³"
     ],
     "answer": "30π cm³",
     "solutionSteps": [
@@ -510,7 +510,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "subject": "Maths",
     "topicKey": "Surface Areas and Volumes",
     "subtopic": "Combined Solids",
-    "section": "D",
+    "section": "E",
     "marks": 4,
     "format": "Case-Based",
     "difficulty": "Medium",
@@ -539,7 +539,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "subject": "Maths",
     "topicKey": "Surface Areas and Volumes",
     "subtopic": "Frustum of Cone",
-    "section": "D",
+    "section": "E",
     "marks": 4,
     "format": "Case-Based",
     "difficulty": "Hard",
@@ -605,18 +605,18 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A vessel is formed by combining a hemisphere of radius 7 cm at the bottom and a cylinder of the same radius and height 10 cm above it. The volume of the vessel is:",
     "options": [
-      "1078π cm³",
+      "2156π/3 cm³",
       "980π cm³",
       "539π cm³",
       "1470π cm³"
     ],
-    "answer": "718.67π cm³ or 2156π/3 cm³",
+    "answer": "2156π/3 cm³",
     "solutionSteps": [
       "Volume of hemisphere = (2/3)πr³ = (2/3)π(7)³ = 686π/3 cm³",
       "Volume of cylinder = πr²h = π(7)²(10) = 490π cm³",
       "Total = 686π/3 + 490π = (686π + 1470π)/3 = 2156π/3 ≈ 718.67π cm³"
     ],
-    "finalAnswer": "718.67π cm³ or 2156π/3 cm³",
+    "finalAnswer": "2156π/3 cm³",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -770,20 +770,18 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Two cylinders of equal radius 5 cm are joined end to end. If each has height 8 cm, the total surface area of the combined solid is:",
     "options": [
-      "280π cm²",
+      "210π cm²",
       "160π cm²",
       "200π cm²",
       "240π cm²"
     ],
     "answer": "210π cm²",
     "solutionSteps": [
-      "When joined, two bases in between are hidden",
-      "Total curved surface area = 2πrh + 2πrh = 4πrh = 4π(5)(8) = 160π cm²",
-      "Two outer bases exposed = 2πr² = 2π(25) = 50π cm²",
-      "Total = 160π + 50π = 210π... recalculate",
-      "Calculation: 2(2πrh) + 2(πr²) = 2(2π·5·8) + 2(π·25) = 160π + 50π = 210π",
-      "But if truly joined as cylinder: h_total = 16, then 2π(5)(16) + 2π(25) = 160π + 50π = 210π",
-      "Check: option pattern suggests 280π = 2π(5)(8) + 2π(5)(8) + 2π(25) but 160+160+50 = 370... adjust"
+      "When joined end to end, two internal circular faces are hidden",
+      "Combined solid is a cylinder with r = 5 cm, h = 16 cm",
+      "CSA = 2πrh = 2π(5)(16) = 160π cm²",
+      "Two exposed circular bases = 2πr² = 2π(25) = 50π cm²",
+      "Total SA = 160π + 50π = 210π cm²"
     ],
     "finalAnswer": "210π cm²",
     "isCompetencyBased": true,
@@ -895,7 +893,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "8",
       "12"
     ],
-    "answer": "12 spheres",
+    "answer": "12",
     "solutionSteps": [
       "Volume of cylinder = πr²h = π(7)²(14) = 686π cm³",
       "Volume of one sphere = (4/3)πr³ = (4/3)π(3.5)³ = (4/3)π(42.875) = 171.5π/3 cm³",
@@ -904,7 +902,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "(4/3)π(7/2)³ = (4/3)π(343/8) = 343π/6 cm³",
       "Number = 686π / (343π/6) = 686 × 6/343 = 4116/343 = 12"
     ],
-    "finalAnswer": "12 spheres",
+    "finalAnswer": "12",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": undefined,
@@ -1055,10 +1053,10 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "A container in the shape of a frustum has radii 20 cm and 10 cm with slant height 26 cm. The volume of the frustum is:",
     "options": [
-      "7000π cm³",
-      "8000π cm³",
-      "9100π cm³",
-      "10000π cm³"
+      "5600π cm³",
+      "5600π cm³",
+      "8400π cm³",
+      "4200π cm³"
     ],
     "answer": "5600π cm³",
     "solutionSteps": [
@@ -1078,7 +1076,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "subject": "Maths",
     "topicKey": "Surface Areas and Volumes",
     "subtopic": "Combined Solids",
-    "section": "D",
+    "section": "E",
     "marks": 4,
     "format": "Case-Based",
     "difficulty": "Medium",
@@ -1176,7 +1174,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "Curved surface area of cone = πrl = π(10)(26) = 260π cm²",
       "Base of hemisphere is not exposed (joined with cone base)",
       "But base of cone is also not exposed",
-      "Wait: The hemisphere and cone share a circular base. This shared base is internal.",
+      "The hemisphere and cone share a circular base. This shared base is internal.",
       "Total external surface area = curved surface of hemisphere + curved surface of cone",
       "= 200π + 260π = 460π cm²",
       "If pyramid sits on hemisphere: only external surfaces count",

@@ -4,7 +4,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-001",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Asexual Reproduction",
     "section": "A",
     "marks": 1,
@@ -18,14 +18,14 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Pollination in flowering plants",
       "Fertilization in frogs"
     ],
-    "answer": "B",
+    "answer": "Budding in hydra",
     "solutionSteps": [
       "Asexual reproduction involves only one parent organism",
       "Budding in hydra is a form of asexual reproduction where a new organism develops from a bud",
       "Other options involve sexual reproduction (two parents)",
       "Therefore, budding in hydra is the correct answer"
     ],
-    "finalAnswer": "B",
+    "finalAnswer": "Budding in hydra",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -34,7 +34,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-002",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Asexual Reproduction",
     "section": "A",
     "marks": 1,
@@ -48,14 +48,14 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "One daughter cell",
       "Multiple daughter cells of different sizes"
     ],
-    "answer": "A",
+    "answer": "Two identical daughter cells",
     "solutionSteps": [
       "Bacteria reproduce by binary fission",
       "In binary fission, one bacterium divides into two identical daughter cells",
       "This is an asexual reproduction method",
       "Each daughter cell is genetically identical to the parent"
     ],
-    "finalAnswer": "A",
+    "finalAnswer": "Two identical daughter cells",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -64,7 +64,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-003",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Asexual Reproduction",
     "section": "A",
     "marks": 1,
@@ -78,14 +78,14 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Flowers",
       "Leaves"
     ],
-    "answer": "B",
+    "answer": "Tubers",
     "solutionSteps": [
       "Vegetative propagation is asexual reproduction in plants",
       "Potato plants have underground stems called tubers",
       "New potato plants grow from the 'eyes' on tubers",
       "This is a form of asexual reproduction producing genetically identical plants"
     ],
-    "finalAnswer": "B",
+    "finalAnswer": "Tubers",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -94,7 +94,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-004",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Asexual Reproduction",
     "section": "B",
     "marks": 2,
@@ -119,7 +119,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-005",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Sexual Reproduction in Plants",
     "section": "A",
     "marks": 1,
@@ -133,14 +133,14 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Sepal",
       "Petal"
     ],
-    "answer": "B",
+    "answer": "Stamen",
     "solutionSteps": [
       "Flower has male and female reproductive organs",
       "The male reproductive organ is the stamen",
       "Stamen consists of anther (produces pollen) and filament",
       "Pistil is the female reproductive organ"
     ],
-    "finalAnswer": "B",
+    "finalAnswer": "Stamen",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -149,7 +149,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-006",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Sexual Reproduction in Plants",
     "section": "A",
     "marks": 1,
@@ -163,14 +163,14 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Ovule to anther",
       "Filament to pistil"
     ],
-    "answer": "A",
+    "answer": "Anther to stigma",
     "solutionSteps": [
       "Pollination is a crucial step in sexual reproduction of plants",
       "Pollen is produced in the anther (male organ)",
       "Pollen must be transferred to the stigma (part of female organ)",
       "This transfer is called pollination"
     ],
-    "finalAnswer": "A",
+    "finalAnswer": "Anther to stigma",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -179,7 +179,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-007",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Sexual Reproduction in Plants",
     "section": "A",
     "marks": 1,
@@ -193,14 +193,14 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Wind carries pollen from one plant to another",
       "Insects transfer pollen between different plant species"
     ],
-    "answer": "A",
+    "answer": "Pollen from one flower pollinates another flower on the same plant",
     "solutionSteps": [
       "Pollination is classified as self-pollination and cross-pollination",
       "Self-pollination: Pollen from anther of one flower fertilizes stigma of the same flower or another flower on the same plant",
       "Cross-pollination: Pollen from one plant fertilizes flowers of a different plant",
       "Options B, C, and D describe cross-pollination"
     ],
-    "finalAnswer": "A",
+    "finalAnswer": "Pollen from one flower pollinates another flower on the same plant",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -209,7 +209,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-008",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Sexual Reproduction in Plants",
     "section": "B",
     "marks": 2,
@@ -236,7 +236,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-009",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Sexual Reproduction in Plants",
     "section": "B",
     "marks": 2,
@@ -263,7 +263,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-010",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Human Reproductive System",
     "section": "A",
     "marks": 1,
@@ -277,7 +277,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Ductus deferens",
       "Prostate gland"
     ],
-    "answer": "B",
+    "answer": "Seminiferous tubule",
     "solutionSteps": [
       "Testis is the male reproductive gland",
       "Testis contains seminiferous tubules",
@@ -285,7 +285,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Epididymis stores and matures sperm",
       "Ductus deferens transports sperm"
     ],
-    "finalAnswer": "B",
+    "finalAnswer": "Seminiferous tubule",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -294,7 +294,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-011",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Human Reproductive System",
     "section": "A",
     "marks": 1,
@@ -308,7 +308,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Zygote",
       "Embryo"
     ],
-    "answer": "B",
+    "answer": "Ovum",
     "solutionSteps": [
       "Gametes are sex cells involved in sexual reproduction",
       "Male gamete is sperm (produced in testis)",
@@ -316,7 +316,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Zygote is formed after fertilization",
       "Embryo is developing organism after several divisions"
     ],
-    "finalAnswer": "B",
+    "finalAnswer": "Ovum",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -325,7 +325,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-012",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Human Reproductive System",
     "section": "A",
     "marks": 1,
@@ -339,7 +339,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Fallopian tube",
       "Vagina"
     ],
-    "answer": "C",
+    "answer": "Fallopian tube",
     "solutionSteps": [
       "Ovum is released from ovary during ovulation",
       "Ovum travels through fallopian tube",
@@ -347,7 +347,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Fertilization (fusion of sperm and ovum) occurs in the fallopian tube",
       "Fertilized ovum then travels to uterus for implantation"
     ],
-    "finalAnswer": "C",
+    "finalAnswer": "Fallopian tube",
     "isCompetencyBased": true,
     "pyqYear": "2019",
     "pyqSet": "B",
@@ -356,7 +356,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-013",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Human Reproductive System",
     "section": "B",
     "marks": 2,
@@ -383,7 +383,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-014",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Human Reproductive System",
     "section": "C",
     "marks": 1,
@@ -413,7 +413,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-015",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Reproductive Health",
     "section": "A",
     "marks": 1,
@@ -427,7 +427,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Intrauterine device (IUD)",
       "Diaphragm"
     ],
-    "answer": "C",
+    "answer": "Intrauterine device (IUD)",
     "solutionSteps": [
       "IUD is a T-shaped device inserted into the uterus",
       "IUD prevents implantation of fertilized ovum in the uterine wall",
@@ -436,7 +436,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Pills contain hormones to prevent ovulation",
       "Diaphragm is a barrier method"
     ],
-    "finalAnswer": "C",
+    "finalAnswer": "Intrauterine device (IUD)",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -445,7 +445,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-016",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Reproductive Health",
     "section": "A",
     "marks": 1,
@@ -459,7 +459,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "HIV/AIDS",
       "Chlamydia"
     ],
-    "answer": "C",
+    "answer": "HIV/AIDS",
     "solutionSteps": [
       "STIs are sexually transmitted infections",
       "Gonorrhea is caused by bacterium Neisseria gonorrhoeae",
@@ -468,7 +468,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Chlamydia is caused by bacterium Chlamydia trachomatis",
       "Only HIV/AIDS is viral; others are bacterial"
     ],
-    "finalAnswer": "C",
+    "finalAnswer": "HIV/AIDS",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "B",
@@ -477,7 +477,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-017",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Reproductive Health",
     "section": "B",
     "marks": 2,
@@ -505,7 +505,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-018",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Reproductive Health",
     "section": "C",
     "marks": 1,
@@ -536,7 +536,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-019",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Human Reproductive System",
     "section": "C",
     "marks": 1,
@@ -568,9 +568,9 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-020",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Sexual Reproduction in Plants",
-    "section": "D",
+    "section": "E",
     "marks": 4,
     "format": "Case-Based",
     "difficulty": "Hard",
@@ -598,9 +598,9 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-021",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Reproductive Health",
-    "section": "D",
+    "section": "E",
     "marks": 4,
     "format": "Case-Based",
     "difficulty": "Hard",
@@ -633,7 +633,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-022",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Human Reproductive System",
     "section": "E",
     "marks": 5,
@@ -676,7 +676,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-023",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Asexual Reproduction",
     "section": "B",
     "marks": 2,
@@ -707,7 +707,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-024",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Sexual Reproduction in Plants",
     "section": "B",
     "marks": 2,
@@ -737,7 +737,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-025",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Reproductive Health",
     "section": "B",
     "marks": 2,
@@ -771,7 +771,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-026",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Asexual Reproduction",
     "section": "A",
     "marks": 1,
@@ -800,7 +800,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-027",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Asexual Reproduction",
     "section": "A",
     "marks": 1,
@@ -829,7 +829,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-028",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Asexual Reproduction",
     "section": "A",
     "marks": 1,
@@ -854,7 +854,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-029",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Sexual Reproduction in Plants",
     "section": "B",
     "marks": 1,
@@ -884,7 +884,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-030",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Sexual Reproduction in Plants",
     "section": "B",
     "marks": 1,
@@ -915,7 +915,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-031",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Sexual Reproduction in Plants",
     "section": "B",
     "marks": 1,
@@ -941,7 +941,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-032",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Sexual Reproduction in Plants",
     "section": "B",
     "marks": 2,
@@ -970,7 +970,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-033",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Human Reproductive System",
     "section": "C",
     "marks": 1,
@@ -1000,7 +1000,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-034",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Human Reproductive System",
     "section": "C",
     "marks": 1,
@@ -1030,7 +1030,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-035",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Human Reproductive System",
     "section": "C",
     "marks": 1,
@@ -1056,7 +1056,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-036",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Human Reproductive System",
     "section": "C",
     "marks": 2,
@@ -1085,7 +1085,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-037",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Human Reproductive System",
     "section": "C",
     "marks": 2,
@@ -1115,7 +1115,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-038",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Reproductive Health",
     "section": "D",
     "marks": 1,
@@ -1145,7 +1145,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-039",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Reproductive Health",
     "section": "D",
     "marks": 1,
@@ -1171,7 +1171,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-040",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Reproductive Health",
     "section": "D",
     "marks": 1,
@@ -1201,7 +1201,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-041",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Reproductive Health",
     "section": "D",
     "marks": 1,
@@ -1231,7 +1231,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-042",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Sexual Reproduction in Plants",
     "section": "B",
     "marks": 1,
@@ -1262,7 +1262,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-043",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Human Reproductive System",
     "section": "C",
     "marks": 1,
@@ -1294,9 +1294,9 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-044",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Sexual Reproduction in Plants",
-    "section": "B",
+    "section": "E",
     "marks": 4,
     "format": "Case-Based",
     "difficulty": "Hard",
@@ -1321,7 +1321,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-045",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Asexual Reproduction",
     "section": "A",
     "marks": 2,
@@ -1357,7 +1357,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-046",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Sexual Reproduction in Plants",
     "section": "B",
     "marks": 5,
@@ -1404,7 +1404,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-047",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Human Reproductive System",
     "section": "C",
     "marks": 5,
@@ -1474,7 +1474,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
   {
     "id": "REP2-048",
     "subject": "Science",
-    "topicKey": "How do Organisms Reproduce",
+    "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Reproductive Health",
     "section": "D",
     "marks": 2,
