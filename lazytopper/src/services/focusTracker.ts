@@ -115,8 +115,10 @@ export function startTracking(): void {
       const today = todayKey();
       const todayRec = records.find((r) => r.date === today);
       if (todayRec) {
-        priorSessionFocusedMs = Math.max(0, todayRec.focusedMs);
-        priorSessionTotalMs = Math.max(0, todayRec.totalMs);
+        const f = Number(todayRec.focusedMs);
+        const t = Number(todayRec.totalMs);
+        priorSessionFocusedMs = Number.isFinite(f) && f > 0 ? f : 0;
+        priorSessionTotalMs = Number.isFinite(t) && t > 0 ? t : 0;
       }
     }
   } catch {}

@@ -116,7 +116,7 @@ const PracticePage: React.FC = () => {
 
   const qp = useMemo(() => new URLSearchParams(location.search), [location.search]);
   const rawTopicParam = qp.get("topic") || "";
-  const topicParam = rawTopicParam && rawTopicParam !== "Generic"
+  const topicParam = rawTopicParam && rawTopicParam.toLowerCase() !== "generic"
     ? rawTopicParam
     : (subjectKey === "Science" ? "chemical-reactions-and-equations" : "real-numbers");
   const topicKeyParam = qp.get("topicKey");
@@ -402,16 +402,16 @@ const [mentorSeedExample, setMentorSeedExample] = useState<{
   // - topicLabel: display name used by the canonical bank (e.g., "Real Numbers")
   // - packTopicKey: snake_case key used by Prompt-D packs (e.g., "real_numbers")
   const topicLabel = useMemo(() => {
-    if (canonicalTopicKey && canonicalTopicKey !== "Generic") {
+    if (canonicalTopicKey && canonicalTopicKey.toLowerCase() !== "generic") {
       return resolveTopicDisplayName(subjectKey, canonicalTopicKey);
     }
-    if (!topicParam || topicParam === "Generic") return topicParam;
+    if (!topicParam || topicParam.toLowerCase() === "generic") return topicParam;
     return resolveTopicDisplayName(subjectKey, canonicalTopicKey || topicParam);
   }, [subjectKey, canonicalTopicKey, topicParam]);
 
   useEffect(() => {
     const slug = canonicalTopicKey || topicParam;
-    if (slug && slug !== "Generic") {
+    if (slug && slug.toLowerCase() !== "generic") {
       recordDetour(slug, topicLabel || slug, authUserForJourney?.uid);
     }
   }, [canonicalTopicKey, topicParam, topicLabel, authUserForJourney?.uid]);
@@ -690,7 +690,7 @@ const packTopicKey = useMemo(() => {
   }, [filteredQuestions, journeyMentorMode, openMentorForQuestion]);
 
   const title = useMemo(() => {
-    if (!rawTopicParam || rawTopicParam === "Generic") {
+    if (!rawTopicParam || rawTopicParam.toLowerCase() === "generic") {
       return `Practice - Class ${grade} ${subjectKey}`;
     }
     return `Practice - ${topicLabel}`;
@@ -742,14 +742,14 @@ const packTopicKey = useMemo(() => {
             {
               label: "Chapter Hub",
               to:
-                canonicalTopicKey && topicParam !== "Generic"
+                canonicalTopicKey && topicParam.toLowerCase() !== "generic"
                   ? `/topic-hub/${grade}/${subjectKey}/${encodeURIComponent(canonicalTopicKey)}`
                   : `/topic-hub/${grade}/${subjectKey}`,
             },
             {
               label: "Predicted Q's",
               to:
-                canonicalTopicKey && topicParam !== "Generic"
+                canonicalTopicKey && topicParam.toLowerCase() !== "generic"
                   ? `/highly-probable/${grade}/${subjectKey}?topic=${encodeURIComponent(canonicalTopicKey)}`
                   : `/highly-probable/${grade}/${subjectKey}`,
             },
@@ -760,7 +760,7 @@ const packTopicKey = useMemo(() => {
           current="practice"
           grade={grade}
           subject={subjectKey}
-          topic={topicParam !== "Generic" ? topicLabel : undefined}
+          topic={topicParam.toLowerCase() !== "generic" ? topicLabel : undefined}
         />
 
         <PracticeHero
