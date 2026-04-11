@@ -609,10 +609,10 @@ export const CI2_PACK2: CanonicalQuestion[] = [
     "options": [
       "Equilateral",
       "Isosceles right-angled",
-      "Right-angled but not isosceles",
+      "Right-angled",
       "Cannot be determined"
     ],
-    "answer": "Right-angled but not isosceles",
+    "answer": "Right-angled",
     "solutionSteps": [
       "PT is a tangent at T, so OT ⊥ PT",
       "This means ∠OTP = 90°",
