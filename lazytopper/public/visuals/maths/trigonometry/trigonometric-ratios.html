@@ -3,163 +3,182 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Trigonometric Ratios - CBSE Class 10</title>
+<title>Trigonometric Ratios - Class 10</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);min-height:100vh;color:#fff;overflow-x:hidden}
-.container{max-width:900px;margin:0 auto;padding:15px}
-h1{text-align:center;font-size:clamp(1.2rem,4vw,1.8rem);background:linear-gradient(90deg,#e94560,#f5a623,#4ecdc4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:5px}
-.subtitle{text-align:center;color:#aaa;font-size:.85rem;margin-bottom:15px}
-.card{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:15px;margin-bottom:15px;backdrop-filter:blur(10px)}
-.soh-cah-toa{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:15px}
-.ratio-box{padding:10px 14px;border-radius:12px;text-align:center;cursor:pointer;transition:all .3s;border:2px solid transparent;min-width:80px}
-.ratio-box:hover,.ratio-box.active{transform:scale(1.08);border-color:#fff}
-.sin-box{background:linear-gradient(135deg,#e94560,#c0392b)}
-.cos-box{background:linear-gradient(135deg,#2980b9,#1abc9c)}
-.tan-box{background:linear-gradient(135deg,#f39c12,#e67e22)}
-.ratio-box .big{font-size:1.3rem;font-weight:700}
-.ratio-box .small{font-size:.7rem;opacity:.85}
-.canvas-wrap{position:relative;display:flex;justify-content:center}
-canvas{border-radius:12px;cursor:crosshair;touch-action:none;max-width:100%}
-.info-panel{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
-.info-card{background:rgba(255,255,255,.08);border-radius:10px;padding:10px;text-align:center}
-.info-card .label{font-size:.7rem;color:#aaa;margin-bottom:3px}
-.info-card .val{font-size:1.1rem;font-weight:700}
-.sin-val{color:#e94560}.cos-val{color:#4ecdc4}.tan-val{color:#f5a623}
-.angle-val{color:#9b59b6}.hyp-val{color:#95a5a6}.opp-adj{color:#27ae60}
-.formula-section{margin-top:10px}
-.formula-title{font-size:.9rem;font-weight:600;margin-bottom:8px;color:#f5a623}
-.formula-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px}
-.formula-item{background:rgba(255,255,255,.06);border-radius:8px;padding:8px 10px;font-size:.82rem}
-.formula-item span{color:#4ecdc4;font-weight:600}
-.steps-section{margin-top:12px}
-.step-btn{background:linear-gradient(135deg,#e94560,#f5a623);border:none;color:#fff;padding:8px 18px;border-radius:20px;cursor:pointer;font-size:.85rem;font-weight:600;transition:all .3s;margin-right:8px;margin-bottom:8px}
-.step-btn:hover{transform:translateY(-2px);box-shadow:0 4px 15px rgba(233,69,96,.4)}
-.step-display{background:rgba(255,255,255,.06);border-radius:10px;padding:12px;margin-top:10px;min-height:60px;font-size:.85rem;line-height:1.6}
-.step-display .highlight{color:#f5a623;font-weight:600}
-.step-display .answer{color:#4ecdc4;font-weight:700;font-size:.95rem}
-.example-section{margin-top:10px}
-.example-title{color:#9b59b6;font-weight:600;margin-bottom:8px;font-size:.9rem}
-.example-content{font-size:.82rem;line-height:1.7;color:#ddd}
-.example-content .em{color:#f5a623;font-weight:600}
-.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;font-size:.75rem}
-.leg-item{display:flex;align-items:center;gap:5px}
-.leg-dot{width:12px;height:12px;border-radius:3px}
-.tab-row{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
-.tab{padding:6px 14px;border-radius:20px;background:rgba(255,255,255,.1);border:none;color:#fff;cursor:pointer;font-size:.8rem;transition:all .3s}
-.tab.active{background:linear-gradient(135deg,#e94560,#9b59b6)}
-.tab-content{display:none}.tab-content.active{display:block}
-.hint{text-align:center;color:#aaa;font-size:.75rem;margin-top:6px}
-.angle-slider{width:100%;margin-top:8px;accent-color:#e94560}
-.slider-label{display:flex;justify-content:space-between;font-size:.75rem;color:#aaa;margin-top:3px}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#0f172a 100%);min-height:100vh;color:#e2e8f0}
+.title-bar{background:linear-gradient(90deg,#3b82f6,#8b5cf6,#3b82f6);padding:12px 20px;text-align:center;box-shadow:0 4px 20px rgba(59,130,246,0.5);background-size:200% auto;animation:shimmer 3s linear infinite}
+@keyframes shimmer{0%{background-position:0%}100%{background-position:200%}}
+.title-bar h1{font-size:clamp(14px,3vw,20px);font-weight:700;color:#fff;letter-spacing:1px}
+.title-bar p{font-size:clamp(10px,2vw,13px);color:#bfdbfe;margin-top:2px}
+.container{max-width:900px;margin:0 auto;padding:16px}
+.card{background:rgba(30,41,59,0.8);border:1px solid rgba(59,130,246,0.3);border-radius:16px;padding:16px;margin-bottom:16px;backdrop-filter:blur(10px);box-shadow:0 8px 32px rgba(0,0,0,0.3)}
+.soh-bar{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:16px}
+.soh-item{padding:10px 18px;border-radius:12px;font-weight:700;font-size:clamp(12px,2.5vw,15px);cursor:pointer;transition:all 0.3s;border:2px solid transparent;text-align:center}
+.soh-s{background:linear-gradient(135deg,rgba(59,130,246,0.2),rgba(59,130,246,0.1));border-color:#3b82f6;color:#93c5fd}
+.soh-c{background:linear-gradient(135deg,rgba(34,197,94,0.2),rgba(34,197,94,0.1));border-color:#22c55e;color:#86efac}
+.soh-t{background:linear-gradient(135deg,rgba(245,158,11,0.2),rgba(245,158,11,0.1));border-color:#f59e0b;color:#fcd34d}
+.soh-item:hover,.soh-item.active{transform:scale(1.05);box-shadow:0 4px 20px rgba(0,0,0,0.3)}
+.soh-s.active{background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff}
+.soh-c.active{background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff}
+.soh-t.active{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff}
+.triangle-section{display:flex;flex-direction:column;align-items:center;gap:16px}
+@media(min-width:600px){.triangle-section{flex-direction:row;align-items:flex-start}}
+.svg-wrap{flex:1;min-width:250px}
+svg#tri{width:100%;max-width:340px;display:block;margin:0 auto}
+.info-panel{flex:1;min-width:220px}
+.angle-slider{width:100%;margin:8px 0}
+input[type=range]{-webkit-appearance:none;width:100%;height:6px;border-radius:3px;background:linear-gradient(90deg,#3b82f6,#8b5cf6);outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:#3b82f6;cursor:pointer;box-shadow:0 0 8px rgba(59,130,246,0.8)}
+.ratio-box{border-radius:12px;padding:12px;margin:8px 0;transition:all 0.4s;border:2px solid transparent}
+.ratio-sin{background:rgba(59,130,246,0.15);border-color:rgba(59,130,246,0.4)}
+.ratio-cos{background:rgba(34,197,94,0.15);border-color:rgba(34,197,94,0.4)}
+.ratio-tan{background:rgba(245,158,11,0.15);border-color:rgba(245,158,11,0.4)}
+.ratio-box.highlight{transform:scale(1.02);box-shadow:0 0 20px rgba(255,255,255,0.2)}
+.ratio-sin.highlight{border-color:#3b82f6;box-shadow:0 0 15px rgba(59,130,246,0.5)}
+.ratio-cos.highlight{border-color:#22c55e;box-shadow:0 0 15px rgba(34,197,94,0.5)}
+.ratio-tan.highlight{border-color:#f59e0b;box-shadow:0 0 15px rgba(245,158,11,0.5)}
+.ratio-label{font-size:13px;font-weight:700;margin-bottom:4px}
+.ratio-formula{font-size:clamp(13px,2.5vw,16px);font-weight:600}
+.ratio-value{font-size:clamp(11px,2vw,13px);color:#94a3b8;margin-top:4px}
+.section-title{font-size:clamp(13px,2.5vw,16px);font-weight:700;color:#93c5fd;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.badge{background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#fff;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.steps-container{counter-reset:step}
+.step{background:rgba(15,23,42,0.6);border-left:3px solid #3b82f6;border-radius:8px;padding:12px;margin:8px 0;display:none;animation:fadeIn 0.4s ease}
+.step.visible{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+.step-num{color:#3b82f6;font-weight:700;font-size:12px;margin-bottom:4px}
+.step-content{font-size:clamp(12px,2vw,14px);line-height:1.6}
+.step-content .highlight-sin{color:#93c5fd;font-weight:600}
+.step-content .highlight-cos{color:#86efac;font-weight:600}
+.step-content .highlight-tan{color:#fcd34d;font-weight:600}
+.btn{background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;border:none;padding:10px 20px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;transition:all 0.3s;box-shadow:0 4px 12px rgba(59,130,246,0.4)}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(59,130,246,0.5)}
+.btn:active{transform:translateY(0)}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.btn-reset{background:linear-gradient(135deg,#64748b,#475569)}
+.memory-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.memory-card{background:rgba(15,23,42,0.7);border-radius:12px;padding:12px;text-align:center;border:1px solid rgba(255,255,255,0.1);transition:all 0.3s;cursor:pointer}
+.memory-card:hover{border-color:#3b82f6;transform:translateY(-3px);box-shadow:0 8px 24px rgba(59,130,246,0.3)}
+.memory-card .mc-angle{font-size:22px;font-weight:700;color:#f59e0b}
+.memory-card table{width:100%;margin-top:8px;border-collapse:collapse;font-size:12px}
+.memory-card table td{padding:3px 4px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.05)}
+.memory-card table tr:first-child td{color:#94a3b8;font-size:10px}
+.sin-c{color:#93c5fd}.cos-c{color:#86efac}.tan-c{color:#fcd34d}
+.angle-display{font-size:28px;font-weight:800;color:#f59e0b;text-align:center;text-shadow:0 0 20px rgba(245,158,11,0.5)}
+.label-small{font-size:10px;color:#64748b;text-align:center}
+.formula-highlight{background:linear-gradient(135deg,rgba(59,130,246,0.1),rgba(139,92,246,0.1));border:1px solid rgba(139,92,246,0.3);border-radius:10px;padding:10px;text-align:center;font-size:clamp(13px,2.5vw,16px);font-weight:600;margin:8px 0}
+.progress-bar{height:4px;background:rgba(255,255,255,0.1);border-radius:2px;margin-top:8px}
+.progress-fill{height:100%;background:linear-gradient(90deg,#3b82f6,#22c55e);border-radius:2px;transition:width 0.4s ease}
+.tooltip{position:relative}
+.tooltip:hover::after{content:attr(data-tip);position:absolute;bottom:120%;left:50%;transform:translateX(-50%);background:#1e293b;color:#e2e8f0;padding:6px 10px;border-radius:8px;font-size:11px;white-space:nowrap;border:1px solid rgba(59,130,246,0.3);z-index:10;pointer-events:none}
+.worked-q{background:linear-gradient(135deg,rgba(245,158,11,0.1),rgba(239,68,68,0.1));border:1px solid rgba(245,158,11,0.3);border-radius:10px;padding:12px;margin-bottom:10px;font-size:clamp(13px,2vw,15px)}
 </style>
 </head>
 <body>
+<div class="title-bar">
+<h1>📐 त्रिकोणमितीय अनुपात | Trigonometric Ratios</h1>
+<p>CBSE Class 10 Mathematics • Chapter 8 • Introduction to Trigonometry</p>
+</div>
+
 <div class="container">
-<h1>📐 Trigonometric Ratios</h1>
-<p class="subtitle">CBSE Class 10 Maths • Interactive Visual Explainer</p>
 
-<div class="soh-cah-toa">
-<div class="ratio-box sin-box" onclick="setActive('sin')" id="btn-sin">
-<div class="big">SOH</div>
-<div class="small">sin = Opp/Hyp</div>
-</div>
-<div class="ratio-box cos-box" onclick="setActive('cos')" id="btn-cos">
-<div class="big">CAH</div>
-<div class="small">cos = Adj/Hyp</div>
-</div>
-<div class="ratio-box tan-box" onclick="setActive('tan')" id="btn-tan">
-<div class="big">TOA</div>
-<div class="small">tan = Opp/Adj</div>
-</div>
-</div>
-
+<!-- SOH-CAH-TOA Bar -->
 <div class="card">
-<div class="canvas-wrap">
-<canvas id="triCanvas" width="500" height="300"></canvas>
+<div class="section-title"><span>🔑</span> SOH-CAH-TOA — The Golden Rule <span class="badge">Click to Explore</span></div>
+<div class="soh-bar">
+<div class="soh-item soh-s active" onclick="selectRatio('sin')" id="btn-sin">
+<div>SOH</div><div style="font-size:11px;margin-top:3px">Sin = Opposite/Hypotenuse</div>
 </div>
-<p class="hint">🖱 Drag the angle slider or click the triangle to change angle θ</p>
-<input type="range" class="angle-slider" id="angleSlider" min="10" max="80" value="35">
-<div class="slider-label"><span>10°</span><span id="sliderVal">35°</span><span>80°</span></div>
+<div class="soh-item soh-c" onclick="selectRatio('cos')" id="btn-cos">
+<div>CAH</div><div style="font-size:11px;margin-top:3px">Cos = Adjacent/Hypotenuse</div>
+</div>
+<div class="soh-item soh-t" onclick="selectRatio('tan')" id="btn-tan">
+<div>TOA</div><div style="font-size:11px;margin-top:3px">Tan = Opposite/Adjacent</div>
+</div>
+</div>
+</div>
 
+<!-- Interactive Triangle -->
+<div class="card">
+<div class="section-title"><span>🔺</span> Interactive Right △ — Drag the Angle Slider</div>
+<div class="triangle-section">
+<div class="svg-wrap">
+<div class="angle-display" id="angleDisplay">θ = 30°</div>
+<div class="label-small">∠A = θ (the angle we use for ratios)</div>
+<svg id="tri" viewBox="0 0 300 220" style="margin-top:8px"></svg>
+<div style="padding:0 8px">
+<input type="range" id="angleSlider" min="15" max="75" value="30" class="angle-slider" oninput="updateTriangle(this.value)">
+<div style="display:flex;justify-content:space-between;font-size:10px;color:#64748b"><span>15°</span><span>45°</span><span>75°</span></div>
+</div>
+</div>
 <div class="info-panel">
-<div class="info-card"><div class="label">Angle θ</div><div class="val angle-val" id="dispAngle">35.0°</div></div>
-<div class="info-card"><div class="label">Hypotenuse</div><div class="val hyp-val" id="dispHyp">—</div></div>
-<div class="info-card"><div class="label">Opposite</div><div class="val opp-adj" id="dispOpp">—</div></div>
-<div class="info-card"><div class="label">Adjacent</div><div class="val opp-adj" id="dispAdj">—</div></div>
-<div class="info-card"><div class="label">sin θ</div><div class="val sin-val" id="dispSin">—</div></div>
-<div class="info-card"><div class="label">cos θ</div><div class="val cos-val" id="dispCos">—</div></div>
+<div class="ratio-box ratio-sin" id="box-sin">
+<div class="ratio-label sin-c">📘 sin θ</div>
+<div class="ratio-formula">= <span style="border-bottom:2px solid #93c5fd;padding:0 4px">Opposite (लंब)</span> / Hypotenuse (कर्ण)</div>
+<div class="ratio-value" id="val-sin">= BC / AC</div>
 </div>
-<div style="margin-top:8px;text-align:center">
-<span style="font-size:.8rem;color:#aaa">tan θ = </span>
-<span class="val tan-val" id="dispTan" style="font-size:1.1rem;font-weight:700">—</span>
+<div class="ratio-box ratio-cos" id="box-cos">
+<div class="ratio-label cos-c">📗 cos θ</div>
+<div class="ratio-formula">= <span style="border-bottom:2px solid #86efac;padding:0 4px">Adjacent (आधार)</span> / Hypotenuse (कर्ण)</div>
+<div class="ratio-value" id="val-cos">= AB / AC</div>
+</div>
+<div class="ratio-box ratio-tan" id="box-tan">
+<div class="ratio-label tan-c">📙 tan θ</div>
+<div class="ratio-formula">= <span style="border-bottom:2px solid #fcd34d;padding:0 4px">Opposite (लंब)</span> / Adjacent (आधार)</div>
+<div class="ratio-value" id="val-tan">= BC / AB</div>
+</div>
+<div class="formula-highlight">
+∴ tan θ = sin θ / cos θ
+</div>
+</div>
+</div>
 </div>
 
-<div class="legend">
-<div class="leg-item"><div class="leg-dot" style="background:#e94560"></div><span>Opposite (Opp)</span></div>
-<div class="leg-item"><div class="leg-dot" style="background:#4ecdc4"></div><span>Adjacent (Adj)</span></div>
-<div class="leg-item"><div class="leg-dot" style="background:#f5a623"></div><span>Hypotenuse (Hyp)</span></div>
-<div class="leg-item"><div class="leg-dot" style="background:#9b59b6"></div><span>Angle θ</span></div>
-</div>
-</div>
-
+<!-- Standard Values Table -->
 <div class="card">
-<div class="tab-row">
-<button class="tab active" onclick="showTab('formulas',this)">📋 Formulas</button>
-<button class="tab" onclick="showTab('steps',this)">👣 Step-by-Step</button>
-<button class="tab" onclick="showTab('example',this)">✏️ Worked Example</button>
-</div>
-
-<div class="tab-content active" id="formulas">
-<div class="formula-title">Core Trigonometric Ratios</div>
-<div class="formula-grid">
-<div class="formula-item">📌 <span>sin θ</span> = Opposite / Hypotenuse</div>
-<div class="formula-item">📌 <span>cos θ</span> = Adjacent / Hypotenuse</div>
-<div class="formula-item">📌 <span>tan θ</span> = Opposite / Adjacent</div>
-<div class="formula-item">🔗 <span>tan θ</span> = sin θ / cos θ</div>
-<div class="formula-item">🔗 <span>cosec θ</span> = 1/sin θ = Hyp/Opp</div>
-<div class="formula-item">🔗 <span>sec θ</span> = 1/cos θ = Hyp/Adj</div>
-<div class="formula-item">🔗 <span>cot θ</span> = 1/tan θ = Adj/Opp</div>
-<div class="formula-item">⭐ <span>sin²θ + cos²θ</span> = 1</div>
-</div>
-<div style="margin-top:10px;background:rgba(249,165,35,.1);border-left:3px solid #f5a623;padding:8px 10px;border-radius:0 8px 8px 0;font-size:.8rem">
-<strong style="color:#f5a623">Remember SOH-CAH-TOA:</strong> Sin=Opp/Hyp · Cos=Adj/Hyp · Tan=Opp/Adj
+<div class="section-title"><span>📊</span> Standard Values — Click a card to highlight</div>
+<div class="memory-grid" id="memGrid">
 </div>
 </div>
 
-<div class="tab-content" id="steps">
-<div style="margin-bottom:8px;font-size:.82rem;color:#aaa">Click buttons to see each step for finding ratios in a 3-4-5 triangle:</div>
-<button class="step-btn" onclick="showStep(1)">Step 1: Identify</button>
-<button class="step-btn" onclick="showStep(2)">Step 2: Label</button>
-<button class="step-btn" onclick="showStep(3)">Step 3: sin θ</button>
-<button class="step-btn" onclick="showStep(4)">Step 4: cos θ</button>
-<button class="step-btn" onclick="showStep(5)">Step 5: tan θ</button>
-<button class="step-btn" onclick="showStep(6)">Step 6: Verify</button>
-<div class="step-display" id="stepDisplay">
-<span style="color:#aaa">Click a step button to begin the walkthrough...</span>
+<!-- Worked Example -->
+<div class="card">
+<div class="section-title"><span>✏️</span> Worked Example — Step by Step Reveal</div>
+<div class="worked-q">
+<strong>Question:</strong> In a right △ABC, right-angled at B, if AB = 3 cm, BC = 4 cm. Find sin A, cos A, tan A, sin C, cos C, tan C.
+</div>
+<div id="stepsContainer"></div>
+<div class="progress-bar"><div class="progress-fill" id="progressBar" style="width:0%"></div></div>
+<div class="btn-row">
+<button class="btn" onclick="nextStep()">▶ Next Step</button>
+<button class="btn btn-reset" onclick="resetSteps()">↺ Reset</button>
 </div>
 </div>
 
-<div class="tab-content" id="example">
-<div class="example-title">📖 CBSE-style Worked Example</div>
-<div class="example-content">
-<p><strong style="color:#fff">Question:</strong> In △ABC, right-angled at B, AB = 5 cm, BC = 12 cm. Find sin A, cos A, tan A.</p>
-<br>
-<p><span class="em">Step 1:</span> Find AC (Hypotenuse) using Pythagoras Theorem:</p>
-<p>AC² = AB² + BC² = 5² + 12² = 25 + 144 = 169</p>
-<p>∴ <span class="em">AC = 13 cm</span></p>
-<br>
-<p><span class="em">Step 2:</span> Identify sides with respect to angle A:</p>
-<p>• Opposite to A = BC = <span class="em">12 cm</span></p>
-<p>• Adjacent to A = AB = <span class="em">5 cm</span></p>
-<p>• Hypotenuse = AC = <span class="em">13 cm</span></p>
-<br>
-<p><span class="em">Step 3:</span> Apply the ratios:</p>
-<p>sin A = Opp/Hyp = 12/13 ≈ <span class="em">0.923</span></p>
-<p>cos A = Adj/Hyp = 5/13 ≈ <span class="em">0.385</span></p>
-<p>tan A = Opp/Adj = 12/5 = <span class="em">2.4</span></p>
-<br>
-<p><span class="em">Verification:</span> sin²A + cos²A = (12/13)² + (5/13)² = 144/169 + 25/169 = 169/169 = <span class="em">1 ✓</span></p>
+<!-- Key Relations -->
+<div class="card">
+<div class="section-title"><span>🔗</span> Key Relations (Reciprocals)</div>
+<div class="memory-grid">
+<div class="memory-card tooltip" data-tip="cosec is reciprocal of sin">
+<div style="font-size:18px;color:#93c5fd;font-weight:700">cosec θ</div>
+<div style="font-size:13px;color:#94a3b8;margin-top:4px">= 1 / sin θ</div>
+<div style="font-size:12px;color:#64748b;margin-top:2px">= H / O</div>
+</div>
+<div class="memory-card tooltip" data-tip="sec is reciprocal of cos">
+<div style="font-size:18px;color:#86efac;font-weight:700">sec θ</div>
+<div style="font-size:13px;color:#94a3b8;margin-top:4px">= 1 / cos θ</div>
+<div style="font-size:12px;color:#64748b;margin-top:2px">= H / A</div>
+</div>
+<div class="memory-card tooltip" data-tip="cot is reciprocal of tan">
+<div style="font-size:18px;color:#fcd34d;font-weight:700">cot θ</div>
+<div style="font-size:13px;color:#94a3b8;margin-top:4px">= 1 / tan θ</div>
+<div style="font-size:12px;color:#64748b;margin-top:2px">= A / O</div>
+</div>
+<div class="memory-card" style="border-color:rgba(239,68,68,0.3)">
+<div style="font-size:15px;color:#fca5a5;font-weight:700">Pythagoras</div>
+<div style="font-size:13px;color:#94a3b8;margin-top:4px">H² = P² + B²</div>
+<div style="font-size:12px;color:#64748b;margin-top:2px">कर्ण² = लंब² + आधार²</div>
 </div>
 </div>
 </div>
@@ -167,176 +186,167 @@ canvas{border-radius:12px;cursor:crosshair;touch-action:none;max-width:100%}
 </div>
 
 <script>
-const canvas=document.getElementById('triCanvas');
-const ctx=canvas.getContext('2d');
-let angleRad=35*Math.PI/180;
-let activeRatio='';
-const slider=document.getElementById('angleSlider');
+// ---- State ----
+let currentAngle = 30;
+let currentRatio = 'sin';
+let currentStep = 0;
 
-function resizeCanvas(){
-const wrap=canvas.parentElement;
-const w=Math.min(wrap.clientWidth-10,500);
-const scale=w/500;
-canvas.style.width=w+'px';
-canvas.style.height=(300*scale)+'px';
-}
-resizeCanvas();
-window.addEventListener('resize',()=>{resizeCanvas();draw()});
+// ---- Triangle Drawing ----
+const CX = 30, CY = 190, BX = 260, BY = 190;
+const colors = {hyp:'#f59e0b', opp:'#ef4444', adj:'#22c55e', angle:'#3b82f6'};
 
-function draw(){
-ctx.clearRect(0,0,500,300);
-const cx=80,cy=240,len=280;
-const angleDeg=angleRad*180/Math.PI;
-const adj=len*Math.cos(angleRad);
-const opp=len*Math.sin(angleRad);
-const tx=cx+adj,ty=cy-opp;
-
-// Grid
-ctx.strokeStyle='rgba(255,255,255,0.04)';
-ctx.lineWidth=1;
-for(let i=0;i<500;i+=30){ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,300);ctx.stroke()}
-for(let j=0;j<300;j+=30){ctx.beginPath();ctx.moveTo(0,j);ctx.lineTo(500,j);ctx.stroke()}
-
-// Right angle mark
-ctx.strokeStyle='rgba(255,255,255,0.5)';
-ctx.lineWidth=1.5;
-ctx.beginPath();ctx.moveTo(cx+15,cy);ctx.lineTo(cx+15,cy-15);ctx.lineTo(cx,cy-15);ctx.stroke();
-
-// Hypotenuse
-ctx.strokeStyle='#f5a623';
-ctx.lineWidth=activeRatio==='tan'?2:activeRatio===''?3.5:2;
-if(activeRatio==='sin'||activeRatio===''||activeRatio==='cos')ctx.lineWidth=activeRatio==='sin'||activeRatio==='cos'?3.5:3;
-ctx.strokeStyle='#f5a623';
-ctx.lineWidth=(activeRatio===''||activeRatio==='sin'||activeRatio==='cos')?3.5:2;
-drawLine(cx,cy,tx,ty,'#f5a623',(activeRatio==='')?4:3);
-
-// Opposite (vertical)
-drawLine(tx,cy,tx,ty,'#e94560',(activeRatio==='sin'||activeRatio==='tan')?5:2.5);
-
-// Adjacent (horizontal)
-drawLine(cx,cy,tx,cy,'#4ecdc4',(activeRatio==='cos'||activeRatio==='tan')?5:2.5);
-
-// Angle arc
-ctx.beginPath();
-ctx.arc(cx,cy,40,(-1)*angleRad,0,true);
-ctx.strokeStyle='#9b59b6';
-ctx.lineWidth=2.5;
-ctx.stroke();
-
-// Labels
-ctx.fillStyle='#fff';
-ctx.font='bold 13px Segoe UI';
-ctx.fillText('θ',cx+44,cy-12);
-
-// Side labels with highlight
-const midOppX=tx+18,midOppY=cy-opp/2;
-const midAdjX=cx+adj/2,midAdjY=cy+18;
-const midHypX=cx+adj/2-22,midHypY=cy-opp/2-8;
-
-ctx.font='bold 13px Segoe UI';
-ctx.fillStyle=(activeRatio==='sin'||activeRatio==='tan')?'#ff6b8a':'#e94560';
-ctx.fillText('Opp',midOppX,midOppY);
-ctx.fillStyle=(activeRatio==='cos'||activeRatio==='tan')?'#7ff7ef':'#4ecdc4';
-ctx.fillText('Adj',midAdjX,midAdjY);
-ctx.fillStyle=(activeRatio==='sin'||activeRatio==='cos')?'#ffc34d':'#f5a623';
-ctx.fillText('Hyp',midHypX,midHypY);
-
-// Vertices
-drawDot(cx,cy,'#fff',5);
-drawDot(tx,cy,'#fff',5);
-drawDot(tx,ty,'#fff',5);
-
-ctx.fillStyle='#fff';
-ctx.font='bold 12px Segoe UI';
-ctx.fillText('A(θ)',cx-30,cy+5);
-ctx.fillText('B',tx+8,cy+15);
-ctx.fillText('C',tx+8,ty-5);
-
-// Active ratio highlight box
-if(activeRatio){
-const labels={sin:'sin θ = Opp/Hyp',cos:'cos θ = Adj/Hyp',tan:'tan θ = Opp/Adj'};
-const colors={sin:'#e94560',cos:'#4ecdc4',tan:'#f5a623'};
-ctx.fillStyle=colors[activeRatio]+'33';
-ctx.strokeStyle=colors[activeRatio];
-ctx.lineWidth=2;
-ctx.beginPath();ctx.roundRect(310,10,175,40,8);ctx.fill();ctx.stroke();
-ctx.fillStyle=colors[activeRatio];
-ctx.font='bold 14px Segoe UI';
-ctx.fillText(labels[activeRatio],318,36);
+function getAY(angle){
+  const rad = angle * Math.PI / 180;
+  const base = BX - CX;
+  return BY - base * Math.tan(rad);
 }
 
-// Update values
-const hyp=len,op=len*Math.sin(angleRad),ad=len*Math.cos(angleRad);
-document.getElementById('dispAngle').textContent=angleDeg.toFixed(1)+'°';
-document.getElementById('dispHyp').textContent=hyp.toFixed(1);
-document.getElementById('dispOpp').textContent=op.toFixed(1);
-document.getElementById('dispAdj').textContent=ad.toFixed(1);
-document.getElementById('dispSin').textContent=Math.sin(angleRad).toFixed(4);
-document.getElementById('dispCos').textContent=Math.cos(angleRad).toFixed(4);
-document.getElementById('dispTan').textContent=Math.tan(angleRad).toFixed(4);
+function drawTriangle(angle){
+  const svg = document.getElementById('tri');
+  const ay = getAY(angle);
+  const ax = BX;
+  const hyp = Math.sqrt((ax-CX)**2 + (ay-BY)**2);
+  const opp = Math.abs(ay - BY);
+  const adj = Math.abs(ax - CX);
+  const sinV = (opp/hyp).toFixed(4);
+  const cosV = (adj/hyp).toFixed(4);
+  const tanV = (opp/adj).toFixed(4);
+
+  // Highlight sides based on currentRatio
+  let hypStr = colors.hyp, oppStr = colors.opp, adjStr = colors.adj;
+  let hypW=2,oppW=2,adjW=2;
+  if(currentRatio==='sin'){oppW=4;hypW=4}
+  else if(currentRatio==='cos'){adjW=4;hypW=4}
+  else if(currentRatio==='tan'){oppW=4;adjW=4}
+
+  svg.innerHTML = `
+    <!-- Right angle box -->
+    <rect x="${ax-14}" y="${ay-14}" width="14" height="14" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
+    <!-- Adj side (AB) -->
+    <line x1="${CX}" y1="${BY}" x2="${ax}" y2="${BY}" stroke="${adjStr}" stroke-width="${adjW}" stroke-linecap="round"/>
+    <!-- Opp side (BC) -->
+    <line x1="${ax}" y1="${BY}" x2="${ax}" y2="${ay}" stroke="${oppStr}" stroke-width="${oppW}" stroke-linecap="round"/>
+    <!-- Hyp side (AC) -->
+    <line x1="${CX}" y1="${BY}" x2="${ax}" y2="${ay}" stroke="${hypStr}" stroke-width="${hypW}" stroke-linecap="round"/>
+    <!-- Angle arc -->
+    <path d="${arcPath(CX,BY,30,0,-angle)}" fill="none" stroke="${colors.angle}" stroke-width="2"/>
+    <!-- Labels -->
+    <text x="${CX-12}" y="${BY+5}" fill="#e2e8f0" font-size="14" font-weight="700">A</text>
+    <text x="${ax+6}" y="${BY+5}" fill="#e2e8f0" font-size="14" font-weight="700">B</text>
+    <text x="${ax+6}" y="${ay}" fill="#e2e8f0" font-size="14" font-weight="700">C</text>
+    <!-- Angle label -->
+    <text x="${CX+34}" y="${BY-8}" fill="${colors.angle}" font-size="13" font-weight="700">θ</text>
+    <!-- Side labels -->
+    <text x="${(CX+ax)/2}" y="${BY+16}" fill="${adjStr}" font-size="11" font-weight="600" text-anchor="middle">AB (आधार/Adjacent)</text>
+    <text x="${ax+12}" y="${(ay+BY)/2}" fill="${oppStr}" font-size="11" font-weight="600" text-anchor="start">BC</text>
+    <text x="${(CX+ax)/2-22}" y="${(BY+ay)/2-6}" fill="${hypStr}" font-size="11" font-weight="600" text-anchor="middle">AC (कर्ण)</text>
+    <!-- 90° label -->
+    <text x="${ax-22}" y="${ay-2}" fill="#94a3b8" font-size="10">90°</text>
+  `;
+
+  // Update ratio values
+  document.getElementById('val-sin').textContent = `= BC/AC = ${opp.toFixed(1)}/${hyp.toFixed(1)} ≈ ${sinV}`;
+  document.getElementById('val-cos').textContent = `= AB/AC = ${adj.toFixed(1)}/${hyp.toFixed(1)} ≈ ${cosV}`;
+  document.getElementById('val-tan').textContent = `= BC/AB = ${opp.toFixed(1)}/${adj.toFixed(1)} ≈ ${tanV}`;
 }
 
-function drawLine(x1,y1,x2,y2,color,lw){
-ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);
-ctx.strokeStyle=color;ctx.lineWidth=lw;ctx.stroke();
-}
-function drawDot(x,y,color,r){
-ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);
-ctx.fillStyle=color;ctx.fill();
-}
-
-slider.addEventListener('input',function(){
-angleRad=parseInt(this.value)*Math.PI/180;
-document.getElementById('sliderVal').textContent=this.value+'°';
-draw();
-});
-
-canvas.addEventListener('click',function(e){
-const rect=canvas.getBoundingClientRect();
-const scaleX=500/rect.width;
-const mx=(e.clientX-rect.left)*scaleX;
-const my=(e.clientY-rect.top)*(300/rect.height);
-const cx=80,cy=240;
-const dx=mx-cx,dy=cy-my;
-if(dx>0&&dy>0){
-const a=Math.atan2(dy,dx)*180/Math.PI;
-const clamp=Math.max(10,Math.min(80,a));
-angleRad=clamp*Math.PI/180;
-slider.value=Math.round(clamp);
-document.getElementById('sliderVal').textContent=Math.round(clamp)+'°';
-draw();
-}
-});
-
-function setActive(r){
-if(activeRatio===r){activeRatio='';['btn-sin','btn-cos','btn-tan'].forEach(b=>document.getElementById(b).classList.remove('active'));}
-else{
-activeRatio=r;
-['btn-sin','btn-cos','btn-tan'].forEach(b=>document.getElementById(b).classList.remove('active'));
-document.getElementById('btn-'+r).classList.add('active');
-}
-draw();
+function arcPath(cx,cy,r,startDeg,endDeg){
+  const s = (startDeg)*Math.PI/180;
+  const e = (endDeg)*Math.PI/180;
+  const x1 = cx + r*Math.cos(s);
+  const y1 = cy + r*Math.sin(s);
+  const x2 = cx + r*Math.cos(e);
+  const y2 = cy + r*Math.sin(e);
+  return `M ${x1} ${y1} A ${r} ${r} 0 0 0 ${x2} ${y2}`;
 }
 
-function showTab(id,btn){
-document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
-document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-document.getElementById(id).classList.add('active');
-btn.classList.add('active');
+function updateTriangle(v){
+  currentAngle = parseInt(v);
+  document.getElementById('angleDisplay').textContent = `θ = ${currentAngle}°`;
+  drawTriangle(currentAngle);
 }
 
-const stepData=[
-{html:`<span class="highlight">Step 1: Identify the Right Triangle</span><br>We have a 3-4-5 right triangle. The right angle is at B.<br>Sides: AB = 3, BC = 4, AC = 5 (Hypotenuse by Pythagoras: 3²+4²=5²)`},
-{html:`<span class="highlight">Step 2: Label the Sides for Angle θ at A</span><br>• <span style="color:#f5a623">Hypotenuse (Hyp)</span> = AC = 5 (longest side, opposite right angle)<br>• <span style="color:#e94560">Opposite (Opp)</span> = BC = 4 (side opposite to θ)<br>• <span style="color:#4ecdc4">Adjacent (Adj)</span> = AB = 3 (side next to θ, not Hyp)`},
-{html:`<span class="highlight">Step 3: Find sin θ (SOH)</span><br>sin θ = <span style="color:#e94560">Opposite</span> / <span style="color:#f5a623">Hypotenuse</span><br>sin θ = BC / AC = 4 / 5<br><span class="answer">∴ sin θ = 0.8</span>`},
-{html:`<span class="highlight">Step 4: Find cos θ (CAH)</span><br>cos θ = <span style="color:#4ecdc4">Adjacent</span> / <span style="color:#f5a623">Hypotenuse</span><br>cos θ = AB / AC = 3 / 5<br><span class="answer">∴ cos θ = 0.6</span>`},
-{html:`<span class="highlight">Step 5: Find tan θ (TOA)</span><br>tan θ = <span style="color:#e94560">Opposite</span> / <span style="color:#4ecdc4">Adjacent</span><br>tan θ = BC / AB = 4 / 3<br><span class="answer">∴ tan θ = 1.333...</span><br><em style="color:#aaa">Also: tan θ = sin θ / cos θ = 0.8/0.6 = 4/3 ✓</em>`},
-{html:`<span class="highlight">Step 6: Verify Using Identity</span><br>sin²θ + cos²θ = (4/5)² + (3/5)²<br>= 16/25 + 9/25 = 25/25<br><span class="answer">= 1 ✓ Identity holds!</span>`}
+function selectRatio(r){
+  currentRatio = r;
+  ['sin','cos','tan'].forEach(x=>{
+    document.getElementById('btn-'+x).classList.remove('active');
+    document.getElementById('box-'+x).classList.remove('highlight');
+  });
+  document.getElementById('btn-'+r).classList.add('active');
+  document.getElementById('box-'+r).classList.add('highlight');
+  drawTriangle(currentAngle);
+}
+
+// ---- Standard Values Table ----
+const stdAngles = [0,30,45,60,90];
+const stdVals = {
+  0:  {sin:'0',cos:'1',tan:'0'},
+  30: {sin:'1/2',cos:'√3/2',tan:'1/√3'},
+  45: {sin:'1/√2',cos:'1/√2',tan:'1'},
+  60: {sin:'√3/2',cos:'1/2',tan:'√3'},
+  90: {sin:'1',cos:'0',tan:'∞'}
+};
+
+function buildMemGrid(){
+  const g = document.getElementById('memGrid');
+  stdAngles.forEach(a=>{
+    const v = stdVals[a];
+    const d = document.createElement('div');
+    d.className = 'memory-card';
+    d.innerHTML = `
+      <div class="mc-angle">${a}°</div>
+      <table>
+        <tr><td style="color:#94a3b8">sin</td><td style="color:#94a3b8">cos</td><td style="color:#94a3b8">tan</td></tr>
+        <tr><td class="sin-c">${v.sin}</td><td class="cos-c">${v.cos}</td><td class="tan-c">${v.tan}</td></tr>
+      </table>`;
+    d.onclick = ()=>{
+      document.querySelectorAll('#memGrid .memory-card').forEach(c=>c.style.borderColor='rgba(255,255,255,0.1)');
+      d.style.borderColor = '#f59e0b';
+      if(a>=15 && a<=75){ document.getElementById('angleSlider').value=a; updateTriangle(a); }
+    };
+    g.appendChild(d);
+  });
+}
+
+// ---- Worked Example Steps ----
+const steps = [
+  {num:'Step 1',text:'<b>Given:</b> △ABC, right-angled at B<br>AB = 3 cm (आधार), BC = 4 cm (लंब)<br>∠B = 90°'},
+  {num:'Step 2',text:'<b>Find Hypotenuse (कर्ण) AC using Pythagoras:</b><br>AC² = AB² + BC² = 3² + 4² = 9 + 16 = 25<br>∴ AC = <span class="highlight-tan">√25 = 5 cm</span>'},
+  {num:'Step 3',text:'<b>For ∠A (θ = A):</b><br>Opposite side = BC = 4, Adjacent = AB = 3, Hypotenuse = AC = 5<br><span class="highlight-sin">sin A = BC/AC = 4/5 = 0.8</span><br><span class="highlight-cos">cos A = AB/AC = 3/5 = 0.6</span><br><span class="highlight-tan">tan A = BC/AB = 4/3 ≈ 1.33</span>'},
+  {num:'Step 4',text:'<b>For ∠C (θ = C):</b><br>Opposite side = AB = 3, Adjacent = BC = 4, Hypotenuse = AC = 5<br><span class="highlight-sin">sin C = AB/AC = 3/5 = 0.6</span><br><span class="highlight-cos">cos C = BC/AC = 4/5 = 0.8</span><br><span class="highlight-tan">tan C = AB/BC = 3/4 = 0.75</span>'},
+  {num:'Step 5',text:'<b>✅ Key Observation (∴ महत्वपूर्ण):</b><br>sin A = cos C = 4/5 &nbsp;|&nbsp; cos A = sin C = 3/5<br>∵ sin A = cos(90°−A) — Complementary angles!<br><span style="color:#f59e0b">sin θ = cos(90°−θ)</span>'}
 ];
 
-function showStep(n){document.getElementById('stepDisplay').innerHTML=stepData[n-1].html}
+function buildSteps(){
+  const c = document.getElementById('stepsContainer');
+  steps.forEach((s,i)=>{
+    const d = document.createElement('div');
+    d.className = 'step';
+    d.id = 'step-'+i;
+    d.innerHTML = `<div class="step-num">${s.num}</div><div class="step-content">${s.text}</div>`;
+    c.appendChild(d);
+  });
+}
 
-draw();
+function nextStep(){
+  if(currentStep < steps.length){
+    document.getElementById('step-'+currentStep).classList.add('visible');
+    currentStep++;
+    document.getElementById('progressBar').style.width = (currentStep/steps.length*100)+'%';
+  }
+}
+
+function resetSteps(){
+  steps.forEach((_,i)=>document.getElementById('step-'+i).classList.remove('visible'));
+  currentStep=0;
+  document.getElementById('progressBar').style.width='0%';
+}
+
+// ---- Init ----
+buildMemGrid();
+buildSteps();
+drawTriangle(30);
+selectRatio('sin');
 </script>
 </body>
 </html>

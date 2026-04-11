@@ -6,429 +6,469 @@
 <title>Arithmetic Progressions - AP & Common Difference</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', sans-serif; background: #f1f5f9; color: #1e293b; min-width: 320px; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #1e293b; min-height: 100vh; }
   
   .title-bar {
-    background: linear-gradient(135deg, #1e40af, #3b82f6);
-    color: white; padding: 14px 20px;
-    box-shadow: 0 4px 12px rgba(59,130,246,0.4);
+    background: linear-gradient(135deg, #1e40af, #3b82f6, #06b6d4);
+    color: white; padding: 14px 20px; text-align: center;
+    box-shadow: 0 4px 20px rgba(59,130,246,0.5);
   }
-  .title-bar h1 { font-size: 1.1rem; font-weight: 700; }
-  .title-bar p { font-size: 0.78rem; opacity: 0.85; margin-top: 2px; }
-  .subtitle-tag {
-    display: inline-block; background: rgba(255,255,255,0.2);
-    border-radius: 20px; padding: 2px 10px; font-size: 0.7rem; margin-top: 4px;
-  }
-
+  .title-bar h1 { font-size: 1.2rem; font-weight: 700; letter-spacing: 0.5px; }
+  .title-bar p { font-size: 0.75rem; opacity: 0.85; margin-top: 2px; }
+  
   .container { max-width: 700px; margin: 0 auto; padding: 16px; }
-
+  
   .card {
-    background: white; border-radius: 16px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-    padding: 18px; margin-bottom: 16px;
+    background: white; border-radius: 16px; padding: 18px;
+    margin-bottom: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.25);
   }
-  .card-title {
-    font-size: 0.9rem; font-weight: 700; color: #3b82f6;
-    border-bottom: 2px solid #eff6ff; padding-bottom: 8px; margin-bottom: 14px;
+  
+  .section-title {
+    font-size: 0.85rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1px; color: #3b82f6; margin-bottom: 12px;
     display: flex; align-items: center; gap: 8px;
   }
-  .badge {
-    background: #eff6ff; color: #3b82f6;
-    font-size: 0.65rem; padding: 2px 8px; border-radius: 20px; font-weight: 600;
-  }
-
-  /* Sequence builder */
-  .seq-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center; margin: 10px 0; }
-  .term-box {
-    width: 52px; height: 52px; border-radius: 12px;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    font-weight: 700; font-size: 1.1rem; cursor: default;
-    transition: transform 0.3s, box-shadow 0.3s;
-    position: relative;
-  }
-  .term-box:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
-  .term-box .term-label { font-size: 0.55rem; font-weight: 600; opacity: 0.7; margin-top: 1px; }
-  .term-box.t1 { background: linear-gradient(135deg,#dbeafe,#93c5fd); color: #1e40af; }
-  .term-box.t2 { background: linear-gradient(135deg,#d1fae5,#6ee7b7); color: #065f46; }
-  .term-box.t3 { background: linear-gradient(135deg,#fef3c7,#fcd34d); color: #78350f; }
-  .term-box.t4 { background: linear-gradient(135deg,#fce7f3,#f9a8d4); color: #831843; }
-  .term-box.t5 { background: linear-gradient(135deg,#ede9fe,#c4b5fd); color: #4c1d95; }
-  .term-box.t6 { background: linear-gradient(135deg,#ffedd5,#fdba74); color: #7c2d12; }
-
-  .arrow-diff {
-    display: flex; flex-direction: column; align-items: center;
-    font-size: 0.65rem; color: #ef4444; font-weight: 700;
-  }
-  .arrow-diff .darrow { font-size: 1.2rem; color: #22c55e; }
-
-  /* Formula box */
+  .section-title::after { content: ''; flex: 1; height: 2px; background: linear-gradient(90deg, #3b82f6, transparent); border-radius: 2px; }
+  
   .formula-box {
     background: linear-gradient(135deg, #1e293b, #334155);
-    color: white; border-radius: 14px; padding: 16px;
-    text-align: center; margin: 10px 0;
+    color: white; border-radius: 12px; padding: 16px; text-align: center;
+    margin: 12px 0; position: relative; overflow: hidden;
   }
-  .formula-main { font-size: 1.3rem; font-weight: 700; color: #fcd34d; letter-spacing: 1px; }
-  .formula-sub { font-size: 0.75rem; color: #94a3b8; margin-top: 6px; }
-
-  /* Interactive slider */
-  .slider-section { padding: 8px 0; }
-  .slider-row { display: flex; align-items: center; gap: 12px; margin: 8px 0; flex-wrap: wrap; }
-  .slider-label { font-size: 0.8rem; font-weight: 600; color: #475569; min-width: 60px; }
-  input[type=range] {
-    flex: 1; min-width: 120px; accent-color: #3b82f6;
-    height: 6px; cursor: pointer;
+  .formula-box::before {
+    content: ''; position: absolute; top: -30px; right: -30px;
+    width: 80px; height: 80px; background: rgba(59,130,246,0.2);
+    border-radius: 50%;
   }
-  .slider-val {
-    background: #3b82f6; color: white;
-    padding: 3px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 700;
-    min-width: 40px; text-align: center;
+  .formula-box .formula { font-size: 1.5rem; font-weight: 700; color: #60a5fa; }
+  .formula-box .sub { font-size: 0.8rem; color: #94a3b8; margin-top: 6px; }
+  .formula-box .hindi { font-size: 0.75rem; color: #fbbf24; margin-top: 4px; }
+  
+  /* Sequence Visualizer */
+  .seq-display { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 14px 0; }
+  .term-box {
+    width: 54px; height: 54px; border-radius: 12px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; cursor: pointer;
+    transition: all 0.3s ease; position: relative; font-weight: 700;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   }
-  .live-seq {
-    display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; justify-content: center;
+  .term-box .val { font-size: 1rem; }
+  .term-box .label { font-size: 0.6rem; opacity: 0.8; }
+  .term-box:hover { transform: translateY(-4px) scale(1.08); }
+  .term-box.active { transform: translateY(-6px) scale(1.12); }
+  
+  .arrow-row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; align-items: center; margin: 4px 0; }
+  .diff-arrow {
+    display: flex; flex-direction: column; align-items: center;
+    font-size: 0.65rem; color: #64748b; transition: all 0.3s;
   }
-  .live-term {
-    background: linear-gradient(135deg,#eff6ff,#dbeafe);
-    border: 2px solid #3b82f6; border-radius: 10px;
-    padding: 6px 12px; font-weight: 700; font-size: 0.9rem; color: #1e40af;
-    transition: all 0.3s;
-    animation: popIn 0.3s ease;
+  .diff-arrow .d-val {
+    background: #f59e0b; color: white; border-radius: 20px;
+    padding: 2px 8px; font-weight: 700; font-size: 0.7rem;
+    box-shadow: 0 2px 8px rgba(245,158,11,0.4);
   }
-  @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
-  /* Step walkthrough */
-  .steps-container { counter-reset: step; }
-  .step-item {
-    display: flex; gap: 12px; margin-bottom: 10px;
-    opacity: 0; transform: translateX(-20px);
-    transition: all 0.5s ease;
-    pointer-events: none;
+  .diff-arrow .arrow { font-size: 1rem; color: #f59e0b; }
+  
+  /* Controls */
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 12px 0; }
+  .ctrl-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 120px; }
+  .ctrl-group label { font-size: 0.72rem; font-weight: 600; color: #475569; }
+  .ctrl-group input[type=range] { width: 100%; accent-color: #3b82f6; }
+  .ctrl-val { font-size: 0.85rem; font-weight: 700; color: #3b82f6; }
+  
+  /* AP Check */
+  .check-section { }
+  .seq-input-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+  .num-input {
+    width: 50px; height: 42px; border: 2px solid #e2e8f0; border-radius: 10px;
+    text-align: center; font-size: 0.95rem; font-weight: 600; color: #1e293b;
+    transition: all 0.3s; outline: none;
   }
-  .step-item.visible { opacity: 1; transform: translateX(0); pointer-events: auto; }
-  .step-num {
-    min-width: 28px; height: 28px; background: #3b82f6;
-    color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-    font-size: 0.75rem; font-weight: 700; flex-shrink: 0; margin-top: 2px;
+  .num-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.2); }
+  .num-input.valid { border-color: #22c55e; background: #f0fdf4; }
+  .num-input.invalid { border-color: #ef4444; background: #fef2f2; }
+  
+  .check-btn {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: white; border: none; border-radius: 10px; padding: 10px 20px;
+    font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.3s;
   }
-  .step-content { font-size: 0.82rem; line-height: 1.5; color: #374151; }
-  .step-content .highlight { background: #fef3c7; padding: 1px 5px; border-radius: 4px; font-weight: 600; }
-  .step-content .blue { color: #3b82f6; font-weight: 700; }
-  .step-content .green { color: #22c55e; font-weight: 700; }
-  .step-content .red { color: #ef4444; font-weight: 700; }
-
-  .btn {
-    background: linear-gradient(135deg,#3b82f6,#1d4ed8);
-    color: white; border: none; border-radius: 10px;
-    padding: 8px 18px; font-size: 0.82rem; font-weight: 600;
-    cursor: pointer; transition: all 0.2s; box-shadow: 0 3px 10px rgba(59,130,246,0.3);
+  .check-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(59,130,246,0.4); }
+  
+  .result-box {
+    border-radius: 10px; padding: 10px 14px; font-size: 0.82rem; font-weight: 600;
+    margin-top: 10px; display: none; animation: fadeIn 0.4s ease;
   }
-  .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(59,130,246,0.4); }
-  .btn:active { transform: translateY(0); }
-  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
-
-  .btn-green {
-    background: linear-gradient(135deg,#22c55e,#15803d);
-    box-shadow: 0 3px 10px rgba(34,197,94,0.3);
+  .result-box.show { display: block; }
+  .result-box.ap { background: #f0fdf4; border: 2px solid #22c55e; color: #15803d; }
+  .result-box.not-ap { background: #fef2f2; border: 2px solid #ef4444; color: #dc2626; }
+  
+  /* Step Walkthrough */
+  .steps { }
+  .step {
+    border-left: 3px solid #e2e8f0; padding: 10px 14px; margin: 8px 0;
+    border-radius: 0 10px 10px 0; background: #f8fafc;
+    transition: all 0.4s ease; opacity: 0.3; transform: translateX(-8px);
   }
-  .btn-green:hover { box-shadow: 0 6px 16px rgba(34,197,94,0.4); }
-
-  /* Number line */
-  .numline-wrap { overflow-x: auto; padding: 10px 0; }
-  .numline-svg { display: block; margin: 0 auto; }
-
-  /* AP vs Non-AP quiz */
-  .quiz-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-  @media(max-width:420px){ .quiz-grid { grid-template-columns: 1fr; } }
-  .quiz-card {
-    border: 2px solid #e2e8f0; border-radius: 12px; padding: 12px;
-    cursor: pointer; transition: all 0.3s; font-size: 0.8rem;
-    background: white;
+  .step.revealed { opacity: 1; transform: translateX(0); border-left-color: #3b82f6; background: #eff6ff; }
+  .step.done { border-left-color: #22c55e; background: #f0fdf4; }
+  .step-num { font-size: 0.68rem; font-weight: 700; color: #3b82f6; text-transform: uppercase; }
+  .step-content { font-size: 0.82rem; color: #334155; margin-top: 3px; }
+  .step-math { font-size: 0.9rem; font-weight: 700; color: #1e40af; margin-top: 4px; }
+  
+  .next-btn {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: white; border: none; border-radius: 10px; padding: 9px 18px;
+    font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.3s;
+    margin-top: 10px;
   }
-  .quiz-card:hover { border-color: #3b82f6; background: #eff6ff; transform: translateY(-2px); }
-  .quiz-card.correct { border-color: #22c55e; background: #f0fdf4; }
-  .quiz-card.wrong { border-color: #ef4444; background: #fef2f2; }
-  .quiz-card .seq-text { font-weight: 700; font-size: 0.85rem; color: #1e293b; margin-bottom: 4px; }
-  .quiz-card .feedback { font-size: 0.72rem; font-weight: 600; margin-top: 4px; display: none; }
-  .quiz-card.correct .feedback { display: block; color: #22c55e; }
-  .quiz-card.wrong .feedback { display: block; color: #ef4444; }
-
-  /* Tip box */
+  .next-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(34,197,94,0.4); }
+  .next-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  
+  /* Number Line */
+  .nline-wrap { overflow-x: auto; padding: 10px 0; }
+  .nline-svg { display: block; margin: 0 auto; }
+  
+  /* Types of AP */
+  .ap-types { display: flex; flex-wrap: wrap; gap: 10px; }
+  .type-card {
+    flex: 1; min-width: 130px; border-radius: 12px; padding: 12px;
+    text-align: center; cursor: pointer; transition: all 0.3s; border: 2px solid transparent;
+  }
+  .type-card:hover { transform: translateY(-3px); }
+  .type-card.selected { border-color: currentColor; box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
+  .type-card .tc-emoji { font-size: 1.6rem; }
+  .type-card .tc-name { font-size: 0.78rem; font-weight: 700; margin-top: 4px; }
+  .type-card .tc-ex { font-size: 0.7rem; margin-top: 2px; opacity: 0.8; }
+  
+  .type-inc { background: #eff6ff; color: #1d4ed8; }
+  .type-dec { background: #fef2f2; color: #dc2626; }
+  .type-con { background: #f0fdf4; color: #15803d; }
+  
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(59,130,246,0.4); } 50% { box-shadow: 0 0 0 8px rgba(59,130,246,0); } }
+  .pulse { animation: pulse 2s infinite; }
+  
+  .badge {
+    display: inline-block; background: #dbeafe; color: #1d4ed8;
+    border-radius: 20px; padding: 2px 8px; font-size: 0.68rem; font-weight: 700;
+    margin-left: 6px;
+  }
+  
+  .highlight { background: #fef9c3; border-radius: 4px; padding: 1px 4px; }
+  
   .tip-box {
-    background: linear-gradient(135deg,#fffbeb,#fef3c7);
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
     border-left: 4px solid #f59e0b; border-radius: 0 10px 10px 0;
-    padding: 10px 14px; font-size: 0.78rem; color: #78350f; margin-top: 10px;
-    line-height: 1.5;
+    padding: 10px 12px; font-size: 0.78rem; color: #92400e; margin-top: 10px;
   }
-  .tip-box strong { color: #92400e; }
-
-  /* Info chips */
-  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
-  .chip {
-    padding: 5px 12px; border-radius: 20px; font-size: 0.72rem; font-weight: 600;
-  }
-  .chip-blue { background: #dbeafe; color: #1e40af; }
-  .chip-green { background: #dcfce7; color: #166534; }
-  .chip-amber { background: #fef3c7; color: #92400e; }
-  .chip-red { background: #fee2e2; color: #991b1b; }
-
-  .progress-bar-wrap { background: #e2e8f0; border-radius: 10px; height: 8px; margin-top: 8px; overflow: hidden; }
-  .progress-bar { height: 100%; background: linear-gradient(90deg,#3b82f6,#22c55e); border-radius: 10px; transition: width 0.5s ease; }
-
-  .result-text { text-align: center; font-size: 0.85rem; font-weight: 700; margin-top: 10px; padding: 8px; border-radius: 8px; display: none; }
-  .result-text.show { display: block; }
 </style>
 </head>
 <body>
 
 <div class="title-bar">
-  <h1>📐 Arithmetic Progressions (AP)</h1>
-  <p>CBSE Class 10 Mathematics — Chapter 5</p>
-  <span class="subtitle-tag">समांतर श्रेढ़ी | Common Difference | Sequences</span>
+  <h1>📐 Arithmetic Progressions (समांतर श्रेढ़ी)</h1>
+  <p>AP Definition & Common Difference — CBSE Class 10 Mathematics</p>
 </div>
 
 <div class="container">
 
-  <!-- What is AP -->
+  <!-- Formula Card -->
   <div class="card">
-    <div class="card-title">🔢 What is an Arithmetic Progression? <span class="badge">DEFINITION</span></div>
-    <p style="font-size:0.82rem;line-height:1.6;color:#374151;">An <strong>Arithmetic Progression (AP)</strong> is a sequence where the <span style="color:#ef4444;font-weight:700;">difference between any two consecutive terms is always the same</span>. This fixed difference is called the <strong>Common Difference (d)</strong>.</p>
-    
-    <div class="chips">
-      <span class="chip chip-blue">a = first term (प्रथम पद)</span>
-      <span class="chip chip-green">d = common difference (सार्व अंतर)</span>
-      <span class="chip chip-amber">n = number of terms</span>
-    </div>
-
-    <div class="seq-row" id="demo-seq">
-      <div class="term-box t1"><span>2</span><span class="term-label">a₁</span></div>
-      <div class="arrow-diff"><span>+5</span><span class="darrow">→</span></div>
-      <div class="term-box t2"><span>7</span><span class="term-label">a₂</span></div>
-      <div class="arrow-diff"><span>+5</span><span class="darrow">→</span></div>
-      <div class="term-box t3"><span>12</span><span class="term-label">a₃</span></div>
-      <div class="arrow-diff"><span>+5</span><span class="darrow">→</span></div>
-      <div class="term-box t4"><span>17</span><span class="term-label">a₄</span></div>
-      <div class="arrow-diff"><span>+5</span><span class="darrow">→</span></div>
-      <div class="term-box t5"><span>22</span><span class="term-label">a₅</span></div>
-    </div>
-    <p style="text-align:center;font-size:0.75rem;color:#64748b;">↑ Hover over each term to see it highlighted!</p>
-
+    <div class="section-title">मुख्य सूत्र (Key Formula)</div>
     <div class="formula-box">
-      <div class="formula-main">d = a₂ − a₁ = a₃ − a₂ = aₙ − aₙ₋₁</div>
-      <div class="formula-sub">सार्व अंतर (Common Difference) = consecutive term − previous term</div>
+      <div class="formula">d = a<sub style="font-size:0.8rem">n+1</sub> − a<sub style="font-size:0.8rem">n</sub></div>
+      <div class="sub">Common Difference = Any Term − Its Preceding Term</div>
+      <div class="hindi">∴ d = a₂ − a₁ = a₃ − a₂ = a₄ − a₃ = ...</div>
     </div>
-
-    <div class="tip-box">
-      <strong>💡 याद रखें (Remember):</strong> d can be <strong>positive</strong> (increasing AP), <strong>negative</strong> (decreasing AP), or <strong>zero</strong> (constant AP — all terms equal)!
-    </div>
+    <p style="font-size:0.78rem;color:#475569;text-align:center;">A sequence is an AP ∵ the difference between consecutive terms is <strong>constant</strong></p>
   </div>
 
   <!-- Interactive Sequence Builder -->
   <div class="card">
-    <div class="card-title">🎛️ Build Your Own AP <span class="badge">INTERACTIVE</span></div>
-    <p style="font-size:0.8rem;color:#64748b;margin-bottom:10px;">Use sliders to change first term (a) and common difference (d). Watch the AP update live!</p>
-    
-    <div class="slider-section">
-      <div class="slider-row">
-        <span class="slider-label">First term (a):</span>
-        <input type="range" id="sl-a" min="-10" max="20" value="3">
-        <span class="slider-val" id="val-a">3</span>
+    <div class="section-title">Build Your AP <span class="badge">Interactive</span></div>
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>First Term (a₁): <span class="ctrl-val" id="a1Val">2</span></label>
+        <input type="range" id="a1Slider" min="-10" max="20" value="2">
       </div>
-      <div class="slider-row">
-        <span class="slider-label">Common diff (d):</span>
-        <input type="range" id="sl-d" min="-8" max="8" value="4">
-        <span class="slider-val" id="val-d">4</span>
+      <div class="ctrl-group">
+        <label>Common Difference (d): <span class="ctrl-val" id="dVal">3</span></label>
+        <input type="range" id="dSlider" min="-8" max="8" value="3">
       </div>
     </div>
-
-    <div style="text-align:center;font-size:0.8rem;font-weight:600;color:#475569;margin:6px 0;">Your AP (first 8 terms):</div>
-    <div class="live-seq" id="live-seq"></div>
-
-    <div id="ap-info" style="background:#f8fafc;border-radius:10px;padding:10px;font-size:0.78rem;color:#374151;line-height:1.7;margin-top:6px;"></div>
+    <div class="seq-display" id="seqDisplay"></div>
+    <div class="arrow-row" id="arrowRow"></div>
+    <div class="tip-box" id="apTip">💡 <strong>Observation:</strong> All differences equal d = <span id="tipD">3</span>. This is what makes it an AP!</div>
   </div>
 
   <!-- Number Line Visualization -->
   <div class="card">
-    <div class="card-title">📏 AP on a Number Line <span class="badge">VISUAL</span></div>
-    <p style="font-size:0.8rem;color:#64748b;margin-bottom:10px;">See how equal spacing between terms creates an AP. (Based on your slider values above)</p>
-    <div class="numline-wrap">
-      <svg id="numline-svg" class="numline-svg" width="620" height="90" viewBox="0 0 620 90"></svg>
+    <div class="section-title">Number Line (संख्या रेखा)</div>
+    <div class="nline-wrap">
+      <svg class="nline-svg" id="nlineSvg" width="620" height="90" viewBox="0 0 620 90"></svg>
     </div>
+    <p style="font-size:0.72rem;color:#64748b;text-align:center;margin-top:4px;">Equal spacing = Equal common difference</p>
   </div>
 
-  <!-- Step-by-step Worked Example -->
+  <!-- Types of AP -->
   <div class="card">
-    <div class="card-title">📖 Worked Example — Step by Step <span class="badge">समझो</span></div>
-    <p style="font-size:0.82rem;color:#374151;margin-bottom:10px;"><strong>Question:</strong> Is the sequence <span style="color:#3b82f6;font-weight:700;">4, 7, 10, 13, 16, ...</span> an AP? If yes, find the common difference.</p>
-    
-    <div class="steps-container" id="steps-container">
-      <div class="step-item" id="step1">
-        <div class="step-num">1</div>
-        <div class="step-content">
-          <strong>Write down consecutive term differences:</strong><br>
-          a₂ − a₁ = <span class="highlight">7 − 4 = 3</span><br>
-          a₃ − a₂ = <span class="highlight">10 − 7 = 3</span><br>
-          a₄ − a₃ = <span class="highlight">13 − 10 = 3</span><br>
-          a₅ − a₄ = <span class="highlight">16 − 13 = 3</span>
-        </div>
+    <div class="section-title">Types of AP <span class="badge">Click to Explore</span></div>
+    <div class="ap-types">
+      <div class="type-card type-inc" onclick="showType('inc',this)">
+        <div class="tc-emoji">📈</div>
+        <div class="tc-name">Increasing AP</div>
+        <div class="tc-ex">d &gt; 0</div>
       </div>
-      <div class="step-item" id="step2">
-        <div class="step-num">2</div>
-        <div class="step-content">
-          <strong>Check if all differences are equal:</strong><br>
-          All differences = <span class="green">3</span> ✔<br>
-          Since the difference is <span class="green">constant</span>, this IS an AP!
-        </div>
+      <div class="type-card type-dec" onclick="showType('dec',this)">
+        <div class="tc-emoji">📉</div>
+        <div class="tc-name">Decreasing AP</div>
+        <div class="tc-ex">d &lt; 0</div>
       </div>
-      <div class="step-item" id="step3">
-        <div class="step-num">3</div>
-        <div class="step-content">
-          <strong>State the answer:</strong><br>
-          ∴ The sequence is an AP with:<br>
-          First term <span class="blue">a = 4</span><br>
-          Common difference <span class="red">d = 3</span>
-        </div>
-      </div>
-      <div class="step-item" id="step4">
-        <div class="step-num">4</div>
-        <div class="step-content">
-          <strong>General form of this AP:</strong><br>
-          4, 4+3, 4+6, 4+9, 4+12, ...<br>
-          = a, a+d, a+2d, a+3d, a+4d, ...<br>
-          <span class="highlight">This is the standard form of any AP!</span>
-        </div>
+      <div class="type-card type-con" onclick="showType('con',this)">
+        <div class="tc-emoji">➡️</div>
+        <div class="tc-name">Constant AP</div>
+        <div class="tc-ex">d = 0</div>
       </div>
     </div>
-
-    <div id="step-progress" style="margin-top:8px;">
-      <div style="font-size:0.72rem;color:#64748b;">Progress: <span id="step-count">0</span>/4 steps revealed</div>
-      <div class="progress-bar-wrap"><div class="progress-bar" id="prog-bar" style="width:0%"></div></div>
-    </div>
-
-    <div class="btn-row">
-      <button class="btn" onclick="nextStep()">▶ Next Step</button>
-      <button class="btn" style="background:linear-gradient(135deg,#64748b,#475569);" onclick="resetSteps()">↺ Reset</button>
-    </div>
+    <div id="typeInfo" style="margin-top:12px;font-size:0.8rem;color:#334155;background:#f1f5f9;border-radius:10px;padding:10px;display:none;animation:fadeIn 0.3s ease;"></div>
   </div>
 
-  <!-- AP vs Non-AP Quiz -->
+  <!-- Is it an AP? Checker -->
   <div class="card">
-    <div class="card-title">🧩 AP या नहीं? Identify the APs! <span class="badge">QUIZ</span></div>
-    <p style="font-size:0.8rem;color:#64748b;margin-bottom:6px;">Click on each sequence — is it an AP or NOT?</p>
+    <div class="section-title">AP Checker <span class="badge">Try It!</span></div>
+    <p style="font-size:0.78rem;color:#475569;margin-bottom:10px;">Enter 4 numbers — is it an AP? (समांतर श्रेढ़ी है या नहीं?)</p>
+    <div class="seq-input-row">
+      <input class="num-input" id="n1" type="number" value="3" placeholder="a₁">
+      <input class="num-input" id="n2" type="number" value="7" placeholder="a₂">
+      <input class="num-input" id="n3" type="number" value="11" placeholder="a₃">
+      <input class="num-input" id="n4" type="number" value="15" placeholder="a₄">
+      <button class="check-btn" onclick="checkAP()">Check ✓</button>
+    </div>
+    <div class="result-box" id="apResult"></div>
+  </div>
+
+  <!-- Step-by-Step Worked Example -->
+  <div class="card">
+    <div class="section-title">Worked Example (हल किया उदाहरण)</div>
+    <p style="font-size:0.8rem;color:#475569;margin-bottom:4px;"><strong>Question:</strong> Is 5, 8, 11, 14, 17 an AP? Find d.</p>
     
-    <div class="quiz-grid" id="quiz-grid">
-      <div class="quiz-card" onclick="checkQuiz(this,true)" data-answered="false">
-        <div class="seq-text">2, 5, 8, 11, 14, ...</div>
-        <div style="font-size:0.72rem;color:#64748b;">d = ?</div>
-        <div class="feedback">✅ YES! AP with d = 3</div>
+    <div id="steps">
+      <div class="step" id="s1">
+        <div class="step-num">Step 1</div>
+        <div class="step-content">Write down the given sequence:</div>
+        <div class="step-math">a₁ = 5, a₂ = 8, a₃ = 11, a₄ = 14, a₅ = 17</div>
       </div>
-      <div class="quiz-card" onclick="checkQuiz(this,false)" data-answered="false">
-        <div class="seq-text">1, 4, 9, 16, 25, ...</div>
-        <div style="font-size:0.72rem;color:#64748b;">d = ?</div>
-        <div class="feedback">❌ NOT AP! Differences: 3,5,7,9 (not constant). These are perfect squares!</div>
+      <div class="step" id="s2">
+        <div class="step-num">Step 2</div>
+        <div class="step-content">Find differences between consecutive terms:</div>
+        <div class="step-math">a₂ − a₁ = 8 − 5 = <span class="highlight">3</span></div>
       </div>
-      <div class="quiz-card" onclick="checkQuiz(this,true)" data-answered="false">
-        <div class="seq-text">10, 7, 4, 1, −2, ...</div>
-        <div style="font-size:0.72rem;color:#64748b;">d = ?</div>
-        <div class="feedback">✅ YES! Decreasing AP with d = −3</div>
+      <div class="step" id="s3">
+        <div class="step-num">Step 3</div>
+        <div class="step-content">Check remaining differences:</div>
+        <div class="step-math">a₃ − a₂ = 11 − 8 = <span class="highlight">3</span> &nbsp;|&nbsp; a₄ − a₃ = 14 − 11 = <span class="highlight">3</span> &nbsp;|&nbsp; a₅ − a₄ = 17 − 14 = <span class="highlight">3</span></div>
       </div>
-      <div class="quiz-card" onclick="checkQuiz(this,false)" data-answered="false">
-        <div class="seq-text">1, 2, 4, 8, 16, ...</div>
-        <div style="font-size:0.72rem;color:#64748b;">d = ?</div>
-        <div class="feedback">❌ NOT AP! Differences: 1,2,4,8 (not constant). This is a Geometric Progression!</div>
-      </div>
-      <div class="quiz-card" onclick="checkQuiz(this,true)" data-answered="false">
-        <div class="seq-text">5, 5, 5, 5, 5, ...</div>
-        <div style="font-size:0.72rem;color:#64748b;">d = ?</div>
-        <div class="feedback">✅ YES! AP with d = 0 (constant sequence)</div>
-      </div>
-      <div class="quiz-card" onclick="checkQuiz(this,false)" data-answered="false">
-        <div class="seq-text">1, 1, 2, 3, 5, 8, ...</div>
-        <div style="font-size:0.72rem;color:#64748b;">d = ?</div>
-        <div class="feedback">❌ NOT AP! This is Fibonacci sequence — each term = sum of previous two!</div>
+      <div class="step" id="s4">
+        <div class="step-num">Step 4</div>
+        <div class="step-content">∵ All differences are equal (सभी अंतर समान हैं)</div>
+        <div class="step-math">∴ The sequence is an AP with d = 3 ✅</div>
       </div>
     </div>
     
-    <div id="quiz-result" class="result-text"></div>
-    <div id="quiz-score-wrap" style="display:none;margin-top:6px;">
-      <div style="font-size:0.72rem;color:#64748b;">Score: <span id="quiz-score">0</span>/6</div>
-      <div class="progress-bar-wrap"><div class="progress-bar" id="quiz-prog" style="width:0%;"></div></div>
-    </div>
-    <button class="btn btn-green" style="margin-top:12px;" onclick="resetQuiz()">🔄 Try Again</button>
+    <button class="next-btn" id="nextBtn" onclick="revealStep()">Next Step →</button>
+    <button class="next-btn" id="resetBtn" onclick="resetSteps()" style="background:linear-gradient(135deg,#64748b,#475569);display:none;margin-left:8px;">Reset ↺</button>
   </div>
 
-  <!-- Key Points Summary -->
-  <div class="card">
-    <div class="card-title">⭐ Key Points Summary <span class="badge">REVISION</span></div>
-    <div style="font-size:0.8rem;line-height:1.8;color:#374151;">
-      <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;"><span style="color:#3b82f6;font-size:1rem;">▸</span><span>An AP has the form: <strong>a, a+d, a+2d, a+3d, ...</strong></span></div>
-      <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;"><span style="color:#22c55e;font-size:1rem;">▸</span><span><strong>d > 0</strong> → Increasing AP (बढ़ती हुई श्रेढ़ी)</span></div>
-      <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;"><span style="color:#ef4444;font-size:1rem;">▸</span><span><strong>d < 0</strong> → Decreasing AP (घटती हुई श्रेढ़ी)</span></div>
-      <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;"><span style="color:#f59e0b;font-size:1rem;">▸</span><span><strong>d = 0</strong> → Constant AP (all terms equal)</span></div>
-      <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;"><span style="color:#8b5cf6;font-size:1rem;">▸</span><span>To check AP: <strong>aₙ − aₙ₋₁ = constant</strong> for ALL consecutive pairs</span></div>
-    </div>
-    <div class="formula-box" style="margin-top:10px;">
-      <div style="font-size:0.75rem;color:#94a3b8;margin-bottom:4px;">General Term Formula (आगे पढ़ेंगे):</div>
-      <div class="formula-main">aₙ = a + (n−1)d</div>
-      <div class="formula-sub">nth term = first term + (n−1) × common difference</div>
-    </div>
+  <div style="text-align:center;color:#475569;font-size:0.7rem;padding:12px 0 24px;">
+    CBSE Class 10 Mathematics | Chapter 5: Arithmetic Progressions
   </div>
-
 </div>
 
 <script>
-  // Slider interaction
-  const slA = document.getElementById('sl-a');
-  const slD = document.getElementById('sl-d');
-  const valA = document.getElementById('val-a');
-  const valD = document.getElementById('val-d');
-  
-  function updateAP() {
-    const a = parseInt(slA.value);
-    const d = parseInt(slD.value);
-    valA.textContent = a;
-    valD.textContent = d;
-    
-    const liveSeq = document.getElementById('live-seq');
-    liveSeq.innerHTML = '';
-    const terms = [];
-    for (let i = 0; i < 8; i++) {
-      const val = a + i * d;
-      terms.push(val);
-      const el = document.createElement('div');
-      el.className = 'live-term';
-      el.style.animationDelay = (i * 0.05) + 's';
-      el.innerHTML = `<span style="font-size:0.6rem;color:#64748b;display:block;text-align:center;">a${i+1}</span>${val}`;
-      liveSeq.appendChild(el);
-    }
-    
-    const info = document.getElementById('ap-info');
-    let dType = d > 0 ? '📈 Increasing AP (बढ़ती हुई)' : d < 0 ? '📉 Decreasing AP (घटती हुई)' : '➡️ Constant AP (d = 0)';
-    info.innerHTML = `<strong>First term (a) = ${a}</strong> &nbsp;|&nbsp; <strong>Common difference (d) = ${d}</strong><br>${dType}<br>
-    <span style="color:#3b82f6;">d = a₂ − a₁ = ${terms[1]} − ${terms[0]} = ${d}</span>`;
-    
-    drawNumberLine(terms, d);
+  const colors = ['#3b82f6','#8b5cf6','#22c55e','#f59e0b','#ef4444','#06b6d4','#ec4899'];
+  const lightColors = ['#dbeafe','#ede9fe','#dcfce7','#fef3c7','#fee2e2','#cffafe','#fce7f3'];
+
+  let a1 = 2, d = 3;
+
+  function buildSeq(a, diff, n=6) {
+    return Array.from({length:n}, (_,i) => a + i*diff);
   }
 
-  function drawNumberLine(terms, d) {
-    const svg = document.getElementById('numline-svg');
+  function renderSeq() {
+    const terms = buildSeq(a1, d);
+    const disp = document.getElementById('seqDisplay');
+    const arr = document.getElementById('arrowRow');
+    
+    disp.innerHTML = '';
+    arr.innerHTML = '';
+
+    terms.forEach((t,i) => {
+      const box = document.createElement('div');
+      box.className = 'term-box';
+      box.style.background = `linear-gradient(135deg, ${colors[i%7]}, ${colors[(i+2)%7]})`;
+      box.style.color = 'white';
+      box.innerHTML = `<span class="val">${t}</span><span class="label">a${toSub(i+1)}</span>`;
+      box.onclick = () => { box.classList.toggle('active'); };
+      disp.appendChild(box);
+
+      if(i < terms.length-1) {
+        const da = document.createElement('div');
+        da.className = 'diff-arrow';
+        da.innerHTML = `<span class="d-val">+${d}</span><span class="arrow">→</span>`;
+        if(d < 0) da.querySelector('.d-val').textContent = d;
+        if(d === 0) da.querySelector('.d-val').style.background = '#22c55e';
+        arr.appendChild(da);
+      }
+    });
+
+    document.getElementById('tipD').textContent = d;
+    renderNumberLine(terms);
+  }
+
+  function toSub(n) {
+    const subs = ['₁','₂','₃','₄','₅','₆'];
+    return subs[n-1] || n;
+  }
+
+  function renderNumberLine(terms) {
+    const svg = document.getElementById('nlineSvg');
     const W = 620, H = 90;
-    const min = Math.min(...terms), max = Math.max(...terms);
+    const min = Math.min(...terms) - Math.abs(d);
+    const max = Math.max(...terms) + Math.abs(d);
     const range = max - min || 1;
-    const pad = 50;
-    const usableW = W - 2 * pad;
+    const toX = v => 30 + ((v - min) / range) * (W - 60);
+
+    let html = '';
+    // axis
+    html += `<line x1="20" y1="50" x2="${W-20}" y2="50" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round"/>`;
+    // arrows
+    html += `<polygon points="${W-20},50 ${W-30},45 ${W-30},55" fill="#cbd5e1"/>`;
+
+    // tick marks for reference
+    for(let v = Math.ceil(min); v <= Math.floor(max); v++) {
+      const x = toX(v);
+      if(x > 15 && x < W-15) {
+        html += `<line x1="${x}" y1="47" x2="${x}" y2="53" stroke="#e2e8f0" stroke-width="1"/>`;
+      }
+    }
+
+    // spacing arcs and labels
+    terms.forEach((t,i) => {
+      const x = toX(t);
+      const col = colors[i % 7];
+      const lCol = lightColors[i % 7];
+      html += `<circle cx="${x}" cy="50" r="18" fill="${col}" opacity="0.9"/>`;
+      html += `<text x="${x}" y="55" text-anchor="middle" fill="white" font-size="11" font-weight="bold">${t}</text>`;
+      html += `<text x="${x}" y="80" text-anchor="middle" fill="${col}" font-size="9" font-weight="bold">a${toSub(i+1)}</text>`;
+      
+      if(i < terms.length - 1) {
+        const x2 = toX(terms[i+1]);
+        const mx = (x + x2)/2;
+        html += `<path d="M ${x+18} 50 Q ${mx} 22 ${x2-18} 50" stroke="${col}" fill="none" stroke-width="1.5" stroke-dasharray="4,2" opacity="0.6"/>`;
+        html += `<rect x="${mx-10}" y="8" width="20" height="14" rx="7" fill="${col}" opacity="0.9"/>`;
+        html += `<text x="${mx}" y="19" text-anchor="middle" fill="white" font-size="9" font-weight="bold">d=${d}</text>`;
+      }
+    });
+
+    svg.innerHTML = html;
+  }
+
+  document.getElementById('a1Slider').addEventListener('input', function() {
+    a1 = parseInt(this.value);
+    document.getElementById('a1Val').textContent = a1;
+    renderSeq();
+  });
+
+  document.getElementById('dSlider').addEventListener('input', function() {
+    d = parseInt(this.value);
+    document.getElementById('dVal').textContent = d;
+    renderSeq();
+  });
+
+  // Types
+  function showType(type, el) {
+    document.querySelectorAll('.type-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    const info = document.getElementById('typeInfo');
+    info.style.display = 'block';
+    const data = {
+      inc: { title: '📈 Increasing AP (वर्धमान AP)', ex: '2, 5, 8, 11, 14, ...', d: 'd = 3 &gt; 0', note: 'Each term is GREATER than the previous. Salary increasing each year is an example!' },
+      dec: { title: '📉 Decreasing AP (ह्रासमान AP)', ex: '20, 15, 10, 5, 0, ...', d: 'd = −5 &lt; 0', note: 'Each term is SMALLER than the previous. Water decreasing in a tank — level drops equally!' },
+      con: { title: '➡️ Constant AP (स्थिर AP)', ex: '7, 7, 7, 7, 7, ...', d: 'd = 0', note: 'All terms are EQUAL. A person eating exactly 3 meals every day — constant sequence!' }
+    };
+    const item = data[type];
+    info.innerHTML = `<strong>${item.title}</strong><br><span style="color:#3b82f6;font-size:0.85rem;font-weight:700;">${item.ex}</span><br><span style="color:#f59e0b;font-weight:600;">${item.d}</span><br><span style="color:#64748b;font-size:0.75rem;">💡 ${item.note}</span>`;
+  }
+
+  // AP Checker
+  function checkAP() {
+    const vals = ['n1','n2','n3','n4'].map(id => parseFloat(document.getElementById(id).value));
+    if(vals.some(isNaN)) return;
     
-    let html = `<line x1="${pad}" y1="50" x2="${W-pad}" y2="50" stroke="#cbd5e1" stroke-width="2"/>`;
-    html += `<polygon points="${W-pad},50 ${W-pad-8},44 ${W-pad-8},56" fill="#cbd5e1"/>`;
+    const diffs = [vals[1]-vals[0], vals[2]-vals[1], vals[3]-vals[2]];
+    const isAP = diffs.every(di => Math.abs(di - diffs[0]) < 0.001);
     
-    const colors = ['#3b82f6','#22c55e','#f59e0b','#ef4444','#8b5cf6','#ec4899','#14b8a6','#f97316'];
+    const result = document.getElementById('apResult');
+    const inputs = document.querySelectorAll('.num-input');
     
-    terms.forEach((t, i) => {
-      const frac = range === 0 ? 0.5 : (t - min) / range;
-      const x = pad + frac * usableW;
-      html += `<circle cx="${x}" cy="50" r="8" fill="${colors[i % colors.length]}" opacity="0.9"/>`;
-      html += `<text x="${x}" y="54" text-anchor="middle" fill="white" font-size="7" font-weight="bold">${t}</text>`;
-      html += `<text x="${x}" y="72" text-anchor="middle" fill="#64748b" font-size="9">a${i+1}</text>`;
-      if (i < terms.length - 1 && range > 0) {
-        const
+    inputs.forEach(inp => { inp.classList.remove('valid','invalid'); });
+    
+    if(isAP) {
+      inputs.forEach(inp => inp.classList.add('valid'));
+      result.className = 'result-box show ap';
+      result.innerHTML = `✅ हाँ! It IS an AP! &nbsp; | &nbsp; d = ${diffs[0]} &nbsp; | &nbsp; a₂−a₁ = ${diffs[0]}, a₃−a₂ = ${diffs[1]}, a₄−a₃ = ${diffs[2]} — all equal!`;
+    } else {
+      inputs.forEach(inp => inp.classList.add('invalid'));
+      result.className = 'result-box show not-ap';
+      result.innerHTML = `❌ नहीं! NOT an AP! &nbsp; | &nbsp; a₂−a₁ = ${diffs[0]}, a₃−a₂ = ${diffs[1]}, a₄−a₃ = ${diffs[2]} — differences are NOT equal!`;
+    }
+  }
+
+  // Step Walkthrough
+  let currentStep = 0;
+  const totalSteps = 4;
+
+  function revealStep() {
+    if(currentStep < totalSteps) {
+      const step = document.getElementById(`s${currentStep+1}`);
+      if(currentStep > 0) {
+        document.getElementById(`s${currentStep}`).classList.remove('revealed');
+        document.getElementById(`s${currentStep}`).classList.add('done');
+      }
+      step.classList.add('revealed');
+      currentStep++;
+    }
+    if(currentStep >= totalSteps) {
+      document.getElementById('nextBtn').disabled = true;
+      document.getElementById('resetBtn').style.display = 'inline-block';
+      document.getElementById(`s${currentStep}`).classList.remove('revealed');
+      document.getElementById(`s${currentStep}`).classList.add('done');
+    }
+  }
+
+  function resetSteps() {
+    currentStep = 0;
+    for(let i=1;i<=totalSteps;i++) {
+      const s = document.getElementById(`s${i}`);
+      s.classList.remove('revealed','done');
+    }
+    document.getElementById('nextBtn').disabled = false;
+    document.getElementById('resetBtn').style.display = 'none';
+  }
+
+  // Input live check
+  ['n1','n2','n3','n4'].forEach(id => {
+    document.getElementById(id).addEventListener('input', () => {
+      document.querySelectorAll('.num-input').forEach(i => i.classList.remove('valid','invalid'));
+      document.getElementById('apResult').classList.remove('show');
+    });
+  });
+
+  // Init
+  renderSeq();
+  // Reveal step 1 initially
+  revealStep();
 </script>
 </body>
 </html>

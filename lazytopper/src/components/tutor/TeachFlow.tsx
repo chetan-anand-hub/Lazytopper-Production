@@ -579,6 +579,9 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
             height={360}
             collapsible={true}
             defaultCollapsed={false}
+            topic={visualConcept.chapter}
+            concept={visualConcept.title}
+            subject={visualConcept.subject === "science" ? "Science" : "Maths"}
           />
         </div>
       )}

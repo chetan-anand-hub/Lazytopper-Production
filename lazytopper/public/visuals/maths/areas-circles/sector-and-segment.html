@@ -3,351 +3,504 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sector & Segment | Areas Related to Circles</title>
+<title>Sector & Segment of a Circle - Class 10</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a,#1e3a5f);min-height:100vh;color:#1e293b}
-.titlebar{background:linear-gradient(90deg,#1d4ed8,#3b82f6,#06b6d4);padding:12px 20px;text-align:center;box-shadow:0 4px 20px rgba(59,130,246,0.5)}
-.titlebar h1{color:#fff;font-size:1.1rem;font-weight:700;letter-spacing:1px}
-.titlebar p{color:#bfdbfe;font-size:0.75rem;margin-top:2px}
-.container{max-width:700px;margin:0 auto;padding:15px}
-.card{background:#fff;border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 8px 30px rgba(0,0,0,0.3)}
-.card h2{font-size:1rem;font-weight:700;color:#1e293b;margin-bottom:10px;display:flex;align-items:center;gap:8px}
-.badge{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;padding:3px 10px;border-radius:20px;font-size:0.7rem;font-weight:600}
-.badge-green{background:linear-gradient(135deg,#22c55e,#16a34a)}
-.badge-amber{background:linear-gradient(135deg,#f59e0b,#d97706)}
-.concept-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
-@media(max-width:400px){.concept-grid{grid-template-columns:1fr}}
-.concept-box{border-radius:12px;padding:12px;border:2px solid transparent;cursor:pointer;transition:all 0.3s;text-align:center}
-.sector-box{background:linear-gradient(135deg,#eff6ff,#dbeafe);border-color:#3b82f6}
-.sector-box:hover,.sector-box.active{background:linear-gradient(135deg,#dbeafe,#bfdbfe);border-color:#1d4ed8;transform:translateY(-2px);box-shadow:0 6px 20px rgba(59,130,246,0.3)}
-.segment-box{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-color:#22c55e}
-.segment-box:hover,.segment-box.active{background:linear-gradient(135deg,#dcfce7,#bbf7d0);border-color:#16a34a;transform:translateY(-2px);box-shadow:0 6px 20px rgba(34,197,94,0.3)}
-.concept-box h3{font-size:0.85rem;font-weight:700;margin-bottom:4px}
-.concept-box p{font-size:0.7rem;color:#64748b}
-svg{display:block;margin:0 auto}
-.slider-container{margin:10px 0}
-.slider-container label{font-size:0.8rem;font-weight:600;color:#374151;display:block;margin-bottom:5px}
-input[type=range]{width:100%;accent-color:#3b82f6;height:6px;border-radius:3px}
-.formula-box{background:linear-gradient(135deg,#1e293b,#334155);border-radius:12px;padding:14px;margin:10px 0;text-align:center;position:relative;overflow:hidden}
-.formula-box::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(ellipse,rgba(59,130,246,0.15),transparent 70%);animation:pulse 3s infinite}
-@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
-.formula-text{color:#60a5fa;font-size:1rem;font-weight:700;font-family:monospace;position:relative;z-index:1}
-.formula-label{color:#94a3b8;font-size:0.7rem;margin-top:4px;position:relative;z-index:1}
-.info-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-.info-chip{background:#f1f5f9;border-radius:8px;padding:6px 10px;font-size:0.72rem;border-left:3px solid #3b82f6;flex:1;min-width:120px}
-.info-chip.green{border-left-color:#22c55e}
-.info-chip.amber{border-left-color:#f59e0b}
-.info-chip strong{display:block;font-size:0.8rem;color:#1e293b}
-.step-btn{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border:none;border-radius:10px;padding:10px 20px;font-size:0.85rem;font-weight:600;cursor:pointer;width:100%;margin-top:8px;transition:all 0.3s;box-shadow:0 4px 15px rgba(59,130,246,0.4)}
-.step-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(59,130,246,0.5)}
-.step-btn:active{transform:translateY(0)}
-.step-panel{display:none;margin-top:10px;border-radius:10px;overflow:hidden}
-.step-panel.show{display:block;animation:slideDown 0.4s ease}
-@keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
-.step-item{padding:10px 14px;border-left:3px solid #3b82f6;margin-bottom:6px;background:#f8fafc;border-radius:0 8px 8px 0;font-size:0.78rem;line-height:1.5}
-.step-item .step-num{font-weight:700;color:#3b82f6;font-size:0.85rem}
-.step-item.green{border-left-color:#22c55e}
-.step-item.amber{border-left-color:#f59e0b}
-.step-item.red{border-left-color:#ef4444}
-.step-num.green{color:#22c55e}
-.step-num.amber{color:#f59e0b}
-.toggle-row{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
-.toggle-btn{flex:1;min-width:80px;padding:7px;border-radius:8px;border:2px solid #e2e8f0;background:#f8fafc;font-size:0.75rem;font-weight:600;cursor:pointer;transition:all 0.25s;color:#475569}
-.toggle-btn.active{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border-color:#1d4ed8;box-shadow:0 3px 10px rgba(59,130,246,0.4)}
-.value-display{font-size:0.85rem;font-weight:700;color:#1d4ed8;background:#eff6ff;border-radius:8px;padding:8px 12px;text-align:center;margin-top:6px;border:1px solid #bfdbfe}
-.mini-formula{background:linear-gradient(90deg,#fef3c7,#fde68a);border-radius:8px;padding:8px 12px;font-size:0.78rem;font-weight:600;color:#92400e;margin:6px 0;border-left:3px solid #f59e0b}
-.annotation{font-size:0.7rem;color:#64748b;font-style:italic;margin-top:4px}
-.hindi{color:#7c3aed;font-weight:600;font-size:0.75rem}
-.quiz-box{background:linear-gradient(135deg,#faf5ff,#ede9fe);border-radius:12px;padding:12px;border:2px solid #8b5cf6}
-.quiz-box h3{font-size:0.85rem;color:#5b21b6;margin-bottom:8px}
-.quiz-opt{background:#fff;border:2px solid #ddd6fe;border-radius:8px;padding:8px 12px;margin:4px 0;font-size:0.78rem;cursor:pointer;transition:all 0.25s;width:100%;text-align:left}
-.quiz-opt:hover{border-color:#8b5cf6;background:#faf5ff}
-.quiz-opt.correct{background:#dcfce7;border-color:#22c55e;color:#166534}
-.quiz-opt.wrong{background:#fee2e2;border-color:#ef4444;color:#991b1b}
-.quiz-result{font-size:0.8rem;margin-top:6px;padding:6px 10px;border-radius:6px;display:none}
-.quiz-result.show{display:block}
-.angle-value{font-size:1.5rem;font-weight:800;color:#3b82f6;text-align:center}
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); min-height: 100vh; color: #e2e8f0; }
+  
+  .title-bar { background: linear-gradient(90deg, #3b82f6, #6366f1); padding: 14px 20px; text-align: center; box-shadow: 0 4px 20px rgba(59,130,246,0.4); }
+  .title-bar h1 { font-size: 1.1rem; font-weight: 700; letter-spacing: 0.5px; }
+  .title-bar p { font-size: 0.75rem; opacity: 0.85; margin-top: 2px; }
+  
+  .container { max-width: 800px; margin: 0 auto; padding: 16px; }
+  
+  .card { background: rgba(30,41,59,0.85); border: 1px solid rgba(99,102,241,0.3); border-radius: 16px; padding: 16px; margin-bottom: 14px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+  
+  .section-title { font-size: 0.85rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+  
+  /* Interactive Circle */
+  .circle-wrap { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  #mainCanvas { border-radius: 12px; cursor: grab; touch-action: none; max-width: 100%; }
+  #mainCanvas:active { cursor: grabbing; }
+  
+  .angle-display { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  .angle-val { font-size: 1.8rem; font-weight: 800; color: #f59e0b; }
+  .angle-label { font-size: 0.8rem; color: #94a3b8; }
+  
+  .slider-wrap { width: 100%; max-width: 300px; }
+  .slider-wrap label { font-size: 0.78rem; color: #94a3b8; display: block; margin-bottom: 4px; text-align: center; }
+  input[type=range] { width: 100%; accent-color: #3b82f6; cursor: pointer; }
+  
+  /* Toggle Buttons */
+  .toggle-group { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+  .tog-btn { padding: 7px 14px; border: none; border-radius: 20px; font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: all 0.25s; }
+  .tog-btn.active { background: #3b82f6; color: #fff; box-shadow: 0 0 12px rgba(59,130,246,0.5); }
+  .tog-btn:not(.active) { background: rgba(99,102,241,0.15); color: #94a3b8; border: 1px solid rgba(99,102,241,0.3); }
+  
+  /* Formulas */
+  .formula-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media(max-width:480px){ .formula-grid { grid-template-columns: 1fr; } }
+  .formula-box { border-radius: 12px; padding: 12px; text-align: center; }
+  .formula-box.blue { background: linear-gradient(135deg, rgba(59,130,246,0.2), rgba(99,102,241,0.2)); border: 1px solid rgba(59,130,246,0.4); }
+  .formula-box.green { background: linear-gradient(135deg, rgba(34,197,94,0.2), rgba(16,185,129,0.2)); border: 1px solid rgba(34,197,94,0.4); }
+  .formula-box.amber { background: linear-gradient(135deg, rgba(245,158,11,0.2), rgba(249,115,22,0.2)); border: 1px solid rgba(245,158,11,0.4); }
+  .formula-box.red { background: linear-gradient(135deg, rgba(239,68,68,0.2), rgba(220,38,38,0.2)); border: 1px solid rgba(239,68,68,0.4); }
+  .formula-title { font-size: 0.72rem; font-weight: 700; color: #94a3b8; margin-bottom: 6px; text-transform: uppercase; }
+  .formula-text { font-size: 0.95rem; font-weight: 700; color: #e2e8f0; }
+  .formula-sub { font-size: 0.7rem; color: #64748b; margin-top: 4px; }
+  
+  /* Live Calc */
+  .calc-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.8rem; }
+  .calc-row:last-child { border-bottom: none; }
+  .calc-label { color: #94a3b8; }
+  .calc-val { color: #f59e0b; font-weight: 700; }
+  
+  /* Steps */
+  .step { border-left: 3px solid #3b82f6; padding: 8px 12px; margin-bottom: 8px; border-radius: 0 8px 8px 0; background: rgba(59,130,246,0.08); opacity: 0; transform: translateY(10px); transition: all 0.4s ease; display: none; }
+  .step.visible { opacity: 1; transform: translateY(0); display: block; }
+  .step-num { font-size: 0.7rem; color: #3b82f6; font-weight: 700; margin-bottom: 3px; }
+  .step-text { font-size: 0.82rem; color: #cbd5e1; }
+  .step-math { font-size: 0.9rem; color: #f59e0b; font-weight: 700; margin-top: 3px; }
+  
+  .reveal-btn { display: block; width: 100%; padding: 10px; border: none; border-radius: 10px; background: linear-gradient(135deg, #3b82f6, #6366f1); color: #fff; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.3s; margin-top: 10px; }
+  .reveal-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(59,130,246,0.4); }
+  
+  /* Info boxes */
+  .info-row { display: flex; gap: 8px; }
+  .info-badge { flex: 1; border-radius: 10px; padding: 10px; text-align: center; }
+  .info-badge.minor { background: linear-gradient(135deg, rgba(59,130,246,0.25), rgba(99,102,241,0.15)); border: 1px solid rgba(59,130,246,0.4); }
+  .info-badge.major { background: linear-gradient(135deg, rgba(245,158,11,0.25), rgba(249,115,22,0.15)); border: 1px solid rgba(245,158,11,0.4); }
+  .badge-title { font-size: 0.72rem; font-weight: 700; margin-bottom: 3px; }
+  .badge-val { font-size: 0.78rem; color: #cbd5e1; }
+  
+  /* Hint */
+  .hint { font-size: 0.72rem; color: #64748b; text-align: center; margin-top: 6px; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:0.6} 50%{opacity:1} }
+  
+  .hindi { color: #f59e0b; font-size: 0.75rem; }
+  
+  .tabs { display: flex; gap: 6px; margin-bottom: 12px; }
+  .tab { flex: 1; padding: 8px; border: none; border-radius: 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: all 0.25s; }
+  .tab.active { background: #3b82f6; color: #fff; }
+  .tab:not(.active) { background: rgba(99,102,241,0.15); color: #94a3b8; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
 </style>
 </head>
 <body>
-<div class="titlebar">
-<h1>📐 Areas Related to Circles</h1>
-<p>Sector & Segment | CBSE Class 10 Mathematics | <span style="color:#fde68a">क्षेत्रफल - वृत्त से संबंधित</span></p>
+
+<div class="title-bar">
+  <h1>🔵 Sector &amp; Segment of a Circle</h1>
+  <p>CBSE Class 10 Mathematics | <span style="color:#fde68a">वृत्त से संबंधित क्षेत्रफल</span></p>
 </div>
+
 <div class="container">
 
-<!-- Concept Cards -->
-<div class="card">
-<h2>🎯 What are Sector & Segment? <span class="badge">Click to explore</span></h2>
-<div class="concept-grid">
-<div class="concept-box sector-box" id="sectorCard" onclick="selectConcept('sector')">
-<h3>🍕 Sector (त्रिज्यखंड)</h3>
-<p>Region between two radii and an arc</p>
-<div style="margin-top:8px;font-size:0.7rem;color:#1d4ed8;font-weight:600">Click to highlight →</div>
-</div>
-<div class="concept-box segment-box" id="segmentCard" onclick="selectConcept('segment')">
-<h3>🌙 Segment (वृत्तखंड)</h3>
-<p>Region between a chord and its arc</p>
-<div style="margin-top:8px;font-size:0.7rem;color:#16a34a;font-weight:600">Click to highlight →</div>
-</div>
-</div>
-<p class="annotation">∠AOB = angle at centre | O = centre | A,B = points on circle</p>
-</div>
+  <!-- Interactive Canvas -->
+  <div class="card">
+    <div class="section-title">🎮 Interactive Explorer — Drag to change angle</div>
+    <div class="circle-wrap">
+      <div class="angle-display">
+        <div>
+          <div class="angle-val" id="angleVal">90°</div>
+          <div class="angle-label">∠ at Centre (कोण)</div>
+        </div>
+      </div>
+      <canvas id="mainCanvas" width="300" height="300"></canvas>
+      <div class="slider-wrap">
+        <label>Adjust Angle θ: <strong id="sliderVal">90°</strong></label>
+        <input type="range" id="angleSlider" min="5" max="355" value="90">
+      </div>
+      <div class="toggle-group">
+        <button class="tog-btn active" id="btnSector" onclick="setMode('sector')">🔵 Sector (त्रिज्यखंड)</button>
+        <button class="tog-btn" id="btnSegment" onclick="setMode('segment')">🟢 Segment (वृत्तखंड)</button>
+      </div>
+      <div class="hint" id="hintText">👆 Drag on the circle or use slider to change the angle</div>
+    </div>
+  </div>
 
-<!-- Interactive Diagram -->
-<div class="card">
-<h2>🔵 Interactive Circle Diagram <span class="badge-green badge">Drag the slider!</span></h2>
-<div class="toggle-row">
-<button class="toggle-btn active" id="btn-both" onclick="setView('both')">Both</button>
-<button class="toggle-btn" id="btn-sector" onclick="setView('sector')">Sector Only</button>
-<button class="toggle-btn" id="btn-segment" onclick="setView('segment')">Segment Only</button>
-<button class="toggle-btn" id="btn-minor" onclick="setView('minor')">Minor/Major</button>
-</div>
-<svg id="mainSVG" width="100%" viewBox="0 0 300 280" style="max-height:280px"></svg>
-<div class="slider-container">
-<label>∠ Angle at Centre (θ) = <span id="angleVal" style="color:#1d4ed8">60°</span></label>
-<input type="range" min="10" max="350" value="60" id="angleSlider" oninput="updateDiagram()">
-</div>
-<div class="angle-value" id="bigAngle">θ = 60°</div>
-<div class="info-row">
-<div class="info-chip" id="chip1"><strong id="chip1v">Minor Sector</strong><span id="chip1d">θ = 60° (less than 180°)</span></div>
-<div class="info-chip green" id="chip2"><strong id="chip2v">Minor Segment</strong><span id="chip2d">Below chord AB</span></div>
-<div class="info-chip amber"><strong>Arc Length</strong><span id="arcVal">Proportional to θ</span></div>
-</div>
-</div>
+  <!-- Minor/Major Info -->
+  <div class="card">
+    <div class="info-row">
+      <div class="info-badge minor">
+        <div class="badge-title" style="color:#3b82f6">🔵 Minor (लघु)</div>
+        <div class="badge-val" id="minorInfo">θ &lt; 180° | Smaller part</div>
+      </div>
+      <div class="info-badge major">
+        <div class="badge-title" style="color:#f59e0b">🟠 Major (दीर्घ)</div>
+        <div class="badge-val" id="majorInfo">360° - θ | Larger part</div>
+      </div>
+    </div>
+  </div>
 
-<!-- Formulas -->
-<div class="card">
-<h2>📐 Key Formulas <span class="badge-amber badge">क्षेत्रफल के सूत्र</span></h2>
-<div class="formula-box">
-<div class="formula-text">Area of Sector = (θ/360°) × π r²</div>
-<div class="formula-label">∵ Sector is (θ/360) fraction of full circle</div>
-</div>
-<div class="formula-box" style="background:linear-gradient(135deg,#064e3b,#065f46);margin-top:8px">
-<div class="formula-text" style="color:#6ee7b7">Length of Arc = (θ/360°) × 2πr</div>
-<div class="formula-label">Arc length is same fraction of circumference</div>
-</div>
-<div class="formula-box" style="background:linear-gradient(135deg,#451a03,#78350f);margin-top:8px">
-<div class="formula-text" style="color:#fcd34d">Area of Segment = Area of Sector − Area of △AOB</div>
-<div class="formula-label">∴ Segment = Sector − Triangle</div>
-</div>
-<div class="info-row" style="margin-top:8px">
-<div class="info-chip"><strong>Area of △AOB</strong><span>= ½ × r² × sin θ</span></div>
-<div class="info-chip green"><strong>Full Circle</strong><span>θ = 360°, Area = πr²</span></div>
-</div>
-</div>
+  <!-- Formulas -->
+  <div class="card">
+    <div class="section-title">📐 Key Formulas <span class="hindi">(सूत्र)</span></div>
+    <div class="formula-grid">
+      <div class="formula-box blue">
+        <div class="formula-title">Arc Length (चाप)</div>
+        <div class="formula-text">ℓ = θ/360 × 2πr</div>
+        <div class="formula-sub">θ in degrees, r = radius</div>
+      </div>
+      <div class="formula-box green">
+        <div class="formula-title">Area of Sector (त्रिज्यखंड)</div>
+        <div class="formula-text">A = θ/360 × πr²</div>
+        <div class="formula-sub">Also = ½ × ℓ × r</div>
+      </div>
+      <div class="formula-box amber">
+        <div class="formula-title">Area of △OAB</div>
+        <div class="formula-text">= ½r² sin θ</div>
+        <div class="formula-sub">Triangle inside sector</div>
+      </div>
+      <div class="formula-box red">
+        <div class="formula-title">Area of Segment (वृत्तखंड)</div>
+        <div class="formula-text">= A_sector − A_△</div>
+        <div class="formula-sub">θ/360×πr² − ½r²sinθ</div>
+      </div>
+    </div>
+  </div>
 
-<!-- Live Calculator -->
-<div class="card">
-<h2>🧮 Live Formula Calculator <span class="badge">Interactive</span></h2>
-<p style="font-size:0.75rem;color:#64748b;margin-bottom:8px">Move the slider to see formulas update in real time!</p>
-<div class="slider-container">
-<label>Radius (r) = <span id="radiusVal" style="color:#1d4ed8">7 cm</span></label>
-<input type="range" min="1" max="14" value="7" id="radiusSlider" oninput="updateCalc()">
-</div>
-<div class="slider-container">
-<label>Angle θ = <span id="calcAngle" style="color:#ef4444">90°</span></label>
-<input type="range" min="1" max="359" value="90" id="calcAngleSlider" oninput="updateCalc()">
-</div>
-<div id="calcResults">
-<div class="mini-formula" id="calc1">Area of Sector = (90/360) × π × 7² = 38.5 cm²</div>
-<div class="mini-formula" style="background:linear-gradient(90deg,#dcfce7,#bbf7d0);color:#14532d;border-left-color:#22c55e" id="calc2">Arc Length = (90/360) × 2π × 7 = 11.0 cm</div>
-<div class="mini-formula" style="background:linear-gradient(90deg,#fee2e2,#fecaca);color:#7f1d1d;border-left-color:#ef4444" id="calc3">Area of Segment = 38.5 − 24.5 = 14.0 cm²</div>
-</div>
-<p class="annotation" style="margin-top:6px">π ≈ 3.14159 | ∴ Results rounded to 1 decimal place</p>
-</div>
+  <!-- Live Calculator -->
+  <div class="card">
+    <div class="section-title">🧮 Live Calculator (r = 7 cm, π = 22/7)</div>
+    <div id="liveCalc">
+      <div class="calc-row"><span class="calc-label">Radius (r)</span><span class="calc-val">7 cm</span></div>
+      <div class="calc-row"><span class="calc-label">Angle (θ)</span><span class="calc-val" id="lc_angle">90°</span></div>
+      <div class="calc-row"><span class="calc-label">Arc Length (ℓ) = θ/360 × 2πr</span><span class="calc-val" id="lc_arc">—</span></div>
+      <div class="calc-row"><span class="calc-label">Area of Sector = θ/360 × πr²</span><span class="calc-val" id="lc_sector">—</span></div>
+      <div class="calc-row"><span class="calc-label">Area of △OAB = ½r²sinθ</span><span class="calc-val" id="lc_tri">—</span></div>
+      <div class="calc-row"><span class="calc-label">Area of Segment = Sector − △</span><span class="calc-val" id="lc_seg">—</span></div>
+    </div>
+  </div>
 
-<!-- Worked Example -->
-<div class="card">
-<h2>✏️ Worked Example <span class="badge-amber badge">Step-by-Step हल</span></h2>
-<div style="background:#f0fdf4;border-radius:10px;padding:10px;font-size:0.8rem;border-left:3px solid #22c55e">
-<strong>Question:</strong> A circle has radius 14 cm. Find the area of the sector if the angle at the centre is 60°. Also find the area of the corresponding minor segment. (Use π = 22/7)
-</div>
-<button class="step-btn" onclick="toggleSteps()">▶ Reveal Step-by-Step Solution (हल दिखाएं)</button>
-<div class="step-panel" id="stepPanel">
-<div class="step-item">
-<span class="step-num">📌 Given:</span><br>
-r = 14 cm, θ = 60°, π = 22/7
-</div>
-<div class="step-item">
-<span class="step-num">Step 1:</span> Area of Sector<br>
-= (θ/360°) × π r²<br>
-= (60/360) × (22/7) × 14²<br>
-= (1/6) × (22/7) × 196<br>
-= (1/6) × 616 = <strong style="color:#1d4ed8">102.67 cm² ≈ 102⅔ cm²</strong>
-</div>
-<div class="step-item green">
-<span class="step-num green">Step 2:</span> Area of △AOB (isosceles, OA=OB=r=14)<br>
-= ½ × r² × sin 60°<br>
-= ½ × 196 × (√3/2)<br>
-= ½ × 196 × 0.866<br>
-= <strong style="color:#16a34a">84.87 cm²</strong>
-</div>
-<div class="step-item amber">
-<span class="step-num amber">Step 3:</span> Area of Minor Segment<br>
-= Area of Sector − Area of △AOB<br>
-= 102.67 − 84.87<br>
-= <strong style="color:#d97706">17.8 cm²</strong> (approximately)
-</div>
-<div class="step-item red">
-<span class="step-num" style="color:#ef4444">∴ Answer:</span><br>
-Area of Sector ≈ 102⅔ cm² | Area of Segment ≈ 17.8 cm²
-</div>
-</div>
-</div>
+  <!-- Worked Example -->
+  <div class="card">
+    <div class="section-title">📝 Worked Example <span class="hindi">(हल उदाहरण)</span></div>
+    <div style="font-size:0.82rem; color:#cbd5e1; margin-bottom:10px; background:rgba(99,102,241,0.1); padding:10px; border-radius:8px;">
+      <strong style="color:#f59e0b">Question:</strong> A circle has radius 14 cm. Find the area of a sector with angle 60°, the arc length, and the area of the corresponding minor segment. (Use π = 22/7)
+    </div>
+    
+    <div id="steps">
+      <div class="step" id="s1">
+        <div class="step-num">STEP 1 — Given</div>
+        <div class="step-text">Radius r = 14 cm, Central angle θ = 60°, π = 22/7</div>
+      </div>
+      <div class="step" id="s2">
+        <div class="step-num">STEP 2 — Arc Length</div>
+        <div class="step-text">ℓ = θ/360 × 2πr</div>
+        <div class="step-math">= 60/360 × 2 × 22/7 × 14 = 1/6 × 88 = <span style="color:#22c55e">44/3 ≈ 14.67 cm</span></div>
+      </div>
+      <div class="step" id="s3">
+        <div class="step-num">STEP 3 — Area of Sector</div>
+        <div class="step-text">A_sector = θ/360 × πr²</div>
+        <div class="step-math">= 60/360 × 22/7 × 14² = 1/6 × 22/7 × 196 = 1/6 × 616 = <span style="color:#22c55e">308/3 ≈ 102.67 cm²</span></div>
+      </div>
+      <div class="step" id="s4">
+        <div class="step-num">STEP 4 — Area of Triangle OAB</div>
+        <div class="step-text">For θ = 60°, triangle OAB is equilateral (OA = OB = r = 14)</div>
+        <div class="step-math">A_△ = ½r²sin60° = ½ × 196 × (√3/2) = 49√3 ≈ <span style="color:#22c55e">84.87 cm²</span></div>
+      </div>
+      <div class="step" id="s5">
+        <div class="step-num">STEP 5 — Area of Minor Segment</div>
+        <div class="step-text">A_segment = A_sector − A_△</div>
+        <div class="step-math">= 308/3 − 49√3 = 102.67 − 84.87 ≈ <span style="color:#22c55e">17.80 cm²</span></div>
+      </div>
+    </div>
+    
+    <button class="reveal-btn" id="revealBtn" onclick="revealNext()">▶ Reveal Step 1</button>
+  </div>
 
-<!-- Minor vs Major -->
-<div class="card">
-<h2>🔄 Minor vs Major <span class="hindi">लघु बनाम दीर्घ</span></h2>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-<div style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:10px;padding:10px;border-left:3px solid #3b82f6">
-<div style="font-weight:700;font-size:0.85rem;color:#1d4ed8">⬆ Minor (लघु)</div>
-<div style="font-size:0.72rem;color:#374151;margin-top:4px">θ &lt; 180°<br>Smaller arc<br>Smaller area<br>∠ at centre &lt; 180°</div>
-</div>
-<div style="background:linear-gradient(135deg,#fef3c7,#fde68a);border-radius:10px;padding:10px;border-left:3px solid #f59e0b">
-<div style="font-weight:700;font-size:0.85rem;color:#92400e">⬇ Major (दीर्घ)</div>
-<div style="font-size:0.72rem;color:#374151;margin-top:4px">θ &gt; 180°<br>Larger arc<br>Larger area<br>∠ at centre &gt; 180°</div>
-</div>
-</div>
-<div class="mini-formula" style="margin-top:8px">
-∴ Minor Angle + Major Angle = 360° | Minor Arc + Major Arc = 2πr
-</div>
-</div>
+  <!-- Concept Notes -->
+  <div class="card">
+    <div class="section-title">💡 Key Concepts</div>
+    <div style="display:grid; gap:8px;">
+      <div style="background:rgba(59,130,246,0.1); border-radius:8px; padding:10px; border-left:3px solid #3b82f6; font-size:0.8rem;">
+        <strong style="color:#3b82f6">Sector (त्रिज्यखंड):</strong> The region between two radii and the arc. Like a "pizza slice". Minor sector → smaller angle; Major sector → larger angle.
+      </div>
+      <div style="background:rgba(34,197,94,0.1); border-radius:8px; padding:10px; border-left:3px solid #22c55e; font-size:0.8rem;">
+        <strong style="color:#22c55e">Segment (वृत्तखंड):</strong> The region between a chord and the arc. Minor segment → smaller region; Major segment → larger region. ∴ Segment = Sector − Triangle
+      </div>
+      <div style="background:rgba(245,158,11,0.1); border-radius:8px; padding:10px; border-left:3px solid #f59e0b; font-size:0.8rem;">
+        <strong style="color:#f59e0b">Arc (चाप):</strong> Part of the circumference. Minor arc → subtends angle θ; Major arc → subtends angle (360° − θ). Full circle → 2πr.
+      </div>
+      <div style="background:rgba(239,68,68,0.1); border-radius:8px; padding:10px; border-left:3px solid #ef4444; font-size:0.8rem;">
+        <strong style="color:#ef4444">Remember:</strong> When θ = 180° → Semicircle. When θ = 360° → Full circle. Area of sector ∝ θ (proportional to angle).
+      </div>
+    </div>
+  </div>
 
-<!-- Quick Quiz -->
-<div class="card">
-<h2>🧠 Quick Quiz <span class="hindi">त्वरित प्रश्न</span></h2>
-<div class="quiz-box">
-<h3>If r = 7 cm and θ = 90°, what is the Area of Sector? (π = 22/7)</h3>
-<button class="quiz-opt" onclick="checkQuiz(this,'wrong')">A) 77 cm²</button>
-<button class="quiz-opt" onclick="checkQuiz(this,'correct')">B) 38.5 cm²</button>
-<button class="quiz-opt" onclick="checkQuiz(this,'wrong')">C) 154 cm²</button>
-<button class="quiz-opt" onclick="checkQuiz(this,'wrong')">D) 22 cm²</button>
-<div class="quiz-result" id="quizResult"></div>
-</div>
-</div>
-
-<div style="text-align:center;color:#94a3b8;font-size:0.7rem;padding:10px 0">
-CBSE Class 10 Mathematics | Chapter 12 | Areas Related to Circles<br>
-<span style="color:#60a5fa">Sector (त्रिज्यखंड) • Segment (वृत्तखंड) • Arc (चाप)</span>
-</div>
 </div>
 
 <script>
-const PI=Math.PI;
-let currentView='both';
-let currentAngle=60;
+const canvas = document.getElementById('mainCanvas');
+const ctx = canvas.getContext('2d');
+const slider = document.getElementById('angleSlider');
+let angle = 90;
+let mode = 'sector';
+let isDragging = false;
+const cx = 150, cy = 150, r = 110;
 
-function rad(d){return d*PI/180;}
+function toRad(d){ return d * Math.PI / 180; }
 
-function drawDiagram(angle,view){
-const svg=document.getElementById('mainSVG');
-const cx=150,cy=145,r=100;
-const a=rad(angle);
-const isMinor=angle<=180;
-const x1=cx+r*Math.cos(-PI/2);
-const y1=cy+r*Math.sin(-PI/2);
-const x2=cx+r*Math.cos(a-PI/2);
-const y2=cy+r*Math.sin(a-PI/2);
-const laf=angle>180?1:0;
-let html=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="#f0f9ff" stroke="#cbd5e1" stroke-width="1.5"/>`;
-// Sector
-if(view==='both'||view==='sector'){
-html+=`<path d="M${cx},${cy} L${x1.toFixed(2)},${y1.toFixed(2)} A${r},${r},0,${laf},1,${x2.toFixed(2)},${y2.toFixed(2)} Z" fill="rgba(59,130,246,0.35)" stroke="#1d4ed8" stroke-width="2"/>`;
-}
-// Segment
-if(view==='both'||view==='segment'){
-html+=`<path d="M${x1.toFixed(2)},${y1.toFixed(2)} A${r},${r},0,${laf},1,${x2.toFixed(2)},${y2.toFixed(2)} Z" fill="rgba(34,197,94,0.45)" stroke="#16a34a" stroke-width="2"/>`;
-}
-// Minor/Major view
-if(view==='minor'){
-const majorLaf=angle>180?0:1;
-html+=`<path d="M${cx},${cy} L${x1.toFixed(2)},${y1.toFixed(2)} A${r},${r},0,${laf},1,${x2.toFixed(2)},${y2.toFixed(2)} Z" fill="rgba(59,130,246,0.4)" stroke="#1d4ed8" stroke-width="2"/>`;
-html+=`<path d="M${cx},${cy} L${x1.toFixed(2)},${y1.toFixed(2)} A${r},${r},0,${majorLaf},0,${x2.toFixed(2)},${y2.toFixed(2)} Z" fill="rgba(245,158,11,0.35)" stroke="#d97706" stroke-width="2"/>`;
-html+=`<text x="${cx-28}" y="${cy-5}" font-size="9" fill="#1d4ed8" font-weight="bold">Minor</text>`;
-html+=`<text x="${cx+10}" y="${cy+30}" font-size="9" fill="#d97706" font-weight="bold">Major</text>`;
-}
-// Circle outline
-html+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#64748b" stroke-width="2"/>`;
-// Radii
-html+=`<line x1="${cx}" y1="${cy}" x2="${x1.toFixed(2)}" y2="${y1.toFixed(2)}" stroke="#374151" stroke-width="2"/>`;
-html+=`<line x1="${cx}" y1="${cy}" x2="${x2.toFixed(2)}" y2="${y2.toFixed(2)}" stroke="#374151" stroke-width="2"/>`;
-// Chord
-html+=`<line x1="${x1.toFixed(2)}" y1="${y1.toFixed(2)}" x2="${x2.toFixed(2)}" y2="${y2.toFixed(2)}" stroke="#ef4444" stroke-width="2" stroke-dasharray="5,3"/>`;
-// Angle arc indicator
-const arcR=28;
-const ax1=cx+arcR*Math.cos(-PI/2);
-const ay1=cy+arcR*Math.sin(-PI/2);
-const ax2=cx+arcR*Math.cos(a-PI/2);
-const ay2=cy+arcR*Math.sin(a-PI/2);
-html+=`<path d="M${ax1.toFixed(1)},${ay1.toFixed(1)} A${arcR},${arcR},0,${laf},1,${ax2.toFixed(1)},${ay2.toFixed(1)}" fill="none" stroke="#f59e0b" stroke-width="2"/>`;
-// Labels
-html+=`<circle cx="${cx}" cy="${cy}" r="4" fill="#374151"/>`;
-html+=`<text x="${cx+5}" y="${cy+4}" font-size="12" font-weight="bold" fill="#374151">O</text>`;
-html+=`<circle cx="${x1.toFixed(2)}" cy="${y1.toFixed(2)}" r="4" fill="#1d4ed8"/>`;
-html+=`<text x="${(x1-12).toFixed(2)}" y="${(y1-6).toFixed(2)}" font-size="12" font-weight="bold" fill="#1d4ed8">A</text>`;
-html+=`<circle cx="${x2.toFixed(2)}" cy="${y2.toFixed(2)}" r="4" fill="#1d4ed8"/>`;
-const bx=x2>cx?x2+6:x2-18;
-html+=`<text x="${bx.toFixed(2)}" y="${(y2+4).toFixed(2)}" font-size="12" font-weight="bold" fill="#1d4ed8">B</text>`;
-// θ label
-html+=`<text x="${cx+8}" y="${cy-28}" font-size="11" font-weight="bold" fill="#f59e0b">θ=${angle}°</text>`;
-// Legend
-if(view==='both'){
-html+=`<rect x="5" y="250" width="12" height="10" fill="rgba(59,130,246,0.5)" rx="2"/>`;
-html+=`<text x="20" y="259" font-size="9" fill="#1d4ed8">Sector</text>`;
-html+=`<rect x="80" y="250" width="12" height="10" fill="rgba(34,197,94,0.5)" rx="2"/>`;
-html+=`<text x="95" y="259" font-size="9" fill="#16a34a">Segment</text>`;
-html+=`<line x1="165" y1="255" x2="185" y2="255" stroke="#ef4444" stroke-width="2" stroke-dasharray="4,2"/>`;
-html+=`<text x="188" y="259" font-size="9" fill="#ef4444">Chord AB</text>`;
-}
-html+=`<text x="${cx}" y="278" text-anchor="middle" font-size="9" fill="#64748b">r = radius (OA = OB)</text>`;
-svg.innerHTML=html;
+function draw(){
+  ctx.clearRect(0,0,300,300);
+  const theta = toRad(angle);
+  const startAngle = -Math.PI/2; // 12 o'clock
+  const endAngle = startAngle + theta;
+  
+  // Background circle (major part)
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI*2);
+  ctx.fillStyle = 'rgba(30,41,59,0.6)';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(148,163,184,0.4)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  
+  if(mode === 'sector'){
+    // Major sector
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, endAngle, startAngle + Math.PI*2);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(245,158,11,0.18)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(245,158,11,0.4)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    
+    // Minor sector
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, startAngle, endAngle);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(59,130,246,0.45)';
+    ctx.fill();
+    ctx.strokeStyle = '#3b82f6';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    
+    // Arc highlight
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, startAngle, endAngle);
+    ctx.strokeStyle = '#60a5fa';
+    ctx.lineWidth = 3.5;
+    ctx.stroke();
+    
+  } else {
+    // Segment mode
+    // Draw full circle faint
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(30,41,59,0.8)';
+    ctx.fill();
+    
+    // Sector area (lighter)
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, startAngle, endAngle);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(59,130,246,0.2)';
+    ctx.fill();
+    
+    // Triangle OAB
+    const ax = cx + r*Math.cos(startAngle);
+    const ay = cy + r*Math.sin(startAngle);
+    const bx = cx + r*Math.cos(endAngle);
+    const by = cy + r*Math.sin(endAngle);
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(ax, ay);
+    ctx.lineTo(bx, by);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(245,158,11,0.3)';
+    ctx.fill();
+    ctx.strokeStyle = '#f59e0b';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    
+    // Segment (sector minus triangle) — re-draw on top
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, startAngle, endAngle);
+    ctx.lineTo(cx + r*Math.cos(startAngle), cy + r*Math.sin(startAngle));
+    ctx.fillStyle = 'rgba(34,197,94,0.45)';
+    ctx.fill();
+    ctx.strokeStyle = '#22c55e';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    
+    // Chord
+    ctx.beginPath();
+    ctx.moveTo(ax, ay);
+    ctx.lineTo(bx, by);
+    ctx.strokeStyle = '#f59e0b';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+    
+    // Labels
+    ctx.fillStyle = '#22c55e';
+    ctx.font = 'bold 10px Segoe UI';
+    ctx.textAlign = 'center';
+    const midArcX = cx + (r*0.7)*Math.cos(startAngle + theta/2);
+    const midArcY = cy + (r*0.7)*Math.sin(startAngle + theta/2);
+    ctx.fillText('Segment', midArcX, midArcY);
+    
+    ctx.fillStyle = '#f59e0b';
+    const triCx = (cx + ax + bx)/3;
+    const triCy = (cy + ay + by)/3;
+    ctx.fillText('△', triCx, triCy);
+  }
+  
+  // Center point
+  ctx.beginPath();
+  ctx.arc(cx, cy, 4, 0, Math.PI*2);
+  ctx.fillStyle = '#fff';
+  ctx.fill();
+  
+  // Radii labels
+  const ax = cx + r*Math.cos(startAngle);
+  const ay = cy + r*Math.sin(startAngle);
+  const bx = cx + r*Math.cos(endAngle);
+  const by = cy + r*Math.sin(endAngle);
+  
+  // Point A, B
+  ctx.beginPath(); ctx.arc(ax, ay, 4, 0, Math.PI*2); ctx.fillStyle = '#fff'; ctx.fill();
+  ctx.beginPath(); ctx.arc(bx, by, 4, 0, Math.PI*2); ctx.fillStyle = '#fff'; ctx.fill();
+  
+  ctx.font = 'bold 11px Segoe UI'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#fff';
+  ctx.fillText('O', cx - 10, cy + 5);
+  
+  const aOff = 14;
+  ctx.fillText('A', ax + (ax > cx ? aOff : -aOff), ay + (ay > cy ? aOff : -aOff));
+  ctx.fillText('B', bx + (bx > cx ? aOff : -aOff), by + (by > cy ? aOff : -aOff));
+  
+  // Angle arc
+  ctx.beginPath();
+  ctx.arc(cx, cy, 22, startAngle, endAngle);
+  ctx.strokeStyle = '#f59e0b';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  
+  const midA = startAngle + theta/2;
+  ctx.fillStyle = '#fde68a';
+  ctx.font = 'bold 10px Segoe UI';
+  ctx.fillText('θ', cx + 33*Math.cos(midA), cy + 33*Math.sin(midA));
+  
+  // Sector label
+  if(mode === 'sector'){
+    ctx.fillStyle = '#93c5fd';
+    ctx.font = 'bold 11px Segoe UI';
+    const sectorLabelX = cx + (r*0.55)*Math.cos(startAngle + theta/2);
+    const sectorLabelY = cy + (r*0.55)*Math.sin(startAngle + theta/2);
+    ctx.fillText('Sector', sectorLabelX, sectorLabelY);
+    
+    // Arc label
+    ctx.fillStyle = '#60a5fa';
+    ctx.font = 'bold 10px Segoe UI';
+    const arcMidX = cx + (r+14)*Math.cos(startAngle + theta/2);
+    const arcMidY = cy + (r+14)*Math.sin(startAngle + theta/2);
+    ctx.fillText('Arc ℓ', arcMidX, arcMidY);
+  }
+  
+  updateInfo();
+  updateLiveCalc();
 }
 
-function updateDiagram(){
-const angle=parseInt(document.getElementById('angleSlider').value);
-currentAngle=angle;
-document.getElementById('angleVal').textContent=angle+'°';
-document.getElementById('bigAngle').textContent='θ = '+angle+'°';
-const isMinor=angle<180;
-document.getElementById('chip1v').textContent=isMinor?'Minor Sector':'Major Sector';
-document.getElementById('chip1d').textContent='θ = '+angle+'° ('+(isMinor?'less':'more')+' than 180°)';
-document.getElementById('chip2v').textContent=isMinor?'Minor Segment':'Major Segment';
-document.getElementById('chip2d').textContent=isMinor?'Below chord AB':'Above chord AB';
-drawDiagram(angle,currentView);
+function updateInfo(){
+  const isMinor = angle <= 180;
+  document.getElementById('angleVal').textContent = angle + '°';
+  document.getElementById('sliderVal').textContent = angle + '°';
+  document.getElementById('minorInfo').textContent = isMinor ? `θ=${angle}° → Minor (current)` : `θ=${360-angle}° (complement)`;
+  document.getElementById('majorInfo').textContent = !isMinor ? `θ=${angle}° → Major (current)` : `360°−${angle}° = ${360-angle}°`;
 }
 
-function setView(v){
-currentView=v;
-['both','sector','segment','minor'].forEach(x=>{
-document.getElementById('btn-'+x).classList.remove('active');
+function updateLiveCalc(){
+  const rr = 7, pi = 22/7;
+  const th = angle;
+  const arc = (th/360) * 2 * pi * rr;
+  const sector = (th/360) * pi * rr * rr;
+  const tri = 0.5 * rr * rr * Math.sin(toRad(th));
+  const seg = sector - tri;
+  document.getElementById('lc_angle').textContent = th + '°';
+  document.getElementById('lc_arc').textContent = arc.toFixed(2) + ' cm';
+  document.getElementById('lc_sector').textContent = sector.toFixed(2) + ' cm²';
+  document.getElementById('lc_tri').textContent = tri.toFixed(2) + ' cm²';
+  document.getElementById('lc_seg').textContent = Math.max(0,seg).toFixed(2) + ' cm²';
+}
+
+function setMode(m){
+  mode = m;
+  document.getElementById('btnSector').className = 'tog-btn' + (m==='sector'?' active':'');
+  document.getElementById('btnSegment').className = 'tog-btn' + (m==='segment'?' active':'');
+  draw();
+}
+
+// Slider
+slider.addEventListener('input', function(){
+  angle = parseInt(this.value);
+  draw();
 });
-document.getElementById('btn-'+v).classList.add('active');
-drawDiagram(currentAngle,v);
+
+// Drag on canvas
+function getAngleFromEvent(e){
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = 300 / rect.width;
+  const scaleY = 300 / rect.height;
+  let clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  let clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  const x = (clientX - rect.left) * scaleX - cx;
+  const y = (clientY - rect.top) * scaleY - cy;
+  let a = Math.atan2(y, x) - (-Math.PI/2);
+  if(a < 0) a += Math.PI*2;
+  let deg = Math.round(a * 180 / Math.PI);
+  if(deg < 5) deg = 5;
+  if(deg > 355) deg = 355;
+  return deg;
 }
 
-function selectConcept(type){
-document.getElementById('sectorCard').classList.remove('active');
-document.getElementById('segmentCard').classList.remove('active');
-document.getElementById('sectorCard'+'-card');
-if(type==='sector'){
-document.getElementById('sectorCard').classList.add('active');
-setView('sector');
-}else{
-document.getElementById('segmentCard').classList.add('active');
-setView('segment');
-}
+canvas.addEventListener('mousedown', e => { isDragging = true; });
+canvas.addEventListener('mousemove', e => { if(!isDragging) return; angle = getAngleFromEvent(e); slider.value = angle; draw(); });
+canvas.addEventListener('mouseup', e => { isDragging = false; });
+canvas.addEventListener('mouseleave', e => { isDragging = false; });
+
+canvas.addEventListener('touchstart', e => { e.preventDefault(); isDragging = true; }, {passive:false});
+canvas.addEventListener('touchmove', e => { e.preventDefault(); if(!isDragging) return; angle = getAngleFromEvent(e); slider.value = angle; draw(); }, {passive:false});
+canvas.addEventListener('touchend', e => { isDragging = false; });
+
+// Worked example reveal
+let currentStep = 0;
+const totalSteps = 5;
+
+function revealNext(){
+  if(currentStep < totalSteps){
+    currentStep++;
+    const el = document.getElementById('s'+currentStep);
+    el.style.display = 'block';
+    setTimeout(()=> el.classList.add('visible'), 10);
+    if(currentStep < totalSteps){
+      document.getElementById('revealBtn').textContent = '▶ Reveal Step ' + (currentStep+1);
+    } else {
+      document.getElementById('revealBtn').textContent = '✅ All Steps Revealed!';
+      document.getElementById('revealBtn').style.background = 'linear-gradient(135deg, #22c55e, #16a34a)';
+      document.getElementById('revealBtn').onclick = ()=>{
+        currentStep = 0;
+        for(let i=1;i<=5;i++){
+          const el = document.getElementById('s'+i);
+          el.classList.remove('visible');
+          setTimeout(()=> el.style.display='none', 400);
+        }
+        setTimeout(()=>{
+          document.getElementById('revealBtn').textContent = '▶ Reveal Step 1';
+          document.getElementById('revealBtn').style.background = 'linear-gradient(135deg, #3b82f6, #6366f1)';
+          document.getElementById('revealBtn').onclick = revealNext;
+        }, 450);
+      };
+    }
+  }
 }
 
-function updateCalc(){
-const r=parseFloat(document.getElementById('radiusSlider').value);
-const theta=parseFloat(document.getElementById('calcAngleSlider').value);
-document.getElementById('radiusVal').textContent=r+' cm';
-document.getElementById('calcAngle').textContent=theta+'°';
-const sectorArea=((theta/360)*PI*r*r).toFixed(2);
-const arcLen=((theta/360)*2*PI*r).toFixed(2);
-const triArea=(0.5*r*r*Math.sin
+draw();
 </script>
 </body>
 </html>

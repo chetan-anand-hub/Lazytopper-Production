@@ -1,67 +1,7 @@
 {
   "version": 1,
-  "generatedAt": "2026-04-11T04:39:06.696Z",
+  "generatedAt": "2026-04-11T07:06:42.357Z",
   "concepts": {
-    "pythagoras-theorem-visual-proof": {
-      "subject": "maths",
-      "chapter": "triangles",
-      "chapterName": "Triangles",
-      "conceptName": "Pythagoras Theorem Visual Proof",
-      "slug": "pythagoras-theorem-visual-proof",
-      "filePath": "/app/visuals/maths/triangles/pythagoras-theorem-visual-proof.html",
-      "sizeKB": 20.5,
-      "generatedAt": "2026-04-10T22:38:29.990Z"
-    },
-    "euclids-division-lemma": {
-      "subject": "maths",
-      "chapter": "real-numbers",
-      "chapterName": "Real Numbers",
-      "conceptName": "Euclids Division Lemma",
-      "slug": "euclids-division-lemma",
-      "filePath": "/app/visuals/maths/real-numbers/euclids-division-lemma.html",
-      "sizeKB": 20.8,
-      "generatedAt": "2026-04-10T22:42:23.946Z"
-    },
-    "fundamental-theorem-of-arithmetic": {
-      "subject": "maths",
-      "chapter": "real-numbers",
-      "chapterName": "Real Numbers",
-      "conceptName": "Fundamental Theorem of Arithmetic",
-      "slug": "fundamental-theorem-of-arithmetic",
-      "filePath": "/app/visuals/maths/real-numbers/fundamental-theorem-of-arithmetic.html",
-      "sizeKB": 17.9,
-      "generatedAt": "2026-04-11T01:21:39.831Z"
-    },
-    "hcf-and-lcm-using-prime-factorisation": {
-      "subject": "maths",
-      "chapter": "real-numbers",
-      "chapterName": "Real Numbers",
-      "conceptName": "HCF and LCM using Prime Factorisation",
-      "slug": "hcf-and-lcm-using-prime-factorisation",
-      "filePath": "/app/visuals/maths/real-numbers/hcf-and-lcm-using-prime-factorisation.html",
-      "sizeKB": 20.3,
-      "generatedAt": "2026-04-11T01:23:55.455Z"
-    },
-    "zeroes-of-a-polynomial": {
-      "subject": "maths",
-      "chapter": "polynomials",
-      "chapterName": "Polynomials",
-      "conceptName": "Zeroes of a Polynomial",
-      "slug": "zeroes-of-a-polynomial",
-      "filePath": "/app/visuals/maths/polynomials/zeroes-of-a-polynomial.html",
-      "sizeKB": 16.8,
-      "generatedAt": "2026-04-11T01:27:04.217Z"
-    },
-    "graphical-method": {
-      "subject": "maths",
-      "chapter": "linear-equations",
-      "chapterName": "Pair of Linear Equations",
-      "conceptName": "Graphical Method",
-      "slug": "graphical-method",
-      "filePath": "/app/visuals/maths/linear-equations/graphical-method.html",
-      "sizeKB": 19.4,
-      "generatedAt": "2026-04-11T01:29:40.569Z"
-    },
     "quadratic-formula": {
       "subject": "maths",
       "chapter": "quadratic-equations",
@@ -72,66 +12,6 @@
       "sizeKB": 21.3,
       "generatedAt": "2026-04-11T01:32:49.784Z"
     },
-    "nth-term-formula": {
-      "subject": "maths",
-      "chapter": "arithmetic-progression",
-      "chapterName": "Arithmetic Progressions",
-      "conceptName": "nth Term Formula",
-      "slug": "nth-term-formula",
-      "filePath": "/app/visuals/maths/arithmetic-progression/nth-term-formula.html",
-      "sizeKB": 21.5,
-      "generatedAt": "2026-04-11T01:35:05.353Z"
-    },
-    "trigonometric-ratios": {
-      "subject": "maths",
-      "chapter": "trigonometry",
-      "chapterName": "Trigonometry",
-      "conceptName": "Trigonometric Ratios",
-      "slug": "trigonometric-ratios",
-      "filePath": "/app/visuals/maths/trigonometry/trigonometric-ratios.html",
-      "sizeKB": 16.3,
-      "generatedAt": "2026-04-11T01:36:00.645Z"
-    },
-    "distance-formula": {
-      "subject": "maths",
-      "chapter": "coordinate-geometry",
-      "chapterName": "Coordinate Geometry",
-      "conceptName": "Distance Formula",
-      "slug": "distance-formula",
-      "filePath": "/app/visuals/maths/coordinate-geometry/distance-formula.html",
-      "sizeKB": 12.6,
-      "generatedAt": "2026-04-11T01:37:33.426Z"
-    },
-    "tangent-to-a-circle": {
-      "subject": "maths",
-      "chapter": "circles",
-      "chapterName": "Circles",
-      "conceptName": "Tangent to a Circle",
-      "slug": "tangent-to-a-circle",
-      "filePath": "/app/visuals/maths/circles/tangent-to-a-circle.html",
-      "sizeKB": 15.1,
-      "generatedAt": "2026-04-11T01:39:59.637Z"
-    },
-    "mean-of-grouped-data": {
-      "subject": "maths",
-      "chapter": "statistics",
-      "chapterName": "Statistics",
-      "conceptName": "Mean of Grouped Data",
-      "slug": "mean-of-grouped-data",
-      "filePath": "/app/visuals/maths/statistics/mean-of-grouped-data.html",
-      "sizeKB": 19.4,
-      "generatedAt": "2026-04-11T01:42:02.962Z"
-    },
-    "classical-probability": {
-      "subject": "maths",
-      "chapter": "probability",
-      "chapterName": "Probability",
-      "conceptName": "Classical Probability",
-      "slug": "classical-probability",
-      "filePath": "/app/visuals/maths/probability/classical-probability.html",
-      "sizeKB": 21.1,
-      "generatedAt": "2026-04-11T01:44:21.299Z"
-    },
     "irrational-numbers-proof": {
       "subject": "maths",
       "chapter": "real-numbers",
@@ -141,46 +21,6 @@
       "filePath": "/app/visuals/maths/real-numbers/irrational-numbers-proof.html",
       "sizeKB": 21.2,
       "generatedAt": "2026-04-11T01:50:11.039Z"
-    },
-    "decimal-expansions": {
-      "subject": "maths",
-      "chapter": "real-numbers",
-      "chapterName": "Real Numbers",
-      "conceptName": "Decimal Expansions",
-      "slug": "decimal-expansions",
-      "filePath": "/app/visuals/maths/real-numbers/decimal-expansions.html",
-      "sizeKB": 20.6,
-      "generatedAt": "2026-04-11T01:55:09.708Z"
-    },
-    "relationship-between-zeroes-and-coefficients": {
-      "subject": "maths",
-      "chapter": "polynomials",
-      "chapterName": "Polynomials",
-      "conceptName": "Relationship between Zeroes and Coefficients",
-      "slug": "relationship-between-zeroes-and-coefficients",
-      "filePath": "/app/visuals/maths/polynomials/relationship-between-zeroes-and-coefficients.html",
-      "sizeKB": 21.2,
-      "generatedAt": "2026-04-11T01:56:51.636Z"
-    },
-    "graphical-meaning-of-zeroes": {
-      "subject": "maths",
-      "chapter": "polynomials",
-      "chapterName": "Polynomials",
-      "conceptName": "Graphical Meaning of Zeroes",
-      "slug": "graphical-meaning-of-zeroes",
-      "filePath": "/app/visuals/maths/polynomials/graphical-meaning-of-zeroes.html",
-      "sizeKB": 18.9,
-      "generatedAt": "2026-04-11T01:58:57.274Z"
-    },
-    "substitution-method": {
-      "subject": "maths",
-      "chapter": "linear-equations",
-      "chapterName": "Pair of Linear Equations in Two Variables",
-      "conceptName": "Substitution Method",
-      "slug": "substitution-method",
-      "filePath": "/app/visuals/maths/linear-equations/substitution-method.html",
-      "sizeKB": 21.7,
-      "generatedAt": "2026-04-11T02:02:14.522Z"
     },
     "elimination-method": {
       "subject": "maths",
@@ -202,76 +42,6 @@
       "sizeKB": 21,
       "generatedAt": "2026-04-11T02:05:53.202Z"
     },
-    "consistency-of-equations": {
-      "subject": "maths",
-      "chapter": "linear-equations",
-      "chapterName": "Pair of Linear Equations in Two Variables",
-      "conceptName": "Consistency of Equations",
-      "slug": "consistency-of-equations",
-      "filePath": "/app/visuals/maths/linear-equations/consistency-of-equations.html",
-      "sizeKB": 20.5,
-      "generatedAt": "2026-04-11T02:07:44.076Z"
-    },
-    "standard-form-and-roots": {
-      "subject": "maths",
-      "chapter": "quadratic-equations",
-      "chapterName": "Quadratic Equations",
-      "conceptName": "Standard Form and Roots",
-      "slug": "standard-form-and-roots",
-      "filePath": "/app/visuals/maths/quadratic-equations/standard-form-and-roots.html",
-      "sizeKB": 20.6,
-      "generatedAt": "2026-04-11T02:09:23.264Z"
-    },
-    "factorisation-method": {
-      "subject": "maths",
-      "chapter": "quadratic-equations",
-      "chapterName": "Quadratic Equations",
-      "conceptName": "Factorisation Method",
-      "slug": "factorisation-method",
-      "filePath": "/app/visuals/maths/quadratic-equations/factorisation-method.html",
-      "sizeKB": 21,
-      "generatedAt": "2026-04-11T02:11:22.404Z"
-    },
-    "nature-of-roots-using-discriminant": {
-      "subject": "maths",
-      "chapter": "quadratic-equations",
-      "chapterName": "Quadratic Equations",
-      "conceptName": "Nature of Roots using Discriminant",
-      "slug": "nature-of-roots-using-discriminant",
-      "filePath": "/app/visuals/maths/quadratic-equations/nature-of-roots-using-discriminant.html",
-      "sizeKB": 20.4,
-      "generatedAt": "2026-04-11T02:14:57.501Z"
-    },
-    "ap-definition-and-common-difference": {
-      "subject": "maths",
-      "chapter": "arithmetic-progression",
-      "chapterName": "Arithmetic Progressions",
-      "conceptName": "AP Definition and Common Difference",
-      "slug": "ap-definition-and-common-difference",
-      "filePath": "/app/visuals/maths/arithmetic-progression/ap-definition-and-common-difference.html",
-      "sizeKB": 21,
-      "generatedAt": "2026-04-11T02:17:00.205Z"
-    },
-    "sum-of-n-terms": {
-      "subject": "maths",
-      "chapter": "arithmetic-progression",
-      "chapterName": "Arithmetic Progressions",
-      "conceptName": "Sum of n Terms",
-      "slug": "sum-of-n-terms",
-      "filePath": "/app/visuals/maths/arithmetic-progression/sum-of-n-terms.html",
-      "sizeKB": 20.4,
-      "generatedAt": "2026-04-11T02:18:52.946Z"
-    },
-    "ap-number-line-visualization": {
-      "subject": "maths",
-      "chapter": "arithmetic-progression",
-      "chapterName": "Arithmetic Progressions",
-      "conceptName": "AP Number Line Visualization",
-      "slug": "ap-number-line-visualization",
-      "filePath": "/app/visuals/maths/arithmetic-progression/ap-number-line-visualization.html",
-      "sizeKB": 20.2,
-      "generatedAt": "2026-04-11T02:20:45.402Z"
-    },
     "similar-triangles-and-criteria": {
       "subject": "maths",
       "chapter": "triangles",
@@ -281,36 +51,6 @@
       "filePath": "/app/visuals/maths/triangles/similar-triangles-and-criteria.html",
       "sizeKB": 19.5,
       "generatedAt": "2026-04-11T02:22:24.228Z"
-    },
-    "basic-proportionality-theorem": {
-      "subject": "maths",
-      "chapter": "triangles",
-      "chapterName": "Triangles",
-      "conceptName": "Basic Proportionality Theorem",
-      "slug": "basic-proportionality-theorem",
-      "filePath": "/app/visuals/maths/triangles/basic-proportionality-theorem.html",
-      "sizeKB": 20.2,
-      "generatedAt": "2026-04-11T02:24:20.953Z"
-    },
-    "areas-of-similar-triangles": {
-      "subject": "maths",
-      "chapter": "triangles",
-      "chapterName": "Triangles",
-      "conceptName": "Areas of Similar Triangles",
-      "slug": "areas-of-similar-triangles",
-      "filePath": "/app/visuals/maths/triangles/areas-of-similar-triangles.html",
-      "sizeKB": 20.5,
-      "generatedAt": "2026-04-11T02:26:20.838Z"
-    },
-    "section-formula": {
-      "subject": "maths",
-      "chapter": "coordinate-geometry",
-      "chapterName": "Coordinate Geometry",
-      "conceptName": "Section Formula",
-      "slug": "section-formula",
-      "filePath": "/app/visuals/maths/coordinate-geometry/section-formula.html",
-      "sizeKB": 18.6,
-      "generatedAt": "2026-04-11T02:28:04.573Z"
     },
     "area-of-triangle-using-coordinates": {
       "subject": "maths",
@@ -322,36 +62,6 @@
       "sizeKB": 18.2,
       "generatedAt": "2026-04-11T02:29:52.784Z"
     },
-    "coordinate-plane-plotter": {
-      "subject": "maths",
-      "chapter": "coordinate-geometry",
-      "chapterName": "Coordinate Geometry",
-      "conceptName": "Coordinate Plane Plotter",
-      "slug": "coordinate-plane-plotter",
-      "filePath": "/app/visuals/maths/coordinate-geometry/coordinate-plane-plotter.html",
-      "sizeKB": 19.8,
-      "generatedAt": "2026-04-11T02:31:49.673Z"
-    },
-    "trigonometric-ratios-of-standard-angles": {
-      "subject": "maths",
-      "chapter": "trigonometry",
-      "chapterName": "Introduction to Trigonometry",
-      "conceptName": "Trigonometric Ratios of Standard Angles",
-      "slug": "trigonometric-ratios-of-standard-angles",
-      "filePath": "/app/visuals/maths/trigonometry/trigonometric-ratios-of-standard-angles.html",
-      "sizeKB": 19.5,
-      "generatedAt": "2026-04-11T02:33:30.314Z"
-    },
-    "trigonometric-identities": {
-      "subject": "maths",
-      "chapter": "trigonometry",
-      "chapterName": "Introduction to Trigonometry",
-      "conceptName": "Trigonometric Identities",
-      "slug": "trigonometric-identities",
-      "filePath": "/app/visuals/maths/trigonometry/trigonometric-identities.html",
-      "sizeKB": 19.8,
-      "generatedAt": "2026-04-11T02:36:56.498Z"
-    },
     "height-and-distance-problems": {
       "subject": "maths",
       "chapter": "trigonometry",
@@ -362,146 +72,6 @@
       "sizeKB": 20.1,
       "generatedAt": "2026-04-11T02:38:53.592Z"
     },
-    "number-of-tangents-from-external-point": {
-      "subject": "maths",
-      "chapter": "circles",
-      "chapterName": "Circles",
-      "conceptName": "Number of Tangents from External Point",
-      "slug": "number-of-tangents-from-external-point",
-      "filePath": "/app/visuals/maths/circles/number-of-tangents-from-external-point.html",
-      "sizeKB": 20.3,
-      "generatedAt": "2026-04-11T02:41:24.631Z"
-    },
-    "tangent-properties": {
-      "subject": "maths",
-      "chapter": "circles",
-      "chapterName": "Circles",
-      "conceptName": "Tangent Properties",
-      "slug": "tangent-properties",
-      "filePath": "/app/visuals/maths/circles/tangent-properties.html",
-      "sizeKB": 19.5,
-      "generatedAt": "2026-04-11T02:43:18.316Z"
-    },
-    "sector-and-segment": {
-      "subject": "maths",
-      "chapter": "areas-circles",
-      "chapterName": "Areas Related to Circles",
-      "conceptName": "Sector and Segment",
-      "slug": "sector-and-segment",
-      "filePath": "/app/visuals/maths/areas-circles/sector-and-segment.html",
-      "sizeKB": 19.8,
-      "generatedAt": "2026-04-11T02:45:03.957Z"
-    },
-    "area-of-sector-formula": {
-      "subject": "maths",
-      "chapter": "areas-circles",
-      "chapterName": "Areas Related to Circles",
-      "conceptName": "Area of Sector Formula",
-      "slug": "area-of-sector-formula",
-      "filePath": "/app/visuals/maths/areas-circles/area-of-sector-formula.html",
-      "sizeKB": 21.1,
-      "generatedAt": "2026-04-11T02:46:46.840Z"
-    },
-    "combined-figures-area": {
-      "subject": "maths",
-      "chapter": "areas-circles",
-      "chapterName": "Areas Related to Circles",
-      "conceptName": "Combined Figures Area",
-      "slug": "combined-figures-area",
-      "filePath": "/app/visuals/maths/areas-circles/combined-figures-area.html",
-      "sizeKB": 20.1,
-      "generatedAt": "2026-04-11T02:49:37.880Z"
-    },
-    "combination-of-solids": {
-      "subject": "maths",
-      "chapter": "surface-areas-volumes",
-      "chapterName": "Surface Areas and Volumes",
-      "conceptName": "Combination of Solids",
-      "slug": "combination-of-solids",
-      "filePath": "/app/visuals/maths/surface-areas-volumes/combination-of-solids.html",
-      "sizeKB": 19.6,
-      "generatedAt": "2026-04-11T02:51:27.644Z"
-    },
-    "conversion-of-solids": {
-      "subject": "maths",
-      "chapter": "surface-areas-volumes",
-      "chapterName": "Surface Areas and Volumes",
-      "conceptName": "Conversion of Solids",
-      "slug": "conversion-of-solids",
-      "filePath": "/app/visuals/maths/surface-areas-volumes/conversion-of-solids.html",
-      "sizeKB": 20.5,
-      "generatedAt": "2026-04-11T02:53:28.540Z"
-    },
-    "frustum-of-a-cone": {
-      "subject": "maths",
-      "chapter": "surface-areas-volumes",
-      "chapterName": "Surface Areas and Volumes",
-      "conceptName": "Frustum of a Cone",
-      "slug": "frustum-of-a-cone",
-      "filePath": "/app/visuals/maths/surface-areas-volumes/frustum-of-a-cone.html",
-      "sizeKB": 19.2,
-      "generatedAt": "2026-04-11T02:55:16.389Z"
-    },
-    "median-of-grouped-data": {
-      "subject": "maths",
-      "chapter": "statistics",
-      "chapterName": "Statistics",
-      "conceptName": "Median of Grouped Data",
-      "slug": "median-of-grouped-data",
-      "filePath": "/app/visuals/maths/statistics/median-of-grouped-data.html",
-      "sizeKB": 21.7,
-      "generatedAt": "2026-04-11T02:58:29.612Z"
-    },
-    "mode-of-grouped-data": {
-      "subject": "maths",
-      "chapter": "statistics",
-      "chapterName": "Statistics",
-      "conceptName": "Mode of Grouped Data",
-      "slug": "mode-of-grouped-data",
-      "filePath": "/app/visuals/maths/statistics/mode-of-grouped-data.html",
-      "sizeKB": 19.3,
-      "generatedAt": "2026-04-11T03:00:12.139Z"
-    },
-    "ogive-curve": {
-      "subject": "maths",
-      "chapter": "statistics",
-      "chapterName": "Statistics",
-      "conceptName": "Ogive Curve",
-      "slug": "ogive-curve",
-      "filePath": "/app/visuals/maths/statistics/ogive-curve.html",
-      "sizeKB": 19.5,
-      "generatedAt": "2026-04-11T03:02:16.003Z"
-    },
-    "complementary-events": {
-      "subject": "maths",
-      "chapter": "probability",
-      "chapterName": "Probability",
-      "conceptName": "Complementary Events",
-      "slug": "complementary-events",
-      "filePath": "/app/visuals/maths/probability/complementary-events.html",
-      "sizeKB": 20.2,
-      "generatedAt": "2026-04-11T03:04:02.604Z"
-    },
-    "dice-and-cards-sample-space": {
-      "subject": "maths",
-      "chapter": "probability",
-      "chapterName": "Probability",
-      "conceptName": "Dice and Cards Sample Space",
-      "slug": "dice-and-cards-sample-space",
-      "filePath": "/app/visuals/maths/probability/dice-and-cards-sample-space.html",
-      "sizeKB": 19.9,
-      "generatedAt": "2026-04-11T03:05:54.201Z"
-    },
-    "division-algorithm-for-polynomials": {
-      "subject": "maths",
-      "chapter": "polynomials",
-      "chapterName": "Polynomials",
-      "conceptName": "Division Algorithm for Polynomials",
-      "slug": "division-algorithm-for-polynomials",
-      "filePath": "/app/visuals/maths/polynomials/division-algorithm-for-polynomials.html",
-      "sizeKB": 20.1,
-      "generatedAt": "2026-04-11T03:07:43.491Z"
-    },
     "types-of-chemical-reactions": {
       "subject": "science",
       "chapter": "chemical-reactions",
@@ -511,16 +81,6 @@
       "filePath": "/app/visuals/science/chemical-reactions/types-of-chemical-reactions.html",
       "sizeKB": 21.7,
       "generatedAt": "2026-04-11T03:09:17.994Z"
-    },
-    "balancing-chemical-equations": {
-      "subject": "science",
-      "chapter": "chemical-reactions",
-      "chapterName": "Chemical Reactions and Equations",
-      "conceptName": "Balancing Chemical Equations",
-      "slug": "balancing-chemical-equations",
-      "filePath": "/app/visuals/science/chemical-reactions/balancing-chemical-equations.html",
-      "sizeKB": 19.7,
-      "generatedAt": "2026-04-11T03:11:23.680Z"
     },
     "oxidation-and-reduction": {
       "subject": "science",
@@ -542,26 +102,6 @@
       "sizeKB": 20.7,
       "generatedAt": "2026-04-11T03:15:11.542Z"
     },
-    "ph-scale": {
-      "subject": "science",
-      "chapter": "acids-bases-salts",
-      "chapterName": "Acids, Bases and Salts",
-      "conceptName": "pH Scale",
-      "slug": "ph-scale",
-      "filePath": "/app/visuals/science/acids-bases-salts/ph-scale.html",
-      "sizeKB": 20.3,
-      "generatedAt": "2026-04-11T03:16:58.292Z"
-    },
-    "acid-base-reactions": {
-      "subject": "science",
-      "chapter": "acids-bases-salts",
-      "chapterName": "Acids, Bases and Salts",
-      "conceptName": "Acid Base Reactions",
-      "slug": "acid-base-reactions",
-      "filePath": "/app/visuals/science/acids-bases-salts/acid-base-reactions.html",
-      "sizeKB": 20.2,
-      "generatedAt": "2026-04-11T03:18:48.089Z"
-    },
     "common-salt-and-its-products": {
       "subject": "science",
       "chapter": "acids-bases-salts",
@@ -582,16 +122,6 @@
       "sizeKB": 20.8,
       "generatedAt": "2026-04-11T03:22:24.953Z"
     },
-    "reactivity-series": {
-      "subject": "science",
-      "chapter": "metals-nonmetals",
-      "chapterName": "Metals and Non-Metals",
-      "conceptName": "Reactivity Series",
-      "slug": "reactivity-series",
-      "filePath": "/app/visuals/science/metals-nonmetals/reactivity-series.html",
-      "sizeKB": 21.3,
-      "generatedAt": "2026-04-11T03:24:23.939Z"
-    },
     "ionic-bonding": {
       "subject": "science",
       "chapter": "metals-nonmetals",
@@ -602,26 +132,6 @@
       "sizeKB": 20.4,
       "generatedAt": "2026-04-11T03:26:11.707Z"
     },
-    "extraction-of-metals": {
-      "subject": "science",
-      "chapter": "metals-nonmetals",
-      "chapterName": "Metals and Non-Metals",
-      "conceptName": "Extraction of Metals",
-      "slug": "extraction-of-metals",
-      "filePath": "/app/visuals/science/metals-nonmetals/extraction-of-metals.html",
-      "sizeKB": 19.7,
-      "generatedAt": "2026-04-11T03:28:08.419Z"
-    },
-    "covalent-bonding-in-carbon": {
-      "subject": "science",
-      "chapter": "carbon-compounds",
-      "chapterName": "Carbon and its Compounds",
-      "conceptName": "Covalent Bonding in Carbon",
-      "slug": "covalent-bonding-in-carbon",
-      "filePath": "/app/visuals/science/carbon-compounds/covalent-bonding-in-carbon.html",
-      "sizeKB": 19.6,
-      "generatedAt": "2026-04-11T03:29:49.687Z"
-    },
     "homologous-series": {
       "subject": "science",
       "chapter": "carbon-compounds",
@@ -631,36 +141,6 @@
       "filePath": "/app/visuals/science/carbon-compounds/homologous-series.html",
       "sizeKB": 20.2,
       "generatedAt": "2026-04-11T03:31:38.312Z"
-    },
-    "functional-groups": {
-      "subject": "science",
-      "chapter": "carbon-compounds",
-      "chapterName": "Carbon and its Compounds",
-      "conceptName": "Functional Groups",
-      "slug": "functional-groups",
-      "filePath": "/app/visuals/science/carbon-compounds/functional-groups.html",
-      "sizeKB": 20.9,
-      "generatedAt": "2026-04-11T03:33:43.483Z"
-    },
-    "carbon-chain-structures": {
-      "subject": "science",
-      "chapter": "carbon-compounds",
-      "chapterName": "Carbon and its Compounds",
-      "conceptName": "Carbon Chain Structures",
-      "slug": "carbon-chain-structures",
-      "filePath": "/app/visuals/science/carbon-compounds/carbon-chain-structures.html",
-      "sizeKB": 19.6,
-      "generatedAt": "2026-04-11T03:35:39.597Z"
-    },
-    "nutrition-in-humans": {
-      "subject": "science",
-      "chapter": "life-processes",
-      "chapterName": "Life Processes",
-      "conceptName": "Nutrition in Humans",
-      "slug": "nutrition-in-humans",
-      "filePath": "/app/visuals/science/life-processes/nutrition-in-humans.html",
-      "sizeKB": 21,
-      "generatedAt": "2026-04-11T03:37:33.777Z"
     },
     "photosynthesis": {
       "subject": "science",
@@ -701,26 +181,6 @@
       "filePath": "/app/visuals/science/control-coordination/nervous-system.html",
       "sizeKB": 19.8,
       "generatedAt": "2026-04-11T03:44:42.250Z"
-    },
-    "reflex-arc": {
-      "subject": "science",
-      "chapter": "control-coordination",
-      "chapterName": "Control and Coordination",
-      "conceptName": "Reflex Arc",
-      "slug": "reflex-arc",
-      "filePath": "/app/visuals/science/control-coordination/reflex-arc.html",
-      "sizeKB": 21.8,
-      "generatedAt": "2026-04-11T03:46:41.429Z"
-    },
-    "plant-hormones-and-tropisms": {
-      "subject": "science",
-      "chapter": "control-coordination",
-      "chapterName": "Control and Coordination",
-      "conceptName": "Plant Hormones and Tropisms",
-      "slug": "plant-hormones-and-tropisms",
-      "filePath": "/app/visuals/science/control-coordination/plant-hormones-and-tropisms.html",
-      "sizeKB": 21.3,
-      "generatedAt": "2026-04-11T03:48:44.151Z"
     },
     "types-of-asexual-reproduction": {
       "subject": "science",
@@ -782,46 +242,6 @@
       "sizeKB": 21.3,
       "generatedAt": "2026-04-11T03:59:43.911Z"
     },
-    "reflection-of-light": {
-      "subject": "science",
-      "chapter": "light",
-      "chapterName": "Light – Reflection and Refraction",
-      "conceptName": "Reflection of Light",
-      "slug": "reflection-of-light",
-      "filePath": "/app/visuals/science/light/reflection-of-light.html",
-      "sizeKB": 20,
-      "generatedAt": "2026-04-11T04:01:30.269Z"
-    },
-    "mirror-formula-and-magnification": {
-      "subject": "science",
-      "chapter": "light",
-      "chapterName": "Light – Reflection and Refraction",
-      "conceptName": "Mirror Formula and Magnification",
-      "slug": "mirror-formula-and-magnification",
-      "filePath": "/app/visuals/science/light/mirror-formula-and-magnification.html",
-      "sizeKB": 20.7,
-      "generatedAt": "2026-04-11T04:04:50.985Z"
-    },
-    "refraction-of-light": {
-      "subject": "science",
-      "chapter": "light",
-      "chapterName": "Light – Reflection and Refraction",
-      "conceptName": "Refraction of Light",
-      "slug": "refraction-of-light",
-      "filePath": "/app/visuals/science/light/refraction-of-light.html",
-      "sizeKB": 20.1,
-      "generatedAt": "2026-04-11T04:06:36.916Z"
-    },
-    "lens-formula-and-ray-diagrams": {
-      "subject": "science",
-      "chapter": "light",
-      "chapterName": "Light – Reflection and Refraction",
-      "conceptName": "Lens Formula and Ray Diagrams",
-      "slug": "lens-formula-and-ray-diagrams",
-      "filePath": "/app/visuals/science/light/lens-formula-and-ray-diagrams.html",
-      "sizeKB": 19.4,
-      "generatedAt": "2026-04-11T04:08:34.310Z"
-    },
     "structure-of-human-eye": {
       "subject": "science",
       "chapter": "human-eye",
@@ -842,56 +262,6 @@
       "sizeKB": 19.7,
       "generatedAt": "2026-04-11T04:13:44.242Z"
     },
-    "dispersion-of-light-and-rainbow": {
-      "subject": "science",
-      "chapter": "human-eye",
-      "chapterName": "The Human Eye and the Colourful World",
-      "conceptName": "Dispersion of Light and Rainbow",
-      "slug": "dispersion-of-light-and-rainbow",
-      "filePath": "/app/visuals/science/human-eye/dispersion-of-light-and-rainbow.html",
-      "sizeKB": 20.4,
-      "generatedAt": "2026-04-11T04:15:50.645Z"
-    },
-    "ohms-law": {
-      "subject": "science",
-      "chapter": "electricity",
-      "chapterName": "Electricity",
-      "conceptName": "Ohms Law",
-      "slug": "ohms-law",
-      "filePath": "/app/visuals/science/electricity/ohms-law.html",
-      "sizeKB": 20.7,
-      "generatedAt": "2026-04-11T04:17:36.779Z"
-    },
-    "series-and-parallel-circuits": {
-      "subject": "science",
-      "chapter": "electricity",
-      "chapterName": "Electricity",
-      "conceptName": "Series and Parallel Circuits",
-      "slug": "series-and-parallel-circuits",
-      "filePath": "/app/visuals/science/electricity/series-and-parallel-circuits.html",
-      "sizeKB": 20.1,
-      "generatedAt": "2026-04-11T04:20:51.355Z"
-    },
-    "electric-power-and-energy": {
-      "subject": "science",
-      "chapter": "electricity",
-      "chapterName": "Electricity",
-      "conceptName": "Electric Power and Energy",
-      "slug": "electric-power-and-energy",
-      "filePath": "/app/visuals/science/electricity/electric-power-and-energy.html",
-      "sizeKB": 20.1,
-      "generatedAt": "2026-04-11T04:24:14.275Z"
-    },
-    "circuit-diagram-builder": {
-      "subject": "science",
-      "chapter": "electricity",
-      "chapterName": "Electricity",
-      "conceptName": "Circuit Diagram Builder",
-      "slug": "circuit-diagram-builder",
-      "filePath": "/app/visuals/science/electricity/circuit-diagram-builder.html",
-      "sizeKB": 20.1,
-      "generatedAt": "2026-04-11T04:26:06.580Z"
-    },
     "magnetic-field-lines": {
       "subject": "science",
       "chapter": "magnetic-effects",
@@ -901,16 +271,6 @@
       "filePath": "/app/visuals/science/magnetic-effects/magnetic-field-lines.html",
       "sizeKB": 20.9,
       "generatedAt": "2026-04-11T04:27:50.432Z"
-    },
-    "electromagnet-and-solenoid": {
-      "subject": "science",
-      "chapter": "magnetic-effects",
-      "chapterName": "Magnetic Effects of Electric Current",
-      "conceptName": "Electromagnet and Solenoid",
-      "slug": "electromagnet-and-solenoid",
-      "filePath": "/app/visuals/science/magnetic-effects/electromagnet-and-solenoid.html",
-      "sizeKB": 20.7,
-      "generatedAt": "2026-04-11T04:29:44.014Z"
     },
     "flemings-left-hand-rule": {
       "subject": "science",
@@ -922,16 +282,6 @@
       "sizeKB": 21.1,
       "generatedAt": "2026-04-11T04:31:42.586Z"
     },
-    "electric-motor-and-generator": {
-      "subject": "science",
-      "chapter": "magnetic-effects",
-      "chapterName": "Magnetic Effects of Electric Current",
-      "conceptName": "Electric Motor and Generator",
-      "slug": "electric-motor-and-generator",
-      "filePath": "/app/visuals/science/magnetic-effects/electric-motor-and-generator.html",
-      "sizeKB": 19.6,
-      "generatedAt": "2026-04-11T04:33:29.895Z"
-    },
     "food-chain-and-food-web": {
       "subject": "science",
       "chapter": "environment",
@@ -942,16 +292,6 @@
       "sizeKB": 20.9,
       "generatedAt": "2026-04-11T04:35:13.764Z"
     },
-    "ecosystem-and-energy-flow": {
-      "subject": "science",
-      "chapter": "environment",
-      "chapterName": "Our Environment",
-      "conceptName": "Ecosystem and Energy Flow",
-      "slug": "ecosystem-and-energy-flow",
-      "filePath": "/app/visuals/science/environment/ecosystem-and-energy-flow.html",
-      "sizeKB": 21.5,
-      "generatedAt": "2026-04-11T04:37:15.395Z"
-    },
     "ozone-layer-and-biodegradability": {
       "subject": "science",
       "chapter": "environment",
@@ -961,6 +301,176 @@
       "filePath": "/app/visuals/science/environment/ozone-layer-and-biodegradability.html",
       "sizeKB": 20.5,
       "generatedAt": "2026-04-11T04:39:06.695Z"
+    },
+    "euclids-division-lemma": {
+      "subject": "maths",
+      "chapter": "real-numbers",
+      "chapterName": "Real Numbers",
+      "conceptName": "Euclids Division Lemma",
+      "slug": "euclids-division-lemma",
+      "filePath": "/app/visuals/maths/real-numbers/euclids-division-lemma.html",
+      "sizeKB": 17.4,
+      "generatedAt": "2026-04-11T04:53:02.794Z"
+    },
+    "fundamental-theorem-of-arithmetic": {
+      "subject": "maths",
+      "chapter": "real-numbers",
+      "chapterName": "Real Numbers",
+      "conceptName": "Fundamental Theorem of Arithmetic",
+      "slug": "fundamental-theorem-of-arithmetic",
+      "filePath": "/app/visuals/maths/real-numbers/fundamental-theorem-of-arithmetic.html",
+      "sizeKB": 20.3,
+      "generatedAt": "2026-04-11T04:57:57.722Z"
+    },
+    "basic-proportionality-theorem": {
+      "subject": "maths",
+      "chapter": "triangles",
+      "chapterName": "Triangles",
+      "conceptName": "Basic Proportionality Theorem",
+      "slug": "basic-proportionality-theorem",
+      "filePath": "/app/visuals/maths/triangles/basic-proportionality-theorem.html",
+      "sizeKB": 17.5,
+      "generatedAt": "2026-04-11T05:02:06.066Z"
+    },
+    "trigonometric-ratios": {
+      "subject": "maths",
+      "chapter": "trigonometry",
+      "chapterName": "Introduction to Trigonometry",
+      "conceptName": "Trigonometric Ratios",
+      "slug": "trigonometric-ratios",
+      "filePath": "/app/visuals/maths/trigonometry/trigonometric-ratios.html",
+      "sizeKB": 18.5,
+      "generatedAt": "2026-04-11T05:08:49.968Z"
+    },
+    "balancing-chemical-equations": {
+      "subject": "science",
+      "chapter": "chemical-reactions",
+      "chapterName": "Chemical Reactions and Equations",
+      "conceptName": "Balancing Chemical Equations",
+      "slug": "balancing-chemical-equations",
+      "filePath": "/app/visuals/science/chemical-reactions/balancing-chemical-equations.html",
+      "sizeKB": 24.1,
+      "generatedAt": "2026-04-11T05:19:28.516Z"
+    },
+    "graphical-method": {
+      "subject": "maths",
+      "chapter": "linear-equations",
+      "chapterName": "Pair of Linear Equations in Two Variables",
+      "conceptName": "Graphical Method",
+      "slug": "graphical-method",
+      "filePath": "/app/visuals/maths/linear-equations/graphical-method.html",
+      "sizeKB": 19.8,
+      "generatedAt": "2026-04-11T05:23:42.426Z"
+    },
+    "distance-formula": {
+      "subject": "maths",
+      "chapter": "coordinate-geometry",
+      "chapterName": "Coordinate Geometry",
+      "conceptName": "Distance Formula",
+      "slug": "distance-formula",
+      "filePath": "/app/visuals/maths/coordinate-geometry/distance-formula.html",
+      "sizeKB": 21.6,
+      "generatedAt": "2026-04-11T05:25:50.451Z"
+    },
+    "section-formula": {
+      "subject": "maths",
+      "chapter": "coordinate-geometry",
+      "chapterName": "Coordinate Geometry",
+      "conceptName": "Section Formula",
+      "slug": "section-formula",
+      "filePath": "/app/visuals/maths/coordinate-geometry/section-formula.html",
+      "sizeKB": 23.5,
+      "generatedAt": "2026-04-11T05:28:11.458Z"
+    },
+    "zeroes-of-a-polynomial": {
+      "subject": "maths",
+      "chapter": "polynomials",
+      "chapterName": "Polynomials",
+      "conceptName": "Zeroes of a Polynomial",
+      "slug": "zeroes-of-a-polynomial",
+      "filePath": "/app/visuals/maths/polynomials/zeroes-of-a-polynomial.html",
+      "sizeKB": 21,
+      "generatedAt": "2026-04-11T05:32:12.345Z"
+    },
+    "ap-definition-and-common-difference": {
+      "subject": "maths",
+      "chapter": "arithmetic-progression",
+      "chapterName": "Arithmetic Progressions",
+      "conceptName": "AP Definition and Common Difference",
+      "slug": "ap-definition-and-common-difference",
+      "filePath": "/app/visuals/maths/arithmetic-progression/ap-definition-and-common-difference.html",
+      "sizeKB": 20.6,
+      "generatedAt": "2026-04-11T05:44:22.309Z"
+    },
+    "combination-of-solids": {
+      "subject": "maths",
+      "chapter": "surface-areas-volumes",
+      "chapterName": "Surface Areas and Volumes",
+      "conceptName": "Combination of Solids",
+      "slug": "combination-of-solids",
+      "filePath": "/app/visuals/maths/surface-areas-volumes/combination-of-solids.html",
+      "sizeKB": 21.2,
+      "generatedAt": "2026-04-11T06:02:59.498Z"
+    },
+    "sector-and-segment": {
+      "subject": "maths",
+      "chapter": "areas-circles",
+      "chapterName": "Areas Related to Circles",
+      "conceptName": "Sector and Segment",
+      "slug": "sector-and-segment",
+      "filePath": "/app/visuals/maths/areas-circles/sector-and-segment.html",
+      "sizeKB": 22,
+      "generatedAt": "2026-04-11T06:05:51.949Z"
+    },
+    "coordinate-plane-plotter": {
+      "subject": "maths",
+      "chapter": "coordinate-geometry",
+      "chapterName": "Coordinate Geometry",
+      "conceptName": "Coordinate Plane Plotter",
+      "slug": "coordinate-plane-plotter",
+      "filePath": "/app/visuals/maths/coordinate-geometry/coordinate-plane-plotter.html",
+      "sizeKB": 21.3,
+      "generatedAt": "2026-04-11T06:14:54.940Z"
+    },
+    "ohms-law": {
+      "subject": "science",
+      "chapter": "electricity",
+      "chapterName": "Electricity",
+      "conceptName": "Ohms Law",
+      "slug": "ohms-law",
+      "filePath": "/app/visuals/science/electricity/ohms-law.html",
+      "sizeKB": 22.1,
+      "generatedAt": "2026-04-11T06:21:48.663Z"
+    },
+    "mean-of-grouped-data": {
+      "subject": "maths",
+      "chapter": "statistics",
+      "chapterName": "Statistics",
+      "conceptName": "Mean of Grouped Data",
+      "slug": "mean-of-grouped-data",
+      "filePath": "/app/visuals/maths/statistics/mean-of-grouped-data.html",
+      "sizeKB": 22.5,
+      "generatedAt": "2026-04-11T06:45:06.709Z"
+    },
+    "tangent-to-a-circle": {
+      "subject": "maths",
+      "chapter": "circles",
+      "chapterName": "Circles",
+      "conceptName": "Tangent to a Circle",
+      "slug": "tangent-to-a-circle",
+      "filePath": "/app/visuals/maths/circles/tangent-to-a-circle.html",
+      "sizeKB": 18.7,
+      "generatedAt": "2026-04-11T06:50:20.009Z"
+    },
+    "classical-probability": {
+      "subject": "maths",
+      "chapter": "probability",
+      "chapterName": "Probability",
+      "conceptName": "Classical Probability",
+      "slug": "classical-probability",
+      "filePath": "/app/visuals/maths/probability/classical-probability.html",
+      "sizeKB": 23.8,
+      "generatedAt": "2026-04-11T07:06:42.356Z"
     }
   }
 }

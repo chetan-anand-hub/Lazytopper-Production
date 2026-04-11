@@ -5,442 +5,421 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fundamental Theorem of Arithmetic</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #1e293b; min-height: 100vh; }
-
-  .title-bar {
-    background: linear-gradient(135deg, #1e40af, #3b82f6, #0ea5e9);
-    color: white; padding: 14px 20px; text-align: center;
-    box-shadow: 0 4px 20px rgba(59,130,246,0.5);
-  }
-  .title-bar h1 { font-size: 1.1rem; font-weight: 700; letter-spacing: 0.5px; }
-  .title-bar p { font-size: 0.75rem; opacity: 0.85; margin-top: 3px; }
-
-  .container { max-width: 700px; margin: 0 auto; padding: 16px; }
-
-  .card {
-    background: white; border-radius: 16px; padding: 18px;
-    margin-bottom: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.15);
-  }
-
-  .section-title {
-    font-size: 0.8rem; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 1px; color: #3b82f6; margin-bottom: 10px;
-    display: flex; align-items: center; gap: 6px;
-  }
-
-  .theorem-box {
-    background: linear-gradient(135deg, #eff6ff, #dbeafe);
-    border: 2px solid #3b82f6; border-radius: 12px;
-    padding: 14px; margin-bottom: 12px;
-  }
-  .theorem-box h3 { color: #1e40af; font-size: 0.95rem; margin-bottom: 6px; }
-  .theorem-box p { color: #1e293b; font-size: 0.82rem; line-height: 1.6; }
-
-  .formula-highlight {
-    background: linear-gradient(135deg, #1e293b, #334155);
-    color: #f8fafc; border-radius: 10px; padding: 12px 16px;
-    text-align: center; font-size: 0.9rem; font-weight: 600;
-    letter-spacing: 0.5px; margin: 10px 0;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
-  }
-  .formula-highlight span { color: #60a5fa; }
-
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#0f172a 100%);min-height:100vh;color:#f1f5f9;overflow-x:hidden}
+  .titlebar{background:linear-gradient(90deg,#1d4ed8,#3b82f6,#0ea5e9);padding:14px 20px;text-align:center;box-shadow:0 4px 20px rgba(59,130,246,0.4)}
+  .titlebar h1{font-size:1.1rem;font-weight:700;letter-spacing:1px}
+  .titlebar p{font-size:0.75rem;opacity:0.85;margin-top:2px}
+  .container{max-width:800px;margin:0 auto;padding:16px}
+  .card{background:rgba(30,41,59,0.8);border:1px solid rgba(59,130,246,0.2);border-radius:16px;padding:18px;margin-bottom:16px;backdrop-filter:blur(10px);box-shadow:0 8px 32px rgba(0,0,0,0.3)}
+  .theorem-box{background:linear-gradient(135deg,rgba(59,130,246,0.15),rgba(14,165,233,0.1));border:2px solid #3b82f6;border-radius:16px;padding:18px;text-align:center;margin-bottom:16px}
+  .theorem-box h2{color:#60a5fa;font-size:1rem;margin-bottom:8px}
+  .theorem-box .hindi{color:#f59e0b;font-size:0.85rem;margin-bottom:10px}
+  .theorem-text{color:#e2e8f0;font-size:0.9rem;line-height:1.6}
+  .highlight{color:#22c55e;font-weight:700}
+  .section-title{font-size:1rem;font-weight:700;color:#60a5fa;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+  .badge{background:#3b82f6;color:white;border-radius:50%;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700}
   /* Number input */
-  .input-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
-  .num-btn {
-    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-    color: white; border: none; border-radius: 8px;
-    padding: 8px 14px; font-size: 0.82rem; cursor: pointer;
-    font-weight: 600; transition: all 0.2s; box-shadow: 0 2px 8px rgba(59,130,246,0.3);
-  }
-  .num-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(59,130,246,0.5); }
-  .num-btn.active { background: linear-gradient(135deg, #22c55e, #15803d); box-shadow: 0 2px 8px rgba(34,197,94,0.4); }
-
-  #customInput {
-    border: 2px solid #e2e8f0; border-radius: 8px; padding: 7px 10px;
-    font-size: 0.85rem; width: 80px; outline: none; color: #1e293b;
-    transition: border-color 0.2s;
-  }
-  #customInput:focus { border-color: #3b82f6; }
-
+  .input-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+  .num-btn{background:rgba(59,130,246,0.2);border:1px solid #3b82f6;color:#93c5fd;border-radius:10px;padding:8px 14px;cursor:pointer;font-size:0.85rem;transition:all 0.2s}
+  .num-btn:hover,.num-btn.active{background:#3b82f6;color:white;transform:scale(1.05)}
+  .custom-input{background:rgba(15,23,42,0.6);border:1px solid #475569;border-radius:10px;padding:8px 12px;color:#f1f5f9;font-size:0.9rem;width:90px}
+  .custom-input:focus{outline:none;border-color:#3b82f6}
+  .go-btn{background:linear-gradient(135deg,#22c55e,#16a34a);border:none;color:white;border-radius:10px;padding:8px 18px;cursor:pointer;font-weight:700;font-size:0.9rem;transition:all 0.2s}
+  .go-btn:hover{transform:scale(1.05);box-shadow:0 4px 12px rgba(34,197,94,0.4)}
   /* Tree */
-  #treeCanvas { width: 100%; display: block; }
-  .tree-container {
-    background: linear-gradient(160deg, #f0f9ff, #e0f2fe);
-    border-radius: 12px; padding: 10px; overflow: hidden;
-    border: 1px solid #bae6fd; min-height: 200px;
-  }
-
-  /* Step reveal */
-  .steps-container { display: flex; flex-direction: column; gap: 8px; }
-  .step {
-    border-radius: 10px; padding: 10px 14px;
-    font-size: 0.82rem; border-left: 4px solid #3b82f6;
-    background: #f8fafc; opacity: 0; transform: translateY(10px);
-    transition: all 0.4s ease; display: none;
-  }
-  .step.visible { opacity: 1; transform: translateY(0); display: block; }
-  .step .step-num { font-weight: 700; color: #3b82f6; font-size: 0.75rem; margin-bottom: 3px; }
-  .step .step-text { color: #334155; }
-  .step .step-math { color: #7c3aed; font-weight: 600; font-size: 0.9rem; margin-top: 4px; }
-
-  .step-btn {
-    background: linear-gradient(135deg, #f59e0b, #d97706);
-    color: white; border: none; border-radius: 8px;
-    padding: 9px 18px; font-size: 0.82rem; cursor: pointer;
-    font-weight: 600; transition: all 0.2s; margin-top: 10px;
-    box-shadow: 0 2px 8px rgba(245,158,11,0.3);
-  }
-  .step-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(245,158,11,0.5); }
-
+  #treeCanvas{width:100%;border-radius:12px;display:block}
+  /* Factor display */
+  .factors-display{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px;min-height:40px;align-items:center}
+  .factor-pill{background:linear-gradient(135deg,#7c3aed,#4f46e5);color:white;border-radius:20px;padding:6px 14px;font-size:0.85rem;font-weight:700;animation:popIn 0.3s ease;box-shadow:0 4px 12px rgba(124,58,237,0.4)}
+  .mult-sign{color:#f59e0b;font-size:1.1rem;font-weight:700;align-self:center}
+  .prime-result{text-align:center;margin-top:10px;font-size:0.95rem;color:#22c55e;font-weight:700}
+  @keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+  /* Steps */
+  .step-btn{background:linear-gradient(135deg,#f59e0b,#d97706);border:none;color:white;border-radius:10px;padding:9px 20px;cursor:pointer;font-weight:700;font-size:0.85rem;margin-right:8px;transition:all 0.2s}
+  .step-btn:hover{transform:scale(1.05);box-shadow:0 4px 12px rgba(245,158,11,0.4)}
+  .step-item{background:rgba(15,23,42,0.5);border-left:3px solid #3b82f6;border-radius:0 10px 10px 0;padding:10px 14px;margin-bottom:8px;animation:slideIn 0.4s ease;font-size:0.85rem;line-height:1.5}
+  .step-item.done{border-left-color:#22c55e}
+  .step-num{color:#f59e0b;font-weight:700;margin-right:6px}
+  @keyframes slideIn{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
   /* Uniqueness demo */
-  .unique-demo { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 10px; }
-  .factor-bubble {
-    background: linear-gradient(135deg, #7c3aed, #5b21b6);
-    color: white; border-radius: 50%; width: 44px; height: 44px;
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 700; font-size: 0.95rem; box-shadow: 0 3px 10px rgba(124,58,237,0.4);
-    animation: popIn 0.3s ease;
-  }
-  @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
-  .times-sym { color: #94a3b8; font-size: 1.1rem; display: flex; align-items: center; }
-
+  .uniq-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
+  @media(max-width:480px){.uniq-grid{grid-template-columns:1fr}}
+  .uniq-card{background:rgba(15,23,42,0.6);border:1px solid rgba(59,130,246,0.3);border-radius:12px;padding:14px;text-align:center;cursor:pointer;transition:all 0.3s}
+  .uniq-card:hover{border-color:#3b82f6;box-shadow:0 0 20px rgba(59,130,246,0.2);transform:translateY(-2px)}
+  .uniq-card .num{font-size:2rem;font-weight:700;color:#60a5fa}
+  .uniq-card .factored{font-size:0.8rem;color:#94a3b8;margin-top:4px;min-height:20px}
+  .uniq-card .tree-mini{margin-top:10px}
   /* LCM HCF */
-  .lcm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-  .lcm-box {
-    border-radius: 10px; padding: 12px; text-align: center;
-    font-size: 0.8rem;
-  }
-  .lcm-box.hcf { background: linear-gradient(135deg, #dcfce7, #bbf7d0); border: 2px solid #22c55e; }
-  .lcm-box.lcm { background: linear-gradient(135deg, #fef3c7, #fde68a); border: 2px solid #f59e0b; }
-  .lcm-box .val { font-size: 1.4rem; font-weight: 700; margin: 4px 0; }
-  .lcm-box.hcf .val { color: #15803d; }
-  .lcm-box.lcm .val { color: #d97706; }
-
-  /* Tabs */
-  .tabs { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
-  .tab {
-    padding: 7px 14px; border-radius: 8px; font-size: 0.78rem; font-weight: 600;
-    cursor: pointer; border: 2px solid transparent; transition: all 0.2s;
-    background: #f1f5f9; color: #64748b;
-  }
-  .tab.active { background: #3b82f6; color: white; border-color: #3b82f6; }
-
-  .tab-content { display: none; }
-  .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-  .note-box {
-    background: linear-gradient(135deg, #fef9c3, #fef3c7);
-    border: 1px solid #f59e0b; border-radius: 8px;
-    padding: 10px 14px; font-size: 0.78rem; color: #78350f;
-    margin-top: 10px; line-height: 1.5;
-  }
-
-  .result-box {
-    background: linear-gradient(135deg, #ecfdf5, #d1fae5);
-    border: 2px solid #22c55e; border-radius: 10px;
-    padding: 12px; margin-top: 10px; display: none;
-  }
-  .result-box.show { display: block; animation: fadeIn 0.4s; }
-  .result-box p { font-size: 0.85rem; color: #064e3b; font-weight: 600; }
-
-  svg text { font-family: 'Segoe UI', sans-serif; }
-
-  @media(max-width:400px) {
-    .lcm-grid { grid-template-columns: 1fr; }
-    .factor-bubble { width: 38px; height: 38px; font-size: 0.85rem; }
-  }
+  .lcmhcf-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+  .lcmhcf-inp{background:rgba(15,23,42,0.6);border:1px solid #475569;border-radius:8px;padding:7px 10px;color:#f1f5f9;width:70px;font-size:0.9rem}
+  .lcmhcf-inp:focus{outline:none;border-color:#f59e0b}
+  .calc-btn{background:linear-gradient(135deg,#f59e0b,#d97706);border:none;color:white;border-radius:8px;padding:7px 16px;cursor:pointer;font-weight:700;transition:all 0.2s}
+  .calc-btn:hover{transform:scale(1.05)}
+  .result-box{background:rgba(34,197,94,0.1);border:1px solid #22c55e;border-radius:10px;padding:12px;margin-top:10px;font-size:0.88rem;line-height:1.7;display:none}
+  .result-box.show{display:block;animation:slideIn 0.4s ease}
+  .tag{display:inline-block;border-radius:6px;padding:2px 8px;font-size:0.78rem;font-weight:700;margin:2px}
+  .tag.hcf{background:rgba(34,197,94,0.2);color:#22c55e;border:1px solid #22c55e}
+  .tag.lcm{background:rgba(59,130,246,0.2);color:#60a5fa;border:1px solid #3b82f6}
+  .tag.prime{background:rgba(245,158,11,0.2);color:#f59e0b;border:1px solid #f59e0b}
+  /* Quiz */
+  .quiz-opt{background:rgba(30,41,59,0.8);border:1px solid #475569;border-radius:10px;padding:10px 14px;margin-bottom:8px;cursor:pointer;transition:all 0.2s;font-size:0.88rem}
+  .quiz-opt:hover{border-color:#3b82f6;background:rgba(59,130,246,0.1)}
+  .quiz-opt.correct{border-color:#22c55e;background:rgba(34,197,94,0.15);color:#22c55e}
+  .quiz-opt.wrong{border-color:#ef4444;background:rgba(239,68,68,0.15);color:#ef4444}
+  .quiz-feedback{margin-top:8px;font-size:0.85rem;padding:8px;border-radius:8px;display:none}
+  .quiz-feedback.show{display:block;animation:popIn 0.3s ease}
+  .info-tip{background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:8px;padding:10px;font-size:0.8rem;color:#fcd34d;margin-top:10px}
+  canvas{cursor:pointer}
 </style>
 </head>
 <body>
-
-<div class="title-bar">
+<div class="titlebar">
   <h1>🔢 Fundamental Theorem of Arithmetic</h1>
-  <p>अंकगणित का मूलभूत प्रमेय | Class 10 Real Numbers</p>
+  <p>अंकगणित का आधारभूत प्रमेय | CBSE Class 10 Mathematics | Real Numbers</p>
 </div>
-
 <div class="container">
 
-  <!-- Theorem Card -->
-  <div class="card">
-    <div class="section-title">📜 The Theorem (प्रमेय)</div>
-    <div class="theorem-box">
-      <h3>Fundamental Theorem of Arithmetic</h3>
-      <p>Every composite number can be expressed (factorised) as a product of primes, and this factorisation is <strong>unique</strong>, apart from the order in which the prime factors occur.</p>
-    </div>
-    <div class="formula-highlight">
-      n = <span>p₁ᵃ¹ × p₂ᵃ² × p₃ᵃ³ × ... × pₙᵃⁿ</span>
-    </div>
-    <p style="font-size:0.75rem;color:#64748b;text-align:center">where p₁, p₂, ... are prime numbers and a₁, a₂, ... are positive integers</p>
+<!-- Theorem Box -->
+<div class="theorem-box">
+  <h2>📜 The Theorem (प्रमेय)</h2>
+  <div class="hindi">अंकगणित का आधारभूत प्रमेय</div>
+  <div class="theorem-text">
+    Every composite number can be expressed as a product of primes, and this factorisation is<br>
+    <span class="highlight">UNIQUE</span> — apart from the order in which the prime factors occur.<br><br>
+    <span style="color:#f59e0b">∴ n = p₁ × p₂ × p₃ × … × pₙ</span> &nbsp;(each pᵢ is prime)
   </div>
+</div>
 
-  <!-- Interactive Tree -->
-  <div class="card">
-    <div class="section-title">🌳 Prime Factorisation Tree (अभाज्य गुणनखंड वृक्ष)</div>
-    <p style="font-size:0.78rem;color:#64748b;margin-bottom:10px">Pick a number to build its factor tree interactively!</p>
-
-    <div class="input-row">
-      <button class="num-btn active" onclick="selectNum(this,36)">36</button>
-      <button class="num-btn" onclick="selectNum(this,48)">48</button>
-      <button class="num-btn" onclick="selectNum(this,120)">120</button>
-      <button class="num-btn" onclick="selectNum(this,360)">360</button>
-      <input type="number" id="customInput" placeholder="Own #" min="4" max="500">
-      <button class="num-btn" onclick="useCustom()" style="padding:8px 10px;">▶ Go</button>
-    </div>
-
-    <div class="tree-container">
-      <svg id="treeCanvas" height="220"></svg>
-    </div>
-
-    <div id="factorResult" class="result-box">
-      <p id="factorText"></p>
-    </div>
+<!-- Interactive Tree -->
+<div class="card">
+  <div class="section-title"><span class="badge">1</span> Interactive Prime Factorisation Tree (गुणनखंड वृक्ष)</div>
+  <div class="input-row">
+    <span style="font-size:0.82rem;color:#94a3b8">Quick:</span>
+    <button class="num-btn active" onclick="selectNum(this,360)">360</button>
+    <button class="num-btn" onclick="selectNum(this,180)">180</button>
+    <button class="num-btn" onclick="selectNum(this,72)">72</button>
+    <button class="num-btn" onclick="selectNum(this,48)">48</button>
+    <button class="num-btn" onclick="selectNum(this,504)">504</button>
+    <input class="custom-input" type="number" id="customNum" placeholder="Any #" min="2" max="9999">
+    <button class="go-btn" onclick="useCustom()">GO →</button>
   </div>
+  <canvas id="treeCanvas" height="300"></canvas>
+  <div class="factors-display" id="factorsDisplay"></div>
+  <div class="prime-result" id="primeResult"></div>
+</div>
 
-  <!-- Uniqueness Demo -->
-  <div class="card">
-    <div class="section-title">✨ Uniqueness (अद्वितीयता) Demo</div>
-    <p style="font-size:0.78rem;color:#64748b;margin-bottom:10px">No matter which path you take, the prime factors are always the same! Try dividing 36 differently:</p>
-
-    <div class="tabs">
-      <div class="tab active" onclick="showPath(this,0)">Path A: 36 = 4×9</div>
-      <div class="tab" onclick="showPath(this,1)">Path B: 36 = 6×6</div>
-      <div class="tab" onclick="showPath(this,2)">Path C: 36 = 2×18</div>
-    </div>
-
-    <div id="pathDisplay"></div>
-
-    <div class="note-box">
-      💡 <strong>Key Insight:</strong> All three paths give 2² × 3² = 36. The order may differ, but the prime factors and their powers are always identical. This is the <em>uniqueness</em> the theorem talks about!
-    </div>
+<!-- Step by Step -->
+<div class="card">
+  <div class="section-title"><span class="badge">2</span> Step-by-Step Walkthrough (चरण-दर-चरण)</div>
+  <div id="stepsContainer"></div>
+  <div style="margin-top:10px">
+    <button class="step-btn" id="nextStepBtn" onclick="showNextStep()">▶ Next Step</button>
+    <button class="step-btn" style="background:linear-gradient(135deg,#64748b,#475569)" onclick="resetSteps()">↺ Reset</button>
   </div>
+</div>
 
-  <!-- Step-by-step Worked Example -->
-  <div class="card">
-    <div class="section-title">📝 Worked Example — Step by Step</div>
-    <p style="font-size:0.82rem;color:#334155;margin-bottom:10px">Find prime factorisation of <strong>3960</strong> and use it to find HCF & LCM with <strong>1800</strong>.</p>
+<!-- Uniqueness Demo -->
+<div class="card">
+  <div class="section-title"><span class="badge">3</span> Uniqueness Demo — Click a Number! (अद्वितीयता)</div>
+  <p style="font-size:0.82rem;color:#94a3b8;margin-bottom:10px">No matter which path you take, prime factors are always the same!</p>
+  <div class="uniq-grid" id="uniqGrid"></div>
+  <div class="info-tip" style="margin-top:12px">💡 <b>Key Insight:</b> 12 = 2×2×3 = 2×3×2 = 3×2×2 → Always <b>2² × 3</b>. The <b>set</b> of prime factors never changes!</div>
+</div>
 
-    <div class="steps-container" id="stepsContainer"></div>
-
-    <button class="step-btn" id="stepBtn" onclick="revealStep()">▶ Show Next Step</button>
-
-    <div id="lcmResult" style="display:none; margin-top:14px;">
-      <div class="lcm-grid">
-        <div class="lcm-box hcf">
-          <div style="font-size:0.75rem;font-weight:700;color:#166534">HCF (म.स.)</div>
-          <div class="val">360</div>
-          <div style="font-size:0.72rem;color:#15803d">= 2³ × 3² × 5</div>
-        </div>
-        <div class="lcm-box lcm">
-          <div style="font-size:0.75rem;font-weight:700;color:#92400e">LCM (ल.स.)</div>
-          <div class="val">19800</div>
-          <div style="font-size:0.72rem;color:#d97706">= 2³ × 3² × 5² × 11</div>
-        </div>
-      </div>
-      <div class="note-box" style="margin-top:10px">
-        ✅ Verify: HCF × LCM = 360 × 19800 = 71,28,000 = 3960 × 1800 ✓
-      </div>
-    </div>
+<!-- LCM & HCF Calculator -->
+<div class="card">
+  <div class="section-title"><span class="badge">4</span> LCM & HCF Calculator (लघुत्तम समापवर्त्य & महत्तम समापवर्तक)</div>
+  <div class="lcmhcf-row">
+    <input class="lcmhcf-inp" type="number" id="n1" value="12" min="2" max="999">
+    <span style="align-self:center;color:#f59e0b;font-size:1.2rem">&</span>
+    <input class="lcmhcf-inp" type="number" id="n2" value="18" min="2" max="999">
+    <button class="calc-btn" onclick="calcLCMHCF()">Calculate</button>
   </div>
+  <div class="info-tip" style="margin-bottom:10px">∴ <b>LCM × HCF = Product of two numbers</b> &nbsp;(LCM × HCF = a × b)</div>
+  <div class="result-box" id="resultBox"></div>
+</div>
 
-  <!-- Key Facts -->
-  <div class="card">
-    <div class="section-title">⚡ Quick Facts to Remember</div>
-    <div style="display:grid;gap:8px;font-size:0.8rem;">
-      <div style="background:#eff6ff;border-radius:8px;padding:10px;border-left:3px solid #3b82f6">
-        <strong>HCF</strong> = Product of <em>smallest powers</em> of common prime factors
-      </div>
-      <div style="background:#f0fdf4;border-radius:8px;padding:10px;border-left:3px solid #22c55e">
-        <strong>LCM</strong> = Product of <em>greatest powers</em> of all prime factors
-      </div>
-      <div style="background:#fefce8;border-radius:8px;padding:10px;border-left:3px solid #f59e0b">
-        <strong>HCF × LCM = Product of two numbers</strong> (for any two positive integers)
-      </div>
-      <div style="background:#fdf4ff;border-radius:8px;padding:10px;border-left:3px solid #a855f7">
-        1 is neither prime nor composite | 2 is the only even prime number
-      </div>
-    </div>
-  </div>
+<!-- Quick Quiz -->
+<div class="card">
+  <div class="section-title"><span class="badge">5</span> Quick Quiz (प्रश्नोत्तरी)</div>
+  <div id="quizContainer"></div>
+</div>
 
 </div>
 
 <script>
-// ===== FACTOR TREE =====
-let currentNum = 36;
+// ===================== TREE DRAWING =====================
+const canvas = document.getElementById('treeCanvas');
+const ctx = canvas.getContext('2d');
+let currentNum = 360;
+let treeNodes = [];
+let treeEdges = [];
+let stepFactors = [];
+let stepIndex = 0;
+let stepData = [];
 
-function selectNum(btn, n) {
-  document.querySelectorAll('.num-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  currentNum = n;
-  drawTree(n);
-}
+const COLORS = ['#3b82f6','#22c55e','#f59e0b','#a855f7','#ef4444','#06b6d4','#f97316'];
 
-function useCustom() {
-  let v = parseInt(document.getElementById('customInput').value);
-  if (isNaN(v) || v < 4 || v > 500) { alert('Enter a number between 4 and 500'); return; }
-  document.querySelectorAll('.num-btn').forEach(b => b.classList.remove('active'));
-  currentNum = v;
-  drawTree(v);
-}
-
-function primeFactors(n) {
-  let factors = [];
-  let d = 2;
-  while (n > 1) {
-    while (n % d === 0) { factors.push(d); n = Math.floor(n/d); }
-    d++;
-  }
+function primeFactors(n){
+  let factors=[];let d=2;
+  while(n>1){while(n%d===0){factors.push(d);n=Math.floor(n/d)}d++}
   return factors;
 }
 
-function buildTreeNodes(n) {
-  let nodes = [], edges = [];
-  let id = 0;
-  function split(num, x, y, depth, parentId) {
-    let nId = id++;
-    nodes.push({id: nId, val: num, x, y, prime: primeFactors(num).length === 1 || num <= 3});
-    if (parentId !== null) edges.push({from: parentId, to: nId});
-    if (num <= 3 || primeFactors(num).length === 1) return;
-    let factors = primeFactors(num);
-    let f1 = factors[0], f2 = Math.floor(num/f1);
-    let spread = Math.max(60, 120 / (depth+1));
-    split(f1, x - spread, y + 55, depth+1, nId);
-    split(f2, x + spread, y + 55, depth+1, nId);
+function buildTree(n){
+  treeNodes=[];treeEdges=[];
+  function add(val,x,y,parentIdx,depth){
+    let idx=treeNodes.length;
+    treeNodes.push({val,x,y,depth,isPrime:isPrime(val),parentIdx});
+    if(parentIdx>=0)treeEdges.push({from:parentIdx,to:idx});
+    if(!isPrime(val)&&val>1){
+      let d=smallestPrime(val);
+      let other=val/d;
+      let spread=Math.max(40,110-depth*18);
+      let newY=y+70;
+      if(newY>280)newY=280;
+      add(d,x-spread,newY,idx,depth+1);
+      add(other,x+spread,newY,idx,depth+1);
+    }
   }
-  split(n, 0, 20, 0, null);
-  return {nodes, edges};
+  add(n,0,30,- 1,0);
 }
 
-function drawTree(n) {
-  let svg = document.getElementById('treeCanvas');
-  let W = svg.parentElement.clientWidth - 20;
-  svg.setAttribute('width', W);
+function isPrime(n){if(n<2)return false;if(n===2)return true;if(n%2===0)return false;for(let i=3;i*i<=n;i+=2)if(n%i===0)return false;return true}
+function smallestPrime(n){if(n<2)return n;for(let i=2;i*i<=n;i++)if(n%i===0)return i;return n}
 
-  let {nodes, edges} = buildTreeNodes(n);
+function drawTree(){
+  const dpr=window.devicePixelRatio||1;
+  const w=canvas.parentElement.clientWidth-36;
+  const h=310;
+  canvas.style.width=w+'px';
+  canvas.style.height=h+'px';
+  canvas.width=w*dpr;
+  canvas.height=h*dpr;
+  ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,w,h);
 
-  // Center tree
-  let minX = Math.min(...nodes.map(nd=>nd.x));
-  let maxX = Math.max(...nodes.map(nd=>nd.x));
-  let maxY = Math.max(...nodes.map(nd=>nd.y));
-  let cx = W/2 - (minX+maxX)/2;
-  let H = maxY + 60;
-  svg.setAttribute('height', Math.max(H, 180));
+  const cx=w/2;
+  // Reposition nodes relative to center
+  function reposition(idx,cx){
+    let n=treeNodes[idx];
+    n.x+=cx;
+  }
+  treeNodes.forEach(n=>{n.x+=cx});
 
-  let html = '';
-  edges.forEach(e => {
-    let f = nodes[e.from], t = nodes[e.to];
-    html += `<line x1="${f.x+cx}" y1="${f.y+20}" x2="${t.x+cx}" y2="${t.y+8}" stroke="#94a3b8" stroke-width="1.5"/>`;
+  // Draw edges
+  treeEdges.forEach(e=>{
+    let a=treeNodes[e.from],b=treeNodes[e.to];
+    ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);
+    ctx.strokeStyle='rgba(148,163,184,0.4)';ctx.lineWidth=1.5;ctx.stroke();
   });
 
-  nodes.forEach((nd, i) => {
-    let fill = nd.prime ? 'url(#primGrad)' : 'url(#compGrad)';
-    let stroke = nd.prime ? '#15803d' : '#1d4ed8';
-    let delay = i * 80;
-    html += `<circle cx="${nd.x+cx}" cy="${nd.y+16}" r="18" fill="${fill}" stroke="${stroke}" stroke-width="2"
-      style="animation:popIn ${delay}ms ease both"/>`;
-    html += `<text x="${nd.x+cx}" y="${nd.y+21}" text-anchor="middle" font-size="13" font-weight="700" 
-      fill="${nd.prime?'#14532d':'#1e40af'}">${nd.val}</text>`;
-    if (nd.prime) {
-      html += `<text x="${nd.x+cx+18}" y="${nd.y+8}" font-size="9" fill="#15803d" font-weight="700">P</text>`;
+  // Draw nodes
+  treeNodes.forEach((n,i)=>{
+    let r=n.isPrime?18:22;
+    let col=n.isPrime?'#22c55e':COLORS[n.depth%COLORS.length];
+    ctx.beginPath();ctx.arc(n.x,n.y,r,0,Math.PI*2);
+    ctx.fillStyle=col+'33';ctx.fill();
+    ctx.strokeStyle=col;ctx.lineWidth=2;ctx.stroke();
+    ctx.fillStyle='#f1f5f9';ctx.font=`bold ${n.val>999?10:13}px Segoe UI`;
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(n.val,n.x,n.y);
+    if(n.isPrime){
+      ctx.fillStyle='#22c55e';ctx.font='bold 9px Segoe UI';
+      ctx.fillText('P',n.x+r-4,n.y-r+4);
     }
   });
 
-  let factors = primeFactors(n);
-  let factMap = {};
-  factors.forEach(f => { factMap[f] = (factMap[f]||0)+1; });
-  let expr = Object.entries(factMap).map(([p,e]) => e>1 ? `${p}${toSup(e)}` : p).join(' × ');
-
-  svg.innerHTML = `<defs>
-    <radialGradient id="primGrad" cx="40%" cy="35%">
-      <stop offset="0%" stop-color="#bbf7d0"/>
-      <stop offset="100%" stop-color="#4ade80"/>
-    </radialGradient>
-    <radialGradient id="compGrad" cx="40%" cy="35%">
-      <stop offset="0%" stop-color="#bfdbfe"/>
-      <stop offset="100%" stop-color="#60a5fa"/>
-    </radialGradient>
-  </defs>` + html;
-
-  let rb = document.getElementById('factorResult');
-  rb.classList.add('show');
-  document.getElementById('factorText').innerHTML =
-    `∴ ${n} = ${expr} &nbsp;|&nbsp; 🟢 Prime nodes &nbsp; 🔵 Composite nodes`;
+  // Legend
+  ctx.fillStyle='rgba(34,197,94,0.2)';ctx.strokeStyle='#22c55e';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.arc(w-50,h-20,8,0,Math.PI*2);ctx.fill();ctx.stroke();
+  ctx.fillStyle='#94a3b8';ctx.font='11px Segoe UI';ctx.textAlign='left';ctx.textBaseline='middle';
+  ctx.fillText('= Prime',w-38,h-20);
 }
 
-function toSup(n) {
-  const s = ['⁰','¹','²','³','⁴','⁵','⁶','⁷','⁸','⁹'];
-  return String(n).split('').map(d=>s[+d]).join('');
-}
-
-// ===== UNIQUENESS PATHS =====
-const paths = [
-  { steps: ['36 = 4 × 9', '4 = 2 × 2', '9 = 3 × 3'], result: [2,2,3,3] },
-  { steps: ['36 = 6 × 6', '6 = 2 × 3', '6 = 2 × 3'], result: [2,2,3,3] },
-  { steps: ['36 = 2 × 18', '18 = 2 × 9', '9 = 3 × 3'], result: [2,2,3,3] }
-];
-
-function showPath(tab, idx) {
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  tab.classList.add('active');
-  let p = paths[idx];
-  let stepsHtml = p.steps.map(s=>`<div style="font-size:0.82rem;color:#334155;padding:4px 0">→ ${s}</div>`).join('');
-  let bubblesHtml = '';
-  p.result.forEach((f,i) => {
-    if(i>0) bubblesHtml += `<div class="times-sym">×</div>`;
-    bubblesHtml += `<div class="factor-bubble" style="animation-delay:${i*100}ms">${f}</div>`;
+function renderFactors(){
+  let factors=primeFactors(currentNum);
+  let display=document.getElementById('factorsDisplay');
+  let result=document.getElementById('primeResult');
+  display.innerHTML='';
+  // Group
+  let map={};factors.forEach(f=>map[f]=(map[f]||0)+1);
+  let parts=[];
+  Object.keys(map).sort((a,b)=>a-b).forEach((p,i)=>{
+    let el=document.createElement('div');
+    el.className='factor-pill';
+    el.style.animationDelay=(i*0.1)+'s';
+    el.style.background=`linear-gradient(135deg,${COLORS[i%COLORS.length]}99,${COLORS[(i+1)%COLORS.length]}99)`;
+    el.textContent=map[p]>1?`${p}${toSup(map[p])}`:p;
+    display.appendChild(el);
+    if(i<Object.keys(map).length-1){let s=document.createElement('span');s.className='mult-sign';s.textContent='×';display.appendChild(s)}
+    parts.push(map[p]>1?`${p}${toSup(map[p])}`:`${p}`);
   });
-  document.getElementById('pathDisplay').innerHTML = `
-    <div style="background:#f8fafc;border-radius:10px;padding:12px;margin-bottom:10px">
-      ${stepsHtml}
-    </div>
-    <div style="font-size:0.78rem;color:#64748b;margin-bottom:6px;font-weight:600">Prime Factors:</div>
-    <div class="unique-demo">${bubblesHtml}</div>
-    <div style="text-align:center;margin-top:10px;font-weight:700;color:#7c3aed;font-size:0.9rem">
-      = 2² × 3² = 36 ✓
-    </div>`;
+  result.textContent=`∴ ${currentNum} = ${parts.join(' × ')}`;
 }
 
-// ===== STEP-BY-STEP =====
-const steps = [
-  { num: 1, text: 'Find prime factorisation of 3960', math: '3960 ÷ 2 = 1980 ÷ 2 = 990 ÷ 2 = 495 ÷ 3 = 165 ÷ 3 = 55 ÷ 5 = 11' },
-  { num: 2, text: 'Write 3960 as product of prime powers', math: '3960 = 2³ × 3² × 5 × 11' },
-  { num: 3, text: 'Find prime factorisation of 1800', math: '1800 ÷ 2 = 900 ÷ 2 = 450 ÷ 2 = 225 ÷ 3 = 75 ÷ 3 = 25 ÷ 5 = 5 ÷ 5 = 1' },
-  { num: 4, text: 'Write 1800 as product of prime powers', math: '1800 = 2³ × 3² × 5²' },
-  { num: 5, text: 'Find HCF: take smallest powers of common factors (2,3,5)', math: 'HCF = 2³ × 3² × 5¹ = 8 × 9 × 5 = 360' },
-  { num: 6, text: 'Find LCM: take greatest powers of all prime factors', math: 'LCM = 2³ × 3² × 5² × 11 = 8 × 9 × 25 × 11 = 19800' },
-  { num: 7, text: 'Verify using the relation: HCF × LCM = Product of numbers', math: '360 × 19800 = 71,28,000 = 3960 × 1800 ✓' }
-];
+function toSup(n){const s=['⁰','¹','²','³','⁴','⁵','⁶','⁷','⁸','⁹'];return n.toString().split('').map(c=>s[c]).join('')}
 
-let currentStep = 0;
-
-function revealStep() {
-  if (currentStep >= steps.length) return;
-  let s = steps[currentStep];
-  let container = document.getElementById('stepsContainer');
-  let div = document.createElement('div');
-  div.className = 'step';
-  div.innerHTML = `<div class="step-num">Step ${s.num}</div>
-    <div class="step-text">${s.text}</div>
-    <div class="step-math">${s.math}</div>`;
-  container.appendChild(div);
-  setTimeout(() => div.classList.add('visible'), 10);
-  currentStep++;
-  if (currentStep >= steps.length) {
-    document.getElementById('stepBtn').textContent = '✅ Done!';
-    document.getElementById('stepBtn').style.background = 'linear-gradient(135deg,#22c55e,#15803d)';
-    document.getElementById('lcmResult').style.display = 'block';
-    document.getElementById('lcmResult').style.animation = 'fadeIn 0.5s ease';
+function buildStepData(n){
+  stepData=[];
+  let cur=n;let d=2;
+  stepData.push({text:`Start with <b>${n}</b>. We will divide by the smallest prime factor repeatedly.`,val:n,done:false});
+  while(cur>1){
+    if(cur%d===0){
+      stepData.push({text:`<span class="step-num">÷${d}</span> ${cur} ÷ ${d} = ${cur/d} &nbsp;<span class="tag prime">${d} is prime ✓</span>`,val:cur/d,done:false});
+      cur=Math.floor(cur/d);
+    } else {d++}
   }
+  stepData.push({text:`<span style="color:#22c55e">✅ Complete! ${n} = ${primeFactors(n).join(' × ')}</span>`,done:true});
 }
 
-// Init
-window.addEventListener('load', () => {
-  drawTree(36);
-  showPath(document.querySelector('.tab'), 0);
+function showNextStep(){
+  if(stepIndex>=stepData.length)return;
+  let c=document.getElementById('stepsContainer');
+  let d=stepData[stepIndex];
+  let el=document.createElement('div');
+  el.className='step-item'+(d.done?' done':'');
+  el.innerHTML=d.text;
+  c.appendChild(el);
+  stepIndex++;
+  if(stepIndex>=stepData.length)document.getElementById('nextStepBtn').disabled=true;
+}
+
+function resetSteps(){
+  stepIndex=0;
+  document.getElementById('stepsContainer').innerHTML='';
+  document.getElementById('nextStepBtn').disabled=false;
+}
+
+function selectNum(btn,n){
+  document.querySelectorAll('.num-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  currentNum=n;
+  refresh();
+}
+
+function useCustom(){
+  let v=parseInt(document.getElementById('customNum').value);
+  if(v>=2&&v<=9999){currentNum=v;document.querySelectorAll('.num-btn').forEach(b=>b.classList.remove('active'));refresh()}
+  else alert('Enter a number between 2 and 9999');
+}
+
+function refresh(){
+  buildTree(currentNum);
+  drawTree();
+  renderFactors();
+  buildStepData(currentNum);
+  resetSteps();
+}
+
+// ===================== UNIQUENESS DEMO =====================
+const uniqNums=[360,120,84,252];
+function buildUniqGrid(){
+  let grid=document.getElementById('uniqGrid');
+  grid.innerHTML='';
+  uniqNums.forEach(n=>{
+    let card=document.createElement('div');
+    card.className='uniq-card';
+    card.innerHTML=`<div class="num">${n}</div><div class="factored" id="uf${n}">Click to factorise →</div>`;
+    card.onclick=()=>revealUniq(n);
+    grid.appendChild(card);
+  });
+}
+
+function revealUniq(n){
+  let el=document.getElementById('uf'+n);
+  let factors=primeFactors(n);
+  let map={};factors.forEach(f=>map[f]=(map[f]||0)+1);
+  let parts=Object.keys(map).sort((a,b)=>a-b).map(p=>map[p]>1?`${p}${toSup(map[p])}`:`${p}`);
+  el.innerHTML=`<span style="color:#22c55e;font-weight:700">${parts.join(' × ')}</span>`;
+  el.style.animation='popIn 0.4s ease';
+}
+
+// ===================== LCM HCF =====================
+function calcLCMHCF(){
+  let a=parseInt(document.getElementById('n1').value);
+  let b=parseInt(document.getElementById('n2').value);
+  if(isNaN(a)||isNaN(b)||a<2||b<2){alert('Enter valid numbers ≥ 2');return}
+  let fa=primeFactors(a),fb=primeFactors(b);
+  let ma={},mb={};
+  fa.forEach(f=>ma[f]=(ma[f]||0)+1);
+  fb.forEach(f=>mb[f]=(mb[f]||0)+1);
+  let allP=[...new Set([...Object.keys(ma),...Object.keys(mb)])].map(Number).sort((x,y)=>x-y);
+  let hcf=1,lcm=1;
+  let hcfParts=[],lcmParts=[];
+  allP.forEach(p=>{
+    let ea=ma[p]||0,eb=mb[p]||0;
+    let mn=Math.min(ea,eb),mx=Math.max(ea,eb);
+    if(mn>0){hcf*=Math.pow(p,mn);hcfParts.push(mn>1?`${p}${toSup(mn)}`:String(p))}
+    lcm*=Math.pow(p,mx);lcmParts.push(mx>0?(mx>1?`${p}${toSup(mx)}`:String(p)):null);
+  });
+  let rb=document.getElementById('resultBox');
+  rb.className='result-box show';
+  rb.innerHTML=`
+    <b style="color:#60a5fa">${a}</b> = <span class="tag prime">${fa.join(' × ')}</span><br>
+    <b style="color:#60a5fa">${b}</b> = <span class="tag prime">${fb.join(' × ')}</span><br><br>
+    <span class="tag hcf">HCF (महत्तम समापवर्तक)</span> = ${hcfParts.join(' × ')} = <b style="color:#22c55e">${hcf}</b><br>
+    <span class="tag lcm">LCM (लघुत्तम समापवर्त्य)</span> = ${lcmParts.filter(Boolean).join(' × ')} = <b style="color:#60a5fa">${lcm}</b><br><br>
+    <span style="color:#f59e0b">✓ Verify: LCM × HCF = ${lcm} × ${hcf} = ${lcm*hcf} = ${a} × ${b} = ${a*b} ${lcm*hcf===a*b?'✅':'❌'}</span>`;
+}
+
+// ===================== QUIZ =====================
+const quizData=[
+  {q:"What is the prime factorisation of 120?",opts:["2³ × 3 × 5","2² × 3² × 5","2 × 3 × 5²","2⁴ × 3 × 5"],ans:0,exp:"120 = 2×60 = 2×2×30 = 2×2×2×15 = 2×2×2×3×5 = 2³ × 3 × 5 ✓"},
+  {q:"The Fundamental Theorem of Arithmetic states that prime factorisation of a composite number is:",opts:["Always different","Unique (only one way)","Depends on method","Not always possible"],ans:1,exp:"The FTA guarantees uniqueness — every composite number has exactly ONE prime factorisation (ignoring order). अद्वितीय! ✓"},
+  {q:"If HCF(a,b) = 6 and LCM(a,b) = 60, find a × b.",opts:["66","360","10","600"],ans:1,exp:"a × b = LCM × HCF = 60 × 6 = 360 ✓"},
+];
+let quizAnswered=[];
+
+function buildQuiz(){
+  let c=document.getElementById('quizContainer');
+  quizData.forEach((q,qi)=>{
+    quizAnswered.push(false);
+    let div=document.createElement('div');
+    div.style.marginBottom='16px';
+    div.innerHTML=`<p style="font-size:0.9rem;margin-bottom:8px;color:#e2e8f0"><b>Q${qi+1}:</b> ${q.q}</p>`;
+    q.opts.forEach((opt,oi)=>{
+      let btn=document.createElement('div');
+      btn.className='quiz-opt';btn.id=`q${qi}o${oi}`;
+      btn.textContent=opt;
+      btn.onclick=()=>{if(!quizAnswered[qi])answerQuiz(qi,oi,q.ans,q.exp)};
+      div.appendChild(btn);
+    });
+    let fb=document.createElement('div');fb.className='quiz-feedback';fb.id=`qf${qi}`;
+    div.appendChild(fb);
+    c.appendChild(div);
+  });
+}
+
+function answerQuiz(qi,oi,ans,exp){
+  quizAnswered[qi]=true;
+  quizData[qi].opts.forEach((_,i)=>{
+    let el=document.getElementById(`q${qi}o${i}`);
+    if(i===ans)el.classList.add('correct');
+    else if(i===oi)el.classList.add('wrong');
+    el.style.cursor='default';
+  });
+  let fb=document.getElementById(`qf${qi}`);
+  fb.className='quiz-feedback show';
+  let correct=oi===ans;
+  fb.style.background=correct?'rgba(34,197,94,0.1)':'rgba(239,68,68,0.1)';
+  fb.style.border=`1px solid ${correct?'#22c55e':'#ef4444'}`;
+  fb.style.color=correct?'#22c55e':'#ef4444';
+  fb.innerHTML=(correct?'✅ Correct! ':'❌ Incorrect. ')+exp;
+}
+
+// ===================== INIT =====================
+window.addEventListener('load',()=>{
+  buildTree(currentNum);
+  drawTree();
+  renderFactors();
+  buildStepData(currentNum);
+  buildUniqGrid();
+  buildQuiz();
+  calcLCMHCF();
 });
-window.addEventListener('resize', () => drawTree(currentNum));
+window.addEventListener('resize',()=>{buildTree(currentNum);drawTree();renderFactors()});;
 </script>
 </body>
 </html>

@@ -8,393 +8,534 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%); min-height: 100vh; color: #e2e8f0; }
 
-  .title-bar { background: linear-gradient(90deg, #3b82f6, #6366f1, #8b5cf6); padding: 12px 20px; text-align: center; box-shadow: 0 4px 20px rgba(59,130,246,0.4); }
-  .title-bar h1 { font-size: clamp(1rem, 3vw, 1.4rem); font-weight: 700; color: #fff; letter-spacing: 1px; }
-  .title-bar p { font-size: clamp(0.7rem, 2vw, 0.85rem); color: #bfdbfe; margin-top: 2px; }
+  .title-bar {
+    background: linear-gradient(90deg, #1d4ed8, #3b82f6, #60a5fa);
+    padding: 12px 20px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(59,130,246,0.5);
+  }
+  .title-bar h1 { font-size: clamp(14px, 3vw, 20px); font-weight: 700; letter-spacing: 1px; }
+  .title-bar p { font-size: clamp(10px, 2vw, 13px); opacity: 0.85; margin-top: 2px; }
 
-  .container { max-width: 900px; margin: 0 auto; padding: 16px; }
+  .formula-box {
+    background: linear-gradient(135deg, #1e3a5f, #1e293b);
+    border: 2px solid #3b82f6;
+    border-radius: 14px;
+    padding: 12px 16px;
+    margin: 12px 12px 0;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(59,130,246,0.3);
+  }
+  .formula-box .label { font-size: 11px; color: #94a3b8; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px; }
+  .formula-box .formula { font-size: clamp(13px, 3vw, 17px); color: #60a5fa; font-weight: 700; }
+  .formula-box .sub { font-size: 11px; color: #94a3b8; margin-top: 4px; }
 
-  .formula-box { background: linear-gradient(135deg, #1e3a5f, #1e293b); border: 2px solid #3b82f6; border-radius: 16px; padding: 14px 18px; margin-bottom: 16px; text-align: center; box-shadow: 0 0 20px rgba(59,130,246,0.3); animation: pulse-border 3s infinite; }
-  @keyframes pulse-border { 0%,100%{box-shadow:0 0 20px rgba(59,130,246,0.3)} 50%{box-shadow:0 0 35px rgba(59,130,246,0.6)} }
-  .formula-box h3 { color: #60a5fa; font-size: 0.8rem; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 2px; }
-  .formula-box .formula { font-size: clamp(0.85rem, 2.5vw, 1.1rem); color: #fbbf24; font-weight: 600; }
-  .formula-box .sub { font-size: 0.75rem; color: #94a3b8; margin-top: 4px; }
+  .main { display: flex; flex-direction: column; gap: 12px; padding: 12px; }
 
-  .main-area { display: grid; grid-template-columns: 1fr; gap: 16px; }
-  @media(min-width:640px) { .main-area { grid-template-columns: 1fr 280px; } }
+  .canvas-wrap {
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    border: 2px solid #334155;
+    border-radius: 16px;
+    padding: 10px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    position: relative;
+  }
+  canvas { display: block; margin: 0 auto; cursor: crosshair; border-radius: 8px; touch-action: none; }
 
-  .canvas-wrap { background: #0f172a; border-radius: 16px; border: 2px solid #334155; padding: 10px; position: relative; box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
-  #grid { width: 100%; border-radius: 10px; cursor: crosshair; display: block; touch-action: none; }
+  .controls {
+    display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 8px;
+  }
+  .btn {
+    padding: 7px 14px; border: none; border-radius: 20px; font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; letter-spacing: 0.5px;
+  }
+  .btn-blue { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; }
+  .btn-green { background: linear-gradient(135deg, #22c55e, #15803d); color: white; }
+  .btn-red { background: linear-gradient(135deg, #ef4444, #b91c1c); color: white; }
+  .btn-amber { background: linear-gradient(135deg, #f59e0b, #b45309); color: white; }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+  .btn:active { transform: translateY(0); }
 
-  .side-panel { display: flex; flex-direction: column; gap: 12px; }
+  .info-panel {
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    border: 1.5px solid #334155;
+    border-radius: 14px;
+    padding: 12px;
+    min-height: 60px;
+    font-size: 13px;
+    transition: all 0.3s;
+  }
+  .info-panel .coord-display {
+    display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center;
+  }
+  .badge {
+    padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 700;
+    animation: pop 0.3s ease;
+  }
+  @keyframes pop { 0%{transform:scale(0.7);opacity:0} 100%{transform:scale(1);opacity:1} }
+  .q1 { background: rgba(59,130,246,0.3); border: 1px solid #3b82f6; color: #93c5fd; }
+  .q2 { background: rgba(34,197,94,0.3); border: 1px solid #22c55e; color: #86efac; }
+  .q3 { background: rgba(239,68,68,0.3); border: 1px solid #ef4444; color: #fca5a5; }
+  .q4 { background: rgba(245,158,11,0.3); border: 1px solid #f59e0b; color: #fcd34d; }
+  .qo { background: rgba(148,163,184,0.3); border: 1px solid #94a3b8; color: #e2e8f0; }
 
-  .info-card { background: linear-gradient(135deg, #1e293b, #0f172a); border: 1px solid #334155; border-radius: 14px; padding: 14px; box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
-  .info-card h3 { font-size: 0.8rem; color: #60a5fa; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .quadrant-guide {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 0;
+  }
+  .qcard {
+    border-radius: 10px; padding: 8px 10px; font-size: 11px; line-height: 1.5;
+    cursor: pointer; transition: all 0.2s; border: 1.5px solid transparent;
+  }
+  .qcard:hover { transform: scale(1.03); }
+  .qcard.q1c { background: rgba(59,130,246,0.15); border-color: #3b82f6; }
+  .qcard.q2c { background: rgba(34,197,94,0.15); border-color: #22c55e; }
+  .qcard.q3c { background: rgba(239,68,68,0.15); border-color: #ef4444; }
+  .qcard.q4c { background: rgba(245,158,11,0.15); border-color: #f59e0b; }
+  .qcard strong { display: block; font-size: 12px; margin-bottom: 2px; }
 
-  .quadrant-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px; }
-  .q-card { padding: 8px; border-radius: 10px; text-align: center; font-size: 0.75rem; font-weight: 600; transition: transform 0.2s; }
-  .q-card:hover { transform: scale(1.05); }
-  .q1 { background: rgba(34,197,94,0.2); border: 1px solid #22c55e; color: #86efac; }
-  .q2 { background: rgba(59,130,246,0.2); border: 1px solid #3b82f6; color: #93c5fd; }
-  .q3 { background: rgba(239,68,68,0.2); border: 1px solid #ef4444; color: #fca5a5; }
-  .q4 { background: rgba(245,158,11,0.2); border: 1px solid #f59e0b; color: #fcd34d; }
-  .q-card .signs { font-size: 0.9rem; margin-top: 2px; }
+  .walkthrough {
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    border: 1.5px solid #334155;
+    border-radius: 14px;
+    padding: 12px;
+  }
+  .walkthrough h3 { font-size: 14px; color: #f59e0b; margin-bottom: 8px; }
+  .step {
+    display: none; padding: 8px 12px; border-radius: 10px; margin-bottom: 6px;
+    border-left: 3px solid #3b82f6; background: rgba(59,130,246,0.1);
+    font-size: 12px; line-height: 1.6; animation: slideIn 0.4s ease;
+  }
+  .step.visible { display: block; }
+  @keyframes slideIn { from{transform:translateX(-10px);opacity:0} to{transform:translateX(0);opacity:1} }
+  .step-num { color: #60a5fa; font-weight: 700; }
 
-  .point-display { background: #0f172a; border-radius: 10px; padding: 10px; font-size: 0.85rem; min-height: 60px; border: 1px solid #334155; }
-  .point-display .coord { font-size: 1.1rem; font-weight: 700; color: #fbbf24; }
-  .point-display .info { color: #94a3b8; font-size: 0.75rem; margin-top: 4px; }
-  .point-display .quad-label { font-size: 0.8rem; margin-top: 4px; padding: 3px 8px; border-radius: 20px; display: inline-block; }
+  .points-list {
+    background: rgba(15,23,42,0.8);
+    border: 1px solid #334155;
+    border-radius: 10px;
+    padding: 8px;
+    max-height: 100px;
+    overflow-y: auto;
+    font-size: 11px;
+  }
+  .point-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 3px 6px; border-radius: 6px; margin-bottom: 3px;
+    background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2);
+    animation: pop 0.3s ease;
+  }
+  .point-item .del { cursor: pointer; color: #ef4444; font-size: 14px; line-height: 1; }
+  .point-item .del:hover { color: #fca5a5; }
 
-  .controls { display: flex; flex-wrap: wrap; gap: 8px; }
-  .btn { padding: 8px 14px; border-radius: 10px; border: none; cursor: pointer; font-size: 0.78rem; font-weight: 600; transition: all 0.2s; }
-  .btn-blue { background: linear-gradient(135deg, #3b82f6, #6366f1); color: #fff; }
-  .btn-blue:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(59,130,246,0.5); }
-  .btn-red { background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; }
-  .btn-red:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(239,68,68,0.5); }
-  .btn-green { background: linear-gradient(135deg, #22c55e, #16a34a); color: #fff; }
-  .btn-green:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(34,197,94,0.5); }
-  .btn-amber { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; }
+  .section-title { font-size: 12px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
 
-  .points-list { max-height: 120px; overflow-y: auto; margin-top: 6px; }
-  .point-item { display: flex; justify-content: space-between; align-items: center; padding: 5px 8px; border-radius: 8px; margin-bottom: 4px; font-size: 0.78rem; animation: fadeIn 0.3s; }
-  @keyframes fadeIn { from{opacity:0;transform:translateX(-10px)} to{opacity:1;transform:translateX(0)} }
-  .point-item .del-btn { background: none; border: none; color: #ef4444; cursor: pointer; font-size: 1rem; line-height: 1; padding: 0 4px; }
+  .highlight { color: #60a5fa; font-weight: 700; }
+  .green { color: #22c55e; } .red { color: #ef4444; } .amber { color: #f59e0b; }
 
-  .walkthrough { background: linear-gradient(135deg, #1e293b, #0f172a); border: 1px solid #334155; border-radius: 14px; padding: 14px; }
-  .walkthrough h3 { color: #fbbf24; font-size: 0.85rem; margin-bottom: 10px; }
-  .step { display: none; animation: fadeIn 0.4s; }
-  .step.active { display: block; }
-  .step-content { background: #0f172a; border-radius: 10px; padding: 10px 12px; font-size: 0.82rem; line-height: 1.6; color: #cbd5e1; border-left: 3px solid #3b82f6; }
-  .step-content .highlight { color: #fbbf24; font-weight: 600; }
-  .step-content .green { color: #86efac; }
-  .step-nav { display: flex; gap: 8px; margin-top: 10px; align-items: center; }
-  .step-counter { font-size: 0.75rem; color: #64748b; flex: 1; text-align: center; }
-
-  .input-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
-  .coord-input { background: #0f172a; border: 1px solid #334155; color: #e2e8f0; border-radius: 8px; padding: 6px 10px; width: 70px; font-size: 0.85rem; text-align: center; }
-  .coord-input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.3); }
-
-  .legend { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
-  .leg-item { display: flex; align-items: center; gap: 4px; font-size: 0.72rem; color: #94a3b8; }
-  .leg-dot { width: 10px; height: 10px; border-radius: 50%; }
-
-  ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: #0f172a; } ::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
+  ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: #1e293b; }
+  ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 2px; }
 </style>
 </head>
 <body>
+
 <div class="title-bar">
   <h1>📐 Coordinate Geometry — निर्देशांक ज्यामिति</h1>
-  <p>CBSE Class 10 | Chapter 7 | निर्देशांक तल (Coordinate Plane Plotter)</p>
+  <p>CBSE Class 10 · अध्याय 7 · Interactive Coordinate Plane Plotter</p>
 </div>
 
-<div class="container">
+<div class="main">
+
   <div class="formula-box">
-    <h3>🔑 Key Formula — दूरी सूत्र (Distance Formula)</h3>
-    <div class="formula">d = √[(x₂ − x₁)² + (y₂ − y₁)²]</div>
-    <div class="sub">∴ किन्हीं दो बिन्दुओं P(x₁,y₁) और Q(x₂,y₂) के बीच की दूरी | Click on canvas to plot points!</div>
+    <div class="label">मूल संकल्पना · Key Concept</div>
+    <div class="formula">Point P = (x, y) → (Abscissa, Ordinate)</div>
+    <div class="sub">x-axis = भुज (Abscissa) &nbsp;|&nbsp; y-axis = कोटि (Ordinate) &nbsp;|&nbsp; Origin O = (0, 0)</div>
   </div>
 
-  <div class="main-area">
-    <div class="canvas-wrap">
-      <canvas id="grid"></canvas>
-      <div class="legend">
-        <div class="leg-item"><div class="leg-dot" style="background:#3b82f6"></div> X-अक्ष (X-Axis)</div>
-        <div class="leg-item"><div class="leg-dot" style="background:#22c55e"></div> Y-अक्ष (Y-Axis)</div>
-        <div class="leg-item"><div class="leg-dot" style="background:#fbbf24"></div> आपके बिन्दु (Your Points)</div>
-      </div>
-    </div>
-
-    <div class="side-panel">
-      <div class="info-card">
-        <h3>📍 चतुर्थांश (Quadrants)</h3>
-        <div class="quadrant-grid">
-          <div class="q-card q2"><div>II चतुर्थांश</div><div class="signs">(−, +)</div></div>
-          <div class="q-card q1"><div>I चतुर्थांश</div><div class="signs">(+, +)</div></div>
-          <div class="q-card q3"><div>III चतुर्थांश</div><div class="signs">(−, −)</div></div>
-          <div class="q-card q4"><div>IV चतुर्थांश</div><div class="signs">(+, −)</div></div>
-        </div>
-        <div class="point-display" id="pointDisplay">
-          <div style="color:#64748b;font-size:0.8rem;">Canvas पर क्लिक करें या नीचे दर्ज करें...</div>
-        </div>
-      </div>
-
-      <div class="info-card">
-        <h3>✏️ बिन्दु दर्ज करें (Enter Point)</h3>
-        <div class="input-row" style="margin-bottom:8px">
-          <span style="font-size:0.8rem;color:#94a3b8;">x =</span>
-          <input class="coord-input" id="xInput" type="number" placeholder="0" min="-10" max="10">
-          <span style="font-size:0.8rem;color:#94a3b8;">y =</span>
-          <input class="coord-input" id="yInput" type="number" placeholder="0" min="-10" max="10">
-          <button class="btn btn-green" onclick="addManualPoint()">➕</button>
-        </div>
-        <div class="controls">
-          <button class="btn btn-blue" onclick="showExample()">📖 Example</button>
-          <button class="btn btn-red" onclick="clearAll()">🗑 Clear</button>
-          <button class="btn btn-amber" onclick="toggleDistance()">📏 Distance</button>
-        </div>
-        <div class="points-list" id="pointsList"></div>
-      </div>
-
-      <div class="info-card" id="distInfo" style="display:none">
-        <h3>📏 दूरी (Distance)</h3>
-        <div id="distResult" style="font-size:0.82rem;color:#94a3b8;">दो बिन्दु प्लॉट करें...</div>
-      </div>
+  <div class="canvas-wrap">
+    <p class="section-title" style="text-align:center;">🖱️ Click on the grid to plot a point</p>
+    <canvas id="grid" width="400" height="400"></canvas>
+    <div class="controls">
+      <button class="btn btn-blue" onclick="toggleGrid()">Toggle Grid</button>
+      <button class="btn btn-green" onclick="showExample()">📍 Example Points</button>
+      <button class="btn btn-red" onclick="clearAll()">🗑️ Clear All</button>
+      <button class="btn btn-amber" onclick="toggleLabels()">Toggle Labels</button>
     </div>
   </div>
 
-  <div class="walkthrough" style="margin-top:16px">
-    <h3>🎓 Step-by-Step Walkthrough — उदाहरण सहित</h3>
-    <div id="step1" class="step active">
-      <div class="step-content">
-        <span class="highlight">Step 1: निर्देशांक तल (Coordinate Plane) क्या है?</span><br>
-        दो लम्बवत् रेखाएँ मिलकर <span class="green">निर्देशांक तल</span> बनाती हैं।<br>
-        ● क्षैतिज रेखा → <span class="highlight">X-अक्ष (X-Axis)</span><br>
-        ● ऊर्ध्वाधर रेखा → <span class="highlight">Y-अक्ष (Y-Axis)</span><br>
-        ● जहाँ ये मिलती हैं → <span class="highlight">मूल बिन्दु O(0,0) — Origin</span>
-      </div>
-    </div>
-    <div id="step2" class="step">
-      <div class="step-content">
-        <span class="highlight">Step 2: बिन्दु का निर्देशांक (Coordinates of a Point)</span><br>
-        किसी बिन्दु P को <span class="highlight">P(x, y)</span> लिखते हैं।<br>
-        ● <span class="green">x = भुज (Abscissa)</span> — X-अक्ष पर दूरी<br>
-        ● <span class="green">y = कोटि (Ordinate)</span> — Y-अक्ष पर दूरी<br>
-        ∴ P(3, 4) का अर्थ है: x=3 (दाईं ओर), y=4 (ऊपर)
-      </div>
-    </div>
-    <div id="step3" class="step">
-      <div class="step-content">
-        <span class="highlight">Step 3: चतुर्थांश (Quadrants) — चिह्न नियम</span><br>
-        ● <span class="green">I (+,+)</span>: x>0, y>0 — दाईं-ऊपर<br>
-        ● <span style="color:#93c5fd">II (−,+)</span>: x&lt;0, y>0 — बाईं-ऊपर<br>
-        ● <span style="color:#fca5a5">III (−,−)</span>: x&lt;0, y&lt;0 — बाईं-नीचे<br>
-        ● <span style="color:#fcd34d">IV (+,−)</span>: x>0, y&lt;0 — दाईं-नीचे
-      </div>
-    </div>
-    <div id="step4" class="step">
-      <div class="step-content">
-        <span class="highlight">Step 4: दूरी सूत्र (Distance Formula) — उदाहरण</span><br>
-        मान लीजिए A(3, 4) और B(−1, 1)<br>
-        d = √[(−1−3)² + (1−4)²]<br>
-        d = √[(−4)² + (−3)²]<br>
-        d = √[16 + 9] = √25 = <span class="highlight">5 इकाई</span><br>
-        <span class="green">∴ AB = 5 units</span> — कैनवास पर देखें!
-      </div>
-    </div>
-    <div id="step5" class="step">
-      <div class="step-content">
-        <span class="highlight">Step 5: अक्षों पर बिन्दु (Points on Axes)</span><br>
-        ● X-अक्ष पर: y = 0 → जैसे (5, 0), (−3, 0)<br>
-        ● Y-अक्ष पर: x = 0 → जैसे (0, 4), (0, −2)<br>
-        ● मूल बिन्दु: (0, 0)<br>
-        <span class="green">∵ अक्षों पर स्थित बिन्दु किसी चतुर्थांश में नहीं होते!</span>
-      </div>
-    </div>
-    <div class="step-nav">
-      <button class="btn btn-blue" onclick="prevStep()">◀ पूर्व</button>
-      <div class="step-counter" id="stepCounter">Step 1 / 5</div>
-      <button class="btn btn-blue" onclick="nextStep()">अगला ▶</button>
+  <div class="info-panel" id="infoPanel">
+    <div style="text-align:center; color:#64748b; font-size:13px;">👆 Click anywhere on the grid to plot a point and see its coordinates!</div>
+  </div>
+
+  <div class="walkthrough">
+    <h3>📚 Step-by-Step: How to Read Coordinates</h3>
+    <div id="stepContainer"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+      <button class="btn btn-blue" onclick="nextStep()" id="stepBtn">▶ Start Walkthrough</button>
+      <button class="btn btn-amber" onclick="resetSteps()">↺ Reset</button>
     </div>
   </div>
+
+  <div>
+    <p class="section-title">चतुर्थांश · Quadrants — Click to highlight</p>
+    <div class="quadrant-guide">
+      <div class="qcard q1c" onclick="highlightQuadrant(1)">
+        <strong class="highlight">Quadrant I (प्रथम)</strong>
+        x &gt; 0, y &gt; 0 &nbsp;↗<br>
+        Example: (3, 4), (2, 5)
+      </div>
+      <div class="qcard q2c" onclick="highlightQuadrant(2)">
+        <strong class="green">Quadrant II (द्वितीय)</strong>
+        x &lt; 0, y &gt; 0 &nbsp;↖<br>
+        Example: (-3, 4), (-1, 2)
+      </div>
+      <div class="qcard q3c" onclick="highlightQuadrant(3)">
+        <strong class="red">Quadrant III (तृतीय)</strong>
+        x &lt; 0, y &lt; 0 &nbsp;↙<br>
+        Example: (-2, -3), (-4, -1)
+      </div>
+      <div class="qcard q4c" onclick="highlightQuadrant(4)">
+        <strong class="amber">Quadrant IV (चतुर्थ)</strong>
+        x &gt; 0, y &lt; 0 &nbsp;↘<br>
+        Example: (3, -2), (1, -4)
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <p class="section-title">Plotted Points (अंकित बिंदु)</p>
+    <div class="points-list" id="pointsList">
+      <div style="color:#64748b;text-align:center;font-size:11px;">No points plotted yet...</div>
+    </div>
+  </div>
+
 </div>
 
 <script>
 const canvas = document.getElementById('grid');
 const ctx = canvas.getContext('2d');
+
 let points = [];
-let hoveredPoint = null;
-let distanceMode = false;
-let currentStep = 1;
-const totalSteps = 5;
+let showGrid = true;
+let showLabels = true;
+let highlightedQ = 0;
+let stepIndex = 0;
 
-function resize() {
-  const wrap = canvas.parentElement;
-  const size = Math.min(wrap.clientWidth - 20, 480);
-  canvas.width = size;
-  canvas.height = size;
-  draw();
+const W = canvas.width, H = canvas.height;
+const cx = W / 2, cy = H / 2;
+const unit = 36;
+
+const steps = [
+  { text: '<span class="step-num">Step 1:</span> The <span class="highlight">Coordinate Plane</span> has two perpendicular lines: horizontal <span class="highlight">X-axis (भुज अक्ष)</span> and vertical <span class="highlight">Y-axis (कोटि अक्ष)</span>. They meet at the <span class="highlight">Origin O = (0, 0)</span>.', action: () => { points = []; draw(); } },
+  { text: '<span class="step-num">Step 2:</span> To plot point <span class="highlight">A(3, 4)</span> — start at Origin. Move <span class="green">3 units RIGHT</span> along x-axis (positive x), then <span class="green">4 units UP</span> along y-axis (positive y). This is in <span class="highlight">Quadrant I</span>.', action: () => { points = [{x:3,y:4,label:'A',color:'#3b82f6'}]; highlightedQ=1; draw(); } },
+  { text: '<span class="step-num">Step 3:</span> Plot point <span class="green">B(-3, 4)</span> — Move <span class="red">3 units LEFT</span> (negative x), then <span class="green">4 units UP</span>. This is in <span class="green">Quadrant II</span>. ∴ x is negative, y is positive.', action: () => { points = [{x:3,y:4,label:'A',color:'#3b82f6'},{x:-3,y:4,label:'B',color:'#22c55e'}]; highlightedQ=2; draw(); } },
+  { text: '<span class="step-num">Step 4:</span> Plot point <span class="red">C(-3, -4)</span> — Move <span class="red">3 units LEFT</span>, then <span class="red">4 units DOWN</span>. This is <span class="red">Quadrant III</span>. Both x and y are negative.', action: () => { points = [{x:3,y:4,label:'A',color:'#3b82f6'},{x:-3,y:4,label:'B',color:'#22c55e'},{x:-3,y:-4,label:'C',color:'#ef4444'}]; highlightedQ=3; draw(); } },
+  { text: '<span class="step-num">Step 5:</span> Plot point <span class="amber">D(3, -4)</span> — Move <span class="green">3 units RIGHT</span>, then <span class="red">4 units DOWN</span>. This is <span class="amber">Quadrant IV</span>. x is positive, y is negative. ∴ A, B, C, D form a rectangle!', action: () => { points = [{x:3,y:4,label:'A',color:'#3b82f6'},{x:-3,y:4,label:'B',color:'#22c55e'},{x:-3,y:-4,label:'C',color:'#ef4444'},{x:3,y:-4,label:'D',color:'#f59e0b'}]; highlightedQ=0; draw(); } },
+  { text: '<span class="step-num">✅ Done!</span> Remember: A point on the <span class="highlight">x-axis</span> has y = 0. A point on the <span class="highlight">y-axis</span> has x = 0. The <span class="highlight">origin</span> is (0,0). Now try clicking on the grid to plot your own points!', action: () => { highlightedQ=0; draw(); } }
+];
+
+function toCanvas(x, y) {
+  return { cx: cx + x * unit, cy: cy - y * unit };
 }
-
-function gridToCanvas(gx, gy) {
-  const cx = canvas.width / 2, cy = canvas.height / 2;
-  const cell = canvas.width / 22;
-  return [cx + gx * cell, cy - gy * cell];
-}
-
-function canvasToGrid(px, py) {
-  const cx = canvas.width / 2, cy = canvas.height / 2;
-  const cell = canvas.width / 22;
-  return [Math.round((px - cx) / cell), Math.round((cy - py) / cell)];
+function toCoord(px, py) {
+  return { x: Math.round((px - cx) / unit), y: Math.round((cy - py) / unit) };
 }
 
 function draw() {
-  const w = canvas.width, h = canvas.height;
-  const cx = w / 2, cy = h / 2;
-  const cell = w / 22;
+  ctx.clearRect(0, 0, W, H);
+  drawBackground();
+  if (highlightedQ) drawQuadrantHighlight(highlightedQ);
+  if (showGrid) drawGridLines();
+  drawAxes();
+  drawTicksAndLabels();
+  drawPoints();
+}
 
-  ctx.clearRect(0, 0, w, h);
+function drawBackground() {
+  ctx.fillStyle = '#0a0f1e';
+  ctx.fillRect(0, 0, W, H);
+}
 
-  // Background
-  const bg = ctx.createRadialGradient(cx, cy, 0, cx, cy, w * 0.7);
-  bg.addColorStop(0, '#0f1f3d');
-  bg.addColorStop(1, '#0a0f1a');
-  ctx.fillStyle = bg;
-  ctx.fillRect(0, 0, w, h);
+function drawQuadrantHighlight(q) {
+  const colors = { 1:'rgba(59,130,246,0.08)', 2:'rgba(34,197,94,0.08)', 3:'rgba(239,68,68,0.08)', 4:'rgba(245,158,11,0.08)' };
+  ctx.fillStyle = colors[q];
+  if (q===1) ctx.fillRect(cx, 0, W-cx, cy);
+  else if (q===2) ctx.fillRect(0, 0, cx, cy);
+  else if (q===3) ctx.fillRect(0, cy, cx, H-cy);
+  else if (q===4) ctx.fillRect(cx, cy, W-cx, H-cy);
+}
 
-  // Quadrant fills
-  const qColors = [
-    {x:cx,y:0,w:w-cx,h:cy,color:'rgba(34,197,94,0.06)'},
-    {x:0,y:0,w:cx,h:cy,color:'rgba(59,130,246,0.06)'},
-    {x:0,y:cy,w:cx,h:h-cy,color:'rgba(239,68,68,0.06)'},
-    {x:cx,y:cy,w:w-cx,h:h-cy,color:'rgba(245,158,11,0.06)'}
-  ];
-  qColors.forEach(q => {
-    ctx.fillStyle = q.color;
-    ctx.fillRect(q.x, q.y, q.w, q.h);
-  });
-
-  // Grid lines
+function drawGridLines() {
+  ctx.strokeStyle = 'rgba(51,65,85,0.5)';
   ctx.lineWidth = 0.5;
   for (let i = -10; i <= 10; i++) {
-    const x = cx + i * cell;
-    const y = cy + i * cell;
-    ctx.strokeStyle = i === 0 ? 'transparent' : 'rgba(255,255,255,0.07)';
-    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+    const gx = cx + i * unit;
+    ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke();
+    const gy = cy + i * unit;
+    ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke();
   }
+}
 
-  // Axes
-  ctx.lineWidth = 2.5;
-  ctx.strokeStyle = '#3b82f6';
-  ctx.shadowColor = '#3b82f6';
-  ctx.shadowBlur = 8;
-  ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(w, cy); ctx.stroke();
-  ctx.strokeStyle = '#22c55e';
-  ctx.shadowColor = '#22c55e';
-  ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, h); ctx.stroke();
-  ctx.shadowBlur = 0;
+function drawAxes() {
+  ctx.strokeStyle = '#475569'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(W, cy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, H); ctx.stroke();
 
   // Arrows
-  function arrow(x1, y1, x2, y2, col) {
-    ctx.strokeStyle = col; ctx.fillStyle = col;
-    const ang = Math.atan2(y2 - y1, x2 - x1);
-    ctx.beginPath();
-    ctx.moveTo(x2 - 10 * Math.cos(ang - 0.4), y2 - 10 * Math.sin(ang - 0.4));
-    ctx.lineTo(x2, y2);
-    ctx.lineTo(x2 - 10 * Math.cos(ang + 0.4), y2 - 10 * Math.sin(ang + 0.4));
-    ctx.fill();
-  }
-  arrow(w - 5, cy, w - 2, cy, '#3b82f6');
-  arrow(3, cy, 0, cy, '#3b82f6');
-  arrow(cx, 5, cx, 2, '#22c55e');
-  arrow(cx, h - 5, cx, h - 2, '#22c55e');
+  ctx.fillStyle = '#94a3b8';
+  drawArrow(W-2, cy, 'right');
+  drawArrow(cx, 2, 'up');
 
-  // Axis labels & numbers
-  ctx.font = `bold ${Math.max(9, cell * 0.7)}px Segoe UI`;
-  ctx.fillStyle = '#3b82f6'; ctx.textAlign = 'center';
-  ctx.fillText('X', w - 12, cy - 8);
-  ctx.fillText("X'", 12, cy - 8);
-  ctx.fillStyle = '#22c55e'; ctx.textAlign = 'left';
-  ctx.fillText('Y', cx + 6, 16);
-  ctx.fillText("Y'", cx + 6, h - 6);
+  // Axis labels
+  ctx.font = 'bold 13px Segoe UI';
+  ctx.fillStyle = '#94a3b8';
+  ctx.fillText('X', W-14, cy-8);
+  ctx.fillText('Y', cx+6, 14);
+  ctx.fillText("X'", 4, cy-8);
+  ctx.fillText("Y'", cx+6, H-4);
 
-  // Tick labels
-  ctx.font = `${Math.max(8, cell * 0.55)}px Segoe UI`;
-  ctx.fillStyle = 'rgba(148,163,184,0.8)';
+  // Origin
+  ctx.font = '11px Segoe UI';
+  ctx.fillStyle = '#64748b';
+  ctx.fillText('O', cx+4, cy+14);
+}
+
+function drawArrow(x, y, dir) {
+  ctx.beginPath();
+  if (dir==='right') { ctx.moveTo(x,y-5); ctx.lineTo(x+8,y); ctx.lineTo(x,y+5); }
+  else { ctx.moveTo(x-5,y); ctx.lineTo(x,y-8); ctx.lineTo(x+5,y); }
+  ctx.closePath(); ctx.fill();
+}
+
+function drawTicksAndLabels() {
+  ctx.font = '10px Segoe UI';
   ctx.textAlign = 'center';
-  for (let i = -9; i <= 9; i++) {
+  for (let i = -5; i <= 5; i++) {
     if (i === 0) continue;
-    const x = cx + i * cell, y = cy + i * cell;
-    ctx.fillText(i, x, cy + 14);
-    ctx.textAlign = 'right';
-    ctx.fillText(i, cx - 6, y + 4);
-    ctx.textAlign = 'center';
+    const gx = cx + i * unit;
+    ctx.strokeStyle = '#475569'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(gx, cy-4); ctx.lineTo(gx, cy+4); ctx.stroke();
+    if (showLabels) { ctx.fillStyle = '#64748b'; ctx.fillText(i, gx, cy+15); }
+
+    const gy = cy - i * unit;
+    ctx.beginPath(); ctx.moveTo(cx-4, gy); ctx.lineTo(cx+4, gy); ctx.stroke();
+    if (showLabels) { ctx.fillStyle = '#64748b'; ctx.textAlign = 'right'; ctx.fillText(i, cx-7, gy+4); ctx.textAlign = 'center'; }
   }
-  ctx.fillStyle = '#94a3b8'; ctx.fillText('O', cx - 10, cy + 14);
+}
 
-  // Quadrant labels
-  const ql = cell * 3;
-  ctx.font = `bold ${Math.max(9, cell * 0.65)}px Segoe UI`;
-  ctx.fillStyle = 'rgba(134,239,172,0.4)'; ctx.textAlign = 'center';
-  ctx.fillText('I', cx + ql, cy - ql);
-  ctx.fillStyle = 'rgba(147,197,253,0.4)';
-  ctx.fillText('II', cx - ql, cy - ql);
-  ctx.fillStyle = 'rgba(252,165,165,0.4)';
-  ctx.fillText('III', cx - ql, cy + ql);
-  ctx.fillStyle = 'rgba(252,211,77,0.4)';
-  ctx.fillText('IV', cx + ql, cy + ql);
+function drawPoints() {
+  points.forEach((p, idx) => {
+    const {cx: px, cy: py} = toCanvas(p.x, p.y);
+    // Dashed lines to axes
+    ctx.setLineDash([3,3]);
+    ctx.strokeStyle = p.color + '55';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px, cy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(cx, py); ctx.stroke();
+    ctx.setLineDash([]);
 
-  // Distance line between first two points
-  if (distanceMode && points.length >= 2) {
-    const [ax, ay] = gridToCanvas(points[0].x, points[0].y);
-    const [bx, by] = gridToCanvas(points[1].x, points[1].y);
-    ctx.setLineDash([6, 4]);
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = '#fbbf24';
-    ctx.shadowColor = '#fbbf24'; ctx.shadowBlur = 6;
-    ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
-    ctx.setLineDash([]); ctx.shadowBlur = 0;
+    // Glow
+    const grd = ctx.createRadialGradient(px, py, 0, px, py, 18);
+    grd.addColorStop(0, p.color + '55');
+    grd.addColorStop(1, 'transparent');
+    ctx.fillStyle = grd;
+    ctx.beginPath(); ctx.arc(px, py, 18, 0, Math.PI*2); ctx.fill();
 
-    const midX = (ax + bx) / 2, midY = (ay + by) / 2;
-    const dx = points[1].x - points[0].x, dy = points[1].y - points[0].y;
-    const d = Math.sqrt(dx * dx + dy * dy).toFixed(2);
-    ctx.font = `bold ${Math.max(9, cell * 0.65)}px Segoe UI`;
-    ctx.fillStyle = '#fbbf24'; ctx.textAlign = 'center';
-    ctx.shadowColor = '#000'; ctx.shadowBlur = 4;
-    ctx.fillText('d ≈ ' + d, midX, midY - 8);
-    ctx.shadowBlur = 0;
-  }
+    // Dot
+    ctx.fillStyle = p.color;
+    ctx.beginPath(); ctx.arc(px, py, 6, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = 'white'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(px, py, 6, 0, Math.PI*2); ctx.stroke();
 
-  // Plot points
-  const colors = ['#fbbf24','#f472b6','#34d399','#60a5fa','#a78bfa','#fb923c','#e879f9'];
-  points.forEach((p, i) => {
-    const [px, py] = gridToCanvas(p.x, p.y);
-    const col = colors[i % colors.length];
-    const isHovered = hoveredPoint === i;
-    const r = isHovered ? 10 : 7;
-
-    ctx.beginPath();
-    const grad = ctx.createRadialGradient(px, py, 0, px, py, r * 2);
-    grad.addColorStop(0, col + 'aa');
-    grad.addColorStop(1, 'transparent');
-    ctx.fillStyle = grad;
-    ctx.arc(px, py, r * 2.5, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.arc(px, py, r, 0, Math.PI * 2);
-    ctx.fillStyle = col;
-    ctx.shadowColor = col; ctx.shadowBlur = 12;
-    ctx.fill();
-    ctx.shadowBlur = 0;
-    ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5;
-    ctx.stroke();
-
-    ctx.font = `bold ${Math.max(9, cell * 0.65)}px Segoe UI`;
-    ctx.fillStyle = '#fff'; ctx.textAlign = 'left';
-    ctx.shadowColor = '#000'; ctx.shadowBlur = 3;
-    const label = String.fromCharCode(65 + i) + '(' + p.x + ',' + p.y + ')';
-    ctx.fillText(label, px + 10, py - 6);
-    ctx.shadowBlur = 0;
+    // Label
+    if (showLabels) {
+      ctx.font = 'bold 12px Segoe UI';
+      ctx.fillStyle = p.color;
+      const lbl = p.label ? `${p.label}(${p.x},${p.y})` : `(${p.x},${p.y})`;
+      const ox = p.x >= 0 ? 12 : -12;
+      const oy = p.y >= 0 ? -10 : 18;
+      ctx.textAlign = p.x >= 0 ? 'left' : 'right';
+      ctx.fillText(lbl, px + ox, py + oy);
+      ctx.textAlign = 'center';
+    }
   });
 }
 
 function getQuadrant(x, y) {
-  if (x === 0 && y === 0) return {label:'मूल बिन्दु O (Origin)', color:'#94a3b8', bg:'rgba(148,163,184,0.2)'};
-  if (x === 0) return {label:'Y-अक्ष पर (On Y-Axis)', color:'#22c55e', bg:'rgba(34,197,94,0.2)'};
-  if (y === 0) return {label:'X-अक्ष पर (On X-Axis)', color:'#3b82f6', bg:'rgba(59,130,246,0.2)'};
-  if (x > 0 && y > 0) return {label:'I चतुर्थांश (+, +)', color:'#22c55e', bg:'rgba(34,197,94,0.2)'};
-  if (x < 0 && y > 0) return {label:'II चतुर्थांश (−, +)', color:'#60a5fa', bg:'rgba(59,130,246,0.2)'};
-  if (x < 0 && y < 0) return {label:'III चतुर्थांश (−, −)', color:'#f87171', bg:'rgba(239,68,68,0.2)'};
-  return {label:'IV चतुर्थांश (+, −)', color:'#fbbf24', bg:'rgba(245,158,11,0.2)'};
+  if (x === 0 && y === 0) return 'Origin (मूल बिंदु)';
+  if (x === 0) return 'Y-axis';
+  if (y === 0) return 'X-axis';
+  if (x > 0 && y > 0) return 'Quadrant I (प्रथम चतुर्थांश)';
+  if (x < 0 && y > 0) return 'Quadrant II (द्वितीय चतुर्थांश)';
+  if (x < 0 && y < 0) return 'Quadrant III (तृतीय चतुर्थांश)';
+  return 'Quadrant IV (चतुर्थ चतुर्थांश)';
 }
 
-function updatePointDisplay(x, y) {
+function getQClass(x, y) {
+  if (x > 0 && y > 0) return 'q1';
+  if (x < 0 && y > 0) return 'q2';
+  if (x < 0 && y < 0) return 'q3';
+  if (x > 0 && y < 0) return 'q4';
+  return 'qo';
+}
+
+function getColor(x, y) {
+  if (x > 0 && y > 0) return '#3b82f6';
+  if (x < 0 && y > 0) return '#22c55e';
+  if (x < 0 && y < 0) return '#ef4444';
+  if (x > 0 && y < 0) return '#f59e0b';
+  return '#94a3b8';
+}
+
+canvas.addEventListener('click', function(e) {
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = W / rect.width, scaleY = H / rect.height;
+  const px = (e.clientX - rect.left) * scaleX;
+  const py = (e.clientY - rect.top) * scaleY;
+  const coord = toCoord(px, py);
+
+  if (Math.abs(coord.x) > 9 || Math.abs(coord.y) > 9) return;
+
+  const color = getColor(coord.x, coord.y);
+  const labels = 'PQRSTUVWXYZ';
+  const label = labels[points.length % labels.length];
+  points.push({ x: coord.x, y: coord.y, color, label });
+
+  updateInfoPanel(coord.x, coord.y, label);
+  updatePointsList();
+  draw();
+});
+
+function updateInfoPanel(x, y, label) {
   const q = getQuadrant(x, y);
-  const dist = Math.sqrt(x * x + y * y).toFixed(2);
-  document.getElementById('pointDisplay').innerHTML =
-    `<div class="coord">P(${x}, ${y})</div>
-     <div style="margin-top
+  const qc = getQClass(x, y);
+  const panel = document.getElementById('infoPanel');
+  const abscissa = `Abscissa (भुज) = ${x}`;
+  const ordinate = `Ordinate (कोटि) = ${y}`;
+  panel.innerHTML = `
+    <div class="coord-display">
+      <span class="badge qo">Point ${label}(${x}, ${y})</span>
+      <span class="badge ${qc}">${q}</span>
+    </div>
+    <div style="margin-top:8px;font-size:12px;color:#94a3b8;text-align:center;">
+      <span style="color:#60a5fa;">${abscissa}</span> &nbsp;|&nbsp; <span style="color:#34d399;">${ordinate}</span>
+    </div>
+    <div style="margin-top:6px;font-size:11px;color:#64748b;text-align:center;">
+      ∴ Start at O(0,0) → Move ${Math.abs(x)} units ${x>=0?'right':'left'} → Move ${Math.abs(y)} units ${y>=0?'up':'down'}
+    </div>`;
+}
+
+function updatePointsList() {
+  const list = document.getElementById('pointsList');
+  if (points.length === 0) {
+    list.innerHTML = '<div style="color:#64748b;text-align:center;font-size:11px;">No points plotted yet...</div>';
+    return;
+  }
+  list.innerHTML = points.map((p, i) => `
+    <div class="point-item">
+      <span style="color:${p.color};font-weight:700;">${p.label}(${p.x}, ${p.y})</span>
+      <span style="color:#64748b;font-size:10px;">${getQuadrant(p.x,p.y).split('(')[0].trim()}</span>
+      <span class="del" onclick="removePoint(${i})">×</span>
+    </div>`).join('');
+}
+
+function removePoint(i) {
+  points.splice(i, 1);
+  updatePointsList();
+  draw();
+}
+
+function toggleGrid() { showGrid = !showGrid; draw(); }
+function toggleLabels() { showLabels = !showLabels; draw(); }
+
+function clearAll() {
+  points = []; highlightedQ = 0;
+  updatePointsList();
+  document.getElementById('infoPanel').innerHTML = '<div style="text-align:center;color:#64748b;font-size:13px;">👆 Click anywhere on the grid to plot a point!</div>';
+  draw();
+}
+
+function showExample() {
+  points = [
+    {x:3,y:4,label:'A',color:'#3b82f6'},
+    {x:-2,y:3,label:'B',color:'#22c55e'},
+    {x:-4,y:-1,label:'C',color:'#ef4444'},
+    {x:2,y:-3,label:'D',color:'#f59e0b'},
+    {x:0,y:0,label:'O',color:'#94a3b8'}
+  ];
+  updatePointsList();
+  document.getElementById('infoPanel').innerHTML = `
+    <div class="coord-display">
+      <span class="badge q1">A(3,4) → Q-I</span>
+      <span class="badge q2">B(-2,3) → Q-II</span>
+      <span class="badge q3">C(-4,-1) → Q-III</span>
+      <span class="badge q4">D(2,-3) → Q-IV</span>
+      <span class="badge qo">O(0,0) → Origin</span>
+    </div>`;
+  draw();
+}
+
+function highlightQuadrant(q) {
+  highlightedQ = highlightedQ === q ? 0 : q;
+  draw();
+}
+
+function nextStep() {
+  if (stepIndex < steps.length) {
+    const step = steps[stepIndex];
+    const container = document.getElementById('stepContainer');
+    const el = document.createElement('div');
+    el.className = 'step visible';
+    el.innerHTML = step.text;
+    container.appendChild(el);
+    step.action();
+    stepIndex++;
+    const btn = document.getElementById('stepBtn');
+    btn.textContent = stepIndex >= steps.length ? '✅ Complete!' : `▶ Step ${stepIndex + 1}`;
+    if (stepIndex >= steps.length) btn.disabled = true;
+    el.scrollIntoView({behavior:'smooth', block:'nearest'});
+  }
+}
+
+function resetSteps() {
+  stepIndex = 0;
+  document.getElementById('stepContainer').innerHTML = '';
+  const btn = document.getElementById('stepBtn');
+  btn.textContent = '▶ Start Walkthrough';
+  btn.disabled = false;
+  points = []; highlightedQ = 0;
+  draw();
+  updatePointsList();
+}
+
+// Touch support
+canvas.addEventListener('touchend', function(e) {
+  e.preventDefault();
+  const touch = e.changedTouches[0];
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = W / rect.width, scaleY = H / rect.height;
+  const px = (touch.clientX - rect.left) * scaleX;
+  const py = (touch.clientY - rect.top) * scaleY;
+  const coord = toCoord(px, py);
+  if (Math.abs(coord.x) > 9 || Math.abs(coord.y) > 9) return;
+  const color = getColor(coord.x, coord.y);
+  const labels = 'PQRSTUVWXYZ';
+  const label = labels[points.length % labels.length];
+  points.push({ x: coord.x, y: coord.y, color, label });
+  updateInfoPanel(coord.x, coord.y, label);
+  updatePointsList();
+  draw();
+}, {passive:false});
+
+// Responsive canvas
+function resizeCanvas() {
+  const maxW = Math.min(window.innerWidth - 44, 420);
+  canvas.style.width = maxW + 'px';
+  canvas.style.height = maxW + 'px';
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+draw();
 </script>
 </body>
 </html>

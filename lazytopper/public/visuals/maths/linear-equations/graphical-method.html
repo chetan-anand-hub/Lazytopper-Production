@@ -3,369 +3,370 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pair of Linear Equations – Graphical Method | Class 10</title>
+<title>Graphical Method - Linear Equations</title>
 <style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Segoe UI',sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh;overflow-x:hidden}
-  header{background:linear-gradient(135deg,#1e293b,#0f172a);border-bottom:2px solid #3b82f6;padding:16px 20px;text-align:center}
-  header h1{font-size:1.4rem;color:#3b82f6;font-weight:700}
-  header p{font-size:.85rem;color:#94a3b8;margin-top:4px}
-  .badge{display:inline-block;background:#3b82f6;color:#fff;border-radius:20px;padding:2px 10px;font-size:.75rem;margin-top:6px}
-  .container{max-width:900px;margin:0 auto;padding:16px}
-  .card{background:#1e293b;border-radius:14px;padding:18px;margin-bottom:16px;border:1px solid #334155}
-  .card h2{font-size:1rem;color:#f59e0b;margin-bottom:10px;display:flex;align-items:center;gap:8px}
-  .formula-box{background:#0f172a;border:1px solid #3b82f6;border-radius:10px;padding:12px;font-size:.9rem;text-align:center;color:#93c5fd;letter-spacing:.5px}
-  .formula-box span{color:#f59e0b;font-weight:700}
-  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
-  .tab{padding:8px 14px;border-radius:8px;border:2px solid #334155;background:transparent;color:#94a3b8;cursor:pointer;font-size:.85rem;transition:all .2s}
-  .tab.active{background:#3b82f6;border-color:#3b82f6;color:#fff}
-  .tab:hover:not(.active){border-color:#3b82f6;color:#3b82f6}
-  #graph-container{position:relative;width:100%;border-radius:12px;overflow:hidden;border:2px solid #334155;background:#0f172a;cursor:crosshair}
-  canvas{display:block;width:100%;height:auto}
-  .controls{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
-  .ctrl-group{flex:1;min-width:140px;background:#0f172a;border-radius:10px;padding:10px;border:1px solid #334155}
-  .ctrl-group label{font-size:.75rem;color:#64748b;display:block;margin-bottom:4px}
-  .ctrl-group .eq-label{font-size:.85rem;color:#93c5fd;font-weight:600;margin-bottom:6px}
-  input[type=range]{width:100%;accent-color:#3b82f6;height:4px}
-  .val-display{display:flex;justify-content:space-between;font-size:.75rem;color:#94a3b8;margin-top:2px}
-  .result-box{margin-top:12px;padding:10px 14px;border-radius:10px;font-size:.875rem;font-weight:600;text-align:center;transition:all .4s}
-  .res-intersect{background:#164e63;border:1px solid #22c55e;color:#86efac}
-  .res-parallel{background:#431407;border:1px solid #f59e0b;color:#fcd34d}
-  .res-coincident{background:#1e1b4b;border:1px solid #a78bfa;color:#c4b5fd}
-  .steps{counter-reset:step}
-  .step{display:flex;gap:12px;margin-bottom:12px;opacity:0;transform:translateY(10px);transition:all .4s}
-  .step.show{opacity:1;transform:translateY(0)}
-  .step-num{min-width:28px;height:28px;background:#3b82f6;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;flex-shrink:0}
-  .step-text{font-size:.85rem;color:#cbd5e1;line-height:1.5}
-  .step-text strong{color:#f59e0b}
-  .hindi{color:#f97316;font-style:italic;font-size:.8rem}
-  .legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px}
-  .leg-item{display:flex;align-items:center;gap:6px;font-size:.8rem;color:#94a3b8}
-  .leg-dot{width:14px;height:4px;border-radius:2px}
-  .worked{background:#0f172a;border-radius:10px;padding:14px;border:1px solid #334155;margin-top:10px}
-  .worked p{font-size:.85rem;line-height:1.7;color:#cbd5e1}
-  .worked .highlight{background:#1e293b;border-left:3px solid #22c55e;padding:6px 10px;border-radius:0 6px 6px 0;margin:6px 0;font-family:monospace;font-size:.85rem;color:#86efac}
-  .btn{padding:8px 18px;border-radius:8px;border:none;cursor:pointer;font-size:.85rem;font-weight:600;transition:all .2s}
-  .btn-primary{background:#3b82f6;color:#fff}
-  .btn-primary:hover{background:#2563eb}
-  .btn-warning{background:#f59e0b;color:#000}
-  .btn-warning:hover{background:#d97706}
-  .info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:10px}
-  .info-card{background:#0f172a;border-radius:10px;padding:12px;border-left:3px solid}
-  .info-card.c1{border-color:#3b82f6}
-  .info-card.c2{border-color:#22c55e}
-  .info-card.c3{border-color:#a78bfa}
-  .info-card h3{font-size:.85rem;font-weight:700;margin-bottom:6px}
-  .info-card p{font-size:.78rem;color:#94a3b8;line-height:1.5}
-  .tooltip{position:absolute;background:#1e293b;border:1px solid #3b82f6;border-radius:8px;padding:6px 10px;font-size:.75rem;color:#e2e8f0;pointer-events:none;opacity:0;transition:opacity .2s;white-space:nowrap;z-index:10}
-  @media(max-width:600px){header h1{font-size:1.1rem}.tabs{gap:5px}.tab{padding:6px 10px;font-size:.78rem}}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 100%);min-height:100vh;color:#1e293b}
+.title-bar{background:linear-gradient(90deg,#3b82f6,#6366f1);padding:12px 16px;text-align:center;box-shadow:0 4px 15px rgba(59,130,246,0.4)}
+.title-bar h1{color:#fff;font-size:1.1rem;font-weight:700;letter-spacing:0.5px}
+.title-bar p{color:#bfdbfe;font-size:0.75rem;margin-top:2px}
+.container{max-width:800px;margin:0 auto;padding:12px}
+.card{background:#fff;border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 8px 25px rgba(0,0,0,0.2)}
+.card h2{font-size:1rem;font-weight:700;margin-bottom:10px;color:#1e293b}
+.formula-box{background:linear-gradient(135deg,#eff6ff,#dbeafe);border:2px solid #3b82f6;border-radius:12px;padding:12px;text-align:center;margin-bottom:12px}
+.formula-box .formula{font-size:1.1rem;font-weight:700;color:#1d4ed8;font-family:monospace}
+.formula-box .sub{font-size:0.75rem;color:#3b82f6;margin-top:4px}
+.types-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.type-card{border-radius:10px;padding:10px;text-align:center;cursor:pointer;transition:all 0.3s;border:2px solid transparent}
+.type-card:hover{transform:translateY(-2px)}
+.type-card.consistent{background:#dcfce7;border-color:#22c55e}
+.type-card.inconsistent{background:#fee2e2;border-color:#ef4444}
+.type-card.dependent{background:#fef3c7;border-color:#f59e0b}
+.type-card h3{font-size:0.75rem;font-weight:700;margin-bottom:4px}
+.type-card p{font-size:0.65rem;color:#475569}
+.type-card .badge{font-size:0.6rem;padding:2px 6px;border-radius:20px;display:inline-block;margin-top:4px;font-weight:600}
+.badge-green{background:#22c55e;color:#fff}
+.badge-red{background:#ef4444;color:#fff}
+.badge-amber{background:#f59e0b;color:#fff}
+canvas{display:block;border-radius:12px;background:#f8fafc;border:2px solid #e2e8f0;cursor:crosshair}
+.controls{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;align-items:center}
+.eq-input{flex:1;min-width:140px}
+.eq-input label{font-size:0.7rem;font-weight:600;color:#475569;display:block;margin-bottom:3px}
+.eq-row{display:flex;gap:4px;align-items:center}
+.eq-row input{width:42px;padding:4px 6px;border:2px solid #e2e8f0;border-radius:6px;font-size:0.85rem;text-align:center;font-weight:600;transition:border 0.2s}
+.eq-row input:focus{outline:none;border-color:#3b82f6}
+.eq-row span{font-size:0.85rem;font-weight:600;color:#475569}
+.btn{padding:7px 14px;border:none;border-radius:8px;font-size:0.8rem;font-weight:600;cursor:pointer;transition:all 0.2s}
+.btn-primary{background:#3b82f6;color:#fff}
+.btn-primary:hover{background:#2563eb;transform:translateY(-1px)}
+.btn-secondary{background:#f1f5f9;color:#475569}
+.btn-secondary:hover{background:#e2e8f0}
+.result-box{border-radius:10px;padding:10px;margin-top:10px;font-size:0.85rem;transition:all 0.4s;display:none}
+.result-box.show{display:block;animation:fadeIn 0.4s}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+.result-consistent{background:#dcfce7;border:2px solid #22c55e;color:#166534}
+.result-inconsistent{background:#fee2e2;border:2px solid #ef4444;color:#991b1b}
+.result-dependent{background:#fef3c7;border:2px solid #f59e0b;color:#92400e}
+.steps-container{margin-top:10px}
+.step{background:#f8fafc;border-left:4px solid #3b82f6;border-radius:0 8px 8px 0;padding:10px;margin-bottom:8px;display:none;animation:slideIn 0.3s}
+.step.show{display:block}
+@keyframes slideIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+.step-num{background:#3b82f6;color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;margin-right:6px}
+.step h4{font-size:0.82rem;font-weight:700;color:#1e293b;display:flex;align-items:center;margin-bottom:4px}
+.step p{font-size:0.78rem;color:#475569;padding-left:28px}
+.step .math{font-family:monospace;color:#3b82f6;font-weight:600}
+.reveal-btn{width:100%;padding:8px;border:2px dashed #3b82f6;border-radius:8px;background:transparent;color:#3b82f6;font-size:0.82rem;font-weight:600;cursor:pointer;transition:all 0.2s;margin-top:4px}
+.reveal-btn:hover{background:#eff6ff}
+.tooltip{position:relative;display:inline-block}
+.tooltip:hover .tip{display:block}
+.tip{display:none;position:absolute;bottom:120%;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:5px 8px;border-radius:6px;font-size:0.65rem;white-space:nowrap;z-index:10}
+.ratio-display{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.ratio-item{background:#f1f5f9;border-radius:8px;padding:6px 10px;font-size:0.75rem;font-family:monospace;font-weight:600;color:#1e293b;text-align:center}
+.ratio-item span{display:block;color:#64748b;font-size:0.6rem;font-weight:400}
+.canvas-wrap{position:relative}
+.canvas-info{position:absolute;top:8px;right:8px;background:rgba(255,255,255,0.9);border-radius:8px;padding:6px 10px;font-size:0.68rem;color:#475569;pointer-events:none}
+.legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:0.72rem;color:#475569}
+.legend-dot{width:12px;height:3px;border-radius:2px}
+.hindi{font-size:0.65rem;color:#6366f1;font-weight:600}
+select{padding:5px 8px;border:2px solid #e2e8f0;border-radius:8px;font-size:0.8rem;background:#fff;color:#1e293b;cursor:pointer}
+select:focus{outline:none;border-color:#3b82f6}
+.example-tabs{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.tab{padding:5px 12px;border-radius:20px;border:2px solid #e2e8f0;background:#fff;font-size:0.75rem;font-weight:600;cursor:pointer;transition:all 0.2s;color:#475569}
+.tab.active{background:#3b82f6;color:#fff;border-color:#3b82f6}
 </style>
 </head>
 <body>
-<header>
-  <h1>📐 Pair of Linear Equations — Graphical Method</h1>
-  <p>CBSE Class 10 Mathematics | Chapter 3</p>
-  <span class="badge">Interactive Visual Explainer</span>
-</header>
-
-<div class="container">
-
-  <!-- Formula Card -->
-  <div class="card">
-    <h2>📌 Key Formula <span class="hindi">(मुख्य सूत्र)</span></h2>
-    <div class="formula-box">
-      <div>General Form: <span>a₁x + b₁y + c₁ = 0</span> &nbsp;and&nbsp; <span>a₂x + b₂y + c₂ = 0</span></div>
-      <div style="margin-top:8px;font-size:.85rem;color:#64748b">
-        Intersecting: <span>a₁/a₂ ≠ b₁/b₂</span> &nbsp;|&nbsp;
-        Parallel: <span>a₁/a₂ = b₁/b₂ ≠ c₁/c₂</span> &nbsp;|&nbsp;
-        Coincident: <span>a₁/a₂ = b₁/b₂ = c₁/c₂</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Interactive Graph -->
-  <div class="card">
-    <h2>🎨 Interactive Graph <span class="hindi">(इंटरएक्टिव ग्राफ)</span></h2>
-    <div class="tabs">
-      <button class="tab active" onclick="setPreset('intersect')">✂️ Intersecting</button>
-      <button class="tab" onclick="setPreset('parallel')">↔️ Parallel</button>
-      <button class="tab" onclick="setPreset('coincident')">🔗 Coincident</button>
-      <button class="tab" onclick="setPreset('custom')">🎛️ Custom</button>
-    </div>
-    <div id="graph-container">
-      <canvas id="gc" width="800" height="500"></canvas>
-      <div id="tooltip" class="tooltip"></div>
-    </div>
-    <div class="legend">
-      <div class="leg-item"><div class="leg-dot" style="background:#3b82f6"></div> Line 1 (रेखा १)</div>
-      <div class="leg-item"><div class="leg-dot" style="background:#22c55e"></div> Line 2 (रेखा २)</div>
-      <div class="leg-item"><div class="leg-dot" style="background:#f59e0b;width:10px;height:10px;border-radius:50%"></div> Intersection (प्रतिच्छेद)</div>
-    </div>
-    <div class="controls">
-      <div class="ctrl-group">
-        <div class="eq-label" id="eq1-label">Line 1: y = 1x + 0</div>
-        <label>Slope (m₁): <span id="sv1">1</span></label>
-        <input type="range" id="s1" min="-4" max="4" step=".5" value="1" oninput="updateGraph()">
-        <label style="margin-top:6px">Intercept (c₁): <span id="sv2">0</span></label>
-        <input type="range" id="c1" min="-6" max="6" step="1" value="0" oninput="updateGraph()">
-      </div>
-      <div class="ctrl-group">
-        <div class="eq-label" id="eq2-label" style="color:#86efac">Line 2: y = -1x + 4</div>
-        <label>Slope (m₂): <span id="sv3">-1</span></label>
-        <input type="range" id="s2" min="-4" max="4" step=".5" value="-1" oninput="updateGraph()">
-        <label style="margin-top:6px">Intercept (c₂): <span id="sv4">4</span></label>
-        <input type="range" id="c2" min="-6" max="6" step="1" value="4" oninput="updateGraph()">
-      </div>
-    </div>
-    <div id="result-box" class="result-box res-intersect">⬛ Loading...</div>
-  </div>
-
-  <!-- Type Info -->
-  <div class="card">
-    <h2>📊 Types of Solutions <span class="hindi">(हल के प्रकार)</span></h2>
-    <div class="info-grid">
-      <div class="info-card c1">
-        <h3 style="color:#60a5fa">✂️ Intersecting Lines</h3>
-        <p><strong>Condition:</strong> a₁/a₂ ≠ b₁/b₂<br>
-        <strong>Solution:</strong> Unique (एकमात्र हल)<br>
-        <strong>Graph:</strong> Lines cross at one point<br>
-        <span class="hindi">Consistent system (संगत)</span></p>
-      </div>
-      <div class="info-card c2">
-        <h3 style="color:#4ade80">↔️ Parallel Lines</h3>
-        <p><strong>Condition:</strong> a₁/a₂ = b₁/b₂ ≠ c₁/c₂<br>
-        <strong>Solution:</strong> No solution (कोई हल नहीं)<br>
-        <strong>Graph:</strong> Lines never meet<br>
-        <span class="hindi">Inconsistent system (असंगत)</span></p>
-      </div>
-      <div class="info-card c3">
-        <h3 style="color:#c4b5fd">🔗 Coincident Lines</h3>
-        <p><strong>Condition:</strong> a₁/a₂ = b₁/b₂ = c₁/c₂<br>
-        <strong>Solution:</strong> Infinite (अनंत हल)<br>
-        <strong>Graph:</strong> Lines overlap completely<br>
-        <span class="hindi">Dependent system (आश्रित)</span></p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Step-by-Step -->
-  <div class="card">
-    <h2>🪜 Step-by-Step Walkthrough <span class="hindi">(चरण-दर-चरण)</span></h2>
-    <p style="font-size:.83rem;color:#64748b;margin-bottom:12px">Worked Example: Solve x + 2y = 4 and 3x + y = 7 graphically</p>
-    <div id="steps-container" class="steps"></div>
-    <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
-      <button class="btn btn-primary" onclick="nextStep()">▶ Next Step</button>
-      <button class="btn btn-warning" onclick="resetSteps()">↺ Reset</button>
-    </div>
-  </div>
-
-  <!-- Worked Example -->
-  <div class="card">
-    <h2>📝 Worked Example <span class="hindi">(हल किया गया उदाहरण)</span></h2>
-    <div class="worked">
-      <p><strong style="color:#f59e0b">Problem:</strong> Solve graphically: x − 2y = 0 and 3x + 4y = 20</p>
-      <div class="highlight">Equation 1: x − 2y = 0 → y = x/2</div>
-      <p style="margin:6px 0">Make a table for Eq 1 (y = x/2):</p>
-      <div class="highlight">x = 0 → y = 0 &nbsp;|&nbsp; x = 2 → y = 1 &nbsp;|&nbsp; x = 4 → y = 2</div>
-      <div class="highlight">Equation 2: 3x + 4y = 20 → y = (20−3x)/4</div>
-      <p style="margin:6px 0">Make a table for Eq 2:</p>
-      <div class="highlight">x = 0 → y = 5 &nbsp;|&nbsp; x = 4 → y = 2 &nbsp;|&nbsp; x = 8 → y = −1</div>
-      <p style="margin-top:8px">Plot both lines. They intersect at <strong style="color:#22c55e">(4, 2)</strong>.</p>
-      <div class="highlight">∴ Solution: x = 4, y = 2 ✓</div>
-      <p style="margin-top:6px;font-size:.8rem;color:#64748b">Verification: 4−2(2)=0 ✓ and 3(4)+4(2)=12+8=20 ✓</p>
-    </div>
-    <svg id="worked-svg" width="100%" viewBox="0 0 400 260" style="margin-top:14px;border-radius:10px;background:#0f172a;border:1px solid #334155"></svg>
-  </div>
-
-  <!-- SVG Diagram -->
-  <div class="card">
-    <h2>🖼️ Visual Summary <span class="hindi">(दृश्य सारांश)</span></h2>
-    <svg viewBox="0 0 600 160" width="100%" style="border-radius:10px;background:#0f172a;border:1px solid #334155">
-      <!-- Intersecting -->
-      <g transform="translate(10,10)">
-        <rect width="180" height="140" rx="8" fill="#1e293b" stroke="#3b82f6" stroke-width="1.5"/>
-        <text x="90" y="18" text-anchor="middle" fill="#60a5fa" font-size="11" font-weight="bold">Intersecting</text>
-        <line x1="20" y1="110" x2="160" y2="30" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round"/>
-        <line x1="20" y1="35" x2="160" y2="115" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round"/>
-        <circle cx="90" cy="72" r="6" fill="#f59e0b"/>
-        <text x="100" y="68" fill="#fcd34d" font-size="9">(x,y)</text>
-        <text x="90" y="135" text-anchor="middle" fill="#64748b" font-size="9">1 Solution (एक हल)</text>
-      </g>
-      <!-- Parallel -->
-      <g transform="translate(210,10)">
-        <rect width="180" height="140" rx="8" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5"/>
-        <text x="90" y="18" text-anchor="middle" fill="#fcd34d" font-size="11" font-weight="bold">Parallel</text>
-        <line x1="20" y1="55" x2="160" y2="55" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round"/>
-        <line x1="20" y1="90" x2="160" y2="90" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round"/>
-        <text x="165" y="59" fill="#3b82f6" font-size="9">L₁</text>
-        <text x="165" y="94" fill="#22c55e" font-size="9">L₂</text>
-        <text x="90" y="135" text-anchor="middle" fill="#64748b" font-size="9">No Solution (कोई हल नहीं)</text>
-      </g>
-      <!-- Coincident -->
-      <g transform="translate(410,10)">
-        <rect width="175" height="140" rx="8" fill="#1e293b" stroke="#a78bfa" stroke-width="1.5"/>
-        <text x="87" y="18" text-anchor="middle" fill="#c4b5fd" font-size="11" font-weight="bold">Coincident</text>
-        <line x1="20" y1="110" x2="155" y2="30" stroke="#3b82f6" stroke-width="5" stroke-linecap="round" opacity=".7"/>
-        <line x1="20" y1="110" x2="155" y2="30" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-dasharray="5,4"/>
-        <text x="87" y="135" text-anchor="middle" fill="#64748b" font-size="9">∞ Solutions (अनंत हल)</text>
-      </g>
-    </svg>
-  </div>
-
+<div class="title-bar">
+<h1>📈 Graphical Method — द्विघात समीकरण युग्म</h1>
+<p>Pair of Linear Equations in Two Variables | CBSE Class 10 Math</p>
 </div>
-
+<div class="container">
+<div class="card">
+<h2>🔑 Core Concept <span class="hindi">(मुख्य अवधारणा)</span></h2>
+<div class="formula-box">
+<div class="formula">a₁x + b₁y + c₁ = 0</div>
+<div class="formula">a₂x + b₂y + c₂ = 0</div>
+<div class="sub">दो रेखाओं का प्रतिच्छेदन बिंदु ही हल है | The intersection point of two lines is the solution</div>
+</div>
+<div class="types-grid">
+<div class="type-card consistent" onclick="loadExample('consistent')">
+<h3>✅ Consistent</h3>
+<p>Lines Intersect<br>at ONE point</p>
+<p class="math" style="font-size:0.7rem;margin-top:4px;font-family:monospace;color:#166534">a₁/a₂ ≠ b₁/b₂</p>
+<span class="badge badge-green">Unique Solution</span>
+</div>
+<div class="type-card inconsistent" onclick="loadExample('inconsistent')">
+<h3>❌ Inconsistent</h3>
+<p>Lines are<br>Parallel</p>
+<p class="math" style="font-size:0.7rem;margin-top:4px;font-family:monospace;color:#991b1b">a₁/a₂ = b₁/b₂ ≠ c₁/c₂</p>
+<span class="badge badge-red">No Solution</span>
+</div>
+<div class="type-card dependent" onclick="loadExample('dependent')">
+<h3>♾️ Dependent</h3>
+<p>Lines Coincide<br>(Same line)</p>
+<p class="math" style="font-size:0.7rem;margin-top:4px;font-family:monospace;color:#92400e">a₁/a₂ = b₁/b₂ = c₁/c₂</p>
+<span class="badge badge-amber">Infinite Solutions</span>
+</div>
+</div>
+</div>
+<div class="card">
+<h2>🎮 Interactive Graph <span class="hindi">(इंटरैक्टिव ग्राफ)</span></h2>
+<div class="controls">
+<div class="eq-input">
+<label>📏 Equation 1 (Blue Line)</label>
+<div class="eq-row">
+<input type="number" id="a1" value="1" step="1">
+<span>x +</span>
+<input type="number" id="b1" value="-1" step="1">
+<span>y =</span>
+<input type="number" id="c1" value="1" step="1">
+</div>
+</div>
+<div class="eq-input">
+<label>📏 Equation 2 (Red Line)</label>
+<div class="eq-row">
+<input type="number" id="a2" value="2" step="1">
+<span>x +</span>
+<input type="number" id="b2" value="1" step="1">
+<span>y =</span>
+<input type="number" id="c2" value="8" step="1">
+</div>
+</div>
+</div>
+<div class="controls">
+<button class="btn btn-primary" onclick="drawGraph()">▶ Plot Graph</button>
+<button class="btn btn-secondary" onclick="resetAll()">↺ Reset</button>
+<select id="zoomSel" onchange="drawGraph()">
+<option value="5">Zoom: ±5</option>
+<option value="10" selected>Zoom: ±10</option>
+<option value="15">Zoom: ±15</option>
+</select>
+</div>
+<div class="canvas-wrap">
+<canvas id="graphCanvas" width="400" height="320"></canvas>
+<div class="canvas-info" id="canvasInfo">Hover over graph</div>
+</div>
+<div class="legend">
+<div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div> Equation 1</div>
+<div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div> Equation 2</div>
+<div class="legend-item"><div class="legend-dot" style="background:#22c55e;width:10px;height:10px;border-radius:50%"></div> Intersection / Solution</div>
+</div>
+<div id="resultBox" class="result-box"></div>
+<div id="ratioDisplay" class="ratio-display"></div>
+</div>
+<div class="card">
+<h2>📚 Worked Examples <span class="hindi">(हल किए उदाहरण)</span></h2>
+<div class="example-tabs">
+<div class="tab active" onclick="selectExample(0)">Example 1</div>
+<div class="tab" onclick="selectExample(1)">Example 2</div>
+<div class="tab" onclick="selectExample(2)">Example 3</div>
+</div>
+<div id="exampleContent"></div>
+<button class="reveal-btn" id="revealBtn" onclick="revealNextStep()">👁 Reveal Next Step</button>
+</div>
+</div>
 <script>
-const canvas = document.getElementById('gc');
-const ctx = canvas.getContext('2d');
-const tooltip = document.getElementById('tooltip');
-let W = 800, H = 500, SCALE = 40, OX, OY;
-
-function setupCoords(){OX=W/2;OY=H/2;}
-setupCoords();
-
-function toCanvas(x,y){return{cx:OX+x*SCALE,cy:OY-y*SCALE};}
-function toWorld(cx,cy){return{x:(cx-OX)/SCALE,y:(OY-cy)/SCALE};}
-
+const examples=[
+{title:"Find solution: x − y = 1 and 2x + y = 8",eq:{a1:1,b1:-1,c1:1,a2:2,b2:1,c2:8},steps:[
+{h:"Step 1: Write in slope-intercept form",p:"Eq1: x − y = 1 → y = x − 1\nEq2: 2x + y = 8 → y = 8 − 2x"},
+{h:"Step 2: Make a table of values for Eq1 (y = x − 1)",p:"x = 0 → y = −1 | x = 2 → y = 1 | x = 4 → y = 3\nPlot points (0,−1), (2,1), (4,3) and draw line"},
+{h:"Step 3: Make a table of values for Eq2 (y = 8 − 2x)",p:"x = 0 → y = 8 | x = 2 → y = 4 | x = 4 → y = 0\nPlot points (0,8), (2,4), (4,0) and draw line"},
+{h:"Step 4: Find intersection point",p:"From graph, lines meet at (3, 2)\n∴ x = 3, y = 2 is the solution"},
+{h:"Step 5: Verify the solution ✅",p:"Eq1: 3 − 2 = 1 ✓\nEq2: 2(3) + 2 = 8 ✓\n∴ Solution: x = 3, y = 2"}
+]},
+{title:"Show lines are parallel: 2x + y = 5 and 4x + 2y = 10",eq:{a1:2,b1:1,c1:5,a2:4,b2:2,c2:10},steps:[
+{h:"Step 1: Check the ratios",p:"a₁/a₂ = 2/4 = 1/2\nb₁/b₂ = 1/2\nc₁/c₂ = 5/10 = 1/2"},
+{h:"Step 2: Compare ratios",p:"a₁/a₂ = b₁/b₂ = c₁/c₂ = 1/2\n∵ All three ratios are equal..."},
+{h:"Step 3: Conclusion",p:"The lines are COINCIDENT (same line)\n∴ Infinitely many solutions!\nThis is a DEPENDENT (consistent) system"}
+]},
+{title:"Parallel lines: x + 2y = 4 and 2x + 4y = 12",eq:{a1:1,b1:2,c1:4,a2:2,b2:4,c2:12},steps:[
+{h:"Step 1: Find the ratios",p:"a₁/a₂ = 1/2\nb₁/b₂ = 2/4 = 1/2\nc₁/c₂ = 4/12 = 1/3"},
+{h:"Step 2: Compare ratios",p:"a₁/a₂ = b₁/b₂ = 1/2\nBUT c₁/c₂ = 1/3 ≠ 1/2"},
+{h:"Step 3: Graph observation",p:"Lines are parallel — they NEVER meet!\n∴ NO solution exists"},
+{h:"Step 4: Conclusion ❌",p:"∵ a₁/a₂ = b₁/b₂ ≠ c₁/c₂\n∴ The system is INCONSISTENT\n∴ No solution (parallel lines)"}
+]}
+];
+let curExample=0,curStep=0;
+function selectExample(i){
+curExample=i;curStep=0;
+document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',i===j));
+renderExample();
+const e=examples[i].eq;
+['a1','b1','c1','a2','b2','c2'].forEach(k=>document.getElementById(k).value=e[k]);
+drawGraph();
+}
+function renderExample(){
+const ex=examples[curExample];
+let html=`<div style="background:#eff6ff;border-radius:10px;padding:10px;margin-bottom:10px;font-size:0.82rem;font-weight:600;color:#1d4ed8">❓ ${ex.title}</div>`;
+document.getElementById('exampleContent').innerHTML=html;
+document.querySelectorAll('.step').forEach(s=>s.remove());
+curStep=0;
+document.getElementById('revealBtn').textContent='👁 Reveal Next Step';
+}
+function revealNextStep(){
+const ex=examples[curExample];
+if(curStep>=ex.steps.length){document.getElementById('revealBtn').textContent='✅ All Steps Revealed!';return;}
+const s=ex.steps[curStep];
+const div=document.createElement('div');
+div.className='step show';
+const lines=s.p.split('\n').map(l=>`<div class="math">${l}</div>`).join('');
+div.innerHTML=`<h4><span class="step-num">${curStep+1}</span>${s.h}</h4><p>${lines}</p>`;
+document.getElementById('exampleContent').appendChild(div);
+curStep++;
+if(curStep>=ex.steps.length)document.getElementById('revealBtn').textContent='✅ All Steps Revealed!';
+else document.getElementById('revealBtn').textContent=`👁 Reveal Step ${curStep+1}`;
+}
+function loadExample(type){
+if(type==='consistent'){document.getElementById('a1').value=1;document.getElementById('b1').value=-1;document.getElementById('c1').value=1;document.getElementById('a2').value=2;document.getElementById('b2').value=1;document.getElementById('c2').value=8;}
+else if(type==='inconsistent'){document.getElementById('a1').value=1;document.getElementById('b1').value=2;document.getElementById('c1').value=4;document.getElementById('a2').value=2;document.getElementById('b2').value=4;document.getElementById('c2').value=12;}
+else{document.getElementById('a1').value=2;document.getElementById('b1').value=1;document.getElementById('c1').value=5;document.getElementById('a2').value=4;document.getElementById('b2').value=2;document.getElementById('c2').value=10;}
+drawGraph();
+}
+function getVals(){
+return{a1:parseFloat(document.getElementById('a1').value)||0,b1:parseFloat(document.getElementById('b1').value)||0,c1:parseFloat(document.getElementById('c1').value)||0,a2:parseFloat(document.getElementById('a2').value)||0,b2:parseFloat(document.getElementById('b2').value)||0,c2:parseFloat(document.getElementById('c2').value)||0};
+}
+function getY(a,b,c,x){if(b===0)return null;return(c-a*x)/b;}
+function solveSystem(v){
+const det=v.a1*v.b2-v.a2*v.b1;
+if(Math.abs(det)<1e-10)return null;
+return{x:(v.c1*v.b2-v.c2*v.b1)/det,y:(v.a1*v.c2-v.a2*v.c1)/det};
+}
+function classifySystem(v){
+const r1=v.b2!==0?v.a1/v.a2:null,r2=v.b2!==0?v.b1/v.b2:null,r3=v.c2!==0?v.c1/v.c2:null;
+const det=v.a1*v.b2-v.a2*v.b1;
+if(Math.abs(det)>1e-10)return'consistent';
+if(Math.abs(v.a1*v.c2-v.a2*v.c1)<1e-10&&Math.abs(v.b1*v.c2-v.b2*v.c1)<1e-10)return'dependent';
+return'inconsistent';
+}
+let animFrame=null;
 function drawGraph(){
-  ctx.clearRect(0,0,W,H);
-  // Background
-  ctx.fillStyle='#0f172a';ctx.fillRect(0,0,W,H);
-  // Grid
-  ctx.strokeStyle='#1e293b';ctx.lineWidth=1;
-  for(let i=-20;i<=20;i++){
-    let p=toCanvas(i,0);
-    ctx.beginPath();ctx.moveTo(p.cx,0);ctx.lineTo(p.cx,H);ctx.stroke();
-    p=toCanvas(0,i);
-    ctx.beginPath();ctx.moveTo(0,p.cy);ctx.lineTo(W,p.cy);ctx.stroke();
-  }
-  // Axes
-  ctx.strokeStyle='#334155';ctx.lineWidth=2;
-  ctx.beginPath();ctx.moveTo(0,OY);ctx.lineTo(W,OY);ctx.stroke();
-  ctx.beginPath();ctx.moveTo(OX,0);ctx.lineTo(OX,H);ctx.stroke();
-  // Axis labels
-  ctx.fillStyle='#475569';ctx.font='12px Segoe UI';ctx.textAlign='center';
-  for(let i=-10;i<=10;i++){
-    if(i===0)continue;
-    let p=toCanvas(i,0);
-    if(p.cx>10&&p.cx<W-10){ctx.fillText(i,p.cx,OY+16);}
-    p=toCanvas(0,i);
-    if(p.cy>10&&p.cy<H-10){ctx.textAlign='right';ctx.fillText(i,OX-6,p.cy+4);}
-  }
-  ctx.textAlign='center';
-  ctx.fillStyle='#64748b';ctx.font='bold 13px Segoe UI';
-  ctx.fillText('x →',W-20,OY-8);
-  ctx.fillText('y',OX+14,14);
-  ctx.fillText('O',OX+14,OY+16);
-
-  const m1=parseFloat(document.getElementById('s1').value);
-  const b1=parseFloat(document.getElementById('c1').value);
-  const m2=parseFloat(document.getElementById('s2').value);
-  const b2=parseFloat(document.getElementById('c2').value);
-
-  drawLine(m1,b1,'#3b82f6','L₁');
-  drawLine(m2,b2,'#22c55e','L₂');
-  analyzeLines(m1,b1,m2,b2);
-  updateLabels(m1,b1,m2,b2);
+const canvas=document.getElementById('graphCanvas');
+const ctx=canvas.getContext('2d');
+const W=canvas.width,H=canvas.height;
+const v=getVals();
+const zoom=parseInt(document.getElementById('zoomSel').value);
+const cx=W/2,cy=H/2;
+const scale=Math.min(W,H)/(2*zoom);
+function toScreen(x,y){return{sx:cx+x*scale,sy:cy-y*scale};}
+function fromScreen(sx,sy){return{x:(sx-cx)/scale,y:(cy-sy)/scale};}
+ctx.clearRect(0,0,W,H);
+ctx.fillStyle='#f8fafc';ctx.fillRect(0,0,W,H);
+// Grid
+ctx.strokeStyle='#e2e8f0';ctx.lineWidth=1;
+for(let i=-zoom;i<=zoom;i++){
+const {sx}=toScreen(i,0);const {sy}=toScreen(0,i);
+ctx.beginPath();ctx.moveTo(sx,0);ctx.lineTo(sx,H);ctx.stroke();
+ctx.beginPath();ctx.moveTo(0,sy);ctx.lineTo(W,sy);ctx.stroke();
 }
-
-function drawLine(m,b,color,label){
-  ctx.beginPath();ctx.strokeStyle=color;ctx.lineWidth=3;ctx.setLineDash([]);
-  let x1=-OX/SCALE, y1=m*x1+b;
-  let x2=(W-OX)/SCALE, y2=m*x2+b;
-  let p1=toCanvas(x1,y1),p2=toCanvas(x2,y2);
-  ctx.moveTo(p1.cx,p1.cy);ctx.lineTo(p2.cx,p2.cy);
-  ctx.shadowColor=color;ctx.shadowBlur=8;ctx.stroke();ctx.shadowBlur=0;
-  // Label
-  let lx=x2*0.75,ly=m*lx+b;
-  let lp=toCanvas(lx,ly);
-  if(lp.cy<20)lp.cy=22;if(lp.cy>H-20)lp.cy=H-22;
-  ctx.fillStyle=color;ctx.font='bold 13px Segoe UI';ctx.textAlign='left';
-  ctx.fillText(label,lp.cx+6,lp.cy-6);
+// Axes
+ctx.strokeStyle='#94a3b8';ctx.lineWidth=2;
+const ox=toScreen(0,0);
+ctx.beginPath();ctx.moveTo(0,ox.sy);ctx.lineTo(W,ox.sy);ctx.stroke();
+ctx.beginPath();ctx.moveTo(ox.sx,0);ctx.lineTo(ox.sx,H);ctx.stroke();
+// Axis labels
+ctx.fillStyle='#94a3b8';ctx.font='9px Arial';ctx.textAlign='center';
+for(let i=-zoom+1;i<=zoom-1;i+=Math.ceil(zoom/5)){
+if(i===0)continue;
+const {sx}=toScreen(i,0);ctx.fillText(i,sx,ox.sy+12);
+const {sy}=toScreen(0,i);ctx.fillText(i,ox.sx-14,sy+3);
 }
-
-function analyzeLines(m1,b1,m2,b2){
-  const rb=document.getElementById('result-box');
-  rb.className='result-box';
-  const eps=0.001;
-  if(Math.abs(m1-m2)<eps && Math.abs(b1-b2)<eps){
-    // Coincident
-    rb.classList.add('res-coincident');
-    rb.innerHTML='🔗 Coincident Lines (संपाती रेखाएँ) — Infinite Solutions (अनंत हल) | a₁/a₂ = b₁/b₂ = c₁/c₂';
-    // Draw dashed overlay
-    ctx.beginPath();ctx.strokeStyle='#a78bfa';ctx.lineWidth=2;ctx.setLineDash([8,6]);
-    let x1=-OX/SCALE,y1=m1*x1+b1,x2=(W-OX)/SCALE,y2=m1*x2+b1;
-    let p1=toCanvas(x1,y1),p2=toCanvas(x2,y2);
-    ctx.moveTo(p1.cx,p1.cy);ctx.lineTo(p2.cx,p2.cy);ctx.stroke();ctx.setLineDash([]);
-  } else if(Math.abs(m1-m2)<eps){
-    // Parallel
-    rb.classList.add('res-parallel');
-    rb.innerHTML='↔️ Parallel Lines (समान्तर रेखाएँ) — No Solution (कोई हल नहीं) | a₁/a₂ = b₁/b₂ ≠ c₁/c₂';
-  } else {
-    // Intersecting
-    let ix=(b2-b1)/(m1-m2), iy=m1*ix+b1;
-    let pt=toCanvas(ix,iy);
-    // Draw intersection point
-    ctx.beginPath();ctx.arc(pt.cx,pt.cy,8,0,Math.PI*2);
-    ctx.fillStyle='#f59e0b';ctx.shadowColor='#f59e0b';ctx.shadowBlur=15;ctx.fill();ctx.shadowBlur=0;
-    ctx.fillStyle='#0f172a';ctx.beginPath();ctx.arc(pt.cx,pt.cy,4,0,Math.PI*2);ctx.fill();
-    // Coord label
-    ctx.fillStyle='#fcd34d';ctx.font='bold 12px Segoe UI';ctx.textAlign='left';
-    let tx=pt.cx+10, ty=pt.cy-10;
-    if(tx>W-80)tx=pt.cx-80;if(ty<14)ty=pt.cy+20;
-    ctx.fillText(`(${ix.toFixed(2)}, ${iy.toFixed(2)})`,tx,ty);
-    rb.classList.add('res-intersect');
-    rb.innerHTML=`✂️ Intersecting (प्रतिच्छेदी रेखाएँ) — Unique Solution: x = ${ix.toFixed(2)}, y = ${iy.toFixed(2)} | a₁/a₂ ≠ b₁/b₂`;
-  }
+ctx.fillStyle='#64748b';ctx.font='bold 10px Arial';
+ctx.fillText('x',W-8,ox.sy-4);ctx.fillText('y',ox.sx+5,8);
+ctx.fillText('O',ox.sx-12,ox.sy+12);
+// Draw lines
+function drawLine(a,b,c,color){
+ctx.strokeStyle=color;ctx.lineWidth=2.5;
+ctx.setLineDash([]);
+ctx.beginPath();
+let started=false;
+for(let sx=0;sx<=W;sx+=2){
+const {x,y}=fromScreen(sx,0);
+let py;
+if(b!==0){py=(c-a*x)/b;}
+else if(a!==0){
+const fixedX=c/a;
+const {sx:fx}=toScreen(fixedX,0);
+ctx.moveTo(fx,0);ctx.lineTo(fx,H);
+ctx.stroke();return;
+}else return;
+const {sy}=toScreen(x,py);
+if(!started){ctx.moveTo(sx,sy);started=true;}else ctx.lineTo(sx,sy);
 }
-
-function updateLabels(m1,b1,m2,b2){
-  document.getElementById('sv1').textContent=m1;
-  document.getElementById('sv2').textContent=b1;
-  document.getElementById('sv3').textContent=m2;
-  document.getElementById('sv4').textContent=b2;
-  document.getElementById('eq1-label').textContent=`Line 1: y = ${m1}x ${b1>=0?'+':''}${b1}`;
-  document.getElementById('eq2-label').textContent=`Line 2: y = ${m2}x ${b2>=0?'+':''}${b2}`;
+ctx.stroke();
 }
-
-function updateGraph(){drawGraph();}
-
-function setPreset(type){
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  event.target.classList.add('active');
-  if(type==='intersect'){setVals(1,0,-1,4);}
-  else if(type==='parallel'){setVals(2,1,2,-2);}
-  else if(type==='coincident'){setVals(1,2,1,2);}
-  drawGraph();
+drawLine(v.a1,v.b1,v.c1,'#3b82f6');
+drawLine(v.a2,v.b2,v.c2,'#ef4444');
+// Labels for lines
+function labelLine(a,b,c,color,offset){
+if(b!==0){
+const midX=zoom*0.5;const midY=(c-a*midX)/b;
+const {sx,sy}=toScreen(midX,midY);
+ctx.fillStyle=color;ctx.font='bold 10px Arial';ctx.textAlign='left';
+ctx.fillText(`L${offset===1?'1':'2'}`,Math.min(sx+5,W-20),Math.max(sy-5,12));
 }
-
-function setVals(m1,b1,m2,b2){
-  document.getElementById('s1').value=m1;
-  document.getElementById('c1').value=b1;
-  document.getElementById('s2').value=m2;
-  document.getElementById('c2').value=b2;
 }
-
-// Tooltip on hover
+labelLine(v.a1,v.b1,v.c1,'#3b82f6',1);
+labelLine(v.a2,v.b2,v.c2,'#ef4444',2);
+const cls=classifySystem(v);
+const sol=solveSystem(v);
+if(sol){
+const {sx,sy}=toScreen(sol.x,sol.y);
+if(sx>0&&sx<W&&sy>0&&sy<H){
+ctx.beginPath();ctx.arc(sx,sy,7,0,Math.PI*2);ctx.fillStyle='#22c55e';ctx.fill();
+ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();
+ctx.fillStyle='#166534';ctx.font='bold 10px Arial';ctx.textAlign='left';
+const lx=sol.x>=0?sx+10:sx-50;
+ctx.fillText(`(${sol.x.toFixed(1)},${sol.y.toFixed(1)})`,lx,sy-8);
+}
+}
+// Result
+const rb=document.getElementById('resultBox');
+rb.className='result-box show';
+const a1r=v.a2!==0?fractionStr(v.a1,v.a2):'∞';
+const b1r=v.b2!==0?fractionStr(v.b1,v.b2):'∞';
+const c1r=v.c2!==0?fractionStr(v.c1,v.c2):'∞';
+if(cls==='consistent'&&sol){
+rb.className='result-box show result-consistent';
+rb.innerHTML=`✅ <strong>Consistent System</strong> — Unique Solution<br>∴ x = <strong>${sol.x.toFixed(2)}</strong>, y = <strong>${sol.y.toFixed(2)}</strong><br><small>Lines intersect at one point | एक बिंदु पर प्रतिच्छेद करती हैं</small>`;
+}else if(cls==='dependent'){
+rb.className='result-box show result-dependent';
+rb.innerHTML=`♾️ <strong>Dependent (Consistent)</strong> — Infinitely Many Solutions<br>Lines are coincident (same line!)<br><small>रेखाएँ संपाती हैं | a₁/a₂ = b₁/b₂ = c₁/c₂</small>`;
+}else{
+rb.className='result-box show result-inconsistent';
+rb.innerHTML=`❌ <strong>Inconsistent System</strong> — No Solution<br>Lines are parallel, they never meet!<br><small>रेखाएँ समांतर हैं | a₁/a₂ = b₁/b₂ ≠ c₁/c₂</small>`;
+}
+const rd=document.getElementById('ratioDisplay');
+rd.innerHTML=`<div class="ratio-item">a₁/a₂<span>${a1r}</span></div><div class="ratio-item">b₁/b₂<span>${b1r}</span></div><div class="ratio-item">c₁/c₂<span>${c1r}</span></div>`;
+}
+function fractionStr(a,b){if(b===0)return'∞';const g=gcd(Math.abs(a),Math.abs(b));const sign=b<0?-1:1;return`${sign*a/g}/${sign*b/g}`;}
+function gcd(a,b){return b===0?a:gcd(b,a%b);}
+function resetAll(){
+document.getElementById('a1').value=1;document.getElementById('b1').value=-1;document.getElementById('c1').value=1;
+document.getElementById('a2').value=2;document.getElementById('b2').value=1;document.getElementById('c2').value=8;
+drawGraph();
+}
+// Canvas hover
+const canvas=document.getElementById('graphCanvas');
 canvas.addEventListener('mousemove',function(e){
-  const rect=canvas.getBoundingClientRect();
-  const scaleX=W/rect.width, scaleY=H/rect.height;
-  const cx=(e.clientX-rect.left)*scaleX;
-  const cy=(e.clientY-rect.top)*scaleY;
-  const w=toWorld(cx,cy);
-  tooltip.style.opacity='1';
-  tooltip.style.left=(e.clientX-rect.left+10)+'px';
-  tooltip.style.top=(e.clientY-rect.top-30)+'px';
-  tooltip.textContent=`x=${w.x.toFixed(1)}, y=${w.y.toFixed(1)}`;
+const rect=canvas.getBoundingClientRect();
+const sx=e.clientX-rect.left;const sy=e.clientY-rect.top;
+const zoom=parseInt(document.getElementById('zoomSel').value);
+const W=canvas.width,H=canvas.height,cx=W/2,cy=H/2,scale=Math.min(W,H)/(2*zoom);
+const x=(sx-cx)/scale,y=(cy-sy)/scale;
+document.getElementById('canvasInfo').textContent=`(${x.toFixed(1)}, ${y.toFixed(1)})`;
 });
-canvas.addEventListener('mouseleave',()=>tooltip.style.opacity='0');
-
-// Steps
-const stepsData=[
-  {text:`<strong>Given equations:</strong> x + 2y = 4 <span class="hindi">(समीकरण १)</span> and 3x + y = 7 <span class="hindi">(समीकरण २)</span>`},
-  {text:`<strong>Rewrite Eq 1</strong> in slope-intercept form: x + 2y = 4 → <strong>y = (4−x)/2</strong>`},
-  {text:`<strong>Table for Eq 1</strong> (y = (4−x)/2):<br>x=0 → y=2 &nbsp;|&nbsp; x=2 → y=1 &nbsp;|&nbsp; x=4 → y=0`},
-  {text:`<strong>Rewrite Eq 2</strong>: 3x + y = 7 → <strong>y = 7−3x</strong>`},
-  {text:`<strong>Table for Eq 2</strong> (y = 7−3x):<br>x=0 → y=7 &nbsp;|&nbsp; x=2 → y=
+// Resize canvas
+function resizeCanvas(){
+const c=document.getElementById('graphCanvas');
+const w=Math.min(c.parentElement.offsetWidth-4,420);
+c.width=w;c.height=Math.round(w*0.8);
+drawGraph();
+}
+window.addEventListener('resize',resizeCanvas);
+resizeCanvas();
+selectExample(0);
+drawGraph();
 </script>
 </body>
 </html>

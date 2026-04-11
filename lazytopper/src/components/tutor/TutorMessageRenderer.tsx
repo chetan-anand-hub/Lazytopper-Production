@@ -1,5 +1,7 @@
 import React, { useMemo } from "react";
 import { MathText } from "../question/MathText";
+import { VisualExplainer } from "../VisualExplainer";
+import { findVisualForConcept } from "../../data/visualConceptRegistry";
 
 export interface StructuredGoal {
   goalLine?: string;
@@ -13,6 +15,14 @@ export interface StructuredExample {
   finalAnswer?: string;
 }
 
+export interface StructuredHtmlExplainer {
+  src?: string;
+  title?: string;
+  topic?: string;
+  concept?: string;
+  subject?: string;
+}
+
 export interface StructuredSection {
   goal?: StructuredGoal;
   examLines?: string[];
@@ -20,6 +30,7 @@ export interface StructuredSection {
   checkpoint?: { question?: string; answer?: string };
   commonMistake?: string;
   commonFix?: string;
+  htmlExplainer?: StructuredHtmlExplainer;
 }
 
 interface TutorMessageRendererProps {
@@ -533,6 +544,40 @@ function WatchOutCallout({ mistake, fix }: { mistake?: string; fix?: string }) {
   );
 }
 
+function HtmlExplainerBlock({ explainer }: { explainer: StructuredHtmlExplainer }) {
+  const resolved = useMemo(() => {
+    if (explainer.src) return explainer;
+    const subject = explainer.subject || "Maths";
+    const topic = explainer.topic || "";
+    const concept = explainer.concept || "";
+    if (!topic && !concept) return null;
+    const searchTerms = [topic, concept].filter(Boolean).join(" ").split(/\s+/);
+    const match = findVisualForConcept(subject, topic, searchTerms);
+    if (match) return { ...explainer, src: match.filePath, title: explainer.title || match.title };
+    return explainer;
+  }, [explainer]);
+
+  if (!resolved) return null;
+
+  const src = resolved.src || "";
+  const dummySrc = src || "about:blank";
+
+  return (
+    <div style={{ marginBottom: 12 }}>
+      <VisualExplainer
+        src={dummySrc}
+        title={resolved.title || resolved.concept || "Visual Explainer"}
+        height={340}
+        collapsible={true}
+        defaultCollapsed={false}
+        topic={resolved.topic}
+        concept={resolved.concept}
+        subject={resolved.subject}
+      />
+    </div>
+  );
+}
+
 export function TutorMessageRenderer({ content, structured, isCheckpoint }: TutorMessageRendererProps) {
   const mdNodes = useMemo(() => parseMd(content || ""), [content]);
 
@@ -554,6 +599,9 @@ export function TutorMessageRenderer({ content, structured, isCheckpoint }: Tuto
       {structured?.goal && <GoalBanner goal={structured.goal} />}
       {structured?.examLines && structured.examLines.length > 0 && (
         <ExamLinesSection lines={structured.examLines} />
+      )}
+      {structured?.htmlExplainer && (
+        <HtmlExplainerBlock explainer={structured.htmlExplainer} />
       )}
       {structured?.workedExamples && structured.workedExamples.length > 0 && (
         structured.workedExamples.map((ex, i) => (

@@ -440,7 +440,7 @@ async function main() {
     try {
       const prompt = buildPrompt(concept);
       const raw = await callClaude(prompt);
-      const html = extractHtml(raw);
+      let html = extractHtml(raw);
 
       if (!html.includes("<html") && !html.includes("<!DOCTYPE")) {
         throw new Error("Response did not contain valid HTML");

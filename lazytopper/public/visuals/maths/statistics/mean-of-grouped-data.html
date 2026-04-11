@@ -3,305 +3,360 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mean of Grouped Data – CBSE Class 10 Maths</title>
+<title>Mean of Grouped Data - Statistics Class 10</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI',sans-serif;background:#0f0c29;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);min-height:100vh;color:#fff;padding:10px}
-h1{text-align:center;font-size:clamp(1.2rem,4vw,1.8rem);padding:15px 5px 5px;background:linear-gradient(90deg,#f7971e,#ffd200);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:800}
-.subtitle{text-align:center;color:#a0c4ff;font-size:0.85rem;margin-bottom:14px}
-.card{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:16px;padding:16px;margin:10px auto;max-width:860px}
-.tabs{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:10px auto;max-width:860px}
-.tab{padding:8px 16px;border-radius:20px;border:2px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.05);color:#ccc;cursor:pointer;font-size:0.82rem;transition:all .3s}
-.tab.active{background:linear-gradient(135deg,#f7971e,#ffd200);color:#000;border-color:transparent;font-weight:700}
-.section{display:none}.section.active{display:block}
-.formula-box{background:linear-gradient(135deg,rgba(247,151,30,0.2),rgba(255,210,0,0.1));border:2px solid #f7971e;border-radius:12px;padding:14px;text-align:center;margin:10px 0}
-.formula{font-size:clamp(1rem,3vw,1.4rem);font-weight:700;color:#ffd200;letter-spacing:1px;margin:6px 0}
-.formula-note{font-size:0.78rem;color:#a0c4ff;margin-top:6px}
-.method-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:10px 0}
-.method-card{background:rgba(255,255,255,0.06);border-radius:12px;padding:14px;border-left:4px solid}
-.m1{border-color:#4fc3f7}.m2{border-color:#81c784}.m3{border-color:#ff8a65}
-.method-title{font-weight:700;font-size:0.95rem;margin-bottom:6px}
-.method-card p{font-size:0.8rem;color:#ccc;line-height:1.5}
-table{width:100%;border-collapse:collapse;font-size:0.82rem;margin:10px 0}
-th{background:rgba(247,151,30,0.3);padding:8px 6px;text-align:center;border:1px solid rgba(255,255,255,0.15)}
-td{padding:7px 6px;text-align:center;border:1px solid rgba(255,255,255,0.1);transition:background .3s}
-tr:hover td{background:rgba(255,255,255,0.08)}
-.highlight-row td{background:rgba(247,151,30,0.2)!important;color:#ffd200;font-weight:700}
-.btn{display:inline-block;padding:10px 22px;background:linear-gradient(135deg,#f7971e,#ffd200);color:#000;border:none;border-radius:25px;cursor:pointer;font-weight:700;font-size:0.9rem;margin:6px;transition:transform .2s,box-shadow .2s}
-.btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(247,151,30,0.5)}
-.btn-outline{background:transparent;border:2px solid #f7971e;color:#f7971e}
-.btn-outline:hover{background:rgba(247,151,30,0.15)}
-.step-container{margin:10px 0}
-.step{background:rgba(255,255,255,0.05);border-radius:10px;padding:12px;margin:8px 0;border-left:3px solid #4fc3f7;opacity:0;transform:translateX(-20px);transition:all .4s;display:none}
-.step.shown{opacity:1;transform:translateX(0);display:block}
-.step-num{background:#4fc3f7;color:#000;border-radius:50%;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:0.8rem;margin-right:8px}
-.step-title{font-weight:700;color:#4fc3f7;font-size:0.9rem}
-.step p{font-size:0.82rem;color:#ddd;margin-top:6px;line-height:1.6}
-.result-box{background:linear-gradient(135deg,rgba(129,199,132,0.2),rgba(67,160,71,0.1));border:2px solid #81c784;border-radius:12px;padding:14px;text-align:center;margin:12px 0;font-size:1.1rem;font-weight:700;color:#81c784}
-svg{width:100%;overflow:visible}
-.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:0.72rem;font-weight:700;margin-left:6px}
-.badge-blue{background:rgba(79,195,247,0.3);color:#4fc3f7}
-.badge-green{background:rgba(129,199,132,0.3);color:#81c784}
-.badge-orange{background:rgba(255,138,101,0.3);color:#ff8a65}
-.slider-wrap{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:8px 0}
-.slider-wrap label{font-size:0.82rem;color:#a0c4ff;min-width:100px}
-input[type=range]{flex:1;min-width:120px;accent-color:#f7971e}
-.val-display{background:rgba(247,151,30,0.2);padding:3px 10px;border-radius:8px;font-weight:700;color:#ffd200;min-width:44px;text-align:center;font-size:0.85rem}
-.bar-label{font-size:11px;fill:#fff}
-.callout{background:rgba(160,196,255,0.1);border:1px solid #a0c4ff;border-radius:10px;padding:10px;font-size:0.8rem;color:#a0c4ff;margin:8px 0;line-height:1.6}
-.quiz-opt{display:block;padding:9px 14px;margin:6px 0;border-radius:10px;border:2px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);cursor:pointer;font-size:0.85rem;transition:all .3s;text-align:left;color:#fff;width:100%}
-.quiz-opt:hover{border-color:#f7971e;background:rgba(247,151,30,0.1)}
-.quiz-opt.correct{background:rgba(129,199,132,0.2);border-color:#81c784;color:#81c784}
-.quiz-opt.wrong{background:rgba(255,100,100,0.2);border-color:#ff6464;color:#ff6464}
-.q-feedback{font-size:0.85rem;padding:8px;border-radius:8px;margin-top:6px}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a,#1e3a5f);min-height:100vh;color:#1e293b;}
+.titlebar{background:linear-gradient(90deg,#1d4ed8,#3b82f6,#06b6d4);padding:14px 20px;text-align:center;box-shadow:0 4px 20px rgba(59,130,246,0.5);}
+.titlebar h1{color:#fff;font-size:1.2rem;font-weight:700;letter-spacing:0.5px;}
+.titlebar p{color:#bfdbfe;font-size:0.78rem;margin-top:2px;}
+.container{max-width:750px;margin:0 auto;padding:16px;}
+.card{background:#fff;border-radius:16px;padding:18px;margin-bottom:16px;box-shadow:0 8px 32px rgba(0,0,0,0.2);}
+.section-title{font-size:1rem;font-weight:700;color:#1e293b;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.badge{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border-radius:20px;padding:3px 10px;font-size:0.7rem;font-weight:600;}
+.formula-box{background:linear-gradient(135deg,#eff6ff,#dbeafe);border:2px solid #3b82f6;border-radius:12px;padding:14px;text-align:center;margin:12px 0;}
+.formula{font-size:1.1rem;font-weight:700;color:#1d4ed8;letter-spacing:1px;}
+.formula-note{font-size:0.72rem;color:#3b82f6;margin-top:6px;}
+.method-tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
+.tab-btn{flex:1;min-width:90px;padding:8px 6px;border:2px solid #e2e8f0;background:#f8fafc;border-radius:10px;font-size:0.75rem;font-weight:600;cursor:pointer;transition:all 0.3s;color:#64748b;}
+.tab-btn.active{border-color:#3b82f6;background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;transform:translateY(-2px);box-shadow:0 4px 12px rgba(59,130,246,0.4);}
+.method-panel{display:none;animation:fadeIn 0.4s ease;}
+.method-panel.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+table{width:100%;border-collapse:collapse;font-size:0.78rem;margin:10px 0;}
+th{background:linear-gradient(135deg,#1d4ed8,#3b82f6);color:#fff;padding:8px 6px;text-align:center;}
+td{padding:7px 5px;text-align:center;border-bottom:1px solid #e2e8f0;}
+tr:nth-child(even){background:#f0f9ff;}
+tr:hover td{background:#dbeafe;transition:background 0.2s;}
+.highlight-row{background:linear-gradient(90deg,#fef9c3,#fef08a)!important;font-weight:700;}
+.step-box{background:#f8fafc;border-left:4px solid #3b82f6;border-radius:0 10px 10px 0;padding:10px 14px;margin:8px 0;display:none;animation:slideIn 0.3s ease;}
+.step-box.visible{display:block;}
+@keyframes slideIn{from{opacity:0;transform:translateX(-10px);}to{opacity:1;transform:translateX(0);}}
+.step-btn{display:inline-block;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;border:none;border-radius:20px;padding:7px 18px;font-size:0.78rem;font-weight:600;cursor:pointer;transition:all 0.3s;margin:6px 4px 6px 0;}
+.step-btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(34,197,94,0.4);}
+.step-btn.amber{background:linear-gradient(135deg,#f59e0b,#d97706);}
+.result-box{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:2px solid #22c55e;border-radius:12px;padding:12px;text-align:center;margin:10px 0;display:none;}
+.result-box.visible{display:block;animation:fadeIn 0.5s ease;}
+.result-val{font-size:1.4rem;font-weight:800;color:#16a34a;}
+.interactive-section{background:linear-gradient(135deg,#fefce8,#fef9c3);border:2px solid #f59e0b;border-radius:12px;padding:16px;margin-top:10px;}
+.slider-row{display:flex;align-items:center;gap:10px;margin:8px 0;flex-wrap:wrap;}
+.slider-row label{font-size:0.75rem;font-weight:600;color:#92400e;min-width:70px;}
+input[type=range]{flex:1;min-width:100px;accent-color:#3b82f6;}
+.val-display{background:#3b82f6;color:#fff;border-radius:8px;padding:3px 10px;font-size:0.78rem;font-weight:700;min-width:42px;text-align:center;}
+.mean-display{font-size:1.1rem;font-weight:800;color:#1d4ed8;text-align:center;margin:10px 0;padding:10px;background:#eff6ff;border-radius:10px;}
+.bar-chart{display:flex;align-items:flex-end;gap:4px;height:90px;margin:12px 0;padding:4px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;}
+.bar{flex:1;border-radius:4px 4px 0 0;transition:height 0.5s ease,background 0.3s;min-height:4px;position:relative;cursor:pointer;}
+.bar:hover{filter:brightness(1.15);}
+.bar-label{font-size:0.6rem;text-align:center;color:#64748b;margin-top:4px;}
+.bar-tip{position:absolute;top:-22px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:2px 6px;border-radius:4px;font-size:0.6rem;white-space:nowrap;opacity:0;transition:opacity 0.2s;pointer-events:none;}
+.bar:hover .bar-tip{opacity:1;}
+.concept-pills{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0;}
+.pill{padding:5px 12px;border-radius:20px;font-size:0.72rem;font-weight:600;cursor:pointer;transition:all 0.3s;border:2px solid transparent;}
+.pill.blue{background:#dbeafe;color:#1d4ed8;border-color:#93c5fd;}
+.pill.green{background:#dcfce7;color:#16a34a;border-color:#86efac;}
+.pill.amber{background:#fef3c7;color:#92400e;border-color:#fcd34d;}
+.pill:hover{transform:scale(1.05);box-shadow:0 3px 10px rgba(0,0,0,0.15);}
+.tooltip-popup{display:none;background:#1e293b;color:#fff;border-radius:10px;padding:8px 12px;font-size:0.72rem;margin-top:6px;animation:fadeIn 0.3s;}
+.tooltip-popup.show{display:block;}
+.progress-bar{height:6px;background:#e2e8f0;border-radius:3px;margin:8px 0;}
+.progress-fill{height:100%;background:linear-gradient(90deg,#3b82f6,#22c55e);border-radius:3px;transition:width 0.5s ease;}
+.note{font-size:0.72rem;color:#64748b;font-style:italic;margin-top:6px;}
+.color-a{background:linear-gradient(135deg,#3b82f6,#06b6d4);}
+.color-b{background:linear-gradient(135deg,#22c55e,#16a34a);}
+.color-c{background:linear-gradient(135deg,#f59e0b,#ef4444);}
+.color-d{background:linear-gradient(135deg,#a855f7,#7c3aed);}
+.color-e{background:linear-gradient(135deg,#ec4899,#be185d);}
+.step-num{display:inline-block;background:#3b82f6;color:#fff;border-radius:50%;width:22px;height:22px;font-size:0.7rem;font-weight:700;text-align:center;line-height:22px;margin-right:6px;}
+.hindi{color:#7c3aed;font-weight:600;}
+.reset-btn{background:linear-gradient(135deg,#ef4444,#b91c1c);color:#fff;border:none;border-radius:20px;padding:6px 14px;font-size:0.73rem;font-weight:600;cursor:pointer;transition:all 0.3s;}
+.reset-btn:hover{transform:translateY(-2px);box-shadow:0 4px 10px rgba(239,68,68,0.4);}
 </style>
 </head>
 <body>
-<h1>📊 Mean of Grouped Data</h1>
-<div class="subtitle">CBSE Class 10 Mathematics · Chapter 14 · Statistics</div>
+<div class="titlebar">
+<h1>📊 Mean of Grouped Data — Statistics</h1>
+<p>CBSE Class 10 Mathematics | <span style="color:#fde68a;">समूहीकृत आँकड़ों का माध्य</span></p>
+</div>
+<div class="container">
 
-<div class="tabs">
-  <div class="tab active" onclick="showTab('intro')">📖 Concept</div>
-  <div class="tab" onclick="showTab('methods')">🔢 Methods</div>
-  <div class="tab" onclick="showTab('worked')">✏️ Worked Example</div>
-  <div class="tab" onclick="showTab('visual')">📊 Visual</div>
-  <div class="tab" onclick="showTab('quiz')">🎯 Quiz</div>
+<!-- Concept Intro -->
+<div class="card">
+<div class="section-title">🎯 What is Mean? <span class="badge">माध्य</span></div>
+<p style="font-size:0.8rem;color:#475569;line-height:1.6;">Mean (माध्य) is the <strong>average</strong> of all data values. For grouped data, we cannot see individual values — only class intervals and frequencies. CBSE teaches <strong>3 methods</strong> to find mean.</p>
+<div class="concept-pills" id="conceptPills">
+<div class="pill blue" onclick="showPill('d','The direct method uses actual midpoints (xᵢ) and frequencies (fᵢ). Best when numbers are small.')">📌 Direct Method</div>
+<div class="pill amber" onclick="showPill('a','The assumed mean method uses a shortcut: take an assumed mean (a), find deviations dᵢ = xᵢ - a. Reduces calculation effort.')">🔧 Assumed Mean</div>
+<div class="pill green" onclick="showPill('s','Step deviation method divides deviation by class width h. Gives smallest numbers to work with. Best for large data!')">⚡ Step Deviation</div>
+</div>
+<div class="tooltip-popup" id="pillTooltip"></div>
 </div>
 
-<!-- INTRO -->
-<div id="intro" class="section active">
-  <div class="card">
-    <div class="formula-box">
-      <div style="color:#a0c4ff;font-size:0.85rem;margin-bottom:4px">THREE METHODS TO FIND MEAN</div>
-      <div class="formula">Direct: x̄ = Σfᵢxᵢ / Σfᵢ</div>
-      <div class="formula" style="color:#81c784">Assumed: x̄ = a + (Σfᵢdᵢ / Σfᵢ)</div>
-      <div class="formula" style="color:#ff8a65">Step-Dev: x̄ = a + h·(Σfᵢuᵢ / Σfᵢ)</div>
-      <div class="formula-note">where dᵢ = xᵢ – a &nbsp;|&nbsp; uᵢ = dᵢ/h = (xᵢ – a)/h &nbsp;|&nbsp; a = assumed mean &nbsp;|&nbsp; h = class width</div>
-    </div>
-    <div class="callout">
-      📌 <strong>Grouped Data</strong> — When data is large, it is organised into <em>class intervals</em>. We use the <em>mid-point (xᵢ)</em> of each class as a representative value. Frequency (fᵢ) tells how many observations fall in that class.
-    </div>
-    <div class="method-grid">
-      <div class="method-card m1">
-        <div class="method-title">🔵 Direct Method <span class="badge badge-blue">Basic</span></div>
-        <p>Calculate mid-point xᵢ for each class. Multiply with fᵢ to get fᵢxᵢ. Sum all fᵢxᵢ and divide by Σfᵢ. Simple but tedious with large numbers.</p>
-      </div>
-      <div class="method-card m2">
-        <div class="method-title">🟢 Assumed Mean <span class="badge badge-green">Shorter</span></div>
-        <p>Choose a convenient assumed mean 'a'. Find deviation dᵢ = xᵢ – a. Calculate Σfᵢdᵢ. Then x̄ = a + Σfᵢdᵢ/Σfᵢ. Numbers are smaller!</p>
-      </div>
-      <div class="method-card m3">
-        <div class="method-title">🟠 Step-Deviation <span class="badge badge-orange">Shortest</span></div>
-        <p>Divide dᵢ by class width h to get uᵢ = (xᵢ–a)/h. Numbers become even smaller. x̄ = a + h·Σfᵢuᵢ/Σfᵢ. Best for equal class widths.</p>
-      </div>
-    </div>
-    <div class="callout">
-      💡 <strong>Key Insight:</strong> All three methods give the <em>same answer</em>! Step-Deviation is preferred when class widths are equal and numbers are large.
-    </div>
-  </div>
-  <div class="card">
-    <div class="method-title" style="margin-bottom:10px">📐 Mid-point Explained (Interactive)</div>
-    <svg height="90" id="svgMid" viewBox="0 0 500 90">
-      <defs><linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#4fc3f7"/><stop offset="100%" style="stop-color:#81c784"/></linearGradient></defs>
-      <rect x="60" y="20" width="180" height="40" rx="8" fill="url(#grad1)" fill-opacity="0.3" stroke="#4fc3f7" stroke-width="2"/>
-      <text x="150" y="44" text-anchor="middle" fill="#fff" font-size="13" font-weight="bold">Class: 20 – 30</text>
-      <line x1="60" y1="70" x2="240" y2="70" stroke="#ffd200" stroke-width="2"/>
-      <circle cx="60" cy="70" r="5" fill="#ff8a65"/><text x="60" y="86" text-anchor="middle" fill="#ff8a65" font-size="11">20</text>
-      <circle cx="240" cy="70" r="5" fill="#ff8a65"/><text x="240" y="86" text-anchor="middle" fill="#ff8a65" font-size="11">30</text>
-      <circle cx="150" cy="70" r="7" fill="#ffd200"/><text x="150" y="86" text-anchor="middle" fill="#ffd200" font-size="11" font-weight="bold">xᵢ=25</text>
-      <text x="150" y="16" text-anchor="middle" fill="#ffd200" font-size="11">Mid-point = (20+30)/2 = 25</text>
-      <rect x="310" y="20" width="160" height="55" rx="8" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
-      <text x="390" y="38" text-anchor="middle" fill="#a0c4ff" font-size="11">Lower limit + Upper limit</text>
-      <text x="390" y="52" text-anchor="middle" fill="#ffd200" font-size="13" font-weight="bold">xᵢ = ─────────────────</text>
-      <text x="390" y="66" text-anchor="middle" fill="#a0c4ff" font-size="11">2</text>
-    </svg>
-  </div>
+<!-- Method Tabs -->
+<div class="card">
+<div class="section-title">📐 Three Methods — Formula Comparison</div>
+<div class="method-tabs">
+<button class="tab-btn active" onclick="switchTab('direct',this)">Direct Method<br><small>प्रत्यक्ष विधि</small></button>
+<button class="tab-btn" onclick="switchTab('assumed',this)">Assumed Mean<br><small>कल्पित माध्य</small></button>
+<button class="tab-btn" onclick="switchTab('step',this)">Step Deviation<br><small>पग विचलन</small></button>
 </div>
 
-<!-- METHODS -->
-<div id="methods" class="section">
-  <div class="card">
-    <div class="method-title" style="margin-bottom:12px">🔢 Side-by-Side Comparison</div>
-    <div style="overflow-x:auto">
-      <table>
-        <thead>
-          <tr><th>Class</th><th>fᵢ</th><th>xᵢ</th><th>fᵢxᵢ<br><small style="color:#4fc3f7">Direct</small></th><th>dᵢ=xᵢ-45<br><small style="color:#81c784">Assumed</small></th><th>fᵢdᵢ</th><th>uᵢ=dᵢ/10<br><small style="color:#ff8a65">Step-Dev</small></th><th>fᵢuᵢ</th></tr>
-        </thead>
-        <tbody id="compTable"></tbody>
-        <tfoot id="compFoot"></tfoot>
-      </table>
-    </div>
-    <div id="compResult" style="margin-top:10px"></div>
-  </div>
-  <div class="card">
-    <div class="method-title" style="margin-bottom:8px">🎛️ Interactive: Change Assumed Mean</div>
-    <div class="slider-wrap">
-      <label>Assumed Mean (a)</label>
-      <input type="range" id="aSlider" min="15" max="55" step="10" value="45" oninput="updateAssumed()">
-      <div class="val-display" id="aVal">45</div>
-    </div>
-    <div id="assumedResult" class="result-box" style="font-size:0.9rem"></div>
-    <div class="callout" id="assumedNote"></div>
-  </div>
+<!-- Direct -->
+<div class="method-panel active" id="panel-direct">
+<div class="formula-box">
+<div class="formula">x̄ = Σ(fᵢ × xᵢ) ÷ Σfᵢ</div>
+<div class="formula-note">where xᵢ = midpoint of class, fᵢ = frequency</div>
+</div>
+<p style="font-size:0.78rem;color:#475569;"><strong>Steps:</strong> Find midpoint xᵢ for each class → Multiply fᵢ × xᵢ → Sum both columns → Divide</p>
 </div>
 
-<!-- WORKED -->
-<div id="worked" class="section">
-  <div class="card">
-    <div class="method-title">✏️ Worked Example — Step by Step</div>
-    <div class="callout" style="margin:8px 0">
-      📋 <strong>Problem:</strong> Find the mean marks of students using the Step-Deviation method.<br>
-      Classes: 0–10, 10–20, 20–30, 30–40, 40–50 with frequencies 5, 10, 25, 30, 10 respectively.
-    </div>
-    <div style="text-align:center;margin:10px 0">
-      <button class="btn" onclick="nextStep()">▶ Next Step</button>
-      <button class="btn btn-outline" onclick="resetSteps()">↺ Reset</button>
-    </div>
-    <div class="step-container" id="stepContainer"></div>
-    <div id="finalResult"></div>
-  </div>
+<!-- Assumed -->
+<div class="method-panel" id="panel-assumed">
+<div class="formula-box">
+<div class="formula">x̄ = a + (Σfᵢdᵢ ÷ Σfᵢ)</div>
+<div class="formula-note">where a = Assumed Mean, dᵢ = xᵢ − a</div>
+</div>
+<p style="font-size:0.78rem;color:#475569;"><strong>Steps:</strong> Choose middle class → Set a = its midpoint → Find dᵢ = xᵢ − a → Compute fᵢdᵢ → Apply formula</p>
 </div>
 
-<!-- VISUAL -->
-<div id="visual" class="section">
-  <div class="card">
-    <div class="method-title" style="margin-bottom:8px">📊 Frequency × Mid-point Visualiser</div>
-    <div class="slider-wrap">
-      <label>Highlight Class</label>
-      <input type="range" id="classSlider" min="0" max="4" step="1" value="0" oninput="highlightClass()">
-      <div class="val-display" id="classVal">0–10</div>
-    </div>
-    <svg id="barChart" height="220" viewBox="0 0 500 220"></svg>
-    <div id="classInfo" class="callout" style="margin-top:6px"></div>
-  </div>
-  <div class="card">
-    <div class="method-title" style="margin-bottom:8px">📐 SVG Formula Diagram</div>
-    <svg height="140" viewBox="0 0 500 140">
-      <rect x="10" y="10" width="480" height="120" rx="14" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
-      <text x="250" y="38" text-anchor="middle" fill="#ffd200" font-size="15" font-weight="bold">Step-Deviation Method</text>
-      <text x="250" y="62" text-anchor="middle" fill="#fff" font-size="13">x̄  =  a  +  h  ×  ( Σfᵢuᵢ / Σfᵢ )</text>
-      <line x1="80" y1="75" x2="80" y2="95" stroke="#4fc3f7" stroke-width="1.5" stroke-dasharray="4"/>
-      <text x="80" y="108" text-anchor="middle" fill="#4fc3f7" font-size="10">Assumed Mean</text>
-      <line x1="175" y1="75" x2="175" y2="95" stroke="#81c784" stroke-width="1.5" stroke-dasharray="4"/>
-      <text x="175" y="108" text-anchor="middle" fill="#81c784" font-size="10">Class Width</text>
-      <line x1="295" y1="75" x2="295" y2="95" stroke="#ff8a65" stroke-width="1.5" stroke-dasharray="4"/>
-      <text x="295" y="108" text-anchor="middle" fill="#ff8a65" font-size="10">Σfᵢuᵢ</text>
-      <line x1="380" y1="75" x2="380" y2="95" stroke="#f48fb1" stroke-width="1.5" stroke-dasharray="4"/>
-      <text x="380" y="108" text-anchor="middle" fill="#f48fb1" font-size="10">Total freq</text>
-      <text x="250" y="130" text-anchor="middle" fill="#a0c4ff" font-size="10">uᵢ = (xᵢ – a) / h  &nbsp;|&nbsp;  dᵢ = xᵢ – a  &nbsp;|&nbsp;  xᵢ = mid-point of class i</text>
-    </svg>
-  </div>
+<!-- Step -->
+<div class="method-panel" id="panel-step">
+<div class="formula-box">
+<div class="formula">x̄ = a + h × (Σfᵢuᵢ ÷ Σfᵢ)</div>
+<div class="formula-note">where uᵢ = (xᵢ − a) ÷ h, h = class width</div>
+</div>
+<p style="font-size:0.78rem;color:#475569;"><strong>Steps:</strong> Choose a → Find dᵢ = xᵢ − a → Divide by h to get uᵢ → Compute fᵢuᵢ → Apply formula</p>
+</div>
 </div>
 
-<!-- QUIZ -->
-<div id="quiz" class="section">
-  <div class="card" id="quizCard">
-    <div class="method-title" style="margin-bottom:10px">🎯 Quick Check</div>
-    <div id="quizBody"></div>
-    <div id="quizFeedback"></div>
-    <div style="margin-top:10px">
-      <button class="btn" id="nextQBtn" onclick="nextQ()" style="display:none">Next Question ▶</button>
-      <button class="btn btn-outline" onclick="restartQuiz()">↺ Restart</button>
-    </div>
-    <div id="scoreBox" style="display:none" class="result-box"></div>
-  </div>
+<!-- Worked Example with Steps -->
+<div class="card">
+<div class="section-title">✏️ Worked Example <span class="badge">क्लिक करके देखें</span></div>
+<p style="font-size:0.78rem;color:#475569;margin-bottom:10px;">The following table shows marks of 50 students. Find the mean using all three methods.</p>
+<table>
+<tr><th>Class (Marks)</th><th>Frequency (fᵢ)</th></tr>
+<tr><td>10 – 20</td><td>6</td></tr>
+<tr><td>20 – 30</td><td>8</td></tr>
+<tr><td>30 – 40</td><td>15</td></tr>
+<tr><td>40 – 50</td><td>12</td></tr>
+<tr><td>50 – 60</td><td>9</td></tr>
+<tr style="background:#dbeafe;font-weight:700;"><td>Total</td><td>50</td></tr>
+</table>
+
+<!-- Method selector for example -->
+<div class="method-tabs">
+<button class="tab-btn active" onclick="switchExTab('ex-direct',this)" id="extab1">Direct ✓</button>
+<button class="tab-btn" onclick="switchExTab('ex-assumed',this)" id="extab2">Assumed Mean ✓</button>
+<button class="tab-btn" onclick="switchExTab('ex-step',this)" id="extab3">Step Deviation ✓</button>
 </div>
 
+<!-- Example Direct -->
+<div id="ex-direct" class="method-panel active">
+<div class="progress-bar"><div class="progress-fill" id="prog-d" style="width:0%"></div></div>
+<div id="step-d-1" class="step-box">
+<span class="step-num">1</span><strong>Find Midpoints (xᵢ)</strong><br>
+<span class="note">Midpoint = (Lower + Upper) ÷ 2</span>
+<table><tr><th>Class</th><th>fᵢ</th><th>xᵢ (midpoint)</th></tr>
+<tr><td>10–20</td><td>6</td><td>(10+20)÷2 = <strong>15</strong></td></tr>
+<tr><td>20–30</td><td>8</td><td>(20+30)÷2 = <strong>25</strong></td></tr>
+<tr><td>30–40</td><td>15</td><td>(30+40)÷2 = <strong>35</strong></td></tr>
+<tr><td>40–50</td><td>12</td><td>(40+50)÷2 = <strong>45</strong></td></tr>
+<tr><td>50–60</td><td>9</td><td>(50+60)÷2 = <strong>55</strong></td></tr>
+</table></div>
+<div id="step-d-2" class="step-box">
+<span class="step-num">2</span><strong>Calculate fᵢ × xᵢ</strong>
+<table><tr><th>fᵢ</th><th>xᵢ</th><th>fᵢ × xᵢ</th></tr>
+<tr><td>6</td><td>15</td><td>6×15 = <strong>90</strong></td></tr>
+<tr><td>8</td><td>25</td><td>8×25 = <strong>200</strong></td></tr>
+<tr><td>15</td><td>35</td><td>15×35 = <strong>525</strong></td></tr>
+<tr><td>12</td><td>45</td><td>12×45 = <strong>540</strong></td></tr>
+<tr><td>9</td><td>55</td><td>9×55 = <strong>495</strong></td></tr>
+<tr class="highlight-row"><td>Σfᵢ = 50</td><td>—</td><td>Σfᵢxᵢ = <strong>1850</strong></td></tr>
+</table></div>
+<div id="step-d-3" class="step-box">
+<span class="step-num">3</span><strong>Apply Formula</strong><br>
+x̄ = Σ(fᵢxᵢ) ÷ Σfᵢ = 1850 ÷ 50 = <strong style="color:#16a34a;font-size:1.1rem;">37</strong></div>
+<div id="res-d" class="result-box"><div class="result-val">x̄ = 37</div><div style="font-size:0.75rem;color:#16a34a;">Mean Marks by Direct Method ✅</div></div>
+<button class="step-btn" onclick="revealStep('d',1,33)">Step 1: Find xᵢ</button>
+<button class="step-btn amber" onclick="revealStep('d',2,66)">Step 2: Find fᵢxᵢ</button>
+<button class="step-btn" onclick="revealStep('d',3,100)">Step 3: Calculate Mean</button>
+<button class="reset-btn" onclick="resetSteps('d')">↺ Reset</button>
+</div>
+
+<!-- Example Assumed -->
+<div id="ex-assumed" class="method-panel">
+<div class="progress-bar"><div class="progress-fill" id="prog-a" style="width:0%"></div></div>
+<div id="step-a-1" class="step-box">
+<span class="step-num">1</span><strong>Choose Assumed Mean (a)</strong><br>
+<span class="hindi">कल्पित माध्य चुनें</span> — Pick middle class midpoint.<br>
+Middle class = 30–40, so <strong>a = 35</strong><br>
+<span class="note">∵ This reduces deviation values</span></div>
+<div id="step-a-2" class="step-box">
+<span class="step-num">2</span><strong>Find dᵢ = xᵢ − a</strong>
+<table><tr><th>xᵢ</th><th>fᵢ</th><th>dᵢ = xᵢ−35</th><th>fᵢdᵢ</th></tr>
+<tr><td>15</td><td>6</td><td>15−35 = <strong>−20</strong></td><td>6×(−20)=<strong>−120</strong></td></tr>
+<tr><td>25</td><td>8</td><td>25−35 = <strong>−10</strong></td><td>8×(−10)=<strong>−80</strong></td></tr>
+<tr><td>35</td><td>15</td><td>35−35 = <strong>0</strong></td><td>15×0=<strong>0</strong></td></tr>
+<tr><td>45</td><td>12</td><td>45−35 = <strong>10</strong></td><td>12×10=<strong>120</strong></td></tr>
+<tr><td>55</td><td>9</td><td>55−35 = <strong>20</strong></td><td>9×20=<strong>180</strong></td></tr>
+<tr class="highlight-row"><td colspan="2">Σfᵢ=50</td><td>—</td><td>Σfᵢdᵢ=<strong>100</strong></td></tr>
+</table></div>
+<div id="step-a-3" class="step-box">
+<span class="step-num">3</span><strong>Apply Formula</strong><br>
+x̄ = a + (Σfᵢdᵢ ÷ Σfᵢ)<br>
+x̄ = 35 + (100 ÷ 50)<br>
+x̄ = 35 + 2 = <strong style="color:#16a34a;font-size:1.1rem;">37</strong></div>
+<div id="res-a" class="result-box"><div class="result-val">x̄ = 37</div><div style="font-size:0.75rem;color:#16a34a;">Mean by Assumed Mean Method ✅ Same Answer!</div></div>
+<button class="step-btn" onclick="revealStep('a',1,33)">Step 1: Choose a</button>
+<button class="step-btn amber" onclick="revealStep('a',2,66)">Step 2: Find dᵢ & fᵢdᵢ</button>
+<button class="step-btn" onclick="revealStep('a',3,100)">Step 3: Calculate Mean</button>
+<button class="reset-btn" onclick="resetSteps('a')">↺ Reset</button>
+</div>
+
+<!-- Example Step -->
+<div id="ex-step" class="method-panel">
+<div class="progress-bar"><div class="progress-fill" id="prog-s" style="width:0%"></div></div>
+<div id="step-s-1" class="step-box">
+<span class="step-num">1</span><strong>Choose a = 35, h = 10 (class width)</strong><br>
+<span class="hindi">पग विचलन</span>: uᵢ = (xᵢ − a) ÷ h<br>
+<span class="note">h = 10 (each class is 10 wide)</span></div>
+<div id="step-s-2" class="step-box">
+<span class="step-num">2</span><strong>Calculate uᵢ and fᵢuᵢ</strong>
+<table><tr><th>xᵢ</th><th>fᵢ</th><th>uᵢ=(xᵢ−35)÷10</th><th>fᵢuᵢ</th></tr>
+<tr><td>15</td><td>6</td><td>(−20)÷10=<strong>−2</strong></td><td>6×(−2)=<strong>−12</strong></td></tr>
+<tr><td>25</td><td>8</td><td>(−10)÷10=<strong>−1</strong></td><td>8×(−1)=<strong>−8</strong></td></tr>
+<tr><td>35</td><td>15</td><td>0÷10=<strong>0</strong></td><td>15×0=<strong>0</strong></td></tr>
+<tr><td>45</td><td>12</td><td>10÷10=<strong>1</strong></td><td>12×1=<strong>12</strong></td></tr>
+<tr><td>55</td><td>9</td><td>20÷10=<strong>2</strong></td><td>9×2=<strong>18</strong></td></tr>
+<tr class="highlight-row"><td colspan="2">Σfᵢ=50</td><td>—</td><td>Σfᵢuᵢ=<strong>10</strong></td></tr>
+</table></div>
+<div id="step-s-3" class="step-box">
+<span class="step-num">3</span><strong>Apply Formula</strong><br>
+x̄ = a + h × (Σfᵢuᵢ ÷ Σfᵢ)<br>
+x̄ = 35 + 10 × (10 ÷ 50)<br>
+x̄ = 35 + 10 × 0.2<br>
+x̄ = 35 + 2 = <strong style="color:#16a34a;font-size:1.1rem;">37</strong></div>
+<div id="res-s" class="result-box"><div class="result-val">x̄ = 37</div><div style="font-size:0.75rem;color:#16a34a;">Mean by Step Deviation Method ✅ Same Answer!</div></div>
+<button class="step-btn" onclick="revealStep('s',1,33)">Step 1: Choose a & h</button>
+<button class="step-btn amber" onclick="revealStep('s',2,66)">Step 2: Find uᵢ & fᵢuᵢ</button>
+<button class="step-btn" onclick="revealStep('s',3,100)">Step 3: Calculate Mean</button>
+<button class="reset-btn" onclick="resetSteps('s')">↺ Reset</button>
+</div>
+</div>
+
+<!-- Interactive Explorer -->
+<div class="card">
+<div class="section-title">🎮 Interactive Mean Explorer <span class="badge">खेलें और सीखें!</span></div>
+<p style="font-size:0.78rem;color:#475569;margin-bottom:10px;">Drag the sliders to change frequencies. Watch the bar chart and mean update live!</p>
+<div class="interactive-section">
+<div id="sliders">
+<div class="slider-row"><label>10–20 (f₁)</label><input type="range" min="1" max="20" value="6" oninput="updateExplorer()"><span class="val-display" id="v1">6</span></div>
+<div class="slider-row"><label>20–30 (f₂)</label><input type="range" min="1" max="20" value="8" oninput="updateExplorer()"><span class="val-display" id="v2">8</span></div>
+<div class="slider-row"><label>30–40 (f₃)</label><input type="range" min="1" max="20" value="15" oninput="updateExplorer()"><span class="val-display" id="v3">15</span></div>
+<div class="slider-row"><label>40–50 (f₄)</label><input type="range" min="1" max="20" value="12" oninput="updateExplorer()"><span class="val-display" id="v4">12</span></div>
+<div class="slider-row"><label>50–60 (f₅)</label><input type="range" min="1" max="20" value="9" oninput="updateExplorer()"><span class="val-display" id="v5">9</span></div>
+</div>
+<div class="bar-chart" id="barChart">
+<div style="display:flex;flex-direction:column;align-items:center;flex:1;" id="bc1"><div class="bar color-a" id="b1"><div class="bar-tip" id="bt1"></div></div><div class="bar-label">10–20</div></div>
+<div style="display:flex;flex-direction:column;align-items:center;flex:1;" id="bc2"><div class="bar color-b" id="b2"><div class="bar-tip" id="bt2"></div></div><div class="bar-label">20–30</div></div>
+<div style="display:flex;flex-direction:column;align-items:center;flex:1;" id="bc3"><div class="bar color-c" id="b3"><div class="bar-tip" id="bt3"></div></div><div class="bar-label">30–40</div></div>
+<div style="display:flex;flex-direction:column;align-items:center;flex:1;" id="bc4"><div class="bar color-d" id="b4"><div class="bar-tip" id="bt4"></div></div><div class="bar-label">40–50</div></div>
+<div style="display:flex;flex-direction:column;align-items:center;flex:1;" id="bc5"><div class="bar color-e" id="b5"><div class="bar-tip" id="bt5"></div></div><div class="bar-label">50–60</div></div>
+</div>
+<div class="mean-display" id="meanDisplay">x̄ = 37.00 &nbsp;|&nbsp; Σf = 50</div>
+<div style="font-size:0.72rem;color:#92400e;text-align:center;">💡 Notice: when higher classes have more frequency, mean increases!</div>
+</div>
+</div>
+
+<!-- Key Points -->
+<div class="card">
+<div class="section-title">🔑 Key Points to Remember</div>
+<div style="display:grid;gap:8px;">
+<div style="background:#eff6ff;border-radius:10px;padding:10px;font-size:0.78rem;border-left:4px solid #3b82f6;">
+<strong>📌 All 3 methods give SAME mean</strong><br>
+∴ Direct = Assumed Mean = Step Deviation
+</div>
+<div style="background:#f0fdf4;border-radius:10px;padding:10px;font-size:0.78rem;border-left:4px solid #22c55e;">
+<strong>📌 Midpoint Formula:</strong> xᵢ = (Lower limit + Upper limit) ÷ 2
+</div>
+<div style="background:#fefce8;border-radius:10px;padding:10px;font-size:0.78rem;border-left:4px solid #f59e0b;">
+<strong>📌 Assumed Mean (a):</strong> Choose midpoint of the class with highest frequency (modal class) for easiest calculation
+</div>
+<div style="background:#fdf4ff;border-radius:10px;padding:10px;font-size:0.78rem;border-left:4px solid #a855f7;">
+<strong>📌 Step Deviation:</strong> h = class size (must be equal for all classes to use this method)
+</div>
+</div>
+</div>
+
+</div>
 <script>
-// Data
-const classes=['0–10','10–20','20–30','30–40','40–50'];
-const fi=[5,10,25,30,10];
-const xi=[5,15,25,35,45];
-const a_default=45,h=10;
-
-function showTab(id){
-  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  document.querySelectorAll('.tab').forEach(t=>{if(t.textContent.toLowerCase().includes(id.slice(0,3))||t.onclick.toString().includes(id))t.classList.add('active')});
-  document.querySelectorAll('.tab').forEach((t,i)=>{const ids=['intro','methods','worked','visual','quiz'];if(ids[i]===id)t.classList.add('active')});
-  if(id==='methods')buildCompTable();
-  if(id==='visual')buildChart(0);
-  if(id==='quiz')initQuiz();
+function switchTab(id,btn){
+['direct','assumed','step'].forEach(m=>{
+document.getElementById('panel-'+m).classList.remove('active');
+});
+document.getElementById('panel-'+id).classList.add('active');
+document.querySelectorAll('.method-tabs .tab-btn').forEach(b=>b.classList.remove('active'));
+btn.classList.add('active');
 }
-
-// Methods Tab
-function buildCompTable(){
-  const di=xi.map(x=>x-45),ui=di.map(d=>d/h);
-  const fixi=fi.map((f,i)=>f*xi[i]),fidi=fi.map((f,i)=>f*di[i]),fiui=fi.map((f,i)=>f*ui[i]);
-  let rows='';
-  fi.forEach((f,i)=>{
-    rows+=`<tr><td>${classes[i]}</td><td>${f}</td><td>${xi[i]}</td><td style="color:#4fc3f7">${fixi[i]}</td><td style="color:#81c784">${di[i]}</td><td style="color:#81c784">${fidi[i]}</td><td style="color:#ff8a65">${ui[i]}</td><td style="color:#ff8a65">${fiui[i]}</td></tr>`;
-  });
-  const Sf=fi.reduce((a,b)=>a+b,0),Sfx=fixi.reduce((a,b)=>a+b,0),Sfd=fidi.reduce((a,b)=>a+b,0),Sfu=fiui.reduce((a,b)=>a+b,0);
-  rows+=`<tr class="highlight-row"><td><b>Σ</b></td><td><b>${Sf}</b></td><td>–</td><td><b>${Sfx}</b></td><td>–</td><td><b>${Sfd}</b></td><td>–</td><td><b>${Sfu}</b></td></tr>`;
-  document.getElementById('compTable').innerHTML=rows;
-  const m1=(Sfx/Sf).toFixed(2),m2=(45+Sfd/Sf).toFixed(2),m3=(45+h*(Sfu/Sf)).toFixed(2);
-  document.getElementById('compResult').innerHTML=`<div class="result-box" style="font-size:0.85rem">
-    Direct: <span style="color:#4fc3f7">x̄ = ${Sfx}/${Sf} = <b>${m1}</b></span> &nbsp;|&nbsp; 
-    Assumed: <span style="color:#81c784">x̄ = 45 + ${Sfd}/${Sf} = <b>${m2}</b></span> &nbsp;|&nbsp; 
-    Step-Dev: <span style="color:#ff8a65">x̄ = 45 + 10×(${Sfu}/${Sf}) = <b>${m3}</b></span>
-  </div>`;
-  updateAssumed();
+function switchExTab(id,btn){
+['ex-direct','ex-assumed','ex-step'].forEach(m=>{
+document.getElementById(m).classList.remove('active');
+});
+document.getElementById(id).classList.add('active');
+btn.closest('.card').querySelectorAll('.method-tabs .tab-btn').forEach(b=>b.classList.remove('active'));
+btn.classList.add('active');
 }
-
-function updateAssumed(){
-  const a=parseInt(document.getElementById('aSlider').value);
-  document.getElementById('aVal').textContent=a;
-  const di=xi.map(x=>x-a),fidi=fi.map((f,i)=>f*di[i]);
-  const Sf=fi.reduce((a,b)=>a+b,0),Sfd=fidi.reduce((a,b)=>a+b,0);
-  const mean=(a+Sfd/Sf).toFixed(2);
-  document.getElementById('assumedResult').textContent=`x̄ = ${a} + (${Sfd}/${Sf}) = ${a} + (${(Sfd/Sf).toFixed(2)}) = ${mean}`;
-  document.getElementById('assumedNote').textContent=`💡 No matter what 'a' you choose (${a} here), the answer is always ${mean}. The formula automatically corrects for the deviation!`;
+function revealStep(prefix,num,prog){
+for(let i=1;i<=num;i++){
+let el=document.getElementById('step-'+prefix+'-'+i);
+if(el) el.classList.add('visible');
 }
-
-// Worked Example Steps
-const stepsData=[
-  {title:'Identify the Data',body:`Classes: 0–10, 10–20, 20–30, 30–40, 40–50<br>Frequencies (fᵢ): 5, 10, 25, 30, 10<br>Total students = 5+10+25+30+10 = <b>80</b>`},
-  {title:'Find Mid-points (xᵢ)',body:`xᵢ = (Lower limit + Upper limit) / 2<br>0–10 → (0+10)/2 = <b>5</b><br>10–20 → <b>15</b> &nbsp; 20–30 → <b>25</b> &nbsp; 30–40 → <b>35</b> &nbsp; 40–50 → <b>45</b>`},
-  {title:'Choose Assumed Mean (a) and h',body:`Choose a = <b>25</b> (middle-ish value, any class mid-point works)<br>Class width h = 10 (all classes have equal width of 10)`},
-  {title:'Calculate uᵢ = (xᵢ – a) / h',body:`u₁ = (5–25)/10 = <b>–2</b><br>u₂ = (15–25)/10 = <b>–1</b><br>u₃ = (25–25)/10 = <b>0</b><br>u₄ = (35–25)/10 = <b>1</b><br>u₅ = (45–25)/10 = <b>2</b>`},
-  {title:'Calculate fᵢuᵢ',body:`f₁u₁ = 5×(–2) = <b>–10</b><br>f₂u₂ = 10×(–1) = <b>–10</b><br>f₃u₃ = 25×0 = <b>0</b><br>f₄u₄ = 30×1 = <b>30</b><br>f₅u₅ = 10×2 = <b>20</b>`},
-  {title:'Sum: Σfᵢ and Σfᵢuᵢ',body:`Σfᵢ = 5+10+25+30+10 = <b>80</b><br>Σfᵢuᵢ = (–10)+(–10)+0+30+20 = <b>30</b>`},
-  {title:'Apply Formula',body:`x̄ = a + h × (Σfᵢuᵢ / Σfᵢ)<br>x̄ = 25 + 10 × (30 / 80)<br>x̄ = 25 + 10 × 0.375<br>x̄ = 25 + 3.75 = <b>28.75</b>`}
-];
-let currentStep=-1;
-
-function nextStep(){
-  currentStep++;
-  if(currentStep>=stepsData.length){document.getElementById('nextQBtn')&&void 0;return;}
-  const sc=document.getElementById('stepContainer');
-  const s=stepsData[currentStep];
-  const div=document.createElement('div');
-  div.className='step';
-  div.innerHTML=`<div><span class="step-num">${currentStep+1}</span><span class="step-title">${s.title}</span></div><p>${s.body}</p>`;
-  sc.appendChild(div);
-  setTimeout(()=>div.classList.add('shown'),30);
-  if(currentStep===stepsData.length-1){
-    setTimeout(()=>{
-      document.getElementById('finalResult').innerHTML=`<div class="result-box">✅ Mean = <b>28.75 marks</b> — Verified by all three methods!</div>`;
-    },500);
-  }
+let pbar=document.getElementById('prog-'+prefix);
+if(pbar) pbar.style.width=prog+'%';
+if(num===3){
+let rb=document.getElementById('res-'+prefix);
+if(rb) rb.classList.add('visible');
 }
-
-function resetSteps(){
-  currentStep=-1;
-  document.getElementById('stepContainer').innerHTML='';
-  document.getElementById('finalResult').innerHTML='';
 }
-
-// Visual
-function buildChart(hi){
-  const svg=document.getElementById('barChart');
-  const W=500,H=200,pad=50,top=20;
-  const maxFixi=Math.max(...fi.map((f,i)=>f*xi[i]));
-  const barW=60,gap=20,startX=pad;
-  let svgH=H,content='';
-  fi.forEach((f,i)=>{
-    const bh=((f*xi[i])/maxFixi)*(svgH-top-40);
-    const x=startX+i*(barW+gap),y=svgH-40-bh;
-    const color=i===hi?'#ffd200':['#4fc3f7','#81c784','#ff8a65','#f48fb1','#ce93d8'][i];
-    content+=`<rect x="${x}" y="${y}" width="${barW}"
+function resetSteps(prefix){
+for(let i=1;i<=3;i++){
+let el=document.getElementById('step-'+prefix+'-'+i);
+if(el) el.classList.remove('visible');
+}
+let pbar=document.getElementById('prog-'+prefix);
+if(pbar) pbar.style.width='0%';
+let rb=document.getElementById('res-'+prefix);
+if(rb) rb.classList.remove('visible');
+}
+function showPill(type,msg){
+let el=document.getElementById('pillTooltip');
+el.textContent=msg;
+el.classList.add('show');
+setTimeout(()=>el.classList.remove('show'),4000);
+}
+function updateExplorer(){
+const midpoints=[15,25,35,45,55];
+const sliders=document.querySelectorAll('#sliders input[type=range]');
+const freqs=[];
+let sumF=0,sumFX=0,maxF=0;
+sliders.forEach((s,i)=>{
+let f=parseInt(s.value);
+freqs.push(f);
+sumF+=f;
+sumFX+=f*midpoints[i];
+if(f>maxF)maxF=f;
+document.getElementById('v'+(i+1)).textContent=f;
+});
+const mean=(sumFX/sumF).toFixed(2);
+document.getElementById('meanDisplay').textContent='x̄ = '+mean+' | Σf = '+sumF;
+const maxH=72;
+freqs.forEach((f,i)=>{
+const h=Math.max(4,Math.round((f/maxF)*maxH));
+const bar=document.getElementById('b'+(i+1));
+bar.style.height=h+'px';
+document.getElementById('bt'+(i+1)).textContent='f='+f+', xᵢ='+midpoints[i];
+});
+}
+updateExplorer();
 </script>
 </body>
 </html>

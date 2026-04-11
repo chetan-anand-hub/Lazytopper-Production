@@ -1464,6 +1464,9 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
             height={320}
             collapsible={true}
             defaultCollapsed={false}
+            topic={drawerVisual.chapter}
+            concept={drawerVisual.title}
+            subject={drawerVisual.subject === "science" ? "Science" : "Maths"}
           />
         )}
         <DiagramBlock

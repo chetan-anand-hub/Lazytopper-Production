@@ -6,6 +6,9 @@ interface VisualExplainerProps {
   height?: number;
   collapsible?: boolean;
   defaultCollapsed?: boolean;
+  topic?: string;
+  concept?: string;
+  subject?: string;
 }
 
 export function VisualExplainer({
@@ -14,13 +17,18 @@ export function VisualExplainer({
   height = 400,
   collapsible = true,
   defaultCollapsed = false,
+  topic,
+  concept,
+  subject,
 }: VisualExplainerProps) {
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
+  const [resolvedSrc, setResolvedSrc] = useState(src);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const blobUrlRef = useRef<string | null>(null);
 
   const handleLoad = useCallback(() => {
     setLoading(false);
@@ -33,25 +41,77 @@ export function VisualExplainer({
   }, []);
 
   useEffect(() => {
+    return () => {
+      if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current);
+    };
+  }, []);
+
+  useEffect(() => {
     setLoading(true);
     setError(false);
+    setResolvedSrc(src);
+    if (blobUrlRef.current) {
+      URL.revokeObjectURL(blobUrlRef.current);
+      blobUrlRef.current = null;
+    }
     let cancelled = false;
+
     fetch(src, { method: "HEAD" })
       .then((res) => {
         if (cancelled) return;
-        if (!res.ok || !res.headers.get("content-type")?.includes("text/html")) {
-          setError(true);
-          setLoading(false);
+        if (res.ok && res.headers.get("content-type")?.includes("text/html")) {
+          return;
         }
+        return tryLiveFallback(cancelled);
       })
       .catch(() => {
-        if (!cancelled) {
-          setError(true);
-          setLoading(false);
-        }
+        if (!cancelled) return tryLiveFallback(cancelled);
       });
+
+    function tryLiveFallback(isCancelled: boolean) {
+      if (isCancelled) return;
+      const fallbackTopic = topic || "";
+      const fallbackConcept = concept || title || "";
+      if (!fallbackTopic && !fallbackConcept) {
+        setError(true);
+        setLoading(false);
+        return;
+      }
+
+      const base = import.meta.env.BASE_URL || "/app/";
+      fetch(`${base}api/generate-visual`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          topic: fallbackTopic,
+          concept: fallbackConcept,
+          subject: subject || "Maths",
+          grade: 10,
+        }),
+      })
+        .then((r) => r.json())
+        .then((data) => {
+          if (isCancelled) return;
+          if (data.ok && data.html) {
+            const blob = new Blob([data.html], { type: "text/html" });
+            const url = URL.createObjectURL(blob);
+            blobUrlRef.current = url;
+            setResolvedSrc(url);
+          } else {
+            setError(true);
+            setLoading(false);
+          }
+        })
+        .catch(() => {
+          if (!isCancelled) {
+            setError(true);
+            setLoading(false);
+          }
+        });
+    }
+
     return () => { cancelled = true; };
-  }, [src]);
+  }, [src, topic, concept, subject, title]);
 
   useEffect(() => {
     if (!fullscreen) return;
@@ -75,7 +135,7 @@ export function VisualExplainer({
   const iframeContent = (
     <iframe
       ref={iframeRef}
-      src={src}
+      src={resolvedSrc}
       title={title}
       sandbox="allow-scripts allow-same-origin"
       style={{
@@ -149,7 +209,7 @@ export function VisualExplainer({
                 setError(false);
                 setLoading(true);
                 if (iframeRef.current) {
-                  iframeRef.current.src = src;
+                  iframeRef.current.src = resolvedSrc;
                 }
               }}
               style={styles.retryBtn}

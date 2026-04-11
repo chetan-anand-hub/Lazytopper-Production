@@ -3,369 +3,375 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tangent to a Circle – Class 10 Maths</title>
+<title>Tangent to a Circle - Class 10 Maths</title>
 <style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Segoe UI',Arial,sans-serif;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);min-height:100vh;color:#fff;padding:12px}
-  h1{text-align:center;font-size:1.4em;color:#e94560;margin-bottom:4px;letter-spacing:1px}
-  .subtitle{text-align:center;font-size:.8em;color:#a8b2d8;margin-bottom:12px}
-  .card{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);border-radius:14px;padding:14px;margin-bottom:12px;backdrop-filter:blur(6px)}
-  .formula-box{background:linear-gradient(90deg,#e94560,#0f3460);border-radius:10px;padding:12px;text-align:center;margin-bottom:12px}
-  .formula-box .f{font-size:1.15em;font-weight:700;letter-spacing:.5px}
-  .formula-box .fsub{font-size:.78em;color:#ffd6e0;margin-top:4px}
-  canvas{display:block;margin:0 auto;border-radius:12px;cursor:grab;touch-action:none;background:#0d1b2a}
-  canvas:active{cursor:grabbing}
-  .controls{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:10px}
-  button{padding:8px 16px;border:none;border-radius:20px;font-size:.82em;font-weight:600;cursor:pointer;transition:all .2s}
-  .btn-primary{background:#e94560;color:#fff}
-  .btn-primary:hover{background:#c73652}
-  .btn-secondary{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25)}
-  .btn-secondary:hover{background:rgba(255,255,255,.22)}
-  .btn-active{background:#4ecca3;color:#1a1a2e}
-  .steps-container{margin-top:8px}
-  .step{display:none;background:rgba(78,204,163,.1);border-left:3px solid #4ecca3;border-radius:6px;padding:10px 12px;margin-bottom:7px;font-size:.84em;line-height:1.5;animation:fadeIn .3s}
-  .step.visible{display:block}
-  @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-  .step-num{font-weight:700;color:#4ecca3;margin-right:6px}
-  .example-box{font-size:.83em;line-height:1.6}
-  .example-box .q{color:#ffd166;font-weight:600;margin-bottom:6px}
-  .example-box .sol{color:#c3cee3}
-  .example-box .ans{color:#4ecca3;font-weight:700}
-  .info-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:6px}
-  .badge{background:rgba(255,255,255,.1);border-radius:8px;padding:5px 10px;font-size:.75em;color:#c3cee3;border:1px solid rgba(255,255,255,.15)}
-  .badge span{color:#ffd166;font-weight:700}
-  .hint{text-align:center;font-size:.75em;color:#7b8ab8;margin-top:6px}
-  .legend{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:8px}
-  .leg-item{display:flex;align-items:center;gap:5px;font-size:.75em;color:#c3cee3}
-  .leg-dot{width:12px;height:12px;border-radius:50%}
-  .tab-row{display:flex;gap:6px;margin-bottom:8px}
-  .tab{flex:1;text-align:center;padding:7px;border-radius:8px;font-size:.78em;font-weight:600;cursor:pointer;background:rgba(255,255,255,.07);color:#a8b2d8;transition:all .2s}
-  .tab.active{background:#e94560;color:#fff}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a,#1e3a5f);min-height:100vh;color:#1e293b}
+.title-bar{background:linear-gradient(90deg,#3b82f6,#6366f1);padding:12px 16px;text-align:center;box-shadow:0 4px 15px rgba(59,130,246,0.4)}
+.title-bar h1{color:#fff;font-size:1.2rem;font-weight:700}
+.title-bar p{color:#bfdbfe;font-size:0.8rem;margin-top:2px}
+.container{max-width:700px;margin:0 auto;padding:12px}
+.card{background:#fff;border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 8px 25px rgba(0,0,0,0.2)}
+.card-title{font-size:1rem;font-weight:700;color:#1e3a5f;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.badge{background:linear-gradient(135deg,#3b82f6,#6366f1);color:#fff;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:600}
+.theorem-box{background:linear-gradient(135deg,#eff6ff,#e0f2fe);border:2px solid #3b82f6;border-radius:12px;padding:14px;text-align:center;margin-bottom:12px}
+.theorem-box .th-title{color:#1d4ed8;font-weight:700;font-size:0.9rem;margin-bottom:6px}
+.theorem-box .th-text{color:#1e293b;font-size:0.85rem;line-height:1.5}
+.formula{background:linear-gradient(135deg,#fef3c7,#fde68a);border:2px solid #f59e0b;border-radius:10px;padding:10px;text-align:center;font-size:1.1rem;font-weight:700;color:#92400e;margin:8px 0}
+#mainCanvas{width:100%;border-radius:12px;background:#f8fafc;cursor:crosshair;touch-action:none;border:2px solid #e2e8f0;display:block}
+.controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.btn{padding:8px 14px;border:none;border-radius:8px;font-size:0.8rem;font-weight:600;cursor:pointer;transition:all 0.2s}
+.btn-blue{background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff}
+.btn-green{background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff}
+.btn-amber{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff}
+.btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.2)}
+.btn:active{transform:translateY(0)}
+.info-box{background:#f0fdf4;border-left:4px solid #22c55e;border-radius:8px;padding:10px;font-size:0.82rem;color:#166534;margin-top:8px;line-height:1.5}
+.steps-container{margin-top:8px}
+.step{background:#f8fafc;border-radius:10px;padding:12px;margin-bottom:8px;border-left:4px solid #3b82f6;opacity:0;transform:translateY(10px);transition:all 0.4s;display:none}
+.step.visible{opacity:1;transform:translateY(0);display:block}
+.step-num{background:#3b82f6;color:#fff;width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;margin-right:8px}
+.step-text{font-size:0.83rem;color:#1e293b;line-height:1.5}
+.highlight{color:#2563eb;font-weight:700}
+.props-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.prop-card{background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:10px;padding:10px;text-align:center;border:1px solid #bfdbfe}
+.prop-icon{font-size:1.4rem;margin-bottom:4px}
+.prop-title{font-size:0.78rem;font-weight:700;color:#1d4ed8;margin-bottom:2px}
+.prop-desc{font-size:0.73rem;color:#374151}
+.example-box{background:linear-gradient(135deg,#fdf4ff,#fae8ff);border:2px solid #a855f7;border-radius:12px;padding:14px}
+.example-title{color:#7e22ce;font-weight:700;font-size:0.9rem;margin-bottom:8px}
+.ex-step{background:#fff;border-radius:8px;padding:10px;margin-bottom:6px;font-size:0.82rem;color:#1e293b;line-height:1.5;display:none;border-left:3px solid #a855f7;animation:slideIn 0.3s ease}
+.ex-step.show{display:block}
+@keyframes slideIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+.progress-bar{height:6px;background:#e2e8f0;border-radius:3px;margin-top:8px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#3b82f6,#6366f1);border-radius:3px;transition:width 0.4s}
+.angle-display{background:#1e293b;color:#22c55e;padding:6px 12px;border-radius:8px;font-family:monospace;font-size:0.9rem;font-weight:700;text-align:center;margin-top:6px}
+.tag{display:inline-block;padding:2px 8px;border-radius:12px;font-size:0.7rem;font-weight:600;margin:2px}
+.tag-blue{background:#dbeafe;color:#1d4ed8}
+.tag-green{background:#dcfce7;color:#166534}
+.section-label{font-size:0.75rem;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}
 </style>
 </head>
 <body>
-<h1>🔵 Tangent to a Circle</h1>
-<p class="subtitle">CBSE Class 10 | Chapter 10 – Circles</p>
+<div class="title-bar">
+  <h1>🔵 Tangent to a Circle | वृत्त की स्पर्शरेखा</h1>
+  <p>CBSE Class 10 Mathematics | Chapter: Circles</p>
+</div>
+<div class="container">
 
-<div class="formula-box">
-  <div class="f">OT ⊥ PT &nbsp;|&nbsp; ∠OTP = 90°</div>
-  <div class="fsub">The radius drawn to the point of tangency is perpendicular to the tangent</div>
+<div class="card">
+  <div class="card-title"><span class="badge">प्रमेय</span> Key Theorem | मुख्य प्रमेय</div>
+  <div class="theorem-box">
+    <div class="th-title">Theorem: Tangent ⊥ Radius at Point of Contact</div>
+    <div class="th-text">The tangent at any point of a circle is <strong>perpendicular</strong> to the radius drawn to the point of contact.<br>
+    <span style="color:#64748b;font-size:0.8rem">वृत्त के किसी बिंदु पर स्पर्शरेखा, स्पर्श बिंदु पर खींची गई त्रिज्या के लंबवत होती है।</span></div>
+  </div>
+  <div class="formula">∠OPT = 90° &nbsp;|&nbsp; OP ⊥ PT</div>
+  <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:8px">
+    <span class="tag tag-blue">O = Center (केंद्र)</span>
+    <span class="tag tag-blue">P = Point of Contact (स्पर्श बिंदु)</span>
+    <span class="tag tag-green">PT = Tangent (स्पर्शरेखा)</span>
+    <span class="tag tag-green">OP = Radius (त्रिज्या)</span>
+  </div>
 </div>
 
 <div class="card">
-  <canvas id="c" width="340" height="280"></canvas>
-  <div class="hint" id="hint">🖱️ Drag the point P to move the tangent point around the circle</div>
-  <div class="legend">
-    <div class="leg-item"><div class="leg-dot" style="background:#e94560"></div>Circle Centre O</div>
-    <div class="leg-item"><div class="leg-dot" style="background:#4ecca3"></div>Tangent Point T</div>
-    <div class="leg-item"><div class="leg-dot" style="background:#ffd166"></div>External Point P</div>
-    <div class="leg-item"><div class="leg-dot" style="background:#a29bfe"></div>Radius OT</div>
-  </div>
-  <div class="info-row">
-    <div class="badge">Radius: <span id="rad">60</span>px</div>
-    <div class="badge">∠OTP: <span id="angle">90°</span></div>
-    <div class="badge">OT²+PT²=<span id="pythag">OP²</span></div>
-  </div>
+  <div class="card-title">🎮 Interactive Diagram | इंटरैक्टिव आरेख</div>
+  <p class="section-label">Drag the point on circle to see tangent change</p>
+  <canvas id="mainCanvas" height="300"></canvas>
+  <div class="angle-display" id="angleDisplay">∠OPT = 90° ✓ Always Perpendicular!</div>
   <div class="controls">
-    <button class="btn-secondary" onclick="toggleAnim()" id="animBtn">▶ Animate</button>
-    <button class="btn-secondary" onclick="resetView()">↺ Reset</button>
-    <button class="btn-secondary" onclick="toggleTwoTangents()" id="t2btn">Show 2 Tangents</button>
+    <button class="btn btn-blue" onclick="toggleAnimate()">▶ Auto Rotate</button>
+    <button class="btn btn-green" onclick="showRightAngle()">📐 Show 90°</button>
+    <button class="btn btn-amber" onclick="resetCanvas()">↺ Reset</button>
+  </div>
+  <div class="info-box">💡 <strong>Try it!</strong> Click and drag the <strong style="color:#ef4444">red point</strong> around the circle. Notice the tangent line always stays perpendicular (90°) to the radius — no matter where you move it!</div>
+</div>
+
+<div class="card">
+  <div class="card-title">📋 Properties | गुणधर्म</div>
+  <div class="props-grid">
+    <div class="prop-card">
+      <div class="prop-icon">📏</div>
+      <div class="prop-title">Touches at 1 Point</div>
+      <div class="prop-desc">Tangent meets circle at exactly one point (स्पर्श बिंदु)</div>
+    </div>
+    <div class="prop-card">
+      <div class="prop-icon">📐</div>
+      <div class="prop-title">Always 90°</div>
+      <div class="prop-desc">Radius ⊥ Tangent at point of contact (लंबवत)</div>
+    </div>
+    <div class="prop-card">
+      <div class="prop-icon">✌️</div>
+      <div class="prop-title">Two Tangents</div>
+      <div class="prop-desc">From external point: 2 equal tangents (बाह्य बिंदु)</div>
+    </div>
+    <div class="prop-card">
+      <div class="prop-icon">📌</div>
+      <div class="prop-title">Equal Length</div>
+      <div class="prop-desc">PA = PB from external point P (समान लम्बाई)</div>
+    </div>
   </div>
 </div>
 
 <div class="card">
-  <div class="tab-row">
-    <div class="tab active" onclick="switchTab('steps',this)">Step-by-Step Proof</div>
-    <div class="tab" onclick="switchTab('example',this)">Worked Example</div>
-    <div class="tab" onclick="switchTab('facts',this)">Key Facts</div>
+  <div class="card-title">👣 Step-by-Step Proof | चरण-दर-चरण प्रमाण</div>
+  <div class="steps-container" id="stepsContainer"></div>
+  <div class="controls">
+    <button class="btn btn-blue" onclick="nextStep()" id="nextBtn">▶ Next Step</button>
+    <button class="btn btn-amber" onclick="resetSteps()">↺ Restart</button>
   </div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+</div>
 
-  <div id="steps-panel">
-    <div class="steps-container" id="stepsBox"></div>
-    <div class="controls">
-      <button class="btn-primary" onclick="showNextStep()">Next Step ▶</button>
-      <button class="btn-secondary" onclick="resetSteps()">Reset</button>
+<div class="card">
+  <div class="card-title">🧮 Worked Example | हल किया उदाहरण</div>
+  <div class="example-box">
+    <div class="example-title">Problem: A tangent PT is drawn from external point P to a circle with center O and radius 5 cm. If OP = 13 cm, find PT.</div>
+    <div id="exSteps"></div>
+    <div class="controls" style="margin-top:8px">
+      <button class="btn btn-blue" onclick="nextExStep()" id="exBtn">▶ Show Solution</button>
+      <button class="btn btn-amber" onclick="resetEx()">↺ Reset</button>
     </div>
   </div>
+  <canvas id="exCanvas" width="100%" height="200" style="width:100%;border-radius:10px;background:#f8fafc;border:2px solid #e2e8f0;margin-top:10px;display:block"></canvas>
+</div>
 
-  <div id="example-panel" style="display:none">
-    <div class="example-box">
-      <div class="q">Q: A point P is 13 cm from the centre O of a circle of radius 5 cm. Find the length of the tangent from P to the circle.</div>
-      <div class="sol">
-        Given: OP = 13 cm, OT = 5 cm (radius)<br>
-        Since OT ⊥ PT → ∠OTP = 90°<br><br>
-        By Pythagoras Theorem:<br>
-        OP² = OT² + PT²<br>
-        13² = 5² + PT²<br>
-        169 = 25 + PT²<br>
-        PT² = 144<br>
-        PT = <span class="ans">12 cm ✓</span>
-      </div>
-    </div>
-  </div>
-
-  <div id="facts-panel" style="display:none">
-    <div class="example-box">
-      <div class="sol">
-        <b style="color:#ffd166">📌 Theorem 10.1:</b> The tangent at any point of a circle is perpendicular to the radius through the point of contact.<br><br>
-        <b style="color:#ffd166">📌 Theorem 10.2:</b> The lengths of tangents drawn from an external point to a circle are equal.<br>&nbsp;&nbsp;→ PA = PB (two tangents from P)<br><br>
-        <b style="color:#ffd166">📌 Key Relation (Pythagoras):</b><br>
-        &nbsp;&nbsp;OP² = OT² + PT²<br><br>
-        <b style="color:#ffd166">📌 Number of Tangents:</b><br>
-        &nbsp;&nbsp;• From outside circle → 2 tangents<br>
-        &nbsp;&nbsp;• From on circle → 1 tangent<br>
-        &nbsp;&nbsp;• From inside circle → 0 tangents<br><br>
-        <b style="color:#ffd166">📌 Remember:</b> ∠OTP = 90° always!
-      </div>
-    </div>
-  </div>
 </div>
 
 <script>
-const canvas=document.getElementById('c');
-const ctx=canvas.getContext('2d');
-const W=canvas.width,H=canvas.height;
-const cx=W/2,cy=H/2,R=70;
-let angle=Math.PI/4;
-let animating=false,animId=null;
-let showTwo=false;
-let isDragging=false;
+const canvas = document.getElementById('mainCanvas');
+const ctx = canvas.getContext('2d');
+let W, H, cx, cy, R, angle = Math.PI / 4;
+let dragging = false, animating = false, animId = null, showRA = true;
 
-const steps=[
-  {t:"Given Setup",d:"We have a circle with centre O and radius OT. Point T lies on the circle. PT is a tangent to the circle at T."},
-  {t:"Assume for contradiction",d:"Suppose OT is NOT perpendicular to PT. Let OA be perpendicular to PT (where A is on PT). Then OA < OT (perpendicular is shortest distance)."},
-  {t:"Analyse point A",d:"Since OA < OT = radius, point A lies INSIDE the circle. But A is also on the tangent line PT."},
-  {t:"Contradiction!",d:"A line through A (which is inside the circle) must intersect the circle at two points. So PT is NOT a tangent — contradiction!"},
-  {t:"Conclusion ✓",d:"Our assumption was wrong. Therefore OT ⊥ PT, i.e. ∠OTP = 90°. The radius to the tangent point is always perpendicular to the tangent. ■"}
-];
-let stepIdx=0;
-
-function switchTab(id,el){
-  ['steps','example','facts'].forEach(t=>{
-    document.getElementById(t+'-panel').style.display=t===id?'block':'none';
-  });
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
+function resize() {
+  const rect = canvas.parentElement.getBoundingClientRect();
+  W = canvas.width = Math.min(rect.width - 32, 660);
+  H = canvas.height = Math.max(220, W * 0.45);
+  cx = W / 2; cy = H / 2;
+  R = Math.min(W, H) * 0.28;
+  draw();
 }
 
-function showNextStep(){
-  if(stepIdx>=steps.length)return;
-  const box=document.getElementById('stepsBox');
-  const s=steps[stepIdx];
-  const div=document.createElement('div');
-  div.className='step visible';
-  div.innerHTML=`<span class="step-num">Step ${stepIdx+1}: ${s.t}</span>${s.d}`;
-  box.appendChild(div);
-  stepIdx++;
-}
-function resetSteps(){
-  document.getElementById('stepsBox').innerHTML='';
-  stepIdx=0;
-}
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+  // Background
+  const bg = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(W, H));
+  bg.addColorStop(0, '#f0f9ff'); bg.addColorStop(1, '#e0f2fe');
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
 
-function getTangentPoints(ang){
-  const tx=cx+R*Math.cos(ang),ty=cy+R*Math.sin(ang);
-  return{tx,ty};
-}
-function getExternalP(ang){
-  const dist=140;
-  return{px:cx+dist*Math.cos(ang),py:cy+dist*Math.sin(ang)};
-}
-function getTangentFromExternal(px,py){
-  const d=Math.sqrt((px-cx)**2+(py-cy)**2);
-  const tLen=Math.sqrt(d*d-R*R);
-  const ang=Math.atan2(py-cy,px-cx);
-  const alpha=Math.asin(R/d);
-  const t1a=ang+Math.PI-alpha;
-  const t2a=ang+Math.PI+alpha;
-  return[
-    {tx:cx+R*Math.cos(ang-Math.PI/2+alpha-(Math.PI)),ty:cy+R*Math.sin(ang-Math.PI/2+alpha-Math.PI)},
-    {tx:cx+R*Math.cos(ang+Math.PI/2-alpha),ty:cy+R*Math.sin(ang+Math.PI/2-alpha)},
-    tLen
-  ];
-}
+  const px = cx + R * Math.cos(angle);
+  const py = cy + R * Math.sin(angle);
 
-function draw(){
-  ctx.clearRect(0,0,W,H);
-  // Grid dots
-  ctx.fillStyle='rgba(255,255,255,.04)';
-  for(let x=0;x<W;x+=20)for(let y=0;y<H;y+=20){ctx.beginPath();ctx.arc(x,y,1,0,Math.PI*2);ctx.fill();}
+  // Tangent direction (perpendicular to radius)
+  const tx = -Math.sin(angle);
+  const ty = Math.cos(angle);
+  const tLen = W * 0.38;
 
-  const{tx,ty}=getTangentPoints(angle);
-  const{px,py}=getExternalP(angle);
+  // Draw circle
+  ctx.beginPath(); ctx.arc(cx, cy, R, 0, 2 * Math.PI);
+  ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 2.5;
+  ctx.fillStyle = 'rgba(59,130,246,0.08)'; ctx.fill(); ctx.stroke();
 
-  // Compute tangent line direction
-  const tangentDirX=-(ty-cy)/R, tangentDirY=(tx-cx)/R;
-  const tLen=80;
-  const t1x=tx+tangentDirX*tLen, t1y=ty+tangentDirY*tLen;
-  const t2x=tx-tangentDirX*tLen, t2y=ty-tangentDirY*tLen;
+  // Draw tangent line
+  ctx.beginPath();
+  ctx.moveTo(px - tx * tLen, py - ty * tLen);
+  ctx.lineTo(px + tx * tLen, py + ty * tLen);
+  ctx.strokeStyle = '#22c55e'; ctx.lineWidth = 2.5;
+  ctx.setLineDash([6, 3]); ctx.stroke(); ctx.setLineDash([]);
 
-  // Circle
-  ctx.beginPath();ctx.arc(cx,cy,R,0,Math.PI*2);
-  ctx.strokeStyle='rgba(100,160,255,.7)';ctx.lineWidth=2.5;ctx.stroke();
-  ctx.fillStyle='rgba(100,160,255,.06)';ctx.fill();
+  // Draw radius OP
+  ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(px, py);
+  ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 2.5; ctx.stroke();
 
-  if(showTwo){
-    // Two tangents
-    const d2=Math.sqrt((px-cx)**2+(py-cy)**2);
-    if(d2>R){
-      const alpha=Math.asin(R/d2);
-      const baseAng=Math.atan2(py-cy,px-cx);
-      const a1=baseAng+Math.PI/2-alpha,a2=baseAng-Math.PI/2+alpha;
-      const tt1x=cx-R*Math.sin(baseAng-alpha),tt1y=cy+R*Math.cos(baseAng-alpha);
-      const tt2x=cx+R*Math.sin(baseAng+alpha),tt2y=cy-R*Math.cos(baseAng+alpha);
-      const tp1x=cx+R*Math.cos(a1),tp1y=cy+R*Math.sin(a1);
-      const tp2x=cx+R*Math.cos(a2),tp2y=cy+R*Math.sin(a2);
-
-      // Tangent lines
-      ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(tp1x,tp1y);
-      ctx.strokeStyle='#4ecca3';ctx.lineWidth=2;ctx.setLineDash([]);ctx.stroke();
-      ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(tp2x,tp2y);
-      ctx.strokeStyle='#4ecca3';ctx.lineWidth=2;ctx.stroke();
-
-      // Radii
-      ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(tp1x,tp1y);
-      ctx.strokeStyle='#a29bfe';ctx.lineWidth=1.5;ctx.setLineDash([4,4]);ctx.stroke();
-      ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(tp2x,tp2y);ctx.stroke();
-      ctx.setLineDash([]);
-
-      // Right angle marks
-      drawRightAngle(tp1x,tp1y,cx,cy,px,py);
-      drawRightAngle(tp2x,tp2y,cx,cy,px,py);
-
-      // Labels PA=PB
-      ctx.fillStyle='#ffd166';ctx.font='bold 11px Arial';
-      const ma1x=(px+tp1x)/2-10,ma1y=(py+tp1y)/2;
-      const ma2x=(px+tp2x)/2+4,ma2y=(py+tp2y)/2;
-      ctx.fillText('PA',ma1x,ma1y);ctx.fillText('PB',ma2x,ma2y);
-      ctx.fillStyle='#4ecca3';ctx.font='10px Arial';
-      ctx.fillText('PA = PB',cx-22,cy+R+20);
-
-      // Dots
-      drawDot(tp1x,tp1y,'#4ecca3','A');
-      drawDot(tp2x,tp2y,'#4ecca3','B');
-      drawDot(px,py,'#ffd166','P');
-      drawDot(cx,cy,'#e94560','O');
-    }
-    return;
+  // Right angle mark at P
+  if (showRA) {
+    const s = 14;
+    const nx = -Math.sin(angle); const ny = Math.cos(angle);
+    const rx2 = -Math.cos(angle); const ry2 = -Math.sin(angle);
+    ctx.beginPath();
+    ctx.moveTo(px + nx * s, py + ny * s);
+    ctx.lineTo(px + nx * s + rx2 * s, py + ny * s + ry2 * s);
+    ctx.lineTo(px + rx2 * s, py + ry2 * s);
+    ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 2; ctx.stroke();
   }
 
-  // Tangent line
-  ctx.beginPath();ctx.moveTo(t2x,t2y);ctx.lineTo(t1x,t1y);
-  ctx.strokeStyle='#4ecca3';ctx.lineWidth=2.5;ctx.setLineDash([]);ctx.stroke();
+  // Center O
+  ctx.beginPath(); ctx.arc(cx, cy, 6, 0, 2 * Math.PI);
+  ctx.fillStyle = '#1d4ed8'; ctx.fill();
+  ctx.fillStyle = '#1e293b'; ctx.font = 'bold 13px Segoe UI'; ctx.textAlign = 'center';
+  ctx.fillText('O', cx, cy - 12);
 
-  // Radius OT
-  ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(tx,ty);
-  ctx.strokeStyle='#a29bfe';ctx.lineWidth=2;ctx.setLineDash([5,4]);ctx.stroke();
-  ctx.setLineDash([]);
+  // Point P on circle
+  ctx.beginPath(); ctx.arc(px, py, 8, 0, 2 * Math.PI);
+  ctx.fillStyle = '#ef4444'; ctx.fill();
+  ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
+  const lx = px + Math.cos(angle) * 18;
+  const ly = py + Math.sin(angle) * 18;
+  ctx.fillStyle = '#b91c1c'; ctx.font = 'bold 13px Segoe UI'; ctx.textAlign = 'center';
+  ctx.fillText('P', lx, ly + 4);
 
-  // OP dashed
-  ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(px,py);
-  ctx.strokeStyle='rgba(255,209,102,.4)';ctx.lineWidth=1.5;ctx.setLineDash([3,5]);ctx.stroke();
-  ctx.setLineDash([]);
+  // Labels for tangent
+  const labelX = px + tx * tLen * 0.85;
+  const labelY = py + ty * tLen * 0.85;
+  ctx.fillStyle = '#166534'; ctx.font = 'bold 11px Segoe UI';
+  ctx.fillText('Tangent (T)', labelX, labelY);
 
-  // PT solid
-  ctx.beginPath();ctx.moveTo(tx,ty);ctx.lineTo(px,py);
-  ctx.strokeStyle='#ffd166';ctx.lineWidth=2;ctx.stroke();
+  // Label OT arrow midpoint
+  const mx = (cx + px) / 2;
+  const my = (cy + py) / 2;
+  ctx.fillStyle = '#92400e'; ctx.font = 'bold 11px Segoe UI';
+  const offX = -Math.sin(angle) * 16;
+  const offY = Math.cos(angle) * 16;
+  ctx.fillText('r', mx + offX, my + offY);
+
+  // 90 degree label
+  if (showRA) {
+    ctx.fillStyle = '#ef4444'; ctx.font = 'bold 12px Segoe UI';
+    const aLx = px - Math.cos(angle) * 30 - Math.sin(angle) * 30;
+    const aLy = py - Math.sin(angle) * 30 + Math.cos(angle) * 30;
+    ctx.fillText('90°', aLx, aLy);
+  }
+}
+
+function getAngle(e) {
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = W / rect.width;
+  let x, y;
+  if (e.touches) { x = (e.touches[0].clientX - rect.left) * scaleX; y = (e.touches[0].clientY - rect.top) * scaleX; }
+  else { x = (e.clientX - rect.left) * scaleX; y = (e.clientY - rect.top) * scaleX; }
+  return Math.atan2(y - cy, x - cx);
+}
+
+canvas.addEventListener('mousedown', e => { dragging = true; stopAnimate(); angle = getAngle(e); draw(); });
+canvas.addEventListener('mousemove', e => { if (dragging) { angle = getAngle(e); draw(); } });
+canvas.addEventListener('mouseup', () => dragging = false);
+canvas.addEventListener('touchstart', e => { e.preventDefault(); dragging = true; stopAnimate(); angle = getAngle(e); draw(); }, {passive: false});
+canvas.addEventListener('touchmove', e => { e.preventDefault(); if (dragging) { angle = getAngle(e); draw(); } }, {passive: false});
+canvas.addEventListener('touchend', () => dragging = false);
+
+function toggleAnimate() {
+  if (animating) stopAnimate();
+  else startAnimate();
+}
+function startAnimate() {
+  animating = true;
+  function loop() { angle += 0.018; draw(); animId = requestAnimationFrame(loop); }
+  loop();
+}
+function stopAnimate() { animating = false; if (animId) cancelAnimationFrame(animId); }
+function showRightAngle() { showRA = !showRA; draw(); }
+function resetCanvas() { stopAnimate(); angle = Math.PI / 4; showRA = true; draw(); }
+
+// Steps
+const steps = [
+  {text: '<span class="step-num">1</span><span class="step-text">Given: Circle with center <span class="highlight">O</span>, tangent <span class="highlight">PT</span> at point <span class="highlight">P</span>. We need to prove OP ⊥ PT.</span>'},
+  {text: '<span class="step-num">2</span><span class="step-text">Assume PT is the tangent. Take any point <span class="highlight">Q</span> on PT (other than P). Since PT is a tangent, Q lies <strong>outside</strong> the circle.</span>'},
+  {text: '<span class="step-num">3</span><span class="step-text">∴ OQ > OP (radius is shortest distance from center to line). This is true for <strong>every</strong> point Q on PT.</span>'},
+  {text: '<span class="step-num">4</span><span class="step-text">∵ OP is the <strong>shortest distance</strong> from O to line PT, ∴ OP ⊥ PT (Shortest distance from a point to a line is always perpendicular).</span>'},
+  {text: '<span class="step-num">5</span><span class="step-text">∴ <span class="highlight">∠OPT = 90°</span> &nbsp; <strong>Hence Proved! ✓</strong><br><span style="color:#64748b">∴ Radius OP is perpendicular to tangent PT at point of contact P.</span></span>'},
+];
+let currentStep = 0;
+
+function renderSteps() {
+  const cont = document.getElementById('stepsContainer');
+  cont.innerHTML = '';
+  steps.forEach((s, i) => {
+    const d = document.createElement('div');
+    d.className = 'step' + (i < currentStep ? ' visible' : '');
+    d.innerHTML = s.text;
+    cont.appendChild(d);
+  });
+  document.getElementById('progressFill').style.width = (currentStep / steps.length * 100) + '%';
+  document.getElementById('nextBtn').textContent = currentStep >= steps.length ? '✓ Complete' : '▶ Next Step';
+}
+
+function nextStep() { if (currentStep < steps.length) { currentStep++; renderSteps(); } }
+function resetSteps() { currentStep = 0; renderSteps(); }
+renderSteps();
+
+// Example
+const exStepsData = [
+  '📌 <strong>Given:</strong> Radius OT = 5 cm, OP = 13 cm, PT = tangent',
+  '📐 <strong>Property:</strong> Tangent ⊥ Radius ∴ ∠OTP = 90°',
+  '📏 <strong>Triangle OTP</strong> is a right-angled triangle (right angle at T)',
+  '🔢 <strong>Using Pythagoras:</strong> OP² = OT² + PT²<br>&nbsp;&nbsp;&nbsp;13² = 5² + PT²<br>&nbsp;&nbsp;&nbsp;169 = 25 + PT²',
+  '✅ <strong>PT² = 169 − 25 = 144</strong><br>&nbsp;&nbsp;&nbsp;<strong>PT = √144 = <span style="color:#7e22ce;font-size:1.1em">12 cm</span> ✓</strong>',
+];
+let exStep = 0;
+
+function renderEx() {
+  const cont = document.getElementById('exSteps');
+  cont.innerHTML = '';
+  for (let i = 0; i < exStep; i++) {
+    const d = document.createElement('div');
+    d.className = 'ex-step show';
+    d.innerHTML = exStepsData[i];
+    cont.appendChild(d);
+  }
+  document.getElementById('exBtn').textContent = exStep >= exStepsData.length ? '✓ Done' : '▶ Next';
+  drawExample();
+}
+
+function nextExStep() { if (exStep < exStepsData.length) { exStep++; renderEx(); } }
+function resetEx() { exStep = 0; renderEx(); }
+
+function drawExample() {
+  const ec = document.getElementById('exCanvas');
+  const ectx = ec.getContext('2d');
+  const ew = ec.width = ec.parentElement.clientWidth - 32;
+  const eh = ec.height = 180;
+  ectx.clearRect(0, 0, ew, eh);
+  const bg = ectx.createLinearGradient(0, 0, ew, eh);
+  bg.addColorStop(0, '#fdf4ff'); bg.addColorStop(1, '#fae8ff');
+  ectx.fillStyle = bg; ectx.fillRect(0, 0, ew, eh);
+
+  const ocx = ew * 0.38, ocy = eh * 0.5, er = 50;
+  const ptx = ew * 0.82, pty = eh * 0.5;
+  const ttx = ocx, tty = ocy - er;
+
+  ectx.beginPath(); ectx.arc(ocx, ocy, er, 0, 2 * Math.PI);
+  ectx.strokeStyle = '#a855f7'; ectx.lineWidth = 2;
+  ectx.fillStyle = 'rgba(168,85,247,0.08)'; ectx.fill(); ectx.stroke();
+
+  // radius OT
+  ectx.beginPath(); ectx.moveTo(ocx, ocy); ectx.lineTo(ttx, tty);
+  ectx.strokeStyle = '#f59e0b'; ectx.lineWidth = 2; ectx.stroke();
+
+  // OP
+  ectx.beginPath(); ectx.moveTo(ocx, ocy); ectx.lineTo(ptx, pty);
+  ectx.strokeStyle = '#3b82f6'; ectx.lineWidth = 2; ectx.stroke();
+
+  // Tangent PT
+  ectx.beginPath(); ectx.moveTo(ttx, tty); ectx.lineTo(ptx, pty);
+  ectx.strokeStyle = '#22c55e'; ectx.lineWidth = 2.5; ectx.stroke();
 
   // Right angle at T
-  drawRightAngle(tx,ty,cx,cy,px,py);
-
-  // Arc for angle at P
-  const angOP=Math.atan2(cy-py,cx-px);
-  const angPT=Math.atan2(ty-py,tx-px);
-  ctx.beginPath();ctx.arc(px,py,18,Math.min(angOP,angPT),Math.max(angOP,angPT));
-  ctx.strokeStyle='rgba(255,255,255,.3)';ctx.lineWidth=1.2;ctx.stroke();
+  const s = 10;
+  ectx.beginPath();
+  ectx.moveTo(ttx + s, tty); ectx.lineTo(ttx + s, tty + s); ectx.lineTo(ttx, tty + s);
+  ectx.strokeStyle = '#ef4444'; ectx.lineWidth = 1.5; ectx.stroke();
 
   // Labels
-  ctx.font='bold 12px Arial';
-  drawDot(cx,cy,'#e94560','O');
-  drawDot(tx,ty,'#4ecca3','T');
-  drawDot(px,py,'#ffd166','P');
+  ectx.font = 'bold 12px Segoe UI'; ectx.textAlign = 'center';
+  ectx.fillStyle = '#1d4ed8'; ectx.fillText('O', ocx - 12, ocy + 4);
+  ectx.fillStyle = '#b91c1c'; ectx.fillText('P', ptx + 10, pty + 4);
+  ectx.fillStyle = '#6b21a8'; ectx.fillText('T', ttx - 12, tty - 8);
 
-  // Dimension labels
-  ctx.fillStyle='#a29bfe';ctx.font='11px Arial';
-  const mx=(cx+tx)/2,my=(cy+ty)/2;
-  ctx.fillText('r',mx-12,my-6);
-  ctx.fillStyle='#ffd166';
-  const mpx=(tx+px)/2,mpy=(ty+py)/2;
-  ctx.fillText('PT',mpx+4,mpy-5);
-
-  // Update badges
-  const ot=R,pt=Math.sqrt((px-tx)**2+(py-ty)**2),op=Math.sqrt((px-cx)**2+(py-cy)**2);
-  document.getElementById('rad').textContent=R;
-  document.getElementById('angle').textContent='90°';
-  const lhs=Math.round(ot*ot)+'+'+Math.round(pt*pt);
-  document.getElementById('pythag').textContent='OP²';
+  ectx.font = '11px Segoe UI';
+  ectx.fillStyle = '#92400e'; ectx.fillText('5cm', ocx - 16, ocy - 28);
+  if (exStep >= 3) { ectx.fillStyle = '#166534'; ectx.fillText('PT=?', (ttx + ptx) / 2 + 15, (tty + pty) / 2 + 4); }
+  if (exStep >= 2) { ectx.fillStyle = '#1d4ed8'; ectx.fillText('13cm', (ocx + ptx) / 2, ocy + 16); }
+  if (exStep >= 5) {
+    ectx.fillStyle = '#7e22ce'; ectx.font = 'bold 14px Segoe UI';
+    ectx.fillText('PT = 12 cm ✓', (ttx + ptx) / 2 + 15, (tty + pty) / 2 - 10);
+  }
 }
 
-function drawRightAngle(tx,ty,ox,oy,px,py){
-  const s=10;
-  const r=[ox-tx,oy-ty],p=[px-tx,py-ty];
-  const rn=Math.sqrt(r[0]**2+r[1]**2),pn=Math.sqrt(p[0]**2+p[1]**2);
-  if(rn===0||pn===0)return;
-  const ru=[r[0]/rn,r[1]/rn],pu=[p[0]/pn,p[1]/pn];
-  ctx.beginPath();
-  ctx.moveTo(tx+ru[0]*s,ty+ru[1]*s);
-  ctx.lineTo(tx+ru[0]*s+pu[0]*s,ty+ru[1]*s+pu[1]*s);
-  ctx.lineTo(tx+pu[0]*s,ty+pu[1]*s);
-  ctx.strokeStyle='rgba(255,255,255,.7)';ctx.lineWidth=1.5;ctx.stroke();
-}
-
-function drawDot(x,y,col,label){
-  ctx.beginPath();ctx.arc(x,y,6,0,Math.PI*2);
-  ctx.fillStyle=col;ctx.fill();
-  ctx.strokeStyle='rgba(255,255,255,.4)';ctx.lineWidth=1;ctx.stroke();
-  ctx.fillStyle='#fff';ctx.font='bold 12px Arial';
-  ctx.fillText(label,x+9,y-6);
-}
-
-function animate(){
-  angle+=0.008;
-  draw();
-  animId=requestAnimationFrame(animate);
-}
-function toggleAnim(){
-  const btn=document.getElementById('animBtn');
-  if(animating){cancelAnimationFrame(animId);animating=false;btn.textContent='▶ Animate';btn.className='btn-secondary';}
-  else{animating=true;btn.textContent='⏸ Pause';btn.className='btn-active';animate();}
-}
-function resetView(){angle=Math.PI/4;showTwo=false;document.getElementById('t2btn').className='btn-secondary';draw();}
-function toggleTwoTangents(){
-  showTwo=!showTwo;
-  const btn=document.getElementById('t2btn');
-  btn.className=showTwo?'btn-active':'btn-secondary';
-  draw();
-}
-
-// Drag
-function getPos(e){
-  const r=canvas.getBoundingClientRect();
-  const src=e.touches?e.touches[0]:e;
-  return{x:(src.clientX-r.left)*(W/r.width),y:(src.clientY-r.top)*(H/r.height)};
-}
-function startDrag(e){
-  if(animating)return;
-  const{x,y}=getPos(e);
-  const{px,py}=getExternalP(angle);
-  if(Math.abs(x-px)<20&&Math.abs(y-py)<20){isDragging=true;e.preventDefault();}
-}
-function doDrag(e){
-  if(!isDragging||animating)return;
-  e.preventDefault();
-  const{x,y}=getPos(e);
-  angle=Math.atan2(y-cy,x-cx);
-  draw();
-}
-function endDrag(){isDragging=false;}
-canvas.addEventListener('mousedown',startDrag);
-canvas.addEventListener('mousemove',doDrag);
-canvas.addEventListener('mouseup',endDrag);
-canvas.addEventListener('touchstart',startDrag,{passive:false});
-canvas.addEventListener('touchmove',doDrag,{passive:false});
-canvas.addEventListener('touchend',endDrag);
-
-draw();
+renderEx();
+window.addEventListener('resize', () => { resize(); drawExample(); });
+resize();
 </script>
 </body>
 </html>
