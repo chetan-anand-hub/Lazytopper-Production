@@ -10,7 +10,8 @@
       "slug": "quadratic-formula",
       "filePath": "/app/visuals/maths/quadratic-equations/quadratic-formula.html",
       "sizeKB": 21.3,
-      "generatedAt": "2026-04-11T01:32:49.784Z"
+      "generatedAt": "2026-04-11T01:32:49.784Z",
+      "topicKey": "Quadratic Equations"
     },
     "irrational-numbers-proof": {
       "subject": "maths",
@@ -20,7 +21,8 @@
       "slug": "irrational-numbers-proof",
       "filePath": "/app/visuals/maths/real-numbers/irrational-numbers-proof.html",
       "sizeKB": 21.2,
-      "generatedAt": "2026-04-11T01:50:11.039Z"
+      "generatedAt": "2026-04-11T01:50:11.039Z",
+      "topicKey": "Real Numbers"
     },
     "elimination-method": {
       "subject": "maths",
@@ -30,7 +32,8 @@
       "slug": "elimination-method",
       "filePath": "/app/visuals/maths/linear-equations/elimination-method.html",
       "sizeKB": 20.7,
-      "generatedAt": "2026-04-11T02:04:00.344Z"
+      "generatedAt": "2026-04-11T02:04:00.344Z",
+      "topicKey": "Pair of Linear Equations"
     },
     "cross-multiplication-method": {
       "subject": "maths",
@@ -40,7 +43,8 @@
       "slug": "cross-multiplication-method",
       "filePath": "/app/visuals/maths/linear-equations/cross-multiplication-method.html",
       "sizeKB": 21,
-      "generatedAt": "2026-04-11T02:05:53.202Z"
+      "generatedAt": "2026-04-11T02:05:53.202Z",
+      "topicKey": "Pair of Linear Equations"
     },
     "similar-triangles-and-criteria": {
       "subject": "maths",
@@ -50,7 +54,8 @@
       "slug": "similar-triangles-and-criteria",
       "filePath": "/app/visuals/maths/triangles/similar-triangles-and-criteria.html",
       "sizeKB": 19.5,
-      "generatedAt": "2026-04-11T02:22:24.228Z"
+      "generatedAt": "2026-04-11T02:22:24.228Z",
+      "topicKey": "Triangles"
     },
     "area-of-triangle-using-coordinates": {
       "subject": "maths",
@@ -60,7 +65,8 @@
       "slug": "area-of-triangle-using-coordinates",
       "filePath": "/app/visuals/maths/coordinate-geometry/area-of-triangle-using-coordinates.html",
       "sizeKB": 18.2,
-      "generatedAt": "2026-04-11T02:29:52.784Z"
+      "generatedAt": "2026-04-11T02:29:52.784Z",
+      "topicKey": "Coordinate Geometry"
     },
     "height-and-distance-problems": {
       "subject": "maths",
@@ -70,7 +76,8 @@
       "slug": "height-and-distance-problems",
       "filePath": "/app/visuals/maths/trigonometry/height-and-distance-problems.html",
       "sizeKB": 20.1,
-      "generatedAt": "2026-04-11T02:38:53.592Z"
+      "generatedAt": "2026-04-11T02:38:53.592Z",
+      "topicKey": "Trigonometry"
     },
     "types-of-chemical-reactions": {
       "subject": "science",
@@ -80,7 +87,8 @@
       "slug": "types-of-chemical-reactions",
       "filePath": "/app/visuals/science/chemical-reactions/types-of-chemical-reactions.html",
       "sizeKB": 21.7,
-      "generatedAt": "2026-04-11T03:09:17.994Z"
+      "generatedAt": "2026-04-11T03:09:17.994Z",
+      "topicKey": "Chemical Reactions and Equations"
     },
     "oxidation-and-reduction": {
       "subject": "science",
@@ -90,7 +98,8 @@
       "slug": "oxidation-and-reduction",
       "filePath": "/app/visuals/science/chemical-reactions/oxidation-and-reduction.html",
       "sizeKB": 20.4,
-      "generatedAt": "2026-04-11T03:13:18.025Z"
+      "generatedAt": "2026-04-11T03:13:18.025Z",
+      "topicKey": "Chemical Reactions and Equations"
     },
     "corrosion-and-rancidity": {
       "subject": "science",
@@ -100,7 +109,8 @@
       "slug": "corrosion-and-rancidity",
       "filePath": "/app/visuals/science/chemical-reactions/corrosion-and-rancidity.html",
       "sizeKB": 20.7,
-      "generatedAt": "2026-04-11T03:15:11.542Z"
+      "generatedAt": "2026-04-11T03:15:11.542Z",
+      "topicKey": "Chemical Reactions and Equations"
     },
     "common-salt-and-its-products": {
       "subject": "science",
@@ -110,7 +120,8 @@
       "slug": "common-salt-and-its-products",
       "filePath": "/app/visuals/science/acids-bases-salts/common-salt-and-its-products.html",
       "sizeKB": 20,
-      "generatedAt": "2026-04-11T03:20:43.584Z"
+      "generatedAt": "2026-04-11T03:20:43.584Z",
+      "topicKey": "Acids Bases and Salts"
     },
     "physical-properties-of-metals": {
       "subject": "science",
@@ -120,7 +131,8 @@
       "slug": "physical-properties-of-metals",
       "filePath": "/app/visuals/science/metals-nonmetals/physical-properties-of-metals.html",
       "sizeKB": 20.8,
-      "generatedAt": "2026-04-11T03:22:24.953Z"
+      "generatedAt": "2026-04-11T03:22:24.953Z",
+      "topicKey": "Metals and Non-Metals"
     },
     "ionic-bonding": {
       "subject": "science",
@@ -130,7 +142,8 @@
       "slug": "ionic-bonding",
       "filePath": "/app/visuals/science/metals-nonmetals/ionic-bonding.html",
       "sizeKB": 20.4,
-      "generatedAt": "2026-04-11T03:26:11.707Z"
+      "generatedAt": "2026-04-11T03:26:11.707Z",
+      "topicKey": "Metals and Non-Metals"
     },
     "homologous-series": {
       "subject": "science",
@@ -140,7 +153,8 @@
       "slug": "homologous-series",
       "filePath": "/app/visuals/science/carbon-compounds/homologous-series.html",
       "sizeKB": 20.2,
-      "generatedAt": "2026-04-11T03:31:38.312Z"
+      "generatedAt": "2026-04-11T03:31:38.312Z",
+      "topicKey": "Carbon and its Compounds"
     },
     "photosynthesis": {
       "subject": "science",
@@ -150,7 +164,8 @@
       "slug": "photosynthesis",
       "filePath": "/app/visuals/science/life-processes/photosynthesis.html",
       "sizeKB": 20.9,
-      "generatedAt": "2026-04-11T03:39:20.640Z"
+      "generatedAt": "2026-04-11T03:39:20.640Z",
+      "topicKey": "Life Processes"
     },
     "human-heart-and-blood-circulation": {
       "subject": "science",
@@ -160,7 +175,8 @@
       "slug": "human-heart-and-blood-circulation",
       "filePath": "/app/visuals/science/life-processes/human-heart-and-blood-circulation.html",
       "sizeKB": 21.2,
-      "generatedAt": "2026-04-11T03:41:07.899Z"
+      "generatedAt": "2026-04-11T03:41:07.899Z",
+      "topicKey": "Life Processes"
     },
     "respiration-and-excretion": {
       "subject": "science",
@@ -170,7 +186,8 @@
       "slug": "respiration-and-excretion",
       "filePath": "/app/visuals/science/life-processes/respiration-and-excretion.html",
       "sizeKB": 20.8,
-      "generatedAt": "2026-04-11T03:43:02.668Z"
+      "generatedAt": "2026-04-11T03:43:02.668Z",
+      "topicKey": "Life Processes"
     },
     "nervous-system": {
       "subject": "science",
@@ -180,7 +197,8 @@
       "slug": "nervous-system",
       "filePath": "/app/visuals/science/control-coordination/nervous-system.html",
       "sizeKB": 19.8,
-      "generatedAt": "2026-04-11T03:44:42.250Z"
+      "generatedAt": "2026-04-11T03:44:42.250Z",
+      "topicKey": "Control and Coordination"
     },
     "types-of-asexual-reproduction": {
       "subject": "science",
@@ -190,7 +208,8 @@
       "slug": "types-of-asexual-reproduction",
       "filePath": "/app/visuals/science/reproduction/types-of-asexual-reproduction.html",
       "sizeKB": 21.2,
-      "generatedAt": "2026-04-11T03:50:24.074Z"
+      "generatedAt": "2026-04-11T03:50:24.074Z",
+      "topicKey": "How do Organisms Reproduce"
     },
     "human-reproductive-system": {
       "subject": "science",
@@ -200,7 +219,8 @@
       "slug": "human-reproductive-system",
       "filePath": "/app/visuals/science/reproduction/human-reproductive-system.html",
       "sizeKB": 20.5,
-      "generatedAt": "2026-04-11T03:52:20.040Z"
+      "generatedAt": "2026-04-11T03:52:20.040Z",
+      "topicKey": "How do Organisms Reproduce"
     },
     "flower-structure-and-pollination": {
       "subject": "science",
@@ -210,7 +230,8 @@
       "slug": "flower-structure-and-pollination",
       "filePath": "/app/visuals/science/reproduction/flower-structure-and-pollination.html",
       "sizeKB": 20,
-      "generatedAt": "2026-04-11T03:54:11.154Z"
+      "generatedAt": "2026-04-11T03:54:11.154Z",
+      "topicKey": "How do Organisms Reproduce"
     },
     "mendels-laws-of-inheritance": {
       "subject": "science",
@@ -220,7 +241,8 @@
       "slug": "mendels-laws-of-inheritance",
       "filePath": "/app/visuals/science/heredity-evolution/mendels-laws-of-inheritance.html",
       "sizeKB": 20.7,
-      "generatedAt": "2026-04-11T03:55:58.758Z"
+      "generatedAt": "2026-04-11T03:55:58.758Z",
+      "topicKey": "Heredity and Evolution"
     },
     "sex-determination": {
       "subject": "science",
@@ -230,7 +252,8 @@
       "slug": "sex-determination",
       "filePath": "/app/visuals/science/heredity-evolution/sex-determination.html",
       "sizeKB": 21.1,
-      "generatedAt": "2026-04-11T03:57:47.264Z"
+      "generatedAt": "2026-04-11T03:57:47.264Z",
+      "topicKey": "Heredity and Evolution"
     },
     "evolution-and-speciation": {
       "subject": "science",
@@ -240,7 +263,8 @@
       "slug": "evolution-and-speciation",
       "filePath": "/app/visuals/science/heredity-evolution/evolution-and-speciation.html",
       "sizeKB": 21.3,
-      "generatedAt": "2026-04-11T03:59:43.911Z"
+      "generatedAt": "2026-04-11T03:59:43.911Z",
+      "topicKey": "Heredity and Evolution"
     },
     "structure-of-human-eye": {
       "subject": "science",
@@ -250,7 +274,8 @@
       "slug": "structure-of-human-eye",
       "filePath": "/app/visuals/science/human-eye/structure-of-human-eye.html",
       "sizeKB": 20.1,
-      "generatedAt": "2026-04-11T04:11:51.524Z"
+      "generatedAt": "2026-04-11T04:11:51.524Z",
+      "topicKey": "Human Eye and Colourful World"
     },
     "defects-of-vision-and-correction": {
       "subject": "science",
@@ -260,7 +285,8 @@
       "slug": "defects-of-vision-and-correction",
       "filePath": "/app/visuals/science/human-eye/defects-of-vision-and-correction.html",
       "sizeKB": 19.7,
-      "generatedAt": "2026-04-11T04:13:44.242Z"
+      "generatedAt": "2026-04-11T04:13:44.242Z",
+      "topicKey": "Human Eye and Colourful World"
     },
     "magnetic-field-lines": {
       "subject": "science",
@@ -270,7 +296,8 @@
       "slug": "magnetic-field-lines",
       "filePath": "/app/visuals/science/magnetic-effects/magnetic-field-lines.html",
       "sizeKB": 20.9,
-      "generatedAt": "2026-04-11T04:27:50.432Z"
+      "generatedAt": "2026-04-11T04:27:50.432Z",
+      "topicKey": "Magnetic Effects of Electric Current"
     },
     "flemings-left-hand-rule": {
       "subject": "science",
@@ -280,7 +307,8 @@
       "slug": "flemings-left-hand-rule",
       "filePath": "/app/visuals/science/magnetic-effects/flemings-left-hand-rule.html",
       "sizeKB": 21.1,
-      "generatedAt": "2026-04-11T04:31:42.586Z"
+      "generatedAt": "2026-04-11T04:31:42.586Z",
+      "topicKey": "Magnetic Effects of Electric Current"
     },
     "food-chain-and-food-web": {
       "subject": "science",
@@ -290,7 +318,8 @@
       "slug": "food-chain-and-food-web",
       "filePath": "/app/visuals/science/environment/food-chain-and-food-web.html",
       "sizeKB": 20.9,
-      "generatedAt": "2026-04-11T04:35:13.764Z"
+      "generatedAt": "2026-04-11T04:35:13.764Z",
+      "topicKey": "Our Environment"
     },
     "ozone-layer-and-biodegradability": {
       "subject": "science",
@@ -300,7 +329,8 @@
       "slug": "ozone-layer-and-biodegradability",
       "filePath": "/app/visuals/science/environment/ozone-layer-and-biodegradability.html",
       "sizeKB": 20.5,
-      "generatedAt": "2026-04-11T04:39:06.695Z"
+      "generatedAt": "2026-04-11T04:39:06.695Z",
+      "topicKey": "Our Environment"
     },
     "euclids-division-lemma": {
       "subject": "maths",
@@ -310,7 +340,8 @@
       "slug": "euclids-division-lemma",
       "filePath": "/app/visuals/maths/real-numbers/euclids-division-lemma.html",
       "sizeKB": 17.4,
-      "generatedAt": "2026-04-11T04:53:02.794Z"
+      "generatedAt": "2026-04-11T04:53:02.794Z",
+      "topicKey": "Real Numbers"
     },
     "fundamental-theorem-of-arithmetic": {
       "subject": "maths",
@@ -320,7 +351,8 @@
       "slug": "fundamental-theorem-of-arithmetic",
       "filePath": "/app/visuals/maths/real-numbers/fundamental-theorem-of-arithmetic.html",
       "sizeKB": 20.3,
-      "generatedAt": "2026-04-11T04:57:57.722Z"
+      "generatedAt": "2026-04-11T04:57:57.722Z",
+      "topicKey": "Real Numbers"
     },
     "basic-proportionality-theorem": {
       "subject": "maths",
@@ -330,7 +362,8 @@
       "slug": "basic-proportionality-theorem",
       "filePath": "/app/visuals/maths/triangles/basic-proportionality-theorem.html",
       "sizeKB": 17.5,
-      "generatedAt": "2026-04-11T05:02:06.066Z"
+      "generatedAt": "2026-04-11T05:02:06.066Z",
+      "topicKey": "Triangles"
     },
     "trigonometric-ratios": {
       "subject": "maths",
@@ -340,7 +373,8 @@
       "slug": "trigonometric-ratios",
       "filePath": "/app/visuals/maths/trigonometry/trigonometric-ratios.html",
       "sizeKB": 18.5,
-      "generatedAt": "2026-04-11T05:08:49.968Z"
+      "generatedAt": "2026-04-11T05:08:49.968Z",
+      "topicKey": "Trigonometry"
     },
     "balancing-chemical-equations": {
       "subject": "science",
@@ -350,7 +384,8 @@
       "slug": "balancing-chemical-equations",
       "filePath": "/app/visuals/science/chemical-reactions/balancing-chemical-equations.html",
       "sizeKB": 24.1,
-      "generatedAt": "2026-04-11T05:19:28.516Z"
+      "generatedAt": "2026-04-11T05:19:28.516Z",
+      "topicKey": "Chemical Reactions and Equations"
     },
     "graphical-method": {
       "subject": "maths",
@@ -360,7 +395,8 @@
       "slug": "graphical-method",
       "filePath": "/app/visuals/maths/linear-equations/graphical-method.html",
       "sizeKB": 19.8,
-      "generatedAt": "2026-04-11T05:23:42.426Z"
+      "generatedAt": "2026-04-11T05:23:42.426Z",
+      "topicKey": "Pair of Linear Equations"
     },
     "distance-formula": {
       "subject": "maths",
@@ -370,7 +406,8 @@
       "slug": "distance-formula",
       "filePath": "/app/visuals/maths/coordinate-geometry/distance-formula.html",
       "sizeKB": 21.6,
-      "generatedAt": "2026-04-11T05:25:50.451Z"
+      "generatedAt": "2026-04-11T05:25:50.451Z",
+      "topicKey": "Coordinate Geometry"
     },
     "section-formula": {
       "subject": "maths",
@@ -380,7 +417,8 @@
       "slug": "section-formula",
       "filePath": "/app/visuals/maths/coordinate-geometry/section-formula.html",
       "sizeKB": 23.5,
-      "generatedAt": "2026-04-11T05:28:11.458Z"
+      "generatedAt": "2026-04-11T05:28:11.458Z",
+      "topicKey": "Coordinate Geometry"
     },
     "zeroes-of-a-polynomial": {
       "subject": "maths",
@@ -390,7 +428,8 @@
       "slug": "zeroes-of-a-polynomial",
       "filePath": "/app/visuals/maths/polynomials/zeroes-of-a-polynomial.html",
       "sizeKB": 21,
-      "generatedAt": "2026-04-11T05:32:12.345Z"
+      "generatedAt": "2026-04-11T05:32:12.345Z",
+      "topicKey": "Polynomials"
     },
     "ap-definition-and-common-difference": {
       "subject": "maths",
@@ -400,7 +439,8 @@
       "slug": "ap-definition-and-common-difference",
       "filePath": "/app/visuals/maths/arithmetic-progression/ap-definition-and-common-difference.html",
       "sizeKB": 20.6,
-      "generatedAt": "2026-04-11T05:44:22.309Z"
+      "generatedAt": "2026-04-11T05:44:22.309Z",
+      "topicKey": "Arithmetic Progression"
     },
     "combination-of-solids": {
       "subject": "maths",
@@ -410,7 +450,8 @@
       "slug": "combination-of-solids",
       "filePath": "/app/visuals/maths/surface-areas-volumes/combination-of-solids.html",
       "sizeKB": 21.2,
-      "generatedAt": "2026-04-11T06:02:59.498Z"
+      "generatedAt": "2026-04-11T06:02:59.498Z",
+      "topicKey": "Surface Areas and Volumes"
     },
     "sector-and-segment": {
       "subject": "maths",
@@ -420,7 +461,8 @@
       "slug": "sector-and-segment",
       "filePath": "/app/visuals/maths/areas-circles/sector-and-segment.html",
       "sizeKB": 22,
-      "generatedAt": "2026-04-11T06:05:51.949Z"
+      "generatedAt": "2026-04-11T06:05:51.949Z",
+      "topicKey": "Areas Related to Circles"
     },
     "coordinate-plane-plotter": {
       "subject": "maths",
@@ -430,7 +472,8 @@
       "slug": "coordinate-plane-plotter",
       "filePath": "/app/visuals/maths/coordinate-geometry/coordinate-plane-plotter.html",
       "sizeKB": 21.3,
-      "generatedAt": "2026-04-11T06:14:54.940Z"
+      "generatedAt": "2026-04-11T06:14:54.940Z",
+      "topicKey": "Coordinate Geometry"
     },
     "ohms-law": {
       "subject": "science",
@@ -440,7 +483,8 @@
       "slug": "ohms-law",
       "filePath": "/app/visuals/science/electricity/ohms-law.html",
       "sizeKB": 22.1,
-      "generatedAt": "2026-04-11T06:21:48.663Z"
+      "generatedAt": "2026-04-11T06:21:48.663Z",
+      "topicKey": "Electricity"
     },
     "mean-of-grouped-data": {
       "subject": "maths",
@@ -450,7 +494,8 @@
       "slug": "mean-of-grouped-data",
       "filePath": "/app/visuals/maths/statistics/mean-of-grouped-data.html",
       "sizeKB": 22.5,
-      "generatedAt": "2026-04-11T06:45:06.709Z"
+      "generatedAt": "2026-04-11T06:45:06.709Z",
+      "topicKey": "Statistics"
     },
     "tangent-to-a-circle": {
       "subject": "maths",
@@ -460,7 +505,8 @@
       "slug": "tangent-to-a-circle",
       "filePath": "/app/visuals/maths/circles/tangent-to-a-circle.html",
       "sizeKB": 18.7,
-      "generatedAt": "2026-04-11T06:50:20.009Z"
+      "generatedAt": "2026-04-11T06:50:20.009Z",
+      "topicKey": "Circles"
     },
     "classical-probability": {
       "subject": "maths",
@@ -470,7 +516,8 @@
       "slug": "classical-probability",
       "filePath": "/app/visuals/maths/probability/classical-probability.html",
       "sizeKB": 23.8,
-      "generatedAt": "2026-04-11T07:06:42.356Z"
+      "generatedAt": "2026-04-11T07:06:42.356Z",
+      "topicKey": "Probability"
     },
     "relationship-between-zeroes-and-coefficients": {
       "subject": "maths",
@@ -480,7 +527,8 @@
       "slug": "relationship-between-zeroes-and-coefficients",
       "filePath": "/app/visuals/maths/polynomials/relationship-between-zeroes-and-coefficients.html",
       "sizeKB": 23.6,
-      "generatedAt": "2026-04-11T07:29:19.676Z"
+      "generatedAt": "2026-04-11T07:29:19.676Z",
+      "topicKey": "Polynomials"
     },
     "series-and-parallel-circuits": {
       "subject": "science",
@@ -490,7 +538,8 @@
       "slug": "series-and-parallel-circuits",
       "filePath": "/app/visuals/science/electricity/series-and-parallel-circuits.html",
       "sizeKB": 23.8,
-      "generatedAt": "2026-04-11T07:36:47.071Z"
+      "generatedAt": "2026-04-11T07:36:47.071Z",
+      "topicKey": "Electricity"
     },
     "hcf-and-lcm-using-prime-factorisation": {
       "subject": "maths",
@@ -500,7 +549,8 @@
       "slug": "hcf-and-lcm-using-prime-factorisation",
       "filePath": "/app/visuals/maths/real-numbers/hcf-and-lcm-using-prime-factorisation.html",
       "sizeKB": 20.7,
-      "generatedAt": "2026-04-11T07:46:50.048Z"
+      "generatedAt": "2026-04-11T07:46:50.048Z",
+      "topicKey": "Real Numbers"
     },
     "pythagoras-theorem-visual-proof": {
       "subject": "maths",
@@ -510,7 +560,8 @@
       "slug": "pythagoras-theorem-visual-proof",
       "filePath": "/app/visuals/maths/triangles/pythagoras-theorem-visual-proof.html",
       "sizeKB": 18.6,
-      "generatedAt": "2026-04-11T07:50:21.790Z"
+      "generatedAt": "2026-04-11T07:50:21.790Z",
+      "topicKey": "Triangles"
     },
     "nth-term-formula": {
       "subject": "maths",
@@ -520,7 +571,8 @@
       "slug": "nth-term-formula",
       "filePath": "/app/visuals/maths/arithmetic-progression/nth-term-formula.html",
       "sizeKB": 21.9,
-      "generatedAt": "2026-04-11T07:54:47.980Z"
+      "generatedAt": "2026-04-11T07:54:47.980Z",
+      "topicKey": "Arithmetic Progression"
     },
     "sum-of-n-terms": {
       "subject": "maths",
@@ -530,7 +582,8 @@
       "slug": "sum-of-n-terms",
       "filePath": "/app/visuals/maths/arithmetic-progression/sum-of-n-terms.html",
       "sizeKB": 23.1,
-      "generatedAt": "2026-04-11T07:57:32.644Z"
+      "generatedAt": "2026-04-11T07:57:32.644Z",
+      "topicKey": "Arithmetic Progression"
     },
     "number-of-tangents-from-external-point": {
       "subject": "maths",
@@ -540,7 +593,8 @@
       "slug": "number-of-tangents-from-external-point",
       "filePath": "/app/visuals/maths/circles/number-of-tangents-from-external-point.html",
       "sizeKB": 24.7,
-      "generatedAt": "2026-04-11T08:14:22.171Z"
+      "generatedAt": "2026-04-11T08:14:22.171Z",
+      "topicKey": "Circles"
     },
     "conversion-of-solids": {
       "subject": "maths",
@@ -550,7 +604,8 @@
       "slug": "conversion-of-solids",
       "filePath": "/app/visuals/maths/surface-areas-volumes/conversion-of-solids.html",
       "sizeKB": 20.5,
-      "generatedAt": "2026-04-11T08:20:59.245Z"
+      "generatedAt": "2026-04-11T08:20:59.245Z",
+      "topicKey": "Surface Areas and Volumes"
     },
     "substitution-method": {
       "subject": "maths",
@@ -560,7 +615,8 @@
       "slug": "substitution-method",
       "filePath": "/app/visuals/maths/linear-equations/substitution-method.html",
       "sizeKB": 23.1,
-      "generatedAt": "2026-04-11T08:27:41.011Z"
+      "generatedAt": "2026-04-11T08:27:41.011Z",
+      "topicKey": "Pair of Linear Equations"
     },
     "ap-number-line-visualization": {
       "subject": "maths",
@@ -570,7 +626,8 @@
       "slug": "ap-number-line-visualization",
       "filePath": "/app/visuals/maths/arithmetic-progression/ap-number-line-visualization.html",
       "sizeKB": 21,
-      "generatedAt": "2026-04-11T08:32:47.811Z"
+      "generatedAt": "2026-04-11T08:32:47.811Z",
+      "topicKey": "Arithmetic Progression"
     },
     "trigonometric-ratios-of-standard-angles": {
       "subject": "maths",
@@ -580,7 +637,8 @@
       "slug": "trigonometric-ratios-of-standard-angles",
       "filePath": "/app/visuals/maths/trigonometry/trigonometric-ratios-of-standard-angles.html",
       "sizeKB": 23.1,
-      "generatedAt": "2026-04-11T08:37:33.298Z"
+      "generatedAt": "2026-04-11T08:37:33.298Z",
+      "topicKey": "Trigonometry"
     },
     "median-of-grouped-data": {
       "subject": "maths",
@@ -590,7 +648,8 @@
       "slug": "median-of-grouped-data",
       "filePath": "/app/visuals/maths/statistics/median-of-grouped-data.html",
       "sizeKB": 23.7,
-      "generatedAt": "2026-04-11T08:39:24.471Z"
+      "generatedAt": "2026-04-11T08:39:24.471Z",
+      "topicKey": "Statistics"
     },
     "complementary-events": {
       "subject": "maths",
@@ -600,7 +659,8 @@
       "slug": "complementary-events",
       "filePath": "/app/visuals/maths/probability/complementary-events.html",
       "sizeKB": 22.1,
-      "generatedAt": "2026-04-11T08:41:20.985Z"
+      "generatedAt": "2026-04-11T08:41:20.985Z",
+      "topicKey": "Probability"
     },
     "areas-of-similar-triangles": {
       "subject": "maths",
@@ -610,7 +670,8 @@
       "slug": "areas-of-similar-triangles",
       "filePath": "/app/visuals/maths/triangles/areas-of-similar-triangles.html",
       "sizeKB": 20.7,
-      "generatedAt": "2026-04-11T08:53:30.595Z"
+      "generatedAt": "2026-04-11T08:53:30.595Z",
+      "topicKey": "Triangles"
     },
     "area-of-sector-formula": {
       "subject": "maths",
@@ -620,7 +681,8 @@
       "slug": "area-of-sector-formula",
       "filePath": "/app/visuals/maths/areas-circles/area-of-sector-formula.html",
       "sizeKB": 19.9,
-      "generatedAt": "2026-04-11T08:58:31.210Z"
+      "generatedAt": "2026-04-11T08:58:31.210Z",
+      "topicKey": "Areas Related to Circles"
     },
     "frustum-of-a-cone": {
       "subject": "maths",
@@ -630,7 +692,8 @@
       "slug": "frustum-of-a-cone",
       "filePath": "/app/visuals/maths/surface-areas-volumes/frustum-of-a-cone.html",
       "sizeKB": 22.9,
-      "generatedAt": "2026-04-11T09:00:39.638Z"
+      "generatedAt": "2026-04-11T09:00:39.638Z",
+      "topicKey": "Surface Areas and Volumes"
     },
     "mode-of-grouped-data": {
       "subject": "maths",
@@ -640,7 +703,8 @@
       "slug": "mode-of-grouped-data",
       "filePath": "/app/visuals/maths/statistics/mode-of-grouped-data.html",
       "sizeKB": 19.5,
-      "generatedAt": "2026-04-11T09:10:24.587Z"
+      "generatedAt": "2026-04-11T09:10:24.587Z",
+      "topicKey": "Statistics"
     },
     "reactivity-series": {
       "subject": "science",
@@ -650,7 +714,8 @@
       "slug": "reactivity-series",
       "filePath": "/app/visuals/science/metals-nonmetals/reactivity-series.html",
       "sizeKB": 20.7,
-      "generatedAt": "2026-04-11T09:14:03.679Z"
+      "generatedAt": "2026-04-11T09:14:03.679Z",
+      "topicKey": "Metals and Non-Metals"
     },
     "consistency-of-equations": {
       "subject": "maths",
@@ -660,7 +725,8 @@
       "slug": "consistency-of-equations",
       "filePath": "/app/visuals/maths/linear-equations/consistency-of-equations.html",
       "sizeKB": 22.2,
-      "generatedAt": "2026-04-11T09:29:26.604Z"
+      "generatedAt": "2026-04-11T09:29:26.604Z",
+      "topicKey": "Pair of Linear Equations"
     },
     "standard-form-and-roots": {
       "subject": "maths",
@@ -670,7 +736,8 @@
       "slug": "standard-form-and-roots",
       "filePath": "/app/visuals/maths/quadratic-equations/standard-form-and-roots.html",
       "sizeKB": 20.6,
-      "generatedAt": "2026-04-11T09:41:00.939Z"
+      "generatedAt": "2026-04-11T09:41:00.939Z",
+      "topicKey": "Quadratic Equations"
     },
     "ph-scale": {
       "subject": "science",
@@ -680,7 +747,8 @@
       "slug": "ph-scale",
       "filePath": "/app/visuals/science/acids-bases-salts/ph-scale.html",
       "sizeKB": 22.6,
-      "generatedAt": "2026-04-11T09:44:46.735Z"
+      "generatedAt": "2026-04-11T09:44:46.735Z",
+      "topicKey": "Acids Bases and Salts"
     },
     "nutrition-in-humans": {
       "subject": "science",
@@ -690,7 +758,8 @@
       "slug": "nutrition-in-humans",
       "filePath": "/app/visuals/science/life-processes/nutrition-in-humans.html",
       "sizeKB": 22.3,
-      "generatedAt": "2026-04-11T09:53:10.023Z"
+      "generatedAt": "2026-04-11T09:53:10.023Z",
+      "topicKey": "Life Processes"
     },
     "trigonometric-identities": {
       "subject": "maths",
@@ -700,7 +769,8 @@
       "slug": "trigonometric-identities",
       "filePath": "/app/visuals/maths/trigonometry/trigonometric-identities.html",
       "sizeKB": 20.5,
-      "generatedAt": "2026-04-11T10:06:40.392Z"
+      "generatedAt": "2026-04-11T10:06:40.392Z",
+      "topicKey": "Trigonometry"
     },
     "dice-and-cards-sample-space": {
       "subject": "maths",
@@ -710,7 +780,8 @@
       "slug": "dice-and-cards-sample-space",
       "filePath": "/app/visuals/maths/probability/dice-and-cards-sample-space.html",
       "sizeKB": 23.3,
-      "generatedAt": "2026-04-11T10:14:00.973Z"
+      "generatedAt": "2026-04-11T10:14:00.973Z",
+      "topicKey": "Probability"
     },
     "graphical-meaning-of-zeroes": {
       "subject": "maths",
@@ -720,7 +791,8 @@
       "slug": "graphical-meaning-of-zeroes",
       "filePath": "/app/visuals/maths/polynomials/graphical-meaning-of-zeroes.html",
       "sizeKB": 21.9,
-      "generatedAt": "2026-04-11T10:31:53.528Z"
+      "generatedAt": "2026-04-11T10:31:53.528Z",
+      "topicKey": "Polynomials"
     },
     "combined-figures-area": {
       "subject": "maths",
@@ -730,7 +802,8 @@
       "slug": "combined-figures-area",
       "filePath": "/app/visuals/maths/areas-circles/combined-figures-area.html",
       "sizeKB": 20.7,
-      "generatedAt": "2026-04-11T11:30:22.395Z"
+      "generatedAt": "2026-04-11T11:30:22.395Z",
+      "topicKey": "Areas Related to Circles"
     },
     "factorisation-method": {
       "subject": "maths",
@@ -740,7 +813,8 @@
       "slug": "factorisation-method",
       "filePath": "/app/visuals/maths/quadratic-equations/factorisation-method.html",
       "sizeKB": 22.6,
-      "generatedAt": "2026-04-11T11:40:20.979Z"
+      "generatedAt": "2026-04-11T11:40:20.979Z",
+      "topicKey": "Quadratic Equations"
     },
     "decimal-expansions": {
       "subject": "maths",
@@ -750,7 +824,8 @@
       "slug": "decimal-expansions",
       "filePath": "/app/visuals/maths/real-numbers/decimal-expansions.html",
       "sizeKB": 19.4,
-      "generatedAt": "2026-04-11T11:43:42.345Z"
+      "generatedAt": "2026-04-11T11:43:42.345Z",
+      "topicKey": "Real Numbers"
     },
     "division-algorithm-for-polynomials": {
       "subject": "maths",
@@ -760,7 +835,8 @@
       "slug": "division-algorithm-for-polynomials",
       "filePath": "/app/visuals/maths/polynomials/division-algorithm-for-polynomials.html",
       "sizeKB": 21.6,
-      "generatedAt": "2026-04-11T11:49:18.851Z"
+      "generatedAt": "2026-04-11T11:49:18.851Z",
+      "topicKey": "Polynomials"
     },
     "tangent-properties": {
       "subject": "maths",
@@ -770,7 +846,8 @@
       "slug": "tangent-properties",
       "filePath": "/app/visuals/maths/circles/tangent-properties.html",
       "sizeKB": 23.3,
-      "generatedAt": "2026-04-11T12:11:13.083Z"
+      "generatedAt": "2026-04-11T12:11:13.083Z",
+      "topicKey": "Circles"
     },
     "nature-of-roots-using-discriminant": {
       "subject": "maths",
@@ -780,7 +857,8 @@
       "slug": "nature-of-roots-using-discriminant",
       "filePath": "/app/visuals/maths/quadratic-equations/nature-of-roots-using-discriminant.html",
       "sizeKB": 21.7,
-      "generatedAt": "2026-04-11T12:13:54.368Z"
+      "generatedAt": "2026-04-11T12:13:54.368Z",
+      "topicKey": "Quadratic Equations"
     },
     "ogive-curve": {
       "subject": "maths",
@@ -790,7 +868,8 @@
       "slug": "ogive-curve",
       "filePath": "/app/visuals/maths/statistics/ogive-curve.html",
       "sizeKB": 23.1,
-      "generatedAt": "2026-04-11T14:47:20.454Z"
+      "generatedAt": "2026-04-11T14:47:20.454Z",
+      "topicKey": "Statistics"
     },
     "acid-base-reactions": {
       "subject": "science",
@@ -800,7 +879,8 @@
       "slug": "acid-base-reactions",
       "filePath": "/app/visuals/science/acids-bases-salts/acid-base-reactions.html",
       "sizeKB": 20.1,
-      "generatedAt": "2026-04-11T14:47:20.464Z"
+      "generatedAt": "2026-04-11T14:47:20.464Z",
+      "topicKey": "Acids Bases and Salts"
     },
     "carbon-chain-structures": {
       "subject": "science",
@@ -810,7 +890,8 @@
       "slug": "carbon-chain-structures",
       "filePath": "/app/visuals/science/carbon-compounds/carbon-chain-structures.html",
       "sizeKB": 19.8,
-      "generatedAt": "2026-04-11T14:47:20.465Z"
+      "generatedAt": "2026-04-11T14:47:20.465Z",
+      "topicKey": "Carbon and its Compounds"
     },
     "covalent-bonding-in-carbon": {
       "subject": "science",
@@ -820,7 +901,8 @@
       "slug": "covalent-bonding-in-carbon",
       "filePath": "/app/visuals/science/carbon-compounds/covalent-bonding-in-carbon.html",
       "sizeKB": 15.8,
-      "generatedAt": "2026-04-11T14:47:20.465Z"
+      "generatedAt": "2026-04-11T14:47:20.465Z",
+      "topicKey": "Carbon and its Compounds"
     },
     "functional-groups": {
       "subject": "science",
@@ -830,7 +912,8 @@
       "slug": "functional-groups",
       "filePath": "/app/visuals/science/carbon-compounds/functional-groups.html",
       "sizeKB": 19.9,
-      "generatedAt": "2026-04-11T14:47:20.465Z"
+      "generatedAt": "2026-04-11T14:47:20.465Z",
+      "topicKey": "Carbon and its Compounds"
     },
     "plant-hormones-and-tropisms": {
       "subject": "science",
@@ -840,7 +923,8 @@
       "slug": "plant-hormones-and-tropisms",
       "filePath": "/app/visuals/science/control-coordination/plant-hormones-and-tropisms.html",
       "sizeKB": 21.1,
-      "generatedAt": "2026-04-11T14:47:20.466Z"
+      "generatedAt": "2026-04-11T14:47:20.466Z",
+      "topicKey": "Control and Coordination"
     },
     "reflex-arc": {
       "subject": "science",
@@ -850,7 +934,8 @@
       "slug": "reflex-arc",
       "filePath": "/app/visuals/science/control-coordination/reflex-arc.html",
       "sizeKB": 21.3,
-      "generatedAt": "2026-04-11T14:47:20.466Z"
+      "generatedAt": "2026-04-11T14:47:20.466Z",
+      "topicKey": "Control and Coordination"
     },
     "circuit-diagram-builder": {
       "subject": "science",
@@ -860,7 +945,8 @@
       "slug": "circuit-diagram-builder",
       "filePath": "/app/visuals/science/electricity/circuit-diagram-builder.html",
       "sizeKB": 17.4,
-      "generatedAt": "2026-04-11T14:47:20.467Z"
+      "generatedAt": "2026-04-11T14:47:20.467Z",
+      "topicKey": "Electricity"
     },
     "electric-power-and-energy": {
       "subject": "science",
@@ -870,7 +956,8 @@
       "slug": "electric-power-and-energy",
       "filePath": "/app/visuals/science/electricity/electric-power-and-energy.html",
       "sizeKB": 17.8,
-      "generatedAt": "2026-04-11T14:47:20.467Z"
+      "generatedAt": "2026-04-11T14:47:20.467Z",
+      "topicKey": "Electricity"
     },
     "ecosystem-and-energy-flow": {
       "subject": "science",
@@ -880,7 +967,8 @@
       "slug": "ecosystem-and-energy-flow",
       "filePath": "/app/visuals/science/environment/ecosystem-and-energy-flow.html",
       "sizeKB": 18.5,
-      "generatedAt": "2026-04-11T14:47:20.468Z"
+      "generatedAt": "2026-04-11T14:47:20.468Z",
+      "topicKey": "Our Environment"
     },
     "dispersion-of-light-and-rainbow": {
       "subject": "science",
@@ -890,7 +978,8 @@
       "slug": "dispersion-of-light-and-rainbow",
       "filePath": "/app/visuals/science/human-eye/dispersion-of-light-and-rainbow.html",
       "sizeKB": 18.1,
-      "generatedAt": "2026-04-11T14:47:20.469Z"
+      "generatedAt": "2026-04-11T14:47:20.469Z",
+      "topicKey": "Human Eye and Colourful World"
     },
     "lens-formula-and-ray-diagrams": {
       "subject": "science",
@@ -900,7 +989,8 @@
       "slug": "lens-formula-and-ray-diagrams",
       "filePath": "/app/visuals/science/light/lens-formula-and-ray-diagrams.html",
       "sizeKB": 11.4,
-      "generatedAt": "2026-04-11T14:47:20.470Z"
+      "generatedAt": "2026-04-11T14:47:20.470Z",
+      "topicKey": "Light Reflection and Refraction"
     },
     "mirror-formula-and-magnification": {
       "subject": "science",
@@ -910,7 +1000,8 @@
       "slug": "mirror-formula-and-magnification",
       "filePath": "/app/visuals/science/light/mirror-formula-and-magnification.html",
       "sizeKB": 14.9,
-      "generatedAt": "2026-04-11T14:47:20.471Z"
+      "generatedAt": "2026-04-11T14:47:20.471Z",
+      "topicKey": "Light Reflection and Refraction"
     },
     "reflection-of-light": {
       "subject": "science",
@@ -920,7 +1011,8 @@
       "slug": "reflection-of-light",
       "filePath": "/app/visuals/science/light/reflection-of-light.html",
       "sizeKB": 22.9,
-      "generatedAt": "2026-04-11T14:47:20.471Z"
+      "generatedAt": "2026-04-11T14:47:20.471Z",
+      "topicKey": "Light Reflection and Refraction"
     },
     "refraction-of-light": {
       "subject": "science",
@@ -930,7 +1022,8 @@
       "slug": "refraction-of-light",
       "filePath": "/app/visuals/science/light/refraction-of-light.html",
       "sizeKB": 13.5,
-      "generatedAt": "2026-04-11T14:47:20.471Z"
+      "generatedAt": "2026-04-11T14:47:20.471Z",
+      "topicKey": "Light Reflection and Refraction"
     },
     "electric-motor-and-generator": {
       "subject": "science",
@@ -940,7 +1033,8 @@
       "slug": "electric-motor-and-generator",
       "filePath": "/app/visuals/science/magnetic-effects/electric-motor-and-generator.html",
       "sizeKB": 19.9,
-      "generatedAt": "2026-04-11T14:47:20.472Z"
+      "generatedAt": "2026-04-11T14:47:20.472Z",
+      "topicKey": "Magnetic Effects of Electric Current"
     },
     "electromagnet-and-solenoid": {
       "subject": "science",
@@ -950,7 +1044,8 @@
       "slug": "electromagnet-and-solenoid",
       "filePath": "/app/visuals/science/magnetic-effects/electromagnet-and-solenoid.html",
       "sizeKB": 18.2,
-      "generatedAt": "2026-04-11T14:47:20.472Z"
+      "generatedAt": "2026-04-11T14:47:20.472Z",
+      "topicKey": "Magnetic Effects of Electric Current"
     },
     "extraction-of-metals": {
       "subject": "science",
@@ -960,7 +1055,158 @@
       "slug": "extraction-of-metals",
       "filePath": "/app/visuals/science/metals-nonmetals/extraction-of-metals.html",
       "sizeKB": 16.9,
-      "generatedAt": "2026-04-11T14:47:20.473Z"
+      "generatedAt": "2026-04-11T14:47:20.473Z",
+      "topicKey": "Metals and Non-Metals"
     }
+  },
+  "topicKeys": {
+    "Real Numbers": [
+      "irrational-numbers-proof",
+      "euclids-division-lemma",
+      "fundamental-theorem-of-arithmetic",
+      "hcf-and-lcm-using-prime-factorisation",
+      "decimal-expansions"
+    ],
+    "Polynomials": [
+      "zeroes-of-a-polynomial",
+      "relationship-between-zeroes-and-coefficients",
+      "graphical-meaning-of-zeroes",
+      "division-algorithm-for-polynomials"
+    ],
+    "Pair of Linear Equations": [
+      "elimination-method",
+      "cross-multiplication-method",
+      "graphical-method",
+      "substitution-method",
+      "consistency-of-equations"
+    ],
+    "Quadratic Equations": [
+      "quadratic-formula",
+      "standard-form-and-roots",
+      "factorisation-method",
+      "nature-of-roots-using-discriminant"
+    ],
+    "Arithmetic Progression": [
+      "ap-definition-and-common-difference",
+      "nth-term-formula",
+      "sum-of-n-terms",
+      "ap-number-line-visualization"
+    ],
+    "Triangles": [
+      "similar-triangles-and-criteria",
+      "basic-proportionality-theorem",
+      "pythagoras-theorem-visual-proof",
+      "areas-of-similar-triangles"
+    ],
+    "Coordinate Geometry": [
+      "area-of-triangle-using-coordinates",
+      "distance-formula",
+      "section-formula",
+      "coordinate-plane-plotter"
+    ],
+    "Trigonometry": [
+      "height-and-distance-problems",
+      "trigonometric-ratios",
+      "trigonometric-ratios-of-standard-angles",
+      "trigonometric-identities"
+    ],
+    "Circles": [
+      "tangent-to-a-circle",
+      "number-of-tangents-from-external-point",
+      "tangent-properties"
+    ],
+    "Areas Related to Circles": [
+      "sector-and-segment",
+      "area-of-sector-formula",
+      "combined-figures-area"
+    ],
+    "Surface Areas and Volumes": [
+      "combination-of-solids",
+      "conversion-of-solids",
+      "frustum-of-a-cone"
+    ],
+    "Statistics": [
+      "mean-of-grouped-data",
+      "median-of-grouped-data",
+      "mode-of-grouped-data",
+      "ogive-curve"
+    ],
+    "Probability": [
+      "classical-probability",
+      "complementary-events",
+      "dice-and-cards-sample-space"
+    ],
+    "Chemical Reactions and Equations": [
+      "types-of-chemical-reactions",
+      "oxidation-and-reduction",
+      "corrosion-and-rancidity",
+      "balancing-chemical-equations"
+    ],
+    "Acids Bases and Salts": [
+      "common-salt-and-its-products",
+      "ph-scale",
+      "acid-base-reactions"
+    ],
+    "Metals and Non-Metals": [
+      "physical-properties-of-metals",
+      "ionic-bonding",
+      "reactivity-series",
+      "extraction-of-metals"
+    ],
+    "Carbon and its Compounds": [
+      "homologous-series",
+      "carbon-chain-structures",
+      "covalent-bonding-in-carbon",
+      "functional-groups"
+    ],
+    "Life Processes": [
+      "photosynthesis",
+      "human-heart-and-blood-circulation",
+      "respiration-and-excretion",
+      "nutrition-in-humans"
+    ],
+    "Control and Coordination": [
+      "nervous-system",
+      "plant-hormones-and-tropisms",
+      "reflex-arc"
+    ],
+    "How do Organisms Reproduce": [
+      "types-of-asexual-reproduction",
+      "human-reproductive-system",
+      "flower-structure-and-pollination"
+    ],
+    "Heredity and Evolution": [
+      "mendels-laws-of-inheritance",
+      "sex-determination",
+      "evolution-and-speciation"
+    ],
+    "Light Reflection and Refraction": [
+      "lens-formula-and-ray-diagrams",
+      "mirror-formula-and-magnification",
+      "reflection-of-light",
+      "refraction-of-light"
+    ],
+    "Human Eye and Colourful World": [
+      "structure-of-human-eye",
+      "defects-of-vision-and-correction",
+      "dispersion-of-light-and-rainbow"
+    ],
+    "Electricity": [
+      "ohms-law",
+      "series-and-parallel-circuits",
+      "circuit-diagram-builder",
+      "electric-power-and-energy"
+    ],
+    "Magnetic Effects of Electric Current": [
+      "magnetic-field-lines",
+      "flemings-left-hand-rule",
+      "electric-motor-and-generator",
+      "electromagnet-and-solenoid"
+    ],
+    "Our Environment": [
+      "food-chain-and-food-web",
+      "ozone-layer-and-biodegradability",
+      "ecosystem-and-energy-flow"
+    ]
   }
 }

@@ -143,6 +143,18 @@ function parseMd(raw: string): MdNode[] {
       continue;
     }
 
+    const visualMatch = trimmed.match(/^\[\[(?:visual|html_explainer):([a-z0-9_-]+)\]\]$/);
+    if (visualMatch) {
+      flush();
+      const slug = visualMatch[1];
+      nodes.push({
+        kind: "html_explainer",
+        explainer: { concept: slug },
+      });
+      i++;
+      continue;
+    }
+
     flush();
     nodes.push({ kind: "p", text: trimmed });
     i++;

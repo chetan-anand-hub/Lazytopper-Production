@@ -91,8 +91,25 @@ export function extractStructuredSection(payload: AnyObj | null | undefined): St
     safeStr(structured.commonFix) ||
     safeStr(teach.commonFix);
 
+  const htmlExplainerRaw =
+    isObj(structured.htmlExplainer) ? structured.htmlExplainer :
+    isObj(teach.htmlExplainer) ? teach.htmlExplainer :
+    isObj(structured.visualExplainer) ? structured.visualExplainer :
+    isObj(teach.visualExplainer) ? teach.visualExplainer :
+    null;
+
+  const htmlExplainer = htmlExplainerRaw ? {
+    src: safeStr(htmlExplainerRaw.src) || undefined,
+    title: safeStr(htmlExplainerRaw.title) || undefined,
+    topic: safeStr(htmlExplainerRaw.topic) || undefined,
+    concept: safeStr(htmlExplainerRaw.concept) || undefined,
+    subject: safeStr(htmlExplainerRaw.subject) || undefined,
+  } : undefined;
+
+  const hasHtmlExplainer = htmlExplainer && (htmlExplainer.src || htmlExplainer.concept || htmlExplainer.topic);
+
   const hasContent = goalLine || keyIdeas.length || workedExamples.length ||
-    checkpointQuestion || commonMistake || examLines.length;
+    checkpointQuestion || commonMistake || examLines.length || hasHtmlExplainer;
 
   if (!hasContent) return null;
 
@@ -103,6 +120,7 @@ export function extractStructuredSection(payload: AnyObj | null | undefined): St
     checkpoint: checkpointQuestion ? { question: checkpointQuestion, answer: checkpointAnswer || undefined } : undefined,
     commonMistake: commonMistake || undefined,
     commonFix: commonFix || undefined,
+    htmlExplainer: hasHtmlExplainer ? htmlExplainer : undefined,
   };
 }
 

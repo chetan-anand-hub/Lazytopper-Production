@@ -325,40 +325,46 @@ export const SCIENCE_VISUALS: ChapterVisuals[] = [
 
 export const ALL_VISUALS: ChapterVisuals[] = [...MATHS_VISUALS, ...SCIENCE_VISUALS];
 
-const topicKeyToChapterMap: Record<string, string> = {
-  "Real Numbers": "Real Numbers",
-  "Polynomials": "Polynomials",
-  "Pair of Linear Equations": "Pair of Linear Equations",
-  "Quadratic Equations": "Quadratic Equations",
-  "Arithmetic Progression": "Arithmetic Progression",
-  "Triangles": "Triangles",
-  "Coordinate Geometry": "Coordinate Geometry",
-  "Trigonometry": "Trigonometry",
-  "Circles": "Circles",
-  "Areas Related to Circles": "Areas Related to Circles",
-  "Surface Areas and Volumes": "Surface Areas and Volumes",
-  "Statistics": "Statistics",
-  "Probability": "Probability",
-  "Chemical Reactions and Equations": "Chemical Reactions and Equations",
-  "Acids Bases and Salts": "Acids Bases and Salts",
-  "Metals and Non-Metals": "Metals and Non-Metals",
-  "Carbon and its Compounds": "Carbon and its Compounds",
-  "Life Processes": "Life Processes",
-  "Control and Coordination": "Control and Coordination",
-  "How do Organisms Reproduce": "How do Organisms Reproduce",
-  "Heredity and Evolution": "Heredity and Evolution",
-  "Light Reflection and Refraction": "Light Reflection and Refraction",
-  "Human Eye and Colourful World": "Human Eye and Colourful World",
-  "Electricity": "Electricity",
-  "Magnetic Effects of Electric Current": "Magnetic Effects of Electric Current",
-  "Our Environment": "Our Environment",
-};
+import { class10TopicRegistry } from "./class10TopicRegistry";
+
+const topicKeyToChapterMap: Record<string, string> = (() => {
+  const map: Record<string, string> = {};
+  for (const entry of class10TopicRegistry) {
+    const routeParts = entry.route.split("/").filter(Boolean);
+    const routeSlug = routeParts[routeParts.length - 1] || "";
+    const chapterMatch = ALL_VISUALS.find((ch) => {
+      const chSlug = ch.chapterKey.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+      return chSlug === routeSlug || ch.chapterKey === entry.topicKey || ch.chapterKey === entry.topicName;
+    });
+    map[entry.topicKey] = chapterMatch?.chapterKey || entry.topicKey;
+  }
+
+  const scienceTopicKeys: Record<string, string> = {
+    "Chemical Reactions and Equations": "Chemical Reactions and Equations",
+    "Acids Bases and Salts": "Acids Bases and Salts",
+    "Metals and Non-Metals": "Metals and Non-Metals",
+    "Carbon and its Compounds": "Carbon and its Compounds",
+    "Life Processes": "Life Processes",
+    "Control and Coordination": "Control and Coordination",
+    "How do Organisms Reproduce": "How do Organisms Reproduce",
+    "Heredity and Evolution": "Heredity and Evolution",
+    "Light Reflection and Refraction": "Light Reflection and Refraction",
+    "Human Eye and Colourful World": "Human Eye and Colourful World",
+    "Electricity": "Electricity",
+    "Magnetic Effects of Electric Current": "Magnetic Effects of Electric Current",
+    "Our Environment": "Our Environment",
+  };
+  for (const [key, val] of Object.entries(scienceTopicKeys)) {
+    if (!map[key]) map[key] = val;
+  }
+  return map;
+})();
 
 export function getVisualsForTopicKey(topicKey: string): VisualConcept[] {
   const chapterKey = topicKeyToChapterMap[topicKey] || topicKey;
+  const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
   const subj = MATHS_VISUALS.some(
-    (ch) => ch.chapterKey.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim() ===
-      chapterKey.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim()
+    (ch) => norm(ch.chapterKey) === norm(chapterKey)
   ) ? "maths" : "science";
   return getVisualsForChapter(subj, chapterKey);
 }

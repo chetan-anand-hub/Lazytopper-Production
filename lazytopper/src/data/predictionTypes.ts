@@ -59,6 +59,7 @@ export interface CanonicalQuestion {
   predictionScore?: number;
   predictionStrength?: string;
 
+  visualExplainerId?: string;
   /**
    * Blueprint slot identifier mapping this question to a specific slot in
    * the exam blueprint.  Optional because Phase 0 does not tag all
