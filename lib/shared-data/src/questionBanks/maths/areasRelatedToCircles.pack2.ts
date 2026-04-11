@@ -187,7 +187,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "cos(θ/2) = 6/10 = 3/5, so θ/2 = cos⁻¹(0.6) ≈ 53.13°",
       "θ ≈ 106.26° or use exact calculation with sin(θ) = 2×6×8/100 = 0.96",
-      "Area of segment = (θ/360°) × πr² - (1/2) × r² × sin(θ)",
+      "Area of sector = (134.76/360) × π × 13² ≈ 198.72 cm²",
       "Area ≈ 92.76 - 48 ≈ 44.76 cm²"
     ],
     "finalAnswer": "≈ 44.76 cm²",
@@ -569,17 +569,17 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "A chord AB of length 24 cm is drawn in a circle of radius 13 cm. Find the distance of the chord from the center, and hence find the area of the segment.",
     "options": [],
-    "answer": "Distance = 5 cm; Area ≈ 34.95 cm²",
+    "answer": "Distance = 5 cm; Area of segment ≈ 138.72 cm²",
     "solutionSteps": [
       "Using perpendicular from center: d² + (24/2)² = 13²",
       "d² + 144 = 169, so d = 5 cm",
       "Finding central angle: sin(θ/2) = 12/13",
       "θ/2 ≈ 67.38°, so θ ≈ 134.76°",
       "Area of segment = (θ/360°) × πr² - (1/2) × r² × sin(θ)",
-      "= (134.76/360) × π × 169 - (1/2) × 169 × sin(134.76°)",
-      "≈ 315.8 - 60.84 ≈ 254.96 - 220 ≈ 34.95 cm²"
+      "Area of triangle OAB = (1/2) × 24 × 5 = 60 cm²",
+      "Area of segment = 198.72 - 60 = 138.72 cm²"
     ],
-    "finalAnswer": "Distance = 5 cm; Area ≈ 34.95 cm²",
+    "finalAnswer": "Distance = 5 cm; Area of segment ≈ 138.72 cm²",
     "isCompetencyBased": true,
     "pyqYear": "2025",
     "pyqSet": "All India",
@@ -1174,7 +1174,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
     "format": "MCQ",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "A sector of a circle has area 154 cm² and central angle 60°. The radius of the circle is:",
+    "questionText": "A sector of a circle has area 231 cm² and central angle 60°. The radius of the circle is:",
     "options": [
       "7 cm",
       "14 cm",
@@ -1184,9 +1184,9 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
     "answer": "21 cm",
     "solutionSteps": [
       "Area of sector = (θ/360°) × πr²",
-      "154 = (60°/360°) × 22/7 × r²",
-      "154 = (1/6) × 22r²/7",
-      "r² = 441",
+      "231 = (60°/360°) × 22/7 × r²",
+      "231 = (1/6) × (22/7) × r²",
+      "r² = 231 × 42/22 = 441",
       "r = 21 cm"
     ],
     "finalAnswer": "21 cm",
