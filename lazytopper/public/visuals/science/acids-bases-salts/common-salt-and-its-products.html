@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Common Salt & Its Products | CBSE Class 10</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#0f172a 100%);min-height:100vh;color:#1e293b}
+.titlebar{background:linear-gradient(90deg,#1d4ed8,#3b82f6,#06b6d4);padding:14px 20px;text-align:center;box-shadow:0 4px 20px rgba(59,130,246,0.4)}
+.titlebar h1{color:#fff;font-size:1.2rem;font-weight:700;letter-spacing:0.5px}
+.titlebar p{color:#bfdbfe;font-size:0.78rem;margin-top:2px}
+.container{max-width:800px;margin:0 auto;padding:16px}
+.card{background:#fff;border-radius:16px;padding:18px;margin-bottom:16px;box-shadow:0 4px 24px rgba(0,0,0,0.3)}
+.section-title{font-size:1rem;font-weight:700;color:#1e293b;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.badge{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;padding:3px 10px;border-radius:20px;font-size:0.72rem;font-weight:600}
+.formula-box{background:linear-gradient(135deg,#eff6ff,#dbeafe);border:2px solid #3b82f6;border-radius:12px;padding:14px;text-align:center;margin:10px 0}
+.formula-box .formula{font-size:1.1rem;font-weight:700;color:#1d4ed8;font-family:monospace}
+.formula-box .label{font-size:0.75rem;color:#3b82f6;margin-top:4px}
+
+/* NaCl central hub */
+.hub-container{position:relative;width:100%;height:320px}
+.hub-svg{width:100%;height:100%}
+.product-btn{cursor:pointer;transition:all 0.3s}
+.product-btn:hover .prod-circle{filter:brightness(1.2);transform:scale(1.05)}
+.prod-circle{transition:all 0.3s}
+
+/* Product info panel */
+.info-panel{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:2px solid #22c55e;border-radius:12px;padding:14px;display:none;animation:fadeIn 0.4s ease}
+.info-panel.active{display:block}
+.info-panel h3{color:#15803d;font-size:0.95rem;font-weight:700;margin-bottom:6px}
+.info-panel .chem{font-family:monospace;background:#fff;border-radius:6px;padding:4px 8px;display:inline-block;color:#1d4ed8;font-size:0.85rem;margin:4px 0}
+.info-panel p{font-size:0.82rem;color:#166534;line-height:1.5}
+.use-tag{display:inline-block;background:#22c55e;color:#fff;border-radius:20px;padding:2px 8px;font-size:0.7rem;margin:2px}
+
+/* Chlor-alkali process */
+.process-steps{display:flex;flex-direction:column;gap:10px}
+.step{background:#f8fafc;border-left:4px solid #3b82f6;border-radius:0 10px 10px 0;padding:10px 14px;cursor:pointer;transition:all 0.3s;opacity:0.5;transform:translateX(-10px)}
+.step.revealed{opacity:1;transform:translateX(0)}
+.step h4{font-size:0.85rem;font-weight:700;color:#1e293b;margin-bottom:3px}
+.step p{font-size:0.78rem;color:#475569;line-height:1.4}
+.step .eq{font-family:monospace;color:#1d4ed8;font-size:0.8rem;background:#eff6ff;padding:3px 6px;border-radius:4px;margin-top:4px;display:inline-block}
+
+/* Electrolysis SVG */
+.electro-container{background:linear-gradient(180deg,#f0f9ff 0%,#e0f2fe 100%);border-radius:12px;border:2px solid #0ea5e9;overflow:hidden;margin:10px 0}
+
+/* Quiz */
+.quiz-card{background:linear-gradient(135deg,#fefce8,#fef9c3);border:2px solid #f59e0b;border-radius:12px;padding:14px}
+.quiz-q{font-size:0.88rem;font-weight:600;color:#78350f;margin-bottom:10px}
+.opt{display:flex;gap:8px;flex-wrap:wrap}
+.opt button{background:#fff;border:2px solid #f59e0b;border-radius:8px;padding:6px 12px;font-size:0.78rem;cursor:pointer;transition:all 0.2s;color:#78350f;font-weight:500}
+.opt button:hover{background:#fef3c7}
+.opt button.correct{background:#22c55e;border-color:#22c55e;color:#fff}
+.opt button.wrong{background:#ef4444;border-color:#ef4444;color:#fff}
+.feedback{margin-top:8px;font-size:0.78rem;font-weight:600;min-height:20px}
+
+/* Tabs */
+.tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.tab{padding:6px 14px;border-radius:20px;border:2px solid #e2e8f0;cursor:pointer;font-size:0.78rem;font-weight:600;background:#f8fafc;color:#64748b;transition:all 0.2s}
+.tab.active{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border-color:#3b82f6}
+
+/* Products grid */
+.prod-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.prod-card{border-radius:12px;padding:12px;cursor:pointer;transition:all 0.25s;border:2px solid transparent}
+.prod-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,0.15)}
+.prod-card.selected{border-color:#3b82f6;transform:translateY(-2px)}
+.prod-icon{font-size:1.8rem;margin-bottom:6px}
+.prod-name{font-size:0.82rem;font-weight:700;color:#1e293b}
+.prod-hindi{font-size:0.7rem;color:#64748b}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes bubble{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.6}}
+.bubble-anim{animation:bubble 2s ease-in-out infinite}
+.pulse{animation:pulse 1.5s ease-in-out infinite}
+
+/* electrolysis animated elements */
+.gas-bubble{animation:bubble 1.8s ease-in-out infinite}
+.gas-bubble:nth-child(2){animation-delay:0.3s}
+.gas-bubble:nth-child(3){animation-delay:0.6s}
+
+.reveal-btn{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border:none;border-radius:10px;padding:8px 18px;font-size:0.82rem;font-weight:600;cursor:pointer;transition:all 0.2s;margin-top:10px}
+.reveal-btn:hover{transform:scale(1.03);box-shadow:0 4px 12px rgba(59,130,246,0.4)}
+
+.footer{text-align:center;color:#94a3b8;font-size:0.72rem;padding:12px;margin-top:4px}
+
+/* scrollbar */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:#1e293b}
+::-webkit-scrollbar-thumb{background:#3b82f6;border-radius:3px}
+
+.highlight{color:#ef4444;font-weight:700}
+.green{color:#22c55e;font-weight:700}
+.amber{color:#f59e0b;font-weight:700}
+
+@media(max-width:400px){
+.prod-grid{grid-template-columns:1fr 1fr}
+.hub-container{height:260px}
+}
+</style>
+</head>
+<body>
+<div class="titlebar">
+<h1>⚗️ Common Salt (NaCl) & Its Products</h1>
+<p>CBSE Class 10 Science | Acids, Bases and Salts | सामान्य नमक और उसके उत्पाद</p>
+</div>
+<div class="container">
+
+<!-- Main Formula -->
+<div class="card">
+<div class="section-title">🧂 Common Salt (सामान्य नमक) <span class="badge">NaCl</span></div>
+<div class="formula-box">
+<div class="formula">NaCl → NaOH + Cl₂ + H₂ (Chlor-Alkali Process / क्लोर-क्षार प्रक्रिया)</div>
+<div class="label">Electrolysis of Brine (Concentrated NaCl solution / सान्द्र नमक जल)</div>
+</div>
+<p style="font-size:0.8rem;color:#475569;line-height:1.6">Common Salt (Sodium Chloride, NaCl) is one of the most important raw materials in the chemical industry. By processing NaCl, we obtain four major products essential in daily life and industry.</p>
+</div>
+
+<!-- Interactive Products Hub -->
+<div class="card">
+<div class="section-title">🔗 Click a Product to Explore <span class="badge">Interactive</span></div>
+<div class="tabs">
+<div class="tab active" onclick="switchView('hub',this)">🕸️ Hub View</div>
+<div class="tab" onclick="switchView('grid',this)">📦 Grid View</div>
+</div>
+
+<!-- Hub SVG view -->
+<div id="hub-view">
+<div class="hub-container">
+<svg class="hub-svg" viewBox="0 0 400 300" id="hubSvg">
+<!-- Lines from center to products -->
+<line x1="200" y1="150" x2="80" y2="70" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5,4"/>
+<line x1="200" y1="150" x2="320" y2="70" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5,4"/>
+<line x1="200" y1="150" x2="80" y2="240" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5,4"/>
+<line x1="200" y1="150" x2="320" y2="240" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5,4"/>
+
+<!-- Center NaCl -->
+<circle cx="200" cy="150" r="42" fill="url(#centerGrad)" filter="url(#shadow)"/>
+<text x="200" y="145" text-anchor="middle" fill="white" font-size="15" font-weight="bold">NaCl</text>
+<text x="200" y="162" text-anchor="middle" fill="#bfdbfe" font-size="8">नमक / Salt</text>
+
+<!-- Product 1: Chlor-alkali → NaOH -->
+<g class="product-btn" onclick="selectProduct('naoh')" id="btn-naoh">
+<circle class="prod-circle" cx="80" cy="70" r="38" fill="url(#naohGrad)" filter="url(#shadow)"/>
+<text x="80" y="65" text-anchor="middle" fill="white" font-size="11" font-weight="bold">NaOH</text>
+<text x="80" y="78" text-anchor="middle" fill="#dcfce7" font-size="7.5">Caustic Soda</text>
+<text x="80" y="89" text-anchor="middle" fill="#bbf7d0" font-size="7">कास्टिक सोडा</text>
+</g>
+
+<!-- Product 2: Cl₂ gas -->
+<g class="product-btn" onclick="selectProduct('cl2')" id="btn-cl2">
+<circle class="prod-circle" cx="320" cy="70" r="38" fill="url(#cl2Grad)" filter="url(#shadow)"/>
+<text x="320" y="65" text-anchor="middle" fill="white" font-size="11" font-weight="bold">Cl₂</text>
+<text x="320" y="78" text-anchor="middle" fill="#fef9c3" font-size="7.5">Chlorine Gas</text>
+<text x="320" y="89" text-anchor="middle" fill="#fef08a" font-size="7">क्लोरीन गैस</text>
+</g>
+
+<!-- Product 3: Baking Soda -->
+<g class="product-btn" onclick="selectProduct('baking')" id="btn-baking">
+<circle class="prod-circle" cx="80" cy="240" r="38" fill="url(#bakingGrad)" filter="url(#shadow)"/>
+<text x="80" y="232" text-anchor="middle" fill="white" font-size="8" font-weight="bold">NaHCO₃</text>
+<text x="80" y="244" text-anchor="middle" fill="#fde8d8" font-size="7.5">Baking Soda</text>
+<text x="80" y="255" text-anchor="middle" fill="#fed7aa" font-size="7">बेकिंग सोडा</text>
+</g>
+
+<!-- Product 4: Washing Soda -->
+<g class="product-btn" onclick="selectProduct('washing')" id="btn-washing">
+<circle class="prod-circle" cx="320" cy="240" r="38" fill="url(#washingGrad)" filter="url(#shadow)"/>
+<text x="320" y="232" text-anchor="middle" fill="white" font-size="8" font-weight="bold">Na₂CO₃</text>
+<text x="320" y="244" text-anchor="middle" fill="#e0d9ff" font-size="7.5">Washing Soda</text>
+<text x="320" y="255" text-anchor="middle" fill="#c4b5fd" font-size="7">धुलाई सोडा</text>
+</g>
+
+<!-- Gradients & Filter -->
+<defs>
+<radialGradient id="centerGrad"><stop offset="0%" stop-color="#60a5fa"/><stop offset="100%" stop-color="#1d4ed8"/></radialGradient>
+<radialGradient id="naohGrad"><stop offset="0%" stop-color="#4ade80"/><stop offset="100%" stop-color="#15803d"/></radialGradient>
+<radialGradient id="cl2Grad"><stop offset="0%" stop-color="#fde047"/><stop offset="100%" stop-color="#b45309"/></radialGradient>
+<radialGradient id="bakingGrad"><stop offset="0%" stop-color="#fb923c"/><stop offset="100%" stop-color="#c2410c"/></radialGradient>
+<radialGradient id="washingGrad"><stop offset="0%" stop-color="#a78bfa"/><stop offset="100%" stop-color="#5b21b6"/></radialGradient>
+<filter id="shadow"><feDropShadow dx="0" dy="3" stdDeviation="4" flood-opacity="0.3"/></filter>
+</defs>
+</svg>
+</div>
+</div>
+
+<!-- Grid view -->
+<div id="grid-view" style="display:none">
+<div class="prod-grid">
+<div class="prod-card" style="background:linear-gradient(135deg,#f0fdf4,#dcfce7)" onclick="selectProduct('naoh');switchView('hub',document.querySelector('.tab'))" >
+<div class="prod-icon">🟢</div>
+<div class="prod-name">NaOH — Caustic Soda</div>
+<div class="prod-hindi">कास्टिक सोडा</div>
+</div>
+<div class="prod-card" style="background:linear-gradient(135deg,#fefce8,#fef9c3)" onclick="selectProduct('cl2');switchView('hub',document.querySelector('.tab'))">
+<div class="prod-icon">🟡</div>
+<div class="prod-name">Cl₂ — Chlorine Gas</div>
+<div class="prod-hindi">क्लोरीन गैस</div>
+</div>
+<div class="prod-card" style="background:linear-gradient(135deg,#fff7ed,#ffedd5)" onclick="selectProduct('baking');switchView('hub',document.querySelector('.tab'))">
+<div class="prod-icon">🟠</div>
+<div class="prod-name">NaHCO₃ — Baking Soda</div>
+<div class="prod-hindi">बेकिंग सोडा</div>
+</div>
+<div class="prod-card" style="background:linear-gradient(135deg,#f5f3ff,#ede9fe)" onclick="selectProduct('washing');switchView('hub',document.querySelector('.tab'))">
+<div class="prod-icon">🟣</div>
+<div class="prod-name">Na₂CO₃ — Washing Soda</div>
+<div class="prod-hindi">धुलाई सोडा</div>
+</div>
+</div>
+</div>
+
+<!-- Info panels -->
+<div id="panel-naoh" class="info-panel" style="margin-top:12px">
+<h3>🟢 Sodium Hydroxide — NaOH (Caustic Soda / कास्टिक सोडा)</h3>
+<div class="chem">2NaCl(aq) + 2H₂O(l) → 2NaOH(aq) + Cl₂(g) + H₂(g)</div>
+<p style="margin-top:8px"><strong>Nature:</strong> Strong <span class="green">base (क्षार)</span> | Highly corrosive</p>
+<p style="margin-top:4px"><strong>Uses (उपयोग):</strong></p>
+<div style="margin-top:4px">
+<span class="use-tag">🧴 Soap making</span><span class="use-tag">📰 Paper making</span><span class="use-tag">🧵 Textile</span><span class="use-tag">🧪 De-greasing metals</span>
+</div>
+<p style="margin-top:6px;font-size:0.78rem;color:#166534">⚠️ When Cl₂ and NaOH react → Bleaching Liquid (NaOCl) is formed</p>
+</div>
+
+<div id="panel-cl2" class="info-panel" style="margin-top:12px;background:linear-gradient(135deg,#fefce8,#fef9c3);border-color:#f59e0b">
+<h3 style="color:#78350f">🟡 Chlorine Gas — Cl₂ (क्लोरीन गैस)</h3>
+<div class="chem">Produced at ANODE during electrolysis of brine</div>
+<p style="margin-top:8px;color:#78350f"><strong>Nature:</strong> Greenish-yellow gas | Toxic | Strong oxidising agent</p>
+<p style="margin-top:4px;color:#78350f"><strong>Uses (उपयोग):</strong></p>
+<div style="margin-top:4px">
+<span class="use-tag" style="background:#f59e0b">🏊 Water purification</span><span class="use-tag" style="background:#f59e0b">🧴 Bleaching powder</span><span class="use-tag" style="background:#f59e0b">💊 PVC plastics</span><span class="use-tag" style="background:#f59e0b">🧪 Disinfectants</span>
+</div>
+<div class="chem" style="margin-top:6px">Cl₂ + Ca(OH)₂ → CaOCl₂ (Bleaching Powder / विरंजक चूर्ण)</div>
+</div>
+
+<div id="panel-baking" class="info-panel" style="margin-top:12px;background:linear-gradient(135deg,#fff7ed,#ffedd5);border-color:#f97316">
+<h3 style="color:#7c2d12">🟠 Baking Soda — NaHCO₃ (बेकिंग सोडा)</h3>
+<div class="chem">NaCl + H₂O + CO₂ + NH₃ → NH₄Cl + NaHCO₃ (Solvay Process)</div>
+<p style="margin-top:8px;color:#7c2d12"><strong>Full name:</strong> Sodium Hydrogen Carbonate (सोडियम हाइड्रोजन कार्बोनेट)</p>
+<p style="margin-top:4px;color:#7c2d12"><strong>On heating:</strong></p>
+<div class="chem">2NaHCO₃ → Na₂CO₃ + H₂O + CO₂↑</div>
+<p style="margin-top:4px;color:#7c2d12"><strong>Uses:</strong></p>
+<div style="margin-top:4px">
+<span class="use-tag" style="background:#ea580c">🍞 Baking (CO₂ makes bread fluffy)</span><span class="use-tag" style="background:#ea580c">💊 Antacid</span><span class="use-tag" style="background:#ea580c">🧯 Fire extinguisher</span>
+</div>
+</div>
+
+<div id="panel-washing" class="info-panel" style="margin-top:12px;background:linear-gradient(135deg,#f5f3ff,#ede9fe);border-color:#7c3aed">
+<h3 style="color:#3b0764">🟣 Washing Soda — Na₂CO₃·10H₂O (धुलाई सोडा)</h3>
+<div class="chem">NaHCO₃ → (heat) → Na₂CO₃ → (dissolved + recrystallised) → Na₂CO₃·10H₂O</div>
+<p style="margin-top:8px;color:#3b0764"><strong>Full name:</strong> Sodium Carbonate Decahydrate (सोडियम कार्बोनेट डेकाहाइड्रेट)</p>
+<p style="margin-top:4px;color:#3b0764"><strong>Nature:</strong> <span style="color:#7c3aed;font-weight:700">Basic salt</span> | Alkaline solution</p>
+<p style="margin-top:4px;color:#3b0764"><strong>Uses:</strong></p>
+<div style="margin-top:4px">
+<span class="use-tag" style="background:#7c3aed">🧺 Laundry (removes hardness)</span><span class="use-tag" style="background:#7c3aed">🏭 Glass making</span><span class="use-tag" style="background:#7c3aed">🧪 Borax manufacture</span>
+</div>
+</div>
+<p style="font-size:0.75rem;color:#94a3b8;margin-top:10px;text-align:center">👆 Click any circle above to see details</p>
+</div>
+
+<!-- Chlor-Alkali Process Diagram -->
+<div class="card">
+<div class="section-title">⚡ Chlor-Alkali Process (क्लोर-क्षार प्रक्रिया) <span class="badge">Diagram</span></div>
+<div class="electro-container" style="padding:10px">
+<svg viewBox="0 0 380 200" width="100%" style="display:block">
+<!-- Tank -->
+<rect x="40" y="40" width="300" height="130" rx="10" fill="#e0f2fe" stroke="#0ea5e9" stroke-width="2"/>
+<!-- Brine solution -->
+<rect x="42" y="100" width="296" height="68" rx="0" fill="#bae6fd" opacity="0.7"/>
+<text x="190" y="175" text-anchor="middle" fill="#0369a1" font-size="9" font-weight="bold">Brine (NaCl solution / नमक जल)</text>
+
+<!-- Cathode (left) -->
+<rect x="90" y="50" width="14" height="120" rx="4" fill="#64748b"/>
+<text x="97" y="45" text-anchor="middle" fill="#1e293b" font-size="9" font-weight="bold">CATHODE (−)</text>
+<text x="97" y="33" text-anchor="middle" fill="#64748b" font-size="8">कैथोड</text>
+<!-- H2 bubbles at cathode -->
+<circle cx="75" cy="95" r="5" fill="none" stroke="#3b82f6" stroke-width="1.5" class="gas-bubble" opacity="0.8"/>
+<circle cx="62" cy="78" r="4" fill="none" stroke="#3b82f6" stroke-width="1.5" class="gas-bubble" opacity="0.8"/>
+<circle cx="80" cy="68" r="3" fill="none" stroke="#3b82f6" stroke-width="1.5" class="gas-bubble" opacity="0.8"/>
+<text x="55" y="50" fill="#1d4ed8" font-size="9" font-weight="bold">H₂↑</text>
+<text x="50" y="62" fill="#1d4ed8" font-size="7">हाइड्रोजन</text>
+
+<!-- Anode (right) -->
+<rect x="276" y="50" width="14" height="120" rx="4" fill="#78716c"/>
+<text x="283" y="45" text-anchor="middle" fill="#1e293b" font-size="9" font-weight="bold">ANODE (+)</text>
+<text x="283" y="33" text-anchor="middle" fill="#64748b" font-size="8">एनोड</text>
+<!-- Cl2 bubbles at anode -->
+<circle cx="305" cy="90" r="5" fill="none" stroke="#ca8a04" stroke-width="1.5" class="gas-bubble" opacity="0.8"/>
+<circle cx="318" cy="74" r="4" fill="none" stroke="#ca8a04" stroke-width="1.5" class="gas-bubble" opacity="0.8"/>
+<circle cx="308" cy="62" r="3" fill="none" stroke="#ca8a04" stroke-width="1.5" class="gas-bubble" opacity="0.8"/>
+<text x="310" y="50" fill="#b45309" font-size="9" font-weight="bold">Cl₂↑</text>
+<text x="308" y="62" fill="#b45309" font-size="7">क्लोरीन</text>
+
+<!-- NaOH indicator -->
+<text x="190" y="130" text-anchor="middle" fill="#15803d" font-size="10" font-weight="bold">NaOH</text>
+<text x="190" y="143" text-anchor="middle" fill="#166534" font-size="8">Sodium Hydroxide forms near cathode</text>
+
+<!-- Battery symbol -->
+<line x1="97" y1="15" x2="97" y2="28" stroke="#64748b" stroke-width="2"/>
+<line x1="283" y1="15" x2="283" y2="28" stroke="#78716c" stroke-width="2"/>
+<line x1="97" y1="15" x2="190" y2="15" stroke="#1e293b" stroke-width="2"/>
+<line x1="190" y1="15" x2="283" y2="15" stroke="#1e293b" stroke-width="2"/>
+<rect x="168" y="8" width="44" height="14" rx="3" fill="#fef9c3" stroke="#f59e0b" stroke-width="1.5"/>
+<text x="190" y="19" text-anchor="middle" fill="#78350f" font-size="8" font-weight="bold">⚡ Battery</text>
+
+<!-- Overall equation -->
+<text x="190" y="195" text-anchor="middle" fill="#0369a1" font-size="7.5" font-weight="bold">2NaCl(aq)+2H₂O(l) → 2NaOH(aq)+Cl₂(g)+H₂(g)</text>
+</svg>
+</div>
+<p style="font-size:0.78rem;color:#475569;margin-top:8px;line-height:1.5">During electrolysis of brine: <span class="highlight">Cl₂</span> is released at anode | <span class="green">H₂</span> at cathode | <span style="color:#7c3aed;font-weight:700">NaOH</span> forms in solution</p>
+</div>
+
+<!-- Step-by-step: How Bleaching Powder forms -->
+<div class="card">
+<div class="section-title">🧴 Bleaching Powder (विरंजक चूर्ण) — Step by Step <span class="badge">Click to Reveal</span></div>
+<div class="process-steps" id="steps-container">
+<div class="step revealed" id="step1">
+<h4>Step 1: Start with NaCl → Chlor-Alkali Process</h4>
+<p>Electrolysis of brine produces Chlorine gas (Cl₂)</p>
+<span class="eq">2NaCl + 2H₂O → 2NaOH + Cl₂ + H₂</span>
+</div>
+<div class

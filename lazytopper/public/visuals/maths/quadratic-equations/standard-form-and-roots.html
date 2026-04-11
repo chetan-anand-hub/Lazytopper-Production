@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quadratic Equations - CBSE Class 10</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #1e293b; min-height: 100vh; }
+
+  .title-bar {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: white; padding: 14px 20px;
+    display: flex; align-items: center; gap: 12px;
+    box-shadow: 0 4px 20px rgba(59,130,246,0.4);
+  }
+  .title-bar .icon { font-size: 28px; }
+  .title-bar h1 { font-size: 18px; font-weight: 700; }
+  .title-bar .sub { font-size: 12px; opacity: 0.8; }
+  .badge { background: rgba(255,255,255,0.2); padding: 3px 10px; border-radius: 20px; font-size: 11px; margin-left: auto; }
+
+  .container { max-width: 900px; margin: 0 auto; padding: 16px; }
+
+  .card {
+    background: white; border-radius: 16px; padding: 20px;
+    margin-bottom: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+  }
+
+  .card-title {
+    font-size: 15px; font-weight: 700; color: #1e293b;
+    margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+  }
+  .card-title .dot { width: 10px; height: 10px; border-radius: 50%; }
+
+  .formula-box {
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    border: 2px solid #3b82f6; border-radius: 12px;
+    padding: 18px; text-align: center; margin: 12px 0;
+  }
+  .formula-big { font-size: 26px; font-weight: 800; color: #1d4ed8; letter-spacing: 1px; }
+  .formula-sub { font-size: 13px; color: #64748b; margin-top: 6px; }
+
+  .abc-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 14px 0; }
+  .abc-chip {
+    flex: 1; min-width: 80px; padding: 10px 8px; border-radius: 10px;
+    text-align: center; font-weight: 700; font-size: 13px;
+    border: 2px solid transparent; cursor: pointer; transition: all 0.3s;
+  }
+  .abc-chip.a { background: #fef3c7; color: #92400e; border-color: #f59e0b; }
+  .abc-chip.b { background: #dcfce7; color: #14532d; border-color: #22c55e; }
+  .abc-chip.c { background: #fee2e2; color: #7f1d1d; border-color: #ef4444; }
+  .abc-chip:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+  .abc-chip.active { transform: scale(1.05); box-shadow: 0 6px 20px rgba(0,0,0,0.2); }
+
+  /* Sliders */
+  .slider-section { display: flex; flex-direction: column; gap: 12px; margin: 14px 0; }
+  .slider-row { display: flex; align-items: center; gap: 10px; }
+  .slider-label { width: 24px; font-weight: 800; font-size: 16px; text-align: center; }
+  .slider-label.a { color: #f59e0b; }
+  .slider-label.b { color: #22c55e; }
+  .slider-label.c { color: #ef4444; }
+  input[type=range] { flex: 1; -webkit-appearance: none; height: 6px; border-radius: 3px; outline: none; cursor: pointer; }
+  input[type=range].a { background: linear-gradient(to right, #f59e0b var(--p,50%), #e5e7eb var(--p,50%)); }
+  input[type=range].b { background: linear-gradient(to right, #22c55e var(--p,50%), #e5e7eb var(--p,50%)); }
+  input[type=range].c { background: linear-gradient(to right, #ef4444 var(--p,50%), #e5e7eb var(--p,50%)); }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #1e293b; cursor: pointer; }
+  .slider-val { width: 36px; text-align: center; font-weight: 700; font-size: 14px; color: #1e293b; }
+
+  /* Canvas */
+  canvas { display: block; width: 100%; border-radius: 12px; background: #f8fafc; border: 2px solid #e2e8f0; }
+
+  /* Equation display */
+  .eq-display {
+    background: #1e293b; color: #f1f5f9; border-radius: 10px;
+    padding: 12px 16px; font-size: 18px; font-weight: 700;
+    text-align: center; margin: 10px 0; letter-spacing: 0.5px;
+    transition: all 0.4s;
+  }
+  .eq-display .ca { color: #fbbf24; }
+  .eq-display .cb { color: #4ade80; }
+  .eq-display .cc { color: #f87171; }
+
+  /* Roots display */
+  .roots-box { display: flex; gap: 10px; margin: 10px 0; flex-wrap: wrap; }
+  .root-card {
+    flex: 1; min-width: 120px; padding: 12px; border-radius: 10px;
+    text-align: center; transition: all 0.4s;
+  }
+  .root-card.real { background: linear-gradient(135deg, #dcfce7, #bbf7d0); border: 2px solid #22c55e; }
+  .root-card.complex { background: linear-gradient(135deg, #fee2e2, #fecaca); border: 2px solid #ef4444; }
+  .root-card.equal { background: linear-gradient(135deg, #fef3c7, #fde68a); border: 2px solid #f59e0b; }
+  .root-label { font-size: 11px; color: #64748b; font-weight: 600; margin-bottom: 4px; }
+  .root-val { font-size: 16px; font-weight: 800; color: #1e293b; }
+
+  .disc-box {
+    padding: 10px 14px; border-radius: 8px; margin: 10px 0;
+    font-size: 13px; font-weight: 600; text-align: center;
+    transition: all 0.4s;
+  }
+  .disc-positive { background: #dcfce7; color: #14532d; border: 1.5px solid #22c55e; }
+  .disc-zero { background: #fef3c7; color: #78350f; border: 1.5px solid #f59e0b; }
+  .disc-negative { background: #fee2e2; color: #7f1d1d; border: 1.5px solid #ef4444; }
+
+  /* Step walkthrough */
+  .steps-container { }
+  .step-item {
+    border-left: 3px solid #e2e8f0; padding: 10px 14px; margin: 8px 0;
+    border-radius: 0 8px 8px 0; background: #f8fafc;
+    cursor: pointer; transition: all 0.3s; position: relative;
+  }
+  .step-item:hover { background: #f1f5f9; }
+  .step-item.revealed { border-left-color: #3b82f6; background: #eff6ff; }
+  .step-num { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; }
+  .step-title { font-size: 14px; font-weight: 700; color: #1e293b; margin: 2px 0; }
+  .step-content { font-size: 13px; color: #475569; margin-top: 6px; display: none; line-height: 1.6; }
+  .step-item.revealed .step-content { display: block; }
+  .step-math { background: #1e293b; color: #fbbf24; padding: 6px 12px; border-radius: 6px; font-size: 14px; font-weight: 700; display: inline-block; margin: 4px 0; }
+  .reveal-hint { font-size: 11px; color: #94a3b8; margin-top: 4px; }
+
+  .btn {
+    padding: 10px 20px; border-radius: 8px; font-weight: 700; font-size: 13px;
+    cursor: pointer; border: none; transition: all 0.3s;
+  }
+  .btn-primary { background: #3b82f6; color: white; }
+  .btn-primary:hover { background: #2563eb; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(59,130,246,0.4); }
+  .btn-outline { background: transparent; color: #3b82f6; border: 2px solid #3b82f6; }
+  .btn-outline:hover { background: #eff6ff; }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media(max-width: 500px) { .grid2 { grid-template-columns: 1fr; } }
+
+  .info-tag {
+    display: inline-block; padding: 3px 10px; border-radius: 20px;
+    font-size: 11px; font-weight: 700; margin: 2px;
+  }
+  .tag-blue { background: #dbeafe; color: #1d4ed8; }
+  .tag-green { background: #dcfce7; color: #15803d; }
+  .tag-amber { background: #fef3c7; color: #b45309; }
+
+  .example-eq { font-size: 20px; font-weight: 800; color: #1d4ed8; text-align: center; padding: 10px; }
+  .nature-legend { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: #475569; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+  .pulse { animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.03)} }
+
+  .tab-row { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+  .tab {
+    padding: 7px 14px; border-radius: 8px; font-size: 13px; font-weight: 600;
+    cursor: pointer; border: 2px solid #e2e8f0; background: white; color: #64748b;
+    transition: all 0.2s;
+  }
+  .tab.active { background: #3b82f6; color: white; border-color: #3b82f6; }
+
+  .fade-in { animation: fadeIn 0.5s ease; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+  .toast {
+    position: fixed; bottom: 20px; right: 20px; background: #1e293b; color: white;
+    padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 600;
+    transform: translateY(80px); transition: transform 0.3s; z-index: 100;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  }
+  .toast.show { transform: translateY(0); }
+
+  .hindi { color: #7c3aed; font-size: 12px; }
+</style>
+</head>
+<body>
+
+<div class="title-bar">
+  <div class="icon">📐</div>
+  <div>
+    <h1>Quadratic Equations</h1>
+    <div class="sub">द्विघात समीकरण | CBSE Class 10 Mathematics</div>
+  </div>
+  <div class="badge">Ch. 4</div>
+</div>
+
+<div class="container">
+
+  <!-- Standard Form Card -->
+  <div class="card fade-in">
+    <div class="card-title"><div class="dot" style="background:#3b82f6"></div>Standard Form (मानक रूप)</div>
+    <div class="formula-box pulse">
+      <div class="formula-big">ax² + bx + c = 0</div>
+      <div class="formula-sub">where a ≠ 0, and a, b, c are real numbers (वास्तविक संख्याएँ)</div>
+    </div>
+    <div class="abc-row">
+      <div class="abc-chip a active" onclick="highlightCoeff('a')">
+        <div style="font-size:20px">a</div>
+        <div style="font-size:11px">Coefficient of x²</div>
+        <div class="hindi">x² का गुणांक</div>
+      </div>
+      <div class="abc-chip b" onclick="highlightCoeff('b')">
+        <div style="font-size:20px">b</div>
+        <div style="font-size:11px">Coefficient of x</div>
+        <div class="hindi">x का गुणांक</div>
+      </div>
+      <div class="abc-chip c" onclick="highlightCoeff('c')">
+        <div style="font-size:20px">c</div>
+        <div style="font-size:11px">Constant term</div>
+        <div class="hindi">अचर पद</div>
+      </div>
+    </div>
+    <div id="coeff-info" style="background:#f0f9ff;border-radius:8px;padding:10px 14px;font-size:13px;color:#0369a1;border:1px solid #bae6fd;transition:all 0.3s;">
+      👆 Click on a, b, or c above to learn more about each coefficient!
+    </div>
+  </div>
+
+  <!-- Interactive Parabola Explorer -->
+  <div class="card fade-in">
+    <div class="card-title"><div class="dot" style="background:#22c55e"></div>Interactive Parabola Explorer (परवलय)</div>
+    <div style="font-size:13px;color:#64748b;margin-bottom:10px;">Drag the sliders to change a, b, c and see how the parabola changes!</div>
+
+    <div class="slider-section">
+      <div class="slider-row">
+        <div class="slider-label a">a</div>
+        <input type="range" class="a" id="sa" min="-3" max="3" step="0.5" value="1">
+        <div class="slider-val" id="va">1</div>
+      </div>
+      <div class="slider-row">
+        <div class="slider-label b">b</div>
+        <input type="range" class="b" id="sb" min="-6" max="6" step="1" value="-3">
+        <div class="slider-val" id="vb">-3</div>
+      </div>
+      <div class="slider-row">
+        <div class="slider-label c">c</div>
+        <input type="range" class="c" id="sc" min="-6" max="6" step="1" value="2">
+        <div class="slider-val" id="vc">2</div>
+      </div>
+    </div>
+
+    <div class="eq-display" id="eq-display">
+      <span class="ca">1</span>x² + <span class="cb">(-3)</span>x + <span class="cc">2</span> = 0
+    </div>
+
+    <canvas id="parabola" height="260"></canvas>
+
+    <div class="nature-legend" style="margin-top:8px;">
+      <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div>Parabola</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div>Roots (मूल)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div>Vertex (शीर्ष)</div>
+    </div>
+
+    <div id="disc-display" class="disc-box disc-positive">
+      Discriminant (विविक्तकर) D = b² - 4ac = 1 → Two distinct real roots
+    </div>
+
+    <div class="roots-box" id="roots-box">
+      <div class="root-card real" id="r1card">
+        <div class="root-label">Root α (मूल)</div>
+        <div class="root-val" id="r1val">x₁ = 2.00</div>
+      </div>
+      <div class="root-card real" id="r2card">
+        <div class="root-label">Root β (मूल)</div>
+        <div class="root-val" id="r2val">x₂ = 1.00</div>
+      </div>
+    </div>
+
+    <div style="background:#f0fdf4;border-radius:8px;padding:10px;font-size:13px;color:#166534;border:1px solid #bbf7d0;margin-top:8px;">
+      <strong>Quadratic Formula (द्विघात सूत्र):</strong><br>
+      x = (-b ± √(b²−4ac)) / 2a
+    </div>
+  </div>
+
+  <!-- Nature of Roots -->
+  <div class="card fade-in">
+    <div class="card-title"><div class="dot" style="background:#f59e0b"></div>Nature of Roots (मूलों की प्रकृति)</div>
+    <div class="tab-row">
+      <div class="tab active" onclick="showNature(0,this)">D > 0</div>
+      <div class="tab" onclick="showNature(1,this)">D = 0</div>
+      <div class="tab" onclick="showNature(2,this)">D &lt; 0</div>
+    </div>
+    <div id="nature-panels">
+      <div id="np0" class="fade-in">
+        <div style="background:linear-gradient(135deg,#dcfce7,#bbf7d0);border-radius:12px;padding:16px;border:2px solid #22c55e;">
+          <div style="font-size:15px;font-weight:800;color:#14532d">D = b² - 4ac > 0</div>
+          <div style="font-size:13px;color:#166534;margin:6px 0;">Two distinct real roots (दो भिन्न वास्तविक मूल)</div>
+          <div class="step-math">α = (-b + √D) / 2a &nbsp;&nbsp; β = (-b - √D) / 2a</div>
+          <canvas id="cn0" height="100" style="margin-top:10px;border-radius:8px;background:#f8fafc;"></canvas>
+          <div style="font-size:12px;color:#15803d;margin-top:6px;">📌 Parabola crosses x-axis at TWO points</div>
+        </div>
+      </div>
+      <div id="np1" style="display:none">
+        <div style="background:linear-gradient(135deg,#fef3c7,#fde68a);border-radius:12px;padding:16px;border:2px solid #f59e0b;">
+          <div style="font-size:15px;font-weight:800;color:#78350f">D = b² - 4ac = 0</div>
+          <div style="font-size:13px;color:#92400e;margin:6px 0;">Two equal real roots (दो समान वास्तविक मूल)</div>
+          <div class="step-math">α = β = -b / 2a</div>
+          <canvas id="cn1" height="100" style="margin-top:10px;border-radius:8px;background:#f8fafc;"></canvas>
+          <div style="font-size:12px;color:#b45309;margin-top:6px;">📌 Parabola TOUCHES x-axis at exactly ONE point</div>
+        </div>
+      </div>
+      <div id="np2" style="display:none">
+        <div style="background:linear-gradient(135deg,#fee2e2,#fecaca);border-radius:12px;padding:16px;border:2px solid #ef4444;">
+          <div style="font-size:15px;font-weight:800;color:#7f1d1d">D = b² - 4ac &lt; 0</div>
+          <div style="font-size:13px;color:#991b1b;margin:6px 0;">No real roots (कोई वास्तविक मूल नहीं)</div>
+          <div class="step-math">Roots are imaginary / complex</div>
+          <canvas id="cn2" height="100" style="margin-top:10px;border-radius:8px;background:#f8fafc;"></canvas>
+          <div style="font-size:12px;color:#b91c1c;margin-top:6px;">📌 Parabola does NOT cross x-axis</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Worked Example -->
+  <div class="card fade-in">
+    <div class="card-title"><div class="dot" style="background:#ef4444"></div>Worked Example (हल किया उदाहरण) — Click to Reveal</div>
+    <div style="background:#f8fafc;border-radius:10px;padding:12px;text-align:center;margin-bottom:12px;">
+      <div style="font-size:13px;color:#64748b;margin-bottom:4px;">Solve the equation:</div>
+      <div class="example-eq">x² - 5x + 6 = 0</div>
+      <div style="font-size:12px;color:#94a3b8;">Here a=1, b=-5, c=6</div>
+    </div>
+
+    <div class="steps-container" id="steps">
+      <div class="step-item" onclick="revealStep(this)">
+        <div class="step-num">Step 1</div>
+        <div class="step-title">Identify a, b, c</div>
+        <div class="reveal-hint">👆 Click to reveal</div>
+        <div class="step-content">
+          Comparing x² - 5x + 6 = 0 with ax² + bx + c = 0:<br><br>
+          <span class="info-tag tag-amber">a = 1</span>
+          <span class="info-tag tag-green">b = -5</span>
+          <span class="info-tag" style="background:#fee2e2;color:#b91c1c;">c = 6</span>
+        </div>
+      </div>
+      <div class="step-item" onclick="revealStep(this)">
+        <div class="step-num">Step 2</div>
+        <div class="step-title">Calculate Discriminant D = b² - 4ac</div>
+        <div class="reveal-hint">👆 Click to reveal</div>
+        <div class="step-content">
+          D = (-5)² - 4(1)(6)<br>
+          D = 25 - 24<br>
+          <div class="step-math">D = 1 > 0 ✓</div>
+          ∴ Two distinct real roots exist! (दो भिन्न वास्तविक मूल हैं)
+        </div>
+      </div>
+      <div class="step-item" onclick="revealStep(this)">
+        <div class="step-num">Step 3</div>
+        <div class="step-title">Apply Quadratic Formula</div>
+        <div class="reveal-hint">👆 Click to reveal</div>
+        <div class="step-content">
+          x = (-b ± √D) / 2a<br>
+          x = (5 ± √1) / 2<br>
+          x = (5 ± 1) / 2<br><br>
+          <div class="step-math">x₁ = (5+1)/2 = 3</div>
+          <div class="step-math">x₂ = (5-1)/2 = 2</div>
+        </div>
+      </div>
+      <div class="step-item" onclick="revealStep(this)">
+        <div class="step-num">Step 4</div>
+        <div class="step-title">Verify the Roots (सत्यापन)</div>
+        <div class="reveal-hint">👆 Click to reveal</div>
+        <div class="step-content">
+          For x = 3: (3)² - 5(3) + 6 = 9 - 15 + 6 = <strong>0 ✓</strong><br>
+          For x = 2: (2)² - 5(2) + 6 = 4 - 10 + 6 = <strong>0 ✓</strong><br><br>
+          <span class="info-tag tag-green">✓ Roots verified!</span><br><br>
+          <strong>Sum of roots</strong> α + β = 3 + 2 = 5 = -b/a = -(-5)/1 = 5 ✓<br>
+          <strong>Product of roots</strong> α × β = 3 × 2 = 6 = c/a = 6/1 = 6 ✓
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="revealAll()">Reveal All Steps</button>
+      <button class="btn btn-outline" onclick="resetSteps()">Reset</button>
+    </div>
+  </div>
+
+  <!-- Sum Product Relations -->
+  <div class="card fade-in">
+    <div class="card-title"><div class="dot" style="background:#8b5cf6"></div>Vieta's Formulas (मूलों का सम्बन्ध)</div>
+    <div class="grid2">
+      <div style="background:linear-gradient(135deg,#ede9fe,#ddd6fe);border-radius:12px;padding:14px;border:2px solid #8b5cf6;text-align:center;">
+        <div style="font-size:12px;font-weight:700;color:#7c3aed;margin-bottom:6px;">Sum of Roots (मूलों का योग)</div>
+        <div style="font-size:22px;font-weight:800;color:#5b21b6;">α + β = -b/a</div>
+        <div style="font-size:12px;color:#6d28d9;margin-top:6px;">= -(coefficient of x) / (coefficient of x²)</div>
+      </div>
+      <div style="background:linear-gradient(135deg,#fce7f3,#fbcfe8);border-radius:12px;padding:14px;border:2px solid #ec4899;text-align:center;">
+        <div style="font-size:12px;font-weight:700;color:#be185d;margin-bottom:6px;">Product of Roots (मूलों का गुणनफल)</div>
+        <div style="font-size:22px;font-weight:800;color:#9d174d;">α × β = c/a</div>
+        <div style="font-size:12px;color:#be185d;margin-top:6px;">= constant term / coefficient of x²</div>
+      </div>
+    </div>
+    <div style="background:#f1f5f9;border-radius:8px;padding:10px 14px;font-size:13px;color:#475569;margin-top:10px;border-left:3px solid #3b82f6;">
+      💡 If roots are α and β, the quadratic equation is:<br>
+      <strong>x² - (α+β)x + αβ = 0</strong>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast">💡 Tip!</div>
+
+<script>
+let aVal = 1, bVal = -3, cVal = 2;
+
+// Slider setup
+const sa = document.getElementById('sa');
+const sb = document.getElementById('sb');
+const sc = document.getElementById('sc');
+
+function updateSliderBg(el, min, max) {
+  const p = ((el.value - min) / (max - min)) * 100;
+  el.style.setProperty('--p', p + '%');
+  el.style.background = `linear-gradient(to right, ${el.classList.contains('a') ? '#f59e0b' : el.classList.contains('b') ? '#22c55e' : '#ef4444'} ${p}%, #e5e7eb ${p}%)`;
+}
+
+sa.addEventListener('input', () => { aVal = parseFloat(sa.value); document.getElementById('va').textContent = aVal; if(aVal===0){aVal=0.1} updateSliderBg(sa,-3,3); updateAll(); });
+sb.addEventListener('input', () => { bVal = parseFloat(sb.value); document.getElementById('vb').textContent = bVal; updateSliderBg(sb,-6,6); updateAll(); });
+sc.addEventListener('input', () => { cVal = parseFloat(sc.value); document.getElementById('vc').textContent = cVal; updateSliderBg(sc,-6,6); updateAll(); });
+
+updateSliderBg(sa,-3,3); updateSliderBg(sb,-6,6); updateSliderBg(sc,-6,6);
+
+function updateAll() {
+  updateEquationDisplay();
+  draw

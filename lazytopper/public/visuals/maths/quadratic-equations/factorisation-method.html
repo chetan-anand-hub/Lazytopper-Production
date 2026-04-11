@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quadratic Equations - Factorisation Method</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f0f4ff; color: #1e293b; min-width: 320px; }
+  
+  .title-bar {
+    background: linear-gradient(135deg, #1e293b 0%, #3b82f6 100%);
+    color: white; padding: 14px 20px; text-align: center;
+    box-shadow: 0 4px 15px rgba(59,130,246,0.4);
+  }
+  .title-bar h1 { font-size: 1.2rem; font-weight: 700; letter-spacing: 0.5px; }
+  .title-bar p { font-size: 0.8rem; opacity: 0.85; margin-top: 3px; }
+  
+  .container { max-width: 700px; margin: 0 auto; padding: 16px; }
+  
+  .card {
+    background: white; border-radius: 16px; padding: 18px;
+    margin-bottom: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    border: 1px solid rgba(59,130,246,0.1);
+  }
+  
+  .card-title {
+    font-size: 0.95rem; font-weight: 700; color: #3b82f6;
+    margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+  }
+  .card-title .icon { font-size: 1.1rem; }
+  
+  .formula-box {
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    border: 2px solid #3b82f6; border-radius: 12px;
+    padding: 14px; text-align: center; margin: 10px 0;
+  }
+  .formula-box .main-formula { font-size: 1.1rem; font-weight: 700; color: #1e40af; }
+  .formula-box .sub { font-size: 0.8rem; color: #3b82f6; margin-top: 5px; }
+  
+  .key-conditions {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0;
+  }
+  .condition-box {
+    border-radius: 10px; padding: 10px; text-align: center;
+    transition: transform 0.2s; cursor: pointer;
+  }
+  .condition-box:hover { transform: scale(1.04); }
+  .cond-product { background: linear-gradient(135deg, #fef3c7, #fde68a); border: 2px solid #f59e0b; }
+  .cond-sum { background: linear-gradient(135deg, #dcfce7, #bbf7d0); border: 2px solid #22c55e; }
+  .condition-box .label { font-size: 0.7rem; font-weight: 600; opacity: 0.7; text-transform: uppercase; }
+  .condition-box .value { font-size: 1rem; font-weight: 700; margin: 4px 0; }
+  .condition-box .desc { font-size: 0.75rem; }
+  
+  /* Steps section */
+  .steps-container { }
+  .step {
+    border-radius: 12px; margin-bottom: 10px; overflow: hidden;
+    border: 2px solid #e2e8f0; transition: all 0.3s;
+  }
+  .step.active { border-color: #3b82f6; box-shadow: 0 4px 15px rgba(59,130,246,0.2); }
+  .step-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 14px; cursor: pointer; user-select: none;
+    background: #f8fafc; transition: background 0.2s;
+  }
+  .step.active .step-header { background: linear-gradient(135deg, #eff6ff, #dbeafe); }
+  .step-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: #94a3b8; color: white; display: flex;
+    align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.85rem; flex-shrink: 0;
+    transition: background 0.3s;
+  }
+  .step.active .step-num { background: #3b82f6; }
+  .step.done .step-num { background: #22c55e; }
+  .step-title { font-weight: 600; font-size: 0.9rem; flex: 1; }
+  .step-arrow { transition: transform 0.3s; color: #94a3b8; font-size: 0.8rem; }
+  .step.active .step-arrow { transform: rotate(90deg); color: #3b82f6; }
+  .step-body {
+    max-height: 0; overflow: hidden;
+    transition: max-height 0.4s ease, padding 0.3s;
+    padding: 0 14px;
+  }
+  .step.active .step-body { max-height: 400px; padding: 12px 14px; }
+  .step-body .content { font-size: 0.88rem; line-height: 1.6; }
+  
+  .highlight-box {
+    background: #fffbeb; border-left: 4px solid #f59e0b;
+    padding: 8px 12px; border-radius: 0 8px 8px 0;
+    margin: 8px 0; font-size: 0.85rem;
+  }
+  .success-box {
+    background: #f0fdf4; border-left: 4px solid #22c55e;
+    padding: 8px 12px; border-radius: 0 8px 8px 0;
+    margin: 8px 0; font-size: 0.85rem;
+  }
+  
+  /* Interactive try-it */
+  .try-section { }
+  .equation-display {
+    background: linear-gradient(135deg, #1e293b, #334155);
+    border-radius: 12px; padding: 14px; text-align: center;
+    color: white; margin-bottom: 14px;
+  }
+  .equation-display .eq { font-size: 1.3rem; font-weight: 700; color: #93c5fd; }
+  .equation-display .hint { font-size: 0.8rem; opacity: 0.7; margin-top: 4px; }
+  
+  .coeff-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  .coeff-box {
+    background: #f8fafc; border: 2px solid #e2e8f0;
+    border-radius: 10px; padding: 10px; text-align: center;
+  }
+  .coeff-box label { font-size: 0.72rem; color: #64748b; display: block; margin-bottom: 4px; font-weight: 600; }
+  .coeff-box .coeff-val { font-size: 1.1rem; font-weight: 700; color: #1e293b; }
+  .coeff-box.a-box { border-color: #3b82f6; background: #eff6ff; }
+  .coeff-box.b-box { border-color: #f59e0b; background: #fffbeb; }
+  .coeff-box.c-box { border-color: #a855f7; background: #faf5ff; }
+  
+  .pair-finder { margin-bottom: 14px; }
+  .pair-label { font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; color: #475569; }
+  .pairs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; }
+  .pair-card {
+    border: 2px solid #e2e8f0; border-radius: 10px;
+    padding: 8px; text-align: center; cursor: pointer;
+    transition: all 0.25s; background: white;
+  }
+  .pair-card:hover { border-color: #3b82f6; background: #eff6ff; transform: translateY(-2px); }
+  .pair-card.correct { border-color: #22c55e; background: #f0fdf4; animation: pulse 0.5s; }
+  .pair-card.wrong { border-color: #ef4444; background: #fef2f2; animation: shake 0.4s; }
+  .pair-card .p-nums { font-size: 0.95rem; font-weight: 700; }
+  .pair-card .p-check { font-size: 0.7rem; color: #64748b; margin-top: 2px; }
+  
+  @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)} }
+  
+  .result-reveal {
+    background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+    border: 2px solid #22c55e; border-radius: 12px;
+    padding: 14px; text-align: center; display: none;
+  }
+  .result-reveal.show { display: block; animation: fadeIn 0.5s; }
+  .result-reveal .roots { font-size: 1.1rem; font-weight: 700; color: #166534; }
+  
+  @keyframes fadeIn { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
+  
+  /* Preset buttons */
+  .presets { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .preset-btn {
+    background: white; border: 2px solid #3b82f6; color: #3b82f6;
+    border-radius: 8px; padding: 6px 12px; cursor: pointer;
+    font-size: 0.8rem; font-weight: 600; transition: all 0.2s;
+  }
+  .preset-btn:hover, .preset-btn.active { background: #3b82f6; color: white; }
+  
+  /* Visual split diagram */
+  .split-visual {
+    background: #f8fafc; border-radius: 12px; padding: 14px;
+    margin: 10px 0; text-align: center;
+  }
+  .split-row { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; margin: 6px 0; }
+  .term {
+    padding: 6px 12px; border-radius: 8px; font-weight: 700;
+    font-size: 0.9rem; display: inline-block;
+  }
+  .term-x2 { background: #dbeafe; color: #1e40af; border: 2px solid #3b82f6; }
+  .term-bx { background: #fde68a; color: #92400e; border: 2px solid #f59e0b; }
+  .term-c { background: #e9d5ff; color: #6b21a8; border: 2px solid #a855f7; }
+  .term-split1 { background: #dcfce7; color: #166534; border: 2px solid #22c55e; }
+  .term-split2 { background: #fee2e2; color: #991b1b; border: 2px solid #ef4444; }
+  .arrow-down { color: #94a3b8; font-size: 1.2rem; display: block; }
+  
+  .op { color: #64748b; font-weight: 600; }
+  
+  .btn {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white; border: none; border-radius: 10px;
+    padding: 10px 20px; cursor: pointer; font-size: 0.9rem;
+    font-weight: 600; transition: all 0.2s; width: 100%;
+    box-shadow: 0 4px 12px rgba(59,130,246,0.35);
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(59,130,246,0.45); }
+  .btn:active { transform: translateY(0); }
+  
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 20px;
+    font-size: 0.72rem; font-weight: 700; margin-left: 6px;
+  }
+  .badge-blue { background: #dbeafe; color: #1e40af; }
+  .badge-green { background: #dcfce7; color: #166534; }
+  
+  .tip-box {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border-radius: 10px; padding: 10px 14px; margin: 8px 0;
+    font-size: 0.82rem; border-left: 4px solid #f59e0b;
+  }
+  .tip-box strong { color: #92400e; }
+  
+  .footer { text-align: center; font-size: 0.75rem; color: #94a3b8; padding: 16px; }
+  
+  .feedback { font-size: 0.8rem; margin-top: 8px; min-height: 20px; font-weight: 600; text-align: center; }
+  .feedback.good { color: #22c55e; }
+  .feedback.bad { color: #ef4444; }
+  
+  .nav-btns { display: flex; gap: 8px; margin-top: 10px; }
+  .nav-btn {
+    flex: 1; background: white; border: 2px solid #3b82f6;
+    color: #3b82f6; border-radius: 8px; padding: 8px;
+    cursor: pointer; font-size: 0.8rem; font-weight: 600;
+    transition: all 0.2s;
+  }
+  .nav-btn:hover { background: #eff6ff; }
+  .nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+</style>
+</head>
+<body>
+
+<div class="title-bar">
+  <h1>📐 Quadratic Equations — गुणनखंड विधि</h1>
+  <p>Factorisation Method | CBSE Class 10 Mathematics | Chapter 4</p>
+</div>
+
+<div class="container">
+
+  <!-- Concept Card -->
+  <div class="card">
+    <div class="card-title"><span class="icon">💡</span> What is the Factorisation Method? (गुणनखंड विधि)</div>
+    <p style="font-size:0.85rem;line-height:1.6;color:#475569;">
+      A <strong>quadratic equation</strong> ax² + bx + c = 0 can be solved by splitting the middle term (<em>बीच का पद</em>) into two parts, then grouping to find factors.
+    </p>
+    <div class="formula-box">
+      <div class="main-formula">ax² + bx + c = 0</div>
+      <div class="sub">Find two numbers p & q such that:</div>
+    </div>
+    <div class="key-conditions">
+      <div class="condition-box cond-product" onclick="toggleTip('prod')">
+        <div class="label">🔴 शर्त 1 — Product (गुणनफल)</div>
+        <div class="value">p × q = a × c</div>
+        <div class="desc">Product of p and q equals a×c</div>
+      </div>
+      <div class="condition-box cond-sum" onclick="toggleTip('sum')">
+        <div class="label">🟢 शर्त 2 — Sum (योग)</div>
+        <div class="value">p + q = b</div>
+        <div class="desc">Sum of p and q equals b (middle term)</div>
+      </div>
+    </div>
+    <div id="tip-prod" class="tip-box" style="display:none;">
+      <strong>💡 Product Tip:</strong> a×c is called the <em>product condition</em>. List all factor pairs of |a×c| — both positive & negative combinations!
+    </div>
+    <div id="tip-sum" class="tip-box" style="display:none;">
+      <strong>💡 Sum Tip:</strong> Among all factor pairs of a×c, find the pair whose sum equals b (the coefficient of x).
+    </div>
+  </div>
+
+  <!-- Step by Step Walkthrough -->
+  <div class="card">
+    <div class="card-title"><span class="icon">📋</span> Step-by-Step Walkthrough <span class="badge badge-blue">Click to Reveal</span></div>
+    
+    <div class="equation-display">
+      <div class="eq">x² + 5x + 6 = 0</div>
+      <div class="hint">Solved Example — follow each step below ↓</div>
+    </div>
+
+    <div class="steps-container" id="stepsContainer">
+      
+      <div class="step" id="step1">
+        <div class="step-header" onclick="toggleStep(1)">
+          <div class="step-num">1</div>
+          <div class="step-title">Identify a, b, and c</div>
+          <div class="step-arrow">▶</div>
+        </div>
+        <div class="step-body">
+          <div class="content">
+            Compare with <strong>ax² + bx + c = 0</strong>:
+            <div class="coeff-grid" style="margin-top:10px;">
+              <div class="coeff-box a-box"><label>a (x² का गुणांक)</label><div class="coeff-val">1</div></div>
+              <div class="coeff-box b-box"><label>b (x का गुणांक)</label><div class="coeff-val">5</div></div>
+              <div class="coeff-box c-box"><label>c (अचर / Constant)</label><div class="coeff-val">6</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step2">
+        <div class="step-header" onclick="toggleStep(2)">
+          <div class="step-num">2</div>
+          <div class="step-title">Calculate a × c (Product Condition)</div>
+          <div class="step-arrow">▶</div>
+        </div>
+        <div class="step-body">
+          <div class="content">
+            <div class="highlight-box">
+              a × c = 1 × 6 = <strong>6</strong><br>
+              We need two numbers whose <strong>product = 6</strong>
+            </div>
+            Factor pairs of 6: (1,6), (2,3), (-1,-6), (-2,-3), (1,6)
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step3">
+        <div class="step-header" onclick="toggleStep(3)">
+          <div class="step-num">3</div>
+          <div class="step-title">Find the pair whose sum = b = 5</div>
+          <div class="step-arrow">▶</div>
+        </div>
+        <div class="step-body">
+          <div class="content">
+            Check all pairs whose product = 6:
+            <div class="highlight-box">
+              2 × 3 = 6 ✓ &nbsp;|&nbsp; 2 + 3 = <strong>5 ✓</strong>
+            </div>
+            <div class="success-box">
+              ∴ p = <strong>2</strong>, q = <strong>3</strong> (both conditions satisfied!)
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step4">
+        <div class="step-header" onclick="toggleStep(4)">
+          <div class="step-num">4</div>
+          <div class="step-title">Split the Middle Term (बीच का पद तोड़ो)</div>
+          <div class="step-arrow">▶</div>
+        </div>
+        <div class="step-body">
+          <div class="content">
+            Replace 5x with 2x + 3x:
+            <div class="split-visual">
+              <div class="split-row">
+                <span class="term term-x2">x²</span>
+                <span class="op">+</span>
+                <span class="term term-bx">5x</span>
+                <span class="op">+</span>
+                <span class="term term-c">6</span>
+                <span class="op">= 0</span>
+              </div>
+              <span class="arrow-down">↓ split 5x into 2x + 3x</span>
+              <div class="split-row">
+                <span class="term term-x2">x²</span>
+                <span class="op">+</span>
+                <span class="term term-split1">2x</span>
+                <span class="op">+</span>
+                <span class="term term-split2">3x</span>
+                <span class="op">+</span>
+                <span class="term term-c">6</span>
+                <span class="op">= 0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step5">
+        <div class="step-header" onclick="toggleStep(5)">
+          <div class="step-num">5</div>
+          <div class="step-title">Group & Factor Out (समूह बनाओ)</div>
+          <div class="step-arrow">▶</div>
+        </div>
+        <div class="step-body">
+          <div class="content">
+            <div class="highlight-box">
+              (x² + 2x) + (3x + 6) = 0<br>
+              x(x + 2) + 3(x + 2) = 0<br>
+              <strong>(x + 2)(x + 3) = 0</strong>
+            </div>
+            <div class="success-box">
+              ∴ x + 2 = 0 → <strong>x = −2</strong><br>
+              ∴ x + 3 = 0 → <strong>x = −3</strong><br>
+              <strong>मूल (Roots): x = −2 or x = −3</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    
+    <div class="nav-btns">
+      <button class="nav-btn" id="prevBtn" onclick="navStep(-1)" disabled>◀ Previous</button>
+      <button class="nav-btn" id="nextBtn" onclick="navStep(1)">Next ▶</button>
+    </div>
+  </div>
+
+  <!-- Interactive Practice -->
+  <div class="card">
+    <div class="card-title"><span class="icon">🎮</span> Interactive Practice — Find the Correct Pair!</div>
+    
+    <div class="presets">
+      <button class="preset-btn active" onclick="loadEq(0)">x²+5x+6</button>
+      <button class="preset-btn" onclick="loadEq(1)">x²−7x+12</button>
+      <button class="preset-btn" onclick="loadEq(2)">2x²+7x+3</button>
+      <button class="preset-btn" onclick="loadEq(3)">x²−x−6</button>
+    </div>
+    
+    <div class="equation-display">
+      <div class="eq" id="tryEq">x² + 5x + 6 = 0</div>
+      <div class="hint" id="tryHint">Find p & q: product = a×c, sum = b</div>
+    </div>
+
+    <div class="coeff-grid">
+      <div class="coeff-box a-box"><label>a × c (Product चाहिए)</label><div class="coeff-val" id="tryProduct">6</div></div>
+      <div class="coeff-box b-box"><label>b (Sum चाहिए)</label><div class="coeff-val" id="trySum">5</div></div>
+      <div class="coeff-box c-box"><label>Status</label><div class="coeff-val" id="tryStatus">🎯 Pick!</div></div>
+    </div>
+
+    <div class="pair-label">👇 Click the correct factor pair (p, q):</div>
+    <div class="pairs-grid" id="pairsGrid"></div>
+    
+    <div class="feedback" id="feedback"></div>
+    
+    <div class="result-reveal" id="resultReveal">
+      <div style="font-size:0.85rem;color:#166534;margin-bottom:6px;">✅ सही! (Correct!) The equation factors as:</div>
+      <div class="roots" id="factorsDisplay"></div>
+      <div style="font-size:0.82rem;color:#166534;margin-top:6px;" id="rootsDisplay"></div>
+    </div>
+  </div>
+
+  <!-- Visual Tip -->
+  <div class="card">
+    <div class="card-title"><span class="icon">🧠</span> Smart Trick — याद रखो!</div>
+    <div style="font-size:0.85rem;line-height:1.7;color:#475569;">
+      <p>For <strong>ax² + bx + c = 0</strong>, the split trick always works when:</p>
+      <div class="highlight-box">
+        <strong>b² − 4ac ≥ 0</strong> (Discriminant / विविक्तकर must be non-negative)
+      </div>
+      <p style="margin-top:8px;">Signs pattern to find p & q quickly:</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
+        <div class="tip-box" style="margin:0;"><strong>+bx, +c</strong><br>Both p,q are <strong>positive</strong></div>
+        <div class="tip-box" style="margin:0;"><strong>−bx, +c</strong><br>Both p,q are <strong>negative</strong></div>
+        <div class="tip-box" style="margin:0;"><strong>+bx, −c</strong><br>Larger is <strong>positive</strong></div>
+        <div class="tip-box" style="margin:0;"><strong>−bx, −c</strong><br>Larger is <strong>negative</strong></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">CBSE Class 10 | Chapter 4 — Quadratic Equations | गुणनखंड विधि (Factorisation Method)</div>
+
+<script>
+  // Toggle tip boxes
+  function toggleTip(id) {
+    const el = document.getElementById('tip-' + id);
+    el.style.display = el.style.display === 'none' ? 'block' : 'none';
+  }
+
+  // Step navigation
+  let currentStep = 0;
+  const totalSteps = 5;
+
+  function toggleStep(n) {
+    const step = document.getElementById('step' + n);
+    const isActive = step.classList.contains('active');
+    // Close all
+    for (let i = 1; i <= totalSteps; i++) {
+      document.getElementById('step' + i).classList.remove('active');
+    }
+    if (!isActive) {
+      step.classList.add('active');
+      currentStep = n;
+    } else {
+      currentStep = 0;
+    }
+    updateNavBtns();
+  }
+
+  function navStep(dir) {
+    let next = currentStep + dir;
+    if (next < 1) next = 1;
+    if (next > totalSteps) next = totalSteps;
+    // Mark previous steps done
+    for (let i = 1; i < next; i++) {
+      document.getElementById('step' + i).classList.remove('active');
+      document.getElementById('step' + i).classList.add('done');
+    }
+    toggleStep(next);
+  }
+
+  function updateNavBtns() {
+    document.getElementById('prevBtn').disabled = currentStep <= 1;
+    document.getElementById('nextBtn').disabled = currentStep >= totalSteps;
+  }
+
+  // Open first step by default
+  setTimeout(() => { toggleStep(1); }, 300);
+
+  // Interactive Practice
+  const equations = [
+    { display: 'x² + 5x + 6 = 0', a: 1, b: 5, c: 6, correct: [2, 3], factors: '(x + 2)(x + 3) = 0', roots: 'x = −2 or x = −3' },
+    { display: 'x² − 7x + 12 = 0', a: 1, b: -7, c: 12, correct: [-3, -4], factors: '(x − 3)(x − 4) = 0', roots: 'x = 3 or x = 4' },
+    { display: '2x² + 7x + 3 = 0', a: 2, b: 7, c: 3, correct: [1, 6], factors: '(2x + 1)(x + 3) = 0', roots: 'x = −½ or x = −3' },
+    { display: 'x² − x − 6 = 0', a: 1, b: -1, c: -6, correct: [2, -3], factors: '(x + 2)(x − 3) = 0', roots: 'x = −2 or x = 3' }
+  ];
+
+  let currentEq = 0;
+
+  function generatePairs(eq) {
+    const product = eq.a * eq.c;
+    const b = eq.b;
+    const ap = Math.abs(product);
+    const pairs = [];
+    const added = new Set();
+    
+    for (let i = 1; i <= ap; i++) {
+      if (ap % i === 0) {
+        const j = ap / i;
+        const combos = [[i,j],[-i,-j],[i,-j],[-i,j]];
+        combos.forEach(([p,q]) => {
+          if (p * q === product) {

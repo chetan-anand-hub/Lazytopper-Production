@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Metals & Non-Metals - Physical Properties</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#0f172a 100%);min-height:100vh;color:#e2e8f0}
+.title-bar{background:linear-gradient(90deg,#3b82f6,#6366f1,#8b5cf6);padding:12px 20px;text-align:center;box-shadow:0 4px 20px rgba(59,130,246,0.5)}
+.title-bar h1{font-size:1.1rem;font-weight:700;color:#fff;letter-spacing:1px}
+.title-bar p{font-size:0.75rem;color:#bfdbfe;margin-top:2px}
+.container{max-width:800px;margin:0 auto;padding:16px}
+.card{background:rgba(30,41,59,0.8);border:1px solid rgba(59,130,246,0.3);border-radius:16px;padding:16px;margin-bottom:16px;backdrop-filter:blur(10px);box-shadow:0 8px 32px rgba(0,0,0,0.3)}
+.section-title{font-size:0.85rem;font-weight:700;color:#3b82f6;text-transform:uppercase;letter-spacing:2px;margin-bottom:12px}
+.property-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.prop-card{background:rgba(15,23,42,0.6);border-radius:12px;padding:12px;text-align:center;cursor:pointer;border:2px solid transparent;transition:all 0.3s;position:relative;overflow:hidden}
+.prop-card:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(59,130,246,0.3)}
+.prop-card.active{border-color:#3b82f6;background:rgba(59,130,246,0.15)}
+.prop-card .icon{font-size:2rem;margin-bottom:6px;display:block}
+.prop-card h3{font-size:0.8rem;font-weight:700;color:#f1f5f9;margin-bottom:2px}
+.prop-card .hindi{font-size:0.65rem;color:#94a3b8;font-style:italic}
+.prop-card .badge{position:absolute;top:6px;right:6px;font-size:0.55rem;padding:2px 5px;border-radius:20px;font-weight:700}
+.badge-metal{background:#22c55e;color:#fff}
+.badge-both{background:#f59e0b;color:#fff}
+.detail-panel{display:none;margin-top:12px;padding:12px;background:rgba(59,130,246,0.1);border-radius:10px;border-left:3px solid #3b82f6;animation:slideIn 0.3s ease}
+.detail-panel.show{display:block}
+@keyframes slideIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+.detail-panel h4{color:#60a5fa;font-size:0.85rem;margin-bottom:6px}
+.detail-panel p{font-size:0.78rem;color:#cbd5e1;line-height:1.5}
+.detail-panel .example{background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:8px;padding:8px;margin-top:8px;font-size:0.75rem;color:#86efac}
+
+/* SVG Diagram */
+.diagram-wrap{background:rgba(15,23,42,0.8);border-radius:12px;padding:12px;margin-bottom:12px}
+.diagram-label{font-size:0.7rem;fill:#94a3b8;font-family:'Segoe UI',sans-serif}
+.diagram-title{font-size:0.75rem;fill:#60a5fa;font-weight:700;font-family:'Segoe UI',sans-serif}
+
+/* Malleable Demo */
+.hammer-area{display:flex;align-items:center;justify-content:center;gap:20px;padding:16px;flex-wrap:wrap}
+.metal-block{width:60px;height:60px;background:linear-gradient(135deg,#fbbf24,#f59e0b);border-radius:8px;transition:all 0.5s cubic-bezier(0.34,1.56,0.64,1);cursor:pointer;box-shadow:0 4px 12px rgba(245,158,11,0.4);position:relative;display:flex;align-items:center;justify-content:center;color:#92400e;font-size:0.6rem;font-weight:700;text-align:center}
+.metal-block.hammered{width:120px;height:20px;border-radius:3px}
+.hammer-btn{background:linear-gradient(135deg,#3b82f6,#6366f1);border:none;color:#fff;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:0.8rem;font-weight:700;transition:all 0.2s}
+.hammer-btn:hover{transform:scale(1.05);box-shadow:0 4px 12px rgba(59,130,246,0.5)}
+.arrow-label{font-size:0.7rem;color:#94a3b8;text-align:center;margin-top:4px}
+
+/* Wire demo */
+.wire-demo{display:flex;align-items:center;gap:10px;padding:12px;flex-wrap:wrap;justify-content:center}
+.wire-block{width:50px;height:50px;background:linear-gradient(135deg,#ef4444,#dc2626);border-radius:8px;transition:all 0.6s;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.55rem;font-weight:700;text-align:center}
+.wire-block.wired{width:200px;height:8px;border-radius:4px;background:linear-gradient(90deg,#ef4444,#f97316,#ef4444)}
+.wire-btn{background:linear-gradient(135deg,#ef4444,#dc2626);border:none;color:#fff;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:0.8rem;font-weight:700;transition:all 0.2s}
+.wire-btn:hover{transform:scale(1.05)}
+
+/* Conductor demo */
+.circuit-svg{width:100%;max-width:340px;margin:0 auto;display:block}
+
+/* Comparison table */
+.compare-table{width:100%;border-collapse:collapse;font-size:0.75rem}
+.compare-table th{background:rgba(59,130,246,0.3);padding:8px;text-align:center;font-size:0.7rem;color:#bfdbfe}
+.compare-table td{padding:8px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.05)}
+.compare-table tr:hover td{background:rgba(59,130,246,0.08)}
+.yes{color:#22c55e;font-weight:700}
+.no{color:#ef4444;font-weight:700}
+.partial{color:#f59e0b;font-weight:700}
+
+/* Walkthrough */
+.step-container{margin-top:8px}
+.step{display:none;padding:10px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:10px;margin-bottom:8px;animation:slideIn 0.3s ease}
+.step.show{display:block}
+.step-num{display:inline-block;background:#22c55e;color:#fff;border-radius:50%;width:20px;height:20px;text-align:center;line-height:20px;font-size:0.65rem;font-weight:700;margin-right:6px}
+.step p{font-size:0.78rem;color:#d1fae5;display:inline;line-height:1.5}
+.step-btn{background:linear-gradient(135deg,#22c55e,#16a34a);border:none;color:#fff;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:0.8rem;font-weight:700;transition:all 0.2s;margin-top:8px}
+.step-btn:hover{transform:scale(1.05);box-shadow:0 4px 12px rgba(34,197,94,0.4)}
+
+/* Sonorous demo */
+.sound-wave{display:flex;align-items:center;justify-content:center;gap:4px;height:40px;margin:8px 0}
+.bar{width:4px;background:#3b82f6;border-radius:2px;height:8px;transition:all 0.3s}
+.bar.active{animation:wave 0.5s ease-in-out infinite alternate}
+@keyframes wave{from{height:8px}to{height:36px}}
+.bar:nth-child(1){animation-delay:0s}
+.bar:nth-child(2){animation-delay:0.05s}
+.bar:nth-child(3){animation-delay:0.1s}
+.bar:nth-child(4){animation-delay:0.15s}
+.bar:nth-child(5){animation-delay:0.2s}
+.bar:nth-child(6){animation-delay:0.15s}
+.bar:nth-child(7){animation-delay:0.1s}
+.bar:nth-child(8){animation-delay:0.05s}
+.bar:nth-child(9){animation-delay:0s}
+.sound-btn{background:linear-gradient(135deg,#8b5cf6,#6366f1);border:none;color:#fff;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:0.8rem;font-weight:700;transition:all 0.2s}
+.sound-btn:hover{transform:scale(1.05)}
+
+/* Quiz */
+.quiz-opt{background:rgba(15,23,42,0.6);border:1px solid rgba(59,130,246,0.2);border-radius:8px;padding:8px 12px;margin:4px 0;cursor:pointer;font-size:0.78rem;color:#e2e8f0;transition:all 0.2s;display:block;width:100%;text-align:left}
+.quiz-opt:hover{border-color:#3b82f6;background:rgba(59,130,246,0.1)}
+.quiz-opt.correct{border-color:#22c55e;background:rgba(34,197,94,0.15);color:#86efac}
+.quiz-opt.wrong{border-color:#ef4444;background:rgba(239,68,68,0.15);color:#fca5a5}
+.quiz-feedback{font-size:0.75rem;padding:8px;border-radius:8px;margin-top:8px;display:none}
+.key-concept{background:linear-gradient(135deg,rgba(59,130,246,0.2),rgba(99,102,241,0.2));border:1px solid rgba(59,130,246,0.4);border-radius:12px;padding:12px;text-align:center;margin-bottom:12px}
+.key-concept .big{font-size:1rem;font-weight:700;color:#60a5fa;line-height:1.4}
+.tag{display:inline-block;background:rgba(59,130,246,0.2);color:#93c5fd;border-radius:20px;padding:2px 8px;font-size:0.65rem;font-weight:700;margin:2px}
+</style>
+</head>
+<body>
+<div class="title-bar">
+  <h1>⚗️ Metals & Non-Metals — Physical Properties</h1>
+  <p>CBSE Class 10 Science • Chapter 3 • धातु और अधातु</p>
+</div>
+<div class="container">
+
+<!-- Key Concept -->
+<div class="key-concept">
+  <div class="big">🔑 Metals are mostly Lustrous, Malleable, Ductile, Conductive & Sonorous</div>
+  <div style="margin-top:6px">
+    <span class="tag">✨ Lustre (धातु चमक)</span>
+    <span class="tag">🔨 Malleable (आघातवर्ध्य)</span>
+    <span class="tag">🧵 Ductile (तन्य)</span>
+    <span class="tag">⚡ Conductor (चालक)</span>
+    <span class="tag">🔔 Sonorous (ध्वनिक)</span>
+  </div>
+</div>
+
+<!-- Interactive Property Cards -->
+<div class="card">
+  <div class="section-title">👆 Tap a Property to Explore</div>
+  <div class="property-grid">
+    <div class="prop-card" onclick="toggleProp('lustre')">
+      <span class="badge badge-metal">METAL</span>
+      <span class="icon">✨</span>
+      <h3>Lustre</h3>
+      <div class="hindi">चमक / धात्विक चमक</div>
+    </div>
+    <div class="prop-card" onclick="toggleProp('malleable')">
+      <span class="badge badge-metal">METAL</span>
+      <span class="icon">🔨</span>
+      <h3>Malleable</h3>
+      <div class="hindi">आघातवर्ध्यता</div>
+    </div>
+    <div class="prop-card" onclick="toggleProp('ductile')">
+      <span class="badge badge-metal">METAL</span>
+      <span class="icon">🧵</span>
+      <h3>Ductile</h3>
+      <div class="hindi">तन्यता</div>
+    </div>
+    <div class="prop-card" onclick="toggleProp('conductor')">
+      <span class="badge badge-metal">METAL</span>
+      <span class="icon">⚡</span>
+      <h3>Conductor</h3>
+      <div class="hindi">विद्युत चालक</div>
+    </div>
+    <div class="prop-card" onclick="toggleProp('sonorous')">
+      <span class="badge badge-metal">METAL</span>
+      <span class="icon">🔔</span>
+      <h3>Sonorous</h3>
+      <div class="hindi">ध्वनिक / ध्वनि उत्पन्न</div>
+    </div>
+  </div>
+
+  <!-- Detail panels -->
+  <div class="detail-panel" id="dp-lustre">
+    <h4>✨ Lustre (धात्विक चमक)</h4>
+    <p>Metals have a shiny surface because free electrons on their surface reflect light strongly. This shiny appearance is called <strong>metallic lustre</strong>.</p>
+    <div class="example">📌 Examples: Gold (Au) ring shines, Silver (Ag) mirror, Aluminium (Al) foil reflects light. Mercury (Hg) liquid metal also shows lustre.</div>
+    <div class="example">⚠️ Exception: Iodine (non-metal) also shows lustre!</div>
+  </div>
+
+  <div class="detail-panel" id="dp-malleable">
+    <h4>🔨 Malleable (आघातवर्ध्यता)</h4>
+    <p>Metals can be beaten into thin sheets without breaking. This property is called <strong>malleability</strong>. The metallic bonds allow layers to slide over each other.</p>
+    <div class="example">📌 Most malleable metals: Gold (Au) → can be beaten into sheets 0.0002 mm thin! Silver (Ag) is 2nd most malleable.</div>
+    <div class="example">🖼️ Aluminium foil used in kitchen — made using this property!</div>
+  </div>
+
+  <div class="detail-panel" id="dp-ductile">
+    <h4>🧵 Ductile (तन्यता)</h4>
+    <p>Metals can be drawn into thin wires without breaking. This property is called <strong>ductility</strong>.</p>
+    <div class="example">📌 Most ductile metal: Gold (Au) → 1g of gold can be drawn into 2km long wire! Copper (Cu) and Aluminium (Al) wires used in electrical wiring.</div>
+    <div class="example">⚡ Tungsten (W) is used to make bulb filament — highest melting point metal.</div>
+  </div>
+
+  <div class="detail-panel" id="dp-conductor">
+    <h4>⚡ Conductor (विद्युत एवं ऊष्मा चालक)</h4>
+    <p>Metals are good conductors of <strong>heat and electricity</strong> because of free electrons that move easily through the metal lattice.</p>
+    <div class="example">📌 Best conductor of electricity: Silver (Ag) → then Copper (Cu) → then Gold (Au) → then Aluminium (Al)</div>
+    <div class="example">⚠️ Exception: Bismuth (Bi) and Mercury (Hg) are poor conductors. Graphite (non-metal) is a conductor!</div>
+  </div>
+
+  <div class="detail-panel" id="dp-sonorous">
+    <h4>🔔 Sonorous (ध्वनिक)</h4>
+    <p>Metals produce a ringing sound when struck. This property is called <strong>sonority</strong>. This happens because metals vibrate for a longer time due to their crystalline structure.</p>
+    <div class="example">📌 Bells (घंटी) are made of metals — Bronze (Cu+Sn alloy) or Iron. School bells, church bells all use this property!</div>
+    <div class="example">⚠️ Non-metals produce dull sound (thud) when hit.</div>
+  </div>
+</div>
+
+<!-- SVG Diagram - Atoms in Metal -->
+<div class="card">
+  <div class="section-title">🔬 Why Metals Have These Properties — SVG Diagram</div>
+  <div class="diagram-wrap">
+    <svg viewBox="0 0 340 180" width="100%" style="max-width:340px;display:block;margin:0 auto">
+      <!-- Background -->
+      <rect x="0" y="0" width="340" height="180" fill="rgba(15,23,42,0.5)" rx="10"/>
+      <!-- Title -->
+      <text x="170" y="18" text-anchor="middle" class="diagram-title">Metal Structure — Sea of Electrons Model</text>
+      <!-- Metal ions -->
+      <circle cx="60" cy="80" r="18" fill="rgba(245,158,11,0.7)" stroke="#f59e0b" stroke-width="2"/>
+      <circle cx="115" cy="60" r="18" fill="rgba(245,158,11,0.7)" stroke="#f59e0b" stroke-width="2"/>
+      <circle cx="115" cy="110" r="18" fill="rgba(245,158,11,0.7)" stroke="#f59e0b" stroke-width="2"/>
+      <circle cx="170" cy="80" r="18" fill="rgba(245,158,11,0.7)" stroke="#f59e0b" stroke-width="2"/>
+      <circle cx="225" cy="60" r="18" fill="rgba(245,158,11,0.7)" stroke="#f59e0b" stroke-width="2"/>
+      <circle cx="225" cy="110" r="18" fill="rgba(245,158,11,0.7)" stroke="#f59e0b" stroke-width="2"/>
+      <circle cx="280" cy="80" r="18" fill="rgba(245,158,11,0.7)" stroke="#f59e0b" stroke-width="2"/>
+      <!-- Labels on ions -->
+      <text x="60" y="83" text-anchor="middle" font-size="8" fill="#fff" font-family="Segoe UI">M⁺</text>
+      <text x="115" y="63" text-anchor="middle" font-size="8" fill="#fff" font-family="Segoe UI">M⁺</text>
+      <text x="115" y="113" text-anchor="middle" font-size="8" fill="#fff" font-family="Segoe UI">M⁺</text>
+      <text x="170" y="83" text-anchor="middle" font-size="8" fill="#fff" font-family="Segoe UI">M⁺</text>
+      <text x="225" y="63" text-anchor="middle" font-size="8" fill="#fff" font-family="Segoe UI">M⁺</text>
+      <text x="225" y="113" text-anchor="middle" font-size="8" fill="#fff" font-family="Segoe UI">M⁺</text>
+      <text x="280" y="83" text-anchor="middle" font-size="8" fill="#fff" font-family="Segoe UI">M⁺</text>
+      <!-- Electrons moving -->
+      <circle cx="88" cy="68" r="4" fill="#3b82f6" opacity="0.9">
+        <animate attributeName="cx" values="88;145;88" dur="2s" repeatCount="indefinite"/>
+        <animate attributeName="cy" values="68;85;68" dur="2s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="145" cy="95" r="4" fill="#60a5fa" opacity="0.9">
+        <animate attributeName="cx" values="145;200;145" dur="1.5s" repeatCount="indefinite"/>
+        <animate attributeName="cy" values="95;70;95" dur="1.5s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="200" cy="68" r="4" fill="#93c5fd" opacity="0.9">
+        <animate attributeName="cx" values="200;255;200" dur="2.5s" repeatCount="indefinite"/>
+        <animate attributeName="cy" values="68;100;68" dur="2.5s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="255" cy="90" r="4" fill="#3b82f6" opacity="0.9">
+        <animate attributeName="cx" values="255;90;255" dur="3s" repeatCount="indefinite"/>
+        <animate attributeName="cy" values="90;80;90" dur="3s" repeatCount="indefinite"/>
+      </circle>
+      <!-- Arrow showing electron flow -->
+      <line x1="30" y1="150" x2="310" y2="150" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="4,2"/>
+      <polygon points="310,147 320,150 310,153" fill="#3b82f6"/>
+      <text x="175" y="165" text-anchor="middle" class="diagram-label">Free electrons flow → conduct electricity &amp; heat</text>
+      <!-- Legend -->
+      <circle cx="20" cy="18" r="5" fill="rgba(245,158,11,0.7)" stroke="#f59e0b" stroke-width="1"/>
+      <text x="28" y="21" class="diagram-label">Metal Ion (M⁺)</text>
+      <circle cx="130" cy="18" r="4" fill="#3b82f6"/>
+      <text x="138" y="21" class="diagram-label">Free Electron (e⁻)</text>
+    </svg>
+  </div>
+  <p style="font-size:0.72rem;color:#94a3b8;text-align:center;margin-top:4px">Free electrons make metals: conductive, lustrous (reflect light), malleable &amp; ductile (bonds flexible)</p>
+</div>
+
+<!-- Interactive Malleable Demo -->
+<div class="card">
+  <div class="section-title">🔨 Try It: Malleability Demo (आघातवर्ध्यता)</div>
+  <div class="hammer-area">
+    <div>
+      <div class="metal-block" id="metalBlock">METAL BLOCK</div>
+      <div class="arrow-label" id="blockLabel">Gold block</div>
+    </div>
+    <div style="text-align:center">
+      <button class="hammer-btn" onclick="hammerMetal()">🔨 Hit with Hammer!</button>
+      <div style="font-size:0.65rem;color:#94a3b8;margin-top:4px">Click to beat the metal</div>
+    </div>
+  </div>
+  <div id="hammerMsg" style="text-align:center;font-size:0.78rem;color:#86efac;display:none;padding:8px;background:rgba(34,197,94,0.1);border-radius:8px;margin-top:8px">
+    ✅ Metal became a thin sheet! This is malleability (आघातवर्ध्यता). Non-metals would BREAK instead!
+  </div>
+</div>
+
+<!-- Interactive Ductile Demo -->
+<div class="card">
+  <div class="section-title">🧵 Try It: Ductility Demo (तन्यता)</div>
+  <div class="wire-demo">
+    <div>
+      <div class="wire-block" id="wireBlock">COPPER BLOCK</div>
+      <div class="arrow-label" id="wireLabel">Copper block</div>
+    </div>
+    <button class="wire-btn" onclick="makeWire()">🏭 Draw into Wire!</button>
+  </div>
+  <div id="wireMsg" style="text-align:center;font-size:0.78rem;color:#fca5a5;display:none;padding:8px;background:rgba(239,68,68,0.1);border-radius:8px;margin-top:8px">
+    ✅ Copper wire formed! This is ductility (तन्यता). 1g of Gold = 2 km long wire! Used in electrical wiring.
+  </div>
+</div>
+
+<!-- Conductor Demo -->
+<div class="card">
+  <div class="section-title">⚡ Conductivity Order (Best → Least) </div>
+  <svg class="circuit-svg" viewBox="0 0 340 120">
+    <rect x="0" y="0" width="340" height="120" fill="rgba(15,23,42,0.4)" rx="10"/>
+    <!-- Battery -->
+    <rect x="10" y="45" width="30" height="30" fill="rgba(34,197,94,0.3)" stroke="#22c55e" stroke-width="2" rx="4"/>
+    <text x="25" y="64" text-anchor="middle" font-size="9" fill="#22c55e" font-family="Segoe UI">CELL</text>
+    <!-- Wire top -->
+    <line x1="40" y1="50" x2="310" y2="50" stroke="#3b82f6" stroke-width="2.5"/>
+    <!-- Wire bottom -->
+    <line x1="40" y1="70" x2="310" y2="70" stroke="#3b82f6" stroke-width="2.5"/>
+    <!-- Bulb -->
+    <circle cx="295" cy="60" r="16" fill="none" stroke="#f59e0b" stroke-width="2"/>
+    <text x="295" y="64" text-anchor="middle" font-size="14" fill="#fbbf24">💡</text>
+    <!-- Moving electrons -->
+    <circle r="3" fill="#60a5fa">
+      <animateMotion dur="1.5s" repeatCount="indefinite" path="M40,50 L280,50 L280,70 L40,70 Z"/>
+    </circle>
+    <circle r="3" fill="#93c5fd" opacity="0.8">
+      <animateMotion dur="1.5s" begin="0.5s" repeatCount="indefinite" path="M40,50 L280,50 L280,70 L40,70 Z"/>
+    </circle>
+    <!-- Labels -->
+    <text x="170" y="38" text-anchor="middle" font-size="9" fill="#60a5fa" font-family="Segoe UI">e⁻ flow (electrons)</text>
+    <text x="25" y="100" text-anchor="middle" font-size="8" fill="#86efac" font-family="Segoe UI">Battery</text>
+    <text x="295" y="100" text-anchor="middle" font-size="8" fill="#fbbf24" font-family="Segoe UI">Glows!</text>
+  </svg>
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;justify-content:center">
+    <div style="text-align:center;font-size:0.7rem">
+      <div style="background:linear-gradient(135deg,#c0c0c0,#a8a8a8);width:40px;height:40px;border-radius:50%;margin:0 auto 4px;display:flex;align-items:center;justify-content:center;font-size:1.2rem">🥇</div>
+      <div style="color:#e2e8f0;font-weight:700">Silver (Ag)</div>
+      <div style="color:#94a3b8">Best conductor</div>
+    </div>
+    <div style="font-size:1.2rem;align-self:center;color:#475569">→</div>
+    <div style="text-align:center;font-size:0.7rem">
+      <div style="background:linear-gradient(135deg,#b45309,#92400e);width:40px;height:40px;border-radius:50%;margin:0 auto 4px;display:flex;align-items:center;justify-content:center;font-size:1.2rem">🥈</div>
+      <div style="color:#e2e8f0;font-weight:700">Copper (Cu)</div>
+      <div style="color:#94a3b8">Used in wiring</div>
+    </div>
+    <div style="font-size:1.2rem;align-self:center;color:#475569">→</div>
+    <div style="text-align:center;font-size:0.7rem">
+      <div style="background:linear-gradient(135deg,#fbbf24,#f59e0b);width:40px;height:40px;border-radius:50%;margin:0 auto 4px;display:flex;align-items:center;justify-content:center;font-size:1.2rem">🥉</div>
+      <div style="color:#e2e8f0;font-weight:700">Gold (Au)</div>
+      <div style

@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elimination Method - Linear Equations</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #1e293b; min-height: 100vh; }
+  
+  .title-bar {
+    background: linear-gradient(135deg, #1e40af, #3b82f6, #06b6d4);
+    padding: 14px 20px;
+    color: white;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(59,130,246,0.5);
+  }
+  .title-bar h1 { font-size: 1.1rem; font-weight: 700; letter-spacing: 0.5px; }
+  .title-bar p { font-size: 0.75rem; opacity: 0.85; margin-top: 2px; }
+  
+  .container { max-width: 700px; margin: 0 auto; padding: 16px; }
+  
+  .card {
+    background: white;
+    border-radius: 16px;
+    padding: 18px;
+    margin-bottom: 14px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+  }
+  
+  .section-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #3b82f6;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title::before {
+    content: '';
+    display: inline-block;
+    width: 4px; height: 16px;
+    background: #3b82f6;
+    border-radius: 2px;
+  }
+  
+  .concept-box {
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    border: 2px solid #93c5fd;
+    border-radius: 12px;
+    padding: 14px;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .concept-box .big-text {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1e40af;
+    line-height: 1.6;
+  }
+  .concept-box .sub-text {
+    font-size: 0.78rem;
+    color: #3b82f6;
+    margin-top: 4px;
+  }
+  
+  /* Equation display */
+  .eq-display {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 12px 0;
+  }
+  .eq-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .eq-label {
+    background: #1e40af;
+    color: white;
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    min-width: 28px;
+    text-align: center;
+  }
+  .eq-text {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1e293b;
+    font-family: 'Courier New', monospace;
+    background: #f8fafc;
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1.5px solid #e2e8f0;
+    flex: 1;
+    min-width: 160px;
+  }
+  .eq-text.highlight-green { border-color: #22c55e; background: #f0fdf4; }
+  .eq-text.highlight-blue { border-color: #3b82f6; background: #eff6ff; }
+  .eq-text.highlight-red { border-color: #ef4444; background: #fef2f2; }
+  .eq-text.highlight-amber { border-color: #f59e0b; background: #fffbeb; }
+  
+  /* Steps */
+  .steps-container { display: flex; flex-direction: column; gap: 10px; }
+  .step-item {
+    border-radius: 12px;
+    border: 2px solid #e2e8f0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+  .step-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    cursor: pointer;
+    background: #f8fafc;
+    transition: background 0.2s;
+    user-select: none;
+  }
+  .step-header:hover { background: #f1f5f9; }
+  .step-num {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: #e2e8f0;
+    color: #64748b;
+    font-weight: 700;
+    font-size: 0.85rem;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.3s;
+  }
+  .step-item.active .step-num { background: #3b82f6; color: white; }
+  .step-item.done .step-num { background: #22c55e; color: white; }
+  .step-title { font-weight: 600; font-size: 0.88rem; color: #1e293b; flex: 1; }
+  .step-arrow { color: #94a3b8; transition: transform 0.3s; font-size: 0.8rem; }
+  .step-item.open .step-arrow { transform: rotate(90deg); }
+  
+  .step-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, padding 0.3s;
+    padding: 0 14px;
+    background: white;
+  }
+  .step-body.open {
+    max-height: 400px;
+    padding: 12px 14px;
+  }
+  .step-body p { font-size: 0.85rem; color: #475569; line-height: 1.6; margin-bottom: 8px; }
+  .step-body .math-line {
+    font-family: 'Courier New', monospace;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: #1e293b;
+    background: #f8fafc;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border-left: 4px solid #3b82f6;
+    margin: 6px 0;
+  }
+  .step-body .math-line.green { border-color: #22c55e; background: #f0fdf4; }
+  .step-body .math-line.red { border-color: #ef4444; background: #fef2f2; }
+  .step-body .math-line.amber { border-color: #f59e0b; background: #fffbeb; }
+  
+  /* Interactive Demo */
+  .demo-area {
+    background: linear-gradient(135deg, #fafafa, #f1f5f9);
+    border-radius: 12px;
+    padding: 14px;
+    border: 2px solid #e2e8f0;
+  }
+  
+  .coeff-controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .control-group { display: flex; flex-direction: column; gap: 4px; }
+  .control-label { font-size: 0.75rem; font-weight: 600; color: #64748b; }
+  .control-input {
+    display: flex; align-items: center; gap: 6px;
+  }
+  .coeff-btn {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    border: none;
+    background: #3b82f6;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700;
+    transition: background 0.2s, transform 0.1s;
+    flex-shrink: 0;
+  }
+  .coeff-btn:hover { background: #2563eb; }
+  .coeff-btn:active { transform: scale(0.9); }
+  .coeff-val {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1e293b;
+    min-width: 28px;
+    text-align: center;
+    background: white;
+    border-radius: 6px;
+    padding: 4px 6px;
+    border: 1.5px solid #cbd5e1;
+  }
+  
+  .live-eqs {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 10px 0;
+  }
+  .live-eq {
+    font-family: 'Courier New', monospace;
+    font-size: 0.95rem;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius: 8px;
+    text-align: center;
+    transition: all 0.3s;
+  }
+  .live-eq.eq1 { background: #eff6ff; border: 2px solid #93c5fd; color: #1e40af; }
+  .live-eq.eq2 { background: #fef3c7; border: 2px solid #fcd34d; color: #92400e; }
+  
+  .multiply-row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    justify-content: center;
+    margin: 6px 0;
+    flex-wrap: wrap;
+  }
+  .mult-badge {
+    background: #7c3aed;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+  }
+  
+  .result-box {
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    border: 2px solid #86efac;
+    border-radius: 10px;
+    padding: 10px;
+    text-align: center;
+    margin-top: 8px;
+    transition: all 0.4s;
+  }
+  .result-box .result-text {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #166534;
+    font-family: 'Courier New', monospace;
+  }
+  .result-box .result-sub { font-size: 0.78rem; color: #16a34a; margin-top: 2px; }
+  
+  .solve-btn {
+    width: 100%;
+    padding: 10px;
+    border-radius: 10px;
+    border: none;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 12px rgba(34,197,94,0.4);
+  }
+  .solve-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(34,197,94,0.5); }
+  .solve-btn:active { transform: translateY(0); }
+  
+  /* Animation for cancellation */
+  @keyframes strikethrough {
+    0% { text-decoration: none; opacity: 1; }
+    50% { text-decoration: line-through; opacity: 0.5; color: #ef4444; }
+    100% { text-decoration: line-through; opacity: 0.3; color: #ef4444; }
+  }
+  .cancelled { animation: strikethrough 0.6s forwards; }
+  
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .fade-in { animation: fadeSlideIn 0.4s ease forwards; }
+  
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
+    50% { box-shadow: 0 0 0 8px rgba(34,197,94,0); }
+  }
+  .pulse { animation: pulse-glow 1s ease; }
+  
+  /* Quiz */
+  .quiz-q { font-size: 0.9rem; font-weight: 600; color: #1e293b; margin-bottom: 10px; }
+  .quiz-opts { display: flex; flex-direction: column; gap: 6px; }
+  .quiz-opt {
+    padding: 9px 14px;
+    border-radius: 9px;
+    border: 2px solid #e2e8f0;
+    background: white;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #475569;
+    transition: all 0.2s;
+    text-align: left;
+  }
+  .quiz-opt:hover { border-color: #3b82f6; background: #eff6ff; color: #1e40af; }
+  .quiz-opt.correct { border-color: #22c55e; background: #f0fdf4; color: #166534; }
+  .quiz-opt.wrong { border-color: #ef4444; background: #fef2f2; color: #991b1b; }
+  
+  .quiz-feedback {
+    margin-top: 8px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    display: none;
+  }
+  .quiz-feedback.show { display: block; animation: fadeSlideIn 0.3s ease; }
+  .quiz-feedback.correct { background: #f0fdf4; color: #166534; border: 1.5px solid #86efac; }
+  .quiz-feedback.wrong { background: #fef2f2; color: #991b1b; border: 1.5px solid #fca5a5; }
+  
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 600;
+  }
+  .tag-blue { background: #dbeafe; color: #1e40af; }
+  .tag-green { background: #dcfce7; color: #166534; }
+  .tag-amber { background: #fef3c7; color: #92400e; }
+  
+  .info-note {
+    font-size: 0.78rem;
+    color: #64748b;
+    background: #f8fafc;
+    border-left: 3px solid #94a3b8;
+    padding: 8px 10px;
+    border-radius: 0 8px 8px 0;
+    margin: 8px 0;
+  }
+  
+  .step-item.active { border-color: #3b82f6; }
+  .step-item.done { border-color: #22c55e; }
+  
+  .hint-text {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    text-align: center;
+    margin-top: 6px;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+<div class="title-bar">
+  <h1>✕ Elimination Method | विलोपन विधि</h1>
+  <p>CBSE Class 10 · Pair of Linear Equations in Two Variables</p>
+</div>
+
+<div class="container">
+
+  <!-- Core Concept -->
+  <div class="card">
+    <div class="section-title">Core Idea · मूल अवधारणा</div>
+    <div class="concept-box">
+      <div class="big-text">Make coefficients equal → Add/Subtract → Cancel one variable!</div>
+      <div class="sub-text">गुणांक बराबर करो → जोड़ो/घटाओ → एक चर को विलुप्त करो!</div>
+    </div>
+    <div class="info-note">
+      💡 <strong>Key Idea:</strong> If two terms are <em>equal and opposite</em> (like +3y and −3y), they <strong>cancel out</strong> when added. We use this to eliminate one variable and find the other!
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+      <span class="tag tag-blue">× Multiply equations</span>
+      <span class="tag tag-green">+ Add to eliminate</span>
+      <span class="tag tag-amber">÷ Solve one variable</span>
+    </div>
+  </div>
+
+  <!-- Step by Step Walkthrough -->
+  <div class="card">
+    <div class="section-title">Worked Example · हल किया उदाहरण</div>
+    <div class="eq-display">
+      <div class="eq-row">
+        <span class="eq-label">E₁</span>
+        <span class="eq-text highlight-blue">2x + 3y = 11</span>
+      </div>
+      <div class="eq-row">
+        <span class="eq-label">E₂</span>
+        <span class="eq-text highlight-amber">3x − 2y = 1</span>
+      </div>
+    </div>
+    <p style="font-size:0.8rem;color:#64748b;margin-bottom:10px;">👆 Click each step to reveal · प्रत्येक चरण पर क्लिक करें</p>
+    
+    <div class="steps-container" id="stepsContainer">
+      <div class="step-item" data-step="0">
+        <div class="step-header" onclick="toggleStep(0)">
+          <div class="step-num">1</div>
+          <div class="step-title">Choose variable to eliminate</div>
+          <div class="step-arrow">▶</div>
+        </div>
+        <div class="step-body">
+          <p>We want to eliminate <strong>y</strong>. Find LCM of y's coefficients: LCM(3, 2) = <strong>6</strong></p>
+          <div class="math-line">E₁ has 3y → multiply E₁ by 2</div>
+          <div class="math-line amber">E₂ has 2y → multiply E₂ by 3</div>
+          <p style="margin-top:6px;">∴ Both equations will have <strong>6y</strong> — then we can subtract to cancel!</p>
+        </div>
+      </div>
+      
+      <div class="step-item" data-step="1">
+        <div class="step-header" onclick="toggleStep(1)">
+          <div class="step-num">2</div>
+          <div class="step-title">Multiply equations to match coefficients</div>
+          <div class="step-arrow">▶</div>
+        </div>
+        <div class="step-body">
+          <p>Multiply E₁ by 2:</p>
+          <div class="math-line green">2×(2x + 3y = 11) → 4x + 6y = 22 ... (E₃)</div>
+          <p>Multiply E₂ by 3:</p>
+          <div class="math-line amber">3×(3x − 2y = 1) → 9x − 6y = 3 ... (E₄)</div>
+          <p>✅ Now both have 6y (one +6y, one −6y)</p>
+        </div>
+      </div>
+      
+      <div class="step-item" data-step="2">
+        <div class="step-header" onclick="toggleStep(2)">
+          <div class="step-num">3</div>
+          <div class="step-title">Add equations — y gets eliminated! ✕</div>
+          <div class="step-arrow">▶</div>
+        </div>
+        <div class="step-body">
+          <div class="math-line">    4x + 6y = 22  (E₃)</div>
+          <div class="math-line">+   9x − 6y =  3  (E₄)</div>
+          <div style="border-top:2px solid #3b82f6;margin:6px 0;padding-top:6px;">
+            <div class="math-line green">   13x + 0y = 25</div>
+          </div>
+          <p>+6y and −6y cancel! <strong>∴ 13x = 25</strong></p>
+        </div>
+      </div>
+      
+      <div class="step-item" data-step="3">
+        <div class="step-header" onclick="toggleStep(3)">
+          <div class="step-num">4</div>
+          <div class="step-title">Solve for x</div>
+          <div class="step-arrow">▶</div>
+        </div>
+        <div class="step-body">
+          <div class="math-line green">13x = 25</div>
+          <div class="math-line green">x = 25 ÷ 13</div>
+          <div class="math-line green" style="font-size:1.1rem;">∴ x = 25/13</div>
+          <p style="margin-top:4px;">Wait — let's use a nicer example! Trying x values in original: <strong>x = 2</strong> ✓ (see step 5)</p>
+        </div>
+      </div>
+      
+      <div class="step-item" data-step="4">
+        <div class="step-header" onclick="toggleStep(4)">
+          <div class="step-num">5</div>
+          <div class="step-title">Substitute back to find y</div>
+          <div class="step-arrow">▶</div>
+        </div>
+        <div class="step-body">
+          <p>Put x = 25/13 in E₁: 2x + 3y = 11</p>
+          <div class="math-line">2(25/13) + 3y = 11</div>
+          <div class="math-line">50/13 + 3y = 11</div>
+          <div class="math-line">3y = 11 − 50/13 = (143−50)/13 = 93/13</div>
+          <div class="math-line green">y = 93/39 = 31/13</div>
+          <div class="math-line green" style="font-size:1rem;margin-top:8px;">✅ Answer: x = 25/13, y = 31/13</div>
+          <p>Verify in E₂: 3(25/13) − 2(31/13) = 75/13 − 62/13 = 13/13 = 1 ✓</p>
+        </div>
+      </div>
+    </div>
+    
+    <button class="solve-btn" onclick="revealAll()" style="margin-top:12px;background:linear-gradient(135deg,#3b82f6,#1e40af);box-shadow:0 4px 12px rgba(59,130,246,0.4);">
+      👁 Reveal All Steps
+    </button>
+  </div>
+
+  <!-- Interactive Demo -->
+  <div class="card">
+    <div class="section-title">Interactive Explorer · इंटरएक्टिव अन्वेषण</div>
+    <p style="font-size:0.82rem;color:#64748b;margin-bottom:12px;">Adjust coefficients and see elimination in action!</p>
+    
+    <div class="demo-area">
+      <div class="coeff-controls">
+        <div class="control-group">
+          <div class="control-label">Eq1: ax + by = c</div>
+          <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;">
+            <div class="control-input">
+              <button class="coeff-btn" onclick="changeCoeff('a1',-1)">−</button>
+              <span class="coeff-val" id="v_a1">2</span>
+              <button class="coeff-btn" onclick="changeCoeff('a1',1)">+</button>
+              <span style="font-size:0.75rem;color:#64748b;">x +</span>
+            </div>
+            <div class="control-input">
+              <button class="coeff-btn" onclick="changeCoeff('b1',-1)">−</button>
+              <span class="coeff-val" id="v_b1">3</span>
+              <button class="coeff-btn" onclick="changeCoeff('b1',1)">+</button>
+              <span style="font-size:0.75rem;color:#64748b;">y =</span>
+            </div>
+            <div class="control-input">
+              <button class="coeff-btn" onclick="changeCoeff('c1',-1)">−</button>
+              <span class="coeff-val" id="v_c1">8</span>
+              <button class="coeff-btn" onclick="changeCoeff('c1',1)">+</button>
+            </div>
+          </div>
+        </div>
+        <div class="control-group">
+          <div class="control-label">Eq2: dx + ey = f</div>
+          <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;">
+            <div class="control-input">
+              <button class="coeff-btn" onclick="changeCoeff('a2',-1)" style="background:#f59e0b;">−</button>
+              <span class="coeff-val" id="v_a2">3</span>
+              <button class="coeff-btn" onclick="changeCoeff('a2',1)" style="background:#f59e0b;">+</button>
+              <span style="font-size:0.75rem;color:#64748b;">x +</span>
+            </div>
+            <div class="control-input">
+              <button class="coeff-btn" onclick="changeCoeff('b2',-1)" style="background:#f59e0b;">−</button>
+              <span class="coeff-val" id="v_b2">2</span>
+              <button class="coeff-btn" onclick="changeCoeff('b2',1)" style="background:#f59e0b;">+</button>
+              <span style="font-size:0.75rem;color:#64748b;">y =</span>
+            </div>
+            <div class="control-input">
+              <button class="coeff-btn" onclick="changeCoeff('c2',-1)" style="background:#f59e0b;">−</button>
+              <span class="coeff-val" id="v_c2">13</span>
+              <button class="coeff-btn" onclick="changeCoeff('c2',1)" style="background:#f59e0b;">+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="live-eqs">
+        <div class="live-eq eq1" id="liveEq1">2x + 3y = 8</div>
+        <div class="live-eq eq2" id="liveEq2">3x + 2y = 13</div>
+      </div>
+      
+      <button class="solve-btn" onclick="solveInteractive()">⚡ Eliminate & Solve!</button>
+      
+      <div id="demoResult" style="display:none;margin-top:10px;" class="fade-in">
+        <div id="demoSteps" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px;"></div>
+        <div class="result-box pulse" id="resultBox">
+          <div class="result-text" id="resultText">x = ?, y = ?</div>
+          <div class="result-sub" id="resultSub">Solution found!</div>
+        </div>
+      </div>
+    </div>
+    <p class="hint-text">Tip: Try a1=1,b1=1,c1=5 and a2=2,b2=-1,c2=4</p>
+  </div>
+
+  <!-- Quick Quiz -->
+  <div class="card">
+    <div class="section-title">Quick Check · त्वरित जाँच</div>
+    <div id="quizArea">
+      <div class="quiz-q" id="quizQ">To solve 2x + y = 7 and x + y = 4 by elimination, what should you do first?</div>
+      <div class="quiz-opts" id="quizOpts">
+        <button class="quiz-opt" onclick="checkAns(0)">A) Multiply first equation by 2</button>
+        <button class="quiz-opt" onclick="checkAns(1)">B) Subtract the two equations directly (y cancels!)</button>
+        <button class="quiz-opt" onclick="checkAns(2)">C) Add the two equations</button>
+        <button class="quiz-opt" onclick="checkAns(3)">D) Find LCM of x coefficients</button>
+      </div>
+      <div class="quiz-feedback" id="quizFeedback"></div>
+      <button class="solve-btn" onclick="nextQuiz()" id="nextQBtn" style="display:none;margin-top:8px;background:linear-gradient(135deg,#7c3aed,#6d28d9);box-shadow:0 4px 12px rgba(124,58,237,0.4);">Next Question →</button>
+    </div>
+  </div>
+
+  <!-- Summary -->
+  <div class="card" style="background:linear-gradient(135deg,#0f172a,#1e293b);color:white;">
+    <div class="section-title" style="color:#60a5fa;">Steps Summary · चरण सारांश</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div style="display:flex;align-items:flex-start;gap:10px;">
+        <span style="background:#3b82f6;color:white;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;flex-shrink:0;">1</span>
+        <span style="font

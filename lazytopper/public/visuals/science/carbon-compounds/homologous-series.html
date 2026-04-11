@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Homologous Series - Carbon & Its Compounds</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); min-height: 100vh; color: #1e293b; }
+  
+  .title-bar { background: linear-gradient(90deg, #3b82f6, #6366f1); padding: 14px 20px; text-align: center; box-shadow: 0 4px 20px rgba(59,130,246,0.4); }
+  .title-bar h1 { color: white; font-size: 1.2rem; font-weight: 700; letter-spacing: 0.5px; }
+  .title-bar p { color: rgba(255,255,255,0.8); font-size: 0.8rem; margin-top: 2px; }
+  
+  .container { max-width: 900px; margin: 0 auto; padding: 16px; }
+  
+  .card { background: white; border-radius: 16px; padding: 18px; margin-bottom: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
+  
+  .section-title { font-size: 1rem; font-weight: 700; color: #3b82f6; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .badge { background: #3b82f6; color: white; border-radius: 20px; padding: 2px 10px; font-size: 0.75rem; }
+  
+  /* Key Formula */
+  .formula-box { background: linear-gradient(135deg, #eff6ff, #dbeafe); border: 2px solid #3b82f6; border-radius: 12px; padding: 16px; text-align: center; }
+  .formula-big { font-size: 1.6rem; font-weight: 800; color: #1e40af; letter-spacing: 2px; margin: 8px 0; }
+  .formula-sub { font-size: 0.85rem; color: #3b82f6; }
+  
+  /* Molecule Builder */
+  .mol-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin: 8px 0; cursor: pointer; padding: 10px; border-radius: 10px; transition: all 0.3s; border: 2px solid transparent; }
+  .mol-row:hover { background: #f0f9ff; border-color: #3b82f6; transform: translateX(4px); }
+  .mol-row.active { background: #eff6ff; border-color: #3b82f6; }
+  
+  .atom { display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: 700; font-size: 0.85rem; box-shadow: 0 2px 8px rgba(0,0,0,0.2); transition: transform 0.3s; }
+  .atom-C { background: linear-gradient(135deg, #374151, #1f2937); color: white; width: 36px; height: 36px; }
+  .atom-H { background: linear-gradient(135deg, #60a5fa, #3b82f6); color: white; width: 28px; height: 28px; font-size: 0.75rem; }
+  .bond { color: #94a3b8; font-weight: 700; font-size: 1.1rem; }
+  
+  .mol-label { font-weight: 700; font-size: 0.95rem; color: #1e293b; min-width: 80px; }
+  .mol-formula { font-size: 0.85rem; color: #6366f1; min-width: 60px; font-weight: 600; }
+  .mol-info { font-size: 0.78rem; color: #64748b; }
+  
+  .ch2-highlight { background: linear-gradient(135deg, #fef3c7, #fde68a); border-radius: 8px; padding: 2px 6px; border: 2px dashed #f59e0b; font-weight: 700; color: #92400e; }
+  
+  /* Properties Table */
+  .prop-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+  .prop-card { border-radius: 10px; padding: 12px; text-align: center; cursor: pointer; transition: all 0.3s; }
+  .prop-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
+  .prop-card h3 { font-size: 0.8rem; font-weight: 700; margin-bottom: 4px; }
+  .prop-card p { font-size: 0.75rem; }
+  
+  /* BP Chart */
+  .chart-container { position: relative; height: 160px; margin: 12px 0; }
+  .chart-bars { display: flex; align-items: flex-end; gap: 8px; height: 140px; padding: 0 10px; }
+  .bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .bar { width: 100%; border-radius: 6px 6px 0 0; transition: all 0.8s cubic-bezier(0.34,1.56,0.64,1); cursor: pointer; position: relative; min-width: 30px; }
+  .bar:hover { filter: brightness(1.15); }
+  .bar-val { font-size: 0.65rem; font-weight: 700; color: #1e293b; }
+  .bar-name { font-size: 0.65rem; color: #64748b; font-weight: 600; }
+  
+  /* Walkthrough */
+  .step-box { display: none; border-radius: 10px; padding: 14px; margin: 8px 0; animation: fadeIn 0.4s ease; }
+  .step-box.shown { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  
+  .btn { background: linear-gradient(135deg, #3b82f6, #6366f1); color: white; border: none; border-radius: 10px; padding: 10px 20px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(59,130,246,0.3); }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(59,130,246,0.4); }
+  .btn:active { transform: translateY(0); }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  
+  .btn-sm { padding: 6px 14px; font-size: 0.8rem; border-radius: 8px; }
+  .btn-green { background: linear-gradient(135deg, #22c55e, #16a34a); }
+  .btn-amber { background: linear-gradient(135deg, #f59e0b, #d97706); }
+  
+  /* Quiz */
+  .quiz-opt { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 10px; padding: 10px 14px; margin: 6px 0; cursor: pointer; transition: all 0.3s; font-size: 0.85rem; font-weight: 500; }
+  .quiz-opt:hover { border-color: #3b82f6; background: #eff6ff; }
+  .quiz-opt.correct { background: #dcfce7; border-color: #22c55e; color: #166534; }
+  .quiz-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #991b1b; }
+  
+  /* SVG Diagram */
+  .svg-wrap { text-align: center; overflow-x: auto; }
+  
+  /* Tooltip */
+  .tooltip { position: relative; display: inline-block; }
+  .tooltip .tip { visibility: hidden; background: #1e293b; color: white; font-size: 0.75rem; border-radius: 8px; padding: 6px 10px; position: absolute; z-index: 10; bottom: 125%; left: 50%; transform: translateX(-50%); white-space: nowrap; opacity: 0; transition: opacity 0.3s; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+  .tooltip:hover .tip { visibility: visible; opacity: 1; }
+  
+  .tag { display: inline-block; border-radius: 6px; padding: 2px 8px; font-size: 0.75rem; font-weight: 600; margin: 2px; }
+  
+  .progress-bar { height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; margin: 8px 0; }
+  .progress-fill { height: 100%; border-radius: 3px; transition: width 0.8s ease; }
+  
+  @media (max-width: 480px) {
+    .formula-big { font-size: 1.2rem; }
+    .mol-row { gap: 4px; }
+    .atom-C { width: 30px; height: 30px; font-size: 0.75rem; }
+    .atom-H { width: 24px; height: 24px; font-size: 0.65rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="title-bar">
+  <h1>⛓️ Homologous Series (समजातीय श्रेणी)</h1>
+  <p>Carbon & Its Compounds • CBSE Class 10 Science</p>
+</div>
+
+<div class="container">
+
+  <!-- Key Concept -->
+  <div class="card">
+    <div class="section-title">🔑 मुख्य अवधारणा (Key Concept) <span class="badge">Core</span></div>
+    <div class="formula-box">
+      <div class="formula-sub">Each member differs by</div>
+      <div class="formula-big">— CH₂ —</div>
+      <div class="formula-sub">Molecular mass difference = <strong>14 u</strong> &nbsp;|&nbsp; Formula: CₙH₂ₙ₊₂ (alkanes)</div>
+    </div>
+    <p style="margin-top:10px; font-size:0.85rem; color:#475569; line-height:1.6;">A <strong>Homologous Series</strong> is a group of organic compounds that have the same general formula, similar chemical properties, and differ from each other by —CH₂— (methylene group) with a mass difference of 14 u.</p>
+  </div>
+
+  <!-- Interactive Molecule Builder -->
+  <div class="card">
+    <div class="section-title">🧪 Click to Explore Members (सदस्य खोजें) <span class="badge">Interactive</span></div>
+    <p style="font-size:0.8rem; color:#64748b; margin-bottom:10px;">Click on any molecule below to see its structure. Notice the <span class="ch2-highlight">—CH₂—</span> unit being added each time!</p>
+    
+    <div id="mol-methane" class="mol-row" onclick="selectMol('methane')">
+      <div class="mol-label">Methane</div>
+      <div class="mol-formula">CH₄</div>
+      <div class="atom atom-C tooltip">C<span class="tip">Carbon atom</span></div>
+      <div class="bond">—</div>
+      <div class="atom atom-H">H</div>
+      <div class="atom atom-H">H</div>
+      <div class="atom atom-H">H</div>
+      <div class="atom atom-H">H</div>
+      <div class="mol-info">n=1 | 16 u | BP: -161°C</div>
+    </div>
+    
+    <div id="mol-ethane" class="mol-row" onclick="selectMol('ethane')">
+      <div class="mol-label">Ethane</div>
+      <div class="mol-formula">C₂H₆</div>
+      <div class="atom atom-C">C</div>
+      <div class="bond">—</div>
+      <span class="ch2-highlight">CH₂</span>
+      <div class="bond">—</div>
+      <div class="atom atom-H">H</div>
+      <div class="atom atom-H">H</div>
+      <div class="atom atom-H">H</div>
+      <div class="mol-info">n=2 | 30 u | BP: -89°C</div>
+    </div>
+    
+    <div id="mol-propane" class="mol-row" onclick="selectMol('propane')">
+      <div class="mol-label">Propane</div>
+      <div class="mol-formula">C₃H₈</div>
+      <div class="atom atom-C">C</div>
+      <div class="bond">—</div>
+      <span class="ch2-highlight">CH₂</span>
+      <div class="bond">—</div>
+      <span class="ch2-highlight">CH₂</span>
+      <div class="bond">—</div>
+      <div class="atom atom-H">H</div>
+      <div class="atom atom-H">H</div>
+      <div class="mol-info">n=3 | 44 u | BP: -42°C</div>
+    </div>
+    
+    <div id="mol-butane" class="mol-row" onclick="selectMol('butane')">
+      <div class="mol-label">Butane</div>
+      <div class="mol-formula">C₄H₁₀</div>
+      <div class="atom atom-C">C</div>
+      <div class="bond">—</div>
+      <span class="ch2-highlight">CH₂</span>
+      <div class="bond">—</div>
+      <span class="ch2-highlight">CH₂</span>
+      <div class="bond">—</div>
+      <span class="ch2-highlight">CH₂</span>
+      <div class="bond">—</div>
+      <div class="atom atom-H">H</div>
+      <div class="mol-info">n=4 | 58 u | BP: -1°C</div>
+    </div>
+
+    <div id="mol-detail" style="display:none; margin-top:12px; border-radius:12px; padding:14px; background:linear-gradient(135deg,#eff6ff,#e0f2fe); border-left:4px solid #3b82f6;">
+      <div id="mol-detail-content"></div>
+    </div>
+  </div>
+
+  <!-- SVG Structural Diagram -->
+  <div class="card">
+    <div class="section-title">📐 Structural Formula (संरचनात्मक सूत्र)</div>
+    <p style="font-size:0.8rem; color:#64748b; margin-bottom:10px;">Methane → Ethane → Propane — each step adds one <span class="ch2-highlight">—CH₂—</span></p>
+    <div class="svg-wrap">
+      <svg viewBox="0 0 560 160" width="100%" style="max-width:560px; font-family:monospace;">
+        <!-- Methane -->
+        <text x="50" y="18" fill="#3b82f6" font-weight="bold" font-size="13" text-anchor="middle">Methane</text>
+        <text x="50" y="32" fill="#6366f1" font-size="11" text-anchor="middle">CH₄</text>
+        <circle cx="50" cy="80" r="18" fill="#374151" />
+        <text x="50" y="85" fill="white" font-size="13" font-weight="bold" text-anchor="middle">C</text>
+        <circle cx="10" cy="60" r="12" fill="#3b82f6" /><text x="10" y="65" fill="white" font-size="11" text-anchor="middle">H</text>
+        <line x1="22" y1="65" x2="32" y2="72" stroke="#94a3b8" stroke-width="2"/>
+        <circle cx="90" cy="60" r="12" fill="#3b82f6" /><text x="90" y="65" fill="white" font-size="11" text-anchor="middle">H</text>
+        <line x1="68" y1="72" x2="78" y2="65" stroke="#94a3b8" stroke-width="2"/>
+        <circle cx="10" cy="100" r="12" fill="#3b82f6" /><text x="10" y="105" fill="white" font-size="11" text-anchor="middle">H</text>
+        <line x1="22" y1="95" x2="32" y2="88" stroke="#94a3b8" stroke-width="2"/>
+        <circle cx="90" cy="100" r="12" fill="#3b82f6" /><text x="90" y="105" fill="white" font-size="11" text-anchor="middle">H</text>
+        <line x1="68" y1="88" x2="78" y2="95" stroke="#94a3b8" stroke-width="2"/>
+
+        <!-- Arrow + CH2 label -->
+        <text x="120" y="75" fill="#f59e0b" font-size="22" font-weight="bold">+</text>
+        <rect x="112" y="82" width="38" height="18" rx="4" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>
+        <text x="131" y="95" fill="#92400e" font-size="11" font-weight="bold" text-anchor="middle">CH₂</text>
+        <text x="131" y="115" fill="#f59e0b" font-size="16" text-anchor="middle">→</text>
+
+        <!-- Ethane -->
+        <text x="230" y="18" fill="#22c55e" font-weight="bold" font-size="13" text-anchor="middle">Ethane</text>
+        <text x="230" y="32" fill="#6366f1" font-size="11" text-anchor="middle">C₂H₆</text>
+        <circle cx="200" cy="80" r="18" fill="#374151"/><text x="200" y="85" fill="white" font-size="13" font-weight="bold" text-anchor="middle">C</text>
+        <circle cx="260" cy="80" r="18" fill="#374151"/><text x="260" y="85" fill="white" font-size="13" font-weight="bold" text-anchor="middle">C</text>
+        <line x1="218" y1="80" x2="242" y2="80" stroke="#94a3b8" stroke-width="2.5"/>
+        <circle cx="170" cy="62" r="12" fill="#3b82f6"/><text x="170" y="67" fill="white" font-size="11" text-anchor="middle">H</text>
+        <line x1="182" y1="68" x2="192" y2="74" stroke="#94a3b8" stroke-width="2"/>
+        <circle cx="170" cy="98" r="12" fill="#3b82f6"/><text x="170" y="103" fill="white" font-size="11" text-anchor="middle">H</text>
+        <line x1="182" y1="92" x2="192" y2="86" stroke="#94a3b8" stroke-width="2"/>
+        <circle cx="200" cy="48" r="12" fill="#3b82f6"/><text x="200" y="53" fill="white" font-size="11" text-anchor="middle">H</text>
+        <line x1="200" y1="60" x2="200" y2="62" stroke="#94a3b8" stroke-width="2"/>
+        <circle cx="290" cy="62" r="12" fill="#3b82f6"/><text x="290" y="67" fill="white" font-size="11" text-anchor="middle">H</text>
+        <line x1="278" y1="68" x2="268" y2="74" stroke="#94a3b8" stroke-width="2"/>
+        <circle cx="290" cy="98" r="12" fill="#3b82f6"/><text x="290" y="103" fill="white" font-size="11" text-anchor="middle">H</text>
+        <line x1="278" y1="92" x2="268" y2="86" stroke="#94a3b8" stroke-width="2"/>
+        <circle cx="260" cy="48" r="12" fill="#3b82f6"/><text x="260" y="53" fill="white" font-size="11" text-anchor="middle">H</text>
+        <line x1="260" y1="60" x2="260" y2="62" stroke="#94a3b8" stroke-width="2"/>
+
+        <!-- Arrow 2 -->
+        <text x="315" y="75" fill="#f59e0b" font-size="22" font-weight="bold">+</text>
+        <rect x="307" y="82" width="38" height="18" rx="4" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>
+        <text x="326" y="95" fill="#92400e" font-size="11" font-weight="bold" text-anchor="middle">CH₂</text>
+        <text x="326" y="115" fill="#f59e0b" font-size="16" text-anchor="middle">→</text>
+
+        <!-- Propane -->
+        <text x="450" y="18" fill="#ef4444" font-weight="bold" font-size="13" text-anchor="middle">Propane</text>
+        <text x="450" y="32" fill="#6366f1" font-size="11" text-anchor="middle">C₃H₈</text>
+        <circle cx="370" cy="80" r="16" fill="#374151"/><text x="370" y="85" fill="white" font-size="12" font-weight="bold" text-anchor="middle">C</text>
+        <circle cx="450" cy="80" r="16" fill="#374151"/><text x="450" y="85" fill="white" font-size="12" font-weight="bold" text-anchor="middle">C</text>
+        <circle cx="530" cy="80" r="16" fill="#374151"/><text x="530" y="85" fill="white" font-size="12" font-weight="bold" text-anchor="middle">C</text>
+        <line x1="386" y1="80" x2="434" y2="80" stroke="#94a3b8" stroke-width="2.5"/>
+        <line x1="466" y1="80" x2="514" y2="80" stroke="#94a3b8" stroke-width="2.5"/>
+        <circle cx="352" cy="65" r="10" fill="#3b82f6"/><text x="352" y="70" fill="white" font-size="10" text-anchor="middle">H</text>
+        <line x1="360" y1="70" x2="364" y2="74" stroke="#94a3b8" stroke-width="1.5"/>
+        <circle cx="352" cy="95" r="10" fill="#3b82f6"/><text x="352" y="100" fill="white" font-size="10" text-anchor="middle">H</text>
+        <line x1="360" y1="90" x2="364" y2="86" stroke="#94a3b8" stroke-width="1.5"/>
+        <circle cx="370" cy="48" r="10" fill="#3b82f6"/><text x="370" y="53" fill="white" font-size="10" text-anchor="middle">H</text>
+        <line x1="370" y1="58" x2="370" y2="64" stroke="#94a3b8" stroke-width="1.5"/>
+        <circle cx="450" cy="48" r="10" fill="#3b82f6"/><text x="450" y="53" fill="white" font-size="10" text-anchor="middle">H</text>
+        <line x1="450" y1="58" x2="450" y2="64" stroke="#94a3b8" stroke-width="1.5"/>
+        <circle cx="450" cy="112" r="10" fill="#3b82f6"/><text x="450" y="117" fill="white" font-size="10" text-anchor="middle">H</text>
+        <line x1="450" y1="96" x2="450" y2="102" stroke="#94a3b8" stroke-width="1.5"/>
+        <circle cx="548" cy="65" r="10" fill="#3b82f6"/><text x="548" y="70" fill="white" font-size="10" text-anchor="middle">H</text>
+        <line x1="540" y1="70" x2="546" y2="74" stroke="#94a3b8" stroke-width="1.5"/>
+        <circle cx="548" cy="95" r="10" fill="#3b82f6"/><text x="548" y="100" fill="white" font-size="10" text-anchor="middle">H</text>
+        <line x1="540" y1="90" x2="546" y2="86" stroke="#94a3b8" stroke-width="1.5"/>
+        <circle cx="530" cy="48" r="10" fill="#3b82f6"/><text x="530" y="53" fill="white" font-size="10" text-anchor="middle">H</text>
+        <line x1="530" y1="58" x2="530" y2="64" stroke="#94a3b8" stroke-width="1.5"/>
+      </svg>
+    </div>
+    <p style="text-align:center; font-size:0.75rem; color:#94a3b8; margin-top:6px;">∴ Each member = previous member + CH₂ (14 u)</p>
+  </div>
+
+  <!-- Boiling Point Chart -->
+  <div class="card">
+    <div class="section-title">📈 Boiling Point Trend (क्वथनांक प्रवृत्ति) <span class="badge">Click bars!</span></div>
+    <p style="font-size:0.8rem; color:#64748b; margin-bottom:10px;">As chain length increases, boiling point <strong>increases</strong>. Click a bar to learn why!</p>
+    <div class="chart-container">
+      <div class="chart-bars" id="bpChart"></div>
+    </div>
+    <div id="bp-detail" style="display:none; margin-top:8px; border-radius:10px; padding:12px; background:#fef3c7; border-left:4px solid #f59e0b; font-size:0.82rem;"></div>
+  </div>
+
+  <!-- Properties -->
+  <div class="card">
+    <div class="section-title">⚗️ Properties of Homologous Series <span class="badge">Tap to learn</span></div>
+    <div class="prop-grid" id="propGrid"></div>
+    <div id="prop-detail" style="display:none; margin-top:10px; border-radius:10px; padding:12px; font-size:0.82rem;"></div>
+  </div>
+
+  <!-- Step by Step Walkthrough -->
+  <div class="card">
+    <div class="section-title">🪜 Worked Example (हल किया उदाहरण)</div>
+    <div style="background:#f8fafc; border-radius:10px; padding:12px; margin-bottom:10px; font-size:0.85rem;">
+      <strong>Q: What is the molecular formula of the 5th member of the alkane series? What is its molecular mass?</strong>
+    </div>
+    
+    <div id="step1" class="step-box" style="background:linear-gradient(135deg,#eff6ff,#dbeafe); border-left:4px solid #3b82f6;">
+      <strong>Step 1: Use General Formula</strong><br>
+      Alkanes follow: <strong>CₙH₂ₙ₊₂</strong><br>
+      For 5th member, n = 5
+    </div>
+    
+    <div id="step2" class="step-box" style="background:linear-gradient(135deg,#f0fdf4,#dcfce7); border-left:4px solid #22c55e;">
+      <strong>Step 2: Calculate H atoms</strong><br>
+      H = 2n + 2 = 2(5) + 2 = 12<br>
+      ∴ Formula = <strong>C₅H₁₂</strong> (Pentane)
+    </div>
+    
+    <div id="step3" class="step-box" style="background:linear-gradient(135deg,#fffbeb,#fef3c7); border-left:4px solid #f59e0b;">
+      <strong>Step 3: Calculate Molecular Mass</strong><br>
+      Mass of C = 5 × 12 = 60 u<br>
+      Mass of H = 12 × 1 = 12 u<br>
+      Total = 60 + 12 = <strong>72 u</strong>
+    </div>
+    
+    <div id="step4" class="step-box" style="background:linear-gradient(135deg,#fdf4ff,#fae8ff); border-left:4px solid #a855f7;">
+      <strong>✅ Verification</strong><br>
+      Butane (C₄H₁₀, 58 u) + CH₂ (14 u) = Pentane (72 u) ✓<br>
+      ∴ Each consecutive member differs by 14 u (CH₂)
+    </div>
+    
+    <div class="btn-row">
+      <button class="btn btn-sm" onclick="showStep()">▶ Next Step</button>
+      <button class="btn btn-sm btn-amber" onclick="resetSteps()">↺ Reset</button>
+    </div>
+    <div style="margin-top:8px;">
+      <div class="progress-bar">
+        <div class="progress-fill" id="stepProgress" style="width:0%; background:linear-gradient(90deg,#3b82f6,#6366f1);"></div>
+      </div>
+      <div

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ionic Bonding - Metals & Non-Metals</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#0f172a 100%);min-height:100vh;color:#f1f5f9}
+.titlebar{background:linear-gradient(90deg,#3b82f6,#8b5cf6);padding:12px 16px;text-align:center;box-shadow:0 4px 20px rgba(59,130,246,0.4)}
+.titlebar h1{font-size:clamp(14px,3vw,20px);font-weight:700;letter-spacing:1px}
+.titlebar p{font-size:clamp(10px,2vw,13px);opacity:0.85;margin-top:2px}
+.container{max-width:800px;margin:0 auto;padding:16px}
+.card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:16px;margin-bottom:16px;backdrop-filter:blur(10px)}
+.section-title{font-size:clamp(13px,2.5vw,16px);font-weight:700;color:#3b82f6;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.concept-box{background:linear-gradient(135deg,rgba(59,130,246,0.2),rgba(139,92,246,0.2));border:1px solid #3b82f6;border-radius:12px;padding:14px;text-align:center;margin-bottom:16px}
+.concept-box h2{font-size:clamp(15px,3vw,22px);color:#60a5fa;margin-bottom:6px}
+.concept-box p{font-size:clamp(11px,2vw,14px);color:#cbd5e1;line-height:1.5}
+.formula{background:rgba(34,197,94,0.15);border:2px solid #22c55e;border-radius:10px;padding:12px;text-align:center;font-size:clamp(13px,2.5vw,18px);font-weight:700;color:#22c55e;margin:10px 0;letter-spacing:1px}
+
+/* Atom styles */
+.demo-area{display:flex;flex-direction:column;align-items:center;gap:10px}
+.atoms-row{display:flex;justify-content:center;align-items:center;gap:clamp(10px,4vw,40px);flex-wrap:wrap}
+.atom-wrapper{display:flex;flex-direction:column;align-items:center;gap:6px}
+.atom-label{font-size:clamp(10px,2vw,13px);color:#94a3b8;text-align:center}
+.atom{position:relative;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.3s ease;user-select:none}
+.atom-na{width:clamp(70px,15vw,90px);height:clamp(70px,15vw,90px);background:radial-gradient(circle at 35% 35%,#fbbf24,#d97706);box-shadow:0 0 20px rgba(251,191,36,0.5)}
+.atom-cl{width:clamp(70px,15vw,90px);height:clamp(70px,15vw,90px);background:radial-gradient(circle at 35% 35%,#4ade80,#15803d);box-shadow:0 0 20px rgba(74,222,128,0.4)}
+.atom-na.ion{background:radial-gradient(circle at 35% 35%,#93c5fd,#3b82f6);box-shadow:0 0 25px rgba(59,130,246,0.7);animation:ionpulse 1.5s ease-in-out infinite}
+.atom-cl.ion{background:radial-gradient(circle at 35% 35%,#f87171,#dc2626);box-shadow:0 0 25px rgba(239,68,68,0.7);animation:ionpulse 1.5s ease-in-out infinite}
+@keyframes ionpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+.atom-symbol{font-size:clamp(18px,4vw,26px);font-weight:900;color:#fff;z-index:2}
+.atom-charge{position:absolute;top:4px;right:6px;font-size:clamp(9px,2vw,13px);font-weight:900;color:#fff;background:rgba(0,0,0,0.4);border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center}
+.electron-ring{position:absolute;border:2px dashed rgba(255,255,255,0.3);border-radius:50%;pointer-events:none}
+.electron-dot{position:absolute;width:8px;height:8px;border-radius:50%;background:#fde68a}
+.electron-dot.valence{background:#ef4444;box-shadow:0 0 6px #ef4444;width:10px;height:10px}
+
+.btn{background:linear-gradient(135deg,#3b82f6,#8b5cf6);border:none;color:#fff;padding:10px 20px;border-radius:8px;cursor:pointer;font-size:clamp(12px,2vw,14px);font-weight:600;transition:all 0.3s;margin:4px}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(59,130,246,0.4)}
+.btn:active{transform:translateY(0)}
+.btn-green{background:linear-gradient(135deg,#22c55e,#16a34a)}
+.btn-green:hover{box-shadow:0 6px 20px rgba(34,197,94,0.4)}
+.btn-reset{background:linear-gradient(135deg,#ef4444,#dc2626)}
+.btn-reset:hover{box-shadow:0 6px 20px rgba(239,68,68,0.4)}
+
+.electron-display{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin:8px 0}
+.e-dot{width:14px;height:14px;border-radius:50%;display:inline-block;transition:all 0.4s}
+.e-dot.active{background:#fbbf24;box-shadow:0 0 8px #fbbf24}
+.e-dot.transferred{background:#ef4444;box-shadow:0 0 8px #ef4444;animation:bounce 0.5s ease}
+.e-dot.received{background:#22c55e;box-shadow:0 0 8px #22c55e}
+.e-dot.empty{background:rgba(255,255,255,0.1);border:1px dashed rgba(255,255,255,0.2)}
+@keyframes bounce{0%,100%{transform:scale(1)}50%{transform:scale(1.5)}}
+
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.info-item{background:rgba(255,255,255,0.05);border-radius:10px;padding:10px;text-align:center}
+.info-item .val{font-size:clamp(16px,3vw,22px);font-weight:900;color:#60a5fa}
+.info-item .lbl{font-size:clamp(9px,1.8vw,12px);color:#94a3b8;margin-top:2px}
+
+.steps-container{counter-reset:steps}
+.step{background:rgba(255,255,255,0.03);border-left:3px solid #3b82f6;border-radius:0 10px 10px 0;padding:12px;margin-bottom:10px;opacity:0;transform:translateX(-20px);transition:all 0.5s ease;pointer-events:none}
+.step.visible{opacity:1;transform:translateX(0)}
+.step-num{background:#3b82f6;color:#fff;width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;margin-right:8px;flex-shrink:0}
+.step-row{display:flex;align-items:flex-start;gap:4px}
+.step-text{font-size:clamp(11px,2vw,13px);line-height:1.5;color:#e2e8f0}
+.step-text strong{color:#f59e0b}
+.step-text .hi{color:#a78bfa}
+
+.comparison-table{width:100%;border-collapse:collapse;font-size:clamp(10px,2vw,13px)}
+.comparison-table th{background:rgba(59,130,246,0.3);padding:8px;text-align:center}
+.comparison-table td{padding:8px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.1)}
+.comparison-table tr:hover td{background:rgba(255,255,255,0.05)}
+
+.transfer-animation{position:relative;height:60px;display:flex;align-items:center;justify-content:center}
+.flying-electron{width:14px;height:14px;border-radius:50%;background:#ef4444;box-shadow:0 0 10px #ef4444;position:absolute;transition:all 0.8s cubic-bezier(0.25,0.46,0.45,0.94);top:50%;transform:translateY(-50%)}
+
+.shell-diagram{display:flex;flex-direction:column;align-items:center;position:relative;width:clamp(70px,15vw,90px);height:clamp(70px,15vw,90px)}
+svg.atom-svg{border-radius:50%}
+
+.tag{display:inline-block;padding:3px 8px;border-radius:20px;font-size:clamp(9px,1.8vw,11px);font-weight:700;margin:2px}
+.tag-blue{background:rgba(59,130,246,0.2);border:1px solid #3b82f6;color:#60a5fa}
+.tag-green{background:rgba(34,197,94,0.2);border:1px solid #22c55e;color:#4ade80}
+.tag-amber{background:rgba(245,158,11,0.2);border:1px solid #f59e0b;color:#fbbf24}
+.tag-red{background:rgba(239,68,68,0.2);border:1px solid #ef4444;color:#f87171}
+
+.nacl-crystal{display:flex;flex-wrap:wrap;width:clamp(120px,30vw,160px);gap:2px;margin:10px auto;justify-content:center}
+.crystal-ion{width:clamp(22px,5vw,28px);height:clamp(22px,5vw,28px);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:clamp(8px,1.8vw,11px);font-weight:700;transition:all 0.3s}
+.crystal-na{background:rgba(59,130,246,0.7);color:#fff;border:1px solid #3b82f6}
+.crystal-cl{background:rgba(239,68,68,0.7);color:#fff;border:1px solid #ef4444}
+.crystal-ion:hover{transform:scale(1.2);z-index:10}
+
+.progress-bar{height:6px;background:rgba(255,255,255,0.1);border-radius:3px;margin:8px 0}
+.progress-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#3b82f6,#22c55e);transition:width 0.5s ease}
+
+.quiz-option{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px;margin:6px 0;cursor:pointer;transition:all 0.3s;font-size:clamp(11px,2vw,13px)}
+.quiz-option:hover{background:rgba(59,130,246,0.1);border-color:#3b82f6}
+.quiz-option.correct{background:rgba(34,197,94,0.2);border-color:#22c55e;color:#4ade80}
+.quiz-option.wrong{background:rgba(239,68,68,0.2);border-color:#ef4444;color:#f87171}
+.hidden{display:none}
+.flex-center{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:8px}
+</style>
+</head>
+<body>
+<div class="titlebar">
+  <h1>⚡ Ionic Bonding | आयनिक बंध</h1>
+  <p>CBSE Class 10 Science • Metals and Non-Metals</p>
+</div>
+<div class="container">
+
+<!-- Concept Overview -->
+<div class="concept-box card">
+  <h2>What is Ionic Bond? (आयनिक बंध)</h2>
+  <p>A chemical bond formed by the <strong style="color:#fbbf24">complete transfer</strong> of one or more electrons from a metal atom to a non-metal atom, creating oppositely charged ions that attract each other.</p>
+  <div class="formula">Metal → loses e⁻ → Cation (धनायन) &nbsp;|&nbsp; Non-Metal → gains e⁻ → Anion (ऋणायन)</div>
+  <div class="flex-center" style="margin-top:8px">
+    <span class="tag tag-amber">Na (Metal)</span>
+    <span style="color:#94a3b8">+</span>
+    <span class="tag tag-green">Cl (Non-Metal)</span>
+    <span style="color:#94a3b8">→</span>
+    <span class="tag tag-blue">Na⁺ + Cl⁻</span>
+    <span style="color:#94a3b8">→</span>
+    <span class="tag tag-red">NaCl (Salt)</span>
+  </div>
+</div>
+
+<!-- Interactive Electron Transfer -->
+<div class="card">
+  <div class="section-title">⚛️ Interactive: Watch Electron Transfer | इलेक्ट्रॉन स्थानांतरण</div>
+  <p style="font-size:clamp(10px,2vw,12px);color:#94a3b8;text-align:center;margin-bottom:12px">Click the button below to see how Na transfers its electron to Cl!</p>
+  
+  <div class="demo-area">
+    <div class="atoms-row">
+      <!-- Sodium Atom -->
+      <div class="atom-wrapper">
+        <div id="na-atom" class="atom atom-na" onclick="highlightAtom('na')">
+          <svg width="clamp(70px,15vw,90px)" height="clamp(70px,15vw,90px)" viewBox="0 0 90 90" style="position:absolute">
+            <circle cx="45" cy="45" r="42" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1" stroke-dasharray="4"/>
+            <circle cx="45" cy="45" r="30" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1" stroke-dasharray="4"/>
+            <circle cx="45" cy="45" r="18" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1" stroke-dasharray="4"/>
+            <!-- K shell: 2e -->
+            <circle cx="45" cy="27" r="4" fill="#fde68a" id="na-e1"/>
+            <circle cx="45" cy="63" r="4" fill="#fde68a" id="na-e2"/>
+            <!-- L shell: 8e -->
+            <circle cx="63" cy="45" r="4" fill="#fde68a" id="na-e3"/>
+            <circle cx="27" cy="45" r="4" fill="#fde68a" id="na-e4"/>
+            <circle cx="56" cy="34" r="4" fill="#fde68a" id="na-e5"/>
+            <circle cx="34" cy="34" r="4" fill="#fde68a" id="na-e6"/>
+            <circle cx="56" cy="56" r="4" fill="#fde68a" id="na-e7"/>
+            <circle cx="34" cy="56" r="4" fill="#fde68a" id="na-e8"/>
+            <!-- M shell: 1 valence e -->
+            <circle cx="45" cy="3" r="5" fill="#ef4444" stroke="#fca5a5" stroke-width="1.5" id="na-valence" style="filter:drop-shadow(0 0 4px #ef4444)"/>
+          </svg>
+          <span class="atom-symbol" style="z-index:3">Na</span>
+          <span class="atom-charge" id="na-charge"></span>
+        </div>
+        <div class="atom-label">
+          <div><strong style="color:#fbbf24">Sodium (सोडियम)</strong></div>
+          <div style="font-size:10px">2,8,1 → wants to lose 1e⁻</div>
+        </div>
+        <div class="electron-display" id="na-electrons">
+          <div class="e-dot active"></div>
+          <div class="e-dot active"></div>
+          <div class="e-dot active"></div>
+          <div class="e-dot active"></div>
+          <div class="e-dot active"></div>
+          <div class="e-dot active"></div>
+          <div class="e-dot active"></div>
+          <div class="e-dot active"></div>
+          <div class="e-dot active"></div>
+          <div class="e-dot active"></div>
+          <div class="e-dot active" id="na-last-dot"></div>
+        </div>
+        <div style="font-size:10px;color:#94a3b8">11 electrons</div>
+      </div>
+
+      <!-- Arrow + Flying electron -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+        <div style="font-size:clamp(20px,5vw,30px)" id="arrow-area">→</div>
+        <div id="flying-e" style="width:14px;height:14px;border-radius:50%;background:#ef4444;box-shadow:0 0 10px #ef4444;display:none;transition:all 0.5s"></div>
+        <div style="font-size:10px;color:#94a3b8;text-align:center">e⁻ transfer<br>इलेक्ट्रॉन स्थानांतरण</div>
+      </div>
+
+      <!-- Chlorine Atom -->
+      <div class="atom-wrapper">
+        <div id="cl-atom" class="atom atom-cl" onclick="highlightAtom('cl')">
+          <svg width="clamp(70px,15vw,90px)" height="clamp(70px,15vw,90px)" viewBox="0 0 90 90" style="position:absolute">
+            <circle cx="45" cy="45" r="42" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1" stroke-dasharray="4"/>
+            <circle cx="45" cy="45" r="30" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1" stroke-dasharray="4"/>
+            <circle cx="45" cy="45" r="18" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1" stroke-dasharray="4"/>
+            <!-- K: 2e -->
+            <circle cx="45" cy="27" r="4" fill="#bbf7d0" id="cl-e1"/>
+            <circle cx="45" cy="63" r="4" fill="#bbf7d0" id="cl-e2"/>
+            <!-- L: 8e -->
+            <circle cx="63" cy="45" r="4" fill="#bbf7d0" id="cl-e3"/>
+            <circle cx="27" cy="45" r="4" fill="#bbf7d0" id="cl-e4"/>
+            <circle cx="56" cy="34" r="4" fill="#bbf7d0" id="cl-e5"/>
+            <circle cx="34" cy="34" r="4" fill="#bbf7d0" id="cl-e6"/>
+            <circle cx="56" cy="56" r="4" fill="#bbf7d0" id="cl-e7"/>
+            <circle cx="34" cy="56" r="4" fill="#bbf7d0" id="cl-e8"/>
+            <!-- M: 7e (one missing slot) -->
+            <circle cx="87" cy="45" r="4" fill="#bbf7d0" id="cl-e9"/>
+            <circle cx="3"  cy="45" r="4" fill="#bbf7d0" id="cl-e10"/>
+            <circle cx="76" cy="21" r="4" fill="#bbf7d0" id="cl-e11"/>
+            <circle cx="14" cy="21" r="4" fill="#bbf7d0" id="cl-e12"/>
+            <circle cx="76" cy="69" r="4" fill="#bbf7d0" id="cl-e13"/>
+            <circle cx="14" cy="69" r="4" fill="#bbf7d0" id="cl-e14"/>
+            <circle cx="45" cy="87" r="4" fill="#bbf7d0" id="cl-e15"/>
+            <!-- Empty slot at top -->
+            <circle cx="45" cy="3" r="5" fill="none" stroke="#86efac" stroke-width="1.5" stroke-dasharray="3" id="cl-empty-slot"/>
+            <circle cx="45" cy="3" r="5" fill="#22c55e" stroke="#4ade80" stroke-width="1.5" id="cl-new-e" style="opacity:0"/>
+          </svg>
+          <span class="atom-symbol" style="z-index:3">Cl</span>
+          <span class="atom-charge" id="cl-charge"></span>
+        </div>
+        <div class="atom-label">
+          <div><strong style="color:#4ade80">Chlorine (क्लोरीन)</strong></div>
+          <div style="font-size:10px">2,8,7 → wants to gain 1e⁻</div>
+        </div>
+        <div class="electron-display" id="cl-electrons">
+          <div class="e-dot active"></div>
+          <div class="e-dot active"></div>
+          <div class="e-dot active"></div>
+          <div class="e-dot active"></div>
+          <div class="e-dot active"></div>
+          <div class="e-dot active"></div>
+          <div class="e-dot active"></div>
+          <div class="e-dot active"></div>
+          <div class="e-dot active"></div>
+          <div class="e-dot active"></div>
+          <div class="e-dot active"></div>
+          <div class="e-dot active"></div>
+          <div class="e-dot active"></div>
+          <div class="e-dot active"></div>
+          <div class="e-dot active"></div>
+          <div class="e-dot active" id="cl-empty-dot" style="background:rgba(255,255,255,0.1);border:1px dashed rgba(255,255,255,0.3);box-shadow:none"></div>
+        </div>
+        <div style="font-size:10px;color:#94a3b8" id="cl-count">17 electrons (needs 1 more)</div>
+      </div>
+    </div>
+
+    <!-- Transfer Button -->
+    <div class="flex-center" style="margin-top:12px">
+      <button class="btn" id="transfer-btn" onclick="transferElectron()">⚡ Transfer Electron | इलेक्ट्रॉन स्थानांतरित करें</button>
+      <button class="btn btn-reset" onclick="resetDemo()">↺ Reset</button>
+    </div>
+    <div id="transfer-msg" style="font-size:clamp(11px,2vw,14px);color:#fbbf24;text-align:center;min-height:20px;margin-top:6px"></div>
+  </div>
+</div>
+
+<!-- Info Cards -->
+<div class="card">
+  <div class="section-title">📊 Ion Properties | आयन के गुण</div>
+  <div class="info-grid">
+    <div class="info-item">
+      <div class="val" style="color:#3b82f6">Na⁺</div>
+      <div class="lbl">Sodium Cation (धनायन)</div>
+      <div style="font-size:11px;color:#64748b;margin-top:4px">Lost 1 electron<br>Config: 2,8 ✓</div>
+    </div>
+    <div class="info-item">
+      <div class="val" style="color:#ef4444">Cl⁻</div>
+      <div class="lbl">Chloride Anion (ऋणायन)</div>
+      <div style="font-size:11px;color:#64748b;margin-top:4px">Gained 1 electron<br>Config: 2,8,8 ✓</div>
+    </div>
+    <div class="info-item">
+      <div class="val" style="color:#f59e0b">+1</div>
+      <div class="lbl">Na charge</div>
+    </div>
+    <div class="info-item">
+      <div class="val" style="color:#22c55e">-1</div>
+      <div class="lbl">Cl charge</div>
+    </div>
+  </div>
+  <div class="formula" style="margin-top:10px">Na → Na⁺ + e⁻ &nbsp;&nbsp; | &nbsp;&nbsp; Cl + e⁻ → Cl⁻</div>
+  <div class="formula" style="background:rgba(139,92,246,0.15);border-color:#8b5cf6;color:#a78bfa">Na⁺ + Cl⁻ → NaCl &nbsp; (Electrostatic Attraction)</div>
+</div>
+
+<!-- Step by Step Walkthrough -->
+<div class="card">
+  <div class="section-title">🔢 Step-by-Step | चरण-दर-चरण</div>
+  <div class="progress-bar"><div class="progress-fill" id="progress" style="width:0%"></div></div>
+  <div id="step-container">
+    <div class="step" id="step1">
+      <div class="step-row">
+        <span class="step-num">1</span>
+        <div class="step-text"><strong>Identify Atoms:</strong> Na has <span class="hi">2,8,1</span> configuration. It has only 1 valence electron (संयोजकता इलेक्ट्रॉन). Cl has <span class="hi">2,8,7</span> — needs just 1 more to complete its octet.</div>
+      </div>
+    </div>
+    <div class="step" id="step2">
+      <div class="step-row">
+        <span class="step-num">2</span>
+        <div class="step-text"><strong>Octet Rule (अष्टक नियम):</strong> Every atom wants <strong>8 electrons</strong> in its outermost shell (noble gas configuration). Na wants to <span style="color:#ef4444">lose 1e⁻</span>, Cl wants to <span style="color:#22c55e">gain 1e⁻</span>.</div>
+      </div>
+    </div>
+    <div class="step" id="step3">
+      <div class="step-row">
+        <span class="step-num">3</span>
+        <div class="step-text"><strong>Electron Transfer:</strong> Na transfers its 1 valence electron to Cl. Now: <span class="hi">Na has 10e⁻, 11p⁺</span> → Net charge = <strong>+1</strong> (becomes Na⁺ cation, धनायन)</div>
+      </div>
+    </div>
+    <div class="step" id="step4">
+      <div class="step-row">
+        <span class="step-num">4</span>
+        <div class="step-text"><strong>Anion Formation:</strong> Cl now has <span class="hi">18e⁻, 17p⁺</span> → Net charge = <strong>-1</strong> (becomes Cl⁻ anion, ऋणायन). Configuration: 2,8,8 ✓ Octet complete!</div>
+      </div>
+    </div>
+    <div class="step" id="step5">
+      <div class="step-row">
+        <span class="step-num">5</span>
+        <div class="step-text"><strong>Bond Formation:</strong> Na⁺ and Cl⁻ are attracted by <strong>electrostatic force</strong> (स्थिरविद्युत बल). This attraction IS the ionic bond! Result: <span class="hi">NaCl (Sodium Chloride = Common Salt)</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="flex-center" style="margin-top:10px">
+    <button class="btn" onclick="revealStep()">▶ Next Step | अगला चरण</button>
+    <button class="btn btn-reset" onclick="resetSteps()">↺ Reset Steps</button>
+  </div>
+  <div style="text-align:center;font-size:11px;color:#64748b;margin-top:6px" id="step-indicator">Click to reveal steps</div>
+</div>
+
+<!-- NaCl Crystal -->
+<div class="card">
+  <div class="section-title">💎 NaCl Crystal Structure | क्रिस्टल संरचना</div>
+  <p style="font-size:clamp(10px,2vw,12px);color:#94a3b8;text-align:center;margin-bottom:8px">Hover over ions to see their charge! Alternating Na⁺ and Cl⁻ ions.</p>
+  <div class="nacl-crystal" id="nacl-grid"></div>
+  <div style="text-align

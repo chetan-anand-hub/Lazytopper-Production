@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Photosynthesis - Life Processes | CBSE Class 10</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Segoe UI',Arial,sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#0f172a 100%);min-height:100vh;color:#1e293b}
+  .titlebar{background:linear-gradient(90deg,#22c55e,#3b82f6);padding:12px 16px;text-align:center;box-shadow:0 4px 15px rgba(34,197,94,0.4)}
+  .titlebar h1{color:#fff;font-size:1.1rem;font-weight:700;letter-spacing:1px}
+  .titlebar p{color:rgba(255,255,255,0.85);font-size:0.75rem;margin-top:2px}
+  .container{max-width:700px;margin:0 auto;padding:12px}
+  .card{background:#fff;border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 8px 32px rgba(0,0,0,0.3)}
+  .section-title{font-size:0.85rem;font-weight:700;color:#3b82f6;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+  .formula-box{background:linear-gradient(135deg,#1e293b,#0f172a);border-radius:12px;padding:14px;text-align:center;color:#fff;border:2px solid #22c55e;margin:10px 0}
+  .formula-box .formula{font-size:0.95rem;color:#fbbf24;font-weight:700;line-height:1.8;letter-spacing:0.5px}
+  .formula-box .label{font-size:0.7rem;color:#94a3b8;margin-top:4px}
+  .leaf-container{position:relative;width:100%;display:flex;justify-content:center;margin:10px 0}
+  svg.leaf-svg{width:100%;max-width:420px;height:auto}
+  .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.72rem;font-weight:600;margin:2px}
+  .badge-green{background:#dcfce7;color:#16a34a}
+  .badge-blue{background:#dbeafe;color:#1d4ed8}
+  .badge-amber{background:#fef3c7;color:#d97706}
+  .badge-red{background:#fee2e2;color:#dc2626}
+  .steps-container{display:flex;flex-direction:column;gap:8px}
+  .step{background:#f8fafc;border-radius:10px;border-left:4px solid #e2e8f0;padding:10px 12px;cursor:pointer;transition:all 0.3s;position:relative;overflow:hidden}
+  .step.active{border-left-color:#3b82f6;background:#eff6ff}
+  .step.done{border-left-color:#22c55e;background:#f0fdf4}
+  .step-header{display:flex;align-items:center;gap:8px;font-weight:600;font-size:0.85rem}
+  .step-num{width:24px;height:24px;border-radius:50%;background:#e2e8f0;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;flex-shrink:0;transition:all 0.3s}
+  .step.active .step-num{background:#3b82f6;color:#fff}
+  .step.done .step-num{background:#22c55e;color:#fff}
+  .step-body{max-height:0;overflow:hidden;transition:max-height 0.4s ease,opacity 0.3s;opacity:0;font-size:0.8rem;color:#475569;line-height:1.5}
+  .step.active .step-body,.step.done .step-body{max-height:120px;opacity:1;margin-top:6px}
+  .ingredients-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}
+  .ingredient{border-radius:10px;padding:10px;text-align:center;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;border:2px solid transparent}
+  .ingredient:hover{transform:scale(1.04);box-shadow:0 4px 15px rgba(0,0,0,0.15)}
+  .ingredient.selected{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,0.2)}
+  .ingredient .icon{font-size:1.8rem;display:block;margin-bottom:4px}
+  .ingredient .name{font-size:0.75rem;font-weight:700;margin-bottom:2px}
+  .ingredient .hindi{font-size:0.68rem;color:#64748b}
+  .ingredient .desc{font-size:0.7rem;margin-top:4px;display:none}
+  .ingredient.selected .desc{display:block}
+  .process-bar{display:flex;align-items:center;gap:4px;flex-wrap:wrap;justify-content:center;margin:10px 0}
+  .process-item{background:#f1f5f9;border-radius:8px;padding:6px 10px;font-size:0.75rem;font-weight:600;transition:all 0.4s}
+  .process-arrow{color:#94a3b8;font-size:1rem}
+  .slider-section{margin:10px 0}
+  .slider-label{font-size:0.78rem;font-weight:600;color:#374151;margin-bottom:4px;display:flex;justify-content:space-between}
+  input[type=range]{width:100%;accent-color:#3b82f6;height:6px;border-radius:3px}
+  .rate-display{text-align:center;margin-top:8px;padding:10px;background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-radius:10px}
+  .rate-num{font-size:1.4rem;font-weight:700;color:#16a34a}
+  .rate-label{font-size:0.7rem;color:#64748b}
+  .quiz-section .q{font-size:0.85rem;font-weight:600;color:#1e293b;margin-bottom:8px}
+  .options{display:flex;flex-direction:column;gap:6px}
+  .option{padding:8px 12px;border-radius:8px;border:2px solid #e2e8f0;font-size:0.8rem;cursor:pointer;transition:all 0.2s;background:#f8fafc}
+  .option:hover{border-color:#3b82f6;background:#eff6ff}
+  .option.correct{border-color:#22c55e;background:#f0fdf4;color:#16a34a;font-weight:600}
+  .option.wrong{border-color:#ef4444;background:#fef2f2;color:#dc2626}
+  .feedback{margin-top:8px;padding:8px;border-radius:8px;font-size:0.78rem;font-weight:600;display:none}
+  .feedback.show{display:block}
+  .feedback.good{background:#f0fdf4;color:#16a34a}
+  .feedback.bad{background:#fef2f2;color:#dc2626}
+  .btn{padding:8px 18px;border-radius:8px;border:none;cursor:pointer;font-size:0.8rem;font-weight:600;transition:all 0.2s}
+  .btn-primary{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff}
+  .btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(59,130,246,0.4)}
+  .btn-green{background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff}
+  .chloroplast-anim{animation:pulse-green 2s infinite}
+  @keyframes pulse-green{0%,100%{filter:drop-shadow(0 0 4px #22c55e)}50%{filter:drop-shadow(0 0 12px #22c55e)}}
+  .sun-anim{animation:spin-glow 3s linear infinite}
+  @keyframes spin-glow{0%{transform:rotate(0deg) scale(1)}50%{transform:rotate(180deg) scale(1.05)}100%{transform:rotate(360deg) scale(1)}}
+  .bubble-anim{animation:float-up 3s ease-in-out infinite}
+  @keyframes float-up{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+  .highlight-flow{animation:flow-color 2s ease-in-out infinite}
+  @keyframes flow-color{0%,100%{opacity:0.7}50%{opacity:1}}
+  .stoma-toggle{cursor:pointer;transition:all 0.3s}
+  .tip{font-size:0.72rem;color:#64748b;font-style:italic;margin-top:6px;padding:6px;background:#f8fafc;border-radius:6px;border-left:3px solid #f59e0b}
+  @media(max-width:400px){.ingredients-grid{grid-template-columns:1fr 1fr}.formula-box .formula{font-size:0.82rem}}
+</style>
+</head>
+<body>
+
+<div class="titlebar">
+  <h1>🌿 प्रकाश संश्लेषण | Photosynthesis</h1>
+  <p>Life Processes • CBSE Class 10 Science • Chapter 6</p>
+</div>
+
+<div class="container">
+
+<!-- Formula Card -->
+<div class="card">
+  <div class="section-title">⚗️ The Key Equation | मुख्य समीकरण</div>
+  <div class="formula-box">
+    <div class="formula">6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂</div>
+    <div style="color:#94a3b8;font-size:0.72rem;margin-top:4px">↑ Chlorophyll + Sunlight required ↑</div>
+    <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px;justify-content:center">
+      <span class="badge badge-blue">6CO₂ = Carbon Dioxide</span>
+      <span class="badge badge-blue">6H₂O = Water</span>
+      <span class="badge badge-green">C₆H₁₂O₆ = Glucose</span>
+      <span class="badge badge-amber">6O₂ = Oxygen released</span>
+    </div>
+    <div class="label">कार्बन डाइऑक्साइड + जल → ग्लूकोज + ऑक्सीजन</div>
+  </div>
+</div>
+
+<!-- Leaf Diagram -->
+<div class="card">
+  <div class="section-title">🍃 Interactive Leaf Diagram | पत्ती का चित्र</div>
+  <p style="font-size:0.75rem;color:#64748b;margin-bottom:8px">👆 Click on parts of the leaf to learn more!</p>
+  <div class="leaf-container">
+    <svg class="leaf-svg" viewBox="0 0 420 280" xmlns="http://www.w3.org/2000/svg">
+      <!-- Sky background -->
+      <defs>
+        <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#fef3c7"/>
+          <stop offset="100%" stop-color="#fed7aa"/>
+        </linearGradient>
+        <linearGradient id="leafGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#86efac"/>
+          <stop offset="100%" stop-color="#16a34a"/>
+        </linearGradient>
+        <linearGradient id="soilGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#92400e"/>
+          <stop offset="100%" stop-color="#451a03"/>
+        </linearGradient>
+      </defs>
+      <!-- Background -->
+      <rect width="420" height="280" fill="url(#skyGrad)" rx="12"/>
+      <!-- Sun -->
+      <g class="sun-anim" transform-origin="60 40">
+        <circle cx="60" cy="40" r="22" fill="#fbbf24" opacity="0.95"/>
+        <line x1="60" y1="10" x2="60" y2="2" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="60" y1="70" x2="60" y2="78" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="30" y1="40" x2="22" y2="40" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="90" y1="40" x2="98" y2="40" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="39" y1="19" x2="33" y2="13" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="81" y1="61" x2="87" y2="67" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="81" y1="19" x2="87" y2="13" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="39" y1="61" x2="33" y2="67" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round"/>
+      </g>
+      <text x="60" y="92" text-anchor="middle" font-size="10" fill="#92400e" font-weight="600">सूर्य का प्रकाश</text>
+      <text x="60" y="103" text-anchor="middle" font-size="9" fill="#92400e">Sunlight</text>
+      <!-- Sunlight arrows -->
+      <line x1="100" y1="60" x2="170" y2="110" stroke="#fbbf24" stroke-width="2" stroke-dasharray="4,3" opacity="0.8"/>
+      <polygon points="170,110 162,105 165,115" fill="#fbbf24" opacity="0.8"/>
+      <line x1="110" y1="75" x2="175" y2="125" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.6"/>
+      <!-- Leaf shape -->
+      <path d="M210 220 C160 180 100 140 120 90 C140 40 200 30 240 60 C280 90 300 150 260 190 Z" fill="url(#leafGrad)" stroke="#15803d" stroke-width="2" id="leafShape" onclick="selectLeafPart('leaf')" style="cursor:pointer" class="chloroplast-anim"/>
+      <!-- Midrib -->
+      <path d="M210 220 C205 180 200 140 210 90" stroke="#15803d" stroke-width="3" fill="none"/>
+      <!-- Veins -->
+      <path d="M205 170 C185 155 165 145 155 135" stroke="#15803d" stroke-width="1.5" fill="none" opacity="0.7"/>
+      <path d="M207 150 C195 130 190 115 185 100" stroke="#15803d" stroke-width="1.5" fill="none" opacity="0.7"/>
+      <path d="M210 130 C225 115 235 108 240 95" stroke="#15803d" stroke-width="1.5" fill="none" opacity="0.7"/>
+      <path d="M212 100 C230 95 240 88 248 80" stroke="#15803d" stroke-width="1.5" fill="none" opacity="0.7"/>
+      <!-- CO2 bubbles entering -->
+      <circle cx="130" cy="105" r="8" fill="#93c5fd" opacity="0.7" onclick="selectLeafPart('co2')" style="cursor:pointer"/>
+      <text x="130" y="109" text-anchor="middle" font-size="8" fill="#1d4ed8" font-weight="700">CO₂</text>
+      <circle cx="145" cy="125" r="7" fill="#93c5fd" opacity="0.6" class="bubble-anim"/>
+      <text x="145" y="129" text-anchor="middle" font-size="7" fill="#1d4ed8" font-weight="700">CO₂</text>
+      <!-- O2 bubbles leaving -->
+      <circle cx="265" cy="105" r="8" fill="#bbf7d0" opacity="0.85" onclick="selectLeafPart('o2')" style="cursor:pointer"/>
+      <text x="265" y="109" text-anchor="middle" font-size="8" fill="#15803d" font-weight="700">O₂</text>
+      <circle cx="278" cy="130" r="7" fill="#bbf7d0" opacity="0.7" class="bubble-anim" style="animation-delay:1s"/>
+      <text x="278" y="134" text-anchor="middle" font-size="7" fill="#15803d" font-weight="700">O₂</text>
+      <!-- Stoma at bottom -->
+      <ellipse cx="210" cy="218" rx="12" ry="6" fill="#065f46" onclick="selectLeafPart('stoma')" style="cursor:pointer" id="stomaShape"/>
+      <ellipse cx="210" cy="218" rx="6" ry="3" fill="#d1fae5" id="stomaOpen"/>
+      <text x="210" y="235" text-anchor="middle" font-size="9" fill="#064e3b" font-weight="700">STOMA</text>
+      <text x="210" y="245" text-anchor="middle" font-size="8" fill="#064e3b">रंध्र</text>
+      <!-- Stem -->
+      <rect x="205" y="222" width="10" height="45" fill="#92400e" rx="5"/>
+      <!-- Soil -->
+      <rect x="0" y="255" width="420" height="25" fill="url(#soilGrad)" rx="0"/>
+      <text x="50" y="270" font-size="9" fill="#fcd34d">🌱 मिट्टी से H₂O (Water from roots)</text>
+      <!-- Water arrow going up stem -->
+      <line x1="210" y1="255" x2="210" y2="228" stroke="#60a5fa" stroke-width="2" stroke-dasharray="3,2"/>
+      <polygon points="210,225 206,233 214,233" fill="#60a5fa"/>
+      <!-- Glucose indicator -->
+      <rect x="240" y="140" width="55" height="22" rx="6" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5" onclick="selectLeafPart('glucose')" style="cursor:pointer"/>
+      <text x="267" y="151" text-anchor="middle" font-size="9" fill="#92400e" font-weight="700">⚡ Glucose</text>
+      <text x="267" y="160" text-anchor="middle" font-size="8" fill="#92400e">ग्लूकोज</text>
+      <!-- Chloroplast indicator -->
+      <rect x="130" y="138" width="62" height="22" rx="6" fill="#dcfce7" stroke="#22c55e" stroke-width="1.5" onclick="selectLeafPart('chlorophyll')" style="cursor:pointer"/>
+      <text x="161" y="149" text-anchor="middle" font-size="9" fill="#15803d" font-weight="700">🟢 Chlorophyll</text>
+      <text x="161" y="158" text-anchor="middle" font-size="8" fill="#15803d">पर्णहरित</text>
+    </svg>
+  </div>
+  <div id="leafInfo" style="margin-top:8px;padding:10px;border-radius:10px;background:#f8fafc;font-size:0.78rem;color:#475569;border-left:4px solid #3b82f6;display:none;transition:all 0.3s"></div>
+</div>
+
+<!-- Ingredients Explorer -->
+<div class="card">
+  <div class="section-title">🔍 Tap to Explore Ingredients | सामग्री जानें</div>
+  <div class="ingredients-grid">
+    <div class="ingredient" style="background:#fef9c3" id="ing_sunlight" onclick="toggleIngredient('sunlight')">
+      <span class="icon">☀️</span>
+      <div class="name" style="color:#92400e">Sunlight</div>
+      <div class="hindi">सूर्य का प्रकाश</div>
+      <div class="desc" style="color:#78350f">Energy source. Chlorophyll absorbs mainly red & blue wavelengths of light. Without it, photosynthesis stops!</div>
+    </div>
+    <div class="ingredient" style="background:#dbeafe" id="ing_co2" onclick="toggleIngredient('co2')">
+      <span class="icon">💨</span>
+      <div class="name" style="color:#1e40af">Carbon Dioxide</div>
+      <div class="hindi">कार्बन डाइऑक्साइड</div>
+      <div class="desc" style="color:#1e3a8a">Enters through stomata (रंध्र). From air (0.04%). Used to build glucose molecules.</div>
+    </div>
+    <div class="ingredient" style="background:#dcfce7" id="ing_water" onclick="toggleIngredient('water')">
+      <span class="icon">💧</span>
+      <div class="name" style="color:#166534">Water (H₂O)</div>
+      <div class="hindi">जल</div>
+      <div class="desc" style="color:#14532d">Absorbed by roots → transported via xylem. Water molecules are split to release O₂ (photolysis).</div>
+    </div>
+    <div class="ingredient" style="background:#f3e8ff" id="ing_chlorophyll" onclick="toggleIngredient('chlorophyll')">
+      <span class="icon">🟢</span>
+      <div class="name" style="color:#6b21a8">Chlorophyll</div>
+      <div class="hindi">पर्णहरित</div>
+      <div class="desc" style="color:#581c87">Green pigment in chloroplasts. Traps sunlight. Gives leaves green color. Found in mesophyll cells.</div>
+    </div>
+  </div>
+</div>
+
+<!-- Step-by-Step Process -->
+<div class="card">
+  <div class="section-title">📋 Step-by-Step Process | चरण दर चरण</div>
+  <p style="font-size:0.75rem;color:#64748b;margin-bottom:10px">👆 Click each step to reveal details</p>
+  <div class="steps-container" id="stepsContainer">
+    <div class="step" onclick="toggleStep(0)" id="step0">
+      <div class="step-header"><span class="step-num">1</span> <span>Light Absorption | प्रकाश अवशोषण</span></div>
+      <div class="step-body">Chlorophyll (पर्णहरित) in chloroplasts traps sunlight energy. This happens in the <strong>thylakoid membranes</strong> during the Light Reaction (प्रकाश अभिक्रिया). Water is split: 2H₂O → 4H⁺ + 4e⁻ + O₂ ↑</div>
+    </div>
+    <div class="step" onclick="toggleStep(1)" id="step1">
+      <div class="step-header"><span class="step-num">2</span> <span>CO₂ Absorption | CO₂ अवशोषण</span></div>
+      <div class="step-body">Carbon dioxide from air enters through <strong>stomata (रंध्र)</strong>. Guard cells (द्वार कोशिकाएँ) control stomata opening. CO₂ dissolved in water reaches mesophyll cells.</div>
+    </div>
+    <div class="step" onclick="toggleStep(2)" id="step2">
+      <div class="step-header"><span class="step-num">3</span> <span>Dark Reaction | अंधेरे अभिक्रिया (Calvin Cycle)</span></div>
+      <div class="step-body">In the <strong>stroma</strong> of chloroplast, CO₂ combines with a 5-carbon compound (RuBP). Using ATP energy from light reaction, glucose (C₆H₁₂O₆) is synthesized. Called Calvin Cycle.</div>
+    </div>
+    <div class="step" onclick="toggleStep(3)" id="step3">
+      <div class="step-header"><span class="step-num">4</span> <span>Products Released | उत्पाद</span></div>
+      <div class="step-body"><strong>Glucose (ग्लूकोज)</strong> is stored or used for energy. <strong>Oxygen (ऑक्सीजन)</strong> is released through stomata as byproduct. 6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂</div>
+    </div>
+  </div>
+  <div style="margin-top:10px;text-align:center">
+    <button class="btn btn-green" onclick="revealAllSteps()">Reveal All Steps ✨</button>
+    <button class="btn btn-primary" style="margin-left:6px" onclick="resetSteps()">Reset 🔄</button>
+  </div>
+</div>
+
+<!-- Stomata Interactive -->
+<div class="card">
+  <div class="section-title">🔬 Stomata Explorer | रंध्र</div>
+  <p style="font-size:0.75rem;color:#64748b;margin-bottom:8px">Click to open/close stomata and see what happens!</p>
+  <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+    <div style="flex:1;min-width:140px">
+      <svg viewBox="0 0 140 100" style="width:100%;max-width:160px;display:block;margin:0 auto">
+        <rect width="140" height="100" fill="#f0fdf4" rx="10"/>
+        <text x="70" y="16" text-anchor="middle" font-size="10" fill="#374151" font-weight="600" id="stomaStatusLabel">Stomata: OPEN</text>
+        <!-- Epidermal cells -->
+        <ellipse cx="70" cy="55" rx="35" ry="20" fill="#bbf7d0" stroke="#22c55e" stroke-width="1.5"/>
+        <!-- Guard cells -->
+        <ellipse cx="52" cy="55" rx="12" ry="8" fill="#4ade80" stroke="#16a34a" stroke-width="1.5" id="guardL"/>
+        <ellipse cx="88" cy="55" rx="12" ry="8" fill="#4ade80" stroke="#16a34a" stroke-width="1.5" id="guardR"/>
+        <!-- Stoma pore -->
+        <ellipse cx="70" cy="55" rx="8" ry="5" fill="#1e293b" id="stomaPore"/>
+        <text x="70" y="82" text-anchor="middle" font-size="9" fill="#064e3b">Guard Cells</text>
+        <text x="70" y="91" text-anchor="middle" font-size="8" fill="#064e3b">द्वार कोशिकाएँ</text>
+        <!-- CO2/O2 arrows -->
+        <text x="20" y="52" font-size="9" fill="#1d4ed8" id="gasArrowL">CO₂→</text>
+        <text x="100" y="52" font-size="9" fill="#16a34a" id="gasArrowR">←O₂</text>
+      </svg>
+    </div>
+    <div style="flex:1;min-width:140px">
+      <button class="btn" id="stomaBtn" onclick="toggleStoma()" style="width:100%;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;margin-bottom:8px">🔓 Close Stomata</button>
+      <div id="stomaInfo" style="font-size:0.75rem;color:#374151;padding:8px;background:#f0fdf4;border-radius:8px;border-left:3px solid #22c55e">
+        <strong>Open State:</strong> CO₂ enters, O₂ exits. Guard cells are turgid (full of water). Photosynthesis proceeds normally.
+      </div>
+    </div>
+  </div>
+  <div class="tip">💡 <strong>Exam Tip:</strong> Guard cells have chloroplasts but other epidermal cells don't. When water enters guard cells → they swell → stomata opens!</div>
+</div>
+
+<!-- Rate Simulator -->
+<div class="card">
+  <div class="section-title">📊 Photosynthesis Rate Simulator</div>
+  <p style="font-size:0.75rem;color:#64748b;margin-bottom:10px">Adjust factors and see how rate changes</p>
+  <div class="slider-section">
+    <div class="slider-label"><span>☀️ Light Intensity (प्रकाश तीव्रता)</span><span id="lightVal">70%</span></div>
+    <input type="range" min="0" max="100" value="70" id="lightSlider" oninput="updateRate()">
+  </div>
+  <div class="slider-section">
+    <div class="slider-label"><span>💨 CO₂

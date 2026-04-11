@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Similar Triangles - Class 10 Maths</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#0f172a 100%);min-height:100vh;color:#e2e8f0;overflow-x:hidden}
+.title-bar{background:linear-gradient(90deg,#1d4ed8,#3b82f6,#60a5fa);padding:12px 20px;text-align:center;box-shadow:0 4px 20px rgba(59,130,246,0.4)}
+.title-bar h1{font-size:1.3rem;font-weight:700;color:#fff;letter-spacing:1px}
+.title-bar p{font-size:0.8rem;color:#bfdbfe;margin-top:2px}
+.container{max-width:900px;margin:0 auto;padding:15px}
+.card{background:linear-gradient(145deg,#1e293b,#243451);border:1px solid #334155;border-radius:16px;padding:18px;margin-bottom:16px;box-shadow:0 8px 32px rgba(0,0,0,0.3)}
+.card h2{font-size:1.05rem;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.badge{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:600}
+.badge-green{background:linear-gradient(135deg,#22c55e,#16a34a)}
+.badge-amber{background:linear-gradient(135deg,#f59e0b,#d97706)}
+.concept-box{background:linear-gradient(135deg,rgba(59,130,246,0.15),rgba(99,102,241,0.15));border:2px solid #3b82f6;border-radius:12px;padding:14px;margin-bottom:12px;text-align:center}
+.concept-box .formula{font-size:1.2rem;color:#60a5fa;font-weight:700;margin:8px 0}
+.concept-box p{font-size:0.85rem;color:#94a3b8}
+.criteria-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:10px 0}
+@media(max-width:500px){.criteria-grid{grid-template-columns:1fr}}
+.criteria-card{background:linear-gradient(145deg,#0f172a,#1e293b);border-radius:12px;padding:12px;cursor:pointer;transition:all 0.3s;border:2px solid transparent;text-align:center}
+.criteria-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(59,130,246,0.3)}
+.criteria-card.active-aa{border-color:#3b82f6;background:linear-gradient(145deg,rgba(59,130,246,0.2),rgba(29,78,216,0.1))}
+.criteria-card.active-sss{border-color:#22c55e;background:linear-gradient(145deg,rgba(34,197,94,0.2),rgba(22,163,74,0.1))}
+.criteria-card.active-sas{border-color:#f59e0b;background:linear-gradient(145deg,rgba(245,158,11,0.2),rgba(217,119,6,0.1))}
+.criteria-card h3{font-size:1rem;font-weight:700;margin:6px 0 4px}
+.criteria-card .criterion-desc{font-size:0.72rem;color:#94a3b8;line-height:1.4}
+.svg-container{display:flex;justify-content:center;gap:20px;flex-wrap:wrap;margin:10px 0}
+svg.tri{overflow:visible}
+.step-btn{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border:none;padding:9px 20px;border-radius:20px;cursor:pointer;font-size:0.85rem;font-weight:600;transition:all 0.3s;margin:4px}
+.step-btn:hover{transform:scale(1.05);box-shadow:0 4px 16px rgba(59,130,246,0.4)}
+.step-btn.reset{background:linear-gradient(135deg,#475569,#334155)}
+.steps-container{min-height:80px}
+.step{display:none;animation:fadeIn 0.4s ease}
+.step.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.step-box{background:linear-gradient(135deg,rgba(34,197,94,0.1),rgba(16,185,129,0.05));border:1px solid #22c55e;border-radius:10px;padding:12px;margin-top:8px}
+.step-box .step-num{background:#22c55e;color:#fff;border-radius:50%;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;margin-right:8px}
+.step-box p{font-size:0.85rem;line-height:1.6;color:#e2e8f0}
+.highlight{color:#f59e0b;font-weight:700}
+.highlight-blue{color:#60a5fa;font-weight:700}
+.highlight-green{color:#22c55e;font-weight:700}
+.slider-row{display:flex;align-items:center;gap:12px;margin:8px 0;flex-wrap:wrap}
+.slider-row label{font-size:0.8rem;color:#94a3b8;min-width:80px}
+input[type=range]{flex:1;min-width:100px;accent-color:#3b82f6;cursor:pointer}
+.val-display{background:#0f172a;border:1px solid #334155;border-radius:6px;padding:2px 8px;font-size:0.8rem;color:#60a5fa;min-width:50px;text-align:center}
+.ratio-display{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin:8px 0}
+.ratio-box{background:#0f172a;border:1px solid #334155;border-radius:8px;padding:8px 14px;text-align:center;transition:all 0.3s}
+.ratio-box.equal{border-color:#22c55e;background:rgba(34,197,94,0.1)}
+.ratio-box span{display:block;font-size:0.7rem;color:#64748b;margin-bottom:2px}
+.ratio-box strong{font-size:0.95rem;color:#e2e8f0}
+.similar-tag{text-align:center;font-size:0.9rem;font-weight:700;padding:8px;border-radius:8px;margin-top:6px;transition:all 0.4s}
+.similar-yes{background:rgba(34,197,94,0.2);color:#22c55e;border:1px solid #22c55e}
+.similar-no{background:rgba(239,68,68,0.2);color:#ef4444;border:1px solid #ef4444}
+.tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.tab{background:#0f172a;border:1px solid #334155;border-radius:8px;padding:7px 14px;cursor:pointer;font-size:0.8rem;transition:all 0.3s;color:#94a3b8}
+.tab.active{background:#3b82f6;border-color:#3b82f6;color:#fff;font-weight:600}
+.tab-content{display:none}
+.tab-content.active{display:block;animation:fadeIn 0.3s ease}
+.info-row{display:flex;gap:8px;margin:6px 0;flex-wrap:wrap}
+.info-pill{background:#0f172a;border:1px solid #334155;border-radius:6px;padding:4px 10px;font-size:0.78rem;color:#94a3b8}
+.info-pill strong{color:#e2e8f0}
+.anim-tri{animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.7}}
+.progress-dots{display:flex;gap:6px;justify-content:center;margin:8px 0}
+.dot{width:10px;height:10px;border-radius:50%;background:#334155;transition:all 0.3s}
+.dot.active{background:#3b82f6;transform:scale(1.3)}
+.dot.done{background:#22c55e}
+</style>
+</head>
+<body>
+<div class="title-bar">
+  <h1>△ समरूप त्रिभुज | Similar Triangles</h1>
+  <p>CBSE Class 10 Mathematics • Chapter 6 • Triangles</p>
+</div>
+<div class="container">
+
+<!-- Concept Introduction -->
+<div class="card">
+  <h2>🎯 <span class="badge">प्रमेय</span> What are Similar Triangles?</h2>
+  <div class="concept-box">
+    <p style="font-size:0.8rem;color:#94a3b8;margin-bottom:6px">Two triangles △ABC and △DEF are similar (△ABC ~ △DEF) if:</p>
+    <div class="formula">∠A = ∠D, ∠B = ∠E, ∠C = ∠F</div>
+    <div style="color:#f59e0b;font-size:1.1rem;font-weight:700;margin:4px 0">AND</div>
+    <div class="formula">AB/DE = BC/EF = CA/FD</div>
+    <p style="margin-top:6px;font-size:0.8rem">Corresponding angles are equal <strong style="color:#60a5fa">AND</strong> corresponding sides are proportional</p>
+  </div>
+  <div style="font-size:0.8rem;color:#94a3b8;text-align:center;padding:6px;background:rgba(245,158,11,0.1);border-radius:8px;border:1px solid rgba(245,158,11,0.3)">
+    💡 Similar ≠ Congruent — Similar triangles have the <span class="highlight">same shape</span> but may have <span class="highlight">different sizes</span>
+  </div>
+</div>
+
+<!-- Interactive Criteria Selector -->
+<div class="card">
+  <h2>🔍 <span class="badge-green badge">Criteria</span> Similarity Criteria — Click to Explore</h2>
+  <div class="criteria-grid">
+    <div class="criteria-card active-aa" id="card-aa" onclick="selectCriteria('aa')">
+      <div style="font-size:1.8rem">∠∠</div>
+      <h3 style="color:#60a5fa">AA</h3>
+      <div class="criterion-desc">Angle-Angle<br>2 angles equal</div>
+    </div>
+    <div class="criteria-card" id="card-sss" onclick="selectCriteria('sss')">
+      <div style="font-size:1.8rem">📐</div>
+      <h3 style="color:#22c55e">SSS</h3>
+      <div class="criterion-desc">Side-Side-Side<br>All sides proportional</div>
+    </div>
+    <div class="criteria-card" id="card-sas" onclick="selectCriteria('sas')">
+      <div style="font-size:1.8rem">📏</div>
+      <h3 style="color:#f59e0b">SAS</h3>
+      <div class="criterion-desc">Side-Angle-Side<br>2 sides proportional + included angle</div>
+    </div>
+  </div>
+
+  <!-- AA Content -->
+  <div id="content-aa" class="tab-content active">
+    <div style="background:rgba(59,130,246,0.1);border:1px solid #3b82f6;border-radius:10px;padding:12px;margin-bottom:10px">
+      <p style="font-size:0.85rem;line-height:1.6"><strong style="color:#60a5fa">AA Criterion (Angle-Angle):</strong> If two angles of one triangle are equal to two angles of another triangle, the triangles are similar.</p>
+      <p style="font-size:0.82rem;color:#94a3b8;margin-top:4px">∵ If ∠A = ∠D and ∠B = ∠E, then ∠C = ∠F (∵ sum of angles = 180°) ∴ △ABC ~ △DEF</p>
+    </div>
+    <div class="svg-container">
+      <svg width="160" height="130" class="tri" id="svg-aa1">
+        <defs><marker id="ah" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#60a5fa"/></marker></defs>
+        <polygon points="20,110 140,110 60,20" fill="rgba(59,130,246,0.15)" stroke="#3b82f6" stroke-width="2" rx="4"/>
+        <text x="10" y="115" fill="#e2e8f0" font-size="13" font-weight="bold">A</text>
+        <text x="143" y="115" fill="#e2e8f0" font-size="13" font-weight="bold">B</text>
+        <text x="55" y="16" fill="#e2e8f0" font-size="13" font-weight="bold">C</text>
+        <path d="M35,110 Q37,100 44,106" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
+        <path d="M125,110 Q120,100 118,108" fill="none" stroke="#22c55e" stroke-width="1.5"/>
+        <text x="30" y="100" fill="#f59e0b" font-size="10">α</text>
+        <text x="112" y="100" fill="#22c55e" font-size="10">β</text>
+        <text x="55" y="65" fill="#94a3b8" font-size="10">△ABC</text>
+      </svg>
+      <div style="display:flex;align-items:center;font-size:1.5rem;color:#3b82f6">~</div>
+      <svg width="120" height="100" class="tri" id="svg-aa2">
+        <polygon points="15,85 105,85 55,15" fill="rgba(99,102,241,0.15)" stroke="#818cf8" stroke-width="2"/>
+        <text x="5" y="90" fill="#e2e8f0" font-size="13" font-weight="bold">D</text>
+        <text x="107" y="90" fill="#e2e8f0" font-size="13" font-weight="bold">E</text>
+        <text x="50" y="11" fill="#e2e8f0" font-size="13" font-weight="bold">F</text>
+        <path d="M27,85 Q29,76 35,81" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
+        <path d="M94,85 Q90,76 88,83" fill="none" stroke="#22c55e" stroke-width="1.5"/>
+        <text x="23" y="76" fill="#f59e0b" font-size="10">α</text>
+        <text x="83" y="76" fill="#22c55e" font-size="10">β</text>
+        <text x="44" y="54" fill="#94a3b8" font-size="10">△DEF</text>
+      </svg>
+    </div>
+    <div style="text-align:center;font-size:0.82rem;color:#60a5fa;padding:6px;background:rgba(59,130,246,0.08);border-radius:8px">
+      ∠A = ∠D <span style="color:#f59e0b">(α)</span> and ∠B = ∠E <span style="color:#22c55e">(β)</span> ∴ △ABC ~ △DEF <span style="color:#94a3b8">(AA Criterion)</span>
+    </div>
+  </div>
+
+  <!-- SSS Content -->
+  <div id="content-sss" class="tab-content">
+    <div style="background:rgba(34,197,94,0.1);border:1px solid #22c55e;border-radius:10px;padding:12px;margin-bottom:10px">
+      <p style="font-size:0.85rem;line-height:1.6"><strong style="color:#22c55e">SSS Criterion (Side-Side-Side):</strong> If all three sides of one triangle are proportional to all three sides of another triangle, the triangles are similar.</p>
+      <p style="font-size:0.82rem;color:#94a3b8;margin-top:4px">If <strong>AB/DE = BC/EF = CA/FD</strong>, then △ABC ~ △DEF</p>
+    </div>
+    <div class="svg-container">
+      <svg width="160" height="130" class="tri">
+        <polygon points="20,110 140,110 80,20" fill="rgba(34,197,94,0.15)" stroke="#22c55e" stroke-width="2"/>
+        <text x="10" y="115" fill="#e2e8f0" font-size="12" font-weight="bold">A</text>
+        <text x="142" y="115" fill="#e2e8f0" font-size="12" font-weight="bold">B</text>
+        <text x="75" y="16" fill="#e2e8f0" font-size="12" font-weight="bold">C</text>
+        <text x="72" y="120" fill="#f59e0b" font-size="10" font-weight="bold">6</text>
+        <text x="30" y="68" fill="#60a5fa" font-size="10" font-weight="bold">5</text>
+        <text x="118" y="68" fill="#22c55e" font-size="10" font-weight="bold">5</text>
+        <text x="55" y="65" fill="#94a3b8" font-size="10">△ABC</text>
+      </svg>
+      <div style="display:flex;align-items:center;font-size:1.5rem;color:#22c55e">~</div>
+      <svg width="110" height="95" class="tri">
+        <polygon points="15,80 95,80 55,15" fill="rgba(34,197,94,0.1)" stroke="#16a34a" stroke-width="2"/>
+        <text x="5" y="85" fill="#e2e8f0" font-size="12" font-weight="bold">D</text>
+        <text x="97" y="85" fill="#e2e8f0" font-size="12" font-weight="bold">E</text>
+        <text x="50" y="11" fill="#e2e8f0" font-size="12" font-weight="bold">F</text>
+        <text x="48" y="90" fill="#f59e0b" font-size="10" font-weight="bold">4</text>
+        <text x="22" y="52" fill="#60a5fa" font-size="10" font-weight="bold">3.3</text>
+        <text x="80" y="52" fill="#22c55e" font-size="10" font-weight="bold">3.3</text>
+      </svg>
+    </div>
+    <div style="text-align:center;font-size:0.82rem;color:#22c55e;padding:6px;background:rgba(34,197,94,0.08);border-radius:8px">
+      6/4 = 5/3.3 = 5/3.3 = <strong>1.5</strong> (all equal) ∴ △ABC ~ △DEF <span style="color:#94a3b8">(SSS Criterion)</span>
+    </div>
+  </div>
+
+  <!-- SAS Content -->
+  <div id="content-sas" class="tab-content">
+    <div style="background:rgba(245,158,11,0.1);border:1px solid #f59e0b;border-radius:10px;padding:12px;margin-bottom:10px">
+      <p style="font-size:0.85rem;line-height:1.6"><strong style="color:#f59e0b">SAS Criterion (Side-Angle-Side):</strong> If two sides of one triangle are proportional to two sides of another and the included angle is equal, the triangles are similar.</p>
+      <p style="font-size:0.82rem;color:#94a3b8;margin-top:4px">If <strong>AB/DE = AC/DF</strong> and <strong>∠A = ∠D</strong> (included angle), then △ABC ~ △DEF</p>
+    </div>
+    <div class="svg-container">
+      <svg width="150" height="130" class="tri">
+        <polygon points="20,110 140,60 20,20" fill="rgba(245,158,11,0.15)" stroke="#f59e0b" stroke-width="2"/>
+        <text x="5" y="115" fill="#e2e8f0" font-size="12" font-weight="bold">A</text>
+        <text x="143" y="63" fill="#e2e8f0" font-size="12" font-weight="bold">B</text>
+        <text x="5" y="16" fill="#e2e8f0" font-size="12" font-weight="bold">C</text>
+        <text x="25" y="68" fill="#60a5fa" font-size="10" font-weight="bold">AC=6</text>
+        <text x="65" y="100" fill="#22c55e" font-size="10" font-weight="bold">AB=4</text>
+        <path d="M20,95 Q32,80 20,68" fill="none" stroke="#ef4444" stroke-width="1.5"/>
+        <text x="28" y="84" fill="#ef4444" font-size="9">∠A</text>
+        <text x="55" y="60" fill="#94a3b8" font-size="10">△ABC</text>
+      </svg>
+      <div style="display:flex;align-items:center;font-size:1.5rem;color:#f59e0b">~</div>
+      <svg width="110" height="100" class="tri">
+        <polygon points="15,85 95,48 15,15" fill="rgba(245,158,11,0.1)" stroke="#d97706" stroke-width="2"/>
+        <text x="2" y="90" fill="#e2e8f0" font-size="12" font-weight="bold">D</text>
+        <text x="97" y="51" fill="#e2e8f0" font-size="12" font-weight="bold">E</text>
+        <text x="2" y="11" fill="#e2e8f0" font-size="12" font-weight="bold">F</text>
+        <text x="20" y="54" fill="#60a5fa" font-size="10" font-weight="bold">DF=3</text>
+        <text x="42" y="79" fill="#22c55e" font-size="10" font-weight="bold">DE=2</text>
+        <path d="M15,70 Q26,57 15,45" fill="none" stroke="#ef4444" stroke-width="1.5"/>
+        <text x="22" y="59" fill="#ef4444" font-size="9">∠D</text>
+      </svg>
+    </div>
+    <div style="text-align:center;font-size:0.82rem;color:#f59e0b;padding:6px;background:rgba(245,158,11,0.08);border-radius:8px">
+      AC/DF = 6/3 = 2, AB/DE = 4/2 = 2, ∠A = ∠D ∴ △ABC ~ △DEF <span style="color:#94a3b8">(SAS Criterion)</span>
+    </div>
+  </div>
+</div>
+
+<!-- Interactive SSS Explorer -->
+<div class="card">
+  <h2>🎮 <span class="badge-amber badge">Interactive</span> SSS Similarity Explorer</h2>
+  <p style="font-size:0.8rem;color:#94a3b8;margin-bottom:10px">Drag the sliders to change triangle sizes. Watch if they remain similar!</p>
+  
+  <div class="slider-row">
+    <label>Scale △DEF</label>
+    <input type="range" id="scaleSlider" min="0.5" max="2.5" step="0.1" value="1.5">
+    <span class="val-display" id="scaleVal">1.5×</span>
+  </div>
+  <div class="slider-row">
+    <label>Skew side</label>
+    <input type="range" id="skewSlider" min="-20" max="20" step="1" value="0">
+    <span class="val-display" id="skewVal">0</span>
+  </div>
+
+  <div class="svg-container" style="margin:10px 0">
+    <svg width="150" height="120" id="svg-tri1" class="tri">
+      <polygon id="tri1-poly" points="20,100 130,100 75,20" fill="rgba(59,130,246,0.2)" stroke="#3b82f6" stroke-width="2.5"/>
+      <text x="10" y="105" fill="#e2e8f0" font-size="12" font-weight="bold">A</text>
+      <text x="132" y="105" fill="#e2e8f0" font-size="12" font-weight="bold">B</text>
+      <text x="70" y="15" fill="#e2e8f0" font-size="12" font-weight="bold">C</text>
+      <text id="side-ab" x="65" y="115" fill="#f59e0b" font-size="10" text-anchor="middle">AB=6</text>
+      <text x="30" y="60" fill="#60a5fa" font-size="10">AC=5</text>
+      <text x="108" y="60" fill="#22c55e" font-size="10">BC=5</text>
+    </svg>
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px">
+      <div id="sim-symbol" style="font-size:1.8rem;color:#22c55e;font-weight:700;transition:color 0.3s">~</div>
+    </div>
+    <svg width="170" height="140" id="svg-tri2" class="tri">
+      <polygon id="tri2-poly" points="25,115 145,115 85,25" fill="rgba(34,197,94,0.2)" stroke="#22c55e" stroke-width="2.5"/>
+      <text x="14" y="120" fill="#e2e8f0" font-size="12" font-weight="bold">D</text>
+      <text x="147" y="120" fill="#e2e8f0" font-size="12" font-weight="bold">E</text>
+      <text x="80" y="20" fill="#e2e8f0" font-size="12" font-weight="bold">F</text>
+      <text id="side-de" x="85" y="130" fill="#f59e0b" font-size="10" text-anchor="middle">DE=9</text>
+      <text id="side-df" x="35" y="72" fill="#60a5fa" font-size="10">DF=7.5</text>
+      <text id="side-ef" x="128" y="72" fill="#22c55e" font-size="10">EF=7.5</text>
+    </svg>
+  </div>
+
+  <div class="ratio-display">
+    <div class="ratio-box equal" id="ratio1">
+      <span>AB/DE</span>
+      <strong id="r1-val">0.67</strong>
+    </div>
+    <div class="ratio-box equal" id="ratio2">
+      <span>AC/DF</span>
+      <strong id="r2-val">0.67</strong>
+    </div>
+    <div class="ratio-box equal" id="ratio3">
+      <span>BC/EF</span>
+      <strong id="r3-val">0.67</strong>
+    </div>
+  </div>
+  <div class="similar-tag similar-yes" id="similar-result">✓ Triangles are SIMILAR (SSS) — सभी अनुपात समान हैं</div>
+</div>
+
+<!-- Worked Example -->
+<div class="card">
+  <h2>📝 <span class="badge">उदाहरण</span> Worked Example — Step by Step</h2>
+  <div style="background:rgba(30,41,59,0.8);border-radius:10px;padding:12px;margin-bottom:12px;font-size:0.85rem;line-height:1.7">
+    <strong style="color:#60a5fa">Problem:</strong> In △ABC, DE ∥ BC where D is on AB and E is on AC. If AD = 3cm, DB = 6cm, AE = 4cm, find EC and prove △ADE ~ △ABC.
+    <div style="margin-top:8px;display:flex;justify-content:center">
+      <svg width="180" height="160" class="tri">
+        <polygon points="90,15 20,145 160,145" fill="rgba(59,130,246,0.1)" stroke="#3b82f6" stroke-width="2"/>
+        <line x1="48" y1="83" x2="132" y2="83" stroke="#22c55e" stroke-width="2" stroke-dasharray="4,2"/>
+        <polygon points="90,15 48,83 132,83" fill="rgba(34,197,94,0.15)" stroke="#22c55e" stroke-width="1.5"/>
+        <text x="86" y="10" fill="#e2e8f0" font-size="12

@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ohm's Law - Class 10 Science</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #1e293b; min-height: 100vh; }
+  .title-bar { background: linear-gradient(135deg, #1e40af, #3b82f6, #06b6d4); padding: 14px 20px; text-align: center; box-shadow: 0 4px 20px rgba(59,130,246,0.4); }
+  .title-bar h1 { color: white; font-size: 1.3rem; font-weight: 700; letter-spacing: 1px; }
+  .title-bar p { color: #bfdbfe; font-size: 0.8rem; margin-top: 2px; }
+  .container { max-width: 700px; margin: 0 auto; padding: 16px; }
+  .card { background: white; border-radius: 16px; padding: 18px; margin-bottom: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.15); }
+  .formula-card { background: linear-gradient(135deg, #1e3a8a, #1e40af); border-radius: 16px; padding: 22px; margin-bottom: 16px; text-align: center; box-shadow: 0 8px 32px rgba(30,64,175,0.5); }
+  .formula-big { font-size: 3rem; font-weight: 900; color: #fbbf24; text-shadow: 0 0 30px rgba(251,191,36,0.5); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
+  .formula-sub { color: #93c5fd; font-size: 0.85rem; margin-top: 8px; }
+  .section-title { font-size: 1rem; font-weight: 700; color: #1e40af; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .badge { background: #dbeafe; color: #1e40af; border-radius: 20px; padding: 2px 10px; font-size: 0.75rem; }
+  .slider-row { display: flex; align-items: center; gap: 10px; margin: 10px 0; flex-wrap: wrap; }
+  .slider-label { font-size: 0.85rem; font-weight: 600; min-width: 100px; }
+  input[type=range] { flex: 1; min-width: 120px; height: 6px; border-radius: 3px; outline: none; cursor: pointer; }
+  .val-box { background: #1e293b; color: #fbbf24; border-radius: 8px; padding: 4px 10px; font-weight: 700; font-size: 0.9rem; min-width: 70px; text-align: center; }
+  .result-display { background: linear-gradient(135deg, #064e3b, #065f46); border-radius: 12px; padding: 14px; text-align: center; margin-top: 12px; }
+  .result-big { font-size: 2rem; font-weight: 900; color: #34d399; }
+  .result-label { color: #6ee7b7; font-size: 0.8rem; }
+  svg { width: 100%; }
+  .graph-area { background: #f8fafc; border-radius: 12px; padding: 10px; border: 2px solid #e2e8f0; }
+  .step-container { }
+  .step { background: #f1f5f9; border-radius: 10px; padding: 12px; margin: 8px 0; border-left: 4px solid #3b82f6; display: none; animation: slideIn 0.4s ease; }
+  .step.visible { display: block; }
+  @keyframes slideIn { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
+  .step-num { font-weight: 700; color: #3b82f6; font-size: 0.8rem; }
+  .step-text { font-size: 0.88rem; color: #334155; margin-top: 4px; }
+  .step-math { font-size: 1.1rem; color: #7c3aed; font-weight: 700; background: #ede9fe; padding: 4px 10px; border-radius: 6px; display: inline-block; margin-top: 6px; }
+  .btn { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; border: none; border-radius: 10px; padding: 10px 20px; font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(59,130,246,0.3); }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(59,130,246,0.4); }
+  .btn:active { transform: translateY(0); }
+  .btn-green { background: linear-gradient(135deg, #22c55e, #16a34a); box-shadow: 0 4px 12px rgba(34,197,94,0.3); }
+  .btn-amber { background: linear-gradient(135deg, #f59e0b, #d97706); box-shadow: 0 4px 12px rgba(245,158,11,0.3); }
+  .circuit-svg { border-radius: 12px; background: #f0f9ff; border: 2px solid #bae6fd; }
+  .tabs { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+  .tab { background: #e2e8f0; border: none; border-radius: 8px; padding: 7px 14px; font-size: 0.82rem; font-weight: 600; cursor: pointer; color: #64748b; transition: all 0.2s; }
+  .tab.active { background: #3b82f6; color: white; box-shadow: 0 2px 8px rgba(59,130,246,0.3); }
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .info-box { border-radius: 10px; padding: 12px; text-align: center; }
+  .info-box .icon { font-size: 1.5rem; }
+  .info-box .label { font-size: 0.75rem; font-weight: 600; margin-top: 4px; }
+  .info-box .unit { font-size: 0.7rem; margin-top: 2px; opacity: 0.8; }
+  .hindi { font-size: 0.75rem; color: #7c3aed; font-style: italic; }
+  .wire { stroke: #374151; stroke-width: 2.5; fill: none; }
+  .resistor-body { fill: #fef3c7; stroke: #d97706; stroke-width: 1.5; }
+  .battery-pos { fill: #ef4444; }
+  .battery-neg { fill: #6b7280; }
+  .electron { animation: moveElectron 2s linear infinite; }
+  @keyframes moveElectron { 0%{offset-distance:0%} 100%{offset-distance:100%} }
+  .glow { filter: drop-shadow(0 0 6px #3b82f6); }
+  .quiz-opt { background: #f1f5f9; border: 2px solid #e2e8f0; border-radius: 10px; padding: 10px 14px; margin: 6px 0; cursor: pointer; font-size: 0.85rem; transition: all 0.2s; }
+  .quiz-opt:hover { border-color: #3b82f6; background: #eff6ff; }
+  .quiz-opt.correct { border-color: #22c55e; background: #f0fdf4; color: #166534; }
+  .quiz-opt.wrong { border-color: #ef4444; background: #fef2f2; color: #991b1b; }
+  .progress-bar { background: #e2e8f0; border-radius: 4px; height: 6px; margin: 8px 0; }
+  .progress-fill { background: linear-gradient(90deg, #3b82f6, #06b6d4); height: 6px; border-radius: 4px; transition: width 0.5s; }
+</style>
+</head>
+<body>
+
+<div class="title-bar">
+  <h1>⚡ Ohm's Law | ओम का नियम</h1>
+  <p>CBSE Class 10 Science · Chapter 12: Electricity</p>
+</div>
+
+<div class="container">
+
+  <!-- Formula Card -->
+  <div class="formula-card">
+    <div style="color:#93c5fd;font-size:0.85rem;margin-bottom:6px;">मुख्य सूत्र (Main Formula)</div>
+    <div class="formula-big">V = I × R</div>
+    <div class="formula-sub">Voltage = Current × Resistance</div>
+    <div style="display:flex;justify-content:center;gap:20px;margin-top:12px;flex-wrap:wrap;">
+      <span style="color:#fbbf24;font-size:0.85rem;">🔵 V = Voltage (Volts)</span>
+      <span style="color:#34d399;font-size:0.85rem;">🟢 I = Current (Amperes)</span>
+      <span style="color:#f87171;font-size:0.85rem;">🔴 R = Resistance (Ohms Ω)</span>
+    </div>
+  </div>
+
+  <!-- Interactive Circuit -->
+  <div class="card">
+    <div class="section-title">🔌 Interactive Circuit <span class="badge">खींचकर देखें</span></div>
+    <div class="graph-area" style="padding:16px;">
+      <svg id="circuitSvg" viewBox="0 0 320 200" class="circuit-svg" style="max-height:200px;">
+        <!-- Wires -->
+        <path class="wire" d="M40,100 L40,40 L280,40 L280,100"/>
+        <path class="wire" d="M40,100 L40,160 L280,160 L280,100"/>
+        <!-- Battery -->
+        <rect x="20" y="80" width="40" height="40" rx="6" fill="#1e3a8a" stroke="#3b82f6" stroke-width="2"/>
+        <text x="40" y="97" text-anchor="middle" fill="white" font-size="9" font-weight="bold">BAT</text>
+        <line x1="33" y1="103" x2="47" y2="103" stroke="#ef4444" stroke-width="2"/>
+        <line x1="35" y1="100" x2="35" y2="106" stroke="#ef4444" stroke-width="2"/>
+        <line x1="47" y1="101" x2="47" y2="105" stroke="#6b7280" stroke-width="1.5"/>
+        <!-- Resistor -->
+        <rect x="120" y="28" width="80" height="24" rx="5" class="resistor-body"/>
+        <text x="160" y="44" text-anchor="middle" fill="#92400e" font-size="10" font-weight="bold">RESISTOR Ω</text>
+        <!-- Ammeter -->
+        <circle cx="240" cy="100" r="18" fill="#fef9c3" stroke="#d97706" stroke-width="2"/>
+        <text x="240" y="104" text-anchor="middle" fill="#92400e" font-size="11" font-weight="bold">A</text>
+        <!-- Voltmeter -->
+        <line x1="160" y1="52" x2="160" y2="72"/>
+        <line x1="160" y1="128" x2="160" y2="148"/>
+        <rect x="130" y="72" width="60" height="56" rx="8" fill="#f0fdf4" stroke="#22c55e" stroke-width="2"/>
+        <text x="160" y="103" text-anchor="middle" fill="#166534" font-size="11" font-weight="bold">V</text>
+        <text x="160" y="118" text-anchor="middle" fill="#166534" font-size="9">Voltmeter</text>
+        <!-- Electrons moving -->
+        <circle id="e1" r="4" fill="#60a5fa" opacity="0.9"/>
+        <circle id="e2" r="4" fill="#60a5fa" opacity="0.9"/>
+        <circle id="e3" r="4" fill="#60a5fa" opacity="0.9"/>
+        <!-- Labels -->
+        <text x="40" y="170" text-anchor="middle" fill="#1e40af" font-size="8">Battery</text>
+        <text x="160" y="25" text-anchor="middle" fill="#92400e" font-size="8">R = <tspan id="rLabel">10</tspan>Ω</text>
+        <text x="240" y="130" text-anchor="middle" fill="#92400e" font-size="8">Ammeter</text>
+      </svg>
+    </div>
+    <!-- Sliders -->
+    <div style="margin-top:14px;">
+      <div class="slider-row">
+        <span class="slider-label" style="color:#3b82f6;">⚡ Voltage (V)</span>
+        <input type="range" id="voltSlider" min="1" max="20" value="10" style="accent-color:#3b82f6;">
+        <span class="val-box" id="voltVal">10 V</span>
+      </div>
+      <div class="slider-row">
+        <span class="slider-label" style="color:#ef4444;">🔴 Resistance (R)</span>
+        <input type="range" id="resSlider" min="1" max="20" value="5" style="accent-color:#ef4444;">
+        <span class="val-box" id="resVal">5 Ω</span>
+      </div>
+    </div>
+    <div class="result-display">
+      <div class="result-label">∴ Current (I) = V ÷ R</div>
+      <div class="result-big" id="currentResult">2.00 A</div>
+      <div class="result-label">Amperes (एम्पीयर)</div>
+    </div>
+    <div class="info-grid" style="margin-top:12px;">
+      <div class="info-box" style="background:#eff6ff;">
+        <div class="icon">⚡</div>
+        <div class="label" style="color:#1e40af;" id="vBoxVal">10 V</div>
+        <div class="unit" style="color:#3b82f6;">Voltage (विभवांतर)</div>
+      </div>
+      <div class="info-box" style="background:#f0fdf4;">
+        <div class="icon">💚</div>
+        <div class="label" style="color:#166534;" id="iBoxVal">2.00 A</div>
+        <div class="unit" style="color:#22c55e;">Current (धारा)</div>
+      </div>
+      <div class="info-box" style="background:#fef2f2;">
+        <div class="icon">🔴</div>
+        <div class="label" style="color:#991b1b;" id="rBoxVal">5 Ω</div>
+        <div class="unit" style="color:#ef4444;">Resistance (प्रतिरोध)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Graph -->
+  <div class="card">
+    <div class="section-title">📈 V-I Graph <span class="badge">Linear Proportional</span></div>
+    <div class="tabs">
+      <button class="tab active" onclick="showGraph('vi')">V vs I</button>
+      <button class="tab" onclick="showGraph('ir')">I vs R</button>
+    </div>
+    <div class="graph-area">
+      <svg id="graphSvg" viewBox="0 0 300 200" style="max-height:220px;">
+        <!-- Grid -->
+        <defs>
+          <pattern id="grid" width="30" height="20" patternUnits="userSpaceOnUse">
+            <path d="M 30 0 L 0 0 0 20" fill="none" stroke="#e2e8f0" stroke-width="0.5"/>
+          </pattern>
+        </defs>
+        <rect x="40" y="10" width="250" height="160" fill="url(#grid)"/>
+        <!-- Axes -->
+        <line x1="40" y1="170" x2="295" y2="170" stroke="#334155" stroke-width="2"/>
+        <line x1="40" y1="10" x2="40" y2="170" stroke="#334155" stroke-width="2"/>
+        <!-- Arrows -->
+        <polygon points="295,167 295,173 302,170" fill="#334155"/>
+        <polygon points="37,10 43,10 40,3" fill="#334155"/>
+        <!-- Axis labels -->
+        <text x="298" y="173" fill="#334155" font-size="10" font-weight="bold">I(A)</text>
+        <text x="10" y="14" fill="#334155" font-size="10" font-weight="bold">V(V)</text>
+        <text x="155" y="195" fill="#1e40af" font-size="9" text-anchor="middle">Current →</text>
+        <!-- Graph line -->
+        <line id="graphLine" x1="40" y1="170" x2="290" y2="10" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
+        <!-- Moving point -->
+        <circle id="graphDot" cx="165" cy="90" r="7" fill="#f59e0b" stroke="white" stroke-width="2" filter="url(#glow)"/>
+        <defs><filter id="glow"><feGaussianBlur stdDeviation="2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+        <!-- Slope label -->
+        <text id="slopeLabel" x="80" y="60" fill="#7c3aed" font-size="9" font-weight="bold">Slope = R (constant)</text>
+        <!-- Tick marks -->
+        <text x="38" y="185" fill="#64748b" font-size="8" text-anchor="middle">0</text>
+        <text x="165" y="185" fill="#64748b" font-size="8" text-anchor="middle">I</text>
+        <text x="35" y="90" fill="#64748b" font-size="8" text-anchor="end">V</text>
+        <!-- Dashed lines from point -->
+        <line id="dashH" x1="40" y1="90" x2="165" y2="90" stroke="#f59e0b" stroke-width="1" stroke-dasharray="4,3"/>
+        <line id="dashV" x1="165" y1="90" x2="165" y2="170" stroke="#f59e0b" stroke-width="1" stroke-dasharray="4,3"/>
+        <!-- Annotation -->
+        <rect x="170" y="75" width="110" height="32" rx="6" fill="#fef3c7" stroke="#d97706"/>
+        <text x="225" y="90" text-anchor="middle" fill="#92400e" font-size="9" font-weight="bold">V ∝ I (when R is</text>
+        <text x="225" y="102" text-anchor="middle" fill="#92400e" font-size="9">constant) ✓ Ohm's Law</text>
+      </svg>
+    </div>
+    <p style="font-size:0.8rem;color:#64748b;margin-top:8px;text-align:center;">The <strong>straight line</strong> through origin proves V is directly proportional to I — this IS Ohm's Law!</p>
+  </div>
+
+  <!-- Statement -->
+  <div class="card" style="background:linear-gradient(135deg,#fdf4ff,#ede9fe);">
+    <div class="section-title" style="color:#7c3aed;">📜 Ohm's Law Statement</div>
+    <p style="font-size:0.88rem;color:#4c1d95;line-height:1.6;background:white;border-radius:10px;padding:12px;border-left:4px solid #7c3aed;">
+      <strong>"The current (I) through a conductor between two points is directly proportional to the voltage (V) across those two points — provided temperature and physical conditions remain constant."</strong>
+    </p>
+    <p style="font-size:0.82rem;color:#6d28d9;margin-top:10px;font-style:italic;">ओम का नियम: किसी चालक में बहने वाली विद्युत धारा उस पर लगाए गए विभवांतर के समानुपाती होती है।</p>
+    <div style="margin-top:12px;background:white;border-radius:10px;padding:12px;display:flex;gap:16px;flex-wrap:wrap;">
+      <div style="font-size:0.85rem;color:#334155;"><strong>∴ V ∝ I</strong> → V = IR</div>
+      <div style="font-size:0.85rem;color:#334155;"><strong>∴ I = V/R</strong></div>
+      <div style="font-size:0.85rem;color:#334155;"><strong>∴ R = V/I</strong></div>
+    </div>
+  </div>
+
+  <!-- Worked Example -->
+  <div class="card">
+    <div class="section-title">🧮 Worked Example <span class="badge">Step-by-Step</span></div>
+    <div style="background:#f8fafc;border-radius:10px;padding:14px;margin-bottom:14px;border:1px solid #e2e8f0;">
+      <p style="font-size:0.88rem;color:#334155;font-weight:600;">❓ Problem:</p>
+      <p style="font-size:0.85rem;color:#475569;margin-top:6px;line-height:1.5;">A resistor has a resistance of <strong>15 Ω</strong>. A voltage of <strong>45 V</strong> is applied across it. Find the current flowing through it.</p>
+    </div>
+    <div class="step-container" id="stepContainer"></div>
+    <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
+      <button class="btn" onclick="nextStep()">Next Step →</button>
+      <button class="btn btn-amber" onclick="resetSteps()">🔄 Reset</button>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="stepProgress" style="width:0%"></div></div>
+    <div id="stepCounter" style="font-size:0.78rem;color:#64748b;margin-top:4px;">Step 0 of 4</div>
+  </div>
+
+  <!-- Triangle Calculator -->
+  <div class="card">
+    <div class="section-title">🔺 Formula Triangle <span class="badge">Click to find</span></div>
+    <div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;">
+      <div style="flex:1;min-width:200px;">
+        <svg viewBox="0 0 200 180" style="max-height:180px;">
+          <polygon points="100,10 10,170 190,170" fill="#dbeafe" stroke="#3b82f6" stroke-width="2.5"/>
+          <line x1="100" y1="90" x2="10" y2="90" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="4"/>
+          <line x1="100" y1="90" x2="190" y2="90" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="4"/>
+          <rect x="55" y="20" width="90" height="30" rx="6" fill="#1e40af" id="vTri" class="tri-cell" onclick="showFormula('V')" style="cursor:pointer;"/>
+          <text x="100" y="40" text-anchor="middle" fill="#fbbf24" font-size="16" font-weight="900" style="cursor:pointer;" onclick="showFormula('V')">V</text>
+          <rect x="10" y="105" width="80" height="30" rx="6" fill="#16a34a" id="iTri" class="tri-cell" onclick="showFormula('I')" style="cursor:pointer;"/>
+          <text x="50" y="125" text-anchor="middle" fill="white" font-size="16" font-weight="900" style="cursor:pointer;" onclick="showFormula('I')">I</text>
+          <rect x="110" y="105" width="80" height="30" rx="6" fill="#dc2626" id="rTri" class="tri-cell" onclick="showFormula('R')" style="cursor:pointer;"/>
+          <text x="150" y="125" text-anchor="middle" fill="white" font-size="16" font-weight="900" style="cursor:pointer;" onclick="showFormula('R')">R</text>
+          <text x="100" y="165" text-anchor="middle" fill="#3b82f6" font-size="8">Click V, I, or R to find it!</text>
+          <text x="100" y="95" text-anchor="middle" fill="#1e40af" font-size="8">÷</text>
+          <text x="100" y="90" text-anchor="middle" fill="#334155" font-size="12">×</text>
+        </svg>
+      </div>
+      <div style="flex:1;min-width:180px;">
+        <div id="formulaDisplay" style="background:linear-gradient(135deg,#1e3a8a,#1e40af);border-radius:12px;padding:18px;text-align:center;min-height:120px;display:flex;flex-direction:column;justify-content:center;">
+          <div style="color:#93c5fd;font-size:0.8rem;">👆 Click a letter</div>
+          <div style="color:#bfdbfe;font-size:0.75rem;margin-top:8px;">to see how to calculate it</div>
+        </div>
+        <div style="margin-top:10px;font-size:0.78rem;color:#64748b;background:#f8fafc;border-radius:8px;padding:10px;">
+          <strong>Memory Tip 💡</strong><br>Cover the quantity you want to find. The remaining shows the formula!
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Quiz -->
+  <div class="card">
+    <div class="section-title">🎯 Quick Check <span class="badge">Test Yourself</span></div>
+    <div id="quizArea">
+      <p style="font-size:0.88rem;color:#334155;font-weight:600;margin-bottom:10px;" id="quizQ">Q: If R = 10 Ω and V = 50 V, find current I:</p>
+      <div id="quizOpts"></div>
+      <div id="quizFeedback" style="display:none;margin-top:10px;border-radius:8px;padding:10px;font-size:0.85rem;"></div>
+      <button class="btn btn-green" onclick="nextQuiz()" style="margin-top:10px;display:none;" id="nextQuizBtn">Next Question →</button>
+    </div>
+  </div>
+
+  <!-- Key Points -->
+  <div class="card" style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);">
+    <div class="section-title" style="color:#166534;">✅ Key Points to Remember</div>
+    <ul style="list-style:none;font-size:0.85rem;color:#166534;">
+      <li style="padding:6px 0;border-bottom:1px solid #bbf7d0;">⚡ V = IR is Ohm's Law (ओम का नियम)</li>
+      <li style="padding:6px 0;border-bottom:1px solid #bbf7d0;">📊 V-I graph is a straight line through origin → shows direct proportionality</li>
+      <li style="padding:6px 0;border-bottom:1px solid #bbf7d0;">🌡️ Valid only when temperature is constant (तापमान स्थिर)</li>
+      <li style="padding:6px 0;border-bottom:1px solid #bbf7d0;">⚖️ Slope of V-I graph = Resistance (R)</li>
+      <li style="padding:6px 0;border-bottom:1px solid #bbf7d0;">🔬 SI unit: Voltage → Volt (V), Current → Ampere (A), Resistance → Ohm (Ω)</li>
+      <li style="padding:6px 0;">🔗 Ohmic conductors obey this law; Diodes/LEDs do NOT (non-ohmic)</li>
+    </ul>
+  </div>
+
+  <div style="text-align:center;color:#475569;font-size:0.75rem;padding:12px 0 20px;">
+    Made for CBSE Class 10 · Chapter 12: Electricity · Ohm's Law
+  </div>
+</div>
+
+<script>
+// Electron animation
+const e1 = document.getElementById('e1');
+const e2 = document.getElementById('e2');
+const e3 = document.getElementById('e3');
+
+const path = [
+  {x:40,y:40},{x:280,y:40},{x:280,y:160},{x:40,y:160},{x:40,y:40}
+];
+
+function lerpPath(t) {
+  const totalLen = 3;
+  const segs = [
+    {ax:40,ay:40,bx:280,by:40,len:1},
+    {ax:280,ay:40,bx:280,by:160,len:0.5},
+    {ax:280,ay:160,bx:40,by:160,len:1},
+    {

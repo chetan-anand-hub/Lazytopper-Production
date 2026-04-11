@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mode of Grouped Data - Class 10 Statistics</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f0f4ff; color: #1e293b; min-height: 100vh; }
+  
+  .title-bar {
+    background: linear-gradient(135deg, #1e293b 0%, #3b82f6 100%);
+    color: white; padding: 14px 20px; text-align: center;
+    box-shadow: 0 4px 15px rgba(59,130,246,0.4);
+  }
+  .title-bar h1 { font-size: 1.2rem; font-weight: 700; letter-spacing: 0.5px; }
+  .title-bar p { font-size: 0.78rem; opacity: 0.85; margin-top: 3px; }
+
+  .container { max-width: 700px; margin: 0 auto; padding: 16px; }
+
+  .card {
+    background: white; border-radius: 16px; padding: 18px;
+    margin-bottom: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  }
+
+  .section-label {
+    font-size: 0.7rem; font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase; color: #3b82f6; margin-bottom: 8px;
+  }
+
+  .formula-box {
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    border: 2px solid #3b82f6; border-radius: 12px;
+    padding: 16px; text-align: center; margin: 10px 0;
+  }
+  .formula-box .formula {
+    font-size: 1.05rem; font-weight: 700; color: #1e40af; line-height: 1.8;
+  }
+
+  .concept-intro { font-size: 0.9rem; color: #334155; line-height: 1.6; }
+  .highlight { color: #3b82f6; font-weight: 700; }
+  .hindi { color: #7c3aed; font-weight: 600; }
+
+  /* Bar Chart */
+  .chart-area { margin: 12px 0; }
+  .chart-title { font-size: 0.82rem; font-weight: 600; color: #475569; margin-bottom: 8px; text-align: center; }
+  .bars-container { display: flex; align-items: flex-end; gap: 6px; height: 160px; padding: 0 8px; border-bottom: 2px solid #cbd5e1; border-left: 2px solid #cbd5e1; }
+  
+  .bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+  .bar {
+    width: 100%; border-radius: 6px 6px 0 0;
+    transition: all 0.4s ease; position: relative;
+    display: flex; align-items: flex-start; justify-content: center;
+    padding-top: 4px; min-height: 10px;
+  }
+  .bar:hover { filter: brightness(1.1); transform: scaleY(1.02); transform-origin: bottom; }
+  .bar-val { font-size: 0.7rem; font-weight: 700; color: white; }
+  .bar-label { font-size: 0.62rem; color: #475569; margin-top: 4px; text-align: center; line-height: 1.2; }
+  .modal-tag {
+    position: absolute; top: -22px; left: 50%; transform: translateX(-50%);
+    background: #ef4444; color: white; font-size: 0.6rem; font-weight: 700;
+    padding: 2px 5px; border-radius: 4px; white-space: nowrap; display: none;
+  }
+  .bar.modal-class .modal-tag { display: block; }
+  .bar.modal-class { animation: pulse 1.5s infinite alternate; }
+  @keyframes pulse { from { filter: brightness(1); } to { filter: brightness(1.2); } }
+
+  /* Interactive Table */
+  .data-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+  .data-table th { background: #1e293b; color: white; padding: 8px; text-align: center; }
+  .data-table td { padding: 8px; text-align: center; border-bottom: 1px solid #e2e8f0; }
+  .data-table tr:hover td { background: #f0f9ff; }
+  .data-table tr.modal-row td { background: #fef3c7; font-weight: 700; }
+  .data-table tr.modal-row td:first-child { border-left: 4px solid #f59e0b; }
+
+  /* Step-by-step */
+  .step-btn {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white; border: none; border-radius: 10px;
+    padding: 10px 20px; font-size: 0.88rem; font-weight: 600;
+    cursor: pointer; width: 100%; margin: 8px 0;
+    transition: all 0.3s; box-shadow: 0 4px 12px rgba(59,130,246,0.35);
+  }
+  .step-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(59,130,246,0.45); }
+  .step-btn:active { transform: translateY(0); }
+
+  .step-panel {
+    display: none; animation: slideDown 0.4s ease;
+    border-radius: 10px; margin: 6px 0; overflow: hidden;
+  }
+  .step-panel.active { display: block; }
+  @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .step-item {
+    padding: 12px 14px; border-radius: 10px; margin: 6px 0;
+    border-left: 4px solid #3b82f6; background: #f8faff;
+    font-size: 0.85rem; line-height: 1.6;
+  }
+  .step-item.green { border-color: #22c55e; background: #f0fdf4; }
+  .step-item.amber { border-color: #f59e0b; background: #fffbeb; }
+  .step-item.red { border-color: #ef4444; background: #fff5f5; }
+
+  .step-num {
+    display: inline-block; width: 22px; height: 22px;
+    background: #3b82f6; color: white; border-radius: 50%;
+    text-align: center; line-height: 22px; font-size: 0.72rem;
+    font-weight: 700; margin-right: 6px; flex-shrink: 0;
+  }
+
+  /* Variable legend */
+  .var-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin: 10px 0; }
+  .var-item {
+    background: #f8faff; border-radius: 8px; padding: 10px;
+    border: 1px solid #e0e7ff; font-size: 0.8rem;
+  }
+  .var-sym { font-weight: 700; color: #3b82f6; font-size: 0.95rem; }
+  .var-desc { color: #475569; margin-top: 2px; }
+
+  /* Custom example */
+  .custom-section { background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 2px solid #22c55e; }
+  .custom-section .section-label { color: #16a34a; }
+  
+  .slider-row { display: flex; align-items: center; gap: 10px; margin: 8px 0; }
+  .slider-row label { font-size: 0.78rem; width: 55px; color: #475569; flex-shrink: 0; }
+  input[type=range] { flex: 1; accent-color: #3b82f6; }
+  .slider-val { font-size: 0.82rem; font-weight: 700; color: #1e40af; width: 30px; text-align: right; }
+
+  .result-box {
+    background: white; border-radius: 10px; padding: 12px;
+    text-align: center; margin-top: 10px; border: 2px solid #22c55e;
+  }
+  .result-big { font-size: 1.4rem; font-weight: 800; color: #16a34a; }
+  .result-label { font-size: 0.75rem; color: #475569; margin-top: 2px; }
+
+  /* Reset button */
+  .reset-btn {
+    background: white; border: 2px solid #ef4444; color: #ef4444;
+    border-radius: 8px; padding: 6px 14px; font-size: 0.78rem;
+    font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  .reset-btn:hover { background: #ef4444; color: white; }
+
+  .tip-box {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border-left: 4px solid #f59e0b; border-radius: 8px;
+    padding: 10px 12px; font-size: 0.8rem; color: #92400e; margin-top: 10px;
+  }
+
+  @media (max-width: 400px) {
+    .var-grid { grid-template-columns: 1fr; }
+    .formula-box .formula { font-size: 0.9rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="title-bar">
+  <h1>📊 Mode of Grouped Data</h1>
+  <p>CBSE Class 10 Mathematics • Statistics • <span class="hindi">बहुलक</span></p>
+</div>
+
+<div class="container">
+
+  <!-- What is Mode -->
+  <div class="card">
+    <div class="section-label">🎯 Concept Overview</div>
+    <p class="concept-intro">
+      <span class="highlight">Mode (<span class="hindi">बहुलक</span>)</span> is the value that appears <strong>most frequently</strong> in data. 
+      For grouped data, we cannot find the exact mode directly — we use a <strong>formula</strong> based on the <span class="highlight">Modal Class</span> (the class with the <strong>highest frequency</strong>).
+    </p>
+    <div class="tip-box">
+      💡 <strong>Modal Class</strong> = The class interval with the <strong>maximum frequency</strong>
+    </div>
+  </div>
+
+  <!-- Formula Card -->
+  <div class="card">
+    <div class="section-label">📐 The Formula</div>
+    <div class="formula-box">
+      <div class="formula">
+        Mode = ℓ + <span style="color:#ef4444">( f₁ − f₀ )</span> × h<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#ef4444">─────────────────</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;( 2f₁ − f₀ − f₂ )
+      </div>
+    </div>
+    <div class="var-grid">
+      <div class="var-item">
+        <div class="var-sym">ℓ</div>
+        <div class="var-desc">Lower limit of modal class</div>
+      </div>
+      <div class="var-item">
+        <div class="var-sym">h</div>
+        <div class="var-desc">Class size (width)</div>
+      </div>
+      <div class="var-item">
+        <div class="var-sym">f₁</div>
+        <div class="var-desc">Frequency of modal class</div>
+      </div>
+      <div class="var-item">
+        <div class="var-sym">f₀</div>
+        <div class="var-desc">Frequency of class <em>before</em> modal class</div>
+      </div>
+      <div class="var-item" style="grid-column: span 2">
+        <div class="var-sym">f₂</div>
+        <div class="var-desc">Frequency of class <em>after</em> modal class</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive Bar Chart -->
+  <div class="card">
+    <div class="section-label">📊 Visual — Click a Bar to Explore</div>
+    <div class="chart-title">Frequency Distribution of Marks (Example)</div>
+    <div class="chart-area">
+      <div class="bars-container" id="barChart"></div>
+      <div id="xLabels" style="display:flex;gap:6px;padding:0 8px;margin-top:4px;"></div>
+    </div>
+    <div id="barInfo" style="font-size:0.82rem;color:#475569;text-align:center;margin-top:8px;min-height:36px;transition:all 0.3s;">
+      👆 Click on any bar to see its details
+    </div>
+  </div>
+
+  <!-- Data Table -->
+  <div class="card">
+    <div class="section-label">📋 Frequency Table</div>
+    <table class="data-table" id="freqTable">
+      <thead>
+        <tr><th>Class Interval</th><th>Frequency</th><th>Role</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <div class="tip-box" style="margin-top:10px;">
+      🔍 The row highlighted in <strong style="color:#d97706">amber/yellow</strong> is the <strong>Modal Class</strong> — it has the highest frequency!
+    </div>
+  </div>
+
+  <!-- Step by Step -->
+  <div class="card">
+    <div class="section-label">🔢 Step-by-Step Solution</div>
+    <p style="font-size:0.82rem;color:#475569;margin-bottom:10px;">Click each step to reveal the solution:</p>
+    <button class="step-btn" onclick="toggleStep(1)">Step 1: Identify the Modal Class</button>
+    <div class="step-panel" id="step1">
+      <div class="step-item amber">
+        <span class="step-num">1</span>
+        Look for the class with the <strong>highest frequency</strong>.<br>
+        From our table: <strong>40–50</strong> has frequency <strong>28</strong> — the highest!<br>
+        ∴ Modal Class = <strong>40–50</strong>
+      </div>
+    </div>
+
+    <button class="step-btn" onclick="toggleStep(2)">Step 2: Identify Values of ℓ, h, f₁, f₀, f₂</button>
+    <div class="step-panel" id="step2">
+      <div class="step-item">
+        <span class="step-num">2</span>
+        From the modal class <strong>40–50</strong>:<br>
+        • <strong>ℓ = 40</strong> (lower limit of modal class)<br>
+        • <strong>h = 10</strong> (class size = 50 − 40)<br>
+        • <strong>f₁ = 28</strong> (frequency of modal class)<br>
+        • <strong>f₀ = 20</strong> (frequency of class before: 30–40)<br>
+        • <strong>f₂ = 14</strong> (frequency of class after: 50–60)
+      </div>
+    </div>
+
+    <button class="step-btn" onclick="toggleStep(3)">Step 3: Apply the Formula</button>
+    <div class="step-panel" id="step3">
+      <div class="step-item green">
+        <span class="step-num">3</span>
+        Mode = ℓ + <strong>(f₁ − f₀)</strong> ÷ <strong>(2f₁ − f₀ − f₂)</strong> × h<br><br>
+        = 40 + (28 − 20) ÷ (2×28 − 20 − 14) × 10<br>
+        = 40 + <strong>8</strong> ÷ (56 − 20 − 14) × 10<br>
+        = 40 + 8 ÷ <strong>22</strong> × 10<br>
+        = 40 + 0.3636 × 10<br>
+        = 40 + <strong>3.636</strong>
+      </div>
+    </div>
+
+    <button class="step-btn" onclick="toggleStep(4)">Step 4: Final Answer</button>
+    <div class="step-panel" id="step4">
+      <div class="step-item red">
+        <span class="step-num">4</span>
+        <strong>∴ Mode ≈ 43.64</strong><br><br>
+        This means the most common marks scored by students fall around <strong>43.64</strong>.<br>
+        <span style="color:#7c3aed">∴ <span class="hindi">बहुलक</span> ≈ 43.64</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Try it yourself -->
+  <div class="card custom-section">
+    <div class="section-label">🎮 Try It Yourself — Adjust & Calculate!</div>
+    <p style="font-size:0.82rem;color:#166534;margin-bottom:12px;">Move the sliders to change the values and see how Mode changes:</p>
+    
+    <div class="slider-row">
+      <label>ℓ (lower)</label>
+      <input type="range" id="sl_l" min="10" max="80" value="40" step="5" oninput="calcCustom()">
+      <span class="slider-val" id="v_l">40</span>
+    </div>
+    <div class="slider-row">
+      <label>h (size)</label>
+      <input type="range" id="sl_h" min="5" max="20" value="10" step="5" oninput="calcCustom()">
+      <span class="slider-val" id="v_h">10</span>
+    </div>
+    <div class="slider-row">
+      <label>f₁ (modal)</label>
+      <input type="range" id="sl_f1" min="10" max="50" value="28" step="1" oninput="calcCustom()">
+      <span class="slider-val" id="v_f1">28</span>
+    </div>
+    <div class="slider-row">
+      <label>f₀ (before)</label>
+      <input type="range" id="sl_f0" min="1" max="40" value="20" step="1" oninput="calcCustom()">
+      <span class="slider-val" id="v_f0">20</span>
+    </div>
+    <div class="slider-row">
+      <label>f₂ (after)</label>
+      <input type="range" id="sl_f2" min="1" max="40" value="14" step="1" oninput="calcCustom()">
+      <span class="slider-val" id="v_f2">14</span>
+    </div>
+
+    <div class="result-box" id="customResult">
+      <div class="result-big" id="modeResult">43.64</div>
+      <div class="result-label" id="modeFormula">Mode = 40 + (28−20)÷(56−20−14) × 10</div>
+      <div id="modeWarn" style="color:#ef4444;font-size:0.75rem;margin-top:4px;display:none;">
+        ⚠️ f₁ must be greater than f₀ and f₂ for a valid modal class!
+      </div>
+    </div>
+  </div>
+
+  <!-- Memory Tips -->
+  <div class="card">
+    <div class="section-label">🧠 Exam Tips & Common Mistakes</div>
+    <div class="step-item" style="margin:6px 0;">
+      ✅ Always check that <strong>f₁ > f₀</strong> and <strong>f₁ > f₂</strong> — confirming it IS the modal class
+    </div>
+    <div class="step-item amber" style="margin:6px 0;">
+      ⚠️ <strong>f₀</strong> = frequency of class <em>immediately before</em> modal class (NOT the smallest)
+    </div>
+    <div class="step-item red" style="margin:6px 0;">
+      ❌ Common mistake: Using total frequency instead of f₁, f₀, f₂. Only 3 adjacent classes are used!
+    </div>
+    <div class="step-item green" style="margin:6px 0;">
+      💡 Mode, Mean (<span class="hindi">माध्य</span>) & Median (<span class="hindi">माध्यिका</span>) are the 3 measures of central tendency in CBSE Class 10
+    </div>
+  </div>
+
+  <div style="text-align:center;font-size:0.72rem;color:#94a3b8;padding-bottom:20px;">
+    CBSE Class 10 Mathematics • Statistics • Mode of Grouped Data
+  </div>
+</div>
+
+<script>
+// Data
+const data = [
+  { label: "10–20", freq: 8 },
+  { label: "20–30", freq: 15 },
+  { label: "30–40", freq: 20 },
+  { label: "40–50", freq: 28 },
+  { label: "50–60", freq: 14 },
+  { label: "60–70", freq: 7 }
+];
+
+const colors = ["#818cf8","#60a5fa","#34d399","#f59e0b","#fb7185","#a78bfa"];
+const maxFreq = Math.max(...data.map(d => d.freq));
+const modalIdx = data.findIndex(d => d.freq === maxFreq);
+
+// Build Bar Chart
+function buildChart() {
+  const container = document.getElementById('barChart');
+  const xLabels = document.getElementById('xLabels');
+  container.innerHTML = '';
+  xLabels.innerHTML = '';
+
+  data.forEach((d, i) => {
+    const pct = (d.freq / maxFreq) * 100;
+    const heightPx = Math.round((pct / 100) * 140);
+
+    const wrap = document.createElement('div');
+    wrap.className = 'bar-wrap';
+
+    const bar = document.createElement('div');
+    bar.className = 'bar' + (i === modalIdx ? ' modal-class' : '');
+    bar.style.height = heightPx + 'px';
+    bar.style.background = i === modalIdx
+      ? 'linear-gradient(180deg,#f59e0b,#d97706)'
+      : `linear-gradient(180deg,${colors[i]},${colors[i]}cc)`;
+
+    const tag = document.createElement('div');
+    tag.className = 'modal-tag';
+    tag.textContent = '★ Modal';
+    bar.appendChild(tag);
+
+    const val = document.createElement('div');
+    val.className = 'bar-val';
+    val.textContent = d.freq;
+    bar.appendChild(val);
+
+    bar.addEventListener('click', () => showBarInfo(i));
+
+    const lbl = document.createElement('div');
+    lbl.className = 'bar-label';
+    lbl.textContent = d.label;
+
+    wrap.appendChild(bar);
+    wrap.appendChild(lbl);
+    container.appendChild(wrap);
+  });
+}
+
+function showBarInfo(i) {
+  const d = data[i];
+  const info = document.getElementById('barInfo');
+  const isModal = i === modalIdx;
+  let role = '';
+  if (i === modalIdx) role = '🌟 This is the <strong>Modal Class</strong> (highest frequency = ' + d.freq + ')';
+  else if (i === modalIdx - 1) role = '← This is <strong>f₀</strong> (class before modal class, frequency = ' + d.freq + ')';
+  else if (i === modalIdx + 1) role = '→ This is <strong>f₂</strong> (class after modal class, frequency = ' + d.freq + ')';
+  else role = 'Frequency = ' + d.freq + ' (not adjacent to modal class)';
+
+  info.style.background = isModal ? '#fffbeb' : '#f8faff';
+  info.style.padding = '8px';
+  info.style.borderRadius = '8px';
+  info.innerHTML = '<strong>' + d.label + '</strong>: Frequency = ' + d.freq + '<br>' + role;
+}
+
+// Build Table
+function buildTable() {
+  const tbody = document.querySelector('#freqTable tbody');
+  tbody.innerHTML = '';
+  data.forEach((d, i) => {
+    const tr = document.createElement('tr');
+    if (i === modalIdx) tr.className = 'modal-row';
+    let role = '';
+    if (i === modalIdx) role = '⭐ Modal Class (f₁)';
+    else if (i === modalIdx - 1) role = 'f₀ (before)';
+    else if (i === modalIdx + 1) role = 'f₂ (after)';
+    tr.innerHTML = `<td>${d.label}</td><td>${d.freq}</td><td style="font-size:0.75rem;color:#64748b">${role}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+// Step toggle
+function toggleStep(n) {
+  const panel = document.getElementById('step' + n);
+  panel.classList.toggle('active');
+}
+
+// Custom calculator
+function calcCustom() {
+  const l = +document.getElementById('sl_l').value;
+  const h = +document.getElementById('sl_h').value;
+  const f1 = +document.getElementById('sl_f1').value;
+  const f0 = +document.getElementById('sl_f0').value;
+  const f2 = +document.getElementById('sl_f2').value;
+
+  document.getElementById('v_l').textContent = l;
+  document.getElementById('v_h').textContent = h;
+  document.getElementById('v_f1').textContent = f1;
+  document.getElementById('v_f0').textContent = f0;
+  document.getElementById('v_f2').textContent = f2;
+
+  const denom = 2 * f1 - f0 - f2;
+  const warn = document.getElementById('modeWarn');
+
+  if (denom <= 0 || f1 <= f0 || f1 <= f2) {
+    document.getElementById('modeResult').textContent = 'Invalid';
+    document.getElementById('modeFormula').textContent = 'Denominator must be > 0';
+    warn.style.display = 'block';
+    return;
+  }
+  warn.style.display = 'none';
+
+  const mode = l + ((f1 - f0) / denom) * h;
+  document.getElementById('modeResult').textContent = mode.toFixed(2);
+  document.getElementById('modeFormula').textContent =
+    `Mode = ${l} + (${f1}−${f0})÷(${2*f1}−${f0}−${f2}) × ${h}`;
+}
+
+buildChart();
+buildTable();
+calcCustom();
+</script>
+</body>
+</html>

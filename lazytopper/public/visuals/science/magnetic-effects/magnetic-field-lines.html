@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Magnetic Field Lines - CBSE Class 10</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#0f172a 100%);min-height:100vh;color:#e2e8f0}
+.title-bar{background:linear-gradient(90deg,#1d4ed8,#3b82f6,#60a5fa);padding:12px 20px;text-align:center;box-shadow:0 4px 20px rgba(59,130,246,0.5)}
+.title-bar h1{font-size:clamp(16px,3vw,22px);font-weight:700;color:#fff;letter-spacing:1px}
+.title-bar p{font-size:12px;color:#bfdbfe;margin-top:2px}
+.container{max-width:900px;margin:0 auto;padding:16px}
+.card{background:rgba(30,41,59,0.8);border:1px solid rgba(59,130,246,0.3);border-radius:16px;padding:16px;margin-bottom:16px;box-shadow:0 8px 32px rgba(0,0,0,0.3)}
+.section-title{font-size:15px;font-weight:700;color:#60a5fa;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.concept-box{background:linear-gradient(135deg,rgba(59,130,246,0.15),rgba(99,102,241,0.15));border:2px solid #3b82f6;border-radius:12px;padding:14px;margin-bottom:14px;text-align:center}
+.concept-box h2{font-size:clamp(14px,2.5vw,18px);color:#93c5fd;margin-bottom:8px}
+.concept-box p{font-size:13px;color:#cbd5e1;line-height:1.6}
+.key-rule{background:linear-gradient(135deg,rgba(245,158,11,0.2),rgba(251,191,36,0.1));border-left:4px solid #f59e0b;border-radius:8px;padding:10px 14px;margin:8px 0;font-size:13px;color:#fde68a}
+svg#barmagnet{width:100%;max-width:600px;display:block;margin:0 auto;cursor:pointer}
+.svg-container{position:relative;background:rgba(15,23,42,0.6);border-radius:12px;padding:12px;overflow:hidden}
+.controls{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0;justify-content:center}
+button{padding:8px 16px;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;transition:all 0.3s;letter-spacing:0.5px}
+.btn-primary{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;box-shadow:0 4px 12px rgba(59,130,246,0.4)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(59,130,246,0.6)}
+.btn-success{background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;box-shadow:0 4px 12px rgba(34,197,94,0.4)}
+.btn-success:hover{transform:translateY(-2px)}
+.btn-amber{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;box-shadow:0 4px 12px rgba(245,158,11,0.4)}
+.btn-amber:hover{transform:translateY(-2px)}
+.btn-red{background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff}
+.btn-red:hover{transform:translateY(-2px)}
+.step-container{display:none;animation:fadeIn 0.5s ease}
+.step-container.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.step{background:rgba(15,23,42,0.7);border-radius:10px;padding:12px;margin-bottom:10px;border-left:3px solid #3b82f6;font-size:13px;color:#cbd5e1;line-height:1.6}
+.step strong{color:#60a5fa}
+.step .hindi{color:#fbbf24;font-size:12px;font-style:italic}
+.compass-demo{position:relative;width:100%;height:200px;background:radial-gradient(circle,rgba(15,23,42,0.9),rgba(15,23,42,0.6));border-radius:12px;overflow:hidden;cursor:crosshair;border:1px solid rgba(59,130,246,0.3)}
+.compass-needle{width:40px;height:40px;position:absolute;transform:translate(-50%,-50%);pointer-events:none;transition:transform 0.3s ease}
+.info-panel{background:rgba(15,23,42,0.8);border-radius:8px;padding:10px;font-size:12px;color:#94a3b8;margin-top:8px}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;margin:2px}
+.badge-n{background:#ef4444;color:#fff}
+.badge-s{background:#3b82f6;color:#fff}
+.properties-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:10px}
+.prop-card{background:rgba(15,23,42,0.7);border-radius:10px;padding:12px;border:1px solid rgba(59,130,246,0.2);transition:all 0.3s;cursor:pointer}
+.prop-card:hover{border-color:#3b82f6;transform:translateY(-3px);box-shadow:0 8px 24px rgba(59,130,246,0.3)}
+.prop-card h4{font-size:12px;color:#60a5fa;margin-bottom:6px}
+.prop-card p{font-size:11px;color:#94a3b8;line-height:1.5}
+.prop-icon{font-size:24px;margin-bottom:6px}
+.quiz-section{background:rgba(15,23,42,0.6);border-radius:12px;padding:14px}
+.quiz-q{font-size:13px;color:#e2e8f0;margin-bottom:10px;font-weight:600}
+.quiz-opt{display:block;width:100%;text-align:left;padding:9px 14px;margin-bottom:6px;border-radius:8px;border:1px solid rgba(59,130,246,0.3);background:rgba(30,41,59,0.8);color:#cbd5e1;cursor:pointer;font-size:13px;transition:all 0.3s}
+.quiz-opt:hover{border-color:#3b82f6;background:rgba(59,130,246,0.15)}
+.quiz-opt.correct{background:rgba(34,197,94,0.2);border-color:#22c55e;color:#86efac}
+.quiz-opt.wrong{background:rgba(239,68,68,0.2);border-color:#ef4444;color:#fca5a5}
+.feedback{font-size:12px;padding:8px;border-radius:6px;margin-top:8px;display:none}
+.feedback.show{display:block}
+.feedback.ok{background:rgba(34,197,94,0.15);color:#86efac}
+.feedback.no{background:rgba(239,68,68,0.15);color:#fca5a5}
+.anim-dot{animation:moveDot 3s linear infinite}
+@keyframes moveDot{0%{opacity:0}10%{opacity:1}90%{opacity:1}100%{opacity:0}}
+.tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.tab{padding:7px 14px;border-radius:8px;border:1px solid rgba(59,130,246,0.4);background:transparent;color:#94a3b8;cursor:pointer;font-size:12px;font-weight:600;transition:all 0.3s}
+.tab.active{background:#3b82f6;color:#fff;border-color:#3b82f6}
+.tab-content{display:none}
+.tab-content.active{display:block;animation:fadeIn 0.4s ease}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;justify-content:center}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:#94a3b8}
+.legend-dot{width:12px;height:12px;border-radius:50%}
+</style>
+</head>
+<body>
+<div class="title-bar">
+<h1>🧲 Magnetic Field Lines | चुंबकीय बल रेखाएं</h1>
+<p>CBSE Class 10 Science • Chapter 13 • Magnetic Effects of Electric Current</p>
+</div>
+<div class="container">
+<div class="concept-box">
+<h2>What are Magnetic Field Lines? (चुंबकीय क्षेत्र रेखाएं)</h2>
+<p>Imaginary lines that represent the direction and strength of a magnetic field. They show the path along which a free <strong style="color:#fbbf24">north pole</strong> would move in the magnetic field.</p>
+</div>
+<div class="card">
+<div class="tabs">
+<button class="tab active" onclick="showTab('diagram')">📊 Interactive Diagram</button>
+<button class="tab" onclick="showTab('compass')">🧭 Compass Demo</button>
+<button class="tab" onclick="showTab('properties')">📋 Properties</button>
+<button class="tab" onclick="showTab('quiz')">🧪 Quiz</button>
+</div>
+<div id="tab-diagram" class="tab-content active">
+<div class="section-title">🧲 Bar Magnet - Click to Animate Field Lines</div>
+<div class="svg-container">
+<svg id="barmagnet" viewBox="0 0 580 300" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<radialGradient id="glowN" cx="50%" cy="50%" r="50%">
+<stop offset="0%" style="stop-color:#fca5a5"/>
+<stop offset="100%" style="stop-color:#ef4444"/>
+</radialGradient>
+<radialGradient id="glowS" cx="50%" cy="50%" r="50%">
+<stop offset="0%" style="stop-color:#93c5fd"/>
+<stop offset="100%" style="stop-color:#3b82f6"/>
+</radialGradient>
+<marker id="arrow" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+<path d="M0,0 L6,3 L0,6 Z" fill="#22c55e" opacity="0.9"/>
+</marker>
+<marker id="arrowB" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+<path d="M0,0 L6,3 L0,6 Z" fill="#f59e0b" opacity="0.9"/>
+</marker>
+<filter id="glow">
+<feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+<feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+</filter>
+</defs>
+<!-- Background grid dots -->
+<circle cx="50" cy="50" r="1" fill="#334155"/><circle cx="100" cy="50" r="1" fill="#334155"/><circle cx="150" cy="50" r="1" fill="#334155"/><circle cx="200" cy="50" r="1" fill="#334155"/><circle cx="450" cy="50" r="1" fill="#334155"/><circle cx="500" cy="50" r="1" fill="#334155"/>
+<circle cx="50" cy="100" r="1" fill="#334155"/><circle cx="50" cy="150" r="1" fill="#334155"/><circle cx="50" cy="200" r="1" fill="#334155"/>
+<circle cx="530" cy="100" r="1" fill="#334155"/><circle cx="530" cy="150" r="1" fill="#334155"/><circle cx="530" cy="200" r="1" fill="#334155"/>
+<!-- Outer field lines (large arcs) -->
+<path id="fl1" d="M 230 150 Q 290 30 350 150" fill="none" stroke="#22c55e" stroke-width="1.5" stroke-dasharray="200" stroke-dashoffset="200" opacity="0.7" marker-mid="url(#arrow)"/>
+<path id="fl2" d="M 230 150 Q 290 270 350 150" fill="none" stroke="#22c55e" stroke-width="1.5" stroke-dasharray="200" stroke-dashoffset="200" opacity="0.7"/>
+<path id="fl3" d="M 220 150 Q 290 10 360 150" fill="none" stroke="#3b82f6" stroke-width="1.2" stroke-dasharray="250" stroke-dashoffset="250" opacity="0.6"/>
+<path id="fl4" d="M 220 150 Q 290 290 360 150" fill="none" stroke="#3b82f6" stroke-width="1.2" stroke-dasharray="250" stroke-dashoffset="250" opacity="0.6"/>
+<path id="fl5" d="M 210 150 Q 290 -20 370 150" fill="none" stroke="#8b5cf6" stroke-width="1" stroke-dasharray="310" stroke-dashoffset="310" opacity="0.5"/>
+<path id="fl6" d="M 210 150 Q 290 320 370 150" fill="none" stroke="#8b5cf6" stroke-width="1" stroke-dasharray="310" stroke-dashoffset="310" opacity="0.5"/>
+<path id="fl7" d="M 200 150 Q 290 -50 380 150" fill="none" stroke="#a78bfa" stroke-width="1" stroke-dasharray="370" stroke-dashoffset="370" opacity="0.4"/>
+<path id="fl8" d="M 200 150 Q 290 350 380 150" fill="none" stroke="#a78bfa" stroke-width="1" stroke-dasharray="370" stroke-dashoffset="370" opacity="0.4"/>
+<!-- Straight internal lines (inside magnet) -->
+<path id="fl9" d="M 230 150 L 350 150" fill="none" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="120" stroke-dashoffset="120" opacity="0.8"/>
+<path id="fl10" d="M 230 140 L 350 140" fill="none" stroke="#fbbf24" stroke-width="1" stroke-dasharray="120" stroke-dashoffset="120" opacity="0.6"/>
+<path id="fl11" d="M 230 160 L 350 160" fill="none" stroke="#fbbf24" stroke-width="1" stroke-dasharray="120" stroke-dashoffset="120" opacity="0.6"/>
+<!-- Arrows on external lines -->
+<path id="arr1" d="M 270 100 L 285 96 L 280 110" fill="none" stroke="#22c55e" stroke-width="1.5" opacity="0"/>
+<path id="arr2" d="M 270 200 L 280 210 L 285 196" fill="none" stroke="#22c55e" stroke-width="1.5" opacity="0"/>
+<!-- The Magnet Body -->
+<rect id="magnet" x="220" y="130" width="140" height="40" rx="6" fill="url(#glowN)" opacity="0"/>
+<!-- N pole -->
+<rect x="220" y="130" width="70" height="40" rx="6 0 0 6" fill="#ef4444" filter="url(#glow)"/>
+<text x="255" y="155" text-anchor="middle" font-size="18" font-weight="bold" fill="#fff">N</text>
+<!-- S pole -->
+<rect x="290" y="130" width="70" height="40" rx="0 6 6 0" fill="#3b82f6" filter="url(#glow)"/>
+<text x="325" y="155" text-anchor="middle" font-size="18" font-weight="bold" fill="#fff">S</text>
+<!-- Labels -->
+<text x="255" y="190" text-anchor="middle" font-size="10" fill="#fca5a5">North Pole</text>
+<text x="325" y="190" text-anchor="middle" font-size="10" fill="#93c5fd">South Pole</text>
+<!-- Direction labels -->
+<text id="lblOut" x="80" y="120" font-size="10" fill="#22c55e" opacity="0">← Lines go OUT</text>
+<text id="lblIn" x="450" y="120" font-size="10" fill="#3b82f6" opacity="0">Lines go IN →</text>
+<!-- Moving dot on field line -->
+<circle id="movingDot" cx="230" cy="150" r="5" fill="#fbbf24" opacity="0" filter="url(#glow)"/>
+<!-- Compass at top showing direction -->
+<g id="compassIndicator" opacity="0">
+<circle cx="290" cy="50" r="18" fill="rgba(15,23,42,0.8)" stroke="#f59e0b" stroke-width="1.5"/>
+<text x="290" y="40" text-anchor="middle" font-size="8" fill="#94a3b8">N</text>
+<text x="290" y="65" text-anchor="middle" font-size="8" fill="#94a3b8">S</text>
+<line id="needleAnim" x1="290" y1="50" x2="290" y2="36" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"/>
+<line x1="290" y1="50" x2="290" y2="64" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round"/>
+<circle cx="290" cy="50" r="3" fill="#fbbf24"/>
+</g>
+</svg>
+</div>
+<div class="controls">
+<button class="btn-primary" onclick="animateFieldLines()">▶ Animate Field Lines</button>
+<button class="btn-amber" onclick="showMovingCharge()">🔴 Show Direction</button>
+<button class="btn-success" onclick="resetAnim()">↺ Reset</button>
+</div>
+<div class="key-rule">⚡ <strong>Key Rule (मुख्य नियम):</strong> Field lines emerge from <span style="color:#fca5a5">North (N)</span> pole and enter the <span style="color:#93c5fd">South (S)</span> pole outside the magnet. Inside the magnet, they go from S → N.</div>
+<div class="legend">
+<div class="legend-item"><div class="legend-dot" style="background:#22c55e"></div> Close field lines (Stronger field)</div>
+<div class="legend-item"><div class="legend-dot" style="background:#a78bfa"></div> Far field lines (Weaker field)</div>
+<div class="legend-item"><div class="legend-dot" style="background:#fbbf24"></div> Inside magnet (S to N)</div>
+</div>
+</div>
+<div id="tab-compass" class="tab-content">
+<div class="section-title">🧭 Move your mouse/finger over the compass demo</div>
+<div class="info-panel">A compass needle always aligns with the local magnetic field direction. Move over the area to see how a compass would point near a bar magnet!</div>
+<div class="compass-demo" id="compassDemo" onmousemove="moveCompass(event)" ontouchmove="touchCompass(event)">
+<svg width="100%" height="100%" viewBox="0 0 400 200">
+<!-- Bar magnet -->
+<rect x="150" y="88" width="60" height="24" rx="4" fill="#ef4444"/>
+<text x="180" y="104" text-anchor="middle" font-size="13" font-weight="bold" fill="#fff">N</text>
+<rect x="210" y="88" width="60" height="24" rx="4" fill="#3b82f6"/>
+<text x="240" y="104" text-anchor="middle" font-size="13" font-weight="bold" fill="#fff">S</text>
+<!-- Static field line hints -->
+<path d="M 180 88 Q 180 50 240 50 Q 300 50 300 100 Q 300 150 240 150 Q 180 150 180 112" fill="none" stroke="#22c55e" stroke-width="1" opacity="0.3" stroke-dasharray="4,4"/>
+<path d="M 180 88 Q 140 70 100 100 Q 140 130 180 112" fill="none" stroke="#3b82f6" stroke-width="1" opacity="0.3" stroke-dasharray="4,4"/>
+<!-- Movable compass -->
+<g id="compassGroup" transform="translate(320,60)">
+<circle r="16" fill="rgba(15,23,42,0.9)" stroke="#f59e0b" stroke-width="1.5"/>
+<line id="needleN" x1="0" y1="0" x2="0" y2="-12" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"/>
+<line id="needleS" x1="0" y1="0" x2="0" y2="12" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round"/>
+<circle r="3" fill="#fbbf24"/>
+<text y="-19" text-anchor="middle" font-size="7" fill="#fca5a5">N</text>
+</g>
+<!-- Angle display -->
+<text id="angleText" x="200" y="185" text-anchor="middle" font-size="11" fill="#94a3b8">Move cursor/finger here</text>
+</svg>
+</div>
+<div class="key-rule">🧭 <strong>Compass (दिशासूचक यंत्र):</strong> The north pole of compass needle points in the direction of magnetic field lines. This is how Oersted discovered magnetic effect of current!</div>
+</div>
+<div id="tab-properties" class="tab-content">
+<div class="section-title">📋 Properties of Magnetic Field Lines (गुण)</div>
+<div class="properties-grid">
+<div class="prop-card" onclick="highlightProp(this)">
+<div class="prop-icon">🔄</div>
+<h4>1. Closed Loops</h4>
+<p>Field lines form continuous closed loops - they never start or end (unlike electric field lines).</p>
+</div>
+<div class="prop-card" onclick="highlightProp(this)">
+<div class="prop-icon">🚫</div>
+<h4>2. Never Intersect</h4>
+<p>Two magnetic field lines never cross each other. If they did, compass would point in 2 directions - impossible!</p>
+</div>
+<div class="prop-card" onclick="highlightProp(this)">
+<div class="prop-icon">↗️</div>
+<h4>3. N→S Outside</h4>
+<p>Outside magnet: N pole → S pole. Inside magnet: S pole → N pole. Always continuous.</p>
+</div>
+<div class="prop-card" onclick="highlightProp(this)">
+<div class="prop-icon">💪</div>
+<h4>4. Density = Strength</h4>
+<p>Closely spaced lines = Strong field (near poles). Widely spaced = Weak field (far from magnet).</p>
+</div>
+<div class="prop-card" onclick="highlightProp(this)">
+<div class="prop-icon">↔️</div>
+<h4>5. Tangent = Direction</h4>
+<p>The tangent drawn at any point on field line gives the direction of magnetic field at that point.</p>
+</div>
+<div class="prop-card" onclick="highlightProp(this)">
+<div class="prop-icon">😤</div>
+<h4>6. Repel Laterally</h4>
+<p>Field lines tend to repel each other sideways (lateral repulsion) while contracting longitudinally.</p>
+</div>
+</div>
+<div class="info-panel" style="margin-top:10px">💡 Click on any property card to highlight it! These properties are important for CBSE exams.</div>
+</div>
+<div id="tab-quiz" class="tab-content">
+<div class="section-title">🧪 Test Yourself! (स्वयं परीक्षण)</div>
+<div class="quiz-section" id="quizSection">
+<div id="q1">
+<div class="quiz-q">Q1. Outside a bar magnet, magnetic field lines travel from:</div>
+<button class="quiz-opt" onclick="checkAns(this,'wrong','q1')">S pole to N pole</button>
+<button class="quiz-opt" onclick="checkAns(this,'correct','q1')">N pole to S pole</button>
+<button class="quiz-opt" onclick="checkAns(this,'wrong','q1')">Both poles simultaneously</button>
+<div class="feedback" id="fb-q1"></div>
+</div>
+<div id="q2" style="margin-top:14px">
+<div class="quiz-q">Q2. If two magnetic field lines intersect, it would mean:</div>
+<button class="quiz-opt" onclick="checkAns(this,'wrong','q2')">The magnet is very strong</button>
+<button class="quiz-opt" onclick="checkAns(this,'wrong','q2')">The field is uniform there</button>
+<button class="quiz-opt" onclick="checkAns(this,'correct','q2')">Compass has two directions - impossible!</button>
+<div class="feedback" id="fb-q2"></div>
+</div>
+<div id="q3" style="margin-top:14px">
+<div class="quiz-q">Q3. Closely packed magnetic field lines indicate:</div>
+<button class="quiz-opt" onclick="checkAns(this,'correct','q3')">Strong magnetic field</button>
+<button class="quiz-opt" onclick="checkAns(this,'wrong','q3')">Weak magnetic field</button>
+<button class="quiz-opt" onclick="checkAns(this,'wrong','q3')">No magnetic field</button>
+<div class="feedback" id="fb-q3"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Step by step walkthrough -->
+<div class="card">
+<div class="section-title">👣 Step-by-Step: How to Draw Field Lines of a Bar Magnet</div>
+<div class="controls">
+<button class="btn-primary" onclick="prevStep()">◀ Previous</button>
+<button class="btn-primary" onclick="nextStep()">Next ▶</button>
+<button class="btn-amber" onclick="resetSteps()">↺ Reset</button>
+</div>
+<div id="stepDisplay">
+<div class="step active" id="step0">
+<strong>Step 1: Place the Bar Magnet</strong><br>
+Draw a rectangle. Label left half <span style="color:#fca5a5"><strong>N</strong></span> (North) and right half <span style="color:#93c5fd"><strong>S</strong></span> (South).<br>
+<span class="hindi">एक आयत बनाएं। बाईं तरफ N और दाईं तरफ S लिखें।</span>
+</div>
+<div class="step" id="step1" style="display:none">
+<strong>Step 2: Identify Pole Regions</strong><br>
+Field lines are <strong style="color:#fca5a5">densest near poles</strong>. Mark points around N and S poles where lines will emerge/enter.<br>
+<span class="hindi">ध्रुवों के पास रेखाएं सबसे घनी होती हैं।</span>
+</div>
+<div class="step" id="step2" style="display:none">
+<strong>Step 3: Draw Lines from N Pole</strong><br>
+Lines curve <strong style="color:#22c55e">outward from N pole</strong>, going around the magnet. They curve towards the S pole.<br>∴ Direction: <span style="color:#fca5a5">N</span> → <span style="color:#93c5fd">S</span> (outside)<br>
+<span class="hindi">N ध्रुव से बाहर की ओर वक्र रेखाएं खींचें।</span>
+</div>
+<div class="step" id="step3" style="display:none">
+<strong>Step 4: Lines Enter S Pole</strong><br>
+The same lines that came from N pole now <strong style="color:#3b82f6">enter the S pole</strong>. Add arrows to show direction (N→S outside).<br>
+<span class="hindi">वही रेखाएं S ध्रुव में प्रवेश करती हैं।</span>
+</div>
+<div class="step" id="step4" style="display:none">
+<strong>Step 5: Inside the Magnet</strong><br>
+Inside the magnet, field lines go from <strong style="color:#3b82f6">S → N</strong> (completing the closed loop). Draw parallel lines inside magnet with arrows S→N.<br>
+<span class="hindi">चुंबक के अंदर रेखाएं S से N की ओर जाती हैं।</span>
+</div>
+<div class="step" id="step5" style="display:none">
+<strong>Step 6: Verify Properties ✓</strong><br>
+✅ Lines are <strong>closed loops</strong><br>
+✅ Lines <strong>never intersect</strong><br>
+✅ Dense near poles = <strong>Strong field</strong><br>
+✅ Sparse far away = <strong>Weak field</strong><br>
+<span class="hindi">∴ चुंबकीय बल रेखाओं का चित्र पूर्ण हुआ!</span>

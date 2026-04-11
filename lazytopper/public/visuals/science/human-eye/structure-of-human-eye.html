@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Human Eye - CBSE Class 10</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 50%,#0f172a 100%);min-height:100vh;color:#e2e8f0}
+.title-bar{background:linear-gradient(90deg,#1e40af,#3b82f6,#06b6d4);padding:12px 20px;text-align:center;box-shadow:0 4px 20px rgba(59,130,246,0.5)}
+.title-bar h1{font-size:1.2em;font-weight:700;color:#fff;text-shadow:0 2px 4px rgba(0,0,0,0.3)}
+.title-bar p{font-size:0.75em;color:#bfdbfe;margin-top:2px}
+.container{max-width:800px;margin:0 auto;padding:15px}
+.card{background:rgba(30,41,59,0.85);border:1px solid rgba(59,130,246,0.3);border-radius:16px;padding:15px;margin-bottom:15px;backdrop-filter:blur(10px);box-shadow:0 8px 32px rgba(0,0,0,0.3)}
+.card h2{font-size:1em;color:#60a5fa;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.eye-container{position:relative;width:100%;display:flex;justify-content:center;padding:10px 0}
+svg.eye-svg{width:100%;max-width:520px;height:auto;cursor:pointer}
+.part-info{background:linear-gradient(135deg,rgba(59,130,246,0.2),rgba(6,182,212,0.2));border:1px solid #3b82f6;border-radius:12px;padding:12px;margin-top:10px;display:none;animation:fadeIn 0.3s ease}
+.part-info.active{display:block}
+.part-info h3{color:#60a5fa;font-size:0.95em;margin-bottom:5px}
+.part-info p{font-size:0.82em;color:#cbd5e1;line-height:1.5}
+.part-info .hindi{color:#fbbf24;font-size:0.9em;font-weight:600}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+.parts-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
+.part-btn{background:rgba(30,41,59,0.9);border:2px solid transparent;border-radius:10px;padding:8px 10px;cursor:pointer;text-align:left;transition:all 0.3s ease;color:#e2e8f0;font-size:0.8em}
+.part-btn:hover{transform:translateY(-2px);box-shadow:0 4px 15px rgba(59,130,246,0.4)}
+.part-btn.cornea{border-color:#22c55e}.part-btn.lens{border-color:#3b82f6}.part-btn.retina{border-color:#ef4444}.part-btn.pupil{border-color:#f59e0b}.part-btn.iris{border-color:#8b5cf6}.part-btn.ciliary{border-color:#06b6d4}
+.part-btn.active{transform:translateY(-2px);box-shadow:0 4px 20px rgba(59,130,246,0.5)}
+.part-btn.cornea.active{background:rgba(34,197,94,0.2)}
+.part-btn.lens.active{background:rgba(59,130,246,0.2)}
+.part-btn.retina.active{background:rgba(239,68,68,0.2)}
+.part-btn.pupil.active{background:rgba(245,158,11,0.2)}
+.part-btn.iris.active{background:rgba(139,92,246,0.2)}
+.part-btn.ciliary.active{background:rgba(6,182,212,0.2)}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:6px}
+.steps-container{counter-reset:step}
+.step{background:rgba(15,23,42,0.6);border-left:3px solid #3b82f6;border-radius:8px;padding:10px 12px;margin-bottom:8px;display:none;animation:slideIn 0.4s ease;font-size:0.82em;line-height:1.6}
+.step.visible{display:block}
+@keyframes slideIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+.step-num{background:#3b82f6;color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:0.75em;font-weight:700;margin-right:8px;flex-shrink:0}
+.step-header{display:flex;align-items:center;margin-bottom:4px}
+.btn{background:linear-gradient(135deg,#3b82f6,#06b6d4);border:none;color:#fff;padding:8px 18px;border-radius:8px;cursor:pointer;font-size:0.85em;font-weight:600;transition:all 0.3s ease;margin-top:8px}
+.btn:hover{transform:translateY(-1px);box-shadow:0 4px 15px rgba(59,130,246,0.5)}
+.btn:active{transform:translateY(0)}
+.light-demo{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-top:10px}
+.light-path{display:flex;align-items:center;gap:3px;font-size:0.75em}
+.arrow{color:#60a5fa;font-size:1.1em}
+.label-pill{background:rgba(59,130,246,0.2);border:1px solid #3b82f6;border-radius:20px;padding:3px 10px;font-size:0.72em;color:#93c5fd}
+.accommodation-demo{display:flex;justify-content:space-around;align-items:center;margin-top:10px;flex-wrap:wrap;gap:10px}
+.lens-demo{text-align:center;cursor:pointer}
+.lens-shape{transition:all 0.5s ease;margin:5px auto}
+.lens-label{font-size:0.72em;color:#94a3b8;margin-top:5px}
+.highlight-box{background:linear-gradient(135deg,rgba(245,158,11,0.15),rgba(239,68,68,0.1));border:1px solid #f59e0b;border-radius:10px;padding:10px;margin-top:10px;font-size:0.82em}
+.highlight-box .formula{font-size:1em;color:#fbbf24;font-weight:700;text-align:center;padding:5px 0}
+.defect-tabs{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.tab{background:rgba(30,41,59,0.9);border:1px solid rgba(59,130,246,0.3);border-radius:8px;padding:6px 12px;cursor:pointer;font-size:0.78em;transition:all 0.3s}
+.tab.active{background:linear-gradient(135deg,#1e40af,#3b82f6);border-color:#60a5fa;color:#fff}
+.defect-content{display:none;animation:fadeIn 0.3s ease}
+.defect-content.active{display:block}
+.badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:0.7em;font-weight:600;margin-left:6px}
+.badge-green{background:rgba(34,197,94,0.2);color:#22c55e;border:1px solid #22c55e}
+.badge-red{background:rgba(239,68,68,0.2);color:#ef4444;border:1px solid #ef4444}
+.pupil-demo{display:flex;justify-content:center;gap:30px;align-items:center;margin:10px 0;flex-wrap:wrap}
+.eye-small{text-align:center;cursor:pointer}
+.eye-small svg{transition:all 0.3s}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+.pulsing{animation:pulse 2s infinite}
+</style>
+</head>
+<body>
+<div class="title-bar">
+<h1>👁️ The Human Eye — मानव नेत्र</h1>
+<p>CBSE Class 10 Science | Chapter: The Human Eye and the Colourful World</p>
+</div>
+<div class="container">
+
+<div class="card">
+<h2>🔬 Interactive Eye Diagram — क्लिक करें</h2>
+<p style="font-size:0.78em;color:#94a3b8;margin-bottom:8px">Click on any part of the eye or buttons below to learn about it</p>
+<div class="eye-container">
+<svg class="eye-svg" viewBox="0 0 520 280" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<radialGradient id="scleraGrad" cx="50%" cy="50%" r="50%">
+<stop offset="0%" stop-color="#e8e0d0"/>
+<stop offset="100%" stop-color="#c9bfab"/>
+</radialGradient>
+<radialGradient id="irisGrad" cx="40%" cy="40%" r="60%">
+<stop offset="0%" stop-color="#7c6fa0"/>
+<stop offset="40%" stop-color="#5b4f8a"/>
+<stop offset="100%" stop-color="#2d1b69"/>
+</radialGradient>
+<radialGradient id="retinaGrad" cx="50%" cy="50%" r="50%">
+<stop offset="0%" stop-color="#c0392b"/>
+<stop offset="100%" stop-color="#8e1a0e"/>
+</radialGradient>
+<linearGradient id="lensGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+<stop offset="0%" stop-color="#a8d8f0" stop-opacity="0.9"/>
+<stop offset="100%" stop-color="#5bb8e8" stop-opacity="0.7"/>
+</linearGradient>
+<linearGradient id="cornGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+<stop offset="0%" stop-color="#c8f0d0" stop-opacity="0.8"/>
+<stop offset="100%" stop-color="#6ecf8a" stop-opacity="0.6"/>
+</linearGradient>
+<filter id="glow"><feGaussianBlur stdDeviation="2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+<!-- Sclera (white of eye) -->
+<ellipse cx="260" cy="145" rx="175" ry="110" fill="url(#scleraGrad)" stroke="#b8a990" stroke-width="2" id="sclera"/>
+<!-- Choroid (dark layer) -->
+<ellipse cx="260" cy="145" rx="165" ry="100" fill="#3d2b1f" opacity="0.4"/>
+<!-- Retina -->
+<ellipse cx="260" cy="145" rx="152" ry="88" fill="url(#retinaGrad)" id="retina-part" style="cursor:pointer" onclick="selectPart('retina')"/>
+<!-- Vitreous humour -->
+<ellipse cx="248" cy="145" rx="118" ry="78" fill="rgba(200,230,255,0.15)"/>
+<!-- Iris -->
+<circle cx="125" cy="145" r="45" fill="url(#irisGrad)" id="iris-part" style="cursor:pointer" onclick="selectPart('iris')"/>
+<!-- Pupil -->
+<circle cx="125" cy="145" r="18" fill="#080808" id="pupil-part" style="cursor:pointer" onclick="selectPart('pupil')"/>
+<!-- Lens -->
+<ellipse cx="165" cy="145" rx="20" ry="38" fill="url(#lensGrad)" stroke="#5bb8e8" stroke-width="1.5" id="lens-part" style="cursor:pointer" onclick="selectPart('lens')"/>
+<!-- Cornea -->
+<ellipse cx="90" cy="145" rx="22" ry="52" fill="url(#cornGrad)" stroke="#6ecf8a" stroke-width="1.5" id="cornea-part" style="cursor:pointer" onclick="selectPart('cornea')"/>
+<!-- Ciliary muscles -->
+<path d="M148 110 Q158 100 165 107" stroke="#06b6d4" stroke-width="3" fill="none" id="ciliary-part" style="cursor:pointer" onclick="selectPart('ciliary')"/>
+<path d="M148 180 Q158 190 165 183" stroke="#06b6d4" stroke-width="3" fill="none"/>
+<path d="M150 115 Q162 105 168 112" stroke="#06b6d4" stroke-width="2.5" fill="none"/>
+<path d="M150 175 Q162 185 168 178" stroke="#06b6d4" stroke-width="2.5" fill="none"/>
+<!-- Optic nerve -->
+<ellipse cx="420" cy="145" rx="18" ry="12" fill="#f59e0b" opacity="0.8"/>
+<rect x="435" y="140" width="30" height="10" fill="#f59e0b" opacity="0.7" rx="3"/>
+<!-- Blind spot dot -->
+<circle cx="420" cy="145" r="5" fill="#fde68a"/>
+<!-- Yellow spot / Fovea -->
+<ellipse cx="360" cy="145" rx="15" ry="10" fill="#fde68a" opacity="0.6"/>
+<!-- Aqueous humour -->
+<ellipse cx="107" cy="145" rx="30" ry="44" fill="rgba(180,230,200,0.2)"/>
+
+<!-- LABELS -->
+<text x="60" y="40" fill="#22c55e" font-size="11" font-weight="600">Cornea</text>
+<line x1="80" y1="98" x2="72" y2="48" stroke="#22c55e" stroke-width="1.2" stroke-dasharray="3,2"/>
+<text x="55" y="52" fill="#fbbf24" font-size="9">(कॉर्निया)</text>
+
+<text x="8" y="152" fill="#f59e0b" font-size="11" font-weight="600">Pupil</text>
+<line x1="107" y1="145" x2="40" y2="152" stroke="#f59e0b" stroke-width="1.2" stroke-dasharray="3,2"/>
+<text x="10" y="163" fill="#fbbf24" font-size="9">(पुतली)</text>
+
+<text x="8" y="200" fill="#8b5cf6" font-size="11" font-weight="600">Iris</text>
+<line x1="105" y1="182" x2="38" y2="195" stroke="#8b5cf6" stroke-width="1.2" stroke-dasharray="3,2"/>
+<text x="10" y="210" fill="#fbbf24" font-size="9">(परितारिका)</text>
+
+<text x="155" y="30" fill="#3b82f6" font-size="11" font-weight="600">Lens</text>
+<line x1="165" y1="107" x2="172" y2="38" stroke="#3b82f6" stroke-width="1.2" stroke-dasharray="3,2"/>
+<text x="150" y="42" fill="#fbbf24" font-size="9">(क्रिस्टलीय लेंस)</text>
+
+<text x="195" y="252" fill="#06b6d4" font-size="11" font-weight="600">Ciliary Muscles</text>
+<line x1="160" y1="182" x2="225" y2="247" stroke="#06b6d4" stroke-width="1.2" stroke-dasharray="3,2"/>
+<text x="198" y="262" fill="#fbbf24" font-size="9">(पक्ष्माभी पेशी)</text>
+
+<text x="360" y="40" fill="#ef4444" font-size="11" font-weight="600">Retina</text>
+<line x1="340" y1="68" x2="375" y2="48" stroke="#ef4444" stroke-width="1.2" stroke-dasharray="3,2"/>
+<text x="358" y="52" fill="#fbbf24" font-size="9">(दृष्टिपटल)</text>
+
+<text x="395" y="252" fill="#f59e0b" font-size="11" font-weight="600">Optic Nerve</text>
+<line x1="425" y1="157" x2="432" y2="247" stroke="#f59e0b" stroke-width="1.2" stroke-dasharray="3,2"/>
+<text x="396" y="262" fill="#fbbf24" font-size="9">(दृष्टि तंत्रिका)</text>
+
+<text x="330" y="252" fill="#fde68a" font-size="10" font-weight="600">Yellow Spot</text>
+<line x1="358" y1="153" x2="355" y2="247" stroke="#fde68a" stroke-width="1" stroke-dasharray="3,2"/>
+
+<!-- Sclera label -->
+<text x="280" y="270" fill="#c9bfab" font-size="10">Sclera (श्वेतपटल)</text>
+
+<!-- Light ray -->
+<path d="M18 145 L68 145" stroke="#fde68a" stroke-width="2.5" marker-end="url(#arr)" opacity="0.8"/>
+<defs>
+<marker id="arr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+<path d="M0,0 L6,3 L0,6 Z" fill="#fde68a"/>
+</marker>
+</defs>
+<text x="5" y="138" fill="#fde68a" font-size="9">Light</text>
+</svg>
+</div>
+
+<div class="parts-grid">
+<button class="part-btn cornea" onclick="selectPart('cornea')"><span class="dot" style="background:#22c55e"></span>Cornea — कॉर्निया</button>
+<button class="part-btn lens" onclick="selectPart('lens')"><span class="dot" style="background:#3b82f6"></span>Lens — लेंस</button>
+<button class="part-btn retina" onclick="selectPart('retina')"><span class="dot" style="background:#ef4444"></span>Retina — दृष्टिपटल</button>
+<button class="part-btn pupil" onclick="selectPart('pupil')"><span class="dot" style="background:#f59e0b"></span>Pupil — पुतली</button>
+<button class="part-btn iris" onclick="selectPart('iris')"><span class="dot" style="background:#8b5cf6"></span>Iris — परितारिका</button>
+<button class="part-btn ciliary" onclick="selectPart('ciliary')"><span class="dot" style="background:#06b6d4"></span>Ciliary — पक्ष्माभी</button>
+</div>
+
+<div class="part-info" id="part-info">
+<h3 id="info-title"></h3>
+<p id="info-hindi" class="hindi"></p>
+<p id="info-text"></p>
+</div>
+</div>
+
+<div class="card">
+<h2>🔦 How Light Travels Through the Eye</h2>
+<div class="light-demo">
+<div class="light-path">
+<span style="color:#fde68a;font-size:1.2em">☀️</span>
+<span class="arrow">→</span>
+<span class="label-pill" style="border-color:#22c55e;color:#22c55e">Cornea</span>
+<span class="arrow">→</span>
+<span class="label-pill" style="border-color:#94a3b8;color:#94a3b8">Aqueous Humour</span>
+<span class="arrow">→</span>
+<span class="label-pill" style="border-color:#f59e0b;color:#f59e0b">Pupil</span>
+<span class="arrow">→</span>
+<span class="label-pill" style="border-color:#3b82f6;color:#3b82f6">Lens</span>
+<span class="arrow">→</span>
+<span class="label-pill" style="border-color:#94a3b8;color:#94a3b8">Vitreous Humour</span>
+<span class="arrow">→</span>
+<span class="label-pill" style="border-color:#ef4444;color:#ef4444">Retina</span>
+<span class="arrow">→</span>
+<span style="color:#8b5cf6;font-size:0.85em">🧠 Brain</span>
+</div>
+</div>
+<div class="highlight-box" style="margin-top:10px">
+<div class="formula">Image formed on Retina = Real + Inverted</div>
+<p style="font-size:0.78em;color:#cbd5e1;text-align:center">The brain interprets the inverted image as upright | प्रतिबिम्ब उलटा बनता है, मस्तिष्क सीधा समझता है</p>
+</div>
+</div>
+
+<div class="card">
+<h2>🔵 Pupil Response — पुतली की प्रतिक्रिया</h2>
+<p style="font-size:0.78em;color:#94a3b8;margin-bottom:5px">Click to toggle between bright & dim light</p>
+<div class="pupil-demo">
+<div class="eye-small" onclick="toggleLight('bright')">
+<svg width="90" height="90" viewBox="0 0 90 90" id="bright-eye">
+<circle cx="45" cy="45" r="38" fill="#e8e0d0" stroke="#b8a990" stroke-width="1.5"/>
+<circle cx="45" cy="45" r="30" fill="#5b4f8a"/>
+<circle cx="45" cy="45" r="10" fill="#080808" id="bright-pupil"/>
+<circle cx="38" cy="38" r="4" fill="white" opacity="0.3"/>
+</svg>
+<div class="lens-label">☀️ Bright Light<br><span style="color:#f59e0b">Pupil contracts<br>पुतली सिकुड़ती है</span></div>
+</div>
+<div style="text-align:center;font-size:0.8em;color:#60a5fa">
+<div style="font-size:1.5em">↔</div>
+<div>Iris controls<br>pupil size</div>
+</div>
+<div class="eye-small" onclick="toggleLight('dim')">
+<svg width="90" height="90" viewBox="0 0 90 90" id="dim-eye">
+<circle cx="45" cy="45" r="38" fill="#e8e0d0" stroke="#b8a990" stroke-width="1.5"/>
+<circle cx="45" cy="45" r="30" fill="#5b4f8a"/>
+<circle cx="45" cy="45" r="22" fill="#080808" id="dim-pupil"/>
+<circle cx="38" cy="38" r="4" fill="white" opacity="0.3"/>
+</svg>
+<div class="lens-label">🌙 Dim Light<br><span style="color:#8b5cf6">Pupil dilates<br>पुतली फैलती है</span></div>
+</div>
+</div>
+<div id="pupil-info" style="font-size:0.78em;color:#94a3b8;text-align:center;padding:5px">Click on eyes above to see pupil response</div>
+</div>
+
+<div class="card">
+<h2>🎯 Accommodation of Eye — समंजन क्षमता</h2>
+<p style="font-size:0.78em;color:#94a3b8;margin-bottom:10px">Click on Near/Far object to see how the lens changes shape</p>
+<div class="accommodation-demo">
+<div class="lens-demo" onclick="setAccommodation('near')">
+<svg width="80" height="80" viewBox="0 0 80 80">
+<circle cx="40" cy="40" r="30" fill="none" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="4,3"/>
+<text x="40" y="35" text-anchor="middle" fill="#fde68a" font-size="20">📖</text>
+<text x="40" y="55" text-anchor="middle" fill="#94a3b8" font-size="9">25 cm</text>
+</svg>
+<div class="lens-label">Near Object<br>निकट वस्तु</div>
+</div>
+<div style="text-align:center">
+<svg width="60" height="100" viewBox="0 0 60 100" id="acc-lens">
+<ellipse cx="30" cy="50" rx="14" ry="35" fill="url(#lensGrad)" stroke="#5bb8e8" stroke-width="2" id="lens-ellipse"/>
+</svg>
+<div class="lens-label" id="lens-state">Lens Normal</div>
+</div>
+<div class="lens-demo" onclick="setAccommodation('far')">
+<svg width="80" height="80" viewBox="0 0 80 80">
+<circle cx="40" cy="40" r="30" fill="none" stroke="#22c55e" stroke-width="1.5" stroke-dasharray="4,3"/>
+<text x="40" y="35" text-anchor="middle" fill="#fde68a" font-size="20">🏔️</text>
+<text x="40" y="55" text-anchor="middle" fill="#94a3b8" font-size="9">∞ far</text>
+</svg>
+<div class="lens-label">Far Object<br>दूर वस्तु</div>
+</div>
+</div>
+<div class="highlight-box">
+<div class="formula">Near Point = 25 cm | Far Point = ∞</div>
+<p style="font-size:0.78em;color:#cbd5e1;text-align:center">Normal eye: Least distance of distinct vision = 25 cm (निकट बिंदु)</p>
+</div>
+</div>
+
+<div class="card">
+<h2>📚 Step-by-Step: How We See — दृष्टि कैसे होती है</h2>
+<button class="btn" onclick="nextStep()">▶ Next Step</button>
+<button class="btn" style="background:linear-gradient(135deg,#ef4444,#f97316);margin-left:8px" onclick="resetSteps()">↺ Reset</button>
+<div id="steps-container" style="margin-top:12px">
+<div class="step" id="step-1">
+<div class="step-header"><span class="step-num">1</span><strong style="color:#22c55e">Light enters through Cornea (कॉर्निया)</strong></div>
+Light from an object first hits the Cornea. The cornea is transparent and acts as the primary refracting surface. It provides about 2/3rd of the eye's total focusing power. The cornea refracts (bends) the incoming light rays.
+</div>
+<div class="step" id="step-2">
+<div class="step-header"><span class="step-num">2</span><strong style="color:#f59e0b">Pupil controls light amount (पुतली)</strong></div>
+After cornea, light passes through the Pupil — the dark circular opening in the centre of the Iris. The Iris (coloured part) controls the size of the pupil. In bright light → pupil contracts. In dim light → pupil dilates. This is called the Iris Reflex.
+</div>
+<div class="step" id="step-3">
+<div class="step-header"><span class="step-num">3</span><strong style="color:#3b82f6">Lens focuses light (क्रिस्टलीय लेंस)</strong></div>
+The crystalline lens (biconvex lens) focuses the refracted light precisely onto the retina. Its curvature changes due to ciliary muscles — this is called Accommodation (समंजन). For near objects: lens becomes thicker (more curved). For far objects: lens becomes thinner (less curved).
+</div>
+<div class="step" id="step-4">
+<div class="step-header"><span class="step-num">4</span><strong style="color:#ef4444">Image forms on Retina (दृष्टिपटल)</strong></div>
+The lens forms a real, inverted, diminished image on the Retina. The retina contains photoreceptors: Rods (for dim light, black & white) and Cones (for bright light, colour vision). The fovea (yellow spot) at the centre gives sharpest vision.
+</div>
+<div class="step" id="step-5">
+<div class="step-header"><span class="step-num">5</span><strong style="color:#8b5cf6">Signal to Brain (मस्तिष्क को संकेत)</strong></div>
+Photoreceptors convert light into electrical signals. These signals travel through the Optic Nerve (दृष्टि तंत्रिका) to the brain. The brain interprets these signals and makes us "see" the object as upright and colourful. ✅ This completes the process of vision!
+</div>
+</div>
+</div>
+
+<div class="card">
+<h2>⚡ Quick Reference — Key Facts</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.78em">
+<div style="

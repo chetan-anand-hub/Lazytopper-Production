@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Extraction of Metals | CBSE Class 10</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);min-height:100vh;color:#e2e8f0}
+.titlebar{background:linear-gradient(90deg,#1d4ed8,#3b82f6,#06b6d4);padding:14px 20px;text-align:center;box-shadow:0 4px 20px rgba(59,130,246,0.4)}
+.titlebar h1{font-size:1.3em;font-weight:700;letter-spacing:1px}
+.titlebar p{font-size:0.8em;opacity:0.85;margin-top:3px}
+.container{max-width:860px;margin:0 auto;padding:16px}
+.card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:18px;margin-bottom:18px;backdrop-filter:blur(10px)}
+.section-title{font-size:1em;font-weight:700;color:#60a5fa;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.badge{background:#3b82f6;color:white;padding:2px 10px;border-radius:20px;font-size:0.7em}
+.badge-green{background:#22c55e}
+.badge-amber{background:#f59e0b}
+.reactivity-container{display:flex;flex-direction:column;gap:6px;margin:10px 0}
+.metal-row{display:flex;align-items:center;gap:10px;cursor:pointer;border-radius:10px;padding:8px 12px;transition:all 0.3s;border:1px solid transparent}
+.metal-row:hover{border-color:rgba(255,255,255,0.2);background:rgba(255,255,255,0.07)}
+.metal-name{width:90px;font-weight:600;font-size:0.9em}
+.metal-bar-wrap{flex:1;background:rgba(255,255,255,0.08);border-radius:6px;height:22px;overflow:hidden}
+.metal-bar{height:100%;border-radius:6px;transition:width 1s ease;display:flex;align-items:center;padding-left:8px;font-size:0.72em;font-weight:700;color:white;white-space:nowrap}
+.metal-method{width:110px;text-align:right;font-size:0.75em;padding:3px 8px;border-radius:12px;font-weight:600}
+.method-electro{background:rgba(239,68,68,0.25);color:#fca5a5;border:1px solid #ef4444}
+.method-smelt{background:rgba(245,158,11,0.25);color:#fcd34d;border:1px solid #f59e0b}
+.method-heat{background:rgba(34,197,94,0.25);color:#86efac;border:1px solid #22c55e}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.tab{padding:7px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);cursor:pointer;font-size:0.82em;font-weight:600;transition:all 0.25s;background:transparent;color:#94a3b8}
+.tab.active{background:#3b82f6;color:white;border-color:#3b82f6}
+.process-panel{display:none}
+.process-panel.active{display:block}
+svg.diagram{width:100%;max-width:480px;display:block;margin:0 auto}
+.step-btn{background:linear-gradient(135deg,#3b82f6,#1d4ed8);border:none;color:white;padding:9px 20px;border-radius:10px;cursor:pointer;font-size:0.85em;font-weight:600;transition:all 0.2s;margin-top:10px}
+.step-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(59,130,246,0.4)}
+.step-box{margin-top:10px;min-height:50px}
+.step-item{background:rgba(59,130,246,0.1);border-left:3px solid #3b82f6;border-radius:0 8px 8px 0;padding:10px 14px;margin-bottom:8px;animation:slideIn 0.4s ease;font-size:0.88em}
+@keyframes slideIn{from{opacity:0;transform:translateX(-15px)}to{opacity:1;transform:translateX(0)}}
+.step-item.green{border-color:#22c55e;background:rgba(34,197,94,0.1)}
+.step-item.amber{border-color:#f59e0b;background:rgba(245,158,11,0.1)}
+.step-item.red{border-color:#ef4444;background:rgba(239,68,68,0.1)}
+.formula-box{background:linear-gradient(135deg,rgba(59,130,246,0.15),rgba(6,182,212,0.1));border:1px solid #3b82f6;border-radius:12px;padding:14px;text-align:center;margin:10px 0}
+.formula{font-size:1em;font-weight:700;color:#93c5fd;letter-spacing:0.5px;line-height:1.7}
+.hindi{color:#fcd34d;font-size:0.8em}
+.quiz-wrap{margin-top:8px}
+.quiz-q{font-size:0.9em;margin-bottom:10px;color:#e2e8f0}
+.quiz-opts{display:flex;flex-direction:column;gap:6px}
+.quiz-opt{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:9px 14px;cursor:pointer;font-size:0.84em;transition:all 0.2s}
+.quiz-opt:hover{background:rgba(59,130,246,0.15)}
+.quiz-opt.correct{background:rgba(34,197,94,0.2);border-color:#22c55e;color:#86efac}
+.quiz-opt.wrong{background:rgba(239,68,68,0.2);border-color:#ef4444;color:#fca5a5}
+.quiz-feedback{margin-top:8px;font-size:0.83em;padding:8px 12px;border-radius:8px;display:none}
+.quiz-feedback.show{display:block}
+.quiz-feedback.ok{background:rgba(34,197,94,0.15);color:#86efac}
+.quiz-feedback.bad{background:rgba(239,68,68,0.15);color:#fca5a5}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:0.77em}
+.dot{width:10px;height:10px;border-radius:50%}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+@media(max-width:500px){.info-grid{grid-template-columns:1fr}.metal-method{width:90px;font-size:0.68em}}
+.info-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px}
+.info-card h4{font-size:0.82em;color:#60a5fa;margin-bottom:6px}
+.info-card p{font-size:0.8em;color:#cbd5e1;line-height:1.5}
+.progress-bar{height:6px;background:rgba(255,255,255,0.1);border-radius:3px;margin-top:6px}
+.progress-fill{height:100%;border-radius:3px;transition:width 0.5s ease}
+.tooltip{position:relative;display:inline-block}
+.tooltip .tip{visibility:hidden;background:#1e293b;color:#e2e8f0;border:1px solid #3b82f6;font-size:0.75em;padding:5px 10px;border-radius:6px;position:absolute;bottom:125%;left:50%;transform:translateX(-50%);white-space:nowrap;z-index:10;opacity:0;transition:opacity 0.2s}
+.tooltip:hover .tip{visibility:visible;opacity:1}
+.glow{animation:glow 2s ease-in-out infinite alternate}
+@keyframes glow{from{filter:drop-shadow(0 0 4px #3b82f6)}to{filter:drop-shadow(0 0 12px #06b6d4)}}
+.bubble{animation:float 3s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+</style>
+</head>
+<body>
+<div class="titlebar">
+<h1>⚗️ Extraction of Metals | धातुओं का निष्कर्षण</h1>
+<p>CBSE Class 10 Science | Chapter: Metals and Non-Metals</p>
+</div>
+<div class="container">
+
+<!-- Reactivity Series -->
+<div class="card">
+<div class="section-title">🔬 Reactivity Series <span class="badge">Click to Explore</span></div>
+<p style="font-size:0.82em;color:#94a3b8;margin-bottom:12px">Click any metal to see extraction method details. Bar length = reactivity level. <span class="hindi">| सक्रियता श्रृंखला</span></p>
+<div class="reactivity-container" id="reactivityList"></div>
+<div class="legend">
+<div class="legend-item"><div class="dot" style="background:#ef4444"></div>Electrolysis (High reactivity)</div>
+<div class="legend-item"><div class="dot" style="background:#f59e0b"></div>Smelting / Reduction (Mid)</div>
+<div class="legend-item"><div class="dot" style="background:#22c55e"></div>Heat alone (Low reactivity)</div>
+</div>
+<div id="metalDetail" style="display:none;margin-top:12px;padding:12px;background:rgba(255,255,255,0.04);border-radius:10px;border:1px solid rgba(255,255,255,0.1);font-size:0.85em;animation:slideIn 0.3s ease"></div>
+</div>
+
+<!-- Process Tabs -->
+<div class="card">
+<div class="section-title">🏭 Extraction Processes <span class="badge badge-amber">Interactive</span></div>
+<div class="tabs">
+<button class="tab active" onclick="showProcess('calcination')">Calcination</button>
+<button class="tab" onclick="showProcess('roasting')">Roasting</button>
+<button class="tab" onclick="showProcess('smelting')">Smelting</button>
+<button class="tab" onclick="showProcess('electrolysis')">Electrolysis</button>
+</div>
+
+<!-- Calcination -->
+<div class="process-panel active" id="pan-calcination">
+<div class="formula-box">
+<div class="hindi">कैल्सिनेशन (Calcination)</div>
+<div class="formula">ZnCO₃ → ZnO + CO₂↑</div>
+<div class="formula">CaCO₃ → CaO + CO₂↑</div>
+<div style="font-size:0.75em;color:#94a3b8;margin-top:4px">Carbonate ores heated in limited air → Metal oxide + CO₂</div>
+</div>
+<svg class="diagram" viewBox="0 0 380 180" xmlns="http://www.w3.org/2000/svg">
+<defs><linearGradient id="furnaceGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ef4444"/><stop offset="100%" stop-color="#7c2d12"/></linearGradient>
+<linearGradient id="oreGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#78716c"/><stop offset="100%" stop-color="#44403c"/></linearGradient></defs>
+<rect x="130" y="60" width="120" height="90" rx="8" fill="url(#furnaceGrad)" stroke="#f87171" stroke-width="2"/>
+<rect x="145" y="80" width="90" height="55" rx="4" fill="url(#oreGrad)"/>
+<text x="190" y="113" text-anchor="middle" font-size="11" fill="#fcd34d" font-weight="bold">ZnCO₃ ore</text>
+<text x="190" y="52" text-anchor="middle" font-size="11" fill="#fca5a5">Furnace (Limited Air)</text>
+<text x="190" y="165" text-anchor="middle" font-size="10" fill="#94a3b8">भट्टी</text>
+<polygon points="175,60 205,60 190,35" fill="#f59e0b" opacity="0.8"/>
+<polygon points="183,55 197,55 190,38" fill="#fbbf24"/>
+<circle cx="190" cy="28" r="3" fill="#fcd34d" class="bubble"/>
+<text x="240" y="75" font-size="10" fill="#86efac">CO₂↑ out</text>
+<line x1="250" y1="40" x2="230" y2="65" stroke="#86efac" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr)"/>
+<text x="30" y="100" font-size="10" fill="#93c5fd">ZnCO₃</text>
+<text x="22" y="112" font-size="9" fill="#64748b">(Carbonate ore)</text>
+<line x1="85" y1="105" x2="128" y2="105" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#arr2)"/>
+<text x="290" y="100" font-size="10" fill="#86efac">ZnO</text>
+<text x="283" y="112" font-size="9" fill="#64748b">(Metal oxide)</text>
+<defs><marker id="arr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="#86efac"/></marker>
+<marker id="arr2" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="#3b82f6"/></marker></defs>
+</svg>
+<div id="calcSteps" class="step-box"></div>
+<button class="step-btn" onclick="runSteps('calc')">▶ Step-by-Step Reveal</button>
+</div>
+
+<!-- Roasting -->
+<div class="process-panel" id="pan-roasting">
+<div class="formula-box">
+<div class="hindi">भर्जन (Roasting)</div>
+<div class="formula">2ZnS + 3O₂ → 2ZnO + 2SO₂↑</div>
+<div style="font-size:0.75em;color:#94a3b8;margin-top:4px">Sulphide ores heated in excess air → Metal oxide + SO₂</div>
+</div>
+<svg class="diagram" viewBox="0 0 380 180" xmlns="http://www.w3.org/2000/svg">
+<rect x="120" y="55" width="140" height="95" rx="8" fill="#7c2d12" stroke="#f97316" stroke-width="2"/>
+<rect x="140" y="75" width="100" height="58" rx="4" fill="#57534e"/>
+<text x="190" y="109" text-anchor="middle" font-size="11" fill="#fed7aa" font-weight="bold">ZnS ore</text>
+<text x="190" y="48" text-anchor="middle" font-size="11" fill="#fb923c">Furnace (Excess Air)</text>
+<text x="190" y="163" text-anchor="middle" font-size="10" fill="#94a3b8">अधिक वायु</text>
+<polygon points="173,55 183,55 183,38 190,30 197,38 197,55 207,55" fill="#f97316" opacity="0.7"/>
+<polygon points="180,52 185,52 185,40 190,33 195,40 195,52 200,52" fill="#fbbf24"/>
+<text x="275" y="72" font-size="10" fill="#fca5a5">SO₂↑</text>
+<path d="M265,68 Q255,50 240,55" stroke="#fca5a5" stroke-width="1.5" fill="none" stroke-dasharray="3,2" marker-end="url(#arr3)"/>
+<text x="15" y="100" font-size="10" fill="#93c5fd">ZnS</text>
+<text x="8" y="112" font-size="9" fill="#64748b">(Sulphide ore)</text>
+<line x1="68" y1="105" x2="118" y2="105" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#arr4)"/>
+<text x="285" y="100" font-size="10" fill="#86efac">ZnO</text>
+<defs><marker id="arr3" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="#fca5a5"/></marker>
+<marker id="arr4" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="#3b82f6"/></marker></defs>
+</svg>
+<div id="roastSteps" class="step-box"></div>
+<button class="step-btn" onclick="runSteps('roast')">▶ Step-by-Step Reveal</button>
+</div>
+
+<!-- Smelting -->
+<div class="process-panel" id="pan-smelting">
+<div class="formula-box">
+<div class="hindi">प्रगलन (Smelting) — Reduction</div>
+<div class="formula">ZnO + C → Zn + CO↑</div>
+<div class="formula">Fe₂O₃ + 3CO → 2Fe + 3CO₂</div>
+<div style="font-size:0.75em;color:#94a3b8;margin-top:4px">Metal oxide reduced using carbon (coke) → Pure metal</div>
+</div>
+<svg class="diagram" viewBox="0 0 380 200" xmlns="http://www.w3.org/2000/svg">
+<defs><linearGradient id="blastGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#1e3a5f"/><stop offset="100%" stop-color="#1e293b"/></linearGradient></defs>
+<rect x="130" y="30" width="120" height="130" rx="10" fill="url(#blastGrad)" stroke="#3b82f6" stroke-width="2"/>
+<text x="190" y="22" text-anchor="middle" font-size="10" fill="#60a5fa">Blast Furnace</text>
+<rect x="148" y="42" width="84" height="25" rx="4" fill="#78716c"/>
+<text x="190" y="60" text-anchor="middle" font-size="9" fill="#fcd34d">ZnO + Coke (C)</text>
+<rect x="148" y="110" width="84" height="35" rx="4" fill="#fbbf24" opacity="0.8"/>
+<text x="190" y="131" text-anchor="middle" font-size="10" fill="#1e293b" font-weight="bold">Molten Zn</text>
+<polygon points="170,80 210,80 200,105 180,105" fill="#ef4444" opacity="0.7"/>
+<polygon points="178,82 202,82 196,102 184,102" fill="#f97316" opacity="0.6"/>
+<circle cx="188" cy="88" r="3" fill="#fef3c7"/>
+<circle cx="196" cy="93" r="2" fill="#fef3c7"/>
+<text x="270" y="62" font-size="9" fill="#86efac">CO↑ gas out</text>
+<line x1="252" y1="58" x2="235" y2="58" stroke="#86efac" stroke-width="1" stroke-dasharray="3,2"/>
+<line x1="60" y1="100" x2="128" y2="120" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="3,2"/>
+<text x="20" y="98" font-size="9" fill="#fcd34d">Hot air</text>
+<text x="18" y="108" font-size="8" fill="#64748b">blasted in</text>
+<text x="295" y="130" font-size="9" fill="#fbbf24">Metal out</text>
+<line x1="252" y1="128" x2="282" y2="128" stroke="#fbbf24" stroke-width="1.5"/>
+<text x="190" y="175" text-anchor="middle" font-size="9" fill="#94a3b8">वात्या भट्टी (Blast Furnace)</text>
+</svg>
+<div id="smeltSteps" class="step-box"></div>
+<button class="step-btn" onclick="runSteps('smelt')">▶ Step-by-Step Reveal</button>
+</div>
+
+<!-- Electrolysis -->
+<div class="process-panel" id="pan-electrolysis">
+<div class="formula-box">
+<div class="hindi">वैद्युत अपघटन (Electrolysis)</div>
+<div class="formula">At Cathode (−): Al³⁺ + 3e⁻ → Al</div>
+<div class="formula">At Anode (+): 2O²⁻ → O₂ + 4e⁻</div>
+<div style="font-size:0.75em;color:#94a3b8;margin-top:4px">Used for highly reactive metals (Na, K, Al, Mg)</div>
+</div>
+<svg class="diagram" viewBox="0 0 380 200" xmlns="http://www.w3.org/2000/svg">
+<rect x="60" y="70" width="260" height="110" rx="10" fill="#0f172a" stroke="#3b82f6" stroke-width="2"/>
+<rect x="70" y="80" width="240" height="90" rx="6" fill="#1e3a5f" opacity="0.7"/>
+<text x="190" y="130" text-anchor="middle" font-size="10" fill="#93c5fd">Molten Al₂O₃ (electrolyte)</text>
+<text x="190" y="145" text-anchor="middle" font-size="9" fill="#64748b">वैद्युत अपघट्य</text>
+<rect x="100" y="35" width="20" height="60" rx="4" fill="#64748b" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="110" y="28" text-anchor="middle" font-size="9" fill="#fca5a5" font-weight="bold">Anode (+)</text>
+<text x="110" y="110" text-anchor="middle" font-size="8" fill="#64748b">ऐनोड</text>
+<rect x="260" y="35" width="20" height="60" rx="4" fill="#60a5fa" stroke="#3b82f6" stroke-width="1.5"/>
+<text x="270" y="28" text-anchor="middle" font-size="9" fill="#86efac" font-weight="bold">Cathode (−)</text>
+<text x="270" y="110" text-anchor="middle" font-size="8" fill="#64748b">कैथोड</text>
+<line x1="110" y1="35" x2="110" y2="10" stroke="#94a3b8" stroke-width="2"/>
+<line x1="270" y1="35" x2="270" y2="10" stroke="#60a5fa" stroke-width="2"/>
+<line x1="110" y1="10" x2="270" y2="10" stroke="#e2e8f0" stroke-width="2"/>
+<text x="190" y="8" text-anchor="middle" font-size="9" fill="#e2e8f0">Battery / DC Source</text>
+<circle cx="135" cy="100" r="5" fill="#fef3c7" class="bubble"/>
+<circle cx="155" cy="108" r="4" fill="#fef3c7" class="bubble" style="animation-delay:0.5s"/>
+<text x="130" y="93" font-size="8" fill="#fcd34d">O₂↑</text>
+<circle cx="248" cy="95" r="5" fill="#fbbf24"/>
+<circle cx="232" cy="103" r="4" fill="#fbbf24" style="animation-delay:0.7s"/>
+<text x="230" y="88" font-size="8" fill="#fbbf24">Al↓</text>
+<text x="190" y="172" text-anchor="middle" font-size="9" fill="#94a3b8">Hall–Héroult Process (for Aluminium)</text>
+</svg>
+<div id="electroSteps" class="step-box"></div>
+<button class="step-btn" onclick="runSteps('electro')">▶ Step-by-Step Reveal</button>
+</div>
+</div>
+
+<!-- Key Concepts -->
+<div class="card">
+<div class="section-title">📋 Key Concepts Summary <span class="badge badge-green">CBSE Exam</span></div>
+<div class="info-grid">
+<div class="info-card">
+<h4>🪨 Ore vs Mineral</h4>
+<p>Mineral = naturally found metal compound. Ore = mineral from which metal can be profitably extracted. <span class="hindi">अयस्क vs खनिज</span></p>
+</div>
+<div class="info-card">
+<h4>🧹 Concentration of Ore</h4>
+<p>Removal of gangue (impurities) from ore. Methods: Hydraulic washing, Froth flotation, Magnetic separation. <span class="hindi">अयस्क का सांद्रण</span></p>
+</div>
+<div class="info-card">
+<h4>🔥 Calcination vs Roasting</h4>
+<p>Calcination: limited air, carbonates. Roasting: excess air, sulphides. Both give metal oxide.</p>
+</div>
+<div class="info-card">
+<h4>⚡ Refining</h4>
+<p>Electrolytic refining purifies impure metals. Impure metal = anode, pure metal = cathode, salt solution = electrolyte. <span class="hindi">शोधन</span></p>
+</div>
+</div>
+</div>
+
+<!-- Mini Quiz -->
+<div class="card">
+<div class="section-title">🎯 Quick Quiz <span class="badge badge-amber">Test Yourself</span></div>
+<div class="quiz-wrap" id="quizArea"></div>
+</div>
+
+</div>
+
+<script>
+// Reactivity Series Data
+const metals=[
+{name:"Potassium",sym:"K",react:98,method:"electrolysis",color:"#ef4444",detail:"K is highly reactive. Extracted by electrolysis of molten KCl. Cannot be extracted by reduction."},
+{name:"Sodium",sym:"Na",react:94,method:"electrolysis",color:"#ef4444",detail:"Na extracted by Down's process — electrolysis of molten NaCl. Very reactive."},
+{name:"Magnesium",sym:"Mg",react:88,method:"electrolysis",color:"#ef4444",detail:"Mg extracted by electrolysis of molten MgCl₂. Highly reactive metal."},
+{name:"Aluminium",sym:"Al",react:82,method:"electrolysis",color:"#ef4444",detail:"Al extracted by Hall–Héroult process. Electrolysis of molten Al₂O₃ (alumina) dissolved in cryolite."},
+{name:"Zinc",sym:"Zn",react:65,method:"smelting",color:"#f59e0b",detail:"ZnS (zinc blende) roasted → ZnO, then reduced with coke: ZnO + C → Zn + CO"},
+{name:"Iron",sym:"Fe",react:58,method:"smelting",color:"#f59e0b",detail:"Fe₂O₃ reduced in blast furnace using CO: Fe₂O₃ + 3CO → 2Fe + 3CO₂"},
+{name:"Lead",sym:"Pb",react:42,method:"smelting",color:"#f59e0b",detail:"PbS (galena) roasted → PbO, then reduced by coke: 2PbO + C → 2Pb + CO₂"},
+{name:"Copper",sym:"Cu",react:28,method:"heat",color:"#22c55e",detail:"Cu₂S heated in air: Cu₂S + O₂ → 2Cu + SO₂. Low reactivity, easy extraction."},
+{name:"Silver",sym:"Ag",react:14,method:"heat",color:"#22c55e",detail:"Ag occurs as sulphide/free state. Extracted by displacement with copper and heating."},
+{name:"Gold",sym:"Au",react:5,method:"heat",color:"#22c55e",detail:"Au occurs in free/native state. Found in nature as pure gold! No special extraction needed."},
+];
+
+const mClass={"electrolysis":"method-electro","smelting":"method-smelt","heat":"method-heat"};

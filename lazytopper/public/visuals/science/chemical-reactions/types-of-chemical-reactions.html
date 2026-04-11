@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chemical Reactions - Types | CBSE Class 10</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#0f172a 100%);min-height:100vh;color:#1e293b}
+.titlebar{background:linear-gradient(90deg,#1d4ed8,#3b82f6,#06b6d4);padding:12px 20px;text-align:center;box-shadow:0 4px 20px rgba(59,130,246,0.4)}
+.titlebar h1{color:#fff;font-size:1.1rem;font-weight:700;letter-spacing:1px}
+.titlebar p{color:#bfdbfe;font-size:0.75rem;margin-top:2px}
+.container{max-width:800px;margin:0 auto;padding:16px}
+.tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.tab{padding:8px 14px;border-radius:20px;border:2px solid rgba(59,130,246,0.3);background:rgba(30,41,59,0.8);color:#94a3b8;cursor:pointer;font-size:0.8rem;font-weight:600;transition:all 0.3s}
+.tab.active,.tab:hover{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border-color:#3b82f6;transform:translateY(-2px);box-shadow:0 4px 15px rgba(59,130,246,0.4)}
+.card{background:rgba(255,255,255,0.97);border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:0 8px 32px rgba(0,0,0,0.3)}
+.section{display:none}
+.section.active{display:block}
+.reaction-type{border-radius:12px;padding:16px;margin-bottom:12px;cursor:pointer;transition:all 0.3s;border:2px solid transparent}
+.reaction-type:hover{transform:translateX(4px)}
+.rt-combination{background:linear-gradient(135deg,#dbeafe,#bfdbfe);border-color:#3b82f6}
+.rt-decomposition{background:linear-gradient(135deg,#fef3c7,#fde68a);border-color:#f59e0b}
+.rt-displacement{background:linear-gradient(135deg,#dcfce7,#bbf7d0);border-color:#22c55e}
+.rt-double{background:linear-gradient(135deg,#fce7f3,#fbcfe8);border-color:#ec4899}
+.rt-title{font-size:1rem;font-weight:700;margin-bottom:4px}
+.rt-hindi{font-size:0.75rem;color:#64748b;margin-bottom:8px}
+.rt-formula{font-family:monospace;font-size:0.9rem;background:rgba(0,0,0,0.08);padding:6px 10px;border-radius:8px;display:inline-block}
+.expand-content{display:none;margin-top:12px;animation:slideDown 0.3s ease}
+.reaction-type.expanded .expand-content{display:block}
+@keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+.svg-container{text-align:center;margin:12px 0}
+svg{max-width:100%;height:auto}
+.step-box{background:#f8fafc;border-left:4px solid #3b82f6;padding:10px 14px;margin:8px 0;border-radius:0 8px 8px 0;display:none}
+.step-box.visible{display:block;animation:slideDown 0.3s ease}
+.step-btn{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border:none;padding:8px 16px;border-radius:20px;cursor:pointer;font-size:0.8rem;font-weight:600;margin:4px;transition:all 0.3s}
+.step-btn:hover{transform:translateY(-2px);box-shadow:0 4px 15px rgba(59,130,246,0.4)}
+.reset-btn{background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;border:none;padding:8px 16px;border-radius:20px;cursor:pointer;font-size:0.8rem;font-weight:600;margin:4px;transition:all 0.3s}
+.atom{display:inline-block;width:36px;height:36px;border-radius:50%;font-size:0.7rem;font-weight:700;color:#fff;text-align:center;line-height:36px;margin:4px;box-shadow:0 2px 8px rgba(0,0,0,0.2)}
+.atom-h{background:linear-gradient(135deg,#3b82f6,#1d4ed8)}
+.atom-o{background:linear-gradient(135deg,#ef4444,#dc2626)}
+.atom-c{background:linear-gradient(135deg,#374151,#111827);color:#fff}
+.atom-fe{background:linear-gradient(135deg,#92400e,#78350f)}
+.atom-cu{background:linear-gradient(135deg,#d97706,#b45309)}
+.atom-cl{background:linear-gradient(135deg,#059669,#047857)}
+.atom-na{background:linear-gradient(135deg,#7c3aed,#6d28d9)}
+.atom-ag{background:linear-gradient(135deg,#6b7280,#4b5563)}
+.atom-zn{background:linear-gradient(135deg,#0891b2,#0e7490)}
+.molecule{display:inline-flex;align-items:center;background:rgba(0,0,0,0.05);border-radius:50px;padding:4px 8px;margin:4px;border:2px solid rgba(0,0,0,0.1)}
+.arrow{font-size:1.5rem;color:#3b82f6;margin:0 8px;font-weight:700}
+.plus{font-size:1.2rem;color:#64748b;margin:0 4px;font-weight:700}
+.reaction-visual{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;margin:10px 0}
+.quiz-section{background:linear-gradient(135deg,#f0f9ff,#e0f2fe);border-radius:12px;padding:16px;margin-top:12px}
+.quiz-q{font-weight:600;font-size:0.9rem;margin-bottom:10px;color:#1e293b}
+.quiz-opt{display:block;width:100%;text-align:left;padding:8px 14px;margin:4px 0;border:2px solid #e2e8f0;border-radius:8px;background:#fff;cursor:pointer;font-size:0.85rem;transition:all 0.3s}
+.quiz-opt:hover{border-color:#3b82f6;background:#eff6ff}
+.quiz-opt.correct{background:#dcfce7;border-color:#22c55e;color:#166534}
+.quiz-opt.wrong{background:#fee2e2;border-color:#ef4444;color:#991b1b}
+.feedback{padding:8px;border-radius:8px;margin-top:8px;font-size:0.85rem;font-weight:600;display:none}
+.feedback.show{display:block}
+.feedback.good{background:#dcfce7;color:#166534}
+.feedback.bad{background:#fee2e2;color:#991b1b}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:0.75rem;color:#475569}
+.badge{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;font-size:0.65rem;padding:2px 8px;border-radius:10px;font-weight:700}
+.highlight-box{background:linear-gradient(135deg,#fffbeb,#fef3c7);border:2px solid #f59e0b;border-radius:10px;padding:12px;margin:10px 0}
+.animate-bounce{animation:bounce 1s infinite}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.reaction-type .expand-icon{float:right;transition:transform 0.3s;font-size:1.2rem}
+.reaction-type.expanded .expand-icon{transform:rotate(180deg)}
+h2{font-size:1rem;font-weight:700;color:#1e293b;margin-bottom:12px}
+h3{font-size:0.9rem;font-weight:700;color:#1e293b;margin:8px 0}
+p{font-size:0.85rem;color:#475569;line-height:1.6;margin:6px 0}
+.tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:0.7rem;font-weight:600;margin:2px}
+.tag-blue{background:#dbeafe;color:#1d4ed8}
+.tag-green{background:#dcfce7;color:#166534}
+.tag-amber{background:#fef3c7;color:#92400e}
+.tag-red{background:#fee2e2;color:#991b1b}
+.tag-pink{background:#fce7f3;color:#9d174d}
+.progress-bar{height:6px;background:#e2e8f0;border-radius:3px;margin:10px 0}
+.progress-fill{height:100%;background:linear-gradient(90deg,#3b82f6,#22c55e);border-radius:3px;transition:width 0.5s}
+</style>
+</head>
+<body>
+<div class="titlebar">
+  <h1>⚗️ Types of Chemical Reactions | रासायनिक अभिक्रियाओं के प्रकार</h1>
+  <p>CBSE Class 10 Science • Chapter 1 • Interactive Visual Explainer</p>
+</div>
+<div class="container">
+  <div class="tabs">
+    <div class="tab active" onclick="showSection('overview')">📋 Overview</div>
+    <div class="tab" onclick="showSection('explore')">🔬 Explore Types</div>
+    <div class="tab" onclick="showSection('example')">📝 Worked Example</div>
+    <div class="tab" onclick="showSection('quiz')">🎯 Quiz</div>
+  </div>
+
+  <!-- OVERVIEW SECTION -->
+  <div id="overview" class="section active">
+    <div class="card">
+      <h2>🔬 What is a Chemical Reaction? (रासायनिक अभिक्रिया)</h2>
+      <p>A chemical reaction involves the transformation of <strong>reactants (अभिकारक)</strong> into <strong>products (उत्पाद)</strong>. Atoms are rearranged but never created or destroyed.</p>
+      <div class="highlight-box">
+        <p style="text-align:center;font-size:1rem;font-weight:700;color:#92400e">General Form: Reactants → Products</p>
+        <p style="text-align:center;font-size:0.85rem;color:#78350f">अभिकारक → उत्पाद</p>
+      </div>
+      <div class="svg-container">
+        <svg viewBox="0 0 500 120" width="100%" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="bg1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#dbeafe"/>
+              <stop offset="100%" style="stop-color:#bfdbfe"/>
+            </linearGradient>
+            <linearGradient id="bg2" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#dcfce7"/>
+              <stop offset="100%" style="stop-color:#bbf7d0"/>
+            </linearGradient>
+          </defs>
+          <rect x="10" y="20" width="160" height="80" rx="12" fill="url(#bg1)" stroke="#3b82f6" stroke-width="2"/>
+          <text x="90" y="52" text-anchor="middle" font-size="13" font-weight="bold" fill="#1d4ed8">Reactants</text>
+          <text x="90" y="70" text-anchor="middle" font-size="10" fill="#3b82f6">अभिकारक</text>
+          <text x="90" y="87" text-anchor="middle" font-size="10" fill="#475569">A + B</text>
+          <text x="210" y="65" text-anchor="middle" font-size="28" fill="#f59e0b" font-weight="bold">→</text>
+          <rect x="250" y="10" width="100" height="100" rx="12" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+          <text x="300" y="42" text-anchor="middle" font-size="11" font-weight="bold" fill="#92400e">Chemical</text>
+          <text x="300" y="57" text-anchor="middle" font-size="11" font-weight="bold" fill="#92400e">Reaction</text>
+          <text x="300" y="74" text-anchor="middle" font-size="10" fill="#78350f">रासायनिक</text>
+          <text x="300" y="88" text-anchor="middle" font-size="10" fill="#78350f">अभिक्रिया</text>
+          <text x="375" y="65" text-anchor="middle" font-size="28" fill="#f59e0b" font-weight="bold">→</text>
+          <rect x="395" y="20" width="100" height="80" rx="12" fill="url(#bg2)" stroke="#22c55e" stroke-width="2"/>
+          <text x="445" y="52" text-anchor="middle" font-size="13" font-weight="bold" fill="#166534">Products</text>
+          <text x="445" y="70" text-anchor="middle" font-size="10" fill="#22c55e">उत्पाद</text>
+          <text x="445" y="87" text-anchor="middle" font-size="10" fill="#475569">C + D</text>
+        </svg>
+      </div>
+      <h3>5 Types of Chemical Reactions (5 प्रकार)</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="background:linear-gradient(135deg,#dbeafe,#bfdbfe);padding:10px;border-radius:10px;text-align:center">
+          <div style="font-size:1.2rem">🔗</div>
+          <div style="font-size:0.8rem;font-weight:700;color:#1d4ed8">Combination</div>
+          <div style="font-size:0.7rem;color:#3b82f6">संयोजन</div>
+        </div>
+        <div style="background:linear-gradient(135deg,#fef3c7,#fde68a);padding:10px;border-radius:10px;text-align:center">
+          <div style="font-size:1.2rem">💥</div>
+          <div style="font-size:0.8rem;font-weight:700;color:#92400e">Decomposition</div>
+          <div style="font-size:0.7rem;color:#b45309">वियोजन</div>
+        </div>
+        <div style="background:linear-gradient(135deg,#dcfce7,#bbf7d0);padding:10px;border-radius:10px;text-align:center">
+          <div style="font-size:1.2rem">🔄</div>
+          <div style="font-size:0.8rem;font-weight:700;color:#166534">Displacement</div>
+          <div style="font-size:0.7rem;color:#22c55e">विस्थापन</div>
+        </div>
+        <div style="background:linear-gradient(135deg,#fce7f3,#fbcfe8);padding:10px;border-radius:10px;text-align:center">
+          <div style="font-size:1.2rem">🔀</div>
+          <div style="font-size:0.8rem;font-weight:700;color:#9d174d">Double Displacement</div>
+          <div style="font-size:0.7rem;color:#ec4899">द्विविस्थापन</div>
+        </div>
+        <div style="background:linear-gradient(135deg,#f3e8ff,#e9d5ff);padding:10px;border-radius:10px;text-align:center;grid-column:1/-1">
+          <div style="font-size:1.2rem">🔥</div>
+          <div style="font-size:0.8rem;font-weight:700;color:#6d28d9">Oxidation-Reduction (Redox)</div>
+          <div style="font-size:0.7rem;color:#7c3aed">ऑक्सीकरण-अपचयन</div>
+        </div>
+      </div>
+      <p style="margin-top:12px;text-align:center;font-size:0.8rem;color:#3b82f6;font-weight:600">👇 Tap "Explore Types" tab to interact with each reaction!</p>
+    </div>
+  </div>
+
+  <!-- EXPLORE SECTION -->
+  <div id="explore" class="section">
+    <div class="card">
+      <h2>🔬 Explore Each Reaction Type (क्लिक करें)</h2>
+
+      <!-- Combination -->
+      <div class="reaction-type rt-combination" onclick="toggleExpand(this)">
+        <span class="expand-icon">▼</span>
+        <div class="rt-title">🔗 1. Combination Reaction (संयोजन अभिक्रिया)</div>
+        <div class="rt-hindi">Two or more substances combine to form one product</div>
+        <div class="rt-formula">A + B → AB</div>
+        <div class="expand-content">
+          <div class="reaction-visual">
+            <div class="molecule"><div class="atom atom-c">C</div></div>
+            <span class="plus">+</span>
+            <div class="molecule"><div class="atom atom-o">O</div><div class="atom atom-o">O</div></div>
+            <span class="arrow">→</span>
+            <div class="molecule"><div class="atom atom-c">C</div><div class="atom atom-o">O</div><div class="atom atom-o">O</div></div>
+          </div>
+          <p style="text-align:center;font-size:0.85rem;font-family:monospace;font-weight:700;color:#1d4ed8">C + O₂ → CO₂</p>
+          <p style="text-align:center;font-size:0.75rem;color:#475569">Carbon burns in oxygen to form Carbon dioxide</p>
+          <div class="highlight-box" style="background:linear-gradient(135deg,#dbeafe,#eff6ff);border-color:#3b82f6;margin-top:8px">
+            <p style="font-size:0.8rem;color:#1d4ed8"><strong>Another Example:</strong> CaO + H₂O → Ca(OH)₂<br>
+            <span style="color:#475569">Quicklime + Water → Slaked Lime (heat released)</span></p>
+          </div>
+          <div class="legend">
+            <span class="tag tag-blue">Exothermic (ऊष्माक्षेपी)</span>
+            <span class="tag tag-blue">2 or more → 1</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Decomposition -->
+      <div class="reaction-type rt-decomposition" onclick="toggleExpand(this)">
+        <span class="expand-icon">▼</span>
+        <div class="rt-title">💥 2. Decomposition Reaction (वियोजन अभिक्रिया)</div>
+        <div class="rt-hindi">A single compound breaks into two or more simpler substances</div>
+        <div class="rt-formula">AB → A + B</div>
+        <div class="expand-content">
+          <div class="reaction-visual">
+            <div class="molecule"><div class="atom atom-h">H</div><div class="atom atom-h">H</div><div class="atom atom-o">O</div></div>
+            <span class="arrow">→</span>
+            <div class="molecule"><div class="atom atom-h">H</div><div class="atom atom-h">H</div></div>
+            <span class="plus">+</span>
+            <div class="molecule"><div class="atom atom-o">O</div></div>
+          </div>
+          <p style="text-align:center;font-size:0.85rem;font-family:monospace;font-weight:700;color:#92400e">2H₂O → 2H₂ + O₂</p>
+          <p style="text-align:center;font-size:0.75rem;color:#475569">Electrolysis of water (विद्युत अपघटन)</p>
+          <div class="svg-container">
+            <svg viewBox="0 0 340 100" width="100%" xmlns="http://www.w3.org/2000/svg">
+              <rect x="5" y="5" width="330" height="90" rx="10" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.5"/>
+              <text x="170" y="25" text-anchor="middle" font-size="11" font-weight="bold" fill="#92400e">Types of Decomposition (वियोजन के प्रकार)</text>
+              <rect x="15" y="35" width="92" height="52" rx="8" fill="#fde68a" stroke="#f59e0b" stroke-width="1"/>
+              <text x="61" y="55" text-anchor="middle" font-size="9" font-weight="bold" fill="#78350f">⚡ Electrolytic</text>
+              <text x="61" y="67" text-anchor="middle" font-size="8" fill="#92400e">विद्युत अपघटनी</text>
+              <text x="61" y="80" text-anchor="middle" font-size="7.5" fill="#475569">2H₂O→2H₂+O₂</text>
+              <rect x="120" y="35" width="92" height="52" rx="8" fill="#fde68a" stroke="#f59e0b" stroke-width="1"/>
+              <text x="166" y="55" text-anchor="middle" font-size="9" font-weight="bold" fill="#78350f">🌞 Photolytic</text>
+              <text x="166" y="67" text-anchor="middle" font-size="8" fill="#92400e">प्रकाश-अपघटन</text>
+              <text x="166" y="80" text-anchor="middle" font-size="7.5" fill="#475569">2AgCl→2Ag+Cl₂</text>
+              <rect x="225" y="35" width="100" height="52" rx="8" fill="#fde68a" stroke="#f59e0b" stroke-width="1"/>
+              <text x="275" y="55" text-anchor="middle" font-size="9" font-weight="bold" fill="#78350f">🔥 Thermal</text>
+              <text x="275" y="67" text-anchor="middle" font-size="8" fill="#92400e">ऊष्मीय अपघटन</text>
+              <text x="275" y="80" text-anchor="middle" font-size="7.5" fill="#475569">CaCO₃→CaO+CO₂</text>
+            </svg>
+          </div>
+          <div class="legend">
+            <span class="tag tag-amber">Endothermic (ऊष्माशोषी)</span>
+            <span class="tag tag-amber">1 → 2 or more</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Displacement -->
+      <div class="reaction-type rt-displacement" onclick="toggleExpand(this)">
+        <span class="expand-icon">▼</span>
+        <div class="rt-title">🔄 3. Displacement Reaction (विस्थापन अभिक्रिया)</div>
+        <div class="rt-hindi">A more reactive element displaces a less reactive element</div>
+        <div class="rt-formula">A + BC → AC + B</div>
+        <div class="expand-content">
+          <div class="reaction-visual">
+            <div class="molecule"><div class="atom atom-zn" style="width:38px;height:38px;line-height:38px">Zn</div></div>
+            <span class="plus">+</span>
+            <div class="molecule"><div class="atom atom-cu" style="width:38px;height:38px;line-height:38px">Cu</div><div class="atom atom-cl" style="font-size:0.6rem">SO₄</div></div>
+            <span class="arrow">→</span>
+            <div class="molecule"><div class="atom atom-zn" style="width:38px;height:38px;line-height:38px">Zn</div><div class="atom atom-cl" style="font-size:0.6rem">SO₄</div></div>
+            <span class="plus">+</span>
+            <div class="molecule"><div class="atom atom-cu" style="width:38px;height:38px;line-height:38px">Cu</div></div>
+          </div>
+          <p style="text-align:center;font-size:0.85rem;font-family:monospace;font-weight:700;color:#166534">Zn + CuSO₄ → ZnSO₄ + Cu</p>
+          <p style="text-align:center;font-size:0.75rem;color:#475569">Zinc displaces Copper from Copper Sulfate solution</p>
+          <div class="highlight-box" style="background:linear-gradient(135deg,#dcfce7,#f0fdf4);border-color:#22c55e">
+            <p style="font-size:0.8rem;color:#166534"><strong>Key Rule:</strong> More reactive metal displaces less reactive metal<br>
+            <span style="font-size:0.75rem;color:#475569">Reactivity: Zn > Cu (Zn is more reactive)</span></p>
+          </div>
+          <div class="legend">
+            <span class="tag tag-green">Single element replaces another</span>
+            <span class="tag tag-green">विस्थापन</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Double Displacement -->
+      <div class="reaction-type rt-double" onclick="toggleExpand(this)">
+        <span class="expand-icon">▼</span>
+        <div class="rt-title">🔀 4. Double Displacement (द्विविस्थापन अभिक्रिया)</div>
+        <div class="rt-hindi">Ions of two compounds exchange places</div>
+        <div class="rt-formula">AB + CD → AD + CB</div>
+        <div class="expand-content">
+          <div class="reaction-visual">
+            <div class="molecule"><div class="atom atom-na" style="font-size:0.6rem">Na</div><div class="atom atom-cl" style="font-size:0.6rem">OH</div></div>
+            <span class="plus">+</span>
+            <div class="molecule"><div class="atom atom-cu" style="width:38px;height:38px;line-height:38px;font-size:0.6rem">HCl</div></div>
+            <span class="arrow">→</span>
+            <div class="molecule"><div class="atom atom-na" style="font-size:0.6rem">Na</div><div class="atom atom-cl" style="font-size:0.6rem">Cl</div></div>
+            <span class="plus">+</span>
+            <div class="molecule"><div class="atom atom-o" style="font-size:0.6rem">H₂O</div></div>
+          </div>
+          <p style="text-align:center;font-size:0.85rem;font-family:monospace;font-weight:700;color:#9d174d">NaOH + HCl → NaCl + H₂O</p>
+          <div class="svg-container">
+            <svg viewBox="0 0 340 85" width="100%" xmlns="http://www.w3.org/2000/svg">
+              <rect x="5" y="5" width="330" height="75" rx="10" fill="#fce7f3" stroke="#ec4899" stroke-width="1.5"/>
+              <text x="170" y="22" text-anchor="middle" font-size="10" font-weight="bold" fill="#9d174d">Precipitation Reaction (अवक्षेपण)</text>
+              <text x="55" y="45" text-anchor="middle" font-size="10" font-weight="bold" fill="#1d4ed8">BaCl₂</text>
+              <text x="55" y="62" text-anchor="middle" font-size="9" fill="#475569">Barium Chloride</text>
+              <text x="105" y="50" text-anchor="middle" font-size="14" fill="#ec4899">+</text>
+              <text x="165" y="45" text-anchor="middle" font-size="10" font-weight="bold" fill="#1d4ed8">Na₂SO₄</text>
+              <text x="165" y="62" text-anchor="middle" font-size="9" fill="#475569">Sodium Sulphate</text>
+              <text x="215" y="50" text-anchor="middle" font-size="14" fill="#ec4899">→</text>
+              <text x="265" y="45" text-anchor="middle" font-size="10" font-weight="bold" fill="#166534">

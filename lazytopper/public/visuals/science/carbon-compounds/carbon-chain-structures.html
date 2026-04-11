@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carbon Chain Structures - Class 10 Science</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); min-height: 100vh; color: #1e293b; }
+  .title-bar { background: linear-gradient(90deg, #3b82f6, #6366f1); padding: 12px 20px; display: flex; align-items: center; gap: 12px; box-shadow: 0 4px 20px rgba(59,130,246,0.4); }
+  .title-bar .badge { background: rgba(255,255,255,0.2); color: white; font-size: 11px; padding: 3px 8px; border-radius: 20px; }
+  .title-bar h1 { color: white; font-size: 18px; font-weight: 700; }
+  .title-bar p { color: rgba(255,255,255,0.8); font-size: 12px; }
+  .container { max-width: 800px; margin: 0 auto; padding: 16px; }
+  .card { background: white; border-radius: 16px; padding: 20px; margin-bottom: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+  .concept-box { background: linear-gradient(135deg, #eff6ff, #dbeafe); border: 2px solid #3b82f6; border-radius: 12px; padding: 14px; margin-bottom: 16px; text-align: center; }
+  .concept-box h2 { color: #1d4ed8; font-size: 16px; margin-bottom: 6px; }
+  .concept-box p { color: #1e40af; font-size: 13px; }
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+  .tab { padding: 8px 14px; border-radius: 20px; border: 2px solid #e2e8f0; background: white; color: #64748b; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+  .tab.active { background: #3b82f6; border-color: #3b82f6; color: white; box-shadow: 0 4px 12px rgba(59,130,246,0.4); }
+  .tab:hover:not(.active) { border-color: #3b82f6; color: #3b82f6; }
+  .panel { display: none; animation: fadeIn 0.4s ease; }
+  .panel.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  svg { display: block; width: 100%; }
+  .label { font-size: 12px; fill: #1e293b; font-weight: 600; }
+  .carbon { fill: #1e293b; }
+  .hydrogen { fill: #3b82f6; }
+  .bond { stroke: #475569; stroke-width: 2.5; }
+  .highlight { fill: #fef3c7; stroke: #f59e0b; stroke-width: 2; }
+  .step-btn { background: linear-gradient(135deg, #3b82f6, #6366f1); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.3s; margin: 8px 4px; }
+  .step-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(59,130,246,0.4); }
+  .step-box { background: #f8fafc; border-left: 4px solid #3b82f6; padding: 12px; border-radius: 0 8px 8px 0; margin: 8px 0; font-size: 13px; }
+  .step-box.green { border-left-color: #22c55e; background: #f0fdf4; }
+  .step-box.amber { border-left-color: #f59e0b; background: #fffbeb; }
+  .step-box.red { border-left-color: #ef4444; background: #fef2f2; }
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .info-card { padding: 12px; border-radius: 10px; text-align: center; }
+  .info-card h4 { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+  .info-card p { font-size: 12px; }
+  .blue-card { background: #eff6ff; color: #1d4ed8; }
+  .green-card { background: #f0fdf4; color: #15803d; }
+  .amber-card { background: #fffbeb; color: #b45309; }
+  .red-card { background: #fef2f2; color: #b91c1c; }
+  .chain-select { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+  .chain-btn { padding: 6px 12px; border-radius: 8px; border: 2px solid #e2e8f0; background: white; cursor: pointer; font-size: 12px; font-weight: 600; color: #64748b; transition: all 0.3s; }
+  .chain-btn.active { background: #22c55e; border-color: #22c55e; color: white; }
+  .formula-tag { display: inline-block; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; padding: 4px 10px; border-radius: 6px; font-size: 13px; font-weight: 700; margin: 2px; }
+  .quiz-opt { padding: 10px 14px; border-radius: 8px; border: 2px solid #e2e8f0; background: white; cursor: pointer; font-size: 13px; margin: 6px 0; width: 100%; text-align: left; transition: all 0.3s; }
+  .quiz-opt:hover { border-color: #3b82f6; background: #eff6ff; }
+  .quiz-opt.correct { border-color: #22c55e; background: #f0fdf4; color: #15803d; }
+  .quiz-opt.wrong { border-color: #ef4444; background: #fef2f2; color: #b91c1c; }
+  .hidden { display: none; }
+  .badge2 { display: inline-block; font-size: 10px; padding: 2px 7px; border-radius: 10px; font-weight: 700; margin-left: 6px; }
+  .pulse { animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.6;} }
+  .arrow { fill: none; stroke: #f59e0b; stroke-width: 2; marker-end: url(#arr); }
+  h3 { font-size: 15px; color: #1e293b; margin-bottom: 10px; }
+  .note { font-size: 12px; color: #64748b; font-style: italic; margin-top: 8px; }
+</style>
+</head>
+<body>
+<div class="title-bar">
+  <div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span class="badge">CBSE Class 10</span>
+      <span class="badge">Science Ch-4</span>
+    </div>
+    <h1>⚛️ Carbon Chain Structures</h1>
+    <p>कार्बन श्रृंखला संरचनाएँ | Isomers &amp; Carbon Compounds</p>
+  </div>
+</div>
+
+<div class="container">
+  <div class="concept-box">
+    <h2>🔑 Key Concept</h2>
+    <p>Carbon (C) can form <strong>straight</strong>, <strong>branched</strong>, and <strong>cyclic</strong> chains. Same molecular formula → different structures = <strong>Isomers (समावयवी)</strong></p>
+    <div style="margin-top:8px;">
+      <span class="formula-tag">CₙH₂ₙ₊₂</span> Alkanes &nbsp;
+      <span class="formula-tag">CₙH₂ₙ</span> Alkenes &nbsp;
+      <span class="formula-tag">CₙH₂ₙ₋₂</span> Alkynes
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('straight')">📏 Straight Chain</button>
+    <button class="tab" onclick="showTab('branched')">🌿 Branched Chain</button>
+    <button class="tab" onclick="showTab('cyclic')">🔄 Cyclic Chain</button>
+    <button class="tab" onclick="showTab('isomers')">🔀 Isomers</button>
+    <button class="tab" onclick="showTab('quiz')">🎯 Quiz</button>
+  </div>
+
+  <!-- STRAIGHT CHAIN -->
+  <div id="panel-straight" class="panel active">
+    <div class="card">
+      <h3>📏 Straight Chain (सीधी श्रृंखला) — Normal Chain</h3>
+      <div class="chain-select">
+        <button class="chain-btn active" onclick="setStraight(1)">Methane (C₁)</button>
+        <button class="chain-btn" onclick="setStraight(2)">Ethane (C₂)</button>
+        <button class="chain-btn" onclick="setStraight(3)">Propane (C₃)</button>
+        <button class="chain-btn" onclick="setStraight(4)">Butane (C₄)</button>
+      </div>
+      <div id="straight-svg-area"></div>
+      <div id="straight-info" class="step-box" style="margin-top:10px;"></div>
+      <div class="step-box amber" style="margin-top:8px;">
+        💡 <strong>Remember:</strong> In straight chain, each carbon is connected to the next in a <em>single continuous line</em>. Also called <strong>n-alkane</strong> (n = normal/सामान्य).
+      </div>
+    </div>
+  </div>
+
+  <!-- BRANCHED CHAIN -->
+  <div id="panel-branched" class="panel">
+    <div class="card">
+      <h3>🌿 Branched Chain (शाखित श्रृंखला)</h3>
+      <p class="note" style="margin-bottom:10px;">Carbon chain has one or more side branches. Click on a molecule to explore!</p>
+      <div class="chain-select">
+        <button class="chain-btn active" onclick="setBranched('iso')">Isobutane (C₄H₁₀)</button>
+        <button class="chain-btn" onclick="setBranched('neo')">Neopentane (C₅H₁₂)</button>
+      </div>
+      <div id="branched-svg-area"></div>
+      <div id="branched-info" class="step-box green" style="margin-top:10px;"></div>
+      <div class="step-box amber">
+        💡 <strong>Key Point:</strong> Branched chains have <strong>lower boiling points</strong> than straight-chain isomers because they are more compact (less surface area).
+      </div>
+    </div>
+  </div>
+
+  <!-- CYCLIC CHAIN -->
+  <div id="panel-cyclic" class="panel">
+    <div class="card">
+      <h3>🔄 Cyclic Chain (चक्रीय श्रृंखला)</h3>
+      <div class="chain-select">
+        <button class="chain-btn active" onclick="setCyclic('cyclopentane')">Cyclopentane (C₅H₁₀)</button>
+        <button class="chain-btn" onclick="setCyclic('cyclohexane')">Cyclohexane (C₆H₁₂)</button>
+        <button class="chain-btn" onclick="setCyclic('benzene')">Benzene (C₆H₆)</button>
+      </div>
+      <div id="cyclic-svg-area"></div>
+      <div id="cyclic-info" class="step-box" style="margin-top:10px;"></div>
+      <div class="step-box red" style="margin-top:8px;">
+        🔥 <strong>Benzene is special!</strong> It has alternating single &amp; double bonds (aromatic / सुगंधित). Formula: C₆H₆. It's the parent of aromatic compounds.
+      </div>
+    </div>
+  </div>
+
+  <!-- ISOMERS -->
+  <div id="panel-isomers" class="panel">
+    <div class="card">
+      <h3>🔀 Structural Isomers (संरचनात्मक समावयवी)</h3>
+      <div class="concept-box" style="margin-bottom:12px;">
+        <p>Same molecular formula, <strong>different structural formula</strong> = Structural Isomers</p>
+        <p style="margin-top:4px;font-size:12px;">∴ Different physical &amp; chemical properties</p>
+      </div>
+      <div id="iso-steps">
+        <div class="step-box" id="iso-step1">
+          <strong>Step 1:</strong> Take molecular formula <span class="formula-tag">C₄H₁₀</span> (Butane / ब्यूटेन)
+          <br><small>Formula check: CₙH₂ₙ₊₂ → n=4 → 4×2+2 = <strong>10 H ✓</strong></small>
+        </div>
+        <div id="iso-step2" class="hidden step-box green">
+          <strong>Step 2:</strong> Structure 1 — <em>n-Butane</em> (Straight Chain / सीधी श्रृंखला)
+          <div id="iso-svg1" style="margin-top:8px;"></div>
+        </div>
+        <div id="iso-step3" class="hidden step-box amber">
+          <strong>Step 3:</strong> Structure 2 — <em>Isobutane</em> (Branched Chain / शाखित श्रृंखला)
+          <div id="iso-svg2" style="margin-top:8px;"></div>
+        </div>
+        <div id="iso-step4" class="hidden step-box red">
+          <strong>Step 4:</strong> Both have formula <span class="formula-tag">C₄H₁₀</span> but different structures!<br>
+          ∴ They are <strong>Structural Isomers (संरचनात्मक समावयवी)</strong><br>
+          <small>n-Butane bp: -0.5°C &nbsp;|&nbsp; Isobutane bp: -11.7°C (different properties!)</small>
+        </div>
+        <div style="margin-top:10px;">
+          <button class="step-btn" onclick="nextIsoStep()">Next Step ➜</button>
+          <button class="step-btn" style="background:linear-gradient(135deg,#64748b,#475569);" onclick="resetIso()">↺ Reset</button>
+        </div>
+      </div>
+      <div class="info-grid" style="margin-top:14px;">
+        <div class="info-card blue-card"><h4>C₄H₁₀</h4><p>2 isomers</p></div>
+        <div class="info-card green-card"><h4>C₅H₁₂</h4><p>3 isomers</p></div>
+        <div class="info-card amber-card"><h4>C₆H₁₄</h4><p>5 isomers</p></div>
+        <div class="info-card red-card"><h4>C₇H₁₆</h4><p>9 isomers</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="panel-quiz" class="panel">
+    <div class="card">
+      <h3>🎯 Quick Quiz — Test Yourself!</h3>
+      <div id="quiz-container"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ============ TAB SWITCHING ============
+function showTab(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  event.target.classList.add('active');
+  if(name==='isomers') { resetIso(); drawIsoSVG1(); drawIsoSVG2(); }
+  if(name==='quiz') renderQuiz();
+}
+
+// ============ SVG HELPERS ============
+function makeSVG(w,h) {
+  return `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">`;
+}
+function C(x,y,label,col) {
+  col=col||'#1e293b';
+  return `<circle cx="${x}" cy="${y}" r="14" fill="${col}" stroke="white" stroke-width="2"/>
+  <text x="${x}" y="${y+4}" text-anchor="middle" fill="white" font-size="11" font-weight="700">${label}</text>`;
+}
+function H(x,y) {
+  return `<circle cx="${x}" cy="${y}" r="9" fill="#3b82f6" stroke="white" stroke-width="1.5"/>
+  <text x="${x}" y="${y+3}" text-anchor="middle" fill="white" font-size="9" font-weight="700">H</text>`;
+}
+function line(x1,y1,x2,y2,col,w) {
+  return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col||'#475569'}" stroke-width="${w||2.5}"/>`;
+}
+
+// ============ STRAIGHT CHAIN ============
+var straightN=1;
+function setStraight(n) {
+  straightN=n;
+  document.querySelectorAll('#panel-straight .chain-btn').forEach((b,i)=>b.classList.toggle('active',i===n-1));
+  drawStraight();
+}
+function drawStraight() {
+  var n=straightN;
+  var names=['Methane','Ethane','Propane','Butane'];
+  var formulas=['CH₄','C₂H₆','C₃H₈','C₄H₁₀'];
+  var fullnames=['मेथेन','एथेन','प्रोपेन','ब्यूटेन'];
+  var W=360, H=120;
+  var cx=[], cy=[];
+  if(n==1){cx=[180];cy=[60];}
+  else if(n==2){cx=[110,250];cy=[60,60];}
+  else if(n==3){cx=[70,180,290];cy=[60,60,60];}
+  else{cx=[50,150,250,320];cy=[60,60,60,60];}
+  var svg=makeSVG(W,H);
+  // bonds between carbons
+  for(var i=0;i<n-1;i++) svg+=line(cx[i],cy[i],cx[i+1],cy[i+1]);
+  // H atoms
+  for(var i=0;i<n;i++){
+    var hCount=(i===0||i===n-1)?(n===1?4:3):2;
+    if(n===1){
+      svg+=line(180,60,180,32);svg+=H(180,22);
+      svg+=line(180,60,180,88);svg+=H(180,98);
+      svg+=line(180,60,152,60);svg+=H(142,60);
+      svg+=line(180,60,208,60);svg+=H(218,60);
+    } else {
+      if(i===0||i===n-1){
+        var dx=i===0?-1:1;
+        svg+=line(cx[i],cy[i],cx[i]-dx*28,cy[i]-20);svg+=H(cx[i]-dx*28-0,cy[i]-29);
+        svg+=line(cx[i],cy[i],cx[i]-dx*28,cy[i]+20);svg+=H(cx[i]-dx*28-0,cy[i]+29);
+        svg+=line(cx[i],cy[i],cx[i]-dx*28+0,cy[i]);
+        if(n>2||i===(n-1)){
+          var hx=i===0?cx[i]-28:cx[i]+28;
+          svg+=H(hx,cy[i]);
+        }
+      } else {
+        svg+=line(cx[i],cy[i],cx[i],cy[i]-26);svg+=H(cx[i],cy[i]-35);
+        svg+=line(cx[i],cy[i],cx[i],cy[i]+26);svg+=H(cx[i],cy[i]+35);
+      }
+    }
+  }
+  for(var i=0;i<n;i++) svg+=C(cx[i],cy[i],'C');
+  svg+='</svg>';
+  document.getElementById('straight-svg-area').innerHTML=svg;
+  document.getElementById('straight-info').innerHTML=`<strong>${names[n-1]} (${fullnames[n-1]})</strong> &nbsp; Formula: <span class="formula-tag">${formulas[n-1]}</span><br>
+  Carbons: ${n} &nbsp;|&nbsp; Hydrogens: ${2*n+2} &nbsp;|&nbsp; Single bonds only (σ bonds)<br>
+  <small>This is a straight-chain / normal-chain (n-chain) alkane.</small>`;
+}
+setStraight(1);
+
+// ============ BRANCHED CHAIN ============
+function setBranched(type){
+  document.querySelectorAll('#panel-branched .chain-btn').forEach((b,i)=>b.classList.toggle('active',(i===0&&type==='iso')||(i===1&&type==='neo')));
+  drawBranched(type);
+}
+function drawBranched(type){
+  var W=340,H=160,svg=makeSVG(W,H);
+  if(type==='iso'){
+    // Isobutane: C4H10 - main chain 3C, branch 1C on middle
+    var mc=[[60,90],[150,90],[240,90]]; var bc=[150,50];
+    svg+=line(mc[0][0],mc[0][1],mc[1][0],mc[1][1]);
+    svg+=line(mc[1][0],mc[1][1],mc[2][0],mc[2][1]);
+    svg+=line(mc[1][0],mc[1][1],bc[0],bc[1]);
+    // H on end carbons
+    function endH(cx,cy,side){
+      svg+=line(cx,cy,cx+side*28,cy-20);svg+=H(cx+side*28,cy-28);
+      svg+=line(cx,cy,cx+side*28,cy+20);svg+=H(cx+side*28,cy+28);
+      svg+=line(cx,cy,cx+side*28*1.3,cy);svg+=H(cx+side*28*1.3,cy);
+    }
+    endH(mc[0][0],mc[0][1],-1);endH(mc[2][0],mc[2][1],1);
+    // H on branch top
+    svg+=line(bc[0],bc[1],bc[0]-25,bc[1]-20);svg+=H(bc[0]-25,bc[1]-28);
+    svg+=line(bc[0],bc[1],bc[0]+25,bc[1]-20);svg+=H(bc[0]+25,bc[1]-28);
+    svg+=line(bc[0],bc[1],bc[0],bc[1]-30);svg+=H(bc[0],bc[1]-39);
+    for(var p of mc) svg+=C(p[0],p[1],'C');
+    svg+=C(bc[0],bc[1],'C','#6366f1');
+    svg+=`<text x="150" y="145" text-anchor="middle" fill="#6366f1" font-size="11" font-weight="700">↑ Branch carbon (शाखा)</text>`;
+    document.getElementById('branched-info').innerHTML=`<strong>Isobutane (2-Methylpropane)</strong> &nbsp; <span class="formula-tag">C₄H₁₀</span><br>Main chain: 3C | Branch: 1C (CH₃ group)<br><small>Purple carbon = branching point (शाखा बिंदु). Same formula as n-Butane but different structure!</small>`;
+  } else {
+    // Neopentane: C5H12 - 1 center, 4 branches
+    var ctr=[170,85];
+    var dirs=[[-100,-30],[100,-30],[-60,60],[60,60]];
+    for(var d of dirs){
+      var bx=ctr[0]+d[0],by=ctr[1]+d[1];
+      svg+=line(ctr[0],ctr[1],bx,by);
+      var nx=d[0]>0?1:-1, ny=d[1]>0?1:-1;
+      svg+=line(bx,by,bx+nx*22,by);svg+=H(bx+nx*31,by);
+      svg+=line(bx,by,bx,by+ny*22);svg+=H(bx,by+ny*31);
+      svg+=line(bx,by,bx+nx*16,by+ny*16);svg+=H(bx+nx*25,by+ny*25);
+      svg+=C(bx,by,'C','#6366f1');
+    }
+    svg+=C(ctr[0],ctr[1],'C','#ef4444');
+    svg+=`<text x="170" y="150" text-anchor="middle" fill="#ef4444" font-size="11" font-weight="700">↑ Central Carbon (केंद्रीय कार्बन)</text>`;
+    document.getElementById('branched-info').innerHTML=`<strong>Neopentane (2,2-Dimethylpropane)</strong> &nbsp; <span class="formula-tag">C₅H₁₂</span><br>Central C bonded to 4 other C atoms (highly branched!)<br><small>Red = central carbon, Purple = branch carbons. Very compact structure → lowest bp among C₅H₁₂ isomers.</small>`;
+  }
+  svg+='</svg>';
+  document.getElementById('branched-svg-area').innerHTML=svg;
+}
+setBranched('iso');
+
+// ============ CYCLIC CHAIN ============
+function setCyclic(type){
+  document.querySelectorAll('#panel-cyclic .chain-btn').forEach((b,i)=>b.classList.toggle('active',['cyclopentane','cyclohexane','benzene'][i]===type));
+  drawCyclic(type);
+}
+function drawCyclic(type){
+  var W=300,H=220,cx=150,cy=105,r=75,svg=makeSVG(W,H);
+  var n=type==='cyclopentane'?5:6;
+  var pts=[];
+  for(var i=0;i<n;i++){
+    var a=(2*Math.PI*i/n)-Math.PI/2;
+    pts.push([cx+r*Math.cos(a), cy+r*Math.sin(a)]);
+  }
+  // Draw bonds
+  for(var i=0;i<n;i++){
+    var j=(i+1)%n;
+    svg+=line(pts[i][0],pts[i][1],pts[j][0],pts[j][1]);
+    if(type==='benzene'&&i%2===0){
+      var r2=r-14;
+      var a1=(2*Math.PI*i/n)-Math.PI/2, a2=(2*Math.PI*(i+1)/n)-Math.PI/2;
+      var px1=cx+r2*Math.cos(a1),py1=cy+r2*Math.sin(a1);
+      var px2=cx+r2*Math.cos(a2),py2=cy+r2*Math.sin(a2);
+      svg+=line(px1,py1,px2,py2,'#ef4444',2);
+    }
+  }
+  // H atoms
+  for(var i=0;i<n;i++){
+    var dx=pts[i][0]-cx, dy=pts[i][1]-cy;
+    var len=Math.sqrt(dx*dx+dy*dy);
+    var hx=pts[i][0]+dx/len*22, hy=pts[i][1]+dy/len*22;
+    if(type!=='benzene'){
+      svg+=line(pts[i][0],pts[i][1],hx,hy);svg+=H(hx,hy);
+    }
+    svg+=C(pts[i][0],pts[i][1],'C',type==='benzene'?'#7c3aed':'#1e293b');
+  }
+  var info='';
+  if(type==='cyclopentane') info=`<strong>Cyclopentane</strong> <span class="formula-tag">C₅H₁₀</span><br>5 carbons in a ring. Formula: CₙH₂ₙ (n=5)<br><small>Each C has 2H (not shown for clarity). Cycloalkane — सभी एकल बंध (single bonds).</small>`;
+  else if(type==='cyclohexane') info=`<strong>Cyclohexane</strong> <span class="formula-tag">C₆H₁₂</span><br>6 carbons in a ring. Formula: CₙH₂ₙ (n=6)<br><small>Most stable cycloalkane. Used as solvent in industry. सभी एकल बंध.</small>`;
+  else info=`<strong>Benzene</strong> <span class="formula-tag">C₆H₆</span><br>6 carbons, alternating double bonds (red). Aromatic (सुगंधित)!<br><small>All C in same plane. Formula: CₙH

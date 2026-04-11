@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flower Structure & Pollination - Class 10 Science</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#0f172a 100%);min-height:100vh;color:#1e293b}
+.title-bar{background:linear-gradient(90deg,#3b82f6,#22c55e);padding:12px 20px;text-align:center;box-shadow:0 4px 20px rgba(59,130,246,0.4)}
+.title-bar h1{color:#fff;font-size:clamp(14px,3vw,20px);font-weight:700;letter-spacing:1px}
+.title-bar p{color:rgba(255,255,255,0.85);font-size:clamp(11px,2vw,14px)}
+.container{max-width:900px;margin:0 auto;padding:16px}
+.card{background:#fff;border-radius:16px;padding:16px;margin-bottom:16px;box-shadow:0 8px 32px rgba(0,0,0,0.3)}
+.section-title{font-size:clamp(14px,2.5vw,18px);font-weight:700;color:#3b82f6;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.key-concept{background:linear-gradient(135deg,#eff6ff,#ecfdf5);border-left:4px solid #3b82f6;border-radius:8px;padding:12px;margin-bottom:12px;font-size:clamp(11px,2vw,13px)}
+.key-concept strong{color:#3b82f6}
+.hindi{color:#f59e0b;font-weight:600}
+svg text{font-family:'Segoe UI',sans-serif}
+#flower-svg{width:100%;max-width:500px;display:block;margin:0 auto;cursor:pointer}
+.part-info{background:linear-gradient(135deg,#1e293b,#334155);color:#fff;border-radius:12px;padding:12px;margin-top:10px;min-height:60px;transition:all 0.3s;font-size:clamp(11px,2vw,13px)}
+.part-info h3{color:#f59e0b;margin-bottom:4px;font-size:clamp(12px,2.5vw,15px)}
+.part-info .hindi-term{color:#22c55e;font-size:11px}
+.tabs{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.tab{padding:8px 14px;border-radius:20px;border:2px solid #3b82f6;background:transparent;color:#3b82f6;cursor:pointer;font-size:clamp(11px,2vw,13px);font-weight:600;transition:all 0.3s}
+.tab.active{background:#3b82f6;color:#fff}
+.tab:hover{background:#3b82f6;color:#fff;transform:translateY(-2px)}
+.steps-container{display:none}
+.steps-container.active{display:block}
+.step{background:linear-gradient(135deg,#f0f9ff,#f0fdf4);border-radius:10px;padding:12px;margin-bottom:10px;border-left:4px solid #22c55e;opacity:0;transform:translateY(20px);transition:all 0.5s;font-size:clamp(11px,2vw,13px)}
+.step.visible{opacity:1;transform:translateY(0)}
+.step-num{background:#22c55e;color:#fff;width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;margin-right:8px}
+.btn{background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;border:none;padding:10px 20px;border-radius:20px;cursor:pointer;font-size:clamp(11px,2vw,13px);font-weight:600;transition:all 0.3s;box-shadow:0 4px 12px rgba(59,130,246,0.4)}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(59,130,246,0.5)}
+.btn-green{background:linear-gradient(135deg,#22c55e,#16a34a);box-shadow:0 4px 12px rgba(34,197,94,0.4)}
+.pollination-demo{position:relative;background:linear-gradient(135deg,#fef3c7,#ecfdf5);border-radius:12px;padding:16px;overflow:hidden}
+.pollen-grain{position:absolute;width:10px;height:10px;background:radial-gradient(circle,#f59e0b,#d97706);border-radius:50%;box-shadow:0 0 6px #f59e0b;transition:all 1.5s ease;cursor:pointer}
+.pollen-grain.flying{animation:fly 2s ease-in-out forwards}
+@keyframes fly{0%{transform:translate(0,0) scale(1)}50%{transform:translate(var(--dx),var(--dy)) scale(1.3)}100%{transform:translate(var(--ex),var(--ey)) scale(0.8)}}
+@keyframes bloom{0%{transform:scale(0.8);opacity:0.6}50%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
+.flower-part{transition:all 0.3s;cursor:pointer}
+.flower-part:hover{filter:brightness(1.3)}
+.highlight-ring{animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{stroke-width:3;stroke-opacity:1}50%{stroke-width:6;stroke-opacity:0.5}}
+.legend{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-top:10px}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:clamp(10px,1.8vw,12px);padding:4px 8px;background:#f8fafc;border-radius:6px}
+.legend-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.quiz-option{background:#f1f5f9;border:2px solid transparent;border-radius:8px;padding:10px;margin:6px 0;cursor:pointer;transition:all 0.3s;font-size:clamp(11px,2vw,13px)}
+.quiz-option:hover{border-color:#3b82f6;background:#eff6ff}
+.quiz-option.correct{background:#dcfce7;border-color:#22c55e;color:#16a34a}
+.quiz-option.wrong{background:#fee2e2;border-color:#ef4444;color:#dc2626}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.badge-blue{background:#dbeafe;color:#1d4ed8}
+.badge-green{background:#dcfce7;color:#16a34a}
+.badge-amber{background:#fef3c7;color:#b45309}
+.types-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.type-card{border-radius:10px;padding:12px;font-size:clamp(10px,1.8vw,12px);transition:transform 0.3s}
+.type-card:hover{transform:translateY(-4px)}
+.type-card h4{font-size:clamp(12px,2vw,14px);margin-bottom:6px}
+#pollen-svg{width:100%;max-width:480px;display:block;margin:0 auto}
+.active-part{stroke:#ff6b6b!important;stroke-width:4!important}
+</style>
+</head>
+<body>
+<div class="title-bar">
+<h1>🌸 Flower Structure & Pollination | <span class="hindi">पुष्प संरचना और परागण</span></h1>
+<p>CBSE Class 10 Science | Chapter: How do Organisms Reproduce?</p>
+</div>
+<div class="container">
+
+<!-- Key Concept -->
+<div class="card">
+<div class="key-concept">
+<strong>🔑 Core Concept:</strong> A flower is the reproductive structure of a plant. It contains <strong>male parts (stamen/पुंकेसर)</strong> that produce pollen and <strong>female parts (pistil/स्त्रीकेसर)</strong> that receive pollen. Transfer of pollen from anther to stigma is called <strong>pollination (परागण)</strong>.
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+<button class="tab active" onclick="showTab('diagram')">🌸 Diagram</button>
+<button class="tab" onclick="showTab('pollination')">🐝 Pollination</button>
+<button class="tab" onclick="showTab('steps')">📋 Steps</button>
+<button class="tab" onclick="showTab('quiz')">❓ Quiz</button>
+</div>
+
+<!-- DIAGRAM TAB -->
+<div id="tab-diagram" class="steps-container active">
+<div class="section-title">🌸 Click on flower parts to learn!</div>
+<svg id="flower-svg" viewBox="0 0 500 420" xmlns="http://www.w3.org/2000/svg">
+<!-- Background -->
+<defs>
+<radialGradient id="petalGrad" cx="50%" cy="50%" r="50%">
+<stop offset="0%" style="stop-color:#fde68a"/>
+<stop offset="100%" style="stop-color:#f9a8d4"/>
+</radialGradient>
+<radialGradient id="petalGrad2" cx="50%" cy="50%" r="50%">
+<stop offset="0%" style="stop-color:#fbcfe8"/>
+<stop offset="100%" style="stop-color:#f472b6"/>
+</radialGradient>
+<radialGradient id="anthGrad" cx="50%" cy="50%" r="50%">
+<stop offset="0%" style="stop-color:#fbbf24"/>
+<stop offset="100%" style="stop-color:#d97706"/>
+</radialGradient>
+<radialGradient id="ovaryGrad" cx="50%" cy="50%" r="50%">
+<stop offset="0%" style="stop-color:#86efac"/>
+<stop offset="100%" style="stop-color:#16a34a"/>
+</radialGradient>
+<filter id="glow">
+<feGaussianBlur stdDeviation="3" result="blur"/>
+<feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+</filter>
+</defs>
+
+<!-- Stem -->
+<rect x="235" y="310" width="30" height="100" rx="8" fill="#4ade80" class="flower-part" id="part-stem" onclick="showPart('stem')"/>
+<!-- Sepals -->
+<ellipse cx="250" cy="310" rx="35" ry="18" fill="#22c55e" class="flower-part" id="part-sepal" onclick="showPart('sepal')"/>
+<ellipse cx="215" cy="320" rx="28" ry="14" fill="#16a34a" transform="rotate(-30,215,320)" class="flower-part" onclick="showPart('sepal')"/>
+<ellipse cx="285" cy="320" rx="28" ry="14" fill="#16a34a" transform="rotate(30,285,320)" class="flower-part" onclick="showPart('sepal')"/>
+
+<!-- Petals (background) -->
+<ellipse cx="250" cy="210" rx="38" ry="75" fill="url(#petalGrad2)" opacity="0.9" class="flower-part" id="part-petal" onclick="showPart('petal')" transform="rotate(-72,250,290)"/>
+<ellipse cx="250" cy="210" rx="38" ry="75" fill="url(#petalGrad2)" opacity="0.9" class="flower-part" onclick="showPart('petal')" transform="rotate(-36,250,290)"/>
+<ellipse cx="250" cy="210" rx="38" ry="75" fill="url(#petalGrad)" opacity="0.9" class="flower-part" onclick="showPart('petal')"/>
+<ellipse cx="250" cy="210" rx="38" ry="75" fill="url(#petalGrad)" opacity="0.9" class="flower-part" onclick="showPart('petal')" transform="rotate(36,250,290)"/>
+<ellipse cx="250" cy="210" rx="38" ry="75" fill="url(#petalGrad2)" opacity="0.9" class="flower-part" onclick="showPart('petal')" transform="rotate(72,250,290)"/>
+
+<!-- Pistil: Stigma -->
+<ellipse cx="250" cy="220" rx="20" ry="10" fill="#86efac" stroke="#16a34a" stroke-width="2" class="flower-part" id="part-stigma" onclick="showPart('stigma')" filter="url(#glow)"/>
+<text x="250" y="224" text-anchor="middle" fill="#166534" font-size="9" font-weight="bold" pointer-events="none">stigma</text>
+
+<!-- Style -->
+<rect x="244" y="228" width="12" height="35" rx="6" fill="#4ade80" stroke="#16a34a" stroke-width="1.5" class="flower-part" id="part-style" onclick="showPart('style')"/>
+
+<!-- Ovary -->
+<ellipse cx="250" cy="278" rx="28" ry="18" fill="url(#ovaryGrad)" stroke="#15803d" stroke-width="2" class="flower-part" id="part-ovary" onclick="showPart('ovary')"/>
+<text x="250" y="282" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold" pointer-events="none">ovary</text>
+
+<!-- Ovules inside -->
+<circle cx="240" cy="278" r="5" fill="#fef9c3" stroke="#eab308" stroke-width="1.5" class="flower-part" id="part-ovule" onclick="showPart('ovule')" opacity="0.9"/>
+<circle cx="258" cy="278" r="5" fill="#fef9c3" stroke="#eab308" stroke-width="1.5" class="flower-part" onclick="showPart('ovule')" opacity="0.9"/>
+
+<!-- Stamens: filaments -->
+<line x1="220" y1="270" x2="228" y2="235" stroke="#fbbf24" stroke-width="3" class="flower-part" onclick="showPart('filament')"/>
+<line x1="280" y1="270" x2="272" y2="235" stroke="#fbbf24" stroke-width="3" class="flower-part" onclick="showPart('filament')"/>
+<line x1="215" y1="260" x2="224" y2="240" stroke="#fbbf24" stroke-width="3" class="flower-part" onclick="showPart('filament')"/>
+<line x1="285" y1="260" x2="276" y2="240" stroke="#fbbf24" stroke-width="3" class="flower-part" onclick="showPart('filament')"/>
+
+<!-- Anthers -->
+<ellipse cx="226" cy="230" rx="12" ry="7" fill="url(#anthGrad)" stroke="#b45309" stroke-width="2" class="flower-part" id="part-anther" onclick="showPart('anther')" filter="url(#glow)"/>
+<ellipse cx="274" cy="230" rx="12" ry="7" fill="url(#anthGrad)" stroke="#b45309" stroke-width="2" class="flower-part" onclick="showPart('anther')" filter="url(#glow)"/>
+<ellipse cx="222" cy="238" rx="12" ry="7" fill="url(#anthGrad)" stroke="#b45309" stroke-width="2" class="flower-part" onclick="showPart('anther')" filter="url(#glow)"/>
+<ellipse cx="278" cy="238" rx="12" ry="7" fill="url(#anthGrad)" stroke="#b45309" stroke-width="2" class="flower-part" onclick="showPart('anther')" filter="url(#glow)"/>
+
+<!-- Pollen grains on anther -->
+<circle cx="220" cy="228" r="4" fill="#fef08a" stroke="#ca8a04" stroke-width="1" id="pollen-anther"/>
+<circle cx="228" cy="225" r="3" fill="#fef08a" stroke="#ca8a04" stroke-width="1"/>
+<circle cx="275" cy="227" r="4" fill="#fef08a" stroke="#ca8a04" stroke-width="1"/>
+
+<!-- Labels with arrows -->
+<!-- Petal label -->
+<line x1="310" y1="200" x2="290" y2="220" stroke="#ec4899" stroke-width="1.5" stroke-dasharray="4,2"/>
+<rect x="310" y="190" width="70" height="20" rx="10" fill="#fce7f3"/>
+<text x="345" y="204" text-anchor="middle" fill="#be185d" font-size="10" font-weight="bold">Petal (दल)</text>
+
+<!-- Sepal label -->
+<line x1="310" y1="330" x2="280" y2="315" stroke="#16a34a" stroke-width="1.5" stroke-dasharray="4,2"/>
+<rect x="310" y="320" width="80" height="20" rx="10" fill="#dcfce7"/>
+<text x="350" y="334" text-anchor="middle" fill="#15803d" font-size="10" font-weight="bold">Sepal (बाह्यदल)</text>
+
+<!-- Stigma label -->
+<line x1="310" y1="222" x2="272" y2="222" stroke="#16a34a" stroke-width="1.5" stroke-dasharray="4,2"/>
+<rect x="310" y="212" width="90" height="20" rx="10" fill="#dcfce7"/>
+<text x="355" y="226" text-anchor="middle" fill="#15803d" font-size="10" font-weight="bold">Stigma (वर्तिकाग्र)</text>
+
+<!-- Anther label -->
+<line x1="125" y1="230" x2="212" y2="232" stroke="#b45309" stroke-width="1.5" stroke-dasharray="4,2"/>
+<rect x="60" y="220" width="65" height="20" rx="10" fill="#fef3c7"/>
+<text x="92" y="234" text-anchor="middle" fill="#92400e" font-size="10" font-weight="bold">Anther(परागकोश)</text>
+
+<!-- Filament label -->
+<line x1="125" y1="260" x2="215" y2="252" stroke="#b45309" stroke-width="1.5" stroke-dasharray="4,2"/>
+<rect x="55" y="250" width="70" height="20" rx="10" fill="#fef3c7"/>
+<text x="90" y="264" text-anchor="middle" fill="#92400e" font-size="10" font-weight="bold">Filament(तंतु)</text>
+
+<!-- Ovary label -->
+<line x1="130" y1="278" x2="220" y2="278" stroke="#15803d" stroke-width="1.5" stroke-dasharray="4,2"/>
+<rect x="60" y="268" width="70" height="20" rx="10" fill="#dcfce7"/>
+<text x="95" y="282" text-anchor="middle" fill="#15803d" font-size="10" font-weight="bold">Ovary (अंडाशय)</text>
+
+<!-- Ovule label -->
+<line x1="130" y1="295" x2="238" y2="283" stroke="#ca8a04" stroke-width="1.5" stroke-dasharray="4,2"/>
+<rect x="60" y="285" width="70" height="20" rx="10" fill="#fef9c3"/>
+<text x="95" y="299" text-anchor="middle" fill="#92400e" font-size="10" font-weight="bold">Ovule (बीजांड)</text>
+
+<!-- Style label -->
+<line x1="310" y1="248" x2="257" y2="248" stroke="#15803d" stroke-width="1.5" stroke-dasharray="4,2"/>
+<rect x="310" y="238" width="80" height="20" rx="10" fill="#dcfce7"/>
+<text x="350" y="252" text-anchor="middle" fill="#15803d" font-size="10" font-weight="bold">Style (वर्तिका)</text>
+
+<!-- Stem label -->
+<line x1="310" y1="360" x2="265" y2="355" stroke="#16a34a" stroke-width="1.5" stroke-dasharray="4,2"/>
+<rect x="310" y="350" width="65" height="20" rx="10" fill="#dcfce7"/>
+<text x="342" y="364" text-anchor="middle" fill="#15803d" font-size="10" font-weight="bold">Stem (तना)</text>
+
+<!-- Groups label -->
+<text x="250" y="390" text-anchor="middle" fill="#6b7280" font-size="10">← STAMEN (♂) | PISTIL (♀) →</text>
+<rect x="130" y="395" width="110" height="14" rx="7" fill="#fef3c7" opacity="0.7"/>
+<text x="185" y="406" text-anchor="middle" fill="#92400e" font-size="9">पुंकेसर (Male)</text>
+<rect x="250" y="395" width="120" height="14" rx="7" fill="#dcfce7" opacity="0.7"/>
+<text x="310" y="406" text-anchor="middle" fill="#15803d" font-size="9">स्त्रीकेसर (Female)</text>
+</svg>
+
+<div class="part-info" id="part-info">
+<h3>👆 Click any flower part to learn about it!</h3>
+<p>Each part has a specific function in reproduction.</p>
+</div>
+
+<div class="legend">
+<div class="legend-item"><div class="legend-dot" style="background:#f472b6"></div><span>Petal (दल)</span></div>
+<div class="legend-item"><div class="legend-dot" style="background:#22c55e"></div><span>Sepal (बाह्यदल)</span></div>
+<div class="legend-item"><div class="legend-dot" style="background:#d97706"></div><span>Anther (परागकोश)</span></div>
+<div class="legend-item"><div class="legend-dot" style="background:#86efac"></div><span>Stigma (वर्तिकाग्र)</span></div>
+<div class="legend-item"><div class="legend-dot" style="background:#4ade80"></div><span>Ovary (अंडाशय)</span></div>
+<div class="legend-item"><div class="legend-dot" style="background:#fef08a;border:1px solid #ca8a04"></div><span>Ovule (बीजांड)</span></div>
+</div>
+</div>
+
+<!-- POLLINATION TAB -->
+<div id="tab-pollination" class="steps-container">
+<div class="section-title">🐝 Pollination Types | <span class="hindi">परागण के प्रकार</span></div>
+<div class="key-concept">
+<strong>Pollination (परागण)</strong> = Transfer of pollen grains from <strong>anther (परागकोश)</strong> to <strong>stigma (वर्तिकाग्र)</strong><br>
+<span style="color:#22c55e">Self-Pollination (स्व-परागण)</span>: same flower or same plant &nbsp;|&nbsp; <span style="color:#3b82f6">Cross-Pollination (पर-परागण)</span>: different plant
+</div>
+
+<div id="pollen-demo-area" style="position:relative;height:220px;border-radius:12px;background:linear-gradient(135deg,#ecfdf5,#fef3c7);overflow:hidden;margin-bottom:12px">
+<svg id="pollen-svg" viewBox="0 0 480 200" xmlns="http://www.w3.org/2000/svg" style="position:absolute;top:0;left:0;width:100%;height:100%">
+<!-- Flower 1 -->
+<g id="flower1">
+<rect x="68" y="140" width="10" height="55" rx="4" fill="#4ade80"/>
+<ellipse cx="73" cy="110" rx="15" ry="28" fill="#f9a8d4" opacity="0.85"/>
+<ellipse cx="73" cy="110" rx="15" ry="28" fill="#f9a8d4" opacity="0.85" transform="rotate(60,73,130)"/>
+<ellipse cx="73" cy="110" rx="15" ry="28" fill="#fde68a" opacity="0.85" transform="rotate(120,73,130)"/>
+<ellipse cx="73" cy="125" rx="8" ry="5" fill="#86efac" stroke="#16a34a" stroke-width="1.5"/>
+<ellipse cx="63" cy="115" rx="7" ry="4" fill="#fbbf24" stroke="#b45309" stroke-width="1"/>
+<ellipse cx="83" cy="115" rx="7" ry="4" fill="#fbbf24" stroke="#b45309" stroke-width="1"/>
+<text x="73" y="170" text-anchor="middle" fill="#166534" font-size="9" font-weight="bold">Flower 1</text>
+</g>
+<!-- Flower 2 -->
+<g id="flower2">
+<rect x="408" y="140" width="10" height="55" rx="4" fill="#4ade80"/>
+<ellipse cx="413" cy="110" rx="15" ry="28" fill="#c4b5fd" opacity="0.85"/>
+<ellipse cx="413" cy="110" rx="15" ry="28" fill="#a78bfa" opacity="0.85" transform="rotate(60,413,130)"/>
+<ellipse cx="413" cy="110" rx="15" ry="28" fill="#c4b5fd" opacity="0.85" transform="rotate(120,413,130)"/>
+<ellipse cx="413" cy="125" rx="8" ry="5" fill="#86efac" stroke="#16a34a" stroke-width="1.5" id="stigma2"/>
+<ellipse cx="403" cy="115" rx="7" ry="4" fill="#fbbf24" stroke="#b45309" stroke-width="1"/>
+<ellipse cx="423" cy="115" rx="7" ry="4" fill="#fbbf24" stroke="#b45309" stroke-width="1"/>
+<text x="413" y="170" text-anchor="middle" fill="#166534" font-size="9" font-weight="bold">Flower 2</text>
+</g>
+<!-- Bee path placeholder -->
+<path id="bee-path" d="M 90,105 Q 250,30 400,110" stroke="#f59e0b" stroke-width="2" stroke-dasharray="6,4" fill="none" opacity="0"/>
+<!-- Bee -->
+<g id="bee" transform="translate(90,105)" opacity="0">
+<ellipse cx="0" cy="0" rx="12" ry="8" fill="#fbbf24" stroke="#1e293b" stroke-width="1.5"/>
+<ellipse cx="-4" cy="0" rx="4" ry="8" fill="#1e293b" opacity="0.3"/>
+<ellipse cx="4" cy="0" rx="4" ry="8" fill="#1e293b" opacity="0.3"/>
+<ellipse cx="0" cy="-10" rx="6" ry="5" fill="rgba(147,197,253,0.6)" stroke="#93c5fd" stroke-width="1"/>
+<ellipse cx="0" cy="-10" rx="4" ry="4" fill="rgba(147,197,253,0.5)" stroke="#93c5fd" stroke-width="1" transform="rotate(30,0,-10)"/>
+<text x="0" y="3" text-anchor="middle" fill="#1e293b" font-size="7" font-weight="bold">🐝</text>
+</g>
+<!-- Pollen grains -->
+<circle class="pollen-particle" cx="63" cy="113" r="3" fill="#fef08a" stroke="#ca8a04" stroke-width="1"/>
+<circle class="pollen-particle" cx="67" cy="110" r="2.5" fill="#fef08a" stroke="#ca8a04" stroke-width="1"/>
+<circle class="pollen-particle" cx="60" cy="116" r="2" fill="#fef08a" stroke="#ca8a04" stroke-width="1"/>
+<!-- Wind arrow -->
+<g id="wind-arrow" opacity="0">
+<text x="200" y="70" text-anchor="middle" fill="#3b82f6" font-size="24">💨</text>
+<path d="M 140,80 Q 200,50 340,80" stroke="#3b82f6" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+</g>
+<defs>
+<marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+<path d="M 0 0 L 10 5 L 0 10 z" fill="#3b82f6"/>
+</marker>
+</defs>
+<!-- Labels -->
+<text x="240" y="190" text-anchor="middle" fill="#1e293b" font-size="10" id="demo-label">Choose a pollination type below</text>
+</svg>
+</div>
+
+<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+<button class="btn" onclick="showPollinationDemo('bee')">🐝 Bee Pollination</button>
+<button class="btn" onclick="showPollinationDemo('wind')">💨

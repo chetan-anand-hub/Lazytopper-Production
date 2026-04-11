@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Types of Asexual Reproduction | Class 10 Science</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Segoe UI',sans-serif;background:#f0f4ff;color:#1e293b;min-width:320px}
+  .title-bar{background:linear-gradient(135deg,#1e40af,#3b82f6,#06b6d4);color:#fff;padding:14px 20px;text-align:center;box-shadow:0 4px 15px rgba(59,130,246,.4)}
+  .title-bar h1{font-size:1.1em;font-weight:700;letter-spacing:.5px}
+  .title-bar p{font-size:.75em;opacity:.85;margin-top:3px}
+  .subtitle{font-size:.7em;opacity:.7}
+  .nav-tabs{display:flex;overflow-x:auto;gap:6px;padding:12px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.08);scrollbar-width:none}
+  .nav-tabs::-webkit-scrollbar{display:none}
+  .tab-btn{flex-shrink:0;padding:8px 14px;border:none;border-radius:20px;cursor:pointer;font-size:.78em;font-weight:600;transition:all .3s;background:#e2e8f0;color:#475569}
+  .tab-btn.active{background:linear-gradient(135deg,#3b82f6,#1e40af);color:#fff;box-shadow:0 3px 10px rgba(59,130,246,.4)}
+  .content-area{padding:12px;max-width:900px;margin:0 auto}
+  .card{background:#fff;border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 4px 15px rgba(0,0,0,.07);border:1px solid #e2e8f0}
+  .card h2{font-size:.95em;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+  .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.68em;font-weight:700;color:#fff}
+  .badge-blue{background:#3b82f6}
+  .badge-green{background:#22c55e}
+  .badge-amber{background:#f59e0b}
+  .badge-red{background:#ef4444}
+  .badge-purple{background:#8b5cf6}
+  .panel{display:none}
+  .panel.active{display:block}
+  svg text{font-family:'Segoe UI',sans-serif}
+  .anim-svg{width:100%;height:auto;display:block}
+  .step-box{background:#f8faff;border-left:4px solid #3b82f6;border-radius:0 10px 10px 0;padding:10px 14px;margin:8px 0;cursor:pointer;transition:all .3s;font-size:.82em}
+  .step-box:hover{background:#eff6ff;transform:translateX(4px)}
+  .step-box.revealed{border-color:#22c55e;background:#f0fdf4}
+  .step-detail{display:none;margin-top:8px;color:#475569;font-size:.85em;line-height:1.6}
+  .step-box.revealed .step-detail{display:block}
+  .step-header{font-weight:700;color:#1e293b;display:flex;justify-content:space-between;align-items:center}
+  .arrow-icon{transition:transform .3s;font-size:.9em}
+  .step-box.revealed .arrow-icon{transform:rotate(90deg)}
+  .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+  @media(max-width:500px){.compare-grid{grid-template-columns:1fr}}
+  .compare-card{border-radius:12px;padding:12px;font-size:.78em;border:2px solid transparent}
+  .quiz-btn{width:100%;padding:10px;margin:5px 0;border:2px solid #e2e8f0;border-radius:10px;background:#fff;cursor:pointer;font-size:.82em;text-align:left;transition:all .3s;color:#1e293b}
+  .quiz-btn:hover{border-color:#3b82f6;background:#eff6ff}
+  .quiz-btn.correct{border-color:#22c55e;background:#f0fdf4;color:#166534}
+  .quiz-btn.wrong{border-color:#ef4444;background:#fef2f2;color:#991b1b}
+  .progress-bar{height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden;margin:8px 0}
+  .progress-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#22c55e,#16a34a);transition:width .5s}
+  .highlight-box{background:linear-gradient(135deg,#fffbeb,#fef3c7);border:2px solid #f59e0b;border-radius:12px;padding:12px;margin:10px 0;font-size:.83em}
+  .highlight-box strong{color:#92400e}
+  .hindi{color:#8b5cf6;font-weight:700;font-size:.85em}
+  .org-btn{padding:8px 16px;border:none;border-radius:20px;cursor:pointer;font-size:.78em;font-weight:700;color:#fff;transition:all .3s;margin:4px}
+  .org-btn:hover{transform:scale(1.05);box-shadow:0 4px 12px rgba(0,0,0,.2)}
+  .diagram-container{position:relative;overflow:hidden;border-radius:12px;background:#f8faff;padding:10px}
+  .pulse{animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+  .float{animation:float 3s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+  .spin-slow{animation:spin 8s linear infinite}
+  @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+  .fade-in{animation:fadeIn .5s ease}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  .tooltip{position:relative;cursor:help}
+  .tooltip::after{content:attr(data-tip);position:absolute;bottom:125%;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:5px 10px;border-radius:8px;font-size:.72em;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .3s;z-index:10}
+  .tooltip:hover::after{opacity:1}
+  .cell-anim{animation:cellGrow 2s ease-in-out infinite alternate}
+  @keyframes cellGrow{from{rx:20;ry:15}to{rx:25;ry:20}}
+  #quiz-result{display:none;text-align:center;padding:15px;border-radius:12px;margin-top:10px;font-weight:700}
+</style>
+</head>
+<body>
+
+<div class="title-bar">
+  <h1>🦠 Types of Asexual Reproduction</h1>
+  <p>CBSE Class 10 Science | Chapter: How do Organisms Reproduce?</p>
+  <p class="subtitle"><span class="hindi">अलैंगिक जनन के प्रकार</span></p>
+</div>
+
+<div class="nav-tabs" id="navTabs">
+  <button class="tab-btn active" onclick="showPanel('overview')">🌟 Overview</button>
+  <button class="tab-btn" onclick="showPanel('binary')">⚡ Binary Fission</button>
+  <button class="tab-btn" onclick="showPanel('budding')">🌱 Budding</button>
+  <button class="tab-btn" onclick="showPanel('frag')">🔗 Fragmentation</button>
+  <button class="tab-btn" onclick="showPanel('spore')">🍄 Spore Formation</button>
+  <button class="tab-btn" onclick="showPanel('regen')">♻️ Regeneration</button>
+  <button class="tab-btn" onclick="showPanel('quiz')">📝 Quiz</button>
+</div>
+
+<div class="content-area">
+
+<!-- OVERVIEW -->
+<div id="panel-overview" class="panel active fade-in">
+  <div class="card">
+    <h2>🔑 Key Concept <span class="badge badge-blue">अवधारणा</span></h2>
+    <div class="highlight-box">
+      <strong>Asexual Reproduction (<span class="hindi">अलैंगिक जनन</span>):</strong><br>
+      A single parent produces offspring identical to itself — <em>no fusion of gametes</em>. Offspring are genetically identical (clones).
+    </div>
+    <p style="font-size:.82em;color:#475569;margin-top:8px">Click any organism below to explore which method it uses! 👇</p>
+    <div style="margin-top:12px;display:flex;flex-wrap:wrap;justify-content:center">
+      <button class="org-btn" style="background:linear-gradient(135deg,#3b82f6,#1e40af)" onclick="showOrgInfo('amoeba')">🦠 Amoeba</button>
+      <button class="org-btn" style="background:linear-gradient(135deg,#22c55e,#15803d)" onclick="showOrgInfo('hydra')">🌿 Hydra</button>
+      <button class="org-btn" style="background:linear-gradient(135deg,#f59e0b,#d97706)" onclick="showOrgInfo('planaria')">🐛 Planaria</button>
+      <button class="org-btn" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9)" onclick="showOrgInfo('rhizopus')">🍄 Rhizopus</button>
+      <button class="org-btn" style="background:linear-gradient(135deg,#ef4444,#b91c1c)" onclick="showOrgInfo('spirogyra')">🌊 Spirogyra</button>
+      <button class="org-btn" style="background:linear-gradient(135deg,#06b6d4,#0e7490)" onclick="showOrgInfo('starfish')">⭐ Starfish</button>
+    </div>
+    <div id="org-info-box" style="display:none;margin-top:12px;padding:12px;background:#f0f9ff;border-radius:12px;border:2px solid #3b82f6;font-size:.82em;animation:fadeIn .4s ease" id="orgInfo"></div>
+  </div>
+
+  <div class="card">
+    <h2>📊 All 5 Types at a Glance</h2>
+    <div style="overflow-x:auto">
+      <svg viewBox="0 0 500 320" class="anim-svg">
+        <!-- Central node -->
+        <ellipse cx="250" cy="160" rx="55" ry="35" fill="url(#cgrad)" stroke="#1e40af" stroke-width="2"/>
+        <defs>
+          <radialGradient id="cgrad"><stop offset="0%" stop-color="#60a5fa"/><stop offset="100%" stop-color="#1e40af"/></radialGradient>
+        </defs>
+        <text x="250" y="155" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Asexual</text>
+        <text x="250" y="168" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Reproduction</text>
+
+        <!-- Binary Fission -->
+        <line x1="200" y1="140" x2="95" y2="90" stroke="#3b82f6" stroke-width="2" stroke-dasharray="5,3"/>
+        <ellipse cx="75" cy="78" rx="45" ry="22" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/>
+        <text x="75" y="73" text-anchor="middle" fill="#1e40af" font-size="9" font-weight="bold">Binary</text>
+        <text x="75" y="84" text-anchor="middle" fill="#1e40af" font-size="9" font-weight="bold">Fission</text>
+
+        <!-- Budding -->
+        <line x1="250" y1="125" x2="250" y2="55" stroke="#22c55e" stroke-width="2" stroke-dasharray="5,3"/>
+        <ellipse cx="250" cy="40" rx="42" ry="20" fill="#dcfce7" stroke="#22c55e" stroke-width="2"/>
+        <text x="250" y="36" text-anchor="middle" fill="#15803d" font-size="9" font-weight="bold">Budding</text>
+        <text x="250" y="47" text-anchor="middle" fill="#15803d" font-size="9" font-weight="bold">(मुकुलन)</text>
+
+        <!-- Fragmentation -->
+        <line x1="300" y1="140" x2="400" y2="90" stroke="#f59e0b" stroke-width="2" stroke-dasharray="5,3"/>
+        <ellipse cx="420" cy="78" rx="48" ry="22" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+        <text x="420" y="73" text-anchor="middle" fill="#92400e" font-size="9" font-weight="bold">Fragmen-</text>
+        <text x="420" y="84" text-anchor="middle" fill="#92400e" font-size="9" font-weight="bold">tation</text>
+
+        <!-- Spore Formation -->
+        <line x1="295" y1="175" x2="400" y2="235" stroke="#8b5cf6" stroke-width="2" stroke-dasharray="5,3"/>
+        <ellipse cx="425" cy="248" rx="52" ry="22" fill="#ede9fe" stroke="#8b5cf6" stroke-width="2"/>
+        <text x="425" y="243" text-anchor="middle" fill="#4c1d95" font-size="9" font-weight="bold">Spore</text>
+        <text x="425" y="254" text-anchor="middle" fill="#4c1d95" font-size="9" font-weight="bold">Formation</text>
+
+        <!-- Regeneration -->
+        <line x1="205" y1="175" x2="100" y2="235" stroke="#ef4444" stroke-width="2" stroke-dasharray="5,3"/>
+        <ellipse cx="75" cy="248" rx="52" ry="22" fill="#fee2e2" stroke="#ef4444" stroke-width="2"/>
+        <text x="75" y="243" text-anchor="middle" fill="#991b1b" font-size="9" font-weight="bold">Regenera-</text>
+        <text x="75" y="254" text-anchor="middle" fill="#991b1b" font-size="9" font-weight="bold">tion (पुनर्जनन)</text>
+
+        <!-- Emoji icons -->
+        <text x="75" y="65" text-anchor="middle" font-size="12">🦠</text>
+        <text x="250" y="28" text-anchor="middle" font-size="12">🌱</text>
+        <text x="420" y="65" text-anchor="middle" font-size="12">🌊</text>
+        <text x="425" y="234" text-anchor="middle" font-size="12">🍄</text>
+        <text x="75" y="234" text-anchor="middle" font-size="12">⭐</text>
+
+        <!-- Organisms labels -->
+        <text x="75" y="280" text-anchor="middle" fill="#64748b" font-size="8">Amoeba, Bacteria</text>
+        <text x="250" y="70" text-anchor="middle" fill="#64748b" font-size="8">Hydra, Yeast</text>
+        <text x="420" y="280" text-anchor="middle" fill="#64748b" font-size="8">Spirogyra</text>
+        <text x="75" y="290" text-anchor="middle" fill="#64748b" font-size="8">Planaria, Starfish</text>
+        <text x="420" y="292" text-anchor="middle" fill="#64748b" font-size="8">Rhizopus, Ferns</text>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- BINARY FISSION -->
+<div id="panel-binary" class="panel fade-in">
+  <div class="card">
+    <h2>⚡ Binary Fission <span class="hindi">द्विखंडन</span> <span class="badge badge-blue">द्विखंडन</span></h2>
+    <div class="highlight-box">
+      <strong>Definition:</strong> The parent cell divides into <em>two equal daughter cells</em>. Each daughter cell grows into a new organism.<br>
+      <strong>Example organisms:</strong> Amoeba, Paramecium, Bacteria (Leishmania)
+    </div>
+    <p style="font-size:.8em;color:#64748b;margin:8px 0">📍 <em>Leishmania</em> has a whip-like flagellum — division starts from the flagellum end (binary fission along a definite plane)</p>
+  </div>
+
+  <div class="card">
+    <h2>🔬 Interactive Diagram — Click to Animate!</h2>
+    <div class="diagram-container" style="text-align:center">
+      <svg id="bfSVG" viewBox="0 0 400 200" class="anim-svg" style="max-height:200px">
+        <defs>
+          <radialGradient id="amg1"><stop offset="0%" stop-color="#93c5fd"/><stop offset="100%" stop-color="#3b82f6"/></radialGradient>
+          <radialGradient id="amg2"><stop offset="0%" stop-color="#86efac"/><stop offset="100%" stop-color="#22c55e"/></radialGradient>
+        </defs>
+        <!-- Stage 1 -->
+        <g id="bf-s1">
+          <ellipse cx="200" cy="100" rx="55" ry="40" fill="url(#amg1)" stroke="#1e40af" stroke-width="2.5"/>
+          <ellipse cx="200" cy="100" rx="18" ry="13" fill="#1e40af" opacity=".6"/>
+          <text x="200" y="103" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">Nucleus</text>
+          <text x="200" y="155" text-anchor="middle" fill="#64748b" font-size="10">Stage 1: Parent Cell</text>
+          <text x="200" y="167" text-anchor="middle" fill="#94a3b8" font-size="9">(Click to see division)</text>
+        </g>
+        <!-- Stage 2 (hidden) -->
+        <g id="bf-s2" style="display:none">
+          <ellipse cx="200" cy="100" rx="55" ry="40" fill="url(#amg1)" stroke="#1e40af" stroke-width="2" stroke-dasharray="5,3"/>
+          <ellipse cx="185" cy="95" rx="14" ry="10" fill="#1e40af" opacity=".6"/>
+          <ellipse cx="215" cy="105" rx="14" ry="10" fill="#1e40af" opacity=".6"/>
+          <line x1="200" y1="60" x2="200" y2="140" stroke="#ef4444" stroke-width="2.5" stroke-dasharray="4,3"/>
+          <text x="200" y="155" text-anchor="middle" fill="#64748b" font-size="10">Stage 2: DNA Replication &amp; Nucleus Divides</text>
+          <text x="200" y="167" text-anchor="middle" fill="#94a3b8" font-size="9">(Click again)</text>
+        </g>
+        <!-- Stage 3 (hidden) -->
+        <g id="bf-s3" style="display:none">
+          <ellipse cx="130" cy="100" rx="50" ry="36" fill="url(#amg1)" stroke="#1e40af" stroke-width="2"/>
+          <ellipse cx="130" cy="100" rx="16" ry="11" fill="#1e40af" opacity=".6"/>
+          <ellipse cx="270" cy="100" rx="50" ry="36" fill="url(#amg2)" stroke="#15803d" stroke-width="2"/>
+          <ellipse cx="270" cy="100" rx="16" ry="11" fill="#15803d" opacity=".6"/>
+          <text x="130" y="150" text-anchor="middle" fill="#1e40af" font-size="9" font-weight="bold">Daughter 1</text>
+          <text x="270" y="150" text-anchor="middle" fill="#15803d" font-size="9" font-weight="bold">Daughter 2</text>
+          <text x="200" y="170" text-anchor="middle" fill="#22c55e" font-size="10" font-weight="bold">✓ Two identical cells formed!</text>
+        </g>
+      </svg>
+      <button onclick="animateBF()" style="background:linear-gradient(135deg,#3b82f6,#1e40af);color:#fff;border:none;padding:8px 20px;border-radius:20px;cursor:pointer;font-size:.8em;font-weight:700;margin-top:8px">▶ Next Step</button>
+      <button onclick="resetBF()" style="background:#e2e8f0;color:#475569;border:none;padding:8px 16px;border-radius:20px;cursor:pointer;font-size:.8em;font-weight:700;margin:8px 4px">↺ Reset</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>📋 Step-by-Step Walkthrough</h2>
+    <p style="font-size:.78em;color:#64748b;margin-bottom:8px">👆 Click each step to reveal details</p>
+    <div class="step-box" onclick="toggleStep(this)">
+      <div class="step-header">Step 1: DNA Replication <span class="arrow-icon">›</span></div>
+      <div class="step-detail">The DNA of the parent cell duplicates (replicates). This ensures each new cell gets a complete copy of genetic material. <br>🔑 <em>No spindle fibres in prokaryotes (like bacteria)</em></div>
+    </div>
+    <div class="step-box" onclick="toggleStep(this)">
+      <div class="step-header">Step 2: Elongation of Cell <span class="arrow-icon">›</span></div>
+      <div class="step-detail">The cell grows longer. The two copies of DNA move to opposite ends of the elongated cell — this separates them.</div>
+    </div>
+    <div class="step-box" onclick="toggleStep(this)">
+      <div class="step-header">Step 3: Cytokinesis — Cell Splits <span class="arrow-icon">›</span></div>
+      <div class="step-detail">A constriction forms in the middle. The cell membrane pinches inward, dividing the cytoplasm. Result: 2 equal daughter cells — each genetically identical to parent.</div>
+    </div>
+    <div class="step-box" onclick="toggleStep(this)">
+      <div class="step-header">⚠️ Special Note: Amoeba vs Leishmania <span class="arrow-icon">›</span></div>
+      <div class="step-detail"><strong>Amoeba:</strong> Can divide in any plane (irregular shape). <br><strong>Leishmania:</strong> Has a fixed flagellum — division occurs at a <em>specific plane</em> relative to the flagellum. This is a CBSE exam favourite!</div>
+    </div>
+  </div>
+</div>
+
+<!-- BUDDING -->
+<div id="panel-budding" class="panel fade-in">
+  <div class="card">
+    <h2>🌱 Budding <span class="hindi">मुकुलन</span> <span class="badge badge-green">मुकुलन</span></h2>
+    <div class="highlight-box">
+      <strong>Definition:</strong> A small outgrowth (bud) develops on the parent body, grows, and eventually detaches to form a new organism.<br>
+      <strong>Examples:</strong> Hydra, Yeast (<em>Saccharomyces cerevisiae</em>)
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🔬 Hydra Budding — Hover over stages!</h2>
+    <div class="diagram-container">
+      <svg viewBox="0 0 420 210" class="anim-svg">
+        <!-- Stage labels -->
+        <text x="55" y="195" text-anchor="middle" fill="#64748b" font-size="9">1. Parent</text>
+        <text x="160" y="195" text-anchor="middle" fill="#64748b" font-size="9">2. Bud appears</text>
+        <text x="265" y="195" text-anchor="middle" fill="#64748b" font-size="9">3. Bud grows</text>
+        <text x="370" y="195" text-anchor="middle" fill="#64748b" font-size="9">4. Detaches</text>
+
+        <!-- Hydra 1 - parent -->
+        <g class="tooltip" data-tip="Healthy parent Hydra">
+          <rect x="40" y="50" width="30" height="100" rx="15" fill="#22c55e" stroke="#15803d" stroke-width="2"/>
+          <circle cx="55" cy="45" r="12" fill="#22c55e" stroke="#15803d" stroke-width="2"/>
+          <!-- Tentacles -->
+          <line x1="55" y1="33" x2="45" y2="18" stroke="#15803d" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="55" y1="33" x2="65" y2="18" stroke="#15803d" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="55" y1="33" x2="38" y2="25" stroke="#15803d" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="55" y1="33" x2="72" y2="25" stroke="#15803d" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="55" cy="50" r="3" fill="#fff" opacity=".5"/>
+        </g>
+
+        <!-- Arrow -->
+        <text x="100" y="105" text-anchor="middle" fill="#94a3b8" font-size="18">→</text>
+
+        <!-- Hydra 2 - small bud -->
+        <g class="tooltip" data-tip="A small bud outgrowth forms">
+          <rect x="145" y="50" width="30" height="100" rx="15" fill="#22c55e" stroke="#15803d" stroke-width="2"/>
+          <circle cx="160" cy="45" r="12" fill="#22c55e" stroke="#15803d" stroke-width="2"/>
+          <line x1="160" y1="33" x2="150" y2="18" stroke="#15803d" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="160" y1="33" x2="170" y2="18" stroke="#15803d" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="160" y1="33" x2="143" y2="25" stroke="#15803d" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="160" y1="33" x2="177" y2="25" stroke="#15803d" stroke-width="2.5" stroke-linecap="round"/>
+          <!-- Small bud -->
+          <rect x="175" y="85" width="14" height="35" rx="7" fill="#86efac" stroke="#22c55e" stroke-width="1.5"/>
+          <circle cx="182" cy="82" r="6" fill="#86efac" stroke="#22c55e" stroke-width="1.5"/>
+          <text x="182" y="125" text-anchor="middle" fill="#15803d" font-size="8">bud</text>
+        </g>
+
+        <!-- Arrow -->
+        <text x="208" y="105" text-anchor="middle" fill="#94a3b8" font-size="18">→</text>
+
+        <!-- Hydra 3 - larger bud -->
+        <g class="tooltip" data-tip="Bud grows with tentacles forming">
+          <rect x="250" y="50" width="30" height="100" rx="15" fill="#22c55e" stroke="#15803d" stroke-width="2"/>
+          <circle cx="265" cy="45" r="12" fill="#22c55e" stroke="#15803d" stroke-width="2"/>
+          <line x1="265" y1="33" x2="255" y2="18" stroke="#15803d" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="265" y1="33" x2="275" y2="18" stroke="#15803d" stroke-width="2.5" stroke-linecap="round"/>
+          <!-- Larger bud with tentacles -->
+          <rect x="280" y="75" width="22" height="55" rx="11" fill="#4ade80" stroke="#22c55e" stroke-width="2"/>
+          <circle cx="291" cy="71" r="9" fill="#4ade80" stroke="#22c55e" stroke-width="2"/>
+          <line x1="291" y1="62" x2="284" y2="52" stroke="#15803d" stroke-width="2" stroke-linecap="round"/>
+          <line x1="291" y1="62" x2="298" y2="52" stroke="#15803d" stroke-width="2" stroke-linecap="round"/>
+          <line x1="291" y1="62" x2="278"

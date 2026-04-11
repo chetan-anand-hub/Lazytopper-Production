@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Human Heart & Blood Circulation - Class 10 Science</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); min-height: 100vh; color: #e2e8f0; }
+
+  .title-bar { background: linear-gradient(90deg, #1d4ed8, #3b82f6, #60a5fa); padding: 12px 20px; text-align: center; box-shadow: 0 4px 20px rgba(59,130,246,0.4); }
+  .title-bar h1 { font-size: 1.1rem; font-weight: 700; color: white; letter-spacing: 0.5px; }
+  .title-bar p { font-size: 0.75rem; color: #bfdbfe; margin-top: 2px; }
+
+  .container { max-width: 900px; margin: 0 auto; padding: 16px; }
+
+  .card { background: linear-gradient(135deg, #1e293b, #0f172a); border: 1px solid #334155; border-radius: 16px; padding: 16px; margin-bottom: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
+
+  .section-title { font-size: 1rem; font-weight: 700; color: #60a5fa; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .section-title span { background: #3b82f6; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; }
+
+  /* Key Concept Box */
+  .concept-box { background: linear-gradient(135deg, #1d4ed8, #1e3a8a); border-radius: 12px; padding: 14px; text-align: center; border: 2px solid #3b82f6; margin-bottom: 16px; }
+  .concept-box h2 { font-size: 1.2rem; color: #fbbf24; font-weight: 800; }
+  .concept-box p { font-size: 0.85rem; color: #bfdbfe; margin-top: 6px; line-height: 1.5; }
+  .concept-box .hindi { color: #86efac; font-size: 0.8rem; margin-top: 4px; }
+
+  /* Heart SVG Container */
+  .heart-container { display: flex; justify-content: center; position: relative; cursor: pointer; }
+  #heartSvg { width: 100%; max-width: 380px; height: auto; }
+
+  /* Chamber labels */
+  .chamber-info { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .chamber-card { border-radius: 10px; padding: 10px; cursor: pointer; transition: all 0.3s; border: 2px solid transparent; }
+  .chamber-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.4); }
+  .chamber-card.ra { background: linear-gradient(135deg, #7c3aed22, #7c3aed44); border-color: #7c3aed; }
+  .chamber-card.la { background: linear-gradient(135deg, #dc262622, #dc262644); border-color: #dc2626; }
+  .chamber-card.rv { background: linear-gradient(135deg, #2563eb22, #2563eb44); border-color: #2563eb; }
+  .chamber-card.lv { background: linear-gradient(135deg, #dc262622, #dc262644); border-color: #dc2626; }
+  .chamber-card.active { transform: scale(1.03); }
+  .chamber-card h4 { font-size: 0.8rem; font-weight: 700; }
+  .chamber-card p { font-size: 0.72rem; color: #94a3b8; margin-top: 3px; line-height: 1.4; }
+  .chamber-card .hindi-label { font-size: 0.65rem; color: #86efac; }
+
+  /* Animation classes */
+  @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.04)} }
+  @keyframes flowRight { 0%{stroke-dashoffset:100} 100%{stroke-dashoffset:0} }
+  @keyframes flowLeft { 0%{stroke-dashoffset:-100} 100%{stroke-dashoffset:0} }
+  @keyframes beat { 0%,100%{transform:scale(1)} 30%{transform:scale(1.06)} 60%{transform:scale(0.97)} }
+
+  .heart-beat { animation: beat 1.2s ease-in-out infinite; transform-origin: center; }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+  .tab { padding: 8px 14px; border-radius: 20px; border: 2px solid #334155; background: transparent; color: #94a3b8; cursor: pointer; font-size: 0.78rem; font-weight: 600; transition: all 0.3s; }
+  .tab.active { background: #3b82f6; border-color: #3b82f6; color: white; }
+  .tab:hover:not(.active) { border-color: #3b82f6; color: #60a5fa; }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* Circulation path */
+  .path-steps { display: flex; flex-direction: column; gap: 8px; }
+  .path-step { display: flex; align-items: flex-start; gap: 10px; padding: 10px; border-radius: 10px; cursor: pointer; transition: all 0.3s; opacity: 0.4; }
+  .path-step.revealed { opacity: 1; }
+  .path-step:hover { background: #1e3a8a22; }
+  .step-num { min-width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.75rem; }
+  .step-deoxygenated .step-num { background: #1d4ed8; color: white; }
+  .step-oxygenated .step-num { background: #dc2626; color: white; }
+  .step-text h4 { font-size: 0.82rem; font-weight: 700; }
+  .step-text p { font-size: 0.73rem; color: #94a3b8; margin-top: 2px; line-height: 1.4; }
+  .reveal-btn { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; border: none; padding: 10px 20px; border-radius: 25px; cursor: pointer; font-size: 0.85rem; font-weight: 700; margin: 8px auto; display: block; transition: all 0.3s; }
+  .reveal-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(59,130,246,0.5); }
+
+  /* Double Pump Visual */
+  .double-pump { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .pump-side { border-radius: 12px; padding: 12px; text-align: center; }
+  .pump-right { background: linear-gradient(135deg, #1e3a8a, #1d4ed8); border: 2px solid #3b82f6; }
+  .pump-left { background: linear-gradient(135deg, #7f1d1d, #dc2626); border: 2px solid #ef4444; }
+  .pump-side h3 { font-size: 0.88rem; font-weight: 800; }
+  .pump-side p { font-size: 0.73rem; margin-top: 4px; line-height: 1.4; color: #cbd5e1; }
+  .pump-icon { font-size: 2rem; margin: 8px 0; }
+  .blood-type { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; margin-top: 6px; }
+  .deoxygenated { background: #1d4ed8; color: white; }
+  .oxygenated { background: #dc2626; color: white; }
+
+  /* Quiz */
+  .quiz-q { font-size: 0.9rem; font-weight: 600; margin-bottom: 10px; color: #e2e8f0; }
+  .quiz-opts { display: flex; flex-direction: column; gap: 8px; }
+  .quiz-opt { padding: 10px 14px; border-radius: 10px; border: 2px solid #334155; background: #1e293b; cursor: pointer; font-size: 0.82rem; transition: all 0.3s; text-align: left; color: #e2e8f0; }
+  .quiz-opt:hover { border-color: #3b82f6; background: #1e3a8a22; }
+  .quiz-opt.correct { border-color: #22c55e; background: #14532d44; color: #86efac; }
+  .quiz-opt.wrong { border-color: #ef4444; background: #7f1d1d44; color: #fca5a5; }
+  .quiz-feedback { margin-top: 10px; padding: 10px; border-radius: 10px; font-size: 0.82rem; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.correct-fb { background: #14532d44; color: #86efac; border: 1px solid #22c55e; }
+  .quiz-feedback.wrong-fb { background: #7f1d1d44; color: #fca5a5; border: 1px solid #ef4444; }
+  .next-q { margin-top: 8px; }
+
+  /* Legend */
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; margin-top: 10px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; }
+  .legend-dot { width: 12px; height: 12px; border-radius: 50%; }
+
+  /* Fact box */
+  .fact-box { background: linear-gradient(135deg, #451a0322, #f59e0b22); border: 1px solid #f59e0b; border-radius: 10px; padding: 10px 14px; font-size: 0.8rem; color: #fcd34d; line-height: 1.5; }
+
+  /* Flow animation path */
+  .flow-path { stroke-dasharray: 8 4; animation: dash 1.5s linear infinite; }
+  .flow-path-rev { stroke-dasharray: 8 4; animation: dash-rev 1.5s linear infinite; }
+  @keyframes dash { to { stroke-dashoffset: -24; } }
+  @keyframes dash-rev { to { stroke-dashoffset: 24; } }
+  .blood-drop { animation: pulse 1.2s ease-in-out infinite; }
+
+  @media (max-width: 500px) {
+    .double-pump { grid-template-columns: 1fr; }
+    .chamber-info { grid-template-columns: 1fr 1fr; }
+    #heartSvg { max-width: 300px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="title-bar">
+  <h1>❤️ Human Heart & Blood Circulation</h1>
+  <p>CBSE Class 10 Science | Life Processes | हृदय और रक्त परिसंचरण</p>
+</div>
+
+<div class="container">
+
+  <!-- Key Concept -->
+  <div class="concept-box">
+    <h2>💡 Double Circulation (द्विपरिसंचरण)</h2>
+    <p>Blood passes through the heart <strong>TWICE</strong> in one complete circuit.<br>
+    Right side → Lungs → Left side → Body → Right side</p>
+    <div class="hindi">हृदय एक दोहरे पम्प की तरह कार्य करता है — दाईं ओर फेफड़ों को रक्त भेजती है, बाईं ओर शरीर को</div>
+  </div>
+
+  <!-- TABS -->
+  <div class="card">
+    <div class="tabs">
+      <button class="tab active" onclick="showTab('diagram')">🫀 Heart Diagram</button>
+      <button class="tab" onclick="showTab('circulation')">🔄 Circulation Path</button>
+      <button class="tab" onclick="showTab('doublepump')">⚙️ Double Pump</button>
+      <button class="tab" onclick="showTab('quiz')">📝 Quiz</button>
+    </div>
+
+    <!-- DIAGRAM TAB -->
+    <div id="tab-diagram" class="tab-content active">
+      <div class="section-title"><span>1</span> Interactive Heart Diagram — Click a chamber!</div>
+      <div class="heart-container">
+        <svg id="heartSvg" viewBox="0 0 380 320" xmlns="http://www.w3.org/2000/svg">
+          <!-- Heart outline -->
+          <g class="heart-beat">
+            <!-- Pericardium outer -->
+            <ellipse cx="190" cy="170" rx="140" ry="130" fill="#1a0a0a" stroke="#7f1d1d" stroke-width="2" opacity="0.5"/>
+
+            <!-- Right Atrium (deoxygenated - blue) -->
+            <path id="ra-chamber" d="M 130 110 Q 90 100 80 140 Q 75 175 110 185 Q 130 190 145 175 L 150 130 Z" fill="#1d4ed8" stroke="#60a5fa" stroke-width="2" opacity="0.85" cursor="pointer" onclick="selectChamber('ra')" class="chamber"/>
+
+            <!-- Left Atrium (oxygenated - red) -->
+            <path id="la-chamber" d="M 250 110 Q 290 100 300 140 Q 305 175 270 185 Q 250 190 235 175 L 230 130 Z" fill="#dc2626" stroke="#fca5a5" stroke-width="2" opacity="0.85" cursor="pointer" onclick="selectChamber('la')" class="chamber"/>
+
+            <!-- Right Ventricle (deoxygenated - blue) -->
+            <path id="rv-chamber" d="M 110 185 Q 90 200 95 240 Q 100 270 150 280 Q 175 285 185 265 L 190 185 L 145 175 Z" fill="#2563eb" stroke="#93c5fd" stroke-width="2" opacity="0.85" cursor="pointer" onclick="selectChamber('rv')" class="chamber"/>
+
+            <!-- Left Ventricle (oxygenated - red) -->
+            <path id="lv-chamber" d="M 270 185 Q 290 200 285 240 Q 280 270 230 280 Q 205 285 195 265 L 190 185 L 235 175 Z" fill="#b91c1c" stroke="#fca5a5" stroke-width="2" opacity="0.85" cursor="pointer" onclick="selectChamber('lv')" class="chamber"/>
+
+            <!-- Septum (wall between) -->
+            <line x1="190" y1="120" x2="190" y2="280" stroke="#fbbf24" stroke-width="3" opacity="0.7"/>
+            <text x="190" y="115" text-anchor="middle" fill="#fbbf24" font-size="9" font-weight="bold">Septum</text>
+
+            <!-- Valves -->
+            <!-- Tricuspid (between RA & RV) -->
+            <ellipse cx="130" cy="183" rx="18" ry="6" fill="#f59e0b" opacity="0.9"/>
+            <!-- Bicuspid/Mitral (between LA & LV) -->
+            <ellipse cx="250" cy="183" rx="18" ry="6" fill="#f59e0b" opacity="0.9"/>
+            <!-- Pulmonary valve (RV to pulmonary artery) -->
+            <ellipse cx="108" cy="235" rx="8" ry="5" fill="#a78bfa" opacity="0.9" transform="rotate(-20,108,235)"/>
+            <!-- Aortic valve (LV to aorta) -->
+            <ellipse cx="272" cy="235" rx="8" ry="5" fill="#a78bfa" opacity="0.9" transform="rotate(20,272,235)"/>
+
+            <!-- Pulmonary Artery (right side → lungs) -->
+            <path d="M 95 220 Q 60 210 50 170 Q 45 140 70 120" fill="none" stroke="#60a5fa" stroke-width="6" stroke-linecap="round"/>
+            <!-- Animated flow on pulmonary artery -->
+            <path d="M 95 220 Q 60 210 50 170 Q 45 140 70 120" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" class="flow-path" opacity="0.7"/>
+
+            <!-- Pulmonary Vein (lungs → left side) -->
+            <path d="M 310 120 Q 330 140 325 170 Q 320 200 305 215" fill="none" stroke="#f87171" stroke-width="6" stroke-linecap="round"/>
+            <path d="M 310 120 Q 330 140 325 170 Q 320 200 305 215" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" class="flow-path" opacity="0.7"/>
+
+            <!-- Aorta (left → body) -->
+            <path d="M 280 240 Q 310 230 320 200 Q 330 170 320 130 Q 315 110 300 100" fill="none" stroke="#ef4444" stroke-width="7" stroke-linecap="round"/>
+            <path d="M 280 240 Q 310 230 320 200 Q 330 170 320 130 Q 315 110 300 100" fill="none" stroke="white" stroke-width="2" class="flow-path" opacity="0.6"/>
+
+            <!-- Vena Cava (body → right) -->
+            <path d="M 80 100 Q 65 115 65 140 Q 65 160 80 175" fill="none" stroke="#3b82f6" stroke-width="7" stroke-linecap="round"/>
+            <path d="M 80 100 Q 65 115 65 140 Q 65 160 80 175" fill="none" stroke="white" stroke-width="2" class="flow-path-rev" opacity="0.6"/>
+
+            <!-- LABELS -->
+            <text x="115" y="148" text-anchor="middle" fill="white" font-size="9" font-weight="bold">Right</text>
+            <text x="115" y="159" text-anchor="middle" fill="white" font-size="9" font-weight="bold">Atrium</text>
+            <text x="115" y="169" text-anchor="middle" fill="#bfdbfe" font-size="7">(RA)</text>
+
+            <text x="265" y="148" text-anchor="middle" fill="white" font-size="9" font-weight="bold">Left</text>
+            <text x="265" y="159" text-anchor="middle" fill="white" font-size="9" font-weight="bold">Atrium</text>
+            <text x="265" y="169" text-anchor="middle" fill="#fca5a5" font-size="7">(LA)</text>
+
+            <text x="135" y="232" text-anchor="middle" fill="white" font-size="9" font-weight="bold">Right</text>
+            <text x="135" y="243" text-anchor="middle" fill="white" font-size="9" font-weight="bold">Ventricle</text>
+            <text x="135" y="253" text-anchor="middle" fill="#bfdbfe" font-size="7">(RV)</text>
+
+            <text x="245" y="232" text-anchor="middle" fill="white" font-size="9" font-weight="bold">Left</text>
+            <text x="245" y="243" text-anchor="middle" fill="white" font-size="9" font-weight="bold">Ventricle</text>
+            <text x="245" y="253" text-anchor="middle" fill="#fca5a5" font-size="7">(LV)</text>
+
+            <!-- Valve labels -->
+            <text x="130" y="196" text-anchor="middle" fill="#fcd34d" font-size="7">Tricuspid</text>
+            <text x="250" y="196" text-anchor="middle" fill="#fcd34d" font-size="7">Bicuspid</text>
+
+            <!-- Vessel labels -->
+            <text x="38" y="105" fill="#60a5fa" font-size="8" font-weight="bold">Vena</text>
+            <text x="35" y="114" fill="#60a5fa" font-size="8" font-weight="bold">Cava</text>
+            <text x="28" y="210" fill="#93c5fd" font-size="8" font-weight="bold">Pulmonary</text>
+            <text x="32" y="220" fill="#93c5fd" font-size="8" font-weight="bold">Artery</text>
+            <text x="308" y="105" fill="#fca5a5" font-size="8" font-weight="bold">Pulmonary</text>
+            <text x="315" y="115" fill="#fca5a5" font-size="8" font-weight="bold">Vein</text>
+            <text x="325" y="230" fill="#ef4444" font-size="8" font-weight="bold">Aorta</text>
+
+            <!-- Lungs indicator -->
+            <text x="55" y="82" fill="#86efac" font-size="9" font-weight="bold">🫁 Lungs</text>
+            <text x="290" y="82" fill="#86efac" font-size="9" font-weight="bold">Lungs 🫁</text>
+          </g>
+        </svg>
+      </div>
+
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#1d4ed8"></div><span>Deoxygenated blood (अशुद्ध रक्त)</span></div>
+        <div class="legend-item"><div class="legend-dot" style="background:#dc2626"></div><span>Oxygenated blood (शुद्ध रक्त)</span></div>
+        <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div><span>Valves (वाल्व)</span></div>
+      </div>
+
+      <!-- Chamber Info Cards -->
+      <div class="chamber-info" id="chamberCards" style="margin-top:14px">
+        <div class="chamber-card ra" id="card-ra" onclick="selectChamber('ra')">
+          <h4 style="color:#a78bfa">🔵 Right Atrium (दायां आलिंद)</h4>
+          <div class="hindi-label">दायां अलिंद</div>
+          <p>Receives <strong>deoxygenated blood</strong> from body via Superior & Inferior Vena Cava. Pumps to Right Ventricle.</p>
+        </div>
+        <div class="chamber-card la" id="card-la" onclick="selectChamber('la')">
+          <h4 style="color:#fca5a5">🔴 Left Atrium (बायां आलिंद)</h4>
+          <div class="hindi-label">बायां अलिंद</div>
+          <p>Receives <strong>oxygenated blood</strong> from lungs via Pulmonary Veins. Pumps to Left Ventricle.</p>
+        </div>
+        <div class="chamber-card rv" id="card-rv" onclick="selectChamber('rv')">
+          <h4 style="color:#93c5fd">🔵 Right Ventricle (दायां निलय)</h4>
+          <div class="hindi-label">दायां निलय</div>
+          <p>Pumps <strong>deoxygenated blood</strong> to lungs via Pulmonary Artery for oxygenation.</p>
+        </div>
+        <div class="chamber-card lv" id="card-lv" onclick="selectChamber('lv')">
+          <h4 style="color:#fca5a5">🔴 Left Ventricle (बायां निलय)</h4>
+          <div class="hindi-label">बायां निलय</div>
+          <p>Pumps <strong>oxygenated blood</strong> to entire body via Aorta. Has <strong>thickest walls</strong>!</p>
+        </div>
+      </div>
+
+      <div id="chamberDetail" style="display:none; margin-top:12px; padding:12px; border-radius:10px; background:#1e293b; border:2px solid #3b82f6; font-size:0.82rem; line-height:1.6; color:#e2e8f0;"></div>
+    </div>
+
+    <!-- CIRCULATION TAB -->
+    <div id="tab-circulation" class="tab-content">
+      <div class="section-title"><span>2</span> Blood Circulation Path — Click to reveal steps!</div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+        <div style="background:linear-gradient(135deg,#1e3a8a,#1d4ed8);border-radius:10px;padding:10px;text-align:center;">
+          <div style="font-size:1.2rem">🫁</div>
+          <div style="font-size:0.8rem;font-weight:700;color:#93c5fd">Pulmonary Circulation</div>
+          <div style="font-size:0.7rem;color:#bfdbfe;margin-top:3px">फुफ्फुसीय परिसंचरण</div>
+          <div style="font-size:0.7rem;color:#cbd5e1;margin-top:4px">Heart ↔ Lungs</div>
+        </div>
+        <div style="background:linear-gradient(135deg,#7f1d1d,#dc2626);border-radius:10px;padding:10px;text-align:center;">
+          <div style="font-size:1.2rem">🧍</div>
+          <div style="font-size:0.8rem;font-weight:700;color:#fca5a5">Systemic Circulation</div>
+          <div style="font-size:0.7rem;color:#fecaca;margin-top:3px">दैहिक परिसंचरण</div>
+          <div style="font-size:0.7rem;color:#cbd5e1;margin-top:4px">Heart ↔ Body</div>
+        </div>
+      </div>
+
+      <div class="path-steps" id="pathSteps">
+        <div class="path-step step-deoxygenated revealed" id="step1">
+          <div class="step-num">1</div>
+          <div class="step-text">
+            <h4 style="color:#60a5fa">Body → Right Atrium (RA)</h4>
+            <p>Deoxygenated blood from body enters Right Atrium through <strong>Superior & Inferior Vena Cava</strong> (महाशिरा)</p>
+          </div>
+        </div>
+        <div class="path-step step-deoxygenated" id="step2">
+          <div class="step-num">2</div>
+          <div class="step-text">
+            <h4 style="color:#60a5fa">RA → Right Ventricle (RV)</h4>
+            <p>Blood flows from RA to RV through the <strong>Tricuspid valve</strong> (त्रिवलन वाल्व)</p>
+          </div>
+        </div>
+        <div class="path-step step-deoxygenated" id="step3">
+          <div class="step-num">3</div>
+          <div class="step-text">
+            <h4 style="color:#93c5fd">RV → Lungs (Pulmonary Circulation)</h4>
+            <p>RV pumps blood to lungs via <strong>Pulmonary Artery</strong> (फुफ्फुसीय धमनी). CO₂ released, O₂ absorbed.</p>
+          </div>
+        </div>
+        <div class="path-step step-oxygenated" id="step4">
+          <div class="step-num">4</div>
+          <div class="step-text">
+            <h4 style="color:#fca5a5">Lungs → Left Atrium (LA)</h4>
+            <p>Oxygenated blood returns to LA through <strong>Pulmonary Veins</strong> (फुफ्फुसीय शिरा)</p>
+          </div>
+        </div>
+        <div class="path-step step-oxygenated" id="step5">
+          <div class="step-num">5</div>
+          <div class="step-text">
+            <h4 style="color:#fca5a5">LA → Left Ventricle (LV)</h4>
+            <p>Blood flows from LA to LV through <strong>Bicuspid/Mitral valve</strong> (द्विवलन वाल्व)</p>
+          </div>
+        </div>
+        <div class="path-step step-oxygenated" id="step6">
+          <div class="step-num">6</div>
+          <div class="step-text">
+            <h4 style="color:#ef4444">LV → Entire Body (Systemic Circulation)</h4>
+            <p>LV pumps oxygenated blood to body via <strong>Aorta</strong> (महाधमनी). Cycle completes

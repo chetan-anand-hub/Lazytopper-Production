@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Section Formula - Coordinate Geometry</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a,#1e293b);min-height:100vh;color:#1e293b}
+.titlebar{background:linear-gradient(90deg,#1d4ed8,#3b82f6,#06b6d4);padding:12px 20px;text-align:center;box-shadow:0 4px 20px rgba(59,130,246,0.5)}
+.titlebar h1{color:#fff;font-size:1.2em;letter-spacing:1px}
+.titlebar p{color:#bfdbfe;font-size:0.75em;margin-top:2px}
+.container{max-width:800px;margin:0 auto;padding:15px}
+.card{background:#fff;border-radius:16px;padding:16px;margin-bottom:15px;box-shadow:0 8px 32px rgba(0,0,0,0.3)}
+.card h2{font-size:1em;color:#1d4ed8;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.formula-box{background:linear-gradient(135deg,#eff6ff,#dbeafe);border:2px solid #3b82f6;border-radius:12px;padding:14px;text-align:center;margin:10px 0}
+.formula-main{font-size:1.1em;font-weight:700;color:#1d4ed8;line-height:1.8}
+.formula-sub{font-size:0.8em;color:#64748b;margin-top:5px}
+svg{width:100%;border-radius:10px;background:#f8fafc}
+.controls{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;align-items:center}
+.slider-group{flex:1;min-width:120px}
+.slider-group label{font-size:0.75em;color:#64748b;display:block;margin-bottom:3px}
+input[type=range]{width:100%;accent-color:#3b82f6;height:4px}
+.val-display{font-size:0.75em;font-weight:700;color:#1d4ed8}
+.result-box{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:2px solid #22c55e;border-radius:10px;padding:10px;margin-top:8px;text-align:center}
+.result-box .res-val{font-size:1.2em;font-weight:700;color:#15803d}
+.result-box .res-label{font-size:0.72em;color:#166534}
+.step-container{margin-top:10px}
+.step-btn{background:linear-gradient(90deg,#3b82f6,#1d4ed8);color:#fff;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:0.8em;font-weight:600;transition:all 0.3s;margin-right:6px}
+.step-btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(59,130,246,0.5)}
+.step{display:none;background:#fff;border-left:4px solid #3b82f6;border-radius:0 8px 8px 0;padding:10px 12px;margin-top:8px;animation:slideIn 0.4s ease;font-size:0.82em;line-height:1.6}
+.step.show{display:block}
+@keyframes slideIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+.step-num{display:inline-block;background:#3b82f6;color:#fff;border-radius:50%;width:22px;height:22px;text-align:center;line-height:22px;font-size:0.75em;font-weight:700;margin-right:6px}
+.highlight{color:#1d4ed8;font-weight:700}
+.highlight-g{color:#15803d;font-weight:700}
+.highlight-a{color:#b45309;font-weight:700}
+.highlight-r{color:#dc2626;font-weight:700}
+.tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.tab{padding:7px 14px;border-radius:8px;border:2px solid #3b82f6;background:#fff;color:#3b82f6;font-size:0.78em;font-weight:600;cursor:pointer;transition:all 0.3s}
+.tab.active{background:#3b82f6;color:#fff}
+.tab-content{display:none}
+.tab-content.active{display:block}
+.info-pill{display:inline-block;background:#eff6ff;color:#1d4ed8;border-radius:20px;padding:3px 10px;font-size:0.72em;font-weight:600;margin:2px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:450px){.grid2{grid-template-columns:1fr}.formula-main{font-size:0.95em}}
+.note{background:#fffbeb;border-left:4px solid #f59e0b;border-radius:0 8px 8px 0;padding:8px 12px;font-size:0.78em;color:#78350f;margin-top:8px}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:0.68em;font-weight:700}
+.badge-blue{background:#dbeafe;color:#1d4ed8}
+.badge-green{background:#dcfce7;color:#15803d}
+.mid-result{background:linear-gradient(135deg,#fdf4ff,#fae8ff);border:2px solid #a855f7;border-radius:10px;padding:10px;margin-top:8px;text-align:center}
+.mid-result .res-val{font-size:1.1em;font-weight:700;color:#7e22ce}
+</style>
+</head>
+<body>
+<div class="titlebar">
+<h1>📐 Section Formula | अनुभाग सूत्र</h1>
+<p>CBSE Class 10 • Coordinate Geometry • Chapter 7</p>
+</div>
+<div class="container">
+
+<!-- Formula Card -->
+<div class="card">
+<h2>📌 The Section Formula (अनुभाग सूत्र)</h2>
+<div class="formula-box">
+<div class="formula-main">
+P(x, y) = <span style="color:#22c55e">(</span> <span style="color:#ef4444">m</span>x₂ + <span style="color:#3b82f6">n</span>x₁ / <span style="color:#ef4444">m</span> + <span style="color:#3b82f6">n</span> , <span style="color:#ef4444">m</span>y₂ + <span style="color:#3b82f6">n</span>y₁ / <span style="color:#ef4444">m</span> + <span style="color:#3b82f6">n</span> <span style="color:#22c55e">)</span>
+</div>
+<div style="margin-top:6px;font-size:0.78em;color:#64748b">
+<span class="info-pill">∵ AP : PB = m : n</span>
+<span class="info-pill">Internal Division</span>
+</div>
+<div class="formula-sub">
+Midpoint Formula: M = ( (x₁+x₂)/2 , (y₁+y₂)/2 )
+</div>
+</div>
+<div class="note">
+💡 <strong>याद रखें:</strong> Point P divides line segment joining A(x₁,y₁) and B(x₂,y₂) internally in ratio m:n
+</div>
+</div>
+
+<!-- Interactive Section -->
+<div class="card">
+<h2>🎛️ Interactive Explorer — Drag the Ratio Sliders</h2>
+<div class="controls">
+<div class="slider-group">
+<label>m (ratio part 1) <span class="val-display" id="mval">1</span></label>
+<input type="range" id="mslider" min="1" max="9" value="1" oninput="update()">
+</div>
+<div class="slider-group">
+<label>n (ratio part 2) <span class="val-display" id="nval">1</span></label>
+<input type="range" id="nslider" min="1" max="9" value="1" oninput="update()">
+</div>
+</div>
+<div class="controls" style="gap:12px">
+<div class="slider-group">
+<label>A: x₁ = <span class="val-display" id="ax1v">1</span></label>
+<input type="range" id="ax1" min="-4" max="0" value="1" oninput="update()">
+</div>
+<div class="slider-group">
+<label>B: x₂ = <span class="val-display" id="bx2v">7</span></label>
+<input type="range" id="bx2" min="4" max="10" value="7" oninput="update()">
+</div>
+</div>
+<svg id="mainsvg" viewBox="0 0 400 200" height="200"></svg>
+<div class="grid2" style="margin-top:10px">
+<div class="result-box">
+<div class="res-val" id="px-res">—</div>
+<div class="res-label">x-coordinate of P</div>
+</div>
+<div class="result-box">
+<div class="res-val" id="py-res">—</div>
+<div class="res-label">y-coordinate of P (same y-axis)</div>
+</div>
+</div>
+</div>
+
+<!-- Full 2D Interactive -->
+<div class="card">
+<h2>🗺️ 2D Coordinate Plane Explorer</h2>
+<svg id="svg2d" viewBox="0 0 400 300" height="260"></svg>
+<div class="controls" style="margin-top:8px;flex-wrap:wrap;gap:8px">
+<div class="slider-group"><label>m = <span class="val-display" id="m2">1</span></label>
+<input type="range" id="m2s" min="1" max="8" value="1" oninput="update2d()"></div>
+<div class="slider-group"><label>n = <span class="val-display" id="n2">2</span></label>
+<input type="range" id="n2s" min="1" max="8" value="2" oninput="update2d()"></div>
+</div>
+<div class="result-box" id="res2d" style="margin-top:8px">
+<div class="res-val" id="pxy2d">—</div>
+<div class="res-label">Coordinates of Point P(x, y)</div>
+</div>
+</div>
+
+<!-- Tabs for Examples -->
+<div class="card">
+<h2>📚 Examples & Step-by-Step Solution</h2>
+<div class="tabs">
+<div class="tab active" onclick="switchTab('ex1',this)">Example 1</div>
+<div class="tab" onclick="switchTab('ex2',this)">Example 2</div>
+<div class="tab" onclick="switchTab('mid',this)">Midpoint</div>
+</div>
+
+<div class="tab-content active" id="ex1">
+<div style="background:#f1f5f9;border-radius:10px;padding:12px;font-size:0.83em">
+<strong>Question:</strong> Find the coordinates of point P which divides the join of A(2, 1) and B(7, 6) in ratio <span class="highlight-r">3:2</span>.
+</div>
+<div class="step-container">
+<button class="step-btn" onclick="showStep('s1')">Step 1 →</button>
+<button class="step-btn" onclick="showStep('s2')">Step 2 →</button>
+<button class="step-btn" onclick="showStep('s3')">Step 3 →</button>
+<button class="step-btn" onclick="resetSteps(['s1','s2','s3'])">Reset</button>
+</div>
+<div class="step" id="s1">
+<span class="step-num">1</span> <strong>Identify values:</strong><br>
+A(x₁, y₁) = <span class="highlight">(2, 1)</span>, B(x₂, y₂) = <span class="highlight">(7, 6)</span><br>
+Ratio m : n = <span class="highlight-r">3 : 2</span> &nbsp;∴ m = 3, n = 2
+</div>
+<div class="step" id="s2">
+<span class="step-num">2</span> <strong>Apply Section Formula:</strong><br>
+x = (m·x₂ + n·x₁) / (m + n)<br>
+x = (<span class="highlight-r">3</span>×7 + <span class="highlight">2</span>×2) / (<span class="highlight-r">3</span>+<span class="highlight">2</span>)<br>
+x = (21 + 4) / 5 = <span class="highlight-g">25/5 = 5</span><br><br>
+y = (m·y₂ + n·y₁) / (m + n)<br>
+y = (<span class="highlight-r">3</span>×6 + <span class="highlight">2</span>×1) / 5<br>
+y = (18 + 2) / 5 = <span class="highlight-g">20/5 = 4</span>
+</div>
+<div class="step" id="s3">
+<span class="step-num">3</span> <strong>∴ Result:</strong><br>
+P = <span class="highlight-g">(5, 4)</span><br>
+Point P(5,4) divides A(2,1) and B(7,6) in ratio 3:2 ✓<br>
+<em>Verify: AP = √(9+9) = 3√2, PB = √(4+4) = 2√2 → ratio = 3:2 ✓</em>
+</div>
+</div>
+
+<div class="tab-content" id="ex2">
+<div style="background:#f1f5f9;border-radius:10px;padding:12px;font-size:0.83em">
+<strong>Question:</strong> Find the ratio in which point P(4, 5) divides the line segment joining A(1, 2) and B(7, 8).
+</div>
+<div class="step-container">
+<button class="step-btn" onclick="showStep('e2s1')">Step 1 →</button>
+<button class="step-btn" onclick="showStep('e2s2')">Step 2 →</button>
+<button class="step-btn" onclick="showStep('e2s3')">Step 3 →</button>
+<button class="step-btn" onclick="resetSteps(['e2s1','e2s2','e2s3'])">Reset</button>
+</div>
+<div class="step" id="e2s1">
+<span class="step-num">1</span> <strong>Let ratio = k : 1</strong><br>
+A(1,2), B(7,8), P(4,5)<br>
+Using section formula: x = (k·x₂ + 1·x₁)/(k+1)
+</div>
+<div class="step" id="e2s2">
+<span class="step-num">2</span> <strong>Substitute x-coordinate:</strong><br>
+4 = (k×7 + 1×1)/(k+1)<br>
+4(k+1) = 7k + 1<br>
+4k + 4 = 7k + 1<br>
+3 = 3k &nbsp;∴ <span class="highlight-g">k = 1</span>
+</div>
+<div class="step" id="e2s3">
+<span class="step-num">3</span> <strong>∴ Ratio = k : 1 = 1 : 1</strong><br>
+P is the <span class="highlight-g">midpoint</span> of AB!<br>
+Verify y: (1×8 + 1×2)/(1+1) = 10/2 = 5 ✓
+</div>
+</div>
+
+<div class="tab-content" id="mid">
+<div style="background:linear-gradient(135deg,#fdf4ff,#fae8ff);border:2px solid #a855f7;border-radius:10px;padding:12px;font-size:0.83em">
+<strong style="color:#7e22ce">Midpoint Formula (मध्य बिंदु सूत्र):</strong><br>
+When ratio m:n = <strong>1:1</strong>, P becomes midpoint M<br><br>
+<strong style="font-size:1.1em;color:#7e22ce">M = ( (x₁+x₂)/2 , (y₁+y₂)/2 )</strong>
+</div>
+<div class="step-container" style="margin-top:10px">
+<button class="step-btn" onclick="showStep('ms1')" style="background:linear-gradient(90deg,#a855f7,#7e22ce)">Example →</button>
+<button class="step-btn" onclick="showStep('ms2')" style="background:linear-gradient(90deg,#a855f7,#7e22ce)">Answer →</button>
+<button class="step-btn" onclick="resetSteps(['ms1','ms2'])">Reset</button>
+</div>
+<div class="step" id="ms1" style="border-color:#a855f7">
+<span class="step-num" style="background:#a855f7">Q</span>
+Find midpoint of A(3, 4) and B(9, 2).<br>
+M = ((3+9)/2, (4+2)/2)
+</div>
+<div class="step" id="ms2" style="border-color:#a855f7">
+<span class="step-num" style="background:#22c55e">✓</span>
+M = (12/2, 6/2) = <strong style="color:#7e22ce">(6, 3)</strong><br>
+Midpoint of A(3,4) and B(9,2) is M(6,3)
+</div>
+</div>
+</div>
+
+<!-- Key Points -->
+<div class="card">
+<h2>🔑 Key Points to Remember</h2>
+<div style="font-size:0.82em;line-height:2">
+<div>✅ <span class="badge badge-blue">Internal Division</span> — Point lies <strong>between</strong> the two points</div>
+<div>✅ Section formula: P = <strong>( (mx₂+nx₁)/(m+n) , (my₂+ny₁)/(m+n) )</strong></div>
+<div>✅ For midpoint: put m = n = 1 in section formula</div>
+<div>✅ To find ratio: assume ratio = k:1, solve for k</div>
+<div>✅ <strong>∴</strong> If k is positive → internal division; if negative → external</div>
+</div>
+<div class="note" style="margin-top:10px">
+📝 <strong>CBSE Exam Tip:</strong> Always write the formula first in board exams. Show each calculation step clearly. Use x-coordinate or y-coordinate equation to find ratio k.
+</div>
+</div>
+
+</div>
+
+<script>
+// 1D Interactive
+function update(){
+  var m=+document.getElementById('mslider').value;
+  var n=+document.getElementById('nslider').value;
+  var x1=+document.getElementById('ax1').value||1;
+  var x2=+document.getElementById('bx2').value||7;
+  document.getElementById('mval').textContent=m;
+  document.getElementById('nval').textContent=n;
+  document.getElementById('ax1v').textContent=x1;
+  document.getElementById('bx2v').textContent=x2;
+  var px=((m*x2+n*x1)/(m+n)).toFixed(2);
+  document.getElementById('px-res').textContent='x = '+px;
+  document.getElementById('py-res').textContent='Ratio = '+m+' : '+n;
+  draw1D(m,n,x1,x2,parseFloat(px));
+}
+
+function draw1D(m,n,x1,x2,px){
+  var svg=document.getElementById('mainsvg');
+  var W=400,H=200;
+  var margin=50;
+  var xmin=Math.min(x1,x2)-1,xmax=Math.max(x1,x2)+1;
+  function toSVG(x){return margin+(x-xmin)/(xmax-xmin)*(W-2*margin);}
+  var y=H/2;
+  var ax=toSVG(x1),bx=toSVG(x2),ppx=toSVG(px);
+  var html='';
+  // Grid
+  for(var i=Math.ceil(xmin);i<=Math.floor(xmax);i++){
+    var gx=toSVG(i);
+    html+='<line x1="'+gx+'" y1="40" x2="'+gx+'" y2="160" stroke="#e2e8f0" stroke-width="1"/>';
+    html+='<text x="'+gx+'" y="175" text-anchor="middle" font-size="11" fill="#94a3b8">'+i+'</text>';
+  }
+  // Main line
+  html+='<line x1="'+ax+'" y1="'+y+'" x2="'+bx+'" y2="'+y+'" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/>';
+  // Segments AP and PB
+  html+='<line x1="'+ax+'" y1="'+y+'" x2="'+ppx+'" y2="'+y+'" stroke="#3b82f6" stroke-width="5" stroke-linecap="round"/>';
+  html+='<line x1="'+ppx+'" y1="'+y+'" x2="'+bx+'" y2="'+y+'" stroke="#ef4444" stroke-width="5" stroke-linecap="round"/>';
+  // Labels AP PB
+  var mid1=(ax+ppx)/2,mid2=(ppx+bx)/2;
+  html+='<text x="'+mid1+'" y="'+(y-14)+'" text-anchor="middle" font-size="11" fill="#1d4ed8" font-weight="bold">AP = '+m+'k</text>';
+  html+='<text x="'+mid2+'" y="'+(y-14)+'" text-anchor="middle" font-size="11" fill="#dc2626" font-weight="bold">PB = '+n+'k</text>';
+  // Points
+  html+='<circle cx="'+ax+'" cy="'+y+'" r="9" fill="#3b82f6" stroke="#fff" stroke-width="2"/>';
+  html+='<text x="'+ax+'" y="'+(y-18)+'" text-anchor="middle" font-size="12" fill="#1d4ed8" font-weight="bold">A('+x1+')</text>';
+  html+='<circle cx="'+bx+'" cy="'+y+'" r="9" fill="#ef4444" stroke="#fff" stroke-width="2"/>';
+  html+='<text x="'+bx+'" y="'+(y-18)+'" text-anchor="middle" font-size="12" fill="#dc2626" font-weight="bold">B('+x2+')</text>';
+  html+='<circle cx="'+ppx+'" cy="'+y+'" r="11" fill="#22c55e" stroke="#fff" stroke-width="3"/>';
+  html+='<text x="'+ppx+'" y="'+(y+26)+'" text-anchor="middle" font-size="12" fill="#15803d" font-weight="bold">P('+parseFloat(px).toFixed(1)+')</text>';
+  html+='<text x="'+ppx+'" y="'+(y-20)+'" text-anchor="middle" font-size="10" fill="#15803d">'+m+':'+n+'</text>';
+  svg.innerHTML='<rect width="400" height="200" fill="#f8fafc" rx="10"/>'+html;
+}
+
+// 2D Interactive
+function update2d(){
+  var m=+document.getElementById('m2s').value;
+  var n=+document.getElementById('n2s').value;
+  document.getElementById('m2').textContent=m;
+  document.getElementById('n2').textContent=n;
+  var x1=1,y1=1,x2=7,y2=5;
+  var px=((m*x2+n*x1)/(m+n));
+  var py=((m*y2+n*y1)/(m+n));
+  document.getElementById('pxy2d').textContent='P = ('+px.toFixed(2)+', '+py.toFixed(2)+')';
+  draw2d(m,n,x1,y1,x2,y2,px,py);
+}
+
+function draw2d(m,n,ax,ay,bx,by,px,py){
+  var svg=document.getElementById('svg2d');
+  var W=400,H=300;
+  var ox=40,oy=260,scale=32;
+  function sx(x){return ox+x*scale;}
+  function sy(y){return oy-y*scale;}
+  var html='<rect width="400" height="300" fill="#f8fafc" rx="10"/>';
+  // Grid
+  for(var i=0;i<=10;i++){
+    html+='<line x1="'+sx(i)+'" y1="'+sy(0)+'" x2="'+sx(i)+'" y2="'+sy(8)+'" stroke="#e2e8f0" stroke-width="1"/>';
+    html+='<line x1="'+sx(0)+'" y1="'+sy(i)+'" x2="'+sx(10)+'" y2="'+sy(i)+'" stroke="#e2e8f0" stroke-width="1"/>';
+    if(i>0&&i<=9){html+='<text x="'+sx(i)+'" y="'+sy(-0.4)+'" text-anchor="middle" font-size="9" fill="#94a3b8">'+i+'</text>';}
+    if(i>0&&i<=7){html+='<text x="'+sx(-0.3)+'" y="'+(sy(i)+4)+'" text-anchor="middle" font-size="9" fill="#94a3b8">'+i+'</text>';}
+  }
+  // Axes
+  html+='<line x1="'+sx(0)+'" y1="'+sy(8)+'" x2="'+sx(0)+'" y2="'+sy(-0.5)+'" stroke="#94a3b8" stroke-width="1.5"/>';
+  html+='<line x1="'+sx(-0.5)+'" y1="'+sy(0)+'" x2="'+sx(10)+'" y2="'+sy(0)+'" stroke="#94a3b8" stroke-width="1.5"/>';
+  html+='<text x="'+sx(10)+'" y="'+sy(-0.3)+'" font-size="11" fill="#64748b">X →</text>';
+  html+='<text x="'+sx(0.1)+'" y="'+sy(8)+'" font-size="11" fill="#64748b">Y ↑</text>';
+  // Dotted projections
+  html+='<line x1="'+sx(px)+'" y1="'+sy(py)+'" x2="'+sx(px)+'" y2="'+sy(0)+'" stroke="#22c55e" stroke-width="1" stroke-dasharray="4"/>';
+  html+='<line x1="'+sx(px)+'" y1="'+sy(py)+'" x2="'+sx(0)+'" y2="'+sy(py)+'" stroke="#22c55e" stroke-width="1" stroke-dasharray="4"/>';
+  // Line AB
+  html+='<line x1="'+sx(ax)+'" y1="'+sy(ay)+'" x2="'+sx(bx)+'" y2="'+sy(by)+'" stroke="#94a3b8" stroke-width="2"/>';
+  // AP blue PB red
+  html+='<line x1="'+sx(ax)+'" y1="'+sy(ay)+'" x2="'+sx(px)+'" y2="'+sy(py)+'" stroke="#3b82f6" stroke-width="3.5"/>';
+  html+='<line x1="'+sx(px)+'" y1="'+sy(py)+'" x2="'+sx(bx)+'" y2="'+sy(by)+'" stroke="#ef4444" stroke-width="3.5"/>';
+  // Mid labels
+  var lx=(ax+px)/2-0.3,ly=(ay+py)/2+0.5;
+  html+='<text x="'+sx(lx)+'" y="'+sy(ly)+'" font-size="10" fill="#1d4ed8" font-weight="bold">'+m+'k</text>';
+  var lx2=(px+bx)/2+0.1,ly2=(py+by)/2+0.5;
+  html+='<text x="'+sx(lx2)+'" y="'+sy(ly2)+'" font-size="10" fill="#dc2626" font-weight="bold">'+n+'k</text>';
+  // Points
+  html+='<circle cx="'+sx(ax)+'" cy="'+sy(ay)+'" r="8" fill="#3b82f6" stroke="#fff" stroke-width="2"/>';
+  html+='<text x="'+(sx(ax)-18)+'" y="'+(sy(ay)-10)+'" font-size="11" fill="#1d4ed8" font-weight="bold">A('+ax+','+ay+')</text>';
+  html+='<circle cx="'+sx(bx)+'" cy="'+sy(by)+'" r="8" fill="#ef4444" stroke="#fff" stroke-width="2"/>';
+  html+='<text x="'+(sx(bx)+6)+'" y="'+(sy(by)-10)+'" font-size="11" fill="#dc2626" font-weight="bold">B('+bx+','+by+')</text>';
+  html+='<circle cx="'+sx(px)+'" cy="'+sy(py)+'" r="10" fill="#22c55e" stroke="#fff" stroke-width="3"/>';
+  html+='<text x="'+(sx(px)+8)+'" y="'+(sy(py)-10)+'" font-size="11" fill="#15803d" font-weight="bold">P('+px.toFixed(1)+','+py

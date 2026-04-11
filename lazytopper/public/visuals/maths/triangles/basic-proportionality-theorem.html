@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Basic Proportionality Theorem | Class 10 Maths</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); min-height: 100vh; color: #1e293b; }
+  .title-bar { background: linear-gradient(90deg, #3b82f6, #6366f1); color: white; padding: 14px 20px; text-align: center; box-shadow: 0 4px 20px rgba(59,130,246,0.4); }
+  .title-bar h1 { font-size: clamp(16px,4vw,22px); font-weight: 700; letter-spacing: 0.5px; }
+  .title-bar p { font-size: 12px; opacity: 0.85; margin-top: 3px; }
+  .container { max-width: 900px; margin: 0 auto; padding: 16px; }
+  .card { background: white; border-radius: 16px; padding: 18px; margin-bottom: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.18); }
+  .section-title { font-size: 15px; font-weight: 700; color: #3b82f6; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .badge { background: linear-gradient(90deg,#3b82f6,#6366f1); color: white; border-radius: 20px; padding: 3px 12px; font-size: 11px; font-weight: 600; }
+  .theorem-box { background: linear-gradient(135deg,#eff6ff,#e0e7ff); border-left: 4px solid #3b82f6; border-radius: 12px; padding: 14px; margin-bottom: 14px; }
+  .theorem-box h3 { color: #1e40af; font-size: 14px; margin-bottom: 6px; }
+  .theorem-box p { font-size: 13px; color: #1e293b; line-height: 1.6; }
+  .formula-box { background: linear-gradient(135deg,#fef9c3,#fef3c7); border: 2px solid #f59e0b; border-radius: 12px; padding: 12px; text-align: center; margin: 12px 0; }
+  .formula { font-size: clamp(16px,4vw,22px); font-weight: 800; color: #92400e; letter-spacing: 1px; }
+  .formula-label { font-size: 11px; color: #78350f; margin-top: 4px; }
+  svg { width: 100%; height: auto; display: block; }
+  .slider-container { background: #f1f5f9; border-radius: 12px; padding: 14px; margin-top: 12px; }
+  .slider-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+  .slider-row label { font-size: 12px; font-weight: 600; color: #475569; min-width: 80px; }
+  input[type=range] { flex: 1; min-width: 100px; accent-color: #3b82f6; cursor: pointer; }
+  .val-display { background: #3b82f6; color: white; border-radius: 8px; padding: 2px 10px; font-size: 12px; font-weight: 700; min-width: 36px; text-align: center; }
+  .ratio-display { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 10px; }
+  .ratio-card { background: white; border-radius: 10px; padding: 10px 16px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.08); border: 2px solid transparent; transition: all 0.3s; }
+  .ratio-card.equal { border-color: #22c55e; background: #f0fdf4; }
+  .ratio-card .r-label { font-size: 11px; color: #64748b; margin-bottom: 3px; }
+  .ratio-card .r-val { font-size: 18px; font-weight: 800; color: #1e293b; }
+  .equal-badge { background: #22c55e; color: white; border-radius: 20px; padding: 4px 14px; font-size: 12px; font-weight: 700; margin: 6px auto; display: none; }
+  .equal-badge.show { display: inline-block; animation: pop 0.3s ease; }
+  @keyframes pop { 0%{transform:scale(0.7)} 70%{transform:scale(1.1)} 100%{transform:scale(1)} }
+  .steps-container { counter-reset: step; }
+  .step { background: #f8fafc; border-radius: 12px; padding: 14px; margin-bottom: 10px; border-left: 4px solid #94a3b8; opacity: 0.35; transform: translateY(8px); transition: all 0.4s ease; position: relative; }
+  .step.revealed { opacity: 1; transform: translateY(0); border-left-color: #3b82f6; }
+  .step::before { counter-increment: step; content: "चरण " counter(step); font-size: 10px; font-weight: 700; color: #3b82f6; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 5px; }
+  .step h4 { font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
+  .step p { font-size: 12px; color: #475569; line-height: 1.6; }
+  .step .calc { background: #eff6ff; border-radius: 8px; padding: 8px 12px; margin-top: 8px; font-size: 13px; font-weight: 600; color: #1d4ed8; font-family: monospace; }
+  .btn { background: linear-gradient(90deg,#3b82f6,#6366f1); color: white; border: none; border-radius: 10px; padding: 10px 22px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.25s; box-shadow: 0 4px 14px rgba(59,130,246,0.35); }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(59,130,246,0.45); }
+  .btn:active { transform: translateY(0); }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+  .btn-secondary { background: linear-gradient(90deg,#f59e0b,#ef4444); }
+  .quiz-option { background: #f1f5f9; border: 2px solid #e2e8f0; border-radius: 10px; padding: 11px 14px; margin-bottom: 8px; cursor: pointer; font-size: 13px; transition: all 0.25s; }
+  .quiz-option:hover { border-color: #3b82f6; background: #eff6ff; }
+  .quiz-option.correct { border-color: #22c55e; background: #f0fdf4; color: #166534; font-weight: 700; }
+  .quiz-option.wrong { border-color: #ef4444; background: #fef2f2; color: #991b1b; }
+  .quiz-feedback { border-radius: 10px; padding: 10px 14px; margin-top: 10px; font-size: 13px; font-weight: 600; display: none; }
+  .quiz-feedback.show { display: block; animation: pop 0.3s ease; }
+  .quiz-feedback.correct { background: #f0fdf4; color: #166534; border: 2px solid #22c55e; }
+  .quiz-feedback.wrong { background: #fef2f2; color: #991b1b; border: 2px solid #ef4444; }
+  .converse-box { background: linear-gradient(135deg,#f0fdf4,#dcfce7); border: 2px solid #22c55e; border-radius: 12px; padding: 14px; margin-top: 12px; }
+  .converse-box h3 { color: #15803d; font-size: 14px; margin-bottom: 6px; }
+  .converse-box p { font-size: 12px; color: #1e293b; line-height: 1.6; }
+  .tag { display: inline-block; background: #e0e7ff; color: #4338ca; border-radius: 6px; padding: 2px 8px; font-size: 10px; font-weight: 600; margin: 2px; }
+  .highlight { color: #ef4444; font-weight: 700; }
+  .green { color: #22c55e; font-weight: 700; }
+  .info-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+  .info-chip { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 6px 12px; font-size: 12px; color: #1e40af; }
+  @media(max-width:480px){ .ratio-display{gap:8px} .ratio-card{padding:8px 12px} .formula{font-size:18px} }
+</style>
+</head>
+<body>
+
+<div class="title-bar">
+  <h1>📐 Basic Proportionality Theorem (BPT)</h1>
+  <p>थेल्स प्रमेय | Class 10 Mathematics | CBSE</p>
+</div>
+
+<div class="container">
+
+  <!-- THEOREM STATEMENT -->
+  <div class="card">
+    <div class="section-title">📜 प्रमेय (Theorem) <span class="badge">Thales' Theorem</span></div>
+    <div class="theorem-box">
+      <h3>Basic Proportionality Theorem कहता है:</h3>
+      <p>यदि एक रेखा (DE) किसी त्रिभुज (△ABC) की दो भुजाओं को एक ही अनुपात में काटे, और वह तीसरी भुजा (BC) के समानांतर (parallel) हो, तो:</p>
+    </div>
+    <div class="formula-box">
+      <div class="formula">AD/DB = AE/EC</div>
+      <div class="formula-label">∵ DE ∥ BC ∴ AD/DB = AE/EC (भुजाएँ समान अनुपात में विभाजित होती हैं)</div>
+    </div>
+    <div class="info-row">
+      <div class="info-chip">∠ADE = ∠ABC (संगत कोण)</div>
+      <div class="info-chip">∠AED = ∠ACB (संगत कोण)</div>
+      <div class="info-chip">△ADE ~ △ABC (AA समरूपता)</div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE DIAGRAM -->
+  <div class="card">
+    <div class="section-title">🎮 Interactive Diagram — रेखा DE खींचो</div>
+    <p style="font-size:12px;color:#64748b;margin-bottom:10px;">नीचे slider को drag करें और देखें कि DE के position बदलने पर अनुपात (ratio) कैसे हमेशा बराबर रहता है!</p>
+
+    <div style="background:#f8fafc;border-radius:14px;padding:12px;">
+      <svg id="mainSvg" viewBox="0 0 400 300" style="max-height:300px;">
+        <!-- Triangle -->
+        <defs>
+          <marker id="arr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#3b82f6"/>
+          </marker>
+        </defs>
+        <!-- Triangle sides -->
+        <line id="sideAB" x1="200" y1="30" x2="60" y2="260" stroke="#1e293b" stroke-width="2.5"/>
+        <line id="sideAC" x1="200" y1="30" x2="340" y2="260" stroke="#1e293b" stroke-width="2.5"/>
+        <line id="sideBC" x1="60" y1="260" x2="340" y2="260" stroke="#1e293b" stroke-width="2.5"/>
+        <!-- Parallel line DE -->
+        <line id="lineDE" x1="0" y1="0" x2="0" y2="0" stroke="#3b82f6" stroke-width="2.5" stroke-dasharray="6,3"/>
+        <!-- Segments -->
+        <line id="segAD" x1="0" y1="0" x2="0" y2="0" stroke="#ef4444" stroke-width="3"/>
+        <line id="segDB" x1="0" y1="0" x2="0" y2="0" stroke="#f59e0b" stroke-width="3"/>
+        <line id="segAE" x1="0" y1="0" x2="0" y2="0" stroke="#22c55e" stroke-width="3"/>
+        <line id="segEC" x1="0" y1="0" x2="0" y2="0" stroke="#6366f1" stroke-width="3"/>
+        <!-- Points -->
+        <circle id="ptA" cx="200" cy="30" r="5" fill="#1e293b"/>
+        <circle id="ptB" cx="60" cy="260" r="5" fill="#1e293b"/>
+        <circle id="ptC" cx="340" cy="260" r="5" fill="#1e293b"/>
+        <circle id="ptD" cx="0" cy="0" r="5" fill="#ef4444"/>
+        <circle id="ptE" cx="0" cy="0" r="5" fill="#22c55e"/>
+        <!-- Labels -->
+        <text x="200" y="20" text-anchor="middle" font-size="14" font-weight="bold" fill="#1e293b">A</text>
+        <text x="48" y="275" text-anchor="middle" font-size="14" font-weight="bold" fill="#1e293b">B</text>
+        <text x="352" y="275" text-anchor="middle" font-size="14" font-weight="bold" fill="#1e293b">C</text>
+        <text id="lblD" x="0" y="0" text-anchor="end" font-size="13" font-weight="bold" fill="#ef4444">D</text>
+        <text id="lblE" x="0" y="0" text-anchor="start" font-size="13" font-weight="bold" fill="#22c55e">E</text>
+        <!-- Ratio labels -->
+        <text id="lblAD" x="0" y="0" font-size="10" fill="#ef4444" font-weight="600">AD</text>
+        <text id="lblDB" x="0" y="0" font-size="10" fill="#f59e0b" font-weight="600">DB</text>
+        <text id="lblAE" x="0" y="0" font-size="10" fill="#22c55e" font-weight="600">AE</text>
+        <text id="lblEC" x="0" y="0" font-size="10" fill="#6366f1" font-weight="600">EC</text>
+        <!-- Parallel indicator -->
+        <text id="parallelTag" x="200" y="285" text-anchor="middle" font-size="10" fill="#3b82f6" font-weight="700">DE ∥ BC</text>
+      </svg>
+    </div>
+
+    <div class="slider-container">
+      <div class="slider-row">
+        <label>DE की Position</label>
+        <input type="range" id="posSlider" min="15" max="85" value="40">
+        <span class="val-display" id="posVal">40%</span>
+      </div>
+    </div>
+
+    <div class="ratio-display" id="ratioDisplay">
+      <div class="ratio-card" id="card1">
+        <div class="r-label" style="color:#ef4444">AD / DB</div>
+        <div class="r-val" id="ratio1">—</div>
+      </div>
+      <div style="display:flex;align-items:center;font-size:24px;font-weight:800;color:#64748b">=</div>
+      <div class="ratio-card" id="card2">
+        <div class="r-label" style="color:#22c55e">AE / EC</div>
+        <div class="r-val" id="ratio2">—</div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:8px;">
+      <span class="equal-badge show" id="equalBadge">✓ अनुपात बराबर हैं! (Ratios are Equal)</span>
+    </div>
+
+    <div style="margin-top:10px;font-size:11px;color:#64748b;">
+      <span class="tag" style="background:#fef2f2;color:#991b1b;">■ AD</span>
+      <span class="tag" style="background:#fef3c7;color:#92400e;">■ DB</span>
+      <span class="tag" style="background:#f0fdf4;color:#166534;">■ AE</span>
+      <span class="tag" style="background:#ede9fe;color:#4c1d95;">■ EC</span>
+      <span class="tag">— DE (समानांतर रेखा)</span>
+    </div>
+  </div>
+
+  <!-- WORKED EXAMPLE -->
+  <div class="card">
+    <div class="section-title">📝 हल किया गया उदाहरण <span class="badge">Worked Example</span></div>
+    <div style="background:#f8fafc;border-radius:12px;padding:14px;margin-bottom:12px;">
+      <p style="font-size:13px;font-weight:600;color:#1e293b;">प्रश्न: △ABC में DE ∥ BC है। यदि AD = 4 cm, DB = 6 cm, AE = 5 cm हो, तो EC का मान ज्ञात कीजिए।</p>
+      <svg viewBox="0 0 300 200" style="max-height:160px;margin-top:10px;">
+        <line x1="150" y1="15" x2="40" y2="185" stroke="#1e293b" stroke-width="2"/>
+        <line x1="150" y1="15" x2="260" y2="185" stroke="#1e293b" stroke-width="2"/>
+        <line x1="40" y1="185" x2="260" y2="185" stroke="#1e293b" stroke-width="2"/>
+        <line x1="83" y1="105" x2="217" y2="105" stroke="#3b82f6" stroke-width="2.5" stroke-dasharray="5,3"/>
+        <circle cx="150" cy="15" r="4" fill="#1e293b"/>
+        <circle cx="40" cy="185" r="4" fill="#1e293b"/>
+        <circle cx="260" cy="185" r="4" fill="#1e293b"/>
+        <circle cx="83" cy="105" r="4" fill="#ef4444"/>
+        <circle cx="217" cy="105" r="4" fill="#22c55e"/>
+        <text x="150" y="8" text-anchor="middle" font-size="12" font-weight="bold" fill="#1e293b">A</text>
+        <text x="30" y="192" font-size="12" font-weight="bold" fill="#1e293b">B</text>
+        <text x="263" y="192" font-size="12" font-weight="bold" fill="#1e293b">C</text>
+        <text x="70" y="108" font-size="12" font-weight="bold" fill="#ef4444">D</text>
+        <text x="222" y="108" font-size="12" font-weight="bold" fill="#22c55e">E</text>
+        <text x="108" y="68" font-size="11" fill="#ef4444" font-weight="700">AD=4</text>
+        <text x="55" y="155" font-size="11" fill="#f59e0b" font-weight="700">DB=6</text>
+        <text x="218" y="68" font-size="11" fill="#22c55e" font-weight="700">AE=5</text>
+        <text x="225" y="155" font-size="11" fill="#6366f1" font-weight="700">EC=?</text>
+        <text x="150" y="98" text-anchor="middle" font-size="10" fill="#3b82f6" font-weight="700">DE ∥ BC</text>
+      </svg>
+    </div>
+
+    <div class="steps-container" id="stepsContainer">
+      <div class="step" id="step1">
+        <h4>BPT लागू करें</h4>
+        <p>∵ DE ∥ BC है, इसलिए Basic Proportionality Theorem से:</p>
+        <div class="calc">AD/DB = AE/EC</div>
+      </div>
+      <div class="step" id="step2">
+        <h4>ज्ञात मान रखें (Substitute)</h4>
+        <p>AD = 4 cm, DB = 6 cm, AE = 5 cm, EC = ?</p>
+        <div class="calc">4/6 = 5/EC</div>
+      </div>
+      <div class="step" id="step3">
+        <h4>Cross Multiplication करें</h4>
+        <p>Cross multiply करके EC निकालते हैं:</p>
+        <div class="calc">4 × EC = 6 × 5<br>4 × EC = 30</div>
+      </div>
+      <div class="step" id="step4">
+        <h4>EC का मान निकालें ✓</h4>
+        <p>दोनों तरफ 4 से भाग दें:</p>
+        <div class="calc">EC = 30 ÷ 4 = <span style="color:#22c55e;font-size:16px;">7.5 cm</span></div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn" onclick="revealNextStep()">▶ अगला चरण दिखाएं</button>
+      <button class="btn btn-secondary" onclick="resetSteps()">↺ Reset</button>
+    </div>
+    <p id="stepStatus" style="font-size:12px;color:#64748b;margin-top:8px;"></p>
+  </div>
+
+  <!-- CONVERSE -->
+  <div class="card">
+    <div class="section-title">🔄 विलोम प्रमेय (Converse of BPT)</div>
+    <div class="converse-box">
+      <h3>Converse of BPT कहता है:</h3>
+      <p>यदि किसी त्रिभुज की दो भुजाओं पर स्थित बिंदु उन भुजाओं को समान अनुपात में विभाजित करें, तो उन बिंदुओं को मिलाने वाली रेखा तीसरी भुजा के समानांतर होगी।</p>
+      <div class="formula-box" style="margin-top:10px;background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-color:#22c55e;">
+        <div class="formula" style="color:#166534;">AD/DB = AE/EC ⟹ DE ∥ BC</div>
+        <div class="formula-label" style="color:#15803d;">यदि अनुपात बराबर हैं → रेखा समानांतर है</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUIZ -->
+  <div class="card">
+    <div class="section-title">🧠 Quick Quiz — जाँचो अपना ज्ञान!</div>
+    <p style="font-size:13px;font-weight:600;color:#1e293b;margin-bottom:12px;">△PQR में MN ∥ QR है। यदि PM = 3, MQ = 5, PN = 4, तो NR = ?</p>
+
+    <div id="quizOptions">
+      <div class="quiz-option" onclick="checkAnswer(this, false)">a) 6 cm</div>
+      <div class="quiz-option" onclick="checkAnswer(this, false)">b) 5.5 cm</div>
+      <div class="quiz-option" onclick="checkAnswer(this, true)">c) 6.67 cm</div>
+      <div class="quiz-option" onclick="checkAnswer(this, false)">d) 7 cm</div>
+    </div>
+
+    <div class="quiz-feedback correct" id="qFeedbackCorrect">
+      ✅ शाबाश! बिल्कुल सही! BPT से: PM/MQ = PN/NR → 3/5 = 4/NR → NR = (4×5)/3 = 20/3 ≈ 6.67 cm
+    </div>
+    <div class="quiz-feedback wrong" id="qFeedbackWrong">
+      ❌ गलत! BPT से: PM/MQ = PN/NR → 3/5 = 4/NR → NR = (4×5)/3 = 20/3 ≈ 6.67 cm
+    </div>
+    <button class="btn" style="margin-top:10px;" onclick="resetQuiz()">↺ फिर कोशिश करें</button>
+  </div>
+
+  <!-- KEY POINTS -->
+  <div class="card">
+    <div class="section-title">💡 मुख्य बातें (Key Points)</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div style="background:#eff6ff;border-radius:10px;padding:10px 14px;font-size:12px;border-left:3px solid #3b82f6;">
+        <strong>📌 BPT की शर्त:</strong> रेखा DE को BC के समानांतर होना चाहिए (DE ∥ BC)।
+      </div>
+      <div style="background:#f0fdf4;border-radius:10px;padding:10px 14px;font-size:12px;border-left:3px solid #22c55e;">
+        <strong>📌 समरूप त्रिभुज:</strong> BPT से △ADE ~ △ABC सिद्ध होता है (AA criterion से)।
+      </div>
+      <div style="background:#fef9c3;border-radius:10px;padding:10px 14px;font-size:12px;border-left:3px solid #f59e0b;">
+        <strong>📌 याद रखें:</strong> AD/DB = AE/EC के साथ-साथ AB/AD = AC/AE भी सत्य है।
+      </div>
+      <div style="background:#fef2f2;border-radius:10px;padding:10px 14px;font-size:12px;border-left:3px solid #ef4444;">
+        <strong>📌 CBSE Exam Tip:</strong> Converse of BPT से समानांतरता सिद्ध की जाती है। अनुपात check करो!
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center;color:#64748b;font-size:11px;padding:10px 0 20px;">
+    Made for CBSE Class 10 | Triangles Chapter | BPT / Thales Theorem
+  </div>
+
+</div>
+
+<script>
+// --- INTERACTIVE DIAGRAM ---
+const Ax=200,Ay=30,Bx=60,By=260,Cx=340,Cy=260;
+
+function lerp(a,b,t){return a+(b-a)*t;}
+
+function updateDiagram(){
+  const t=document.getElementById('posSlider').value/100;
+  document.getElementById('posVal').textContent=Math.round(t*100)+'%';
+
+  // D on AB, E on AC
+  const Dx=lerp(Ax,Bx,t), Dy=lerp(Ay,By,t);
+  const Ex=lerp(Ax,Cx,t), Ey=lerp(Ay,Cy,t);
+
+  // Line DE
+  setLine('lineDE',Dx,Dy,Ex,Ey);
+  // Seg AD
+  setLine('segAD',Ax,Ay,Dx,Dy);
+  // Seg DB
+  setLine('segDB',Dx,Dy,Bx,By);
+  // Seg AE
+  setLine('segAE',Ax,Ay,Ex,Ey);
+  // Seg EC
+  setLine('segEC',Ex,Ey,Cx,Cy);
+
+  // Points
+  setCircle('ptD',Dx,Dy);
+  setCircle('ptE',Ex,Ey);
+
+  // Labels
+  setTextPos('lblD',Dx-8,Dy+4);
+  setTextPos('lblE',Ex+8,Ey+4);
+
+  // Segment midpoint labels
+  const adMx=lerp(Ax,Dx,0.5), adMy=lerp(Ay,Dy,0.5);
+  const dbMx=lerp(Dx,Bx,0.5), dbMy=lerp(Dy,By,0.5);
+  const aeMx=lerp(Ax,Ex,0.5), aeMy=lerp(Ay,Ey,0.5);
+  const ecMx=ler

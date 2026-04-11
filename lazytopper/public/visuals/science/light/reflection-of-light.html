@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Light – Reflection | CBSE Class 10</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#0f172a 100%);min-height:100vh;color:#e2e8f0;overflow-x:hidden}
+.title-bar{background:linear-gradient(90deg,#1e40af,#3b82f6,#06b6d4);padding:12px 20px;text-align:center;box-shadow:0 4px 20px rgba(59,130,246,0.4);position:sticky;top:0;z-index:100}
+.title-bar h1{font-size:1.1rem;font-weight:700;color:#fff;letter-spacing:1px}
+.title-bar p{font-size:0.75rem;color:#bfdbfe;margin-top:2px}
+.container{max-width:700px;margin:0 auto;padding:16px}
+.card{background:rgba(30,41,59,0.8);border:1px solid rgba(59,130,246,0.2);border-radius:16px;padding:16px;margin-bottom:16px;backdrop-filter:blur(10px);box-shadow:0 8px 32px rgba(0,0,0,0.3)}
+.card h2{color:#3b82f6;font-size:1rem;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.formula-box{background:linear-gradient(135deg,#1e3a5f,#1e40af);border:2px solid #3b82f6;border-radius:12px;padding:14px;text-align:center;margin:10px 0}
+.formula-box .formula{font-size:1.4rem;color:#fbbf24;font-weight:700;letter-spacing:2px}
+.formula-box .label{font-size:0.75rem;color:#93c5fd;margin-top:6px}
+svg{width:100%;border-radius:10px}
+.btn{background:linear-gradient(135deg,#3b82f6,#1d4ed8);border:none;color:#fff;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:0.8rem;font-weight:600;transition:all 0.3s;margin:4px}
+.btn:hover{transform:translateY(-2px);box-shadow:0 4px 15px rgba(59,130,246,0.5)}
+.btn.green{background:linear-gradient(135deg,#22c55e,#15803d)}
+.btn.amber{background:linear-gradient(135deg,#f59e0b,#b45309)}
+.btn.red{background:linear-gradient(135deg,#ef4444,#b91c1c)}
+.tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.tab{padding:7px 14px;border-radius:8px;cursor:pointer;font-size:0.78rem;font-weight:600;border:2px solid transparent;transition:all 0.3s;background:rgba(59,130,246,0.1);color:#93c5fd}
+.tab.active{background:#3b82f6;color:#fff;border-color:#60a5fa}
+.step-box{background:rgba(15,23,42,0.6);border-left:4px solid #22c55e;border-radius:0 8px 8px 0;padding:10px 14px;margin:8px 0;opacity:0;transform:translateX(-20px);transition:all 0.5s;display:none}
+.step-box.show{opacity:1;transform:translateX(0);display:block}
+.step-box .step-num{color:#22c55e;font-weight:700;font-size:0.8rem}
+.step-box .step-text{font-size:0.85rem;color:#cbd5e1;margin-top:4px}
+.angle-display{font-size:1.5rem;font-weight:700;color:#fbbf24;text-align:center;padding:8px}
+.law-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid rgba(59,130,246,0.1)}
+.law-num{background:#3b82f6;color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;flex-shrink:0}
+.law-text{font-size:0.82rem;color:#cbd5e1;line-height:1.5}
+.mirror-controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:10px 0}
+.slider-wrap{display:flex;align-items:center;gap:8px;font-size:0.78rem;color:#93c5fd;margin:6px 0}
+input[type=range]{flex:1;accent-color:#3b82f6;height:4px}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.info-item{background:rgba(15,23,42,0.5);border-radius:8px;padding:10px;border:1px solid rgba(59,130,246,0.15)}
+.info-item .val{font-size:1.2rem;font-weight:700;color:#3b82f6}
+.info-item .key{font-size:0.7rem;color:#64748b;margin-top:2px}
+.hindi{color:#f59e0b;font-size:0.78rem;font-style:italic}
+.badge{display:inline-block;padding:3px 8px;border-radius:20px;font-size:0.7rem;font-weight:600;margin:2px}
+.badge.blue{background:rgba(59,130,246,0.2);color:#60a5fa;border:1px solid #3b82f6}
+.badge.green{background:rgba(34,197,94,0.2);color:#4ade80;border:1px solid #22c55e}
+.badge.amber{background:rgba(245,158,11,0.2);color:#fbbf24;border:1px solid #f59e0b}
+.tooltip{position:relative;display:inline-block}
+.tooltip .tip{display:none;position:absolute;bottom:120%;left:50%;transform:translateX(-50%);background:#1e3a5f;border:1px solid #3b82f6;color:#e2e8f0;font-size:0.72rem;padding:6px 10px;border-radius:6px;white-space:nowrap;z-index:10}
+.tooltip:hover .tip{display:block}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+@keyframes beam{0%{stroke-dashoffset:200}100%{stroke-dashoffset:0}}
+.animate-pulse{animation:pulse 2s infinite}
+#mirrorSVG line.ray{stroke-dasharray:200;animation:beam 1.5s ease forwards}
+.section-label{font-size:0.7rem;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+</style>
+</head>
+<body>
+<div class="title-bar">
+<h1>💡 Light – Reflection of Light</h1>
+<p>CBSE Class 10 Science | Interactive Visual Explainer</p>
+</div>
+<div class="container">
+
+<!-- Law of Reflection -->
+<div class="card">
+<h2>⚖️ Law of Reflection <span class="hindi">(परावर्तन के नियम)</span></h2>
+<div class="law-item"><div class="law-num">1</div><div class="law-text">The angle of incidence (∠i) is always <strong style="color:#22c55e">equal</strong> to the angle of reflection (∠r).<br><span class="hindi">आपतन कोण = परावर्तन कोण</span></div></div>
+<div class="law-item"><div class="law-num">2</div><div class="law-text">The incident ray, the normal at the point of incidence, and the reflected ray — all lie in the <strong style="color:#3b82f6">same plane</strong>.</div></div>
+<div class="formula-box">
+<div class="formula">∠i = ∠r</div>
+<div class="label">Angle of Incidence = Angle of Reflection</div>
+</div>
+
+<!-- Interactive Reflection Demo -->
+<p class="section-label" style="margin-top:12px">🎮 Drag the slider to change the angle of incidence</p>
+<div class="slider-wrap">
+<span>0°</span>
+<input type="range" id="angleSlider" min="10" max="80" value="45">
+<span>80°</span>
+</div>
+<div class="angle-display">∠i = <span id="angVal">45</span>° = ∠r</div>
+<svg id="reflSVG" viewBox="0 0 400 220" style="background:linear-gradient(180deg,#0f172a,#1e293b)">
+<!-- Mirror -->
+<line x1="40" y1="180" x2="360" y2="180" stroke="#94a3b8" stroke-width="4" stroke-linecap="round"/>
+<line x1="40" y1="185" x2="360" y2="185" stroke="#475569" stroke-width="2" stroke-dasharray="8,4"/>
+<!-- Normal -->
+<line id="normalLine" x1="200" y1="180" x2="200" y2="50" stroke="#475569" stroke-width="1.5" stroke-dasharray="6,4"/>
+<text x="205" y="60" fill="#64748b" font-size="11">Normal</text>
+<!-- Incident Ray -->
+<line id="incLine" x1="60" y1="50" x2="200" y2="180" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" marker-end="url(#arr1)"/>
+<!-- Reflected Ray -->
+<line id="refLine" x1="200" y1="180" x2="340" y2="50" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" marker-end="url(#arr2)"/>
+<!-- Angle arcs -->
+<path id="arcI" d="" fill="none" stroke="#ef4444" stroke-width="1.5"/>
+<path id="arcR" d="" fill="none" stroke="#3b82f6" stroke-width="1.5"/>
+<!-- Labels -->
+<text id="lblI" x="160" y="140" fill="#ef4444" font-size="13" font-weight="bold">∠i</text>
+<text id="lblR" x="225" y="140" fill="#3b82f6" font-size="13" font-weight="bold">∠r</text>
+<text x="60" y="172" fill="#f59e0b" font-size="10">Incident Ray</text>
+<text x="270" y="172" fill="#93c5fd" font-size="10">Reflected Ray</text>
+<text x="150" y="198" fill="#94a3b8" font-size="11">Mirror Surface (दर्पण)</text>
+<defs>
+<marker id="arr1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#ef4444"/></marker>
+<marker id="arr2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#3b82f6"/></marker>
+</defs>
+</svg>
+<p style="font-size:0.75rem;color:#64748b;text-align:center;margin-top:6px">Notice: Both angles are always equal!</p>
+</div>
+
+<!-- Mirror Types -->
+<div class="card">
+<h2>🪞 Types of Mirrors <span class="hindi">(दर्पण के प्रकार)</span></h2>
+<div class="tabs">
+<div class="tab active" onclick="switchMirror('plane')" id="tab-plane">Plane Mirror</div>
+<div class="tab" onclick="switchMirror('concave')" id="tab-concave">Concave Mirror</div>
+<div class="tab" onclick="switchMirror('convex')" id="tab-convex">Convex Mirror</div>
+</div>
+<div id="mirrorInfo"></div>
+<svg id="mirrorSVG" viewBox="0 0 400 240" style="background:linear-gradient(180deg,#0f172a,#1e293b);margin-top:10px"></svg>
+</div>
+
+<!-- Mirror Formula -->
+<div class="card">
+<h2>📐 Mirror Formula <span class="hindi">(दर्पण सूत्र)</span></h2>
+<div class="formula-box">
+<div class="formula">1/f = 1/v + 1/u</div>
+<div class="label">f = focal length | v = image distance | u = object distance</div>
+</div>
+<div class="formula-box" style="margin-top:8px">
+<div class="formula">m = -v/u = h'/h</div>
+<div class="label">m = magnification | h' = image height | h = object height</div>
+</div>
+<div class="info-grid" id="signConvention">
+<div class="info-item"><div class="val" style="color:#ef4444">−</div><div class="key">Distances in direction opposite to incident light (u is always −ve)</div></div>
+<div class="info-item"><div class="val" style="color:#22c55e">+</div><div class="key">Distances in direction of incident light (real images, concave f)</div></div>
+<div class="info-item"><div class="val" style="color:#3b82f6">∠ Normal</div><div class="key">All angles measured from normal, not the surface</div></div>
+<div class="info-item"><div class="val" style="color:#f59e0b">Convex f</div><div class="key">Focal length of convex mirror is always +ve</div></div>
+</div>
+</div>
+
+<!-- Worked Example -->
+<div class="card">
+<h2>✏️ Worked Example <span class="hindi">(हल किया उदाहरण)</span></h2>
+<div style="background:rgba(15,23,42,0.6);border-radius:10px;padding:12px;font-size:0.85rem;color:#cbd5e1;border:1px solid rgba(245,158,11,0.3)">
+<strong style="color:#f59e0b">Question:</strong> An object is placed 30 cm in front of a concave mirror of focal length 15 cm. Find the image distance and magnification.
+</div>
+<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+<button class="btn green" onclick="showStep(1)">Step 1</button>
+<button class="btn green" onclick="showStep(2)">Step 2</button>
+<button class="btn green" onclick="showStep(3)">Step 3</button>
+<button class="btn amber" onclick="showStep(4)">Answer</button>
+<button class="btn red" onclick="resetSteps()">Reset</button>
+</div>
+<div class="step-box" id="step1">
+<div class="step-num">STEP 1 – Write Given Data</div>
+<div class="step-text">Object distance: u = −30 cm (always negative, sign convention)<br>Focal length: f = −15 cm (concave mirror, negative)<br>Image distance: v = ? (to find)</div>
+</div>
+<div class="step-box" id="step2">
+<div class="step-num">STEP 2 – Apply Mirror Formula</div>
+<div class="step-text">1/f = 1/v + 1/u<br>1/(−15) = 1/v + 1/(−30)<br>−1/15 = 1/v − 1/30<br>1/v = −1/15 + 1/30<br>1/v = −2/30 + 1/30 = −1/30</div>
+</div>
+<div class="step-box" id="step3">
+<div class="step-num">STEP 3 – Solve for v</div>
+<div class="step-text">1/v = −1/30<br>∴ v = −30 cm<br><span style="color:#22c55e">Negative sign means the image is formed on the SAME side as the object (Real image)</span></div>
+</div>
+<div class="step-box" id="step4">
+<div class="step-num">✅ ANSWER – Magnification</div>
+<div class="step-text">m = −v/u = −(−30)/(−30) = −1<br>m = −1 → Image is <strong style="color:#ef4444">real, inverted, same size</strong> as object<br>Image distance v = <strong style="color:#22c55e">−30 cm</strong><br><span class="hindi">∴ प्रतिबिम्ब वास्तविक, उल्टा और समान आकार का है।</span></div>
+</div>
+</div>
+
+<!-- Concave Mirror Image Positions -->
+<div class="card">
+<h2>🔭 Image by Concave Mirror <span class="hindi">(अवतल दर्पण में प्रतिबिम्ब)</span></h2>
+<p class="section-label">Click position to see image characteristics</p>
+<div class="mirror-controls" id="posButtons">
+<button class="btn" onclick="showPos('inf')">Object at ∞</button>
+<button class="btn" onclick="showPos('beyC')">Beyond C</button>
+<button class="btn" onclick="showPos('atC')">At C</button>
+<button class="btn" onclick="showPos('btwCF')">Between C & F</button>
+<button class="btn" onclick="showPos('atF')">At F</button>
+<button class="btn" onclick="showPos('btwFP')">Between F & P</button>
+</div>
+<div id="posResult" style="background:rgba(15,23,42,0.6);border-radius:10px;padding:12px;min-height:60px;border:1px solid rgba(59,130,246,0.2);font-size:0.83rem;color:#cbd5e1">
+<em style="color:#64748b">← Click a position above to see the image</em>
+</div>
+<svg id="concaveSVG" viewBox="0 0 400 180" style="background:linear-gradient(180deg,#0f172a,#1e293b);margin-top:10px">
+<!-- Principal axis -->
+<line x1="10" y1="90" x2="390" y2="90" stroke="#475569" stroke-width="1" stroke-dasharray="4,3"/>
+<!-- Concave mirror shape -->
+<path d="M 60 30 Q 20 90 60 150" fill="none" stroke="#3b82f6" stroke-width="3"/>
+<line x1="58" y1="28" x2="68" y2="38" stroke="#3b82f6" stroke-width="2"/>
+<line x1="58" y1="152" x2="68" y2="142" stroke="#3b82f6" stroke-width="2"/>
+<!-- Points -->
+<circle cx="60" cy="90" r="4" fill="#94a3b8"/><text x="52" y="108" fill="#94a3b8" font-size="10">P</text>
+<circle id="fPt" cx="160" cy="90" r="4" fill="#22c55e"/><text x="152" y="108" fill="#22c55e" font-size="10">F</text>
+<circle id="cPt" cx="260" cy="90" r="4" fill="#f59e0b"/><text x="252" y="108" fill="#f59e0b" font-size="10">C</text>
+<!-- Object arrow (movable) -->
+<g id="objArrow">
+<line x1="320" y1="90" x2="320" y2="55" stroke="#ef4444" stroke-width="2.5"/>
+<polygon points="320,48 315,58 325,58" fill="#ef4444"/>
+<text x="325" y="65" fill="#ef4444" font-size="9">Object</text>
+</g>
+<!-- Image arrow (appears on click) -->
+<g id="imgArrow" style="display:none">
+<line id="imgLine" x1="160" y1="90" x2="160" y2="55" stroke="#22c55e" stroke-width="2.5"/>
+<polygon id="imgPoly" points="160,48 155,58 165,58" fill="#22c55e"/>
+<text id="imgTxt" x="110" y="65" fill="#22c55e" font-size="9">Image</text>
+</g>
+</svg>
+</div>
+
+<!-- Quick Summary -->
+<div class="card">
+<h2>📋 Quick Summary <span class="hindi">(सारांश)</span></h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+<div class="info-item">
+<div class="val" style="font-size:0.9rem">Concave</div>
+<div class="key"><span class="hindi">अवतल दर्पण</span><br>Converging mirror<br>Used: Torches, Telescopes, Shaving mirrors</div>
+</div>
+<div class="info-item">
+<div class="val" style="font-size:0.9rem">Convex</div>
+<div class="key"><span class="hindi">उत्तल दर्पण</span><br>Diverging mirror<br>Used: Rear-view mirrors, Security mirrors</div>
+</div>
+<div class="info-item">
+<div class="val" style="font-size:0.9rem">Plane</div>
+<div class="key"><span class="hindi">समतल दर्पण</span><br>Equal image<br>Virtual, erect, laterally inverted</div>
+</div>
+<div class="info-item">
+<div class="val" style="font-size:0.9rem">f = R/2</div>
+<div class="key">Focal length = Radius of curvature ÷ 2<br><span class="hindi">फोकस दूरी = वक्रता त्रिज्या / 2</span></div>
+</div>
+</div>
+</div>
+
+</div>
+
+<script>
+// Reflection slider
+const slider=document.getElementById('angleSlider');
+const angVal=document.getElementById('angVal');
+function updateReflection(){
+  const a=parseInt(slider.value);
+  angVal.textContent=a;
+  const svg=document.getElementById('reflSVG');
+  const cx=200,cy=180,len=130;
+  const rad=(90-a)*Math.PI/180;
+  // Incident from top-left
+  const ix=cx-Math.round(len*Math.sin(rad));
+  const iy=cy-Math.round(len*Math.cos(rad));
+  // Reflected to top-right
+  const rx=cx+Math.round(len*Math.sin(rad));
+  const ry=cy-Math.round(len*Math.cos(rad));
+  document.getElementById('incLine').setAttribute('x1',ix);
+  document.getElementById('incLine').setAttribute('y1',iy);
+  document.getElementById('incLine').setAttribute('x2',cx);
+  document.getElementById('incLine').setAttribute('y2',cy);
+  document.getElementById('refLine').setAttribute('x1',cx);
+  document.getElementById('refLine').setAttribute('y1',cy);
+  document.getElementById('refLine').setAttribute('x2',rx);
+  document.getElementById('refLine').setAttribute('y2',ry);
+  // Arc
+  const r2=35;
+  const ia1=Math.PI;const ia2=Math.PI+rad;
+  const arcIx1=cx+r2*Math.cos(ia2);const arcIy1=cy+r2*Math.sin(ia2);
+  const arcIx2=cx;const arcIy2=cy-r2;
+  document.getElementById('arcI').setAttribute('d',`M ${arcIx1} ${arcIy1} A ${r2} ${r2} 0 0 1 ${arcIx2} ${arcIy2}`);
+  const arcRx1=cx;const arcRy1=cy-r2;
+  const arcRx2=cx+r2*Math.cos(-rad);const arcRy2=cy+r2*Math.sin(-rad);
+  document.getElementById('arcR').setAttribute('d',`M ${arcRx1} ${arcRy1} A ${r2} ${r2} 0 0 1 ${arcRx2} ${arcRy2}`);
+}
+slider.addEventListener('input',updateReflection);
+updateReflection();
+
+// Mirror types
+const mirrorData={
+  plane:{name:'Plane Mirror (समतल दर्पण)',desc:'Flat reflecting surface. Image is virtual, erect, and laterally inverted. Image distance = Object distance.',color:'#94a3b8',badges:['Virtual Image','Erect','Same Size','Laterally Inverted']},
+  concave:{name:'Concave Mirror (अवतल दर्पण)',desc:'Curved inward. Converges light rays to a focus. Used in torches, telescopes, shaving mirrors. Can form both real and virtual images.',color:'#3b82f6',badges:['Converging','Real or Virtual','Used in Torches','Inverted (mostly)']},
+  convex:{name:'Convex Mirror (उत्तल दर्पण)',desc:'Curved outward. Diverges light rays. Always forms virtual, erect, diminished image. Used in rear-view mirrors. Wide field of view.',color:'#22c55e',badges:['Diverging','Always Virtual','Always Erect','Diminished','Rear-view mirrors']}
+};
+function switchMirror(type){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+type).classList.add('active');
+  const d=mirrorData[type];
+  document.getElementById('mirrorInfo').innerHTML=`<p style="font-size:0.82rem;color:#cbd5e1;margin-bottom:8px">${d.desc}</p><div>${d.badges.map(b=>`<span class="badge blue">${b}</span>`).join('')}</div>`;
+  drawMirrorDiagram(type,d.color);
+}
+function drawMirrorDiagram(type,color){
+  const s=document.getElementById('mirrorSVG');
+  let html='';
+  // Principal axis
+  html+=`<line x1="10" y1="120" x2="390" y2="120" stroke="#334155" stroke-width="1" stroke-dasharray="4,3"/>`;
+  html+=`<text x="360" y="115" fill="#475569" font-size="9">Principal Axis</text>`;
+  if(type==='plane'){
+    html+=`<line x1="200" y1="20" x2="200" y2="220" stroke="${color}" stroke-width="4" stroke-linecap="round"/>`;
+    html+=`<line x1="205" y1="20" x2="205" y2="220" stroke="#475569" stroke-width="2" stroke-dasharray="5,4"/>`;
+    // Rays
+    html+=`<line x1="60" y1="80" x2="200" y2="80" stroke="#ef4444" stroke-width="2" marker-end="url(#arP1)"/>`;
+    html+=`<line x1="200" y1="80" x2="340" y2="80" stroke="#ef4444" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arP2)"/>`;
+    html+=`<text x="120" y="72" fill="#ef4444" font-size="9">Incident</text>`;
+    html+=`<text x="250" y="72" fill="#ef4444" font-size="9">Reflected</text>`;
+    html+=`<text x="80" y="200" fill="${color}" font-size="10">Object</text>`;
+    html+=`<line x1="100" y1="120" x2="100" y2="80" stroke="#f59e0b" stroke-width="2"/><polygon points="100,74 96,84 104,84" fill="#f59e0b"/>`;
+    html+=`<text x="300" y="200" fill="#94a3b8" font-size="10">Image (Virtual)</text>`;
+    html+=`<line x1="300" y1="120" x2="300" y2="80" stroke="#94a3b8" stroke-width="2" stroke-dasharray="3,2"/><polygon points="300,74 296,84 304,84" fill="#94a3b8"/>`;
+    html+=`<defs><marker id="arP1" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#ef4444"/></marker><marker id="arP2" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#ef4444"/></marker></defs>`;
+  } else if(type==='concave'){
+    html+=`<path d="M 220 30 Q 160 120 220 210" fill="none" stroke="${color}" stroke-width="4"/>`;
+    html+=`<line x1="218" y1="28" x2="228" y2="40" stroke="${color}" stroke-width="2"/>`;
+    html+=`<line x1="218" y1="212" x2="228" y2="200" stroke="${color}" stroke-width="2"/>`;
+    html+=`<circle cx="220" cy="120" r="3" fill="#94a3b8"/><text x="224" y="118" fill="#94a3b8" font-size="9">P</text>`;
+    html+=`<circle cx="155" cy="120" r="3" fill="#22c55e"/><text x="159" y="118" fill="#22c55e" font-size="9">F</text>`;
+    html+=`<circle cx="90" cy="120" r="3" fill="#f59e0b"/><text x="94" y="118" fill="#f59e0b" font-size="

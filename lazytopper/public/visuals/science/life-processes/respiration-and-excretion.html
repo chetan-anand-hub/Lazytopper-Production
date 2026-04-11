@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Life Processes - Respiration & Excretion</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);min-height:100vh;color:#1e293b}
+.title-bar{background:linear-gradient(90deg,#3b82f6,#6366f1);padding:14px 20px;text-align:center;color:white;box-shadow:0 4px 20px rgba(59,130,246,.5)}
+.title-bar h1{font-size:1.2rem;font-weight:700}
+.title-bar p{font-size:.8rem;opacity:.85;margin-top:2px}
+.container{max-width:900px;margin:0 auto;padding:16px}
+.tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.tab{padding:8px 16px;border-radius:20px;border:2px solid #3b82f6;background:transparent;color:#93c5fd;cursor:pointer;font-size:.85rem;font-weight:600;transition:all .3s}
+.tab.active{background:#3b82f6;color:white;box-shadow:0 4px 15px rgba(59,130,246,.4)}
+.tab:hover{background:#3b82f6;color:white}
+.section{display:none;animation:fadeIn .4s ease}
+.section.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.card{background:white;border-radius:16px;padding:16px;margin-bottom:16px;box-shadow:0 4px 20px rgba(0,0,0,.1)}
+.card h2{font-size:1rem;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.formula-box{background:linear-gradient(135deg,#1e293b,#0f172a);color:#34d399;border-radius:12px;padding:14px;text-align:center;font-size:.95rem;font-weight:700;margin:12px 0;border:2px solid #22c55e;letter-spacing:.5px}
+.formula-box .hindi{color:#fbbf24;font-size:.8rem;margin-top:6px}
+.btn{display:inline-block;padding:8px 18px;border-radius:20px;border:none;cursor:pointer;font-size:.85rem;font-weight:600;transition:all .3s}
+.btn-blue{background:#3b82f6;color:white}
+.btn-blue:hover{background:#2563eb;transform:translateY(-1px);box-shadow:0 4px 12px rgba(59,130,246,.4)}
+.btn-green{background:#22c55e;color:white}
+.btn-green:hover{background:#16a34a}
+.btn-amber{background:#f59e0b;color:white}
+.btn-amber:hover{background:#d97706}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:500px){.compare-grid{grid-template-columns:1fr}}
+.compare-card{border-radius:12px;padding:12px}
+.aerobic-card{background:linear-gradient(135deg,#dcfce7,#bbf7d0);border:2px solid #22c55e}
+.anaerobic-card{background:linear-gradient(135deg,#fef3c7,#fde68a);border:2px solid #f59e0b}
+.compare-card h3{font-size:.9rem;font-weight:700;margin-bottom:8px}
+.compare-card ul{list-style:none;font-size:.8rem}
+.compare-card ul li{padding:3px 0;border-bottom:1px solid rgba(0,0,0,.08)}
+.compare-card ul li::before{margin-right:6px}
+.aerobic-card ul li::before{content:'✅'}
+.anaerobic-card ul li::before{content:'⚡'}
+.toggle-section{cursor:pointer;user-select:none}
+.toggle-content{overflow:hidden;max-height:0;transition:max-height .5s ease}
+.toggle-content.open{max-height:400px}
+.step-item{background:#f8fafc;border-left:4px solid #3b82f6;border-radius:0 8px 8px 0;padding:10px 12px;margin:8px 0;opacity:0;transform:translateX(-20px);transition:all .4s ease}
+.step-item.revealed{opacity:1;transform:translateX(0)}
+.step-item .step-num{color:#3b82f6;font-weight:700;font-size:.8rem}
+.step-item .step-text{font-size:.85rem;margin-top:3px}
+.badge{display:inline-block;padding:3px 10px;border-radius:10px;font-size:.75rem;font-weight:700}
+.badge-blue{background:#dbeafe;color:#1d4ed8}
+.badge-green{background:#dcfce7;color:#15803d}
+.badge-red{background:#fee2e2;color:#b91c1c}
+.badge-amber{background:#fef3c7;color:#b45309}
+svg.diagram{width:100%;max-width:340px;display:block;margin:0 auto}
+.highlight-pulse{animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+.organ-btn{cursor:pointer;transition:all .3s}
+.organ-btn:hover rect,.organ-btn:hover ellipse,.organ-btn:hover path{filter:brightness(1.15)}
+.info-bubble{background:linear-gradient(135deg,#1e293b,#0f172a);color:white;border-radius:10px;padding:10px 12px;font-size:.8rem;margin-top:10px;border-left:3px solid #3b82f6;display:none}
+.info-bubble.show{display:block;animation:fadeIn .3s ease}
+.nephron-label{font-size:10px;fill:#1e293b;font-weight:600}
+.quiz-opt{background:#f1f5f9;border:2px solid #e2e8f0;border-radius:10px;padding:10px 14px;cursor:pointer;font-size:.85rem;margin:6px 0;transition:all .3s;width:100%;text-align:left}
+.quiz-opt:hover{border-color:#3b82f6;background:#eff6ff}
+.quiz-opt.correct{border-color:#22c55e;background:#dcfce7;color:#15803d}
+.quiz-opt.wrong{border-color:#ef4444;background:#fee2e2;color:#b91c1c}
+.progress-bar{height:6px;background:#e2e8f0;border-radius:3px;margin:8px 0}
+.progress-fill{height:100%;background:linear-gradient(90deg,#3b82f6,#6366f1);border-radius:3px;transition:width .5s ease}
+.atp-counter{font-size:2rem;font-weight:900;color:#3b82f6;text-align:center}
+.slider-container{margin:12px 0}
+.slider-container input[type=range]{width:100%;accent-color:#3b82f6}
+.flow-arrow{text-align:center;color:#6366f1;font-size:1.2rem;margin:4px 0}
+.flow-box{background:linear-gradient(135deg,#eff6ff,#dbeafe);border:2px solid #3b82f6;border-radius:10px;padding:8px 12px;text-align:center;font-size:.82rem;font-weight:600;color:#1e40af;margin:4px 0}
+.tag{display:inline-block;background:#f1f5f9;border-radius:6px;padding:2px 8px;font-size:.75rem;color:#475569;margin:2px}
+</style>
+</head>
+<body>
+<div class="title-bar">
+  <h1>🫁 Life Processes — Respiration & Excretion</h1>
+  <p>CBSE Class 10 Science | श्वसन और उत्सर्जन | Interactive Visual Explainer</p>
+</div>
+<div class="container">
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('resp')">🌬️ Respiration</button>
+    <button class="tab" onclick="showTab('types')">⚡ Aerobic vs Anaerobic</button>
+    <button class="tab" onclick="showTab('kidney')">🫘 Kidney & Nephron</button>
+    <button class="tab" onclick="showTab('excretion')">💧 Excretion</button>
+    <button class="tab" onclick="showTab('quiz')">📝 Quick Quiz</button>
+  </div>
+
+  <!-- RESPIRATION TAB -->
+  <div class="section active" id="resp">
+    <div class="card">
+      <h2>🔬 What is Respiration? (श्वसन)</h2>
+      <p style="font-size:.85rem;color:#475569;margin-bottom:10px">Respiration is the <strong>biochemical process</strong> of breaking down food (glucose) to release energy in the form of ATP.</p>
+      <div class="formula-box">
+        C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O + Energy (ATP)<br>
+        <div class="hindi">ग्लूकोज + ऑक्सीजन → कार्बन डाइऑक्साइड + जल + ऊर्जा</div>
+      </div>
+      <p style="font-size:.78rem;color:#64748b;text-align:center"><span class="badge badge-green">Aerobic</span> → 36–38 ATP molecules per glucose</p>
+    </div>
+
+    <div class="card">
+      <h2>🫁 Human Respiratory System — Click organs to explore!</h2>
+      <svg class="diagram" viewBox="0 0 300 320" id="respSvg">
+        <!-- Nose -->
+        <g class="organ-btn" onclick="showOrganInfo('nose')">
+          <ellipse cx="150" cy="28" rx="22" ry="14" fill="#fde68a" stroke="#f59e0b" stroke-width="2"/>
+          <text x="150" y="32" text-anchor="middle" font-size="11" fill="#92400e" font-weight="bold">Nose</text>
+        </g>
+        <!-- Arrow down -->
+        <line x1="150" y1="42" x2="150" y2="62" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4"/>
+        <!-- Pharynx -->
+        <g class="organ-btn" onclick="showOrganInfo('pharynx')">
+          <rect x="120" y="62" width="60" height="22" rx="8" fill="#c7d2fe" stroke="#6366f1" stroke-width="2"/>
+          <text x="150" y="77" text-anchor="middle" font-size="10" fill="#3730a3" font-weight="bold">Pharynx</text>
+        </g>
+        <line x1="150" y1="84" x2="150" y2="100" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4"/>
+        <!-- Trachea -->
+        <g class="organ-btn" onclick="showOrganInfo('trachea')">
+          <rect x="134" y="100" width="32" height="40" rx="8" fill="#bfdbfe" stroke="#3b82f6" stroke-width="2"/>
+          <text x="150" y="124" text-anchor="middle" font-size="10" fill="#1d4ed8" font-weight="bold">Trachea</text>
+        </g>
+        <!-- Bronchi -->
+        <line x1="134" y1="138" x2="90" y2="158" stroke="#3b82f6" stroke-width="3"/>
+        <line x1="166" y1="138" x2="210" y2="158" stroke="#3b82f6" stroke-width="3"/>
+        <text x="62" y="155" font-size="9" fill="#1d4ed8" font-weight="bold">Bronchus</text>
+        <text x="195" y="155" font-size="9" fill="#1d4ed8" font-weight="bold">Bronchus</text>
+        <!-- Lungs -->
+        <g class="organ-btn" onclick="showOrganInfo('lungs')">
+          <ellipse cx="85" cy="210" rx="58" ry="68" fill="#fca5a5" stroke="#ef4444" stroke-width="2.5" opacity=".9"/>
+          <text x="85" y="207" text-anchor="middle" font-size="12" fill="#7f1d1d" font-weight="bold">Left</text>
+          <text x="85" y="222" text-anchor="middle" font-size="12" fill="#7f1d1d" font-weight="bold">Lung</text>
+        </g>
+        <g class="organ-btn" onclick="showOrganInfo('lungs')">
+          <ellipse cx="215" cy="210" rx="58" ry="68" fill="#fca5a5" stroke="#ef4444" stroke-width="2.5" opacity=".9"/>
+          <text x="215" y="207" text-anchor="middle" font-size="12" fill="#7f1d1d" font-weight="bold">Right</text>
+          <text x="215" y="222" text-anchor="middle" font-size="12" fill="#7f1d1d" font-weight="bold">Lung</text>
+        </g>
+        <!-- Alveoli hint -->
+        <g class="organ-btn" onclick="showOrganInfo('alveoli')">
+          <circle cx="85" cy="240" r="14" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+          <text x="85" y="244" text-anchor="middle" font-size="8" fill="#92400e" font-weight="bold">Alveoli</text>
+        </g>
+        <g class="organ-btn" onclick="showOrganInfo('alveoli')">
+          <circle cx="215" cy="240" r="14" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+          <text x="215" y="244" text-anchor="middle" font-size="8" fill="#92400e" font-weight="bold">Alveoli</text>
+        </g>
+        <!-- Diaphragm -->
+        <g class="organ-btn" onclick="showOrganInfo('diaphragm')">
+          <path d="M 30 290 Q 150 310 270 290" stroke="#6366f1" stroke-width="3" fill="none"/>
+          <text x="150" y="308" text-anchor="middle" font-size="10" fill="#3730a3" font-weight="bold">Diaphragm (डायफ्राम)</text>
+        </g>
+        <!-- O2/CO2 labels -->
+        <text x="14" y="200" font-size="9" fill="#22c55e" font-weight="bold">O₂ IN</text>
+        <text x="258" y="200" font-size="9" fill="#ef4444" font-weight="bold">CO₂ OUT</text>
+      </svg>
+      <div id="organInfo" class="info-bubble"></div>
+      <p style="font-size:.78rem;color:#64748b;margin-top:8px;text-align:center">👆 Click on any organ to learn about it</p>
+    </div>
+
+    <div class="card">
+      <h2>🪜 Step-by-Step: How Breathing Works</h2>
+      <button class="btn btn-blue" onclick="revealSteps()" id="stepBtn">▶ Start Walkthrough</button>
+      <div id="steps" style="margin-top:10px">
+        <div class="step-item" id="s1"><span class="step-num">Step 1</span><div class="step-text">Air enters through <strong>nose/mouth</strong> → cleaned, warmed, moistened</div></div>
+        <div class="step-item" id="s2"><span class="step-num">Step 2</span><div class="step-text">Air passes through <strong>pharynx → larynx → trachea</strong></div></div>
+        <div class="step-item" id="s3"><span class="step-num">Step 3</span><div class="step-text">Trachea splits into two <strong>bronchi</strong> leading to each lung</div></div>
+        <div class="step-item" id="s4"><span class="step-num">Step 4</span><div class="step-text">Bronchi branch into <strong>bronchioles</strong> ending in tiny <strong>alveoli</strong> (वायुकोश)</div></div>
+        <div class="step-item" id="s5"><span class="step-num">Step 5</span><div class="step-text"><strong>Gas Exchange</strong>: O₂ from alveoli → blood; CO₂ from blood → alveoli</div></div>
+        <div class="step-item" id="s6"><span class="step-num">Step 6</span><div class="step-text">Diaphragm contracts/relaxes to create breathing movements (<strong>Inhalation/Exhalation</strong>)</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AEROBIC vs ANAEROBIC TAB -->
+  <div class="section" id="types">
+    <div class="card">
+      <h2>⚡ Aerobic vs Anaerobic Respiration</h2>
+      <div class="compare-grid">
+        <div class="compare-card aerobic-card">
+          <h3>✅ Aerobic (वायवीय)</h3>
+          <ul>
+            <li>Requires O₂</li>
+            <li>Complete oxidation</li>
+            <li>36–38 ATP produced</li>
+            <li>Products: CO₂ + H₂O</li>
+            <li>Location: Mitochondria</li>
+            <li>E.g., Human cells</li>
+          </ul>
+        </div>
+        <div class="compare-card anaerobic-card">
+          <h3>⚡ Anaerobic (अवायवीय)</h3>
+          <ul>
+            <li>No O₂ needed</li>
+            <li>Incomplete oxidation</li>
+            <li>Only 2 ATP produced</li>
+            <li>Products: Lactic acid / Ethanol+CO₂</li>
+            <li>Location: Cytoplasm</li>
+            <li>E.g., Yeast, muscles</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🧪 Anaerobic in Yeast (खमीर) vs Muscles</h2>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div style="background:#fef3c7;border-radius:10px;padding:10px;font-size:.82rem">
+          <div style="font-weight:700;margin-bottom:6px">🍺 In Yeast (Fermentation)</div>
+          <div style="background:#1e293b;color:#34d399;border-radius:8px;padding:8px;font-size:.78rem;font-weight:700">
+            Glucose → Ethanol + CO₂ + 2ATP
+          </div>
+          <div style="margin-top:6px;color:#78350f">Used in: Bread, Beer, Wine making</div>
+        </div>
+        <div style="background:#fee2e2;border-radius:10px;padding:10px;font-size:.82rem">
+          <div style="font-weight:700;margin-bottom:6px">💪 In Muscle Cells</div>
+          <div style="background:#1e293b;color:#f87171;border-radius:8px;padding:8px;font-size:.78rem;font-weight:700">
+            Glucose → Lactic Acid + 2ATP
+          </div>
+          <div style="margin-top:6px;color:#7f1d1d">Causes: Muscle cramps during exercise!</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>⚡ ATP Energy Visualizer — Click to simulate!</h2>
+      <p style="font-size:.8rem;color:#475569;margin-bottom:10px">How many ATP does each type produce per glucose molecule?</p>
+      <div style="display:flex;gap:10px;margin-bottom:14px">
+        <button class="btn btn-green" onclick="showATP('aerobic')">Aerobic ✅</button>
+        <button class="btn btn-amber" onclick="showATP('anaerobic')">Anaerobic ⚡</button>
+      </div>
+      <div id="atpDisplay" style="text-align:center">
+        <div class="atp-counter" id="atpCount">—</div>
+        <div id="atpLabel" style="font-size:.85rem;color:#475569;margin-top:4px"></div>
+        <div id="atpBalls" style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin-top:10px"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🔄 Stages of Aerobic Respiration</h2>
+      <div class="flow-box">🍬 Glucose (C₆H₁₂O₆)</div>
+      <div class="flow-arrow">↓ <span style="font-size:.75rem;color:#64748b">Glycolysis (in Cytoplasm)</span></div>
+      <div class="flow-box">2 Pyruvate + 2 ATP + 2 NADH</div>
+      <div class="flow-arrow">↓ <span style="font-size:.75rem;color:#64748b">Krebs Cycle (in Mitochondria)</span></div>
+      <div class="flow-box">CO₂ + NADH + FADH₂ + 2 ATP</div>
+      <div class="flow-arrow">↓ <span style="font-size:.75rem;color:#64748b">Electron Transport Chain</span></div>
+      <div class="flow-box" style="background:linear-gradient(135deg,#dcfce7,#bbf7d0);border-color:#22c55e;color:#15803d">⚡ ~34 ATP + H₂O</div>
+      <p style="font-size:.78rem;color:#64748b;margin-top:8px;text-align:center"><span class="badge badge-green">Total ≈ 36–38 ATP</span> per glucose molecule</p>
+    </div>
+  </div>
+
+  <!-- KIDNEY & NEPHRON TAB -->
+  <div class="section" id="kidney">
+    <div class="card">
+      <h2>🫘 Kidney (वृक्क) — Click parts to explore</h2>
+      <svg class="diagram" viewBox="0 0 300 280" id="kidneySvg">
+        <!-- Left Kidney -->
+        <g class="organ-btn" onclick="showKidneyInfo('kidney')">
+          <path d="M 60 60 Q 20 80 20 140 Q 20 210 60 225 Q 100 240 120 200 Q 140 160 130 120 Q 120 70 60 60 Z" fill="#fca5a5" stroke="#ef4444" stroke-width="2.5"/>
+          <text x="72" y="145" text-anchor="middle" font-size="12" fill="#7f1d1d" font-weight="bold">Kidney</text>
+          <text x="72" y="160" text-anchor="middle" font-size="10" fill="#7f1d1d">(वृक्क)</text>
+        </g>
+        <!-- Right Kidney -->
+        <g class="organ-btn" onclick="showKidneyInfo('kidney')">
+          <path d="M 240 60 Q 280 80 280 140 Q 280 210 240 225 Q 200 240 180 200 Q 160 160 170 120 Q 180 70 240 60 Z" fill="#fca5a5" stroke="#ef4444" stroke-width="2.5"/>
+          <text x="228" y="145" text-anchor="middle" font-size="12" fill="#7f1d1d" font-weight="bold">Kidney</text>
+          <text x="228" y="160" text-anchor="middle" font-size="10" fill="#7f1d1d">(वृक्क)</text>
+        </g>
+        <!-- Renal Artery/Vein -->
+        <line x1="130" y1="140" x2="170" y2="140" stroke="#ef4444" stroke-width="3"/>
+        <text x="150" y="130" text-anchor="middle" font-size="9" fill="#ef4444" font-weight="bold">Renal Artery</text>
+        <line x1="130" y1="155" x2="170" y2="155" stroke="#3b82f6" stroke-width="3" stroke-dasharray="5"/>
+        <text x="150" y="170" text-anchor="middle" font-size="9" fill="#3b82f6" font-weight="bold">Renal Vein</text>
+        <!-- Ureter -->
+        <g class="organ-btn" onclick="showKidneyInfo('ureter')">
+          <line x1="90" y1="220" x2="100" y2="255" stroke="#6366f1" stroke-width="3"/>
+          <line x1="210" y1="220" x2="200" y2="255" stroke="#6366f1" stroke-width="3"/>
+          <text x="55" y="248" font-size="9" fill="#3730a3" font-weight="bold">Ureter</text>
+          <text x="207" y="248" font-size="9" fill="#3730a3" font-weight="bold">Ureter</text>
+        </g>
+        <!-- Urinary Bladder -->
+        <g class="organ-btn" onclick="showKidneyInfo('bladder')">
+          <ellipse cx="150" cy="262" rx="38" ry="18" fill="#c7d2fe" stroke="#6366f1" stroke-width="2"/>
+          <text x="150" y="266" text-anchor="middle" font-size="10" fill="#3730a3" font-weight="bold">Urinary Bladder</text>
+        </g>
+        <!-- Cortex/Medulla hint -->
+        <text x="38" y="100" font-size="8" fill="#b91c1c">Cortex</text>
+        <text x="38" y="175" font-size="8" fill="#b91c1c">Medulla</text>
+        <!-- Pelvis -->
+        <text x="72" y="200" text-anchor="middle" font-size="8" fill="#b91c1c">Pelvis</text>
+      </svg>
+      <div id="kidneyInfo" class="info-bubble"></div>
+    </div>
+
+    <div class="card">
+      <h2>🔬 Nephron — The Functional Unit (वृक्काणु)</h2>
+      <p style="font-size:.82rem;color:#475569;margin-bottom:10px">A kidney contains ~1 million nephrons. Click each part!</p>
+      <svg class="diagram" viewBox="0 0 320 300" id="nephronSvg">
+        <!-- Glomerulus -->
+        <g class="organ-btn" onclick="showNephronInfo('glomerulus')">
+          <circle cx="80" cy="50" r="30" fill="#fde68a" stroke="#f59e0b" stroke-width="2.5"/>
+          <text x="80" y="45" text-anchor="middle" font-size="9" fill="#92400e" font-weight="bold">Glomerulus</text>
+          <text x="80" y="58" text-anchor="middle" font-size="8" fill="#92400e">(ग्लोमेरुलस)</text>
+        </g>
+        <!-- Bowman's Capsule -->
+        <g class="organ-btn" onclick="showNephronInfo('bowman')">
+          <circle cx="80" cy="50" r="40" fill="none" stroke="#f59e0b" stroke-width="2" stroke-dasharray="5"/>
+          <text x="20" y="22" font-size="8" fill="#b45309" font-weight="bold">Bowman's</text>
+          <text x="20" y="32" font-size="8" fill="#b45309" font-weight="bold">Capsule</text>
+        </g>
+        <!-- PCT -->
+        <g class="organ-btn" onclick="showNephronInfo('pct')">
+          <path d="M 115 60 Q 160 30 180 70 Q 200 110 160 120 Q 130 128 140 155" stroke="#3b82f6" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <text x="190" y="65" font-size="8" fill="#1d4ed8" font-weight="bold">PCT</text>
+          <text x="182" y="75" font-size="7" fill="#1d4ed8">(Proximal</text>
+          <text x="182" y="84" font-size="7" fill="#1d4ed8">Convoluted</text>
+          <text x="182" y="93" font-size="7" fill="#1d4ed8">Tubule)</text>
+        </g>
+        <!-- Loop of Henle -->
+        <g class="organ-btn" onclick="showNephronInfo('henle')">
+          <path d="M 140 155 Q 130 200 150 230 Q 170 255 170 220 Q 168 180 155 155" stroke="#22c55e" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <text x="172" y="215" font-size="8" fill="#15803d" font-weight="bold">Loop of</text>
+          <text x="172" y="225" font-size="8" fill="#15803d" font-weight="bold">Henle</text>
+          <text x="172" y="235" font-size="7" fill="#15

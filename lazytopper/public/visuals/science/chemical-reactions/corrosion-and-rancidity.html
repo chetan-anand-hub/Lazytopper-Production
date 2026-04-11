@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Corrosion & Rancidity | CBSE Class 10 Science</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',sans-serif;background:#f0f4ff;color:#1e293b;min-width:320px}
+  .titlebar{background:linear-gradient(135deg,#1e293b,#3b82f6);color:#fff;padding:14px 20px;text-align:center}
+  .titlebar h1{font-size:1.2rem;font-weight:700;letter-spacing:.5px}
+  .titlebar p{font-size:.75rem;opacity:.8;margin-top:3px}
+  .tabs{display:flex;background:#1e293b;overflow-x:auto}
+  .tab{flex:1;min-width:80px;padding:10px 8px;text-align:center;color:#94a3b8;font-size:.75rem;cursor:pointer;border-bottom:3px solid transparent;transition:all .3s;white-space:nowrap}
+  .tab.active{color:#3b82f6;border-bottom-color:#3b82f6;background:#0f172a}
+  .content{display:none;padding:16px;animation:fadeIn .4s ease}
+  .content.active{display:block}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  .card{background:#fff;border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+  .card h2{font-size:1rem;font-weight:700;margin-bottom:8px;color:#1e293b}
+  .card p{font-size:.82rem;line-height:1.6;color:#475569}
+  .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.7rem;font-weight:700;margin-bottom:8px}
+  .badge-blue{background:#dbeafe;color:#1d4ed8}
+  .badge-red{background:#fee2e2;color:#b91c1c}
+  .badge-green{background:#dcfce7;color:#15803d}
+  .badge-amber{background:#fef3c7;color:#b45309}
+  .formula-box{background:linear-gradient(135deg,#1e293b,#334155);color:#fff;border-radius:12px;padding:14px;text-align:center;margin:10px 0;font-size:.9rem;letter-spacing:.5px}
+  .formula-box span{color:#f59e0b;font-weight:700}
+  .btn{background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;border:none;border-radius:10px;padding:10px 18px;cursor:pointer;font-size:.82rem;font-weight:600;transition:all .3s;display:inline-block;margin:4px}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(59,130,246,.4)}
+  .btn-green{background:linear-gradient(135deg,#22c55e,#16a34a)}
+  .btn-amber{background:linear-gradient(135deg,#f59e0b,#d97706)}
+  .btn-red{background:linear-gradient(135deg,#ef4444,#dc2626)}
+
+  /* Corrosion Demo */
+  .iron-demo{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:12px 0}
+  .iron-obj{width:100px;height:100px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .4s;position:relative;overflow:hidden}
+  .iron-obj svg{width:60px;height:60px;transition:all .4s}
+  .iron-obj span{font-size:.65rem;font-weight:700;margin-top:4px;text-align:center}
+  .rust-layer{position:absolute;top:0;left:0;width:100%;height:100%;border-radius:14px;opacity:0;transition:opacity 1.5s;background:radial-gradient(circle,rgba(180,80,0,.6),rgba(139,40,0,.8));pointer-events:none}
+  .rusting .rust-layer{opacity:1}
+
+  /* Prevention slider */
+  .method-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:10px 0}
+  .method-card{border-radius:10px;padding:10px;text-align:center;cursor:pointer;transition:all .3s;border:2px solid transparent}
+  .method-card:hover{transform:scale(1.03)}
+  .method-card.selected{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.2)}
+  .method-card .icon{font-size:1.8rem;margin-bottom:4px}
+  .method-card p{font-size:.68rem;font-weight:600;color:#1e293b}
+  .method-detail{background:#f8fafc;border-radius:10px;padding:12px;margin-top:8px;font-size:.78rem;line-height:1.6;border-left:4px solid #3b82f6;display:none}
+  .method-detail.show{display:block;animation:fadeIn .3s}
+
+  /* Rancidity demo */
+  .food-container{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:12px 0}
+  .food-item{width:90px;background:#fff;border-radius:12px;padding:10px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.1);transition:all .5s;cursor:pointer;position:relative}
+  .food-item .emoji{font-size:2rem;display:block;transition:all .5s}
+  .food-item .label{font-size:.62rem;font-weight:700;color:#475569;margin-top:4px}
+  .food-item .status{font-size:.6rem;margin-top:3px;padding:2px 6px;border-radius:8px;font-weight:600}
+  .fresh{background:#dcfce7;color:#15803d}
+  .rancid{background:#fee2e2;color:#b91c1c}
+  .food-item.gone{filter:saturate(0.2) brightness(0.7)}
+  .progress-bar{background:#e2e8f0;border-radius:20px;height:10px;margin:8px 0;overflow:hidden}
+  .progress-fill{height:100%;border-radius:20px;transition:width 1s ease;background:linear-gradient(90deg,#22c55e,#f59e0b,#ef4444)}
+
+  /* Walkthrough */
+  .step-box{border-radius:12px;padding:14px;margin:8px 0;border-left:4px solid #3b82f6;background:#f0f9ff;display:none}
+  .step-box.show{display:block;animation:fadeIn .4s}
+  .step-box h3{font-size:.85rem;font-weight:700;color:#1d4ed8;margin-bottom:4px}
+  .step-box p{font-size:.78rem;line-height:1.6}
+  .step-num{display:inline-block;background:#3b82f6;color:#fff;width:22px;height:22px;border-radius:50%;text-align:center;line-height:22px;font-size:.7rem;font-weight:700;margin-right:6px}
+
+  /* SVG diagram */
+  .diagram-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+  /* Quiz */
+  .quiz-opt{background:#f8fafc;border:2px solid #e2e8f0;border-radius:10px;padding:10px 14px;margin:6px 0;cursor:pointer;font-size:.8rem;transition:all .3s}
+  .quiz-opt:hover{border-color:#3b82f6;background:#eff6ff}
+  .quiz-opt.correct{border-color:#22c55e;background:#dcfce7;color:#15803d}
+  .quiz-opt.wrong{border-color:#ef4444;background:#fee2e2;color:#b91c1c}
+  .quiz-result{margin-top:10px;font-size:.82rem;font-weight:600;display:none}
+
+  /* Timeline */
+  .timeline{position:relative;padding-left:24px;margin:10px 0}
+  .timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:#e2e8f0}
+  .tl-item{position:relative;margin-bottom:14px;padding-left:8px}
+  .tl-dot{position:absolute;left:-20px;top:4px;width:12px;height:12px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 2px #3b82f6}
+  .tl-item h4{font-size:.8rem;font-weight:700;color:#1e293b}
+  .tl-item p{font-size:.72rem;color:#64748b;margin-top:2px;line-height:1.5}
+
+  /* Antioxidant info */
+  .antioxidant-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}
+  .anti-card{background:#fff;border-radius:10px;padding:8px;text-align:center;box-shadow:0 1px 6px rgba(0,0,0,.08)}
+  .anti-card .ai{font-size:1.5rem}
+  .anti-card p{font-size:.6rem;font-weight:600;color:#475569;margin-top:3px}
+
+  .highlight{background:#fef3c7;padding:2px 6px;border-radius:4px;font-weight:600;color:#92400e}
+
+  @media(max-width:400px){
+    .method-grid{grid-template-columns:1fr 1fr}
+    .antioxidant-grid{grid-template-columns:repeat(3,1fr)}
+  }
+</style>
+</head>
+<body>
+
+<div class="titlebar">
+  <h1>⚗️ Corrosion &amp; Rancidity | संक्षारण और विकृतगंधिता</h1>
+  <p>CBSE Class 10 Science — Chemical Reactions &amp; Equations</p>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab(0)">🦀 Corrosion</div>
+  <div class="tab" onclick="showTab(1)">🛡️ Prevention</div>
+  <div class="tab" onclick="showTab(2)">🧈 Rancidity</div>
+  <div class="tab" onclick="showTab(3)">🔬 Diagrams</div>
+  <div class="tab" onclick="showTab(4)">❓ Quiz</div>
+</div>
+
+<!-- TAB 0: CORROSION -->
+<div class="content active" id="tab0">
+  <div class="card">
+    <span class="badge badge-red">संक्षारण | Corrosion</span>
+    <h2>What is Corrosion?</h2>
+    <p>When metals are exposed to moisture, oxygen, or chemicals, their surface is slowly <strong>eaten away</strong>. This is called <span class="highlight">corrosion</span>. Iron rusting is the most common example.</p>
+    <div class="formula-box">
+      4Fe + 3O₂ + 6H₂O → <span>4Fe(OH)₃</span> (Rust / जंग)
+    </div>
+    <p>Rust = <strong>Hydrated Iron(III) Oxide</strong> = Fe₂O₃·xH₂O</p>
+  </div>
+
+  <div class="card">
+    <h2>👆 Click the Iron Nail to Start Rusting!</h2>
+    <div class="iron-demo">
+      <div class="iron-obj" id="ironObj" style="background:#f0f4ff;border:2px solid #cbd5e1" onclick="startRusting()">
+        <svg viewBox="0 0 60 60" id="nailSvg">
+          <rect x="22" y="8" width="16" height="10" rx="3" fill="#94a3b8"/>
+          <rect x="27" y="18" width="6" height="34" rx="2" fill="#64748b"/>
+          <polygon points="27,52 33,52 30,60" fill="#475569"/>
+        </svg>
+        <span id="nailLabel">Fresh Iron Nail<br>लोहे की कील</span>
+        <div class="rust-layer" id="rustLayer"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;justify-content:center;gap:8px;max-width:180px">
+        <div id="rustStatus" style="font-size:.78rem;background:#f8fafc;border-radius:8px;padding:8px;line-height:1.6">
+          <strong>Status:</strong> Fresh Metal<br>
+          <span style="color:#22c55e">✓ No corrosion</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="rustProgress" style="width:0%;background:linear-gradient(90deg,#22c55e,#f59e0b,#ef4444)"></div></div>
+        <button class="btn btn-red" onclick="startRusting()">⚡ Add Water+O₂</button>
+        <button class="btn" onclick="resetRusting()">🔄 Reset</button>
+      </div>
+    </div>
+    <div class="timeline" id="rustTimeline" style="display:none">
+      <div class="tl-item"><div class="tl-dot" style="background:#3b82f6"></div><h4>Stage 1: Exposure</h4><p>Iron nail exposed to air &amp; moisture</p></div>
+      <div class="tl-item"><div class="tl-dot" style="background:#f59e0b"></div><h4>Stage 2: Oxidation शुरू</h4><p>Fe → Fe²⁺ + 2e⁻ (iron loses electrons)</p></div>
+      <div class="tl-item"><div class="tl-dot" style="background:#ef4444"></div><h4>Stage 3: Rust Forms</h4><p>Fe(OH)₃ deposits on surface = जंग</p></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🧪 Other Examples of Corrosion</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+      <div style="background:#fef3c7;border-radius:10px;padding:10px;font-size:.75rem"><strong>🥉 Copper (तांबा)</strong><br>Cu + CO₂+H₂O → Green layer (Verdigris)<br><span style="color:#059669">Cu₂(OH)₂CO₃</span></div>
+      <div style="background:#dbeafe;border-radius:10px;padding:10px;font-size:.75rem"><strong>🥈 Silver (चांदी)</strong><br>Ag + H₂S → Silver tarnishes<br><span style="color:#1d4ed8">Ag₂S (black)</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 1: PREVENTION -->
+<div class="content" id="tab1">
+  <div class="card">
+    <span class="badge badge-green">बचाव | Prevention of Corrosion</span>
+    <h2>How to Prevent Corrosion?</h2>
+    <p>Click each method to learn more!</p>
+    <div class="method-grid">
+      <div class="method-card" style="background:#eff6ff" onclick="showMethod(0)">
+        <div class="icon">🎨</div>
+        <p>Painting<br><small>रंग/पेंट</small></p>
+      </div>
+      <div class="method-card" style="background:#f0fdf4" onclick="showMethod(1)">
+        <div class="icon">⚡</div>
+        <p>Galvanisation<br><small>जस्तीकरण</small></p>
+      </div>
+      <div class="method-card" style="background:#fefce8" onclick="showMethod(2)">
+        <div class="icon">🔗</div>
+        <p>Alloying<br><small>मिश्रधातु</small></p>
+      </div>
+      <div class="method-card" style="background:#fdf4ff" onclick="showMethod(3)">
+        <div class="icon">🛢️</div>
+        <p>Oiling &amp; Greasing<br><small>तेल/ग्रीस</small></p>
+      </div>
+    </div>
+    <div class="method-detail" id="methodDetail"></div>
+  </div>
+
+  <div class="card">
+    <h2>⚡ Galvanisation (जस्तीकरण) — Step by Step</h2>
+    <p style="font-size:.78rem;margin-bottom:8px">Click to reveal each step:</p>
+    <div id="step0" class="step-box show"><span class="step-num">1</span><strong>Iron object</strong> is cleaned thoroughly to remove dirt &amp; rust.</div>
+    <div id="step1" class="step-box"><span class="step-num">2</span>Iron is dipped in <strong>molten Zinc (Zn)</strong> at ~450°C</div>
+    <div id="step2" class="step-box"><span class="step-num">3</span>Zinc forms a <strong>thin protective layer</strong> on iron surface</div>
+    <div id="step3" class="step-box"><span class="step-num">4</span>Zinc itself oxidizes: <code>2Zn + O₂ → 2ZnO</code>, protecting iron below</div>
+    <div id="step4" class="step-box"><span class="step-num">5</span>Result: <strong>Galvanised Iron</strong> — used in buckets, pipes, roofing!</div>
+    <div style="margin-top:10px">
+      <button class="btn btn-green" onclick="nextStep()">▶ Next Step</button>
+      <button class="btn" onclick="resetSteps()">↺ Reset</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🔗 Alloys — Corrosion Resistant Metals</h2>
+    <div style="font-size:.78rem;line-height:1.7">
+      <div style="display:flex;justify-content:space-between;background:#f0fdf4;border-radius:8px;padding:8px;margin:4px 0">
+        <span>🥄 <strong>Stainless Steel</strong></span>
+        <span style="color:#15803d">Fe + Cr + Ni → No rust!</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;background:#eff6ff;border-radius:8px;padding:8px;margin:4px 0">
+        <span>✈️ <strong>Duralumin</strong></span>
+        <span style="color:#1d4ed8">Al + Cu + Mn</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;background:#fef3c7;border-radius:8px;padding:8px;margin:4px 0">
+        <span>🪙 <strong>Bronze</strong></span>
+        <span style="color:#b45309">Cu + Sn (tin)</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 2: RANCIDITY -->
+<div class="content" id="tab2">
+  <div class="card">
+    <span class="badge badge-amber">विकृतगंधिता | Rancidity</span>
+    <h2>What is Rancidity?</h2>
+    <p>When <strong>fats and oils in food</strong> are oxidised by oxygen, they produce <span class="highlight">unpleasant smell and taste</span>. This is called <strong>rancidity</strong> (विकृतगंधिता).</p>
+    <div class="formula-box">
+      Fats/Oils + O₂ → <span>Rancid Products</span><br>
+      <small style="color:#94a3b8;font-size:.7rem">(Aldehydes, ketones — bad smell)</small>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🕐 Watch Food Go Rancid — Click to Age!</h2>
+    <div class="food-container">
+      <div class="food-item" id="food0" onclick="ageFood(0)">
+        <span class="emoji">🧈</span>
+        <div class="label">Butter</div>
+        <div class="status fresh" id="fs0">Fresh</div>
+      </div>
+      <div class="food-item" id="food1" onclick="ageFood(1)">
+        <span class="emoji">🍟</span>
+        <div class="label">Chips (Wafers)</div>
+        <div class="status fresh" id="fs1">Fresh</div>
+      </div>
+      <div class="food-item" id="food2" onclick="ageFood(2)">
+        <span class="emoji">🫙</span>
+        <div class="label">Ghee (घी)</div>
+        <div class="status fresh" id="fs2">Fresh</div>
+      </div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="foodProgress" style="width:0%"></div></div>
+    <p style="font-size:.72rem;color:#64748b;text-align:center">Click items to expose to air and see oxidation!</p>
+  </div>
+
+  <div class="card">
+    <h2>🛡️ Prevention of Rancidity</h2>
+    <p style="font-size:.78rem;margin-bottom:10px">Foods are protected using these methods:</p>
+    <div class="antioxidant-grid">
+      <div class="anti-card"><div class="ai">🧪</div><p>Antioxidants<br><small>BHA, BHT</small></p></div>
+      <div class="anti-card"><div class="ai">❄️</div><p>Refrigeration<br><small>ठंडा रखना</small></p></div>
+      <div class="anti-card"><div class="ai">🅽</div><p>Nitrogen gas<br><small>N₂ flushing</small></p></div>
+      <div class="anti-card"><div class="ai">🔒</div><p>Airtight packing<br><small>वायुरोधी</small></p></div>
+      <div class="anti-card"><div class="ai">🫙</div><p>Vacuum packing<br><small>निर्वात</small></p></div>
+      <div class="anti-card"><div class="ai">☀️</div><p>Avoid light<br><small>अंधेरा</small></p></div>
+    </div>
+    <div style="background:#fef3c7;border-radius:10px;padding:12px;margin-top:8px;font-size:.78rem;border-left:4px solid #f59e0b">
+      <strong>💡 Did you know?</strong> Chips packets are flushed with <strong>Nitrogen gas</strong> to prevent rancidity. Nitrogen is inert and doesn't react with fats!
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🔀 Corrosion vs Rancidity — Comparison</h2>
+    <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:.72rem">
+        <tr style="background:#1e293b;color:#fff">
+          <th style="padding:8px;border-radius:8px 0 0 0">Feature</th>
+          <th style="padding:8px;color:#60a5fa">Corrosion</th>
+          <th style="padding:8px;border-radius:0 8px 0 0;color:#4ade80">Rancidity</th>
+        </tr>
+        <tr style="background:#f0f4ff"><td style="padding:7px;font-weight:600">Affects</td><td style="padding:7px">Metals</td><td style="padding:7px">Fats &amp; Oils</td></tr>
+        <tr style="background:#fff"><td style="padding:7px;font-weight:600">Agent</td><td style="padding:7px">O₂, H₂O, CO₂</td><td style="padding:7px">O₂, light, moisture</td></tr>
+        <tr style="background:#f0f4ff"><td style="padding:7px;font-weight:600">Result</td><td style="padding:7px">Metal damaged</td><td style="padding:7px">Bad smell/taste</td></tr>
+        <tr style="background:#fff"><td style="padding:7px;font-weight:600">Prevention</td><td style="padding:7px">Painting, galvanisation</td><td style="padding:7px">Antioxidants, N₂</td></tr>
+        <tr style="background:#f0f4ff"><td style="padding:7px;font-weight:600">Type</td><td style="padding:7px">Oxidation</td><td style="padding:7px">Oxidation</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 3: DIAGRAMS -->
+<div class="content" id="tab3">
+  <div class="card">
+    <h2>🔬 Rusting Mechanism Diagram</h2>
+    <div class="diagram-wrap">
+      <svg width="340" height="200" viewBox="0 0 340 200" style="max-width:100%;display:block;margin:0 auto">
+        <!-- Iron block -->
+        <rect x="10" y="100" width="140" height="70" rx="8" fill="#94a3b8" stroke="#64748b" stroke-width="2"/>
+        <text x="80" y="135" text-anchor="middle" font-size="13" fill="#1e293b" font-weight="bold">Fe (Iron)</text>
+        <text x="80" y="153" text-anchor="middle" font-size="10" fill="#475569">लोहा</text>
+        <!-- Rust layer -->
+        <rect x="10" y="80" width="140" height="22" rx="6" fill="#b45309" opacity=".85"/>
+        <text x="80" y="95" text-anchor="middle" font-size="9" fill="#fff" font-weight="bold">Fe₂O₃·xH₂O (Rust/जंग)</text>
+        <!-- Arrows from O2 and H2O -->
+        <circle cx="220" cy="60" r="22" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/>
+        <text x="220" y="55" text-anchor="middle" font-size="10" fill="#1d4ed8" font-weight="bold">O₂</text>
+        <text x="220" y="69" text-anchor="middle" font-size="8" fill="#1d4ed8">Oxygen</text>
+        <circle cx="290" cy="100" r="22" fill="#dcfce7" stroke="#22c55e" stroke-width="2"/>
+        <text x="290" y="95" text-anchor="middle" font-size="10" fill="#15803d" font-weight="bold">H₂O</text>
+        <text x="290" y="109" text-anchor="middle" font-size="8" fill="#15803d">Water</text>
+        <!-- Arrows -->
+        <line x1="200" y1="72" x2="158" y2="85" stroke="#3b82f6" stroke-width="2" marker-end="url(#ar)"/>
+        <line x1="272" y1="100" x2="158" y2="90" stroke="#22c55e" stroke-width="2" marker-end="url(#ar2)"/>
+        <defs>
+          <marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#3b82f6"/>
+          </marker>
+          <marker id="ar2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#22c55e"/>
+          </marker>
+        </defs>
+        <!-- Reaction -->
+        <rect x="10" y="178" width="320" height="18" rx="4" fill="#1e293b"/>
+        <text x="170" y="191" text-anchor="middle" font-size="9" fill="#f59e0b" font-weight="bold">4Fe + 3O₂ + 6H₂O → 4Fe(OH)₃ → Fe₂O₃·xH₂O</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🛡️ Galvanisation Diagram</h2>
+    <div class="diagram-wrap">
+      <svg width="320" height="190" viewBox="0 0 320 190" style="max-width:100%;display:block;margin:0 auto">
+        <!-- Tank -->
+        <rect x="20" y="60" width="280" height="110" rx="10" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+        <!-- Molten Zinc label -->
+        <text x="160" y="145" text-anchor="middle" font-size="11" fill="#b45309" font-weight="bold">Molten Zinc (Zn) ~450°C</text>
+        <!-- Iron rod dipped in -->
+        <rect x="125" y="30" width="70" height="100" rx="6" fill="#94a3b8" stroke="#64748b" stroke-

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Defects of Vision & Correction | Class 10 Science</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#0f172a 100%);min-height:100vh;color:#e2e8f0}
+.title-bar{background:linear-gradient(90deg,#1d4ed8,#3b82f6,#06b6d4);padding:12px 20px;text-align:center;box-shadow:0 4px 20px rgba(59,130,246,0.4)}
+.title-bar h1{font-size:clamp(14px,3vw,20px);font-weight:700;color:#fff;letter-spacing:1px}
+.title-bar p{font-size:clamp(10px,2vw,13px);color:#bfdbfe;margin-top:2px}
+.container{max-width:900px;margin:0 auto;padding:15px}
+.tabs{display:flex;gap:6px;margin:15px 0;flex-wrap:wrap}
+.tab{padding:8px 14px;border-radius:20px;border:2px solid #334155;background:#1e293b;color:#94a3b8;cursor:pointer;font-size:12px;font-weight:600;transition:all 0.3s}
+.tab.active{background:linear-gradient(135deg,#3b82f6,#1d4ed8);border-color:#3b82f6;color:#fff;box-shadow:0 4px 15px rgba(59,130,246,0.4)}
+.tab:hover:not(.active){border-color:#3b82f6;color:#3b82f6}
+.panel{display:none;animation:fadeIn 0.4s ease}
+.panel.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.card{background:linear-gradient(135deg,#1e293b,#0f172a);border:1px solid #334155;border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 4px 20px rgba(0,0,0,0.3)}
+.card h2{font-size:clamp(13px,2.5vw,17px);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.badge-blue{background:rgba(59,130,246,0.2);color:#60a5fa;border:1px solid #3b82f6}
+.badge-green{background:rgba(34,197,94,0.2);color:#4ade80;border:1px solid #22c55e}
+.badge-amber{background:rgba(245,158,11,0.2);color:#fbbf24;border:1px solid #f59e0b}
+.badge-red{background:rgba(239,68,68,0.2);color:#f87171;border:1px solid #ef4444}
+svg text{font-family:'Segoe UI',sans-serif}
+.eye-svg{width:100%;max-width:500px;display:block;margin:0 auto}
+.formula-box{background:linear-gradient(135deg,rgba(59,130,246,0.15),rgba(6,182,212,0.1));border:2px solid #3b82f6;border-radius:12px;padding:12px 16px;text-align:center;margin:10px 0}
+.formula-box .formula{font-size:clamp(14px,3vw,20px);font-weight:700;color:#60a5fa;letter-spacing:2px}
+.formula-box .label{font-size:11px;color:#94a3b8;margin-top:4px}
+.slider-wrap{margin:12px 0}
+.slider-wrap label{font-size:12px;color:#94a3b8;display:block;margin-bottom:6px}
+input[type=range]{width:100%;accent-color:#3b82f6;cursor:pointer}
+.info-row{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+.info-box{flex:1;min-width:120px;background:#0f172a;border-radius:10px;padding:10px;border:1px solid #334155;text-align:center}
+.info-box .val{font-size:18px;font-weight:700;color:#60a5fa}
+.info-box .lbl{font-size:10px;color:#64748b;margin-top:2px}
+.step-btn{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border:none;padding:9px 20px;border-radius:20px;cursor:pointer;font-size:13px;font-weight:600;transition:all 0.3s;margin-top:8px}
+.step-btn:hover{transform:scale(1.05);box-shadow:0 4px 15px rgba(59,130,246,0.5)}
+.step-item{background:#0f172a;border-left:3px solid #3b82f6;border-radius:0 8px 8px 0;padding:10px 12px;margin:8px 0;font-size:12px;line-height:1.6;animation:slideIn 0.4s ease}
+@keyframes slideIn{from{opacity:0;transform:translateX(-15px)}to{opacity:1;transform:translateX(0)}}
+.step-item .step-num{font-weight:700;color:#60a5fa;font-size:11px;margin-bottom:4px}
+.step-item .step-text{color:#cbd5e1}
+.highlight{color:#fbbf24;font-weight:700}
+.hindi{color:#a78bfa;font-style:italic;font-size:11px}
+.comparison-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:10px 0}
+.defect-card{border-radius:12px;padding:14px;border:2px solid;cursor:pointer;transition:all 0.3s;position:relative;overflow:hidden}
+.defect-card:hover{transform:translateY(-3px);box-shadow:0 8px 25px rgba(0,0,0,0.4)}
+.defect-card.myopia{border-color:#ef4444;background:linear-gradient(135deg,rgba(239,68,68,0.1),rgba(239,68,68,0.05))}
+.defect-card.hypermetropia{border-color:#f59e0b;background:linear-gradient(135deg,rgba(245,158,11,0.1),rgba(245,158,11,0.05))}
+.defect-card.presbyopia{border-color:#22c55e;background:linear-gradient(135deg,rgba(34,197,94,0.1),rgba(34,197,94,0.05))}
+.defect-card h3{font-size:13px;margin-bottom:6px}
+.defect-card p{font-size:11px;color:#94a3b8;line-height:1.5}
+.selected-info{background:#0f172a;border-radius:12px;padding:14px;margin-top:10px;border:1px solid #334155;min-height:80px;transition:all 0.3s}
+.toggle-group{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.toggle-btn{padding:7px 14px;border-radius:8px;border:2px solid #334155;background:#1e293b;color:#94a3b8;cursor:pointer;font-size:12px;transition:all 0.3s}
+.toggle-btn.on{background:#22c55e;border-color:#22c55e;color:#fff}
+.quiz-opt{display:block;width:100%;text-align:left;padding:10px 14px;border-radius:8px;border:2px solid #334155;background:#0f172a;color:#cbd5e1;cursor:pointer;font-size:12px;margin:6px 0;transition:all 0.3s}
+.quiz-opt:hover{border-color:#3b82f6}
+.quiz-opt.correct{border-color:#22c55e;background:rgba(34,197,94,0.15);color:#4ade80}
+.quiz-opt.wrong{border-color:#ef4444;background:rgba(239,68,68,0.15);color:#f87171}
+.progress-bar{width:100%;height:6px;background:#334155;border-radius:3px;margin:8px 0;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#3b82f6,#22c55e);border-radius:3px;transition:width 0.5s ease}
+.lens-type{display:inline-block;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700}
+.concave-lens{background:rgba(239,68,68,0.2);color:#f87171;border:1px solid #ef4444}
+.convex-lens{background:rgba(245,158,11,0.2);color:#fbbf24;border:1px solid #f59e0b}
+</style>
+</head>
+<body>
+<div class="title-bar">
+<h1>👁️ Defects of Vision and Correction</h1>
+<p>CBSE Class 10 Science | The Human Eye and the Colourful World <span class="hindi">| दृष्टि दोष और सुधार</span></p>
+</div>
+<div class="container">
+<div class="tabs">
+<div class="tab active" onclick="showPanel('overview')">📋 Overview</div>
+<div class="tab" onclick="showPanel('myopia')">🔴 Myopia</div>
+<div class="tab" onclick="showPanel('hypermetropia')">🟡 Hypermetropia</div>
+<div class="tab" onclick="showPanel('presbyopia')">🟢 Presbyopia</div>
+<div class="tab" onclick="showPanel('example')">🧮 Worked Example</div>
+<div class="tab" onclick="showPanel('quiz')">❓ Quiz</div>
+</div>
+
+<!-- OVERVIEW PANEL -->
+<div class="panel active" id="panel-overview">
+<div class="card">
+<h2>👁️ Normal Eye <span class="badge badge-blue">Emmetropia</span></h2>
+<p style="font-size:12px;color:#94a3b8;margin-bottom:10px">In a normal eye, light rays from a distant object converge exactly on the <span class="highlight">retina</span>. The near point is <span class="highlight">25 cm</span> and far point is <span class="highlight">infinity (∞)</span>.</p>
+<svg class="eye-svg" viewBox="0 0 480 130" style="max-width:480px">
+<defs>
+<radialGradient id="eyeGrad" cx="50%" cy="50%" r="50%">
+<stop offset="0%" style="stop-color:#1e40af;stop-opacity:0.3"/>
+<stop offset="100%" style="stop-color:#0f172a;stop-opacity:0"/>
+</radialGradient>
+</defs>
+<ellipse cx="200" cy="65" rx="90" ry="60" fill="#0f172a" stroke="#3b82f6" stroke-width="2"/>
+<ellipse cx="200" cy="65" rx="35" ry="35" fill="#1e3a8a" stroke="#60a5fa" stroke-width="1.5"/>
+<ellipse cx="200" cy="65" rx="14" ry="14" fill="#0f172a" stroke="#1d4ed8" stroke-width="1"/>
+<ellipse cx="283" cy="65" rx="8" ry="45" fill="#dc2626" stroke="#ef4444" stroke-width="1.5"/>
+<text x="283" y="120" text-anchor="middle" fill="#f87171" font-size="9">Retina</text>
+<line x1="20" y1="45" x2="115" y2="65" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="4,2"/>
+<line x1="20" y1="85" x2="115" y2="65" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="4,2"/>
+<line x1="115" y1="65" x2="283" y2="65" stroke="#22c55e" stroke-width="2"/>
+<circle cx="283" cy="65" r="4" fill="#22c55e"/>
+<text x="12" y="45" fill="#fbbf24" font-size="9">Light</text>
+<text x="12" y="90" fill="#fbbf24" font-size="9">Rays</text>
+<text x="140" y="50" fill="#94a3b8" font-size="9">Lens</text>
+<text x="65" y="28" fill="#22c55e" font-size="9">✓ Focus on Retina</text>
+<text x="200" y="20" text-anchor="middle" fill="#60a5fa" font-size="10" font-weight="700">NORMAL EYE</text>
+<text x="380" y="50" fill="#94a3b8" font-size="9">Near Point: 25 cm</text>
+<text x="380" y="65" fill="#94a3b8" font-size="9">Far Point: ∞</text>
+<text x="380" y="80" fill="#94a3b8" font-size="9">Lens: Normal</text>
+</svg>
+</div>
+<div class="card">
+<h2>📊 Quick Comparison <span class="hindi">| तुलना</span></h2>
+<p style="font-size:11px;color:#64748b;margin-bottom:10px">👆 Click on a defect card to learn more</p>
+<div class="comparison-grid">
+<div class="defect-card myopia" onclick="selectDefect('myopia')">
+<h3>🔴 Myopia <span class="hindi">(निकट दृष्टि दोष)</span></h3>
+<p>Cannot see <strong style="color:#f87171">distant</strong> objects clearly. Image forms <strong style="color:#f87171">in front of</strong> retina.</p>
+<p style="margin-top:6px"><span class="lens-type concave-lens">Concave Lens</span></p>
+</div>
+<div class="defect-card hypermetropia" onclick="selectDefect('hypermetropia')">
+<h3>🟡 Hypermetropia <span class="hindi">(दूर दृष्टि दोष)</span></h3>
+<p>Cannot see <strong style="color:#fbbf24">near</strong> objects clearly. Image forms <strong style="color:#fbbf24">behind</strong> retina.</p>
+<p style="margin-top:6px"><span class="lens-type convex-lens">Convex Lens</span></p>
+</div>
+<div class="defect-card presbyopia" onclick="selectDefect('presbyopia')">
+<h3>🟢 Presbyopia <span class="hindi">(जरा दूरदर्शिता)</span></h3>
+<p>Age-related. Cannot see <strong style="color:#4ade80">both near & far</strong> clearly. Ciliary muscles weaken.</p>
+<p style="margin-top:6px"><span class="lens-type" style="background:rgba(34,197,94,0.2);color:#4ade80;border:1px solid #22c55e">Bifocal Lens</span></p>
+</div>
+</div>
+<div class="selected-info" id="selected-info">
+<p style="color:#64748b;font-size:12px;text-align:center;padding-top:20px">← Click a defect card above to see details</p>
+</div>
+</div>
+<div class="formula-box">
+<div class="formula">P = 1/f &nbsp; | &nbsp; P = 1/v − 1/u</div>
+<div class="label">Power of Lens (P) in Dioptres (D) | Focal length (f) in metres | <span class="hindi">लेंस की क्षमता</span></div>
+</div>
+</div>
+
+<!-- MYOPIA PANEL -->
+<div class="panel" id="panel-myopia">
+<div class="card">
+<h2>🔴 Myopia <span class="hindi">(निकट दृष्टि दोष)</span> <span class="badge badge-red">Short-Sightedness</span></h2>
+<p style="font-size:12px;color:#94a3b8;margin-bottom:12px">A person with myopia can see <span class="highlight">near objects</span> clearly but <span class="highlight" style="color:#f87171">distant objects appear blurry</span>. The far point shifts closer.</p>
+<svg class="eye-svg" viewBox="0 0 480 140" id="myopia-svg">
+<ellipse cx="200" cy="70" rx="95" ry="62" fill="#0f172a" stroke="#ef4444" stroke-width="2"/>
+<ellipse cx="200" cy="70" rx="38" ry="38" fill="#1e1a2e" stroke="#f87171" stroke-width="1.5"/>
+<ellipse cx="200" cy="70" rx="15" ry="15" fill="#0f172a"/>
+<ellipse cx="288" cy="70" rx="8" ry="47" fill="#dc2626" stroke="#ef4444" stroke-width="1.5"/>
+<text x="288" y="128" text-anchor="middle" fill="#f87171" font-size="9">Retina</text>
+<line x1="20" y1="50" x2="118" y2="70" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="4,2"/>
+<line x1="20" y1="90" x2="118" y2="70" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="4,2"/>
+<line x1="118" y1="70" x2="248" y2="70" stroke="#ef4444" stroke-width="2"/>
+<circle cx="248" cy="70" r="5" fill="#ef4444"/>
+<line x1="248" y1="70" x2="288" y2="80" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3,2" opacity="0.6"/>
+<line x1="248" y1="70" x2="288" y2="60" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3,2" opacity="0.6"/>
+<text x="240" y="58" fill="#f87171" font-size="9">Focus here</text>
+<text x="60" y="28" fill="#ef4444" font-size="10" font-weight="700">⚠ Image in front of Retina</text>
+<text x="200" y="20" text-anchor="middle" fill="#f87171" font-size="10" font-weight="700">MYOPIC EYE (Elongated Eyeball)</text>
+<path d="M 118 50 Q 128 70 118 90" fill="none" stroke="#a78bfa" stroke-width="2"/>
+<text x="340" y="50" fill="#94a3b8" font-size="9">Far Point: &lt; ∞</text>
+<text x="340" y="65" fill="#94a3b8" font-size="9">Near Point: 25 cm</text>
+<text x="340" y="80" fill="#f87171" font-size="9">Eyeball: Elongated</text>
+<text x="340" y="95" fill="#f87171" font-size="9">Lens Power: Too High</text>
+</svg>
+<div style="background:rgba(239,68,68,0.1);border:1px solid #ef4444;border-radius:10px;padding:12px;margin:10px 0">
+<p style="font-size:12px;font-weight:700;color:#f87171;margin-bottom:6px">📌 Causes <span class="hindi">(कारण)</span></p>
+<p style="font-size:11px;color:#94a3b8;line-height:1.6">• Elongation of eyeball (most common)<br>• Excessive curvature of eye lens<br>• Loss of flexibility of lens</p>
+</div>
+<div class="formula-box">
+<div class="formula" style="color:#f87171">P = −ve (Concave Lens)</div>
+<div class="label">Correction: Concave lens of suitable focal length | <span class="hindi">अवतल लेंस</span><br>Power is NEGATIVE for concave lens</div>
+</div>
+</div>
+<div class="card">
+<h2>🎛️ Interactive Simulator</h2>
+<p style="font-size:11px;color:#64748b;margin-bottom:8px">Adjust the far point to see required lens power</p>
+<div class="slider-wrap">
+<label>Far Point of Myopic Person: <span id="fp-val" style="color:#60a5fa;font-weight:700">2.0 m</span></label>
+<input type="range" min="5" max="50" value="20" id="fp-slider" oninput="calcMyopia()">
+</div>
+<div class="info-row" id="myopia-result">
+<div class="info-box"><div class="val" id="m-fp">2.0 m</div><div class="lbl">Far Point (d)</div></div>
+<div class="info-box"><div class="val" id="m-f">-2.0 m</div><div class="lbl">Focal Length (f)</div></div>
+<div class="info-box"><div class="val" id="m-p">-0.50 D</div><div class="lbl">Power (D)</div></div>
+</div>
+<div style="background:#0f172a;border-radius:8px;padding:10px;margin-top:8px;font-size:12px;color:#94a3b8">
+💡 <strong style="color:#f87171">Key Rule:</strong> For myopia, f = −(far point distance)<br>∴ P = −1/(far point in metres) Dioptres
+</div>
+</div>
+</div>
+
+<!-- HYPERMETROPIA PANEL -->
+<div class="panel" id="panel-hypermetropia">
+<div class="card">
+<h2>🟡 Hypermetropia <span class="hindi">(दूर दृष्टि दोष)</span> <span class="badge badge-amber">Long-Sightedness</span></h2>
+<p style="font-size:12px;color:#94a3b8;margin-bottom:12px">A person with hypermetropia can see <span class="highlight">distant objects</span> clearly but <span class="highlight" style="color:#fbbf24">near objects appear blurry</span>. Near point shifts away from 25 cm.</p>
+<svg class="eye-svg" viewBox="0 0 480 140">
+<ellipse cx="200" cy="70" rx="82" ry="55" fill="#0f172a" stroke="#f59e0b" stroke-width="2"/>
+<ellipse cx="200" cy="70" rx="30" ry="30" fill="#1e1a2e" stroke="#fbbf24" stroke-width="1.5"/>
+<ellipse cx="200" cy="70" rx="12" ry="12" fill="#0f172a"/>
+<ellipse cx="278" cy="70" rx="7" ry="42" fill="#b45309" stroke="#f59e0b" stroke-width="1.5"/>
+<text x="278" y="125" text-anchor="middle" fill="#fbbf24" font-size="9">Retina</text>
+<line x1="20" y1="50" x2="110" y2="70" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="4,2"/>
+<line x1="20" y1="90" x2="110" y2="70" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="4,2"/>
+<line x1="110" y1="70" x2="278" y2="70" stroke="#f59e0b" stroke-width="2" stroke-dasharray="4,2"/>
+<line x1="278" y1="70" x2="320" y2="70" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="3,2" opacity="0.6"/>
+<circle cx="320" cy="70" r="5" fill="#f59e0b"/>
+<text x="308" y="60" fill="#fbbf24" font-size="9">Focus behind</text>
+<text x="60" y="28" fill="#f59e0b" font-size="10" font-weight="700">⚠ Image behind Retina</text>
+<text x="200" y="18" text-anchor="middle" fill="#fbbf24" font-size="10" font-weight="700">HYPERMETROPIC EYE (Shortened Eyeball)</text>
+<text x="340" y="50" fill="#94a3b8" font-size="9">Far Point: ∞ (normal)</text>
+<text x="340" y="65" fill="#94a3b8" font-size="9">Near Point: &gt; 25 cm</text>
+<text x="340" y="80" fill="#fbbf24" font-size="9">Eyeball: Shortened</text>
+<text x="340" y="95" fill="#fbbf24" font-size="9">Lens Power: Too Low</text>
+</svg>
+<div style="background:rgba(245,158,11,0.1);border:1px solid #f59e0b;border-radius:10px;padding:12px;margin:10px 0">
+<p style="font-size:12px;font-weight:700;color:#fbbf24;margin-bottom:6px">📌 Causes <span class="hindi">(कारण)</span></p>
+<p style="font-size:11px;color:#94a3b8;line-height:1.6">• Shortening of eyeball<br>• Decreased curvature of eye lens<br>• Focal length of lens becomes too long</p>
+</div>
+<div class="formula-box" style="border-color:#f59e0b">
+<div class="formula" style="color:#fbbf24">P = +ve (Convex Lens)</div>
+<div class="label">Correction: Convex lens of suitable focal length | <span class="hindi">उत्तल लेंस</span><br>Power is POSITIVE for convex lens</div>
+</div>
+</div>
+<div class="card">
+<h2>🎛️ Interactive Simulator</h2>
+<div class="slider-wrap">
+<label>Near Point of Hypermetropic Person: <span id="np-val" style="color:#fbbf24;font-weight:700">50 cm</span></label>
+<input type="range" min="30" max="200" value="50" id="np-slider" oninput="calcHyper()">
+</div>
+<div class="info-row">
+<div class="info-box"><div class="val" id="h-np">50 cm</div><div class="lbl">Near Point (d')</div></div>
+<div class="info-box"><div class="val" id="h-v">-50 cm</div><div class="lbl">Image distance (v)</div></div>
+<div class="info-box"><div class="val" id="h-f">+33.3 cm</div><div class="lbl">Focal Length</div></div>
+<div class="info-box"><div class="val" id="h-p">+3.0 D</div><div class="lbl">Power (D)</div></div>
+</div>
+<div style="background:#0f172a;border-radius:8px;padding:10px;margin-top:8px;font-size:12px;color:#94a3b8">
+💡 <strong style="color:#fbbf24">Formula:</strong> u = −25 cm, v = −(near point)<br>1/f = 1/v − 1/u &nbsp;→&nbsp; P = 1/f (in metres)
+</div>
+</div>
+</div>
+
+<!-- PRESBYOPIA PANEL -->
+<div class="panel" id="panel-presbyopia">
+<div class="card">
+<h2>🟢 Presbyopia <span class="hindi">(जरा दूरदर्शिता)</span> <span class="badge badge-green">Age-Related</span></h2>
+<p style="font-size:12px;color:#94a3b8;margin-bottom:12px">A natural age-related change in vision. Usually appears after age <span class="highlight">40-45 years</span>. The <span class="highlight" style="color:#4ade80">ciliary muscles weaken</span> and the <span class="highlight">elasticity of eye lens decreases</span>.</p>
+<div class="toggle-group">
+<div style="font-size:12px;color:#94a3b8;align-self:center">Age Group:</div>
+<button class="toggle-btn on" onclick="showAge('young',this)">Young (20s)</button>
+<button class="toggle-btn" onclick="showAge('middle',this)">Middle (40s)</button>
+<button class="toggle-btn" onclick="showAge('old',this)">Elderly (60s+)</button>
+</div>
+<div id="age-display" style="transition:all 0.3s">
+<svg viewBox="0 0 400 100" style="width:100%;max-width:400px;display:block;margin:10px auto">
+<rect x="10" y="20" width="380" height="60" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+<text x="200" y="15" text-anchor="middle" fill="#22c55e" font-size="10" font-weight="700" id="age-title">YOUNG EYE - Good Accommodation</text>
+<ellipse cx="150" cy="50" rx="35" ry="35" fill="#1e3a8a" stroke="#22c55e" stroke-width="2" id="age-iris"/>
+<ellipse cx="150" cy="50" rx="14" ry="14" fill="#0f172a" id="age-pupil"/>
+<text x="150" y="82" text-anchor="middle" fill="#22c55e" font-size="9" id="age-lbl">Lens

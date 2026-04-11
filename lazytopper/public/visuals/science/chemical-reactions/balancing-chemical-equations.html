@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Balancing Chemical Equations - CBSE Class 10</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#0f172a 100%);min-height:100vh;color:#e2e8f0}
+.title-bar{background:linear-gradient(90deg,#1d4ed8,#3b82f6,#06b6d4);padding:12px 20px;text-align:center;box-shadow:0 4px 20px rgba(59,130,246,0.4)}
+.title-bar h1{font-size:1.2rem;font-weight:700;color:#fff;letter-spacing:1px}
+.title-bar p{font-size:0.75rem;color:#bfdbfe;margin-top:2px}
+.container{max-width:700px;margin:0 auto;padding:16px}
+.card{background:rgba(30,41,59,0.8);border:1px solid rgba(59,130,246,0.3);border-radius:16px;padding:16px;margin-bottom:16px;backdrop-filter:blur(10px);box-shadow:0 8px 32px rgba(0,0,0,0.3)}
+.card h2{color:#3b82f6;font-size:1rem;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.concept-box{background:linear-gradient(135deg,rgba(59,130,246,0.15),rgba(6,182,212,0.15));border:2px solid #3b82f6;border-radius:12px;padding:14px;text-align:center;margin-bottom:16px}
+.concept-box .law{font-size:1.1rem;font-weight:700;color:#60a5fa;margin-bottom:6px}
+.concept-box p{font-size:0.8rem;color:#94a3b8;line-height:1.5}
+.eq-display{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px;padding:12px;background:rgba(15,23,42,0.6);border-radius:10px;margin:10px 0;min-height:60px}
+.molecule{display:flex;flex-direction:column;align-items:center;gap:4px}
+.mol-box{background:linear-gradient(135deg,#1e40af,#3b82f6);border-radius:10px;padding:8px 14px;font-size:1rem;font-weight:700;color:#fff;cursor:pointer;transition:all 0.3s;border:2px solid transparent;position:relative;min-width:50px;text-align:center}
+.mol-box:hover{transform:translateY(-3px);box-shadow:0 6px 20px rgba(59,130,246,0.5);border-color:#60a5fa}
+.mol-box.product{background:linear-gradient(135deg,#065f46,#22c55e)}
+.mol-box.product:hover{box-shadow:0 6px 20px rgba(34,197,94,0.5);border-color:#4ade80}
+.mol-label{font-size:0.65rem;color:#94a3b8;text-align:center}
+.coeff-badge{position:absolute;top:-8px;left:-8px;background:#f59e0b;color:#000;border-radius:50%;width:20px;height:20px;font-size:0.7rem;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid #fff}
+.arrow-sym{font-size:1.5rem;color:#f59e0b}
+.plus-sym{font-size:1.2rem;color:#94a3b8;font-weight:700}
+.atom-count{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+.atom-row{display:flex;justify-content:space-between;align-items:center;background:rgba(15,23,42,0.5);border-radius:8px;padding:6px 10px;font-size:0.8rem}
+.atom-name{color:#94a3b8;font-weight:600}
+.count-pair{display:flex;gap:12px}
+.cnt{padding:2px 10px;border-radius:6px;font-weight:700;font-size:0.85rem}
+.cnt.react{background:rgba(59,130,246,0.25);color:#60a5fa;border:1px solid #3b82f6}
+.cnt.prod{background:rgba(34,197,94,0.25);color:#4ade80;border:1px solid #22c55e}
+.cnt.match{background:rgba(34,197,94,0.3);color:#4ade80}
+.cnt.nomatch{background:rgba(239,68,68,0.3);color:#f87171}
+.balanced-indicator{text-align:center;padding:8px;border-radius:8px;font-weight:700;font-size:0.85rem;margin-top:8px;transition:all 0.3s}
+.balanced-indicator.yes{background:rgba(34,197,94,0.2);color:#4ade80;border:1px solid #22c55e}
+.balanced-indicator.no{background:rgba(239,68,68,0.2);color:#f87171;border:1px solid #ef4444}
+.steps-container .step{background:rgba(15,23,42,0.6);border-left:3px solid #3b82f6;border-radius:0 8px 8px 0;padding:10px 14px;margin:8px 0;opacity:0;transform:translateX(-20px);transition:all 0.4s;display:none}
+.steps-container .step.visible{opacity:1;transform:translateX(0);display:block}
+.step-num{color:#f59e0b;font-weight:700;font-size:0.75rem;margin-bottom:4px}
+.step-text{color:#cbd5e1;font-size:0.8rem;line-height:1.5}
+.step-eq{background:rgba(30,41,59,0.8);border-radius:6px;padding:8px;margin-top:6px;text-align:center;font-size:0.85rem;color:#60a5fa;font-weight:600}
+.btn{background:linear-gradient(135deg,#1d4ed8,#3b82f6);color:#fff;border:none;padding:8px 18px;border-radius:8px;cursor:pointer;font-size:0.8rem;font-weight:600;transition:all 0.3s;margin:4px}
+.btn:hover{transform:translateY(-2px);box-shadow:0 4px 15px rgba(59,130,246,0.4)}
+.btn.green{background:linear-gradient(135deg,#065f46,#22c55e)}
+.btn.amber{background:linear-gradient(135deg,#92400e,#f59e0b);color:#000}
+.btn-row{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:10px 0}
+.sandbox{background:rgba(15,23,42,0.8);border-radius:12px;padding:14px}
+.sandbox-eq{font-size:1.1rem;color:#60a5fa;text-align:center;margin-bottom:10px;font-family:monospace;letter-spacing:1px}
+.coeff-controls{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:10px 0}
+.ctrl-group{background:rgba(30,41,59,0.6);border-radius:8px;padding:8px;text-align:center}
+.ctrl-label{font-size:0.7rem;color:#94a3b8;margin-bottom:6px}
+.ctrl-mol{font-size:0.85rem;font-weight:700;color:#60a5fa;margin-bottom:6px}
+.ctrl-btns{display:flex;align-items:center;justify-content:center;gap:8px}
+.ctrl-btn{background:rgba(59,130,246,0.3);border:1px solid #3b82f6;color:#60a5fa;width:26px;height:26px;border-radius:6px;cursor:pointer;font-size:1rem;font-weight:700;transition:all 0.2s}
+.ctrl-btn:hover{background:#3b82f6;color:#fff}
+.ctrl-val{font-size:1.1rem;font-weight:700;color:#fff;min-width:24px;text-align:center}
+.hint-box{background:rgba(245,158,11,0.1);border:1px solid #f59e0b;border-radius:8px;padding:10px;font-size:0.75rem;color:#fbbf24;margin-top:8px}
+.legend{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin:8px 0}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:0.72rem;color:#94a3b8}
+.leg-dot{width:10px;height:10px;border-radius:3px}
+.progress-bar{height:6px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden;margin:8px 0}
+.progress-fill{height:100%;background:linear-gradient(90deg,#3b82f6,#22c55e);border-radius:3px;transition:width 0.5s}
+.quiz-section .opt{background:rgba(30,41,59,0.6);border:1px solid rgba(59,130,246,0.3);border-radius:8px;padding:8px 12px;margin:5px 0;cursor:pointer;font-size:0.8rem;color:#cbd5e1;transition:all 0.3s}
+.quiz-section .opt:hover{border-color:#3b82f6;background:rgba(59,130,246,0.1)}
+.quiz-section .opt.correct{border-color:#22c55e;background:rgba(34,197,94,0.15);color:#4ade80}
+.quiz-section .opt.wrong{border-color:#ef4444;background:rgba(239,68,68,0.15);color:#f87171}
+.badge{display:inline-block;background:rgba(245,158,11,0.2);border:1px solid #f59e0b;color:#fbbf24;border-radius:20px;padding:2px 10px;font-size:0.7rem;font-weight:700}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.6}}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.pulse{animation:pulse 2s infinite}
+.bounce{animation:bounce 1s ease-in-out}
+svg text{font-family:'Segoe UI',sans-serif}
+</style>
+</head>
+<body>
+<div class="title-bar">
+<h1>⚗️ Balancing Chemical Equations</h1>
+<p>CBSE Class 10 Science | रासायनिक समीकरण संतुलन | Interactive Visual Explainer</p>
+</div>
+<div class="container">
+
+<!-- Concept Box -->
+<div class="concept-box">
+<div class="law">⚖️ Law of Conservation of Mass (द्रव्यमान संरक्षण का नियम)</div>
+<p>In a chemical reaction, <strong style="color:#60a5fa">mass is neither created nor destroyed</strong>.<br>
+∴ Atoms on <span style="color:#60a5fa">Reactant side</span> = Atoms on <span style="color:#4ade80">Product side</span></p>
+</div>
+
+<!-- Why Balance? -->
+<div class="card">
+<h2>🔬 Why Balance Equations?</h2>
+<svg width="100%" height="100" viewBox="0 0 500 100" style="display:block">
+<defs>
+<linearGradient id="bg1" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#1d4ed8"/><stop offset="100%" stop-color="#3b82f6"/></linearGradient>
+<linearGradient id="bg2" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#065f46"/><stop offset="100%" stop-color="#22c55e"/></linearGradient>
+</defs>
+<rect x="5" y="20" width="140" height="60" rx="10" fill="url(#bg1)" opacity="0.8"/>
+<text x="75" y="45" text-anchor="middle" fill="white" font-size="12" font-weight="bold">Reactants</text>
+<text x="75" y="63" text-anchor="middle" fill="#bfdbfe" font-size="11">H₂ + O₂</text>
+<text x="75" y="77" text-anchor="middle" fill="#fbbf24" font-size="9">अभिकारक</text>
+<text x="185" y="55" text-anchor="middle" fill="#f59e0b" font-size="28" font-weight="bold">→</text>
+<rect x="220" y="20" width="140" height="60" rx="10" fill="url(#bg2)" opacity="0.8"/>
+<text x="290" y="45" text-anchor="middle" fill="white" font-size="12" font-weight="bold">Products</text>
+<text x="290" y="63" text-anchor="middle" fill="#bbf7d0" font-size="11">H₂O</text>
+<text x="290" y="77" text-anchor="middle" fill="#fbbf24" font-size="9">उत्पाद</text>
+<rect x="380" y="15" width="115" height="70" rx="8" fill="rgba(239,68,68,0.15)" stroke="#ef4444" stroke-width="1.5"/>
+<text x="437" y="38" text-anchor="middle" fill="#f87171" font-size="10" font-weight="bold">⚠️ Unbalanced!</text>
+<text x="437" y="54" text-anchor="middle" fill="#fca5a5" font-size="9">H: 2=2 ✓</text>
+<text x="437" y="68" text-anchor="middle" fill="#fca5a5" font-size="9">O: 2≠1 ✗</text>
+</svg>
+<p style="font-size:0.78rem;color:#94a3b8;text-align:center">Unbalanced equations violate the law of conservation of mass!</p>
+</div>
+
+<!-- Interactive: Unbalanced → Balanced Demo -->
+<div class="card">
+<h2>⚡ Interactive: Balance H₂ + O₂ → H₂O</h2>
+<div class="legend">
+<div class="leg-item"><div class="leg-dot" style="background:#3b82f6"></div>Reactant (अभिकारक)</div>
+<div class="leg-item"><div class="leg-dot" style="background:#22c55e"></div>Product (उत्पाद)</div>
+<div class="leg-item"><div class="leg-dot" style="background:#f59e0b"></div>Coefficient (गुणांक)</div>
+</div>
+<div class="sandbox">
+<div class="sandbox-eq" id="eq-display">? H₂ + ? O₂ → ? H₂O</div>
+<div class="coeff-controls">
+<div class="ctrl-group">
+<div class="ctrl-label">Reactant 1</div>
+<div class="ctrl-mol">H₂</div>
+<div class="ctrl-btns">
+<button class="ctrl-btn" onclick="changeCoeff(0,-1)">−</button>
+<div class="ctrl-val" id="c0">2</div>
+<button class="ctrl-btn" onclick="changeCoeff(0,1)">+</button>
+</div>
+</div>
+<div class="ctrl-group">
+<div class="ctrl-label">Reactant 2</div>
+<div class="ctrl-mol">O₂</div>
+<div class="ctrl-btns">
+<button class="ctrl-btn" onclick="changeCoeff(1,-1)">−</button>
+<div class="ctrl-val" id="c1">1</div>
+<button class="ctrl-btn" onclick="changeCoeff(1,1)">+</button>
+</div>
+</div>
+<div class="ctrl-group">
+<div class="ctrl-label">Product</div>
+<div class="ctrl-mol">H₂O</div>
+<div class="ctrl-btns">
+<button class="ctrl-btn" onclick="changeCoeff(2,-1)">−</button>
+<div class="ctrl-val" id="c2">2</div>
+<button class="ctrl-btn" onclick="changeCoeff(2,1)">+</button>
+</div>
+</div>
+<div class="ctrl-group" style="background:rgba(15,23,42,0.8)">
+<div class="ctrl-label">Atom Count</div>
+<div style="margin-top:4px">
+<div style="display:flex;justify-content:space-between;font-size:0.72rem;margin:3px 0">
+<span style="color:#94a3b8">H atoms:</span>
+<span><span class="cnt react" id="hR">4</span> vs <span class="cnt prod" id="hP">4</span></span>
+</div>
+<div style="display:flex;justify-content:space-between;font-size:0.72rem;margin:3px 0">
+<span style="color:#94a3b8">O atoms:</span>
+<span><span class="cnt react" id="oR">2</span> vs <span class="cnt prod" id="oP">2</span></span>
+</div>
+</div>
+</div>
+</div>
+<div class="balanced-indicator" id="balance-ind">Checking balance...</div>
+</div>
+<div class="hint-box">💡 <strong>Hint:</strong> Try coefficients 2, 1, 2 → That's the balanced equation! Only change coefficients, never subscripts.</div>
+</div>
+
+<!-- Step by Step Walkthrough -->
+<div class="card">
+<h2>📚 Step-by-Step: Fe + H₂O → Fe₃O₄ + H₂</h2>
+<p style="font-size:0.78rem;color:#94a3b8;margin-bottom:10px">Click each step to reveal the solution (CBSE 2023 type question)</p>
+<div class="progress-bar"><div class="progress-fill" id="progress" style="width:0%"></div></div>
+<div class="steps-container" id="steps-box"></div>
+<div class="btn-row">
+<button class="btn" onclick="revealStep()">▶ Next Step</button>
+<button class="btn amber" onclick="resetSteps()">↺ Reset</button>
+</div>
+</div>
+
+<!-- Visual Atom Counter -->
+<div class="card">
+<h2>🔵 Visual Atom Counter — Mg + O₂ → MgO</h2>
+<p style="font-size:0.78rem;color:#94a3b8;margin-bottom:8px">Click molecules to toggle coefficients and see atoms balance visually</p>
+<div class="eq-display" id="mg-eq">
+<div class="molecule">
+<div class="mol-box" id="mg-box" onclick="cycleMg()" title="Click to change coefficient">
+<div class="coeff-badge" id="mg-coeff">2</div>Mg
+</div>
+<div class="mol-label">Magnesium</div>
+</div>
+<span class="plus-sym">+</span>
+<div class="molecule">
+<div class="mol-box" id="o2-box" onclick="cycleO2()" title="Click to change coefficient">
+<div class="coeff-badge" id="o2-coeff">1</div>O₂
+</div>
+<div class="mol-label">Oxygen</div>
+</div>
+<span class="arrow-sym">→</span>
+<div class="molecule">
+<div class="mol-box product" id="mgo-box" onclick="cycleMgO()" title="Click to change coefficient">
+<div class="coeff-badge" id="mgo-coeff">2</div>MgO
+</div>
+<div class="mol-label">Magnesium Oxide</div>
+</div>
+</div>
+<div id="mg-atoms"></div>
+<div class="balanced-indicator" id="mg-balance">Checking...</div>
+<div style="margin-top:8px">
+<svg id="atom-svg" width="100%" height="80" viewBox="0 0 400 80"></svg>
+</div>
+</div>
+
+<!-- Quiz -->
+<div class="card quiz-section">
+<h2>🎯 Quick Quiz — Test Yourself!</h2>
+<div id="quiz-container"></div>
+</div>
+
+<!-- Key Rules -->
+<div class="card">
+<h2>📌 Golden Rules for Balancing (याद करें!)</h2>
+<div style="display:grid;gap:8px">
+<div style="background:rgba(59,130,246,0.1);border-left:3px solid #3b82f6;border-radius:0 8px 8px 0;padding:8px 12px;font-size:0.78rem;color:#cbd5e1">
+<strong style="color:#60a5fa">Rule 1:</strong> Change only <strong>coefficients</strong> (numbers before formulas), NOT subscripts inside formulas.
+</div>
+<div style="background:rgba(34,197,94,0.1);border-left:3px solid #22c55e;border-radius:0 8px 8px 0;padding:8px 12px;font-size:0.78rem;color:#cbd5e1">
+<strong style="color:#4ade80">Rule 2:</strong> Count atoms of each element on both sides. Use a table!
+</div>
+<div style="background:rgba(245,158,11,0.1);border-left:3px solid #f59e0b;border-radius:0 8px 8px 0;padding:8px 12px;font-size:0.78rem;color:#cbd5e1">
+<strong style="color:#fbbf24">Rule 3:</strong> Start balancing with the element that appears in the <strong>fewest compounds</strong>.
+</div>
+<div style="background:rgba(239,68,68,0.1);border-left:3px solid #ef4444;border-radius:0 8px 8px 0;padding:8px 12px;font-size:0.78rem;color:#cbd5e1">
+<strong style="color:#f87171">Rule 4:</strong> Balance H and O <strong>last</strong> (they appear in most compounds).
+</div>
+</div>
+<div style="text-align:center;margin-top:10px;padding:10px;background:rgba(59,130,246,0.08);border-radius:8px">
+<span style="color:#60a5fa;font-size:0.8rem;font-weight:600">Reactants (अभिकारक) ⇌ Products (उत्पाद)</span><br>
+<span style="color:#94a3b8;font-size:0.72rem">Atoms balanced ∴ Law of Conservation of Mass satisfied ✓</span>
+</div>
+</div>
+
+</div>
+
+<script>
+// --- SANDBOX: H2 + O2 → H2O ---
+var coeffs=[2,1,2];
+function changeCoeff(i,d){
+coeffs[i]=Math.max(1,Math.min(6,coeffs[i]+d));
+updateSandbox();
+}
+function updateSandbox(){
+var c=coeffs;
+document.getElementById('c0').textContent=c[0];
+document.getElementById('c1').textContent=c[1];
+document.getElementById('c2').textContent=c[2];
+document.getElementById('eq-display').textContent=c[0]+' H₂ + '+c[1]+' O₂ → '+c[2]+' H₂O';
+var hR=c[0]*2, oR=c[1]*2;
+var hP=c[2]*2, oP=c[2];
+document.getElementById('hR').textContent=hR;
+document.getElementById('hP').textContent=hP;
+document.getElementById('oR').textContent=oR;
+document.getElementById('oP').textContent=oP;
+var hOk=hR===hP, oOk=oR===oP;
+var ind=document.getElementById('balance-ind');
+if(hOk&&oOk){
+ind.className='balanced-indicator yes';
+ind.textContent='✅ BALANCED! (संतुलित) Well done!';
+ind.classList.add('bounce');
+setTimeout(()=>ind.classList.remove('bounce'),1000);
+}else{
+ind.className='balanced-indicator no';
+var msg='❌ Not balanced — ';
+if(!hOk) msg+='H: '+hR+'≠'+hP+' ';
+if(!oOk) msg+='O: '+oR+'≠'+oP;
+ind.textContent=msg;
+}
+}
+updateSandbox();
+
+// --- STEPS WALKTHROUGH ---
+var steps=[
+{num:'Step 1',text:'Write the skeleton equation (कंकाल समीकरण):',eq:'Fe + H₂O → Fe₃O₄ + H₂'},
+{num:'Step 2',text:'Count atoms on each side. Fe: L=1, R=3 | O: L=1, R=4 | H: L=2, R=2',eq:'Fe=1 vs 3 ✗ | O=1 vs 4 ✗ | H=2 vs 2 ✓ (for now)'},
+{num:'Step 3',text:'Balance Fe first. We need 3 Fe on left → coefficient = 3',eq:'3Fe + H₂O → Fe₃O₄ + H₂'},
+{num:'Step 4',text:'Balance O. Fe₃O₄ has 4 oxygen → put 4 H₂O on left.',eq:'3Fe + 4H₂O → Fe₃O₄ + H₂'},
+{num:'Step 5',text:'Now H: 4×2=8 on left, need 4 H₂ on right.',eq:'3Fe + 4H₂O → Fe₃O₄ + 4H₂'},
+{num:'Step 6 ✅',text:'Verify: Fe=3✓ O=4✓ H=8✓ — BALANCED! (संतुलित समीकरण)',eq:'3Fe + 4H₂O → Fe₃O₄ + 4H₂ ✅'}
+];
+var currentStep=-1;
+function revealStep(){
+if(currentStep<steps.length-1){
+currentStep++;
+var s=steps[currentStep];
+var box=document.getElementById('steps-box');
+var div=document.createElement('div');
+div.className='step';
+div.innerHTML='<div class="step-num">'+s.num+'</div><div class="step-text">'+s.text+'</div><div class="step-eq">'+s.eq+'</div>';
+box.appendChild(div);
+setTimeout(()=>div.classList.add('visible'),10);
+document.getElementById('progress').style.width=((currentStep+1)/steps.length*100)+'%';
+}
+}
+function resetSteps(){
+currentStep=-1;
+document.getElementById('steps-box').innerHTML='';
+document.getElementById('progress').style.width='0%';
+}
+
+// --- MG + O2 → MGO Visual ---
+var mgC=2,o2C=1,mgoC=2;
+var mgStates=[1,2,3,4],o2States=[1,2,3],mgoStates=[1,2,3,4];
+var mgI=1,o2I=0,mgoI=1;
+function cycleMg(){mgI=(mgI+1)%mgStates.length;mgC=mgStates[mgI];updateMg();}
+function cycleO2(){o2I=(o2I+1)%o2States.length;o2C=o2States[o2I];updateMg();}
+function cycleMgO(){mgoI=(mgoI+1)%mgoStates.length;mgoC=mgoStates[mgoI];updateMg();}
+function updateMg(){
+document.getElementById('mg-coeff').textContent=mgC;
+document.getElementById('o2-coeff').textContent=o2C;
+document.getElementById('mgo-coeff').textContent=mgoC;
+var mgR=mgC, mgP=mgoC;
+var oR=o2C*2, oP=mgoC;
+var bal=document.getElementById('mg-balance');
+var atomDiv=document.getElementById('mg-atoms');
+atomDiv.innerHTML='<div class="atom-count"><div class="atom-row"><span class="atom-name">Mg atoms</span><div class="count-pair"><span class="cnt react">R: '+mgR+'</span><span class="cnt prod">P: '+mgP+'</span></div></div><div class="atom-row"><span class="atom-name">O atoms</span><div class="count-pair"><span class="cnt react">R: '+oR+'</span><span class="cnt prod">P: '+oP+'</span></div></div></div>';
+if(mgR===mgP&&oR===oP){
+bal.className='balanced-indicator yes';
+bal.textContent='✅ BALANCED! '+mgC+'Mg + '+o2C+'O₂ → '+mgoC+'MgO';
+}else{
+bal.className='balanced-indicator no';
+bal.textContent='❌ Not balanced — adjust coefficients by clicking molecules!';
+}
+drawAtoms(mgR,oR,mgP,oP);
+}
+function drawAtoms(mgR,oR,mgP,oP){
+var svg=document.getElementById('atom-svg');
+svg.innerHTML='';
+var xR=10,xP=210;
+// Reactant atoms
+for(var i=0;i<Math.min(mgR,8);i++){
+var el=document.createElementNS('http://www.w3.org/2000/svg','circle');
+el.setAttribute('cx',xR+i*22);el.setAttribute('cy',25);el.setAttribute('r',9);
+el.setAttribute('fill','#3b82f6');el.setAttribute('opacity','0.85');
+svg.appendChild(el);
+var t=document.createElementNS('http://www.w3.org/2000/svg','text');
+t.setAttribute('x',xR+i*22);t.setAttribute('y',29);t.setAttribute('text-anchor','middle');
+t.setAttribute('

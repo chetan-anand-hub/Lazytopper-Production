@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coordinate Geometry - निर्देशांक ज्यामिति</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%); min-height: 100vh; color: #e2e8f0; }
+
+  .title-bar { background: linear-gradient(90deg, #3b82f6, #6366f1, #8b5cf6); padding: 12px 20px; text-align: center; box-shadow: 0 4px 20px rgba(59,130,246,0.4); }
+  .title-bar h1 { font-size: clamp(1rem, 3vw, 1.4rem); font-weight: 700; color: #fff; letter-spacing: 1px; }
+  .title-bar p { font-size: clamp(0.7rem, 2vw, 0.85rem); color: #bfdbfe; margin-top: 2px; }
+
+  .container { max-width: 900px; margin: 0 auto; padding: 16px; }
+
+  .formula-box { background: linear-gradient(135deg, #1e3a5f, #1e293b); border: 2px solid #3b82f6; border-radius: 16px; padding: 14px 18px; margin-bottom: 16px; text-align: center; box-shadow: 0 0 20px rgba(59,130,246,0.3); animation: pulse-border 3s infinite; }
+  @keyframes pulse-border { 0%,100%{box-shadow:0 0 20px rgba(59,130,246,0.3)} 50%{box-shadow:0 0 35px rgba(59,130,246,0.6)} }
+  .formula-box h3 { color: #60a5fa; font-size: 0.8rem; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 2px; }
+  .formula-box .formula { font-size: clamp(0.85rem, 2.5vw, 1.1rem); color: #fbbf24; font-weight: 600; }
+  .formula-box .sub { font-size: 0.75rem; color: #94a3b8; margin-top: 4px; }
+
+  .main-area { display: grid; grid-template-columns: 1fr; gap: 16px; }
+  @media(min-width:640px) { .main-area { grid-template-columns: 1fr 280px; } }
+
+  .canvas-wrap { background: #0f172a; border-radius: 16px; border: 2px solid #334155; padding: 10px; position: relative; box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
+  #grid { width: 100%; border-radius: 10px; cursor: crosshair; display: block; touch-action: none; }
+
+  .side-panel { display: flex; flex-direction: column; gap: 12px; }
+
+  .info-card { background: linear-gradient(135deg, #1e293b, #0f172a); border: 1px solid #334155; border-radius: 14px; padding: 14px; box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
+  .info-card h3 { font-size: 0.8rem; color: #60a5fa; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+
+  .quadrant-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px; }
+  .q-card { padding: 8px; border-radius: 10px; text-align: center; font-size: 0.75rem; font-weight: 600; transition: transform 0.2s; }
+  .q-card:hover { transform: scale(1.05); }
+  .q1 { background: rgba(34,197,94,0.2); border: 1px solid #22c55e; color: #86efac; }
+  .q2 { background: rgba(59,130,246,0.2); border: 1px solid #3b82f6; color: #93c5fd; }
+  .q3 { background: rgba(239,68,68,0.2); border: 1px solid #ef4444; color: #fca5a5; }
+  .q4 { background: rgba(245,158,11,0.2); border: 1px solid #f59e0b; color: #fcd34d; }
+  .q-card .signs { font-size: 0.9rem; margin-top: 2px; }
+
+  .point-display { background: #0f172a; border-radius: 10px; padding: 10px; font-size: 0.85rem; min-height: 60px; border: 1px solid #334155; }
+  .point-display .coord { font-size: 1.1rem; font-weight: 700; color: #fbbf24; }
+  .point-display .info { color: #94a3b8; font-size: 0.75rem; margin-top: 4px; }
+  .point-display .quad-label { font-size: 0.8rem; margin-top: 4px; padding: 3px 8px; border-radius: 20px; display: inline-block; }
+
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; }
+  .btn { padding: 8px 14px; border-radius: 10px; border: none; cursor: pointer; font-size: 0.78rem; font-weight: 600; transition: all 0.2s; }
+  .btn-blue { background: linear-gradient(135deg, #3b82f6, #6366f1); color: #fff; }
+  .btn-blue:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(59,130,246,0.5); }
+  .btn-red { background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; }
+  .btn-red:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(239,68,68,0.5); }
+  .btn-green { background: linear-gradient(135deg, #22c55e, #16a34a); color: #fff; }
+  .btn-green:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(34,197,94,0.5); }
+  .btn-amber { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; }
+
+  .points-list { max-height: 120px; overflow-y: auto; margin-top: 6px; }
+  .point-item { display: flex; justify-content: space-between; align-items: center; padding: 5px 8px; border-radius: 8px; margin-bottom: 4px; font-size: 0.78rem; animation: fadeIn 0.3s; }
+  @keyframes fadeIn { from{opacity:0;transform:translateX(-10px)} to{opacity:1;transform:translateX(0)} }
+  .point-item .del-btn { background: none; border: none; color: #ef4444; cursor: pointer; font-size: 1rem; line-height: 1; padding: 0 4px; }
+
+  .walkthrough { background: linear-gradient(135deg, #1e293b, #0f172a); border: 1px solid #334155; border-radius: 14px; padding: 14px; }
+  .walkthrough h3 { color: #fbbf24; font-size: 0.85rem; margin-bottom: 10px; }
+  .step { display: none; animation: fadeIn 0.4s; }
+  .step.active { display: block; }
+  .step-content { background: #0f172a; border-radius: 10px; padding: 10px 12px; font-size: 0.82rem; line-height: 1.6; color: #cbd5e1; border-left: 3px solid #3b82f6; }
+  .step-content .highlight { color: #fbbf24; font-weight: 600; }
+  .step-content .green { color: #86efac; }
+  .step-nav { display: flex; gap: 8px; margin-top: 10px; align-items: center; }
+  .step-counter { font-size: 0.75rem; color: #64748b; flex: 1; text-align: center; }
+
+  .input-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .coord-input { background: #0f172a; border: 1px solid #334155; color: #e2e8f0; border-radius: 8px; padding: 6px 10px; width: 70px; font-size: 0.85rem; text-align: center; }
+  .coord-input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.3); }
+
+  .legend { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
+  .leg-item { display: flex; align-items: center; gap: 4px; font-size: 0.72rem; color: #94a3b8; }
+  .leg-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+  ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: #0f172a; } ::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
+</style>
+</head>
+<body>
+<div class="title-bar">
+  <h1>📐 Coordinate Geometry — निर्देशांक ज्यामिति</h1>
+  <p>CBSE Class 10 | Chapter 7 | निर्देशांक तल (Coordinate Plane Plotter)</p>
+</div>
+
+<div class="container">
+  <div class="formula-box">
+    <h3>🔑 Key Formula — दूरी सूत्र (Distance Formula)</h3>
+    <div class="formula">d = √[(x₂ − x₁)² + (y₂ − y₁)²]</div>
+    <div class="sub">∴ किन्हीं दो बिन्दुओं P(x₁,y₁) और Q(x₂,y₂) के बीच की दूरी | Click on canvas to plot points!</div>
+  </div>
+
+  <div class="main-area">
+    <div class="canvas-wrap">
+      <canvas id="grid"></canvas>
+      <div class="legend">
+        <div class="leg-item"><div class="leg-dot" style="background:#3b82f6"></div> X-अक्ष (X-Axis)</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#22c55e"></div> Y-अक्ष (Y-Axis)</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#fbbf24"></div> आपके बिन्दु (Your Points)</div>
+      </div>
+    </div>
+
+    <div class="side-panel">
+      <div class="info-card">
+        <h3>📍 चतुर्थांश (Quadrants)</h3>
+        <div class="quadrant-grid">
+          <div class="q-card q2"><div>II चतुर्थांश</div><div class="signs">(−, +)</div></div>
+          <div class="q-card q1"><div>I चतुर्थांश</div><div class="signs">(+, +)</div></div>
+          <div class="q-card q3"><div>III चतुर्थांश</div><div class="signs">(−, −)</div></div>
+          <div class="q-card q4"><div>IV चतुर्थांश</div><div class="signs">(+, −)</div></div>
+        </div>
+        <div class="point-display" id="pointDisplay">
+          <div style="color:#64748b;font-size:0.8rem;">Canvas पर क्लिक करें या नीचे दर्ज करें...</div>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <h3>✏️ बिन्दु दर्ज करें (Enter Point)</h3>
+        <div class="input-row" style="margin-bottom:8px">
+          <span style="font-size:0.8rem;color:#94a3b8;">x =</span>
+          <input class="coord-input" id="xInput" type="number" placeholder="0" min="-10" max="10">
+          <span style="font-size:0.8rem;color:#94a3b8;">y =</span>
+          <input class="coord-input" id="yInput" type="number" placeholder="0" min="-10" max="10">
+          <button class="btn btn-green" onclick="addManualPoint()">➕</button>
+        </div>
+        <div class="controls">
+          <button class="btn btn-blue" onclick="showExample()">📖 Example</button>
+          <button class="btn btn-red" onclick="clearAll()">🗑 Clear</button>
+          <button class="btn btn-amber" onclick="toggleDistance()">📏 Distance</button>
+        </div>
+        <div class="points-list" id="pointsList"></div>
+      </div>
+
+      <div class="info-card" id="distInfo" style="display:none">
+        <h3>📏 दूरी (Distance)</h3>
+        <div id="distResult" style="font-size:0.82rem;color:#94a3b8;">दो बिन्दु प्लॉट करें...</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="walkthrough" style="margin-top:16px">
+    <h3>🎓 Step-by-Step Walkthrough — उदाहरण सहित</h3>
+    <div id="step1" class="step active">
+      <div class="step-content">
+        <span class="highlight">Step 1: निर्देशांक तल (Coordinate Plane) क्या है?</span><br>
+        दो लम्बवत् रेखाएँ मिलकर <span class="green">निर्देशांक तल</span> बनाती हैं।<br>
+        ● क्षैतिज रेखा → <span class="highlight">X-अक्ष (X-Axis)</span><br>
+        ● ऊर्ध्वाधर रेखा → <span class="highlight">Y-अक्ष (Y-Axis)</span><br>
+        ● जहाँ ये मिलती हैं → <span class="highlight">मूल बिन्दु O(0,0) — Origin</span>
+      </div>
+    </div>
+    <div id="step2" class="step">
+      <div class="step-content">
+        <span class="highlight">Step 2: बिन्दु का निर्देशांक (Coordinates of a Point)</span><br>
+        किसी बिन्दु P को <span class="highlight">P(x, y)</span> लिखते हैं।<br>
+        ● <span class="green">x = भुज (Abscissa)</span> — X-अक्ष पर दूरी<br>
+        ● <span class="green">y = कोटि (Ordinate)</span> — Y-अक्ष पर दूरी<br>
+        ∴ P(3, 4) का अर्थ है: x=3 (दाईं ओर), y=4 (ऊपर)
+      </div>
+    </div>
+    <div id="step3" class="step">
+      <div class="step-content">
+        <span class="highlight">Step 3: चतुर्थांश (Quadrants) — चिह्न नियम</span><br>
+        ● <span class="green">I (+,+)</span>: x>0, y>0 — दाईं-ऊपर<br>
+        ● <span style="color:#93c5fd">II (−,+)</span>: x&lt;0, y>0 — बाईं-ऊपर<br>
+        ● <span style="color:#fca5a5">III (−,−)</span>: x&lt;0, y&lt;0 — बाईं-नीचे<br>
+        ● <span style="color:#fcd34d">IV (+,−)</span>: x>0, y&lt;0 — दाईं-नीचे
+      </div>
+    </div>
+    <div id="step4" class="step">
+      <div class="step-content">
+        <span class="highlight">Step 4: दूरी सूत्र (Distance Formula) — उदाहरण</span><br>
+        मान लीजिए A(3, 4) और B(−1, 1)<br>
+        d = √[(−1−3)² + (1−4)²]<br>
+        d = √[(−4)² + (−3)²]<br>
+        d = √[16 + 9] = √25 = <span class="highlight">5 इकाई</span><br>
+        <span class="green">∴ AB = 5 units</span> — कैनवास पर देखें!
+      </div>
+    </div>
+    <div id="step5" class="step">
+      <div class="step-content">
+        <span class="highlight">Step 5: अक्षों पर बिन्दु (Points on Axes)</span><br>
+        ● X-अक्ष पर: y = 0 → जैसे (5, 0), (−3, 0)<br>
+        ● Y-अक्ष पर: x = 0 → जैसे (0, 4), (0, −2)<br>
+        ● मूल बिन्दु: (0, 0)<br>
+        <span class="green">∵ अक्षों पर स्थित बिन्दु किसी चतुर्थांश में नहीं होते!</span>
+      </div>
+    </div>
+    <div class="step-nav">
+      <button class="btn btn-blue" onclick="prevStep()">◀ पूर्व</button>
+      <div class="step-counter" id="stepCounter">Step 1 / 5</div>
+      <button class="btn btn-blue" onclick="nextStep()">अगला ▶</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('grid');
+const ctx = canvas.getContext('2d');
+let points = [];
+let hoveredPoint = null;
+let distanceMode = false;
+let currentStep = 1;
+const totalSteps = 5;
+
+function resize() {
+  const wrap = canvas.parentElement;
+  const size = Math.min(wrap.clientWidth - 20, 480);
+  canvas.width = size;
+  canvas.height = size;
+  draw();
+}
+
+function gridToCanvas(gx, gy) {
+  const cx = canvas.width / 2, cy = canvas.height / 2;
+  const cell = canvas.width / 22;
+  return [cx + gx * cell, cy - gy * cell];
+}
+
+function canvasToGrid(px, py) {
+  const cx = canvas.width / 2, cy = canvas.height / 2;
+  const cell = canvas.width / 22;
+  return [Math.round((px - cx) / cell), Math.round((cy - py) / cell)];
+}
+
+function draw() {
+  const w = canvas.width, h = canvas.height;
+  const cx = w / 2, cy = h / 2;
+  const cell = w / 22;
+
+  ctx.clearRect(0, 0, w, h);
+
+  // Background
+  const bg = ctx.createRadialGradient(cx, cy, 0, cx, cy, w * 0.7);
+  bg.addColorStop(0, '#0f1f3d');
+  bg.addColorStop(1, '#0a0f1a');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, w, h);
+
+  // Quadrant fills
+  const qColors = [
+    {x:cx,y:0,w:w-cx,h:cy,color:'rgba(34,197,94,0.06)'},
+    {x:0,y:0,w:cx,h:cy,color:'rgba(59,130,246,0.06)'},
+    {x:0,y:cy,w:cx,h:h-cy,color:'rgba(239,68,68,0.06)'},
+    {x:cx,y:cy,w:w-cx,h:h-cy,color:'rgba(245,158,11,0.06)'}
+  ];
+  qColors.forEach(q => {
+    ctx.fillStyle = q.color;
+    ctx.fillRect(q.x, q.y, q.w, q.h);
+  });
+
+  // Grid lines
+  ctx.lineWidth = 0.5;
+  for (let i = -10; i <= 10; i++) {
+    const x = cx + i * cell;
+    const y = cy + i * cell;
+    ctx.strokeStyle = i === 0 ? 'transparent' : 'rgba(255,255,255,0.07)';
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+  }
+
+  // Axes
+  ctx.lineWidth = 2.5;
+  ctx.strokeStyle = '#3b82f6';
+  ctx.shadowColor = '#3b82f6';
+  ctx.shadowBlur = 8;
+  ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(w, cy); ctx.stroke();
+  ctx.strokeStyle = '#22c55e';
+  ctx.shadowColor = '#22c55e';
+  ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, h); ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  // Arrows
+  function arrow(x1, y1, x2, y2, col) {
+    ctx.strokeStyle = col; ctx.fillStyle = col;
+    const ang = Math.atan2(y2 - y1, x2 - x1);
+    ctx.beginPath();
+    ctx.moveTo(x2 - 10 * Math.cos(ang - 0.4), y2 - 10 * Math.sin(ang - 0.4));
+    ctx.lineTo(x2, y2);
+    ctx.lineTo(x2 - 10 * Math.cos(ang + 0.4), y2 - 10 * Math.sin(ang + 0.4));
+    ctx.fill();
+  }
+  arrow(w - 5, cy, w - 2, cy, '#3b82f6');
+  arrow(3, cy, 0, cy, '#3b82f6');
+  arrow(cx, 5, cx, 2, '#22c55e');
+  arrow(cx, h - 5, cx, h - 2, '#22c55e');
+
+  // Axis labels & numbers
+  ctx.font = `bold ${Math.max(9, cell * 0.7)}px Segoe UI`;
+  ctx.fillStyle = '#3b82f6'; ctx.textAlign = 'center';
+  ctx.fillText('X', w - 12, cy - 8);
+  ctx.fillText("X'", 12, cy - 8);
+  ctx.fillStyle = '#22c55e'; ctx.textAlign = 'left';
+  ctx.fillText('Y', cx + 6, 16);
+  ctx.fillText("Y'", cx + 6, h - 6);
+
+  // Tick labels
+  ctx.font = `${Math.max(8, cell * 0.55)}px Segoe UI`;
+  ctx.fillStyle = 'rgba(148,163,184,0.8)';
+  ctx.textAlign = 'center';
+  for (let i = -9; i <= 9; i++) {
+    if (i === 0) continue;
+    const x = cx + i * cell, y = cy + i * cell;
+    ctx.fillText(i, x, cy + 14);
+    ctx.textAlign = 'right';
+    ctx.fillText(i, cx - 6, y + 4);
+    ctx.textAlign = 'center';
+  }
+  ctx.fillStyle = '#94a3b8'; ctx.fillText('O', cx - 10, cy + 14);
+
+  // Quadrant labels
+  const ql = cell * 3;
+  ctx.font = `bold ${Math.max(9, cell * 0.65)}px Segoe UI`;
+  ctx.fillStyle = 'rgba(134,239,172,0.4)'; ctx.textAlign = 'center';
+  ctx.fillText('I', cx + ql, cy - ql);
+  ctx.fillStyle = 'rgba(147,197,253,0.4)';
+  ctx.fillText('II', cx - ql, cy - ql);
+  ctx.fillStyle = 'rgba(252,165,165,0.4)';
+  ctx.fillText('III', cx - ql, cy + ql);
+  ctx.fillStyle = 'rgba(252,211,77,0.4)';
+  ctx.fillText('IV', cx + ql, cy + ql);
+
+  // Distance line between first two points
+  if (distanceMode && points.length >= 2) {
+    const [ax, ay] = gridToCanvas(points[0].x, points[0].y);
+    const [bx, by] = gridToCanvas(points[1].x, points[1].y);
+    ctx.setLineDash([6, 4]);
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#fbbf24';
+    ctx.shadowColor = '#fbbf24'; ctx.shadowBlur = 6;
+    ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
+    ctx.setLineDash([]); ctx.shadowBlur = 0;
+
+    const midX = (ax + bx) / 2, midY = (ay + by) / 2;
+    const dx = points[1].x - points[0].x, dy = points[1].y - points[0].y;
+    const d = Math.sqrt(dx * dx + dy * dy).toFixed(2);
+    ctx.font = `bold ${Math.max(9, cell * 0.65)}px Segoe UI`;
+    ctx.fillStyle = '#fbbf24'; ctx.textAlign = 'center';
+    ctx.shadowColor = '#000'; ctx.shadowBlur = 4;
+    ctx.fillText('d ≈ ' + d, midX, midY - 8);
+    ctx.shadowBlur = 0;
+  }
+
+  // Plot points
+  const colors = ['#fbbf24','#f472b6','#34d399','#60a5fa','#a78bfa','#fb923c','#e879f9'];
+  points.forEach((p, i) => {
+    const [px, py] = gridToCanvas(p.x, p.y);
+    const col = colors[i % colors.length];
+    const isHovered = hoveredPoint === i;
+    const r = isHovered ? 10 : 7;
+
+    ctx.beginPath();
+    const grad = ctx.createRadialGradient(px, py, 0, px, py, r * 2);
+    grad.addColorStop(0, col + 'aa');
+    grad.addColorStop(1, 'transparent');
+    ctx.fillStyle = grad;
+    ctx.arc(px, py, r * 2.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(px, py, r, 0, Math.PI * 2);
+    ctx.fillStyle = col;
+    ctx.shadowColor = col; ctx.shadowBlur = 12;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    ctx.font = `bold ${Math.max(9, cell * 0.65)}px Segoe UI`;
+    ctx.fillStyle = '#fff'; ctx.textAlign = 'left';
+    ctx.shadowColor = '#000'; ctx.shadowBlur = 3;
+    const label = String.fromCharCode(65 + i) + '(' + p.x + ',' + p.y + ')';
+    ctx.fillText(label, px + 10, py - 6);
+    ctx.shadowBlur = 0;
+  });
+}
+
+function getQuadrant(x, y) {
+  if (x === 0 && y === 0) return {label:'मूल बिन्दु O (Origin)', color:'#94a3b8', bg:'rgba(148,163,184,0.2)'};
+  if (x === 0) return {label:'Y-अक्ष पर (On Y-Axis)', color:'#22c55e', bg:'rgba(34,197,94,0.2)'};
+  if (y === 0) return {label:'X-अक्ष पर (On X-Axis)', color:'#3b82f6', bg:'rgba(59,130,246,0.2)'};
+  if (x > 0 && y > 0) return {label:'I चतुर्थांश (+, +)', color:'#22c55e', bg:'rgba(34,197,94,0.2)'};
+  if (x < 0 && y > 0) return {label:'II चतुर्थांश (−, +)', color:'#60a5fa', bg:'rgba(59,130,246,0.2)'};
+  if (x < 0 && y < 0) return {label:'III चतुर्थांश (−, −)', color:'#f87171', bg:'rgba(239,68,68,0.2)'};
+  return {label:'IV चतुर्थांश (+, −)', color:'#fbbf24', bg:'rgba(245,158,11,0.2)'};
+}
+
+function updatePointDisplay(x, y) {
+  const q = getQuadrant(x, y);
+  const dist = Math.sqrt(x * x + y * y).toFixed(2);
+  document.getElementById('pointDisplay').innerHTML =
+    `<div class="coord">P(${x}, ${y})</div>
+     <div style="margin-top

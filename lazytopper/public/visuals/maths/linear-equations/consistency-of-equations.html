@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pair of Linear Equations - Consistency</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f0f4ff; color: #1e293b; min-width: 320px; }
+  .title-bar { background: linear-gradient(135deg, #1e293b, #3b82f6); color: white; padding: 14px 20px; text-align: center; }
+  .title-bar h1 { font-size: 1.1rem; font-weight: 700; }
+  .title-bar p { font-size: 0.75rem; opacity: 0.85; margin-top: 2px; }
+  .container { max-width: 700px; margin: 0 auto; padding: 14px; }
+  .card { background: white; border-radius: 16px; padding: 16px; margin-bottom: 14px; box-shadow: 0 4px 20px rgba(59,130,246,0.1); }
+  .card h2 { font-size: 1rem; font-weight: 700; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; color: white; }
+  .badge-blue { background: #3b82f6; }
+  .badge-green { background: #22c55e; }
+  .badge-red { background: #ef4444; }
+  .badge-amber { background: #f59e0b; }
+
+  /* Ratio Formula */
+  .formula-box { background: linear-gradient(135deg, #eff6ff, #dbeafe); border: 2px solid #3b82f6; border-radius: 12px; padding: 14px; text-align: center; margin-bottom: 12px; }
+  .formula-box .ratio { font-size: 1.3rem; font-weight: 700; color: #1e40af; letter-spacing: 1px; }
+  .ratio-labels { display: flex; justify-content: center; gap: 20px; margin-top: 8px; font-size: 0.72rem; color: #64748b; }
+
+  /* Type Cards */
+  .type-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+  @media(max-width:480px){ .type-grid { grid-template-columns: 1fr; } }
+  .type-card { border-radius: 12px; padding: 12px; cursor: pointer; border: 3px solid transparent; transition: all 0.3s; text-align: center; }
+  .type-card:hover { transform: translateY(-2px); }
+  .type-card.active { border-color: currentColor; transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
+  .type-card .icon { font-size: 1.8rem; margin-bottom: 6px; }
+  .type-card h3 { font-size: 0.82rem; font-weight: 700; }
+  .type-card p { font-size: 0.68rem; margin-top: 3px; }
+  .tc-green { background: #f0fdf4; color: #16a34a; }
+  .tc-amber { background: #fffbeb; color: #d97706; }
+  .tc-blue { background: #eff6ff; color: #2563eb; }
+
+  /* Graph area */
+  #graphCanvas { width: 100%; border-radius: 10px; display: block; }
+  .graph-wrap { position: relative; background: #f8faff; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; }
+  .graph-info { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .line-legend { display: flex; align-items: center; gap: 5px; font-size: 0.75rem; font-weight: 600; }
+  .dot { width: 12px; height: 4px; border-radius: 2px; }
+
+  /* Condition display */
+  .condition-box { border-radius: 10px; padding: 12px; margin-top: 10px; transition: all 0.4s; }
+  .cond-green { background: #f0fdf4; border-left: 4px solid #22c55e; }
+  .cond-red { background: #fef2f2; border-left: 4px solid #ef4444; }
+  .cond-blue { background: #eff6ff; border-left: 4px solid #3b82f6; }
+  .condition-box h3 { font-size: 0.85rem; font-weight: 700; margin-bottom: 4px; }
+  .condition-box p { font-size: 0.75rem; color: #475569; }
+  .condition-box .math { font-size: 0.9rem; font-weight: 700; margin: 6px 0; }
+
+  /* Sliders */
+  .slider-group { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+  @media(max-width:400px){ .slider-group { grid-template-columns: 1fr; } }
+  .slider-item label { font-size: 0.72rem; font-weight: 600; color: #64748b; display: block; margin-bottom: 3px; }
+  .slider-item input[type=range] { width: 100%; accent-color: #3b82f6; }
+  .slider-val { font-size: 0.8rem; font-weight: 700; color: #3b82f6; }
+
+  /* Step walkthrough */
+  .step-container { }
+  .step { background: #f8faff; border-radius: 10px; padding: 12px; margin-bottom: 8px; border-left: 4px solid #cbd5e1; display: none; animation: fadeIn 0.4s ease; }
+  .step.visible { display: block; }
+  .step.done { border-left-color: #22c55e; background: #f0fdf4; }
+  .step.active-step { border-left-color: #3b82f6; background: #eff6ff; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+  .step h4 { font-size: 0.8rem; font-weight: 700; color: #1e40af; margin-bottom: 4px; }
+  .step p { font-size: 0.78rem; color: #374151; line-height: 1.5; }
+  .step .math { font-size: 0.9rem; font-weight: 700; background: white; padding: 6px 10px; border-radius: 6px; margin: 5px 0; display: inline-block; }
+  .btn { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; border: none; padding: 10px 20px; border-radius: 24px; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: all 0.2s; display: inline-block; margin-top: 8px; }
+  .btn:hover { transform: scale(1.04); box-shadow: 0 4px 15px rgba(59,130,246,0.4); }
+  .btn:active { transform: scale(0.98); }
+  .btn-group { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+  .btn-sm { padding: 6px 14px; font-size: 0.75rem; }
+  .btn-outline { background: white; color: #3b82f6; border: 2px solid #3b82f6; }
+  .btn-outline:hover { background: #eff6ff; }
+
+  /* Example section */
+  .example-eq { text-align: center; font-size: 1rem; font-weight: 700; color: #1e293b; padding: 10px; background: #f1f5f9; border-radius: 8px; margin: 6px 0; }
+  .ratio-row { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; font-size: 0.85rem; margin: 6px 0; }
+  .ratio-val { font-weight: 700; padding: 4px 10px; border-radius: 6px; }
+  .rv-blue { background: #dbeafe; color: #1e40af; }
+  .rv-green { background: #dcfce7; color: #166534; }
+  .rv-amber { background: #fef3c7; color: #92400e; }
+  .progress-bar { height: 4px; background: #e2e8f0; border-radius: 2px; margin-top: 12px; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #3b82f6, #22c55e); border-radius: 2px; transition: width 0.4s; }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.68rem; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<div class="title-bar">
+  <h1>📐 Pair of Linear Equations — Consistency / संगतता</h1>
+  <p>CBSE Class 10 Mathematics | Chapter 3</p>
+</div>
+
+<div class="container">
+
+  <!-- Key Formula -->
+  <div class="card">
+    <h2><span class="badge badge-blue">सूत्र</span> The Key Ratios (मुख्य अनुपात)</h2>
+    <div class="formula-box">
+      <div style="font-size:0.78rem;color:#64748b;margin-bottom:6px;">For equations: <strong>a₁x + b₁y + c₁ = 0</strong> and <strong>a₂x + b₂y + c₂ = 0</strong></div>
+      <div class="ratio">a₁/a₂ &nbsp;|&nbsp; b₁/b₂ &nbsp;|&nbsp; c₁/c₂</div>
+      <div class="ratio-labels">
+        <span>⬆ x-coefficients</span>
+        <span>⬆ y-coefficients</span>
+        <span>⬆ constants</span>
+      </div>
+    </div>
+
+    <!-- Type Selector -->
+    <div class="type-grid">
+      <div class="type-card tc-green active" onclick="setType('consistent')" id="tc-consistent">
+        <div class="icon">✅</div>
+        <h3>Consistent</h3>
+        <p>संगत</p>
+        <p style="font-size:0.62rem;margin-top:4px;">Unique Solution</p>
+      </div>
+      <div class="type-card tc-red" onclick="setType('inconsistent')" id="tc-inconsistent" style="background:#fef2f2;color:#dc2626;">
+        <div class="icon">❌</div>
+        <h3>Inconsistent</h3>
+        <p>असंगत</p>
+        <p style="font-size:0.62rem;margin-top:4px;">No Solution</p>
+      </div>
+      <div class="type-card tc-blue" onclick="setType('dependent')" id="tc-dependent">
+        <div class="icon">∞</div>
+        <h3>Dependent</h3>
+        <p>आश्रित</p>
+        <p style="font-size:0.62rem;margin-top:4px;">Infinite Solutions</p>
+      </div>
+    </div>
+
+    <div id="conditionBox" class="condition-box cond-green">
+      <h3 id="condTitle">✅ Consistent (Intersecting Lines)</h3>
+      <div class="math" id="condMath">a₁/a₂ ≠ b₁/b₂</div>
+      <p id="condDesc">The lines intersect at exactly ONE point. The system has a unique solution.</p>
+      <p style="margin-top:4px;font-size:0.72rem;color:#15803d;" id="condHindi">∴ एक अद्वितीय हल (unique solution) होता है।</p>
+    </div>
+  </div>
+
+  <!-- Interactive Graph -->
+  <div class="card">
+    <h2>🎛️ Interactive Graph — Adjust & Explore</h2>
+    <p style="font-size:0.72rem;color:#64748b;margin-bottom:10px;">Drag the sliders to change line equations and see how they interact on the graph.</p>
+    
+    <div class="graph-wrap">
+      <canvas id="graphCanvas" height="260"></canvas>
+    </div>
+
+    <div class="graph-info">
+      <div class="line-legend"><div class="dot" style="background:#3b82f6;height:3px;width:20px;"></div><span id="eq1Label">Line 1: y = x</span></div>
+      <div class="line-legend"><div class="dot" style="background:#ef4444;height:3px;width:20px;"></div><span id="eq2Label">Line 2: y = 2x</span></div>
+    </div>
+
+    <div class="slider-group">
+      <div class="slider-item">
+        <label>Line 1: slope (m₁) = <span class="slider-val" id="m1val">1</span></label>
+        <input type="range" id="m1" min="-3" max="3" step="0.5" value="1" oninput="updateGraph()">
+      </div>
+      <div class="slider-item">
+        <label>Line 1: intercept (c₁) = <span class="slider-val" id="c1val">0</span></label>
+        <input type="range" id="c1" min="-4" max="4" step="0.5" value="0" oninput="updateGraph()">
+      </div>
+      <div class="slider-item">
+        <label>Line 2: slope (m₂) = <span class="slider-val" id="m2val">2</span></label>
+        <input type="range" id="m2" min="-3" max="3" step="0.5" value="2" oninput="updateGraph()">
+      </div>
+      <div class="slider-item">
+        <label>Line 2: intercept (c₂) = <span class="slider-val" id="c2val">0</span></label>
+        <input type="range" id="c2" min="-4" max="4" step="0.5" value="0" oninput="updateGraph()">
+      </div>
+    </div>
+    <div id="graphStatus" class="condition-box cond-green" style="margin-top:10px;padding:10px;">
+      <span id="graphStatusText" style="font-weight:700;font-size:0.82rem;">✅ Consistent — Lines Intersect (Unique Solution)</span>
+    </div>
+  </div>
+
+  <!-- Worked Example -->
+  <div class="card">
+    <h2>📝 Worked Example — हल सहित उदाहरण</h2>
+    <p style="font-size:0.72rem;color:#64748b;margin-bottom:8px;">Click "Next Step" to reveal each step of the solution.</p>
+
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+      <button class="btn btn-sm btn-outline" onclick="loadExample(0)">Example 1</button>
+      <button class="btn btn-sm btn-outline" onclick="loadExample(1)">Example 2</button>
+      <button class="btn btn-sm btn-outline" onclick="loadExample(2)">Example 3</button>
+    </div>
+
+    <div id="exQuestion" class="example-eq">2x + 3y = 5 &nbsp;&amp;&nbsp; 4x + 6y = 8</div>
+
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+    <div class="step-container" id="stepsContainer" style="margin-top:10px;"></div>
+
+    <div class="btn-group">
+      <button class="btn" onclick="nextStep()">▶ Next Step</button>
+      <button class="btn btn-outline" onclick="resetSteps()">↺ Reset</button>
+    </div>
+  </div>
+
+  <!-- Quick Reference Table -->
+  <div class="card">
+    <h2>📊 Quick Reference Table — त्वरित संदर्भ</h2>
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:0.75rem;">
+        <thead>
+          <tr style="background:#1e293b;color:white;">
+            <th style="padding:8px;border-radius:6px 0 0 0;">Condition</th>
+            <th style="padding:8px;">Ratio</th>
+            <th style="padding:8px;">Lines</th>
+            <th style="padding:8px;border-radius:0 6px 0 0;">Solution</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="background:#f0fdf4;">
+            <td style="padding:8px;font-weight:700;color:#16a34a;">✅ Consistent</td>
+            <td style="padding:8px;">a₁/a₂ ≠ b₁/b₂</td>
+            <td style="padding:8px;">Intersecting</td>
+            <td style="padding:8px;"><span class="badge badge-green">Unique</span></td>
+          </tr>
+          <tr style="background:#fef2f2;">
+            <td style="padding:8px;font-weight:700;color:#dc2626;">❌ Inconsistent</td>
+            <td style="padding:8px;">a₁/a₂ = b₁/b₂ ≠ c₁/c₂</td>
+            <td style="padding:8px;">Parallel</td>
+            <td style="padding:8px;"><span class="badge badge-red">None</span></td>
+          </tr>
+          <tr style="background:#eff6ff;">
+            <td style="padding:8px;font-weight:700;color:#1d4ed8;">∞ Dependent</td>
+            <td style="padding:8px;">a₁/a₂ = b₁/b₂ = c₁/c₂</td>
+            <td style="padding:8px;">Coincident</td>
+            <td style="padding:8px;"><span class="badge badge-blue">Infinite</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:0.68rem;color:#94a3b8;margin-top:8px;">💡 <em>Tip: Check a₁/a₂ first. If equal, compare b₁/b₂. Then c₁/c₂ to decide between inconsistent and dependent.</em></p>
+  </div>
+
+</div>
+
+<script>
+// ===== TYPE SELECTOR =====
+const types = {
+  consistent: {
+    title: '✅ Consistent (Intersecting Lines / प्रतिच्छेदी रेखाएँ)',
+    math: 'a₁/a₂ ≠ b₁/b₂',
+    desc: 'The lines intersect at exactly ONE point. The system has a unique solution.',
+    hindi: '∴ एक अद्वितीय हल (unique solution) होता है।',
+    cls: 'cond-green'
+  },
+  inconsistent: {
+    title: '❌ Inconsistent (Parallel Lines / समानांतर रेखाएँ)',
+    math: 'a₁/a₂ = b₁/b₂ ≠ c₁/c₂',
+    desc: 'The lines are parallel — they never meet. No solution exists.',
+    hindi: '∴ कोई हल नहीं होता। (No Solution)',
+    cls: 'cond-red'
+  },
+  dependent: {
+    title: '∞ Dependent (Coincident Lines / संपाती रेखाएँ)',
+    math: 'a₁/a₂ = b₁/b₂ = c₁/c₂',
+    desc: 'The lines lie exactly on top of each other. Infinitely many solutions.',
+    hindi: '∴ अनंत हल होते हैं। (Infinite Solutions)',
+    cls: 'cond-blue'
+  }
+};
+
+function setType(t) {
+  ['consistent','inconsistent','dependent'].forEach(k => {
+    document.getElementById('tc-'+k).classList.remove('active');
+  });
+  document.getElementById('tc-'+t).classList.add('active');
+  const d = types[t];
+  const box = document.getElementById('conditionBox');
+  box.className = 'condition-box ' + d.cls;
+  document.getElementById('condTitle').textContent = d.title;
+  document.getElementById('condMath').textContent = d.math;
+  document.getElementById('condDesc').textContent = d.desc;
+  document.getElementById('condHindi').textContent = d.hindi;
+
+  // Set graph sliders to match type
+  if(t==='consistent'){document.getElementById('m1').value=1;document.getElementById('m2').value=2;document.getElementById('c1').value=0;document.getElementById('c2').value=0;}
+  else if(t==='inconsistent'){document.getElementById('m1').value=1;document.getElementById('m2').value=1;document.getElementById('c1').value=0;document.getElementById('c2').value=2;}
+  else{document.getElementById('m1').value=1;document.getElementById('m2').value=1;document.getElementById('c1').value=0;document.getElementById('c2').value=0;}
+  updateGraph();
+}
+
+// ===== GRAPH =====
+const canvas = document.getElementById('graphCanvas');
+const ctx = canvas.getContext('2d');
+
+function updateGraph() {
+  const m1 = parseFloat(document.getElementById('m1').value);
+  const c1 = parseFloat(document.getElementById('c1').value);
+  const m2 = parseFloat(document.getElementById('m2').value);
+  const c2 = parseFloat(document.getElementById('c2').value);
+  document.getElementById('m1val').textContent = m1;
+  document.getElementById('c1val').textContent = c1;
+  document.getElementById('m2val').textContent = m2;
+  document.getElementById('c2val').textContent = c2;
+
+  const eq1 = 'y = ' + (m1===0?'':m1+'x') + (c1>=0?' + '+c1:' - '+Math.abs(c1));
+  const eq2 = 'y = ' + (m2===0?'':m2+'x') + (c2>=0?' + '+c2:' - '+Math.abs(c2));
+  document.getElementById('eq1Label').textContent = 'Line 1: '+eq1;
+  document.getElementById('eq2Label').textContent = 'Line 2: '+eq2;
+
+  drawGraph(m1, c1, m2, c2);
+
+  const statusBox = document.getElementById('graphStatus');
+  const statusText = document.getElementById('graphStatusText');
+  if(Math.abs(m1-m2)<0.01){
+    if(Math.abs(c1-c2)<0.01){
+      statusBox.className='condition-box cond-blue';
+      statusText.textContent='∞ Dependent — Lines Coincide (Infinite Solutions / संपाती रेखाएँ)';
+    } else {
+      statusBox.className='condition-box cond-red';
+      statusText.textContent='❌ Inconsistent — Parallel Lines (No Solution / समानांतर रेखाएँ)';
+    }
+  } else {
+    statusBox.className='condition-box cond-green';
+    const ix = (c2-c1)/(m1-m2);
+    const iy = m1*ix+c1;
+    statusText.textContent=`✅ Consistent — Lines Intersect at (${ix.toFixed(1)}, ${iy.toFixed(1)}) — Unique Solution`;
+  }
+}
+
+function drawGraph(m1,c1,m2,c2) {
+  const W = canvas.offsetWidth || 320;
+  canvas.width = W; canvas.height = 260;
+  const w = W, h = 260;
+  const cx = w/2, cy = h/2;
+  const scale = 28;
+  ctx.clearRect(0,0,w,h);
+
+  // Grid
+  ctx.strokeStyle='#e2e8f0'; ctx.lineWidth=1;
+  for(let i=-10;i<=10;i++){
+    ctx.beginPath();ctx.moveTo(cx+i*scale,0);ctx.lineTo(cx+i*scale,h);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(0,cy+i*scale);ctx.lineTo(w,cy+i*scale);ctx.stroke();
+  }
+
+  // Axes
+  ctx.strokeStyle='#94a3b8'; ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(0,cy);ctx.lineTo(w,cy);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(cx,0);ctx.lineTo(cx,h);ctx.stroke();
+
+  // Axis labels
+  ctx.fillStyle='#94a3b8';ctx.font='10px sans-serif';ctx.textAlign='center';
+  ctx.fillText('x',w-8,cy-4);
+  ctx.textAlign='left';ctx.fillText('y',cx+4,10);
+  for(let i=-8;i<=8;i+=2){
+    if(i!==0){
+      ctx.textAlign='center';ctx.fillText(i,cx+i*scale,cy+12);
+      ctx.textAlign='right';ctx.fillText(-i,cx-4,cy-i*scale+4);
+    }
+  }
+
+  // Draw line function
+  function drawLine(m, c, color, dash) {
+    ctx.save();
+    ctx.strokeStyle=color; ctx.lineWidth=2.5;
+    if(dash) ctx.setLineDash([6,4]); else ctx.setLineDash([]);
+    ctx.beginPath();
+    let started=false;
+    for(let px=0;px<=w;px+=2){
+      const x = (px-cx)/scale;
+      const y = m*x+c;
+      const py = cy - y*scale;
+      if(!started){ctx.moveTo(px,py);started=true;}
+      else ctx.lineTo(px,py);
+    }
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  drawLine(m1,c1,'#3b82f6',false);
+  drawLine(m2,c2,'#ef4444',true);
+
+  // Intersection point
+  if(Math.abs(m1-m2)>0.01){
+    const ix=(c2-c1)/(m1-m2);
+    const iy=m1*ix+c1;
+    const px=cx+ix*scale, py=cy-iy*scale;
+    if(px>0&&px<w&&py>0&&py<h){
+      ctx.beginPath();ctx.arc(px,py,6,0,Math.PI*2);
+      ctx.fillStyle='#22c55e';ctx.fill();
+      ctx.strokeStyle='white';ctx.lineWidth=2;ctx.stroke();
+      ctx.fillStyle='#166534';ctx.font='bold 10px sans-serif';ctx.textAlign='left';
+      ctx.fillText(`(${ix.toFixed(1)},${iy.toFixed(1)})`,px+8,py-4);
+    }
+  }
+}
+
+// ===== EXAMPLES =====
+const examples = [
+  {
+    q: '2x + 3y − 5 = 0 &nbsp;&amp;&nbsp; 4x + 6y − 8 = 0',
+    steps: [
+      {title:'Step 1: Identify coefficients',text:'a₁=2, b₁=3, c₁=−5 (Eq.1) | a₂=4, b₂=6, c₂=−8 (Eq.2)',math:''},
+      {title:'Step 2: Calculate a₁/a₂',text:'Divide the x-coefficients:',math:'a₁/a₂ = 2/4 = 1/2'},
+      {title:'Step 3: Calculate b₁/b₂',text:'Divide the y-coefficients:',math:'b₁/b₂ = 3/6 = 1/2'},
+      {title:'Step 4: Calculate c₁/c₂',text:'Divide the constants:',math:'c₁/c₂ = −5/−8 = 5/8'},
+      {title:'Step 5: Compare ratios',text:'a₁/a₂ = b₁/b₂ but ≠ c₁/c₂  →  1/2 = 1/2 ≠ 5/8',math:''},
+      {title:'Step 6: Conclusion ❌',text:'Since a₁/a₂ = b₁/b₂ ≠ c₁/c₂ → Lines are PARALLEL → INCONSISTENT SYSTEM → No Solution!',math:'∴ असंगत (Inconsistent) — कोई हल नहीं'}
+    ]
+  },
+  {
+    q: '3x + 2y = 8 &nbsp;&amp;&nbsp; 6x − 4y = 10',
+    steps: [
+      {title:'Step 1: Rewrite in standard form',text:'3x + 2y − 8 = 0 | 6x − 4y − 10 = 0',math:''},
+      {title:'Step 2: Identify coefficients',text:'a₁=3, b₁=2, c₁=−8 | a₂=6, b₂=−4, c₂=−10',math:''},
+      {title:'Step 3: Calculate a₁/a₂',text:'',math:'a₁/a₂ = 3/6 = 1/2'},
+      {title:'Step 4: Calculate b₁/b₂',text:'',math:'b₁/b₂ = 2/−4 = −1/2'},
+      {title:'Step 5: Compare',text:'1/2 ≠ −1/2  →  a

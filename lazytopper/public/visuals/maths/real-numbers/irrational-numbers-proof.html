@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Irrational Numbers Proof - √2 | CBSE Class 10</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); min-height: 100vh; color: #e2e8f0; }
+  .title-bar { background: linear-gradient(90deg, #3b82f6, #6366f1); padding: 14px 20px; text-align: center; box-shadow: 0 4px 20px rgba(59,130,246,0.4); }
+  .title-bar h1 { font-size: 1.1rem; font-weight: 700; letter-spacing: 0.5px; }
+  .title-bar p { font-size: 0.75rem; opacity: 0.85; margin-top: 2px; }
+  .container { max-width: 700px; margin: 0 auto; padding: 16px; }
+  .card { background: linear-gradient(135deg, #1e293b, #0f172a); border: 1px solid #334155; border-radius: 16px; padding: 18px; margin-bottom: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+  .card h2 { font-size: 0.95rem; color: #3b82f6; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .badge { background: #3b82f6; color: white; border-radius: 20px; padding: 2px 10px; font-size: 0.7rem; }
+  .badge-green { background: #22c55e; }
+  .badge-amber { background: #f59e0b; }
+  .intro-box { background: linear-gradient(135deg, #1d4ed8, #4f46e5); border-radius: 12px; padding: 16px; text-align: center; margin-bottom: 14px; }
+  .intro-box .big-symbol { font-size: 3rem; font-weight: 900; color: #fbbf24; text-shadow: 0 0 20px rgba(251,191,36,0.6); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.08);} }
+  .intro-box p { font-size: 0.82rem; margin-top: 8px; opacity: 0.9; }
+  .number-line { position: relative; height: 70px; background: #0f172a; border-radius: 10px; overflow: hidden; margin: 10px 0; border: 1px solid #334155; }
+  .nl-track { position: absolute; top: 50%; left: 5%; right: 5%; height: 3px; background: linear-gradient(90deg, #334155, #64748b); transform: translateY(-50%); border-radius: 2px; }
+  .nl-point { position: absolute; top: 50%; transform: translate(-50%,-50%); width: 12px; height: 12px; border-radius: 50%; cursor: pointer; transition: all 0.3s; }
+  .nl-label { position: absolute; top: 62%; font-size: 0.65rem; transform: translateX(-50%); color: #94a3b8; }
+  .nl-point:hover { transform: translate(-50%,-50%) scale(1.5); }
+  .rational-pt { background: #3b82f6; box-shadow: 0 0 8px #3b82f6; }
+  .irrational-pt { background: #f59e0b; box-shadow: 0 0 8px #f59e0b; }
+  .proof-steps { counter-reset: step; }
+  .step { border-left: 3px solid #334155; padding: 12px 14px; margin: 8px 0; border-radius: 0 10px 10px 0; background: #0f172a; cursor: pointer; transition: all 0.4s; position: relative; opacity: 0.4; transform: translateX(-8px); }
+  .step.active { opacity: 1; transform: translateX(0); border-left-color: #3b82f6; background: linear-gradient(90deg, rgba(59,130,246,0.1), transparent); }
+  .step.done { border-left-color: #22c55e; opacity: 1; transform: translateX(0); }
+  .step-num { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: #334155; font-size: 0.7rem; font-weight: 700; margin-right: 8px; }
+  .step.active .step-num { background: #3b82f6; }
+  .step.done .step-num { background: #22c55e; }
+  .step-title { font-size: 0.85rem; font-weight: 600; color: #e2e8f0; }
+  .step-content { font-size: 0.78rem; color: #94a3b8; margin-top: 8px; line-height: 1.6; display: none; }
+  .step.active .step-content, .step.done .step-content { display: block; }
+  .formula-box { background: linear-gradient(135deg, rgba(59,130,246,0.15), rgba(99,102,241,0.15)); border: 1px solid #3b82f6; border-radius: 8px; padding: 10px; margin: 8px 0; text-align: center; font-size: 0.95rem; font-weight: 700; color: #93c5fd; letter-spacing: 1px; }
+  .contradiction-box { background: linear-gradient(135deg, rgba(239,68,68,0.15), rgba(220,38,38,0.1)); border: 1px solid #ef4444; border-radius: 8px; padding: 10px; margin: 8px 0; font-size: 0.8rem; color: #fca5a5; }
+  .btn { background: linear-gradient(135deg, #3b82f6, #6366f1); border: none; color: white; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 0.82rem; font-weight: 600; transition: all 0.3s; margin: 4px; }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(59,130,246,0.4); }
+  .btn-green { background: linear-gradient(135deg, #22c55e, #16a34a); }
+  .btn-amber { background: linear-gradient(135deg, #f59e0b, #d97706); }
+  .btn-red { background: linear-gradient(135deg, #ef4444, #dc2626); }
+  .fraction { display: inline-block; text-align: center; vertical-align: middle; margin: 0 4px; }
+  .fraction .num { border-bottom: 1.5px solid #93c5fd; display: block; padding: 0 4px; font-size: 0.85rem; }
+  .fraction .den { display: block; padding: 0 4px; font-size: 0.85rem; }
+  .assumption-box { border-radius: 12px; padding: 14px; margin: 10px 0; transition: all 0.5s; cursor: pointer; border: 2px solid transparent; }
+  .assumption-box.neutral { background: rgba(59,130,246,0.1); border-color: #3b82f6; }
+  .assumption-box.wrong { background: rgba(239,68,68,0.1); border-color: #ef4444; animation: shake 0.5s; }
+  @keyframes shake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-8px);} 75%{transform:translateX(8px);} }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.65rem; font-weight: 600; margin: 2px; }
+  .tag-blue { background: rgba(59,130,246,0.2); color: #93c5fd; border: 1px solid #3b82f6; }
+  .tag-green { background: rgba(34,197,94,0.2); color: #86efac; border: 1px solid #22c55e; }
+  .tag-red { background: rgba(239,68,68,0.2); color: #fca5a5; border: 1px solid #ef4444; }
+  .quiz-option { background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 10px 14px; margin: 6px 0; cursor: pointer; font-size: 0.8rem; transition: all 0.3s; }
+  .quiz-option:hover { border-color: #3b82f6; background: rgba(59,130,246,0.1); }
+  .quiz-option.correct { border-color: #22c55e; background: rgba(34,197,94,0.15); color: #86efac; }
+  .quiz-option.wrong { border-color: #ef4444; background: rgba(239,68,68,0.15); color: #fca5a5; }
+  .progress-bar { height: 4px; background: #334155; border-radius: 2px; margin: 10px 0; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #3b82f6, #22c55e); border-radius: 2px; transition: width 0.5s ease; }
+  .hint { font-size: 0.72rem; color: #64748b; font-style: italic; margin-top: 6px; }
+  .symbol-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin: 8px 0; }
+  .sym-card { background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 10px; text-align: center; font-size: 0.75rem; transition: all 0.3s; cursor: pointer; }
+  .sym-card:hover { border-color: #3b82f6; transform: scale(1.04); }
+  .sym-card .sym { font-size: 1.4rem; color: #f59e0b; display: block; }
+  .nav-dots { display: flex; justify-content: center; gap: 8px; margin: 16px 0; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: #334155; cursor: pointer; transition: all 0.3s; }
+  .dot.active { background: #3b82f6; transform: scale(1.3); }
+  .section { display: none; }
+  .section.active { display: block; }
+  .highlight { color: #fbbf24; font-weight: 700; }
+  .red-text { color: #ef4444; font-weight: 700; }
+  .green-text { color: #22c55e; font-weight: 700; }
+  .blue-text { color: #93c5fd; font-weight: 700; }
+  .info-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
+  .info-pill { background: #0f172a; border: 1px solid #334155; border-radius: 20px; padding: 4px 12px; font-size: 0.72rem; }
+  .animate-in { animation: fadeUp 0.5s ease forwards; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(16px);} to{opacity:1;transform:translateY(0);} }
+  .sqrt-demo { position: relative; padding: 20px; background: #0f172a; border-radius: 12px; text-align: center; margin: 10px 0; }
+  .sqrt-demo .value { font-size: 2.5rem; font-weight: 900; color: #f59e0b; transition: all 0.3s; }
+  .sqrt-demo .sub { font-size: 0.75rem; color: #64748b; margin-top: 4px; }
+  input[type=range] { width: 100%; accent-color: #3b82f6; margin: 8px 0; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media(max-width:400px){ .two-col{grid-template-columns:1fr;} .symbol-grid{grid-template-columns:1fr 1fr;} }
+</style>
+</head>
+<body>
+
+<div class="title-bar">
+  <h1>🔢 Irrational Numbers — Proof by Contradiction | प्रमाण विधि</h1>
+  <p>CBSE Class 10 Mathematics • Real Numbers • Chapter 1</p>
+</div>
+
+<div class="container">
+
+  <!-- Nav dots -->
+  <div class="nav-dots">
+    <div class="dot active" onclick="showSection(0)"></div>
+    <div class="dot" onclick="showSection(1)"></div>
+    <div class="dot" onclick="showSection(2)"></div>
+    <div class="dot" onclick="showSection(3)"></div>
+    <div class="dot" onclick="showSection(4)"></div>
+  </div>
+  <p style="text-align:center;font-size:0.7rem;color:#64748b;margin-bottom:14px;">Tap dots to navigate sections</p>
+
+  <!-- SECTION 0: Intro -->
+  <div class="section active" id="sec0">
+    <div class="card animate-in">
+      <div class="intro-box">
+        <div class="big-symbol">√2</div>
+        <p>Is √2 a rational number? Ancient mathematicians assumed <em>YES</em> — and found a contradiction! This is called <strong>Proof by Contradiction (विरोधाभास प्रमाण)</strong></p>
+      </div>
+      <h2><span class="badge">What?</span> Rational vs Irrational</h2>
+      <p style="font-size:0.8rem;color:#94a3b8;margin-bottom:10px;">Click each type to see its property:</p>
+      <div class="two-col">
+        <div class="sym-card" onclick="showDef('rat')">
+          <span class="sym">p/q</span>
+          <strong style="font-size:0.78rem;">Rational</strong>
+          <p id="rat-def" style="font-size:0.68rem;color:#64748b;display:none;margin-top:6px;">Can be written as <span style="color:#3b82f6">p/q</span> where p,q are integers, q≠0. Example: 1/2, 3, -5/7</p>
+        </div>
+        <div class="sym-card" onclick="showDef('irr')">
+          <span class="sym">√</span>
+          <strong style="font-size:0.78rem;">Irrational</strong>
+          <p id="irr-def" style="font-size:0.68rem;color:#64748b;display:none;margin-top:6px;">CANNOT be written as p/q. Decimal never repeats or terminates. Example: √2, π, √3</p>
+        </div>
+      </div>
+
+      <!-- Number line -->
+      <h2 style="margin-top:14px;"><span class="badge badge-amber">Visual</span> Number Line</h2>
+      <p style="font-size:0.75rem;color:#64748b;margin-bottom:6px;">Hover over the points to identify them:</p>
+      <div class="number-line">
+        <div class="nl-track"></div>
+        <!-- 0 -->
+        <div class="nl-point rational-pt" style="left:10%" title="0 — Rational" onmouseenter="showNLInfo('0 — Rational (परिमेय)')" onmouseleave="clearNL()"></div>
+        <div class="nl-label" style="left:10%">0</div>
+        <!-- 1/2 -->
+        <div class="nl-point rational-pt" style="left:28%" onmouseenter="showNLInfo('½ — Rational (परिमेय)')" onmouseleave="clearNL()"></div>
+        <div class="nl-label" style="left:28%">½</div>
+        <!-- sqrt2 -->
+        <div class="nl-point irrational-pt" style="left:47%" onmouseenter="showNLInfo('√2 ≈ 1.414... — Irrational (अपरिमेय)!')" onmouseleave="clearNL()"></div>
+        <div class="nl-label" style="left:47%;color:#f59e0b">√2</div>
+        <!-- sqrt3 -->
+        <div class="nl-point irrational-pt" style="left:64%" onmouseenter="showNLInfo('√3 ≈ 1.732... — Irrational (अपरिमेय)!')" onmouseleave="clearNL()"></div>
+        <div class="nl-label" style="left:64%;color:#f59e0b">√3</div>
+        <!-- 2 -->
+        <div class="nl-point rational-pt" style="left:81%" onmouseenter="showNLInfo('2 — Rational (परिमेय)')" onmouseleave="clearNL()"></div>
+        <div class="nl-label" style="left:81%">2</div>
+      </div>
+      <div id="nl-info" style="font-size:0.75rem;color:#f59e0b;text-align:center;min-height:18px;margin-top:4px;transition:all 0.3s;"></div>
+      <div class="info-row" style="margin-top:10px;">
+        <span class="info-pill">🔵 Blue = Rational</span>
+        <span class="info-pill" style="color:#f59e0b">🟡 Amber = Irrational</span>
+      </div>
+      <div style="text-align:center;margin-top:12px;">
+        <button class="btn" onclick="showSection(1)">Next: Explore √2 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 1: Explore sqrt2 -->
+  <div class="section" id="sec1">
+    <div class="card animate-in">
+      <h2><span class="badge badge-amber">Explore</span> What is √2?</h2>
+      <p style="font-size:0.78rem;color:#94a3b8;margin-bottom:10px;">√2 means: a number which when squared gives 2. Try squaring different numbers below:</p>
+      <div class="sqrt-demo">
+        <div id="sqrtSliderLabel" style="font-size:0.8rem;color:#64748b;margin-bottom:6px;">Try: x = <span id="xval">1.4</span></div>
+        <input type="range" min="100" max="200" value="140" id="sqrtSlider" oninput="updateSqrt(this.value)">
+        <div class="value" id="sqrtResult">1.96</div>
+        <div class="sub" id="sqrtSub">x² = 1.96 (not 2 yet...)</div>
+        <div id="sqrtClose" style="font-size:0.72rem;color:#64748b;margin-top:6px;"></div>
+      </div>
+      <div class="formula-box" style="margin-top:12px;">√2 ≈ 1.41421356237... (never ends, never repeats)</div>
+      <div style="background:rgba(245,158,11,0.1);border:1px solid #f59e0b;border-radius:8px;padding:10px;margin-top:10px;font-size:0.78rem;">
+        <strong style="color:#f59e0b">💡 Key Insight:</strong> You can never find an exact fraction <span class="fraction" style="font-size:0.78rem"><span class="num" style="color:#93c5fd">p</span><span class="den" style="color:#93c5fd">q</span></span> that equals √2. <em>But how do we PROVE this?</em>
+      </div>
+      <div style="text-align:center;margin-top:14px;">
+        <button class="btn" onclick="showSection(0)">← Back</button>
+        <button class="btn" onclick="showSection(2)">Next: The Proof →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: Proof Steps -->
+  <div class="section" id="sec2">
+    <div class="card animate-in">
+      <h2><span class="badge">प्रमेय</span> Proof: √2 is Irrational</h2>
+      <p style="font-size:0.78rem;color:#94a3b8;margin-bottom:4px;"><strong>Method: विरोधाभास (Contradiction)</strong></p>
+      <p style="font-size:0.75rem;color:#64748b;margin-bottom:12px;">Assume the opposite of what we want to prove, then show it leads to a contradiction!</p>
+
+      <div class="progress-bar"><div class="progress-fill" id="proofProgress" style="width:0%"></div></div>
+      <p style="font-size:0.7rem;color:#64748b;text-align:right;margin-bottom:10px;" id="stepCounter">Step 0 / 6</p>
+
+      <div class="proof-steps" id="proofSteps">
+
+        <div class="step" id="step0" onclick="activateStep(0)">
+          <div><span class="step-num">1</span><span class="step-title">मान लीजिए — Assumption (विरोधाभास के लिए)</span></div>
+          <div class="step-content">
+            <p>Assume (मान लीजिए) that <strong class="highlight">√2 is rational</strong>.</p>
+            <div class="formula-box">√2 = <span class="fraction"><span class="num">p</span><span class="den">q</span></span> &nbsp;&nbsp; where p, q ∈ ℤ, q ≠ 0</div>
+            <p>Also assume <span class="tag tag-blue">p and q have no common factors</span> — i.e., the fraction is in its <strong>lowest form (न्यूनतम रूप)</strong>.</p>
+            <p style="margin-top:6px;">∴ HCF(p, q) = 1</p>
+          </div>
+        </div>
+
+        <div class="step" id="step1" onclick="activateStep(1)">
+          <div><span class="step-num">2</span><span class="step-title">Square Both Sides — दोनों पक्षों का वर्ग</span></div>
+          <div class="step-content">
+            <p>Squaring both sides:</p>
+            <div class="formula-box">(√2)² = (p/q)² &nbsp;⟹&nbsp; 2 = p²/q²</div>
+            <div class="formula-box">∴ p² = 2q²</div>
+            <p>This means <strong class="highlight">p² is divisible by 2</strong>.</p>
+          </div>
+        </div>
+
+        <div class="step" id="step2" onclick="activateStep(2)">
+          <div><span class="step-num">3</span><span class="step-title">p is Even — p सम संख्या है</span></div>
+          <div class="step-content">
+            <p>Since p² is divisible by 2, and <em>if a prime divides p², it divides p</em>:</p>
+            <div class="formula-box">2 | p² &nbsp;⟹&nbsp; 2 | p</div>
+            <p>∴ p = <strong class="highlight">2m</strong> for some integer m</p>
+            <div style="background:rgba(34,197,94,0.1);border:1px solid #22c55e;border-radius:6px;padding:8px;font-size:0.75rem;margin-top:8px;">
+              <strong class="green-text">Theorem used:</strong> If a prime number p divides a², then p divides a.
+            </div>
+          </div>
+        </div>
+
+        <div class="step" id="step3" onclick="activateStep(3)">
+          <div><span class="step-num">4</span><span class="step-title">Substitute p = 2m — प्रतिस्थापन</span></div>
+          <div class="step-content">
+            <p>Put p = 2m into p² = 2q²:</p>
+            <div class="formula-box">(2m)² = 2q² &nbsp;⟹&nbsp; 4m² = 2q²</div>
+            <div class="formula-box">∴ q² = 2m²</div>
+            <p>This means <strong class="highlight">q² is also divisible by 2</strong>.</p>
+            <p>∴ By same logic, <strong class="highlight">q is also even</strong> (q = 2k for some integer k)</p>
+          </div>
+        </div>
+
+        <div class="step" id="step4" onclick="activateStep(4)">
+          <div><span class="step-num">5</span><span class="step-title">विरोधाभास! — Contradiction!</span></div>
+          <div class="step-content">
+            <div class="contradiction-box">
+              <strong>⚡ CONTRADICTION (विरोधाभास):</strong><br><br>
+              We showed: <strong>p is even AND q is even</strong><br>
+              ∴ Both p and q have <strong>2 as a common factor</strong><br><br>
+              But we assumed: <strong>HCF(p, q) = 1</strong> (no common factors!)<br><br>
+              <strong>This is a contradiction! ✗</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="step" id="step5" onclick="activateStep(5)">
+          <div><span class="step-num">6</span><span class="step-title">∴ निष्कर्ष — Conclusion</span></div>
+          <div class="step-content">
+            <div style="background:linear-gradient(135deg,rgba(34,197,94,0.15),rgba(16,163,74,0.1));border:1px solid #22c55e;border-radius:8px;padding:12px;">
+              <p><strong class="green-text">∵ Our assumption leads to a contradiction,</strong></p>
+              <p style="margin-top:6px;"><strong class="green-text">∴ Our assumption was WRONG!</strong></p>
+              <div class="formula-box" style="margin-top:8px;border-color:#22c55e;color:#86efac;">√2 ≠ p/q for any integers p, q</div>
+              <p style="margin-top:8px;text-align:center;font-size:0.9rem;"><strong class="highlight">∴ √2 is IRRATIONAL (अपरिमेय) ✓</strong></p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div style="text-align:center;margin-top:14px;">
+        <button class="btn btn-green" onclick="revealAllSteps()">Show All Steps ⚡</button>
+        <button class="btn btn-red" onclick="resetSteps()">Reset 🔄</button>
+      </div>
+      <div style="text-align:center;margin-top:10px;">
+        <button class="btn" onclick="showSection(1)">← Back</button>
+        <button class="btn" onclick="showSection(3)">Next: Try It →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: Interactive Contradiction -->
+  <div class="section" id="sec3">
+    <div class="card animate-in">
+      <h2><span class="badge badge-amber">Interactive</span> Spot the Contradiction!</h2>
+      <p style="font-size:0.78rem;color:#94a3b8;margin-bottom:12px;">We're extending the same method. Click to test if √3 can be rational:</p>
+
+      <div class="assumption-box neutral" id="assumptionBox">
+        <p style="font-size:0.82rem;"><strong>Assumption:</strong> Let √3 = p/q where HCF(p,q) = 1</p>
+        <div class="formula-box" style="margin:8px 0;">3 = p²/q² &nbsp;⟹&nbsp; p² = 3q²</div>
+        <p style="font-size:0.78rem;">So 3 divides p² ⟹ 3 divides p ⟹ p = 3m</p>
+        <p style="font-size:0.78rem;margin-top:4px;">Substituting: 9m² = 3q² ⟹ q² = 3m² ⟹ 3 divides q</p>
+      </div>
+
+      <p style="font-size:0.8rem;margin:12px 0;">Now, what can we conclude? Both p and q are divisible by 3. What does this mean?</p>
+
+      <div onclick="triggerContradiction()" style="background:rgba(239,68,68,0.1);border:2px dashed #ef4444;border-radius:10px;padding:14px;cursor:pointer;text-align:center;transition:all 0.3s;" id="contrBtn">
+        <p style="font-size:0.85rem;color:#ef4444;font-weight:700;">🔴 Click to Reveal Contradiction!</p>
+      </div>
+
+      <div id="contrResult" style="display:none;margin-top:12px;" class="contradiction-box">
+        <p>HCF(p,q) ≥ 3 — But we assumed HCF(p,q) = 1!</p>
+        <p style="margin-top:6px;"><strong>⚡ CONTRADICTION! ∴ √3 is also IRRATIONAL</strong></p>
+        <p style="margin-top:6px;font-size:0.75rem;color:#94a3b8;">Same method works for √5, √7,

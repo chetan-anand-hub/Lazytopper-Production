@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Area of Triangle using Coordinates</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #1e293b; min-height: 100vh; }
+  
+  .title-bar {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: white; padding: 12px 20px;
+    display: flex; align-items: center; gap: 10px;
+    box-shadow: 0 4px 15px rgba(59,130,246,0.4);
+  }
+  .title-bar h1 { font-size: 1.1em; font-weight: 700; }
+  .title-bar .badge {
+    background: rgba(255,255,255,0.2); border-radius: 20px;
+    padding: 3px 10px; font-size: 0.75em;
+  }
+  .subtitle { font-size: 0.8em; opacity: 0.8; margin-top: 2px; }
+
+  .container { max-width: 800px; margin: 0 auto; padding: 15px; }
+
+  .formula-box {
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    border: 2px solid #3b82f6; border-radius: 16px;
+    padding: 16px; margin: 12px 0; text-align: center;
+    box-shadow: 0 0 20px rgba(59,130,246,0.3);
+    animation: pulse-border 3s infinite;
+  }
+  @keyframes pulse-border {
+    0%,100% { box-shadow: 0 0 20px rgba(59,130,246,0.3); }
+    50% { box-shadow: 0 0 35px rgba(59,130,246,0.6); }
+  }
+  .formula-box .label { color: #94a3b8; font-size: 0.8em; margin-bottom: 6px; }
+  .formula-main {
+    color: #f59e0b; font-size: 1.2em; font-weight: 700;
+    line-height: 1.6; letter-spacing: 0.5px;
+  }
+  .formula-hint { color: #64748b; font-size: 0.75em; margin-top: 6px; }
+
+  .card {
+    background: white; border-radius: 16px;
+    padding: 16px; margin: 12px 0;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  }
+  .card h2 { color: #1e293b; font-size: 1em; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+  .card h2 .icon { font-size: 1.2em; }
+
+  canvas {
+    border-radius: 12px; cursor: crosshair;
+    display: block; max-width: 100%;
+    touch-action: none;
+  }
+
+  .coords-display {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px;
+  }
+  .coord-chip {
+    padding: 6px 12px; border-radius: 20px; font-size: 0.85em;
+    font-weight: 600; cursor: pointer; transition: all 0.3s;
+    border: 2px solid transparent;
+  }
+  .coord-chip.A { background: #fef3c7; color: #92400e; border-color: #f59e0b; }
+  .coord-chip.B { background: #dcfce7; color: #14532d; border-color: #22c55e; }
+  .coord-chip.C { background: #ede9fe; color: #4c1d95; border-color: #8b5cf6; }
+  .coord-chip.active { transform: scale(1.1); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+
+  .result-display {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: white; border-radius: 12px; padding: 12px;
+    text-align: center; margin-top: 10px;
+    font-size: 1.1em; font-weight: 700;
+    transition: all 0.5s; transform: scale(1);
+  }
+  .result-display.updated { animation: pop 0.4s ease; }
+  @keyframes pop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+
+  .collinear-warn {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white; border-radius: 12px; padding: 12px;
+    text-align: center; margin-top: 10px;
+    font-size: 0.95em; font-weight: 600;
+    display: none;
+  }
+
+  .steps-section { margin: 12px 0; }
+  .step-item {
+    background: white; border-radius: 12px; margin: 8px 0;
+    overflow: hidden; cursor: pointer;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: all 0.3s;
+  }
+  .step-header {
+    padding: 12px 16px; display: flex;
+    align-items: center; gap: 10px;
+    background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+  }
+  .step-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.85em; color: white; flex-shrink: 0;
+  }
+  .step-title { font-weight: 600; font-size: 0.9em; color: #1e293b; flex: 1; }
+  .step-arrow { color: #94a3b8; transition: transform 0.3s; font-size: 0.8em; }
+  .step-item.open .step-arrow { transform: rotate(180deg); }
+  .step-body {
+    max-height: 0; overflow: hidden;
+    transition: max-height 0.4s ease, padding 0.3s;
+    padding: 0 16px;
+  }
+  .step-item.open .step-body { max-height: 300px; padding: 12px 16px; }
+  .step-body p { font-size: 0.88em; color: #374151; line-height: 1.6; }
+  .step-body .math { 
+    background: #f1f5f9; border-radius: 8px; padding: 8px 12px;
+    margin: 6px 0; font-family: monospace; font-size: 0.9em;
+    color: #1e40af; border-left: 3px solid #3b82f6;
+  }
+
+  .example-box {
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    border-radius: 16px; padding: 16px; margin: 12px 0;
+    border: 1px solid #334155;
+  }
+  .example-box h3 { color: #f59e0b; font-size: 0.95em; margin-bottom: 10px; }
+  .example-points {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px;
+  }
+  .ex-point {
+    padding: 6px 12px; border-radius: 8px; font-size: 0.85em;
+    font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  .ex-point:hover { transform: translateY(-2px); }
+  .load-btn {
+    background: #3b82f6; color: white; border: none;
+    border-radius: 8px; padding: 8px 16px; cursor: pointer;
+    font-size: 0.85em; font-weight: 600; transition: all 0.3s;
+    margin-top: 6px;
+  }
+  .load-btn:hover { background: #2563eb; transform: translateY(-1px); }
+
+  .tip-box {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border-radius: 12px; padding: 12px; margin: 10px 0;
+    border-left: 4px solid #f59e0b; font-size: 0.85em; color: #78350f;
+  }
+
+  .toggle-hint {
+    text-align: center; color: #64748b; font-size: 0.8em;
+    margin-top: 6px; font-style: italic;
+  }
+
+  @media (max-width: 400px) {
+    .title-bar h1 { font-size: 0.95em; }
+    .formula-main { font-size: 1em; }
+  }
+</style>
+</head>
+<body>
+
+<div class="title-bar">
+  <div>
+    <h1>△ क्षेत्रफल (Area of Triangle) — Coordinate Geometry</h1>
+    <div class="subtitle">CBSE Class 10 Mathematics · Interactive Explorer</div>
+  </div>
+  <div class="badge">Class 10</div>
+</div>
+
+<div class="container">
+
+  <div class="formula-box">
+    <div class="label">📐 सूत्र (Formula) — याद रखें!</div>
+    <div class="formula-main">
+      Area = ½ |x₁(y₂ − y₃) + x₂(y₃ − y₁) + x₃(y₁ − y₂)|
+    </div>
+    <div class="formula-hint">∵ vertices: A(x₁,y₁), B(x₂,y₂), C(x₃,y₃) &nbsp;|&nbsp; | | = absolute value</div>
+  </div>
+
+  <div class="card">
+    <h2><span class="icon">🎯</span> Drag the Vertices — देखो क्षेत्रफल बदलता है!</h2>
+    <canvas id="canvas" width="760" height="340"></canvas>
+    <div class="coords-display" id="coordsDisplay">
+      <div class="coord-chip A" id="chipA" onclick="selectVertex(0)">A(1, 4)</div>
+      <div class="coord-chip B" id="chipB" onclick="selectVertex(1)">B(−2, −3)</div>
+      <div class="coord-chip C" id="chipC" onclick="selectVertex(2)">C(5, −1)</div>
+    </div>
+    <div class="result-display" id="resultBox">क्षेत्रफल = calculating...</div>
+    <div class="collinear-warn" id="colWarn">⚠️ तीनों बिंदु एक रेखा पर हैं (Collinear)! क्षेत्रफल = 0</div>
+    <div class="toggle-hint">👆 Drag any colored dot to move it</div>
+  </div>
+
+  <div class="example-box">
+    <h3>📌 Worked Example — CBSE Style</h3>
+    <div>Find area of △ABC with: <strong style="color:#94a3b8">A(2, 3), B(−1, 0), C(2, −4)</strong></div>
+    <div class="example-points" style="margin-top:8px">
+      <button class="load-btn" onclick="loadExample()">▶ Load this Example</button>
+    </div>
+  </div>
+
+  <div class="steps-section" id="stepsSection" style="display:none">
+    <div style="color:#94a3b8;font-size:0.85em;margin-bottom:8px">📖 Click each step to reveal (क्रमशः खोलें):</div>
+    
+    <div class="step-item" onclick="toggleStep(this)">
+      <div class="step-header">
+        <div class="step-num" style="background:#3b82f6">1</div>
+        <div class="step-title">Write down the coordinates (निर्देशांक लिखें)</div>
+        <div class="step-arrow">▼</div>
+      </div>
+      <div class="step-body">
+        <p>Given vertices of △ABC:</p>
+        <div class="math">x₁ = 2, y₁ = 3 &nbsp; → A(2, 3)<br>x₂ = −1, y₂ = 0 &nbsp; → B(−1, 0)<br>x₃ = 2, y₃ = −4 &nbsp; → C(2, −4)</div>
+      </div>
+    </div>
+
+    <div class="step-item" onclick="toggleStep(this)">
+      <div class="step-header">
+        <div class="step-num" style="background:#f59e0b">2</div>
+        <div class="step-title">Apply the formula (सूत्र लगाएं)</div>
+        <div class="step-arrow">▼</div>
+      </div>
+      <div class="step-body">
+        <div class="math">Area = ½ |x₁(y₂ − y₃) + x₂(y₃ − y₁) + x₃(y₁ − y₂)|</div>
+        <p>Substitute values:</p>
+        <div class="math">= ½ |2(0 − (−4)) + (−1)((−4) − 3) + 2(3 − 0)|</div>
+      </div>
+    </div>
+
+    <div class="step-item" onclick="toggleStep(this)">
+      <div class="step-header">
+        <div class="step-num" style="background:#22c55e">3</div>
+        <div class="step-title">Simplify brackets (सरल करें)</div>
+        <div class="step-arrow">▼</div>
+      </div>
+      <div class="step-body">
+        <div class="math">= ½ |2(4) + (−1)(−7) + 2(3)|<br>= ½ |8 + 7 + 6|<br>= ½ |21|</div>
+      </div>
+    </div>
+
+    <div class="step-item" onclick="toggleStep(this)">
+      <div class="step-header">
+        <div class="step-num" style="background:#8b5cf6">4</div>
+        <div class="step-title">∴ Final Answer (उत्तर)</div>
+        <div class="step-arrow">▼</div>
+      </div>
+      <div class="step-body">
+        <div class="math">Area = ½ × 21 = <strong>10.5 sq. units</strong></div>
+        <p>∴ क्षेत्रफल = <strong>21/2 square units</strong></p>
+        <p style="color:#22c55e;font-weight:600">✅ Since Area ≠ 0, points are NOT collinear (एक रेखीय नहीं हैं)</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="icon">💡</span> Key Concepts (मुख्य बातें)</h2>
+    <div class="tip-box">
+      <strong>Collinearity Test:</strong> If Area = 0, the three points are collinear (एक रेखीय)! This is a powerful use of this formula.
+    </div>
+    <div class="tip-box" style="background:linear-gradient(135deg,#dcfce7,#bbf7d0);border-color:#22c55e;color:#14532d">
+      <strong>Sign Rule:</strong> We take absolute value |  | because area is always positive (धनात्मक). The formula inside can give negative value depending on vertex order.
+    </div>
+    <div class="tip-box" style="background:linear-gradient(135deg,#ede9fe,#ddd6fe);border-color:#8b5cf6;color:#4c1d95">
+      <strong>Unit:</strong> Area is in square units (वर्ग इकाई). If coordinates are in cm, area = cm².
+    </div>
+  </div>
+
+</div>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+let W, H, ox, oy, scale;
+
+const colors = ['#f59e0b', '#22c55e', '#8b5cf6'];
+const labels = ['A', 'B', 'C'];
+
+let pts = [{x:1,y:4},{x:-2,y:-3},{x:5,y:-1}];
+let dragging = -1;
+let selected = -1;
+
+function resize() {
+  const w = canvas.parentElement.clientWidth - 32;
+  canvas.width = Math.min(w, 760);
+  canvas.height = Math.round(canvas.width * 0.45);
+  W = canvas.width; H = canvas.height;
+  ox = W/2; oy = H/2;
+  scale = Math.min(W, H) / 11;
+  draw();
+}
+
+function toCanvas(gx, gy) {
+  return { cx: ox + gx * scale, cy: oy - gy * scale };
+}
+function toGrid(cx, cy) {
+  return { gx: (cx - ox) / scale, gy: (oy - cy) / scale };
+}
+
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+  drawGrid();
+  drawAxes();
+  drawTriangle();
+  drawVertices();
+  updateUI();
+}
+
+function drawGrid() {
+  ctx.strokeStyle = 'rgba(148,163,184,0.2)';
+  ctx.lineWidth = 0.5;
+  const r = Math.ceil(Math.max(W,H) / scale) + 2;
+  for (let i = -r; i <= r; i++) {
+    const {cx, cy} = toCanvas(i, 0);
+    ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, H); ctx.stroke();
+    const {cx: cx2, cy: cy2} = toCanvas(0, i);
+    ctx.beginPath(); ctx.moveTo(0, cy2); ctx.lineTo(W, cy2); ctx.stroke();
+  }
+}
+
+function drawAxes() {
+  ctx.strokeStyle = 'rgba(148,163,184,0.6)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(0, oy); ctx.lineTo(W, oy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(ox, 0); ctx.lineTo(ox, H); ctx.stroke();
+
+  ctx.fillStyle = '#64748b';
+  ctx.font = `${Math.max(9, scale*0.38)}px sans-serif`;
+  ctx.textAlign = 'center';
+
+  const step = scale >= 30 ? 1 : 2;
+  const r = Math.ceil(Math.max(W,H)/scale);
+  for (let i = -r; i <= r; i += step) {
+    if (i === 0) continue;
+    const {cx} = toCanvas(i, 0);
+    if (cx > 5 && cx < W-5) {
+      ctx.fillText(i, cx, oy + 14);
+    }
+    const {cy} = toCanvas(0, i);
+    if (cy > 5 && cy < H-5) {
+      ctx.textAlign = 'right';
+      ctx.fillText(i, ox - 4, cy + 4);
+      ctx.textAlign = 'center';
+    }
+  }
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = `bold ${Math.max(10,scale*0.4)}px sans-serif`;
+  ctx.fillText('x', W - 12, oy - 8);
+  ctx.fillText('y', ox + 12, 12);
+}
+
+function drawTriangle() {
+  const [p0, p1, p2] = pts.map(p => toCanvas(p.x, p.y));
+  
+  ctx.beginPath();
+  ctx.moveTo(p0.cx, p0.cy);
+  ctx.lineTo(p1.cx, p1.cy);
+  ctx.lineTo(p2.cx, p2.cy);
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(59,130,246,0.15)';
+  ctx.fill();
+  ctx.strokeStyle = '#3b82f6';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([]);
+  ctx.stroke();
+
+  // Draw side labels
+  const midpts = [
+    {mx:(p0.cx+p1.cx)/2, my:(p0.cy+p1.cy)/2, l:'AB'},
+    {mx:(p1.cx+p2.cx)/2, my:(p1.cy+p2.cy)/2, l:'BC'},
+    {mx:(p2.cx+p0.cx)/2, my:(p2.cy+p0.cy)/2, l:'CA'}
+  ];
+  ctx.fillStyle = '#3b82f6';
+  ctx.font = `${Math.max(9, scale*0.35)}px sans-serif`;
+  ctx.textAlign = 'center';
+}
+
+function drawVertices() {
+  pts.forEach((p, i) => {
+    const {cx, cy} = toCanvas(p.x, p.y);
+    const r = 8 + (selected === i ? 3 : 0);
+    
+    ctx.shadowColor = colors[i];
+    ctx.shadowBlur = 12;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI*2);
+    ctx.fillStyle = colors[i];
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    ctx.strokeStyle = 'white';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.fillStyle = 'white';
+    ctx.font = `bold ${Math.max(10, scale*0.42)}px sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(labels[i], cx, cy);
+
+    ctx.fillStyle = colors[i];
+    ctx.font = `${Math.max(9, scale*0.38)}px sans-serif`;
+    ctx.textBaseline = 'alphabetic';
+    const gx = p.x.toFixed(1).replace('.0','');
+    const gy = p.y.toFixed(1).replace('.0','');
+    const coordStr = `(${gx}, ${gy})`;
+    const offX = cx < W/2 ? 28 : -28;
+    const offY = cy < H/2 ? 20 : -20;
+    ctx.textAlign = offX > 0 ? 'left' : 'right';
+    ctx.fillText(coordStr, cx + offX*0.7, cy + offY);
+  });
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'alphabetic';
+}
+
+function computeArea() {
+  const [a,b,c] = pts;
+  return 0.5 * Math.abs(a.x*(b.y-c.y) + b.x*(c.y-a.y) + c.x*(a.y-b.y));
+}
+
+function updateUI() {
+  const area = computeArea();
+  const chips = ['chipA','chipB','chipC'];
+  pts.forEach((p,i) => {
+    const gx = p.x.toFixed(1).replace('.0','');
+    const gy = p.y.toFixed(1).replace('.0','');
+    document.getElementById(chips[i]).textContent = `${labels[i]}(${gx}, ${gy})`;
+  });
+
+  const rb = document.getElementById('resultBox');
+  const cw = document.getElementById('colWarn');
+
+  if (area < 0.01) {
+    rb.style.display = 'none';
+    cw.style.display = 'block';
+  } else {
+    rb.style.display = 'block';
+    cw.style.display = 'none';
+    const frac = toFraction(area);
+    rb.textContent = `क्षेत्रफल (Area) = ${area.toFixed(2)} sq. units${frac ? ' = '+frac : ''}`;
+    rb.classList.remove('updated');
+    void rb.offsetWidth;
+    rb.classList.add('updated');
+  }
+}
+
+function toFraction(n) {
+  const d = 2;
+  const num = Math.round(n*2);
+  if (num % 2 === 0) return null;
+  return `${num}/2`;
+}
+
+function getEventPos(e) {
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  if (e.touches) {
+    return {
+      x: (e.touches[0].clientX - rect.left) * scaleX,
+      y: (e.touches[0].clientY - rect.top) * scaleY
+    };
+  }
+  return {
+    x: (e.clientX - rect.left) * scaleX,
+    y: (e.clientY - rect.top) * scaleY
+  };
+}
+
+function findNearest(pos) {
+  let best = -1, bestD = 20*20;
+  pts.forEach((p, i) => {
+    const {cx, cy} = toCanvas(p.x, p.y);
+    const d = (pos.x-cx)**2 + (pos.y-cy)**2;
+    if (d < bestD) { bestD = d; best = i; }
+  });
+  return best;
+}
+
+canvas.addEventListener('mousedown', e => {
+  const pos = getEventPos(e);
+  dragging = findNearest(pos);
+  selected = dragging;
+  if (dragging >= 0) canvas.style.cursor = 'grabbing';
+});
+canvas.addEventListener('mousemove', e => {
+  const pos = getEventPos(e);
+  if (dragging >= 0) {
+    const g = toGrid(pos.x, pos.y);
+    pts[dragging].x = Math.round(g.gx * 2) / 2;
+    pts[dragging].y = Math.round(g.gy * 2) / 2;
+    draw();
+  } else {
+    const n = findNearest(pos);
+    canvas.style.cursor = n >= 0 ? 'grab' : 'crosshair';
+  }
+});
+canvas.addEventListener('mouseup', () => { dragging = -1; canvas.style.cursor = 'grab'; });
+canvas.addEventListener('mouseleave', () => { dragging = -1; });
+
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  const pos = getEventPos(e);
+  dragging = findNearest(pos);
+  selected = dragging;
+}, {passive:false});
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  if (dragging < 0) return;
+  const pos = getEventPos(e);
+  const g = toGrid(pos.x, pos.y);
+  pts[dragging].x = Math.round(g.gx * 2) / 2;
+  pts[dragging].y = Math.round(g.gy * 2) / 2;
+  draw();
+}, {passive:false});
+canvas.addEventListener('touchend', () => { dragging = -1; });
+
+function selectVertex(i) {
+  selected = selected === i ? -1 : i;
+  const chips = ['chipA','chipB','chipC'];
+  chips.forEach((c,j) => {
+    document.getElementById(c).classList.toggle('active', j===selected);
+  });
+  draw();
+}
+
+function toggleStep(el) {
+  el.classList.toggle('open');
+}
+
+function loadExample() {
+  pts = [{x:2,y:3},{x:-1,y:0},{x:2,y:-4}];
+  draw();
+  document.getElementById('stepsSection').style.display = 'block';
+  document.getElementById('stepsSection').scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+window.addEventListener('resize', resize);
+resize();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Combination of Solids - Class 10 Maths</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a,#1e3a5f);min-height:100vh;color:#1e293b;overflow-x:hidden}
+.title-bar{background:linear-gradient(90deg,#3b82f6,#8b5cf6);padding:12px 16px;text-align:center;box-shadow:0 4px 15px rgba(59,130,246,0.4)}
+.title-bar h1{color:#fff;font-size:1.1rem;font-weight:700;letter-spacing:0.5px}
+.title-bar p{color:#bfdbfe;font-size:0.75rem;margin-top:2px}
+.container{max-width:800px;margin:0 auto;padding:12px}
+.card{background:#fff;border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 8px 30px rgba(0,0,0,0.2)}
+.card h2{font-size:1rem;color:#1e293b;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.badge{background:linear-gradient(90deg,#3b82f6,#8b5cf6);color:#fff;padding:2px 8px;border-radius:20px;font-size:0.65rem;font-weight:700}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.tab{padding:6px 12px;border-radius:20px;border:2px solid #e2e8f0;background:#f8fafc;cursor:pointer;font-size:0.75rem;font-weight:600;color:#64748b;transition:all 0.3s}
+.tab.active{background:linear-gradient(90deg,#3b82f6,#8b5cf6);color:#fff;border-color:transparent}
+.tab:hover:not(.active){border-color:#3b82f6;color:#3b82f6}
+.scene{display:none}.scene.active{display:block}
+svg{width:100%;height:auto;display:block}
+.formula-box{background:linear-gradient(135deg,#eff6ff,#f0fdf4);border:2px solid #3b82f6;border-radius:12px;padding:12px;margin:10px 0;text-align:center}
+.formula-box .formula{font-size:0.85rem;font-weight:700;color:#1e40af;line-height:1.6}
+.formula-box .label{font-size:0.7rem;color:#64748b;margin-top:4px}
+.steps-container{margin-top:10px}
+.step{background:#f8fafc;border-left:4px solid #3b82f6;border-radius:0 8px 8px 0;padding:10px;margin-bottom:8px;display:none;animation:slideIn 0.4s ease}
+.step.visible{display:block}
+.step-num{background:#3b82f6;color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700;margin-right:6px}
+.step-text{font-size:0.78rem;color:#1e293b;line-height:1.5}
+.step-calc{font-weight:700;color:#3b82f6;font-size:0.8rem}
+@keyframes slideIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+.btn{padding:8px 16px;border-radius:8px;border:none;cursor:pointer;font-weight:700;font-size:0.75rem;transition:all 0.3s}
+.btn-primary{background:linear-gradient(90deg,#3b82f6,#8b5cf6);color:#fff}
+.btn-primary:hover{transform:scale(1.05);box-shadow:0 4px 15px rgba(59,130,246,0.4)}
+.btn-success{background:#22c55e;color:#fff}
+.btn-amber{background:#f59e0b;color:#fff}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.slider-row{display:flex;align-items:center;gap:8px;margin:6px 0}
+.slider-row label{font-size:0.72rem;color:#64748b;width:80px;flex-shrink:0}
+.slider-row input[type=range]{flex:1;accent-color:#3b82f6}
+.slider-row span{font-size:0.72rem;font-weight:700;color:#3b82f6;width:40px;text-align:right}
+.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-top:10px}
+.info-item{background:linear-gradient(135deg,#eff6ff,#f0fdf4);border-radius:10px;padding:8px;text-align:center}
+.info-item .val{font-size:1rem;font-weight:800;color:#3b82f6}
+.info-item .lbl{font-size:0.65rem;color:#64748b;margin-top:2px}
+.highlight{color:#ef4444;font-weight:700}
+.green{color:#22c55e;font-weight:700}
+.amber{color:#f59e0b;font-weight:700}
+.note{background:#fef9c3;border:1px solid #fbbf24;border-radius:8px;padding:8px;font-size:0.72rem;color:#92400e;margin-top:8px}
+.progress-bar{height:6px;background:#e2e8f0;border-radius:3px;margin:8px 0;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#3b82f6,#22c55e);border-radius:3px;transition:width 0.5s ease}
+.solid-selector{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.solid-btn{padding:5px 10px;border-radius:8px;border:2px solid #e2e8f0;background:#f8fafc;cursor:pointer;font-size:0.7rem;font-weight:600;color:#64748b;transition:all 0.3s}
+.solid-btn.sel{background:#3b82f6;color:#fff;border-color:#3b82f6}
+.anim-solid{animation:float 3s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+</style>
+</head>
+<body>
+<div class="title-bar">
+<h1>🔷 ठोसों का संयोजन — Combination of Solids</h1>
+<p>Class 10 Mathematics | Surface Areas &amp; Volumes | CBSE</p>
+</div>
+<div class="container">
+
+<!-- TABS -->
+<div class="tabs">
+<div class="tab active" onclick="switchTab('intro')">📚 Concept</div>
+<div class="tab" onclick="switchTab('builder')">🔧 Build Shape</div>
+<div class="tab" onclick="switchTab('example')">📐 Worked Example</div>
+<div class="tab" onclick="switchTab('quiz')">🧠 Quick Check</div>
+</div>
+
+<!-- INTRO TAB -->
+<div id="intro" class="scene active">
+<div class="card">
+<h2>🎯 What is Combination of Solids? <span class="badge">CONCEPT</span></h2>
+<p style="font-size:0.78rem;color:#475569;line-height:1.5">Many real-life objects are made by <strong>joining two or more basic solids</strong>. We calculate their surface area and volume by breaking them into known shapes.</p>
+<div class="note">💡 <strong>Key Insight:</strong> जब दो ठोस जोड़े जाते हैं, तो जुड़ने वाला भाग (जैसे आधार) surface area में नहीं जुड़ता!</div>
+</div>
+
+<div class="card">
+<h2>🏠 Common Examples — Click to Explore</h2>
+<div class="solid-selector">
+<div class="solid-btn sel" onclick="showSolid(0,this)">🎪 Tent</div>
+<div class="solid-btn" onclick="showSolid(1,this)">🧊 Capsule</div>
+<div class="solid-btn" onclick="showSolid(2,this)">🏛️ Dome Tank</div>
+<div class="solid-btn" onclick="showSolid(3,this)">🍦 Ice Cream</div>
+</div>
+<div id="solid-display">
+<svg id="solid-svg" viewBox="0 0 300 200" style="max-height:200px"></svg>
+<div id="solid-info" class="info-grid"></div>
+</div>
+</div>
+
+<div class="card">
+<h2>📋 Key Formulas <span class="badge">CBSE</span></h2>
+<div style="overflow-x:auto">
+<table style="width:100%;border-collapse:collapse;font-size:0.72rem">
+<tr style="background:#eff6ff"><th style="padding:6px;text-align:left;border-radius:6px 0 0 0">Solid</th><th style="padding:6px">CSA / LSA</th><th style="padding:6px">Total SA</th><th style="padding:6px;border-radius:0 6px 0 0">Volume</th></tr>
+<tr style="background:#f8fafc"><td style="padding:6px;font-weight:700">Cylinder</td><td style="padding:6px">2πrh</td><td style="padding:6px">2πr(r+h)</td><td style="padding:6px">πr²h</td></tr>
+<tr style="background:#eff6ff"><td style="padding:6px;font-weight:700">Cone</td><td style="padding:6px">πrl</td><td style="padding:6px">πr(r+l)</td><td style="padding:6px">⅓πr²h</td></tr>
+<tr style="background:#f8fafc"><td style="padding:6px;font-weight:700">Hemisphere</td><td style="padding:6px">2πr²</td><td style="padding:6px">3πr²</td><td style="padding:6px">⅔πr³</td></tr>
+<tr style="background:#eff6ff"><td style="padding:6px;font-weight:700">Sphere</td><td style="padding:6px">4πr²</td><td style="padding:6px">4πr²</td><td style="padding:6px">⁴⁄₃πr³</td></tr>
+</table>
+</div>
+<div class="formula-box" style="margin-top:10px">
+<div class="formula">Total Surface Area = Sum of all VISIBLE curved/flat surfaces</div>
+<div class="label">∴ जुड़े हुए भाग को <span style="color:#ef4444">घटाया</span> जाता है!</div>
+</div>
+</div>
+</div>
+
+<!-- BUILDER TAB -->
+<div id="builder" class="scene">
+<div class="card">
+<h2>🔧 Interactive Shape Builder <span class="badge">DRAG</span></h2>
+<p style="font-size:0.75rem;color:#64748b;margin-bottom:8px">Adjust the sliders to change dimensions and see how Surface Area &amp; Volume change!</p>
+<div class="tabs" style="margin-bottom:8px">
+<div class="tab active" onclick="setBuilderMode('tent',this)">🎪 Tent (Cone+Cylinder)</div>
+<div class="tab" onclick="setBuilderMode('capsule',this)">💊 Capsule (Cyl+Hemi)</div>
+</div>
+<svg id="builder-svg" viewBox="0 0 300 220" style="max-height:220px;border-radius:12px;background:linear-gradient(180deg,#e0f2fe,#f0fdf4)"></svg>
+<div id="builder-sliders"></div>
+<div class="info-grid" id="builder-info"></div>
+<div class="formula-box" id="builder-formula"></div>
+</div>
+</div>
+
+<!-- EXAMPLE TAB -->
+<div id="example" class="scene">
+<div class="card">
+<h2>📐 Worked Example <span class="badge">STEP BY STEP</span></h2>
+<div style="background:linear-gradient(135deg,#fef9c3,#fffbeb);border-radius:10px;padding:10px;margin-bottom:10px;font-size:0.78rem">
+<strong>Question:</strong> A tent is in the shape of a <span class="highlight">cylinder</span> surmounted by a <span class="highlight">conical top</span>. If height of cylinder = <strong>2.1 m</strong>, radius = <strong>4 m</strong>, and slant height of cone = <strong>2.8 m</strong>, find the area of the canvas required. (Use π = 22/7)
+</div>
+<svg viewBox="0 0 300 200" style="max-height:180px;background:linear-gradient(180deg,#e0f2fe,#dcfce7);border-radius:12px">
+<defs><linearGradient id="cg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f97316"/><stop offset="100%" stop-color="#fb923c"/></linearGradient>
+<linearGradient id="cyg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#60a5fa"/></linearGradient></defs>
+<polygon points="150,30 80,120 220,120" fill="url(#cg1)" stroke="#ea580c" stroke-width="1.5"/>
+<rect x="80" y="120" width="140" height="55" rx="2" fill="url(#cyg1)" stroke="#2563eb" stroke-width="1.5"/>
+<line x1="150" y1="30" x2="150" y2="120" stroke="#fff" stroke-width="1" stroke-dasharray="4,3"/>
+<line x1="150" y1="30" x2="220" y2="120" stroke="#fbbf24" stroke-width="1.5"/>
+<text x="200" y="80" font-size="9" fill="#fff" font-weight="700">l=2.8m</text>
+<text x="226" y="150" font-size="9" fill="#fff" font-weight="700">h=2.1m</text>
+<text x="148" y="183" font-size="9" fill="#1e40af" font-weight="700">r=4m</text>
+<line x1="80" y1="178" x2="220" y2="178" stroke="#1e40af" stroke-width="1" marker-end="url(#arr)"/>
+<text x="60" y="150" font-size="8" fill="#1e3a8a">Cylinder</text>
+<text x="60" y="70" font-size="8" fill="#9a3412">Cone</text>
+<line x1="77" y1="145" x2="77" y2="175" stroke="#1e3a8a" stroke-width="1.5"/>
+</svg>
+<div class="steps-container" id="steps"></div>
+<div class="progress-bar"><div class="progress-fill" id="prog" style="width:0%"></div></div>
+<div class="btn-row">
+<button class="btn btn-primary" onclick="nextStep()">▶ Next Step</button>
+<button class="btn btn-amber" onclick="resetSteps()">↺ Reset</button>
+</div>
+<div id="step-counter" style="font-size:0.7rem;color:#64748b;margin-top:6px">Step 0 of 6</div>
+</div>
+</div>
+
+<!-- QUIZ TAB -->
+<div id="quiz" class="scene">
+<div class="card">
+<h2>🧠 Quick Check <span class="badge">TEST YOURSELF</span></h2>
+<div id="quiz-container"></div>
+</div>
+</div>
+
+</div>
+
+<script>
+// ===== TAB SWITCHING =====
+function switchTab(id){
+document.querySelectorAll('.scene').forEach(s=>s.classList.remove('active'));
+document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+document.getElementById(id).classList.add('active');
+event.target.classList.add('active');
+if(id==='builder')initBuilder();
+if(id==='quiz')initQuiz();
+if(id==='intro')drawSolid(0);
+}
+
+// ===== SOLID DISPLAY =====
+const solids=[
+{name:'Tent (Cone + Cylinder)',parts:'Cone + Cylinder',color1:'#f97316',color2:'#3b82f6',
+sa:'πrl + 2πrh (canvas area)',vol:'⅓πr²h₁ + πr²h₂',
+draw:(svg)=>{
+svg.innerHTML=`<defs><linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f97316"/><stop offset="100%" stop-color="#fb923c"/></linearGradient>
+<linearGradient id="g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#93c5fd"/></linearGradient></defs>
+<g class="anim-solid">
+<rect x="90" y="120" width="120" height="55" rx="3" fill="url(#g2)" stroke="#2563eb" stroke-width="2"/>
+<polygon points="150,35 90,120 210,120" fill="url(#g1)" stroke="#ea580c" stroke-width="2"/>
+<text x="150" y="152" text-anchor="middle" font-size="11" fill="#fff" font-weight="700">Cylinder</text>
+<text x="150" y="88" text-anchor="middle" font-size="11" fill="#fff" font-weight="700">Cone</text>
+<text x="85" y="152" font-size="9" fill="#bfdbfe">h₂</text>
+<text x="210" y="80" font-size="9" fill="#fef3c7">l</text></g>`;
+}},
+{name:'Capsule (Cylinder + 2 Hemispheres)',parts:'Cylinder + Hemisphere × 2',color1:'#22c55e',color2:'#8b5cf6',
+sa:'2πrh + 4πr²',vol:'πr²h + ⁴⁄₃πr³',
+draw:(svg)=>{
+svg.innerHTML=`<defs><linearGradient id="g3" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#22c55e"/></linearGradient></defs>
+<g class="anim-solid">
+<ellipse cx="100" cy="100" rx="35" ry="50" fill="#8b5cf6" stroke="#6d28d9" stroke-width="2"/>
+<rect x="100" y="50" width="100" height="100" fill="url(#g3)" stroke="#16a34a" stroke-width="2"/>
+<ellipse cx="200" cy="100" rx="35" ry="50" fill="#22c55e" stroke="#16a34a" stroke-width="2"/>
+<text x="150" y="105" text-anchor="middle" font-size="10" fill="#fff" font-weight="700">Cylinder</text>
+<text x="100" y="105" text-anchor="middle" font-size="8" fill="#fff">Hemi</text>
+<text x="200" y="105" text-anchor="middle" font-size="8" fill="#fff">Hemi</text></g>`;
+}},
+{name:'Dome Water Tank (Cylinder + Hemisphere)',parts:'Cylinder + Hemisphere (top)',color1:'#0ea5e9',color2:'#64748b',
+sa:'2πrh + 2πr²',vol:'πr²h + ⅔πr³',
+draw:(svg)=>{
+svg.innerHTML=`<defs><linearGradient id="g4" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#64748b"/><stop offset="100%" stop-color="#94a3b8"/></linearGradient></defs>
+<g class="anim-solid">
+<rect x="75" y="120" width="150" height="60" rx="2" fill="url(#g4)" stroke="#475569" stroke-width="2"/>
+<ellipse cx="150" cy="120" rx="75" ry="40" fill="#0ea5e9" stroke="#0284c7" stroke-width="2"/>
+<rect x="75" y="120" width="150" height="20" fill="#0ea5e9" opacity="0.3"/>
+<text x="150" y="155" text-anchor="middle" font-size="11" fill="#fff" font-weight="700">Cylinder</text>
+<text x="150" y="108" text-anchor="middle" font-size="11" fill="#fff" font-weight="700">Hemisphere</text></g>`;
+}},
+{name:'Ice Cream Cone (Cone + Hemisphere)',parts:'Cone + Hemisphere (top)',color1:'#f59e0b',color2:'#ec4899',
+sa:'πrl + 2πr²',vol:'⅓πr²h + ⅔πr³',
+draw:(svg)=>{
+svg.innerHTML=`<defs><linearGradient id="g5" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#fbbf24"/></linearGradient></defs>
+<g class="anim-solid">
+<ellipse cx="150" cy="90" rx="45" ry="30" fill="#ec4899" stroke="#db2777" stroke-width="2"/>
+<polygon points="150,175 105,90 195,90" fill="url(#g5)" stroke="#d97706" stroke-width="2"/>
+<text x="150" y="95" text-anchor="middle" font-size="11" fill="#fff" font-weight="700">Hemisphere</text>
+<text x="150" y="140" text-anchor="middle" font-size="11" fill="#fff" font-weight="700">Cone</text></g>`;
+}}
+];
+
+function showSolid(i,btn){
+document.querySelectorAll('.solid-btn').forEach(b=>b.classList.remove('sel'));
+btn.classList.add('sel');
+drawSolid(i);
+}
+function drawSolid(i){
+const s=solids[i];
+const svg=document.getElementById('solid-svg');
+if(!svg)return;
+s.draw(svg);
+document.getElementById('solid-info').innerHTML=`
+<div class="info-item"><div class="val" style="font-size:0.75rem">📐 ${s.parts}</div><div class="lbl">Components</div></div>
+<div class="info-item"><div class="val" style="font-size:0.7rem;color:#22c55e">${s.sa}</div><div class="lbl">Surface Area</div></div>
+<div class="info-item"><div class="val" style="font-size:0.7rem;color:#f59e0b">${s.vol}</div><div class="lbl">Volume</div></div>`;
+}
+drawSolid(0);
+
+// ===== BUILDER =====
+let builderMode='tent';
+let bR=4,bH1=3,bH2=2,bL=5;
+function setBuilderMode(m,btn){
+document.querySelectorAll('#builder .tab').forEach(t=>t.classList.remove('active'));
+btn.classList.add('active');
+builderMode=m;
+initBuilder();
+}
+function initBuilder(){
+buildSliders();
+drawBuilder();
+}
+function buildSliders(){
+const c=document.getElementById('builder-sliders');
+if(builderMode==='tent'){
+c.innerHTML=`
+<div class="slider-row"><label>Radius (r)</label><input type="range" min="1" max="8" value="${bR}" oninput="bR=+this.value;upd(this,'r')"><span id="sv-r">${bR}m</span></div>
+<div class="slider-row"><label>Cone Height (h₁)</label><input type="range" min="1" max="8" value="${bH1}" oninput="bH1=+this.value;upd(this,'h1')"><span id="sv-h1">${bH1}m</span></div>
+<div class="slider-row"><label>Cyl Height (h₂)</label><input type="range" min="1" max="8" value="${bH2}" oninput="bH2=+this.value;upd(this,'h2')"><span id="sv-h2">${bH2}m</span></div>`;
+}else{
+c.innerHTML=`
+<div class="slider-row"><label>Radius (r)</label><input type="range" min="1" max="6" value="${bR}" oninput="bR=+this.value;upd(this,'r')"><span id="sv-r">${bR}m</span></div>
+<div class="slider-row"><label>Cyl Height (h)</label><input type="range" min="1" max="12" value="${bH1}" oninput="bH1=+this.value;upd(this,'h1')"><span id="sv-h1">${bH1}m</span></div>`;
+}
+drawBuilder();
+}
+function upd(el,key){
+document.getElementById('sv-'+key).textContent=el.value+'m';
+drawBuilder();
+}
+function drawBuilder(){
+const svg=document.getElementById('builder-svg');
+if(!svg)return;
+const pi=Math.PI;
+const W=300,H=220;
+svg.innerHTML='';
+if(builderMode==='tent'){
+const l=Math.sqrt(bR*bR+bH1*bH1).toFixed(2);
+const scale=Math.min(60/(bR),50/(bH1+bH2));
+const sc=Math.min(scale,8);
+const cx=150,baseY=180;
+const cylH=bH2*sc,coneH=bH1*sc,rPx=bR*sc;
+const coneBase=baseY-cylH;
+const coneTop=coneBase-coneH;
+svg.innerHTML=`<defs>
+<linearGradient id="tc1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f97316"/><stop offset="100%" stop-color="#fdba74"/></linearGradient>
+<linearGradient id="tc2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#93c5fd"/></linearGradient></defs>
+<rect x="${cx-rPx}" y="${coneBase}" width="${2*rPx}" height="${cylH}" rx="2" fill="url(#tc2)" stroke="#2563eb" stroke-width="1.5"/>
+<polygon points="${cx},${coneTop} ${cx-rPx},${coneBase} ${cx+rPx},${coneBase}" fill="url(#tc1)" stroke="#ea580c" stroke-width="1.5"/>
+<line x1="${cx}" y1="${coneTop}" x2="${cx+rPx}" y2="${coneBase}" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="3,2"/>
+<text x="${cx+rPx+3}" y="${(coneTop+coneBase)/2}" font-size="9" fill="#92400e">l=${l}m</text>
+<line x1="${cx+rPx+1}" y1="${coneBase}" x2="${cx+rPx+1}" y2="${baseY}" stroke="#1e40af" stroke-width="1.5"/>
+<text x="${cx+rPx+4}" y="${coneBase+cylH/2+3}" font-size="9" fill="#1e40af">h₂=${bH2}m</text>
+<line x1="${cx}" y1="${baseY+5}" x2="${cx+rPx}" y2="${baseY+5}" stroke="#374151" stroke-width="1.5"/>
+<text x="${cx+5}" y="${baseY+14}" font-size="9" fill="#374151">r=${bR}m</text>`;
+const csa_cone=(pi*bR*+l).toFixed(2);
+const csa_cyl=(2*pi*bR*bH2).toFixed(2);
+const total=(+csa_cone + +csa_cyl).toFixed(2);
+const vol_cone=(pi*bR*bR*bH1/3).toFixed(2);
+const vol_cyl=(pi*bR*bR*bH2).toFixed(2);
+const vol_total=(+vol_cone + +vol_cyl).toFixed(2);
+document.getElementById('builder-info').innerHTML=`
+<div class="info-item"><div class="val">${csa_cone} m²</div><div class="lbl">Cone CSA (πrl)</div></div>
+<div class="info-item"><div class="val">${csa_cyl} m²</div><div class="lbl">Cylinder CSA (2πrh)</div></div>
+<div class="info-item"><div class="val" style="color:#22c55e">${total} m²</div><div class="lbl">Total Canvas Area</div></div>
+<div class="info-item"><div class="val" style="color:#f59e0b">${vol_total} m³</div><div class="lbl">Total Volume</div></div>`;
+document.getElementById('builder-formula').innerHTML=`<div class="formula">Canvas Area = πrl + 2πrh₂<br>= π×${bR}×${l} + 2π×${bR}×${bH2}<br>=

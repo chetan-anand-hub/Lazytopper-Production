@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frustum of a Cone - Class 10 Maths</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#0f2044 100%);min-height:100vh;color:#e2e8f0;overflow-x:hidden}
+  .titlebar{background:linear-gradient(90deg,#3b82f6,#6366f1,#8b5cf6);padding:12px 20px;text-align:center;box-shadow:0 4px 20px rgba(99,102,241,0.5)}
+  .titlebar h1{font-size:1.2rem;font-weight:700;color:#fff;letter-spacing:1px}
+  .titlebar p{font-size:0.75rem;color:#c7d2fe;margin-top:2px}
+  .container{max-width:700px;margin:0 auto;padding:16px}
+  .card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:16px;margin-bottom:16px;backdrop-filter:blur(10px)}
+  .card-title{font-size:0.85rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+  .concept-box{background:linear-gradient(135deg,rgba(59,130,246,0.2),rgba(99,102,241,0.2));border:1px solid rgba(59,130,246,0.4);border-radius:12px;padding:14px;margin-bottom:12px}
+  .concept-box p{font-size:0.9rem;line-height:1.6;color:#cbd5e1}
+  svg{display:block;margin:0 auto}
+  .formula-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+  @media(max-width:450px){.formula-grid{grid-template-columns:1fr}}
+  .formula-card{background:rgba(0,0,0,0.3);border-radius:10px;padding:12px;border-left:3px solid #3b82f6;text-align:center}
+  .formula-card.green{border-left-color:#22c55e}
+  .formula-card.amber{border-left-color:#f59e0b}
+  .formula-card.red{border-left-color:#ef4444}
+  .formula-card .label{font-size:0.7rem;color:#94a3b8;margin-bottom:4px}
+  .formula-card .formula{font-size:0.85rem;color:#e2e8f0;font-weight:600;line-height:1.5}
+  .slider-wrap{margin:10px 0}
+  .slider-wrap label{font-size:0.8rem;color:#94a3b8;display:flex;justify-content:space-between}
+  input[type=range]{width:100%;accent-color:#3b82f6;margin:6px 0}
+  .btn{display:inline-block;padding:8px 18px;border-radius:8px;border:none;cursor:pointer;font-size:0.85rem;font-weight:600;transition:all 0.2s;margin:4px}
+  .btn-primary{background:linear-gradient(135deg,#3b82f6,#6366f1);color:#fff}
+  .btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 15px rgba(99,102,241,0.4)}
+  .btn-success{background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff}
+  .btn-amber{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff}
+  .step-item{background:rgba(0,0,0,0.2);border-radius:10px;padding:12px;margin-bottom:8px;border-left:3px solid #3b82f6;display:none;animation:fadeIn 0.4s ease}
+  .step-item.visible{display:block}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  .step-num{display:inline-block;background:#3b82f6;color:#fff;border-radius:50%;width:22px;height:22px;line-height:22px;text-align:center;font-size:0.75rem;font-weight:700;margin-right:8px}
+  .step-text{font-size:0.85rem;color:#cbd5e1;line-height:1.6}
+  .highlight{color:#f59e0b;font-weight:700}
+  .green-text{color:#22c55e;font-weight:700}
+  .blue-text{color:#3b82f6;font-weight:700}
+  .red-text{color:#ef4444;font-weight:700}
+  .values-row{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0}
+  .val-badge{background:rgba(59,130,246,0.2);border:1px solid rgba(59,130,246,0.4);border-radius:8px;padding:6px 12px;font-size:0.8rem}
+  .val-badge span{color:#3b82f6;font-weight:700}
+  .quiz-opt{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:10px 14px;margin:6px 0;cursor:pointer;font-size:0.85rem;transition:all 0.2s;width:100%;text-align:left}
+  .quiz-opt:hover{background:rgba(59,130,246,0.15);border-color:#3b82f6}
+  .quiz-opt.correct{background:rgba(34,197,94,0.2);border-color:#22c55e;color:#22c55e}
+  .quiz-opt.wrong{background:rgba(239,68,68,0.2);border-color:#ef4444;color:#ef4444}
+  .quiz-feedback{font-size:0.85rem;margin-top:8px;padding:8px;border-radius:8px;display:none}
+  .quiz-feedback.show{display:block}
+  .quiz-feedback.correct{background:rgba(34,197,94,0.15);color:#22c55e}
+  .quiz-feedback.wrong{background:rgba(239,68,68,0.15);color:#ef4444}
+  .info-chip{display:inline-block;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);border-radius:20px;padding:3px 10px;font-size:0.72rem;color:#f59e0b;margin:2px}
+  .tabs{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+  .tab{padding:6px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);cursor:pointer;font-size:0.8rem;color:#94a3b8;transition:all 0.2s}
+  .tab.active{background:linear-gradient(135deg,#3b82f6,#6366f1);color:#fff;border-color:transparent}
+  .tab-content{display:none}
+  .tab-content.active{display:block}
+  #vizCanvas{border-radius:12px;background:transparent}
+  .anim-hint{text-align:center;font-size:0.75rem;color:#64748b;margin-top:4px}
+  .progress-bar{height:4px;background:rgba(255,255,255,0.1);border-radius:2px;margin:8px 0}
+  .progress-fill{height:100%;background:linear-gradient(90deg,#3b82f6,#22c55e);border-radius:2px;transition:width 0.5s}
+</style>
+</head>
+<body>
+<div class="titlebar">
+  <h1>🔺 Frustum of a Cone | शंकु का छिन्नक</h1>
+  <p>CBSE Class 10 Mathematics — Surface Areas & Volumes</p>
+</div>
+<div class="container">
+
+<!-- CONCEPT INTRO -->
+<div class="card">
+  <div class="card-title">📖 What is a Frustum? | छिन्नक क्या है?</div>
+  <div class="concept-box">
+    <p>When a cone is cut by a plane <strong style="color:#f59e0b">parallel to its base</strong>, the portion between the cutting plane and the base is called the <strong style="color:#3b82f6">Frustum of a Cone (शंकु का छिन्नक)</strong>.</p>
+  </div>
+  <div style="text-align:center;margin:8px 0">
+    <span class="info-chip">∴ Frustum = Original Cone − Small Cone</span>
+    <span class="info-chip">Bucket / Flower pot shape</span>
+  </div>
+</div>
+
+<!-- INTERACTIVE DIAGRAM -->
+<div class="card">
+  <div class="card-title">🎨 Interactive Diagram | Move the Sliders!</div>
+  <canvas id="vizCanvas" width="340" height="280" style="width:100%;max-width:440px"></canvas>
+  <p class="anim-hint">✨ Adjust sliders to see how frustum changes</p>
+  <div class="slider-wrap">
+    <label>Large Radius R <span id="rVal">5</span> cm</label>
+    <input type="range" id="slR" min="3" max="8" value="5" step="0.5">
+  </div>
+  <div class="slider-wrap">
+    <label>Small Radius r <span id="rSmVal">2</span> cm</label>
+    <input type="range" id="slr" min="1" max="5" value="2" step="0.5">
+  </div>
+  <div class="slider-wrap">
+    <label>Height h <span id="hVal">6</span> cm</label>
+    <input type="range" id="slH" min="2" max="10" value="6" step="0.5">
+  </div>
+  <div style="text-align:center;margin-top:8px">
+    <div class="values-row" style="justify-content:center">
+      <div class="val-badge">Slant l = <span id="slantVal">-</span> cm</div>
+      <div class="val-badge">Volume = <span id="volVal">-</span> cm³</div>
+      <div class="val-badge">TSA = <span id="tsaVal">-</span> cm²</div>
+    </div>
+  </div>
+</div>
+
+<!-- FORMULAS -->
+<div class="card">
+  <div class="card-title">📐 Key Formulas | मुख्य सूत्र</div>
+  <div class="formula-grid">
+    <div class="formula-card">
+      <div class="label">Slant Height (तिरछी ऊँचाई)</div>
+      <div class="formula">l = √(h² + (R−r)²)</div>
+    </div>
+    <div class="formula-card green">
+      <div class="label">Volume (आयतन)</div>
+      <div class="formula">V = π h/3 (R²+r²+Rr)</div>
+    </div>
+    <div class="formula-card amber">
+      <div class="label">Curved Surface Area</div>
+      <div class="formula">CSA = π(R+r)l</div>
+    </div>
+    <div class="formula-card red">
+      <div class="label">Total Surface Area</div>
+      <div class="formula">TSA = π(R+r)l + πR² + πr²</div>
+    </div>
+  </div>
+  <div style="text-align:center;margin-top:10px">
+    <p style="font-size:0.78rem;color:#64748b">Where R = large radius, r = small radius, h = height, l = slant height, π ≈ 3.14159</p>
+  </div>
+</div>
+
+<!-- CUT ANIMATION -->
+<div class="card">
+  <div class="card-title">✂️ See the Cut! | काटना देखें</div>
+  <div style="text-align:center">
+    <canvas id="cutCanvas" width="320" height="240" style="width:100%;max-width:400px;border-radius:10px"></canvas>
+    <br>
+    <button class="btn btn-primary" onclick="animateCut()">✂️ Cut the Cone!</button>
+    <button class="btn btn-amber" onclick="resetCut()">↺ Reset</button>
+  </div>
+  <p class="anim-hint">Click "Cut the Cone!" to see how a frustum is formed</p>
+</div>
+
+<!-- TABS: WORKED EXAMPLE + DERIVATION -->
+<div class="card">
+  <div class="card-title">📚 Learn More</div>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('example')">Worked Example</div>
+    <div class="tab" onclick="switchTab('derivation')">How Formula Works</div>
+    <div class="tab" onclick="switchTab('quiz')">Quick Quiz</div>
+  </div>
+
+  <!-- EXAMPLE TAB -->
+  <div id="tab-example" class="tab-content active">
+    <div class="concept-box">
+      <p style="font-size:0.85rem"><strong style="color:#f59e0b">Problem:</strong> A bucket is in the shape of a frustum. Large radius R = 20 cm, small radius r = 10 cm, height h = 30 cm. Find Volume, CSA, and TSA. (π = 22/7)</p>
+    </div>
+    <div id="progress-wrap" class="progress-bar"><div class="progress-fill" id="stepProgress" style="width:0%"></div></div>
+    <div id="step1" class="step-item visible">
+      <span class="step-num">1</span>
+      <span class="step-text"><strong>Given:</strong> R = <span class="highlight">20 cm</span>, r = <span class="highlight">10 cm</span>, h = <span class="highlight">30 cm</span></span>
+    </div>
+    <div id="step2" class="step-item">
+      <span class="step-num">2</span>
+      <span class="step-text"><strong>Find Slant Height:</strong><br>l = √(h² + (R−r)²)<br>l = √(30² + (20−10)²)<br>l = √(900 + 100)<br>l = √1000 = <span class="green-text">10√10 ≈ 31.62 cm</span></span>
+    </div>
+    <div id="step3" class="step-item">
+      <span class="step-num">3</span>
+      <span class="step-text"><strong>Volume:</strong><br>V = πh/3 × (R²+r²+Rr)<br>V = (22/7) × 30/3 × (400+100+200)<br>V = (22/7) × 10 × 700<br>V = 22 × 10 × 100<br>V = <span class="blue-text">22000 cm³</span></span>
+    </div>
+    <div id="step4" class="step-item">
+      <span class="step-num">4</span>
+      <span class="step-text"><strong>Curved Surface Area:</strong><br>CSA = π(R+r)l<br>CSA = (22/7) × (20+10) × 10√10<br>CSA = (22/7) × 30 × 31.62<br>CSA ≈ <span class="highlight">2978 cm²</span></span>
+    </div>
+    <div id="step5" class="step-item">
+      <span class="step-num">5</span>
+      <span class="step-text"><strong>Total Surface Area:</strong><br>TSA = CSA + πR² + πr²<br>TSA = 2978 + (22/7)(400 + 100)<br>TSA = 2978 + (22/7) × 500<br>TSA = 2978 + 1571.4<br>TSA ≈ <span class="red-text">4549.4 cm²</span></span>
+    </div>
+    <div id="step6" class="step-item">
+      <span class="step-num">✓</span>
+      <span class="step-text" style="color:#22c55e"><strong>∴ Volume = 22000 cm³, CSA ≈ 2978 cm², TSA ≈ 4549 cm²</strong></span>
+    </div>
+    <div style="text-align:center;margin-top:10px">
+      <button class="btn btn-success" onclick="nextStep()">▶ Next Step</button>
+      <button class="btn btn-primary" onclick="resetSteps()">↺ Restart</button>
+    </div>
+    <p id="stepHint" style="text-align:center;font-size:0.78rem;color:#64748b;margin-top:6px">Step <span id="curStep">1</span> of 6</p>
+  </div>
+
+  <!-- DERIVATION TAB -->
+  <div id="tab-derivation" class="tab-content">
+    <div class="concept-box">
+      <p style="font-size:0.85rem;margin-bottom:8px"><strong style="color:#3b82f6">∵ Frustum = Big Cone − Small Cone</strong></p>
+      <p style="font-size:0.85rem">Let the big cone have height H and slant L. The small cone (cut off) has height H−h and slant L−l.</p>
+      <p style="font-size:0.85rem;margin-top:8px">By similar triangles: <strong style="color:#f59e0b">R/H = r/(H−h)</strong></p>
+      <p style="font-size:0.85rem;margin-top:8px">Volume of frustum:<br>
+        V = (1/3)πR²H − (1/3)πr²(H−h)<br>
+        Simplifies to: <strong style="color:#22c55e">V = πh/3 (R²+r²+Rr)</strong>
+      </p>
+    </div>
+    <canvas id="derCanvas" width="320" height="200" style="width:100%;max-width:400px;border-radius:10px;background:rgba(0,0,0,0.2)"></canvas>
+    <p class="anim-hint">Full cone minus small cone = Frustum</p>
+  </div>
+
+  <!-- QUIZ TAB -->
+  <div id="tab-quiz" class="tab-content">
+    <p style="font-size:0.85rem;color:#94a3b8;margin-bottom:10px"><strong>Question:</strong> For a frustum with R=6cm, r=3cm, h=4cm, what is the slant height?</p>
+    <button class="quiz-opt" onclick="checkQ(this,'wrong')">a) 4 cm</button>
+    <button class="quiz-opt" onclick="checkQ(this,'wrong')">b) 3 cm</button>
+    <button class="quiz-opt" onclick="checkQ(this,'correct')">c) 5 cm</button>
+    <button class="quiz-opt" onclick="checkQ(this,'wrong')">d) 7 cm</button>
+    <div class="quiz-feedback" id="quizFB">
+      <strong>Solution:</strong> l = √(h² + (R−r)²) = √(4² + (6−3)²) = √(16+9) = √25 = <strong>5 cm ✓</strong>
+    </div>
+  </div>
+</div>
+
+<!-- MEMORY AIDS -->
+<div class="card">
+  <div class="card-title">💡 Tips & Tricks | याद रखें</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+    <div style="background:rgba(34,197,94,0.1);border-radius:8px;padding:10px;font-size:0.8rem;border:1px solid rgba(34,197,94,0.2)">
+      <div style="color:#22c55e;font-weight:700;margin-bottom:4px">🔑 Slant Height</div>
+      Pythagoras on the side!<br>l = √(h² + (R−r)²)
+    </div>
+    <div style="background:rgba(59,130,246,0.1);border-radius:8px;padding:10px;font-size:0.8rem;border:1px solid rgba(59,130,246,0.2)">
+      <div style="color:#3b82f6;font-weight:700;margin-bottom:4px">📦 Volume</div>
+      R²+r²+Rr in bracket<br>Multiply by πh/3
+    </div>
+    <div style="background:rgba(245,158,11,0.1);border-radius:8px;padding:10px;font-size:0.8rem;border:1px solid rgba(245,158,11,0.2)">
+      <div style="color:#f59e0b;font-weight:700;margin-bottom:4px">🎯 CSA</div>
+      Like cylinder formula<br>π × (R+r) × l
+    </div>
+    <div style="background:rgba(239,68,68,0.1);border-radius:8px;padding:10px;font-size:0.8rem;border:1px solid rgba(239,68,68,0.2)">
+      <div style="color:#ef4444;font-weight:700;margin-bottom:4px">🎯 TSA</div>
+      CSA + top circle + bottom<br>+ πr² + πR²
+    </div>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<script>
+// ========= CANVAS DIAGRAM =========
+const canvas = document.getElementById('vizCanvas');
+const ctx = canvas.getContext('2d');
+let R=5,r=2,h=6;
+
+function drawFrustum(){
+  const W=canvas.width, H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  const cx=W/2, baseY=H-30, scale=22;
+  const rPx=R*scale, sPx=r*scale, hPx=h*scale;
+  const topY=baseY-hPx;
+
+  // Background glow
+  const grad=ctx.createRadialGradient(cx,baseY-hPx/2,10,cx,baseY-hPx/2,120);
+  grad.addColorStop(0,'rgba(59,130,246,0.15)');
+  grad.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=grad;
+  ctx.fillRect(0,0,W,H);
+
+  // Side faces gradient
+  const sideG=ctx.createLinearGradient(cx-rPx,baseY,cx+rPx,topY);
+  sideG.addColorStop(0,'rgba(99,102,241,0.8)');
+  sideG.addColorStop(0.5,'rgba(147,197,253,0.5)');
+  sideG.addColorStop(1,'rgba(99,102,241,0.6)');
+
+  ctx.beginPath();
+  ctx.moveTo(cx-rPx,baseY);
+  ctx.lineTo(cx-sPx,topY);
+  ctx.lineTo(cx+sPx,topY);
+  ctx.lineTo(cx+rPx,baseY);
+  ctx.closePath();
+  ctx.fillStyle=sideG;
+  ctx.fill();
+  ctx.strokeStyle='rgba(147,197,253,0.8)';
+  ctx.lineWidth=2;
+  ctx.stroke();
+
+  // Bottom ellipse
+  ctx.beginPath();
+  ctx.ellipse(cx,baseY,rPx,rPx*0.3,0,0,Math.PI*2);
+  ctx.fillStyle='rgba(59,130,246,0.5)';
+  ctx.fill();
+  ctx.strokeStyle='rgba(147,197,253,0.9)';
+  ctx.stroke();
+
+  // Top ellipse
+  ctx.beginPath();
+  ctx.ellipse(cx,topY,sPx,sPx*0.3,0,0,Math.PI*2);
+  ctx.fillStyle='rgba(139,92,246,0.5)';
+  ctx.fill();
+  ctx.strokeStyle='rgba(196,181,253,0.9)';
+  ctx.stroke();
+
+  // Height line
+  ctx.beginPath();
+  ctx.setLineDash([4,4]);
+  ctx.moveTo(cx,baseY);
+  ctx.lineTo(cx,topY);
+  ctx.strokeStyle='#22c55e';
+  ctx.lineWidth=1.5;
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Slant line
+  const slantPx=Math.sqrt(hPx*hPx+(rPx-sPx)*(rPx-sPx));
+  ctx.beginPath();
+  ctx.moveTo(cx+sPx,topY);
+  ctx.lineTo(cx+rPx,baseY);
+  ctx.strokeStyle='#f59e0b';
+  ctx.lineWidth=2.5;
+  ctx.stroke();
+
+  // Labels
+  ctx.font='bold 11px Segoe UI';
+  ctx.fillStyle='#22c55e';
+  ctx.fillText('h',cx+4,topY+hPx/2);
+  ctx.fillStyle='#f59e0b';
+  ctx.fillText('l',(cx+sPx+cx+rPx)/2+4,(topY+baseY)/2-4);
+  ctx.fillStyle='#93c5fd';
+  ctx.fillText('R',cx+rPx/2,baseY+14);
+  ctx.fillStyle='#c4b5fd';
+  ctx.fillText('r',cx+sPx/2,topY-6);
+
+  // Radius lines
+  ctx.beginPath();
+  ctx.moveTo(cx,baseY);ctx.lineTo(cx+rPx,baseY);
+  ctx.strokeStyle='rgba(147,197,253,0.5)';ctx.lineWidth=1;ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(cx,topY);ctx.lineTo(cx+sPx,topY);
+  ctx.strokeStyle='rgba(196,181,253,0.5)';ctx.stroke();
+
+  // Live calcs
+  const pi=Math.PI;
+  const sl=Math.sqrt(h*h+(R-r)*(R-r));
+  const vol=pi*h/3*(R*R+r*r+R*r);
+  const csa=pi*(R+r)*sl;
+  const tsa=csa+pi*R*R+pi*r*r;
+  document.getElementById('slantVal').textContent=sl.toFixed(2);
+  document.getElementById('volVal').textContent=vol.toFixed(1);
+  document.getElementById('tsaVal').textContent=tsa.toFixed(1);
+}
+
+document.getElementById('slR').oninput=function(){
+  R=+this.value;
+  if(r>=R){r=R-0.5;document.getElementById('slr').value=r;}
+  document.getElementById('rVal').textContent=R;
+  drawFrustum();
+};
+document.getElementById('slr').oninput=function(){
+  r=+this.value;
+  if(r>=R){r=R-0.5;this.value=r;}
+  document.getElementById('rSmVal').textContent=r;
+  drawFrustum();
+};
+document.getElementById('slH').oninput=function(){
+  h=+this.value;
+  document.getElementById('hVal').textContent=h;
+  drawFrustum();
+};
+drawFrustum();
+
+// ========= CUT ANIMATION =========
+const cc=document.getElementById('cutCanvas');
+const cx2=cc.getContext('2d');
+let cutY=0,cutting=false,done=false,animId=null;
+
+function drawCutScene(cut){
+  const W=cc.width,H=cc.height;
+  cx2.clearRect(0,0,W,H);
+  const mx=W/2;
+  const coneBase=H-20,coneTip=30;
+  const coneR=100;
+  const cutFrac=Math.max(0,Math.min(1,cut));
+  const cY=coneTip+(coneBase-coneTip)*0.38;
+
+  // Full cone
+  const cg=cx2.createLinearGradient(mx-coneR,coneBase,mx+coneR,coneTip);
+  cg.addColorStop(0,'rgba(99,102,241,0.7)');
+  cg.addColorStop(1,'rgba(147,197,253,0.4)');
+  cx2.beginPath();
+  cx2.moveTo(mx,coneTip);
+  cx2.lineTo(mx-coneR,coneBase);
+  cx2.lineTo(mx+coneR,coneBase);
+  cx2.closePath();
+  cx2.fillStyle=cg;
+  cx2.fill();
+  cx2.strokeStyle='rgba(147,197,253,0.8)';
+  cx2.lineWidth=2;
+  cx2.stroke();
+
+  // Ellipse base
+  cx2.beginPath();
+  cx2.ellipse(mx,coneBase,coneR,coneR*0.25,0,0,Math.PI*2);
+  cx2.fillStyle='rgba(59,130,246,0.4)';
+  cx2.fill();cx2.stroke();
+
+  if(cutFrac>0){
+    const pct=cutFrac;
+    const cutAt=coneTip+(coneBase-coneTip)*0.38;
+    const actualCut=cutAt+pct*30;
+    const rAtCut=(actualCut-coneTip)/(coneBase-coneTip)*coneR;
+
+    // Cutting plane animation
+    cx2.beginPath();
+    cx2.setLineDash([6,4]);
+    cx2.moveTo(mx-rAtCut-10,actualCut);
+    cx2.lineTo(mx+rAtCut+10,actualCut);
+    cx2.strokeStyle='#ef4444';
+    cx2.lineWidth=3;
+    cx2.stroke();
+    cx2.setLineDash([]);
+
+    // Label
+    cx2

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>प्रकाश का अपवर्तन | Refraction of Light</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#0f172a 100%);min-height:100vh;color:#e2e8f0}
+.titlebar{background:linear-gradient(90deg,#1d4ed8,#3b82f6,#0ea5e9);padding:12px 20px;text-align:center;box-shadow:0 4px 20px rgba(59,130,246,0.5)}
+.titlebar h1{font-size:1.2em;font-weight:700;color:#fff;text-shadow:0 2px 4px rgba(0,0,0,0.3)}
+.titlebar p{font-size:0.75em;color:#bfdbfe;margin-top:2px}
+.container{max-width:800px;margin:0 auto;padding:12px}
+.card{background:linear-gradient(135deg,#1e293b,#0f172a);border:1px solid #334155;border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 8px 32px rgba(0,0,0,0.4)}
+.card-title{font-size:0.95em;font-weight:700;color:#3b82f6;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.tag{background:linear-gradient(90deg,#3b82f6,#1d4ed8);color:#fff;font-size:0.65em;padding:2px 8px;border-radius:20px;font-weight:600}
+.formula-box{background:linear-gradient(135deg,#1e3a5f,#0f2744);border:2px solid #3b82f6;border-radius:12px;padding:14px;text-align:center;margin:10px 0}
+.formula{font-size:1.4em;font-weight:700;color:#60a5fa;letter-spacing:1px}
+.formula-desc{font-size:0.72em;color:#94a3b8;margin-top:6px}
+#refraction-svg{width:100%;cursor:crosshair;border-radius:12px;background:linear-gradient(180deg,#0c1a2e 0%,#0c1a2e 50%,#0a2540 50%,#0a2540 100%)}
+.slider-row{display:flex;align-items:center;gap:10px;margin:8px 0}
+.slider-row label{font-size:0.75em;color:#94a3b8;min-width:110px}
+input[type=range]{flex:1;accent-color:#3b82f6;height:4px;border-radius:4px}
+.value-badge{background:#1d4ed8;color:#fff;padding:2px 8px;border-radius:8px;font-size:0.72em;font-weight:700;min-width:50px;text-align:center}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}
+.info-item{background:#0f172a;border-radius:10px;padding:10px;border-left:3px solid #3b82f6;text-align:center}
+.info-item .val{font-size:1.1em;font-weight:700;color:#60a5fa}
+.info-item .lbl{font-size:0.65em;color:#64748b;margin-top:2px}
+.steps-container{margin-top:8px}
+.step{background:#0f172a;border-radius:10px;padding:10px 12px;margin:6px 0;border-left:3px solid #22c55e;display:none;animation:slideIn 0.4s ease}
+.step.active{display:block}
+.step-num{color:#22c55e;font-weight:700;font-size:0.75em}
+.step-text{font-size:0.78em;color:#cbd5e1;margin-top:4px}
+.step-math{color:#f59e0b;font-weight:600}
+@keyframes slideIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+.btn{background:linear-gradient(90deg,#3b82f6,#1d4ed8);color:#fff;border:none;padding:8px 16px;border-radius:8px;font-size:0.78em;font-weight:600;cursor:pointer;transition:all 0.2s;margin:4px}
+.btn:hover{transform:translateY(-1px);box-shadow:0 4px 15px rgba(59,130,246,0.4)}
+.btn-green{background:linear-gradient(90deg,#22c55e,#16a34a)}
+.btn-amber{background:linear-gradient(90deg,#f59e0b,#d97706)}
+.media-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0}
+.media-card{background:#0f172a;border-radius:10px;padding:10px;text-align:center;border:1px solid #334155;cursor:pointer;transition:all 0.2s}
+.media-card:hover,.media-card.active{border-color:#3b82f6;background:#1e3a5f;transform:translateY(-2px)}
+.media-card .icon{font-size:1.5em;margin-bottom:4px}
+.media-card .name{font-size:0.7em;font-weight:600;color:#e2e8f0}
+.media-card .n-val{font-size:0.65em;color:#60a5fa}
+.phenomenon{display:flex;align-items:center;gap:8px;padding:8px;background:#0f172a;border-radius:8px;margin:4px 0;font-size:0.75em;color:#cbd5e1;cursor:pointer;transition:all 0.2s;border:1px solid transparent}
+.phenomenon:hover{border-color:#f59e0b;background:#1a1200}
+.ph-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.legend{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0}
+.legend-item{display:flex;align-items:center;gap:4px;font-size:0.68em;color:#94a3b8}
+.legend-dot{width:8px;height:3px;border-radius:2px}
+.snell-visual{background:#0f172a;border-radius:10px;padding:12px;margin:8px 0}
+.angle-display{display:flex;justify-content:space-around;margin:8px 0}
+.angle-box{text-align:center;background:#1e293b;padding:8px 12px;border-radius:8px;border:1px solid #334155}
+.angle-box .ang{font-size:1.3em;font-weight:700}
+.angle-box .ang-lbl{font-size:0.65em;color:#94a3b8}
+.highlight{color:#f59e0b;font-weight:700}
+.tir-warning{background:linear-gradient(135deg,#7f1d1d,#450a0a);border:1px solid #ef4444;border-radius:8px;padding:8px;text-align:center;font-size:0.75em;color:#fca5a5;display:none}
+.tir-warning.show{display:block;animation:pulse 1s infinite alternate}
+@keyframes pulse{from{opacity:0.7}to{opacity:1}}
+.tabs{display:flex;gap:4px;margin-bottom:10px;flex-wrap:wrap}
+.tab{padding:6px 12px;border-radius:8px;font-size:0.72em;font-weight:600;cursor:pointer;background:#1e293b;color:#64748b;border:1px solid #334155;transition:all 0.2s}
+.tab.active{background:#3b82f6;color:#fff;border-color:#3b82f6}
+.tab-content{display:none}
+.tab-content.active{display:block}
+</style>
+</head>
+<body>
+<div class="titlebar">
+<h1>🔬 प्रकाश का अपवर्तन | Refraction of Light</h1>
+<p>CBSE Class 10 Science • Chapter 10 • Interactive Visual Explainer</p>
+</div>
+<div class="container">
+
+<div class="card">
+<div class="card-title">📐 स्नेल का नियम | Snell's Law <span class="tag">KEY FORMULA</span></div>
+<div class="formula-box">
+<div class="formula">n₁ sin θ₁ = n₂ sin θ₂</div>
+<div class="formula-desc">n₁ = Refractive index of medium 1 &nbsp;|&nbsp; θ₁ = Angle of incidence (आपतन कोण)<br>n₂ = Refractive index of medium 2 &nbsp;|&nbsp; θ₂ = Angle of refraction (अपवर्तन कोण)</div>
+</div>
+<div class="formula-box" style="border-color:#22c55e;background:linear-gradient(135deg,#052e16,#041f10)">
+<div class="formula" style="color:#4ade80">n = c / v = sin i / sin r</div>
+<div class="formula-desc">n = अपवर्तनांक (Refractive Index) &nbsp;|&nbsp; c = Speed of light in vacuum (3×10⁸ m/s)<br>v = Speed of light in medium &nbsp;|&nbsp; i = angle of incidence &nbsp;|&nbsp; r = angle of refraction</div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-title">🎮 Interactive Refraction Simulator</div>
+<div class="slider-row">
+<label>Angle of Incidence (i)</label>
+<input type="range" id="angleSlider" min="0" max="85" value="40">
+<span class="value-badge" id="angleVal">40°</span>
+</div>
+<div style="display:flex;gap:8px;margin:6px 0;flex-wrap:wrap">
+<div style="flex:1;min-width:120px">
+<div style="font-size:0.7em;color:#94a3b8;margin-bottom:4px">Medium 1 (Top)</div>
+<select id="med1" style="width:100%;background:#0f172a;color:#e2e8f0;border:1px solid #334155;border-radius:6px;padding:4px;font-size:0.75em">
+<option value="1.0">Air (n=1.00)</option>
+<option value="1.33">Water (n=1.33)</option>
+<option value="1.5">Glass (n=1.50)</option>
+</select>
+</div>
+<div style="flex:1;min-width:120px">
+<div style="font-size:0.7em;color:#94a3b8;margin-bottom:4px">Medium 2 (Bottom)</div>
+<select id="med2" style="width:100%;background:#0f172a;color:#e2e8f0;border:1px solid #334155;border-radius:6px;padding:4px;font-size:0.75em">
+<option value="1.0">Air (n=1.00)</option>
+<option value="1.33" selected>Water (n=1.33)</option>
+<option value="1.5">Glass (n=1.50)</option>
+<option value="2.42">Diamond (n=2.42)</option>
+</select>
+</div>
+</div>
+<svg id="refraction-svg" height="280" viewBox="0 0 400 280"></svg>
+<div class="tir-warning" id="tirWarn">⚠️ पूर्ण आंतरिक परावर्तन! Total Internal Reflection! (θ > Critical Angle)</div>
+<div class="legend">
+<div class="legend-item"><div class="legend-dot" style="background:#fbbf24;height:2px;width:20px;border-top:1px dashed #fbbf24"></div>Normal (अभिलंब)</div>
+<div class="legend-item"><div class="legend-dot" style="background:#60a5fa;width:20px"></div>Incident Ray (आपतित किरण)</div>
+<div class="legend-item"><div class="legend-dot" style="background:#4ade80;width:20px"></div>Refracted Ray (अपवर्तित किरण)</div>
+<div class="legend-item"><div class="legend-dot" style="background:#f87171;width:20px"></div>Reflected Ray (परावर्तित किरण)</div>
+</div>
+<div class="info-grid">
+<div class="info-item"><div class="val" id="i-val">40°</div><div class="lbl">∠i (Angle of Incidence)</div></div>
+<div class="info-item"><div class="val" id="r-val">—</div><div class="lbl">∠r (Angle of Refraction)</div></div>
+<div class="info-item"><div class="val" id="n1-val">1.00</div><div class="lbl">n₁ (Medium 1)</div></div>
+<div class="info-item"><div class="val" id="n2-val">1.33</div><div class="lbl">n₂ (Medium 2)</div></div>
+</div>
+<div id="snell-calc" style="background:#0f172a;border-radius:8px;padding:8px;font-size:0.75em;color:#94a3b8;margin-top:6px;text-align:center"></div>
+</div>
+
+<div class="card">
+<div class="card-title">🌊 Refractive Index of Common Media <span class="tag">अपवर्तनांक</span></div>
+<div class="media-grid">
+<div class="media-card active" data-n="1.0" onclick="selectMedia(this)"><div class="icon">💨</div><div class="name">Air / वायु</div><div class="n-val">n = 1.00</div></div>
+<div class="media-card" data-n="1.33" onclick="selectMedia(this)"><div class="icon">💧</div><div class="name">Water / जल</div><div class="n-val">n = 1.33</div></div>
+<div class="media-card" data-n="1.5" onclick="selectMedia(this)"><div class="icon">🔵</div><div class="name">Glass / काँच</div><div class="n-val">n = 1.50</div></div>
+<div class="media-card" data-n="1.36" onclick="selectMedia(this)"><div class="icon">🫧</div><div class="name">Kerosene</div><div class="n-val">n = 1.36</div></div>
+<div class="media-card" data-n="2.42" onclick="selectMedia(this)"><div class="icon">💎</div><div class="name">Diamond / हीरा</div><div class="n-val">n = 2.42</div></div>
+<div class="media-card" data-n="1.0003" onclick="selectMedia(this)"><div class="icon">🌬️</div><div class="name">Vacuum</div><div class="n-val">n = 1.0003</div></div>
+</div>
+<div id="media-info" style="background:#0f172a;border-radius:8px;padding:10px;font-size:0.75em;color:#94a3b8;text-align:center">
+Click a medium to see how light bends when entering it from air. <br>प्रकाश किस प्रकार मुड़ता है — क्लिक करें!
+</div>
+</div>
+
+<div class="card">
+<div class="card-title">📚 Phenomena Based on Refraction <span class="tag">घटनाएँ</span></div>
+<div class="phenomenon" onclick="showPhenomenon('pool')"><div class="ph-dot" style="background:#3b82f6"></div><span>🏊 Swimming pool appears shallower than actual depth (तालाब उथला दिखना)</span></div>
+<div class="phenomenon" onclick="showPhenomenon('pencil')"><div class="ph-dot" style="background:#22c55e"></div><span>✏️ Pencil appears bent in water (पानी में पेंसिल मुड़ी दिखना)</span></div>
+<div class="phenomenon" onclick="showPhenomenon('star')"><div class="ph-dot" style="background:#f59e0b"></div><span>⭐ Twinkling of stars (तारों का टिमटिमाना)</span></div>
+<div class="phenomenon" onclick="showPhenomenon('rainbow')"><div class="ph-dot" style="background:#ef4444"></div><span>🌈 Rainbow formation (इंद्रधनुष)</span></div>
+<div class="phenomenon" onclick="showPhenomenon('mirage')"><div class="ph-dot" style="background:#a855f7"></div><span>🏜️ Mirage / मृगतृष्णा (Total Internal Reflection)</span></div>
+<div id="phenomenon-detail" style="background:#0f172a;border-radius:8px;padding:10px;margin-top:8px;font-size:0.75em;color:#94a3b8;display:none"></div>
+</div>
+
+<div class="card">
+<div class="card-title">🔢 Worked Example <span class="tag">हल किया उदाहरण</span></div>
+<div style="background:#0f172a;border-radius:8px;padding:10px;font-size:0.78em;color:#cbd5e1;margin-bottom:8px">
+<strong style="color:#f59e0b">Question:</strong> A ray of light passes from air into glass. The angle of incidence is 30°. The refractive index of glass is 1.5. Find the angle of refraction.
+<br><span style="color:#94a3b8;font-size:0.9em">(वायु से काँच में किरण जाती है। आपतन कोण = 30°, n_glass = 1.5. अपवर्तन कोण ज्ञात करो।)</span>
+</div>
+<div id="steps-container"></div>
+<div>
+<button class="btn btn-green" onclick="nextStep()">Next Step ▶</button>
+<button class="btn btn-amber" onclick="resetSteps()">Reset ↺</button>
+</div>
+</div>
+
+<div class="card">
+<div class="card-title">💡 Key Rules to Remember <span class="tag">मुख्य नियम</span></div>
+<div style="display:grid;gap:6px">
+<div style="background:#0f172a;border-radius:8px;padding:10px;border-left:3px solid #3b82f6;font-size:0.76em">
+<div style="color:#60a5fa;font-weight:700">Rule 1: Denser Medium → Bends Towards Normal</div>
+<div style="color:#94a3b8;margin-top:3px">When light goes from rarer (air) → denser (glass/water): <span class="highlight">∠r < ∠i</span> &nbsp;|&nbsp; Speed decreases, wavelength decreases</div>
+</div>
+<div style="background:#0f172a;border-radius:8px;padding:10px;border-left:3px solid #22c55e;font-size:0.76em">
+<div style="color:#4ade80;font-weight:700">Rule 2: Rarer Medium → Bends Away from Normal</div>
+<div style="color:#94a3b8;margin-top:3px">When light goes from denser (glass) → rarer (air): <span class="highlight">∠r > ∠i</span> &nbsp;|&nbsp; Speed increases, wavelength increases</div>
+</div>
+<div style="background:#0f172a;border-radius:8px;padding:10px;border-left:3px solid #f59e0b;font-size:0.76em">
+<div style="color:#fbbf24;font-weight:700">Rule 3: Normal Incidence → No Bending</div>
+<div style="color:#94a3b8;margin-top:3px">If ∠i = 0°, then ∠r = 0°. Light passes straight through the boundary. (अभिलंब पर कोई मोड़ नहीं)</div>
+</div>
+<div style="background:#0f172a;border-radius:8px;padding:10px;border-left:3px solid #ef4444;font-size:0.76em">
+<div style="color:#f87171;font-weight:700">Rule 4: Total Internal Reflection (पूर्ण आंतरिक परावर्तन)</div>
+<div style="color:#94a3b8;margin-top:3px">When dense → rare AND ∠i > Critical Angle → No refraction, complete reflection. Used in optical fibers!</div>
+</div>
+</div>
+</div>
+</div>
+
+<script>
+const svg=document.getElementById('refraction-svg');
+const CX=200,CY=140,R=110;
+let currentStep=-1;
+const steps=[
+{num:"Step 1",text:"Write down the given information:<br>∠i = 30°, n₁ (air) = 1.00, n₂ (glass) = 1.50",math:"Given: i = 30°, n₁ = 1.00, n₂ = 1.50"},
+{num:"Step 2",text:"Apply Snell's Law formula:",math:"n₁ sin θ₁ = n₂ sin θ₂<br>∴ 1.00 × sin 30° = 1.50 × sin r"},
+{num:"Step 3",text:"Substitute the value of sin 30°:",math:"1.00 × 0.5 = 1.50 × sin r<br>0.5 = 1.5 × sin r"},
+{num:"Step 4",text:"Solve for sin r:",math:"sin r = 0.5 / 1.5 = 0.333<br>sin r = 1/3"},
+{num:"Step 5",text:"Find the angle of refraction:",math:"r = sin⁻¹(0.333) ≈ 19.47°<br>∴ Angle of Refraction ≈ 19.5°"},
+{num:"Conclusion ✓",text:"Light bends TOWARDS the normal when going from air to glass (rarer→denser).",math:"∵ n₂ > n₁ → ∠r < ∠i &nbsp; (19.5° < 30°) ✓"}
+];
+
+function buildSteps(){
+const c=document.getElementById('steps-container');
+c.innerHTML='';
+steps.forEach((s,i)=>{
+const d=document.createElement('div');
+d.className='step';
+d.id='step'+i;
+d.innerHTML=`<div class="step-num">${s.num}</div><div class="step-text">${s.text}</div><div class="step-math" style="margin-top:5px;font-size:0.85em">${s.math}</div>`;
+c.appendChild(d);
+});
+}
+function nextStep(){
+currentStep++;
+if(currentStep<steps.length){document.getElementById('step'+currentStep).classList.add('active')}
+else{currentStep=steps.length-1}
+}
+function resetSteps(){currentStep=-1;document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'))}
+buildSteps();
+
+function drawRefraction(){
+const angle=parseInt(document.getElementById('angleSlider').value);
+const n1=parseFloat(document.getElementById('med1').value);
+const n2=parseFloat(document.getElementById('med2').value);
+document.getElementById('angleVal').textContent=angle+'°';
+document.getElementById('i-val').textContent=angle+'°';
+document.getElementById('n1-val').textContent=n1.toFixed(2);
+document.getElementById('n2-val').textContent=n2.toFixed(2);
+const W=400,H=280,MX=200,MY=140;
+let svgContent='';
+// Background
+svgContent+=`<defs>
+<linearGradient id="bg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0c1a2e"/><stop offset="100%" stop-color="#0e2040"/></linearGradient>
+<linearGradient id="bg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#071524"/><stop offset="100%" stop-color="#0a2030"/></linearGradient>
+</defs>`;
+svgContent+=`<rect width="400" height="140" fill="url(#bg1)" rx="0"/>`;
+svgContent+=`<rect y="140" width="400" height="140" fill="url(#bg2)" rx="0"/>`;
+// Medium labels
+const med1name=getMedName(n1),med2name=getMedName(n2);
+svgContent+=`<text x="10" y="20" fill="#60a5fa" font-size="11" font-family="sans-serif" font-weight="bold">Medium 1: ${med1name}</text>`;
+svgContent+=`<text x="10" y="33" fill="#60a5fa" font-size="9" font-family="sans-serif">n₁ = ${n1.toFixed(2)}</text>`;
+svgContent+=`<text x="10" y="265" fill="#4ade80" font-size="11" font-family="sans-serif" font-weight="bold">Medium 2: ${med2name}</text>`;
+svgContent+=`<text x="10" y="277" fill="#4ade80" font-size="9" font-family="sans-serif">n₂ = ${n2.toFixed(2)}</text>`;
+// Interface line
+svgContent+=`<line x1="0" y1="140" x2="400" y2="140" stroke="#475569" stroke-width="2" stroke-dasharray="8,4"/>`;
+svgContent+=`<text x="320" y="136" fill="#64748b" font-size="9" font-family="sans-serif">Interface (सीमा)</text>`;
+// Normal line
+svgContent+=`<line x1="${MX}" y1="20" x2="${MX}" y2="260" stroke="#fbbf24" stroke-width="1" stroke-dasharray="5,4" opacity="0.7"/>`;
+svgContent+=`<text x="${MX+5}" y="12" fill="#fbbf24" font-size="9" font-family="sans-serif">Normal</text>`;
+const iRad=angle*Math.PI/180;
+const sinRef=n1/n2*Math.sin(iRad);
+const tir=sinRef>1;
+document.getElementById('tirWarn').className=tir?'tir-warning show':'tir-warning';
+if(tir){
+document.getElementById('r-val').textContent='TIR!';
+document.getElementById('snell-calc').innerHTML=`<span style="color:#ef4444">⚠️ Total Internal Reflection! sin r = n₁/n₂ × sin i = ${(n1/n2).toFixed(2)} × ${Math.sin(iRad).toFixed(3)} = ${sinRef.toFixed(3)} > 1 → Not possible!</span>`;
+const ix=MX-R*Math.sin(iRad),iy=MY-R*Math.cos(iRad);
+svgContent+=`<line x1="${ix}" y1="${iy}" x2="${MX}" y2="${MY}" stroke="#60a5fa" stroke-width="2.5" marker-end="url(#arrowB)"/>`;
+const rx=MX+R*Math.sin(iRad),ry=MY-R*Math.cos(iRad);
+svgContent+=`<line x1="${MX}" y1="${MY}" x2="${rx}" y2="${ry}" stroke="#f87171" stroke-width="2.5"/>`;
+svgContent+=`<circle cx="${MX}" cy="${MY}" r="4" fill="#ef4444"/>`;
+svg.innerHTML=svgContent;
+return;
+}
+const rRad=Math.asin(sinRef);
+const rDeg=rRad*180/Math.PI;
+document.getElementById('r-val').textContent=rDeg.toFixed(1)+'°';
+document.getElementById('snell-calc').innerHTML=`n₁ sin i = n₂ sin r &nbsp;→&nbsp; <span style="color:#60a5fa">${n1.toFixed(2)}</span> × sin ${angle}° = <span style="color:#4ade80">${n2.toFixed(2)}</span> × sin r &nbsp;→&nbsp; sin r = <span style="color:#fbbf24">${sinRef.toFixed(4)}</span> &nbsp;→&nbsp; ∠r = <span style="color:#fbbf24">${rDeg.toFixed(1)}°</span>`;
+// Incident ray
+const ix=MX-R*Math.sin(iRad),iy=MY-R*Math.cos(iRad);
+svgContent+=`<defs><marker id="arrowB" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><polygon points="0 0, 8 4, 0 8" fill="#60a5fa"/></marker><marker id="arrowG" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><polygon points="0 0, 8 4, 0 8" fill="#4ade80"/></marker><marker id="arrowR" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><polygon points="0 0, 8 4, 0 8" fill="#f87171"/></marker></defs>`;
+svgContent+=`<line x1="${ix}" y1="${iy}" x2="${MX}" y2="${MY}" stroke="#60a5fa" stroke-width="2.5" marker-end="url(#arrowB)"/>`;
+// Refracted ray
+const rx2=MX+R*Math.sin(rRad

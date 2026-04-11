@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our Environment - Ozone & Biodegradability</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a,#1e3a5f);min-height:100vh;color:#1e293b;overflow-x:hidden}
+.title-bar{background:linear-gradient(90deg,#1e40af,#3b82f6,#06b6d4);padding:14px 20px;text-align:center;box-shadow:0 4px 20px rgba(59,130,246,0.5)}
+.title-bar h1{color:#fff;font-size:1.2rem;font-weight:700;letter-spacing:1px}
+.title-bar p{color:#bfdbfe;font-size:0.8rem;margin-top:2px}
+.container{max-width:800px;margin:0 auto;padding:16px}
+.card{background:#fff;border-radius:20px;padding:18px;margin-bottom:16px;box-shadow:0 8px 32px rgba(0,0,0,0.2)}
+.section-title{font-size:1rem;font-weight:700;color:#1e293b;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.badge{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;padding:3px 10px;border-radius:20px;font-size:0.7rem;font-weight:600}
+.badge-green{background:linear-gradient(135deg,#22c55e,#16a34a)}
+.badge-amber{background:linear-gradient(135deg,#f59e0b,#d97706)}
+
+/* OZONE DIAGRAM */
+.ozone-diagram{position:relative;width:100%;height:280px;border-radius:16px;overflow:hidden;cursor:pointer}
+.sky-gradient{position:absolute;inset:0;background:linear-gradient(180deg,#000428 0%,#0a1628 15%,#0d3b7a 35%,#1565c0 55%,#42a5f5 75%,#87ceeb 100%)}
+.layer-label{position:absolute;left:8px;font-size:0.65rem;font-weight:700;color:#fff;text-shadow:0 1px 3px #000;background:rgba(0,0,0,0.4);padding:2px 6px;border-radius:8px}
+.ozone-band{position:absolute;left:0;right:0;height:28px;background:linear-gradient(90deg,transparent,rgba(100,220,100,0.6),rgba(50,200,50,0.8),rgba(100,220,100,0.6),transparent);border-top:2px solid rgba(100,255,100,0.8);border-bottom:2px solid rgba(100,255,100,0.8);display:flex;align-items:center;justify-content:center;transition:all 0.5s}
+.ozone-band span{color:#fff;font-size:0.65rem;font-weight:700;text-shadow:0 1px 4px #000;background:rgba(0,100,0,0.6);padding:2px 8px;border-radius:10px}
+.sun{position:absolute;top:8px;right:12px;width:44px;height:44px;background:radial-gradient(circle,#fff700,#ffb300);border-radius:50%;box-shadow:0 0 20px #ffb300,0 0 40px rgba(255,179,0,0.4);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 20px #ffb300,0 0 40px rgba(255,179,0,0.4)}50%{box-shadow:0 0 30px #ffb300,0 0 60px rgba(255,179,0,0.6)}}
+.uv-ray{position:absolute;top:52px;right:24px;width:3px;height:0;background:linear-gradient(180deg,#ff00ff,#cc00cc);border-radius:2px;transition:height 1s ease,opacity 0.5s;opacity:0}
+.uv-blocked{background:linear-gradient(180deg,#ff00ff,rgba(200,0,200,0.1))}
+.uv-label{position:absolute;font-size:0.6rem;font-weight:700;color:#ff00ff;text-shadow:0 0 4px #000;white-space:nowrap}
+.earth-surface{position:absolute;bottom:0;left:0;right:0;height:36px;background:linear-gradient(180deg,#4ade80,#16a34a);display:flex;align-items:center;justify-content:center}
+.earth-surface span{font-size:0.65rem;font-weight:700;color:#fff;text-shadow:0 1px 3px #000}
+.cfc-molecule{position:absolute;width:24px;height:24px;border-radius:50%;background:radial-gradient(circle,#ef4444,#991b1b);display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.5rem;font-weight:700;cursor:grab;box-shadow:0 2px 8px rgba(239,68,68,0.6);transition:transform 0.2s;user-select:none}
+.cfc-molecule:hover{transform:scale(1.2)}
+.click-hint{position:absolute;bottom:42px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,0.9);color:#1e293b;font-size:0.65rem;padding:4px 10px;border-radius:20px;font-weight:600;animation:bounce 1.5s infinite}
+@keyframes bounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-4px)}}
+
+/* TOGGLE */
+.toggle-row{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.toggle-btn{flex:1;min-width:130px;padding:10px;border:none;border-radius:12px;font-size:0.8rem;font-weight:600;cursor:pointer;transition:all 0.3s;background:#e2e8f0;color:#64748b}
+.toggle-btn.active-green{background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;box-shadow:0 4px 12px rgba(34,197,94,0.4)}
+.toggle-btn.active-red{background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;box-shadow:0 4px 12px rgba(239,68,68,0.4)}
+
+/* BIODEGRADABILITY */
+.waste-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.waste-item{border-radius:12px;padding:10px 6px;text-align:center;cursor:pointer;transition:all 0.3s;border:2px solid transparent;position:relative}
+.waste-item:hover{transform:translateY(-3px)}
+.waste-icon{font-size:1.6rem;margin-bottom:4px}
+.waste-name{font-size:0.65rem;font-weight:600;color:#1e293b}
+.waste-type{font-size:0.55rem;margin-top:2px;font-weight:700;padding:1px 6px;border-radius:8px;display:inline-block}
+.bio{background:#dcfce7;border-color:#86efac}
+.bio .waste-type{background:#22c55e;color:#fff}
+.nonbio{background:#fee2e2;border-color:#fca5a5}
+.nonbio .waste-type{background:#ef4444;color:#fff}
+.selected-bio{box-shadow:0 0 0 3px #22c55e,0 4px 16px rgba(34,197,94,0.3)}
+.selected-nonbio{box-shadow:0 0 0 3px #ef4444,0 4px 16px rgba(239,68,68,0.3)}
+
+/* DECOMPOSITION */
+.decomp-bar{height:22px;border-radius:20px;background:#e2e8f0;overflow:hidden;margin:6px 0;position:relative}
+.decomp-fill{height:100%;border-radius:20px;display:flex;align-items:center;padding-left:10px;font-size:0.6rem;font-weight:700;color:#fff;transition:width 1.5s ease;white-space:nowrap}
+.decomp-label{display:flex;justify-content:space-between;font-size:0.65rem;color:#64748b;margin-bottom:2px}
+
+/* STEPS */
+.steps-container{counter-reset:step}
+.step{background:#f8fafc;border-radius:12px;padding:12px;margin-bottom:8px;border-left:4px solid #3b82f6;opacity:0;transform:translateY(10px);transition:all 0.5s;cursor:default}
+.step.revealed{opacity:1;transform:translateY(0)}
+.step-title{font-size:0.8rem;font-weight:700;color:#1e40af;margin-bottom:4px}
+.step-body{font-size:0.75rem;color:#475569;line-height:1.5}
+.reveal-btn{width:100%;padding:10px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border:none;border-radius:12px;font-size:0.85rem;font-weight:700;cursor:pointer;transition:all 0.3s;margin-bottom:10px}
+.reveal-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(59,130,246,0.4)}
+
+/* FORMULA BOX */
+.formula-box{background:linear-gradient(135deg,#1e3a5f,#1e40af);border-radius:16px;padding:16px;text-align:center;margin-bottom:14px}
+.formula-text{color:#93c5fd;font-size:0.75rem;margin-bottom:6px}
+.formula-main{color:#fff;font-size:1rem;font-weight:700;letter-spacing:1px;padding:8px;background:rgba(255,255,255,0.1);border-radius:10px;margin:6px 0}
+.formula-hindi{color:#fde68a;font-size:0.7rem;margin-top:4px}
+
+/* INFO POPUP */
+.info-popup{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#1e3a5f,#1e40af);color:#fff;padding:10px 20px;border-radius:20px;font-size:0.8rem;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,0.4);opacity:0;transition:opacity 0.4s;z-index:999;pointer-events:none;text-align:center;max-width:300px}
+.info-popup.show{opacity:1}
+
+/* QUIZ */
+.quiz-q{font-size:0.85rem;font-weight:600;color:#1e293b;margin-bottom:10px}
+.quiz-opt{width:100%;padding:10px;margin-bottom:6px;border:2px solid #e2e8f0;border-radius:10px;background:#f8fafc;cursor:pointer;font-size:0.78rem;text-align:left;transition:all 0.3s}
+.quiz-opt:hover{border-color:#3b82f6;background:#eff6ff}
+.quiz-opt.correct{border-color:#22c55e;background:#dcfce7;color:#166534}
+.quiz-opt.wrong{border-color:#ef4444;background:#fee2e2;color:#991b1b}
+.quiz-result{font-size:0.8rem;font-weight:700;margin-top:8px;text-align:center;padding:8px;border-radius:10px}
+
+/* CHAIN SVG */
+.chain-container{width:100%;overflow-x:auto;padding:8px 0}
+
+@media(max-width:400px){
+.waste-grid{grid-template-columns:repeat(2,1fr)}
+.formula-main{font-size:0.85rem}
+}
+</style>
+</head>
+<body>
+
+<div class="title-bar">
+  <h1>🌍 Our Environment | हमारा पर्यावरण</h1>
+  <p>Ozone Layer • CFC • Biodegradability | Class 10 Science</p>
+</div>
+
+<div class="container">
+
+<!-- SECTION 1: OZONE LAYER DIAGRAM -->
+<div class="card">
+  <div class="section-title">☀️ Ozone Layer (ओज़ोन परत) <span class="badge">Interactive</span></div>
+  
+  <div class="formula-box">
+    <div class="formula-text">Key Chemical Reaction (ओज़ोन का निर्माण):</div>
+    <div class="formula-main">O₂ + UV light → O + O &nbsp;|&nbsp; O + O₂ → O₃ (Ozone)</div>
+    <div class="formula-hindi">CFC → Cl• → Cl• + O₃ → ClO + O₂ (ओज़ोन का विनाश)</div>
+  </div>
+
+  <div id="ozoneDiagram" class="ozone-diagram" onclick="animateUV()">
+    <div class="sky-gradient"></div>
+    <!-- Layer labels -->
+    <div class="layer-label" style="top:8px">Exosphere / Space</div>
+    <div class="layer-label" style="top:52px">Stratosphere (15-35 km)</div>
+    <div class="layer-label" style="top:130px">Troposphere (0-12 km)</div>
+
+    <!-- Ozone band -->
+    <div class="ozone-band" id="ozoneBand" style="top:62px">
+      <span id="ozoneLabel">🛡️ Ozone Layer (O₃) - Intact</span>
+    </div>
+
+    <!-- Sun -->
+    <div class="sun"></div>
+
+    <!-- UV rays -->
+    <div class="uv-ray" id="uvRay1" style="right:20px"></div>
+    <div class="uv-ray" id="uvRay2" style="right:32px"></div>
+    <div class="uv-label" id="uvText" style="top:50px;right:44px;display:none">UV ☠️</div>
+
+    <!-- Earth surface -->
+    <div class="earth-surface"><span>🌱 Earth Surface | भूमि</span></div>
+
+    <!-- CFC molecules (draggable) -->
+    <div class="cfc-molecule" id="cfc1" style="left:30px;top:90px" draggable="true" title="CFC - Drag me up!">F</div>
+    <div class="cfc-molecule" id="cfc2" style="left:70px;top:110px" draggable="true" title="CFC">Cl</div>
+    <div class="cfc-molecule" id="cfc3" style="left:20px;top:140px" draggable="true">CFC</div>
+
+    <div class="click-hint" id="clickHint">👆 Click to see UV rays!</div>
+  </div>
+  <p style="font-size:0.7rem;color:#64748b;margin-top:8px;text-align:center">Click the diagram to animate UV rays. CFCs (क्लोरोफ्लोरोकार्बन) destroy the ozone layer.</p>
+
+  <!-- CFC Toggle -->
+  <div style="margin-top:12px">
+    <div class="section-title" style="margin-bottom:8px">🔬 What happens with CFC? (CFC का प्रभाव)</div>
+    <div class="toggle-row">
+      <button class="toggle-btn active-green" id="btnNoCFC" onclick="toggleCFC(false)">✅ No CFC - Ozone Safe</button>
+      <button class="toggle-btn" id="btnCFC" onclick="toggleCFC(true)">❌ With CFC - Ozone Hole</button>
+    </div>
+    <div id="cfcInfo" style="background:#eff6ff;border-radius:12px;padding:12px;font-size:0.75rem;color:#1e40af;line-height:1.6">
+      <strong>✅ Without CFC:</strong> Ozone layer absorbs UV-B rays. Earth is protected. No skin cancer risk. 🌍<br>
+      <em>ओज़ोन परत UV किरणों को रोकती है और पृथ्वी की रक्षा करती है।</em>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 2: FOOD CHAIN EFFECT -->
+<div class="card">
+  <div class="section-title">🔗 Effect of UV on Food Chain (आहार श्रृंखला पर प्रभाव)</div>
+  <div class="chain-container">
+    <svg width="100%" viewBox="0 0 520 90" style="min-width:300px">
+      <!-- UV arrow -->
+      <defs>
+        <marker id="arr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#ef4444"/>
+        </marker>
+        <marker id="arr2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#64748b"/>
+        </marker>
+      </defs>
+      <!-- UV hitting phytoplankton -->
+      <text x="10" y="18" font-size="10" fill="#9333ea" font-weight="bold">UV Rays ☢️</text>
+      <line x1="10" y1="22" x2="10" y2="48" stroke="#9333ea" stroke-width="2" marker-end="url(#arr)"/>
+      <!-- Organisms -->
+      <rect x="0" y="50" width="72" height="32" rx="8" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+      <text x="36" y="63" font-size="9" fill="#1e40af" text-anchor="middle" font-weight="bold">Phyto-</text>
+      <text x="36" y="75" font-size="9" fill="#1e40af" text-anchor="middle">plankton</text>
+      <text x="36" y="86" font-size="8" fill="#64748b" text-anchor="middle">⬇️ damaged</text>
+
+      <line x1="73" y1="66" x2="105" y2="66" stroke="#64748b" stroke-width="1.5" marker-end="url(#arr2)"/>
+
+      <rect x="107" y="50" width="72" height="32" rx="8" fill="#d1fae5" stroke="#22c55e" stroke-width="1.5"/>
+      <text x="143" y="63" font-size="9" fill="#166534" text-anchor="middle" font-weight="bold">Zoo-</text>
+      <text x="143" y="75" font-size="9" fill="#166534" text-anchor="middle">plankton</text>
+      <text x="143" y="86" font-size="8" fill="#64748b" text-anchor="middle">food ⬇️</text>
+
+      <line x1="180" y1="66" x2="212" y2="66" stroke="#64748b" stroke-width="1.5" marker-end="url(#arr2)"/>
+
+      <rect x="214" y="50" width="72" height="32" rx="8" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>
+      <text x="250" y="63" font-size="9" fill="#92400e" text-anchor="middle" font-weight="bold">Small Fish</text>
+      <text x="250" y="75" font-size="9" fill="#92400e" text-anchor="middle">🐟</text>
+      <text x="250" y="86" font-size="8" fill="#64748b" text-anchor="middle">affected</text>
+
+      <line x1="287" y1="66" x2="319" y2="66" stroke="#64748b" stroke-width="1.5" marker-end="url(#arr2)"/>
+
+      <rect x="321" y="50" width="72" height="32" rx="8" fill="#fee2e2" stroke="#ef4444" stroke-width="1.5"/>
+      <text x="357" y="63" font-size="9" fill="#991b1b" text-anchor="middle" font-weight="bold">Large Fish</text>
+      <text x="357" y="75" font-size="9" fill="#991b1b" text-anchor="middle">🐠</text>
+      <text x="357" y="86" font-size="8" fill="#64748b" text-anchor="middle">declined</text>
+
+      <line x1="394" y1="66" x2="426" y2="66" stroke="#64748b" stroke-width="1.5" marker-end="url(#arr2)"/>
+
+      <rect x="428" y="50" width="72" height="32" rx="8" fill="#f3e8ff" stroke="#9333ea" stroke-width="1.5"/>
+      <text x="464" y="63" font-size="9" fill="#6b21a8" text-anchor="middle" font-weight="bold">Humans</text>
+      <text x="464" y="75" font-size="9" fill="#6b21a8" text-anchor="middle">👤</text>
+      <text x="464" y="86" font-size="8" fill="#64748b" text-anchor="middle">impacted!</text>
+    </svg>
+  </div>
+  <p style="font-size:0.7rem;color:#64748b;text-align:center;margin-top:4px">UV radiation damages phytoplankton → entire marine food chain collapses (जैव आवर्धन)</p>
+</div>
+
+<!-- SECTION 3: BIODEGRADABILITY -->
+<div class="card">
+  <div class="section-title">♻️ Biodegradable vs Non-Biodegradable <span class="badge-green badge">Click Items!</span></div>
+  
+  <p style="font-size:0.75rem;color:#64748b;margin-bottom:10px">
+    <strong>जैव निम्नीकरणीय (Biodegradable):</strong> Broken down by microorganisms 🦠<br>
+    <strong>अजैव निम्नीकरणीय (Non-Biodegradable):</strong> Cannot be broken down naturally ❌
+  </p>
+
+  <div class="waste-grid" id="wasteGrid">
+    <div class="waste-item bio" onclick="selectWaste(this,'bio','Apple Core 🍎','Decomposes in 1-2 months by bacteria and fungi. Returns nutrients to soil.')">
+      <div class="waste-icon">🍎</div>
+      <div class="waste-name">Apple Core</div>
+      <div class="waste-type">Biodegradable</div>
+    </div>
+    <div class="waste-item nonbio" onclick="selectWaste(this,'nonbio','Plastic Bag 🛍️','Takes 500-1000 years! Breaks into microplastics. Harms animals.')">
+      <div class="waste-icon">🛍️</div>
+      <div class="waste-name">Plastic Bag</div>
+      <div class="waste-type">Non-Bio</div>
+    </div>
+    <div class="waste-item bio" onclick="selectWaste(this,'bio','Vegetable Peel 🥕','Decomposes in 2-5 weeks. Used for compost (खाद).')">
+      <div class="waste-icon">🥕</div>
+      <div class="waste-name">Veg. Peel</div>
+      <div class="waste-type">Biodegradable</div>
+    </div>
+    <div class="waste-item nonbio" onclick="selectWaste(this,'nonbio','Glass Bottle 🍶','Takes over 1 million years! But can be recycled ♻️')">
+      <div class="waste-icon">🍶</div>
+      <div class="waste-name">Glass Bottle</div>
+      <div class="waste-type">Non-Bio</div>
+    </div>
+    <div class="waste-item bio" onclick="selectWaste(this,'bio','Newspaper 📰','Decomposes in 2-6 weeks. Cellulose broken by microbes.')">
+      <div class="waste-icon">📰</div>
+      <div class="waste-name">Newspaper</div>
+      <div class="waste-type">Biodegradable</div>
+    </div>
+    <div class="waste-item nonbio" onclick="selectWaste(this,'nonbio','Aluminium Can 🥫','Takes 80-200 years. Mining causes pollution. Recycle it!')">
+      <div class="waste-icon">🥫</div>
+      <div class="waste-name">Aluminium</div>
+      <div class="waste-type">Non-Bio</div>
+    </div>
+  </div>
+
+  <div id="wasteInfo" style="background:#f0fdf4;border:2px solid #86efac;border-radius:12px;padding:12px;margin-top:12px;font-size:0.75rem;display:none">
+    <div id="wasteInfoText"></div>
+  </div>
+
+  <!-- Decomposition bars -->
+  <div style="margin-top:14px">
+    <div class="section-title" style="font-size:0.85rem;margin-bottom:8px">⏱️ Time to Decompose (अपघटन समय)</div>
+    <div id="decompBars">
+      <div class="decomp-label"><span>🍌 Banana Peel</span><span>3-4 weeks</span></div>
+      <div class="decomp-bar"><div class="decomp-fill" style="width:0;background:linear-gradient(90deg,#22c55e,#4ade80)" id="bar1">3-4 weeks</div></div>
+
+      <div class="decomp-label"><span>📰 Paper</span><span>2-6 weeks</span></div>
+      <div class="decomp-bar"><div class="decomp-fill" style="width:0;background:linear-gradient(90deg,#22c55e,#86efac)" id="bar2">2-6 weeks</div></div>
+
+      <div class="decomp-label"><span>🥫 Tin Can</span><span>~100 years</span></div>
+      <div class="decomp-bar"><div class="decomp-fill" style="width:0;background:linear-gradient(90deg,#f59e0b,#fbbf24)" id="bar3">~100 yrs</div></div>
+
+      <div class="decomp-label"><span>🛍️ Plastic</span><span>500-1000 years</span></div>
+      <div class="decomp-bar"><div class="decomp-fill" style="width:0;background:linear-gradient(90deg,#ef4444,#f87171)" id="bar4">500-1000 yrs!</div></div>
+    </div>
+    <button onclick="animateBars()" style="margin-top:10px;width:100%;padding:8px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;border:none;border-radius:10px;font-size:0.8rem;font-weight:700;cursor:pointer;transition:all 0.3s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+      📊 Animate Decomposition Times
+    </button>
+  </div>
+</div>
+
+<!-- SECTION 4: STEP BY STEP -->
+<div class="card">
+  <div class="section-title">📚 How CFCs Destroy Ozone - Step by Step <span class="badge-amber badge">Click to Reveal</span></div>
+  <div style="font-size:0.75rem;color:#64748b;margin-bottom:10px">CFC ओज़ोन को कैसे नष्ट करते हैं? (CBSE Important!)</div>
+
+  <button class="reveal-btn" onclick="revealNext()">👆 Reveal Next Step</button>
+
+  <div class="steps-container">
+    <div class="step" id="s1">
+      <div class="step-title">Step 1: CFC Released 🏭</div>
+      <div class="step-body">Chlorofluorocarbons (CFCs) are released from <strong>refrigerators, air conditioners, and aerosol sprays</strong>. These rise into the stratosphere.<br><em>फ्रिज, AC से CFC गैसें वायुमंडल में जाती हैं।</em></div>
+    </div>
+    <div class="step" id="s2">
+      <div class="step-title">Step 2: UV Breaks CFC ☢️</div>
+      <div class="step-body">UV radiation in stratosphere breaks CFC molecules, releasing highly reactive <strong>Chlorine (Cl•) free radicals</strong>.<br><em>CFC → Cl• (क्लोरीन मुक्त मूलक)</em></div>
+    </div>
+    <div class="step" id="s3">
+      <div class="step-title">Step 3: Chlorine Attacks Ozone ⚡</div>
+      <div class="step-body">One Cl• radical destroys <strong>thousands of O₃ molecules</strong> in a chain reaction:<br><strong>Cl• + O₃ → ClO + O₂</strong><br><em>एक क्लोरीन अणु हजारों ओज़ोन अणुओं को नष्ट कर सकता है!</em></div>
+    </div>
+    <div class="step" id="s4">
+      <div class="step-title">Step 4: Ozone Hole Forms 🕳️</div>
+      <div class="step-body">The ozone layer thins, creating an <strong>"Ozone Hole"</strong> especially over Antarctica. UV-B rays now reach Earth directly.<br><em

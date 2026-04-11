@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mendel's Laws of Inheritance - Class 10 Science</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#0f172a 100%);min-height:100vh;color:#1e293b;overflow-x:hidden}
+.title-bar{background:linear-gradient(90deg,#3b82f6,#8b5cf6,#3b82f6);background-size:200% 100%;animation:shimmer 3s infinite;padding:14px 20px;text-align:center;box-shadow:0 4px 20px rgba(59,130,246,0.4)}
+@keyframes shimmer{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.title-bar h1{color:#fff;font-size:clamp(16px,3vw,22px);font-weight:700;letter-spacing:1px}
+.title-bar p{color:#bfdbfe;font-size:clamp(11px,2vw,13px);margin-top:3px}
+.container{max-width:900px;margin:0 auto;padding:16px}
+.card{background:#fff;border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:0 8px 32px rgba(0,0,0,0.2);transition:transform 0.2s}
+.card:hover{transform:translateY(-2px)}
+.section-title{font-size:clamp(14px,2.5vw,18px);font-weight:700;color:#3b82f6;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.badge{background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#fff;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.mendel-intro{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center}
+.mendel-portrait{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#ef4444);display:flex;align-items:center;justify-content:center;font-size:36px;border:4px solid #fff;box-shadow:0 4px 16px rgba(245,158,11,0.4);flex-shrink:0}
+.info-box{background:linear-gradient(135deg,#eff6ff,#f0fdf4);border-left:4px solid #3b82f6;padding:12px;border-radius:8px;font-size:13px;line-height:1.6}
+.terms-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-top:10px}
+.term-card{padding:12px;border-radius:12px;text-align:center;cursor:pointer;transition:all 0.3s;border:2px solid transparent}
+.term-card:hover{transform:scale(1.05);border-color:currentColor}
+.term-card.dominant{background:linear-gradient(135deg,#fef3c7,#fde68a);color:#92400e}
+.term-card.recessive{background:linear-gradient(135deg,#fee2e2,#fecaca);color:#991b1b}
+.term-card.gene{background:linear-gradient(135deg,#dbeafe,#bfdbfe);color:#1e40af}
+.term-card.allele{background:linear-gradient(135deg,#dcfce7,#bbf7d0);color:#14532d}
+.term-title{font-weight:700;font-size:14px}
+.term-hindi{font-size:11px;opacity:0.7;margin:2px 0}
+.term-desc{font-size:11px;margin-top:4px;display:none}
+.term-card.active .term-desc{display:block}
+.cross-container{display:flex;flex-direction:column;align-items:center;gap:8px}
+.plant-row{display:flex;justify-content:center;align-items:center;gap:20px;flex-wrap:wrap}
+.plant{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer}
+.plant-icon{width:60px;height:70px;position:relative}
+.plant-label{font-size:11px;font-weight:600;text-align:center}
+.genotype-badge{background:#1e293b;color:#fff;padding:2px 8px;border-radius:10px;font-size:12px;font-family:monospace}
+.cross-symbol{font-size:28px;font-weight:700;color:#ef4444;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
+.arrow-down{text-align:center;font-size:24px;color:#3b82f6;margin:4px 0}
+.punnett-wrapper{display:flex;flex-direction:column;align-items:center;gap:12px;margin-top:10px}
+.punnett-square{display:grid;grid-template-columns:40px repeat(2,70px);grid-template-rows:40px repeat(2,70px);gap:3px;background:#1e293b;padding:3px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.3)}
+.punnett-cell{background:#f8fafc;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;transition:all 0.5s;opacity:0}
+.punnett-cell.header{background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#fff;font-size:16px}
+.punnett-cell.corner{background:#0f172a}
+.punnett-cell.dominant-cell{background:linear-gradient(135deg,#fef3c7,#fde68a);color:#92400e}
+.punnett-cell.recessive-cell{background:linear-gradient(135deg,#fee2e2,#fecaca);color:#991b1b}
+.punnett-cell.show{opacity:1}
+.ratio-display{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.ratio-box{padding:10px 16px;border-radius:12px;text-align:center;min-width:90px}
+.ratio-box.phenotype{background:linear-gradient(135deg,#dcfce7,#bbf7d0);border:2px solid #22c55e}
+.ratio-box.genotype{background:linear-gradient(135deg,#dbeafe,#bfdbfe);border:2px solid #3b82f6}
+.ratio-num{font-size:24px;font-weight:700}
+.ratio-label{font-size:11px;color:#64748b}
+.step-container{counter-reset:step}
+.step{display:flex;gap:12px;margin-bottom:12px;opacity:0;transform:translateX(-20px);transition:all 0.4s}
+.step.revealed{opacity:1;transform:translateX(0)}
+.step-num{width:32px;height:32px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;font-size:14px}
+.step-content{background:#f8fafc;border-radius:10px;padding:10px 12px;flex:1;font-size:13px;line-height:1.5;border-left:3px solid #3b82f6}
+.step-content strong{color:#3b82f6}
+.btn{background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#fff;border:none;padding:10px 20px;border-radius:10px;cursor:pointer;font-weight:600;font-size:13px;transition:all 0.3s;box-shadow:0 4px 12px rgba(59,130,246,0.3)}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(59,130,246,0.4)}
+.btn:active{transform:translateY(0)}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:12px}
+.law-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.law-card{padding:16px;border-radius:14px;position:relative;overflow:hidden}
+.law-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px}
+.law-card.law1{background:linear-gradient(135deg,#eff6ff,#dbeafe)}
+.law-card.law1::before{background:linear-gradient(90deg,#3b82f6,#8b5cf6)}
+.law-card.law2{background:linear-gradient(135deg,#f0fdf4,#dcfce7)}
+.law-card.law2::before{background:linear-gradient(90deg,#22c55e,#16a34a)}
+.law-title{font-weight:700;font-size:14px;margin-bottom:6px}
+.law-desc{font-size:12px;line-height:1.6;color:#374151}
+.law-hindi{font-size:11px;color:#6b7280;font-style:italic;margin-top:4px}
+.formula-box{background:linear-gradient(135deg,#1e293b,#0f172a);color:#fff;border-radius:14px;padding:16px;text-align:center;margin:10px 0}
+.formula-main{font-size:clamp(16px,3vw,22px);font-weight:700;color:#fbbf24;letter-spacing:2px;margin:6px 0}
+.formula-sub{font-size:12px;color:#94a3b8;margin-top:4px}
+.progress-bar{height:6px;background:#e2e8f0;border-radius:3px;margin-top:8px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#22c55e,#3b82f6);width:0%;transition:width 0.5s;border-radius:3px}
+.quiz-section{background:linear-gradient(135deg,#fef3c7,#fff7ed);border:2px solid #f59e0b;border-radius:14px;padding:16px}
+.quiz-q{font-weight:600;font-size:14px;margin-bottom:10px}
+.quiz-opts{display:flex;flex-direction:column;gap:6px}
+.quiz-opt{padding:9px 14px;border-radius:8px;border:2px solid #e2e8f0;background:#fff;cursor:pointer;font-size:13px;transition:all 0.2s;text-align:left}
+.quiz-opt:hover{border-color:#3b82f6;background:#eff6ff}
+.quiz-opt.correct{background:#dcfce7;border-color:#22c55e;color:#15803d}
+.quiz-opt.wrong{background:#fee2e2;border-color:#ef4444;color:#dc2626}
+.quiz-feedback{margin-top:8px;padding:8px 12px;border-radius:8px;font-size:13px;display:none}
+.quiz-feedback.show{display:block}
+.quiz-feedback.ok{background:#dcfce7;color:#15803d}
+.quiz-feedback.no{background:#fee2e2;color:#dc2626}
+.interactive-hint{text-align:center;color:#64748b;font-size:12px;margin-top:6px;font-style:italic}
+svg text{font-family:'Segoe UI',sans-serif}
+.pea-svg{width:60px;height:70px}
+.generation-label{background:linear-gradient(135deg,#1e293b,#334155);color:#fff;padding:4px 14px;border-radius:20px;font-size:12px;font-weight:600;display:inline-block;margin-bottom:6px}
+</style>
+</head>
+<body>
+<div class="title-bar">
+<h1>🌱 Mendel's Laws of Inheritance</h1>
+<p>CBSE Class 10 Science | अनुवांशिकता और विकास | Chapter 9</p>
+</div>
+<div class="container">
+
+<!-- Mendel Intro -->
+<div class="card">
+<div class="mendel-intro">
+<div class="mendel-portrait">🧑‍🔬</div>
+<div>
+<div class="section-title">Gregor Johann Mendel <span class="badge">Father of Genetics</span></div>
+<div class="info-box">
+Mendel (1822–1884) conducted experiments on <strong>pea plants (Pisum sativum)</strong> for 8 years. He studied 7 contrasting traits and discovered the fundamental laws of heredity — how traits are passed from parents to offspring (संतान).
+<br><small style="color:#6b7280">🔑 वंशागति के नियम | Laws of Inheritance</small>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Key Terms -->
+<div class="card">
+<div class="section-title">📚 Key Terms — Click to Explore!</div>
+<div class="terms-grid">
+<div class="term-card dominant" onclick="toggleTerm(this)">
+<div class="term-title">Dominant</div>
+<div class="term-hindi">प्रभावी लक्षण</div>
+<div class="term-desc">Trait that shows up in F1 generation. Represented by CAPITAL letter (T, R, Y). Always masks the recessive trait when present.</div>
+</div>
+<div class="term-card recessive" onclick="toggleTerm(this)">
+<div class="term-title">Recessive</div>
+<div class="term-hindi">अप्रभावी लक्षण</div>
+<div class="term-desc">Trait that is masked by dominant. Shown by small letter (t, r, y). Appears only in homozygous condition (tt).</div>
+</div>
+<div class="term-card gene" onclick="toggleTerm(this)">
+<div class="term-title">Gene / Allele</div>
+<div class="term-hindi">जीन / युग्म विकल्पी</div>
+<div class="term-desc">Genes are segments of DNA. Alleles are different forms of same gene. Each organism has 2 alleles per trait (one from each parent).</div>
+</div>
+<div class="term-card allele" onclick="toggleTerm(this)">
+<div class="term-title">Genotype/Phenotype</div>
+<div class="term-hindi">जीनप्ररूप / लक्षणप्ररूप</div>
+<div class="term-desc">Genotype = genetic makeup (TT, Tt, tt). Phenotype = observable trait (Tall, Tall, Dwarf). Same phenotype can have different genotypes!</div>
+</div>
+</div>
+<div class="interactive-hint">👆 Tap each card to see its definition</div>
+</div>
+
+<!-- Laws of Inheritance -->
+<div class="card">
+<div class="section-title">⚖️ Mendel's Laws of Inheritance</div>
+<div class="law-cards">
+<div class="law-card law1">
+<div class="law-title">🔬 Law 1: Law of Dominance</div>
+<div class="law-desc">When two pure breeding parents are crossed, only the <strong>dominant trait</strong> appears in F1 generation. The recessive trait is hidden but not lost.</div>
+<div class="law-hindi">प्रभाविता का नियम — F1 में केवल प्रभावी लक्षण दिखता है</div>
+</div>
+<div class="law-card law2">
+<div class="law-title">🔀 Law 2: Law of Segregation</div>
+<div class="law-desc">The two alleles for each trait <strong>separate (segregate)</strong> during gamete formation. Each gamete gets only ONE allele for each trait.</div>
+<div class="law-hindi">पृथक्करण का नियम — युग्मक बनते समय एलील अलग होते हैं</div>
+</div>
+</div>
+</div>
+
+<!-- Monohybrid Cross Interactive -->
+<div class="card">
+<div class="section-title">🌿 Monohybrid Cross — एकसंकर क्रॉस <span class="badge">Interactive</span></div>
+<div style="background:linear-gradient(135deg,#eff6ff,#f0fdf4);border-radius:12px;padding:14px;margin-bottom:14px;font-size:13px">
+<strong>Example:</strong> Crossing Tall (TT) × Dwarf (tt) pea plants. <br>Trait studied: <strong>Height</strong> | Dominant: Tall (T) | Recessive: Dwarf (t)
+</div>
+
+<div class="cross-container">
+<!-- P Generation -->
+<div class="generation-label">P Generation (जनक पीढ़ी)</div>
+<div class="plant-row">
+<div class="plant">
+<svg class="pea-svg" viewBox="0 0 60 70">
+<rect x="27" y="30" width="6" height="35" fill="#16a34a" rx="3"/>
+<ellipse cx="30" cy="25" rx="18" ry="22" fill="#22c55e" stroke="#16a34a" stroke-width="2"/>
+<circle cx="22" cy="20" r="5" fill="#4ade80"/>
+<circle cx="38" cy="18" r="4" fill="#4ade80"/>
+<circle cx="30" cy="30" r="4" fill="#4ade80"/>
+</svg>
+<div class="plant-label">TALL</div>
+<div class="genotype-badge">TT</div>
+</div>
+<div class="cross-symbol">×</div>
+<div class="plant">
+<svg class="pea-svg" viewBox="0 0 60 70">
+<rect x="27" y="48" width="6" height="18" fill="#16a34a" rx="3"/>
+<ellipse cx="30" cy="43" rx="12" ry="15" fill="#86efac" stroke="#16a34a" stroke-width="2"/>
+<circle cx="24" cy="40" r="4" fill="#bbf7d0"/>
+<circle cx="36" cy="39" r="3" fill="#bbf7d0"/>
+</svg>
+<div class="plant-label">DWARF</div>
+<div class="genotype-badge">tt</div>
+</div>
+</div>
+
+<div class="arrow-down">↓ Gametes (युग्मक) ↓</div>
+
+<!-- Gametes -->
+<div style="display:flex;gap:40px;justify-content:center;flex-wrap:wrap">
+<div style="text-align:center">
+<div style="background:#fde68a;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;margin:0 auto;font-weight:700;color:#92400e;font-size:18px">T</div>
+<div style="font-size:11px;margin-top:4px">All gametes: T</div>
+</div>
+<div style="text-align:center">
+<div style="background:#fecaca;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;margin:0 auto;font-weight:700;color:#991b1b;font-size:18px">t</div>
+<div style="font-size:11px;margin-top:4px">All gametes: t</div>
+</div>
+</div>
+
+<div class="arrow-down">↓ Fertilization (निषेचन) ↓</div>
+
+<!-- F1 Generation -->
+<div class="generation-label">F1 Generation (प्रथम पुत्री पीढ़ी)</div>
+<div class="plant-row">
+<div class="plant">
+<svg class="pea-svg" viewBox="0 0 60 70">
+<rect x="27" y="30" width="6" height="35" fill="#16a34a" rx="3"/>
+<ellipse cx="30" cy="25" rx="18" ry="22" fill="#22c55e" stroke="#16a34a" stroke-width="2"/>
+<circle cx="22" cy="20" r="5" fill="#4ade80"/>
+<circle cx="38" cy="18" r="4" fill="#4ade80"/>
+<circle cx="30" cy="30" r="4" fill="#4ade80"/>
+</svg>
+<div class="plant-label">ALL TALL 🌱</div>
+<div class="genotype-badge">Tt</div>
+</div>
+</div>
+<div style="background:#dcfce7;border-radius:10px;padding:8px 14px;font-size:12px;text-align:center;color:#15803d">
+✅ <strong>Law of Dominance:</strong> T is dominant over t → All F1 plants are TALL (Phenotype), but Genotype is Tt (Hybrid)
+</div>
+
+<div class="arrow-down">↓ Self-pollination (स्वपरागण) of F1 ↓</div>
+
+<!-- F2 Punnett Square -->
+<div class="generation-label">F2 Generation — Punnett Square (पनेट वर्ग)</div>
+<div class="punnett-wrapper">
+<div style="font-size:12px;color:#64748b;margin-bottom:4px">Tt × Tt → Click to fill!</div>
+<div class="punnett-square" id="punnett">
+<div class="punnett-cell corner show"></div>
+<div class="punnett-cell header show">T</div>
+<div class="punnett-cell header show">t</div>
+<div class="punnett-cell header show">T</div>
+<div class="punnett-cell dominant-cell" id="c1">TT</div>
+<div class="punnett-cell dominant-cell" id="c2">Tt</div>
+<div class="punnett-cell header show">t</div>
+<div class="punnett-cell dominant-cell" id="c3">Tt</div>
+<div class="punnett-cell recessive-cell" id="c4">tt</div>
+</div>
+<div class="btn-row">
+<button class="btn" onclick="fillPunnett()">▶ Fill Punnett Square</button>
+<button class="btn" onclick="resetPunnett()" style="background:linear-gradient(135deg,#ef4444,#dc2626)">↺ Reset</button>
+</div>
+</div>
+
+<!-- Ratios -->
+<div id="ratioSection" style="display:none;width:100%">
+<div class="formula-box">
+<div style="font-size:13px;color:#94a3b8">F2 Ratios (अनुपात)</div>
+<div class="formula-main">Phenotype = 3 : 1</div>
+<div style="color:#60a5fa;font-size:16px;font-weight:600">Genotype = 1 TT : 2 Tt : 1 tt</div>
+<div class="formula-sub">Phenotypic Ratio: 3 Tall : 1 Dwarf | Genotypic Ratio: 1:2:1</div>
+</div>
+<div class="ratio-display">
+<div class="ratio-box phenotype">
+<div class="ratio-num" style="color:#16a34a">3</div>
+<div class="ratio-label">TALL (Dominant)</div>
+<div style="font-size:11px;color:#6b7280">TT + Tt + Tt</div>
+</div>
+<div style="display:flex;align-items:center;font-size:20px;font-weight:700;color:#64748b">:</div>
+<div class="ratio-box phenotype" style="background:linear-gradient(135deg,#fee2e2,#fecaca);border-color:#ef4444">
+<div class="ratio-num" style="color:#dc2626">1</div>
+<div class="ratio-label">DWARF (Recessive)</div>
+<div style="font-size:11px;color:#6b7280">tt only</div>
+</div>
+<div class="ratio-box genotype" style="margin-left:20px">
+<div class="ratio-num" style="color:#3b82f6">1:2:1</div>
+<div class="ratio-label">Genotypic Ratio</div>
+<div style="font-size:11px;color:#6b7280">TT : Tt : tt</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Step-by-Step Walkthrough -->
+<div class="card">
+<div class="section-title">🚶 Step-by-Step Walkthrough <span class="badge">Click to Reveal</span></div>
+<div id="steps">
+<div class="step" id="step1">
+<div class="step-num">1</div>
+<div class="step-content"><strong>Choose Parent Plants (P Generation):</strong> Select pure breeding Tall (TT) and Dwarf (tt) pea plants. These are homozygous — both alleles are same.</div>
+</div>
+<div class="step" id="step2">
+<div class="step-num">2</div>
+<div class="step-content"><strong>Gamete Formation (युग्मक निर्माण):</strong> TT plant produces only T gametes. tt plant produces only t gametes. ∵ Law of Segregation — alleles separate during meiosis.</div>
+</div>
+<div class="step" id="step3">
+<div class="step-num">3</div>
+<div class="step-content"><strong>F1 Cross (P × P):</strong> T gamete × t gamete → All offspring are Tt. Phenotype = ALL TALL (T is dominant). This proves the <em>Law of Dominance</em>. 100% Tall, 0% Dwarf.</div>
+</div>
+<div class="step" id="step4">
+<div class="step-num">4</div>
+<div class="step-content"><strong>F1 × F1 Self-pollination:</strong> Tt × Tt. Each parent gives T or t with equal probability (50% each). Draw Punnett Square with T and t on axes.</div>
+</div>
+<div class="step" id="step5">
+<div class="step-num">5</div>
+<div class="step-content"><strong>F2 Results:</strong> TT (Tall) : Tt (Tall) : tt (Dwarf) = 1:2:1 genotypic ratio. ∴ Phenotypic ratio = 3 Tall : 1 Dwarf. <strong>The recessive trait REAPPEARS in F2!</strong> This proves traits don't blend — they are inherited as discrete units.</div>
+</div>
+<div class="step" id="step6">
+<div class="step-num">6</div>
+<div class="step-content"><strong>Key Conclusion (निष्कर्ष):</strong> Traits are controlled by factors (genes) that come in pairs. One from father, one from mother. They separate during reproduction and recombine in offspring. Dominant masks recessive but never destroys it! 🧬</div>
+</div>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="progressBar"></div></div>
+<div class="btn-row">
+<button class="btn" onclick="revealNextStep()">▶ Next Step</button>
+<button class="btn" onclick="revealAllSteps()" style="background:linear-gradient(135deg,#22c55e,#16a34a)">✅ Show All</button>
+<button class="btn" onclick="resetSteps()" style="background:linear-gradient(135deg,#ef4444,#dc2626)">↺ Reset</button>
+</div>
+<div class="interactive-hint" id="stepCounter">Step 0 of 6 revealed</div>
+</div>
+
+<!-- Mendel's 7 Traits Table -->
+<div class="card">
+<div class="section-title">🫛 Mendel's 7 Pea Plant Traits — Hover to See!</div>
+<div style="overflow-x:auto">
+<table style="width:100%;border-collapse:collapse;font-size:12px">
+<tr style="background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#fff">
+<th style="padding:8px;border-radius:8px 0 0 0">Trait / लक्षण</th>
+<th style="padding:8px">Dominant (प्रभावी)</th>
+<th style="padding:8px;border-radius:0 8px 0 0">Recessive (अप्रभावी)</th>
+</tr>
+<tr class="trait-row" style="cursor:pointer" onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background=''">
+<td style="padding:8px;border-bottom:1px solid #e2e8f0">🌱 Plant Height</td>
+<td style="padding:8px;border-bottom:1px solid #e2e8f0;color:#16a34a;font-weight:600">Tall (लम्बा)</td>
+<td style="padding:8px;border-bottom:1px solid #e2e8f0;color:#dc2626">Dwarf (बौना)</td>
+</tr>
+<tr class="trait-row" onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background=''">
+<td style="padding:8px;border-bottom:1px solid #e2e8f0">🟡 Seed Colour</td>
+<td style="padding:8px;border-bottom:1px solid #e2e8f0;color:#16a34a;font-weight:600">Yellow (पीला)</td>
+<td style="padding:8px;border-bottom:1px solid #e2e8f0;color:#dc2626">Green (हरा)</td>
+</tr>
+<tr

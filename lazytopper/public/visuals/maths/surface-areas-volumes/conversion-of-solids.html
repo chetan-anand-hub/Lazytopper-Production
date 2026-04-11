@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Surface Areas & Volumes – Conversion of Solids</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 100%);min-height:100vh;color:#1e293b}
+  .titlebar{background:linear-gradient(90deg,#3b82f6,#6366f1);color:#fff;padding:14px 20px;text-align:center;box-shadow:0 4px 15px rgba(59,130,246,0.4)}
+  .titlebar h1{font-size:1.2rem;font-weight:700}
+  .titlebar p{font-size:0.78rem;opacity:0.85;margin-top:3px}
+  .container{max-width:780px;margin:0 auto;padding:16px}
+  .card{background:#fff;border-radius:16px;padding:18px;margin-bottom:16px;box-shadow:0 4px 20px rgba(0,0,0,0.15)}
+  .section-title{font-size:1rem;font-weight:700;color:#3b82f6;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+  .concept-box{background:linear-gradient(135deg,#eff6ff,#dbeafe);border:2px solid #3b82f6;border-radius:12px;padding:14px;margin-bottom:12px;text-align:center}
+  .concept-box h2{font-size:1.1rem;color:#1e40af;font-weight:700}
+  .concept-box p{font-size:0.85rem;color:#1e293b;margin-top:6px}
+  .formula-big{font-size:1.3rem;font-weight:800;color:#1e40af;background:#fff;border-radius:10px;padding:10px 18px;display:inline-block;margin:8px 0;box-shadow:0 2px 10px rgba(59,130,246,0.2)}
+  .visual-area{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;margin:14px 0}
+  .solid-wrap{text-align:center;cursor:pointer}
+  .solid-wrap svg{transition:transform 0.3s,filter 0.3s}
+  .solid-wrap:hover svg{transform:scale(1.08);filter:drop-shadow(0 6px 12px rgba(59,130,246,0.5))}
+  .solid-label{font-size:0.75rem;font-weight:600;margin-top:6px;color:#1e293b}
+  .arrow-big{font-size:2rem;color:#f59e0b;animation:pulse 1.5s infinite}
+  @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
+  .slider-section{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-radius:12px;padding:14px;border:2px solid #22c55e}
+  .slider-section label{font-size:0.8rem;font-weight:600;color:#15803d;display:block;margin-bottom:4px}
+  input[type=range]{width:100%;accent-color:#3b82f6;margin:6px 0}
+  .calc-display{background:#1e293b;color:#22c55e;border-radius:10px;padding:12px;font-family:monospace;font-size:0.82rem;margin-top:10px;line-height:1.7}
+  .calc-display span.hl{color:#f59e0b;font-weight:700}
+  .calc-display span.ans{color:#60a5fa;font-weight:700}
+  .steps-area{margin-top:10px}
+  .step-btn{background:linear-gradient(90deg,#3b82f6,#6366f1);color:#fff;border:none;border-radius:20px;padding:8px 20px;cursor:pointer;font-size:0.85rem;font-weight:600;transition:transform 0.2s,box-shadow 0.2s}
+  .step-btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(99,102,241,0.4)}
+  .step-item{background:#f8fafc;border-left:4px solid #3b82f6;border-radius:0 10px 10px 0;padding:10px 14px;margin-top:10px;font-size:0.82rem;animation:slideIn 0.4s ease;display:none}
+  .step-item.show{display:block}
+  @keyframes slideIn{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+  .step-item .step-num{font-weight:700;color:#3b82f6;font-size:0.75rem}
+  .step-item .step-text{color:#1e293b;margin-top:3px}
+  .step-item .step-math{font-family:monospace;background:#eff6ff;padding:4px 8px;border-radius:6px;margin-top:5px;display:inline-block;color:#1e40af;font-size:0.82rem}
+  .quiz-area{background:linear-gradient(135deg,#fff7ed,#ffedd5);border:2px solid #f59e0b;border-radius:12px;padding:14px}
+  .quiz-q{font-size:0.88rem;font-weight:600;color:#92400e;margin-bottom:10px}
+  .quiz-opts{display:flex;flex-wrap:wrap;gap:8px}
+  .quiz-opt{background:#fff;border:2px solid #fbbf24;border-radius:20px;padding:7px 14px;cursor:pointer;font-size:0.8rem;font-weight:600;transition:all 0.3s;color:#92400e}
+  .quiz-opt:hover{background:#fef3c7}
+  .quiz-opt.correct{background:#22c55e;color:#fff;border-color:#16a34a}
+  .quiz-opt.wrong{background:#ef4444;color:#fff;border-color:#dc2626}
+  .quiz-feedback{margin-top:8px;font-size:0.82rem;font-weight:600;min-height:20px}
+  .feedback-ok{color:#15803d}
+  .feedback-err{color:#dc2626}
+  .tag{display:inline-block;background:#dbeafe;color:#1d4ed8;border-radius:20px;padding:3px 10px;font-size:0.7rem;font-weight:700;margin:2px}
+  .conservation-demo{display:flex;align-items:flex-end;justify-content:center;gap:10px;margin:12px 0}
+  .bar-wrap{text-align:center}
+  .bar{border-radius:6px 6px 0 0;width:50px;transition:height 0.8s ease;margin:0 auto}
+  .bar-label{font-size:0.7rem;font-weight:600;margin-top:4px}
+  .info-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+  .info-chip{flex:1;min-width:120px;background:#eff6ff;border-radius:10px;padding:10px;text-align:center;border:1px solid #bfdbfe}
+  .info-chip .ic-val{font-size:1.1rem;font-weight:800;color:#2563eb}
+  .info-chip .ic-label{font-size:0.68rem;color:#64748b;margin-top:2px}
+  .reset-btn{background:#ef4444;color:#fff;border:none;border-radius:20px;padding:6px 16px;cursor:pointer;font-size:0.78rem;font-weight:600;margin-left:8px}
+  .reset-btn:hover{background:#dc2626}
+  .hindi{font-size:0.75rem;color:#7c3aed;font-weight:600}
+  footer{text-align:center;color:rgba(255,255,255,0.4);font-size:0.7rem;padding:16px;margin-top:8px}
+  @media(max-width:480px){.visual-area{gap:10px}.arrow-big{font-size:1.4rem}.formula-big{font-size:1rem}}
+</style>
+</head>
+<body>
+<div class="titlebar">
+  <h1>🔄 Surface Areas & Volumes — Conversion of Solids</h1>
+  <p>CBSE Class 10 Mathematics | आकार परिवर्तन (Reshape / Recast)</p>
+</div>
+<div class="container">
+
+<!-- KEY CONCEPT -->
+<div class="card">
+  <div class="section-title">💡 The Big Idea</div>
+  <div class="concept-box">
+    <h2>आयतन संरक्षण का नियम (Law of Volume Conservation)</h2>
+    <p>When a solid is <strong>melted</strong> and <strong>recast</strong> into another shape,<br>the <strong>volume stays the same</strong> — only the shape changes!</p>
+    <div class="formula-big">Volume<sub>old</sub> = Volume<sub>new</sub></div>
+    <p style="margin-top:6px;font-size:0.78rem;color:#475569">∴ पुराने आकार का आयतन = नए आकार का आयतन</p>
+  </div>
+  <div style="text-align:center">
+    <span class="tag">Melt</span><span class="tag">Recast</span><span class="tag">Reshape</span><span class="tag">Volume Conservation</span>
+  </div>
+</div>
+
+<!-- INTERACTIVE VISUAL -->
+<div class="card">
+  <div class="section-title">🎨 Visual Demo — Click to Melt!</div>
+  <p style="font-size:0.78rem;color:#64748b;margin-bottom:8px">Click the sphere to melt it into cylinders. Watch the volume stay constant!</p>
+  <div class="visual-area">
+    <div class="solid-wrap" id="sphereWrap" onclick="meltSphere()" title="Click to melt!">
+      <svg width="90" height="90" viewBox="0 0 90 90">
+        <defs>
+          <radialGradient id="sg" cx="38%" cy="35%">
+            <stop offset="0%" stop-color="#f87171"/>
+            <stop offset="100%" stop-color="#b91c1c"/>
+          </radialGradient>
+        </defs>
+        <circle cx="45" cy="47" r="38" fill="url(#sg)" stroke="#991b1b" stroke-width="2"/>
+        <ellipse cx="45" cy="47" rx="38" ry="12" fill="rgba(0,0,0,0.12)"/>
+        <ellipse cx="35" cy="36" rx="9" ry="6" fill="rgba(255,255,255,0.3)" transform="rotate(-30 35 36)"/>
+        <text x="45" y="88" text-anchor="middle" font-size="9" fill="#991b1b" font-weight="bold">Sphere (गोला)</text>
+      </svg>
+      <div class="solid-label" id="sphereInfo">r = 6 cm</div>
+      <div style="font-size:0.65rem;color:#3b82f6;margin-top:2px">👆 Click to melt!</div>
+    </div>
+    <div class="arrow-big" id="meltArrow" style="opacity:0.3">⟶</div>
+    <div id="cylindersArea" style="text-align:center;opacity:0.3;transition:opacity 0.7s">
+      <svg width="110" height="90" viewBox="0 0 110 90" id="cylSvg">
+        <defs>
+          <linearGradient id="cg1" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#6366f1"/>
+            <stop offset="100%" stop-color="#818cf8"/>
+          </linearGradient>
+          <linearGradient id="cg2" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#3b82f6"/>
+            <stop offset="100%" stop-color="#60a5fa"/>
+          </linearGradient>
+        </defs>
+        <!-- Cylinder 1 -->
+        <rect x="2" y="22" width="26" height="52" rx="4" fill="url(#cg1)" stroke="#4338ca" stroke-width="1.5"/>
+        <ellipse cx="15" cy="22" rx="13" ry="5" fill="#818cf8" stroke="#4338ca" stroke-width="1.5"/>
+        <ellipse cx="15" cy="74" rx="13" ry="5" fill="#4338ca"/>
+        <!-- Cylinder 2 -->
+        <rect x="34" y="22" width="26" height="52" rx="4" fill="url(#cg2)" stroke="#1d4ed8" stroke-width="1.5"/>
+        <ellipse cx="47" cy="22" rx="13" ry="5" fill="#60a5fa" stroke="#1d4ed8" stroke-width="1.5"/>
+        <ellipse cx="47" cy="74" rx="13" ry="5" fill="#1d4ed8"/>
+        <!-- Cylinder 3 -->
+        <rect x="66" y="22" width="26" height="52" rx="4" fill="url(#cg1)" stroke="#4338ca" stroke-width="1.5"/>
+        <ellipse cx="79" cy="22" rx="13" ry="5" fill="#818cf8" stroke="#4338ca" stroke-width="1.5"/>
+        <ellipse cx="79" cy="74" rx="13" ry="5" fill="#4338ca"/>
+        <text x="55" y="88" text-anchor="middle" font-size="9" fill="#3730a3" font-weight="bold">Cylinders (बेलन)</text>
+      </svg>
+      <div class="solid-label" id="cylInfo">r=2cm, h=8cm, n=?</div>
+    </div>
+  </div>
+  <div id="meltResult" style="display:none;background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-radius:10px;padding:12px;margin-top:6px;text-align:center;animation:slideIn 0.5s ease">
+    <div style="font-size:0.9rem;font-weight:700;color:#15803d">✅ Volume Conserved!</div>
+    <div style="font-family:monospace;font-size:0.8rem;color:#1e293b;margin-top:4px">
+      V<sub>sphere</sub> = (4/3)π(6)³ = <strong>288π cm³</strong><br>
+      V<sub>1 cylinder</sub> = π(2)²(8) = <strong>32π cm³</strong><br>
+      ∴ Number of cylinders = 288π ÷ 32π = <strong style="color:#2563eb;font-size:1rem">9</strong>
+    </div>
+  </div>
+</div>
+
+<!-- INTERACTIVE SLIDER -->
+<div class="card">
+  <div class="section-title">🎛️ Interactive Calculator — Sphere → Cylinders</div>
+  <div class="slider-section">
+    <label>Sphere Radius (R): <strong id="rVal">6</strong> cm</label>
+    <input type="range" min="3" max="12" value="6" id="sliderR" oninput="updateCalc()">
+    <label>Cylinder Radius (r): <strong id="crVal">2</strong> cm</label>
+    <input type="range" min="1" max="6" value="2" id="sliderCR" oninput="updateCalc()">
+    <label>Cylinder Height (h): <strong id="chVal">8</strong> cm</label>
+    <input type="range" min="2" max="20" value="8" id="sliderCH" oninput="updateCalc()">
+  </div>
+  <div class="calc-display" id="calcDisplay"></div>
+  <div class="info-row" id="infoRow"></div>
+</div>
+
+<!-- WORKED EXAMPLE -->
+<div class="card">
+  <div class="section-title">📝 Worked Example (CBSE Style)</div>
+  <div style="background:#fef3c7;border-radius:10px;padding:12px;font-size:0.82rem;color:#78350f;border:2px solid #fbbf24">
+    <strong>Q:</strong> A metallic sphere of radius <strong>4.2 cm</strong> is melted and recast into small spheres of radius <strong>0.6 cm</strong>. Find the number of small spheres. <span class="hindi">(एक धातु का गोला पिघलाकर छोटे गोले बनाए जाते हैं)</span>
+  </div>
+  <div class="steps-area" id="stepsArea">
+    <div style="margin-top:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <button class="step-btn" onclick="showNextStep()">▶ Next Step</button>
+      <button class="reset-btn" onclick="resetSteps()">↺ Reset</button>
+      <span style="font-size:0.75rem;color:#64748b" id="stepCounter">Step 0 / 4</span>
+    </div>
+    <div class="step-item" id="s1">
+      <div class="step-num">STEP 1 — Write Given Information (दिया गया)</div>
+      <div class="step-text">Large sphere radius R = 4.2 cm<br>Small sphere radius r = 0.6 cm<br>Number of small spheres = n (to find)</div>
+    </div>
+    <div class="step-item" id="s2">
+      <div class="step-num">STEP 2 — Apply Volume Conservation (आयतन संरक्षण)</div>
+      <div class="step-text">Volume of large sphere = n × Volume of each small sphere</div>
+      <div class="step-math">(4/3)πR³ = n × (4/3)πr³</div>
+    </div>
+    <div class="step-item" id="s3">
+      <div class="step-num">STEP 3 — Simplify (सरलीकरण)</div>
+      <div class="step-text">(4/3)π cancels from both sides</div>
+      <div class="step-math">n = R³ ÷ r³ = (4.2)³ ÷ (0.6)³</div>
+      <div class="step-math">n = 74.088 ÷ 0.216 = <strong>343</strong></div>
+    </div>
+    <div class="step-item" id="s4">
+      <div class="step-num">✅ ANSWER (उत्तर)</div>
+      <div class="step-text" style="color:#15803d;font-weight:700;font-size:0.9rem">∴ Number of small spheres = <span style="font-size:1.1rem;color:#2563eb">343</span></div>
+      <div class="step-math">Verification: (4.2/0.6)³ = 7³ = 343 ✓</div>
+    </div>
+  </div>
+</div>
+
+<!-- COMMON CONVERSIONS CHART -->
+<div class="card">
+  <div class="section-title">📊 Common Conversions (आम परिवर्तन)</div>
+  <div style="overflow-x:auto">
+    <table style="width:100%;border-collapse:collapse;font-size:0.78rem">
+      <thead>
+        <tr style="background:linear-gradient(90deg,#3b82f6,#6366f1);color:#fff">
+          <th style="padding:8px;border-radius:8px 0 0 0;text-align:left">From</th>
+          <th style="padding:8px;text-align:left">To</th>
+          <th style="padding:8px;border-radius:0 8px 0 0;text-align:left">Key Equation</th>
+        </tr>
+      </thead>
+      <tbody id="convTable"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- VOLUME BARS DEMO -->
+<div class="card">
+  <div class="section-title">📊 Volume Bar Comparison (toggle shape)</div>
+  <p style="font-size:0.75rem;color:#64748b;margin-bottom:8px">Click a solid to highlight it. Total volume stays same!</p>
+  <div class="conservation-demo" id="barDemo"></div>
+  <div style="text-align:center;font-size:0.75rem;color:#475569;margin-top:4px">All bars represent equal volume — only shape changes 🔄</div>
+</div>
+
+<!-- QUIZ -->
+<div class="card">
+  <div class="section-title">🧠 Quick Quiz (CBSE Practice)</div>
+  <div class="quiz-area" id="quizArea">
+    <div class="quiz-q" id="qText">Loading...</div>
+    <div class="quiz-opts" id="qOpts"></div>
+    <div class="quiz-feedback" id="qFeedback"></div>
+    <div style="margin-top:10px">
+      <button class="step-btn" onclick="nextQ()" id="nextQBtn" style="display:none">Next Question ▶</button>
+    </div>
+  </div>
+</div>
+
+<footer>CBSE Class 10 Maths | Surface Areas & Volumes | Made for Learning 📚</footer>
+</div>
+
+<script>
+// MELT ANIMATION
+var melted=false;
+function meltSphere(){
+  if(melted)return;
+  melted=true;
+  document.getElementById('meltArrow').style.opacity='1';
+  document.getElementById('cylindersArea').style.opacity='1';
+  document.getElementById('meltResult').style.display='block';
+  document.getElementById('sphereInfo').textContent='V = 288π cm³';
+  document.getElementById('cylInfo').textContent='n = 9 cylinders';
+  document.getElementById('sphereWrap').style.opacity='0.6';
+  document.querySelector('#sphereWrap .solid-label+div').textContent='(Melted!)';
+}
+
+// SLIDER CALC
+function updateCalc(){
+  var R=+document.getElementById('sliderR').value;
+  var cr=+document.getElementById('sliderCR').value;
+  var ch=+document.getElementById('sliderCH').value;
+  document.getElementById('rVal').textContent=R;
+  document.getElementById('crVal').textContent=cr;
+  document.getElementById('chVal').textContent=ch;
+  var vs=(4/3)*Math.PI*R*R*R;
+  var vc=Math.PI*cr*cr*ch;
+  var n=vs/vc;
+  var nInt=Math.floor(n);
+  var isWhole=Math.abs(n-Math.round(n))<0.01;
+  document.getElementById('calcDisplay').innerHTML=
+    '<span class="hl">V(sphere)</span> = (4/3) × π × '+R+'³ = '+vs.toFixed(2)+' cm³\n'+
+    '<span class="hl">V(cylinder)</span> = π × '+cr+'² × '+ch+' = '+vc.toFixed(2)+' cm³\n'+
+    '<span class="hl">n</span> = V(sphere) ÷ V(cylinder)\n'+
+    '   = '+vs.toFixed(2)+' ÷ '+vc.toFixed(2)+'\n'+
+    '   = <span class="ans">'+(isWhole?Math.round(n):n.toFixed(3))+(isWhole?' ✅':' ⚠ (adjust sliders for whole number)')+'</span>';
+  document.getElementById('infoRow').innerHTML=
+    '<div class="info-chip"><div class="ic-val">'+vs.toFixed(1)+'</div><div class="ic-label">Sphere Volume (cm³)</div></div>'+
+    '<div class="info-chip"><div class="ic-val">'+vc.toFixed(1)+'</div><div class="ic-label">1 Cylinder Volume (cm³)</div></div>'+
+    '<div class="info-chip"><div class="ic-val">'+(isWhole?Math.round(n):n.toFixed(2))+'</div><div class="ic-label">Number of Cylinders</div></div>';
+}
+updateCalc();
+
+// STEPS
+var stepCount=0;
+var totalSteps=4;
+function showNextStep(){
+  if(stepCount>=totalSteps)return;
+  stepCount++;
+  document.getElementById('s'+stepCount).classList.add('show');
+  document.getElementById('stepCounter').textContent='Step '+stepCount+' / '+totalSteps;
+}
+function resetSteps(){
+  stepCount=0;
+  document.getElementById('stepCounter').textContent='Step 0 / '+totalSteps;
+  for(var i=1;i<=totalSteps;i++)document.getElementById('s'+i).classList.remove('show');
+}
+
+// TABLE
+var rows=[
+  ['Sphere','Small Spheres','(4/3)πR³ = n×(4/3)πr³ → n = (R/r)³'],
+  ['Cylinder','Cones','πr²h = n×(1/3)πr²h → n = 3'],
+  ['Sphere','Cylinder','(4/3)πR³ = πr²h'],
+  ['Cube','Spheres','a³ = n×(4/3)πr³'],
+  ['Cylinder','Spheres','πR²H = n×(4/3)πr³']
+];
+var tb=document.getElementById('convTable');
+rows.forEach(function(r,i){
+  var tr=document.createElement('tr');
+  tr.style.background=i%2?'#f8fafc':'#fff';
+  tr.innerHTML='<td style="padding:7px 8px;border-bottom:1px solid #e2e8f0;font-weight:600;color:#2563eb">'+r[0]+'</td>'+
+    '<td style="padding:7px 8px;border-bottom:1px solid #e2e8f0;font-weight:600;color:#16a34a">'+r[1]+'</td>'+
+    '<td style="padding:7px 8px;border-bottom:1px solid #e2e8f0;font-family:monospace;font-size:0.73rem;color:#1e293b">'+r[2]+'</td>';
+  tb.appendChild(tr);
+});
+
+// BAR DEMO
+var solids=[
+  {name:'Sphere',color:'#ef4444',formula:'(4/3)πr³'},
+  {name:'Cylinder',color:'#3b82f6',formula:'πr²h'},
+  {name:'Cone',color:'#f59e0b',formula:'(1/3)πr²h'},
+  {name:'Cube',color:'#22c55e',formula:'a³'}
+];
+var barH=80;
+var barDiv=document.getElementById('barDemo');
+solids.forEach(function(s,i){
+  var w=document.createElement('div');
+  w.className='bar-wrap';
+  w.innerHTML='<div class="bar" style="height:'+barH+'px;background:'+s.color+';opacity:0.75" id="bar'+i+'"></div>'+
+    '<div class="bar-label" id="blabel'+i+'">'+s.name+'<br><span style="font-size:0.6rem;color:#64748b">'+s.formula+'</span></div>';
+  w.onclick=(function(idx,solid){return function(){
+    solids.forEach(function(_,j){
+      document.getElementById('bar'+j).style.opacity='0.4';
+      document.getElementById('bar'+j).style.transform='scaleY(1)';
+    });
+    var b=document.getElementById('bar'+idx);
+    b.style.opacity='1';
+    b.style.transform='scaleY(1.12)';
+    b.style.transformOrigin='bottom';
+  }})(i,s);
+  barDiv.appendChild(w);
+});
+
+// QUIZ
+var questions=[
+  {q:'A sphere is melted to form cylinders. Which quantity is conserved?',opts:['Surface Area','Volume','Radius','Height'],ans:1,exp:'Volume is always conserved when solids are melted and recast. आयतन संरक्षित रहता है।'},
+  {q:'Sphere of radius R melted → small spheres of radius r. How many spheres? (n = ?)',opts:['(R/r)²','(R/r)³','3(R/r)','R³/r'],ans:1,exp:'n = (4/3)πR³ ÷ (4/3)πr³ = R³/r³ = (R/r)³'},
+  {q:'A cone and cylinder have same base radius and height. Cone is melted → cylinder. How many cones fill one cylinder?',opts:['1','2','3','4'],ans:2,exp:'V(cylinder) = πr²h, V(cone) = (1/3)πr²h. So 3 cones = 1 cylinder. ∴ n = 3'},
+  {q:'Wire of radius 1mm length 100cm is melted → new wire radius 2mm. New length?',opts:['25 cm','50 cm','100 cm','200 cm'],ans:0,exp:'π(1)²×100 = π(2)²×L → L = 100/4 = 25 cm'}
+];
+var qi=0,answered=false;
+function loadQ(){
+  answered=false;
+  var q=questions[qi];
+  document.getElementById('qText').textContent='Q'+(qi+1)+': '+q.q;
+  var od=document.getElementById('qOpts');
+  od.innerHTML='';
+  q.opts.forEach(function(o,i){
+    var b=document.createElement('button');
+    b.className='quiz-opt';
+    b.textContent=o;
+    b.onclick=function(){checkAns(i,b)};
+    od.appendChild(b);
+  });
+  document.getElementById('qFeedback').textContent='';
+  document.getElementById('nextQBtn').style.display='none';
+}
+function checkAns(i,btn){
+  if(answered)return;
+  answered=true;
+  var q=questions[qi];
+  var fb=document.getElementById('qFeedback');
+  var opts=document

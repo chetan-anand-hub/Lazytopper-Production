@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cross Multiplication Method | CBSE Class 10</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f0f4ff; color: #1e293b; min-width: 320px; }
+  
+  .titlebar {
+    background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+    color: white; padding: 14px 20px;
+    display: flex; align-items: center; gap: 12px;
+    box-shadow: 0 4px 15px rgba(59,130,246,0.4);
+  }
+  .titlebar .icon { font-size: 28px; }
+  .titlebar h1 { font-size: 1.1rem; font-weight: 700; }
+  .titlebar p { font-size: 0.75rem; opacity: 0.85; }
+  .badge { background: #f59e0b; color: #1e293b; font-size: 0.65rem; font-weight: 700; padding: 2px 8px; border-radius: 20px; }
+
+  .container { max-width: 800px; margin: 0 auto; padding: 16px; }
+
+  .card { background: white; border-radius: 16px; padding: 20px; margin-bottom: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+  .card-title { font-size: 1rem; font-weight: 700; color: #1e3a8a; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+
+  .concept-box {
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    border: 2px solid #3b82f6; border-radius: 12px;
+    padding: 16px; margin-bottom: 16px;
+    text-align: center;
+  }
+  .concept-box p { font-size: 0.85rem; color: #1e40af; margin-bottom: 10px; }
+
+  .std-form {
+    display: flex; justify-content: center; align-items: center; gap: 6px;
+    flex-wrap: wrap; font-size: 1rem; font-weight: 600;
+    background: white; border-radius: 10px; padding: 10px 16px;
+    border: 1.5px solid #93c5fd;
+  }
+  .eq1 { color: #3b82f6; } .eq2 { color: #f59e0b; }
+
+  /* Cross multiply diagram */
+  .cross-diagram {
+    display: flex; justify-content: center; align-items: center;
+    padding: 20px 10px; position: relative;
+  }
+  .eq-row {
+    display: grid; grid-template-columns: repeat(5, auto); gap: 6px 4px;
+    align-items: center; justify-items: center;
+  }
+  .coeff {
+    width: 44px; height: 44px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 1rem; cursor: pointer;
+    transition: all 0.3s; position: relative;
+  }
+  .coeff:hover { transform: scale(1.1); }
+  .coeff.a { background: #dbeafe; color: #1d4ed8; border: 2px solid #3b82f6; }
+  .coeff.b { background: #fef3c7; color: #b45309; border: 2px solid #f59e0b; }
+  .coeff.c { background: #dcfce7; color: #166534; border: 2px solid #22c55e; }
+  .coeff.a2 { background: #ede9fe; color: #5b21b6; border: 2px solid #8b5cf6; }
+  .coeff.b2 { background: #fce7f3; color: #9d174d; border: 2px solid #ec4899; }
+  .coeff.op { background: none; border: none; font-size: 1.1rem; color: #64748b; width: 24px; }
+
+  .arrow-svg { position: absolute; top: 0; left: 0; pointer-events: none; }
+
+  .formula-section {
+    background: linear-gradient(135deg, #1e3a8a, #1d4ed8);
+    border-radius: 14px; padding: 16px; margin: 16px 0; color: white;
+    text-align: center;
+  }
+  .formula-section h3 { font-size: 0.85rem; opacity: 0.8; margin-bottom: 10px; }
+  .formula-main {
+    font-size: 1rem; font-weight: 700; letter-spacing: 0.5px;
+    line-height: 2; flex-wrap: wrap; display: flex; justify-content: center; align-items: center; gap: 6px;
+  }
+  .frac { display: inline-flex; flex-direction: column; align-items: center; gap: 0; vertical-align: middle; }
+  .frac-n, .frac-d { padding: 0 4px; }
+  .frac-line { border-top: 2px solid white; width: 100%; }
+  .f-blue { color: #93c5fd; }
+  .f-yellow { color: #fde68a; }
+  .f-green { color: #86efac; }
+  .f-pink { color: #f9a8d4; }
+
+  /* Interactive example */
+  .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+  .input-group { display: flex; flex-direction: column; gap: 6px; }
+  .input-group label { font-size: 0.75rem; font-weight: 600; color: #64748b; }
+  .coeff-inputs { display: flex; gap: 6px; align-items: center; }
+  .coeff-inputs input {
+    width: 52px; height: 40px; border: 2px solid #e2e8f0;
+    border-radius: 8px; text-align: center; font-size: 1rem; font-weight: 700;
+    transition: border-color 0.2s; outline: none;
+  }
+  .coeff-inputs input:focus { border-color: #3b82f6; }
+  .coeff-inputs span { font-size: 1rem; color: #64748b; }
+
+  .solve-btn {
+    width: 100%; padding: 12px; border: none; border-radius: 10px;
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: white; font-size: 1rem; font-weight: 700; cursor: pointer;
+    transition: all 0.3s; box-shadow: 0 4px 12px rgba(59,130,246,0.4);
+  }
+  .solve-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(59,130,246,0.5); }
+  .solve-btn:active { transform: translateY(0); }
+
+  .steps-container { margin-top: 14px; }
+  .step {
+    border-left: 3px solid #3b82f6; padding: 10px 14px; margin-bottom: 10px;
+    background: #f8faff; border-radius: 0 10px 10px 0;
+    opacity: 0; transform: translateY(10px);
+    transition: all 0.4s;
+  }
+  .step.visible { opacity: 1; transform: translateY(0); }
+  .step-num { font-size: 0.7rem; font-weight: 700; color: #3b82f6; text-transform: uppercase; letter-spacing: 1px; }
+  .step-content { font-size: 0.9rem; margin-top: 4px; line-height: 1.6; }
+  .step-content .hl { font-weight: 700; color: #1d4ed8; }
+  .step.green { border-color: #22c55e; background: #f0fdf4; }
+  .step.green .step-num { color: #16a34a; }
+  .step.amber { border-color: #f59e0b; background: #fffbeb; }
+  .step.amber .step-num { color: #d97706; }
+  .step.red { border-color: #ef4444; background: #fff1f2; }
+  .step.red .step-num { color: #dc2626; }
+
+  .answer-box {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: white; border-radius: 12px; padding: 14px;
+    text-align: center; margin-top: 12px;
+    opacity: 0; transform: scale(0.95);
+    transition: all 0.5s; display: none;
+  }
+  .answer-box.visible { opacity: 1; transform: scale(1); display: block; }
+  .answer-box .ans-label { font-size: 0.75rem; opacity: 0.85; margin-bottom: 4px; }
+  .answer-box .ans-val { font-size: 1.4rem; font-weight: 700; }
+
+  /* Cross animation highlight */
+  .highlight-cross { animation: pulse 0.6s ease; }
+  @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.2)} }
+
+  .tab-bar {
+    display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;
+  }
+  .tab {
+    padding: 8px 16px; border-radius: 8px; border: 2px solid #e2e8f0;
+    font-size: 0.8rem; font-weight: 600; cursor: pointer;
+    transition: all 0.2s; background: white; color: #64748b;
+  }
+  .tab.active { background: #3b82f6; color: white; border-color: #3b82f6; }
+
+  .panel { display: none; } .panel.active { display: block; }
+
+  /* Determinant visual */
+  .det-box {
+    display: inline-flex; align-items: stretch;
+    border-left: 3px solid #64748b; border-right: 3px solid #64748b;
+    padding: 6px 10px; gap: 20px; margin: 8px;
+  }
+  .det-col { display: flex; flex-direction: column; gap: 8px; align-items: center; }
+  .det-val { font-weight: 700; font-size: 1.1rem; padding: 4px 6px; border-radius: 6px; }
+
+  .cross-lines { position: relative; display: inline-block; }
+  
+  .hint { font-size: 0.75rem; color: #64748b; text-align: center; margin-top: 8px; }
+  
+  .error-msg { color: #ef4444; font-size: 0.8rem; text-align: center; margin-top: 6px; display: none; }
+
+  .det-section { margin: 12px 0; }
+  .det-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 6px 0; }
+  .det-label { font-size: 0.8rem; font-weight: 700; min-width: 28px; }
+  .det-calc { font-size: 0.9rem; }
+
+  .geo-hint {
+    background: linear-gradient(135deg, #fef9c3, #fef3c7);
+    border: 1.5px solid #f59e0b; border-radius: 10px;
+    padding: 12px; font-size: 0.8rem; color: #92400e;
+    margin-top: 12px;
+  }
+
+  .nav-dots { display: flex; justify-content: center; gap: 8px; margin: 10px 0; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: #cbd5e1; cursor: pointer; transition: background 0.3s; }
+  .dot.active { background: #3b82f6; }
+
+  @media(max-width: 480px) {
+    .input-grid { grid-template-columns: 1fr; }
+    .formula-main { font-size: 0.85rem; }
+    .titlebar h1 { font-size: 0.95rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="titlebar">
+  <div class="icon">✕</div>
+  <div>
+    <h1>Cross Multiplication Method <span class="badge">CBSE Class 10</span></h1>
+    <p>Pair of Linear Equations in Two Variables • वज्र गुणन विधि</p>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <div class="tab active" onclick="showTab('concept')">📐 Concept</div>
+    <div class="tab" onclick="showTab('formula')">📋 Formula</div>
+    <div class="tab" onclick="showTab('solve')">🔢 Try It!</div>
+    <div class="tab" onclick="showTab('example')">✏️ Example</div>
+  </div>
+
+  <!-- CONCEPT TAB -->
+  <div id="tab-concept" class="panel active">
+    <div class="card">
+      <div class="card-title">📌 मानक रूप (Standard Form)</div>
+      <div class="concept-box">
+        <p>किसी भी दो चरों वाले रैखिक समीकरण जोड़े को लिखें:</p>
+        <div class="std-form">
+          <span class="eq1">a₁x + b₁y + c₁ = 0</span>
+          <span style="color:#64748b">और</span>
+          <span class="eq2">a₂x + b₂y + c₂ = 0</span>
+        </div>
+      </div>
+
+      <div class="card-title">🔀 Cross Multiplication — क्या होता है?</div>
+      <p style="font-size:0.85rem;color:#475569;margin-bottom:14px;">
+        Click on any coefficient box below to see which cross products are formed! 
+        <span style="color:#3b82f6;font-weight:600;">👆 Try clicking!</span>
+      </p>
+
+      <div class="cross-diagram" id="crossDiagram">
+        <svg class="arrow-svg" id="arrowSvg" width="100%" height="120" style="position:absolute;top:0;left:0;"></svg>
+        <div style="width:100%;max-width:420px;">
+          <!-- Row labels -->
+          <div style="display:flex;gap:8px;margin-bottom:6px;align-items:center;justify-content:center;">
+            <span style="font-size:0.7rem;background:#dbeafe;color:#1d4ed8;padding:2px 8px;border-radius:20px;font-weight:600;">Equation 1</span>
+          </div>
+          <div class="eq-row" id="eqRow1" style="margin-bottom:14px;display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;">
+            <div class="coeff a" id="a1" onclick="highlightCross('a1')" title="a₁">a₁</div>
+            <div class="coeff op">x +</div>
+            <div class="coeff b" id="b1" onclick="highlightCross('b1')" title="b₁">b₁</div>
+            <div class="coeff op">y +</div>
+            <div class="coeff c" id="c1" onclick="highlightCross('c1')" title="c₁">c₁</div>
+            <div class="coeff op">= 0</div>
+          </div>
+          <div style="display:flex;gap:8px;margin-bottom:6px;align-items:center;justify-content:center;">
+            <span style="font-size:0.7rem;background:#fef3c7;color:#b45309;padding:2px 8px;border-radius:20px;font-weight:600;">Equation 2</span>
+          </div>
+          <div id="eqRow2" style="display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;">
+            <div class="coeff a2" id="a2" onclick="highlightCross('a2')" title="a₂">a₂</div>
+            <div class="coeff op">x +</div>
+            <div class="coeff b2" id="b2" onclick="highlightCross('b2')" title="b₂">b₂</div>
+            <div class="coeff op">y +</div>
+            <div class="coeff c" id="c2" onclick="highlightCross('c2')" title="c₂" style="background:#dcfce7;color:#166534;border-color:#22c55e;">c₂</div>
+            <div class="coeff op">= 0</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="crossInfo" style="background:#f1f5f9;border-radius:10px;padding:12px;font-size:0.85rem;text-align:center;color:#475569;margin-top:8px;transition:all 0.3s;">
+        👆 Click any coefficient to see the cross multiplication pattern
+      </div>
+
+      <div class="geo-hint" style="margin-top:14px;">
+        💡 <strong>वज्र गुणन (Vajra Gunana)</strong>: जैसे वज्र (diamond/cross) का आकार बनता है, उसी तरह गुणन करते हैं! The coefficients are multiplied diagonally like an ✕ symbol.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📊 Determinant (सारणिक) दृष्टि</div>
+      <p style="font-size:0.82rem;color:#475569;margin-bottom:12px;">The formula uses 2×2 determinants — sub-matrices formed by pairs of columns:</p>
+      
+      <div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;">
+        <div style="text-align:center;">
+          <div style="font-size:0.72rem;font-weight:700;color:#3b82f6;margin-bottom:4px;">D (denominator of x)</div>
+          <div class="det-box">
+            <div class="det-col">
+              <div class="det-val" style="background:#fef3c7;color:#b45309;">b₁</div>
+              <div class="det-val" style="background:#fce7f3;color:#9d174d;">b₂</div>
+            </div>
+            <div class="det-col">
+              <div class="det-val" style="background:#dcfce7;color:#166534;">c₁</div>
+              <div class="det-val" style="background:#dcfce7;color:#166534;">c₂</div>
+            </div>
+          </div>
+          <div style="font-size:0.8rem;font-weight:600;color:#1e293b;">= b₁c₂ − b₂c₁</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:0.72rem;font-weight:700;color:#8b5cf6;margin-bottom:4px;">D (denominator of y)</div>
+          <div class="det-box">
+            <div class="det-col">
+              <div class="det-val" style="background:#dcfce7;color:#166534;">c₁</div>
+              <div class="det-val" style="background:#dcfce7;color:#166534;">c₂</div>
+            </div>
+            <div class="det-col">
+              <div class="det-val" style="background:#dbeafe;color:#1d4ed8;">a₁</div>
+              <div class="det-val" style="background:#ede9fe;color:#5b21b6;">a₂</div>
+            </div>
+          </div>
+          <div style="font-size:0.8rem;font-weight:600;color:#1e293b;">= c₁a₂ − c₂a₁</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:0.72rem;font-weight:700;color:#22c55e;margin-bottom:4px;">D (common denominator)</div>
+          <div class="det-box">
+            <div class="det-col">
+              <div class="det-val" style="background:#dbeafe;color:#1d4ed8;">a₁</div>
+              <div class="det-val" style="background:#ede9fe;color:#5b21b6;">a₂</div>
+            </div>
+            <div class="det-col">
+              <div class="det-val" style="background:#fef3c7;color:#b45309;">b₁</div>
+              <div class="det-val" style="background:#fce7f3;color:#9d174d;">b₂</div>
+            </div>
+          </div>
+          <div style="font-size:0.8rem;font-weight:600;color:#1e293b;">= a₁b₂ − a₂b₁</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FORMULA TAB -->
+  <div id="tab-formula" class="panel">
+    <div class="card">
+      <div class="card-title">📋 The Cross Multiplication Formula</div>
+      <div class="formula-section">
+        <h3>वज्र गुणन सूत्र (Cross Multiplication Formula)</h3>
+        <div style="font-size:0.85rem;margin-bottom:12px;opacity:0.8;">For: a₁x + b₁y + c₁ = 0 and a₂x + b₂y + c₂ = 0</div>
+        <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:12px;font-size:1rem;font-weight:700;letter-spacing:0.5px;line-height:2.2;">
+          <span class="f-blue">x</span>
+          &nbsp;=&nbsp;
+          <span style="border-top: 2px solid #93c5fd;display:inline-block;padding-top:2px;">
+            <span class="f-yellow">b₁c₂ − b₂c₁</span>
+          </span>
+          &nbsp;÷&nbsp;
+          <span class="f-green">a₁b₂ − a₂b₁</span>
+          <br>
+          <span class="f-blue">y</span>
+          &nbsp;=&nbsp;
+          <span style="border-top: 2px solid #93c5fd;display:inline-block;padding-top:2px;">
+            <span class="f-pink">c₁a₂ − c₂a₁</span>
+          </span>
+          &nbsp;÷&nbsp;
+          <span class="f-green">a₁b₂ − a₂b₁</span>
+        </div>
+      </div>
+
+      <div style="text-align:center;padding:10px;background:#f8faff;border-radius:12px;margin-bottom:14px;">
+        <div style="font-size:0.75rem;font-weight:700;color:#64748b;margin-bottom:8px;">COMPACT FORM (सघन रूप)</div>
+        <div style="font-size:1.1rem;font-weight:700;color:#1e293b;line-height:2.5;">
+          <span style="color:#3b82f6">x</span>/(b₁c₂−b₂c₁) = <span style="color:#8b5cf6">y</span>/(c₁a₂−c₂a₁) = <span style="color:#22c55e">1</span>/(a₁b₂−a₂b₁)
+        </div>
+      </div>
+
+      <div class="card-title">🎯 Memory Trick — याद करने का तरीका</div>
+      <div style="background:#fffbeb;border:1.5px solid #f59e0b;border-radius:10px;padding:14px;">
+        <p style="font-size:0.85rem;font-weight:600;color:#92400e;margin-bottom:10px;">Write coefficients in this pattern, then cross-multiply:</p>
+        <div style="display:flex;justify-content:center;align-items:center;gap:4px;font-size:1rem;font-weight:700;flex-wrap:wrap;">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+            <span style="background:#fef3c7;padding:4px 8px;border-radius:6px;color:#b45309;">b₁</span>
+            <span style="background:#fce7f3;padding:4px 8px;border-radius:6px;color:#9d174d;">b₂</span>
+          </div>
+          <span style="color:#64748b;font-size:1.5rem;">✕</span>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+            <span style="background:#dcfce7;padding:4px 8px;border-radius:6px;color:#166534;">c₁</span>
+            <span style="background:#dcfce7;padding:4px 8px;border-radius:6px;color:#166534;">c₂</span>
+          </div>
+          <span style="color:#64748b;margin:0 6px;">→</span>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+            <span style="background:#dcfce7;padding:4px 8px;border-radius:6px;color:#166534;">c₁</span>
+            <span style="background:#dcfce7;padding:4px 8px;border-radius:6px;color:#166534;">c₂</span>
+          </div>
+          <span style="color:#64748b;font-size:1.5rem;">✕</span>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+            <span style="background:#dbeafe;padding:4px 8px;border-radius:6px;color:#1d4ed8;">a₁</span>
+            <span style="background:#ede9fe;padding:4px 8px;border-radius:6px;color:#5b21b6;">a₂</span>
+          </div>
+          <span style="color:#64748b;margin:0 6px;">→</span>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+            <span style="background:#dbeafe;padding:4px 8px;border-radius:6px;color:#1d4ed8;">a₁</span>
+            <span style="background:#ede9fe;padding:4px 8px;border-radius:6px;color:#5b21b6;">a₂</span>
+          </div>
+          <span style="color:#64748b;font-size:1.5rem;">✕</span>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+            <span style="background:#fef3c7;padding:4px 8px;border-radius:6px;color:#b45309;">b₁</span>
+            <span style="background:#fce7f3;padding:4px 8px;border-radius:6px;color:#9d174d;">b₂</span>
+          </div>
+        </div>
+        <p style="font-size:0.78rem;color:#92400e;text-align:center;margin-top:10px;">
+          ∴ Pattern: <strong>b,c → c,a → a,b</strong> (cyclic order, always top×bottom₂ − bottom×top₂)
+        </p>
+      </div>
+
+      <div style="margin-top:14px;padding:12px;background:#f0fdf4;border-radius:10px;border:1.5px solid #22c55e;">
+        <div style="font-size:0.8rem;font-weight:700;color:#166534;margin-bottom:6px;">⚠️ Important Condition (महत्वपूर्ण शर्त)</div>
+        <div style="font-size:0.85rem;color:#166534;">
+          The solution is valid only when: <strong>a₁b₂ − a₂b₁ ≠ 0</strong><br>
+          If a₁b₂ − a₂b₁ = 0 → lines are parallel OR coincident (कोई अद्वितीय हल नहीं)
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SOLVE TAB -->
+  <div id="tab-solve" class="panel">
+    <div class="card">
+      <div class="card-title">🔢 Interactive Solver — खुद हल करें!</div>
+      <p style="font-size:0.82rem;color:#475569;margin-bottom:14px;">Enter coefficients for your equations (standard form: ax + by + c = 0)</p>
+
+      <div style="background:#f0f4ff;border-radius:10px;padding:12px;margin-bottom:14px;font-size:0.85rem;text-align:center;">
+        <div style="display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;">
+          <span style="color:#3b82f6;font-weight:700;">Eq 1:</span>
+          <span id="previewA1" style="background:#dbeafe;padding:2px 8px;border-radius:6px;font-weight:700;color:#1d4ed8;">2</span>x +
+          <span id="previewB1" style="background:#fef3c7;padding:2px 8px;border-radius:6px;font-weight:700;color:#b45309;">3</span>y +
+          <span id="previewC1" style="background:#dcfce7;padding:2px 8px;border-radius:6

@@ -58,6 +58,16 @@ TypeScript is used throughout, with pnpm workspaces and composite projects. API 
 - **Image Upload for Solution Checking**: Gemini Vision API
 - **Animated Video**: artifacts/lazytopper-video (embedded explainer video)
 
+## Interactive Visual Explainers (Task #73)
+- **96 interactive visual explainers** generated (50 Maths + 46 Science) covering all 26 CBSE Class 10 chapters
+- Each visual is a self-contained HTML file (~20KB) with inline CSS/JS — interactive animations, bilingual Hindi+English, step-by-step walkthroughs
+- Stored in `lazytopper/public/visuals/{subject}/{chapter}/{slug}.html`, served at `/app/visuals/...`
+- Registry: `lazytopper/src/data/visualConceptRegistry.ts` maps all chapters→concepts→file paths
+- Generation script: `lazytopper/scripts/generateVisuals.mjs` (Claude Sonnet via Replit proxy, rate limiting, resume support, manifest tracking)
+- Component: `lazytopper/src/components/VisualExplainer.tsx` (sandboxed iframe with loading/error/fullscreen/collapsible states)
+- Integration: `TeachFlow.tsx` and `TutorDrawerV2.tsx` auto-show matching visuals via `findVisualForConcept()` keyword matching
+- Manifest: `lazytopper/public/visuals/manifest.json` tracks all generated visuals with metadata
+
 ## CBSE 2025-26 Syllabus Updates (Task #74)
 - **Constructions chapter removed** from CBSE 2025-26 Class 10 Maths syllabus. Removed from all data files, question banks, topic registries, prediction engine, server prompts, and UI. 2.5% weightage redistributed proportionally across remaining 13 topics.
 - **Two-exam system**: Phase 1 (compulsory, Feb 17, 2026) and Phase 2 (optional re-attempt for up to 3 subjects, May 15, 2026). Best score counts. Dates in `cbseDates.ts`, prediction in `cbseExamDate.ts`. Info cards on Onboarding and SprintDashboard.

@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fleming's Left Hand Rule - CBSE Class 10</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#0f172a 100%);min-height:100vh;color:#e2e8f0}
+.title-bar{background:linear-gradient(90deg,#1d4ed8,#3b82f6,#06b6d4);padding:12px 16px;text-align:center;box-shadow:0 4px 20px rgba(59,130,246,0.5)}
+.title-bar h1{font-size:clamp(14px,3.5vw,22px);font-weight:800;color:#fff;letter-spacing:1px}
+.title-bar p{font-size:clamp(10px,2.5vw,13px);color:#bfdbfe;margin-top:2px}
+.container{max-width:800px;margin:0 auto;padding:12px}
+.card{background:linear-gradient(145deg,#1e293b,#0f172a);border:1px solid #334155;border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 8px 32px rgba(0,0,0,0.4)}
+.section-title{font-size:clamp(13px,3vw,17px);font-weight:700;color:#3b82f6;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.rule-box{background:linear-gradient(135deg,#1d4ed8 0%,#0891b2 100%);border-radius:12px;padding:14px;text-align:center;margin-bottom:14px;box-shadow:0 4px 20px rgba(59,130,246,0.3)}
+.rule-box h2{font-size:clamp(15px,4vw,22px);font-weight:900;color:#fff;margin-bottom:6px}
+.rule-box p{font-size:clamp(10px,2.5vw,13px);color:#bfdbfe}
+.fbi{display:flex;justify-content:center;gap:16px;margin:12px 0;flex-wrap:wrap}
+.fbi-item{text-align:center;padding:10px 14px;border-radius:10px;min-width:80px}
+.fbi-f{background:linear-gradient(135deg,#ef4444,#dc2626)}
+.fbi-b{background:linear-gradient(135deg,#f59e0b,#d97706)}
+.fbi-i{background:linear-gradient(135deg,#22c55e,#16a34a)}
+.fbi-item .letter{font-size:clamp(22px,6vw,36px);font-weight:900;color:#fff}
+.fbi-item .word{font-size:clamp(9px,2vw,12px);color:rgba(255,255,255,0.9);font-weight:600}
+.fbi-item .hindi{font-size:clamp(8px,1.8vw,11px);color:rgba(255,255,255,0.7)}
+svg{display:block;margin:0 auto}
+.hand-container{position:relative;text-align:center;cursor:pointer}
+.hand-svg{filter:drop-shadow(0 8px 24px rgba(59,130,246,0.4));transition:transform 0.3s}
+.hand-svg:hover{transform:scale(1.05)}
+.label-tag{position:absolute;font-size:11px;font-weight:700;padding:4px 8px;border-radius:20px;white-space:nowrap;pointer-events:none}
+.steps-grid{display:grid;grid-template-columns:1fr;gap:8px}
+.step-btn{background:linear-gradient(135deg,#1e3a5f,#1e293b);border:2px solid #334155;border-radius:10px;padding:12px;cursor:pointer;transition:all 0.3s;text-align:left;color:#e2e8f0;width:100%}
+.step-btn:hover{border-color:#3b82f6;background:linear-gradient(135deg,#1d3a6b,#1e293b);transform:translateX(4px)}
+.step-btn.active{border-color:#22c55e;background:linear-gradient(135deg,#14532d,#1e293b)}
+.step-content{display:none;margin-top:8px;padding:10px;background:rgba(34,197,94,0.1);border-radius:8px;font-size:clamp(10px,2.5vw,13px);color:#86efac;line-height:1.6}
+.step-content.show{display:block;animation:fadeIn 0.4s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.interactive-demo{background:linear-gradient(145deg,#0f172a,#1a2740);border:2px solid #3b82f6;border-radius:14px;padding:14px;margin-bottom:14px}
+.demo-title{color:#60a5fa;font-weight:700;font-size:clamp(12px,3vw,15px);margin-bottom:10px;text-align:center}
+.controls{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0}
+.ctrl-btn{padding:8px 14px;border-radius:20px;border:2px solid transparent;cursor:pointer;font-weight:700;font-size:clamp(10px,2.5vw,13px);transition:all 0.3s}
+.ctrl-btn.active-b{background:#f59e0b;color:#1e293b;border-color:#fbbf24}
+.ctrl-btn.inactive-b{background:transparent;color:#f59e0b;border-color:#f59e0b}
+.ctrl-btn.active-i{background:#22c55e;color:#1e293b;border-color:#4ade80}
+.ctrl-btn.inactive-i{background:transparent;color:#22c55e;border-color:#22c55e}
+.result-box{text-align:center;padding:10px;border-radius:10px;margin-top:10px;font-weight:700;font-size:clamp(11px,2.8vw,14px);transition:all 0.4s}
+.result-force{background:linear-gradient(135deg,#7f1d1d,#1e293b);border:2px solid #ef4444;color:#fca5a5}
+.example-card{background:linear-gradient(145deg,#1a1a2e,#16213e);border:2px solid #f59e0b;border-radius:12px;padding:14px;margin-bottom:14px}
+.example-title{color:#fbbf24;font-weight:700;font-size:clamp(12px,3vw,15px);margin-bottom:8px}
+.example-step{background:rgba(245,158,11,0.1);border-left:3px solid #f59e0b;padding:8px 10px;margin:6px 0;border-radius:0 8px 8px 0;font-size:clamp(10px,2.5vw,13px);display:none;animation:fadeIn 0.4s ease}
+.example-step.show{display:block}
+.reveal-btn{background:linear-gradient(135deg,#f59e0b,#d97706);color:#1e293b;border:none;padding:8px 18px;border-radius:20px;cursor:pointer;font-weight:700;font-size:clamp(10px,2.5vw,13px);margin:6px 4px;transition:all 0.3s}
+.reveal-btn:hover{transform:scale(1.05);box-shadow:0 4px 16px rgba(245,158,11,0.4)}
+.reveal-btn:disabled{opacity:0.5;cursor:not-allowed}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;margin-left:6px}
+.badge-blue{background:#1d4ed8;color:#bfdbfe}
+.badge-green{background:#166534;color:#86efac}
+.motor-container{text-align:center;margin:10px 0}
+.spin-btn{background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;border:none;padding:10px 20px;border-radius:20px;cursor:pointer;font-weight:700;font-size:clamp(11px,2.8vw,14px);margin:8px;transition:all 0.3s}
+.spin-btn:hover{transform:scale(1.05);box-shadow:0 4px 20px rgba(124,58,237,0.5)}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.info-item{background:rgba(59,130,246,0.1);border:1px solid #1d4ed8;border-radius:8px;padding:8px;font-size:clamp(9px,2.2vw,12px)}
+.info-item .key{color:#60a5fa;font-weight:700;margin-bottom:2px}
+.info-item .val{color:#e2e8f0}
+.progress-bar{height:4px;background:#334155;border-radius:2px;margin:8px 0}
+.progress-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,#3b82f6,#22c55e);transition:width 0.5s ease}
+@keyframes rotate{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+.arrow-anim{animation:arrowMove 1.5s ease-in-out infinite}
+@keyframes arrowMove{0%,100%{transform:translateX(0)}50%{transform:translateX(6px)}}
+</style>
+</head>
+<body>
+<div class="title-bar">
+  <h1>⚡ Fleming's Left Hand Rule (फ्लेमिंग का बाम हस्त नियम)</h1>
+  <p>CBSE Class 10 Science | Magnetic Effects of Electric Current</p>
+</div>
+<div class="container">
+
+<div class="rule-box">
+  <h2>🤚 Fleming's Left Hand Rule</h2>
+  <p>Stretch the <strong>forefinger</strong>, <strong>middle finger</strong> &amp; <strong>thumb</strong> of left hand mutually perpendicular.<br>
+  F = BIL &nbsp;|&nbsp; Force (F) on a current-carrying conductor in a magnetic field</p>
+</div>
+
+<div class="fbi">
+  <div class="fbi-item fbi-f"><div class="letter">F</div><div class="word">Force</div><div class="hindi">बल (Thumb)</div></div>
+  <div class="fbi-item fbi-b"><div class="letter">B</div><div class="word">B-field</div><div class="hindi">चुंबकीय क्षेत्र (Forefinger)</div></div>
+  <div class="fbi-item fbi-i"><div class="letter">I</div><div class="word">Current</div><div class="hindi">विद्युत धारा (Middle)</div></div>
+</div>
+
+<div class="card">
+  <div class="section-title">🖐 Interactive Hand Diagram</div>
+  <div class="hand-container" id="handContainer">
+    <svg id="mainSvg" viewBox="0 0 340 300" width="100%" style="max-width:340px">
+      <!-- Background -->
+      <defs>
+        <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#0f172a"/>
+          <stop offset="100%" style="stop-color:#1e293b"/>
+        </linearGradient>
+        <linearGradient id="handGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#fbbf24"/>
+          <stop offset="100%" style="stop-color:#f59e0b"/>
+        </linearGradient>
+        <linearGradient id="arrowRed" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" style="stop-color:#ef4444"/>
+          <stop offset="100%" style="stop-color:#dc2626"/>
+        </linearGradient>
+        <linearGradient id="arrowBlue" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" style="stop-color:#3b82f6"/>
+          <stop offset="100%" style="stop-color:#1d4ed8"/>
+        </linearGradient>
+        <linearGradient id="arrowGreen" x1="0%" y1="100%" x2="0%" y2="0%">
+          <stop offset="0%" style="stop-color:#22c55e"/>
+          <stop offset="100%" style="stop-color:#16a34a"/>
+        </linearGradient>
+        <marker id="arrowheadR" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#ef4444"/>
+        </marker>
+        <marker id="arrowheadB" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#3b82f6"/>
+        </marker>
+        <marker id="arrowheadG" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#22c55e"/>
+        </marker>
+      </defs>
+      <rect width="340" height="300" fill="url(#bgGrad)" rx="12"/>
+      
+      <!-- Palm -->
+      <ellipse cx="160" cy="200" rx="55" ry="65" fill="url(#handGrad)" opacity="0.95"/>
+      <!-- Thumb (pointing up-left = Force direction) -->
+      <ellipse cx="95" cy="160" rx="18" ry="38" fill="#f59e0b" transform="rotate(-30 95 160)"/>
+      <ellipse cx="82" cy="138" rx="14" ry="24" fill="#fbbf24" transform="rotate(-30 82 138)"/>
+      <!-- Forefinger (pointing right = B field) -->
+      <rect x="150" y="95" width="22" height="80" rx="11" fill="#fbbf24" transform="rotate(-5 161 135)"/>
+      <rect x="152" y="68" width="18" height="40" rx="9" fill="#f59e0b" transform="rotate(-5 161 88)"/>
+      <!-- Middle finger (pointing into screen = Current) -->
+      <rect x="178" y="90" width="20" height="82" rx="10" fill="#fbbf24" transform="rotate(5 188 131)"/>
+      <rect x="180" y="63" width="16" height="40" rx="8" fill="#f59e0b" transform="rotate(5 188 83)"/>
+      <!-- Ring finger -->
+      <rect x="203" y="100" width="18" height="72" rx="9" fill="#fbbf24" transform="rotate(12 212 136)"/>
+      <!-- Little finger -->
+      <rect x="224" y="118" width="16" height="58" rx="8" fill="#f59e0b" transform="rotate(18 232 147)"/>
+      <!-- Wrist -->
+      <rect x="120" y="245" width="80" height="30" rx="15" fill="#d97706"/>
+
+      <!-- Force Arrow (Thumb) - RED upward-left -->
+      <line x1="72" y1="125" x2="40" y2="68" stroke="#ef4444" stroke-width="3.5" marker-end="url(#arrowheadR)"/>
+      <rect x="6" y="42" width="64" height="22" rx="11" fill="#7f1d1d" opacity="0.9"/>
+      <text x="38" y="57" text-anchor="middle" fill="#fca5a5" font-size="11" font-weight="bold">F (Thumb)</text>
+
+      <!-- B Field Arrow (Forefinger) - BLUE rightward -->
+      <line x1="175" y1="62" x2="240" y2="38" stroke="#3b82f6" stroke-width="3.5" marker-end="url(#arrowheadB)"/>
+      <rect x="238" y="24" width="92" height="22" rx="11" fill="#1e3a8a" opacity="0.9"/>
+      <text x="284" y="39" text-anchor="middle" fill="#93c5fd" font-size="11" font-weight="bold">B (Forefinger)</text>
+
+      <!-- Current Arrow (Middle) - GREEN dot (into page) -->
+      <circle cx="208" cy="58" r="14" fill="#14532d" stroke="#22c55e" stroke-width="2"/>
+      <circle cx="208" cy="58" r="5" fill="#22c55e"/>
+      <text x="208" y="85" text-anchor="middle" fill="#86efac" font-size="10" font-weight="bold">I (Middle)</text>
+
+      <!-- Perpendicular label -->
+      <text x="170" y="280" text-anchor="middle" fill="#64748b" font-size="10">All three fingers mutually ⊥ (90°)</text>
+      
+      <!-- Hover hint -->
+      <text x="170" y="294" text-anchor="middle" fill="#475569" font-size="9" id="hintText">Tap/hover fingers to explore</text>
+    </svg>
+    <!-- Tooltip -->
+    <div id="fingerTip" style="display:none;position:absolute;background:#1d4ed8;color:#bfdbfe;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:700;pointer-events:none;top:10px;left:50%;transform:translateX(-50%)"></div>
+  </div>
+  <div class="info-grid">
+    <div class="info-item"><div class="key">👍 Thumb → Force (F)</div><div class="val">Direction of motion/force on conductor (बल)</div></div>
+    <div class="info-item"><div class="key">☝️ Forefinger → B Field</div><div class="val">Direction of magnetic field (चुंबकीय क्षेत्र)</div></div>
+    <div class="info-item"><div class="key">🖕 Middle Finger → Current I</div><div class="val">Direction of current (विद्युत धारा)</div></div>
+    <div class="info-item"><div class="key">📐 All 3 are ⊥ (Perpendicular)</div><div class="val">F = BIL &nbsp; (Force = B × I × Length)</div></div>
+  </div>
+</div>
+
+<div class="interactive-demo">
+  <div class="demo-title">🔬 Interactive Conductor Simulator — Change B &amp; I Direction!</div>
+  <div style="font-size:11px;color:#64748b;text-align:center;margin-bottom:8px">Click buttons to flip directions, see how Force changes</div>
+  <div class="controls">
+    <button class="ctrl-btn active-b" id="btnB" onclick="toggleB()">B: ↓ Downward</button>
+    <button class="ctrl-btn active-i" id="btnI" onclick="toggleI()">I: → Right</button>
+  </div>
+  <svg id="simSvg" viewBox="0 0 300 180" width="100%" style="max-width:300px;display:block;margin:0 auto">
+    <defs>
+      <marker id="mR" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#ef4444"/></marker>
+      <marker id="mB2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#f59e0b"/></marker>
+      <marker id="mG2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#22c55e"/></marker>
+    </defs>
+    <rect width="300" height="180" fill="#0f172a" rx="10"/>
+    <!-- Magnetic field lines -->
+    <g id="bLines"></g>
+    <!-- Conductor -->
+    <rect x="110" y="70" width="80" height="40" rx="8" fill="#334155" stroke="#475569" stroke-width="2"/>
+    <text x="150" y="95" text-anchor="middle" fill="#94a3b8" font-size="11" font-weight="bold">Conductor</text>
+    <!-- Current in conductor -->
+    <g id="currentViz"></g>
+    <!-- Force arrow -->
+    <g id="forceArrow"></g>
+    <!-- Labels -->
+    <text x="20" y="170" fill="#64748b" font-size="9">B = Magnetic Field (चुंबकीय क्षेत्र)</text>
+    <text x="180" y="170" fill="#64748b" font-size="9">F = Force (बल)</text>
+  </svg>
+  <div class="result-box result-force" id="resultBox">Force Direction: ⬆️ OUT OF PAGE (Upward)</div>
+</div>
+
+<div class="card">
+  <div class="section-title">📋 Step-by-Step Walkthrough <span class="badge badge-blue">Click to reveal</span></div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  <div class="steps-grid">
+    <button class="step-btn" onclick="toggleStep(0)">
+      <strong>Step 1:</strong> Hold your LEFT hand flat 🤚
+      <div class="step-content" id="step0">Use your <strong>LEFT hand</strong> — this rule is ONLY for left hand (unlike Fleming's Right Hand Rule which is for generators). The left hand rule applies to <strong>motors</strong> (विद्युत मोटर).</div>
+    </button>
+    <button class="step-btn" onclick="toggleStep(1)">
+      <strong>Step 2:</strong> Point Forefinger in direction of B (चुंबकीय क्षेत्र) ☝️
+      <div class="step-content" id="step1">Stretch your <strong>forefinger</strong> (तर्जनी) in the direction of the <strong>magnetic field (B)</strong>. The field goes from North pole to South pole outside the magnet.</div>
+    </button>
+    <button class="step-btn" onclick="toggleStep(2)">
+      <strong>Step 3:</strong> Curl Middle finger in direction of Current I 🖕
+      <div class="step-content" id="step2">Bend your <strong>middle finger</strong> (मध्यमा) perpendicular to forefinger, pointing in the direction of <strong>conventional current (I)</strong> — from + to − terminal.</div>
+    </button>
+    <button class="step-btn" onclick="toggleStep(3)">
+      <strong>Step 4:</strong> Thumb shows Force direction 👍
+      <div class="step-content" id="step3">Your <strong>thumb</strong> (अंगूठा) now points in the direction of the <strong>Force (F)</strong> or motion of the conductor. This is the direction the conductor will move! ∴ F = BIL sin θ (maximum when θ = 90°)</div>
+    </button>
+    <button class="step-btn" onclick="toggleStep(4)">
+      <strong>Step 5:</strong> Application — Electric Motor (विद्युत मोटर) ⚙️
+      <div class="step-content" id="step4">Fleming's Left Hand Rule explains how an <strong>electric motor</strong> works. Current-carrying coil in magnetic field experiences force → rotates → converts <strong>electrical energy → mechanical energy</strong> (विद्युत ऊर्जा → यांत्रिक ऊर्जा). Used in fans, mixers, electric vehicles!</div>
+    </button>
+  </div>
+</div>
+
+<div class="example-card">
+  <div class="example-title">📝 Worked Example (CBSE Exam Type)</div>
+  <p style="font-size:clamp(10px,2.5vw,13px);color:#e2e8f0;margin-bottom:8px">
+    <strong>Q:</strong> A horizontal conductor carries current from <strong>West to East</strong>. The magnetic field points <strong>vertically downward</strong>. Find the direction of force on the conductor.
+  </p>
+  <button class="reveal-btn" id="exBtn1" onclick="revealExample(1)">Show Step 1 →</button>
+  <button class="reveal-btn" id="exBtn2" onclick="revealExample(2)" disabled>Show Step 2 →</button>
+  <button class="reveal-btn" id="exBtn3" onclick="revealExample(3)" disabled>Show Answer ✓</button>
+  <div class="example-step" id="ex1">
+    <strong>Step 1 — Identify I direction:</strong><br>
+    Current (I) flows West → East. Point your left hand's <strong>middle finger</strong> toward East (→).
+  </div>
+  <div class="example-step" id="ex2">
+    <strong>Step 2 — Identify B direction:</strong><br>
+    Magnetic field (B) is vertically <strong>downward</strong> (↓). Point your left hand's <strong>forefinger</strong> downward.
+    <br>Keep middle finger → East and forefinger ↓ Down simultaneously.
+  </div>
+  <div class="example-step" id="ex3" style="background:rgba(34,197,94,0.15);border-left-color:#22c55e">
+    <strong>✅ Answer — Force Direction:</strong><br>
+    Using F = I(L × B) &nbsp;|&nbsp; East × Down = <strong>South (toward South)</strong><br>
+    ∴ Your <strong>thumb</strong> points <strong>South</strong>.<br>
+    The conductor will be pushed toward the <strong>South</strong> direction! 🎯
+  </div>
+</div>
+
+<div class="card">
+  <div class="section-title">⚙️ Electric Motor Animation <span class="badge badge-green">Live Demo</span></div>
+  <div class="motor-container">
+    <svg id="motorSvg" viewBox="0 0 300 200" width="100%" style="max-width:300px">
+      <defs>
+        <linearGradient id="motorGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#1e3a8a"/>
+          <stop offset="100%" style="stop-color:#1e293b"/>
+        </linearGradient>
+      </defs>
+      <rect width="300" height="200" fill="#0f172a" rx="10"/>
+      <!-- Magnet poles -->
+      <rect x="20" y="60" width="50" height="80" rx="8" fill="#dc2626"/>
+      <text x="45" y="105" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">N</text>
+      <rect x="230" y="60" width="50" height="80" rx="8" fill="#1d4ed8"/>
+      <text x="255" y="105" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">S</text>
+      <!-- Field lines -->
+      <line x1="72" y1="85" x2="228" y2="85" stroke="#60a5fa" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.5"/>
+      <line x1="72" y1="100" x2="228" y2="100" stroke="#60a5fa" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.5"/>
+      <line x1="72" y1="115" x2="228" y2="115" stroke="#60a5fa" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.5"/>
+      <text x="150" y="18" text-anchor="middle" fill="#60a5fa" font-size="10">B →</text>
+      <!-- Coil (rotating rectangle) -->
+      <g id="coilGroup" transform-origin="150 100">
+        <rect id="coilRect" x="120" y="60" width="60" height="80" rx="4" fill="none" stroke="#f59e0b" stroke-width="4"/>
+        <line id="coilCenter" x1="150" y1="60" x2="150" y2="140" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="3,3" opacity="0.5"/>
+        <!-- Current arrows on coil sides -->
+        <polygon id="arr1" points="150,65 145,78 155,78" fill="#22c55e"/>
+        <polygon id="arr2" points="150,135 145,122 155,122" fill="#ef4444"/>
+      </g>
+      <!-- Axle -->
+      <circle cx="150" cy="100" r="5" fill="#94a3b8"/>
+      <!-- Force labels -->
+      <text x="108" y="95" text-anchor="end" fill="#ef4444" font-size="10" font-weight="bold" id="forceL">↑ F</text>
+      <text x="192" y="115" text-anchor="start" fill="#22c55e" font-size="10" font-weight="bold" id="forceR">↓ F</text>
+      <text x="150" y="185" text-anchor="middle" fill="#64748b" font-size="9" id="motorStatus">Press button to spin motor</text>
+    </svg>
+    <div>
+      <button class="spin-btn" id="spinBtn" onclick="toggleMotor()">▶ Start Motor</button>
+    </div>

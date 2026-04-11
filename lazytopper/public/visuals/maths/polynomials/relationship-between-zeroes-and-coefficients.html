@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Polynomials - Zeroes & Coefficients</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); min-height: 100vh; color: #1e293b; }
+  
+  .title-bar { background: linear-gradient(90deg, #3b82f6, #6366f1, #8b5cf6); padding: 14px 20px; text-align: center; box-shadow: 0 4px 20px rgba(59,130,246,0.4); }
+  .title-bar h1 { color: white; font-size: 1.1rem; font-weight: 700; letter-spacing: 0.5px; }
+  .title-bar p { color: rgba(255,255,255,0.85); font-size: 0.75rem; margin-top: 2px; }
+
+  .container { max-width: 700px; margin: 0 auto; padding: 16px; }
+
+  .card { background: white; border-radius: 16px; padding: 18px; margin-bottom: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
+
+  .section-title { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #64748b; margin-bottom: 12px; }
+
+  /* Formula Box */
+  .formula-box { background: linear-gradient(135deg, #1e293b, #334155); border-radius: 12px; padding: 16px; margin-bottom: 14px; border: 2px solid #3b82f6; }
+  .formula-title { color: #93c5fd; font-size: 0.78rem; font-weight: 600; margin-bottom: 8px; }
+  .formula-row { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+  .formula-item { background: rgba(59,130,246,0.15); border: 1px solid #3b82f6; border-radius: 10px; padding: 10px 14px; text-align: center; flex: 1; min-width: 130px; transition: all 0.3s; cursor: pointer; }
+  .formula-item:hover { background: rgba(59,130,246,0.35); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(59,130,246,0.3); }
+  .formula-item .label { color: #94a3b8; font-size: 0.7rem; margin-bottom: 4px; }
+  .formula-item .formula { color: #fff; font-size: 1.05rem; font-weight: 700; }
+  .formula-item .greek { color: #f59e0b; font-size: 0.85rem; margin-top: 3px; }
+
+  /* Parabola SVG */
+  .svg-wrap { background: linear-gradient(180deg, #f0f9ff, #e0f2fe); border-radius: 12px; overflow: hidden; margin-bottom: 12px; }
+  svg { width: 100%; display: block; }
+
+  /* Interactive Sliders */
+  .slider-group { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  .slider-item label { display: block; font-size: 0.72rem; font-weight: 600; color: #64748b; margin-bottom: 4px; }
+  .slider-item span { font-size: 0.9rem; font-weight: 700; color: #3b82f6; }
+  input[type=range] { width: 100%; accent-color: #3b82f6; cursor: pointer; }
+
+  /* Zero display */
+  .zero-display { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+  .zero-card { background: linear-gradient(135deg, #fef9c3, #fef08a); border: 2px solid #f59e0b; border-radius: 12px; padding: 10px 16px; text-align: center; flex: 1; min-width: 100px; transition: all 0.4s; }
+  .zero-card.highlight { animation: pulse 0.6s ease; }
+  .zero-card .zk { font-size: 0.72rem; color: #92400e; font-weight: 600; }
+  .zero-card .zv { font-size: 1.2rem; font-weight: 700; color: #78350f; }
+
+  .relation-box { background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 2px solid #22c55e; border-radius: 12px; padding: 14px; margin-bottom: 10px; }
+  .rel-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px dashed #86efac; flex-wrap: wrap; gap: 4px; }
+  .rel-row:last-child { border-bottom: none; }
+  .rel-label { font-size: 0.78rem; color: #166534; font-weight: 600; }
+  .rel-val { font-size: 0.9rem; font-weight: 700; color: #15803d; background: white; padding: 3px 10px; border-radius: 20px; }
+  .rel-eq { font-size: 0.78rem; color: #4ade80; }
+
+  /* Step walkthrough */
+  .steps-container { }
+  .step { display: none; animation: fadeIn 0.4s ease; }
+  .step.active { display: block; }
+  .step-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .step-num { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #6366f1); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; flex-shrink: 0; }
+  .step-title { font-weight: 700; color: #1e293b; font-size: 0.95rem; }
+  .step-body { background: #f8fafc; border-radius: 10px; padding: 12px; font-size: 0.85rem; line-height: 1.7; color: #374151; }
+  .step-body .highlight { background: linear-gradient(90deg, #fef9c3, #fef08a); padding: 2px 6px; border-radius: 4px; font-weight: 600; }
+  .step-body .blue { color: #3b82f6; font-weight: 700; }
+  .step-body .green { color: #16a34a; font-weight: 700; }
+  .step-body .red { color: #ef4444; font-weight: 700; }
+
+  .nav-btns { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
+  .btn { padding: 8px 20px; border: none; border-radius: 20px; font-weight: 700; cursor: pointer; font-size: 0.82rem; transition: all 0.2s; }
+  .btn-primary { background: linear-gradient(135deg, #3b82f6, #6366f1); color: white; }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(59,130,246,0.4); }
+  .btn-secondary { background: #e2e8f0; color: #64748b; }
+  .btn-secondary:hover { background: #cbd5e1; }
+  .step-indicator { font-size: 0.78rem; color: #94a3b8; }
+
+  /* Tabs */
+  .tabs { display: flex; background: #f1f5f9; border-radius: 10px; padding: 3px; margin-bottom: 14px; }
+  .tab { flex: 1; padding: 8px; text-align: center; border-radius: 8px; cursor: pointer; font-size: 0.78rem; font-weight: 600; color: #64748b; transition: all 0.2s; border: none; background: none; }
+  .tab.active { background: white; color: #3b82f6; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+
+  /* Memory tip */
+  .tip-box { background: linear-gradient(135deg, #fdf4ff, #fae8ff); border: 2px solid #d946ef; border-radius: 12px; padding: 12px; margin-top: 10px; }
+  .tip-box .tip-title { color: #86198f; font-size: 0.78rem; font-weight: 700; margin-bottom: 6px; }
+  .tip-box p { font-size: 0.82rem; color: #4a044e; line-height: 1.6; }
+
+  /* Animations */
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+  @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+
+  .poly-display { text-align: center; font-size: 1.05rem; font-weight: 700; color: #1e293b; background: linear-gradient(135deg, #eff6ff, #dbeafe); border-radius: 10px; padding: 10px; margin-bottom: 12px; border: 1px solid #bfdbfe; letter-spacing: 0.5px; }
+
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; }
+  .badge-blue { background: #dbeafe; color: #1d4ed8; }
+  .badge-green { background: #dcfce7; color: #15803d; }
+  .badge-amber { background: #fef9c3; color: #92400e; }
+
+  .info-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+
+  .dot-zero { fill: #ef4444; }
+  .dot-zero-label { fill: #ef4444; font-weight: 700; font-size: 11px; }
+  .axis { stroke: #94a3b8; stroke-width: 1.5; }
+  .curve { fill: none; stroke: #3b82f6; stroke-width: 2.5; }
+  .grid-line { stroke: #e2e8f0; stroke-width: 1; }
+
+  .toggle-hint { text-align: center; font-size: 0.72rem; color: #94a3b8; margin-top: 6px; }
+</style>
+</head>
+<body>
+
+<div class="title-bar">
+  <h1>🔢 Polynomials | शून्यकों और गुणांकों का सम्बन्ध</h1>
+  <p>Relationship Between Zeroes and Coefficients — CBSE Class 10</p>
+</div>
+
+<div class="container">
+
+  <!-- Key Formulas -->
+  <div class="card">
+    <div class="section-title">📐 मुख्य सूत्र (Key Formulas)</div>
+    <div class="formula-box">
+      <div class="formula-title">For a Quadratic Polynomial: p(x) = ax² + bx + c &nbsp;|&nbsp; Zeroes: α (alpha) &amp; β (beta)</div>
+      <div class="formula-row">
+        <div class="formula-item" onclick="flashFormula(this, 'sum')">
+          <div class="label">Sum of Zeroes (α + β)</div>
+          <div class="formula">α + β = −b/a</div>
+          <div class="greek">= −(coefficient of x) / (coefficient of x²)</div>
+        </div>
+        <div class="formula-item" onclick="flashFormula(this, 'product')">
+          <div class="label">Product of Zeroes (α × β)</div>
+          <div class="formula">α × β = c/a</div>
+          <div class="greek">= (constant term) / (coefficient of x²)</div>
+        </div>
+      </div>
+    </div>
+    <div class="tip-box">
+      <div class="tip-title">💡 याद करने की ट्रिक (Memory Trick)</div>
+      <p>Think of it as: <strong>Sum = −b/a</strong> (negative of 'b' over 'a') and <strong>Product = c/a</strong> ('c' over 'a'). The sum has a NEGATIVE sign, the product does NOT! ∴ Never confuse the signs!</p>
+    </div>
+  </div>
+
+  <!-- Interactive Parabola -->
+  <div class="card">
+    <div class="section-title">🎮 Interactive Explorer — Drag the Sliders!</div>
+    <div class="slider-group">
+      <div class="slider-item">
+        <label>a = <span id="aVal">1</span></label>
+        <input type="range" id="slA" min="-3" max="3" step="0.5" value="1" oninput="updateGraph()">
+      </div>
+      <div class="slider-item">
+        <label>b = <span id="bVal">-5</span></label>
+        <input type="range" id="slB" min="-8" max="8" step="1" value="-5" oninput="updateGraph()">
+      </div>
+      <div class="slider-item">
+        <label>c = <span id="cVal">6</span></label>
+        <input type="range" id="slC" min="-9" max="9" step="1" value="6" oninput="updateGraph()">
+      </div>
+    </div>
+
+    <div class="poly-display" id="polyDisplay">p(x) = x² − 5x + 6</div>
+
+    <div class="svg-wrap">
+      <svg id="graphSVG" viewBox="0 0 400 220" preserveAspectRatio="xMidYMid meet">
+        <!-- Grid -->
+        <line x1="0" y1="110" x2="400" y2="110" class="grid-line"/>
+        <line x1="200" y1="0" x2="200" y2="220" class="grid-line"/>
+        <!-- Axes -->
+        <line x1="20" y1="110" x2="380" y2="110" class="axis" marker-end="url(#arr)"/>
+        <line x1="200" y1="210" x2="200" y2="10" class="axis" marker-end="url(#arr2)"/>
+        <defs>
+          <marker id="arr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#94a3b8"/>
+          </marker>
+          <marker id="arr2" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+            <path d="M0,6 L3,0 L6,6 Z" fill="#94a3b8"/>
+          </marker>
+        </defs>
+        <text x="372" y="107" font-size="10" fill="#94a3b8">x</text>
+        <text x="204" y="14" font-size="10" fill="#94a3b8">y</text>
+        <text x="197" y="122" font-size="9" fill="#94a3b8">O</text>
+        <!-- Curve path -->
+        <path id="curvePath" class="curve"/>
+        <!-- Zero dots -->
+        <circle id="z1dot" r="5" class="dot-zero" style="display:none"/>
+        <circle id="z2dot" r="5" class="dot-zero" style="display:none"/>
+        <text id="z1label" class="dot-zero-label" style="display:none"/>
+        <text id="z2label" class="dot-zero-label" style="display:none"/>
+        <!-- No real roots label -->
+        <text id="noRealLabel" x="200" y="140" text-anchor="middle" font-size="11" fill="#ef4444" font-weight="bold" style="display:none">No Real Zeroes (D &lt; 0)</text>
+      </svg>
+    </div>
+
+    <div class="zero-display">
+      <div class="zero-card" id="z1card">
+        <div class="zk">α (First Zero)</div>
+        <div class="zv" id="z1val">—</div>
+      </div>
+      <div class="zero-card" id="sumcard" style="background:linear-gradient(135deg,#ecfdf5,#d1fae5);border-color:#22c55e;">
+        <div class="zk" style="color:#065f46;">α + β (Sum)</div>
+        <div class="zv" style="color:#064e3b;" id="sumval">—</div>
+      </div>
+      <div class="zero-card" id="z2card">
+        <div class="zk">β (Second Zero)</div>
+        <div class="zv" id="z2val">—</div>
+      </div>
+    </div>
+
+    <div class="relation-box">
+      <div class="rel-row">
+        <span class="rel-label">α + β (Calculated from zeroes)</span>
+        <span class="rel-eq">=</span>
+        <span class="rel-val" id="sumFromZeroes">—</span>
+        <span class="rel-eq">✓ Same as −b/a =</span>
+        <span class="rel-val" id="sumFromFormula">—</span>
+      </div>
+      <div class="rel-row">
+        <span class="rel-label">α × β (Calculated from zeroes)</span>
+        <span class="rel-eq">=</span>
+        <span class="rel-val" id="prodFromZeroes">—</span>
+        <span class="rel-eq">✓ Same as c/a =</span>
+        <span class="rel-val" id="prodFromFormula">—</span>
+      </div>
+    </div>
+    <div class="toggle-hint">↑ Try changing a, b, c values and see the zeroes update live on the graph!</div>
+  </div>
+
+  <!-- Worked Example with Steps -->
+  <div class="card">
+    <div class="section-title">📖 Worked Example (Step-by-Step)</div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('ex1', this)">Example 1</button>
+      <button class="tab" onclick="switchTab('ex2', this)">Example 2</button>
+      <button class="tab" onclick="switchTab('ex3', this)">Find Polynomial</button>
+    </div>
+
+    <!-- Example 1 -->
+    <div class="tab-content active" id="ex1">
+      <div class="poly-display">p(x) = 2x² − 7x + 3 &nbsp;|&nbsp; Find α + β and α × β</div>
+      <div class="steps-container" id="steps1">
+        <div class="step active" id="s1_1">
+          <div class="step-header"><div class="step-num">1</div><div class="step-title">Identify the Coefficients</div></div>
+          <div class="step-body">
+            Compare <strong>2x² − 7x + 3</strong> with standard form <strong>ax² + bx + c</strong><br><br>
+            <span class="badge badge-blue">a = 2</span>&nbsp;
+            <span class="badge badge-green">b = −7</span>&nbsp;
+            <span class="badge badge-amber">c = 3</span><br><br>
+            ∴ coefficient of x² = <span class="blue">2</span>, coefficient of x = <span class="green">−7</span>, constant = <span class="red">3</span>
+          </div>
+        </div>
+        <div class="step" id="s1_2">
+          <div class="step-header"><div class="step-num">2</div><div class="step-title">Apply Sum Formula</div></div>
+          <div class="step-body">
+            Using: <span class="highlight">α + β = −b/a</span><br><br>
+            α + β = −(−7) / 2<br>
+            α + β = <span class="green">7/2</span><br><br>
+            ∵ b = −7, so −b = +7<br>
+            ∴ <strong>Sum of zeroes = 7/2 = 3.5</strong>
+          </div>
+        </div>
+        <div class="step" id="s1_3">
+          <div class="step-header"><div class="step-num">3</div><div class="step-title">Apply Product Formula</div></div>
+          <div class="step-body">
+            Using: <span class="highlight">α × β = c/a</span><br><br>
+            α × β = 3 / 2<br>
+            ∴ <strong>Product of zeroes = 3/2 = 1.5</strong><br><br>
+            <span class="badge badge-green">✓ Verification:</span> The actual zeroes are x = 3 and x = 1/2<br>
+            Sum: 3 + 1/2 = 7/2 ✓ &nbsp; Product: 3 × 1/2 = 3/2 ✓
+          </div>
+        </div>
+      </div>
+      <div class="nav-btns">
+        <button class="btn btn-secondary" onclick="prevStep('steps1', 's1_', 3)" id="prev1">← Prev</button>
+        <span class="step-indicator" id="ind1">Step 1 of 3</span>
+        <button class="btn btn-primary" onclick="nextStep('steps1', 's1_', 3, 'ind1', 'prev1', 'next1')" id="next1">Next →</button>
+      </div>
+    </div>
+
+    <!-- Example 2 -->
+    <div class="tab-content" id="ex2">
+      <div class="poly-display">p(x) = x² + 7x + 10 &nbsp;|&nbsp; Find α + β and α × β</div>
+      <div class="steps-container" id="steps2">
+        <div class="step active" id="s2_1">
+          <div class="step-header"><div class="step-num">1</div><div class="step-title">Identify Coefficients</div></div>
+          <div class="step-body">
+            Compare <strong>x² + 7x + 10</strong> with <strong>ax² + bx + c</strong><br><br>
+            <span class="badge badge-blue">a = 1</span>&nbsp;
+            <span class="badge badge-green">b = 7</span>&nbsp;
+            <span class="badge badge-amber">c = 10</span><br><br>
+            Note: when you see just x², the coefficient a = <span class="blue">1</span> (invisible 1!)
+          </div>
+        </div>
+        <div class="step" id="s2_2">
+          <div class="step-header"><div class="step-num">2</div><div class="step-title">Sum of Zeroes</div></div>
+          <div class="step-body">
+            <span class="highlight">α + β = −b/a = −7/1 = −7</span><br><br>
+            ⚠️ Watch the sign! b = +7, so −b = −7<br>
+            ∴ <strong>Sum of zeroes = −7</strong><br><br>
+            This means if one zero is −2, the other is −5<br>
+            because (−2) + (−5) = −7 ✓
+          </div>
+        </div>
+        <div class="step" id="s2_3">
+          <div class="step-header"><div class="step-num">3</div><div class="step-title">Product of Zeroes</div></div>
+          <div class="step-body">
+            <span class="highlight">α × β = c/a = 10/1 = 10</span><br><br>
+            ∴ <strong>Product of zeroes = 10</strong><br><br>
+            <span class="badge badge-green">✓ Verify:</span> Zeroes are −2 and −5<br>
+            Sum: (−2)+(−5) = −7 ✓<br>
+            Product: (−2)×(−5) = +10 ✓
+          </div>
+        </div>
+      </div>
+      <div class="nav-btns">
+        <button class="btn btn-secondary" onclick="prevStep('steps2', 's2_', 3)" id="prev2">← Prev</button>
+        <span class="step-indicator" id="ind2">Step 1 of 3</span>
+        <button class="btn btn-primary" onclick="nextStep('steps2', 's2_', 3, 'ind2', 'prev2', 'next2')" id="next2">Next →</button>
+      </div>
+    </div>
+
+    <!-- Example 3 -->
+    <div class="tab-content" id="ex3">
+      <div class="poly-display">Given: α = 3, β = −4 &nbsp;|&nbsp; Form the polynomial!</div>
+      <div class="steps-container" id="steps3">
+        <div class="step active" id="s3_1">
+          <div class="step-header"><div class="step-num">1</div><div class="step-title">The Reverse Formula</div></div>
+          <div class="step-body">
+            If we KNOW the zeroes, we can BUILD the polynomial!<br><br>
+            <span class="highlight">p(x) = x² − (α+β)x + (α×β)</span><br><br>
+            This is derived from:<br>
+            p(x) = (x − α)(x − β) = x² − (α+β)x + αβ<br><br>
+            ∵ α = 3 and β = −4
+          </div>
+        </div>
+        <div class="step" id="s3_2">
+          <div class="step-header"><div class="step-num">2</div><div class="step-title">Calculate Sum and Product</div></div>
+          <div class="step-body">
+            α + β = 3 + (−4) = <span class="red">−1</span><br><br>
+            α × β = 3 × (−4) = <span class="green">−12</span><br><br>
+            Now we have everything needed to write our polynomial! 🎉
+          </div>
+        </div>
+        <div class="step" id="s3_3">
+          <div class="step-header"><div class="step-num">3</div><div class="step-title">Write the Polynomial</div></div>
+          <div class="step-body">
+            p(x) = x² − (α+β)x + (α×β)<br><br>
+            p(x) = x² − (<span class="red">−1</span>)x + (<span class="green">−12</span>)<br><br>
+            <span class="highlight">∴ p(x) = x² + x − 12</span><br><br>
+            <span class="badge badge-green">✓ Check:</span> p(3) = 9+3−12 = 0 ✓ &nbsp; p(−4) = 16−4−12 = 0 ✓
+          </div>
+        </div>
+      </div>
+      <div class="nav-btns">
+        <button class="btn btn-secondary" onclick="prevStep('steps3', 's3_', 3)" id="prev3">← Prev</button>
+        <span class="step-indicator" id="ind3">Step 1 of 3</span>
+        <button class="btn btn-primary" onclick="nextStep('steps3', 's3_', 3, 'ind3', 'prev3', 'next3')" id="next3">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Reference -->
+  <div class="card">
+    <div class="section-title">📋 Quick Reference Chart</div>
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:0.8rem;">
+        <thead>
+          <tr style="background:linear-gradient(135deg,#3b82f6,#6366f1);color:white;">
+            <th style="padding:8px;text-align:left;border-radius:8px 0 0 0;">Polynomial</th>
+            <th style="padding:8px;text-align:center;">a</th>
+            <th style="padding:8px;text-align:center;">b</th>
+            <th style="padding:8px;text-align:center;">c</th>
+            <th style="padding:8px;text-align:center;">−b/a</th>
+            <th style="padding:8px;text-align:center;border-radius:0 8px 0 0;">c/a</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+        </tbody>
+      </table>
+    </div>
+    <div class="tip-box" style="margin-top:12px;">
+      <div class="tip-title">🎯 CBSE Exam Tip</div>
+      <p>In exams, always <strong>identify a, b, c first</strong>, then apply formulas. Many students lose marks by using wrong signs! Remember: Sum = <strong>−b/a</strong> (has minus), Product = <strong>c/a</strong> (no minus). Also remember: p(α) = 0 and p(β) = 0 by definition of zeroes (शून्यक).</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ===== GRAPH ======
+const W = 400, H = 220, cx = 200, cy = 110, scale = 28

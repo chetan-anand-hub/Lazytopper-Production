@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Human Reproductive System - Class 10 Science</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f0f4ff; color: #1e293b; min-height: 100vh; }
+  
+  .title-bar {
+    background: linear-gradient(135deg, #1e40af, #3b82f6, #06b6d4);
+    color: white; padding: 14px 20px; text-align: center;
+    box-shadow: 0 4px 15px rgba(59,130,246,0.4);
+  }
+  .title-bar h1 { font-size: 1.1rem; font-weight: 700; letter-spacing: 0.5px; }
+  .title-bar p { font-size: 0.78rem; opacity: 0.9; margin-top: 3px; }
+
+  .tab-bar {
+    display: flex; background: #1e293b; overflow-x: auto;
+    scrollbar-width: none; gap: 2px; padding: 4px;
+  }
+  .tab-bar::-webkit-scrollbar { display: none; }
+  .tab {
+    flex: none; padding: 8px 14px; border-radius: 8px; cursor: pointer;
+    font-size: 0.75rem; font-weight: 600; color: #94a3b8;
+    transition: all 0.3s; white-space: nowrap; border: none; background: none;
+  }
+  .tab.active { background: #3b82f6; color: white; }
+  .tab:hover:not(.active) { background: #334155; color: white; }
+
+  .section { display: none; padding: 16px; max-width: 700px; margin: 0 auto; }
+  .section.active { display: block; animation: fadeIn 0.4s ease; }
+  @keyframes fadeIn { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform: translateY(0); } }
+
+  .card {
+    background: white; border-radius: 16px; padding: 16px; margin-bottom: 14px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1px solid #e2e8f0;
+  }
+  .card h3 { color: #1e40af; font-size: 0.95rem; margin-bottom: 10px; }
+
+  .key-concept {
+    background: linear-gradient(135deg, #dbeafe, #e0f2fe);
+    border-left: 4px solid #3b82f6; border-radius: 12px;
+    padding: 14px; margin-bottom: 14px;
+  }
+  .key-concept .label { font-size: 0.7rem; font-weight: 700; color: #3b82f6; text-transform: uppercase; letter-spacing: 1px; }
+  .key-concept p { font-size: 0.85rem; color: #1e293b; margin-top: 4px; line-height: 1.5; }
+
+  svg text { font-family: 'Segoe UI', sans-serif; }
+
+  .organ-btn {
+    display: inline-block; padding: 6px 14px; border-radius: 20px; margin: 4px;
+    cursor: pointer; font-size: 0.78rem; font-weight: 600; border: 2px solid;
+    transition: all 0.25s; user-select: none;
+  }
+  .organ-btn:hover { transform: scale(1.05); }
+  .organ-btn.active { color: white; }
+
+  .info-box {
+    background: #f8fafc; border-radius: 10px; padding: 12px;
+    margin-top: 10px; border: 1px solid #e2e8f0; min-height: 60px;
+    font-size: 0.82rem; line-height: 1.6; transition: all 0.3s;
+  }
+  .info-box .organ-name { font-weight: 700; font-size: 0.9rem; margin-bottom: 4px; }
+
+  .step-item {
+    display: flex; gap: 12px; align-items: flex-start; padding: 10px;
+    border-radius: 10px; margin-bottom: 8px; cursor: pointer;
+    background: #f8fafc; border: 2px solid #e2e8f0; transition: all 0.3s;
+  }
+  .step-item:hover { border-color: #3b82f6; background: #eff6ff; }
+  .step-item.revealed { border-color: #22c55e; background: #f0fdf4; }
+  .step-num {
+    width: 28px; height: 28px; border-radius: 50%; background: #e2e8f0;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.8rem; flex-shrink: 0; transition: all 0.3s;
+  }
+  .step-item.revealed .step-num { background: #22c55e; color: white; }
+  .step-content { flex: 1; }
+  .step-title { font-weight: 600; font-size: 0.85rem; }
+  .step-desc { font-size: 0.78rem; color: #64748b; margin-top: 3px; max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+  .step-item.revealed .step-desc { max-height: 100px; }
+
+  .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .compare-col { border-radius: 12px; padding: 12px; }
+  .compare-col.male { background: linear-gradient(135deg, #dbeafe, #bfdbfe); border: 2px solid #3b82f6; }
+  .compare-col.female { background: linear-gradient(135deg, #fce7f3, #fbcfe8); border: 2px solid #ec4899; }
+  .compare-col h4 { font-size: 0.85rem; margin-bottom: 8px; }
+  .compare-col.male h4 { color: #1d4ed8; }
+  .compare-col.female h4 { color: #be185d; }
+  .compare-item { font-size: 0.75rem; padding: 4px 0; border-bottom: 1px solid rgba(0,0,0,0.07); display: flex; justify-content: space-between; gap: 4px; }
+  .compare-item:last-child { border: none; }
+  .compare-item span:first-child { font-weight: 600; }
+
+  .quiz-q { background: #f8fafc; border-radius: 10px; padding: 12px; margin-bottom: 10px; }
+  .quiz-q p { font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; }
+  .quiz-opt {
+    display: block; width: 100%; text-align: left; padding: 7px 12px;
+    margin: 4px 0; border-radius: 8px; border: 2px solid #e2e8f0;
+    background: white; cursor: pointer; font-size: 0.8rem; transition: all 0.2s;
+  }
+  .quiz-opt:hover:not(:disabled) { border-color: #3b82f6; background: #eff6ff; }
+  .quiz-opt.correct { border-color: #22c55e; background: #f0fdf4; color: #166534; }
+  .quiz-opt.wrong { border-color: #ef4444; background: #fef2f2; color: #991b1b; }
+
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; }
+  .badge-blue { background: #dbeafe; color: #1d4ed8; }
+  .badge-green { background: #dcfce7; color: #166534; }
+  .badge-amber { background: #fef3c7; color: #92400e; }
+  .badge-pink { background: #fce7f3; color: #9d174d; }
+
+  .highlight { background: #fef9c3; border-radius: 4px; padding: 1px 4px; }
+
+  .flow-item {
+    display: flex; align-items: center; gap: 8px; margin: 6px 0;
+    font-size: 0.8rem;
+  }
+  .flow-box {
+    flex: 1; padding: 7px 10px; border-radius: 8px; text-align: center;
+    font-weight: 600; font-size: 0.75rem;
+  }
+  .flow-arrow { color: #94a3b8; font-size: 1.1rem; }
+
+  @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.5;} }
+  .pulsing { animation: pulse 2s infinite; }
+
+  @keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-5px);} }
+  .floating { animation: float 3s ease-in-out infinite; }
+
+  .hotspot { cursor: pointer; }
+  .hotspot circle { transition: r 0.2s; }
+  .hotspot:hover circle { r: 9; }
+</style>
+</head>
+<body>
+
+<div class="title-bar">
+  <h1>🧬 Human Reproductive System | मानव जनन तंत्र</h1>
+  <p>CBSE Class 10 Science • Chapter: How do Organisms Reproduce?</p>
+</div>
+
+<div class="tab-bar">
+  <button class="tab active" onclick="showTab('overview')">📖 Overview</button>
+  <button class="tab" onclick="showTab('male')">♂ Male System</button>
+  <button class="tab" onclick="showTab('female')">♀ Female System</button>
+  <button class="tab" onclick="showTab('process')">🔄 Process</button>
+  <button class="tab" onclick="showTab('compare')">⚖ Compare</button>
+  <button class="tab" onclick="showTab('quiz')">✏ Quiz</button>
+</div>
+
+<!-- OVERVIEW -->
+<div id="overview" class="section active">
+  <div class="key-concept">
+    <div class="label">🔑 Key Concept | मुख्य अवधारणा</div>
+    <p><strong>Sexual Reproduction</strong> in humans involves fusion of male gamete (sperm / शुक्राणु) and female gamete (ovum / अंडाणु) to form a <strong>zygote (युग्मनज)</strong> which develops into a new individual.</p>
+  </div>
+
+  <div class="card">
+    <h3>🧩 Why Reproduce Sexually?</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
+      <div style="background:#eff6ff;border-radius:10px;padding:10px;font-size:0.78rem;">
+        <div style="font-weight:700;color:#1d4ed8;margin-bottom:4px;">✅ Advantages</div>
+        Genetic variation → better adaptability<br>Two parents → stronger offspring
+      </div>
+      <div style="background:#fff7ed;border-radius:10px;padding:10px;font-size:0.78rem;">
+        <div style="font-weight:700;color:#c2410c;margin-bottom:4px;">📌 Key Fact</div>
+        Humans are <strong>viviparous</strong> — young develop inside mother's body
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>🗺 System Overview — Click to explore</h3>
+    <svg viewBox="0 0 340 200" width="100%" style="display:block;margin:auto;">
+      <!-- Central -->
+      <rect x="110" y="85" width="120" height="36" rx="10" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/>
+      <text x="170" y="98" text-anchor="middle" font-size="10" font-weight="bold" fill="#1d4ed8">REPRODUCTION</text>
+      <text x="170" y="112" text-anchor="middle" font-size="8" fill="#1d4ed8">जनन क्रिया</text>
+
+      <!-- Male side -->
+      <rect x="10" y="30" width="90" height="30" rx="8" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5" style="cursor:pointer" onclick="showTab('male')"/>
+      <text x="55" y="43" text-anchor="middle" font-size="9" font-weight="bold" fill="#1e40af">♂ Male System</text>
+      <text x="55" y="55" text-anchor="middle" font-size="8" fill="#1e40af">पुरुष जनन तंत्र</text>
+      <line x1="100" y1="50" x2="110" y2="96" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="4"/>
+
+      <!-- Female side -->
+      <rect x="240" y="30" width="90" height="30" rx="8" fill="#fce7f3" stroke="#ec4899" stroke-width="1.5" style="cursor:pointer" onclick="showTab('female')"/>
+      <text x="285" y="43" text-anchor="middle" font-size="9" font-weight="bold" fill="#9d174d">♀ Female System</text>
+      <text x="285" y="55" text-anchor="middle" font-size="8" fill="#9d174d">स्त्री जनन तंत्र</text>
+      <line x1="240" y1="50" x2="230" y2="96" stroke="#ec4899" stroke-width="1.5" stroke-dasharray="4"/>
+
+      <!-- Sperm -->
+      <rect x="10" y="140" width="90" height="30" rx="8" fill="#dcfce7" stroke="#22c55e" stroke-width="1.5"/>
+      <text x="55" y="153" text-anchor="middle" font-size="9" font-weight="bold" fill="#166534">Sperm (शुक्राणु)</text>
+      <text x="55" y="164" text-anchor="middle" font-size="8" fill="#166534">Gamete ♂</text>
+      <line x1="55" y1="140" x2="130" y2="121" stroke="#22c55e" stroke-width="1.5" stroke-dasharray="4"/>
+
+      <!-- Ovum -->
+      <rect x="240" y="140" width="90" height="30" rx="8" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>
+      <text x="285" y="153" text-anchor="middle" font-size="9" font-weight="bold" fill="#92400e">Ovum (अंडाणु)</text>
+      <text x="285" y="164" text-anchor="middle" font-size="8" fill="#92400e">Gamete ♀</text>
+      <line x1="285" y1="140" x2="210" y2="121" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4"/>
+
+      <!-- Zygote -->
+      <rect x="120" y="155" width="100" height="30" rx="8" fill="#f3e8ff" stroke="#8b5cf6" stroke-width="2"/>
+      <text x="170" y="168" text-anchor="middle" font-size="9" font-weight="bold" fill="#6d28d9">Zygote (युग्मनज)</text>
+      <text x="170" y="179" text-anchor="middle" font-size="8" fill="#6d28d9">→ New Individual</text>
+      <line x1="170" y1="155" x2="170" y2="121" stroke="#8b5cf6" stroke-width="1.5"/>
+    </svg>
+    <p style="text-align:center;font-size:0.72rem;color:#64748b;margin-top:4px;">👆 Click Male/Female boxes to explore each system</p>
+  </div>
+
+  <div class="card">
+    <h3>📋 Key Terms Quick Reference</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px;">
+      <div style="background:#eff6ff;border-radius:8px;padding:8px;font-size:0.75rem;"><strong>Testes (वृषण)</strong><br>Produce sperm + testosterone</div>
+      <div style="background:#fce7f3;border-radius:8px;padding:8px;font-size:0.75rem;"><strong>Ovary (अंडाशय)</strong><br>Produce ova + estrogen</div>
+      <div style="background:#f0fdf4;border-radius:8px;padding:8px;font-size:0.75rem;"><strong>Fertilization (निषेचन)</strong><br>Sperm + Ovum → Zygote</div>
+      <div style="background:#fff7ed;border-radius:8px;padding:8px;font-size:0.75rem;"><strong>Gestation (गर्भकाल)</strong><br>~9 months in humans</div>
+      <div style="background:#f3e8ff;border-radius:8px;padding:8px;font-size:0.75rem;"><strong>Placenta (अपरा)</strong><br>Nourishes embryo</div>
+      <div style="background:#fef9c3;border-radius:8px;padding:8px;font-size:0.75rem;"><strong>Menstruation (मासिक धर्म)</strong><br>~28-day cycle</div>
+    </div>
+  </div>
+</div>
+
+<!-- MALE SYSTEM -->
+<div id="male" class="section">
+  <div class="key-concept">
+    <div class="label">♂ Male Reproductive System | पुरुष जनन तंत्र</div>
+    <p>Primary function: produce <strong>sperms (शुक्राणु)</strong> and deliver them for fertilization. Testes (वृषण) are the <strong>primary sex organs</strong>.</p>
+  </div>
+
+  <div class="card">
+    <h3>🫀 Interactive Diagram — Click organs to learn</h3>
+    <svg id="maleSvg" viewBox="0 0 320 260" width="100%" style="display:block;">
+      <!-- Body outline -->
+      <ellipse cx="160" cy="60" rx="55" ry="25" fill="#fed7aa" stroke="#fb923c" stroke-width="1.5"/>
+      <text x="160" y="65" text-anchor="middle" font-size="9" fill="#9a3412" font-weight="bold">Pelvic Region</text>
+
+      <!-- Urinary Bladder -->
+      <ellipse cx="160" cy="95" rx="28" ry="18" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5" class="hotspot" onclick="showMaleOrgan('bladder')"/>
+      <text x="160" y="91" text-anchor="middle" font-size="7.5" fill="#1d4ed8">Urinary</text>
+      <text x="160" y="101" text-anchor="middle" font-size="7.5" fill="#1d4ed8">Bladder</text>
+
+      <!-- Seminal vesicle -->
+      <ellipse cx="115" cy="108" rx="18" ry="10" fill="#a7f3d0" stroke="#059669" stroke-width="1.5" class="hotspot" onclick="showMaleOrgan('seminal')"/>
+      <text x="115" y="106" text-anchor="middle" font-size="6.5" fill="#065f46">Seminal</text>
+      <text x="115" y="114" text-anchor="middle" font-size="6.5" fill="#065f46">Vesicle</text>
+
+      <!-- Prostate -->
+      <ellipse cx="205" cy="108" rx="18" ry="10" fill="#fde68a" stroke="#f59e0b" stroke-width="1.5" class="hotspot" onclick="showMaleOrgan('prostate')"/>
+      <text x="205" y="111" text-anchor="middle" font-size="7" fill="#92400e">Prostate</text>
+
+      <!-- Urethra -->
+      <rect x="154" y="113" width="12" height="70" rx="4" fill="#e0e7ff" stroke="#6366f1" stroke-width="1.5" class="hotspot" onclick="showMaleOrgan('urethra')"/>
+      <text x="180" y="150" font-size="7" fill="#4338ca">Urethra</text>
+      <line x1="178" y1="148" x2="166" y2="148" stroke="#6366f1" stroke-width="1"/>
+
+      <!-- Vas deferens -->
+      <path d="M130,155 Q145,130 154,130" stroke="#f43f5e" stroke-width="2" fill="none" stroke-dasharray="4"/>
+      <text x="108" y="162" font-size="7" fill="#be123c">Vas Deferens</text>
+      <text x="108" y="170" font-size="6.5" fill="#be123c">(शुक्र वाहिनी)</text>
+
+      <path d="M190,155 Q175,130 166,130" stroke="#f43f5e" stroke-width="2" fill="none" stroke-dasharray="4"/>
+
+      <!-- Epididymis -->
+      <path d="M122,168 Q118,175 122,182" stroke="#8b5cf6" stroke-width="2.5" fill="none" class="hotspot" onclick="showMaleOrgan('epididymis')" style="cursor:pointer"/>
+      <path d="M198,168 Q202,175 198,182" stroke="#8b5cf6" stroke-width="2.5" fill="none"/>
+      <text x="88" y="183" font-size="7" fill="#6d28d9">Epididymis</text>
+      <text x="88" y="191" font-size="6.5" fill="#6d28d9">(अधिवृषण)</text>
+
+      <!-- Testes -->
+      <ellipse cx="125" cy="200" rx="22" ry="26" fill="#fdba74" stroke="#f97316" stroke-width="2.5" class="hotspot" onclick="showMaleOrgan('testes')"/>
+      <text x="125" y="197" text-anchor="middle" font-size="8" font-weight="bold" fill="#9a3412">Testis</text>
+      <text x="125" y="208" text-anchor="middle" font-size="7" fill="#9a3412">(वृषण)</text>
+
+      <ellipse cx="195" cy="200" rx="22" ry="26" fill="#fdba74" stroke="#f97316" stroke-width="2.5" class="hotspot" onclick="showMaleOrgan('testes')"/>
+      <text x="195" y="197" text-anchor="middle" font-size="8" font-weight="bold" fill="#9a3412">Testis</text>
+      <text x="195" y="208" text-anchor="middle" font-size="7" fill="#9a3412">(वृषण)</text>
+
+      <!-- Scrotum hint -->
+      <text x="160" y="250" text-anchor="middle" font-size="7.5" fill="#64748b">Scrotum (वृषण कोश) — keeps testes 2°C cooler</text>
+
+      <!-- Click indicators -->
+      <circle cx="125" cy="190" r="5" fill="#f97316" opacity="0.6" class="pulsing"/>
+      <circle cx="195" cy="190" r="5" fill="#f97316" opacity="0.6" class="pulsing"/>
+    </svg>
+
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">
+      <span class="organ-btn" style="border-color:#f97316;background:#fff7ed;color:#c2410c;" onclick="showMaleOrgan('testes')">Testes</span>
+      <span class="organ-btn" style="border-color:#8b5cf6;color:#6d28d9;background:#f5f3ff;" onclick="showMaleOrgan('epididymis')">Epididymis</span>
+      <span class="organ-btn" style="border-color:#f43f5e;color:#be123c;background:#fff1f2;" onclick="showMaleOrgan('vas')">Vas Deferens</span>
+      <span class="organ-btn" style="border-color:#059669;color:#065f46;background:#ecfdf5;" onclick="showMaleOrgan('seminal')">Seminal Vesicle</span>
+      <span class="organ-btn" style="border-color:#f59e0b;color:#92400e;background:#fffbeb;" onclick="showMaleOrgan('prostate')">Prostate</span>
+      <span class="organ-btn" style="border-color:#6366f1;color:#4338ca;background:#eef2ff;" onclick="showMaleOrgan('urethra')">Urethra</span>
+    </div>
+
+    <div class="info-box" id="maleInfo">
+      <div style="color:#94a3b8;font-style:italic;">👆 Click any organ above to learn about it</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>🔬 Sperm Structure | शुक्राणु की संरचना</h3>
+    <svg viewBox="0 0 300 100" width="100%" style="display:block;">
+      <!-- Head -->
+      <ellipse cx="55" cy="50" rx="30" ry="22" fill="#bfdbfe" stroke="#3b82f6" stroke-width="2"/>
+      <text x="55" y="46" text-anchor="middle" font-size="8" font-weight="bold" fill="#1d4ed8">Head</text>
+      <text x="55" y="57" text-anchor="middle" font-size="7" fill="#1d4ed8">Nucleus</text>
+      <text x="55" y="66" text-anchor="middle" font-size="6.5" fill="#1d4ed8">(DNA)</text>
+      <!-- Acrosome -->
+      <path d="M25,50 Q20,50 18,50 L15,50" stroke="#6366f1" stroke-width="1.5" fill="none"/>
+      <text x="5" y="45" font-size="6" fill="#4338ca">Acro-</text>
+      <text x="5" y="52" font-size="6" fill="#4338ca">some</text>
+
+      <!-- Midpiece -->
+      <rect x="85" y="42" width="40" height="16" rx="4" fill="#a7f3d0" stroke="#059669" stroke-width="1.5"/>
+      <text x="105" y="49" text-anchor="middle" font-size="7" fill="#065f46">Middle</text>
+      <text x="105" y="58" text-anchor="middle" font-size="6.5" fill="#065f46">piece</text>
+      <text x="105" y="80" text-anchor="middle" font-size="6.5" fill="#065f46">Mitochondria</text>
+      <line x1="105" y1="75" x2="105" y2="58" stroke="#059669" stroke-width="1"/>
+
+      <!-- Tail -->
+      <path d="M125,50 Q175,50 220,50 Q260,45 280,30" stroke="#f59e0b" stroke-width="3" fill="none"/>
+      <text x="200" y="70" text-anchor="middle" font-size="7.5" fill="#92400e">Tail (Flagellum)</text>
+      <text x="200" y="80" text-anchor="middle" font-size="6.5" fill="#92400e">for locomotion</text>
+      <line x1="200" y1="68" x2="220" y2="55" stroke="#f59e0b" stroke-width="1"/>
+    </svg>
+    <p style="font-size:0.75rem;color:#64748b;margin-top:4px;">📌 Sperm is the <strong>smallest</strong> cell in the human body. It carries <span class="highlight">23 chromosomes</span>.</p>
+  </div>
+</div>
+
+<!-- FEMALE SYSTEM -->
+<div id="female" class="section">
+  <div class="key-concept">
+    <div class="label">♀ Female Reproductive System | स्त्री जनन तंत्र</div>
+    <p>Primary organs: <strong>Ovaries (अंडाशय)</strong> — produce ova. Also provides environment for <strong>fertilization, development and birth</strong> of the baby.</p>
+  </div>
+
+  <div class="card">
+    <h3>🫁 Interactive Diagram — Click to explore</h3>
+    <svg id="femaleSvg" viewBox="0 0 320 240" width="100%" style="display:block;">
+      <!-- Fallopian tubes -->
+      <path d="M160,90 Q120,70 90,80 Q70,85 68,100" stroke="#f43f5e" stroke-width="3" fill="none" class="hotspot" onclick="showFemaleOrgan('fallopian')" style="cursor:pointer"/>
+      <path d="M160,90 Q200,70 230,80 Q250,85 252,100" stroke="#f43f5e" stroke-width="3" fill="none" class="hotspot" onclick="showFemaleOrgan('fallopian')" style="cursor:pointer"/>
+      <!-- Fimbria -->
+      <text x="45" y="100" font-size="7" fill="#be123c">Fimbriae</text>
+      <text x="252" y="100" font-size="7" fill="#be123c">Fimbriae</text>
+
+      <!-- Ovaries -->
+      <ellipse cx="68" cy="112" rx="20" ry="14" fill="#fde68a" stroke="#f59e0b" stroke-width="2.5" class="hotspot" onclick="showFemaleOrgan('ovary')"/>
+      <text x="68" y="108" text-anchor="middle" font-size="7.

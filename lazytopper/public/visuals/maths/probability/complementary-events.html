@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Probability - Complementary Events</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f1f5f9; color: #1e293b; min-height: 100vh; }
+  
+  .title-bar {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    color: white; padding: 14px 20px; text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+  .title-bar h1 { font-size: 1.2rem; font-weight: 700; letter-spacing: 0.5px; }
+  .title-bar p { font-size: 0.78rem; color: #94a3b8; margin-top: 3px; }
+  
+  .container { max-width: 700px; margin: 0 auto; padding: 16px; }
+  
+  .card {
+    background: white; border-radius: 16px; padding: 18px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08); margin-bottom: 16px;
+  }
+  
+  .section-title {
+    font-size: 0.9rem; font-weight: 700; color: #3b82f6;
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-title::after { content: ''; flex: 1; height: 2px; background: linear-gradient(90deg, #3b82f6, transparent); }
+
+  /* Formula Box */
+  .formula-box {
+    background: linear-gradient(135deg, #1e3a8a, #1d4ed8);
+    border-radius: 14px; padding: 18px; text-align: center; color: white;
+    position: relative; overflow: hidden;
+  }
+  .formula-box::before {
+    content: ''; position: absolute; top: -30px; right: -30px;
+    width: 100px; height: 100px; background: rgba(255,255,255,0.06); border-radius: 50%;
+  }
+  .formula-main { font-size: 1.6rem; font-weight: 800; letter-spacing: 1px; margin: 8px 0; }
+  .formula-sub { font-size: 0.82rem; color: #bfdbfe; }
+  .formula-label { font-size: 0.75rem; color: #93c5fd; margin-top: 8px; }
+
+  /* Probability Bar */
+  .prob-bar-wrap { margin: 10px 0; }
+  .prob-bar-label { display: flex; justify-content: space-between; font-size: 0.78rem; margin-bottom: 5px; font-weight: 600; }
+  .prob-bar-track {
+    height: 44px; background: #f1f5f9; border-radius: 22px;
+    overflow: hidden; display: flex; cursor: pointer;
+    border: 2px solid #e2e8f0; transition: border-color 0.3s;
+    position: relative;
+  }
+  .prob-bar-track:hover { border-color: #3b82f6; }
+  .bar-e {
+    background: linear-gradient(90deg, #3b82f6, #60a5fa);
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 700; font-size: 0.82rem;
+    transition: width 0.6s cubic-bezier(.4,0,.2,1);
+    min-width: 0; overflow: hidden; white-space: nowrap; padding: 0 6px;
+  }
+  .bar-not-e {
+    background: linear-gradient(90deg, #22c55e, #4ade80);
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 700; font-size: 0.82rem;
+    transition: width 0.6s cubic-bezier(.4,0,.2,1);
+    flex: 1; overflow: hidden; white-space: nowrap; padding: 0 6px;
+  }
+  .slider-wrap { margin-top: 12px; }
+  .slider-wrap input[type=range] {
+    width: 100%; accent-color: #3b82f6; height: 6px; cursor: pointer;
+  }
+  .slider-labels { display: flex; justify-content: space-between; font-size: 0.72rem; color: #64748b; margin-top: 4px; }
+
+  /* Key tags */
+  .sum-display {
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+    margin: 12px 0; flex-wrap: wrap;
+  }
+  .tag {
+    padding: 6px 14px; border-radius: 20px; font-weight: 700; font-size: 0.85rem;
+  }
+  .tag-blue { background: #dbeafe; color: #1d4ed8; }
+  .tag-green { background: #dcfce7; color: #16a34a; }
+  .tag-amber { background: #fef3c7; color: #d97706; font-size: 0.95rem; }
+
+  /* Venn Diagram */
+  .venn-wrap { display: flex; justify-content: center; margin: 10px 0; }
+  svg.venn { overflow: visible; }
+
+  /* Steps */
+  .steps-list { list-style: none; }
+  .step-item {
+    display: flex; gap: 12px; margin-bottom: 10px;
+    opacity: 0; transform: translateY(16px);
+    transition: opacity 0.5s, transform 0.5s;
+  }
+  .step-item.visible { opacity: 1; transform: translateY(0); }
+  .step-num {
+    min-width: 28px; height: 28px; background: #3b82f6; color: white;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.8rem; flex-shrink: 0; margin-top: 2px;
+  }
+  .step-content { flex: 1; }
+  .step-content strong { color: #1d4ed8; }
+  .step-content p { font-size: 0.85rem; line-height: 1.5; color: #334155; margin-top: 2px; }
+  .step-math { background: #f8fafc; border-left: 3px solid #3b82f6; padding: 6px 10px; border-radius: 0 8px 8px 0; font-size: 0.85rem; margin-top: 5px; font-family: monospace; }
+
+  .btn {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white; border: none; padding: 10px 22px; border-radius: 10px;
+    font-size: 0.88rem; font-weight: 600; cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s; box-shadow: 0 3px 10px rgba(59,130,246,0.4);
+  }
+  .btn:hover { transform: translateY(-1px); box-shadow: 0 5px 16px rgba(59,130,246,0.5); }
+  .btn:active { transform: translateY(0); }
+  .btn-wrap { text-align: center; margin: 12px 0; }
+
+  /* Quiz */
+  .quiz-q { font-size: 0.9rem; font-weight: 600; margin-bottom: 12px; color: #1e293b; }
+  .quiz-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .quiz-opt {
+    padding: 10px; border: 2px solid #e2e8f0; border-radius: 10px;
+    font-size: 0.83rem; font-weight: 600; cursor: pointer; text-align: center;
+    transition: all 0.2s; background: white; color: #334155;
+  }
+  .quiz-opt:hover { border-color: #3b82f6; background: #eff6ff; }
+  .quiz-opt.correct { border-color: #22c55e; background: #dcfce7; color: #15803d; }
+  .quiz-opt.wrong { border-color: #ef4444; background: #fee2e2; color: #b91c1c; }
+  .quiz-feedback { margin-top: 10px; padding: 10px; border-radius: 10px; font-size: 0.84rem; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.correct { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+  .quiz-feedback.wrong { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
+  .quiz-next { margin-top: 10px; display: none; }
+  .quiz-next.show { display: block; }
+
+  /* Coin/Dice illustrator */
+  .demo-wrap { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 10px 0; }
+  .outcome-chip {
+    padding: 7px 12px; border-radius: 10px; font-size: 0.8rem; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; border: 2px solid transparent;
+    user-select: none;
+  }
+  .outcome-chip.e-chip { background: #dbeafe; color: #1d4ed8; border-color: #93c5fd; }
+  .outcome-chip.not-chip { background: #dcfce7; color: #166534; border-color: #86efac; }
+  .outcome-chip:hover { transform: scale(1.08); }
+  .outcome-chip.pulse { animation: pulse 0.5s ease; }
+  @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
+
+  .hint { font-size: 0.75rem; color: #64748b; text-align: center; margin-top: 6px; font-style: italic; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 8px; font-size: 0.72rem; font-weight: 700; margin-left: 6px; background: #fef3c7; color: #92400e; }
+
+  .info-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 8px 0; }
+  .info-chip { flex: 1; min-width: 120px; padding: 10px; border-radius: 12px; text-align: center; }
+  .info-chip .ic-val { font-size: 1.1rem; font-weight: 800; }
+  .info-chip .ic-lbl { font-size: 0.72rem; margin-top: 2px; }
+  .ic-blue { background: #dbeafe; color: #1d4ed8; }
+  .ic-green { background: #dcfce7; color: #166534; }
+  .ic-amber { background: #fef3c7; color: #92400e; }
+</style>
+</head>
+<body>
+
+<div class="title-bar">
+  <h1>🎲 Probability — Complementary Events</h1>
+  <p>पूरक घटनाएँ (Pūrak Ghaṭanāẽ) · CBSE Class 10 Mathematics</p>
+</div>
+
+<div class="container">
+
+  <!-- Formula -->
+  <div class="formula-box card" style="padding:20px;">
+    <div class="formula-sub">मुख्य सूत्र (Main Formula)</div>
+    <div class="formula-main">P(not E) = 1 − P(E)</div>
+    <div class="formula-label">∵ P(E) + P(not E) = 1 &nbsp;|&nbsp; 0 ≤ P(E) ≤ 1</div>
+    <div style="margin-top:10px;font-size:0.78rem;color:#bfdbfe;">
+      P(E) = Probability of event E occurring &nbsp;|&nbsp; P(not E) = P(Ē) = Probability it does NOT occur
+    </div>
+  </div>
+
+  <!-- Interactive Bar -->
+  <div class="card">
+    <div class="section-title">🎛️ Interactive Explorer</div>
+    <p style="font-size:0.83rem;color:#475569;margin-bottom:12px;">Drag the slider to change <b>P(E)</b> and see how <b>P(not E)</b> automatically adjusts — they always sum to <b>1</b>!</p>
+    
+    <div class="prob-bar-wrap">
+      <div class="prob-bar-label">
+        <span style="color:#1d4ed8;">● P(E)</span>
+        <span style="color:#15803d;">● P(not E) = P(Ē)</span>
+      </div>
+      <div class="prob-bar-track" id="barTrack">
+        <div class="bar-e" id="barE">P(E)</div>
+        <div class="bar-not-e" id="barNotE">P(not E)</div>
+      </div>
+    </div>
+
+    <div class="slider-wrap">
+      <input type="range" id="probSlider" min="0" max="100" value="40">
+      <div class="slider-labels"><span>0 (Impossible)</span><span>0.5 (Equal)</span><span>1 (Certain)</span></div>
+    </div>
+
+    <div class="sum-display">
+      <div class="tag tag-blue">P(E) = <span id="pe-val">0.40</span></div>
+      <div class="tag tag-amber">+</div>
+      <div class="tag tag-green">P(not E) = <span id="pne-val">0.60</span></div>
+      <div class="tag tag-amber">= 1 ✓</div>
+    </div>
+
+    <div class="info-row">
+      <div class="info-chip ic-blue">
+        <div class="ic-val" id="info-pe">0.40</div>
+        <div class="ic-lbl">P(E)</div>
+      </div>
+      <div class="info-chip ic-green">
+        <div class="ic-val" id="info-pne">0.60</div>
+        <div class="ic-lbl">P(not E)</div>
+      </div>
+      <div class="info-chip ic-amber">
+        <div class="ic-val" id="info-sum">1.00</div>
+        <div class="ic-lbl">P(E) + P(not E)</div>
+      </div>
+    </div>
+    <div class="hint">↑ Try moving the slider to 0 (Impossible) or 1 (Certain / निश्चित)!</div>
+  </div>
+
+  <!-- Venn Diagram -->
+  <div class="card">
+    <div class="section-title">📐 Venn Diagram</div>
+    <div class="venn-wrap">
+      <svg class="venn" width="300" height="170" viewBox="0 0 300 170">
+        <!-- Sample Space S -->
+        <rect x="5" y="15" width="290" height="145" rx="18" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2.5"/>
+        <text x="265" y="35" font-size="13" fill="#94a3b8" font-weight="700">S</text>
+        <text x="148" y="168" font-size="11" fill="#94a3b8" text-anchor="middle">Sample Space (नमूना समष्टि)</text>
+        <!-- E region -->
+        <ellipse cx="115" cy="90" rx="82" ry="55" fill="#dbeafe" stroke="#3b82f6" stroke-width="2.5"/>
+        <text x="115" y="87" text-anchor="middle" font-size="14" fill="#1d4ed8" font-weight="800">E</text>
+        <text x="115" y="104" text-anchor="middle" font-size="11" fill="#3b82f6">P(E)</text>
+        <!-- Not-E label -->
+        <text x="232" y="83" text-anchor="middle" font-size="12" fill="#166534" font-weight="800">Ē</text>
+        <text x="232" y="98" text-anchor="middle" font-size="10" fill="#22c55e">(not E)</text>
+        <text x="232" y="111" text-anchor="middle" font-size="10" fill="#22c55e">P(Ē)</text>
+        <!-- Brace / arrow -->
+        <line x1="145" y1="60" x2="200" y2="60" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <text x="172" y="52" text-anchor="middle" font-size="9" fill="#d97706">complement</text>
+      </svg>
+    </div>
+    <p style="font-size:0.82rem;color:#475569;text-align:center;margin-top:4px;">
+      E and Ē together fill the entire sample space S.<br>
+      ∴ P(E) + P(Ē) = P(S) = 1
+    </p>
+  </div>
+
+  <!-- Dice Explorer -->
+  <div class="card">
+    <div class="section-title">🎲 Dice Experiment</div>
+    <p style="font-size:0.83rem;color:#475569;margin-bottom:10px;">
+      Event E = <b>"getting an even number"</b> when a fair die is thrown.<br>Click any outcome to highlight it!
+    </p>
+    <div class="demo-wrap" id="diceChips"></div>
+    <div class="info-row" style="margin-top:12px;">
+      <div class="info-chip ic-blue">
+        <div class="ic-val" id="dice-pe">3/6 = ½</div>
+        <div class="ic-lbl">P(E) = P(even)</div>
+      </div>
+      <div class="info-chip ic-green">
+        <div class="ic-val" id="dice-pne">3/6 = ½</div>
+        <div class="ic-lbl">P(not E) = P(odd)</div>
+      </div>
+    </div>
+    <div class="hint">Blue = Event E (even) &nbsp;|&nbsp; Green = not E (odd)</div>
+  </div>
+
+  <!-- Worked Example -->
+  <div class="card">
+    <div class="section-title">📝 Worked Example (हल किया गया उदाहरण)</div>
+    <div style="background:#fef3c7;border-radius:10px;padding:12px;margin-bottom:12px;border-left:4px solid #f59e0b;">
+      <b style="color:#92400e;">Question:</b>
+      <p style="font-size:0.85rem;color:#78350f;margin-top:4px;">
+        A bag contains 5 red balls and 3 blue balls. One ball is drawn at random.<br>
+        If P(red ball) = 5/8, find P(not a red ball).
+      </p>
+    </div>
+    <ul class="steps-list" id="stepsList"></ul>
+    <div class="btn-wrap">
+      <button class="btn" id="stepBtn" onclick="revealStep()">▶ Show Step 1</button>
+    </div>
+  </div>
+
+  <!-- Special Cases -->
+  <div class="card">
+    <div class="section-title">⚡ Special Cases (विशेष स्थितियाँ)</div>
+    <div class="info-row">
+      <div class="info-chip" style="background:linear-gradient(135deg,#fef2f2,#fee2e2);color:#991b1b;flex:1;min-width:130px;padding:14px;">
+        <div class="ic-val">P(E) = 0</div>
+        <div class="ic-lbl" style="color:#dc2626;margin-top:4px;">Impossible Event</div>
+        <div style="font-size:0.7rem;margin-top:4px;color:#9f1239;">अशक्य घटना</div>
+        <div style="font-size:0.75rem;margin-top:6px;color:#7f1d1d;">∴ P(not E) = 1</div>
+      </div>
+      <div class="info-chip" style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);color:#14532d;flex:1;min-width:130px;padding:14px;">
+        <div class="ic-val">P(E) = 1</div>
+        <div class="ic-lbl" style="color:#16a34a;margin-top:4px;">Certain Event</div>
+        <div style="font-size:0.7rem;margin-top:4px;color:#166534;">निश्चित घटना</div>
+        <div style="font-size:0.75rem;margin-top:6px;color:#14532d;">∴ P(not E) = 0</div>
+      </div>
+    </div>
+    <div style="background:#f0f9ff;border-radius:10px;padding:10px;margin-top:10px;font-size:0.82rem;color:#0369a1;border-left:3px solid #38bdf8;">
+      💡 <b>Key Insight:</b> The more likely E is, the less likely "not E" is — they are complementary (पूरक)!
+    </div>
+  </div>
+
+  <!-- Quiz -->
+  <div class="card">
+    <div class="section-title">🧠 Quick Quiz (त्वरित प्रश्नोत्तरी)</div>
+    <div id="quizArea"></div>
+  </div>
+
+  <div style="text-align:center;font-size:0.72rem;color:#94a3b8;padding:12px 0;">
+    CBSE Class 10 · Chapter 15: Probability · Complementary Events
+  </div>
+</div>
+
+<script>
+// ---- Slider Logic ----
+const slider = document.getElementById('probSlider');
+const barE = document.getElementById('barE');
+const barNotE = document.getElementById('barNotE');
+const peVal = document.getElementById('pe-val');
+const pneVal = document.getElementById('pne-val');
+const infoPe = document.getElementById('info-pe');
+const infoPne = document.getElementById('info-pne');
+const infoSum = document.getElementById('info-sum');
+
+function updateBar(v) {
+  const pe = (v / 100).toFixed(2);
+  const pne = (1 - v / 100).toFixed(2);
+  barE.style.width = v + '%';
+  barNotE.style.flex = (100 - v) + ' 0 0%';
+  peVal.textContent = pe;
+  pneVal.textContent = pne;
+  infoPe.textContent = pe;
+  infoPne.textContent = pne;
+  infoSum.textContent = '1.00';
+
+  // Update text inside bars
+  barE.textContent = v > 12 ? 'P(E) = ' + pe : '';
+  barNotE.textContent = (100 - v) > 15 ? 'P(not E) = ' + pne : '';
+}
+
+slider.addEventListener('input', function() { updateBar(parseInt(this.value)); });
+updateBar(40);
+
+// ---- Dice Chips ----
+const diceWrap = document.getElementById('diceChips');
+const diceNums = [1,2,3,4,5,6];
+diceNums.forEach(n => {
+  const chip = document.createElement('div');
+  const isEven = n % 2 === 0;
+  chip.className = 'outcome-chip ' + (isEven ? 'e-chip' : 'not-chip');
+  chip.innerHTML = (n === 1 ? '⚀' : n === 2 ? '⚁' : n === 3 ? '⚂' : n === 4 ? '⚃' : n === 5 ? '⚄' : '⚅') + ' ' + n;
+  chip.title = isEven ? 'Even → Event E' : 'Odd → not E';
+  chip.addEventListener('click', function() {
+    this.classList.add('pulse');
+    setTimeout(() => this.classList.remove('pulse'), 500);
+    const fb = document.getElementById('dice-fb');
+    if(fb) {
+      fb.textContent = n + ' → ' + (isEven ? 'Part of Event E (even number!)' : 'Part of not-E (odd number)');
+      fb.style.color = isEven ? '#1d4ed8' : '#166534';
+    }
+  });
+  diceWrap.appendChild(chip);
+});
+// Add feedback line
+const fb = document.createElement('div');
+fb.id = 'dice-fb';
+fb.style.cssText = 'width:100%;text-align:center;font-size:0.8rem;font-weight:600;min-height:18px;margin-top:4px;';
+diceWrap.after(fb);
+diceWrap.parentNode.insertBefore(fb, diceWrap.nextSibling);
+
+// ---- Worked Example Steps ----
+const steps = [
+  {
+    title: 'Identify given information',
+    desc: 'Total balls = 5 red + 3 blue = 8 balls. P(red) = 5/8',
+    math: 'P(E) = P(red) = 5/8 = 0.625'
+  },
+  {
+    title: 'Apply complementary formula',
+    desc: 'We know: P(not E) = 1 − P(E)',
+    math: 'P(not red) = 1 − P(red) = 1 − 5/8'
+  },
+  {
+    title: 'Calculate the answer',
+    desc: 'Subtract the fractions',
+    math: 'P(not red) = 8/8 − 5/8 = 3/8'
+  },
+  {
+    title: '∴ Conclusion',
+    desc: 'The probability of NOT getting a red ball is 3/8 — which makes sense since there are 3 blue balls out of 8!',
+    math: '∴ P(not red) = 3/8 = 0.375 ✓'
+  }
+];
+
+let currentStep = 0;
+const stepsList = document.getElementById('stepsList');
+const stepBtn = document.getElementById('stepBtn');
+
+steps.forEach((s, i) => {
+  const li = document.createElement('li');
+  li.className = 'step-item';
+  li.id = 'step-' + i;
+  li.innerHTML = `<div class="step-num">${i+1}</div>
+    <div class="step-content">
+      <strong>${s.title}</strong>
+      <p>${s.desc}</p>
+      <div class="step-math">${s.math}</div>
+    </div>`;
+  stepsList.appendChild(li);
+});
+
+function revealStep() {
+  if (currentStep < steps.length) {
+    document.getElementById('step-' + currentStep).classList.add('visible');
+    currentStep++;
+    if (currentStep < steps.length) {
+      stepBtn.textContent = '▶ Show Step ' + (currentStep + 1);
+    } else {
+      stepBtn.textContent = '🔄 Reset';
+      stepBtn.onclick = resetSteps;
+    }
+  }
+}
+
+function resetSteps() {
+  currentStep = 0;
+  document.querySelectorAll('.step-item').forEach(el => el.classList.remove('visible'));
+  stepBtn.textContent = '▶ Show Step 1';
+  stepBtn.onclick = revealStep;
+}
+
+// ---- Quiz ----
+const questions = [
+  {
+    q: 'If P(E) = 0.35, what is P(not E)?',
+    opts: ['0.35','0.65','1.35','0.70'],
+    ans: 1,
+    explanation: 'P(not E) = 1 − P(E) = 1 − 0.35 = 0.65 ✓'
+  },
+  {
+    q: 'A die is thrown. P(getting 6) = 1/6. Find P(not getting 6).',
+    opts: ['1/6','5/6','1/5','1'],
+    ans: 1,
+    explanation: 'P(not 6) = 1 − 1/6 = 5/6 ✓'
+  },
+  {
+    q: 'If P(not E) = 3/7, what is P(E)?',
+    opts: ['3/7','7/3','4/7','1/7'],
+    ans: 2,
+    explanation: 'P(E) = 1 − P(not E) = 1 − 3/7 = 4/7 ✓'
+  }
+];
+
+let qIdx = 0;
+let answered = false;
+
+function renderQuiz() {
+  const q = questions[qIdx];
+  const area = document.getElementById('quizArea');
+  area.innerHTML = `
+    <div class="quiz-q">Q${qIdx+1}/${questions.length}: ${q.q} <span class="badge">Try!</span></div>
+    <div class="quiz-options" id="quiz-opts">
+      ${q.opts.map((o,i) => `<div class="quiz-opt" onclick="checkAnswer(${i})">${o}</div>`).join('')}
+    </div>
+    <div class="quiz-feedback" id="quiz-fb"></div>
+    <div class="quiz-next" id="quiz-next">
+      <button class="btn" onclick="nextQ()" style="font-size:0.82rem;padding:8px 18px;">
+        ${qIdx < questions.length - 1 ? 'Next Question →' : '🔄 Restart Quiz'}
+      </button>
+    </div>
+  `;
+  answered = false;
+}
+
+function checkAnswer(idx) {
+  if (answered) return;
+  answered = true;
+  const q = questions[qIdx];
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach((o, i) => {
+    if (i === q.ans) o.classList.add('correct');
+    else if (i ===

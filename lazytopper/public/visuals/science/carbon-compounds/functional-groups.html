@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Functional Groups - Carbon & its Compounds</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#0f172a 100%);min-height:100vh;color:#1e293b}
+  .title-bar{background:linear-gradient(90deg,#3b82f6,#6366f1,#8b5cf6);padding:14px 20px;text-align:center;box-shadow:0 4px 20px rgba(59,130,246,0.4)}
+  .title-bar h1{color:#fff;font-size:1.2em;font-weight:700;letter-spacing:1px}
+  .title-bar p{color:#bfdbfe;font-size:0.78em;margin-top:2px}
+  .container{max-width:800px;margin:0 auto;padding:16px}
+  .card{background:#fff;border-radius:16px;padding:18px;margin-bottom:16px;box-shadow:0 4px 20px rgba(0,0,0,0.2)}
+  .section-title{font-size:1em;font-weight:700;color:#3b82f6;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+  .section-title span{background:#eff6ff;padding:4px 10px;border-radius:20px;font-size:0.85em}
+  .fg-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  @media(max-width:500px){.fg-grid{grid-template-columns:1fr}}
+  .fg-card{border-radius:12px;padding:14px;cursor:pointer;transition:all 0.3s;border:3px solid transparent;position:relative;overflow:hidden}
+  .fg-card:hover{transform:translateY(-3px);box-shadow:0 8px 25px rgba(0,0,0,0.15)}
+  .fg-card.active{border-color:currentColor;transform:scale(1.02)}
+  .fg-card .badge{font-size:0.7em;font-weight:700;padding:2px 8px;border-radius:10px;display:inline-block;margin-bottom:6px}
+  .fg-card h3{font-size:1em;font-weight:700;margin-bottom:4px}
+  .fg-card .hindi{font-size:0.75em;opacity:0.7;margin-bottom:8px}
+  .fg-card .formula-display{font-size:1.5em;font-weight:800;font-family:monospace;text-align:center;padding:8px;border-radius:8px;background:rgba(255,255,255,0.5);margin:8px 0}
+  .fg-card .desc{font-size:0.78em;line-height:1.5;display:none}
+  .fg-card.active .desc{display:block}
+  .alcohol{background:linear-gradient(135deg,#dbeafe,#eff6ff);color:#1d4ed8}
+  .aldehyde{background:linear-gradient(135deg,#dcfce7,#f0fdf4);color:#15803d}
+  .ketone{background:linear-gradient(135deg,#fef9c3,#fefce8);color:#a16207}
+  .carboxyl{background:linear-gradient(135deg,#fee2e2,#fff1f2);color:#b91c1c}
+  .svg-section{background:linear-gradient(135deg,#f8fafc,#f1f5f9);border-radius:12px;padding:14px;margin-bottom:12px}
+  svg{width:100%;overflow:visible}
+  .tab-bar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+  .tab{padding:7px 14px;border-radius:20px;border:none;cursor:pointer;font-size:0.8em;font-weight:600;transition:all 0.25s;background:#e2e8f0;color:#475569}
+  .tab.active{background:#3b82f6;color:#fff;box-shadow:0 3px 10px rgba(59,130,246,0.4)}
+  .diagram-area{min-height:160px;border-radius:10px;background:#fff;border:2px dashed #e2e8f0;display:flex;align-items:center;justify-content:center;padding:10px}
+  .step-box{border-radius:10px;padding:12px;margin:6px 0;transition:all 0.4s;opacity:0;transform:translateY(10px);pointer-events:none}
+  .step-box.show{opacity:1;transform:translateY(0);pointer-events:auto}
+  .step-box.s1{background:#dbeafe;border-left:4px solid #3b82f6}
+  .step-box.s2{background:#dcfce7;border-left:4px solid #22c55e}
+  .step-box.s3{background:#fef9c3;border-left:4px solid #f59e0b}
+  .step-box.s4{background:#fee2e2;border-left:4px solid #ef4444}
+  .step-box.s5{background:#ede9fe;border-left:4px solid #8b5cf6}
+  .step-label{font-size:0.7em;font-weight:700;text-transform:uppercase;opacity:0.6;margin-bottom:4px}
+  .step-text{font-size:0.85em;line-height:1.5}
+  .btn{padding:9px 20px;border-radius:20px;border:none;cursor:pointer;font-weight:600;font-size:0.85em;transition:all 0.25s}
+  .btn-primary{background:linear-gradient(90deg,#3b82f6,#6366f1);color:#fff;box-shadow:0 3px 10px rgba(59,130,246,0.3)}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 5px 15px rgba(59,130,246,0.4)}
+  .btn-green{background:linear-gradient(90deg,#22c55e,#16a34a);color:#fff}
+  .formula-hero{background:linear-gradient(135deg,#1e293b,#0f172a);border-radius:14px;padding:18px;text-align:center;margin-bottom:14px}
+  .formula-hero h2{color:#60a5fa;font-size:0.85em;margin-bottom:10px;letter-spacing:2px;text-transform:uppercase}
+  .fg-pills{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+  .pill{padding:8px 16px;border-radius:20px;font-family:monospace;font-weight:800;font-size:1em;cursor:pointer;transition:all 0.3s;border:2px solid transparent}
+  .pill:hover{transform:scale(1.08)}
+  .pill-blue{background:#1d4ed8;color:#bfdbfe}
+  .pill-green{background:#15803d;color:#bbf7d0}
+  .pill-amber{background:#a16207;color:#fef3c7}
+  .pill-red{background:#b91c1c;color:#fecaca}
+  .quiz-box{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-radius:12px;padding:16px}
+  .quiz-q{font-size:0.9em;font-weight:600;margin-bottom:12px;color:#1e293b}
+  .quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  @media(max-width:400px){.quiz-opts{grid-template-columns:1fr}}
+  .quiz-opt{padding:8px 12px;border-radius:8px;border:2px solid #d1fae5;background:#fff;cursor:pointer;font-size:0.82em;font-weight:600;transition:all 0.25s;text-align:center}
+  .quiz-opt:hover{border-color:#22c55e;background:#f0fdf4}
+  .quiz-opt.correct{background:#22c55e;color:#fff;border-color:#16a34a}
+  .quiz-opt.wrong{background:#ef4444;color:#fff;border-color:#b91c1c}
+  .quiz-feedback{margin-top:10px;font-size:0.82em;font-weight:600;padding:8px;border-radius:8px;display:none}
+  .progress-bar{height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden;margin-top:8px}
+  .progress-fill{height:100%;background:linear-gradient(90deg,#3b82f6,#22c55e);border-radius:3px;transition:width 0.5s}
+  .anim-atom{animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.6}}
+  .float{animation:float 3s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+  .shine{position:relative;overflow:hidden}
+  .shine::after{content:'';position:absolute;top:-50%;left:-60%;width:40%;height:200%;background:rgba(255,255,255,0.15);transform:skewX(-20deg);animation:shine 3s infinite}
+  @keyframes shine{0%{left:-60%}100%{left:120%}}
+  .info-tag{display:inline-block;background:#eff6ff;color:#3b82f6;border:1px solid #bfdbfe;border-radius:6px;padding:2px 8px;font-size:0.72em;font-weight:600;margin:2px}
+  table{width:100%;border-collapse:collapse;font-size:0.8em}
+  th{background:#1e293b;color:#fff;padding:8px;text-align:left}
+  td{padding:7px 8px;border-bottom:1px solid #e2e8f0}
+  tr:nth-child(even) td{background:#f8fafc}
+  .glow{box-shadow:0 0 20px rgba(59,130,246,0.3)}
+</style>
+</head>
+<body>
+<div class="title-bar">
+  <h1>⚗️ Functional Groups | क्रियाशील समूह</h1>
+  <p>CBSE Class 10 Science · Carbon and its Compounds · Chapter 4</p>
+</div>
+
+<div class="container">
+
+<!-- Formula Hero -->
+<div class="formula-hero shine">
+  <h2>🔑 Key Functional Groups</h2>
+  <div class="fg-pills">
+    <div class="pill pill-blue" onclick="highlight('alcohol')" title="Alcohol">—OH</div>
+    <div class="pill pill-green" onclick="highlight('aldehyde')" title="Aldehyde">—CHO</div>
+    <div class="pill pill-amber" onclick="highlight('ketone')" title="Ketone">—C=O—</div>
+    <div class="pill pill-red" onclick="highlight('carboxyl')" title="Carboxylic Acid">—COOH</div>
+  </div>
+  <p style="color:#94a3b8;font-size:0.75em;margin-top:10px">👆 Click any group to explore</p>
+</div>
+
+<!-- What is a Functional Group -->
+<div class="card">
+  <div class="section-title">📖 What is a Functional Group? <span>क्रियाशील समूह</span></div>
+  <p style="font-size:0.85em;line-height:1.6;color:#374151">A <strong>functional group</strong> is a specific atom or group of atoms in an organic compound that gives it its <strong>characteristic chemical properties</strong>. All compounds having the same functional group undergo <strong>similar chemical reactions</strong>.</p>
+  <div style="margin-top:10px;padding:10px;background:#eff6ff;border-radius:8px;font-size:0.8em;color:#1d4ed8">
+    💡 <strong>Think of it like:</strong> Functional groups are like "personality traits" of organic molecules — they decide how the molecule behaves!
+  </div>
+</div>
+
+<!-- Interactive Cards -->
+<div class="card">
+  <div class="section-title">🧪 Explore Each Functional Group <span>Click to Expand</span></div>
+  <div class="fg-grid">
+    <div class="fg-card alcohol" id="card-alcohol" onclick="toggleCard('alcohol')">
+      <span class="badge" style="background:#1d4ed8;color:#fff">ALCOHOL | एल्कोहल</span>
+      <h3>Hydroxyl Group</h3>
+      <div class="hindi">हाइड्रॉक्सिल समूह</div>
+      <div class="formula-display">— O — H</div>
+      <div class="desc">
+        <strong>Formula:</strong> R—OH<br>
+        <strong>Example:</strong> Ethanol (C₂H₅OH) — drinking alcohol<br>
+        <strong>Properties:</strong> The O—H bond is polar, making alcohols soluble in water.<br>
+        <span class="info-tag">Suffix: -ol</span><span class="info-tag">Ethanol</span><span class="info-tag">Methanol</span>
+      </div>
+    </div>
+    <div class="fg-card aldehyde" id="card-aldehyde" onclick="toggleCard('aldehyde')">
+      <span class="badge" style="background:#15803d;color:#fff">ALDEHYDE | एल्डिहाइड</span>
+      <h3>Aldehyde Group</h3>
+      <div class="hindi">एल्डिहाइड समूह</div>
+      <div class="formula-display">— C — H<br><span style="font-size:0.6em">‖<br>O</span></div>
+      <div class="desc">
+        <strong>Formula:</strong> R—CHO<br>
+        <strong>Example:</strong> Ethanal (CH₃CHO) — sharp smell<br>
+        <strong>Position:</strong> Always at the END of carbon chain<br>
+        <span class="info-tag">Suffix: -al</span><span class="info-tag">Ethanal</span><span class="info-tag">Methanal</span>
+      </div>
+    </div>
+    <div class="fg-card ketone" id="card-ketone" onclick="toggleCard('ketone')">
+      <span class="badge" style="background:#a16207;color:#fff">KETONE | कीटोन</span>
+      <h3>Keto Group</h3>
+      <div class="hindi">कीटो समूह</div>
+      <div class="formula-display">— C —<br><span style="font-size:0.6em">‖<br>O</span></div>
+      <div class="desc">
+        <strong>Formula:</strong> R—CO—R'<br>
+        <strong>Example:</strong> Propanone (CH₃COCH₃) — nail polish remover<br>
+        <strong>Position:</strong> Always in the MIDDLE of carbon chain<br>
+        <span class="info-tag">Suffix: -one</span><span class="info-tag">Propanone</span>
+      </div>
+    </div>
+    <div class="fg-card carboxyl" id="card-carboxyl" onclick="toggleCard('carboxyl')">
+      <span class="badge" style="background:#b91c1c;color:#fff">CARBOXYL | कार्बोक्सिल</span>
+      <h3>Carboxyl Group</h3>
+      <div class="hindi">कार्बोक्सिल समूह</div>
+      <div class="formula-display">— C — OH<br><span style="font-size:0.6em">‖<br>O</span></div>
+      <div class="desc">
+        <strong>Formula:</strong> R—COOH<br>
+        <strong>Example:</strong> Ethanoic acid (CH₃COOH) — vinegar<br>
+        <strong>Properties:</strong> Acidic in nature, turns blue litmus red<br>
+        <span class="info-tag">Suffix: -oic acid</span><span class="info-tag">Acetic acid</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SVG Diagram -->
+<div class="card">
+  <div class="section-title">🔬 Structural Diagrams <span>SVG Diagrams</span></div>
+  <div class="tab-bar">
+    <button class="tab active" onclick="showDiagram('alcohol',this)">Alcohol</button>
+    <button class="tab" onclick="showDiagram('aldehyde',this)">Aldehyde</button>
+    <button class="tab" onclick="showDiagram('ketone',this)">Ketone</button>
+    <button class="tab" onclick="showDiagram('carboxyl',this)">Carboxylic Acid</button>
+  </div>
+  <div class="diagram-area" id="diagramArea">
+    <!-- Alcohol SVG shown by default -->
+    <svg viewBox="0 0 320 160" id="svgDiagram" style="max-width:320px">
+      <!-- Ethanol structure -->
+      <text x="160" y="20" text-anchor="middle" fill="#1d4ed8" font-size="13" font-weight="bold">Ethanol — C₂H₅OH</text>
+      <!-- C-C bond -->
+      <line x1="60" y1="90" x2="130" y2="90" stroke="#374151" stroke-width="2.5"/>
+      <!-- C-O bond -->
+      <line x1="130" y1="90" x2="200" y2="90" stroke="#374151" stroke-width="2.5"/>
+      <!-- O-H bond -->
+      <line x1="200" y1="90" x2="260" y2="90" stroke="#ef4444" stroke-width="2.5"/>
+      <!-- C1 -->
+      <circle cx="60" cy="90" r="22" fill="#bfdbfe" stroke="#3b82f6" stroke-width="2"/>
+      <text x="60" y="95" text-anchor="middle" fill="#1d4ed8" font-size="12" font-weight="bold">CH₃</text>
+      <!-- C2 -->
+      <circle cx="130" cy="90" r="22" fill="#bfdbfe" stroke="#3b82f6" stroke-width="2"/>
+      <text x="130" y="95" text-anchor="middle" fill="#1d4ed8" font-size="12" font-weight="bold">CH₂</text>
+      <!-- O -->
+      <circle cx="200" cy="90" r="18" fill="#fecaca" stroke="#ef4444" stroke-width="2.5"/>
+      <text x="200" y="95" text-anchor="middle" fill="#b91c1c" font-size="14" font-weight="bold">O</text>
+      <!-- H -->
+      <circle cx="260" cy="90" r="15" fill="#fee2e2" stroke="#ef4444" stroke-width="2"/>
+      <text x="260" y="95" text-anchor="middle" fill="#b91c1c" font-size="12" font-weight="bold">H</text>
+      <!-- Labels -->
+      <text x="60" y="125" text-anchor="middle" fill="#6b7280" font-size="10">Carbon</text>
+      <text x="130" y="125" text-anchor="middle" fill="#6b7280" font-size="10">Carbon</text>
+      <text x="200" y="120" text-anchor="middle" fill="#ef4444" font-size="10" font-weight="bold">Oxygen</text>
+      <text x="260" y="118" text-anchor="middle" fill="#ef4444" font-size="10" font-weight="bold">H</text>
+      <!-- Brace for OH -->
+      <path d="M185,135 Q225,145 265,135" stroke="#ef4444" stroke-width="1.5" fill="none"/>
+      <text x="225" y="155" text-anchor="middle" fill="#ef4444" font-size="11" font-weight="bold">— OH (Functional Group)</text>
+    </svg>
+  </div>
+</div>
+
+<!-- Comparison Table -->
+<div class="card">
+  <div class="section-title">📊 Quick Comparison Table <span>तुलना तालिका</span></div>
+  <div style="overflow-x:auto">
+  <table>
+    <tr><th>Functional Group</th><th>Formula</th><th>Suffix</th><th>Example</th></tr>
+    <tr><td style="color:#1d4ed8;font-weight:700">Alcohol (—OH)</td><td><code>R—OH</code></td><td>-ol</td><td>Ethanol</td></tr>
+    <tr><td style="color:#15803d;font-weight:700">Aldehyde (—CHO)</td><td><code>R—CHO</code></td><td>-al</td><td>Ethanal</td></tr>
+    <tr><td style="color:#a16207;font-weight:700">Ketone (C=O)</td><td><code>R—CO—R'</code></td><td>-one</td><td>Propanone</td></tr>
+    <tr><td style="color:#b91c1c;font-weight:700">Carboxylic Acid (—COOH)</td><td><code>R—COOH</code></td><td>-oic acid</td><td>Ethanoic acid</td></tr>
+  </table>
+  </div>
+</div>
+
+<!-- Step-by-step Worked Example -->
+<div class="card">
+  <div class="section-title">📝 Worked Example <span>Step-by-Step</span></div>
+  <p style="font-size:0.85em;margin-bottom:12px;color:#374151"><strong>Question:</strong> Identify the functional group in CH₃COOH and name the compound.</p>
+  <div id="step-progress"><div class="progress-bar"><div class="progress-fill" id="stepFill" style="width:0%"></div></div></div>
+  <div style="margin:12px 0">
+    <div class="step-box s1" id="step1">
+      <div class="step-label">Step 1 — पहचान करें</div>
+      <div class="step-text">🔍 Write out the full structure: <strong>CH₃ — C(=O) — OH</strong><br>We see two parts: a C=O group AND an OH group connected to the SAME carbon.</div>
+    </div>
+    <div class="step-box s2" id="step2">
+      <div class="step-label">Step 2 — समूह खोजें</div>
+      <div class="step-text">⚗️ When <strong>C=O</strong> and <strong>—OH</strong> are on the SAME carbon, they together form: <strong>—COOH</strong> (Carboxyl Group | कार्बोक्सिल समूह)</div>
+    </div>
+    <div class="step-box s3" id="step3">
+      <div class="step-label">Step 3 — नाम दें</div>
+      <div class="step-text">📛 The compound has 2 carbons (eth-) + carboxylic acid suffix (-oic acid)<br>∴ Name = <strong>Ethanoic Acid</strong> (एथेनोइक अम्ल)</div>
+    </div>
+    <div class="step-box s4" id="step4">
+      <div class="step-label">Step 4 — गुण जानें</div>
+      <div class="step-text">🧴 Ethanoic acid is commonly called <strong>Acetic Acid</strong>. Its dilute solution is <strong>Vinegar (सिरका)</strong> used in cooking. It turns blue litmus → <strong style="color:#ef4444">Red</strong> (Acidic)</div>
+    </div>
+    <div class="step-box s5" id="step5">
+      <div class="step-label">✅ Final Answer</div>
+      <div class="step-text">CH₃COOH → Functional Group = <strong>—COOH (Carboxyl)</strong><br>Name = <strong>Ethanoic Acid | Acetic Acid</strong><br>∴ It belongs to the <strong>Carboxylic Acid</strong> family! 🎉</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap">
+    <button class="btn btn-primary" onclick="nextStep()">▶ Next Step</button>
+    <button class="btn" style="background:#e2e8f0;color:#475569" onclick="resetSteps()">↺ Reset</button>
+  </div>
+</div>
+
+<!-- Quiz -->
+<div class="card">
+  <div class="section-title">🎯 Quick Quiz <span>अपना ज्ञान जाँचें</span></div>
+  <div id="quizContainer">
+    <div class="quiz-box" id="quizBox">
+      <div class="quiz-q" id="quizQ">Loading question...</div>
+      <div class="quiz-opts" id="quizOpts"></div>
+      <div class="quiz-feedback" id="quizFeedback"></div>
+      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-green" onclick="nextQuiz()" id="nextQBtn" style="display:none">Next Question ▶</button>
+        <div id="quizScore" style="font-size:0.8em;color:#15803d;font-weight:600;align-self:center"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Memory Tips -->
+<div class="card">
+  <div class="section-title">🧠 Memory Tips <span>याद रखें</span></div>
+  <div style="display:grid;gap:8px">
+    <div style="padding:10px;background:#eff6ff;border-radius:8px;font-size:0.82em;border-left:4px solid #3b82f6">
+      🍺 <strong>Alcohol:</strong> Think "O-H stands for Oh Hello!" — The OH group greets water molecules (water soluble!)
+    </div>
+    <div style="padding:10px;background:#f0fdf4;border-radius:8px;font-size:0.82em;border-left:4px solid #22c55e">
+      🔚 <strong>Aldehyde:</strong> "Al-de-HIDE at the END" — Aldehyde always hides at the end of the chain!
+    </div>
+    <div style="padding:10px;background:#fefce8;border-radius:8px;font-size:0.82em;border-left:4px solid #f59e0b">
+      🎯 <strong>Ketone:</strong> "Ketone is in the Middle Zone" — C=O always in the CENTER of chain
+    </div>
+    <div style="padding:10px;background:#fff1f2;border-radius:8px;font-size:0.82em;border-left:4px solid #ef4444">
+      🍋 <strong>Carboxylic Acid:</strong> "COOH = CO + OH together = SOUR!" — Vinegar, lemon juice!
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+// Toggle card expansion
+function toggleCard(id){
+  const card=document.getElementById('card-'+id);
+  const all=document.querySelectorAll('.fg-card');
+  all.forEach(c=>{if(c!==card){c.classList.remove('active');c.querySelector('.desc').style.display='none'}});
+  card.classList.toggle('active');
+  const desc=card.querySelector('.desc');
+  desc.style.display=card.classList.contains('active')?'block':'none';
+}
+
+// Highlight from pills
+function highlight(id){
+  const card=document.getElementById('card-'+id);
+  card.scrollIntoView({behavior:'smooth',block:'center'});
+  setTimeout(()=>{
+    if(!card.classList.contains('active')) toggleCard(id);
+    card.style.transform='scale(1.04)';
+    setTimeout(()=>{card.style.transform=''},600);
+  },400);
+}
+
+// Diagram SVGs
+const diagrams={
+  alcohol:`<svg viewBox="0 0 320 160" style="max-width:320px">
+    <text x="160" y="18" text-anchor="middle" fill="#1d4ed8" font-size="13" font-weight="bold">Ethanol — C₂H₅OH</text>
+    <line x1="60" y1="85" x2="130" y2="85" stroke="#374151" stroke-width="2.5"/>
+    <line x1="130" y1="85" x2="200" y2="85" stroke="#374151" stroke-width="2.5"/>
+    <line x1="200" y1="85" x2="258" y2="85" stroke="#ef4444" stroke-width="2.5"/>
+    <circle cx="60" cy="85" r="22" fill="#bfdbfe" stroke="#3b82f6" stroke-width="2"/>
+    <text x="60" y="90" text-anchor="middle" fill="#1d4ed8" font-size="12" font-weight="bold">CH₃</text>
+    <circle cx="130" cy="85" r="22" fill="#bfdbfe" stroke="#3b82f6" stroke-width="2"/>
+    <text x="130" y="90" text-anchor="middle" fill="#1d4ed8" font-size="12" font-weight="bold">CH₂</text>
+    <circle cx="200" cy="85" r="18" fill="#fecaca" stroke="#ef4444" stroke-width="2.5"/>
+    <text x="200" y="90" text-anchor="middle" fill="#b91c1c" font-size="14" font-weight="bold">O</text>
+    <circle cx="258" cy="85" r="15" fill="#fee2e2" stroke="#ef4444" stroke-width="2"/>
+    <text x="258" y="90" text-anchor="middle" fill="#b91c1c" font-size="12" font-weight="bold">H</text>
+    <path d="M185,130 Q229,142 263,130" stroke

@@ -35,6 +35,22 @@ export function VisualExplainer({
   useEffect(() => {
     setLoading(true);
     setError(false);
+    let cancelled = false;
+    fetch(src, { method: "HEAD" })
+      .then((res) => {
+        if (cancelled) return;
+        if (!res.ok || !res.headers.get("content-type")?.includes("text/html")) {
+          setError(true);
+          setLoading(false);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setError(true);
+          setLoading(false);
+        }
+      });
+    return () => { cancelled = true; };
   }, [src]);
 
   useEffect(() => {

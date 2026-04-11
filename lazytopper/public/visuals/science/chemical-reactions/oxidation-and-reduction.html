@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oxidation & Reduction | CBSE Class 10 Science</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',sans-serif;background:#0f172a;color:#1e293b;min-width:350px}
+  .titlebar{background:linear-gradient(135deg,#1e40af,#3b82f6,#06b6d4);padding:14px 20px;text-align:center;box-shadow:0 4px 20px rgba(59,130,246,0.4)}
+  .titlebar h1{color:#fff;font-size:1.2rem;font-weight:700;letter-spacing:1px}
+  .titlebar p{color:#bfdbfe;font-size:0.8rem;margin-top:3px}
+  .container{padding:14px;max-width:800px;margin:0 auto}
+  .card{background:#fff;border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 4px 20px rgba(0,0,0,0.3)}
+  .section-title{font-size:1rem;font-weight:700;color:#1e40af;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+  .badge{background:#dbeafe;color:#1d4ed8;border-radius:20px;padding:2px 10px;font-size:0.7rem;font-weight:600}
+  .hint-badge{background:#fef3c7;color:#92400e;border-radius:20px;padding:2px 10px;font-size:0.7rem;font-weight:600}
+
+  /* Core concept boxes */
+  .concept-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .ox-box{background:linear-gradient(135deg,#fef3c7,#fde68a);border:2px solid #f59e0b;border-radius:12px;padding:12px;text-align:center;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s}
+  .red-box{background:linear-gradient(135deg,#dcfce7,#bbf7d0);border:2px solid #22c55e;border-radius:12px;padding:12px;text-align:center;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s}
+  .ox-box:hover,.red-box:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,0.15)}
+  .ox-box h3{color:#92400e;font-size:0.95rem;font-weight:700}
+  .red-box h3{color:#166534;font-size:0.95rem;font-weight:700}
+  .ox-box .hindi{color:#b45309;font-size:0.75rem;margin:2px 0}
+  .red-box .hindi{color:#15803d;font-size:0.75rem;margin:2px 0}
+  .ox-box .detail,.red-box .detail{font-size:0.72rem;color:#374151;margin-top:6px;display:none;line-height:1.5}
+  .ox-box.active .detail,.red-box.active .detail{display:block}
+  .ox-box.active,.red-box.active{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,0.2)}
+
+  /* Electron toggle */
+  .toggle-area{background:#f8fafc;border-radius:12px;padding:14px;border:2px dashed #94a3b8;text-align:center}
+  .toggle-row{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin:10px 0}
+  .atom-circle{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;transition:all 0.4s;position:relative;cursor:default}
+  .electron{width:10px;height:10px;background:#3b82f6;border-radius:50%;position:absolute;transition:all 0.5s;box-shadow:0 0 6px #3b82f6}
+  .arrow-label{font-size:1.4rem;font-weight:700}
+  .toggle-btn{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border:none;border-radius:20px;padding:8px 20px;cursor:pointer;font-size:0.85rem;font-weight:600;transition:all 0.2s;margin-top:8px}
+  .toggle-btn:hover{transform:scale(1.05);box-shadow:0 4px 12px rgba(59,130,246,0.4)}
+
+  /* Memory tricks */
+  .memory-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .memory-card{border-radius:12px;padding:12px;text-align:center}
+  .oilrig{background:linear-gradient(135deg,#ede9fe,#ddd6fe);border:2px solid #8b5cf6}
+  .leogei{background:linear-gradient(135deg,#fce7f3,#fbcfe8);border:2px solid #ec4899}
+  .memory-card h4{font-size:0.9rem;font-weight:700;margin-bottom:4px}
+  .oilrig h4{color:#5b21b6}
+  .leogei h4{color:#be185d}
+  .mnemonic{font-size:1.1rem;font-weight:800;letter-spacing:2px;margin:6px 0}
+  .mnemonic span{display:inline-block;padding:2px 4px;border-radius:4px}
+  .memory-card p{font-size:0.68rem;color:#374151;line-height:1.5}
+
+  /* SVG Diagram */
+  .diagram-wrap{background:#f0f9ff;border-radius:12px;overflow:hidden}
+  svg text{font-family:'Segoe UI',sans-serif}
+
+  /* Step-by-step */
+  .step-container{background:#f8fafc;border-radius:12px;padding:12px}
+  .step{background:#fff;border-radius:10px;padding:12px;margin:8px 0;border-left:4px solid #3b82f6;display:none;animation:fadeIn 0.4s ease}
+  .step.visible{display:block}
+  .step.ox-step{border-left-color:#f59e0b}
+  .step.red-step{border-left-color:#22c55e}
+  @keyframes fadeIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+  .step h4{font-size:0.85rem;font-weight:700;margin-bottom:4px}
+  .step p{font-size:0.78rem;color:#374151;line-height:1.6}
+  .step .chem{font-size:0.85rem;font-weight:700;color:#1e40af;background:#dbeafe;padding:4px 10px;border-radius:8px;display:inline-block;margin:4px 0}
+  .step-btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .step-btn{background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;border:none;border-radius:16px;padding:7px 16px;cursor:pointer;font-size:0.8rem;font-weight:600;transition:all 0.2s}
+  .step-btn:hover{transform:scale(1.04)}
+  .step-btn.reset{background:linear-gradient(135deg,#ef4444,#dc2626)}
+  .progress-bar{height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden;margin:8px 0}
+  .progress-fill{height:100%;background:linear-gradient(90deg,#3b82f6,#22c55e);border-radius:3px;transition:width 0.4s ease;width:0%}
+
+  /* Redox quiz */
+  .quiz-card{background:#f8fafc;border-radius:12px;padding:12px}
+  .quiz-q{font-size:0.85rem;font-weight:600;color:#1e293b;margin-bottom:10px}
+  .quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .qopt{background:#fff;border:2px solid #e2e8f0;border-radius:10px;padding:10px;cursor:pointer;font-size:0.78rem;text-align:center;transition:all 0.2s;font-weight:500}
+  .qopt:hover{border-color:#3b82f6;background:#eff6ff}
+  .qopt.correct{border-color:#22c55e;background:#dcfce7;color:#166534}
+  .qopt.wrong{border-color:#ef4444;background:#fee2e2;color:#991b1b}
+  .quiz-feedback{margin-top:8px;font-size:0.8rem;font-weight:600;min-height:20px;text-align:center}
+  .next-q-btn{display:none;background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border:none;border-radius:16px;padding:8px 20px;cursor:pointer;font-size:0.8rem;font-weight:600;margin-top:8px;transition:all 0.2s}
+  .next-q-btn:hover{transform:scale(1.04)}
+
+  /* Redox reaction slider */
+  .slider-wrap{background:#f0fdf4;border-radius:12px;padding:14px;text-align:center}
+  .reaction-eq{font-size:0.95rem;font-weight:700;color:#1e293b;margin:10px 0;line-height:2}
+  .highlight-ox{background:#fde68a;border-radius:4px;padding:2px 6px;color:#92400e}
+  .highlight-red{background:#bbf7d0;border-radius:4px;padding:2px 6px;color:#166534}
+  input[type=range]{width:100%;accent-color:#3b82f6;margin:10px 0}
+  .ox-state-display{display:flex;justify-content:center;gap:20px;flex-wrap:wrap;margin-top:8px}
+  .ox-state-box{background:#fff;border-radius:10px;padding:8px 14px;border:2px solid #e2e8f0;font-size:0.78rem;text-align:center;min-width:90px}
+  .ox-state-val{font-size:1.1rem;font-weight:800}
+  .ox-up{color:#ef4444}
+  .ox-down{color:#22c55e}
+
+  @media(max-width:480px){
+    .concept-grid,.memory-grid,.quiz-opts{grid-template-columns:1fr}
+    .titlebar h1{font-size:1rem}
+  }
+</style>
+</head>
+<body>
+
+<div class="titlebar">
+  <h1>⚗️ Oxidation & Reduction (ऑक्सीकरण और अपचयन)</h1>
+  <p>CBSE Class 10 Science · Chapter 1 · Chemical Reactions & Equations</p>
+</div>
+
+<div class="container">
+
+  <!-- CORE CONCEPT CARDS -->
+  <div class="card">
+    <div class="section-title">🔬 Core Concepts <span class="badge">Click to Expand</span></div>
+    <div class="concept-grid">
+      <div class="ox-box" onclick="toggleBox(this)">
+        <div style="font-size:1.8rem">🔥</div>
+        <h3>OXIDATION</h3>
+        <div class="hindi">ऑक्सीकरण</div>
+        <div style="font-size:0.72rem;color:#92400e;margin-top:4px">Click for details ↓</div>
+        <div class="detail">
+          ✅ <b>Gain of Oxygen</b><br>
+          ✅ <b>Loss of Hydrogen</b><br>
+          ✅ <b>Loss of Electrons</b><br>
+          ✅ Oxidation state <b>increases</b> (+)<br>
+          <br>Example: Mg + O₂ → MgO<br>
+          (Mg loses electrons → oxidised)
+        </div>
+      </div>
+      <div class="red-box" onclick="toggleBox(this)">
+        <div style="font-size:1.8rem">❄️</div>
+        <h3>REDUCTION</h3>
+        <div class="hindi">अपचयन</div>
+        <div style="font-size:0.72rem;color:#166534;margin-top:4px">Click for details ↓</div>
+        <div class="detail">
+          ✅ <b>Loss of Oxygen</b><br>
+          ✅ <b>Gain of Hydrogen</b><br>
+          ✅ <b>Gain of Electrons</b><br>
+          ✅ Oxidation state <b>decreases</b> (−)<br>
+          <br>Example: CuO + H₂ → Cu + H₂O<br>
+          (Cu gains electrons → reduced)
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:10px;background:#eff6ff;border-radius:10px;padding:10px;text-align:center;border:2px solid #bfdbfe">
+      <span style="font-size:0.85rem;font-weight:700;color:#1e40af">⚡ REDOX Reaction (रेडॉक्स अभिक्रिया)</span><br>
+      <span style="font-size:0.75rem;color:#374151">Oxidation and Reduction always occur <b>simultaneously</b>!</span>
+    </div>
+  </div>
+
+  <!-- ELECTRON TRANSFER VISUALIZER -->
+  <div class="card">
+    <div class="section-title">⚡ Electron Transfer Visualizer <span class="hint-badge">Click Toggle</span></div>
+    <div class="toggle-area">
+      <div style="font-size:0.8rem;color:#475569;margin-bottom:8px">Reaction: <b>Mg + Cu²⁺ → Mg²⁺ + Cu</b></div>
+      <div class="toggle-row">
+        <div style="text-align:center">
+          <div class="atom-circle" id="mgAtom" style="background:linear-gradient(135deg,#fde68a,#f59e0b);border:3px solid #d97706;color:#92400e">
+            Mg
+          </div>
+          <div id="mgLabel" style="font-size:0.68rem;margin-top:4px;color:#92400e;font-weight:600">Mg (neutral)</div>
+        </div>
+        <div style="text-align:center">
+          <div id="eArrow" style="font-size:1.5rem;transition:all 0.4s">⟶</div>
+          <div id="eLabel" style="font-size:0.65rem;color:#3b82f6;font-weight:600">2e⁻</div>
+        </div>
+        <div style="text-align:center">
+          <div class="atom-circle" id="cuAtom" style="background:linear-gradient(135deg,#bbf7d0,#22c55e);border:3px solid #16a34a;color:#166534">
+            Cu²⁺
+          </div>
+          <div id="cuLabel" style="font-size:0.68rem;margin-top:4px;color:#166534;font-weight:600">Cu²⁺ (ion)</div>
+        </div>
+      </div>
+      <div id="eResult" style="font-size:0.78rem;color:#374151;min-height:40px;transition:all 0.4s;background:#fff;border-radius:8px;padding:8px;margin:6px 0;display:none"></div>
+      <button class="toggle-btn" onclick="toggleElectron()">▶ Show Electron Transfer</button>
+    </div>
+  </div>
+
+  <!-- SVG DIAGRAM -->
+  <div class="card">
+    <div class="section-title">📊 Oxidation State Diagram <span class="badge">Interactive</span></div>
+    <div class="diagram-wrap">
+      <svg id="mainSVG" viewBox="0 0 360 200" width="100%" height="auto">
+        <!-- Background -->
+        <defs>
+          <linearGradient id="oxGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#fef3c7"/>
+            <stop offset="100%" stop-color="#fde68a"/>
+          </linearGradient>
+          <linearGradient id="redGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#dcfce7"/>
+            <stop offset="100%" stop-color="#bbf7d0"/>
+          </linearGradient>
+        </defs>
+        <!-- Oxidation side -->
+        <rect x="10" y="10" width="160" height="180" rx="12" fill="url(#oxGrad)" stroke="#f59e0b" stroke-width="2"/>
+        <!-- Reduction side -->
+        <rect x="190" y="10" width="160" height="180" rx="12" fill="url(#redGrad)" stroke="#22c55e" stroke-width="2"/>
+        <!-- Labels -->
+        <text x="90" y="35" text-anchor="middle" font-size="11" font-weight="bold" fill="#92400e">OXIDATION</text>
+        <text x="90" y="50" text-anchor="middle" font-size="9" fill="#b45309">ऑक्सीकरण</text>
+        <text x="270" y="35" text-anchor="middle" font-size="11" font-weight="bold" fill="#166534">REDUCTION</text>
+        <text x="270" y="50" text-anchor="middle" font-size="9" fill="#15803d">अपचयन</text>
+        <!-- Arrows for oxidation -->
+        <text x="90" y="80" text-anchor="middle" font-size="9" fill="#374151">Oxygen:</text>
+        <text x="90" y="95" text-anchor="middle" font-size="12" fill="#ef4444" font-weight="bold">GAIN ⬆</text>
+        <text x="90" y="115" text-anchor="middle" font-size="9" fill="#374151">Hydrogen:</text>
+        <text x="90" y="130" text-anchor="middle" font-size="12" fill="#ef4444" font-weight="bold">LOSS ⬇</text>
+        <text x="90" y="150" text-anchor="middle" font-size="9" fill="#374151">Electrons:</text>
+        <text x="90" y="165" text-anchor="middle" font-size="12" fill="#ef4444" font-weight="bold">LOSS ⬇</text>
+        <text x="90" y="183" text-anchor="middle" font-size="9" fill="#92400e" font-weight="bold">Ox. State ↑ (+)</text>
+        <!-- Arrows for reduction -->
+        <text x="270" y="80" text-anchor="middle" font-size="9" fill="#374151">Oxygen:</text>
+        <text x="270" y="95" text-anchor="middle" font-size="12" fill="#22c55e" font-weight="bold">LOSS ⬇</text>
+        <text x="270" y="115" text-anchor="middle" font-size="9" fill="#374151">Hydrogen:</text>
+        <text x="270" y="130" text-anchor="middle" font-size="12" fill="#22c55e" font-weight="bold">GAIN ⬆</text>
+        <text x="270" y="150" text-anchor="middle" font-size="9" fill="#374151">Electrons:</text>
+        <text x="270" y="165" text-anchor="middle" font-size="12" fill="#22c55e" font-weight="bold">GAIN ⬆</text>
+        <text x="270" y="183" text-anchor="middle" font-size="9" fill="#166534" font-weight="bold">Ox. State ↓ (−)</text>
+        <!-- Center divider -->
+        <line x1="180" y1="20" x2="180" y2="185" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4,3"/>
+        <!-- Hoverable elements -->
+        <rect id="svgOxHov" x="10" y="10" width="160" height="180" rx="12" fill="transparent" stroke="none" style="cursor:pointer" onclick="svgHighlight('ox')"/>
+        <rect id="svgRedHov" x="190" y="10" width="160" height="180" rx="12" fill="transparent" stroke="none" style="cursor:pointer" onclick="svgHighlight('red')"/>
+      </svg>
+      <div id="svgInfo" style="padding:8px 12px;font-size:0.75rem;color:#374151;background:#f8fafc;text-align:center;min-height:28px;transition:all 0.3s"></div>
+    </div>
+  </div>
+
+  <!-- MEMORY TRICKS -->
+  <div class="card">
+    <div class="section-title">🧠 Memory Tricks (याद करने की तरकीब)</div>
+    <div class="memory-grid">
+      <div class="memory-card oilrig">
+        <h4>OIL RIG</h4>
+        <div class="mnemonic">
+          <span style="background:#c4b5fd;color:#5b21b6">O</span><span style="background:#ddd6fe;color:#5b21b6">I</span><span style="background:#ede9fe;color:#5b21b6">L</span>
+          <span style="color:#7c3aed">  </span>
+          <span style="background:#c4b5fd;color:#5b21b6">R</span><span style="background:#ddd6fe;color:#5b21b6">I</span><span style="background:#ede9fe;color:#5b21b6">G</span>
+        </div>
+        <p><b>O</b>xidation <b>I</b>s <b>L</b>oss<br><b>R</b>eduction <b>I</b>s <b>G</b>ain<br>(of electrons)</p>
+      </div>
+      <div class="memory-card leogei">
+        <h4>LEO says GER</h4>
+        <div class="mnemonic" style="font-size:0.9rem">
+          <span style="background:#fbcfe8;color:#be185d">LEO</span>
+          <span style="color:#be185d"> 🦁 </span>
+          <span style="background:#fbcfe8;color:#be185d">GER</span>
+        </div>
+        <p><b>L</b>oss of <b>E</b>lectrons = <b>O</b>xidation<br><b>G</b>ain of <b>E</b>lectrons = <b>R</b>eduction<br>(The lion says GER!)</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP-BY-STEP EXAMPLE -->
+  <div class="card">
+    <div class="section-title">📝 Worked Example <span class="badge">Step by Step</span></div>
+    <div style="background:#eff6ff;border-radius:10px;padding:10px;margin-bottom:10px;text-align:center">
+      <span style="font-size:0.9rem;font-weight:700;color:#1e40af">CuO + H₂ → Cu + H₂O</span><br>
+      <span style="font-size:0.72rem;color:#475569">(Copper oxide + Hydrogen → Copper + Water)</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progFill"></div></div>
+    <div class="step-container" id="stepContainer">
+      <div id="step0" class="step visible">
+        <h4>📋 Step 1: Write the Reaction</h4>
+        <p>We have the reaction: <span class="chem">CuO + H₂ → Cu + H₂O</span></p>
+        <p>We need to identify which substance is <b>oxidised</b> and which is <b>reduced</b>.</p>
+      </div>
+      <div id="step1" class="step ox-step">
+        <h4>🔥 Step 2: Find Oxidation</h4>
+        <p>Look at <b>Hydrogen (H₂)</b>:<br>
+        → On left: H₂ (no oxygen)<br>
+        → On right: H₂O (has oxygen!)<br>
+        → H₂ <b>GAINED oxygen</b> ∴ H₂ is <b>OXIDISED</b> (ऑक्सीकृत)</p>
+        <span class="chem" style="background:#fde68a;color:#92400e">H₂ → Oxidised ⬆ O gained</span>
+      </div>
+      <div id="step2" class="step red-step">
+        <h4>❄️ Step 3: Find Reduction</h4>
+        <p>Look at <b>CuO (Copper oxide)</b>:<br>
+        → On left: CuO (has oxygen)<br>
+        → On right: Cu (oxygen removed!)<br>
+        → CuO <b>LOST oxygen</b> ∴ CuO is <b>REDUCED</b> (अपचयित)</p>
+        <span class="chem" style="background:#bbf7d0;color:#166534">CuO → Reduced ⬇ O lost</span>
+      </div>
+      <div id="step3" class="step">
+        <h4>⚡ Step 4: Identify Agents</h4>
+        <p>→ <b>Oxidising Agent (ऑक्सीकारक)</b>: CuO — it oxidises H₂ (gives O to H₂)<br>
+        → <b>Reducing Agent (अपचायक)</b>: H₂ — it reduces CuO (removes O from CuO)</p>
+        <span class="chem">⚠️ The oxidising agent is itself reduced!</span>
+      </div>
+      <div id="step4" class="step" style="border-left-color:#8b5cf6">
+        <h4>✅ Step 5: Conclusion (निष्कर्ष)</h4>
+        <p>This is a <b>REDOX reaction</b> (रेडॉक्स अभिक्रिया).<br>
+        Oxidation & Reduction occur <b>simultaneously</b>.<br>
+        H₂ is the reducing agent → gets oxidised<br>
+        CuO is the oxidising agent → gets reduced</p>
+        <span class="chem" style="background:#ede9fe;color:#5b21b6">🎉 Both happen together!</span>
+      </div>
+    </div>
+    <div class="step-btns">
+      <button class="step-btn" onclick="nextStep()">▶ Next Step</button>
+      <button class="step-btn reset" onclick="resetSteps()">↺ Reset</button>
+    </div>
+    <div id="stepStatus" style="font-size:0.75rem;color:#64748b;margin-top:6px;text-align:center"></div>
+  </div>
+
+  <!-- OXIDATION STATE SLIDER -->
+  <div class="card">
+    <div class="section-title">🎚️ Oxidation State Explorer <span class="hint-badge">Drag Slider</span></div>
+    <div class="slider-wrap">
+      <div style="font-size:0.8rem;color:#374151;margin-bottom:6px">Explore: <b>Fe₂O₃ + CO → Fe + CO₂</b> (Iron smelting / लोहे का गलाना)</div>
+      <input type="range" min="0" max="2" value="0" id="stateSlider" oninput="updateSlider(this.value)">
+      <div id="sliderEq" class="reaction-eq">Fe₂O₃ + CO → Fe + CO₂</div>
+      <div class="ox-state-display" id="oxStateDisplay">
+        <div class="ox-state-box"><div style="font-size:0.7rem;color:#64748b">Fe in Fe₂O₃</div><div class="ox-state-val" id="feVal">+3</div></div>
+        <div class="ox-state-box"><div style="font-size:0.7rem;color:#64748b">Fe in product</div><div class="ox-state-val" id="feValP">0</div></div>
+        <div class="ox-state-box"><div style="font-size:0.7rem;color:#64748b">C in CO</div><div class="ox-state-val" id="cVal">+2</div></div>
+        <div class="ox-state-box"><div style="font-size:0.7rem;color:#64748b">C in CO₂</div><div class="ox-state-val" id="cValP">+4</div></div>
+      </div>
+      <div id="sliderInfo" style="font-size:0.75rem;color:#374151;margin-top:8px;background:#fff;border-radius:8px;padding:8px;text-align:left;min-height:40px"></div>
+    </div>
+  </div>
+
+  <!-- QUIZ -->
+  <div class="card">
+    <div class="section-title">🎯 Quick Check (परीक्षण)</div>
+    <div class="quiz-card">
+      <div class="quiz-q" id="quizQ">Q1: In the reaction 2Mg + O₂ → 2MgO, what happens to Mg?</div>
+      <div class="quiz-opts" id="quizOpts">
+        <div class="qopt" onclick="checkAnswer(this,false)">It gets reduced</div>
+        <div class="qopt" onclick="checkAnswer(this,true)">It gets oxid

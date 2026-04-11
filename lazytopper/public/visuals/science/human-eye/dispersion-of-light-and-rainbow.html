@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dispersion of Light & Rainbow - Class 10 Science</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh;overflow-x:hidden}
+.title-bar{background:linear-gradient(135deg,#1e40af,#7c3aed);padding:12px 16px;text-align:center;box-shadow:0 4px 20px rgba(124,58,237,.5)}
+.title-bar h1{font-size:clamp(14px,3.5vw,20px);font-weight:700;color:#fff;letter-spacing:.5px}
+.title-bar p{font-size:clamp(10px,2.5vw,13px);color:#c4b5fd;margin-top:2px}
+.container{max-width:800px;margin:0 auto;padding:12px}
+.card{background:#1e293b;border-radius:16px;padding:16px;margin-bottom:14px;border:1px solid #334155;box-shadow:0 4px 24px rgba(0,0,0,.3)}
+.section-title{font-size:clamp(13px,3vw,16px);font-weight:700;color:#60a5fa;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.section-title::before{content:'';width:4px;height:20px;background:linear-gradient(#3b82f6,#7c3aed);border-radius:2px;display:inline-block}
+.concept-box{background:linear-gradient(135deg,#1e3a5f,#2d1b69);border:1px solid #3b82f6;border-radius:12px;padding:14px;margin:10px 0;text-align:center}
+.formula{font-size:clamp(14px,3.5vw,18px);color:#fbbf24;font-weight:700;margin:8px 0}
+.vibgyor-strip{display:flex;border-radius:8px;overflow:hidden;height:40px;margin:10px 0;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,.4)}
+.v-band{flex:1;display:flex;align-items:center;justify-content:center;font-size:clamp(9px,2vw,12px);font-weight:700;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.8);transition:flex .3s ease}
+.v-band:hover{flex:2.5}
+.v-band.V{background:#8b00ff}
+.v-band.I{background:#4b0082}
+.v-band.B{background:#0000ff}
+.v-band.G{background:#00aa00}
+.v-band.Y{background:#cccc00}
+.v-band.O{background:#ff7700}
+.v-band.R{background:#ff0000}
+#prismCanvas{width:100%;border-radius:12px;cursor:crosshair;touch-action:none}
+.controls{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.btn{background:linear-gradient(135deg,#2563eb,#7c3aed);border:none;color:#fff;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;transition:all .2s;border:1px solid transparent}
+.btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(59,130,246,.4)}
+.btn.active{background:linear-gradient(135deg,#059669,#0d9488);border-color:#10b981}
+.slider-group{display:flex;align-items:center;gap:8px;flex:1;min-width:180px}
+.slider-group label{font-size:11px;color:#94a3b8;white-space:nowrap}
+input[type=range]{-webkit-appearance:none;height:6px;border-radius:3px;background:#334155;flex:1;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#3b82f6;cursor:pointer}
+.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:10px 0}
+.info-card{background:#0f172a;border-radius:10px;padding:10px;text-align:center;border:1px solid #334155;transition:all .3s;cursor:pointer}
+.info-card:hover{border-color:#3b82f6;transform:translateY(-2px)}
+.info-card .color-dot{width:28px;height:28px;border-radius:50%;margin:0 auto 6px;box-shadow:0 0 10px currentColor}
+.info-card .color-name{font-size:12px;font-weight:700;margin-bottom:3px}
+.info-card .wavelength{font-size:10px;color:#64748b}
+.info-card .speed-bar{height:4px;border-radius:2px;margin-top:6px;background:#334155;overflow:hidden}
+.info-card .speed-fill{height:100%;border-radius:2px;transition:width .5s ease}
+.step-container{margin:10px 0}
+.step{background:#0f172a;border-radius:10px;padding:12px;margin:6px 0;border-left:4px solid #334155;cursor:pointer;transition:all .3s;opacity:.5;transform:translateX(-8px)}
+.step.revealed{opacity:1;transform:translateX(0);border-left-color:#3b82f6}
+.step-num{font-size:10px;color:#60a5fa;font-weight:700;text-transform:uppercase;margin-bottom:4px}
+.step-text{font-size:12px;color:#cbd5e1;line-height:1.6}
+.step-text strong{color:#fbbf24}
+.rainbow-container{position:relative;height:180px;background:linear-gradient(180deg,#0a1628,#1a2744);border-radius:12px;overflow:hidden;cursor:pointer}
+#rainbowCanvas{width:100%;height:100%}
+.tooltip{position:fixed;background:#1e293b;border:1px solid #3b82f6;border-radius:8px;padding:8px 12px;font-size:11px;color:#e2e8f0;pointer-events:none;z-index:100;opacity:0;transition:opacity .2s;max-width:160px}
+.quiz-btn{background:#0f172a;border:2px solid #334155;color:#94a3b8;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:11px;transition:all .2s;margin:4px;display:inline-block}
+.quiz-btn:hover{border-color:#3b82f6;color:#e2e8f0}
+.quiz-btn.correct{border-color:#22c55e;background:#052e16;color:#4ade80}
+.quiz-btn.wrong{border-color:#ef4444;background:#2d0709;color:#f87171}
+.badge{display:inline-block;background:linear-gradient(135deg,#854d0e,#a16207);color:#fef08a;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;margin-left:6px}
+.wavelength-demo{display:flex;flex-direction:column;gap:6px;margin:10px 0}
+.wave-row{display:flex;align-items:center;gap:8px}
+.wave-label{width:70px;font-size:10px;color:#94a3b8;text-align:right}
+.wave-visual{flex:1;height:20px;position:relative;overflow:hidden}
+.wave-svg{width:100%;height:100%}
+.refraction-note{background:#172554;border:1px solid #1d4ed8;border-radius:8px;padding:10px;margin:8px 0;font-size:11px;color:#bfdbfe;line-height:1.6}
+@keyframes shimmer{0%,100%{opacity:.7}50%{opacity:1}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.float-anim{animation:float 3s ease-in-out infinite}
+</style>
+</head>
+<body>
+<div class="title-bar">
+<h1>🌈 Dispersion of Light & Rainbow</h1>
+<p>CBSE Class 10 Science | प्रकाश का वर्ण-विक्षेपण | Chapter: Human Eye & Colourful World</p>
+</div>
+
+<div class="container">
+
+<!-- Key Concept -->
+<div class="card">
+<div class="section-title">Core Concept: वर्ण-विक्षेपण (Dispersion)</div>
+<div class="concept-box">
+<div class="formula">White Light → Prism → VIBGYOR Spectrum</div>
+<p style="font-size:11px;color:#94a3b8;margin-top:6px">When white light passes through a glass prism, it splits into its 7 constituent colours — this is called <strong style="color:#fbbf24">Dispersion of Light (प्रकाश का विक्षेपण)</strong></p>
+</div>
+<div class="vibgyor-strip" id="vibgyorStrip">
+<div class="v-band V" data-color="Violet" data-nm="380-450nm" data-speed="Slowest in glass">V</div>
+<div class="v-band I" data-color="Indigo" data-nm="450-420nm" data-speed="Very slow">I</div>
+<div class="v-band B" data-color="Blue" data-nm="450-495nm" data-speed="Slow">B</div>
+<div class="v-band G" data-color="Green" data-nm="495-570nm" data-speed="Medium">G</div>
+<div class="v-band Y" data-color="Yellow" data-nm="570-590nm" data-speed="Medium-fast">Y</div>
+<div class="v-band O" data-color="Orange" data-nm="590-620nm" data-speed="Fast">O</div>
+<div class="v-band R" data-color="Red" data-nm="620-750nm" data-speed="Fastest in glass">R</div>
+</div>
+<p style="font-size:10px;color:#64748b;text-align:center">👆 Hover over each colour to learn more</p>
+</div>
+
+<!-- Interactive Prism -->
+<div class="card">
+<div class="section-title">🔬 Interactive Prism Diagram</div>
+<p style="font-size:11px;color:#94a3b8;margin-bottom:8px">Drag the angle slider to see how dispersion changes. Click "Animate" to watch light travel!</p>
+<div class="controls">
+<div class="slider-group">
+<label>Prism Angle:</label>
+<input type="range" id="prismAngle" min="30" max="70" value="45">
+<span id="angleVal" style="font-size:11px;color:#fbbf24;min-width:30px">45°</span>
+</div>
+<button class="btn" id="animBtn" onclick="toggleAnim()">▶ Animate</button>
+<button class="btn" onclick="resetPrism()">↺ Reset</button>
+</div>
+<canvas id="prismCanvas" height="240"></canvas>
+</div>
+
+<!-- Wavelength & Speed Table -->
+<div class="card">
+<div class="section-title">📊 Colour Properties — Click any colour!</div>
+<div class="info-grid" id="colorGrid"></div>
+<div class="refraction-note" id="colorDetail">
+<strong style="color:#60a5fa">💡 Key Rule:</strong> Violet light bends the MOST, Red light bends the LEAST through a prism. This is because violet has the shortest wavelength and travels slowest in glass, giving it the highest refractive index (μ).
+<br><br>∵ <strong>n = c/v</strong> &nbsp;|&nbsp; Shorter λ → Lower speed in glass → Higher n → More bending
+</div>
+<div class="wavelength-demo" id="waveDemo"></div>
+</div>
+
+<!-- Rainbow Explanation -->
+<div class="card">
+<div class="section-title">🌦️ Rainbow Formation (इन्द्रधनुष)</div>
+<div class="rainbow-container">
+<canvas id="rainbowCanvas"></canvas>
+</div>
+<div class="controls" style="margin-top:8px">
+<button class="btn" id="rainbowBtn" onclick="toggleRainbow()">▶ Show Formation</button>
+<button class="btn" onclick="toggleSecondary()">Show 2° Rainbow</button>
+</div>
+<div class="refraction-note" style="margin-top:8px">
+<strong style="color:#fbbf24">How Rainbow Forms:</strong><br>
+1️⃣ Sunlight enters a <strong>spherical water droplet</strong><br>
+2️⃣ Light refracts (bends) as it enters — different colours bend differently<br>
+3️⃣ Light undergoes <strong>Total Internal Reflection</strong> inside the droplet<br>
+4️⃣ Light refracts again as it exits → VIBGYOR spectrum appears!<br>
+5️⃣ Primary rainbow: Red outside (42°), Violet inside (40°)
+</div>
+</div>
+
+<!-- Step-by-step worked example -->
+<div class="card">
+<div class="section-title">📝 Worked Example — Step by Step</div>
+<div class="concept-box" style="margin-bottom:10px">
+<p style="font-size:11px;color:#94a3b8"><strong style="color:#fbbf24">Q:</strong> A ray of white light passes through a glass prism (angle A = 60°). The refractive indices for violet and red light are 1.532 and 1.514 respectively. Which colour deviates more and why?</p>
+</div>
+<div class="step-container" id="stepContainer">
+<div class="step" onclick="revealStep(0)">
+<div class="step-num">Step 1 — Click to reveal</div>
+<div class="step-text">Identify what determines bending: <strong>Refractive Index (μ)</strong></div>
+</div>
+<div class="step" onclick="revealStep(1)">
+<div class="step-num">Step 2 — Click to reveal</div>
+<div class="step-text">Compare: μ<sub>violet</sub> = <strong>1.532</strong> vs μ<sub>red</sub> = <strong>1.514</strong></div>
+</div>
+<div class="step" onclick="revealStep(2)">
+<div class="step-num">Step 3 — Click to reveal</div>
+<div class="step-text">Higher μ → More deviation. Using Snell's Law: <strong>μ = sin i / sin r</strong><br>More μ means smaller angle of refraction → more bending toward normal</div>
+</div>
+<div class="step" onclick="revealStep(3)">
+<div class="step-num">Step 4 — Click to reveal</div>
+<div class="step-text">∵ μ<sub>violet</sub> > μ<sub>red</sub><br>∴ <strong>Violet light deviates MORE than Red light</strong><br>Angular dispersion = δ<sub>v</sub> − δ<sub>r</sub> ≈ (μ<sub>v</sub> − μ<sub>r</sub>) × A = (1.532−1.514) × 60° = <strong>1.08°</strong></div>
+</div>
+</div>
+<button class="btn" onclick="revealAll()" style="margin-top:6px">Reveal All Steps</button>
+<button class="btn" onclick="resetSteps()" style="background:linear-gradient(135deg,#374151,#4b5563)">Reset</button>
+</div>
+
+<!-- Mini Quiz -->
+<div class="card">
+<div class="section-title">🧠 Quick Quiz — परीक्षा की तैयारी</div>
+<div id="quizContainer"></div>
+</div>
+
+<!-- Key Facts -->
+<div class="card">
+<div class="section-title">⚡ Key Points to Remember</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+<div style="background:#0f172a;border-radius:8px;padding:8px;border:1px solid #334155;font-size:11px">
+<div style="color:#f59e0b;font-weight:700;margin-bottom:4px">Newton's Discovery</div>
+<div style="color:#94a3b8">Isaac Newton first used a prism to show white light is made of 7 colours (1665)</div>
+</div>
+<div style="background:#0f172a;border-radius:8px;padding:8px;border:1px solid #334155;font-size:11px">
+<div style="color:#22c55e;font-weight:700;margin-bottom:4px">Recombination</div>
+<div style="color:#94a3b8">An inverted prism can recombine VIBGYOR back into white light</div>
+</div>
+<div style="background:#0f172a;border-radius:8px;padding:8px;border:1px solid #334155;font-size:11px">
+<div style="color:#60a5fa;font-weight:700;margin-bottom:4px">Double Rainbow</div>
+<div style="color:#94a3b8">2° rainbow: 2 reflections inside droplet; colours are reversed; fainter</div>
+</div>
+<div style="background:#0f172a;border-radius:8px;padding:8px;border:1px solid #334155;font-size:11px">
+<div style="color:#c084fc;font-weight:700;margin-bottom:4px">Scattering vs Dispersion</div>
+<div style="color:#94a3b8">Scattering: tiny particles scatter light. Dispersion: refraction splits light by wavelength</div>
+</div>
+</div>
+</div>
+
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const colors=[
+{name:'Violet',short:'V',hex:'#8b00ff',nm:'380-450',speed:97.7,mu:1.532},
+{name:'Indigo',short:'I',hex:'#4b0082',nm:'420-450',speed:97.9,mu:1.528},
+{name:'Blue',short:'B',hex:'#0066ff',nm:'450-495',speed:98.1,mu:1.524},
+{name:'Green',short:'G',hex:'#00bb00',nm:'495-570',speed:98.4,mu:1.518},
+{name:'Yellow',short:'Y',hex:'#cccc00',nm:'570-590',speed:98.6,mu:1.516},
+{name:'Orange',short:'O',hex:'#ff7700',nm:'590-620',speed:98.8,mu:1.515},
+{name:'Red',short:'R',hex:'#ff2200',nm:'620-750',speed:99.0,mu:1.514}
+];
+
+// Build color grid
+const grid=document.getElementById('colorGrid');
+colors.forEach((c,i)=>{
+const card=document.createElement('div');
+card.className='info-card';
+card.innerHTML=`<div class="color-dot" style="background:${c.hex};box-shadow:0 0 10px ${c.hex}"></div>
+<div class="color-name" style="color:${c.hex}">${c.name}</div>
+<div class="wavelength">λ: ${c.nm} nm</div>
+<div class="wavelength">μ = ${c.mu}</div>
+<div class="speed-bar"><div class="speed-fill" style="width:${c.speed}%;background:${c.hex}"></div></div>`;
+card.onclick=()=>showColorDetail(c);
+grid.appendChild(card);
+});
+
+// Wave demo
+const waveDemo=document.getElementById('waveDemo');
+colors.forEach(c=>{
+const row=document.createElement('div');
+row.className='wave-row';
+const freq=380+(colors.indexOf(c)/6)*370;
+const period=Math.max(12,25-(colors.indexOf(c)/6)*12);
+row.innerHTML=`<div class="wave-label" style="color:${c.hex}">${c.name}</div>
+<div class="wave-visual"><svg class="wave-svg" viewBox="0 0 200 20" preserveAspectRatio="none">
+<path d="${generateWave(period)}" stroke="${c.hex}" stroke-width="2" fill="none" opacity="0.8"/>
+</svg></div>
+<div style="font-size:9px;color:#475569;width:50px">${c.nm}nm</div>`;
+waveDemo.appendChild(row);
+});
+
+function generateWave(p){
+let d='M0,10';
+for(let x=0;x<=200;x+=2){
+const y=10+8*Math.sin((x/p)*Math.PI*2);
+d+=` L${x},${y}`;
+}
+return d;
+}
+
+function showColorDetail(c){
+document.getElementById('colorDetail').innerHTML=`
+<strong style="color:${c.hex}">● ${c.name} Light</strong><br>
+Wavelength: <strong>${c.nm} nm</strong> | Refractive Index (μ): <strong>${c.mu}</strong><br>
+Speed in glass: ≈ <strong>${c.speed}%</strong> of speed in vacuum (c)<br>
+∵ v = c/μ = 3×10⁸ / ${c.mu} ≈ <strong>${(3e8/c.mu/1e8).toFixed(4)}×10⁸ m/s</strong><br>
+<span style="color:#94a3b8;font-size:10px">Violet bends most (μ highest), Red bends least (μ lowest) — key CBSE exam point!</span>
+`;
+}
+
+// VIBGYOR hover tooltip
+document.querySelectorAll('.v-band').forEach(b=>{
+b.addEventListener('mouseenter',e=>{
+const t=document.getElementById('tooltip');
+t.innerHTML=`<strong style="color:#fbbf24">${b.dataset.color}</strong><br>λ: ${b.dataset.nm}<br>Speed: ${b.dataset.speed}`;
+t.style.opacity='1';
+});
+b.addEventListener('mousemove',e=>{
+const t=document.getElementById('tooltip');
+t.style.left=(e.clientX+10)+'px';
+t.style.top=(e.clientY-40)+'px';
+});
+b.addEventListener('mouseleave',()=>{document.getElementById('tooltip').style.opacity='0'});
+});
+
+// Prism Canvas
+const pc=document.getElementById('prismCanvas');
+const ctx=pc.getContext('2d');
+let animRunning=false,animFrame=null,lightPos=0,prismAngleVal=45;
+
+function resizePrism(){
+pc.width=pc.offsetWidth;
+pc.height=240;
+drawPrism();
+}
+
+document.getElementById('prismAngle').addEventListener('input',function(){
+prismAngleVal=+this.value;
+document.getElementById('angleVal').textContent=this.value+'°';
+lightPos=0;
+drawPrism();
+});
+
+function drawPrism(t=0){
+const w=pc.width,h=pc.height;
+ctx.clearRect(0,0,w,h);
+// Background
+ctx.fillStyle='#0a1628';
+ctx.fillRect(0,0,w,h);
+
+const cx=w/2,cy=h*0.55;
+const pr=Math.min(w,h)*0.28;
+const ang=prismAngleVal*(Math.PI/180);
+const top={x:cx,y:cy-pr*0.9};
+const bl={x:cx-pr*Math.cos(ang/2),y:cy+pr*0.4};
+const br={x:cx+pr*Math.cos(ang/2),y:cy+pr*0.4};
+
+// Prism glow
+ctx.shadowColor='rgba(100,180,255,0.3)';
+ctx.shadowBlur=20;
+const grad=ctx.createLinearGradient(bl.x,top.y,br.x,bl.y);
+grad.addColorStop(0,'rgba(59,130,246,0.25)');
+grad.addColorStop(1,'rgba(124,58,237,0.25)');
+ctx.fillStyle=grad;
+ctx.beginPath();
+ctx.moveTo(top.x,top.y);
+ctx.lineTo(bl.x,bl.y);
+ctx.lineTo(br.x,br.y);
+ctx.closePath();
+ctx.fill();
+ctx.shadowBlur=0;
+ctx.strokeStyle='rgba(147,197,253,0.7)';
+ctx.lineWidth=2;
+ctx.stroke();
+
+// Angle label
+ctx.fillStyle='#fbbf24';
+ctx.font='bold 11px sans-serif';
+ctx.fillText('A='+prismAngleVal+'°',top.x+6,top.y+18);
+
+// Incident white light
+const incStartX=bl.x-80,incStartY=bl.y-60;
+const incEndX=bl.x+(br.x-bl.x)*0.28;
+const incEndY=bl.y+(top.y-bl.y)*0.18+(br.y-top.y)*0.18;
+
+// Animate progress
+const prog=animRunning?Math.min((t%120)/120,1):1;
+
+// Draw white incident ray
+const iEndX=incStartX+(incEndX-incStartX)*Math.min(prog*2,1);
+const iEndY=incStartY+(incEndY-incStartY)*Math.min(prog*2,1);
+ctx.strokeStyle='white';
+ctx.lineWidth=2.5;
+ctx.shadowColor='white';
+ctx.shadowBlur=8;
+ctx.beginPath();
+ctx.moveTo(incStartX,incStartY);
+ctx.lineTo(iEndX,iEndY);
+ctx.stroke();
+ctx.shadowBlur=0;
+
+// Label
+ctx.fillStyle='#e2e8f0';
+ctx.font='10px sans-serif';
+ctx.fillText('White Light',incStartX-60,incStartY-4);
+
+if(prog>0.5){
+const p2=(prog-0.5)*2;
+// Dispersed rays
+const exitX=br.x-(br.x-top.x)*0.15;
+const exitY=br.y-(br.y-top.y)*0.15;
+const spread=prismAngleVal/45;
+colors.forEach((c,i)=>{
+const offset=(i-3)*8*spread;
+const rayEndX=exitX+90*p2;
+const rayEndY=exitY+(30+offset)*p2;
+ctx.strokeStyle=c.hex;
+ctx.lineWidth=2;
+ctx.shadowColor=c.hex;
+ctx.shadowBlur=6;
+ctx.globalAlpha=0.9;
+ctx.beginPath();
+ctx.moveTo(exitX,exitY);
+ctx.lineTo(rayEndX,rayEndY);
+ctx.stroke();
+// Color labels at end
+if(p2>0.8){
+ctx.globalAlpha=p2;
+ctx.fillStyle=c.hex;
+ctx.font='bold 10px sans-serif';
+ctx.shadowBlur=0;
+ctx.fillText(c.short,exitX+95,exitY+(30+offset)+4);
+}
+});
+ctx.globalAlpha=1;
+ctx.shadowBlur=0;
+// Inside prism dispersing lines (lighter)
+colors.forEach((c,i)=>{
+const offset2=(i-3)*3*spread;
+ctx.strokeStyle=c.hex;
+ctx.lineWidth=1;
+ctx.globalAlpha=0.4;
+ctx.beginPath();
+ctx.moveTo(incEndX,incEndY);
+ctx.lineTo(exitX,exitY+offset2*0.3);
+ctx.stroke();
+});
+ctx.globalAlpha=1;
+}
+
+// Normal lines dashed
+ctx.setLineDash([4,4]);
+ctx.strokeStyle='rgba(148,163,184,0.4)';
+ctx.lineWidth=1;
+ctx.beginPath();
+ctx.moveTo(incEndX-30,incEndY);ctx.lineTo(incEndX+30,incEndY);
+ctx.stroke();
+ctx.setLineDash([]);
+}
+
+function toggleAnim(){
+animRunning=!animRunning;
+document.getElementById('animBtn').textContent=animRunning?'⏸ Pause':'▶ Animate';
+document.getElementById('animBtn').classList.toggle('active',animRunning);
+if(animRunning) runAnim();
+else cancelAnimationFrame(animFrame);
+}
+
+let t=0;
+function runAnim(){
+t+=1;
+drawPrism(t%120);
+animFrame=requestAnimationFrame(runAnim);
+}
+
+function resetPrism(){
+animRunning=false;
+document.getElementById('animBtn').textContent='▶ Animate';
+document.getElementById('animBtn').classList.remove('active');
+cancelAnimationFrame(animFrame);
+document.getElementById('prismAngle').value=45;
+prismAngleVal=45;
+document.getElementById('angleVal').textContent='45°';
+t=0;
+drawPrism();
+}
+
+// Rainbow Canvas
+const rc=document.getElementById('rainbowCanvas');
+const rctx=rc.getContext('2d');
+let rainbowShowing=false,secondaryShowing=false,rainbowAnim=null,rainbowT=0;
+
+function resizeRainbow(){
+rc.width=rc.offsetWidth;
+rc.height=rc.parentElement.clientHeight;
+drawRainbow();
+}
+
+function drawRainbow(){
+const w=rc.width,h=rc.height;
+rctx.clearRect(0,0,w,h);
+
+// Sky gradient
+const skyGrad=rctx.createLinearGradient(0,0,0,h);
+skyGrad.addColorStop(0,'#0a1628');
+skyGrad.addColorStop(1,'#1a2744');
+rctx.fillStyle=skyGrad;
+rctx.fillRect(0,0,w,h);
+
+// Ground
+const groundGrad=rctx.createLinearGradient(0,h*0.75,0,h);
+groundGrad.addColorStop(0,'#14532d');
+groundGrad.addColorStop(1,'#052e16');
+rctx.fillStyle=groundGrad;
+rctx.fillRect(0,h*0.75,w,h*0.25);
+
+// Sun
+rctx.fillStyle='#fef08a';
+rctx.shadowColor='

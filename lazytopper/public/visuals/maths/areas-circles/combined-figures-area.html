@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Areas Related to Circles - Combined Figures</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a,#1e3a5f);min-height:100vh;color:#1e293b}
+.title-bar{background:linear-gradient(90deg,#3b82f6,#6366f1);padding:12px 20px;text-align:center;box-shadow:0 4px 15px rgba(59,130,246,0.4)}
+.title-bar h1{color:#fff;font-size:1.2em;font-weight:700}
+.title-bar p{color:#bfdbfe;font-size:0.8em;margin-top:2px}
+.container{max-width:700px;margin:0 auto;padding:16px}
+.card{background:#fff;border-radius:16px;padding:16px;margin:12px 0;box-shadow:0 8px 32px rgba(0,0,0,0.2)}
+.formula-box{background:linear-gradient(135deg,#eff6ff,#dbeafe);border:2px solid #3b82f6;border-radius:12px;padding:14px;text-align:center;margin:12px 0}
+.formula-box .formula{font-size:1.1em;font-weight:700;color:#1e40af;margin:6px 0}
+.formula-box .label{font-size:0.8em;color:#3b82f6}
+.section-title{font-size:1em;font-weight:700;color:#1e293b;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.badge{background:#3b82f6;color:#fff;padding:3px 10px;border-radius:20px;font-size:0.75em}
+.badge-green{background:#22c55e}
+.badge-amber{background:#f59e0b}
+svg{display:block;margin:0 auto}
+.controls{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;justify-content:center}
+button{padding:8px 16px;border:none;border-radius:8px;cursor:pointer;font-size:0.85em;font-weight:600;transition:all 0.2s}
+.btn-primary{background:#3b82f6;color:#fff}
+.btn-primary:hover{background:#2563eb;transform:translateY(-1px)}
+.btn-success{background:#22c55e;color:#fff}
+.btn-success:hover{background:#16a34a}
+.btn-amber{background:#f59e0b;color:#fff}
+.btn-amber:hover{background:#d97706}
+.step-container{margin:10px 0}
+.step{background:#f8fafc;border-left:4px solid #3b82f6;border-radius:0 8px 8px 0;padding:10px 14px;margin:6px 0;display:none;animation:slideIn 0.3s ease}
+.step.visible{display:block}
+.step.green{border-color:#22c55e;background:#f0fdf4}
+.step.amber{border-color:#f59e0b;background:#fffbeb}
+.step.red{border-color:#ef4444;background:#fef2f2}
+@keyframes slideIn{from{opacity:0;translateY(-10px)}to{opacity:1}}
+.step-num{font-weight:700;color:#3b82f6;font-size:0.85em}
+.step-text{font-size:0.9em;color:#1e293b;margin-top:3px}
+.math{font-weight:700;color:#1e40af}
+.highlight{background:#fef9c3;padding:2px 6px;border-radius:4px;font-weight:700}
+.tab-bar{display:flex;gap:4px;background:#f1f5f9;padding:4px;border-radius:10px;margin-bottom:12px}
+.tab{flex:1;padding:8px;text-align:center;border-radius:7px;cursor:pointer;font-size:0.82em;font-weight:600;color:#64748b;transition:all 0.2s}
+.tab.active{background:#3b82f6;color:#fff;box-shadow:0 2px 8px rgba(59,130,246,0.3)}
+.panel{display:none}
+.panel.active{display:block}
+.slider-row{display:flex;align-items:center;gap:10px;margin:8px 0;flex-wrap:wrap}
+.slider-row label{font-size:0.82em;font-weight:600;color:#475569;min-width:80px}
+input[type=range]{flex:1;min-width:100px;accent-color:#3b82f6}
+.val-box{background:#eff6ff;border:1px solid #bfdbfe;border-radius:6px;padding:2px 8px;font-size:0.82em;font-weight:700;color:#1e40af;min-width:55px;text-align:center}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+.info-cell{background:#f8fafc;border-radius:8px;padding:10px;text-align:center;border:1px solid #e2e8f0}
+.info-cell .val{font-size:1.1em;font-weight:700;color:#1e40af}
+.info-cell .lbl{font-size:0.75em;color:#64748b;margin-top:2px}
+.info-cell.green{background:#f0fdf4;border-color:#bbf7d0}
+.info-cell.green .val{color:#15803d}
+.info-cell.red{background:#fef2f2;border-color:#fecaca}
+.info-cell.red .val{color:#dc2626}
+.hint{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px;font-size:0.82em;color:#92400e;margin:8px 0}
+.quiz-opt{background:#f8fafc;border:2px solid #e2e8f0;border-radius:8px;padding:10px;margin:6px 0;cursor:pointer;font-size:0.88em;transition:all 0.2s}
+.quiz-opt:hover{border-color:#3b82f6;background:#eff6ff}
+.quiz-opt.correct{border-color:#22c55e;background:#f0fdf4;color:#15803d}
+.quiz-opt.wrong{border-color:#ef4444;background:#fef2f2;color:#dc2626}
+.result-msg{text-align:center;padding:10px;border-radius:8px;font-weight:700;font-size:0.9em;margin:8px 0;display:none}
+.result-msg.show{display:block}
+.result-msg.correct{background:#f0fdf4;color:#15803d}
+.result-msg.wrong{background:#fef2f2;color:#dc2626}
+.shape-toggle{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin:10px 0}
+.shape-btn{padding:6px 12px;border:2px solid #e2e8f0;border-radius:8px;background:#fff;cursor:pointer;font-size:0.8em;font-weight:600;color:#475569;transition:all 0.2s}
+.shape-btn.active{border-color:#3b82f6;background:#eff6ff;color:#1e40af}
+</style>
+</head>
+<body>
+<div class="title-bar">
+<h1>🔵 Areas Related to Circles</h1>
+<p>संयुक्त आकृतियाँ (Combined Figures) — Class 10 CBSE</p>
+</div>
+<div class="container">
+
+<div class="card">
+<div class="tab-bar">
+<div class="tab active" onclick="switchTab(0)">📐 Concept</div>
+<div class="tab" onclick="switchTab(1)">🔬 Explore</div>
+<div class="tab" onclick="switchTab(2)">📝 Example</div>
+<div class="tab" onclick="switchTab(3)">✅ Quiz</div>
+</div>
+
+<!-- CONCEPT TAB -->
+<div class="panel active" id="panel0">
+<div class="section-title">💡 Key Idea <span class="badge">मूल अवधारणा</span></div>
+<div class="formula-box">
+<div class="label">संयुक्त क्षेत्रफल (Combined Shaded Area)</div>
+<div class="formula">Shaded Area = Total Area − Unshaded Area</div>
+<div class="formula" style="color:#6366f1">Area = A(whole) − A(removed part)</div>
+<div class="label">∴ हम घटाव (subtraction) से छायांकित क्षेत्र निकालते हैं</div>
+</div>
+<div class="hint">💡 <strong>Trick:</strong> Combined figure = Big shape − Small shape(s). Always identify what is ADDED and what is REMOVED!</div>
+<div class="section-title" style="margin-top:12px">🔑 Important Formulas</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+<div class="info-cell"><div class="val">π r²</div><div class="lbl">Circle Area</div></div>
+<div class="info-cell"><div class="val">2π r</div><div class="lbl">Circumference</div></div>
+<div class="info-cell"><div class="val">½ × b × h</div><div class="lbl">Triangle Area</div></div>
+<div class="info-cell"><div class="val">l × b</div><div class="lbl">Rectangle Area</div></div>
+<div class="info-cell"><div class="val">s²</div><div class="lbl">Square Area</div></div>
+<div class="info-cell"><div class="val">θ/360 × πr²</div><div class="lbl">Sector Area</div></div>
+</div>
+<div style="text-align:center;margin-top:10px">
+<svg width="280" height="160" viewBox="0 0 280 160">
+<defs>
+<linearGradient id="bg1" x1="0%" y1="0%" x2="100%" y2="100%">
+<stop offset="0%" style="stop-color:#dbeafe"/>
+<stop offset="100%" style="stop-color:#eff6ff"/>
+</linearGradient>
+</defs>
+<rect x="30" y="20" width="100" height="120" rx="8" fill="url(#bg1)" stroke="#3b82f6" stroke-width="2"/>
+<circle cx="195" cy="80" r="55" fill="#dcfce7" stroke="#22c55e" stroke-width="2"/>
+<circle cx="195" cy="80" r="30" fill="#fef9c3" stroke="#f59e0b" stroke-width="2"/>
+<text x="80" y="88" text-anchor="middle" font-size="11" fill="#1e40af" font-weight="700">Rectangle</text>
+<text x="80" y="102" text-anchor="middle" font-size="10" fill="#3b82f6">whole shape</text>
+<text x="195" y="75" text-anchor="middle" font-size="10" fill="#15803d" font-weight="700">Big</text>
+<text x="195" y="86" text-anchor="middle" font-size="9" fill="#15803d">circle</text>
+<text x="195" y="80" text-anchor="middle" font-size="9" fill="#92400e" dy="-2">−</text>
+<text x="195" y="80" text-anchor="middle" font-size="8" fill="#92400e" dy="6">small</text>
+<text x="5" y="84" font-size="22" fill="#ef4444" font-weight="700">−</text>
+<text x="148" y="84" font-size="22" fill="#6366f1" font-weight="700">=</text>
+<text x="247" y="84" font-size="10" fill="#475569">Shaded</text>
+<text x="247" y="96" font-size="10" fill="#475569">Region</text>
+</svg>
+</div>
+</div>
+
+<!-- EXPLORE TAB -->
+<div class="panel" id="panel1">
+<div class="section-title">🔬 Interactive Explorer <span class="badge badge-green">इंटरेक्टिव</span></div>
+<div class="shape-toggle">
+<div class="shape-btn active" onclick="setShape('sq_circle')">Square − Circle</div>
+<div class="shape-btn" onclick="setShape('circle_tri')">Circle − Triangle</div>
+<div class="shape-btn" onclick="setShape('rect_semicircle')">Rect + Semicircle</div>
+</div>
+<div id="explorer-svg" style="text-align:center;margin:10px 0"></div>
+<div id="slider-area"></div>
+<div class="info-grid" id="info-grid">
+<div class="info-cell"><div class="val" id="v-total">—</div><div class="lbl">Total Area</div></div>
+<div class="info-cell red"><div class="val" id="v-remove">—</div><div class="lbl">Removed Area</div></div>
+<div class="info-cell green"><div class="val" id="v-shaded">—</div><div class="lbl">✅ Shaded Area</div></div>
+<div class="info-cell"><div class="val" id="v-formula">—</div><div class="lbl">Formula Used</div></div>
+</div>
+<div class="hint" id="shape-hint">Drag the slider to change the size and see areas update live!</div>
+</div>
+
+<!-- EXAMPLE TAB -->
+<div class="panel" id="panel2">
+<div class="section-title">📝 Worked Example <span class="badge badge-amber">हल किया उदाहरण</span></div>
+<div style="background:#f8fafc;border-radius:10px;padding:12px;margin-bottom:10px;font-size:0.88em;color:#1e293b">
+<strong>Question:</strong> A square of side <span class="highlight">14 cm</span> has a circle inscribed in it. Find the area of the shaded region (corners of the square not covered by the circle). Use π = 22/7.
+</div>
+<div style="text-align:center;margin:10px 0">
+<svg id="example-svg" width="200" height="200" viewBox="0 0 200 200">
+<rect x="25" y="25" width="150" height="150" fill="#fef3c7" stroke="#f59e0b" stroke-width="2.5"/>
+<circle cx="100" cy="100" r="75" fill="#dbeafe" stroke="#3b82f6" stroke-width="2.5"/>
+<rect x="25" y="25" width="150" height="150" fill="none" stroke="#f59e0b" stroke-width="2.5"/>
+<text x="100" y="30" text-anchor="middle" font-size="11" fill="#92400e" dy="-6">14 cm</text>
+<line x1="25" y1="18" x2="175" y2="18" stroke="#92400e" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="108" y="105" text-anchor="middle" font-size="11" fill="#1e40af">r = 7 cm</text>
+<line x1="100" y1="100" x2="175" y2="100" stroke="#1e40af" stroke-width="1.5" stroke-dasharray="4"/>
+<text x="140" y="96" font-size="10" fill="#1e40af">7</text>
+<text x="25" y="105" text-anchor="middle" font-size="9" fill="#92400e" transform="rotate(-90,25,105)">14 cm</text>
+<text x="55" y="55" font-size="10" fill="#d97706" font-weight="700">Shaded</text>
+</svg>
+</div>
+<div class="controls">
+<button class="btn-primary" onclick="revealStep(0)">▶ Start</button>
+<button class="btn-success" onclick="revealStep(currentStep+1)" id="next-btn" style="display:none">Next Step ▶</button>
+<button class="btn-amber" onclick="resetSteps()">↺ Reset</button>
+</div>
+<div class="step-container" id="steps-container">
+<div class="step" id="s0">
+<div class="step-num">Step 1 — पहचान (Identify Shapes)</div>
+<div class="step-text">We have a <strong>Square</strong> with side = 14 cm, and an <strong>inscribed Circle</strong>.<br>∵ Circle is inscribed, diameter = side of square<br>∴ diameter = 14 cm → <span class="math">r = 7 cm</span></div>
+</div>
+<div class="step" id="s1">
+<div class="step-num">Step 2 — Square का क्षेत्रफल</div>
+<div class="step-text">Area of Square = side²<br><span class="math">= 14 × 14 = 196 cm²</span></div>
+</div>
+<div class="step green" id="s2">
+<div class="step-num">Step 3 — Circle का क्षेत्रफल</div>
+<div class="step-text">Area of Circle = π r²<br><span class="math">= (22/7) × 7 × 7</span><br><span class="math">= 22 × 7 = 154 cm²</span></div>
+</div>
+<div class="step amber" id="s3">
+<div class="step-num">Step 4 — घटाव (Subtract)</div>
+<div class="step-text">Shaded Area = Area of Square − Area of Circle<br><span class="math">= 196 − 154</span><br><span class="math">= <span style="color:#ef4444;font-size:1.1em">42 cm²</span></span></div>
+</div>
+<div class="step" style="border-color:#6366f1;background:#f5f3ff" id="s4">
+<div class="step-num">✅ उत्तर (Answer)</div>
+<div class="step-text" style="font-size:1em">∴ Area of shaded region = <strong style="color:#6366f1;font-size:1.1em">42 cm²</strong><br><small style="color:#6b7280">याद रखें: हमेशा बड़े आकार में से छोटे को घटाएं!</small></div>
+</div>
+</div>
+</div>
+
+<!-- QUIZ TAB -->
+<div class="panel" id="panel3">
+<div class="section-title">✅ Quick Quiz <span class="badge">परीक्षा अभ्यास</span></div>
+<div id="quiz-container"></div>
+</div>
+
+</div>
+</div>
+
+<script>
+var currentTab=0,currentStep=-1,currentShape='sq_circle';
+var quizData=[
+{q:"A circle of radius 7 cm is cut from a square of side 14 cm. Shaded area = ?",opts:["42 cm²","154 cm²","196 cm²","52 cm²"],ans:0},
+{q:"For a sector with radius 14 cm and angle 90°, area = ? (π=22/7)",opts:["154 cm²","308 cm²","44 cm²","616 cm²"],ans:0},
+{q:"A semicircle is placed on top of a rectangle 10cm × 4cm (semicircle diameter=10cm). Total area ≈ ? (π≈3.14)",opts:["79.25 cm²","39.25 cm²","40 cm²","69.25 cm²"],ans:0},
+{q:"Which formula gives area of shaded region in combined figures?",opts:["Big Area − Small Area","Big Area + Small Area","Small Area × 2","Big Area ÷ Small Area"],ans:0}
+];
+var quizAnswered=[];
+
+function switchTab(n){
+currentTab=n;
+document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===n));
+document.querySelectorAll('.panel').forEach((p,i)=>p.classList.toggle('active',i===n));
+if(n===1)renderExplorer();
+if(n===3)renderQuiz();
+}
+
+function setShape(s){
+currentShape=s;
+document.querySelectorAll('.shape-btn').forEach(b=>b.classList.toggle('active',b.textContent.replace(/ /g,'_')===s||b.onclick.toString().includes(s)));
+renderExplorer();
+}
+
+function renderExplorer(){
+var el=document.getElementById('explorer-svg');
+var sa=document.getElementById('slider-area');
+if(currentShape==='sq_circle'){
+sa.innerHTML='<div class="slider-row"><label>Side (s)</label><input type="range" min="4" max="14" value="10" id="sl1" oninput="updateExplorer()"><div class="val-box" id="sv1">10 cm</div></div>';
+drawSqCircle(parseInt(document.getElementById('sl1')?document.getElementById('sl1').value:10));
+}else if(currentShape==='circle_tri'){
+sa.innerHTML='<div class="slider-row"><label>Radius (r)</label><input type="range" min="3" max="10" value="7" id="sl1" oninput="updateExplorer()"><div class="val-box" id="sv1">7 cm</div></div>';
+drawCircleTri(parseInt(document.getElementById('sl1')?document.getElementById('sl1').value:7));
+}else{
+sa.innerHTML='<div class="slider-row"><label>Width (w)</label><input type="range" min="6" max="20" value="10" id="sl1" oninput="updateExplorer()"><div class="val-box" id="sv1">10 cm</div></div><div class="slider-row"><label>Height (h)</label><input type="range" min="3" max="10" value="5" id="sl2" oninput="updateExplorer()"><div class="val-box" id="sv2">5 cm</div></div>';
+drawRectSemi(parseInt(10),parseInt(5));
+}
+updateExplorer();
+}
+
+function updateExplorer(){
+var s1=document.getElementById('sl1'),s2=document.getElementById('sl2');
+var v1=s1?parseInt(s1.value):10,v2=s2?parseInt(s2.value):5;
+if(document.getElementById('sv1'))document.getElementById('sv1').textContent=v1+' cm';
+if(document.getElementById('sv2')&&s2)document.getElementById('sv2').textContent=v2+' cm';
+if(currentShape==='sq_circle'){drawSqCircle(v1);}
+else if(currentShape==='circle_tri'){drawCircleTri(v1);}
+else{drawRectSemi(v1,v2);}
+}
+
+function drawSqCircle(s){
+var r=s/2,pi=3.14159;
+var sc=120,ox=140,oy=100,ss=sc;
+var svg='<svg width="280" height="200" viewBox="0 0 280 200">';
+svg+='<rect x="'+(ox-ss/2)+'" y="'+(oy-ss/2)+'" width="'+ss+'" height="'+ss+'" fill="#fef3c7" stroke="#f59e0b" stroke-width="2.5" rx="2"/>';
+svg+='<circle cx="'+ox+'" cy="'+oy+'" r="'+(ss/2)+'" fill="#dbeafe" stroke="#3b82f6" stroke-width="2.5"/>';
+svg+='<text x="'+ox+'" y="'+(oy-ss/2-6)+'" text-anchor="middle" font-size="11" fill="#92400e">s = '+s+' cm</text>';
+svg+='<line x1="'+ox+'" y1="'+oy+'" x2="'+(ox+ss/2)+'" y2="'+oy+'" stroke="#1e40af" stroke-width="1.5" stroke-dasharray="4"/>';
+svg+='<text x="'+(ox+ss/4)+'" y="'+(oy-5)+'" font-size="10" fill="#1e40af">r='+r+'</text>';
+svg+='<text x="20" y="160" font-size="10" fill="#f59e0b" font-weight="700">■ Square</text>';
+svg+='<text x="20" y="175" font-size="10" fill="#3b82f6" font-weight="700">● Circle</text>';
+svg+='<text x="20" y="190" font-size="10" fill="#d97706" font-weight="700">▪ Shaded</text>';
+svg+='</svg>';
+document.getElementById('explorer-svg').innerHTML=svg;
+var totalA=(s*s).toFixed(2);
+var removeA=(pi*r*r).toFixed(2);
+var shaded=(s*s-pi*r*r).toFixed(2);
+document.getElementById('v-total').textContent=totalA+' cm²';
+document.getElementById('v-remove').textContent=removeA+' cm²';
+document.getElementById('v-shaded').textContent=shaded+' cm²';
+document.getElementById('v-formula').textContent='s² − πr²';
+document.getElementById('shape-hint').textContent='✅ Shaded = Square − Circle = '+s+'² − π×'+r+'² = '+shaded+' cm²';
+}
+
+function drawCircleTri(r){
+var pi=3.14159,sc=90,ox=140,oy=100;
+var triH=r*Math.sqrt(3),triS=2*r;
+var svg='<svg width="280" height="200" viewBox="0 0 280 200">';
+svg+='<circle cx="'+ox+'" cy="'+oy+'" r="'+sc+'" fill="#dcfce7" stroke="#22c55e" stroke-width="2.5"/>';
+var txScale=sc/r;
+var tx1=ox,ty1=oy-r*txScale;
+var tx2=ox-r*txScale*Math.sin(Math.PI/3),ty2=oy+r*txScale*0.5;
+var tx3=ox+r*txScale*Math.sin(Math.PI/3),ty3=oy+r*txScale*0.5;
+svg+='<polygon points="'+tx1+','+ty1+' '+tx2+','+ty2+' '+tx3+','+ty3+'" fill="#fef3c7" stroke="#f59e0b" stroke-width="2.5"/>';
+svg+='<text x="'+ox+'" y="'+(oy-sc-8)+'" text-anchor="middle" font-size="11" fill="#15803d">r = '+r+' cm</text>';
+svg+='<line x1="'+ox+'" y1="'+oy+'" x2="'+tx1+'" y2="'+ty1+'" stroke="#15803d" stroke-width="1.5" stroke-dasharray="4"/>';
+svg+='</svg>';
+document.getElementById('explorer-svg').innerHTML=svg;
+var circA=(pi*r*r).toFixed(2);
+var triA=(Math.sqrt(3)/4*r*r*3).toFixed(2);
+var shaded=(pi*r*r-Math.sqrt(3)/4*3*r*r).toFixed(2);
+document.getElementById('v-total').textContent=circA+' cm²';
+document.getElementById('v-remove').textContent=triA+' cm²';
+document.getElementById('v-shaded').textContent=shaded+' cm²';
+document.getElementById('v-formula').textContent='πr² − (√3/4)a²';
+document.getElementById('shape-hint').textContent='Equilateral triangle inscribed in circle. Shaded = Circle − Triangle = '+shaded+' cm²';
+}
+
+function drawRectSemi(w,h){
+var pi=3.14159,r=w/2;
+var scW=Math.min(200,w*12),scH=h*12,scR=scW/2;
+var ox=140,oy=120;
+var svg='<svg width="280" height="200" viewBox="0 0 280 200">';
+var rx=ox-scW/2,ry=oy-scH/2;
+svg+='<rect x="'+rx+'" y="'+ry+'" width="'+scW+'" height="'+scH+'" fill="#dbeafe" stroke="#3b82f6" stroke-width="2.5"/>';
+svg+='<ellipse cx="'+ox+'" cy="'+ry+'" rx="'+(scW/2)+'" ry="'+(scW/4)+'" fill="#dcfce7" stroke="#22c55e" stroke-width="2.5"/>';
+svg+='<text x="'+ox+'" y="'+(ry+scH/2+5)+'" text-anchor="middle" font-size="11" fill="#1e40af">'+w+' cm</text>';
+svg+='<text x="'+(rx-12)+'" y="'+oy+'" text-anchor="middle" font-size="11" fill="#1e40af" transform="rotate(-90,'+(rx-12)+','+oy+')">'+h+' cm</text>';
+svg+='<text x="'+ox+'" y="'+(ry-scW/4-8)+'" text-anchor="middle" font-size="10" fill="#15803d">Semi = ½π('+r+')²</text>';
+svg+='</svg>';
+document.getElementById('explorer-svg').innerHTML=svg;
+var rectA=(w*h).toFixed(2);
+var semiA=(0.5*pi*r*r).toFixed(2);
+var total=(w*h+0.5*pi*r*r).toFixed(2);
+document.getElementById('v-total').textContent=total+' cm²';
+document.getElementById('v-remove').textContent='Added: '+semiA;
+document.getElementById('v-shaded').textContent=total+' cm²';
+document.getElementById('v-formula').textContent='l×b + ½πr²';
+document.getElementById('shape-hint').textContent='Rectangle + Semicircle on top. Total = '+w+'×'+h+' + ½π×'+r+'² = '+total+' cm²';
+}
+
+function revealStep(n){
+currentStep=n;
+var steps=document.querySelectorAll('.step');
+steps.forEach((s,i)=>s.classList.toggle('visible

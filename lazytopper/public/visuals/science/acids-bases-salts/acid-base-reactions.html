@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Acids, Bases & Salts - Neutralisation</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); min-height: 100vh; color: #1e293b; }
+  
+  .title-bar { background: linear-gradient(90deg, #3b82f6, #6366f1); color: white; padding: 12px 20px; text-align: center; box-shadow: 0 4px 15px rgba(59,130,246,0.4); }
+  .title-bar h1 { font-size: 1.1rem; font-weight: 700; letter-spacing: 0.5px; }
+  .title-bar p { font-size: 0.75rem; opacity: 0.85; margin-top: 2px; }
+  
+  .container { max-width: 700px; margin: 0 auto; padding: 16px; }
+  
+  .card { background: white; border-radius: 16px; padding: 16px; margin-bottom: 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+  
+  .formula-box { background: linear-gradient(135deg, #1e293b, #334155); color: white; border-radius: 14px; padding: 16px; text-align: center; margin-bottom: 14px; box-shadow: 0 6px 25px rgba(0,0,0,0.3); }
+  .formula-box .eq { font-size: 1rem; font-weight: 700; color: #fbbf24; letter-spacing: 1px; line-height: 1.8; }
+  .formula-box .label { font-size: 0.72rem; color: #94a3b8; margin-top: 6px; }
+  .formula-box .hindi { font-size: 0.8rem; color: #86efac; margin-top: 4px; }
+  
+  .section-title { font-size: 0.95rem; font-weight: 700; color: #1e293b; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+  .badge { background: #3b82f6; color: white; border-radius: 20px; padding: 2px 10px; font-size: 0.7rem; }
+  
+  /* pH Slider */
+  .ph-section { }
+  .ph-bar { position: relative; height: 32px; border-radius: 16px; background: linear-gradient(90deg, #ef4444 0%, #f59e0b 25%, #22c55e 50%, #3b82f6 75%, #8b5cf6 100%); margin: 10px 0; box-shadow: inset 0 2px 6px rgba(0,0,0,0.2); cursor: pointer; }
+  .ph-marker { position: absolute; top: -6px; width: 20px; height: 44px; background: white; border: 3px solid #1e293b; border-radius: 6px; transform: translateX(-50%); transition: left 0.1s; box-shadow: 0 2px 8px rgba(0,0,0,0.3); cursor: grab; }
+  .ph-labels { display: flex; justify-content: space-between; font-size: 0.65rem; color: #64748b; padding: 0 4px; }
+  .ph-info { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
+  .ph-value-box { background: #f1f5f9; border-radius: 10px; padding: 8px 14px; text-align: center; flex: 1; margin: 0 4px; }
+  .ph-value-box .val { font-size: 1.3rem; font-weight: 800; }
+  .ph-value-box .lbl { font-size: 0.65rem; color: #64748b; }
+  .ph-nature { font-size: 0.8rem; font-weight: 700; padding: 6px 12px; border-radius: 8px; text-align: center; transition: all 0.3s; }
+  
+  /* Reaction Lab */
+  .lab { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+  .beaker-wrap { text-align: center; cursor: pointer; }
+  .beaker-lbl { font-size: 0.7rem; font-weight: 600; margin-bottom: 4px; }
+  
+  svg.beaker { display: block; margin: 0 auto; }
+  
+  .plus { font-size: 1.4rem; font-weight: 700; color: #64748b; }
+  .arrow-btn { background: linear-gradient(135deg, #3b82f6, #6366f1); color: white; border: none; border-radius: 10px; padding: 10px 18px; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 12px rgba(59,130,246,0.4); }
+  .arrow-btn:hover { transform: scale(1.05); box-shadow: 0 6px 18px rgba(59,130,246,0.5); }
+  .arrow-btn:active { transform: scale(0.97); }
+  
+  .reaction-result { margin-top: 10px; border-radius: 12px; padding: 12px; text-align: center; transition: all 0.4s; opacity: 0; transform: translateY(8px); }
+  .reaction-result.show { opacity: 1; transform: translateY(0); }
+  .reaction-result .res-eq { font-size: 0.9rem; font-weight: 700; }
+  .reaction-result .res-note { font-size: 0.72rem; margin-top: 4px; }
+  
+  /* Bubble animation */
+  @keyframes bubble { 0% { transform: translateY(0) scale(1); opacity: 0.8; } 100% { transform: translateY(-30px) scale(0.5); opacity: 0; } }
+  .bubble { animation: bubble 1.2s ease-out infinite; }
+  
+  /* Step walkthrough */
+  .steps-container { }
+  .step { border-left: 3px solid #e2e8f0; padding: 10px 14px; margin-bottom: 8px; border-radius: 0 10px 10px 0; background: #f8fafc; transition: all 0.4s; opacity: 0.4; cursor: pointer; }
+  .step.active { border-left-color: #3b82f6; background: #eff6ff; opacity: 1; }
+  .step.done { border-left-color: #22c55e; background: #f0fdf4; opacity: 1; }
+  .step-num { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; color: #64748b; margin-bottom: 3px; }
+  .step-title { font-size: 0.85rem; font-weight: 700; color: #1e293b; }
+  .step-body { font-size: 0.78rem; color: #475569; margin-top: 4px; line-height: 1.5; display: none; }
+  .step.active .step-body, .step.done .step-body { display: block; }
+  
+  .nav-btns { display: flex; gap: 8px; margin-top: 10px; }
+  .nav-btn { flex: 1; padding: 9px; border: none; border-radius: 10px; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+  .btn-prev { background: #f1f5f9; color: #475569; }
+  .btn-next { background: linear-gradient(135deg, #22c55e, #16a34a); color: white; box-shadow: 0 4px 12px rgba(34,197,94,0.3); }
+  .btn-prev:hover { background: #e2e8f0; }
+  .btn-next:hover { transform: translateY(-1px); }
+  
+  /* Ion diagram */
+  .ion-diagram { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin: 10px 0; }
+  .ion-box { border-radius: 12px; padding: 10px 14px; text-align: center; min-width: 80px; }
+  .ion-symbol { font-size: 1.2rem; font-weight: 800; }
+  .ion-name { font-size: 0.65rem; margin-top: 2px; }
+  
+  /* Quiz */
+  .quiz-q { font-size: 0.88rem; font-weight: 600; color: #1e293b; margin-bottom: 10px; }
+  .quiz-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .quiz-opt { padding: 9px 10px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.8rem; cursor: pointer; transition: all 0.25s; background: white; text-align: center; font-weight: 600; }
+  .quiz-opt:hover { border-color: #3b82f6; background: #eff6ff; }
+  .quiz-opt.correct { border-color: #22c55e; background: #f0fdf4; color: #16a34a; }
+  .quiz-opt.wrong { border-color: #ef4444; background: #fef2f2; color: #dc2626; }
+  .quiz-feedback { margin-top: 8px; padding: 8px 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 600; display: none; }
+  .quiz-feedback.show { display: block; }
+  
+  @keyframes shake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-5px)} 40%,80%{transform:translateX(5px)} }
+  .shake { animation: shake 0.4s ease; }
+  @keyframes pop { 0%{transform:scale(1)} 50%{transform:scale(1.05)} 100%{transform:scale(1)} }
+  .pop { animation: pop 0.3s ease; }
+  
+  .indicator-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .ind-chip { border-radius: 8px; padding: 5px 10px; font-size: 0.72rem; font-weight: 600; flex: 1; min-width: 90px; text-align: center; }
+
+  @media(max-width:400px){
+    .quiz-opts{grid-template-columns:1fr;}
+    .lab{gap:4px;}
+    .formula-box .eq{font-size:0.85rem;}
+  }
+</style>
+</head>
+<body>
+
+<div class="title-bar">
+  <h1>⚗️ Acids, Bases &amp; Salts — Neutralisation Reaction</h1>
+  <p>CBSE Class 10 Science | अम्ल-क्षार एवं लवण</p>
+</div>
+
+<div class="container">
+
+  <!-- Formula Box -->
+  <div class="formula-box">
+    <div class="eq">Acid + Base → Salt + Water</div>
+    <div class="eq" style="font-size:0.9rem;">HCl + NaOH → NaCl + H₂O</div>
+    <div class="hindi">उदासीनीकरण अभिक्रिया (Neutralisation Reaction)</div>
+    <div class="label">H⁺ (acid) + OH⁻ (base) → H₂O | Net ionic equation</div>
+  </div>
+
+  <!-- pH Explorer -->
+  <div class="card">
+    <div class="section-title">🔬 pH Scale Explorer <span class="badge">Drag!</span></div>
+    <div class="ph-bar" id="phBar">
+      <div class="ph-marker" id="phMarker" style="left:50%"></div>
+    </div>
+    <div class="ph-labels">
+      <span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12</span><span>13</span><span>14</span>
+    </div>
+    <div class="ph-info" style="margin-top:10px;">
+      <div class="ph-value-box">
+        <div class="val" id="phNum" style="color:#22c55e">7</div>
+        <div class="lbl">pH Value</div>
+      </div>
+      <div class="ph-value-box" style="flex:2;">
+        <div class="ph-nature" id="phNature" style="background:#dcfce7;color:#16a34a;">Neutral ⚖️</div>
+        <div class="lbl" id="phExample" style="margin-top:4px;">Pure Water, NaCl Solution</div>
+      </div>
+      <div class="ph-value-box">
+        <div class="val" id="phH" style="color:#ef4444">7</div>
+        <div class="lbl">[H⁺] × 10⁻ᵖᴴ</div>
+      </div>
+    </div>
+    <div class="indicator-row" id="indicatorRow">
+      <div class="ind-chip" style="background:#fde68a;color:#92400e;">Litmus: Purple 🟣</div>
+      <div class="ind-chip" style="background:#fed7aa;color:#9a3412;">Methyl Orange: Orange 🟠</div>
+      <div class="ind-chip" style="background:#bbf7d0;color:#166534;">Phenolphthalein: Colourless ⚪</div>
+    </div>
+  </div>
+
+  <!-- Reaction Lab -->
+  <div class="card">
+    <div class="section-title">🧪 Reaction Lab <span class="badge">Click Mix!</span></div>
+    <div class="lab">
+      <div class="beaker-wrap">
+        <div class="beaker-lbl" style="color:#ef4444">HCl (Acid)</div>
+        <svg class="beaker" width="70" height="90" viewBox="0 0 70 90">
+          <polygon points="10,5 60,5 55,80 15,80" fill="none" stroke="#94a3b8" stroke-width="2.5" stroke-linejoin="round"/>
+          <polygon points="14,30 56,30 55,78 15,78" fill="#fee2e2" opacity="0.9"/>
+          <text x="35" y="58" text-anchor="middle" font-size="9" fill="#ef4444" font-weight="bold">H⁺</text>
+          <text x="35" y="70" text-anchor="middle" font-size="8" fill="#ef4444">Cl⁻</text>
+          <rect x="5" y="2" width="60" height="6" rx="3" fill="#cbd5e1"/>
+        </svg>
+        <div style="font-size:0.65rem;color:#ef4444;margin-top:2px;">pH &lt; 7</div>
+      </div>
+      <div class="plus">+</div>
+      <div class="beaker-wrap">
+        <div class="beaker-lbl" style="color:#3b82f6">NaOH (Base)</div>
+        <svg class="beaker" width="70" height="90" viewBox="0 0 70 90">
+          <polygon points="10,5 60,5 55,80 15,80" fill="none" stroke="#94a3b8" stroke-width="2.5" stroke-linejoin="round"/>
+          <polygon points="14,30 56,30 55,78 15,78" fill="#dbeafe" opacity="0.9"/>
+          <text x="35" y="58" text-anchor="middle" font-size="9" fill="#3b82f6" font-weight="bold">Na⁺</text>
+          <text x="35" y="70" text-anchor="middle" font-size="8" fill="#3b82f6">OH⁻</text>
+          <rect x="5" y="2" width="60" height="6" rx="3" fill="#cbd5e1"/>
+        </svg>
+        <div style="font-size:0.65rem;color:#3b82f6;margin-top:2px;">pH &gt; 7</div>
+      </div>
+      <div>
+        <button class="arrow-btn" id="mixBtn" onclick="doReaction()">⚗️ Mix!</button>
+        <div style="font-size:0.65rem;color:#64748b;text-align:center;margin-top:4px;">Click to react</div>
+      </div>
+      <div class="beaker-wrap" id="resultBeaker" style="opacity:0;transition:opacity 0.5s;">
+        <div class="beaker-lbl" style="color:#22c55e">NaCl + H₂O</div>
+        <svg class="beaker" width="70" height="90" viewBox="0 0 70 90" id="resultSvg">
+          <polygon points="10,5 60,5 55,80 15,80" fill="none" stroke="#94a3b8" stroke-width="2.5" stroke-linejoin="round"/>
+          <polygon points="14,30 56,30 55,78 15,78" fill="#dcfce7" opacity="0.9"/>
+          <text x="35" y="55" text-anchor="middle" font-size="9" fill="#16a34a" font-weight="bold">Na⁺</text>
+          <text x="35" y="66" text-anchor="middle" font-size="8" fill="#16a34a">Cl⁻</text>
+          <text x="35" y="76" text-anchor="middle" font-size="7.5" fill="#16a34a">H₂O</text>
+          <rect x="5" y="2" width="60" height="6" rx="3" fill="#cbd5e1"/>
+          <circle class="bubble" cx="25" cy="50" r="3" fill="none" stroke="#60a5fa" stroke-width="1.2" style="animation-delay:0s"/>
+          <circle class="bubble" cx="38" cy="40" r="2" fill="none" stroke="#60a5fa" stroke-width="1.2" style="animation-delay:0.4s"/>
+          <circle class="bubble" cx="48" cy="55" r="2.5" fill="none" stroke="#60a5fa" stroke-width="1.2" style="animation-delay:0.8s"/>
+        </svg>
+        <div style="font-size:0.65rem;color:#22c55e;margin-top:2px;">pH = 7 ✓</div>
+      </div>
+    </div>
+    <div class="reaction-result" id="reactionResult">
+      <div class="res-eq">HCl + NaOH → NaCl + H₂O + Heat</div>
+      <div class="res-note">🌡️ Exothermic Reaction | ऊष्माक्षेपी अभिक्रिया | Salt formed: Sodium Chloride (Table Salt!)</div>
+    </div>
+  </div>
+
+  <!-- Ion Diagram -->
+  <div class="card">
+    <div class="section-title">⚡ Ion Exchange — What Actually Happens?</div>
+    <div class="ion-diagram">
+      <div class="ion-box" style="background:#fee2e2;">
+        <div class="ion-symbol" style="color:#ef4444">H⁺</div>
+        <div class="ion-name" style="color:#ef4444">Hydrogen ion<br>(from Acid)</div>
+      </div>
+      <div style="font-size:1.5rem;align-self:center;">+</div>
+      <div class="ion-box" style="background:#dbeafe;">
+        <div class="ion-symbol" style="color:#3b82f6">OH⁻</div>
+        <div class="ion-name" style="color:#3b82f6">Hydroxide ion<br>(from Base)</div>
+      </div>
+      <div style="font-size:1.5rem;align-self:center;">→</div>
+      <div class="ion-box" style="background:#dcfce7;">
+        <div class="ion-symbol" style="color:#16a34a">H₂O</div>
+        <div class="ion-name" style="color:#16a34a">Water molecule<br>(Neutral!)</div>
+      </div>
+    </div>
+    <div style="background:#fffbeb;border-radius:10px;padding:10px;margin-top:8px;border-left:3px solid #f59e0b;">
+      <div style="font-size:0.78rem;color:#92400e;font-weight:600;">💡 Net Ionic Equation:</div>
+      <div style="font-size:0.85rem;color:#1e293b;margin-top:3px;font-weight:700;">H⁺(aq) + OH⁻(aq) → H₂O(l)</div>
+      <div style="font-size:0.72rem;color:#64748b;margin-top:3px;">Na⁺ and Cl⁻ are spectator ions (दर्शक आयन) — they don't participate!</div>
+    </div>
+  </div>
+
+  <!-- Step Walkthrough -->
+  <div class="card">
+    <div class="section-title">📋 Worked Example — Step by Step <span class="badge">Click Next!</span></div>
+    <div style="background:#f1f5f9;border-radius:10px;padding:10px;margin-bottom:10px;font-size:0.8rem;color:#475569;">
+      <strong>Problem:</strong> When HCl reacts with NaOH, write the balanced equation and identify products.
+    </div>
+    <div class="steps-container" id="stepsContainer">
+      <div class="step active" id="step0">
+        <div class="step-num">Step 1</div>
+        <div class="step-title">Identify the Reactants</div>
+        <div class="step-body">HCl = Hydrochloric Acid (अम्ल) → Gives H⁺ ions in water<br>NaOH = Sodium Hydroxide (क्षार) → Gives OH⁻ ions in water<br>∴ This is an Acid + Base reaction!</div>
+      </div>
+      <div class="step" id="step1">
+        <div class="step-num">Step 2</div>
+        <div class="step-title">Write the Unbalanced Equation</div>
+        <div class="step-body">HCl + NaOH → NaCl + H₂O<br>Count atoms: H:2, Cl:1, Na:1, O:1 on each side ✓<br>∵ Already balanced! (1:1 ratio)</div>
+      </div>
+      <div class="step" id="step2">
+        <div class="step-num">Step 3</div>
+        <div class="step-title">Identify the Products</div>
+        <div class="step-body">NaCl = Sodium Chloride = Common Table Salt (लवण / नमक)<br>H₂O = Water (जल)<br>Heat is also released → Exothermic (ऊष्माक्षेपी)</div>
+      </div>
+      <div class="step" id="step3">
+        <div class="step-num">Step 4</div>
+        <div class="step-title">Check pH of Products</div>
+        <div class="step-body">NaCl solution → pH = 7 (Neutral salt)<br>Strong acid + Strong base → Neutral salt<br>∴ Neutralisation is complete! उदासीनीकरण हुआ ✓</div>
+      </div>
+      <div class="step" id="step4">
+        <div class="step-num">Step 5</div>
+        <div class="step-title">Final Balanced Equation ✅</div>
+        <div class="step-body" style="font-size:0.85rem;font-weight:700;color:#1e293b;">HCl(aq) + NaOH(aq) → NaCl(aq) + H₂O(l) + Heat<br><span style="color:#22c55e;font-size:0.72rem;">Acid + Base → Salt + Water | उदासीनीकरण अभिक्रिया</span></div>
+      </div>
+    </div>
+    <div class="nav-btns">
+      <button class="nav-btn btn-prev" onclick="prevStep()">← Prev</button>
+      <button class="nav-btn btn-next" onclick="nextStep()">Next →</button>
+    </div>
+  </div>
+
+  <!-- Other Examples -->
+  <div class="card">
+    <div class="section-title">📚 More Neutralisation Examples</div>
+    <div style="display:grid;gap:8px;">
+      <div onclick="toggleEx(this)" style="background:#f1f5f9;border-radius:10px;padding:10px;cursor:pointer;border:2px solid transparent;transition:all 0.25s;">
+        <div style="font-size:0.82rem;font-weight:700;color:#ef4444;">H₂SO₄ + 2KOH → K₂SO₄ + 2H₂O</div>
+        <div class="ex-detail" style="display:none;font-size:0.74rem;color:#475569;margin-top:6px;line-height:1.5;">Sulphuric Acid + Potassium Hydroxide → Potassium Sulphate (salt) + Water. Salt type: Normal salt (pH = 7)</div>
+      </div>
+      <div onclick="toggleEx(this)" style="background:#f1f5f9;border-radius:10px;padding:10px;cursor:pointer;border:2px solid transparent;transition:all 0.25s;">
+        <div style="font-size:0.82rem;font-weight:700;color:#3b82f6;">HNO₃ + NaOH → NaNO₃ + H₂O</div>
+        <div class="ex-detail" style="display:none;font-size:0.74rem;color:#475569;margin-top:6px;line-height:1.5;">Nitric Acid + Sodium Hydroxide → Sodium Nitrate + Water. Used in fertilisers!</div>
+      </div>
+      <div onclick="toggleEx(this)" style="background:#f1f5f9;border-radius:10px;padding:10px;cursor:pointer;border:2px solid transparent;transition:all 0.25s;">
+        <div style="font-size:0.82rem;font-weight:700;color:#f59e0b;">HCl + NH₄OH → NH₄Cl + H₂O</div>
+        <div class="ex-detail" style="display:none;font-size:0.74rem;color:#475569;margin-top:6px;line-height:1.5;">Hydrochloric Acid + Ammonium Hydroxide → Ammonium Chloride + Water. NH₄Cl is used in dry cells!</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Quiz -->
+  <div class="card">
+    <div class="section-title">🎯 Quick Quiz</div>
+    <div id="quizArea">
+      <div class="quiz-q" id="qText">Q1: What is the pH of a neutral solution?</div>
+      <div class="quiz-opts" id="qOpts">
+        <div class="quiz-opt" onclick="checkAns(this,false)">0</div>
+        <div class="quiz-opt" onclick="checkAns(this,true)">7</div>
+        <div class="quiz-opt" onclick="checkAns(this,false)">14</div>
+        <div class="quiz-opt" onclick="checkAns(this,false)">10</div>
+      </div>
+      <div class="quiz-feedback" id="qFeedback"></div>
+      <button class="nav-btn btn-next" onclick="nextQ()" style="margin-top:10px;display:none;" id="nextQBtn">Next Question →</button>
+    </div>
+  </div>
+
+  <div style="text-align:center;padding:10px;color:#64748b;font-size:0.7rem;">
+    CBSE Class 10 Science | Chapter: Acids, Bases and Salts | © Interactive Explainer
+  </div>
+</div>
+
+<script>
+// pH Slider
+const phBar = document.getElementById('phBar');
+const phMarker = document.getElementById('phMarker');
+let isDragging = false;
+let currentPh = 7;
+
+const phData = [
+  {max:3, nature:'Strongly Acidic 🔴', bg:'#fee2e2', color:'#dc2626', ex:'Battery Acid, HCl', ind:['Litmus: Red 🔴','Methyl Orange: Red 🔴','Phenolphthalein: Colourless ⚪']},
+  {max:5, nature:'Weakly Acidic 🟠', bg:'#ffedd5', color:'#ea580c', ex:'Lemon Juice, Vinegar', ind:['Litmus: Red 🔴','Methyl Orange: Red-Orange','Phenolphthalein: Colourless ⚪']},
+  {max:6.5, nature:'Mildly Acidic 🟡', bg:'#fefce8', color:'#ca8a04', ex:'Tomato, Coffee', ind:['Litmus: Red 🔴','Methyl Orange: Orange 🟠','Phenolphthalein: Colourless ⚪']},
+  {max:7.5, nature:'Neutral ⚖️', bg:'#dcfce7', color:'#16a34a', ex:'Pure Water, NaCl Solution', ind:['Litmus: Purple 🟣','Methyl Orange: Orange 🟠','Phenolphthalein: Colourless ⚪']},
+  {max:9, nature:'Mildly Basic 🟢', bg:'#eff6ff', color:'#2563eb', ex:'Baking S

@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Evolution & Speciation | Class 10 Science</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);min-height:100vh;color:#1e293b}
+.title-bar{background:linear-gradient(90deg,#3b82f6,#6366f1);padding:14px 20px;text-align:center;box-shadow:0 4px 20px rgba(59,130,246,0.4)}
+.title-bar h1{color:#fff;font-size:1.2rem;font-weight:700;letter-spacing:1px}
+.title-bar p{color:#bfdbfe;font-size:0.78rem;margin-top:2px}
+.container{max-width:800px;margin:0 auto;padding:16px}
+.card{background:#fff;border-radius:16px;padding:18px;margin-bottom:16px;box-shadow:0 4px 24px rgba(0,0,0,0.15)}
+.section-title{font-size:1rem;font-weight:700;color:#3b82f6;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.badge{background:linear-gradient(135deg,#3b82f6,#6366f1);color:#fff;font-size:0.65rem;padding:3px 8px;border-radius:20px;font-weight:600}
+.hindi{color:#f59e0b;font-weight:600;font-size:0.85rem}
+
+/* Key Concept Box */
+.concept-box{background:linear-gradient(135deg,#eff6ff,#e0f2fe);border:2px solid #3b82f6;border-radius:12px;padding:14px;margin-bottom:14px}
+.concept-box h3{color:#1e40af;font-size:0.9rem;margin-bottom:6px}
+.concept-box p{font-size:0.82rem;color:#1e293b;line-height:1.5}
+
+/* Darwin Simulation */
+.sim-container{position:relative;background:linear-gradient(180deg,#bfdbfe 0%,#bbf7d0 60%,#86efac 100%);border-radius:12px;overflow:hidden;margin-bottom:14px}
+.sim-header{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:rgba(255,255,255,0.3)}
+.sim-header span{font-size:0.8rem;font-weight:600;color:#1e293b}
+.gen-display{background:#1e293b;color:#22c55e;padding:4px 10px;border-radius:8px;font-size:0.8rem}
+.population-area{height:160px;position:relative;padding:8px}
+.animal{position:absolute;cursor:pointer;transition:all 0.4s ease;font-size:1.6rem;user-select:none}
+.animal:hover{transform:scale(1.3)}
+.sim-controls{padding:10px 14px;background:rgba(255,255,255,0.4);display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:none;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:0.78rem;font-weight:600;transition:all 0.2s}
+.btn-primary{background:#3b82f6;color:#fff}
+.btn-primary:hover{background:#2563eb;transform:translateY(-1px)}
+.btn-success{background:#22c55e;color:#fff}
+.btn-success:hover{background:#16a34a}
+.btn-danger{background:#ef4444;color:#fff}
+.btn-danger:hover{background:#dc2626}
+.btn-amber{background:#f59e0b;color:#fff}
+.btn-amber:hover{background:#d97706}
+.stat-row{display:flex;gap:8px;padding:8px 14px;flex-wrap:wrap}
+.stat-box{flex:1;min-width:70px;background:rgba(255,255,255,0.7);border-radius:8px;padding:6px;text-align:center}
+.stat-box .val{font-size:1.1rem;font-weight:700}
+.stat-box .lbl{font-size:0.65rem;color:#64748b}
+
+/* Progress bars */
+.bar-container{margin:6px 0}
+.bar-label{display:flex;justify-content:space-between;font-size:0.75rem;margin-bottom:3px;color:#374151}
+.bar-track{background:#e2e8f0;border-radius:8px;height:10px;overflow:hidden}
+.bar-fill{height:100%;border-radius:8px;transition:width 0.6s ease}
+.bar-green{background:linear-gradient(90deg,#22c55e,#4ade80)}
+.bar-amber{background:linear-gradient(90deg,#f59e0b,#fbbf24)}
+.bar-red{background:linear-gradient(90deg,#ef4444,#f87171)}
+.bar-blue{background:linear-gradient(90deg,#3b82f6,#60a5fa)}
+
+/* Step walkthrough */
+.steps-container{counter-reset:step}
+.step{border-left:3px solid #e2e8f0;padding:10px 14px;margin-bottom:8px;border-radius:0 8px 8px 0;cursor:pointer;transition:all 0.3s;position:relative}
+.step.active{border-left-color:#3b82f6;background:#eff6ff}
+.step.done{border-left-color:#22c55e;background:#f0fdf4}
+.step-title{font-weight:600;font-size:0.85rem;color:#374151;display:flex;align-items:center;gap:8px}
+.step-num{width:22px;height:22px;border-radius:50%;background:#e2e8f0;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;flex-shrink:0}
+.step.active .step-num{background:#3b82f6;color:#fff}
+.step.done .step-num{background:#22c55e;color:#fff}
+.step-content{font-size:0.78rem;color:#64748b;margin-top:6px;line-height:1.5;display:none}
+.step.active .step-content,.step.done .step-content{display:block}
+.step-content.showing{color:#374151}
+
+/* SVG Diagram */
+.svg-diagram{width:100%;border-radius:10px;overflow:hidden}
+.diagram-label{font-size:10px;fill:#1e293b;font-weight:600}
+.tooltip-hint{font-size:0.72rem;color:#64748b;text-align:center;margin-top:4px}
+
+/* Speciation tabs */
+.tabs{display:flex;gap:4px;margin-bottom:12px;flex-wrap:wrap}
+.tab{padding:7px 14px;border-radius:8px;cursor:pointer;font-size:0.78rem;font-weight:600;border:2px solid #e2e8f0;background:#fff;color:#64748b;transition:all 0.2s}
+.tab.active{background:#3b82f6;color:#fff;border-color:#3b82f6}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* Timeline */
+.timeline{position:relative;padding:8px 0}
+.timeline::before{content:'';position:absolute;left:16px;top:0;bottom:0;width:2px;background:linear-gradient(180deg,#3b82f6,#22c55e)}
+.tl-item{display:flex;gap:12px;margin-bottom:14px;align-items:flex-start}
+.tl-dot{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1rem;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.15)}
+.tl-body{flex:1}
+.tl-year{font-size:0.7rem;color:#64748b;font-weight:600}
+.tl-title{font-size:0.85rem;font-weight:700;color:#1e293b}
+.tl-desc{font-size:0.75rem;color:#475569;line-height:1.4;margin-top:2px}
+
+/* Quiz */
+.quiz-option{padding:10px 14px;border:2px solid #e2e8f0;border-radius:10px;margin-bottom:8px;cursor:pointer;font-size:0.82rem;transition:all 0.2s;background:#fff}
+.quiz-option:hover{border-color:#3b82f6;background:#eff6ff}
+.quiz-option.correct{border-color:#22c55e;background:#f0fdf4;color:#166534}
+.quiz-option.wrong{border-color:#ef4444;background:#fef2f2;color:#991b1b}
+.quiz-feedback{padding:10px;border-radius:8px;font-size:0.8rem;margin-top:8px;display:none}
+.quiz-feedback.show{display:block}
+.quiz-feedback.correct{background:#dcfce7;color:#166534;border:1px solid #22c55e}
+.quiz-feedback.wrong{background:#fee2e2;color:#991b1b;border:1px solid #ef4444}
+
+/* Animations */
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.6}}
+@keyframes slideIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.float-anim{animation:float 3s ease-in-out infinite}
+.pulse-anim{animation:pulse 2s infinite}
+.slide-in{animation:slideIn 0.4s ease}
+
+/* Info chips */
+.chip{display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.7rem;font-weight:600;margin:2px}
+.chip-blue{background:#dbeafe;color:#1d4ed8}
+.chip-green{background:#dcfce7;color:#166534}
+.chip-amber{background:#fef3c7;color:#92400e}
+
+/* Responsive */
+@media(max-width:480px){
+.animal{font-size:1.2rem}
+.tab{font-size:0.72rem;padding:6px 10px}
+.btn{font-size:0.72rem;padding:7px 10px}
+}
+</style>
+</head>
+<body>
+
+<div class="title-bar">
+<h1>🧬 Evolution & Speciation | विकास और प्रजातीकरण</h1>
+<p>CBSE Class 10 Science | Chapter: Heredity and Evolution</p>
+</div>
+
+<div class="container">
+
+<!-- Key Concept -->
+<div class="card slide-in">
+<div class="section-title">💡 Core Concept <span class="badge">KEY</span></div>
+<div class="concept-box">
+<h3>Evolution (विकास) — Darwin's Natural Selection</h3>
+<p>Evolution is the change in inherited characteristics of populations over successive generations. <strong>Natural selection</strong> acts on <strong>variations</strong> — individuals with favorable traits survive and reproduce more, passing those traits to offspring.</p>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">
+<span class="chip chip-blue">🔬 Variation (विभिन्नता)</span>
+<span class="chip chip-green">✅ Natural Selection (प्राकृतिक चयन)</span>
+<span class="chip chip-amber">⏳ Speciation (प्रजातीकरण)</span>
+<span class="chip chip-blue">🧬 Inheritance (वंशागति)</span>
+</div>
+</div>
+
+<!-- SIMULATION -->
+<div class="card">
+<div class="section-title">🦋 Natural Selection Simulator <span class="badge">INTERACTIVE</span></div>
+<p style="font-size:0.78rem;color:#64748b;margin-bottom:10px">Simulate how a predator hunts moths! Dark moths survive better on dark bark. Click <b>Hunt!</b> to remove the most visible moth, then <b>Reproduce</b> to grow the population.</p>
+
+<div class="sim-container">
+<div class="sim-header">
+<span>Environment: <span id="envName">🌿 Green Forest</span></span>
+<span class="gen-display">Gen: <span id="genNum">1</span></span>
+</div>
+<div class="population-area" id="populationArea"></div>
+<div class="stat-row">
+<div class="stat-box"><div class="val" id="lightCount" style="color:#f59e0b">0</div><div class="lbl">Light 🦋</div></div>
+<div class="stat-box"><div class="val" id="darkCount" style="color:#374151">0</div><div class="lbl">Dark 🦇</div></div>
+<div class="stat-box"><div class="val" id="totalCount" style="color:#3b82f6">0</div><div class="lbl">Total</div></div>
+<div class="stat-box"><div class="val" id="fitScore" style="color:#22c55e">0%</div><div class="lbl">Dark %</div></div>
+</div>
+<div style="padding:0 14px 8px">
+<div class="bar-container">
+<div class="bar-label"><span>Light Moths</span><span id="lightPct">50%</span></div>
+<div class="bar-track"><div class="bar-fill bar-amber" id="lightBar" style="width:50%"></div></div>
+</div>
+<div class="bar-container">
+<div class="bar-label"><span>Dark Moths</span><span id="darkPct">50%</span></div>
+<div class="bar-track"><div class="bar-fill" id="darkBar" style="width:50%;background:linear-gradient(90deg,#475569,#1e293b)"></div></div>
+</div>
+</div>
+<div class="sim-controls">
+<button class="btn btn-danger" onclick="hunt()">🦅 Hunt! (Remove visible)</button>
+<button class="btn btn-success" onclick="reproduce()">🔄 Reproduce</button>
+<button class="btn btn-amber" onclick="toggleEnv()">🌍 Switch Environment</button>
+<button class="btn btn-primary" onclick="resetSim()">↺ Reset</button>
+</div>
+</div>
+<div id="simMessage" style="font-size:0.78rem;color:#374151;padding:8px;background:#f8fafc;border-radius:8px;margin-top:6px;display:none"></div>
+</div>
+
+<!-- Step Walkthrough -->
+<div class="card">
+<div class="section-title">📚 Darwin's Theory — Step by Step <span class="badge">CLICK TO REVEAL</span></div>
+<p style="font-size:0.78rem;color:#64748b;margin-bottom:12px">Click each step to explore Darwin's mechanism of evolution:</p>
+
+<div id="step1" class="step" onclick="toggleStep(1)">
+<div class="step-title"><div class="step-num">1</div>Overproduction (अत्यधिक प्रजनन)</div>
+<div class="step-content">All living organisms produce <strong>more offspring than can survive</strong>. A single fern can make millions of spores! This creates competition for limited resources like food, space, and mates. <br><br>🌱 <em>Example: A single female salmon lays up to 5,000 eggs, but very few survive to adulthood.</em></div>
+</div>
+
+<div id="step2" class="step" onclick="toggleStep(2)">
+<div class="step-title"><div class="step-num">2</div>Variation (विभिन्नता)</div>
+<div class="step-content">Individuals in a population are <strong>not identical</strong> — they differ in color, size, shape, behavior, etc. These variations arise due to <strong>mutations and sexual reproduction</strong>. Some variations are inherited.<br><br>🧬 <em>Example: Some beetles are green, some are brown — a random mutation caused this difference.</em></div>
+</div>
+
+<div id="step3" class="step" onclick="toggleStep(3)">
+<div class="step-title"><div class="step-num">3</div>Natural Selection (प्राकृतिक चयन)</div>
+<div class="step-content">Individuals with <strong>favorable variations survive</strong> longer and reproduce more — "Survival of the Fittest" (योग्यतम की उत्तरजीविता). The environment acts as a selector.<br><br>🐸 <em>Example: Green frogs survive better in green grass (camouflage), while brown frogs get eaten by birds.</em></div>
+</div>
+
+<div id="step4" class="step" onclick="toggleStep(4)">
+<div class="step-title"><div class="step-num">4</div>Inheritance (वंशागति)</div>
+<div class="step-content">The surviving individuals pass their <strong>favorable traits to offspring</strong> through genes. Over many generations, the favorable trait becomes more common in the population.<br><br>🔬 <em>Favorable variation → More reproduction → More offspring inherit it → Trait becomes dominant</em></div>
+</div>
+
+<div id="step5" class="step" onclick="toggleStep(5)">
+<div class="step-title"><div class="step-num">5</div>Speciation (प्रजातीकरण)</div>
+<div class="step-content">Over a very long time with different selection pressures, populations become <strong>so different they can no longer interbreed</strong> — a new species forms! Geographic isolation is a key factor.<br><br>⏳ <em>Example: Galapagos finches — 13 species evolved from a single ancestor due to different food sources on each island.</em></div>
+</div>
+</div>
+
+<!-- SVG Diagram: Speciation -->
+<div class="card">
+<div class="section-title">🗺️ How Speciation Works <span class="badge">DIAGRAM</span></div>
+<div class="tabs">
+<div class="tab active" onclick="showTab('geo')">Geographic Isolation</div>
+<div class="tab" onclick="showTab('nat')">Natural Selection</div>
+<div class="tab" onclick="showTab('tree')">Evolutionary Tree</div>
+</div>
+
+<div id="geo" class="tab-content active">
+<svg class="svg-diagram" viewBox="0 0 360 180" xmlns="http://www.w3.org/2000/svg">
+<rect width="360" height="180" fill="#f0f9ff" rx="8"/>
+<!-- Left island -->
+<ellipse cx="80" cy="130" rx="65" ry="35" fill="#86efac"/>
+<ellipse cx="80" cy="125" rx="50" ry="25" fill="#4ade80"/>
+<text x="80" y="128" text-anchor="middle" class="diagram-label" fill="#166534">Island A</text>
+<!-- Right island -->
+<ellipse cx="280" cy="130" rx="65" ry="35" fill="#fca5a5"/>
+<ellipse cx="280" cy="125" rx="50" ry="25" fill="#f87171"/>
+<text x="280" y="128" text-anchor="middle" class="diagram-label" fill="#991b1b">Island B</text>
+<!-- Ocean -->
+<rect x="130" y="100" width="100" height="50" fill="#bae6fd" rx="4"/>
+<text x="180" y="130" text-anchor="middle" class="diagram-label" fill="#1d4ed8">OCEAN</text>
+<text x="180" y="142" text-anchor="middle" style="font-size:8px;fill:#1d4ed8">(Geographic Barrier)</text>
+<!-- Original population -->
+<text x="80" y="100" text-anchor="middle" style="font-size:18px">🦜</text>
+<text x="60" y="100" text-anchor="middle" style="font-size:18px">🦜</text>
+<text x="100" y="100" text-anchor="middle" style="font-size:18px">🦜</text>
+<!-- Evolved population -->
+<text x="260" y="100" text-anchor="middle" style="font-size:18px">🦅</text>
+<text x="280" y="100" text-anchor="middle" style="font-size:18px">🦅</text>
+<text x="300" y="100" text-anchor="middle" style="font-size:18px">🦅</text>
+<!-- Ancestor -->
+<text x="180" y="50" text-anchor="middle" style="font-size:20px">🐦</text>
+<text x="180" y="38" text-anchor="middle" class="diagram-label">Common Ancestor</text>
+<!-- Arrows -->
+<path d="M160 55 Q100 75 100 90" stroke="#f59e0b" stroke-width="2" fill="none" marker-end="url(#arr)"/>
+<path d="M200 55 Q260 75 260 90" stroke="#f59e0b" stroke-width="2" fill="none" marker-end="url(#arr)"/>
+<defs><marker id="arr" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#f59e0b"/></marker></defs>
+<!-- Labels -->
+<text x="55" y="168" text-anchor="middle" style="font-size:8px;fill:#166534">Dense forest → Green plumage</text>
+<text x="285" y="168" text-anchor="middle" style="font-size:8px;fill:#991b1b">Open savanna → Sharp talons</text>
+<text x="180" y="16" text-anchor="middle" style="font-size:9px;fill:#475569;font-style:italic">After 1000s of generations...</text>
+<text x="180" y="165" text-anchor="middle" style="font-size:8.5px;fill:#7c3aed;font-weight:700">→ Two different species!</text>
+</svg>
+<p class="tooltip-hint">Geographic isolation (भौगोलिक अलगाव) separates populations → different environments → different selection pressures → new species</p>
+</div>
+
+<div id="nat" class="tab-content">
+<svg class="svg-diagram" viewBox="0 0 360 180" xmlns="http://www.w3.org/2000/svg">
+<rect width="360" height="180" fill="#fefce8" rx="8"/>
+<!-- Generations -->
+<text x="180" y="16" text-anchor="middle" class="diagram-label" style="font-size:10px">How Dark Peppered Moths Increased in Industrial England</text>
+<!-- Gen 1 -->
+<rect x="10" y="25" width="100" height="60" fill="#bbf7d0" rx="6"/>
+<text x="60" y="38" text-anchor="middle" class="diagram-label" style="font-size:9px;fill:#166534">Generation 1</text>
+<text x="60" y="52" text-anchor="middle" style="font-size:14px">🦋🦋🦋🦇🦋</text>
+<text x="60" y="66" text-anchor="middle" class="diagram-label" style="font-size:8px">Light: 80% Dark: 20%</text>
+<text x="60" y="79" text-anchor="middle" style="font-size:8px;fill:#166534">(Light trees)</text>
+<!-- Arrow -->
+<text x="120" y="60" text-anchor="middle" style="font-size:14px;fill:#f59e0b">→</text>
+<text x="120" y="72" text-anchor="middle" style="font-size:7px;fill:#f59e0b">Industry</text>
+<!-- Gen 2 -->
+<rect x="130" y="25" width="100" height="60" fill="#e0e7ff" rx="6"/>
+<text x="180" y="38" text-anchor="middle" class="diagram-label" style="font-size:9px;fill:#4338ca">Generation 5</text>
+<text x="180" y="52" text-anchor="middle" style="font-size:14px">🦋🦇🦇🦇🦋</text>
+<text x="180" y="66" text-anchor="middle" class="diagram-label" style="font-size:8px">Light: 40% Dark: 60%</text>
+<text x="180" y="79" text-anchor="middle" style="font-size:8px;fill:#4338ca">(Sooty trees)</text>
+<!-- Arrow -->
+<text x="240" y="60" text-anchor="middle" style="font-size:14px;fill:#f59e0b">→</text>
+<!-- Gen 3 -->
+<rect x="250" y="25" width="100" height="60" fill="#fee2e2" rx="6"/>
+<text x="300" y="38" text-anchor="middle" class="diagram-label" style="font-size:9px;fill:#991b1b">Generation 10+</text>
+<text x="300" y="52" text-anchor="middle" style="font-size:14px">🦇🦇🦇🦇🦋</text>
+<text x="300" y="66" text-anchor="middle" class="diagram-label" style="font-size:8px">Light: 10% Dark: 90%</text>
+<text x="300" y="79" text-anchor="middle" style="font-size:8px;fill:#991b1b">(Industrial area)</text>
+<!-- Explanation -->
+<rect x="10" y="100" width="340" height="70" fill="white" rx="6" stroke="#e2e8f0" stroke-width="1"/>
+<text x="20" y="116" class="diagram-label" style="font-size:9px">Key Insight: Bark became black due to industrial soot</text>
+<text x="20" y="130" class="diagram-label" style="font-size:9px">→ Light moths VISIBLE on dark bark → Birds ate them</text>
+<text x="20" y="144" class="diagram-label" style="font-size:9px">→ Dark moths CAMOUFLAGED → They survived &amp; reproduced</text>
+<text x="20" y="158" style="font-size:9px;fill:#7c3aed;font-weight:700">→ Natural Selection shifted the population! (केटलवेल का प्रयोग)</text>
+</svg>
+</div>
+
+<div id="tree" class="tab-content">
+<svg class="svg-diagram" viewBox="0 0 360 190" xmlns="http://www.w3.org/2000/svg">
+<rect width="360" height="190" fill="#faf5ff" rx="8"/>
+<text x="180" y="16" text-anchor="middle" class="diagram-label" style="font-size:10px;fill:#7c3aed">Evolutionary / Phylogenetic Tree (विकासवृक्ष)</text>
+<!-- Trunk -->
+<line x1="180" y1="170" x2="180" y2="130" stroke="#92400e" stroke-width="4"/>
+<!-- Branches -->
+<line x1="180" y1="130" x2="100" y2="90" stroke="#a16207" stroke-width="3"/>
+<line x1="180" y1="130" x2="260" y2="90" stroke="#a16207" stroke-width="3"/>
+<line x1="100" y1="90" x2="60" y2="55" stroke="#ca8a04" stroke-width="2"/>
+<line x1="100" y1="90" x2="140" y2="55" stroke="#ca8a04" stroke-width="2"/>
+<line x1="260" y1="90" x2="220" y2="55" stroke="#ca8a04" stroke-width="2"/>
+<line x1="260" y1="90" x2="300" y2="55" stroke="#ca8a04" stroke-width="2"/>
+<line x1="300" y1="55" x2="285" y2="28" stroke="#eab308" stroke-width="1.5"/>
+<line x1="300" y1="55" x2="315" y2="28" stroke="#eab308" stroke-width="1.5"/>
+<!-- Leaf nodes -->
+<circle cx="60" cy="50" r="14" fill="#22c55e"/><text x="60" y="54" text-anchor="middle" style="font-size:9px;fill:white;font-weight:700">Fish</text>
+<circle cx="140" cy="50" r="14" fill="#3b82f6"/><text x="140" y="54" text-anchor="middle" style="font-size:9px;fill:white;font-weight:700">Frog</text>
+<circle cx="220" cy="50" r="14" fill="#f59e0b"/><text x="220" y="54" text-anchor="middle" style="font-size:9px;fill:white;font-weight:700">Bird</text>
+<circle cx="285" cy="24" r="13" fill="#ef4444"/><text x="285" y="28" text-anchor="middle" style="font-size:8px;fill:white;font-weight:700">Monkey</text>
+<circle cx="315" cy="24" r="13" fill="#7c3aed"/><text x="315" y="28" text-anchor="middle" style="font-size:8px;fill:white;font-weight:700">Human</text>
+<!-- Root -->
+<ellipse cx="180" cy="178" rx="45" ry="12" fill="#92400e" opacity="0.3"/>
+<text x="180" y="181" text-anchor="middle" style="font-size:9px;fill:#92400e;font-weight:700">Common Ancestor</text>
+<!-- Time arrow -->
+<line x1="10" y1="170" x2="10" y2="25" stroke="#475569" stroke-width="1.5" marker-end="url(#timeArr)"/>
+<defs><marker id="timeArr" markerWidth="6" markerHeight="5" refX="5" refY="2.5" orient="auto"><polygon points="0 0,6 2.5,0 5" fill="#475569"/></marker></defs>
+<text x="14" y="100" style="

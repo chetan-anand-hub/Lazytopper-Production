@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Food Chain & Food Web | Class 10 Science</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 50%,#0f172a 100%);min-height:100vh;color:#1e293b}
+.titlebar{background:linear-gradient(90deg,#1d4ed8,#3b82f6,#22c55e);padding:12px 20px;text-align:center;color:#fff;position:sticky;top:0;z-index:100;box-shadow:0 4px 20px rgba(59,130,246,0.5)}
+.titlebar h1{font-size:1.1rem;font-weight:700;letter-spacing:1px}
+.titlebar p{font-size:0.75rem;opacity:0.85}
+.container{max-width:800px;margin:0 auto;padding:16px}
+.card{background:rgba(255,255,255,0.97);border-radius:20px;padding:20px;margin-bottom:16px;box-shadow:0 8px 32px rgba(0,0,0,0.3)}
+.section-title{font-size:1rem;font-weight:700;color:#1d4ed8;border-left:4px solid #3b82f6;padding-left:10px;margin-bottom:14px}
+.hindi{color:#7c3aed;font-size:0.8rem;font-weight:600}
+.concept-box{background:linear-gradient(135deg,#eff6ff,#dbeafe);border:2px solid #3b82f6;border-radius:14px;padding:14px;margin-bottom:14px;text-align:center}
+.concept-box h2{color:#1d4ed8;font-size:0.95rem;margin-bottom:6px}
+.formula{background:linear-gradient(135deg,#fef3c7,#fde68a);border:2px solid #f59e0b;border-radius:10px;padding:12px;font-size:0.85rem;font-weight:700;color:#92400e;margin:10px 0}
+
+/* Food Chain SVG area */
+#chainSvg{width:100%;border-radius:12px;overflow:visible}
+.chain-label{font-size:11px;font-weight:700;text-anchor:middle}
+.trophic-tag{font-size:9px;text-anchor:middle;fill:#64748b}
+.energy-pct{font-size:10px;font-weight:700;text-anchor:middle}
+
+/* Trophic pyramid */
+#pyramidSvg{width:100%;max-width:400px;display:block;margin:0 auto}
+
+/* Energy flow */
+.energy-bar-wrap{margin:8px 0}
+.energy-label{font-size:0.75rem;color:#374151;display:flex;justify-content:space-between;margin-bottom:3px}
+.energy-bar-bg{background:#e5e7eb;border-radius:6px;height:22px;overflow:hidden}
+.energy-bar-fill{height:100%;border-radius:6px;display:flex;align-items:center;padding-left:8px;color:#fff;font-size:0.7rem;font-weight:700;transition:width 1.2s cubic-bezier(.4,0,.2,1)}
+
+/* Web interactive */
+#webCanvas{border-radius:14px;background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:2px solid #22c55e;cursor:pointer;max-width:100%}
+
+/* Steps */
+.steps-container{display:flex;flex-direction:column;gap:10px}
+.step{background:#f8fafc;border-radius:12px;padding:12px;border-left:4px solid #cbd5e1;cursor:pointer;transition:all 0.3s;user-select:none}
+.step.active{border-left-color:#3b82f6;background:#eff6ff}
+.step.done{border-left-color:#22c55e;background:#f0fdf4}
+.step-title{font-size:0.85rem;font-weight:700;color:#1e293b;display:flex;align-items:center;gap:8px}
+.step-body{font-size:0.78rem;color:#374151;margin-top:8px;display:none;line-height:1.6}
+.step.active .step-body,.step.done .step-body{display:block}
+.step-num{width:24px;height:24px;border-radius:50%;background:#3b82f6;color:#fff;font-size:0.7rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step.done .step-num{background:#22c55e}
+
+/* Organisms */
+.org-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0}
+.org-chip{padding:6px 12px;border-radius:20px;font-size:0.75rem;font-weight:700;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;border:none;outline:none}
+.org-chip:hover{transform:scale(1.08);box-shadow:0 4px 12px rgba(0,0,0,0.2)}
+.producer{background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff}
+.primary{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff}
+.secondary{background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff}
+.tertiary{background:linear-gradient(135deg,#8b5cf6,#7c3aed);color:#fff}
+.decomposer{background:linear-gradient(135deg,#6b7280,#4b5563);color:#fff}
+
+/* Info tooltip */
+.org-info{background:linear-gradient(135deg,#1e293b,#334155);color:#e2e8f0;border-radius:12px;padding:12px;font-size:0.78rem;line-height:1.6;display:none;margin-top:8px}
+.org-info.show{display:block;animation:fadeIn 0.3s}
+
+/* Quiz */
+.quiz-option{display:block;width:100%;text-align:left;padding:10px 14px;border-radius:10px;border:2px solid #e2e8f0;background:#f8fafc;margin:6px 0;cursor:pointer;font-size:0.8rem;font-weight:600;color:#1e293b;transition:all 0.25s}
+.quiz-option:hover{border-color:#3b82f6;background:#eff6ff}
+.quiz-option.correct{border-color:#22c55e;background:#f0fdf4;color:#166534}
+.quiz-option.wrong{border-color:#ef4444;background:#fef2f2;color:#991b1b}
+.quiz-feedback{font-size:0.78rem;padding:8px;border-radius:8px;margin-top:8px;display:none}
+.quiz-feedback.show{display:block}
+.quiz-feedback.good{background:#f0fdf4;color:#166534}
+.quiz-feedback.bad{background:#fef2f2;color:#991b1b}
+.next-btn{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border:none;border-radius:10px;padding:8px 18px;font-size:0.8rem;font-weight:700;cursor:pointer;margin-top:8px;display:none;transition:transform 0.2s}
+.next-btn:hover{transform:scale(1.05)}
+.btn{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border:none;border-radius:10px;padding:8px 16px;font-size:0.8rem;font-weight:700;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s}
+.btn:hover{transform:scale(1.05);box-shadow:0 4px 12px rgba(59,130,246,0.4)}
+.btn-green{background:linear-gradient(135deg,#22c55e,#16a34a)}
+.btn-amber{background:linear-gradient(135deg,#f59e0b,#d97706)}
+
+/* Animations */
+@keyframes fadeIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.6}}
+@keyframes flow{0%{stroke-dashoffset:30}100%{stroke-dashoffset:0}}
+.flowing{animation:flow 0.8s linear infinite}
+
+/* 10% rule highlight */
+.rule-box{display:flex;align-items:center;justify-content:space-around;flex-wrap:wrap;gap:10px;padding:12px;background:linear-gradient(135deg,#fef3c7,#fffbeb);border-radius:12px;border:2px dashed #f59e0b}
+.rule-item{text-align:center;font-size:0.75rem}
+.rule-num{font-size:1.4rem;font-weight:900;color:#b45309}
+
+/* tabs */
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.tab{padding:6px 14px;border-radius:20px;border:2px solid #e2e8f0;background:#f8fafc;font-size:0.75rem;font-weight:700;cursor:pointer;color:#64748b;transition:all 0.25s}
+.tab.active{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border-color:#3b82f6}
+.tab-content{display:none}
+.tab-content.active{display:block;animation:fadeIn 0.3s}
+
+@media(max-width:480px){.titlebar h1{font-size:0.95rem}.rule-num{font-size:1.1rem}}
+</style>
+</head>
+<body>
+
+<div class="titlebar">
+  <h1>🌿 Food Chain & Food Web | खाद्य श्रृंखला और खाद्य जाल</h1>
+  <p>CBSE Class 10 Science • Chapter: Our Environment • हमारा पर्यावरण</p>
+</div>
+
+<div class="container">
+
+<!-- Concept Intro -->
+<div class="card">
+  <div class="concept-box">
+    <h2>🔑 Core Concept | मूल अवधारणा</h2>
+    <p style="font-size:0.82rem;color:#374151;margin:6px 0">A <strong>Food Chain</strong> shows the linear transfer of energy from one organism to another through feeding. Multiple interlinked food chains form a <strong>Food Web</strong>.</p>
+    <div class="formula">
+      ⚡ 10% Law: Only 10% of energy transfers to next trophic level<br>
+      <span style="font-size:0.75rem">Energy at Trophic Level n = Energy at (n−1) × 0.10</span>
+    </div>
+    <p class="hindi">खाद्य श्रृंखला में केवल 10% ऊर्जा अगले पोषण स्तर तक पहुँचती है</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('chain')">🔗 Food Chain</button>
+    <button class="tab" onclick="showTab('web')">🕸️ Food Web</button>
+    <button class="tab" onclick="showTab('pyramid')">🔺 Energy Pyramid</button>
+    <button class="tab" onclick="showTab('tenlaw')">⚡ 10% Law</button>
+  </div>
+
+  <!-- FOOD CHAIN TAB -->
+  <div id="tab-chain" class="tab-content active">
+    <div class="section-title">Interactive Food Chain | क्लिक करके जानें</div>
+    <p style="font-size:0.75rem;color:#64748b;margin-bottom:10px">👇 Click on any organism to learn about it</p>
+    <svg id="chainSvg" viewBox="0 0 700 160" style="height:160px">
+      <defs>
+        <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#3b82f6"/>
+        </marker>
+        <marker id="arr2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#22c55e"/>
+        </marker>
+      </defs>
+      <!-- Arrows -->
+      <line x1="120" y1="80" x2="185" y2="80" stroke="#3b82f6" stroke-width="2.5" marker-end="url(#arr)" stroke-dasharray="6,3" class="flowing"/>
+      <line x1="285" y1="80" x2="350" y2="80" stroke="#3b82f6" stroke-width="2.5" marker-end="url(#arr)" stroke-dasharray="6,3" class="flowing"/>
+      <line x1="450" y1="80" x2="515" y2="80" stroke="#3b82f6" stroke-width="2.5" marker-end="url(#arr)" stroke-dasharray="6,3" class="flowing"/>
+      <!-- Organisms -->
+      <g onclick="showOrgInfo(0)" style="cursor:pointer">
+        <circle cx="70" cy="80" r="46" fill="url(#g0)" opacity="0.95"/>
+        <circle cx="70" cy="80" r="46" fill="#22c55e" opacity="0.9"/>
+        <text x="70" y="74" class="chain-label" fill="#fff">🌾</text>
+        <text x="70" y="86" class="chain-label" fill="#fff" font-size="9">Grass</text>
+        <text x="70" y="96" class="chain-label" fill="#fff" font-size="8">घास</text>
+        <text x="70" y="134" class="trophic-tag">T₁ Producer</text>
+      </g>
+      <g onclick="showOrgInfo(1)" style="cursor:pointer">
+        <circle cx="235" cy="80" r="46" fill="#f59e0b" opacity="0.9"/>
+        <text x="235" y="74" class="chain-label" fill="#fff">🦗</text>
+        <text x="235" y="86" class="chain-label" fill="#fff" font-size="9">Grasshopper</text>
+        <text x="235" y="96" class="chain-label" fill="#fff" font-size="8">टिड्डा</text>
+        <text x="235" y="134" class="trophic-tag">T₂ Primary Consumer</text>
+      </g>
+      <g onclick="showOrgInfo(2)" style="cursor:pointer">
+        <circle cx="400" cy="80" r="46" fill="#ef4444" opacity="0.9"/>
+        <text x="400" y="74" class="chain-label" fill="#fff">🐸</text>
+        <text x="400" y="86" class="chain-label" fill="#fff" font-size="9">Frog</text>
+        <text x="400" y="96" class="chain-label" fill="#fff" font-size="8">मेंढक</text>
+        <text x="400" y="134" class="trophic-tag">T₃ Secondary Consumer</text>
+      </g>
+      <g onclick="showOrgInfo(3)" style="cursor:pointer">
+        <circle cx="565" cy="80" r="46" fill="#8b5cf6" opacity="0.9"/>
+        <text x="565" y="74" class="chain-label" fill="#fff">🐍</text>
+        <text x="565" y="86" class="chain-label" fill="#fff" font-size="9">Snake</text>
+        <text x="565" y="96" class="chain-label" fill="#fff" font-size="8">साँप</text>
+        <text x="565" y="134" class="trophic-tag">T₄ Tertiary Consumer</text>
+      </g>
+      <!-- Energy labels -->
+      <text x="155" y="68" class="energy-pct" fill="#1d4ed8">10%→</text>
+      <text x="320" y="68" class="energy-pct" fill="#1d4ed8">10%→</text>
+      <text x="485" y="68" class="energy-pct" fill="#1d4ed8">10%→</text>
+    </svg>
+    <div id="orgInfo" class="org-info"></div>
+    <div style="text-align:center;margin-top:8px">
+      <span style="font-size:0.72rem;color:#64748b">Grass → Grasshopper → Frog → Snake | घास → टिड्डा → मेंढक → साँप</span>
+    </div>
+  </div>
+
+  <!-- FOOD WEB TAB -->
+  <div id="tab-web" class="tab-content">
+    <div class="section-title">🕸️ Food Web | खाद्य जाल</div>
+    <p style="font-size:0.75rem;color:#64748b;margin-bottom:8px">👆 Click any organism node to highlight its connections</p>
+    <canvas id="webCanvas" width="680" height="280" style="height:240px"></canvas>
+    <div id="webInfo" style="font-size:0.75rem;color:#374151;margin-top:8px;min-height:20px;text-align:center"></div>
+    <p style="font-size:0.72rem;color:#64748b;margin-top:6px;text-align:center">A food web is multiple <strong>food chains</strong> interconnected — more stable than a single chain!</p>
+  </div>
+
+  <!-- PYRAMID TAB -->
+  <div id="tab-pyramid" class="tab-content">
+    <div class="section-title">🔺 Ecological Pyramid | पारिस्थितिक पिरामिड</div>
+    <svg id="pyramidSvg" viewBox="0 0 400 300" style="height:260px">
+      <defs>
+        <linearGradient id="gp" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#22c55e"/><stop offset="100%" stop-color="#16a34a"/></linearGradient>
+        <linearGradient id="gp2" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#d97706"/></linearGradient>
+        <linearGradient id="gp3" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#ef4444"/><stop offset="100%" stop-color="#dc2626"/></linearGradient>
+        <linearGradient id="gp4" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#7c3aed"/></linearGradient>
+      </defs>
+      <!-- T1 base -->
+      <polygon points="40,270 360,270 320,210 80,210" fill="url(#gp)" rx="4"/>
+      <text x="200" y="247" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">🌾 Producers (T₁)</text>
+      <text x="200" y="263" text-anchor="middle" fill="#fff" font-size="10">10,000 J | उत्पादक</text>
+      <!-- T2 -->
+      <polygon points="80,205 320,205 290,155 110,155" fill="url(#gp2)"/>
+      <text x="200" y="183" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">🦗 Primary Consumer (T₂)</text>
+      <text x="200" y="198" text-anchor="middle" fill="#fff" font-size="10">1,000 J | प्राथमिक उपभोक्ता</text>
+      <!-- T3 -->
+      <polygon points="110,150 290,150 265,105 135,105" fill="url(#gp3)"/>
+      <text x="200" y="127" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">🐸 Secondary Consumer (T₃)</text>
+      <text x="200" y="142" text-anchor="middle" fill="#fff" font-size="10">100 J | द्वितीयक उपभोक्ता</text>
+      <!-- T4 -->
+      <polygon points="135,100 265,100 235,55 165,55" fill="url(#gp4)"/>
+      <text x="200" y="75" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">🐍 Tertiary Consumer (T₄)</text>
+      <text x="200" y="90" text-anchor="middle" fill="#fff" font-size="10">10 J | तृतीयक उपभोक्ता</text>
+      <!-- Top -->
+      <polygon points="165,50 235,50 200,10" fill="#1e293b"/>
+      <text x="200" y="38" text-anchor="middle" fill="#fbbf24" font-size="9" font-weight="700">🦅 Apex</text>
+      <!-- Labels right -->
+      <text x="375" y="247" fill="#15803d" font-size="10" font-weight="700" text-anchor="middle">Max</text>
+      <text x="375" y="183" fill="#b45309" font-size="10" font-weight="700" text-anchor="middle">↓90%</text>
+      <text x="375" y="127" fill="#b91c1c" font-size="10" font-weight="700" text-anchor="middle">↓90%</text>
+      <text x="375" y="75" fill="#5b21b6" font-size="10" font-weight="700" text-anchor="middle">↓90%</text>
+    </svg>
+    <p style="font-size:0.75rem;text-align:center;color:#64748b">Energy <strong>decreases</strong> at each level. Always pyramid-shaped! | ऊर्जा घटती जाती है</p>
+  </div>
+
+  <!-- 10% LAW TAB -->
+  <div id="tab-tenlaw" class="tab-content">
+    <div class="section-title">⚡ 10% Law | ऊर्जा का 10% नियम</div>
+    <p style="font-size:0.78rem;color:#374151;margin-bottom:10px">Given by <strong>Lindeman (1942)</strong>. Only <strong>10%</strong> of energy at each trophic level is transferred to the next. The rest (90%) is lost as heat.</p>
+    <div class="rule-box">
+      <div class="rule-item"><div class="rule-num">10,000J</div><div>T₁ Producers<br>🌾 उत्पादक</div></div>
+      <div style="font-size:1.5rem;color:#f59e0b">→</div>
+      <div class="rule-item"><div class="rule-num">1,000J</div><div>T₂ Herbivore<br>🦗 शाकाहारी</div></div>
+      <div style="font-size:1.5rem;color:#f59e0b">→</div>
+      <div class="rule-item"><div class="rule-num">100J</div><div>T₃ Carnivore<br>🐸 मांसाहारी</div></div>
+      <div style="font-size:1.5rem;color:#f59e0b">→</div>
+      <div class="rule-item"><div class="rule-num">10J</div><div>T₄ Top<br>🐍 शीर्ष</div></div>
+    </div>
+    <button class="btn" onclick="animateBars()" style="margin:12px auto;display:block">▶ Animate Energy Flow</button>
+    <div id="barArea" style="margin-top:10px">
+      <div class="energy-bar-wrap">
+        <div class="energy-label"><span>🌾 T₁ Producers</span><span id="b1t">10,000 J (100%)</span></div>
+        <div class="energy-bar-bg"><div class="energy-bar-fill" id="b1" style="width:0%;background:linear-gradient(90deg,#22c55e,#16a34a)">10,000 J</div></div>
+      </div>
+      <div class="energy-bar-wrap">
+        <div class="energy-label"><span>🦗 T₂ Primary Consumer</span><span id="b2t">1,000 J (10%)</span></div>
+        <div class="energy-bar-bg"><div class="energy-bar-fill" id="b2" style="width:0%;background:linear-gradient(90deg,#f59e0b,#d97706)">1,000 J</div></div>
+      </div>
+      <div class="energy-bar-wrap">
+        <div class="energy-label"><span>🐸 T₃ Secondary Consumer</span><span id="b3t">100 J (1%)</span></div>
+        <div class="energy-bar-bg"><div class="energy-bar-fill" id="b3" style="width:0%;background:linear-gradient(90deg,#ef4444,#dc2626)">100 J</div></div>
+      </div>
+      <div class="energy-bar-wrap">
+        <div class="energy-label"><span>🐍 T₄ Tertiary Consumer</span><span id="b4t">10 J (0.1%)</span></div>
+        <div class="energy-bar-bg"><div class="energy-bar-fill" id="b4" style="width:0%;background:linear-gradient(90deg,#8b5cf6,#7c3aed)">10 J</div></div>
+      </div>
+    </div>
+    <div class="formula" style="margin-top:12px">
+      💡 Why only 3-4 trophic levels? Energy becomes negligible beyond T₄!<br>
+      <span style="font-size:0.72rem">T₅ would have only 1 J — not enough to sustain life</span>
+    </div>
+  </div>
+</div>
+
+<!-- Organism Explorer -->
+<div class="card">
+  <div class="section-title">🔍 Organism Explorer | जीव खोजक</div>
+  <p style="font-size:0.75rem;color:#64748b;margin-bottom:10px">Click any organism to learn its role in the food web</p>
+  <div class="org-row">
+    <button class="org-chip producer" onclick="showChip('prod')">🌾 Producers | उत्पादक</button>
+    <button class="org-chip primary" onclick="showChip('pri')">🦗 Primary Consumer</button>
+    <button class="org-chip secondary" onclick="showChip('sec')">🐸 Secondary Consumer</button>
+    <button class="org-chip tertiary" onclick="showChip('ter')">🐍 Tertiary Consumer</button>
+    <button class="org-chip decomposer" onclick="showChip('dec')">🍄 Decomposers | अपघटक</button>
+  </div>
+  <div id="chipInfo" class="org-info"></div>
+</div>
+
+<!-- Step-by-Step Walkthrough -->
+<div class="card">
+  <div class="section-title">📚 Step-by-Step Walkthrough | चरण-दर-चरण</div>
+  <p style="font-size:0.75rem;color:#64748b;margin-bottom:12px">Click each step to reveal the explanation</p>
+  <div class="steps-container" id="steps"></div>
+  <div style="margin-top:12px;text-align:center">
+    <button class="btn btn-green" onclick="revealAll()">📖 Reveal All Steps</button>
+    <button class="btn" onclick="resetSteps()" style="margin-left:8px">↺ Reset</button>
+  </div>
+</div>
+
+<!-- Quiz -->
+<div class="card">
+  <div class="section-title">🧠 Quick Quiz | त्वरित प्रश्नोत्तरी</div>
+  <div id="quizArea"></div>
+</div>
+
+<!-- Key Points -->
+<div class="card">
+  <div class="section-title">📌 Key Points for Exam | परीक्षा के लिए मुख्य बिंदु</div>
+  <ul style="font-size:0.78rem;line-height:2;color:#374151;padding-left:16px">
+    <li>Food chain always starts with <strong>green plants (Producers/Autotrophs)</strong> | हमेशा हरे पौधों से शुरू</li>
+    <li>Energy flows <strong>unidirectionally</strong> (one way only) | ऊर्जा एकदिशीय प्रवाहित होती है</li>
+    <li><strong>10% Law</strong> by Lindeman — only 10% energy transferred | केवल 10% ऊर्जा स्थानांतरित</li>
+    <li>90% energy is lost as <strong>heat</strong> at each trophic level | 90% ऊष्मा के रूप में खर्च</li>
+    <li>Max <strong>3-4 trophic levels</strong> possible due to energy loss | अधिकतम 3-4 पोषण स्तर</li>
+    <li><strong>Food Web</strong> is more realistic & stable than food chain | खाद्य जाल अधिक स्थिर</li>
+    <li><strong>Decomposers</strong> (Bacteria, Fungi) recycle nutrients | अपघटक पोषक तत्

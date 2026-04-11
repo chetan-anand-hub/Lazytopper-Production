@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Control & Coordination - Nervous System</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#0f172a 100%);min-height:100vh;color:#e2e8f0;overflow-x:hidden}
+.title-bar{background:linear-gradient(90deg,#3b82f6,#8b5cf6,#ec4899);padding:14px 20px;text-align:center;box-shadow:0 4px 20px rgba(59,130,246,0.5)}
+.title-bar h1{font-size:1.2em;font-weight:700;color:#fff;letter-spacing:1px}
+.title-bar p{font-size:0.75em;color:rgba(255,255,255,0.85);margin-top:3px}
+.container{max-width:900px;margin:0 auto;padding:16px}
+.card{background:rgba(30,41,59,0.9);border:1px solid rgba(59,130,246,0.3);border-radius:16px;padding:18px;margin-bottom:16px;box-shadow:0 8px 32px rgba(0,0,0,0.4)}
+.section-title{font-size:1em;font-weight:700;color:#3b82f6;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.section-title span{background:linear-gradient(135deg,#3b82f6,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.tab{padding:8px 14px;border-radius:20px;border:1px solid rgba(59,130,246,0.4);background:rgba(59,130,246,0.1);color:#94a3b8;cursor:pointer;font-size:0.8em;transition:all 0.3s}
+.tab.active{background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#fff;border-color:transparent;box-shadow:0 4px 12px rgba(59,130,246,0.4)}
+.tab-content{display:none}
+.tab-content.active{display:block;animation:fadeIn 0.4s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+svg{width:100%;height:auto}
+.info-box{background:rgba(59,130,246,0.1);border-left:3px solid #3b82f6;border-radius:8px;padding:10px 14px;margin:10px 0;font-size:0.82em;line-height:1.6}
+.green-box{background:rgba(34,197,94,0.1);border-left:3px solid #22c55e}
+.amber-box{background:rgba(245,158,11,0.1);border-left:3px solid #f59e0b}
+.red-box{background:rgba(239,68,68,0.1);border-left:3px solid #ef4444}
+.highlight{color:#f59e0b;font-weight:700}
+.step-btn{background:linear-gradient(135deg,#3b82f6,#6366f1);border:none;color:#fff;padding:10px 20px;border-radius:25px;cursor:pointer;font-size:0.85em;margin:8px 4px;transition:all 0.3s;box-shadow:0 4px 12px rgba(59,130,246,0.3)}
+.step-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(59,130,246,0.5)}
+.step-item{background:rgba(15,23,42,0.6);border-radius:10px;padding:12px;margin:8px 0;border:1px solid rgba(59,130,246,0.2);display:none;animation:slideIn 0.4s ease}
+.step-item.show{display:block}
+@keyframes slideIn{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+.step-num{display:inline-block;background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#fff;border-radius:50%;width:26px;height:26px;text-align:center;line-height:26px;font-size:0.8em;font-weight:700;margin-right:8px}
+.neuron-part{cursor:pointer;transition:all 0.3s}
+.neuron-part:hover{filter:brightness(1.3)}
+.tooltip{position:absolute;background:#1e293b;border:1px solid #3b82f6;border-radius:10px;padding:10px;font-size:0.78em;max-width:200px;z-index:100;pointer-events:none;opacity:0;transition:opacity 0.3s;line-height:1.5;box-shadow:0 8px 24px rgba(0,0,0,0.5)}
+.brain-part{cursor:pointer;transition:all 0.3s}
+.brain-part:hover{filter:brightness(1.2) saturate(1.3)}
+.pulse{animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.6}}
+.signal-dot{animation:moveDot 3s linear infinite}
+@keyframes moveDot{0%{cx:80px}100%{cx:680px}}
+.reflex-btn{background:linear-gradient(135deg,#ef4444,#f59e0b);border:none;color:#fff;padding:10px 22px;border-radius:25px;cursor:pointer;font-size:0.85em;transition:all 0.3s;box-shadow:0 4px 12px rgba(239,68,68,0.3)}
+.reflex-btn:hover{transform:scale(1.05)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:500px){.grid2{grid-template-columns:1fr}.title-bar h1{font-size:1em}}
+.badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:0.72em;font-weight:600;margin:2px}
+.badge-blue{background:rgba(59,130,246,0.2);color:#60a5fa;border:1px solid rgba(59,130,246,0.3)}
+.badge-green{background:rgba(34,197,94,0.2);color:#4ade80;border:1px solid rgba(34,197,94,0.3)}
+.badge-amber{background:rgba(245,158,11,0.2);color:#fbbf24;border:1px solid rgba(245,158,11,0.3)}
+.key-concept{background:linear-gradient(135deg,rgba(59,130,246,0.15),rgba(139,92,246,0.15));border:1px solid rgba(139,92,246,0.4);border-radius:12px;padding:14px;text-align:center;margin:12px 0}
+.key-concept .formula{font-size:1.1em;font-weight:700;color:#a78bfa;margin:6px 0}
+.hindi{color:#f59e0b;font-style:italic}
+</style>
+</head>
+<body>
+<div class="title-bar">
+<h1>🧠 Control &amp; Coordination — Nervous System</h1>
+<p>CBSE Class 10 Science | Chapter 7 | Interactive Visual Explainer</p>
+</div>
+<div class="container">
+<div class="tabs">
+<div class="tab active" onclick="showTab('neuron')">🔬 Neuron</div>
+<div class="tab" onclick="showTab('brain')">🧠 Brain</div>
+<div class="tab" onclick="showTab('reflex')">⚡ Reflex Arc</div>
+<div class="tab" onclick="showTab('synapse')">🔗 Synapse</div>
+<div class="tab" onclick="showTab('quiz')">❓ Quiz</div>
+</div>
+
+<!-- NEURON TAB -->
+<div id="tab-neuron" class="tab-content active">
+<div class="card">
+<div class="section-title"><span>🔬 न्यूरॉन (Neuron) — The Nerve Cell</span></div>
+<div class="key-concept">
+<div style="font-size:0.85em;color:#94a3b8">Key Concept</div>
+<div class="formula">Receptor → Afferent Nerve → CNS → Efferent Nerve → Effector</div>
+<div style="font-size:0.78em;color:#94a3b8;margin-top:4px">Neuron = Basic structural &amp; functional unit of Nervous System</div>
+</div>
+<div class="info-box">👆 <strong>Click on any part</strong> of the neuron below to learn about it!</div>
+<div style="position:relative">
+<svg id="neuronSVG" viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<radialGradient id="cellGrad" cx="50%" cy="50%" r="50%">
+<stop offset="0%" style="stop-color:#8b5cf6;stop-opacity:0.9"/>
+<stop offset="100%" style="stop-color:#6d28d9;stop-opacity:1"/>
+</radialGradient>
+<linearGradient id="axonGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+<stop offset="0%" style="stop-color:#3b82f6"/>
+<stop offset="100%" style="stop-color:#06b6d4"/>
+</linearGradient>
+</defs>
+<!-- Dendrites -->
+<line x1="80" y1="100" x2="40" y2="60" stroke="#22c55e" stroke-width="3" class="neuron-part" onclick="showNeuronInfo('dendrite')" id="d1"/>
+<line x1="80" y1="100" x2="30" y2="100" stroke="#22c55e" stroke-width="3" class="neuron-part" onclick="showNeuronInfo('dendrite')" id="d2"/>
+<line x1="80" y1="100" x2="40" y2="140" stroke="#22c55e" stroke-width="3" class="neuron-part" onclick="showNeuronInfo('dendrite')" id="d3"/>
+<line x1="80" y1="100" x2="55" y2="55" stroke="#22c55e" stroke-width="2" class="neuron-part" onclick="showNeuronInfo('dendrite')"/>
+<line x1="80" y1="100" x2="55" y2="145" stroke="#22c55e" stroke-width="2" class="neuron-part" onclick="showNeuronInfo('dendrite')"/>
+<text x="20" y="50" fill="#4ade80" font-size="11" font-weight="bold">Dendrites</text>
+<!-- Cell Body -->
+<circle cx="115" cy="100" r="35" fill="url(#cellGrad)" class="neuron-part" onclick="showNeuronInfo('cellbody')" stroke="#a78bfa" stroke-width="2"/>
+<circle cx="115" cy="100" r="12" fill="#1e293b" class="neuron-part" onclick="showNeuronInfo('nucleus')"/>
+<circle cx="115" cy="100" r="8" fill="#f59e0b"/>
+<text x="105" y="103" fill="#fff" font-size="8" font-weight="bold">N</text>
+<text x="95" y="148" fill="#c4b5fd" font-size="10" font-weight="bold">Cell Body</text>
+<text x="102" y="158" fill="#c4b5fd" font-size="8">(Cyton/Soma)</text>
+<!-- Axon -->
+<line x1="150" y1="100" x2="560" y2="100" stroke="url(#axonGrad)" stroke-width="6" class="neuron-part" onclick="showNeuronInfo('axon')"/>
+<!-- Myelin Sheaths -->
+<rect x="165" y="93" width="45" height="14" rx="7" fill="#f59e0b" opacity="0.7" class="neuron-part" onclick="showNeuronInfo('myelin')"/>
+<rect x="225" y="93" width="45" height="14" rx="7" fill="#f59e0b" opacity="0.7" class="neuron-part" onclick="showNeuronInfo('myelin')"/>
+<rect x="285" y="93" width="45" height="14" rx="7" fill="#f59e0b" opacity="0.7" class="neuron-part" onclick="showNeuronInfo('myelin')"/>
+<rect x="345" y="93" width="45" height="14" rx="7" fill="#f59e0b" opacity="0.7" class="neuron-part" onclick="showNeuronInfo('myelin')"/>
+<rect x="405" y="93" width="45" height="14" rx="7" fill="#f59e0b" opacity="0.7" class="neuron-part" onclick="showNeuronInfo('myelin')"/>
+<rect x="465" y="93" width="45" height="14" rx="7" fill="#f59e0b" opacity="0.7" class="neuron-part" onclick="showNeuronInfo('myelin')"/>
+<text x="290" y="82" fill="#fbbf24" font-size="10" font-weight="bold">Myelin Sheath</text>
+<text x="280" y="125" fill="#60a5fa" font-size="10" font-weight="bold">Axon (तंत्रिकाक्ष)</text>
+<!-- Nodes of Ranvier -->
+<line x1="213" y1="90" x2="213" y2="110" stroke="#ef4444" stroke-width="2"/>
+<line x1="273" y1="90" x2="273" y2="110" stroke="#ef4444" stroke-width="2"/>
+<line x1="333" y1="90" x2="333" y2="110" stroke="#ef4444" stroke-width="2"/>
+<line x1="393" y1="90" x2="393" y2="110" stroke="#ef4444" stroke-width="2"/>
+<line x1="453" y1="90" x2="453" y2="110" stroke="#ef4444" stroke-width="2"/>
+<line x1="513" y1="90" x2="513" y2="110" stroke="#ef4444" stroke-width="2"/>
+<text x="195" y="78" fill="#f87171" font-size="9">Node of Ranvier</text>
+<!-- Axon terminals -->
+<line x1="560" y1="100" x2="590" y2="75" stroke="#06b6d4" stroke-width="2.5" class="neuron-part" onclick="showNeuronInfo('terminal')"/>
+<line x1="560" y1="100" x2="600" y2="100" stroke="#06b6d4" stroke-width="2.5" class="neuron-part" onclick="showNeuronInfo('terminal')"/>
+<line x1="560" y1="100" x2="590" y2="125" stroke="#06b6d4" stroke-width="2.5" class="neuron-part" onclick="showNeuronInfo('terminal')"/>
+<circle cx="595" cy="72" r="6" fill="#06b6d4" class="neuron-part" onclick="showNeuronInfo('terminal')"/>
+<circle cx="607" cy="100" r="6" fill="#06b6d4" class="neuron-part" onclick="showNeuronInfo('terminal')"/>
+<circle cx="595" cy="128" r="6" fill="#06b6d4" class="neuron-part" onclick="showNeuronInfo('terminal')"/>
+<text x="575" y="148" fill="#22d3ee" font-size="10" font-weight="bold">Axon Terminals</text>
+<!-- Signal animation -->
+<circle r="6" fill="#fff" opacity="0.9">
+<animateMotion dur="3s" repeatCount="indefinite" path="M 150,100 L 560,100"/>
+<animate attributeName="opacity" values="0;1;1;0" dur="3s" repeatCount="indefinite"/>
+</circle>
+</svg>
+</div>
+<div id="neuronInfo" class="info-box" style="display:none;margin-top:8px"></div>
+</div>
+<div class="card">
+<div class="section-title"><span>Types of Neurons (न्यूरॉन के प्रकार)</span></div>
+<div class="grid2">
+<div class="info-box green-box">
+<strong>🟢 Sensory Neuron</strong><br>
+<span class="hindi">(संवेदी न्यूरॉन)</span><br>
+Carries signals <strong>FROM</strong> receptors <strong>TO</strong> CNS. Also called <em>Afferent neuron</em>.
+</div>
+<div class="info-box" style="border-left-color:#3b82f6">
+<strong>🔵 Motor Neuron</strong><br>
+<span class="hindi">(चालक न्यूरॉन)</span><br>
+Carries signals <strong>FROM</strong> CNS <strong>TO</strong> effectors (muscles/glands). Also called <em>Efferent neuron</em>.
+</div>
+<div class="info-box amber-box" style="grid-column:span 1">
+<strong>🟡 Relay/Inter Neuron</strong><br>
+<span class="hindi">(अंतर-न्यूरॉन)</span><br>
+Connects sensory and motor neurons. Found in CNS (Brain &amp; Spinal Cord).
+</div>
+<div class="key-concept" style="margin:0">
+<div style="font-size:0.78em;color:#94a3b8">Nerve Impulse Speed</div>
+<div class="formula">~100 m/s</div>
+<div style="font-size:0.72em;color:#94a3b8">in myelinated fibres</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- BRAIN TAB -->
+<div id="tab-brain" class="tab-content">
+<div class="card">
+<div class="section-title"><span>🧠 मस्तिष्क (Brain) — Control Centre</span></div>
+<div class="info-box">👆 <strong>Click on each brain region</strong> to learn its function!</div>
+<div style="position:relative">
+<svg id="brainSVG" viewBox="0 0 700 320" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<radialGradient id="cerebrumG" cx="40%" cy="40%" r="60%">
+<stop offset="0%" style="stop-color:#f87171"/>
+<stop offset="100%" style="stop-color:#dc2626"/>
+</radialGradient>
+<radialGradient id="cerebellumG" cx="50%" cy="40%" r="60%">
+<stop offset="0%" style="stop-color:#60a5fa"/>
+<stop offset="100%" style="stop-color:#2563eb"/>
+</radialGradient>
+<radialGradient id="medullaG" cx="50%" cy="40%" r="60%">
+<stop offset="0%" style="stop-color:#4ade80"/>
+<stop offset="100%" style="stop-color:#16a34a"/>
+</radialGradient>
+<radialGradient id="thalamusG" cx="50%" cy="40%" r="60%">
+<stop offset="0%" style="stop-color:#fb923c"/>
+<stop offset="100%" style="stop-color:#ea580c"/>
+</radialGradient>
+</defs>
+<!-- Skull outline -->
+<ellipse cx="330" cy="150" rx="240" ry="160" fill="none" stroke="rgba(148,163,184,0.3)" stroke-width="2" stroke-dasharray="8,4"/>
+<!-- Cerebrum - largest part -->
+<ellipse cx="310" cy="120" rx="210" ry="120" fill="url(#cerebrumG)" opacity="0.85" class="brain-part" onclick="showBrainInfo('cerebrum')" id="cerebrum"/>
+<!-- Cerebrum convolutions -->
+<path d="M 150 90 Q 180 70 210 90 Q 240 110 270 90 Q 300 70 330 90 Q 360 110 390 90 Q 420 70 450 90" fill="none" stroke="#fff" stroke-width="2" opacity="0.3"/>
+<path d="M 140 120 Q 170 100 200 120 Q 230 140 260 120 Q 290 100 320 120 Q 350 140 380 120 Q 410 100 440 120 Q 460 130 470 120" fill="none" stroke="#fff" stroke-width="2" opacity="0.3"/>
+<path d="M 150 150 Q 190 130 230 150 Q 270 170 310 150 Q 350 130 390 150 Q 420 165 440 150" fill="none" stroke="#fff" stroke-width="2" opacity="0.3"/>
+<text x="290" y="115" fill="#fff" font-size="16" font-weight="bold" text-anchor="middle">Cerebrum</text>
+<text x="290" y="133" fill="#fecaca" font-size="11" text-anchor="middle">प्रमस्तिष्क</text>
+<!-- Thalamus -->
+<ellipse cx="300" cy="190" rx="55" ry="28" fill="url(#thalamusG)" opacity="0.9" class="brain-part" onclick="showBrainInfo('thalamus')"/>
+<text x="300" y="195" fill="#fff" font-size="10" font-weight="bold" text-anchor="middle">Thalamus</text>
+<!-- Cerebellum -->
+<ellipse cx="480" cy="225" rx="100" ry="70" fill="url(#cerebellumG)" opacity="0.88" class="brain-part" onclick="showBrainInfo('cerebellum')"/>
+<path d="M 410 215 Q 440 200 470 215 Q 500 230 530 215 Q 550 205 560 215" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.4"/>
+<path d="M 408 230 Q 440 215 470 230 Q 500 245 530 230 Q 552 218 562 230" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.4"/>
+<text x="480" y="228" fill="#fff" font-size="14" font-weight="bold" text-anchor="middle">Cerebellum</text>
+<text x="480" y="244" fill="#bfdbfe" font-size="10" text-anchor="middle">अनुमस्तिष्क</text>
+<!-- Medulla Oblongata -->
+<rect x="265" y="240" width="80" height="65" rx="15" fill="url(#medullaG)" opacity="0.9" class="brain-part" onclick="showBrainInfo('medulla')"/>
+<text x="305" y="268" fill="#fff" font-size="10" font-weight="bold" text-anchor="middle">Medulla</text>
+<text x="305" y="281" fill="#fff" font-size="9" text-anchor="middle">Oblongata</text>
+<text x="305" y="294" fill="#bbf7d0" font-size="9" text-anchor="middle">मज्जा</text>
+<!-- Hypothalamus -->
+<ellipse cx="270" cy="210" rx="38" ry="20" fill="#a78bfa" opacity="0.85" class="brain-part" onclick="showBrainInfo('hypothalamus')"/>
+<text x="270" y="214" fill="#fff" font-size="9" font-weight="bold" text-anchor="middle">Hypothalamus</text>
+<!-- Spinal cord -->
+<rect x="290" y="300" width="30" height="18" rx="5" fill="#94a3b8"/>
+<text x="305" y="313" fill="#fff" font-size="8" text-anchor="middle">S.C.</text>
+<!-- Labels with arrows -->
+<line x1="105" y1="120" x2="160" y2="105" stroke="#f87171" stroke-width="1.5" stroke-dasharray="4,3"/>
+<text x="25" y="118" fill="#f87171" font-size="10">Cerebrum</text>
+<text x="35" y="130" fill="#f87171" font-size="9">(Thinking)</text>
+<line x1="595" y1="220" x2="565" y2="225" stroke="#60a5fa" stroke-width="1.5" stroke-dasharray="4,3"/>
+<text x="598" y="215" fill="#60a5fa" font-size="10">Cerebellum</text>
+<text x="598" y="227" fill="#60a5fa" font-size="9">(Balance)</text>
+<line x1="220" y1="310" x2="268" y2="270" stroke="#4ade80" stroke-width="1.5" stroke-dasharray="4,3"/>
+<text x="130" y="305" fill="#4ade80" font-size="10">Medulla</text>
+<text x="118" y="317" fill="#4ade80" font-size="9">(Vital functions)</text>
+</svg>
+</div>
+<div id="brainInfo" class="info-box" style="margin-top:8px">
+<strong>Click on a brain region above to see its function!</strong>
+</div>
+</div>
+<div class="card">
+<div class="section-title"><span>Brain Functions Summary (मस्तिष्क के कार्य)</span></div>
+<div class="grid2">
+<div class="info-box red-box">
+<strong style="color:#f87171">🔴 Cerebrum (प्रमस्तिष्क)</strong><br>
+Thinking, memory, intelligence, voluntary actions, speech, hearing, vision
+</div>
+<div class="info-box" style="border-left-color:#3b82f6">
+<strong style="color:#60a5fa">🔵 Cerebellum (अनुमस्तिष्क)</strong><br>
+Balance, posture, coordination of muscular movements
+</div>
+<div class="info-box green-box">
+<strong style="color:#4ade80">🟢 Medulla Oblongata (मज्जा)</strong><br>
+Breathing, heartbeat, blood pressure, swallowing — <em>Vital functions</em>
+</div>
+<div class="info-box amber-box">
+<strong style="color:#fbbf24">🟡 Hypothalamus</strong><br>
+Temperature regulation, hunger, thirst, sleep, endocrine link
+</div>
+</div>
+<div class="info-box" style="margin-top:10px">
+<strong>🛡️ Protection:</strong> Brain is protected by <span class="highlight">Cranium (skull)</span> + <span class="highlight">3 Meninges</span> (Dura mater, Arachnoid, Pia mater) + <span class="highlight">CSF</span> (Cerebrospinal Fluid)
+</div>
+<div class="info-box green-box" style="margin-top:6px">
+<strong>🦴 Spinal Cord (मेरुरज्जु):</strong> Protected by <span class="highlight">Vertebral column (backbone)</span>. Controls reflex actions and connects brain to body.
+</div>
+</div>
+</div>
+
+<!-- REFLEX ARC TAB -->
+<div id="tab-reflex" class="tab-content">
+<div class="card">
+<div class="section-title"><span>⚡ Reflex Arc — अनैच्छिक क्रिया</span></div>
+<div class="key-concept">
+<div class="formula">Stimulus → Receptor → Sensory Nerve → Spinal Cord → Motor Nerve → Effector → Response</div>
+<div style="font-size:0.78em;color:#94a3b8;margin-top:6px">Reflex actions are automatic — Brain is NOT involved initially!</div>
+</div>
+<div style="text-align:center;margin:12px 0">
+<button class="reflex-btn" onclick="animateReflex()">⚡ Trigger Stimulus! (Click Me)</button>
+</div>
+<div style="position:relative">
+<svg id="reflexSVG" viewBox="0 0 700 260" xmlns="http://www.w3.org/2000/svg">
+<!-- Body outline simplified -->
+<text x="350" y="20" fill="#94a3b8" font-size="12" text-anchor="middle" font-weight="bold">REFLEX ARC — पिन चुभना (Pin Prick Example)</text>
+<!-- Spinal cord -->
+<rect x="320" y="35" width="60" height="185" rx="15" fill="rgba(245,158,11,0.15)" stroke="#f59e0b" stroke-width="2"/>
+<text x="350" y="128" fill="#fbbf24" font-size="10" font-weight="bold" text-anchor="middle">Spinal</text>
+<text x="350" y="142" fill="#fbbf24" font-size="10" font-weight="bold" text-anchor="middle">Cord</text>
+<text x="350" y="156" fill="#fbbf24" font-size="9" text-anchor="middle">(मेरुरज्जु)</text>
+<!-- Receptor - finger -->
+<rect x="30" y="155" width="60" height="35" rx="8" fill="rgba(239,68,68,0.2)" stroke="#ef4444" stroke-width="2"/>
+<text x="60" y="172" fill="#f87171" font-size="10" text-anchor="middle" font-weight="bold">Receptor</text>
+<text x="60" y="184" fill="#f87171" font-size="9" text-anchor="middle">(Finger/Skin)</text>
+<!-- Pin -->
+<line x1="60" y1="145" x2="60" y2="158" stroke="#ef4444" stroke-width="3" id="pinLine"/>
+<polygon points="60,140 55,152 65,152" fill="#ef4444" id="pinHead"/>
+<text x="70" y

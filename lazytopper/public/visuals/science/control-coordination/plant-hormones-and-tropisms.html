@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plant Hormones & Tropisms | CBSE Class 10</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#0f172a 100%);min-height:100vh;color:#e2e8f0;overflow-x:hidden}
+.title-bar{background:linear-gradient(90deg,#1d4ed8,#3b82f6,#22c55e);padding:12px 20px;text-align:center;box-shadow:0 4px 20px rgba(59,130,246,0.4)}
+.title-bar h1{font-size:1.2em;font-weight:700;color:#fff;letter-spacing:1px}
+.title-bar p{font-size:0.75em;color:#bfdbfe;margin-top:2px}
+.container{max-width:800px;margin:0 auto;padding:15px}
+.card{background:linear-gradient(135deg,#1e293b,#0f172a);border:1px solid #334155;border-radius:16px;padding:18px;margin-bottom:15px;box-shadow:0 8px 32px rgba(0,0,0,0.4)}
+.card-title{font-size:1em;font-weight:700;color:#3b82f6;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.7em;font-weight:600}
+.badge-blue{background:#1d4ed8;color:#bfdbfe}
+.badge-green{background:#15803d;color:#bbf7d0}
+.badge-amber{background:#b45309;color:#fde68a}
+
+/* Hormone Cards */
+.hormone-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hormone-card{border-radius:12px;padding:14px;cursor:pointer;transition:all 0.3s;border:2px solid transparent;position:relative;overflow:hidden}
+.hormone-card:hover{transform:translateY(-3px);box-shadow:0 8px 25px rgba(0,0,0,0.5)}
+.hormone-card.auxin{background:linear-gradient(135deg,#1d4ed8,#2563eb)}
+.hormone-card.gibberellin{background:linear-gradient(135deg,#15803d,#16a34a)}
+.hormone-card.cytokinin{background:linear-gradient(135deg,#b45309,#d97706)}
+.hormone-card.abscisic{background:linear-gradient(135deg,#9f1239,#e11d48)}
+.hormone-card.ethylene{background:linear-gradient(135deg,#6d28d9,#7c3aed)}
+.hormone-card h3{font-size:0.9em;font-weight:700;color:#fff}
+.hormone-card .hindi{font-size:0.7em;color:rgba(255,255,255,0.7);font-style:italic}
+.hormone-card .func{font-size:0.75em;color:rgba(255,255,255,0.9);margin-top:6px;display:none}
+.hormone-card.active .func{display:block}
+.hormone-card .icon{font-size:1.5em;margin-bottom:5px}
+.tap-hint{font-size:0.65em;color:rgba(255,255,255,0.5);position:absolute;bottom:8px;right:10px}
+
+/* Tropism Interactive */
+.tropism-container{position:relative;background:#0f172a;border-radius:12px;overflow:hidden;height:280px}
+.tropism-tabs{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.tab-btn{padding:7px 14px;border-radius:8px;border:none;cursor:pointer;font-size:0.8em;font-weight:600;transition:all 0.3s;background:#1e293b;color:#94a3b8;border:1px solid #334155}
+.tab-btn.active{background:#3b82f6;color:#fff;border-color:#3b82f6;box-shadow:0 0 15px rgba(59,130,246,0.4)}
+
+/* SVG Diagram */
+svg{width:100%;height:100%}
+.light-ray{stroke:#f59e0b;stroke-width:2;opacity:0}
+.plant-stem{transition:d 0.5s ease}
+
+/* Auxin animation */
+@keyframes flowDown{0%{cy:20}100%{cy:80}}
+@keyframes flowUp{0%{cy:80}100%{cy:20}}
+@keyframes glow{0%,100%{opacity:0.3}50%{opacity:1}}
+@keyframes sunray{0%{opacity:0}50%{opacity:0.8}100%{opacity:0}}
+@keyframes grow{0%{transform:scaleY(0)}100%{transform:scaleY(1)}}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+
+/* Step walkthrough */
+.steps-container{counter-reset:step}
+.step-item{display:flex;gap:12px;margin-bottom:12px;opacity:0;transform:translateY(20px);transition:all 0.4s}
+.step-item.visible{opacity:1;transform:translateY(0)}
+.step-num{min-width:32px;height:32px;border-radius:50%;background:#3b82f6;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85em;flex-shrink:0}
+.step-content{background:#1e293b;border-radius:10px;padding:10px 14px;flex:1;border-left:3px solid #3b82f6}
+.step-content h4{font-size:0.85em;color:#93c5fd;margin-bottom:4px}
+.step-content p{font-size:0.78em;color:#cbd5e1;line-height:1.5}
+.next-btn{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border:none;padding:10px 24px;border-radius:10px;cursor:pointer;font-size:0.85em;font-weight:600;transition:all 0.3s;margin-top:8px}
+.next-btn:hover{transform:scale(1.05);box-shadow:0 4px 15px rgba(59,130,246,0.4)}
+.next-btn:disabled{opacity:0.4;cursor:not-allowed;transform:none}
+
+/* Key concept box */
+.concept-box{background:linear-gradient(135deg,rgba(59,130,246,0.15),rgba(34,197,94,0.15));border:1px solid #3b82f6;border-radius:12px;padding:14px;margin-bottom:12px}
+.concept-box h3{color:#60a5fa;font-size:0.9em;margin-bottom:8px}
+.concept-box p{font-size:0.8em;color:#cbd5e1;line-height:1.6}
+
+/* Quiz */
+.quiz-option{background:#1e293b;border:2px solid #334155;border-radius:10px;padding:10px 14px;margin-bottom:8px;cursor:pointer;font-size:0.82em;transition:all 0.3s}
+.quiz-option:hover{border-color:#3b82f6;background:#1d4ed8}
+.quiz-option.correct{border-color:#22c55e;background:rgba(34,197,94,0.2);color:#86efac}
+.quiz-option.wrong{border-color:#ef4444;background:rgba(239,68,68,0.2);color:#fca5a5}
+.quiz-feedback{font-size:0.8em;padding:10px;border-radius:8px;margin-top:8px;display:none}
+.quiz-feedback.show{display:block}
+.quiz-feedback.correct{background:rgba(34,197,94,0.2);color:#86efac;border:1px solid #22c55e}
+.quiz-feedback.wrong{background:rgba(239,68,68,0.2);color:#fca5a5;border:1px solid #ef4444}
+
+/* Auxin distribution visual */
+.auxin-demo{display:flex;gap:15px;align-items:flex-end;justify-content:center;padding:15px}
+.cell-col{display:flex;flex-direction:column;align-items:center;gap:4px}
+.cell-col label{font-size:0.7em;color:#94a3b8}
+.cell{width:28px;height:20px;border-radius:4px;background:#334155;transition:all 0.5s}
+.cell.auxin-high{background:linear-gradient(135deg,#3b82f6,#1d4ed8);box-shadow:0 0 8px rgba(59,130,246,0.6)}
+.stem-visual{display:flex;gap:2px;padding:10px 0}
+.comparison{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.comp-box{background:#1e293b;border-radius:10px;padding:12px;text-align:center;border:1px solid #334155}
+.comp-box h4{font-size:0.78em;color:#60a5fa;margin-bottom:6px}
+.comp-box p{font-size:0.72em;color:#94a3b8}
+
+/* Floating particles */
+@keyframes float{0%,100%{transform:translateY(0) rotate(0deg);opacity:0.6}50%{transform:translateY(-20px) rotate(180deg);opacity:0.3}}
+.particle{position:fixed;border-radius:50%;pointer-events:none;animation:float linear infinite}
+
+/* Responsive */
+@media(max-width:480px){
+  .hormone-grid{grid-template-columns:1fr}
+  .comparison{grid-template-columns:1fr}
+  .tropism-container{height:220px}
+}
+</style>
+</head>
+<body>
+
+<div class="title-bar">
+  <h1>🌿 Plant Hormones & Tropisms</h1>
+  <p>पादप हार्मोन | CBSE Class 10 Science — Control & Coordination</p>
+</div>
+
+<div class="container">
+
+  <!-- Key Concept -->
+  <div class="card">
+    <div class="card-title">💡 Key Concept <span class="badge badge-blue">पादप हार्मोन</span></div>
+    <div class="concept-box">
+      <h3>What are Plant Hormones?</h3>
+      <p>Plant hormones (पादप हार्मोन) are chemical messengers produced in small quantities that control and coordinate growth, development, and responses to the environment. Unlike animals, plants do NOT have a nervous system — hormones do all the signaling!</p>
+    </div>
+    <div style="text-align:center;padding:10px;background:rgba(59,130,246,0.1);border-radius:10px;border:1px dashed #3b82f6">
+      <span style="font-size:0.85em;color:#93c5fd;font-weight:600">⚡ Golden Rule: </span>
+      <span style="font-size:0.82em;color:#e2e8f0">Stimulus → Hormone Released → Differential Growth → Movement/Response</span>
+    </div>
+  </div>
+
+  <!-- Hormone Cards - Interactive -->
+  <div class="card">
+    <div class="card-title">🧪 5 Plant Hormones <span style="font-size:0.7em;color:#64748b;margin-left:8px">👆 Tap to reveal functions</span></div>
+    <div class="hormone-grid" id="hormoneGrid">
+      <div class="hormone-card auxin" onclick="toggleHormone(this)">
+        <div class="icon">☀️</div>
+        <h3>Auxin (ऑक्सिन)</h3>
+        <div class="hindi">वृद्धि हार्मोन</div>
+        <div class="func">• Promotes cell elongation<br>• Causes phototropism & geotropism<br>• Produced at shoot tip (apical meristem)<br>• Moves from tip downward</div>
+        <div class="tap-hint">tap to expand</div>
+      </div>
+      <div class="hormone-card gibberellin" onclick="toggleHormone(this)">
+        <div class="icon">🌱</div>
+        <h3>Gibberellin (जिबरेलिन)</h3>
+        <div class="hindi">बौनापन-रोधी हार्मोन</div>
+        <div class="func">• Promotes stem elongation<br>• Helps in seed germination<br>• Breaks dormancy in seeds<br>• Makes dwarf plants grow tall</div>
+        <div class="tap-hint">tap to expand</div>
+      </div>
+      <div class="hormone-card cytokinin" onclick="toggleHormone(this)">
+        <div class="icon">🔬</div>
+        <h3>Cytokinin (साइटोकाइनिन)</h3>
+        <div class="hindi">कोशिका विभाजन हार्मोन</div>
+        <div class="func">• Promotes cell division<br>• Delays aging (senescence)<br>• Works WITH auxin<br>• Promotes lateral bud growth</div>
+        <div class="tap-hint">tap to expand</div>
+      </div>
+      <div class="hormone-card abscisic" onclick="toggleHormone(this)">
+        <div class="icon">🍂</div>
+        <h3>Abscisic Acid (एब्सिसिक एसिड)</h3>
+        <div class="hindi">तनाव हार्मोन</div>
+        <div class="func">• Inhibits growth (stress hormone)<br>• Causes stomata to CLOSE in drought<br>• Promotes seed dormancy<br>• Causes leaf fall (abscission)</div>
+        <div class="tap-hint">tap to expand</div>
+      </div>
+      <div class="hormone-card ethylene" onclick="toggleHormone(this)" style="grid-column:span 2">
+        <div class="icon">🍌</div>
+        <h3>Ethylene (एथिलीन) — Only Gas Hormone!</h3>
+        <div class="hindi">फल पकाने वाला हार्मोन</div>
+        <div class="func">• Promotes fruit ripening 🍎<br>• Causes flowers to wither<br>• Promotes horizontal growth<br>• Commercially used to ripen bananas & mangoes</div>
+        <div class="tap-hint">tap to expand</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tropism Interactive Demo -->
+  <div class="card">
+    <div class="card-title">🌍 Tropisms — Interactive Diagram</div>
+    <div class="tropism-tabs">
+      <button class="tab-btn active" onclick="showTropism('photo')">☀️ Phototropism</button>
+      <button class="tab-btn" onclick="showTropism('geo')">🌍 Geotropism</button>
+      <button class="tab-btn" onclick="showTropism('hydro')">💧 Hydrotropism</button>
+      <button class="tab-btn" onclick="showTropism('thigmo')">🤏 Thigmotropism</button>
+    </div>
+    <div class="tropism-container" id="tropismContainer">
+      <svg id="tropismSvg" viewBox="0 0 400 280" preserveAspectRatio="xMidYMid meet"></svg>
+    </div>
+    <div id="tropismInfo" style="background:#1e293b;border-radius:10px;padding:12px;margin-top:10px;font-size:0.8em;color:#cbd5e1;line-height:1.6;border-left:3px solid #3b82f6"></div>
+  </div>
+
+  <!-- Auxin Mechanism Step-by-Step -->
+  <div class="card">
+    <div class="card-title">🔬 How Auxin Causes Bending — Step by Step</div>
+    <div id="stepsContainer"></div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <button class="next-btn" id="nextBtn" onclick="nextStep()">Next Step ➜</button>
+      <button class="next-btn" style="background:linear-gradient(135deg,#374151,#1f2937)" onclick="resetSteps()">↺ Reset</button>
+      <span id="stepCounter" style="font-size:0.78em;color:#64748b"></span>
+    </div>
+  </div>
+
+  <!-- Worked Example -->
+  <div class="card">
+    <div class="card-title">📝 Worked Example — CBSE Exam Question</div>
+    <div style="background:#1e293b;border-radius:10px;padding:14px;border-left:3px solid #f59e0b">
+      <p style="font-size:0.85em;color:#fde68a;font-weight:600">Q: A potted plant is kept near a window with light coming from one side only. Which hormone causes the shoot to bend toward light? Explain the mechanism.</p>
+    </div>
+    <div id="workedExample" style="margin-top:10px"></div>
+    <button class="next-btn" onclick="revealAnswer()" id="answerBtn">Reveal Answer ➜</button>
+  </div>
+
+  <!-- Quick Quiz -->
+  <div class="card">
+    <div class="card-title">🎯 Quick Quiz <span class="badge badge-amber">परीक्षा अभ्यास</span></div>
+    <div id="quizContainer">
+      <p style="font-size:0.85em;color:#93c5fd;margin-bottom:12px" id="quizQuestion"></p>
+      <div id="quizOptions"></div>
+      <div class="quiz-feedback" id="quizFeedback"></div>
+      <button class="next-btn" onclick="nextQuestion()" id="nextQBtn" style="display:none;margin-top:8px">Next Question ➜</button>
+    </div>
+  </div>
+
+  <!-- Summary Table -->
+  <div class="card">
+    <div class="card-title">📊 Tropism vs Nastic Movement <span class="badge badge-green">तुलना / Comparison</span></div>
+    <div class="comparison">
+      <div class="comp-box" style="border-color:#3b82f6">
+        <h4 style="color:#60a5fa">Tropism (अनुवर्तन)</h4>
+        <p>• Directional response<br>• Depends on direction of stimulus<br>• Permanent movement<br>• Due to <strong>differential growth</strong><br>• Example: Phototropism, Geotropism</p>
+      </div>
+      <div class="comp-box" style="border-color:#22c55e">
+        <h4 style="color:#4ade80">Nastic Movement (नैस्टी)</h4>
+        <p>• Non-directional response<br>• Stimulus direction doesn't matter<br>• Reversible movement<br>• Due to <strong>turgor pressure change</strong><br>• Example: Touch-me-not (Mimosa)</p>
+      </div>
+    </div>
+    <div style="margin-top:12px;padding:10px;background:rgba(245,158,11,0.1);border-radius:8px;border:1px solid #f59e0b">
+      <p style="font-size:0.78em;color:#fde68a">⚠️ <strong>CBSE Tip:</strong> Mimosa pudica (छुईमुई / लाजवंती) shows NASTIC movement — NOT tropism. The leaf folds due to loss of turgor pressure, not growth!</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// Hormone toggle
+function toggleHormone(el){
+  const wasActive = el.classList.contains('active');
+  document.querySelectorAll('.hormone-card').forEach(c=>c.classList.remove('active'));
+  if(!wasActive) el.classList.add('active');
+}
+
+// Tropism diagrams
+const tropismData = {
+  photo:{
+    title:"Phototropism (प्रकाशानुवर्तन)",
+    info:"<strong>Phototropism</strong> is the growth movement of a plant in response to light. <br>📌 <strong>Shoot:</strong> Positive phototropism (bends TOWARD light)<br>📌 <strong>Root:</strong> Negative phototropism (grows AWAY from light)<br>🔑 <strong>Hormone:</strong> Auxin migrates to shaded side → more cell elongation on dark side → shoot bends toward light",
+    draw:drawPhoto
+  },
+  geo:{
+    title:"Geotropism (गुरुत्वानुवर्तन)",
+    info:"<strong>Geotropism</strong> is growth in response to gravity (गुरुत्वाकर्षण).<br>📌 <strong>Root:</strong> Positive geotropism (grows DOWNWARD toward gravity)<br>📌 <strong>Shoot:</strong> Negative geotropism (grows UPWARD against gravity)<br>🔑 Auxin accumulates on lower side → root: inhibits growth (too much auxin) → root bends down; Shoot: promotes growth → grows up",
+    draw:drawGeo
+  },
+  hydro:{
+    title:"Hydrotropism (जलानुवर्तन)",
+    info:"<strong>Hydrotropism</strong> is growth toward water (जल).<br>📌 <strong>Roots</strong> show POSITIVE hydrotropism — they grow toward moisture<br>📌 This is why roots of trees can damage pipes — they grow toward water sources!<br>🔑 This overrides even geotropism in some cases!",
+    draw:drawHydro
+  },
+  thigmo:{
+    title:"Thigmotropism (स्पर्शानुवर्तन)",
+    info:"<strong>Thigmotropism</strong> is growth in response to touch/contact (स्पर्श).<br>📌 Seen in climbing plants — tendrils (प्रतान) wrap around a support<br>📌 Contact side grows SLOWER, opposite side grows FASTER → curling<br>🔑 Examples: Pea plants (मटर), Cucumber, Money plant",
+    draw:drawThigmo
+  }
+};
+
+function showTropism(type){
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>{
+    b.classList.toggle('active', Object.keys(tropismData)[i]===type);
+  });
+  document.getElementById('tropismInfo').innerHTML = tropismData[type].info;
+  tropismData[type].draw();
+}
+
+function drawPhoto(){
+  const svg = document.getElementById('tropismSvg');
+  svg.innerHTML = `
+    <!-- Sky background -->
+    <rect width="400" height="280" fill="#0f172a"/>
+    <rect width="400" height="180" fill="#0c1a3a"/>
+    
+    <!-- Sun -->
+    <circle cx="50" cy="50" r="30" fill="#f59e0b" opacity="0.9"/>
+    <circle cx="50" cy="50" r="22" fill="#fbbf24"/>
+    ${[0,45,90,135,180,225,270,315].map(a=>`<line x1="${50+25*Math.cos(a*Math.PI/180)}" y1="${50+25*Math.sin(a*Math.PI/180)}" x2="${50+38*Math.cos(a*Math.PI/180)}" y2="${50+38*Math.sin(a*Math.PI/180)}" stroke="#fbbf24" stroke-width="2"/>`).join('')}
+    
+    <!-- Light rays -->
+    <line x1="80" y1="40" x2="160" y2="120" stroke="#f59e0b" stroke-width="1.5" opacity="0.5" stroke-dasharray="5,3"/>
+    <line x1="80" y1="60" x2="150" y2="130" stroke="#f59e0b" stroke-width="1.5" opacity="0.4" stroke-dasharray="5,3"/>
+    <line x1="80" y1="80" x2="155" y2="150" stroke="#f59e0b" stroke-width="1.5" opacity="0.3" stroke-dasharray="5,3"/>
+    
+    <!-- Ground -->
+    <rect x="0" y="200" width="400" height="80" fill="#1a3a1a"/>
+    <rect x="0" y="195" width="400" height="12" fill="#166534" rx="2"/>
+    
+    <!-- Pot -->
+    <rect x="165" y="205" width="70" height="55" rx="5" fill="#7c3aed"/>
+    <rect x="160" y="200" width="80" height="12" rx="3" fill="#6d28d9"/>
+    
+    <!-- Stem bending toward light (left) -->
+    <path d="M200 200 Q185 170 175 140 Q165 110 175 80 Q180 60 190 50" stroke="#22c55e" stroke-width="6" fill="none" stroke-linecap="round"/>
+    
+    <!-- Leaves -->
+    <ellipse cx="182" cy="155" rx="18" ry="10" fill="#16a34a" transform="rotate(-30 182 155)"/>
+    <ellipse cx="170" cy="120" rx="16" ry="9" fill="#15803d" transform="rotate(-45 170 120)"/>
+    <ellipse cx="183" cy="65" rx="20" ry="11" fill="#22c55e" transform="rotate(-60 183 65)"/>
+    
+    <!-- Auxin labels -->
+    <text x="215" y="155" fill="#93c5fd" font-size="9" font-family="sans-serif">Less Auxin</text>
+    <text x="215" y="168" fill="#93c5fd" font-size="9" font-family="sans-serif">(light side)</text>
+    <text x="130" y="155" fill="#60a5fa" font-size="9" font-family="sans-serif">More Auxin</text>
+    <text x="128" y="168" fill="#60a5fa" font-size="9" font-family="sans-serif">(dark side)</text>
+    
+    <!-- Auxin dots on dark side -->
+    ${[130,140,150,160,170,180].map((y,i)=>`<circle cx="${155+i%2*3}" cy="${y}" r="3" fill="#3b82f6" opacity="0.8"><animate attributeName="opacity" values="0.3;1;0.3" dur="${1+i*0.2}s" repeatCount="indefinite"/></circle>`).join('')}
+    
+    <!-- Labels -->
+    <text x="200" y="25" fill="#f59e0b" font-size="11" font-family="sans-serif" font-weight="bold">LIGHT →</text>
+    <text x="300" y="50" fill="#e2e8f0" font-size="10" font-family="sans-serif">Shoot bends</text>
+    <text x="300" y="65" fill="#22c55e" font-size="10" font-family="sans-serif" font-weight="bold">TOWARD light ✓</text>
+    <text x="280" y="230" fill="#86efac" font-size="9" font-family="sans-serif">Positive Phototropism</text>
+  `;
+  document.getElementById('tropismInfo').innerHTML = tropismData.photo.info;
+}
+
+function drawGeo(){
+  const svg = document.getElementById('tropismSvg');
+  svg.innerHTML = `
+    <rect width="400" height="280" fill="#0f172a"/>
+    <!-- Ground -->
+    <rect x="0" y="130" width="400" height="150" fill="#1c1008"/>
+    <rect x="0" y="125" width="400" height="12" fill="#166534" rx="2"/>
+    
+    <!-- Gravity arrow -->
+    <line x1="370" y1="20" x2="370" y2="80" stroke="#ef4444" stroke-width="2"/>
+    <polygon points="365,75 375,75 370,88" fill="#ef4444"/>
+    <text x="340" y="15" fill="#ef4444" font-size="10" font-family="sans-serif">Gravity</text>
+    <text x="340" y="27" fill="#ef4444" font-size="10" font-family="sans-serif">↓</text>
+    
+    <!-- Plant stem going UP (negative geotropism) -->
+    <path d="M200 128 Q200 100 200 60 Q200 40 200 20" stroke="#22c55e" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <ellipse cx="185" cy="85" rx="20" ry="10" fill="#16a34a" transform="rotate(20 185 85)"/>
+    <ellipse cx="215" cy="55" rx="20" ry="10" fill="#15803d" transform="rotate(-20 215 55)"/>
+    <!-- Shoot tip label -->
+    <text x="210" y="18" fill="#22c55e" font-size="9" font-family="sans-serif" font-weight="bold">Shoot tip</text>
+    <text x="205" y="30" fill="#86efac" font-size="8" font-family="sans-serif">(-) geotropism</text>
+    
+    <!-- Root going DOWN (positive geotropism) -->
+    <path d="M200 130 Q195 160 185 195 Q175 225 170 255" stroke="#b45309" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <!-- Root hair-like lines -->
+    <line x1="185" y1="165" x2="172" y2="168" stroke="#92400e" stroke-width="2"/>
+    <line x1="182" y1="180" x2="168" y2="183" stroke="#92400e" stroke-width="2"/>
+    <line x1="178" y1="196" x2="163" y2="199" stroke="#92400e" stroke-width="2"/>
+    <line x1="185" y1="165" x2="198" y2="162" stroke="#92400e" stroke-width="2"/>
+    <line x1="183" y1="180" x2="196" y2="177" stroke="#92400e" stroke-width

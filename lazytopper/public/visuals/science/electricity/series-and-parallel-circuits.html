@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Series & Parallel Circuits - Class 10 Science</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 100%);min-height:100vh;color:#1e293b}
+.title-bar{background:linear-gradient(90deg,#1e40af,#3b82f6,#06b6d4);padding:12px 20px;text-align:center;box-shadow:0 4px 20px rgba(59,130,246,.5)}
+.title-bar h1{color:#fff;font-size:1.2rem;font-weight:700;letter-spacing:.5px}
+.title-bar p{color:#bfdbfe;font-size:.75rem;margin-top:2px}
+.container{max-width:700px;margin:0 auto;padding:12px}
+.card{background:#fff;border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 8px 32px rgba(0,0,0,.3)}
+.tabs{display:flex;gap:6px;background:#f1f5f9;border-radius:12px;padding:4px;margin-bottom:14px}
+.tab{flex:1;padding:8px 4px;border:none;border-radius:8px;font-size:.8rem;font-weight:600;cursor:pointer;transition:all .3s;background:transparent;color:#64748b}
+.tab.active{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;box-shadow:0 4px 12px rgba(59,130,246,.4)}
+.section{display:none}.section.active{display:block}
+h2{font-size:1rem;color:#1e293b;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.badge{background:linear-gradient(135deg,#3b82f6,#6366f1);color:#fff;padding:2px 8px;border-radius:20px;font-size:.7rem}
+.formula-box{background:linear-gradient(135deg,#eff6ff,#dbeafe);border:2px solid #3b82f6;border-radius:12px;padding:12px;text-align:center;margin:10px 0}
+.formula-box .formula{font-size:1.1rem;font-weight:700;color:#1e40af;font-family:monospace}
+.formula-box .label{font-size:.72rem;color:#3b82f6;margin-top:4px}
+svg{width:100%;height:auto;display:block}
+.slider-group{margin:10px 0}
+.slider-label{display:flex;justify-content:space-between;font-size:.78rem;color:#475569;margin-bottom:4px}
+input[type=range]{width:100%;-webkit-appearance:none;height:6px;border-radius:3px;background:#e2e8f0;outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#1d4ed8);cursor:pointer;box-shadow:0 2px 8px rgba(59,130,246,.5)}
+.result-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px}
+.result-card{background:linear-gradient(135deg,#f8fafc,#f1f5f9);border-radius:10px;padding:8px;text-align:center;border:1.5px solid #e2e8f0}
+.result-val{font-size:1.1rem;font-weight:700;color:#1e40af}
+.result-lbl{font-size:.65rem;color:#64748b;margin-top:2px}
+.step-btn{background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;border:none;border-radius:10px;padding:8px 16px;font-size:.8rem;font-weight:600;cursor:pointer;transition:all .3s;width:100%;margin-top:8px}
+.step-btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(34,197,94,.4)}
+.step{background:#f0fdf4;border-left:4px solid #22c55e;border-radius:0 8px 8px 0;padding:10px;margin-top:8px;font-size:.8rem;color:#166534;display:none;animation:slideIn .4s ease}
+.step.shown{display:block}
+@keyframes slideIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+.comparison-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.comp-card{border-radius:12px;padding:12px;font-size:.75rem}
+.comp-series{background:linear-gradient(135deg,#fff7ed,#ffedd5);border:2px solid #f59e0b}
+.comp-parallel{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:2px solid #22c55e}
+.comp-card h3{font-size:.85rem;font-weight:700;margin-bottom:6px}
+.comp-series h3{color:#b45309}
+.comp-parallel h3{color:#15803d}
+.comp-card li{margin:3px 0;padding-left:8px;color:#475569;list-style:none}
+.comp-card li::before{content:"→ "}
+.info-pill{display:inline-block;background:#eff6ff;color:#1d4ed8;border-radius:20px;padding:2px 10px;font-size:.7rem;font-weight:600;margin:2px}
+.current-line{stroke-dasharray:8,4;animation:dash 1s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-24}}
+.glow{filter:drop-shadow(0 0 6px #3b82f6)}
+.toggle-row{display:flex;align-items:center;gap:10px;margin:8px 0}
+.toggle{position:relative;width:44px;height:24px;background:#e2e8f0;border-radius:12px;cursor:pointer;transition:background .3s;flex-shrink:0}
+.toggle.on{background:#3b82f6}
+.toggle::after{content:'';position:absolute;width:18px;height:18px;background:#fff;border-radius:50%;top:3px;left:3px;transition:left .3s;box-shadow:0 2px 4px rgba(0,0,0,.2)}
+.toggle.on::after{left:23px}
+.toggle-lbl{font-size:.8rem;color:#475569;font-weight:500}
+.quiz-btn{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border:none;border-radius:10px;padding:8px 16px;font-size:.8rem;font-weight:600;cursor:pointer;margin:4px;transition:all .3s}
+.quiz-btn:hover{transform:translateY(-1px)}
+.quiz-btn.correct{background:linear-gradient(135deg,#22c55e,#16a34a)}
+.quiz-btn.wrong{background:linear-gradient(135deg,#ef4444,#dc2626)}
+.hint{background:#fef3c7;border:1px solid #f59e0b;border-radius:8px;padding:8px;font-size:.75rem;color:#92400e;margin-top:6px;display:none}
+.hint.show{display:block}
+.bulb{transition:all .5s}
+</style>
+</head>
+<body>
+<div class="title-bar">
+<h1>⚡ Series & Parallel Circuits | विद्युत परिपथ</h1>
+<p>CBSE Class 10 Science | Chapter: Electricity</p>
+</div>
+<div class="container">
+<div class="card">
+<div class="tabs">
+<button class="tab active" onclick="showTab('basics')">📖 Basics</button>
+<button class="tab" onclick="showTab('series')">🔗 Series</button>
+<button class="tab" onclick="showTab('parallel')">⚡ Parallel</button>
+<button class="tab" onclick="showTab('example')">📝 Example</button>
+<button class="tab" onclick="showTab('quiz')">🎯 Quiz</button>
+</div>
+
+<!-- BASICS -->
+<div id="basics" class="section active">
+<h2>⚡ What is a Circuit? <span class="badge">परिपथ</span></h2>
+<p style="font-size:.8rem;color:#475569;margin-bottom:10px">A closed path through which electric current flows. Toggle the switch to complete the circuit!</p>
+<div class="toggle-row">
+<div class="toggle on" id="mainToggle" onclick="toggleSwitch()"></div>
+<span class="toggle-lbl" id="switchLbl">🔴 Switch ON — Current Flowing!</span>
+</div>
+<svg id="basicCircuit" viewBox="0 0 300 160" style="margin:8px 0">
+<rect width="300" height="160" fill="#f8fafc" rx="12"/>
+<!-- Wires -->
+<rect x="20" y="75" width="60" height="8" rx="4" fill="#94a3b8" id="w1"/>
+<rect x="220" y="75" width="60" height="8" rx="4" fill="#94a3b8" id="w2"/>
+<rect x="20" y="75" width="8" height="60" rx="4" fill="#94a3b8"/>
+<rect x="20" y="127" width="260" height="8" rx="4" fill="#94a3b8"/>
+<rect x="272" y="75" width="8" height="60" rx="4" fill="#94a3b8"/>
+<!-- Battery -->
+<rect x="80" y="65" width="50" height="28" rx="6" fill="#1e40af"/>
+<text x="105" y="83" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">🔋 9V</text>
+<!-- Resistor -->
+<rect x="155" y="63" width="60" height="32" rx="6" fill="#f59e0b"/>
+<text x="185" y="83" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">R=10Ω</text>
+<!-- Bulb -->
+<circle cx="150" cy="135" r="0" fill="none"/>
+<!-- Current arrows -->
+<g id="currentFlow">
+<polygon points="140,75 148,70 148,80" fill="#22c55e" class="current-line" style="animation:blink 1s infinite"/>
+<polygon points="250,75 258,70 258,80" fill="#22c55e"/>
+<polygon points="140,131 133,126 133,136" fill="#22c55e"/>
+</g>
+<!-- Labels -->
+<text x="105" y="55" text-anchor="middle" fill="#1e40af" font-size="9" font-weight="bold">Battery (विद्युत सेल)</text>
+<text x="185" y="57" text-anchor="middle" fill="#b45309" font-size="9" font-weight="bold">Resistor (प्रतिरोधक)</text>
+<text x="150" y="148" text-anchor="middle" fill="#475569" font-size="9">Closed Loop = Current Flows ✓</text>
+<!-- Switch indicator -->
+<circle cx="260" cy="79" r="8" id="switchDot" fill="#22c55e"/>
+<text x="260" y="100" text-anchor="middle" fill="#475569" font-size="8">Switch</text>
+</svg>
+<div class="formula-box">
+<div class="formula">V = I × R &nbsp;(Ohm's Law / ओम का नियम)</div>
+<div class="label">Voltage = Current × Resistance &nbsp;|&nbsp; V in Volts, I in Amperes, R in Ohms (Ω)</div>
+</div>
+<p style="font-size:.75rem;color:#64748b;margin-top:6px">Two ways to connect resistors: <strong>Series (श्रेणी)</strong> and <strong>Parallel (समानांतर)</strong></p>
+</div>
+
+<!-- SERIES -->
+<div id="series" class="section">
+<h2>🔗 Series Circuit <span class="badge">श्रेणी क्रम</span></h2>
+<p style="font-size:.78rem;color:#475569;margin-bottom:8px">Drag the sliders to change resistor values and see R-total change in real time!</p>
+<svg id="seriesSvg" viewBox="0 0 320 140">
+<rect width="320" height="140" fill="#fff7ed" rx="12"/>
+<!-- Wire loop -->
+<rect x="10" y="55" width="300" height="8" rx="4" fill="#94a3b8"/>
+<rect x="10" y="55" width="8" height="65" rx="4" fill="#94a3b8"/>
+<rect x="10" y="112" width="300" height="8" rx="4" fill="#94a3b8"/>
+<rect x="302" y="55" width="8" height="65" rx="4" fill="#94a3b8"/>
+<!-- Battery -->
+<rect x="18" y="44" width="36" height="28" rx="5" fill="#1e40af"/>
+<text x="36" y="62" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">9V</text>
+<!-- R1 -->
+<rect x="70" y="44" width="55" height="28" rx="6" id="sr1" fill="#f59e0b"/>
+<text x="97" y="59" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold" id="sr1lbl">R₁=2Ω</text>
+<!-- R2 -->
+<rect x="140" y="44" width="55" height="28" rx="6" id="sr2" fill="#ef4444"/>
+<text x="167" y="59" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold" id="sr2lbl">R₂=3Ω</text>
+<!-- R3 -->
+<rect x="210" y="44" width="55" height="28" rx="6" id="sr3" fill="#8b5cf6"/>
+<text x="237" y="59" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold" id="sr3lbl">R₃=5Ω</text>
+<!-- Current flow arrows -->
+<polygon points="57,55 65,50 65,60" fill="#22c55e" class="current-line"/>
+<polygon points="128,55 136,50 136,60" fill="#22c55e" class="current-line"/>
+<polygon points="197,55 205,50 205,60" fill="#22c55e" class="current-line"/>
+<text x="160" y="100" text-anchor="middle" fill="#475569" font-size="10" id="sTotalTxt">R_total = 10 Ω</text>
+<text x="160" y="114" text-anchor="middle" fill="#3b82f6" font-size="9" id="sCurrentTxt">I = 9÷10 = 0.9 A (same through all)</text>
+<text x="36" y="90" text-anchor="middle" fill="#1e40af" font-size="8">Battery</text>
+<text x="97" y="82" text-anchor="middle" fill="#b45309" font-size="8">🟡 Same current!</text>
+</svg>
+<div class="formula-box">
+<div class="formula">R_total = R₁ + R₂ + R₃ + ...</div>
+<div class="label">प्रतिरोधों का योग | Current (I) is same in all; Voltage divides</div>
+</div>
+<div class="slider-group">
+<div class="slider-label"><span>R₁ (Ω)</span><span id="r1v">2</span></div>
+<input type="range" min="1" max="10" value="2" id="r1" oninput="updateSeries()">
+</div>
+<div class="slider-group">
+<div class="slider-label"><span>R₂ (Ω)</span><span id="r2v">3</span></div>
+<input type="range" min="1" max="10" value="3" id="r2" oninput="updateSeries()">
+</div>
+<div class="slider-group">
+<div class="slider-label"><span>R₃ (Ω)</span><span id="r3v">5</span></div>
+<input type="range" min="1" max="10" value="5" id="r3" oninput="updateSeries()">
+</div>
+<div class="result-grid">
+<div class="result-card"><div class="result-val" id="sRtotal">10 Ω</div><div class="result-lbl">R_total</div></div>
+<div class="result-card"><div class="result-val" id="sCurrent">0.90 A</div><div class="result-lbl">Current (I)</div></div>
+<div class="result-card"><div class="result-val" id="sPower">8.1 W</div><div class="result-lbl">Power (P)</div></div>
+</div>
+<div style="background:#fff7ed;border-radius:10px;padding:10px;margin-top:8px;font-size:.75rem;color:#92400e">
+<strong>Key Observations (श्रेणी परिपथ):</strong><br>
+→ R_total is always <strong>greater</strong> than any individual R<br>
+→ If one component fails, the whole circuit breaks<br>
+→ Example: Old Christmas lights (सीरियल बल्ब)
+</div>
+</div>
+
+<!-- PARALLEL -->
+<div id="parallel" class="section">
+<h2>⚡ Parallel Circuit <span class="badge">समानांतर क्रम</span></h2>
+<p style="font-size:.78rem;color:#475569;margin-bottom:8px">Adjust resistors — notice R_total is always less than smallest R!</p>
+<svg id="parallelSvg" viewBox="0 0 320 170">
+<rect width="320" height="170" fill="#f0fdf4" rx="12"/>
+<!-- Main wires -->
+<rect x="10" y="20" width="300" height="7" rx="3" fill="#334155"/>
+<rect x="10" y="143" width="300" height="7" rx="3" fill="#334155"/>
+<!-- Battery -->
+<rect x="15" y="65" width="36" height="30" rx="5" fill="#1e40af"/>
+<text x="33" y="84" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">9V</text>
+<rect x="10" y="20" width="8" height="130" rx="3" fill="#334155"/>
+<rect x="302" y="20" width="8" height="130" rx="3" fill="#334155"/>
+<!-- Branch wires -->
+<rect x="80" y="20" width="7" height="35" rx="3" fill="#94a3b8"/>
+<rect x="80" y="115" width="7" height="35" rx="3" fill="#94a3b8"/>
+<rect x="160" y="20" width="7" height="35" rx="3" fill="#94a3b8"/>
+<rect x="160" y="115" width="7" height="35" rx="3" fill="#94a3b8"/>
+<rect x="240" y="20" width="7" height="35" rx="3" fill="#94a3b8"/>
+<rect x="240" y="115" width="7" height="35" rx="3" fill="#94a3b8"/>
+<!-- Branch resistors -->
+<rect x="66" y="55" width="34" height="60" rx="6" fill="#f59e0b"/>
+<text x="83" y="82" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold" id="pr1lbl">R₁</text>
+<text x="83" y="94" text-anchor="middle" fill="#fff" font-size="9" id="pr1v">2Ω</text>
+<rect x="146" y="55" width="34" height="60" rx="6" fill="#ef4444"/>
+<text x="163" y="82" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold" id="pr2lbl">R₂</text>
+<text x="163" y="94" text-anchor="middle" fill="#fff" font-size="9" id="pr2v">3Ω</text>
+<rect x="226" y="55" width="34" height="60" rx="6" fill="#8b5cf6"/>
+<text x="243" y="82" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold" id="pr3lbl">R₃</text>
+<text x="243" y="94" text-anchor="middle" fill="#fff" font-size="9" id="pr3v">6Ω</text>
+<!-- Current in each branch -->
+<text x="83" y="120" text-anchor="middle" fill="#15803d" font-size="7.5" id="pi1">I₁=4.5A</text>
+<text x="163" y="120" text-anchor="middle" fill="#15803d" font-size="7.5" id="pi2">I₂=3.0A</text>
+<text x="243" y="120" text-anchor="middle" fill="#15803d" font-size="7.5" id="pi3">I₃=1.5A</text>
+<text x="165" y="162" text-anchor="middle" fill="#475569" font-size="9" id="pTotalTxt">R_total ≈ 1.00 Ω | I_total = 9.0 A</text>
+</svg>
+<div class="formula-box">
+<div class="formula">1/R_total = 1/R₁ + 1/R₂ + 1/R₃</div>
+<div class="label">व्युत्क्रम योग | Voltage (V) is same across all; Current divides</div>
+</div>
+<div class="slider-group">
+<div class="slider-label"><span>R₁ (Ω)</span><span id="pr1val">2</span></div>
+<input type="range" min="1" max="12" value="2" id="pr1" oninput="updateParallel()">
+</div>
+<div class="slider-group">
+<div class="slider-label"><span>R₂ (Ω)</span><span id="pr2val">3</span></div>
+<input type="range" min="1" max="12" value="3" id="pr2" oninput="updateParallel()">
+</div>
+<div class="slider-group">
+<div class="slider-label"><span>R₃ (Ω)</span><span id="pr3val">6</span></div>
+<input type="range" min="1" max="12" value="6" id="pr3" oninput="updateParallel()">
+</div>
+<div class="result-grid">
+<div class="result-card"><div class="result-val" id="pRtotal">1.00 Ω</div><div class="result-lbl">R_total</div></div>
+<div class="result-card"><div class="result-val" id="pCurrentTotal">9.0 A</div><div class="result-lbl">I_total</div></div>
+<div class="result-card"><div class="result-val" id="pPower">81.0 W</div><div class="result-lbl">Power (P)</div></div>
+</div>
+<div style="background:#f0fdf4;border-radius:10px;padding:10px;margin-top:8px;font-size:.75rem;color:#166534">
+<strong>Key Observations (समानांतर परिपथ):</strong><br>
+→ R_total is always <strong>less</strong> than smallest R<br>
+→ If one component fails, others still work<br>
+→ Used in homes (घरेलू विद्युत) — all appliances at 220V
+</div>
+</div>
+
+<!-- EXAMPLE -->
+<div id="example" class="section">
+<h2>📝 Worked Example <span class="badge">हल उदाहरण</span></h2>
+<div style="background:#eff6ff;border-radius:12px;padding:12px;font-size:.8rem;color:#1e40af;margin-bottom:10px">
+<strong>Question:</strong> Three resistors R₁=2Ω, R₂=3Ω, R₃=5Ω are connected in <strong>series</strong> across a 10V battery. Find: (a) R_total (b) Current (c) Voltage across each resistor.
+</div>
+<div id="stepContainer"></div>
+<button class="step-btn" id="stepBtn" onclick="nextStep()">▶ Click to Reveal Step 1</button>
+<div style="margin-top:14px;height:1px;background:#e2e8f0"></div>
+<div style="background:#f0fdf4;border-radius:12px;padding:12px;font-size:.8rem;color:#166534;margin-top:10px">
+<strong>Parallel Example:</strong> Same 3 resistors in parallel across 6V.<br>
+<span class="info-pill">1/R_total = 1/2 + 1/3 + 1/5</span>
+<span class="info-pill">= 15/30 + 10/30 + 6/30 = 31/30</span>
+<span class="info-pill">R_total ≈ 0.97 Ω</span><br>
+<span style="margin-top:4px;display:block">I_total = 6 ÷ 0.97 ≈ 6.19 A &nbsp;|&nbsp; Each branch has same voltage = 6V</span>
+</div>
+<div class="comparison-grid" style="margin-top:10px">
+<div class="comp-card comp-series">
+<h3>🔗 Series (श्रेणी)</h3>
+<ul>
+<li>R = R₁+R₂+...</li>
+<li>Same I everywhere</li>
+<li>V divides (V=V₁+V₂)</li>
+<li>R_total &gt; any R</li>
+</ul>
+</div>
+<div class="comp-card comp-parallel">
+<h3>⚡ Parallel (समानांतर)</h3>
+<ul>
+<li>1/R = 1/R₁+1/R₂+...</li>
+<li>Same V everywhere</li>
+<li>I divides (I=I₁+I₂)</li>
+<li>R_total &lt; any R</li>
+</ul>
+</div>
+</div>
+</div>
+
+<!-- QUIZ -->
+<div id="quiz" class="section">
+<h2>🎯 Quick Quiz <span class="badge">परीक्षण</span></h2>
+<div id="quizContainer"></div>
+</div>
+
+</div>
+</div>
+
+<script>
+// Tab switching
+function showTab(id){
+document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+document.getElementById(id).classList.add('active');
+event.target.classList.add('active');
+}
+
+// Toggle switch
+var switchOn=true;
+function toggleSwitch(){
+switchOn=!switchOn;
+var t=document.getElementById('mainToggle');
+var d=document.getElementById('switchDot');
+var l=document.getElementById('switchLbl');
+if(switchOn){t.classList.add('on');d.setAttribute('fill','#22c55e');l.textContent='🔴 Switch ON — Current Flowing!';}
+else{t.classList.remove('on');d.setAttribute('fill','#ef4444');l.textContent='⚫ Switch OFF — No Current!';}
+}
+
+// Series update
+function updateSeries(){
+var r1=parseInt(document.getElementById('r1').value);
+var r2=parseInt(document.getElementById('r2').value);
+var r3=parseInt(document.getElementById('r3').value);
+document.getElementById('r1v').textContent=r1;
+document.getElementById('r2v').textContent=r2;
+document.getElementById('r3v').textContent=r3;
+document.getElementById('sr1lbl').textContent='R₁='+r1+'Ω';
+document.getElementById('sr2lbl').textContent='R₂='+r2+'Ω';
+document.getElementById('sr3lbl').textContent='R₃='+r3+'Ω';
+var rt=r1+r2+r3;
+var I=(9/rt);
+var P=9*I;
+document.getElementById('sRtotal').textContent=rt+' Ω';
+document.getElementById('sCurrent').textContent=I.toFixed(2)+' A';
+document.getElementById('sPower').textContent=P.toFixed(1)+' W';
+document.getElementById('sTotalTxt').textContent='R_total = '+rt+' Ω';
+document.getElementById('sCurrentTxt').textContent='I = 9÷'+rt+' = '+I.toFixed(2)+' A (same through all)';
+}
+
+// Parallel update
+function updateParallel(){
+var r1=parseInt(document.getElementById('pr1').value);
+var r2=parseInt(document.getElementById('pr2').value);
+var r3=parseInt(document.getElementById('pr3').value);
+document.getElementById('pr1val').textContent=r1;
+document.getElementById('pr2val').textContent=r2;
+document.getElementById('pr3val').textContent=r3;
+document.getElementById('pr1v').textContent=r1+'Ω';
+document.getElementById('pr2v').textContent=r2+'Ω';
+document.getElementById('pr3v').textContent=r3+'Ω';
+var inv=1/r1+1/r2+1/r3;
+var rt=1/inv;
+var V=9;
+var I1=V/r1,I2=V/r2,I3=V/r3;
+var Itot=I1+I2+I

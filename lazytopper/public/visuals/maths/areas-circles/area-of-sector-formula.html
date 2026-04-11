@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Area of Sector | CBSE Class 10 Maths</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#0f172a 100%);min-height:100vh;color:#e2e8f0;overflow-x:hidden}
+  .titlebar{background:linear-gradient(90deg,#1d4ed8,#3b82f6,#60a5fa);padding:12px 20px;text-align:center;box-shadow:0 4px 20px rgba(59,130,246,0.4)}
+  .titlebar h1{font-size:1.1rem;font-weight:700;color:#fff;letter-spacing:1px}
+  .titlebar p{font-size:0.75rem;color:#bfdbfe;margin-top:2px}
+  .container{max-width:700px;margin:0 auto;padding:16px}
+  .card{background:rgba(30,41,59,0.8);border:1px solid rgba(59,130,246,0.2);border-radius:16px;padding:16px;margin-bottom:16px;box-shadow:0 8px 32px rgba(0,0,0,0.3);backdrop-filter:blur(10px)}
+  .formula-box{background:linear-gradient(135deg,#1d4ed8,#7c3aed);border-radius:16px;padding:20px;text-align:center;margin-bottom:16px;box-shadow:0 8px 32px rgba(59,130,246,0.3);position:relative;overflow:hidden}
+  .formula-box::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,0.05) 0%,transparent 60%);animation:pulse 3s infinite}
+  @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+  .formula-main{font-size:1.6rem;font-weight:700;color:#fff;margin:8px 0;text-shadow:0 0 20px rgba(255,255,255,0.3)}
+  .formula-label{font-size:0.8rem;color:#bfdbfe;letter-spacing:2px;text-transform:uppercase}
+  .section-title{font-size:1rem;font-weight:700;color:#60a5fa;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+  .section-title::before{content:'';display:block;width:4px;height:20px;background:linear-gradient(#3b82f6,#7c3aed);border-radius:2px}
+  #circleCanvas{display:block;margin:0 auto;cursor:pointer}
+  .slider-group{display:flex;align-items:center;gap:12px;margin:10px 0;flex-wrap:wrap}
+  .slider-label{font-size:0.85rem;color:#94a3b8;min-width:120px}
+  input[type=range]{flex:1;min-width:120px;accent-color:#3b82f6;cursor:pointer;height:6px;border-radius:3px}
+  .value-badge{background:linear-gradient(135deg,#3b82f6,#7c3aed);border-radius:8px;padding:4px 10px;font-size:0.85rem;font-weight:700;color:#fff;min-width:60px;text-align:center}
+  .result-area{background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:12px;padding:14px;text-align:center;margin-top:12px}
+  .result-formula{font-size:1.1rem;color:#22c55e;font-weight:700}
+  .result-value{font-size:1.4rem;color:#4ade80;font-weight:700;margin-top:4px}
+  .steps-container{display:flex;flex-direction:column;gap:8px}
+  .step{background:rgba(59,130,246,0.05);border:1px solid rgba(59,130,246,0.15);border-radius:10px;padding:12px;opacity:0;transform:translateY(10px);transition:all 0.4s ease;cursor:default}
+  .step.visible{opacity:1;transform:translateY(0)}
+  .step-num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;background:linear-gradient(135deg,#3b82f6,#7c3aed);border-radius:50%;font-size:0.75rem;font-weight:700;margin-right:8px;flex-shrink:0}
+  .step-content{display:inline;font-size:0.9rem;color:#cbd5e1}
+  .step-math{color:#fbbf24;font-weight:600}
+  .btn{background:linear-gradient(135deg,#3b82f6,#7c3aed);border:none;border-radius:10px;padding:10px 20px;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;transition:all 0.2s;box-shadow:0 4px 15px rgba(59,130,246,0.3)}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(59,130,246,0.5)}
+  .btn:active{transform:translateY(0)}
+  .btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+  .btn-secondary{background:rgba(59,130,246,0.2);border:1px solid rgba(59,130,246,0.3)}
+  .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+  .info-chip{background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.2);border-radius:10px;padding:10px;text-align:center}
+  .info-chip .val{font-size:1.1rem;font-weight:700;color:#60a5fa}
+  .info-chip .lbl{font-size:0.72rem;color:#64748b;margin-top:2px}
+  .analogy-bar{display:flex;align-items:center;gap:8px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:10px;padding:12px;margin-top:10px}
+  .analogy-bar .icon{font-size:1.5rem}
+  .analogy-text{font-size:0.82rem;color:#fcd34d;line-height:1.5}
+  .hindi-tag{background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);border-radius:6px;padding:2px 8px;font-size:0.72rem;color:#fca5a5}
+  .progress-bar{height:6px;background:rgba(255,255,255,0.1);border-radius:3px;margin-top:12px}
+  .progress-fill{height:100%;background:linear-gradient(90deg,#22c55e,#3b82f6);border-radius:3px;transition:width 0.5s ease}
+  .tab-row{display:flex;gap:6px;margin-bottom:12px}
+  .tab{padding:7px 14px;border-radius:8px;font-size:0.8rem;font-weight:600;cursor:pointer;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;transition:all 0.2s}
+  .tab.active{background:linear-gradient(135deg,#3b82f6,#7c3aed);border-color:transparent;color:#fff}
+  .tab-content{display:none}
+  .tab-content.active{display:block}
+  .glow{animation:glow 2s infinite alternate}
+  @keyframes glow{from{text-shadow:0 0 10px #3b82f6}to{text-shadow:0 0 20px #7c3aed,0 0 30px #3b82f6}}
+  @media(max-width:400px){.formula-main{font-size:1.2rem}.info-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="titlebar">
+  <h1>📐 Area of Sector | वृत्त खंड का क्षेत्रफल</h1>
+  <p>CBSE Class 10 Mathematics • Areas Related to Circles</p>
+</div>
+<div class="container">
+
+  <div class="formula-box">
+    <div class="formula-label">सूत्र (Formula) <span class="hindi-tag">वृत्त खंड</span></div>
+    <div class="formula-main glow">Area = (θ ÷ 360) × π × r²</div>
+    <div style="font-size:0.8rem;color:#bfdbfe;margin-top:8px">where θ = angle at centre (degrees), r = radius</div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">Interactive Diagram — Drag the Slider!</div>
+    <canvas id="circleCanvas" width="280" height="280"></canvas>
+    <div style="margin-top:12px">
+      <div class="slider-group">
+        <span class="slider-label">∠θ (Angle):</span>
+        <input type="range" id="angleSlider" min="10" max="350" value="90" step="5">
+        <span class="value-badge" id="angleVal">90°</span>
+      </div>
+      <div class="slider-group">
+        <span class="slider-label">r (Radius):</span>
+        <input type="range" id="radiusSlider" min="2" max="14" value="7" step="0.5">
+        <span class="value-badge" id="radiusVal">7 cm</span>
+      </div>
+    </div>
+    <div class="info-grid">
+      <div class="info-chip"><div class="val" id="fracVal">1/4</div><div class="lbl">Fraction (θ/360°)</div></div>
+      <div class="info-chip"><div class="val" id="circleArea">154 cm²</div><div class="lbl">Full Circle Area (πr²)</div></div>
+      <div class="info-chip" style="grid-column:1/-1"><div class="val" id="sectorAreaDisplay" style="color:#22c55e;font-size:1.4rem">38.5 cm²</div><div class="lbl">🟢 Sector Area</div></div>
+    </div>
+    <div class="analogy-bar">
+      <div class="icon">🍕</div>
+      <div class="analogy-text">Think of a pizza! If θ = 90° (¼ of 360°), the sector is like <strong>1 slice out of 4 equal slices</strong>. You get ¼ of the whole pizza's area!</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="tab-row">
+      <div class="tab active" onclick="switchTab('concept')">Concept</div>
+      <div class="tab" onclick="switchTab('example')">📝 Worked Example</div>
+      <div class="tab" onclick="switchTab('quiz')">🧠 Quick Check</div>
+    </div>
+
+    <div id="tab-concept" class="tab-content active">
+      <div class="section-title">Why does the formula work?</div>
+      <div class="steps-container" id="conceptSteps">
+        <div class="step visible">
+          <span class="step-num">1</span>
+          <span class="step-content">A full circle has angle <span class="step-math">360°</span> at its centre and area <span class="step-math">π × r²</span>.</span>
+        </div>
+        <div class="step" id="cs2">
+          <span class="step-num">2</span>
+          <span class="step-content">A sector is a "slice" of the circle making angle <span class="step-math">θ°</span> at the centre.</span>
+        </div>
+        <div class="step" id="cs3">
+          <span class="step-num">3</span>
+          <span class="step-content">The sector covers fraction <span class="step-math">θ/360</span> of the full circle.</span>
+        </div>
+        <div class="step" id="cs4">
+          <span class="step-num">4</span>
+          <span class="step-content">∴ Area of Sector = <span class="step-math">(θ/360) × π × r²</span></span>
+        </div>
+        <div class="step" id="cs5">
+          <span class="step-num">5</span>
+          <span class="step-content">Special case: If θ = 360°, Area = <span class="step-math">(360/360) × πr² = πr²</span> ✓ (whole circle!)</span>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="revealConcept()">Reveal Steps ▼</button>
+        <button class="btn btn-secondary" onclick="resetConcept()">Reset ↺</button>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="conceptProgress" style="width:20%"></div></div>
+    </div>
+
+    <div id="tab-example" class="tab-content">
+      <div class="section-title">Worked Example <span class="hindi-tag">हल किया उदाहरण</span></div>
+      <div style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:10px;padding:12px;margin-bottom:12px;font-size:0.88rem;color:#fcd34d">
+        ❓ Find the area of a sector of a circle with radius <strong>7 cm</strong> and angle <strong>60°</strong>. (Use π = 22/7)
+      </div>
+      <div class="steps-container" id="exSteps">
+        <div class="step" id="es1">
+          <span class="step-num">1</span>
+          <span class="step-content"><strong>Given:</strong> r = <span class="step-math">7 cm</span>, θ = <span class="step-math">60°</span>, π = <span class="step-math">22/7</span></span>
+        </div>
+        <div class="step" id="es2">
+          <span class="step-num">2</span>
+          <span class="step-content"><strong>Formula:</strong> Area = <span class="step-math">(θ/360) × π × r²</span></span>
+        </div>
+        <div class="step" id="es3">
+          <span class="step-num">3</span>
+          <span class="step-content"><strong>Substituting:</strong> Area = <span class="step-math">(60/360) × (22/7) × 7²</span></span>
+        </div>
+        <div class="step" id="es4">
+          <span class="step-num">4</span>
+          <span class="step-content"><strong>Simplify:</strong> = <span class="step-math">(1/6) × (22/7) × 49</span></span>
+        </div>
+        <div class="step" id="es5">
+          <span class="step-num">5</span>
+          <span class="step-content"><strong>Calculate:</strong> = <span class="step-math">(1/6) × 22 × 7</span> = <span class="step-math">(1/6) × 154</span></span>
+        </div>
+        <div class="step" id="es6">
+          <span class="step-num">6</span>
+          <span class="step-content"><strong>∴ Area = </strong><span class="step-math" style="font-size:1.1rem">25⅔ cm² ≈ 25.67 cm²</span> ✅</span>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn" onclick="revealExample()">Next Step ▶</button>
+        <button class="btn btn-secondary" onclick="resetExample()">Reset ↺</button>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="exProgress" style="width:0%"></div></div>
+    </div>
+
+    <div id="tab-quiz" class="tab-content">
+      <div class="section-title">Quick Check — Test Yourself!</div>
+      <div id="quizArea">
+        <div style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.2);border-radius:10px;padding:14px;margin-bottom:14px">
+          <div id="qText" style="font-size:0.9rem;color:#cbd5e1;margin-bottom:12px"></div>
+          <div id="qOptions" style="display:flex;flex-direction:column;gap:8px"></div>
+        </div>
+        <div id="qFeedback" style="display:none;padding:10px;border-radius:10px;font-size:0.88rem;font-weight:600;margin-bottom:10px"></div>
+        <div class="btn-row">
+          <button class="btn" id="nextQBtn" onclick="nextQuestion()" style="display:none">Next Question ▶</button>
+        </div>
+        <div style="color:#64748b;font-size:0.75rem;margin-top:8px" id="qCounter"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">Key Points to Remember <span class="hindi-tag">याद रखें</span></div>
+    <div style="display:flex;flex-direction:column;gap:8px;font-size:0.85rem;color:#cbd5e1">
+      <div style="display:flex;gap:8px;align-items:flex-start"><span style="color:#22c55e;font-size:1rem">✔</span><span>Sector area = <strong style="color:#fbbf24">(θ/360) × πr²</strong> — always use angle in <strong>degrees</strong></span></div>
+      <div style="display:flex;gap:8px;align-items:flex-start"><span style="color:#22c55e;font-size:1rem">✔</span><span>For CBSE exams, use <strong style="color:#fbbf24">π = 22/7</strong> unless told otherwise</span></div>
+      <div style="display:flex;gap:8px;align-items:flex-start"><span style="color:#22c55e;font-size:1rem">✔</span><span>Minor sector: θ &lt; 180° | Major sector: θ &gt; 180°</span></div>
+      <div style="display:flex;gap:8px;align-items:flex-start"><span style="color:#22c55e;font-size:1rem">✔</span><span>Arc length = <strong style="color:#fbbf24">(θ/360) × 2πr</strong> (related formula)</span></div>
+      <div style="display:flex;gap:8px;align-items:flex-start"><span style="color:#3b82f6;font-size:1rem">∵</span><span>Sector area is always ≤ full circle area (πr²)</span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const canvas=document.getElementById('circleCanvas');
+const ctx=canvas.getContext('2d');
+const W=280,H=280,cx=140,cy=140;
+let theta=90,radius=7;
+const MAX_R=14,SCALE=8.5;
+
+function toRad(d){return d*Math.PI/180}
+
+function drawDiagram(){
+  ctx.clearRect(0,0,W,H);
+  const r=radius*SCALE;
+  const startAngle=-Math.PI/2;
+  const endAngle=startAngle+toRad(theta);
+
+  // Shadow
+  ctx.shadowBlur=20;ctx.shadowColor='rgba(59,130,246,0.3)';
+
+  // Full circle outline
+  ctx.beginPath();ctx.arc(cx,cy,r,0,2*Math.PI);
+  ctx.strokeStyle='rgba(100,116,139,0.4)';ctx.lineWidth=1.5;ctx.setLineDash([4,4]);ctx.stroke();
+  ctx.setLineDash([]);ctx.shadowBlur=0;
+
+  // Sector fill
+  const grad=ctx.createRadialGradient(cx,cy,0,cx,cy,r);
+  grad.addColorStop(0,'rgba(59,130,246,0.7)');
+  grad.addColorStop(1,'rgba(99,102,241,0.3)');
+  ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,startAngle,endAngle);ctx.closePath();
+  ctx.fillStyle=grad;ctx.fill();
+  ctx.strokeStyle='#3b82f6';ctx.lineWidth=2;ctx.stroke();
+
+  // Remaining circle fill
+  ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,endAngle,startAngle+2*Math.PI);ctx.closePath();
+  ctx.fillStyle='rgba(30,41,59,0.5)';ctx.fill();
+  ctx.strokeStyle='rgba(100,116,139,0.3)';ctx.lineWidth=1;ctx.stroke();
+
+  // Radius lines
+  ctx.strokeStyle='#60a5fa';ctx.lineWidth=2.5;
+  // First radius (up)
+  ctx.beginPath();ctx.moveTo(cx,cy);
+  ctx.lineTo(cx+r*Math.cos(startAngle),cy+r*Math.sin(startAngle));ctx.stroke();
+  // Second radius
+  ctx.beginPath();ctx.moveTo(cx,cy);
+  ctx.lineTo(cx+r*Math.cos(endAngle),cy+r*Math.sin(endAngle));ctx.stroke();
+
+  // Centre dot
+  ctx.beginPath();ctx.arc(cx,cy,5,0,2*Math.PI);
+  ctx.fillStyle='#f59e0b';ctx.fill();
+  ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.stroke();
+
+  // Angle arc indicator
+  ctx.beginPath();ctx.arc(cx,cy,28,startAngle,endAngle);
+  ctx.strokeStyle='#fbbf24';ctx.lineWidth=2;ctx.stroke();
+  
+  // Angle label
+  const midAngle=startAngle+toRad(theta/2);
+  const lx=cx+42*Math.cos(midAngle),ly=cy+42*Math.sin(midAngle);
+  ctx.fillStyle='#fbbf24';ctx.font='bold 12px Segoe UI';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText('θ='+theta+'°',lx,ly);
+
+  // Radius label
+  const mx=cx+r*Math.cos(startAngle)/2,my=cy+r*Math.sin(startAngle)/2-12;
+  ctx.fillStyle='#93c5fd';ctx.font='bold 11px Segoe UI';
+  ctx.fillText('r='+radius,mx,my-8);
+
+  // Arc label
+  const ax=cx+(r+14)*Math.cos(startAngle+toRad(theta/2));
+  const ay=cy+(r+14)*Math.sin(startAngle+toRad(theta/2));
+  ctx.fillStyle='#4ade80';ctx.font='bold 10px Segoe UI';
+  if(theta<340)ctx.fillText('arc',ax,ay);
+
+  // O label
+  ctx.fillStyle='#f59e0b';ctx.font='bold 13px Segoe UI';
+  ctx.fillText('O',cx+8,cy+8);
+}
+
+function updateCalc(){
+  const pi=22/7;
+  const fullArea=(pi*radius*radius).toFixed(1);
+  const sectorArea=((theta/360)*pi*radius*radius);
+  const frac=gcd(theta,360);
+  document.getElementById('angleVal').textContent=theta+'°';
+  document.getElementById('radiusVal').textContent=radius+' cm';
+  document.getElementById('fracVal').textContent=(theta/frac)+'/'+(360/frac);
+  document.getElementById('circleArea').textContent=fullArea+' cm²';
+  document.getElementById('sectorAreaDisplay').textContent=sectorArea.toFixed(2)+' cm²';
+}
+
+function gcd(a,b){return b?gcd(b,a%b):a}
+
+document.getElementById('angleSlider').addEventListener('input',function(){
+  theta=parseInt(this.value);drawDiagram();updateCalc();
+});
+document.getElementById('radiusSlider').addEventListener('input',function(){
+  radius=parseFloat(this.value);drawDiagram();updateCalc();
+});
+
+drawDiagram();updateCalc();
+
+// Tabs
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+  if(name==='quiz')initQuiz();
+}
+
+// Concept steps
+let conceptStep=1;
+const totalConceptSteps=5;
+function revealConcept(){
+  if(conceptStep<totalConceptSteps){
+    conceptStep++;
+    document.getElementById('cs'+conceptStep).classList.add('visible');
+    document.getElementById('conceptProgress').style.width=(conceptStep/totalConceptSteps*100)+'%';
+  }
+}
+function resetConcept(){
+  conceptStep=1;
+  ['cs2','cs3','cs4','cs5'].forEach(id=>document.getElementById(id).classList.remove('visible'));
+  document.getElementById('conceptProgress').style.width='20%';
+}
+
+// Example steps
+let exStep=0;
+const exIds=['es1','es2','es3','es4','es5','es6'];
+function revealExample(){
+  if(exStep<exIds.length){
+    document.getElementById(exIds[exStep]).classList.add('visible');
+    exStep++;
+    document.getElementById('exProgress').style.width=(exStep/exIds.length*100)+'%';
+  }
+}
+function resetExample(){
+  exStep=0;
+  exIds.forEach(id=>document.getElementById(id).classList.remove('visible'));
+  document.getElementById('exProgress').style.width='0%';
+}
+
+// Quiz
+const questions=[
+  {q:'What is the area of a sector with r = 14 cm and θ = 90°? (π = 22/7)',opts:['154 cm²','308 cm²','77 cm²','44 cm²'],ans:0,exp:'(90/360) × (22/7) × 14² = (1/4) × (22/7) × 196 = (1/4) × 616 = 154 cm²'},
+  {q:'A sector has θ = 60° and r = 21 cm. What fraction of the circle does it represent?',opts:['1/4','1/6','1/3','1/2'],ans:1,exp:'60/360 = 1/6. So the sector is 1/6th of the full circle.'},
+  {q:'If the area of a full circle is 616 cm², what is the area of the sector with θ = 180°?',opts:['308 cm²','154 cm²','616 cm²','77 cm²'],ans:0,exp:'(180/360) × 616 = (1/2) × 616 = 308 cm²'},
+  {q:'Which of these is the correct formula for area of a sector? (θ in degrees)',opts:['(θ/180) × πr²','(θ/360) × 2πr','(θ/360) × πr²','θ × πr'],ans:2,exp:'Area of Sector = (θ/360) × πr². This is because the sector is (θ/360) fraction of full circle.'},
+];
+let qIdx=0;
+function initQuiz(){qIdx=0;loadQ();}
+function loadQ(){
+  if(qIdx>=questions.length){
+    document.getElementById('qText').textContent='🎉 All done! You completed the quiz!';
+    document.getElementById('qOptions').innerHTML='<div style="color:#22c55e;font-size:1rem">Great job! Review the formula and try again.</div>';
+    document.getElementById('qCounter').textContent='';
+    document.getElementById('nextQBtn').style.display='none';
+    return;
+  }
+  const q=questions[qIdx];
+  document.getElementById('qText').innerHTML='<strong>Q'+(qIdx+1)+':</strong> '+q.q;
+  document.getElementById('qFeedback').style.display='none';
+  document.getElementById('nextQBtn').style.display='none';
+  document.getElementById('qCounter').textContent='Question '+(qIdx+1)+' of '+questions.length;
+  const opts=document.getElementById('qOptions');
+  opts.innerHTML='';
+  q.opts.forEach((opt,i)=>{
+    const btn=document.createElement('button');
+    btn.style.cssText='background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.25);border-radius:8px;padding:9px 14px;color:#cbd5e1;font-size:0.85rem;cursor:pointer;text-align:left;transition:all 0.2s;width:100%';
+    btn.textContent=(i===0?'A. ':i===1?'B. ':i===2?'C. ':'D. ')+opt;
+    btn.onmouseover=function(){if(!this.disabled)this.style.background='rgba(59,130,246,0.25)'}
+    btn.onmouseout=function(){if(!this.disabled&&!this.selected)this.style.background='rgba(59,130,246,0.1)'}
+    btn.onclick=function(){checkAns(i,q);};
+    opts.appendChild(btn);
+  });
+}
+function checkAns(chosen,q){
+  document.querySelectorAll('#qOptions button').forEach((b,i)=>{
+    b.disabled=true;
+    if(i===

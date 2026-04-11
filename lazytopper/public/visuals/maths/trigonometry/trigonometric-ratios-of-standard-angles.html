@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trigonometric Ratios - Standard Angles</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 100%);min-height:100vh;color:#1e293b}
+  .titlebar{background:linear-gradient(90deg,#3b82f6,#6366f1);color:#fff;text-align:center;padding:12px 16px;box-shadow:0 4px 15px rgba(59,130,246,.5)}
+  .titlebar h1{font-size:1.1rem;font-weight:700;letter-spacing:.5px}
+  .titlebar p{font-size:.75rem;opacity:.85;margin-top:2px}
+  .container{max-width:700px;margin:0 auto;padding:12px}
+  .card{background:#fff;border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 4px 20px rgba(0,0,0,.2)}
+  .section-title{font-size:.85rem;font-weight:700;color:#3b82f6;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+  .triangle-section{display:flex;flex-direction:column;align-items:center;gap:12px}
+  .angle-btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+  .angle-btn{padding:8px 16px;border:2px solid #3b82f6;border-radius:20px;background:#fff;color:#3b82f6;font-weight:700;font-size:.9rem;cursor:pointer;transition:all .3s}
+  .angle-btn.active,.angle-btn:hover{background:#3b82f6;color:#fff;transform:scale(1.05)}
+  #tri-svg{width:100%;max-width:320px}
+  .ratio-display{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;width:100%;max-width:380px}
+  .ratio-card{border-radius:12px;padding:10px 8px;text-align:center;transition:all .4s}
+  .ratio-card .ratio-name{font-size:.8rem;font-weight:700;margin-bottom:4px}
+  .ratio-card .ratio-val{font-size:1.4rem;font-weight:800}
+  .ratio-card .ratio-frac{font-size:.7rem;opacity:.8;margin-top:2px}
+  .sin-c{background:linear-gradient(135deg,#dbeafe,#bfdbfe);color:#1d4ed8}
+  .cos-c{background:linear-gradient(135deg,#dcfce7,#bbf7d0);color:#15803d}
+  .tan-c{background:linear-gradient(135deg,#fef3c7,#fde68a);color:#b45309}
+  .table-wrap{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:.8rem}
+  th{background:linear-gradient(135deg,#3b82f6,#6366f1);color:#fff;padding:8px 6px;text-align:center;font-weight:700}
+  td{padding:7px 5px;text-align:center;border-bottom:1px solid #e2e8f0;font-weight:600;cursor:pointer;transition:all .25s}
+  td:hover{background:#eff6ff;transform:scale(1.05)}
+  tr:nth-child(even) td{background:#f8fafc}
+  tr:nth-child(even) td:hover{background:#dbeafe}
+  .highlight-cell{background:#fef3c7!important;color:#b45309;border-radius:6px;box-shadow:0 0 0 2px #f59e0b}
+  .trick-section{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:2px solid #22c55e;border-radius:12px;padding:12px}
+  .trick-title{font-size:.85rem;font-weight:700;color:#15803d;margin-bottom:8px}
+  .trick-fingers{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+  .finger{width:44px;text-align:center;cursor:pointer;transition:all .3s}
+  .finger-icon{width:44px;height:60px;background:linear-gradient(180deg,#fbbf24,#f59e0b);border-radius:8px 8px 4px 4px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;transition:all .3s;border:2px solid transparent}
+  .finger.selected .finger-icon{background:linear-gradient(180deg,#3b82f6,#6366f1);border-color:#1d4ed8;transform:scale(1.15)}
+  .finger-label{font-size:.65rem;font-weight:700;color:#1e293b;margin-top:3px}
+  .finger-result{background:#fff;border-radius:8px;padding:8px;text-align:center;margin-top:8px;font-size:.85rem;min-height:36px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#1d4ed8;transition:all .3s}
+  .steps-card{background:linear-gradient(135deg,#fef3c7,#fff7ed);border:2px solid #f59e0b;border-radius:12px;padding:12px}
+  .steps-title{font-size:.85rem;font-weight:700;color:#b45309;margin-bottom:8px}
+  .step-item{background:#fff;border-radius:8px;padding:10px;margin-bottom:8px;border-left:4px solid #3b82f6;opacity:0;transform:translateY(10px);transition:all .4s;display:none}
+  .step-item.visible{opacity:1;transform:translateY(0);display:block}
+  .step-num{font-size:.7rem;font-weight:700;color:#3b82f6;margin-bottom:3px}
+  .step-text{font-size:.82rem;color:#1e293b;line-height:1.5}
+  .step-math{font-size:.95rem;font-weight:700;color:#6366f1;margin-top:4px}
+  .btn-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:8px}
+  .btn{padding:8px 18px;border:none;border-radius:20px;font-weight:700;font-size:.8rem;cursor:pointer;transition:all .3s}
+  .btn-primary{background:linear-gradient(135deg,#3b82f6,#6366f1);color:#fff}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(99,102,241,.4)}
+  .btn-secondary{background:#e2e8f0;color:#475569}
+  .tooltip{position:relative}
+  .tooltip:hover::after{content:attr(data-tip);position:absolute;bottom:110%;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:4px 8px;border-radius:6px;font-size:.7rem;white-space:nowrap;z-index:10}
+  .legend{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;font-size:.72rem;margin-top:6px}
+  .leg-item{display:flex;align-items:center;gap:4px}
+  .leg-dot{width:10px;height:10px;border-radius:50%}
+  .pulse{animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+  .badge{display:inline-block;background:#ef4444;color:#fff;font-size:.6rem;padding:1px 5px;border-radius:8px;margin-left:4px;vertical-align:middle}
+  .formula-box{background:linear-gradient(135deg,#1e293b,#0f172a);color:#fff;border-radius:12px;padding:12px;text-align:center;margin-bottom:10px}
+  .formula-box .f-main{font-size:1rem;font-weight:700;margin-bottom:6px;color:#fbbf24}
+  .formula-box .f-sub{font-size:.75rem;color:#94a3b8;line-height:1.6}
+  .note{font-size:.72rem;color:#64748b;font-style:italic;margin-top:6px;text-align:center}
+</style>
+</head>
+<body>
+<div class="titlebar">
+  <h1>📐 Trigonometric Ratios — Standard Angles</h1>
+  <p>CBSE Class 10 | Chapter 8 | त्रिकोणमिति</p>
+</div>
+<div class="container">
+
+<!-- Triangle Explorer -->
+<div class="card">
+  <div class="section-title">🔺 Interactive Triangle Explorer</div>
+  <div class="triangle-section">
+    <div class="angle-btns">
+      <button class="angle-btn active" onclick="setAngle(0)">0°</button>
+      <button class="angle-btn" onclick="setAngle(30)">30°</button>
+      <button class="angle-btn" onclick="setAngle(45)">45°</button>
+      <button class="angle-btn" onclick="setAngle(60)">60°</button>
+      <button class="angle-btn" onclick="setAngle(90)">90°</button>
+    </div>
+    <svg id="tri-svg" viewBox="0 0 300 220" xmlns="http://www.w3.org/2000/svg"></svg>
+    <div class="legend">
+      <div class="leg-item"><div class="leg-dot" style="background:#ef4444"></div>Hypotenuse (कर्ण)</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#22c55e"></div>Perpendicular (लम्ब)</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#3b82f6"></div>Base (आधार)</div>
+    </div>
+    <div class="ratio-display">
+      <div class="ratio-card sin-c">
+        <div class="ratio-name">sin θ</div>
+        <div class="ratio-val" id="sin-val">0</div>
+        <div class="ratio-frac" id="sin-frac">लम्ब/कर्ण</div>
+      </div>
+      <div class="ratio-card cos-c">
+        <div class="ratio-name">cos θ</div>
+        <div class="ratio-val" id="cos-val">1</div>
+        <div class="ratio-frac" id="cos-frac">आधार/कर्ण</div>
+      </div>
+      <div class="ratio-card tan-c">
+        <div class="ratio-name">tan θ</div>
+        <div class="ratio-val" id="tan-val">0</div>
+        <div class="ratio-frac" id="tan-frac">लम्ब/आधार</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Formula Box -->
+<div class="card">
+  <div class="section-title">📋 मुख्य सूत्र (Key Formulas)</div>
+  <div class="formula-box">
+    <div class="f-main">sin θ = Perpendicular/Hypotenuse | cos θ = Base/Hypotenuse | tan θ = Perpendicular/Base</div>
+    <div class="f-sub">
+      cosec θ = 1/sin θ &nbsp;|&nbsp; sec θ = 1/cos θ &nbsp;|&nbsp; cot θ = 1/tan θ<br>
+      sin²θ + cos²θ = 1 &nbsp;|&nbsp; tan θ = sin θ/cos θ
+    </div>
+  </div>
+</div>
+
+<!-- Values Table -->
+<div class="card">
+  <div class="section-title">📊 Standard Values Table <span class="badge pulse">Click any cell!</span></div>
+  <div class="table-wrap">
+    <table id="trig-table">
+      <thead>
+        <tr>
+          <th>Ratio \ Angle</th>
+          <th>0°</th><th>30°</th><th>45°</th><th>60°</th><th>90°</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th style="background:#dbeafe;color:#1d4ed8">sin θ</th>
+          <td data-info="sin 0° = 0" class="tooltip" data-tip="sin 0° = 0">0</td>
+          <td data-info="sin 30° = 1/2" class="tooltip" data-tip="sin 30° = ½">½</td>
+          <td data-info="sin 45° = 1/√2" class="tooltip" data-tip="sin 45° = 1/√2">1/√2</td>
+          <td data-info="sin 60° = √3/2" class="tooltip" data-tip="sin 60° = √3/2">√3/2</td>
+          <td data-info="sin 90° = 1" class="tooltip" data-tip="sin 90° = 1">1</td>
+        </tr>
+        <tr>
+          <th style="background:#dcfce7;color:#15803d">cos θ</th>
+          <td data-info="cos 0° = 1" class="tooltip" data-tip="cos 0° = 1">1</td>
+          <td data-info="cos 30° = √3/2" class="tooltip" data-tip="cos 30° = √3/2">√3/2</td>
+          <td data-info="cos 45° = 1/√2" class="tooltip" data-tip="cos 45° = 1/√2">1/√2</td>
+          <td data-info="cos 60° = 1/2" class="tooltip" data-tip="cos 60° = ½">½</td>
+          <td data-info="cos 90° = 0" class="tooltip" data-tip="cos 90° = 0">0</td>
+        </tr>
+        <tr>
+          <th style="background:#fef3c7;color:#b45309">tan θ</th>
+          <td data-info="tan 0° = 0" class="tooltip" data-tip="tan 0° = 0">0</td>
+          <td data-info="tan 30° = 1/√3" class="tooltip" data-tip="tan 30° = 1/√3">1/√3</td>
+          <td data-info="tan 45° = 1" class="tooltip" data-tip="tan 45° = 1">1</td>
+          <td data-info="tan 60° = √3" class="tooltip" data-tip="tan 60° = √3">√3</td>
+          <td data-info="tan 90° = ∞" class="tooltip" data-tip="tan 90° = undefined">∞</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div id="cell-info" style="min-height:32px;margin-top:8px;padding:8px;background:#f0f9ff;border-radius:8px;font-size:.82rem;font-weight:600;color:#1d4ed8;text-align:center;transition:all .3s">
+    👆 Click any cell to see the value highlighted in the triangle above!
+  </div>
+  <p class="note">∵ sin values: 0, ½, 1/√2, √3/2, 1 → reverse for cos ∴ Pattern: sin increases, cos decreases</p>
+</div>
+
+<!-- Finger Trick -->
+<div class="card">
+  <div class="trick-section">
+    <div class="trick-title">🖐️ Hand Trick for sin values (याद करने की trick!)</div>
+    <p style="font-size:.75rem;color:#15803d;margin-bottom:8px">Count fingers from left → fold the finger for the angle → √(fingers before)/2 = sin value</p>
+    <div class="trick-fingers">
+      <div class="finger" onclick="selectFinger(0)">
+        <div class="finger-icon">0°</div>
+        <div class="finger-label">Thumb</div>
+      </div>
+      <div class="finger" onclick="selectFinger(1)">
+        <div class="finger-icon">30°</div>
+        <div class="finger-label">Index</div>
+      </div>
+      <div class="finger" onclick="selectFinger(2)">
+        <div class="finger-icon">45°</div>
+        <div class="finger-label">Middle</div>
+      </div>
+      <div class="finger" onclick="selectFinger(3)">
+        <div class="finger-icon">60°</div>
+        <div class="finger-label">Ring</div>
+      </div>
+      <div class="finger" onclick="selectFinger(4)">
+        <div class="finger-icon">90°</div>
+        <div class="finger-label">Pinky</div>
+      </div>
+    </div>
+    <div class="finger-result" id="finger-result">👆 Tap a finger to see the trick!</div>
+  </div>
+</div>
+
+<!-- Worked Example -->
+<div class="card">
+  <div class="steps-card">
+    <div class="steps-title">✏️ Worked Example (हल किया उदाहरण)</div>
+    <p style="font-size:.82rem;color:#92400e;font-weight:600;margin-bottom:8px">
+      Find the value of: <strong>2sin²30° + cos²45° − tan²60°</strong>
+    </p>
+    <div id="step1" class="step-item">
+      <div class="step-num">STEP 1 — Write known values</div>
+      <div class="step-text">From the table, substitute standard values:</div>
+      <div class="step-math">sin 30° = ½,&nbsp; cos 45° = 1/√2,&nbsp; tan 60° = √3</div>
+    </div>
+    <div id="step2" class="step-item">
+      <div class="step-num">STEP 2 — Square each value</div>
+      <div class="step-text">Calculate squares of each:</div>
+      <div class="step-math">sin²30° = (½)² = ¼,&nbsp; cos²45° = (1/√2)² = ½,&nbsp; tan²60° = (√3)² = 3</div>
+    </div>
+    <div id="step3" class="step-item">
+      <div class="step-num">STEP 3 — Substitute in expression</div>
+      <div class="step-text">Put values in the expression:</div>
+      <div class="step-math">= 2×(¼) + ½ − 3</div>
+    </div>
+    <div id="step4" class="step-item">
+      <div class="step-num">STEP 4 — Simplify</div>
+      <div class="step-text">Calculate step by step:</div>
+      <div class="step-math">= ½ + ½ − 3 = 1 − 3 = <span style="color:#ef4444;font-size:1.1rem">−2</span> ✓</div>
+    </div>
+    <div id="step5" class="step-item">
+      <div class="step-num">∴ ANSWER</div>
+      <div class="step-text">The value of the expression is:</div>
+      <div class="step-math" style="color:#22c55e;font-size:1.1rem">2sin²30° + cos²45° − tan²60° = −2</div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="nextStep()">Next Step ▶</button>
+      <button class="btn btn-secondary" onclick="resetSteps()">↺ Reset</button>
+    </div>
+    <div id="step-indicator" style="text-align:center;font-size:.72rem;color:#b45309;margin-top:6px">Step 0 of 5</div>
+  </div>
+</div>
+
+<!-- Quick Quiz -->
+<div class="card">
+  <div class="section-title">🎯 Quick Quiz</div>
+  <div id="quiz-area">
+    <div id="quiz-q" style="font-size:.9rem;font-weight:700;color:#1e293b;margin-bottom:10px;min-height:30px"></div>
+    <div id="quiz-opts" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px"></div>
+    <div id="quiz-feedback" style="font-size:.82rem;font-weight:600;min-height:24px;text-align:center"></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="nextQuiz()" id="quiz-btn">Start Quiz 🚀</button>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+const angles=[0,30,45,60,90];
+const sinVals=["0","½","1/√2","√3/2","1"];
+const cosVals=["1","√3/2","1/√2","½","0"];
+const tanVals=["0","1/√3","1","√3","∞"];
+const sinNum=[0,0.5,0.7071,0.866,1];
+const cosNum=[1,0.866,0.7071,0.5,0];
+let currentAngleIdx=0;
+let stepCount=0;
+let quizIdx=-1;
+let quizAnswered=false;
+
+const fingerData=[
+  {a:"0°",sin:"0",trick:"0 fingers before → √0/2 = 0",cos:"1"},
+  {a:"30°",sin:"½",trick:"1 finger before → √1/2 = 1/2",cos:"√3/2"},
+  {a:"45°",sin:"1/√2",trick:"2 fingers before → √2/2 = 1/√2",cos:"1/√2"},
+  {a:"60°",sin:"√3/2",trick:"3 fingers before → √3/2",cos:"½"},
+  {a:"90°",sin:"1",trick:"4 fingers before → √4/2 = 2/2 = 1",cos:"0"}
+];
+
+const quizData=[
+  {q:"What is sin 45°?",opts:["0","½","1/√2","1"],ans:2},
+  {q:"What is cos 60°?",opts:["√3/2","½","1/√2","0"],ans:1},
+  {q:"What is tan 30°?",opts:["√3","1","1/√3","0"],ans:2},
+  {q:"What is sin 90° + cos 0°?",opts:["0","1","2","√2"],ans:2},
+  {q:"sin²60° + cos²60° = ?",opts:["0","1","2","√3"],ans:1},
+  {q:"What is tan 45°?",opts:["0","½","√3","1"],ans:3},
+  {q:"cos 30° = ?",opts:["½","√3/2","1/√2","1"],ans:1},
+  {q:"2cos²45° = ?",opts:["1","2","√2","½"],ans:0}
+];
+
+function drawTriangle(idx){
+  const svg=document.getElementById('tri-svg');
+  svg.innerHTML='';
+  const ns='http://www.w3.org/2000/svg';
+  const angle=angles[idx];
+  const s=sinNum[idx];
+  const c=cosNum[idx];
+  const W=300,H=220;
+  const ox=40,oy=180;
+  const scale=130;
+
+  if(angle===0){
+    // flat line
+    const x2=ox+scale;
+    addLine(svg,ns,ox,oy,x2,oy,'#3b82f6',3);
+    addText(svg,ns,"θ → 0°",ox+scale/2,oy-10,'#3b82f6','12px');
+    addCircle(svg,ns,ox,oy,5,'#3b82f6');
+    addText(svg,ns,"B",ox-12,oy+5,'#1e293b','11px');
+    addText(svg,ns,"C",x2+5,oy+5,'#1e293b','11px');
+    addText(svg,ns,"sin 0° = 0, cos 0° = 1",W/2,oy-30,'#1d4ed8','12px',true);
+    return;
+  }
+  if(angle===90){
+    const y2=oy-scale;
+    addLine(svg,ns,ox,oy,ox,y2,'#22c55e',3);
+    addLine(svg,ns,ox,oy,ox+4,oy,'#3b82f6',3);
+    addLine(svg,ns,ox,y2,ox,oy,'#ef4444',3);
+    addSquare(svg,ns,ox,oy);
+    addText(svg,ns,"P",ox+8,y2+5,'#1e293b','11px');
+    addText(svg,ns,"B",ox-12,oy+5,'#1e293b','11px');
+    addText(svg,ns,"θ=90°",ox+14,oy-20,'#1d4ed8','12px');
+    addText(svg,ns,"sin 90°=1, cos 90°=0",W/2,oy-30,'#1d4ed8','12px',true);
+    return;
+  }
+
+  const bx=ox+c*scale;
+  const by=oy;
+  const px=ox;
+  const py=oy-s*scale;
+  const hx=bx;
+  const hy=py;
+
+  // right angle at B-corner (px,py to bx,by)
+  const rx=ox,ry=oy;
+  addSquare(svg,ns,rx,ry);
+
+  // Base (blue)
+  addLine(svg,ns,ox,oy,bx,by,'#3b82f6',3);
+  // Perpendicular (green)
+  addLine(svg,ns,ox,oy,ox,oy-s*scale,'#22c55e',3);
+  // Hypotenuse (red)
+  addLine(svg,ns,ox,oy-s*scale,bx,by,'#ef4444',3);
+
+  // Labels for sides
+  const bmx=(ox+bx)/2,bmy=oy+16;
+  addText(svg,ns,"Base ("+cosVals[idx]+")",bmx,bmy,'#1d4ed8','11px',true);
+  const pmx=ox-28,pmy=(oy+(oy-s*scale))/2;
+  addText(svg,ns,"Perp",pmx,pmy,'#15803d','11px',true);
+  addText(svg,ns,"("+sinVals[idx]+")",pmx,pmy+13,'#15803d','11px',true);
+  const hmx=(ox+bx)/2+8,hmy=(oy-s*scale+by)/2-8;
+  addText(svg,ns,"Hyp (1)",hmx,hmy,'#b91c1c','11px',true);
+
+  // Angle arc
+  drawArc(svg,ns,ox,oy,28,angle);
+  addText(svg,ns,angle+"°",ox+35,oy-10,'#7c3aed','12px');
+
+  // Vertices
+  addText(svg,ns,"A",ox-12,oy+12,'#1e293b','12px');
+  addText(svg,ns,"B",bx+5,by+12,'#1e293b','12px');
+  addText(svg,ns,"C",ox-12,oy-s*scale-4,'#1e293b','12px');
+
+  // Right angle mark at C bottom
+  addText(svg,ns,"90°",ox+5,oy-s*scale+5,'#64748b','10px');
+}
+
+function addLine(svg,ns,x1,y1,x2,y2,col,w){
+  const l=document.createElementNS(ns,'line');
+  l.setAttribute('x1',x1);l.setAttribute('y1',y1);
+  l.setAttribute('x2',x2);l.setAttribute('y2',y2);
+  l.setAttribute('stroke',col);l.setAttribute('stroke-width',w);
+  l.setAttribute('stroke-linecap','round');
+  svg.appendChild(l);
+}
+function addText(svg,ns,txt,x,y,col,sz,center=false){
+  const t=document.createElementNS(ns,'text');
+  t.setAttribute('x',x);t.setAttribute('y',y);
+  t.setAttribute('fill',col);t.setAttribute('font-size',sz);
+  t.setAttribute('font-weight','700');t.setAttribute('font-family','Segoe UI,sans-serif');
+  if(center)t.setAttribute('text-anchor','middle');
+  t.textContent=txt;svg.appendChild(t);
+}
+function addCircle(svg,ns,x,y,r,col){
+  const c=document.createElementNS(ns,'circle');
+  c.setAttribute('cx',x);c.setAttribute('cy',y);c.setAttribute('r',r);
+  c.setAttribute('fill',col);svg.appendChild(c);
+}
+function addSquare(svg,ns,x,y){
+  const s=8;
+  const sq=document.createElementNS(ns,'polyline');
+  sq.setAttribute('points',`${x},${y-s} ${x+s},${y-s} ${x+s},${y}`);
+  sq.setAttribute('fill','none');sq.setAttribute('stroke','#64748b');sq.setAttribute('stroke-width','1.5');
+  document.getElementById('tri-svg').appendChild(sq);
+}
+function drawArc(svg,ns,cx,cy,r,angle){
+  const a=angle*Math.PI/180;
+  const ex=cx+r*Math.cos(-a);
+  const ey=cy+r*Math.sin(-a);
+  const d=`M ${cx+r},${cy} A ${r},${r} 0 0,0 ${ex},${ey}`;
+  const path=document.createElementNS(ns,'path');
+  path.setAttribute('d',d);path.setAttribute('fill','rgba(124,58,237,.15)');
