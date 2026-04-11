@@ -18,10 +18,14 @@ const RATE_LIMIT_MS = 1500;
 const MAX_RETRIES = 3;
 const FETCH_TIMEOUT_MS = 180000;
 
-if (!BASE_URL || !API_KEY) {
+const isVerifyOnly = process.argv.includes("--verify");
+
+if (!isVerifyOnly && (!BASE_URL || !API_KEY)) {
   console.error("Missing AI_INTEGRATIONS_ANTHROPIC_BASE_URL or AI_INTEGRATIONS_ANTHROPIC_API_KEY");
   process.exit(1);
 }
+
+const CONCEPT_SOURCE_PATH = path.join(__dirname, "visualConceptSource.json");
 
 const CONCEPTS = buildConceptList();
 
@@ -40,10 +44,51 @@ function loadTopicKeys() {
   }
 }
 
+function loadConceptSource() {
+  try {
+    const raw = fs.readFileSync(CONCEPT_SOURCE_PATH, "utf-8");
+    return JSON.parse(raw);
+  } catch (err) {
+    console.warn(`Could not load ${CONCEPT_SOURCE_PATH}: ${err.message}`);
+    console.warn("Falling back to inline concept list.");
+    return null;
+  }
+}
+
 function buildConceptList() {
   const topicKeys = loadTopicKeys();
   if (topicKeys.length > 0) {
     console.log(`Loaded ${topicKeys.length} topic keys from class10TopicRegistry.ts`);
+  }
+
+  const source = loadConceptSource();
+  if (source && Array.isArray(source.chapters)) {
+    console.log(`Loaded ${source.chapters.length} chapters from visualConceptSource.json`);
+    const coveredTopicKeys = new Set(source.chapters.map(ch => ch.topicKey));
+    for (const tk of topicKeys) {
+      if (!coveredTopicKeys.has(tk)) {
+        console.warn(`WARNING: Topic key "${tk}" from class10TopicRegistry is not covered.`);
+      }
+    }
+
+    const all = [];
+    for (const ch of source.chapters) {
+      for (const concept of ch.concepts) {
+        const slug = concept.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+        all.push({
+          subject: ch.subject,
+          chapter: ch.chapter,
+          chapterName: ch.chapterName,
+          topicKey: ch.topicKey,
+          conceptName: concept.name,
+          slug,
+          keywords: concept.keywords,
+          filePath: path.join(PUBLIC_DIR, ch.subject, ch.chapter, `${slug}.html`),
+        });
+      }
+    }
+    console.log(`Total concepts from source: ${all.length}`);
+    return all;
   }
 
   const mathsChapters = [
@@ -447,13 +492,110 @@ function loadManifest() {
   }
 }
 
+function buildTopicKeysIndex(manifest) {
+  const chapterToTopicKey = {};
+  for (const concept of CONCEPTS) {
+    if (concept.topicKey) {
+      chapterToTopicKey[concept.chapter] = concept.topicKey;
+    }
+  }
+  const topicKeys = {};
+  for (const [slug, entry] of Object.entries(manifest.concepts)) {
+    const tk = chapterToTopicKey[entry.chapter] || entry.topicKey || entry.chapterName;
+    entry.topicKey = tk;
+    if (!topicKeys[tk]) topicKeys[tk] = [];
+    topicKeys[tk].push(slug);
+  }
+  return topicKeys;
+}
+
+function buildQuestionMappings(manifest) {
+  const packDir = path.join(__dirname, "..", "src", "data", "questionBanks", "class10");
+  const questionMappings = {};
+  const subjects = ["maths", "science"];
+  for (const subj of subjects) {
+    const dir = path.join(packDir, subj);
+    try {
+      const files = fs.readdirSync(dir).filter((f) => f.endsWith(".ts"));
+      for (const file of files) {
+        const content = fs.readFileSync(path.join(dir, file), "utf-8");
+        const idMatches = [...content.matchAll(/\bid:\s*["']([^"']+)["']/g)];
+        const topicMatches = [...content.matchAll(/\btopicKey:\s*["']([^"']+)["']/g)];
+        if (idMatches.length > 0 && topicMatches.length > 0) {
+          const topicKey = topicMatches[0][1];
+          const visualSlugs = manifest.topicKeys?.[topicKey] || [];
+          if (visualSlugs.length > 0) {
+            for (const m of idMatches) {
+              questionMappings[m[1]] = visualSlugs;
+            }
+          }
+        }
+      }
+    } catch { /* dir may not exist */ }
+  }
+  return questionMappings;
+}
+
 function saveManifest(manifest) {
   manifest.generatedAt = new Date().toISOString();
+  manifest.topicKeys = buildTopicKeysIndex(manifest);
+  manifest.questionMappings = buildQuestionMappings(manifest);
   fs.writeFileSync(MANIFEST_PATH, JSON.stringify(manifest, null, 2));
+}
+
+function verifyGeneration() {
+  const manifest = loadManifest();
+  const topicKeys = loadTopicKeys();
+  const conceptCount = Object.keys(manifest.concepts).length;
+  const topicKeysCount = Object.keys(manifest.topicKeys || {}).length;
+  const questionMappingsCount = Object.keys(manifest.questionMappings || {}).length;
+
+  console.log("\n=== Visual Explainer Verification Report ===");
+  console.log(`Concepts generated: ${conceptCount}`);
+  console.log(`Topic keys covered: ${topicKeysCount}`);
+  console.log(`Question IDs mapped: ${questionMappingsCount}`);
+  console.log(`Registry topic keys: ${topicKeys.length}`);
+
+  let issues = 0;
+
+  for (const concept of CONCEPTS) {
+    const entry = manifest.concepts[concept.slug];
+    if (!entry) {
+      console.error(`MISSING: ${concept.subject}/${concept.chapter}/${concept.slug}`);
+      issues++;
+      continue;
+    }
+    const filePath = path.join(PUBLIC_DIR, concept.subject, concept.chapter, `${concept.slug}.html`);
+    if (!fs.existsSync(filePath)) {
+      console.error(`FILE MISSING: ${filePath}`);
+      issues++;
+    }
+  }
+
+  const coveredTopicKeys = new Set(Object.keys(manifest.topicKeys || {}));
+  for (const tk of topicKeys) {
+    if (!coveredTopicKeys.has(tk)) {
+      console.error(`TOPIC KEY NOT COVERED: ${tk}`);
+      issues++;
+    }
+  }
+
+  if (issues === 0) {
+    console.log("\nAll checks passed. Generation is complete.");
+  } else {
+    console.error(`\n${issues} issue(s) found.`);
+    process.exit(1);
+  }
 }
 
 async function main() {
   const args = process.argv.slice(2);
+
+  if (args.includes("--verify")) {
+    verifyGeneration();
+    return;
+  }
+
   const filterSubject = args.find((a) => a.startsWith("--subject="))?.split("=")[1];
   const filterChapter = args.find((a) => a.startsWith("--chapter="))?.split("=")[1];
   const forceRegenerate = args.includes("--force");

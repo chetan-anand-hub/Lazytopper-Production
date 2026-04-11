@@ -1,0 +1,313 @@
+{
+  "description": "Source of truth for visual explainer generation. Each chapter maps to a class10TopicRegistry topicKey. Concepts are the key visual concepts for each CBSE Class 10 chapter.",
+  "derivedFrom": [
+    "src/data/class10TopicRegistry.ts",
+    "src/data/canonicalQuestionBank.ts"
+  ],
+  "chapters": [
+    {
+      "chapter": "real-numbers",
+      "subject": "maths",
+      "chapterName": "Real Numbers",
+      "topicKey": "Real Numbers",
+      "concepts": [
+        { "name": "Euclids Division Lemma", "keywords": "hcf euclid division algorithm step-by-step" },
+        { "name": "Fundamental Theorem of Arithmetic", "keywords": "prime factorisation tree unique" },
+        { "name": "HCF and LCM using Prime Factorisation", "keywords": "hcf lcm prime factors venn" },
+        { "name": "Irrational Numbers Proof", "keywords": "irrational proof contradiction sqrt2" },
+        { "name": "Decimal Expansions", "keywords": "terminating non-terminating repeating decimal" }
+      ]
+    },
+    {
+      "chapter": "polynomials",
+      "subject": "maths",
+      "chapterName": "Polynomials",
+      "topicKey": "Polynomials",
+      "concepts": [
+        { "name": "Zeroes of a Polynomial", "keywords": "zeroes roots graph x-axis intersection" },
+        { "name": "Relationship between Zeroes and Coefficients", "keywords": "sum product zeroes coefficients alpha beta" },
+        { "name": "Graphical Meaning of Zeroes", "keywords": "parabola graph quadratic linear cubic" },
+        { "name": "Division Algorithm for Polynomials", "keywords": "division quotient remainder long-division" }
+      ]
+    },
+    {
+      "chapter": "linear-equations",
+      "subject": "maths",
+      "chapterName": "Pair of Linear Equations in Two Variables",
+      "topicKey": "Pair of Linear Equations",
+      "concepts": [
+        { "name": "Graphical Method", "keywords": "graph intersection lines solution pair" },
+        { "name": "Substitution Method", "keywords": "substitution solve variable replace step" },
+        { "name": "Elimination Method", "keywords": "elimination add subtract cancel coefficients" },
+        { "name": "Cross Multiplication Method", "keywords": "cross multiply formula determinant" },
+        { "name": "Consistency of Equations", "keywords": "consistent inconsistent parallel coincident ratios a1/a2" }
+      ]
+    },
+    {
+      "chapter": "quadratic-equations",
+      "subject": "maths",
+      "chapterName": "Quadratic Equations",
+      "topicKey": "Quadratic Equations",
+      "concepts": [
+        { "name": "Standard Form and Roots", "keywords": "ax2+bx+c roots parabola quadratic" },
+        { "name": "Factorisation Method", "keywords": "splitting middle term factors product sum" },
+        { "name": "Quadratic Formula", "keywords": "formula discriminant b2-4ac shridharacharya" },
+        { "name": "Nature of Roots using Discriminant", "keywords": "discriminant real equal distinct imaginary D" }
+      ]
+    },
+    {
+      "chapter": "arithmetic-progression",
+      "subject": "maths",
+      "chapterName": "Arithmetic Progressions",
+      "topicKey": "Arithmetic Progression",
+      "concepts": [
+        { "name": "AP Definition and Common Difference", "keywords": "ap common difference sequence d term" },
+        { "name": "nth Term Formula", "keywords": "nth term an formula a+(n-1)d general" },
+        { "name": "Sum of n Terms", "keywords": "sum sn formula n/2 arithmetic" },
+        { "name": "AP Number Line Visualization", "keywords": "number line equal spacing dots" }
+      ]
+    },
+    {
+      "chapter": "triangles",
+      "subject": "maths",
+      "chapterName": "Triangles",
+      "topicKey": "Triangles",
+      "concepts": [
+        { "name": "Similar Triangles and Criteria", "keywords": "similar AA SSS SAS criteria angles sides" },
+        { "name": "Basic Proportionality Theorem", "keywords": "BPT thales parallel ratio proportionality" },
+        { "name": "Pythagoras Theorem Visual Proof", "keywords": "pythagoras right triangle hypotenuse squares area" },
+        { "name": "Areas of Similar Triangles", "keywords": "area ratio square sides similar proportion" }
+      ]
+    },
+    {
+      "chapter": "coordinate-geometry",
+      "subject": "maths",
+      "chapterName": "Coordinate Geometry",
+      "topicKey": "Coordinate Geometry",
+      "concepts": [
+        { "name": "Distance Formula", "keywords": "distance formula two points sqrt plot" },
+        { "name": "Section Formula", "keywords": "section ratio midpoint internal division point" },
+        { "name": "Area of Triangle using Coordinates", "keywords": "area triangle coordinates vertices formula" },
+        { "name": "Coordinate Plane Plotter", "keywords": "plot axes quadrant point grid" }
+      ]
+    },
+    {
+      "chapter": "trigonometry",
+      "subject": "maths",
+      "chapterName": "Introduction to Trigonometry",
+      "topicKey": "Trigonometry",
+      "concepts": [
+        { "name": "Trigonometric Ratios", "keywords": "sin cos tan ratio right triangle SOH-CAH-TOA" },
+        { "name": "Trigonometric Ratios of Standard Angles", "keywords": "0 30 45 60 90 table values" },
+        { "name": "Trigonometric Identities", "keywords": "sin2+cos2=1 identity prove sec tan" },
+        { "name": "Height and Distance Problems", "keywords": "height distance angle elevation depression tower" }
+      ]
+    },
+    {
+      "chapter": "circles",
+      "subject": "maths",
+      "chapterName": "Circles",
+      "topicKey": "Circles",
+      "concepts": [
+        { "name": "Tangent to a Circle", "keywords": "tangent point contact perpendicular radius" },
+        { "name": "Number of Tangents from External Point", "keywords": "two tangents external equal length" },
+        { "name": "Tangent Properties", "keywords": "tangent radius perpendicular theorem angle" }
+      ]
+    },
+    {
+      "chapter": "areas-circles",
+      "subject": "maths",
+      "chapterName": "Areas Related to Circles",
+      "topicKey": "Areas Related to Circles",
+      "concepts": [
+        { "name": "Sector and Segment", "keywords": "sector segment arc angle minor major" },
+        { "name": "Area of Sector Formula", "keywords": "area sector theta 360 formula pi-r2" },
+        { "name": "Combined Figures Area", "keywords": "combined shaded region subtract composite" }
+      ]
+    },
+    {
+      "chapter": "surface-areas-volumes",
+      "subject": "maths",
+      "chapterName": "Surface Areas and Volumes",
+      "topicKey": "Surface Areas and Volumes",
+      "concepts": [
+        { "name": "Combination of Solids", "keywords": "combination cone cylinder hemisphere dome tent" },
+        { "name": "Conversion of Solids", "keywords": "melt recast volume conservation reshape" },
+        { "name": "Frustum of a Cone", "keywords": "frustum slant height volume surface cut" }
+      ]
+    },
+    {
+      "chapter": "statistics",
+      "subject": "maths",
+      "chapterName": "Statistics",
+      "topicKey": "Statistics",
+      "concepts": [
+        { "name": "Mean of Grouped Data", "keywords": "mean assumed direct step deviation xi fi" },
+        { "name": "Median of Grouped Data", "keywords": "median cumulative frequency class interval l" },
+        { "name": "Mode of Grouped Data", "keywords": "mode modal class frequency highest f0 f1 f2" },
+        { "name": "Ogive Curve", "keywords": "ogive cumulative frequency graph less-than more-than" }
+      ]
+    },
+    {
+      "chapter": "probability",
+      "subject": "maths",
+      "chapterName": "Probability",
+      "topicKey": "Probability",
+      "concepts": [
+        { "name": "Classical Probability", "keywords": "classical equally likely outcomes events favorable" },
+        { "name": "Complementary Events", "keywords": "complementary P(not-E) 1-P(E) certain impossible" },
+        { "name": "Dice and Cards Sample Space", "keywords": "dice cards sample space outcomes 52 6" }
+      ]
+    },
+    {
+      "chapter": "chemical-reactions",
+      "subject": "science",
+      "chapterName": "Chemical Reactions and Equations",
+      "topicKey": "Chemical Reactions and Equations",
+      "concepts": [
+        { "name": "Types of Chemical Reactions", "keywords": "combination decomposition displacement double single" },
+        { "name": "Balancing Chemical Equations", "keywords": "balance atoms reactants products coefficients" },
+        { "name": "Oxidation and Reduction", "keywords": "oxidation reduction redox gain loss electrons oxygen" },
+        { "name": "Corrosion and Rancidity", "keywords": "corrosion rancidity iron rust prevention antioxidant" }
+      ]
+    },
+    {
+      "chapter": "acids-bases-salts",
+      "subject": "science",
+      "chapterName": "Acids, Bases and Salts",
+      "topicKey": "Acids Bases and Salts",
+      "concepts": [
+        { "name": "pH Scale", "keywords": "pH acidic basic neutral indicator litmus 0-14" },
+        { "name": "Acid Base Reactions", "keywords": "neutralisation salt water reaction HCl NaOH" },
+        { "name": "Common Salt and its Products", "keywords": "NaCl bleaching baking washing soda chlor-alkali" }
+      ]
+    },
+    {
+      "chapter": "metals-nonmetals",
+      "subject": "science",
+      "chapterName": "Metals and Non-Metals",
+      "topicKey": "Metals and Non-Metals",
+      "concepts": [
+        { "name": "Physical Properties of Metals", "keywords": "lustre malleable ductile conductor sonorous" },
+        { "name": "Reactivity Series", "keywords": "reactivity series displacement order K Na Ca Mg" },
+        { "name": "Ionic Bonding", "keywords": "ionic bond transfer electron NaCl cation anion" },
+        { "name": "Extraction of Metals", "keywords": "extraction ore roasting calcination electrolysis smelting" }
+      ]
+    },
+    {
+      "chapter": "carbon-compounds",
+      "subject": "science",
+      "chapterName": "Carbon and its Compounds",
+      "topicKey": "Carbon and its Compounds",
+      "concepts": [
+        { "name": "Covalent Bonding in Carbon", "keywords": "covalent sharing electron tetravalent bond methane" },
+        { "name": "Homologous Series", "keywords": "homologous CH2 series properties methane ethane propane" },
+        { "name": "Functional Groups", "keywords": "alcohol aldehyde ketone carboxylic acid functional -OH" },
+        { "name": "Carbon Chain Structures", "keywords": "straight branched cyclic isomers structural" }
+      ]
+    },
+    {
+      "chapter": "life-processes",
+      "subject": "science",
+      "chapterName": "Life Processes",
+      "topicKey": "Life Processes",
+      "concepts": [
+        { "name": "Nutrition in Humans", "keywords": "digestion stomach intestine enzyme alimentary canal" },
+        { "name": "Photosynthesis", "keywords": "chlorophyll sunlight CO2 glucose oxygen stomata" },
+        { "name": "Human Heart and Blood Circulation", "keywords": "heart atrium ventricle circulation double pump" },
+        { "name": "Respiration and Excretion", "keywords": "aerobic anaerobic kidney nephron urine lungs" }
+      ]
+    },
+    {
+      "chapter": "control-coordination",
+      "subject": "science",
+      "chapterName": "Control and Coordination",
+      "topicKey": "Control and Coordination",
+      "concepts": [
+        { "name": "Nervous System", "keywords": "brain spinal cord neuron synapse cerebrum cerebellum" },
+        { "name": "Reflex Arc", "keywords": "reflex arc stimulus response involuntary receptor effector" },
+        { "name": "Plant Hormones and Tropisms", "keywords": "auxin phototropism geotropism gibberellin hormone" }
+      ]
+    },
+    {
+      "chapter": "reproduction",
+      "subject": "science",
+      "chapterName": "How do Organisms Reproduce?",
+      "topicKey": "How do Organisms Reproduce",
+      "concepts": [
+        { "name": "Types of Asexual Reproduction", "keywords": "binary fission budding fragmentation spore regeneration" },
+        { "name": "Human Reproductive System", "keywords": "male female reproductive organs testes ovary" },
+        { "name": "Flower Structure and Pollination", "keywords": "stamen pistil pollen pollination anther ovule" }
+      ]
+    },
+    {
+      "chapter": "heredity-evolution",
+      "subject": "science",
+      "chapterName": "Heredity and Evolution",
+      "topicKey": "Heredity and Evolution",
+      "concepts": [
+        { "name": "Mendels Laws of Inheritance", "keywords": "mendel dominant recessive F1 F2 monohybrid cross" },
+        { "name": "Sex Determination", "keywords": "XX XY sex chromosome determination male female" },
+        { "name": "Evolution and Speciation", "keywords": "evolution speciation natural selection variation Darwin" }
+      ]
+    },
+    {
+      "chapter": "light",
+      "subject": "science",
+      "chapterName": "Light - Reflection and Refraction",
+      "topicKey": "Light Reflection and Refraction",
+      "concepts": [
+        { "name": "Reflection of Light", "keywords": "reflection mirror concave convex image incident angle" },
+        { "name": "Mirror Formula and Magnification", "keywords": "mirror formula 1/v+1/u=1/f magnification focal" },
+        { "name": "Refraction of Light", "keywords": "refraction snell bending medium speed glass water" },
+        { "name": "Lens Formula and Ray Diagrams", "keywords": "lens convex concave ray diagram focus image" }
+      ]
+    },
+    {
+      "chapter": "human-eye",
+      "subject": "science",
+      "chapterName": "The Human Eye and the Colourful World",
+      "topicKey": "Human Eye and Colourful World",
+      "concepts": [
+        { "name": "Structure of Human Eye", "keywords": "cornea lens retina pupil iris ciliary" },
+        { "name": "Defects of Vision and Correction", "keywords": "myopia hypermetropia presbyopia corrective lens" },
+        { "name": "Dispersion of Light and Rainbow", "keywords": "prism dispersion spectrum rainbow VIBGYOR Newton" }
+      ]
+    },
+    {
+      "chapter": "electricity",
+      "subject": "science",
+      "chapterName": "Electricity",
+      "topicKey": "Electricity",
+      "concepts": [
+        { "name": "Ohms Law", "keywords": "ohm V=IR current voltage resistance graph proportional" },
+        { "name": "Series and Parallel Circuits", "keywords": "series parallel circuit resistor combination R-total" },
+        { "name": "Electric Power and Energy", "keywords": "power P=VI energy kWh watt unit bill" },
+        { "name": "Circuit Diagram Builder", "keywords": "circuit ammeter voltmeter battery switch resistor" }
+      ]
+    },
+    {
+      "chapter": "magnetic-effects",
+      "subject": "science",
+      "chapterName": "Magnetic Effects of Electric Current",
+      "topicKey": "Magnetic Effects of Electric Current",
+      "concepts": [
+        { "name": "Magnetic Field Lines", "keywords": "field lines bar magnet direction compass NS" },
+        { "name": "Electromagnet and Solenoid", "keywords": "electromagnet solenoid coil current iron core" },
+        { "name": "Flemings Left Hand Rule", "keywords": "fleming force motor conductor magnetic FBI" },
+        { "name": "Electric Motor and Generator", "keywords": "motor generator AC DC electromagnetic induction" }
+      ]
+    },
+    {
+      "chapter": "environment",
+      "subject": "science",
+      "chapterName": "Our Environment",
+      "topicKey": "Our Environment",
+      "concepts": [
+        { "name": "Food Chain and Food Web", "keywords": "food chain web trophic energy producer consumer" },
+        { "name": "Ecosystem and Energy Flow", "keywords": "ecosystem producer consumer decomposer 10% rule" },
+        { "name": "Ozone Layer and Biodegradability", "keywords": "ozone CFC biodegradable non-biodegradable UV" }
+      ]
+    }
+  ]
+}
