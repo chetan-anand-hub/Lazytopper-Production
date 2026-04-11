@@ -242,7 +242,6 @@ const TrendsPage: React.FC = () => {
     });
   };
 
-  const goToHPQ = () => navigate(buildHPQUrl(grade, subjectKey), { state: { back: currentURL, backLabel: "Back to trends" } });
   const goToMockBuilder = () => navigate(buildMockBuilderUrl(grade, subjectKey), { state: { back: currentURL, backLabel: "Back to trends" } });
 
   const goToMasteryCompanion = () => {
@@ -449,8 +448,20 @@ const TrendsPage: React.FC = () => {
             <h2 className="font-display" style={{ fontSize: "1.05rem", fontWeight: 700, color: "#fff", margin: 0 }}>
               Chapters
             </h2>
-            <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.35)", whiteSpace: "nowrap" }}>
-              {Math.round(totalWeightage * 10) / 10}% of paper
+            <div style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
+              <button
+                onClick={() => navigate("/methodology", { state: { from: `/trends/${grade}/${subjectKey}` } })}
+                style={{
+                  background: "transparent", border: "none", padding: 0,
+                  fontSize: "0.7rem", color: "rgba(59,130,246,0.6)", cursor: "pointer",
+                  textDecoration: "underline",
+                }}
+              >
+                How we predict
+              </button>
+              <span style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.35)", whiteSpace: "nowrap" }}>
+                {Math.round(totalWeightage * 10) / 10}% of paper
+              </span>
             </div>
           </div>
 
@@ -548,7 +559,7 @@ const TrendsPage: React.FC = () => {
                                 position: "absolute", zIndex: 50, marginTop: 4,
                                 display: "grid", gap: 3, minWidth: 190, padding: 6,
                                 borderRadius: 10, border: "1px solid rgba(255,255,255,0.08)",
-                                background: "rgba(18,18,18,0.97)", backdropFilter: "blur(16px)",
+                                background: "#181818",
                                 boxShadow: "0 4px 20px rgba(0,0,0,0.5)",
                               }}>
                                 {[
@@ -581,16 +592,6 @@ const TrendsPage: React.FC = () => {
                           ~{meta.weightagePercent ?? 0}%
                         </div>
                         <div style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.3)" }}>of paper</div>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); navigate("/methodology", { state: { from: `/trends/${grade}/${subjectKey}` } }); }}
-                          style={{
-                            background: "transparent", border: "none", padding: 0, marginTop: 2,
-                            fontSize: "0.62rem", color: "rgba(59,130,246,0.6)", cursor: "pointer",
-                            textDecoration: "underline",
-                          }}
-                        >
-                          How we predict
-                        </button>
                       </div>
                     </div>
 
@@ -624,73 +625,21 @@ const TrendsPage: React.FC = () => {
           )}
         </section>
 
-        {/* Next steps */}
-        <section style={{ marginTop: 22 }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 10 }}>
-            <div
-              role="button"
-              tabIndex={0}
-              onClick={goToHPQ}
-              onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); goToHPQ(); } }}
-              style={{
-                borderRadius: 14, padding: "14px 16px",
-                border: "1px solid rgba(59,130,246,0.15)",
-                background: "rgba(59,130,246,0.04)",
-                textAlign: "left", cursor: "pointer",
-              }}
-            >
-              <div className="font-display" style={{ fontSize: "0.88rem", fontWeight: 700, color: "#fff", marginBottom: 3 }}>
-                Predicted Questions
-              </div>
-              <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.35)", margin: 0 }}>
-                Practice the most likely board questions for this subject.
-              </p>
-              <div style={{ display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap" }}>
-                <button
-                  type="button"
-                  onClick={(e) => { e.stopPropagation(); goToHPQ(); }}
-                  style={{
-                    borderRadius: 999, padding: "4px 10px",
-                    border: "1px solid rgba(59,130,246,0.25)", background: "rgba(59,130,246,0.08)",
-                    color: "#60a5fa", fontSize: "0.7rem", cursor: "pointer",
-                  }}
-                >
-                  Open Predicted Q's
-                </button>
-                <button
-                  type="button"
-                  onClick={(e) => { e.stopPropagation(); goToMockBuilder(); }}
-                  style={{
-                    borderRadius: 999, padding: "4px 10px",
-                    border: "1px solid rgba(59,130,246,0.25)", background: "rgba(59,130,246,0.08)",
-                    color: "#60a5fa", fontSize: "0.7rem", cursor: "pointer",
-                  }}
-                >
-                  Build mock
-                </button>
-              </div>
-            </div>
-
-            <div
-              role="button"
-              tabIndex={0}
-              onClick={goToMasteryCompanion}
-              onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); goToMasteryCompanion(); } }}
-              style={{
-                borderRadius: 14, padding: "14px 16px",
-                border: "1px solid rgba(34,197,94,0.15)",
-                background: "rgba(34,197,94,0.04)",
-                textAlign: "left", cursor: "pointer",
-              }}
-            >
-              <div className="font-display" style={{ fontSize: "0.88rem", fontWeight: 700, color: "#fff", marginBottom: 3 }}>
-                Start Learning
-              </div>
-              <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.35)", margin: 0 }}>
-                Begin with your weakest chapter using guided teach + practice.
-              </p>
-            </div>
-          </div>
+        {/* Next step */}
+        <section style={{ marginTop: 22, textAlign: "center" }}>
+          <button
+            type="button"
+            onClick={goToMasteryCompanion}
+            style={{
+              borderRadius: 14, padding: "14px 28px",
+              border: "none",
+              background: "#58cc02", color: "#fff",
+              fontWeight: 700, fontSize: "0.92rem",
+              cursor: "pointer", width: "100%", maxWidth: 360,
+            }}
+          >
+            Start Learning
+          </button>
         </section>
       </div>
     </div>

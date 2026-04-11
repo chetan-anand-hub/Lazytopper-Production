@@ -164,7 +164,7 @@ export default function TopicMockPage() {
   }, [navigate, grade, subject, topicKey, location]);
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0a0a0a", paddingBottom: 80 }}>
+    <div style={{ minHeight: "100vh", background: "var(--bg)", paddingBottom: 80 }}>
       <div style={{ maxWidth: 900, margin: "0 auto", padding: "16px 16px 32px" }}>
         <ReturnContextBar backTo={backTo} backLabel={backLabel} />
 
@@ -190,7 +190,7 @@ export default function TopicMockPage() {
           <div style={{ marginTop: 24 }}>
             <div style={{
               background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)",
-              borderRadius: 20, padding: "28px 24px", color: "#fff",
+              borderRadius: 20, padding: "28px 24px", color: "var(--text)",
               boxShadow: "0 4px 0 rgba(99,102,241,0.3)",
             }}>
               <div style={{ fontSize: "0.7rem", letterSpacing: "0.2em", textTransform: "uppercase", opacity: 0.85, marginBottom: 6 }}>
@@ -225,7 +225,7 @@ export default function TopicMockPage() {
                   onClick={startMock}
                   style={{
                     padding: "10px 28px", borderRadius: 14, border: "none", cursor: "pointer",
-                    background: "rgba(255,255,255,0.03)", color: "#6366f1", fontWeight: 700, fontSize: "0.9rem",
+                    background: "var(--bg-card)", color: "#6366f1", fontWeight: 700, fontSize: "0.9rem",
                     boxShadow: "0 2px 0 rgba(0,0,0,0.1)",
                   }}
                 >
@@ -235,7 +235,7 @@ export default function TopicMockPage() {
                   onClick={handlePrint}
                   style={{
                     padding: "10px 20px", borderRadius: 14, border: "2px solid rgba(255,255,255,0.4)",
-                    background: "transparent", color: "#fff", fontWeight: 600, fontSize: "0.82rem", cursor: "pointer",
+                    background: "transparent", color: "var(--text)", fontWeight: 600, fontSize: "0.82rem", cursor: "pointer",
                   }}
                 >
                   Print / PDF
@@ -248,7 +248,7 @@ export default function TopicMockPage() {
             <div className="print-paper" style={{ marginTop: 24 }}>
               {paper.sections.map(sec => (
                 <div key={sec.section} style={{
-                  background: "rgba(255,255,255,0.03)", borderRadius: 16, padding: "20px 20px 16px", marginBottom: 16,
+                  background: "var(--bg-card)", borderRadius: 16, padding: "20px 20px 16px", marginBottom: 16,
                   border: `1px solid ${SECTION_COLORS[sec.section]}22`,
                 }}>
                   <h3 style={{ fontSize: "0.9rem", fontWeight: 700, color: SECTION_COLORS[sec.section], marginBottom: 12 }}>
@@ -399,7 +399,7 @@ function QuestionDisplay({ q, idx, section, showAnswer, selectedAnswer, chosenBr
       {showAnswer && q.main.answer && (answeredMain || !chosenBranch) && (
         <div style={{ marginTop: 8, padding: "8px 12px", background: "rgba(34,197,94,0.08)", borderRadius: 8, fontSize: "0.78rem", color: "#22c55e" }}>
           <strong>Answer:</strong> {q.main.answer}
-          {q.main.explanation && <div style={{ marginTop: 4, color: "rgba(255,255,255,0.6)" }}>{q.main.explanation}</div>}
+          {q.main.explanation && <div style={{ marginTop: 4, color: "var(--text-muted)" }}>{q.main.explanation}</div>}
         </div>
       )}
 
@@ -445,13 +445,13 @@ function TakingPhase({ paper, currentSectionIdx, elapsed, timerEnabled, answers,
   return (
     <div style={{ marginTop: 24 }}>
       <div style={{
-        position: "sticky", top: 0, zIndex: 10, background: "rgba(255,255,255,0.03)", padding: "10px 16px",
+        position: "sticky", top: 0, zIndex: 10, background: "var(--bg-card)", padding: "10px 16px",
         borderRadius: 12, marginBottom: 16,
-        boxShadow: "0 2px 8px rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.06)",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.3)", border: "1px solid var(--bg-card-border)",
       }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
           {timerEnabled && (
-            <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "rgba(255,255,255,0.6)" }}>
+            <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "var(--text-muted)" }}>
               Time: {formatTime(elapsed)}
             </span>
           )}
@@ -470,7 +470,7 @@ function TakingPhase({ paper, currentSectionIdx, elapsed, timerEnabled, answers,
       </div>
 
       <div style={{
-        background: "rgba(255,255,255,0.03)", borderRadius: 16, padding: "20px", border: `2px solid ${SECTION_COLORS[sec.section]}`,
+        background: "var(--bg-card)", borderRadius: 16, padding: "20px", border: `2px solid ${SECTION_COLORS[sec.section]}`,
       }}>
         <h3 style={{ fontSize: "0.9rem", fontWeight: 700, color: SECTION_COLORS[sec.section], marginBottom: 16 }}>
           {SECTION_LABELS[sec.section]}
@@ -491,7 +491,7 @@ function TakingPhase({ paper, currentSectionIdx, elapsed, timerEnabled, answers,
           disabled={!allAnswered}
           style={{
             marginTop: 16, padding: "10px 28px", borderRadius: 14, border: "none", cursor: "pointer",
-            background: allAnswered ? "#58cc02" : "#94a3b8", color: "#fff", fontWeight: 700, fontSize: "0.88rem",
+            background: allAnswered ? "#58cc02" : "#94a3b8", color: "var(--text)", fontWeight: 700, fontSize: "0.88rem",
             boxShadow: "0 3px 0 rgba(0,0,0,0.15)",
           }}
         >
@@ -514,14 +514,14 @@ function ReviewPhase({ paper, analytics, answers, previousBest, onGoToWeakPracti
   return (
     <div style={{ marginTop: 24 }}>
       <div style={{
-        background: "rgba(255,255,255,0.03)", borderRadius: 20, padding: "28px 24px", textAlign: "center",
-        border: "1px solid rgba(255,255,255,0.06)", boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
+        background: "var(--bg-card)", borderRadius: 20, padding: "28px 24px", textAlign: "center",
+        border: "1px solid var(--bg-card-border)", boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
       }}>
         <div style={{ fontSize: "0.72rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)", marginBottom: 8 }}>
           Mock Result — {paper.topicDisplayName} — Set {paper.setIndex}
         </div>
         <CountUpReveal value={analytics.percentScore} previousBest={previousBest} style={{ fontSize: "3rem", fontWeight: 800, color: scoreColor }} />
-        <div style={{ fontSize: "0.9rem", color: "rgba(255,255,255,0.6)", marginTop: 4 }}>
+        <div style={{ fontSize: "0.9rem", color: "var(--text-muted)", marginTop: 4 }}>
           {analytics.marksScored} / {analytics.totalMarks} marks
         </div>
         <div style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.4)", marginTop: 4 }}>
@@ -530,8 +530,8 @@ function ReviewPhase({ paper, analytics, answers, previousBest, onGoToWeakPracti
       </div>
 
       <div style={{
-        marginTop: 20, background: "rgba(255,255,255,0.03)", borderRadius: 16, padding: "20px",
-        border: "1px solid rgba(255,255,255,0.06)",
+        marginTop: 20, background: "var(--bg-card)", borderRadius: 16, padding: "20px",
+        border: "1px solid var(--bg-card-border)",
       }}>
         <h3 style={{ fontSize: "0.88rem", fontWeight: 700, color: "rgba(255,255,255,0.9)", marginBottom: 12 }}>Section Breakdown</h3>
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
@@ -544,7 +544,7 @@ function ReviewPhase({ paper, analytics, answers, previousBest, onGoToWeakPracti
               <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "rgba(255,255,255,0.9)" }}>{sb.scored}/{sb.maxMarks}</div>
               <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.4)" }}>{sb.percent}% accuracy</div>
               {analytics.timeAnalysis.perSectionSeconds[sb.section] != null && (
-                <div style={{ fontSize: "0.68rem", color: "rgba(255,255,255,0.45)", marginTop: 2 }}>
+                <div style={{ fontSize: "0.68rem", color: "var(--text-muted)", marginTop: 2 }}>
                   {formatTime(analytics.timeAnalysis.perSectionSeconds[sb.section])}
                 </div>
               )}
@@ -554,8 +554,8 @@ function ReviewPhase({ paper, analytics, answers, previousBest, onGoToWeakPracti
       </div>
 
       <div style={{
-        marginTop: 20, background: "rgba(255,255,255,0.03)", borderRadius: 16, padding: "20px",
-        border: "1px solid rgba(255,255,255,0.06)",
+        marginTop: 20, background: "var(--bg-card)", borderRadius: 16, padding: "20px",
+        border: "1px solid var(--bg-card-border)",
       }}>
         <h3 style={{ fontSize: "0.88rem", fontWeight: 700, color: "rgba(255,255,255,0.9)", marginBottom: 12 }}>Subtopic Heatmap</h3>
         {analytics.subtopicHeatmap.map(s => (
@@ -592,7 +592,7 @@ function ReviewPhase({ paper, analytics, answers, previousBest, onGoToWeakPracti
                 onClick={() => onGoToWeakPractice(sub)}
                 style={{
                   padding: "6px 14px", borderRadius: 10, border: "1px solid #fca5a5",
-                  background: "rgba(255,255,255,0.03)", color: "#ef4444", fontSize: "0.78rem", fontWeight: 600,
+                  background: "var(--bg-card)", color: "#ef4444", fontSize: "0.78rem", fontWeight: 600,
                   cursor: "pointer",
                 }}
               >
@@ -607,8 +607,8 @@ function ReviewPhase({ paper, analytics, answers, previousBest, onGoToWeakPracti
         <h3 style={{ fontSize: "0.88rem", fontWeight: 700, color: "rgba(255,255,255,0.9)", marginBottom: 12 }}>Full Paper Review</h3>
         {paper.sections.map(sec => (
           <div key={sec.section} style={{
-            background: "rgba(255,255,255,0.03)", borderRadius: 16, padding: "16px", marginBottom: 12,
-            border: "1px solid rgba(255,255,255,0.06)",
+            background: "var(--bg-card)", borderRadius: 16, padding: "16px", marginBottom: 12,
+            border: "1px solid var(--bg-card-border)",
           }}>
             <h4 style={{ fontSize: "0.82rem", fontWeight: 700, color: SECTION_COLORS[sec.section], marginBottom: 10 }}>
               {SECTION_LABELS[sec.section]}
@@ -628,19 +628,19 @@ function ReviewPhase({ paper, analytics, answers, previousBest, onGoToWeakPracti
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 20 }}>
         <button onClick={onRetake} style={{
           padding: "10px 24px", borderRadius: 14, border: "none", background: "#6366f1",
-          color: "#fff", fontWeight: 700, fontSize: "0.85rem", cursor: "pointer",
+          color: "var(--text)", fontWeight: 700, fontSize: "0.85rem", cursor: "pointer",
         }}>
           Retake This Set
         </button>
         <button onClick={onNextSet} style={{
           padding: "10px 24px", borderRadius: 14, border: "2px solid #6366f1",
-          background: "rgba(255,255,255,0.03)", color: "#6366f1", fontWeight: 700, fontSize: "0.85rem", cursor: "pointer",
+          background: "var(--bg-card)", color: "#6366f1", fontWeight: 700, fontSize: "0.85rem", cursor: "pointer",
         }}>
           Try Next Set
         </button>
         <button onClick={onPrint} style={{
-          padding: "10px 24px", borderRadius: 14, border: "1px solid rgba(255,255,255,0.06)",
-          background: "#0a0a0a", color: "rgba(255,255,255,0.6)", fontWeight: 600, fontSize: "0.85rem", cursor: "pointer",
+          padding: "10px 24px", borderRadius: 14, border: "1px solid var(--bg-card-border)",
+          background: "var(--bg)", color: "var(--text-muted)", fontWeight: 600, fontSize: "0.85rem", cursor: "pointer",
         }}>
           Print / PDF
         </button>

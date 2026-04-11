@@ -107,7 +107,7 @@ export default function RevisionCalendarPage() {
   const today = new Date().toISOString().slice(0, 10);
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0a0a0a", paddingBottom: 80 }}>
+    <div style={{ minHeight: "100vh", background: "var(--bg)", paddingBottom: 80 }}>
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
           body { background: #fff !important; color: #000 !important; }
@@ -129,7 +129,7 @@ export default function RevisionCalendarPage() {
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <div>
               <h1 style={{
-                fontSize: 20, fontWeight: 800, color: "#fff", margin: "0 0 4px",
+                fontSize: 20, fontWeight: 800, color: "var(--text)", margin: "0 0 4px",
                 fontFamily: "'Space Grotesk', sans-serif",
               }}>📅 30-Day Revision Calendar</h1>
               <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", margin: 0 }}>

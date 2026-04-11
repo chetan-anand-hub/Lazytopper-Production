@@ -33,9 +33,9 @@ const PredictivePapersPage: React.FC = () => {
           borderRadius: 32,
           padding: "22px 22px 24px",
           background:
-            "linear-gradient(135deg,rgba(88,204,2,0.98),rgba(28,176,246,0.95))",
-          color: "rgba(255,255,255,0.6)",
-          boxShadow: "0 26px 70px rgba(88,204,2,0.3)",
+            "linear-gradient(135deg, rgba(34,197,94,0.12) 0%, rgba(59,130,246,0.10) 100%)",
+          border: "1px solid rgba(34,197,94,0.15)",
+          color: "var(--text-muted)",
           marginBottom: 20,
         }}
       >
@@ -55,6 +55,7 @@ const PredictivePapersPage: React.FC = () => {
             margin: 0,
             fontSize: "2.1rem",
             lineHeight: 1.2,
+            color: "var(--text)",
           }}
         >
           Predictive Papers Hub
@@ -81,7 +82,7 @@ const PredictivePapersPage: React.FC = () => {
           style={{
             flex: "1 1 240px", padding: "20px 24px", borderRadius: 20,
             background: "linear-gradient(135deg, #1e293b 0%, #334155 100%)",
-            color: "#fff", border: "none", cursor: "pointer", textAlign: "left",
+            color: "var(--text)", border: "none", cursor: "pointer", textAlign: "left",
             boxShadow: "0 4px 16px rgba(0,0,0,0.15)",
           }}
         >
@@ -104,7 +105,7 @@ const PredictivePapersPage: React.FC = () => {
           style={{
             flex: "1 1 240px", padding: "20px 24px", borderRadius: 20,
             background: "linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%)",
-            color: "#fff", border: "none", cursor: "pointer", textAlign: "left",
+            color: "var(--text)", border: "none", cursor: "pointer", textAlign: "left",
             boxShadow: "0 4px 16px rgba(0,0,0,0.15)",
           }}
         >
@@ -139,14 +140,12 @@ const PredictivePapersPage: React.FC = () => {
               key={paper.id}
               type="button"
               onClick={() => openPaper(paper)}
+              className="glass-card"
               style={{
                 textAlign: "left",
                 borderRadius: 24,
                 padding: "14px 14px 16px",
-                background: "rgba(255,255,255,0.03)",
-                border: "1px solid rgba(255,255,255,0.06)",
                 cursor: "pointer",
-                boxShadow: "0 18px 40px rgba(0,0,0,0.08)",
                 display: "flex",
                 flexDirection: "column",
                 gap: 6,
@@ -157,7 +156,7 @@ const PredictivePapersPage: React.FC = () => {
                   fontSize: "0.8rem",
                   letterSpacing: "0.08em",
                   textTransform: "uppercase",
-                  color: "rgba(255,255,255,0.45)",
+                  color: "var(--text-muted)",
                 }}
               >
                 Paper {paper.id.replace("P", "")}
@@ -166,7 +165,7 @@ const PredictivePapersPage: React.FC = () => {
                 style={{
                   fontSize: "1.05rem",
                   fontWeight: 600,
-                  color: "rgba(255,255,255,0.85)",
+                  color: "var(--text)",
                 }}
               >
                 {paper.title}
@@ -174,7 +173,7 @@ const PredictivePapersPage: React.FC = () => {
               <div
                 style={{
                   fontSize: "0.9rem",
-                  color: "rgba(255,255,255,0.5)",
+                  color: "var(--text-muted)",
                 }}
               >
                 {paper.vibe}
@@ -182,7 +181,7 @@ const PredictivePapersPage: React.FC = () => {
               <div
                 style={{
                   fontSize: "0.8rem",
-                  color: "rgba(255,255,255,0.45)",
+                  color: "var(--text-muted)",
                 }}
               >
                 {paper.tagline}
@@ -193,8 +192,8 @@ const PredictivePapersPage: React.FC = () => {
                   marginTop: 8,
                   padding: "8px 10px",
                   borderRadius: 999,
-                  background: "rgba(255,255,255,0.08)",
-                  color: "rgba(255,255,255,0.6)",
+                  background: "var(--bg-card)",
+                  color: "var(--text-muted)",
                   fontSize: "0.8rem",
                   display: "inline-flex",
                   alignItems: "center",

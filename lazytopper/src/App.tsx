@@ -3,6 +3,7 @@ import { Routes, Route, useLocation, useNavigate, Navigate, useParams } from "re
 import Login from "./pages/Login";
 import SignUpPage from "./pages/SignUpPage";
 import Onboarding from "./pages/Onboarding";
+import Welcome from "./pages/Welcome";
 import TopicHubHome from "./pages/TopicHubHome";
 import { StudyPlannerView } from "./components/planner/StudyPlannerView";
 
@@ -524,7 +525,7 @@ export default function App() {
         <Routes>
           {/* Core Routes */}
           <Route path="/" element={<HomeRedirect />} />
-          <Route path="/welcome" element={<Navigate to="/trends/10/Maths" replace />} />
+          <Route path="/welcome" element={<Welcome />} />
           <Route path="/login" element={<Login />} />
           <Route path="/login/*" element={<Login />} />
           <Route path="/sign-up" element={<SignUpPage />} />

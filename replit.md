@@ -13,6 +13,12 @@ The project is structured as a pnpm workspace monorepo utilizing TypeScript.
 ## UI/UX Decisions
 The platform features a scroll-based homepage, a theme-aware interface with dark/light modes, and a guided new user experience. Key pages include a Student Profile with mastery tracking and achievements, an Exam Simulation for full-length mock tests, and Weak Area Practice using a Spaced Repetition System. A Parent/Teacher Dashboard is also available. AI tutor messages are rendered with markdown and KaTeX.
 
+### Theme System (Task #82 Audit)
+- CSS vars in `:root` define dark theme defaults; `[data-theme="light"]` overrides provide light-mode values for `--bg`, `--bg-card`, `--bg-card-border`, `--text`, `--text-muted`, `--shadow`.
+- `backdrop-filter: blur()` has been removed from `.glass-card`, `.card`, and all dashboard THEME_STYLES glass classes to prevent dropdown stacking-context issues.
+- CommandPalette uses solid opaque backgrounds (`#1e1e2e` dark / `#ffffff` light) instead of transparent `var(--bg-card)`.
+- Components use `useThemeColors()` from `dashboardUtils.ts` for inline theme-aware styles, and CSS vars (`var(--text)`, `var(--text-muted)`, etc.) for shared page elements.
+
 ## Technical Implementations
 The monorepo uses pnpm workspaces. The prediction engine (`cbse5SignalScoring.ts`) employs a 5-signal weighted scoring system. Solutions are CBSE marking scheme-aligned. The core learning loop uses `dailyMixGenerator.ts` and client-side storage with Firestore sync. An `/api/check-solution` endpoint leverages Gemini Vision for handwritten solution evaluation. The Spaced Repetition Engine uses FSRS (Free Spaced Repetition Scheduler) targeting 90% retention, with mastery demotion logic. A Daily Mission System provides structured study sessions, adaptable based on an Adaptive Timeline Profiles system (Marathon, Sprint, Crash/Focus Plan modes).
 

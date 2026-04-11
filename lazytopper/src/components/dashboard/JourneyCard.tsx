@@ -19,7 +19,7 @@ export function JourneyCard({ journeyState, raviMessage, journeyProgress, onCont
   if (!journeyState.currentChapter) return null;
   const chapter = journeyState.currentChapter;
   return (
-    <div style={{ padding: 20, marginBottom: 16, background: "rgba(34,197,94,0.06)", backdropFilter: "blur(16px)", border: "1px solid rgba(34,197,94,0.15)", borderRadius: 16 }}>
+    <div style={{ padding: 20, marginBottom: 16, background: tc.isDark ? "rgba(34,197,94,0.06)" : "rgba(34,197,94,0.04)", border: `1px solid ${tc.isDark ? "rgba(34,197,94,0.15)" : "rgba(34,197,94,0.2)"}`, borderRadius: 16 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
         <div style={{
           width: 32, height: 32, borderRadius: "50%",
@@ -36,7 +36,7 @@ export function JourneyCard({ journeyState, raviMessage, journeyProgress, onCont
 
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
         <div style={{ flex: 1 }}>
-          <div className="font-display" style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>{chapter.title}</div>
+          <div className="font-display" style={{ fontSize: 15, fontWeight: 700, marginBottom: 4, color: tc.textPrimary }}>{chapter.title}</div>
           <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
             {(["learn", "practice", "mock", "review"] as JourneyPhase[]).map((p) => {
               const isCurrent = chapter.phase === p;

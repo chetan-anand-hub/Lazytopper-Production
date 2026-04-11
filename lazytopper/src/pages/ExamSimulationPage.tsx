@@ -192,14 +192,14 @@ export default function ExamSimulationPage() {
 
   if (phase === "setup") {
     return (
-      <div style={{ minHeight: "100vh", background: "#0a0a0a", paddingBottom: 80 }}>
+      <div style={{ minHeight: "100vh", background: "var(--bg)", paddingBottom: 80 }}>
         <div style={{ maxWidth: 700, margin: "0 auto", padding: "16px 16px 32px" }}>
           <ReturnContextBar backTo={backTo} backLabel={backLabel} />
 
           <div style={{
             marginTop: 24,
             background: "linear-gradient(135deg, #1e293b 0%, #334155 100%)",
-            borderRadius: 24, padding: "32px 28px", color: "#fff",
+            borderRadius: 24, padding: "32px 28px", color: "var(--text)",
             boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
           }}>
             <div style={{ fontSize: "0.7rem", letterSpacing: "0.2em", textTransform: "uppercase", opacity: 0.7, marginBottom: 8 }}>
@@ -217,7 +217,7 @@ export default function ExamSimulationPage() {
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 24 }}>
               {BLUEPRINT_SUMMARY.map(b => (
                 <div key={b.section} style={{
-                  background: "rgba(255,255,255,0.1)", borderRadius: 12, padding: "8px 14px",
+                  background: "var(--bg-card-border)", borderRadius: 12, padding: "8px 14px",
                   fontSize: "0.78rem",
                 }}>
                   <strong>Sec {b.section}</strong>: {b.count}Q × {b.marks}m = {b.count * b.marks}m
@@ -301,9 +301,9 @@ function ExamTakingView({ paper, currentSectionIdx, remainingTime, answers, mark
   const totalQuestions = paper.questionCount;
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0a0a0a" }}>
+    <div style={{ minHeight: "100vh", background: "var(--bg)" }}>
       <div style={{
-        position: "sticky", top: 0, zIndex: 20, background: "rgba(255,255,255,0.06)", color: "#fff",
+        position: "sticky", top: 0, zIndex: 20, background: "var(--bg-card-border)", color: "var(--text)",
         padding: "8px 16px", display: "flex", alignItems: "center", justifyContent: "space-between",
         boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
       }}>
@@ -337,7 +337,7 @@ function ExamTakingView({ paper, currentSectionIdx, remainingTime, answers, mark
 
       <div style={{ display: "flex", maxWidth: 1200, margin: "0 auto" }}>
         <div style={{
-          width: 200, minWidth: 200, padding: "12px", background: "rgba(255,255,255,0.03)",
+          width: 200, minWidth: 200, padding: "12px", background: "var(--bg-card)",
           borderRight: "1px solid rgba(255,255,255,0.06)", minHeight: "calc(100vh - 44px)",
           position: "sticky", top: 44, maxHeight: "calc(100vh - 44px)", overflowY: "auto",
         }}>
@@ -359,7 +359,7 @@ function ExamTakingView({ paper, currentSectionIdx, remainingTime, answers, mark
                 }}
               >
                 <div style={{ fontWeight: 700, color: SECTION_COLORS[s.section] }}>Sec {s.section}</div>
-                <div style={{ fontSize: "0.68rem", color: "rgba(255,255,255,0.45)" }}>
+                <div style={{ fontSize: "0.68rem", color: "var(--text-muted)" }}>
                   {answered}/{s.questions.length} done
                 </div>
               </button>
@@ -407,7 +407,7 @@ function ExamTakingView({ paper, currentSectionIdx, remainingTime, answers, mark
               <span style={{ width: 10, height: 10, borderRadius: 3, background: "#a855f7", display: "inline-block" }} /> Marked for review
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-              <span style={{ width: 10, height: 10, borderRadius: 3, background: "rgba(255,255,255,0.06)", display: "inline-block" }} /> Not visited
+              <span style={{ width: 10, height: 10, borderRadius: 3, background: "var(--bg-card-border)", display: "inline-block" }} /> Not visited
             </div>
           </div>
         </div>
@@ -447,7 +447,7 @@ function ExamTakingView({ paper, currentSectionIdx, remainingTime, answers, mark
                     onClick={() => onGoToSection(currentSectionIdx - 1)}
                     style={{
                       padding: "10px 24px", borderRadius: 14, border: "2px solid #6366f1",
-                      background: "rgba(255,255,255,0.03)", color: "#6366f1", fontWeight: 700, fontSize: "0.85rem", cursor: "pointer",
+                      background: "var(--bg-card)", color: "#6366f1", fontWeight: 700, fontSize: "0.85rem", cursor: "pointer",
                     }}
                   >
                     Previous Section
@@ -561,7 +561,7 @@ function ExamQuestionCard({ q, idx, section, answer, isMarked, onAnswer, onToggl
   return (
     <div style={{
       marginBottom: 16, padding: "16px", borderRadius: 14,
-      background: "rgba(255,255,255,0.03)", border: `1px solid ${isMarked ? "#a855f7" : "rgba(255,255,255,0.06)"}`,
+      background: "var(--bg-card)", border: `1px solid ${isMarked ? "#a855f7" : "rgba(255,255,255,0.06)"}`,
       boxShadow: isMarked ? "0 0 0 2px #a855f720" : undefined,
     }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
@@ -576,7 +576,7 @@ function ExamQuestionCard({ q, idx, section, answer, isMarked, onAnswer, onToggl
         <button
           onClick={onToggleMark}
           style={{
-            padding: "3px 8px", borderRadius: 6, border: "1px solid rgba(255,255,255,0.1)",
+            padding: "3px 8px", borderRadius: 6, border: "1px solid var(--bg-card-border)",
             background: isMarked ? "#a855f7" : "rgba(255,255,255,0.06)", color: isMarked ? "#fff" : "rgba(255,255,255,0.45)",
             fontSize: "0.65rem", cursor: "pointer", whiteSpace: "nowrap", marginLeft: 8,
           }}
@@ -622,17 +622,17 @@ function ExamReviewView({ paper, analytics, answers, subject, wallClockSec, onNe
     : null;
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0a0a0a", paddingBottom: 80 }}>
+    <div style={{ minHeight: "100vh", background: "var(--bg)", paddingBottom: 80 }}>
       <div style={{ maxWidth: 900, margin: "0 auto", padding: "16px 16px 32px" }}>
         <div style={{
-          background: "rgba(255,255,255,0.03)", borderRadius: 24, padding: "32px 28px", textAlign: "center",
-          border: "1px solid rgba(255,255,255,0.06)", boxShadow: "0 4px 24px rgba(0,0,0,0.06)",
+          background: "var(--bg-card)", borderRadius: 24, padding: "32px 28px", textAlign: "center",
+          border: "1px solid var(--bg-card-border)", boxShadow: "0 4px 24px rgba(0,0,0,0.06)",
         }}>
           <div style={{ fontSize: "0.72rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)", marginBottom: 8 }}>
             {subject} Full-Length Mock — Result
           </div>
           <CountUpReveal value={analytics.percentScore} previousBest={previousBest} style={{ fontSize: "3.5rem", fontWeight: 800, color: scoreColor }} />
-          <div style={{ fontSize: "1rem", color: "rgba(255,255,255,0.6)", marginTop: 4 }}>
+          <div style={{ fontSize: "1rem", color: "var(--text-muted)", marginTop: 4 }}>
             {analytics.marksScored} / {analytics.totalMarks} marks
           </div>
           <div style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.4)", marginTop: 4 }}>
@@ -641,8 +641,8 @@ function ExamReviewView({ paper, analytics, answers, subject, wallClockSec, onNe
         </div>
 
         <div style={{
-          marginTop: 20, background: "rgba(255,255,255,0.03)", borderRadius: 20, padding: "24px",
-          border: "1px solid rgba(255,255,255,0.06)",
+          marginTop: 20, background: "var(--bg-card)", borderRadius: 20, padding: "24px",
+          border: "1px solid var(--bg-card-border)",
         }}>
           <h3 style={{ fontSize: "0.92rem", fontWeight: 700, color: "rgba(255,255,255,0.9)", marginBottom: 16 }}>Section Breakdown</h3>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
@@ -654,7 +654,7 @@ function ExamReviewView({ paper, analytics, answers, subject, wallClockSec, onNe
                 <div style={{ fontSize: "0.72rem", fontWeight: 700, color: SECTION_COLORS[sb.section] }}>Section {sb.section}</div>
                 <div style={{ fontSize: "1.2rem", fontWeight: 800, color: "rgba(255,255,255,0.9)" }}>{sb.scored}/{sb.maxMarks}</div>
                 <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.4)" }}>{sb.percent}% accuracy</div>
-                <div style={{ fontSize: "0.68rem", color: "rgba(255,255,255,0.45)", marginTop: 2 }}>{formatMinSec(sb.timeSec)}</div>
+                <div style={{ fontSize: "0.68rem", color: "var(--text-muted)", marginTop: 2 }}>{formatMinSec(sb.timeSec)}</div>
                 {(() => {
                   const rec = BLUEPRINT_SUMMARY.find(b => b.section === sb.section);
                   if (!rec) return null;
@@ -672,8 +672,8 @@ function ExamReviewView({ paper, analytics, answers, subject, wallClockSec, onNe
         </div>
 
         <div style={{
-          marginTop: 20, background: "rgba(255,255,255,0.03)", borderRadius: 20, padding: "24px",
-          border: "1px solid rgba(255,255,255,0.06)",
+          marginTop: 20, background: "var(--bg-card)", borderRadius: 20, padding: "24px",
+          border: "1px solid var(--bg-card-border)",
         }}>
           <h3 style={{ fontSize: "0.92rem", fontWeight: 700, color: "rgba(255,255,255,0.9)", marginBottom: 16 }}>Topic-wise Performance</h3>
           {analytics.topicHeatmap.map(t => (
@@ -687,7 +687,7 @@ function ExamReviewView({ paper, analytics, answers, subject, wallClockSec, onNe
                   {t.marks}/{t.maxMarks} marks ({t.percent}%)
                 </span>
               </div>
-              <div style={{ height: 6, borderRadius: 999, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
+              <div style={{ height: 6, borderRadius: 999, background: "var(--bg-card-border)", overflow: "hidden" }}>
                 <div style={{
                   height: "100%", borderRadius: 999, width: `${t.percent}%`,
                   background: t.percent >= 70 ? "#22c55e" : t.percent >= 40 ? "#f59e0b" : "#ef4444",
@@ -699,8 +699,8 @@ function ExamReviewView({ paper, analytics, answers, subject, wallClockSec, onNe
         </div>
 
         <div style={{
-          marginTop: 20, background: "rgba(255,255,255,0.03)", borderRadius: 20, padding: "24px",
-          border: "1px solid rgba(255,255,255,0.06)",
+          marginTop: 20, background: "var(--bg-card)", borderRadius: 20, padding: "24px",
+          border: "1px solid var(--bg-card-border)",
         }}>
           <h3 style={{ fontSize: "0.92rem", fontWeight: 700, color: "rgba(255,255,255,0.9)", marginBottom: 16 }}>Difficulty Breakdown</h3>
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
@@ -745,7 +745,7 @@ function ExamReviewView({ paper, analytics, answers, subject, wallClockSec, onNe
                   }}
                   style={{
                     padding: "6px 14px", borderRadius: 10, border: "1px solid rgba(239,68,68,0.3)",
-                    background: "rgba(255,255,255,0.03)", color: "#ef4444", fontSize: "0.78rem", fontWeight: 600,
+                    background: "var(--bg-card)", color: "#ef4444", fontSize: "0.78rem", fontWeight: 600,
                     cursor: "pointer",
                   }}
                 >
@@ -761,8 +761,8 @@ function ExamReviewView({ paper, analytics, answers, subject, wallClockSec, onNe
 
         {pastScores.length >= 2 && (
           <div style={{
-            marginTop: 20, background: "rgba(255,255,255,0.03)", borderRadius: 20, padding: "24px",
-            border: "1px solid rgba(255,255,255,0.06)",
+            marginTop: 20, background: "var(--bg-card)", borderRadius: 20, padding: "24px",
+            border: "1px solid var(--bg-card-border)",
           }}>
             <h3 style={{ fontSize: "0.92rem", fontWeight: 700, color: "rgba(255,255,255,0.9)", marginBottom: 16 }}>
               Score Trend — Last {pastScores.length} Attempts
@@ -794,7 +794,7 @@ function ExamReviewView({ paper, analytics, answers, subject, wallClockSec, onNe
               const delta = curr.percent - prev.percent;
               if (delta > 0) return <div style={{ marginTop: 12, fontSize: "0.82rem", color: "#22c55e", fontWeight: 600 }}>↑ {delta}% improvement from previous attempt</div>;
               if (delta < 0) return <div style={{ marginTop: 12, fontSize: "0.82rem", color: "#ef4444", fontWeight: 600 }}>↓ {Math.abs(delta)}% drop from previous attempt</div>;
-              return <div style={{ marginTop: 12, fontSize: "0.82rem", color: "rgba(255,255,255,0.45)", fontWeight: 600 }}>Same score as previous attempt</div>;
+              return <div style={{ marginTop: 12, fontSize: "0.82rem", color: "var(--text-muted)", fontWeight: 600 }}>Same score as previous attempt</div>;
             })()}
           </div>
         )}
@@ -803,8 +803,8 @@ function ExamReviewView({ paper, analytics, answers, subject, wallClockSec, onNe
           <button
             onClick={() => setShowFullReview(v => !v)}
             style={{
-              padding: "10px 24px", borderRadius: 14, border: "1px solid rgba(255,255,255,0.06)",
-              background: "rgba(255,255,255,0.03)", color: "rgba(255,255,255,0.6)", fontWeight: 600, fontSize: "0.85rem", cursor: "pointer",
+              padding: "10px 24px", borderRadius: 14, border: "1px solid var(--bg-card-border)",
+              background: "var(--bg-card)", color: "var(--text-muted)", fontWeight: 600, fontSize: "0.85rem", cursor: "pointer",
               width: "100%",
             }}
           >
@@ -816,8 +816,8 @@ function ExamReviewView({ paper, analytics, answers, subject, wallClockSec, onNe
           <div style={{ marginTop: 20 }}>
             {paper.sections.map(sec => (
               <div key={sec.section} style={{
-                background: "rgba(255,255,255,0.03)", borderRadius: 16, padding: "20px", marginBottom: 16,
-                border: "1px solid rgba(255,255,255,0.06)",
+                background: "var(--bg-card)", borderRadius: 16, padding: "20px", marginBottom: 16,
+                border: "1px solid var(--bg-card-border)",
               }}>
                 <h4 style={{ fontSize: "0.85rem", fontWeight: 700, color: SECTION_COLORS[sec.section], marginBottom: 12 }}>
                   {SECTION_LABELS[sec.section]}
@@ -844,7 +844,7 @@ function ExamReviewView({ paper, analytics, answers, subject, wallClockSec, onNe
                       )}
                       <div style={{ marginTop: 6, padding: "6px 12px", borderRadius: 8, background: "rgba(34,197,94,0.08)", fontSize: "0.78rem", color: "#22c55e" }}>
                         <strong>Correct Answer:</strong> {answeredQ.answer}
-                        {answeredQ.explanation && <div style={{ marginTop: 4, color: "rgba(255,255,255,0.6)" }}>{answeredQ.explanation}</div>}
+                        {answeredQ.explanation && <div style={{ marginTop: 4, color: "var(--text-muted)" }}>{answeredQ.explanation}</div>}
                       </div>
                       {q.or && (
                         <div style={{ marginTop: 6, padding: "6px 12px", borderRadius: 8, background: "rgba(245,158,11,0.08)", fontSize: "0.76rem", color: "#f59e0b" }}>
@@ -870,7 +870,7 @@ function ExamReviewView({ paper, analytics, answers, subject, wallClockSec, onNe
           </button>
           <button onClick={onGoBack} style={{
             padding: "12px 28px", borderRadius: 14, border: "2px solid #6366f1",
-            background: "rgba(255,255,255,0.03)", color: "#6366f1", fontWeight: 700, fontSize: "0.9rem", cursor: "pointer",
+            background: "var(--bg-card)", color: "#6366f1", fontWeight: 700, fontSize: "0.9rem", cursor: "pointer",
           }}>
             Back to Papers Hub
           </button>

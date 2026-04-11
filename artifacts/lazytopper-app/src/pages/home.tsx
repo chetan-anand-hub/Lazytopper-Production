@@ -138,64 +138,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 2. PREDICTION PREVIEW */}
-      <section className="section-h relative px-6 md:px-12 py-24 bg-gradient-to-b from-[#0a0410] to-[#0f0c29]">
-        <div className="max-w-6xl mx-auto w-full flex flex-col lg:flex-row items-center gap-16">
-          <div className="lg:w-1/2">
-            <h2 className="font-display text-4xl md:text-6xl font-bold mb-6">See the future. <br/><span className="text-purple-400">Study the trends.</span></h2>
-            <a href="/app/trends/10/Maths" className="inline-flex items-center gap-2 mt-4 px-6 py-3 rounded-full bg-purple-500/20 border border-purple-500/40 text-purple-300 font-bold text-sm hover:bg-purple-500/30 transition-colors no-underline">
-              Explore Predictions <ChevronRight className="w-4 h-4" />
-            </a>
-          </div>
-
-          <div className="lg:w-1/2 w-full">
-            <div className="glass-panel rounded-3xl p-6 md:p-8 relative">
-              <div className="absolute -top-4 -right-4 w-24 h-24 bg-purple-500/30 blur-2xl rounded-full"></div>
-              
-              <div className="flex justify-between items-end mb-8 border-b border-white/10 pb-4">
-                <div>
-                  <h3 className="font-display text-2xl font-bold">Exam Predictor</h3>
-                  <span className="text-sm text-gray-400 block">Maths - Class 10</span>
-                </div>
-                <div className="flex items-center gap-2 text-[#22c55e] text-sm font-bold bg-[#22c55e]/10 px-3 py-1 rounded-full">
-                  <TrendingUp className="w-4 h-4 anim-bounce" /> Live
-                </div>
-              </div>
-
-              <div className="space-y-6">
-                {[
-                  { topic: "Quadratic Equations", prob: 92, marks: "12-16", color: "bg-[#22c55e]", tier: "Must-crack" },
-                  { topic: "Light Reflection", prob: 88, marks: "10-14", color: "bg-[#22c55e]", tier: "Must-crack" },
-                  { topic: "Arithmetic Progressions", prob: 85, marks: "8-12", color: "bg-[#3b82f6]", tier: "High-ROI" },
-                  { topic: "Chemical Reactions", prob: 82, marks: "8-10", color: "bg-[#3b82f6]", tier: "High-ROI" },
-                  { topic: "Electricity", prob: 78, marks: "6-8", color: "bg-orange-500", tier: "Good-to-do" },
-                ].map((item, i) => (
-                  <div key={i} className="group cursor-pointer">
-                    <div className="flex justify-between text-sm mb-2">
-                      <span className="font-semibold text-white">{item.topic}</span>
-                      <div className="flex items-center gap-3">
-                        <span className="text-gray-400">{item.marks} marks</span>
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${item.color}/20 text-white`}>{item.tier}</span>
-                      </div>
-                    </div>
-                    <div className="h-3 w-full bg-white/5 rounded-full overflow-hidden flex">
-                      <div 
-                        className={`h-full ${item.color} relative overflow-hidden`} 
-                        style={{ width: `${item.prob}%` }}
-                      >
-                        <div className="absolute inset-0 bg-white/20 w-1/2 -skew-x-12" style={{ animation: 'shimmer 2s infinite' }}></div>
-                      </div>
-                      <div className="ml-2 text-xs font-bold text-gray-300 group-hover:text-white transition-colors">{item.prob}%</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 3. AI TUTOR */}
+      {/* 2. AI TUTOR */}
       <section className="section-h relative px-6 md:px-12 py-24 bg-white text-black">
         <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] opacity-30"></div>
         
@@ -418,74 +361,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 6. SCORE TRANSFORMATIONS */}
-      <section className="section-h relative px-6 md:px-12 py-24 bg-[#020617]">
-        <div className="max-w-6xl mx-auto w-full">
-          <h2 className="font-display text-4xl md:text-6xl font-bold mb-16 text-center">Results that speak.</h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              { name: "Ananya S.", city: "Delhi", from: 65, to: 91, subj: "Maths" },
-              { name: "Rohan K.", city: "Mumbai", from: 58, to: 88, subj: "Science" },
-              { name: "Priya M.", city: "Bangalore", from: 72, to: 94, subj: "Maths" },
-            ].map((story, i) => (
-              <div key={i} className="bg-gray-900 border border-gray-800 rounded-3xl p-8 relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-[#22c55e]/10 blur-3xl rounded-full group-hover:bg-[#22c55e]/20 transition-colors"></div>
-                
-                <div className="mb-8">
-                  <span className="text-gray-400 text-sm mb-1 block">{story.name}, {story.city}</span>
-                  <span className="font-bold text-lg text-white block">{story.subj}</span>
-                </div>
-
-                <div className="flex items-center justify-center gap-4">
-                  <div className="text-4xl font-display font-bold text-gray-500">{story.from}</div>
-                  <ArrowRight className="w-6 h-6 text-[#22c55e] anim-bounce" />
-                  <div className="text-6xl font-display font-black text-[#22c55e]">{story.to}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* PRICING CTA */}
-      <section className="section-h relative px-6 md:px-12 py-24 bg-gradient-to-b from-[#020617] to-[#0a0410]">
-        <div className="max-w-4xl mx-auto w-full text-center">
-          <h2 className="font-display text-4xl md:text-6xl font-bold mb-6">Start free. <span className="text-[#22c55e]">Upgrade when ready.</span></h2>
-          <p className="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto mb-12">
-            Predictions, AI mentor, mock tests — everything you need to ace boards. Free plan included.
-          </p>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto mb-12">
-            <div className="glass-panel rounded-3xl p-8 text-left">
-              <div className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">Free</div>
-              <div className="font-display text-4xl font-bold mb-4">₹0</div>
-              <ul className="space-y-3 text-gray-300 text-sm">
-                {["Top 5 predicted topics", "3 practice questions/day", "Basic exam trends"].map((f, i) => (
-                  <li key={i} className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-gray-500 flex-shrink-0" />{f}</li>
-                ))}
-              </ul>
-            </div>
-            <div className="relative rounded-3xl p-8 text-left bg-gradient-to-br from-[#22c55e]/10 to-transparent border border-[#22c55e]/30">
-              <div className="absolute -top-3 right-6 bg-[#22c55e] text-black text-xs font-bold px-3 py-1 rounded-full">Popular</div>
-              <div className="text-sm font-bold text-[#22c55e] uppercase tracking-wider mb-2">Premium</div>
-              <div className="font-display text-4xl font-bold mb-1">₹149<span className="text-lg text-gray-400 font-normal">/mo</span></div>
-              <div className="text-xs text-gray-500 mb-4">7-day free trial</div>
-              <ul className="space-y-3 text-gray-300 text-sm">
-                {["All predicted topics + probabilities", "Unlimited AI practice", "Full mock tests & analytics", "AI Mentor (explain, solve, coach)"].map((f, i) => (
-                  <li key={i} className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#22c55e] flex-shrink-0" />{f}</li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-          <a href="/app/pricing" className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-white/5 border border-white/10 text-white font-bold text-sm hover:bg-white/10 transition-colors no-underline">
-            See Full Pricing & FAQ <ChevronRight className="w-4 h-4" />
-          </a>
-        </div>
-      </section>
-
-      {/* 7. FINAL CTA */}
+      {/* FINAL CTA */}
       <section className="min-h-[70vh] flex flex-col items-center justify-center px-6 md:px-12 py-24 bg-[#0a0410] relative overflow-hidden">
         <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none">
           <div className="w-[600px] h-[600px] bg-[#22c55e]/20 blur-[150px] rounded-full"></div>

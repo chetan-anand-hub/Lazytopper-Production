@@ -379,7 +379,7 @@ export default function DailyMissionPage() {
           background: "rgba(0,0,0,0.6)", zIndex: 9998, animation: "fadeIn 0.3s ease",
         }}>
           <div className="lt-cel-milestone-card" style={{
-            background: "#0a0a0a", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 20,
+            background: "var(--bg)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 20,
             padding: "40px 32px", textAlign: "center", maxWidth: 400, boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
           }}>
             <div className="lt-cel-day-complete" style={{ fontSize: 64, marginBottom: 12 }}>🏆</div>
@@ -538,12 +538,12 @@ export default function DailyMissionPage() {
       {currentItem && (
         <div style={{
           marginTop: 16, border: `1px solid ${currentSegment?.color || "rgba(255,255,255,0.06)"}25`,
-          borderRadius: 16, padding: 20, background: "rgba(255,255,255,0.03)", boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
+          borderRadius: 16, padding: 20, background: "var(--bg-card)", boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
         }}>
           <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", marginBottom: 12 }}>
             <span style={{
               fontSize: 10, fontWeight: 800, padding: "2px 10px", borderRadius: 999,
-              background: currentSegment?.color || "#3b82f6", color: "#fff",
+              background: currentSegment?.color || "#3b82f6", color: "var(--text)",
               textTransform: "uppercase", letterSpacing: 0.5,
             }}>
               {currentSegment?.label}
@@ -581,7 +581,7 @@ export default function DailyMissionPage() {
                 style={{
                   width: "100%", padding: 12, border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10,
                   fontSize: 14, resize: "vertical", fontFamily: "inherit", boxSizing: "border-box",
-                  background: "rgba(255,255,255,0.03)", color: "#fff",
+                  background: "var(--bg-card)", color: "var(--text)",
                 }}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) handleSubmit();
@@ -593,14 +593,14 @@ export default function DailyMissionPage() {
                   style={{
                     padding: "10px 24px",
                     background: currentAnswer.studentAnswer.trim() ? (currentSegment?.color || "#3b82f6") : "rgba(255,255,255,0.1)",
-                    color: "#fff", border: "none", borderRadius: 10, fontWeight: 700, fontSize: 14,
+                    color: "var(--text)", border: "none", borderRadius: 10, fontWeight: 700, fontSize: 14,
                     cursor: currentAnswer.studentAnswer.trim() ? "pointer" : "default",
                   }}>
                   Submit (Ctrl+Enter)
                 </button>
                 <button type="button" onClick={handleSkip} style={{
                   padding: "10px 20px", background: "rgba(255,255,255,0.06)",
-                  color: "rgba(255,255,255,0.45)", border: "1px solid rgba(255,255,255,0.06)",
+                  color: "var(--text-muted)", border: "1px solid var(--bg-card-border)",
                   borderRadius: 10, fontWeight: 600, fontSize: 14, cursor: "pointer",
                 }}>
                   Skip
@@ -613,7 +613,7 @@ export default function DailyMissionPage() {
             <div style={{ marginTop: 16 }}>
               <button type="button" onClick={handleMarkRead} style={{
                 padding: "10px 24px", background: currentSegment?.color || "#3b82f6",
-                color: "#fff", border: "none", borderRadius: 10, fontWeight: 700, fontSize: 14, cursor: "pointer",
+                color: "var(--text)", border: "none", borderRadius: 10, fontWeight: 700, fontSize: 14, cursor: "pointer",
               }}>
                 ✓ Got it, continue
               </button>
@@ -637,14 +637,14 @@ export default function DailyMissionPage() {
                 {currentAnswer.feedback || "Submitted!"}
               </div>
               {currentItem?.payload?.modelAnswer && currentAnswer.correct !== true && (
-                <div style={{ marginTop: 8, padding: "8px 12px", background: "rgba(255,255,255,0.03)", borderRadius: 8, fontSize: 13, opacity: 0.8 }}>
+                <div style={{ marginTop: 8, padding: "8px 12px", background: "var(--bg-card)", borderRadius: 8, fontSize: 13, opacity: 0.8 }}>
                   <span style={{ fontWeight: 700, fontSize: 11, textTransform: "uppercase", letterSpacing: 0.3, opacity: 0.5 }}>Model Answer</span>
                   <div style={{ marginTop: 4, whiteSpace: "pre-wrap" }}>{String(currentItem.payload.modelAnswer)}</div>
                 </div>
               )}
               <button type="button" onClick={advanceToNext} style={{
                 marginTop: 12, padding: "10px 24px", background: currentSegment?.color || "#3b82f6",
-                color: "#fff", border: "none", borderRadius: 10, fontWeight: 700, fontSize: 14, cursor: "pointer",
+                color: "var(--text)", border: "none", borderRadius: 10, fontWeight: 700, fontSize: 14, cursor: "pointer",
               }}>
                 {itemIndex < (currentSegment?.items.length ?? 1) - 1 ? "Next →" :
                   segmentIndex < (mission?.segments.length ?? 1) - 1 ? "Next Segment →" : "Finish Mission 🏆"}

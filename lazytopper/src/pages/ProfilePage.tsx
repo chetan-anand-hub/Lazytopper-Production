@@ -331,10 +331,10 @@ function OverviewTab({ milestones, subjectTab, setSubjectTab, grade }: {
 
       <h3 style={{ fontWeight: 800, fontSize: 16, marginBottom: 12 }}>Chapter Mastery</h3>
       {topics.every((tk) => getTopicMasteryLevel(tk, grade, subjectTab) === "not_started") ? (
-        <div style={{ textAlign: "center", padding: "24px 16px", background: "rgba(255,255,255,0.03)", borderRadius: 14, border: "1px solid rgba(255,255,255,0.06)", marginBottom: 16 }}>
+        <div style={{ textAlign: "center", padding: "24px 16px", background: "var(--bg-card)", borderRadius: 14, border: "1px solid var(--bg-card-border)", marginBottom: 16 }}>
           <div style={{ fontSize: "2rem", marginBottom: 8 }}>🌱</div>
           <p style={{ fontWeight: 700, fontSize: "0.95rem", margin: "0 0 4px" }}>No mastery data yet</p>
-          <p style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.45)", margin: 0, lineHeight: 1.5 }}>
+          <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", margin: 0, lineHeight: 1.5 }}>
             Practice any chapter to start filling in your mastery grid. Every question counts!
           </p>
         </div>
@@ -351,7 +351,7 @@ function OverviewTab({ milestones, subjectTab, setSubjectTab, grade }: {
                 alignItems: "center",
                 padding: "10px 6px",
                 borderRadius: 12,
-                background: "rgba(255,255,255,0.03)",
+                background: "var(--bg-card)",
                 border: `1px solid ${level !== "not_started" ? MASTERY_COLORS[level] + "30" : "rgba(255,255,255,0.06)"}`,
               }}
             >
@@ -360,7 +360,7 @@ function OverviewTab({ milestones, subjectTab, setSubjectTab, grade }: {
                 {MASTERY_LABELS[level]}
               </span>
               <span style={{ fontSize: 8, fontWeight: 600, color: "rgba(255,255,255,0.3)" }}>{MASTERY_POINTS[level]}pts</span>
-              <span style={{ marginTop: 2, fontSize: 11, fontWeight: 600, textAlign: "center", lineHeight: 1.2, color: "rgba(255,255,255,0.6)" }}>
+              <span style={{ marginTop: 2, fontSize: 11, fontWeight: 600, textAlign: "center", lineHeight: 1.2, color: "var(--text-muted)" }}>
                 {TOPIC_DISPLAY_NAMES[tk] || tk}
               </span>
             </div>
@@ -375,7 +375,7 @@ function OverviewTab({ milestones, subjectTab, setSubjectTab, grade }: {
             <div style={{ position: "absolute", left: 8, top: 0, bottom: 0, width: 3, background: "linear-gradient(to bottom, #58cc02, #1cb0f6)", borderRadius: 4 }} />
             {milestones.map((m) => (
               <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14, position: "relative" }}>
-                <div style={{ position: "absolute", left: -20, width: 18, height: 18, borderRadius: "50%", background: "rgba(255,255,255,0.03)", border: "3px solid #1cb0f6", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10 }}>
+                <div style={{ position: "absolute", left: -20, width: 18, height: 18, borderRadius: "50%", background: "var(--bg-card)", border: "3px solid #1cb0f6", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10 }}>
                   {m.icon}
                 </div>
                 <div>
@@ -468,7 +468,7 @@ function StatsTab({ badgeCtx, statsByChapter }: { badgeCtx: BadgeContext; statsB
         <h3 style={{ fontSize: "1.1rem", fontWeight: 800, marginBottom: 6 }}>
           Your stats will appear here
         </h3>
-        <p style={{ fontSize: "0.88rem", color: "rgba(255,255,255,0.45)", marginBottom: 16, lineHeight: 1.5 }}>
+        <p style={{ fontSize: "0.88rem", color: "var(--text-muted)", marginBottom: 16, lineHeight: 1.5 }}>
           Start practicing any topic to see your accuracy, streak, mastery progress, and badges.
         </p>
         <button
@@ -477,7 +477,7 @@ function StatsTab({ badgeCtx, statsByChapter }: { badgeCtx: BadgeContext; statsB
           style={{
             padding: "10px 24px", borderRadius: 12,
             background: "#58cc02", border: "none", borderBottom: "3px solid #46a302",
-            color: "#fff", fontWeight: 800, fontSize: "0.88rem", cursor: "pointer",
+            color: "var(--text)", fontWeight: 800, fontSize: "0.88rem", cursor: "pointer",
           }}
         >
           Start Practicing
@@ -502,8 +502,8 @@ function StatsTab({ badgeCtx, statsByChapter }: { badgeCtx: BadgeContext; statsB
             style={{
               padding: "14px 12px",
               borderRadius: 14,
-              background: "rgba(255,255,255,0.03)",
-              border: "1px solid rgba(255,255,255,0.06)",
+              background: "var(--bg-card)",
+              border: "1px solid var(--bg-card-border)",
               textAlign: "center",
             }}
           >
@@ -598,7 +598,7 @@ function StatsTab({ badgeCtx, statsByChapter }: { badgeCtx: BadgeContext; statsB
           { label: "Hard", pct: diffProg.hard, color: "#f87171" },
         ].map((d) => (
           <div key={d.label} style={{ flex: 1, textAlign: "center" }}>
-            <div style={{ height: 8, borderRadius: 4, background: "rgba(255,255,255,0.06)", overflow: "hidden", marginBottom: 4 }}>
+            <div style={{ height: 8, borderRadius: 4, background: "var(--bg-card-border)", overflow: "hidden", marginBottom: 4 }}>
               <div style={{ height: "100%", width: `${d.pct}%`, background: d.color, borderRadius: 4, transition: "width 0.5s ease" }} />
             </div>
             <div style={{ fontSize: 11, fontWeight: 600, color: d.color }}>{d.pct}% {d.label}</div>
@@ -672,7 +672,7 @@ export default function ProfilePage() {
         background: "linear-gradient(135deg, #58cc02 0%, #1cb0f6 100%)",
         borderRadius: 16,
         padding: "24px 20px",
-        color: "#fff",
+        color: "var(--text)",
         marginBottom: 20,
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
@@ -722,7 +722,7 @@ export default function ProfilePage() {
           <div style={{ fontWeight: 800, fontSize: "0.92rem", color: "rgba(255,255,255,0.85)" }}>
             {sub.tier === "premium" ? "Premium" : sub.isTrialActive ? "Trial" : "Free Plan"}
           </div>
-          <div style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.45)", marginTop: 2 }}>
+          <div style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginTop: 2 }}>
             {sub.tier === "premium"
               ? "Full access to all features"
               : sub.isTrialActive
@@ -752,7 +752,7 @@ export default function ProfilePage() {
 
       <ReferralSection />
 
-      <div style={{ display: "flex", gap: 0, marginBottom: 20, background: "rgba(255,255,255,0.06)", borderRadius: 12, padding: 3 }}>
+      <div style={{ display: "flex", gap: 0, marginBottom: 20, background: "var(--bg-card-border)", borderRadius: 12, padding: 3 }}>
         {(["overview", "achievements", "stats"] as ProfileTab[]).map((t) => (
           <button
             key={t}
@@ -799,7 +799,7 @@ export default function ProfilePage() {
               borderRadius: 16,
               border: "none",
               background: "#ff9600",
-              color: "#fff",
+              color: "var(--text)",
               fontWeight: 800,
               fontSize: 14,
               cursor: "pointer",
@@ -816,7 +816,7 @@ export default function ProfilePage() {
               padding: "12px 20px",
               borderRadius: 16,
               border: "2px solid #1cb0f6",
-              background: "rgba(255,255,255,0.03)",
+              background: "var(--bg-card)",
               color: "#1cb0f6",
               fontWeight: 700,
               fontSize: 13,
@@ -834,7 +834,7 @@ export default function ProfilePage() {
             padding: "10px 20px",
             borderRadius: 16,
             border: "none",
-            background: "rgba(255,255,255,0.06)",
+            background: "var(--bg-card-border)",
             fontWeight: 700,
             fontSize: 13,
             cursor: "pointer",
@@ -856,7 +856,7 @@ export default function ProfilePage() {
               padding: "10px 20px",
               borderRadius: 16,
               border: "2px solid rgba(255,255,255,0.08)",
-              background: "rgba(255,255,255,0.03)",
+              background: "var(--bg-card)",
               fontWeight: 700,
               fontSize: 13,
               cursor: "pointer",
@@ -868,7 +868,7 @@ export default function ProfilePage() {
         )}
       </div>
 
-      <div style={{ marginTop: 16, padding: "12px 16px", background: "rgba(255,255,255,0.06)", borderRadius: 12, border: "2px solid rgba(255,255,255,0.08)" }}>
+      <div style={{ marginTop: 16, padding: "12px 16px", background: "var(--bg-card-border)", borderRadius: 12, border: "2px solid rgba(255,255,255,0.08)" }}>
         <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.85)", marginBottom: 6 }}>Study Mode</div>
         <div style={{ display: "flex", gap: 8 }}>
           {(["beast", "zombie"] as const).map(m => (
@@ -930,7 +930,7 @@ export default function ProfilePage() {
 function ThemeToggle() {
   const { theme, setTheme } = useTheme();
   return (
-    <div style={{ marginTop: 16, padding: "12px 16px", background: "rgba(255,255,255,0.06)", borderRadius: 12, border: "2px solid rgba(255,255,255,0.08)" }}>
+    <div style={{ marginTop: 16, padding: "12px 16px", background: "var(--bg-card-border)", borderRadius: 12, border: "2px solid rgba(255,255,255,0.08)" }}>
       <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.85)", marginBottom: 6 }}>Appearance</div>
       <div style={{ display: "flex", gap: 8 }}>
         {([
@@ -959,11 +959,11 @@ function ThemeToggle() {
 function FocusTrackingToggle() {
   const [enabled, setEnabled] = useState(isFocusTrackingEnabled);
   return (
-    <div style={{ marginTop: 16, padding: "12px 16px", background: "rgba(255,255,255,0.06)", borderRadius: 12, border: "2px solid rgba(255,255,255,0.08)" }}>
+    <div style={{ marginTop: 16, padding: "12px 16px", background: "var(--bg-card-border)", borderRadius: 12, border: "2px solid rgba(255,255,255,0.08)" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div>
           <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.85)" }}>Focus Tracking</div>
-          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", marginTop: 2 }}>Track active vs idle study time</div>
+          <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>Track active vs idle study time</div>
         </div>
         <button
           type="button"
@@ -994,9 +994,9 @@ function PaceProfileSelector() {
   if (!paceProfile) return null;
   const profileColors: Record<string, string> = { marathon: "#3b82f6", sprint: "#f97316", crash: "#ef4444" };
   return (
-    <div style={{ marginTop: 16, padding: "12px 16px", background: "rgba(255,255,255,0.06)", borderRadius: 12, border: "2px solid rgba(255,255,255,0.08)" }}>
+    <div style={{ marginTop: 16, padding: "12px 16px", background: "var(--bg-card-border)", borderRadius: 12, border: "2px solid rgba(255,255,255,0.08)" }}>
       <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.85)", marginBottom: 4 }}>Study Pace</div>
-      <p style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", marginBottom: 10, lineHeight: 1.4 }}>
+      <p style={{ fontSize: 11, color: "var(--text-muted)", marginBottom: 10, lineHeight: 1.4 }}>
         {paceProfile.isManualOverride
           ? `Manual override active. Auto-detected: ${getProfileConfig(paceProfile.detectedType).label}.`
           : `Auto-detected from ${paceProfile.daysLeft} days until exam.`}
@@ -1030,7 +1030,7 @@ function PaceProfileSelector() {
           if (updated) setPaceProfile(updated);
         }} style={{
           marginTop: 8, padding: "6px 12px", borderRadius: 8, border: "none",
-          background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.5)",
+          background: "var(--bg-card-border)", color: "var(--text-muted)",
           fontSize: 11, fontWeight: 600, cursor: "pointer", width: "100%",
         }}>
           Reset to auto-detect
@@ -1055,11 +1055,11 @@ function isCountdownHidden(): boolean {
 function CountdownToggle() {
   const [hidden, setHidden] = useState(isCountdownHidden);
   return (
-    <div style={{ marginTop: 16, padding: "12px 16px", background: "rgba(255,255,255,0.06)", borderRadius: 12, border: "2px solid rgba(255,255,255,0.08)" }}>
+    <div style={{ marginTop: 16, padding: "12px 16px", background: "var(--bg-card-border)", borderRadius: 12, border: "2px solid rgba(255,255,255,0.08)" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div>
           <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.85)" }}>Hide Countdown</div>
-          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", marginTop: 2 }}>Hide "days left" from Dashboard</div>
+          <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>Hide "days left" from Dashboard</div>
         </div>
         <button
           type="button"
@@ -1151,7 +1151,7 @@ function ParentPinManager() {
   };
 
   return (
-    <div style={{ marginTop: 16, padding: "14px 16px", background: "rgba(255,255,255,0.06)", borderRadius: 12, border: "2px solid rgba(255,255,255,0.08)" }}>
+    <div style={{ marginTop: 16, padding: "14px 16px", background: "var(--bg-card-border)", borderRadius: 12, border: "2px solid rgba(255,255,255,0.08)" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <span style={{ fontSize: 16 }}>🔑</span>
@@ -1174,7 +1174,7 @@ function ParentPinManager() {
                 style={{
                   width: 40, height: 44, textAlign: "center", fontSize: 20, fontWeight: 800,
                   borderRadius: 10, border: "2px solid rgba(255,255,255,0.12)",
-                  background: "rgba(255,255,255,0.04)", color: "#fff", outline: "none",
+                  background: "rgba(255,255,255,0.04)", color: "var(--text)", outline: "none",
                   fontFamily: "'Space Grotesk', sans-serif",
                 }}
               />
@@ -1216,7 +1216,7 @@ function ParentPinManager() {
 
 function MentalHealthResources() {
   return (
-    <div style={{ marginTop: 16, padding: "12px 16px", background: "rgba(255,255,255,0.06)", borderRadius: 12, border: "2px solid rgba(255,255,255,0.08)" }}>
+    <div style={{ marginTop: 16, padding: "12px 16px", background: "var(--bg-card-border)", borderRadius: 12, border: "2px solid rgba(255,255,255,0.08)" }}>
       <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.85)", marginBottom: 8 }}>Feeling overwhelmed?</div>
       <p style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", lineHeight: 1.5, margin: "0 0 12px" }}>
         Board exams can be stressful — it's perfectly okay to ask for help.
@@ -1230,7 +1230,7 @@ function MentalHealthResources() {
           <span style={{ fontSize: 18 }}>📞</span>
           <div>
             <div style={{ fontSize: 12, fontWeight: 700, color: "#60a5fa" }}>iCall — TISS</div>
-            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)" }}>9152987821 · Mon–Sat 8am–10pm</div>
+            <div style={{ fontSize: 11, color: "var(--text-muted)" }}>9152987821 · Mon–Sat 8am–10pm</div>
           </div>
         </a>
         <a href="tel:18602662345" style={{
@@ -1241,7 +1241,7 @@ function MentalHealthResources() {
           <span style={{ fontSize: 18 }}>💜</span>
           <div>
             <div style={{ fontSize: 12, fontWeight: 700, color: "#c084fc" }}>Vandrevala Foundation</div>
-            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)" }}>1860-2662-345 · 24/7</div>
+            <div style={{ fontSize: 11, color: "var(--text-muted)" }}>1860-2662-345 · 24/7</div>
           </div>
         </a>
       </div>
@@ -1280,7 +1280,7 @@ function ReferralSection() {
         <span style={{ fontSize: 18 }}>🎁</span>
         <div>
           <div style={{ fontWeight: 800, fontSize: "0.88rem", color: "#c084fc" }}>Invite Friends</div>
-          <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.45)" }}>
+          <div style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>
             Invite 3 friends, get 1 week Premium free!
           </div>
         </div>
@@ -1327,7 +1327,7 @@ function ReferralSection() {
             flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
             padding: "8px 12px", borderRadius: 10,
             background: "#25D366", border: "none",
-            color: "#fff", fontWeight: 700, fontSize: "0.78rem",
+            color: "var(--text)", fontWeight: 700, fontSize: "0.78rem",
             textDecoration: "none", cursor: "pointer",
           }}
         >
@@ -1339,7 +1339,7 @@ function ReferralSection() {
           style={{
             flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
             padding: "8px 12px", borderRadius: 10,
-            background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)",
+            background: "var(--bg-card-border)", border: "1px solid var(--bg-card-border)",
             color: copied ? "#22c55e" : "rgba(255,255,255,0.7)",
             fontWeight: 700, fontSize: "0.78rem", cursor: "pointer",
           }}
@@ -1353,7 +1353,7 @@ function ReferralSection() {
             flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
             padding: "8px 12px", borderRadius: 10,
             background: showQR ? "rgba(168,85,247,0.15)" : "rgba(255,255,255,0.06)",
-            border: "1px solid rgba(255,255,255,0.1)",
+            border: "1px solid var(--bg-card-border)",
             color: showQR ? "#c084fc" : "rgba(255,255,255,0.7)",
             fontWeight: 700, fontSize: "0.78rem", cursor: "pointer",
           }}

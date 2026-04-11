@@ -722,9 +722,9 @@ const packTopicKey = useMemo(() => {
   const whyBoardWritingTip = activeQuestionStrategyDetails?.boardWritingTip || "";
   return (
     <div
+      className="dark-page"
       style={{
         minHeight: "100vh",
-        background: "rgba(255,255,255,0.03)",
         paddingBottom: "80px",
       }}
     >
@@ -910,25 +910,24 @@ const packTopicKey = useMemo(() => {
   nextActions.push({ label: "Predicted Questions", icon: "🎯", action: () => navigate(`/highly-probable/${grade}/${subjectKey}?topic=${encodeURIComponent(topicK)}`, { state: { back: location.pathname + location.search, backLabel: "Back to practice" } }) });
   nextActions.push({ label: "Study this chapter", icon: "📚", action: () => navigate(`/topic-hub/${grade}/${subjectKey}/${topicK}`, { state: { back: location.pathname + location.search, backLabel: "Back to practice" } }) });
   return (
-    <div style={{ marginTop: 20, background: "rgba(255,255,255,0.03)", borderRadius: 16, padding: "20px 18px", border: "1px solid rgba(255,255,255,0.06)" }}>
+    <div className="glass-card" style={{ marginTop: 20, borderRadius: 16, padding: "20px 18px" }}>
       <div style={{ textAlign: "center", marginBottom: 16 }}>
         <div style={{ fontSize: 32, marginBottom: 6 }}>{accuracy >= 80 ? "🎉" : accuracy >= 50 ? "👍" : "💪"}</div>
-        <h3 style={{ fontSize: "1rem", fontWeight: 800, color: "#fff", margin: "0 0 4px" }}>
+        <h3 style={{ fontSize: "1rem", fontWeight: 800, color: "var(--text)", margin: "0 0 4px" }}>
           Practice Complete — {correctCount}/{questions.length} correct ({accuracy}%)
         </h3>
-        <p style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.5)", margin: 0 }}>
+        <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", margin: 0 }}>
           {accuracy >= 80 ? "Great job! Ready for the next challenge?" : accuracy >= 50 ? "Good effort! Keep practising to improve." : "Keep going — practice makes perfect!"}
         </p>
       </div>
-      <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>
+      <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>
         What should I do next?
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         {nextActions.map((a) => (
-          <button key={a.label} onClick={a.action} style={{
+          <button key={a.label} onClick={a.action} className="glass-card" style={{
             display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", borderRadius: 12,
-            border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.03)",
-            color: "#fff", fontSize: "0.88rem", fontWeight: 600, cursor: "pointer", textAlign: "left",
+            color: "var(--text)", fontSize: "0.88rem", fontWeight: 600, cursor: "pointer", textAlign: "left",
           }}>
             <span style={{ fontSize: 18 }}>{a.icon}</span>
             {a.label}

@@ -24,7 +24,7 @@ export default function SignUpPage() {
   return (
     <div style={{
       minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center",
-      background: "#0a0a0a",
+      background: "var(--bg)",
       padding: 16,
     }}>
       <div style={{
@@ -42,7 +42,7 @@ export default function SignUpPage() {
           }}>
             LT
           </div>
-          <h1 style={{ fontSize: "1.5rem", fontWeight: 900, margin: "0 0 6px", color: "#fff", fontFamily: "'Space Grotesk', sans-serif" }}>
+          <h1 style={{ fontSize: "1.5rem", fontWeight: 900, margin: "0 0 6px", color: "var(--text)", fontFamily: "'Space Grotesk', sans-serif" }}>
             Create Account
           </h1>
           <p style={{ fontSize: "0.92rem", color: "rgba(255,255,255,0.45)", margin: 0, lineHeight: 1.4 }}>
@@ -72,7 +72,7 @@ export default function SignUpPage() {
                 socialButtonsBlockButton: {
                   background: "rgba(255,255,255,0.05)",
                   border: "1px solid rgba(255,255,255,0.1)",
-                  color: "#fff",
+                  color: "var(--text)",
                   borderRadius: "14px",
                   fontWeight: 800,
                 },

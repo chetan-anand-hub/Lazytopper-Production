@@ -80,7 +80,7 @@ export default function MiniMockPage() {
 
   if (state === "setup") {
     return (
-      <div style={{ minHeight: "100vh", background: "#0a0a0a", paddingBottom: 80 }}>
+      <div style={{ minHeight: "100vh", background: "var(--bg)", paddingBottom: 80 }}>
         <div style={{ maxWidth: 500, margin: "0 auto", padding: "16px 16px 32px" }}>
           <ReturnContextBar backTo="/dashboard" backLabel="Back to Dashboard" />
           <div style={{
@@ -89,7 +89,7 @@ export default function MiniMockPage() {
             border: "1px solid rgba(168,85,247,0.2)",
           }}>
             <div style={{ fontSize: 48, marginBottom: 16 }}>⚡</div>
-            <h1 style={{ fontSize: 22, fontWeight: 800, color: "#fff", margin: "0 0 8px", fontFamily: "'Space Grotesk', sans-serif" }}>
+            <h1 style={{ fontSize: 22, fontWeight: 800, color: "var(--text)", margin: "0 0 8px", fontFamily: "'Space Grotesk', sans-serif" }}>
               15-Minute Mini Mock
             </h1>
             <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", margin: "0 0 24px", lineHeight: 1.5 }}>
@@ -115,7 +115,7 @@ export default function MiniMockPage() {
 
   if (state === "completed") {
     return (
-      <div style={{ minHeight: "100vh", background: "#0a0a0a", paddingBottom: 80 }}>
+      <div style={{ minHeight: "100vh", background: "var(--bg)", paddingBottom: 80 }}>
         <div style={{ maxWidth: 500, margin: "0 auto", padding: "16px 16px 32px" }}>
           <div style={{
             marginTop: 24, padding: "28px 24px", borderRadius: 20, textAlign: "center",
@@ -123,7 +123,7 @@ export default function MiniMockPage() {
             border: "1px solid rgba(34,197,94,0.2)",
           }}>
             <div style={{ fontSize: 48, marginBottom: 12 }}>✅</div>
-            <h2 style={{ fontSize: 20, fontWeight: 800, color: "#fff", margin: "0 0 8px", fontFamily: "'Space Grotesk', sans-serif" }}>
+            <h2 style={{ fontSize: 20, fontWeight: 800, color: "var(--text)", margin: "0 0 8px", fontFamily: "'Space Grotesk', sans-serif" }}>
               Mini Mock Complete!
             </h2>
             <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", margin: "0 0 16px" }}>
@@ -135,7 +135,7 @@ export default function MiniMockPage() {
                 { label: "Unsure", count: Object.values(confidence).filter(c => c === "unsure").length, color: "#f97316" },
                 { label: "Guessed", count: Object.values(confidence).filter(c => c === "guessed").length, color: "#ef4444" },
               ].map((s) => (
-                <div key={s.label} style={{ padding: "10px 8px", borderRadius: 10, background: "rgba(255,255,255,0.03)", textAlign: "center" }}>
+                <div key={s.label} style={{ padding: "10px 8px", borderRadius: 10, background: "var(--bg-card)", textAlign: "center" }}>
                   <div style={{ fontSize: 20, fontWeight: 800, color: s.color }}>{s.count}</div>
                   <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", textTransform: "uppercase" }}>{s.label}</div>
                 </div>
@@ -144,11 +144,11 @@ export default function MiniMockPage() {
           </div>
 
           <div style={{ marginTop: 16 }}>
-            <h3 style={{ fontSize: 14, fontWeight: 700, color: "#fff", margin: "0 0 12px", fontFamily: "'Space Grotesk', sans-serif" }}>Review Questions</h3>
+            <h3 style={{ fontSize: 14, fontWeight: 700, color: "var(--text)", margin: "0 0 12px", fontFamily: "'Space Grotesk', sans-serif" }}>Review Questions</h3>
             {questions.map((item, idx) => (
               <div key={idx} style={{
                 padding: "12px 14px", marginBottom: 8, borderRadius: 12,
-                background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)",
+                background: "var(--bg-card)", border: "1px solid var(--bg-card-border)",
               }}>
                 <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
                   <span style={{
@@ -185,7 +185,7 @@ export default function MiniMockPage() {
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0a0a0a" }}>
+    <div style={{ minHeight: "100vh", background: "var(--bg)" }}>
       <div style={{
         position: "sticky", top: 0, zIndex: 10, padding: "12px 16px",
         background: "rgba(10,10,10,0.95)", backdropFilter: "blur(12px)",
@@ -242,7 +242,7 @@ export default function MiniMockPage() {
 
             <div style={{
               padding: "20px 18px", borderRadius: 16, marginBottom: 20,
-              background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)",
+              background: "var(--bg-card)", border: "1px solid var(--bg-card-border)",
             }}>
               <div style={{ fontSize: 15, color: "rgba(255,255,255,0.85)", lineHeight: 1.7 }}>
                 {currentQ.question.question}
@@ -256,7 +256,7 @@ export default function MiniMockPage() {
               style={{
                 width: "100%", minHeight: 120, padding: 14, borderRadius: 12,
                 background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)",
-                color: "#fff", fontSize: 13, fontFamily: "'Inter', sans-serif",
+                color: "var(--text)", fontSize: 13, fontFamily: "'Inter', sans-serif",
                 resize: "vertical", outline: "none",
               }}
             />

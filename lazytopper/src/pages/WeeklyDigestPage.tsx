@@ -201,7 +201,7 @@ export default function WeeklyDigestPage() {
 
   if (shareVerifying) {
     return (
-      <div style={{ minHeight: "100vh", background: "#0a0a0a", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ minHeight: "100vh", background: "var(--bg)", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 14 }}>Loading digest...</p>
       </div>
     );
@@ -209,11 +209,11 @@ export default function WeeklyDigestPage() {
 
   if (shareToken && shareError) {
     return (
-      <div style={{ minHeight: "100vh", background: "#0a0a0a", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ minHeight: "100vh", background: "var(--bg)", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <div style={{ textAlign: "center", padding: 24 }}>
           <div style={{ fontSize: 48, marginBottom: 12 }}>❌</div>
           <h2 style={{ fontSize: 18, fontWeight: 800, color: "#ef4444", margin: "0 0 8px" }}>Invalid or Expired Link</h2>
-          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.45)" }}>This share link is no longer valid.</p>
+          <p style={{ fontSize: 13, color: "var(--text-muted)" }}>This share link is no longer valid.</p>
         </div>
       </div>
     );
@@ -221,18 +221,18 @@ export default function WeeklyDigestPage() {
 
   if (!isLocal && !isShared) {
     return (
-      <div style={{ minHeight: "100vh", background: "#0a0a0a", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ minHeight: "100vh", background: "var(--bg)", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <div style={{ textAlign: "center", padding: 24 }}>
           <div style={{ fontSize: 48, marginBottom: 12 }}>📊</div>
-          <h2 style={{ fontSize: 18, fontWeight: 800, color: "#fff", margin: "0 0 8px" }}>Weekly Digest</h2>
-          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.45)" }}>Sign in to view your weekly progress.</p>
+          <h2 style={{ fontSize: 18, fontWeight: 800, color: "var(--text)", margin: "0 0 8px" }}>Weekly Digest</h2>
+          <p style={{ fontSize: 13, color: "var(--text-muted)" }}>Sign in to view your weekly progress.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0a0a0a", paddingBottom: 80 }}>
+    <div style={{ minHeight: "100vh", background: "var(--bg)", paddingBottom: 80 }}>
       <div style={{ maxWidth: 500, margin: "0 auto", padding: "16px 16px 32px" }}>
         {isLocal && <ReturnContextBar backTo="/dashboard" backLabel="Back to Dashboard" />}
 
@@ -242,7 +242,7 @@ export default function WeeklyDigestPage() {
           border: "1px solid rgba(34,197,94,0.2)",
         }}>
           <div style={{ fontSize: 36, marginBottom: 8 }}>📊</div>
-          <h1 style={{ fontSize: 20, fontWeight: 800, color: "#fff", margin: "0 0 4px", fontFamily: "'Space Grotesk', sans-serif" }}>
+          <h1 style={{ fontSize: 20, fontWeight: 800, color: "var(--text)", margin: "0 0 4px", fontFamily: "'Space Grotesk', sans-serif" }}>
             Weekly Progress Digest
           </h1>
           <p style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", margin: 0 }}>
@@ -259,7 +259,7 @@ export default function WeeklyDigestPage() {
           ].map((s) => (
             <div key={s.label} style={{
               padding: 16, borderRadius: 14, textAlign: "center",
-              background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)",
+              background: "var(--bg-card)", border: "1px solid var(--bg-card-border)",
             }}>
               <div style={{ fontSize: 20, marginBottom: 4 }}>{s.icon}</div>
               <div style={{ fontSize: 22, fontWeight: 800, color: s.color }}>{s.value}</div>
@@ -269,12 +269,12 @@ export default function WeeklyDigestPage() {
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginTop: 10 }}>
-          <div style={{ padding: 16, borderRadius: 14, textAlign: "center", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+          <div style={{ padding: 16, borderRadius: 14, textAlign: "center", background: "var(--bg-card)", border: "1px solid var(--bg-card-border)" }}>
             <div style={{ fontSize: 20, marginBottom: 4 }}>📝</div>
             <div style={{ fontSize: 22, fontWeight: 800, color: "#a855f7" }}>{questionsThisWeek}</div>
             <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", marginTop: 2 }}>Questions This Week</div>
           </div>
-          <div style={{ padding: 16, borderRadius: 14, textAlign: "center", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+          <div style={{ padding: 16, borderRadius: 14, textAlign: "center", background: "var(--bg-card)", border: "1px solid var(--bg-card-border)" }}>
             <div style={{ fontSize: 20, marginBottom: 4 }}>📈</div>
             <div style={{ fontSize: 22, fontWeight: 800, color: "#22c55e" }}>{topicsImproved}</div>
             <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", marginTop: 2 }}>Topics Improved</div>
@@ -284,9 +284,9 @@ export default function WeeklyDigestPage() {
         {mockScores.length > 0 && (
           <div style={{
             padding: "16px 18px", marginTop: 16, borderRadius: 16,
-            background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)",
+            background: "var(--bg-card)", border: "1px solid var(--bg-card-border)",
           }}>
-            <h3 style={{ fontSize: 14, fontWeight: 700, color: "#fff", margin: "0 0 10px", fontFamily: "'Space Grotesk', sans-serif" }}>
+            <h3 style={{ fontSize: 14, fontWeight: 700, color: "var(--text)", margin: "0 0 10px", fontFamily: "'Space Grotesk', sans-serif" }}>
               Mock Test Scores
             </h3>
             {mockScores.map((m, idx) => (
@@ -294,7 +294,7 @@ export default function WeeklyDigestPage() {
                 display: "flex", justifyContent: "space-between", padding: "8px 0",
                 borderBottom: "1px solid rgba(255,255,255,0.04)",
               }}>
-                <span style={{ fontSize: 12, color: "rgba(255,255,255,0.6)" }}>{m.subject}</span>
+                <span style={{ fontSize: 12, color: "var(--text-muted)" }}>{m.subject}</span>
                 <span style={{ fontSize: 13, fontWeight: 800, color: m.percent >= 65 ? "#22c55e" : "#ef4444" }}>{m.percent}%</span>
               </div>
             ))}
@@ -306,7 +306,7 @@ export default function WeeklyDigestPage() {
             padding: "16px 18px", marginTop: 16, borderRadius: 16,
             background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.15)",
           }}>
-            <h3 style={{ fontSize: 14, fontWeight: 700, color: "#fff", margin: "0 0 10px", fontFamily: "'Space Grotesk', sans-serif" }}>
+            <h3 style={{ fontSize: 14, fontWeight: 700, color: "var(--text)", margin: "0 0 10px", fontFamily: "'Space Grotesk', sans-serif" }}>
               Weak Areas to Focus On
             </h3>
             {weakAreas.map((w, idx) => (
@@ -314,7 +314,7 @@ export default function WeeklyDigestPage() {
                 display: "flex", justifyContent: "space-between", padding: "8px 0",
                 borderBottom: "1px solid rgba(255,255,255,0.04)",
               }}>
-                <span style={{ fontSize: 12, color: "rgba(255,255,255,0.6)" }}>{w.topicName} ({w.subject})</span>
+                <span style={{ fontSize: 12, color: "var(--text-muted)" }}>{w.topicName} ({w.subject})</span>
                 <span style={{ fontSize: 12, fontWeight: 800, color: "#ef4444" }}>{w.accuracy}%</span>
               </div>
             ))}

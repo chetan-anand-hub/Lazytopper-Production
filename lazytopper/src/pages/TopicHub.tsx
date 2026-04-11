@@ -561,7 +561,7 @@ export default function TopicHub() {
   const hasEnoughContent = totalConcepts >= 1;
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0a0a0a" }}>
+    <div style={{ minHeight: "100vh", background: "var(--bg)" }}>
       <div style={{ maxWidth: 820, margin: "0 auto", padding: "16px 16px 80px" }}>
 
         <ReturnContextBar backTo={backTo} backLabel={backLabel} />
@@ -572,8 +572,8 @@ export default function TopicHub() {
               value={topicKey}
               onChange={(e) => onChangeTopic(e.target.value)}
               style={{
-                padding: "6px 12px", borderRadius: 10, border: "1px solid rgba(255,255,255,0.06)",
-                fontSize: "0.82rem", color: "rgba(255,255,255,0.45)", background: "rgba(255,255,255,0.03)", cursor: "pointer",
+                padding: "6px 12px", borderRadius: 10, border: "1px solid var(--bg-card-border)",
+                fontSize: "0.82rem", color: "var(--text-muted)", background: "var(--bg-card)", cursor: "pointer",
               }}
             >
               {topicOptions.map((opt) => (
@@ -585,12 +585,12 @@ export default function TopicHub() {
 
         {phase === "landing" && (
           <div style={{
-            marginTop: 20, background: "rgba(255,255,255,0.03)", borderRadius: 20, padding: "28px 24px",
-            border: "1px solid rgba(255,255,255,0.06)", textAlign: "center",
+            marginTop: 20, background: "var(--bg-card)", borderRadius: 20, padding: "28px 24px",
+            border: "1px solid var(--bg-card-border)", textAlign: "center",
             boxShadow: "0 2px 12px rgba(88,204,2,0.12)",
           }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, flexWrap: "wrap" }}>
-              <h1 style={{ fontSize: "1.6rem", fontWeight: 800, color: "#fff", margin: 0 }}>
+              <h1 style={{ fontSize: "1.6rem", fontWeight: 800, color: "var(--text)", margin: 0 }}>
                 {title}
               </h1>
               <span style={{
@@ -602,7 +602,7 @@ export default function TopicHub() {
             </div>
 
             {overview.length > 0 && (
-              <p style={{ fontSize: "0.88rem", color: "rgba(255,255,255,0.45)", lineHeight: 1.6, marginTop: 12, maxWidth: 560, marginInline: "auto" }}>
+              <p style={{ fontSize: "0.88rem", color: "var(--text-muted)", lineHeight: 1.6, marginTop: 12, maxWidth: 560, marginInline: "auto" }}>
                 {overview[0]}
               </p>
             )}
@@ -635,7 +635,7 @@ export default function TopicHub() {
 
             {chapterMasteryLevel !== "not_started" && (
               <div style={{
-                marginTop: 16, height: 8, borderRadius: 999, background: "rgba(255,255,255,0.05)",
+                marginTop: 16, height: 8, borderRadius: 999, background: "var(--bg-card-border)",
                 overflow: "hidden", maxWidth: 300, marginInline: "auto",
               }}>
                 <div style={{
@@ -649,14 +649,14 @@ export default function TopicHub() {
             {allDefinitions.length > 0 && (
               <div style={{
                 marginTop: 20, textAlign: "left",
-                background: "#0a0a0a", borderRadius: 14, padding: "14px 18px",
-                border: "1px solid rgba(255,255,255,0.06)",
+                background: "var(--bg)", borderRadius: 14, padding: "14px 18px",
+                border: "1px solid var(--bg-card-border)",
               }}>
-                <div style={{ fontWeight: 700, fontSize: "0.82rem", color: "rgba(255,255,255,0.45)", marginBottom: 8 }}>
+                <div style={{ fontWeight: 700, fontSize: "0.82rem", color: "var(--text-muted)", marginBottom: 8 }}>
                   Key Definitions Preview
                 </div>
                 {allDefinitions.slice(0, 3).map((d, idx) => (
-                  <div key={idx} style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.45)", marginBottom: 4, lineHeight: 1.5 }}>
+                  <div key={idx} style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginBottom: 4, lineHeight: 1.5 }}>
                     <span style={{ fontWeight: 600, color: "rgba(255,255,255,0.7)" }}>{d.title}</span> — {d.description}
                   </div>
                 ))}
@@ -699,16 +699,12 @@ export default function TopicHub() {
               }}
               style={{
                 marginTop: 10, padding: "10px 28px", borderRadius: 14,
-                background: "#6366f1",
-                border: "none", color: "#fff", fontWeight: 700, fontSize: "0.88rem",
+                background: "transparent",
+                border: "1px solid var(--bg-card-border)", color: "var(--text-muted)", fontWeight: 600, fontSize: "0.82rem",
                 cursor: "pointer",
-                boxShadow: "0 4px 14px rgba(99,102,241,0.12)",
-                transition: "transform 0.15s",
               }}
-              onMouseDown={(e) => { (e.target as HTMLElement).style.transform = "scale(0.97)"; }}
-              onMouseUp={(e) => { (e.target as HTMLElement).style.transform = "scale(1)"; }}
             >
-              Chapter Test
+              or take a Chapter Test
             </button>
 
             {!hasEnoughContent && (
@@ -728,7 +724,7 @@ export default function TopicHub() {
                 </div>
                 <ul style={{ margin: 0, paddingLeft: 18 }}>
                   {scoreTips.slice(0, 3).map((tip, idx) => (
-                    <li key={idx} style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.45)", marginBottom: 4, lineHeight: 1.5 }}>
+                    <li key={idx} style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginBottom: 4, lineHeight: 1.5 }}>
                       {tip}
                     </li>
                   ))}
@@ -744,7 +740,7 @@ export default function TopicHub() {
               display: "flex", alignItems: "center", justifyContent: "space-between",
               marginBottom: 12,
             }}>
-              <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "rgba(255,255,255,0.45)" }}>
+              <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "var(--text-muted)" }}>
                 {title} — Concept {conceptIdx + 1} of {totalConcepts}
               </span>
               <span style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.4)" }}>
@@ -753,7 +749,7 @@ export default function TopicHub() {
             </div>
 
             <div style={{
-              height: 6, borderRadius: 999, background: "rgba(255,255,255,0.05)", overflow: "hidden",
+              height: 6, borderRadius: 999, background: "var(--bg-card-border)", overflow: "hidden",
               marginBottom: 20,
             }}>
               <div style={{
@@ -765,8 +761,8 @@ export default function TopicHub() {
 
             {!showingCheckpoint && currentDef && (
               <div style={{
-                background: "rgba(255,255,255,0.03)", borderRadius: 18, padding: "22px 22px",
-                border: "1px solid rgba(255,255,255,0.06)",
+                background: "var(--bg-card)", borderRadius: 18, padding: "22px 22px",
+                border: "1px solid var(--bg-card-border)",
                 boxShadow: "0 2px 12px rgba(0,0,0,0.3)",
               }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
@@ -778,7 +774,7 @@ export default function TopicHub() {
                   }}>
                     {conceptIdx + 1}
                   </span>
-                  <h2 style={{ fontSize: "1.1rem", fontWeight: 700, color: "#fff", margin: 0 }}>
+                  <h2 style={{ fontSize: "1.1rem", fontWeight: 700, color: "var(--text)", margin: 0 }}>
                     {currentDef.title}
                   </h2>
                 </div>
@@ -791,7 +787,7 @@ export default function TopicHub() {
 
                 <div style={{
                   fontSize: "0.9rem", color: "rgba(255,255,255,0.7)", lineHeight: 1.7,
-                  padding: "12px 16px", background: "#0a0a0a", borderRadius: 12,
+                  padding: "12px 16px", background: "var(--bg)", borderRadius: 12,
                 }}>
                   <div style={{ fontWeight: 600, fontSize: "0.78rem", color: "#818cf8", marginBottom: 4 }}>
                     What it means
@@ -812,7 +808,7 @@ export default function TopicHub() {
 
                 {examPatterns[conceptIdx] && (
                   <div style={{
-                    marginTop: 10, fontSize: "0.82rem", color: "rgba(255,255,255,0.45)",
+                    marginTop: 10, fontSize: "0.82rem", color: "var(--text-muted)",
                     padding: "10px 16px", background: "rgba(34,197,94,0.06)", borderRadius: 12,
                     border: "1px solid rgba(34,197,94,0.2)",
                   }}>
@@ -861,7 +857,7 @@ export default function TopicHub() {
                     style={{
                       padding: "8px 20px", borderRadius: 10,
                       background: "linear-gradient(135deg, #6366f1, #4f46e5)",
-                      border: "none", color: "#fff", fontWeight: 600,
+                      border: "none", color: "var(--text)", fontWeight: 600,
                       fontSize: "0.82rem", cursor: "pointer",
                     }}
                   >
@@ -873,7 +869,7 @@ export default function TopicHub() {
 
             {showingCheckpoint && currentMiniQuestion && (
               <div style={{
-                background: "rgba(255,255,255,0.03)", borderRadius: 18, padding: "22px 22px",
+                background: "var(--bg-card)", borderRadius: 18, padding: "22px 22px",
                 border: "2px solid #6366f1",
                 boxShadow: "0 2px 12px rgba(88,204,2,0.12)",
               }}>
@@ -896,7 +892,7 @@ export default function TopicHub() {
                   </div>
                 </div>
 
-                <div style={{ fontSize: "0.92rem", color: "#fff", lineHeight: 1.6, fontWeight: 600, marginBottom: 16 }}>
+                <div style={{ fontSize: "0.92rem", color: "var(--text)", lineHeight: 1.6, fontWeight: 600, marginBottom: 16 }}>
                   {currentMiniQuestion.questionText}
                 </div>
 
@@ -941,11 +937,11 @@ export default function TopicHub() {
                   <div style={{ marginTop: 16, textAlign: "center", padding: 20, background: "rgba(249,115,22,0.06)", borderRadius: 14, border: "1px solid rgba(249,115,22,0.2)" }}>
                     <div style={{ fontSize: "1.5rem", marginBottom: 8 }}>📝</div>
                     <div style={{ fontSize: "0.95rem", fontWeight: 700, color: "#fb923c", marginBottom: 6 }}>Not quite there yet</div>
-                    <p style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.5)", lineHeight: 1.5, marginBottom: 14 }}>
+                    <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", lineHeight: 1.5, marginBottom: 14 }}>
                       You need 70%+ to mark this concept as familiar. Review the material and try again.
                     </p>
                     <button type="button" onClick={retryConcept}
-                      style={{ padding: "10px 24px", borderRadius: 12, background: "linear-gradient(135deg, #f97316, #ea580c)", border: "none", color: "#fff", fontWeight: 700, fontSize: "0.88rem", cursor: "pointer" }}>
+                      style={{ padding: "10px 24px", borderRadius: 12, background: "linear-gradient(135deg, #f97316, #ea580c)", border: "none", color: "var(--text)", fontWeight: 700, fontSize: "0.88rem", cursor: "pointer" }}>
                       Retry Quiz
                     </button>
                   </div>
@@ -963,7 +959,7 @@ export default function TopicHub() {
                       </div>
                     )}
                     <button type="button" onClick={advanceToNext}
-                      style={{ padding: "10px 24px", borderRadius: 12, background: "linear-gradient(135deg, #6366f1, #4f46e5)", border: "none", color: "#fff", fontWeight: 600, fontSize: "0.88rem", cursor: "pointer" }}>
+                      style={{ padding: "10px 24px", borderRadius: 12, background: "linear-gradient(135deg, #6366f1, #4f46e5)", border: "none", color: "var(--text)", fontWeight: 600, fontSize: "0.88rem", cursor: "pointer" }}>
                       {miniQuizIdx < currentMiniQuiz.length - 1 ? `Next Question (${miniQuizIdx + 2}/${currentMiniQuiz.length})` : conceptIdx < totalConcepts - 1 ? "Next Concept →" : "See Summary"}
                     </button>
                   </div>
@@ -973,8 +969,8 @@ export default function TopicHub() {
 
             {!currentDef && (
               <div style={{
-                background: "rgba(255,255,255,0.03)", borderRadius: 18, padding: "24px", textAlign: "center",
-                border: "1px solid rgba(255,255,255,0.06)",
+                background: "var(--bg-card)", borderRadius: 18, padding: "24px", textAlign: "center",
+                border: "1px solid var(--bg-card-border)",
               }}>
                 <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.88rem" }}>
                   No more concepts to review. You've covered everything!
@@ -985,7 +981,7 @@ export default function TopicHub() {
                   style={{
                     marginTop: 12, padding: "10px 24px", borderRadius: 12,
                     background: "linear-gradient(135deg, #6366f1, #4f46e5)",
-                    border: "none", color: "#fff", fontWeight: 600,
+                    border: "none", color: "var(--text)", fontWeight: 600,
                     fontSize: "0.88rem", cursor: "pointer",
                   }}
                 >
@@ -998,14 +994,14 @@ export default function TopicHub() {
 
         {phase === "summary" && (
           <div style={{
-            marginTop: 20, background: "rgba(255,255,255,0.03)", borderRadius: 20, padding: "28px 24px",
-            border: "1px solid rgba(255,255,255,0.06)", textAlign: "center",
+            marginTop: 20, background: "var(--bg-card)", borderRadius: 20, padding: "28px 24px",
+            border: "1px solid var(--bg-card-border)", textAlign: "center",
             boxShadow: "0 2px 12px rgba(88,204,2,0.12)",
           }}>
-            <h2 style={{ fontSize: "1.4rem", fontWeight: 800, color: "#fff", margin: 0 }}>
+            <h2 style={{ fontSize: "1.4rem", fontWeight: 800, color: "var(--text)", margin: 0 }}>
               Lesson Complete!
             </h2>
-            <p style={{ fontSize: "0.88rem", color: "rgba(255,255,255,0.45)", marginTop: 8 }}>
+            <p style={{ fontSize: "0.88rem", color: "var(--text-muted)", marginTop: 8 }}>
               You've covered all {totalConcepts} concepts in {title}
             </p>
 
@@ -1019,7 +1015,7 @@ export default function TopicHub() {
                 <div style={{ fontSize: "1.6rem", fontWeight: 800, color: "#16a34a" }}>
                   {progress.conceptsCompleted.length}/{totalConcepts}
                 </div>
-                <div style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.45)", fontWeight: 500, marginTop: 2 }}>
+                <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", fontWeight: 500, marginTop: 2 }}>
                   Concepts Learned
                 </div>
               </div>
@@ -1031,7 +1027,7 @@ export default function TopicHub() {
                   <div style={{ fontSize: "1.6rem", fontWeight: 800, color: "#818cf8" }}>
                     {progress.quizCorrect}/{progress.quizTotal}
                   </div>
-                  <div style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.45)", fontWeight: 500, marginTop: 2 }}>
+                  <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", fontWeight: 500, marginTop: 2 }}>
                     Quiz Score
                   </div>
                 </div>
@@ -1046,7 +1042,7 @@ export default function TopicHub() {
             }}>
               <span style={{ fontSize: 18 }}>{MASTERY_ICONS[chapterMasteryLevel]}</span>
               <div style={{ textAlign: "left" }}>
-                <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.5)" }}>Your Progress</div>
+                <div style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>Your Progress</div>
                 <div style={{ fontSize: "0.92rem", fontWeight: 800, color: MASTERY_COLORS[chapterMasteryLevel] }}>
                   {MASTERY_LABELS[chapterMasteryLevel]}
                 </div>
@@ -1060,7 +1056,7 @@ export default function TopicHub() {
                 style={{
                   padding: "14px 28px", borderRadius: 14,
                   background: "linear-gradient(135deg, #22c55e, #16a34a)",
-                  border: "none", color: "#fff", fontWeight: 700, fontSize: "0.95rem",
+                  border: "none", color: "var(--text)", fontWeight: 700, fontSize: "0.95rem",
                   cursor: "pointer", boxShadow: "0 4px 14px rgba(88,204,2,0.3)",
                 }}
               >
@@ -1074,7 +1070,7 @@ export default function TopicHub() {
                 style={{
                   padding: "14px 28px", borderRadius: 14,
                   background: "linear-gradient(135deg, #f59e0b, #d97706)",
-                  border: "none", color: "#fff", fontWeight: 700, fontSize: "0.95rem",
+                  border: "none", color: "var(--text)", fontWeight: 700, fontSize: "0.95rem",
                   cursor: "pointer",
                 }}
               >
@@ -1088,8 +1084,8 @@ export default function TopicHub() {
                 onClick={startLearning}
                 style={{
                   padding: "8px 20px", borderRadius: 10,
-                  background: "none", border: "1px solid rgba(255,255,255,0.06)",
-                  color: "rgba(255,255,255,0.45)", fontWeight: 500, fontSize: "0.82rem",
+                  background: "none", border: "1px solid var(--bg-card-border)",
+                  color: "var(--text-muted)", fontWeight: 500, fontSize: "0.82rem",
                   cursor: "pointer",
                 }}
               >

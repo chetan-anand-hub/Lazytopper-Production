@@ -247,7 +247,7 @@ export default function ChapterTestPage() {
   const currentLevel = getChapterMasteryLevel(chapterKey);
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0a0a0a", paddingBottom: 80 }}>
+    <div style={{ minHeight: "100vh", background: "var(--bg)", paddingBottom: 80 }}>
       <div style={{ maxWidth: 700, margin: "0 auto", padding: "16px 16px 32px" }}>
         <ReturnContextBar backTo={backTo} backLabel={backLabel} />
 
@@ -258,7 +258,7 @@ export default function ChapterTestPage() {
                 background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)",
                 borderRadius: 20,
                 padding: "28px 24px",
-                color: "#fff",
+                color: "var(--text)",
                 textAlign: "center",
               }}
             >
@@ -375,7 +375,7 @@ export default function ChapterTestPage() {
                 padding: "10px 16px",
                 borderRadius: 12,
                 marginBottom: 16,
-                border: "1px solid rgba(255,255,255,0.06)",
+                border: "1px solid var(--bg-card-border)",
               }}
             >
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
@@ -447,17 +447,17 @@ export default function ChapterTestPage() {
             <ConfettiCelebration visible={masteryRecord.level === "mastered"} duration={3500} />
             <div
               style={{
-                background: "rgba(255,255,255,0.03)",
+                background: "var(--bg-card)",
                 borderRadius: 20,
                 padding: "28px 24px",
                 textAlign: "center",
-                border: "1px solid rgba(255,255,255,0.06)",
+                border: "1px solid var(--bg-card-border)",
               }}
             >
               <div style={{ fontSize: 48, marginBottom: 8 }}>
                 {quizResult.correctAnswers === quizResult.totalQuestions ? "🏆" : quizResult.correctAnswers >= Math.ceil(quizResult.totalQuestions * 0.7) ? "🎯" : "📝"}
               </div>
-              <h2 style={{ fontSize: "1.4rem", fontWeight: 800, color: "#fff", margin: "0 0 8px" }}>
+              <h2 style={{ fontSize: "1.4rem", fontWeight: 800, color: "var(--text)", margin: "0 0 8px" }}>
                 Chapter Test Complete
               </h2>
               <div style={{ fontSize: "2rem", fontWeight: 800, color: computeWeightedAccuracy(quizResult) >= 70 ? "#22c55e" : "#f59e0b" }}>
@@ -500,8 +500,8 @@ export default function ChapterTestPage() {
                     padding: "12px 24px",
                     borderRadius: 14,
                     border: "1px solid rgba(255,255,255,0.1)",
-                    background: "rgba(255,255,255,0.03)",
-                    color: "#fff",
+                    background: "var(--bg-card)",
+                    color: "var(--text)",
                     fontWeight: 700,
                     fontSize: "0.88rem",
                     cursor: "pointer",
@@ -528,7 +528,7 @@ export default function ChapterTestPage() {
             </div>
 
             <div style={{ marginTop: 24 }}>
-              <h3 style={{ fontSize: "1rem", fontWeight: 700, color: "#fff", marginBottom: 16 }}>Review Answers</h3>
+              <h3 style={{ fontSize: "1rem", fontWeight: 700, color: "var(--text)", marginBottom: 16 }}>Review Answers</h3>
               {questions.map((q, i) => {
                 const ans = answers[i];
                 const isMcq = Array.isArray(q.options) && q.options.length >= 2;
@@ -538,7 +538,7 @@ export default function ChapterTestPage() {
                     style={{
                       marginBottom: 16,
                       padding: "16px",
-                      background: "rgba(255,255,255,0.03)",
+                      background: "var(--bg-card)",
                       borderRadius: 14,
                       border: `1px solid ${ans?.correct ? "rgba(34,197,94,0.2)" : ans ? "rgba(239,68,68,0.2)" : "rgba(255,255,255,0.06)"}`,
                     }}
@@ -615,10 +615,10 @@ function TestQuestion({
   return (
     <div
       style={{
-        background: "rgba(255,255,255,0.03)",
+        background: "var(--bg-card)",
         borderRadius: 18,
         padding: "22px",
-        border: "1px solid rgba(255,255,255,0.06)",
+        border: "1px solid var(--bg-card-border)",
       }}
     >
       <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.4)", marginBottom: 8 }}>
@@ -626,7 +626,7 @@ function TestQuestion({
         {question.difficulty || "Medium"}
       </div>
 
-      <div style={{ fontSize: "0.92rem", color: "#fff", lineHeight: 1.6, fontWeight: 600, marginBottom: 16 }}>
+      <div style={{ fontSize: "0.92rem", color: "var(--text)", lineHeight: 1.6, fontWeight: 600, marginBottom: 16 }}>
         {question.questionText}
       </div>
 

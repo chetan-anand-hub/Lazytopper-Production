@@ -109,10 +109,10 @@ export default function ParentAccessPage() {
 
   if (noPinSet) {
     return (
-      <div style={{ minHeight: "100vh", background: "#0a0a0a", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ minHeight: "100vh", background: "var(--bg)", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <div style={{ maxWidth: 400, padding: "32px 24px", textAlign: "center" }}>
           <div style={{ fontSize: 48, marginBottom: 16 }}>🔒</div>
-          <h1 style={{ fontSize: 22, fontWeight: 800, color: "#fff", margin: "0 0 12px", fontFamily: "'Space Grotesk', sans-serif" }}>
+          <h1 style={{ fontSize: 22, fontWeight: 800, color: "var(--text)", margin: "0 0 12px", fontFamily: "'Space Grotesk', sans-serif" }}>
             Parent Access Not Set Up
           </h1>
           <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", lineHeight: 1.6 }}>
@@ -125,10 +125,10 @@ export default function ParentAccessPage() {
 
   if (!verified) {
     return (
-      <div style={{ minHeight: "100vh", background: "#0a0a0a", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ minHeight: "100vh", background: "var(--bg)", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <div style={{ maxWidth: 400, padding: "32px 24px", textAlign: "center" }}>
           <div style={{ fontSize: 48, marginBottom: 16 }}>👨‍👩‍👧</div>
-          <h1 style={{ fontSize: 22, fontWeight: 800, color: "#fff", margin: "0 0 8px", fontFamily: "'Space Grotesk', sans-serif" }}>
+          <h1 style={{ fontSize: 22, fontWeight: 800, color: "var(--text)", margin: "0 0 8px", fontFamily: "'Space Grotesk', sans-serif" }}>
             Parent Access
           </h1>
           <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", margin: "0 0 28px", lineHeight: 1.5 }}>
@@ -149,7 +149,7 @@ export default function ParentAccessPage() {
                 style={{
                   width: 56, height: 64, textAlign: "center", fontSize: 28, fontWeight: 800,
                   borderRadius: 14, border: error ? "2px solid #ef4444" : "2px solid rgba(255,255,255,0.15)",
-                  background: "rgba(255,255,255,0.06)", color: "#fff", outline: "none",
+                  background: "rgba(255,255,255,0.06)", color: "var(--text)", outline: "none",
                   fontFamily: "'Space Grotesk', sans-serif",
                   opacity: lockout.locked ? 0.4 : 1,
                 }}

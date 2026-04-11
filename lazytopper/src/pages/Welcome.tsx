@@ -10,27 +10,15 @@ const steps = [
   },
   {
     icon: "🧠",
-    title: "Learn Smart",
-    desc: "Ravi Sir teaches each concept with board-style examples & checkpoints.",
+    title: "Learn & Practice",
+    desc: "Ravi Sir teaches each concept, then gives you targeted practice on weak areas.",
     color: "#3b82f6",
   },
   {
-    icon: "⚡",
-    title: "Practice Daily",
-    desc: "Get a personalised daily mix — weighted by your weak areas.",
-    color: "#f97316",
-  },
-  {
     icon: "📝",
-    title: "Test Yourself",
-    desc: "Full mock exams graded by CBSE marking scheme. Know where you stand.",
+    title: "Test & Track",
+    desc: "Full mock exams graded by CBSE marking scheme. Dashboard tracks your progress.",
     color: "#a855f7",
-  },
-  {
-    icon: "📊",
-    title: "Track Progress",
-    desc: "Your dashboard shows streaks, mastery, weak areas & realistic scores.",
-    color: "#06b6d4",
   },
 ];
 
@@ -39,10 +27,8 @@ export default function Welcome() {
   const { user } = useAuth();
 
   return (
-    <div style={{
+    <div className="dark-page" style={{
       minHeight: "100vh",
-      background: "#0a0a0a",
-      color: "#fff",
       fontFamily: "'Inter', sans-serif",
       display: "flex",
       flexDirection: "column",
@@ -51,7 +37,6 @@ export default function Welcome() {
       <style dangerouslySetInnerHTML={{ __html: `
         @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
         .font-display { font-family: 'Space Grotesk', sans-serif; }
-        .glass-card { background: rgba(255,255,255,0.03); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
       ` }} />
 
@@ -69,7 +54,7 @@ export default function Welcome() {
           }}>
             Hey! I'm <span style={{ color: "#22c55e" }}>Ravi Sir</span>
           </h1>
-          <p style={{ fontSize: 17, color: "rgba(255,255,255,0.6)", lineHeight: 1.7, maxWidth: 380 }}>
+          <p style={{ fontSize: 17, color: "var(--text-muted)", lineHeight: 1.7, maxWidth: 380 }}>
             Your AI tutor for CBSE Class 10 boards.<br/>
             Let me show you how we'll crack this together.
           </p>
@@ -88,7 +73,7 @@ export default function Welcome() {
               }}>{step.icon}</div>
               <div style={{ flex: 1, paddingTop: 2 }}>
                 <span className="font-display" style={{ fontSize: 18, fontWeight: 700, display: "block", marginBottom: 6 }}>{step.title}</span>
-                <p style={{ fontSize: 15, color: "rgba(255,255,255,0.5)", lineHeight: 1.6 }}>{step.desc}</p>
+                <p style={{ fontSize: 15, color: "var(--text-muted)", lineHeight: 1.6 }}>{step.desc}</p>
               </div>
             </div>
           ))}
@@ -99,10 +84,10 @@ export default function Welcome() {
           background: "rgba(34,197,94,0.06)", border: "1px solid rgba(34,197,94,0.15)",
           textAlign: "center", marginBottom: 12,
         }}>
-          <p style={{ fontSize: 16, color: "rgba(255,255,255,0.55)", marginBottom: 6 }}>
+          <p style={{ fontSize: 16, color: "var(--text-muted)", marginBottom: 6 }}>
             <span style={{ color: "#22c55e", fontWeight: 700 }}>Free forever</span> — core features always available
           </p>
-          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)" }}>
+          <p style={{ fontSize: 13, color: "var(--text-muted)" }}>
             Sign in to unlock your personalised study plan
           </p>
         </div>
@@ -127,10 +112,10 @@ export default function Welcome() {
 
         <button
           onClick={() => navigate("/trends/10/Maths")}
+          className="glass-card"
           style={{
             width: "100%", padding: "16px 0", borderRadius: 14,
-            background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
-            color: "rgba(255,255,255,0.55)", fontWeight: 600, fontSize: 16,
+            color: "var(--text-muted)", fontWeight: 600, fontSize: 16,
             fontFamily: "'Inter', sans-serif", cursor: "pointer",
           }}
         >

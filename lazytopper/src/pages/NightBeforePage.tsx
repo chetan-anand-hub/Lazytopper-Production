@@ -69,7 +69,7 @@ export default function NightBeforePage() {
   const randomMessage = CONFIDENCE_MESSAGES[Math.floor(Math.random() * CONFIDENCE_MESSAGES.length)];
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0a0a0a", paddingBottom: 80 }}>
+    <div style={{ minHeight: "100vh", background: "var(--bg)", paddingBottom: 80 }}>
       <div style={{ maxWidth: 500, margin: "0 auto", padding: "16px 16px 32px" }}>
         <ReturnContextBar backTo="/dashboard" backLabel="Back to Dashboard" />
 
@@ -80,7 +80,7 @@ export default function NightBeforePage() {
         }}>
           <div style={{ fontSize: 48, marginBottom: 12 }}>🌙</div>
           <h1 style={{
-            fontSize: 24, fontWeight: 800, color: "#fff", margin: "0 0 8px",
+            fontSize: 24, fontWeight: 800, color: "var(--text)", margin: "0 0 8px",
             fontFamily: "'Space Grotesk', sans-serif",
           }}>Night Before Exam</h1>
           <p style={{ fontSize: 15, color: "#22c55e", fontWeight: 600, margin: "0 0 12px", fontStyle: "italic" }}>
@@ -95,7 +95,7 @@ export default function NightBeforePage() {
           padding: "20px 18px", borderRadius: 16, marginBottom: 20,
           background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
         }}>
-          <h2 style={{ fontSize: 16, fontWeight: 800, color: "#fff", margin: "0 0 16px", fontFamily: "'Space Grotesk', sans-serif" }}>
+          <h2 style={{ fontSize: 16, fontWeight: 800, color: "var(--text)", margin: "0 0 16px", fontFamily: "'Space Grotesk', sans-serif" }}>
             📐 Key Formulas
           </h2>
           {KEY_FORMULAS.map((section, idx) => (
@@ -123,7 +123,7 @@ export default function NightBeforePage() {
           padding: "20px 18px", borderRadius: 16, marginBottom: 20,
           background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
         }}>
-          <h2 style={{ fontSize: 16, fontWeight: 800, color: "#fff", margin: "0 0 16px", fontFamily: "'Space Grotesk', sans-serif" }}>
+          <h2 style={{ fontSize: 16, fontWeight: 800, color: "var(--text)", margin: "0 0 16px", fontFamily: "'Space Grotesk', sans-serif" }}>
             🎯 Top 20 Most-Predicted Questions
           </h2>
           {topQuestions.map((item, idx) => (
@@ -154,7 +154,7 @@ export default function NightBeforePage() {
           padding: "20px 18px", borderRadius: 16, marginBottom: 20,
           background: "rgba(249,115,22,0.06)", border: "1px solid rgba(249,115,22,0.15)",
         }}>
-          <h2 style={{ fontSize: 16, fontWeight: 800, color: "#fff", margin: "0 0 16px", fontFamily: "'Space Grotesk', sans-serif" }}>
+          <h2 style={{ fontSize: 16, fontWeight: 800, color: "var(--text)", margin: "0 0 16px", fontFamily: "'Space Grotesk', sans-serif" }}>
             📋 Exam Day Checklist
           </h2>
           {EXAM_TIPS.map((tip, idx) => (
