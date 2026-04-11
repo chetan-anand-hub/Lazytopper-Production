@@ -712,7 +712,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     "answer": "Charge through a conductor",
     "solutionSteps": [
       "Electric current is the rate of flow of electric charge",
-      "It can be flow of electrons, ions, or protons depending on the medium",
+      "In metals it is flow of electrons; in electrolytes it is flow of ions",
       "In metals, it's electrons; in solutions, it can be ions",
       "The general definition encompasses all charge carriers"
     ],

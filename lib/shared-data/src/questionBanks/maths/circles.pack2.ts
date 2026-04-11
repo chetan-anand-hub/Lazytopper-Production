@@ -1167,7 +1167,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "A circle with center O passes through three points A, B, and C on a line such that AB = 6 cm and BC = 8 cm. From an external point P, tangents are drawn to this circle touching it at points D and E. If the distance from P to O is 13 cm and the radius of the circle is 5 cm, find: (i) the length of tangents PD and PE, (ii) the angle ∠DPE, (iii) the area of triangle OPD + area of triangle OPE.",
     "options": [],
-    "answer": "(i) 12 cm, (ii) ≈45.24° (or 67.4° depending on angle measurement), (iii) 60 cm²",
+    "answer": "(i) PD = PE = 12 cm, (ii) ∠DPE ≈ 45.24°, (iii) 60 cm²",
     "solutionSteps": [
       "(i) Finding length of tangents PD and PE:",
       "Given: OP = 13 cm, radius OD = OE = 5 cm",
@@ -1190,7 +1190,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "More directly: ∠DPE = 180° - ∠DOE",
       "∠DOE = 2 × cos⁻¹(12/13) (using properties)",
       "Better: Use ∠DPE where sin(∠DPE/2) = OD/(OP) through angle bisector",
-      "∠DPE ≈ 45.24° or approximately 67.4° depending on configuration",
+      "∠DPE = 2 × arcsin(5/13) ≈ 45.24°",
       "",
       "(iii) Area of triangle OPD + area of triangle OPE:",
       "Area of triangle OPD = (1/2) × OD × PD = (1/2) × 5 × 12 = 30 cm²",
@@ -1198,7 +1198,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "Total area = 30 + 30 = 60 cm²",
       "Note: Area of quadrilateral ODPE = 60 cm²"
     ],
-    "finalAnswer": "(i) 12 cm, (ii) ≈45.24° (or 67.4° depending on angle measurement), (iii) 60 cm²",
+    "finalAnswer": "(i) PD = PE = 12 cm, (ii) ∠DPE ≈ 45.24°, (iii) 60 cm²",
     "isCompetencyBased": true,
     "pyqYear": "2019",
     "pyqSet": "All India",

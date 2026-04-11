@@ -725,7 +725,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "Curved surface area of cylinder = 2πrh = 2π(3)(10) = 60π cm²",
       "Curved surface area of hemisphere = 2πr² = 2π(3)² = 18π cm²",
       "Total = 60π + 18π = 78π cm²",
-      "Correcting: 2(3)(10)π + 2(9)π + 9π = 60π + 18π + 9π = 87π or base πr² = 9π",
+      "TSA = 2πrh + 2πr² = 2π(3)(10) + 2π(9) = 60π + 18π = 78π cm²",
       "Total excluding base = 60π + 18π + 9π = 87π ≈ 273 cm²"
     ],
     "finalAnswer": "78π cm² (curved only) or 87π cm² (with top surface)",

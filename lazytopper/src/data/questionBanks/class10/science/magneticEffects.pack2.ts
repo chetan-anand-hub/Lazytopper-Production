@@ -452,7 +452,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "AC: Current direction reverses at regular intervals (50/60 Hz in India/US).",
       "DC: Current flows in only one direction.",
       "AC uses slip rings in generators; DC uses commutator.",
-      "Both can have various voltages depending on design."
+      "AC and DC generators differ in output waveform, not fundamentally in voltage."
     ],
     "finalAnswer": "AC's direction changes periodically with time",
     "isCompetencyBased": true,

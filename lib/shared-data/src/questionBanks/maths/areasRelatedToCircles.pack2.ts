@@ -18,14 +18,14 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "C) 49/6 cm²",
       "D) 98/6 cm²"
     ],
-    "answer": "C) 49/6 cm²",
+    "answer": "B) 154/6 cm²",
     "solutionSteps": [
       "Area of sector = (θ/360°) × πr²",
       "= (60°/360°) × π × 7²",
       "= (1/6) × 22/7 × 49",
-      "= 49/6 cm²"
+      "= (22/7 × 49)/6 = (22 × 7)/6 = 154/6 cm² ≈ 25.67 cm²"
     ],
-    "finalAnswer": "C) 49/6 cm²",
+    "finalAnswer": "B) 154/6 cm²",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
