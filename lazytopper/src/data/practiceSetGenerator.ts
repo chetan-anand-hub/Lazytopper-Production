@@ -323,6 +323,24 @@ export function generatePracticeSet(
     selected.push(...topUp);
   }
 
+  const COMPETENCY_MIN_SHARE = 0.5;
+  const compCount = selected.filter(q => q.isCompetencyBased).length;
+  const compTarget = Math.ceil(selected.length * COMPETENCY_MIN_SHARE);
+
+  if (compCount < compTarget) {
+    const compCandidates = candidates.filter(
+      q => q.isCompetencyBased && !takenIds.has(q.id)
+    );
+    for (const cq of compCandidates) {
+      if (selected.filter(q => q.isCompetencyBased).length >= compTarget) break;
+      const swapIdx = selected.findIndex(q => !q.isCompetencyBased);
+      if (swapIdx < 0) break;
+      takenIds.delete(selected[swapIdx].id);
+      selected[swapIdx] = cq;
+      takenIds.add(cq.id);
+    }
+  }
+
   const isAdaptiveMode = !!(cfg.adaptiveMix && !cfg.difficultyMix);
   let finalQuestions: CanonicalQuestion[];
   if (isAdaptiveMode) {

@@ -165,8 +165,26 @@ export function generateDailyMix(ctx: DailyMixContext): DailyMixItem[] {
   const mustCrack = questions.filter(
     (q) => String(q.tier || bucket?.defaultTier || "").toLowerCase() === "must-crack"
   );
-  const questionPool = seededShuffle(mustCrack.length ? mustCrack : questions, seed);
-  const selectedQuestions = questionPool.slice(0, 3);
+  const COMPETENCY_TYPES = new Set(["CaseBased", "Case-Based", "AssertionReason", "Assertion-Reasoning", "AssertionReasoning"]);
+  const isCompetencyQ = (q: HPQQuestion) => COMPETENCY_TYPES.has(q.type || "") || COMPETENCY_TYPES.has((q as any).kind || "");
+
+  const competencyPool = (mustCrack.length ? mustCrack : questions).filter(isCompetencyQ);
+  const nonCompPool = (mustCrack.length ? mustCrack : questions).filter(q => !isCompetencyQ(q));
+
+  const shuffledComp = seededShuffle(competencyPool, seed);
+  const shuffledNonComp = seededShuffle(nonCompPool, seed + 1);
+
+  const compTarget = Math.ceil(3 * 0.5);
+  const selectedQuestions = [
+    ...shuffledComp.slice(0, compTarget),
+    ...shuffledNonComp.slice(0, 3 - compTarget),
+  ].slice(0, 3);
+
+  if (selectedQuestions.length < 3) {
+    const remaining = seededShuffle(mustCrack.length ? mustCrack : questions, seed + 2)
+      .filter(q => !selectedQuestions.some(s => s.id === q.id));
+    selectedQuestions.push(...remaining.slice(0, 3 - selectedQuestions.length));
+  }
 
   while (selectedQuestions.length < 3) {
     selectedQuestions.push({
