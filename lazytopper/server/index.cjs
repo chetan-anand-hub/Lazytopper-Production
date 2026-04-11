@@ -112,6 +112,9 @@ const {
 } = require("./sessionHandlers.cjs");
 const { createGeminiClient } = require('./services/geminiClient.cjs');
 const { createClaudeClient } = require('./services/claudeClient.cjs');
+const { createHttpUtils, readJson, extractJsonObjectFromText } = require('./services/httpUtils.cjs');
+const { createStubHandlers } = require('./services/stubHandlers.cjs');
+const { getCbseExamDateInfo, extractCbseNoticeFromHtml, extractExplicitExamDate, parseDmyToIso, normalizeDateToIso, predictCbseExamDate } = require('./services/cbseExamDate.cjs');
 const { createShareRoutes } = require('./routes/share.cjs');
 const { createDiagramRoutes } = require('./routes/diagrams.cjs');
 const { createQuestionRoutes } = require('./routes/questions.cjs');
@@ -184,6 +187,7 @@ const PORT = process.env.PORT || 3001;
 const AI_PROVIDER = String(process.env.AI_PROVIDER || '').trim();
 const API_KEY = String(process.env.API_KEY || '').trim();
 const CORS_ORIGIN = String(process.env.CORS_ORIGIN || 'http://localhost:5173').trim();
+const { sendJson, sendJsonWithHeaders } = createHttpUtils(CORS_ORIGIN);
 const AI_PROVIDER_NORMALIZED = AI_PROVIDER.toLowerCase();
 const HAS_DIRECT_KEY = AI_PROVIDER_NORMALIZED === 'gemini' && Boolean(API_KEY);
 const STUB_MODE = !HAS_REPLIT_PROXY && !HAS_DIRECT_KEY && !HAS_ANTHROPIC_PROXY;
@@ -200,8 +204,6 @@ const FEEDBACK_FILE = path.join(FEEDBACK_DIR, 'triangles_feedback.jsonl');
 const TEACH_CACHE_TTL_MS = IS_DEV ? 90_000 : 60_000;
 const teachCache = new Map();
 const inflightTeach = new Map();
-const CBSE_EXAM_CACHE_TTL_MS = 6 * 60 * 60 * 1000;
-const cbseExamCache = new Map();
 
 const geminiClientModule = createGeminiClient({
   GEMINI_API_KEY, HAS_REPLIT_PROXY, REPLIT_GEMINI_BASE_URL,
@@ -225,187 +227,12 @@ function buildTeachContractCacheKey(payload) {
   return ['teach_contract', subject, grade, topicKey, nodeId, stepIndex, vibe].join('|');
 }
 
-function parseDmyToIso(raw) {
-  const match = String(raw || '').match(/^(\d{2})[./-](\d{2})[./-](\d{4})$/);
-  if (!match) return null;
-  const dd = Number(match[1]);
-  const mm = Number(match[2]);
-  const yyyy = Number(match[3]);
-  if (!Number.isFinite(dd) || !Number.isFinite(mm) || !Number.isFinite(yyyy)) return null;
-  if (mm < 1 || mm > 12 || dd < 1 || dd > 31) return null;
-  return `${yyyy}-${String(mm).padStart(2, '0')}-${String(dd).padStart(2, '0')}`;
-}
 
-function normalizeDateToIso(raw) {
-  const dmy = parseDmyToIso(raw);
-  if (dmy) return dmy;
-  const parsed = new Date(String(raw || '').trim());
-  if (Number.isNaN(parsed.getTime())) return null;
-  const yyyy = parsed.getFullYear();
-  const mm = String(parsed.getMonth() + 1).padStart(2, '0');
-  const dd = String(parsed.getDate()).padStart(2, '0');
-  return `${yyyy}-${mm}-${dd}`;
-}
 
-function predictCbseExamDate(studentClass) {
-  const now = new Date();
-  const currentMonth = now.getMonth() + 1;
-  let year = currentMonth >= 8 ? now.getFullYear() + 1 : now.getFullYear();
-  const dayNum = studentClass === '12' ? 16 : 15;
-  const todayUtc = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
-  let examUtc = Date.UTC(year, 1, dayNum);
-  if (examUtc < todayUtc) {
-    year += 1;
-    examUtc = Date.UTC(year, 1, dayNum);
-  }
-  const day = String(dayNum).padStart(2, '0');
-  return `${year}-02-${day}`;
-}
 
-function extractExplicitExamDate(rowText) {
-  const nowYear = new Date().getFullYear();
-  const dateMatches = [...String(rowText || '').matchAll(/(\d{2})[./-](\d{2})[./-](\d{4})/g)];
-  for (const match of dateMatches) {
-    const dd = Number(match[1]);
-    const mm = Number(match[2]);
-    const yyyy = Number(match[3]);
-    if (!Number.isFinite(dd) || !Number.isFinite(mm) || !Number.isFinite(yyyy)) continue;
-    if (yyyy < nowYear || yyyy > nowYear + 1) continue;
-    if (mm < 1 || mm > 4) continue;
-    if (dd < 1 || dd > 31) continue;
-    return `${yyyy}-${String(mm).padStart(2, '0')}-${String(dd).padStart(2, '0')}`;
-  }
-  return null;
-}
 
-function extractCbseNoticeFromHtml(html, studentClass) {
-  const classMatcher = studentClass === '12'
-    ? /(revised\s+datesheet\s+class\s*xii|date\s*sheet\s*for\s*class\s*xii|board\s*examinations\s*-\s*\d{4})/i
-    : /(revised\s+datesheet\s+class\s*x(?!ii)|date\s*sheet\s*for\s*class\s*x\s*and\s*xii|board\s*examinations\s*-\s*\d{4})/i;
 
-  const rows = String(html || '').match(/<tr[\s\S]*?<\/tr>/gi) || [];
-  for (const row of rows) {
-    const rowText = row.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
-    if (!classMatcher.test(rowText)) continue;
 
-    const dateCellMatch = row.match(/<td[^>]*>\s*(\d{2}[./-]\d{2}[./-]\d{4})\s*<\/td>/i);
-    const noticeDate = dateCellMatch ? parseDmyToIso(dateCellMatch[1]) : null;
-
-    const hrefMatch = row.match(/href="([^"]+)"/i);
-    const href = hrefMatch && hrefMatch[1] ? hrefMatch[1] : '';
-    const noticeUrl = href
-      ? (href.startsWith('http') ? href : `https://www.cbse.gov.in/cbsenew/${href.replace(/^\/+/, '')}`)
-      : 'https://www.cbse.gov.in/cbsenew/examination_circular.html';
-
-    const explicitExamDate = extractExplicitExamDate(rowText);
-    return {
-      noticeDate,
-      noticeUrl,
-      explicitExamDate,
-    };
-  }
-  return null;
-}
-
-async function getCbseExamDateInfo(studentClass) {
-  const cls = String(studentClass || '10') === '12' ? '12' : '10';
-  const cacheKey = `class_${cls}`;
-  const cached = cbseExamCache.get(cacheKey);
-  if (cached && cached.expiresAt > Date.now()) {
-    return cached.value;
-  }
-
-  const predicted = predictCbseExamDate(cls);
-  let result = {
-    class: cls,
-    source: 'predicted',
-    examDate: predicted,
-    noticeUrl: 'https://www.cbse.gov.in/cbsenew/examination_circular.html',
-    note: 'Using predicted board start date from prior CBSE trends.',
-  };
-
-  const overrideEnvKey = cls === '12' ? 'CBSE_CLASS12_OFFICIAL_DATE' : 'CBSE_CLASS10_OFFICIAL_DATE';
-  const overrideRaw = String(process.env[overrideEnvKey] || '').trim();
-  const overrideIso = normalizeDateToIso(overrideRaw);
-  if (overrideIso) {
-    result = {
-      class: cls,
-      source: 'official',
-      examDate: overrideIso,
-      noticeUrl: 'manual_env_override',
-      note: `Manual official override from ${overrideEnvKey}.`,
-    };
-    cbseExamCache.set(cacheKey, {
-      value: result,
-      expiresAt: Date.now() + CBSE_EXAM_CACHE_TTL_MS,
-    });
-    return result;
-  }
-
-  try {
-    const res = await fetch('https://www.cbse.gov.in/cbsenew/examination_circular.html', {
-      headers: {
-        'user-agent': 'LazyTopper/1.0',
-      },
-    });
-    if (res.ok) {
-      const html = await res.text();
-      const notice = extractCbseNoticeFromHtml(html, cls);
-      if (notice) {
-        if (notice.explicitExamDate) {
-          result = {
-            class: cls,
-            source: 'official',
-            examDate: notice.explicitExamDate,
-            noticeUrl: notice.noticeUrl,
-            noticeDate: notice.noticeDate,
-            note: 'Exam date extracted from CBSE circular notice.',
-          };
-        } else {
-          result = {
-            class: cls,
-            source: 'predicted',
-            examDate: predicted,
-            noticeUrl: notice.noticeUrl,
-            noticeDate: notice.noticeDate,
-            note: 'CBSE notice found, but exact exam start date was not machine-readable; predicted date used.',
-          };
-        }
-      }
-    }
-  } catch (_err) {
-    // Keep predicted fallback.
-  }
-
-  cbseExamCache.set(cacheKey, {
-    value: result,
-    expiresAt: Date.now() + CBSE_EXAM_CACHE_TTL_MS,
-  });
-  return result;
-}
-
-/**
- * Helper to send JSON with CORS headers.
- * @param {import('http').ServerResponse} res
- * @param {number} status
- * @param {any} body
- */
-function sendJson(res, status, body) {
-  res.writeHead(status, {
-    'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': CORS_ORIGIN,
-  });
-  res.end(JSON.stringify(body));
-}
-
-function sendJsonWithHeaders(res, status, body, extraHeaders) {
-  res.writeHead(status, {
-    'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': CORS_ORIGIN,
-    ...(extraHeaders || {}),
-  });
-  res.end(JSON.stringify(body));
-}
 
 function tryParseJsonStrict(text) {
   if (typeof text !== 'string') return null;
@@ -419,40 +246,6 @@ function tryParseJsonStrict(text) {
   }
 }
 
-function extractJsonObjectFromText(text) {
-  if (typeof text !== 'string') return null;
-  const trimmed = text.trim();
-  if (!trimmed) return null;
-
-  const parseObject = (value) => {
-    try {
-      const parsed = JSON.parse(value);
-      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return null;
-      return parsed;
-    } catch {
-      return null;
-    }
-  };
-
-  const direct = parseObject(trimmed);
-  if (direct) return direct;
-
-  const firstBrace = trimmed.indexOf('{');
-  const lastBrace = trimmed.lastIndexOf('}');
-  if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
-    const sliced = trimmed.slice(firstBrace, lastBrace + 1);
-    const slicedParsed = parseObject(sliced);
-    if (slicedParsed) return slicedParsed;
-  }
-
-  const fencedMatch = trimmed.match(/```json\s*([\s\S]*?)```/i);
-  if (fencedMatch && fencedMatch[1]) {
-    const fencedParsed = parseObject(fencedMatch[1].trim());
-    if (fencedParsed) return fencedParsed;
-  }
-
-  return null;
-}
 
 function isValidMentorProtocol(obj, mode) {
   if (!obj || typeof obj !== 'object') return false;
@@ -551,107 +344,8 @@ function mergeLines(primary, fallback, min) {
   return normalizeLines([...combined, ...pad]).slice(0, Math.max(min, combined.length));
 }
 
-function buildStubTutorStructured(mode, payload) {
-  let structured = buildTutorFallback(mode, payload);
-  const seed = loadTrianglesMentorSeed();
-  if (!seed || typeof seed !== 'object') return structured;
-  const mentor = seed.mentorResponse && typeof seed.mentorResponse === 'object' ? seed.mentorResponse : seed;
 
-  const correct = normalizeLines(mentor.correctAnswerFeedback);
-  const incorrect = normalizeLines(mentor.incorrectAnswerFeedback);
-  const warnings = normalizeLines(mentor.examinerWarning);
-  const nextSteps = normalizeLines(mentor.nextStepSuggestion);
 
-  if (mode === 'learn_teach') {
-    structured.teach = structured.teach || {};
-    structured.teach.simpleExplanation = mergeLines(
-      [...correct, ...incorrect],
-      structured.teach.simpleExplanation || [],
-      4
-    );
-    structured.teach.cbseExamSentence = mergeLines(
-      warnings,
-      structured.teach.cbseExamSentence || [],
-      2
-    );
-    structured.commonMistakes = mergeLines(
-      incorrect,
-      structured.commonMistakes || [],
-      1
-    );
-    if (nextSteps[0]) structured.checkQuestion = nextSteps[0];
-  }
-
-  if (mode === 'learn_mindmap') {
-    structured.conceptBullets = mergeLines(
-      [...correct, ...incorrect],
-      structured.conceptBullets || [],
-      5
-    );
-    structured.examLines = mergeLines(
-      warnings,
-      structured.examLines || [],
-      2
-    );
-    if (incorrect[0]) structured.commonError = incorrect[0];
-    if (nextSteps[0]) structured.commonFix = nextSteps[0];
-    if (nextSteps[1]) structured.checkQuestion = nextSteps[1];
-  }
-
-  if (mode === 'learn_proof' || mode === 'solve_with_me' || mode === 'board_steps_ms') {
-    structured = ensureDiagramFields(structured, payload);
-  }
-
-  return structured;
-}
-
-function buildStubText() {
-  const seed = loadTrianglesMentorSeed();
-  if (seed && typeof seed === 'object') {
-    const mentor = seed.mentorResponse && typeof seed.mentorResponse === 'object' ? seed.mentorResponse : seed;
-    const lines = normalizeLines([
-      ...(mentor.correctAnswerFeedback || []),
-      ...(mentor.incorrectAnswerFeedback || []),
-      ...(mentor.examinerWarning || []),
-      ...(mentor.nextStepSuggestion || []),
-    ]);
-    if (lines.length) return lines.join('\n');
-  }
-  return 'Stub mentor response active. Provide AI_PROVIDER and API_KEY to enable live responses.';
-}
-
-function buildStubMoreLikeThis(payload) {
-  const seedQuestion = payload?.seedQuestion || {};
-  const baseText = String(seedQuestion.text || seedQuestion.questionText || '').trim();
-  const marks = seedQuestion.marks;
-  const difficulty = seedQuestion.difficulty;
-  const bloomSkill = seedQuestion.bloomSkill;
-  const subject = payload?.subject || 'Maths/Science';
-  const topicKey = payload?.topicKey || null;
-  const requested = Number(payload?.numVariants || 3);
-  const numVariants = Number.isFinite(requested) && requested > 0 ? Math.min(requested, 6) : 3;
-  const seedLine =
-    baseText ||
-    'Write a CBSE Class 10 triangles question that uses AA/SAS/SSS similarity.';
-  const mentorSeed = loadTrianglesMentorSeed();
-  const mentor = mentorSeed && mentorSeed.mentorResponse ? mentorSeed.mentorResponse : mentorSeed || {};
-  const hints = normalizeLines([
-    ...(mentor.nextStepSuggestion || []),
-    ...(mentor.examinerWarning || []),
-  ]);
-  const variants = Array.from({ length: numVariants }).map((_, idx) => {
-    const hint = hints.length ? ` Focus: ${hints[idx % hints.length]}` : '';
-    const text = `${seedLine}${hint}`.trim();
-    return {
-      index: idx,
-      text,
-      marks,
-      difficulty,
-      bloomSkill,
-    };
-  });
-  return { subject, topicKey, variants, model: 'stub' };
-}
 
 function isObjectiveType(qType, section) {
   const t = (qType || '').toLowerCase();
@@ -659,187 +353,7 @@ function isObjectiveType(qType, section) {
   return t === 'mcq' || t === 'assertionreason' || t === 'assertion-reason' || t === 'ar' || t === 'objective' || t === 'fillblank' || s === 'A';
 }
 
-function buildFallbackSteps(answer, explanation, totalMarks, qType, section, subject) {
-  const isObj = isObjectiveType(qType, section);
 
-  if (isObj || totalMarks <= 1) {
-    const isAR = /assertion/i.test(qType || '');
-    return {
-      totalMarks,
-      steps: [
-        {
-          stepNumber: 1,
-          description: isAR ? 'Evaluating assertion and reason' : 'Correct answer',
-          working: answer || 'Identify the correct option based on the concept.',
-          marks: totalMarks,
-        },
-        ...(explanation ? [{
-          stepNumber: 2,
-          description: 'Why this is correct',
-          working: explanation,
-          marks: 0,
-        }] : []),
-      ],
-      commonMistakes: isAR
-        ? ['Assuming both A and R are correct means R explains A — check the causal link separately', 'Not reading each statement independently before checking the relationship']
-        : ['Not reading all options before marking — similar-sounding options trap you', 'Confusing related concepts (e.g., HCF vs LCM, displacement vs distance)'],
-      examTip: isAR
-        ? 'Read Assertion and Reason independently first. Then check: does R actually explain A? Many students pick (a) without verifying the causal link.'
-        : 'For MCQs: read all 4 options first, eliminate obviously wrong ones, then pick. No negative marking in CBSE — never leave blank.',
-    };
-  }
-
-  const combined = [answer, explanation].filter(Boolean).join('. ');
-  const sentences = combined.split(/[.;]\s+|\n+/).map(s => s.trim()).filter(s => s.length > 5);
-
-  const stepLabels2 = ['Writing the approach', 'Solving and writing the final answer'];
-  const stepLabels3 = ['Writing the given information and formula', 'Applying the method / computing', 'Writing the final answer with conclusion'];
-  const stepLabels5 = ['Writing given data and what is to be found', 'Stating the formula / theorem / definition', 'Setting up the equation / applying the concept', 'Solving step by step', 'Writing the final answer with proper conclusion'];
-
-  const labels = totalMarks <= 2 ? stepLabels2 : totalMarks <= 3 ? stepLabels3 : stepLabels5;
-  const stepCount = Math.min(labels.length, Math.max(2, sentences.length));
-  const steps = [];
-  const useHalf = totalMarks >= 2;
-
-  for (let i = 0; i < stepCount; i++) {
-    const isSetup = i === 0;
-    const isConclusion = i === stepCount - 1;
-    let m = (useHalf && (isSetup || isConclusion)) ? 0.5 : 1;
-    steps.push({
-      stepNumber: i + 1,
-      description: labels[i] || 'Step ' + (i + 1),
-      working: sentences[i] || (labels[i] || ''),
-      marks: m,
-    });
-  }
-
-  const sum = steps.reduce((a, s) => a + s.marks, 0);
-  if (sum !== totalMarks && steps.length > 0) {
-    const diff = totalMarks - sum;
-    const mid = Math.floor(steps.length / 2);
-    steps[mid].marks = Math.max(0.5, steps[mid].marks + diff);
-  }
-
-  const isMaths = /math/i.test(subject || '');
-  return {
-    totalMarks,
-    steps,
-    commonMistakes: isMaths
-      ? ['Not writing the formula before substituting — CBSE deducts ½ mark', 'Missing units or not stating "rejected" for negative values in word problems']
-      : ['Not writing balanced equations with state symbols (s/l/g/aq)', 'Using informal language instead of NCERT-standard key terms'],
-    examTip: totalMarks <= 2
-      ? (isMaths ? 'For 2-mark questions: show formula + substitution + answer. Even partial working can earn 1 mark.' : 'For 2-mark questions: define the concept clearly, then state the answer with key terms from NCERT.')
-      : (isMaths ? 'CBSE board pattern: Given → Formula → Substitution → Calculation → Final Answer with units. Each step carries marks independently.' : 'CBSE board pattern: Define → State equation/law → Explain mechanism → Conclude. Use NCERT key terms exactly.'),
-  };
-}
-
-function buildStubStepSolution(question, totalMarks, subject, qType, section) {
-  const isObj = isObjectiveType(qType, section);
-  const isMaths = /math/i.test(subject);
-
-  if (isObj || totalMarks <= 1) {
-    const isAR = /assertion/i.test(qType || '');
-    return {
-      totalMarks,
-      steps: [
-        {
-          stepNumber: 1,
-          description: isAR ? 'Evaluating assertion and reason independently' : 'Identifying the correct option',
-          working: isAR
-            ? 'Read the Assertion (A) and Reason (R) separately. Check if each is true/false. Then check if R correctly explains A.'
-            : 'Read all options carefully. Apply the relevant concept to identify the correct answer.',
-          marks: totalMarks,
-        },
-      ],
-      commonMistakes: isAR
-        ? ['Assuming both correct means R explains A — check the causal link', 'Not evaluating Assertion and Reason independently first']
-        : ['Not reading all options before answering — similar options can trap you', 'Confusing related but different concepts (e.g., HCF vs LCM)'],
-      examTip: isAR
-        ? 'Assertion-Reason: evaluate each statement on its own FIRST. Then check whether R is the correct explanation of A. Many students assume (a) without verifying.'
-        : 'MCQ strategy: eliminate 2 obviously wrong options first, then choose between remaining 2. No negative marking — never leave any MCQ blank.',
-      model: 'stub',
-    };
-  }
-
-  const stepTemplates = isMaths ? [
-    { desc: 'Writing the given information', work: 'Given: [extract data from the question]. To find: [what is asked].', m: 0.5 },
-    { desc: 'Stating the formula / theorem', work: 'Using the relevant formula: [formula]. This is a standard NCERT result.', m: 0.5 },
-    { desc: 'Substituting the values and computing', work: 'Substituting the given values into the formula and simplifying step by step.', m: 1 },
-    { desc: 'Solving further / simplifying', work: 'Performing the arithmetic/algebraic computation to reach the result.', m: 1 },
-    { desc: 'Writing the final answer with conclusion', work: 'Therefore, the required answer = [value] [units]. (with proper concluding statement)', m: 0.5 },
-  ] : [
-    { desc: 'Identifying the concept / phenomenon', work: 'This question involves [concept]. Definition: [key term definition from NCERT].', m: 0.5 },
-    { desc: 'Writing the relevant equation / principle', work: 'The relevant equation/principle: [balanced equation with state symbols / scientific law].', m: 1 },
-    { desc: 'Explaining the process / mechanism', work: 'The process works as follows: [step-by-step mechanism as per NCERT].', m: 1 },
-    { desc: 'Stating the observation / conclusion', work: 'Therefore, [observation/conclusion]. This is because [reason linked to concept].', m: 0.5 },
-    { desc: 'Writing the final answer with key terms', work: 'Final answer: [concise answer using NCERT terminology and units where applicable].', m: 0.5 },
-  ];
-
-  let stepsUsed = stepTemplates.slice(0, Math.max(2, Math.min(stepTemplates.length, totalMarks <= 2 ? 3 : totalMarks <= 3 ? 4 : 5)));
-  const rawSum = stepsUsed.reduce((a, s) => a + s.m, 0);
-  const scale = totalMarks / rawSum;
-  const steps = stepsUsed.map((t, i) => {
-    let m = Math.round(t.m * scale * 2) / 2;
-    if (m < 0.5) m = 0.5;
-    return { stepNumber: i + 1, description: t.desc, working: t.work, marks: m };
-  });
-  const actualSum = steps.reduce((a, s) => a + s.marks, 0);
-  if (actualSum !== totalMarks) {
-    const diff = totalMarks - actualSum;
-    const midIdx = Math.floor(steps.length / 2);
-    steps[midIdx].marks = Math.max(0.5, steps[midIdx].marks + diff);
-  }
-
-  return {
-    totalMarks,
-    steps,
-    commonMistakes: isMaths ? [
-      'Not writing the formula before substituting values — loses ½ mark in CBSE marking scheme',
-      'Skipping "Given" and "To Find" — examiner cannot award setup marks',
-      'Missing units or not rejecting invalid values (e.g., negative length)',
-    ] : [
-      'Not writing balanced chemical equations with state symbols (s/l/g/aq) — loses ½ mark',
-      'Using informal language instead of NCERT-standard terminology',
-      'Not labelling diagrams or missing arrows in ray diagrams',
-    ],
-    examTip: isMaths
-      ? (totalMarks <= 2
-        ? 'For 2-mark questions: show formula + substitution + answer. Even partial working earns 1 mark.'
-        : 'CBSE board pattern: Given → Formula → Substitution → Calculation → Final Answer with units. Each step carries marks independently — never skip any.')
-      : (totalMarks <= 2
-        ? 'For 2-mark questions: state the definition/concept, then give the answer with key NCERT terms.'
-        : 'CBSE board pattern: Define → State equation/law → Explain mechanism → Conclude. Use NCERT key terms exactly as written.'),
-    model: 'stub',
-  };
-}
-
-
-/**
- * Read request body as JSON.
- * @param {import('http').IncomingMessage} req
- */
-function readJson(req, maxBytes = 5 * 1024 * 1024) {
-  return new Promise((resolve, reject) => {
-    let body = '';
-    let bytes = 0;
-    req.on('data', (chunk) => {
-      bytes += chunk.length;
-      if (bytes > maxBytes) {
-        req.destroy();
-        reject(new Error('Request body too large'));
-        return;
-      }
-      body += chunk.toString();
-    });
-    req.on('end', () => {
-      try {
-        resolve(JSON.parse(body || '{}'));
-      } catch (e) {
-        reject(e);
-      }
-    });
-  });
-}
 
 function persistTutorFeedback(payload) {
   const helpful = payload?.helpful;
@@ -1062,11 +576,8 @@ function isNoProviderEnabled() {
   return ['1', 'true', 'yes', 'on'].includes(flag);
 }
 
-function isStubMode() {
-  return STUB_MODE || isNoProviderEnabled();
-}
-
 let bsreEvaluatorInstance = null;
+
 function getBsreEvaluator() {
   if (bsreEvaluatorInstance === false) {
     return null;
@@ -2010,6 +1521,15 @@ function normalizeMentorRequest(reqJson) {
  * @param {import('http').IncomingMessage} req
  * @param {import('http').ServerResponse} res
  */
+const {
+  buildStubTutorStructured, buildStubText, buildStubMoreLikeThis,
+  buildFallbackSteps, buildStubStepSolution, isStubMode,
+} = createStubHandlers({
+  STUB_MODE, isObjectiveType, isNoProviderEnabled,
+  buildTutorFallback, loadTrianglesMentorSeed, normalizeLines, mergeLines,
+  getEnsureDiagramFields: () => ensureDiagramFields,
+});
+
 async function handleRequest(req, res) {
   const reqUrlRaw = String(req.url || "");
   const reqPath = reqUrlRaw.split("?")[0];
