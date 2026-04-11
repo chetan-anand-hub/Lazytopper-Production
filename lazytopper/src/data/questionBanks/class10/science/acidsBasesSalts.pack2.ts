@@ -736,7 +736,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "Lower [OH⁻] means lower pOH",
       "Since pH + pOH = 14",
       "Lower pOH → higher pH value? No!",
-      "Actually: pH = 14 - pOH",
+      "Recall: pH = 14 - pOH",
       "As concentration of OH⁻ decreases, pH approaches 7",
       "Solution becomes less basic (but still basic if not over-diluted)"
     ],

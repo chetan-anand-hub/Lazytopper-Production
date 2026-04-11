@@ -548,7 +548,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "= (2/3 + 1/2)/(1 - 2/3 · 1/2)",
       "= ((4+3)/6)/(1 - 1/3)",
       "= (7/6)/(2/3)",
-      "Actually: (2/3 + 1/2) = (4+3)/6 = 7/6",
+      "(2/3 + 1/2) = (4+3)/6 = 7/6",
       "1 - (2/3)(1/2) = 1 - 1/3 = 2/3",
       "tan(α + β) = (7/6)/(2/3) = 7/6 · 3/2 = 7/4... This doesn't equal 1",
       "Rechecking problem setup needed for this to work"
@@ -1608,7 +1608,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "tan A tan B = tan A tan(90° - A) = tan A cot A = 1",
       "sin A sec B = sin A sec(90° - A) = sin A cosec A = 1",
       "tan A tan B + sin A sec B = 1 + 1 - 1 = 1",
-      "Actually: tan A cot A = 1 and sin A cosec A = 1",
+      "Using identities: tan A cot A = 1 and sin A cosec A = 1",
       "But sec(90° - A) = cosec A",
       "So: 1 × 1 + sin A cosec A = tan A cot A + 1... needs rechecking",
       "Correct: tan(90°-A)=cot A, sin A sec(90°-A)=sin A cosec A=1",

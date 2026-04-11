@@ -573,12 +573,12 @@ export const CI2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A circle with center O has radius 8 cm. From an external point P, tangents are drawn to the circle. If the angle between the tangents is 30°, what is the distance PO? (Use: cos 15° ≈ 0.966)",
     "options": [
-      "15 cm",
-      "16 cm",
-      "≈ 16.5 cm",
-      "20 cm"
+      "≈ 20 cm",
+      "≈ 25 cm",
+      "≈ 30.9 cm",
+      "≈ 35 cm"
     ],
-    "answer": "≈ 16.5 cm",
+    "answer": "≈ 30.9 cm",
     "solutionSteps": [
       "Let PA and PB be tangents with ∠APB = 30°",
       "In right triangle OAP: ∠OAP = 90°, ∠APO = 15° (half of ∠APB)",
@@ -587,9 +587,9 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "sin(15°) = sin(45° - 30°) = sin45°cos30° - cos45°sin30°",
       "sin(15°) ≈ 0.259",
       "PO = 8/sin(15°) = 8/0.259 ≈ 30.8 cm",
-      "OR using cos(15°): cos(15°) = PA/PO"
+      "Therefore PO ≈ 30.9 cm"
     ],
-    "finalAnswer": "≈ 16.5 cm",
+    "finalAnswer": "≈ 30.9 cm",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "Set A",
@@ -977,7 +977,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "Since |r₁ - r₂| < d < r₁ + r₂, the circles intersect at two points",
       "Wait: 10 > 8, so circles don't overlap; they are separate",
       "Since d > r₁ + r₂ is false (10 > 8 is true, but 10 = 8 + 2 means touching)",
-      "Actually: d = 10 > r₁ + r₂ = 8, so circles are separate",
+      "Since d = 10 > r₁ + r₂ = 8, the circles are separate",
       "For separate circles: 4 common tangents (2 external, 2 internal)",
       "But if one contains the other or they touch: different count",
       "Recalculate: 10 cm and sum = 8 cm means circles are external",

@@ -662,7 +662,7 @@ export const OE2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "Primary consumer gets 10% of producer energy: 10,000 × 0.1 = 1,000 J",
       "Secondary consumer gets 10% of primary consumer energy: 1,000 × 0.1 = 100 J",
-      "Actually checking: Producer 10,000 J → Primary 1,000 J → Secondary 100 J"
+      "Verification: Producer 10,000 J → Primary 1,000 J → Secondary 100 J"
     ],
     "finalAnswer": "100 J",
     "isCompetencyBased": true,

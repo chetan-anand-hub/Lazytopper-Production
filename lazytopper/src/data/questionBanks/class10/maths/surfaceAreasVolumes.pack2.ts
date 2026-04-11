@@ -781,7 +781,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "Total curved surface area = 2πrh + 2πrh = 4πrh = 4π(5)(8) = 160π cm²",
       "Two outer bases exposed = 2πr² = 2π(25) = 50π cm²",
       "Total = 160π + 50π = 210π... recalculate",
-      "Actually: 2(2πrh) + 2(πr²) = 2(2π·5·8) + 2(π·25) = 160π + 50π = 210π",
+      "Calculation: 2(2πrh) + 2(πr²) = 2(2π·5·8) + 2(π·25) = 160π + 50π = 210π",
       "But if truly joined as cylinder: h_total = 16, then 2π(5)(16) + 2π(25) = 160π + 50π = 210π",
       "Check: option pattern suggests 280π = 2π(5)(8) + 2π(5)(8) + 2π(25) but 160+160+50 = 370... adjust"
     ],

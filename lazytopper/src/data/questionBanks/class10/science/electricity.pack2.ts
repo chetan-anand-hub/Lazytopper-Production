@@ -595,7 +595,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "(a) Total power = (5×10) + (2×60) + 200 + 500",
       "= 50 + 120 + 200 + 500 = 870 W",
-      "Actually recalculating: 50 + 120 + 200 + 500 = 870 W",
+      "Total power: 50 + 120 + 200 + 500 = 870 W",
       "(b) Daily usage: 870 W × 8 hours = 6960 Wh = 6.96 kWh",
       "In 24 hours (if running 8 hrs): 6.96 kWh",
       "(c) Monthly consumption: 6.96 × 30 = 208.8 kWh",

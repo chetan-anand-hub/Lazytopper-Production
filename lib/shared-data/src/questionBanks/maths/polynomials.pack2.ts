@@ -1089,7 +1089,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "p(1/2) = 2(1/8) - 1/4 - 1/2 + 2",
       "= 1/4 - 1/4 - 1/2 + 2 = 3/2 ≠ 0",
-      "Actually: 2(1/8) - (1/4) - (1/2) + 2 = 1/4 - 1/4 - 2/4 + 8/4 = 6/4 ≠ 0"
+      "Verification: 2(1/8) - (1/4) - (1/2) + 2 = 1/4 - 1/4 - 2/4 + 8/4 = 6/4 ≠ 0"
     ],
     "finalAnswer": "No, x = 1/2 is not a zero",
     "isCompetencyBased": true,

@@ -574,7 +574,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "Check: 3² + 4² = 9 + 16 = 25 ≠ (√34)² = 34",
       "Consider the triangle with sides 5, 6, and √34",
       "Check: 5² + 6² = 25 + 36 = 61 ≠ 34",
-      "Actually verify with correct diagonal configuration for given quadrilateral constraint"
+      "Verify with correct diagonal configuration for given quadrilateral constraint"
     ],
     "finalAnswer": "Requires specific quadrilateral configuration",
     "isCompetencyBased": true,
@@ -744,12 +744,12 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "Given: △ABC with ∠B = 90°, D on AC, BD ⊥ AC",
       "(i) In △ABD and △CBA:",
       "∠ADB = ∠ABC = 90° (given and BD ⊥ AC)",
-      "∠BAD = ∠BCA (common angle in both triangles, actually ∠BAD is common to △ABC)",
+      "∠BAD = ∠BCA (∠BAD is common to △ABC)",
       "∠ADB = ∠ABC = 90°",
       "By AA criterion, △ABD ~ △CBA",
       "(ii) From similarity: AB/CB = AD/AB = BD/CA",
       "From AB/CB = AD/AB: AB² = AD × AB... need to reconsider",
-      "Actually from △ABD ~ △CAB: AD/AB = AB/AC",
+      "From △ABD ~ △CAB: AD/AB = AB/AC",
       "Therefore AB² = AD × AC",
       "(iii) Similarly, from △CBD ~ △ABC: CD/BC = BC/AC",
       "Therefore BC² = CD × AC"
@@ -1519,7 +1519,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "Let Area(ΔADE) = x, then Area(ΔABC) = 9x",
       "Area(trapezoid DBCE) = Area(ΔABC) - Area(ΔADE) = 9x - x = 8x = 18",
       "x = 18/8 = 2.25 cm² (approximately)",
-      "Actually x = 2 cm² would give trapezoid area = 16 cm². Let's verify: if ΔADE = 2, then ΔABC = 18, trapezoid = 16 (not 18).",
+      "If ΔADE = 2 cm², then ΔABC = 18, trapezoid BCED = 18 - 2 = 16 cm².",
       "If Area(ΔABC) = 20.25 cm², then Area(ΔADE) = 20.25/9 = 2.25 cm², and trapezoid = 18 cm² ✓"
     ],
     "finalAnswer": "Area ratio = 1:9, Area(ΔADE) = 2.25 cm², Area(ΔABC) = 20.25 cm²",

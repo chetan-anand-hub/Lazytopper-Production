@@ -749,7 +749,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     "ncertRef": "NCERT Ch6 InText"
   },
   {
-    "id": "LP2-026",
+    "id": "LP2-054",
     "subject": "Science",
     "topicKey": "Life Processes",
     "subtopic": "Nutrition",
