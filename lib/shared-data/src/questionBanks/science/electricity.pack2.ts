@@ -69,7 +69,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "What is conventional current direction? How does it differ from electron flow?",
     "options": [],
-    "answer": "Conventional current flows from positive to negative terminal. Electron flow is from negative to positive terminal (opposite direction).",
+    "answer": "Conventional current: + to -; Electron flow: - to +",
     "solutionSteps": [
       "Conventional current is defined as flow from + to - terminal",
       "Electrons actually move from - to + terminal",
@@ -122,7 +122,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A conductor has a resistance of 5 Ω and a current of 2 A flows through it. Calculate the potential difference across the conductor.",
     "options": [],
-    "answer": "V = 10 V",
+    "answer": "10 V",
     "solutionSteps": [
       "Given: R = 5 Ω, I = 2 A",
       "Using Ohm's Law: V = I × R",
@@ -177,7 +177,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A wire of length 2 m and cross-sectional area 1 mm² has resistivity 1.7 × 10⁻⁸ Ω·m. Calculate its resistance.",
     "options": [],
-    "answer": "R = 0.034 Ω",
+    "answer": "0.034 Ω",
     "solutionSteps": [
       "Given: L = 2 m, A = 1 mm² = 1 × 10⁻⁶ m², ρ = 1.7 × 10⁻⁸ Ω·m",
       "R = ρL/A",
@@ -258,7 +258,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "Three resistors of 6 Ω each are connected first in series, then in parallel. Compare the total resistances.",
     "options": [],
-    "answer": "Series: 18 Ω; Parallel: 2 Ω",
+    "answer": "Series: 18 Ω; Parallel: 2 Ω; Ratio = 9:1",
     "solutionSteps": [
       "Series: R_s = 6 + 6 + 6 = 18 Ω",
       "Parallel: 1/R_p = 1/6 + 1/6 + 1/6 = 3/6",
@@ -313,7 +313,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "An electric heater draws 5 A current at 220 V for 2 hours. Calculate the heat produced (in kJ).",
     "options": [],
-    "answer": "H = 7920 kJ",
+    "answer": "7920 kJ",
     "solutionSteps": [
       "Given: I = 5 A, V = 220 V, t = 2 hours = 7200 s",
       "H = VIt = 220 × 5 × 7200",
@@ -419,7 +419,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Two bulbs rated 60 W and 40 W are connected in parallel to a 220 V supply. Which bulb is brighter and why?",
     "options": [],
-    "answer": "60 W bulb is brighter because it has higher power rating.",
+    "answer": "60 W bulb is brighter (higher power rating)",
     "solutionSteps": [
       "In parallel, both bulbs get same voltage (220 V)",
       "Power = V²/R, so R for 60W bulb = (220)²/60 ≈ 807 Ω",
@@ -534,7 +534,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A kitchen has three electrical appliances: An electric kettle (1000 W), a toaster (800 W), and a microwave (900 W). All are connected to a 220 V supply.\n(a) Calculate the current drawn by each appliance.\n(b) If a fuse rated 20 A is installed and all three appliances are switched on simultaneously, will the fuse blow? Why?",
     "options": [],
-    "answer": "(a) Kettle: 4.55 A; Toaster: 3.64 A; Microwave: 4.09 A (b) Yes, fuse will blow (total current ≈ 12.3 A < 20 A, so it won't blow in this case)",
+    "answer": "(a) Kettle: 4.55 A, Toaster: 3.64 A, Microwave: 4.09 A (b) Fuse won't blow (Total current 12.28 A < 20 A)",
     "solutionSteps": [
       "(a) Using I = P/V:",
       "Kettle: I = 1000/220 ≈ 4.55 A",
@@ -562,7 +562,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "A student sets up a circuit with a 6V battery and three resistors: R₁ = 2 Ω, R₂ = 3 Ω, R₃ = 6 Ω. First, all resistors are connected in series, then in parallel.\n(a) Calculate total resistance and current in series circuit.\n(b) Calculate total resistance and total current in parallel circuit.\n(c) In which configuration is the power dissipated greater?",
     "options": [],
-    "answer": "Series: R=11Ω, I=0.545A; Parallel: R≈1.09Ω, I≈5.5A; Power greater in parallel",
+    "answer": "Series: R=11Ω, I=0.545A, P=3.27W; Parallel: R=1Ω, I=5.5A, P=33W; Power greater in parallel",
     "solutionSteps": [
       "(a) Series: R_total = 2 + 3 + 6 = 11 Ω",
       "I = V/R = 6/11 ≈ 0.545 A",
@@ -591,7 +591,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "A household has the following electrical appliances: 5 LED bulbs (10 W each), 2 fans (60 W each), 1 refrigerator (200 W), and 1 washing machine (500 W). The electricity tariff is Rs. 5 per kWh. Calculate: (a) Total power consumed when all appliances are on. (b) Total energy consumed in 24 hours. (c) Electricity bill for one month (30 days) if appliances run for 8 hours daily. (d) Suggest ways to reduce electricity consumption.",
     "options": [],
-    "answer": "Total power: 970W; Energy: 7.76 kWh/day; Bill: Rs. 1164",
+    "answer": "(a) 870 W (b) 6.96 kWh/day (c) Rs. 1044/month (d) Use LED bulbs, efficient appliances, reduce usage hours",
     "solutionSteps": [
       "(a) Total power = (5×10) + (2×60) + 200 + 500",
       "= 50 + 120 + 200 + 500 = 870 W",
@@ -625,7 +625,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "A student measures voltage across a resistor as 12 V and current as 3 A. Another resistor gives 12 V at 6 A. Which resistor obeys Ohm's Law? Explain why the other might not.",
     "options": [],
-    "answer": "First resistor (R=4Ω) obeys Ohm's Law. Second resistor behaves as non-ohmic.",
+    "answer": "First resistor obeys Ohm's Law; Second is non-ohmic (resistance varies)",
     "solutionSteps": [
       "First resistor: R = V/I = 12/3 = 4 Ω (constant resistance)",
       "Second resistor: R = V/I = 12/6 = 2 Ω (different resistance)",
@@ -650,7 +650,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "Two wires made of same material have the same length but different cross-sectional areas. They carry the same current. Which wire will get hotter faster and why?",
     "options": [],
-    "answer": "Thinner wire (smaller cross-section) gets hotter faster.",
+    "answer": "Thinner wire gets hotter (higher resistance, less mass)",
     "solutionSteps": [
       "Heat produced: H = I²Rt",
       "Resistance R = ρL/A (same L, same material)",
@@ -676,7 +676,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Explain why household appliances are connected in parallel rather than in series. Give two specific advantages.",
     "options": [],
-    "answer": "Parallel allows independent operation and ensures same voltage across all appliances.",
+    "answer": "Parallel allows independent operation and maintains full voltage; Series has shared voltage and affects all if one fails",
     "solutionSteps": [
       "Advantage 1: Each appliance operates independently",
       "In series: if one fails, entire circuit breaks",
@@ -764,7 +764,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "Define electric current and state its relationship with charge and time.",
     "options": [],
-    "answer": "Electric current is the rate of flow of electric charge through a conductor. I = Q/t, where I is current (A), Q is charge (C), and t is time (s).",
+    "answer": "I = Q/t (Current = Charge/Time)",
     "solutionSteps": [
       "Current measures how much charge passes through a cross-section per unit time",
       "Formula: I = Q/t",
@@ -911,7 +911,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "A wire of length 2 m and cross-sectional area 1 mm² has a resistance of 4 Ω. What is its resistivity?",
     "options": [],
-    "answer": "2 × 10⁻³ Ω·m",
+    "answer": "2 × 10⁻⁶ Ω·m",
     "solutionSteps": [
       "Using formula: R = ρL/A",
       "Rearranging: ρ = RA/L",
@@ -1058,7 +1058,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "Compare the advantages of series and parallel connections with respect to household electrical appliances. Why are household appliances connected in parallel?",
     "options": [],
-    "answer": "Household appliances are connected in parallel because: (1) Each device operates at the same voltage (230V); (2) Each device can be switched on/off independently; (3) Failure of one device doesn't affect others; (4) Each device receives maximum power.",
+    "answer": "Parallel connection ensures each appliance operates at constant voltage, independent control, and safety.",
     "solutionSteps": [
       "In series: Same current through all, devices share voltage, one failure stops all",
       "In parallel: Same voltage across all, independent operation, any device failure isolated",
@@ -1144,7 +1144,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "Why does an electric bulb filament glow but the connecting wires do not, even though current flows through both?",
     "options": [],
-    "answer": "The filament has much higher resistance than the connecting wires. Since heat produced (H = I²Rt) is proportional to resistance, the filament produces much more heat than wires for the same current, causing it to glow.",
+    "answer": "Filament has higher resistance, producing more heat (H = I²Rt), reaching glow temperature.",
     "solutionSteps": [
       "Connecting wires have very low resistance (usually < 1 Ω)",
       "Filament has high resistance (typically 50-100 Ω)",
@@ -1262,7 +1262,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A device rated 60 W operates at 120 V. What is the resistance of the device and the current drawn by it?",
     "options": [],
-    "answer": "Current = 0.5 A, Resistance = 240 Ω",
+    "answer": "I = 0.5 A, R = 240 Ω",
     "solutionSteps": [
       "Using P = VI",
       "60 = 120 × I",
@@ -1352,7 +1352,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A household has three appliances: (i) A bulb rated 40 W, 230 V (ii) A heater rated 1000 W, 230 V (iii) A fan rated 60 W, 230 V. All appliances are connected in parallel to a 230 V supply.\n\nAnswer the following:\n(a) Calculate the current drawn by each appliance.\n(b) What is the total current drawn by all three appliances?\n(c) If a 5A fuse is used, can all three appliances operate simultaneously?",
     "options": [],
-    "answer": "(a) Bulb: 0.174 A, Heater: 4.35 A, Fan: 0.26 A (b) 4.78 A (c) Yes, since total current (4.78 A) is less than fuse rating (5 A)",
+    "answer": "(a) Bulb: 0.174 A, Heater: 4.35 A, Fan: 0.26 A; (b) 4.78 A; (c) Yes, all can operate safely",
     "solutionSteps": [
       "Part (a): Using P = VI, I = P/V",
       "Bulb: I = 40/230 = 0.174 A",
@@ -1379,7 +1379,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "Explain Joule's Law of heating. Derive the expression H = I²Rt. Discuss the practical applications of Joule heating effect in everyday life. Why is copper preferred over nichrome for household wiring despite both being good conductors?",
     "options": [],
-    "answer": "Joule's Law: Heat produced in a conductor is directly proportional to square of current, resistance, and time. H = I²Rt. Applications: Electric heaters, bulbs, fuses, toasters. Copper is preferred because: lower resistivity (less heat loss), better conductor, cost-effective, doesn't oxidize easily.",
+    "answer": "H = I²Rt. Copper is preferred for wiring due to low resistivity, resulting in minimal heat loss and voltage drop, making it more efficient and economical than nichrome.",
     "solutionSteps": [
       "Joule's Law states: H = I²Rt (Heat is proportional to I², R, and t)",
       "Derivation: Power P = VI = I²R (from V=IR), Energy H = P×t = I²Rt",
@@ -1414,7 +1414,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "Compare series and parallel circuits comprehensively. Include: (i) Formulas for equivalent resistance in both cases (ii) Distribution of voltage and current in both cases (iii) Advantages and disadvantages (iv) Real-world applications (v) Why household circuits use parallel connection.",
     "options": [],
-    "answer": "Series: R_eq = R₁+R₂+..., same current, voltage divides. Parallel: 1/R_eq = 1/R₁ + 1/R₂+..., same voltage, current divides. Parallel used in homes for independent control and safety.",
+    "answer": "Parallel is preferred for household use as it provides independent control, constant voltage, safety, and prevents total circuit failure.",
     "solutionSteps": [
       "SERIES CONNECTION:",
       "- Equivalent resistance: R_eq = R₁ + R₂ + R₃ + ...",

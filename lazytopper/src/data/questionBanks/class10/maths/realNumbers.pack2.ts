@@ -179,7 +179,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Find HCF(117, 65) and express it in the form 117x + 65y.",
     "options": [],
-    "answer": "HCF = 1; 117(4) + 65(-7) = 1",
+    "answer": "HCF = 13",
     "solutionSteps": [
       "117 = 65 × 1 + 52",
       "65 = 52 × 1 + 13",
@@ -289,7 +289,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Prove that √5 is irrational.",
     "options": [],
-    "answer": "Proof by contradiction established",
+    "answer": "√5 is irrational",
     "solutionSteps": [
       "Assume √5 is rational = p/q (in lowest terms, gcd(p,q) = 1)",
       "Then 5 = p²/q², so p² = 5q²",
@@ -347,7 +347,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Prove that 3 + 2√5 is irrational.",
     "options": [],
-    "answer": "Proof by contradiction established",
+    "answer": "3 + 2√5 is irrational",
     "solutionSteps": [
       "Assume 3 + 2√5 is rational = r",
       "Then 2√5 = r - 3",
@@ -553,7 +553,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "Show that 2 - √3 is irrational.",
     "options": [],
-    "answer": "Proof by contradiction established",
+    "answer": "2 - √3 is irrational",
     "solutionSteps": [
       "Assume 2 - √3 is rational = r",
       "Then √3 = 2 - r",
@@ -1243,7 +1243,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "Express 35/2⁴×5² in the form of decimal expansion and verify it has terminating decimal.",
     "options": [],
-    "answer": "0.35",
+    "answer": "0.0875",
     "solutionSteps": [
       "35/(2⁴ × 5²) = 35/(16 × 25) = 35/400",
       "Denominator = 2⁴ × 5² has only prime factors 2 and 5",

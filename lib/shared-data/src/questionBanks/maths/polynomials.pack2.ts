@@ -180,7 +180,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Find the zeroes of the polynomial p(x) = x² - 2x - 8 and verify the relationship between zeroes and coefficients.",
     "options": [],
-    "answer": "Zeroes are 4 and -2; Sum = 2 = -(-2)/1; Product = -8 = -8/1",
+    "answer": "Zeroes are 4 and -2",
     "solutionSteps": [
       "Factorize: x² - 2x - 8 = (x-4)(x+2)",
       "Zeroes: x = 4, x = -2",
@@ -254,7 +254,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "Check whether x = -1 is a zero of the polynomial p(x) = x³ - 5x² + 7x - 3.",
     "options": [],
-    "answer": "Yes, x = -1 is a zero since p(-1) = 0",
+    "answer": "No, x = -1 is not a zero",
     "solutionSteps": [
       "p(-1) = (-1)³ - 5(-1)² + 7(-1) - 3",
       "= -1 - 5 - 7 - 3 = -16 ≠ 0",
@@ -460,7 +460,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "If α, β, γ are zeroes of p(x) = x³ - 3x² + x + 1, find α + β + γ, αβ + βγ + γα, and αβγ.",
     "options": [],
-    "answer": "α + β + γ = 3, αβ + βγ + γα = 1, αβγ = -1",
+    "answer": "Sum = 3, Sum of pairs = 1, Product = -1",
     "solutionSteps": [
       "For cubic x³ + ax² + bx + c:",
       "Sum of zeroes = -a = -(-3) = 3",
@@ -652,12 +652,11 @@ export const PL2_PACK2: CanonicalQuestion[] = [
       "A is true, R is false.",
       "A is false, R is true."
     ],
-    "answer": "Both A and R are true, and R is the correct explanation of A.",
+    "answer": "A is false, R is true.",
     "solutionSteps": [
       "Product of zeroes = 2(2k - 1)/1 = -1",
       "4k - 2 = -1",
-      "4k = 1, k = 1/4",
-      "Actually A is false since k ≠ -3, but let me recalculate: 2(2k-1) = -1 → 4k - 2 = -1 → k = 1/4"
+      "4k = 1, k = 1/4"
     ],
     "finalAnswer": "A is false, R is true.",
     "isCompetencyBased": true,
@@ -706,7 +705,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A gardener wants to plant flowers in a rectangular garden. The area of the garden is represented by the polynomial A(x) = x² + 5x + 6 square meters, where x is a variable. (i) Find the zeroes of A(x). (ii) If x represents the width, what do the zeroes represent in this context? (iii) For what values of x is the area positive?",
     "options": [],
-    "answer": "(i) -2, -3 (ii) Not meaningful as width (iii) x > -2",
+    "answer": "Zeroes: -2, -3; Area positive for x > 0",
     "solutionSteps": [
       "(i) A(x) = x² + 5x + 6 = (x+2)(x+3), zeroes are -2 and -3",
       "(ii) Zeroes represent values where area = 0, not meaningful for physical width",
@@ -730,7 +729,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A cricket ball's height h(t) above ground after t seconds is given by h(t) = -16t² + 64t. (i) Find the zeroes of h(t). (ii) What do these zeroes represent physically? (iii) Find the sum and product of zeroes without finding individual zeroes.",
     "options": [],
-    "answer": "(i) t = 0, 4 (ii) Time when ball is at ground level (iii) Sum = 4, Product = 0",
+    "answer": "Zeroes: 0, 4; Sum = 4; Product = 0",
     "solutionSteps": [
       "(i) h(t) = -16t(t - 4) = 0, so t = 0 or t = 4",
       "(ii) t = 0: initial time, t = 4: ball returns to ground",
@@ -754,7 +753,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "A company's profit function is P(x) = x³ - 6x² + 11x - 6, where x is the number of units sold (in hundreds). (i) Show that x - 1, x - 2, and x - 3 are factors. (ii) Find the profit when x = 1, 2, 3. (iii) Write P(x) in factored form using the division algorithm.",
     "options": [],
-    "answer": "(i) P(1)=0, P(2)=0, P(3)=0 (ii) Profit = 0 (iii) P(x) = (x-1)(x-2)(x-3)",
+    "answer": "P(x) = (x-1)(x-2)(x-3); Profit = 0 at break-even points",
     "solutionSteps": [
       "(i) P(1) = 1 - 6 + 11 - 6 = 0, P(2) = 8 - 24 + 22 - 6 = 0, P(3) = 27 - 54 + 33 - 6 = 0",
       "(ii) Profit at x = 1, 2, 3 is 0 (break-even points)",
@@ -883,7 +882,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "If α and β are zeroes of 3x² - 12x + 9, find α² + β² without finding α and β individually.",
     "options": [],
-    "answer": "α² + β² = 12",
+    "answer": "α² + β² = 10",
     "solutionSteps": [
       "α + β = 12/3 = 4, αβ = 9/3 = 3",
       "α² + β² = (α + β)² - 2αβ = 16 - 6 = 10"
@@ -984,7 +983,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "If α and β are zeroes of p(x) = x² - 5x + 6, form a new polynomial whose zeroes are 2α + β and α + 2β.",
     "options": [],
-    "answer": "x² - 15x + 54",
+    "answer": "x² - 15x + 56",
     "solutionSteps": [
       "p(x) = x² - 5x + 6 = (x-2)(x-3), so α = 2, β = 3",
       "New zeroes: 2α + β = 4 + 3 = 7 and α + 2β = 2 + 6 = 8",
@@ -1034,7 +1033,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "If α, β, γ are zeroes of p(x) = x³ + 3x² - x - 3, find: (i) α + β + γ, (ii) αβ + βγ + γα, (iii) αβγ, (iv) Factor p(x) completely.",
     "options": [],
-    "answer": "(i) -3 (ii) -1 (iii) 3 (iv) (x+3)(x+1)(x-1)",
+    "answer": "Sum=-3, Sum of products=-1, Product=3, p(x)=(x+3)(x+1)(x-1)",
     "solutionSteps": [
       "For x³ + 3x² - x - 3:",
       "(i) Sum = -3",
@@ -1086,7 +1085,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Check whether x = 1/2 is a zero of 2x³ - x² - x + 2.",
     "options": [],
-    "answer": "Yes, x = 1/2 is a zero",
+    "answer": "No, x = 1/2 is not a zero",
     "solutionSteps": [
       "p(1/2) = 2(1/8) - 1/4 - 1/2 + 2",
       "= 1/4 - 1/4 - 1/2 + 2 = 3/2 ≠ 0",

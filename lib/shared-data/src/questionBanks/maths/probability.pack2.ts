@@ -502,7 +502,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A school is organizing a raffle draw where 100 tickets are sold. There are 5 winning tickets. Ramesh buys 2 tickets. (i) What is the probability that neither of Ramesh's tickets wins? (ii) What is the probability that at least one ticket wins?",
     "options": [],
-    "answer": "(i) 95/99 × 94/98 ≈ 0.905 (ii) ≈ 0.095",
+    "answer": "(i) ≈ 0.905 (ii) ≈ 0.095",
     "solutionSteps": [
       "Total tickets = 100, Winning = 5",
       "(i) P(1st not winning) = 95/100",
@@ -529,7 +529,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "A school has 200 students: 120 boys and 80 girls. A student is selected randomly. (i) Find the probability of selecting a boy. (ii) Find the probability of selecting a girl. (iii) If another student is selected after the first one, what is the probability that both are boys?",
     "options": [],
-    "answer": "(i) 3/5 (ii) 2/5 (iii) 2856/9900 ≈ 0.288",
+    "answer": "(i) 3/5 (ii) 2/5 (iii) ≈ 0.358",
     "solutionSteps": [
       "Total students = 200, Boys = 120, Girls = 80",
       "(i) P(boy) = 120/200 = 3/5",
@@ -556,7 +556,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "A bag contains cards numbered from 1 to 50. (i) Find the probability of drawing a prime number. (ii) Find the probability of drawing a perfect square. (iii) Find the probability of drawing a number that is either prime or perfect square. (iv) Find the probability of drawing a number that is neither prime nor perfect square.",
     "options": [],
-    "answer": "(i) 3/10 (ii) 7/50 (iii) 19/50 (iv) 31/50",
+    "answer": "(i) 3/10 (ii) 7/50 (iii) 11/25 (iv) 14/25",
     "solutionSteps": [
       "Total cards = 50",
       "(i) Primes (1-50): {2,3,5,7,11,13,17,19,23,29,31,37,41,43,47} = 15",
@@ -1147,7 +1147,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A school organized a lottery for its 100 students where 25 tickets are marked as winning tickets. Answer the following:\n(i) What is the probability that a student draws a winning ticket?\n(ii) What is the probability that a student draws a losing ticket?\n(iii) If 10 winning and 15 losing tickets have already been drawn, what is the probability for the next student?\n(iv) Verify that the sum of probabilities in (i) and (ii) equals 1.",
     "options": [],
-    "answer": "See solution steps",
+    "answer": "(i) 1/4, (ii) 3/4, (iii) 1/5 or 4/5, (iv) Sum = 1",
     "solutionSteps": [
       "(i) Total tickets = 100, Winning = 25",
       "P(winning) = 25/100 = 1/4",
@@ -1177,7 +1177,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "A bag contains cards numbered from 1 to 20. If a card is drawn at random, find: (i) The probability of drawing a card with a number divisible by 2 or 3. (ii) The probability of drawing a card with a number NOT divisible by 2 or 3. (iii) Verify your answers using complementary events.",
     "options": [],
-    "answer": "See solution steps",
+    "answer": "(i) 13/20, (ii) 7/20, (iii) Sum = 1, verified ✓",
     "solutionSteps": [
       "Total cards = 20 (numbered 1 to 20)",
       "(i) Numbers divisible by 2: {2, 4, 6, 8, 10, 12, 14, 16, 18, 20} = 10",
@@ -1209,7 +1209,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "In a deck of 52 playing cards: (i) Find the probability of drawing a face card (Jack, Queen, or King). (ii) Find the probability of NOT drawing a face card. (iii) If 6 face cards have already been drawn, what is the probability that the next card drawn is a face card? (iv) Discuss how the probability changes as cards are drawn.",
     "options": [],
-    "answer": "See solution steps",
+    "answer": "(i) 3/13, (ii) 10/13, (iii) 3/23, (iv) Probability changes with card removal",
     "solutionSteps": [
       "Total cards in deck = 52",
       "(i) Face cards: 4 suits × 3 cards = 12",

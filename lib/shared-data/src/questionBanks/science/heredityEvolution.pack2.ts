@@ -126,7 +126,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A tall pea plant (TT) is crossed with a dwarf pea plant (tt). What will be the genotype and phenotype of F1 generation?",
     "options": [],
-    "answer": "Genotype: Tt (all heterozygous); Phenotype: All tall plants",
+    "answer": "F1 Genotype: Tt; F1 Phenotype: All tall plants",
     "solutionSteps": [
       "Cross: TT × tt",
       "All F1 offspring receive T from tall parent and t from dwarf parent",
@@ -151,7 +151,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "Distinguish between dominant and recessive traits with examples.",
     "options": [],
-    "answer": "Dominant traits appear in heterozygotes; Recessive traits need homozygous recessive condition",
+    "answer": "Dominant traits mask recessive traits; recessive only show when homozygous",
     "solutionSteps": [
       "Dominant trait: Expressed in both homozygous and heterozygous individuals",
       "Example: Tall pea plants (TT and Tt)",
@@ -204,7 +204,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A color-blind woman marries a normal man. What will be the phenotype of their sons and daughters?",
     "options": [],
-    "answer": "All sons color-blind; All daughters normal/carriers",
+    "answer": "Sons: 100% color-blind; Daughters: 100% normal (carriers)",
     "solutionSteps": [
       "Color-blindness: X-linked recessive trait",
       "Woman: XᶜXᶜ (color-blind), Man: XᴺY (normal)",
@@ -286,7 +286,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "What are homologous structures? Give one example.",
     "options": [],
-    "answer": "Structures with same basic plan but different functions in different organisms",
+    "answer": "Similar structures with different functions indicating common ancestry. Example: Arm, wing, flipper",
     "solutionSteps": [
       "Homologous structures: Similar in structure, origin, and embryological development",
       "Different functions due to adaptation to different environments",
@@ -339,7 +339,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Explain why antibiotic-resistant bacteria develop faster in hospitals.",
     "options": [],
-    "answer": "Natural selection favors resistant bacteria; antibiotics eliminate non-resistant bacteria",
+    "answer": "Antibiotics create selection pressure; resistant bacteria survive and reproduce",
     "solutionSteps": [
       "Bacteria with resistance genes survive antibiotic treatment",
       "Non-resistant bacteria are killed by antibiotics",
@@ -364,7 +364,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "In a dihybrid cross between AaBb × AaBb, what is the probability of getting aabb offspring?",
     "options": [],
-    "answer": "1/16",
+    "answer": "1/16 or 6.25%",
     "solutionSteps": [
       "For dihybrid cross: AaBb × AaBb",
       "Probability of aa = 1/4",
@@ -389,7 +389,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Why is the probability of having a male or female child approximately 50% in humans?",
     "options": [],
-    "answer": "50% sperm carry X chromosome, 50% carry Y chromosome",
+    "answer": "Equal distribution of X and Y sperm gives 50:50 probability",
     "solutionSteps": [
       "Male: XY produces two types of sperm - X and Y in equal proportion",
       "Female: XX produces only X eggs",
@@ -415,7 +415,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "How do analogous structures differ from homologous structures? Explain with examples.",
     "options": [],
-    "answer": "Homologous: same origin, different function; Analogous: different origin, similar function",
+    "answer": "Homologous=similar origin/different function; Analogous=different origin/similar function",
     "solutionSteps": [
       "Homologous structures: Similar origin and embryology, different functions",
       "Examples: Bat wing, human arm, whale flipper (all vertebrate limbs)",
@@ -472,7 +472,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A farmer observed that after using a particular pesticide for several years, it became less effective. Initially, the pesticide killed 99% of insects, but after 5 years, it killed only 10% of the insect population.\n\nQuestion 1: Why did the pesticide become less effective over time?\nQuestion 2: Name the evolutionary mechanism responsible for this change.\nQuestion 3: How can the farmer overcome this problem?",
     "options": [],
-    "answer": "1) Natural selection favored resistant insects; 2) Natural selection; 3) Rotate pesticides or use multiple pesticides",
+    "answer": "1) Resistant insects survived and reproduced; 2) Natural Selection; 3) Rotate pesticides",
     "solutionSteps": [
       "Question 1: Insects with resistance genes survived pesticide exposure and reproduced",
       "Non-resistant insects were eliminated; resistant population increased over generations",
@@ -528,7 +528,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "What are fossils? How do they provide evidence for evolution?",
     "options": [],
-    "answer": "Preserved remains of extinct organisms; show gradual change over time",
+    "answer": "Fossils are preserved ancient remains showing gradual evolutionary changes",
     "solutionSteps": [
       "Fossils are preserved remains, impressions, or traces of ancient organisms",
       "Show transitional forms between different species",
@@ -583,7 +583,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "Explain how reproductive isolation leads to speciation. Give an example.",
     "options": [],
-    "answer": "Prevents gene flow between populations; accumulated genetic differences create new species",
+    "answer": "Reproductive isolation prevents gene flow; accumulated mutations → new species",
     "solutionSteps": [
       "Reproductive isolation: Populations cannot interbreed",
       "Types: Geographical, behavioral, temporal, genetic isolation",
@@ -610,7 +610,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "A couple has three children: two boys and one girl. They want to know the probability of their next child being a boy. The woman says, 'Since we have had two boys, the next child is more likely to be a girl to balance the ratio.' The man says, 'Each child has an equal 50% chance of being a boy or girl, regardless of previous children.'\n\nQuestion 1: Who is correct and why?\nQuestion 2: What is the probability of their next child being a boy?\nQuestion 3: Why does human sex determination work this way?",
     "options": [],
-    "answer": "Man is correct; 50%; Independent events in sex determination",
+    "answer": "Man is correct; 50% probability; Independent events due to equal X and Y sperm",
     "solutionSteps": [
       "Question 1: Man is correct. Each pregnancy is an independent event",
       "Past results do not affect future probability (gambler's fallacy)",
@@ -636,7 +636,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "Explain the theory of natural selection with reference to Darwin's observations during his voyage on HMS Beagle. How is it different from Lamarck's theory of evolution? What are the limitations of natural selection in explaining evolution?",
     "options": [],
-    "answer": "Darwin's observations + natural selection mechanism; Different from Lamarck; Limitations discussed",
+    "answer": "Darwin observed variation, adaptation, and competition. Natural selection preserves beneficial traits. Differs from Lamarck's inheritance of acquired traits. Limitations: doesn't explain all evolutionary mechanisms",
     "solutionSteps": [
       "Darwin's observations:",
       "- Visited Galápagos Islands and observed finch variations",
@@ -795,7 +795,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "State Mendel's Law of Segregation. Explain how it is demonstrated in a monohybrid cross.",
     "options": [],
-    "answer": "Law states: alleles segregate during gamete formation; each gamete receives one allele. In monohybrid cross (Tt × Tt), F₂ shows 3:1 phenotypic ratio because TT, Tt get dominant trait; tt gets recessive trait.",
+    "answer": "Alleles segregate during gamete formation producing 3:1 ratio in F₂",
     "solutionSteps": [
       "Segregation Law: Allele pairs separate during meiosis",
       "Each gamete carries only one allele for a trait",
@@ -881,7 +881,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A sex-linked trait is controlled by a recessive allele on X chromosome. Write the genotypes of affected and unaffected individuals in males and females.",
     "options": [],
-    "answer": "Males - Affected: X^a Y, Unaffected: X^A Y. Females - Affected: X^a X^a, Unaffected: X^A X^A or X^A X^a (carrier)",
+    "answer": "Males: X^a Y affected, X^A Y unaffected. Females: X^a X^a affected, X^A X^A or X^A X^a unaffected",
     "solutionSteps": [
       "Sex-linked traits are on X chromosome",
       "Males (XY): one allele shows phenotype - X^A Y normal, X^a Y affected",
@@ -967,7 +967,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "What do fossils tell us about evolution? Explain with one example.",
     "options": [],
-    "answer": "Fossils show intermediate forms proving gradual evolution. Example: Horse fossils show gradual change from small, multi-toed ancestors to large, single-hoofed modern horses. They provide direct evidence of evolutionary changes over millions of years.",
+    "answer": "Fossils show transitional forms and gradual evolutionary change over time",
     "solutionSteps": [
       "Fossils are preserved remains of extinct organisms",
       "Show organisms that existed in past",
@@ -1084,7 +1084,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "How does geographic isolation contribute to speciation? Explain the concept of reproductive isolation.",
     "options": [],
-    "answer": "Geographic isolation prevents gene flow between populations. Separated populations accumulate different mutations and adapt to different environments, developing reproductive isolation. Over time, they become genetically incompatible and form separate species.",
+    "answer": "Geographic isolation causes reproductive isolation leading to speciation",
     "solutionSteps": [
       "Geographic isolation: populations separated by physical barriers",
       "No gene flow between isolated populations",
@@ -1116,13 +1116,12 @@ export const HE2_PACK2: CanonicalQuestion[] = [
       "50%",
       "75%"
     ],
-    "answer": "0%",
+    "answer": "25%",
     "solutionSteps": [
       "Cross: X^A X^a × X^A Y",
       "Possible offspring: X^A X^A (normal daughter), X^A X^a (carrier daughter), X^A Y (normal son), X^a Y (affected son)",
       "For affected son: needs X^a from mother and Y from father",
-      "X^a Y probability = 1/4 = 25% affected son",
-      "Wait - recalculating: carrier female × normal male gives X^a Y as 25%, not 0%"
+      "X^a Y probability = 1/4 = 25% affected son"
     ],
     "finalAnswer": "25%",
     "isCompetencyBased": true,
@@ -1205,7 +1204,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "A researcher studied two populations of beetles on an island. Population A had mostly dark-colored beetles and Population B had mostly light-colored beetles. After a volcanic eruption covered the vegetation with dark ash, light-colored beetles in Population A rapidly decreased in number. However, Population B remained predominantly light-colored. The researcher could not find evidence of migration between the two populations despite them living on the same island.\n\n(i) Explain why light-colored beetles decreased in Population A.\n(ii) How does natural selection differ in the two populations?\n(iii) Why might the two populations eventually become separate species despite living on the same island?\n(iv) What is this type of speciation called?",
     "options": [],
-    "answer": "(i) Light beetles are easily predated on dark ash due to poor camouflage, reducing survival. (ii) In Population A, dark beetles have survival advantage; in Population B, light beetles are adapted. Different selective pressures. (iii) Reproductive isolation develops due to different allele frequencies; populations become genetically incompatible. (iv) Sympatric speciation.",
+    "answer": "(i) Poor camouflage increases predation (ii) Different selective pressures (iii) Genetic divergence and reproductive isolation (iv) Sympatric speciation",
     "solutionSteps": [
       "Part (i): Camouflage is crucial for survival. Dark ash background makes light beetles visible to predators, increasing predation rate. Dark beetles survive better.",
       "Part (ii): Natural selection acts differently. In A: selects for dark color. In B: selects for light color. Directional selection with opposite pressures.",
@@ -1230,7 +1229,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "Explain Mendel's Law of Independent Assortment with a dihybrid cross involving seed color (yellow-dominant, green-recessive) and seed shape (round-dominant, wrinkled-recessive). Show the Punnett square and explain how the 9:3:3:1 ratio proves independent assortment. How would the ratio change if the genes were linked?",
     "options": [],
-    "answer": "Independent assortment means genes segregate independently. In AABB × aabb, F₁ (AaBb) × F₁ (AaBb) produces 16 combinations: 9 A_B_ (yellow round) : 3 A_bb (yellow wrinkled) : 3 aaB_ (green round) : 1 aabb (green wrinkled). Linked genes would show deviation from 9:3:3:1, with parental types more frequent than recombinants.",
+    "answer": "9:3:3:1 ratio proves independent assortment; linked genes show deviation with parental phenotypes more frequent",
     "solutionSteps": [
       "Mendel's Law of Independent Assortment: alleles of different genes assort independently during gamete formation.",
       "Parental cross: AABB (yellow round) × aabb (green wrinkled)",
@@ -1373,7 +1372,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "In humans, the ability to roll tongue is dominant over inability to roll it. If a woman who cannot roll her tongue has a child that can roll tongue, what is the father's genotype? (R = rolling, r = non-rolling)",
     "options": [],
-    "answer": "Woman (non-roller): rr. Child (roller): Rr or RR. Since mother is rr, father must be R_. Father must be RR or Rr (most likely Rr or RR).",
+    "answer": "Father: RR or Rr (most likely Rr)",
     "solutionSteps": [
       "Woman (non-roller): genotype rr",
       "Child (roller): genotype R_ (must have at least one R)",

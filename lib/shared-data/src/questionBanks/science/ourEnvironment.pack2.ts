@@ -546,7 +546,7 @@ export const OE2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A forest ecosystem contains oak trees, deer that feed on grass and leaves, wolves that hunt deer, and bacteria in the soil. (a) Identify the producer and primary consumer. (b) What role do bacteria play in this ecosystem? (c) If a disease kills most deer, how would it affect the wolf population? (d) Explain why this forest needs both biotic and abiotic components to function.",
     "options": [],
-    "answer": "(a) Producer: oak trees; Primary consumer: deer (b) Bacteria act as decomposers, breaking down dead matter and recycling nutrients (c) Wolf population would decrease due to lack of food (d) Abiotic components (sunlight, water, soil) provide energy and nutrients; biotic components form food chains and cycles",
+    "answer": "(a) Producer: oak trees; Primary consumer: deer (b) Bacteria act as decomposers, breaking down dead matter and recycling nutrients (c) Wolf population would decrease due to lack of food (d) Abiotic components provide energy and nutrients; biotic components form food chains and nutrient cycles",
     "solutionSteps": [
       "Identify trophic levels in the given ecosystem",
       "Producers capture solar energy; consumers eat other organisms",
@@ -571,7 +571,7 @@ export const OE2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "A city generates 500 tonnes of waste daily. 40% is biodegradable (food, paper), 60% is non-biodegradable (plastic, metal, glass). The city currently dumps all waste in a landfill. (a) What problems arise from this practice? (b) How long will biodegradable and non-biodegradable waste persist in the landfill? (c) Propose an alternative waste management strategy. (d) How can individuals contribute to reducing non-biodegradable waste?",
     "options": [],
-    "answer": "(a) Leachate contamination, methane emissions, soil degradation, space depletion (b) Biodegradable: months to years; Non-biodegradable: decades to centuries (c) Segregation at source, composting biodegradable waste, recycling non-biodegradable materials (d) Reduce consumption, reuse products, recycle materials, choose biodegradable alternatives",
+    "answer": "(a) Leachate contamination, methane emissions, soil degradation, landfill space depletion (b) Biodegradable: few months to 2 years; Non-biodegradable: 50-1000+ years (c) Waste segregation, composting, recycling programs, incineration with energy recovery (d) Reduce single-use products, reuse containers, participate in recycling, buy sustainable products",
     "solutionSteps": [
       "Analyze environmental impacts of landfills",
       "Differentiate decomposition rates of waste types",
@@ -596,7 +596,7 @@ export const OE2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "Draw and explain a food web containing at least 6 organisms from a pond ecosystem. Include producers, primary consumers, secondary consumers, and decomposers. Explain: (a) How energy flows through the web; (b) The concept of biomagnification using a specific pesticide example; (c) Why certain organisms are more affected by pesticide accumulation; (d) How the removal of one organism would affect the entire food web.",
     "options": [],
-    "answer": "Food web diagram with pond plants, herbivorous insects, small fish, large fish, herons, and bacteria. Energy flows from sun to producers to consumers. Pesticides accumulate at higher trophic levels due to 10% energy rule. Top predators have highest concentration. Removal of any organism disrupts energy flow and creates imbalance.",
+    "answer": "Complete food web showing energy flow from sun→plants→herbivores→carnivores→decomposers. Biomagnification: pesticide concentration increases 10-100x at each level due to feeding and retention. Top predators most affected due to position in chain. Removing any organism reduces food sources for others, causing population changes throughout ecosystem.",
     "solutionSteps": [
       "Construct pond ecosystem food web with correct trophic relationships",
       "Explain photosynthesis as primary energy source",
@@ -658,11 +658,10 @@ export const OE2_PACK2: CanonicalQuestion[] = [
       "10 J",
       "1 J"
     ],
-    "answer": "10 J",
+    "answer": "100 J",
     "solutionSteps": [
       "Primary consumer gets 10% of producer energy: 10,000 × 0.1 = 1,000 J",
       "Secondary consumer gets 10% of primary consumer energy: 1,000 × 0.1 = 100 J",
-      "Wait, let me recalculate - secondary consumer receives 100 J",
       "Actually checking: Producer 10,000 J → Primary 1,000 J → Secondary 100 J"
     ],
     "finalAnswer": "100 J",
@@ -829,7 +828,7 @@ export const OE2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "Why is energy lost at each trophic level in a food chain?",
     "options": [],
-    "answer": "Energy is lost as heat during respiration, movement, and other metabolic processes. Only about 10% of energy is transferred to the next trophic level.",
+    "answer": "Energy is lost as heat during respiration and metabolic activities; only ~10% transferred to next level",
     "solutionSteps": [
       "Organisms use energy for various life processes",
       "Energy is lost as heat during cellular respiration",
@@ -914,7 +913,7 @@ export const OE2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "What is the significance of the ozone layer in Earth's atmosphere?",
     "options": [],
-    "answer": "The ozone layer protects Earth from harmful ultraviolet (UV) radiation from the sun. It absorbs UV-B and UV-C rays, preventing them from reaching the surface and causing skin cancer and other harmful effects.",
+    "answer": "Protects from harmful UV radiation, preventing skin cancer and damage to organisms",
     "solutionSteps": [
       "Ozone (O3) is present in the stratosphere",
       "It absorbs harmful UV radiation",
@@ -1029,7 +1028,7 @@ export const OE2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Remembering",
     "questionText": "Define biodegradable waste with one example.",
     "options": [],
-    "answer": "Biodegradable waste is organic material that can be decomposed by microorganisms like bacteria and fungi. Example: Food waste, plant leaves, wood, paper.",
+    "answer": "Organic waste decomposed by microorganisms; e.g., food scraps, leaves, paper",
     "solutionSteps": [
       "Biodegradable = capable of being degraded biologically",
       "Microorganisms break down these materials",
@@ -1145,7 +1144,7 @@ export const OE2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "Explain how the removal of all carnivores from an ecosystem would affect the ecosystem balance. Discuss with reference to food chains.",
     "options": [],
-    "answer": "Removal of carnivores would disrupt the ecosystem: (1) Herbivore population would increase unchecked, (2) Overgrazing would lead to destruction of vegetation, (3) Soil erosion would occur, (4) Loss of biodiversity, (5) Eventually herbivores would starve due to food scarcity, (6) Nutrient cycling would be disrupted.",
+    "answer": "Herbivore overpopulation → overgrazing → vegetation loss → soil erosion → ecosystem collapse",
     "solutionSteps": [
       "Carnivores control herbivore population through predation",
       "Without carnivores, herbivores multiply exponentially",
@@ -1172,7 +1171,7 @@ export const OE2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "Why are food webs considered more stable than food chains in maintaining ecosystem stability?",
     "options": [],
-    "answer": "Food webs provide multiple feeding pathways: (1) If one organism is removed, alternate food sources are available, (2) Multiple predators for one prey reduce dependency, (3) Greater biodiversity ensures stability, (4) Energy flow has multiple routes, (5) Organisms can shift prey if primary food is unavailable.",
+    "answer": "Food webs have multiple pathways; loss of one species doesn't cause complete collapse due to alternative food sources",
     "solutionSteps": [
       "Food chains show single linear path",
       "Food webs show interconnected multiple pathways",
@@ -1199,7 +1198,7 @@ export const OE2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "Explain how CFC molecules destroy ozone in the stratosphere. What is the role of chlorine atoms?",
     "options": [],
-    "answer": "CFCs (e.g., CFC-12) release Cl atoms in stratosphere: Cl + O3 → ClO + O2. ClO + O → Cl + O2. One Cl atom catalytically destroys 100,000 ozone molecules. Chlorine acts as a catalyst, regenerating after each reaction. This widespread ozone destruction creates the ozone hole.",
+    "answer": "CFCs release Cl atoms; each Cl catalytically destroys 100,000 O3 molecules through repeated reactions",
     "solutionSteps": [
       "CFCs absorb UV radiation at 25-40 km altitude",
       "UV breaks C-Cl bonds releasing chlorine atoms",
@@ -1226,7 +1225,7 @@ export const OE2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Read the passage and answer the questions:\n\nA lake ecosystem contains algae (producers), small fish (primary consumers), larger fish (secondary consumers), and herons (tertiary consumers). During a drought, the water level dropped significantly, reducing algae growth by 60%. This affected the entire food chain.\n\n(a) What would happen to the population of small fish in the short term?\n(b) Explain the effect on herons using the concept of energy transfer.\n(c) Why would the larger fish population not decline as much as small fish?\n(d) What management strategy could restore ecosystem balance?",
     "options": [],
-    "answer": "(a) Small fish population would decrease due to 60% reduction in algae food source. (b) With less algae, energy available to small fish decreases; less energy flows to herons, causing heron population decline (~90% energy loss at tertiary level). (c) Large fish are carnivorous, feeding on small fish; they have alternative food sources. (d) Artificial water supply, reducing fish harvesting, introducing algae species adapted to drought conditions.",
+    "answer": "(a) Decrease (b) Energy loss at each level ~90% at tertiary (c) Alternative food sources (d) Water management, reduce harvesting",
     "solutionSteps": [
       "(a) Algae↓60% → Small fish food↓ → Population decline",
       "(b) Producer level ↓ → Primary consumer ↓ → Secondary consumer ↓ → Tertiary consumer ↓↓↓",
@@ -1282,7 +1281,7 @@ export const OE2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "With the help of a pyramid of biomass, explain why humans cannot sustain a purely carnivorous diet while being top predators in a food chain. Discuss the ecological and nutritional implications.",
     "options": [],
-    "answer": "In a pyramid of biomass, the mass of organisms decreases at each trophic level (~10% rule). If humans are top predators (tertiary level), only 1% of initial producer biomass reaches them. To sustain large human population, this would require 100× more initial production. As omnivores eating at multiple trophic levels (primary/secondary consumers), humans access more biomass (~10% from plants directly). This is more efficient for supporting large populations. Nutritionally, humans require amino acids from both plant and animal sources. Ecologically, top carnivores maintain low population density. Thus, omnivory is necessary for human sustainability both ecologically and nutritionally.",
+    "answer": "Biomass pyramid shows 90% energy loss per level; top predators have minimal biomass available. Omnivory allows access to more trophic levels, providing ~10× more biomass per person, sustaining large populations while meeting nutritional requirements.",
     "solutionSteps": [
       "Pyramid of Biomass: 1000kg plants → 100kg herbivores → 10kg carnivores → 1kg top predator",
       "Energy transfer: ~10% at each level (90% lost as heat)",
@@ -1311,7 +1310,7 @@ export const OE2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "Discuss the Montreal Protocol as an international environmental agreement. Explain its effectiveness in addressing ozone depletion, the challenges faced in its implementation, and the lessons it provides for addressing other global environmental issues like climate change.",
     "options": [],
-    "answer": "Montreal Protocol (1987): International treaty to protect ozone layer by phasing out ozone-depleting substances. Effectiveness: (1) Global CFC production reduced by 99% since 1990, (2) Ozone hole projected to heal by 2070, (3) Prevented 2 million skin cancer cases annually. Challenges: (1) Illegal CFC smuggling from developing nations, (2) Transition costs for industries, (3) Developing nations required technology transfer, (4) Found unexpected CFC-11 emissions recently. Lessons for climate change: (1) International cooperation essential, (2) Scientific consensus drives action, (3) Technology availability crucial, (4) Common but differentiated responsibilities, (5) Need continuous monitoring, (6) Binding timelines required.",
+    "answer": "Montreal Protocol successfully reduced CFCs 99% through international agreement; projecting ozone recovery by 2070. Lessons: Scientific consensus, technology availability, differentiated responsibilities, and continuous monitoring essential. Climate change is more complex but similar approaches needed.",
     "solutionSteps": [
       "Background: CFC use caused ozone depletion, 80,000 chemical alternatives developed",
       "Effectiveness: 99% reduction in ODS production, ozone recovery on track",
@@ -1338,7 +1337,7 @@ export const OE2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "In an agricultural field, farmers use pesticides to kill insects. Explain how this would affect the food chain including birds that feed on these insects.",
     "options": [],
-    "answer": "Pesticides kill insects (primary consumers) → Insect population decreases → Less food for birds → Bird population declines. Additionally, pesticide bioaccumulation: insects accumulate pesticides → birds eating insects accumulate higher pesticide concentrations → birds suffer reproductive failure, weakened eggshells, death. This is biomagnification effect.",
+    "answer": "Insect kill → bird food↓ → bird population↓; Bioaccumulation → reproductive failure in birds due to pesticide concentration",
     "solutionSteps": [
       "Direct effect: Insects killed → bird food source reduced",
       "Population effect: Bird population declines due to starvation",
@@ -1365,7 +1364,7 @@ export const OE2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Suggest three practical methods to reduce plastic waste in your daily life and explain their environmental benefits.",
     "options": [],
-    "answer": "(1) Use reusable bags/containers: Reduces plastic production demand, landfill burden, ocean pollution. (2) Buy products with minimal plastic packaging: Decreases plastic manufacturing, energy use, emissions. (3) Participate in plastic recycling programs: Reduces waste in landfills, conserves raw materials, saves energy (recycling uses 25% less energy). Additional benefits: Reduces microplastic pollution in water systems, protects marine life, prevents bioaccumulation.",
+    "answer": "Reusables, minimal packaging, recycling; reduces production, waste, energy use, marine pollution, and resource depletion",
     "solutionSteps": [
       "Method 1: Reusable alternatives → single-use plastic ↓ → waste ↓ → resource conservation",
       "Method 2: Minimal packaging → production ↓ → energy/emissions ↓",

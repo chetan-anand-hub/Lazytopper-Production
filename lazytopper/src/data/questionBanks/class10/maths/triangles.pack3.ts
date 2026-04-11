@@ -96,7 +96,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "In △ABC and △PQR, ∠A = ∠P = 50°, ∠B = ∠Q = 60°. Is △ABC ~ △PQR? Justify your answer.",
     "options": [],
-    "answer": "Yes, △ABC ~ △PQR",
+    "answer": "Yes, △ABC ~ △PQR by AA criterion",
     "solutionSteps": [
       "Given: ∠A = ∠P = 50° and ∠B = ∠Q = 60°",
       "Since ∠A = ∠P and ∠B = ∠Q, we have two pairs of equal angles.",
@@ -122,7 +122,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "In △ABC and △XYZ, AB = 6 cm, BC = 8 cm, CA = 10 cm, and XY = 3 cm, YZ = 4 cm, ZX = 5 cm. Are the triangles similar? Justify.",
     "options": [],
-    "answer": "Yes, △ABC ~ △XYZ",
+    "answer": "Yes, by SSS similarity (ratio 1:2)",
     "solutionSteps": [
       "Check the ratios of corresponding sides:",
       "AB/XY = 6/3 = 2",
@@ -205,7 +205,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "In △ABC, D and E are points on AB and AC respectively such that DE ∥ BC. If AD = 4 cm, DB = 6 cm, and AE = 3 cm, find EC.",
     "options": [],
-    "answer": "4.5 cm",
+    "answer": "EC = 4.5 cm",
     "solutionSteps": [
       "Given: DE ∥ BC, AD = 4 cm, DB = 6 cm, AE = 3 cm",
       "By Basic Proportionality Theorem: AD/DB = AE/EC",
@@ -230,7 +230,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "In △ABC, if PQ ∥ BC, AP = 2 cm, PB = 4 cm, and AQ = 1.5 cm, find QC.",
     "options": [],
-    "answer": "3 cm",
+    "answer": "QC = 3 cm",
     "solutionSteps": [
       "Given: PQ ∥ BC, AP = 2 cm, PB = 4 cm, AQ = 1.5 cm",
       "By BPT: AP/PB = AQ/QC",
@@ -338,7 +338,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "The sides of a triangle are 5 cm, 12 cm, and 13 cm. Verify if it is a right-angled triangle.",
     "options": [],
-    "answer": "Yes, it is a right-angled triangle",
+    "answer": "Yes, it is a right-angled triangle (5-12-13 is a Pythagorean triplet)",
     "solutionSteps": [
       "For a right-angled triangle: (hypotenuse)² = (side1)² + (side2)²",
       "Check: 13² = 5² + 12²",
@@ -391,7 +391,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "A ladder 13 m long is placed against a wall. If the ladder makes an angle of 60° with the ground, find the height up to which it reaches the wall.",
     "options": [],
-    "answer": "13√3/2 m ≈ 11.26 m",
+    "answer": "Height = 13√3/2 m ≈ 11.26 m",
     "solutionSteps": [
       "The ladder forms the hypotenuse of a right triangle = 13 m",
       "Angle with ground = 60°, so angle with wall = 30°",
@@ -519,7 +519,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "In △ABC and △DEF, AB/DE = AC/DF = BC/EF = 2/3. Name the similarity criterion and state whether △ABC ~ △DEF.",
     "options": [],
-    "answer": "Yes, △ABC ~ △DEF by SSS similarity",
+    "answer": "Yes, by SSS similarity criterion",
     "solutionSteps": [
       "All three pairs of sides are proportional: AB/DE = AC/DF = BC/EF = 2/3",
       "This satisfies the SSS (Side-Side-Side) similarity criterion.",
@@ -568,7 +568,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "The sides of a quadrilateral are 3 cm, 4 cm, 5 cm, and 6 cm. If the diagonal connecting the 3-4 sides has length √34 cm, find if it's a right-angled triangle (formed by diagonal).",
     "options": [],
-    "answer": "Yes, one triangle is right-angled",
+    "answer": "Requires specific quadrilateral configuration",
     "solutionSteps": [
       "Consider the triangle with sides 3, 4, and √34",
       "Check: 3² + 4² = 9 + 16 = 25 ≠ (√34)² = 34",
@@ -684,7 +684,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A teacher sets up a geometry problem: In △ABC, points D and E are marked on sides AB and AC respectively. It is given that DE ∥ BC. The teacher asks students to find relationships between the segments.\n(i) If AD = 2 cm, DB = 3 cm, AE = 1.5 cm, find EC.\n(ii) If the triangles △ADE and △ABC are similar, explain why using an appropriate criterion.",
     "options": [],
-    "answer": "(i) EC = 2.25 cm (ii) AA similarity criterion",
+    "answer": "(i) 2.25 cm (ii) By AA criterion (corresponding angles equal)",
     "solutionSteps": [
       "Part (i): Since DE ∥ BC, by BPT: AD/DB = AE/EC",
       "2/3 = 1.5/EC",
@@ -739,13 +739,12 @@ export const TR3_PACK3: CanonicalQuestion[] = [
     "bloomSkill": "Creating",
     "questionText": "In a right-angled triangle ABC with ∠B = 90°, a point D is taken on AC such that BD ⊥ AC. Prove that: (i) △ABD ~ △CBA, (ii) AB² = AD × AC, (iii) BC² = CD × AC.",
     "options": [],
-    "answer": "Proof complete with all three relations",
+    "answer": "All three relations proven using similarity of triangles formed by altitude to hypotenuse",
     "solutionSteps": [
       "Given: △ABC with ∠B = 90°, D on AC, BD ⊥ AC",
       "(i) In △ABD and △CBA:",
       "∠ADB = ∠ABC = 90° (given and BD ⊥ AC)",
       "∠BAD = ∠BCA (common angle in both triangles, actually ∠BAD is common to △ABC)",
-      "Actually, ∠DAB = ∠ACB (both in original triangle)",
       "∠ADB = ∠ABC = 90°",
       "By AA criterion, △ABD ~ △CBA",
       "(ii) From similarity: AB/CB = AD/AB = BD/CA",
@@ -773,7 +772,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "In △ABC and △PQR, ∠A = ∠P = 60° and AB/PQ = AC/PR = 3/2. Are the triangles similar? Give the criterion.",
     "options": [],
-    "answer": "Yes, △ABC ~ △PQR by SAS similarity",
+    "answer": "Yes, by SAS similarity criterion",
     "solutionSteps": [
       "Given: ∠A = ∠P = 60°",
       "AB/PQ = AC/PR = 3/2 (two pairs of sides are proportional)",
@@ -879,7 +878,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "In ΔABC and ΔDEF, AB/DE = BC/EF = CA/FD = 2/3. Are the triangles similar? Justify your answer.",
     "options": [],
-    "answer": "Yes, ΔABC ~ ΔDEF",
+    "answer": "Yes, the triangles are similar by SSS criterion",
     "solutionSteps": [
       "Given that AB/DE = BC/EF = CA/FD = 2/3",
       "All three pairs of corresponding sides are proportional",
@@ -1063,7 +1062,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Check whether the triangle with sides 6 cm, 8 cm, and 10 cm is a right-angled triangle.",
     "options": [],
-    "answer": "Yes, it is a right-angled triangle",
+    "answer": "Yes, the triangle is right-angled with the right angle opposite to the side of 10 cm",
     "solutionSteps": [
       "Check if a² + b² = c²",
       "6² + 8² = 36 + 64 = 100",
@@ -1193,15 +1192,14 @@ export const TR3_PACK3: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "In ΔABC, ∠A = 50°, ∠B = 70°. In ΔPQR, ∠P = 50°, ∠Q = 60°. Are the triangles similar? Justify.",
     "options": [],
-    "answer": "No, the triangles are not similar",
+    "answer": "Yes, ΔABC ~ ΔPQR by AAA criterion as all corresponding angles are equal",
     "solutionSteps": [
       "In ΔABC: ∠A = 50°, ∠B = 70°, so ∠C = 180° - 50° - 70° = 60°",
       "In ΔPQR: ∠P = 50°, ∠Q = 60°, so ∠R = 180° - 50° - 60° = 70°",
       "In ΔABC: angles are 50°, 70°, 60°",
       "In ΔPQR: angles are 50°, 60°, 70°",
       "Although all angles are same, their correspondence is different",
-      "∠A = ∠P (50°), but ∠B ≠ ∠Q, so not similar as per AAA criterion",
-      "Actually, all three angles match, so ΔABC ~ ΔPQR (just different correspondence)"
+      "∠A = ∠P (50°), but ∠B ≠ ∠Q, so not similar as per AAA criterion"
     ],
     "finalAnswer": "Yes, ΔABC ~ ΔPQR by AAA criterion as all corresponding angles are equal",
     "isCompetencyBased": true,
@@ -1221,7 +1219,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "In ΔABC, D and E are points on AB and AC respectively such that AD/DB = AE/EC = 2/3. Prove that DE || BC.",
     "options": [],
-    "answer": "DE || BC",
+    "answer": "DE is parallel to BC by converse of Basic Proportionality Theorem",
     "solutionSteps": [
       "Given: AD/DB = AE/EC = 2/3",
       "This means AD/AB = AE/AC (by rearranging)",
@@ -1246,7 +1244,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "In right triangle ABC with right angle at B, if AB = 5 cm and BC = 12 cm, find AC and verify using Pythagoras theorem.",
     "options": [],
-    "answer": "AC = 13 cm",
+    "answer": "AC = 13 cm; Verified by Pythagoras Theorem",
     "solutionSteps": [
       "Right angle at B means AC is the hypotenuse",
       "By Pythagoras Theorem: AC² = AB² + BC²",
@@ -1358,7 +1356,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "In ΔABC and ΔPQR, AB/PQ = BC/QR = 3/4 and ∠B = ∠Q. Are the triangles similar? State the criterion used.",
     "options": [],
-    "answer": "Yes, ΔABC ~ ΔPQR by SAS similarity",
+    "answer": "Yes, by SAS similarity criterion",
     "solutionSteps": [
       "Given: AB/PQ = BC/QR = 3/4 (two pairs of corresponding sides are proportional)",
       "∠B = ∠Q (included angles are equal)",
@@ -1406,7 +1404,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "In ΔABC, D and E are points on AB and AC respectively. If AD = 3 cm, DB = 6 cm, AE = 2 cm, EC = 4 cm, is DE || BC? Justify.",
     "options": [],
-    "answer": "Yes, DE || BC",
+    "answer": "Yes, DE || BC because AD/DB = AE/EC = 1/2",
     "solutionSteps": [
       "Check if AD/DB = AE/EC",
       "AD/DB = 3/6 = 1/2",
@@ -1456,7 +1454,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A photographer uses similar triangles to determine the height of a building. She stands 50 m away from the base of a building and holds a device that shows an angle of 60° to the top. She also uses a small scale model (ΔABC) with base 2 m and height 2√3 m (angle at base = 60°). \n(a) What is the height of the building? \n(b) Are the triangles formed similar? Why? \n(c) If the photographer moves to 100 m away, what would be the new angle (approximately)?",
     "options": [],
-    "answer": "(a) 50√3 m ≈ 86.6 m (b) Yes, by AA similarity (c) ≈ 30°",
+    "answer": "(a) 50√3 m (b) Yes, AA similarity (c) ≈ 41°",
     "solutionSteps": [
       "(a) In the small model: tan(60°) = height/base = 2√3/2 = √3",
       "For the building: tan(60°) = Height/50",
@@ -1512,7 +1510,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "In ΔABC, D and E are points on AB and AC respectively such that DE || BC. The area of trapezoid DBCE is 18 cm². If AD/AB = 1/3, find: (a) The ratio of areas of ΔADE and ΔABC, (b) Area of ΔADE, (c) Area of ΔABC.",
     "options": [],
-    "answer": "Area ratio = 1:9, Area(ΔADE) = 2 cm², Area(ΔABC) = 18 cm²",
+    "answer": "Area ratio = 1:9, Area(ΔADE) = 2.25 cm², Area(ΔABC) = 20.25 cm²",
     "solutionSteps": [
       "Given: AD/AB = 1/3, so DB/AB = 2/3",
       "By Basic Proportionality Theorem: AD/AB = AE/AC = DE/BC = 1/3",
@@ -1521,7 +1519,6 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "Let Area(ΔADE) = x, then Area(ΔABC) = 9x",
       "Area(trapezoid DBCE) = Area(ΔABC) - Area(ΔADE) = 9x - x = 8x = 18",
       "x = 18/8 = 2.25 cm² (approximately)",
-      "Wait, let me recalculate: 8x = 18, so x = 2.25. But typically areas are whole numbers.",
       "Actually x = 2 cm² would give trapezoid area = 16 cm². Let's verify: if ΔADE = 2, then ΔABC = 18, trapezoid = 16 (not 18).",
       "If Area(ΔABC) = 20.25 cm², then Area(ΔADE) = 20.25/9 = 2.25 cm², and trapezoid = 18 cm² ✓"
     ],

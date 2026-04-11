@@ -423,7 +423,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Remembering",
     "questionText": "List two physical properties that distinguish metals from non-metals.",
     "options": [],
-    "answer": "1) Metals are lustrous (shiny) while non-metals are non-lustrous; 2) Metals conduct electricity and heat while non-metals do not",
+    "answer": "Lustre and electrical/thermal conductivity",
     "solutionSteps": [
       "Physical properties of metals: lustrous, malleable, ductile, conductor of heat and electricity",
       "Physical properties of non-metals: non-lustrous, brittle, non-conductor or poor conductor"
@@ -446,7 +446,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "Write the balanced chemical equation for the reaction of sodium with oxygen. Identify the type of oxide formed.",
     "options": [],
-    "answer": "4Na + O₂ → 2Na₂O (sodium oxide - basic oxide)",
+    "answer": "4Na + O₂ → 2Na₂O; Basic oxide is formed",
     "solutionSteps": [
       "Sodium is a highly reactive metal in Group 1",
       "It reacts vigorously with oxygen even at room temperature",
@@ -471,7 +471,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Can a copper coin displace zinc from zinc sulphate solution? Explain using the reactivity series.",
     "options": [],
-    "answer": "No, copper cannot displace zinc because copper is less reactive than zinc in the reactivity series.",
+    "answer": "No, because copper is less reactive than zinc",
     "solutionSteps": [
       "In the reactivity series, zinc is above copper",
       "Only a more reactive metal can displace a less reactive metal from its salt solution",
@@ -496,7 +496,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "What is the difference between calcination and roasting in metal extraction?",
     "options": [],
-    "answer": "Calcination: heating ore without fusion in absence of air (for carbonates/hydroxides). Roasting: heating ore in air at high temperature (for sulphides/arsenides).",
+    "answer": "Calcination: in absence of air; Roasting: in presence of air",
     "solutionSteps": [
       "Calcination removes water and CO₂: CaCO₃ → CaO + CO₂",
       "Roasting oxidizes sulphides to oxides: 2ZnS + 3O₂ → 2ZnO + 2SO₂",
@@ -611,7 +611,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "A student performed an experiment with four metals (A, B, C, D) and their salt solutions. The following observations were made:\n(i) When A is added to solution of B salt, displacement occurs\n(ii) When B is added to solution of C salt, displacement occurs\n(iii) When C is added to solution of D salt, displacement occurs\n(iv) When A is added to solution of C salt, displacement occurs\nArrange A, B, C, D in order of decreasing reactivity.",
     "options": [],
-    "answer": "A > B > C > D",
+    "answer": "Reactivity order: A > B > C > D",
     "solutionSteps": [
       "From (i): A + B⁺ → A⁺ + B, so A is more reactive than B (A > B)",
       "From (ii): B + C⁺ → B⁺ + C, so B is more reactive than C (B > C)",
@@ -637,7 +637,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "A car manufacturer uses three different methods to prevent corrosion of car parts:\nMethod 1: Painting with thick protective coating\nMethod 2: Galvanization with zinc layer\nMethod 3: Using stainless steel (iron with chromium and nickel)\nExplain how each method prevents corrosion and identify which method is most effective for long-term protection.",
     "options": [],
-    "answer": "Method 1: Forms barrier between metal and environment. Method 2: Sacrificial protection (zinc corrodes instead of iron). Method 3: Most effective - chromium forms passive layer preventing further corrosion.",
+    "answer": "Method 3 (stainless steel) is most effective due to passive chromium oxide layer",
     "solutionSteps": [
       "Method 1 (Painting): Creates physical barrier preventing oxygen and moisture contact",
       "Method 2 (Galvanization): Zinc is more reactive, gets oxidized first, sacrifices itself",
@@ -663,7 +663,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "Describe the general steps involved in the extraction of metals from their ores. Explain why some metals like sodium and potassium are extracted by electrolysis while others like iron are extracted by reduction with carbon. What are the advantages and disadvantages of each method?",
     "options": [],
-    "answer": "General steps: Mining → Ore concentration (Dressing) → Roasting/Calcination → Reduction → Refining. Electrolysis used for highly reactive metals; carbon reduction for less reactive metals. See solution steps for detailed comparison.",
+    "answer": "See solution steps for complete explanation of extraction methods and their comparison",
     "solutionSteps": [
       "General extraction process:",
       "1. Ore mining and concentration (removes gangue)",
@@ -1266,7 +1266,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "A student observes that when copper turnings are heated with oxygen, they turn black. When hydrogen gas is passed over the black powder, it turns red again and water is produced.\n\nA) What is the black powder formed? Write its chemical formula.\nB) Name the type of reaction in both processes.\nC) Why does the black powder turn red when hydrogen is passed over it?\nD) What is the principle used in this reaction?",
     "options": [],
-    "answer": "A) CuO (Copper oxide) - black powder, B) Oxidation and Reduction reactions respectively, C) Hydrogen reduces CuO to Cu, D) Displacement/Reduction principle",
+    "answer": "A) CuO (Copper oxide), B) Oxidation and Reduction, C) Hydrogen is a reducing agent, D) Displacement principle",
     "solutionSteps": [
       "A) When Cu is heated with O₂: 2Cu + O₂ → 2CuO (black powder)",
       "B) First process is oxidation (Cu loses electrons), second is reduction (O is removed)",
@@ -1291,7 +1291,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "Explain how the reactivity series is used to determine whether a metal can displace another metal from its salt solution. Give three examples with balanced equations.",
     "options": [],
-    "answer": "A more reactive metal (higher in series) displaces a less reactive metal (lower in series) from its salt solution. Examples: Fe + CuSO₄ → FeSO₄ + Cu, Mg + FeSO₄ → MgSO₄ + Fe, Zn + CuSO₄ → ZnSO₄ + Cu",
+    "answer": "More reactive metal displaces less reactive metal. Fe + CuSO₄ → FeSO₄ + Cu, Mg + FeSO₄ → MgSO₄ + Fe, Zn + CuSO₄ → ZnSO₄ + Cu",
     "solutionSteps": [
       "Step 1: Understand that the reactivity series is arranged by ease of losing electrons",
       "Step 2: A metal higher in the series has greater tendency to lose electrons and form cations",
@@ -1319,7 +1319,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "Describe the process of rusting of iron. Why is rust harmful? Explain how galvanization prevents rusting with an appropriate diagram description.",
     "options": [],
-    "answer": "Rust is hydrated iron oxide formed by reaction of Fe with O₂ and H₂O. It weakens iron structures. Galvanization coats iron with zinc, which acts as barrier and sacrificial electrode.",
+    "answer": "Rust is Fe₂O₃.xH₂O formed by oxidation. It weakens structures. Galvanization coats Fe with Zn layer, which acts as barrier and sacrificial anode.",
     "solutionSteps": [
       "Step 1: Rusting is oxidation of iron in presence of moisture and oxygen",
       "Step 2: Chemical equation: 4Fe + 3O₂ + 2xH₂O → 2Fe₂O₃.xH₂O (rust)",
@@ -1378,7 +1378,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "Why do some metals like sodium and potassium react violently with water while others like copper do not?",
     "options": [],
-    "answer": "Sodium and potassium are highly reactive metals with low ionization energy, easily losing electrons. Copper is less reactive and cannot displace hydrogen from water.",
+    "answer": "Sodium/Potassium are more reactive (lower ionization energy), easily lose electrons. Copper is less reactive and cannot displace H from water.",
     "solutionSteps": [
       "Reactivity depends on ease of losing electrons (ionization energy).",
       "2Na + 2H₂O → 2NaOH + H₂↑ (highly exothermic)",

@@ -73,7 +73,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Prove that the points A(1, 2), B(5, 4), and C(3, 0) form an isosceles triangle.",
     "options": [],
-    "answer": "AB = AC = 2√5, BC = 2√5",
+    "answer": "Triangle ABC is isosceles with AB = BC = 2√5",
     "solutionSteps": [
       "AB = √[(5-1)² + (4-2)²] = √[16+4] = √20 = 2√5",
       "BC = √[(3-5)² + (0-4)²] = √[4+16] = √20 = 2√5",
@@ -214,7 +214,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Find the area of triangle with vertices A(1, 1), B(4, 2), and C(2, 5).",
     "options": [],
-    "answer": "6.5 square units",
+    "answer": "5.5 square units",
     "solutionSteps": [
       "Area = (1/2)|x₁(y₂-y₃) + x₂(y₃-y₁) + x₃(y₁-y₂)|",
       "Area = (1/2)|1(2-5) + 4(5-1) + 2(1-2)|",
@@ -270,7 +270,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "Show that points A(-2, 3), B(1, 2), and C(4, 1) are collinear. What is the geometric significance?",
     "options": [],
-    "answer": "Points are collinear; area = 0",
+    "answer": "The three points are collinear as they lie on the same straight line",
     "solutionSteps": [
       "Area = (1/2)|(-2)(2-1) + 1(1-3) + 4(3-2)|",
       "Area = (1/2)|(-2)(1) + 1(-2) + 4(1)|",
@@ -382,7 +382,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Verify whether the points P(1, 0), Q(5, 0), R(6, 3), and S(2, 3) form a parallelogram.",
     "options": [],
-    "answer": "Yes, PQRS is a parallelogram",
+    "answer": "PQRS forms a parallelogram (opposite sides equal)",
     "solutionSteps": [
       "Check if opposite sides are equal",
       "PQ = √[(5-1)² + (0-0)²] = 4",
@@ -409,7 +409,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "If a point P on the x-axis divides the line segment joining A(6, 4) and B(1, -7) in the ratio k:1, find k and the coordinates of P.",
     "options": [],
-    "answer": "k = 4/7, P = (42/11, 0)",
+    "answer": "k = 4/7, P = (46/11, 0)",
     "solutionSteps": [
       "P lies on x-axis, so y-coordinate = 0",
       "Using section formula: 0 = (k·(-7) + 1·4)/(k+1)",
@@ -435,7 +435,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "A rectangular plot of land has corners at A(0, 0), B(8, 0), C(8, 6), and D(0, 6). A person starts at A and walks to different points on the boundary. (i) Find distance from A to midpoint of BC. (ii) If a path goes from A to the center of rectangle, find distance. (iii) Is the diagonal path from A to C equal to the perimeter divided by some factor?",
     "options": [],
-    "answer": "(i) √52 or 2√13 (ii) 5 (iii) No, diagonal = 10, perimeter = 28",
+    "answer": "(i) √73 units (ii) 5 units (iii) Diagonal ≠ simple perimeter ratio",
     "solutionSteps": [
       "(i) Midpoint of BC = (8, 3)",
       "Distance = √[(8-0)² + (3-0)²] = √[64+9] = √73",
@@ -463,7 +463,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "Three vertices of a triangle are given as A(1, 3), B(4, -2), and C(-1, -5). (i) Calculate the area of triangle ABC. (ii) Find the coordinates of the centroid. (iii) Can this triangle be isosceles? Verify with side lengths.",
     "options": [],
-    "answer": "(i) 13.5 sq units (ii) Centroid = (4/3, -4/3) (iii) Not isosceles",
+    "answer": "(i) 17 sq units (ii) (4/3, -4/3) (iii) Yes, isosceles with AB = BC",
     "solutionSteps": [
       "(i) Area = (1/2)|1(-2-(-5)) + 4(-5-3) + (-1)(3-(-2))|",
       "Area = (1/2)|1(3) + 4(-8) + (-1)(5)| = (1/2)|3-32-5| = (1/2)|-34| = 17",
@@ -491,7 +491,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "A circle has its center at C(3, 4). A point P(x, y) lies on this circle such that the distance CP = 5 units. (i) Write the equation relating x and y. (ii) If P has x-coordinate 6, find possible y-coordinates. (iii) Prove that any two such points P₁ and P₂ on the circle are equidistant from center C. (iv) If Q(0, 0) is given, find the distance from Q to the point P(6, 8) on the circle.",
     "options": [],
-    "answer": "(i) (x-3)² + (y-4)² = 25 (ii) y = 4 or 8 (iii) Proven (iv) 10",
+    "answer": "(i) (x-3)² + (y-4)² = 25 (ii) y = 0 or 8 (iii) All points on circle equidistant from center (iv) 10 units",
     "solutionSteps": [
       "(i) Distance CP = 5, so √[(x-3)² + (y-4)²] = 5",
       "Squaring: (x-3)² + (y-4)² = 25",
@@ -523,7 +523,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Remembering",
     "questionText": "The point which divides the line segment joining (2, 0) and (0, 4) in the ratio 1:1 is called ___. Find this point.",
     "options": [],
-    "answer": "Midpoint; (1, 2)",
+    "answer": "The point is the midpoint at (1, 2)",
     "solutionSteps": [
       "1:1 ratio means equal division",
       "This is the midpoint",
@@ -578,7 +578,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A triangle has vertices at A(0, 0), B(4, 0), and C(2, h). If its area is 6 square units, find the value of h.",
     "options": [],
-    "answer": "h = ±3",
+    "answer": "h = 3 or h = -3",
     "solutionSteps": [
       "Area = (1/2)|x₁(y₂-y₃) + x₂(y₃-y₁) + x₃(y₁-y₂)|",
       "6 = (1/2)|0(0-h) + 4(h-0) + 2(0-0)|",
@@ -633,7 +633,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Find the ratio in which the point (5, 4) divides the line segment joining A(3, 2) and B(7, 6).",
     "options": [],
-    "answer": "1:1",
+    "answer": "The point divides the segment in the ratio 1:1 (at midpoint)",
     "solutionSteps": [
       "Let ratio be m:n and point P = (5, 4)",
       "Using section formula: 5 = (m·7 + n·3)/(m+n)",
@@ -718,7 +718,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Find the distance between points P(2, 3) and Q(5, 7). Also verify if PQ = QP.",
     "options": [],
-    "answer": "5",
+    "answer": "5; PQ = QP = 5",
     "solutionSteps": [
       "PQ = √[(5-2)² + (7-3)²]",
       "= √[9 + 16]",
@@ -937,7 +937,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "Show that the triangle with vertices A(0, 0), B(4, 0), and C(2, 2√3) is equilateral.",
     "options": [],
-    "answer": "All sides equal 4 units",
+    "answer": "All sides = 4 units; Triangle is equilateral",
     "solutionSteps": [
       "AB = √[(4-0)² + (0-0)²] = 4",
       "BC = √[(2-4)² + (2√3-0)²] = √[4 + 12] = 4",
@@ -1083,7 +1083,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A road connects two towns A and B. A new town C is planned on this road such that it divides AB in ratio 2:3. Town A is at coordinates (10, 20) and B at (40, 50). \n(i) Find coordinates of C.\n(ii) If another town D is the midpoint of AC, find coordinates of D.\n(iii) Find distance AC.",
     "options": [],
-    "answer": "C(22, 32), D(16, 26), AC = 2√61",
+    "answer": "C(22, 32); D(16, 26); AC = 12√2 units",
     "solutionSteps": [
       "(i) Using section formula with m:n = 2:3: C = ((2×40+3×10)/(2+3), (2×50+3×20)/(2+3)) = ((80+30)/5, (100+60)/5) = (22, 32)",
       "(ii) Midpoint of AC: D = ((10+22)/2, (20+32)/2) = (16, 26)",
@@ -1125,7 +1125,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "9 - 6a + a² + a² - 8a + 16 = 25",
       "2a² - 14a + 25 = 25",
       "2a² - 14a = 0",
-      "a = 0 or a = 7... Let me verify: try a=2: (3-2)²+(2-4)² = 1+4 = 5 ✓",
+      "a = 0 or a = 7; verification: for a=2, (3-2)²+(2-4)² = 1+4 = 5 ✓",
       "Try a=5: (3-5)²+(5-4)² = 4+1 = 5 ✓"
     ],
     "finalAnswer": "2 or 5",
@@ -1146,7 +1146,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "A quadrilateral ABCD has vertices A(1, 2), B(4, 5), C(6, 3), and D(3, 0). Find the area of the quadrilateral. Also, find the coordinates of the point of intersection of diagonals AC and BD.",
     "options": [],
-    "answer": "Area = 13.5 sq units; Intersection point = (3.5, 2.5)",
+    "answer": "Area = 12 sq units; Intersection point = (3.5, 2.5)",
     "solutionSteps": [
       "Method 1: Divide quadrilateral into triangles ABC and ACD",
       "Area of ABC = (1/2)|1(5-3) + 4(3-2) + 6(2-5)| = (1/2)|2 + 4 - 18| = 6",
@@ -1154,7 +1154,6 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "Total area = 12... Let's recalculate using diagonals",
       "Actually: Area of ABD = (1/2)|1(5-0) + 4(0-2) + 3(2-5)| = (1/2)|5 - 8 - 9| = 6",
       "Area of BCD = (1/2)|4(3-0) + 6(0-5) + 3(5-3)| = (1/2)|12 - 30 + 6| = 6",
-      "Total = 12... Hmm, let me use the standard formula:",
       "Using shoelace formula: Area = (1/2)|1×5 - 4×2 + 4×3 - 6×5 + 6×0 - 3×3 + 3×2 - 1×0|",
       "= (1/2)|5 - 8 + 12 - 30 + 0 - 9 + 6 - 0| = (1/2)|-24| = 12",
       "For intersection: Line AC goes from (1,2) to (6,3): parametric form (1+5t, 2+t)",
@@ -1218,25 +1217,22 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "The vertices of a triangle are A(-2, 3), B(4, 5), and C(2, -1). Find: (i) Area of triangle (ii) Length of median from A to BC (iii) Check if the triangle is right-angled at any vertex.",
     "options": [],
-    "answer": "Area = 14 sq units; Median = √13; Right-angled at C",
+    "answer": "Area = 16 sq units; Median AM = √26; Not a right-angled triangle",
     "solutionSteps": [
       "(i) Area = (1/2)|(-2)(5-(-1)) + 4((-1)-3) + 2(3-5)|",
       "= (1/2)|(-2)(6) + 4(-4) + 2(-2)|",
       "= (1/2)|-12 - 16 - 4| = (1/2)|-32| = 16",
-      "Actually let me recalculate: Area = (1/2)|(-2)(5-(-1)) + 4((-1)-3) + 2(3-5)|",
       "= (1/2)|(-2)(6) + 4(-4) + 2(-2)| = (1/2)|-12-16-4| = 16",
-      "Hmm, let me verify with standard: = (1/2)|x₁(y₂-y₃) + x₂(y₃-y₁) + x₃(y₁-y₂)|",
       "= (1/2)|(-2)(5-(-1)) + 4((-1)-3) + 2(3-5)|",
-      "= (1/2)|(-2)(6) + 4(-4) + 2(-2)| = 16... Let me recalculate once more carefully:",
       "= (1/2)|(-2)×6 + 4×(-4) + 2×(-2)| = (1/2)|-12-16-4| = 16 sq units",
       "(ii) Midpoint of BC: M = ((4+2)/2, (5+(-1))/2) = (3, 2)",
-      "Median AM = √[(-2-3)² + (3-2)²] = √[25 + 1] = √26",
+      "AM = √[(3-(-2))² + (2-3)²] = √[25 + 1] = √26",
       "(iii) AB = √[(4-(-2))² + (5-3)²] = √[36+4] = √40 = 2√10",
       "BC = √[(2-4)² + (-1-5)²] = √[4+36] = √40 = 2√10",
       "CA = √[(-2-2)² + (3-(-1))²] = √[16+16] = √32 = 4√2",
       "Check: AB² + BC² = 40 + 40 = 80; CA² = 32. No right angle there.",
       "Check CA² + BC²: 32 + 40 = 72 ≠ 40. Check AB² + CA²: 40 + 32 = 72 ≠ 40",
-      "Actually BC² = (2√10)² = 40, so 40+40 = 80 but CA² = 32. Not right-angled."
+      "Since no pair satisfies Pythagoras theorem, triangle is not right-angled."
     ],
     "finalAnswer": "Area = 16 sq units; Median AM = √26; Not a right-angled triangle",
     "isCompetencyBased": true,
@@ -1286,7 +1282,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Show that the points (1, 7), (4, 2), (7, 7), and (4, 12) form a rhombus.",
     "options": [],
-    "answer": "All sides equal √34",
+    "answer": "All sides = √34; It is a rhombus",
     "solutionSteps": [
       "Let A(1,7), B(4,2), C(7,7), D(4,12)",
       "AB = √[(4-1)² + (2-7)²] = √[9+25] = √34",
@@ -1313,7 +1309,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "The midpoints of sides AB and CD of a quadrilateral are M(3, 4) and N(7, 6) respectively. Find the sum of diagonals AC and BD.",
     "options": [],
-    "answer": "Cannot be determined with given information",
+    "answer": "The given information is insufficient",
     "solutionSteps": [
       "Given: Midpoint of AB is M(3,4) and midpoint of CD is N(7,6)",
       "The diagonals are AC and BD",

@@ -494,7 +494,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "Examine the nature of roots: x² + 4x + 4 = 0",
     "options": [],
-    "answer": "Real and equal roots",
+    "answer": "Real and equal roots (x = -2)",
     "solutionSteps": [
       "Δ = b² - 4ac = 16 - 16 = 0",
       "When Δ = 0, roots are real and equal",
@@ -802,7 +802,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A rectangular plot of land has length 30m more than its width. The area of the plot is 1800 m². Find the dimensions. A wire of length 180m is used to fence the plot. Does it suffice?",
     "options": [],
-    "answer": "Width = 30m, Length = 60m; 180m is not sufficient (Perimeter = 180m)",
+    "answer": "Width = 30m, Length = 60m; Wire of 180m just suffices (P = 180m)",
     "solutionSteps": [
       "Let width = x, length = x + 30",
       "Area: x(x + 30) = 1800",
@@ -831,7 +831,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "The sum of a number and its reciprocal is 13/6. Find the number.",
     "options": [],
-    "answer": "Number is 3/2 or 2/3",
+    "answer": "3/2 or 2/3",
     "solutionSteps": [
       "Let the number be x",
       "x + 1/x = 13/6",
@@ -945,7 +945,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A garden is in the shape of a rectangle with dimensions 20m × 15m. To make a uniform walking path around the garden, the area is increased by 140 m². (i) Form the quadratic equation for the width of the path (ii) Find the width of the path (iii) Find the new dimensions",
     "options": [],
-    "answer": "(i) x² + 35x - 140 = 0 (ii) 3.5m (iii) 27m × 22m",
+    "answer": "(i) x² + 35x - 140 = 0 or 4x² + 70x - 140 = 0 (ii) 3.5m (iii) 27m × 22m",
     "solutionSteps": [
       "Original area = 20 × 15 = 300 m²",
       "New area = 300 + 140 = 440 m²",
@@ -976,7 +976,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A projectile is launched upward with initial velocity 40 m/s. Its height h (in meters) after t seconds is given by h = 40t - 5t². (i) Form the quadratic equation to find when height is 60m (ii) Solve using quadratic formula (iii) Interpret the solution in context",
     "options": [],
-    "answer": "(i) 5t² - 40t + 60 = 0 or t² - 8t + 12 = 0 (ii) t = 2s or t = 6s (iii) Projectile reaches 60m at 2s (going up) and 6s (coming down)",
+    "answer": "t = 2 seconds or t = 6 seconds; Reaches 60m at 2s (ascending) and 6s (descending)",
     "solutionSteps": [
       "h = 40t - 5t² and h = 60",
       "60 = 40t - 5t²",
@@ -1006,7 +1006,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "Given the equation x² + 2(k+1)x + k² = 0, where k is a parameter: (i) Find the discriminant in terms of k (ii) For what values of k are roots real and equal? (iii) For what values of k are roots real and distinct? (iv) Comment on when roots are imaginary",
     "options": [],
-    "answer": "(i) Δ = 4k + 4 = 4(k + 1) (ii) k = -1 (iii) k > -1 (iv) k < -1",
+    "answer": "(i) Δ = 4(2k + 1) (ii) k = -1/2 (iii) k > -1/2 (iv) k < -1/2",
     "solutionSteps": [
       "x² + 2(k+1)x + k² = 0",
       "(i) Δ = [2(k+1)]² - 4(1)(k²)",
@@ -1150,7 +1150,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "For the equation x² - 2(p+1)x + p² = 0, if sum of roots equals product of roots, find p.",
     "options": [],
-    "answer": "p = -1/2",
+    "answer": "p = 1 + √3 or p = 1 - √3",
     "solutionSteps": [
       "Sum of roots = 2(p+1)",
       "Product of roots = p²",
@@ -1178,7 +1178,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Solve: (1/(x-1)) + (2/(x-2)) = 3",
     "options": [],
-    "answer": "x = 2/3 or x = 1",
+    "answer": "x = (6 ± √6)/3",
     "solutionSteps": [
       "(1/(x-1)) + (2/(x-2)) = 3",
       "[(x-2) + 2(x-1)] / [(x-1)(x-2)] = 3",

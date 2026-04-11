@@ -103,7 +103,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "Name any two methods of asexual reproduction and give an example of each.",
     "options": [],
-    "answer": "Two methods: (1) Budding - example: Hydra; (2) Fission - example: Bacteria or Amoeba",
+    "answer": "Budding in Hydra and Fission in Bacteria (or any two different methods with examples)",
     "solutionSteps": [
       "Asexual reproduction involves only one parent organism",
       "Budding: A new organism develops as an outgrowth of the parent body (Hydra)",
@@ -218,7 +218,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "Distinguish between self-pollination and cross-pollination.",
     "options": [],
-    "answer": "Self-pollination: Pollen from anther of one flower pollinates stigma of same flower or different flower on same plant. Cross-pollination: Pollen from anther of flower on one plant pollinates stigma of flower on different plant.",
+    "answer": "Self-pollination: Same plant or same flower; Cross-pollination: Different plants",
     "solutionSteps": [
       "Self-pollination involves genetic material from only one plant",
       "Cross-pollination involves genetic material from two different plants",
@@ -245,7 +245,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "Why is genetic variation important in the offspring produced by cross-pollination?",
     "options": [],
-    "answer": "Genetic variation increases adaptability to environmental changes, reduces genetic disorders, increases chances of survival, and provides better traits for natural selection.",
+    "answer": "Genetic variation provides adaptability, disease resistance, and survival advantage",
     "solutionSteps": [
       "Cross-pollination introduces genetic diversity",
       "Offspring have traits from two different parents",
@@ -365,7 +365,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "Name the hormones secreted by the testis and ovary, and mention one function of each.",
     "options": [],
-    "answer": "Testis secretes testosterone (develops male secondary sexual characteristics); Ovary secretes estrogen and progesterone (develops female secondary sexual characteristics and maintains pregnancy).",
+    "answer": "Testis: Testosterone; Ovary: Estrogen and Progesterone",
     "solutionSteps": [
       "Hormones are chemical messengers in the body",
       "Testis is an endocrine gland secreting testosterone",
@@ -486,7 +486,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "Explain why contraception is important for reproductive health.",
     "options": [],
-    "answer": "Contraception prevents unwanted pregnancies, allows family planning, reduces maternal and infant mortality, prevents spread of STIs, improves women's health, allows career development, and promotes economic stability.",
+    "answer": "Contraception enables family planning, prevents STIs, improves women's and child health, and supports socio-economic development",
     "solutionSteps": [
       "Contraception provides control over fertility and family size",
       "Allows spacing between pregnancies for maternal recovery",
@@ -577,7 +577,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "A farmer wants to increase crop production using improved varieties of wheat. He observes that when wheat plants are allowed to self-pollinate, the crop yield remains constant over generations. However, when he allows cross-pollination between different wheat varieties, the yield increases significantly in the first generation. (a) Explain why cross-pollination produces better results than self-pollination. (b) Name the phenomenon observed in the first generation. (c) Suggest why the farmer should continue cross-pollination practice.",
     "options": [],
-    "answer": "(a) Cross-pollination introduces genetic diversity from two different parents, producing offspring with varied and superior traits. (b) Hybrid vigor or heterosis. (c) To maintain genetic diversity, prevent inbreeding depression, and continuously improve crop quality.",
+    "answer": "(a) Genetic diversity and hybrid vigor (b) Hybrid vigor/Heterosis (c) Maintains diversity and prevents inbreeding depression",
     "solutionSteps": [
       "Part (a): Self-pollination produces genetically identical offspring with same traits",
       "Cross-pollination combines traits from two different plants creating variation",
@@ -607,7 +607,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "A 35-year-old woman visits a doctor complaining of irregular menstrual periods and experiencing symptoms like hot flashes, mood swings, and decreased bone density. The doctor diagnoses her with early menopause. (a) What is menopause and why does it occur? (b) Explain the hormonal changes causing her symptoms. (c) Suggest preventive measures to address bone density loss.",
     "options": [],
-    "answer": "(a) Menopause is permanent cessation of menstruation due to depleted ovarian follicles and decreased estrogen production. (b) Reduced estrogen causes vasodilation (hot flashes), neurological changes (mood swings), and decreased bone mineralization (bone loss). (c) Calcium and vitamin D supplementation, weight-bearing exercise, hormone replacement therapy consultation.",
+    "answer": "(a) Permanent end of menstruation due to estrogen depletion (b) Low estrogen causes vasodilation, neurological symptoms, and bone loss (c) Calcium, vitamin D, exercise, HRT",
     "solutionSteps": [
       "Part (a): Menopause marks end of reproductive years in women",
       "Occurs when ovarian follicles deplete and estrogen production decreases significantly",
@@ -642,7 +642,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "Describe the process of gametogenesis in humans. Compare spermatogenesis and oogenesis, highlighting the differences in location, duration, timing, and number of gametes produced.",
     "options": [],
-    "answer": "Gametogenesis: meiotic division producing haploid gametes. Spermatogenesis: testis, 74 days, continuous from puberty, produces 4 functional sperm per cell. Oogenesis: ovary, starts before birth, discontinuous, produces 1 ovum and 2-3 polar bodies per oocyte.",
+    "answer": "Gametogenesis produces haploid gametes through meiosis. Spermatogenesis: testis, continuous, 74 days, 4 sperm per cell from puberty. Oogenesis: ovary, cyclic, variable duration, 1 ovum per cell from fetal stage.",
     "solutionSteps": [
       "Gametogenesis is formation of gametes through meiosis",
       "Meiosis I: Reduces chromosome number from diploid (2n) to haploid (n)",
@@ -685,7 +685,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "Why are organisms that reproduce asexually more vulnerable to environmental changes compared to those reproducing sexually?",
     "options": [],
-    "answer": "Asexual reproduction produces genetically identical offspring (clones) with no genetic variation. If environment changes or disease emerges, all individuals lack diverse genes to adapt, leading to mass mortality. Sexual reproduction creates genetic diversity enabling adaptation.",
+    "answer": "Asexual reproduction produces genetic clones with no variation, making populations vulnerable to environmental changes and diseases. Sexual reproduction provides genetic diversity enabling population adaptation.",
     "solutionSteps": [
       "Asexual reproduction: No genetic recombination, all offspring are clones",
       "Genetic uniformity means all individuals have same genes and same weaknesses",
@@ -716,7 +716,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "What is double fertilization in flowering plants? Name the structures involved.",
     "options": [],
-    "answer": "Double fertilization: Two fusion events in flowering plants - (1) Sperm fuses with egg nucleus forming zygote (develops into embryo), (2) Second sperm fuses with polar nuclei forming endosperm nucleus (develops into endosperm). Structures: Embryo sac contains egg cell and polar nuclei.",
+    "answer": "Two sperm fusions: (1) Sperm+Egg→Zygote→Embryo, (2) Sperm+Polar nuclei→Endosperm nucleus→Endosperm tissue",
     "solutionSteps": [
       "Flowering plants undergo unique process called double fertilization",
       "Pollen tube enters embryo sac carrying two sperm",
@@ -746,7 +746,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "List any four methods of contraception and classify them as reversible or irreversible.",
     "options": [],
-    "answer": "Reversible: Condom, IUD, Oral pills, Injectables. Irreversible: Tubectomy (female sterilization), Vasectomy (male sterilization).",
+    "answer": "Reversible: Condom, IUD, Pills, Injectables; Irreversible: Tubectomy, Vasectomy",
     "solutionSteps": [
       "Contraceptive methods are classified based on reversibility",
       "REVERSIBLE METHODS:",
@@ -785,7 +785,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "C. Sexual reproduction in plants",
       "D. Fertilization in frogs"
     ],
-    "answer": "B",
+    "answer": "B. Budding in hydra",
     "solutionSteps": [
       "Asexual reproduction involves a single parent organism.",
       "Budding in hydra is a form of asexual reproduction where a new individual grows from the parent's body.",
@@ -814,7 +814,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "C. Four daughter cells",
       "D. Multiple flagellated cells"
     ],
-    "answer": "B",
+    "answer": "B. Two genetically identical daughter cells",
     "solutionSteps": [
       "Binary fission in amoeba is a form of asexual reproduction.",
       "The parent cell divides into two equal-sized daughter cells.",
@@ -838,7 +838,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "Name one advantage of asexual reproduction.",
     "options": [],
-    "answer": "Rapid production of offspring; No energy spent in finding mates; All offspring are genetically identical (any one)",
+    "answer": "Any valid advantage such as: Rapid reproduction, no need for mate, genetic identity with parent",
     "solutionSteps": [
       "Asexual reproduction has several advantages:",
       "1. It is faster than sexual reproduction",
@@ -868,7 +868,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "C. Sepal",
       "D. Stigma"
     ],
-    "answer": "B",
+    "answer": "B. Stamen",
     "solutionSteps": [
       "A flower has male and female reproductive parts.",
       "The stamen is the male part consisting of anther and filament.",
@@ -898,7 +898,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "C. Anemophily",
       "D. Zoophily"
     ],
-    "answer": "C",
+    "answer": "C. Anemophily",
     "solutionSteps": [
       "Different types of pollination exist based on pollinating agents.",
       "Wind-pollinated plants: Anemophily",
@@ -924,7 +924,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "Why do flowers have brightly colored petals? Explain with reference to pollination.",
     "options": [],
-    "answer": "Brightly colored petals attract insects for pollination (insect pollination/entomophily).",
+    "answer": "Brightly colored petals attract insects which help in pollination by transferring pollen.",
     "solutionSteps": [
       "Flowers produce nectar and have attractive features.",
       "Brightly colored petals are an adaptation to attract insects.",
@@ -955,7 +955,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "C. Pollination occurs without any external agent",
       "D. Only wind can pollinate the flower"
     ],
-    "answer": "B",
+    "answer": "B. Pollen from anther of the same flower pollinates its own stigma",
     "solutionSteps": [
       "Self-pollination occurs when pollen from the anther of one flower reaches the stigma of the same flower.",
       "This can be within the same flower or between flowers of the same plant.",
@@ -984,7 +984,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "C. Testis",
       "D. Epididymis"
     ],
-    "answer": "C",
+    "answer": "C. Testis",
     "solutionSteps": [
       "The male reproductive system produces sperms.",
       "Testes are the site of sperm production (spermatogenesis).",
@@ -1014,7 +1014,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "C. Fallopian tube",
       "D. Ovary"
     ],
-    "answer": "C",
+    "answer": "C. Fallopian tube",
     "solutionSteps": [
       "Fertilization is the fusion of egg and sperm.",
       "The ovum is released from the ovary during ovulation.",
@@ -1039,7 +1039,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "What is the function of the placenta?",
     "options": [],
-    "answer": "The placenta provides nutrition and oxygen to the fetus from the mother's blood and removes fetal wastes.",
+    "answer": "The placenta provides nutrients, oxygen, and hormones to the fetus; removes wastes; and provides immunity.",
     "solutionSteps": [
       "The placenta is an organ that develops in the uterus during pregnancy.",
       "It acts as a barrier and interface between maternal and fetal circulation.",
@@ -1070,7 +1070,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "C. 28 days",
       "D. 35 days"
     ],
-    "answer": "C",
+    "answer": "C. 28 days",
     "solutionSteps": [
       "The menstrual cycle is the monthly reproductive cycle in females.",
       "It occurs approximately every 28 days (range: 21-35 days).",
@@ -1099,7 +1099,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "C. 21",
       "D. 28"
     ],
-    "answer": "B",
+    "answer": "B. 14",
     "solutionSteps": [
       "The menstrual cycle is approximately 28 days.",
       "Ovulation (release of mature ovum) occurs around the middle of the cycle.",
@@ -1129,7 +1129,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "C. Asthma",
       "D. Arthritis"
     ],
-    "answer": "B",
+    "answer": "B. Syphilis",
     "solutionSteps": [
       "Sexually transmitted infections spread through sexual contact.",
       "Syphilis is caused by the bacterium Treponema pallidum.",
@@ -1154,7 +1154,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "Name two contraceptive methods.",
     "options": [],
-    "answer": "Condoms, oral contraceptive pills, IUD (intrauterine device), tubectomy, vasectomy (any two)",
+    "answer": "Any two valid methods: Condoms, contraceptive pills, IUD, tubectomy, vasectomy, etc.",
     "solutionSteps": [
       "Contraceptive methods prevent unwanted pregnancies.",
       "Barrier methods: Condoms, diaphragm",
@@ -1185,7 +1185,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "A is true, R is false.",
       "A is false, R is true."
     ],
-    "answer": "D",
+    "answer": "D. A is false, R is true.",
     "solutionSteps": [
       "The reason is correct: Condoms do act as a barrier.",
       "However, condoms are not 100% effective - they reduce risk significantly but are not absolute.",
@@ -1215,7 +1215,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "C. Avoiding healthcare checkups",
       "D. Ignoring personal hygiene"
     ],
-    "answer": "B",
+    "answer": "B. Regular exercise and balanced diet",
     "solutionSteps": [
       "Reproductive health requires overall physical and mental well-being.",
       "Regular exercise and balanced diet support healthy reproductive function.",
@@ -1245,7 +1245,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "A is true, R is false.",
       "A is false, R is true."
     ],
-    "answer": "D",
+    "answer": "D. A is false, R is true.",
     "solutionSteps": [
       "The reason is correct: Self-pollination involves pollen transfer within the same plant.",
       "However, self-pollination reduces genetic variation, not increases it.",
@@ -1276,7 +1276,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "A is true, R is false.",
       "A is false, R is true."
     ],
-    "answer": "B",
+    "answer": "B. Both A and R are true, but R is not the correct explanation of A.",
     "solutionSteps": [
       "Both statements are true.",
       "The umbilical cord does connect the fetus to placental circulation.",
@@ -1303,7 +1303,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "A farmer noticed that when he grows tomato plants closely together, the fruit set is poor. However, when he allows bees to visit the field, the fruit set improves significantly.\n\n(i) What is the role of bees in improving fruit set?\n(ii) Name the process that occurs in tomato flowers due to bee activity.\n(iii) What would happen if bees did not visit the tomato flowers?\n(iv) How can the farmer ensure good fruit set without bees?",
     "options": [],
-    "answer": "(i) Bees transfer pollen from anther to stigma; (ii) Pollination (cross-pollination); (iii) Poor fertilization, reduced fruit set; (iv) Manual pollination or hand cross-pollination",
+    "answer": "Bees act as pollinators enabling cross-pollination in tomato flowers, which is essential for fruit development. Without pollination, fruits cannot form. Manual pollination is an alternative.",
     "solutionSteps": [
       "(i) Bees are pollinators that transfer pollen between flowers.",
       "They carry pollen on their body from one flower to another.",
@@ -1330,7 +1330,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "Compare asexual and sexual reproduction in terms of genetic variation and adaptability to environmental changes.",
     "options": [],
-    "answer": "Asexual: No genetic variation, low adaptability. Sexual: High genetic variation, high adaptability to environmental changes.",
+    "answer": "Asexual reproduction produces genetically identical offspring with no variation, making species less adaptable. Sexual reproduction creates genetic variation through combination of parental genes, enabling better adaptation to environmental changes and evolution.",
     "solutionSteps": [
       "Asexual Reproduction:",
       "- Involves one parent",
@@ -1366,7 +1366,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Creating",
     "questionText": "Explain the process of double fertilization in flowering plants. What are its consequences?",
     "options": [],
-    "answer": "Double fertilization involves fusion of one sperm with egg nucleus (zygote) and another sperm with polar nuclei (endosperm). Consequence: Seed and fruit formation.",
+    "answer": "Double fertilization is the fusion of two sperm cells with egg and polar nuclei respectively, resulting in zygote (embryo) and endosperm (food storage). This ensures viable, well-nourished seeds and fruit formation, a key feature of flowering plants.",
     "solutionSteps": [
       "Double Fertilization Process:",
       "1. After pollen grain lands on stigma, pollen tube grows through style to ovule",
@@ -1483,7 +1483,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "Why is reproductive health education important for adolescents?",
     "options": [],
-    "answer": "To provide awareness about puberty, STIs, contraception, consent, and healthy lifestyle choices for responsible reproduction.",
+    "answer": "Reproductive health education empowers adolescents to make informed decisions, prevent STIs and unwanted pregnancies, understand their changing bodies, and develop healthy relationships and behaviors.",
     "solutionSteps": [
       "Reproductive health education for adolescents is crucial because:",
       "1. Awareness about physical and emotional changes during puberty",

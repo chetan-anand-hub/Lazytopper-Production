@@ -131,7 +131,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "Differentiate between autotrophic and heterotrophic nutrition with one example each.",
     "options": [],
-    "answer": "Autotrophic: Organisms prepare their own food using inorganic substances (e.g., Green plants). Heterotrophic: Organisms depend on other organisms for food (e.g., Animals).",
+    "answer": "See answer field",
     "solutionSteps": [
       "Autotrophic nutrition: Self-feeding, use CO₂ and H₂O with light energy",
       "Heterotrophic nutrition: Depend on other organisms for organic matter",
@@ -473,7 +473,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "Name the chambers of the human heart and describe the flow of blood through it.",
     "options": [],
-    "answer": "Chambers: Two atria (right and left) and two ventricles (right and left). Flow: Deoxygenated blood → Right atrium → Right ventricle → Lungs (via pulmonary artery). Oxygenated blood → Left atrium → Left ventricle → Body (via aorta).",
+    "answer": "See answer field",
     "solutionSteps": [
       "Heart has 4 chambers: RA, LA, RV, LV",
       "Right side receives deoxygenated blood and pumps to lungs",
@@ -648,7 +648,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "A patient with kidney failure is advised to undergo dialysis. The dialysis machine has a semipermeable membrane. Read the passage and answer: (i) What is the principle behind dialysis? (ii) Why is semipermeable membrane used? (iii) What substances are removed during dialysis? (iv) How is dialysis different from normal kidney function?",
     "options": [],
-    "answer": "(i) Dialysis works on osmosis and diffusion principles. Small waste molecules pass through semipermeable membrane but large proteins cannot. (ii) Semipermeable membrane allows selective passage - waste products pass through but essential proteins and blood cells are retained. (iii) Urea, excess water, excess ions, creatinine and other small waste molecules are removed. (iv) Dialysis is slower and incomplete compared to kidneys; needs to be repeated 2-3 times per week; kidneys filter continuously and regulate homeostasis.",
+    "answer": "See answer field",
     "solutionSteps": [
       "Dialysis mimics kidney filtration using semipermeable membrane",
       "Principle: small solutes diffuse across membrane down concentration gradient",
@@ -704,7 +704,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "Describe the structure of a nephron and explain how ultrafiltration, selective reabsorption, and osmoregulation occur. Also explain the role of ADH (antidiuretic hormone) in water conservation.",
     "options": [],
-    "answer": "Nephron structure: Bowman's capsule, Proximal convoluted tubule, Loop of Henle, Distal convoluted tubule, Collecting duct. Ultrafiltration (in Bowman's capsule): Small molecules (glucose, urea, ions, water) are forced through capillary wall due to high blood pressure, while large molecules (proteins, RBCs) remain. Selective reabsorption (in PCT and Loop of Henle): Useful substances (glucose, amino acids) are actively reabsorbed; water is reabsorbed by osmosis. Osmoregulation: Loop of Henle creates osmotic gradient; Distal tubule and collecting duct respond to ADH. ADH role: Increases collecting duct permeability to water; more water is reabsorbed when ADH levels are high (in dehydration); less water is reabsorbed when ADH is low (in excess water).",
+    "answer": "See answer field",
     "solutionSteps": [
       "Nephron has Bowman's capsule (filtration), proximal tubule (reabsorption), loop of Henle (water and ion reabsorption), distal tubule and collecting duct (fine-tuning of water and ion reabsorption)",
       "Ultrafiltration: High hydrostatic pressure in glomerulus forces small molecules into Bowman's capsule",
@@ -733,7 +733,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "A student observes that a potted plant kept in a sealed transparent box with a lamp for 24 hours shows condensation on the inner walls. She measures gas composition and finds increased oxygen and decreased CO₂. Analyze: (i) Which life process is responsible for these observations? (ii) Why does condensation form? (iii) What does the gas analysis indicate? (iv) If the plant is kept in darkness, what will happen?",
     "options": [],
-    "answer": "(i) Photosynthesis is responsible - it produces oxygen and consumes CO₂. Respiration also occurs consuming some oxygen and producing CO₂, but net effect shows photosynthesis dominance. (ii) Condensation forms due to transpiration from leaves releasing water vapor. The sealed environment prevents water vapor from escaping, so it condenses on cooler walls. (iii) Gas analysis shows: Increased O₂ means photosynthesis > respiration; Decreased CO₂ means CO₂ is being used in photosynthesis faster than it's produced by respiration. (iv) In darkness, only respiration occurs - O₂ decreases, CO₂ increases, and no condensation forms (no transpiration without photosynthesis being active).",
+    "answer": "See answer field",
     "solutionSteps": [
       "Photosynthesis in light: 6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂",
       "Respiration (both light and dark): C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O",
@@ -817,7 +817,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "What are the raw materials required for photosynthesis?",
     "options": [],
-    "answer": "Carbon dioxide (CO₂) and water (H₂O); light energy from sunlight",
+    "answer": "CO₂, H₂O, and light energy",
     "solutionSteps": [
       "Photosynthesis requires: 1) Carbon dioxide (from air through stomata), 2) Water (from soil through roots), 3) Light energy (from sun)",
       "Chlorophyll in leaves captures light energy."
@@ -898,7 +898,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Why do desert plants have thick, waxy leaves? Explain how this adaptation helps in nutrition.",
     "options": [],
-    "answer": "Thick, waxy leaves reduce water loss through transpiration, allowing plants to conserve water in desert conditions. This helps them survive and continue photosynthesis even with limited water availability.",
+    "answer": "Adaptations reduce transpiration, conserve water, enabling photosynthesis in arid conditions.",
     "solutionSteps": [
       "Desert plants face water scarcity.",
       "Thick, waxy cuticle reduces transpiration.",
@@ -1010,7 +1010,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "What is the difference between aerobic and anaerobic respiration?",
     "options": [],
-    "answer": "Aerobic respiration requires oxygen and produces more ATP (energy); anaerobic respiration occurs without oxygen and produces less ATP along with lactic acid or ethanol.",
+    "answer": "Aerobic requires O₂ and produces more energy; anaerobic doesn't require O₂ and produces less energy.",
     "solutionSteps": [
       "Aerobic: C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O + Energy (38 ATP)",
       "Anaerobic: C₆H₁₂O₆ → 2C₂H₅OH + 2CO₂ + Energy (2 ATP) [in yeast]",
@@ -1064,7 +1064,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Why do we breathe faster after running? Explain in terms of respiration.",
     "options": [],
-    "answer": "After running, muscles have consumed more glucose and oxygen to produce ATP. Increased breathing supplies more oxygen for aerobic respiration to replenish ATP and remove accumulated CO₂ and lactic acid, returning to normal metabolic state.",
+    "answer": "Faster breathing provides oxygen for aerobic respiration to restore ATP and remove metabolic wastes.",
     "solutionSteps": [
       "During running: high energy demand, increased respiration rate.",
       "After running: body needs to restore ATP depleted stores.",
@@ -1178,7 +1178,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "Name the four chambers of the heart and their functions.",
     "options": [],
-    "answer": "Right atrium: receives deoxygenated blood from body; Right ventricle: pumps deoxygenated blood to lungs; Left atrium: receives oxygenated blood from lungs; Left ventricle: pumps oxygenated blood to body.",
+    "answer": "RA-deoxygenated from body, RV-to lungs, LA-oxygenated from lungs, LV-to body",
     "solutionSteps": [
       "Heart has four chambers: 2 atria and 2 ventricles.",
       "Right side handles deoxygenated blood; left side handles oxygenated blood.",
@@ -1261,7 +1261,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Why is double circulation in humans more efficient than single circulation in fish?",
     "options": [],
-    "answer": "In double circulation, blood passes through the heart twice per cycle: once for pulmonary circulation (heart→lungs→heart) and once for systemic circulation (heart→body→heart). This maintains higher oxygen pressure in systemic circulation, delivering oxygen more efficiently to tissues. Fish have single circulation where blood passes heart once, resulting in lower pressure and slower tissue oxygenation.",
+    "answer": "Double circulation maintains separate high-pressure systems for better oxygen delivery.",
     "solutionSteps": [
       "Single circulation: Heart→Gills→Body→Heart (fish)",
       "Double circulation: Heart→Lungs→Heart→Body→Heart (humans)",
@@ -1374,7 +1374,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "Describe the three main processes occurring in the nephron.",
     "options": [],
-    "answer": "1) Ultrafiltration: In glomerulus, small molecules (glucose, urea, water) are filtered from blood; 2) Selective reabsorption: In proximal convoluted tubule, useful substances like glucose, amino acids, and water are reabsorbed into blood; 3) Secretion: In distal convoluted tubule, excess ions and other wastes are secreted into the filtrate.",
+    "answer": "Ultrafiltration, Selective Reabsorption, Secretion",
     "solutionSteps": [
       "Ultrafiltration occurs due to high blood pressure in glomerulus.",
       "Selective reabsorption is an active process requiring ATP.",
@@ -1428,7 +1428,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A patient's urine test shows presence of glucose and protein. What does this indicate about kidney function?",
     "options": [],
-    "answer": "Presence of glucose and protein in urine indicates impaired kidney function. Glucose should be completely reabsorbed in proximal convoluted tubule (unless blood glucose is very high), and proteins should not be filtered at glomerulus. Their presence suggests: 1) Glomerular damage allowing protein filtration, 2) Reduced selective reabsorption capacity, or 3) Diabetes mellitus with very high blood glucose. This requires medical investigation.",
+    "answer": "Indicates kidney damage or disease; glomerulus filtering proteins or reduced reabsorption.",
     "solutionSteps": [
       "Normal urine should not contain glucose or proteins.",
       "Glucose presence indicates either high blood glucose or failed reabsorption.",
@@ -1453,7 +1453,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "A 45-year-old man visits a doctor complaining of excessive thirst, frequent urination, and fatigue. His fasting blood glucose is 180 mg/dL (normal: 70-100 mg/dL), and urine analysis shows presence of glucose and ketone bodies.\n\nQuestions:\n(a) What is the likely diagnosis?\n(b) Explain why glucose appears in urine in this condition.\n(c) What is the physiological basis of excessive thirst?\n(d) How would you recommend managing this condition through lifestyle changes?",
     "options": [],
-    "answer": "",
+    "answer": "(a) Type 2 Diabetes Mellitus. (b) Blood glucose exceeds renal threshold, so excess is not reabsorbed. (c) Osmotic effect of glucose causes water loss, triggering thirst. (d) Exercise, balanced diet, weight management, stress reduction.",
     "solutionSteps": [
       "(a) Likely diagnosis: Type 2 Diabetes Mellitus",
       "(b) Blood glucose exceeds the renal threshold (usually ~180 mg/dL), so excess glucose cannot be reabsorbed in proximal convoluted tubule, appearing in urine (glycosuria)",
@@ -1478,7 +1478,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Creating",
     "questionText": "Explain how photosynthesis, respiration, and transportation are interconnected in maintaining life processes in a plant. Draw a flow diagram showing the movement of energy and materials through these processes.",
     "options": [],
-    "answer": "",
+    "answer": "Photosynthesis fixes solar energy into glucose; respiration releases this energy for work; transportation distributes materials efficiently. These three processes are complementary and interdependent for plant survival.",
     "solutionSteps": [
       "Photosynthesis in leaves produces glucose using light energy and CO₂.",
       "Glucose is used in respiration (in mitochondria) to produce ATP for cellular activities.",
@@ -1507,7 +1507,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "Compare and contrast the processes of aerobic respiration in different organs and explain how the cardiovascular system supports different metabolic rates in organs like heart, brain, and muscles. How does the excretory system handle the metabolic wastes from these organs?",
     "options": [],
-    "answer": "",
+    "answer": "Different organs have different metabolic rates supported by selective blood flow control. Cardiovascular system delivers oxygen and nutrients proportional to metabolic demands. Excretory system removes metabolic byproducts via multiple pathways.",
     "solutionSteps": [
       "Aerobic respiration occurs in all cells but at different rates based on activity level.",
       "Heart: Continuously active, high ATP demand, high mitochondrial density, requires constant oxygen and glucose supply via coronary arteries.",

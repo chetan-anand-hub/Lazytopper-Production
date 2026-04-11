@@ -18,7 +18,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "C) Zn + CuSO₄ → ZnSO₄ + Cu",
       "D) AgNO₃ + NaCl → AgCl + NaNO₃"
     ],
-    "answer": "A",
+    "answer": "A) 2H₂ + O₂ → 2H₂O",
     "solutionSteps": [
       "A combination reaction involves two or more substances combining to form one product",
       "2H₂ + O₂ → 2H₂O: Two elements (H and O) combine to form water",
@@ -47,7 +47,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "C) Displacement reaction",
       "D) Redox reaction"
     ],
-    "answer": "B",
+    "answer": "B) Decomposition reaction",
     "solutionSteps": [
       "CaCO₃ → CaO + CO₂",
       "One compound breaks down into two simpler substances",
@@ -76,7 +76,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "C) 2CH₄ + O₂ → CO₂ + 2H₂O",
       "D) CH₄ + O₂ → CO + 2H₂O"
     ],
-    "answer": "B",
+    "answer": "B) CH₄ + 2O₂ → CO₂ + 2H₂O",
     "solutionSteps": [
       "Count atoms on both sides",
       "Left: C=1, H=4, O=4 (from 2O₂)",
@@ -106,7 +106,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "C) Fe + O₂ → FeO₃",
       "D) 3Fe + 2O₂ → Fe₃O₂"
     ],
-    "answer": "A",
+    "answer": "A) 4Fe + 3O₂ → 2Fe₂O₃",
     "solutionSteps": [
       "Count Fe atoms: need 4 on left to get 2Fe₂O₃ on right",
       "Count O atoms: need 3O₂ (6 atoms) to balance 6 O atoms in 2Fe₂O₃",
@@ -135,7 +135,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "C) CaCO₃ → CaO + CO₂",
       "D) Zn + Cu²⁺ → Zn²⁺ + Cu"
     ],
-    "answer": "B",
+    "answer": "B) AgNO₃ + NaCl → AgCl↓ + NaNO₃",
     "solutionSteps": [
       "Double displacement: AB + CD → AD + CB",
       "AgNO₃ + NaCl → AgCl + NaNO₃",
@@ -165,7 +165,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "C) MgO",
       "D) Both Mg and O₂"
     ],
-    "answer": "A",
+    "answer": "A) Mg",
     "solutionSteps": [
       "Oxidation is loss of electrons or increase in oxidation state",
       "Mg: 0 → +2 (loses 2 electrons, oxidized)",
@@ -195,7 +195,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "C) CaCO₃ → CaO + CO₂",
       "D) HCl + NaOH → NaCl + H₂O"
     ],
-    "answer": "B",
+    "answer": "B) H₂ + Cl₂ → 2HCl",
     "solutionSteps": [
       "Redox reaction: both oxidation and reduction occur",
       "H₂: 0 → +1 (oxidation)",
@@ -225,7 +225,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "C) Iron carbonate",
       "D) Iron chloride"
     ],
-    "answer": "A",
+    "answer": "A) Iron oxide",
     "solutionSteps": [
       "Corrosion is oxidation of metals",
       "Iron rusts to form iron oxide (Fe₂O₃·xH₂O)",
@@ -254,7 +254,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "C) Oiling",
       "D) Heating"
     ],
-    "answer": "D",
+    "answer": "D) Heating",
     "solutionSteps": [
       "Corrosion requires oxygen and moisture",
       "Galvanization, painting, oiling prevent contact with oxygen/moisture",
@@ -284,7 +284,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "C) Fats and oils",
       "D) Minerals"
     ],
-    "answer": "C",
+    "answer": "C) Fats and oils",
     "solutionSteps": [
       "Rancidity is the process of decomposition of fats and oils",
       "Fats get oxidized on exposure to air/oxygen",
@@ -308,7 +308,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Classify the following reactions: (a) Burning of coal (b) Digestion of food",
     "options": [],
-    "answer": "(a) Combustion/Exothermic reaction (b) Decomposition/Enzymatic reaction",
+    "answer": "(a) Combustion/exothermic (b) Decomposition",
     "solutionSteps": [
       "Burning of coal: C + O₂ → CO₂ (combustion reaction, heat released)",
       "Digestion: Complex molecules break down into simpler ones (decomposition)"
@@ -355,7 +355,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "Identify the oxidizing and reducing agents in: Zn + CuSO₄ → ZnSO₄ + Cu",
     "options": [],
-    "answer": "Zn is reducing agent, CuSO₄ (Cu²⁺) is oxidizing agent",
+    "answer": "Reducing agent: Zn; Oxidizing agent: CuSO₄ (Cu²⁺)",
     "solutionSteps": [
       "Zn: 0 → +2 (oxidized, loses electrons, reducing agent)",
       "Cu²⁺: +2 → 0 (reduced, gains electrons, oxidizing agent)",
@@ -379,7 +379,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "How can we prevent rancidity in oils and fats?",
     "options": [],
-    "answer": "By storing in cool, dark places; using antioxidants; keeping away from air/light",
+    "answer": "Store in cool, dark, airtight containers; add antioxidants",
     "solutionSteps": [
       "Rancidity occurs by oxidation of fats exposed to oxygen, heat, light",
       "Cool and dark storage reduces reaction rate",
@@ -404,7 +404,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "Is rusting of iron an example of combination reaction? Justify.",
     "options": [],
-    "answer": "No. Rusting is a redox reaction, not simple combination.",
+    "answer": "No, rusting is a redox reaction involving oxidation of Fe",
     "solutionSteps": [
       "Rusting: 4Fe + 3O₂ + xH₂O → 2Fe₂O₃·xH₂O",
       "Although Fe and O₂ combine, water also involved",
@@ -520,7 +520,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "CASE: A student performed an experiment where they observed that when magnesium ribbon is burned in air, it produces a bright white light and forms a white powder (MgO). When this white powder is added to water, the solution becomes hot and turns red litmus paper blue.\n\nQuestions:\n(a) Write the balanced equation for burning of magnesium.\n(b) What type of reaction is the burning of magnesium?\n(c) Why does the solution turn red litmus paper blue?\n(d) What does this indicate about the nature of the product?",
     "options": [],
-    "answer": "(a) 2Mg + O₂ → 2MgO (b) Combination/Combustion/Exothermic (c) MgO + H₂O → Mg(OH)₂ (basic) (d) Basic/Alkaline nature",
+    "answer": "(a) 2Mg + O₂ → 2MgO (b) Combination/exothermic reaction (c) Forms Mg(OH)₂ which is basic (d) Product is basic/alkaline",
     "solutionSteps": [
       "Mg burns in O₂ to form MgO: 2Mg + O₂ → 2MgO (balanced: 2Mg, 2O)",
       "It's combination reaction (two elements form compound) and exothermic (releases heat)",
@@ -546,7 +546,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "CASE: In a lab experiment, copper oxide powder is heated with carbon. The black copper oxide powder turns to reddish copper. The gas produced is passed through limewater, which becomes turbid/cloudy. Student A says carbon is oxidized, Student B says copper oxide is reduced. Student C says it's a redox reaction.\n\nQuestions:\n(a) Write balanced equation for the reaction.\n(b) Who is correct - A, B, or C? Justify.\n(c) What is the role of carbon in this reaction?\n(d) Why does limewater become turbid?",
     "options": [],
-    "answer": "(a) 2CuO + C → 2Cu + CO₂ (b) All are correct (it's redox with both oxidation and reduction) (c) Reducing agent (d) CO₂ + Ca(OH)₂ → CaCO₃↓",
+    "answer": "(a) 2CuO + C → 2Cu + CO₂ (b) All are correct (c) Reducing agent (d) CaCO₃ precipitate forms",
     "solutionSteps": [
       "Equation: 2CuO + C → 2Cu + CO₂ (balanced: 2Cu, 3O on both sides)",
       "Cu²⁺ → Cu⁰ (reduction, gains electrons, Student B correct)",
@@ -573,7 +573,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "Corrosion and rancidity are two different deterioration processes affecting everyday materials. Explain the causes, characteristics, and prevention methods for both. Compare and contrast these processes.",
     "options": [],
-    "answer": "See solution steps for detailed explanation",
+    "answer": "Corrosion is oxidation of metals (requires O₂, H₂O, forms Fe₂O₃); prevented by coating/painting. Rancidity is oxidation of fats (requires O₂, light, heat); prevented by cool storage and antioxidants. Both are oxidation but affect different materials and require different prevention methods.",
     "solutionSteps": [
       "CORROSION:",
       "Definition: Oxidation of metals in presence of oxygen/moisture",
@@ -629,7 +629,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "C) 3",
       "D) 4"
     ],
-    "answer": "A",
+    "answer": "A) 1",
     "solutionSteps": [
       "Fe is a single atom, H₂SO₄ is formula unit",
       "Fe + H₂SO₄ → FeSO₄ + H₂",
@@ -659,7 +659,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "C) Thermal decomposition of CaCO₃",
       "D) Neutralization of acid and base"
     ],
-    "answer": "C",
+    "answer": "C) Thermal decomposition of CaCO₃",
     "solutionSteps": [
       "Decomposition: breaks into simpler substances",
       "Endothermic: absorbs heat",
@@ -685,7 +685,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "In the reaction: 2FeCl₃ + 3H₂ → 2FeCl₂ + 6HCl, identify what is oxidized and what is reduced.",
     "options": [],
-    "answer": "H is oxidized (0 → +1), Fe is reduced (+3 → +2)",
+    "answer": "H is oxidized; Fe³⁺ is reduced",
     "solutionSteps": [
       "H₂: H is 0 → +1 in HCl (oxidation, loses electrons)",
       "Fe³⁺: +3 → +2 in FeCl₂ (reduction, gains electrons)",
@@ -709,7 +709,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "Explain why ships made of iron are more susceptible to rusting compared to those made of aluminum, even though aluminum is more reactive.",
     "options": [],
-    "answer": "Al forms Al₂O₃ layer (self-protecting); Fe forms Fe₂O₃ (porous, non-protective)",
+    "answer": "Al forms dense, self-protecting Al₂O₃ layer; Fe forms porous Fe₂O₃ that doesn't prevent further corrosion",
     "solutionSteps": [
       "Al is more reactive, forms Al₂O₃ layer quickly",
       "Al₂O₃ is dense, impermeable layer, prevents further corrosion",
@@ -741,7 +741,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "C) Fe + CuSO₄ → FeSO₄ + Cu",
       "D) 2H₂O₂ → 2H₂O + O₂"
     ],
-    "answer": "A",
+    "answer": "A) H₂ + Cl₂ → 2HCl",
     "solutionSteps": [
       "Combination reaction: Two or more substances combine to form one product",
       "Option A: H₂ + Cl₂ → 2HCl (two elements combine)",
@@ -772,7 +772,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "C) 3",
       "D) 4"
     ],
-    "answer": "C",
+    "answer": "C) 3",
     "solutionSteps": [
       "Unbalanced: Fe + O₂ → Fe₂O₃",
       "Balance Fe: 2Fe + O₂ → Fe₂O₃",
@@ -803,7 +803,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "C) Displacement reaction",
       "D) Double displacement reaction"
     ],
-    "answer": "B",
+    "answer": "B) Decomposition reaction",
     "solutionSteps": [
       "CaCO₃ → CaO + CO₂",
       "One compound breaks down into two or more products",
@@ -832,7 +832,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "C) CuO",
       "D) Both Cu and O₂"
     ],
-    "answer": "B",
+    "answer": "B) Cu",
     "solutionSteps": [
       "Oxidation is loss of electrons",
       "Cu goes from 0 to +2 oxidation state (loses 2 electrons)",
@@ -862,7 +862,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "C) Dry air",
       "D) Salt"
     ],
-    "answer": "C",
+    "answer": "C) Dry air",
     "solutionSteps": [
       "Corrosion requires moisture and oxygen",
       "Salt accelerates corrosion",
@@ -887,7 +887,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Balance the equation: __H₂ + __Cl₂ → __HCl. Write the coefficients.",
     "options": [],
-    "answer": "1, 1, 2 (or H₂ + Cl₂ → 2HCl)",
+    "answer": "1, 1, 2",
     "solutionSteps": [
       "Unbalanced: H₂ + Cl₂ → HCl",
       "H atoms: 2 on left, 1 on right → multiply HCl by 2",
@@ -917,7 +917,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "C) S",
       "D) O"
     ],
-    "answer": "B",
+    "answer": "B) Cu",
     "solutionSteps": [
       "This is a displacement reaction",
       "Fe (more reactive) displaces Cu (less reactive) from CuSO₄",
@@ -978,7 +978,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "C) 2K + Cl₂ → 2KCl",
       "D) 2AgNO₃ → 2Ag + 2NO₂ + O₂"
     ],
-    "answer": "A",
+    "answer": "A) Na₂SO₄ + BaCl₂ → BaSO₄ + 2NaCl",
     "solutionSteps": [
       "Double displacement: AB + CD → AD + CB",
       "Option A: Na₂SO₄ + BaCl₂ → BaSO₄↓ + 2NaCl",
@@ -1008,7 +1008,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "C) Increasing temperature",
       "D) Exposing to sunlight"
     ],
-    "answer": "B",
+    "answer": "B) Adding antioxidants or using airtight containers",
     "solutionSteps": [
       "Rancidity is oxidation of fats and oils",
       "Prevention methods: reduce O₂ exposure, add antioxidants",
@@ -1033,7 +1033,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Balance: __Mg + __N₂ → __Mg₃N₂",
     "options": [],
-    "answer": "3, 1, 1 (or 3Mg + N₂ → Mg₃N₂)",
+    "answer": "3, 1, 1",
     "solutionSteps": [
       "Unbalanced: Mg + N₂ → Mg₃N₂",
       "Mg: 1 on left, 3 on right → coefficient 3",
@@ -1119,7 +1119,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "C) 1, 2, 1",
       "D) 2, 1, 2"
     ],
-    "answer": "A",
+    "answer": "A) 1, 1, 1",
     "solutionSteps": [
       "Unbalanced: C + O₂ → CO₂",
       "C atoms: 1 on each side (balanced)",
@@ -1149,7 +1149,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "C) NaCl → Na + Cl₂ (electrolysis)",
       "D) Both B and C"
     ],
-    "answer": "D",
+    "answer": "D) Both B and C",
     "solutionSteps": [
       "Decomposition: compound breaks into 2+ products",
       "Redox: involves transfer of electrons",
@@ -1175,7 +1175,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "What is the chemical formula of rust? Name the process by which iron corrodes.",
     "options": [],
-    "answer": "Fe₂O₃·xH₂O (or hydrated iron oxide); Process: Corrosion",
+    "answer": "Fe₂O₃·xH₂O; Corrosion",
     "solutionSteps": [
       "Rust is hydrated iron(III) oxide",
       "Chemical formula: Fe₂O₃·xH₂O (x varies)",
@@ -1258,7 +1258,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "Classify the following reactions and write balanced equations:\n(a) Combustion of ethane (C₂H₆)\n(b) Decomposition of hydrogen peroxide",
     "options": [],
-    "answer": "(a) C₂H₆ + 3.5O₂ → 2CO₂ + 3H₂O or 2C₂H₆ + 7O₂ → 4CO₂ + 6H₂O (Combustion)\n(b) 2H₂O₂ → 2H₂O + O₂ (Decomposition)",
+    "answer": "(a) 2C₂H₆ + 7O₂ → 4CO₂ + 6H₂O (Combustion); (b) 2H₂O₂ → 2H₂O + O₂ (Decomposition)",
     "solutionSteps": [
       "(a) Combustion reaction - organic compound burns in O₂",
       "C₂H₆ has 2 C and 6 H",
@@ -1286,7 +1286,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "Explain why burning of magnesium in oxygen is a redox reaction. Which element is oxidized?",
     "options": [],
-    "answer": "Mg is oxidized; Reaction: 2Mg + O₂ → 2MgO. Mg: 0→+2 (oxidized), O: 0→-2 (reduced)",
+    "answer": "Mg is oxidized; Mg: 0→+2 (loses electrons), O₂: 0→-2 (gains electrons)",
     "solutionSteps": [
       "Reaction: 2Mg + O₂ → 2MgO",
       "Oxidation state changes indicate redox:",
@@ -1313,7 +1313,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "Differentiate between corrosion and rancidity with one example each.",
     "options": [],
-    "answer": "Corrosion: oxidation of metals (e.g., rusting of iron). Rancidity: oxidation of fats/oils (e.g., oxidation of ghee/butter)",
+    "answer": "Corrosion is oxidation of metals (e.g., rusting); Rancidity is oxidation of fats/oils (e.g., spoiling of ghee)",
     "solutionSteps": [
       "Corrosion: chemical attack on metals by gases/liquids in environment",
       "Example: Fe + O₂ + H₂O → Fe₂O₃·xH₂O (rust)",
@@ -1339,7 +1339,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "Read the passage and answer the questions:\n\nA student performed an experiment where iron filings were added to a solution of copper sulfate. After some time, the blue color of the solution disappeared and reddish-brown copper metal was deposited. The solution became light green (due to iron sulfate formation).\n\nThe reaction: Fe + CuSO₄ → FeSO₄ + Cu\n\n(a) What type of chemical reaction is this?\n(b) Balance the equation.\n(c) Identify the reducing and oxidizing agents.\n(d) Why is this reaction important in extractive metallurgy?",
     "options": [],
-    "answer": "(a) Displacement reaction (single displacement); (b) Fe + CuSO₄ → FeSO₄ + Cu (already balanced); (c) Fe is reducing agent, CuSO₄ is oxidizing agent; (d) More reactive metal displaces less reactive metal from its salt",
+    "answer": "(a) Single/Displacement reaction; (b) Fe + CuSO₄ → FeSO₄ + Cu; (c) Fe = reducing agent, CuSO₄ = oxidizing agent; (d) Basis of metal extraction method",
     "solutionSteps": [
       "(a) One element (Fe) displaces another (Cu) from a compound = Single displacement reaction",
       "(b) Check balance: Fe:1=1✓, Cu:1=1✓, S:1=1✓, O:4=4✓ → Already balanced",
@@ -1365,7 +1365,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "Write the balanced chemical equation for the combustion of butane (C₄H₁₀) and answer the following:\n(a) Classify this reaction.\n(b) Identify the oxidation state changes.\n(c) Which substance is oxidized and which is reduced?\n(d) Why is this reaction classified as a redox reaction?\n(e) Give its practical application.",
     "options": [],
-    "answer": "2C₄H₁₀ + 13O₂ → 8CO₂ + 10H₂O",
+    "answer": "2C₄H₁₀ + 13O₂ → 8CO₂ + 10H₂O; (a) Combustion/Redox; (b) C:-2.5→+4, O:0→-2; (c) C₄H₁₀ oxidized, O₂ reduced; (d) Electron transfer occurs; (e) Fuel/energy source",
     "solutionSteps": [
       "Balanced equation: 2C₄H₁₀ + 13O₂ → 8CO₂ + 10H₂O",
       "(a) Classification: Combustion reaction (redox type)",
@@ -1396,7 +1396,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "Consider the reaction between sodium and chlorine: 2Na + Cl₂ → 2NaCl\n\n(a) Draw electron dot structure showing electron transfer.\n(b) Identify which reactant is oxidized and which is reduced.\n(c) Identify the oxidizing agent and reducing agent.\n(d) Explain why this is a redox reaction.\n(e) Calculate the number of electrons transferred when 23 g of sodium reacts.",
     "options": [],
-    "answer": "Electrons transferred = 0.5 mol = 3.01×10²³ electrons (or 1 Avogadro's number)",
+    "answer": "6.022×10²³ electrons (or 1 mole of electrons transferred)",
     "solutionSteps": [
       "(a) Na loses 1e⁻: Na• → Na⁺ + e⁻",
       "Cl gains 1e⁻: :Cl: + e⁻ → Cl⁻",

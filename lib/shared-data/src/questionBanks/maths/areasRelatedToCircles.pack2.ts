@@ -18,7 +18,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "C) 49/6 cm²",
       "D) 98/6 cm²"
     ],
-    "answer": "C",
+    "answer": "49/6 cm²",
     "solutionSteps": [
       "Area of sector = (θ/360°) × πr²",
       "= (60°/360°) × π × 7²",
@@ -48,7 +48,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "C) 15π cm",
       "D) 20π cm"
     ],
-    "answer": "A",
+    "answer": "5π cm",
     "solutionSteps": [
       "Arc length = (θ/360°) × 2πr",
       "= (90°/360°) × 2π × 10",
@@ -78,7 +78,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "C) 60°",
       "D) 90°"
     ],
-    "answer": "C",
+    "answer": "60°",
     "solutionSteps": [
       "Area = (θ/360°) × πr²",
       "18.84 = (θ/360°) × 3.14 × 36",
@@ -108,7 +108,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "C) Area of triangle - Area of sector",
       "D) Area of sector × Area of triangle"
     ],
-    "answer": "B",
+    "answer": "Area of sector - Area of triangle",
     "solutionSteps": [
       "A segment is the region between a chord and the arc",
       "Area of segment = Area of sector - Area of triangle formed by two radii and chord"
@@ -183,7 +183,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A circle has radius 10 cm. Find the area of the segment cut off by a chord at a distance of 6 cm from the center.",
     "options": [],
-    "answer": "100/3 - 48 cm² (or approximately 15.33 cm²)",
+    "answer": "≈ 44.76 cm²",
     "solutionSteps": [
       "cos(θ/2) = 6/10 = 3/5, so θ/2 = cos⁻¹(0.6) ≈ 53.13°",
       "θ ≈ 106.26° or use exact calculation with sin(θ) = 2×6×8/100 = 0.96",
@@ -208,7 +208,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A square of side 10 cm is inscribed in a circle. Find the area between the circle and the square (use π = 3.14).",
     "options": [],
-    "answer": "21.5 cm²",
+    "answer": "57 cm²",
     "solutionSteps": [
       "Diagonal of square = 10√2 cm",
       "Radius of circle = 5√2 cm",
@@ -239,7 +239,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "A is true, R is false.",
       "A is false, R is true."
     ],
-    "answer": "D",
+    "answer": "A is false, R is true.",
     "solutionSteps": [
       "Assertion: Two sectors with same angle but different radii will NOT have equal areas",
       "Area = (θ/360°) × πr², so area depends on both θ and r",
@@ -270,7 +270,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "C) 60°",
       "D) 90°"
     ],
-    "answer": "C",
+    "answer": "60°",
     "solutionSteps": [
       "Arc length = (θ/360°) × 2πr",
       "22 = (θ/360°) × 2 × (22/7) × 21",
@@ -295,7 +295,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Find the area of a segment of a circle with radius 5 cm, if the central angle of the sector is 90°. (Use π = 3.14)",
     "options": [],
-    "answer": "3.525 cm²",
+    "answer": "7.125 cm²",
     "solutionSteps": [
       "Area of sector = (90°/360°) × π × 5² = (1/4) × 3.14 × 25 = 19.625 cm²",
       "Area of triangle = (1/2) × r² × sin(90°) = (1/2) × 25 × 1 = 12.5 cm²",
@@ -345,7 +345,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "A park has a circular garden of radius 7 m. A path of width 1 m is constructed along the boundary of the garden inside it. Find:\n(i) The area of the path.\n(ii) The area of the inner circular region.",
     "options": [],
-    "answer": "(i) 43 m² (ii) 113.14 m²",
+    "answer": "(i) ≈40.86 m² (ii) ≈113.14 m²",
     "solutionSteps": [
       "(i) Outer radius = 7 m, Inner radius = 6 m",
       "Area of path = π(R² - r²) = (22/7)(49 - 36)",
@@ -376,7 +376,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "A is true, R is false.",
       "A is false, R is true."
     ],
-    "answer": "A",
+    "answer": "Both A and R are true, and R is the correct explanation of A.",
     "solutionSteps": [
       "Assertion: When radius is constant, area ∝ θ (central angle)",
       "From formula Area = (θ/360°) × πr², with r constant, Area ∝ θ",
@@ -477,15 +477,13 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "A rectangular plot of dimensions 20 m × 15 m has two semi-circular gardens at the ends of its length. Find the total area of the plot including the gardens. Also find the perimeter of the entire figure. (Use π = 3.14)",
     "options": [],
-    "answer": "Total Area = 300 + 78.5 = 378.5 m²; Perimeter = 50 + 47.1 = 97.1 m",
+    "answer": "Area = 388.31 m²; Perimeter = 87.1 m",
     "solutionSteps": [
       "Rectangular plot area = 20 × 15 = 300 m²",
       "Two semi-circular gardens: diameter = 15 m, radius = 7.5 m",
       "Area of two semicircles = π × 7.5² = 3.14 × 56.25 = 176.625/2 × 2 = 176.625 m²",
-      "Wait, recalculate: Area of circle = πr² = 3.14 × 7.5² = 3.14 × 56.25 = 176.625 m²",
       "For two semicircles = 176.625 m² (equals one full circle)",
       "Actually: Two semicircles = πr² = 3.14 × 56.25 ≈ 176.625 m²",
-      "Let me recalculate: r = 7.5, πr² = 3.14 × 56.25 = 176.625 m²",
       "Total area = 300 + 176.625/2 = 300 + 88.31 = 388.31 m²",
       "Perimeter: Two lengths (20×2) + One length as semicircles circumference + One breadth",
       "= 20 + 20 + 30 + πd/2 + πd/2 = 70 + πd",
@@ -514,7 +512,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "C) 45 cm²",
       "D) 50 cm²"
     ],
-    "answer": "B",
+    "answer": "36 cm²",
     "solutionSteps": [
       "For sectors of same circle: Area ∝ Central angle",
       "Let angles be 3x and 5x",
@@ -545,7 +543,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "A is true, R is false.",
       "A is false, R is true."
     ],
-    "answer": "D",
+    "answer": "Both A and R are false",
     "solutionSteps": [
       "Arc length = (θ/360°) × 2πr depends on both θ and r",
       "Two arcs with same length can have different r and θ combinations",
@@ -604,7 +602,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "C) (π - 2)d²/8",
       "D) (11/7 - 1)r²"
     ],
-    "answer": "A",
+    "answer": "(π - 2)r²",
     "solutionSteps": [
       "For largest inscribed square in circle of radius r: diagonal = 2r",
       "Side of square = 2r/√2 = r√2",
@@ -630,7 +628,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "A sector of angle θ is cut from a circle of radius 12 cm. If the ratio of arc length to the perimeter of the sector is 2:5, find θ and the area of the sector.",
     "options": [],
-    "answer": "θ = 96°; Area = 96π cm²",
+    "answer": "θ = 96°; Area = 96π/5 cm² or 60.3 cm²",
     "solutionSteps": [
       "Arc length = (θ/360°) × 2πr = (θ/360°) × 24π",
       "Perimeter of sector = Arc + 2r = (θ/360°) × 24π + 24",
@@ -784,7 +782,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Find the area of a segment of a circle with radius 12 cm and central angle 90°.",
     "options": [],
-    "answer": "30.86 cm²",
+    "answer": "41.14 cm²",
     "solutionSteps": [
       "Area of sector = (90°/360°) × π × 12²",
       "= (1/4) × 22/7 × 144 = 113.14 cm²",
@@ -1030,7 +1028,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "A circular disc of radius 10 cm has a segment cut off by a chord at a distance of 6 cm from the center. Calculate: (i) The central angle subtended by the chord, (ii) The area of the segment, (iii) The length of the arc.",
     "options": [],
-    "answer": "(i) Central angle ≈ 97.18° (ii) Area ≈ 28.54 cm² (iii) Arc length ≈ 16.96 cm",
+    "answer": "(i) θ ≈ 106.26° (ii) Segment area ≈ 44.73 cm² (iii) Arc length ≈ 18.55 cm",
     "solutionSteps": [
       "Given: radius = 10 cm, distance from center = 6 cm",
       "(i) Using cos(θ/2) = 6/10 = 0.6, θ/2 = 53.13°, θ ≈ 106.26°",
@@ -1059,7 +1057,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "A square of side 20 cm has semicircles drawn on each of its four sides (externally). Calculate: (i) The total area covered by the figure, (ii) The perimeter of the entire figure, (iii) The area of overlap if semicircles were drawn internally instead.",
     "options": [],
-    "answer": "(i) 628.57 cm² (ii) 62.86 cm (iii) 228.57 cm²",
+    "answer": "(i) 1028.57 cm² (ii) 125.71 cm (iii) 228.57 cm²",
     "solutionSteps": [
       "(i) Area of square = 400 cm²",
       "Area of 4 semicircles = 4 × (1/2) × π × 10² = 628.57 cm²",

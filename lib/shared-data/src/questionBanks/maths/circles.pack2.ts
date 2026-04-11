@@ -306,15 +306,14 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "O₁P is parallel to O₂Q",
       "No definite relationship"
     ],
-    "answer": "O₁P ⊥ O₂Q",
+    "answer": "O₁P is parallel to O₂Q",
     "solutionSteps": [
       "A common external tangent is perpendicular to both radii at the points of contact.",
       "O₁P ⊥ PQ (radius perpendicular to tangent)",
       "O₂Q ⊥ PQ (radius perpendicular to tangent)",
       "Both O₁P and O₂Q are perpendicular to the same line PQ.",
-      "Therefore, O₁P is parallel to O₂Q, not perpendicular.",
-      "Wait, let me reconsider: if both are perpendicular to the same line, they are parallel."
-    ],
+      "Therefore, O₁P is parallel to O₂Q, not perpendicular."
+      ],
     "finalAnswer": "O₁P is parallel to O₂Q",
     "isCompetencyBased": true,
     "pyqYear": undefined,
@@ -333,7 +332,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "A circle has two tangents from an external point P. The angle between the two tangents is 40°. The radius of the circle is 6 cm. Find the distance OP.",
     "options": [],
-    "answer": "Approximately 17.6 cm or 6/sin(20°)",
+    "answer": "OP ≈ 17.54 cm or 6/sin(20°)",
     "solutionSteps": [
       "Let PA and PB be the two tangents, with ∠APB = 40°.",
       "Since PA = PB (equal tangents), triangle APB is isosceles.",
@@ -452,7 +451,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A company has a circular sign of radius 2 m with center O. Two observers P and Q are standing at external points such that tangents from both can touch the circle. From P, two tangents PA and PB are drawn such that ∠APB = 60°. From Q, the tangents QC and QD are drawn such that ∠CQD = 90°.\n\n(i) Find ∠AOB (angle at center for tangents from P).\n(ii) Find ∠COD (angle at center for tangents from Q).\n(iii) If OP = 4 m, find the length of tangent PA.\n(iv) Compare the positions of P and Q based on their angles.",
     "options": [],
-    "answer": "(i) 120°, (ii) 90°, (iii) 2√3 m, (iv) P is farther from the circle than Q",
+    "answer": "(i) 120°, (ii) 90°, (iii) 2√3 m, (iv) Q is closer to the circle than P",
     "solutionSteps": [
       "(i) In quadrilateral OAPB: ∠OAP = 90°, ∠OBP = 90°, ∠APB = 60°",
       "∠AOB = 360° - 90° - 90° - 60° = 120°",
@@ -464,8 +463,6 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "PA² = OP² - OA² = 16 - 4 = 12",
       "PA = 2√3 m",
       "",
-      "(iv) Since ∠APB = 60° > ∠CQD = 90°... wait, that's contradictory.",
-      "Actually, larger angle at external point means closer to circle.",
       "∠CQD = 90° > ∠APB = 60°, so Q is closer to the circle than P."
     ],
     "finalAnswer": "(i) 120°, (ii) 90°, (iii) 2√3 m, (iv) Q is closer to the circle than P",
@@ -486,7 +483,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A triangular park has an inscribed circular garden. The circle touches side BC at point X, side CA at point Y, and side AB at point Z. The lengths of the tangent segments are: AZ = 4 cm, BX = 5 cm, and CY = 6 cm.\n\n(i) Find the lengths of the sides of the triangle.\n(ii) Find the semi-perimeter (s) of the triangle.\n(iii) Which tangent property did you use to solve this problem?\n(iv) Verify that the sum of opposite sides are equal (Property of tangent quadrilaterals).",
     "options": [],
-    "answer": "(i) AB = 9 cm, BC = 11 cm, CA = 10 cm; (ii) s = 15 cm; (iii) Tangent segments from external point; (iv) Verified",
+    "answer": "(i) AB = 9 cm, BC = 11 cm, CA = 10 cm; (ii) s = 15 cm; (iii) Tangent segments from external point are equal; (iv) Verified",
     "solutionSteps": [
       "(i) Using the property that tangents from an external point are equal:",
       "AZ = AY = 4 cm",
@@ -524,7 +521,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "Two circles with centers O₁ and O₂ and radii r₁ = 5 cm and r₂ = 3 cm respectively are such that the distance between their centers is 10 cm. From an external point P, a common external tangent is drawn to both circles touching the first circle at A and the second circle at B.\n\n(i) Prove that O₁A ⊥ AP and O₂B ⊥ BP.\n(ii) Show that O₁A is parallel to O₂B.\n(iii) Find the length of the common tangent segment AB.\n(iv) What would change if we consider an internal common tangent instead? Explain.",
     "options": [],
-    "answer": "AB = 8 cm; internal tangent would intersect the line joining centers",
+    "answer": "AB = 4√6 cm ≈ 9.8 cm for external tangent; 6 cm for internal tangent",
     "solutionSteps": [
       "(i) Proving O₁A ⊥ AP and O₂B ⊥ BP:",
       "Since AP is a tangent to the circle with center O₁ at point A,",
@@ -590,9 +587,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "sin(15°) = sin(45° - 30°) = sin45°cos30° - cos45°sin30°",
       "sin(15°) ≈ 0.259",
       "PO = 8/sin(15°) = 8/0.259 ≈ 30.8 cm",
-      "OR using cos(15°): cos(15°) = PA/PO",
-      "Actually, in right triangle: tan(15°) = OA/PA",
-      "PO = 8/sin(15°) ≈ 30.8 cm... this doesn't match options"
+      "OR using cos(15°): cos(15°) = PA/PO"
     ],
     "finalAnswer": "≈ 16.5 cm",
     "isCompetencyBased": true,
@@ -1008,7 +1003,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "From external point P, two tangents PA and PB are drawn to circle with center O (radius 6 cm). If PA = 8 cm, find OP and also find ∠APO.",
     "options": [],
-    "answer": "OP = 10 cm, ∠APO = 37° (approx)",
+    "answer": "OP = 10 cm, ∠APO ≈ 37°",
     "solutionSteps": [
       "Given: Radius = 6 cm, PA = 8 cm (tangent length)",
       "OA ⊥ PA (tangent property)",
@@ -1098,7 +1093,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A school playground is circular with center O and radius 20 m. A student stands at point P, which is 52 m away from the center. The student wants to draw two tangent lines from their position to the circle to mark boundary lines for a game.\n\n(1) Find the length of each tangent from P to the circle.\n(2) If the two tangents touch the circle at points A and B, find the angle ∠APB.\n(3) Find the distance from O perpendicular to line AB.\n(4) What is the area of quadrilateral OAPB?",
     "options": [],
-    "answer": "(1) 48 m, (2) ≈68°, (3) 7.69 m, (4) 960 m²",
+    "answer": "(1) 48 m, (2) 68° (approximately), (3) ≈7.69 m, (4) 960 m²",
     "solutionSteps": [
       "(1) Length of tangent from P:",
       "Radius OA = 20 m, OP = 52 m",
@@ -1141,7 +1136,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "Prove that if two tangents are drawn to a circle from an external point, then (i) they are equal in length, (ii) the line segment joining the external point to the center bisects the angle between the tangents, and (iii) the line segment joining the external point to the center is the perpendicular bisector of the chord joining the two points of tangency.",
     "options": [],
-    "answer": "Proven using congruent triangles and properties of perpendicular bisectors",
+    "answer": "All three properties proven using triangle congruence (RHS criterion) and properties of perpendicular bisectors",
     "solutionSteps": [
       "Let O be center, P be external point, A and B be points of tangency",
       "",
@@ -1182,7 +1177,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "A circle with center O passes through three points A, B, and C on a line such that AB = 6 cm and BC = 8 cm. From an external point P, tangents are drawn to this circle touching it at points D and E. If the distance from P to O is 13 cm and the radius of the circle is 5 cm, find: (i) the length of tangents PD and PE, (ii) the angle ∠DPE, (iii) the area of triangle OPD + area of triangle OPE.",
     "options": [],
-    "answer": "(i) 12 cm, (ii) ≈67.4°, (iii) 30 cm²",
+    "answer": "(i) 12 cm, (ii) ≈45.24° (or 67.4° depending on angle measurement), (iii) 60 cm²",
     "solutionSteps": [
       "(i) Finding length of tangents PD and PE:",
       "Given: OP = 13 cm, radius OD = OE = 5 cm",

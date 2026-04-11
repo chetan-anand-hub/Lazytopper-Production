@@ -547,7 +547,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "A survey of 40 students' test scores is given:\n\nMarks: 0-10, 10-20, 20-30, 30-40, 40-50\nFrequency: 4, 6, 10, 12, 8\n\n(i) Find the median score.\n(ii) Find the modal score.\n(iii) Compare median and mode, explaining which better represents the data.",
     "options": [],
-    "answer": "Median = 28; Mode = 33.33; Mode is better as highest frequency indicates concentration of scores",
+    "answer": "Median = 28; Mode = 33.33",
     "solutionSteps": [
       "(i) Median calculation:",
       "CF: 4, 10, 20, 32, 40",
@@ -578,7 +578,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "The following table shows the distribution of marks obtained by 100 students in an examination. The mean is 40. Find the missing frequency f₁ and f₂, then calculate the median and mode. Discuss which measure best represents the distribution.\n\nMarks: 0-10, 10-20, 20-30, 30-40, 40-50, 50-60\nFrequency: 5, f₁, 20, 30, f₂, 10\n\nGiven: Mean = 40",
     "options": [],
-    "answer": "f₁ = 15, f₂ = 20; Median = 40; Mode = 38.57",
+    "answer": "f₁ = 15, f₂ = 20; Mean = 40, Median ≈ 33.33, Mode = 35",
     "solutionSteps": [
       "Step 1: Find f₁ and f₂",
       "Total frequency: 5 + f₁ + 20 + 30 + f₂ + 10 = 100",
@@ -618,7 +618,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "From the less than ogive of a frequency distribution with 60 observations, the cumulative frequencies at class boundaries 0, 10, 20, 30, 40 are 0, 8, 22, 40, 54 respectively, and at 50 is 60.\n\nFind Q₁ (first quartile) and Q₃ (third quartile).",
     "options": [],
-    "answer": "Q₁ = 13.75; Q₃ = 35",
+    "answer": "Q₁ ≈ 15; Q₃ ≈ 35",
     "solutionSteps": [
       "Total observations = 60",
       "Q₁ position = n/4 = 15",
@@ -735,7 +735,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Calculate the mean of the following grouped data:\nClass Interval: 0-10, 10-20, 20-30, 30-40\nFrequency: 5, 8, 4, 3",
     "options": [],
-    "answer": "16.36 (approximately)",
+    "answer": "17.5",
     "solutionSteps": [
       "Class midpoints: 5, 15, 25, 35",
       "Calculate Σ(fi × xi):",
@@ -1023,7 +1023,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "A teacher computed the mean height of 40 students using grouped data method. If Σfi = 40 and Σ(fi × xi) = 1680, but later found an error where one frequency was recorded as 8 instead of 5, find the correct mean.",
     "options": [],
-    "answer": "41.25",
+    "answer": "Requires class midpoint; typically 39.75 to 41.25",
     "solutionSteps": [
       "Given: Mean = Σ(fi × xi) / Σfi = 1680 / 40 = 42",
       "Error: frequency recorded as 8 instead of 5",
@@ -1053,7 +1053,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "In a frequency distribution, the median class is 25-35 with frequency 20. If n = 100 and cumulative frequency before median class is 30, calculate the median.",
     "options": [],
-    "answer": "30",
+    "answer": "35",
     "solutionSteps": [
       "Given: Median class = 25-35",
       "Frequency (f) = 20, Class width (h) = 10",
@@ -1084,7 +1084,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "For a distribution, modal class is 40-50 with frequency 35. Frequencies of classes before and after are 20 and 25 respectively. Class width = 10. Find the mode.",
     "options": [],
-    "answer": "43.33",
+    "answer": "46",
     "solutionSteps": [
       "Given: Modal class = 40-50 (l = 40)",
       "f1 (modal frequency) = 35",
@@ -1116,7 +1116,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "Using an ogive, find the median from the following: Class: 0-10, 10-20, 20-30, 30-40; CF: 5, 15, 35, 50",
     "options": [],
-    "answer": "23.33",
+    "answer": "25",
     "solutionSteps": [
       "Total frequency n = 50",
       "n/2 = 25",
@@ -1241,7 +1241,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A school conducted a survey on the daily commute time (in minutes) of 50 students. The grouped frequency distribution is given below:\n\nClass Interval (minutes): 0-10, 10-20, 20-30, 30-40, 40-50\nFrequency: 8, 12, 15, 10, 5\n\nBased on this data, answer the following:\n(i) What is the modal class?\n(ii) Calculate the median commute time.\n(iii) Find the mean commute time.\n(iv) What does the ogive curve represent in this context?",
     "options": [],
-    "answer": "(i) 20-30, (ii) 23.33 min, (iii) 24 min, (iv) Cumulative frequency distribution showing students with commute time ≤ upper limit",
+    "answer": "(i) 20-30 (ii) 23.33 minutes (iii) 23.4 minutes (iv) Cumulative frequency curve",
     "solutionSteps": [
       "(i) Modal class: Frequencies are 8, 12, 15, 10, 5. Highest is 15, so modal class = 20-30",
       "(ii) Median: n = 50, n/2 = 25. CF: 8, 20, 35, 45, 50. Median class = 20-30 (CF 35 ≥ 25)",
@@ -1270,7 +1270,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "The following table shows the distribution of marks obtained by 60 students in a class test:\n\nMarks: 0-10, 10-20, 20-30, 30-40, 40-50, 50-60\nFrequency: 4, 8, 12, 18, 12, 6\n\nCalculate:\n(a) The mean using the direct method\n(b) The mean using the assumed mean method (Take assumed mean = 35)\n(c) Identify which measure of central tendency (mean, median, mode) would best represent this data and justify your answer",
     "options": [],
-    "answer": "(a) 31.67 marks (b) 31.67 marks (c) Median is best as data is skewed",
+    "answer": "(a) Mean = 32 marks (b) Mean = 32.33 marks (c) Mean is appropriate for this symmetric distribution",
     "solutionSteps": [
       "(a) Direct Method:",
       "Class midpoints: 5, 15, 25, 35, 45, 55",
@@ -1307,7 +1307,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "The daily expenses (in rupees) of 100 families are given below:\n\nExpenses: 0-100, 100-200, 200-300, 300-400, 400-500, 500-600\nFrequency: 10, 14, 27, 30, 12, 7\n\nFind:\n(a) The modal class and calculate mode\n(b) The median class and calculate median\n(c) Compare the three measures of central tendency and explain which one best represents the data. Draw the less than type ogive to verify your answer graphically.",
     "options": [],
-    "answer": "(a) Mode = 350 (b) Median = 310 (c) Median best represents as data is skewed right",
+    "answer": "(a) Mode ≈ 314 rupees (b) Median ≈ 296 rupees (c) Median represents best; ogive confirms skewed distribution",
     "solutionSteps": [
       "(a) Modal Class: Frequencies: 10, 14, 27, 30, 12, 7",
       "Maximum frequency = 30, Modal class = 300-400",

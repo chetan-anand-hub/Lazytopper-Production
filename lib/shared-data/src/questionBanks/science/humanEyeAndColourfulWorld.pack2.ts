@@ -398,7 +398,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "Describe the function of the retina in the human eye.",
     "options": [],
-    "answer": "The retina is a light-sensitive layer at the back of the eye that converts light energy into electrical signals.",
+    "answer": "The retina is a light-sensitive layer that converts light signals into electrical signals transmitted to the brain via the optic nerve for image formation.",
     "solutionSteps": [
       "The retina contains photoreceptor cells: rods and cones.",
       "Rods are sensitive to light and dark; cones are sensitive to colors.",
@@ -424,7 +424,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "How does the accommodation of the eye help in viewing objects at different distances?",
     "options": [],
-    "answer": "The eye changes the focal length of the lens to focus on objects at different distances.",
+    "answer": "Accommodation allows the eye to change lens shape through ciliary muscle action, adjusting focal length to focus objects at varying distances on the retina.",
     "solutionSteps": [
       "The ciliary muscles contract and relax to change the lens shape.",
       "When viewing distant objects, ciliary muscles relax and the lens becomes flat.",
@@ -450,7 +450,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "Why do stars appear to shift their position slightly during the night? Explain the phenomenon involved.",
     "options": [],
-    "answer": "Atmospheric refraction causes apparent shift in star positions due to varying density layers in the atmosphere.",
+    "answer": "Stars appear to shift positions due to atmospheric refraction caused by varying density layers in the atmosphere that continuously bend light rays.",
     "solutionSteps": [
       "Earth's atmosphere has layers of different temperatures and pressures.",
       "These layers have varying refractive indices.",
@@ -477,7 +477,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "Explain why different colors have different refractive indices in a glass prism.",
     "options": [],
-    "answer": "Different colors have different wavelengths, which interact differently with the material of the prism.",
+    "answer": "Different colors have different wavelengths. Shorter wavelengths (violet) interact more strongly with the prism material, resulting in greater refraction and higher refractive indices.",
     "solutionSteps": [
       "Different colors of light have different wavelengths.",
       "Violet light has the shortest wavelength; red light has the longest.",
@@ -504,7 +504,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "How is Rayleigh scattering related to the wavelength of light?",
     "options": [],
-    "answer": "Rayleigh scattering is inversely proportional to the fourth power of wavelength (I ∝ 1/λ⁴).",
+    "answer": "Rayleigh scattering is inversely proportional to the fourth power of wavelength, so shorter wavelengths scatter much more strongly than longer wavelengths.",
     "solutionSteps": [
       "Rayleigh scattering formula: Scattering ∝ 1/λ⁴",
       "Shorter wavelengths (blue light) scatter much more than longer wavelengths (red light).",
@@ -624,7 +624,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Case Study: Rajesh, a 45-year-old man, visits an eye clinic complaining that he can see distant objects clearly but has difficulty reading newspapers. His daughter, who is 12 years old, complains that she cannot see the board at school clearly but can read books comfortably. Both require different types of lenses for correction.\n\nQuestion 1: What is the vision defect of Rajesh? What type of lens would he need?\nQuestion 2: Identify the vision defect of Rajesh's daughter and suggest an appropriate lens type.\nQuestion 3: Explain the role of the ciliary muscles in accommodation and why it fails in Rajesh's case.",
     "options": [],
-    "answer": "1) Rajesh: Hypermetropia/Presbyopia; Convex lens. 2) Daughter: Myopia; Concave lens. 3) Ciliary muscles control lens shape; in presbyopia, the lens loses elasticity with age.",
+    "answer": "1) Rajesh has presbyopia; needs convex lens. 2) Daughter has myopia; needs concave lens. 3) Ciliary muscles adjust lens shape for accommodation. In presbyopia, aging reduces lens elasticity and ciliary muscle efficiency.",
     "solutionSteps": [
       "Question 1 Analysis:",
       "- Rajesh can see distant objects clearly (normal for distance)",
@@ -662,7 +662,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "Case Study: During a clear night, Priya observes stars twinkling, and during sunset, she notices the sun appears reddish. She wonders why these phenomena occur. The next day, when rain occurs, a beautiful rainbow appears in the sky with violet on the inner arc and red on the outer arc.\n\nQuestion 1: Explain why stars appear to twinkle. Which phenomenon is responsible?\nQuestion 2: Why does the sun appear reddish at sunset? Explain the role of wavelength.\nQuestion 3: In the rainbow, why does violet appear on the inner arc and red on the outer arc? Which phenomenon is involved?",
     "options": [],
-    "answer": "1) Twinkling: atmospheric refraction. 2) Sunset red: blue light scattering (Rayleigh scattering). 3) Rainbow: violet refracts more; dispersion of light.",
+    "answer": "1) Star twinkling is caused by atmospheric refraction in varying density layers. 2) Sunset appears red because blue light is scattered more (Rayleigh scattering) while red light passes through. 3) In a rainbow, violet refracts more than red due to shorter wavelength, so violet appears on the inner arc and red on the outer arc due to dispersion.",
     "solutionSteps": [
       "Question 1 Answer:",
       "- Star light travels through Earth's atmosphere with varying density layers",
@@ -1214,7 +1214,6 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": [
       "The cornea does provide most refraction due to its curved surface and the air-cornea interface",
       "However, it's not because cornea has higher refractive index than lens",
-      "Actually, the lens has a higher refractive index than the cornea",
       "The cornea's role is due to the large refractive index difference at the air-cornea boundary",
       "The lens provides fine-tuning through accommodation"
     ],
@@ -1298,7 +1297,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "During a physics experiment, a student observes a rainbow after rainfall and also notices that the sun appears red at sunset. The student is curious about the phenomena involved. Consider the following:\n\n1. A rainbow is formed when sunlight enters water droplets, undergoes refraction, reflection, and exits.\n2. At sunset, light travels through a thicker atmosphere before reaching the observer's eye.\n3. Violet light has a wavelength of approximately 400 nm, while red light has a wavelength of approximately 700 nm.\n4. The atmosphere contains gas molecules and dust particles of various sizes.\n\nBased on this information, answer the following:\n\n(i) Why does a rainbow always appear at an angle of 42° from the antisolar point?\n(ii) Name the phenomenon responsible for the red color of the sun at sunset.\n(iii) Explain why the sky appears blue during the day but red/orange during sunset.\n(iv) How would the appearance of the sky change if the refractive index of the atmosphere were doubled?",
     "options": [],
-    "answer": "(i) Due to the refraction and reflection of light inside spherical water droplets, light emerges at a specific angle of 42°. (ii) Rayleigh scattering. (iii) Shorter wavelengths (blue) are scattered more during the day; at sunset, most blue light is scattered away due to longer path length. (iv) More bending of light would occur; sky might appear different colors depending on other factors.",
+    "answer": "(i) 42° due to refraction and internal reflection in water droplets. (ii) Rayleigh scattering. (iii) Blue light scatters more at shorter path lengths (day); at sunset, longer path length causes more blue scattering, leaving red/orange visible. (iv) Greater refraction effects; different color distribution in sky; possible changes in overall appearance.",
     "solutionSteps": [
       "(i) When light enters a spherical water droplet, it undergoes two refractions and one internal reflection. The geometry of this process results in light emerging at approximately 42° from the antisolar point. This is why rainbows always appear at this angle.",
       "(ii) The red color at sunset is due to Rayleigh scattering, where shorter wavelengths (blue and violet) are scattered more than longer wavelengths (red and orange).",
@@ -1323,12 +1322,11 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "A 45-year-old man visits an optometrist complaining that he cannot read small print on his mobile phone but can see distant objects clearly. However, 10 years ago, he could read small print comfortably.\n\n(i) Identify the vision defect and explain its cause.\n(ii) What optical device(s) can correct this defect?\n(iii) The man is also a pilot. Explain why his condition might require special consideration.\n(iv) Calculate the power of the lens needed if the man's near point is 50 cm and the normal near point is 25 cm.\n(v) Discuss whether his distant vision should be corrected along with near vision correction.",
     "options": [],
-    "answer": "Presbyopia caused by loss of lens elasticity; bifocal or progressive lenses needed; near vision affects pilot safety; Power = 2D; bifocal lenses required for both near and far vision correction.",
+    "answer": "Presbyopia; loss of lens elasticity with age; bifocal/progressive lenses needed; critical for pilot safety; Power = 2D; bifocal correction required for both near and far vision.",
     "solutionSteps": [
       "(i) The defect is presbyopia. With age, the lens loses elasticity and the ciliary muscles weaken. This reduces the eye's ability to accommodate for near objects while distant vision remains normal.",
       "(ii) Bifocal or progressive lenses: upper part for distant vision (no power or weak), lower part for near vision (convex lens). Alternatively, separate spectacles for near and far viewing.",
       "(iii) As a pilot, clear vision at both near and distant ranges is critical for instrument reading and external observation. Presbyopia might affect his ability to read instruments while maintaining awareness of surroundings.",
-      "(iv) For near vision correction: Using the lens formula approach, the required power = 1/D - 1/d, where D = near point distance, d = normal near point. Power = 1/0.25 - 1/0.50 = 4 - 2 = 2D. Alternatively, using accommodation formula: Power needed = 1/0.25 - 1/0.50 = 2 diopters.",
       "(v) Yes, bifocal or progressive lenses are recommended. The upper portion provides no correction (or weak convex lens) for distant vision, while the lower portion has +2D for near vision. This allows him to see clearly at all distances, which is essential for his profession."
     ],
     "finalAnswer": "Presbyopia; loss of lens elasticity with age; bifocal/progressive lenses needed; critical for pilot safety; Power = 2D; bifocal correction required for both near and far vision.",

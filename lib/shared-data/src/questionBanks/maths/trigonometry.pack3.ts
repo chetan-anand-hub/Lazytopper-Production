@@ -244,7 +244,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Prove that: tan θ · cot θ = 1",
     "options": [],
-    "answer": "1",
+    "answer": "Proved: tan θ · cot θ = 1",
     "solutionSteps": [
       "tan θ · cot θ = (sin θ/cos θ) · (cos θ/sin θ)",
       "= (sin θ · cos θ)/(cos θ · sin θ)",
@@ -318,7 +318,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "Verify: tan 30° · tan 60° = 1. Is this true? Why or why not?",
     "options": [],
-    "answer": "No, tan 30° · tan 60° = (1/√3)(√3) = 1, but this is coincidental, not because of complementary angles.",
+    "answer": "True, because tan 60° = cot 30°",
     "solutionSteps": [
       "tan 30° = 1/√3, tan 60° = √3",
       "tan 30° · tan 60° = (1/√3) · √3 = 1",
@@ -463,7 +463,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "Prove that: (sin θ + cos θ)² + (sin θ - cos θ)² = 2",
     "options": [],
-    "answer": "Proved",
+    "answer": "Proved: (sin θ + cos θ)² + (sin θ - cos θ)² = 2",
     "solutionSteps": [
       "LHS = (sin θ + cos θ)² + (sin θ - cos θ)²",
       "= sin²θ + 2sin θ cos θ + cos²θ + sin²θ - 2sin θ cos θ + cos²θ",
@@ -517,7 +517,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Evaluate: (sin 15° + cos 15°)² - (sin 15° - cos 15°)²",
     "options": [],
-    "answer": "4 sin 15° cos 15° or sin 30° = 1/2",
+    "answer": "1",
     "solutionSteps": [
       "Using (a+b)² - (a-b)² = 4ab",
       "(sin 15° + cos 15°)² - (sin 15° - cos 15°)² = 4 sin 15° cos 15°",
@@ -542,17 +542,15 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "If tan α = 2/3 and tan β = 1/2, where α and β are acute angles, prove that α + β = 45°",
     "options": [],
-    "answer": "Proved",
+    "answer": "Need verification of values for α + β = 45°",
     "solutionSteps": [
       "tan(α + β) = (tan α + tan β)/(1 - tan α tan β)",
       "= (2/3 + 1/2)/(1 - 2/3 · 1/2)",
       "= ((4+3)/6)/(1 - 1/3)",
       "= (7/6)/(2/3)",
-      "= (7/6) · (3/2) = 7/4... Let me recalculate",
       "Actually: (2/3 + 1/2) = (4+3)/6 = 7/6",
       "1 - (2/3)(1/2) = 1 - 1/3 = 2/3",
       "tan(α + β) = (7/6)/(2/3) = 7/6 · 3/2 = 7/4... This doesn't equal 1",
-      "Let me verify: (1/2 + 2/3)/(1 - (1/2)(2/3)) = (7/6)/(2/3) = 7/4... Still not 1",
       "Rechecking problem setup needed for this to work"
     ],
     "finalAnswer": "Need verification of values for α + β = 45°",
@@ -573,7 +571,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A ladder leans against a wall. The ladder makes an angle of 60° with the ground, and the distance from the base of the ladder to the wall is 5 meters. (i) Find the length of the ladder. (ii) Find the height at which the ladder touches the wall.",
     "options": [],
-    "answer": "(i) 10 m (ii) 5√3 m",
+    "answer": "(i) Ladder length = 10 m; (ii) Height = 5√3 m ≈ 8.66 m",
     "solutionSteps": [
       "(i) Let ladder length = L. cos 60° = base/ladder = 5/L",
       "1/2 = 5/L, so L = 10 m",
@@ -598,7 +596,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "A surveyor measures the angle of elevation to the top of a building from two points. From point A (ground level), the angle is 30°. From point B (which is 20 meters closer to the building), the angle is 45°. (i) What is the height of the building? (ii) What is the original distance from point A to the building?",
     "options": [],
-    "answer": "(i) h = 10(√3 + 1) m or ≈ 27.32 m (ii) 10(√3 + 1)√3 m",
+    "answer": "(i) h = 10(√3 + 1) meters; (ii) d = 10(3 + √3) meters",
     "solutionSteps": [
       "Let height = h, distance from A to building = d",
       "From A: tan 30° = h/d, so h = d/√3",
@@ -628,7 +626,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "Prove the following identities: (a) (cos A - sin A)(cos A + sin A) = cos 2A (b) (1 + tan²θ) cos²θ = 1 (c) Verify both for θ = 45°",
     "options": [],
-    "answer": "Both identities proved; verified for θ = 45°",
+    "answer": "Both identities proved and verified",
     "solutionSteps": [
       "(a) LHS = (cos A - sin A)(cos A + sin A)",
       "= cos²A - sin²A = cos 2A = RHS",
@@ -767,7 +765,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "bloomSkill": "Remembering",
     "questionText": "Write the values of sin 0°, sin 30°, sin 45°, sin 60°, sin 90°",
     "options": [],
-    "answer": "0, 1/2, 1/√2, √3/2, 1",
+    "answer": "sin 0° = 0, sin 30° = 1/2, sin 45° = 1/√2, sin 60° = √3/2, sin 90° = 1",
     "solutionSteps": [
       "Standard angle values from trigonometric tables"
     ],
@@ -814,7 +812,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Prove that: sec²θ - tan²θ = 1",
     "options": [],
-    "answer": "Proved",
+    "answer": "Proved: sec²θ - tan²θ = 1",
     "solutionSteps": [
       "sec²θ - tan²θ = (1/cos²θ) - (sin²θ/cos²θ)",
       "= (1 - sin²θ)/cos²θ",
@@ -1367,7 +1365,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A surveyor is measuring the height of a building. From a point 50 m away from the base of the building, the angle of elevation to the top is 30°. Using trigonometric ratios:\n(a) Find the height of the building.\n(b) If the angle of elevation increases to 45°, what would be the new horizontal distance to maintain the same height?\n(c) Verify using trigonometric identities that your answers are consistent.",
     "options": [],
-    "answer": "(a) 50/√3 m ≈ 28.87 m, (b) 50/√3 m ≈ 28.87 m, (c) Verified using identity",
+    "answer": "Height = 50/√3 m, Distance = 50/√3 m",
     "solutionSteps": [
       "(a) tan 30° = height/50",
       "1/√3 = height/50",
@@ -1428,7 +1426,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "In a right-angled triangle ABC with right angle at B, if sin A = 3/5 and sin C = 4/5, verify whether the triangle is valid and find all trigonometric ratios for angle A.",
     "options": [],
-    "answer": "Valid triangle. sin A = 3/5, cos A = 4/5, tan A = 3/4, cosec A = 5/3, sec A = 5/4, cot A = 4/3",
+    "answer": "Triangle is valid. All trigonometric ratios calculated.",
     "solutionSteps": [
       "If sin A = 3/5, then in triangle ABC: opposite = 3, hypotenuse = 5",
       "Adjacent = √(25 - 9) = 4",
@@ -1569,15 +1567,13 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Evaluate: 4 sin 30° tan 60° - 2 cot 60° cos 30°",
     "options": [],
-    "answer": "1",
+    "answer": "2√3 - 1",
     "solutionSteps": [
       "sin 30° = 1/2, tan 60° = √3, cot 60° = 1/√3, cos 30° = √3/2",
       "4(1/2)(√3) - 2(1/√3)(√3/2)",
       "= 2√3 - 2(1/2)",
       "= 2√3 - 1",
-      "Correction: = 2√3 - 1... Actually",
       "= 2√3 - (2√3/2√3) = 2√3 - 1",
-      "Let me recalculate: 2(1/√3) × (√3/2) = 1",
       "4 sin 30° tan 60° = 4 × (1/2) × √3 = 2√3",
       "2 cot 60° cos 30° = 2 × (1/√3) × (√3/2) = 1",
       "Result = 2√3 - 1 ≈ 2.46",
@@ -1668,7 +1664,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "If sin θ = 4/5 and cos θ = 3/5, verify the identity: sin² θ + cos² θ = 1",
     "options": [],
-    "answer": "Verified: (4/5)² + (3/5)² = 16/25 + 9/25 = 25/25 = 1",
+    "answer": "Verified",
     "solutionSteps": [
       "sin² θ = (4/5)² = 16/25",
       "cos² θ = (3/5)² = 9/25",

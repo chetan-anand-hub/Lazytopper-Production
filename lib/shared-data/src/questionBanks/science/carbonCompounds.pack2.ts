@@ -593,7 +593,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Priya wants to clean her clothes. She uses soap for washing in soft water from her well, but the soap doesn't work well in hard water from a tube. She is confused why the same soap works differently in different water.\n\n(a) What is the composition of hard water?\n(b) What is the chemical formula of soap and what happens when soap reacts with hard water?\n(c) What is the advantage of using detergent over soap?\n(d) Write the equation for soap reacting with hard water.",
     "options": [],
-    "answer": "(a) Hard water contains Ca2+ and Mg2+ ions\n(b) Soap formula: CnH2n+1COONa; forms insoluble scum\n(c) Detergents work in hard water; don't form scum\n(d) 2C17H35COO-Na+ + Ca2+ → (C17H35COO-)2Ca↓ + 2Na+",
+    "answer": "(a) Ca2+ and Mg2+ ions (b) CnH2n+1COONa; forms insoluble scum (c) Works in hard water (d) 2C17H35COO-Na+ + Ca2+ → (C17H35COO-)2Ca↓ + 2Na+",
     "solutionSteps": [
       "Hard water: contains dissolved Ca2+ and Mg2+ salts",
       "Soap: sodium salt of long-chain carboxylic acid",
@@ -621,7 +621,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "A student conducts an experiment with three compounds: methane (CH4), ethene (C2H4), and ethyne (C2H2). She burns each in air and also tests their reactions with bromine water.\n\n(a) Write the balanced equations for complete combustion of each compound.\n(b) What observations would be seen when each is added to bromine water?\n(c) Explain why ethane and ethyne show different behaviors with bromine water.\n(d) Which reaction represents oxidation and which represents addition?",
     "options": [],
-    "answer": "(a) CH4+2O2→CO2+2H2O; 2C2H4+6O2→4CO2+4H2O; 2C2H2+5O2→4CO2+2H2O\n(b) CH4: no change; C2H4: decolorized; C2H2: decolorized in 2 stages\n(c) C2H4 has C=C (1 Br2); C2H2 has C≡C (2 Br2)\n(d) Combustion = oxidation; Br2 addition = addition reaction",
+    "answer": "(a) CH4+2O2→CO2+2H2O; 2C2H4+6O2→4CO2+4H2O; 2C2H2+5O2→4CO2+2H2O (b) CH4: no change; C2H4 & C2H2: brown to colorless (c) Different degrees of unsaturation (d) Combustion=oxidation; Br2=addition",
     "solutionSteps": [
       "Combustion: complete oxidation of organic compounds",
       "Products: CO2 + H2O (complete combustion)",
@@ -650,7 +650,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "Carbon forms a vast number of organic compounds. Explain how the properties of organic compounds vary systematically in a homologous series. Take the example of alkanes (CH4, C2H6, C3H8, C4H10) and discuss:\n(a) How does boiling point change in alkanes and why?\n(b) What are the physical and chemical properties that remain similar in alkanes?\n(c) How would you distinguish between saturated and unsaturated hydrocarbons using chemical tests?\n(d) Predict the molecular formula and name of the sixth member of the alkane series.",
     "options": [],
-    "answer": "See solution steps for comprehensive answer",
+    "answer": "(a) Increases due to stronger van der Waals forces (b) Covalent, saturated, formula CnH2n+2, similar combustion (c) Br2/KMnO4 tests (d) C6H14 (Hexane)",
     "solutionSteps": [
       "(a) Boiling point increases down the series:",
       "CH4 (-162°C) < C2H6 (-89°C) < C3H8 (-42°C) < C4H10 (0°C)",
@@ -748,7 +748,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "Why is the hydrophilic head of soap attracted to water while the hydrophobic tail is repelled by water?",
     "options": [],
-    "answer": "Hydrophilic head is polar/ionic; hydrophobic tail is nonpolar. Like dissolves in like: polar dissolves in water; nonpolar repels water.",
+    "answer": "Hydrophilic head is polar/ionic; hydrophobic tail is nonpolar. Polar dissolves in water; nonpolar doesn't.",
     "solutionSteps": [
       "Soap structure: -COO-Na+ (head) and CnH2n+1- (tail)",
       "Head: negatively charged carboxylate, polar",
@@ -1403,7 +1403,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Write the structural formula and IUPAC name for the alcohol having 3 carbon atoms.",
     "options": [],
-    "answer": "CH₃-CH(OH)-CH₃ or CH₃CH₂CH₂OH; 2-Propanol or 1-Propanol",
+    "answer": "CH₃-CH(OH)-CH₃; 2-Propanol (also CH₃CH₂CH₂OH; 1-Propanol)",
     "solutionSteps": [
       "3 carbon atoms alcohol = propanol",
       "Two isomers possible:",
@@ -1429,7 +1429,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "Explain the difference between addition and substitution reactions with one example each.",
     "options": [],
-    "answer": "Addition: bond breaks, atoms add; Substitution: atom replaced by another atom",
+    "answer": "Addition involves breaking of double bonds with atoms adding (C₂H₄ + Br₂ → C₂H₄Br₂); Substitution involves replacement of atoms (CH₄ + Cl₂ → CH₃Cl + HCl)",
     "solutionSteps": [
       "Addition reaction: Double/triple bond breaks, atoms add across",
       "Example: C₂H₄ + Br₂ → C₂H₄Br₂",
@@ -1455,7 +1455,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "A student tried to wash a greasy plate using soap in hard water. The soap did not work effectively, and a white precipitate formed. Later, the student used a detergent and the plate was cleaned effectively without any precipitate.\n\nA) Why did the soap fail to clean in hard water?\nB) What is the white precipitate formed?\nC) Why does detergent work better in hard water?\nD) Name one advantage and one disadvantage of detergents over soaps.",
     "options": [],
-    "answer": "A) Ca²⁺/Mg²⁺ ions form insoluble salts; B) Calcium/Magnesium stearate; C) Detergents have SO₄²⁻ group, don't form precipitate; D) Adv: Works in hard water; Disadv: Non-biodegradable",
+    "answer": "A) Hard water ions form insoluble salts with soap; B) Calcium/magnesium stearate; C) Sulphonate groups don't precipitate; D) Adv-Works in hard water; Disadv-Non-biodegradable",
     "solutionSteps": [
       "A) Hard water contains Ca²⁺ and Mg²⁺",
       "Soap (RCOONa) + Ca²⁺ → (RCOO)₂Ca↓",
@@ -1484,7 +1484,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "Carbon exhibits unique properties like catenation and tetravalency. Using these properties, explain why carbon forms an enormous variety of compounds. Also, discuss how these properties relate to the structural diversity of carbon compounds.",
     "options": [],
-    "answer": "Catenation + Tetravalency = Variety due to chain/ring isomerism and functional groups",
+    "answer": "Tetravalency allows formation of 4 bonds with various elements, creating diverse functional groups. Catenation enables long chain/ring formation. Together they produce structural isomerism, chain isomerism, and positional isomerism, resulting in enormous variety of compounds.",
     "solutionSteps": [
       "1. Tetravalency of Carbon:",
       "   - 4 valence electrons enable formation of 4 covalent bonds",
@@ -1521,7 +1521,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "Define a homologous series and state its characteristics. Taking alkane and alkene series as examples, explain how the properties change within a homologous series and what causes these changes. Also, explain why homologous compounds have similar chemical properties.",
     "options": [],
-    "answer": "Series of compounds differing by CH₂, same functional group, similar reactions but different physical properties",
+    "answer": "Homologous series = group differing by CH₂ with same formula type and functional group. Physical properties change gradually due to increasing mass and intermolecular forces. Chemical properties remain similar because functional groups are identical, determining reaction behavior.",
     "solutionSteps": [
       "1. Definition of Homologous Series:",
       "   A group of organic compounds with the same general formula, differing by one or more CH₂ units, derived from the same parent compound",

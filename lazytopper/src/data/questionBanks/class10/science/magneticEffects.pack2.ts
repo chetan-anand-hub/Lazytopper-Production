@@ -188,7 +188,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Remembering",
     "questionText": "Name the material most suitable for making the core of an electromagnet.",
     "options": [],
-    "answer": "Soft iron",
+    "answer": "Soft iron (or iron core)",
     "solutionSteps": [
       "Soft iron has high permeability and low retentivity.",
       "It readily magnetizes and demagnetizes when current is switched on/off.",
@@ -271,7 +271,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Draw a simple diagram of an electric motor and label its main parts (coil, commutator, magnetic field).",
     "options": [],
-    "answer": "Diagram showing: rectangular coil ABCD, commutator (split ring), brushes, magnetic field (N-S poles), external circuit",
+    "answer": "Labeled diagram of DC motor with all essential components",
     "solutionSteps": [
       "Draw a rectangular coil positioned between two magnetic poles.",
       "Show the split-ring commutator at the center.",
@@ -357,7 +357,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "State Faraday's law of electromagnetic induction.",
     "options": [],
-    "answer": "The induced EMF in a coil is equal to the negative rate of change of magnetic flux through the coil: ε = -dΦ/dt",
+    "answer": "ε = -dΦ/dt (Induced EMF = negative rate of change of flux)",
     "solutionSteps": [
       "Faraday's law quantifies electromagnetic induction.",
       "Induced EMF is proportional to rate of change of magnetic flux.",
@@ -472,7 +472,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Why is AC preferred over DC for long-distance transmission of electrical power?",
     "options": [],
-    "answer": "AC can be easily stepped up/down using transformers, reducing power loss during transmission. P = I²R loss is minimized at high voltage and low current.",
+    "answer": "Transformers enable voltage step-up/down; high voltage reduces I²R losses",
     "solutionSteps": [
       "AC can be transformed to high voltage using step-up transformer.",
       "Power loss = I²R; at same power, high voltage means low current.",
@@ -498,7 +498,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "A current-carrying circular coil experiences no net force in a uniform magnetic field, but experiences a torque. Explain why.",
     "options": [],
-    "answer": "Different parts of the coil experience forces in opposite directions due to current reversal across diameter. These forces balance (no net force) but create a couple that produces torque.",
+    "answer": "Equal opposite forces form couple producing torque without net force",
     "solutionSteps": [
       "Consider two opposite sides of a circular coil.",
       "Current directions are opposite in these sides.",
@@ -525,7 +525,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A student is building a simple DC motor using a battery, rectangular coil, permanent magnet, and commutator. (a) Why is a commutator essential in this motor? (b) What would happen if the commutator were replaced with slip rings? (c) How can the motor's speed be increased? (d) Explain the direction of force on the coil sides using Fleming's rule.",
     "options": [],
-    "answer": "(a) Commutator reverses current direction, maintaining rotation in one direction. (b) Slip rings would produce AC, causing coil oscillation instead of continuous rotation. (c) Increase current, increase magnetic field strength, or increase number of turns. (d) Left hand: Thumb=force, Index=field(N-S), Middle=current direction.",
+    "answer": "Detailed explanation of motor operation, commutator function, and factors affecting speed",
     "solutionSteps": [
       "(a) Each coil half-rotation reverses the magnetic force direction automatically.",
       "(b) Slip rings don't reverse connections, so forces would alternate.",
@@ -552,7 +552,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "An AC generator produces a sinusoidal voltage with peak value 310 V and frequency 50 Hz. (a) What is the RMS voltage? (b) What is the period of oscillation? (c) Explain why the induced EMF varies sinusoidally. (d) How does increasing the rotation speed affect the frequency?",
     "options": [],
-    "answer": "(a) RMS = 310/√2 ≈ 219 V (b) T = 1/50 = 0.02 s (c) EMF = NABω sin(ωt) varies as coil rotates (d) Frequency increases proportionally with rotation speed.",
+    "answer": "RMS=219V, T=0.02s, sinusoidal due to rotating coil geometry, f increases with speed",
     "solutionSteps": [
       "(a) RMS voltage = V_peak/√2 = 310/1.414 = 219.2 V",
       "(b) Period T = 1/f = 1/50 = 0.02 seconds = 20 ms",
@@ -578,7 +578,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "Explain the working of an AC generator with a neat labeled diagram. Describe how the induced EMF varies with rotation and derive the expression EMF = NABω sin(ωt). Also explain the advantage of AC generator over DC generator.",
     "options": [],
-    "answer": "Detailed explanation with diagram showing coil rotating in magnetic field, derivation of EMF equation, and comparison of AC/DC generators.",
+    "answer": "Complete AC generator analysis with diagram, EMF derivation, and advantages over DC",
     "solutionSteps": [
       "1. Draw AC generator diagram: rectangular coil between N-S poles, slip rings, brushes, galvanometer.",
       "2. Explain: Rotating coil experiences changing magnetic flux.",
@@ -670,7 +670,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A current-carrying conductor of length 50 cm is placed in a magnetic field of 2 T perpendicular to it. If the current is 5 A, calculate the force on the conductor and determine its direction using Fleming's rule.",
     "options": [],
-    "answer": "Force = 5 N; Direction determined by Fleming's left-hand rule (Thumb=Force, Index=Field, Middle=Current)",
+    "answer": "F = 5 N; direction given by Fleming's left-hand rule",
     "solutionSteps": [
       "Given: L = 50 cm = 0.5 m, B = 2 T, I = 5 A, θ = 90°",
       "Formula: F = BIL sin θ",
@@ -699,7 +699,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "Compare and contrast DC motor and AC generator in terms of: (a) Energy conversion, (b) Role of commutator/slip rings, (c) Output nature.",
     "options": [],
-    "answer": "(a) DC motor: Electrical→Mechanical; AC generator: Mechanical→Electrical. (b) DC motor uses commutator; AC generator uses slip rings. (c) DC motor requires DC input; AC generator produces AC output.",
+    "answer": "Detailed comparison showing opposite energy conversions, different connector types, and output characteristics",
     "solutionSteps": [
       "(a) Motor converts electrical energy to mechanical (rotation).",
       "    Generator converts mechanical energy to electrical (EMF).",
@@ -733,7 +733,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "Radial lines pointing outward",
       "Elliptical paths"
     ],
-    "answer": "B",
+    "answer": "Concentric circles with the conductor at the centre",
     "solutionSteps": [
       "A magnetic field around a current-carrying conductor forms concentric circles",
       "The conductor is at the centre of these circles",
@@ -762,7 +762,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "Field direction reverses",
       "No change in field"
     ],
-    "answer": "B",
+    "answer": "Field strength increases",
     "solutionSteps": [
       "Magnetic field strength is directly proportional to current",
       "Higher current → stronger magnetic field",
@@ -791,7 +791,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "Heating of the coil",
       "Motion of the coil"
     ],
-    "answer": "B",
+    "answer": "Electric current flowing through a coil",
     "solutionSteps": [
       "An electromagnet uses electric current to generate a magnetic field",
       "When current flows through a coil, it acts as a magnet",
@@ -820,7 +820,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "Increasing the current and using an iron core",
       "Reducing the diameter of the coil"
     ],
-    "answer": "C",
+    "answer": "Increasing the current and using an iron core",
     "solutionSteps": [
       "More coils → stronger field",
       "Larger current → stronger field",
@@ -849,7 +849,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "Strength of the magnetic field",
       "Magnitude of induced EMF"
     ],
-    "answer": "B",
+    "answer": "Direction of force on a current-carrying conductor in a magnetic field",
     "solutionSteps": [
       "Fleming's Left Hand Rule: Thumb=Force, Index=Field, Middle=Current",
       "Used for motors (force determination)",
@@ -878,7 +878,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "A is true, R is false.",
       "A is false, R is true."
     ],
-    "answer": "A",
+    "answer": "Both A and R are true, and R is the correct explanation of A.",
     "solutionSteps": [
       "Fleming's Right Hand Rule: Thumb=motion, Index=field, Middle=current",
       "It determines induced current direction in generators",
@@ -907,7 +907,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "Heat energy to mechanical energy",
       "Chemical energy to electrical energy"
     ],
-    "answer": "B",
+    "answer": "Electrical energy to mechanical energy",
     "solutionSteps": [
       "Motor: Electrical input → Mechanical output (rotation)",
       "Uses magnetic force on current-carrying conductor",
@@ -931,7 +931,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "Why is a split ring commutator essential in a DC motor? Explain its function.",
     "options": [],
-    "answer": "To reverse the direction of current in the coil periodically",
+    "answer": "A split ring commutator reverses the direction of current in the coil after every half rotation, ensuring that the force on the coil always acts in the same direction relative to motion, enabling continuous rotation.",
     "solutionSteps": [
       "Commutator is a split ring connected to coil ends",
       "It reverses current direction every half rotation",
@@ -961,7 +961,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "The coil has decreasing resistance",
       "The magnetic poles are moving"
     ],
-    "answer": "B",
+    "answer": "The commutator reverses the current direction regularly",
     "solutionSteps": [
       "Commutator switches current direction every half rotation",
       "This keeps the force direction consistent",
@@ -990,7 +990,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "Permanent magnets from coils",
       "Magnetic field from mechanical motion"
     ],
-    "answer": "B",
+    "answer": "Electric current from a changing magnetic field",
     "solutionSteps": [
       "Induction: Change in magnetic flux → induced EMF/current",
       "Discovered by Michael Faraday",
@@ -1019,7 +1019,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "In the same direction as magnet motion",
       "Constant throughout the motion"
     ],
-    "answer": "B",
+    "answer": "Stronger than when moved slowly",
     "solutionSteps": [
       "Faraday's Law: Induced EMF ∝ rate of change of flux",
       "Faster motion → larger rate of change → stronger current",
@@ -1043,7 +1043,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "State Faraday's Law of Electromagnetic Induction.",
     "options": [],
-    "answer": "Induced EMF = -N × (dΦ/dt)",
+    "answer": "The induced EMF in a closed coil is directly proportional to the rate of change of magnetic flux through the coil. Mathematically: ε = -N(dΦ/dt), where dΦ/dt is the rate of change of flux and N is the number of turns.",
     "solutionSteps": [
       "The induced EMF in a coil is directly proportional to the rate of change of magnetic flux",
       "EMF = -N × dΦ/dt (N = number of turns)",
@@ -1072,7 +1072,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "A is true, R is false.",
       "A is false, R is true."
     ],
-    "answer": "A",
+    "answer": "Both A and R are true, and R is the correct explanation of A.",
     "solutionSteps": [
       "Lenz's Law: Induced effects oppose the cause",
       "The negative sign in ε = -N(dΦ/dt) represents this opposition",
@@ -1101,7 +1101,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "DC can be transmitted over long distances",
       "AC is generated in batteries"
     ],
-    "answer": "B",
+    "answer": "AC changes direction periodically while DC flows in one direction",
     "solutionSteps": [
       "DC (Direct Current): Flows in one direction, from battery",
       "AC (Alternating Current): Changes direction periodically, from generator",
@@ -1130,7 +1130,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "Unidirectional current to flow",
       "No change in flux direction"
     ],
-    "answer": "B",
+    "answer": "Periodic change in magnetic flux through the coil",
     "solutionSteps": [
       "Rotating coil → flux through it changes periodically",
       "Flux alternates from maximum in one direction to maximum opposite",
@@ -1154,7 +1154,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "Why is AC preferred over DC for power transmission over long distances?",
     "options": [],
-    "answer": "AC can be easily stepped up/down using transformers",
+    "answer": "AC is preferred because it can be easily stepped up to high voltage for transmission (reducing losses) and then stepped down at the destination using simple and efficient transformers. DC cannot be easily transformed and would require expensive and complex conversion equipment.",
     "solutionSteps": [
       "AC voltage can be increased using step-up transformers",
       "Higher voltage → lower current → reduced power loss (I²R)",
@@ -1184,7 +1184,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "Have no force between them",
       "Create a uniform magnetic field"
     ],
-    "answer": "B",
+    "answer": "Attract each other",
     "solutionSteps": [
       "Magnetic field from wire 1 passes through wire 2",
       "Using Fleming's Left Hand Rule on wire 2",
@@ -1209,7 +1209,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "A student designed an electromagnet using a soft iron core, insulated copper wire wound in 500 turns, connected to a 12V DC source with 2A current. Later, she wanted to lift heavier objects, so she made the following changes:\n(i) Increased the number of turns to 1000\n(ii) Used thicker wire to reduce resistance\n(iii) Increased voltage to 24V\n(iv) Added an air gap in the core\n\nBased on electromagnet principles:\n(a) Which changes would increase the strength of electromagnet?\n(b) Which change would be counterproductive and why?\n(c) If the current is kept at 2A, which change (ii or iii) is better for electromagnet strength?",
     "options": [],
-    "answer": "(a) Changes (i), (ii), (iii); (b) Change (iv); (c) Change (iii)",
+    "answer": "(a) Changes (i), (ii), and (iii) increase electromagnet strength because: (i) more turns increase coil ampere-turns, (ii) reduced resistance allows higher current, (iii) higher voltage drives more current. (b) Change (iv) is counterproductive as air gap introduces reluctance and breaks the magnetic circuit, significantly weakening the field. (c) Change (iii) is better because increased voltage with thicker wire allows greater current, directly increasing electromagnetic force; Change (ii) alone doesn't help if current remains 2A.",
     "solutionSteps": [
       "(a) Change (i): More turns → stronger field; Change (ii): Thicker wire reduces resistance, allows more current → stronger field; Change (iii): Higher voltage increases current → stronger field",
       "(b) Change (iv) is counterproductive because air gap increases reluctance and weakens the magnetic field due to air's low permeability compared to iron",
@@ -1233,7 +1233,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "Explain the working principle of a DC electric motor with the help of a labeled diagram. Include the roles of magnetic field, current-carrying coil, commutator, and brushes in continuous rotation.",
     "options": [],
-    "answer": "Motor converts electrical energy to mechanical energy using magnetic force",
+    "answer": "A DC motor works by applying a current through a coil in a magnetic field. The current-carrying sides of the coil experience forces (according to Fleming's Left Hand Rule) that create a torque, rotating the coil. The split-ring commutator automatically reverses the current direction every half-rotation, ensuring the magnetic force continues to act in the direction of motion, resulting in continuous rotation. The brushes maintain electrical contact with the commutator throughout this process.",
     "solutionSteps": [
       "A rectangular coil is placed between two magnetic poles (N and S)",
       "When current flows through the coil (via brushes and commutator), each side experiences a force (Fleming's Left Hand Rule)",
@@ -1263,7 +1263,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "A generator consists of a rectangular coil ABCD rotating in a uniform magnetic field. Explain how AC is generated in this rotating coil generator with reference to Faraday's Law and Lenz's Law. Why is the current alternating?",
     "options": [],
-    "answer": "Changing magnetic flux induces alternating EMF",
+    "answer": "In a rotating generator, as the coil rotates, the magnetic flux through it changes continuously and periodically. According to Faraday's Law, this changing flux induces an EMF: ε = -N(dΦ/dt). The EMF alternates because the rate of flux change (dΦ/dt) changes sign after every 180° rotation. When the coil plane is perpendicular to the field, dΦ/dt is maximum (EMF is maximum); when parallel, dΦ/dt is zero (EMF is zero). Lenz's Law explains that the induced current creates a magnetic field opposing the flux change. This results in an alternating EMF and current with frequency equal to the rotation frequency.",
     "solutionSteps": [
       "As coil rotates, magnetic flux through it changes periodically",
       "When coil plane is perpendicular to field → maximum flux → zero EMF",
@@ -1299,7 +1299,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "At 45° to the magnetic field",
       "At any angle to the field"
     ],
-    "answer": "B",
+    "answer": "Perpendicular to the magnetic field",
     "solutionSteps": [
       "Force F = BIL sin(θ) where θ is angle between conductor and field",
       "Force is maximum when sin(θ) = 1, i.e., θ = 90°",
@@ -1323,7 +1323,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "Why does the magnetic field strength decrease with distance from a current-carrying conductor? Explain using the concept of field lines.",
     "options": [],
-    "answer": "Field lines spread out as they move away from conductor",
+    "answer": "The magnetic field strength decreases with distance because the magnetic field lines spread out. The field lines form concentric circles around the conductor, and as the radius increases, the same number of field lines is distributed over a larger circumference. This reduces the density of field lines, indicating weaker field strength at greater distances. The relationship is inverse: B ∝ 1/r.",
     "solutionSteps": [
       "Magnetic field lines form concentric circles around a straight conductor",
       "The density of field lines (number per unit area) represents field strength",
@@ -1355,7 +1355,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "A is true, R is false.",
       "A is false, R is true."
     ],
-    "answer": "A",
+    "answer": "Both A and R are true, and R is the correct explanation of A.",
     "solutionSteps": [
       "DC has constant direction (unidirectional) and constant magnitude",
       "Battery's fixed polarity ensures electrons always flow from negative to positive terminal",
@@ -1379,7 +1379,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A coil with 200 turns carrying 1A current acts as an electromagnet. How would doubling the current to 2A affect its magnetic strength? Justify your answer.",
     "options": [],
-    "answer": "Magnetic strength doubles",
+    "answer": "Doubling the current to 2A would double the magnetic strength of the electromagnet. This is because the magnetic field strength is directly proportional to the current flowing through it (B ∝ NI). Since N remains constant at 200 turns, and I doubles, the field strength also doubles.",
     "solutionSteps": [
       "Magnetic field strength B is directly proportional to current I",
       "B ∝ N × I (where N is number of turns)",

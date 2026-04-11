@@ -48,7 +48,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "39π cm³",
       "57π cm³"
     ],
-    "answer": "39π cm³",
+    "answer": "30π cm³",
     "solutionSteps": [
       "Volume of hemisphere = (2/3)πr³ = (2/3)π(3)³ = 18π cm³",
       "Volume of cone = (1/3)πr²h = (1/3)π(3)²(4) = 12π cm³",
@@ -102,7 +102,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A capsule is formed by joining two hemispheres with a cylinder. If radius = 2 cm and cylinder height = 5 cm, find the total surface area of the capsule.",
     "options": [],
-    "answer": "56π cm²",
+    "answer": "36π cm²",
     "solutionSteps": [
       "Two hemispheres form a complete sphere",
       "Surface area of sphere = 4πr² = 4π(2)² = 16π cm²",
@@ -187,7 +187,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A cylinder of radius 3 cm and height 10 cm is melted and recast into a sphere. Find the radius of the sphere.",
     "options": [],
-    "answer": "∛(22.5/π) ≈ 2.87 cm",
+    "answer": "R ≈ 4.07 cm",
     "solutionSteps": [
       "Volume of cylinder = πr²h = π(3)²(10) = 90π cm³",
       "Let radius of sphere = R",
@@ -297,7 +297,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "The total surface area of a frustum of cone with radii 3 cm and 4 cm and height 5 cm is:",
     "options": [],
-    "answer": "74π cm²",
+    "answer": "≈ 82.8π cm² or (7π√26 + 25π) cm²",
     "solutionSteps": [
       "r₁ = 3 cm, r₂ = 4 cm, h = 5 cm",
       "Slant height l = √(h² + (r₂-r₁)²) = √(25 + 1) = √26 cm",
@@ -352,7 +352,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A frustum of cone has height 12 cm, radii of ends 8 cm and 5 cm. Find its volume.",
     "options": [],
-    "answer": "1452π/3 cm³ or 484π cm³",
+    "answer": "516π cm³ ≈ 1621 cm³",
     "solutionSteps": [
       "h = 12 cm, r₁ = 8 cm, r₂ = 5 cm",
       "Volume = (1/3)πh(r₁² + r₂² + r₁r₂)",
@@ -378,7 +378,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "A solid consists of a cylinder of height 12 cm with radius 4 cm and two hemispheres at each end. Find the total volume and surface area.",
     "options": [],
-    "answer": "Volume = 512π/3 cm³; Surface Area = 96π cm²",
+    "answer": "Volume = 832π/3 cm³; Surface Area = 160π cm²",
     "solutionSteps": [
       "Cylinder: Volume = πr²h = π(4)²(12) = 192π cm³",
       "Two hemispheres = 1 sphere: Volume = (4/3)πr³ = (4/3)π(4)³ = 256π/3 cm³",
@@ -405,7 +405,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "A solid iron sphere of radius 6 cm is melted and recast into small cones of height 3 cm and base radius 1 cm. How many complete cones can be made?",
     "options": [],
-    "answer": "288 cones",
+    "answer": "288 complete cones",
     "solutionSteps": [
       "Volume of sphere = (4/3)πr³ = (4/3)π(6)³ = 288π cm³",
       "Volume of one cone = (1/3)πr²h = (1/3)π(1)²(3) = π cm³",
@@ -517,7 +517,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A toy shop designs decorative items by joining a cone and a cylinder. The shop receives the following specifications: A cylinder with radius 5 cm and height 8 cm, with a cone of radius 5 cm and height 6 cm placed on top. (i) Find the curved surface area of the cone. (ii) Find the lateral surface area of the cylinder. (iii) Find the total surface area of the combined toy. (iv) What is the total volume?",
     "options": [],
-    "answer": "(i) 65π cm² (ii) 80π cm² (iii) 165π cm² (iv) 250π/3 cm³",
+    "answer": "(i) 5π√61 cm² (ii) 80π cm² (iii) 5π√61 + 105π cm² (iv) 250π cm³",
     "solutionSteps": [
       "(i) Slant height of cone: l = √(h² + r²) = √(36 + 25) = √61 cm",
       "Curved surface area of cone = πrl = 5π√61 ≈ 39π cm² [or using l=√61: 5π√61]",
@@ -546,7 +546,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "A company manufactures containers in the shape of a frustum of a cone. The container has a height of 20 cm, with the top radius being 6 cm and bottom radius being 10 cm. (i) Find the slant height of the frustum. (ii) Calculate the curved surface area. (iii) Find the total surface area including both bases. (iv) Calculate the volume of the container.",
     "options": [],
-    "answer": "(i) √464 ≈ 21.54 cm (ii) 336π cm² (iii) 436π cm² (iv) 4400π/3 cm³",
+    "answer": "(i) 4√26 cm (ii) 64π√26 cm² (iii) (64π√26 + 136π) cm² (iv) 3920π/3 cm³",
     "solutionSteps": [
       "(i) Slant height l = √(h² + (r₂-r₁)²) = √(400 + 16) = √416 = 4√26 ≈ 20.4 cm",
       "(ii) CSA = π(r₁ + r₂)l = π(6 + 10)(4√26) = 64π√26 ≈ 326π cm²",
@@ -573,7 +573,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "A solid metallic cone with radius 6 cm and height 15 cm is melted and recast into (i) a sphere, (ii) a cylinder of height 8 cm. For each case, find the radius of the resulting solid. Also calculate the percentage change in surface area when the cone is converted to each solid.",
     "options": [],
-    "answer": "(i) Sphere radius ≈ 5.77 cm; Change ≈ -33.6% (ii) Cylinder radius ≈ 4.74 cm; Change ≈ -14.3%",
+    "answer": "(i) Sphere radius ≈ 5.13 cm; Surface area increases by ~148%; (ii) Cylinder radius ≈ 4.74 cm; Surface area increases by ~41%",
     "solutionSteps": [
       "Step 1: Volume of original cone = (1/3)πr²h = (1/3)π(6)²(15) = 180π cm³",
       "Step 2a: For sphere, (4/3)πR³ = 180π",
@@ -610,7 +610,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "539π cm³",
       "1470π cm³"
     ],
-    "answer": "980π cm³",
+    "answer": "718.67π cm³ or 2156π/3 cm³",
     "solutionSteps": [
       "Volume of hemisphere = (2/3)πr³ = (2/3)π(7)³ = 686π/3 cm³",
       "Volume of cylinder = πr²h = π(7)²(10) = 490π cm³",
@@ -634,7 +634,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "Two solid spheres of radii 3 cm and 4 cm are melted and recast into a cone of height 10 cm. Find the radius of the base of the cone.",
     "options": [],
-    "answer": "6 cm",
+    "answer": "6 cm (approximately)",
     "solutionSteps": [
       "Volume of first sphere = (4/3)π(3)³ = 36π cm³",
       "Volume of second sphere = (4/3)π(4)³ = 256π/3 cm³",
@@ -667,7 +667,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "πrh + 2πr²",
       "2πrh + πr²"
     ],
-    "answer": "B",
+    "answer": "2πrh + 2πr²",
     "solutionSteps": [
       "Curved surface area of cylinder = 2πrh",
       "Curved surface area of hemisphere = 2πr²",
@@ -696,7 +696,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "Base of cylinder and curved surfaces of both",
       "All surfaces including the top of cylinder"
     ],
-    "answer": "C",
+    "answer": "Base of cylinder and curved surfaces of both",
     "solutionSteps": [
       "Top of cylinder is hidden by cone base",
       "So only base of cylinder is counted",
@@ -720,7 +720,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "A cylinder of radius 3 cm and height 10 cm has a hemisphere of radius 3 cm placed on top. Find the total surface area (excluding the base of cylinder).",
     "options": [],
-    "answer": "150π cm² or 471 cm²",
+    "answer": "78π cm² (curved only) or 87π cm² (with top surface)",
     "solutionSteps": [
       "Curved surface area of cylinder = 2πrh = 2π(3)(10) = 60π cm²",
       "Curved surface area of hemisphere = 2πr² = 2π(3)² = 18π cm²",
@@ -746,7 +746,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A cone is mounted on a hemisphere of radius 7 cm. If the slant height of cone is 10 cm, find the curved surface area of the combined solid.",
     "options": [],
-    "answer": "238.76 cm²",
+    "answer": "168π ≈ 527.52 cm²",
     "solutionSteps": [
       "Curved surface area of hemisphere = 2πr² = 2π(7)² = 98π cm²",
       "Curved surface area of cone = πrl = π(7)(10) = 70π cm²",
@@ -775,7 +775,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "200π cm²",
       "240π cm²"
     ],
-    "answer": "A",
+    "answer": "210π cm²",
     "solutionSteps": [
       "When joined, two bases in between are hidden",
       "Total curved surface area = 2πrh + 2πrh = 4πrh = 4π(5)(8) = 160π cm²",
@@ -808,7 +808,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "A is true, R is false.",
       "A is false, R is true."
     ],
-    "answer": "A",
+    "answer": "Both A and R are true, and R is the correct explanation of A.",
     "solutionSteps": [
       "When cone is on cylinder with equal radii, cone's base coincides with cylinder's top",
       "This junction becomes internal and not part of surface",
@@ -839,7 +839,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "Volume",
       "Curved surface area"
     ],
-    "answer": "C",
+    "answer": "Volume",
     "solutionSteps": [
       "When melting and recasting, mass/material remains same",
       "Volume is directly proportional to mass",
@@ -863,7 +863,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "A sphere of radius 6 cm is melted and cast into a cone of base radius 4 cm. Find the height of the cone.",
     "options": [],
-    "answer": "27 cm",
+    "answer": "54 cm",
     "solutionSteps": [
       "Volume of sphere = (4/3)πr³ = (4/3)π(6)³ = (4/3)π(216) = 288π cm³",
       "Volume of cone = (1/3)πr²h",
@@ -895,11 +895,10 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "8",
       "12"
     ],
-    "answer": "C",
+    "answer": "12 spheres",
     "solutionSteps": [
       "Volume of cylinder = πr²h = π(7)²(14) = 686π cm³",
       "Volume of one sphere = (4/3)πr³ = (4/3)π(3.5)³ = (4/3)π(42.875) = 171.5π/3 cm³",
-      "Actually: (4/3)π(3.5)³ = (4/3)π(10.5)... let me recalculate",
       "(3.5)³ = 42.875, so (4/3)π(42.875) = 57.167π cm³ ≈ 57.17π",
       "Number of spheres = 686π / 57.17π ≈ 12... verify",
       "(4/3)π(7/2)³ = (4/3)π(343/8) = 343π/6 cm³",
@@ -953,7 +952,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "Lateral surfaces",
       "Slant heights"
     ],
-    "answer": "A",
+    "answer": "Bases",
     "solutionSteps": [
       "A frustum has two parallel circular surfaces",
       "These are called the top base (smaller) and bottom base (larger)"
@@ -976,7 +975,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "The radii of the circular ends of a frustum are 10 cm and 8 cm, and the slant height is 12 cm. Find its curved surface area.",
     "options": [],
-    "answer": "216π cm²",
+    "answer": "216π cm² ≈ 678.24 cm²",
     "solutionSteps": [
       "Curved surface area of frustum = π(r₁ + r₂)l",
       "where r₁ = 10 cm, r₂ = 8 cm, l = 12 cm",
@@ -1006,7 +1005,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "√17 cm",
       "√20 cm"
     ],
-    "answer": "B",
+    "answer": "√13 cm",
     "solutionSteps": [
       "Slant height l = √(h² + (r₁ - r₂)²)",
       "l = √(3² + (6-4)²) = √(9 + 4) = √13 cm"
@@ -1029,7 +1028,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "A frustum of a cone has radii 12 cm and 8 cm, and height 8 cm. Find the total surface area (including both bases).",
     "options": [],
-    "answer": "704π cm²",
+    "answer": "80π√5 + 208π ≈ 1216.77 cm²",
     "solutionSteps": [
       "First find slant height: l = √(h² + (r₁-r₂)²) = √(8² + (12-8)²) = √(64+16) = √80 = 4√5 cm",
       "Curved surface area = π(r₁+r₂)l = π(12+8)(4√5) = 80π√5 cm²",
@@ -1061,16 +1060,13 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "9100π cm³",
       "10000π cm³"
     ],
-    "answer": "C",
+    "answer": "5600π cm³",
     "solutionSteps": [
       "First find height: h² + (r₁-r₂)² = l² → h² + 10² = 26²",
       "h² = 676 - 100 = 576 → h = 24 cm",
       "Volume of frustum = (1/3)πh(r₁² + r₂² + r₁r₂)",
-      "V = (1/3)π(24)(400 + 100 + 200) = (1/3)π(24)(700) = 8π(700) = 5600π",
-      "Let me recalculate: (1/3)π×24×(400+100+200) = 8π×700 = 5600π cm³",
-      "Hmm, check: 24(400+100+200)/3 = 24×700/3 = 16800/3 = 5600, so 5600π",
-      "This doesn't match options. Let me verify: (1/3)π(24)(20² + 10² + 20×10) = (1/3)π(24)(400+100+200) = (1/3)π(24)(700) = 5600π"
-    ],
+      "V = (1/3)π(24)(400 + 100 + 200) = (1/3)π(24)(700) = 8π(700) = 5600π"
+      ],
     "finalAnswer": "5600π cm³",
     "isCompetencyBased": true,
     "pyqYear": "2023",
@@ -1089,7 +1085,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A factory manufactures decorative items by joining a hemisphere and a cone of the same radius 7 cm. The slant height of the cone is 14 cm. \nBased on this information, answer the following:\n(i) Find the curved surface area of the hemisphere.\n(ii) Find the curved surface area of the cone.\n(iii) What is the total curved surface area of the combined solid?\n(iv) If 100 such items are made, what is the total curved surface area of all items?",
     "options": [],
-    "answer": "98π cm², 98π cm², 196π cm², 19600π cm²",
+    "answer": "(i) 98π cm² (ii) 98π cm² (iii) 196π ≈ 615.44 cm² (iv) 19600π ≈ 61544 cm²",
     "solutionSteps": [
       "(i) Curved surface area of hemisphere = 2πr² = 2π(7)² = 98π cm²",
       "(ii) Curved surface area of cone = πrl = π(7)(14) = 98π cm²",
@@ -1119,7 +1115,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "A is true, R is false.",
       "A is false, R is true."
     ],
-    "answer": "A",
+    "answer": "Both A and R are true, and R is the correct explanation of A.",
     "solutionSteps": [
       "Volume of sphere = (4/3)π(6)³ = 288π cm³",
       "Volume of cone = (1/3)πr²h = (1/3)π(3)²h = 3πh cm³",
@@ -1149,7 +1145,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "A is true, R is false.",
       "A is false, R is true."
     ],
-    "answer": "A",
+    "answer": "Both A and R are true, and R is the correct explanation of A.",
     "solutionSteps": [
       "Curved surface area = π(r₁ + r₂)l = π(10 + 5)(15) = π(15)(15) = 225π cm²",
       "Both assertion and reason are true",
@@ -1173,7 +1169,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Creating",
     "questionText": "A solid toy is made by joining a hemisphere and a cone with the same radius of 10 cm. The height of the cone is 24 cm. Calculate: (i) the total surface area of the toy, (ii) the total volume of the toy, and (iii) if the density of the material is 2 g/cm³, find the mass of the toy.",
     "options": [],
-    "answer": "SA = 940π cm², V = 8000π/3 cm³, Mass = 16000π/3 × 2 g",
+    "answer": "(i) TSA = 460π cm² ≈ 1445 cm² (ii) Volume = 4400π/3 ≈ 4613 cm³ (iii) Mass = 8800π/3 ≈ 9214 g",
     "solutionSteps": [
       "(i) First find slant height of cone: l = √(h² + r²) = √(24² + 10²) = √(576 + 100) = √676 = 26 cm",
       "Curved surface area of hemisphere = 2πr² = 2π(10)² = 200π cm²",
@@ -1183,7 +1179,6 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "Wait: The hemisphere and cone share a circular base. This shared base is internal.",
       "Total external surface area = curved surface of hemisphere + curved surface of cone",
       "= 200π + 260π = 460π cm²",
-      "But if we include the base where they don't meet... let me reconsider",
       "If pyramid sits on hemisphere: only external surfaces count",
       "TSA = 2πr² + πrl = 200π + 260π = 460π cm²",
       "(ii) Volume of hemisphere = (2/3)πr³ = (2/3)π(1000) = 2000π/3 cm³",
@@ -1209,7 +1204,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Creating",
     "questionText": "Three spheres of radii 3 cm, 4 cm, and 5 cm are melted and recast into a single sphere. (i) Find the radius of the new sphere. (ii) Find the surface area of the new sphere. (iii) Compare it with the sum of surface areas of the three original spheres.",
     "options": [],
-    "answer": "r = 6 cm, SA = 144π cm²",
+    "answer": "(i) r = 6 cm (ii) SA = 144π ≈ 452.39 cm² (iii) Original total = 200π ≈ 628.32 cm². New sphere has less SA.",
     "solutionSteps": [
       "(i) Volume of sphere with radius 3 cm = (4/3)π(3)³ = 36π cm³",
       "Volume of sphere with radius 4 cm = (4/3)π(4)³ = (256/3)π cm³",
@@ -1246,7 +1241,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "600 + 100π cm²",
       "550 + 75π cm²"
     ],
-    "answer": "A",
+    "answer": "500 + 50π cm²",
     "solutionSteps": [
       "Surface area of cube = 6a² = 6(10)² = 600 cm²",
       "One face is covered by hemisphere = -100 cm²",
@@ -1297,7 +1292,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Creating",
     "questionText": "A pen stand is made by fitting a cone on top of a cylinder. The cylinder has radius 3 cm and height 8 cm, and the cone has the same radius and height 4 cm. Find the volume of the pen stand.",
     "options": [],
-    "answer": "132π cm³",
+    "answer": "84π cm³ ≈ 263.89 cm³",
     "solutionSteps": [
       "Volume of cylinder = πr²h = π(3)²(8) = 72π cm³",
       "Volume of cone = (1/3)πr²h = (1/3)π(3)²(4) = (1/3)π(9)(4) = 12π cm³",

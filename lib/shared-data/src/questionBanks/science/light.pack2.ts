@@ -155,7 +155,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Name the type of mirror used in search lights and headlights. Why is it used?",
     "options": [],
-    "answer": "Concave mirror is used because it converges light rays to produce a strong, directed beam.",
+    "answer": "Concave mirror; it converges light rays to produce a strong parallel beam",
     "solutionSteps": [
       "Search lights and headlights need focused, parallel rays",
       "Concave mirrors converge light from a point source placed at focal point",
@@ -179,7 +179,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "An object of height 5 cm is placed at a distance of 30 cm from a concave mirror of focal length 10 cm. Find the position and height of the image.",
     "options": [],
-    "answer": "Image position: 15 cm (between focal point and center); Image height: 2.5 cm",
+    "answer": "v = 15 cm; Image height = 2.5 cm",
     "solutionSteps": [
       "Using mirror formula: 1/f = 1/u + 1/v",
       "1/10 = 1/30 + 1/v",
@@ -322,7 +322,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Light enters water from air at an angle of incidence 45°. If the refractive index of water is 4/3, find the angle of refraction.",
     "options": [],
-    "answer": "Approximately 32°",
+    "answer": "θ₂ ≈ 32°",
     "solutionSteps": [
       "Using Snell's law: n₁ sin θ₁ = n₂ sin θ₂",
       "1 × sin 45° = (4/3) × sin θ₂",
@@ -436,7 +436,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "An object is placed 15 cm from a convex lens of focal length 10 cm. Find the position and nature of the image.",
     "options": [],
-    "answer": "Image distance = 30 cm, real and inverted",
+    "answer": "v = 30 cm, real and inverted",
     "solutionSteps": [
       "Using lens formula: 1/f = 1/u + 1/v",
       "1/10 = 1/15 + 1/v",
@@ -522,7 +522,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A fish is swimming in a pond. An observer standing on the bank sees the fish at an apparent depth of 2 m, while the actual depth is 2.5 m. (a) Calculate the refractive index of water. (b) What happens to the apparent position when the observer moves to a different angle?",
     "options": [],
-    "answer": "(a) n = 1.25 (b) The apparent depth changes with viewing angle",
+    "answer": "(a) Refractive index = 1.25 (b) Apparent position shifts with viewing angle",
     "solutionSteps": [
       "Real depth = 2.5 m, Apparent depth = 2 m",
       "Refractive index n = Real depth / Apparent depth",
@@ -548,7 +548,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "A dentist uses a concave mirror to examine a patient's teeth. The mirror has a focal length of 1.5 cm. The dentist positions the mirror 1.2 cm from a tooth. (a) Is the image real or virtual? (b) Calculate the magnification. (c) What is the advantage of using this mirror?",
     "options": [],
-    "answer": "(a) Virtual (b) m = 6 (c) Magnifies image for better visibility",
+    "answer": "(a) Virtual image (b) m = 5 (magnified) (c) Provides magnified erect image for dental examination",
     "solutionSteps": [
       "f = 1.5 cm, u = 1.2 cm",
       "Using lens formula: 1/f = 1/u + 1/v",
@@ -576,7 +576,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "An object of height 10 cm is placed at a distance of 50 cm from a concave mirror. A real image of height 5 cm is formed on a screen. (a) Find the focal length of the mirror. (b) At what distance is the screen placed from the mirror? (c) If the object is moved 10 cm closer to the mirror, find the new image position and nature. (d) Explain why the image height changes.",
     "options": [],
-    "answer": "f ≈ 16.67 cm, v = 25 cm, new v ≈ 30 cm (real, inverted)",
+    "answer": "(a) f ≈ 16.67 cm (b) Screen at 25 cm (c) New image at ≈28.57 cm, real and inverted (d) Image height changes due to changing magnification with object distance",
     "solutionSteps": [
       "Part (a): Using magnification m = h₂/h₁ = -v/u",
       "m = -5/10 = -0.5 = -v/u",
@@ -672,7 +672,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A magnifying glass is a convex lens with power +5 diopters. (a) Find its focal length. (b) At what distance should an object be placed to see a virtual magnified image?",
     "options": [],
-    "answer": "(a) f = 0.2 m = 20 cm (b) Less than 20 cm from the lens",
+    "answer": "(a) f = 20 cm (b) Object distance < 20 cm",
     "solutionSteps": [
       "Part (a): P = 1/f = 5 D",
       "f = 1/5 = 0.2 m = 20 cm",
@@ -875,7 +875,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A convex mirror has a focal length of 20 cm. An object is placed at 30 cm from it. Calculate the position and nature of the image formed.",
     "options": [],
-    "answer": "Image position: 12 cm behind mirror; Nature: Virtual, erect, and diminished",
+    "answer": "Image position: 12 cm behind mirror; Virtual, erect, and diminished",
     "solutionSteps": [
       "For convex mirror: f = +20 cm (positive), u = -30 cm (object distance)",
       "Using mirror formula: 1/f = 1/u + 1/v",

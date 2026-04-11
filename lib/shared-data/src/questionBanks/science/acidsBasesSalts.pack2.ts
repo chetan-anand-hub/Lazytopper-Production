@@ -18,7 +18,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "C) Salty taste and do not change litmus color",
       "D) Sweet taste and turn phenolphthalein pink"
     ],
-    "answer": "A) Sour taste and turn blue litmus red",
+    "answer": "A",
     "solutionSteps": [
       "Acids have characteristic properties:",
       "- Taste sour",
@@ -49,7 +49,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "C) Pungent smell and turn blue litmus red",
       "D) Salty taste and do not change any litmus"
     ],
-    "answer": "B) Bitter taste and turn red litmus blue",
+    "answer": "B",
     "solutionSteps": [
       "Bases have characteristic properties:",
       "- Taste bitter",
@@ -80,7 +80,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "C) 14",
       "D) 1"
     ],
-    "answer": "B) 7",
+    "answer": "B",
     "solutionSteps": [
       "pH scale ranges from 0 to 14",
       "pH < 7: Acidic solution",
@@ -111,7 +111,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "C) pH meter or Universal indicator",
       "D) Hygrometer"
     ],
-    "answer": "C) pH meter or Universal indicator",
+    "answer": "C",
     "solutionSteps": [
       "pH indicators are used to measure acidity/basicity",
       "Common indicators:",
@@ -142,7 +142,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "C) Carbonic acid (H₂CO₃)",
       "D) Citric acid"
     ],
-    "answer": "B) Hydrochloric acid (HCl)",
+    "answer": "B",
     "solutionSteps": [
       "Strong acids completely ionize in water",
       "Common strong acids: HCl, H₂SO₄, HNO₃",
@@ -172,7 +172,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "C) It is weakly basic",
       "D) It is strongly basic"
     ],
-    "answer": "B) It is strongly acidic",
+    "answer": "B",
     "solutionSteps": [
       "pH scale: 0-14",
       "pH < 7: Acidic (lower pH = more acidic)",
@@ -203,7 +203,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "C) Salt, water, and hydrogen gas",
       "D) Only hydrogen gas"
     ],
-    "answer": "B) Salt and water",
+    "answer": "B",
     "solutionSteps": [
       "Neutralization reaction:",
       "Acid + Base → Salt + Water",
@@ -233,7 +233,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "C) Sulfuric acid",
       "D) Ammonium sulfate"
     ],
-    "answer": "B) Lime (CaO) or calcium carbonate",
+    "answer": "B",
     "solutionSteps": [
       "Acidic soil needs a basic substance to neutralize",
       "Lime (CaO) is basic and reacts with acid",
@@ -263,7 +263,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "C) NH₄Cl (ammonium chloride)",
       "D) KCl (potassium chloride)"
     ],
-    "answer": "B) Na₂CO₃ (sodium carbonate)",
+    "answer": "B",
     "solutionSteps": [
       "Salts formed from weak acid + strong base are basic",
       "Na₂CO₃ is from H₂CO₃ (weak) + NaOH (strong)",
@@ -288,7 +288,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Name any two acids found in food items and mention their sources.",
     "options": [],
-    "answer": "Acetic acid (vinegar), Citric acid (citrus fruits), Lactic acid (yogurt)",
+    "answer": "Any two with correct sources",
     "solutionSteps": [
       "Common food acids:",
       "1. Acetic acid - found in vinegar",
@@ -344,7 +344,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "C) pH remains the same",
       "D) pH becomes zero"
     ],
-    "answer": "B) pH increases (becomes less acidic/neutral)",
+    "answer": "B",
     "solutionSteps": [
       "Dilution decreases concentration of H⁺ ions",
       "pH = -log[H⁺]",
@@ -374,7 +374,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "C) Color difference",
       "D) Solubility in water"
     ],
-    "answer": "B) Complete vs partial ionization in water",
+    "answer": "B",
     "solutionSteps": [
       "Strong acids: HCl → H⁺ + Cl⁻ (complete ionization, 100%)",
       "Weak acids: CH₃COOH ⇌ CH₃COO⁻ + H⁺ (partial ionization)",
@@ -404,7 +404,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "C) Cl⁻ ions make it acidic",
       "D) NH₃ is volatile"
     ],
-    "answer": "B) NH₄⁺ ion undergoes hydrolysis releasing H⁺ ions",
+    "answer": "B",
     "solutionSteps": [
       "NH₄Cl is formed from strong acid (HCl) and weak base (NH₃·H₂O)",
       "NH₄⁺ undergoes hydrolysis: NH₄⁺ + H₂O ⇌ NH₃·H₂O + H⁺",
@@ -519,7 +519,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A student has three unknown solutions A, B, and C. She uses the following tests to identify them:\n\nTest 1: Addition of red litmus paper\n- Solution A: Litmus remains red\n- Solution B: Litmus turns blue\n- Solution C: No change in litmus color\n\nTest 2: pH measurement using pH meter\n- Solution A: pH = 2\n- Solution B: pH = 11\n- Solution C: pH = 7\n\nBased on these observations answer the following:\n(i) Identify the nature of each solution.\n(ii) Which solution when added to another would produce a neutralization reaction?\n(iii) Write the general equation for neutralization.",
     "options": [],
-    "answer": "(i) A is acidic, B is basic, C is neutral. (ii) A and B would neutralize each other. (iii) Acid + Base → Salt + Water",
+    "answer": "A: Acidic, B: Basic, C: Neutral; A+B neutralize; Acid + Base → Salt + Water",
     "solutionSteps": [
       "Analyzing Test 1 (Litmus test):",
       "- Solution A: Red litmus stays red → acidic",
@@ -553,7 +553,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A farmer observes that his field soil is showing signs of degradation with pH = 5. Plants are not growing well. He consults an agricultural expert who suggests adding lime to the field.\n\n(i) Why is the soil considered acidic? What are the effects of acidic soil on plant growth?\n(ii) What is lime and how does it neutralize the acidic soil? Write the equation.\n(iii) What would be the ideal pH range for healthy soil?\n(iv) Is this an example of neutralization reaction? Justify.",
     "options": [],
-    "answer": "(i) pH<7 is acidic; stunts growth, nutrient deficiency. (ii) CaO/CaCO₃; reacts with H⁺ ions. (iii) 6.5-7.5. (iv) Yes, acid-base reaction.",
+    "answer": "pH<7 acidic; lime (CaO/CaCO₃) neutralizes by reacting with H⁺; ideal pH 6.5-7.5; yes, neutralization reaction",
     "solutionSteps": [
       "Part (i) - Acidic Soil:",
       "- pH = 5 is less than 7, indicating acidity",
@@ -591,7 +591,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "Explain the concept of pH and its importance. Describe how acidic, neutral, and basic solutions differ from each other. Give real-life examples of each type and explain how pH affects our everyday life. Also discuss the pH of common food items and their effects on health.",
     "options": [],
-    "answer": "pH ranges 0-14; <7 acidic, =7 neutral, >7 basic; affects digestion, health, environment, food preservation",
+    "answer": "pH measures [H⁺] on 0-14 scale; acidic <7 (sour, H⁺ rich); neutral =7; basic >7 (bitter, OH⁻ rich); affects digestion, health, food preservation, environment; foods vary in pH affecting dental/bone health",
     "solutionSteps": [
       "PART 1: pH Concept",
       "- pH = -log[H⁺] ion concentration",
@@ -650,7 +650,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "C) Neutral solution",
       "D) None of the above"
     ],
-    "answer": "B) Basic solution",
+    "answer": "B",
     "solutionSteps": [
       "Phenolphthalein is a pH indicator",
       "Colorless in acidic and neutral solutions",
@@ -675,7 +675,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "If 10 mL of an acid solution is neutralized by 20 mL of a base solution, which solution is more concentrated?",
     "options": [],
-    "answer": "The acid solution is more concentrated (acid is twice as concentrated)",
+    "answer": "Acid solution is more concentrated",
     "solutionSteps": [
       "From neutralization: n(acid) = n(base)",
       "Moles of acid × Volume of acid = Moles of base × Volume of base",
@@ -701,7 +701,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "Explain why common salt (NaCl) is neutral, while sodium carbonate (Na₂CO₃) is basic in nature.",
     "options": [],
-    "answer": "NaCl: strong acid + strong base → neutral; Na₂CO₃: weak acid + strong base → basic (CO₃²⁻ undergoes hydrolysis)",
+    "answer": "NaCl neutral (strong+strong); Na₂CO₃ basic (weak+strong, CO₃²⁻ hydrolyzes)",
     "solutionSteps": [
       "NaCl formation: HCl (strong) + NaOH (strong)",
       "Both ions (Na⁺, Cl⁻) do not hydrolyze significantly",
@@ -730,7 +730,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "What will happen to the pH of a basic solution if it is diluted with water? Explain.",
     "options": [],
-    "answer": "pH decreases (moves toward 7, becomes less basic/closer to neutral)",
+    "answer": "pH decreases, solution becomes less basic, approaches pH 7",
     "solutionSteps": [
       "Dilution reduces [OH⁻] ion concentration",
       "Lower [OH⁻] means lower pOH",
@@ -763,7 +763,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "C) Acetic acid has lower density",
       "D) Magnesium reacts only with strong acids"
     ],
-    "answer": "B) HCl provides more H⁺ ions due to complete ionization",
+    "answer": "B",
     "solutionSteps": [
       "HCl is a strong acid: HCl → H⁺ + Cl⁻ (complete ionization, 100%)",
       "CH₃COOH is weak acid: ⇌ H⁺ + CH₃COO⁻ (partial ionization)",
@@ -794,7 +794,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "C) Taste sour",
       "D) Feel slippery"
     ],
-    "answer": "C",
+    "answer": "C) Taste sour",
     "solutionSteps": [
       "Acids have characteristic properties that distinguish them.",
       "Acids taste sour, are corrosive, and turn blue litmus paper red.",
@@ -824,7 +824,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "C) Phenolphthalein",
       "D) None of the above"
     ],
-    "answer": "A",
+    "answer": "A) Methyl orange",
     "solutionSteps": [
       "Indicators are substances that change color based on pH.",
       "Methyl orange turns red in acidic solutions (pH < 4.4).",
@@ -853,7 +853,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "C) Neutral",
       "D) Strongly acidic"
     ],
-    "answer": "C",
+    "answer": "C) Neutral",
     "solutionSteps": [
       "The pH scale ranges from 0 to 14.",
       "pH = 7 indicates [H⁺] = [OH⁻]",
@@ -883,7 +883,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "C) Neutral",
       "D) Basic"
     ],
-    "answer": "B",
+    "answer": "B) Strongly acidic",
     "solutionSteps": [
       "pH values 0-3 indicate strongly acidic solutions.",
       "pH values 4-6 indicate weakly acidic solutions.",
@@ -913,7 +913,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "C) H₂SO₄ and Na₂O",
       "D) HCl and Na₂O"
     ],
-    "answer": "A",
+    "answer": "A) HCl and NaOH",
     "solutionSteps": [
       "Neutralization: Acid + Base → Salt + Water",
       "HCl (strong acid) + NaOH (strong base) → NaCl (salt) + H₂O",
@@ -942,7 +942,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "C) Only water",
       "D) Salt, water, and heat"
     ],
-    "answer": "D",
+    "answer": "D) Salt, water, and heat",
     "solutionSteps": [
       "Neutralization is an exothermic reaction.",
       "Acid + Base → Salt + Water + Heat energy",
@@ -972,7 +972,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "A is true, R is false.",
       "A is false, R is true."
     ],
-    "answer": "A",
+    "answer": "Both A and R are true, and R is the correct explanation of A.",
     "solutionSteps": [
       "Assertion: Salts are ionic compounds formed between cations and anions.",
       "Reason: Acids and bases undergo neutralization to form salts.",
@@ -1002,7 +1002,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "C) 1 M HCl",
       "D) 10 M HCl"
     ],
-    "answer": "B",
+    "answer": "B) 0.01 M HCl",
     "solutionSteps": [
       "The amount of base needed depends on the concentration of acid.",
       "Lower concentration requires less base for complete neutralization.",
@@ -1032,7 +1032,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "C) NaHSO₄",
       "D) Na₃SO₄"
     ],
-    "answer": "B",
+    "answer": "B) Na₂SO₄",
     "solutionSteps": [
       "H₂SO₄ is a diprotic acid (has 2 H⁺ ions).",
       "NaOH is a monobasic base.",
@@ -1057,7 +1057,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A student adds 10 drops of phenolphthalein to a colorless solution and observes that it turns pink. What can you conclude about the nature of the solution? Give reasons.",
     "options": [],
-    "answer": "The solution is basic/alkaline",
+    "answer": "The solution is basic (alkaline). Phenolphthalein changes color from colorless to pink in basic solutions with pH > 8.2.",
     "solutionSteps": [
       "Phenolphthalein is an indicator that is colorless in acidic and neutral solutions.",
       "Phenolphthalein turns pink/magenta in basic solutions (pH > 8.2).",
@@ -1082,7 +1082,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "How would you determine whether a given salt solution is acidic, basic, or neutral using pH paper?",
     "options": [],
-    "answer": "Compare the color change with the standard color chart provided with pH paper.",
+    "answer": "Dip pH paper into the salt solution, observe the color change, and compare it with the standard color chart. The color will indicate the pH value, showing whether the solution is acidic (pH < 7), neutral (pH = 7), or basic (pH > 7).",
     "solutionSteps": [
       "Dip the pH paper in the salt solution.",
       "Observe the color change on the pH paper.",
@@ -1112,7 +1112,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "A is true, R is false.",
       "A is false, R is true."
     ],
-    "answer": "A",
+    "answer": "Both A and R are true, and R is the correct explanation of A.",
     "solutionSteps": [
       "Neutralization: H⁺ + OH⁻ → H₂O + Heat",
       "Formation of water (strong O-H bonds) releases significant energy.",
@@ -1137,7 +1137,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "A salt is formed from a weak acid and a strong base. Predict whether the salt solution will be acidic, basic, or neutral. Explain your reasoning.",
     "options": [],
-    "answer": "The salt solution will be basic (alkaline)",
+    "answer": "The salt solution will be basic because the anion from the weak acid undergoes hydrolysis with water, producing OH⁻ ions and making the solution basic.",
     "solutionSteps": [
       "When a weak acid and strong base form a salt, the anion from the weak acid hydrolyzes.",
       "The anion will accept H⁺ from water: A⁻ + H₂O ⇌ HA + OH⁻",
@@ -1167,7 +1167,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "C) HCl",
       "D) H₂SO₄"
     ],
-    "answer": "B",
+    "answer": "B) BaSO₄",
     "solutionSteps": [
       "H₂SO₄ + BaCl₂ → BaSO₄↓ + 2HCl",
       "Barium sulfate (BaSO₄) is sparingly soluble in water.",
@@ -1192,7 +1192,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A solution of sodium carbonate (Na₂CO₃) has a pH of 11.6. Explain why the pH is basic even though no base was directly added to the solution.",
     "options": [],
-    "answer": "The carbonate ion undergoes hydrolysis to produce OH⁻ ions",
+    "answer": "Although no base was directly added, the carbonate ion (CO₃²⁻) from the salt undergoes hydrolysis with water, producing hydroxide ions (OH⁻). This makes the solution basic with pH > 7.",
     "solutionSteps": [
       "Na₂CO₃ is a salt of a weak acid (H₂CO₃) and strong base (NaOH).",
       "The carbonate ion (CO₃²⁻) hydrolyzes with water: CO₃²⁻ + H₂O ⇌ HCO₃⁻ + OH⁻",
@@ -1222,7 +1222,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "A is true, R is false.",
       "A is false, R is true."
     ],
-    "answer": "A",
+    "answer": "Both A and R are true, and R is the correct explanation of A.",
     "solutionSteps": [
       "HCl (strong acid) + NaOH (strong base) → NaCl (salt) + H₂O",
       "NaCl is a salt of strong acid and strong base.",
@@ -1248,7 +1248,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "A laboratory conducted an experiment on three salt solutions: (i) NaCl, (ii) Na₂CO₃, and (iii) NH₄Cl. They tested each solution using pH paper and observed the following pH values: NaCl (pH = 7), Na₂CO₃ (pH = 11), and NH₄Cl (pH = 5).\n\n(a) Why does NaCl solution have a neutral pH?\n(b) Explain why Na₂CO₃ solution is basic.\n(c) Write the hydrolysis equation for NH₄Cl.\n(d) Which salt solution would require the least amount of acid to neutralize? Why?",
     "options": [],
-    "answer": "(a) No hydrolysis; (b) CO₃²⁻ hydrolysis produces OH⁻; (c) NH₄⁺ + H₂O ⇌ NH₃ + H₃O⁺; (d) Na₂CO₃ - it consumes more acid",
+    "answer": "(a) NaCl produces no hydrolysis products as it's from a strong acid-strong base pair. (b) Carbonate ion hydrolyzes: CO₃²⁻ + H₂O ⇌ HCO₃⁻ + OH⁻, producing OH⁻ ions. (c) NH₄⁺ + H₂O ⇌ NH₃ + H₃O⁺. (d) NaCl solution would require the least amount of acid as it's already neutral.",
     "solutionSteps": [
       "Part (a): NaCl is from strong acid (HCl) and strong base (NaOH). Neither ion hydrolyzes, so pH = 7.",
       "Part (b): Na₂CO₃ is from weak acid (H₂CO₃) and strong base. CO₃²⁻ + H₂O ⇌ HCO₃⁻ + OH⁻",
@@ -1273,7 +1273,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "Explain the concept of pH and how it is related to the concentration of hydrogen ions (H⁺) in a solution. Give examples of solutions with different pH values and explain the nature of each.",
     "options": [],
-    "answer": "pH = -log[H⁺]; pH scale measures H⁺ concentration from 0 to 14",
+    "answer": "pH measures hydrogen ion concentration using pH = -log[H⁺]. The scale ranges from 0-14: pH < 7 is acidic (high [H⁺]), pH = 7 is neutral ([H⁺] = [OH⁻]), and pH > 7 is basic (low [H⁺]). Examples: HCl (strongly acidic), water (neutral), NaOH (strongly basic).",
     "solutionSteps": [
       "pH is defined as the negative logarithm of hydrogen ion concentration: pH = -log[H⁺]",
       "As [H⁺] increases, pH decreases (inverse relationship).",
@@ -1300,7 +1300,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "Describe the complete neutralization process when nitric acid (HNO₃) reacts with calcium hydroxide [Ca(OH)₂]. Write the balanced chemical equation, explain the reaction mechanism, and discuss the nature of the salt formed. What practical applications does this reaction have?",
     "options": [],
-    "answer": "2HNO₃ + Ca(OH)₂ → Ca(NO₃)₂ + 2H₂O; neutral salt formed; used in industrial processes",
+    "answer": "The balanced equation is: 2HNO₃ + Ca(OH)₂ → Ca(NO₃)₂ + 2H₂O. The mechanism involves H⁺ ions from HNO₃ reacting with OH⁻ ions from Ca(OH)₂ to form water, with Ca²⁺ and NO₃⁻ ions remaining as a neutral salt. Applications include agricultural lime treatment, fertilizer production, and neutralization of acidic waste.",
     "solutionSteps": [
       "HNO₃ is a strong monobasic acid; Ca(OH)₂ is a strong dibasic base.",
       "Balanced equation: 2HNO₃ + Ca(OH)₂ → Ca(NO₃)₂ + 2H₂O",
@@ -1333,7 +1333,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "C) NH₃",
       "D) Ca(OH)₂"
     ],
-    "answer": "C",
+    "answer": "C) NH₃",
     "solutionSteps": [
       "Strong bases: NaOH, KOH, Ca(OH)₂ - fully ionize in water",
       "Weak bases: NH₃ (ammonia) - partially ionizes in water",
@@ -1362,7 +1362,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "C) pH remains constant",
       "D) pH becomes zero"
     ],
-    "answer": "A",
+    "answer": "A) pH increases",
     "solutionSteps": [
       "Adding water dilutes the acid solution.",
       "Dilution decreases [H⁺] concentration.",
@@ -1387,7 +1387,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "What is the difference between a salt and a base? Give one example of each.",
     "options": [],
-    "answer": "Salt: ionic compound formed from neutralization; Base: substance that produces OH⁻ ions",
+    "answer": "A salt is an ionic compound formed from the neutralization of an acid and a base, while a base is a compound that produces hydroxide ions in water. Example of salt: NaCl. Example of base: NaOH.",
     "solutionSteps": [
       "Base: Compound that produces OH⁻ ions in water. Example: NaOH, KOH, Ca(OH)₂",
       "Salt: Ionic compound formed by neutralization of acid and base. Example: NaCl, CuSO₄, Na₂CO₃",
@@ -1412,7 +1412,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A student accidentally spills concentrated sulfuric acid on the laboratory bench. Explain the steps to safely neutralize the acid using a commonly available base.",
     "options": [],
-    "answer": "Use sodium bicarbonate (baking soda), which is safe and effective",
+    "answer": "Sprinkle sodium bicarbonate (baking soda) gradually over the spilled acid. It reacts safely: 2NaHCO₃ + H₂SO₄ → Na₂SO₄ + 2H₂O + CO₂. This method is safe because NaHCO₃ is a weak base that doesn't cause violent reactions or excessive heating.",
     "solutionSteps": [
       "Never pour water directly on concentrated H₂SO₄ as it's highly exothermic.",
       "Use sodium bicarbonate (NaHCO₃) - a weak base that reacts safely.",
@@ -1444,7 +1444,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "C) Neutral",
       "D) Cannot be determined"
     ],
-    "answer": "A",
+    "answer": "A) Acidic",
     "solutionSteps": [
       "HNO₃ is a strong acid; NH₃ is a weak base.",
       "NH₄NO₃ is a salt of strong acid and weak base.",

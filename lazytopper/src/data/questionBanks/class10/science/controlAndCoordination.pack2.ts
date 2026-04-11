@@ -101,7 +101,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "Why does a reflex action occur faster than a voluntary action? Explain with reference to the pathway involved.",
     "options": [],
-    "answer": "In reflex action, the signal goes from receptor → sensory neuron → spinal cord → motor neuron → effector, without involving the brain. In voluntary action, the signal must reach the brain for processing before response. Thus, reflex action is faster.",
+    "answer": "Reflex actions bypass the brain, so impulse reaches muscle faster",
     "solutionSteps": [
       "Reflex actions bypass the brain and are controlled by the spinal cord.",
       "The nerve impulse follows a short pathway: receptor to spinal cord to muscle",
@@ -273,7 +273,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "Name the hormone secreted during emergency or stress conditions and state its effect on the body.",
     "options": [],
-    "answer": "Adrenaline (epinephrine) is secreted by the adrenal gland. It increases heart rate, blood pressure, muscle strength, and dilates pupils to prepare the body for 'fight or flight' response.",
+    "answer": "Adrenaline; increases heart rate, blood pressure, muscle strength",
     "solutionSteps": [
       "During stress/danger, adrenal medulla secretes adrenaline",
       "Adrenaline increases cardiac output and muscle blood flow",
@@ -388,7 +388,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "What is the effect of gibberellins on plant growth? Give one example of their use.",
     "options": [],
-    "answer": "Gibberellins promote cell division and elongation, increasing plant height and fruit size. Example: Used in agriculture to produce seedless grapes and to enhance grain production in cereals.",
+    "answer": "Gibberellins promote cell division and elongation; used in seedless grape production",
     "solutionSteps": [
       "Gibberellins are growth-promoting hormones",
       "They increase cell division and stretching",
@@ -443,7 +443,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "Distinguish between the structure and function of sensory neurons and motor neurons.",
     "options": [],
-    "answer": "Sensory neurons have long dendrites and short axons; carry impulses from receptors to CNS. Motor neurons have short dendrites and long axons; carry impulses from CNS to effectors (muscles). Functionally, sensory neurons detect stimuli while motor neurons initiate response.",
+    "answer": "Sensory: long dendrite, short axon, receptor to CNS; Motor: short dendrite, long axon, CNS to muscle",
     "solutionSteps": [
       "Sensory neurons: dendrite receives impulse from receptor, axon sends to spinal cord",
       "Motor neurons: dendrite receives impulse from spinal cord, axon sends to muscle",
@@ -468,7 +468,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "A student touches a hot plate and immediately removes the hand. Explain this response with reference to the reflex arc. Why is this response faster than consciously deciding to remove the hand?",
     "options": [],
-    "answer": "This is a spinal reflex. Sensory neurons detect heat, send impulse to spinal cord. Spinal cord acts as coordinating center and immediately sends impulse to motor neurons, causing hand withdrawal. This occurs without brain involvement. The brain receives information after the action, creating conscious awareness of pain.",
+    "answer": "Reflex arc bypasses brain, spinal cord directly controls response via sensory-motor neuron pathway, faster than conscious decision-making",
     "solutionSteps": [
       "Heat receptor → Sensory neuron → Spinal cord → Motor neuron → Hand muscle contracts",
       "This pathway is much shorter than: Receptor → Brain → Decision → Response",
@@ -494,7 +494,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "If a person suffers a severe injury to the cerebellum, what motor skills would be affected and why?",
     "options": [],
-    "answer": "Balance, coordination, and fine motor control would be severely affected. The person might have difficulty walking straight, maintaining posture, or performing coordinated movements like writing or playing sports. This is because cerebellum coordinates voluntary movements and maintains equilibrium.",
+    "answer": "Balance, coordination, fine motor skills affected; cerebellum essential for movement coordination",
     "solutionSteps": [
       "Cerebellum receives information about body position and movement",
       "It compares intended movement with actual movement",
@@ -520,7 +520,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A 14-year-old boy shows rapid growth in height, deepening of voice, and increased body hair. His parents are concerned about the changes. (i) Which hormone is primarily responsible for these changes? (ii) Name the gland that secretes this hormone. (iii) Why do these changes occur at this age? (iv) Is this a normal process?",
     "options": [],
-    "answer": "(i) Testosterone (male sex hormone). (ii) Testes (male gonad). (iii) These changes occur during puberty due to activation of hypothalamus-pituitary-gonadal axis. (iv) Yes, this is completely normal; these are secondary sexual characteristics that develop during adolescence.",
+    "answer": "(i) Testosterone (ii) Testes (iii) Puberty activation (iv) Yes, normal",
     "solutionSteps": [
       "Puberty is triggered by hormonal changes in the hypothalamus",
       "Testosterone is the primary male sex hormone",
@@ -547,7 +547,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "A farmer wants to increase fruit production in his orchard. He learns that applying gibberellins can help increase fruit size and yield. However, he also wants the trees to remain compact and bushy rather than growing too tall. (i) What is the role of gibberellins in fruit development? (ii) How can he control height while maintaining fruit productivity? (iii) Which hormone could help keep plants compact?",
     "options": [],
-    "answer": "(i) Gibberellins promote cell division and elongation, increasing fruit size and yield. (ii) Pruning combined with controlled gibberellin application to fruits only, not to main stems. (iii) Cytokinins can be applied selectively to lateral buds to promote bushy growth, and ethylene can inhibit vertical growth (apical dominance).",
+    "answer": "(i) Promotes cell division and fruit enlargement (ii) Pruning + selective gibberellin application (iii) Cytokinins for bushiness, ethylene for height control",
     "solutionSteps": [
       "Gibberellins are powerful growth promoters for fruits",
       "They increase cell division and fruit enlargement",
@@ -575,7 +575,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Evaluating",
     "questionText": "Compare and contrast the nervous system and endocrine system as two coordination systems in the human body. Discuss their structural organization, mode of communication, speed of action, duration of effects, and give an example of how both systems work together.",
     "options": [],
-    "answer": "Nervous System: Network of neurons and brain; uses electrical and chemical signals (neurotransmitters); very fast (milliseconds); short-duration effects; localized action. Endocrine System: Glands throughout body; uses hormones via bloodstream; slower (seconds to minutes); long-duration effects; widespread action. Example: Both control blood glucose—nervous system provides quick response via sympathetic neurons; endocrine system maintains long-term regulation via insulin and glucagon.",
+    "answer": "Nervous: fast, electrical, short-duration, localized; Endocrine: slow, chemical, long-duration, widespread; integrated example: blood glucose regulation",
     "solutionSteps": [
       "Nervous System: neurons transmit impulses electrically and chemically",
       "Speed: milliseconds to seconds (very rapid)",
@@ -606,7 +606,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Understanding",
     "questionText": "How does ethylene hormone affect ripening of fruits? Name a practical application of this knowledge.",
     "options": [],
-    "answer": "Ethylene promotes fruit ripening by inducing color change, softening of fruit, and development of flavor. Practical application: Ethylene is used commercially to ripen bananas and mangoes after harvest during transport and storage.",
+    "answer": "Ethylene promotes ripening; used to ripen bananas and mangoes commercially",
     "solutionSteps": [
       "Ethylene is the ripening hormone in plants",
       "It triggers biochemical changes: chlorophyll breakdown, pectin softening",
@@ -662,7 +662,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Remembering",
     "questionText": "What is the function of neurotransmitters in nerve impulse transmission?",
     "options": [],
-    "answer": "Neurotransmitters are chemical messengers that transmit nerve impulses across synapses (junctions between neurons). They are released from the axon terminal of one neuron and bind to receptors on the dendrite of the next neuron, allowing impulse transmission.",
+    "answer": "Chemical transmission of impulses across synapses",
     "solutionSteps": [
       "Neurotransmitters are stored in synaptic vesicles",
       "When impulse reaches axon terminal, vesicles release neurotransmitters",
