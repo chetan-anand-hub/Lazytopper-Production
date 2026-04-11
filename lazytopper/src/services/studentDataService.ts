@@ -280,6 +280,12 @@ export function saveData(_uid?: string, data?: Partial<StudentSnapshot>): void {
     } catch {}
   }
 
+  if (data.sessions?.logs) {
+    try {
+      localStorage.setItem("lazytopper.studySessions", JSON.stringify(data.sessions.logs));
+    } catch {}
+  }
+
   setStoredSchemaVersion(SCHEMA_VERSION);
 }
 
