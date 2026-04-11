@@ -549,7 +549,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "Two arcs with same length can have different r and θ combinations",
       "For example: r₁=10, θ₁=90° and r₂=5, θ₂=180° can give same arc length",
       "Assertion A is false: same arc length doesn't require same radius",
-      "Reason R is false: arc length depends on BOTH radius AND central angle"
+      "Since A is false and R is true, the answer is option (4)"
     ],
     "finalAnswer": "A is false, R is true.",
     "isCompetencyBased": true,
