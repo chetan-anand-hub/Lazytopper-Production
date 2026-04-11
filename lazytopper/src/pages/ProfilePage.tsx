@@ -17,6 +17,7 @@ import {
   type StoredPaceProfile,
 } from "../services/paceProfileService";
 import { isFocusTrackingEnabled, setFocusTrackingEnabled } from "../services/focusTracker";
+import { resetData as resetAllStudentData } from "../services/studentDataService";
 import { getReferralData, getReferralLink, getWhatsAppShareUrl, generateQRDataUrl } from "../services/referralService";
 import { useTheme, type AppTheme } from "../context/ThemeContext";
 import {
@@ -846,7 +847,7 @@ export default function ProfilePage() {
             type="button"
             onClick={async () => {
               try {
-                localStorage.removeItem("lazytopper.streak");
+                resetAllStudentData();
                 await logout();
               } catch {}
               window.location.href = "/login";

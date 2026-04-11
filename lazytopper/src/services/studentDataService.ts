@@ -33,10 +33,15 @@ import {
 import type { SRSchedule, SRConceptCard, SRStage } from "./spacedRepetitionEngine";
 import {
   loadSRSchedule,
+  saveSRSchedule,
   getDueReviews,
   getSRStats,
   reviewConcept,
 } from "./spacedRepetitionEngine";
+
+import {
+  updateMasteryLevel,
+} from "./masteryLevelService";
 
 export const SCHEMA_VERSION = 2;
 const SCHEMA_KEY = "lazytopper.schema_version";
@@ -255,9 +260,30 @@ function buildSnapshot(): StudentSnapshot {
 
 export function saveData(_uid?: string, data?: Partial<StudentSnapshot>): void {
   if (!data) return;
+
   if (data.pace?.profile) {
     savePaceProfile(data.pace.profile);
   }
+
+  if (data.mastery?.records) {
+    const records = data.mastery.records;
+    for (const [chapterKey, record] of Object.entries(records)) {
+      if (record && record.level) {
+        updateMasteryLevel(chapterKey, record.level);
+      }
+    }
+  }
+
+  if (data.spacedRepetition?.schedule) {
+    saveSRSchedule(data.spacedRepetition.schedule);
+  }
+
+  if (data.focus?.weeklyRecords) {
+    try {
+      localStorage.setItem("lazytopper.focus.daily", JSON.stringify(data.focus.weeklyRecords));
+    } catch {}
+  }
+
   setStoredSchemaVersion(SCHEMA_VERSION);
 }
 

@@ -38,8 +38,11 @@ A Teacher Dashboard allows class creation and progress tracking. A Methodology P
 A Pricing page details subscription tiers. A Referral Program allows users to earn premium access. An admin page provides Onboarding Funnel Analytics to track user conversion.
 
 ## Server Architecture (Task #79 Cleanup — Complete)
-The LazyTopper AI server has been fully modularized. `server/index.cjs` is now a thin 582-line composition root (down from 6,911 lines).
-- **Entry Point**: `server/index.cjs` (582 lines) — env setup, CORS, routing, health check, server bootstrap
+The LazyTopper AI server has been fully modularized. `server/index.cjs` is now a thin 364-line composition root (down from 6,911 lines).
+- **Entry Point**: `server/index.cjs` (364 lines) — composition root: requires, wiring, request dispatch
+- **Config & Utilities** (extracted from index.cjs):
+  - `server/services/serverConfig.cjs` (89 lines) — env resolution, provider detection, all config constants
+  - `server/services/serverUtils.cjs` (119 lines) — JSON parsing, line normalization, feedback persistence, seed loading
 - **Mentor Route** (split into 6 sub-modules):
   - `server/routes/mentor.cjs` (679 lines) — `createMentorRoute(deps)` factory, request handler orchestration, `teachCache`/`inflightTeach` request collapsing
   - `server/routes/mentorResponseBuilder.cjs` (401 lines) — AI response building, validation repair loops, fallback chains
@@ -59,7 +62,7 @@ The LazyTopper AI server has been fully modularized. `server/index.cjs` is now a
 - **AI Clients**: `server/services/geminiClient.cjs`, `server/services/claudeClient.cjs` (model routing)
 - **Other Routes**: `server/routes/share.cjs`, `server/routes/diagrams.cjs`, `server/routes/moreLikeThis.cjs`, `server/routes/stepSolution.cjs`, `server/routes/checkSolution.cjs`, `server/routes/questions.cjs`
 - **Services**: `server/services/stubHandlers.cjs` (stub mode), `server/services/httpUtils.cjs`, `server/services/cbseExamDate.cjs`
-- **StudentDataService**: `src/services/studentDataService.ts` (313 lines) — unified facade with `getData(uid?)`/`saveData(uid?, data)`/`resetData(uid?)` API, `SCHEMA_VERSION` constant, migration framework, comprehensive localStorage key reset
+- **StudentDataService**: `src/services/studentDataService.ts` — unified facade with `getData(uid?)`/`saveData(uid?, data)`/`resetData(uid?)` API. `saveData` delegates to sub-service write methods (mastery, pace, SR schedule, focus). `resetData` clears all `lazytopper.*` localStorage keys. Integrated in `ProfilePage` logout flow. Schema versioning with migration framework.
 - **3-Layer API Cost Optimization** (DO NOT BREAK): Static question bank → pre-generated visuals → AI fallback
 - **Composition Pattern**: All modules use factory functions with dependency injection. Prompt sub-modules use a shared `ctx` object with ordered registration. Cross-module deps in mentor helpers use late-binding via `bindLateDeps()` to break circular dependencies.
 
