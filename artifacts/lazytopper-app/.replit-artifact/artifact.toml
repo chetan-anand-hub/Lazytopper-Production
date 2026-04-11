@@ -14,10 +14,10 @@ kind = "web"
 
   [services.production]
   serve = "static"
-  publicDir = "lazytopper/dist"
+  publicDir = "artifacts/lazytopper-app/dist/public"
 
   [services.production.build]
-  args = ["bash", "-c", "cd /home/runner/workspace/lazytopper && npm install && ./node_modules/.bin/tsc -b && ./node_modules/.bin/vite build"]
+  args = ["pnpm", "--filter", "@workspace/lazytopper-app", "run", "build"]
 
   [services.production.build.env]
   NODE_ENV = "production"
