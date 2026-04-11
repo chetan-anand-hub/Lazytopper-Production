@@ -95,7 +95,7 @@ export function buildTopicMockUrl(
   topicKey: string,
   options?: { set?: number }
 ): string {
-  const base = `/topic-mock/${encodeURIComponent(grade)}/${encodeURIComponent(
+  const base = `/chapter-test/${encodeURIComponent(grade)}/${encodeURIComponent(
     subject
   )}/${encodeURIComponent(topicKey)}`;
   if (options?.set && options.set > 1) {

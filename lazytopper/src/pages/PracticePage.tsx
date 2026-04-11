@@ -1,7 +1,7 @@
 // src/pages/PracticePage.tsx
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { usePracticeLimit } from "../components/auth/PracticeLimitGate";
 
 import { type PracticeQuestion } from "../data/predictionDataService";
@@ -97,6 +97,7 @@ const FIRST_PRACTICE_KEY = "lazytopper.first_practice_tracked";
 
 const PracticePage: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const params = useParams<{ grade?: string; subject?: string }>();
   const { recordQuestionAnswered } = usePracticeLimit();
   const { user: authUserForJourney } = useAuth();
@@ -893,6 +894,50 @@ const packTopicKey = useMemo(() => {
           onOpenMentorSocratic={(question, idx) => openMentorForQuestion(question, idx, "hint")}
           onOpenMentorBoard={(question, idx) => openMentorForQuestion(question, idx, "check_cbse")}
         />
+
+{(() => {
+  const answeredCount = Object.keys(mcqResults).length + Object.keys(selfAssessments).length;
+  const allDone = questions.length > 0 && answeredCount >= questions.length;
+  if (!allDone) return null;
+  const correctCount = Object.values(mcqResults).filter((r) => r === "correct").length + Object.values(selfAssessments).filter((r) => r === "got_it").length;
+  const accuracy = Math.round((correctCount / questions.length) * 100);
+  const topicK = canonicalTopicKey || topicParam;
+  const nextActions = [];
+  if (accuracy < 60) {
+    nextActions.push({ label: "Retry with easier questions", icon: "🔄", action: () => { setDifficulty("Easy"); regenerateQuestions(); } });
+  }
+  nextActions.push({ label: "Chapter Test", icon: "📝", action: () => navigate(`/chapter-test/${grade}/${subjectKey}/${topicK}`, { state: { back: location.pathname + location.search, backLabel: "Back to practice" } }) });
+  nextActions.push({ label: "Predicted Questions", icon: "🎯", action: () => navigate(`/highly-probable/${grade}/${subjectKey}?topic=${encodeURIComponent(topicK)}`, { state: { back: location.pathname + location.search, backLabel: "Back to practice" } }) });
+  nextActions.push({ label: "Study this chapter", icon: "📚", action: () => navigate(`/topic-hub/${grade}/${subjectKey}/${topicK}`, { state: { back: location.pathname + location.search, backLabel: "Back to practice" } }) });
+  return (
+    <div style={{ marginTop: 20, background: "rgba(255,255,255,0.03)", borderRadius: 16, padding: "20px 18px", border: "1px solid rgba(255,255,255,0.06)" }}>
+      <div style={{ textAlign: "center", marginBottom: 16 }}>
+        <div style={{ fontSize: 32, marginBottom: 6 }}>{accuracy >= 80 ? "🎉" : accuracy >= 50 ? "👍" : "💪"}</div>
+        <h3 style={{ fontSize: "1rem", fontWeight: 800, color: "#fff", margin: "0 0 4px" }}>
+          Practice Complete — {correctCount}/{questions.length} correct ({accuracy}%)
+        </h3>
+        <p style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.5)", margin: 0 }}>
+          {accuracy >= 80 ? "Great job! Ready for the next challenge?" : accuracy >= 50 ? "Good effort! Keep practising to improve." : "Keep going — practice makes perfect!"}
+        </p>
+      </div>
+      <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>
+        What should I do next?
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {nextActions.map((a) => (
+          <button key={a.label} onClick={a.action} style={{
+            display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", borderRadius: 12,
+            border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.03)",
+            color: "#fff", fontSize: "0.88rem", fontWeight: 600, cursor: "pointer", textAlign: "left",
+          }}>
+            <span style={{ fontSize: 18 }}>{a.icon}</span>
+            {a.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+})()}
 
 <MentorSolveDrawer
   open={mentorDrawerOpen}

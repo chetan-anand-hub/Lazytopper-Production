@@ -208,7 +208,7 @@ const TrendsPage: React.FC = () => {
 
   const handleQuickTopicMock = (topicName: string) => {
     const canonicalTopicKey = resolveCanonicalTopicKey({ subjectKey, topicParam: topicName });
-    trackUxEvent("trends_topic_more_click", "trends", { action: "topic_mock", topicName, subject: subjectKey });
+    trackUxEvent("trends_topic_more_click", "trends", { action: "chapter_test", topicName, subject: subjectKey });
     navigate(buildTopicMockUrl(grade, subjectKey, canonicalTopicKey || topicName), { state: { back: currentURL, backLabel: "Back to trends" } });
   };
 
@@ -554,7 +554,7 @@ const TrendsPage: React.FC = () => {
                                 {[
                                   { label: "Practice questions", handler: () => handlePracticeFromTopic(topicName) },
                                   { label: "Predicted questions", handler: () => handleSampleQuestion(topicName) },
-                                  { label: "Build topic mock", handler: () => handleQuickTopicMock(topicName) },
+                                  { label: "Chapter Test", handler: () => handleQuickTopicMock(topicName) },
                                   { label: "Exam tips", handler: () => handleExamTips(topicName) },
                                 ].map((action) => (
                                   <button

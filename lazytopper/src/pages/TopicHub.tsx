@@ -708,7 +708,7 @@ export default function TopicHub() {
               onMouseDown={(e) => { (e.target as HTMLElement).style.transform = "scale(0.97)"; }}
               onMouseUp={(e) => { (e.target as HTMLElement).style.transform = "scale(1)"; }}
             >
-              Topic Mock Paper
+              Chapter Test
             </button>
 
             {!hasEnoughContent && (

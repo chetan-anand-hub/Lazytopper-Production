@@ -68,6 +68,13 @@ TypeScript is used throughout, with pnpm workspaces and composite projects. API 
 - Integration: `TeachFlow.tsx` and `TutorDrawerV2.tsx` auto-show matching visuals via `findVisualForConcept()` keyword matching
 - Manifest: `lazytopper/public/visuals/manifest.json` tracks all generated visuals with metadata
 
+## Navigation Simplification (Task #77)
+- **Bottom nav fix**: "Practice" button now goes to `/practice/{grade}/{subject}` (was incorrectly going to `/predictive-papers`)
+- **Topic Mock → Chapter Test**: `/topic-mock/` routes redirect to `/chapter-test/`. All deep links updated (TrendsPage, TopicHub, guidedJourneyService, buildUrl.ts). TopicMockPage.tsx remains but is no longer routed to directly.
+- **Top nav simplified**: Removed standalone Pricing button (accessible via Profile page)
+- **"What's next?" card**: PracticePage shows post-completion card with context-aware next actions (retry, chapter test, predicted questions, study chapter)
+- **Label updates**: "Topic Mock Paper" → "Chapter Test", "Build topic mock" → "Chapter Test" in TrendsPage dropdown
+
 ## CBSE 2025-26 Syllabus Updates (Task #74)
 - **Constructions chapter removed** from CBSE 2025-26 Class 10 Maths syllabus. Removed from all data files, question banks, topic registries, prediction engine, server prompts, and UI. 2.5% weightage redistributed proportionally across remaining 13 topics.
 - **Two-exam system**: Phase 1 (compulsory, Feb 17, 2026) and Phase 2 (optional re-attempt for up to 3 subjects, May 15, 2026). Best score counts. Dates in `cbseDates.ts`, prediction in `cbseExamDate.ts`. Info cards on Onboarding and SprintDashboard.

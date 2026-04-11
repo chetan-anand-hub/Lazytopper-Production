@@ -40,7 +40,6 @@ const WeeklyWrappedPage = lazy(() => import("./pages/WeeklyWrappedPage"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
 const WeakAreaPracticePage = lazy(() => import("./pages/WeakAreaPracticePage"));
 const ParentDashboardPage = lazy(() => import("./pages/ParentDashboardPage"));
-const TopicMockPage = lazy(() => import("./pages/TopicMockPage"));
 const ChapterTestPage = lazy(() => import("./pages/ChapterTestPage"));
 const ExamSimulationPage = lazy(() => import("./pages/ExamSimulationPage"));
 const LegalPage = lazy(() => import("./pages/LegalPage"));
@@ -75,6 +74,13 @@ function withRouteSuspense(node: React.ReactNode) {
 function MentorRedirect() {
   const { grade, subject } = useParams<{ grade: string; subject: string }>();
   return <Navigate to={`/topic-hub/${grade || "10"}/${subject || "Maths"}`} replace />;
+}
+
+function TopicMockRedirect() {
+  const { grade, subject, topicKey } = useParams<{ grade: string; subject: string; topicKey: string }>();
+  const location = useLocation();
+  const search = location.search || "";
+  return <Navigate to={`/chapter-test/${grade || "10"}/${subject || "Maths"}/${topicKey || ""}${search}`} replace />;
 }
 
 function HomeRedirect() {
@@ -143,7 +149,14 @@ function BottomNav() {
         </svg>
       ),
       active: isPractice,
-      onClick: () => go("/predictive-papers"),
+      onClick: () => {
+        let ctx = { grade: "10", subject: "Maths" };
+        try {
+          const raw = localStorage.getItem("lazytopper.lastSubjectContext");
+          if (raw) { const p = JSON.parse(raw); if (p?.grade && p?.subject) ctx = p; }
+        } catch {}
+        go(`/practice/${ctx.grade}/${ctx.subject}`);
+      },
     },
     {
       label: "Me",
@@ -429,17 +442,6 @@ export default function App() {
           )}
           <button
             type="button"
-            onClick={() => navigate("/pricing")}
-            style={{
-              background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12,
-              padding: "6px 12px", fontSize: "0.78rem", fontWeight: 700,
-              color: "rgba(255,255,255,0.35)", cursor: "pointer",
-            }}
-          >
-            Pricing
-          </button>
-          <button
-            type="button"
             onClick={() => setPaletteOpen(true)}
             title="Search (Ctrl+K)"
             style={{
@@ -535,8 +537,8 @@ export default function App() {
           {/* Auto-mock paper view (legacy + predictive) — free users get 1/day */}
           <Route path="/mock-paper/:slug" element={<MockViewGate><SectionErrorBoundary>{withRouteSuspense(<MockPaper />)}</SectionErrorBoundary></MockViewGate>} />
 
-          {/* Topic Mock Paper — auth + mock view limit */}
-          <Route path="/topic-mock/:grade/:subject/:topicKey" element={<MockViewGate><SectionErrorBoundary>{withRouteSuspense(<TopicMockPage />)}</SectionErrorBoundary></MockViewGate>} />
+          {/* Topic Mock → redirect to Chapter Test */}
+          <Route path="/topic-mock/:grade/:subject/:topicKey" element={<TopicMockRedirect />} />
           <Route path="/chapter-test/:grade/:subject/:topicKey" element={<MockViewGate><SectionErrorBoundary>{withRouteSuspense(<ChapterTestPage />)}</SectionErrorBoundary></MockViewGate>} />
 
           {/* New Mock Builder v1 with mandatory grade & subject */}
