@@ -110,6 +110,11 @@ const {
   getSessionHandler,
   submitSessionHandler,
 } = require("./sessionHandlers.cjs");
+const { createGeminiClient } = require('./services/geminiClient.cjs');
+const { createClaudeClient } = require('./services/claudeClient.cjs');
+const { createShareRoutes } = require('./routes/share.cjs');
+const { createDiagramRoutes } = require('./routes/diagrams.cjs');
+const { createQuestionRoutes } = require('./routes/questions.cjs');
 
 function loadDotEnvIfPresent() {
   // Load ONLY server/.env by default, without external dependencies.
@@ -196,6 +201,17 @@ const teachCache = new Map();
 const inflightTeach = new Map();
 const CBSE_EXAM_CACHE_TTL_MS = 6 * 60 * 60 * 1000;
 const cbseExamCache = new Map();
+
+const geminiClientModule = createGeminiClient({
+  GEMINI_API_KEY, HAS_REPLIT_PROXY, REPLIT_GEMINI_BASE_URL,
+  REPLIT_GEMINI_API_KEY, DIRECT_GEMINI_API_KEY, GEMINI_TIMEOUT_MS,
+});
+const claudeClientModule = createClaudeClient({
+  HAS_ANTHROPIC_PROXY, REPLIT_ANTHROPIC_BASE_URL, REPLIT_ANTHROPIC_API_KEY,
+  ANTHROPIC_TIMEOUT_MS, CLAUDE_MODEL_SONNET, CLAUDE_MODEL_HAIKU,
+  HAS_REPLIT_PROXY, GEMINI_MODEL, MAX_HISTORY_TURNS,
+});
+
 
 function buildTeachContractCacheKey(payload) {
   if (!payload || typeof payload !== 'object') return 'teach_contract|unknown';
@@ -4707,239 +4723,19 @@ function buildMoreLikeThisUserPrompt(payload) {
  * @param {{temperature?: number, maxOutputTokens?: number}} [config]
  */
 async function callGemini(model, finalContents, config) {
-  if (!GEMINI_API_KEY) {
-    throw new Error('No Gemini auth available. Set AI_INTEGRATIONS_GEMINI_BASE_URL + AI_INTEGRATIONS_GEMINI_API_KEY (Replit proxy), or AI_PROVIDER=gemini and API_KEY in server/.env.');
-  }
-
-  const buildBody = (includeMimeType) => {
-    const body = {
-      contents: finalContents,
-      generationConfig: {
-        temperature: config && typeof config.temperature === 'number' ? config.temperature : 0.6,
-        maxOutputTokens: config && typeof config.maxOutputTokens === 'number' ? config.maxOutputTokens : 900,
-      },
-    };
-    if (
-      includeMimeType &&
-      config &&
-      typeof config.responseMimeType === 'string' &&
-      config.responseMimeType.trim()
-    ) {
-      body.generationConfig.responseMimeType = config.responseMimeType.trim();
-    }
-    return body;
-  };
-
-  const doRequest = async (includeMimeType, reqUrl, apiKey) => {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), GEMINI_TIMEOUT_MS);
-    try {
-      const response = await fetch(reqUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-goog-api-key': apiKey,
-        },
-        body: JSON.stringify(buildBody(includeMimeType)),
-        signal: controller.signal,
-      });
-      const rawText = await response.text();
-      return { response, rawText };
-    } catch (err) {
-      if (err && err.name === 'AbortError') {
-        const timeoutErr = new Error(`Gemini request timed out after ${GEMINI_TIMEOUT_MS}ms`);
-        timeoutErr.status = 504;
-        throw timeoutErr;
-      }
-      throw err;
-    } finally {
-      clearTimeout(timeoutId);
-    }
-  };
-
-  const proxyUrl = HAS_REPLIT_PROXY
-    ? `${REPLIT_GEMINI_BASE_URL}/models/${encodeURIComponent(model)}:generateContent`
-    : null;
-  const directUrl = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
-
-  const primaryUrl = proxyUrl || directUrl;
-  const primaryKey = HAS_REPLIT_PROXY ? REPLIT_GEMINI_API_KEY : GEMINI_API_KEY;
-
-  let { response, rawText } = await doRequest(true, primaryUrl, primaryKey);
-  if (
-    !response.ok &&
-    config &&
-    typeof config.responseMimeType === 'string' &&
-    config.responseMimeType.trim()
-  ) {
-    const retryMimeRegex = /responseMimeType|response_mime_type|Unknown name.*responseMimeType/i;
-    if (retryMimeRegex.test(rawText)) {
-      ({ response, rawText } = await doRequest(false, primaryUrl, primaryKey));
-    }
-  }
-
-  if (!response.ok && HAS_REPLIT_PROXY && DIRECT_GEMINI_API_KEY) {
-    console.warn(`[callGemini] Proxy failed (${response.status}), falling back to direct Gemini key`);
-    ({ response, rawText } = await doRequest(true, directUrl, DIRECT_GEMINI_API_KEY));
-    if (
-      !response.ok &&
-      config &&
-      typeof config.responseMimeType === 'string' &&
-      config.responseMimeType.trim()
-    ) {
-      const retryMimeRegex = /responseMimeType|response_mime_type|Unknown name.*responseMimeType/i;
-      if (retryMimeRegex.test(rawText)) {
-        ({ response, rawText } = await doRequest(false, directUrl, DIRECT_GEMINI_API_KEY));
-      }
-    }
-  }
-
-  if (!response.ok) {
-    const err = new Error(
-      `Gemini request failed: ${response.status} ${response.statusText} - ${rawText}`
-    );
-    err.status = response.status;
-    err.body = rawText;
-    throw err;
-  }
-
-  const data = JSON.parse(rawText || '{}');
-
-  // Typical response shape: candidates[0].content.parts[].text
-  const parts =
-    data &&
-    data.candidates &&
-    data.candidates[0] &&
-    data.candidates[0].content &&
-    Array.isArray(data.candidates[0].content.parts)
-      ? data.candidates[0].content.parts
-      : [];
-
-  const text = parts
-    .map((p) => (p && p.text ? String(p.text) : ''))
-    .filter(Boolean)
-    .join('\n')
-    .trim();
-
-  return { text, raw: data };
+  return geminiClientModule.callGemini(model, finalContents, config);
 }
 
-/**
- * Call Anthropic Claude Messages API (REST).
- * @param {string} model - e.g. 'claude-sonnet-4-6' or 'claude-haiku-4-5'
- * @param {Array<{role: string, content: string}>} messages - user/assistant messages
- * @param {string} systemPrompt - system-level instructions
- * @param {{temperature?: number, maxTokens?: number}} [config]
- */
 async function callClaude(model, messages, systemPrompt, config) {
-  if (!HAS_ANTHROPIC_PROXY) {
-    throw new Error('No Anthropic auth available. Set AI_INTEGRATIONS_ANTHROPIC_BASE_URL + AI_INTEGRATIONS_ANTHROPIC_API_KEY (Replit proxy).');
-  }
-
-  const body = {
-    model,
-    max_tokens: config && typeof config.maxTokens === 'number' ? config.maxTokens : 1024,
-    system: systemPrompt || '',
-    messages: (messages || []).map(m => ({
-      role: m.role === 'model' ? 'assistant' : (m.role || 'user'),
-      content: typeof m.content === 'string' ? m.content : (m.parts ? m.parts.map(p => p.text).join('\n') : ''),
-    })).filter(m => m.content.trim()),
-  };
-  if (config && typeof config.temperature === 'number') {
-    body.temperature = config.temperature;
-  }
-
-  const url = `${REPLIT_ANTHROPIC_BASE_URL}/v1/messages`;
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), ANTHROPIC_TIMEOUT_MS);
-
-  try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': REPLIT_ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify(body),
-      signal: controller.signal,
-    });
-
-    const rawText = await response.text();
-
-    if (!response.ok) {
-      const err = new Error(`Claude request failed: ${response.status} ${response.statusText} - ${rawText}`);
-      err.status = response.status;
-      err.body = rawText;
-      throw err;
-    }
-
-    const data = JSON.parse(rawText || '{}');
-    const text = (data.content || [])
-      .filter(c => c.type === 'text')
-      .map(c => c.text)
-      .join('\n')
-      .trim();
-
-    return { text, raw: data };
-  } catch (err) {
-    if (err && err.name === 'AbortError') {
-      const timeoutErr = new Error(`Claude request timed out after ${ANTHROPIC_TIMEOUT_MS}ms`);
-      timeoutErr.status = 504;
-      throw timeoutErr;
-    }
-    throw err;
-  } finally {
-    clearTimeout(timeoutId);
-  }
+  return claudeClientModule.callClaude(model, messages, systemPrompt, config);
 }
 
-/**
- * Convert app chat messages to Claude messages format, truncated to last N turns.
- * @param {{role:'user'|'assistant', content:string}[]} messages
- */
 function toClaudeMessages(messages) {
-  const out = [];
-  if (!Array.isArray(messages)) return out;
-  const truncated = messages.length > MAX_HISTORY_TURNS * 2
-    ? messages.slice(-(MAX_HISTORY_TURNS * 2))
-    : messages;
-  for (const m of truncated) {
-    if (!m || !m.role) continue;
-    const role = m.role === 'assistant' ? 'assistant' : 'user';
-    const text = typeof m.content === 'string' ? m.content : '';
-    if (!text.trim()) continue;
-    out.push({ role, content: text });
-  }
-  return out;
+  return claudeClientModule.toClaudeMessages(messages);
 }
 
-/**
- * Smart model routing: pick the best model for each request type.
- * @param {string} mode - normalized mentor mode
- * @param {string} [userQuery] - the user's query text
- * @returns {{ provider: 'gemini'|'claude', model: string }}
- */
 function selectModelForRequest(mode, userQuery) {
-  const sonnetModes = [
-    'visual', 'generate_visual', 'concept_teach_visual',
-    'concept_teach', 'diagram',
-  ];
-  if (sonnetModes.includes(mode) && HAS_ANTHROPIC_PROXY) {
-    return { provider: 'claude', model: CLAUDE_MODEL_SONNET };
-  }
-
-  if (HAS_ANTHROPIC_PROXY) {
-    const queryLen = String(userQuery || '').trim().length;
-    const isSimpleFactual = queryLen > 0 && queryLen < 80 &&
-      /^(what|who|when|where|define|formula|list|name)\b/i.test(String(userQuery || ''));
-
-    if (isSimpleFactual) {
-      return { provider: 'claude', model: CLAUDE_MODEL_HAIKU };
-    }
-  }
-
-  return { provider: 'gemini', model: GEMINI_MODEL };
+  return claudeClientModule.selectModelForRequest(mode, userQuery);
 }
 
 /**
@@ -5026,150 +4822,18 @@ async function handleRequest(req, res) {
   }
 
   if (req.method === 'POST' && req.url === '/api/share-token') {
-    try {
-      const body = await readJson(req);
-      const studentName = String(body.studentName || 'Student').slice(0, 100);
-      const weeklySnapshot = body.weeklySnapshot || null;
-
-      let uid = '';
-      let tokenType = 'digest';
-      const authHeader = String(req.headers['authorization'] || '');
-      const idToken = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
-      if (idToken && firebaseAdmin) {
-        try {
-          const decodedToken = await firebaseAdmin.auth().verifyIdToken(idToken);
-          uid = decodedToken.uid;
-          tokenType = 'report';
-        } catch (_verifyErr) {
-          // Firebase token invalid — digest-only mode
-        }
-      }
-
-      const expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000;
-      const tokenPayloadObj = { tokenType, studentName, expiresAt };
-      if (tokenType === 'report' && uid) {
-        tokenPayloadObj.uid = uid;
-      }
-      if (weeklySnapshot && typeof weeklySnapshot === 'object') {
-        tokenPayloadObj.weeklySnapshot = {
-          studyHours: Number(weeklySnapshot.studyHours) || 0,
-          focusScore: Number(weeklySnapshot.focusScore) || 0,
-          accuracy: Number(weeklySnapshot.accuracy) || 0,
-          streak: Number(weeklySnapshot.streak) || 0,
-          questionsThisWeek: Number(weeklySnapshot.questionsThisWeek) || 0,
-          topicsImproved: Number(weeklySnapshot.topicsImproved) || 0,
-          mockScores: Array.isArray(weeklySnapshot.mockScores) ? weeklySnapshot.mockScores.slice(0, 10).map(m => ({
-            subject: String(m.subject || '').slice(0, 50),
-            percent: Number(m.percent) || 0,
-            timestamp: Number(m.timestamp) || 0,
-          })) : [],
-          weakAreas: Array.isArray(weeklySnapshot.weakAreas) ? weeklySnapshot.weakAreas.slice(0, 8).map(w => ({
-            topicName: String(w.topicName || '').slice(0, 80),
-            subject: String(w.subject || '').slice(0, 30),
-            accuracy: Number(w.accuracy) || 0,
-          })) : [],
-        };
-      }
-      const payload = JSON.stringify(tokenPayloadObj);
-      const hmac = crypto.createHmac('sha256', SHARE_SECRET).update(payload).digest('hex');
-      const token = Buffer.from(payload).toString('base64url') + '.' + hmac;
-      return sendJson(res, 200, { ok: true, token });
-    } catch (err) {
-      return sendJson(res, 500, { ok: false, error: String(err && err.message || err) });
-    }
+    return shareRoutes.handleShareToken(req, res, SHARE_SECRET);
   }
 
   if (req.method === 'GET' && String(req.url || '').startsWith('/api/verify-share-token')) {
-    try {
-      const reqUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
-      const token = reqUrl.searchParams.get('token');
-      if (!token) return sendJson(res, 400, { ok: false, error: 'Missing token' });
-
-      const parts = token.split('.');
-      if (parts.length !== 2) return sendJson(res, 400, { ok: false, error: 'Invalid token format' });
-
-      const [payloadB64, sig] = parts;
-      const payload = Buffer.from(payloadB64, 'base64url').toString('utf-8');
-      const expectedSig = crypto.createHmac('sha256', SHARE_SECRET).update(payload).digest('hex');
-
-      const sigBuf = Buffer.from(sig, 'hex');
-      const expectedBuf = Buffer.from(expectedSig, 'hex');
-      if (sigBuf.length !== expectedBuf.length || !crypto.timingSafeEqual(sigBuf, expectedBuf)) {
-        return sendJson(res, 403, { ok: false, error: 'Invalid token signature' });
-      }
-
-      const data = JSON.parse(payload);
-      if (data.expiresAt && Date.now() > data.expiresAt) {
-        return sendJson(res, 403, { ok: false, error: 'Token expired' });
-      }
-
-      return sendJson(res, 200, { ok: true, uid: data.uid, studentName: data.studentName, weeklySnapshot: data.weeklySnapshot || null });
-    } catch (err) {
-      return sendJson(res, 500, { ok: false, error: String(err && err.message || err) });
-    }
+    return shareRoutes.handleVerifyShareToken(req, res, SHARE_SECRET);
   }
 
-  // Shared report data endpoint — validates share token and returns scoped data from Firestore
   if (req.method === 'GET' && String(req.url || '').startsWith('/api/shared-report')) {
-    try {
-      const reqUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
-      const token = reqUrl.searchParams.get('token');
-      if (!token) return sendJson(res, 400, { ok: false, error: 'Missing token' });
-
-      const tokenParts = token.split('.');
-      if (tokenParts.length !== 2) return sendJson(res, 400, { ok: false, error: 'Invalid token format' });
-
-      const [payloadB64, sig] = tokenParts;
-      const tokenPayload = Buffer.from(payloadB64, 'base64url').toString('utf-8');
-      const expectedSig = crypto.createHmac('sha256', SHARE_SECRET).update(tokenPayload).digest('hex');
-
-      const sigBuf = Buffer.from(sig, 'hex');
-      const expectedBuf = Buffer.from(expectedSig, 'hex');
-      if (sigBuf.length !== expectedBuf.length || !crypto.timingSafeEqual(sigBuf, expectedBuf)) {
-        return sendJson(res, 403, { ok: false, error: 'Invalid token signature' });
-      }
-
-      const tokenData = JSON.parse(tokenPayload);
-      if (tokenData.expiresAt && Date.now() > tokenData.expiresAt) {
-        return sendJson(res, 403, { ok: false, error: 'Token expired' });
-      }
-
-      if (tokenData.tokenType && tokenData.tokenType !== 'report') {
-        return sendJson(res, 403, { ok: false, error: 'Token type not authorized for report access. Only authenticated report tokens can access student data.' });
-      }
-
-      const studentUid = tokenData.uid;
-      if (!studentUid) {
-        return sendJson(res, 403, { ok: false, error: 'Token does not contain student identity' });
-      }
-
-      if (!adminFirestore) {
-        return sendJson(res, 503, { ok: false, error: 'Firestore Admin not configured' });
-      }
-
-      const studentName = tokenData.studentName || 'Student';
-
-      const [insightsDoc, mockScoresDoc, weakAreasDoc, topicMasteryDoc] = await Promise.all([
-        adminFirestore.collection('practiceInsights').doc(studentUid).get(),
-        adminFirestore.collection('mockScoreHistory').doc(studentUid).get(),
-        adminFirestore.collection('weakAreaSummary').doc(studentUid).get(),
-        adminFirestore.collection('topicMastery').doc(studentUid).get(),
-      ]);
-
-      return sendJson(res, 200, {
-        ok: true,
-        studentName,
-        insights: insightsDoc.exists ? insightsDoc.data() : null,
-        mockScores: mockScoresDoc.exists ? (mockScoresDoc.data().entries || []) : [],
-        weakAreas: weakAreasDoc.exists ? weakAreasDoc.data() : null,
-        topicMastery: topicMasteryDoc.exists ? topicMasteryDoc.data() : null,
-      });
-    } catch (err) {
-      return sendJson(res, 500, { ok: false, error: String(err && err.message || err) });
-    }
+    return shareRoutes.handleSharedReport(req, res, SHARE_SECRET);
   }
 
-  // Health checks
+    // Health checks
   if (req.method === 'GET' && (req.url === '/health' || req.url === '/api/health')) {
     return sendJson(res, 200, {
       ok: true,
@@ -5216,57 +4880,10 @@ async function handleRequest(req, res) {
   }
 
   if (req.method === "POST" && reqPath === "/api/generate-diagram") {
-    let reqJson;
-    try {
-      reqJson = await readJson(req);
-    } catch (e) {
-      return sendJson(res, 400, { ok: false, error: "Invalid JSON" });
-    }
-    const questionText = String(reqJson?.questionText || '').trim();
-    if (!questionText || questionText.length < 10) {
-      return sendJson(res, 400, { ok: false, error: "questionText too short" });
-    }
-    if (STUB_MODE) {
-      return sendJson(res, 200, { ok: true, svg: null });
-    }
-    try {
-      const diagramPrompt = `You are a CBSE Class 10 educational diagram generator. Given a question, produce a clean SVG diagram that helps a student visualize the concept.
-
-RULES:
-- Output ONLY valid SVG markup, nothing else. No markdown, no backticks, no explanation.
-- The SVG must have viewBox="0 0 400 280", width="100%", height="auto".
-- Use these colors: stroke="#3c3c3c", accent="#0ea5e9", red="#dc2626", green="#22c55e", faint="#94a3b8".
-- Label all important parts clearly with <text> elements.
-- Keep it simple and educational — like a textbook diagram.
-- Do NOT include <script>, <style>, or any interactive elements.
-- If the question doesn't warrant a diagram, output exactly: NO_DIAGRAM
-
-Question: ${questionText}`;
-
-      const contents = [{ role: 'user', parts: [{ text: diagramPrompt }] }];
-      const geminiResult = await callGemini(GEMINI_MODEL, contents, {
-        temperature: 0.3,
-        maxOutputTokens: 2000,
-      });
-      const text = String(geminiResult?.text || '');
-      if (!text || text.includes('NO_DIAGRAM') || !text.includes('<svg')) {
-        return sendJson(res, 200, { ok: true, svg: null });
-      }
-      const svgMatch = text.match(/<svg[\s\S]*?<\/svg>/i);
-      if (!svgMatch) {
-        return sendJson(res, 200, { ok: true, svg: null });
-      }
-      let svg = svgMatch[0];
-      svg = svg.replace(/<script[\s\S]*?<\/script>/gi, '');
-      svg = svg.replace(/on\w+="[^"]*"/gi, '');
-      return sendJson(res, 200, { ok: true, svg });
-    } catch (err) {
-      console.error('[generate-diagram] Error:', err?.message || err);
-      return sendJson(res, 200, { ok: true, svg: null });
-    }
+    return diagramRoutes.handleGenerateDiagram(req, res);
   }
 
-  if (req.method === "POST" && reqPath === "/api/session/start") {
+    if (req.method === "POST" && reqPath === "/api/session/start") {
     let reqJson;
     try {
       reqJson = await readJson(req);
@@ -6234,636 +5851,42 @@ ${userPrompt}` }];
     }
   }
 
-  // More-like-this endpoint
   if (req.method === 'POST' && req.url === '/api/more-like-this') {
-    let payload;
-    try {
-      payload = await readJson(req);
-    } catch (e) {
-      return sendJson(res, 400, { error: 'Invalid JSON' });
-    }
-
-    if (isStubMode()) {
-      const stub = buildStubMoreLikeThis(payload);
-      return sendJson(res, 200, {
-        ...stub,
-        provider: ACTIVE_PROVIDER,
-      });
-    }
-
-    try {
-      const { userPrompt, numVariants } = buildMoreLikeThisUserPrompt(payload);
-      const subject = payload.subject || 'Maths/Science';
-
-      const systemPrompt =
-        'You are an expert CBSE Class 10 board question setter for Maths and Science. ' +
-        'You strictly follow the CBSE exam blueprint, marks scheme and language style. ' +
-        'You always generate high-quality board-style questions that are safe and syllabus-aligned.';
-
-      const contents = [
-        { role: 'user', parts: [{ text: `${systemPrompt}\n\n${userPrompt}` }] },
-      ];
-
-      const reply = await callGemini(GEMINI_MODEL, contents, {
-        temperature: 0.6,
-        maxOutputTokens: 2048,
-      });
-
-      let variants = [];
-      const seed = payload.seedQuestion || {};
-
-      const enforcedDiff = payload.requestedDifficulty || seed.difficulty || undefined;
-      const mapQuestion = (q, idx) => ({
-        text: String(q.questionText || q.text || '').trim(),
-        marks: q.marks != null ? q.marks : (seed.marks != null ? seed.marks : undefined),
-        difficulty: enforcedDiff || q.difficulty || undefined,
-        bloomSkill: q.bloomSkill || seed.bloomSkill || undefined,
-        index: idx,
-      });
-
-      const extractVariantsJson = (rawText) => {
-        if (typeof rawText !== 'string') return null;
-        const trimmed = rawText.trim();
-        if (!trimmed) return null;
-
-        const tryParse = (str) => {
-          try { return JSON.parse(str); } catch (_) { return null; }
-        };
-
-        let fenceMatch = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i);
-        if (!fenceMatch) {
-          fenceMatch = trimmed.match(/```(?:json)?\s*([\s\S]+)/i);
-        }
-        const jsonStr = fenceMatch ? fenceMatch[1].trim() : trimmed;
-
-        const repairAndParse = (s) => {
-          let result = tryParse(s);
-          if (result) return result;
-          let repaired = s.replace(/,\s*([}\]])/g, '$1');
-          result = tryParse(repaired);
-          if (result) return result;
-          const openBraces = (s.match(/\{/g) || []).length;
-          const closeBraces = (s.match(/\}/g) || []).length;
-          const openBrackets = (s.match(/\[/g) || []).length;
-          const closeBrackets = (s.match(/\]/g) || []).length;
-          let suffix = '';
-          for (let i = 0; i < openBraces - closeBraces; i++) suffix += '}';
-          for (let i = 0; i < openBrackets - closeBrackets; i++) suffix += ']';
-          if (suffix) {
-            let truncated = repaired.replace(/,\s*$/, '');
-            const lastComma = truncated.lastIndexOf(',');
-            const lastCloseBrace = truncated.lastIndexOf('}');
-            if (lastComma > lastCloseBrace) {
-              truncated = truncated.slice(0, lastComma);
-            }
-            result = tryParse(truncated + suffix);
-            if (result) return result;
-            result = tryParse(truncated.replace(/,\s*$/, '') + suffix);
-            if (result) return result;
-          }
-          return null;
-        };
-
-        let obj = repairAndParse(jsonStr);
-        if (!obj) {
-          const fb = jsonStr.indexOf('{');
-          const lb = jsonStr.lastIndexOf('}');
-          if (fb !== -1 && lb > fb) obj = repairAndParse(jsonStr.slice(fb, lb + 1));
-          if (!obj && fb !== -1) obj = repairAndParse(jsonStr.slice(fb));
-        }
-        if (!obj) {
-          const fa = jsonStr.indexOf('[');
-          const la = jsonStr.lastIndexOf(']');
-          if (fa !== -1 && la > fa) obj = repairAndParse(jsonStr.slice(fa, la + 1));
-          if (!obj && fa !== -1) obj = repairAndParse(jsonStr.slice(fa));
-        }
-
-        if (Array.isArray(obj)) return obj;
-        if (obj && typeof obj === 'object' && Array.isArray(obj.questions)) return obj.questions;
-        return null;
-      };
-
-      const replyText = String(reply.text || '');
-      const questionsArr = extractVariantsJson(replyText);
-      if (questionsArr && questionsArr.length > 0) {
-        variants = questionsArr.filter(q => q && (q.questionText || q.text)).map(mapQuestion);
-      } else {
-        const lines = String(reply.text)
-          .split(/\n+/)
-          .map((l) => l.trim())
-          .filter(Boolean)
-          .filter((l) => {
-            if (l.length < 15) return false;
-            if (/^[\[{\]}`",]/.test(l)) return false;
-            if (/^```/.test(l)) return false;
-            if (/^\w+["']?\s*:/.test(l)) return false;
-            return true;
-          });
-        if (lines.length > 0) {
-          variants = lines.slice(0, numVariants).map((line, idx) => ({
-            text: line.replace(/^\d+[.)]\s*/, '').trim(),
-            marks: seed.marks,
-            difficulty: seed.difficulty,
-            bloomSkill: seed.bloomSkill,
-            index: idx,
-          }));
-        }
-      }
-
-      if (variants.length === 0) {
-        return sendJson(res, 200, {
-          subject,
-          topicKey: payload.topicKey || null,
-          provider: ACTIVE_PROVIDER,
-          model: GEMINI_MODEL,
-          variants: [],
-          error: 'Could not parse AI response into valid question variants',
-        });
-      }
-
-      return sendJson(res, 200, {
-        subject,
-        topicKey: payload.topicKey || null,
-        provider: ACTIVE_PROVIDER,
-        model: GEMINI_MODEL,
-        variants,
-      });
-    } catch (err) {
-      console.error(err);
-      return sendJson(res, 500, {
-        error: 'Failed to generate variants',
-        details: err.message,
-      });
-    }
+    return questionRoutes.handleMoreLikeThis(req, res);
   }
 
   if (req.method === 'POST' && req.url === '/api/step-solution') {
-    let payload;
-    try {
-      payload = await readJson(req);
-    } catch (e) {
-      return sendJson(res, 400, { error: 'Invalid JSON' });
-    }
-
-    const question = String(payload.question || '').trim();
-    const marks = Number(payload.marks) || 1;
-    const subject = String(payload.subject || 'Maths').trim();
-    const topic = String(payload.topic || '').trim();
-    const qType = String(payload.type || '').trim();
-    const section = String(payload.section || '').trim();
-    const existingAnswer = String(payload.answer || '').trim();
-    const existingExplanation = String(payload.explanation || '').trim();
-
-    if (!question) {
-      return sendJson(res, 400, { error: 'Missing question text' });
-    }
-
-    if (isStubMode()) {
-      if (existingAnswer || existingExplanation) {
-        return sendJson(res, 200, buildFallbackSteps(existingAnswer, existingExplanation, marks, qType, section, subject));
-      }
-      return sendJson(res, 200, buildStubStepSolution(question, marks, subject, qType, section));
-    }
-
-    try {
-      const isMaths = /math/i.test(subject);
-      const systemPrompt =
-        'You are a CBSE Class 10 board exam evaluator who authors the OFFICIAL marking scheme for ' +
-        subject + ' (Subject Code: ' + (isMaths ? '041' : '086') + '). ' +
-        'You have access to CBSE marking scheme PDFs from 2020-2025 and follow their EXACT format. ' +
-        'You produce step-by-step solutions identical to what CBSE publishes in their official marking scheme documents. ' +
-        'You must respond ONLY with valid JSON, no markdown fences.';
-
-      const mathsExample =
-        'CBSE MARKING SCHEME FORMAT EXAMPLES (Maths):\n' +
-        '--- Example: 3-mark question "Solve 2x² − 5x + 3 = 0 using quadratic formula" ---\n' +
-        'Step 1: desc="Writing the quadratic formula", working="For ax² + bx + c = 0, x = (−b ± √(b²−4ac)) / 2a. Here a = 2, b = −5, c = 3", marks=0.5\n' +
-        'Step 2: desc="Computing the discriminant", working="D = b² − 4ac = (−5)² − 4(2)(3) = 25 − 24 = 1", marks=1\n' +
-        'Step 3: desc="Substituting in the formula", working="x = (5 ± √1) / 4 = (5 ± 1) / 4", marks=1\n' +
-        'Step 4: desc="Writing both roots", working="x = (5+1)/4 = 3/2 or x = (5−1)/4 = 1 ∴ x = 3/2, 1", marks=0.5\n' +
-        '--- Example: 2-mark question "Find the 10th term of AP: 2, 7, 12, ..." ---\n' +
-        'Step 1: desc="Identifying a, d and writing formula", working="Here a = 2, d = 7 − 2 = 5. Using aₙ = a + (n−1)d", marks=0.5\n' +
-        'Step 2: desc="Substituting n = 10", working="a₁₀ = 2 + (10−1)(5) = 2 + 45 = 47", marks=1\n' +
-        'Step 3: desc="Stating the answer", working="∴ The 10th term of the AP is 47.", marks=0.5\n';
-
-      const scienceExample =
-        'CBSE MARKING SCHEME FORMAT EXAMPLES (Science):\n' +
-        '--- Example: 2-mark question "Write the balanced chemical equation when iron reacts with copper sulphate" ---\n' +
-        'Step 1: desc="Writing reactants and products", working="Fe + CuSO₄ → FeSO₄ + Cu", marks=0.5\n' +
-        'Step 2: desc="Balanced equation with state symbols", working="Fe(s) + CuSO₄(aq) → FeSO₄(aq) + Cu(s)", marks=1\n' +
-        'Step 3: desc="Identifying type of reaction", working="This is a displacement reaction (Fe displaces Cu).", marks=0.5\n' +
-        '--- Example: 3-mark question "What is refraction? State Snell\'s law with formula" ---\n' +
-        'Step 1: desc="Defining refraction", working="Refraction is the change in direction of light when it passes from one transparent medium to another.", marks=1\n' +
-        'Step 2: desc="Stating Snell\'s law", working="The ratio of sine of angle of incidence to sine of angle of refraction is constant for a given pair of media. This constant is called refractive index.", marks=1\n' +
-        'Step 3: desc="Writing the formula", working="sin i / sin r = n₂₁ (refractive index of medium 2 w.r.t. medium 1)", marks=1\n';
-
-      const isObj = isObjectiveType(qType, section);
-
-      const mcqInstructions = isObj ? (
-        '\n\nIMPORTANT — THIS IS AN OBJECTIVE/MCQ QUESTION (Section A, ' + marks + ' mark):\n' +
-        '- Do NOT use step patterns like "Writing given data" or "Stating the formula" — these don\'t apply to MCQs.\n' +
-        '- Structure: ONE step with the correct answer + clear justification. Then one BONUS step (marks=0) explaining WHY this is correct, to help the student learn.\n' +
-        '- The "description" for step 1 should be "Correct answer" (not "Writing given data").\n' +
-        '- The "working" for step 1 should state: "Option (X) is correct: [brief reason]".\n' +
-        '- Step 2 (marks=0): "description"="Why this is correct", "working"="[detailed conceptual explanation that helps the student understand and remember]".\n' +
-        '- commonMistakes: what wrong option students commonly pick and why.\n' +
-        '- examTip: MCQ-specific tip (e.g., elimination strategy, common traps).\n' +
-        '- For Assertion-Reason: evaluate A and R independently, then check if R explains A.\n'
-      ) : '';
-
-      const answerContext = (existingAnswer || existingExplanation) ? (
-        '\n\nKNOWN ANSWER (use this to build your detailed solution — expand on this, don\'t just repeat it):\n' +
-        (existingAnswer ? 'Answer: ' + existingAnswer + '\n' : '') +
-        (existingExplanation ? 'Explanation: ' + existingExplanation + '\n' : '') +
-        'IMPORTANT: Your solution must EXPAND on this answer to create a full, self-explanatory CBSE marking scheme solution.\n' +
-        'Show the complete working/derivation that leads to this answer. A student reading your solution should LEARN how to solve this type of question.\n'
-      ) : '';
-
-      const userPrompt =
-        'Generate the OFFICIAL CBSE board marking scheme solution for this Class 10 question.\n\n' +
-        'Question: ' + question + '\n' +
-        'Total marks: ' + marks + '\n' +
-        'Subject: ' + subject + '\n' +
-        (topic ? 'Chapter/Topic: ' + topic + '\n' : '') +
-        (qType ? 'Question type: ' + qType + '\n' : '') +
-        (section ? 'Section: ' + section + '\n' : '') +
-        answerContext +
-        mcqInstructions +
-        '\n' + (isObj ? '' : (isMaths ? mathsExample : scienceExample)) + '\n' +
-        'RESPOND with this exact JSON structure:\n' +
-        '{\n' +
-        '  "totalMarks": ' + marks + ',\n' +
-        '  "steps": [\n' +
-        '    { "stepNumber": 1, "description": "what the student must write (e.g. Writing the formula)", "working": "the EXACT content to write in the answer sheet — formulas, equations, calculations, with proper notation", "marks": 0.5 }\n' +
-        '  ],\n' +
-        '  "commonMistakes": ["specific mistake that loses marks in CBSE board evaluation"],\n' +
-        '  "examTip": "specific board exam writing tip for this type of question"\n' +
-        '}\n\n' +
-        'STRICT CBSE MARKING SCHEME RULES:\n' +
-        '1. The marks of all steps MUST sum to EXACTLY ' + marks + '\n' +
-        (isObj ? '2. For MCQ/Objective: only 1 scored step + 1 explanatory step (marks=0)\n' :
-        '2. Use HALF MARKS (0.5) — CBSE marking schemes use ½ marks extensively for setup steps (writing given/formula) and final answer steps\n') +
-        '3. The "description" field = what the examiner looks for (e.g. "Writing the formula", "Substituting values", "Computing discriminant")\n' +
-        '4. The "working" field = the EXACT content a student should write in their answer sheet — show real formulas, real numbers, real calculations\n' +
-        '5. For Maths: show actual mathematical working with symbols (√, ², ±, ∴, ∵) — not descriptions of what to do\n' +
-        '6. For Science: use NCERT-standard terminology, balanced equations with state symbols (s/l/g/aq), proper scientific notation\n' +
-        (isObj ? '' : '7. Follow CBSE step pattern: Given/Definition → Formula/Law → Substitution/Application → Simplification → Final Answer\n') +
-        '8. Each "working" must be self-contained and DETAILED ENOUGH that a student can LEARN from it — not just see the answer\n' +
-        '9. commonMistakes must be SPECIFIC to this question (not generic advice)\n' +
-        '10. examTip must reference the CBSE board marking pattern for this question type\n' +
-        (isObj ? '' : '11. For word problems: include step for framing the equation AND step for rejecting invalid values with reason\n') +
-        '12. Total steps: ' + (isObj ? '1-mark MCQ → 2 steps (1 scored + 1 explanatory)' : '2-mark Q → 3 steps, 3-mark Q → 4 steps, 5-mark Q → 5-6 steps (matching CBSE scheme density)');
-
-      const contents = [
-        { role: 'user', parts: [{ text: systemPrompt + '\n\n' + userPrompt }] },
-      ];
-
-      const reply = await callGemini(GEMINI_MODEL, contents, {
-        temperature: 0.2,
-        maxOutputTokens: 1800,
-      });
-
-      const parsed = extractJsonObjectFromText(reply.text);
-      if (parsed && Array.isArray(parsed.steps) && parsed.steps.length > 0) {
-        let steps = parsed.steps
-          .filter((s) => s && (s.description || s.working))
-          .map((s, i) => ({
-            stepNumber: i + 1,
-            description: String(s.description || '').trim(),
-            working: String(s.working || '').trim(),
-            marks: Math.max(0, Math.round(Number(s.marks) * 2) / 2),
-          }));
-
-        if (steps.length === 0) {
-          if (existingAnswer || existingExplanation) {
-            return sendJson(res, 200, buildFallbackSteps(existingAnswer, existingExplanation, marks, qType, section, subject));
-          }
-          return sendJson(res, 200, buildStubStepSolution(question, marks, subject, qType, section));
-        }
-
-        const maxSteps = Math.floor(marks / 0.5);
-        if (steps.length > maxSteps) {
-          steps = steps.slice(0, maxSteps);
-          for (let i = 0; i < steps.length; i++) steps[i].stepNumber = i + 1;
-        }
-
-        const rawSum = steps.reduce((acc, s) => acc + s.marks, 0);
-        if (Math.abs(rawSum - marks) > 0.01) {
-          if (rawSum > 0) {
-            for (let i = 0; i < steps.length; i++) {
-              steps[i].marks = Math.max(0.5, Math.round((steps[i].marks / rawSum) * marks * 2) / 2);
-            }
-          } else {
-            const perStep = Math.round((marks / steps.length) * 2) / 2;
-            for (let i = 0; i < steps.length; i++) {
-              steps[i].marks = Math.max(0.5, perStep);
-            }
-          }
-          let currentSum = steps.reduce((a, s) => a + s.marks, 0);
-          let idx = 0;
-          while (Math.abs(currentSum - marks) > 0.01 && idx < steps.length * 20) {
-            const j = idx % steps.length;
-            if (currentSum < marks) {
-              steps[j].marks += 0.5;
-              currentSum += 0.5;
-            } else if (currentSum > marks && steps[j].marks > 0.5) {
-              steps[j].marks -= 0.5;
-              currentSum -= 0.5;
-            }
-            idx++;
-          }
-          if (Math.abs(currentSum - marks) > 0.01) {
-            while (steps.length > 1 && currentSum > marks) {
-              const removed = steps.pop();
-              currentSum -= removed.marks;
-            }
-            if (steps.length > 0) {
-              steps[steps.length - 1].marks += (marks - currentSum);
-              steps[steps.length - 1].marks = Math.round(steps[steps.length - 1].marks * 2) / 2;
-            }
-            for (let i = 0; i < steps.length; i++) steps[i].stepNumber = i + 1;
-          }
-        }
-
-        return sendJson(res, 200, {
-          totalMarks: marks,
-          steps,
-          commonMistakes: Array.isArray(parsed.commonMistakes) ? parsed.commonMistakes.map(String) : [],
-          examTip: String(parsed.examTip || '').trim() || undefined,
-          provider: ACTIVE_PROVIDER,
-          model: GEMINI_MODEL,
-        });
-      }
-
-      if (existingAnswer || existingExplanation) {
-        return sendJson(res, 200, buildFallbackSteps(existingAnswer, existingExplanation, marks, qType, section, subject));
-      }
-      return sendJson(res, 200, buildStubStepSolution(question, marks, subject, qType, section));
-    } catch (err) {
-      console.error('[step-solution]', err);
-      if (existingAnswer || existingExplanation) {
-        return sendJson(res, 200, buildFallbackSteps(existingAnswer, existingExplanation, marks, qType, section, subject));
-      }
-      return sendJson(res, 200, buildStubStepSolution(question, marks, subject, qType, section));
-    }
+    return questionRoutes.handleStepSolution(req, res);
   }
 
   if (req.method === 'POST' && req.url === '/api/check-solution') {
-    let payload;
-    try {
-      payload = await readJson(req);
-    } catch (e) {
-      return sendJson(res, 400, { error: 'Invalid JSON' });
-    }
-
-    const question = String(payload.question || '').trim();
-    const marks = Number(payload.marks) || 1;
-    const subject = String(payload.subject || 'Maths').trim();
-    const topic = String(payload.topic || '').trim();
-    const imageBase64 = String(payload.imageBase64 || '').trim();
-    const imageMimeType = String(payload.imageMimeType || 'image/jpeg').trim();
-
-    if (!question) {
-      return sendJson(res, 400, { error: 'Missing question text' });
-    }
-    if (!imageBase64) {
-      return sendJson(res, 400, { error: 'Missing solution image' });
-    }
-
-    const imgCheck = validateMentorImagePayload(payload);
-    if (!imgCheck || !imgCheck.ok) {
-      return sendJson(res, 400, { error: imgCheck ? imgCheck.error : 'Invalid image' });
-    }
-
-    if (isStubMode()) {
-      return sendJson(res, 200, {
-        ok: true,
-        totalMarks: marks,
-        marksAwarded: Math.round(marks * 0.7 * 2) / 2,
-        percentage: 70,
-        steps: [
-          { stepNumber: 1, description: 'Step identification', status: 'correct', feedback: 'Good start with writing the given data.', marksGiven: 0.5 },
-          { stepNumber: 2, description: 'Working', status: 'partial', feedback: 'Calculation is mostly correct but needs cleaner presentation.', marksGiven: Math.max(0.5, marks - 1) },
-          { stepNumber: 3, description: 'Final answer', status: 'missing', feedback: 'Box or underline your final answer for the examiner.', marksGiven: 0 },
-        ],
-        overallFeedback: 'Good attempt! Your approach is correct. Focus on presenting the final answer clearly and writing each step neatly.',
-        improvementTips: ['Underline or box your final answer', 'Write the formula before substituting values', 'Show units where applicable'],
-      });
-    }
-
-    try {
-      const isMaths = /math/i.test(subject);
-      const systemPrompt =
-        'You are a strict but supportive CBSE Class 10 board exam evaluator for ' + subject + '. ' +
-        'You are checking a student\'s handwritten solution against the official CBSE marking scheme. ' +
-        'Evaluate EXACTLY as a real board examiner would — award marks step by step. ' +
-        'Be encouraging but honest about errors. ' +
-        'You must respond ONLY with valid JSON, no markdown fences.';
-
-      const userPrompt =
-        'EVALUATE this student\'s handwritten solution for the following CBSE board exam question.\n\n' +
-        'Question: ' + question + '\n' +
-        'Total marks: ' + marks + '\n' +
-        'Subject: ' + subject + '\n' +
-        (topic ? 'Chapter/Topic: ' + topic + '\n' : '') +
-        '\nThe attached image shows the student\'s handwritten answer. Carefully read their work and evaluate it.\n\n' +
-        'RESPOND with this exact JSON structure:\n' +
-        '{\n' +
-        '  "totalMarks": ' + marks + ',\n' +
-        '  "marksAwarded": <number — total marks you would award as board examiner>,\n' +
-        '  "steps": [\n' +
-        '    {\n' +
-        '      "stepNumber": 1,\n' +
-        '      "description": "what this step checks (e.g. Writing the formula, Substitution, Final answer)",\n' +
-        '      "status": "correct" | "partial" | "incorrect" | "missing",\n' +
-        '      "feedback": "specific feedback — what was right/wrong, what the correct version should be",\n' +
-        '      "marksGiven": <marks awarded for this step>\n' +
-        '    }\n' +
-        '  ],\n' +
-        '  "overallFeedback": "2-3 sentences of encouraging overall feedback with specific improvement areas",\n' +
-        '  "improvementTips": ["3 specific tips to improve their answer for board exam"]\n' +
-        '}\n\n' +
-        'EVALUATION RULES:\n' +
-        '1. Read the handwritten text carefully — allow for messy handwriting\n' +
-        '2. Award partial marks generously (CBSE allows ½ marks) if the approach is correct\n' +
-        '3. Check for: correct formula, proper substitution, accurate calculation, clear final answer\n' +
-        '4. Status meanings: "correct"=full marks, "partial"=some marks, "incorrect"=0 marks, "missing"=step not attempted\n' +
-        '5. marksAwarded MUST equal the sum of all step marksGiven values\n' +
-        '6. Be specific in feedback — say WHAT was wrong and WHAT it should be\n' +
-        (isMaths ? '7. For Maths: check mathematical accuracy, proper notation (√, ², ±), labeled diagram if needed\n' :
-          '7. For Science: check terminology, balanced equations, state symbols, NCERT-standard language\n');
-
-      const contents = [
-        {
-          role: 'user',
-          parts: [
-            { text: systemPrompt + '\n\n' + userPrompt },
-            buildGeminiImagePart({ mimeType: imageMimeType, base64: imageBase64 }),
-          ],
-        },
-      ];
-
-      const reply = await callGemini(GEMINI_MODEL, contents, {
-        temperature: 0.2,
-        maxOutputTokens: 2048,
-      });
-
-      const parsed = extractJsonObjectFromText(reply.text);
-      if (parsed && Array.isArray(parsed.steps)) {
-        const steps = parsed.steps
-          .filter((s) => s && s.description)
-          .map((s, i) => ({
-            stepNumber: i + 1,
-            description: String(s.description || '').trim(),
-            status: ['correct', 'partial', 'incorrect', 'missing'].includes(s.status) ? s.status : 'partial',
-            feedback: String(s.feedback || '').trim(),
-            marksGiven: Math.max(0, Math.round(Number(s.marksGiven || 0) * 2) / 2),
-          }));
-
-        const marksAwarded = steps.reduce((sum, s) => sum + s.marksGiven, 0);
-        const capped = Math.min(marksAwarded, marks);
-
-        return sendJson(res, 200, {
-          ok: true,
-          totalMarks: marks,
-          marksAwarded: capped,
-          percentage: Math.round((capped / marks) * 100),
-          steps,
-          overallFeedback: String(parsed.overallFeedback || '').trim(),
-          improvementTips: Array.isArray(parsed.improvementTips) ? parsed.improvementTips.map(String) : [],
-          provider: ACTIVE_PROVIDER,
-          model: GEMINI_MODEL,
-        });
-      }
-
-      return sendJson(res, 200, {
-        ok: false,
-        error: 'Could not evaluate the solution. Please try again with a clearer image.',
-      });
-    } catch (err) {
-      console.error('[check-solution]', err);
-      return sendJson(res, 500, {
-        ok: false,
-        error: 'Failed to evaluate solution. Please try again.',
-      });
-    }
+    return questionRoutes.handleCheckSolution(req, res);
   }
 
   if (req.method === 'POST' && reqPath === '/api/generate-visual') {
-    let reqJson;
-    try {
-      reqJson = await readJson(req);
-    } catch (e) {
-      return sendJson(res, 400, { ok: false, error: 'Invalid JSON' });
-    }
-    const topic = String(reqJson?.topic || '').trim();
-    const concept = String(reqJson?.concept || '').trim();
-    const subject = String(reqJson?.subject || 'Maths').trim();
-    const grade = Number(reqJson?.grade) || 10;
-
-    if (!topic && !concept) {
-      return sendJson(res, 400, { ok: false, error: 'topic or concept is required' });
-    }
-
-    if (STUB_MODE && !HAS_ANTHROPIC_PROXY) {
-      return sendJson(res, 200, {
-        ok: true,
-        html: `<div style="padding:20px;font-family:sans-serif;"><h3>${concept || topic}</h3><p>Visual explainer stub — AI provider not configured.</p></div>`,
-        provider: 'stub',
-      });
-    }
-
-    const visualSystemPrompt = `You are a CBSE Class ${grade} ${subject} visual explainer.
-Create a single, self-contained HTML document that teaches a concept through an interactive visual.
-
-CRITICAL RULES:
-- Output ONLY valid HTML. No markdown, no backticks, no explanation outside the HTML.
-- The HTML must be fully self-contained: inline CSS via <style>, inline JS via <script>.
-- DO NOT fetch any external resources (no CDN links, no images, no fonts, no external JS/CSS).
-- Use clean, modern CSS with a white background.
-- Make it interactive where appropriate (sliders, toggles, hover effects, click-to-reveal).
-- Use SVG or Canvas for diagrams — no external images.
-- Include clear labels, step-by-step explanations, and CBSE exam tips.
-- Keep the total output under 4000 tokens.
-- The visual should be educational, accurate, and exam-focused.
-- Use these accent colors: primary=#3b82f6, success=#22c55e, warning=#f59e0b, error=#ef4444.
-- All text must be readable (min 14px body, 18px headings).
-- Include a title bar showing the concept name.`;
-
-    const userPrompt = `Create an interactive visual explainer for:
-Topic: ${topic}
-Concept: ${concept || topic}
-Subject: ${subject}
-Grade: Class ${grade} CBSE
-
-The visual should help a student understand this concept deeply and remember it for board exams.`;
-
-    try {
-      let result;
-      if (HAS_ANTHROPIC_PROXY) {
-        const messages = [{ role: 'user', content: userPrompt }];
-        result = await callClaude(CLAUDE_MODEL_SONNET, messages, visualSystemPrompt, {
-          maxTokens: 4096,
-          temperature: 0.4,
-        });
-      } else {
-        const contents = [
-          { role: 'user', parts: [{ text: visualSystemPrompt + '\n\n' + userPrompt }] },
-        ];
-        result = await callGemini(GEMINI_MODEL, contents, {
-          temperature: 0.4,
-          maxOutputTokens: 4096,
-        });
-      }
-
-      let html = String(result?.text || '').trim();
-
-      const htmlMatch = html.match(/<!DOCTYPE html[\s\S]*<\/html>/i) || html.match(/<html[\s\S]*<\/html>/i);
-      if (htmlMatch) {
-        html = htmlMatch[0];
-      } else if (!html.includes('<') || html.length < 50) {
-        return sendJson(res, 200, {
-          ok: false,
-          error: 'AI did not return valid HTML visual',
-          html: null,
-        });
-      }
-
-      html = html.replace(/<script[^>]*src\s*=\s*["'][^"']*["'][^>]*>[\s\S]*?<\/script>/gi, '');
-      html = html.replace(/<link[^>]*href\s*=\s*["']https?:\/\/[^"']*["'][^>]*\/?>/gi, '');
-      html = html.replace(/@import\s+url\(['"]?https?:\/\/[^)'"]+['"]?\)\s*;?/gi, '');
-
-      html = html.replace(/fetch\s*\(\s*['"`]https?:\/\/[^)]*\)/gi, '/* blocked external fetch */');
-      html = html.replace(/new\s+XMLHttpRequest/gi, '/* blocked XHR */');
-      html = html.replace(/new\s+WebSocket/gi, '/* blocked WebSocket */');
-      html = html.replace(/new\s+EventSource/gi, '/* blocked EventSource */');
-      html = html.replace(/navigator\s*\.\s*sendBeacon/gi, '/* blocked sendBeacon */');
-      html = html.replace(/document\s*\.\s*createElement\s*\(\s*['"`]script['"`]\s*\)/gi, '/* blocked dynamic script */');
-      html = html.replace(/<iframe[\s\S]*?<\/iframe>/gi, '');
-      html = html.replace(/<iframe[^>]*\/?>/gi, '');
-
-      return sendJson(res, 200, {
-        ok: true,
-        html,
-        provider: HAS_ANTHROPIC_PROXY ? 'claude' : 'gemini',
-        model: HAS_ANTHROPIC_PROXY ? CLAUDE_MODEL_SONNET : GEMINI_MODEL,
-      });
-    } catch (err) {
-      console.error('[generate-visual] Error:', err?.message || err);
-      return sendJson(res, 500, {
-        ok: false,
-        error: 'Failed to generate visual explainer',
-        details: err?.message || String(err),
-      });
-    }
+    return diagramRoutes.handleGenerateVisual(req, res);
   }
 
   // 404
   return sendJson(res, 404, { error: 'Not Found' });
 }
 
+const routeDeps = {
+  sendJson, sendJsonWithHeaders, readJson,
+  callGemini, callClaude,
+  GEMINI_MODEL, CLAUDE_MODEL_SONNET, ACTIVE_PROVIDER, STUB_MODE,
+  HAS_ANTHROPIC_PROXY, isStubMode,
+  buildStubMoreLikeThis, buildMoreLikeThisUserPrompt,
+  buildFallbackSteps, buildStubStepSolution,
+  isObjectiveType, extractJsonObjectFromText,
+  buildGeminiImagePart, validateMentorImagePayload,
+  firebaseAdmin, adminFirestore,
+};
+const shareRoutes = createShareRoutes(routeDeps);
+const diagramRoutes = createDiagramRoutes(routeDeps);
+const questionRoutes = createQuestionRoutes(routeDeps);
+
 const server = http.createServer((req, res) => {
-  // ensure async handler errors don't crash process
   handleRequest(req, res).catch((e) => {
     console.error(e);
     sendJson(res, 500, { error: 'Unhandled server error', details: e.message });
