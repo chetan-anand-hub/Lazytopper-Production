@@ -686,7 +686,7 @@ export default function TopicHub() {
             <button
               type="button"
               onClick={() => {
-                trackUxEvent("topichub_topic_mock_click", "TopicHub", { topicKey });
+                trackUxEvent("topichub_topic_mock_click", "TopicHub", { topicKey, destination: "chapter_test" });
                 navigate(
                   buildTopicMockUrl(grade, subjectTitle, topicKey),
                   {
