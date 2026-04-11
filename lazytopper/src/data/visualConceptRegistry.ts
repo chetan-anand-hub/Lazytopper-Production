@@ -325,6 +325,106 @@ export const SCIENCE_VISUALS: ChapterVisuals[] = [
 
 export const ALL_VISUALS: ChapterVisuals[] = [...MATHS_VISUALS, ...SCIENCE_VISUALS];
 
+const topicKeyToChapterMap: Record<string, string> = {
+  "Real Numbers": "Real Numbers",
+  "Polynomials": "Polynomials",
+  "Pair of Linear Equations": "Pair of Linear Equations",
+  "Quadratic Equations": "Quadratic Equations",
+  "Arithmetic Progression": "Arithmetic Progression",
+  "Triangles": "Triangles",
+  "Coordinate Geometry": "Coordinate Geometry",
+  "Trigonometry": "Trigonometry",
+  "Circles": "Circles",
+  "Areas Related to Circles": "Areas Related to Circles",
+  "Surface Areas and Volumes": "Surface Areas and Volumes",
+  "Statistics": "Statistics",
+  "Probability": "Probability",
+  "Chemical Reactions and Equations": "Chemical Reactions and Equations",
+  "Acids Bases and Salts": "Acids Bases and Salts",
+  "Metals and Non-Metals": "Metals and Non-Metals",
+  "Carbon and its Compounds": "Carbon and its Compounds",
+  "Life Processes": "Life Processes",
+  "Control and Coordination": "Control and Coordination",
+  "How do Organisms Reproduce": "How do Organisms Reproduce",
+  "Heredity and Evolution": "Heredity and Evolution",
+  "Light Reflection and Refraction": "Light Reflection and Refraction",
+  "Human Eye and Colourful World": "Human Eye and Colourful World",
+  "Electricity": "Electricity",
+  "Magnetic Effects of Electric Current": "Magnetic Effects of Electric Current",
+  "Our Environment": "Our Environment",
+};
+
+export function getVisualsForTopicKey(topicKey: string): VisualConcept[] {
+  const chapterKey = topicKeyToChapterMap[topicKey] || topicKey;
+  const subj = MATHS_VISUALS.some(
+    (ch) => ch.chapterKey.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim() ===
+      chapterKey.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim()
+  ) ? "maths" : "science";
+  return getVisualsForChapter(subj, chapterKey);
+}
+
+export function findVisualForQuestion(
+  questionText: string,
+  topicKey?: string,
+  subject?: string,
+): VisualConcept | null {
+  const terms = questionText
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .split(/\s+/)
+    .filter((t) => t.length > 2);
+
+  if (topicKey) {
+    const chapterVisuals = getVisualsForTopicKey(topicKey);
+    if (chapterVisuals.length > 0) {
+      let bestMatch: VisualConcept | null = null;
+      let bestScore = 0;
+      for (const concept of chapterVisuals) {
+        let score = 0;
+        const titleLower = concept.title.toLowerCase();
+        const allKeywords = [...concept.keywords, ...titleLower.split(/\s+/)];
+        for (const term of terms) {
+          if (titleLower.includes(term)) score += 3;
+          for (const kw of allKeywords) {
+            if (kw.includes(term) || term.includes(kw)) score += 1;
+          }
+        }
+        if (score > bestScore) {
+          bestScore = score;
+          bestMatch = concept;
+        }
+      }
+      if (bestMatch && bestScore > 2) return bestMatch;
+      return chapterVisuals[0];
+    }
+  }
+
+  const subjectNorm = subject?.toLowerCase().includes("sci") ? "science" : "maths";
+  const chapters = subjectNorm === "science" ? SCIENCE_VISUALS : MATHS_VISUALS;
+  let bestMatch: VisualConcept | null = null;
+  let bestScore = 0;
+
+  for (const chapter of chapters) {
+    for (const concept of chapter.concepts) {
+      let score = 0;
+      const titleLower = concept.title.toLowerCase();
+      const allKeywords = [...concept.keywords, ...titleLower.split(/\s+/)];
+      for (const term of terms) {
+        if (titleLower.includes(term)) score += 3;
+        for (const kw of allKeywords) {
+          if (kw.includes(term) || term.includes(kw)) score += 1;
+        }
+      }
+      if (score > bestScore) {
+        bestScore = score;
+        bestMatch = concept;
+      }
+    }
+  }
+
+  return bestScore > 3 ? bestMatch : null;
+}
+
 export function findVisualForConcept(
   subject: string,
   chapterKey: string,

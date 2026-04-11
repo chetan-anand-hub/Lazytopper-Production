@@ -48,7 +48,8 @@ type MdNode =
   | { kind: "hr" }
   | { kind: "ul"; items: string[] }
   | { kind: "ol"; items: string[] }
-  | { kind: "p"; text: string };
+  | { kind: "p"; text: string }
+  | { kind: "html_explainer"; explainer: StructuredHtmlExplainer };
 
 function parseMd(raw: string): MdNode[] {
   const lines = raw.split("\n");
@@ -300,6 +301,8 @@ function renderMdNodes(nodes: MdNode[]): React.ReactNode[] {
             {renderInline(node.text)}
           </p>
         );
+      case "html_explainer":
+        return <HtmlExplainerBlock key={i} explainer={node.explainer} />;
     }
   });
 }

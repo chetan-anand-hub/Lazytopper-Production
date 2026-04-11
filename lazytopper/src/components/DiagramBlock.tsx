@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import type { LazytopperDiagramBlock } from "../diagrams/diagramIntelligence";
 import { buildDiagramBlockFromLegacy } from "../diagrams/diagramInterop";
 import type { MentorDiagramSpec } from "../types/mentor";
@@ -7,6 +7,8 @@ import { DiagramRenderer } from "./diagrams/DiagramRenderer";
 import { DiagramCanvas } from "./diagrams/DiagramCanvas";
 import { DiagramSvg } from "../tutor/diagram/DiagramSvg";
 import { isDiagramSpec } from "../tutor/diagram/diagramTypes";
+import { VisualExplainer } from "./VisualExplainer";
+import { findVisualForConcept } from "../data/visualConceptRegistry";
 
 type DiagramLabels = Record<string, string>;
 
@@ -15,6 +17,9 @@ type Props = {
   diagramType?: string | null;
   diagramLabels?: DiagramLabels | string[] | null;
   diagramSpec?: MentorDiagramSpec | DiagramSpec | null;
+  visualExplainerId?: string | null;
+  visualSubject?: string | null;
+  visualTopic?: string | null;
   title?: string;
   note?: string;
 };
@@ -231,10 +236,41 @@ export function DiagramBlock({
   diagramType,
   diagramLabels,
   diagramSpec,
+  visualExplainerId,
+  visualSubject,
+  visualTopic,
   title = "Diagram",
   note,
 }: Props) {
   const [zoomed, setZoomed] = useState(false);
+
+  const resolvedVisual = useMemo(() => {
+    if (!visualExplainerId) return null;
+    const subject = visualSubject || "maths";
+    const topic = visualTopic || "";
+    const terms = visualExplainerId.split(/[-_\s]+/).filter(Boolean);
+    const match = findVisualForConcept(subject, topic, terms);
+    if (match) return match;
+    return null;
+  }, [visualExplainerId, visualSubject, visualTopic]);
+
+  if (resolvedVisual) {
+    return (
+      <div style={{ marginBottom: 12 }}>
+        <VisualExplainer
+          src={resolvedVisual.filePath}
+          title={resolvedVisual.title}
+          height={340}
+          collapsible={true}
+          defaultCollapsed={false}
+          topic={resolvedVisual.chapter}
+          concept={resolvedVisual.title}
+          subject={resolvedVisual.subject === "science" ? "Science" : "Maths"}
+        />
+      </div>
+    );
+  }
+
   const normalizedDiagram =
     diagram ||
     buildDiagramBlockFromLegacy({
@@ -327,3 +363,5 @@ export function DiagramBlock({
     </div>
   );
 }
+
+export const VisualBlock = DiagramBlock;
