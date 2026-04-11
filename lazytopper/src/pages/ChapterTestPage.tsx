@@ -44,8 +44,6 @@ function formatTime(seconds: number): string {
   return `${m}:${s.toString().padStart(2, "0")}`;
 }
 
-const CHAPTER_TEST_QUESTIONS = 10;
-const TIME_LIMIT_SECONDS = 15 * 60;
 
 export default function ChapterTestPage() {
   const params = useParams<"grade" | "subject" | "topicKey">();
@@ -73,6 +71,7 @@ export default function ChapterTestPage() {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [timerEnabled, setTimerEnabled] = useState(true);
   const [testSize, setTestSize] = useState<10 | 15 | 20>(10);
+  const [sectionMode, setSectionMode] = useState<"mixed" | "mcq" | "subjective">("mixed");
 
   const questions = useMemo<CanonicalQuestion[]>(() => {
     const normalizedKey = normalizeTopicKey(topicKey) || topicKey;
@@ -98,17 +97,24 @@ export default function ChapterTestPage() {
         if (!used.has(key)) { used.add(key); selected.push(q); remaining--; }
       }
     };
-    pick(mcqs, 4);
-    pick(nonMcqs, 4);
-    const remaining = [...mcqs, ...nonMcqs].filter((q) => !used.has(q.id || q.questionText));
-    pick(remaining, testSize - selected.length);
+
+    if (sectionMode === "mcq") {
+      pick(mcqs, testSize);
+    } else if (sectionMode === "subjective") {
+      pick(nonMcqs, testSize);
+    } else {
+      pick(mcqs, 4);
+      pick(nonMcqs, 4);
+      const remaining = [...mcqs, ...nonMcqs].filter((q) => !used.has(q.id || q.questionText));
+      pick(remaining, testSize - selected.length);
+    }
 
     for (let i = selected.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [selected[i], selected[j]] = [selected[j], selected[i]];
     }
     return selected.slice(0, testSize);
-  }, [subject, topicKey, testSize]);
+  }, [subject, topicKey, testSize, sectionMode]);
 
   const timeLimitSeconds = Math.round(testSize * 1.5 * 60);
 
@@ -290,6 +296,18 @@ export default function ChapterTestPage() {
                       color: testSize === n ? "#16a34a" : "rgba(255,255,255,0.8)",
                       fontWeight: 700, fontSize: "0.8rem", transition: "all 0.15s",
                     }}>{n}</button>
+                  ))}
+                </div>
+
+                <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                  <span style={{ fontSize: "0.75rem", opacity: 0.7, marginRight: 4 }}>Section:</span>
+                  {([["mixed", "Mixed"], ["mcq", "MCQ Only"], ["subjective", "Subjective"]] as const).map(([val, label]) => (
+                    <button key={val} onClick={() => setSectionMode(val)} style={{
+                      padding: "5px 12px", borderRadius: 10, border: "none", cursor: "pointer",
+                      background: sectionMode === val ? "#fff" : "rgba(255,255,255,0.15)",
+                      color: sectionMode === val ? "#16a34a" : "rgba(255,255,255,0.8)",
+                      fontWeight: 700, fontSize: "0.75rem", transition: "all 0.15s",
+                    }}>{label}</button>
                   ))}
                 </div>
 
