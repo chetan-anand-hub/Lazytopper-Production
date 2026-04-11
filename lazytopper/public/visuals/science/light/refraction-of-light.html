@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>प्रकाश का अपवर्तन | Light Refraction</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f172a;color:#e2e8f0;font-family:'Segoe UI',sans-serif;min-height:100vh;overflow-x:hidden}
+header{background:linear-gradient(135deg,#1e3a5f,#0f172a);padding:12px 20px;border-bottom:2px solid #3b82f6;display:flex;align-items:center;gap:12px}
+.logo{width:36px;height:36px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px}
+h1{font-size:clamp(14px,3vw,20px);background:linear-gradient(90deg,#60a5fa,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.subtitle{font-size:11px;color:#94a3b8;margin-top:2px}
+.container{padding:16px;max-width:900px;margin:0 auto}
+.formula-box{background:linear-gradient(135deg,#1e293b,#0f172a);border:2px solid #3b82f6;border-radius:12px;padding:16px;text-align:center;margin-bottom:16px;position:relative;overflow:hidden}
+.formula-box::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(ellipse,rgba(59,130,246,.1) 0%,transparent 70%);animation:pulse 3s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:.5}50%{transform:scale(1.1);opacity:1}}
+.formula{font-size:clamp(18px,5vw,28px);font-weight:bold;color:#60a5fa;font-family:Georgia,serif;letter-spacing:2px;position:relative}
+.formula-name{font-size:12px;color:#94a3b8;margin-top:6px}
+.canvas-wrap{background:#1e293b;border-radius:12px;border:1px solid #334155;padding:12px;margin-bottom:16px;position:relative}
+canvas{display:block;margin:0 auto;cursor:crosshair;border-radius:8px;touch-action:none}
+.controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.btn{background:#1e293b;border:1px solid #3b82f6;color:#60a5fa;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:13px;transition:all .3s;flex:1;min-width:100px}
+.btn:hover,.btn.active{background:#3b82f6;color:#fff;transform:translateY(-1px)}
+.slider-group{background:#1e293b;border-radius:12px;border:1px solid #334155;padding:14px;margin-bottom:16px}
+.slider-label{font-size:13px;color:#94a3b8;margin-bottom:8px;display:flex;justify-content:space-between}
+input[type=range]{width:100%;accent-color:#3b82f6;height:6px;cursor:pointer}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:16px}
+.card{background:#1e293b;border-radius:10px;padding:14px;border:1px solid #334155;transition:border-color .3s}
+.card:hover{border-color:#3b82f6}
+.card-icon{font-size:24px;margin-bottom:8px}
+.card-title{font-size:13px;font-weight:bold;color:#60a5fa;margin-bottom:4px}
+.card-text{font-size:12px;color:#94a3b8;line-height:1.5}
+.hindi{color:#a78bfa;font-size:11px;margin-top:2px}
+.info-bar{background:#1e293b;border-left:3px solid #3b82f6;padding:10px 14px;border-radius:0 8px 8px 0;margin-bottom:16px;font-size:13px;color:#cbd5e1}
+.angle-display{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:10px}
+.angle-item{text-align:center;background:#0f172a;padding:8px 14px;border-radius:8px;border:1px solid #334155}
+.angle-val{font-size:20px;font-weight:bold;color:#34d399}
+.angle-lbl{font-size:11px;color:#94a3b8}
+</style>
+</head>
+<body>
+<header>
+<div class="logo">🔬</div>
+<div>
+<h1>प्रकाश का अपवर्तन | Light – Refraction</h1>
+<div class="subtitle">CBSE Class 10 Science · Interactive Visual Explainer</div>
+</div>
+</header>
+<div class="container">
+<div class="formula-box">
+<div class="formula">n₁ sin θ₁ = n₂ sin θ₂</div>
+<div class="formula-name">Snell's Law (स्नेल का नियम) &nbsp;|&nbsp; n = c/v &nbsp;|&nbsp; Refractive Index (अपवर्तनांक)</div>
+</div>
+<div class="info-bar">🖱️ <strong>Drag the light ray</strong> on the canvas to change angle of incidence. Toggle medium below.</div>
+<div class="canvas-wrap">
+<canvas id="cvs" width="560" height="340"></canvas>
+<div class="angle-display">
+<div class="angle-item"><div class="angle-val" id="aInc">45°</div><div class="angle-lbl">Angle of Incidence<br>आपतन कोण (θ₁)</div></div>
+<div class="angle-item"><div class="angle-val" id="aRef">28°</div><div class="angle-lbl">Angle of Refraction<br>अपवर्तन कोण (θ₂)</div></div>
+<div class="angle-item"><div class="angle-val" id="nVal">1.50</div><div class="angle-lbl">Refractive Index<br>अपवर्तनांक (n)</div></div>
+</div>
+</div>
+<div class="controls">
+<button class="btn" id="btnWater" onclick="setMedium('water')">💧 Water (n=1.33)</button>
+<button class="btn active" id="btnGlass" onclick="setMedium('glass')">🪟 Glass (n=1.50)</button>
+<button class="btn" id="btnDiamond" onclick="setMedium('diamond')">💎 Diamond (n=2.42)</button>
+<button class="btn" id="btnPrism" onclick="togglePrism()">🔺 Prism Mode</button>
+</div>
+<div class="slider-group">
+<div class="slider-label"><span>Angle of Incidence (आपतन कोण): <strong id="slVal">45°</strong></span><span style="color:#60a5fa">Drag canvas OR use slider</span></div>
+<input type="range" id="angleSlider" min="1" max="89" value="45" oninput="sliderChange(this.value)">
+</div>
+<div class="cards">
+<div class="card"><div class="card-icon">🌊</div><div class="card-title">Refraction (अपवर्तन)</div><div class="card-text">Light bends when passing between media of different densities due to change in speed.</div><div class="hindi">प्रकाश माध्यम बदलने पर मुड़ता है</div></div>
+<div class="card"><div class="card-icon">📐</div><div class="card-title">Normal (अभिलंब)</div><div class="card-text">A perpendicular line at the point of incidence. Angles are measured from the normal.</div><div class="hindi">अपवर्तन सतह पर लंबवत रेखा</div></div>
+<div class="card"><div class="card-icon">🏎️</div><div class="card-title">Speed Change (चाल)</div><div class="card-text">Light slows down in denser media. n = c/v. Higher n → lower speed → more bending.</div><div class="hindi">सघन माध्यम में चाल कम होती है</div></div>
+<div class="card"><div class="card-icon">🔺</div><div class="card-title">Prism (प्रिज्म)</div><div class="card-text">Prism splits white light into spectrum (VIBGYOR) due to dispersion. Each color bends differently.</div><div class="hindi">श्वेत प्रकाश सात रंगों में बँटता है</div></div>
+</div>
+</div>
+<script>
+const cvs=document.getElementById('cvs');
+const ctx=cvs.getContext('2d');
+let W=cvs.width,H=cvs.height;
+let incAngle=45,n2=1.50,prismMode=false;
+let dragging=false;
+const media={water:{n:1.33,color:'#38bdf8',label:'Water'},glass:{n:1.50,color:'#a78bfa',label:'Glass'},diamond:{n:2.42,color:'#f472b6',label:'Diamond'}};
+let currentMedium='glass';
+function setMedium(m){
+  currentMedium=m;n2=media[m].n;
+  document.querySelectorAll('.controls .btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('btn'+m.charAt(0).toUpperCase()+m.slice(1)).classList.add('active');
+  document.getElementById('btnPrism').classList.remove('active');
+  prismMode=false;draw();
+}
+function togglePrism(){
+  prismMode=!prismMode;
+  document.getElementById('btnPrism').classList.toggle('active',prismMode);
+  draw();
+}
+function sliderChange(v){incAngle=parseInt(v);document.getElementById('slVal').innerText=v+'°';draw();}
+function getRefAngle(){
+  const n1=1.0,r=Math.asin(Math.min(1,n1*Math.sin(incAngle*Math.PI/180)/n2));
+  return r*180/Math.PI;
+}
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  const cx=W/2,iy=H/2;
+  if(prismMode){drawPrism(cx,iy);return;}
+  // Background
+  const gTop=ctx.createLinearGradient(0,0,0,iy);
+  gTop.addColorStop(0,'#0f172a');gTop.addColorStop(1,'#1a2744');
+  ctx.fillStyle=gTop;ctx.fillRect(0,0,W,iy);
+  const gBot=ctx.createLinearGradient(0,iy,0,H);
+  gBot.addColorStop(0,media[currentMedium].color+'33');
+  gBot.addColorStop(1,media[currentMedium].color+'11');
+  ctx.fillStyle=gBot;ctx.fillRect(0,iy,W,H);
+  // Labels
+  ctx.fillStyle='#64748b';ctx.font='12px Segoe UI';
+  ctx.fillText('Air (n₁ = 1.00) — वायु',10,20);
+  ctx.fillText(media[currentMedium].label+' (n₂ = '+n2.toFixed(2)+') — '+['जल','कांच','हीरा'][['water','glass','diamond'].indexOf(currentMedium)],10,iy+20);
+  // Interface line
+  ctx.strokeStyle='#475569';ctx.lineWidth=2;ctx.setLineDash([8,4]);
+  ctx.beginPath();ctx.moveTo(0,iy);ctx.lineTo(W,iy);ctx.stroke();ctx.setLineDash([]);
+  // Normal
+  ctx.strokeStyle='#475569';ctx.lineWidth=1;ctx.setLineDash([5,5]);
+  ctx.beginPath();ctx.moveTo(cx,iy-120);ctx.lineTo(cx,iy+120);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='#64748b';ctx.font='11px Segoe UI';
+  ctx.fillText('Normal',cx+5,iy-100);
+  const ia=incAngle*Math.PI/180;
+  const ra=getRefAngle()*Math.PI/180;
+  const rayLen=130;
+  // Incident ray
+  const ix=cx-Math.sin(ia)*rayLen,iy2=iy-Math.cos(ia)*rayLen;
+  drawRay(ix,iy2,cx,iy,'#fbbf24',true,'Incident Ray');
+  // Reflected ray
+  const rx=cx+Math.sin(ia)*rayLen,ry=iy-Math.cos(ia)*rayLen;
+  drawRay(cx,iy,rx,ry,'#94a3b8',false,'Reflected Ray');
+  // Refracted ray
+  const rfx=cx+Math.sin(ra)*rayLen,rfy=iy+Math.cos(ra)*rayLen;
+  drawRay(cx,iy,rfx,rfy,media[currentMedium].color,false,'Refracted Ray');
+  // Angle arcs
+  drawArc(cx,iy,50,-Math.PI/2,-(Math.PI/2-ia),'#fbbf24','θ₁='+Math.round(incAngle)+'°',true);
+  drawArc(cx,iy,60,Math.PI/2,Math.PI/2-ra,media[currentMedium].color,'θ₂='+Math.round(getRefAngle())+'°',false);
+  // Update displays
+  document.getElementById('aInc').innerText=Math.round(incAngle)+'°';
+  document.getElementById('aRef').innerText=Math.round(getRefAngle())+'°';
+  document.getElementById('nVal').innerText=n2.toFixed(2);
+  document.getElementById('angleSlider').value=incAngle;
+  document.getElementById('slVal').innerText=Math.round(incAngle)+'°';
+}
+function drawRay(x1,y1,x2,y2,color,arrow,label){
+  ctx.strokeStyle=color;ctx.lineWidth=2.5;
+  ctx.shadowColor=color;ctx.shadowBlur=8;
+  ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+  ctx.shadowBlur=0;
+  if(arrow){
+    const ang=Math.atan2(y2-y1,x2-x1);
+    const mx=(x1+x2)/2,my=(y1+y2)/2;
+    ctx.fillStyle=color;ctx.beginPath();
+    ctx.moveTo(mx,my);
+    ctx.lineTo(mx-12*Math.cos(ang-0.4),my-12*Math.sin(ang-0.4));
+    ctx.lineTo(mx-12*Math.cos(ang+0.4),my-12*Math.sin(ang+0.4));
+    ctx.closePath();ctx.fill();
+  }
+  ctx.fillStyle=color;ctx.font='11px Segoe UI';
+  const lx=(x1+x2)/2+10,ly=(y1+y2)/2-8;
+  ctx.fillText(label,lx,ly);
+}
+function drawArc(cx,cy,r,startA,endA,color,label,left){
+  ctx.strokeStyle=color;ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.arc(cx,cy,r,startA,endA,startA>endA);ctx.stroke();
+  const midA=(startA+endA)/2;
+  const lx=cx+(r+16)*Math.cos(midA)+(left?-30:5);
+  const ly=cy+(r+16)*Math.sin(midA);
+  ctx.fillStyle=color;ctx.font='bold 12px Segoe UI';ctx.fillText(label,lx,ly);
+}
+function drawPrism(cx,iy){
+  ctx.fillStyle='#0f172a';ctx.fillRect(0,0,W,H);
+  const px=cx,pt=80,pb=H-60,pw=160;
+  // Prism shape
+  ctx.strokeStyle='#a78bfa';ctx.lineWidth=2;
+  ctx.fillStyle='rgba(167,139,250,0.08)';
+  ctx.beginPath();ctx.moveTo(px,pt);ctx.lineTo(px-pw,pb);ctx.lineTo(px+pw,pb);ctx.closePath();
+  ctx.fill();ctx.stroke();
+  ctx.fillStyle='#a78bfa';ctx.font='13px Segoe UI';ctx.fillText('Prism (प्रिज्म)',cx-30,pt-15);
+  // White ray in
+  ctx.strokeStyle='#ffffff';ctx.lineWidth=2.5;ctx.shadowColor='#ffffff';ctx.shadowBlur=6;
+  ctx.beginPath();ctx.moveTo(60,180);ctx.lineTo(px-60,220);ctx.stroke();ctx.shadowBlur=0;
+  ctx.fillStyle='#ffffff';ctx.font='11px Segoe UI';ctx.fillText('White Light',20,170);
+  // Spectrum
+  const colors=['#ef4444','#f97316','#facc15','#4ade80','#60a5fa','#818cf8','#c084fc'];
+  const names=['Red','Orange','Yellow','Green','Blue','Indigo','Violet'];
+  for(let i=0;i<7;i++){
+    const spread=(i-3)*7;
+    ctx.strokeStyle=colors[i];ctx.lineWidth=2;ctx.shadowColor=colors[i];ctx.shadowBlur=6;
+    ctx.beginPath();ctx.moveTo(px-60,220);ctx.lineTo(px+80,210+spread+40);ctx.stroke();
+    ctx.shadowBlur=0;
+    ctx.fillStyle=colors[i];ctx.font='11px Segoe UI';
+    ctx.fillText(names[i],px+84,214+spread+40);
+  }
+  ctx.fillStyle='#fbbf24';ctx.font='bold 13px Segoe UI';
+  ctx.fillText('Dispersion (वर्ण-विक्षेपण): VIBGYOR',cx-120,H-20);
+}
+// Interaction
+function getPos(e){
+  const r=cvs.getBoundingClientRect();
+  const sc=W/r.width;
+  if(e.touches)return{x:(e.touches[0].clientX-r.left)*sc,y:(e.touches[0].clientY-r.top)*sc};
+  return{x:(e.clientX-r.left)*sc,y:(e.clientY-r.top)*sc};
+}
+function updateFromPos(p){
+  if(prismMode)return;
+  const cx=W/2,iy=H/2;
+  const dx=p.x-cx,dy=iy-p.y;
+  if(dy<10)return;
+  const a=Math.atan2(Math.abs(dx),dy)*180/Math.PI;
+  incAngle=Math.max(1,Math.min(85,a));
+  draw();
+}
+cvs.addEventListener('mousedown',e=>{dragging=true;updateFromPos(getPos(e))});
+cvs.addEventListener('mousemove',e=>{if(dragging)updateFromPos(getPos(e))});
+cvs.addEventListener('mouseup',()=>dragging=false);
+cvs.addEventListener('touchstart',e=>{e.preventDefault();dragging=true;updateFromPos(getPos(e))},{passive:false});
+cvs.addEventListener('touchmove',e=>{e.preventDefault();if(dragging)updateFromPos(getPos(e))},{passive:false});
+cvs.addEventListener('touchend',()=>dragging=false);
+// Responsive
+function resize(){
+  const w=Math.min(560,window.innerWidth-40);
+  cvs.style.width=w+'px';cvs.style.height=(w*340/560)+'px';
+}
+window.addEventListener('resize',resize);resize();
+draw();
+</script>
+</body>
+</html>

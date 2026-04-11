@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Metals & Non-metals | Extraction</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f172a;color:#e2e8f0;font-family:'Segoe UI',sans-serif;min-height:100vh;overflow-x:hidden}
+header{background:linear-gradient(135deg,#1e3a5f,#0f172a);padding:12px 20px;display:flex;align-items:center;gap:12px;border-bottom:2px solid #38bdf8;position:sticky;top:0;z-index:100}
+header h1{font-size:1.1rem;color:#38bdf8;font-weight:700}
+header span{font-size:.75rem;color:#94a3b8;margin-left:auto}
+.badge{background:#1e40af;color:#93c5fd;padding:3px 10px;border-radius:20px;font-size:.7rem;font-weight:600}
+.container{padding:16px;max-width:900px;margin:0 auto}
+.section-title{font-size:1rem;font-weight:700;color:#38bdf8;border-left:4px solid #38bdf8;padding-left:10px;margin:18px 0 10px}
+.card{background:#1e293b;border-radius:12px;padding:14px;margin-bottom:12px;border:1px solid #334155;transition:.3s}
+.card:hover{border-color:#38bdf8;box-shadow:0 0 20px rgba(56,189,248,.15)}
+.formula-box{background:linear-gradient(135deg,#1e3a5f,#162032);border:2px solid #38bdf8;border-radius:12px;padding:14px;text-align:center;margin-bottom:14px}
+.formula-box .formula{font-size:1rem;color:#7dd3fc;font-family:monospace;font-weight:700;line-height:1.8}
+.formula-box .label{font-size:.72rem;color:#94a3b8;margin-top:4px}
+.reactivity-table{width:100%;border-collapse:collapse}
+.reactivity-table td,.reactivity-table th{padding:7px 10px;border:1px solid #334155;font-size:.78rem;text-align:left}
+.reactivity-table th{background:#1e3a5f;color:#93c5fd}
+.reactivity-table tr:nth-child(even){background:#162032}
+.high{color:#f87171}.med{color:#fb923c}.low{color:#4ade80}.very-low{color:#a78bfa}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.tab{padding:7px 14px;border-radius:20px;border:1px solid #334155;background:#1e293b;color:#94a3b8;cursor:pointer;font-size:.78rem;transition:.2s}
+.tab.active{background:#1e3a5f;color:#38bdf8;border-color:#38bdf8}
+.tab-content{display:none}.tab-content.active{display:block}
+.step-box{display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;cursor:pointer}
+.step-num{background:#1e3a5f;color:#38bdf8;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;flex-shrink:0}
+.step-info{flex:1}
+.step-info h4{font-size:.82rem;font-weight:700;color:#e2e8f0}
+.step-info p{font-size:.73rem;color:#94a3b8;margin-top:3px;display:none}
+.step-info .hindi{font-size:.7rem;color:#a5f3fc;font-style:italic}
+.step-box.open .step-info p{display:block}
+.step-box.open .step-num{background:#38bdf8;color:#0f172a}
+svg{display:block}
+.anim-arrow{animation:flow 1.5s infinite}
+@keyframes flow{0%{opacity:.3}50%{opacity:1}100%{opacity:.3}}
+.electro-wrap{position:relative;width:100%;max-width:340px;margin:0 auto}
+.bubble{animation:rise 2s infinite linear}
+@keyframes rise{0%{transform:translateY(0);opacity:1}100%{transform:translateY(-30px);opacity:0}}
+.highlight{color:#fbbf24;font-weight:700}
+.toggle-btn{background:#1e3a5f;border:1px solid #38bdf8;color:#38bdf8;padding:6px 14px;border-radius:20px;cursor:pointer;font-size:.75rem;margin-top:8px;transition:.2s}
+.toggle-btn:hover{background:#38bdf8;color:#0f172a}
+.progress-bar{height:8px;background:#1e3a5f;border-radius:4px;overflow:hidden;margin-top:6px}
+.progress-fill{height:100%;border-radius:4px;transition:width .5s}
+.tip{background:#1e3a5f;border-left:3px solid #fbbf24;padding:8px 12px;border-radius:0 8px 8px 0;font-size:.73rem;color:#fde68a;margin-top:8px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:480px){.grid2{grid-template-columns:1fr}.formula-box .formula{font-size:.85rem}}
+</style>
+</head>
+<body>
+<header>
+<div>
+<div class="badge">CBSE Class 10</div>
+<h1>⚗️ Metals & Non-metals — Extraction of Metals</h1>
+</div>
+<span>धातु निष्कर्षण</span>
+</header>
+<div class="container">
+
+<div class="formula-box">
+<div class="formula">
+Ore → Concentration → Reduction → Refined Metal<br>
+<span style="color:#fbbf24">2CuO + C → 2Cu + CO₂ (Thermite / Smelting)</span>
+</div>
+<div class="label">General Flow of Metal Extraction | धातु निष्कर्षण का सामान्य प्रवाह</div>
+</div>
+
+<div class="tabs">
+<div class="tab active" onclick="showTab('reactivity')">⚡ Reactivity Series</div>
+<div class="tab" onclick="showTab('steps')">🔄 Extraction Steps</div>
+<div class="tab" onclick="showTab('electro')">🔋 Electrolysis</div>
+<div class="tab" onclick="showTab('processes')">🔥 Key Processes</div>
+</div>
+
+<!-- REACTIVITY SERIES TAB -->
+<div class="tab-content active" id="tab-reactivity">
+<div class="card">
+<div class="section-title">Reactivity Series | अभिक्रियाशीलता श्रेणी</div>
+<p style="font-size:.75rem;color:#94a3b8;margin-bottom:10px">Click a row to see extraction method | पंक्ति पर क्लिक करें</p>
+<table class="reactivity-table">
+<tr><th>Metal / धातु</th><th>Activity / क्रियाशीलता</th><th>Extraction Method</th></tr>
+<tr onclick="showMethod('K')" style="cursor:pointer"><td>K, Na, Ca, Mg, Al</td><td class="high">Very High ↑</td><td>Electrolysis | विद्युत अपघटन</td></tr>
+<tr onclick="showMethod('Zn')" style="cursor:pointer"><td>Zn, Fe, Ni, Sn, Pb</td><td class="med">Medium</td><td>Reduction by C/CO | कार्बन से अपचयन</td></tr>
+<tr onclick="showMethod('Cu')" style="cursor:pointer"><td>Cu, Ag, Au, Pt</td><td class="low">Low ↓</td><td>Heating / Native | गर्म करके / प्राकृतिक</td></tr>
+</table>
+<div id="method-box" class="tip" style="display:none"></div>
+<div class="tip">💡 <span class="highlight">Mnemonic:</span> Please Stop Calling Me A Zn Fe Nerd Since Cool Aurum Has Platinum — K Na Ca Mg Al Zn Fe Ni Sn Pb Cu Ag Au Pt</div>
+</div>
+<div class="card">
+<div class="section-title">Ore to Metal | अयस्क से धातु</div>
+<svg viewBox="0 0 320 80" width="100%" style="max-width:400px;margin:0 auto;display:block">
+<rect x="5" y="25" width="60" height="30" rx="6" fill="#1e3a5f" stroke="#38bdf8" stroke-width="1.5"/>
+<text x="35" y="38" fill="#93c5fd" font-size="8" text-anchor="middle">ORE</text>
+<text x="35" y="50" fill="#64748b" font-size="7" text-anchor="middle">अयस्क</text>
+<polygon points="70,40 82,35 82,45" fill="#38bdf8" class="anim-arrow"/>
+<rect x="85" y="25" width="70" height="30" rx="6" fill="#1e3a5f" stroke="#fbbf24" stroke-width="1.5"/>
+<text x="120" y="38" fill="#fde68a" font-size="8" text-anchor="middle">CONCENTRATE</text>
+<text x="120" y="50" fill="#64748b" font-size="7" text-anchor="middle">सांद्रण</text>
+<polygon points="158,40 170,35 170,45" fill="#38bdf8" class="anim-arrow"/>
+<rect x="173" y="25" width="68" height="30" rx="6" fill="#1e3a5f" stroke="#f87171" stroke-width="1.5"/>
+<text x="207" y="38" fill="#fca5a5" font-size="8" text-anchor="middle">REDUCTION</text>
+<text x="207" y="50" fill="#64748b" font-size="7" text-anchor="middle">अपचयन</text>
+<polygon points="244,40 256,35 256,45" fill="#38bdf8" class="anim-arrow"/>
+<rect x="258" y="25" width="55" height="30" rx="6" fill="#1e3a5f" stroke="#4ade80" stroke-width="1.5"/>
+<text x="285" y="38" fill="#86efac" font-size="8" text-anchor="middle">METAL</text>
+<text x="285" y="50" fill="#64748b" font-size="7" text-anchor="middle">धातु</text>
+</svg>
+</div>
+</div>
+
+<!-- EXTRACTION STEPS TAB -->
+<div class="tab-content" id="tab-steps">
+<div class="card">
+<div class="section-title">Step-by-Step Extraction | चरण-दर-चरण निष्कर्षण</div>
+<div class="step-box" onclick="toggleStep(this)">
+<div class="step-num">1</div>
+<div class="step-info">
+<h4>Mining & Crushing | खनन एवं चूर्णीकरण</h4>
+<p>Ore is dug from earth and crushed into powder. <span class="hindi">अयस्क को पृथ्वी से निकाला जाता है और पीसा जाता है।</span></p>
+</div>
+</div>
+<div class="step-box" onclick="toggleStep(this)">
+<div class="step-num">2</div>
+<div class="step-info">
+<h4>Concentration | सांद्रण (Ore Dressing)</h4>
+<p>Removal of gangue (impurities) by gravity separation, froth flotation, or magnetic separation. <span class="hindi">गैंग हटाना — झाग प्लवन, चुंबकीय पृथक्करण।</span></p>
+</div>
+</div>
+<div class="step-box" onclick="toggleStep(this)">
+<div class="step-num">3</div>
+<div class="step-info">
+<h4>Calcination | निस्तापन</h4>
+<p>Heating carbonate/hydroxide ores in absence of air. CO₂/H₂O removed. <br>ZnCO₃ → ZnO + CO₂ <span class="hindi">वायु की अनुपस्थिति में कार्बोनेट/हाइड्रॉक्साइड अयस्क गरम करना।</span></p>
+</div>
+</div>
+<div class="step-box" onclick="toggleStep(this)">
+<div class="step-num">4</div>
+<div class="step-info">
+<h4>Roasting | भर्जन</h4>
+<p>Heating sulphide ores in excess of air. Converts sulphide to oxide. <br>2ZnS + 3O₂ → 2ZnO + 2SO₂ <span class="hindi">वायु की अधिकता में सल्फाइड अयस्क गरम करना।</span></p>
+</div>
+</div>
+<div class="step-box" onclick="toggleStep(this)">
+<div class="step-num">5</div>
+<div class="step-info">
+<h4>Reduction | अपचयन (Smelting)</h4>
+<p>Metal oxide reduced by carbon: <br>ZnO + C → Zn + CO <br>Or by electrolysis for highly reactive metals. <span class="hindi">धातु ऑक्साइड को कार्बन से अपचयित करना।</span></p>
+</div>
+</div>
+<div class="step-box" onclick="toggleStep(this)">
+<div class="step-num">6</div>
+<div class="step-info">
+<h4>Refining | परिष्करण</h4>
+<p>Purification of crude metal by electrolytic refining. Anode = impure metal, Cathode = pure metal. <span class="hindi">अपरिष्कृत धातु का शुद्धिकरण — विद्युत अपघटनी परिष्करण।</span></p>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ELECTROLYSIS TAB -->
+<div class="tab-content" id="tab-electro">
+<div class="card">
+<div class="section-title">Electrolytic Refining | विद्युत अपघटनी परिष्करण</div>
+<div class="electro-wrap">
+<svg viewBox="0 0 300 200" width="100%">
+<rect x="30" y="50" width="240" height="130" rx="10" fill="#162032" stroke="#334155" stroke-width="2"/>
+<rect x="30" y="140" width="240" height="40" rx="0" fill="#1e3a5f" opacity=".6"/>
+<text x="150" y="165" fill="#7dd3fc" font-size="9" text-anchor="middle">Electrolyte Solution | विद्युत अपघट्य</text>
+<rect x="60" y="60" width="40" height="100" rx="4" fill="#f97316" opacity=".8"/>
+<text x="80" y="100" fill="white" font-size="9" text-anchor="middle" font-weight="bold">ANODE</text>
+<text x="80" y="112" fill="#fed7aa" font-size="7" text-anchor="middle">+</text>
+<text x="80" y="124" fill="#fed7aa" font-size="7" text-anchor="middle">अशुद्ध</text>
+<rect x="200" y="60" width="40" height="100" rx="4" fill="#22c55e" opacity=".8"/>
+<text x="220" y="100" fill="white" font-size="9" text-anchor="middle" font-weight="bold">CATHODE</text>
+<text x="220" y="112" fill="#bbf7d0" font-size="7" text-anchor="middle">–</text>
+<text x="220" y="124" fill="#bbf7d0" font-size="7" text-anchor="middle">शुद्ध</text>
+<line x1="80" y1="60" x2="80" y2="30" stroke="#f97316" stroke-width="2"/>
+<line x1="80" y1="30" x2="220" y2="30" stroke="#fbbf24" stroke-width="2"/>
+<line x1="220" y1="30" x2="220" y2="60" stroke="#22c55e" stroke-width="2"/>
+<rect x="130" y="18" width="40" height="20" rx="4" fill="#1e3a5f" stroke="#fbbf24"/>
+<text x="150" y="31" fill="#fbbf24" font-size="9" text-anchor="middle">BATTERY</text>
+<circle cx="120" cy="130" r="4" fill="#38bdf8" opacity=".8">
+<animate attributeName="cx" values="120;180" dur="2s" repeatCount="indefinite"/>
+<animate attributeName="opacity" values="0;1;0" dur="2s" repeatCount="indefinite"/>
+</circle>
+<circle cx="140" cy="120" r="3" fill="#38bdf8" opacity=".6">
+<animate attributeName="cx" values="130;185" dur="2.5s" repeatCount="indefinite"/>
+<animate attributeName="opacity" values="0;1;0" dur="2.5s" repeatCount="indefinite"/>
+</circle>
+<text x="150" y="48" fill="#94a3b8" font-size="7" text-anchor="middle">Cu²⁺ ions migrate →</text>
+</svg>
+</div>
+<div class="grid2" style="margin-top:10px">
+<div class="tip">⊕ <span class="highlight">Anode (अशुद्ध)</span><br>Impure metal dissolves into solution</div>
+<div class="tip">⊖ <span class="highlight">Cathode (शुद्ध)</span><br>Pure metal deposits here</div>
+</div>
+<div class="tip" style="margin-top:8px">🔑 <span class="highlight">Key:</span> Electrolyte = salt solution of same metal (CuSO₄ for Cu). Anode mud contains precious metals (Au, Ag). | धात्विक लवण विलयन उसी धातु का।</div>
+</div>
+</div>
+
+<!-- KEY PROCESSES TAB -->
+<div class="tab-content" id="tab-processes">
+<div class="card">
+<div class="section-title">Key Reactions | मुख्य अभिक्रियाएं</div>
+<div class="grid2">
+<div style="background:#162032;border-radius:8px;padding:10px;border:1px solid #334155">
+<div style="color:#fbbf24;font-size:.78rem;font-weight:700">🔥 Roasting | भर्जन</div>
+<div style="font-family:monospace;font-size:.73rem;color:#7dd3fc;margin-top:6px;line-height:1.9">
+2ZnS + 3O₂ →<br>2ZnO + 2SO₂<br>
+2PbS + 3O₂ →<br>2PbO + 2SO₂
+</div>
+<div style="font-size:.68rem;color:#64748b;margin-top:4px">Sulphide → Oxide<br>सल्फाइड → ऑक्साइड</div>
+</div>
+<div style="background:#162032;border-radius:8px;padding:10px;border:1px solid #334155">
+<div style="color:#a78bfa;font-size:.78rem;font-weight:700">❄ Calcination | निस्तापन</div>
+<div style="font-family:monospace;font-size:.73rem;color:#c4b5fd;margin-top:6px;line-height:1.9">
+ZnCO₃ →<br>ZnO + CO₂<br>
+Fe₂O₃·xH₂O →<br>Fe₂O₃ + xH₂O
+</div>
+<div style="font-size:.68rem;color:#64748b;margin-top:4px">Carbonate → Oxide<br>कार्बोनेट → ऑक्साइड</div>
+</div>
+<div style="background:#162032;border-radius:8px;padding:10px;border:1px solid #334155">
+<div style="color:#4ade80;font-size:.78rem;font-weight:700">⚗ Reduction | अपचयन</div>
+<div style="font-family:monospace;font-size:.73rem;color:#86efac;margin-top:6px;line-height:1.9">
+ZnO + C → Zn + CO<br>
+Fe₂O₃ + 3CO →<br>2Fe + 3CO₂<br>
+2Al₂O₃ → 4Al + 3O₂
+</div>
+<div style="font-size:.68rem;color:#64748b;margin-top:4px">Electrolysis for Al</div>
+</div>
+<div style="background:#162032;border-radius:8px;padding:10px;border:1px solid #334155">
+<div style="color:#38bdf8;font-size:.78rem;font-weight:700">⚡ Electrolysis | विद्युत अपघटन</div>
+<div style="font-family:monospace;font-size:.73rem;color:#7dd3fc;margin-top:6px;line-height:1.9">
+Al₂O₃ → Al³⁺ + O²⁻<br>
+Cathode: Al³⁺+3e⁻→Al<br>
+Anode: O²⁻→O₂+e⁻
+</div>
+<div style="font-size:.68rem;color:#64748b;margin-top:4px">Hall-Héroult Process</div>
+</div>
+</div>
+<div class="tip" style="margin-top:10px">📌 <span class="highlight">Thermite Reaction:</span> 2Al + Fe₂O₃ → Al₂O₃ + 2Fe + Heat (used in welding railway tracks!) | थर्माइट अभिक्रिया — रेलवे पटरी जोड़ने में उपयोग।</div>
+<div class="tip" style="margin-top:8px">📌 <span class="highlight">Corrosion (संक्षारण):</span> 4Fe + 3O₂ + xH₂O → 2Fe₂O₃·xH₂O (Rust/जंग). Prevented by: Galvanising, Alloying, Painting.</div>
+</div>
+</div>
+
+</div>
+
+<script>
+function showTab(id){
+document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+document.getElementById('tab-'+id).classList.add('active');
+event.target.classList.add('active');
+}
+function toggleStep(el){el.classList.toggle('open')}
+const methods={
+'K':'⚡ Electrolysis | विद्युत अपघटन: K, Na, Ca, Mg, Al are too reactive — only electrolysis works. Al is extracted by Hall-Héroult process from Alumina (Al₂O₃).',
+'Zn':'🔥 Roasting/Calcination + Carbon Reduction | भर्जन/निस्तापन + कार्बन अपचयन: ZnS → roasting → ZnO → reduction by C/CO → Zn metal. Fe by Blast Furnace.',
+'Cu':'☀ Simple Heating | साधारण गर्म करना: Cu, Ag, Au are low reactivity. Cu₂S heated in air gives Cu. Au/Ag found native (प्राकृतिक अवस्था में).'
+};
+function showMethod(m){
+const b=document.getElementById('method-box');
+b.style.display='block';b.innerHTML='🔬 '+methods[m];
+}
+</script>
+</body>
+</html>

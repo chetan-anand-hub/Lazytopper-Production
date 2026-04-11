@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lens Formula – Light Reflection & Refraction | CBSE Class 10</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f172a;color:#e2e8f0;font-family:'Segoe UI',sans-serif;min-height:100vh}
+header{background:linear-gradient(135deg,#1e3a5f,#0f172a);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #3b82f6;box-shadow:0 2px 20px #3b82f688}
+.title{font-size:1.1em;font-weight:700;color:#60a5fa}
+.subtitle{font-size:.75em;color:#94a3b8}
+.badge{background:#3b82f6;color:#fff;padding:4px 10px;border-radius:20px;font-size:.7em;font-weight:700}
+.formula-bar{background:linear-gradient(90deg,#1e293b,#0f2040,#1e293b);text-align:center;padding:14px;border-bottom:1px solid #334155}
+.formula{font-size:1.6em;color:#fbbf24;font-weight:700;letter-spacing:2px;animation:glow 2s infinite alternate}
+@keyframes glow{from{text-shadow:0 0 8px #fbbf24}to{text-shadow:0 0 24px #fbbf24,0 0 40px #f59e0b}}
+.hint{font-size:.72em;color:#94a3b8;margin-top:4px}
+.main{display:flex;flex-wrap:wrap;gap:12px;padding:14px;max-width:1100px;margin:0 auto}
+.panel{background:#1e293b;border-radius:12px;border:1px solid #334155;padding:14px;flex:1;min-width:280px}
+.panel h3{color:#60a5fa;margin-bottom:10px;font-size:.95em;border-bottom:1px solid #334155;padding-bottom:6px}
+.controls{display:flex;flex-direction:column;gap:10px}
+.ctrl-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ctrl-row label{font-size:.78em;color:#94a3b8;min-width:90px}
+input[type=range]{flex:1;min-width:80px;accent-color:#3b82f6;height:4px}
+.val{font-size:.8em;color:#fbbf24;min-width:36px;text-align:right;font-weight:700}
+.toggle-row{display:flex;gap:8px;flex-wrap:wrap}
+.btn{padding:6px 12px;border-radius:8px;border:1px solid #475569;background:#0f172a;color:#e2e8f0;cursor:pointer;font-size:.75em;transition:all .2s}
+.btn:hover,.btn.active{background:#3b82f6;border-color:#3b82f6;color:#fff;box-shadow:0 0 10px #3b82f666}
+canvas{width:100%;border-radius:8px;background:#0a0f1e;display:block}
+.result-box{background:#0f172a;border-radius:8px;padding:10px;margin-top:8px;border:1px solid #334155}
+.result-row{display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid #1e293b;font-size:.78em}
+.result-row:last-child{border:none}
+.res-label{color:#94a3b8}
+.res-val{color:#34d399;font-weight:700}
+.info-box{background:#0f172a;border-radius:8px;padding:10px;font-size:.75em;line-height:1.7;color:#cbd5e1;border-left:3px solid #3b82f6}
+.hindi{color:#f472b6;font-size:.72em}
+.nature-tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.72em;font-weight:700;margin-top:6px}
+.real{background:#064e3b;color:#34d399;border:1px solid #34d399}
+.virtual{background:#4c1d95;color:#c4b5fd;border:1px solid #c4b5fd}
+.rays-legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:.7em;color:#94a3b8}
+.leg-line{width:24px;height:3px;border-radius:2px}
+</style>
+</head>
+<body>
+<header>
+<div><div class="title">🔭 Light – Reflection &amp; Refraction</div><div class="subtitle">CBSE Class 10 Science | लेंस सूत्र और किरण आरेख</div></div>
+<div class="badge">Interactive</div>
+</header>
+<div class="formula-bar">
+<div class="formula">1/v − 1/u = 1/f</div>
+<div class="hint">Lens Formula (लेंस सूत्र) &nbsp;|&nbsp; v = image distance &nbsp;|&nbsp; u = object distance &nbsp;|&nbsp; f = focal length</div>
+</div>
+<div class="main">
+<div class="panel" style="flex:1.2;min-width:300px">
+<h3>⚙️ Controls (नियंत्रण)</h3>
+<div class="controls">
+<div class="toggle-row">
+<button class="btn active" id="btnConvex" onclick="setLens('convex')">Convex (उत्तल)</button>
+<button class="btn" id="btnConcave" onclick="setLens('concave')">Concave (अवतल)</button>
+</div>
+<div class="ctrl-row">
+<label>Object dist u <span class="hindi">(वस्तु दूरी)</span></label>
+<input type="range" id="slU" min="10" max="200" value="80" oninput="update()">
+<span class="val" id="valU">-80</span>
+</div>
+<div class="ctrl-row">
+<label>Focal length f <span class="hindi">(फोकस दूरी)</span></label>
+<input type="range" id="slF" min="10" max="80" value="30" oninput="update()">
+<span class="val" id="valF">30</span>
+</div>
+<div class="ctrl-row">
+<label>Object height <span class="hindi">(ऊँचाई)</span></label>
+<input type="range" id="slH" min="5" max="40" value="20" oninput="update()">
+<span class="val" id="valH">20</span>
+</div>
+</div>
+<div class="result-box">
+<div class="result-row"><span class="res-label">u (Object distance)</span><span class="res-val" id="rU"></span></div>
+<div class="result-row"><span class="res-label">f (Focal length)</span><span class="res-val" id="rF"></span></div>
+<div class="result-row"><span class="res-label">v (Image distance)</span><span class="res-val" id="rV"></span></div>
+<div class="result-row"><span class="res-label">m (Magnification)</span><span class="res-val" id="rM"></span></div>
+<div class="result-row"><span class="res-label">Image Nature</span><span id="rN"></span></div>
+</div>
+<div class="rays-legend">
+<div class="leg-item"><div class="leg-line" style="background:#ef4444"></div>Ray 1</div>
+<div class="leg-item"><div class="leg-line" style="background:#22c55e"></div>Ray 2</div>
+<div class="leg-item"><div class="leg-line" style="background:#f59e0b"></div>Ray 3</div>
+</div>
+</div>
+<div class="panel" style="flex:2;min-width:300px">
+<h3>📐 Ray Diagram (किरण आरेख)</h3>
+<canvas id="cv" height="300"></canvas>
+<div class="info-box" id="infoBox" style="margin-top:10px"></div>
+</div>
+</div>
+<script>
+let lensType='convex';
+const cv=document.getElementById('cv');
+const ctx=cv.getContext('2d');
+
+function setLens(t){
+  lensType=t;
+  document.getElementById('btnConvex').classList.toggle('active',t==='convex');
+  document.getElementById('btnConcave').classList.toggle('active',t==='concave');
+  update();
+}
+
+function update(){
+  const uMag=parseInt(document.getElementById('slU').value);
+  const fMag=parseInt(document.getElementById('slF').value);
+  const h=parseInt(document.getElementById('slH').value);
+  const u=-uMag;
+  const f=lensType==='convex'?fMag:-fMag;
+  document.getElementById('valU').textContent=u;
+  document.getElementById('valF').textContent=f;
+  document.getElementById('valH').textContent=h;
+  document.getElementById('rU').textContent=u+' cm';
+  document.getElementById('rF').textContent=f+' cm';
+  const v=1/(1/f-1/u);
+  const m=v/u;
+  document.getElementById('rV').textContent=isFinite(v)?v.toFixed(1)+' cm':'∞';
+  document.getElementById('rM').textContent=isFinite(m)?m.toFixed(2):'∞';
+  let nature='';
+  if(!isFinite(v)){nature='At infinity / अनंत पर';}
+  else if(v>0){nature='<span class="nature-tag real">Real, Inverted (वास्तविक, उल्टा)</span>';}
+  else{nature='<span class="nature-tag virtual">Virtual, Erect (आभासी, सीधा)</span>';}
+  document.getElementById('rN').innerHTML=nature;
+  setInfo(u,f,v,m);
+  draw(u,f,v,h,m);
+}
+
+function setInfo(u,f,v,m){
+  let txt='';
+  const abs=Math.abs;
+  if(!isFinite(v)){txt=`Object at Focus (F): Image formed at infinity. किरणें समानांतर हो जाती हैं।`;}
+  else if(v>0&&lensType==='convex'){
+    if(abs(u)>2*abs(f)) txt='Object beyond 2F → Image between F and 2F, Real, Inverted, Diminished (2F से परे → वास्तविक, उल्टा, छोटा)';
+    else if(abs(u)==2*abs(f)) txt='Object at 2F → Image at 2F, Real, Inverted, Same size (2F पर → वास्तविक, उल्टा, समान आकार)';
+    else if(abs(u)>abs(f)) txt='Object between F and 2F → Image beyond 2F, Real, Inverted, Magnified (F और 2F के बीच → वास्तविक, उल्टा, बड़ा)';
+    else txt='Object between O and F → Image same side, Virtual, Erect, Magnified (O और F के बीच → आभासी, सीधा, बड़ा)';
+  } else if(lensType==='concave'){
+    txt='Concave Lens: Always forms Virtual, Erect, Diminished image. अवतल लेंस सदैव आभासी, सीधा, छोटा प्रतिबिंब बनाता है।';
+  }
+  document.getElementById('infoBox').textContent=txt;
+}
+
+function draw(u,f,v,h,m){
+  const W=cv.offsetWidth||600;
+  cv.width=W;cv.height=300;
+  const cx=W/2,cy=150,scale=W/380;
+  const sc=Math.min(scale,1.4);
+  ctx.clearRect(0,0,W,300);
+  // axis
+  ctx.strokeStyle='#334155';ctx.lineWidth=1;ctx.setLineDash([4,4]);
+  ctx.beginPath();ctx.moveTo(20,cy);ctx.lineTo(W-20,cy);ctx.stroke();
+  ctx.setLineDash([]);
+  // lens
+  const lx=cx;
+  ctx.strokeStyle='#60a5fa';ctx.lineWidth=2.5;
+  ctx.beginPath();ctx.moveTo(lx,cy-90);ctx.lineTo(lx,cy+90);ctx.stroke();
+  // lens arrows
+  const aw=lensType==='convex'?12:-12;
+  ctx.fillStyle='#60a5fa';
+  // top arrow
+  ctx.beginPath();ctx.moveTo(lx,cy-90);ctx.lineTo(lx-aw,cy-75);ctx.lineTo(lx+aw,cy-75);ctx.closePath();ctx.fill();
+  ctx.beginPath();ctx.moveTo(lx,cy+90);ctx.lineTo(lx-aw,cy+75);ctx.lineTo(lx+aw,cy+75);ctx.closePath();ctx.fill();
+
+  const toX=x=>cx+x*sc;
+  const toY=y=>cy-y*sc;
+  // focal points
+  const drawF=(fx,label)=>{
+    const px=toX(fx);
+    ctx.fillStyle='#fbbf24';ctx.font='bold 11px sans-serif';
+    ctx.fillText(label,px-6,cy+20);
+    ctx.beginPath();ctx.arc(px,cy,4,0,Math.PI*2);ctx.fillStyle='#fbbf24';ctx.fill();
+  };
+  drawF(f,'F');drawF(-f,"F'");drawF(2*f,'2F');drawF(-2*f,"2F'");
+
+  // object
+  const ox=toX(u);
+  const oh=h*sc;
+  ctx.strokeStyle='#e2e8f0';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(ox,cy);ctx.lineTo(ox,cy-oh);ctx.stroke();
+  ctx.fillStyle='#e2e8f0';
+  ctx.beginPath();ctx.moveTo(ox,cy-oh);ctx.lineTo(ox-5,cy-oh+10);ctx.lineTo(ox+5,cy-oh+10);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#94a3b8';ctx.font='10px sans-serif';ctx.fillText('O',ox-8,cy+14);
+
+  if(!isFinite(v)) return;
+
+  // image
+  const ix=toX(v);
+  const ih=m*h*sc;
+  ctx.strokeStyle=v>0?'#34d399':'#c4b5fd';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(ix,cy);ctx.lineTo(ix,cy-ih);ctx.stroke();
+  ctx.fillStyle=v>0?'#34d399':'#c4b5fd';
+  ctx.beginPath();ctx.moveTo(ix,cy-ih);ctx.lineTo(ix-5,cy-ih+(ih>0?10:-10));ctx.lineTo(ix+5,cy-ih+(ih>0?10:-10));ctx.closePath();ctx.fill();
+  ctx.fillStyle='#94a3b8';ctx.font='10px sans-serif';ctx.fillText('I',ix+4,cy+14);
+
+  // Ray 1: parallel to axis, then through/away from F
+  ctx.strokeStyle='#ef4444';ctx.lineWidth=1.5;ctx.setLineDash([]);
+  ctx.beginPath();ctx.moveTo(ox,cy-oh);ctx.lineTo(lx,cy-oh);
+  if(lensType==='convex'){
+    const fx2=toX(f);
+    const slope=(cy-oh-cy)/(lx-fx2);
+    const ex=v>0?W:20;
+    ctx.lineTo(ex,cy-oh+slope*(ex-lx));
+  } else {
+    const vf=toX(-f);
+    const slope=(cy-oh-(cy-oh-(-oh)))/(lx-vf);
+    ctx.lineTo(W,cy-oh-slope*(W-lx));
+  }
+  ctx.stroke();
+  // Ray 2: through optical center
+  ctx.strokeStyle='#22c55e';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(ox,cy-oh);ctx.lineTo(W,cy-oh-(cy-oh)/(lx-ox)*(W-ox));ctx.stroke();
+  // Ray 3: through focus, emerge parallel
+  ctx.strokeStyle='#f59e0b';ctx.lineWidth=1.5;
+  ctx.beginPath();
+  const focX=toX(lensType==='convex'?-f:f);
+  ctx.moveTo(ox,cy-oh);
+  ctx.lineTo(lx,cy-oh-(cy-oh)/(ox-focX)*(lx-ox));
+  ctx.lineTo(W,cy-oh-(cy-oh)/(ox-focX)*(lx-ox));
+  ctx.stroke();
+}
+
+window.addEventListener('resize',update);
+update();
+</script>
+</body>
+</html>

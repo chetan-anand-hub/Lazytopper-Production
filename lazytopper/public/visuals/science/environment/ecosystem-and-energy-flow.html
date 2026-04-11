@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our Environment – Ecosystem & Energy Flow | CBSE Class 10</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f172a;color:#e2e8f0;font-family:'Segoe UI',sans-serif;min-height:100vh;overflow-x:hidden}
+.titlebar{background:linear-gradient(135deg,#1e3a5f,#0f172a);padding:12px 20px;border-bottom:2px solid #38bdf8;display:flex;align-items:center;gap:12px}
+.titlebar h1{font-size:1.1rem;color:#38bdf8;font-weight:700}
+.titlebar span{font-size:0.75rem;color:#94a3b8;margin-left:auto}
+.badge{background:#1e40af;color:#93c5fd;padding:3px 8px;border-radius:20px;font-size:0.7rem;font-weight:600}
+.container{max-width:900px;margin:0 auto;padding:16px}
+.section{background:#1e293b;border-radius:12px;padding:16px;margin-bottom:14px;border:1px solid #334155}
+.section h2{color:#38bdf8;font-size:1rem;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.hindi{color:#fbbf24;font-size:0.8rem;font-style:italic}
+.formula-box{background:linear-gradient(135deg,#1e3a5f,#0c2340);border:2px solid #38bdf8;border-radius:10px;padding:14px;text-align:center;margin:10px 0}
+.formula{font-size:1.3rem;color:#fbbf24;font-weight:700;letter-spacing:1px}
+.formula-desc{font-size:0.75rem;color:#94a3b8;margin-top:4px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.tab{padding:6px 14px;border-radius:20px;border:1px solid #334155;background:#0f172a;color:#94a3b8;cursor:pointer;font-size:0.8rem;transition:all 0.3s}
+.tab.active{background:#38bdf8;color:#0f172a;font-weight:700;border-color:#38bdf8}
+.tab-content{display:none}.tab-content.active{display:block}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.card{background:#0f172a;border-radius:10px;padding:12px;border:1px solid #334155;text-align:center;cursor:pointer;transition:all 0.3s;position:relative;overflow:hidden}
+.card:hover{transform:translateY(-3px);border-color:#38bdf8;box-shadow:0 0 15px #38bdf844}
+.card .icon{font-size:2rem;margin-bottom:6px}
+.card h3{font-size:0.85rem;color:#e2e8f0;font-weight:600}
+.card p{font-size:0.72rem;color:#64748b;margin-top:4px}
+.card .detail{font-size:0.72rem;color:#94a3b8;margin-top:6px;display:none;animation:fadeIn 0.3s}
+.card.expanded .detail{display:block}
+.card.expanded{border-color:#fbbf24}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+svg text{font-family:'Segoe UI',sans-serif}
+.pyramid-wrap{text-align:center;cursor:pointer}
+.pyramid-wrap svg{max-width:100%;height:auto}
+.level-info{background:#0f172a;border-radius:8px;padding:10px;margin-top:8px;border:1px solid #334155;font-size:0.8rem;min-height:50px;transition:all 0.3s}
+.chain-wrap{overflow-x:auto;padding:8px 0}
+.chain{display:flex;align-items:center;gap:4px;min-width:500px;padding:8px}
+.org{background:#0f172a;border:1px solid #334155;border-radius:8px;padding:8px 10px;text-align:center;min-width:80px;cursor:pointer;transition:all 0.3s;font-size:0.75rem}
+.org:hover{border-color:#38bdf8}
+.org.lit{animation:pulse 0.5s ease-out}
+@keyframes pulse{0%{transform:scale(1);box-shadow:0 0 0 0 #38bdf888}50%{transform:scale(1.1);box-shadow:0 0 0 8px #38bdf800}100%{transform:scale(1)}}
+.arrow{color:#38bdf8;font-size:1.2rem}
+.energy-bar{height:8px;border-radius:4px;background:#334155;margin-top:4px;overflow:hidden}
+.energy-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#22d3ee,#fbbf24);transition:width 1s ease}
+.rule-box{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.rule-item{background:#0f172a;border-radius:8px;padding:10px;border-left:3px solid #38bdf8;font-size:0.78rem}
+.rule-item.warn{border-color:#f59e0b}
+.rule-item strong{color:#38bdf8;display:block;margin-bottom:2px}
+.rule-item.warn strong{color:#f59e0b}
+.quiz{margin-top:10px}
+.q{background:#0f172a;border-radius:8px;padding:12px;margin-bottom:8px;border:1px solid #334155}
+.q p{font-size:0.82rem;margin-bottom:8px;color:#e2e8f0}
+.opts{display:flex;flex-direction:column;gap:5px}
+.opt{background:#1e293b;border:1px solid #334155;border-radius:6px;padding:7px 10px;font-size:0.78rem;cursor:pointer;transition:all 0.2s;color:#94a3b8}
+.opt:hover{border-color:#38bdf8;color:#e2e8f0}
+.opt.correct{background:#064e3b;border-color:#10b981;color:#6ee7b7}
+.opt.wrong{background:#450a0a;border-color:#ef4444;color:#fca5a5}
+.tip{font-size:0.72rem;color:#64748b;margin-top:6px;display:none}
+.tip.show{display:block;color:#94a3b8}
+@media(max-width:600px){.rule-box{grid-template-columns:1fr}.formula{font-size:1rem}.chain{min-width:420px}}
+.glow{animation:glow 2s ease-in-out infinite alternate}
+@keyframes glow{from{text-shadow:0 0 5px #38bdf8}to{text-shadow:0 0 15px #38bdf8,0 0 25px #38bdf844}}
+</style>
+</head>
+<body>
+<div class="titlebar">
+  <div>🌿</div>
+  <h1>Our Environment – Ecosystem &amp; Energy Flow</h1>
+  <span class="badge">CBSE Class 10</span>
+</div>
+<div class="container">
+
+<div class="section">
+  <h2>🔑 Key Formula <span class="hindi">– मुख्य सूत्र</span></h2>
+  <div class="formula-box">
+    <div class="formula glow">Energy Transfer = 10%</div>
+    <div style="color:#e2e8f0;margin:6px 0;font-size:0.9rem">of each trophic level passes to the next</div>
+    <div class="formula-desc">10% नियम (Lindeman's Law) — 90% energy is lost as heat at each level</div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('components')">🌍 Components</div>
+    <div class="tab" onclick="showTab('chain')">🔗 Food Chain</div>
+    <div class="tab" onclick="showTab('pyramid')">🔺 Energy Pyramid</div>
+    <div class="tab" onclick="showTab('quiz')">📝 Quiz</div>
+  </div>
+
+  <div class="tab-content active" id="components">
+    <h2>Ecosystem Components <span class="hindi">– पारितंत्र के घटक</span></h2>
+    <div class="cards">
+      <div class="card" onclick="toggleCard(this)">
+        <div class="icon">☀️</div>
+        <h3>Producer</h3>
+        <p class="hindi">उत्पादक</p>
+        <p>Plants, Algae</p>
+        <div class="detail">Green plants make food via photosynthesis. They form the base of every food chain. <br><br><strong>Energy stored: 100%</strong><div class="energy-bar"><div class="energy-fill" style="width:100%;background:linear-gradient(90deg,#22c55e,#16a34a)"></div></div></div>
+      </div>
+      <div class="card" onclick="toggleCard(this)">
+        <div class="icon">🐛</div>
+        <h3>Primary Consumer</h3>
+        <p class="hindi">प्राथमिक उपभोक्ता</p>
+        <p>Herbivores</p>
+        <div class="detail">Eat producers directly. E.g., grasshopper, rabbit, deer.<br><br><strong>Energy: 10%</strong><div class="energy-bar"><div class="energy-fill" style="width:10%;background:linear-gradient(90deg,#22d3ee,#0891b2)"></div></div></div>
+      </div>
+      <div class="card" onclick="toggleCard(this)">
+        <div class="icon">🦎</div>
+        <h3>Secondary Consumer</h3>
+        <p class="hindi">द्वितीयक उपभोक्ता</p>
+        <p>Omnivores/Carnivores</p>
+        <div class="detail">Eat primary consumers. E.g., frog, small fish, fox.<br><br><strong>Energy: 1%</strong><div class="energy-bar"><div class="energy-fill" style="width:1%;background:linear-gradient(90deg,#fbbf24,#f59e0b)"></div></div></div>
+      </div>
+      <div class="card" onclick="toggleCard(this)">
+        <div class="icon">🦅</div>
+        <h3>Tertiary Consumer</h3>
+        <p class="hindi">तृतीयक उपभोक्ता</p>
+        <p>Top Predators</p>
+        <div class="detail">Eat secondary consumers. E.g., hawk, eagle, snake.<br><br><strong>Energy: 0.1%</strong><div class="energy-bar"><div class="energy-fill" style="width:0.5%;background:linear-gradient(90deg,#f87171,#dc2626)"></div></div></div>
+      </div>
+      <div class="card" onclick="toggleCard(this)">
+        <div class="icon">🍄</div>
+        <h3>Decomposer</h3>
+        <p class="hindi">अपघटक</p>
+        <p>Bacteria, Fungi</p>
+        <div class="detail">Break down dead matter, return nutrients to soil. Essential for nutrient cycling.<br><br><em>Also called Saprotrophs (मृतजीवी)</em></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="chain">
+    <h2>Interactive Food Chain <span class="hindi">– खाद्य श्रृंखला</span></h2>
+    <p style="font-size:0.78rem;color:#64748b;margin-bottom:8px">Click an organism to see energy flow ↓</p>
+    <div class="chain-wrap">
+      <div class="chain" id="foodchain">
+        <div class="org" style="border-color:#22c55e" onclick="flowEnergy(0)">🌾<br>Grass<br><span class="hindi" style="font-size:0.65rem">घास</span><br><small style="color:#22c55e">1000kJ</small></div>
+        <div class="arrow">→</div>
+        <div class="org" onclick="flowEnergy(1)">🐛<br>Grasshopper<br><span class="hindi" style="font-size:0.65rem">टिड्डा</span><br><small style="color:#38bdf8">100kJ</small></div>
+        <div class="arrow">→</div>
+        <div class="org" onclick="flowEnergy(2)">🐸<br>Frog<br><span class="hindi" style="font-size:0.65rem">मेंढक</span><br><small style="color:#fbbf24">10kJ</small></div>
+        <div class="arrow">→</div>
+        <div class="org" onclick="flowEnergy(3)">🐍<br>Snake<br><span class="hindi" style="font-size:0.65rem">सांप</span><br><small style="color:#f87171">1kJ</small></div>
+        <div class="arrow">→</div>
+        <div class="org" onclick="flowEnergy(4)">🦅<br>Hawk<br><span class="hindi" style="font-size:0.65rem">बाज़</span><br><small style="color:#c084fc">0.1kJ</small></div>
+      </div>
+    </div>
+    <div class="level-info" id="chainInfo">
+      👆 Click any organism to see its trophic level and energy details
+    </div>
+    <div style="margin-top:12px">
+      <div class="rule-box">
+        <div class="rule-item"><strong>Why short chains?</strong>At each step, 90% energy is lost. Beyond 4–5 levels, too little energy remains.</div>
+        <div class="rule-item warn"><strong>⚠️ DDT Accumulation</strong>Pesticides increase up the chain — called Biological Magnification (जैव आवर्धन)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="pyramid">
+    <h2>Energy Pyramid <span class="hindi">– ऊर्जा पिरामिड</span></h2>
+    <p style="font-size:0.78rem;color:#64748b;margin-bottom:8px">Click a level to explore <span class="hindi">– स्तर पर क्लिक करें</span></p>
+    <div class="pyramid-wrap">
+      <svg viewBox="0 0 400 280" width="100%">
+        <g id="lvl4" onclick="showLevel(4)" style="cursor:pointer">
+          <polygon points="200,20 155,65 245,65" fill="#7c3aed" stroke="#a78bfa" stroke-width="1.5"/>
+          <text x="200" y="48" text-anchor="middle" fill="#e9d5ff" font-size="10">🦅 Hawk (0.1kJ)</text>
+        </g>
+        <g id="lvl3" onclick="showLevel(3)" style="cursor:pointer">
+          <polygon points="155,68 120,110 280,110 245,68" fill="#b45309" stroke="#fbbf24" stroke-width="1.5"/>
+          <text x="200" y="94" text-anchor="middle" fill="#fef3c7" font-size="10">🐍 Snake (1kJ)</text>
+        </g>
+        <g id="lvl2" onclick="showLevel(2)" style="cursor:pointer">
+          <polygon points="120,113 75,158 325,158 280,113" fill="#0e7490" stroke="#22d3ee" stroke-width="1.5"/>
+          <text x="200" y="140" text-anchor="middle" fill="#cffafe" font-size="11">🐸 Frog (10kJ)</text>
+        </g>
+        <g id="lvl1" onclick="showLevel(1)" style="cursor:pointer">
+          <polygon points="75,161 30,210 370,210 325,161" fill="#065f46" stroke="#34d399" stroke-width="1.5"/>
+          <text x="200" y="190" text-anchor="middle" fill="#d1fae5" font-size="11">🐛 Grasshopper (100kJ)</text>
+        </g>
+        <g id="lvl0" onclick="showLevel(0)" style="cursor:pointer">
+          <polygon points="30,213 5,260 395,260 370,213" fill="#14532d" stroke="#22c55e" stroke-width="1.5"/>
+          <text x="200" y="240" text-anchor="middle" fill="#bbf7d0" font-size="12">🌾 Grass – Producers (1000kJ)</text>
+        </g>
+        <text x="400" y="240" text-anchor="end" fill="#64748b" font-size="9">T1</text>
+        <text x="400" y="190" text-anchor="end" fill="#64748b" font-size="9">T2</text>
+        <text x="400" y="140" text-anchor="end" fill="#64748b" font-size="9">T3</text>
+        <text x="400" y="94" text-anchor="end" fill="#64748b" font-size="9">T4</text>
+        <text x="400" y="48" text-anchor="end" fill="#64748b" font-size="9">T5</text>
+      </svg>
+    </div>
+    <div class="level-info" id="levelInfo">👆 Click a pyramid level to learn more about that trophic level</div>
+  </div>
+
+  <div class="tab-content" id="quiz">
+    <h2>Quick Quiz <span class="hindi">– प्रश्नोत्तरी</span></h2>
+    <div class="quiz" id="quizBox"></div>
+  </div>
+</div>
+
+</div>
+
+<script>
+function showTab(id){
+  document.querySelectorAll('.tab').forEach((t,i)=>{t.classList.remove('active')});
+  document.querySelectorAll('.tab').forEach(t=>{if(t.getAttribute('onclick').includes(id))t.classList.add('active')});
+  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function toggleCard(el){
+  const wasOpen=el.classList.contains('expanded');
+  document.querySelectorAll('.card').forEach(c=>c.classList.remove('expanded'));
+  if(!wasOpen)el.classList.add('expanded');
+}
+
+const chainData=[
+  {name:"Grass 🌾",hindi:"घास",level:"Trophic Level 1 – Producer (उत्पादक)",energy:"1000 kJ",note:"Makes food via photosynthesis. Starting point of energy flow.",color:"#22c55e"},
+  {name:"Grasshopper 🐛",hindi:"टिड्डा",level:"Trophic Level 2 – Primary Consumer (प्राथमिक उपभोक्ता)",energy:"100 kJ (10% of 1000)",note:"Herbivore. Gets only 10% of energy from grass. 90% lost as heat.",color:"#38bdf8"},
+  {name:"Frog 🐸",hindi:"मेंढक",level:"Trophic Level 3 – Secondary Consumer (द्वितीयक उपभोक्ता)",energy:"10 kJ (10% of 100)",note:"Carnivore. Eats grasshoppers. Very little energy remains.",color:"#fbbf24"},
+  {name:"Snake 🐍",hindi:"सांप",level:"Trophic Level 4 – Tertiary Consumer (तृतीयक उपभोक्ता)",energy:"1 kJ (10% of 10)",note:"Only 0.1% of original grass energy remains here.",color:"#f87171"},
+  {name:"Hawk 🦅",hindi:"बाज़",level:"Trophic Level 5 – Top Predator (शीर्ष परभक्षी)",energy:"0.1 kJ (10% of 1)",note:"Apex predator. Gets barely any energy. Chain usually stops here.",color:"#c084fc"}
+];
+
+function flowEnergy(idx){
+  const orgs=document.querySelectorAll('.org');
+  orgs.forEach((o,i)=>{
+    o.style.borderColor=i<=idx?chainData[i].color:'#334155';
+    o.style.background=i<=idx?'#0f172a':'';
+    if(i===idx)o.classList.add('lit'),setTimeout(()=>o.classList.remove('lit'),500);
+  });
+  const d=chainData[idx];
+  document.getElementById('chainInfo').innerHTML=`<strong style="color:${d.color}">${d.name} (${d.hindi})</strong><br><span style="color:#94a3b8">${d.level}</span><br>⚡ Energy: <strong style="color:#fbbf24">${d.energy}</strong><br><small>${d.note}</small>`;
+}
+
+const levelData=[
+  {title:"T1 – Producers (उत्पादक)",energy:"1000 kJ",color:"#22c55e",note:"Grass, trees, algae. Convert sunlight to chemical energy. Foundation of all life.",example:"Examples: Wheat, Algae, Grass"},
+  {title:"T2 – Primary Consumers (प्राथमिक उपभोक्ता)",energy:"100 kJ",color:"#38bdf8",note:"Herbivores that eat producers. Receive only 10% energy.",example:"Examples: Grasshopper, Cow, Rabbit"},
+  {title:"T3 – Secondary Consumers (द्वितीयक उपभोक्ता)",energy:"10 kJ",color:"#fbbf24",note:"Eat herbivores. Only 1% of original energy remains.",example:"Examples: Frog, Small fish, Fox"},
+  {title:"T4 – Tertiary Consumers (तृतीयक उपभोक्ता)",energy:"1 kJ",color:"#f87171",note:"Eat secondary consumers. Only 0.1% energy available.",example:"Examples: Snake, Large fish"},
+  {title:"T5 – Top Predators (शीर्ष परभक्षी)",energy:"0.1 kJ",color:"#a78bfa",note:"Apex of the pyramid. Extremely little energy, very few individuals.",example:"Examples: Hawk, Eagle, Tiger"}
+];
+
+function showLevel(idx){
+  const d=levelData[idx];
+  document.querySelectorAll('svg g[id^=lvl]').forEach(g=>{
+    g.querySelector('polygon').style.opacity='0.5';
+  });
+  document.getElementById('lvl'+idx).querySelector('polygon').style.opacity='1';
+  document.getElementById('levelInfo').innerHTML=`<strong style="color:${d.color}">${d.title}</strong><br>⚡ Energy: <strong style="color:#fbbf24">${d.energy}</strong><br><small style="color:#94a3b8">${d.note}</small><br><small style="color:#64748b">${d.example}</small>`;
+}
+
+const questions=[
+  {q:"How much energy is transferred from one trophic level to the next?",hindi:"एक पोषण स्तर से दूसरे में कितनी ऊर्जा स्थानांतरित होती है?",opts:["100%","50%","10%","1%"],ans:2,tip:"This is Lindeman's 10% law. 90% is lost as heat."},
+  {q:"Which organisms are called producers (उत्पादक)?",opts:["Fungi","Green Plants","Herbivores","Bacteria"],ans:1,tip:"Green plants make food by photosynthesis – they produce energy for the ecosystem."},
+  {q:"What is biological magnification (जैव आवर्धन)?",opts:["More animals at base","Increase of population","Accumulation of chemicals up food chain","Energy increase at each level"],ans:2,tip:"Harmful chemicals like DDT increase in concentration as they move up the food chain."},
+  {q:"Decomposers return _____ to the soil.",opts:["Energy","Sunlight","Nutrients","Water only"],ans:2,tip:"Decomposers (bacteria & fungi) break down dead matter and recycle nutrients back to soil."}
+];
+
+function buildQuiz(){
+  const box=document.getElementById('quizBox');
+  box.innerHTML=questions.map((q,qi)=>`
+    <div class="q">
+      <p>${q.q}${q.hindi?`<br><span class="hindi">${q.hindi}</span>`:''}</p>
+      <div class="opts">${q.opts.map((o,oi)=>`<div class="opt" onclick="answer(this,${qi},${oi})">${o}</div>`).join('')}</div>
+      <div class="tip" id="tip${qi}">💡 ${q.tip}</div>
+    </div>`).join('');
+}
+
+function answer(el,qi,oi){
+  const q=questions[qi];
+  const opts=el.parentElement.querySelectorAll('.opt');
+  opts.forEach(o=>o.style.pointerEvents='none');
+  if(oi===q.ans){el.classList.add('correct');}
+  else{el.classList.add('wrong');opts[q.ans].classList.add('correct');}
+  document.getElementById('tip'+qi).classList.add('show');
+}
+
+buildQuiz();
+</script>
+</body>
+</html>

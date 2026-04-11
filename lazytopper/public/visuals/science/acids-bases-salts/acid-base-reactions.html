@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Acids, Bases & Salts – Class 10 Science</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0f172a;color:#e2e8f0;font-family:'Segoe UI',sans-serif;min-height:100vh;overflow-x:hidden}
+header{background:linear-gradient(135deg,#1e3a5f,#0f172a);padding:12px 16px;display:flex;align-items:center;gap:12px;border-bottom:2px solid #38bdf8;box-shadow:0 2px 20px #38bdf840}
+header h1{font-size:1.1rem;color:#38bdf8;font-weight:700}
+header span{font-size:.75rem;color:#94a3b8;background:#1e293b;padding:3px 8px;border-radius:20px}
+.formula-bar{background:linear-gradient(90deg,#1e3a5f,#0c2340,#1e3a5f);text-align:center;padding:10px;font-size:1rem;font-weight:700;color:#fbbf24;letter-spacing:1px;border-bottom:1px solid #38bdf840;animation:glow 2s ease-in-out infinite alternate}
+@keyframes glow{from{text-shadow:0 0 5px #fbbf24}to{text-shadow:0 0 20px #fbbf24,0 0 40px #f59e0b}}
+.container{max-width:900px;margin:0 auto;padding:12px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.tab{padding:7px 14px;border-radius:20px;border:1px solid #334155;background:#1e293b;color:#94a3b8;cursor:pointer;font-size:.82rem;transition:.2s}
+.tab.active{background:#38bdf8;color:#0f172a;font-weight:700;border-color:#38bdf8}
+.panel{display:none}.panel.active{display:block}
+.card{background:#1e293b;border-radius:12px;padding:14px;margin-bottom:12px;border:1px solid #334155}
+h2{font-size:1rem;color:#38bdf8;margin-bottom:10px}
+h3{font-size:.9rem;color:#7dd3fc;margin-bottom:6px}
+p,li{font-size:.83rem;color:#cbd5e1;line-height:1.6}
+.hindi{color:#f9a8d4;font-style:italic;font-size:.78rem}
+/* pH Strip */
+.ph-section{text-align:center}
+.ph-strip{display:flex;border-radius:8px;overflow:hidden;height:30px;margin:10px auto;max-width:500px;cursor:pointer}
+.ph-cell{flex:1;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;color:#fff;transition:.3s;text-shadow:1px 1px 2px #0004}
+.ph-cell:hover{transform:scaleY(1.2);z-index:1}
+.ph-indicator{font-size:1.8rem;margin:8px 0;transition:.4s}
+.ph-label{font-size:.9rem;font-weight:700;margin-bottom:4px}
+.ph-desc{font-size:.78rem;color:#94a3b8}
+.slider-wrap{padding:0 10px}
+input[type=range]{width:100%;accent-color:#38bdf8;cursor:pointer}
+/* Reaction Animation */
+.beaker-area{display:flex;gap:16px;justify-content:center;align-items:flex-end;flex-wrap:wrap;margin:14px 0}
+.beaker-wrap{text-align:center}
+.beaker-label{font-size:.75rem;color:#94a3b8;margin-bottom:4px}
+svg.beaker{width:70px;height:90px}
+.liquid{transition:fill .5s}
+.bubble{animation:rise 1.5s ease-in infinite}
+@keyframes rise{0%{cy:70;opacity:1}100%{cy:30;opacity:0}}
+.arrow-btn{background:linear-gradient(135deg,#38bdf8,#0ea5e9);border:none;color:#0f172a;padding:8px 20px;border-radius:20px;cursor:pointer;font-weight:700;font-size:.85rem;margin:10px auto;display:block;transition:.2s}
+.arrow-btn:hover{transform:scale(1.05);box-shadow:0 0 15px #38bdf840}
+.result-box{background:#0f2d1f;border:1px solid #22c55e;border-radius:8px;padding:10px;text-align:center;font-size:.9rem;color:#4ade80;animation:fadeIn .5s}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+/* Litmus */
+.litmus-area{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.litmus-card{background:#0f172a;border-radius:10px;padding:12px;text-align:center;width:130px;cursor:pointer;border:2px solid #334155;transition:.3s}
+.litmus-card:hover{border-color:#38bdf8;transform:translateY(-3px)}
+.litmus-paper{width:50px;height:80px;border-radius:6px;margin:8px auto;transition:background .5s;border:2px solid #475569}
+.litmus-name{font-size:.75rem;color:#94a3b8;margin-top:4px}
+/* Quiz */
+.quiz-q{font-size:.9rem;color:#e2e8f0;margin-bottom:10px}
+.quiz-opts button{display:block;width:100%;text-align:left;padding:8px 12px;margin:5px 0;background:#0f172a;border:1px solid #334155;border-radius:8px;color:#cbd5e1;cursor:pointer;font-size:.82rem;transition:.2s}
+.quiz-opts button:hover{border-color:#38bdf8;background:#1e3a5f}
+.quiz-opts button.correct{background:#0f2d1f;border-color:#22c55e;color:#4ade80}
+.quiz-opts button.wrong{background:#2d0f0f;border-color:#ef4444;color:#f87171}
+.score{color:#fbbf24;font-weight:700;font-size:1rem;text-align:center;margin-top:8px}
+.badge{display:inline-block;padding:4px 10px;border-radius:12px;font-size:.72rem;font-weight:700;margin:2px}
+.acid-b{background:#fef08a22;color:#fde047;border:1px solid #fde04740}
+.base-b{background:#bbf7d022;color:#4ade80;border:1px solid #4ade8040}
+.salt-b{background:#bae6fd22;color:#38bdf8;border:1px solid #38bdf840}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:480px){.grid2{grid-template-columns:1fr}.beaker-area{gap:10px}}
+</style>
+</head>
+<body>
+<header>
+<svg width="28" height="28" viewBox="0 0 28 28"><circle cx="14" cy="14" r="13" fill="#1e3a5f" stroke="#38bdf8" stroke-width="1.5"/><text x="14" y="19" text-anchor="middle" font-size="13" fill="#38bdf8">⚗</text></svg>
+<h1>Acids, Bases & Salts</h1>
+<span>CBSE Class 10 Science</span>
+</header>
+<div class="formula-bar">HCl + NaOH → NaCl + H₂O &nbsp;|&nbsp; Acid + Base → Salt + Water (उदासीनीकरण)</div>
+<div class="container">
+<div class="tabs">
+<div class="tab active" onclick="switchTab('concept')">📚 Concept</div>
+<div class="tab" onclick="switchTab('reaction')">⚗️ Reaction</div>
+<div class="tab" onclick="switchTab('ph')">🌈 pH Scale</div>
+<div class="tab" onclick="switchTab('litmus')">🔬 Litmus</div>
+<div class="tab" onclick="switchTab('quiz')">✅ Quiz</div>
+</div>
+
+<!-- CONCEPT -->
+<div class="panel active" id="concept">
+<div class="card">
+<h2>🧪 What is Neutralisation? (उदासीनीकरण)</h2>
+<p>When an <strong style="color:#fde047">acid</strong> reacts with a <strong style="color:#4ade80">base</strong>, they cancel each other's properties to form <strong style="color:#38bdf8">salt</strong> and <strong style="color:#f9a8d4">water</strong>. This is called <strong>neutralisation reaction</strong>.</p>
+<p class="hindi">जब अम्ल और क्षार मिलते हैं, तो नमक और जल बनता है। इसे उदासीनीकरण कहते हैं।</p>
+</div>
+<div class="grid2">
+<div class="card">
+<h3>⚡ Acids (अम्ल)</h3>
+<span class="badge acid-b">HCl</span><span class="badge acid-b">H₂SO₄</span><span class="badge acid-b">HNO₃</span>
+<p style="margin-top:6px">• Sour taste (खट्टा स्वाद)<br>• Turn blue litmus <span style="color:#ef4444">red</span><br>• pH &lt; 7<br>• Produce H⁺ ions</p>
+</div>
+<div class="card">
+<h3>🌿 Bases (क्षार)</h3>
+<span class="badge base-b">NaOH</span><span class="badge base-b">Ca(OH)₂</span><span class="badge base-b">KOH</span>
+<p style="margin-top:6px">• Bitter taste (कड़वा स्वाद)<br>• Turn red litmus <span style="color:#4ade80">blue</span><br>• pH &gt; 7<br>• Produce OH⁻ ions</p>
+</div>
+</div>
+<div class="card">
+<h3>🧂 Common Salts (सामान्य लवण)</h3>
+<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px">
+<span class="badge salt-b">NaCl – Table Salt</span>
+<span class="badge salt-b">Na₂SO₄ – Sodium Sulphate</span>
+<span class="badge salt-b">CaCl₂ – Calcium Chloride</span>
+<span class="badge salt-b">KNO₃ – Potassium Nitrate</span>
+</div>
+<p style="margin-top:8px">Salts are formed when the H⁺ of acid is replaced by a metal ion. <br><span class="hindi">लवण तब बनता है जब अम्ल का H⁺ धातु आयन से प्रतिस्थापित हो जाता है।</span></p>
+</div>
+</div>
+
+<!-- REACTION -->
+<div class="panel" id="reaction">
+<div class="card">
+<h2>⚗️ Interactive Neutralisation Reaction</h2>
+<p>Click "Mix" to combine acid and base and see what happens!</p>
+<p class="hindi">अम्ल और क्षार मिलाने के लिए "Mix" पर क्लिक करें।</p>
+</div>
+<div class="card">
+<div class="beaker-area" id="beakerArea">
+<div class="beaker-wrap">
+<div class="beaker-label">HCl (Acid / अम्ल)</div>
+<svg class="beaker" viewBox="0 0 70 90">
+<polygon points="10,10 10,75 60,75 60,10" fill="none" stroke="#475569" stroke-width="2"/>
+<line x1="10" y1="10" x2="5" y2="5" stroke="#475569" stroke-width="2"/>
+<line x1="60" y1="10" x2="65" y2="5" stroke="#475569" stroke-width="2"/>
+<rect x="11" y="35" width="48" height="39" class="liquid" id="acidLiq" fill="#fde04780" rx="2"/>
+<circle class="bubble" cx="25" cy="60" r="2.5" fill="#fde04760" id="b1"/>
+<circle class="bubble" cx="40" cy="65" r="2" fill="#fde04760" id="b2" style="animation-delay:.5s"/>
+<text x="35" y="58" text-anchor="middle" font-size="10" fill="#fde047">H⁺</text>
+</svg>
+</div>
+<div style="font-size:2rem;color:#38bdf8;align-self:center">+</div>
+<div class="beaker-wrap">
+<div class="beaker-label">NaOH (Base / क्षार)</div>
+<svg class="beaker" viewBox="0 0 70 90">
+<polygon points="10,10 10,75 60,75 60,10" fill="none" stroke="#475569" stroke-width="2"/>
+<line x1="10" y1="10" x2="5" y2="5" stroke="#475569" stroke-width="2"/>
+<line x1="60" y1="10" x2="65" y2="5" stroke="#475569" stroke-width="2"/>
+<rect x="11" y="35" width="48" height="39" class="liquid" id="baseLiq" fill="#4ade8080" rx="2"/>
+<circle class="bubble" cx="30" cy="62" r="2" fill="#4ade8060" style="animation-delay:.3s"/>
+<text x="35" y="58" text-anchor="middle" font-size="10" fill="#4ade80">OH⁻</text>
+</svg>
+</div>
+<div style="font-size:2rem;color:#38bdf8;align-self:center" id="arrowDiv">→</div>
+<div class="beaker-wrap" id="productWrap" style="opacity:0;transition:opacity .5s">
+<div class="beaker-label">NaCl + H₂O</div>
+<svg class="beaker" viewBox="0 0 70 90">
+<polygon points="10,10 10,75 60,75 60,10" fill="none" stroke="#475569" stroke-width="2"/>
+<line x1="10" y1="10" x2="5" y2="5" stroke="#475569" stroke-width="2"/>
+<line x1="60" y1="10" x2="65" y2="5" stroke="#475569" stroke-width="2"/>
+<rect x="11" y="35" width="48" height="39" class="liquid" id="prodLiq" fill="#38bdf880" rx="2"/>
+<text x="35" y="55" text-anchor="middle" font-size="9" fill="#e2e8f0">Na⁺Cl⁻</text>
+<text x="35" y="67" text-anchor="middle" font-size="9" fill="#bae6fd">H₂O</text>
+</svg>
+</div>
+</div>
+<button class="arrow-btn" onclick="doReaction()">⚗️ Mix! (मिलाएं)</button>
+<div id="resultBox" style="display:none" class="result-box">
+✅ Neutralisation Complete! pH = 7 (Neutral)<br>
+<span class="hindi">उदासीनीकरण पूर्ण! अम्ल और क्षार दोनों neutralize हो गए।</span>
+</div>
+</div>
+<div class="card">
+<h3>⚖️ Ion Exchange (आयन विनिमय)</h3>
+<p>H⁺ (from acid) + OH⁻ (from base) → H₂O (water)<br>
+Na⁺ (from base) + Cl⁻ (from acid) → NaCl (salt)</p>
+<p class="hindi" style="margin-top:6px">अम्ल का H⁺ और क्षार का OH⁻ मिलकर जल बनाते हैं।</p>
+</div>
+</div>
+
+<!-- pH -->
+<div class="panel" id="ph">
+<div class="card ph-section">
+<h2>🌈 pH Scale – Interactive (पीएच स्केल)</h2>
+<p>Drag the slider to explore pH values!</p>
+<p class="hindi">स्लाइडर खींचें और pH का प्रभाव देखें।</p>
+<div class="ph-strip" id="phStrip"></div>
+<div class="slider-wrap">
+<input type="range" min="0" max="14" value="7" id="phSlider" oninput="updatePH(this.value)">
+</div>
+<div class="ph-indicator" id="phEmoji">😐</div>
+<div class="ph-label" id="phVal">pH = 7</div>
+<div class="ph-desc" id="phDesc">Neutral (उदासीन) – Pure Water</div>
+</div>
+<div class="card">
+<h3>📊 pH Examples (उदाहरण)</h3>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-top:6px">
+<div style="background:#1a0a0a;border:1px solid #ef444440;border-radius:8px;padding:8px;text-align:center"><div style="font-size:1.2rem">🍋</div><div style="color:#fde047;font-size:.8rem">Lemon – pH 2</div></div>
+<div style="background:#1a0f0a;border:1px solid #f9731640;border-radius:8px;padding:8px;text-align:center"><div style="font-size:1.2rem">🍊</div><div style="color:#fb923c;font-size:.8rem">Orange – pH 4</div></div>
+<div style="background:#0a1a0a;border:1px solid #22c55e40;border-radius:8px;padding:8px;text-align:center"><div style="font-size:1.2rem">💧</div><div style="color:#4ade80;font-size:.8rem">Water – pH 7</div></div>
+<div style="background:#0a0f1a;border:1px solid #38bdf840;border-radius:8px;padding:8px;text-align:center"><div style="font-size:1.2rem">🧼</div><div style="color:#38bdf8;font-size:.8rem">Soap – pH 9</div></div>
+<div style="background:#050a1a;border:1px solid #818cf840;border-radius:8px;padding:8px;text-align:center"><div style="font-size:1.2rem">🔋</div><div style="color:#818cf8;font-size:.8rem">Bleach – pH 13</div></div>
+</div>
+</div>
+</div>
+
+<!-- LITMUS -->
+<div class="panel" id="litmus">
+<div class="card">
+<h2>🔬 Litmus Test (लिटमस परीक्षण)</h2>
+<p>Click on each substance to see the litmus paper colour change!</p>
+<p class="hindi">प्रत्येक पदार्थ पर क्लिक करें और लिटमस के रंग परिवर्तन को देखें।</p>
+</div>
+<div class="card">
+<div class="litmus-area">
+<div class="litmus-card" onclick="testLitmus('acid')">
+<div style="font-size:1.4rem">🧪</div>
+<div style="font-size:.78rem;color:#fde047">HCl (Acid)</div>
+<div class="litmus-paper" id="blueL" style="background:#6366f1"></div>
+<div class="litmus-name">Blue Litmus</div>
+</div>
+<div class="litmus-card" onclick="testLitmus('base')">
+<div style="font-size:1.4rem">🧫</div>
+<div style="font-size:.78rem;color:#4ade80">NaOH (Base)</div>
+<div class="litmus-paper" id="redL" style="background:#ef4444"></div>
+<div class="litmus-name">Red Litmus</div>
+</div>
+<div class="litmus-card" onclick="testLitmus('neutral')">
+<div style="font-size:1.4rem">💧</div>
+<div style="font-size:.78rem;color:#38bdf8">Water (Neutral)</div>
+<div class="litmus-paper" id="neutL" style="background:#6366f1"></div>
+<div class="litmus-name">Blue Litmus</div>
+</div>
+</div>
+<div id="litmusResult" style="text-align:center;margin-top:10px;font-size:.85rem;color:#fbbf24;min-height:20px"></div>
+</div>
+<div class="card">
+<h3>📋 Indicators Summary (सूचक)</h3>
+<table style="width:100%;font-size:.78rem;border-collapse:collapse">
+<tr style="color:#38bdf8;border-bottom:1px solid #334155"><td style="padding:6px">Indicator</td><td>Acid</td><td>Base</td><td>Neutral</td></tr>
+<tr style="border-bottom:1px solid #1e293b"><td style="padding:5px;color:#94a3b8">Blue Litmus</td><td style="color:#ef4444">Red</td><td style="color:#6366f1">No change</td><td style="color:#6366f1">No change</td></tr>
+<tr style="border-bottom:1px solid #1e293b"><td style="padding:5px;color:#94a3b8">Red Litmus</td><td style="color:#ef4444">No change</td><td style="color:#6366f1">Blue</td><td style="color:#ef4444">No change</td></tr>
+<tr><td style="padding:5px;color:#94a3b8">pH indicator</td><td style="color:#ef4444">Red/Orange</td><td style="color:#4ade80">Blue/Purple</td><td style="color:#4ade80">Green</td></tr>
+</table>
+</div>
+</div>
+
+<!-- QUIZ -->
+<div class="panel" id="quiz">
+<div class="card">
+<h2>✅ Quick Quiz (प्रश्नोत्तरी)</h2>
+<div id="quizArea"></div>
+<div class="score" id="scoreDiv"></div>
+<button class="arrow-btn" onclick="resetQuiz()" style="margin-top:10px">🔄 Retry</button>
+</div>
+</div>
+
+</div><!-- end container -->
+
+<script>
+// Tabs
+function switchTab(id){
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['concept','reaction','ph','litmus','quiz'][i]===id));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// pH Strip init
+const phColors=['#dc2626','#ef4444','#f97316','#fb923c','#fbbf24','#facc15','#4ade80','#22c55e','#2dd4bf','#06b6d4','#3b82f6','#6366f1','#8b5cf6','#a855f7','#c026d3'];
+const strip=document.getElementById('phStrip');
+phColors.forEach((c,i)=>{
+  const d=document.createElement('div');
+  d.className='ph-cell';d.style.background=c;d.textContent=i;
+  d.onclick=()=>{document.getElementById('phSlider').value=i;updatePH(i)};
+  strip.appendChild(d);
+});
+
+function updatePH(v){
+  v=parseInt(v);
+  const emojis=['😱','😖','😣','😟','😕','😐','😐','🙂','😊','😌','😬','😰','😨','😧','💀'];
+  const descs=['Battery acid (बैटरी अम्ल)','Stomach acid (आमाशय अम्ल)','Lemon juice (नींबू)','Vinegar (सिरका)','Tomato (टमाटर)','Coffee (कॉफी)','Pure Water (शुद्ध जल)','Saliva (लार)','Egg white (अंडे का सफेद)','Baking soda (बेकिंग सोडा)','Milk of magnesia','Ammonia (अमोनिया)','Lime water (चूने का पानी)','Bleach (ब्लीच)','Drain cleaner'];
+  document.getElementById('phEmoji').textContent=emojis[v];
+  document.getElementById('phVal').textContent='pH = '+v;
+  document.getElementById('phDesc').textContent=descs[v]+(v<7?' – Acidic (अम्लीय)':v>7?' – Basic/Alkaline (क्षारीय)':' – Neutral (उदासीन)');
+  const cells=strip.querySelectorAll('.ph-cell');
+  cells.forEach((c,i)=>c.style.transform=i===v?'scaleY(1.4)':'scaleY(1)');
+}
+updatePH(7);
+
+// Reaction
+let reacted=false;
+function doReaction(){
+  if(reacted)return;reacted=true;
+  document.getElementById('acidLiq').style.fill='#fde04730';
+  document.getElementById('baseLiq').style.fill='#4ade8030';
+  document.getElementById('productWrap').style.opacity='1';
+  document.getElementById('resultBox').style.display='block';
+  setTimeout(()=>reacted=false,3000);
+}
+
+// Litmus
+function testLitmus(type){
+  const msgs={'acid':'🔴 Blue litmus turns RED – Acid confirmed! (अम्ल की पुष्टि)','base':'🔵 Red litmus turns BLUE – Base confirmed! (क्षार की पुष्टि)','neutral':'✅ No change – Neutral substance! (कोई परिवर्तन नहीं)'};
+  if(type==='acid'){document.getElementById('blueL').style.background='#ef4444';}
+  else if(type==='base'){document.getElementById('redL').style.background='#6366f1';}
+  else{document.getElementById('neutL').style.background='#6366f1';}
+  document.getElementById('litmusResult').textContent=msgs[type];
+  setTimeout(()=>{
+    document.getElementById('blueL').style.background='#6366f1';
+    document.getElementById('redL').style.background='#ef4444';
+    document.getElementById('neutL').style.background='#6366f1';
+  },2500);
+}
+
+// Quiz
+const questions=[
+  {q:'What is formed when HCl reacts with NaOH?',opts:['NaCl + H₂O','NaH + Cl₂','Na + HCl','NaCl only'],ans:0},
+  {q:'Which indicator turns red in acid? (कौन सा सूचक अम्ल में लाल होता है?)',opts:['Red Litmus','Blue Litmus','Turmeric','Phenolphthalein'],ans:1},
+  {q:'pH of pure water is:',opts:['0','7','14','4'],ans:1},
+  {q:'Neutralisation reaction produces:',opts:['Only salt','Only water','Salt and water','Acid and base'],ans:2},
+  {q:'NaOH is a: (NaOH क्या है?)',opts:['Acid','Salt','Base','Neutral'],ans:2}
+];
+let cur=0,score=0,answered=[];
+function renderQuiz(){
+  const qa=document.getElementById('quizArea');
+  if(cur>=questions.length){document.getElementById('scoreDiv').textContent=`🏆 Score: ${score}/${questions.length}`;qa.innerHTML='<p style="color:#4ade80;text-align:center">Quiz Complete! (पूर्ण हो गया)</p>';return;}
+  const q=questions[cur];
+  qa.innerHTML=`<div class="quiz-q">${cur+1}. ${q.q}</div><div class="quiz-opts">${q.opts.map((o,i)=>`<button onclick="answer(${i})">${o}</button>`).join('')}</div>`;
+}
+function answer(i){
+  const btns=document.querySelectorAll('.quiz-opts button');
+  btns.forEach(b=>b.disabled=true);
+  btns[questions[cur].ans].classList.add('correct');
+  if(i===questions[cur].ans)score++;
+  else btns[i].classList.add('wrong');
+  setTimeout(()=>{cur++;renderQuiz();},1000);
+}
+function resetQuiz(){cur=0;score=0;document.getElementById('scoreDiv').textContent='';renderQuiz();}
+renderQuiz();
+</script>
+</body>
+</html>

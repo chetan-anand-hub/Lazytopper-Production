@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Electromagnet & Solenoid | Class 10 Science</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f172a;color:#e2e8f0;font-family:'Segoe UI',sans-serif;min-height:100vh;overflow-x:hidden}
+#titlebar{background:linear-gradient(135deg,#1e40af,#7c3aed);padding:12px 20px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 20px rgba(124,58,237,.4)}
+#titlebar h1{font-size:1.1rem;font-weight:700;letter-spacing:.5px}
+#titlebar span{font-size:.8rem;background:rgba(255,255,255,.15);padding:3px 10px;border-radius:20px}
+.container{padding:16px;max-width:800px;margin:0 auto}
+.formula-box{background:linear-gradient(135deg,#1e3a5f,#1e1b4b);border:2px solid #3b82f6;border-radius:12px;padding:14px;margin:14px 0;text-align:center}
+.formula-box .f{font-size:1.4rem;color:#60a5fa;font-weight:700;letter-spacing:1px}
+.formula-box .sub{font-size:.8rem;color:#94a3b8;margin-top:4px}
+.card{background:#1e293b;border-radius:14px;padding:16px;margin:12px 0;border:1px solid #334155}
+.card h3{color:#60a5fa;margin-bottom:10px;font-size:1rem}
+.btn{background:linear-gradient(135deg,#2563eb,#7c3aed);border:none;color:#fff;padding:8px 18px;border-radius:8px;cursor:pointer;font-size:.85rem;transition:all .2s;margin:4px}
+.btn:hover{transform:translateY(-1px);box-shadow:0 4px 15px rgba(124,58,237,.4)}
+.btn.active{background:linear-gradient(135deg,#16a34a,#059669)}
+.slider-wrap{margin:10px 0}
+.slider-wrap label{font-size:.85rem;color:#94a3b8;display:flex;justify-content:space-between}
+input[type=range]{width:100%;accent-color:#3b82f6;margin:6px 0}
+#solenoidCanvas{width:100%;border-radius:10px;background:#0f172a;display:block}
+.badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:.75rem;background:#1e3a5f;color:#60a5fa;border:1px solid #3b82f6;margin:2px}
+.hindi{color:#f59e0b;font-size:.8rem}
+.field-lines{animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:.6}50%{opacity:1}}
+.glow{filter:drop-shadow(0 0 6px #3b82f6)}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+@media(max-width:480px){.info-grid{grid-template-columns:1fr}.formula-box .f{font-size:1.1rem}}
+.particle{position:absolute;border-radius:50%;pointer-events:none;animation:flow 2s linear infinite}
+@keyframes flow{0%{transform:translateX(-20px);opacity:0}20%{opacity:1}80%{opacity:1}100%{transform:translateX(20px);opacity:0}}
+#strengthMeter{height:18px;border-radius:9px;background:#1e293b;border:1px solid #334155;overflow:hidden;margin:8px 0}
+#strengthBar{height:100%;width:30%;background:linear-gradient(90deg,#2563eb,#7c3aed);border-radius:9px;transition:width .5s,background .5s}
+.tab-row{display:flex;gap:6px;margin:10px 0;flex-wrap:wrap}
+.tab{padding:6px 14px;border-radius:8px;cursor:pointer;font-size:.82rem;background:#1e293b;border:1px solid #334155;color:#94a3b8;transition:all .2s}
+.tab.on{background:#1e3a5f;color:#60a5fa;border-color:#3b82f6}
+.section{display:none}.section.on{display:block}
+</style>
+</head>
+<body>
+<div id="titlebar">
+  <svg width="28" height="28" viewBox="0 0 28 28"><circle cx="14" cy="14" r="13" fill="#1e40af"/><path d="M6 14h16M14 6v16" stroke="#60a5fa" stroke-width="2.5" stroke-linecap="round"/><circle cx="14" cy="14" r="4" fill="#7c3aed"/></svg>
+  <h1>⚡ Electromagnet &amp; Solenoid</h1>
+  <span>Class 10 Science</span>
+</div>
+<div class="container">
+  <div class="formula-box">
+    <div class="f">B ∝ n · I</div>
+    <div class="sub">Magnetic Field (B) ∝ Number of Turns (n) × Current (I) &nbsp;|&nbsp; <span class="hindi">चुम्बकीय क्षेत्र (B) ∝ कुण्डली के फेरे (n) × धारा (I)</span></div>
+  </div>
+  <div class="tab-row">
+    <div class="tab on" onclick="showTab('sol')">🔘 Solenoid (परिनालिका)</div>
+    <div class="tab" onclick="showTab('em')">🧲 Electromagnet (विद्युत चुम्बक)</div>
+    <div class="tab" onclick="showTab('quiz')">📝 Quiz</div>
+  </div>
+
+  <div id="sol" class="section on">
+    <div class="card">
+      <h3>Solenoid — परिनालिका</h3>
+      <p style="font-size:.83rem;color:#94a3b8;margin-bottom:10px">A <strong style="color:#60a5fa">solenoid</strong> is a long coil of wire with many circular turns. When current flows, it behaves like a bar magnet. <span class="hindi">जब तार की कुण्डली में धारा प्रवाहित होती है, तो यह दण्ड चुम्बक की तरह कार्य करती है।</span></p>
+      <div class="slider-wrap">
+        <label><span>फेरों की संख्या (Turns): <strong id="tv">8</strong></span></label>
+        <input type="range" min="3" max="16" value="8" id="turns" oninput="updateSol()">
+      </div>
+      <div class="slider-wrap">
+        <label><span>धारा Current (A): <strong id="cv">3</strong></span></label>
+        <input type="range" min="1" max="10" value="3" id="curr" oninput="updateSol()">
+      </div>
+      <div class="slider-wrap">
+        <label><span>लोह क्रोड Iron Core: </span>
+          <button class="btn" id="coreBtn" onclick="toggleCore()">Add Core ➕</button>
+        </label>
+      </div>
+      <canvas id="solenoidCanvas" height="180"></canvas>
+      <div style="margin-top:8px">Magnetic Field Strength:<div id="strengthMeter"><div id="strengthBar"></div></div>
+      <span id="strengthLabel" style="font-size:.8rem;color:#94a3b8"></span></div>
+    </div>
+    <div class="info-grid">
+      <div class="card" style="margin:0">
+        <h3>N-Pole (उत्तर ध्रुव)</h3>
+        <p style="font-size:.82rem;color:#94a3b8">End where current flows <strong>anticlockwise</strong> = North Pole<br><span class="hindi">जहाँ धारा वामावर्त — वह उत्तर ध्रुव</span></p>
+      </div>
+      <div class="card" style="margin:0">
+        <h3>Right Hand Rule</h3>
+        <p style="font-size:.82rem;color:#94a3b8">Curl fingers in current direction → thumb points to N-Pole<br><span class="hindi">दाहिने हाथ का नियम</span></p>
+      </div>
+    </div>
+  </div>
+
+  <div id="em" class="section">
+    <div class="card">
+      <h3>Electromagnet — विद्युत चुम्बक</h3>
+      <p style="font-size:.83rem;color:#94a3b8;margin-bottom:10px">An <strong style="color:#60a5fa">electromagnet</strong> is a solenoid with a soft iron core. Magnetic power can be switched ON/OFF. <span class="hindi">लोह क्रोड वाली परिनालिका को विद्युत चुम्बक कहते हैं। इसे बंद/चालू किया जा सकता है।</span></p>
+      <canvas id="emCanvas" width="100%" height="200" style="width:100%;border-radius:10px;background:#0f172a;display:block"></canvas>
+      <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+        <button class="btn" id="pwrBtn" onclick="togglePower()">⚡ Power ON</button>
+        <button class="btn" onclick="addObject()">🔩 Add Object</button>
+        <button class="btn" onclick="clearObj()">🗑 Clear</button>
+        <span id="pwrStatus" class="badge">OFF</span>
+      </div>
+      <div id="attractInfo" style="font-size:.82rem;color:#f59e0b;margin-top:6px;display:none">✅ विद्युत चुम्बक लोहे की वस्तु को आकर्षित कर रहा है! (Electromagnet attracting iron object!)</div>
+    </div>
+    <div class="card">
+      <h3>Factors Affecting Strength — शक्ति को प्रभावित करने वाले कारक</h3>
+      <div class="info-grid" style="margin:0">
+        <div style="background:#0f172a;border-radius:8px;padding:10px;border:1px solid #1e3a5f">
+          <div style="color:#34d399;font-size:.85rem;font-weight:700">⬆ Increase करने पर</div>
+          <ul style="font-size:.8rem;color:#94a3b8;margin-top:6px;padding-left:14px;line-height:1.8">
+            <li>More turns (अधिक फेरे)</li>
+            <li>More current (अधिक धारा)</li>
+            <li>Soft iron core (लोह क्रोड)</li>
+          </ul>
+        </div>
+        <div style="background:#0f172a;border-radius:8px;padding:10px;border:1px solid #1e3a5f">
+          <div style="color:#f87171;font-size:.85rem;font-weight:700">⬇ Decrease करने पर</div>
+          <ul style="font-size:.8rem;color:#94a3b8;margin-top:6px;padding-left:14px;line-height:1.8">
+            <li>Fewer turns (कम फेरे)</li>
+            <li>Less current (कम धारा)</li>
+            <li>No core (बिना क्रोड)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Uses — उपयोग</h3>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px">
+        <span class="badge">🏥 MRI Machines</span>
+        <span class="badge">📞 Electric Bell</span>
+        <span class="badge">🔊 Loudspeakers</span>
+        <span class="badge">🏗 Cranes (क्रेन)</span>
+        <span class="badge">🚂 Maglev Trains</span>
+        <span class="badge">⚙ Motors</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="quiz" class="section">
+    <div class="card">
+      <h3>📝 Quick Quiz — त्वरित प्रश्नोत्तर</h3>
+      <div id="qbox"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+let hasCore=false,powered=false,objects=[],animFrame,emCtx,solCtx;
+const qs=[
+  {q:"Which end of a solenoid is the North Pole?",h:"परिनालिका का कौन-सा सिरा उत्तर ध्रुव होता है?",opts:["Where current is clockwise","Where current is anticlockwise","Middle","No poles"],ans:1},
+  {q:"What makes an electromagnet stronger?",h:"विद्युत चुम्बक को शक्तिशाली कैसे बनाएं?",opts:["Less current","More turns + More current","Remove iron core","Short wire"],ans:1},
+  {q:"Electromagnet has which core?",h:"विद्युत चुम्बक में कौन-सा क्रोड होता है?",opts:["Steel","Copper","Soft Iron","Aluminium"],ans:2},
+  {q:"Formula: Magnetic field is proportional to?",h:"B किसके समानुपाती है?",opts:["B∝V","B∝n·I","B∝R","B∝1/I"],ans:1}
+];
+let qi=0,score=0;
+
+function showTab(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  event.target.classList.add('on');
+  if(id==='em')requestAnimationFrame(drawEM);
+  if(id==='sol')drawSolenoid();
+  if(id==='quiz'){qi=0;score=0;renderQ();}
+}
+
+function renderQ(){
+  if(qi>=qs.length){document.getElementById('qbox').innerHTML=`<div style="text-align:center;padding:20px"><div style="font-size:2rem">🎉</div><div style="color:#34d399;font-size:1.2rem;font-weight:700">Score: ${score}/${qs.length}</div><button class="btn" onclick="qi=0;score=0;renderQ()">Retry</button></div>`;return;}
+  const q=qs[qi];
+  document.getElementById('qbox').innerHTML=`<div style="margin-bottom:10px"><span style="color:#60a5fa;font-weight:700">Q${qi+1}.</span> ${q.q}<br><span class="hindi">${q.h}</span></div>${q.opts.map((o,i)=>`<button class="btn" style="display:block;width:100%;text-align:left;margin:4px 0" onclick="checkA(${i})">${String.fromCharCode(65+i)}) ${o}</button>`).join('')}<div style="color:#94a3b8;font-size:.8rem;margin-top:6px">Score: ${score}/${qi}</div>`;
+}
+
+function checkA(i){const q=qs[qi];const btns=document.querySelectorAll('#qbox .btn');btns.forEach((b,j)=>{b.style.background=j===q.ans?'linear-gradient(135deg,#16a34a,#059669)':j===i&&i!==q.ans?'linear-gradient(135deg,#dc2626,#991b1b)':'';b.disabled=true;});if(i===q.ans)score++;setTimeout(()=>{qi++;renderQ();},900);}
+
+function toggleCore(){
+  hasCore=!hasCore;
+  document.getElementById('coreBtn').textContent=hasCore?'Remove Core ➖':'Add Core ➕';
+  drawSolenoid();updateStrength();
+}
+
+function updateSol(){
+  document.getElementById('tv').textContent=document.getElementById('turns').value;
+  document.getElementById('cv').textContent=document.getElementById('curr').value;
+  drawSolenoid();updateStrength();
+}
+
+function updateStrength(){
+  const n=+document.getElementById('turns').value;
+  const I=+document.getElementById('curr').value;
+  const core=hasCore?1.5:1;
+  const pct=Math.min(100,Math.round(n*I*core*100/(16*10*1.5)));
+  document.getElementById('strengthBar').style.width=pct+'%';
+  document.getElementById('strengthBar').style.background=pct>70?'linear-gradient(90deg,#16a34a,#34d399)':pct>40?'linear-gradient(90deg,#d97706,#fbbf24)':'linear-gradient(90deg,#2563eb,#7c3aed)';
+  document.getElementById('strengthLabel').textContent=`Strength: ${pct}% ${pct>70?'(Strong — शक्तिशाली)':pct>40?'(Medium — मध्यम)':'(Weak — कमज़ोर)'}`;
+}
+
+function drawSolenoid(){
+  const canvas=document.getElementById('solenoidCanvas');
+  const ctx=canvas.getContext('2d');
+  canvas.width=canvas.offsetWidth||320;
+  const W=canvas.width,H=180;
+  ctx.clearRect(0,0,W,H);
+  const n=+document.getElementById('turns').value;
+  const I=+document.getElementById('curr').value;
+  const cx=W/2,cy=H/2;
+  const len=W*0.7,top=cy-32,bot=cy+32;
+  const x0=cx-len/2,x1=cx+len/2;
+
+  if(hasCore){
+    const grad=ctx.createLinearGradient(x0,0,x1,0);
+    grad.addColorStop(0,'#374151');grad.addColorStop(.5,'#6b7280');grad.addColorStop(1,'#374151');
+    ctx.fillStyle=grad;
+    ctx.beginPath();ctx.roundRect(x0,cy-14,len,28,4);ctx.fill();
+    ctx.strokeStyle='#9ca3af';ctx.lineWidth=1;ctx.stroke();
+    ctx.fillStyle='#9ca3af';ctx.font='11px sans-serif';ctx.fillText('Iron Core (लोह क्रोड)',cx-45,cy+5);
+  }
+
+  const step=len/n;
+  ctx.lineWidth=2.5;
+  for(let i=0;i<n;i++){
+    const lx=x0+i*step+step/2;
+    const alpha=0.5+0.5*(i/n);
+    ctx.strokeStyle=`rgba(96,165,250,${alpha})`;
+    ctx.beginPath();
+    ctx.ellipse(lx,cy,step*0.38,32,0,0,Math.PI*2);
+    ctx.stroke();
+    // current direction arrows
+    ctx.fillStyle='#f59e0b';
+    ctx.font='9px sans-serif';
+    const dir=I>5?'→':'←';
+    ctx.fillText(dir,lx-4,top-4);
+  }
+
+  // Field lines outside
+  const strength=Math.min(1,(n*I)/(16*10));
+  ctx.save();
+  ctx.globalAlpha=0.3+0.5*strength;
+  ctx.setLineDash([4,4]);
+  const colors=['#60a5fa','#818cf8','#a78bfa'];
+  [-18,-6,6,18].forEach((oy,ii)=>{
+    ctx.strokeStyle=colors[ii%3];ctx.lineWidth=1.2;
+    ctx.beginPath();
+    ctx.moveTo(x1,cy+oy);
+    ctx.bezierCurveTo(x1+40,cy+oy-40,cx,cy+oy-55,x0,cy+oy);
+    ctx.bezierCurveTo(x0-40,cy+oy+40,cx,cy+oy+55,x1,cy+oy);
+    ctx.stroke();
+  });
+  ctx.setLineDash([]);ctx.restore();
+
+  // Poles
+  ctx.font='bold 13px sans-serif';
+  ctx.fillStyle='#f87171';ctx.fillText('S',x0-16,cy+5);
+  ctx.fillStyle='#34d399';ctx.fillText('N',x1+4,cy+5);
+
+  // Labels
+  ctx.fillStyle='#94a3b8';ctx.font='11px sans-serif';
+  ctx.fillText(`n=${n} turns`,x0,H-8);
+  ctx.fillText(`I=${I}A`,x1-30,H-8);
+}
+
+function togglePower(){
+  powered=!powered;
+  document.getElementById('pwrBtn').textContent=powered?'⚡ Power OFF':'⚡ Power ON';
+  document.getElementById('pwrBtn').className='btn'+(powered?' active':'');
+  document.getElementById('pwrStatus').textContent=powered?'ON':'OFF';
+  document.getElementById('pwrStatus').style.color=powered?'#34d399':'#f87171';
+  document.getElementById('attractInfo').style.display=powered&&objects.length?'block':'none';
+  drawEM();
+}
+
+function addObject(){
+  if(objects.length<4)objects.push({x:0.7+Math.random()*0.15,y:0.3+Math.random()*0.4});
+  document.getElementById('attractInfo').style.display=powered&&objects.length?'block':'none';
+  drawEM();
+}
+
+function clearObj(){objects=[];document.getElementById('attractInfo').style.display='none';drawEM();}
+
+let emT=0;
+function drawEM(){
+  const canvas=document.getElementById('emCanvas');
+  if(!canvas)return;
+  canvas.width=canvas.offsetWidth||320;
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width,H=200;
+  ctx.clearRect(0,0,W,H);
+  const cx=W/2,cy=H/2;
+  const len=W*0.55,ht=50;
+  const x0=cx-len/2,x1=cx+len/2;
+
+  // Iron core
+  const cg=ctx.createLinearGradient(x0,0,x1,0);
+  cg.addColorStop(0,'#374151');cg.addColorStop(.5,'#6b7280');cg.addColorStop(1,'#374151');
+  ctx.fillStyle=cg;ctx.beginPath();ctx.roundRect(x0,cy-ht/2,len,ht,6);ctx.fill();
+  ctx.strokeStyle='#4b5563';ctx.lineWidth=1.5;ctx.stroke();
+
+  // Coil
+  const n=10,step=len/n;
+  for(let i=0;i<n;i++){
+    const lx=x0+i*step+step/2;
+    ctx.strokeStyle=powered?`rgba(251,191,36,0.9)`:`rgba(96,165,250,0.5)`;
+    ctx.lineWidth=2.5;
+    ctx.beginPath();ctx.ellipse(lx,cy,step*0.42,ht/2+6,0,0,Math.PI*2);ctx.stroke();
+  }
+
+  // Poles when powered
+  if(powered){
+    ctx.fillStyle='#34d399';ctx.font='bold 15px sans-serif';ctx.fillText('N',x0-20,cy+5);
+    ctx.fillStyle='#f87171';ctx.fillText('S',x1+6,cy+5);
+    // Field lines animate
+    emT+=0.05;
+    ctx.save();ctx.globalAlpha=0.4;ctx.setLineDash([5,5]);
+    ctx.lineDashOffset=-emT*10%20;
+    [cy-14,cy,cy+14].forEach(oy=>{
+      ctx.strokeStyle='#60a5fa';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(x0-20,oy);ctx.lineTo(x0,oy);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(x1,oy);ctx.lineTo(x1+20,oy);ctx.stroke();
+    });
+    ctx.setLineDash([]);ctx.restore();
+    requestAnimationFrame(drawEM);
+  }
+
+  // Battery
+  const bx=W-38,by=cy;
+  ctx.strokeStyle='#fbbf24';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(bx,by-20);ctx.lineTo(bx,by+20);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(bx+6,by-12);ctx.lineTo(bx+6,by+12);ctx.stroke();
+  ctx.fillStyle='#fbbf24';ctx.font='10px sans-serif';ctx.fillText('🔋',bx-6,by+35);
+
+  // Objects
+  objects.forEach(o=>{
+    const ox=o.x*W,oy=o.y*H;
+    const tx=powered?x1+(ox-x1)*0.3:ox;
+    ctx.fillStyle=powered?'#f87171':'#94a3b8';
+    ctx.beginPath();ctx.roundRect(tx-8,oy-6,16,12,3);ctx.fill();
+    ctx.fillStyle='#fff';ctx.font='9px sans-serif';ctx.fillText('Fe',tx-6,oy+4);
+  });
+
+  // Labels
+  ctx.fillStyle='#64748b';ctx.font='11px sans-serif';
+  ctx.fillText('Electromagnet (विद्युत चुम्बक)',cx-65,H-6);
+}
+
+// Init
+window.addEventListener('load',()=>{
+  setTimeout(()=>{drawSolenoid();updateStrength();drawEM();},100);
+});
+window.addEventListener('resize',()=>{drawSolenoid();drawEM();});
+</script>
+</body>
+</html>

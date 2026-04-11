@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Electric Power & Energy | Class 10 Science</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f172a;color:#e2e8f0;font-family:'Segoe UI',sans-serif;min-height:100vh;overflow-x:hidden}
+header{background:linear-gradient(135deg,#1e3a5f,#0f172a);padding:12px 20px;border-bottom:2px solid #3b82f6;display:flex;align-items:center;gap:12px}
+header h1{font-size:1.1rem;color:#60a5fa}header span{font-size:.8rem;color:#94a3b8}
+.badge{background:#3b82f6;color:#fff;padding:2px 8px;border-radius:12px;font-size:.7rem}
+.container{max-width:900px;margin:0 auto;padding:16px}
+.section{background:#1e293b;border-radius:12px;padding:16px;margin-bottom:16px;border:1px solid #334155}
+h2{color:#60a5fa;font-size:1rem;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+h2::before{content:'⚡';font-size:1.1rem}
+.formula-box{background:linear-gradient(135deg,#1e3a5f,#162032);border:2px solid #3b82f6;border-radius:10px;padding:14px;text-align:center;margin:10px 0}
+.formula{font-size:1.4rem;color:#fbbf24;font-weight:bold;letter-spacing:1px}
+.formula-sub{font-size:.8rem;color:#94a3b8;margin-top:4px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:600px){.grid2{grid-template-columns:1fr}}
+.card{background:#0f172a;border-radius:8px;padding:12px;border:1px solid #334155}
+.card h3{color:#f59e0b;font-size:.85rem;margin-bottom:8px}
+.card p{font-size:.78rem;color:#cbd5e1;line-height:1.5}
+.hindi{color:#a78bfa;font-size:.75rem;font-style:italic}
+canvas{display:block;margin:0 auto}
+.slider-row{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:.82rem}
+.slider-row label{min-width:90px;color:#94a3b8}
+input[type=range]{flex:1;accent-color:#3b82f6;cursor:pointer}
+.val{min-width:60px;color:#fbbf24;font-weight:bold;text-align:right}
+.result-box{background:#0f172a;border-radius:8px;padding:10px 14px;margin-top:10px;border:1px solid #3b82f6}
+.result-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid #1e293b;font-size:.82rem}
+.result-row:last-child{border-bottom:none}
+.result-val{color:#34d399;font-weight:bold}
+.tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.tab{padding:6px 14px;border-radius:20px;border:1px solid #334155;background:#0f172a;color:#94a3b8;cursor:pointer;font-size:.78rem;transition:.2s}
+.tab.active{background:#3b82f6;color:#fff;border-color:#3b82f6}
+.tab-content{display:none}.tab-content.active{display:block}
+.bulb-container{display:flex;justify-content:center;align-items:center;gap:20px;flex-wrap:wrap;padding:10px}
+.bulb-wrap{text-align:center;cursor:pointer}
+.bulb-wrap p{font-size:.75rem;color:#94a3b8;margin-top:4px}
+.bulb-wrap span{font-size:.7rem;color:#fbbf24}
+@keyframes glow{0%,100%{filter:drop-shadow(0 0 6px #fbbf24)}50%{filter:drop-shadow(0 0 14px #fbbf24)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+@keyframes spark{0%{opacity:1;transform:translate(0,0)}100%{opacity:0;transform:translate(var(--dx),var(--dy))}}
+.glow{animation:glow 1.5s infinite}
+.fact-box{background:#0f172a;border-left:3px solid #f59e0b;padding:8px 12px;border-radius:0 8px 8px 0;margin:8px 0;font-size:.78rem;color:#cbd5e1}
+.kwh-demo{display:flex;align-items:center;justify-content:space-around;flex-wrap:wrap;gap:10px;padding:10px 0}
+.kwh-item{text-align:center;background:#0f172a;border-radius:8px;padding:8px 12px;border:1px solid #334155;cursor:pointer;transition:.2s}
+.kwh-item:hover{border-color:#3b82f6;transform:translateY(-2px)}
+.kwh-item .icon{font-size:1.6rem}
+.kwh-item .name{font-size:.7rem;color:#94a3b8;margin-top:2px}
+.kwh-item .kwh{font-size:.75rem;color:#34d399;font-weight:bold}
+.progress-bar{height:8px;background:#1e293b;border-radius:4px;margin-top:6px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#3b82f6,#60a5fa);border-radius:4px;transition:width .5s}
+#billResult{background:linear-gradient(135deg,#1e3a5f,#0f172a);border:1px solid #f59e0b;border-radius:8px;padding:12px;margin-top:10px;display:none}
+#billResult .bill-total{font-size:1.3rem;color:#fbbf24;font-weight:bold;text-align:center}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>⚡ Electric Power &amp; Energy</h1>
+    <div style="display:flex;gap:6px;align-items:center;margin-top:3px">
+      <span>CBSE Class 10 Science | Chapter 12</span>
+      <div class="badge">Interactive</div>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+<!-- Formula Section -->
+<div class="section">
+  <h2>Key Formulas <span class="hindi">मुख्य सूत्र</span></h2>
+  <div class="grid2">
+    <div class="formula-box">
+      <div class="formula">P = V × I</div>
+      <div class="formula-sub">Power = Voltage × Current</div>
+      <div class="hindi">शक्ति = वोल्टेज × धारा</div>
+    </div>
+    <div class="formula-box">
+      <div class="formula">P = I²R</div>
+      <div class="formula-sub">Power (Joule's Heating)</div>
+      <div class="hindi">जूल तापन</div>
+    </div>
+    <div class="formula-box">
+      <div class="formula">P = V²/R</div>
+      <div class="formula-sub">Power from Voltage &amp; Resistance</div>
+      <div class="hindi">प्रतिरोध से शक्ति</div>
+    </div>
+    <div class="formula-box">
+      <div class="formula">E = P × t</div>
+      <div class="formula-sub">Energy = Power × Time (Joules)</div>
+      <div class="hindi">ऊर्जा = शक्ति × समय</div>
+    </div>
+  </div>
+  <div class="fact-box">💡 <strong>1 kWh = 1 Unit</strong> (used in electricity bills) = 3.6 × 10⁶ J &nbsp;|&nbsp; <span class="hindi">विद्युत बिल में 1 यूनिट = 1 किलोवाट-घंटा</span></div>
+</div>
+
+<!-- Interactive Calculator -->
+<div class="section">
+  <h2>Power Calculator <span class="hindi">शक्ति कैलकुलेटर</span></h2>
+  <div class="slider-row"><label>Voltage (V)</label><input type="range" id="volt" min="1" max="240" value="220" oninput="calc()"><span class="val" id="vv">220 V</span></div>
+  <div class="slider-row"><label>Current (A)</label><input type="range" id="curr" min="0.1" max="15" value="1" step="0.1" oninput="calc()"><span class="val" id="cv">1.0 A</span></div>
+  <div class="slider-row"><label>Resistance (Ω)</label><input type="range" id="res" min="1" max="500" value="220" oninput="calcR()"><span class="val" id="rv">220 Ω</span></div>
+  <div class="slider-row"><label>Time (hrs)</label><input type="range" id="hrs" min="1" max="24" value="5" oninput="calc()"><span class="val" id="hv">5 h</span></div>
+  <div class="result-box">
+    <div class="result-row"><span>Power P = V×I</span><span class="result-val" id="pvi">—</span></div>
+    <div class="result-row"><span>Power P = I²R</span><span class="result-val" id="pi2r">—</span></div>
+    <div class="result-row"><span>Energy (Joules)</span><span class="result-val" id="ej">—</span></div>
+    <div class="result-row"><span>Energy (kWh / Units)</span><span class="result-val" id="ekwh">—</span></div>
+  </div>
+  <canvas id="powerCanvas" width="340" height="130" style="margin-top:12px;border-radius:8px"></canvas>
+</div>
+
+<!-- Appliances & Bill -->
+<div class="section">
+  <h2>Electricity Bill Calculator <span class="hindi">बिजली बिल</span></h2>
+  <p style="font-size:.78rem;color:#94a3b8;margin-bottom:10px">Click appliances to toggle ON/OFF. <span class="hindi">उपकरण चालू/बंद करें।</span></p>
+  <div class="kwh-demo" id="applianceGrid"></div>
+  <div class="slider-row" style="margin-top:10px"><label>Days</label><input type="range" id="days" min="1" max="30" value="30" oninput="updateBill()"><span class="val" id="dv">30 days</span></div>
+  <div class="slider-row"><label>Rate (₹/unit)</label><input type="range" id="rate" min="3" max="10" value="5" step="0.5" oninput="updateBill()"><span class="val" id="rtv">₹5.0</span></div>
+  <div id="billResult">
+    <div style="font-size:.78rem;color:#94a3b8;margin-bottom:6px" id="billBreak"></div>
+    <div class="bill-total" id="billTotal"></div>
+    <div style="font-size:.7rem;color:#94a3b8;text-align:center;margin-top:4px" id="billUnits"></div>
+  </div>
+</div>
+
+<!-- Concept Tabs -->
+<div class="section">
+  <h2>Concepts <span class="hindi">अवधारणाएँ</span></h2>
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('t1',this)">Watt</div>
+    <div class="tab" onclick="showTab('t2',this)">Joule Heating</div>
+    <div class="tab" onclick="showTab('t3',this)">kWh Unit</div>
+    <div class="tab" onclick="showTab('t4',this)">Bulb Demo</div>
+  </div>
+  <div class="tab-content active" id="t1">
+    <div class="grid2">
+      <div class="card"><h3>🔌 Watt (W)</h3><p>SI unit of power. 1 Watt = 1 Joule per second.<br><span class="hindi">1 वाट = 1 जूल प्रति सेकंड</span></p><div class="fact-box" style="margin-top:8px">A 100W bulb uses 100 J of energy every second!</div></div>
+      <div class="card"><h3>📊 Power Rating</h3><p>Every appliance has a rated power. Higher watts = more energy consumed per second.<br><span class="hindi">अधिक वाट = प्रति सेकंड अधिक ऊर्जा</span></p></div>
+    </div>
+  </div>
+  <div class="tab-content" id="t2">
+    <div class="card"><h3>🔥 Joule's Heating (जूल तापन)</h3><p>When current flows through a resistor, electrical energy converts to heat.<br><strong>H = I²Rt</strong> (in Joules)<br><span class="hindi">जब धारा प्रतिरोध से गुजरती है तो ऊष्मा उत्पन्न होती है।</span></p></div>
+    <canvas id="heatCanvas" width="340" height="100" style="margin-top:10px;border-radius:8px"></canvas>
+  </div>
+  <div class="tab-content" id="t3">
+    <div class="card"><h3>⚡ Kilowatt-hour (kWh)</h3><p>Commercial unit of energy.<br><strong>1 kWh = 1000W × 3600s = 3.6 × 10⁶ J</strong><br><span class="hindi">व्यावसायिक ऊर्जा की इकाई। 1 यूनिट = 1 kWh</span><br><br>Example: A 1000W (1kW) appliance running for 1 hour uses <strong>1 kWh = 1 Unit</strong>.</p></div>
+    <div class="fact-box">🏠 Your electricity meter counts units (kWh). Rate × Units = Bill Amount <span class="hindi">| मीटर kWh गिनता है।</span></div>
+  </div>
+  <div class="tab-content" id="t4">
+    <p style="font-size:.78rem;color:#94a3b8;margin-bottom:8px">Click a bulb to toggle. Higher wattage = brighter glow. <span class="hindi">बल्ब क्लिक करें।</span></p>
+    <div class="bulb-container" id="bulbContainer"></div>
+  </div>
+</div>
+
+</div>
+
+<script>
+// --- Calculator ---
+function calc(){
+  const V=+document.getElementById('volt').value;
+  const I=+document.getElementById('curr').value;
+  const R=+document.getElementById('res').value;
+  const t=+document.getElementById('hrs').value;
+  document.getElementById('vv').textContent=V+' V';
+  document.getElementById('cv').textContent=I.toFixed(1)+' A';
+  document.getElementById('hv').textContent=t+' h';
+  const pvi=V*I;
+  const pi2r=I*I*R;
+  const ej=pvi*t*3600;
+  const ekwh=(pvi*t)/1000;
+  document.getElementById('pvi').textContent=pvi.toFixed(1)+' W';
+  document.getElementById('pi2r').textContent=pi2r.toFixed(1)+' W';
+  document.getElementById('ej').textContent=ej.toFixed(0)+' J';
+  document.getElementById('ekwh').textContent=ekwh.toFixed(3)+' kWh';
+  drawPowerBar(pvi,V,I,R,t);
+}
+function calcR(){
+  const R=+document.getElementById('res').value;
+  document.getElementById('rv').textContent=R+' Ω';
+  calc();
+}
+
+function drawPowerBar(pvi,V,I,R,t){
+  const c=document.getElementById('powerCanvas');
+  const ctx=c.getContext('2d');
+  c.width=c.offsetWidth||340;
+  ctx.clearRect(0,0,c.width,c.height);
+  ctx.fillStyle='#0f172a';ctx.fillRect(0,0,c.width,c.height);
+  const labels=['P=VI','P=I²R','Energy(kJ)'];
+  const vals=[pvi,I*I*R,(pvi*t*3.6)/1000];
+  const max=Math.max(...vals,1);
+  const colors=['#3b82f6','#f59e0b','#34d399'];
+  const bw=c.width/4;
+  vals.forEach((v,i)=>{
+    const x=20+i*(bw+10);
+    const bh=Math.min((v/max)*90,90);
+    const y=110-bh;
+    ctx.fillStyle=colors[i];
+    ctx.beginPath();ctx.roundRect(x,y,bw-10,bh,4);ctx.fill();
+    ctx.fillStyle='#e2e8f0';ctx.font='10px Segoe UI';ctx.textAlign='center';
+    ctx.fillText(labels[i],x+bw/2-5,125);
+    ctx.fillStyle='#fbbf24';ctx.font='bold 10px Segoe UI';
+    ctx.fillText(v.toFixed(1),x+bw/2-5,y-4);
+  });
+}
+
+// --- Appliances ---
+const appliances=[
+  {icon:'💡',name:'Bulb',watts:60,hrs:5},{icon:'📺',name:'TV',watts:150,hrs:4},
+  {icon:'❄️',name:'AC',watts:1500,hrs:6},{icon:'🌀',name:'Fan',watts:75,hrs:8},
+  {icon:'🍳',name:'Heater',watts:1000,hrs:1},{icon:'🧺',name:'Washer',watts:500,hrs:1},
+  {icon:'💻',name:'Laptop',watts:65,hrs:5},{icon:'🔌',name:'Fridge',watts:200,hrs:24}
+];
+let appState=appliances.map(()=>true);
+
+function buildAppliances(){
+  const g=document.getElementById('applianceGrid');
+  appliances.forEach((a,i)=>{
+    const d=document.createElement('div');
+    d.className='kwh-item';d.id='app'+i;
+    d.innerHTML=`<div class="icon">${a.icon}</div><div class="name">${a.name}</div><div style="font-size:.7rem;color:#60a5fa">${a.watts}W×${a.hrs}h</div><div class="kwh" id="akwh${i}"></div><div class="progress-bar"><div class="progress-fill" id="aprog${i}"></div></div>`;
+    d.onclick=()=>toggleApp(i);
+    g.appendChild(d);
+  });
+  updateBill();
+}
+
+function toggleApp(i){
+  appState[i]=!appState[i];
+  const el=document.getElementById('app'+i);
+  el.style.opacity=appState[i]?'1':'0.4';
+  el.style.borderColor=appState[i]?'#334155':'#1e293b';
+  updateBill();
+}
+
+function updateBill(){
+  const days=+document.getElementById('days').value;
+  const rate=+document.getElementById('rate').value;
+  document.getElementById('dv').textContent=days+' days';
+  document.getElementById('rtv').textContent='₹'+rate.toFixed(1);
+  let totalUnits=0;
+  let breakText='';
+  appliances.forEach((a,i)=>{
+    const units=appState[i]?(a.watts*a.hrs*days)/1000:0;
+    totalUnits+=units;
+    const kwh=(a.watts*a.hrs*days/1000).toFixed(1);
+    document.getElementById('akwh'+i).textContent=appState[i]?kwh+' kWh':'OFF';
+    const maxK=(appliances.reduce((s,x)=>s+x.watts*x.hrs*days/1000,0))||1;
+    const pct=appState[i]?Math.round((a.watts*a.hrs*days/1000/maxK)*100):0;
+    document.getElementById('aprog'+i).style.width=pct+'%';
+  });
+  const bill=totalUnits*rate;
+  const br=document.getElementById('billResult');
+  br.style.display='block';
+  document.getElementById('billTotal').textContent='💰 Total Bill: ₹'+bill.toFixed(2);
+  document.getElementById('billUnits').textContent=totalUnits.toFixed(2)+' kWh (Units) × ₹'+rate.toFixed(1)+'/unit';
+}
+
+// --- Heat Canvas ---
+function drawHeat(){
+  const c=document.getElementById('heatCanvas');
+  if(!c)return;
+  const ctx=c.getContext('2d');
+  c.width=c.offsetWidth||340;
+  ctx.clearRect(0,0,c.width,c.height);
+  ctx.fillStyle='#0f172a';ctx.fillRect(0,0,c.width,c.height);
+  // Wire
+  ctx.strokeStyle='#94a3b8';ctx.lineWidth=4;
+  ctx.beginPath();ctx.moveTo(20,50);ctx.lineTo(c.width-20,50);ctx.stroke();
+  // Resistor
+  const rw=80,rx=(c.width-rw)/2,ry=38;
+  ctx.fillStyle='#92400e';ctx.beginPath();ctx.roundRect(rx,ry,rw,24,4);ctx.fill();
+  ctx.fillStyle='#fbbf24';ctx.font='bold 11px Segoe UI';ctx.textAlign='center';
+  ctx.fillText('R (Ω)',c.width/2,54);
+  // Heat waves
+  const t=Date.now()/400;
+  for(let j=0;j<5;j++){
+    const ox=rx+10+j*14;
+    ctx.strokeStyle=`rgba(251,146,60,${0.4+0.3*Math.sin(t+j)})`;
+    ctx.lineWidth=1.5;ctx.beginPath();
+    ctx.moveTo(ox,38);ctx.quadraticCurveTo(ox+5,28+4*Math.sin(t+j),ox+10,38);ctx.stroke();
+  }
+  ctx.fillStyle='#f97316';ctx.font='10px Segoe UI';ctx.textAlign='center';
+  ctx.fillText('Heat → H = I²Rt',c.width/2,90);
+  requestAnimationFrame(drawHeat);
+}
+
+// --- Bulbs ---
+const bulbData=[{w:25,color:'#fde68a'},{w:60,color:'#fbbf24'},{w:100,color:'#f59e0b'},{w:200,color:'#fcd34d'}];
+let bulbState=bulbData.map(()=>false);
+
+function buildBulbs(){
+  const bc=document.getElementById('bulbContainer');
+  bulbData.forEach((b,i)=>{
+    const wrap=document.createElement('div');wrap.className='bulb-wrap';
+    const svg=makeBulbSVG(b,i);
+    wrap.innerHTML=svg+`<p>${b.w}W</p><span id="bst${i}">OFF</span>`;
+    wrap.onclick=()=>{bulbState[i]=!bulbState[i];updateBulb(i,b);};
+    bc.appendChild(wrap);
+  });
+}
+
+function makeBulbSVG(b,i){
+  return`<svg id="bsvg${i}" width="50" height="70" viewBox="0 0 50 70">
+    <ellipse cx="25" cy="28" rx="18" ry="20" fill="#1e293b" stroke="#334155" stroke-width="1.5" id="bglobe${i}"/>
+    <rect x="18" y="47" width="14" height="5" rx="2" fill="#334155" id="bbase${i}"/>
+    <rect x="20" y="52" width="10" height="5" rx="2" fill="#475569"/>
+    <line x1="21" y1="35" x2="21" y2="25" stroke="#94a3b8" stroke-width="1"/>
+    <line x1="29" y1="35" x2="29" y2="25" stroke="#94a3b8" stroke-width="1"/>
+  </svg>`;
+}
+
+function updateBulb(i,b){
+  const globe=document.getElementById('bglobe'+i);
+  const bst=document.getElementById('bst'+i);
+  const svg=document.getElementById('bsvg'+i);
+  if(bulbState[i]){
+    const alpha=0.3+b.w/250;
+    globe.setAttribute('fill',b.color);
+    globe.setAttribute('filter',`url(#gf${i})`);
+    svg.innerHTML+=`<defs><filter id="gf${i}"><feGaussianBlur stdDeviation="${2+b.w/80}"/></filter></defs>`;
+    svg.classList.add('glow');
+    bst.textContent='ON';bst.style.color='#34d399';
+  }else{
+    globe.setAttribute('fill','#1e293b');
+    svg.classList.remove('glow');
+    bst.textContent='OFF';bst.style.color='#94a3b8';
+  }
+}
+
+// --- Tabs ---
+function showTab(id,el){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+  if(id==='t2')drawHeat();
+}
+
+// Init
+calc();buildAppliances();buildBulbs();
+window.addEventListener('resize',calc);
+</script>
+</body>
+</html>

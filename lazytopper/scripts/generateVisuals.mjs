@@ -11,9 +11,10 @@ const MANIFEST_PATH = path.join(PUBLIC_DIR, "manifest.json");
 const BASE_URL = process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL;
 const API_KEY = process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY;
 const MODEL = "claude-sonnet-4-6";
-const MAX_TOKENS = 16384;
+const MAX_TOKENS = 12000;
 const RATE_LIMIT_MS = 1500;
 const MAX_RETRIES = 3;
+const FETCH_TIMEOUT_MS = 180000;
 
 if (!BASE_URL || !API_KEY) {
   console.error("Missing AI_INTEGRATIONS_ANTHROPIC_BASE_URL or AI_INTEGRATIONS_ANTHROPIC_API_KEY");
@@ -308,8 +309,11 @@ Return ONLY the complete HTML file content, starting with <!DOCTYPE html> and en
 async function callClaude(prompt, retries = MAX_RETRIES) {
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
       const res = await fetch(`${BASE_URL}/v1/messages`, {
         method: "POST",
+        signal: controller.signal,
         headers: {
           "Content-Type": "application/json",
           "x-api-key": API_KEY,
@@ -321,6 +325,7 @@ async function callClaude(prompt, retries = MAX_RETRIES) {
           messages: [{ role: "user", content: prompt }],
         }),
       });
+      clearTimeout(timer);
 
       if (res.status === 429) {
         const wait = Math.min(30000, RATE_LIMIT_MS * Math.pow(2, attempt + 1));

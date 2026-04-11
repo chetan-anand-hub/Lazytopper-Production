@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-04-11T12:13:54.369Z",
+  "generatedAt": "2026-04-11T14:47:20.473Z",
   "concepts": {
     "quadratic-formula": {
       "subject": "maths",
@@ -781,6 +781,186 @@
       "filePath": "/app/visuals/maths/quadratic-equations/nature-of-roots-using-discriminant.html",
       "sizeKB": 21.7,
       "generatedAt": "2026-04-11T12:13:54.368Z"
+    },
+    "ogive-curve": {
+      "subject": "maths",
+      "chapter": "statistics",
+      "chapterName": "statistics",
+      "conceptName": "ogive-curve",
+      "slug": "ogive-curve",
+      "filePath": "/app/visuals/maths/statistics/ogive-curve.html",
+      "sizeKB": 23.1,
+      "generatedAt": "2026-04-11T14:47:20.454Z"
+    },
+    "acid-base-reactions": {
+      "subject": "science",
+      "chapter": "acids-bases-salts",
+      "chapterName": "acids-bases-salts",
+      "conceptName": "acid-base-reactions",
+      "slug": "acid-base-reactions",
+      "filePath": "/app/visuals/science/acids-bases-salts/acid-base-reactions.html",
+      "sizeKB": 20.1,
+      "generatedAt": "2026-04-11T14:47:20.464Z"
+    },
+    "carbon-chain-structures": {
+      "subject": "science",
+      "chapter": "carbon-compounds",
+      "chapterName": "carbon-compounds",
+      "conceptName": "carbon-chain-structures",
+      "slug": "carbon-chain-structures",
+      "filePath": "/app/visuals/science/carbon-compounds/carbon-chain-structures.html",
+      "sizeKB": 19.8,
+      "generatedAt": "2026-04-11T14:47:20.465Z"
+    },
+    "covalent-bonding-in-carbon": {
+      "subject": "science",
+      "chapter": "carbon-compounds",
+      "chapterName": "carbon-compounds",
+      "conceptName": "covalent-bonding-in-carbon",
+      "slug": "covalent-bonding-in-carbon",
+      "filePath": "/app/visuals/science/carbon-compounds/covalent-bonding-in-carbon.html",
+      "sizeKB": 15.8,
+      "generatedAt": "2026-04-11T14:47:20.465Z"
+    },
+    "functional-groups": {
+      "subject": "science",
+      "chapter": "carbon-compounds",
+      "chapterName": "carbon-compounds",
+      "conceptName": "functional-groups",
+      "slug": "functional-groups",
+      "filePath": "/app/visuals/science/carbon-compounds/functional-groups.html",
+      "sizeKB": 19.9,
+      "generatedAt": "2026-04-11T14:47:20.465Z"
+    },
+    "plant-hormones-and-tropisms": {
+      "subject": "science",
+      "chapter": "control-coordination",
+      "chapterName": "control-coordination",
+      "conceptName": "plant-hormones-and-tropisms",
+      "slug": "plant-hormones-and-tropisms",
+      "filePath": "/app/visuals/science/control-coordination/plant-hormones-and-tropisms.html",
+      "sizeKB": 21.1,
+      "generatedAt": "2026-04-11T14:47:20.466Z"
+    },
+    "reflex-arc": {
+      "subject": "science",
+      "chapter": "control-coordination",
+      "chapterName": "control-coordination",
+      "conceptName": "reflex-arc",
+      "slug": "reflex-arc",
+      "filePath": "/app/visuals/science/control-coordination/reflex-arc.html",
+      "sizeKB": 21.3,
+      "generatedAt": "2026-04-11T14:47:20.466Z"
+    },
+    "circuit-diagram-builder": {
+      "subject": "science",
+      "chapter": "electricity",
+      "chapterName": "electricity",
+      "conceptName": "circuit-diagram-builder",
+      "slug": "circuit-diagram-builder",
+      "filePath": "/app/visuals/science/electricity/circuit-diagram-builder.html",
+      "sizeKB": 17.4,
+      "generatedAt": "2026-04-11T14:47:20.467Z"
+    },
+    "electric-power-and-energy": {
+      "subject": "science",
+      "chapter": "electricity",
+      "chapterName": "electricity",
+      "conceptName": "electric-power-and-energy",
+      "slug": "electric-power-and-energy",
+      "filePath": "/app/visuals/science/electricity/electric-power-and-energy.html",
+      "sizeKB": 17.8,
+      "generatedAt": "2026-04-11T14:47:20.467Z"
+    },
+    "ecosystem-and-energy-flow": {
+      "subject": "science",
+      "chapter": "environment",
+      "chapterName": "environment",
+      "conceptName": "ecosystem-and-energy-flow",
+      "slug": "ecosystem-and-energy-flow",
+      "filePath": "/app/visuals/science/environment/ecosystem-and-energy-flow.html",
+      "sizeKB": 18.5,
+      "generatedAt": "2026-04-11T14:47:20.468Z"
+    },
+    "dispersion-of-light-and-rainbow": {
+      "subject": "science",
+      "chapter": "human-eye",
+      "chapterName": "human-eye",
+      "conceptName": "dispersion-of-light-and-rainbow",
+      "slug": "dispersion-of-light-and-rainbow",
+      "filePath": "/app/visuals/science/human-eye/dispersion-of-light-and-rainbow.html",
+      "sizeKB": 18.1,
+      "generatedAt": "2026-04-11T14:47:20.469Z"
+    },
+    "lens-formula-and-ray-diagrams": {
+      "subject": "science",
+      "chapter": "light",
+      "chapterName": "light",
+      "conceptName": "lens-formula-and-ray-diagrams",
+      "slug": "lens-formula-and-ray-diagrams",
+      "filePath": "/app/visuals/science/light/lens-formula-and-ray-diagrams.html",
+      "sizeKB": 11.4,
+      "generatedAt": "2026-04-11T14:47:20.470Z"
+    },
+    "mirror-formula-and-magnification": {
+      "subject": "science",
+      "chapter": "light",
+      "chapterName": "light",
+      "conceptName": "mirror-formula-and-magnification",
+      "slug": "mirror-formula-and-magnification",
+      "filePath": "/app/visuals/science/light/mirror-formula-and-magnification.html",
+      "sizeKB": 14.9,
+      "generatedAt": "2026-04-11T14:47:20.471Z"
+    },
+    "reflection-of-light": {
+      "subject": "science",
+      "chapter": "light",
+      "chapterName": "light",
+      "conceptName": "reflection-of-light",
+      "slug": "reflection-of-light",
+      "filePath": "/app/visuals/science/light/reflection-of-light.html",
+      "sizeKB": 22.9,
+      "generatedAt": "2026-04-11T14:47:20.471Z"
+    },
+    "refraction-of-light": {
+      "subject": "science",
+      "chapter": "light",
+      "chapterName": "light",
+      "conceptName": "refraction-of-light",
+      "slug": "refraction-of-light",
+      "filePath": "/app/visuals/science/light/refraction-of-light.html",
+      "sizeKB": 13.5,
+      "generatedAt": "2026-04-11T14:47:20.471Z"
+    },
+    "electric-motor-and-generator": {
+      "subject": "science",
+      "chapter": "magnetic-effects",
+      "chapterName": "magnetic-effects",
+      "conceptName": "electric-motor-and-generator",
+      "slug": "electric-motor-and-generator",
+      "filePath": "/app/visuals/science/magnetic-effects/electric-motor-and-generator.html",
+      "sizeKB": 19.9,
+      "generatedAt": "2026-04-11T14:47:20.472Z"
+    },
+    "electromagnet-and-solenoid": {
+      "subject": "science",
+      "chapter": "magnetic-effects",
+      "chapterName": "magnetic-effects",
+      "conceptName": "electromagnet-and-solenoid",
+      "slug": "electromagnet-and-solenoid",
+      "filePath": "/app/visuals/science/magnetic-effects/electromagnet-and-solenoid.html",
+      "sizeKB": 18.2,
+      "generatedAt": "2026-04-11T14:47:20.472Z"
+    },
+    "extraction-of-metals": {
+      "subject": "science",
+      "chapter": "metals-nonmetals",
+      "chapterName": "metals-nonmetals",
+      "conceptName": "extraction-of-metals",
+      "slug": "extraction-of-metals",
+      "filePath": "/app/visuals/science/metals-nonmetals/extraction-of-metals.html",
+      "sizeKB": 16.9,
+      "generatedAt": "2026-04-11T14:47:20.473Z"
     }
   }
 }

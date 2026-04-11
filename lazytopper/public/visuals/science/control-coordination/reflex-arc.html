@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reflex Arc - Control & Coordination | Class 10</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f172a;color:#e2e8f0;font-family:'Segoe UI',sans-serif;min-height:100vh;overflow-x:hidden}
+.titlebar{background:linear-gradient(135deg,#1e3a5f,#0f172a);padding:12px 20px;border-bottom:2px solid #3b82f6;display:flex;align-items:center;gap:12px}
+.titlebar h1{font-size:1.1rem;color:#60a5fa;font-weight:700}
+.titlebar span{font-size:.75rem;color:#94a3b8;background:#1e293b;padding:3px 8px;border-radius:12px}
+.badge{background:#3b82f6;color:#fff;font-size:.65rem;padding:2px 8px;border-radius:10px;font-weight:700}
+.container{max-width:900px;margin:0 auto;padding:16px}
+.formula-box{background:linear-gradient(135deg,#1e3a5f,#1e293b);border:2px solid #3b82f6;border-radius:12px;padding:14px 20px;text-align:center;margin-bottom:20px}
+.formula-box .formula{font-size:1rem;color:#93c5fd;font-weight:700;letter-spacing:1px}
+.formula-box .hindi{font-size:.8rem;color:#64748b;margin-top:4px}
+.arc-container{background:#1e293b;border-radius:16px;padding:20px;margin-bottom:20px;border:1px solid #334155}
+.arc-title{font-size:.9rem;color:#94a3b8;margin-bottom:12px;text-align:center}
+svg{width:100%;height:auto}
+.steps-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:20px}
+.step-card{background:#1e293b;border:1px solid #334155;border-radius:10px;padding:12px;text-align:center;cursor:pointer;transition:all .3s;position:relative;overflow:hidden}
+.step-card:hover,.step-card.active{border-color:#3b82f6;background:#1e3a5f;transform:translateY(-2px)}
+.step-card .icon{font-size:1.8rem;margin-bottom:6px}
+.step-card .name{font-size:.8rem;font-weight:700;color:#60a5fa}
+.step-card .hindi-name{font-size:.7rem;color:#64748b}
+.step-card .desc{font-size:.7rem;color:#94a3b8;margin-top:4px;display:none}
+.step-card.active .desc{display:block}
+.step-card::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:2px;background:linear-gradient(90deg,transparent,#3b82f6,transparent);transition:left .5s}
+.step-card.active::before{left:100%}
+.demo-section{background:#1e293b;border-radius:16px;padding:20px;margin-bottom:20px;border:1px solid #334155}
+.demo-title{font-size:.9rem;color:#94a3b8;margin-bottom:16px}
+.btn{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;border:none;padding:10px 24px;border-radius:8px;cursor:pointer;font-size:.85rem;font-weight:600;transition:all .3s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 4px 15px rgba(37,99,235,.4)}
+.btn:active{transform:scale(.96)}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.anim-track{background:#0f172a;border-radius:10px;padding:16px;position:relative;overflow:hidden}
+.neuron-row{display:flex;align-items:center;justify-content:space-between;margin:8px 0;position:relative}
+.neuron-label{font-size:.7rem;color:#64748b;width:80px;flex-shrink:0}
+.neuron-bar{flex:1;height:20px;background:#1e293b;border-radius:10px;margin:0 8px;position:relative;overflow:hidden}
+.signal{position:absolute;top:2px;height:16px;width:30px;border-radius:8px;transition:left 1s ease-in-out}
+.signal-s{background:linear-gradient(90deg,#f59e0b,#fbbf24)}
+.signal-m{background:linear-gradient(90deg,#10b981,#34d399)}
+.status-box{background:#0f172a;border-radius:8px;padding:10px;margin-top:12px;font-size:.8rem;color:#94a3b8;min-height:40px;text-align:center}
+.status-box .highlight{color:#60a5fa;font-weight:700}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes flow{0%{left:-10%}100%{left:110%}}
+@keyframes glow{0%,100%{box-shadow:0 0 5px #3b82f6}50%{box-shadow:0 0 20px #3b82f6,0 0 30px #3b82f6}}
+.flowing{animation:flow 1.5s linear forwards}
+.glowing{animation:glow .6s ease-in-out 3}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.compare-card{background:#1e293b;border-radius:10px;padding:14px;border:1px solid #334155}
+.compare-card h3{font-size:.8rem;font-weight:700;margin-bottom:8px}
+.compare-card.reflex h3{color:#3b82f6}
+.compare-card.voluntary h3{color:#f59e0b}
+.compare-card li{font-size:.72rem;color:#94a3b8;margin-left:14px;margin-bottom:4px}
+.node{cursor:pointer;transition:all .3s}
+.node:hover circle{filter:brightness(1.3)}
+.tooltip{position:fixed;background:#1e3a5f;border:1px solid #3b82f6;border-radius:8px;padding:8px 12px;font-size:.75rem;color:#e2e8f0;pointer-events:none;z-index:100;max-width:200px;display:none}
+.quiz-section{background:#1e293b;border-radius:16px;padding:20px;margin-bottom:20px;border:1px solid #334155}
+.q-text{font-size:.85rem;color:#e2e8f0;margin-bottom:12px}
+.q-options{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.q-opt{background:#0f172a;border:1px solid #334155;border-radius:8px;padding:10px;cursor:pointer;font-size:.78rem;color:#94a3b8;transition:all .3s}
+.q-opt:hover{border-color:#3b82f6;color:#60a5fa}
+.q-opt.correct{background:#064e3b;border-color:#10b981;color:#34d399}
+.q-opt.wrong{background:#450a0a;border-color:#ef4444;color:#f87171}
+.q-result{margin-top:10px;font-size:.78rem;padding:8px;border-radius:6px;display:none}
+@media(max-width:600px){.compare-grid{grid-template-columns:1fr}.q-options{grid-template-columns:1fr}.steps-grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="titlebar">
+  <div>🧠</div>
+  <h1>Reflex Arc — Control &amp; Coordination</h1>
+  <span class="badge">Class 10 CBSE</span>
+  <span>Science Ch.7</span>
+</div>
+<div class="container">
+  <div class="formula-box">
+    <div class="formula">Stimulus → Receptor → Sensory Neuron → Spinal Cord → Motor Neuron → Effector → Response</div>
+    <div class="hindi">उत्तेजना → ग्राही → संवेदी न्यूरॉन → मेरुरज्जु → गति न्यूरॉन → प्रभावकारक → अनुक्रिया</div>
+  </div>
+
+  <div class="arc-container">
+    <div class="arc-title">👆 Click on any part of the Reflex Arc diagram to learn more</div>
+    <svg viewBox="0 0 800 300" id="arcSvg">
+      <!-- Background spine -->
+      <rect x="370" y="80" width="60" height="140" rx="8" fill="#1a2744" stroke="#334155" stroke-width="1.5"/>
+      <text x="400" y="155" text-anchor="middle" fill="#64748b" font-size="10">SPINAL</text>
+      <text x="400" y="168" text-anchor="middle" fill="#64748b" font-size="10">CORD</text>
+      <!-- Synapse dots -->
+      <circle cx="400" cy="140" r="8" fill="#7c3aed" opacity=".8"/>
+      <!-- Stimulus source - hand -->
+      <g class="node" id="n-receptor" onclick="showInfo('receptor')">
+        <ellipse cx="80" cy="200" rx="55" ry="35" fill="#1e3a5f" stroke="#3b82f6" stroke-width="2"/>
+        <text x="80" y="196" text-anchor="middle" fill="#60a5fa" font-size="11" font-weight="700">RECEPTOR</text>
+        <text x="80" y="210" text-anchor="middle" fill="#64748b" font-size="9">ग्राही (त्वचा)</text>
+        <text x="80" y="222" text-anchor="middle" fill="#f59e0b" font-size="9">🔥 Hot pin</text>
+      </g>
+      <!-- Sensory neuron path -->
+      <path d="M135,200 Q200,190 260,160 Q310,140 365,135" stroke="#f59e0b" stroke-width="3" fill="none" stroke-dasharray="6,4" id="sensorPath"/>
+      <text x="220" y="175" fill="#f59e0b" font-size="9" transform="rotate(-15,220,175)">Sensory Neuron</text>
+      <text x="220" y="186" fill="#64748b" font-size="8" transform="rotate(-15,220,186)">संवेदी न्यूरॉन</text>
+      <!-- Arrow on sensory -->
+      <polygon points="360,133 350,128 350,138" fill="#f59e0b"/>
+      <!-- Spinal cord node -->
+      <g class="node" id="n-spinal" onclick="showInfo('spinal')">
+        <rect x="375" y="115" width="50" height="50" rx="6" fill="#4c1d95" stroke="#7c3aed" stroke-width="2"/>
+        <text x="400" y="140" text-anchor="middle" fill="#c4b5fd" font-size="9" font-weight="700">Spinal</text>
+        <text x="400" y="152" text-anchor="middle" fill="#c4b5fd" font-size="9">Cord</text>
+      </g>
+      <!-- Motor neuron path -->
+      <path d="M425,140 Q480,145 540,160 Q600,180 660,195" stroke="#10b981" stroke-width="3" fill="none" stroke-dasharray="6,4" id="motorPath"/>
+      <text x="550" y="175" fill="#10b981" font-size="9" transform="rotate(5,550,175)">Motor Neuron</text>
+      <text x="550" y="186" fill="#64748b" font-size="8" transform="rotate(5,550,186)">गति न्यूरॉन</text>
+      <!-- Arrow on motor -->
+      <polygon points="665,197 655,192 655,202" fill="#10b981"/>
+      <!-- Effector -->
+      <g class="node" id="n-effector" onclick="showInfo('effector')">
+        <ellipse cx="720" cy="200" rx="55" ry="35" fill="#064e3b" stroke="#10b981" stroke-width="2"/>
+        <text x="720" y="196" text-anchor="middle" fill="#34d399" font-size="11" font-weight="700">EFFECTOR</text>
+        <text x="720" y="210" text-anchor="middle" fill="#64748b" font-size="9">प्रभावकारक</text>
+        <text x="720" y="222" text-anchor="middle" fill="#34d399" font-size="9">💪 Muscle</text>
+      </g>
+      <!-- Sensory label node -->
+      <g class="node" onclick="showInfo('sensory')">
+        <circle cx="240" cy="160" r="18" fill="#78350f" stroke="#f59e0b" stroke-width="1.5"/>
+        <text x="240" y="157" text-anchor="middle" fill="#fbbf24" font-size="8">SN</text>
+        <text x="240" y="168" text-anchor="middle" fill="#fbbf24" font-size="7">संवेदी</text>
+      </g>
+      <!-- Motor label node -->
+      <g class="node" onclick="showInfo('motor')">
+        <circle cx="560" cy="168" r="18" fill="#064e3b" stroke="#10b981" stroke-width="1.5"/>
+        <text x="560" y="165" text-anchor="middle" fill="#34d399" font-size="8">MN</text>
+        <text x="560" y="176" text-anchor="middle" fill="#34d399" font-size="7">गति</text>
+      </g>
+      <!-- Stimulus label -->
+      <text x="80" y="245" text-anchor="middle" fill="#f87171" font-size="10" font-weight="700">⚡ STIMULUS</text>
+      <text x="80" y="258" text-anchor="middle" fill="#64748b" font-size="8">उत्तेजना</text>
+      <!-- Response label -->
+      <text x="720" y="245" text-anchor="middle" fill="#34d399" font-size="10" font-weight="700">✅ RESPONSE</text>
+      <text x="720" y="258" text-anchor="middle" fill="#64748b" font-size="8">अनुक्रिया</text>
+      <!-- Brain connection (bypassed) -->
+      <path d="M400,115 Q400,70 400,50" stroke="#334155" stroke-width="1.5" stroke-dasharray="4,3" fill="none"/>
+      <text x="430" y="65" fill="#475569" font-size="8">Brain (not</text>
+      <text x="430" y="76" fill="#475569" font-size="8">involved)</text>
+      <ellipse cx="400" cy="42" rx="30" ry="20" fill="#1e293b" stroke="#334155" stroke-width="1.5"/>
+      <text x="400" y="46" text-anchor="middle" fill="#475569" font-size="9">🧠 Brain</text>
+      <!-- Signal dot animation -->
+      <circle id="signalDot" cx="-20" cy="200" r="7" fill="#f59e0b" opacity="0" filter="url(#glow)"/>
+      <defs>
+        <filter id="glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      </defs>
+    </svg>
+  </div>
+
+  <div class="steps-grid">
+    <div class="step-card" id="sc-receptor" onclick="activateStep('receptor')">
+      <div class="icon">🔥</div>
+      <div class="name">Receptor</div>
+      <div class="hindi-name">ग्राही</div>
+      <div class="desc">Detects stimulus. Found in skin, eyes, ears. Converts signal to nerve impulse.</div>
+    </div>
+    <div class="step-card" id="sc-sensory" onclick="activateStep('sensory')">
+      <div class="icon">⚡</div>
+      <div class="name">Sensory Neuron</div>
+      <div class="hindi-name">संवेदी न्यूरॉन</div>
+      <div class="desc">Carries impulse FROM receptor TO spinal cord (afferent pathway).</div>
+    </div>
+    <div class="step-card" id="sc-spinal" onclick="activateStep('spinal')">
+      <div class="icon">🔵</div>
+      <div class="name">Spinal Cord</div>
+      <div class="hindi-name">मेरुरज्जु</div>
+      <div class="desc">Integration center. Relay neuron processes signal. Brain not needed!</div>
+    </div>
+    <div class="step-card" id="sc-motor" onclick="activateStep('motor')">
+      <div class="icon">💚</div>
+      <div class="name">Motor Neuron</div>
+      <div class="hindi-name">गति न्यूरॉन</div>
+      <div class="desc">Carries impulse FROM spinal cord TO effector (efferent pathway).</div>
+    </div>
+    <div class="step-card" id="sc-effector" onclick="activateStep('effector')">
+      <div class="icon">💪</div>
+      <div class="name">Effector</div>
+      <div class="hindi-name">प्रभावकारक</div>
+      <div class="desc">Muscle or gland that produces the response. Withdraws hand!</div>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-title">⚡ Simulate the Reflex Arc</div>
+    <div class="btn-row">
+      <button class="btn" onclick="runSim()">▶ Apply Stimulus (उत्तेजना दें)</button>
+      <button class="btn" style="background:linear-gradient(135deg,#374151,#1f2937)" onclick="resetSim()">↺ Reset</button>
+    </div>
+    <div class="anim-track">
+      <div class="neuron-row">
+        <div class="neuron-label" style="font-size:.65rem;color:#f59e0b">🔥 Receptor</div>
+        <div class="neuron-bar" id="bar-r"><div class="signal signal-s" id="sig-r" style="left:-10%"></div></div>
+        <div style="font-size:.65rem;color:#64748b;width:70px">त्वचा ग्राही</div>
+      </div>
+      <div class="neuron-row">
+        <div class="neuron-label" style="font-size:.65rem;color:#f59e0b">↑ Sensory</div>
+        <div class="neuron-bar" id="bar-s"><div class="signal signal-s" id="sig-s" style="left:-10%"></div></div>
+        <div style="font-size:.65rem;color:#64748b;width:70px">संवेदी→मेरु</div>
+      </div>
+      <div class="neuron-row">
+        <div class="neuron-label" style="font-size:.65rem;color:#7c3aed">⚙ Spinal Cord</div>
+        <div class="neuron-bar" id="bar-sc" style="background:#1a0f2e"><div class="signal" id="sig-sc" style="left:-10%;background:linear-gradient(90deg,#7c3aed,#a78bfa)"></div></div>
+        <div style="font-size:.65rem;color:#64748b;width:70px">मेरुरज्जु</div>
+      </div>
+      <div class="neuron-row">
+        <div class="neuron-label" style="font-size:.65rem;color:#10b981">↓ Motor</div>
+        <div class="neuron-bar" id="bar-m"><div class="signal signal-m" id="sig-m" style="left:-10%"></div></div>
+        <div style="font-size:.65rem;color:#64748b;width:70px">मेरु→मांसपेशी</div>
+      </div>
+      <div class="neuron-row">
+        <div class="neuron-label" style="font-size:.65rem;color:#10b981">💪 Effector</div>
+        <div class="neuron-bar" id="bar-e"><div class="signal signal-m" id="sig-e" style="left:-10%"></div></div>
+        <div style="font-size:.65rem;color:#64748b;width:70px">प्रभावकारक</div>
+      </div>
+    </div>
+    <div class="status-box" id="statusBox">Click "Apply Stimulus" to see the reflex arc in action!</div>
+  </div>
+
+  <div class="compare-grid">
+    <div class="compare-card reflex">
+      <h3>⚡ Reflex Action (प्रतिवर्त क्रिया)</h3>
+      <ul>
+        <li>Involuntary (अनैच्छिक)</li>
+        <li>Very fast response</li>
+        <li>Controlled by Spinal Cord</li>
+        <li>Brain NOT involved</li>
+        <li>Example: Knee jerk, blinking</li>
+        <li>Example: Withdrawing hand from hot object</li>
+      </ul>
+    </div>
+    <div class="compare-card voluntary">
+      <h3>🤔 Voluntary Action (ऐच्छिक क्रिया)</h3>
+      <ul>
+        <li>Voluntary (ऐच्छिक)</li>
+        <li>Slower response</li>
+        <li>Controlled by Brain</li>
+        <li>Brain IS involved</li>
+        <li>Example: Writing, walking</li>
+        <li>Example: Picking up a book</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="quiz-section">
+    <div style="font-size:.85rem;color:#60a5fa;font-weight:700;margin-bottom:12px">🎯 Quick Quiz — Test Yourself!</div>
+    <div id="quizContainer"></div>
+  </div>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const infoData={
+  receptor:{title:"Receptor (ग्राही)",text:"Detects the stimulus (like pain, heat, light). Found in skin, eyes, ears, nose, tongue. Converts physical stimulus into electrical nerve impulse.",color:"#3b82f6"},
+  sensory:{title:"Sensory Neuron (संवेदी न्यूरॉन)",text:"Afferent neuron. Carries impulse FROM receptor TO spinal cord. Also called afferent nerve.",color:"#f59e0b"},
+  spinal:{title:"Spinal Cord (मेरुरज्जु)",text:"Central relay station. Relay neuron (connector neuron) links sensory and motor neurons. Brain is NOT involved in reflex action!",color:"#7c3aed"},
+  motor:{title:"Motor Neuron (गति न्यूरॉन)",text:"Efferent neuron. Carries impulse FROM spinal cord TO effector (muscle/gland). Also called efferent nerve.",color:"#10b981"},
+  effector:{title:"Effector (प्रभावकारक)",text:"Muscle or gland that produces the response. Muscle contracts to withdraw hand. This is the final response (अनुक्रिया).",color:"#34d399"}
+};
+
+const statusMessages=[
+  "🔥 <span class='highlight'>Stimulus detected!</span> Hot pin touches skin → Receptor activated (ग्राही सक्रिय)",
+  "⚡ <span class='highlight'>Sensory Neuron firing!</span> Impulse travelling to Spinal Cord (संवेदी न्यूरॉन → मेरुरज्जु)",
+  "🔵 <span class='highlight'>Spinal Cord processing!</span> Relay neuron connects sensory to motor (मेरुरज्जु में प्रक्रिया)",
+  "💚 <span class='highlight'>Motor Neuron firing!</span> Signal travelling to muscle (गति न्यूरॉन → मांसपेशी)",
+  "💪 <span class='highlight'>Response!</span> Muscle contracts — Hand withdrawn! ✅ (हाथ हटाया गया)"
+];
+
+let simRunning=false;
+function runSim(){
+  if(simRunning)return;
+  simRunning=true;
+  const ids=['r','s','sc','m','e'];
+  ids.forEach(id=>{
+    const el=document.getElementById('sig-'+id);
+    el.style.left='-10%';
+    el.style.transition='none';
+  });
+  const status=document.getElementById('statusBox');
+  let step=0;
+  function nextStep(){
+    if(step>=5){simRunning=false;return;}
+    status.innerHTML=statusMessages[step];
+    const el=document.getElementById('sig-'+ids[step]);
+    el.style.transition='left 0.9s ease-in-out';
+    setTimeout(()=>{el.style.left='105%';},50);
+    step++;
+    setTimeout(nextStep,1200);
+  }
+  nextStep();
+}
+function resetSim(){
+  simRunning=false;
+  ['r','s','sc','m','e'].forEach(id=>{
+    const el=document.getElementById('sig-'+id);
+    el.style.transition='none';
+    el.style.left='-10%';
+  });
+  document.getElementById('statusBox').innerHTML='Click "Apply Stimulus" to see the reflex arc in action!';
+}
+
+let activeStep=null;
+function activateStep(key){
+  document.querySelectorAll('.step-card').forEach(c=>c.classList.remove('active'));
+  const el=document.getElementById('sc-'+key);
+  if(el){el.classList.add('active');}
+  showInfo(key);
+}
+
+function showInfo(key){
+  const d=infoData[key];
+  if(!d)return;
+  document.getElementById('statusBox').innerHTML=`<span style="color:${d.color};font-weight:700">${d.title}</span><br><span style="color:#94a3b8">${d.text}</span>`;
+}
+
+const quiz=[
+  {q:"Which part of the nervous system controls reflex action?",opts:["Brain","Spinal Cord","Cerebellum","Medulla"],ans:1,hi:"मेरुरज्जु (Spinal Cord) प्रतिवर्त क्रिया को नियंत्रित करती है।"},
+  {q:"Which neuron carries impulse FROM receptor TO spinal cord?",opts:["Motor Neuron","Relay Neuron","Sensory Neuron","Efferent Neuron"],ans:2,hi:"संवेदी न्यूरॉन (Sensory/Afferent) ग्राही से मेरुरज्जु तक संकेत ले जाता है।"},
+  {q:"The effector in a reflex arc is:",opts:["Receptor","Spinal Cord","Sensory Neuron","Muscle/Gland"],ans:3,hi:"प्रभावकारक (Effector) मांसपेशी या ग्रंथि होती है जो प्रतिक्रिया देती है।"},
+  {q:"Withdrawing hand from a hot object is an example of:",opts:["Voluntary Action","Reflex Action","Conditioned Reflex","Thinking"],ans:1,hi:"गर्म वस्तु से हाथ हटाना प्रतिवर्त क्रिया (Reflex Action) का उदाहरण है।"}
+];
+let currentQ=0;
+function renderQuiz(){
+  const q=quiz[currentQ];
+  const c=document.getElementById('quizContainer');
+  c.innerHTML=`<div class="q-text">Q${currentQ+1}/${quiz.length}: ${q.q}</div><div class="q-options">${q.opts.map((o,i)=>`<div class="q-opt" onclick="checkAns(${i})">${o}</div>`).join('')}</div><div class="q-result" id="qresult"></div>`;
+}
+function checkAns(i){
+  const q=quiz[currentQ];
+  const opts=document.querySelectorAll('.q-opt');
+  opts.forEach(o=>o.style.pointerEvents='none');
+  opts[i].classList.add(i===q.ans?'correct':'wrong');
+  if(i!==q.ans)opts[q.ans].classList.add('correct');
+  const r=document.getElementById('qresult');
+  r.style.display='block';
+  r.style.background=i===q.ans?'#064e3b':'#450a0a';
+  r.style.color=i===q.ans?'#34d399':'#f87171';
+  r.innerHTML=(i===q.ans?'✅ Correct! ':'❌ Wrong! ')+q.hi+(currentQ<quiz.length-1?'<br>
+</script>
+</body>
+</html>

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mirror Formula & Magnification – Class 10 Science</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f172a;color:#e2e8f0;font-family:'Segoe UI',sans-serif;min-height:100vh}
+header{background:linear-gradient(135deg,#1e3a5f,#0f172a);padding:12px 20px;border-bottom:2px solid #3b82f6;display:flex;align-items:center;gap:12px}
+header h1{font-size:1.1rem;color:#60a5fa}
+header span{font-size:.8rem;color:#94a3b8;margin-left:auto}
+.badge{background:#3b82f6;color:#fff;padding:3px 8px;border-radius:12px;font-size:.7rem}
+.container{max-width:900px;margin:0 auto;padding:16px}
+.formula-box{background:linear-gradient(135deg,#1e3a5f,#1a1f35);border:2px solid #3b82f6;border-radius:16px;padding:20px;text-align:center;margin-bottom:20px;position:relative;overflow:hidden}
+.formula-box::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(59,130,246,.1),transparent 60%);animation:pulse 3s infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+.formula-main{font-size:1.8rem;color:#60a5fa;font-weight:700;letter-spacing:2px;margin:8px 0}
+.formula-hint{font-size:.8rem;color:#94a3b8;margin-top:4px}
+.formula-hindi{color:#f59e0b;font-size:.9rem;margin-top:6px}
+.tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.tab{padding:8px 16px;border-radius:20px;border:1px solid #334155;background:#1e293b;color:#94a3b8;cursor:pointer;font-size:.85rem;transition:.3s}
+.tab.active{background:#3b82f6;color:#fff;border-color:#3b82f6}
+.panel{display:none}
+.panel.active{display:block}
+canvas{display:block;width:100%;border-radius:12px;background:#0d1b2e;border:1px solid #1e3a5f}
+.controls{background:#1e293b;border-radius:12px;padding:16px;margin-top:12px;border:1px solid #334155}
+.ctrl-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.ctrl-row label{color:#94a3b8;font-size:.82rem;min-width:140px}
+input[type=range]{flex:1;min-width:100px;accent-color:#3b82f6;cursor:pointer}
+.val-display{background:#0f172a;border:1px solid #3b82f6;border-radius:6px;padding:3px 8px;font-size:.82rem;color:#60a5fa;min-width:50px;text-align:center}
+.results{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:12px}
+.result-card{background:#0f172a;border-radius:10px;padding:12px;border:1px solid #334155;text-align:center}
+.result-card .label{font-size:.72rem;color:#64748b;margin-bottom:4px}
+.result-card .value{font-size:1.1rem;color:#34d399;font-weight:700}
+.result-card .hindi{font-size:.7rem;color:#f59e0b}
+.sign-box{background:#1e293b;border-radius:12px;padding:16px;margin-top:12px}
+.sign-box h3{color:#f59e0b;margin-bottom:10px;font-size:.95rem}
+.sign-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sign-item{background:#0f172a;padding:10px;border-radius:8px;border-left:3px solid #3b82f6;font-size:.8rem}
+.sign-item .key{color:#60a5fa;font-weight:700}
+.sign-item .desc{color:#94a3b8;margin-top:2px}
+.toggle-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.toggle-btn{padding:6px 14px;border-radius:16px;border:1px solid #475569;background:transparent;color:#94a3b8;cursor:pointer;font-size:.78rem;transition:.3s}
+.toggle-btn.on{background:#1d4ed8;color:#fff;border-color:#1d4ed8}
+.image-type{padding:6px 12px;border-radius:8px;font-size:.8rem;font-weight:700;display:inline-block;margin-top:6px}
+.real{background:rgba(239,68,68,.2);color:#f87171;border:1px solid #ef4444}
+.virtual{background:rgba(167,139,250,.2);color:#a78bfa;border:1px solid #a78bfa}
+.info-tip{background:#1e293b;border-radius:8px;padding:10px;font-size:.78rem;color:#94a3b8;border-left:3px solid #f59e0b;margin-top:10px}
+@media(max-width:600px){.formula-main{font-size:1.3rem}.sign-grid{grid-template-columns:1fr}.ctrl-row label{min-width:100px}}
+</style>
+</head>
+<body>
+<header>
+<div>
+<div class="badge">CBSE Class 10</div>
+</div>
+<h1>🔭 Mirror Formula & Magnification</h1>
+<span>Light – Reflection</span>
+</header>
+<div class="container">
+<div class="formula-box">
+<div class="formula-hindi">दर्पण सूत्र (Darpan Sutra)</div>
+<div class="formula-main">1/v + 1/u = 1/f</div>
+<div class="formula-hint">v = image distance &nbsp;|&nbsp; u = object distance &nbsp;|&nbsp; f = focal length</div>
+<div class="formula-hindi" style="margin-top:8px">आवर्धन (Magnification): m = −v/u = h'/h</div>
+</div>
+<div class="tabs">
+<div class="tab active" onclick="switchTab('concave')">Concave Mirror (अवतल)</div>
+<div class="tab" onclick="switchTab('convex')">Convex Mirror (उत्तल)</div>
+<div class="tab" onclick="switchTab('signs')">Sign Convention</div>
+</div>
+<div id="tab-concave" class="panel active">
+<canvas id="cvConcave" height="260"></canvas>
+<div class="controls">
+<div class="toggle-row">
+<button class="toggle-btn on" id="btnRays" onclick="toggleRays()">Ray Diagram</button>
+<button class="toggle-btn on" id="btnLabels" onclick="toggleLabels()">Labels</button>
+</div>
+<div class="ctrl-row">
+<label>Object Distance (u): <span style="color:#f59e0b">वस्तु दूरी</span></label>
+<input type="range" id="slU" min="10" max="95" value="60" oninput="updateConcave()">
+<div class="val-display" id="valU">-60</div>
+</div>
+<div class="ctrl-row">
+<label>Focal Length (f): <span style="color:#f59e0b">फोकस दूरी</span></label>
+<input type="range" id="slF" min="10" max="45" value="25" oninput="updateConcave()">
+<div class="val-display" id="valF">-25</div>
+</div>
+<div class="results" id="resultsC"></div>
+<div class="info-tip" id="imageTip"></div>
+</div>
+</div>
+<div id="tab-convex" class="panel">
+<canvas id="cvConvex" height="260"></canvas>
+<div class="controls">
+<div class="ctrl-row">
+<label>Object Distance (u): <span style="color:#f59e0b">वस्तु दूरी</span></label>
+<input type="range" id="slU2" min="10" max="95" value="50" oninput="updateConvex()">
+<div class="val-display" id="valU2">-50</div>
+</div>
+<div class="ctrl-row">
+<label>Focal Length (f): <span style="color:#f59e0b">फोकस दूरी</span></label>
+<input type="range" id="slF2" min="10" max="45" value="20" oninput="updateConvex()">
+<div class="val-display" id="valF2">+20</div>
+</div>
+<div class="results" id="resultsX"></div>
+<div class="info-tip" id="imageTipX"></div>
+</div>
+</div>
+<div id="tab-signs" class="panel">
+<div class="sign-box">
+<h3>📐 New Cartesian Sign Convention (नया कार्तीय चिह्न नियम)</h3>
+<div class="sign-grid">
+<div class="sign-item"><div class="key">Origin → Pole (P)</div><div class="desc">सभी दूरियाँ ध्रुव से मापी जाती हैं</div></div>
+<div class="sign-item"><div class="key">+ve → Right side</div><div class="desc">दाईं ओर धनात्मक (+)</div></div>
+<div class="sign-item"><div class="key">−ve → Left side</div><div class="desc">बाईं ओर ऋणात्मक (−)</div></div>
+<div class="sign-item"><div class="key">Object always −ve (u)</div><div class="desc">वस्तु हमेशा बाईं ओर → u ऋणात्मक</div></div>
+<div class="sign-item"><div class="key">Concave f = −ve</div><div class="desc">अवतल दर्पण की फोकस दूरी ऋणात्मक</div></div>
+<div class="sign-item"><div class="key">Convex f = +ve</div><div class="desc">उत्तल दर्पण की फोकस दूरी धनात्मक</div></div>
+<div class="sign-item"><div class="key">Real image v = −ve</div><div class="desc">वास्तविक प्रतिबिम्ब: v ऋणात्मक</div></div>
+<div class="sign-item"><div class="key">Virtual image v = +ve</div><div class="desc">आभासी प्रतिबिम्ब: v धनात्मक</div></div>
+</div>
+<div class="info-tip" style="margin-top:12px">💡 Magnification (आवर्धन): m = −v/u<br>m negative → inverted image (उल्टा प्रतिबिम्ब)<br>m positive → erect image (सीधा प्रतिबिम्ब)<br>|m|&gt;1 → magnified, |m|&lt;1 → diminished</div>
+</div>
+</div>
+</div>
+<script>
+let showRays=true,showLabels=true;
+function switchTab(t){
+document.querySelectorAll('.tab').forEach((e,i)=>{e.classList.toggle('active',['concave','convex','signs'][i]===t)});
+document.querySelectorAll('.panel').forEach(e=>e.classList.remove('active'));
+document.getElementById('tab-'+t).classList.add('active');
+if(t==='concave')updateConcave();
+if(t==='convex')updateConvex();
+}
+function toggleRays(){showRays=!showRays;document.getElementById('btnRays').classList.toggle('on',showRays);updateConcave();}
+function toggleLabels(){showLabels=!showLabels;document.getElementById('btnLabels').classList.toggle('on',showLabels);updateConcave();}
+
+function drawMirror(ctx,cx,cy,type){
+ctx.save();
+ctx.strokeStyle='#60a5fa';ctx.lineWidth=3;
+ctx.beginPath();
+if(type==='concave'){
+ctx.arc(cx+80,cy,80,Math.PI*0.7,Math.PI*1.3);
+}else{
+ctx.arc(cx-80,cy,80,Math.PI*-0.3,Math.PI*0.3);
+}
+ctx.stroke();
+ctx.restore();
+}
+function drawArrow(ctx,x1,y1,x2,y2,color,w){
+ctx.save();ctx.strokeStyle=color;ctx.lineWidth=w||1.5;
+ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+let a=Math.atan2(y2-y1,x2-x1);
+ctx.fillStyle=color;ctx.beginPath();
+ctx.moveTo(x2,y2);
+ctx.lineTo(x2-8*Math.cos(a-0.4),y2-8*Math.sin(a-0.4));
+ctx.lineTo(x2-8*Math.cos(a+0.4),y2-8*Math.sin(a+0.4));
+ctx.closePath();ctx.fill();ctx.restore();
+}
+function label(ctx,txt,x,y,col){
+ctx.save();ctx.fillStyle=col||'#94a3b8';ctx.font='11px Segoe UI';ctx.fillText(txt,x,y);ctx.restore();
+}
+
+function updateConcave(){
+const canvas=document.getElementById('cvConcave');
+const W=canvas.offsetWidth||700;canvas.width=W;canvas.height=260;
+const ctx=canvas.getContext('2d');
+const uV=parseInt(document.getElementById('slU').value);
+const fV=parseInt(document.getElementById('slF').value);
+document.getElementById('valU').textContent='-'+uV;
+document.getElementById('valF').textContent='-'+fV;
+const u=-uV,f=-fV;
+const v=1/(1/f-1/u);
+const m=-v/u;
+const cx=W*0.62,cy=130,scale=W*0.38/100;
+
+ctx.clearRect(0,0,W,260);
+ctx.fillStyle='#0d1b2e';ctx.fillRect(0,0,W,260);
+
+// Principal axis
+ctx.strokeStyle='#1e3a5f';ctx.lineWidth=1;ctx.setLineDash([4,4]);
+ctx.beginPath();ctx.moveTo(20,cy);ctx.lineTo(W-10,cy);ctx.stroke();
+ctx.setLineDash([]);
+
+drawMirror(ctx,cx,cy,'concave');
+
+// Points
+const C=cx+f*2*scale,F=cx+f*scale,P=cx;
+// Object
+const objX=cx+u*scale,objH=40;
+ctx.strokeStyle='#34d399';ctx.lineWidth=2;
+ctx.beginPath();ctx.moveTo(objX,cy);ctx.lineTo(objX,cy-objH);ctx.stroke();
+drawArrow(ctx,objX,cy-objH,objX,cy-objH+1,'#34d399',2);
+
+// Image
+const imgX=cx+v*scale,imgH=m*objH;
+const isReal=v<0,isVirt=v>0;
+ctx.strokeStyle=isReal?'#f87171':'#a78bfa';ctx.lineWidth=2;
+ctx.setLineDash(isVirt?[4,3]:[]);
+ctx.beginPath();ctx.moveTo(imgX,cy);ctx.lineTo(imgX,cy-imgH);ctx.stroke();
+ctx.setLineDash([]);
+
+// Rays
+if(showRays&&isReal){
+ctx.globalAlpha=0.7;
+// Ray 1: parallel to axis → through F
+drawArrow(ctx,objX,cy-objH,P,cy-objH,'#fbbf24',1.2);
+drawArrow(ctx,P,cy-objH,imgX,cy-imgH,'#fbbf24',1.2);
+// Ray 2: through C
+drawArrow(ctx,objX,cy-objH,C,cy,'#fb7185',1.2);
+drawArrow(ctx,C,cy,imgX,cy-imgH,'#fb7185',1.2);
+ctx.globalAlpha=1;
+}
+
+// Key points
+if(showLabels){
+const pts=[{x:P,l:'P'},{x:F,l:'F'},{x:C,l:'C'}];
+pts.forEach(p=>{
+ctx.fillStyle='#60a5fa';
+ctx.beginPath();ctx.arc(p.x,cy,4,0,2*Math.PI);ctx.fill();
+label(ctx,p.l,p.x-4,cy+18,'#60a5fa');
+});
+label(ctx,'Object',objX-14,cy-objH-8,'#34d399');
+if(Math.abs(imgX-cx)<W*0.9)label(ctx,'Image',imgX-12,cy-imgH-8,isReal?'#f87171':'#a78bfa');
+}
+
+// Results
+const vR=Math.round(v*10)/10,mR=Math.round(m*100)/100;
+document.getElementById('resultsC').innerHTML=`
+<div class="result-card"><div class="label">Image Distance (v) प्रतिबिम्ब दूरी</div><div class="value">${vR} cm</div></div>
+<div class="result-card"><div class="label">Magnification (m) आवर्धन</div><div class="value">${mR}</div></div>
+<div class="result-card"><div class="label">Image Type प्रतिबिम्ब</div><div class="value"><span class="${isReal?'real':'virtual'} image-type">${isReal?'Real/उल्टा':'Virtual/सीधा'}</span></div></div>
+<div class="result-card"><div class="label">Size आकार</div><div class="value">${Math.abs(mR)>1?'बड़ा (Magnified)':Math.abs(mR)<1?'छोटा (Diminished)':'समान (Same)'}</div></div>`;
+document.getElementById('imageTip').innerHTML=`📌 1/v + 1/u = 1/f → 1/${vR.toFixed(1)} + 1/${u} = 1/${f} &nbsp;|&nbsp; m = −v/u = ${mR}`;
+}
+
+function updateConvex(){
+const canvas=document.getElementById('cvConvex');
+const W=canvas.offsetWidth||700;canvas.width=W;canvas.height=260;
+const ctx=canvas.getContext('2d');
+const uV=parseInt(document.getElementById('slU2').value);
+const fV=parseInt(document.getElementById('slF2').value);
+document.getElementById('valU2').textContent='-'+uV;
+document.getElementById('valF2').textContent='+'+fV;
+const u=-uV,f=+fV;
+const v=1/(1/f-1/u);
+const m=-v/u;
+const cx=W*0.38,cy=130,scale=W*0.38/100;
+
+ctx.clearRect(0,0,W,260);
+ctx.fillStyle='#0d1b2e';ctx.fillRect(0,0,W,260);
+ctx.strokeStyle='#1e3a5f';ctx.lineWidth=1;ctx.setLineDash([4,4]);
+ctx.beginPath();ctx.moveTo(10,cy);ctx.lineTo(W-10,cy);ctx.stroke();
+ctx.setLineDash([]);
+drawMirror(ctx,cx,cy,'convex');
+
+const F=cx+f*scale,P=cx;
+const objX=cx+u*scale,objH=40;
+ctx.strokeStyle='#34d399';ctx.lineWidth=2;
+ctx.beginPath();ctx.moveTo(objX,cy);ctx.lineTo(objX,cy-objH);ctx.stroke();
+
+const imgX=cx+v*scale,imgH=m*objH;
+ctx.strokeStyle='#a78bfa';ctx.lineWidth=2;ctx.setLineDash([4,3]);
+ctx.beginPath();ctx.moveTo(imgX,cy);ctx.lineTo(imgX,cy-imgH);ctx.stroke();
+ctx.setLineDash([]);
+
+ctx.fillStyle='#60a5fa';
+[{x:P,l:'P'},{x:F,l:'F'}].forEach(p=>{
+ctx.beginPath();ctx.arc(p.x,cy,4,0,2*Math.PI);ctx.fill();
+label(ctx,p.l,p.x-4,cy+18,'#60a5fa');
+});
+label(ctx,'Object',objX-14,cy-objH-8,'#34d399');
+label(ctx,'Image (Virtual)',imgX-30,cy-imgH-8,'#a78bfa');
+
+const vR=Math.round(v*10)/10,mR=Math.round(m*100)/100;
+document.getElementById('resultsX').innerHTML=`
+<div class="result-card"><div class="label">Image Distance (v)</div><div class="value">${vR} cm</div></div>
+<div class="result-card"><div class="label">Magnification (m)</div><div class="value">${mR}</div></div>
+<div class="result-card"><div class="label">Image Type</div><div class="value"><span class="virtual image-type">Virtual/सीधा</span></div></div>
+<div class="result-card"><div class="label">Size</div><div class="value">छोटा (Diminished)</div></div>`;
+document.getElementById('imageTipX').innerHTML=`📌 उत्तल दर्पण हमेशा आभासी, सीधा, और छोटा प्रतिबिम्ब बनाता है | v = ${vR} cm (behind mirror)`;
+}
+
+window.addEventListener('resize',()=>{
+if(document.getElementById('tab-concave').classList.contains('active'))updateConcave();
+if(document.getElementById('tab-convex').classList.contains('active'))updateConvex();
+});
+updateConcave();
+setTimeout(updateConvex,100);
+</script>
+</body>
+</html>

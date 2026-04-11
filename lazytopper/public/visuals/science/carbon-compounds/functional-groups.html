@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Functional Groups | Carbon & Compounds | Class 10</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f172a;color:#e2e8f0;font-family:'Segoe UI',sans-serif;min-height:100vh;overflow-x:hidden}
+.title-bar{background:linear-gradient(135deg,#1e3a5f,#0f172a);padding:12px 20px;border-bottom:2px solid #3b82f6;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100}
+.title-bar h1{font-size:1.1em;background:linear-gradient(90deg,#60a5fa,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:700}
+.badge{background:#3b82f6;color:#fff;padding:3px 8px;border-radius:20px;font-size:.7em;white-space:nowrap}
+.container{max-width:900px;margin:0 auto;padding:16px}
+.intro{background:linear-gradient(135deg,#1e293b,#0f172a);border:1px solid #334155;border-radius:12px;padding:16px;margin-bottom:16px;text-align:center}
+.intro h2{color:#60a5fa;font-size:1.2em;margin-bottom:6px}
+.intro p{color:#94a3b8;font-size:.85em;line-height:1.5}
+.key-formula{background:linear-gradient(135deg,#1e3a1e,#0f172a);border:2px solid #22c55e;border-radius:12px;padding:12px;margin-bottom:16px;text-align:center}
+.key-formula h3{color:#22c55e;font-size:.8em;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px}
+.formula-row{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.formula-chip{background:#0f2b1f;border:1px solid #22c55e40;border-radius:8px;padding:6px 12px;font-size:.85em;color:#4ade80;font-family:monospace;cursor:pointer;transition:all .3s}
+.formula-chip:hover{background:#22c55e20;border-color:#22c55e;transform:scale(1.05)}
+.formula-chip.active{background:#22c55e30;border-color:#22c55e;box-shadow:0 0 12px #22c55e40}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-bottom:16px}
+.fg-card{background:#1e293b;border:1px solid #334155;border-radius:14px;padding:16px;cursor:pointer;transition:all .3s;position:relative;overflow:hidden}
+.fg-card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .3s}
+.fg-card:hover::before{opacity:1}
+.fg-card.alcohol::before{background:linear-gradient(135deg,#1e3a5f20,#3b82f620)}
+.fg-card.aldehyde::before{background:linear-gradient(135deg,#3a1e1e20,#ef444420)}
+.fg-card.ketone::before{background:linear-gradient(135deg,#1e3a2a20,#22c55e20)}
+.fg-card.carboxyl::before{background:linear-gradient(135deg,#3a2a1e20,#f9731620)}
+.fg-card.halide::before{background:linear-gradient(135deg,#2a1e3a20,#a855f720)}
+.fg-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px #0005}
+.fg-card.expanded{border-color:#60a5fa40}
+.card-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.card-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.3em;flex-shrink:0}
+.alcohol .card-icon{background:#1e3a5f;box-shadow:0 0 12px #3b82f640}
+.aldehyde .card-icon{background:#3a1e1e;box-shadow:0 0 12px #ef444440}
+.ketone .card-icon{background:#1e3a2a;box-shadow:0 0 12px #22c55e40}
+.carboxyl .card-icon{background:#3a2a1e;box-shadow:0 0 12px #f9731640}
+.halide .card-icon{background:#2a1e3a;box-shadow:0 0 12px #a855f740}
+.card-title{flex:1}
+.card-title h3{font-size:1em;font-weight:700}
+.card-title .hindi{font-size:.75em;color:#94a3b8;margin-top:2px}
+.fg-formula{font-family:monospace;font-size:1.1em;font-weight:700;padding:8px 14px;border-radius:8px;display:inline-block;margin-bottom:10px}
+.alcohol .fg-formula{background:#1e3a5f;color:#60a5fa}
+.aldehyde .fg-formula{background:#3a1e1e;color:#f87171}
+.ketone .fg-formula{background:#1e3a2a;color:#4ade80}
+.carboxyl .fg-formula{background:#3a2a1e;color:#fb923c}
+.halide .fg-formula{background:#2a1e3a;color:#c084fc}
+.card-desc{font-size:.8em;color:#94a3b8;line-height:1.5;margin-bottom:8px}
+.examples-section{display:none;margin-top:10px;padding-top:10px;border-top:1px solid #334155}
+.examples-section.show{display:block;animation:fadeIn .3s}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.examples-title{font-size:.75em;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.example-item{background:#0f172a;border-radius:8px;padding:8px;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.example-formula{font-family:monospace;font-size:.85em;font-weight:700;flex:1}
+.example-name{font-size:.75em;color:#94a3b8;flex:1}
+.naming-rule{background:#1a2332;border-left:3px solid #3b82f6;padding:8px;border-radius:0 6px 6px 0;margin-top:8px;font-size:.78em;color:#94a3b8;line-height:1.4}
+.naming-rule strong{color:#60a5fa}
+.svg-container{background:#1e293b;border:1px solid #334155;border-radius:14px;padding:16px;margin-bottom:16px}
+.svg-container h3{color:#60a5fa;font-size:.9em;margin-bottom:12px;text-align:center}
+.interactive-hint{text-align:center;font-size:.75em;color:#64748b;margin-bottom:8px}
+svg text{font-family:'Segoe UI',sans-serif}
+.quiz-section{background:#1e293b;border:1px solid #334155;border-radius:14px;padding:16px;margin-bottom:16px}
+.quiz-section h3{color:#a78bfa;font-size:.95em;margin-bottom:12px}
+.quiz-q{font-size:.85em;margin-bottom:10px;color:#cbd5e1}
+.quiz-opts{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.quiz-opt{background:#0f172a;border:1px solid #334155;border-radius:8px;padding:6px 12px;font-size:.8em;cursor:pointer;transition:all .2s;font-family:monospace}
+.quiz-opt:hover{border-color:#60a5fa;color:#60a5fa}
+.quiz-opt.correct{background:#1e3a2a;border-color:#22c55e;color:#4ade80}
+.quiz-opt.wrong{background:#3a1e1e;border-color:#ef4444;color:#f87171}
+.quiz-feedback{font-size:.8em;padding:6px 10px;border-radius:6px;margin-bottom:8px;display:none}
+.quiz-feedback.show{display:block}
+.quiz-feedback.ok{background:#1e3a2a;color:#4ade80;border:1px solid #22c55e}
+.quiz-feedback.err{background:#3a1e1e;color:#f87171;border:1px solid #ef4444}
+.next-btn{background:#3b82f6;color:#fff;border:none;padding:7px 16px;border-radius:8px;font-size:.8em;cursor:pointer;transition:background .2s}
+.next-btn:hover{background:#2563eb}
+.toggle-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:12px}
+.toggle-btn{background:#0f172a;border:1px solid #334155;border-radius:20px;padding:5px 14px;font-size:.78em;cursor:pointer;transition:all .2s;color:#94a3b8}
+.toggle-btn.on{border-color:#60a5fa;color:#60a5fa;background:#1e3a5f30}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 #22c55e40}50%{box-shadow:0 0 0 8px #22c55e00}}
+.pulse{animation:pulse 2s infinite}
+footer{text-align:center;padding:12px;color:#475569;font-size:.75em;border-top:1px solid #1e293b;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="title-bar">
+<div class="badge">Class 10</div>
+<h1>⚗️ Carbon & its Compounds — Functional Groups / क्रियात्मक समूह</h1>
+</div>
+<div class="container">
+<div class="intro">
+<h2>What is a Functional Group? (क्रियात्मक समूह क्या है?)</h2>
+<p>A <strong style="color:#60a5fa">functional group</strong> is an atom or group of atoms that determines the <em>chemical properties</em> of an organic compound. It is the reactive part of the molecule. | क्रियात्मक समूह वह परमाणु या परमाणुओं का समूह है जो कार्बनिक यौगिक के रासायनिक गुणों को निर्धारित करता है।</p>
+</div>
+<div class="key-formula pulse">
+<h3>⚡ Key Functional Groups — Click to Highlight</h3>
+<div class="formula-row" id="formulaChips">
+<div class="formula-chip" data-group="alcohol">–OH (Hydroxyl)</div>
+<div class="formula-chip" data-group="aldehyde">–CHO (Aldehyde)</div>
+<div class="formula-chip" data-group="ketone">C=O (Ketone)</div>
+<div class="formula-chip" data-group="carboxyl">–COOH (Carboxyl)</div>
+<div class="formula-chip" data-group="halide">–X (Halide)</div>
+</div>
+</div>
+<div class="toggle-row">
+<button class="toggle-btn on" id="toggleAll" onclick="toggleAll()">Show All Details</button>
+<button class="toggle-btn" onclick="highlightGroup('alcohol')">Alcohol</button>
+<button class="toggle-btn" onclick="highlightGroup('aldehyde')">Aldehyde</button>
+<button class="toggle-btn" onclick="highlightGroup('ketone')">Ketone</button>
+<button class="toggle-btn" onclick="highlightGroup('carboxyl')">Carboxyl</button>
+<button class="toggle-btn" onclick="highlightGroup('halide')">Halide</button>
+</div>
+<div class="cards-grid" id="cardsGrid">
+<div class="fg-card alcohol" id="card-alcohol" onclick="toggleCard('alcohol')">
+<div class="card-header">
+<div class="card-icon">🍷</div>
+<div class="card-title">
+<h3 style="color:#60a5fa">Alcohol (ऐल्कोहॉल)</h3>
+<div class="hindi">Suffix: -ol | Example: Ethanol</div>
+</div>
+</div>
+<div class="fg-formula">–OH</div>
+<div class="card-desc">The <strong>hydroxyl group</strong> (–OH) is attached to a carbon atom. Alcohols end in <em>-ol</em>. हाइड्रॉक्सिल समूह कार्बन से जुड़ा होता है।</div>
+<div class="examples-section" id="ex-alcohol">
+<div class="examples-title">Examples (उदाहरण)</div>
+<div class="example-item">
+<span class="example-formula" style="color:#60a5fa">CH₃OH</span>
+<span class="example-name">Methanol (मेथेनॉल)</span>
+</div>
+<div class="example-item">
+<span class="example-formula" style="color:#60a5fa">C₂H₅OH</span>
+<span class="example-name">Ethanol (एथेनॉल)</span>
+</div>
+<div class="naming-rule"><strong>Naming Rule:</strong> Alkane name → replace -e with <strong>-ol</strong><br>Methane → Methanol | Ethane → Ethanol</div>
+</div>
+</div>
+<div class="fg-card aldehyde" id="card-aldehyde" onclick="toggleCard('aldehyde')">
+<div class="card-header">
+<div class="card-icon">🧪</div>
+<div class="card-title">
+<h3 style="color:#f87171">Aldehyde (ऐल्डिहाइड)</h3>
+<div class="hindi">Suffix: -al | Example: Ethanal</div>
+</div>
+</div>
+<div class="fg-formula">–CHO</div>
+<div class="card-desc">The <strong>aldehyde group</strong> (–CHO) is always at the <em>end</em> of carbon chain. Suffix is <em>-al</em>. यह हमेशा कार्बन श्रृंखला के अंत में होता है।</div>
+<div class="examples-section" id="ex-aldehyde">
+<div class="examples-title">Examples (उदाहरण)</div>
+<div class="example-item">
+<span class="example-formula" style="color:#f87171">HCHO</span>
+<span class="example-name">Methanal / Formaldehyde</span>
+</div>
+<div class="example-item">
+<span class="example-formula" style="color:#f87171">CH₃CHO</span>
+<span class="example-name">Ethanal (एथेनेल)</span>
+</div>
+<div class="naming-rule"><strong>Naming Rule:</strong> Alkane name → replace -e with <strong>-al</strong><br>Methane → Methanal | Ethane → Ethanal</div>
+</div>
+</div>
+<div class="fg-card ketone" id="card-ketone" onclick="toggleCard('ketone')">
+<div class="card-header">
+<div class="card-icon">⚗️</div>
+<div class="card-title">
+<h3 style="color:#4ade80">Ketone (कीटोन)</h3>
+<div class="hindi">Suffix: -one | Example: Propanone</div>
+</div>
+</div>
+<div class="fg-formula">C=O</div>
+<div class="card-desc">The <strong>carbonyl group</strong> (C=O) is between two carbon atoms (middle of chain). Suffix is <em>-one</em>. कार्बोनिल समूह बीच में होता है।</div>
+<div class="examples-section" id="ex-ketone">
+<div class="examples-title">Examples (उदाहरण)</div>
+<div class="example-item">
+<span class="example-formula" style="color:#4ade80">CH₃COCH₃</span>
+<span class="example-name">Propanone / Acetone (एसीटोन)</span>
+</div>
+<div class="example-item">
+<span class="example-formula" style="color:#4ade80">CH₃COC₂H₅</span>
+<span class="example-name">Butanone</span>
+</div>
+<div class="naming-rule"><strong>Naming Rule:</strong> Alkane name → replace -e with <strong>-one</strong><br>Propane → Propanone (minimum 3 carbons needed)</div>
+</div>
+</div>
+<div class="fg-card carboxyl" id="card-carboxyl" onclick="toggleCard('carboxyl')">
+<div class="card-header">
+<div class="card-icon">🔬</div>
+<div class="card-title">
+<h3 style="color:#fb923c">Carboxylic Acid (कार्बोक्सिलिक अम्ल)</h3>
+<div class="hindi">Suffix: -oic acid | Example: Ethanoic acid</div>
+</div>
+</div>
+<div class="fg-formula">–COOH</div>
+<div class="card-desc">Contains both C=O and –OH. Makes compounds <strong>acidic</strong>. Suffix is <em>-oic acid</em>. यह अम्लीय यौगिक बनाता है।</div>
+<div class="examples-section" id="ex-carboxyl">
+<div class="examples-title">Examples (उदाहरण)</div>
+<div class="example-item">
+<span class="example-formula" style="color:#fb923c">HCOOH</span>
+<span class="example-name">Methanoic / Formic Acid</span>
+</div>
+<div class="example-item">
+<span class="example-formula" style="color:#fb923c">CH₃COOH</span>
+<span class="example-name">Ethanoic / Acetic Acid (सिरका)</span>
+</div>
+<div class="naming-rule"><strong>Naming Rule:</strong> Alkane name → replace -e with <strong>-oic acid</strong><br>Methane → Methanoic acid | Ethane → Ethanoic acid</div>
+</div>
+</div>
+<div class="fg-card halide" id="card-halide" onclick="toggleCard('halide')">
+<div class="card-header">
+<div class="card-icon">⚡</div>
+<div class="card-title">
+<h3 style="color:#c084fc">Haloalkane (हैलोऐल्केन)</h3>
+<div class="hindi">Prefix: chloro/bromo | Example: Chloromethane</div>
+</div>
+</div>
+<div class="fg-formula">–X (F,Cl,Br,I)</div>
+<div class="card-desc">Halogen atom (F, Cl, Br, I) replaces hydrogen. Named using <em>prefix</em>: fluoro, chloro, bromo, iodo. हैलोजन परमाणु हाइड्रोजन की जगह लेता है।</div>
+<div class="examples-section" id="ex-halide">
+<div class="examples-title">Examples (उदाहरण)</div>
+<div class="example-item">
+<span class="example-formula" style="color:#c084fc">CH₃Cl</span>
+<span class="example-name">Chloromethane (क्लोरोमेथेन)</span>
+</div>
+<div class="example-item">
+<span class="example-formula" style="color:#c084fc">C₂H₅Br</span>
+<span class="example-name">Bromoethane (ब्रोमोएथेन)</span>
+</div>
+<div class="naming-rule"><strong>Naming Rule:</strong> Use <strong>prefix</strong> (chloro/bromo) + alkane name<br>Methane + Cl → Chloromethane</div>
+</div>
+</div>
+</div>
+<div class="svg-container">
+<h3>🔬 Structural Comparison — Interactive Diagram</h3>
+<p class="interactive-hint">Click on any group below to see its structure highlighted</p>
+<svg id="mainSvg" viewBox="0 0 860 220" width="100%" style="max-height:220px">
+<defs>
+<filter id="glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+<g id="grp-alcohol" onclick="highlightGroup('alcohol')" style="cursor:pointer">
+<rect x="5" y="10" width="155" height="200" rx="10" fill="#1e293b" stroke="#334155" stroke-width="1.5" id="bg-alcohol"/>
+<text x="82" y="32" text-anchor="middle" fill="#60a5fa" font-size="11" font-weight="bold">ALCOHOL</text>
+<text x="82" y="46" text-anchor="middle" fill="#94a3b8" font-size="9">ऐल्कोहॉल</text>
+<line x1="40" y1="100" x2="90" y2="100" stroke="#94a3b8" stroke-width="2"/>
+<circle cx="35" cy="100" r="14" fill="#1e3a5f" stroke="#60a5fa" stroke-width="1.5"/>
+<text x="35" y="105" text-anchor="middle" fill="#60a5fa" font-size="12" font-weight="bold">C</text>
+<circle cx="110" cy="100" r="14" fill="#1e3a5f" stroke="#60a5fa" stroke-width="1.5" id="oh-O"/>
+<text x="110" y="105" text-anchor="middle" fill="#60a5fa" font-size="12" font-weight="bold">O</text>
+<circle cx="135" cy="80" r="12" fill="#1e3a5f" stroke="#60a5fa" stroke-width="1.5"/>
+<text x="135" y="85" text-anchor="middle" fill="#60a5fa" font-size="11" font-weight="bold">H</text>
+<line x1="110" y1="90" x2="128" y2="80" stroke="#60a5fa" stroke-width="1.5"/>
+<text x="82" y="145" text-anchor="middle" fill="#4ade80" font-size="13" font-weight="bold">–OH</text>
+<text x="82" y="162" text-anchor="middle" fill="#94a3b8" font-size="9">Hydroxyl Group</text>
+<text x="82" y="178" text-anchor="middle" fill="#94a3b8" font-size="8">Suffix: -ol</text>
+<text x="82" y="194" text-anchor="middle" fill="#60a5fa" font-size="8">Ethanol: C₂H₅OH</text>
+</g>
+<g id="grp-aldehyde" onclick="highlightGroup('aldehyde')" style="cursor:pointer">
+<rect x="168" y="10" width="155" height="200" rx="10" fill="#1e293b" stroke="#334155" stroke-width="1.5" id="bg-aldehyde"/>
+<text x="245" y="32" text-anchor="middle" fill="#f87171" font-size="11" font-weight="bold">ALDEHYDE</text>
+<text x="245" y="46" text-anchor="middle" fill="#94a3b8" font-size="9">ऐल्डिहाइड</text>
+<line x1="200" y1="100" x2="240" y2="100" stroke="#94a3b8" stroke-width="2"/>
+<circle cx="195" cy="100" r="14" fill="#3a1e1e" stroke="#f87171" stroke-width="1.5"/>
+<text x="195" y="105" text-anchor="middle" fill="#f87171" font-size="12" font-weight="bold">C</text>
+<circle cx="262" cy="100" r="14" fill="#3a1e1e" stroke="#f87171" stroke-width="1.5"/>
+<text x="262" y="105" text-anchor="middle" fill="#f87171" font-size="12" font-weight="bold">C</text>
+<circle cx="290" cy="88" r="12" fill="#3a1e1e" stroke="#f87171" stroke-width="1.5"/>
+<text x="290" y="93" text-anchor="middle" fill="#f87171" font-size="11" font-weight="bold">O</text>
+<line x1="268" y1="94" x2="283" y2="90" stroke="#f87171" stroke-width="2"/>
+<line x1="266" y1="99" x2="281" y2="95" stroke="#f87171" stroke-width="2"/>
+<circle cx="290" cy="112" r="12" fill="#3a1e1e" stroke="#f87171" stroke-width="1.5"/>
+<text x="290" y="117" text-anchor="middle" fill="#f87171" font-size="11" font-weight="bold">H</text>
+<line x1="268" y1="103" x2="283" y2="110" stroke="#f87171" stroke-width="1.5"/>
+<text x="245" y="145" text-anchor="middle" fill="#4ade80" font-size="13" font-weight="bold">–CHO</text>
+<text x="245" y="162" text-anchor="middle" fill="#94a3b8" font-size="9">Aldehyde Group</text>
+<text x="245" y="178" text-anchor="middle" fill="#94a3b8" font-size="8">Suffix: -al</text>
+<text x="245" y="194" text-anchor="middle" fill="#f87171" font-size="8">Ethanal: CH₃CHO</text>
+</g>
+<g id="grp-ketone" onclick="highlightGroup('ketone')" style="cursor:pointer">
+<rect x="331" y="10" width="155" height="200" rx="10" fill="#1e293b" stroke="#334155" stroke-width="1.5" id="bg-ketone"/>
+<text x="408" y="32" text-anchor="middle" fill="#4ade80" font-size="11" font-weight="bold">KETONE</text>
+<text x="408" y="46" text-anchor="middle" fill="#94a3b8" font-size="9">कीटोन</text>
+<line x1="355" y1="100" x2="385" y2="100" stroke="#94a3b8" stroke-width="2"/>
+<line x1="425" y1="100" x2="455" y2="100" stroke="#94a3b8" stroke-width="2"/>
+<circle cx="350" cy="100" r="14" fill="#1e3a2a" stroke="#4ade80" stroke-width="1.5"/>
+<text x="350" y="105" text-anchor="middle" fill="#4ade80" font-size="12" font-weight="bold">C</text>
+<circle cx="408" cy="100" r="14" fill="#1e3a2a" stroke="#4ade80" stroke-width="1.5"/>
+<text x="408" y="105" text-anchor="middle" fill="#4ade80" font-size="12" font-weight="bold">C</text>
+<circle cx="408" cy="72" r="12" fill="#1e3a2a" stroke="#4ade80" stroke-width="1.5"/>
+<text x="408" y="77" text-anchor="middle" fill="#4ade80" font-size="11" font-weight="bold">O</text>
+<line x1="402" y1="90" x2="402" y2="80" stroke="#4ade80" stroke-width="2"/>
+<line x1="414" y1="90" x2="414" y2="80" stroke="#4ade80" stroke-width="2"/>
+<circle cx="462" cy="100" r="14" fill="#1e3a2a" stroke="#4ade80" stroke-width="1.5"/>
+<text x="462" y="105" text-anchor="middle" fill="#4ade80" font-size="12" font-weight="bold">C</text>
+<text x="408" y="145" text-anchor="middle" fill="#4ade80" font-size="13" font-weight="bold">C=O</text>
+<text x="408" y="162" text-anchor="middle" fill="#94a3b8" font-size="9">Ketone / Carbonyl</text>
+<text x="408" y="178" text-anchor="middle" fill="#94a3b8" font-size="8">Suffix: -one</text>
+<text x="408" y="194" text-anchor="middle" fill="#4ade80" font-size="8">Propanone
+</body>
+</html>

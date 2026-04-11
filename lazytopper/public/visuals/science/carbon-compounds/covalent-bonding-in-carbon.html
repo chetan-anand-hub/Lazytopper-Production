@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carbon Covalent Bonding | CBSE Class 10</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f172a;color:#e2e8f0;font-family:'Segoe UI',sans-serif;min-height:100vh;overflow-x:hidden}
+header{background:linear-gradient(135deg,#1e293b,#0f172a);border-bottom:2px solid #38bdf8;padding:12px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100}
+header h1{font-size:1.1rem;color:#38bdf8;font-weight:700}
+header span{font-size:.75rem;color:#94a3b8;background:#1e3a5f;padding:2px 8px;border-radius:20px}
+.badge{background:#7c3aed;color:#fff;font-size:.7rem;padding:2px 8px;border-radius:20px;margin-left:auto}
+main{padding:16px;max-width:900px;margin:0 auto}
+.formula-box{background:linear-gradient(135deg,#1e3a5f,#1e293b);border:2px solid #38bdf8;border-radius:12px;padding:16px;text-align:center;margin-bottom:20px;animation:pulse 3s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(56,189,248,.3)}50%{box-shadow:0 0 20px 5px rgba(56,189,248,.2)}}
+.formula-box h2{font-size:1.5rem;color:#38bdf8;letter-spacing:2px}
+.formula-box p{font-size:.8rem;color:#94a3b8;margin-top:4px}
+.hindi{color:#fb923c;font-size:.85rem}
+.section{background:#1e293b;border-radius:12px;padding:16px;margin-bottom:16px;border:1px solid #334155}
+.section h3{color:#7dd3fc;font-size:.95rem;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.section h3::before{content:'';width:4px;height:16px;background:#38bdf8;border-radius:2px;display:inline-block}
+canvas{display:block;margin:0 auto;border-radius:8px;cursor:pointer}
+.tabs{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.tab{padding:6px 14px;border-radius:20px;border:1px solid #334155;background:#0f172a;color:#94a3b8;cursor:pointer;font-size:.8rem;transition:.3s}
+.tab.active{background:#38bdf8;color:#0f172a;font-weight:700;border-color:#38bdf8}
+.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:10px}
+.info-card{background:#0f172a;border-radius:8px;padding:10px;text-align:center;border:1px solid #334155;transition:.3s;cursor:pointer}
+.info-card:hover{border-color:#38bdf8;transform:translateY(-2px)}
+.info-card .num{font-size:1.8rem;font-weight:700;color:#38bdf8}
+.info-card .label{font-size:.7rem;color:#94a3b8;margin-top:2px}
+.info-card .hlabel{font-size:.7rem;color:#fb923c}
+.btn{background:linear-gradient(135deg,#0369a1,#0284c7);border:none;color:#fff;padding:8px 18px;border-radius:20px;cursor:pointer;font-size:.8rem;transition:.3s}
+.btn:hover{transform:scale(1.05);background:linear-gradient(135deg,#0284c7,#38bdf8)}
+.steps{counter-reset:s}
+.step{position:relative;padding:8px 8px 8px 32px;margin:6px 0;background:#0f172a;border-radius:8px;font-size:.82rem;color:#cbd5e1;border-left:3px solid #38bdf8}
+.step::before{counter-increment:s;content:counter(s);position:absolute;left:8px;top:8px;color:#38bdf8;font-weight:700}
+svg text{font-family:'Segoe UI',sans-serif}
+#dotCanvas{max-width:100%;height:220px}
+#bondCanvas{max-width:100%;height:200px}
+.toggle-row{display:flex;align-items:center;gap:10px;margin-top:8px}
+.toggle{width:44px;height:24px;background:#334155;border-radius:12px;position:relative;cursor:pointer;transition:.3s}
+.toggle.on{background:#0284c7}
+.toggle::after{content:'';position:absolute;width:20px;height:20px;background:#fff;border-radius:50%;top:2px;left:2px;transition:.3s}
+.toggle.on::after{left:22px}
+.electron{animation:spin 2s linear infinite}
+@keyframes spin{from{transform-origin:center;transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.fade{animation:fadeIn .4s ease}
+</style>
+</head>
+<body>
+<header>
+<div>💎</div>
+<h1>Carbon &amp; Covalent Bonds</h1>
+<span>CBSE Class 10</span>
+<div class="badge">Science Ch.4</div>
+</header>
+<main>
+<div class="formula-box">
+<h2>C — C — C — C</h2>
+<p>Carbon is <strong style="color:#fbbf24">Tetravalent</strong> — forms 4 covalent bonds</p>
+<p class="hindi">कार्बन चतुःसंयोजक है — 4 सहसंयोजक बंध बनाता है</p>
+</div>
+
+<div class="section">
+<h3>Key Properties of Carbon <span class="hindi">| मुख्य गुण</span></h3>
+<div class="info-grid">
+<div class="info-card" onclick="showInfo('atomic')">
+<div class="num">6</div>
+<div class="label">Atomic Number</div>
+<div class="hlabel">परमाणु क्रमांक</div>
+</div>
+<div class="info-card" onclick="showInfo('valence')">
+<div class="num">4</div>
+<div class="label">Valence Electrons</div>
+<div class="hlabel">संयोजकता इलेक्ट्रॉन</div>
+</div>
+<div class="info-card" onclick="showInfo('bonds')">
+<div class="num">4</div>
+<div class="label">Bonds Formed</div>
+<div class="hlabel">बंध संख्या</div>
+</div>
+<div class="info-card" onclick="showInfo('shells')">
+<div class="num">2,4</div>
+<div class="label">Shell Config</div>
+<div class="hlabel">कोश विन्यास</div>
+</div>
+</div>
+<p id="infoText" style="margin-top:10px;font-size:.82rem;color:#7dd3fc;min-height:20px;transition:.3s"></p>
+</div>
+
+<div class="section">
+<h3>Interactive Atom Builder <span class="hindi">| परमाणु संरचना</span></h3>
+<canvas id="bondCanvas" width="500" height="200"></canvas>
+<div class="toggle-row">
+<span style="font-size:.8rem;color:#94a3b8">Show Electron Sharing</span>
+<span class="hindi" style="font-size:.75rem;color:#fb923c">इलेक्ट्रॉन साझेदारी</span>
+<div class="toggle" id="shareToggle" onclick="toggleShare()"></div>
+</div>
+<p style="font-size:.75rem;color:#64748b;margin-top:6px">Click on a bond to highlight it</p>
+</div>
+
+<div class="section">
+<h3>Bond Types <span class="hindi">| बंध प्रकार</span></h3>
+<div class="tabs">
+<div class="tab active" onclick="selectTab(this,'single')">Single Bond (एकल)</div>
+<div class="tab" onclick="selectTab(this,'double')">Double Bond (द्विक)</div>
+<div class="tab" onclick="selectTab(this,'triple')">Triple Bond (त्रिक)</div>
+</div>
+<canvas id="dotCanvas" width="500" height="220"></canvas>
+<div id="bondInfo" class="fade" style="font-size:.82rem;color:#94a3b8;margin-top:8px"></div>
+</div>
+
+<div class="section">
+<h3>How Covalent Bond Forms <span class="hindi">| बंध कैसे बनता है</span></h3>
+<div class="steps">
+<div class="step">Each carbon has <strong style="color:#38bdf8">4 valence electrons</strong> — needs 4 more to complete octet <span class="hindi">(अष्टक पूर्ण करना)</span></div>
+<div class="step">Carbon <strong style="color:#38bdf8">shares electrons</strong> with other atoms — neither gains nor loses <span class="hindi">(इलेक्ट्रॉन साझा करता है)</span></div>
+<div class="step">Each shared pair = <strong style="color:#38bdf8">one covalent bond</strong> shown as a line (—) <span class="hindi">(सहसंयोजक बंध)</span></div>
+<div class="step">Carbon can bond with C, H, O, N, Cl forming <strong style="color:#38bdf8">millions of compounds</strong> <span class="hindi">(अनगिनत यौगिक)</span></div>
+</div>
+<div style="margin-top:10px;text-align:center">
+<button class="btn" onclick="animateBond()">▶ Animate Bond Formation | बंध दिखाएं</button>
+</div>
+</div>
+</main>
+
+<script>
+const bondCtx=document.getElementById('bondCanvas').getContext('2d');
+const dotCtx=document.getElementById('dotCanvas').getContext('2d');
+let shareOn=false,currentTab='single',animFrame=null,bondAngle=0,highlightBond=-1,animProgress=0,animating=false;
+
+function resizeCanvases(){
+  const w=Math.min(window.innerWidth-48,500);
+  document.getElementById('bondCanvas').width=w;
+  document.getElementById('dotCanvas').width=w;
+  drawBondCanvas();drawDotCanvas();
+}
+
+function toggleShare(){
+  const t=document.getElementById('shareToggle');
+  shareOn=!shareOn;
+  t.classList.toggle('on',shareOn);
+  drawBondCanvas();
+}
+
+function drawBondCanvas(){
+  const c=document.getElementById('bondCanvas');
+  const w=c.width,h=c.height,cx=w/2,cy=h/2;
+  bondCtx.clearRect(0,0,w,h);
+  bondCtx.fillStyle='#0f172a';
+  bondCtx.fillRect(0,0,w,h);
+  
+  const r=55,d=shareOn?80:90;
+  const dirs=[[0,-d],[d,0],[0,d],[-d,0]];
+  const colors=['#38bdf8','#34d399','#f472b6','#fbbf24'];
+  const atoms=['H','H','H','H'];
+  
+  dirs.forEach(([dx,dy],i)=>{
+    const ax=cx+dx,ay=cy+dy;
+    bondCtx.strokeStyle=highlightBond===i?'#fff':colors[i];
+    bondCtx.lineWidth=highlightBond===i?3:2;
+    bondCtx.beginPath();bondCtx.moveTo(cx,cy);bondCtx.lineTo(ax,ay);bondCtx.stroke();
+    
+    if(shareOn){
+      const mx=cx+(dx*.55),my=cy+(dy*.55);
+      bondCtx.beginPath();
+      bondCtx.arc(mx,my,5,0,Math.PI*2);
+      bondCtx.fillStyle=colors[i];
+      bondCtx.fill();
+      const mx2=cx+(dx*.35),my2=cy+(dy*.35);
+      bondCtx.beginPath();
+      bondCtx.arc(mx2,my2,5,0,Math.PI*2);
+      bondCtx.fillStyle='#7c3aed';
+      bondCtx.fill();
+    }
+    
+    bondCtx.beginPath();
+    bondCtx.arc(ax,ay,16,0,Math.PI*2);
+    bondCtx.fillStyle=i===0?'#1e3a5f':'#1a2e1a';
+    bondCtx.fill();
+    bondCtx.strokeStyle=colors[i];
+    bondCtx.lineWidth=1.5;
+    bondCtx.stroke();
+    bondCtx.fillStyle=colors[i];
+    bondCtx.font='bold 11px Segoe UI';
+    bondCtx.textAlign='center';
+    bondCtx.textBaseline='middle';
+    bondCtx.fillText(atoms[i],ax,ay);
+  });
+  
+  bondCtx.beginPath();
+  bondCtx.arc(cx,cy,22,0,Math.PI*2);
+  bondCtx.fillStyle='#1e3a5f';
+  bondCtx.fill();
+  bondCtx.strokeStyle='#38bdf8';
+  bondCtx.lineWidth=2;
+  bondCtx.stroke();
+  bondCtx.fillStyle='#38bdf8';
+  bondCtx.font='bold 14px Segoe UI';
+  bondCtx.textAlign='center';
+  bondCtx.textBaseline='middle';
+  bondCtx.fillText('C',cx,cy);
+  
+  bondCtx.fillStyle='#64748b';
+  bondCtx.font='11px Segoe UI';
+  bondCtx.fillText('CH₄ - Methane | मेथेन',cx,h-12);
+}
+
+document.getElementById('bondCanvas').addEventListener('click',e=>{
+  const c=document.getElementById('bondCanvas');
+  const rect=c.getBoundingClientRect();
+  const mx=(e.clientX-rect.left)*(c.width/rect.width);
+  const my=(e.clientY-rect.top)*(c.height/rect.height);
+  const cx=c.width/2,cy=c.height/2,d=shareOn?80:90;
+  const dirs=[[0,-d],[d,0],[0,d],[-d,0]];
+  let hit=-1;
+  dirs.forEach(([dx,dy],i)=>{
+    const px=cx+dx*.5,py=cy+dy*.5;
+    if(Math.hypot(mx-px,my-py)<20)hit=i;
+  });
+  highlightBond=hit===highlightBond?-1:hit;
+  drawBondCanvas();
+});
+
+function selectTab(el,type){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  currentTab=type;
+  drawDotCanvas();
+  updateBondInfo();
+}
+
+function updateBondInfo(){
+  const infos={
+    single:'<strong style="color:#38bdf8">Single Bond:</strong> 1 shared pair. E.g., C-C in Ethane (C₂H₆). Bond length: 154 pm. <span class="hindi">एकल बंध — एक साझा जोड़ी</span>',
+    double:'<strong style="color:#34d399">Double Bond:</strong> 2 shared pairs. E.g., C=C in Ethene (C₂H₄). Bond length: 134 pm. <span class="hindi">द्विक बंध — दो साझा जोड़ी</span>',
+    triple:'<strong style="color:#f472b6">Triple Bond:</strong> 3 shared pairs. E.g., C≡C in Ethyne (C₂H₂). Bond length: 120 pm. <span class="hindi">त्रिक बंध — तीन साझा जोड़ी</span>'
+  };
+  document.getElementById('bondInfo').innerHTML=infos[currentTab];
+}
+
+function drawDotCanvas(){
+  const c=document.getElementById('dotCanvas');
+  const w=c.width,h=c.height;
+  dotCtx.clearRect(0,0,w,h);
+  dotCtx.fillStyle='#0f172a';
+  dotCtx.fillRect(0,0,w,h);
+  
+  const colors={single:'#38bdf8',double:'#34d399',triple:'#f472b6'};
+  const col=colors[currentTab];
+  const cx=w/2,cy=h/2+10;
+  const gap=80;
+  
+  function drawAtom(x,y,label,dots,col2){
+    dotCtx.beginPath();dotCtx.arc(x,y,20,0,Math.PI*2);
+    dotCtx.fillStyle='#1e293b';dotCtx.fill();
+    dotCtx.strokeStyle=col2||'#38bdf8';dotCtx.lineWidth=2;dotCtx.stroke();
+    dotCtx.fillStyle=col2||'#38bdf8';
+    dotCtx.font='bold 13px Segoe UI';
+    dotCtx.textAlign='center';dotCtx.textBaseline='middle';
+    dotCtx.fillText(label,x,y);
+    const dpos=[[0,-26],[8,-18],[26,0],[8,18],[0,26],[-8,18],[-26,0],[-8,-18]];
+    dots.forEach((d,i)=>{
+      if(i<dpos.length){
+        dotCtx.beginPath();dotCtx.arc(x+dpos[i][0],y+dpos[i][1],3,0,Math.PI*2);
+        dotCtx.fillStyle=col2||'#fbbf24';dotCtx.fill();
+      }
+    });
+  }
+  
+  const n={single:1,double:2,triple:3}[currentTab];
+  const lx=cx-gap,rx=cx+gap;
+  
+  dotCtx.strokeStyle=col;dotCtx.lineWidth=3;
+  for(let i=0;i<n;i++){
+    const oy=(i-(n-1)/2)*8;
+    dotCtx.beginPath();dotCtx.moveTo(lx+20,cy+oy);dotCtx.lineTo(rx-20,cy+oy);dotCtx.stroke();
+  }
+  
+  const sharedDots=Array(n).fill(1);
+  drawAtom(lx,cy,'C',[...Array(4-n).fill(1),...sharedDots],'#38bdf8');
+  drawAtom(rx,cy,'C',[...sharedDots,...Array(4-n).fill(1)],'#7c3aed');
+  
+  dotCtx.fillStyle='#64748b';dotCtx.font='11px Segoe UI';dotCtx.textAlign='center';
+  const labels={single:'C — C (Ethane) | एकल बंध',double:'C = C (Ethene) | द्विक बंध',triple:'C ≡ C (Ethyne) | त्रिक बंध'};
+  dotCtx.fillText(labels[currentTab],cx,30);
+  
+  dotCtx.fillStyle=col;dotCtx.font='bold 10px Segoe UI';
+  dotCtx.fillText('●= shared pair | साझा जोड़ी',cx,h-12);
+}
+
+function showInfo(type){
+  const msgs={
+    atomic:'Carbon (C) has atomic number 6. Configuration: 2,4. It is non-metal. | कार्बन की परमाणु संख्या 6 है।',
+    valence:'4 valence electrons in outer shell (L shell). Needs 4 more for octet. | बाहरी कोश में 4 इलेक्ट्रॉन।',
+    bonds:'Forms exactly 4 covalent bonds. Can bond with C,H,O,N,Cl etc. | 4 सहसंयोजक बंध बनाता है।',
+    shells:'Shell 1(K):2 electrons, Shell 2(L):4 electrons. | K:2, L:4 — चतुःसंयोजक'
+  };
+  document.getElementById('infoText').textContent=msgs[type]||'';
+}
+
+function animateBond(){
+  animating=true;animProgress=0;
+  if(animFrame)cancelAnimationFrame(animFrame);
+  function step(){
+    animProgress+=0.02;
+    const c=document.getElementById('bondCanvas');
+    const w=c.width,h=c.height,cx=w/2,cy=h/2;
+    bondCtx.clearRect(0,0,w,h);
+    bondCtx.fillStyle='#0f172a';bondCtx.fillRect(0,0,w,h);
+    const p=Math.min(animProgress,1);
+    const d=90,dirs=[[0,-d],[d,0],[0,d],[-d,0]];
+    const colors=['#38bdf8','#34d399','#f472b6','#fbbf24'];
+    dirs.forEach(([dx,dy],i)=>{
+      const delay=i*.25,prog=Math.max(0,Math.min(1,(p-delay)*4));
+      if(prog>0){
+        const ax=cx+dx*prog,ay=cy+dy*prog;
+        bondCtx.strokeStyle=colors[i];bondCtx.lineWidth=2;
+        bondCtx.beginPath();bondCtx.moveTo(cx,cy);bondCtx.lineTo(ax,ay);bondCtx.stroke();
+        if(prog>=1){
+          bondCtx.beginPath();bondCtx.arc(ax,ay,16,0,Math.PI*2);
+          bondCtx.fillStyle='#1a2e1a';bondCtx.fill();
+          bondCtx.strokeStyle=colors[i];bondCtx.lineWidth=1.5;bondCtx.stroke();
+          bondCtx.fillStyle=colors[i];bondCtx.font='bold 11px Segoe UI';
+          bondCtx.textAlign='center';bondCtx.textBaseline='middle';
+          bondCtx.fillText('H',ax,ay);
+        }
+      }
+    });
+    bondCtx.beginPath();bondCtx.arc(cx,cy,22,0,Math.PI*2);
+    bondCtx.fillStyle='#1e3a5f';bondCtx.fill();
+    bondCtx.strokeStyle='#38bdf8';bondCtx.lineWidth=2;bondCtx.stroke();
+    bondCtx.fillStyle='#38bdf8';bondCtx.font='bold 14px Segoe UI';
+    bondCtx.textAlign='center';bondCtx.textBaseline='middle';
+    bondCtx.fillText('C',cx,cy);
+    bondCtx.fillStyle='#64748b';bondCtx.font='11px Segoe UI';
+    bondCtx.fillText('CH₄ - Methane | मेथेन',cx,h-12);
+    if(animProgress<2)animFrame=requestAnimationFrame(step);
+    else{animating=false;drawBondCanvas();}
+  }
+  animFrame=requestAnimationFrame(step);
+}
+
+window.addEventListener('resize',resizeCanvases);
+resizeCanvases();
+updateBondInfo();
+showInfo('valence');
+</script>
+</body>
+</html>

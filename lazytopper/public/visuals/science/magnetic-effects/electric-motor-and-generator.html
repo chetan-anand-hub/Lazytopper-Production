@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Electric Motor & Generator | Class 10 Science</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f172a;color:#e2e8f0;font-family:'Segoe UI',sans-serif;min-height:100vh;overflow-x:hidden}
+.titlebar{background:linear-gradient(135deg,#1e3a5f,#0f172a);padding:12px 20px;border-bottom:2px solid #3b82f6;display:flex;align-items:center;gap:12px}
+.titlebar h1{font-size:1.1rem;color:#60a5fa;font-weight:700}
+.titlebar span{font-size:.8rem;color:#94a3b8;margin-left:auto}
+.badge{background:#3b82f6;color:white;padding:2px 8px;border-radius:20px;font-size:.7rem;font-weight:600}
+.container{max-width:900px;margin:0 auto;padding:16px}
+.tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.tab{padding:8px 18px;border-radius:20px;border:1px solid #334155;background:#1e293b;color:#94a3b8;cursor:pointer;font-size:.85rem;transition:all .3s}
+.tab.active{background:#3b82f6;color:white;border-color:#3b82f6}
+.tab:hover:not(.active){border-color:#3b82f6;color:#60a5fa}
+.panel{display:none;animation:fadeIn .4s ease}
+.panel.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.formula-box{background:linear-gradient(135deg,#1e3a5f,#162032);border:1.5px solid #3b82f6;border-radius:12px;padding:16px;margin-bottom:16px;text-align:center}
+.formula{font-size:1.4rem;color:#60a5fa;font-weight:700;letter-spacing:1px;margin:8px 0}
+.formula-label{font-size:.75rem;color:#94a3b8}
+svg{width:100%;height:auto}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+@media(max-width:500px){.info-grid{grid-template-columns:1fr}.formula{font-size:1.1rem}}
+.info-card{background:#1e293b;border:1px solid #334155;border-radius:10px;padding:12px}
+.info-card h3{color:#60a5fa;font-size:.85rem;margin-bottom:6px}
+.info-card p{font-size:.78rem;color:#94a3b8;line-height:1.5}
+.hindi{color:#f59e0b;font-style:italic;font-size:.75rem}
+.ctrl-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:12px 0}
+.btn{padding:7px 16px;border-radius:8px;border:1px solid #3b82f6;background:#1e3a5f;color:#60a5fa;cursor:pointer;font-size:.82rem;transition:all .3s}
+.btn:hover{background:#3b82f6;color:white}
+.btn.on{background:#22c55e;border-color:#22c55e;color:white}
+.btn.off{background:#ef4444;border-color:#ef4444;color:white}
+.slider-wrap{display:flex;align-items:center;gap:8px;font-size:.8rem;color:#94a3b8}
+input[type=range]{accent-color:#3b82f6;width:100px}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:.75rem;margin:8px 0}
+.legend-item{display:flex;align-items:center;gap:4px}
+.dot{width:10px;height:10px;border-radius:50%}
+canvas{border-radius:10px;border:1px solid #334155;width:100%;display:block}
+.wave-canvas{height:120px}
+.compare-table{width:100%;border-collapse:collapse;font-size:.78rem;margin-top:12px}
+.compare-table th{background:#1e3a5f;color:#60a5fa;padding:8px;text-align:left;border:1px solid #334155}
+.compare-table td{padding:7px 8px;border:1px solid #334155;color:#cbd5e1}
+.compare-table tr:nth-child(even) td{background:#1e293b}
+.highlight{color:#f59e0b;font-weight:600}
+.arrow-animate{animation:arrowFlow 1s linear infinite}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes arrowFlow{0%{stroke-dashoffset:20}100%{stroke-dashoffset:0}}
+</style>
+</head>
+<body>
+<div class="titlebar">
+  <div>⚡</div>
+  <h1>Electric Motor &amp; Generator</h1>
+  <div class="badge">CBSE Class 10</div>
+  <span>Magnetic Effects of Current</span>
+</div>
+<div class="container">
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('motor')">⚙️ Electric Motor</div>
+    <div class="tab" onclick="showTab('generator')">🔋 Generator</div>
+    <div class="tab" onclick="showTab('compare')">📊 Compare</div>
+  </div>
+
+  <!-- MOTOR PANEL -->
+  <div class="panel active" id="tab-motor">
+    <div class="formula-box">
+      <div class="formula-label">Force on current-carrying conductor in magnetic field</div>
+      <div class="formula">F = BIL sin θ</div>
+      <div class="formula-label">B=Magnetic Field &nbsp;|&nbsp; I=Current &nbsp;|&nbsp; L=Length &nbsp;|&nbsp; θ=Angle</div>
+      <div class="hindi">विद्युत मोटर — विद्युत ऊर्जा → यांत्रिक ऊर्जा</div>
+    </div>
+    <div class="ctrl-row">
+      <button class="btn on" id="motorBtn" onclick="toggleMotor()">⏸ Pause Motor</button>
+      <div class="slider-wrap">
+        Speed: <input type="range" id="motorSpeed" min="1" max="10" value="5" oninput="updateMotorSpeed(this.value)">
+        <span id="speedVal">5</span>
+      </div>
+      <div class="slider-wrap">
+        Current Direction:
+        <button class="btn" onclick="reverseMotor()" style="padding:4px 10px">↔ Reverse</button>
+      </div>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><div class="dot" style="background:#3b82f6"></div> Armature Coil (आर्मेचर)</div>
+      <div class="legend-item"><div class="dot" style="background:#ef4444"></div> N Pole</div>
+      <div class="legend-item"><div class="dot" style="background:#22c55e"></div> S Pole</div>
+      <div class="legend-item"><div class="dot" style="background:#f59e0b"></div> Commutator (कम्यूटेटर)</div>
+      <div class="legend-item"><div class="dot" style="background:#a855f7"></div> Brushes (ब्रश)</div>
+    </div>
+    <svg id="motorSVG" viewBox="0 0 400 280" style="max-height:300px;background:#111827;border-radius:12px;border:1px solid #334155">
+      <!-- Magnets -->
+      <rect x="10" y="90" width="70" height="100" rx="6" fill="#7f1d1d" stroke="#ef4444" stroke-width="2"/>
+      <text x="45" y="145" fill="#ef4444" font-size="20" font-weight="bold" text-anchor="middle">N</text>
+      <rect x="320" y="90" width="70" height="100" rx="6" fill="#14532d" stroke="#22c55e" stroke-width="2"/>
+      <text x="355" y="145" fill="#22c55e" font-size="20" font-weight="bold" text-anchor="middle">S</text>
+      <!-- Field lines -->
+      <g stroke="#334155" stroke-width="1" stroke-dasharray="4,4">
+        <line x1="80" y1="120" x2="320" y2="120"/><line x1="80" y1="140" x2="320" y2="140"/>
+        <line x1="80" y1="160" x2="320" y2="160"/>
+      </g>
+      <!-- Commutator -->
+      <ellipse id="comm1" cx="200" cy="210" rx="18" ry="10" fill="#f59e0b" opacity="0.9"/>
+      <ellipse id="comm2" cx="200" cy="210" rx="18" ry="10" fill="#78350f" opacity="0.9"/>
+      <!-- Brushes -->
+      <rect x="175" y="218" width="12" height="20" rx="3" fill="#a855f7"/>
+      <rect x="213" y="218" width="12" height="20" rx="3" fill="#a855f7"/>
+      <!-- Battery -->
+      <rect x="155" y="250" width="90" height="22" rx="5" fill="#1e293b" stroke="#334155" stroke-width="1.5"/>
+      <text x="200" y="265" fill="#94a3b8" font-size="10" text-anchor="middle">Battery (बैटरी)</text>
+      <line x1="181" y1="238" x2="181" y2="250" stroke="#a855f7" stroke-width="2"/>
+      <line x1="219" y1="238" x2="219" y2="250" stroke="#a855f7" stroke-width="2"/>
+      <!-- Rotating coil group -->
+      <g id="motorCoil" transform="rotate(0,200,140)">
+        <rect x="170" y="80" width="60" height="120" rx="4" fill="none" stroke="#3b82f6" stroke-width="4"/>
+        <rect x="170" y="80" width="60" height="10" rx="2" fill="#3b82f6" opacity="0.7"/>
+        <rect x="170" y="190" width="60" height="10" rx="2" fill="#3b82f6" opacity="0.7"/>
+        <!-- Current arrows -->
+        <text id="arr1" x="200" y="100" fill="#fbbf24" font-size="16" text-anchor="middle">↑</text>
+        <text id="arr2" x="200" y="185" fill="#fbbf24" font-size="16" text-anchor="middle">↓</text>
+        <!-- Shaft -->
+        <line x1="200" y1="70" x2="200" y2="80" stroke="#64748b" stroke-width="4"/>
+        <circle cx="200" cy="65" r="8" fill="#64748b"/>
+        <text x="200" y="69" fill="white" font-size="9" text-anchor="middle">⚙</text>
+      </g>
+      <!-- Labels -->
+      <text x="200" y="20" fill="#94a3b8" font-size="11" text-anchor="middle">Electric Motor (विद्युत मोटर)</text>
+      <text x="45" y="200" fill="#ef4444" font-size="9" text-anchor="middle">North Pole</text>
+      <text x="355" y="200" fill="#22c55e" font-size="9" text-anchor="middle">South Pole</text>
+    </svg>
+    <div id="motorStatus" style="text-align:center;color:#60a5fa;font-size:.82rem;margin:6px 0">
+      ⚙️ Motor Running — Converting Electrical → Mechanical Energy
+    </div>
+    <div class="info-grid">
+      <div class="info-card">
+        <h3>🔩 Armature (आर्मेचर)</h3>
+        <p>Rectangular coil that rotates in the magnetic field. Carries current from battery.</p>
+      </div>
+      <div class="info-card">
+        <h3>🔄 Commutator (कम्यूटेटर)</h3>
+        <p>Reverses current direction every half rotation. Ensures continuous rotation in DC motors.</p>
+      </div>
+      <div class="info-card">
+        <h3>🖊️ Brushes (ब्रश)</h3>
+        <p>Carbon brushes maintain electrical contact with rotating commutator rings.</p>
+      </div>
+      <div class="info-card">
+        <h3>🧲 Magnetic Field (चुंबकीय क्षेत्र)</h3>
+        <p>Created by permanent magnets (N→S). Force on conductor: F = BIL. Fleming's Left Hand Rule applies.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- GENERATOR PANEL -->
+  <div class="panel" id="tab-generator">
+    <div class="formula-box">
+      <div class="formula-label">Faraday's Law — Induced EMF (प्रेरित विद्युत वाहक बल)</div>
+      <div class="formula">ε = −N × dΦ/dt</div>
+      <div class="formula-label">N=Turns &nbsp;|&nbsp; Φ=Magnetic Flux &nbsp;|&nbsp; t=Time</div>
+      <div class="hindi">जनित्र — यांत्रिक ऊर्जा → विद्युत ऊर्जा (विद्युत चुंबकीय प्रेरण)</div>
+    </div>
+    <div class="ctrl-row">
+      <button class="btn on" id="genBtn" onclick="toggleGen()">⏸ Pause</button>
+      <button class="btn" id="acDcBtn" onclick="toggleAcDc()">🔁 AC Mode</button>
+      <div class="slider-wrap">
+        RPM: <input type="range" id="genSpeed" min="1" max="10" value="5" oninput="updateGenSpeed(this.value)">
+        <span id="genSpeedVal">5</span>
+      </div>
+    </div>
+    <svg id="genSVG" viewBox="0 0 400 220" style="max-height:240px;background:#111827;border-radius:12px;border:1px solid #334155">
+      <rect x="10" y="60" width="65" height="100" rx="6" fill="#7f1d1d" stroke="#ef4444" stroke-width="2"/>
+      <text x="42" y="115" fill="#ef4444" font-size="18" font-weight="bold" text-anchor="middle">N</text>
+      <rect x="325" y="60" width="65" height="100" rx="6" fill="#14532d" stroke="#22c55e" stroke-width="2"/>
+      <text x="358" y="115" fill="#22c55e" font-size="18" font-weight="bold" text-anchor="middle">S</text>
+      <g stroke="#1e3a5f" stroke-width="1.5">
+        <line x1="75" y1="95" x2="325" y2="95"/><line x1="75" y1="110" x2="325" y2="110"/>
+        <line x1="75" y1="125" x2="325" y2="125"/>
+      </g>
+      <g id="genCoil" transform="rotate(0,200,110)">
+        <rect x="168" y="50" width="64" height="120" rx="4" fill="none" stroke="#60a5fa" stroke-width="4"/>
+        <rect x="168" y="50" width="64" height="10" rx="2" fill="#60a5fa" opacity="0.6"/>
+        <rect x="168" y="160" width="64" height="10" rx="2" fill="#60a5fa" opacity="0.6"/>
+        <line x1="200" y1="40" x2="200" y2="50" stroke="#64748b" stroke-width="5"/>
+        <text x="200" y="38" fill="#94a3b8" font-size="10" text-anchor="middle">shaft</text>
+      </g>
+      <!-- Slip rings -->
+      <ellipse cx="200" cy="178" rx="20" ry="8" fill="none" stroke="#f59e0b" stroke-width="3"/>
+      <ellipse cx="200" cy="185" rx="20" ry="8" fill="none" stroke="#f59e0b" stroke-width="3"/>
+      <!-- External circuit -->
+      <rect x="140" y="195" width="120" height="18" rx="4" fill="#1e293b" stroke="#334155"/>
+      <text x="200" y="208" fill="#94a3b8" font-size="9" text-anchor="middle">External Circuit (बाह्य परिपथ)</text>
+      <line x1="180" y1="190" x2="168" y2="195" stroke="#f59e0b" stroke-width="2"/>
+      <line x1="220" y1="190" x2="232" y2="195" stroke="#f59e0b" stroke-width="2"/>
+      <text x="200" y="18" fill="#94a3b8" font-size="11" text-anchor="middle">Generator / Dynamo (जनित्र)</text>
+      <text id="genLabel" x="200" y="35" fill="#60a5fa" font-size="10" text-anchor="middle">AC Generator — Slip Rings</text>
+    </svg>
+    <div id="genStatus" style="text-align:center;color:#22c55e;font-size:.82rem;margin:6px 0">
+      ⚡ Generating AC — Electromagnetic Induction
+    </div>
+    <canvas id="waveCanvas" class="wave-canvas" height="120"></canvas>
+    <div class="info-grid">
+      <div class="info-card">
+        <h3>🔄 AC Generator (प्रत्यावर्ती धारा जनित्र)</h3>
+        <p>Uses slip rings (वलय). Current reverses every half cycle. Used in power stations.</p>
+      </div>
+      <div class="info-card">
+        <h3>⚡ DC Generator (दिष्ट धारा जनित्र)</h3>
+        <p>Uses commutator (कम्यूटेटर). Current flows in one direction only. Used in cars, bicycles.</p>
+      </div>
+      <div class="info-card">
+        <h3>🧲 Fleming's Right Hand Rule</h3>
+        <p><span class="highlight">फ्लेमिंग के दाहिने हाथ का नियम</span> — Thumb=Motion, Index=Field, Middle=Current direction</p>
+      </div>
+      <div class="info-card">
+        <h3>📐 Lenz's Law (लेंज का नियम)</h3>
+        <p>Induced current opposes the change in magnetic flux that causes it. Energy is conserved.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMPARE PANEL -->
+  <div class="panel" id="tab-compare">
+    <div class="formula-box">
+      <div class="formula" style="font-size:1rem">Motor ↔ Generator — Reverse Processes</div>
+      <div class="formula-label">विद्युत मोटर और जनित्र एक-दूसरे के विपरीत हैं</div>
+    </div>
+    <table class="compare-table">
+      <thead>
+        <tr><th>Property</th><th>Electric Motor (मोटर)</th><th>Generator (जनित्र)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Energy Conversion</td><td>Electrical → Mechanical</td><td>Mechanical → Electrical</td></tr>
+        <tr><td>Input</td><td>Electric Current (विद्युत धारा)</td><td>Mechanical Rotation (घुर्णन)</td></tr>
+        <tr><td>Output</td><td>Rotation / Motion</td><td>EMF / Voltage</td></tr>
+        <tr><td>Key Law</td><td>Fleming's Left Hand Rule</td><td>Fleming's Right Hand Rule</td></tr>
+        <tr><td>Principle</td><td>Motor Effect</td><td>Electromagnetic Induction</td></tr>
+        <tr><td>Ring Type (DC)</td><td>Commutator (कम्यूटेटर)</td><td>Commutator (कम्यूटेटर)</td></tr>
+        <tr><td>Ring Type (AC)</td><td>Split Rings</td><td>Slip Rings (वलय)</td></tr>
+        <tr><td>Examples</td><td>Fan, Mixer, EV, Pump</td><td>Power Plant, Bicycle Dynamo</td></tr>
+        <tr><td>Formula</td><td>F = BIL sinθ</td><td>ε = −N dΦ/dt</td></tr>
+      </tbody>
+    </table>
+    <div class="info-grid" style="margin-top:12px">
+      <div class="info-card">
+        <h3>🖐 Fleming's Left Hand Rule</h3>
+        <p><span class="highlight">बायें हाथ का नियम</span><br>Forefinger → Field (B)<br>Middle finger → Current (I)<br>Thumb → Force/Motion (F)</p>
+        <p style="margin-top:6px;color:#f59e0b">Used for: MOTORS</p>
+      </div>
+      <div class="info-card">
+        <h3>✋ Fleming's Right Hand Rule</h3>
+        <p><span class="highlight">दाहिने हाथ का नियम</span><br>Forefinger → Field (B)<br>Middle finger → Induced Current<br>Thumb → Motion</p>
+        <p style="margin-top:6px;color:#22c55e">Used for: GENERATORS</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let motorRunning=true, motorAngle=0, motorDir=1, motorSpd=5;
+let genRunning=true, genAngle=0, genSpd=5, isAC=true;
+let wavePoints=[], waveCtx, waveW, waveH;
+let animId1, animId2;
+
+function showTab(id){
+  document.querySelectorAll('.tab').forEach((t,i)=>{t.classList.remove('active')});
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  const tabs=['motor','generator','compare'];
+  document.querySelectorAll('.tab')[tabs.indexOf(id)].classList.add('active');
+  document.getElementById('tab-'+id).classList.add('active');
+  if(id==='generator') initWave();
+}
+
+// MOTOR ANIMATION
+function animateMotor(){
+  if(!motorRunning) return;
+  motorAngle += motorDir * motorSpd * 0.8;
+  const coil = document.getElementById('motorCoil');
+  if(coil) coil.setAttribute('transform',`rotate(${motorAngle},200,140)`);
+  const a = motorAngle % 360;
+  const arr1 = document.getElementById('arr1');
+  const arr2 = document.getElementById('arr2');
+  if(arr1 && arr2){
+    arr1.textContent = ((a > 90 && a < 270) ? '↓' : '↑');
+    arr2.textContent = ((a > 90 && a < 270) ? '↑' : '↓');
+  }
+  animId1 = requestAnimationFrame(animateMotor);
+}
+
+function toggleMotor(){
+  motorRunning = !motorRunning;
+  const btn = document.getElementById('motorBtn');
+  btn.textContent = motorRunning ? '⏸ Pause Motor' : '▶ Start Motor';
+  btn.className = 'btn ' + (motorRunning ? 'on' : 'off');
+  document.getElementById('motorStatus').textContent = motorRunning ?
+    '⚙️ Motor Running — Converting Electrical → Mechanical Energy' :
+    '⏸ Motor Stopped';
+  if(motorRunning) animateMotor();
+}
+
+function reverseMotor(){motorDir *= -1;}
+function updateMotorSpeed(v){motorSpd=parseInt(v);document.getElementById('speedVal').textContent=v;}
+animateMotor();
+
+// WAVE CANVAS
+function initWave(){
+  const c = document.getElementById('waveCanvas');
+  if(!c) return;
+  waveCtx = c.getContext('2d');
+  waveW = c.offsetWidth||400; waveH = 120;
+  c.width=waveW; c.height=waveH;
+  wavePoints=[];
+  animateGen();
+}
+
+function animateGen(){
+  if(!genRunning){ animId2=requestAnimationFrame(animateGen); return; }
+  genAngle += genSpd * 1.5;
+  const coil = document.getElementById('genCoil');
+  if(coil) coil.setAttribute('transform',`rotate(${genAngle},200,110)`);
+
+  if(!waveCtx) return;
+  const val = isAC ? Math.sin(genAngle * Math.PI/180) : Math.abs(Math.sin(genAngle * Math.PI/180));
+  wavePoints.push(val);
+  if(wavePoints.length > waveW) wavePoints.shift();
+
+  waveCtx.fillStyle='#111827';
+  waveCtx.fillRect(0,0,waveW,waveH);
+  waveCtx.beginPath();
+  waveCtx.strokeStyle = isAC ? '#3b82f6' : '#f59e0b';
+  waveCtx.lineWidth=2;
+  const mid=waveH/2;
+  wavePoints.forEach((p,i)=>{
+    const y = mid - p*(mid-10);
+    i===0 ? waveCtx.moveTo(i,y) : waveCtx.lineTo(i,y);
+  });
+  waveCtx.stroke();
+
+  // Zero line
+  waveCtx.beginPath();
+  waveCtx.strokeStyle='#334155';waveCtx.lineWidth=1;
+  waveCtx.moveTo(0,mid);waveCtx.lineTo(waveW,mid);waveCtx.stroke();
+
+  // Label
+  waveCtx.fillStyle='#94a3b8';waveCtx.font='11px sans-serif';
+  waveCtx.fillText(isAC?'AC Output (प्रत्यावर्ती धारा)':'DC Output (दिष्ट धारा)',8,16);
+  animId2 = requestAnimationFrame(animateGen);
+}
+
+function toggleGen(){
+  genRunning=!genRunning;
+  const btn=document.getElementById('genBtn');
+  btn.textContent=genRunning?'⏸ Pause':'▶ Start';
+  btn.className='btn '+(genRunning?'on':'off');
+}
+
+function toggleAcDc(){
+  isAC=!isAC;
+  wavePoints=[];
+  const btn=document.getElementById('acDcBtn');
+  btn.textContent=isAC?'🔁 AC Mode':'⚡ DC Mode';
+  document.getElementById('genLabel').textContent=isAC?'AC Generator — Slip Rings':'DC Generator — Commutator';
+  document.getElementById('genStatus').textContent=isAC?'⚡ Generating AC — Electromagnetic Induction':'⚡ Generating DC — Commutator Action';
+}
+
+function updateGenSpeed(v){genSpd=parseInt(v);document.getElementById('genSpeedVal').textContent=v;}
+window.addEventListener('resize',()=>{if(document.getElementById('tab-generator').classList.contains('active'))initWave();});
+</script>
+</body>
+</html>

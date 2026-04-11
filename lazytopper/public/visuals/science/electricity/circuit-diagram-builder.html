@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Circuit Diagram Builder - Electricity</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f172a;color:#e2e8f0;font-family:'Segoe UI',sans-serif;min-height:100vh;overflow-x:hidden}
+.title-bar{background:linear-gradient(135deg,#1e3a5f,#0f172a);border-bottom:2px solid #3b82f6;padding:10px 16px;display:flex;align-items:center;gap:10px}
+.title-bar h1{font-size:1rem;color:#60a5fa;font-weight:700}
+.title-bar span{font-size:.75rem;color:#94a3b8;margin-left:auto}
+.badge{background:#3b82f6;color:#fff;border-radius:20px;padding:2px 10px;font-size:.7rem;font-weight:700}
+.formula-bar{background:linear-gradient(90deg,#1e293b,#0f2444);border:1px solid #334155;margin:8px;border-radius:10px;padding:8px 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.formula{font-size:1.1rem;color:#fbbf24;font-weight:700;letter-spacing:1px}
+.formula-label{font-size:.7rem;color:#64748b}
+.main{display:flex;flex-direction:column;gap:8px;padding:8px}
+.panel-title{font-size:.75rem;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.components{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.comp-btn{background:#1e293b;border:1px solid #334155;border-radius:8px;padding:6px 10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:all .2s;min-width:60px}
+.comp-btn:hover{border-color:#3b82f6;background:#1e3a5f;transform:translateY(-2px)}
+.comp-btn.active{border-color:#fbbf24;background:#292524}
+.comp-btn svg{width:36px;height:20px}
+.comp-btn span{font-size:.6rem;color:#94a3b8}
+.comp-btn .hindi{font-size:.55rem;color:#64748b}
+.circuit-area{background:#0d1f35;border:1px solid #1e3a5f;border-radius:12px;position:relative;overflow:hidden}
+canvas{display:block;cursor:crosshair;touch-action:none}
+.controls{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.btn{background:#1e293b;border:1px solid #334155;color:#e2e8f0;border-radius:7px;padding:6px 12px;cursor:pointer;font-size:.75rem;transition:all .2s}
+.btn:hover{background:#334155}
+.btn.danger{border-color:#ef4444;color:#ef4444}
+.btn.success{border-color:#22c55e;color:#22c55e}
+.btn.warning{border-color:#fbbf24;color:#fbbf24}
+.mode-bar{display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap}
+.mode-btn{flex:1;min-width:80px;background:#1e293b;border:1px solid #334155;color:#94a3b8;border-radius:7px;padding:5px;cursor:pointer;font-size:.7rem;text-align:center;transition:all .2s}
+.mode-btn.active{background:#1e3a5f;border-color:#3b82f6;color:#60a5fa}
+.info-panel{background:#0d1f35;border:1px solid #1e3a5f;border-radius:10px;padding:10px;font-size:.72rem}
+.info-row{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #1e293b}
+.info-row:last-child{border-bottom:none}
+.info-key{color:#64748b}
+.info-val{color:#60a5fa;font-weight:700}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.live-dot{width:8px;height:8px;border-radius:50%;background:#22c55e;display:inline-block;animation:pulse 1.5s infinite}
+.selected-info{font-size:.65rem;color:#fbbf24;min-height:16px;margin-bottom:4px}
+.grid-overlay{position:absolute;top:0;left:0;pointer-events:none;opacity:.15}
+</style>
+</head>
+<body>
+<div class="title-bar">
+  <div class="badge">CBSE 10</div>
+  <h1>⚡ Circuit Diagram Builder — Electricity</h1>
+  <span>Science Chapter 12</span>
+</div>
+<div class="formula-bar">
+  <div><div class="formula">V = IR</div><div class="formula-label">Ohm's Law / ओम का नियम</div></div>
+  <div style="width:1px;background:#334155;height:28px"></div>
+  <div><div class="formula" style="color:#a78bfa">P = VI = I²R</div><div class="formula-label">Power / शक्ति</div></div>
+  <div style="width:1px;background:#334155;height:28px"></div>
+  <div><div class="formula" style="color:#34d399">Rs = R1+R2</div><div class="formula-label">Series / श्रेणी</div></div>
+  <div style="width:1px;background:#334155;height:28px"></div>
+  <div><div class="formula" style="color:#fb923c">1/Rp=1/R1+1/R2</div><div class="formula-label">Parallel / समानांतर</div></div>
+</div>
+<div class="main">
+  <div class="panel-title">Components / अवयव — Click to select, then click canvas</div>
+  <div class="components" id="compPanel"></div>
+  <div class="mode-bar">
+    <div class="mode-btn active" id="modePlace" onclick="setMode('place')">📌 Place</div>
+    <div class="mode-btn" id="modeWire" onclick="setMode('wire')">🔌 Wire</div>
+    <div class="mode-btn" id="modeDelete" onclick="setMode('delete')">🗑️ Delete</div>
+  </div>
+  <div class="controls">
+    <button class="btn warning" onclick="toggleSwitch()">🔴 Toggle Switch</button>
+    <button class="btn success" onclick="simulate()">▶ Simulate</button>
+    <button class="btn" onclick="clearCanvas()">↺ Clear</button>
+    <button class="btn" onclick="loadExample('series')">Series Circuit</button>
+    <button class="btn" onclick="loadExample('parallel')">Parallel Circuit</button>
+  </div>
+  <div class="selected-info" id="selInfo">Select a component to place on the circuit board</div>
+  <div class="circuit-area" id="circuitArea">
+    <canvas id="cv"></canvas>
+  </div>
+  <div class="info-panel" id="infoPanel">
+    <div class="info-row"><span class="info-key">Circuit Status</span><span class="info-val" id="statusVal">—</span></div>
+    <div class="info-row"><span class="info-key">Ammeter (A)</span><span class="info-val" id="amVal">— A</span></div>
+    <div class="info-row"><span class="info-key">Voltmeter (V)</span><span class="info-val" id="vmVal">— V</span></div>
+    <div class="info-row"><span class="info-key">Total Resistance</span><span class="info-val" id="rVal">— Ω</span></div>
+    <div class="info-row"><span class="info-key">Power</span><span class="info-val" id="pVal">— W</span></div>
+  </div>
+</div>
+<script>
+const comps=[
+  {id:'battery',label:'Battery',hindi:'बैटरी',color:'#fbbf24'},
+  {id:'resistor',label:'Resistor',hindi:'प्रतिरोधक',color:'#f87171'},
+  {id:'bulb',label:'Bulb',hindi:'बल्ब',color:'#fde68a'},
+  {id:'switch',label:'Switch',hindi:'स्विच',color:'#6ee7b7'},
+  {id:'ammeter',label:'Ammeter',hindi:'एमीटर',color:'#60a5fa'},
+  {id:'voltmeter',label:'Voltmeter',hindi:'वोल्टमीटर',color:'#c084fc'},
+  {id:'wire',label:'Wire',hindi:'तार',color:'#94a3b8'},
+];
+const SVGs={
+  battery:`<svg viewBox="0 0 60 24" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="12" x2="15" y2="12" stroke="#fbbf24" stroke-width="2"/><line x1="15" y1="6" x2="15" y2="18" stroke="#fbbf24" stroke-width="3"/><line x1="21" y1="4" x2="21" y2="20" stroke="#fbbf24" stroke-width="1.5"/><line x1="27" y1="6" x2="27" y2="18" stroke="#fbbf24" stroke-width="3"/><line x1="33" y1="4" x2="33" y2="20" stroke="#fbbf24" stroke-width="1.5"/><line x1="39" y1="12" x2="60" y2="12" stroke="#fbbf24" stroke-width="2"/><text x="16" y="3" fill="#fbbf24" font-size="5">+</text></svg>`,
+  resistor:`<svg viewBox="0 0 60 24" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="12" x2="10" y2="12" stroke="#f87171" stroke-width="2"/><rect x="10" y="6" width="40" height="12" rx="2" stroke="#f87171" stroke-width="2" fill="#1e293b"/><text x="17" y="16" fill="#f87171" font-size="8">R</text><line x1="50" y1="12" x2="60" y2="12" stroke="#f87171" stroke-width="2"/></svg>`,
+  bulb:`<svg viewBox="0 0 60 28" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="14" x2="16" y2="14" stroke="#fde68a" stroke-width="2"/><circle cx="30" cy="14" r="11" stroke="#fde68a" stroke-width="2" fill="#1e293b"/><line x1="25" y1="18" x2="30" y2="11" stroke="#fde68a" stroke-width="1.5"/><line x1="30" y1="11" x2="35" y2="18" stroke="#fde68a" stroke-width="1.5"/><line x1="44" y1="14" x2="60" y2="14" stroke="#fde68a" stroke-width="2"/></svg>`,
+  switch:`<svg viewBox="0 0 60 24" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="12" x2="18" y2="12" stroke="#6ee7b7" stroke-width="2"/><circle cx="18" cy="12" r="2.5" fill="#6ee7b7"/><line x1="20" y1="12" x2="40" y2="6" stroke="#6ee7b7" stroke-width="2"/><circle cx="40" cy="12" r="2.5" fill="#6ee7b7"/><line x1="40" y1="12" x2="60" y2="12" stroke="#6ee7b7" stroke-width="2"/></svg>`,
+  ammeter:`<svg viewBox="0 0 60 24" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="12" x2="14" y2="12" stroke="#60a5fa" stroke-width="2"/><circle cx="30" cy="12" r="11" stroke="#60a5fa" stroke-width="2" fill="#0d1f35"/><text x="23" y="17" fill="#60a5fa" font-size="10" font-weight="bold">A</text><line x1="46" y1="12" x2="60" y2="12" stroke="#60a5fa" stroke-width="2"/></svg>`,
+  voltmeter:`<svg viewBox="0 0 60 24" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="12" x2="14" y2="12" stroke="#c084fc" stroke-width="2"/><circle cx="30" cy="12" r="11" stroke="#c084fc" stroke-width="2" fill="#0d1f35"/><text x="23" y="17" fill="#c084fc" font-size="10" font-weight="bold">V</text><line x1="46" y1="12" x2="60" y2="12" stroke="#c084fc" stroke-width="2"/></svg>`,
+  wire:`<svg viewBox="0 0 60 24" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="12" x2="60" y2="12" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6,3"/></svg>`,
+};
+let mode='place',selectedComp=null,nodes=[],wires=[],switchOpen=false;
+let wireStart=null,canvas,ctx,W,H;
+function initCanvas(){
+  canvas=document.getElementById('cv');
+  const area=document.getElementById('circuitArea');
+  W=area.clientWidth||340;H=200;
+  canvas.width=W;canvas.height=H;
+  ctx=canvas.getContext('2d');
+  drawGrid();draw();
+}
+function drawGrid(){
+  const g=ctx;g.strokeStyle='#1e3a5f';g.lineWidth=0.5;
+  for(let x=0;x<W;x+=20){g.beginPath();g.moveTo(x,0);g.lineTo(x,H);g.stroke();}
+  for(let y=0;y<H;y+=20){g.beginPath();g.moveTo(0,y);g.lineTo(W,y);g.stroke();}
+}
+function snap(v){return Math.round(v/20)*20;}
+function draw(){
+  ctx.clearRect(0,0,W,H);drawGrid();
+  wires.forEach(w=>{
+    ctx.strokeStyle=w.active?'#22c55e':'#475569';
+    ctx.lineWidth=w.active?2.5:1.5;
+    ctx.beginPath();ctx.moveTo(w.x1,w.y1);ctx.lineTo(w.x2,w.y2);ctx.stroke();
+    if(w.active){ctx.strokeStyle='rgba(34,197,94,.3)';ctx.lineWidth=6;ctx.beginPath();ctx.moveTo(w.x1,w.y1);ctx.lineTo(w.x2,w.y2);ctx.stroke();}
+  });
+  if(wireStart){ctx.strokeStyle='#3b82f6';ctx.lineWidth=1.5;ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(wireStart.x,wireStart.y);ctx.lineTo(wireStart.x,wireStart.y);ctx.stroke();ctx.setLineDash([]);}
+  nodes.forEach(n=>drawNode(n));
+}
+function drawNode(n){
+  const x=n.x,y=n.y,t=n.type;
+  ctx.save();ctx.translate(x,y);
+  const colors={battery:'#fbbf24',resistor:'#f87171',bulb:'#fde68a',switch:'#6ee7b7',ammeter:'#60a5fa',voltmeter:'#c084fc',wire:'#94a3b8'};
+  const c=colors[t]||'#94a3b8';
+  ctx.strokeStyle=c;ctx.fillStyle='#0d1f35';ctx.lineWidth=2;
+  if(t==='battery'){
+    ctx.beginPath();ctx.moveTo(-24,0);ctx.lineTo(-10,0);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(-10,-8);ctx.lineTo(-10,8);ctx.lineWidth=3;ctx.stroke();
+    ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(-4,-10);ctx.lineTo(-4,10);ctx.stroke();
+    ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(4,-8);ctx.lineTo(4,8);ctx.stroke();
+    ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(10,-10);ctx.lineTo(10,10);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(10,0);ctx.lineTo(24,0);ctx.lineWidth=2;ctx.stroke();
+    ctx.fillStyle='#fbbf24';ctx.font='8px sans-serif';ctx.fillText('+',−16,−10);
+  } else if(t==='resistor'){
+    ctx.beginPath();ctx.moveTo(-24,0);ctx.lineTo(-16,0);ctx.stroke();
+    ctx.fillRect(-16,-8,32,16);ctx.strokeRect(-16,-8,32,16);
+    ctx.fillStyle=c;ctx.font='10px sans-serif';ctx.fillText('R',−6,5);
+    ctx.beginPath();ctx.moveTo(16,0);ctx.lineTo(24,0);ctx.stroke();
+  } else if(t==='bulb'){
+    ctx.beginPath();ctx.moveTo(-24,0);ctx.lineTo(-12,0);ctx.stroke();
+    ctx.beginPath();ctx.arc(0,0,12,0,Math.PI*2);ctx.fill();ctx.stroke();
+    if(n.lit){ctx.fillStyle='rgba(253,230,138,.3)';ctx.beginPath();ctx.arc(0,0,12,0,Math.PI*2);ctx.fill();}
+    ctx.strokeStyle=c;ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(-5,6);ctx.lineTo(0,-3);ctx.lineTo(5,6);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(12,0);ctx.lineTo(24,0);ctx.lineWidth=2;ctx.stroke();
+  } else if(t==='switch'){
+    ctx.beginPath();ctx.moveTo(-24,0);ctx.lineTo(-12,0);ctx.stroke();
+    ctx.beginPath();ctx.arc(-12,0,3,0,Math.PI*2);ctx.fillStyle=c;ctx.fill();
+    ctx.beginPath();ctx.moveTo(-12,0);ctx.lineTo(12,switchOpen?-8:0);ctx.strokeStyle=c;ctx.lineWidth=2;ctx.stroke();
+    ctx.beginPath();ctx.arc(12,0,3,0,Math.PI*2);ctx.fillStyle=c;ctx.fill();
+    ctx.beginPath();ctx.moveTo(12,0);ctx.lineTo(24,0);ctx.strokeStyle=c;ctx.lineWidth=2;ctx.stroke();
+  } else if(t==='ammeter'||t==='voltmeter'){
+    ctx.beginPath();ctx.moveTo(-24,0);ctx.lineTo(-14,0);ctx.stroke();
+    ctx.beginPath();ctx.arc(0,0,14,0,Math.PI*2);ctx.fill();ctx.stroke();
+    ctx.fillStyle=c;ctx.font='bold 12px sans-serif';ctx.fillText(t==='ammeter'?'A':'V',−7,5);
+    ctx.beginPath();ctx.moveTo(14,0);ctx.lineTo(24,0);ctx.stroke();
+  }
+  ctx.restore();
+}
+const compPanel=document.getElementById('compPanel');
+comps.forEach(c=>{
+  const div=document.createElement('div');
+  div.className='comp-btn';div.id='btn_'+c.id;
+  div.innerHTML=`${SVGs[c.id]}<span>${c.label}</span><span class="hindi">${c.hindi}</span>`;
+  div.onclick=()=>selectComp(c.id);
+  compPanel.appendChild(div);
+});
+function selectComp(id){
+  selectedComp=id;
+  document.querySelectorAll('.comp-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('btn_'+id).classList.add('active');
+  document.getElementById('selInfo').textContent=`Selected: ${id} — Click on canvas to place`;
+  setMode('place');
+}
+function setMode(m){
+  mode=m;
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('mode'+m.charAt(0).toUpperCase()+m.slice(1)).classList.add('active');
+  canvas.style.cursor=m==='delete'?'not-allowed':m==='wire'?'crosshair':'default';
+}
+canvas&&canvas.addEventListener('click',handleClick);
+function handleClick(e){
+  const r=canvas.getBoundingClientRect();
+  const x=snap(e.clientX-r.left),y=snap(e.clientY-r.top);
+  if(mode==='place'&&selectedComp){
+    nodes.push({type:selectedComp,x,y,lit:false,id:Date.now()});draw();
+  } else if(mode==='wire'){
+    if(!wireStart){wireStart={x,y};}
+    else{wires.push({x1:wireStart.x,y1:wireStart.y,x2:x,y2:y,active:false});wireStart=null;draw();}
+  } else if(mode==='delete'){
+    let minD=30,target=-1;
+    nodes.forEach((n,i)=>{const d=Math.hypot(n.x-x,n.y-y);if(d<minD){minD=d;target=i;}});
+    if(target>=0){nodes.splice(target,1);draw();}
+    else{
+      let wi=-1;
+      wires.forEach((w,i)=>{
+        const d=Math.abs((w.y2-w.y1)*x-(w.x2-w.x1)*y+w.x2*w.y1-w.y2*w.x1)/Math.hypot(w.x2-w.x1,w.y2-w.y1)||999;
+        if(d<15&&wi<0)wi=i;
+      });
+      if(wi>=0){wires.splice(wi,1);draw();}
+    }
+  }
+}
+window.addEventListener('DOMContentLoaded',()=>{
+  initCanvas();
+  canvas.addEventListener('click',handleClick);
+  loadExample('series');
+});
+window.addEventListener('resize',()=>{initCanvas();});
+function toggleSwitch(){switchOpen=!switchOpen;draw();}
+function simulate(){
+  const hasBattery=nodes.some(n=>n.type==='battery');
+  const hasResistor=nodes.filter(n=>n.type==='resistor'||n.type==='bulb');
+  const sw=nodes.find(n=>n.type==='switch');
+  const isOpen=sw&&switchOpen;
+  if(!hasBattery){document.getElementById('statusVal').textContent='No Battery!';return;}
+  if(isOpen){document.getElementById('statusVal').textContent='Open (Switch off)';wires.forEach(w=>w.active=false);nodes.forEach(n=>n.lit=false);draw();return;}
+  const r=hasResistor.length;
+  const totalR=r>0?r*10:10;const V=6;const I=V/totalR;const P=V*I;
+  wires.forEach(w=>w.active=true);
+  nodes.forEach(n=>{if(n.type==='bulb')n.lit=true;});
+  document.getElementById('statusVal').innerHTML='<span class="live-dot"></span> Closed / चालू';
+  document.getElementById('amVal').textContent=I.toFixed(3)+' A';
+  document.getElementById('vmVal').textContent=V.toFixed(1)+' V';
+  document.getElementById('rVal').textContent=totalR+' Ω';
+  document.getElementById('pVal').textContent=P.toFixed(2)+' W';
+  draw();
+}
+function clearCanvas(){nodes=[];wires=[];wireStart=null;draw();document.getElementById('statusVal').textContent='—';document.getElementById('amVal').textContent='— A';document.getElementById('vmVal').textContent='— V';document.getElementById('rVal').textContent='— Ω';document.getElementById('pVal').textContent='— W';}
+function loadExample(type){
+  clearCanvas();
+  if(type==='series'){
+    nodes=[
+      {type:'battery',x:80,y:100,id:1},
+      {type:'switch',x:160,y:60,id:2},
+      {type:'resistor',x:260,y:60,id:3},
+      {type:'bulb',x:320,y:100,id:4},
+      {type:'ammeter',x:200,y:140,id:5},
+    ];
+    wires=[
+      {x1:104,y1:100,x2:140,y2:60},{x1:180,y1:60,x2:236,y2:60},
+      {x1:284,y1:60,x2:300,y2:100},{x1:344,y1:100,x2:360,y2:140},
+      {x1:360,y1:140,x2:224,y2:140},{x1:176,y1:140,x2:60,y2:140},
+      {x1:60,y1:140,x2:60,y2:100},{x1:60,y1:100,x2:56,y2:100},
+    ];
+  } else {
+    nodes=[
+      {type:'battery',x:60,y:100,id:1},
+      {type:'switch',x:140,y:60,id:2},
+      {type:'resistor',x:240,y:60,id:3},
+      {type:'resistor',x:240,y:140,id:4},
+      {type:'ammeter',x:340,y:100,id:5},
+    ];
+    wires=[
+      {x1:84,y1:100,x2:120,y2:60},{x1:164,y1:60,x2:216,y2:60},
+      {x1:264,y1:60,x2:320,y2:60},{x1:320,y1:60,x2:320,y2:100},
+      {x1:364,y1:100,x2:380,y2:100},{x1:380,y1:100,x2:380,y2:140},
+      {x1:380,y1:140,x2:264,y2:140},{x1:216,y1:140,x2:40,y2:140},
+      {x1:40,y1:140,x2:40,y2:100},{x1:40,y1:100,x2:36,y2:100},
+      {x1:120,y1:60,x2:120,y2:140},{x1:120,y1:140,x2:216,y2:140},
+    ];
+  }
+  draw();
+}
+</script>
+</body>
+</html>
