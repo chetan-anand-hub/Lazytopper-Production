@@ -69,11 +69,13 @@ TypeScript is used throughout, with pnpm workspaces and composite projects. API 
 - Manifest: `lazytopper/public/visuals/manifest.json` tracks all generated visuals with metadata
 
 ## Navigation Simplification (Task #77)
-- **Bottom nav fix**: "Practice" button now goes to `/practice/{grade}/{subject}` (was incorrectly going to `/predictive-papers`)
-- **Topic Mock → Chapter Test**: `/topic-mock/` routes redirect to `/chapter-test/`. All deep links updated (TrendsPage, TopicHub, guidedJourneyService, buildUrl.ts). TopicMockPage.tsx remains but is no longer routed to directly.
+- **Journey-aware Practice routing**: Bottom nav "Practice" button now checks: (1) resume incomplete mission, (2) start today's mission, (3) follow guided journey phase (practice/mock), (4) fallback to `/practice/{grade}/{subject}`. Was incorrectly going to `/predictive-papers`.
+- **Topic Mock → Chapter Test**: `/topic-mock/` routes redirect to `/chapter-test/` (with query param preservation). All deep links updated (TrendsPage, TopicHub, guidedJourneyService, buildUrl.ts). TopicMockPage.tsx remains but is no longer directly routed.
 - **Top nav simplified**: Removed standalone Pricing button (accessible via Profile page)
-- **"What's next?" card**: PracticePage shows post-completion card with context-aware next actions (retry, chapter test, predicted questions, study chapter)
+- **Dashboard consolidation**: Quick actions reduced from 5 to 4 (removed "Mock Tests" and "Daily Mix" duplicates, added "Exam Trends"). ExploreMorePanel "Mock Test" → "Exam Simulation". All `/predictive-papers` entry points redirected to `/exam-simulation`.
+- **"What's next?" card**: PracticePage shows post-completion card with context-aware next actions (retry, chapter test, predicted questions, study chapter). DailyMixPage completion card also updated.
 - **Label updates**: "Topic Mock Paper" → "Chapter Test", "Build topic mock" → "Chapter Test" in TrendsPage dropdown
+- **Command palette**: "Mock Test" command now goes to `/exam-simulation` instead of `/predictive-papers`
 
 ## CBSE 2025-26 Syllabus Updates (Task #74)
 - **Constructions chapter removed** from CBSE 2025-26 Class 10 Maths syllabus. Removed from all data files, question banks, topic registries, prediction engine, server prompts, and UI. 2.5% weightage redistributed proportionally across remaining 13 topics.

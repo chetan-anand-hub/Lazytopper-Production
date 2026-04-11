@@ -11,9 +11,8 @@ export function QuickAccessBar({ gradeNum, subjectForQuickActions, navigate }: Q
   const tc = useThemeColors();
   const items = [
     { label: "Practice", icon: "✏️", path: `/practice/${gradeNum}/${subjectForQuickActions}` },
-    { label: "Mock Tests", icon: "📝", path: "/predictive-papers" },
     { label: "Predicted Q's", icon: "🎯", path: `/highly-probable/${gradeNum}/${subjectForQuickActions}` },
-    { label: "Daily Mix", icon: "🔥", path: `/daily-mix/${gradeNum}/${subjectForQuickActions}` },
+    { label: "Exam Trends", icon: "📊", path: `/trends/${gradeNum}/${subjectForQuickActions}` },
     { label: "All Chapters", icon: "📚", path: `/topic-hub/${gradeNum}/${subjectForQuickActions}` },
   ];
   return (

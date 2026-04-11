@@ -776,7 +776,7 @@ const Home: React.FC = () => {
               <h4>Product</h4>
               <button type="button" onClick={() => navigate("/trends/10/Maths")}>Exam Trends</button>
               <button type="button" onClick={() => navigate("/topic-hub")}>AI Tutor</button>
-              <button type="button" onClick={() => navigate("/predictive-papers")}>Mock Tests</button>
+              <button type="button" onClick={() => navigate("/exam-simulation")}>Mock Tests</button>
               <button type="button" onClick={() => {
                 const el = document.getElementById("pricing");
                 el?.scrollIntoView({ behavior: "smooth" });

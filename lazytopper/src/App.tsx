@@ -24,6 +24,8 @@ import { useSubscription } from "./hooks/useSubscription";
 import { ErrorBoundary, SectionErrorBoundary } from "./components/ErrorBoundary";
 import { initPaceProfileFromExamDate } from "./services/paceProfileService";
 import { startTracking, stopTracking, isFocusTrackingEnabled } from "./services/focusTracker";
+import { getGuidedJourneyState, getPhaseRoute } from "./services/guidedJourneyService";
+import { isMissionCompletedToday, getMissionResumeInfo } from "./services/dailyMissionService";
 
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const TrendsPage = lazy(() => import("./pages/TrendsPage"));
@@ -155,6 +157,26 @@ function BottomNav() {
           const raw = localStorage.getItem("lazytopper.lastSubjectContext");
           if (raw) { const p = JSON.parse(raw); if (p?.grade && p?.subject) ctx = p; }
         } catch {}
+        if (navUser) {
+          const resumeInfo = getMissionResumeInfo("Maths") || getMissionResumeInfo("Science");
+          if (resumeInfo) {
+            const subj = getMissionResumeInfo("Maths") ? "Maths" : "Science";
+            go(`/daily-mission/${ctx.grade}/${subj}`);
+            return;
+          }
+          const missionSubj = ctx.subject || "Maths";
+          if (!isMissionCompletedToday(missionSubj as "Maths" | "Science")) {
+            go(`/daily-mission/${ctx.grade}/${missionSubj}`);
+            return;
+          }
+          try {
+            const journey = getGuidedJourneyState(navUser.uid);
+            if (journey.currentChapter && (journey.currentChapter.phase === "practice" || journey.currentChapter.phase === "mock")) {
+              go(getPhaseRoute(journey.currentChapter, ctx.grade));
+              return;
+            }
+          } catch {}
+        }
         go(`/practice/${ctx.grade}/${ctx.subject}`);
       },
     },
@@ -315,7 +337,7 @@ export default function App() {
         navigate(`/highly-probable/${g}/${s}`);
         break;
       case 'navigateToMockTest':
-        navigate('/predictive-papers');
+        navigate('/exam-simulation');
         break;
       case 'navigateToMockBuilder':
         navigate(`/mock-builder/${g}/${s}`);

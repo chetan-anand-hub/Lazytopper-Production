@@ -11,7 +11,7 @@ export function ExploreMorePanel({ gradeNum, subjectForQuickActions, daysLeftVal
   const items = [
     { label: "Trends", icon: "\uD83D\uDCC8", bg: "rgba(34,197,94,0.08)", border: "rgba(34,197,94,0.2)", path: `/trends/${gradeNum}/${subjectForQuickActions}` },
     { label: "Chapter Hub", icon: "\uD83D\uDCDA", bg: "rgba(59,130,246,0.08)", border: "rgba(59,130,246,0.2)", path: `/topic-hub/${gradeNum}/${subjectForQuickActions}` },
-    { label: "Mock Test", icon: "\uD83D\uDCDD", bg: "rgba(168,85,247,0.08)", border: "rgba(168,85,247,0.2)", path: "/predictive-papers" },
+    { label: "Exam Simulation", icon: "\uD83D\uDCDD", bg: "rgba(168,85,247,0.08)", border: "rgba(168,85,247,0.2)", path: "/exam-simulation" },
     ...(daysLeftValue > 7 ? [{ label: "Weekly Wrapped", icon: "\uD83D\uDCCA", bg: "rgba(249,115,22,0.08)", border: "rgba(249,115,22,0.2)", path: "/weekly-wrapped" }] : []),
     ...(daysLeftValue <= 30 ? [{ label: "Revision Calendar", icon: "\uD83D\uDCC5", bg: "rgba(59,130,246,0.08)", border: "rgba(59,130,246,0.2)", path: "/revision-calendar" }] : []),
   ];

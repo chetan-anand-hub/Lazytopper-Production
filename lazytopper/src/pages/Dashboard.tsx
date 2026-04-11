@@ -461,9 +461,8 @@ export default function Dashboard() {
           <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4, marginBottom: 16 }}>
             {[
               { label: "Practice", icon: "✏️", path: `/practice/${gradeNum}/${subjectForQuickActions}` },
-              { label: "Mock Tests", icon: "📝", path: "/predictive-papers" },
               { label: "Predicted Q's", icon: "🎯", path: `/highly-probable/${gradeNum}/${subjectForQuickActions}` },
-              { label: "Daily Mix", icon: "🔥", path: `/daily-mix/${gradeNum}/${subjectForQuickActions}` },
+              { label: "Exam Trends", icon: "📊", path: `/trends/${gradeNum}/${subjectForQuickActions}` },
               { label: "All Chapters", icon: "📚", path: `/topic-hub/${gradeNum}/${subjectForQuickActions}` },
             ].map((a) => (
               <button key={a.label} onClick={() => navigate(a.path, { state: { back: "/dashboard", backLabel: "Back to Dashboard" } })} style={{

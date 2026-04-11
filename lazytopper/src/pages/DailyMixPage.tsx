@@ -404,11 +404,11 @@ export default function DailyMixPage() {
             </p>
             <div style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.5)", marginBottom: 12, textTransform: "uppercase", letterSpacing: 1 }}>What's next?</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
-              <button onClick={() => { setShowQuickWin(false); navigate("/predictive-papers"); }} style={{
+              <button onClick={() => { setShowQuickWin(false); navigate("/exam-simulation"); }} style={{
                 padding: "12px 16px", borderRadius: 12, border: "1px solid rgba(168,85,247,0.3)",
                 background: "rgba(168,85,247,0.1)", color: "#a855f7", fontWeight: 700, fontSize: 13, cursor: "pointer",
                 display: "flex", alignItems: "center", gap: 8, justifyContent: "center",
-              }}>📝 Try a Mock Test</button>
+              }}>📝 Try a Full Exam Simulation</button>
               <button onClick={() => { setShowQuickWin(false); navigate(`/practice/${grade || "10"}/${safeSubject}`, { state: { back: "/dashboard" } }); }} style={{
                 padding: "12px 16px", borderRadius: 12, border: "1px solid rgba(59,130,246,0.3)",
                 background: "rgba(59,130,246,0.1)", color: "#3b82f6", fontWeight: 700, fontSize: 13, cursor: "pointer",
