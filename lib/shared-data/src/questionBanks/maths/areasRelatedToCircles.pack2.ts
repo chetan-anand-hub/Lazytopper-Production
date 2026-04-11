@@ -183,14 +183,15 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A circle has radius 10 cm. Find the area of the segment cut off by a chord at a distance of 6 cm from the center.",
     "options": [],
-    "answer": "≈ 44.76 cm²",
+    "answer": "≈ 44.73 cm²",
     "solutionSteps": [
-      "cos(θ/2) = 6/10 = 3/5, so θ/2 = cos⁻¹(0.6) ≈ 53.13°",
-      "θ ≈ 106.26° or use exact calculation with sin(θ) = 2×6×8/100 = 0.96",
-      "Area of sector = (134.76/360) × π × 13² ≈ 198.72 cm²",
-      "Area ≈ 92.76 - 48 ≈ 44.76 cm²"
+      "Half-chord = √(10²-6²) = √64 = 8 cm",
+      "cos(θ/2) = 6/10 = 0.6, θ/2 ≈ 53.13°, θ ≈ 106.26°",
+      "Sector area = (106.26/360) × π × 10² ≈ 92.73 cm²",
+      "Triangle area = (1/2) × 16 × 6 = 48 cm²",
+      "Segment area = 92.73 - 48 ≈ 44.73 cm²"
     ],
-    "finalAnswer": "≈ 44.76 cm²",
+    "finalAnswer": "≈ 44.73 cm²",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
