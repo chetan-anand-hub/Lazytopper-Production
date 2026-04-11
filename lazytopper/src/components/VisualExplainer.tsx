@@ -136,7 +136,7 @@ export function VisualExplainer({
       ref={iframeRef}
       src={resolvedSrc}
       title={title}
-      sandbox="allow-scripts allow-same-origin"
+      sandbox="allow-scripts"
       style={{
         ...styles.iframe,
         height: fullscreen ? "100%" : height,

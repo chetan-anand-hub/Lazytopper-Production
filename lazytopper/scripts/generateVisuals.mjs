@@ -7,6 +7,8 @@ import { fileURLToPath } from "url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = path.join(__dirname, "..", "public", "visuals");
 const MANIFEST_PATH = path.join(PUBLIC_DIR, "manifest.json");
+const REGISTRY_PATH = path.join(__dirname, "..", "src", "data", "visualConceptRegistry.ts");
+const TOPIC_REGISTRY_PATH = path.join(__dirname, "..", "src", "data", "class10TopicRegistry.ts");
 
 const BASE_URL = process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL;
 const API_KEY = process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY;
@@ -23,7 +25,27 @@ if (!BASE_URL || !API_KEY) {
 
 const CONCEPTS = buildConceptList();
 
+function loadTopicKeys() {
+  try {
+    const content = fs.readFileSync(TOPIC_REGISTRY_PATH, "utf-8");
+    const keys = [];
+    const regex = /topicKey:\s*"([^"]+)"/g;
+    let m;
+    while ((m = regex.exec(content)) !== null) {
+      keys.push(m[1]);
+    }
+    return keys;
+  } catch {
+    return [];
+  }
+}
+
 function buildConceptList() {
+  const topicKeys = loadTopicKeys();
+  if (topicKeys.length > 0) {
+    console.log(`Loaded ${topicKeys.length} topic keys from class10TopicRegistry.ts`);
+  }
+
   const mathsChapters = [
     {
       chapter: "real-numbers", subject: "maths", chapterName: "Real Numbers",
@@ -256,6 +278,44 @@ function buildConceptList() {
     },
   ];
 
+  const chapterToTopicKey = {
+    "real-numbers": "Real Numbers",
+    "polynomials": "Polynomials",
+    "linear-equations": "Pair of Linear Equations",
+    "quadratic-equations": "Quadratic Equations",
+    "arithmetic-progression": "Arithmetic Progression",
+    "triangles": "Triangles",
+    "coordinate-geometry": "Coordinate Geometry",
+    "trigonometry": "Trigonometry",
+    "circles": "Circles",
+    "areas-circles": "Areas Related to Circles",
+    "surface-areas-volumes": "Surface Areas and Volumes",
+    "statistics": "Statistics",
+    "probability": "Probability",
+    "chemical-reactions": "Chemical Reactions and Equations",
+    "acids-bases-salts": "Acids Bases and Salts",
+    "metals-nonmetals": "Metals and Non-Metals",
+    "carbon-compounds": "Carbon and its Compounds",
+    "life-processes": "Life Processes",
+    "control-coordination": "Control and Coordination",
+    "reproduction": "How do Organisms Reproduce",
+    "heredity-evolution": "Heredity and Evolution",
+    "light": "Light Reflection and Refraction",
+    "human-eye": "Human Eye and Colourful World",
+    "electricity": "Electricity",
+    "magnetic-effects": "Magnetic Effects of Electric Current",
+    "environment": "Our Environment",
+  };
+
+  const coveredTopicKeys = new Set(Object.values(chapterToTopicKey));
+  if (topicKeys.length > 0) {
+    for (const tk of topicKeys) {
+      if (!coveredTopicKeys.has(tk)) {
+        console.warn(`WARNING: Topic key "${tk}" from class10TopicRegistry is not covered by any chapter.`);
+      }
+    }
+  }
+
   const all = [];
   for (const ch of [...mathsChapters, ...scienceChapters]) {
     for (const concept of ch.concepts) {
@@ -264,6 +324,7 @@ function buildConceptList() {
         subject: ch.subject,
         chapter: ch.chapter,
         chapterName: ch.chapterName,
+        topicKey: chapterToTopicKey[ch.chapter] || ch.chapterName,
         conceptName: concept.name,
         slug,
         keywords: concept.keywords,
@@ -472,6 +533,7 @@ async function main() {
         subject: concept.subject,
         chapter: concept.chapter,
         chapterName: concept.chapterName,
+        topicKey: concept.topicKey,
         conceptName: concept.conceptName,
         slug: concept.slug,
         filePath: `/app/visuals/${concept.subject}/${concept.chapter}/${concept.slug}.html`,
