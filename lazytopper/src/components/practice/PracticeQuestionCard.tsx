@@ -157,7 +157,7 @@ export function PracticeQuestionCard({
         display: "flex", justifyContent: "space-between",
         alignItems: "flex-start", marginBottom: 6, gap: 8,
       }}>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginBottom: 6 }}>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center", marginBottom: 6 }}>
           <div style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.45)" }}>
             <span style={{
               display: "inline-flex", alignItems: "center", justifyContent: "center",
@@ -168,6 +168,15 @@ export function PracticeQuestionCard({
             <span>{q.marks} mark{q.marks !== 1 ? "s" : ""} - {q.section}</span>
             <TimeGuideChip marks={q.marks} section={q.section || ""} />
           </div>
+          {(q.format === "Assertion-Reasoning" || /^Assertion\s*\(A\)/i.test(q.questionText)) && (
+            <span style={{
+              padding: "2px 8px", borderRadius: 999, fontSize: "0.68rem", fontWeight: 700,
+              background: "rgba(251,191,36,0.1)", border: "1px solid rgba(251,191,36,0.25)",
+              color: "#fbbf24",
+            }}>
+              Assertion & Reasoning
+            </span>
+          )}
         </div>
       </header>
 

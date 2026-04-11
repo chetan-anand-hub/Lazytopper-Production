@@ -1,10 +1,9 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useProfile } from "../context/ProfileContext";
 import { daysLeftFromIsoDate, fetchCbseExamDate, CBSE_PHASE2_DATE } from "../services/cbseExamDate";
 import { cbseDates, formatCbseDate } from "../config/cbseDates";
 import { checkAndUpdateProfile, detectProfileFromDays, getProfileSummary, getProfileConfig } from "../services/paceProfileService";
-import { hashPin, saveParentPinHash } from "../services/parentPinService";
 import { trackUxEvent } from "../services/uxTelemetry";
 import { creditPendingReferral } from "../services/referralService";
 
@@ -35,9 +34,7 @@ export default function Onboarding() {
 
   const [autoDaysLeft, setAutoDaysLeft] = useState<number>(90);
   const [target, setTarget] = useState("80");
-  const [parentPin, setParentPin] = useState(["", "", "", ""]);
-  const [pinSkipped, setPinSkipped] = useState(false);
-  const pinRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const [showCbseDetails, setShowCbseDetails] = useState(false);
   const studentClass = "10" as const;
 
   useEffect(() => {
@@ -81,33 +78,12 @@ export default function Onboarding() {
     })();
   };
 
-  const handlePinDigit = (idx: number, value: string) => {
-    if (!/^\d?$/.test(value)) return;
-    const next = [...parentPin];
-    next[idx] = value;
-    setParentPin(next);
-    if (value && idx < 3) pinRefs.current[idx + 1]?.focus();
-  };
-
-  const handlePinKeyDown = (idx: number, e: React.KeyboardEvent) => {
-    if (e.key === "Backspace" && !parentPin[idx] && idx > 0) {
-      pinRefs.current[idx - 1]?.focus();
-    }
-  };
-
   const handleSubmit = async () => {
     const daysLeft = autoDaysLeft;
     const targetPercent = Number(target) || 80;
 
     const hoursPerDay = targetPercent >= 85 ? 2.5 : targetPercent >= 70 ? 2 : 1.5;
     const currentPercent = Math.max(35, targetPercent - 20);
-
-    const fullPin = parentPin.join("");
-    let pinHash: string | undefined;
-    if (fullPin.length === 4 && !pinSkipped) {
-      pinHash = await hashPin(fullPin);
-      saveParentPinHash(pinHash);
-    }
 
     const nextProfile = {
       studentClass,
@@ -116,7 +92,6 @@ export default function Onboarding() {
       hoursPerDay,
       currentPercent,
       examDate: examDate || undefined,
-      parentPinHash: pinHash,
     };
     checkAndUpdateProfile(daysLeft);
     setProfileAndCompute(nextProfile);
@@ -217,32 +192,39 @@ export default function Onboarding() {
             <p style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", lineHeight: 1.5, margin: 0 }}>{summary}</p>
           </div>
 
-          <div style={{
-            marginTop: 12, padding: "12px 14px", borderRadius: 12,
-            background: "rgba(59,130,246,0.06)", border: "1px solid rgba(59,130,246,0.15)",
-          }}>
-            <div style={{ fontSize: 12, color: "#60a5fa", fontWeight: 700, marginBottom: 6 }}>
-              CBSE 2025-26: Two-Exam System
-            </div>
-            <div style={{ display: "flex", gap: 8, marginBottom: 6 }}>
-              <div style={{ flex: 1, padding: "8px 10px", borderRadius: 8, background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.2)" }}>
-                <div style={{ fontSize: 10, fontWeight: 700, color: "#22c55e", marginBottom: 2 }}>Phase 1 (Compulsory)</div>
-                <div style={{ fontSize: 12, color: "rgba(255,255,255,0.7)", fontWeight: 600 }}>{formatCbseDate(cbseDates.class10.phase1)}</div>
-                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>All subjects</div>
+          <button
+            type="button"
+            onClick={() => setShowCbseDetails(!showCbseDetails)}
+            style={{
+              marginTop: 12, width: "100%", padding: "10px 14px", borderRadius: 12,
+              background: "rgba(59,130,246,0.06)", border: "1px solid rgba(59,130,246,0.15)",
+              color: "#60a5fa", fontSize: 12, fontWeight: 700, cursor: "pointer",
+              display: "flex", alignItems: "center", justifyContent: "space-between",
+            }}
+          >
+            <span>CBSE 2025-26: Two-Exam System</span>
+            <span style={{ fontSize: 10 }}>{showCbseDetails ? "\u25B2" : "\u25BC"}</span>
+          </button>
+          {showCbseDetails && (
+            <div style={{
+              marginTop: 4, padding: "12px 14px", borderRadius: 12,
+              background: "rgba(59,130,246,0.04)", border: "1px solid rgba(59,130,246,0.1)",
+            }}>
+              <div style={{ display: "flex", gap: 8, marginBottom: 6 }}>
+                <div style={{ flex: 1, padding: "8px 10px", borderRadius: 8, background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.2)" }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: "#22c55e", marginBottom: 2 }}>Phase 1 (Compulsory)</div>
+                  <div style={{ fontSize: 12, color: "rgba(255,255,255,0.7)", fontWeight: 600 }}>{formatCbseDate(cbseDates.class10.phase1)}</div>
+                </div>
+                <div style={{ flex: 1, padding: "8px 10px", borderRadius: 8, background: "rgba(168,85,247,0.08)", border: "1px solid rgba(168,85,247,0.2)" }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: "#c084fc", marginBottom: 2 }}>Phase 2 (Optional)</div>
+                  <div style={{ fontSize: 12, color: "rgba(255,255,255,0.7)", fontWeight: 600 }}>{formatCbseDate(CBSE_PHASE2_DATE)}</div>
+                </div>
               </div>
-              <div style={{ flex: 1, padding: "8px 10px", borderRadius: 8, background: "rgba(168,85,247,0.08)", border: "1px solid rgba(168,85,247,0.2)" }}>
-                <div style={{ fontSize: 10, fontWeight: 700, color: "#c084fc", marginBottom: 2 }}>Phase 2 (Optional)</div>
-                <div style={{ fontSize: 12, color: "rgba(255,255,255,0.7)", fontWeight: 600 }}>{formatCbseDate(CBSE_PHASE2_DATE)}</div>
-                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>Up to 3 subjects</div>
-              </div>
+              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", lineHeight: 1.5, margin: 0 }}>
+                Phase 1 is the main exam. Phase 2 lets you re-attempt up to 3 subjects. Best score counts.
+              </p>
             </div>
-            <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", lineHeight: 1.5, margin: "0 0 6px 0" }}>
-              Phase 1 is the main exam for all students. Phase 2 lets you re-attempt up to 3 subjects to improve your score. The best of the two scores counts.
-            </p>
-            <p style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", lineHeight: 1.5, margin: 0 }}>
-              Both exams cover the full syllabus. 75% attendance required for eligibility.
-            </p>
-          </div>
+          )}
 
           <div style={{
             marginTop: 12, padding: "12px 14px", borderRadius: 12,
@@ -311,52 +293,6 @@ export default function Onboarding() {
                 ? "Great target! We'll prioritise must-crack chapters."
                 : "Solid goal! We'll make sure you cover the essentials well."}
           </p>
-        </div>
-
-        <div className="glass-card" style={{ padding: 24, marginBottom: 20 }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
-            <label className="font-display" style={{ fontSize: 16, fontWeight: 700 }}>
-              Set a Parent PIN
-            </label>
-            <span style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", fontWeight: 600 }}>Optional</span>
-          </div>
-          <p style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", margin: "0 0 14px", lineHeight: 1.5 }}>
-            Your parents can check your progress anytime using this 4-digit PIN.
-          </p>
-          {pinSkipped ? (
-            <button type="button" onClick={() => setPinSkipped(false)} style={{
-              width: "100%", padding: "10px 0", borderRadius: 10,
-              background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
-              color: "rgba(255,255,255,0.5)", fontSize: 12, fontWeight: 600, cursor: "pointer",
-            }}>Set a PIN instead</button>
-          ) : (
-            <>
-              <div style={{ display: "flex", gap: 10, justifyContent: "center", marginBottom: 10 }}>
-                {parentPin.map((digit, idx) => (
-                  <input
-                    key={idx}
-                    ref={(el) => { pinRefs.current[idx] = el; }}
-                    type="text"
-                    inputMode="numeric"
-                    maxLength={1}
-                    value={digit}
-                    onChange={(e) => handlePinDigit(idx, e.target.value)}
-                    onKeyDown={(e) => handlePinKeyDown(idx, e)}
-                    style={{
-                      width: 48, height: 52, textAlign: "center", fontSize: 24, fontWeight: 800,
-                      borderRadius: 12, border: "2px solid rgba(255,255,255,0.12)",
-                      background: "rgba(255,255,255,0.04)", color: "#fff", outline: "none",
-                      fontFamily: "'Space Grotesk', sans-serif",
-                    }}
-                  />
-                ))}
-              </div>
-              <button type="button" onClick={() => { setPinSkipped(true); setParentPin(["", "", "", ""]); }} style={{
-                display: "block", margin: "0 auto", background: "none", border: "none",
-                color: "rgba(255,255,255,0.3)", fontSize: 11, cursor: "pointer",
-              }}>Skip for now</button>
-            </>
-          )}
         </div>
 
         <button

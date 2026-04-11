@@ -84,9 +84,44 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
           <p style={{ fontSize: "0.95rem", fontWeight: 700, color: "rgba(255,255,255,0.85)", marginBottom: 4 }}>
             No questions found for this topic yet
           </p>
-          <p style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.45)" }}>
-            Try picking a different topic from the Trends page, or check back soon as we keep adding new questions.
+          <p style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.45)", marginBottom: 16 }}>
+            This can happen if the topic name didn't match our question bank. Here's what you can do:
           </p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8, maxWidth: 320, margin: "0 auto" }}>
+            <a
+              href={`/topic-hub/10/${subjectKey}`}
+              style={{
+                padding: "10px 16px", borderRadius: 10,
+                background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.2)",
+                color: "#22c55e", fontSize: "0.82rem", fontWeight: 600,
+                textDecoration: "none", display: "block",
+              }}
+            >
+              Browse chapters in Chapter Hub
+            </a>
+            <a
+              href={`/trends/10/${subjectKey}`}
+              style={{
+                padding: "10px 16px", borderRadius: 10,
+                background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.2)",
+                color: "#3b82f6", fontSize: "0.82rem", fontWeight: 600,
+                textDecoration: "none", display: "block",
+              }}
+            >
+              Pick a chapter from Exam Trends
+            </a>
+            <a
+              href={`/highly-probable/10/${subjectKey}`}
+              style={{
+                padding: "10px 16px", borderRadius: 10,
+                background: "rgba(168,85,247,0.08)", border: "1px solid rgba(168,85,247,0.2)",
+                color: "#c084fc", fontSize: "0.82rem", fontWeight: 600,
+                textDecoration: "none", display: "block",
+              }}
+            >
+              Try Predicted Questions instead
+            </a>
+          </div>
         </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>

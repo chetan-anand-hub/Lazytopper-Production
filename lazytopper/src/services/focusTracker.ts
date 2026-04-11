@@ -22,6 +22,8 @@ let heartbeatTimer: ReturnType<typeof setInterval> | null = null;
 let running = false;
 let persistedFocusedMs = 0;
 let persistedTotalMs = 0;
+let priorSessionFocusedMs = 0;
+let priorSessionTotalMs = 0;
 
 let studySessionStartTs = 0;
 let studySessionFocusedMs = 0;
@@ -101,10 +103,26 @@ export function startTracking(): void {
   running = true;
   appStartTs = Date.now();
   appFocusedMs = 0;
-  persistedFocusedMs = 0;
-  persistedTotalMs = 0;
+  priorSessionFocusedMs = 0;
+  priorSessionTotalMs = 0;
   lastPersistTs = appStartTs;
   lastVisibleTs = isVisible() ? appStartTs : 0;
+
+  try {
+    const raw = localStorage.getItem(FOCUS_DAILY_KEY);
+    if (raw) {
+      const records: DailyFocusRecord[] = JSON.parse(raw);
+      const today = todayKey();
+      const todayRec = records.find((r) => r.date === today);
+      if (todayRec) {
+        priorSessionFocusedMs = Math.max(0, todayRec.focusedMs);
+        priorSessionTotalMs = Math.max(0, todayRec.totalMs);
+      }
+    }
+  } catch {}
+
+  persistedFocusedMs = priorSessionFocusedMs;
+  persistedTotalMs = priorSessionTotalMs;
 
   document.addEventListener("visibilitychange", onVisibilityChange);
   heartbeatTimer = setInterval(heartbeat, HEARTBEAT_INTERVAL);
@@ -149,8 +167,10 @@ export function endStudySession(): FocusSnapshot {
 }
 
 function snapshotAppFocus(): FocusSnapshot {
-  const total = appStartTs > 0 ? Date.now() - appStartTs : 0;
-  const focused = Math.min(appFocusedMs, total);
+  const sessionTotal = appStartTs > 0 ? Date.now() - appStartTs : 0;
+  const sessionFocused = Math.min(appFocusedMs, sessionTotal);
+  const total = sessionTotal + priorSessionTotalMs;
+  const focused = sessionFocused + priorSessionFocusedMs;
   const pct = total > 0 ? Math.round((focused / total) * 100) : 0;
   return { focusedMs: focused, totalMs: total, percent: pct };
 }

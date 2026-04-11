@@ -432,7 +432,25 @@ export async function buildPracticeQuestionsWithAiTopup(
     ? pack.questions.map((q) => mapUnifiedQuestionToPractice(q as unknown as RawQuestion, String(q.id)))
     : [];
 
-  const bankQuestions = engineQuestions.length > 0 ? engineQuestions : packQuestions;
+  let bankQuestions = engineQuestions.length > 0 ? engineQuestions : packQuestions;
+
+  if (bankQuestions.length === 0 && packMap) {
+    const allPacks = Object.values(packMap).filter(Boolean);
+    const poolQuestions: PracticeQuestion[] = [];
+    for (const p of allPacks) {
+      if (!Array.isArray(p?.questions)) continue;
+      for (const q of p.questions) {
+        poolQuestions.push(mapUnifiedQuestionToPractice(q as unknown as RawQuestion, String(q.id)));
+      }
+    }
+    if (poolQuestions.length > 0) {
+      for (let i = poolQuestions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [poolQuestions[i], poolQuestions[j]] = [poolQuestions[j], poolQuestions[i]];
+      }
+      bankQuestions = poolQuestions.slice(0, safeCount);
+    }
+  }
 
   const desiredSection = normalizeBoardPattern(args.sectionFilter);
   const bankQuestionsFiltered = desiredSection

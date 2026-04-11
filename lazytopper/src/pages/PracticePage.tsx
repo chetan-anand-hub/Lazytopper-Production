@@ -115,7 +115,10 @@ const PracticePage: React.FC = () => {
   const subjectKey: SubjectKey = normaliseSubject(params.subject ?? "Maths");
 
   const qp = useMemo(() => new URLSearchParams(location.search), [location.search]);
-  const topicParam = qp.get("topic") || "Generic";
+  const rawTopicParam = qp.get("topic") || "";
+  const topicParam = rawTopicParam && rawTopicParam !== "Generic"
+    ? rawTopicParam
+    : (subjectKey === "Science" ? "chemical-reactions-and-equations" : "real-numbers");
   const topicKeyParam = qp.get("topicKey");
   const journeyMentorMode = String(qp.get("journeyMentor") || "").trim().toLowerCase();
 
@@ -677,11 +680,11 @@ const packTopicKey = useMemo(() => {
   }, [filteredQuestions, journeyMentorMode, openMentorForQuestion]);
 
   const title = useMemo(() => {
-    if (!topicParam || topicParam === "Generic") {
+    if (!rawTopicParam || rawTopicParam === "Generic") {
       return `Practice - Class ${grade} ${subjectKey}`;
     }
     return `Practice - ${topicLabel}`;
-  }, [topicParam, topicLabel, grade, subjectKey]);
+  }, [rawTopicParam, topicLabel, grade, subjectKey]);
 
   const activeQuestion = useMemo(() => {
     if (filteredQuestions.length === 0) return null;
