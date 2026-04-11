@@ -3,7 +3,6 @@ import {
   getChapterMasteryLevel,
   getAllChapterMasteryRecords,
   recordQuizResult,
-  clearNewlyMastered,
 } from "./masteryLevelService";
 
 import type { PaceProfileType, StoredPaceProfile } from "./paceProfileService";
@@ -39,9 +38,18 @@ import {
   reviewConcept,
 } from "./spacedRepetitionEngine";
 
+export interface SRStatsSnapshot {
+  total: number;
+  newCount: number;
+  learning: number;
+  review: number;
+  mastered: number;
+  dueToday: number;
+}
+
 export interface StudentSnapshot {
   mastery: {
-    records: ChapterMasteryRecord[];
+    records: Record<string, ChapterMasteryRecord>;
     overallLevel: MasteryLevel;
   };
   pace: {
@@ -57,35 +65,34 @@ export interface StudentSnapshot {
     logs: StudySessionLog[];
   };
   spacedRepetition: {
-    schedule: SRSchedule | null;
+    schedule: SRSchedule;
     dueCount: number;
-    stats: { total: number; newCount: number; learningCount: number; reviewCount: number; masteredCount: number };
+    stats: SRStatsSnapshot;
   };
 }
 
-function computeOverallMastery(records: ChapterMasteryRecord[]): MasteryLevel {
-  if (records.length === 0) return "not_started";
+function computeOverallMastery(records: Record<string, ChapterMasteryRecord>): MasteryLevel {
+  const entries = Object.values(records);
+  if (entries.length === 0) return "not_started";
   const levels: MasteryLevel[] = ["not_started", "attempted", "familiar", "proficient", "mastered"];
-  const scores = records.map((r) => levels.indexOf(r.level));
+  const scores = entries.map((r) => levels.indexOf(r.level));
   const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
   return levels[Math.round(avg)] ?? "familiar";
 }
 
-export async function getStudentSnapshot(userId: string): Promise<StudentSnapshot> {
-  const [masteryRecords, paceProfile, srSchedule, studyLogs] = await Promise.all([
-    Promise.resolve(getAllChapterMasteryRecords()),
-    loadPaceProfile(),
-    loadSRSchedule(userId),
-    getStudyLogs(userId).catch(() => [] as StudySessionLog[]),
-  ]);
+export function getStudentSnapshot(): StudentSnapshot {
+  const masteryRecords = getAllChapterMasteryRecords();
+  const paceProfile = loadPaceProfile();
+  const srSchedule = loadSRSchedule();
+  const studyLogs = getStudyLogs();
 
   const activeType = getActivePaceProfile();
   const appFocus = getAppFocus();
   const todayFocus = getTodayFocus();
   const weeklyFocus = getWeeklyFocus();
 
-  const dueReviews = srSchedule ? getDueReviews(srSchedule) : [];
-  const srStats = srSchedule ? getSRStats(srSchedule) : { total: 0, newCount: 0, learningCount: 0, reviewCount: 0, masteredCount: 0 };
+  const dueReviews = getDueReviews();
+  const srStats = getSRStats();
 
   return {
     mastery: {
@@ -112,12 +119,14 @@ export async function getStudentSnapshot(userId: string): Promise<StudentSnapsho
   };
 }
 
-export async function resetStudentData(): Promise<void> {
-  clearNewlyMastered();
+export function resetStudentData(): void {
   clearManualOverride();
 
   try {
     localStorage.removeItem("lazytopper.mastery.records");
+  } catch {}
+  try {
+    localStorage.removeItem("lazytopper.newly_mastered");
   } catch {}
   try {
     localStorage.removeItem("lazytopper.pace.profile");

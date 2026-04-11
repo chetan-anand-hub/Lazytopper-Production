@@ -37,6 +37,14 @@ A Teacher Dashboard allows class creation and progress tracking. A Methodology P
 ## Pricing, Referral & Funnel Analytics
 A Pricing page details subscription tiers. A Referral Program allows users to earn premium access. An admin page provides Onboarding Funnel Analytics to track user conversion.
 
+## Server Architecture (Task #79 Cleanup)
+The LazyTopper AI server (`lazytopper/server/index.cjs`) has been modularized:
+- **AI Clients**: `server/services/geminiClient.cjs` (Gemini API), `server/services/claudeClient.cjs` (Claude API with model routing)
+- **Route Modules**: `server/routes/share.cjs`, `server/routes/diagrams.cjs`, `server/routes/questions.cjs` — extracted from `handleRequest` using dependency injection via `routeDeps`
+- **StudentDataService**: `src/services/studentDataService.ts` — unified facade over mastery, pace, focus, session, and spaced repetition services with `getStudentSnapshot()` API
+- **3-Layer API Cost Optimization** (DO NOT BREAK): Static question bank (`canonicalQuestionBank.ts`) → pre-generated visuals (`public/visuals/` + `visualConceptRegistry.ts`) → AI fallback. `teachCache`/`inflightTeach` request collapsing in mentor route.
+- **Stub mode functions**: `buildStubMoreLikeThis`, `buildFallbackSteps`, `buildStubStepSolution` provide deterministic fallbacks when AI is unavailable
+
 ## System Design Choices
 TypeScript is used throughout, with pnpm workspaces and composite projects. API design follows OpenAPI 3.1 with Orval for codegen. The API server has a 5 MB request body limit. AI tutor responses have increased `maxOutputTokens`.
 

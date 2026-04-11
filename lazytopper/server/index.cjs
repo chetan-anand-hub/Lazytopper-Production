@@ -1327,23 +1327,6 @@ function buildGrindTopicContractFallback(payload) {
   };
 }
 
-function buildGrindTopicUserPrompt(payload) {
-  const rawTopicKey = payload?.topicKey || payload?.chapter || payload?.topic || '';
-  const resolvedTopicKey = resolvePriorityGrindTopicKey(rawTopicKey);
-  const profile = resolvedTopicKey ? PRIORITY_GRIND_TOPIC_PROFILES[resolvedTopicKey] : null;
-  const nodeTitle = String(payload?.mindmapNodeTitle || payload?.cardTitle || '').trim() || 'selected node';
-  const subject = String(payload?.subject || 'Maths/Science').trim();
-  const grade = String(payload?.grade || '10').trim();
-  return [
-    `Create a ${subject} Class ${grade} grind contract for "${nodeTitle}".`,
-    profile ? `Priority topic profile: ${profile.label}.` : `General topic profile: ${String(rawTopicKey || 'selected-topic')}.`,
-    payload?.mindmapNodeText ? `Node notes: ${String(payload.mindmapNodeText).trim()}` : '',
-    payload?.doubtContext ? `Doubt context: ${String(payload.doubtContext).trim()}` : '',
-  ]
-    .filter(Boolean)
-    .join('\n\n');
-}
-
 function isLearnMisconceptionPayload(payload) {
   if (!payload || typeof payload !== 'object') return false;
   const section = String(payload.section || '').toLowerCase();
@@ -2609,54 +2592,6 @@ function containsProofHeadings(text) {
   return /\b(Given|To Prove|Construction|Proof|Conclusion)\s*:/i.test(t);
 }
 
-function findStepIndexByPrefix(steps, prefix) {
-  return steps.findIndex((s) => {
-    const text = String(s?.text || '').trim().toLowerCase();
-    return text.startsWith(prefix);
-  });
-}
-
-function validateProofBoardSteps(obj, payload) {
-  const steps = Array.isArray(obj?.steps) ? obj.steps : [];
-  const marks = payload?.marks ?? payload?.totalMarks ?? payload?.total_marks;
-  const maxLines = getProofMaxLines(marks);
-  const issues = [];
-
-  if (steps.length === 0) issues.push('No steps found.');
-  if (steps.length > maxLines) issues.push(`Too many steps (${steps.length}) for limit ${maxLines}.`);
-
-  const idxGiven = findStepIndexByPrefix(steps, 'given');
-  const idxToProve = findStepIndexByPrefix(steps, 'to prove');
-  const idxConstruction = findStepIndexByPrefix(steps, 'construction');
-  const idxConclusion = findStepIndexByPrefix(steps, 'conclusion');
-  const idxProof = findStepIndexByPrefix(steps, 'proof');
-
-  if (idxGiven === -1) issues.push('Missing Given step.');
-  if (idxToProve === -1) issues.push('Missing To Prove step.');
-  if (idxConstruction === -1) issues.push('Missing Construction step.');
-  if (idxProof === -1) issues.push('Missing Proof step.');
-  if (idxConclusion === -1) issues.push('Missing Conclusion step.');
-
-  if (idxConclusion !== -1 && idxConclusion !== steps.length - 1) {
-    issues.push('Conclusion must be the last step.');
-  }
-  if (
-    idxGiven !== -1 &&
-    idxToProve !== -1 &&
-    idxConstruction !== -1 &&
-    (idxGiven > idxToProve || idxToProve > idxConstruction)
-  ) {
-    issues.push('Given, To Prove, Construction must be in order.');
-  }
-
-  const allText = steps.map((s) => s?.text || '').join(' ');
-  if (containsDisallowedProofPhrases(allText)) {
-    issues.push('Contains disallowed phrases.');
-  }
-
-  return { ok: issues.length === 0, issues };
-}
-
 function hasProofSectionsInOrder(text) {
   const t = String(text || '').toLowerCase();
   const labels = ['given', 'to prove', 'construction', 'proof', 'conclusion'];
@@ -2702,92 +2637,6 @@ function validateProofSolveWithMe(obj, payload, isFirstTurn) {
     issues.push('Tutor text contains disallowed phrases.');
   }
 
-  return { ok: issues.length === 0, issues };
-}
-
-function validateLearnTeach(obj, payload) {
-  const issues = [];
-  if (!obj || typeof obj !== 'object') return { ok: false, issues: ['Missing JSON object.'] };
-  if (obj.kind !== 'learn_teach') issues.push('kind must be learn_teach.');
-  const teach = obj.teach || {};
-  const simple = Array.isArray(teach.simpleExplanation) ? teach.simpleExplanation : [];
-  const exam = Array.isArray(teach.cbseExamSentence) ? teach.cbseExamSentence : [];
-  if (simple.length < 4) issues.push('teach.simpleExplanation needs >= 4 items.');
-  if (exam.length < 2) issues.push('teach.cbseExamSentence needs >= 2 items.');
-
-  const worked = Array.isArray(obj.workedExamples) ? obj.workedExamples : [];
-  if (worked.length !== 2) issues.push('workedExamples must be exactly 2 items.');
-  worked.forEach((ex, idx) => {
-    if (!ex || typeof ex !== 'object') {
-      issues.push(`workedExamples[${idx}] is invalid.`);
-      return;
-    }
-    const steps = Array.isArray(ex.steps) ? ex.steps : [];
-    if (!steps.length) issues.push(`workedExamples[${idx}] has no steps.`);
-    const total = Number(ex.totalMarks);
-    const sum = steps.reduce((acc, s) => acc + (Number(s?.marks) || 0), 0);
-    if (!Number.isFinite(total)) issues.push(`workedExamples[${idx}] totalMarks missing.`);
-    if (Number.isFinite(total) && Math.abs(total - sum) > 0.001) {
-      issues.push(`workedExamples[${idx}] totalMarks != sum of step marks.`);
-    }
-    if (!String(ex.finalAnswer || '').trim()) {
-      issues.push(`workedExamples[${idx}] finalAnswer missing.`);
-    }
-  });
-
-  const commonMistakes = Array.isArray(obj.commonMistakes) ? obj.commonMistakes : [];
-  if (commonMistakes.length < 1) issues.push('commonMistakes needs >= 1 items.');
-  if (!String(obj.checkQuestion || '').trim()) issues.push('checkQuestion missing.');
-
-  if (!String(obj.diagramType || '').trim()) issues.push('diagramType missing.');
-  if (!obj.diagramLabels || typeof obj.diagramLabels !== 'object') issues.push('diagramLabels missing.');
-
-  const blob = JSON.stringify(obj || {});
-  const hasMindmapContext =
-    Boolean(payload?.mindmapNodeId || payload?.mindmapNodeTitle || payload?.mindmapNodeText) ||
-    String(payload?.subSection || '').toLowerCase().includes('mindmap');
-  if (!hasMindmapContext) {
-    const requiredPatterns = [
-      /\bsimilar\s+triangles?\b/i,
-      /\bcorresponding\s+sides?\b/i,
-      /\bcorresponding\s+angles?\b/i,
-      /\bAA\b/i,
-      /\bSAS\b/i,
-      /\bSSS\b/i,
-      /\bCPST\b/i,
-    ];
-    requiredPatterns.forEach((re) => {
-      if (!re.test(blob)) issues.push(`Missing required key definition: ${re.source}.`);
-    });
-  }
-
-  if (containsPlaceholderLanguage(blob)) {
-    issues.push('Placeholder language detected.');
-  }
-
-  return { ok: issues.length === 0, issues };
-}
-
-function validateLearnMindmap(obj) {
-  const issues = [];
-  if (!obj || typeof obj !== 'object') return { ok: false, issues: ['Missing JSON object.'] };
-  if (obj.kind !== 'learn_mindmap') issues.push('kind must be learn_mindmap.');
-  const bullets = Array.isArray(obj.conceptBullets) ? obj.conceptBullets : [];
-  const examLines = Array.isArray(obj.examLines) ? obj.examLines : [];
-  const worked = obj.workedExample || {};
-  const steps = Array.isArray(worked.steps) ? worked.steps : [];
-  if (bullets.length < 5) issues.push('conceptBullets needs >= 5 items.');
-  if (examLines.length < 2) issues.push('examLines needs >= 2 items.');
-  if (!String(worked.question || '').trim()) issues.push('workedExample.question missing.');
-  if (!steps.length) issues.push('workedExample.steps missing.');
-  if (!String(worked.finalAnswer || '').trim()) issues.push('workedExample.finalAnswer missing.');
-  if (!String(obj.commonError || '').trim()) issues.push('commonError missing.');
-  if (!String(obj.commonFix || '').trim()) issues.push('commonFix missing.');
-  if (!String(obj.checkQuestion || '').trim()) issues.push('checkQuestion missing.');
-  if (!String(obj.diagramType || '').trim()) issues.push('diagramType missing.');
-  if (!obj.diagramLabels || typeof obj.diagramLabels !== 'object') issues.push('diagramLabels missing.');
-  const blob = JSON.stringify(obj || {});
-  if (containsPlaceholderLanguage(blob)) issues.push('Placeholder language detected.');
   return { ok: issues.length === 0, issues };
 }
 
@@ -3172,46 +3021,7 @@ function buildDeterministicCheckQuestion(topicLabel) {
   return `Which condition must be verified before applying ${topic}?`;
 }
 
-function buildLearnTeachFallback(payload) {
-  const topic = payload?.topicKey || payload?.chapter || payload?.topic || 'this topic';
-  const nodeTitle =
-    payload?.mindmapNodeTitle ||
-    payload?.cardTitle ||
-    payload?.cardName ||
-    payload?.itemTitle ||
-    topic;
-  const diagram = buildDiagramFields(payload);
-  const conceptBullets = ensureMinArray(
-    toStringArray([`Definition: ${nodeTitle}.`, 'State the criterion before CPST.']),
-    3,
-    (i) => `Key point ${i + 1} for ${nodeTitle}.`
-  );
-  const examLines = ensureMinArray(buildDeterministicExamLines(nodeTitle), 2, (i) => `CBSE line ${i + 1}: ${nodeTitle}.`);
-  const steps = ensureMinArray([], 2, (i) => ({ text: `Step ${i + 1}: Apply the criterion with correct order.`, marks: 1 }));
-  const base = {
-    kind: 'learn_teach',
-    teach: {
-      headline: `Teach: ${nodeTitle}`,
-      oneLiner: `Key idea: ${nodeTitle} in ${topic}.`,
-      conceptBullets,
-      examLines,
-    },
-    workedExample: {
-      question: `Micro-drill: Write two correct steps with reasons for ${nodeTitle}.`,
-      steps,
-      finalAnswer: `Therefore, ${nodeTitle} is established.`,
-    },
-    commonError: 'Mixing correspondence order or applying a theorem without conditions.',
-    commonFix: 'State the criterion, then write the matching ratio/angle relation before concluding.',
-    checkQuestion: buildDeterministicCheckQuestion(nodeTitle),
-    diagramRequired: diagram.diagramRequired,
-    diagramType: diagram.diagramType,
-    diagramSpec: diagram.diagramSpec,
-    diagramLabels: diagram.diagramLabels,
-    fallback_used: true,
-  };
-  return ensureTeachContractShape(base, payload);
-}
+/* buildLearnTeachFallback — duplicate removed; canonical version at ~L4206 */
 
 function adaptLegacyLearnTeachToContract(raw, payload) {
   const topic = payload?.topicKey || payload?.chapter || payload?.topic || 'this topic';
@@ -3504,40 +3314,6 @@ function buildLearnTeachContractPrompt(payload) {
     .join('\n');
 }
 
-function validateLearnProof(obj) {
-  const issues = [];
-  if (!obj || typeof obj !== 'object') return { ok: false, issues: ['Missing JSON object.'] };
-  if (obj.kind !== 'learn_proof') issues.push('kind must be learn_proof.');
-
-  const given = Array.isArray(obj.given) ? obj.given : [];
-  const toProve = Array.isArray(obj.toProve) ? obj.toProve : [];
-  const construction = Array.isArray(obj.construction) ? obj.construction : null;
-  const proofSteps = Array.isArray(obj.proofSteps) ? obj.proofSteps : [];
-  const conclusion = Array.isArray(obj.conclusion) ? obj.conclusion : [];
-  if (!given.length) issues.push('given missing.');
-  if (!toProve.length) issues.push('toProve missing.');
-  if (!construction) issues.push('construction must be present (can be empty).');
-  if (!proofSteps.length) issues.push('proofSteps missing.');
-  if (!conclusion.length) issues.push('conclusion missing.');
-
-  const total = Number(obj.totalMarks);
-  const sum = proofSteps.reduce((acc, s) => acc + (Number(s?.mark) || 0), 0);
-  if (!Number.isFinite(total)) issues.push('totalMarks missing.');
-  if (Number.isFinite(total) && Math.abs(total - sum) > 0.001) {
-    issues.push('totalMarks != sum of proofSteps marks.');
-  }
-
-  if (!String(obj.diagramType || '').trim()) issues.push('diagramType missing.');
-  if (!obj.diagramLabels || typeof obj.diagramLabels !== 'object') issues.push('diagramLabels missing.');
-
-  const blob = JSON.stringify(obj || {});
-  if (containsPlaceholderLanguage(blob)) {
-    issues.push('Placeholder language detected.');
-  }
-
-  return { ok: issues.length === 0, issues };
-}
-
 function validateStructuredForMode(obj, mode, payload, opts) {
   const issues = [];
   if (mode === 'solve_with_me') {
@@ -3701,21 +3477,6 @@ function getJsonSchemaTextForMode(mode, payload) {
   return '';
 }
 
-function buildProofRepairPrompt(mode, payload, issues) {
-  const issueText = Array.isArray(issues) && issues.length ? issues.map((i) => `- ${i}`).join('\n') : '- Format issues detected.';
-  const addendum = buildProofWritingAddendum(payload, mode);
-  return [
-    'Your proof-writing output violated required constraints.',
-    issueText,
-    '',
-    'Rewrite to satisfy ALL constraints and the exact JSON protocol. Do not add extra text.',
-    '',
-    addendum,
-    '',
-    'Return ONLY valid JSON (no markdown).',
-  ].join('\n');
-}
-
 function buildTrianglesEvaluationPrompt(payload, studentAttempt) {
   const subject = payload.subject || 'Maths/Science';
   const grade = payload.grade != null ? payload.grade : 10;
@@ -3841,24 +3602,6 @@ function containsPlaceholderLanguage(text) {
     'example here',
   ];
   return patterns.some((p) => t.includes(p));
-}
-
-function fallbackMindmapTeachResponse(payload) {
-  const nodeTitle = payload && (payload.mindmapNodeTitle || payload.itemTitle) ? String(payload.mindmapNodeTitle || payload.itemTitle) : 'this node';
-  const diagramLine = shouldRequireDiagram(payload) ? diagramLineForExplain(payload) : '';
-  return [
-    '1) Concept',
-    `Here is a short, teacher-style explanation of ${nodeTitle}.`,
-    '2) Exam-writing sentence',
-    'Write one clear CBSE line stating the concept using triangle labels.',
-    '3) Solved mini-example',
-    'In triangle ABC and triangle PQR, set up the correct relation and solve one step.',
-    diagramLine ? diagramLine : '',
-    '4) Common exam error',
-    'Do not mix vertex order or apply a theorem without its conditions.',
-    '5) Check-for-understanding question',
-    'Which condition must be verified before using this idea?',
-  ].join('\n');
 }
 
 function hasCompetencySections(text) {
@@ -4189,20 +3932,6 @@ function buildLearnSeedContext(payload, sectionKey) {
   return '';
 }
 
-function scaleMarks(steps, targetTotal) {
-  if (!Array.isArray(steps)) return steps;
-  if (!Number.isFinite(targetTotal) || targetTotal <= 0) return steps;
-  const sum = steps.reduce((acc, s) => acc + (Number(s?.mark ?? s?.marks) || 0), 0);
-  if (!sum) return steps;
-  const factor = targetTotal / sum;
-  return steps.map((s) => {
-    const raw = (Number(s?.mark ?? s?.marks) || 0) * factor;
-    const rounded = Math.round(raw * 2) / 2;
-    if (s?.mark != null) return { ...s, mark: rounded };
-    return { ...s, marks: rounded };
-  });
-}
-
 function buildLearnTeachFallback(payload) {
   const seed = getLearnSeedPack(payload);
   const diagramType = inferDiagramType(payload);
@@ -4271,69 +4000,6 @@ function buildLearnTeachFallback(payload) {
     diagramLabels: seed.keyDefinitions.diagramLabels || diagramLabels,
     fallback_used: true,
   }, payload);
-}
-
-function buildLearnProofFallback(payload) {
-  const seed = getLearnSeedPack(payload);
-  const diagramType = inferDiagramType(payload);
-  const diagramLabels = diagramLabelsForType(diagramType);
-  if (!seed) {
-    return {
-      kind: 'learn_proof',
-      given: ['Given: (use question data).'],
-      toProve: ['To Prove: (state required result).'],
-      construction: ['Not required.'],
-      proofSteps: [
-        { statement: 'State the theorem/criterion.', reason: 'Theorem', mark: 1 },
-        { statement: 'Apply the theorem to the triangles.', reason: 'Application', mark: 1 },
-      ],
-      conclusion: ['Hence proved.'],
-      totalMarks: 2,
-      diagramType,
-      diagramLabels,
-      fallback_used: true,
-    };
-  }
-  const marksRaw = payload?.marks ?? payload?.totalMarks ?? payload?.total_marks;
-  const marks = Number(marksRaw);
-  const steps = Number.isFinite(marks) ? scaleMarks(seed.proof.proofSteps, marks) : seed.proof.proofSteps;
-  const totalMarks = Number.isFinite(marks) ? marks : seed.proof.totalMarks;
-  return {
-    kind: 'learn_proof',
-    given: seed.proof.given,
-    toProve: seed.proof.toProve,
-    construction: seed.proof.construction,
-    proofSteps: steps.map((s) => ({ statement: s.statement, reason: s.reason, mark: s.mark })),
-    conclusion: seed.proof.conclusion,
-    totalMarks,
-    diagramType: seed.proof.diagramType || diagramType,
-    diagramLabels: seed.proof.diagramLabels || diagramLabels,
-    fallback_used: true,
-  };
-}
-
-function buildLearnMindmapFallback(payload) {
-  const seed = getLearnSeedPack(payload);
-  const diagramType = inferDiagramType(payload);
-  const diagramLabels = diagramLabelsForType(diagramType);
-  const nodeId = payload?.mindmapNodeId || payload?.itemId || 'gQ1';
-  const node = seed?.mindmapNodes?.[nodeId] || seed?.mindmapNodes?.gQ1;
-  return {
-    kind: 'learn_mindmap',
-    conceptBullets: node?.bullets || ['Use similarity criteria before CPST.'],
-    examLines: node?.examLines || ['State the criterion and correspondence order.'],
-    workedExample: node?.example || {
-      question: 'Identify the criterion and write one ratio.',
-      steps: ['State the criterion.', 'Write one CPST ratio.'],
-      finalAnswer: 'Criterion stated and one ratio written.',
-    },
-    commonError: node?.commonError || 'Mixing correspondence order.',
-    commonFix: node?.commonFix || 'Re-check correspondence order and the stated criterion.',
-    checkQuestion: node?.checkQuestion || 'Which criterion applies here?',
-    diagramType,
-    diagramLabels,
-    fallback_used: true,
-  };
 }
 
 function buildLearnSolveWithMeFallback(payload) {
@@ -5907,28 +5573,3 @@ server.listen(PORT, () => {
   );
   if (envUsedLabel) console.log(`EnvUsed: ${envUsedLabel}`);
 });
-function messagesToGeminiContents(messages, systemPrompt) {
-  const contents = [];
-  let injected = false;
-
-  for (const m of messages || []) {
-    const roleRaw = String(m?.role || "user").toLowerCase();
-    if (roleRaw === "system") continue;
-
-    const role = roleRaw === "assistant" ? "model" : "user";
-    let text = String(m?.content ?? "");
-
-    if (!injected && role === "user") {
-      text = systemPrompt + "\n\n" + text;
-      injected = true;
-    }
-
-    contents.push({ role, parts: [{ text }] });
-  }
-
-  if (!injected) {
-    contents.unshift({ role: "user", parts: [{ text: systemPrompt }] });
-  }
-
-  return contents;
-}
