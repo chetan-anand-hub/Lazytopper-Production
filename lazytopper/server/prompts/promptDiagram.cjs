@@ -5,65 +5,8 @@ function createDiagramPrompts(ctx) {
     getProofFocus, getProofMaxLines, proofTemplateForFocus,
     containsDisallowedProofPhrases, hasProofSectionsInOrder, countNonEmptyLines, toLabelArray,
     initHintState, computeNextHint, scoreRubric, retrieveTrianglesSources,
+    inferDiagramType,
   } = ctx;
-
-function inferDiagramType(payload) {
-  const hint = [
-    payload?.theoremFocus,
-    payload?.explainType,
-    payload?.mindmapNodeTitle,
-    payload?.mindmapNodeText,
-    payload?.questionText,
-    payload?.contextText,
-    payload?.topicKey,
-    payload?.topic,
-    payload?.chapter,
-  ]
-    .flat()
-    .map((v) => String(v || '').toLowerCase().replace(/[_-]+/g, ' '))
-    .join(' ');
-  const hasTrigWord = /\b(trigonometry|trigonometric|sin|cos|tan|sine|cosine|tangent|theta)\b/.test(hint);
-  if (hint.includes('trigon') || hasTrigWord || hint.includes('height') || hint.includes('distance')) {
-    return 'trigonometric_triangle';
-  }
-  if (hint.includes('circle') || hint.includes('chord') || hint.includes('tangent')) return 'circle';
-  if (hint.includes('coordinate') || hint.includes('cartesian') || hint.includes('graph')) return 'coordinate_plane';
-  if (hint.includes('mensuration') || hint.includes('surface area') || hint.includes('volume') || hint.includes('cylinder') || hint.includes('cone') || hint.includes('sphere') || hint.includes('cuboid')) {
-    return 'mensuration_solid';
-  }
-  if (hint.includes('ray') || hint.includes('reflection') || hint.includes('refraction') || hint.includes('lens') || hint.includes('mirror') || hint.includes('optics')) {
-    return 'ray_diagram';
-  }
-  if (
-    hint.includes('life process') ||
-    hint.includes('nutrition') ||
-    hint.includes('respiration') ||
-    hint.includes('excretion') ||
-    hint.includes('stomata') ||
-    hint.includes('nephron') ||
-    hint.includes('heart') ||
-    hint.includes('control and coordination') ||
-    hint.includes('neuron') ||
-    hint.includes('reflex') ||
-    hint.includes('reproduction') ||
-    hint.includes('heredity') ||
-    hint.includes('evolution') ||
-    hint.includes('food chain') ||
-    hint.includes('trophic')
-  ) {
-    return 'biology_process';
-  }
-  if (hint.includes('magnetic') || hint.includes('magnet') || hint.includes('solenoid') || hint.includes('field')) {
-    return 'magnetic_field';
-  }
-  if (hint.includes('circuit') || hint.includes('electric') || hint.includes('current') || hint.includes('resistance') || hint.includes('ammeter') || hint.includes('voltmeter')) {
-    return 'circuit';
-  }
-  if (hint.includes('triangle') || hint.includes('similar') || hint.includes('congruen') || hint.includes('pyth') || hint.includes('bpt') || hint.includes('parallel')) {
-    return 'triangle';
-  }
-  return 'generic';
-}
 
 function ensureDiagramLineInText(text, payload) {
   if (!shouldRequireDiagram(payload)) return text;

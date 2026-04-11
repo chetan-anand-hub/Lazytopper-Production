@@ -1,4 +1,3 @@
-function createPromptData() {
 const PRIORITY_GRIND_TOPIC_PROFILES = {
   'pair-of-linear-equations': {
     label: 'Pair of Linear Equations in Two Variables',
@@ -402,6 +401,7 @@ const TRIANGLES_LEARN_SEED = {
   },
 };
 
+function createPromptData() {
   return {
     PRIORITY_GRIND_TOPIC_PROFILES,
     PRIORITY_GRIND_TOPIC_ALIASES,
@@ -410,4 +410,8 @@ const TRIANGLES_LEARN_SEED = {
     TRIANGLES_LEARN_SEED,
   };
 }
-module.exports = { createPromptData };
+module.exports = {
+  createPromptData,
+  PRIORITY_GRIND_TOPIC_PROFILES,
+  PRIORITY_GRIND_TOPIC_ALIASES,
+};

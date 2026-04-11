@@ -38,24 +38,30 @@ A Teacher Dashboard allows class creation and progress tracking. A Methodology P
 A Pricing page details subscription tiers. A Referral Program allows users to earn premium access. An admin page provides Onboarding Funnel Analytics to track user conversion.
 
 ## Server Architecture (Task #79 Cleanup — Complete)
-The LazyTopper AI server has been fully modularized. `server/index.cjs` is now a thin 584-line composition root (down from 6,911 lines).
-- **Entry Point**: `server/index.cjs` (584 lines) — env setup, CORS, routing, health check, server bootstrap
-- **Mentor Route**: `server/routes/mentor.cjs` (2,165 lines) — `createMentorRoute(deps)` factory with `handleMentorRequest`, `teachCache`/`inflightTeach` request collapsing, all mentor modes
+The LazyTopper AI server has been fully modularized. `server/index.cjs` is now a thin 582-line composition root (down from 6,911 lines).
+- **Entry Point**: `server/index.cjs` (582 lines) — env setup, CORS, routing, health check, server bootstrap
+- **Mentor Route** (split into 6 sub-modules):
+  - `server/routes/mentor.cjs` (679 lines) — `createMentorRoute(deps)` factory, request handler orchestration, `teachCache`/`inflightTeach` request collapsing
+  - `server/routes/mentorResponseBuilder.cjs` (401 lines) — AI response building, validation repair loops, fallback chains
+  - `server/routes/mentorClassifiers.cjs` (248 lines) — mode normalization, payload classifiers, protocol validation
+  - `server/routes/mentorDiagramHelpers.cjs` (462 lines) — diagram inference, proof helpers, board-step normalization
+  - `server/routes/mentorTeachHelpers.cjs` (350 lines) — teach contract coercion, section validators, fallback responses (uses late-bound deps via `bindLateDeps`)
+  - `server/routes/mentorBsre.cjs` (129 lines) — board-specific rubric evaluation engine
 - **Prompt System** (split from 2,576-line monolith into 7 domain modules):
   - `server/prompts/mentorPrompts.cjs` (72 lines) — composition root using ctx-based pattern
-  - `server/prompts/promptCore.cjs` (165 lines) — plan, solve, explain prompt builders + student profile/behavior
-  - `server/prompts/promptData.cjs` (414 lines) — static data: grind profiles, mindmap outlines, learn seeds
+  - `server/prompts/promptCore.cjs` (164 lines) — plan, solve, explain prompt builders + student profile/behavior
+  - `server/prompts/promptData.cjs` (417 lines) — static data: grind profiles, mindmap outlines, learn seeds (module-level exports for shared constants)
   - `server/prompts/promptGrind.cjs` (410 lines) — grind, misconception, competency, coach, board-steps
-  - `server/prompts/promptDiagram.cjs` (366 lines) — diagram inference, proof addendum, attempt loop heuristics
-  - `server/prompts/promptTeachContract.cjs` (467 lines) — teach contract shape/validation, legacy adapters
-  - `server/prompts/promptValidation.cjs` (255 lines) — structured validation, repair prompts, evaluation
-  - `server/prompts/promptLearn.cjs` (512 lines) — learn/teach builders, conversational system prompts, fallbacks
+  - `server/prompts/promptDiagram.cjs` (308 lines) — diagram fields, proof addendum, attempt loop heuristics
+  - `server/prompts/promptTeachContract.cjs` (466 lines) — teach contract shape/validation, legacy adapters
+  - `server/prompts/promptValidation.cjs` (253 lines) — structured validation, repair prompts, evaluation
+  - `server/prompts/promptLearn.cjs` (511 lines) — learn/teach builders, conversational system prompts, fallbacks
 - **AI Clients**: `server/services/geminiClient.cjs`, `server/services/claudeClient.cjs` (model routing)
 - **Other Routes**: `server/routes/share.cjs`, `server/routes/diagrams.cjs`, `server/routes/moreLikeThis.cjs`, `server/routes/stepSolution.cjs`, `server/routes/checkSolution.cjs`, `server/routes/questions.cjs`
 - **Services**: `server/services/stubHandlers.cjs` (stub mode), `server/services/httpUtils.cjs`, `server/services/cbseExamDate.cjs`
-- **StudentDataService**: `src/services/studentDataService.ts` — unified facade with `getStudentSnapshot()` API
+- **StudentDataService**: `src/services/studentDataService.ts` (313 lines) — unified facade with `getData(uid?)`/`saveData(uid?, data)`/`resetData(uid?)` API, `SCHEMA_VERSION` constant, migration framework, comprehensive localStorage key reset
 - **3-Layer API Cost Optimization** (DO NOT BREAK): Static question bank → pre-generated visuals → AI fallback
-- **Composition Pattern**: All modules use factory functions with dependency injection. Prompt sub-modules use a shared `ctx` object with ordered registration to resolve cross-module references.
+- **Composition Pattern**: All modules use factory functions with dependency injection. Prompt sub-modules use a shared `ctx` object with ordered registration. Cross-module deps in mentor helpers use late-binding via `bindLateDeps()` to break circular dependencies.
 
 ## System Design Choices
 TypeScript is used throughout, with pnpm workspaces and composite projects. API design follows OpenAPI 3.1 with Orval for codegen. The API server has a 5 MB request body limit. AI tutor responses have increased `maxOutputTokens`.

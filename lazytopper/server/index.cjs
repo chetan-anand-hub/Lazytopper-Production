@@ -202,8 +202,6 @@ const MAX_HISTORY_TURNS = 4;
 const FEEDBACK_DIR = path.join(REPO_ROOT, '.project_memory', 'ops', 'feedback');
 const FEEDBACK_FILE = path.join(FEEDBACK_DIR, 'triangles_feedback.jsonl');
 const TEACH_CACHE_TTL_MS = IS_DEV ? 90_000 : 60_000;
-const teachCache = new Map();
-const inflightTeach = new Map();
 
 const geminiClientModule = createGeminiClient({
   GEMINI_API_KEY, HAS_REPLIT_PROXY, REPLIT_GEMINI_BASE_URL,
