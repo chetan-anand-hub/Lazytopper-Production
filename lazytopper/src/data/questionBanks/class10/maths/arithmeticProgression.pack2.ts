@@ -810,7 +810,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "The first term of an AP is 8, the last term is 35, and the sum is 645. Find the number of terms and the common difference.",
     "options": [],
-    "answer": "n = 30 terms, d = 0.9",
+    "answer": "n = 30 terms, d = 27/29",
     "solutionSteps": [
       "Given: a = 8, l = 35, Sₙ = 645",
       "Sₙ = n/2(a + l)",
@@ -820,9 +820,9 @@ export const AP2_PACK2: CanonicalQuestion[] = [
       "l = a + (n-1)d",
       "35 = 8 + (30-1)d",
       "27 = 29d",
-      "d = 27/30 = 0.9"
+      "d = 27/29 ≈ 0.93"
     ],
-    "finalAnswer": "n = 30 terms, d = 0.9",
+    "finalAnswer": "n = 30 terms, d = 27/29",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,

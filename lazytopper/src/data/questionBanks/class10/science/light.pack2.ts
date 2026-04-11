@@ -569,7 +569,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
     "subject": "Science",
     "topicKey": "Light – Reflection and Refraction",
     "subtopic": "Mirror Formula",
-    "section": "E",
+    "section": "D",
     "marks": 5,
     "format": "Long",
     "difficulty": "Hard",

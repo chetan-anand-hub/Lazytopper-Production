@@ -629,7 +629,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
     "subject": "Science",
     "topicKey": "Heredity and Evolution",
     "subtopic": "Evolution",
-    "section": "E",
+    "section": "D",
     "marks": 5,
     "format": "Long",
     "difficulty": "Hard",

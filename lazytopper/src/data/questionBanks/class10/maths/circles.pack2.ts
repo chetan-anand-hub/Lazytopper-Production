@@ -514,7 +514,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
     "subject": "Maths",
     "topicKey": "Circles",
     "subtopic": "Tangent Properties",
-    "section": "E",
+    "section": "D",
     "marks": 5,
     "format": "Long",
     "difficulty": "Hard",

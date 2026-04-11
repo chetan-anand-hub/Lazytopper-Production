@@ -732,7 +732,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
     "subject": "Maths",
     "topicKey": "Triangles",
     "subtopic": "Pythagoras Theorem",
-    "section": "E",
+    "section": "D",
     "marks": 5,
     "format": "Long",
     "difficulty": "Hard",

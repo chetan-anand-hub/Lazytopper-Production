@@ -562,7 +562,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
     "subject": "Maths",
     "topicKey": "Areas Related to Circles",
     "subtopic": "Combined Figures",
-    "section": "E",
+    "section": "B",
     "marks": 2,
     "format": "Short",
     "difficulty": "Hard",
@@ -590,7 +590,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
     "subject": "Maths",
     "topicKey": "Areas Related to Circles",
     "subtopic": "Combined Figures",
-    "section": "E",
+    "section": "A",
     "marks": 1,
     "format": "MCQ",
     "difficulty": "Hard",
@@ -621,7 +621,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
     "subject": "Maths",
     "topicKey": "Areas Related to Circles",
     "subtopic": "Sector Area",
-    "section": "E",
+    "section": "B",
     "marks": 2,
     "format": "Short",
     "difficulty": "Hard",
@@ -657,7 +657,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
     "questionText": "The area of a sector of a circle with radius 7 cm and central angle 60° is:",
     "options": [
       "25.67 cm²",
-      "25.67 cm²",
+      "51.33 cm²",
       "77 cm²",
       "154 cm²"
     ],
@@ -687,7 +687,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
     "questionText": "The length of an arc of a circle with radius 10 cm and central angle 90° is:",
     "options": [
       "15.71 cm",
-      "15.71 cm",
+      "20.94 cm",
       "31.42 cm",
       "62.84 cm"
     ],
@@ -938,7 +938,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
     "options": [
       "78.5 cm²",
       "157 cm²",
-      "78.5 cm²",
+      "50 cm²",
       "314 cm²"
     ],
     "answer": "78.5 cm²",

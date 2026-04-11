@@ -635,7 +635,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
     "subject": "Science",
     "topicKey": "How do Organisms Reproduce?",
     "subtopic": "Human Reproductive System",
-    "section": "E",
+    "section": "D",
     "marks": 5,
     "format": "Long",
     "difficulty": "Hard",

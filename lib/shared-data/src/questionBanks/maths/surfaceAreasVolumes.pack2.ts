@@ -566,7 +566,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "subject": "Maths",
     "topicKey": "Surface Areas and Volumes",
     "subtopic": "Conversion of Solids",
-    "section": "E",
+    "section": "D",
     "marks": 5,
     "format": "Long",
     "difficulty": "Hard",
@@ -1054,7 +1054,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "questionText": "A container in the shape of a frustum has radii 20 cm and 10 cm with slant height 26 cm. The volume of the frustum is:",
     "options": [
       "5600π cm³",
-      "5600π cm³",
+      "7000π cm³",
       "8400π cm³",
       "4200π cm³"
     ],

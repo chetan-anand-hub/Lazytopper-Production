@@ -584,7 +584,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
     "subject": "Science",
     "topicKey": "Acids, Bases and Salts",
     "subtopic": "Salts and their Properties",
-    "section": "E",
+    "section": "D",
     "marks": 5,
     "format": "Long",
     "difficulty": "Hard",
