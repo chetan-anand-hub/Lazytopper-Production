@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fundamental Theorem of Arithmetic</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #1e293b; min-height: 100vh; }
+
+  .title-bar {
+    background: linear-gradient(135deg, #1e40af, #3b82f6, #0ea5e9);
+    color: white; padding: 14px 20px; text-align: center;
+    box-shadow: 0 4px 20px rgba(59,130,246,0.5);
+  }
+  .title-bar h1 { font-size: 1.1rem; font-weight: 700; letter-spacing: 0.5px; }
+  .title-bar p { font-size: 0.75rem; opacity: 0.85; margin-top: 3px; }
+
+  .container { max-width: 700px; margin: 0 auto; padding: 16px; }
+
+  .card {
+    background: white; border-radius: 16px; padding: 18px;
+    margin-bottom: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+  }
+
+  .section-title {
+    font-size: 0.8rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1px; color: #3b82f6; margin-bottom: 10px;
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  .theorem-box {
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    border: 2px solid #3b82f6; border-radius: 12px;
+    padding: 14px; margin-bottom: 12px;
+  }
+  .theorem-box h3 { color: #1e40af; font-size: 0.95rem; margin-bottom: 6px; }
+  .theorem-box p { color: #1e293b; font-size: 0.82rem; line-height: 1.6; }
+
+  .formula-highlight {
+    background: linear-gradient(135deg, #1e293b, #334155);
+    color: #f8fafc; border-radius: 10px; padding: 12px 16px;
+    text-align: center; font-size: 0.9rem; font-weight: 600;
+    letter-spacing: 0.5px; margin: 10px 0;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
+  }
+  .formula-highlight span { color: #60a5fa; }
+
+  /* Number input */
+  .input-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+  .num-btn {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: white; border: none; border-radius: 8px;
+    padding: 8px 14px; font-size: 0.82rem; cursor: pointer;
+    font-weight: 600; transition: all 0.2s; box-shadow: 0 2px 8px rgba(59,130,246,0.3);
+  }
+  .num-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(59,130,246,0.5); }
+  .num-btn.active { background: linear-gradient(135deg, #22c55e, #15803d); box-shadow: 0 2px 8px rgba(34,197,94,0.4); }
+
+  #customInput {
+    border: 2px solid #e2e8f0; border-radius: 8px; padding: 7px 10px;
+    font-size: 0.85rem; width: 80px; outline: none; color: #1e293b;
+    transition: border-color 0.2s;
+  }
+  #customInput:focus { border-color: #3b82f6; }
+
+  /* Tree */
+  #treeCanvas { width: 100%; display: block; }
+  .tree-container {
+    background: linear-gradient(160deg, #f0f9ff, #e0f2fe);
+    border-radius: 12px; padding: 10px; overflow: hidden;
+    border: 1px solid #bae6fd; min-height: 200px;
+  }
+
+  /* Step reveal */
+  .steps-container { display: flex; flex-direction: column; gap: 8px; }
+  .step {
+    border-radius: 10px; padding: 10px 14px;
+    font-size: 0.82rem; border-left: 4px solid #3b82f6;
+    background: #f8fafc; opacity: 0; transform: translateY(10px);
+    transition: all 0.4s ease; display: none;
+  }
+  .step.visible { opacity: 1; transform: translateY(0); display: block; }
+  .step .step-num { font-weight: 700; color: #3b82f6; font-size: 0.75rem; margin-bottom: 3px; }
+  .step .step-text { color: #334155; }
+  .step .step-math { color: #7c3aed; font-weight: 600; font-size: 0.9rem; margin-top: 4px; }
+
+  .step-btn {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white; border: none; border-radius: 8px;
+    padding: 9px 18px; font-size: 0.82rem; cursor: pointer;
+    font-weight: 600; transition: all 0.2s; margin-top: 10px;
+    box-shadow: 0 2px 8px rgba(245,158,11,0.3);
+  }
+  .step-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(245,158,11,0.5); }
+
+  /* Uniqueness demo */
+  .unique-demo { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 10px; }
+  .factor-bubble {
+    background: linear-gradient(135deg, #7c3aed, #5b21b6);
+    color: white; border-radius: 50%; width: 44px; height: 44px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.95rem; box-shadow: 0 3px 10px rgba(124,58,237,0.4);
+    animation: popIn 0.3s ease;
+  }
+  @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
+  .times-sym { color: #94a3b8; font-size: 1.1rem; display: flex; align-items: center; }
+
+  /* LCM HCF */
+  .lcm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+  .lcm-box {
+    border-radius: 10px; padding: 12px; text-align: center;
+    font-size: 0.8rem;
+  }
+  .lcm-box.hcf { background: linear-gradient(135deg, #dcfce7, #bbf7d0); border: 2px solid #22c55e; }
+  .lcm-box.lcm { background: linear-gradient(135deg, #fef3c7, #fde68a); border: 2px solid #f59e0b; }
+  .lcm-box .val { font-size: 1.4rem; font-weight: 700; margin: 4px 0; }
+  .lcm-box.hcf .val { color: #15803d; }
+  .lcm-box.lcm .val { color: #d97706; }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+  .tab {
+    padding: 7px 14px; border-radius: 8px; font-size: 0.78rem; font-weight: 600;
+    cursor: pointer; border: 2px solid transparent; transition: all 0.2s;
+    background: #f1f5f9; color: #64748b;
+  }
+  .tab.active { background: #3b82f6; color: white; border-color: #3b82f6; }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .note-box {
+    background: linear-gradient(135deg, #fef9c3, #fef3c7);
+    border: 1px solid #f59e0b; border-radius: 8px;
+    padding: 10px 14px; font-size: 0.78rem; color: #78350f;
+    margin-top: 10px; line-height: 1.5;
+  }
+
+  .result-box {
+    background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+    border: 2px solid #22c55e; border-radius: 10px;
+    padding: 12px; margin-top: 10px; display: none;
+  }
+  .result-box.show { display: block; animation: fadeIn 0.4s; }
+  .result-box p { font-size: 0.85rem; color: #064e3b; font-weight: 600; }
+
+  svg text { font-family: 'Segoe UI', sans-serif; }
+
+  @media(max-width:400px) {
+    .lcm-grid { grid-template-columns: 1fr; }
+    .factor-bubble { width: 38px; height: 38px; font-size: 0.85rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="title-bar">
+  <h1>🔢 Fundamental Theorem of Arithmetic</h1>
+  <p>अंकगणित का मूलभूत प्रमेय | Class 10 Real Numbers</p>
+</div>
+
+<div class="container">
+
+  <!-- Theorem Card -->
+  <div class="card">
+    <div class="section-title">📜 The Theorem (प्रमेय)</div>
+    <div class="theorem-box">
+      <h3>Fundamental Theorem of Arithmetic</h3>
+      <p>Every composite number can be expressed (factorised) as a product of primes, and this factorisation is <strong>unique</strong>, apart from the order in which the prime factors occur.</p>
+    </div>
+    <div class="formula-highlight">
+      n = <span>p₁ᵃ¹ × p₂ᵃ² × p₃ᵃ³ × ... × pₙᵃⁿ</span>
+    </div>
+    <p style="font-size:0.75rem;color:#64748b;text-align:center">where p₁, p₂, ... are prime numbers and a₁, a₂, ... are positive integers</p>
+  </div>
+
+  <!-- Interactive Tree -->
+  <div class="card">
+    <div class="section-title">🌳 Prime Factorisation Tree (अभाज्य गुणनखंड वृक्ष)</div>
+    <p style="font-size:0.78rem;color:#64748b;margin-bottom:10px">Pick a number to build its factor tree interactively!</p>
+
+    <div class="input-row">
+      <button class="num-btn active" onclick="selectNum(this,36)">36</button>
+      <button class="num-btn" onclick="selectNum(this,48)">48</button>
+      <button class="num-btn" onclick="selectNum(this,120)">120</button>
+      <button class="num-btn" onclick="selectNum(this,360)">360</button>
+      <input type="number" id="customInput" placeholder="Own #" min="4" max="500">
+      <button class="num-btn" onclick="useCustom()" style="padding:8px 10px;">▶ Go</button>
+    </div>
+
+    <div class="tree-container">
+      <svg id="treeCanvas" height="220"></svg>
+    </div>
+
+    <div id="factorResult" class="result-box">
+      <p id="factorText"></p>
+    </div>
+  </div>
+
+  <!-- Uniqueness Demo -->
+  <div class="card">
+    <div class="section-title">✨ Uniqueness (अद्वितीयता) Demo</div>
+    <p style="font-size:0.78rem;color:#64748b;margin-bottom:10px">No matter which path you take, the prime factors are always the same! Try dividing 36 differently:</p>
+
+    <div class="tabs">
+      <div class="tab active" onclick="showPath(this,0)">Path A: 36 = 4×9</div>
+      <div class="tab" onclick="showPath(this,1)">Path B: 36 = 6×6</div>
+      <div class="tab" onclick="showPath(this,2)">Path C: 36 = 2×18</div>
+    </div>
+
+    <div id="pathDisplay"></div>
+
+    <div class="note-box">
+      💡 <strong>Key Insight:</strong> All three paths give 2² × 3² = 36. The order may differ, but the prime factors and their powers are always identical. This is the <em>uniqueness</em> the theorem talks about!
+    </div>
+  </div>
+
+  <!-- Step-by-step Worked Example -->
+  <div class="card">
+    <div class="section-title">📝 Worked Example — Step by Step</div>
+    <p style="font-size:0.82rem;color:#334155;margin-bottom:10px">Find prime factorisation of <strong>3960</strong> and use it to find HCF & LCM with <strong>1800</strong>.</p>
+
+    <div class="steps-container" id="stepsContainer"></div>
+
+    <button class="step-btn" id="stepBtn" onclick="revealStep()">▶ Show Next Step</button>
+
+    <div id="lcmResult" style="display:none; margin-top:14px;">
+      <div class="lcm-grid">
+        <div class="lcm-box hcf">
+          <div style="font-size:0.75rem;font-weight:700;color:#166534">HCF (म.स.)</div>
+          <div class="val">360</div>
+          <div style="font-size:0.72rem;color:#15803d">= 2³ × 3² × 5</div>
+        </div>
+        <div class="lcm-box lcm">
+          <div style="font-size:0.75rem;font-weight:700;color:#92400e">LCM (ल.स.)</div>
+          <div class="val">19800</div>
+          <div style="font-size:0.72rem;color:#d97706">= 2³ × 3² × 5² × 11</div>
+        </div>
+      </div>
+      <div class="note-box" style="margin-top:10px">
+        ✅ Verify: HCF × LCM = 360 × 19800 = 71,28,000 = 3960 × 1800 ✓
+      </div>
+    </div>
+  </div>
+
+  <!-- Key Facts -->
+  <div class="card">
+    <div class="section-title">⚡ Quick Facts to Remember</div>
+    <div style="display:grid;gap:8px;font-size:0.8rem;">
+      <div style="background:#eff6ff;border-radius:8px;padding:10px;border-left:3px solid #3b82f6">
+        <strong>HCF</strong> = Product of <em>smallest powers</em> of common prime factors
+      </div>
+      <div style="background:#f0fdf4;border-radius:8px;padding:10px;border-left:3px solid #22c55e">
+        <strong>LCM</strong> = Product of <em>greatest powers</em> of all prime factors
+      </div>
+      <div style="background:#fefce8;border-radius:8px;padding:10px;border-left:3px solid #f59e0b">
+        <strong>HCF × LCM = Product of two numbers</strong> (for any two positive integers)
+      </div>
+      <div style="background:#fdf4ff;border-radius:8px;padding:10px;border-left:3px solid #a855f7">
+        1 is neither prime nor composite | 2 is the only even prime number
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ===== FACTOR TREE =====
+let currentNum = 36;
+
+function selectNum(btn, n) {
+  document.querySelectorAll('.num-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentNum = n;
+  drawTree(n);
+}
+
+function useCustom() {
+  let v = parseInt(document.getElementById('customInput').value);
+  if (isNaN(v) || v < 4 || v > 500) { alert('Enter a number between 4 and 500'); return; }
+  document.querySelectorAll('.num-btn').forEach(b => b.classList.remove('active'));
+  currentNum = v;
+  drawTree(v);
+}
+
+function primeFactors(n) {
+  let factors = [];
+  let d = 2;
+  while (n > 1) {
+    while (n % d === 0) { factors.push(d); n = Math.floor(n/d); }
+    d++;
+  }
+  return factors;
+}
+
+function buildTreeNodes(n) {
+  let nodes = [], edges = [];
+  let id = 0;
+  function split(num, x, y, depth, parentId) {
+    let nId = id++;
+    nodes.push({id: nId, val: num, x, y, prime: primeFactors(num).length === 1 || num <= 3});
+    if (parentId !== null) edges.push({from: parentId, to: nId});
+    if (num <= 3 || primeFactors(num).length === 1) return;
+    let factors = primeFactors(num);
+    let f1 = factors[0], f2 = Math.floor(num/f1);
+    let spread = Math.max(60, 120 / (depth+1));
+    split(f1, x - spread, y + 55, depth+1, nId);
+    split(f2, x + spread, y + 55, depth+1, nId);
+  }
+  split(n, 0, 20, 0, null);
+  return {nodes, edges};
+}
+
+function drawTree(n) {
+  let svg = document.getElementById('treeCanvas');
+  let W = svg.parentElement.clientWidth - 20;
+  svg.setAttribute('width', W);
+
+  let {nodes, edges} = buildTreeNodes(n);
+
+  // Center tree
+  let minX = Math.min(...nodes.map(nd=>nd.x));
+  let maxX = Math.max(...nodes.map(nd=>nd.x));
+  let maxY = Math.max(...nodes.map(nd=>nd.y));
+  let cx = W/2 - (minX+maxX)/2;
+  let H = maxY + 60;
+  svg.setAttribute('height', Math.max(H, 180));
+
+  let html = '';
+  edges.forEach(e => {
+    let f = nodes[e.from], t = nodes[e.to];
+    html += `<line x1="${f.x+cx}" y1="${f.y+20}" x2="${t.x+cx}" y2="${t.y+8}" stroke="#94a3b8" stroke-width="1.5"/>`;
+  });
+
+  nodes.forEach((nd, i) => {
+    let fill = nd.prime ? 'url(#primGrad)' : 'url(#compGrad)';
+    let stroke = nd.prime ? '#15803d' : '#1d4ed8';
+    let delay = i * 80;
+    html += `<circle cx="${nd.x+cx}" cy="${nd.y+16}" r="18" fill="${fill}" stroke="${stroke}" stroke-width="2"
+      style="animation:popIn ${delay}ms ease both"/>`;
+    html += `<text x="${nd.x+cx}" y="${nd.y+21}" text-anchor="middle" font-size="13" font-weight="700" 
+      fill="${nd.prime?'#14532d':'#1e40af'}">${nd.val}</text>`;
+    if (nd.prime) {
+      html += `<text x="${nd.x+cx+18}" y="${nd.y+8}" font-size="9" fill="#15803d" font-weight="700">P</text>`;
+    }
+  });
+
+  let factors = primeFactors(n);
+  let factMap = {};
+  factors.forEach(f => { factMap[f] = (factMap[f]||0)+1; });
+  let expr = Object.entries(factMap).map(([p,e]) => e>1 ? `${p}${toSup(e)}` : p).join(' × ');
+
+  svg.innerHTML = `<defs>
+    <radialGradient id="primGrad" cx="40%" cy="35%">
+      <stop offset="0%" stop-color="#bbf7d0"/>
+      <stop offset="100%" stop-color="#4ade80"/>
+    </radialGradient>
+    <radialGradient id="compGrad" cx="40%" cy="35%">
+      <stop offset="0%" stop-color="#bfdbfe"/>
+      <stop offset="100%" stop-color="#60a5fa"/>
+    </radialGradient>
+  </defs>` + html;
+
+  let rb = document.getElementById('factorResult');
+  rb.classList.add('show');
+  document.getElementById('factorText').innerHTML =
+    `∴ ${n} = ${expr} &nbsp;|&nbsp; 🟢 Prime nodes &nbsp; 🔵 Composite nodes`;
+}
+
+function toSup(n) {
+  const s = ['⁰','¹','²','³','⁴','⁵','⁶','⁷','⁸','⁹'];
+  return String(n).split('').map(d=>s[+d]).join('');
+}
+
+// ===== UNIQUENESS PATHS =====
+const paths = [
+  { steps: ['36 = 4 × 9', '4 = 2 × 2', '9 = 3 × 3'], result: [2,2,3,3] },
+  { steps: ['36 = 6 × 6', '6 = 2 × 3', '6 = 2 × 3'], result: [2,2,3,3] },
+  { steps: ['36 = 2 × 18', '18 = 2 × 9', '9 = 3 × 3'], result: [2,2,3,3] }
+];
+
+function showPath(tab, idx) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  tab.classList.add('active');
+  let p = paths[idx];
+  let stepsHtml = p.steps.map(s=>`<div style="font-size:0.82rem;color:#334155;padding:4px 0">→ ${s}</div>`).join('');
+  let bubblesHtml = '';
+  p.result.forEach((f,i) => {
+    if(i>0) bubblesHtml += `<div class="times-sym">×</div>`;
+    bubblesHtml += `<div class="factor-bubble" style="animation-delay:${i*100}ms">${f}</div>`;
+  });
+  document.getElementById('pathDisplay').innerHTML = `
+    <div style="background:#f8fafc;border-radius:10px;padding:12px;margin-bottom:10px">
+      ${stepsHtml}
+    </div>
+    <div style="font-size:0.78rem;color:#64748b;margin-bottom:6px;font-weight:600">Prime Factors:</div>
+    <div class="unique-demo">${bubblesHtml}</div>
+    <div style="text-align:center;margin-top:10px;font-weight:700;color:#7c3aed;font-size:0.9rem">
+      = 2² × 3² = 36 ✓
+    </div>`;
+}
+
+// ===== STEP-BY-STEP =====
+const steps = [
+  { num: 1, text: 'Find prime factorisation of 3960', math: '3960 ÷ 2 = 1980 ÷ 2 = 990 ÷ 2 = 495 ÷ 3 = 165 ÷ 3 = 55 ÷ 5 = 11' },
+  { num: 2, text: 'Write 3960 as product of prime powers', math: '3960 = 2³ × 3² × 5 × 11' },
+  { num: 3, text: 'Find prime factorisation of 1800', math: '1800 ÷ 2 = 900 ÷ 2 = 450 ÷ 2 = 225 ÷ 3 = 75 ÷ 3 = 25 ÷ 5 = 5 ÷ 5 = 1' },
+  { num: 4, text: 'Write 1800 as product of prime powers', math: '1800 = 2³ × 3² × 5²' },
+  { num: 5, text: 'Find HCF: take smallest powers of common factors (2,3,5)', math: 'HCF = 2³ × 3² × 5¹ = 8 × 9 × 5 = 360' },
+  { num: 6, text: 'Find LCM: take greatest powers of all prime factors', math: 'LCM = 2³ × 3² × 5² × 11 = 8 × 9 × 25 × 11 = 19800' },
+  { num: 7, text: 'Verify using the relation: HCF × LCM = Product of numbers', math: '360 × 19800 = 71,28,000 = 3960 × 1800 ✓' }
+];
+
+let currentStep = 0;
+
+function revealStep() {
+  if (currentStep >= steps.length) return;
+  let s = steps[currentStep];
+  let container = document.getElementById('stepsContainer');
+  let div = document.createElement('div');
+  div.className = 'step';
+  div.innerHTML = `<div class="step-num">Step ${s.num}</div>
+    <div class="step-text">${s.text}</div>
+    <div class="step-math">${s.math}</div>`;
+  container.appendChild(div);
+  setTimeout(() => div.classList.add('visible'), 10);
+  currentStep++;
+  if (currentStep >= steps.length) {
+    document.getElementById('stepBtn').textContent = '✅ Done!';
+    document.getElementById('stepBtn').style.background = 'linear-gradient(135deg,#22c55e,#15803d)';
+    document.getElementById('lcmResult').style.display = 'block';
+    document.getElementById('lcmResult').style.animation = 'fadeIn 0.5s ease';
+  }
+}
+
+// Init
+window.addEventListener('load', () => {
+  drawTree(36);
+  showPath(document.querySelector('.tab'), 0);
+});
+window.addEventListener('resize', () => drawTree(currentNum));
+</script>
+</body>
+</html>

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quadratic Formula – Class 10 Maths</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh;overflow-x:hidden}
+h1{font-size:clamp(1.3rem,4vw,2rem);font-weight:800;letter-spacing:-0.5px}
+h2{font-size:clamp(1rem,3vw,1.4rem);font-weight:700}
+h3{font-size:1rem;font-weight:600}
+.badge{display:inline-block;background:#3b82f6;color:#fff;font-size:.7rem;padding:2px 8px;border-radius:20px;font-weight:700;letter-spacing:.5px;vertical-align:middle;margin-left:6px}
+.card{background:#1e293b;border-radius:16px;padding:20px;margin-bottom:18px;box-shadow:0 4px 24px #0008;border:1px solid #334155}
+.accent{color:#3b82f6}
+.green{color:#22c55e}
+.amber{color:#f59e0b}
+.red{color:#ef4444}
+.formula-box{background:linear-gradient(135deg,#1e3a5f,#1e293b);border:2px solid #3b82f6;border-radius:14px;padding:18px;text-align:center;margin:14px 0;position:relative;overflow:hidden}
+.formula-box::before{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;background:#3b82f620;border-radius:50%}
+.formula-main{font-size:clamp(1.1rem,4vw,1.7rem);font-weight:800;color:#fff;letter-spacing:1px;line-height:1.6}
+.formula-label{font-size:.75rem;color:#94a3b8;margin-top:6px}
+.step-btn{background:#3b82f6;color:#fff;border:none;border-radius:10px;padding:10px 22px;font-size:.95rem;font-weight:700;cursor:pointer;transition:all .2s;width:100%;margin-top:10px}
+.step-btn:hover{background:#2563eb;transform:translateY(-1px)}
+.step-btn:active{transform:translateY(1px)}
+.step-card{background:#0f172a;border-left:4px solid #3b82f6;border-radius:0 10px 10px 0;padding:14px;margin:8px 0;display:none;animation:fadeIn .3s ease}
+.step-card.show{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+.step-num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;font-weight:800;font-size:.85rem;margin-right:8px;flex-shrink:0}
+.step-row{display:flex;align-items:flex-start;margin-bottom:8px}
+.discriminant-zone{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:12px 0}
+.disc-box{border-radius:12px;padding:12px 8px;text-align:center;cursor:pointer;transition:all .2s;border:2px solid transparent}
+.disc-box:hover{transform:scale(1.04)}
+.disc-pos{background:#14532d;border-color:#22c55e}
+.disc-zero{background:#713f12;border-color:#f59e0b}
+.disc-neg{background:#450a0a;border-color:#ef4444}
+.disc-box .icon{font-size:1.5rem}
+.disc-box .label{font-size:.75rem;margin-top:4px;font-weight:600}
+.tooltip{display:none;position:absolute;background:#1e293b;border:1px solid #3b82f6;border-radius:8px;padding:10px;font-size:.8rem;z-index:100;max-width:220px;box-shadow:0 8px 24px #000a}
+.disc-box:hover .tooltip{display:block;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%)}
+.disc-box{position:relative}
+svg.parabola{width:100%;height:180px;display:block}
+.slider-wrap{margin:14px 0}
+label.sl{display:flex;justify-content:space-between;font-size:.85rem;color:#94a3b8;margin-bottom:4px}
+input[type=range]{width:100%;accent-color:#3b82f6;height:6px}
+.roots-display{background:#0f172a;border-radius:10px;padding:12px;text-align:center;font-size:1rem;margin-top:10px;font-weight:700;min-height:48px}
+.worked{border-left:4px solid #22c55e}
+.tag{display:inline-block;font-size:.7rem;padding:2px 8px;border-radius:20px;font-weight:700;margin-right:4px}
+.tag-blue{background:#1d4ed8;color:#bfdbfe}
+.tag-green{background:#166534;color:#bbf7d0}
+.tag-amber{background:#92400e;color:#fef3c7}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:480px){.grid2{grid-template-columns:1fr}.discriminant-zone{grid-template-columns:1fr}}
+.part-highlight{display:inline-block;padding:0 4px;border-radius:4px}
+.ph-b{background:#1d4ed860;border-bottom:2px solid #3b82f6}
+.ph-a{background:#16653460;border-bottom:2px solid #22c55e}
+.ph-d{background:#92400e60;border-bottom:2px solid #f59e0b}
+.scroll-top{position:fixed;bottom:20px;right:20px;background:#3b82f6;color:#fff;border:none;width:40px;height:40px;border-radius:50%;font-size:1.2rem;cursor:pointer;box-shadow:0 4px 12px #0006;z-index:999}
+.nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.nav-btn{background:#1e293b;border:1px solid #334155;color:#94a3b8;padding:6px 14px;border-radius:20px;font-size:.8rem;cursor:pointer;transition:all .2s}
+.nav-btn.active,.nav-btn:hover{background:#3b82f6;color:#fff;border-color:#3b82f6}
+.section{display:none}.section.active{display:block}
+.hindi{color:#f59e0b;font-style:italic;font-size:.85rem}
+</style>
+</head>
+<body>
+<div style="max-width:700px;margin:0 auto;padding:16px">
+
+<div class="card" style="background:linear-gradient(135deg,#1e3a5f,#1a2744);border-color:#3b82f6">
+  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+    <div style="font-size:2rem">📐</div>
+    <div>
+      <h1>Quadratic Formula <span class="badge">Class 10</span></h1>
+      <div style="color:#94a3b8;font-size:.85rem;margin-top:2px">श्रीधराचार्य सूत्र · Shridharacharya's Formula · CBSE Mathematics</div>
+    </div>
+  </div>
+</div>
+
+<div class="nav" id="navBar">
+  <button class="nav-btn active" onclick="showSection('s1',this)">📖 Formula</button>
+  <button class="nav-btn" onclick="showSection('s2',this)">🔢 Discriminant</button>
+  <button class="nav-btn" onclick="showSection('s3',this)">📊 Graph</button>
+  <button class="nav-btn" onclick="showSection('s4',this)">✏️ Worked Example</button>
+  <button class="nav-btn" onclick="showSection('s5',this)">🧮 Calculator</button>
+</div>
+
+<!-- SECTION 1: Formula -->
+<div class="section active" id="s1">
+  <div class="card">
+    <h2>📖 The Quadratic Equation <span class="hindi">– द्विघात समीकरण</span></h2>
+    <p style="color:#94a3b8;margin:10px 0 6px">General form <span class="hindi">(व्यापक रूप)</span>:</p>
+    <div class="formula-box">
+      <div class="formula-main">
+        <span class="green">a</span>x² + <span class="accent">b</span>x + <span class="amber">c</span> = 0
+      </div>
+      <div class="formula-label">where <span class="green">a</span> ≠ 0, and a, b, c are real numbers (वास्तविक संख्याएँ)</div>
+    </div>
+    <div class="grid2" style="margin:12px 0">
+      <div style="background:#0f172a;border-radius:10px;padding:12px;border-left:3px solid #22c55e">
+        <div class="tag tag-green">a</div><br>
+        <span style="font-size:1.3rem;font-weight:800" class="green">a</span>
+        <div style="font-size:.8rem;color:#94a3b8;margin-top:4px">Coefficient of x²<br><span class="hindi">x² का गुणांक</span></div>
+      </div>
+      <div style="background:#0f172a;border-radius:10px;padding:12px;border-left:3px solid #3b82f6">
+        <div class="tag tag-blue">b</div><br>
+        <span style="font-size:1.3rem;font-weight:800" class="accent">b</span>
+        <div style="font-size:.8rem;color:#94a3b8;margin-top:4px">Coefficient of x<br><span class="hindi">x का गुणांक</span></div>
+      </div>
+      <div style="background:#0f172a;border-radius:10px;padding:12px;border-left:3px solid #f59e0b">
+        <div class="tag tag-amber">c</div><br>
+        <span style="font-size:1.3rem;font-weight:800" class="amber">c</span>
+        <div style="font-size:.8rem;color:#94a3b8;margin-top:4px">Constant term<br><span class="hindi">अचर पद</span></div>
+      </div>
+      <div style="background:#0f172a;border-radius:10px;padding:12px;border-left:3px solid #a855f7">
+        <div style="font-size:.7rem;background:#581c87;color:#e9d5ff;display:inline-block;padding:2px 8px;border-radius:20px;font-weight:700">x</div><br>
+        <span style="font-size:1.3rem;font-weight:800;color:#a855f7">x</span>
+        <div style="font-size:.8rem;color:#94a3b8;margin-top:4px">Variable / Unknown<br><span class="hindi">चर / अज्ञात राशि</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🔑 The Quadratic Formula <span class="hindi">– श्रीधराचार्य सूत्र</span></h2>
+    <p style="color:#94a3b8;font-size:.85rem;margin:8px 0">Named after Indian mathematician <strong style="color:#f59e0b">Shridharacharya (श्रीधराचार्य)</strong>, ~9th century CE</p>
+    <div class="formula-box">
+      <div class="formula-main">
+        x = <span class="ph-b">−<span class="accent">b</span></span> ± √<span style="text-decoration:overline"><span class="ph-d"><span class="amber">b²−4ac</span></span></span>
+      </div>
+      <div style="font-size:1.1rem;margin:4px 0;color:#94a3b8">──────────────────</div>
+      <div class="formula-main">2<span class="green">a</span></div>
+      <div class="formula-label">Roots of ax² + bx + c = 0 &nbsp;|&nbsp; <span class="hindi">मूल</span></div>
+    </div>
+
+    <button class="step-btn" onclick="revealSteps()">▶ Show Derivation Steps (व्युत्पत्ति)</button>
+    <div id="derivSteps">
+      <div class="step-card" id="ds1">
+        <div class="step-row"><div class="step-num" style="background:#3b82f6">1</div><div><strong>Start:</strong> ax² + bx + c = 0 &nbsp;<span class="hindi">(शुरुआत)</span><br><span style="color:#94a3b8;font-size:.85rem">Divide every term by <span class="green">a</span></span><br>x² + (b/a)x + c/a = 0</div></div>
+      </div>
+      <div class="step-card" id="ds2">
+        <div class="step-row"><div class="step-num" style="background:#22c55e">2</div><div><strong>Move constant:</strong> x² + (b/a)x = −c/a &nbsp;<span class="hindi">(अचर पद स्थानांतरण)</span></div></div>
+      </div>
+      <div class="step-card" id="ds3">
+        <div class="step-row"><div class="step-num" style="background:#f59e0b;color:#000">3</div><div><strong>Complete the Square <span class="hindi">(पूर्ण वर्ग बनाओ)</span>:</strong><br>Add (b/2a)² to both sides:<br>x² + (b/a)x + (b/2a)² = (b/2a)² − c/a<br>⟹ (x + b/2a)² = (b²−4ac)/4a²</div></div>
+      </div>
+      <div class="step-card" id="ds4">
+        <div class="step-row"><div class="step-num" style="background:#a855f7">4</div><div><strong>Take Square Root <span class="hindi">(वर्गमूल)</span>:</strong><br>x + b/2a = ±√(b²−4ac) / 2a</div></div>
+      </div>
+      <div class="step-card" id="ds5">
+        <div class="step-row"><div class="step-num" style="background:#ef4444">5</div><div><strong>Final Formula <span class="hindi">(अंतिम सूत्र)</span>:</strong><br><span style="font-size:1.1rem;font-weight:800;color:#fff">x = (−b ± √(b²−4ac)) / 2a</span> ✓</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 2: Discriminant -->
+<div class="section" id="s2">
+  <div class="card">
+    <h2>🔢 Discriminant <span class="hindi">– विविक्तकर</span></h2>
+    <div class="formula-box">
+      <div class="formula-main">D = <span class="amber">b² − 4ac</span></div>
+      <div class="formula-label">Also written as Δ (Delta) · <span class="hindi">विविक्तकर (Viviktkar)</span></div>
+    </div>
+    <p style="color:#94a3b8;font-size:.85rem;margin-bottom:12px">Click each case to learn more · <span class="hindi">जानने के लिए क्लिक करें</span></p>
+    <div class="discriminant-zone">
+      <div class="disc-box disc-pos" onclick="showDisc('pos')">
+        <div class="icon">✌️</div>
+        <div style="font-size:1.1rem;font-weight:800;color:#22c55e">D &gt; 0</div>
+        <div class="label green">2 Real Roots</div>
+        <div class="tooltip">D > 0 means <strong>two distinct real roots</strong> (दो अलग वास्तविक मूल).<br>The parabola cuts x-axis at 2 points.</div>
+      </div>
+      <div class="disc-box disc-zero" onclick="showDisc('zero')">
+        <div class="icon">☝️</div>
+        <div style="font-size:1.1rem;font-weight:800;color:#f59e0b">D = 0</div>
+        <div class="label amber">1 Repeated Root</div>
+        <div class="tooltip">D = 0 means <strong>one equal real root</strong> (एक समान वास्तविक मूल).<br>The parabola just touches x-axis.</div>
+      </div>
+      <div class="disc-box disc-neg" onclick="showDisc('neg')">
+        <div class="icon">🚫</div>
+        <div style="font-size:1.1rem;font-weight:800;color:#ef4444">D &lt; 0</div>
+        <div class="label red">No Real Roots</div>
+        <div class="tooltip">D < 0 means <strong>no real roots</strong> (कोई वास्तविक मूल नहीं).<br>The parabola doesn't cross x-axis.</div>
+      </div>
+    </div>
+    <div id="discDetail" style="background:#0f172a;border-radius:12px;padding:16px;margin-top:8px;min-height:80px;border:1px solid #334155;transition:all .3s">
+      <div style="color:#64748b;text-align:center;padding-top:10px">👆 Click a case above</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>📋 Summary Table <span class="hindi">– सारांश तालिका</span></h2>
+    <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:.85rem">
+        <tr style="background:#334155">
+          <th style="padding:10px;text-align:left;border-radius:8px 0 0 0">Discriminant (D)</th>
+          <th style="padding:10px;text-align:left">Nature of Roots</th>
+          <th style="padding:10px;text-align:left;border-radius:0 8px 0 0">Graph</th>
+        </tr>
+        <tr style="background:#14532d30;border-bottom:1px solid #334155">
+          <td style="padding:10px;font-weight:700" class="green">D &gt; 0</td>
+          <td style="padding:10px">Two distinct real roots<br><span class="hindi" style="font-size:.75rem">दो अलग वास्तविक मूल</span></td>
+          <td style="padding:10px">Cuts x-axis at 2 pts</td>
+        </tr>
+        <tr style="background:#92400e20;border-bottom:1px solid #334155">
+          <td style="padding:10px;font-weight:700" class="amber">D = 0</td>
+          <td style="padding:10px">Two equal real roots<br><span class="hindi" style="font-size:.75rem">दो समान वास्तविक मूल</span></td>
+          <td style="padding:10px">Tangent to x-axis</td>
+        </tr>
+        <tr style="background:#450a0a30">
+          <td style="padding:10px;font-weight:700" class="red">D &lt; 0</td>
+          <td style="padding:10px">No real roots<br><span class="hindi" style="font-size:.75rem">कोई वास्तविक मूल नहीं</span></td>
+          <td style="padding:10px">Doesn't touch x-axis</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 3: Graph -->
+<div class="section" id="s3">
+  <div class="card">
+    <h2>📊 Interactive Parabola <span class="hindi">– परवलय</span></h2>
+    <p style="color:#94a3b8;font-size:.82rem;margin-bottom:12px">Drag sliders to see how roots change · <span class="hindi">स्लाइडर खींचें</span></p>
+    <div class="slider-wrap">
+      <label class="sl"><span>a = <span id="aVal" class="green">1</span></span><span class="hindi" style="font-size:.75rem">x² का गुणांक</span></label>
+      <input type="range" id="aSlider" min="-3" max="3" step="0.5" value="1" oninput="updateGraph()">
+    </div>
+    <div class="slider-wrap">
+      <label class="sl"><span>b = <span id="bVal" class="accent">-3</span></span><span class="hindi" style="font-size:.75rem">x का गुणांक</span></label>
+      <input type="range" id="bSlider" min="-6" max="6" step="0.5" value="-3" oninput="updateGraph()">
+    </div>
+    <div class="slider-wrap">
+      <label class="sl"><span>c = <span id="cVal" class="amber">2</span></span><span class="hindi" style="font-size:.75rem">अचर पद</span></label>
+      <input type="range" id="cSlider" min="-6" max="6" step="0.5" value="2" oninput="updateGraph()">
+    </div>
+    <svg class="parabola" id="graphSVG" viewBox="0 0 400 180" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#0f172a"/>
+          <stop offset="100%" stop-color="#1e293b"/>
+        </linearGradient>
+      </defs>
+      <rect width="400" height="180" fill="url(#bg)" rx="10"/>
+      <line x1="10" y1="90" x2="390" y2="90" stroke="#334155" stroke-width="1.5"/>
+      <line x1="200" y1="10" x2="200" y2="170" stroke="#334155" stroke-width="1.5"/>
+      <text x="385" y="86" fill="#64748b" font-size="11">x</text>
+      <text x="204" y="16" fill="#64748b" font-size="11">y</text>
+      <path id="parabolaPath" d="" stroke="#3b82f6" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <circle id="root1" cx="0" cy="90" r="5" fill="#22c55e" opacity="0"/>
+      <circle id="root2" cx="0" cy="90" r="5" fill="#22c55e" opacity="0"/>
+      <text id="root1Lbl" x="0" y="0" fill="#22c55e" font-size="10" opacity="0"></text>
+      <text id="root2Lbl" x="0" y="0" fill="#22c55e" font-size="10" opacity="0"></text>
+      <text id="disc-label" x="10" y="20" fill="#f59e0b" font-size="11" font-weight="bold"></text>
+    </svg>
+    <div class="roots-display" id="rootsDisplay">–</div>
+  </div>
+</div>
+
+<!-- SECTION 4: Worked Example -->
+<div class="section" id="s4">
+  <div class="card worked">
+    <h2>✏️ Worked Example <span class="hindi">– हल उदाहरण</span></h2>
+    <p style="color:#94a3b8;font-size:.85rem;margin:8px 0">Solve: <strong style="color:#fff;font-size:1rem">2x² − 7x + 3 = 0</strong></p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin:10px 0">
+      <span class="tag tag-green">a = 2</span>
+      <span class="tag tag-blue">b = −7</span>
+      <span class="tag tag-amber">c = 3</span>
+    </div>
+    <button class="step-btn" style="background:#22c55e" onclick="showNextStep()">▶ Next Step (अगला चरण)</button>
+    <div id="workedSteps" style="margin-top:10px"></div>
+  </div>
+
+  <div class="card">
+    <h2>💡 Key Tips <span class="hindi">– महत्वपूर्ण बातें</span></h2>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="background:#0f172a;border-radius:10px;padding:12px;border-left:3px solid #3b82f6">
+        <strong class="accent">① Always write</strong> in standard form ax²+bx+c=0 first.<br>
+        <span class="hindi" style="font-size:.8rem">पहले व्यापक रूप में लिखें</span>
+      </div>
+      <div style="background:#0f172a;border-radius:10px;padding:12px;border-left:3px solid #22c55e">
+        <strong class="green">② Calculate D</strong> (b²−4ac) before finding roots.<br>
+        <span class="hindi" style="font-size:.8rem">मूल निकालने से पहले D पता करें</span>
+      </div>
+      <div style="background:#0f172a;border-radius:10px;padding:12px;border-left:3px solid #f59e0b">
+        <strong class="amber">③ Remember</strong> ± gives TWO roots (α and β).<br>
+        <span class="hindi" style="font-size:.8rem">± से दो मूल मिलते हैं (α और β)</span>
+      </div>
+      <div style="background:#0f172a;border-radius:10px;padding:12px;border-left:3px solid #ef4444">
+        <strong class="red">④ Check:</strong> Sum of roots = −b/a, Product = c/a<br>
+        <span class="hindi" style="font-size:.8rem">मूलों का योग = −b/a, गुणनफल = c/a</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 5: Calculator -->
+<div class="section" id="s5">
+  <div class="card">
+    <h2>🧮 Solve Your Equation <span class="hindi">– अपना समीकरण हल करें</span></h2>
+    <p style="color:#94a3b8;font-size:.82rem;margin-bottom:14px">Enter a, b, c values below · <span class="hindi">मान दर्ज करें</span></p>
+    <div class="grid2">
+      <div>
+        <label style="font-size:.8rem;color:#94a3b8">a (≠ 0)</label>
+        <input id="ia" type="number" value="1" step="any" style="width:100%;margin-top:4px;background:#0f172a;border:1px solid #334155;color:#e2e8f0;padding:10px;border-radius:8px;font-size:1rem">
+      </div>
+      <div>
+        <label style="font-size:.8rem;color:#94a3b8">b</label>
+        <input id="ib" type="number" value="-5" step="any" style="width:100%;margin-top:4px;background:#0f172a;border:1px solid #334155;color:#e2e8f0;padding:10px;border-radius:8px;font-size:1rem">
+      </div>
+      <div>
+        <label style="font-size:.8rem;color:#94a3b8">c</label>
+        <input id="ic" type="number" value="6" step="any" style="width:100%;margin-top:4px;background:#0f172a;border:1px solid #334155;color:#e2e8f0;padding:10px;border-radius:8px;font-size:1rem">
+      </div>
+      <div style="display:flex;align-items:flex-end">
+        <button onclick="calcRoots()" style="width:100%;background:#3b82f6;color:#fff;border:none;border-radius:8px;padding:11px;font-size:1rem;font-weight:700;cursor:pointer">Solve ▶</button>
+      </div>
+    </div>
+    <div id="calcResult" style="margin-top:16px;background:#0f172a;border-radius:12px;padding:16px;border:1px solid #334155;min-height:120px;font-size:.9rem;line-height:1.8"></div>
+  </div>
+
+  <div class="card">
+    <h2>📌 Formula Card <span class="hindi">– सूत्र पत्र</span></h2>
+    <div style="background:#0f172a;border-radius:12px;padding:16px;border:1px solid #334155">
+      <div style="font-size:.85rem;line-height:2;color:#e2e8f0">

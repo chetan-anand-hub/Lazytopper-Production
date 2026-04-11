@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pair of Linear Equations – Graphical Method | Class 10</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh;overflow-x:hidden}
+  header{background:linear-gradient(135deg,#1e293b,#0f172a);border-bottom:2px solid #3b82f6;padding:16px 20px;text-align:center}
+  header h1{font-size:1.4rem;color:#3b82f6;font-weight:700}
+  header p{font-size:.85rem;color:#94a3b8;margin-top:4px}
+  .badge{display:inline-block;background:#3b82f6;color:#fff;border-radius:20px;padding:2px 10px;font-size:.75rem;margin-top:6px}
+  .container{max-width:900px;margin:0 auto;padding:16px}
+  .card{background:#1e293b;border-radius:14px;padding:18px;margin-bottom:16px;border:1px solid #334155}
+  .card h2{font-size:1rem;color:#f59e0b;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+  .formula-box{background:#0f172a;border:1px solid #3b82f6;border-radius:10px;padding:12px;font-size:.9rem;text-align:center;color:#93c5fd;letter-spacing:.5px}
+  .formula-box span{color:#f59e0b;font-weight:700}
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .tab{padding:8px 14px;border-radius:8px;border:2px solid #334155;background:transparent;color:#94a3b8;cursor:pointer;font-size:.85rem;transition:all .2s}
+  .tab.active{background:#3b82f6;border-color:#3b82f6;color:#fff}
+  .tab:hover:not(.active){border-color:#3b82f6;color:#3b82f6}
+  #graph-container{position:relative;width:100%;border-radius:12px;overflow:hidden;border:2px solid #334155;background:#0f172a;cursor:crosshair}
+  canvas{display:block;width:100%;height:auto}
+  .controls{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+  .ctrl-group{flex:1;min-width:140px;background:#0f172a;border-radius:10px;padding:10px;border:1px solid #334155}
+  .ctrl-group label{font-size:.75rem;color:#64748b;display:block;margin-bottom:4px}
+  .ctrl-group .eq-label{font-size:.85rem;color:#93c5fd;font-weight:600;margin-bottom:6px}
+  input[type=range]{width:100%;accent-color:#3b82f6;height:4px}
+  .val-display{display:flex;justify-content:space-between;font-size:.75rem;color:#94a3b8;margin-top:2px}
+  .result-box{margin-top:12px;padding:10px 14px;border-radius:10px;font-size:.875rem;font-weight:600;text-align:center;transition:all .4s}
+  .res-intersect{background:#164e63;border:1px solid #22c55e;color:#86efac}
+  .res-parallel{background:#431407;border:1px solid #f59e0b;color:#fcd34d}
+  .res-coincident{background:#1e1b4b;border:1px solid #a78bfa;color:#c4b5fd}
+  .steps{counter-reset:step}
+  .step{display:flex;gap:12px;margin-bottom:12px;opacity:0;transform:translateY(10px);transition:all .4s}
+  .step.show{opacity:1;transform:translateY(0)}
+  .step-num{min-width:28px;height:28px;background:#3b82f6;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;flex-shrink:0}
+  .step-text{font-size:.85rem;color:#cbd5e1;line-height:1.5}
+  .step-text strong{color:#f59e0b}
+  .hindi{color:#f97316;font-style:italic;font-size:.8rem}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px}
+  .leg-item{display:flex;align-items:center;gap:6px;font-size:.8rem;color:#94a3b8}
+  .leg-dot{width:14px;height:4px;border-radius:2px}
+  .worked{background:#0f172a;border-radius:10px;padding:14px;border:1px solid #334155;margin-top:10px}
+  .worked p{font-size:.85rem;line-height:1.7;color:#cbd5e1}
+  .worked .highlight{background:#1e293b;border-left:3px solid #22c55e;padding:6px 10px;border-radius:0 6px 6px 0;margin:6px 0;font-family:monospace;font-size:.85rem;color:#86efac}
+  .btn{padding:8px 18px;border-radius:8px;border:none;cursor:pointer;font-size:.85rem;font-weight:600;transition:all .2s}
+  .btn-primary{background:#3b82f6;color:#fff}
+  .btn-primary:hover{background:#2563eb}
+  .btn-warning{background:#f59e0b;color:#000}
+  .btn-warning:hover{background:#d97706}
+  .info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:10px}
+  .info-card{background:#0f172a;border-radius:10px;padding:12px;border-left:3px solid}
+  .info-card.c1{border-color:#3b82f6}
+  .info-card.c2{border-color:#22c55e}
+  .info-card.c3{border-color:#a78bfa}
+  .info-card h3{font-size:.85rem;font-weight:700;margin-bottom:6px}
+  .info-card p{font-size:.78rem;color:#94a3b8;line-height:1.5}
+  .tooltip{position:absolute;background:#1e293b;border:1px solid #3b82f6;border-radius:8px;padding:6px 10px;font-size:.75rem;color:#e2e8f0;pointer-events:none;opacity:0;transition:opacity .2s;white-space:nowrap;z-index:10}
+  @media(max-width:600px){header h1{font-size:1.1rem}.tabs{gap:5px}.tab{padding:6px 10px;font-size:.78rem}}
+</style>
+</head>
+<body>
+<header>
+  <h1>📐 Pair of Linear Equations — Graphical Method</h1>
+  <p>CBSE Class 10 Mathematics | Chapter 3</p>
+  <span class="badge">Interactive Visual Explainer</span>
+</header>
+
+<div class="container">
+
+  <!-- Formula Card -->
+  <div class="card">
+    <h2>📌 Key Formula <span class="hindi">(मुख्य सूत्र)</span></h2>
+    <div class="formula-box">
+      <div>General Form: <span>a₁x + b₁y + c₁ = 0</span> &nbsp;and&nbsp; <span>a₂x + b₂y + c₂ = 0</span></div>
+      <div style="margin-top:8px;font-size:.85rem;color:#64748b">
+        Intersecting: <span>a₁/a₂ ≠ b₁/b₂</span> &nbsp;|&nbsp;
+        Parallel: <span>a₁/a₂ = b₁/b₂ ≠ c₁/c₂</span> &nbsp;|&nbsp;
+        Coincident: <span>a₁/a₂ = b₁/b₂ = c₁/c₂</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive Graph -->
+  <div class="card">
+    <h2>🎨 Interactive Graph <span class="hindi">(इंटरएक्टिव ग्राफ)</span></h2>
+    <div class="tabs">
+      <button class="tab active" onclick="setPreset('intersect')">✂️ Intersecting</button>
+      <button class="tab" onclick="setPreset('parallel')">↔️ Parallel</button>
+      <button class="tab" onclick="setPreset('coincident')">🔗 Coincident</button>
+      <button class="tab" onclick="setPreset('custom')">🎛️ Custom</button>
+    </div>
+    <div id="graph-container">
+      <canvas id="gc" width="800" height="500"></canvas>
+      <div id="tooltip" class="tooltip"></div>
+    </div>
+    <div class="legend">
+      <div class="leg-item"><div class="leg-dot" style="background:#3b82f6"></div> Line 1 (रेखा १)</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#22c55e"></div> Line 2 (रेखा २)</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#f59e0b;width:10px;height:10px;border-radius:50%"></div> Intersection (प्रतिच्छेद)</div>
+    </div>
+    <div class="controls">
+      <div class="ctrl-group">
+        <div class="eq-label" id="eq1-label">Line 1: y = 1x + 0</div>
+        <label>Slope (m₁): <span id="sv1">1</span></label>
+        <input type="range" id="s1" min="-4" max="4" step=".5" value="1" oninput="updateGraph()">
+        <label style="margin-top:6px">Intercept (c₁): <span id="sv2">0</span></label>
+        <input type="range" id="c1" min="-6" max="6" step="1" value="0" oninput="updateGraph()">
+      </div>
+      <div class="ctrl-group">
+        <div class="eq-label" id="eq2-label" style="color:#86efac">Line 2: y = -1x + 4</div>
+        <label>Slope (m₂): <span id="sv3">-1</span></label>
+        <input type="range" id="s2" min="-4" max="4" step=".5" value="-1" oninput="updateGraph()">
+        <label style="margin-top:6px">Intercept (c₂): <span id="sv4">4</span></label>
+        <input type="range" id="c2" min="-6" max="6" step="1" value="4" oninput="updateGraph()">
+      </div>
+    </div>
+    <div id="result-box" class="result-box res-intersect">⬛ Loading...</div>
+  </div>
+
+  <!-- Type Info -->
+  <div class="card">
+    <h2>📊 Types of Solutions <span class="hindi">(हल के प्रकार)</span></h2>
+    <div class="info-grid">
+      <div class="info-card c1">
+        <h3 style="color:#60a5fa">✂️ Intersecting Lines</h3>
+        <p><strong>Condition:</strong> a₁/a₂ ≠ b₁/b₂<br>
+        <strong>Solution:</strong> Unique (एकमात्र हल)<br>
+        <strong>Graph:</strong> Lines cross at one point<br>
+        <span class="hindi">Consistent system (संगत)</span></p>
+      </div>
+      <div class="info-card c2">
+        <h3 style="color:#4ade80">↔️ Parallel Lines</h3>
+        <p><strong>Condition:</strong> a₁/a₂ = b₁/b₂ ≠ c₁/c₂<br>
+        <strong>Solution:</strong> No solution (कोई हल नहीं)<br>
+        <strong>Graph:</strong> Lines never meet<br>
+        <span class="hindi">Inconsistent system (असंगत)</span></p>
+      </div>
+      <div class="info-card c3">
+        <h3 style="color:#c4b5fd">🔗 Coincident Lines</h3>
+        <p><strong>Condition:</strong> a₁/a₂ = b₁/b₂ = c₁/c₂<br>
+        <strong>Solution:</strong> Infinite (अनंत हल)<br>
+        <strong>Graph:</strong> Lines overlap completely<br>
+        <span class="hindi">Dependent system (आश्रित)</span></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step-by-Step -->
+  <div class="card">
+    <h2>🪜 Step-by-Step Walkthrough <span class="hindi">(चरण-दर-चरण)</span></h2>
+    <p style="font-size:.83rem;color:#64748b;margin-bottom:12px">Worked Example: Solve x + 2y = 4 and 3x + y = 7 graphically</p>
+    <div id="steps-container" class="steps"></div>
+    <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="nextStep()">▶ Next Step</button>
+      <button class="btn btn-warning" onclick="resetSteps()">↺ Reset</button>
+    </div>
+  </div>
+
+  <!-- Worked Example -->
+  <div class="card">
+    <h2>📝 Worked Example <span class="hindi">(हल किया गया उदाहरण)</span></h2>
+    <div class="worked">
+      <p><strong style="color:#f59e0b">Problem:</strong> Solve graphically: x − 2y = 0 and 3x + 4y = 20</p>
+      <div class="highlight">Equation 1: x − 2y = 0 → y = x/2</div>
+      <p style="margin:6px 0">Make a table for Eq 1 (y = x/2):</p>
+      <div class="highlight">x = 0 → y = 0 &nbsp;|&nbsp; x = 2 → y = 1 &nbsp;|&nbsp; x = 4 → y = 2</div>
+      <div class="highlight">Equation 2: 3x + 4y = 20 → y = (20−3x)/4</div>
+      <p style="margin:6px 0">Make a table for Eq 2:</p>
+      <div class="highlight">x = 0 → y = 5 &nbsp;|&nbsp; x = 4 → y = 2 &nbsp;|&nbsp; x = 8 → y = −1</div>
+      <p style="margin-top:8px">Plot both lines. They intersect at <strong style="color:#22c55e">(4, 2)</strong>.</p>
+      <div class="highlight">∴ Solution: x = 4, y = 2 ✓</div>
+      <p style="margin-top:6px;font-size:.8rem;color:#64748b">Verification: 4−2(2)=0 ✓ and 3(4)+4(2)=12+8=20 ✓</p>
+    </div>
+    <svg id="worked-svg" width="100%" viewBox="0 0 400 260" style="margin-top:14px;border-radius:10px;background:#0f172a;border:1px solid #334155"></svg>
+  </div>
+
+  <!-- SVG Diagram -->
+  <div class="card">
+    <h2>🖼️ Visual Summary <span class="hindi">(दृश्य सारांश)</span></h2>
+    <svg viewBox="0 0 600 160" width="100%" style="border-radius:10px;background:#0f172a;border:1px solid #334155">
+      <!-- Intersecting -->
+      <g transform="translate(10,10)">
+        <rect width="180" height="140" rx="8" fill="#1e293b" stroke="#3b82f6" stroke-width="1.5"/>
+        <text x="90" y="18" text-anchor="middle" fill="#60a5fa" font-size="11" font-weight="bold">Intersecting</text>
+        <line x1="20" y1="110" x2="160" y2="30" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="20" y1="35" x2="160" y2="115" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="90" cy="72" r="6" fill="#f59e0b"/>
+        <text x="100" y="68" fill="#fcd34d" font-size="9">(x,y)</text>
+        <text x="90" y="135" text-anchor="middle" fill="#64748b" font-size="9">1 Solution (एक हल)</text>
+      </g>
+      <!-- Parallel -->
+      <g transform="translate(210,10)">
+        <rect width="180" height="140" rx="8" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5"/>
+        <text x="90" y="18" text-anchor="middle" fill="#fcd34d" font-size="11" font-weight="bold">Parallel</text>
+        <line x1="20" y1="55" x2="160" y2="55" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="20" y1="90" x2="160" y2="90" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round"/>
+        <text x="165" y="59" fill="#3b82f6" font-size="9">L₁</text>
+        <text x="165" y="94" fill="#22c55e" font-size="9">L₂</text>
+        <text x="90" y="135" text-anchor="middle" fill="#64748b" font-size="9">No Solution (कोई हल नहीं)</text>
+      </g>
+      <!-- Coincident -->
+      <g transform="translate(410,10)">
+        <rect width="175" height="140" rx="8" fill="#1e293b" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="87" y="18" text-anchor="middle" fill="#c4b5fd" font-size="11" font-weight="bold">Coincident</text>
+        <line x1="20" y1="110" x2="155" y2="30" stroke="#3b82f6" stroke-width="5" stroke-linecap="round" opacity=".7"/>
+        <line x1="20" y1="110" x2="155" y2="30" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-dasharray="5,4"/>
+        <text x="87" y="135" text-anchor="middle" fill="#64748b" font-size="9">∞ Solutions (अनंत हल)</text>
+      </g>
+    </svg>
+  </div>
+
+</div>
+
+<script>
+const canvas = document.getElementById('gc');
+const ctx = canvas.getContext('2d');
+const tooltip = document.getElementById('tooltip');
+let W = 800, H = 500, SCALE = 40, OX, OY;
+
+function setupCoords(){OX=W/2;OY=H/2;}
+setupCoords();
+
+function toCanvas(x,y){return{cx:OX+x*SCALE,cy:OY-y*SCALE};}
+function toWorld(cx,cy){return{x:(cx-OX)/SCALE,y:(OY-cy)/SCALE};}
+
+function drawGraph(){
+  ctx.clearRect(0,0,W,H);
+  // Background
+  ctx.fillStyle='#0f172a';ctx.fillRect(0,0,W,H);
+  // Grid
+  ctx.strokeStyle='#1e293b';ctx.lineWidth=1;
+  for(let i=-20;i<=20;i++){
+    let p=toCanvas(i,0);
+    ctx.beginPath();ctx.moveTo(p.cx,0);ctx.lineTo(p.cx,H);ctx.stroke();
+    p=toCanvas(0,i);
+    ctx.beginPath();ctx.moveTo(0,p.cy);ctx.lineTo(W,p.cy);ctx.stroke();
+  }
+  // Axes
+  ctx.strokeStyle='#334155';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(0,OY);ctx.lineTo(W,OY);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(OX,0);ctx.lineTo(OX,H);ctx.stroke();
+  // Axis labels
+  ctx.fillStyle='#475569';ctx.font='12px Segoe UI';ctx.textAlign='center';
+  for(let i=-10;i<=10;i++){
+    if(i===0)continue;
+    let p=toCanvas(i,0);
+    if(p.cx>10&&p.cx<W-10){ctx.fillText(i,p.cx,OY+16);}
+    p=toCanvas(0,i);
+    if(p.cy>10&&p.cy<H-10){ctx.textAlign='right';ctx.fillText(i,OX-6,p.cy+4);}
+  }
+  ctx.textAlign='center';
+  ctx.fillStyle='#64748b';ctx.font='bold 13px Segoe UI';
+  ctx.fillText('x →',W-20,OY-8);
+  ctx.fillText('y',OX+14,14);
+  ctx.fillText('O',OX+14,OY+16);
+
+  const m1=parseFloat(document.getElementById('s1').value);
+  const b1=parseFloat(document.getElementById('c1').value);
+  const m2=parseFloat(document.getElementById('s2').value);
+  const b2=parseFloat(document.getElementById('c2').value);
+
+  drawLine(m1,b1,'#3b82f6','L₁');
+  drawLine(m2,b2,'#22c55e','L₂');
+  analyzeLines(m1,b1,m2,b2);
+  updateLabels(m1,b1,m2,b2);
+}
+
+function drawLine(m,b,color,label){
+  ctx.beginPath();ctx.strokeStyle=color;ctx.lineWidth=3;ctx.setLineDash([]);
+  let x1=-OX/SCALE, y1=m*x1+b;
+  let x2=(W-OX)/SCALE, y2=m*x2+b;
+  let p1=toCanvas(x1,y1),p2=toCanvas(x2,y2);
+  ctx.moveTo(p1.cx,p1.cy);ctx.lineTo(p2.cx,p2.cy);
+  ctx.shadowColor=color;ctx.shadowBlur=8;ctx.stroke();ctx.shadowBlur=0;
+  // Label
+  let lx=x2*0.75,ly=m*lx+b;
+  let lp=toCanvas(lx,ly);
+  if(lp.cy<20)lp.cy=22;if(lp.cy>H-20)lp.cy=H-22;
+  ctx.fillStyle=color;ctx.font='bold 13px Segoe UI';ctx.textAlign='left';
+  ctx.fillText(label,lp.cx+6,lp.cy-6);
+}
+
+function analyzeLines(m1,b1,m2,b2){
+  const rb=document.getElementById('result-box');
+  rb.className='result-box';
+  const eps=0.001;
+  if(Math.abs(m1-m2)<eps && Math.abs(b1-b2)<eps){
+    // Coincident
+    rb.classList.add('res-coincident');
+    rb.innerHTML='🔗 Coincident Lines (संपाती रेखाएँ) — Infinite Solutions (अनंत हल) | a₁/a₂ = b₁/b₂ = c₁/c₂';
+    // Draw dashed overlay
+    ctx.beginPath();ctx.strokeStyle='#a78bfa';ctx.lineWidth=2;ctx.setLineDash([8,6]);
+    let x1=-OX/SCALE,y1=m1*x1+b1,x2=(W-OX)/SCALE,y2=m1*x2+b1;
+    let p1=toCanvas(x1,y1),p2=toCanvas(x2,y2);
+    ctx.moveTo(p1.cx,p1.cy);ctx.lineTo(p2.cx,p2.cy);ctx.stroke();ctx.setLineDash([]);
+  } else if(Math.abs(m1-m2)<eps){
+    // Parallel
+    rb.classList.add('res-parallel');
+    rb.innerHTML='↔️ Parallel Lines (समान्तर रेखाएँ) — No Solution (कोई हल नहीं) | a₁/a₂ = b₁/b₂ ≠ c₁/c₂';
+  } else {
+    // Intersecting
+    let ix=(b2-b1)/(m1-m2), iy=m1*ix+b1;
+    let pt=toCanvas(ix,iy);
+    // Draw intersection point
+    ctx.beginPath();ctx.arc(pt.cx,pt.cy,8,0,Math.PI*2);
+    ctx.fillStyle='#f59e0b';ctx.shadowColor='#f59e0b';ctx.shadowBlur=15;ctx.fill();ctx.shadowBlur=0;
+    ctx.fillStyle='#0f172a';ctx.beginPath();ctx.arc(pt.cx,pt.cy,4,0,Math.PI*2);ctx.fill();
+    // Coord label
+    ctx.fillStyle='#fcd34d';ctx.font='bold 12px Segoe UI';ctx.textAlign='left';
+    let tx=pt.cx+10, ty=pt.cy-10;
+    if(tx>W-80)tx=pt.cx-80;if(ty<14)ty=pt.cy+20;
+    ctx.fillText(`(${ix.toFixed(2)}, ${iy.toFixed(2)})`,tx,ty);
+    rb.classList.add('res-intersect');
+    rb.innerHTML=`✂️ Intersecting (प्रतिच्छेदी रेखाएँ) — Unique Solution: x = ${ix.toFixed(2)}, y = ${iy.toFixed(2)} | a₁/a₂ ≠ b₁/b₂`;
+  }
+}
+
+function updateLabels(m1,b1,m2,b2){
+  document.getElementById('sv1').textContent=m1;
+  document.getElementById('sv2').textContent=b1;
+  document.getElementById('sv3').textContent=m2;
+  document.getElementById('sv4').textContent=b2;
+  document.getElementById('eq1-label').textContent=`Line 1: y = ${m1}x ${b1>=0?'+':''}${b1}`;
+  document.getElementById('eq2-label').textContent=`Line 2: y = ${m2}x ${b2>=0?'+':''}${b2}`;
+}
+
+function updateGraph(){drawGraph();}
+
+function setPreset(type){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  event.target.classList.add('active');
+  if(type==='intersect'){setVals(1,0,-1,4);}
+  else if(type==='parallel'){setVals(2,1,2,-2);}
+  else if(type==='coincident'){setVals(1,2,1,2);}
+  drawGraph();
+}
+
+function setVals(m1,b1,m2,b2){
+  document.getElementById('s1').value=m1;
+  document.getElementById('c1').value=b1;
+  document.getElementById('s2').value=m2;
+  document.getElementById('c2').value=b2;
+}
+
+// Tooltip on hover
+canvas.addEventListener('mousemove',function(e){
+  const rect=canvas.getBoundingClientRect();
+  const scaleX=W/rect.width, scaleY=H/rect.height;
+  const cx=(e.clientX-rect.left)*scaleX;
+  const cy=(e.clientY-rect.top)*scaleY;
+  const w=toWorld(cx,cy);
+  tooltip.style.opacity='1';
+  tooltip.style.left=(e.clientX-rect.left+10)+'px';
+  tooltip.style.top=(e.clientY-rect.top-30)+'px';
+  tooltip.textContent=`x=${w.x.toFixed(1)}, y=${w.y.toFixed(1)}`;
+});
+canvas.addEventListener('mouseleave',()=>tooltip.style.opacity='0');
+
+// Steps
+const stepsData=[
+  {text:`<strong>Given equations:</strong> x + 2y = 4 <span class="hindi">(समीकरण १)</span> and 3x + y = 7 <span class="hindi">(समीकरण २)</span>`},
+  {text:`<strong>Rewrite Eq 1</strong> in slope-intercept form: x + 2y = 4 → <strong>y = (4−x)/2</strong>`},
+  {text:`<strong>Table for Eq 1</strong> (y = (4−x)/2):<br>x=0 → y=2 &nbsp;|&nbsp; x=2 → y=1 &nbsp;|&nbsp; x=4 → y=0`},
+  {text:`<strong>Rewrite Eq 2</strong>: 3x + y = 7 → <strong>y = 7−3x</strong>`},
+  {text:`<strong>Table for Eq 2</strong> (y = 7−3x):<br>x=0 → y=7 &nbsp;|&nbsp; x=2 → y=

@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HCF & LCM - Prime Factorisation | Class 10 Maths</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 100%);min-height:100vh;color:#1e293b}
+  .titlebar{background:linear-gradient(90deg,#1e40af,#3b82f6,#06b6d4);padding:12px 16px;text-align:center;box-shadow:0 4px 20px rgba(59,130,246,0.5)}
+  .titlebar h1{color:#fff;font-size:1.1rem;font-weight:700;letter-spacing:0.5px}
+  .titlebar p{color:#bfdbfe;font-size:0.75rem;margin-top:2px}
+  .container{max-width:700px;margin:0 auto;padding:12px}
+  .card{background:#fff;border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 4px 24px rgba(0,0,0,0.15)}
+  .section-title{font-size:0.95rem;font-weight:700;color:#1e40af;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+  .badge{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;padding:2px 8px;border-radius:20px;font-size:0.7rem}
+  .formula-box{background:linear-gradient(135deg,#eff6ff,#dbeafe);border:2px solid #3b82f6;border-radius:12px;padding:14px;text-align:center;margin:10px 0}
+  .formula-box .formula{font-size:1rem;font-weight:700;color:#1e40af}
+  .formula-box .sub{font-size:0.75rem;color:#3b82f6;margin-top:4px}
+  .input-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0}
+  .num-input{width:80px;padding:8px;border:2px solid #3b82f6;border-radius:8px;font-size:1rem;font-weight:700;text-align:center;color:#1e293b;outline:none;transition:all 0.3s}
+  .num-input:focus{border-color:#1d4ed8;box-shadow:0 0 0 3px rgba(59,130,246,0.2)}
+  .btn{padding:8px 16px;border:none;border-radius:8px;font-size:0.85rem;font-weight:700;cursor:pointer;transition:all 0.3s}
+  .btn-primary{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(59,130,246,0.4)}
+  .btn-step{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff}
+  .btn-step:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(245,158,11,0.4)}
+  .steps-area{margin-top:10px}
+  .step{background:#f8fafc;border-left:4px solid #3b82f6;border-radius:0 8px 8px 0;padding:10px 12px;margin:6px 0;opacity:0;transform:translateX(-20px);transition:all 0.5s;display:none}
+  .step.visible{opacity:1;transform:translateX(0);display:block}
+  .step.green{border-color:#22c55e;background:#f0fdf4}
+  .step.amber{border-color:#f59e0b;background:#fffbeb}
+  .step.red{border-color:#ef4444;background:#fef2f2}
+  .step-label{font-size:0.7rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px}
+  .step-content{font-size:0.85rem;color:#1e293b;margin-top:4px}
+  .step-content strong{color:#1e40af}
+  .factor-row{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+  .factor-chip{padding:4px 10px;border-radius:20px;font-size:0.8rem;font-weight:700;display:inline-flex;align-items:center}
+  .chip-blue{background:#dbeafe;color:#1d4ed8;border:1.5px solid #93c5fd}
+  .chip-green{background:#dcfce7;color:#15803d;border:1.5px solid #86efac}
+  .chip-amber{background:#fef3c7;color:#92400e;border:1.5px solid #fcd34d}
+  .chip-red{background:#fee2e2;color:#991b1b;border:1.5px solid #fca5a5}
+  .chip-purple{background:#ede9fe;color:#5b21b6;border:1.5px solid #c4b5fd}
+  .result-box{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:2px solid #22c55e;border-radius:12px;padding:12px;text-align:center;animation:pop 0.5s ease}
+  @keyframes pop{0%{transform:scale(0.9);opacity:0}100%{transform:scale(1);opacity:1}}
+  .result-val{font-size:1.5rem;font-weight:700;color:#15803d}
+  .result-label{font-size:0.75rem;color:#22c55e}
+
+  /* Venn Diagram */
+  .venn-container{position:relative;width:100%;overflow:hidden}
+  .venn-svg{width:100%;max-width:500px;display:block;margin:0 auto}
+  .venn-legend{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:8px}
+  .legend-item{display:flex;align-items:center;gap:4px;font-size:0.75rem;color:#475569}
+  .legend-dot{width:10px;height:10px;border-radius:50%}
+
+  /* Factor Tree */
+  .tree-container{overflow-x:auto;padding:10px 0}
+  .tree-svg{display:block;margin:0 auto}
+
+  /* Tabs */
+  .tabs{display:flex;gap:4px;margin-bottom:12px;overflow-x:auto}
+  .tab{padding:6px 14px;border-radius:8px;font-size:0.8rem;font-weight:600;cursor:pointer;border:2px solid transparent;transition:all 0.3s;white-space:nowrap;background:#f1f5f9;color:#64748b}
+  .tab.active{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border-color:#1d4ed8}
+  .tab-content{display:none}
+  .tab-content.active{display:block}
+
+  .info-box{background:#f8fafc;border-radius:8px;padding:10px;font-size:0.8rem;color:#475569;border-left:3px solid #3b82f6;margin:8px 0}
+  .highlight{background:linear-gradient(135deg,#fef3c7,#fde68a);padding:2px 6px;border-radius:4px;font-weight:700;color:#92400e}
+  .verify-box{background:linear-gradient(135deg,#eff6ff,#dbeafe);border:1.5px solid #93c5fd;border-radius:10px;padding:12px;margin-top:10px;font-size:0.85rem}
+  .verify-box .v-formula{color:#1d4ed8;font-weight:700;font-size:0.9rem;text-align:center;margin-top:6px}
+  
+  @media(max-width:400px){
+    .titlebar h1{font-size:0.95rem}
+    .formula-box .formula{font-size:0.85rem}
+    .result-val{font-size:1.2rem}
+  }
+  .pulse{animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(59,130,246,0.3)}50%{box-shadow:0 0 0 8px rgba(59,130,246,0)}}
+  .tree-node{cursor:pointer;transition:all 0.3s}
+  .tree-node circle{transition:all 0.3s}
+  .tree-node:hover circle{filter:brightness(1.2)}
+</style>
+</head>
+<body>
+<div class="titlebar">
+  <h1>🔢 HCF & LCM — अभाज्य गुणनखंड विधि</h1>
+  <p>CBSE Class 10 Mathematics | Real Numbers | Chapter 1</p>
+</div>
+<div class="container">
+
+  <!-- Formula Card -->
+  <div class="card">
+    <div class="section-title">📐 मुख्य प्रमेय (Key Theorem) <span class="badge">Formula</span></div>
+    <div class="formula-box">
+      <div class="formula">HCF(a,b) × LCM(a,b) = a × b</div>
+      <div class="sub">∴ किन्हीं दो धन पूर्णांकों के लिए (For any two positive integers)</div>
+    </div>
+    <div class="info-box">
+      <strong>🔑 याद रखो:</strong> HCF = Highest Common Factor (महत्तम समापवर्तक) &nbsp;|&nbsp; LCM = Least Common Multiple (लघुत्तम समापवर्त्य)<br>
+      <strong>अभाज्य गुणनखंड विधि:</strong> हर संख्या को उसके अभाज्य गुणनखंडों में तोड़ो, फिर HCF और LCM निकालो।
+    </div>
+  </div>
+
+  <!-- Interactive Calculator -->
+  <div class="card">
+    <div class="section-title">🧮 Interactive Calculator <span class="badge">Try It!</span></div>
+    <div class="input-row">
+      <div>
+        <div style="font-size:0.75rem;color:#64748b;margin-bottom:4px">Number a</div>
+        <input class="num-input" type="number" id="numA" value="12" min="2" max="999">
+      </div>
+      <div style="font-size:1.5rem;color:#94a3b8;padding-top:18px">⊕</div>
+      <div>
+        <div style="font-size:0.75rem;color:#64748b;margin-bottom:4px">Number b</div>
+        <input class="num-input" type="number" id="numB" value="18" min="2" max="999">
+      </div>
+      <button class="btn btn-primary pulse" onclick="calculate()" style="margin-top:18px">Calculate ▶</button>
+    </div>
+    <div id="quickExamples" style="margin-top:8px">
+      <div style="font-size:0.75rem;color:#64748b;margin-bottom:6px">Quick Examples:</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn" style="background:#e0e7ff;color:#3730a3;padding:4px 10px;font-size:0.75rem" onclick="setNums(12,18)">12 & 18</button>
+        <button class="btn" style="background:#e0e7ff;color:#3730a3;padding:4px 10px;font-size:0.75rem" onclick="setNums(36,48)">36 & 48</button>
+        <button class="btn" style="background:#e0e7ff;color:#3730a3;padding:4px 10px;font-size:0.75rem" onclick="setNums(24,60)">24 & 60</button>
+        <button class="btn" style="background:#e0e7ff;color:#3730a3;padding:4px 10px;font-size:0.75rem" onclick="setNums(56,98)">56 & 98</button>
+      </div>
+    </div>
+    <div id="calcOutput" style="display:none;margin-top:12px">
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('steps')">📋 Steps</div>
+        <div class="tab" onclick="switchTab('venn')">🔵 Venn Diagram</div>
+        <div class="tab" onclick="switchTab('tree')">🌳 Factor Tree</div>
+        <div class="tab" onclick="switchTab('verify')">✅ Verify</div>
+      </div>
+      <div id="tab-steps" class="tab-content active">
+        <div id="stepsContainer"></div>
+        <button class="btn btn-step" id="nextBtn" onclick="nextStep()" style="margin-top:10px">Next Step →</button>
+      </div>
+      <div id="tab-venn" class="tab-content">
+        <div id="vennDiagram"></div>
+      </div>
+      <div id="tab-tree" class="tab-content">
+        <div id="factorTree"></div>
+      </div>
+      <div id="tab-verify" class="tab-content">
+        <div id="verifySection"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- How to Find Section -->
+  <div class="card">
+    <div class="section-title">📖 कैसे निकालें? (How to Find?) <span class="badge">Method</span></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:10px;padding:12px">
+        <div style="font-weight:700;color:#1d4ed8;font-size:0.85rem;margin-bottom:6px">🟦 HCF (महत्तम)</div>
+        <div style="font-size:0.78rem;color:#1e293b;line-height:1.6">
+          ✦ गुणनखंड में लो दोनों को<br>
+          ✦ <span class="highlight">सांझे अभाज्य</span> ढूंढो<br>
+          ✦ <span class="highlight">न्यूनतम घातांक</span> (min power) लो<br>
+          ✦ गुणा करो → HCF मिला!
+        </div>
+      </div>
+      <div style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-radius:10px;padding:12px">
+        <div style="font-weight:700;color:#15803d;font-size:0.85rem;margin-bottom:6px">🟩 LCM (लघुत्तम)</div>
+        <div style="font-size:0.78rem;color:#1e293b;line-height:1.6">
+          ✦ गुणनखंड में लो दोनों को<br>
+          ✦ <span class="highlight">सभी अभाज्य</span> लो<br>
+          ✦ <span class="highlight">अधिकतम घातांक</span> (max power) लो<br>
+          ✦ गुणा करो → LCM मिला!
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fun Tip -->
+  <div class="card" style="background:linear-gradient(135deg,#1e293b,#1e3a5f);color:#fff">
+    <div style="font-size:0.9rem;font-weight:700;color:#fbbf24;margin-bottom:6px">💡 Exam Tip (परीक्षा युक्ति)</div>
+    <div style="font-size:0.8rem;color:#cbd5e1;line-height:1.6">
+      ∵ HCF always ≤ LCM (HCF हमेशा LCM से छोटा या बराबर)<br>
+      ∵ HCF is always a factor of LCM<br>
+      ∴ Check: क्या HCF, LCM को पूरी तरह भाग करता है?<br>
+      ∴ Formula: <span style="color:#fbbf24;font-weight:700">HCF × LCM = a × b</span> से एक निकालो, दूसरा दिया हो तो!
+    </div>
+  </div>
+
+</div>
+
+<script>
+let currentStep=0,totalSteps=0,stepsData=[];
+let globalA=12,globalB=18,globalFactorsA=[],globalFactorsB=[];
+
+function setNums(a,b){
+  document.getElementById('numA').value=a;
+  document.getElementById('numB').value=b;
+  calculate();
+}
+
+function primeFactors(n){
+  let factors={};
+  let d=2;
+  while(n>1){
+    while(n%d===0){factors[d]=(factors[d]||0)+1;n=Math.floor(n/d);}
+    d++;
+  }
+  return factors;
+}
+
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function calculate(){
+  let a=parseInt(document.getElementById('numA').value)||12;
+  let b=parseInt(document.getElementById('numB').value)||18;
+  if(a<2||b<2||a>999||b>999){alert('Please enter numbers between 2 and 999');return;}
+  globalA=a;globalB=b;
+  globalFactorsA=primeFactors(a);
+  globalFactorsB=primeFactors(b);
+  
+  let allPrimes=new Set([...Object.keys(globalFactorsA),...Object.keys(globalFactorsB)].map(Number));
+  let hcfFactors={},lcmFactors={};
+  allPrimes.forEach(p=>{
+    let pa=globalFactorsA[p]||0,pb=globalFactorsB[p]||0;
+    if(pa>0&&pb>0)hcfFactors[p]=Math.min(pa,pb);
+    lcmFactors[p]=Math.max(pa,pb);
+  });
+  let hcf=Object.entries(hcfFactors).reduce((acc,[p,e])=>acc*Math.pow(p,e),1);
+  let lcm=Object.entries(lcmFactors).reduce((acc,[p,e])=>acc*Math.pow(p,e),1);
+
+  buildSteps(a,b,globalFactorsA,globalFactorsB,hcfFactors,lcmFactors,hcf,lcm);
+  buildVenn(a,b,globalFactorsA,globalFactorsB,hcfFactors,lcmFactors,hcf,lcm);
+  buildTree(a,b,globalFactorsA,globalFactorsB);
+  buildVerify(a,b,hcf,lcm);
+  
+  document.getElementById('calcOutput').style.display='block';
+  currentStep=0;
+  document.getElementById('nextBtn').style.display='inline-block';
+  document.getElementById('nextBtn').textContent='Next Step →';
+  stepsData.forEach((s,i)=>{
+    let el=document.getElementById('step-'+i);
+    if(el){el.classList.remove('visible');el.style.display='none';}
+  });
+  nextStep();
+}
+
+function fmtFactors(obj){
+  return Object.entries(obj).map(([p,e])=>e>1?`${p}${sup(e)}`:p).join(' × ');
+}
+function sup(n){return '⁰¹²³⁴⁵⁶⁷⁸⁹'[n]||'^'+n}
+
+function buildSteps(a,b,fa,fb,hcfF,lcmF,hcf,lcm){
+  let sc=document.getElementById('stepsContainer');sc.innerHTML='';
+  stepsData=[
+    {cls:'',label:'Step 1: Prime Factorisation of '+a,html:`<strong>${a}</strong> = <span style="color:#1d4ed8">${fmtFactors(fa)}</span>`},
+    {cls:'',label:'Step 2: Prime Factorisation of '+b,html:`<strong>${b}</strong> = <span style="color:#15803d">${fmtFactors(fb)}</span>`},
+    {cls:'amber',label:'Step 3: HCF — सांझे गुणनखंड, न्यूनतम घातांक',html:`HCF(${a},${b}) = <strong>${fmtFactors(hcfF)||'1'}</strong> = <span style="color:#b45309;font-size:1.1rem;font-weight:700">${hcf}</span>`},
+    {cls:'green',label:'Step 4: LCM — सभी गुणनखंड, अधिकतम घातांक',html:`LCM(${a},${b}) = <strong>${fmtFactors(lcmF)}</strong> = <span style="color:#15803d;font-size:1.1rem;font-weight:700">${lcm}</span>`},
+    {cls:'red',label:'Step 5: Verify — जाँचो!',html:`HCF × LCM = ${hcf} × ${lcm} = <strong>${hcf*lcm}</strong><br>a × b = ${a} × ${b} = <strong>${a*b}</strong><br><span style="${hcf*lcm===a*b?'color:#15803d':'color:#dc2626'}">∴ ${hcf*lcm===a*b?'✅ Verified! (सिद्ध हुआ)':'❌ Check your inputs'}</span>`},
+  ];
+  totalSteps=stepsData.length;
+  stepsData.forEach((s,i)=>{
+    let div=document.createElement('div');
+    div.className='step '+(s.cls||'');
+    div.id='step-'+i;
+    div.innerHTML=`<div class="step-label">${s.label}</div><div class="step-content">${s.html}</div>`;
+    sc.appendChild(div);
+  });
+}
+
+function nextStep(){
+  if(currentStep<totalSteps){
+    let el=document.getElementById('step-'+currentStep);
+    if(el){el.classList.add('visible');}
+    currentStep++;
+    if(currentStep>=totalSteps){
+      document.getElementById('nextBtn').textContent='↺ Reset';
+      document.getElementById('nextBtn').onclick=resetSteps;
+    }
+  }
+}
+function resetSteps(){
+  currentStep=0;
+  stepsData.forEach((s,i)=>{
+    let el=document.getElementById('step-'+i);
+    if(el){el.classList.remove('visible');el.style.display='none';}
+  });
+  document.getElementById('nextBtn').textContent='Next Step →';
+  document.getElementById('nextBtn').onclick=nextStep;
+  nextStep();
+}
+
+function buildVenn(a,b,fa,fb,hcfF,lcmF,hcf,lcm){
+  let div=document.getElementById('vennDiagram');
+  let onlyA=[],common=[],onlyB=[];
+  let allP=new Set([...Object.keys(fa),...Object.keys(fb)].map(Number));
+  allP.forEach(p=>{
+    let pa=fa[p]||0,pb=fb[p]||0;
+    let minE=Math.min(pa,pb),maxE=Math.max(pa,pb);
+    for(let i=0;i<minE;i++)common.push(p);
+    for(let i=minE;i<pa;i++)onlyA.push(p);
+    for(let i=minE;i<pb;i++)onlyB.push(p);
+  });
+
+  let mkChips=(arr,cls)=>arr.map(p=>`<tspan>${p}</tspan>`).join(' ');
+  let mkChipHTML=(arr,color)=>arr.map(p=>`<span style="display:inline-block;background:${color};border-radius:12px;padding:2px 8px;margin:2px;font-size:0.78rem;font-weight:700">${p}</span>`).join('');
+
+  div.innerHTML=`
+  <div style="position:relative;width:100%;padding:10px 0">
+    <svg viewBox="0 0 400 180" class="venn-svg">
+      <defs>
+        <radialGradient id="gA"><stop offset="0%" stop-color="#93c5fd" stop-opacity="0.8"/><stop offset="100%" stop-color="#3b82f6" stop-opacity="0.3"/></radialGradient>
+        <radialGradient id="gB"><stop offset="0%" stop-color="#86efac" stop-opacity="0.8"/><stop offset="100%" stop-color="#22c55e" stop-opacity="0.3"/></radialGradient>
+      </defs>
+      <circle cx="145" cy="90" r="80" fill="url(#gA)" stroke="#3b82f6" stroke-width="2"/>
+      <circle cx="255" cy="90" r="80" fill="url(#gB)" stroke="#22c55e" stroke-width="2"/>
+      <text x="90" y="30" text-anchor="middle" font-size="13" font-weight="700" fill="#1d4ed8">${a}</text>
+      <text x="310" y="30" text-anchor="middle" font-size="13" font-weight="700" fill="#15803d">${b}</text>
+      <text x="75" y="50" text-anchor="middle" font-size="10" fill="#1e40af">Only in ${a}</text>
+      <text x="325" y="50" text-anchor="middle" font-size="10" fill="#15803d">Only in ${b}</text>
+      <text x="200" y="50" text-anchor="middle" font-size="10" fill="#7c3aed" font-weight="700">Common</text>
+      ${onlyA.length?`<text x="80" y="100" text-anchor="middle" font-size="12" fill="#1e40af" font-weight="700">${onlyA.join(' × ')}</text>`:`<text x="80" y="100" text-anchor="middle" font-size="11" fill="#64748b">—</text>`}
+      ${common.length?`<text x="200" y="100" text-anchor="middle" font-size="13" fill="#5b21b6" font-weight="700">${common.join(' × ')}</text>`:`<text x="200" y="100" text-anchor="middle" font-size="11" fill="#64748b">—</text>`}
+      ${onlyB.length?`<text x="320" y="100" text-anchor="middle" font-size="12" fill="#15803d" font-weight="700">${onlyB.join(' × ')}</text>`:`<text x="320" y="100" text-anchor="middle" font-size="11" fill="#64748b">—</text>`}
+      <text x="200" y="150" text-anchor="middle" font-size="10" fill="#7c3aed">HCF = product of common</text>
+      <text x="200" y="163" text-anchor="middle" font-size="10" fill="#0369a1">LCM = product of all</text>
+    </svg>
+    <div class="venn-legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div> ${a}'s factors</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#7c3aed"></div> Common (HCF=${hcf})</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#22c55e"></div> ${b}'s factors</div>
+    </div>
+    <div style="text-align:center;margin-top:8px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+      <div style="background:#dbeafe;border-radius:8px;padding:6px 12px;font-size:0.8rem"><strong style="color:#1d4ed8">HCF = ${hcf}</strong> (सांझे × न्यूनतम घात)</div>
+      <div style="background:#dcfce7;border-radius:8px;padding:6px 12px;font-size:0.8rem"><strong style="color:#15803d">LCM = ${lcm}</strong> (सभी × अधिकतम घात)</div>
+    </div>
+  </div>`;
+}
+
+function buildTree(a,b,fa,fb){
+  let div=document.getElementById('factorTree');
+  div.innerHTML='<div class="tree-container">'+mkTree(a,fa,'#3b82f6','#dbeafe')+'</div><div class="tree-container" style="margin-top:8px">'+mkTree(b,fb,'#22c55e','#dcfce7')+'</div>';
+}
+
+function mkTree(n,factors,color,bg){
+  let primes=[];
+  Object.entries(factors).forEach(([p,e])=>{for(let i=0;i<e;i++)primes.push(parseInt(p));});
+  if(!primes.length)return `<svg width="120" height="60"><circle cx="60" cy="30" r="22" fill="${bg}" stroke="${color}" stroke-width="2"/><text x="60" y="35" text-anchor="middle" font-size="14" font-weight="700" fill="${color}">${n}</text></svg>`;
+  
+  let nodes=[];let nums=[n];
+  for(let i=0;i<primes.length-1;i++){nums.push(Math.round(nums[i]/primes[i]));}
+  
+  let levels=pr

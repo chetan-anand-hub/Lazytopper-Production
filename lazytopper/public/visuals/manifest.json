@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-04-10T22:42:23.947Z",
+  "generatedAt": "2026-04-11T01:42:02.963Z",
   "concepts": {
     "pythagoras-theorem-visual-proof": {
       "subject": "maths",
@@ -21,6 +21,106 @@
       "filePath": "/app/visuals/maths/real-numbers/euclids-division-lemma.html",
       "sizeKB": 20.8,
       "generatedAt": "2026-04-10T22:42:23.946Z"
+    },
+    "fundamental-theorem-of-arithmetic": {
+      "subject": "maths",
+      "chapter": "real-numbers",
+      "chapterName": "Real Numbers",
+      "conceptName": "Fundamental Theorem of Arithmetic",
+      "slug": "fundamental-theorem-of-arithmetic",
+      "filePath": "/app/visuals/maths/real-numbers/fundamental-theorem-of-arithmetic.html",
+      "sizeKB": 17.9,
+      "generatedAt": "2026-04-11T01:21:39.831Z"
+    },
+    "hcf-and-lcm-using-prime-factorisation": {
+      "subject": "maths",
+      "chapter": "real-numbers",
+      "chapterName": "Real Numbers",
+      "conceptName": "HCF and LCM using Prime Factorisation",
+      "slug": "hcf-and-lcm-using-prime-factorisation",
+      "filePath": "/app/visuals/maths/real-numbers/hcf-and-lcm-using-prime-factorisation.html",
+      "sizeKB": 20.3,
+      "generatedAt": "2026-04-11T01:23:55.455Z"
+    },
+    "zeroes-of-a-polynomial": {
+      "subject": "maths",
+      "chapter": "polynomials",
+      "chapterName": "Polynomials",
+      "conceptName": "Zeroes of a Polynomial",
+      "slug": "zeroes-of-a-polynomial",
+      "filePath": "/app/visuals/maths/polynomials/zeroes-of-a-polynomial.html",
+      "sizeKB": 16.8,
+      "generatedAt": "2026-04-11T01:27:04.217Z"
+    },
+    "graphical-method": {
+      "subject": "maths",
+      "chapter": "linear-equations",
+      "chapterName": "Pair of Linear Equations",
+      "conceptName": "Graphical Method",
+      "slug": "graphical-method",
+      "filePath": "/app/visuals/maths/linear-equations/graphical-method.html",
+      "sizeKB": 19.4,
+      "generatedAt": "2026-04-11T01:29:40.569Z"
+    },
+    "quadratic-formula": {
+      "subject": "maths",
+      "chapter": "quadratic-equations",
+      "chapterName": "Quadratic Equations",
+      "conceptName": "Quadratic Formula",
+      "slug": "quadratic-formula",
+      "filePath": "/app/visuals/maths/quadratic-equations/quadratic-formula.html",
+      "sizeKB": 21.3,
+      "generatedAt": "2026-04-11T01:32:49.784Z"
+    },
+    "nth-term-formula": {
+      "subject": "maths",
+      "chapter": "arithmetic-progression",
+      "chapterName": "Arithmetic Progressions",
+      "conceptName": "nth Term Formula",
+      "slug": "nth-term-formula",
+      "filePath": "/app/visuals/maths/arithmetic-progression/nth-term-formula.html",
+      "sizeKB": 21.5,
+      "generatedAt": "2026-04-11T01:35:05.353Z"
+    },
+    "trigonometric-ratios": {
+      "subject": "maths",
+      "chapter": "trigonometry",
+      "chapterName": "Trigonometry",
+      "conceptName": "Trigonometric Ratios",
+      "slug": "trigonometric-ratios",
+      "filePath": "/app/visuals/maths/trigonometry/trigonometric-ratios.html",
+      "sizeKB": 16.3,
+      "generatedAt": "2026-04-11T01:36:00.645Z"
+    },
+    "distance-formula": {
+      "subject": "maths",
+      "chapter": "coordinate-geometry",
+      "chapterName": "Coordinate Geometry",
+      "conceptName": "Distance Formula",
+      "slug": "distance-formula",
+      "filePath": "/app/visuals/maths/coordinate-geometry/distance-formula.html",
+      "sizeKB": 12.6,
+      "generatedAt": "2026-04-11T01:37:33.426Z"
+    },
+    "tangent-to-a-circle": {
+      "subject": "maths",
+      "chapter": "circles",
+      "chapterName": "Circles",
+      "conceptName": "Tangent to a Circle",
+      "slug": "tangent-to-a-circle",
+      "filePath": "/app/visuals/maths/circles/tangent-to-a-circle.html",
+      "sizeKB": 15.1,
+      "generatedAt": "2026-04-11T01:39:59.637Z"
+    },
+    "mean-of-grouped-data": {
+      "subject": "maths",
+      "chapter": "statistics",
+      "chapterName": "Statistics",
+      "conceptName": "Mean of Grouped Data",
+      "slug": "mean-of-grouped-data",
+      "filePath": "/app/visuals/maths/statistics/mean-of-grouped-data.html",
+      "sizeKB": 19.4,
+      "generatedAt": "2026-04-11T01:42:02.962Z"
     }
   }
 }

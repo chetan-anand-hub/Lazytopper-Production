@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Distance Formula – Coordinate Geometry | Class 10</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);min-height:100vh;color:#fff;padding:10px}
+h1{text-align:center;font-size:1.5em;padding:12px 0 4px;background:linear-gradient(90deg,#f7971e,#ffd200);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.subtitle{text-align:center;font-size:.85em;color:#aab;margin-bottom:10px}
+.card{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:14px;margin-bottom:10px}
+.formula-box{background:linear-gradient(135deg,#1a1a2e,#16213e);border:2px solid #f7971e;border-radius:12px;padding:12px;text-align:center;margin-bottom:10px}
+.formula{font-size:1.3em;color:#ffd200;font-weight:bold;letter-spacing:.5px}
+.formula span{color:#7ef7c8}
+canvas{display:block;margin:0 auto;border-radius:10px;cursor:crosshair;touch-action:none}
+.canvas-wrap{position:relative;overflow:hidden;border-radius:10px}
+.hint{text-align:center;font-size:.78em;color:#aef;margin-top:6px}
+.steps-title{font-size:1em;color:#ffd200;font-weight:bold;margin-bottom:8px}
+.step{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;opacity:0;transform:translateY(10px);transition:all .4s}
+.step.show{opacity:1;transform:translateY(0)}
+.step-num{background:linear-gradient(135deg,#f7971e,#ffd200);color:#1a1a2e;border-radius:50%;width:24px;height:24px;min-width:24px;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:.8em}
+.step-text{font-size:.85em;color:#e0e0ff;line-height:1.5}
+.step-text b{color:#ffd200}
+.coords-display{display:flex;justify-content:space-around;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.coord-card{background:rgba(255,255,255,.1);border-radius:8px;padding:8px 14px;text-align:center;flex:1;min-width:100px}
+.coord-label{font-size:.75em;color:#aab;margin-bottom:2px}
+.coord-val{font-size:1em;font-weight:bold}
+.dist-display{text-align:center;background:linear-gradient(135deg,#f7971e22,#ffd20022);border:1px solid #ffd200;border-radius:8px;padding:8px;font-size:1.1em;font-weight:bold;color:#ffd200;margin-bottom:8px}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:6px}
+button{padding:8px 16px;border:none;border-radius:8px;font-size:.85em;cursor:pointer;font-weight:bold;transition:.2s}
+.btn-solve{background:linear-gradient(135deg,#f7971e,#ffd200);color:#1a1a2e}
+.btn-reset{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.2)}
+.btn-example{background:linear-gradient(135deg,#7ef7c8,#00b09b);color:#1a1a2e}
+button:hover{transform:scale(1.05)}
+.legend{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;font-size:.78em;margin-top:6px}
+.leg{display:flex;align-items:center;gap:4px}
+.dot{width:10px;height:10px;border-radius:50%}
+.section-title{font-size:.95em;font-weight:bold;color:#7ef7c8;margin-bottom:6px}
+@media(max-width:480px){.formula{font-size:1em}h1{font-size:1.2em}}
+</style>
+</head>
+<body>
+<h1>📐 Distance Formula</h1>
+<p class="subtitle">CBSE Class 10 · Coordinate Geometry</p>
+
+<div class="formula-box">
+  <div style="font-size:.8em;color:#aab;margin-bottom:4px">Distance between two points P(x₁,y₁) and Q(x₂,y₂)</div>
+  <div class="formula">PQ = √[ <span>(x₂−x₁)²</span> + <span>(y₂−y₁)²</span> ]</div>
+  <div style="font-size:.75em;color:#aab;margin-top:4px">Derived from the Pythagorean Theorem</div>
+</div>
+
+<div class="card">
+  <div class="section-title">🖱️ Interactive Grid — Drag the Points!</div>
+  <div class="coords-display">
+    <div class="coord-card"><div class="coord-label">Point P (x₁, y₁)</div><div class="coord-val" id="pCoord" style="color:#ff7eb3">–</div></div>
+    <div class="coord-card"><div class="coord-label">Point Q (x₂, y₂)</div><div class="coord-val" id="qCoord" style="color:#7eb3ff">–</div></div>
+  </div>
+  <div class="canvas-wrap">
+    <canvas id="grid" width="360" height="320"></canvas>
+  </div>
+  <div class="legend">
+    <div class="leg"><div class="dot" style="background:#ff7eb3"></div>Point P</div>
+    <div class="leg"><div class="dot" style="background:#7eb3ff"></div>Point Q</div>
+    <div class="leg"><div class="dot" style="background:#ffd200;border-radius:0;width:18px;height:3px"></div>Distance PQ</div>
+  </div>
+  <div class="hint">👆 Drag P (pink) or Q (blue) to see the distance update live</div>
+</div>
+
+<div class="card">
+  <div class="dist-display" id="distDisplay">Move points to calculate distance</div>
+  <div class="btn-row">
+    <button class="btn-example" onclick="loadExample()">📚 Load Example</button>
+    <button class="btn-solve" onclick="showSteps()">🔢 Step-by-Step</button>
+    <button class="btn-reset" onclick="resetAll()">🔄 Reset</button>
+  </div>
+</div>
+
+<div class="card" id="stepsCard" style="display:none">
+  <div class="steps-title">📝 Step-by-Step Solution</div>
+  <div id="stepsContainer"></div>
+</div>
+
+<div class="card">
+  <div class="section-title">💡 Key Concepts</div>
+  <div style="font-size:.82em;color:#ccd;line-height:1.8">
+    <div>📌 The formula comes from <b style="color:#ffd200">Pythagoras' Theorem</b>: a² + b² = c²</div>
+    <div>📌 <b style="color:#7ef7c8">Horizontal distance</b> = |x₂ − x₁| (base of right triangle)</div>
+    <div>📌 <b style="color:#ff9f7f">Vertical distance</b> = |y₂ − y₁| (height of right triangle)</div>
+    <div>📌 The <b style="color:#ffd200">hypotenuse</b> is the straight-line distance PQ</div>
+    <div>📌 Distance is always <b style="color:#7ef7c8">non-negative</b> (√ gives +ve root)</div>
+  </div>
+</div>
+
+<script>
+const canvas=document.getElementById('grid');
+const ctx=canvas.getContext('2d');
+const W=canvas.width,H=canvas.height;
+const PAD=30,GSIZE=H-2*PAD;
+const CELLS=10;
+const step=GSIZE/CELLS;
+
+// Grid origin in canvas coords (center)
+const OX=W/2,OY=H/2;
+
+// Points in grid coords (-5 to 5)
+let P={gx:-3,gy:2},Q={gx:3,gy:-2};
+let dragging=null;
+
+function gToC(gx,gy){return{x:OX+gx*step,y:OY-gy*step};}
+function cToG(cx,cy){return{gx:(cx-OX)/step,gy:-(cy-OY)/step};}
+
+function drawGrid(){
+  ctx.clearRect(0,0,W,H);
+  // Background
+  ctx.fillStyle='#0d0d1a';
+  ctx.fillRect(0,0,W,H);
+
+  // Grid lines
+  for(let i=-5;i<=5;i++){
+    let x=OX+i*step,y=OY-i*step;
+    ctx.strokeStyle=i===0?'rgba(255,255,255,.35)':'rgba(255,255,255,.1)';
+    ctx.lineWidth=i===0?1.5:.8;
+    ctx.beginPath();ctx.moveTo(x,PAD);ctx.lineTo(x,H-PAD);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(PAD,y);ctx.lineTo(W-PAD,y);ctx.stroke();
+  }
+
+  // Axis labels
+  ctx.fillStyle='rgba(180,180,220,.7)';
+  ctx.font='9px Arial';ctx.textAlign='center';
+  for(let i=-5;i<=5;i++){
+    if(i===0)continue;
+    let x=OX+i*step;ctx.fillText(i,x,OY+14);
+    let y=OY-i*step;ctx.textAlign='right';ctx.fillText(i,OX-4,y+3);ctx.textAlign='center';
+  }
+  ctx.fillStyle='rgba(200,200,255,.8)';
+  ctx.font='bold 10px Arial';
+  ctx.fillText('X',W-PAD+10,OY+4);
+  ctx.fillText('Y',OX+4,PAD-6);
+
+  const pc=gToC(P.gx,P.gy),qc=gToC(Q.gx,Q.gy);
+
+  // Right triangle legs (dashed)
+  ctx.setLineDash([4,4]);
+  ctx.lineWidth=1.5;
+  // horizontal leg
+  ctx.strokeStyle='rgba(126,243,200,.6)';
+  ctx.beginPath();ctx.moveTo(pc.x,pc.y);ctx.lineTo(qc.x,pc.y);ctx.stroke();
+  // vertical leg
+  ctx.strokeStyle='rgba(255,159,127,.6)';
+  ctx.beginPath();ctx.moveTo(qc.x,pc.y);ctx.lineTo(qc.x,qc.y);ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Right angle symbol
+  if(Math.abs(qc.x-pc.x)>8&&Math.abs(qc.y-pc.y)>8){
+    let sx=qc.x>pc.x?1:-1,sy=qc.y>pc.y?1:-1;
+    ctx.strokeStyle='rgba(255,255,255,.4)';ctx.lineWidth=1;
+    ctx.strokeRect(qc.x-sx*7,pc.y,sx*7,sy*7);
+  }
+
+  // Labels for legs
+  let mx=(pc.x+qc.x)/2,dx=Math.abs(Q.gx-P.gx).toFixed(1);
+  let my=(pc.y+qc.y)/2,dy=Math.abs(Q.gy-P.gy).toFixed(1);
+  ctx.fillStyle='rgba(126,243,200,.9)';ctx.font='bold 9px Arial';
+  ctx.textAlign='center';ctx.fillText('|x₂−x₁|='+dx,mx,pc.y+(qc.y>pc.y?-7:10));
+  ctx.fillStyle='rgba(255,159,127,.9)';
+  ctx.fillText('|y₂−y₁|='+dy,qc.x+(qc.x>pc.x?18:-18),my);
+
+  // PQ line
+  ctx.strokeStyle='#ffd200';ctx.lineWidth=2.5;ctx.setLineDash([]);
+  ctx.beginPath();ctx.moveTo(pc.x,pc.y);ctx.lineTo(qc.x,qc.y);ctx.stroke();
+
+  // Distance label on PQ
+  let midx=(pc.x+qc.x)/2,midy=(pc.y+qc.y)/2;
+  let dist=calcDist();
+  ctx.fillStyle='#ffd200';ctx.font='bold 10px Arial';ctx.textAlign='center';
+  ctx.fillText('PQ≈'+dist.toFixed(2),midx,midy-10);
+
+  // Draw P
+  ctx.beginPath();ctx.arc(pc.x,pc.y,8,0,2*Math.PI);
+  ctx.fillStyle='#ff7eb3';ctx.fill();
+  ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();
+  ctx.fillStyle='#fff';ctx.font='bold 9px Arial';ctx.textAlign='center';
+  ctx.fillText('P',pc.x,pc.y+3);
+  ctx.fillStyle='#ff7eb3';ctx.font='9px Arial';
+  ctx.fillText('('+round(P.gx)+','+round(P.gy)+')',pc.x,pc.y-14);
+
+  // Draw Q
+  ctx.beginPath();ctx.arc(qc.x,qc.y,8,0,2*Math.PI);
+  ctx.fillStyle='#7eb3ff';ctx.fill();
+  ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();
+  ctx.fillStyle='#fff';ctx.font='bold 9px Arial';ctx.textAlign='center';
+  ctx.fillText('Q',qc.x,qc.y+3);
+  ctx.fillStyle='#7eb3ff';ctx.font='9px Arial';
+  ctx.fillText('('+round(Q.gx)+','+round(Q.gy)+')',qc.x,qc.y-14);
+
+  updateUI();
+}
+
+function round(v){return Math.round(v*10)/10;}
+function calcDist(){
+  let dx=Q.gx-P.gx,dy=Q.gy-P.gy;
+  return Math.sqrt(dx*dx+dy*dy);
+}
+
+function updateUI(){
+  document.getElementById('pCoord').textContent='('+round(P.gx)+', '+round(P.gy)+')';
+  document.getElementById('qCoord').textContent='('+round(Q.gx)+', '+round(Q.gy)+')';
+  let d=calcDist();
+  document.getElementById('distDisplay').textContent='PQ = √[('+round(Q.gx)+'−'+round(P.gx)+')² + ('+round(Q.gy)+'−'+round(P.gy)+')²] ≈ '+d.toFixed(3);
+}
+
+// Drag logic
+function getPos(e){
+  let r=canvas.getBoundingClientRect();
+  let scale=W/r.width;
+  if(e.touches){return{x:(e.touches[0].clientX-r.left)*scale,y:(e.touches[0].clientY-r.top)*scale};}
+  return{x:(e.clientX-r.left)*scale,y:(e.clientY-r.top)*scale};
+}
+function hitTest(cx,cy,gx,gy,r){
+  let c=gToC(gx,gy);return Math.hypot(cx-c.x,cy-c.y)<r;
+}
+canvas.addEventListener('mousedown',startDrag);
+canvas.addEventListener('touchstart',startDrag,{passive:true});
+function startDrag(e){
+  let p=getPos(e);
+  if(hitTest(p.x,p.y,P.gx,P.gy,16))dragging='P';
+  else if(hitTest(p.x,p.y,Q.gx,Q.gy,16))dragging='Q';
+}
+canvas.addEventListener('mousemove',doDrag);
+canvas.addEventListener('touchmove',doDrag,{passive:true});
+function doDrag(e){
+  if(!dragging)return;
+  let p=getPos(e),g=cToG(p.x,p.y);
+  g.gx=Math.max(-5,Math.min(5,g.gx));
+  g.gy=Math.max(-5,Math.min(5,g.gy));
+  if(dragging==='P'){P.gx=g.gx;P.gy=g.gy;}
+  else{Q.gx=g.gx;Q.gy=g.gy;}
+  drawGrid();
+  document.getElementById('stepsCard').style.display='none';
+}
+canvas.addEventListener('mouseup',()=>dragging=null);
+canvas.addEventListener('touchend',()=>dragging=null);
+
+function showSteps(){
+  let x1=round(P.gx),y1=round(P.gy),x2=round(Q.gx),y2=round(Q.gy);
+  let dx=round(x2-x1),dy=round(y2-y1);
+  let dx2=round(dx*dx),dy2=round(dy*dy);
+  let sum=round(dx2+dy2);
+  let dist=Math.sqrt(sum);
+  let steps=[
+    {n:'1',t:'<b>Identify coordinates:</b><br>P = (x₁, y₁) = ('+x1+', '+y1+')<br>Q = (x₂, y₂) = ('+x2+', '+y2+')'},
+    {n:'2',t:'<b>Find the differences:</b><br>(x₂−x₁) = '+x2+' − '+x1+' = <b style="color:#7ef7c8">'+dx+'</b><br>(y₂−y₁) = '+y2+' − '+y1+' = <b style="color:#ff9f7f">'+dy+'</b>'},
+    {n:'3',t:'<b>Square each difference:</b><br>('+dx+')² = <b style="color:#7ef7c8">'+dx2+'</b><br>('+dy+')² = <b style="color:#ff9f7f">'+dy2+'</b>'},
+    {n:'4',t:'<b>Add the squares:</b><br>'+dx2+' + '+dy2+' = <b style="color:#ffd200">'+sum+'</b>'},
+    {n:'5',t:'<b>Take the square root:</b><br>PQ = √'+sum+' ≈ <b style="color:#ffd200">'+dist.toFixed(4)+'</b> units'}
+  ];
+  let c=document.getElementById('stepsContainer');c.innerHTML='';
+  steps.forEach((s,i)=>{
+    let d=document.createElement('div');d.className='step';
+    d.innerHTML='<div class="step-num">'+s.n+'</div><div class="step-text">'+s.t+'</div>';
+    c.appendChild(d);
+    setTimeout(()=>d.classList.add('show'),i*250+50);
+  });
+  document.getElementById('stepsCard').style.display='block';
+}
+
+function loadExample(){
+  P.gx=-3;P.gy=2;Q.gx=3;Q.gy=-2;
+  drawGrid();
+  document.getElementById('stepsCard').style.display='none';
+}
+
+function resetAll(){
+  P.gx=-2;P.gy=3;Q.gx=4;Q.gy=-1;
+  drawGrid();
+  document.getElementById('stepsCard').style.display='none';
+}
+
+// Responsive canvas
+function resizeCanvas(){
+  let maxW=Math.min(360,window.innerWidth-32);
+  canvas.style.width=maxW+'px';
+  canvas.style.height=(maxW*H/W)+'px';
+}
+window.addEventListener('resize',resizeCanvas);
+resizeCanvas();
+drawGrid();
+</script>
+</body>
+</html>
