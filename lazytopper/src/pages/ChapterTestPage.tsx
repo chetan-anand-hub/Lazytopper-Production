@@ -71,6 +71,8 @@ export default function ChapterTestPage() {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [answers, setAnswers] = useState<Record<number, { selected: string; correct: boolean; isMcq: boolean }>>({});
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [timerEnabled, setTimerEnabled] = useState(true);
+  const [testSize, setTestSize] = useState<10 | 15 | 20>(10);
 
   const questions = useMemo<CanonicalQuestion[]>(() => {
     const normalizedKey = normalizeTopicKey(topicKey) || topicKey;
@@ -99,31 +101,37 @@ export default function ChapterTestPage() {
     pick(mcqs, 4);
     pick(nonMcqs, 4);
     const remaining = [...mcqs, ...nonMcqs].filter((q) => !used.has(q.id || q.questionText));
-    pick(remaining, CHAPTER_TEST_QUESTIONS - selected.length);
+    pick(remaining, testSize - selected.length);
 
     for (let i = selected.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [selected[i], selected[j]] = [selected[j], selected[i]];
     }
-    return selected.slice(0, CHAPTER_TEST_QUESTIONS);
-  }, [subject, topicKey]);
+    return selected.slice(0, testSize);
+  }, [subject, topicKey, testSize]);
+
+  const timeLimitSeconds = Math.round(testSize * 1.5 * 60);
 
   useEffect(() => {
-    if (phase === "taking") {
+    if (phase === "taking" && timerEnabled) {
       timerRef.current = setInterval(() => {
         setElapsed((e) => {
-          if (e + 1 >= TIME_LIMIT_SECONDS) {
+          if (e + 1 >= timeLimitSeconds) {
             finishTest();
             return e + 1;
           }
           return e + 1;
         });
       }, 1000);
+    } else if (phase === "taking" && !timerEnabled) {
+      timerRef.current = setInterval(() => {
+        setElapsed((e) => e + 1);
+      }, 1000);
     }
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [phase]);
+  }, [phase, timerEnabled]);
 
   const startTest = useCallback(() => {
     setPhase("taking");
@@ -227,8 +235,8 @@ export default function ChapterTestPage() {
   }, [phase]);
 
   const answeredCount = Object.keys(answers).length;
-  const timeRemaining = Math.max(0, TIME_LIMIT_SECONDS - elapsed);
-  const isTimeLow = timeRemaining < 120;
+  const timeRemaining = timerEnabled ? Math.max(0, timeLimitSeconds - elapsed) : elapsed;
+  const isTimeLow = timerEnabled && timeRemaining < 120;
 
   const currentLevel = getChapterMasteryLevel(chapterKey);
 
@@ -261,30 +269,41 @@ export default function ChapterTestPage() {
               </div>
               <h1 style={{ fontSize: "1.8rem", fontWeight: 800, margin: "0 0 8px" }}>{topicName}</h1>
               <p style={{ fontSize: "0.88rem", opacity: 0.92, lineHeight: 1.5 }}>
-                {questions.length} questions &middot; 15 minutes &middot; CBSE format
+                {testSize} questions &middot; {timerEnabled ? `${Math.round(testSize * 1.5)} min` : "untimed"} &middot; CBSE format
               </p>
               <p style={{ fontSize: "0.82rem", opacity: 0.8, marginTop: 8 }}>
                 Score 100% while Proficient to reach <strong>Mastered</strong> level
               </p>
 
-              <div
-                style={{
-                  marginTop: 16,
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 8,
-                  padding: "8px 16px",
-                  borderRadius: 12,
-                  background: "rgba(255,255,255,0.15)",
-                }}
-              >
-                <span style={{ fontSize: 16 }}>{MASTERY_ICONS[currentLevel]}</span>
-                <span style={{ fontWeight: 700, fontSize: "0.85rem" }}>
-                  Current: {MASTERY_LABELS[currentLevel]}
-                </span>
+              <div style={{ marginTop: 16, display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
+                <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "8px 16px", borderRadius: 12, background: "rgba(255,255,255,0.15)" }}>
+                  <span style={{ fontSize: 16 }}>{MASTERY_ICONS[currentLevel]}</span>
+                  <span style={{ fontWeight: 700, fontSize: "0.85rem" }}>Current: {MASTERY_LABELS[currentLevel]}</span>
+                </div>
+
+                <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                  <span style={{ fontSize: "0.75rem", opacity: 0.7, marginRight: 4 }}>Questions:</span>
+                  {([10, 15, 20] as const).map((n) => (
+                    <button key={n} onClick={() => setTestSize(n)} style={{
+                      padding: "5px 12px", borderRadius: 10, border: "none", cursor: "pointer",
+                      background: testSize === n ? "#fff" : "rgba(255,255,255,0.15)",
+                      color: testSize === n ? "#16a34a" : "rgba(255,255,255,0.8)",
+                      fontWeight: 700, fontSize: "0.8rem", transition: "all 0.15s",
+                    }}>{n}</button>
+                  ))}
+                </div>
+
+                <button onClick={() => setTimerEnabled((p) => !p)} style={{
+                  display: "inline-flex", alignItems: "center", gap: 6, padding: "5px 14px",
+                  borderRadius: 10, border: "none", cursor: "pointer",
+                  background: "rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.85)",
+                  fontSize: "0.78rem", fontWeight: 600,
+                }}>
+                  {timerEnabled ? "⏱ Timed" : "📖 Untimed"} — tap to switch
+                </button>
               </div>
 
-              <div style={{ marginTop: 24 }}>
+              <div style={{ marginTop: 20 }}>
                 {areAllConceptsCompleted(topicKey) ? (
                   <button
                     onClick={startTest}
@@ -349,7 +368,7 @@ export default function ChapterTestPage() {
                     color: isTimeLow ? "#ef4444" : "rgba(255,255,255,0.6)",
                   }}
                 >
-                  Time: {formatTime(timeRemaining)}
+                  {timerEnabled ? `Time: ${formatTime(timeRemaining)}` : `Elapsed: ${formatTime(elapsed)}`}
                 </span>
                 <span style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.4)" }}>
                   Q{currentIdx + 1}/{questions.length} &middot; {answeredCount} answered

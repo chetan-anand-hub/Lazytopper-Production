@@ -607,7 +607,7 @@ export default function Dashboard() {
           onDone={() => setStreakMilestone(null)}
         />
 
-        {daysLeftValue > 7 && <HeroActionCard heroAction={heroAction} />}
+        <HeroActionCard heroAction={heroAction} />
 
         {daysLeftValue > 7 && isFocusTrackingEnabled() && <FocusScoreCard />}
 
