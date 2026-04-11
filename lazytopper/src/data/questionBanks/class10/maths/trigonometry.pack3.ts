@@ -855,34 +855,6 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "ncertRef": "Ex 8.1"
   },
   {
-    "id": "TG3-034",
-    "subject": "Maths",
-    "topicKey": "trigonometry",
-    "subtopic": "Trigonometric Ratios",
-    "section": "A",
-    "marks": 1,
-    "format": "MCQ",
-    "difficulty": "Easy",
-    "bloomSkill": "Understanding",
-    "questionText": "What is the value of tan 45°?",
-    "options": [
-      "1",
-      "√3",
-      "1/√3",
-      "0"
-    ],
-    "answer": "1",
-    "solutionSteps": [
-      "tan θ = sin θ / cos θ",
-      "tan 45° = sin 45° / cos 45° = (1/√2) / (1/√2) = 1"
-    ],
-    "finalAnswer": "1",
-    "isCompetencyBased": false,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 8.2"
-  },
-  {
     "id": "TG3-035",
     "subject": "Maths",
     "topicKey": "trigonometry",
@@ -1328,30 +1300,6 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "pyqYear": undefined,
     "pyqSet": undefined,
     "ncertRef": "Ex 8.1"
-  },
-  {
-    "id": "TG3-051",
-    "subject": "Maths",
-    "topicKey": "trigonometry",
-    "subtopic": "Trigonometric Identities",
-    "section": "C",
-    "marks": 1,
-    "format": "Short",
-    "difficulty": "Hard",
-    "bloomSkill": "Evaluating",
-    "questionText": "Prove that: (sin θ + cos θ)² + (sin θ - cos θ)² = 2",
-    "options": [],
-    "answer": "Proved",
-    "solutionSteps": [
-      "(sin θ + cos θ)² = sin² θ + 2sin θ cos θ + cos² θ",
-      "(sin θ - cos θ)² = sin² θ - 2sin θ cos θ + cos² θ",
-      "Adding: 2sin² θ + 2cos² θ = 2(sin² θ + cos² θ) = 2(1) = 2"
-    ],
-    "finalAnswer": "Proved",
-    "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 8.3"
   },
   {
     "id": "TG3-052",

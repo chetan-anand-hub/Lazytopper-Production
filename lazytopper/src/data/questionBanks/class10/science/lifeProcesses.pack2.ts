@@ -970,35 +970,6 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     "ncertRef": "NCERT Ch6 InText"
   },
   {
-    "id": "LP2-034",
-    "subject": "Science",
-    "topicKey": "Life Processes",
-    "subtopic": "Respiration",
-    "section": "A",
-    "marks": 1,
-    "format": "MCQ",
-    "difficulty": "Easy",
-    "bloomSkill": "Remembering",
-    "questionText": "Which organelle is the site of aerobic respiration?",
-    "options": [
-      "Nucleus",
-      "Mitochondria",
-      "Chloroplast",
-      "Ribosome"
-    ],
-    "answer": "Mitochondria",
-    "solutionSteps": [
-      "Mitochondria is the powerhouse of the cell.",
-      "Krebs cycle and electron transport chain occur in mitochondria.",
-      "This is where ATP is produced."
-    ],
-    "finalAnswer": "Mitochondria",
-    "isCompetencyBased": false,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "NCERT Ch6 InText"
-  },
-  {
     "id": "LP2-035",
     "subject": "Science",
     "topicKey": "Life Processes",
@@ -1132,35 +1103,6 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Vena cava brings deoxygenated blood to heart."
     ],
     "finalAnswer": "Pulmonary vein",
-    "isCompetencyBased": false,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "NCERT Ch6 InText"
-  },
-  {
-    "id": "LP2-040",
-    "subject": "Science",
-    "topicKey": "Life Processes",
-    "subtopic": "Transportation",
-    "section": "A",
-    "marks": 1,
-    "format": "MCQ",
-    "difficulty": "Easy",
-    "bloomSkill": "Remembering",
-    "questionText": "The protein in red blood cells that carries oxygen is:",
-    "options": [
-      "Hemoglobin",
-      "Myoglobin",
-      "Albumin",
-      "Keratin"
-    ],
-    "answer": "Hemoglobin",
-    "solutionSteps": [
-      "Hemoglobin is an iron-containing protein in RBCs.",
-      "It binds with oxygen to form oxyhemoglobin.",
-      "This enables oxygen transport from lungs to tissues."
-    ],
-    "finalAnswer": "Hemoglobin",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,

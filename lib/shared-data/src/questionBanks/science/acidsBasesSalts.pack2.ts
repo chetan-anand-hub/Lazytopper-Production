@@ -778,36 +778,6 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
     "ncertRef": "NCERT Ch2 InText"
   },
   {
-    "id": "ABS2-026",
-    "subject": "Science",
-    "topicKey": "Acids, Bases and Salts",
-    "subtopic": "Properties of Acids and Bases",
-    "section": "A",
-    "marks": 1,
-    "format": "MCQ",
-    "difficulty": "Easy",
-    "bloomSkill": "Remembering",
-    "questionText": "Which of the following is a characteristic property of acids?",
-    "options": [
-      "A) Taste bitter",
-      "B) Turn red litmus paper blue",
-      "C) Taste sour",
-      "D) Feel slippery"
-    ],
-    "answer": "C) Taste sour",
-    "solutionSteps": [
-      "Acids have characteristic properties that distinguish them.",
-      "Acids taste sour, are corrosive, and turn blue litmus paper red.",
-      "Bitter taste and turning red litmus blue are properties of bases.",
-      "Slippery feel is a property of bases."
-    ],
-    "finalAnswer": "C) Taste sour",
-    "isCompetencyBased": false,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "NCERT Ch2 InText"
-  },
-  {
     "id": "ABS2-027",
     "subject": "Science",
     "topicKey": "Acids, Bases and Salts",

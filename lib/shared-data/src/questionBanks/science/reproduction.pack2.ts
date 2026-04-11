@@ -769,35 +769,6 @@ export const REP2_PACK2: CanonicalQuestion[] = [
     "ncertRef": "NCERT Ch8 Exercise"
   },
   {
-    "id": "REP2-026",
-    "subject": "Science",
-    "topicKey": "How do Organisms Reproduce?",
-    "subtopic": "Asexual Reproduction",
-    "section": "A",
-    "marks": 1,
-    "format": "MCQ",
-    "difficulty": "Easy",
-    "bloomSkill": "Remembering",
-    "questionText": "Which of the following is an example of asexual reproduction?",
-    "options": [
-      "A. Reproduction in humans",
-      "B. Budding in hydra",
-      "C. Sexual reproduction in plants",
-      "D. Fertilization in frogs"
-    ],
-    "answer": "B. Budding in hydra",
-    "solutionSteps": [
-      "Asexual reproduction involves a single parent organism.",
-      "Budding in hydra is a form of asexual reproduction where a new individual grows from the parent's body.",
-      "Humans, plants with sexual reproduction, and frogs all require two parents or gamete fusion."
-    ],
-    "finalAnswer": "B. Budding in hydra",
-    "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "NCERT Ch8 InText"
-  },
-  {
     "id": "REP2-027",
     "subject": "Science",
     "topicKey": "How do Organisms Reproduce?",
@@ -1465,7 +1436,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "- Carries oxygenated blood from placenta to fetus",
       "- Transports nutrients and removes wastes"
     ],
-    "finalAnswer": "Human development is a continuous process from fertilization through implantation, embryonic, and fetal stages lasting ~40 weeks. The placenta acts as a site for maternal-fetal exchange of nutrients, gases, and wastes, while the umbilical cord serves as the transport conduit between fetus and placenta.",
+    "finalAnswer": "Fertilization → Cleavage → Blastocyst → Implantation → Embryonic development → Fetal development → Birth. Placenta provides nutrition; umbilical cord transports nutrients and removes wastes.",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "All India",

@@ -717,35 +717,6 @@ export const ME2_PACK2: CanonicalQuestion[] = [
     "ncertRef": "NCERT Ch13 InText & Exercise"
   },
   {
-    "id": "ME2-026",
-    "subject": "Science",
-    "topicKey": "Magnetic Effects of Electric Current",
-    "subtopic": "Magnetic Field",
-    "section": "A",
-    "marks": 1,
-    "format": "MCQ",
-    "difficulty": "Easy",
-    "bloomSkill": "Remembering",
-    "questionText": "The magnetic field around a straight current-carrying conductor is represented by:",
-    "options": [
-      "Straight lines parallel to the conductor",
-      "Concentric circles with the conductor at the centre",
-      "Radial lines pointing outward",
-      "Elliptical paths"
-    ],
-    "answer": "Concentric circles with the conductor at the centre",
-    "solutionSteps": [
-      "A magnetic field around a current-carrying conductor forms concentric circles",
-      "The conductor is at the centre of these circles",
-      "The direction follows the right-hand thumb rule"
-    ],
-    "finalAnswer": "Concentric circles with the conductor at the centre",
-    "isCompetencyBased": false,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "NCERT Ch13 InText Q1"
-  },
-  {
     "id": "ME2-027",
     "subject": "Science",
     "topicKey": "Magnetic Effects of Electric Current",

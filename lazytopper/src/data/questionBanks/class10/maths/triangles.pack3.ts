@@ -786,33 +786,6 @@ export const TR3_PACK3: CanonicalQuestion[] = [
     "ncertRef": "Ex 6.3"
   },
   {
-    "id": "TR3-034",
-    "subject": "Maths",
-    "topicKey": "Triangles",
-    "subtopic": "Similarity Criteria",
-    "section": "A",
-    "marks": 1,
-    "format": "MCQ",
-    "difficulty": "Easy",
-    "bloomSkill": "Remembering",
-    "questionText": "Two triangles are similar if their corresponding angles are equal. This criterion is known as:",
-    "options": [
-      "SSS",
-      "SAS",
-      "AAA",
-      "RHS"
-    ],
-    "answer": "AAA",
-    "solutionSteps": [
-      "Angle-Angle-Angle (AAA) criterion states that if all three angles of one triangle are equal to the corresponding angles of another triangle, then the triangles are similar."
-    ],
-    "finalAnswer": "AAA",
-    "isCompetencyBased": false,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 6.3"
-  },
-  {
     "id": "TR3-035",
     "subject": "Maths",
     "topicKey": "Triangles",

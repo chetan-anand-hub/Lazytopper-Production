@@ -693,66 +693,6 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     "ncertRef": "NCERT Ch12 Exercise"
   },
   {
-    "id": "EL2-026",
-    "subject": "Science",
-    "topicKey": "Electricity",
-    "subtopic": "Electric Current",
-    "section": "A",
-    "marks": 1,
-    "format": "MCQ",
-    "difficulty": "Easy",
-    "bloomSkill": "Remembering",
-    "questionText": "Electric current is defined as the flow of:",
-    "options": [
-      "Protons through a conductor",
-      "Electrons through a conductor",
-      "Charge through a conductor",
-      "Ions through a conductor"
-    ],
-    "answer": "Charge through a conductor",
-    "solutionSteps": [
-      "Electric current is the rate of flow of electric charge",
-      "In metals it is flow of electrons; in electrolytes it is flow of ions",
-      "In metals, it's electrons; in solutions, it can be ions",
-      "The general definition encompasses all charge carriers"
-    ],
-    "finalAnswer": "Charge through a conductor",
-    "isCompetencyBased": false,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "NCERT Ch12 InText"
-  },
-  {
-    "id": "EL2-027",
-    "subject": "Science",
-    "topicKey": "Electricity",
-    "subtopic": "Electric Current",
-    "section": "A",
-    "marks": 1,
-    "format": "MCQ",
-    "difficulty": "Easy",
-    "bloomSkill": "Remembering",
-    "questionText": "The SI unit of electric current is:",
-    "options": [
-      "Coulomb",
-      "Ampere",
-      "Volt",
-      "Watt"
-    ],
-    "answer": "Ampere",
-    "solutionSteps": [
-      "Current = Charge/Time",
-      "SI unit of charge = Coulomb (C)",
-      "SI unit of time = Second (s)",
-      "SI unit of current = Coulomb/Second = Ampere (A)"
-    ],
-    "finalAnswer": "Ampere",
-    "isCompetencyBased": false,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "NCERT Ch12 InText"
-  },
-  {
     "id": "EL2-028",
     "subject": "Science",
     "topicKey": "Electricity",
@@ -773,36 +713,6 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "I = Q/t (Current = Charge/Time)",
     "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "NCERT Ch12 InText"
-  },
-  {
-    "id": "EL2-029",
-    "subject": "Science",
-    "topicKey": "Electricity",
-    "subtopic": "Ohm's Law",
-    "section": "A",
-    "marks": 1,
-    "format": "MCQ",
-    "difficulty": "Easy",
-    "bloomSkill": "Remembering",
-    "questionText": "Ohm's Law states that:",
-    "options": [
-      "V = I × R",
-      "I = V × R",
-      "R = V/I",
-      "P = V × I"
-    ],
-    "answer": "V = I × R",
-    "solutionSteps": [
-      "Ohm's Law: V = IR",
-      "Voltage (V) = Current (I) × Resistance (R)",
-      "This applies to ohmic conductors at constant temperature",
-      "All options are algebraically equivalent to Ohm's Law, but V = IR is the standard form"
-    ],
-    "finalAnswer": "V = I × R",
-    "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
     "ncertRef": "NCERT Ch12 InText"

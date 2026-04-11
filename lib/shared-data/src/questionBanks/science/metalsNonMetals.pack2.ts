@@ -723,35 +723,6 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "ncertRef": "NCERT Ch3 InText"
   },
   {
-    "id": "MNM2-026",
-    "subject": "Science",
-    "topicKey": "Metals and Non-metals",
-    "subtopic": "Physical Properties",
-    "section": "A",
-    "marks": 1,
-    "format": "MCQ",
-    "difficulty": "Easy",
-    "bloomSkill": "Remembering",
-    "questionText": "Which of the following is a physical property of metals?",
-    "options": [
-      "Solubility in water",
-      "Malleability",
-      "Combustibility",
-      "Acidic nature"
-    ],
-    "answer": "Malleability",
-    "solutionSteps": [
-      "Malleability is the property of metals to be beaten into thin sheets.",
-      "This is a characteristic physical property of metals.",
-      "Other options describe chemical properties or non-metal properties."
-    ],
-    "finalAnswer": "Malleability",
-    "isCompetencyBased": false,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "NCERT Ch3 InText"
-  },
-  {
     "id": "MNM2-027",
     "subject": "Science",
     "topicKey": "Metals and Non-metals",

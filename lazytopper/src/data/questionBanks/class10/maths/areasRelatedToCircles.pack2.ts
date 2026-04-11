@@ -645,66 +645,6 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
     "ncertRef": "Ex 11.1"
   },
   {
-    "id": "ARC2-024",
-    "subject": "Maths",
-    "topicKey": "Areas Related to Circles",
-    "subtopic": "Sector Area",
-    "section": "A",
-    "marks": 1,
-    "format": "MCQ",
-    "difficulty": "Easy",
-    "bloomSkill": "Remembering",
-    "questionText": "The area of a sector of a circle with radius 7 cm and central angle 60° is:",
-    "options": [
-      "25.67 cm²",
-      "51.33 cm²",
-      "77 cm²",
-      "154 cm²"
-    ],
-    "answer": "25.67 cm²",
-    "solutionSteps": [
-      "Area of sector = (θ/360°) × πr²",
-      "= (60°/360°) × π × 7²",
-      "= (1/6) × 22/7 × 49",
-      "= 25.67 cm²"
-    ],
-    "finalAnswer": "25.67 cm²",
-    "isCompetencyBased": false,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 11.1"
-  },
-  {
-    "id": "ARC2-025",
-    "subject": "Maths",
-    "topicKey": "Areas Related to Circles",
-    "subtopic": "Arc Length",
-    "section": "A",
-    "marks": 1,
-    "format": "MCQ",
-    "difficulty": "Easy",
-    "bloomSkill": "Remembering",
-    "questionText": "The length of an arc of a circle with radius 10 cm and central angle 90° is:",
-    "options": [
-      "15.71 cm",
-      "20.94 cm",
-      "31.42 cm",
-      "62.84 cm"
-    ],
-    "answer": "15.71 cm",
-    "solutionSteps": [
-      "Arc length = (θ/360°) × 2πr",
-      "= (90°/360°) × 2 × 22/7 × 10",
-      "= (1/4) × 2 × 22/7 × 10",
-      "= 15.71 cm"
-    ],
-    "finalAnswer": "15.71 cm",
-    "isCompetencyBased": false,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 11.1"
-  },
-  {
     "id": "ARC2-026",
     "subject": "Maths",
     "topicKey": "Areas Related to Circles",

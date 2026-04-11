@@ -1355,7 +1355,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "(iv) If particle size ~ wavelength of visible light, Mie scattering occurs instead of Rayleigh. Mie scattering is nearly independent of wavelength, so all colors scatter equally. This would make clouds and fog appear white/gray rather than showing color dependence.",
       "(v) Sun disk appears yellow/orange during day because blue light is scattered away, leaving red and yellow. At sunset, light travels through a thicker atmosphere layer, scattering away even more blue and green, leaving only red/orange. The sun hasn't changed; only which wavelengths reach our eyes has changed due to increased scattering path length."
     ],
-    "finalAnswer": "Rainbow requires geometric alignment with sun behind observer; dispersion and reflection in drops vs. Rayleigh scattering in atmosphere; secondary has reversed colors; larger particles cause Mie scattering (non-wavelength dependent); path length through atmosphere determines which colors reach observer.",
+    "finalAnswer": "Geometric requirement for rainbow; dispersion vs. Rayleigh scattering mechanisms differ; secondary rainbow due to two internal reflections with reversed color order; larger particles cause Mie scattering with less wavelength dependence; atmospheric path length determines which wavelengths reach observer.",
     "isCompetencyBased": true,
     "pyqYear": "2019",
     "pyqSet": "All India",

@@ -1290,7 +1290,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
       "Adaptation to environment (analogous, natural selection)",
       "Evolutionary history (vestigial)"
     ],
-    "finalAnswer": "Homologous structures show common ancestry; analogous structures show convergent evolution; vestigial organs prove ancestral inheritance. Together they provide comprehensive evidence for evolution.",
+    "finalAnswer": "Homologous structures: Same origin, different functions (forelimbs of mammals, bird wings). Show common ancestry, support evolution from single ancestor. Analogous structures: Different origin, similar functions (bird and bat wings). Show convergent evolution, adaptation to similar environments without common ancestry for that trait. Vestigial organs prove descent from common ancestors that needed these structures.",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "Set-1",

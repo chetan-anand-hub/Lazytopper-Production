@@ -725,37 +725,6 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     "ncertRef": "NCERT Ch1 Exercise"
   },
   {
-    "id": "CR2-026",
-    "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
-    "subtopic": "Types of Reactions",
-    "section": "A",
-    "marks": 1,
-    "format": "MCQ",
-    "difficulty": "Easy",
-    "bloomSkill": "Remembering",
-    "questionText": "Which of the following is a combination reaction?",
-    "options": [
-      "A) H₂ + Cl₂ → 2HCl",
-      "B) CaCO₃ → CaO + CO₂",
-      "C) Fe + CuSO₄ → FeSO₄ + Cu",
-      "D) 2H₂O₂ → 2H₂O + O₂"
-    ],
-    "answer": "A) H₂ + Cl₂ → 2HCl",
-    "solutionSteps": [
-      "Combination reaction: Two or more substances combine to form one product",
-      "Option A: H₂ + Cl₂ → 2HCl (two elements combine)",
-      "Option B: Decomposition reaction",
-      "Option C: Displacement reaction",
-      "Option D: Decomposition reaction"
-    ],
-    "finalAnswer": "A) H₂ + Cl₂ → 2HCl",
-    "isCompetencyBased": false,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "NCERT Ch1 InText"
-  },
-  {
     "id": "CR2-027",
     "subject": "Science",
     "topicKey": "Chemical Reactions and Equations",
@@ -785,35 +754,6 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     "pyqYear": undefined,
     "pyqSet": undefined,
     "ncertRef": "NCERT Ch1 InText"
-  },
-  {
-    "id": "CR2-028",
-    "subject": "Science",
-    "topicKey": "Chemical Reactions and Equations",
-    "subtopic": "Types of Reactions",
-    "section": "A",
-    "marks": 1,
-    "format": "MCQ",
-    "difficulty": "Easy",
-    "bloomSkill": "Remembering",
-    "questionText": "Decomposition of calcium carbonate is an example of which type of reaction?",
-    "options": [
-      "A) Combination reaction",
-      "B) Decomposition reaction",
-      "C) Displacement reaction",
-      "D) Double displacement reaction"
-    ],
-    "answer": "B) Decomposition reaction",
-    "solutionSteps": [
-      "CaCO₃ → CaO + CO₂",
-      "One compound breaks down into two or more products",
-      "This is the definition of decomposition reaction"
-    ],
-    "finalAnswer": "B) Decomposition reaction",
-    "isCompetencyBased": false,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "NCERT Ch1 Exercise"
   },
   {
     "id": "CR2-029",

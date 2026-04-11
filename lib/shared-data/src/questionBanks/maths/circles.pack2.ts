@@ -716,34 +716,6 @@ export const CI2_PACK2: CanonicalQuestion[] = [
     "ncertRef": "Ex 10.1"
   },
   {
-    "id": "CI2-025",
-    "subject": "Maths",
-    "topicKey": "Circles",
-    "subtopic": "Number of Tangents from External Point",
-    "section": "A",
-    "marks": 1,
-    "format": "MCQ",
-    "difficulty": "Easy",
-    "bloomSkill": "Remembering",
-    "questionText": "How many tangents can be drawn to a circle from an external point?",
-    "options": [
-      "1",
-      "2",
-      "3",
-      "Infinite"
-    ],
-    "answer": "2",
-    "solutionSteps": [
-      "From an external point, exactly two tangent lines can be drawn to a circle.",
-      "These two tangents are equal in length and make equal angles with the line joining the external point to the center."
-    ],
-    "finalAnswer": "2",
-    "isCompetencyBased": false,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 10.2"
-  },
-  {
     "id": "CI2-026",
     "subject": "Maths",
     "topicKey": "Circles",
@@ -797,37 +769,6 @@ export const CI2_PACK2: CanonicalQuestion[] = [
     "ncertRef": "Ex 10.1"
   },
   {
-    "id": "CI2-028",
-    "subject": "Maths",
-    "topicKey": "Circles",
-    "subtopic": "Number of Tangents from External Point",
-    "section": "B",
-    "marks": 2,
-    "format": "MCQ",
-    "difficulty": "Medium",
-    "bloomSkill": "Understanding",
-    "questionText": "From an external point P, two tangents PA and PB are drawn to a circle with center O. If ∠APB = 60°, then ∠AOB equals:",
-    "options": [
-      "60°",
-      "90°",
-      "120°",
-      "150°"
-    ],
-    "answer": "120°",
-    "solutionSteps": [
-      "Given: ∠APB = 60°",
-      "PA and PB are tangents, so ∠OAP = ∠OBP = 90°",
-      "In quadrilateral OAPB: ∠OAP + ∠APB + ∠PBO + ∠AOB = 360°",
-      "90° + 60° + 90° + ∠AOB = 360°",
-      "∠AOB = 120°"
-    ],
-    "finalAnswer": "120°",
-    "isCompetencyBased": true,
-    "pyqYear": "2023",
-    "pyqSet": "Delhi",
-    "ncertRef": "Ex 10.2"
-  },
-  {
     "id": "CI2-029",
     "subject": "Maths",
     "topicKey": "Circles",
@@ -859,36 +800,6 @@ export const CI2_PACK2: CanonicalQuestion[] = [
     "pyqYear": "2022",
     "pyqSet": "All India",
     "ncertRef": "Ex 10.2"
-  },
-  {
-    "id": "CI2-030",
-    "subject": "Maths",
-    "topicKey": "Circles",
-    "subtopic": "Tangent-Radius Perpendicularity",
-    "section": "B",
-    "marks": 1,
-    "format": "Assertion-Reasoning",
-    "difficulty": "Medium",
-    "bloomSkill": "Understanding",
-    "questionText": "Assertion (A): A tangent to a circle is perpendicular to the radius at the point of contact. Reason (R): The shortest distance from the center to a tangent line equals the radius of the circle.",
-    "options": [
-      "Both A and R are true, and R is the correct explanation of A.",
-      "Both A and R are true, but R is not the correct explanation of A.",
-      "A is true, R is false.",
-      "A is false, R is true."
-    ],
-    "answer": "Both A and R are true, and R is the correct explanation of A.",
-    "solutionSteps": [
-      "Assertion is true: By fundamental tangent property, tangent ⊥ radius at contact point",
-      "Reason is true: The perpendicular distance from center to tangent = radius",
-      "The reason correctly explains why the tangent must be perpendicular to the radius",
-      "Answer: Both true with correct explanation"
-    ],
-    "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
-    "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 10.1"
   },
   {
     "id": "CI2-031",
@@ -1370,7 +1281,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "sin(∠OPA) = 5/13, ∠OPA = arcsin(5/13) ≈ 22.62°",
       "∠APB = 2 × 22.62° ≈ 45.24°"
     ],
-    "finalAnswer": "(2+√3):1",
+    "finalAnswer": "Tangent = 12 cm, angle ≈ 45.24°",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,

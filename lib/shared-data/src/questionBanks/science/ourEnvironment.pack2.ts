@@ -701,35 +701,6 @@ export const OE2_PACK2: CanonicalQuestion[] = [
     "ncertRef": "NCERT Ch15 InText"
   },
   {
-    "id": "OE2-026",
-    "subject": "Science",
-    "topicKey": "Our Environment",
-    "subtopic": "Ecosystem Components",
-    "section": "A",
-    "marks": 1,
-    "format": "MCQ",
-    "difficulty": "Easy",
-    "bloomSkill": "Remembering",
-    "questionText": "Which of the following is a biotic component of an ecosystem?",
-    "options": [
-      "Soil",
-      "Water",
-      "Plants",
-      "Temperature"
-    ],
-    "answer": "Plants",
-    "solutionSteps": [
-      "Biotic components are living things in an ecosystem",
-      "Plants are living organisms",
-      "Soil, water, and temperature are abiotic factors"
-    ],
-    "finalAnswer": "Plants",
-    "isCompetencyBased": false,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "NCERT Ch15 InText"
-  },
-  {
     "id": "OE2-027",
     "subject": "Science",
     "topicKey": "Our Environment",

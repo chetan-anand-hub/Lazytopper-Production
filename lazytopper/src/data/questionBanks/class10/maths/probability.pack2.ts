@@ -836,35 +836,6 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     "ncertRef": "Ex 15.1"
   },
   {
-    "id": "PR2-031",
-    "subject": "Maths",
-    "topicKey": "Probability",
-    "subtopic": "Complementary Events",
-    "section": "B",
-    "marks": 1,
-    "format": "MCQ",
-    "difficulty": "Medium",
-    "bloomSkill": "Applying",
-    "questionText": "The probability that it will rain tomorrow is 0.6. What is the probability that it will NOT rain?",
-    "options": [
-      "0.4",
-      "0.6",
-      "1.0",
-      "0.2"
-    ],
-    "answer": "0.4",
-    "solutionSteps": [
-      "Let E = event that it rains",
-      "P(E) = 0.6",
-      "P(not E) = 1 - P(E) = 1 - 0.6 = 0.4"
-    ],
-    "finalAnswer": "0.4",
-    "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 15.2"
-  },
-  {
     "id": "PR2-032",
     "subject": "Maths",
     "topicKey": "Probability",
@@ -1077,32 +1048,6 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
-    "ncertRef": "Ex 15.1"
-  },
-  {
-    "id": "PR2-040",
-    "subject": "Maths",
-    "topicKey": "Probability",
-    "subtopic": "Classical Probability",
-    "section": "C",
-    "marks": 2,
-    "format": "Short",
-    "difficulty": "Hard",
-    "bloomSkill": "Analysing",
-    "questionText": "Two coins are tossed simultaneously. Find the probability of getting at least one head.",
-    "options": [],
-    "answer": "3/4",
-    "solutionSteps": [
-      "Total outcomes when tossing 2 coins = 4",
-      "Outcomes: HH, HT, TH, TT",
-      "Favorable outcomes (at least one head) = HH, HT, TH = 3",
-      "P(at least one head) = 3/4",
-      "Alternatively: P(at least one H) = 1 - P(no heads) = 1 - 1/4 = 3/4"
-    ],
-    "finalAnswer": "3/4",
-    "isCompetencyBased": true,
-    "pyqYear": "2022",
-    "pyqSet": "II",
     "ncertRef": "Ex 15.1"
   },
   {
