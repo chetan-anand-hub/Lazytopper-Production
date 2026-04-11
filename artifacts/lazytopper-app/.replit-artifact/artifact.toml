@@ -17,7 +17,7 @@ kind = "web"
   publicDir = "lazytopper/dist"
 
   [services.production.build]
-  args = ["bash", "-c", "cd /home/runner/workspace/lazytopper && npx vite build"]
+  args = ["bash", "-c", "cd /home/runner/workspace/lazytopper && npm install && ./node_modules/.bin/tsc -b && ./node_modules/.bin/vite build"]
 
   [services.production.build.env]
   NODE_ENV = "production"

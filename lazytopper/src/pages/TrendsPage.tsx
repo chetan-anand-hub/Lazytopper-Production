@@ -16,7 +16,6 @@ import { useCurrentURL } from "../utils/useCurrentURL";
 import {
   buildTopicHubUrl,
   buildHPQUrl,
-  buildMockBuilderUrl,
   buildTopicMockUrl,
   buildAiMentorUrl,
 } from "../utils/buildUrl";
@@ -241,8 +240,6 @@ const TrendsPage: React.FC = () => {
       },
     });
   };
-
-  const goToMockBuilder = () => navigate(buildMockBuilderUrl(grade, subjectKey), { state: { back: currentURL, backLabel: "Back to trends" } });
 
   const goToMasteryCompanion = () => {
     const nextTopic = filteredTopicEntries[0]?.[0] || topicEntries[0]?.[0] || "";
