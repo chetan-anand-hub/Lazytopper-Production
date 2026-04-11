@@ -260,6 +260,7 @@ useEffect(() => {
     Record<string, boolean>
   >({});
   const [regenerationKey, setRegenerationKey] = useState<number>(0);
+  const previousQuestionKeys = useRef<Set<string>>(new Set());
   const [sessionTracker, setSessionTracker] = useState<PracticeSessionTracker>(
     () => createSessionTracker(topicParam)
   );
@@ -498,6 +499,7 @@ const packTopicKey = useMemo(() => {
             adaptiveMix,
             priorityConceptKeys,
             marksFilter,
+            excludeKeys: previousQuestionKeys.current.size > 0 ? previousQuestionKeys.current : undefined,
           }),
           timeout,
         ]);
@@ -555,6 +557,10 @@ const packTopicKey = useMemo(() => {
   ]);
 
   const regenerateQuestions = () => {
+    for (const q of questions) {
+      const key = String(q.questionText || "").trim().toLowerCase().slice(0, 120);
+      if (key) previousQuestionKeys.current.add(key);
+    }
     setRegenerationKey((prev) => prev + 1);
   };
 

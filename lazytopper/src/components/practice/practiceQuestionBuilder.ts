@@ -374,6 +374,7 @@ export interface AiTopupArgs {
   adaptiveMix?: Partial<Record<DifficultyLevel, number>>;
   priorityConceptKeys?: string[];
   marksFilter?: number;
+  excludeKeys?: Set<string>;
 }
 
 function expandQuestionsForDrill(source: PracticeQuestion[], targetCount: number): PracticeQuestion[] {
@@ -433,6 +434,14 @@ export async function buildPracticeQuestionsWithAiTopup(
     : [];
 
   let bankQuestions = engineQuestions.length > 0 ? engineQuestions : packQuestions;
+
+  const excludeKeys = args.excludeKeys;
+  if (excludeKeys && excludeKeys.size > 0) {
+    bankQuestions = bankQuestions.filter((q) => {
+      const key = String(q.questionText || "").trim().toLowerCase().slice(0, 120);
+      return !excludeKeys.has(key);
+    });
+  }
 
   if (bankQuestions.length === 0 && packMap) {
     const allPacks = Object.values(packMap).filter(Boolean);
