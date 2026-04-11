@@ -1,3 +1,4 @@
+import { useState, useMemo } from "react";
 import { type PracticeQuestion } from "../../data/predictionDataService";
 import { MathText } from "../question/MathText";
 import { QuestionVisualAid } from "../question/QuestionVisualAid";
@@ -5,6 +6,8 @@ import { SolutionChecker } from "../question/SolutionChecker";
 import { TimeGuideChip } from "../exam/ExamStrategyTips";
 import type { StepSolutionResponse } from "../../ai/aiClient";
 import { CorrectBurst, WrongShake } from "../celebrations";
+import { getVisualConceptForQuestion } from "../../data/questionVisualMap";
+import { VisualExplainer } from "../VisualExplainer";
 
 export interface PracticeQuestionCardProps {
   q: PracticeQuestion;
@@ -37,6 +40,21 @@ export function PracticeQuestionCard({
   onSelfAssessGotIt, onSelfAssessNeedPractice,
   onOpenConceptDrawer, onOpenMentorSocratic, onOpenMentorBoard,
 }: PracticeQuestionCardProps) {
+  const [showVisual, setShowVisual] = useState(false);
+  const matchedVisual = useMemo(() => {
+    return getVisualConceptForQuestion({
+      id: String(q.id),
+      subject: subjectKey as "Maths" | "Science",
+      topicKey: topicLabel,
+      subtopic: "",
+      section: "",
+      marks: q.marks,
+      format: "Short" as const,
+      difficulty: "Medium" as const,
+      bloomSkill: "Applying" as const,
+      questionText: q.questionText,
+    });
+  }, [q.id, q.questionText, subjectKey, topicLabel, q.marks]);
   const renderMcqOptions = () => {
     if (!Array.isArray(q.options) || q.options.length === 0) return null;
     const opts = q.options;
@@ -315,6 +333,39 @@ export function PracticeQuestionCard({
                 <span style={{ fontSize: "1rem" }}>{"\uD83D\uDCA1"}</span>
                 Teach me this concept
               </button>
+              {matchedVisual && (
+                <div style={{ marginTop: 8 }}>
+                  <button
+                    type="button"
+                    onClick={() => setShowVisual((v) => !v)}
+                    style={{
+                      width: "100%", padding: "10px 14px",
+                      borderRadius: 10, border: "1px solid rgba(59,130,246,0.3)",
+                      background: "linear-gradient(135deg, rgba(59,130,246,0.06), rgba(59,130,246,0.10))",
+                      color: "#60a5fa", fontSize: "0.82rem", fontWeight: 600,
+                      cursor: "pointer", display: "flex", alignItems: "center",
+                      justifyContent: "center", gap: 8,
+                    }}
+                  >
+                    <span style={{ fontSize: "1rem" }}>{showVisual ? "\u25B2" : "\u25BC"}</span>
+                    {showVisual ? "Hide Visual Explainer" : `See Visual: ${matchedVisual.title}`}
+                  </button>
+                  {showVisual && (
+                    <div style={{ marginTop: 8 }}>
+                      <VisualExplainer
+                        src={matchedVisual.filePath}
+                        title={matchedVisual.title}
+                        height={300}
+                        collapsible={false}
+                        defaultCollapsed={false}
+                        topic={matchedVisual.chapter}
+                        concept={matchedVisual.title}
+                        subject={matchedVisual.subject === "science" ? "Science" : "Maths"}
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
               <SolutionChecker
                 question={q.questionText}
                 marks={q.marks}
