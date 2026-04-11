@@ -43,8 +43,9 @@ The LazyTopper AI server has been fully modularized. `server/index.cjs` is now a
 - **Config & Utilities** (extracted from index.cjs):
   - `server/services/serverConfig.cjs` (89 lines) — env resolution, provider detection, all config constants
   - `server/services/serverUtils.cjs` (119 lines) — JSON parsing, line normalization, feedback persistence, seed loading
-- **Mentor Route** (split into 6 sub-modules):
-  - `server/routes/mentor.cjs` (679 lines) — `createMentorRoute(deps)` factory, request handler orchestration, `teachCache`/`inflightTeach` request collapsing
+- **Mentor Route** (split into 7 sub-modules):
+  - `server/routes/mentor.cjs` (372 lines) — `createMentorRoute(deps)` factory, request handler, `teachCache`/`inflightTeach` request collapsing
+  - `server/routes/mentorModeHandler.cjs` (171 lines) — request classification, mode normalization, system/user prompt building
   - `server/routes/mentorResponseBuilder.cjs` (401 lines) — AI response building, validation repair loops, fallback chains
   - `server/routes/mentorClassifiers.cjs` (248 lines) — mode normalization, payload classifiers, protocol validation
   - `server/routes/mentorDiagramHelpers.cjs` (462 lines) — diagram inference, proof helpers, board-step normalization
