@@ -445,12 +445,18 @@ export async function buildPracticeQuestionsWithAiTopup(
 
   if (bankQuestions.length === 0 && packMap) {
     const allPacks = Object.values(packMap).filter(Boolean);
-    const poolQuestions: PracticeQuestion[] = [];
+    let poolQuestions: PracticeQuestion[] = [];
     for (const p of allPacks) {
       if (!Array.isArray(p?.questions)) continue;
       for (const q of p.questions) {
         poolQuestions.push(mapUnifiedQuestionToPractice(q as unknown as RawQuestion, String(q.id)));
       }
+    }
+    if (excludeKeys && excludeKeys.size > 0) {
+      poolQuestions = poolQuestions.filter((q) => {
+        const key = String(q.questionText || "").trim().toLowerCase().slice(0, 120);
+        return !excludeKeys.has(key);
+      });
     }
     if (poolQuestions.length > 0) {
       for (let i = poolQuestions.length - 1; i > 0; i--) {

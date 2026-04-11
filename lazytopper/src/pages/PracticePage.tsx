@@ -556,6 +556,10 @@ const packTopicKey = useMemo(() => {
     regenerationKey,
   ]);
 
+  useEffect(() => {
+    previousQuestionKeys.current.clear();
+  }, [topicParam, subjectKey]);
+
   const regenerateQuestions = () => {
     for (const q of questions) {
       const key = String(q.questionText || "").trim().toLowerCase().slice(0, 120);
