@@ -40,7 +40,8 @@ A Pricing page details subscription tiers. A Referral Program allows users to ea
 ## Server Architecture (Task #79 Cleanup)
 The LazyTopper AI server (`lazytopper/server/index.cjs`) has been modularized:
 - **AI Clients**: `server/services/geminiClient.cjs` (Gemini API), `server/services/claudeClient.cjs` (Claude API with model routing)
-- **Route Modules**: `server/routes/share.cjs`, `server/routes/diagrams.cjs`, `server/routes/questions.cjs` — extracted from `handleRequest` using dependency injection via `routeDeps`
+- **Prompt Builders**: `server/prompts/mentorPrompts.cjs` — 48 prompt/validation functions extracted via `createMentorPrompts(deps)` factory
+- **Route Modules**: `server/routes/share.cjs`, `server/routes/diagrams.cjs`, `server/routes/moreLikeThis.cjs`, `server/routes/stepSolution.cjs`, `server/routes/checkSolution.cjs` — extracted from `handleRequest` using dependency injection via `routeDeps`; `questions.cjs` is a thin composition root
 - **StudentDataService**: `src/services/studentDataService.ts` — unified facade over mastery, pace, focus, session, and spaced repetition services with `getStudentSnapshot()` API
 - **3-Layer API Cost Optimization** (DO NOT BREAK): Static question bank (`canonicalQuestionBank.ts`) → pre-generated visuals (`public/visuals/` + `visualConceptRegistry.ts`) → AI fallback. `teachCache`/`inflightTeach` request collapsing in mentor route.
 - **Stub mode functions**: `buildStubMoreLikeThis`, `buildFallbackSteps`, `buildStubStepSolution` provide deterministic fallbacks when AI is unavailable
