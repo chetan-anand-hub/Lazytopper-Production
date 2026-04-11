@@ -37,14 +37,25 @@ A Teacher Dashboard allows class creation and progress tracking. A Methodology P
 ## Pricing, Referral & Funnel Analytics
 A Pricing page details subscription tiers. A Referral Program allows users to earn premium access. An admin page provides Onboarding Funnel Analytics to track user conversion.
 
-## Server Architecture (Task #79 Cleanup)
-The LazyTopper AI server (`lazytopper/server/index.cjs`) has been modularized:
-- **AI Clients**: `server/services/geminiClient.cjs` (Gemini API), `server/services/claudeClient.cjs` (Claude API with model routing)
-- **Prompt Builders**: `server/prompts/mentorPrompts.cjs` — 48 prompt/validation functions extracted via `createMentorPrompts(deps)` factory
-- **Route Modules**: `server/routes/share.cjs`, `server/routes/diagrams.cjs`, `server/routes/moreLikeThis.cjs`, `server/routes/stepSolution.cjs`, `server/routes/checkSolution.cjs` — extracted from `handleRequest` using dependency injection via `routeDeps`; `questions.cjs` is a thin composition root
-- **StudentDataService**: `src/services/studentDataService.ts` — unified facade over mastery, pace, focus, session, and spaced repetition services with `getStudentSnapshot()` API
-- **3-Layer API Cost Optimization** (DO NOT BREAK): Static question bank (`canonicalQuestionBank.ts`) → pre-generated visuals (`public/visuals/` + `visualConceptRegistry.ts`) → AI fallback. `teachCache`/`inflightTeach` request collapsing in mentor route.
-- **Stub mode functions**: `buildStubMoreLikeThis`, `buildFallbackSteps`, `buildStubStepSolution` provide deterministic fallbacks when AI is unavailable
+## Server Architecture (Task #79 Cleanup — Complete)
+The LazyTopper AI server has been fully modularized. `server/index.cjs` is now a thin 584-line composition root (down from 6,911 lines).
+- **Entry Point**: `server/index.cjs` (584 lines) — env setup, CORS, routing, health check, server bootstrap
+- **Mentor Route**: `server/routes/mentor.cjs` (2,165 lines) — `createMentorRoute(deps)` factory with `handleMentorRequest`, `teachCache`/`inflightTeach` request collapsing, all mentor modes
+- **Prompt System** (split from 2,576-line monolith into 7 domain modules):
+  - `server/prompts/mentorPrompts.cjs` (72 lines) — composition root using ctx-based pattern
+  - `server/prompts/promptCore.cjs` (165 lines) — plan, solve, explain prompt builders + student profile/behavior
+  - `server/prompts/promptData.cjs` (414 lines) — static data: grind profiles, mindmap outlines, learn seeds
+  - `server/prompts/promptGrind.cjs` (410 lines) — grind, misconception, competency, coach, board-steps
+  - `server/prompts/promptDiagram.cjs` (366 lines) — diagram inference, proof addendum, attempt loop heuristics
+  - `server/prompts/promptTeachContract.cjs` (467 lines) — teach contract shape/validation, legacy adapters
+  - `server/prompts/promptValidation.cjs` (255 lines) — structured validation, repair prompts, evaluation
+  - `server/prompts/promptLearn.cjs` (512 lines) — learn/teach builders, conversational system prompts, fallbacks
+- **AI Clients**: `server/services/geminiClient.cjs`, `server/services/claudeClient.cjs` (model routing)
+- **Other Routes**: `server/routes/share.cjs`, `server/routes/diagrams.cjs`, `server/routes/moreLikeThis.cjs`, `server/routes/stepSolution.cjs`, `server/routes/checkSolution.cjs`, `server/routes/questions.cjs`
+- **Services**: `server/services/stubHandlers.cjs` (stub mode), `server/services/httpUtils.cjs`, `server/services/cbseExamDate.cjs`
+- **StudentDataService**: `src/services/studentDataService.ts` — unified facade with `getStudentSnapshot()` API
+- **3-Layer API Cost Optimization** (DO NOT BREAK): Static question bank → pre-generated visuals → AI fallback
+- **Composition Pattern**: All modules use factory functions with dependency injection. Prompt sub-modules use a shared `ctx` object with ordered registration to resolve cross-module references.
 
 ## System Design Choices
 TypeScript is used throughout, with pnpm workspaces and composite projects. API design follows OpenAPI 3.1 with Orval for codegen. The API server has a 5 MB request body limit. AI tutor responses have increased `maxOutputTokens`.
