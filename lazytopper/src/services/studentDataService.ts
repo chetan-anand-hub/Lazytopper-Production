@@ -39,9 +39,6 @@ import {
   reviewConcept,
 } from "./spacedRepetitionEngine";
 
-import {
-  updateMasteryLevel,
-} from "./masteryLevelService";
 
 export const SCHEMA_VERSION = 2;
 const SCHEMA_KEY = "lazytopper.schema_version";
@@ -266,12 +263,11 @@ export function saveData(_uid?: string, data?: Partial<StudentSnapshot>): void {
   }
 
   if (data.mastery?.records) {
-    const records = data.mastery.records;
-    for (const [chapterKey, record] of Object.entries(records)) {
-      if (record && record.level) {
-        updateMasteryLevel(chapterKey, record.level);
-      }
-    }
+    try {
+      const existing = getAllChapterMasteryRecords();
+      const merged = { ...existing, ...data.mastery.records };
+      localStorage.setItem("lazytopper.chapterMastery.v1", JSON.stringify(merged));
+    } catch {}
   }
 
   if (data.spacedRepetition?.schedule) {
