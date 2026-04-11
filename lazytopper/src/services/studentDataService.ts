@@ -44,10 +44,10 @@ export const SCHEMA_VERSION = 2;
 const SCHEMA_KEY = "lazytopper.schema_version";
 
 const STUDENT_DATA_KEYS: readonly string[] = [
-  "lazytopper.mastery.records",
+  "lazytopper.chapterMastery.v1",
   "lazytopper.newly_mastered",
-  "lazytopper.pace.profile",
-  "lazytopper.pace.transition",
+  "lazytopper.paceProfile.v1",
+  "lazytopper.spacedRepetition.v1",
   "lazytopper.focus.daily",
   "lazytopper.focus.enabled",
   "lazytopper.streak",
