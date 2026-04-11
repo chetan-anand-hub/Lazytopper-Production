@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HCF & LCM - Prime Factorisation | Class 10</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f0f4ff; color: #1e293b; min-height: 100vh; }
+  
+  .title-bar {
+    background: linear-gradient(135deg, #1e40af, #3b82f6, #6366f1);
+    color: white; padding: 14px 20px; text-align: center;
+    box-shadow: 0 4px 15px rgba(59,130,246,0.4);
+  }
+  .title-bar h1 { font-size: 1.2rem; font-weight: 700; letter-spacing: 0.5px; }
+  .title-bar p { font-size: 0.78rem; opacity: 0.88; margin-top: 2px; }
+  
+  .container { max-width: 700px; margin: 0 auto; padding: 16px; }
+  
+  .card {
+    background: white; border-radius: 16px; padding: 18px;
+    margin-bottom: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    border: 1px solid rgba(255,255,255,0.8);
+  }
+  
+  .card-title {
+    font-size: 0.95rem; font-weight: 700; color: #3b82f6;
+    margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+  }
+  .card-title .icon { font-size: 1.1rem; }
+  
+  .formula-box {
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    border: 2px solid #3b82f6; border-radius: 12px;
+    padding: 14px; text-align: center; margin: 10px 0;
+  }
+  .formula-box .formula { font-size: 1.05rem; font-weight: 700; color: #1e40af; }
+  .formula-box .sub { font-size: 0.78rem; color: #475569; margin-top: 4px; }
+  
+  /* Input Section */
+  .input-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+  .num-input {
+    width: 90px; padding: 10px 12px; border: 2px solid #e2e8f0;
+    border-radius: 10px; font-size: 1.1rem; font-weight: 700;
+    text-align: center; color: #1e293b; transition: all 0.3s;
+    outline: none;
+  }
+  .num-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
+  .calc-btn {
+    background: linear-gradient(135deg, #3b82f6, #6366f1);
+    color: white; border: none; padding: 10px 20px;
+    border-radius: 10px; font-size: 0.9rem; font-weight: 700;
+    cursor: pointer; transition: all 0.3s; box-shadow: 0 3px 10px rgba(59,130,246,0.3);
+  }
+  .calc-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(59,130,246,0.4); }
+  .calc-btn:active { transform: translateY(0); }
+  
+  /* Prime Tree */
+  .trees-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .tree-box {
+    flex: 1; min-width: 140px; max-width: 200px;
+    background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+    border-radius: 12px; padding: 12px; border: 2px solid #e2e8f0;
+  }
+  .tree-label { text-align: center; font-weight: 700; font-size: 0.9rem; margin-bottom: 8px; }
+  
+  svg.tree-svg { width: 100%; display: block; }
+  
+  /* Venn Diagram */
+  .venn-wrap { position: relative; width: 100%; max-width: 400px; margin: 0 auto; }
+  svg.venn-svg { width: 100%; display: block; }
+  .venn-tooltip {
+    position: absolute; background: #1e293b; color: white;
+    padding: 5px 10px; border-radius: 8px; font-size: 0.75rem;
+    pointer-events: none; opacity: 0; transition: opacity 0.3s;
+    white-space: nowrap; z-index: 10;
+  }
+  
+  /* Results */
+  .results-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+  .result-box {
+    flex: 1; min-width: 120px; border-radius: 12px; padding: 14px;
+    text-align: center; animation: popIn 0.5s ease;
+  }
+  .result-box.hcf { background: linear-gradient(135deg, #dcfce7, #bbf7d0); border: 2px solid #22c55e; }
+  .result-box.lcm { background: linear-gradient(135deg, #fef3c7, #fde68a); border: 2px solid #f59e0b; }
+  .result-box .r-label { font-size: 0.75rem; font-weight: 600; color: #475569; }
+  .result-box .r-val { font-size: 1.6rem; font-weight: 800; margin: 4px 0; }
+  .result-box.hcf .r-val { color: #16a34a; }
+  .result-box.lcm .r-val { color: #d97706; }
+  .result-box .r-exp { font-size: 0.7rem; color: #64748b; }
+  
+  /* Steps */
+  .step-item {
+    background: #f8fafc; border-radius: 10px; padding: 12px;
+    margin-bottom: 8px; border-left: 4px solid #3b82f6;
+    opacity: 0; transform: translateX(-20px);
+    transition: all 0.4s ease; display: none;
+  }
+  .step-item.show { opacity: 1; transform: translateX(0); display: block; }
+  .step-item.green { border-left-color: #22c55e; }
+  .step-item.amber { border-left-color: #f59e0b; }
+  .step-num { font-size: 0.7rem; font-weight: 700; color: #3b82f6; text-transform: uppercase; }
+  .step-text { font-size: 0.85rem; margin-top: 3px; }
+  .step-text .hl { font-weight: 700; color: #1e40af; }
+  
+  .next-btn {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: white; border: none; padding: 9px 18px;
+    border-radius: 9px; font-size: 0.85rem; font-weight: 700;
+    cursor: pointer; transition: all 0.3s; margin-top: 8px;
+    box-shadow: 0 3px 10px rgba(34,197,94,0.3);
+  }
+  .next-btn:hover { transform: translateY(-2px); }
+  .next-btn:disabled { opacity: 0.5; cursor: default; transform: none; }
+  
+  /* Prime bubbles */
+  .prime-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .prime-bubble {
+    padding: 5px 11px; border-radius: 20px; font-size: 0.8rem;
+    font-weight: 700; cursor: default; transition: transform 0.2s;
+    animation: popIn 0.4s ease;
+  }
+  .prime-bubble:hover { transform: scale(1.1); }
+  .prime-bubble.common { background: #6366f1; color: white; }
+  .prime-bubble.only-a { background: #3b82f6; color: white; }
+  .prime-bubble.only-b { background: #f59e0b; color: white; }
+  
+  /* Factor display */
+  .factor-display { font-size: 0.85rem; color: #475569; margin-top: 6px; line-height: 1.6; }
+  .factor-display .f-num { font-weight: 700; color: #1e293b; }
+  
+  /* Verification */
+  .verify-box {
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    border: 2px solid #22c55e; border-radius: 12px;
+    padding: 12px; margin-top: 10px; font-size: 0.85rem;
+  }
+  .verify-box .v-title { font-weight: 700; color: #16a34a; margin-bottom: 6px; }
+  
+  @keyframes popIn {
+    0% { transform: scale(0.7); opacity: 0; }
+    70% { transform: scale(1.05); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; } 50% { opacity: 0.6; }
+  }
+  
+  .tag {
+    display: inline-block; background: #dbeafe; color: #1d4ed8;
+    font-size: 0.68rem; font-weight: 700; padding: 2px 8px;
+    border-radius: 20px; margin-left: 6px;
+  }
+  .tag.hindi { background: #fef3c7; color: #92400e; }
+  
+  .divider { border: none; border-top: 2px dashed #e2e8f0; margin: 12px 0; }
+  
+  .info-pill {
+    background: #eff6ff; border: 1px solid #bfdbfe;
+    border-radius: 8px; padding: 8px 12px;
+    font-size: 0.78rem; color: #1e40af; margin-bottom: 8px;
+  }
+  
+  .legend-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; font-size: 0.75rem; }
+  .legend-item { display: flex; align-items: center; gap: 5px; }
+  .legend-dot { width: 12px; height: 12px; border-radius: 3px; }
+  
+  /* Responsive */
+  @media (max-width: 400px) {
+    .input-row { justify-content: center; }
+    .num-input { width: 75px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="title-bar">
+  <h1>🔢 HCF & LCM — Prime Factorisation</h1>
+  <p>वास्तविक संख्याएँ | CBSE Class 10 Mathematics | Chapter 1</p>
+</div>
+
+<div class="container">
+
+  <!-- Formula Card -->
+  <div class="card">
+    <div class="card-title"><span class="icon">📐</span> Key Formula <span class="tag hindi">प्रमेय</span></div>
+    <div class="formula-box">
+      <div class="formula">HCF(a, b) × LCM(a, b) = a × b</div>
+      <div class="sub">This works for any two positive integers a and b</div>
+    </div>
+    <div class="info-pill">
+      💡 <strong>HCF (म.स.)</strong> = Product of <em>common</em> prime factors with <em>lowest</em> powers<br>
+      💡 <strong>LCM (ल.स.)</strong> = Product of <em>all</em> prime factors with <em>highest</em> powers
+    </div>
+  </div>
+
+  <!-- Interactive Calculator -->
+  <div class="card">
+    <div class="card-title"><span class="icon">🧮</span> Try It Yourself — Enter Two Numbers</div>
+    <div class="input-row">
+      <input class="num-input" type="number" id="num1" value="12" min="2" max="999" placeholder="a">
+      <span style="font-weight:700;font-size:1.1rem;color:#64748b">&</span>
+      <input class="num-input" type="number" id="num2" value="18" min="2" max="999" placeholder="b">
+      <button class="calc-btn" onclick="calculate()">Factorise ▶</button>
+    </div>
+    
+    <!-- Prime Trees -->
+    <div id="treesSection" style="display:none">
+      <div class="trees-row" id="treesRow"></div>
+      <div class="factor-display" id="factorDisplay"></div>
+    </div>
+  </div>
+
+  <!-- Venn Diagram -->
+  <div class="card" id="vennCard" style="display:none">
+    <div class="card-title"><span class="icon">⭕</span> Venn Diagram of Prime Factors</div>
+    <div class="info-pill">Hover over sections to see what they contribute to HCF & LCM</div>
+    <div class="venn-wrap">
+      <svg class="venn-svg" id="vennSvg" viewBox="0 0 380 200"></svg>
+      <div class="venn-tooltip" id="tooltip"></div>
+    </div>
+    <div class="legend-row">
+      <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div><span id="legA">Only in A</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#6366f1"></div><span>Common → HCF</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div><span id="legB">Only in B</span></div>
+    </div>
+    <div class="prime-list" id="primeList"></div>
+  </div>
+
+  <!-- Results -->
+  <div class="card" id="resultsCard" style="display:none">
+    <div class="card-title"><span class="icon">✅</span> Results <span class="tag">म.स. & ल.स.</span></div>
+    <div class="results-row" id="resultsRow"></div>
+    <div class="verify-box" id="verifyBox"></div>
+  </div>
+
+  <!-- Step by Step -->
+  <div class="card" id="stepsCard" style="display:none">
+    <div class="card-title"><span class="icon">📝</span> Step-by-Step Walkthrough</div>
+    <div id="stepsContainer"></div>
+    <button class="next-btn" id="nextBtn" onclick="showNextStep()">Next Step ▶</button>
+  </div>
+
+</div>
+
+<script>
+let currentStep = 0;
+let steps = [];
+let allSteps = [];
+
+function primeFactors(n) {
+  let factors = [];
+  let d = 2;
+  let orig = n;
+  while (d * d <= n) {
+    while (n % d === 0) { factors.push(d); n = Math.floor(n / d); }
+    d++;
+  }
+  if (n > 1) factors.push(n);
+  return factors;
+}
+
+function factorMap(arr) {
+  let m = {};
+  arr.forEach(f => m[f] = (m[f] || 0) + 1);
+  return m;
+}
+
+function formatFactors(arr) {
+  let m = factorMap(arr);
+  return Object.entries(m).map(([k, v]) => v > 1 ? `${k}${sup(v)}` : k).join(' × ');
+}
+
+function sup(n) {
+  const s = ['⁰','¹','²','³','⁴','⁵','⁶','⁷','⁸','⁹'];
+  return n < 10 ? s[n] : s[Math.floor(n/10)] + s[n%10];
+}
+
+function calculate() {
+  let a = parseInt(document.getElementById('num1').value);
+  let b = parseInt(document.getElementById('num2').value);
+  if (!a || !b || a < 2 || b < 2 || a > 999 || b > 999) {
+    alert('Please enter numbers between 2 and 999');
+    return;
+  }
+
+  let fa = primeFactors(a);
+  let fb = primeFactors(b);
+  let ma = factorMap(fa);
+  let mb = factorMap(fb);
+
+  let allPrimes = [...new Set([...Object.keys(ma), ...Object.keys(mb)])].map(Number).sort((x,y)=>x-y);
+
+  let hcfMap = {}, lcmMap = {};
+  allPrimes.forEach(p => {
+    let ea = ma[p] || 0, eb = mb[p] || 0;
+    if (ea && eb) hcfMap[p] = Math.min(ea, eb);
+    lcmMap[p] = Math.max(ea, eb);
+  });
+
+  let hcf = Object.entries(hcfMap).reduce((acc,[k,v])=>acc*Math.pow(k,v),1);
+  let lcm = Object.entries(lcmMap).reduce((acc,[k,v])=>acc*Math.pow(k,v),1);
+
+  // Build tree SVGs
+  document.getElementById('treesSection').style.display = 'block';
+  buildTrees(a, fa, ma, b, fb, mb);
+
+  let facA = formatFactors(fa), facB = formatFactors(fb);
+  document.getElementById('factorDisplay').innerHTML =
+    `<span class='f-num'>${a}</span> = ${facA} &nbsp;|&nbsp; <span class='f-num'>${b}</span> = ${facB}`;
+
+  // Venn
+  document.getElementById('vennCard').style.display = 'block';
+  buildVenn(a, b, ma, mb, allPrimes, hcfMap);
+
+  // Results
+  document.getElementById('resultsCard').style.display = 'block';
+  buildResults(a, b, hcf, lcm, hcfMap, lcmMap);
+
+  // Steps
+  document.getElementById('stepsCard').style.display = 'block';
+  buildSteps(a, b, fa, fb, ma, mb, hcf, lcm, hcfMap, lcmMap, facA, facB);
+
+  document.getElementById('legA').textContent = `Only in ${a}`;
+  document.getElementById('legB').textContent = `Only in ${b}`;
+}
+
+function buildTrees(a, fa, ma, b, fb, mb) {
+  document.getElementById('treesRow').innerHTML = `
+    <div class='tree-box'>
+      <div class='tree-label' style='color:#3b82f6'>${a}</div>
+      ${makeTreeSVG(a, fa)}
+    </div>
+    <div class='tree-box'>
+      <div class='tree-label' style='color:#f59e0b'>${b}</div>
+      ${makeTreeSVG(b, fb)}
+    </div>`;
+}
+
+function makeTreeSVG(n, factors) {
+  let steps2 = [];
+  let cur = n;
+  factors.forEach(f => { steps2.push([cur, f, Math.floor(cur/f)]); cur = Math.floor(cur/f); });
+  
+  let rows = steps2.length + 1;
+  let h = Math.max(120, rows * 40 + 20);
+  let cx = 80;
+  
+  let svg = `<svg viewBox="0 0 160 ${h}" style="width:100%;display:block">`;
+  
+  let y = 20;
+  svg += `<circle cx="${cx}" cy="${y}" r="16" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/>`;
+  svg += `<text x="${cx}" y="${y+5}" text-anchor="middle" font-size="13" font-weight="bold" fill="#1e40af">${n}</text>`;
+  
+  steps2.forEach(([num, factor, quot], i) => {
+    let ny = y + 40;
+    let lx = cx - 28, rx = cx + 28;
+    
+    svg += `<line x1="${cx}" y1="${y+16}" x2="${lx}" y2="${ny-14}" stroke="#94a3b8" stroke-width="1.5"/>`;
+    svg += `<line x1="${cx}" y1="${y+16}" x2="${rx}" y2="${ny-14}" stroke="#94a3b8" stroke-width="1.5"/>`;
+    
+    svg += `<circle cx="${lx}" cy="${ny}" r="14" fill="#d1fae5" stroke="#22c55e" stroke-width="2"/>`;
+    svg += `<text x="${lx}" y="${ny+5}" text-anchor="middle" font-size="12" font-weight="bold" fill="#15803d">${factor}</text>`;
+    
+    if (i < steps2.length - 1) {
+      svg += `<circle cx="${rx}" cy="${ny}" r="14" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/>`;
+      svg += `<text x="${rx}" y="${ny+5}" text-anchor="middle" font-size="12" font-weight="bold" fill="#1e40af">${quot}</text>`;
+      cx = rx;
+    } else {
+      svg += `<circle cx="${rx}" cy="${ny}" r="14" fill="#d1fae5" stroke="#22c55e" stroke-width="2"/>`;
+      svg += `<text x="${rx}" y="${ny+5}" text-anchor="middle" font-size="12" font-weight="bold" fill="#15803d">${quot}</text>`;
+    }
+    y = ny;
+  });
+  
+  svg += '</svg>';
+  return svg;
+}
+
+function buildVenn(a, b, ma, mb, allPrimes, hcfMap) {
+  let svg = document.getElementById('vennSvg');
+  let W = 380, H = 200;
+  
+  let onlyA = [], common = [], onlyB = [];
+  allPrimes.forEach(p => {
+    let ea = ma[p] || 0, eb = mb[p] || 0;
+    if (ea && !eb) for(let i=0;i<ea;i++) onlyA.push(p);
+    else if (eb && !ea) for(let i=0;i<eb;i++) onlyB.push(p);
+    else {
+      let mn = Math.min(ea,eb);
+      for(let i=0;i<mn;i++) common.push(p);
+      for(let i=mn;i<ea;i++) onlyA.push(p);
+      for(let i=mn;i<eb;i++) onlyB.push(p);
+    }
+  });
+
+  let cx1 = 135, cx2 = 245, cy = 100, r = 75;
+  
+  let html = `
+    <defs>
+      <clipPath id="clipA"><circle cx="${cx1}" cy="${cy}" r="${r}"/></clipPath>
+      <clipPath id="clipB"><circle cx="${cx2}" cy="${cy}" r="${r}"/></clipPath>
+    </defs>
+    <circle cx="${cx1}" cy="${cy}" r="${r}" fill="rgba(59,130,246,0.18)" stroke="#3b82f6" stroke-width="2.5"/>
+    <circle cx="${cx2}" cy="${cy}" r="${r}" fill="rgba(245,158,11,0.18)" stroke="#f59e0b" stroke-width="2.5"/>
+    
+    <text x="${cx1-25}" y="28" text-anchor="middle" font-size="13" font-weight="bold" fill="#1d4ed8">${a}</text>
+    <text x="${cx2+25}" y="28" text-anchor="middle" font-size="13" font-weight="bold" fill="#b45309">${b}</text>
+  `;
+
+  function placeText(arr, bx, by, bw) {
+    let cols = Math.ceil(Math.sqrt(arr.length)) || 1;
+    let startX = bx - (cols-1)*14;
+    return arr.map((v,i)=>{
+      let col = i%cols, row = Math.floor(i/cols);
+      return `<text x="${startX+col*20}" y="${by+row*18}" text-anchor="middle" font-size="13" font-weight="bold" fill="white" style="text-shadow:0 1px 2px rgba(0,0,0,0.5)">${v}</text>`;
+    }).join('');
+  }
+
+  html += placeText(onlyA, cx1-26, cy-6, 50);
+  html += placeText(common, (cx1+cx2)/2, cy-6, 40);
+  html += placeText(onlyB, cx2+26, cy-6, 50);
+
+  let tooltip = document.getElementById('tooltip');
+  svg.innerHTML = html;
+
+  function addHover(elem, msg) {
+    elem.style.cursor = 'pointer';
+    elem.addEventListener('mousemove', e => {
+      let rect = svg.getBoundingClientRect();
+      let pw = svg.parentElement.getBoundingClientRect();
+      tooltip.style.left = (e.clientX - pw.left + 8) + 'px';
+      tooltip.style.top = (e.clientY - pw.top - 30) + 'px';
+      tooltip.style.opacity = '1';
+      tooltip.textContent = msg;
+    });
+    elem.addEventListener('mouseleave', () => tooltip.style.opacity = '0');
+  }
+
+  let circles = svg.querySelectorAll('circle');
+  addHover(circles[0], `Only in ${a}: contributes to LCM only`);
+  addHover(circles[1], `Only in ${b}: contributes to LCM only`);
+
+  // Prime bubbles
+  let list = document.getElementById('primeList');
+  list.innerHTML = '';
+  onlyA.forEach(p=>{let d=document.createElement('span');d.className='prime-bubble only-a';d.textContent=p;d.title=`Only in ${a} → goes to LCM`;list.appendChild(d);});
+  common.forEach(p=>{let d=document.createElement('span');d.className='prime-bubble common';d.textContent=p;d.title='Common → goes to HCF & LCM';list.appendChild(d);});
+  onlyB.forEach(p=>{let d=document.createElement('span');d.className='prime-bubble only-b';d.textContent=p;d.title=`Only in ${b} → goes to LCM`;list.appendChild(d);});
+}
+
+function buildResults(a, b, hcf, lcm, hcfMap, lcmMap) {
+  let hcfExp = Object.entries(hcfMap).map(([k,v])=>v>1?`${k}${sup(v)}`:k).join('×') || '1';
+  let lcmExp = Object.entries(lcmMap).map(([k,v])=>v>1?`${k}${sup(v)}`:k).join('×');
+  
+  document.getElementById('resultsRow').innerHTML = `
+    <div class='result-box hcf'>
+      <div class='r-label'>HCF (म.स.)</div>
+      <div class='r-val'>${hcf}</div>
+      <div class='r-exp'>= ${hcfExp}</div>
+    </div>
+    <div class='result-box lcm'>
+      <div class='r-label'>LCM (ल.स.)</div>
+      <div class='r-val'>${lcm}</div>
+      <div class='r-exp'>= ${lcmExp}</div>
+    </div>`;
+  
+  let check = hcf * lcm === a * b;
+  document.getElementById('verifyBox').innerHTML = `
+    <div class='v-title'>✓ Verification: HCF × LCM = a × b</div>
+    ${hcf} × ${lcm} = <strong>${hcf*lcm}</strong> &nbsp;|&nbsp; ${a} × ${b} = <strong>${a*b}</strong>
+    &nbsp; ${check ? '✅ Verified!' : '⚠️ Check inputs'}`;
+}
+
+function buildSteps(a, b, fa, fb, ma, mb, hcf, lcm, hcfMap, lcmMap, facA, facB) {
+  allSteps = [
+    { label: 'Step 1: Prime Factorisation', cls: '', text: `Find prime factors of each number:<br><span class='hl'>${a} = ${facA}</span><br><span class='hl'>${b} = ${facB}</span>` },
+    { label: 'Step 2: Identify Common Prime Factors', cls: 'green', text: `Look for primes that appear in <em>both</em> numbers.<br>Common primes: <span class='hl'>${Object.keys(hcfMap).join(', ') || 'None (HCF = 1)'}</span>` },
+    { label: 'Step 3: Calculate HCF (म.स.)', cls: 'green', text: `Take common primes with <em>lowest</em> powers:<br><span class='hl'>HCF = ${Object.entries(hcfMap).map(([k,v])=>v>1?`${k}${sup(v)}`:k).join(' × ') || '1'} = ${hcf}</span>` },
+    { label: 'Step 4: Calculate LCM (ल.स.)', cls: 'amber', text: `Take <em>all</em> primes (from both) with <em>highest</em> powers:<br><span class='hl'>LCM = ${Object.entries(lcmMap).map(([k,v])=>v>1?`${k}${sup(v)}`:k).join(' × ')} = ${lcm}</span>` },
+    { label: 'Step 5: Verify the Relation', cls: '', text: `Check: HCF × LCM = a × b<br><span class='hl'>${hcf} × ${lcm} = ${hcf*lcm}</span> and <span class='hl'>${a} × ${b} = ${a*b}</span> ∴ ${hcf*lcm===a*b?'✅ Correct!':'⚠️ Mismatch'}` }
+  ];
+
+  currentStep = 0;
+  let container = document.getElementById('stepsContainer');
+  container.innerHTML = '';
+  allSteps.forEach((s, i) => {
+    let div = document.createElement('div');
+    div.className = `step-item ${s.cls}`;
+    div.id = `step-${i}`;
+    div.innerHTML = `<div class='step-num'>${s.label}</div><div class='step-text'>${s.text}</div>`;
+    container.appendChild(div);
+  });
+  
+  document.getElementById('nextBtn').disabled = false;
+  document.getElementById('nextBtn').textContent = 'Next Step ▶';
+  showNextStep();
+}
+
+function showNextStep() {
+  if (currentStep < allSteps.length) {
+    let el = document.getElementById(`step-${currentStep}`);
+    el.style.display = 'block';
+    setTimeout(() => el.classList.add('show'), 10);
+    currentStep++;
+    if (currentStep >= allSteps.length) {
+      document.getElementById('nextBtn').textContent = '✅ All Steps Done!';
+      document.getElementById('nextBtn').disabled = true;
+    }
+  }
+}
+
+// Auto-calculate on load
+window.onload = () => calculate();
+</script>
+</body>
+</html>

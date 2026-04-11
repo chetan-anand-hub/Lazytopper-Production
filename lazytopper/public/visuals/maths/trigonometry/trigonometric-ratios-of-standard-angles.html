@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trigonometric Ratios - Standard Angles</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); min-height: 100vh; color: #e2e8f0; }
+  
+  .title-bar { background: linear-gradient(90deg, #3b82f6, #8b5cf6); padding: 14px 20px; text-align: center; box-shadow: 0 4px 20px rgba(59,130,246,0.4); }
+  .title-bar h1 { font-size: 1.1rem; font-weight: 700; letter-spacing: 0.5px; }
+  .title-bar p { font-size: 0.75rem; opacity: 0.85; margin-top: 2px; }
+  
+  .container { max-width: 800px; margin: 0 auto; padding: 16px; }
+  
+  .card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 16px; margin-bottom: 16px; backdrop-filter: blur(10px); }
+  
+  .section-title { font-size: 0.85rem; font-weight: 700; color: #f59e0b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+  
+  /* Angle Selector */
+  .angle-btns { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 16px; }
+  .angle-btn { padding: 8px 16px; border-radius: 30px; border: 2px solid #3b82f6; background: transparent; color: #3b82f6; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: all 0.3s; }
+  .angle-btn:hover { background: rgba(59,130,246,0.2); transform: translateY(-2px); }
+  .angle-btn.active { background: #3b82f6; color: white; box-shadow: 0 4px 15px rgba(59,130,246,0.4); transform: translateY(-2px); }
+  
+  /* Triangle SVG area */
+  .triangle-area { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  @media(min-width:580px){ .triangle-area { flex-direction: row; justify-content: space-around; align-items: flex-start; } }
+  
+  svg#tri { border-radius: 12px; background: rgba(0,0,0,0.3); }
+  
+  /* Ratio cards */
+  .ratios-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .ratio-card { background: rgba(255,255,255,0.07); border-radius: 12px; padding: 10px 6px; text-align: center; border: 1px solid rgba(255,255,255,0.1); transition: all 0.4s; cursor: pointer; }
+  .ratio-card:hover { transform: translateY(-3px); border-color: #3b82f6; }
+  .ratio-card .ratio-name { font-size: 0.7rem; color: #94a3b8; margin-bottom: 4px; font-weight: 600; }
+  .ratio-card .ratio-formula { font-size: 0.65rem; color: #64748b; margin-bottom: 6px; }
+  .ratio-card .ratio-value { font-size: 1.1rem; font-weight: 800; transition: all 0.4s; }
+  .ratio-card.sin .ratio-value { color: #3b82f6; }
+  .ratio-card.cos .ratio-value { color: #22c55e; }
+  .ratio-card.tan .ratio-value { color: #f59e0b; }
+  .ratio-card.csc .ratio-value { color: #818cf8; }
+  .ratio-card.sec .ratio-value { color: #34d399; }
+  .ratio-card.cot .ratio-value { color: #fbbf24; }
+  
+  /* Table */
+  .trig-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+  .trig-table th { background: rgba(59,130,246,0.3); padding: 8px 6px; text-align: center; font-weight: 700; color: #93c5fd; border: 1px solid rgba(255,255,255,0.1); }
+  .trig-table td { padding: 8px 6px; text-align: center; border: 1px solid rgba(255,255,255,0.08); transition: all 0.3s; }
+  .trig-table tr:hover td { background: rgba(59,130,246,0.1); }
+  .trig-table .highlight-col { background: rgba(59,130,246,0.15); font-weight: 700; }
+  .trig-table .sin-row td:not(:first-child) { color: #60a5fa; }
+  .trig-table .cos-row td:not(:first-child) { color: #4ade80; }
+  .trig-table .tan-row td:not(:first-child) { color: #fbbf24; }
+  .badge { display: inline-block; background: rgba(239,68,68,0.2); color: #f87171; border-radius: 8px; padding: 1px 6px; font-size: 0.65rem; font-weight: 700; }
+  
+  /* Trick section */
+  .trick-box { background: linear-gradient(135deg, rgba(245,158,11,0.15), rgba(239,68,68,0.1)); border: 1px solid rgba(245,158,11,0.3); border-radius: 12px; padding: 14px; }
+  .trick-row { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .trick-cell { text-align: center; }
+  .trick-num { font-size: 1.8rem; font-weight: 900; color: #f59e0b; line-height: 1; }
+  .trick-val { font-size: 0.7rem; color: #94a3b8; margin-top: 2px; }
+  .trick-angle { font-size: 0.65rem; color: #64748b; }
+  
+  /* Worked example */
+  .step { background: rgba(255,255,255,0.05); border-left: 3px solid #3b82f6; border-radius: 0 10px 10px 0; padding: 10px 14px; margin-bottom: 8px; opacity: 0; transform: translateX(-20px); transition: all 0.5s; display: none; }
+  .step.visible { opacity: 1; transform: translateX(0); display: block; }
+  .step-num { font-size: 0.65rem; color: #3b82f6; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; }
+  .step-content { font-size: 0.85rem; line-height: 1.5; }
+  .step-math { background: rgba(0,0,0,0.3); border-radius: 6px; padding: 4px 10px; display: inline-block; margin-top: 4px; font-family: monospace; color: #f59e0b; }
+  
+  .btn-primary { background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: white; border: none; padding: 10px 24px; border-radius: 30px; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(59,130,246,0.3); }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(59,130,246,0.5); }
+  
+  .flex-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+  
+  .quiz-option { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 8px 14px; cursor: pointer; transition: all 0.3s; font-size: 0.85rem; display: inline-block; margin: 4px; }
+  .quiz-option:hover { border-color: #3b82f6; background: rgba(59,130,246,0.1); }
+  .quiz-option.correct { border-color: #22c55e; background: rgba(34,197,94,0.15); color: #4ade80; }
+  .quiz-option.wrong { border-color: #ef4444; background: rgba(239,68,68,0.15); color: #f87171; }
+  
+  .anim-pulse { animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+  
+  .tag { display: inline-block; background: rgba(59,130,246,0.2); color: #93c5fd; border-radius: 20px; padding: 2px 10px; font-size: 0.7rem; font-weight: 600; }
+  
+  .info-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+  .info-chip { background: rgba(255,255,255,0.08); border-radius: 8px; padding: 4px 10px; font-size: 0.72rem; color: #cbd5e1; }
+  .info-chip span { color: #f59e0b; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="title-bar">
+  <h1>📐 Trigonometric Ratios — Standard Angles (मानक कोण)</h1>
+  <p>CBSE Class 10 Mathematics | Chapter 8: Introduction to Trigonometry</p>
+</div>
+
+<div class="container">
+
+  <!-- Interactive Triangle -->
+  <div class="card">
+    <div class="section-title">🔺 Interactive Right Triangle (समकोण त्रिभुज)</div>
+    <p style="font-size:0.78rem;color:#94a3b8;margin-bottom:12px;">Select an angle (∠A) to see its trigonometric ratios on the right triangle:</p>
+    <div class="angle-btns">
+      <button class="angle-btn active" onclick="selectAngle(0)">0°</button>
+      <button class="angle-btn" onclick="selectAngle(30)">30°</button>
+      <button class="angle-btn" onclick="selectAngle(45)">45°</button>
+      <button class="angle-btn" onclick="selectAngle(60)">60°</button>
+      <button class="angle-btn" onclick="selectAngle(90)">90°</button>
+    </div>
+    <div class="triangle-area">
+      <svg id="tri" width="240" height="200" viewBox="0 0 240 200"></svg>
+      <div style="flex:1;min-width:200px;">
+        <div class="ratios-grid" id="ratioGrid">
+          <div class="ratio-card sin"><div class="ratio-name">sin θ</div><div class="ratio-formula">Perpendicular/Hypotenuse</div><div class="ratio-value" id="vsin">-</div></div>
+          <div class="ratio-card cos"><div class="ratio-name">cos θ</div><div class="ratio-formula">Base/Hypotenuse</div><div class="ratio-value" id="vcos">-</div></div>
+          <div class="ratio-card tan"><div class="ratio-name">tan θ</div><div class="ratio-formula">Perpendicular/Base</div><div class="ratio-value" id="vtan">-</div></div>
+          <div class="ratio-card csc"><div class="ratio-name">cosec θ</div><div class="ratio-formula">Hypotenuse/Perp.</div><div class="ratio-value" id="vcsc">-</div></div>
+          <div class="ratio-card sec"><div class="ratio-name">sec θ</div><div class="ratio-formula">Hypotenuse/Base</div><div class="ratio-value" id="vsec">-</div></div>
+          <div class="ratio-card cot"><div class="ratio-name">cot θ</div><div class="ratio-formula">Base/Perp.</div><div class="ratio-value" id="vcot">-</div></div>
+        </div>
+        <div class="info-row" id="infoRow" style="margin-top:10px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Memory Trick -->
+  <div class="card">
+    <div class="section-title">💡 Memory Trick — sin θ याद करने की तरकीब</div>
+    <div class="trick-box">
+      <p style="font-size:0.8rem;color:#fde68a;">sin θ के लिए: <strong>√0/2, √1/2, √2/2, √3/2, √4/2</strong> → simplify करें!</p>
+      <div class="trick-row">
+        <div class="trick-cell"><div class="trick-num" style="color:#60a5fa">0</div><div class="trick-val">√0/2 = 0</div><div class="trick-angle">sin 0°</div></div>
+        <div class="trick-cell"><div class="trick-num" style="color:#a78bfa">1</div><div class="trick-val">√1/2 = ½</div><div class="trick-angle">sin 30°</div></div>
+        <div class="trick-cell"><div class="trick-num" style="color:#f59e0b">2</div><div class="trick-val">√2/2 = 1/√2</div><div class="trick-angle">sin 45°</div></div>
+        <div class="trick-cell"><div class="trick-num" style="color:#22c55e">3</div><div class="trick-val">√3/2</div><div class="trick-angle">sin 60°</div></div>
+        <div class="trick-cell"><div class="trick-num" style="color:#ef4444">4</div><div class="trick-val">√4/2 = 1</div><div class="trick-angle">sin 90°</div></div>
+      </div>
+      <p style="font-size:0.72rem;color:#94a3b8;margin-top:10px;">∴ cos θ के लिए: उल्टे क्रम में पढ़ें (reverse order)! cos 0°=1, cos 30°=√3/2 ...</p>
+    </div>
+  </div>
+
+  <!-- Values Table -->
+  <div class="card">
+    <div class="section-title">📋 Standard Angles Table (मानक तालिका)</div>
+    <p style="font-size:0.72rem;color:#64748b;margin-bottom:10px;">Click any cell to highlight that column angle. <span style="color:#f87171">✕ = undefined (अपरिभाषित)</span></p>
+    <div style="overflow-x:auto;">
+    <table class="trig-table" id="mainTable">
+      <tr>
+        <th>Ratio / कोण</th>
+        <th onclick="hlCol(1)" style="cursor:pointer">0°</th>
+        <th onclick="hlCol(2)" style="cursor:pointer">30°</th>
+        <th onclick="hlCol(3)" style="cursor:pointer">45°</th>
+        <th onclick="hlCol(4)" style="cursor:pointer">60°</th>
+        <th onclick="hlCol(5)" style="cursor:pointer">90°</th>
+      </tr>
+      <tr class="sin-row">
+        <td style="font-weight:700;color:#60a5fa">sin θ</td>
+        <td>0</td><td>½</td><td>1/√2</td><td>√3/2</td><td>1</td>
+      </tr>
+      <tr class="cos-row">
+        <td style="font-weight:700;color:#4ade80">cos θ</td>
+        <td>1</td><td>√3/2</td><td>1/√2</td><td>½</td><td>0</td>
+      </tr>
+      <tr class="tan-row">
+        <td style="font-weight:700;color:#fbbf24">tan θ</td>
+        <td>0</td><td>1/√3</td><td>1</td><td>√3</td><td><span class="badge">✕</span></td>
+      </tr>
+      <tr>
+        <td style="font-weight:700;color:#a78bfa">cosec θ</td>
+        <td><span class="badge">✕</span></td><td>2</td><td>√2</td><td>2/√3</td><td>1</td>
+      </tr>
+      <tr>
+        <td style="font-weight:700;color:#34d399">sec θ</td>
+        <td>1</td><td>2/√3</td><td>√2</td><td>2</td><td><span class="badge">✕</span></td>
+      </tr>
+      <tr>
+        <td style="font-weight:700;color:#fbbf24">cot θ</td>
+        <td><span class="badge">✕</span></td><td>√3</td><td>1</td><td>1/√3</td><td>0</td>
+      </tr>
+    </table>
+    </div>
+  </div>
+
+  <!-- Worked Example -->
+  <div class="card">
+    <div class="section-title">✏️ Worked Example (हल किया उदाहरण)</div>
+    <div style="background:rgba(0,0,0,0.3);border-radius:10px;padding:12px;margin-bottom:12px;">
+      <p style="font-size:0.85rem;font-weight:600;color:#fde68a;">प्रश्न: यदि (If) 2sin²30° + cos²45° − 3tan²30° का मान ज्ञात करो।</p>
+      <p style="font-size:0.72rem;color:#64748b;">Find the value of: 2sin²30° + cos²45° − 3tan²30°</p>
+    </div>
+    <div id="stepsContainer"></div>
+    <div style="text-align:center;margin-top:12px;">
+      <button class="btn-primary" id="stepBtn" onclick="showNextStep()">▶ Next Step (अगला चरण)</button>
+    </div>
+  </div>
+
+  <!-- Quick Quiz -->
+  <div class="card">
+    <div class="section-title">🧠 Quick Quiz (त्वरित प्रश्नोत्तरी)</div>
+    <div id="quizArea">
+      <div id="quizQ" style="font-size:0.9rem;font-weight:600;margin-bottom:10px;color:#e2e8f0;"></div>
+      <div id="quizOpts"></div>
+      <div id="quizFeedback" style="margin-top:10px;font-size:0.8rem;min-height:24px;"></div>
+    </div>
+    <div style="text-align:center;margin-top:10px;">
+      <button class="btn-primary" onclick="loadQuiz()">🔄 New Question</button>
+    </div>
+  </div>
+
+  <div style="text-align:center;padding:10px;font-size:0.65rem;color:#475569;">
+    CBSE Class 10 Math | Chapter 8 | त्रिकोणमिति | Scientifically Accurate
+  </div>
+
+</div>
+
+<script>
+const DATA = {
+  0:  { sin:'0', cos:'1', tan:'0', csc:'∞', sec:'1', cot:'∞', sides:[0,1,1], label:'Degenerate (flat)' },
+  30: { sin:'1/2', cos:'√3/2', tan:'1/√3', csc:'2', sec:'2/√3', cot:'√3', sides:[1,2,Math.sqrt(3)], label:'1-√3-2 triangle' },
+  45: { sin:'1/√2', cos:'1/√2', tan:'1', csc:'√2', sec:'√2', cot:'1', sides:[1,Math.sqrt(2),1], label:'1-1-√2 triangle' },
+  60: { sin:'√3/2', cos:'1/2', tan:'√3', csc:'2/√3', sec:'2', cot:'1/√3', sides:[Math.sqrt(3),2,1], label:'√3-2-1 triangle' },
+  90: { sin:'1', cos:'0', tan:'∞', csc:'1', sec:'∞', cot:'0', sides:[1,1,0], label:'Degenerate (vertical)' }
+};
+
+let currentAngle = 0;
+
+function selectAngle(a) {
+  currentAngle = a;
+  document.querySelectorAll('.angle-btn').forEach((b,i) => {
+    b.classList.toggle('active', [0,30,45,60,90][i] === a);
+  });
+  updateRatios(a);
+  drawTriangle(a);
+}
+
+function updateRatios(a) {
+  const d = DATA[a];
+  document.getElementById('vsin').textContent = d.sin;
+  document.getElementById('vcos').textContent = d.cos;
+  document.getElementById('vtan').textContent = d.tan;
+  document.getElementById('vcsc').textContent = d.csc;
+  document.getElementById('vsec').textContent = d.sec;
+  document.getElementById('vcot').textContent = d.cot;
+
+  const infoMap = {0:'Angle = 0°, triangle degenerates',30:'Special 30-60-90 triangle',45:'Isosceles right triangle',60:'Special 30-60-90 triangle',90:'Angle = 90°, vertical'};
+  document.getElementById('infoRow').innerHTML = `<div class="info-chip">∠A = <span>${a}°</span></div><div class="info-chip"><span>${d.label}</span></div>`;
+}
+
+function drawTriangle(angle) {
+  const svg = document.getElementById('tri');
+  svg.innerHTML = '';
+
+  const W=240, H=200;
+  const pad=30;
+
+  function makeEl(tag, attrs) {
+    const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    for(let k in attrs) el.setAttribute(k, attrs[k]);
+    return el;
+  }
+  function text(x,y,txt,fill,size,anchor){
+    const el=makeEl('text',{x,y,'text-anchor':anchor||'middle','font-size':size||11,'fill':fill||'#e2e8f0','font-weight':'600'});
+    el.textContent=txt; return el;
+  }
+
+  if(angle === 0) {
+    svg.appendChild(text(W/2,H/2,'∠A = 0° → Triangle degenerates!','#f59e0b',12));
+    svg.appendChild(text(W/2,H/2+22,'sin 0° = 0, cos 0° = 1','#94a3b8',10));
+    return;
+  }
+  if(angle === 90) {
+    svg.appendChild(text(W/2,H/2,'∠A = 90° → Triangle degenerates!','#f59e0b',12));
+    svg.appendChild(text(W/2,H/2+22,'sin 90° = 1, cos 90° = 0','#94a3b8',10));
+    return;
+  }
+
+  // Points: right angle at B(bottom-left), A(bottom-right), C(top-right... wait: standard)
+  // A at bottom-left (angle θ), right angle at B(bottom-right up), C at top
+  // Actually: right angle at C bottom-right corner
+  // A = bottom-left, B = top, C = bottom-right (right angle)
+  const d = DATA[angle];
+  const perp = d.sides[0], hyp = d.sides[1], base = d.sides[2];
+  const scale = Math.min((W-2*pad)/base, (H-2*pad)/perp);
+  const bw = base*scale, bh = perp*scale;
+
+  const Ax = pad, Ay = H-pad;
+  const Cx = Ax+bw, Cy = H-pad;
+  const Bx = Ax+bw, By = H-pad-bh;
+
+  // Lines
+  const tri = makeEl('polygon',{
+    points:`${Ax},${Ay} ${Cx},${Cy} ${Bx},${By}`,
+    fill:'rgba(59,130,246,0.08)', stroke:'rgba(59,130,246,0.5)', 'stroke-width':'1.5'
+  });
+  svg.appendChild(tri);
+
+  // Hypotenuse (blue)
+  const hyLine = makeEl('line',{x1:Ax,y1:Ay,x2:Bx,y2:By,stroke:'#3b82f6','stroke-width':'2.5'});
+  svg.appendChild(hyLine);
+  // Perpendicular (red)
+  const perpLine = makeEl('line',{x1:Bx,y1:By,x2:Cx,y2:Cy,stroke:'#ef4444','stroke-width':'2.5'});
+  svg.appendChild(perpLine);
+  // Base (green)
+  const baseLine = makeEl('line',{x1:Ax,y1:Ay,x2:Cx,y2:Cy,stroke:'#22c55e','stroke-width':'2.5'});
+  svg.appendChild(baseLine);
+
+  // Right angle box at C
+  const sq=8;
+  const sqEl = makeEl('rect',{x:Cx-sq,y:Cy-sq,width:sq,height:sq,fill:'none',stroke:'#ffffff','stroke-width':'1.2'});
+  svg.appendChild(sqEl);
+
+  // Labels for sides
+  const hmx=(Ax+Bx)/2-14, hmy=(Ay+By)/2;
+  svg.appendChild(text(hmx,hmy,'H','#3b82f6',10,'middle'));
+  svg.appendChild(text(Bx+12,(By+Cy)/2,'P','#ef4444',10,'start'));
+  svg.appendChild(text((Ax+Cx)/2,Ay+14,'B','#22c55e',10,'middle'));
+
+  // Side values
+  const smap={30:{H:'2',P:'1',B:'√3'},45:{H:'√2',P:'1',B:'1'},60:{H:'2',P:'√3',B:'1'}};
+  if(smap[angle]){
+    svg.appendChild(text(hmx-10,hmy-8,smap[angle].H,'#93c5fd',9,'middle'));
+    svg.appendChild(text(Bx+22,(By+Cy)/2,smap[angle].P,'#fca5a5',9,'start'));
+    svg.appendChild(text((Ax+Cx)/2,Ay+24,smap[angle].B,'#86efac',9,'middle'));
+  }
+
+  // Angle arc at A
+  const arcR=22;
+  const arcEl = makeEl('path',{
+    d:`M ${Ax+arcR},${Ay} A ${arcR},${arcR} 0 0,0 ${Ax+arcR*Math.cos(angle*Math.PI/180)},${Ay-arcR*Math.sin(angle*Math.PI/180)}`,
+    fill:'none', stroke:'#f59e0b', 'stroke-width':'1.8'
+  });
+  svg.appendChild(arcEl);
+
+  svg.appendChild(text(Ax-12,Ay+4,'A','#f59e0b',11));
+  svg.appendChild(text(Ax+arcR*0.7+2,Ay-arcR*0.35,angle+'°','#f59e0b',9,'middle'));
+  svg.appendChild(text(Bx+12,By-6,'B','#e2e8f0',11,'start'));
+  svg.appendChild(text(Cx+5,Cy+5,'C','#e2e8f0',11,'start'));
+}
+
+// Table column highlight
+let lastHl = -1;
+function hlCol(col) {
+  const table = document.getElementById('mainTable');
+  const rows = table.rows;
+  for(let r=0;r<rows.length;r++){
+    const cells = rows[r].cells;
+    for(let c=1;c<cells.length;c++){
+      cells[c].classList.toggle('highlight-col', c===col && lastHl!==col);
+    }
+  }
+  lastHl = lastHl===col ? -1 : col;
+}
+
+// Steps for worked example
+const steps = [
+  { num:'Step 1: लिखें मान (Write values)', content:'Standard angles table से मान लिखें:<br>sin 30° = <b>½</b> &nbsp; cos 45° = <b>1/√2</b> &nbsp; tan 30° = <b>1/√3</b>', math:null },
+  { num:'Step 2: वर्ग करें (Square each)', content:'प्रत्येक को square करें:', math:'sin²30° = (½)² = <span style="color:#4ade80">1/4</span><br>cos²45° = (1/√2)² = <span style="color:#4ade80">1/2</span><br>tan²30° = (1/√3)² = <span style="color:#4ade80">1/3</span>' },
+  { num:'Step 3: गुणांक लगाएं (Apply coefficients)', content:'Coefficients multiply करें:', math:'2 × sin²30° = 2 × 1/4 = <span style="color:#60a5fa">1/2</span><br>1 × cos²45° = 1/2 = <span style="color:#60a5fa">1/2</span><br>3 × tan²30° = 3 × 1/3 = <span style="color:#60a5fa">1</span>' },
+  { num:'Step 4: जोड़ें/घटाएं (Add/Subtract)', content:'अब expression में रखें:', math:'= 1/2 + 1/2 − 1<br>= 1 − 1<br>= <span style="color:#f59e0b;font-size:1.1em;font-weight:900">0</span>' },
+  { num:'✅ उत्तर (Answer)', content:'∴ 2sin²30° + cos²45° − 3tan²30° = <b style="color:#22c55e;font-size:1.1em">0</b>', math:null }
+];
+
+let stepIdx = 0;
+
+function showNextStep() {
+  if(stepIdx >= steps.length) {
+    stepIdx = 0;
+    document.getElementById('stepsContainer').innerHTML = '';
+    document.getElementById('stepBtn').textContent = '▶ Start Again';
+    return;
+  }
+  const s = steps[stepIdx];
+  const div = document.createElement('div');
+  div.className = 'step';
+  div.innerHTML = `<div class="step-num">${s.num}</div><div class="step-content">${s.content}${s.math?'<br><div class="step-math">'+s.math+'</div>':''}</div>`;
+  document.getElementById('stepsContainer').appendChild(div);
+  setTimeout(()=>div.classList.add('visible'),50);
+  stepIdx++;
+  if(stepIdx >= steps.length) document.getElementById('stepBtn').textContent = '🔄 Reset';
+}
+
+// Quiz
+const quizBank = [
+  {q:'sin 45° का मान क्या है? (What is sin 45°?)', opts:['0','1/2','1/√2','√3/2'], ans:2},
+  {q:'cos 60° का मान क्या है? (What is cos 60°?)', opts:['0','1/2','√3/2','1'], ans:1},
+  {q:'tan 30° का मान क्या है? (What is tan 30°?)', opts:['1/√3','1','√3','∞'], ans:0},
+  {q:'sin²45° + cos²45° = ?', opts:['0','1/2','1','2'], ans:2},
+  {q:'tan 45° × sin 90° का मान? (Value of tan 45° × sin 90°?)', opts:['0','1','√2','∞'], ans:1},
+  {q:'cos 0° + sin 90° = ?', opts:['0','1','2','√2'], ans:2},
+  {q:'sin 30° + cos 60° का मान? (Value of sin 30° + cos 60°?)', opts:['0','1/2','1','√3/2'], ans:2},
+  {q:'sec 45° का मान? (Value of sec 45°?)', opts:['1','1/√2','√2','2'], ans:2},
+  {q:'cot 90° का मान? (Value of cot 90°?)', opts:['0','1','∞','√3'], ans:0},
+  {q:'tan 0° + tan 90° = ?', opts:['0','1','Undefined','∞'], ans:2}
+];
+
+let quizAnswered = false;
+function loadQuiz() {
+  quizAnswered = false;
+  const q = quizBank[Math.floor(Math.random()*quizBank.length)];
+  document.getElementById('quizQ').innerHTML = '❓ ' + q.q;
+  document.getElementById('quizFeedback').innerHTML = '';
+  const optsDiv = document.getElementById('quizOpts');
+  optsDiv.innerHTML = '';
+  q.opts.forEach((o,i) => {
+    const btn = document.createElement('span');
+    btn.className = 'quiz-option';
+    btn.textContent = o;
+    btn.onclick = function(){
+      if(quizAnswered) return;
+      quizAnswered = true;
+      document.querySelectorAll('.quiz-option').forEach((el,j) => {
+        if(j===q.ans) el.classList.add('correct');
+        else if(j===i && i!==q.ans) el.classList.add('wrong');
+      });
+      if(i===q.ans) {
+        document.getElementById('quizFeedback').innerHTML = '<span style="color:#22c55e;font-weight:700">✅ शाबाश! Correct! बिल्कुल सही!</span>';
+      } else {
+        document.getElementById('quizFeedback').innerHTML = `<span style="color:#ef4444;font-weight:700">❌ गलत! Correct answer: ${q.opts[q.ans]}</span>`;
+      }
+    };
+    optsDiv.appendChild(btn);
+  });
+}
+
+// Init
+selectAngle(30);
+loadQuiz();
+</script>
+</body>
+</html>

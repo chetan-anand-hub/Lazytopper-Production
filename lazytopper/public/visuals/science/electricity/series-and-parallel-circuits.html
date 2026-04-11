@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Series & Parallel Circuits - Class 10 Science</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #1e293b; min-width: 320px; }
+  
+  .title-bar {
+    background: linear-gradient(135deg, #1e40af, #3b82f6, #06b6d4);
+    padding: 14px 20px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(59,130,246,0.5);
+  }
+  .title-bar h1 { color: #fff; font-size: 1.1rem; font-weight: 700; letter-spacing: 0.5px; }
+  .title-bar p { color: #bfdbfe; font-size: 0.78rem; margin-top: 2px; }
+  
+  .container { max-width: 800px; margin: 0 auto; padding: 16px; }
+  
+  .card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 18px;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+  }
+  
+  .section-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .badge {
+    background: linear-gradient(135deg, #3b82f6, #06b6d4);
+    color: #fff;
+    border-radius: 20px;
+    padding: 2px 10px;
+    font-size: 0.7rem;
+    font-weight: 600;
+  }
+  
+  /* Toggle Buttons */
+  .toggle-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .toggle-btn {
+    flex: 1;
+    min-width: 120px;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  .toggle-btn.active-series {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(59,130,246,0.4);
+  }
+  .toggle-btn.active-parallel {
+    background: linear-gradient(135deg, #22c55e, #15803d);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(34,197,94,0.4);
+  }
+  .toggle-btn.inactive {
+    background: #f1f5f9;
+    color: #64748b;
+  }
+  
+  /* SVG Circuit */
+  .circuit-wrap {
+    background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+    border-radius: 12px;
+    padding: 10px;
+    overflow: hidden;
+  }
+  svg { width: 100%; display: block; }
+  
+  /* Resistor sliders */
+  .sliders-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+  }
+  .slider-group {
+    flex: 1;
+    min-width: 140px;
+    background: #f8fafc;
+    border-radius: 10px;
+    padding: 10px 12px;
+  }
+  .slider-group label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #374151;
+    display: block;
+    margin-bottom: 4px;
+  }
+  .slider-group input[type=range] {
+    width: 100%;
+    accent-color: #3b82f6;
+    cursor: pointer;
+  }
+  .slider-val {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #3b82f6;
+    text-align: right;
+  }
+  
+  /* Result Box */
+  .result-box {
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-top: 14px;
+    text-align: center;
+  }
+  .result-label { color: #94a3b8; font-size: 0.75rem; margin-bottom: 4px; }
+  .result-value {
+    color: #fff;
+    font-size: 1.6rem;
+    font-weight: 800;
+    transition: all 0.4s ease;
+  }
+  .result-formula { color: #60a5fa; font-size: 0.78rem; margin-top: 4px; }
+  
+  /* Formula Cards */
+  .formula-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  @media(max-width:480px){ .formula-grid { grid-template-columns: 1fr; } }
+  
+  .formula-card {
+    border-radius: 12px;
+    padding: 14px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .formula-card:hover { transform: scale(1.02); }
+  .formula-card.series-card {
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    border: 2px solid #93c5fd;
+  }
+  .formula-card.parallel-card {
+    background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+    border: 2px solid #86efac;
+  }
+  .formula-title { font-size: 0.78rem; font-weight: 700; margin-bottom: 6px; color: #1e293b; }
+  .formula-math {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #1e293b;
+    line-height: 1.5;
+  }
+  .formula-hindi { font-size: 0.7rem; color: #475569; margin-top: 4px; }
+  
+  /* Walkthrough */
+  .step-container { margin-top: 10px; }
+  .step {
+    background: #f8fafc;
+    border-left: 4px solid #3b82f6;
+    border-radius: 0 10px 10px 0;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    display: none;
+    animation: slideIn 0.4s ease;
+  }
+  .step.active { display: block; }
+  .step.series-step { border-color: #3b82f6; }
+  .step.parallel-step { border-color: #22c55e; }
+  @keyframes slideIn { from { opacity:0; transform: translateX(-10px); } to { opacity:1; transform: translateX(0); } }
+  
+  .step-num {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #64748b;
+    margin-bottom: 4px;
+  }
+  .step-text { font-size: 0.85rem; color: #1e293b; line-height: 1.5; }
+  .step-math { 
+    background: #1e293b;
+    color: #60a5fa;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-top: 6px;
+    font-family: monospace;
+  }
+  
+  .step-nav {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    align-items: center;
+  }
+  .step-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .step-btn.prev { background: #f1f5f9; color: #374151; }
+  .step-btn.next { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: #fff; }
+  .step-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+  .step-counter { font-size: 0.78rem; color: #64748b; margin-left: auto; }
+  
+  /* Comparison Table */
+  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+  th {
+    padding: 8px 10px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 0.75rem;
+  }
+  td { padding: 8px 10px; border-top: 1px solid #f1f5f9; }
+  tr:hover td { background: #f8fafc; }
+  .th-prop { background: #1e293b; color: #fff; border-radius: 6px 0 0 0; }
+  .th-series { background: #3b82f6; color: #fff; }
+  .th-parallel { background: #22c55e; color: #fff; }
+  
+  /* Current animation dots */
+  .dot {
+    animation: moveDot 2s linear infinite;
+  }
+  @keyframes moveDot {
+    0% { opacity: 0; }
+    20% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  
+  .pulse { animation: pulse 2s infinite; }
+  @keyframes pulse {
+    0%,100% { opacity:1; }
+    50% { opacity:0.5; }
+  }
+  
+  .glow-blue { text-shadow: 0 0 10px rgba(59,130,246,0.8); }
+  
+  /* Mini quiz */
+  .quiz-option {
+    background: #f1f5f9;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    display: block;
+    width: 100%;
+    text-align: left;
+  }
+  .quiz-option:hover { border-color: #3b82f6; background: #dbeafe; }
+  .quiz-option.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+  .quiz-option.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+  .quiz-feedback { font-size: 0.82rem; font-weight: 600; margin-top: 6px; padding: 8px 12px; border-radius: 8px; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.correct-fb { background: #dcfce7; color: #15803d; }
+  .quiz-feedback.wrong-fb { background: #fee2e2; color: #b91c1c; }
+</style>
+</head>
+<body>
+
+<div class="title-bar">
+  <h1>⚡ Series & Parallel Circuits</h1>
+  <p>CBSE Class 10 Science | Electricity | विद्युत परिपथ</p>
+</div>
+
+<div class="container">
+
+  <!-- Toggle -->
+  <div class="card">
+    <div class="section-title">🔌 Choose Circuit Type <span class="badge">Interactive</span></div>
+    <div class="toggle-row">
+      <button class="toggle-btn active-series" id="btnSeries" onclick="setMode('series')">📏 Series Circuit (श्रेणी)</button>
+      <button class="toggle-btn inactive" id="btnParallel" onclick="setMode('parallel')">⚡ Parallel Circuit (समानांतर)</button>
+    </div>
+    
+    <div class="circuit-wrap">
+      <svg id="circuitSVG" viewBox="0 0 500 200" xmlns="http://www.w3.org/2000/svg">
+        <!-- Drawn by JS -->
+      </svg>
+    </div>
+    
+    <div class="sliders-row">
+      <div class="slider-group">
+        <label>R₁ (प्रतिरोध 1)</label>
+        <input type="range" id="r1" min="1" max="20" value="4" oninput="updateCalc()">
+        <div class="slider-val" id="r1val">4 Ω</div>
+      </div>
+      <div class="slider-group">
+        <label>R₂ (प्रतिरोध 2)</label>
+        <input type="range" id="r2" min="1" max="20" value="6" oninput="updateCalc()">
+        <div class="slider-val" id="r2val">6 Ω</div>
+      </div>
+      <div class="slider-group">
+        <label>R₃ (प्रतिरोध 3)</label>
+        <input type="range" id="r3" min="1" max="20" value="10" oninput="updateCalc()">
+        <div class="slider-val" id="r3val">10 Ω</div>
+      </div>
+    </div>
+    
+    <div class="result-box">
+      <div class="result-label">कुल प्रतिरोध (Total Resistance / R_total)</div>
+      <div class="result-value glow-blue" id="rtotal">20 Ω</div>
+      <div class="result-formula" id="resultFormula">R_total = R₁ + R₂ + R₃ = 4 + 6 + 10 = 20 Ω</div>
+    </div>
+  </div>
+
+  <!-- Formulas -->
+  <div class="card">
+    <div class="section-title">📐 Key Formulas (मुख्य सूत्र)</div>
+    <div class="formula-grid">
+      <div class="formula-card series-card" onclick="highlightFormula('series')">
+        <div class="formula-title">🔵 Series (श्रेणी)</div>
+        <div class="formula-math">R = R₁ + R₂ + R₃</div>
+        <div class="formula-hindi">∴ R_total सबसे बड़ा होता है</div>
+        <div style="font-size:0.72rem;color:#3b82f6;margin-top:4px;">Same Current I | Different Voltage</div>
+      </div>
+      <div class="formula-card parallel-card" onclick="highlightFormula('parallel')">
+        <div class="formula-title">🟢 Parallel (समानांतर)</div>
+        <div class="formula-math">1/R = 1/R₁ + 1/R₂ + 1/R₃</div>
+        <div class="formula-hindi">∴ R_total सबसे छोटा होता है</div>
+        <div style="font-size:0.72rem;color:#22c55e;margin-top:4px;">Same Voltage V | Different Current</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step by step -->
+  <div class="card">
+    <div class="section-title">📖 Worked Example <span class="badge">Step-by-Step</span></div>
+    <div style="font-size:0.82rem;color:#475569;margin-bottom:10px;">
+      Example: R₁ = 4Ω, R₂ = 6Ω, R₃ = 10Ω. Find R_total for both circuits.
+    </div>
+    
+    <div id="stepTabRow" class="toggle-row" style="margin-bottom:10px;">
+      <button class="toggle-btn active-series" style="font-size:0.8rem;padding:7px;" onclick="setStepMode('series')">Series Steps</button>
+      <button class="toggle-btn inactive" id="stepParallelBtn" style="font-size:0.8rem;padding:7px;" onclick="setStepMode('parallel')">Parallel Steps</button>
+    </div>
+    
+    <div class="step-container" id="stepContainer"></div>
+    
+    <div class="step-nav">
+      <button class="step-btn prev" onclick="prevStep()">◀ Previous</button>
+      <button class="step-btn next" onclick="nextStep()">Next ▶</button>
+      <span class="step-counter" id="stepCounter">Step 1/4</span>
+    </div>
+  </div>
+
+  <!-- Comparison Table -->
+  <div class="card">
+    <div class="section-title">📊 Comparison Table (तुलना)</div>
+    <div style="overflow-x:auto;">
+    <table>
+      <thead>
+        <tr>
+          <th class="th-prop">Property</th>
+          <th class="th-series" style="border-radius:0;">Series (श्रेणी)</th>
+          <th class="th-parallel" style="border-radius:0 6px 0 0;">Parallel (समानांतर)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Current (धारा)</strong></td>
+          <td>Same in all → I₁=I₂=I₃</td>
+          <td>Different → I = I₁+I₂+I₃</td>
+        </tr>
+        <tr>
+          <td><strong>Voltage (वोल्टेज)</strong></td>
+          <td>V = V₁+V₂+V₃</td>
+          <td>Same across all</td>
+        </tr>
+        <tr>
+          <td><strong>R_total</strong></td>
+          <td style="color:#3b82f6;font-weight:700;">Increases ↑</td>
+          <td style="color:#22c55e;font-weight:700;">Decreases ↓</td>
+        </tr>
+        <tr>
+          <td><strong>If one fails</strong></td>
+          <td style="color:#ef4444;">All stop ✗</td>
+          <td style="color:#22c55e;">Others work ✓</td>
+        </tr>
+        <tr>
+          <td><strong>Example</strong></td>
+          <td>Old Xmas lights</td>
+          <td>Home wiring</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- Quick Quiz -->
+  <div class="card">
+    <div class="section-title">🧠 Quick Check <span class="badge">Test Yourself</span></div>
+    <div id="quizArea">
+      <div style="font-size:0.88rem;font-weight:600;color:#1e293b;margin-bottom:10px;" id="quizQ">
+        Three resistors 2Ω, 3Ω, 6Ω are in parallel. What is R_total?
+      </div>
+      <button class="quiz-option" onclick="checkAns(this,false)">11 Ω</button>
+      <button class="quiz-option" onclick="checkAns(this,true)">1 Ω</button>
+      <button class="quiz-option" onclick="checkAns(this,false)">6 Ω</button>
+      <button class="quiz-option" onclick="checkAns(this,false)">3 Ω</button>
+      <div class="quiz-feedback" id="quizFb">
+        ✅ Correct! 1/R = 1/2 + 1/3 + 1/6 = 3/6 + 2/6 + 1/6 = 6/6 = 1 → R = 1 Ω
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center;color:#475569;font-size:0.72rem;padding-bottom:20px;">
+    CBSE Class 10 Science | Electricity Chapter | Made for interactive learning
+  </div>
+</div>
+
+<script>
+let mode = 'series';
+let stepMode = 'series';
+let currentStep = 0;
+
+const seriesSteps = [
+  {
+    num: "Step 1 of 4",
+    text: "Identify: Three resistors R₁=4Ω, R₂=6Ω, R₃=10Ω are connected end-to-end (श्रेणी क्रम में). The SAME current flows through all.",
+    math: "I₁ = I₂ = I₃ = I (धारा समान)"
+  },
+  {
+    num: "Step 2 of 4",
+    text: "Apply Ohm's Law to each: V₁=IR₁, V₂=IR₂, V₃=IR₃. Total voltage = V₁+V₂+V₃",
+    math: "V = V₁ + V₂ + V₃ = I(R₁+R₂+R₃)"
+  },
+  {
+    num: "Step 3 of 4",
+    text: "Since V = I×R_total, comparing both sides we get the Series Formula:",
+    math: "R_total = R₁ + R₂ + R₃"
+  },
+  {
+    num: "Step 4 of 4",
+    text: "Substitute values: R₁=4, R₂=6, R₃=10",
+    math: "R_total = 4 + 6 + 10 = 20 Ω ✅"
+  }
+];
+
+const parallelSteps = [
+  {
+    num: "Step 1 of 4",
+    text: "Identify: Resistors are connected side by side (समानांतर क्रम में). The SAME voltage appears across each. Current splits.",
+    math: "V₁ = V₂ = V₃ = V (वोल्टेज समान)"
+  },
+  {
+    num: "Step 2 of 4",
+    text: "Current through each: I₁=V/R₁, I₂=V/R₂, I₃=V/R₃. Total current = I₁+I₂+I₃",
+    math: "I = V/R₁ + V/R₂ + V/R₃ = V(1/R₁+1/R₂+1/R₃)"
+  },
+  {
+    num: "Step 3 of 4",
+    text: "Since I = V/R_total, dividing both sides by V gives the Parallel Formula:",
+    math: "1/R_total = 1/R₁ + 1/R₂ + 1/R₃"
+  },
+  {
+    num: "Step 4 of 4",
+    text: "Substitute: 1/R = 1/4 + 1/6 + 1/10 = 15/60 + 10/60 + 6/60 = 31/60",
+    math: "R_total = 60/31 ≈ 1.94 Ω ✅"
+  }
+];
+
+function setMode(m) {
+  mode = m;
+  document.getElementById('btnSeries').className = 'toggle-btn ' + (m==='series'?'active-series':'inactive');
+  document.getElementById('btnParallel').className = 'toggle-btn ' + (m==='parallel'?'active-parallel':'inactive');
+  updateCalc();
+  drawCircuit();
+}
+
+function updateCalc() {
+  const r1 = parseInt(document.getElementById('r1').value);
+  const r2 = parseInt(document.getElementById('r2').value);
+  const r3 = parseInt(document.getElementById('r3').value);
+  document.getElementById('r1val').textContent = r1 + ' Ω';
+  document.getElementById('r2val').textContent = r2 + ' Ω';
+  document.getElementById('r3val').textContent = r3 + ' Ω';
+  
+  let rt, formula;
+  if (mode === 'series') {
+    rt = r1 + r2 + r3;
+    formula = `R = ${r1} + ${r2} + ${r3} = ${rt} Ω`;
+  } else {
+    const inv = 1/r1 + 1/r2 + 1/r3;
+    rt = (1/inv).toFixed(2);
+    formula = `1/R = 1/${r1} + 1/${r2} + 1/${r3} = ${inv.toFixed(3)} → R = ${rt} Ω`;
+  }
+  document.getElementById('rtotal').textContent = rt + ' Ω';
+  document.getElementById('resultFormula').textContent = formula;
+  drawCircuit();
+}
+
+function drawCircuit() {
+  const svg = document.getElementById('circuitSVG');
+  const r1 = parseInt(document.getElementById('r1').value);
+  const r2 = parseInt(document.getElementById('r2').value);
+  const r3 = parseInt(document.getElementById('r3').value);
+  const isS = mode === 'series';
+  
+  let html = '';
+  
+  // Background
+  html += `<rect width="500" height="200" fill="none"/>`;
+  
+  // Battery symbol
+  const bx = 30, by = 100;
+  html += `<line x1="${bx}" y1="${by-20}" x2="${bx}" y2="${by+20}" stroke="#f59e0b" stroke-width="3"/>`;
+  html += `<line x1="${bx+8}" y1="${by-12}" x2="${bx+8}" y2="${by+12}" stroke="#f59e0b" stroke-width="5"/>`;
+  html += `<text x="${bx-8}" y="${by-24}" fill="#f59e0b" font-size="10" font-weight="bold">+</text>`;
+  html += `<text x="${bx+12}" y="${by+32}" fill="#f59e0b" font-size="10">-</text>`;
+  html += `<text x="${bx-8}" y="${by+48}" fill="#f59e0b" font-size="9">Battery</text>`;
+  
+  const color = isS ? '#3b82f6' : '#22c55e';
+  const lw = 2.5;
+  
+  if (isS) {
+    // Series: top wire → R1 → R2 → R3 → bottom
+    // Top line
+    html += `<line x1="${bx+8}" y1="${by-20}" x2="${bx+8}" y2="30" stroke="${color}" stroke-width="${lw}"/>`;
+    html += `<line x1="${bx+8}" y1="30" x2="460" y2="30" stroke="${color}" stroke-width="${lw}"/>`;
+    html += `<line x1="460" y1="30" x2="460" y2="${by+20}" stroke="${color}" stroke-width="${lw}"/>`;
+    html += `<line x1="460" y1="${by+20}" x2="460" y2="170" stroke="${color}" stroke-width="${lw}"/>`;
+    html += `<line x1="${bx+8}" y1="170" x2="460" y2="170" stroke="${color}" stroke-width="${lw}"/>`;
+    html += `<line x1="${bx+8}" y1="${by+20}" x2="${bx+8}" y2="170" stroke="${color}" stroke-width="${lw}"/>`;
+    
+    // Resistors on top wire
+    const rPositions = [130, 240, 360];
+    const rLabels = [`R₁=${r1}Ω`, `R₂=${r2}Ω`, `R₃=${r3}Ω`];
+    rPositions.forEach((rx, i) => {
+      html += drawResistor(rx, 30, color, rLabels[i], false);
+    });
+    
+    // Current direction arrow
+    html += `<polygon points="200,22 210,27 200,32" fill="#f59e0b"/>`;
+    html += `<text x="195" y="18" fill="#f59e0b" font-size="8">I →</text>`;
+    
+    // Labels
+    html += `<text x="200" y="195" fill="${color}" font-size="11" font-weight="bold" text-anchor="middle">श्रेणी (Series): Same Current flows everywhere</text>`;
+    
+  } else {
+    // Parallel
+    html += `<line x1="${bx+8}" y1="${by-20}" x2="${bx+8}" y2="30" stroke="${color}" stroke-width="${lw}"/>`;
+    html += `<line x1="${bx+8}" y1="30" x2="450" y2="30" stroke="${color}" stroke-width="${lw}"/>`;
+    html += `<line x1="450" y1="30" x2="450" y2="170" stroke="${color}" stroke-width="${lw}"/>`;
+    html += `<line x1="${bx+8}" y1="170" x2="450" y2="170" stroke="${color}" stroke-width="${lw}"/>`;
+    html += `<line x1="${bx+8}" y1="${by+20}" x2="${bx+8}" y2="170" stroke="${color}" stroke-width="${lw}"/>`;
+    
+    const branches = [60, 105, 150];
+    const rLabels = [`R₁=${r1}Ω`, `R₂=${r2}Ω`, `R₃=${r3}Ω`];
+    branches.forEach((ry, i) => {
+      html += `<line x1="100" y1="${ry}" x2="380" y2="${ry}" stroke="${color}" stroke-width="${lw}"/>`;
+      html += `<line x1="100" y1="30" x2="100" y2="170" stroke="${color}" stroke-width="${lw*.8}"/>`;
+      html += `<line x1="380" y1="30" x2="380" y2="170" stroke="${color}" stroke-width="${lw*.8}"/>`;
+      html += drawResistor(230, ry, color, rLabels[i], true);
+      // Current arrows
+      html += `<polygon points="145,${ry-5} 155,${ry} 145,${ry+5}" fill="#f59e0b"/>`;
+    });
+    
+    html += `<text x="265" y="195" fill="${color}" font-size="11" font-weight="bold" text-anchor="middle">समानांतर (Parallel): Same Voltage, Split Current</text>`;
+  }
+  
+  // Animated dots
+  const dotColor = '#f59e0b';
+  if (isS) {
+    for(let i=0;i<4;i++) {
+      const delay = i*0.5;
+      html += `<circle r="4" fill="${dotColor}" opacity="0">
+        <animateMotion dur="2s" repeatCount="indefinite" begin="${delay}s">
+          <mpath href="#seriesPath"/>
+        </animateMotion>
+        <animate attributeName="opacity" values="0;1;1;0" dur="2s" repeatCount="indefinite" begin="${delay}s"/>
+      </circle>`;
+    }
+    html += `<path id="seriesPath" d="M38,30 L460,30 L460,170 L38,170 Z" fill="none"/>`;
+  }
+  
+  svg.innerHTML = html;
+}
+
+function drawResistor(cx, cy, color, label, horiz) {
+  let html = '';
+  const w = 50, h = 16;
+  if (!horiz) {
+    html += `<rect x="${cx-w/2}" y="${cy-h/2}" width="${w}" height="${h}" fill="#fff" stroke="${color}" stroke-width="2" rx="4"/>`;
+    // Zigzag inside
+    const zx = cx - w/2 + 5;
+    const seg = (w-10)/5;
+    let zpath = `M${zx},${cy}`;
+    for(let i=0;i<5;i++) {
+      zpath += ` L${zx+seg*(i+0.5)},${i%2===0?cy-5:cy+5}`;
+    }
+    zpath += ` L${zx+(w-10)},${cy}`;
+    html += `<path d="${zpath}" fill="none" stroke="${color}" stroke-width="1.5"/>`;
+    html += `<text x="${cx}" y="${cy-12}" fill="${color}" font-size="9" text-anchor="middle" font-weight="bold">${label}</text>`;
+  } else {
+    html += `<rect x="${cx-w/2}" y="${cy-h/2}" width="${w}" height="${h}" fill="#fff" stroke="${color}" stroke-width="2" rx="4"/>`;
+    const zy = cy - h/2 + 4;
+    const seg = (h-8)/5;
+    let zpath = `M${cx-w/2+4},${cy}`;
+    for(let i=0;i<5;i++) {
+      zpath += ` L${cx-w/2+4+seg*(i+0.5)*2},${i%2===0?cy-4:cy+4}`;
+    }
+    html += `<path d="${zpath}" fill="none" stroke="${color}" stroke-width="1.5"/>`;
+    html += `<text x="${cx}" y="${cy-10}" fill="${color}" font-size="9" text-anchor="middle" font-weight="bold">${label}</text>`;
+  }
+  return html;
+}
+
+function setStepMode(m) {
+  stepMode = m;
+  currentStep = 0;
+  const btns = document.getElementById('stepTabRow').querySelectorAll('button');
+  btns[0].className = 'toggle-btn ' + (m==='series'?'active-series':'inactive');
+  btns[1].className = 'toggle-btn ' + (m==='parallel'?'active-parallel':'inactive');
+  renderSteps();
+}
+
+function renderSteps() {
+  const steps = stepMode === 'series' ? seriesSteps : parallelSteps;
+  const container = document.getElementById('stepContainer');
+  let html = '';
+  steps.forEach((s, i) => {
+    const cls = i <= currentStep ? 'step active ' + stepMode + '-step' : 'step';
+    html += `<div class="${cls}">
+      <div class="step-num">${s.num}</div>
+      <div class="step-text">${s.text}</div>
+      <div class="step-math">${s.math}</div>
+    </div>`;
+  });
+  container.innerHTML = html;
+  document.getElementById('stepCounter').textContent = `Step ${currentStep+1}/${steps.length}`;
+}
+
+function nextStep() {
+  const steps = stepMode === 'series' ? seriesSteps : parallelSteps;
+  if (currentStep < steps.length - 1) { currentStep++; renderSteps(); }
+}
+
+function prevStep() {
+  if (currentStep > 0) { currentStep--; renderSteps(); }
+}
+
+function highlightFormula(type) {
+  setMode(type);
+  setStepMode(type);
+}
+
+function checkAns(btn, correct) {
+  const opts = document.querySelectorAll('.quiz-option');
+  opts.forEach(o => o.disabled = true);
+  const fb = document.getElementById('quizFb');
+  if (correct) {
+    btn.classList.add('correct');
+    fb.className = 'quiz-feedback show correct-fb';
+    fb.textContent = '✅ Correct! 1/R = 1/2 + 1/3 + 1/6 = 3/6 + 2/6 + 1/6 = 6/6 = 1 → R_total = 1 Ω';
+  } else {
+    btn.classList.add('wrong');
+    fb.className = 'quiz-feedback show wrong-fb';
+    fb.textContent = '❌ Not quite! Hint: Use 1/R = 1/R₁ + 1/R₂ + 1/R₃. The answer is 1 Ω';
+  }
+  fb.style.display = 'block';
+}
+
+// Init
+drawCircuit();
+renderSteps();
+</script>
+</body>
+</html>

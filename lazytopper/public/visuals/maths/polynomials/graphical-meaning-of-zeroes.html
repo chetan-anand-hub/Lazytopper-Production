@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Polynomials - Graphical Meaning of Zeroes</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#0f172a 100%);min-height:100vh;color:#e2e8f0}
+.title-bar{background:linear-gradient(90deg,#3b82f6,#8b5cf6,#22c55e);padding:14px 20px;text-align:center;box-shadow:0 4px 20px rgba(59,130,246,0.4)}
+.title-bar h1{font-size:1.2em;font-weight:700;color:#fff;letter-spacing:1px}
+.title-bar p{font-size:0.75em;color:rgba(255,255,255,0.85);margin-top:3px}
+.container{max-width:900px;margin:0 auto;padding:16px}
+.concept-box{background:linear-gradient(135deg,rgba(59,130,246,0.15),rgba(139,92,246,0.1));border:1px solid rgba(59,130,246,0.4);border-radius:16px;padding:16px;margin-bottom:16px;text-align:center}
+.concept-box h2{color:#93c5fd;font-size:1.05em;margin-bottom:8px}
+.formula{background:rgba(15,23,42,0.7);border-radius:10px;padding:10px 16px;display:inline-block;font-size:1em;color:#fbbf24;font-weight:600;border:1px solid rgba(251,191,36,0.3);margin:4px 0}
+.tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.tab{flex:1;min-width:100px;padding:10px 8px;border-radius:10px;border:2px solid transparent;cursor:pointer;font-size:0.82em;font-weight:600;text-align:center;transition:all 0.3s;background:rgba(255,255,255,0.05)}
+.tab.linear{border-color:rgba(34,197,94,0.4);color:#86efac}
+.tab.linear.active{background:rgba(34,197,94,0.2);border-color:#22c55e;box-shadow:0 0 16px rgba(34,197,94,0.3)}
+.tab.quadratic{border-color:rgba(59,130,246,0.4);color:#93c5fd}
+.tab.quadratic.active{background:rgba(59,130,246,0.2);border-color:#3b82f6;box-shadow:0 0 16px rgba(59,130,246,0.3)}
+.tab.cubic{border-color:rgba(245,158,11,0.4);color:#fcd34d}
+.tab.cubic.active{background:rgba(245,158,11,0.2);border-color:#f59e0b;box-shadow:0 0 16px rgba(245,158,11,0.3)}
+.main-area{display:grid;grid-template-columns:1fr;gap:14px}
+@media(min-width:640px){.main-area{grid-template-columns:1.4fr 1fr}}
+.graph-card{background:rgba(15,23,42,0.8);border-radius:16px;padding:14px;border:1px solid rgba(255,255,255,0.1)}
+.graph-card h3{font-size:0.88em;color:#94a3b8;margin-bottom:10px;text-align:center}
+canvas{border-radius:10px;background:#0a1628;display:block;cursor:crosshair;max-width:100%}
+.info-card{background:rgba(15,23,42,0.8);border-radius:16px;padding:14px;border:1px solid rgba(255,255,255,0.1)}
+.info-card h3{font-size:0.95em;color:#f0abfc;margin-bottom:10px}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.75em;font-weight:600;margin:3px 2px}
+.badge-green{background:rgba(34,197,94,0.2);color:#4ade80;border:1px solid rgba(34,197,94,0.4)}
+.badge-blue{background:rgba(59,130,246,0.2);color:#60a5fa;border:1px solid rgba(59,130,246,0.4)}
+.badge-amber{background:rgba(245,158,11,0.2);color:#fbbf24;border:1px solid rgba(245,158,11,0.4)}
+.badge-red{background:rgba(239,68,68,0.2);color:#f87171;border:1px solid rgba(239,68,68,0.4)}
+.info-row{background:rgba(255,255,255,0.04);border-radius:8px;padding:8px 10px;margin-bottom:6px;font-size:0.82em;line-height:1.5}
+.info-row span.label{color:#94a3b8;font-size:0.78em}
+.zero-list{margin-top:8px}
+.zero-item{display:flex;align-items:center;gap:8px;padding:6px 10px;background:rgba(255,255,255,0.05);border-radius:8px;margin-bottom:5px;font-size:0.82em;animation:fadeIn 0.4s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.slider-area{margin-top:10px}
+.slider-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:0.8em}
+.slider-row label{color:#94a3b8;min-width:24px;font-weight:600}
+input[type=range]{flex:1;accent-color:#3b82f6;height:4px}
+.slider-val{color:#fbbf24;min-width:36px;text-align:right;font-weight:600;font-size:0.85em}
+.walkthrough{background:rgba(15,23,42,0.8);border-radius:16px;padding:14px;border:1px solid rgba(255,255,255,0.1);margin-top:14px}
+.walkthrough h3{color:#f0abfc;font-size:0.95em;margin-bottom:10px}
+.steps{display:flex;flex-direction:column;gap:8px}
+.step{background:rgba(255,255,255,0.04);border-radius:10px;padding:10px 12px;border-left:3px solid #3b82f6;font-size:0.82em;line-height:1.6;opacity:0.3;transform:translateY(5px);transition:all 0.5s;pointer-events:none}
+.step.revealed{opacity:1;transform:translateY(0);pointer-events:auto}
+.step.active-step{border-left-color:#22c55e;background:rgba(34,197,94,0.07)}
+.step h4{color:#93c5fd;margin-bottom:4px;font-size:0.9em}
+.btn{display:inline-block;padding:9px 18px;border-radius:10px;border:none;cursor:pointer;font-size:0.82em;font-weight:600;transition:all 0.3s;margin-top:8px}
+.btn-primary{background:linear-gradient(90deg,#3b82f6,#8b5cf6);color:#fff;box-shadow:0 4px 12px rgba(59,130,246,0.3)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(59,130,246,0.4)}
+.btn-reset{background:rgba(239,68,68,0.2);color:#f87171;border:1px solid rgba(239,68,68,0.3)}
+.btn-reset:hover{background:rgba(239,68,68,0.3)}
+.tip{background:linear-gradient(135deg,rgba(245,158,11,0.1),rgba(251,191,36,0.05));border:1px solid rgba(245,158,11,0.3);border-radius:10px;padding:10px 12px;font-size:0.78em;color:#fcd34d;margin-top:10px;line-height:1.6}
+.tip strong{color:#f59e0b}
+.crosshair-info{font-size:0.75em;color:#64748b;text-align:center;margin-top:6px;min-height:18px}
+.toggle-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.toggle-btn{padding:5px 12px;border-radius:20px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.05);color:#94a3b8;font-size:0.75em;cursor:pointer;transition:all 0.25s}
+.toggle-btn.on{background:rgba(59,130,246,0.2);color:#60a5fa;border-color:#3b82f6}
+.hindi{font-size:0.78em;color:#c4b5fd;font-style:italic}
+</style>
+</head>
+<body>
+<div class="title-bar">
+<h1>📈 बहुपद (Polynomials) — Graphical Meaning of Zeroes</h1>
+<p>CBSE Class 10 Mathematics | Chapter 2 | शून्यक का आलेखीय अर्थ</p>
+</div>
+<div class="container">
+<div class="concept-box">
+<h2>🎯 Core Concept: <span style="color:#fbbf24">शून्यक (Zero/Root)</span> = Point where graph crosses X-axis</h2>
+<div class="formula">p(x) = 0 ⟹ x-intercept on graph</div>
+<div style="font-size:0.78em;color:#94a3b8;margin-top:6px">The x-coordinates where the polynomial graph touches or crosses the X-axis are called the <strong style="color:#22c55e">zeroes (शून्यक)</strong> of the polynomial</div>
+</div>
+<div class="tabs">
+<div class="tab linear active" onclick="setType('linear')">📏 Linear<br><span style="font-size:0.85em;font-weight:400">ax+b</span></div>
+<div class="tab quadratic" onclick="setType('quadratic')">⛰️ Quadratic<br><span style="font-size:0.85em;font-weight:400">ax²+bx+c</span></div>
+<div class="tab cubic" onclick="setType('cubic')">〰️ Cubic<br><span style="font-size:0.85em;font-weight:400">ax³+bx²+cx+d</span></div>
+</div>
+<div class="main-area">
+<div class="graph-card">
+<h3 id="graphTitle">Linear Polynomial — p(x) = ax + b</h3>
+<canvas id="graphCanvas" width="440" height="320"></canvas>
+<div class="crosshair-info" id="crosshairInfo">Hover over graph to explore • Click to mark a point</div>
+<div class="toggle-row" style="margin-top:10px;justify-content:center">
+<div class="toggle-btn on" id="tgGrid" onclick="toggleOpt('grid')">Grid</div>
+<div class="toggle-btn on" id="tgZero" onclick="toggleOpt('zeros')">Show Zeroes</div>
+<div class="toggle-btn on" id="tgLabel" onclick="toggleOpt('labels')">Labels</div>
+</div>
+</div>
+<div class="info-card">
+<h3 id="typeLabel">📏 Linear (रैखिक)</h3>
+<div class="info-row"><span class="label">Degree (घात):</span> <span id="degreeVal"> 1</span></div>
+<div class="info-row"><span class="label">Max Zeroes (अधिकतम शून्यक):</span> <span id="maxZero"> 1</span></div>
+<div class="info-row"><span class="label">Graph Shape:</span> <span id="shapeVal"> Straight Line</span></div>
+<div class="info-row" id="polyDisplay" style="font-size:0.88em;color:#fbbf24;font-weight:600">p(x) = 2x − 4</div>
+<div class="slider-area" id="sliderArea">
+<div class="slider-row">
+<label id="la">a</label>
+<input type="range" id="sa" min="-5" max="5" step="0.5" value="2" oninput="updateGraph()">
+<span class="slider-val" id="va">2</span>
+</div>
+<div class="slider-row">
+<label id="lb">b</label>
+<input type="range" id="sb" min="-6" max="6" step="0.5" value="-4" oninput="updateGraph()">
+<span class="slider-val" id="vb">-4</span>
+</div>
+<div class="slider-row" id="rowC" style="display:none">
+<label id="lc">c</label>
+<input type="range" id="sc" min="-6" max="6" step="0.5" value="2" oninput="updateGraph()">
+<span class="slider-val" id="vc">2</span>
+</div>
+<div class="slider-row" id="rowD" style="display:none">
+<label id="ld">d</label>
+<input type="range" id="sd" min="-6" max="6" step="0.5" value="-1" oninput="updateGraph()">
+<span class="slider-val" id="vd">-1</span>
+</div>
+</div>
+<div class="zero-list" id="zeroList"></div>
+<div class="tip">💡 <strong>याद रखो:</strong> Degree = Maximum number of zeroes possible!</div>
+</div>
+</div>
+<div class="walkthrough">
+<h3>🔍 Step-by-Step Walkthrough <span class="hindi">— चरण-दर-चरण विवरण</span></h3>
+<div id="stepContainer" class="steps"></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">
+<button class="btn btn-primary" onclick="nextStep()">▶ Next Step</button>
+<button class="btn btn-reset" onclick="resetSteps()">↺ Reset</button>
+</div>
+</div>
+</div>
+<script>
+let currentType='linear',opts={grid:true,zeros:true,labels:true},mousePos=null,currentStep=0;
+const canvas=document.getElementById('graphCanvas'),ctx=canvas.getContext('2d');
+const steps={
+linear:[
+{title:"What is a Linear Polynomial? (रैखिक बहुपद)",text:"A polynomial of degree 1: p(x) = ax + b, where a ≠ 0. Its graph is always a straight line (सीधी रेखा)."},
+{title:"Finding Zero Algebraically (बीजगणितीय विधि)",text:"Set p(x) = 0 → ax + b = 0 → x = −b/a. This gives exactly ONE zero (एक शून्यक)."},
+{title:"Graphical Meaning (आलेखीय अर्थ)",text:"On the graph, the line crosses the X-axis at exactly ONE point. The x-coordinate of that point = zero of p(x)."},
+{title:"Try It! Move the sliders",text:"Change values of a and b. Watch how the line tilts and the X-crossing point (शून्यक) moves. ∴ Straight line = 1 zero always!"}
+],
+quadratic:[
+{title:"What is a Quadratic Polynomial? (द्विघात बहुपद)",text:"p(x) = ax² + bx + c, degree = 2, a ≠ 0. Graph is a U-shaped curve called PARABOLA (परवलय)."},
+{title:"How Many Zeroes? (कितने शून्यक?)",text:"Discriminant D = b² − 4ac determines zeroes:\n• D > 0 → 2 distinct zeroes (2 distinct X-crossings)\n• D = 0 → 1 zero (tangent to X-axis)\n• D < 0 → NO real zeroes (parabola doesn't touch X-axis)"},
+{title:"Graphical Meaning (आलेखीय अर्थ)",text:"Count how many times the parabola intersects the X-axis — that's the number of zeroes (शून्यक). Move sliders to see all 3 cases!"},
+{title:"Relation with Coefficients (गुणांकों से संबंध)",text:"If α, β are zeroes: α + β = −b/a (sum), α × β = c/a (product). These are fundamental CBSE formulas!"}
+],
+cubic:[
+{title:"What is a Cubic Polynomial? (घनीय बहुपद)",text:"p(x) = ax³ + bx² + cx + d, degree = 3. Graph is an S-shaped curve (S-आकार वक्र)."},
+{title:"Number of Zeroes (शून्यकों की संख्या)",text:"A cubic polynomial has AT MOST 3 zeroes. Its graph can cross X-axis 1, 2, or 3 times. It always has at least 1 real zero!"},
+{title:"Graphical Meaning (आलेखीय अर्थ)",text:"Each X-axis crossing = one zero of p(x). The S-shaped curve can wiggle above and below the X-axis — each crossing is a शून्यक."},
+{title:"Relation with Coefficients (गुणांकों से संबंध)",text:"If α,β,γ are zeroes: α+β+γ = −b/a, αβ+βγ+γα = c/a, α×β×γ = −d/a. Adjust sliders to see all 3 zeroes!"}
+]
+};
+
+function setType(t){
+  currentType=t;currentStep=0;
+  document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));
+  document.querySelector('.tab.'+t).classList.add('active');
+  const rowC=document.getElementById('rowC'),rowD=document.getElementById('rowD');
+  const lblMap={linear:{a:'a',b:'b'},quadratic:{a:'a',b:'b',c:'c'},cubic:{a:'a',b:'b',c:'c',d:'d'}};
+  if(t==='linear'){rowC.style.display='none';rowD.style.display='none';
+    document.getElementById('sa').min=-5;document.getElementById('sa').max=5;document.getElementById('sa').value=2;
+    document.getElementById('sb').value=-4;
+    document.getElementById('graphTitle').textContent='Linear Polynomial — p(x) = ax + b';
+    document.getElementById('typeLabel').innerHTML='📏 Linear <span class="hindi">(रैखिक)</span>';
+    document.getElementById('degreeVal').textContent=' 1';document.getElementById('maxZero').textContent=' 1';document.getElementById('shapeVal').textContent=' Straight Line';
+  }else if(t==='quadratic'){rowC.style.display='flex';rowD.style.display='none';
+    document.getElementById('sa').value=1;document.getElementById('sb').value=-1;document.getElementById('sc').value=-6;
+    document.getElementById('graphTitle').textContent='Quadratic Polynomial — p(x) = ax² + bx + c';
+    document.getElementById('typeLabel').innerHTML='⛰️ Quadratic <span class="hindi">(द्विघात)</span>';
+    document.getElementById('degreeVal').textContent=' 2';document.getElementById('maxZero').textContent=' 2';document.getElementById('shapeVal').textContent=' Parabola (परवलय)';
+  }else{rowC.style.display='flex';rowD.style.display='flex';
+    document.getElementById('sa').value=1;document.getElementById('sb').value=-1;document.getElementById('sc').value=-4;document.getElementById('sd').value=4;
+    document.getElementById('graphTitle').textContent='Cubic Polynomial — p(x) = ax³ + bx² + cx + d';
+    document.getElementById('typeLabel').innerHTML='〰️ Cubic <span class="hindi">(घनीय)</span>';
+    document.getElementById('degreeVal').textContent=' 3';document.getElementById('maxZero').textContent=' 3';document.getElementById('shapeVal').textContent=' S-Curve (S-वक्र)';
+  }
+  resetSteps();updateGraph();
+}
+
+function getCoeffs(){
+  const a=parseFloat(document.getElementById('sa').value)||0;
+  const b=parseFloat(document.getElementById('sb').value)||0;
+  const c=parseFloat(document.getElementById('sc').value)||0;
+  const d=parseFloat(document.getElementById('sd').value)||0;
+  document.getElementById('va').textContent=a;document.getElementById('vb').textContent=b;
+  document.getElementById('vc').textContent=c;document.getElementById('vd').textContent=d;
+  return{a,b,c,d};
+}
+
+function evalPoly(x,{a,b,c,d}){
+  if(currentType==='linear')return a*x+b;
+  if(currentType==='quadratic')return a*x*x+b*x+c;
+  return a*x*x*x+b*x*x+c*x+d;
+}
+
+function findZeroes(co){
+  const{a,b,c,d}=co;
+  if(currentType==='linear'){
+    if(Math.abs(a)<0.001)return[];
+    return[-b/a];
+  }
+  if(currentType==='quadratic'){
+    if(Math.abs(a)<0.001)return[];
+    const D=b*b-4*a*c;
+    if(D<-0.001)return[];
+    if(Math.abs(D)<0.001)return[-b/(2*a)];
+    return[(-b+Math.sqrt(D))/(2*a),(-b-Math.sqrt(D))/(2*a)].sort((x,y)=>x-y);
+  }
+  const roots=[];
+  for(let i=-80;i<=80;i++){
+    const x1=i*0.1,x2=(i+1)*0.1;
+    const y1=evalPoly(x1,co),y2=evalPoly(x2,co);
+    if(y1*y2<=0){
+      let lo=x1,hi=x2;
+      for(let k=0;k<30;k++){const m=(lo+hi)/2;(evalPoly(lo,co)*evalPoly(m,co)<=0)?hi=m:lo=m;}
+      const r=(lo+hi)/2;
+      if(!roots.some(rx=>Math.abs(rx-r)<0.1))roots.push(parseFloat(r.toFixed(2)));
+    }
+  }
+  return roots.sort((x,y)=>x-y);
+}
+
+function polyStr({a,b,c,d}){
+  function term(coef,power,first=false){
+    if(Math.abs(coef)<0.001)return'';
+    const s=coef<0?' − ':first?'':' + ';
+    const v=Math.abs(coef)===1&&power>0?'':Math.abs(coef);
+    const p=power===0?'':(power===1?'x':power===2?'x²':'x³');
+    return s+v+p;
+  }
+  if(currentType==='linear')return'p(x) = '+( (Math.abs(a)<0.001?'':a==='1'?'x':a+' × x')+(b>=0&&Math.abs(a)>0.001?' + ':' ')+b );
+  if(currentType==='quadratic'){let s=`p(x) = ${a}x² ${b>=0?'+ ':'− '}${Math.abs(b)}x ${c>=0?'+ ':'− '}${Math.abs(c)}`;return s;}
+  return`p(x) = ${a}x³ ${b>=0?'+ ':'− '}${Math.abs(b)}x² ${c>=0?'+ ':'− '}${Math.abs(c)}x ${d>=0?'+ ':'− '}${Math.abs(d)}`;
+}
+
+const W=canvas.width,H=canvas.height,CX=W/2,CY=H/2,SCALE=36;
+function toCanvasX(x){return CX+x*SCALE;}
+function toCanvasY(y){return CY-y*SCALE;}
+function toMathX(px){return(px-CX)/SCALE;}
+function toMathY(py){return(CY-py)/SCALE;}
+
+function drawGraph(){
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#0a1628';ctx.fillRect(0,0,W,H);
+  const co=getCoeffs();
+  if(opts.grid){
+    ctx.strokeStyle='rgba(255,255,255,0.06)';ctx.lineWidth=1;
+    for(let x=-12;x<=12;x++){ctx.beginPath();ctx.moveTo(toCanvasX(x),0);ctx.lineTo(toCanvasX(x),H);ctx.stroke();}
+    for(let y=-8;y<=8;y++){ctx.beginPath();ctx.moveTo(0,toCanvasY(y));ctx.lineTo(W,toCanvasY(y));ctx.stroke();}
+  }
+  ctx.strokeStyle='rgba(255,255,255,0.3)';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(0,CY);ctx.lineTo(W,CY);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(CX,0);ctx.lineTo(CX,H);ctx.stroke();
+  ctx.fillStyle='rgba(255,255,255,0.5)';ctx.font='11px Segoe UI';
+  if(opts.labels){
+    ctx.fillText('X',W-14,CY-6);ctx.fillText('Y',CX+6,12);ctx.fillText('O',CX+3,CY+13);
+    for(let x=-10;x<=10;x+=2){if(x!==0){ctx.fillStyle='rgba(255,255,255,0.3)';ctx.font='9px Segoe UI';ctx.fillText(x,toCanvasX(x)-4,CY+13);}}
+    for(let y=-6;y<=6;y+=2){if(y!==0){ctx.fillText(y,CX+4,toCanvasY(y)+4);}}
+  }
+  const colors={linear:'#22c55e',quadratic:'#3b82f6',cubic:'#f59e0b'};
+  ctx.strokeStyle=colors[currentType];ctx.lineWidth=2.8;ctx.shadowColor=colors[currentType];ctx.shadowBlur=8;
+  ctx.beginPath();let first=true;
+  for(let px=0;px<W;px+=1.5){
+    const mx=toMathX(px),my=evalPoly(mx,co);
+    const py=toCanvasY(my);
+    if(py<-50||py>H+50){first=true;continue;}
+    first?(ctx.moveTo(px,py),first=false):ctx.lineTo(px,py);
+  }
+  ctx.stroke();ctx.shadowBlur=0;
+  const zeroes=findZeroes(co);
+  if(opts.zeros){
+    const zColors=['#ef4444','#f59e0b','#a78bfa'];
+    zeroes.forEach((z,i)=>{
+      const px=toCanvasX(z),py=CY;
+      ctx.beginPath();ctx.arc(px,py,7,0,2*Math.PI);ctx.fillStyle=zColors[i%3];ctx.fill();
+      ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.stroke();
+      ctx.beginPath();ctx.setLineDash([4,3]);ctx.strokeStyle=zColors[i%3]+'80';ctx.lineWidth=1;
+      ctx.moveTo(px,py);ctx.lineTo(px,0);ctx.stroke();ctx.setLineDash([]);
+      if(opts.labels){
+        ctx.fillStyle='#fff';ctx.font='bold 10px Segoe UI';
+        ctx.fillText(`x=${z.toFixed(1)}`,px+8,py-10);
+      }
+    });
+  }
+  if(mousePos){
+    const mx=toMathX(mousePos.x),my=evalPoly(mx,co);
+    const py=toCanvasY(my);
+    if(py>=0&&py<=H){
+      ctx.beginPath();ctx.arc(mousePos.x,py,4,0,2*Math.PI);ctx.fillStyle='rgba(255,255,255,0.7)';ctx.fill();
+      ctx.fillStyle='rgba(15,23,42,0.85)';ctx.fillRect(mousePos.x+10,py-22,120,20);ctx.strokeStyle='rgba(255,255,255,0.2)';ctx.lineWidth=1;ctx.strokeRect(mousePos.x+10,py-22,120,20);
+      ctx.fillStyle='#fff';ctx.font='10px Segoe UI';ctx.fillText(`p(${mx.toFixed(1)}) = ${my.toFixed(2)}`,mousePos.x+15,py-8);
+      document.getElementById('crosshairInfo').textContent=`x = ${mx.toFixed(2)}, p(x) = ${my.toFixed(2)}${Math.abs(my)<0.3?' ← Near zero! 🎯':''}`;
+    }
+  }
+  updateZeroList(zeroes,co);
+  document.getElementById('polyDisplay').textContent=polyStr(co);
+  const D=co.b*co.b-4*co.a*co.c;
+  if(currentType==='quadratic'){document.getElementById('polyDisplay').textContent+=`  |  D = b²−4ac = ${D.toFixed(1)}`;}
+}
+
+function updateZeroList(zeroes,co){
+  const el=document.getElementById('zeroList');
+  const zColors=['#ef4444','#f59e0b','#a78bfa'];
+  if(zeroes.length===0){
+    el.innerHTML='<div class="zero-item"><span class="dot" style="background:#64748b"></span><span style="color:#64748b">No real zeroes (कोई वास्तविक शून्यक नहीं)</span></div>';
+    return;
+  }
+  el.innerHTML=zeroes.map((z,i)=>`<div class="zero-item"><span class="dot" style="background:${zColors[i]}"></span><strong style="color:${zColors[i]}">Zero ${i+1}:</strong>&nbsp;x = ${z.toFixed(2)}&nbsp;<span style="color:#64748b;font-size:0.9em">p(${z.toFixed(2)}) ≈ ${evalPoly(z,co).toFixed(2)}</span></div>`).join('');
+}
+
+function toggleOpt(k){opts[k]=!opts[k];document.getElementById('tg'+k.charAt(0).toUpperCase()+k.slice(1)).classList.toggle('on',opts[k]);drawGraph();}
+
+canvas.addEventListener('mousemove',e=>{
+  const r=canvas.getBoundingClientRect();
+  const sx=canvas.width/r.width;
+  mousePos={x:(e.clientX-r.left)*sx,y:(e.clientY-r.top)*sx};
+  drawGraph();
+});
+canvas.addEventListener('mouseleave',()=>{mousePos=null;document.getElementById('crosshairInfo').textContent='Hover over graph to explore';drawGraph();});
+canvas.addEventListener('touchmove',e=>{
+  e.preventDefault();const t=e.touches[0];const r=canvas.getBoundingClientRect();
+  const sx=canvas.width/r.width;mousePos={x:(t.clientX-r.left)*sx,y:(t.clientY-r.top)*sx};drawGraph();
+},{passive:false});
+
+function updateGraph(){drawGraph();}
+
+function nextStep(){
+  const stepsData=steps[currentType];
+  const container=document.getElementById('stepContainer');
+  if(currentStep===0){
+    container.innerHTML=stepsData.map((s,i)=>`<div class="step" id="step${i}"><h4>${s.title}</h4><p>${s.text}</p></div>`).join('');
+  }
+  if(currentStep<stepsData.length){
+    const el=document.getElementById('step'+currentStep);
+    if(el){
+      document.querySelectorAll('.step').forEach(s=>s.classList.remove('active-step'));
+      el.classList.add('revealed','active-step');
+      el.scrollIntoView({behavior:'smooth',block:'nearest'});
+    }
+    currentStep++;
+  }
+}
+
+function resetSteps(){currentStep=0;document.getElementById('stepContainer').innerHTML='<div style="color:#64748b;font-size:0.82em;padding:8px">Click ▶ Next Step to begin the walkthrough...</div>';}
+
+setType('linear');
+</script>
+</body>
+</html>

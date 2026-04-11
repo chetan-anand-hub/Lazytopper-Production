@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Polynomials - Zeroes & Coefficients | Class 10</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f0f4ff; color: #1e293b; min-height: 100vh; }
+
+  .title-bar {
+    background: linear-gradient(135deg, #1e293b 0%, #3b82f6 100%);
+    color: white; padding: 14px 20px; text-align: center;
+    box-shadow: 0 4px 15px rgba(59,130,246,0.4);
+  }
+  .title-bar h1 { font-size: 1.2rem; font-weight: 700; }
+  .title-bar p { font-size: 0.78rem; opacity: 0.85; margin-top: 2px; }
+
+  .container { max-width: 700px; margin: 0 auto; padding: 16px; }
+
+  .card {
+    background: white; border-radius: 16px; padding: 18px;
+    margin-bottom: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    border: 1px solid #e2e8f0;
+  }
+
+  .card h2 { font-size: 1rem; font-weight: 700; margin-bottom: 12px; color: #1e293b; }
+
+  .formula-box {
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    border: 2px solid #3b82f6; border-radius: 12px;
+    padding: 16px; text-align: center; margin: 10px 0;
+  }
+  .formula-box .formula { font-size: 1.1rem; font-weight: 700; color: #1d4ed8; margin: 6px 0; }
+  .formula-box .label { font-size: 0.75rem; color: #64748b; }
+
+  .tabs { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+  .tab {
+    padding: 7px 14px; border-radius: 20px; border: 2px solid #e2e8f0;
+    background: white; cursor: pointer; font-size: 0.82rem; font-weight: 600;
+    transition: all 0.25s; color: #64748b;
+  }
+  .tab.active { background: #3b82f6; color: white; border-color: #3b82f6; transform: scale(1.05); }
+  .tab:hover:not(.active) { border-color: #3b82f6; color: #3b82f6; }
+
+  .poly-section { display: none; }
+  .poly-section.active { display: block; }
+
+  .graph-wrap {
+    position: relative; width: 100%; max-width: 340px;
+    margin: 0 auto 12px; cursor: pointer;
+  }
+  canvas { border-radius: 12px; border: 2px solid #e2e8f0; display: block; width: 100%; }
+
+  .zero-badges { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin: 8px 0; }
+  .badge {
+    padding: 5px 12px; border-radius: 20px; font-size: 0.8rem;
+    font-weight: 700; color: white; animation: pop 0.3s ease;
+  }
+  @keyframes pop { 0%{transform:scale(0.7)} 70%{transform:scale(1.1)} 100%{transform:scale(1)} }
+  .badge-blue { background: #3b82f6; }
+  .badge-green { background: #22c55e; }
+  .badge-amber { background: #f59e0b; }
+
+  .relation-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }
+  .rel-card {
+    border-radius: 12px; padding: 12px; text-align: center;
+    border: 2px solid; transition: transform 0.2s;
+  }
+  .rel-card:hover { transform: translateY(-3px); }
+  .rel-card.sum { border-color: #22c55e; background: #f0fdf4; }
+  .rel-card.prod { border-color: #f59e0b; background: #fffbeb; }
+  .rel-card .rel-title { font-size: 0.72rem; color: #64748b; margin-bottom: 4px; font-weight: 600; text-transform: uppercase; }
+  .rel-card .rel-formula { font-size: 1rem; font-weight: 700; }
+  .rel-card.sum .rel-formula { color: #16a34a; }
+  .rel-card.prod .rel-formula { color: #d97706; }
+  .rel-card .rel-value { font-size: 0.85rem; color: #475569; margin-top: 4px; }
+
+  .slider-wrap { margin: 12px 0; }
+  .slider-wrap label { font-size: 0.82rem; font-weight: 600; color: #475569; display: flex; justify-content: space-between; }
+  input[type=range] {
+    width: 100%; margin: 5px 0; accent-color: #3b82f6;
+    height: 6px; border-radius: 3px;
+  }
+
+  .poly-display {
+    background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+    border-radius: 10px; padding: 12px; text-align: center;
+    font-size: 1rem; font-weight: 700; color: #1e293b;
+    border: 1px solid #e2e8f0; margin: 8px 0;
+    transition: all 0.3s;
+  }
+
+  .steps-container { }
+  .step {
+    display: none; background: #f8faff; border-left: 4px solid #3b82f6;
+    border-radius: 0 10px 10px 0; padding: 12px; margin: 8px 0;
+    animation: slideIn 0.35s ease;
+  }
+  @keyframes slideIn { from{opacity:0;transform:translateX(-15px)} to{opacity:1;transform:translateX(0)} }
+  .step.visible { display: block; }
+  .step .step-num { font-size: 0.7rem; color: #3b82f6; font-weight: 700; text-transform: uppercase; }
+  .step .step-content { font-size: 0.88rem; margin-top: 4px; line-height: 1.6; }
+  .step .step-math { background: #dbeafe; border-radius: 6px; padding: 6px 10px; margin: 6px 0; font-weight: 700; color: #1d4ed8; font-size: 0.9rem; }
+  .step-nav { display: flex; gap: 8px; margin-top: 10px; align-items: center; }
+  .btn {
+    padding: 8px 16px; border-radius: 20px; border: none; cursor: pointer;
+    font-size: 0.82rem; font-weight: 700; transition: all 0.2s;
+  }
+  .btn-primary { background: #3b82f6; color: white; }
+  .btn-primary:hover { background: #2563eb; transform: scale(1.04); }
+  .btn-secondary { background: #e2e8f0; color: #475569; }
+  .btn-secondary:hover { background: #cbd5e1; }
+  .step-counter { font-size: 0.78rem; color: #94a3b8; margin-left: auto; }
+
+  .quiz-card { background: linear-gradient(135deg, #fefce8, #fef9c3); border: 2px solid #f59e0b; border-radius: 12px; padding: 14px; }
+  .quiz-q { font-size: 0.9rem; font-weight: 700; margin-bottom: 10px; color: #92400e; }
+  .quiz-opts { display: flex; flex-direction: column; gap: 7px; }
+  .quiz-opt {
+    padding: 9px 14px; border-radius: 8px; border: 2px solid #fcd34d;
+    background: white; cursor: pointer; font-size: 0.84rem; font-weight: 600;
+    transition: all 0.2s; color: #1e293b;
+  }
+  .quiz-opt:hover:not(.disabled) { border-color: #f59e0b; background: #fffbeb; transform: translateX(4px); }
+  .quiz-opt.correct { border-color: #22c55e; background: #f0fdf4; color: #15803d; }
+  .quiz-opt.wrong { border-color: #ef4444; background: #fef2f2; color: #dc2626; }
+  .quiz-opt.disabled { cursor: default; }
+  .quiz-feedback { margin-top: 10px; padding: 9px; border-radius: 8px; font-size: 0.84rem; font-weight: 600; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.correct { background: #f0fdf4; color: #16a34a; }
+  .quiz-feedback.wrong { background: #fef2f2; color: #dc2626; }
+  .btn-reset { background: #f59e0b; color: white; margin-top: 8px; }
+  .btn-reset:hover { background: #d97706; }
+
+  .highlight { color: #3b82f6; font-weight: 700; }
+  .highlight-g { color: #16a34a; font-weight: 700; }
+  .highlight-a { color: #d97706; font-weight: 700; }
+  .highlight-r { color: #dc2626; font-weight: 700; }
+
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; }
+  .tag-blue { background: #dbeafe; color: #1d4ed8; }
+  .tag-green { background: #dcfce7; color: #15803d; }
+
+  .memory-tip {
+    background: linear-gradient(135deg, #fdf4ff, #fae8ff);
+    border: 2px solid #a855f7; border-radius: 12px;
+    padding: 12px; margin: 10px 0;
+  }
+  .memory-tip h3 { font-size: 0.82rem; color: #7e22ce; font-weight: 700; margin-bottom: 5px; }
+  .memory-tip p { font-size: 0.82rem; color: #581c87; line-height: 1.5; }
+
+  .info-row { display: flex; align-items: center; gap: 8px; margin: 5px 0; font-size: 0.84rem; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+  @media(max-width:400px) {
+    .relation-grid { grid-template-columns: 1fr; }
+    .title-bar h1 { font-size: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="title-bar">
+  <h1>📐 शून्यकों और गुणांकों में संबंध</h1>
+  <p>Polynomials: Relationship between Zeroes & Coefficients | Class 10</p>
+</div>
+
+<div class="container">
+
+  <!-- Concept Intro -->
+  <div class="card">
+    <h2>🎯 मुख्य अवधारणा (Core Concept)</h2>
+    <p style="font-size:0.84rem;color:#475569;margin-bottom:10px;">
+      For a polynomial with zeroes <span class="highlight">α (alpha)</span> and <span class="highlight-g">β (beta)</span>, there are beautiful relationships with its coefficients!
+    </p>
+    <div class="tabs">
+      <div class="tab active" onclick="switchPoly('quadratic')">Quadratic (द्विघात)</div>
+      <div class="tab" onclick="switchPoly('cubic')">Cubic (त्रिघात)</div>
+    </div>
+
+    <div id="sec-quadratic" class="poly-section active">
+      <div class="formula-box">
+        <div class="label">General Quadratic Polynomial</div>
+        <div class="formula">p(x) = ax² + bx + c</div>
+        <div class="label" style="margin-top:4px;">with zeroes α and β</div>
+      </div>
+      <div class="relation-grid">
+        <div class="rel-card sum">
+          <div class="rel-title">∑ Sum of Zeroes (योग)</div>
+          <div class="rel-formula">α + β = −b/a</div>
+          <div class="rel-value">= −(coefficient of x) ÷ (coefficient of x²)</div>
+        </div>
+        <div class="rel-card prod">
+          <div class="rel-title">∏ Product of Zeroes (गुणनफल)</div>
+          <div class="rel-formula">α × β = c/a</div>
+          <div class="rel-value">= constant term ÷ coefficient of x²</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="sec-cubic" class="poly-section">
+      <div class="formula-box">
+        <div class="label">General Cubic Polynomial</div>
+        <div class="formula">p(x) = ax³ + bx² + cx + d</div>
+        <div class="label" style="margin-top:4px;">with zeroes α, β and γ (gamma)</div>
+      </div>
+      <div style="display:grid;gap:8px;margin-top:8px;">
+        <div class="rel-card sum" style="border-color:#3b82f6;background:#eff6ff;">
+          <div class="rel-title" style="color:#64748b;">α + β + γ (Sum)</div>
+          <div class="rel-formula" style="color:#1d4ed8;">= −b/a</div>
+        </div>
+        <div class="rel-card" style="border-color:#8b5cf6;background:#f5f3ff;">
+          <div class="rel-title" style="color:#64748b;">αβ + βγ + γα (Sum of products of pairs)</div>
+          <div class="rel-formula" style="color:#7c3aed;">= c/a</div>
+        </div>
+        <div class="rel-card prod">
+          <div class="rel-title">α × β × γ (Product)</div>
+          <div class="rel-formula">= −d/a</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive Graph -->
+  <div class="card">
+    <h2>📊 Interactive Parabola Explorer</h2>
+    <p style="font-size:0.82rem;color:#475569;margin-bottom:10px;">
+      Move the sliders to change zeroes α and β. Watch the graph and formulas update live! 🎨
+    </p>
+    <div class="slider-wrap">
+      <label>α (alpha) = <span id="alphaVal" style="color:#3b82f6;font-weight:700;">-2</span></label>
+      <input type="range" id="alphaSlider" min="-4" max="4" step="0.5" value="-2" oninput="updateGraph()">
+    </div>
+    <div class="slider-wrap">
+      <label>β (beta) = <span id="betaVal" style="color:#22c55e;font-weight:700;">3</span></label>
+      <input type="range" id="betaSlider" min="-4" max="4" step="0.5" value="3" oninput="updateGraph()">
+    </div>
+    <div id="polyDisplay" class="poly-display">p(x) = x² − x − 6</div>
+    <div class="graph-wrap">
+      <canvas id="graphCanvas" width="340" height="220"></canvas>
+    </div>
+    <div class="zero-badges" id="zeroBadges">
+      <span class="badge badge-blue">α = −2</span>
+      <span class="badge badge-green">β = 3</span>
+    </div>
+    <div class="relation-grid">
+      <div class="rel-card sum">
+        <div class="rel-title">α + β</div>
+        <div class="rel-formula" id="sumDisplay">= 1</div>
+        <div class="rel-value">−b/a = <span id="sumFormula">−(−1)/1</span></div>
+      </div>
+      <div class="rel-card prod">
+        <div class="rel-title">α × β</div>
+        <div class="rel-formula" id="prodDisplay">= −6</div>
+        <div class="rel-value">c/a = <span id="prodFormula">−6/1</span></div>
+      </div>
+    </div>
+    <div class="memory-tip">
+      <h3>💡 याद करने की युक्ति (Memory Tip)</h3>
+      <p>The parabola <strong>crosses the x-axis</strong> exactly at α and β! Those crossing points ARE the zeroes. Notice how sum = −b/a always checks out! ✓</p>
+    </div>
+  </div>
+
+  <!-- Step by Step Example -->
+  <div class="card">
+    <h2>📖 Worked Example (हल किया उदाहरण)</h2>
+    <div style="background:#f8faff;border-radius:10px;padding:12px;margin-bottom:12px;">
+      <div style="font-size:0.85rem;font-weight:700;color:#1d4ed8;">Question:</div>
+      <div style="font-size:0.9rem;margin-top:5px;">Find the zeroes of <strong>p(x) = x² − 5x + 6</strong> and verify the relationship between zeroes and coefficients.</div>
+    </div>
+    <div id="stepsContainer"></div>
+    <div class="step-nav">
+      <button class="btn btn-secondary" onclick="prevStep()" id="prevBtn" style="display:none">← Prev</button>
+      <button class="btn btn-primary" onclick="nextStep()" id="nextBtn">Next Step →</button>
+      <span class="step-counter" id="stepCounter">Step 0 of 5</span>
+    </div>
+  </div>
+
+  <!-- Quiz -->
+  <div class="card">
+    <h2>🧠 Quick Quiz (त्वरित प्रश्नोत्तरी)</h2>
+    <div class="quiz-card">
+      <div class="quiz-q" id="quizQ">For p(x) = 2x² + 7x + 3, what is the sum of zeroes (α + β)?</div>
+      <div class="quiz-opts" id="quizOpts">
+        <div class="quiz-opt" onclick="checkAnswer(this, false)">7/2</div>
+        <div class="quiz-opt" onclick="checkAnswer(this, true)">−7/2</div>
+        <div class="quiz-opt" onclick="checkAnswer(this, false)">3/2</div>
+        <div class="quiz-opt" onclick="checkAnswer(this, false)">−3/2</div>
+      </div>
+      <div class="quiz-feedback" id="quizFeedback"></div>
+      <button class="btn btn-reset" onclick="nextQuiz()" id="nextQuizBtn" style="display:none">Next Question →</button>
+    </div>
+  </div>
+
+  <!-- Summary -->
+  <div class="card">
+    <h2>📋 Summary Table (सारांश)</h2>
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:0.82rem;">
+        <tr style="background:#1e293b;color:white;">
+          <th style="padding:9px;border-radius:8px 0 0 0;text-align:left;">Type</th>
+          <th style="padding:9px;">Sum (α+β)</th>
+          <th style="padding:9px;border-radius:0 8px 0 0;">Product (αβ)</th>
+        </tr>
+        <tr style="background:#f0fdf4;">
+          <td style="padding:9px;font-weight:700;color:#15803d;">Quadratic ax²+bx+c</td>
+          <td style="padding:9px;text-align:center;font-weight:700;color:#1d4ed8;">−b/a</td>
+          <td style="padding:9px;text-align:center;font-weight:700;color:#d97706;">c/a</td>
+        </tr>
+        <tr style="background:#fefce8;">
+          <td style="padding:9px;font-weight:700;color:#92400e;">∴ Polynomial Form</td>
+          <td colspan="2" style="padding:9px;text-align:center;font-weight:700;color:#7c3aed;">x² − (α+β)x + αβ</td>
+        </tr>
+      </table>
+    </div>
+    <div class="memory-tip" style="margin-top:10px;">
+      <h3>🔑 Key Trick (महत्वपूर्ण युक्ति)</h3>
+      <p>To form a quadratic from roots: <strong>x² − (Sum of roots)x + (Product of roots) = 0</strong><br>
+      Example: roots 2 & 3 → x² − 5x + 6 = 0 ✓</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ===== TABS =====
+function switchPoly(type) {
+  document.querySelectorAll('.poly-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('sec-' + type).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ===== GRAPH =====
+function fr(n) { return parseFloat(n.toFixed(2)); }
+
+function updateGraph() {
+  const a = parseFloat(document.getElementById('alphaSlider').value);
+  const b = parseFloat(document.getElementById('betaSlider').value);
+  document.getElementById('alphaVal').textContent = a;
+  document.getElementById('betaVal').textContent = b;
+
+  // Polynomial: (x-a)(x-b) = x^2 - (a+b)x + ab
+  const coefB = -(a + b);
+  const coefC = a * b;
+
+  let polyStr = 'p(x) = x²';
+  if (coefB !== 0) polyStr += (coefB >= 0 ? ' + ' : ' − ') + Math.abs(coefB) + 'x';
+  if (coefC !== 0) polyStr += (coefC >= 0 ? ' + ' : ' − ') + Math.abs(coefC);
+  document.getElementById('polyDisplay').textContent = polyStr;
+
+  const sum = fr(a + b);
+  const prod = fr(a * b);
+  document.getElementById('sumDisplay').textContent = '= ' + sum;
+  document.getElementById('prodDisplay').textContent = '= ' + prod;
+  document.getElementById('sumFormula').textContent = '−(' + coefB + ')/1';
+  document.getElementById('prodFormula').textContent = coefC + '/1';
+
+  const badges = document.getElementById('zeroBadges');
+  badges.innerHTML = `<span class="badge badge-blue">α = ${a}</span><span class="badge badge-green">β = ${b}</span>`;
+
+  drawGraph(a, b);
+}
+
+function drawGraph(alpha, beta) {
+  const canvas = document.getElementById('graphCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  // Background
+  const bg = ctx.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0, '#f8faff'); bg.addColorStop(1, '#eff6ff');
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+
+  const cx = W / 2, cy = H / 2;
+  const scaleX = 40, scaleY = 18;
+
+  // Grid
+  ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1;
+  for (let i = -8; i <= 8; i++) {
+    ctx.beginPath(); ctx.moveTo(cx + i * scaleX, 10); ctx.lineTo(cx + i * scaleX, H - 10); ctx.stroke();
+  }
+  for (let j = -5; j <= 5; j++) {
+    ctx.beginPath(); ctx.moveTo(10, cy + j * scaleY); ctx.lineTo(W - 10, cy + j * scaleY); ctx.stroke();
+  }
+
+  // Axes
+  ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(10, cy); ctx.lineTo(W - 10, cy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx, 10); ctx.lineTo(cx, H - 10); ctx.stroke();
+
+  // Axis labels
+  ctx.fillStyle = '#94a3b8'; ctx.font = '10px Segoe UI'; ctx.textAlign = 'center';
+  for (let i = -4; i <= 4; i++) {
+    if (i !== 0) { ctx.fillText(i, cx + i * scaleX, cy + 14); }
+  }
+
+  // Parabola
+  const coefB = -(alpha + beta), coefC = alpha * beta;
+  ctx.beginPath(); ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 2.5;
+  let started = false;
+  for (let px = 10; px <= W - 10; px++) {
+    const x = (px - cx) / scaleX;
+    const y = x * x + coefB * x + coefC;
+    const py = cy - y * scaleY;
+    if (py < 5 || py > H - 5) { started = false; continue; }
+    if (!started) { ctx.moveTo(px, py); started = true; } else { ctx.lineTo(px, py); }
+  }
+  ctx.stroke();
+
+  // Zero points
+  const plotZero = (z, col, lbl) => {
+    const px = cx + z * scaleX;
+    ctx.beginPath(); ctx.arc(px, cy, 7, 0, Math.PI * 2);
+    ctx.fillStyle = col; ctx.fill();
+    ctx.strokeStyle = 'white'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.fillStyle = col; ctx.font = 'bold 10px Segoe UI'; ctx.textAlign = 'center';
+    ctx.fillText(lbl + '=' + z, px, cy - 14);
+  };
+  plotZero(alpha, '#3b82f6', 'α');
+  plotZero(beta, '#22c55e', 'β');
+
+  // x-label
+  ctx.fillStyle = '#475569'; ctx.font = '11px Segoe UI'; ctx.textAlign = 'right';
+  ctx.fillText('x →', W - 12, cy - 5);
+  ctx.textAlign = 'center'; ctx.fillText('y', cx + 12, 18);
+}
+
+// ===== STEP BY STEP =====
+const steps = [
+  {
+    num: 'Step 1', title: 'Identify the Polynomial',
+    content: 'We have <strong>p(x) = x² − 5x + 6</strong><br>Here: a = 1, b = −5, c = 6',
+    math: 'a = 1 &nbsp;|&nbsp; b = −5 &nbsp;|&nbsp; c = 6'
+  },
+  {
+    num: 'Step 2', title: 'Factorise to find zeroes (शून्यक)',
+    content: 'We need to split the middle term. Find two numbers whose sum = −5 and product = 6<br>Those numbers are <strong>−2 and −3</strong>',
+    math: 'x² − 5x + 6 = x² − 2x − 3x + 6'
+  },
+  {
+    num: 'Step 3', title: 'Complete the Factorisation',
+    content: 'Group the terms and take common factors:',
+    math: '= x(x−2) − 3(x−2) = (x−2)(x−3)'
+  },
+  {
+    num: 'Step 4', title: 'Find the Zeroes (शून्यक ज्ञात करें)',
+    content: 'Set p(x) = 0 → (x−2)(x−3) = 0<br>So the zeroes are:',
+    math: '∴ α = 2 &nbsp; and &nbsp; β = 3'
+  },
+  {
+    num: 'Step 5', title: '✅ Verify the Relationships (सत्यापन)',
+    content: '<strong>Sum:</strong> α + β = 2 + 3 = 5 &nbsp;and&nbsp; −b/a = −(−5)/1 = 5 ✓<br><strong>Product:</strong> α × β = 2 × 3 = 6 &nbsp;and&nbsp; c/a = 6/1 = 6 ✓',
+    math: 'α + β = −b/a ✓ &nbsp;&nbsp; α × β = c/a ✓'
+  }
+];
+
+let currentStep = -1;
+
+function renderSteps() {
+  const container = document.getElementById('stepsContainer');
+  container.innerHTML = '';
+  steps.forEach((s, i) => {
+    const div = document.createElement('div');
+    div.className = 'step' + (i <= currentStep ? ' visible' : '');
+    div.id = 'step' + i;
+    div.innerHTML = `<div class="step-num">${s.num}: ${s.title}</div>
+      <div class="step-content">${s.content}</div>
+      <div class="step-math">${s.math}</div>`;
+    container.appendChild(div);
+  });
+  document.getElementById('stepCounter').textContent = `Step ${Math.max(0, currentStep + 1)} of ${steps.length}`;
+  document.getElementById('prevBtn').style.display = currentStep > 0 ? 'block' : 'none';
+  document.getElementById('nextBtn').textContent = currentStep >= steps.length - 1 ? '🔄 Restart' : 'Next Step →';
+}
+
+function nextStep() {
+  if (currentStep >= steps.length - 1) { currentStep = -1; renderSteps(); return; }
+  currentStep++;
+  renderSteps();
+  const el = document.getElementById('step' + currentStep);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function prevStep() {
+  if (currentStep > 0) { currentStep--; renderSteps(); }
+}
+
+renderSteps();
+
+// ===== QUIZ =====
+const quizzes = [
+  {
+    q: 'For p(x) = 2x² + 7x + 3, what is the sum of zeroes (α + β)?',
+    opts: ['7/2', '−7/2', '3/2', '−3/2'],
+    correct: 1,
+    exp: '∵ α + β = −b/a = −7/2. Here a=2, b=7, so −7/2 ✓'
+  },
+  {
+    q: 'For p(x) = x² − 4x + 3, what is α × β (product of zeroes)?',
+    opts: ['4', '−4', '3', '−3'],
+    correct: 2,
+    exp: '∵ α × β = c/a = 3/1 = 3. Here c=3, a=1 ✓'
+  },
+  {
+    q: 'If α + β = 5 and αβ = 6, which polynomial has these zeroes?',
+    opts: ['x² + 5x + 6', 'x² − 6x + 5', 'x² − 5x + 6', 'x² + 6x − 5'],
+    correct: 2,
+    exp: '∵ p(x) = x² − (α+β)x + αβ = x² − 5x + 6 ✓'
+  },
+  {
+    q: 'For p(x) = 3x² − 5x + 2, what is α + β?',
+    opts: ['5', '−5', '5/3', '2/3'],
+    correct: 2,
+    exp: '∵ α + β = −b/a = −(−5)/3 = 5/3 ✓'
+  }
+];
+
+let currentQuiz = 0;
+let quizAnswered = false;
+
+function loadQuiz() {
+  const q = quizzes[currentQuiz];
+  document.getElementById('quizQ').textContent = q.q;
+  const optsEl = document.getElementById('quizOpts');
+  optsEl.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const d = document.createElement('div');
+    d.className = 'quiz-opt';
+    d.textContent = opt;
+    d.onclick = () => checkAnswer(d, i === q.correct, q.exp);
+    optsEl.appendChild(d);
+  });
+  document.getElementById('quizFeedback').classList.remove('show', 'correct', 'wrong');
+  document.getElementById('nextQuizBtn').style.display = 'none';
+  quizAnswered = false;
+}
+
+function checkAnswer(el, isCorrect, exp) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+  const fb = document.getElementById('quizFeedback');
+  document.querySelectorAll('.quiz-opt').forEach(o => o.classList.add('disabled'));
+  if (isCorrect) {
+    el.classList.add('correct');
+    fb.textContent = '✅ शाबाश! Correct! ' + (exp || '');
+    fb.className = 'quiz-feedback show correct';
+  } else {
+    el.classList.add('wrong');
+    fb.textContent = '❌ Incorrect. ' + (exp || '');
+    fb.className = 'quiz-feedback show wrong';
+    const q = quizzes[currentQuiz];
+    document.querySelectorAll('.quiz-opt')[q.correct].classList.add('correct');
+  }
+  document.getElementById('nextQuizBtn').style.display = 'block';
+}
+
+function nextQuiz() {
+  currentQuiz = (currentQuiz + 1) % quizzes.length;
+  loadQuiz();
+}
+
+loadQuiz();
+
+// ===== INIT GRAPH =====
+updateGraph();
+</script>
+</body>
+</html>

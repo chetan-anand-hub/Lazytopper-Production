@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ogive Curve - Statistics | Class 10 Maths</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);min-height:100vh;color:#1e293b}
+.titlebar{background:linear-gradient(90deg,#3b82f6,#8b5cf6);padding:12px 20px;text-align:center;box-shadow:0 4px 20px rgba(59,130,246,0.4)}
+.titlebar h1{color:#fff;font-size:1.2em;font-weight:700}
+.titlebar p{color:#bfdbfe;font-size:0.8em}
+.container{max-width:900px;margin:0 auto;padding:15px}
+.card{background:#fff;border-radius:16px;padding:16px;margin-bottom:15px;box-shadow:0 8px 32px rgba(0,0,0,0.3)}
+.section-title{font-size:1em;font-weight:700;color:#3b82f6;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.formula-box{background:linear-gradient(135deg,#eff6ff,#dbeafe);border:2px solid #3b82f6;border-radius:12px;padding:12px;margin:10px 0;text-align:center}
+.formula-box .formula{font-size:1em;font-weight:700;color:#1e40af;margin:4px 0}
+.formula-box .label{font-size:0.75em;color:#3b82f6}
+.tabs{display:flex;gap:8px;margin-bottom:15px;flex-wrap:wrap}
+.tab{padding:8px 16px;border-radius:20px;border:2px solid #3b82f6;background:transparent;color:#3b82f6;cursor:pointer;font-size:0.85em;font-weight:600;transition:all 0.3s}
+.tab.active{background:#3b82f6;color:#fff}
+.tab:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(59,130,246,0.3)}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:0.82em}
+th{background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#fff;padding:8px;text-align:center}
+td{padding:7px 8px;text-align:center;border-bottom:1px solid #e2e8f0}
+tr:nth-child(even){background:#f8fafc}
+tr.highlight{background:linear-gradient(90deg,#fef3c7,#fde68a)!important;font-weight:600}
+.chart-area{position:relative;width:100%;background:#f8fafc;border-radius:12px;border:2px solid #e2e8f0;overflow:hidden}
+canvas{display:block;width:100%!important;height:auto}
+.legend{display:flex;gap:15px;justify-content:center;flex-wrap:wrap;margin-top:10px}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:0.8em;font-weight:600}
+.legend-dot{width:14px;height:4px;border-radius:2px}
+.step-container{margin:10px 0}
+.step{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-left:4px solid #22c55e;border-radius:8px;padding:10px 12px;margin:6px 0;opacity:0;transform:translateX(-20px);transition:all 0.4s;display:none}
+.step.visible{opacity:1;transform:translateX(0);display:block}
+.step-num{font-weight:700;color:#22c55e;font-size:0.9em}
+.step-text{font-size:0.82em;color:#1e293b;margin-top:3px}
+.btn{padding:10px 20px;border-radius:20px;border:none;cursor:pointer;font-weight:700;font-size:0.85em;transition:all 0.3s}
+.btn-primary{background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#fff}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(59,130,246,0.4)}
+.btn-green{background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff}
+.btn-green:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(34,197,94,0.4)}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.75em;font-weight:700}
+.badge-blue{background:#dbeafe;color:#1d4ed8}
+.badge-green{background:#dcfce7;color:#15803d}
+.badge-amber{background:#fef3c7;color:#92400e}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:500px){.info-grid{grid-template-columns:1fr}.tabs{gap:5px}.tab{padding:6px 12px;font-size:0.78em}}
+.tooltip{position:absolute;background:#1e293b;color:#fff;padding:6px 10px;border-radius:8px;font-size:0.75em;pointer-events:none;opacity:0;transition:opacity 0.2s;z-index:100;white-space:nowrap}
+.highlight-box{background:linear-gradient(135deg,#fef3c7,#fde68a);border:2px solid #f59e0b;border-radius:10px;padding:10px;margin:8px 0}
+.highlight-box p{font-size:0.82em;color:#78350f}
+.progress-bar{height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden;margin:8px 0}
+.progress-fill{height:100%;border-radius:3px;transition:width 0.6s ease}
+.median-display{background:linear-gradient(135deg,#eff6ff,#dbeafe);border:2px solid #3b82f6;border-radius:10px;padding:10px;text-align:center;margin-top:10px}
+.median-display .val{font-size:1.4em;font-weight:700;color:#3b82f6}
+.pulse{animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(59,130,246,0.4)}50%{box-shadow:0 0 0 8px rgba(59,130,246,0)}}
+.type-card{border:2px solid;border-radius:12px;padding:12px;cursor:pointer;transition:all 0.3s}
+.type-card:hover{transform:translateY(-3px)}
+.type-card.less-than{border-color:#3b82f6;background:linear-gradient(135deg,#eff6ff,#dbeafe)}
+.type-card.more-than{border-color:#22c55e;background:linear-gradient(135deg,#f0fdf4,#dcfce7)}
+.animate-in{animation:slideIn 0.5s ease forwards}
+@keyframes slideIn{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div class="titlebar">
+<h1>📊 Ogive Curve (संचयी बारंबारता वक्र)</h1>
+<p>CBSE Class 10 Mathematics — Statistics | सांख्यिकी</p>
+</div>
+<div class="container">
+
+<div class="card animate-in">
+<div class="section-title">💡 What is an Ogive? (ओजाइव क्या है?)</div>
+<p style="font-size:0.85em;color:#334155;line-height:1.6">An <strong>Ogive</strong> (pronounced oh-jive) is a graph of <strong>Cumulative Frequency (संचयी बारंबारता)</strong> plotted against class boundaries. It is a smooth S-shaped curve used to find <strong>Median, Quartiles</strong> and other values graphically.</p>
+<div class="info-grid" style="margin-top:10px">
+<div class="type-card less-than" onclick="showType('less')">
+<div style="font-weight:700;color:#1d4ed8;font-size:0.9em">📈 Less Than Ogive</div>
+<div style="font-size:0.75em;color:#1e40af;margin-top:4px">(से कम संचयी बारंबारता)</div>
+<div style="font-size:0.75em;color:#334155;margin-top:6px">Plot upper class limits vs cumulative frequency. Curves upward →</div>
+</div>
+<div class="type-card more-than" onclick="showType('more')">
+<div style="font-weight:700;color:#15803d;font-size:0.9em">📉 More Than Ogive</div>
+<div style="font-size:0.75em;color:#166534;margin-top:4px">(से अधिक संचयी बारंबारता)</div>
+<div style="font-size:0.75em;color:#334155;margin-top:6px">Plot lower class limits vs cumulative frequency. Curves downward →</div>
+</div>
+</div>
+<div id="typeInfo" style="margin-top:10px;display:none" class="highlight-box">
+<p id="typeText"></p>
+</div>
+</div>
+
+<div class="card">
+<div class="section-title">📋 Data Table — Marks of 50 Students</div>
+<div class="tabs">
+<button class="tab active" onclick="switchTab('freq')">Frequency Table</button>
+<button class="tab" onclick="switchTab('less')">Less Than CF</button>
+<button class="tab" onclick="switchTab('more')">More Than CF</button>
+</div>
+<div class="table-wrap">
+<div id="tabFreq">
+<table>
+<tr><th>Class Interval<br>वर्ग अंतराल</th><th>Frequency (f)<br>बारंबारता</th></tr>
+<tr><td>0 – 10</td><td>5</td></tr>
+<tr><td>10 – 20</td><td>8</td></tr>
+<tr><td>20 – 30</td><td>12</td></tr>
+<tr><td>30 – 40</td><td>15</td></tr>
+<tr><td>40 – 50</td><td>6</td></tr>
+<tr><td>50 – 60</td><td>4</td></tr>
+<tr style="background:linear-gradient(90deg,#dbeafe,#eff6ff)!important"><td><strong>Total (कुल)</strong></td><td><strong>50</strong></td></tr>
+</table>
+</div>
+<div id="tabLess" style="display:none">
+<table>
+<tr><th>Upper Limit<br>(से कम)</th><th>Cumulative Freq<br>संचयी बारंबारता</th></tr>
+<tr><td>Less than 10</td><td>5</td></tr>
+<tr><td>Less than 20</td><td>13</td></tr>
+<tr><td>Less than 30</td><td>25</td></tr>
+<tr class="highlight"><td>Less than 40 ★</td><td>40</td></tr>
+<tr><td>Less than 50</td><td>46</td></tr>
+<tr><td>Less than 60</td><td>50</td></tr>
+</table>
+<div style="font-size:0.75em;color:#64748b;margin-top:6px">★ Median class boundary</div>
+</div>
+<div id="tabMore" style="display:none">
+<table>
+<tr><th>Lower Limit<br>(से अधिक)</th><th>Cumulative Freq<br>संचयी बारंबारता</th></tr>
+<tr><td>More than 0</td><td>50</td></tr>
+<tr><td>More than 10</td><td>45</td></tr>
+<tr><td>More than 20</td><td>37</td></tr>
+<tr class="highlight"><td>More than 30 ★</td><td>25</td></tr>
+<tr><td>More than 40</td><td>10</td></tr>
+<tr><td>More than 50</td><td>4</td></tr>
+</table>
+<div style="font-size:0.75em;color:#64748b;margin-top:6px">★ Median class boundary</div>
+</div>
+</div>
+</div>
+
+<div class="card">
+<div class="section-title">📊 Interactive Ogive Graph</div>
+<p style="font-size:0.78em;color:#64748b;margin-bottom:10px">🖱️ Hover over points to see values. Toggle curves using buttons below.</p>
+<div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+<button class="btn btn-primary" id="btnLess" onclick="toggleCurve('less')">✓ Less Than Ogive</button>
+<button class="btn" id="btnMore" style="background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff" onclick="toggleCurve('more')">✓ More Than Ogive</button>
+<button class="btn" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff" onclick="showMedianLine()">📍 Show Median</button>
+</div>
+<div class="chart-area">
+<canvas id="ogiveCanvas" width="800" height="450"></canvas>
+<div class="tooltip" id="tooltip"></div>
+</div>
+<div class="legend">
+<div class="legend-item"><div class="legend-dot" style="background:#3b82f6;height:3px"></div><span style="color:#3b82f6">Less Than Ogive</span></div>
+<div class="legend-item"><div class="legend-dot" style="background:#22c55e;height:3px"></div><span style="color:#22c55e">More Than Ogive</span></div>
+<div class="legend-item"><div class="legend-dot" style="background:#ef4444;height:2px;border-top:2px dashed #ef4444"></div><span style="color:#ef4444">Median Line</span></div>
+</div>
+<div id="medianResult" style="display:none" class="median-display pulse">
+<div style="font-size:0.8em;color:#64748b">Median (माध्यिका) — Intersection of both Ogives</div>
+<div class="val">≈ 30</div>
+<div style="font-size:0.75em;color:#3b82f6">At N/2 = 50/2 = 25 on Y-axis → X ≈ 30</div>
+</div>
+</div>
+
+<div class="card">
+<div class="section-title">🔢 Key Formulas (सूत्र)</div>
+<div class="formula-box">
+<div class="label">Median using Ogive</div>
+<div class="formula">N/2 → Draw horizontal line → Drop perpendicular → Read Median</div>
+</div>
+<div class="formula-box" style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-color:#22c55e">
+<div class="label" style="color:#15803d">Median Formula (for verification)</div>
+<div class="formula" style="color:#166534">Median = ℓ + [(N/2 − cf) / f] × h</div>
+<div style="font-size:0.75em;color:#166534;margin-top:5px">ℓ = lower limit of median class | cf = preceding cumulative frequency<br>f = frequency of median class | h = class width (वर्ग चौड़ाई)</div>
+</div>
+<div class="info-grid" style="margin-top:8px">
+<div style="background:#fef3c7;border-radius:10px;padding:10px">
+<div style="font-size:0.8em;font-weight:700;color:#92400e">∴ N/2 = 50/2 = 25</div>
+<div style="font-size:0.75em;color:#78350f;margin-top:4px">Median class: 30–40<br>(cf before = 25, cf after = 40)</div>
+</div>
+<div style="background:#ede9fe;border-radius:10px;padding:10px">
+<div style="font-size:0.8em;font-weight:700;color:#6d28d9">ℓ=30, cf=25, f=15, h=10</div>
+<div style="font-size:0.75em;color:#5b21b6;margin-top:4px">Median = 30 + [(25−25)/15]×10<br>= 30 + 0 = <strong>30</strong></div>
+</div>
+</div>
+</div>
+
+<div class="card">
+<div class="section-title">🪜 Step-by-Step Walkthrough (चरण-दर-चरण)</div>
+<p style="font-size:0.82em;color:#64748b;margin-bottom:10px">Click each step to reveal the solution process:</p>
+<div class="step-container">
+<button class="btn btn-green" onclick="revealStep(0)" style="margin-bottom:8px;width:100%">▶ Start Walkthrough</button>
+<div id="s0" class="step">
+<div class="step-num">Step 1 — Find N/2 (N का आधा)</div>
+<div class="step-text">Total frequency N = 50<br>∴ N/2 = 50/2 = <strong>25</strong><br>We need to find the value where cumulative frequency = 25</div>
+</div>
+<div id="s1" class="step">
+<div class="step-num">Step 2 — Draw Less Than Ogive</div>
+<div class="step-text">Plot points: (10,5), (20,13), (30,25), (40,40), (50,46), (60,50)<br>Join with smooth curve → S-shaped upward curve ✓</div>
+</div>
+<div id="s2" class="step">
+<div class="step-num">Step 3 — Draw More Than Ogive</div>
+<div class="step-text">Plot points: (0,50), (10,45), (20,37), (30,25), (40,10), (50,4)<br>Join with smooth curve → Inverted S-curve ✓</div>
+</div>
+<div id="s3" class="step">
+<div class="step-num">Step 4 — Draw Horizontal Line at N/2 = 25</div>
+<div class="step-text">From Y-axis at 25, draw a horizontal line → It meets the Less Than Ogive<br>From that intersection, drop a perpendicular to X-axis</div>
+</div>
+<div id="s4" class="step">
+<div class="step-num">Step 5 — Read the Median (माध्यिका पढ़ें)</div>
+<div class="step-text">The perpendicular meets X-axis at <strong>x = 30</strong><br>∴ Median (माध्यिका) = <strong>30</strong><br>Also: both curves INTERSECT at (30, 25) — this point directly gives Median! 🎯</div>
+</div>
+</div>
+<div style="margin-top:10px">
+<div class="progress-bar"><div class="progress-fill" id="progressBar" style="width:0%;background:linear-gradient(90deg,#22c55e,#3b82f6)"></div></div>
+<div id="progressText" style="font-size:0.75em;color:#64748b;text-align:center">0 / 5 steps completed</div>
+</div>
+</div>
+
+<div class="card">
+<div class="section-title">🎯 Key Points to Remember (याद रखें)</div>
+<div style="display:grid;gap:8px">
+<div style="background:#eff6ff;border-radius:10px;padding:10px;border-left:4px solid #3b82f6">
+<div style="font-size:0.82em;font-weight:700;color:#1d4ed8">📌 Less Than Ogive</div>
+<div style="font-size:0.78em;color:#334155;margin-top:3px">Plotted using <strong>Upper class boundaries</strong> vs Cumulative Frequency. Starts from 0, rises to N. Shape: ∫</div>
+</div>
+<div style="background:#f0fdf4;border-radius:10px;padding:10px;border-left:4px solid #22c55e">
+<div style="font-size:0.82em;font-weight:700;color:#15803d">📌 More Than Ogive</div>
+<div style="font-size:0.78em;color:#334155;margin-top:3px">Plotted using <strong>Lower class boundaries</strong> vs Cumulative Frequency. Starts from N, falls to 0. Shape: ∫ inverted</div>
+</div>
+<div style="background:#fef3c7;border-radius:10px;padding:10px;border-left:4px solid #f59e0b">
+<div style="font-size:0.82em;font-weight:700;color:#92400e">📌 Median from Ogive</div>
+<div style="font-size:0.78em;color:#334155;margin-top:3px">The X-coordinate of the <strong>intersection point</strong> of both ogives gives the <strong>Median</strong> directly! ∴ Median = x at intersection</div>
+</div>
+<div style="background:#fdf4ff;border-radius:10px;padding:10px;border-left:4px solid #a855f7">
+<div style="font-size:0.82em;font-weight:700;color:#7e22ce">📌 Quartiles (चतुर्थक)</div>
+<div style="font-size:0.78em;color:#334155;margin-top:3px">Q₁ at N/4, Q₃ at 3N/4 on Y-axis → drop perpendicular to X-axis from Less Than Ogive</div>
+</div>
+</div>
+</div>
+
+<div style="text-align:center;padding:15px;color:#64748b;font-size:0.75em">
+Made for CBSE Class 10 Students 📚 | Statistics — सांख्यिकी
+</div>
+</div>
+
+<script>
+var showLess=true,showMore=true,showMedian=false,stepCount=0;
+var canvas=document.getElementById('ogiveCanvas');
+var ctx=canvas.getContext('2d');
+var tooltip=document.getElementById('tooltip');
+
+var lessPoints=[[10,5],[20,13],[30,25],[40,40],[50,46],[60,50]];
+var morePoints=[[0,50],[10,45],[20,37],[30,25],[40,10],[50,4]];
+
+var W=800,H=450,padL=60,padR=20,padT=30,padB=50;
+var minX=0,maxX=60,minY=0,maxY=50;
+
+function toCanvasX(x){return padL+(x-minX)/(maxX-minX)*(W-padL-padR)}
+function toCanvasY(y){return H-padB-(y-minY)/(maxY-minY)*(H-padT-padB)}
+
+function drawGrid(){
+ctx.clearRect(0,0,W,H);
+ctx.fillStyle='#f8fafc';ctx.fillRect(0,0,W,H);
+ctx.strokeStyle='#e2e8f0';ctx.lineWidth=1;
+for(var y=0;y<=50;y+=10){
+var cy=toCanvasY(y);
+ctx.beginPath();ctx.moveTo(padL,cy);ctx.lineTo(W-padR,cy);ctx.stroke();
+ctx.fillStyle='#64748b';ctx.font='11px Segoe UI';ctx.textAlign='right';
+ctx.fillText(y,padL-5,cy+4);
+}
+for(var x=0;x<=60;x+=10){
+var cx=toCanvasX(x);
+ctx.beginPath();ctx.moveTo(cx,padT);ctx.lineTo(cx,H-padB);ctx.stroke();
+ctx.fillStyle='#64748b';ctx.font='11px Segoe UI';ctx.textAlign='center';
+ctx.fillText(x,cx,H-padB+18);
+}
+ctx.strokeStyle='#94a3b8';ctx.lineWidth=2;
+ctx.beginPath();ctx.moveTo(padL,padT);ctx.lineTo(padL,H-padB);ctx.lineTo(W-padR,H-padB);ctx.stroke();
+ctx.save();ctx.translate(15,H/2);ctx.rotate(-Math.PI/2);
+ctx.fillStyle='#334155';ctx.font='bold 12px Segoe UI';ctx.textAlign='center';
+ctx.fillText('Cumulative Frequency →',0,0);ctx.restore();
+ctx.fillStyle='#334155';ctx.font='bold 12px Segoe UI';ctx.textAlign='center';
+ctx.fillText('Upper / Lower Class Limits →',W/2,H-5);
+}
+
+function drawCurve(points,color){
+ctx.beginPath();ctx.strokeStyle=color;ctx.lineWidth=3;ctx.lineJoin='round';
+ctx.shadowColor=color;ctx.shadowBlur=6;
+for(var i=0;i<points.length;i++){
+var px=toCanvasX(points[i][0]),py=toCanvasY(points[i][1]);
+if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);
+}
+ctx.stroke();ctx.shadowBlur=0;
+for(var i=0;i<points.length;i++){
+var px=toCanvasX(points[i][0]),py=toCanvasY(points[i][1]);
+ctx.beginPath();ctx.arc(px,py,6,0,Math.PI*2);
+ctx.fillStyle='#fff';ctx.fill();
+ctx.strokeStyle=color;ctx.lineWidth=2.5;ctx.stroke();
+}
+}
+
+function drawMedianLine(){
+var mx=toCanvasX(30),my=toCanvasY(25);
+var ny=toCanvasY(0);var nx=toCanvasX(0);
+ctx.setLineDash([6,4]);ctx.strokeStyle='#ef4444';ctx.lineWidth=2;
+ctx.beginPath();ctx.moveTo(nx,my);ctx.lineTo(mx,my);ctx.stroke();
+ctx.beginPath();ctx.moveTo(mx,my);ctx.lineTo(mx,ny);ctx.stroke();
+ctx.setLineDash([]);
+ctx.beginPath();ctx.arc(mx,my,8,0,Math.PI*2);
+ctx.fillStyle='#ef4444';ctx.fill();
+ctx.fillStyle='#fff';ctx.font='bold 10px Segoe UI';ctx.textAlign='center';
+ctx.fillText('M',mx,my+4);
+ctx.fillStyle='#ef4444';ctx.font='bold 12px Segoe UI';
+ctx.fillText('Median ≈ 30',mx+5,my-12);
+ctx.font='11px Segoe UI';ctx.textAlign='center';
+ctx.fillText('25',nx-12,my+4);
+ctx.fillText('30',mx,ny+15);
+}
+
+function drawChart(){
+drawGrid();
+if(showLess)drawCurve(lessPoints,'#3b82f6');
+if(showMore)drawCurve(morePoints,'#22c55e');
+if(showMedian)drawMedianLine();
+if(showLess){
+ctx.fillStyle='#3b82f6';ctx.font='bold 11px Segoe UI';ctx.textAlign='left';
+ctx.fillText('Less Than Ogive',toCanvasX(35),toCanvasY(38));
+}
+if(showMore){
+ctx.fillStyle='#22c55e';ctx.font='bold 11px Segoe UI';ctx.textAlign='left';
+ctx.fillText('More Than Ogive',toCanvasX(35),toCanvasY(14));
+}
+}
+
+drawChart();
+
+canvas.addEventListener('mousemove',function(e){
+var rect=canvas.getBoundingClientRect();
+var scaleX=W/rect.width;
+var mx=(e.clientX-rect.left)*scaleX;
+var my=(e.clientY-rect.top)*(H/rect.height);
+var found=false;
+var allPts=[];
+if(showLess)lessPoints.forEach(function(p){allPts.push({p:p,c:'#3b82f6',type:'Less'})});
+if(showMore)morePoints.forEach(function(p){allPts.push({p:p,c:'#22c55e',type:'More'})});
+allPts.forEach(function(item){
+var px=toCanvasX(item.p[0]),py=toCanvasY(item.p[1]);
+var dist=Math.sqrt((mx-px)*(mx-px)+(my-py)*(my-py));
+if(dist<18&&!found){
+found=true;
+tooltip.style.opacity='1';
+tooltip.style.left=(e.clientX-rect.left+10)+'px';
+tooltip.style.top=(e.clientY-rect.top-30)+'px';
+tooltip.innerHTML=item.type+': ('+item.p[0]+', '+item.p[1]+')';
+tooltip.style.borderLeft='3px solid '+item.c;
+}
+});
+if(!found)tooltip.style.opacity='0';
+});
+canvas.addEventListener('mouseleave',function(){tooltip.style.opacity='0'});
+
+function toggleCurve(type){
+if(type==='less'){
+showLess=!showLess;
+var b=document.getElementById('btnLess');
+b.style.opacity=showLess?'1':'0.5';
+b.textContent=(showLess?'✓ ':'✗ ')+'Less Than Ogive';
+}else{
+showMore=!showMore;
+var b=document.getElementById('btnMore');
+b.style.opacity=showMore?'1':'0.5';
+b.textContent=(showMore?'✓ ':'✗ ')+'More Than Ogive';
+}
+drawChart();
+}
+
+function showMedianLine(){
+showMedian=!showMedian;
+drawChart();
+var mr=document.getElementById('medianResult');
+mr.style.display=showMedian?'block':'none';
+}
+
+function switchTab(tab){
+document.getElementById('tabFreq').style.display='none';
+document.getElementById('tabLess').style.display='none';
+document.getElementById('tabMore').style.display='none';
+document.getElementById('tab'+tab.charAt(0).toUpperCase()+tab.slice(1)).style.display='block';
+document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+event.target.classList.add('active');
+if(tab==='less'){showLess=true;showMore=false;}
+else if(tab==='more'){showLess=false;showMore=true;}
+else{showLess=true;showMore=true;}
+drawChart();
+}
+
+function switchTab(tab){
+document.getElementById('tabFreq').style.display='none';
+document.getElementById('tabLess').style.display='none';
+document.getElementById('tabMore').style.display='none';
+var map={freq:'Freq',less:'Less',more:'More'};
+document.getElementById('tab'+map[tab]).style.display='block';
+document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+event.target.classList.add('active');
+if(tab==='less'){showLess=true;showMore=false;}
+else if(tab==='more'){showLess=false;showMore=true;}
+else{showLess=true;showMore=true;}
+drawChart();
+}
+
+function showType(type){
+var info=document.getElementById('typeInfo');
+var text=document.getElementById('typeText');
+info.style.display='block';
+if(type==='less'){
+text.textContent='📈 Less Than Ogive: Upper boundaries (10,20,30...) are on X-axis. CF increases from 0 to N. Used to find values "less than" a given number.';
+info.style.borderColor='#3b82f6';info.style.background='linear-gradient(135deg,#eff6ff,#dbeafe)';
+}else{
+text.textContent='📉 More Than Ogive: Lower boundaries (0,10,20...) are on X-axis. CF decreases from N to 0. Used to find values "more than" a given number.';
+info.style.borderColor='#22c55e';info.style.background='linear-gradient(135deg,#f0fdf4,#dcfce7)';
+}
+}
+
+var steps=['s0','s1','s2','s3','s4'];
+function revealStep(from){
+if(from===0){
+steps.forEach(function(s){
+var el=document.getElementById(s);
+el.classList.remove('visible');
+el.style.display='none';
+});
+stepCount=0;
+}
+if(stepCount<steps.length){
+var el=document.getElementById(steps[stepCount]);
+el.style.display='block';
+setTimeout(function(){el.classList.add('visible')},50);
+stepCount++;
+var pct=stepCount/steps.length*100;
+document.getElementById('progressBar').style.width=pct+'%';
+document.getElementById('progressText').textContent=stepCount+' / '+steps.length+' steps completed';
+if(stepCount===steps.length){
+document.querySelector('.step-container button').textContent='🔄 Restart';
+document.querySelector('.step-container button').onclick=function(){revealStep(0);this.textContent='▶ Start Walkthrough';this.onclick=function(){revealStep(0);}};
+}else{
+document.querySelector('.step-container button').textContent='▶ Next Step ('+(stepCount+1)+'/'+steps.length+')';
+document.querySelector('.step-container button').onclick=function(){revealStep(1)};
+}
+}
+}
+
+window.addEventListener('resize',function(){
+var rect=canvas.parentElement.getBoundingClientRect();
+drawChart();
+});
+</script>
+</body>
+</html>

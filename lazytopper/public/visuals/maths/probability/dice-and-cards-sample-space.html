@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Probability - Dice & Cards Sample Space</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); min-height: 100vh; color: #1e293b; }
+  
+  .title-bar { background: linear-gradient(90deg, #3b82f6, #6366f1); padding: 14px 20px; text-align: center; box-shadow: 0 4px 20px rgba(59,130,246,0.4); }
+  .title-bar h1 { color: white; font-size: 1.2em; font-weight: 700; }
+  .title-bar p { color: #bfdbfe; font-size: 0.8em; margin-top: 2px; }
+  
+  .container { max-width: 700px; margin: 0 auto; padding: 16px; }
+  
+  .card { background: white; border-radius: 16px; padding: 18px; margin-bottom: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+  
+  .formula-box { background: linear-gradient(135deg, #1e3a5f, #1e293b); color: white; border-radius: 14px; padding: 16px; text-align: center; margin-bottom: 16px; border: 2px solid #3b82f6; box-shadow: 0 8px 32px rgba(59,130,246,0.3); }
+  .formula-box .formula { font-size: 1.3em; font-weight: 700; color: #60a5fa; margin: 8px 0; }
+  .formula-box .sub { font-size: 0.8em; color: #94a3b8; }
+  
+  .section-title { font-size: 1em; font-weight: 700; color: #1e293b; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .badge { background: #3b82f6; color: white; border-radius: 20px; padding: 2px 10px; font-size: 0.75em; }
+  .badge.green { background: #22c55e; }
+  .badge.amber { background: #f59e0b; }
+  
+  /* DICE SECTION */
+  .dice-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin: 12px 0; }
+  .die-face { background: white; border: 3px solid #e2e8f0; border-radius: 10px; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 1.4em; cursor: pointer; transition: all 0.3s; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: relative; }
+  .die-face:hover { transform: scale(1.15) rotate(5deg); border-color: #3b82f6; box-shadow: 0 4px 16px rgba(59,130,246,0.4); }
+  .die-face.selected { background: #eff6ff; border-color: #3b82f6; transform: scale(1.15); }
+  .die-face .num { position: absolute; bottom: 2px; right: 4px; font-size: 0.45em; color: #94a3b8; font-weight: 700; }
+  
+  .dice-info { background: #f0f9ff; border: 2px solid #bae6fd; border-radius: 10px; padding: 12px; margin-top: 10px; font-size: 0.85em; }
+  .dice-info .highlight { color: #0369a1; font-weight: 700; font-size: 1em; }
+  
+  /* TWO DICE */
+  .two-dice-container { overflow-x: auto; }
+  .two-dice-table { border-collapse: collapse; font-size: 0.72em; margin: 0 auto; }
+  .two-dice-table th, .two-dice-table td { border: 1px solid #e2e8f0; padding: 5px 7px; text-align: center; cursor: pointer; transition: all 0.2s; min-width: 36px; }
+  .two-dice-table th { background: #3b82f6; color: white; font-weight: 700; }
+  .two-dice-table td { background: white; }
+  .two-dice-table td:hover { background: #dbeafe; transform: scale(1.05); }
+  .two-dice-table td.highlight-cell { background: #fef3c7; border-color: #f59e0b; }
+  .two-dice-table td.selected-cell { background: #dcfce7; border-color: #22c55e; font-weight: 700; }
+  .sum-display { text-align: center; margin-top: 10px; font-size: 0.85em; color: #475569; }
+  .sum-display span { font-weight: 700; color: #22c55e; font-size: 1.1em; }
+  
+  /* CARDS SECTION */
+  .suits-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 12px 0; }
+  .suit-card { border-radius: 12px; padding: 12px 8px; text-align: center; cursor: pointer; transition: all 0.3s; border: 3px solid transparent; }
+  .suit-card:hover { transform: translateY(-4px); }
+  .suit-card.hearts { background: #fef2f2; border-color: #fca5a5; }
+  .suit-card.diamonds { background: #fff7ed; border-color: #fed7aa; }
+  .suit-card.clubs { background: #f0fdf4; border-color: #86efac; }
+  .suit-card.spades { background: #f8fafc; border-color: #cbd5e1; }
+  .suit-card.active { transform: translateY(-6px) scale(1.05); }
+  .suit-card.hearts.active { background: #fee2e2; border-color: #ef4444; box-shadow: 0 8px 20px rgba(239,68,68,0.3); }
+  .suit-card.diamonds.active { background: #ffedd5; border-color: #f97316; box-shadow: 0 8px 20px rgba(249,115,22,0.3); }
+  .suit-card.clubs.active { background: #dcfce7; border-color: #22c55e; box-shadow: 0 8px 20px rgba(34,197,94,0.3); }
+  .suit-card.spades.active { background: #e2e8f0; border-color: #475569; box-shadow: 0 8px 20px rgba(71,85,105,0.3); }
+  .suit-symbol { font-size: 2em; }
+  .suit-name { font-size: 0.75em; font-weight: 700; margin-top: 4px; }
+  .suit-count { font-size: 0.7em; color: #64748b; margin-top: 2px; }
+  
+  .cards-display { min-height: 60px; background: #f8fafc; border-radius: 10px; padding: 10px; display: flex; flex-wrap: wrap; gap: 4px; margin-top: 10px; border: 2px dashed #e2e8f0; }
+  .mini-card { background: white; border: 1px solid #e2e8f0; border-radius: 4px; padding: 2px 5px; font-size: 0.7em; font-weight: 700; cursor: default; transition: all 0.2s; animation: popIn 0.2s ease; }
+  .mini-card.red { color: #ef4444; }
+  .mini-card.black { color: #1e293b; }
+  @keyframes popIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  
+  .card-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 12px; }
+  .stat-box { background: #f8fafc; border-radius: 10px; padding: 10px; text-align: center; border: 2px solid #e2e8f0; }
+  .stat-box .val { font-size: 1.4em; font-weight: 800; color: #3b82f6; }
+  .stat-box .lbl { font-size: 0.7em; color: #64748b; margin-top: 2px; }
+  
+  /* WALKTHROUGH */
+  .step { background: #f8fafc; border-left: 4px solid #3b82f6; border-radius: 0 10px 10px 0; padding: 12px; margin: 8px 0; display: none; animation: slideIn 0.4s ease; }
+  .step.visible { display: block; }
+  .step.step-green { border-left-color: #22c55e; }
+  .step.step-amber { border-left-color: #f59e0b; }
+  .step-num { font-size: 0.7em; font-weight: 700; color: #3b82f6; text-transform: uppercase; letter-spacing: 1px; }
+  .step-text { font-size: 0.85em; color: #374151; margin-top: 4px; line-height: 1.5; }
+  @keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+  
+  .btn { background: linear-gradient(135deg, #3b82f6, #6366f1); color: white; border: none; border-radius: 10px; padding: 10px 20px; font-size: 0.85em; font-weight: 700; cursor: pointer; transition: all 0.3s; width: 100%; margin-top: 8px; }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(59,130,246,0.4); }
+  .btn:active { transform: translateY(0); }
+  .btn.green { background: linear-gradient(135deg, #22c55e, #16a34a); }
+  .btn.amber { background: linear-gradient(135deg, #f59e0b, #d97706); }
+  
+  .prob-result { background: linear-gradient(135deg, #1e3a5f, #0f172a); color: white; border-radius: 12px; padding: 14px; margin-top: 12px; text-align: center; display: none; }
+  .prob-result.show { display: block; animation: popIn 0.3s ease; }
+  .prob-fraction { font-size: 1.6em; font-weight: 800; color: #60a5fa; }
+  .prob-decimal { font-size: 0.85em; color: #94a3b8; margin-top: 4px; }
+  
+  .tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+  .tab { flex: 1; padding: 8px; border-radius: 8px; border: 2px solid #e2e8f0; background: white; font-size: 0.8em; font-weight: 600; cursor: pointer; transition: all 0.3s; text-align: center; color: #64748b; }
+  .tab.active { background: #3b82f6; color: white; border-color: #3b82f6; box-shadow: 0 4px 12px rgba(59,130,246,0.3); }
+  
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+  
+  .hint { background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 8px 12px; font-size: 0.78em; color: #92400e; margin-top: 8px; }
+  
+  .rolling { animation: roll 0.5s ease; }
+  @keyframes roll { 0%,100%{transform:rotate(0)} 25%{transform:rotate(-15deg) scale(1.2)} 75%{transform:rotate(15deg) scale(1.2)} }
+  
+  footer { text-align: center; padding: 16px; color: #64748b; font-size: 0.75em; }
+</style>
+</head>
+<body>
+
+<div class="title-bar">
+  <h1>🎲 प्रायिकता (Probability)</h1>
+  <p>Dice & Cards — Sample Space | CBSE Class 10 Maths Chapter 15</p>
+</div>
+
+<div class="container">
+
+  <!-- FORMULA BOX -->
+  <div class="formula-box">
+    <div style="font-size:0.85em; color:#94a3b8;">मूल सूत्र (Basic Formula)</div>
+    <div class="formula">P(E) = n(E) ÷ n(S)</div>
+    <div class="sub">अनुकूल परिणाम (Favourable Outcomes) ÷ कुल परिणाम (Total Outcomes)</div>
+    <div style="margin-top:8px; display:flex; justify-content:center; gap:20px; font-size:0.8em; color:#7dd3fc;">
+      <span>0 ≤ P(E) ≤ 1</span>
+      <span>P(E) + P(Ē) = 1</span>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('dice')">🎲 Dice (पासा)</div>
+    <div class="tab" onclick="switchTab('cards')">🃏 Cards (ताश)</div>
+    <div class="tab" onclick="switchTab('example')">📝 Example</div>
+  </div>
+
+  <!-- DICE TAB -->
+  <div id="tab-dice" class="tab-content active">
+    <div class="card">
+      <div class="section-title">Single Die — Sample Space <span class="badge">n(S) = 6</span></div>
+      <p style="font-size:0.82em; color:#64748b; margin-bottom:10px;">👆 Click any face to find its probability!</p>
+      <div class="dice-grid" id="diceGrid"></div>
+      <div class="dice-info" id="diceInfo">
+        <div>Sample Space S = {1, 2, 3, 4, 5, 6}</div>
+        <div style="margin-top:6px;">∴ Total outcomes <span class="highlight">n(S) = 6</span></div>
+        <div style="margin-top:4px; font-size:0.8em; color:#64748b;">Click a die face above to calculate probability!</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Two Dice — Sample Space <span class="badge amber">n(S) = 36</span></div>
+      <p style="font-size:0.82em; color:#64748b; margin-bottom:10px;">👆 Click any cell to see the sum! Hover to explore.</p>
+      <div class="two-dice-container">
+        <table class="two-dice-table" id="twoDiceTable"></table>
+      </div>
+      <div class="sum-display" id="sumDisplay">Click a cell to see outcomes with that sum</div>
+      <div class="hint">💡 When two dice are thrown: n(S) = 6 × 6 = <strong>36</strong></div>
+    </div>
+  </div>
+
+  <!-- CARDS TAB -->
+  <div id="tab-cards" class="tab-content">
+    <div class="card">
+      <div class="section-title">Playing Cards — Sample Space <span class="badge green">n(S) = 52</span></div>
+      <p style="font-size:0.82em; color:#64748b; margin-bottom:4px;">👆 Click each suit to explore its cards!</p>
+      <div class="suits-grid">
+        <div class="suit-card hearts" onclick="showSuit('hearts')">
+          <div class="suit-symbol">♥</div>
+          <div class="suit-name" style="color:#ef4444;">Hearts</div>
+          <div class="suit-count">13 cards</div>
+        </div>
+        <div class="suit-card diamonds" onclick="showSuit('diamonds')">
+          <div class="suit-symbol" style="color:#f97316;">♦</div>
+          <div class="suit-name" style="color:#f97316;">Diamonds</div>
+          <div class="suit-count">13 cards</div>
+        </div>
+        <div class="suit-card clubs" onclick="showSuit('clubs')">
+          <div class="suit-symbol" style="color:#16a34a;">♣</div>
+          <div class="suit-name" style="color:#16a34a;">Clubs</div>
+          <div class="suit-count">13 cards</div>
+        </div>
+        <div class="suit-card spades" onclick="showSuit('spades')">
+          <div class="suit-symbol" style="color:#1e293b;">♠</div>
+          <div class="suit-name" style="color:#1e293b;">Spades</div>
+          <div class="suit-count">13 cards</div>
+        </div>
+      </div>
+      <div class="cards-display" id="cardsDisplay">
+        <span style="color:#94a3b8; font-size:0.8em; width:100%; text-align:center; margin-top:8px;">↑ Click a suit to see its 13 cards</span>
+      </div>
+      <div class="card-stats">
+        <div class="stat-box">
+          <div class="val">52</div>
+          <div class="lbl">Total Cards<br>कुल पत्ते</div>
+        </div>
+        <div class="stat-box">
+          <div class="val">4</div>
+          <div class="lbl">Suits (रंग)<br>♥ ♦ ♣ ♠</div>
+        </div>
+        <div class="stat-box">
+          <div class="val" style="color:#ef4444;">26</div>
+          <div class="lbl">Red Cards<br>लाल पत्ते</div>
+        </div>
+        <div class="stat-box">
+          <div class="val" style="color:#1e293b;">26</div>
+          <div class="lbl">Black Cards<br>काले पत्ते</div>
+        </div>
+      </div>
+      <div class="hint" style="margin-top:10px;">💡 Each suit has: A, 2, 3, 4, 5, 6, 7, 8, 9, 10, J, Q, K → 13 cards × 4 suits = <strong>52 cards</strong><br>Face Cards (चित्र पत्ते): J, Q, K → 3 per suit × 4 = <strong>12 face cards</strong></div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Quick Probability Finder 🔍</div>
+      <p style="font-size:0.82em; color:#64748b; margin-bottom:10px;">Select what card you want and find P(E):</p>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+        <button class="btn" onclick="calcCard('ace', 4, 'an Ace (इक्का)')">♠ Ace (A)</button>
+        <button class="btn amber" onclick="calcCard('face', 12, 'a Face Card')">👑 Face Card</button>
+        <button class="btn green" onclick="calcCard('red', 26, 'a Red Card')">♥ Red Card</button>
+        <button class="btn" style="background:linear-gradient(135deg,#475569,#1e293b)" onclick="calcCard('black', 26, 'a Black Card')">♠ Black Card</button>
+        <button class="btn" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed)" onclick="calcCard('king', 4, 'a King (बादशाह)')">👑 King</button>
+        <button class="btn" style="background:linear-gradient(135deg,#ec4899,#db2777)" onclick="calcCard('queen', 4, 'a Queen (रानी)')">👸 Queen</button>
+      </div>
+      <div class="prob-result" id="cardResult"></div>
+    </div>
+  </div>
+
+  <!-- EXAMPLE TAB -->
+  <div id="tab-example" class="tab-content">
+    <div class="card">
+      <div class="section-title">📝 Worked Example (हल किया उदाहरण)</div>
+      <div style="background:#f0f9ff; border-radius:10px; padding:12px; font-size:0.88em; border:2px solid #bae6fd;">
+        <strong>Question:</strong> Two dice are thrown simultaneously. Find the probability that:<br>
+        <span style="color:#3b82f6;">(i) Sum = 7 &nbsp; (ii) Sum ≤ 4 &nbsp; (iii) Doublet (दोहरा)</span>
+      </div>
+      <div id="stepsContainer" style="margin-top:12px;">
+        <div class="step visible step-num-0">
+          <div class="step-num">Step 1 — Sample Space</div>
+          <div class="step-text">When two dice are thrown:<br>n(S) = 6 × 6 = <strong>36</strong><br>∵ Each die has 6 outcomes, and both are independent.</div>
+        </div>
+        <div class="step step-green" id="step2">
+          <div class="step-num">Step 2 — Part (i): Sum = 7</div>
+          <div class="step-text">Favourable outcomes = {(1,6),(2,5),(3,4),(4,3),(5,2),(6,1)}<br>∴ n(E₁) = 6<br><br><strong>P(sum=7) = 6/36 = 1/6 ≈ 0.167</strong></div>
+        </div>
+        <div class="step step-amber" id="step3">
+          <div class="step-num">Step 3 — Part (ii): Sum ≤ 4</div>
+          <div class="step-text">Sum = 2: {(1,1)} → 1<br>Sum = 3: {(1,2),(2,1)} → 2<br>Sum = 4: {(1,3),(2,2),(3,1)} → 3<br>∴ n(E₂) = 6<br><br><strong>P(sum≤4) = 6/36 = 1/6 ≈ 0.167</strong></div>
+        </div>
+        <div class="step" id="step4">
+          <div class="step-num">Step 4 — Part (iii): Doublet (दोहरा)</div>
+          <div class="step-text">Doublet = both dice show same number<br>= {(1,1),(2,2),(3,3),(4,4),(5,5),(6,6)}<br>∴ n(E₃) = 6<br><br><strong>P(doublet) = 6/36 = 1/6 ≈ 0.167</strong></div>
+        </div>
+      </div>
+      <button class="btn" id="revealBtn" onclick="revealStep()">▶ Reveal Next Step</button>
+      <button class="btn amber" onclick="resetSteps()" style="margin-top:6px;">↺ Reset</button>
+    </div>
+
+    <div class="card">
+      <div class="section-title">🃏 Card Example</div>
+      <div style="background:#f0fdf4; border-radius:10px; padding:12px; font-size:0.88em; border:2px solid #86efac;">
+        <strong>Question:</strong> One card is drawn at random from a well-shuffled deck of 52 cards. Find P(drawing a red king).
+      </div>
+      <div style="margin-top:10px;">
+        <div class="step visible">
+          <div class="step-num">Solution</div>
+          <div class="step-text">
+            ∵ Total cards n(S) = 52<br>
+            Red Kings = King of ♥ + King of ♦ = 2 cards<br>
+            ∴ n(E) = 2<br><br>
+            <strong>P(red king) = n(E)/n(S) = 2/52 = 1/26</strong><br>
+            ≈ 0.038 or about 3.8%
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">⚡ Key Points to Remember</div>
+      <div style="font-size:0.83em; line-height:1.9;">
+        <div>🎲 <strong>1 Die:</strong> n(S) = 6 &nbsp;|&nbsp; <strong>2 Dice:</strong> n(S) = 36</div>
+        <div>🃏 <strong>1 Deck:</strong> n(S) = 52 cards</div>
+        <div>♥♦ <strong>Red cards:</strong> Hearts + Diamonds = 26</div>
+        <div>♠♣ <strong>Black cards:</strong> Spades + Clubs = 26</div>
+        <div>👑 <strong>Face cards:</strong> J + Q + K = 3 × 4 = 12</div>
+        <div>🅰️ <strong>Aces:</strong> 4 (one per suit)</div>
+        <div>∴ <strong>P(impossible event) = 0</strong></div>
+        <div>∴ <strong>P(sure event) = 1</strong></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>CBSE Class 10 Mathematics • Chapter 15: Probability • Interactive Learning</footer>
+
+<script>
+  // ---- DICE SETUP ----
+  const diceFaces = ['⚀','⚁','⚂','⚃','⚄','⚅'];
+  let selectedDie = null;
+  
+  function buildDice() {
+    const grid = document.getElementById('diceGrid');
+    diceFaces.forEach((face, i) => {
+      const d = document.createElement('div');
+      d.className = 'die-face';
+      d.innerHTML = `${face}<span class="num">${i+1}</span>`;
+      d.onclick = () => selectDie(i+1, d);
+      grid.appendChild(d);
+    });
+  }
+  
+  function selectDie(num, el) {
+    document.querySelectorAll('.die-face').forEach(d => d.classList.remove('selected'));
+    el.classList.add('selected');
+    el.classList.add('rolling');
+    setTimeout(() => el.classList.remove('rolling'), 500);
+    
+    document.getElementById('diceInfo').innerHTML = `
+      <div>Sample Space S = {1, 2, 3, 4, 5, 6} &nbsp;|&nbsp; n(S) = <span class="highlight">6</span></div>
+      <div style="margin-top:6px;">Event E = getting <strong>${num}</strong></div>
+      <div style="margin-top:4px;">n(E) = <span class="highlight">1</span> (only one face shows ${num})</div>
+      <div style="margin-top:8px; padding:8px; background:#dbeafe; border-radius:8px; text-align:center;">
+        <strong>P(${num}) = n(E)/n(S) = 1/6 ≈ 0.1667</strong>
+      </div>
+    `;
+  }
+  
+  // ---- TWO DICE TABLE ----
+  function buildTwoDice() {
+    const table = document.getElementById('twoDiceTable');
+    let html = '<tr><th>Die1↓ Die2→</th>';
+    for(let j=1; j<=6; j++) html += `<th>${diceFaces[j-1]}</th>`;
+    html += '</tr>';
+    for(let i=1; i<=6; i++) {
+      html += `<tr><th>${diceFaces[i-1]}</th>`;
+      for(let j=1; j<=6; j++) {
+        html += `<td onclick="highlightSum(${i+j})" title="(${i},${j}) → Sum=${i+j}">${i+j}</td>`;
+      }
+      html += '</tr>';
+    }
+    table.innerHTML = html;
+  }
+  
+  function highlightSum(targetSum) {
+    const cells = document.querySelectorAll('.two-dice-table td');
+    let count = 0;
+    cells.forEach(cell => {
+      cell.classList.remove('highlight-cell','selected-cell');
+      if(parseInt(cell.textContent) === targetSum) {
+        cell.classList.add('selected-cell');
+        count++;
+      }
+    });
+    document.getElementById('sumDisplay').innerHTML = 
+      `Sum = ${targetSum} → <span>${count} outcome${count>1?'s':''}</span> &nbsp;|&nbsp; P(sum=${targetSum}) = ${count}/36`;
+  }
+  
+  // ---- CARDS ----
+  const cardValues = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+  const suitData = {
+    hearts:   { symbol:'♥', color:'red',   label:'Hearts' },
+    diamonds: { symbol:'♦', color:'red',   label:'Diamonds' },
+    clubs:    { symbol:'♣', color:'black', label:'Clubs' },
+    spades:   { symbol:'♠', color:'black', label:'Spades' }
+  };
+  let activeSuit = null;
+  
+  function showSuit(suit) {
+    if(activeSuit === suit) { activeSuit=null; clearSuit(); return; }
+    activeSuit = suit;
+    document.querySelectorAll('.suit-card').forEach(el => el.classList.remove('active'));
+    document.querySelector('.suit-card.'+suit).classList.add('active');
+    const sd = suitData[suit];
+    const display = document.getElementById('cardsDisplay');
+    display.innerHTML = '';
+    cardValues.forEach((v,i) => {
+      setTimeout(() => {
+        const mc = document.createElement('div');
+        mc.className = `mini-card ${sd.color}`;
+        mc.textContent = v + sd.symbol;
+        display.appendChild(mc);
+      }, i*30);
+    });
+  }
+  
+  function clearSuit() {
+    document.querySelectorAll('.suit-card').forEach(el => el.classList.remove('active'));
+    document.getElementById('cardsDisplay').innerHTML = '<span style="color:#94a3b8;font-size:0.8em;width:100%;text-align:center;margin-top:8px;">↑ Click a suit to see its 13 cards</span>';
+  }
+  
+  function calcCard(type, favourable, label) {
+    const total = 52;
+    const decimal = (favourable/total).toFixed(4);
+    const gcd = (a,b) => b===0?a:gcd(b,a%b);
+    const g = gcd(favourable, total);
+    const result = document.getElementById('cardResult');
+    result.innerHTML = `
+      <div style="font-size:0.8em;color:#94a3b8;">P(drawing ${label})</div>
+      <div class="prob-fraction">${favourable/g}/${total/g}</div>
+      <div class="prob-decimal">= ${favourable}/${total} = ${decimal} ≈ ${(parseFloat(decimal)*100).toFixed(2)}%</div>
+      <div style="margin-top:8px;font-size:0.78em;color:#7dd3fc;">Favourable: ${favourable} &nbsp;|&nbsp; Total: ${total}</div>
+    `;
+    result.classList.add('show');
+  }
+  
+  // ---- STEP REVEAL ----
+  let currentStep = 1;
+  const stepIds = ['step2','step3','step4'];
+  
+  function revealStep() {
+    if(currentStep <= stepIds.length) {
+      document.getElementById(stepIds[currentStep-1]).classList.add('visible');
+      currentStep++;
+      if(currentStep > stepIds.length) {
+        document.getElementById('revealBtn').textContent = '✓ All Steps Revealed!';
+        document.getElementById('revealBtn').disabled = true;
+        document.getElementById('revealBtn').style.opacity = '0.6';
+      }
+    }
+  }
+  
+  function resetSteps() {
+    currentStep = 1;
+    stepIds.forEach(id => document.getElementById(id).classList.remove('visible'));
+    const btn = document.getElementById('revealBtn');
+    btn.textContent = '▶ Reveal Next Step';
+    btn.disabled = false;
+    btn.style.opacity = '1';
+  }
+  
+  // ---- TABS ----
+  function switchTab(name) {
+    document.querySelectorAll('.tab').forEach((t,i) => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    const tabs = ['dice','cards','example'];
+    document.querySelectorAll('.tab')[tabs.indexOf(name)].classList.add('active');
+    document.getElementById('tab-'+name).classList.add('active');
+  }
+  
+  // ---- INIT ----
+  buildDice();
+  buildTwoDice();
+</script>
+</body>
+</html>

@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conversion of Solids – Surface Areas & Volumes</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);min-height:100vh;color:#1e293b}
+.titlebar{background:linear-gradient(90deg,#3b82f6,#6366f1);color:#fff;text-align:center;padding:14px 10px 10px;box-shadow:0 4px 20px rgba(59,130,246,0.4)}
+.titlebar h1{font-size:1.2rem;letter-spacing:1px}
+.titlebar p{font-size:0.78rem;opacity:0.85;margin-top:3px}
+.container{max-width:700px;margin:0 auto;padding:14px 10px}
+.card{background:#fff;border-radius:18px;padding:18px;margin-bottom:14px;box-shadow:0 4px 24px rgba(0,0,0,0.18)}
+.section-title{font-size:1rem;font-weight:700;color:#3b82f6;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.key-concept{background:linear-gradient(135deg,#eff6ff,#e0e7ff);border-left:4px solid #3b82f6;border-radius:12px;padding:14px;margin-bottom:10px;text-align:center}
+.key-concept .formula{font-size:1.3rem;font-weight:800;color:#3b82f6;margin:6px 0}
+.key-concept p{font-size:0.82rem;color:#475569}
+.key-concept .hindi{font-size:0.88rem;color:#6366f1;font-weight:600}
+/* Demo area */
+.demo-area{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin:12px 0}
+svg.solid{filter:drop-shadow(0 3px 8px rgba(0,0,0,0.25));cursor:pointer;transition:transform 0.2s}
+svg.solid:hover{transform:scale(1.07)}
+.arrow-anim{font-size:1.8rem;color:#f59e0b;animation:pulse 1.2s infinite}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.3);opacity:0.7}}
+/* Controls */
+.controls{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0}
+.btn{padding:8px 16px;border:none;border-radius:30px;font-size:0.82rem;font-weight:600;cursor:pointer;transition:all 0.2s}
+.btn-blue{background:#3b82f6;color:#fff}
+.btn-blue:hover{background:#2563eb;transform:translateY(-2px)}
+.btn-green{background:#22c55e;color:#fff}
+.btn-green:hover{background:#16a34a;transform:translateY(-2px)}
+.btn-amber{background:#f59e0b;color:#fff}
+.btn-amber:hover{background:#d97706;transform:translateY(-2px)}
+.btn-red{background:#ef4444;color:#fff}
+.btn-red:hover{background:#dc2626;transform:translateY(-2px)}
+/* Sliders */
+.slider-row{display:flex;align-items:center;gap:10px;margin:6px 0;flex-wrap:wrap}
+.slider-row label{font-size:0.78rem;color:#475569;min-width:90px}
+input[type=range]{flex:1;min-width:80px;accent-color:#3b82f6}
+.val-badge{background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:2px 8px;font-size:0.8rem;font-weight:700;color:#3b82f6;min-width:42px;text-align:center}
+/* Steps */
+.step-box{background:#f8fafc;border-radius:12px;padding:12px;margin:6px 0;border:1px solid #e2e8f0;display:none;animation:fadeIn 0.4s ease}
+.step-box.visible{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.step-num{display:inline-block;background:#3b82f6;color:#fff;border-radius:50%;width:22px;height:22px;text-align:center;line-height:22px;font-size:0.75rem;font-weight:700;margin-right:6px}
+.step-math{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:8px;margin:6px 0;font-size:0.88rem;color:#92400e;font-weight:600}
+.highlight{color:#ef4444;font-weight:700}
+.green{color:#22c55e;font-weight:700}
+/* Equalizer visual */
+.eq-row{display:flex;align-items:flex-end;gap:6px;justify-content:center;margin:8px 0}
+.eq-bar{border-radius:8px 8px 0 0;transition:height 0.7s cubic-bezier(.4,2,.6,1);display:flex;align-items:flex-end;justify-content:center;color:#fff;font-size:0.7rem;font-weight:700;padding-bottom:4px}
+/* Quiz */
+.quiz-opt{display:block;width:100%;padding:9px 14px;border:2px solid #e2e8f0;border-radius:10px;background:#fff;text-align:left;font-size:0.82rem;cursor:pointer;margin-bottom:6px;transition:all 0.2s}
+.quiz-opt:hover{border-color:#3b82f6;background:#eff6ff}
+.quiz-opt.correct{border-color:#22c55e;background:#f0fdf4;color:#166534}
+.quiz-opt.wrong{border-color:#ef4444;background:#fef2f2;color:#991b1b}
+.quiz-msg{font-size:0.82rem;font-weight:600;padding:6px 10px;border-radius:8px;margin-top:4px;display:none}
+.quiz-msg.show{display:block}
+.tag{display:inline-block;font-size:0.7rem;padding:2px 8px;border-radius:20px;font-weight:600;margin:2px}
+.tag-blue{background:#dbeafe;color:#1d4ed8}
+.tag-green{background:#dcfce7;color:#166534}
+/* Particles canvas */
+#meltCanvas{border-radius:14px;display:block;margin:0 auto;background:#1e293b}
+.info-row{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0}
+.info-chip{flex:1;min-width:100px;background:linear-gradient(135deg,#f0f9ff,#e0f2fe);border-radius:10px;padding:8px;text-align:center}
+.info-chip .num{font-size:1.1rem;font-weight:800;color:#0369a1}
+.info-chip .lbl{font-size:0.7rem;color:#475569}
+</style>
+</head>
+<body>
+<div class="titlebar">
+  <h1>🔄 Conversion of Solids (आकार परिवर्तन)</h1>
+  <p>CBSE Class 10 | Surface Areas & Volumes | Chapter 13</p>
+</div>
+<div class="container">
+
+<!-- Key Concept -->
+<div class="card">
+  <div class="section-title">💡 Core Principle (मूल सिद्धांत)</div>
+  <div class="key-concept">
+    <div class="hindi">जब एक ठोस को पिघलाकर दूसरे ठोस में ढाला जाता है</div>
+    <div class="formula">Volume₁ = Volume₂</div>
+    <p>When a solid is <strong>melted</strong> and <strong>recast</strong> into another shape,<br>the <span style="color:#ef4444;font-weight:700">volume is conserved</span> (आयतन संरक्षित रहता है)</p>
+    <div style="margin-top:8px">
+      <span class="tag tag-blue">Melt → Same Material</span>
+      <span class="tag tag-green">Volume Unchanged</span>
+      <span class="tag tag-blue">Shape Changes</span>
+    </div>
+  </div>
+</div>
+
+<!-- Interactive Demo -->
+<div class="card">
+  <div class="section-title">🎮 Interactive Demo – Adjust & Explore</div>
+  <p style="font-size:0.78rem;color:#64748b;margin-bottom:10px">A solid <strong>sphere</strong> is melted and recast into <strong>small spheres</strong>. Adjust the radii to see how many small spheres are formed!</p>
+  
+  <div class="slider-row">
+    <label>🔵 Big Sphere R</label>
+    <input type="range" id="bigR" min="3" max="9" value="6" step="1">
+    <span class="val-badge" id="bigRVal">6 cm</span>
+  </div>
+  <div class="slider-row">
+    <label>⚪ Small Sphere r</label>
+    <input type="range" id="smallR" min="1" max="4" value="2" step="1">
+    <span class="val-badge" id="smallRVal">2 cm</span>
+  </div>
+
+  <div class="info-row" id="infoRow">
+    <div class="info-chip"><div class="num" id="volBig">-</div><div class="lbl">Volume Big (cm³)</div></div>
+    <div class="info-chip"><div class="num" id="volSmall">-</div><div class="lbl">Volume Small (cm³)</div></div>
+    <div class="info-chip" style="background:linear-gradient(135deg,#fef9c3,#fde68a)"><div class="num" id="numSmall" style="color:#b45309">-</div><div class="lbl">No. of Small Spheres</div></div>
+  </div>
+
+  <div class="demo-area">
+    <svg class="solid" id="svgBig" width="110" height="110" viewBox="0 0 110 110"></svg>
+    <div class="arrow-anim">→</div>
+    <div id="smallSpheresArea" style="display:flex;flex-wrap:wrap;gap:4px;max-width:160px;justify-content:center;align-items:center;min-height:60px"></div>
+  </div>
+  <div style="text-align:center;font-size:0.78rem;color:#64748b">Click on the big sphere to see the melt animation!</div>
+</div>
+
+<!-- Melt Canvas -->
+<div class="card">
+  <div class="section-title">🌡️ Melting Animation (पिघलाना)</div>
+  <canvas id="meltCanvas" width="320" height="120"></canvas>
+  <div style="text-align:center;margin-top:8px">
+    <button class="btn btn-blue" onclick="startMelt()">▶ Melt it!</button>
+    <button class="btn btn-amber" onclick="resetMelt()">↺ Reset</button>
+  </div>
+</div>
+
+<!-- Step-by-step -->
+<div class="card">
+  <div class="section-title">📖 Worked Example – Step by Step</div>
+  <div style="background:#f0fdf4;border-radius:10px;padding:10px;font-size:0.82rem;margin-bottom:10px">
+    <strong>Question:</strong> A copper sphere of radius <span class="highlight">9 cm</span> is melted and recast into small spheres of radius <span class="highlight">3 cm</span>. Find the number of small spheres formed.
+  </div>
+  <div class="controls">
+    <button class="btn btn-blue" onclick="showStep(1)">Step 1</button>
+    <button class="btn btn-blue" onclick="showStep(2)">Step 2</button>
+    <button class="btn btn-blue" onclick="showStep(3)">Step 3</button>
+    <button class="btn btn-green" onclick="showStep(4)">Answer ✓</button>
+    <button class="btn btn-red" onclick="resetSteps()">Reset</button>
+  </div>
+  
+  <div class="step-box" id="step1">
+    <span class="step-num">1</span><strong>Find Volume of Big Sphere (बड़े गोले का आयतन)</strong>
+    <div class="step-math">V = (4/3) × π × R³<br>V = (4/3) × π × 9³<br>V = (4/3) × π × 729<br><span class="green">V = 972π cm³</span></div>
+  </div>
+  <div class="step-box" id="step2">
+    <span class="step-num">2</span><strong>Find Volume of Small Sphere (छोटे गोले का आयतन)</strong>
+    <div class="step-math">v = (4/3) × π × r³<br>v = (4/3) × π × 3³<br>v = (4/3) × π × 27<br><span class="green">v = 36π cm³</span></div>
+  </div>
+  <div class="step-box" id="step3">
+    <span class="step-num">3</span><strong>Apply Volume Conservation (आयतन संरक्षण)</strong>
+    <div class="step-math">n × v = V<br>n × 36π = 972π<br>n = 972π ÷ 36π<br><span class="green">n = 27</span></div>
+  </div>
+  <div class="step-box" id="step4">
+    <span class="step-num">✓</span><strong>Answer (उत्तर)</strong>
+    <div class="step-math" style="background:#f0fdf4;border-color:#86efac;color:#166534;font-size:1rem">
+      ∴ Number of small spheres = <span style="font-size:1.3rem;font-weight:900">27</span>
+    </div>
+    <p style="font-size:0.78rem;color:#64748b">∵ Volume is conserved when solid is melted and recast</p>
+  </div>
+</div>
+
+<!-- Formula Reference -->
+<div class="card">
+  <div class="section-title">📐 Volume Formulas Quick Reference</div>
+  <div id="formulaGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"></div>
+  <div style="margin-top:10px;text-align:center">
+    <button class="btn btn-blue" onclick="showFormula('sphere')">Sphere</button>
+    <button class="btn btn-amber" onclick="showFormula('cylinder')">Cylinder</button>
+    <button class="btn btn-green" onclick="showFormula('cone')">Cone</button>
+    <button class="btn btn-red" onclick="showFormula('cuboid')">Cuboid</button>
+  </div>
+  <div id="formulaDisplay" style="margin-top:10px;display:none;background:linear-gradient(135deg,#eff6ff,#e0e7ff);border-radius:12px;padding:14px;text-align:center">
+    <div id="formulaSVG" style="margin-bottom:8px"></div>
+    <div id="formulaText" style="font-size:1.1rem;font-weight:700;color:#3b82f6"></div>
+    <div id="formulaNote" style="font-size:0.78rem;color:#64748b;margin-top:4px"></div>
+  </div>
+</div>
+
+<!-- Quiz -->
+<div class="card">
+  <div class="section-title">🧠 Quick Quiz</div>
+  <div id="quizArea"></div>
+</div>
+
+</div>
+
+<script>
+// Utility
+const π = Math.PI;
+
+// --- BIG/SMALL SPHERE DEMO ---
+const bigRSlider = document.getElementById('bigR');
+const smallRSlider = document.getElementById('smallR');
+const bigRVal = document.getElementById('bigRVal');
+const smallRVal = document.getElementById('smallRVal');
+
+function updateDemo(){
+  const R = +bigRSlider.value, r = +smallRSlider.value;
+  bigRVal.textContent = R+' cm';
+  smallRVal.textContent = r+' cm';
+  const VB = (4/3)*π*R*R*R, VS = (4/3)*π*r*r*r;
+  const n = Math.floor(VB/VS);
+  document.getElementById('volBig').textContent = (4*R*R*R/3).toFixed(1)+'π';
+  document.getElementById('volSmall').textContent = (4*r*r*r/3).toFixed(1)+'π';
+  document.getElementById('numSmall').textContent = n;
+  drawBigSphere(R);
+  drawSmallSpheres(n, r);
+}
+
+function drawBigSphere(R){
+  const svg = document.getElementById('svgBig');
+  const cx=55, cy=55, rad = Math.min(40, 12+R*3.2);
+  const colors = ['#60a5fa','#3b82f6','#1d4ed8'];
+  svg.innerHTML = `
+    <defs>
+      <radialGradient id="sg" cx="38%" cy="32%" r="60%">
+        <stop offset="0%" stop-color="#93c5fd"/>
+        <stop offset="50%" stop-color="#3b82f6"/>
+        <stop offset="100%" stop-color="#1e40af"/>
+      </radialGradient>
+    </defs>
+    <circle cx="${cx}" cy="${cy}" r="${rad}" fill="url(#sg)" stroke="#bfdbfe" stroke-width="2"/>
+    <ellipse cx="${cx-rad*0.25}" cy="${cy-rad*0.28}" rx="${rad*0.22}" ry="${rad*0.12}" fill="rgba(255,255,255,0.35)"/>
+    <text x="${cx}" y="${cy+rad+14}" text-anchor="middle" font-size="11" fill="#1e293b" font-weight="600">R = ${R} cm</text>
+  `;
+}
+
+function drawSmallSpheres(n, r){
+  const area = document.getElementById('smallSpheresArea');
+  area.innerHTML = '';
+  const show = Math.min(n, 16);
+  const sz = Math.min(28, Math.max(10, 60/(r+1)));
+  for(let i=0;i<show;i++){
+    const s = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    s.setAttribute('width',sz); s.setAttribute('height',sz);
+    s.innerHTML = `<defs><radialGradient id="g${i}" cx="35%" cy="30%" r="60%"><stop offset="0%" stop-color="#86efac"/><stop offset="100%" stop-color="#16a34a"/></radialGradient></defs><circle cx="${sz/2}" cy="${sz/2}" r="${sz/2-1}" fill="url(#g${i})"/>`;
+    area.appendChild(s);
+  }
+  if(n>16){
+    const d = document.createElement('div');
+    d.style.cssText='font-size:0.7rem;color:#64748b;text-align:center;width:100%';
+    d.textContent = `+${n-16} more... Total: ${n}`;
+    area.appendChild(d);
+  }
+}
+
+bigRSlider.addEventListener('input', updateDemo);
+smallRSlider.addEventListener('input', updateDemo);
+document.getElementById('svgBig').addEventListener('click', startMelt);
+updateDemo();
+
+// --- MELT CANVAS ---
+const canvas = document.getElementById('meltCanvas');
+const ctx = canvas.getContext('2d');
+let particles = [], animId = null, melting = false;
+
+function initParticles(){
+  particles = [];
+  for(let i=0;i<60;i++){
+    particles.push({x:100+Math.random()*30-15, y:60+Math.random()*30-15,
+      vx:(Math.random()-0.5)*0.5, vy:0.2+Math.random()*0.3,
+      r:3+Math.random()*4, color:`hsl(${200+Math.random()*40},80%,${55+Math.random()*20}%)`,
+      life:1, alpha:1, phase:0});
+  }
+}
+
+function drawMeltFrame(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle='#1e293b'; ctx.fillRect(0,0,canvas.width,canvas.height);
+  // Draw sphere (left)
+  if(!melting){
+    const g=ctx.createRadialGradient(90,55,5,100,60,38);
+    g.addColorStop(0,'#93c5fd'); g.addColorStop(1,'#1e40af');
+    ctx.beginPath(); ctx.arc(100,60,38,0,2*Math.PI);
+    ctx.fillStyle=g; ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,0.3)';
+    ctx.beginPath(); ctx.ellipse(87,46,10,5,-.4,0,2*Math.PI); ctx.fill();
+    ctx.fillStyle='#94a3b8'; ctx.font='11px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('Sphere', 100, 108);
+  }
+  // Particles
+  particles.forEach(p=>{
+    ctx.save();
+    ctx.globalAlpha=p.alpha;
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,p.r,0,2*Math.PI);
+    ctx.fillStyle=p.color; ctx.fill();
+    ctx.restore();
+    if(melting){
+      p.x+=p.vx; p.y+=p.vy;
+      p.vx+=(220-p.x)*0.002;
+      p.vy+=0.08;
+      if(p.y>100){p.vy*=-0.5; p.y=100;}
+      if(p.x>310) p.alpha-=0.02;
+      p.life-=0.003;
+    }
+  });
+  particles = particles.filter(p=>p.alpha>0);
+
+  // Draw cylinder outline (right)
+  ctx.strokeStyle='#22c55e'; ctx.lineWidth=2; ctx.setLineDash([4,3]);
+  ctx.strokeRect(195,20,60,90);
+  ctx.setLineDash([]);
+  ctx.fillStyle='#94a3b8'; ctx.font='10px sans-serif'; ctx.textAlign='center';
+  ctx.fillText('New Shape', 225,118);
+
+  // Arrow
+  ctx.fillStyle='#f59e0b'; ctx.font='bold 20px sans-serif';
+  ctx.fillText('→',170,65);
+  ctx.fillStyle='#64748b'; ctx.font='9px sans-serif';
+  ctx.fillText('melt',165,78);
+
+  // Fill cylinder with particles arrived
+  const arrived = particles.filter(p=>p.x>195 && p.x<255 && p.y>20 && p.y<110).length;
+  if(arrived>0){
+    const fillH = Math.min(90, arrived*1.5);
+    const g2=ctx.createLinearGradient(195,110,195,20);
+    g2.addColorStop(0,'rgba(34,197,94,0.7)'); g2.addColorStop(1,'rgba(34,197,94,0.2)');
+    ctx.fillStyle=g2; ctx.fillRect(196,110-fillH,58,fillH);
+  }
+
+  if(melting && particles.length===0){
+    ctx.fillStyle='rgba(34,197,94,0.9)'; ctx.font='bold 12px sans-serif';
+    ctx.textAlign='center'; ctx.fillText('✓ Volume Conserved!',160,60);
+    melting=false;
+  }
+  if(melting || particles.length>0) animId=requestAnimationFrame(drawMeltFrame);
+}
+
+function startMelt(){
+  if(animId) cancelAnimationFrame(animId);
+  melting=true; initParticles(); drawMeltFrame();
+}
+function resetMelt(){
+  if(animId) cancelAnimationFrame(animId);
+  melting=false; particles=[];
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle='#1e293b'; ctx.fillRect(0,0,canvas.width,canvas.height);
+  drawMeltFrame();
+}
+resetMelt();
+
+// --- STEPS ---
+let maxStep = 0;
+function showStep(n){
+  for(let i=1;i<=n;i++){
+    document.getElementById('step'+i).classList.add('visible');
+  }
+}
+function resetSteps(){
+  for(let i=1;i<=4;i++) document.getElementById('step'+i).classList.remove('visible');
+}
+
+// --- FORMULAS ---
+const formulas = {
+  sphere:{svg:`<svg width="60" height="60" viewBox="0 0 60 60"><defs><radialGradient id="fs" cx="35%" cy="30%"><stop offset="0%" stop-color="#93c5fd"/><stop offset="100%" stop-color="#1e40af"/></radialGradient></defs><circle cx="30" cy="30" r="26" fill="url(#fs)"/></svg>`,text:'V = (4/3) × π × r³',note:'r = radius | गोले का आयतन'},
+  cylinder:{svg:`<svg width="60" height="60" viewBox="0 0 60 60"><ellipse cx="30" cy="12" rx="22" ry="7" fill="#86efac"/><rect x="8" y="12" width="44" height="36" fill="#4ade80"/><ellipse cx="30" cy="48" rx="22" ry="7" fill="#22c55e"/></svg>`,text:'V = π × r² × h',note:'r = radius, h = height | बेलन का आयतन'},
+  cone:{svg:`<svg width="60" height="60" viewBox="0 0 60 60"><polygon points="30,5 8,55 52,55" fill="#fbbf24"/><ellipse cx="30" cy="55" rx="22" ry="7" fill="#f59e0b"/></svg>`,text:'V = (1/3) × π × r² × h',note:'r = base radius, h = height | शंकु का आयतन'},
+  cuboid:{svg:`<svg width="60" height="60" viewBox="0 0 60 60"><polygon points="5,20 5,50 45,50 45,20" fill="#f87171"/><polygon points="5,20 15,10 55,10 45,20" fill="#fca5a5"/><polygon points="45,20 55,10 55,40 45,50" fill="#ef4444"/></svg>`,text:'V = l × b × h',note:'l = length, b = breadth, h = height | घनाभ का आयतन'}
+};
+function showFormula(type){
+  const f=formulas[type];
+  document.getElementById('formulaDisplay').style.display='block';
+  document.getElementById('formulaSVG').innerHTML=f.svg;
+  document.getElementById('formulaText').textContent=f.text;
+  document.getElementById('formulaNote').textContent=f.note;
+}
+
+// --- QUIZ ---
+const quizData = [
+  {q:'A cone and a cylinder have same radius and height. The volume of cone is:',opts:['Equal to cylinder','1/3 of cylinder','3 times cylinder','1/2 of cylinder'],ans:1,exp:'V_cone = (1/3)πr²h = (1/3) × V_cylinder'},
+  {q:'A sphere of radius 3 cm is melted into spheres of radius 1 cm. How many?',opts:['3','9','27','81'],ans:2,exp:'n = R³/r³ = 27/1 = 27'},
+  {q:'When a solid is melted and recast, which quantity is conserved?',opts:['Surface Area','Volume','Mass only','Shape'],ans:1,exp:'Volume is always conserved during melting and recasting (आयतन संरक्षित)'}
+];
+let qIdx=0, answered=false;
+function renderQuiz(){
+  const q=quizData[qIdx];
+  let html=`<div style="font-size:0.85rem;font-weight:600;margin-bottom:10px;color:#1e293b">Q${qIdx+1}/${quizData.length}: ${q.q}</div>`;
+  q.opts.forEach((o,i)=>{html+=`<button class="quiz-opt" id="qo${i}" onclick="answerQ(${i})">${String.fromCharCode(65+i)}) ${o}</button>`;});
+  html+=`<div class="quiz-msg" id="qmsg"></div>`;
+  html+=`<div style="margin-top:8px;display:flex;gap:8px"><button class="btn btn-blue" onclick="nextQ()">Next →</button></div>`;
+  document.getElementById('quizArea').innerHTML=html;
+  answered=false;
+}
+function answerQ(i){
+  if(answered) return; answered=true;
+  const q=quizData[qIdx];
+  for(let j=0;j<q.opts.length;j++){
+    const el=document.getElementById('qo'+j);
+    if(j===q.ans) el.classList.add('correct');
+    else if(j===i) el.classList.add('wrong');
+    el.disabled=true;
+  }
+  const msg=document.getElementById('qmsg');
+  msg.classList.add('show');
+  if(i===q.ans){msg.style.background='#f0fdf4';msg.style.color='#166534';msg.textContent='✅ Correct! '+q.exp;}
+  else{msg.style.background='#fef2f2';msg.style.color='#991b1b';msg.textContent='❌ Wrong. '+q.exp;}
+}
+function nextQ(){
+  qIdx=(qIdx+1)%quizData.length;
+  renderQuiz();
+}
+renderQuiz();
+</script>
+</body>
+</html>

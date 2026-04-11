@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-04-11T07:06:42.357Z",
+  "generatedAt": "2026-04-11T12:13:54.369Z",
   "concepts": {
     "quadratic-formula": {
       "subject": "maths",
@@ -471,6 +471,316 @@
       "filePath": "/app/visuals/maths/probability/classical-probability.html",
       "sizeKB": 23.8,
       "generatedAt": "2026-04-11T07:06:42.356Z"
+    },
+    "relationship-between-zeroes-and-coefficients": {
+      "subject": "maths",
+      "chapter": "polynomials",
+      "chapterName": "Polynomials",
+      "conceptName": "Relationship between Zeroes and Coefficients",
+      "slug": "relationship-between-zeroes-and-coefficients",
+      "filePath": "/app/visuals/maths/polynomials/relationship-between-zeroes-and-coefficients.html",
+      "sizeKB": 23.6,
+      "generatedAt": "2026-04-11T07:29:19.676Z"
+    },
+    "series-and-parallel-circuits": {
+      "subject": "science",
+      "chapter": "electricity",
+      "chapterName": "Electricity",
+      "conceptName": "Series and Parallel Circuits",
+      "slug": "series-and-parallel-circuits",
+      "filePath": "/app/visuals/science/electricity/series-and-parallel-circuits.html",
+      "sizeKB": 23.8,
+      "generatedAt": "2026-04-11T07:36:47.071Z"
+    },
+    "hcf-and-lcm-using-prime-factorisation": {
+      "subject": "maths",
+      "chapter": "real-numbers",
+      "chapterName": "Real Numbers",
+      "conceptName": "HCF and LCM using Prime Factorisation",
+      "slug": "hcf-and-lcm-using-prime-factorisation",
+      "filePath": "/app/visuals/maths/real-numbers/hcf-and-lcm-using-prime-factorisation.html",
+      "sizeKB": 20.7,
+      "generatedAt": "2026-04-11T07:46:50.048Z"
+    },
+    "pythagoras-theorem-visual-proof": {
+      "subject": "maths",
+      "chapter": "triangles",
+      "chapterName": "Triangles",
+      "conceptName": "Pythagoras Theorem Visual Proof",
+      "slug": "pythagoras-theorem-visual-proof",
+      "filePath": "/app/visuals/maths/triangles/pythagoras-theorem-visual-proof.html",
+      "sizeKB": 18.6,
+      "generatedAt": "2026-04-11T07:50:21.790Z"
+    },
+    "nth-term-formula": {
+      "subject": "maths",
+      "chapter": "arithmetic-progression",
+      "chapterName": "Arithmetic Progressions",
+      "conceptName": "nth Term Formula",
+      "slug": "nth-term-formula",
+      "filePath": "/app/visuals/maths/arithmetic-progression/nth-term-formula.html",
+      "sizeKB": 21.9,
+      "generatedAt": "2026-04-11T07:54:47.980Z"
+    },
+    "sum-of-n-terms": {
+      "subject": "maths",
+      "chapter": "arithmetic-progression",
+      "chapterName": "Arithmetic Progressions",
+      "conceptName": "Sum of n Terms",
+      "slug": "sum-of-n-terms",
+      "filePath": "/app/visuals/maths/arithmetic-progression/sum-of-n-terms.html",
+      "sizeKB": 23.1,
+      "generatedAt": "2026-04-11T07:57:32.644Z"
+    },
+    "number-of-tangents-from-external-point": {
+      "subject": "maths",
+      "chapter": "circles",
+      "chapterName": "Circles",
+      "conceptName": "Number of Tangents from External Point",
+      "slug": "number-of-tangents-from-external-point",
+      "filePath": "/app/visuals/maths/circles/number-of-tangents-from-external-point.html",
+      "sizeKB": 24.7,
+      "generatedAt": "2026-04-11T08:14:22.171Z"
+    },
+    "conversion-of-solids": {
+      "subject": "maths",
+      "chapter": "surface-areas-volumes",
+      "chapterName": "Surface Areas and Volumes",
+      "conceptName": "Conversion of Solids",
+      "slug": "conversion-of-solids",
+      "filePath": "/app/visuals/maths/surface-areas-volumes/conversion-of-solids.html",
+      "sizeKB": 20.5,
+      "generatedAt": "2026-04-11T08:20:59.245Z"
+    },
+    "substitution-method": {
+      "subject": "maths",
+      "chapter": "linear-equations",
+      "chapterName": "Pair of Linear Equations in Two Variables",
+      "conceptName": "Substitution Method",
+      "slug": "substitution-method",
+      "filePath": "/app/visuals/maths/linear-equations/substitution-method.html",
+      "sizeKB": 23.1,
+      "generatedAt": "2026-04-11T08:27:41.011Z"
+    },
+    "ap-number-line-visualization": {
+      "subject": "maths",
+      "chapter": "arithmetic-progression",
+      "chapterName": "Arithmetic Progressions",
+      "conceptName": "AP Number Line Visualization",
+      "slug": "ap-number-line-visualization",
+      "filePath": "/app/visuals/maths/arithmetic-progression/ap-number-line-visualization.html",
+      "sizeKB": 21,
+      "generatedAt": "2026-04-11T08:32:47.811Z"
+    },
+    "trigonometric-ratios-of-standard-angles": {
+      "subject": "maths",
+      "chapter": "trigonometry",
+      "chapterName": "Introduction to Trigonometry",
+      "conceptName": "Trigonometric Ratios of Standard Angles",
+      "slug": "trigonometric-ratios-of-standard-angles",
+      "filePath": "/app/visuals/maths/trigonometry/trigonometric-ratios-of-standard-angles.html",
+      "sizeKB": 23.1,
+      "generatedAt": "2026-04-11T08:37:33.298Z"
+    },
+    "median-of-grouped-data": {
+      "subject": "maths",
+      "chapter": "statistics",
+      "chapterName": "Statistics",
+      "conceptName": "Median of Grouped Data",
+      "slug": "median-of-grouped-data",
+      "filePath": "/app/visuals/maths/statistics/median-of-grouped-data.html",
+      "sizeKB": 23.7,
+      "generatedAt": "2026-04-11T08:39:24.471Z"
+    },
+    "complementary-events": {
+      "subject": "maths",
+      "chapter": "probability",
+      "chapterName": "Probability",
+      "conceptName": "Complementary Events",
+      "slug": "complementary-events",
+      "filePath": "/app/visuals/maths/probability/complementary-events.html",
+      "sizeKB": 22.1,
+      "generatedAt": "2026-04-11T08:41:20.985Z"
+    },
+    "areas-of-similar-triangles": {
+      "subject": "maths",
+      "chapter": "triangles",
+      "chapterName": "Triangles",
+      "conceptName": "Areas of Similar Triangles",
+      "slug": "areas-of-similar-triangles",
+      "filePath": "/app/visuals/maths/triangles/areas-of-similar-triangles.html",
+      "sizeKB": 20.7,
+      "generatedAt": "2026-04-11T08:53:30.595Z"
+    },
+    "area-of-sector-formula": {
+      "subject": "maths",
+      "chapter": "areas-circles",
+      "chapterName": "Areas Related to Circles",
+      "conceptName": "Area of Sector Formula",
+      "slug": "area-of-sector-formula",
+      "filePath": "/app/visuals/maths/areas-circles/area-of-sector-formula.html",
+      "sizeKB": 19.9,
+      "generatedAt": "2026-04-11T08:58:31.210Z"
+    },
+    "frustum-of-a-cone": {
+      "subject": "maths",
+      "chapter": "surface-areas-volumes",
+      "chapterName": "Surface Areas and Volumes",
+      "conceptName": "Frustum of a Cone",
+      "slug": "frustum-of-a-cone",
+      "filePath": "/app/visuals/maths/surface-areas-volumes/frustum-of-a-cone.html",
+      "sizeKB": 22.9,
+      "generatedAt": "2026-04-11T09:00:39.638Z"
+    },
+    "mode-of-grouped-data": {
+      "subject": "maths",
+      "chapter": "statistics",
+      "chapterName": "Statistics",
+      "conceptName": "Mode of Grouped Data",
+      "slug": "mode-of-grouped-data",
+      "filePath": "/app/visuals/maths/statistics/mode-of-grouped-data.html",
+      "sizeKB": 19.5,
+      "generatedAt": "2026-04-11T09:10:24.587Z"
+    },
+    "reactivity-series": {
+      "subject": "science",
+      "chapter": "metals-nonmetals",
+      "chapterName": "Metals and Non-Metals",
+      "conceptName": "Reactivity Series",
+      "slug": "reactivity-series",
+      "filePath": "/app/visuals/science/metals-nonmetals/reactivity-series.html",
+      "sizeKB": 20.7,
+      "generatedAt": "2026-04-11T09:14:03.679Z"
+    },
+    "consistency-of-equations": {
+      "subject": "maths",
+      "chapter": "linear-equations",
+      "chapterName": "Pair of Linear Equations in Two Variables",
+      "conceptName": "Consistency of Equations",
+      "slug": "consistency-of-equations",
+      "filePath": "/app/visuals/maths/linear-equations/consistency-of-equations.html",
+      "sizeKB": 22.2,
+      "generatedAt": "2026-04-11T09:29:26.604Z"
+    },
+    "standard-form-and-roots": {
+      "subject": "maths",
+      "chapter": "quadratic-equations",
+      "chapterName": "Quadratic Equations",
+      "conceptName": "Standard Form and Roots",
+      "slug": "standard-form-and-roots",
+      "filePath": "/app/visuals/maths/quadratic-equations/standard-form-and-roots.html",
+      "sizeKB": 20.6,
+      "generatedAt": "2026-04-11T09:41:00.939Z"
+    },
+    "ph-scale": {
+      "subject": "science",
+      "chapter": "acids-bases-salts",
+      "chapterName": "Acids, Bases and Salts",
+      "conceptName": "pH Scale",
+      "slug": "ph-scale",
+      "filePath": "/app/visuals/science/acids-bases-salts/ph-scale.html",
+      "sizeKB": 22.6,
+      "generatedAt": "2026-04-11T09:44:46.735Z"
+    },
+    "nutrition-in-humans": {
+      "subject": "science",
+      "chapter": "life-processes",
+      "chapterName": "Life Processes",
+      "conceptName": "Nutrition in Humans",
+      "slug": "nutrition-in-humans",
+      "filePath": "/app/visuals/science/life-processes/nutrition-in-humans.html",
+      "sizeKB": 22.3,
+      "generatedAt": "2026-04-11T09:53:10.023Z"
+    },
+    "trigonometric-identities": {
+      "subject": "maths",
+      "chapter": "trigonometry",
+      "chapterName": "Introduction to Trigonometry",
+      "conceptName": "Trigonometric Identities",
+      "slug": "trigonometric-identities",
+      "filePath": "/app/visuals/maths/trigonometry/trigonometric-identities.html",
+      "sizeKB": 20.5,
+      "generatedAt": "2026-04-11T10:06:40.392Z"
+    },
+    "dice-and-cards-sample-space": {
+      "subject": "maths",
+      "chapter": "probability",
+      "chapterName": "Probability",
+      "conceptName": "Dice and Cards Sample Space",
+      "slug": "dice-and-cards-sample-space",
+      "filePath": "/app/visuals/maths/probability/dice-and-cards-sample-space.html",
+      "sizeKB": 23.3,
+      "generatedAt": "2026-04-11T10:14:00.973Z"
+    },
+    "graphical-meaning-of-zeroes": {
+      "subject": "maths",
+      "chapter": "polynomials",
+      "chapterName": "Polynomials",
+      "conceptName": "Graphical Meaning of Zeroes",
+      "slug": "graphical-meaning-of-zeroes",
+      "filePath": "/app/visuals/maths/polynomials/graphical-meaning-of-zeroes.html",
+      "sizeKB": 21.9,
+      "generatedAt": "2026-04-11T10:31:53.528Z"
+    },
+    "combined-figures-area": {
+      "subject": "maths",
+      "chapter": "areas-circles",
+      "chapterName": "Areas Related to Circles",
+      "conceptName": "Combined Figures Area",
+      "slug": "combined-figures-area",
+      "filePath": "/app/visuals/maths/areas-circles/combined-figures-area.html",
+      "sizeKB": 20.7,
+      "generatedAt": "2026-04-11T11:30:22.395Z"
+    },
+    "factorisation-method": {
+      "subject": "maths",
+      "chapter": "quadratic-equations",
+      "chapterName": "Quadratic Equations",
+      "conceptName": "Factorisation Method",
+      "slug": "factorisation-method",
+      "filePath": "/app/visuals/maths/quadratic-equations/factorisation-method.html",
+      "sizeKB": 22.6,
+      "generatedAt": "2026-04-11T11:40:20.979Z"
+    },
+    "decimal-expansions": {
+      "subject": "maths",
+      "chapter": "real-numbers",
+      "chapterName": "Real Numbers",
+      "conceptName": "Decimal Expansions",
+      "slug": "decimal-expansions",
+      "filePath": "/app/visuals/maths/real-numbers/decimal-expansions.html",
+      "sizeKB": 19.4,
+      "generatedAt": "2026-04-11T11:43:42.345Z"
+    },
+    "division-algorithm-for-polynomials": {
+      "subject": "maths",
+      "chapter": "polynomials",
+      "chapterName": "Polynomials",
+      "conceptName": "Division Algorithm for Polynomials",
+      "slug": "division-algorithm-for-polynomials",
+      "filePath": "/app/visuals/maths/polynomials/division-algorithm-for-polynomials.html",
+      "sizeKB": 21.6,
+      "generatedAt": "2026-04-11T11:49:18.851Z"
+    },
+    "tangent-properties": {
+      "subject": "maths",
+      "chapter": "circles",
+      "chapterName": "Circles",
+      "conceptName": "Tangent Properties",
+      "slug": "tangent-properties",
+      "filePath": "/app/visuals/maths/circles/tangent-properties.html",
+      "sizeKB": 23.3,
+      "generatedAt": "2026-04-11T12:11:13.083Z"
+    },
+    "nature-of-roots-using-discriminant": {
+      "subject": "maths",
+      "chapter": "quadratic-equations",
+      "chapterName": "Quadratic Equations",
+      "conceptName": "Nature of Roots using Discriminant",
+      "slug": "nature-of-roots-using-discriminant",
+      "filePath": "/app/visuals/maths/quadratic-equations/nature-of-roots-using-discriminant.html",
+      "sizeKB": 21.7,
+      "generatedAt": "2026-04-11T12:13:54.368Z"
     }
   }
 }

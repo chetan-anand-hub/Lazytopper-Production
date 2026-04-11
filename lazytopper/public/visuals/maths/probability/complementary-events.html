@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Complementary Events - Probability</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f0f4ff; color: #1e293b; min-width: 350px; }
+  .titlebar { background: linear-gradient(135deg, #1e293b, #3b82f6); color: white; padding: 14px 20px; text-align: center; box-shadow: 0 4px 12px rgba(59,130,246,0.4); }
+  .titlebar h1 { font-size: 1.2rem; letter-spacing: 1px; }
+  .titlebar p { font-size: 0.8rem; opacity: 0.85; margin-top: 3px; }
+  .container { max-width: 700px; margin: 0 auto; padding: 16px; }
+  .card { background: white; border-radius: 16px; padding: 18px; margin-bottom: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+  .card h2 { font-size: 1rem; color: #3b82f6; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .formula-box { background: linear-gradient(135deg, #eff6ff, #dbeafe); border: 2px solid #3b82f6; border-radius: 14px; padding: 16px; text-align: center; margin-bottom: 16px; }
+  .formula-box .formula { font-size: 1.4rem; font-weight: bold; color: #1e40af; margin: 8px 0; }
+  .formula-box .sub { font-size: 0.82rem; color: #3b82f6; }
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; }
+  .badge-blue { background: #dbeafe; color: #1d4ed8; }
+  .badge-green { background: #dcfce7; color: #15803d; }
+  .badge-red { background: #fee2e2; color: #b91c1c; }
+  /* Bar visual */
+  .prob-bar-wrap { margin: 12px 0; }
+  .prob-bar-label { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px; }
+  .prob-bar { height: 38px; border-radius: 10px; display: flex; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.12); cursor: pointer; position: relative; }
+  .bar-e { background: linear-gradient(90deg, #3b82f6, #60a5fa); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.85rem; transition: width 0.6s cubic-bezier(.4,0,.2,1); min-width: 0; overflow: hidden; }
+  .bar-note { background: linear-gradient(90deg, #ef4444, #f87171); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.85rem; transition: width 0.6s cubic-bezier(.4,0,.2,1); min-width: 0; overflow: hidden; }
+  .slider-wrap { margin: 14px 0 6px; }
+  .slider-wrap label { font-size: 0.85rem; color: #475569; }
+  input[type=range] { width: 100%; accent-color: #3b82f6; margin-top: 6px; }
+  .prob-display { display: flex; gap: 10px; margin: 10px 0; flex-wrap: wrap; }
+  .prob-chip { flex: 1; min-width: 120px; border-radius: 12px; padding: 12px; text-align: center; }
+  .chip-e { background: linear-gradient(135deg, #dbeafe, #bfdbfe); border: 2px solid #3b82f6; }
+  .chip-ne { background: linear-gradient(135deg, #fee2e2, #fecaca); border: 2px solid #ef4444; }
+  .chip-sum { background: linear-gradient(135deg, #dcfce7, #bbf7d0); border: 2px solid #22c55e; }
+  .prob-chip .val { font-size: 1.3rem; font-weight: bold; }
+  .prob-chip .lbl { font-size: 0.72rem; margin-top: 4px; }
+  /* Scenario cards */
+  .scenario-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin: 10px 0; }
+  .sc-card { border-radius: 12px; padding: 12px 10px; text-align: center; cursor: pointer; border: 2px solid transparent; transition: all 0.25s; }
+  .sc-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.13); }
+  .sc-card.active { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.2); }
+  .sc-card .emoji { font-size: 1.8rem; }
+  .sc-card .sc-title { font-size: 0.78rem; font-weight: bold; margin: 4px 0 2px; }
+  .sc-card .sc-sub { font-size: 0.7rem; color: #64748b; }
+  .sc-result { background: #f8fafc; border-radius: 10px; padding: 12px; margin-top: 10px; font-size: 0.85rem; line-height: 1.6; display: none; }
+  .sc-result.show { display: block; animation: fadeIn 0.3s ease; }
+  /* Step walkthrough */
+  .step-list { list-style: none; }
+  .step-item { display: flex; gap: 12px; margin-bottom: 14px; opacity: 0; transform: translateY(10px); transition: all 0.4s ease; }
+  .step-item.visible { opacity: 1; transform: translateY(0); }
+  .step-num { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; font-weight: bold; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .step-text { font-size: 0.85rem; line-height: 1.6; padding-top: 4px; }
+  .step-text strong { color: #3b82f6; }
+  .btn { display: inline-block; padding: 9px 20px; background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 0.85rem; font-weight: bold; transition: all 0.2s; box-shadow: 0 3px 10px rgba(59,130,246,0.3); }
+  .btn:hover { transform: translateY(-1px); box-shadow: 0 5px 14px rgba(59,130,246,0.4); }
+  .btn:active { transform: translateY(0); }
+  /* Venn SVG */
+  .venn-wrap { text-align: center; margin: 10px 0; }
+  /* Certain/Impossible */
+  .extremes { display: flex; gap: 10px; flex-wrap: wrap; margin: 10px 0; }
+  .extreme-card { flex: 1; min-width: 130px; border-radius: 12px; padding: 12px; text-align: center; }
+  .ext-certain { background: linear-gradient(135deg, #dcfce7, #bbf7d0); border: 2px solid #22c55e; }
+  .ext-impossible { background: linear-gradient(135deg, #fee2e2, #fecaca); border: 2px solid #ef4444; }
+  .extreme-card .ev { font-size: 1.3rem; }
+  .extreme-card h3 { font-size: 0.85rem; font-weight: bold; margin: 4px 0; }
+  .extreme-card p { font-size: 0.75rem; color: #475569; }
+  /* Quiz */
+  .quiz-q { font-size: 0.9rem; font-weight: bold; margin-bottom: 10px; }
+  .quiz-opts { display: flex; flex-direction: column; gap: 8px; }
+  .quiz-opt { padding: 10px 14px; border-radius: 10px; border: 2px solid #e2e8f0; cursor: pointer; font-size: 0.85rem; transition: all 0.2s; background: white; }
+  .quiz-opt:hover:not(.correct):not(.wrong) { border-color: #3b82f6; background: #eff6ff; }
+  .quiz-opt.correct { border-color: #22c55e; background: #dcfce7; color: #15803d; font-weight: bold; }
+  .quiz-opt.wrong { border-color: #ef4444; background: #fee2e2; color: #b91c1c; }
+  .quiz-fb { margin-top: 10px; padding: 10px; border-radius: 10px; font-size: 0.82rem; display: none; }
+  .quiz-fb.show { display: block; animation: fadeIn 0.3s; }
+  .quiz-fb.ok { background: #dcfce7; color: #15803d; border: 1px solid #22c55e; }
+  .quiz-fb.no { background: #fee2e2; color: #b91c1c; border: 1px solid #ef4444; }
+  .tag { font-size: 0.7rem; background: #f1f5f9; color: #64748b; padding: 2px 8px; border-radius: 20px; display: inline-block; margin-top: 4px; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+  .highlight { background: #fef9c3; border-radius: 4px; padding: 0 3px; }
+  .divider { height: 1px; background: #e2e8f0; margin: 12px 0; }
+</style>
+</head>
+<body>
+
+<div class="titlebar">
+  <h1>📊 Complementary Events — संपूरक घटनाएँ</h1>
+  <p>CBSE Class 10 Mathematics | Chapter: Probability (प्रायिकता)</p>
+</div>
+
+<div class="container">
+
+  <!-- Formula Card -->
+  <div class="card">
+    <h2>🔑 Core Concept & Formula</h2>
+    <div class="formula-box">
+      <div style="font-size:0.85rem;color:#475569;margin-bottom:6px;">For any event E and its complement <b>not-E</b> (E̅):</div>
+      <div class="formula">P(E) + P(not-E) = 1</div>
+      <div class="formula" style="font-size:1.1rem;margin-top:4px;">∴ P(not-E) = 1 − P(E)</div>
+      <div class="sub">where &nbsp;0 ≤ P(E) ≤ 1 &nbsp;&amp;&nbsp; 0 ≤ P(not-E) ≤ 1</div>
+    </div>
+    <div class="extremes">
+      <div class="extreme-card ext-certain">
+        <div class="ev">✅</div>
+        <h3>Certain Event (निश्चित घटना)</h3>
+        <p>P(E) = <strong>1</strong><br>P(not-E) = 0</p>
+      </div>
+      <div class="extreme-card ext-impossible">
+        <div class="ev">❌</div>
+        <h3>Impossible Event (असंभव घटना)</h3>
+        <p>P(E) = <strong>0</strong><br>P(not-E) = 1</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive Bar -->
+  <div class="card">
+    <h2>🎛️ Interactive Probability Slider</h2>
+    <p style="font-size:0.82rem;color:#475569;margin-bottom:12px;">Drag the slider to set P(E) and watch P(not-E) update automatically!</p>
+    <div class="slider-wrap">
+      <label>P(E) = <strong id="sliderVal">0.60</strong></label>
+      <input type="range" min="0" max="100" value="60" id="probSlider">
+    </div>
+    <div class="prob-bar-wrap">
+      <div class="prob-bar-label">
+        <span style="color:#3b82f6;font-weight:bold;">▶ P(E)</span>
+        <span style="color:#ef4444;font-weight:bold;">P(not-E) ◀</span>
+      </div>
+      <div class="prob-bar" id="probBar">
+        <div class="bar-e" id="barE" style="width:60%">P(E)</div>
+        <div class="bar-note" id="barNE" style="width:40%">P(not-E)</div>
+      </div>
+    </div>
+    <div class="prob-display">
+      <div class="prob-chip chip-e">
+        <div class="val" id="chipE" style="color:#1d4ed8">0.60</div>
+        <div class="lbl">P(E) — Event</div>
+      </div>
+      <div class="prob-chip chip-ne">
+        <div class="val" id="chipNE" style="color:#b91c1c">0.40</div>
+        <div class="lbl">P(not-E) — Complement</div>
+      </div>
+      <div class="prob-chip chip-sum">
+        <div class="val" style="color:#15803d">1.00</div>
+        <div class="lbl">Sum = Always 1 ✓</div>
+      </div>
+    </div>
+    <div style="font-size:0.78rem;color:#64748b;text-align:center;margin-top:4px;">∵ P(E) + P(not-E) = <span id="sumCheck" style="font-weight:bold;color:#22c55e">1.00 ✓</span></div>
+  </div>
+
+  <!-- Venn Diagram -->
+  <div class="card">
+    <h2>🔵 Visual: Sample Space Diagram</h2>
+    <div class="venn-wrap">
+      <svg viewBox="0 0 320 160" width="100%" style="max-width:360px;">
+        <rect x="5" y="5" width="310" height="150" rx="16" ry="16" fill="#f0f9ff" stroke="#3b82f6" stroke-width="2.5"/>
+        <text x="160" y="22" text-anchor="middle" font-size="11" fill="#3b82f6" font-weight="bold">Sample Space S (सम्पूर्ण नमूना समष्टि)</text>
+        <ellipse cx="115" cy="95" rx="90" ry="52" fill="rgba(59,130,246,0.18)" stroke="#3b82f6" stroke-width="2"/>
+        <text x="105" y="88" text-anchor="middle" font-size="13" fill="#1d4ed8" font-weight="bold">E</text>
+        <text x="105" y="105" text-anchor="middle" font-size="10" fill="#1d4ed8">P(E)</text>
+        <text x="252" y="88" text-anchor="middle" font-size="13" fill="#b91c1c" font-weight="bold">E̅</text>
+        <text x="252" y="105" text-anchor="middle" font-size="10" fill="#b91c1c">P(not-E)</text>
+        <text x="252" y="120" text-anchor="middle" font-size="9" fill="#b91c1c">= 1 − P(E)</text>
+        <line x1="212" y1="50" x2="212" y2="140" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5,3"/>
+        <text x="160" y="152" text-anchor="middle" font-size="10" fill="#475569">E and E̅ are Complementary Events — together they cover ALL outcomes</text>
+      </svg>
+    </div>
+    <p style="font-size:0.8rem;color:#475569;text-align:center;">E and E̅ (not-E) are <strong>mutually exclusive</strong> (परस्पर अपवर्जी) and <strong>exhaustive</strong> (सम्पूर्ण) — they cover the entire sample space S.</p>
+  </div>
+
+  <!-- Scenarios -->
+  <div class="card">
+    <h2>🎲 Try Real Examples — Click to Explore</h2>
+    <div class="scenario-grid" id="scGrid">
+      <div class="sc-card" style="background:linear-gradient(135deg,#dbeafe,#eff6ff)" onclick="showScenario(0,this)">
+        <div class="emoji">🎲</div>
+        <div class="sc-title">Dice Roll</div>
+        <div class="sc-sub">Getting a 4</div>
+      </div>
+      <div class="sc-card" style="background:linear-gradient(135deg,#fce7f3,#fdf2f8)" onclick="showScenario(1,this)">
+        <div class="emoji">🃏</div>
+        <div class="sc-title">Playing Cards</div>
+        <div class="sc-sub">Drawing an Ace</div>
+      </div>
+      <div class="sc-card" style="background:linear-gradient(135deg,#fef9c3,#fffbeb)" onclick="showScenario(2,this)">
+        <div class="emoji">🪙</div>
+        <div class="sc-title">Coin Toss</div>
+        <div class="sc-sub">Getting Heads</div>
+      </div>
+      <div class="sc-card" style="background:linear-gradient(135deg,#dcfce7,#f0fdf4)" onclick="showScenario(3,this)">
+        <div class="emoji">🎰</div>
+        <div class="sc-title">Bag of Balls</div>
+        <div class="sc-sub">Red ball</div>
+      </div>
+    </div>
+    <div class="sc-result" id="scResult"></div>
+  </div>
+
+  <!-- Step-by-step Example -->
+  <div class="card">
+    <h2>📝 Worked Example — Step by Step</h2>
+    <div style="background:#f8fafc;border-radius:10px;padding:12px;margin-bottom:12px;font-size:0.85rem;">
+      <strong>Question:</strong> A bag contains <span class="highlight">5 red</span>, <span class="highlight">3 blue</span>, and <span class="highlight">2 green</span> balls. One ball is drawn at random.<br>
+      If E = event of drawing a red ball, find P(not-E).
+    </div>
+    <ul class="step-list" id="stepList">
+      <li class="step-item" id="s1">
+        <div class="step-num">1</div>
+        <div class="step-text"><strong>Find Total outcomes:</strong><br>Total balls = 5 + 3 + 2 = <strong>10</strong><br>∴ n(S) = 10</div>
+      </li>
+      <li class="step-item" id="s2">
+        <div class="step-num">2</div>
+        <div class="step-text"><strong>Find P(E) — Red ball:</strong><br>Favourable outcomes = 5 (red balls)<br>P(E) = 5/10 = <strong>1/2 = 0.5</strong></div>
+      </li>
+      <li class="step-item" id="s3">
+        <div class="step-num">3</div>
+        <div class="step-text"><strong>Apply complement formula:</strong><br>P(not-E) = 1 − P(E)<br>P(not-E) = 1 − 1/2 = <strong>1/2 = 0.5</strong></div>
+      </li>
+      <li class="step-item" id="s4">
+        <div class="step-num">4</div>
+        <div class="step-text"><strong>Verify ✓:</strong><br>P(E) + P(not-E) = 1/2 + 1/2 = <strong>1 ✓</strong><br><em style="color:#64748b;">(not-E = drawing blue or green ball)</em></div>
+      </li>
+    </ul>
+    <button class="btn" id="stepBtn" onclick="revealSteps()">▶ Reveal Steps One by One</button>
+    <div style="font-size:0.75rem;color:#94a3b8;margin-top:8px;" id="stepHint">Click the button to reveal each step</div>
+  </div>
+
+  <!-- Quick Quiz -->
+  <div class="card">
+    <h2>🧩 Quick Quiz — Test Yourself</h2>
+    <div id="quizWrap">
+      <div class="quiz-q" id="qText">Q1: The probability of winning a game is 3/7. What is the probability of NOT winning?</div>
+      <div class="quiz-opts" id="qOpts">
+        <button class="quiz-opt" onclick="checkAns(this,'wrong')">A) 3/7</button>
+        <button class="quiz-opt" onclick="checkAns(this,'correct')">B) 4/7</button>
+        <button class="quiz-opt" onclick="checkAns(this,'wrong')">C) 7/3</button>
+        <button class="quiz-opt" onclick="checkAns(this,'wrong')">D) 1/3</button>
+      </div>
+      <div class="quiz-fb" id="qFb"></div>
+      <button class="btn" id="nextQBtn" style="margin-top:12px;display:none;" onclick="nextQ()">Next Question →</button>
+    </div>
+  </div>
+
+  <!-- Key Points -->
+  <div class="card">
+    <h2>📌 Key Points to Remember</h2>
+    <div style="font-size:0.83rem;line-height:1.9;">
+      ✅ P(E) + P(not-E) = <strong>1</strong> &nbsp;<span class="tag">Always</span><br>
+      ✅ P(not-E) = 1 − P(E) &nbsp;<span class="tag">Complement Rule</span><br>
+      ✅ Probability always lies between <strong>0 and 1</strong> inclusive<br>
+      ✅ P = 0 → <strong>Impossible</strong> event (असंभव घटना)<br>
+      ✅ P = 1 → <strong>Certain</strong> event (निश्चित घटना)<br>
+      ✅ E and E̅ together cover the <strong>entire sample space</strong><br>
+      ✅ P(not-E) is also written as <strong>P(E̅)</strong> or <strong>P(Eᶜ)</strong>
+    </div>
+    <div class="divider"></div>
+    <div style="font-size:0.78rem;color:#64748b;text-align:center;">
+      <em>∵ P(E) + P(E̅) = 1 &nbsp;∴ P(E̅) = 1 − P(E)</em>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// Slider logic
+const slider = document.getElementById('probSlider');
+const barE = document.getElementById('barE');
+const barNE = document.getElementById('barNE');
+const chipE = document.getElementById('chipE');
+const chipNE = document.getElementById('chipNE');
+const sliderVal = document.getElementById('sliderVal');
+const sumCheck = document.getElementById('sumCheck');
+
+slider.addEventListener('input', function() {
+  const v = parseInt(this.value);
+  const pe = (v/100).toFixed(2);
+  const pne = ((100-v)/100).toFixed(2);
+  barE.style.width = v + '%';
+  barNE.style.width = (100-v) + '%';
+  barE.textContent = v > 12 ? 'P(E)' : '';
+  barNE.textContent = (100-v) > 12 ? 'P(not-E)' : '';
+  chipE.textContent = pe;
+  chipNE.textContent = pne;
+  sliderVal.textContent = pe;
+  const sum = (parseFloat(pe)+parseFloat(pne)).toFixed(2);
+  sumCheck.textContent = sum + ' ✓';
+});
+
+// Scenario data
+const scenarios = [
+  {
+    icon:'🎲', title:'Fair Dice',
+    html:`<strong>Event E:</strong> Getting a 4 on a fair die<br>
+    <strong>Sample Space:</strong> S = {1, 2, 3, 4, 5, 6} → n(S) = 6<br>
+    <strong>Favourable outcomes:</strong> {4} → n(E) = 1<br>
+    <strong>P(E)</strong> = 1/6 ≈ 0.167<br>
+    <strong>P(not-E)</strong> = 1 − 1/6 = <span style="color:#b91c1c;font-weight:bold">5/6 ≈ 0.833</span><br>
+    <em style="color:#64748b;">not-E = {1,2,3,5,6} — not getting a 4</em>`
+  },
+  {
+    icon:'🃏', title:'Playing Cards',
+    html:`<strong>Event E:</strong> Drawing an Ace from a deck of 52 cards<br>
+    <strong>n(S)</strong> = 52 &nbsp;|&nbsp; <strong>n(E)</strong> = 4 (4 aces)<br>
+    <strong>P(E)</strong> = 4/52 = 1/13 ≈ 0.077<br>
+    <strong>P(not-E)</strong> = 1 − 1/13 = <span style="color:#b91c1c;font-weight:bold">12/13 ≈ 0.923</span><br>
+    <em style="color:#64748b;">not-E = drawing any non-Ace card (48 cards)</em>`
+  },
+  {
+    icon:'🪙', title:'Coin Toss',
+    html:`<strong>Event E:</strong> Getting Heads on a fair coin<br>
+    <strong>Sample Space:</strong> S = {H, T} → n(S) = 2<br>
+    <strong>P(E)</strong> = 1/2 = 0.5<br>
+    <strong>P(not-E)</strong> = 1 − 1/2 = <span style="color:#b91c1c;font-weight:bold">1/2 = 0.5</span><br>
+    <em style="color:#64748b;">∵ P(E) = P(not-E) → equally likely complement!</em>`
+  },
+  {
+    icon:'🎰', title:'Bag of Balls',
+    html:`<strong>Bag:</strong> 4 Red + 6 Blue = 10 balls total<br>
+    <strong>Event E:</strong> Drawing a Red ball<br>
+    <strong>P(E)</strong> = 4/10 = 2/5 = 0.4<br>
+    <strong>P(not-E)</strong> = 1 − 2/5 = <span style="color:#b91c1c;font-weight:bold">3/5 = 0.6</span><br>
+    <em style="color:#64748b;">not-E = drawing a Blue ball (6 out of 10)</em>`
+  }
+];
+
+function showScenario(idx, el) {
+  document.querySelectorAll('.sc-card').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  const res = document.getElementById('scResult');
+  res.innerHTML = `<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span style="font-size:1.4rem">${scenarios[idx].icon}</span><strong>${scenarios[idx].title}</strong></div>${scenarios[idx].html}`;
+  res.classList.add('show');
+}
+
+// Step walkthrough
+let stepCount = 0;
+const totalSteps = 4;
+function revealSteps() {
+  if (stepCount < totalSteps) {
+    const el = document.getElementById('s'+(stepCount+1));
+    el.classList.add('visible');
+    stepCount++;
+    const btn = document.getElementById('stepBtn');
+    const hint = document.getElementById('stepHint');
+    if (stepCount === totalSteps) {
+      btn.textContent = '🔄 Reset Steps';
+      hint.textContent = 'All steps revealed! Great job! 🎉';
+      hint.style.color = '#22c55e';
+    } else {
+      btn.textContent = '▶ Next Step (' + stepCount + '/' + totalSteps + ')';
+      hint.textContent = 'Step ' + stepCount + ' of ' + totalSteps + ' revealed';
+    }
+  } else {
+    stepCount = 0;
+    for(let i=1;i<=4;i++) document.getElementById('s'+i).classList.remove('visible');
+    document.getElementById('stepBtn').textContent = '▶ Reveal Steps One by One';
+    document.getElementById('stepHint').textContent = 'Click the button to reveal each step';
+    document.getElementById('stepHint').style.color = '#94a3b8';
+  }
+}
+
+// Quiz
+const questions = [
+  {
+    q: "Q1: The probability of winning a game is 3/7. What is the probability of NOT winning?",
+    opts: ["A) 3/7","B) 4/7","C) 7/3","D) 1/3"],
+    ans: 1,
+    fb: "✓ Correct! P(not-E) = 1 − 3/7 = 4/7 ✓"
+  },
+  {
+    q: "Q2: If P(E̅) = 0.35, what is P(E)?",
+    opts: ["A) 0.35","B) 1.35","C) 0.65","D) 0.5"],
+    ans: 2,
+    fb: "✓ Correct! P(E) = 1 − P(E̅) = 1 − 0.35 = 0.65 ✓"
+  },
+  {
+    q: "Q3: P(E) = 0 means the event is:",
+    opts: ["A) Certain","B) Complementary","C) Impossible","D) Exhaustive"],
+    ans: 2,
+    fb: "✓ Correct! P(E) = 0 means Impossible event (असंभव घटना) ✓"
+  }
+];
+let currentQ = 0;
+let answered = false;
+
+function checkAns(el, type) {
+  if (answered) return;
+  answered = true;
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach((o,i) => {
+    if (i === questions[currentQ].ans) o.classList.add('correct');
+  });
+  const fb = document.getElementById('qFb');
+  if (type === 'correct') {
+    el.classList.add('correct');
+    fb.textContent = questions[currentQ].fb;
+    fb.className = 'quiz-fb show ok';
+  } else {
+    el.classList.add('wrong');
+    fb.textContent = "✗ Not quite. " + questions[currentQ].fb;
+    fb.className = 'quiz-fb show no';
+  }
+  if (currentQ < questions.length - 1) {
+    document.getElementById('nextQBtn').style.display = 'inline-block';
+  }
+}
+
+function nextQ() {
+  currentQ++;
+  answered = false;
+  const q = questions[currentQ];
+  document.getElementById('qText').textContent = q.q;
+  const optsDiv = document.getElementById('qOpts');
+  optsDiv.innerHTML = q.opts.map((o,i) => `<button class="quiz-opt" onclick="checkAns(this,'${i===q.ans?'correct':'wrong'}')">${o}</button>`).join('');
+  document.getElementById('qFb').className = 'quiz-fb';
+  document.getElementById('nextQBtn').style.display = 'none';
+  if (currentQ >= questions.length - 1) {
+    document.getElementById('nextQBtn').style.display = 'none';
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Median of Grouped Data - Class 10 Statistics</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 100%);min-height:100vh;color:#1e293b}
+  .title-bar{background:linear-gradient(90deg,#1d4ed8,#3b82f6,#06b6d4);padding:14px 20px;text-align:center;box-shadow:0 4px 20px rgba(59,130,246,0.5)}
+  .title-bar h1{color:#fff;font-size:1.2rem;font-weight:700;letter-spacing:0.5px}
+  .title-bar p{color:#bfdbfe;font-size:0.78rem;margin-top:2px}
+  .container{max-width:800px;margin:0 auto;padding:16px}
+  .card{background:#fff;border-radius:16px;padding:18px;margin-bottom:16px;box-shadow:0 8px 32px rgba(0,0,0,0.2)}
+  .card h2{font-size:1rem;color:#1e293b;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+  .badge{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border-radius:20px;padding:3px 10px;font-size:0.72rem;font-weight:600}
+  .formula-box{background:linear-gradient(135deg,#1e293b,#0f172a);border-radius:12px;padding:16px;text-align:center;margin:10px 0;border:2px solid #3b82f6;position:relative;overflow:hidden}
+  .formula-box::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(59,130,246,0.1) 0%,transparent 70%);animation:pulse 3s infinite}
+  @keyframes pulse{0%,100%{transform:scale(1);opacity:0.5}50%{transform:scale(1.1);opacity:1}}
+  .formula-text{color:#f0f9ff;font-size:1.1rem;font-weight:700;letter-spacing:1px;position:relative;z-index:1}
+  .formula-sub{color:#93c5fd;font-size:0.78rem;margin-top:6px;position:relative;z-index:1}
+  .hint-label{color:#fbbf24;font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:1px}
+  table{width:100%;border-collapse:collapse;font-size:0.82rem}
+  th{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;padding:8px 10px;text-align:center}
+  td{padding:7px 10px;text-align:center;border-bottom:1px solid #e2e8f0}
+  tr:nth-child(even) td{background:#f8fafc}
+  tr.highlight td{background:linear-gradient(90deg,#fef3c7,#fde68a)!important;font-weight:700;color:#92400e}
+  tr.cf-highlight td{background:linear-gradient(90deg,#dcfce7,#bbf7d0)!important;font-weight:600;color:#166534}
+  .step-container{margin-top:10px}
+  .step{background:linear-gradient(135deg,#f0f9ff,#e0f2fe);border-left:4px solid #3b82f6;border-radius:0 10px 10px 0;padding:12px;margin-bottom:8px;opacity:0;transform:translateX(-20px);transition:all 0.5s ease;display:none}
+  .step.visible{opacity:1;transform:translateX(0);display:block}
+  .step-num{background:#3b82f6;color:#fff;border-radius:50%;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;margin-right:8px}
+  .step-content{font-size:0.83rem;color:#1e293b;line-height:1.6}
+  .step-content .val{color:#1d4ed8;font-weight:700}
+  .step-content .formula-inline{background:#1e293b;color:#f0f9ff;border-radius:6px;padding:4px 10px;display:inline-block;margin:4px 0;font-size:0.82rem}
+  .btn{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border:none;border-radius:10px;padding:10px 20px;font-size:0.85rem;font-weight:600;cursor:pointer;transition:all 0.3s;box-shadow:0 4px 15px rgba(59,130,246,0.4)}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(59,130,246,0.6)}
+  .btn:active{transform:translateY(0)}
+  .btn-green{background:linear-gradient(135deg,#22c55e,#16a34a);box-shadow:0 4px 15px rgba(34,197,94,0.4)}
+  .btn-green:hover{box-shadow:0 6px 20px rgba(34,197,94,0.6)}
+  .btn-amber{background:linear-gradient(135deg,#f59e0b,#d97706);box-shadow:0 4px 15px rgba(245,158,11,0.4)}
+  .controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+  .viz-area{background:linear-gradient(180deg,#f8fafc,#f1f5f9);border-radius:12px;padding:14px;margin-top:12px;position:relative}
+  .bar-container{display:flex;flex-direction:column;gap:6px}
+  .bar-row{display:flex;align-items:center;gap:8px;font-size:0.78rem}
+  .bar-label{width:80px;text-align:right;color:#475569;font-size:0.74rem}
+  .bar-track{flex:1;background:#e2e8f0;border-radius:20px;height:28px;position:relative;overflow:hidden}
+  .bar-fill{height:100%;border-radius:20px;transition:width 1s ease;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;font-size:0.72rem;font-weight:700;color:#fff;min-width:0}
+  .bar-val{width:36px;text-align:left;color:#1e293b;font-weight:600;font-size:0.78rem}
+  .median-line{position:absolute;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#ef4444,#dc2626);transition:left 1s ease;z-index:5}
+  .median-line::before{content:'M';position:absolute;top:-20px;left:50%;transform:translateX(-50%);background:#ef4444;color:#fff;border-radius:4px;padding:2px 5px;font-size:0.65rem;font-weight:700;white-space:nowrap}
+  .median-line::after{content:'मध्यिका';position:absolute;top:100%;left:50%;transform:translateX(-50%);background:#ef4444;color:#fff;border-radius:4px;padding:2px 5px;font-size:0.6rem;font-weight:700;white-space:nowrap;margin-top:4px}
+  .cf-line{position:absolute;top:0;bottom:0;width:2px;background:rgba(34,197,94,0.7);transition:left 1s ease}
+  .answer-box{background:linear-gradient(135deg,#052e16,#14532d);border:2px solid #22c55e;border-radius:12px;padding:14px;text-align:center;margin-top:12px;display:none}
+  .answer-box.show{display:block;animation:fadeIn 0.5s ease}
+  @keyframes fadeIn{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
+  .answer-text{color:#4ade80;font-size:1.3rem;font-weight:700}
+  .answer-sub{color:#86efac;font-size:0.8rem;margin-top:4px}
+  .tooltip{position:relative;cursor:help}
+  .tooltip:hover::after{content:attr(data-tip);position:absolute;bottom:120%;left:50%;transform:translateX(-50%);background:#1e293b;color:#f0f9ff;border-radius:8px;padding:6px 10px;font-size:0.72rem;white-space:nowrap;z-index:100;box-shadow:0 4px 15px rgba(0,0,0,0.3)}
+  .concept-pills{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+  .pill{border-radius:20px;padding:5px 12px;font-size:0.75rem;font-weight:600;cursor:pointer;transition:all 0.3s;border:2px solid transparent}
+  .pill-blue{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}
+  .pill-blue:hover,.pill-blue.active{background:#1d4ed8;color:#fff}
+  .pill-green{background:#f0fdf4;color:#16a34a;border-color:#bbf7d0}
+  .pill-green:hover,.pill-green.active{background:#16a34a;color:#fff}
+  .pill-amber{background:#fffbeb;color:#d97706;border-color:#fde68a}
+  .pill-amber:hover,.pill-amber.active{background:#d97706;color:#fff}
+  .progress-bar{background:#e2e8f0;border-radius:20px;height:8px;margin:8px 0}
+  .progress-fill{background:linear-gradient(90deg,#3b82f6,#06b6d4);height:100%;border-radius:20px;transition:width 0.8s ease}
+  .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+  .info-item{background:linear-gradient(135deg,#f8fafc,#f1f5f9);border-radius:10px;padding:10px;border-left:3px solid #3b82f6;font-size:0.78rem}
+  .info-item strong{color:#1d4ed8;display:block;margin-bottom:3px}
+  .toggle-row td{cursor:pointer}
+  .toggle-row td:hover{background:#e0f2fe!important}
+  .note-box{background:linear-gradient(135deg,#fffbeb,#fef3c7);border-left:4px solid #f59e0b;border-radius:0 10px 10px 0;padding:10px;font-size:0.78rem;color:#92400e;margin:8px 0}
+  @media(max-width:480px){.info-grid{grid-template-columns:1fr}.formula-text{font-size:0.95rem}.controls{flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="title-bar">
+  <h1>📊 Median of Grouped Data | सांख्यिकी</h1>
+  <p>CBSE Class 10 Mathematics | Chapter 14 — Statistics (सांख्यिकी)</p>
+</div>
+<div class="container">
+
+  <!-- Formula Card -->
+  <div class="card">
+    <h2><span class="badge">सूत्र</span> Median Formula | मध्यिका सूत्र</h2>
+    <div class="formula-box">
+      <div class="formula-text">Median = l + [ (n/2 − cf) / f ] × h</div>
+      <div class="formula-sub">मध्यिका = l + [ (n/2 − cf) / f ] × h</div>
+    </div>
+    <div class="concept-pills" id="termPills">
+      <div class="pill pill-blue" onclick="showTerm('l')">l — Lower Limit</div>
+      <div class="pill pill-green" onclick="showTerm('n')">n — Total Frequency</div>
+      <div class="pill pill-amber" onclick="showTerm('cf')">cf — Cumulative Freq.</div>
+      <div class="pill pill-blue" onclick="showTerm('f')">f — Class Frequency</div>
+      <div class="pill pill-green" onclick="showTerm('h')">h — Class Width</div>
+    </div>
+    <div id="termDef" class="note-box" style="display:none"></div>
+  </div>
+
+  <!-- Interactive Table -->
+  <div class="card">
+    <h2><span class="badge">उदाहरण</span> Worked Example — Click rows to explore!</h2>
+    <div class="note-box">👆 <strong>Click any row</strong> in the table to highlight it and see its role in finding the median.</div>
+    <div style="overflow-x:auto">
+    <table id="dataTable">
+      <thead>
+        <tr><th>Class Interval<br>(वर्ग अंतराल)</th><th>Frequency (f)<br>(बारंबारता)</th><th>Cumulative Freq. (cf)<br>(संचयी बारंबारता)</th><th>Role</th></tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+    </div>
+    <div class="info-grid" style="margin-top:12px">
+      <div class="info-item"><strong>Total (n)</strong><span id="totalN">—</span></div>
+      <div class="info-item"><strong>n/2 = ?</strong><span id="halfN">—</span></div>
+      <div class="info-item"><strong>Median Class</strong><span id="medClass">—</span> <span style="font-size:0.65rem;color:#64748b">(click Find!)</span></div>
+      <div class="info-item"><strong>cf (before median class)</strong><span id="cfBefore">—</span></div>
+    </div>
+    <div class="controls">
+      <button class="btn" onclick="findMedianClass()">🔍 Find Median Class</button>
+      <button class="btn btn-green" onclick="startSteps()">📝 Step-by-Step Solution</button>
+      <button class="btn btn-amber" onclick="resetAll()">🔄 Reset</button>
+    </div>
+  </div>
+
+  <!-- Visual Bar Chart -->
+  <div class="card">
+    <h2><span class="badge">दृश्य</span> Frequency Distribution Visualizer</h2>
+    <div class="viz-area" id="vizArea">
+      <div style="font-size:0.78rem;color:#64748b;margin-bottom:10px">📊 Cumulative frequency bars — <span style="color:#ef4444;font-weight:700">Red line = Median position (n/2)</span></div>
+      <div id="barChart" class="bar-container"></div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <div style="font-size:0.75rem;color:#64748b;text-align:center">Scroll through cumulative frequency → Find where n/2 falls</div>
+  </div>
+
+  <!-- Step-by-step walkthrough -->
+  <div class="card">
+    <h2><span class="badge">हल</span> Step-by-Step Solution (चरण-दर-चरण हल)</h2>
+    <div class="step-container" id="stepContainer">
+      <div style="font-size:0.82rem;color:#64748b;padding:8px">Click "📝 Step-by-Step Solution" above to begin!</div>
+    </div>
+    <div class="answer-box" id="answerBox">
+      <div style="color:#86efac;font-size:0.78rem;margin-bottom:6px">∴ Therefore (अतः)</div>
+      <div class="answer-text" id="answerText">Median = —</div>
+      <div class="answer-sub" id="answerSub">मध्यिका = —</div>
+    </div>
+  </div>
+
+  <!-- Try Different Data -->
+  <div class="card">
+    <h2><span class="badge">अभ्यास</span> Try Different Datasets</h2>
+    <div class="concept-pills">
+      <div class="pill pill-blue" onclick="loadDataset(0)">📚 Marks Dataset</div>
+      <div class="pill pill-green" onclick="loadDataset(1)">🏃 Ages Dataset</div>
+      <div class="pill pill-amber" onclick="loadDataset(2)">💰 Income Dataset</div>
+    </div>
+    <div class="note-box">Try all three datasets to practice! Notice how the median class changes depending on data distribution.</div>
+  </div>
+
+  <!-- Key Concepts -->
+  <div class="card">
+    <h2><span class="badge">याद रखें</span> Key Concepts to Remember</h2>
+    <div class="info-grid">
+      <div class="info-item" style="border-color:#22c55e"><strong>📌 Median Class (मध्यिका वर्ग)</strong>The class where cumulative frequency first exceeds n/2</div>
+      <div class="info-item" style="border-color:#f59e0b"><strong>📌 cf (पूर्व संचयी बारंबारता)</strong>Cumulative frequency of class BEFORE the median class</div>
+      <div class="info-item" style="border-color:#3b82f6"><strong>📌 l (निम्न सीमा)</strong>Lower class boundary of the median class</div>
+      <div class="info-item" style="border-color:#ef4444"><strong>📌 h (वर्ग चौड़ाई)</strong>Class width = Upper limit − Lower limit</div>
+    </div>
+    <div class="note-box">⚠️ <strong>Important:</strong> Median divides the distribution into exactly two equal halves. It is NOT affected by extreme values (outliers)!</div>
+  </div>
+
+</div>
+
+<script>
+const datasets=[
+  {name:"Marks",data:[{ci:"0–10",f:5},{ci:"10–20",f:8},{ci:"20–30",f:20},{ci:"30–40",f:15},{ci:"40–50",f:7}]},
+  {name:"Ages",data:[{ci:"5–15",f:6},{ci:"15–25",f:11},{ci:"25–35",f:21},{ci:"35–45",f:23},{ci:"45–55",f:14},{ci:"55–65",f:5}]},
+  {name:"Income",data:[{ci:"100–200",f:12},{ci:"200–300",f:18},{ci:"300–400",f:27},{ci:"400–500",f:20},{ci:"500–600",f:17},{ci:"600–700",f:6}]}
+];
+let currentData=[];
+let stepIndex=0;
+let medianClassIdx=-1;
+let stepsRevealed=false;
+let allSteps=[];
+
+const termDefs={
+  l:"<strong>l</strong> = Lower class boundary (निम्न वर्ग सीमा) of the median class. This is where we 'start' our calculation from.",
+  n:"<strong>n</strong> = Total number of observations (कुल प्रेक्षण). n/2 gives the middle position.",
+  cf:"<strong>cf</strong> = Cumulative frequency of the class PRECEDING (पूर्ववर्ती) the median class. NOT of the median class itself!",
+  f:"<strong>f</strong> = Frequency (बारंबारता) of the median class — how many observations fall in that class.",
+  h:"<strong>h</strong> = Class width (वर्ग चौड़ाई) = Upper limit − Lower limit of the median class."
+};
+
+function showTerm(t){
+  const d=document.getElementById('termDef');
+  d.innerHTML=termDefs[t];
+  d.style.display='block';
+  d.style.animation='none';
+  setTimeout(()=>{d.style.animation='fadeIn 0.3s ease'},10);
+}
+
+function computeCF(data){
+  let cf=0;
+  return data.map(r=>{cf+=r.f;return{...r,cf}});
+}
+
+function buildTable(data){
+  const tbody=document.getElementById('tableBody');
+  tbody.innerHTML='';
+  const n=data.reduce((s,r)=>s+r.f,0);
+  document.getElementById('totalN').textContent=n;
+  document.getElementById('halfN').textContent=n/2;
+  document.getElementById('medClass').textContent='?';
+  document.getElementById('cfBefore').textContent='?';
+  data.forEach((r,i)=>{
+    const tr=document.createElement('tr');
+    tr.className='toggle-row';
+    tr.id='row'+i;
+    tr.innerHTML=`<td>${r.ci}</td><td>${r.f}</td><td>${r.cf}</td><td><span style="font-size:0.72rem;color:#94a3b8">Click to explore</span></td>`;
+    tr.onclick=()=>rowClick(i,data,n);
+    tbody.appendChild(tr);
+  });
+}
+
+function rowClick(i,data,n){
+  document.querySelectorAll('#tableBody tr').forEach(r=>{r.className='toggle-row'});
+  const r=data[i];
+  const tr=document.getElementById('row'+i);
+  const half=n/2;
+  if(r.cf>=half&&(i===0||data[i-1].cf<half)){
+    tr.className='toggle-row highlight';
+    tr.cells[3].innerHTML='<span style="color:#92400e;font-weight:700">🎯 Median Class!</span>';
+    medianClassIdx=i;
+  } else if(i>0&&data[i-1].cf<half&&r.cf<half){
+    tr.className='toggle-row cf-highlight';
+    tr.cells[3].innerHTML='<span style="color:#166534">✅ cf for median class</span>';
+  } else {
+    tr.cells[3].innerHTML='<span style="color:#64748b">Not median class</span>';
+  }
+}
+
+function findMedianClass(){
+  if(currentData.length===0) return;
+  const n=currentData.reduce((s,r)=>s+r.f,0);
+  const half=n/2;
+  let idx=-1;
+  for(let i=0;i<currentData.length;i++){
+    if(currentData[i].cf>=half){idx=i;break;}
+  }
+  medianClassIdx=idx;
+  if(idx<0) return;
+  document.querySelectorAll('#tableBody tr').forEach((r,i)=>{
+    r.className='toggle-row';
+    r.cells[3].innerHTML='<span style="font-size:0.72rem;color:#94a3b8">—</span>';
+  });
+  const tr=document.getElementById('row'+idx);
+  tr.className='toggle-row highlight';
+  tr.cells[3].innerHTML='<span style="color:#92400e;font-weight:700">🎯 Median Class!</span>';
+  if(idx>0){
+    const prev=document.getElementById('row'+(idx-1));
+    prev.className='toggle-row cf-highlight';
+    prev.cells[3].innerHTML='<span style="color:#166534">✅ cf before median class</span>';
+  }
+  document.getElementById('medClass').textContent=currentData[idx].ci;
+  document.getElementById('cfBefore').textContent=idx>0?currentData[idx-1].cf:0;
+  updateBars();
+}
+
+function buildBars(data){
+  const chart=document.getElementById('barChart');
+  chart.innerHTML='';
+  const maxCF=data[data.length-1].cf;
+  data.forEach(r=>{
+    const pct=Math.round((r.cf/maxCF)*100);
+    const colors=['#3b82f6','#06b6d4','#22c55e','#f59e0b','#ef4444','#8b5cf6'];
+    const ci=parseInt(r.ci.split('–')[0])||parseInt(r.ci.split('–')[0].replace(/\D/g,''))||0;
+    const colorIdx=data.indexOf(r)%colors.length;
+    const row=document.createElement('div');
+    row.className='bar-row';
+    row.innerHTML=`<div class="bar-label">${r.ci}</div><div class="bar-track" id="track${data.indexOf(r)}"><div class="bar-fill" id="bar${data.indexOf(r)}" style="width:0%;background:linear-gradient(90deg,${colors[colorIdx]},${colors[(colorIdx+1)%colors.length]})">cf=${r.cf}</div></div><div class="bar-val">${r.f}</div>`;
+    chart.appendChild(row);
+  });
+  setTimeout(()=>{
+    data.forEach((r,i)=>{
+      const maxCF=data[data.length-1].cf;
+      const pct=Math.round((r.cf/maxCF)*100);
+      const bar=document.getElementById('bar'+i);
+      if(bar) bar.style.width=pct+'%';
+    });
+    document.getElementById('progressFill').style.width='0%';
+  },100);
+}
+
+function updateBars(){
+  if(medianClassIdx<0) return;
+  const n=currentData.reduce((s,r)=>s+r.f,0);
+  const half=n/2;
+  const maxCF=currentData[currentData.length-1].cf;
+  const pct=Math.round((half/maxCF)*100);
+  document.getElementById('progressFill').style.width=pct+'%';
+  currentData.forEach((r,i)=>{
+    const bar=document.getElementById('bar'+i);
+    if(!bar) return;
+    if(i===medianClassIdx) bar.style.boxShadow='0 0 0 3px #ef4444';
+    else bar.style.boxShadow='none';
+  });
+}
+
+function buildSteps(data,n,idx){
+  const r=data[idx];
+  const parts=r.ci.split('–');
+  const l=parseFloat(parts[0].replace(/[^0-9.]/g,''));
+  const u=parseFloat(parts[1].replace(/[^0-9.]/g,''));
+  const h=u-l;
+  const f=r.f;
+  const cf=idx>0?data[idx-1].cf:0;
+  const half=n/2;
+  const median=l+((half-cf)/f)*h;
+  allSteps=[
+    {html:`<span class="step-num">1</span><div class="step-content">First, calculate <strong>n</strong> (total frequency):<br><span class="val">n = ${data.map(r=>r.f).join(' + ')} = ${n}</span><br>So, <span class="val">n/2 = ${n}/2 = ${half}</span></div>`},
+    {html:`<span class="step-num">2</span><div class="step-content">Find the <strong>Median Class</strong> (मध्यिका वर्ग):<br>Look at cumulative frequencies and find where <span class="val">cf ≥ n/2 = ${half}</span> first occurs.<br>✅ Median class = <span class="val">${r.ci}</span> (cf here = ${r.cf} ≥ ${half})</div>`},
+    {html:`<span class="step-num">3</span><div class="step-content">Identify the values needed:<br>• <strong>l</strong> = lower limit of median class = <span class="val">${l}</span><br>• <strong>f</strong> = frequency of median class = <span class="val">${f}</span><br>• <strong>cf</strong> = cumulative freq. before median class = <span class="val">${cf}</span><br>• <strong>h</strong> = class width = ${u} − ${l} = <span class="val">${h}</span></div>`},
+    {html:`<span class="step-num">4</span><div class="step-content">Apply the formula:<br><div class="formula-inline">Median = l + [(n/2 − cf) / f] × h</div><br>= ${l} + [(${half} − ${cf}) / ${f}] × ${h}<br>= ${l} + [${half-cf} / ${f}] × ${h}<br>= ${l} + ${((half-cf)/f).toFixed(4)} × ${h}<br>= ${l} + ${(((half-cf)/f)*h).toFixed(2)}</div>`},
+    {html:`<span class="step-num">5</span><div class="step-content"><strong>∴ Median = <span class="val">${median.toFixed(2)}</span></strong><br>This means 50% of the data lies below ${median.toFixed(2)} and 50% above it.<br><span style="color:#64748b;font-size:0.75rem">(मध्यिका ${median.toFixed(2)} है — आधे प्रेक्षण इससे नीचे और आधे ऊपर हैं)</span></div>`,answer:{text:`Median = ${median.toFixed(2)}`,sub:`मध्यिका = ${median.toFixed(2)}`}}`
+  ];
+  return {median,l,h,f,cf,half};
+}
+
+function startSteps(){
+  if(currentData.length===0) return;
+  if(medianClassIdx<0) findMedianClass();
+  const n=currentData.reduce((s,r)=>s+r.f,0);
+  buildSteps(currentData,n,medianClassIdx);
+  stepIndex=0;
+  stepsRevealed=true;
+  const sc=document.getElementById('stepContainer');
+  sc.innerHTML='';
+  allSteps.forEach((_,i)=>{
+    const d=document.createElement('div');
+    d.className='step';
+    d.id='step'+i;
+    d.innerHTML=allSteps[i].html;
+    sc.appendChild(d);
+  });
+  document.getElementById('answerBox').classList.remove('show');
+  revealNextStep();
+  const btn=document.createElement('button');
+  btn.className='btn';
+  btn.id='nextBtn';
+  btn.textContent='▶ Next Step';
+  btn.onclick=revealNextStep;
+  sc.appendChild(btn);
+}
+
+function revealNextStep(){
+  if(stepIndex>=allSteps.length){
+    document.getElementById('nextBtn')&&document.getElementById('nextBtn').remove();
+    return;
+  }
+  const s=document.getElementById('step'+stepIndex);
+  if(s){s.classList.add('visible');}
+  if(allSteps[stepIndex].answer){
+    const ab=document.getElementById('answerBox');
+    document.getElementById('answerText').textContent=allSteps[stepIndex].answer.text;
+    document.getElementById('answerSub').textContent=allSteps[stepIndex].answer.sub;
+    ab.classList.add('show');
+    document.getElementById('nextBtn')&&document.getElementById('nextBtn').remove();
+  }
+  stepIndex++;
+  if(stepIndex>=allSteps.length){
+    document.getElementById('nextBtn')&&document.getElementById('nextBtn').remove();
+  }
+}
+
+function resetAll(){
+  stepIndex=0;
+  medianClassIdx=-1;
+  stepsRevealed=false;
+  allSteps=[];
+  document.getElementById('stepContainer').innerHTML='<div style="font-size:0.82rem;color:#64748b;padding:8px">Click "📝 Step-by-Step Solution" above to begin!</div>';
+  document.getElementById('answerBox').classList.remove('show');
+  document.getElementById('medClass').textContent='?';
+  document.getElementById('cfBefore').textContent='?';
+  document.getElementById('progressFill').style.width='0%';
+  document.querySelectorAll('#tableBody tr').forEach(r=>{
+    r.className='toggle-row';
+    r.cells[3].innerHTML='<span style="font-size:0.72rem;color:#94a3b8">Click to explore</span>';
+  });
+  currentData.forEach((_,i)=>{
+    const bar=document.getElementById('bar'+i);
+    if(bar) bar.style.boxShadow='none';
+  });
+}
+
+function loadDataset(idx){
+  document.querySelectorAll('.concept-pills .pill').forEach((p,i)=>{
+    p.classList.toggle('active',i===idx);
+  });
+  const ds=datasets[idx];
+  const withCF=computeCF(ds.data);
+  currentData=withCF;
+  medianClassIdx=-1;
+  stepIndex=0;
+  allSteps=[];
+  stepsRevealed=false;
+  buildTable(withCF);
+  buildBars(withCF);
+  document.getElementById('stepContainer').innerHTML='<div style="font-size:0.82rem;color:#64748b;padding:8px">Click "📝 Step-by-Step Solution" above to begin!</div>';
+  document.getElementById('answerBox').classList.remove('show');
+  document.getElementById('termDef').style.display='none';
+}
+
+// Init
+loadDataset(0);
+</script>
+</body>
+</html>

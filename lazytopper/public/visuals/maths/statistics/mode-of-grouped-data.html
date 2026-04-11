@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mode of Grouped Data - Statistics</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f0f4ff; color: #1e293b; min-width: 320px; }
+
+  .title-bar {
+    background: linear-gradient(135deg, #1e40af, #3b82f6, #06b6d4);
+    color: white; padding: 14px 20px; text-align: center;
+    box-shadow: 0 4px 15px rgba(59,130,246,0.4);
+  }
+  .title-bar h1 { font-size: 1.2rem; font-weight: 700; }
+  .title-bar p { font-size: 0.8rem; opacity: 0.9; margin-top: 3px; }
+
+  .container { max-width: 700px; margin: 0 auto; padding: 16px; }
+
+  .card {
+    background: white; border-radius: 16px; padding: 18px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08); margin-bottom: 16px;
+  }
+
+  .card h2 { font-size: 1rem; font-weight: 700; color: #1e40af; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+
+  .formula-box {
+    background: linear-gradient(135deg, #1e293b, #334155);
+    color: white; border-radius: 14px; padding: 18px; margin-bottom: 16px;
+    text-align: center; box-shadow: 0 6px 25px rgba(30,41,59,0.3);
+  }
+  .formula-box .label { font-size: 0.75rem; color: #94a3b8; margin-bottom: 8px; letter-spacing: 1px; text-transform: uppercase; }
+  .formula-main { font-size: 1.1rem; font-weight: 700; color: #60a5fa; line-height: 1.8; }
+  .formula-box .sub { font-size: 0.75rem; color: #cbd5e1; margin-top: 10px; line-height: 1.6; }
+
+  .bar-chart { margin: 10px 0; }
+  .bar-row { display: flex; align-items: center; margin-bottom: 8px; gap: 8px; cursor: pointer; }
+  .bar-label { font-size: 0.72rem; width: 68px; text-align: right; color: #475569; font-weight: 600; flex-shrink: 0; }
+  .bar-wrap { flex: 1; background: #f1f5f9; border-radius: 8px; height: 32px; overflow: hidden; position: relative; }
+  .bar-fill {
+    height: 100%; border-radius: 8px; display: flex; align-items: center;
+    padding-left: 8px; font-size: 0.72rem; font-weight: 700; color: white;
+    transition: width 0.8s cubic-bezier(.4,0,.2,1), box-shadow 0.3s;
+    white-space: nowrap; min-width: 32px;
+  }
+  .bar-fill.modal { animation: pulse 1.5s infinite alternate; }
+  @keyframes pulse { from { box-shadow: 0 0 0 0 rgba(245,158,11,0.4); } to { box-shadow: 0 0 0 8px rgba(245,158,11,0); } }
+
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 20px;
+    font-size: 0.68rem; font-weight: 700; margin-left: 6px; vertical-align: middle;
+  }
+  .badge-modal { background: #fef3c7; color: #92400e; border: 1px solid #f59e0b; }
+  .badge-blue { background: #dbeafe; color: #1e40af; border: 1px solid #3b82f6; }
+
+  .step-btn {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white;
+    border: none; border-radius: 10px; padding: 10px 20px; cursor: pointer;
+    font-size: 0.85rem; font-weight: 600; transition: all 0.2s;
+    box-shadow: 0 3px 10px rgba(59,130,246,0.3);
+  }
+  .step-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(59,130,246,0.4); }
+  .step-btn:active { transform: translateY(0); }
+
+  .step-box {
+    border-radius: 12px; padding: 14px; margin-top: 10px;
+    border-left: 4px solid #3b82f6; background: #eff6ff;
+    animation: slideIn 0.4s ease; display: none;
+  }
+  .step-box.show { display: block; }
+  @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .step-title { font-size: 0.8rem; font-weight: 700; color: #1e40af; margin-bottom: 6px; }
+  .step-content { font-size: 0.82rem; color: #334155; line-height: 1.6; }
+  .step-content .highlight { background: #fef3c7; padding: 2px 6px; border-radius: 4px; font-weight: 700; color: #92400e; }
+  .step-content .result { background: #dcfce7; padding: 4px 10px; border-radius: 6px; font-weight: 700; color: #166534; display: inline-block; margin-top: 6px; font-size: 0.9rem; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+  th { background: linear-gradient(135deg, #1e40af, #3b82f6); color: white; padding: 8px; text-align: center; }
+  td { padding: 7px 8px; text-align: center; border-bottom: 1px solid #e2e8f0; }
+  tr:hover td { background: #f0f9ff; }
+  .modal-row td { background: #fffbeb !important; font-weight: 700; color: #92400e; }
+  .modal-row td:first-child { border-left: 3px solid #f59e0b; }
+
+  .interactive-note {
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    border-radius: 10px; padding: 10px 14px; margin-bottom: 12px;
+    font-size: 0.78rem; color: #1e40af; display: flex; align-items: center; gap: 8px;
+  }
+
+  .parts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }
+  .part-card {
+    border-radius: 10px; padding: 12px; text-align: center; cursor: pointer;
+    transition: all 0.25s; border: 2px solid transparent;
+  }
+  .part-card:hover { transform: scale(1.03); }
+  .part-card.active { border-color: #3b82f6; box-shadow: 0 4px 15px rgba(59,130,246,0.2); }
+  .part-card .sym { font-size: 1.4rem; display: block; margin-bottom: 4px; }
+  .part-card .pname { font-size: 0.72rem; font-weight: 700; color: #1e293b; }
+  .part-card .pdesc { font-size: 0.68rem; color: #64748b; margin-top: 3px; }
+
+  .tooltip-box {
+    background: #1e293b; color: white; border-radius: 8px;
+    padding: 8px 12px; font-size: 0.75rem; text-align: center;
+    margin-top: 8px; display: none; animation: fadeIn 0.3s ease;
+  }
+  .tooltip-box.show { display: block; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .progress-bar { display: flex; gap: 6px; margin: 12px 0; }
+  .prog-dot {
+    width: 28px; height: 6px; border-radius: 3px;
+    background: #e2e8f0; transition: background 0.3s;
+  }
+  .prog-dot.done { background: #22c55e; }
+  .prog-dot.active { background: #3b82f6; }
+
+  .reset-btn {
+    background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;
+    border-radius: 8px; padding: 6px 14px; cursor: pointer; font-size: 0.78rem;
+    transition: all 0.2s;
+  }
+  .reset-btn:hover { background: #e2e8f0; }
+
+  .tag { font-size: 0.65rem; background: #f0fdf4; color: #166534; border: 1px solid #22c55e; border-radius: 12px; padding: 2px 8px; }
+
+  @media(max-width:420px) {
+    .parts-grid { grid-template-columns: 1fr 1fr; }
+    .formula-main { font-size: 0.9rem; }
+    .bar-label { width: 56px; font-size: 0.68rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="title-bar">
+  <h1>📊 Mode of Grouped Data | बहुलक</h1>
+  <p>CBSE Class 10 • Statistics • Interactive Visual Explainer</p>
+</div>
+
+<div class="container">
+
+  <!-- Formula Card -->
+  <div class="formula-box">
+    <div class="label">✦ The Key Formula (CBSE Class 10) ✦</div>
+    <div class="formula-main">
+      Mode = ℓ + <span style="color:#fbbf24">[ (f₁ − f₀) / (2f₁ − f₀ − f₂) ]</span> × h
+    </div>
+    <div class="sub">
+      ℓ = Lower boundary of modal class &nbsp;|&nbsp; h = Class width<br>
+      f₁ = Frequency of modal class &nbsp;|&nbsp; f₀ = Frequency before modal class<br>
+      f₂ = Frequency after modal class
+    </div>
+  </div>
+
+  <!-- What is Mode -->
+  <div class="card">
+    <h2>💡 What is Mode? | बहुलक क्या है?</h2>
+    <p style="font-size:0.83rem;color:#334155;line-height:1.6;margin-bottom:12px;">
+      <strong>Mode</strong> (बहुलक) is the value that appears <em>most frequently</em> in a dataset.
+      For grouped data, we first find the <strong>Modal Class</strong> — the class interval with the <strong>highest frequency</strong>.
+    </p>
+    <div class="interactive-note">
+      👆 <span>Click on the formula parts below to understand each variable!</span>
+    </div>
+
+    <div class="parts-grid">
+      <div class="part-card" style="background:#eff6ff;" onclick="showPart('l')">
+        <span class="sym">ℓ</span>
+        <div class="pname">Lower Class Limit</div>
+        <div class="pdesc">Start of Modal Class</div>
+      </div>
+      <div class="part-card" style="background:#fefce8;" onclick="showPart('f1')">
+        <span class="sym" style="color:#f59e0b;">f₁</span>
+        <div class="pname">Highest Frequency</div>
+        <div class="pdesc">Modal Class frequency</div>
+      </div>
+      <div class="part-card" style="background:#f0fdf4;" onclick="showPart('f0')">
+        <span class="sym" style="color:#22c55e;">f₀</span>
+        <div class="pname">Before Modal Class</div>
+        <div class="pdesc">Previous class frequency</div>
+      </div>
+      <div class="part-card" style="background:#fef2f2;" onclick="showPart('f2')">
+        <span class="sym" style="color:#ef4444;">f₂</span>
+        <div class="pname">After Modal Class</div>
+        <div class="pdesc">Next class frequency</div>
+      </div>
+    </div>
+    <div class="tooltip-box" id="partTooltip"></div>
+  </div>
+
+  <!-- Bar Chart Visual -->
+  <div class="card">
+    <h2>📈 Find the Modal Class Visually</h2>
+    <p style="font-size:0.78rem;color:#64748b;margin-bottom:10px;">Hover or tap on any bar to inspect. The <span class="badge badge-modal">Modal Class</span> has the tallest bar!</p>
+
+    <div class="bar-chart" id="barChart"></div>
+    <div id="barTooltip" class="tooltip-box"></div>
+  </div>
+
+  <!-- Data Table -->
+  <div class="card">
+    <h2>📋 Data Table — Marks Distribution</h2>
+    <table>
+      <thead>
+        <tr><th>Class Interval</th><th>Frequency (f)</th><th>Role</th></tr>
+      </thead>
+      <tbody id="dataTable"></tbody>
+    </table>
+    <p style="font-size:0.72rem;color:#64748b;margin-top:8px;">★ Highlighted row = Modal Class (highest frequency)</p>
+  </div>
+
+  <!-- Step by step -->
+  <div class="card">
+    <h2>🪜 Step-by-Step Solution | हल के चरण</h2>
+    <div class="progress-bar" id="progressBar"></div>
+
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+      <button class="step-btn" onclick="nextStep()">▶ Next Step</button>
+      <button class="reset-btn" onclick="resetSteps()">↺ Reset</button>
+      <span id="stepCounter" style="font-size:0.78rem;color:#64748b;"></span>
+    </div>
+
+    <div id="stepsContainer"></div>
+  </div>
+
+  <!-- Quick Quiz -->
+  <div class="card">
+    <h2>🎯 Quick Check | त्वरित जाँच</h2>
+    <p style="font-size:0.82rem;color:#334155;margin-bottom:10px;">Which of the following is the <strong>Modal Class</strong> for the example above?</p>
+    <div style="display:flex;flex-direction:column;gap:8px;" id="quizOptions"></div>
+    <div id="quizResult" style="margin-top:10px;font-size:0.82rem;display:none;"></div>
+  </div>
+
+  <div style="text-align:center;font-size:0.72rem;color:#94a3b8;padding:10px 0;">
+    CBSE Class 10 | Statistics | Mode of Grouped Data<br>
+    ∴ Mode tells the most common value in grouped data
+  </div>
+</div>
+
+<script>
+const data = [
+  { ci: "10 – 20", f: 4 },
+  { ci: "20 – 30", f: 8 },
+  { ci: "30 – 40", f: 16 },
+  { ci: "40 – 50", f: 12 },
+  { ci: "50 – 60", f: 6 },
+  { ci: "60 – 70", f: 4 },
+];
+
+const modalIdx = 2; // 30–40 has highest freq
+const l = 30, f1 = 16, f0 = 8, f2 = 12, h = 10;
+const mode = l + ((f1 - f0) / (2 * f1 - f0 - f2)) * h;
+
+const colors = ["#6366f1","#3b82f6","#f59e0b","#22c55e","#ef4444","#a855f7"];
+const maxF = Math.max(...data.map(d => d.f));
+
+// Build bar chart
+const chart = document.getElementById('barChart');
+const barTip = document.getElementById('barTooltip');
+
+data.forEach((d, i) => {
+  const pct = Math.round((d.f / maxF) * 100);
+  const isModal = i === modalIdx;
+  const row = document.createElement('div');
+  row.className = 'bar-row';
+  row.innerHTML = `
+    <div class="bar-label">${d.ci}</div>
+    <div class="bar-wrap">
+      <div class="bar-fill ${isModal ? 'modal' : ''}"
+        style="width:0%;background:${isModal ? 'linear-gradient(90deg,#f59e0b,#f97316)' : 'linear-gradient(90deg,'+colors[i]+','+colors[i]+'aa)'}"
+        data-pct="${pct}" data-f="${d.f}" data-ci="${d.ci}" data-modal="${isModal}">
+        ${d.f}
+      </div>
+    </div>
+    ${isModal ? '<span class="badge badge-modal">Modal</span>' : ''}
+  `;
+  row.addEventListener('click', () => {
+    barTip.textContent = isModal
+      ? `✅ ${d.ci}: f₁ = ${d.f} ← MODAL CLASS (highest frequency!)`
+      : `${d.ci}: Frequency = ${d.f}`;
+    barTip.className = 'tooltip-box show';
+  });
+  chart.appendChild(row);
+});
+
+setTimeout(() => {
+  document.querySelectorAll('.bar-fill').forEach(b => {
+    b.style.width = b.dataset.pct + '%';
+  });
+}, 200);
+
+// Build data table
+const tbody = document.getElementById('dataTable');
+data.forEach((d, i) => {
+  const isModal = i === modalIdx;
+  let role = '—';
+  if (i === modalIdx) role = `<span class="badge badge-modal">f₁ Modal</span>`;
+  else if (i === modalIdx - 1) role = `<span class="badge" style="background:#f0fdf4;color:#166534;border:1px solid #22c55e;">f₀ Before</span>`;
+  else if (i === modalIdx + 1) role = `<span class="badge" style="background:#fef2f2;color:#991b1b;border:1px solid #ef4444;">f₂ After</span>`;
+  const tr = document.createElement('tr');
+  if (isModal) tr.className = 'modal-row';
+  tr.innerHTML = `<td>${d.ci}</td><td>${d.f}</td><td>${role}</td>`;
+  tbody.appendChild(tr);
+});
+
+// Part tooltips
+const partInfo = {
+  l: { text: `ℓ = ${l} → Lower boundary of Modal Class (30–40). This is where we START our calculation.`, color: '#3b82f6' },
+  f1: { text: `f₁ = ${f1} → Frequency of Modal Class (30–40). This is the HIGHEST frequency in the table.`, color: '#f59e0b' },
+  f0: { text: `f₀ = ${f0} → Frequency of class BEFORE Modal Class (20–30). Used to measure skew.`, color: '#22c55e' },
+  f2: { text: `f₂ = ${f2} → Frequency of class AFTER Modal Class (40–50). Used to balance the formula.`, color: '#ef4444' },
+};
+function showPart(key) {
+  const p = document.getElementById('partTooltip');
+  document.querySelectorAll('.part-card').forEach(c => c.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  p.textContent = partInfo[key].text;
+  p.style.borderLeft = `4px solid ${partInfo[key].color}`;
+  p.className = 'tooltip-box show';
+}
+
+// Steps
+const steps = [
+  {
+    title: "Step 1: Find the Modal Class | बहुलक वर्ग खोजें",
+    content: `Look at the frequency column. The class with the <span class="highlight">highest frequency</span> is the Modal Class.<br><br>
+    Frequencies: 4, 8, <span class="highlight">16</span>, 12, 6, 4<br>
+    Maximum frequency = <span class="highlight">16</span><br>
+    ∴ Modal Class = <span class="highlight">30 – 40</span>`
+  },
+  {
+    title: "Step 2: Identify the Values | मान पहचानें",
+    content: `From the Modal Class (30 – 40):<br>
+    • ℓ = <span class="highlight">30</span> (lower boundary)<br>
+    • h = <span class="highlight">10</span> (class width = 40 − 30)<br>
+    • f₁ = <span class="highlight">16</span> (frequency of modal class)<br>
+    • f₀ = <span class="highlight">8</span> (frequency of class before → 20–30)<br>
+    • f₂ = <span class="highlight">12</span> (frequency of class after → 40–50)`
+  },
+  {
+    title: "Step 3: Apply the Formula | सूत्र लगाएँ",
+    content: `Mode = ℓ + [(f₁ − f₀) / (2f₁ − f₀ − f₂)] × h<br><br>
+    = 30 + [(<span class="highlight">16 − 8</span>) / (2×16 − 8 − 12)] × 10<br>
+    = 30 + [<span class="highlight">8</span> / (32 − 8 − 12)] × 10`
+  },
+  {
+    title: "Step 4: Simplify the Denominator | हर सरल करें",
+    content: `2f₁ − f₀ − f₂ = 2×16 − 8 − 12<br>
+    = 32 − 8 − 12<br>
+    = <span class="highlight">12</span><br><br>
+    So: Mode = 30 + [8 / <span class="highlight">12</span>] × 10`
+  },
+  {
+    title: "Step 5: Calculate the Final Answer | अंतिम उत्तर",
+    content: `Mode = 30 + (8/12) × 10<br>
+    = 30 + 0.667 × 10<br>
+    = 30 + 6.67<br>
+    <span class="result">∴ Mode = 36.67</span><br><br>
+    ∴ The most common marks are approximately <span class="highlight">36.67</span>`
+  }
+];
+
+let currentStep = -1;
+const stepsContainer = document.getElementById('stepsContainer');
+const progressBar = document.getElementById('progressBar');
+const stepCounter = document.getElementById('stepCounter');
+
+// Build progress dots
+steps.forEach((_, i) => {
+  const dot = document.createElement('div');
+  dot.className = 'prog-dot';
+  dot.id = `dot-${i}`;
+  progressBar.appendChild(dot);
+});
+
+function updateProgress() {
+  steps.forEach((_, i) => {
+    const dot = document.getElementById(`dot-${i}`);
+    dot.className = 'prog-dot' + (i < currentStep ? ' done' : i === currentStep ? ' active' : '');
+  });
+  stepCounter.textContent = currentStep >= 0 ? `Step ${currentStep + 1} of ${steps.length}` : '';
+}
+
+function nextStep() {
+  if (currentStep < steps.length - 1) {
+    currentStep++;
+    const s = steps[currentStep];
+    const box = document.createElement('div');
+    box.className = 'step-box show';
+    box.style.borderColor = ['#3b82f6','#22c55e','#f59e0b','#ef4444','#8b5cf6'][currentStep] || '#3b82f6';
+    box.style.background = ['#eff6ff','#f0fdf4','#fffbeb','#fef2f2','#f5f3ff'][currentStep] || '#eff6ff';
+    box.innerHTML = `<div class="step-title">🔹 ${s.title}</div><div class="step-content">${s.content}</div>`;
+    stepsContainer.appendChild(box);
+    updateProgress();
+    box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    if (currentStep === steps.length - 1) {
+      document.querySelector('.step-btn').textContent = '✓ Done!';
+      document.querySelector('.step-btn').style.background = 'linear-gradient(135deg,#22c55e,#16a34a)';
+    }
+  }
+}
+
+function resetSteps() {
+  currentStep = -1;
+  stepsContainer.innerHTML = '';
+  updateProgress();
+  const btn = document.querySelector('.step-btn');
+  btn.textContent = '▶ Next Step';
+  btn.style.background = 'linear-gradient(135deg, #3b82f6, #1d4ed8)';
+}
+
+// Quiz
+const quizOptions = ["10 – 20", "20 – 30", "30 – 40", "40 – 50"];
+const correct = "30 – 40";
+const qContainer = document.getElementById('quizOptions');
+const qResult = document.getElementById('quizResult');
+
+quizOptions.forEach(opt => {
+  const btn = document.createElement('button');
+  btn.textContent = opt;
+  btn.style.cssText = `background:#f8fafc;border:2px solid #e2e8f0;border-radius:10px;padding:9px 16px;cursor:pointer;font-size:0.82rem;font-weight:600;color:#1e293b;transition:all 0.2s;text-align:left;`;
+  btn.addEventListener('mouseenter', () => { if (!btn.disabled) btn.style.background = '#eff6ff'; });
+  btn.addEventListener('mouseleave', () => { if (!btn.disabled) btn.style.background = '#f8fafc'; });
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#quizOptions button').forEach(b => b.disabled = true);
+    if (opt === correct) {
+      btn.style.background = '#f0fdf4';
+      btn.style.borderColor = '#22c55e';
+      btn.style.color = '#166534';
+      btn.textContent = '✅ ' + opt;
+      qResult.innerHTML = `<div style="background:#f0fdf4;border:1px solid #22c55e;border-radius:10px;padding:10px;color:#166534;">
+        🎉 <strong>Correct! बहुत अच्छा!</strong><br>
+        30 – 40 has the highest frequency (f₁ = 16), so it is the Modal Class.<br>
+        Mode = 30 + [(16−8)/(2×16−8−12)] × 10 = <strong>36.67</strong>
+      </div>`;
+    } else {
+      btn.style.background = '#fef2f2';
+      btn.style.borderColor = '#ef4444';
+      btn.style.color = '#991b1b';
+      btn.textContent = '❌ ' + opt;
+      qResult.innerHTML = `<div style="background:#fef2f2;border:1px solid #ef4444;border-radius:10px;padding:10px;color:#991b1b;">
+        Not quite! Compare all frequencies: 4, 8, <strong>16</strong>, 12, 6, 4<br>
+        The highest is 16, which belongs to class <strong>30 – 40</strong>. That's the Modal Class!
+      </div>`;
+    }
+    qResult.style.display = 'block';
+  });
+  qContainer.appendChild(btn);
+});
+
+updateProgress();
+</script>
+</body>
+</html>

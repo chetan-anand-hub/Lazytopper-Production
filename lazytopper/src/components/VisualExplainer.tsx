@@ -78,8 +78,7 @@ export function VisualExplainer({
         return;
       }
 
-      const base = import.meta.env.BASE_URL || "/app/";
-      fetch(`${base}api/generate-visual`, {
+      fetch("/api/generate-visual", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

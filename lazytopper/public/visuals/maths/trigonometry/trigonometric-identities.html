@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trigonometric Identities - Class 10</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a,#1e3a5f);min-height:100vh;color:#1e293b}
+.title-bar{background:linear-gradient(90deg,#1d4ed8,#3b82f6,#06b6d4);padding:12px 20px;text-align:center;box-shadow:0 4px 20px rgba(59,130,246,0.5)}
+.title-bar h1{color:#fff;font-size:1.1rem;font-weight:700;letter-spacing:0.5px}
+.title-bar p{color:#bfdbfe;font-size:0.75rem;margin-top:2px}
+.container{max-width:700px;margin:0 auto;padding:15px}
+.card{background:#fff;border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 8px 32px rgba(0,0,0,0.2)}
+.section-title{font-size:0.85rem;font-weight:700;color:#3b82f6;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.badge{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;padding:3px 8px;border-radius:20px;font-size:0.7rem}
+.identity-box{background:linear-gradient(135deg,#eff6ff,#dbeafe);border:2px solid #3b82f6;border-radius:12px;padding:16px;text-align:center;margin:10px 0}
+.formula{font-size:1.6rem;font-weight:800;color:#1d4ed8;letter-spacing:1px;text-shadow:0 2px 4px rgba(29,78,216,0.2)}
+.formula-sub{font-size:0.8rem;color:#64748b;margin-top:4px}
+.circle-demo{position:relative;width:100%;max-width:300px;margin:0 auto}
+canvas#unitCircle{width:100%;border-radius:12px;background:linear-gradient(135deg,#f8fafc,#e0f2fe)}
+.slider-wrap{margin:12px 0}
+.slider-wrap label{font-size:0.8rem;font-weight:600;color:#475569;display:block;margin-bottom:4px}
+input[type=range]{width:100%;height:6px;border-radius:3px;background:linear-gradient(90deg,#3b82f6,#06b6d4);outline:none;-webkit-appearance:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:#fff;border:3px solid #3b82f6;box-shadow:0 2px 8px rgba(59,130,246,0.4)}
+.values-row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.val-box{flex:1;min-width:80px;background:linear-gradient(135deg,#f1f5f9,#e2e8f0);border-radius:10px;padding:8px;text-align:center;border:2px solid transparent;transition:all 0.3s}
+.val-box.sin-box{border-color:#3b82f6;background:linear-gradient(135deg,#eff6ff,#dbeafe)}
+.val-box.cos-box{border-color:#22c55e;background:linear-gradient(135deg,#f0fdf4,#dcfce7)}
+.val-box.sum-box{border-color:#f59e0b;background:linear-gradient(135deg,#fffbeb,#fef3c7)}
+.val-box .label{font-size:0.65rem;color:#64748b;font-weight:600}
+.val-box .num{font-size:1.1rem;font-weight:800;margin-top:2px}
+.sin-box .num{color:#3b82f6}
+.cos-box .num{color:#22c55e}
+.sum-box .num{color:#f59e0b}
+.steps-container{margin-top:8px}
+.step{background:#f8fafc;border-left:4px solid #3b82f6;border-radius:0 10px 10px 0;padding:10px 12px;margin-bottom:8px;opacity:0;transform:translateX(-20px);transition:all 0.4s ease;display:none}
+.step.visible{opacity:1;transform:translateX(0);display:block}
+.step .step-num{font-size:0.65rem;font-weight:700;color:#3b82f6;text-transform:uppercase}
+.step .step-content{font-size:0.82rem;color:#334155;margin-top:3px;line-height:1.5}
+.step .math{font-size:0.95rem;font-weight:700;color:#1d4ed8;background:#eff6ff;padding:4px 8px;border-radius:6px;display:inline-block;margin-top:4px}
+.btn{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border:none;padding:9px 18px;border-radius:25px;font-size:0.82rem;font-weight:600;cursor:pointer;transition:all 0.3s;box-shadow:0 4px 15px rgba(59,130,246,0.3)}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(59,130,246,0.4)}
+.btn:active{transform:translateY(0)}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.btn-secondary{background:linear-gradient(135deg,#64748b,#475569)}
+.identity-tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.tab{padding:7px 12px;border-radius:20px;font-size:0.75rem;font-weight:600;cursor:pointer;border:2px solid #e2e8f0;background:#f8fafc;color:#64748b;transition:all 0.3s}
+.tab.active{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border-color:#3b82f6;box-shadow:0 4px 12px rgba(59,130,246,0.3)}
+.identity-card{background:#f8fafc;border-radius:12px;padding:14px;border:2px solid #e2e8f0;display:none;animation:fadeIn 0.4s ease}
+.identity-card.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.proof-step{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:8px 12px;margin:6px 0;font-size:0.8rem;color:#334155}
+.proof-step .eq{font-weight:700;color:#1d4ed8;font-size:0.9rem}
+.highlight{background:linear-gradient(135deg,#fef3c7,#fde68a);border-radius:6px;padding:2px 6px;font-weight:700}
+.quiz-section{margin-top:8px}
+.quiz-q{font-size:0.85rem;font-weight:600;color:#1e293b;margin-bottom:10px}
+.quiz-opts{display:flex;flex-direction:column;gap:6px}
+.quiz-opt{padding:9px 14px;border-radius:10px;border:2px solid #e2e8f0;background:#f8fafc;cursor:pointer;font-size:0.82rem;transition:all 0.3s;text-align:left}
+.quiz-opt:hover{border-color:#3b82f6;background:#eff6ff}
+.quiz-opt.correct{border-color:#22c55e;background:#f0fdf4;color:#15803d}
+.quiz-opt.wrong{border-color:#ef4444;background:#fef2f2;color:#dc2626}
+.quiz-result{display:none;margin-top:8px;padding:8px 12px;border-radius:10px;font-size:0.82rem;font-weight:600}
+.quiz-result.show{display:block}
+.quiz-result.correct-result{background:#f0fdf4;border:2px solid #22c55e;color:#15803d}
+.quiz-result.wrong-result{background:#fef2f2;border:2px solid #ef4444;color:#dc2626}
+.angle-display{text-align:center;font-size:1.2rem;font-weight:800;color:#1d4ed8;padding:6px;background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:8px;margin:6px 0}
+.tip{background:linear-gradient(135deg,#fffbeb,#fef3c7);border:2px solid #f59e0b;border-radius:10px;padding:10px 12px;font-size:0.78rem;color:#78350f;margin-top:8px}
+.tip strong{color:#d97706}
+.triangle-wrap{display:flex;justify-content:center;margin:10px 0}
+.verify-btn{background:linear-gradient(135deg,#22c55e,#16a34a);margin-top:8px}
+.verified{animation:pulse 0.5s ease}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+.progress-bar{height:6px;background:#e2e8f0;border-radius:3px;margin:8px 0;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#22c55e,#16a34a);border-radius:3px;transition:width 0.5s ease}
+</style>
+</head>
+<body>
+<div class="title-bar">
+<h1>📐 Trigonometric Identities | त्रिकोणमितीय सर्वसमिकाएं</h1>
+<p>Class 10 Mathematics • CBSE • Interactive Explorer</p>
+</div>
+<div class="container">
+
+<!-- Key Formula -->
+<div class="card">
+<div class="section-title">🌟 मुख्य सर्वसमिका <span class="badge">Identity</span></div>
+<div class="identity-box">
+<div class="formula">sin²θ + cos²θ = 1</div>
+<div class="formula-sub">यह हमेशा सत्य है — for ALL values of θ (कोण)</div>
+</div>
+<p style="font-size:0.78rem;color:#475569;margin-top:8px">👆 Move the slider below to see this identity hold true for any angle!</p>
+</div>
+
+<!-- Interactive Unit Circle -->
+<div class="card">
+<div class="section-title">🎯 Interactive Circle Demo <span class="badge">Drag</span></div>
+<div class="circle-demo">
+<canvas id="unitCircle" height="280"></canvas>
+</div>
+<div class="angle-display" id="angleDisplay">θ = 30°</div>
+<div class="slider-wrap">
+<label>Angle θ (कोण): <strong id="angleVal">30°</strong></label>
+<input type="range" id="angleSlider" min="0" max="90" value="30">
+</div>
+<div class="values-row">
+<div class="val-box sin-box">
+<div class="label">sin²θ</div>
+<div class="num" id="sinSqVal">0.25</div>
+</div>
+<div class="val-box cos-box">
+<div class="label">cos²θ</div>
+<div class="num" id="cosSqVal">0.75</div>
+</div>
+<div class="val-box sum-box">
+<div class="label">sin²θ + cos²θ</div>
+<div class="num" id="sumVal">1.00</div>
+</div>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="sinBar" style="width:25%"></div></div>
+<p style="font-size:0.7rem;color:#64748b">↑ sin²θ portion of 1 (changes as angle changes)</p>
+</div>
+
+<!-- Proof Section -->
+<div class="card">
+<div class="section-title">📖 प्रमाण (Proof) — Step by Step</div>
+<p style="font-size:0.78rem;color:#475569;margin-bottom:10px">Click each step to reveal the proof using Pythagoras Theorem:</p>
+<div class="triangle-wrap">
+<svg width="200" height="160" viewBox="0 0 200 160">
+<polygon points="20,140 180,140 20,20" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/>
+<text x="100" y="155" fill="#ef4444" font-size="12" font-weight="bold" text-anchor="middle">b (Base)</text>
+<text x="5" y="85" fill="#22c55e" font-size="12" font-weight="bold">p</text>
+<text x="8" y="93" fill="#22c55e" font-size="9">(Perp)</text>
+<text x="115" y="85" fill="#1d4ed8" font-size="12" font-weight="bold">h</text>
+<text x="112" y="93" fill="#1d4ed8" font-size="9">(Hyp)</text>
+<text x="32" y="133" fill="#f59e0b" font-size="11" font-weight="bold">θ</text>
+<path d="M30,140 Q40,130 30,120" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
+<rect x="20" y="130" width="10" height="10" fill="none" stroke="#475569" stroke-width="1.5"/>
+</svg>
+</div>
+<div class="steps-container" id="proofSteps">
+<div class="step" id="s1">
+<div class="step-num">Step 1 — Pythagoras प्रमेय</div>
+<div class="step-content">In a right triangle: <span class="math">p² + b² = h²</span></div>
+</div>
+<div class="step" id="s2">
+<div class="step-num">Step 2 — h² से भाग दें (Divide by h²)</div>
+<div class="step-content">Dividing both sides by h²: <span class="math">p²/h² + b²/h² = 1</span></div>
+</div>
+<div class="step" id="s3">
+<div class="step-num">Step 3 — Definitions लागू करें</div>
+<div class="step-content">We know: sinθ = p/h and cosθ = b/h<br>So: <span class="math">(p/h)² + (b/h)² = 1</span></div>
+</div>
+<div class="step" id="s4">
+<div class="step-num">Step 4 — सिद्ध हुआ ✓</div>
+<div class="step-content">∴ <span class="math">sin²θ + cos²θ = 1</span> &nbsp;✅ Proved! (सिद्ध)</div>
+</div>
+</div>
+<div class="btn-row">
+<button class="btn" onclick="revealStep()">▶ Next Step</button>
+<button class="btn btn-secondary" onclick="resetSteps()">↺ Reset</button>
+</div>
+</div>
+
+<!-- Three Identities -->
+<div class="card">
+<div class="section-title">📋 तीन मुख्य सर्वसमिकाएं (3 Identities)</div>
+<div class="identity-tabs">
+<div class="tab active" onclick="showIdentity(0,this)">Identity 1</div>
+<div class="tab" onclick="showIdentity(1,this)">Identity 2</div>
+<div class="tab" onclick="showIdentity(2,this)">Identity 3</div>
+</div>
+
+<div class="identity-card active" id="id0">
+<div style="text-align:center;font-size:1.3rem;font-weight:800;color:#1d4ed8;padding:8px;background:#eff6ff;border-radius:8px">sin²θ + cos²θ = 1</div>
+<div class="proof-step">From this we get: <span class="eq">sin²θ = 1 − cos²θ</span></div>
+<div class="proof-step">Also: <span class="eq">cos²θ = 1 − sin²θ</span></div>
+<div class="tip"><strong>याद करें:</strong> "Sine squared plus Cosine squared equals ONE" — always!</div>
+</div>
+
+<div class="identity-card" id="id1">
+<div style="text-align:center;font-size:1.3rem;font-weight:800;color:#7c3aed;padding:8px;background:#f5f3ff;border-radius:8px">1 + tan²θ = sec²θ</div>
+<div class="proof-step">Divide <span class="eq">p² + b² = h²</span> by <span class="eq">b²</span> (base²)</div>
+<div class="proof-step">⟹ <span class="eq">p²/b² + 1 = h²/b²</span></div>
+<div class="proof-step">⟹ <span class="eq">tan²θ + 1 = sec²θ</span> ✅</div>
+<div class="proof-step">∴ <span class="eq">sec²θ − tan²θ = 1</span></div>
+<div class="tip"><strong>Trick:</strong> sec²θ − tan²θ = 1 (sec is bigger than tan)</div>
+</div>
+
+<div class="identity-card" id="id2">
+<div style="text-align:center;font-size:1.3rem;font-weight:800;color:#dc2626;padding:8px;background:#fef2f2;border-radius:8px">1 + cot²θ = cosec²θ</div>
+<div class="proof-step">Divide <span class="eq">p² + b² = h²</span> by <span class="eq">p²</span> (perpendicular²)</div>
+<div class="proof-step">⟹ <span class="eq">1 + b²/p² = h²/p²</span></div>
+<div class="proof-step">⟹ <span class="eq">1 + cot²θ = cosec²θ</span> ✅</div>
+<div class="proof-step">∴ <span class="eq">cosec²θ − cot²θ = 1</span></div>
+<div class="tip"><strong>Trick:</strong> cosec²θ − cot²θ = 1 (cosec is bigger than cot)</div>
+</div>
+</div>
+
+<!-- Worked Example -->
+<div class="card">
+<div class="section-title">✏️ हल किया उदाहरण (Worked Example) <span class="badge">CBSE Type</span></div>
+<div style="background:#f8fafc;border-radius:10px;padding:12px;margin-bottom:10px">
+<p style="font-size:0.85rem;font-weight:700;color:#1e293b">प्रश्न: If sinθ = 3/5, find cosθ and verify sin²θ + cos²θ = 1</p>
+</div>
+<div id="exSteps">
+<div class="step" id="e1">
+<div class="step-num">Step 1 — दिया गया (Given)</div>
+<div class="step-content">sinθ = <span class="highlight">3/5</span> → This means Perpendicular = 3, Hypotenuse = 5</div>
+</div>
+<div class="step" id="e2">
+<div class="step-num">Step 2 — Base निकालें (Find Base)</div>
+<div class="step-content">By Pythagoras: b² = h² − p² = 5² − 3² = 25 − 9 = 16<br><span class="math">∴ b = 4</span></div>
+</div>
+<div class="step" id="e3">
+<div class="step-num">Step 3 — cosθ निकालें</div>
+<div class="step-content">cosθ = b/h = <span class="math">4/5</span></div>
+</div>
+<div class="step" id="e4">
+<div class="step-num">Step 4 — सत्यापित करें (Verify)</div>
+<div class="step-content">sin²θ + cos²θ = (3/5)² + (4/5)² = 9/25 + 16/25 = <span class="math">25/25 = 1 ✅</span></div>
+</div>
+</div>
+<div class="btn-row">
+<button class="btn" onclick="revealEx()">▶ Next Step</button>
+<button class="btn btn-secondary" onclick="resetEx()">↺ Reset</button>
+</div>
+</div>
+
+<!-- Quick Quiz -->
+<div class="card">
+<div class="section-title">🧠 Quick Quiz</div>
+<div class="quiz-section">
+<div class="quiz-q">If cosθ = 5/13, what is sin²θ?</div>
+<div class="quiz-opts" id="quizOpts">
+<button class="quiz-opt" onclick="checkAns(this,'wrong')">a) 25/169</button>
+<button class="quiz-opt" onclick="checkAns(this,'correct')">b) 144/169</button>
+<button class="quiz-opt" onclick="checkAns(this,'wrong')">c) 1/169</button>
+<button class="quiz-opt" onclick="checkAns(this,'wrong')">d) 12/13</button>
+</div>
+<div class="quiz-result correct-result" id="correctMsg" style="display:none">✅ शाबाश! sin²θ = 1 − cos²θ = 1 − 25/169 = 144/169 ✓</div>
+<div class="quiz-result wrong-result" id="wrongMsg" style="display:none">❌ Try again! Use: sin²θ = 1 − cos²θ = 1 − (5/13)²</div>
+<button class="btn" onclick="resetQuiz()" style="margin-top:8px;display:none" id="quizReset">↺ Try Again</button>
+</div>
+</div>
+
+<div style="text-align:center;padding:10px;color:#94a3b8;font-size:0.7rem">
+📚 CBSE Class 10 Math • Chapter 8 • Trigonometric Identities<br>
+त्रिकोणमितीय सर्वसमिकाएं • Interactive by Design
+</div>
+</div>
+
+<script>
+// Unit Circle Animation
+const canvas = document.getElementById('unitCircle');
+const ctx = canvas.getContext('2d');
+canvas.width = 300;
+canvas.height = 280;
+
+let currentAngle = 30;
+
+function drawCircle(angle) {
+  const rad = angle * Math.PI / 180;
+  const cx = 150, cy = 150, r = 110;
+  ctx.clearRect(0, 0, 300, 280);
+
+  // Grid
+  ctx.strokeStyle = '#e2e8f0';
+  ctx.lineWidth = 1;
+  for(let i=0;i<6;i++){
+    ctx.beginPath();ctx.moveTo(0,i*50+15);ctx.lineTo(300,i*50+15);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(i*60,0);ctx.lineTo(i*60,280);ctx.stroke();
+  }
+
+  // Circle
+  ctx.beginPath();ctx.arc(cx,cy,r,0,2*Math.PI);
+  ctx.strokeStyle='#cbd5e1';ctx.lineWidth=1.5;ctx.stroke();
+
+  // Point on circle (angle from horizontal, but we use from vertical for trig)
+  const px = cx + r * Math.cos((90-angle)*Math.PI/180);
+  const py = cy - r * Math.sin((90-angle)*Math.PI/180);
+
+  // Hypotenuse
+  ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(px,py);
+  ctx.strokeStyle='#1d4ed8';ctx.lineWidth=2.5;ctx.stroke();
+
+  // Perpendicular (sinθ) - vertical
+  ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(px,cy);
+  ctx.strokeStyle='#3b82f6';ctx.lineWidth=2.5;ctx.setLineDash([4,3]);ctx.stroke();
+
+  // Base (cosθ) - horizontal
+  ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(px,cy);
+  ctx.strokeStyle='#22c55e';ctx.lineWidth=2.5;ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Right angle box
+  const bx = px, by = cy;
+  ctx.beginPath();ctx.moveTo(bx-8,by);ctx.lineTo(bx-8,by-8);ctx.lineTo(bx,by-8);
+  ctx.strokeStyle='#64748b';ctx.lineWidth=1.5;ctx.stroke();
+
+  // Angle arc
+  ctx.beginPath();ctx.arc(cx,cy,25,-Math.PI/2,-Math.PI/2+(90-angle)*Math.PI/180,false);
+  if(angle>0){ctx.beginPath();ctx.arc(cx,cy,25,-Math.PI/2,-(90-angle)*Math.PI/180,true);}
+  ctx.strokeStyle='#f59e0b';ctx.lineWidth=2;ctx.stroke();
+
+  // Labels
+  ctx.font='bold 12px Segoe UI';
+  ctx.fillStyle='#3b82f6';
+  ctx.fillText('sinθ = p/h',px+6,(py+cy)/2);
+  ctx.fillStyle='#22c55e';
+  ctx.fillText('cosθ = b/h',(cx+px)/2-15,cy+18);
+  ctx.fillStyle='#1d4ed8';
+  ctx.fillText('h (hyp)',cx+(px-cx)/2-28,cy-(cy-py)/2-4);
+  ctx.fillStyle='#f59e0b';
+  ctx.fillText('θ',cx+28,cy-6);
+
+  // Point dot
+  ctx.beginPath();ctx.arc(px,py,5,0,2*Math.PI);
+  ctx.fillStyle='#ef4444';ctx.fill();
+  ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();
+
+  // Origin dot
+  ctx.beginPath();ctx.arc(cx,cy,4,0,2*Math.PI);
+  ctx.fillStyle='#1e293b';ctx.fill();
+}
+
+function updateAll() {
+  const angle = parseInt(document.getElementById('angleSlider').value);
+  currentAngle = angle;
+  const rad = angle * Math.PI / 180;
+  const sinV = Math.sin(rad);
+  const cosV = Math.cos(rad);
+  const sinSq = sinV * sinV;
+  const cosSq = cosV * cosV;
+  const sum = sinSq + cosSq;
+
+  document.getElementById('angleVal').textContent = angle + '°';
+  document.getElementById('angleDisplay').textContent = 'θ = ' + angle + '°';
+  document.getElementById('sinSqVal').textContent = sinSq.toFixed(3);
+  document.getElementById('cosSqVal').textContent = cosSq.toFixed(3);
+  document.getElementById('sumVal').textContent = sum.toFixed(3);
+  document.getElementById('sinBar').style.width = (sinSq * 100).toFixed(1) + '%';
+
+  drawCircle(angle);
+}
+
+document.getElementById('angleSlider').addEventListener('input', updateAll);
+updateAll();
+
+// Step reveal - Proof
+let stepIndex = 0;
+const stepIds = ['s1','s2','s3','s4'];
+function revealStep() {
+  if(stepIndex < stepIds.length) {
+    const el = document.getElementById(stepIds[stepIndex]);
+    el.style.display = 'block';
+    setTimeout(()=>el.classList.add('visible'),10);
+    stepIndex++;
+  }
+}
+function resetSteps() {
+  stepIndex = 0;
+  stepIds.forEach(id=>{
+    const el = document.getElementById(id);
+    el.classList.remove('visible');
+    el.style.display = 'none';
+  });
+}
+
+// Step reveal - Example
+let exIndex = 0;
+const exIds = ['e1','e2','e3','e4'];
+function revealEx() {
+  if(exIndex < exIds.length) {
+    const el = document.getElementById(exIds[exIndex]);
+    el.style.display = 'block';
+    setTimeout(()=>el.classList.add('visible'),10);
+    exIndex++;
+  }
+}
+function resetEx() {
+  exIndex = 0;
+  exIds.forEach(id=>{
+    const el = document.getElementById(id);
+    el.classList.remove('visible');
+    el.style.display = 'none';
+  });
+}
+
+// Identity tabs
+function showIdentity(idx, el) {
+  document.querySelectorAll('.identity-card').forEach((c,i)=>{
+    c.classList.remove('active');
+  });
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('id'+idx).classList.add('active');
+  el.classList.add('active');
+}
+
+// Quiz
+let quizDone = false;
+function checkAns(btn, result) {
+  if(quizDone) return;
+  quizDone = true;
+  if(result === 'correct') {
+    btn.classList.add('correct');
+    document.getElementById('correctMsg').classList.add('show');
+    document.getElementById('correctMsg').style.display = 'block';
+  } else {
+    btn.classList.add('wrong');
+    document.getElementById('wrongMsg').classList.add('show');
+    document.getElementById('wrongMsg').style.display = 'block';
+  }
+  document.getElementById('quizReset').style.display = 'inline-block';
+}
+function resetQuiz() {
+  quizDone = false;
+  document.querySelectorAll('.quiz-opt').forEach(o=>{o.classList.remove('correct','wrong');});
+  document.getElementById('correctMsg').style.display = 'none';
+  document.getElementById('wrongMsg').style.display = 'none';
+  document.getElementById('quizReset').style.display = 'none';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Discriminant & Nature of Roots</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a,#1e293b);min-height:100vh;color:#1e293b}
+  .titlebar{background:linear-gradient(90deg,#3b82f6,#6366f1);color:#fff;padding:12px 20px;text-align:center;box-shadow:0 4px 15px rgba(59,130,246,.5)}
+  .titlebar h1{font-size:1.1rem;font-weight:700;letter-spacing:.5px}
+  .titlebar p{font-size:.75rem;opacity:.85;margin-top:2px}
+  .container{max-width:680px;margin:0 auto;padding:16px}
+  .card{background:#fff;border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 4px 20px rgba(0,0,0,.15)}
+  .formula-card{background:linear-gradient(135deg,#1e293b,#334155);color:#fff;text-align:center;padding:20px}
+  .formula-main{font-size:1.5rem;font-weight:800;color:#60a5fa;margin:8px 0;letter-spacing:1px}
+  .formula-sub{font-size:.85rem;color:#94a3b8;margin-top:6px}
+  .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:700;margin:2px}
+  .badge-blue{background:#dbeafe;color:#1d4ed8}
+  .badge-green{background:#dcfce7;color:#15803d}
+  .badge-red{background:#fee2e2;color:#dc2626}
+  .badge-amber{background:#fef3c7;color:#b45309}
+  h2{font-size:1rem;font-weight:700;color:#1e293b;margin-bottom:10px}
+  h3{font-size:.9rem;font-weight:700;margin-bottom:6px}
+  .cases-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px}
+  .case-box{border-radius:12px;padding:12px 8px;text-align:center;cursor:pointer;transition:transform .2s,box-shadow .2s;border:2px solid transparent}
+  .case-box:hover{transform:translateY(-3px);box-shadow:0 6px 20px rgba(0,0,0,.15)}
+  .case-box.active{border-color:#3b82f6;transform:translateY(-3px);box-shadow:0 6px 20px rgba(59,130,246,.3)}
+  .case-a{background:linear-gradient(135deg,#dbeafe,#bfdbfe)}
+  .case-b{background:linear-gradient(135deg,#dcfce7,#bbf7d0)}
+  .case-c{background:linear-gradient(135deg,#fee2e2,#fecaca)}
+  .case-icon{font-size:1.6rem;margin-bottom:4px}
+  .case-title{font-size:.75rem;font-weight:700;color:#1e293b}
+  .case-cond{font-size:.8rem;font-weight:800;margin:4px 0}
+  .case-desc{font-size:.65rem;color:#475569;line-height:1.3}
+  .parabola-area{background:#f8fafc;border-radius:12px;padding:10px;text-align:center;margin:10px 0}
+  svg.parabola{overflow:visible}
+  .controls{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;align-items:center}
+  .control-group{display:flex;flex-direction:column;flex:1;min-width:130px}
+  .control-group label{font-size:.72rem;font-weight:600;color:#64748b;margin-bottom:4px}
+  .slider{-webkit-appearance:none;width:100%;height:5px;border-radius:5px;outline:none;background:linear-gradient(90deg,#3b82f6 var(--pct,50%),#e2e8f0 var(--pct,50%));cursor:pointer}
+  .slider::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:#3b82f6;box-shadow:0 2px 6px rgba(59,130,246,.5)}
+  .val-display{font-size:.8rem;font-weight:700;color:#3b82f6;text-align:center;margin-top:2px}
+  .disc-display{margin:10px 0;padding:12px;border-radius:10px;text-align:center;transition:all .3s;font-weight:700}
+  .disc-pos{background:linear-gradient(135deg,#dbeafe,#bfdbfe);color:#1d4ed8}
+  .disc-zero{background:linear-gradient(135deg,#dcfce7,#bbf7d0);color:#15803d}
+  .disc-neg{background:linear-gradient(135deg,#fee2e2,#fecaca);color:#dc2626}
+  .disc-val{font-size:1.3rem}
+  .disc-label{font-size:.75rem;margin-top:4px;opacity:.85}
+  .step-container{margin-top:10px}
+  .step-btn{background:linear-gradient(90deg,#3b82f6,#6366f1);color:#fff;border:none;padding:10px 20px;border-radius:25px;cursor:pointer;font-size:.85rem;font-weight:700;width:100%;margin:6px 0;transition:transform .15s,box-shadow .15s;box-shadow:0 3px 10px rgba(59,130,246,.4)}
+  .step-btn:hover{transform:translateY(-2px);box-shadow:0 5px 15px rgba(59,130,246,.5)}
+  .step-btn:active{transform:translateY(0)}
+  .step{display:none;padding:10px 12px;border-left:3px solid #3b82f6;background:#f1f5f9;border-radius:0 8px 8px 0;margin:6px 0;font-size:.82rem;line-height:1.5;animation:slideIn .3s ease}
+  .step.visible{display:block}
+  .step-num{font-weight:800;color:#3b82f6;font-size:.7rem;text-transform:uppercase;letter-spacing:.5px}
+  @keyframes slideIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+  .highlight{background:#fef3c7;padding:1px 4px;border-radius:4px;font-weight:700}
+  .roots-display{display:flex;gap:8px;margin:8px 0;flex-wrap:wrap}
+  .root-pill{flex:1;min-width:100px;padding:8px;border-radius:10px;text-align:center;font-size:.78rem;font-weight:700}
+  .root-alpha{background:linear-gradient(135deg,#dbeafe,#bfdbfe);color:#1d4ed8}
+  .root-beta{background:linear-gradient(135deg,#fae8ff,#e9d5ff);color:#7e22ce}
+  .tab-area{display:flex;gap:6px;margin-bottom:10px}
+  .tab{flex:1;padding:8px;border:none;border-radius:10px;font-size:.78rem;font-weight:700;cursor:pointer;transition:all .2s;background:#f1f5f9;color:#64748b}
+  .tab.active{background:linear-gradient(135deg,#3b82f6,#6366f1);color:#fff;box-shadow:0 3px 10px rgba(59,130,246,.4)}
+  .example-content{display:none}
+  .example-content.active{display:block}
+  .eq-display{font-size:1.1rem;font-weight:800;color:#1e293b;text-align:center;padding:10px;background:#f8fafc;border-radius:10px;margin:8px 0;border:2px solid #e2e8f0}
+  .reset-btn{background:#f1f5f9;border:none;padding:6px 14px;border-radius:20px;font-size:.75rem;cursor:pointer;color:#64748b;font-weight:600}
+  .reset-btn:hover{background:#e2e8f0}
+  .info-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f1f5f9;font-size:.8rem}
+  .info-label{color:#64748b;flex:1}
+  .info-val{font-weight:700;color:#1e293b}
+  .parabola-note{font-size:.72rem;color:#64748b;margin-top:6px;font-style:italic}
+  .pulse{animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+  @media(max-width:400px){.cases-grid{grid-template-columns:1fr}.formula-main{font-size:1.2rem}}
+</style>
+</head>
+<body>
+<div class="titlebar">
+  <h1>📐 Discriminant & Nature of Roots</h1>
+  <p>CBSE Class 10 • Quadratic Equations • विवेचक (Discriminant)</p>
+</div>
+<div class="container">
+
+<!-- Formula Card -->
+<div class="card formula-card">
+  <div style="font-size:.8rem;color:#94a3b8;margin-bottom:4px">For ax² + bx + c = 0, the Discriminant (विवेचक) is:</div>
+  <div class="formula-main">D = b² − 4ac</div>
+  <div class="formula-sub">The value of D tells us about the <strong style="color:#fbbf24">nature of roots</strong> without solving!</div>
+  <div style="margin-top:10px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+    <span class="badge badge-blue">D &gt; 0 → Real &amp; Distinct</span>
+    <span class="badge badge-green">D = 0 → Real &amp; Equal</span>
+    <span class="badge badge-red">D &lt; 0 → No Real Roots</span>
+  </div>
+</div>
+
+<!-- Three Cases Visual -->
+<div class="card">
+  <h2>🎯 Three Cases — Click to Explore</h2>
+  <div class="cases-grid">
+    <div class="case-box case-a" id="caseA" onclick="selectCase('A')">
+      <div class="case-icon">✂️</div>
+      <div class="case-title">Case 1</div>
+      <div class="case-cond" style="color:#1d4ed8">D &gt; 0</div>
+      <div class="case-desc">Two distinct real roots<br>α ≠ β</div>
+    </div>
+    <div class="case-box case-b" id="caseB" onclick="selectCase('B')">
+      <div class="case-icon">🎯</div>
+      <div class="case-title">Case 2</div>
+      <div class="case-cond" style="color:#15803d">D = 0</div>
+      <div class="case-desc">Two equal real roots<br>α = β</div>
+    </div>
+    <div class="case-box case-c" id="caseC" onclick="selectCase('C')">
+      <div class="case-icon">👻</div>
+      <div class="case-title">Case 3</div>
+      <div class="case-cond" style="color:#dc2626">D &lt; 0</div>
+      <div class="case-desc">No real roots<br>(Imaginary/Complex)</div>
+    </div>
+  </div>
+
+  <!-- Parabola SVG -->
+  <div class="parabola-area">
+    <svg class="parabola" width="100%" viewBox="0 0 280 140" id="parabolaSVG">
+      <defs>
+        <marker id="arr" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+          <path d="M0,0 L0,8 L8,4 Z" fill="#94a3b8"/>
+        </marker>
+      </defs>
+      <!-- Axes -->
+      <line x1="20" y1="110" x2="260" y2="110" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="140" y1="130" x2="140" y2="10" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arr)"/>
+      <text x="262" y="113" font-size="10" fill="#94a3b8">x</text>
+      <text x="143" y="10" font-size="10" fill="#94a3b8">y</text>
+      <!-- Parabola path -->
+      <path id="parabolaPath" d="" stroke="#3b82f6" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <!-- Intersection points -->
+      <circle id="pt1" cx="0" cy="0" r="0" fill="#ef4444"/>
+      <circle id="pt2" cx="0" cy="0" r="0" fill="#ef4444"/>
+      <text id="ptLabel" x="140" y="130" font-size="9" fill="#64748b" text-anchor="middle"></text>
+    </svg>
+    <div class="parabola-note" id="parabolaNote">Click a case above to see the parabola</div>
+  </div>
+</div>
+
+<!-- Interactive Discriminant Calculator -->
+<div class="card">
+  <h2>🔢 Interactive Calculator — Drag Sliders!</h2>
+  <div class="controls">
+    <div class="control-group">
+      <label>a = <span id="aVal">1</span></label>
+      <input type="range" class="slider" id="sliderA" min="-5" max="5" value="1" step="0.5" oninput="updateCalc()">
+    </div>
+    <div class="control-group">
+      <label>b = <span id="bVal">0</span></label>
+      <input type="range" class="slider" id="sliderB" min="-10" max="10" value="0" step="1" oninput="updateCalc()">
+    </div>
+    <div class="control-group">
+      <label>c = <span id="cVal">-4</span></label>
+      <input type="range" class="slider" id="sliderC" min="-10" max="10" value="-4" step="1" oninput="updateCalc()">
+    </div>
+  </div>
+  <div class="eq-display" id="eqDisplay">x² − 4 = 0</div>
+  <div class="disc-display disc-pos" id="discDisplay">
+    <div class="disc-val" id="discVal">D = 16</div>
+    <div class="disc-label" id="discLabel">D &gt; 0 → Two distinct real roots ✂️</div>
+  </div>
+  <div class="roots-display" id="rootsDisplay"></div>
+</div>
+
+<!-- Worked Examples -->
+<div class="card">
+  <h2>📚 Worked Examples (Step-by-Step)</h2>
+  <div class="tab-area">
+    <button class="tab active" onclick="switchTab(0)">Example 1</button>
+    <button class="tab" onclick="switchTab(1)">Example 2</button>
+    <button class="tab" onclick="switchTab(2)">Example 3</button>
+  </div>
+
+  <!-- Example 1 -->
+  <div class="example-content active" id="ex0">
+    <div class="eq-display">x² − 5x + 6 = 0</div>
+    <div style="font-size:.78rem;color:#64748b;margin-bottom:8px">Identify: a = 1, b = −5, c = 6</div>
+    <div class="step-container" id="steps0">
+      <div class="step visible" id="ex0s0">
+        <div class="step-num">Given</div>
+        Equation: x² − 5x + 6 = 0<br>
+        ∴ a = <span class="highlight">1</span>, b = <span class="highlight">−5</span>, c = <span class="highlight">6</span>
+      </div>
+    </div>
+    <button class="step-btn" onclick="nextStep(0)" id="btn0">Next Step ▶</button>
+    <button class="reset-btn" onclick="resetSteps(0)">↺ Reset</button>
+  </div>
+
+  <!-- Example 2 -->
+  <div class="example-content" id="ex1">
+    <div class="eq-display">x² − 4x + 4 = 0</div>
+    <div style="font-size:.78rem;color:#64748b;margin-bottom:8px">Identify: a = 1, b = −4, c = 4</div>
+    <div class="step-container" id="steps1">
+      <div class="step visible" id="ex1s0">
+        <div class="step-num">Given</div>
+        Equation: x² − 4x + 4 = 0<br>
+        ∴ a = <span class="highlight">1</span>, b = <span class="highlight">−4</span>, c = <span class="highlight">4</span>
+      </div>
+    </div>
+    <button class="step-btn" onclick="nextStep(1)" id="btn1">Next Step ▶</button>
+    <button class="reset-btn" onclick="resetSteps(1)">↺ Reset</button>
+  </div>
+
+  <!-- Example 3 -->
+  <div class="example-content" id="ex2">
+    <div class="eq-display">x² + x + 1 = 0</div>
+    <div style="font-size:.78rem;color:#64748b;margin-bottom:8px">Identify: a = 1, b = 1, c = 1</div>
+    <div class="step-container" id="steps2">
+      <div class="step visible" id="ex2s0">
+        <div class="step-num">Given</div>
+        Equation: x² + x + 1 = 0<br>
+        ∴ a = <span class="highlight">1</span>, b = <span class="highlight">1</span>, c = <span class="highlight">1</span>
+      </div>
+    </div>
+    <button class="step-btn" onclick="nextStep(2)" id="btn2">Next Step ▶</button>
+    <button class="reset-btn" onclick="resetSteps(2)">↺ Reset</button>
+  </div>
+</div>
+
+<!-- Summary Table -->
+<div class="card">
+  <h2>📊 Quick Summary (CBSE Formula Table)</h2>
+  <div class="info-row" style="background:#dbeafe;border-radius:8px 8px 0 0;padding:8px 10px;border:none">
+    <span class="info-label" style="font-weight:700;color:#1d4ed8">Condition</span>
+    <span class="info-val" style="color:#1d4ed8">Nature of Roots</span>
+  </div>
+  <div class="info-row" style="padding:8px 10px">
+    <span class="info-label">D = b² − 4ac <strong>&gt; 0</strong></span>
+    <span class="info-val" style="color:#3b82f6">Real &amp; Distinct (α ≠ β)</span>
+  </div>
+  <div class="info-row" style="padding:8px 10px">
+    <span class="info-label">D = b² − 4ac <strong>= 0</strong></span>
+    <span class="info-val" style="color:#22c55e">Real &amp; Equal (α = β = −b/2a)</span>
+  </div>
+  <div class="info-row" style="padding:8px 10px;border:none">
+    <span class="info-label">D = b² − 4ac <strong>&lt; 0</strong></span>
+    <span class="info-val" style="color:#ef4444">No Real Roots (अवास्तविक)</span>
+  </div>
+  <div style="margin-top:10px;background:#fef9c3;border-radius:8px;padding:10px;font-size:.78rem;color:#92400e;border-left:3px solid #f59e0b">
+    💡 <strong>याद रखें (Remember):</strong> Discriminant "विवेचक" tells us the nature WITHOUT finding actual roots! Use: x = (−b ± √D) / 2a for actual roots.
+  </div>
+</div>
+
+</div>
+
+<script>
+// Steps data for each example
+const stepsData = [
+  [ // Example 1: x²-5x+6=0, a=1,b=-5,c=6
+    null, // step 0 already shown
+    {num:"Step 1: Find D",html:"D = b² − 4ac<br>D = (−5)² − 4×<span class='highlight'>1</span>×<span class='highlight'>6</span><br>D = 25 − 24"},
+    {num:"Step 2: Calculate",html:"D = <span class='highlight' style='background:#dbeafe;color:#1d4ed8'>1</span><br>∵ D > 0"},
+    {num:"Step 3: Conclusion",html:"∴ Roots are <strong>Real and Distinct</strong><br>x = (5 ± √1) / 2 = (5 ± 1) / 2<br>∴ α = <strong>3</strong> and β = <strong>2</strong> ✅"}
+  ],
+  [ // Example 2: x²-4x+4=0, a=1,b=-4,c=4
+    null,
+    {num:"Step 1: Find D",html:"D = b² − 4ac<br>D = (−4)² − 4×<span class='highlight'>1</span>×<span class='highlight'>4</span><br>D = 16 − 16"},
+    {num:"Step 2: Calculate",html:"D = <span class='highlight' style='background:#dcfce7;color:#15803d'>0</span><br>∵ D = 0"},
+    {num:"Step 3: Conclusion",html:"∴ Roots are <strong>Real and Equal</strong><br>α = β = −b/2a = 4/2 = <strong>2</strong><br>∴ x = <strong>2, 2</strong> 🎯"}
+  ],
+  [ // Example 3: x²+x+1=0, a=1,b=1,c=1
+    null,
+    {num:"Step 1: Find D",html:"D = b² − 4ac<br>D = (1)² − 4×<span class='highlight'>1</span>×<span class='highlight'>1</span><br>D = 1 − 4"},
+    {num:"Step 2: Calculate",html:"D = <span class='highlight' style='background:#fee2e2;color:#dc2626'>−3</span><br>∵ D < 0"},
+    {num:"Step 3: Conclusion",html:"∴ <strong>No Real Roots</strong> (अवास्तविक मूल)<br>Roots are imaginary/complex<br>Parabola doesn't cut x-axis 👻"}
+  ]
+];
+
+const stepCounters = [1,1,1];
+
+function nextStep(exIdx) {
+  const counter = stepCounters[exIdx];
+  const data = stepsData[exIdx];
+  if(counter >= data.length) {
+    document.getElementById('btn'+exIdx).textContent = 'Done! ✅';
+    document.getElementById('btn'+exIdx).disabled = true;
+    return;
+  }
+  const step = data[counter];
+  const el = document.createElement('div');
+  el.className = 'step visible';
+  el.innerHTML = '<div class="step-num">'+step.num+'</div>'+step.html;
+  document.getElementById('steps'+exIdx).appendChild(el);
+  stepCounters[exIdx]++;
+  if(stepCounters[exIdx] >= data.length) {
+    document.getElementById('btn'+exIdx).textContent = 'Done! ✅';
+    document.getElementById('btn'+exIdx).style.background = 'linear-gradient(90deg,#22c55e,#16a34a)';
+  }
+}
+
+function resetSteps(exIdx) {
+  const container = document.getElementById('steps'+exIdx);
+  const steps = container.querySelectorAll('.step');
+  steps.forEach((s,i)=>{ if(i>0) s.remove(); });
+  stepCounters[exIdx] = 1;
+  const btn = document.getElementById('btn'+exIdx);
+  btn.textContent = 'Next Step ▶';
+  btn.style.background = 'linear-gradient(90deg,#3b82f6,#6366f1)';
+  btn.disabled = false;
+}
+
+let activeTab = 0;
+function switchTab(idx) {
+  document.querySelectorAll('.example-content').forEach((e,i)=>{
+    e.classList.toggle('active', i===idx);
+  });
+  document.querySelectorAll('.tab').forEach((t,i)=>{
+    t.classList.toggle('active', i===idx);
+  });
+  activeTab = idx;
+}
+
+// Parabola drawing
+function drawParabola(caseType) {
+  const svg = document.getElementById('parabolaSVG');
+  const path = document.getElementById('parabolaPath');
+  const pt1 = document.getElementById('pt1');
+  const pt2 = document.getElementById('pt2');
+  const ptLabel = document.getElementById('ptLabel');
+  const note = document.getElementById('parabolaNote');
+  
+  const cx=140, cy=110, scale=12;
+  
+  let color, d='', pLabel='', noteText='';
+  
+  if(caseType==='A') {
+    // y = x²-4, intersects x-axis at -2 and 2
+    color='#3b82f6';
+    let pts=[];
+    for(let x=-5.5;x<=5.5;x+=0.2){
+      let y=x*x-4;
+      let px=cx+x*scale, py=cy-y*scale;
+      pts.push(px+','+py);
+    }
+    d='M'+pts.join(' L');
+    pt1.setAttribute('cx',cx-2*scale); pt1.setAttribute('cy',cy); pt1.setAttribute('r',5); pt1.setAttribute('fill','#ef4444');
+    pt2.setAttribute('cx',cx+2*scale); pt2.setAttribute('cy',cy); pt2.setAttribute('r',5); pt2.setAttribute('fill','#ef4444');
+    pLabel='α = −2          β = 2';
+    noteText='D > 0: Parabola cuts x-axis at TWO points';
+  } else if(caseType==='B') {
+    // y = (x-2)² = x²-4x+4, touches at 2
+    color='#22c55e';
+    let pts=[];
+    for(let x=-1.5;x<=5.5;x+=0.2){
+      let y=(x-2)*(x-2);
+      let px=cx+(x-2)*scale, py=cy-y*scale;
+      pts.push(px+','+py);
+    }
+    d='M'+pts.join(' L');
+    pt1.setAttribute('cx',cx); pt1.setAttribute('cy',cy); pt1.setAttribute('r',7); pt1.setAttribute('fill','#22c55e');
+    pt2.setAttribute('r',0);
+    pLabel='α = β = 2 (touches x-axis)';
+    noteText='D = 0: Parabola TOUCHES x-axis at ONE point';
+  } else if(caseType==='C') {
+    // y = x²+2x+3, never touches x-axis
+    color='#ef4444';
+    let pts=[];
+    for(let x=-5.5;x<=5.5;x+=0.2){
+      let y=x*x+2*x+3;
+      let px=cx+x*scale, py=cy-y*scale;
+      pts.push(px+','+py);
+    }
+    d='M'+pts.join(' L');
+    pt1.setAttribute('r',0); pt2.setAttribute('r',0);
+    pLabel='';
+    noteText='D < 0: Parabola NEVER cuts x-axis (no real roots)';
+  }
+  
+  path.setAttribute('d',d);
+  path.setAttribute('stroke',color);
+  ptLabel.textContent=pLabel;
+  ptLabel.setAttribute('fill',color);
+  note.textContent=noteText;
+}
+
+function selectCase(c) {
+  ['A','B','C'].forEach(x=>{
+    document.getElementById('case'+x).classList.remove('active');
+  });
+  document.getElementById('case'+c).classList.add('active');
+  drawParabola(c);
+}
+
+// Calculator
+function updateCalc() {
+  let a=parseFloat(document.getElementById('sliderA').value)||0;
+  let b=parseFloat(document.getElementById('sliderB').value);
+  let c=parseFloat(document.getElementById('sliderC').value);
+  if(a===0) a=0.001;
+  
+  document.getElementById('aVal').textContent=a;
+  document.getElementById('bVal').textContent=b;
+  document.getElementById('cVal').textContent=c;
+  
+  // Update slider visuals
+  ['A','B','C'].forEach(letter=>{
+    const sl = document.getElementById('slider'+letter);
+    const min=parseFloat(sl.min), max=parseFloat(sl.max), val=parseFloat(sl.value);
+    const pct=((val-min)/(max-min)*100)+'%';
+    sl.style.setProperty('--pct',pct);
+  });
+  
+  // Build equation string
+  let aStr = a===1?'':(a===-1?'−':a);
+  if(a===0.001) aStr='0';
+  let eq='';
+  if(Math.abs(a)===1) eq=(a>0?'':'−')+'x²';
+  else eq=a+'x²';
+  if(b!==0) eq+=(b>0?' + ':' − ')+Math.abs(b)+'x';
+  if(c!==0) eq+=(c>0?' + ':' − ')+Math.abs(c);
+  eq+=' = 0';
+  document.getElementById('eqDisplay').textContent=eq;
+  
+  const D = b*b - 4*a*c;
+  const Dround = Math.round(D*100)/100;
+  const dd = document.getElementById('discDisplay');
+  const dv = document.getElementById('discVal');
+  const dl = document.getElementById('discLabel');
+  const rd = document.getElementById('rootsDisplay');
+  
+  dv.textContent='D = '+b+' × '+b+' − 4 × '+a+' × '+c+' = '+Dround;
+  
+  dd.className='disc-display';
+  rd.innerHTML='';
+  
+  if(D>0) {
+    dd.classList.add('disc-pos');
+    dl.textContent='D > 0 → Two real and distinct roots ✂️';
+    const sqD=Math.round(Math.sqrt(Math.abs(D))*100)/100;
+    const r1=Math.round((-b+Math.sqrt(D))/(2*a)*100)/100;
+    const r2=Math.round((-b-Math.sqrt(D))/(2*a)*100)/100;
+    rd.innerHTML='<div class="root-pill root-alpha">α = '+r1+'</div><div class="root-pill root-beta">β = '+r2+'</div>';
+  } else if(D===0) {
+    dd.classList.add('disc-zero');
+    dl.textContent='D = 0 → Two equal real roots 🎯';
+    const r=Math.round(-b/(2*a)*100)/100;
+    rd.innerHTML='<div class="root-pill root-alpha">α = β = '+r+'</div>';
+  } else {
+    dd.classList.add('disc-neg');
+    dl.textContent='D < 0 → No real roots (Imaginary) 👻';
+    rd.innerHTML='<div class="root-pill" style="background:#fee2e2;color:#dc2626;flex:2">अवास्तविक मूल (No real roots)</div>';
+  }
+}
+
+// Init
+updateCalc();
+drawParabola('A');
+document.getElementById('caseA').classList.add('active');
+</script>
+</body>
+</html>

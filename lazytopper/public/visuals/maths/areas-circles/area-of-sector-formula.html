@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Area of Sector - CBSE Class 10</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a,#1e3a5f);min-height:100vh;color:#1e293b;}
+  .titlebar{background:linear-gradient(90deg,#3b82f6,#6366f1);color:#fff;padding:12px 20px;text-align:center;box-shadow:0 4px 15px rgba(59,130,246,0.4);}
+  .titlebar h1{font-size:1.1rem;font-weight:700;letter-spacing:0.5px;}
+  .titlebar p{font-size:0.75rem;opacity:0.85;margin-top:2px;}
+  .container{max-width:700px;margin:0 auto;padding:15px;}
+  .card{background:#fff;border-radius:16px;padding:18px;margin-bottom:15px;box-shadow:0 8px 25px rgba(0,0,0,0.15);}
+  .section-title{font-size:0.85rem;font-weight:700;color:#3b82f6;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+  .formula-box{background:linear-gradient(135deg,#eff6ff,#e0e7ff);border:2px solid #3b82f6;border-radius:12px;padding:15px;text-align:center;margin:12px 0;}
+  .formula-main{font-size:1.4rem;font-weight:800;color:#1e3a5f;margin-bottom:5px;}
+  .formula-sub{font-size:0.82rem;color:#475569;}
+  .interactive-circle{display:flex;justify-content:center;align-items:center;flex-direction:column;gap:10px;}
+  svg#circleSvg{cursor:pointer;touch-action:none;}
+  .slider-container{width:100%;max-width:400px;}
+  .slider-label{display:flex;justify-content:space-between;font-size:0.8rem;color:#475569;margin-bottom:4px;}
+  input[type=range]{width:100%;accent-color:#3b82f6;height:6px;border-radius:3px;}
+  .radius-slider{accent-color:#22c55e!important;}
+  .info-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:8px;}
+  .info-pill{background:linear-gradient(135deg,#eff6ff,#dbeafe);border:1.5px solid #93c5fd;border-radius:20px;padding:6px 14px;font-size:0.8rem;font-weight:600;color:#1e3a5f;}
+  .info-pill span{color:#3b82f6;}
+  .result-box{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:2px solid #22c55e;border-radius:10px;padding:10px 15px;text-align:center;margin-top:10px;}
+  .result-box .result-val{font-size:1.5rem;font-weight:800;color:#15803d;}
+  .result-box .result-lbl{font-size:0.75rem;color:#166534;}
+  .step-btn{background:linear-gradient(135deg,#3b82f6,#6366f1);color:#fff;border:none;border-radius:10px;padding:10px 20px;font-size:0.85rem;font-weight:600;cursor:pointer;transition:all 0.3s;width:100%;margin-top:8px;}
+  .step-btn:hover{transform:translateY(-2px);box-shadow:0 5px 15px rgba(59,130,246,0.4);}
+  .step{background:#f8fafc;border-left:4px solid #3b82f6;border-radius:0 10px 10px 0;padding:12px 15px;margin:6px 0;opacity:0;transform:translateY(10px);transition:all 0.4s ease;display:none;}
+  .step.visible{opacity:1;transform:translateY(0);display:block;}
+  .step-num{background:#3b82f6;color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;margin-right:8px;}
+  .step-text{font-size:0.83rem;color:#1e293b;line-height:1.5;}
+  .highlight{background:#fef3c7;color:#92400e;padding:1px 5px;border-radius:4px;font-weight:700;}
+  .concept-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .concept-card{background:linear-gradient(135deg,#eff6ff,#e0e7ff);border-radius:10px;padding:12px;text-align:center;}
+  .concept-card .big{font-size:1.8rem;}
+  .concept-card .lbl{font-size:0.75rem;color:#475569;margin-top:4px;}
+  .concept-card .val{font-size:0.9rem;font-weight:700;color:#1e3a5f;}
+  .analogy-box{background:linear-gradient(135deg,#fff7ed,#fed7aa);border:2px solid #f59e0b;border-radius:12px;padding:14px;margin:10px 0;}
+  .analogy-box .atitle{font-weight:700;color:#92400e;font-size:0.85rem;margin-bottom:6px;}
+  .analogy-box p{font-size:0.8rem;color:#7c2d12;line-height:1.5;}
+  .example-header{background:linear-gradient(135deg,#1e3a5f,#3b82f6);color:#fff;border-radius:10px;padding:10px 14px;font-size:0.85rem;font-weight:600;margin-bottom:10px;}
+  .step-green{border-left-color:#22c55e!important;}
+  .step-green .step-num{background:#22c55e!important;}
+  .answer-reveal{background:linear-gradient(135deg,#f0fdf4,#bbf7d0);border:2px solid #22c55e;border-radius:10px;padding:12px;margin-top:8px;display:none;animation:fadeIn 0.5s ease;}
+  @keyframes fadeIn{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
+  .answer-reveal.show{display:block;}
+  .tag{background:#3b82f6;color:#fff;font-size:0.65rem;border-radius:5px;padding:2px 6px;font-weight:600;}
+  .note{background:#fef9c3;border-left:4px solid #f59e0b;border-radius:0 8px 8px 0;padding:10px 12px;font-size:0.78rem;color:#713f12;line-height:1.5;margin-top:8px;}
+  .arc-legend{display:flex;gap:15px;flex-wrap:wrap;justify-content:center;margin-top:8px;}
+  .arc-legend-item{display:flex;align-items:center;gap:5px;font-size:0.75rem;color:#475569;}
+  .arc-legend-dot{width:12px;height:12px;border-radius:50%;}
+  @media(max-width:400px){.concept-grid{grid-template-columns:1fr;}.formula-main{font-size:1.1rem;}}
+</style>
+</head>
+<body>
+<div class="titlebar">
+  <h1>📐 वृत्त खंड का क्षेत्रफल | Area of Sector</h1>
+  <p>CBSE Class 10 Mathematics · Areas Related to Circles</p>
+</div>
+<div class="container">
+
+  <!-- Formula Card -->
+  <div class="card">
+    <div class="section-title">📌 मुख्य सूत्र | Key Formula</div>
+    <div class="formula-box">
+      <div class="formula-main">Area of Sector = <span style="color:#3b82f6">θ</span> ÷ 360 × π<span style="color:#22c55e">r</span>²</div>
+      <div class="formula-sub" style="margin-top:6px;font-size:0.9rem;color:#475569;">θ = angle at centre (in degrees) &nbsp;|&nbsp; r = radius</div>
+      <div style="margin-top:8px;font-size:0.8rem;color:#6366f1;font-weight:600;">Think of it as: (fraction of full circle) × (area of full circle)</div>
+    </div>
+    <div class="analogy-box">
+      <div class="atitle">🍕 Pizza Analogy (पिज़्ज़ा सादृश्य)</div>
+      <p>A full circle is like a whole pizza (360°). A sector is one slice! If you cut the pizza into equal slices of angle θ, then:<br><br>
+      <strong>Your slice's area = (θ/360) × Total Pizza Area = (θ/360) × πr²</strong></p>
+    </div>
+  </div>
+
+  <!-- Interactive Diagram -->
+  <div class="card">
+    <div class="section-title">🎛️ Interactive Explorer — Drag the Sliders!</div>
+    <div class="interactive-circle">
+      <svg id="circleSvg" width="260" height="260" viewBox="0 0 260 260">
+        <defs>
+          <radialGradient id="sectorGrad" cx="50%" cy="50%">
+            <stop offset="0%" style="stop-color:#93c5fd;stop-opacity:1"/>
+            <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:0.7"/>
+          </radialGradient>
+          <radialGradient id="circleGrad" cx="50%" cy="50%">
+            <stop offset="0%" style="stop-color:#e0e7ff;stop-opacity:0.5"/>
+            <stop offset="100%" style="stop-color:#c7d2fe;stop-opacity:0.3"/>
+          </radialGradient>
+        </defs>
+        <!-- Full circle background -->
+        <circle id="fullCircle" cx="130" cy="130" r="100" fill="url(#circleGrad)" stroke="#c7d2fe" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <!-- Sector -->
+        <path id="sectorPath" fill="url(#sectorGrad)" stroke="#3b82f6" stroke-width="2" opacity="0.85"/>
+        <!-- Angle arc -->
+        <path id="angleArc" fill="none" stroke="#f59e0b" stroke-width="2.5"/>
+        <!-- Radius lines -->
+        <line id="r1" stroke="#1e3a5f" stroke-width="2.5" stroke-linecap="round"/>
+        <line id="r2" stroke="#1e3a5f" stroke-width="2.5" stroke-linecap="round"/>
+        <!-- Center point -->
+        <circle cx="130" cy="130" r="5" fill="#1e3a5f"/>
+        <!-- Labels -->
+        <text id="thetaLabel" font-size="13" font-weight="bold" fill="#b45309" text-anchor="middle"/>
+        <text id="rLabel1" font-size="11" fill="#166534" text-anchor="middle" font-weight="600"/>
+        <text id="rLabel2" font-size="11" fill="#166534" text-anchor="middle" font-weight="600"/>
+        <text id="centerLabel" font-size="10" fill="#fff" text-anchor="middle" font-weight="700" x="130" y="134">O</text>
+        <text id="arcLabel" font-size="10" fill="#3b82f6" text-anchor="middle" font-weight="600"/>
+      </svg>
+      <div class="arc-legend">
+        <div class="arc-legend-item"><div class="arc-legend-dot" style="background:#3b82f6"></div> Sector (खंड)</div>
+        <div class="arc-legend-item"><div class="arc-legend-dot" style="background:#f59e0b"></div> Angle θ</div>
+        <div class="arc-legend-item"><div class="arc-legend-dot" style="background:#22c55e"></div> Radius r</div>
+      </div>
+      <div class="slider-container">
+        <div class="slider-label"><span>Angle θ: <strong id="angleVal">90</strong>°</span><span>0° → 360°</span></div>
+        <input type="range" id="angleSlider" min="10" max="355" value="90">
+      </div>
+      <div class="slider-container">
+        <div class="slider-label"><span style="color:#22c55e">Radius r: <strong id="radiusVal">7</strong> cm</span><span>1 → 14 cm</span></div>
+        <input type="range" id="radiusSlider" min="1" max="14" value="7" class="radius-slider">
+      </div>
+      <div class="info-row">
+        <div class="info-pill">θ = <span id="pTheta">90</span>°</div>
+        <div class="info-pill">r = <span id="pRadius">7</span> cm</div>
+        <div class="info-pill">θ/360 = <span id="pFrac">1/4</span></div>
+        <div class="info-pill">πr² = <span id="pPiR2">154.00</span> cm²</div>
+      </div>
+      <div class="result-box">
+        <div class="result-lbl">Area of Sector (वृत्त खंड का क्षेत्रफल)</div>
+        <div class="result-val" id="resultArea">38.50 cm²</div>
+        <div class="result-lbl">= (<span id="rTheta">90</span>/360) × π × <span id="rR">7</span>² = (<span id="rFrac">1/4</span>) × 154.00</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Concept Breakdown -->
+  <div class="card">
+    <div class="section-title">🧩 Formula को समझें | Understanding the Formula</div>
+    <div class="concept-grid">
+      <div class="concept-card">
+        <div class="big">⭕</div>
+        <div class="lbl">Full Circle Area</div>
+        <div class="val">πr²</div>
+        <div style="font-size:0.7rem;color:#6366f1;margin-top:3px;">(when θ = 360°)</div>
+      </div>
+      <div class="concept-card" style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);">
+        <div class="big">🥧</div>
+        <div class="lbl">Fraction of Circle</div>
+        <div class="val">θ ÷ 360</div>
+        <div style="font-size:0.7rem;color:#16a34a;margin-top:3px;">(how big the slice is)</div>
+      </div>
+      <div class="concept-card" style="background:linear-gradient(135deg,#fff7ed,#fed7aa);">
+        <div class="big">📐</div>
+        <div class="lbl">Semi-circle (θ=180°)</div>
+        <div class="val">½πr²</div>
+        <div style="font-size:0.7rem;color:#b45309;margin-top:3px;">180/360 = 1/2</div>
+      </div>
+      <div class="concept-card" style="background:linear-gradient(135deg,#fdf4ff,#f3e8ff);">
+        <div class="big">🔺</div>
+        <div class="lbl">Quarter (θ=90°)</div>
+        <div class="val">¼πr²</div>
+        <div style="font-size:0.7rem;color:#7c3aed;margin-top:3px;">90/360 = 1/4</div>
+      </div>
+    </div>
+    <div class="note">∵ A sector is a fraction of the full circle. ∴ its area = that fraction × full circle area.<br>
+    <strong>When θ = 360°:</strong> Area = (360/360) × πr² = πr² ✓ (full circle!)</div>
+  </div>
+
+  <!-- Worked Example -->
+  <div class="card">
+    <div class="section-title">✏️ Solved Example <span class="tag">CBSE Style</span></div>
+    <div class="example-header">Q: Find the area of a sector of a circle with radius 6 cm and angle 60°. (Use π = 22/7)</div>
+    <div id="stepsContainer"></div>
+    <button class="step-btn" id="stepBtn" onclick="revealStep()">▶ Show Step 1</button>
+    <div class="answer-reveal" id="answerReveal">
+      <div style="font-size:0.9rem;font-weight:700;color:#15803d;text-align:center;">✅ Final Answer</div>
+      <div style="font-size:1.2rem;font-weight:800;color:#15803d;text-align:center;margin:6px 0;">Area = 18.86 cm²</div>
+      <div style="font-size:0.75rem;color:#166534;text-align:center;">∴ The area of the sector = <strong>18.86 cm²</strong> (approx)</div>
+    </div>
+    <button class="step-btn" id="resetBtn" onclick="resetSteps()" style="display:none;background:linear-gradient(135deg,#64748b,#475569);margin-top:6px;">↺ Reset Example</button>
+  </div>
+
+  <!-- Tips -->
+  <div class="card">
+    <div class="section-title">💡 परीक्षा युक्तियाँ | Exam Tips</div>
+    <div class="note" style="background:#eff6ff;border-left-color:#3b82f6;">
+      <strong>📝 Remember (याद रखें):</strong><br><br>
+      • Always check if π = 22/7 or 3.14 is given<br>
+      • θ must be in <strong>degrees</strong> for this formula<br>
+      • Area of sector ≠ Area of segment (segment = sector − triangle)<br>
+      • If θ = 90°, use ¼πr² directly → saves time!<br>
+      • Units of area are always <strong>square units</strong> (cm², m², etc.)<br><br>
+      <strong>🔑 Formula Trick:</strong> Area of Sector = (θ/360) × πr² — memorize as "angle fraction times full area"
+    </div>
+  </div>
+
+  <div style="text-align:center;color:#94a3b8;font-size:0.72rem;padding:10px 0;">
+    CBSE Class 10 · Chapter 12 · Areas Related to Circles
+  </div>
+</div>
+
+<script>
+const steps=[
+  {text:"<b>Write down the given values:</b><br>Radius r = 6 cm, Angle θ = 60°, π = 22/7",color:"#3b82f6"},
+  {text:"<b>Write the formula:</b><br>Area of Sector = <span class='highlight'>θ/360 × πr²</span>",color:"#3b82f6"},
+  {text:"<b>Substitute the values:</b><br>Area = 60/360 × (22/7) × 6²<br>Area = 60/360 × (22/7) × 36",color:"#6366f1"},
+  {text:"<b>Simplify the fraction:</b><br>60/360 = <span class='highlight'>1/6</span><br>So: Area = 1/6 × (22/7) × 36",color:"#f59e0b"},
+  {text:"<b>Calculate step by step:</b><br>= (22 × 36) / (7 × 6)<br>= 792 / 42 = <span class='highlight'>132/7</span>",color:"#22c55e"},
+  {text:"<b>Final Result:</b><br>132 ÷ 7 = <span class='highlight'>18.857... ≈ 18.86 cm²</span><br>∴ Area of Sector = <b>18.86 cm²</b>",color:"#22c55e",last:true}
+];
+let currentStep=0;
+
+function revealStep(){
+  if(currentStep>=steps.length)return;
+  const s=steps[currentStep];
+  const div=document.createElement('div');
+  div.className='step'+(s.color==="#22c55e"?' step-green':'');
+  div.style.borderLeftColor=s.color;
+  div.innerHTML=`<span class="step-num" style="background:${s.color}">${currentStep+1}</span><span class="step-text">${s.text}</span>`;
+  document.getElementById('stepsContainer').appendChild(div);
+  setTimeout(()=>div.classList.add('visible'),30);
+  currentStep++;
+  if(currentStep>=steps.length){
+    document.getElementById('stepBtn').style.display='none';
+    document.getElementById('answerReveal').classList.add('show');
+    document.getElementById('resetBtn').style.display='block';
+  } else {
+    document.getElementById('stepBtn').textContent=`▶ Show Step ${currentStep+1}`;
+  }
+}
+
+function resetSteps(){
+  document.getElementById('stepsContainer').innerHTML='';
+  document.getElementById('answerReveal').classList.remove('show');
+  document.getElementById('stepBtn').style.display='block';
+  document.getElementById('stepBtn').textContent='▶ Show Step 1';
+  document.getElementById('resetBtn').style.display='none';
+  currentStep=0;
+}
+
+function gcd(a,b){return b===0?a:gcd(b,a%b);}
+function simplify(n,d){const g=gcd(n,d);return[n/g,d/g];}
+function toFrac(theta){
+  const g=gcd(theta,360);
+  const n=theta/g,den=360/g;
+  if(den===1)return`${n}`;
+  return`${n}/${den}`;
+}
+
+function updateDiagram(){
+  const theta=parseInt(document.getElementById('angleSlider').value);
+  const r_cm=parseInt(document.getElementById('radiusSlider').value);
+  document.getElementById('angleVal').textContent=theta;
+  document.getElementById('radiusVal').textContent=r_cm;
+  document.getElementById('pTheta').textContent=theta;
+  document.getElementById('pRadius').textContent=r_cm;
+  document.getElementById('rTheta').textContent=theta;
+  document.getElementById('rR').textContent=r_cm;
+
+  const frac=toFrac(theta);
+  document.getElementById('pFrac').textContent=frac;
+  document.getElementById('rFrac').textContent=frac;
+
+  const piR2=(Math.PI*r_cm*r_cm).toFixed(2);
+  document.getElementById('pPiR2').textContent=piR2;
+
+  const area=((theta/360)*Math.PI*r_cm*r_cm).toFixed(2);
+  document.getElementById('resultArea').textContent=area+' cm²';
+
+  // SVG drawing
+  const cx=130,cy=130;
+  const svgR=100;
+  const rad=theta*Math.PI/180;
+  const startAngle=-Math.PI/2; // top
+  const endAngle=startAngle+rad;
+  const x1=cx+svgR*Math.cos(startAngle);
+  const y1=cy+svgR*Math.sin(startAngle);
+  const x2=cx+svgR*Math.cos(endAngle);
+  const y2=cy+svgR*Math.sin(endAngle);
+  const largeArc=theta>180?1:0;
+
+  let pathD;
+  if(theta>=355){
+    pathD=`M ${cx} ${cy} m -${svgR} 0 a ${svgR} ${svgR} 0 1 1 ${2*svgR} 0 a ${svgR} ${svgR} 0 1 1 -${2*svgR} 0 Z`;
+  } else {
+    pathD=`M ${cx} ${cy} L ${x1.toFixed(2)} ${y1.toFixed(2)} A ${svgR} ${svgR} 0 ${largeArc} 1 ${x2.toFixed(2)} ${y2.toFixed(2)} Z`;
+  }
+  document.getElementById('sectorPath').setAttribute('d',pathD);
+
+  // Radius lines
+  document.getElementById('r1').setAttribute('x1',cx);
+  document.getElementById('r1').setAttribute('y1',cy);
+  document.getElementById('r1').setAttribute('x2',x1.toFixed(2));
+  document.getElementById('r1').setAttribute('y2',y1.toFixed(2));
+  if(theta<355){
+    document.getElementById('r2').setAttribute('x1',cx);
+    document.getElementById('r2').setAttribute('y1',cy);
+    document.getElementById('r2').setAttribute('x2',x2.toFixed(2));
+    document.getElementById('r2').setAttribute('y2',y2.toFixed(2));
+    document.getElementById('r2').style.display='';
+  } else {
+    document.getElementById('r2').style.display='none';
+  }
+
+  // Angle arc (small arc at center)
+  const arcR=22;
+  const ax1=cx+arcR*Math.cos(startAngle);
+  const ay1=cy+arcR*Math.sin(startAngle);
+  const ax2=cx+arcR*Math.cos(endAngle);
+  const ay2=cy+arcR*Math.sin(endAngle);
+  const arcLarge=theta>180?1:0;
+  if(theta<355){
+    document.getElementById('angleArc').setAttribute('d',
+      `M ${ax1.toFixed(2)} ${ay1.toFixed(2)} A ${arcR} ${arcR} 0 ${arcLarge} 1 ${ax2.toFixed(2)} ${ay2.toFixed(2)}`);
+  } else {
+    document.getElementById('angleArc').setAttribute('d','');
+  }
+
+  // Theta label
+  const midAngle=startAngle+rad/2;
+  const lblR=40;
+  const tlx=cx+lblR*Math.cos(midAngle);
+  const tly=cy+lblR*Math.sin(midAngle);
+  document.getElementById('thetaLabel').setAttribute('x',tlx.toFixed(2));
+  document.getElementById('thetaLabel').setAttribute('y',tly.toFixed(2));
+  document.getElementById('thetaLabel').textContent=`θ=${theta}°`;
+
+  // Radius labels (midpoint of each radius line, with offset)
+  const m1x=(cx+x1)/2, m1y=(cy+y1)/2;
+  document.getElementById('rLabel1').setAttribute('x',(m1x+8).toFixed(2));
+  document.getElementById('rLabel1').setAttribute('y',(m1y).toFixed(2));
+  document.getElementById('rLabel1').textContent=`r`;
+  document.getElementById('rLabel1').setAttribute('fill','#166534');
+
+  if(theta<355){
+    const m2x=(cx+x2)/2, m2y=(cy+y2)/2;
+    document.getElementById('rLabel2').setAttribute('x',(m2x+8).toFixed(2));
+    document.getElementById('rLabel2').setAttribute('y',(m2y).toFixed(2));
+    document.getElementById('rLabel2').textContent=`r`;
+    document.getElementById('rLabel2').setAttribute('fill','#166534');
+  }
+
+  // Arc label on the arc
+  const arcMidAngle=startAngle+rad/2;
+  const arcLblR=113;
+  const alx=cx+arcLblR*Math.cos(arcMidAngle);
+  const aly=cy+arcLblR*Math.sin(arcMidAngle);
+  document.getElementById('arcLabel').setAttribute('x',alx.toFixed(2));
+  document.getElementById('arcLabel').setAttribute('y',aly.toFixed(2));
+  document.getElementById('arcLabel').textContent='arc';
+}
+
+document.getElementById('angleSlider').addEventListener('input',updateDiagram);
+document.getElementById('radiusSlider').addEventListener('input',updateDiagram);
+updateDiagram();
+</script>
+</body>
+</html>

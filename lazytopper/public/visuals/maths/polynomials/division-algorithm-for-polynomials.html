@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Division Algorithm for Polynomials</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%); min-height: 100vh; color: #1e293b; }
+  
+  .title-bar { background: linear-gradient(90deg, #3b82f6, #6366f1, #8b5cf6); padding: 14px 20px; text-align: center; box-shadow: 0 4px 20px rgba(59,130,246,0.4); }
+  .title-bar h1 { color: #fff; font-size: 1.1rem; font-weight: 700; letter-spacing: 0.5px; }
+  .title-bar p { color: rgba(255,255,255,0.8); font-size: 0.75rem; margin-top: 2px; }
+  
+  .container { max-width: 800px; margin: 0 auto; padding: 16px; }
+  
+  .card { background: #fff; border-radius: 16px; padding: 18px; margin-bottom: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
+  
+  .formula-box { background: linear-gradient(135deg, #1e293b, #334155); border-radius: 14px; padding: 18px; text-align: center; margin-bottom: 16px; border: 2px solid #3b82f6; box-shadow: 0 0 30px rgba(59,130,246,0.3); }
+  .formula-box .label { color: #94a3b8; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .formula-box .formula { color: #fff; font-size: 1.05rem; font-weight: 700; line-height: 1.8; }
+  .formula-box .hint { color: #64748b; font-size: 0.72rem; margin-top: 8px; }
+  .f-blue { color: #60a5fa; }
+  .f-green { color: #4ade80; }
+  .f-amber { color: #fbbf24; }
+  .f-red { color: #f87171; }
+  
+  .section-title { font-size: 0.95rem; font-weight: 700; color: #1e293b; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .badge { background: linear-gradient(90deg, #3b82f6, #6366f1); color: #fff; border-radius: 20px; padding: 2px 10px; font-size: 0.68rem; font-weight: 600; }
+  
+  .parts-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 14px; }
+  .part-card { border-radius: 12px; padding: 12px; cursor: pointer; transition: all 0.3s ease; border: 2px solid transparent; }
+  .part-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
+  .part-card.active { border-color: currentColor; transform: translateY(-3px); }
+  .part-card .icon { font-size: 1.4rem; margin-bottom: 6px; }
+  .part-card .name { font-size: 0.8rem; font-weight: 700; margin-bottom: 3px; }
+  .part-card .hindi { font-size: 0.68rem; opacity: 0.8; margin-bottom: 4px; }
+  .part-card .desc { font-size: 0.7rem; opacity: 0.9; line-height: 1.4; }
+  .pc-blue { background: linear-gradient(135deg, #dbeafe, #eff6ff); color: #1d4ed8; }
+  .pc-green { background: linear-gradient(135deg, #dcfce7, #f0fdf4); color: #15803d; }
+  .pc-amber { background: linear-gradient(135deg, #fef3c7, #fffbeb); color: #b45309; }
+  .pc-red { background: linear-gradient(135deg, #fee2e2, #fef2f2); color: #b91c1c; }
+  
+  .info-panel { background: #f8fafc; border-radius: 10px; padding: 12px; font-size: 0.78rem; color: #475569; line-height: 1.6; min-height: 60px; transition: all 0.3s; border-left: 4px solid #3b82f6; }
+  
+  .step-container { }
+  .step-btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .step-btn { padding: 7px 14px; border-radius: 8px; border: 2px solid #e2e8f0; background: #f8fafc; color: #64748b; font-size: 0.72rem; font-weight: 600; cursor: pointer; transition: all 0.25s; }
+  .step-btn.active { background: #3b82f6; color: #fff; border-color: #3b82f6; box-shadow: 0 4px 12px rgba(59,130,246,0.4); }
+  .step-btn:hover:not(.active) { background: #e0e7ff; border-color: #3b82f6; color: #3b82f6; }
+  
+  .long-div-box { background: #0f172a; border-radius: 12px; padding: 16px; font-family: monospace; font-size: 0.85rem; color: #e2e8f0; line-height: 2; overflow-x: auto; position: relative; }
+  .ld-step { display: none; animation: fadeIn 0.4s ease; }
+  .ld-step.show { display: block; }
+  .hl { background: rgba(59,130,246,0.3); border-radius: 4px; padding: 1px 4px; color: #93c5fd; }
+  .hl-g { background: rgba(34,197,94,0.3); border-radius: 4px; padding: 1px 4px; color: #86efac; }
+  .hl-a { background: rgba(245,158,11,0.3); border-radius: 4px; padding: 1px 4px; color: #fcd34d; }
+  .hl-r { background: rgba(239,68,68,0.3); border-radius: 4px; padding: 1px 4px; color: #fca5a5; }
+  .div-line { border-top: 2px solid #475569; margin: 4px 0; }
+  
+  .step-explain { background: linear-gradient(135deg, #1e3a5f, #1e293b); border-radius: 10px; padding: 12px; margin-top: 10px; font-size: 0.78rem; color: #cbd5e1; line-height: 1.7; border-left: 4px solid #3b82f6; display: none; animation: fadeIn 0.4s; }
+  .step-explain.show { display: block; }
+  
+  @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+  
+  .verify-box { background: linear-gradient(135deg, #052e16, #14532d); border-radius: 12px; padding: 14px; color: #86efac; font-size: 0.8rem; line-height: 2; }
+  .verify-box .vtitle { color: #4ade80; font-weight: 700; font-size: 0.85rem; margin-bottom: 8px; }
+  
+  .practice-box { }
+  .practice-q { background: linear-gradient(135deg, #fef3c7, #fffbeb); border-radius: 12px; padding: 14px; border: 2px solid #f59e0b; margin-bottom: 10px; }
+  .practice-q .q-text { font-size: 0.82rem; color: #78350f; font-weight: 600; margin-bottom: 10px; }
+  .reveal-btn { display: inline-block; padding: 8px 18px; background: linear-gradient(90deg, #f59e0b, #f97316); color: #fff; border: none; border-radius: 8px; font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 12px rgba(245,158,11,0.4); }
+  .reveal-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(245,158,11,0.5); }
+  .practice-ans { display: none; background: #f0fdf4; border-radius: 8px; padding: 12px; margin-top: 10px; font-size: 0.75rem; color: #166534; line-height: 1.8; animation: fadeIn 0.4s; }
+  .practice-ans.show { display: block; }
+  
+  .tips-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .tip { background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border-radius: 10px; padding: 10px; border-left: 3px solid #3b82f6; }
+  .tip .tip-icon { font-size: 1rem; margin-bottom: 4px; }
+  .tip .tip-text { font-size: 0.7rem; color: #0c4a6e; line-height: 1.5; }
+  
+  .progress-row { display: flex; gap: 6px; margin-bottom: 14px; }
+  .prog-dot { width: 10px; height: 10px; border-radius: 50%; background: #e2e8f0; transition: all 0.3s; cursor: pointer; }
+  .prog-dot.done { background: #22c55e; box-shadow: 0 0 8px rgba(34,197,94,0.5); }
+  .prog-dot.active { background: #3b82f6; box-shadow: 0 0 8px rgba(59,130,246,0.5); transform: scale(1.3); }
+  
+  .nav-btn { padding: 9px 20px; border-radius: 10px; border: none; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: all 0.3s; }
+  .nav-prev { background: #e2e8f0; color: #475569; }
+  .nav-next { background: linear-gradient(90deg, #3b82f6, #6366f1); color: #fff; box-shadow: 0 4px 12px rgba(59,130,246,0.4); }
+  .nav-btn:hover { transform: translateY(-2px); }
+  .nav-row { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
+  
+  @media(max-width:480px) { .parts-grid { grid-template-columns: 1fr; } .tips-grid { grid-template-columns: 1fr; } .formula-box .formula { font-size: 0.9rem; } }
+</style>
+</head>
+<body>
+
+<div class="title-bar">
+  <h1>📐 Division Algorithm for Polynomials</h1>
+  <p>CBSE Class 10 Mathematics | Chapter 2: Polynomials | विभाजन कलनविधि</p>
+</div>
+
+<div class="container">
+
+  <!-- Formula Card -->
+  <div class="formula-box">
+    <div class="label">🔑 The Division Algorithm | विभाजन प्रमेय (Theorem)</div>
+    <div class="formula">
+      <span class="f-blue">p(x)</span> = <span class="f-green">g(x)</span> × <span class="f-amber">q(x)</span> + <span class="f-red">r(x)</span>
+    </div>
+    <div class="formula" style="font-size:0.82rem; color:#94a3b8; margin-top:4px;">
+      Dividend = Divisor × Quotient + Remainder
+    </div>
+    <div class="hint">∵ deg r(x) &lt; deg g(x)  OR  r(x) = 0 &nbsp;|&nbsp; g(x) ≠ 0</div>
+  </div>
+
+  <!-- Main Card -->
+  <div class="card">
+    <div class="section-title">
+      🧩 Four Parts of Division <span class="badge">Click to Explore</span>
+    </div>
+    <div class="parts-grid">
+      <div class="part-card pc-blue" onclick="showPart('dividend')">
+        <div class="icon">📦</div>
+        <div class="name">p(x) — Dividend</div>
+        <div class="hindi">भाज्य</div>
+        <div class="desc">The polynomial being divided</div>
+      </div>
+      <div class="part-card pc-green" onclick="showPart('divisor')">
+        <div class="icon">✂️</div>
+        <div class="name">g(x) — Divisor</div>
+        <div class="hindi">भाजक</div>
+        <div class="desc">The polynomial we divide by</div>
+      </div>
+      <div class="part-card pc-amber" onclick="showPart('quotient')">
+        <div class="icon">💡</div>
+        <div class="name">q(x) — Quotient</div>
+        <div class="hindi">भागफल</div>
+        <div class="desc">Result of division</div>
+      </div>
+      <div class="part-card pc-red" onclick="showPart('remainder')">
+        <div class="icon">🔴</div>
+        <div class="name">r(x) — Remainder</div>
+        <div class="hindi">शेषफल</div>
+        <div class="desc">What is left after division</div>
+      </div>
+    </div>
+    <div class="info-panel" id="infoPanel">
+      👆 Click any part above to learn what it means with an example!
+    </div>
+  </div>
+
+  <!-- Step-by-step -->
+  <div class="card">
+    <div class="section-title">🔢 Step-by-Step Long Division <span class="badge">Interactive</span></div>
+    <div style="font-size:0.78rem; color:#64748b; margin-bottom:10px;">
+      Example: Divide <strong>p(x) = 2x³ + 3x² + 7x + 5</strong> by <strong>g(x) = x + 2</strong>
+    </div>
+    
+    <div class="progress-row" id="progRow"></div>
+    
+    <div class="step-btn-row" id="stepBtns"></div>
+    
+    <div class="long-div-box" id="longDiv"></div>
+    <div class="step-explain" id="stepExplain"></div>
+    
+    <div class="nav-row">
+      <button class="nav-btn nav-prev" onclick="changeStep(-1)">← Prev</button>
+      <span style="font-size:0.75rem; color:#64748b;" id="stepCount">Step 1 of 6</span>
+      <button class="nav-btn nav-next" onclick="changeStep(1)">Next →</button>
+    </div>
+  </div>
+
+  <!-- Verification -->
+  <div class="card">
+    <div class="section-title">✅ Verification | सत्यापन</div>
+    <div style="font-size:0.75rem; color:#64748b; margin-bottom:10px;">Check: p(x) = g(x) × q(x) + r(x)</div>
+    <div class="verify-box">
+      <div class="vtitle">∴ Result from our example:</div>
+      q(x) = 2x² - x + 9 &nbsp;&nbsp; r(x) = -13
+      <div class="div-line"></div>
+      g(x) × q(x) + r(x)<br>
+      = (x + 2)(2x² - x + 9) + (-13)<br>
+      = 2x³ - x² + 9x + 4x² - 2x + 18 - 13<br>
+      = 2x³ + 3x² + 7x + 5<br>
+      = <span style="color:#4ade80; font-weight:700;">p(x) ✓</span>
+    </div>
+  </div>
+
+  <!-- Practice -->
+  <div class="card">
+    <div class="section-title">📝 Practice Problems <span class="badge">CBSE Style</span></div>
+    <div class="practice-box">
+      <div class="practice-q">
+        <div class="q-text">Q1. Divide x³ - 3x² + 5x - 3 by x² - x + 1. Find q(x) and r(x).</div>
+        <button class="reveal-btn" onclick="toggleAns('a1')">Reveal Answer 👀</button>
+        <div class="practice-ans" id="a1">
+          <strong>Solution:</strong><br>
+          Dividing x³ - 3x² + 5x - 3 by x² - x + 1<br><br>
+          Step 1: x³ ÷ x² = <strong>x</strong><br>
+          &nbsp;&nbsp;x(x² - x + 1) = x³ - x² + x<br>
+          &nbsp;&nbsp;Subtract: (-3x² + 5x - 3) - (-x² + x) = -2x² + 4x - 3<br><br>
+          Step 2: -2x² ÷ x² = <strong>-2</strong><br>
+          &nbsp;&nbsp;-2(x² - x + 1) = -2x² + 2x - 2<br>
+          &nbsp;&nbsp;Subtract: (-2x² + 4x - 3) - (-2x² + 2x - 2) = 2x - 1<br><br>
+          ∴ <strong>q(x) = x - 2</strong>, <strong>r(x) = 2x - 1</strong><br>
+          deg r(x) = 1 &lt; deg g(x) = 2 ✓
+        </div>
+      </div>
+      <div class="practice-q">
+        <div class="q-text">Q2. If p(x) = x⁴ - 3x² + 4x + 5 and g(x) = x² - x + 1, verify the division algorithm after dividing.</div>
+        <button class="reveal-btn" onclick="toggleAns('a2')">Reveal Answer 👀</button>
+        <div class="practice-ans" id="a2">
+          <strong>Solution:</strong><br>
+          Dividing x⁴ - 3x² + 4x + 5 by x² - x + 1:<br><br>
+          x⁴ ÷ x² = x² → x²(x²-x+1) = x⁴-x³+x²<br>
+          Remainder: x³-4x²+4x+5<br><br>
+          x³ ÷ x² = x → x(x²-x+1) = x³-x²+x<br>
+          Remainder: -3x²+3x+5<br><br>
+          -3x² ÷ x² = -3 → -3(x²-x+1) = -3x²+3x-3<br>
+          Remainder: 8<br><br>
+          ∴ <strong>q(x) = x²+x-3</strong>, <strong>r(x) = 8</strong><br><br>
+          <strong>Verification:</strong><br>
+          (x²-x+1)(x²+x-3)+8<br>
+          = x⁴+x³-3x²-x³-x²+3x+x²+x-3+8<br>
+          = x⁴-3x²+4x+5 = p(x) ✓
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tips -->
+  <div class="card">
+    <div class="section-title">💡 Key Points to Remember <span class="badge">Exam Tips</span></div>
+    <div class="tips-grid">
+      <div class="tip">
+        <div class="tip-icon">📌</div>
+        <div class="tip-text"><strong>Condition:</strong> deg r(x) &lt; deg g(x) OR r(x) = 0. Always check this!</div>
+      </div>
+      <div class="tip">
+        <div class="tip-icon">⚠️</div>
+        <div class="tip-text"><strong>Missing Terms:</strong> Write 0 as coefficient for missing powers (e.g., x³ + 0x² + 5x)</div>
+      </div>
+      <div class="tip">
+        <div class="tip-icon">✅</div>
+        <div class="tip-text"><strong>Always Verify:</strong> Multiply back: g(x)×q(x)+r(x) must equal p(x)</div>
+      </div>
+      <div class="tip">
+        <div class="tip-icon">🎯</div>
+        <div class="tip-text"><strong>Finding Zeros:</strong> If r(x)=0, then g(x) is a factor of p(x) and the zeros of g(x) are zeros of p(x)</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const parts = {
+  dividend: {
+    color: '#1d4ed8',
+    text: `📦 <strong>Dividend — भाज्य — p(x)</strong><br><br>
+    This is the polynomial you want to divide. It should have a <em>higher (or equal) degree</em> compared to the divisor.<br><br>
+    <strong>Example:</strong> In 15 ÷ 4 = 3 R 3, the number 15 is the dividend.<br>
+    For polynomials: <span style="color:#1d4ed8">p(x) = 2x³ + 3x² + 7x + 5</span> is the dividend.`
+  },
+  divisor: {
+    color: '#15803d',
+    text: `✂️ <strong>Divisor — भाजक — g(x)</strong><br><br>
+    This is the polynomial by which we divide. <strong>g(x) ≠ 0</strong> (it must not be a zero polynomial).<br><br>
+    <strong>Key Rule:</strong> deg g(x) ≤ deg p(x)<br>
+    <strong>Example:</strong> <span style="color:#15803d">g(x) = x + 2</span><br>
+    deg g(x) = 1, deg p(x) = 3, so 1 ≤ 3 ✓`
+  },
+  quotient: {
+    color: '#b45309',
+    text: `💡 <strong>Quotient — भागफल — q(x)</strong><br><br>
+    The result we get after performing the division. Its degree = deg p(x) - deg g(x).<br><br>
+    <strong>Example:</strong> <span style="color:#b45309">q(x) = 2x² - x + 9</span><br>
+    deg q(x) = 2 = (3 - 1) ✓<br><br>
+    ∴ If deg p(x)=3 and deg g(x)=1, then deg q(x) = 2`
+  },
+  remainder: {
+    color: '#b91c1c',
+    text: `🔴 <strong>Remainder — शेषफल — r(x)</strong><br><br>
+    What is left after division. <strong>Critical condition:</strong><br>
+    deg r(x) &lt; deg g(x)  OR  r(x) = 0<br><br>
+    <strong>Example:</strong> <span style="color:#b91c1c">r(x) = -13</span><br>
+    deg r(x) = 0 (constant), deg g(x) = 1<br>
+    ∴ 0 &lt; 1 ✓ — Condition satisfied!`
+  }
+};
+
+function showPart(key) {
+  document.querySelectorAll('.part-card').forEach(c => c.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  const p = parts[key];
+  const panel = document.getElementById('infoPanel');
+  panel.style.borderColor = p.color;
+  panel.innerHTML = p.text;
+  panel.style.animation = 'none';
+  panel.offsetHeight;
+  panel.style.animation = 'fadeIn 0.4s ease';
+}
+
+const steps = [
+  {
+    label: 'Setup',
+    div: `<span style="color:#94a3b8">Dividend: </span><span class="hl">2x³ + 3x² + 7x + 5</span>
+<span style="color:#94a3b8">Divisor:  </span><span class="hl-g">x + 2</span>
+
+         _______________
+x + 2  ) 2x³ + 3x² + 7x + 5`,
+    explain: `📋 <strong>Setup (तैयारी):</strong><br>Write the dividend inside the long division bracket and the divisor outside. Arrange all terms in <em>descending order of degree</em>. If any power is missing, write it with coefficient 0.`
+  },
+  {
+    label: 'Step 1',
+    div: `         <span class="hl-a">2x²</span>
+         _______________
+x + 2  ) 2x³ + 3x² + 7x + 5
+         <span class="hl-g">2x³ + 4x²</span>     ← <span class="hl-a">2x²</span> × (x+2)
+         <span class="div-line2">──────────────</span>`,
+    explain: `➀ <strong>First Division Step:</strong><br>Divide the leading term of dividend by leading term of divisor:<br><br><strong>2x³ ÷ x = 2x²</strong> → Write 2x² as first term of quotient.<br><br>Multiply: 2x² × (x + 2) = 2x³ + 4x²<br>Subtract from dividend.`
+  },
+  {
+    label: 'Step 2',
+    div: `         <span class="hl-a">2x²</span> <span class="hl-r">- x</span>
+         _______________
+x + 2  ) 2x³ + 3x² + 7x + 5
+         2x³ + 4x²
+         ──────────────
+              <span class="hl">-x² + 7x</span>
+              <span class="hl-g">-x² - 2x</span>    ← <span class="hl-r">-x</span> × (x+2)
+              <span class="div-line2">──────────</span>`,
+    explain: `➁ <strong>Second Division Step:</strong><br>After subtracting: (3x² - 4x²) = -x²<br>Bring down +7x → New dividend: <strong>-x² + 7x</strong><br><br><strong>-x² ÷ x = -x</strong> → Write -x in quotient.<br><br>Multiply: -x × (x + 2) = -x² - 2x<br>Subtract.`
+  },
+  {
+    label: 'Step 3',
+    div: `         <span class="hl-a">2x² - x</span> <span class="hl-g">+ 9</span>
+         _______________
+x + 2  ) 2x³ + 3x² + 7x + 5
+         2x³ + 4x²
+         ──────────────
+              -x² + 7x
+              -x² - 2x
+              ──────────
+                   <span class="hl">9x + 5</span>
+                   <span class="hl-g">9x + 18</span>   ← <span class="hl-g">+9</span> × (x+2)
+                   <span class="div-line2">─────────</span>`,
+    explain: `➂ <strong>Third Division Step:</strong><br>After subtracting: (7x - (-2x)) = 9x<br>Bring down +5 → New dividend: <strong>9x + 5</strong><br><br><strong>9x ÷ x = 9</strong> → Write +9 in quotient.<br><br>Multiply: 9 × (x + 2) = 9x + 18<br>Subtract.`
+  },
+  {
+    label: 'Result',
+    div: `         <span class="hl-a">2x² - x + 9</span>      ← Quotient (भागफल)
+         _______________
+x + 2  ) 2x³ + 3x² + 7x + 5
+         2x³ + 4x²
+         ──────────────
+              -x² + 7x
+              -x² - 2x
+              ──────────
+                   9x + 5
+                   9x + 18
+                   ─────────
+                   <span class="hl-r">-13</span>           ← Remainder (शेषफल)`,
+    explain: `🎯 <strong>Final Result:</strong><br>After the last subtraction: 5 - 18 = <strong>-13</strong><br>deg(-13) = 0 &lt; deg(x+2) = 1 ✓<br><br>∴ <strong>q(x) = 2x² - x + 9</strong><br>∴ <strong>r(x) = -13</strong><br><br>So: 2x³+3x²+7x+5 = (x+2)(2x²-x+9) + (-13)`
+  },
+  {
+    label: 'Verify',
+    div: `<span style="color:#4ade80">✓ Verification: p(x) = g(x)×q(x) + r(x)</span>
+
+(x + 2)(2x² - x + 9) + (-13)
+
+= x(2x²-x+9) + 2(2x²-x+9) - 13
+
+= <span class="hl">2x³-x²+9x</span> + <span class="hl-g">4x²-2x+18</span> - 13
+
+= 2x³ + (-1+4)x² + (9-2)x + (18-13)
+
+= <span class="hl-a">2x³ + 3x² + 7x + 5</span> = p(x) <span style="color:#4ade80">✓</span>`,
+    explain: `✅ <strong>Verification Complete! सत्यापन पूर्ण!</strong><br>We confirmed p(x) = g(x)×q(x)+r(x) holds true.<br><br><strong>Remember:</strong> Always verify in exams — it shows you checked your work and earns full marks!<br><br>∵ r(x) = -13 ≠ 0, g(x) = (x+2) is <strong>NOT</strong> a factor of p(x).`
+  }
+];
+
+let currentStep = 0;
+
+function renderSteps() {
+  const row = document.getElementById('stepBtns');
+  const prog = document.getElementById('progRow');
+  row.innerHTML = '';
+  prog.innerHTML = '';
+  steps.forEach((s, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'step-btn' + (i === currentStep ? ' active' : '');
+    btn.textContent = s.label;
+    btn.onclick = () => { currentStep = i; renderSteps(); };
+    row.appendChild(btn);
+    const dot = document.createElement('div');
+    dot.className = 'prog-dot' + (i < currentStep ? ' done' : i === currentStep ? ' active' : '');
+    dot.onclick = () => { currentStep = i; renderSteps(); };
+    prog.appendChild(dot);
+  });
+  document.getElementById('longDiv').innerHTML = steps[currentStep].div.replace('div-line2', 'div-line');
+  const exp = document.getElementById('stepExplain');
+  exp.className = 'step-explain show';
+  exp.innerHTML = steps[currentStep].explain;
+  document.getElementById('stepCount').textContent = `Step ${currentStep+1} of ${steps.length}`;
+}
+
+function changeStep(dir) {
+  currentStep = Math.max(0, Math.min(steps.length - 1, currentStep + dir));
+  renderSteps();
+}
+
+function toggleAns(id) {
+  const el = document.getElementById(id);
+  if (el.classList.contains('show')) {
+    el.classList.remove('show');
+    el.style.display = 'none';
+  } else {
+    el.classList.add('show');
+    el.style.display = 'block';
+  }
+}
+
+renderSteps();
+</script>
+</body>
+</html>

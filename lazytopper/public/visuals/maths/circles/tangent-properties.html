@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Circles - Tangent Properties | Class 10 Math</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#0f172a 100%);min-height:100vh;color:#e2e8f0}
+.titlebar{background:linear-gradient(90deg,#3b82f6,#6366f1);padding:12px 20px;text-align:center;box-shadow:0 4px 20px rgba(59,130,246,0.4)}
+.titlebar h1{font-size:1.1rem;font-weight:700;color:#fff}
+.titlebar p{font-size:0.75rem;color:#bfdbfe;margin-top:2px}
+.container{max-width:700px;margin:0 auto;padding:16px}
+.card{background:rgba(30,41,59,0.9);border:1px solid rgba(59,130,246,0.3);border-radius:16px;padding:16px;margin-bottom:16px;box-shadow:0 8px 32px rgba(0,0,0,0.3)}
+.section-title{font-size:0.9rem;font-weight:700;color:#3b82f6;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.badge{background:linear-gradient(135deg,#3b82f6,#6366f1);color:#fff;padding:3px 10px;border-radius:20px;font-size:0.7rem;font-weight:600}
+.theorem-box{background:linear-gradient(135deg,rgba(59,130,246,0.15),rgba(99,102,241,0.15));border:2px solid #3b82f6;border-radius:12px;padding:14px;text-align:center;margin-bottom:12px}
+.theorem-box h2{color:#60a5fa;font-size:1rem;margin-bottom:6px}
+.theorem-box p{color:#e2e8f0;font-size:0.85rem;line-height:1.5}
+.formula{background:linear-gradient(135deg,#1e293b,#0f172a);border:2px solid #f59e0b;border-radius:10px;padding:10px;text-align:center;font-size:1.1rem;color:#fbbf24;font-weight:700;margin:10px 0;letter-spacing:1px}
+svg{display:block;margin:0 auto}
+.btn{background:linear-gradient(135deg,#3b82f6,#6366f1);color:#fff;border:none;padding:8px 18px;border-radius:8px;font-size:0.82rem;font-weight:600;cursor:pointer;transition:all 0.3s;box-shadow:0 4px 12px rgba(59,130,246,0.3)}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(59,130,246,0.5)}
+.btn:active{transform:translateY(0)}
+.btn-green{background:linear-gradient(135deg,#22c55e,#16a34a);box-shadow:0 4px 12px rgba(34,197,94,0.3)}
+.btn-green:hover{box-shadow:0 6px 20px rgba(34,197,94,0.5)}
+.btn-amber{background:linear-gradient(135deg,#f59e0b,#d97706);box-shadow:0 4px 12px rgba(245,158,11,0.3)}
+.controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:10px}
+.step-container{margin-top:10px}
+.step{background:rgba(59,130,246,0.1);border-left:4px solid #3b82f6;border-radius:0 8px 8px 0;padding:10px 12px;margin-bottom:8px;display:none;animation:slideIn 0.4s ease}
+.step.active{display:block}
+.step-num{color:#f59e0b;font-weight:700;font-size:0.8rem}
+.step p{font-size:0.83rem;color:#e2e8f0;margin-top:4px;line-height:1.5}
+@keyframes slideIn{from{opacity:0;transform:translateX(-15px)}to{opacity:1;transform:translateX(0)}}
+.tab-bar{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.tab{background:rgba(30,41,59,0.8);border:1px solid rgba(59,130,246,0.3);color:#94a3b8;padding:7px 14px;border-radius:8px;font-size:0.78rem;cursor:pointer;transition:all 0.3s;font-weight:600}
+.tab.active{background:linear-gradient(135deg,#3b82f6,#6366f1);color:#fff;border-color:#3b82f6}
+.panel{display:none}.panel.active{display:block}
+.info-row{display:flex;gap:10px;margin-top:8px;flex-wrap:wrap}
+.info-chip{background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.4);border-radius:8px;padding:6px 10px;font-size:0.78rem;color:#86efac;flex:1;min-width:120px;text-align:center}
+.angle-display{background:linear-gradient(135deg,rgba(239,68,68,0.2),rgba(245,158,11,0.2));border:1px solid #ef4444;border-radius:8px;padding:8px 12px;text-align:center;margin-top:8px}
+.angle-display span{color:#fca5a5;font-size:1.2rem;font-weight:700}
+.drag-hint{color:#94a3b8;font-size:0.75rem;text-align:center;margin-top:6px;font-style:italic}
+.highlight{color:#fbbf24;font-weight:700}
+.green{color:#22c55e}.red{color:#ef4444}.blue{color:#60a5fa}.amber{color:#f59e0b}
+.example-box{background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.3);border-radius:10px;padding:12px;margin-top:8px}
+.example-box h3{color:#22c55e;font-size:0.88rem;margin-bottom:6px}
+.prop-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.prop-card{background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);border-radius:8px;padding:10px;text-align:center;transition:all 0.3s;cursor:pointer}
+.prop-card:hover{background:rgba(59,130,246,0.2);transform:translateY(-2px)}
+.prop-card .icon{font-size:1.5rem;margin-bottom:4px}
+.prop-card p{font-size:0.75rem;color:#cbd5e1;line-height:1.4}
+.prop-card h4{color:#60a5fa;font-size:0.82rem;font-weight:700;margin-bottom:4px}
+.pulse{animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+.progress-bar{background:rgba(59,130,246,0.2);border-radius:10px;height:6px;margin-top:8px;overflow:hidden}
+.progress-fill{background:linear-gradient(90deg,#3b82f6,#22c55e);height:100%;border-radius:10px;transition:width 0.5s ease;width:0%}
+</style>
+</head>
+<body>
+<div class="titlebar">
+<h1>🔵 Circles — Tangent Properties (स्पर्शरेखा के गुण)</h1>
+<p>CBSE Class 10 Mathematics | Interactive Visual Explainer</p>
+</div>
+<div class="container">
+
+<!-- Tabs -->
+<div class="tab-bar">
+<div class="tab active" onclick="showTab('explore')">🔍 Explore</div>
+<div class="tab" onclick="showTab('theorem')">📐 Theorem</div>
+<div class="tab" onclick="showTab('example')">✏️ Example</div>
+<div class="tab" onclick="showTab('properties')">📋 Properties</div>
+</div>
+
+<!-- EXPLORE TAB -->
+<div id="tab-explore" class="panel active">
+<div class="card">
+<div class="section-title"><span class="badge">Interactive</span> Drag the Point P to Explore</div>
+<canvas id="mainCanvas" width="400" height="300" style="border-radius:10px;cursor:crosshair;max-width:100%;display:block;margin:0 auto;background:rgba(15,23,42,0.8)"></canvas>
+<div class="drag-hint">👆 Click/Drag point P on the canvas to move the tangent point</div>
+<div class="angle-display">
+∠OPT = <span id="angleDisplay">90°</span> &nbsp;|&nbsp; Tangent ⊥ Radius: <span id="perpStatus" style="color:#22c55e">✓ Always True</span>
+</div>
+<div class="info-row">
+<div class="info-chip">Radius (r) = <span id="radiusVal">80</span>px</div>
+<div class="info-chip">OP = <span id="opVal">80</span>px</div>
+<div class="info-chip">∠OPT = <span id="angleVal">90°</span></div>
+</div>
+</div>
+</div>
+
+<!-- THEOREM TAB -->
+<div id="tab-theorem" class="panel">
+<div class="card">
+<div class="theorem-box">
+<h2>प्रमेय (Theorem) 1</h2>
+<p><strong>"The tangent at any point of a circle is perpendicular to the radius through the point of contact."</strong></p>
+<p style="margin-top:6px;color:#94a3b8;font-size:0.78rem">"वृत्त के किसी बिंदु पर स्पर्शरेखा, स्पर्श बिंदु से खींची गई त्रिज्या पर लंबवत होती है।"</p>
+</div>
+<div class="formula">∠OPT = 90° &nbsp;(OT ⊥ tangent)</div>
+
+<svg id="theoremSvg" width="320" height="220" viewBox="0 0 320 220" style="max-width:100%">
+<defs>
+<radialGradient id="cg" cx="50%" cy="50%">
+<stop offset="0%" stop-color="#3b82f6" stop-opacity="0.2"/>
+<stop offset="100%" stop-color="#3b82f6" stop-opacity="0.05"/>
+</radialGradient>
+<marker id="arr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+<path d="M0,0 L0,6 L6,3 z" fill="#f59e0b"/>
+</marker>
+</defs>
+<!-- Circle -->
+<circle cx="130" cy="110" r="80" fill="url(#cg)" stroke="#3b82f6" stroke-width="2"/>
+<!-- Center -->
+<circle cx="130" cy="110" r="5" fill="#3b82f6"/>
+<text x="120" y="105" fill="#60a5fa" font-size="13" font-weight="bold">O</text>
+<!-- Tangent point -->
+<circle cx="210" cy="110" r="6" fill="#22c55e"/>
+<text x="215" y="107" fill="#86efac" font-size="12">P</text>
+<!-- Radius -->
+<line x1="130" y1="110" x2="210" y2="110" stroke="#f59e0b" stroke-width="2.5" stroke-dasharray="5,3"/>
+<text x="162" y="105" fill="#fbbf24" font-size="11">r</text>
+<!-- Tangent line -->
+<line x1="210" y1="40" x2="210" y2="185" stroke="#ef4444" stroke-width="2.5"/>
+<text x="220" y="55" fill="#fca5a5" font-size="12" font-weight="bold">Tangent</text>
+<!-- Right angle marker -->
+<rect x="198" y="98" width="12" height="12" fill="none" stroke="#22c55e" stroke-width="2"/>
+<!-- Labels -->
+<text x="225" y="115" fill="#fca5a5" font-size="11">T</text>
+<!-- Angle label -->
+<text x="155" y="135" fill="#22c55e" font-size="12" font-weight="bold">∠OPT=90°</text>
+<!-- Arrows for labels -->
+<text x="10" y="50" fill="#94a3b8" font-size="10">Centre = O</text>
+<text x="10" y="68" fill="#94a3b8" font-size="10">Radius = OP</text>
+<text x="10" y="86" fill="#94a3b8" font-size="10">P = point of contact</text>
+<text x="10" y="104" fill="#94a3b8" font-size="10">T = tangent direction</text>
+</svg>
+
+<div class="section-title" style="margin-top:12px">प्रमेय (Theorem) 2 — External Point</div>
+<div class="theorem-box">
+<p><strong>"The lengths of tangents drawn from an external point to a circle are equal."</strong></p>
+<p style="margin-top:4px;color:#94a3b8;font-size:0.78rem">"बाह्य बिंदु से वृत्त पर खींची गई स्पर्शरेखाओं की लंबाइयाँ बराबर होती हैं।"</p>
+</div>
+<div class="formula">PA = PB (External tangents from P)</div>
+<svg width="300" height="180" viewBox="0 0 300 180" style="max-width:100%">
+<circle cx="130" cy="90" r="60" fill="url(#cg)" stroke="#3b82f6" stroke-width="2"/>
+<circle cx="130" cy="90" r="4" fill="#3b82f6"/>
+<text x="122" y="85" fill="#60a5fa" font-size="12" font-weight="bold">O</text>
+<!-- External point -->
+<circle cx="270" cy="90" r="5" fill="#f59e0b"/>
+<text x="276" y="94" fill="#fbbf24" font-size="12" font-weight="bold">P</text>
+<!-- Tangent points -->
+<circle cx="153" cy="35" r="5" fill="#22c55e"/>
+<text x="157" y="32" fill="#86efac" font-size="11">A</text>
+<circle cx="153" cy="145" r="5" fill="#22c55e"/>
+<text x="157" y="158" fill="#86efac" font-size="11">B</text>
+<!-- Tangent lines -->
+<line x1="270" y1="90" x2="153" y2="35" stroke="#ef4444" stroke-width="2"/>
+<line x1="270" y1="90" x2="153" y2="145" stroke="#ef4444" stroke-width="2"/>
+<!-- Radii -->
+<line x1="130" y1="90" x2="153" y2="35" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4,3"/>
+<line x1="130" y1="90" x2="153" y2="145" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4,3"/>
+<!-- Equal marks -->
+<text x="205" y="55" fill="#22c55e" font-size="16" font-weight="bold">=</text>
+<text x="205" y="135" fill="#22c55e" font-size="16" font-weight="bold">=</text>
+<text x="90" y="100" fill="#fbbf24" font-size="10">PA = PB</text>
+</svg>
+</div>
+</div>
+
+<!-- EXAMPLE TAB -->
+<div id="tab-example" class="panel">
+<div class="card">
+<div class="section-title"><span class="badge">Worked</span> Step-by-Step Example</div>
+<div class="example-box">
+<h3>📝 Problem</h3>
+<p style="font-size:0.85rem;color:#e2e8f0;line-height:1.6">A tangent PQ is drawn from external point P to a circle with centre O and radius <span class="highlight">5 cm</span>. If OP = <span class="highlight">13 cm</span>, find the length of tangent PQ.</p>
+</div>
+<svg width="300" height="200" viewBox="0 0 300 200" style="max-width:100%">
+<circle cx="100" cy="100" r="50" fill="url(#cg)" stroke="#3b82f6" stroke-width="2"/>
+<circle cx="100" cy="100" r="4" fill="#3b82f6"/>
+<text x="90" y="96" fill="#60a5fa" font-size="12" font-weight="bold">O</text>
+<!-- Tangent point Q -->
+<circle cx="130" cy="52" r="5" fill="#22c55e"/>
+<text x="133" y="48" fill="#86efac" font-size="12" font-weight="bold">Q</text>
+<!-- External point P -->
+<circle cx="260" cy="100" r="5" fill="#f59e0b"/>
+<text x="265" y="104" fill="#fbbf24" font-size="12" font-weight="bold">P</text>
+<!-- Tangent PQ -->
+<line x1="260" y1="100" x2="130" y2="52" stroke="#ef4444" stroke-width="2.5"/>
+<!-- Radius OQ -->
+<line x1="100" y1="100" x2="130" y2="52" stroke="#22c55e" stroke-width="2" stroke-dasharray="4,3"/>
+<!-- OP -->
+<line x1="100" y1="100" x2="260" y2="100" stroke="#f59e0b" stroke-width="2" stroke-dasharray="4,3"/>
+<!-- Right angle at Q -->
+<rect x="122" y="52" width="10" height="10" fill="none" stroke="#22c55e" stroke-width="1.5" transform="rotate(-30,127,57)"/>
+<!-- Labels -->
+<text x="105" y="70" fill="#86efac" font-size="11">5 cm</text>
+<text x="175" y="97" fill="#fbbf24" font-size="11">13 cm</text>
+<text x="185" y="68" fill="#fca5a5" font-size="11">PQ=?</text>
+</svg>
+
+<div class="step-container" id="stepContainer">
+<div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+<div style="margin-top:10px;color:#94a3b8;font-size:0.8rem" id="stepHint">Click "Next Step" to reveal the solution step by step</div>
+</div>
+
+<div id="step1" class="step">
+<div class="step-num">Step 1 — Identify the right angle (लंबकोण पहचानें)</div>
+<p>∵ The tangent at any point is ⊥ to the radius at point of contact.<br>∴ <span class="green">∠OQP = 90°</span><br>So △OQP is a right-angled triangle at Q.</p>
+</div>
+<div id="step2" class="step">
+<div class="step-num">Step 2 — Apply Pythagoras Theorem (पाइथागोरस प्रमेय)</div>
+<p>In △OQP: &nbsp; OP² = OQ² + PQ²<br><span class="amber">13² = 5² + PQ²</span><br>169 = 25 + PQ²</p>
+</div>
+<div id="step3" class="step">
+<div class="step-num">Step 3 — Solve for PQ</div>
+<p>PQ² = 169 − 25 = <span class="blue">144</span><br>PQ = √144 = <span class="green" style="font-size:1.1rem;font-weight:800">12 cm ✓</span></p>
+</div>
+<div id="step4" class="step">
+<div class="step-num">∴ Answer</div>
+<p><span class="highlight">PQ = 12 cm</span><br>The key was: Tangent ⊥ Radius → Right triangle → Pythagoras!</p>
+</div>
+
+<div class="controls">
+<button class="btn" onclick="nextStep()">▶ Next Step</button>
+<button class="btn btn-amber" onclick="resetSteps()">↺ Reset</button>
+</div>
+<div id="stepCounter" style="text-align:center;color:#94a3b8;font-size:0.78rem;margin-top:8px">Step 0 / 4</div>
+</div>
+</div>
+
+<!-- PROPERTIES TAB -->
+<div id="tab-properties" class="panel">
+<div class="card">
+<div class="section-title">Key Properties (मुख्य गुण)</div>
+<div class="prop-grid" id="propGrid">
+<div class="prop-card" onclick="showProp(0)">
+<div class="icon">📏</div>
+<h4>Perpendicularity</h4>
+<p>Tangent ⊥ Radius at point of contact</p>
+</div>
+<div class="prop-card" onclick="showProp(1)">
+<div class="icon">⚖️</div>
+<h4>Equal Tangents</h4>
+<p>Two tangents from external point are equal</p>
+</div>
+<div class="prop-card" onclick="showProp(2)">
+<div class="icon">📐</div>
+<h4>Right Triangle</h4>
+<p>Forms a right △ with Pythagoras</p>
+</div>
+<div class="prop-card" onclick="showProp(3)">
+<div class="icon">🔵</div>
+<h4>One Point Touch</h4>
+<p>Tangent touches circle at exactly ONE point</p>
+</div>
+</div>
+<div id="propDetail" style="margin-top:12px;display:none" class="example-box">
+<h3 id="propTitle"></h3>
+<p id="propText" style="font-size:0.83rem;color:#e2e8f0;line-height:1.6;margin-top:4px"></p>
+<div class="formula" id="propFormula" style="margin-top:8px;font-size:0.9rem"></div>
+</div>
+</div>
+
+<div class="card">
+<div class="section-title">Quick Formulas (सूत्र)</div>
+<div style="display:grid;gap:8px">
+<div class="formula" style="font-size:0.88rem">∠OPT = 90° &nbsp;(Tangent-Radius Theorem)</div>
+<div class="formula" style="font-size:0.88rem">PA = PB &nbsp;(Equal tangents from external pt.)</div>
+<div class="formula" style="font-size:0.88rem">PQ² = OP² − r² &nbsp;(Tangent length formula)</div>
+<div class="formula" style="font-size:0.88rem">∠OAP + ∠OBP = 180° &nbsp;(Cyclic property)</div>
+</div>
+</div>
+
+<div class="card">
+<div class="section-title">Number of Tangents (स्पर्शरेखाओं की संख्या)</div>
+<svg width="340" height="100" viewBox="0 0 340 100" style="max-width:100%">
+<!-- Circle 1: inside -->
+<circle cx="50" cy="50" r="30" fill="none" stroke="#3b82f6" stroke-width="2"/>
+<circle cx="55" cy="50" r="5" fill="#f59e0b"/>
+<text x="35" y="92" fill="#94a3b8" font-size="9" text-anchor="middle">0 tangents</text>
+<text x="35" y="102" fill="#94a3b8" font-size="8" text-anchor="middle">(Inside)</text>
+<!-- Circle 2: on circle -->
+<circle cx="145" cy="50" r="30" fill="none" stroke="#3b82f6" stroke-width="2"/>
+<circle cx="175" cy="50" r="5" fill="#22c55e"/>
+<line x1="175" y1="10" x2="175" y2="90" stroke="#ef4444" stroke-width="2"/>
+<text x="145" y="92" fill="#94a3b8" font-size="9" text-anchor="middle">1 tangent</text>
+<text x="145" y="102" fill="#94a3b8" font-size="8" text-anchor="middle">(On circle)</text>
+<!-- Circle 3: outside -->
+<circle cx="250" cy="50" r="30" fill="none" stroke="#3b82f6" stroke-width="2"/>
+<circle cx="315" cy="50" r="5" fill="#f59e0b"/>
+<line x1="315" y1="50" x2="265" y2="18" stroke="#ef4444" stroke-width="1.5"/>
+<line x1="315" y1="50" x2="265" y2="82" stroke="#ef4444" stroke-width="1.5"/>
+<text x="265" y="92" fill="#94a3b8" font-size="9" text-anchor="middle">2 tangents</text>
+<text x="265" y="102" fill="#94a3b8" font-size="8" text-anchor="middle">(Outside)</text>
+</svg>
+</div>
+</div>
+</div>
+
+<script>
+// ---- TAB SWITCHING ----
+function showTab(name){
+document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+document.getElementById('tab-'+name).classList.add('active');
+event.target.classList.add('active');
+if(name==='explore')initCanvas();
+}
+
+// ---- CANVAS INTERACTIVE ----
+const canvas=document.getElementById('mainCanvas');
+const ctx=canvas.getContext('2d');
+const cx=canvas.width/2, cy=canvas.height/2, r=80;
+let angle=0, dragging=false;
+
+function getPos(e){
+const rect=canvas.getBoundingClientRect();
+const scaleX=canvas.width/rect.width;
+const scaleY=canvas.height/rect.height;
+const x=(e.clientX||e.touches[0].clientX)-rect.left;
+const y=(e.clientY||e.touches[0].clientY)-rect.top;
+return{x:x*scaleX,y:y*scaleY};
+}
+
+function drawCanvas(){
+ctx.clearRect(0,0,canvas.width,canvas.height);
+const px=cx+r*Math.cos(angle), py=cy+r*Math.sin(angle);
+// Tangent direction (perpendicular to radius)
+const tx=-Math.sin(angle), ty=Math.cos(angle);
+const len=120;
+
+// Glow circle
+ctx.save();
+ctx.shadowBlur=20;ctx.shadowColor='#3b82f6';
+ctx.strokeStyle='#3b82f6';ctx.lineWidth=2.5;
+ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.stroke();
+ctx.restore();
+
+// Fill
+ctx.fillStyle='rgba(59,130,246,0.07)';
+ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fill();
+
+// Radius line
+ctx.save();
+ctx.shadowBlur=8;ctx.shadowColor='#f59e0b';
+ctx.strokeStyle='#f59e0b';ctx.lineWidth=2;ctx.setLineDash([6,3]);
+ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(px,py);ctx.stroke();
+ctx.setLineDash([]);
+ctx.restore();
+
+// Tangent line
+ctx.save();
+ctx.shadowBlur=10;ctx.shadowColor='#ef4444';
+ctx.strokeStyle='#ef4444';ctx.lineWidth=2.5;
+ctx.beginPath();ctx.moveTo(px-tx*len,py-ty*len);ctx.lineTo(px+tx*len,py+ty*len);ctx.stroke();
+ctx.restore();
+
+// Right angle marker
+const s=12;
+const mx=px+tx*s-Math.cos(angle)*s, my=py+ty*s-Math.sin(angle)*s;
+ctx.strokeStyle='#22c55e';ctx.lineWidth=2;ctx.setLineDash([]);
+ctx.strokeRect(px+tx*s-Math.cos(angle)*s-1,py+ty*s-Math.sin(angle)*s-1,s,s);
+
+// Center O
+ctx.fillStyle='#3b82f6';
+ctx.beginPath();ctx.arc(cx,cy,7,0,Math.PI*2);ctx.fill();
+ctx.fillStyle='#fff';ctx.font='bold 12px Segoe UI';ctx.textAlign='center';ctx.textBaseline='middle';
+ctx.fillText('O',cx,cy);
+
+// Point P
+ctx.save();
+ctx.shadowBlur=12;ctx.shadowColor='#22c55e';
+ctx.fillStyle='#22c55e';
+ctx.beginPath();ctx.arc(px,py,8,0,Math.PI*2);ctx.fill();
+ctx.restore();
+ctx.fillStyle='#fff';ctx.font='bold 11px Segoe UI';ctx.textAlign='center';ctx.textBaseline='middle';
+ctx.fillText('P',px,py);
+
+// Labels
+ctx.fillStyle='#fca5a5';ctx.font='bold 12px Segoe UI';ctx.textAlign='left';ctx.textBaseline='middle';
+const lx=px+tx*len*0.6+8, ly=py+ty*len*0.6;
+ctx.fillText('Tangent',lx>cx?lx-60:lx,ly);
+
+ctx.fillStyle='#fbbf24';ctx.font='11px Segoe UI';ctx.textAlign='center';
+const mx2=(cx+px)/2,my2=(cy+py)/2;
+ctx.fillText('r',mx2-(py-cy)/r*8,my2+(px-cx)/r*8);
+
+// Angle label
+ctx.fillStyle='#86efac';ctx.font='bold 11px Segoe UI';
+ctx.fillText('∠OPT=90°',px+(cx-px)*0.3+20,py+(cy-py)*0.3+20);
+
+// Update info
+document.getElementById('angleDisplay').textContent='90°';
+document.getElementById('angleVal').textContent='90°';
+document.getElementById('opVal').textContent=r;
+document.getElementById('radiusVal').textContent=r;
+}
+
+canvas.addEventListener('mousedown',e=>{
+const p=getPos(e);
+const px=cx+r*Math.cos(angle),py=cy+r*Math.sin(angle);
+if(Math.hypot(p.x-px,p.y-py)<20)dragging=true;
+else{angle=Math.atan2(p.y-cy,p.x-cx);drawCanvas();}
+});
+canvas.addEventListener('mousemove',e=>{
+if(dragging){const p=getPos(e);angle=Math.atan2(p.y-cy,p.x-cx);drawCanvas();}
+});
+canvas.addEventListener('mouseup',()=>dragging=false);
+canvas.addEventListener('touchstart',e=>{e.preventDefault();const p=getPos(e);angle=Math.atan2(p.y-cy,p.x-cx);drawCanvas();},{passive:false});
+canvas.addEventListener('touchmove',e=>{e.preventDefault();const p=getPos(e);angle=Math.atan2(p.y-cy,p.x-cx);drawCanvas();},{passive:false});
+
+function initCanvas(){drawCanvas();}
+
+// Animate canvas on load
+let autoAngle=0;
+function autoAnimate(){
+if(!dragging){autoAngle+=0.008;angle=autoAngle;drawCanvas();}
+requestAnimationFrame(autoAnimate);
+}
+autoAnimate();
+
+// ---- STEPS ----
+let currentStep=0;
+const totalSteps=4;
+function nextStep(){
+if(currentStep<totalSteps){
+currentStep++;
+document.getElementById('step'+currentStep).classList.add('active');
+document.getElementById('stepCounter').textContent='Step '+currentStep+' / '+totalSteps;
+document.getElementById('progressFill').style.width=(currentStep/totalSteps*100)+'%';
+document.getElementById('stepHint').style.display='none';
+}
+}
+function resetSteps(){
+currentStep=0;
+for(let i=1;i<=totalSteps;i++)document.getElementById('step'+i).classList.remove('active');
+document.getElementById('stepCounter').textContent='Step 0 / '+totalSteps;
+document.getElementById('progressFill').style.width='0%';
+document.getElementById('stepHint').style.display='block';
+}
+
+// ---- PROPERTIES ----
+const props=[
+{title:'📏 Perpendicularity (लंबवतता)',text:'The tangent to a circle at point P is always perpendicular to the radius OP. This means they form a 90° angle. This is why: if you draw a tangent, you know the exact angle between the radius and tangent.',formula:'∠OPT = 90°'},
+{title:'⚖️ Equal Tangents (समान स्पर्शरेखाएं)',text:'If two tangents PA and PB are drawn from an external point P to a circle, then PA = PB. Proof: In △OAP and △OBP, OA=OB (radii), OP common, ∠OAP=∠OBP=90°. So △OAP ≅ △OBP by RHS.',formula:'PA = PB'},
+{title:'📐 Right Triangle (समकोण त्रिभुज)',text:'Since tangent ⊥ radius, triangle OPQ (where O=centre, P=external point, Q=tangent point) is always a right triangle at Q. This lets us apply Pythagoras theorem directly.',formula:'OP² = OQ² + PQ²'},
+{title:'🔵 One Point Contact (एक बिंदु स्पर्श)',text:'A tangent touches the circle at exactly ONE point (point of contact / tangency). A secant, on the other hand, intersects the circle at TWO points. This unique single-touch is what defines a tangent.',formula:'Tangent touches at exactly 1 point'},
+];
+function showProp(i){
+const d=document.getElementById('propDetail');
+document.getElementById('propTitle').textContent=props[i].title;
+document.getElementById('propText').textContent=props[i].text;
+document.getElementById('propFormula').textContent=props[i].formula;
+d.style.display='block';
+}
+
+// Init canvas
+drawCanvas();
+</script>
+</body>
+</html>

@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frustum of a Cone - Class 10 Maths</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a,#1e293b);color:#1e293b;min-height:100vh}
+.titlebar{background:linear-gradient(90deg,#3b82f6,#6366f1);padding:12px 20px;text-align:center;box-shadow:0 4px 20px rgba(59,130,246,0.4)}
+.titlebar h1{color:#fff;font-size:1.2em;font-weight:700}
+.titlebar p{color:#bfdbfe;font-size:0.8em;margin-top:2px}
+.container{max-width:800px;margin:0 auto;padding:16px}
+.card{background:#fff;border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:0 8px 32px rgba(0,0,0,0.15)}
+.card h2{font-size:1.1em;color:#1e293b;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.badge{background:linear-gradient(135deg,#3b82f6,#6366f1);color:#fff;padding:3px 10px;border-radius:20px;font-size:0.7em;font-weight:600}
+.concept-box{background:linear-gradient(135deg,#eff6ff,#eef2ff);border:2px solid #3b82f6;border-radius:12px;padding:16px;margin-bottom:16px}
+.concept-box p{font-size:0.88em;line-height:1.7;color:#334155}
+.formula-strip{background:linear-gradient(135deg,#1e293b,#0f172a);border-radius:12px;padding:16px;margin:12px 0}
+.formula-strip .label{color:#94a3b8;font-size:0.72em;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.formula-strip .formula{color:#fff;font-size:1em;line-height:1.9}
+.formula-strip .formula span{color:#f59e0b;font-weight:700}
+.formula-strip .formula .green{color:#22c55e}
+.formula-strip .formula .blue{color:#60a5fa}
+.formula-strip .formula .red{color:#f87171}
+/* SVG diagram */
+#conesvg{width:100%;max-width:360px;display:block;margin:0 auto}
+/* Sliders */
+.slider-group{display:flex;flex-direction:column;gap:12px;margin:12px 0}
+.slider-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.slider-row label{font-size:0.8em;font-weight:600;color:#475569;min-width:100px}
+input[type=range]{flex:1;min-width:120px;accent-color:#3b82f6;height:6px;border-radius:3px;cursor:pointer}
+.val-badge{background:#3b82f6;color:#fff;padding:2px 10px;border-radius:10px;font-size:0.8em;font-weight:700;min-width:40px;text-align:center}
+/* Calc display */
+.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.calc-item{background:linear-gradient(135deg,#f8fafc,#f1f5f9);border-radius:10px;padding:12px;border-left:4px solid #3b82f6;text-align:center}
+.calc-item.green{border-left-color:#22c55e}
+.calc-item.amber{border-left-color:#f59e0b}
+.calc-item.red{border-left-color:#ef4444}
+.calc-item .clabel{font-size:0.7em;color:#64748b;font-weight:600;text-transform:uppercase}
+.calc-item .cval{font-size:1.1em;font-weight:700;color:#1e293b;margin-top:4px}
+/* Step reveal */
+.steps-container{display:flex;flex-direction:column;gap:10px}
+.step{background:#f8fafc;border-radius:10px;border:2px solid #e2e8f0;overflow:hidden;transition:all 0.3s}
+.step.active{border-color:#3b82f6;background:#eff6ff}
+.step.done{border-color:#22c55e;background:#f0fdf4}
+.step-header{display:flex;align-items:center;gap:10px;padding:12px;cursor:pointer;user-select:none}
+.step-num{width:28px;height:28px;border-radius:50%;background:#cbd5e1;display:flex;align-items:center;justify-content:center;font-size:0.8em;font-weight:700;color:#fff;flex-shrink:0;transition:background 0.3s}
+.step.active .step-num{background:#3b82f6}
+.step.done .step-num{background:#22c55e}
+.step-title{font-size:0.85em;font-weight:600;color:#334155;flex:1}
+.step-body{padding:0 12px;max-height:0;overflow:hidden;transition:max-height 0.4s ease,padding 0.3s}
+.step.active .step-body,.step.done .step-body{max-height:300px;padding:0 12px 12px}
+.step-body p{font-size:0.82em;color:#475569;line-height:1.7}
+.step-body .math{background:#1e293b;color:#f59e0b;padding:6px 12px;border-radius:6px;font-size:0.9em;margin:6px 0;font-family:monospace}
+.btn{background:linear-gradient(135deg,#3b82f6,#6366f1);color:#fff;border:none;padding:10px 20px;border-radius:10px;cursor:pointer;font-size:0.85em;font-weight:600;transition:all 0.2s;box-shadow:0 4px 12px rgba(59,130,246,0.3)}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(59,130,246,0.4)}
+.btn:active{transform:translateY(0)}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.btn.green{background:linear-gradient(135deg,#22c55e,#16a34a);box-shadow:0 4px 12px rgba(34,197,94,0.3)}
+.btn.amber{background:linear-gradient(135deg,#f59e0b,#d97706);box-shadow:0 4px 12px rgba(245,158,11,0.3)}
+/* Tabs */
+.tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.tab{padding:7px 16px;border-radius:8px;border:2px solid #e2e8f0;background:#f8fafc;font-size:0.78em;font-weight:600;cursor:pointer;color:#64748b;transition:all 0.2s}
+.tab.active{background:#3b82f6;border-color:#3b82f6;color:#fff}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+/* Annotations */
+.annot{font-size:0.72em;fill:#64748b;font-family:'Segoe UI',sans-serif}
+.annot-line{stroke:#94a3b8;stroke-width:1;stroke-dasharray:4,3}
+/* pulse animation */
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+.pulse{animation:pulse 2s infinite}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.fadein{animation:fadeIn 0.5s ease}
+/* cut animation */
+@keyframes cutSlide{0%{clip-path:polygon(0 0,100% 0,100% 0,0 0)}100%{clip-path:polygon(0 0,100% 0,100% 100%,0 100%)}}
+.highlight-dim{opacity:0.3;transition:opacity 0.3s}
+.highlight-bright{opacity:1;transition:opacity 0.3s}
+</style>
+</head>
+<body>
+<div class="titlebar">
+<h1>🔺 Frustum of a Cone | शंकु का छिन्नक</h1>
+<p>CBSE Class 10 Mathematics • Surface Areas & Volumes</p>
+</div>
+<div class="container">
+
+<!-- Concept Card -->
+<div class="card fadein">
+<h2>💡 What is a Frustum? <span class="badge">शंकु का छिन्नक</span></h2>
+<div class="concept-box">
+<p>When a cone is cut by a plane <strong>parallel to its base</strong>, the part between the cutting plane and the base is called a <strong>Frustum (छिन्नक)</strong>. Think of a bucket, a drinking glass, or a lampshade!</p>
+</div>
+<!-- Interactive Cut Demo -->
+<div style="text-align:center">
+<svg id="cutsvg" width="100%" viewBox="0 0 300 200" style="max-width:340px;display:inline-block">
+<!-- Original cone -->
+<g id="fullcone">
+<polygon points="150,20 60,170 240,170" fill="url(#cg1)" stroke="#3b82f6" stroke-width="2"/>
+<ellipse cx="150" cy="170" rx="90" ry="18" fill="url(#eg1)" stroke="#3b82f6" stroke-width="2"/>
+</g>
+<!-- Cut line -->
+<g id="cutline" style="opacity:0">
+<line x1="80" y1="95" x2="220" y2="95" stroke="#ef4444" stroke-width="3" stroke-dasharray="8,4"/>
+<text x="228" y="99" fill="#ef4444" font-size="11" font-weight="700">Cut!</text>
+</g>
+<!-- Top removed piece -->
+<g id="toppice" style="opacity:0">
+<polygon points="150,20 86,95 214,95" fill="#cbd5e1" stroke="#94a3b8" stroke-width="1.5" opacity="0.5"/>
+<ellipse cx="150" cy="95" rx="64" ry="12" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.5" opacity="0.5"/>
+</g>
+<!-- Frustum highlight -->
+<g id="frustpoly" style="opacity:0">
+<polygon points="86,95 60,170 240,170 214,95" fill="url(#cg2)" stroke="#22c55e" stroke-width="2.5"/>
+<ellipse cx="150" cy="170" rx="90" ry="18" fill="url(#eg2)" stroke="#22c55e" stroke-width="2"/>
+<ellipse cx="150" cy="95" rx="64" ry="12" fill="url(#eg3)" stroke="#22c55e" stroke-width="2"/>
+<!-- Labels -->
+<text x="152" y="91" fill="#1e293b" font-size="10" font-weight="700" text-anchor="middle">r (small radius)</text>
+<text x="152" y="188" fill="#1e293b" font-size="10" font-weight="700" text-anchor="middle">R (large radius)</text>
+<text x="46" y="135" fill="#6366f1" font-size="10" font-weight="700" text-anchor="middle">h</text>
+<line x1="55" y1="97" x2="55" y2="168" stroke="#6366f1" stroke-width="1.5" marker-start="url(#arr)" marker-end="url(#arr)"/>
+<!-- slant -->
+<line x1="86" y1="95" x2="60" y2="170" stroke="#f59e0b" stroke-width="2" stroke-dasharray="5,3"/>
+<text x="62" y="133" fill="#f59e0b" font-size="10" font-weight="700" transform="rotate(-60,62,133)">l (slant)</text>
+</g>
+<defs>
+<linearGradient id="cg1" x1="0%" y1="0%" x2="0%" y2="100%">
+<stop offset="0%" style="stop-color:#93c5fd"/>
+<stop offset="100%" style="stop-color:#3b82f6"/>
+</linearGradient>
+<linearGradient id="eg1" x1="0%" y1="0%" x2="100%" y2="0%">
+<stop offset="0%" style="stop-color:#1d4ed8"/>
+<stop offset="100%" style="stop-color:#60a5fa"/>
+</linearGradient>
+<linearGradient id="cg2" x1="0%" y1="0%" x2="0%" y2="100%">
+<stop offset="0%" style="stop-color:#86efac"/>
+<stop offset="100%" style="stop-color:#22c55e"/>
+</linearGradient>
+<linearGradient id="eg2" x1="0%" y1="0%" x2="100%" y2="0%">
+<stop offset="0%" style="stop-color:#15803d"/>
+<stop offset="100%" style="stop-color:#4ade80"/>
+</linearGradient>
+<linearGradient id="eg3" x1="0%" y1="0%" x2="100%" y2="0%">
+<stop offset="0%" style="stop-color:#a3e635"/>
+<stop offset="100%" style="stop-color:#86efac"/>
+</linearGradient>
+<marker id="arr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+<path d="M0,0 L6,3 L0,6 Z" fill="#6366f1"/>
+</marker>
+</defs>
+</svg>
+<div class="btn-row" style="justify-content:center">
+<button class="btn" onclick="showCut()">✂️ Cut the Cone!</button>
+<button class="btn amber" onclick="resetCut()">🔄 Reset</button>
+</div>
+</div>
+</div>
+
+<!-- Formulas Card -->
+<div class="card fadein">
+<h2>📐 Key Formulas <span class="badge">सूत्र</span></h2>
+<div class="tabs">
+<div class="tab active" onclick="showTab('t1',this)">Slant Height</div>
+<div class="tab" onclick="showTab('t2',this)">Volume</div>
+<div class="tab" onclick="showTab('t3',this)">Surface Area</div>
+</div>
+<div id="t1" class="tab-panel active">
+<div class="formula-strip">
+<div class="label">Slant Height (तिरछी ऊँचाई) l</div>
+<div class="formula"><span>l = √(h² + (R - r)²)</span></div>
+</div>
+<p style="font-size:0.82em;color:#475569;line-height:1.7">Where <strong>h</strong> = vertical height, <strong>R</strong> = radius of larger base, <strong>r</strong> = radius of smaller base. This comes from the <em>Pythagoras theorem</em> applied to the cross-section.</p>
+</div>
+<div id="t2" class="tab-panel">
+<div class="formula-strip">
+<div class="label">Volume (आयतन) V</div>
+<div class="formula"><span class="green">V</span> = <span>⅓ × π × h × (<span class="red">R²</span> + <span class="blue">r²</span> + <span class="red">R</span>·<span class="blue">r</span>)</span></div>
+</div>
+<p style="font-size:0.82em;color:#475569;line-height:1.7">The volume is found by subtracting the volume of the smaller cone (removed) from the larger cone (original).</p>
+</div>
+<div id="t3" class="tab-panel">
+<div class="formula-strip">
+<div class="label">Curved Surface Area (वक्र पृष्ठीय क्षेत्रफल)</div>
+<div class="formula"><span class="green">CSA</span> = π(<span class="red">R</span> + <span class="blue">r</span>)<span>l</span></div>
+</div>
+<div class="formula-strip" style="margin-top:8px">
+<div class="label">Total Surface Area (कुल पृष्ठीय क्षेत्रफल)</div>
+<div class="formula"><span class="green">TSA</span> = π(<span class="red">R</span> + <span class="blue">r</span>)<span>l</span> + π<span class="red">R²</span> + π<span class="blue">r²</span></div>
+</div>
+<p style="font-size:0.82em;color:#475569;line-height:1.7">TSA = Curved part + Large circular base + Small circular top.</p>
+</div>
+</div>
+
+<!-- Interactive Calculator -->
+<div class="card fadein">
+<h2>🎛️ Interactive Explorer <span class="badge">Try It!</span></h2>
+<p style="font-size:0.8em;color:#64748b;margin-bottom:12px">Drag the sliders to change dimensions and see values update live!</p>
+
+<!-- SVG Frustum Diagram -->
+<svg id="conesvg" viewBox="0 0 320 210">
+<defs>
+<linearGradient id="fg1" x1="0%" y1="0%" x2="100%" y2="100%">
+<stop offset="0%" style="stop-color:#a5f3fc"/>
+<stop offset="100%" style="stop-color:#06b6d4"/>
+</linearGradient>
+<linearGradient id="fe1" x1="0%" y1="0%" x2="100%" y2="0%">
+<stop offset="0%" style="stop-color:#0891b2"/>
+<stop offset="100%" style="stop-color:#67e8f9"/>
+</linearGradient>
+<linearGradient id="fe2" x1="0%" y1="0%" x2="100%" y2="0%">
+<stop offset="0%" style="stop-color:#22d3ee"/>
+<stop offset="100%" style="stop-color:#a5f3fc"/>
+</linearGradient>
+</defs>
+<!-- Frustum body -->
+<polygon id="frust_body" points="" fill="url(#fg1)" stroke="#0891b2" stroke-width="2"/>
+<ellipse id="frust_bot" fill="url(#fe1)" stroke="#0891b2" stroke-width="2"/>
+<ellipse id="frust_top" fill="url(#fe2)" stroke="#0891b2" stroke-width="2"/>
+<!-- Dimension lines -->
+<line id="h_line" stroke="#6366f1" stroke-width="1.5" stroke-dasharray="4,3"/>
+<text id="h_label" fill="#6366f1" font-size="11" font-weight="700"></text>
+<line id="R_line" stroke="#ef4444" stroke-width="2"/>
+<text id="R_label" fill="#ef4444" font-size="11" font-weight="700"></text>
+<line id="r_line" stroke="#3b82f6" stroke-width="2"/>
+<text id="r_label" fill="#3b82f6" font-size="11" font-weight="700"></text>
+<line id="l_line" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="5,3"/>
+<text id="l_label" fill="#f59e0b" font-size="11" font-weight="700"></text>
+</svg>
+
+<div class="slider-group">
+<div class="slider-row">
+<label>R (large radius)</label>
+<input type="range" id="sR" min="30" max="90" value="70" oninput="updateCalc()">
+<span class="val-badge" id="vR">70</span>
+</div>
+<div class="slider-row">
+<label>r (small radius)</label>
+<input type="range" id="sr" min="5" max="60" value="35" oninput="updateCalc()">
+<span class="val-badge" id="vr">35</span>
+</div>
+<div class="slider-row">
+<label>h (height)</label>
+<input type="range" id="sh" min="20" max="120" value="60" oninput="updateCalc()">
+<span class="val-badge" id="vh">60</span>
+</div>
+</div>
+<div class="calc-grid">
+<div class="calc-item"><div class="clabel">Slant Height l</div><div class="cval" id="cv_l">—</div></div>
+<div class="calc-item green"><div class="clabel">Volume V</div><div class="cval" id="cv_v">—</div></div>
+<div class="calc-item amber"><div class="clabel">Curved SA</div><div class="cval" id="cv_csa">—</div></div>
+<div class="calc-item red"><div class="clabel">Total SA</div><div class="cval" id="cv_tsa">—</div></div>
+</div>
+</div>
+
+<!-- Worked Example -->
+<div class="card fadein">
+<h2>📝 Worked Example <span class="badge">हल किया उदाहरण</span></h2>
+<div class="concept-box" style="margin-bottom:12px">
+<p><strong>Problem:</strong> A bucket is in the form of a frustum of a cone. The radii of the top and bottom are <strong>28 cm</strong> and <strong>21 cm</strong>, and the height is <strong>45 cm</strong>. Find the volume and the total surface area. (Use π = 22/7)</p>
+</div>
+<div class="steps-container" id="stepsContainer"></div>
+<div class="btn-row">
+<button class="btn" onclick="nextStep()" id="nextBtn">▶ Next Step</button>
+<button class="btn green" onclick="showAllSteps()">📖 Show All</button>
+<button class="btn amber" onclick="resetSteps()">🔄 Reset</button>
+</div>
+</div>
+
+<!-- Tips Card -->
+<div class="card fadein">
+<h2>💡 Exam Tips <span class="badge">परीक्षा युक्तियाँ</span></h2>
+<div style="display:flex;flex-direction:column;gap:8px">
+<div style="background:#f0fdf4;border-left:4px solid #22c55e;border-radius:8px;padding:10px;font-size:0.82em;color:#166534">✅ Always find <strong>slant height l</strong> first using Pythagoras theorem before calculating surface area.</div>
+<div style="background:#fffbeb;border-left:4px solid #f59e0b;border-radius:8px;padding:10px;font-size:0.82em;color:#92400e">⚠️ TSA includes <strong>both circular bases</strong> (top + bottom). Don't forget to add πr² and πR²!</div>
+<div style="background:#eff6ff;border-left:4px solid #3b82f6;border-radius:8px;padding:10px;font-size:0.82em;color:#1e40af">📌 For a <strong>bucket open at top</strong>: use CSA + πR² (only bottom base — no top lid).</div>
+<div style="background:#fef2f2;border-left:4px solid #ef4444;border-radius:8px;padding:10px;font-size:0.82em;color:#991b1b">❗ Volume formula: <strong>⅓πh(R² + r² + Rr)</strong> — memorize all three terms inside the bracket!</div>
+</div>
+</div>
+
+</div><!-- end container -->
+
+<script>
+// ---- CUT ANIMATION ----
+let cutDone=false;
+function showCut(){
+if(cutDone)return;
+cutDone=true;
+let cl=document.getElementById('cutline');
+let tp=document.getElementById('toppice');
+let fp=document.getElementById('frustpoly');
+let fc=document.getElementById('fullcone');
+cl.style.transition='opacity 0.4s';
+cl.style.opacity='1';
+setTimeout(()=>{
+tp.style.transition='opacity 0.5s';
+tp.style.opacity='1';
+fc.style.transition='opacity 0.5s';
+fc.style.opacity='0.3';
+},600);
+setTimeout(()=>{
+fp.style.transition='opacity 0.6s';
+fp.style.opacity='1';
+},1200);
+}
+function resetCut(){
+cutDone=false;
+['cutline','toppice','frustpoly'].forEach(id=>{
+let el=document.getElementById(id);
+el.style.transition='opacity 0.3s';
+el.style.opacity='0';
+});
+let fc=document.getElementById('fullcone');
+fc.style.transition='opacity 0.4s';
+fc.style.opacity='1';
+}
+
+// ---- TABS ----
+function showTab(id,el){
+document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+document.getElementById(id).classList.add('active');
+el.classList.add('active');
+}
+
+// ---- INTERACTIVE CALC ----
+function updateCalc(){
+let R=+document.getElementById('sR').value;
+let r=+document.getElementById('sr').value;
+let h=+document.getElementById('sh').value;
+if(r>=R){r=R-5;document.getElementById('sr').value=r;}
+document.getElementById('vR').textContent=R;
+document.getElementById('vr').textContent=r;
+document.getElementById('vh').textContent=h;
+let l=Math.sqrt(h*h+(R-r)*(R-r));
+let V=(1/3)*Math.PI*h*(R*R+r*r+R*r);
+let CSA=Math.PI*(R+r)*l;
+let TSA=CSA+Math.PI*R*R+Math.PI*r*r;
+document.getElementById('cv_l').textContent=l.toFixed(2)+' u';
+document.getElementById('cv_v').textContent=V.toFixed(1)+' u³';
+document.getElementById('cv_csa').textContent=CSA.toFixed(1)+' u²';
+document.getElementById('cv_tsa').textContent=TSA.toFixed(1)+' u²';
+drawFrustum(R,r,h,l);
+}
+
+function drawFrustum(R,r,h,l){
+let cx=160,by=175,scale=1.1;
+let maxR=90;
+let scl=80/maxR;
+let Rs=R*scl,rs=r*scl,hs=h*scl*0.6;
+if(hs>130)hs=130;
+let ty=by-hs;
+// polygon points: top-left, top-right, bottom-right, bottom-left (trapezoidal)
+let pts=`${cx-rs},${ty} ${cx+rs},${ty} ${cx+Rs},${by} ${cx-Rs},${by}`;
+document.getElementById('frust_body').setAttribute('points',pts);
+document.getElementById('frust_bot').setAttribute('cx',cx);
+document.getElementById('frust_bot').setAttribute('cy',by);
+document.getElementById('frust_bot').setAttribute('rx',Rs);
+document.getElementById('frust_bot').setAttribute('ry',Rs*0.22);
+document.getElementById('frust_top').setAttribute('cx',cx);
+document.getElementById('frust_top').setAttribute('cy',ty);
+document.getElementById('frust_top').setAttribute('rx',rs);
+document.getElementById('frust_top').setAttribute('ry',rs*0.22);
+// h line
+let hl=document.getElementById('h_line');
+hl.setAttribute('x1',cx-Rs-20);hl.setAttribute('y1',ty);
+hl.setAttribute('x2',cx-Rs-20);hl.setAttribute('y2',by);
+document.getElementById('h_label').setAttribute('x',cx-Rs-32);
+document.getElementById('h_label').setAttribute('y',(ty+by)/2+4);
+document.getElementById('h_label').textContent='h='+h;
+// R line
+let Rl=document.getElementById('R_line');
+Rl.setAttribute('x1',cx);Rl.setAttribute('y1',by+14);
+Rl.setAttribute('x2',cx+Rs);Rl.setAttribute('y2',by+14);
+document.getElementById('R_label').setAttribute('x',cx+Rs/2-6);
+document.getElementById('R_label').setAttribute('y',by+26);
+document.getElementById('R_label').textContent='R='+R;
+// r line
+let rrl=document.getElementById('r_line');
+rrl.setAttribute('x1',cx);rrl.setAttribute('y1',ty-14);
+rrl.setAttribute('x2',cx+rs);rrl.setAttribute('y2',ty-14);
+document.getElementById('r_label').setAttribute('x',cx+rs/2-4);
+document.getElementById('r_label').setAttribute('y',ty-4);
+document.getElementById('r_label').textContent='r='+r;
+// l line (slant)
+let ll=document.getElementById('l_line');
+ll.setAttribute('x1',cx+rs);ll.setAttribute('y1',ty);
+ll.setAttribute('x2',cx+Rs);ll.setAttribute('y2',by);
+let mlx=(cx+rs+cx+Rs)/2+8,mly=(ty+by)/2;
+document.getElementById('l_label').setAttribute('x',mlx);
+document.getElementById('l_label').setAttribute('y',mly);
+document.getElementById('l_label').textContent='l='+l.toFixed(1);
+}
+
+// ---- STEPS ----
+const stepsData=[
+{title:'Step 1: Note the Given Values',body:`Given: R = 28 cm, r = 21 cm, h = 45 cm, π = 22/7`,
+math:`R = 28 cm | r = 21 cm | h = 45 cm`},
+{title:'Step 2: Find Slant Height (l)',body:`Use Pythagoras: l = √(h² + (R - r)²)`,
+math:`l = √(45² + (28-21)²) = √(2025 + 49) = √2074 ≈ 45.54 cm`},
+{title:'Step 3: Calculate Volume (V)',body:`Apply formula: V = ⅓ × π × h × (R² + r² + Rr)`,
+math:`V = ⅓ × (22/7) × 45 × (784 + 441 + 588)\n= ⅓ × (22/7) × 45 × 1813\n≈ 85,064 cm³`},
+{title:'Step 4: Curved Surface Area (CSA)',body:`CSA = π(R + r)l`,
+math:`CSA = (22/7) × (28+21) × 45.54\n= (22/7) × 49 × 45.54\n≈ 7,009 cm²`},
+{title:'Step 5: Total Surface Area (TSA)',body:`TSA = CSA + πR² + πr²`,
+math:`TSA = 7009 + (22/7)×28² + (22/7)×21²\n= 7009 + 2464 + 1386\n≈ 10,859 cm²`},
+{title:'✅ Final Answer',body:`Volume ≈ 85,064 cm³ and Total Surface Area ≈ 10,859 cm². (∴ = Therefore, these are our answers!)`,
+math:`V ≈ 85,064 cm³  |  TSA ≈ 10,859 cm²`}
+];
+let currentStep=-1;
+
+function buildSteps(){
+let sc=document.getElementById('stepsContainer');
+sc.innerHTML='';
+stepsData.forEach((s,i)=>{
+let div=document.createElement('div');
+div.className='step';
+div.id='step'+i;
+div.innerHTML=`<div class="step-header" onclick="toggleStep(${i})">
+<div class="step-num">${i+1}</div>
+<div class="step-title">${s.title}</div>
+<span style="color:#94a3b8;font-size:1.2em">›</span>
+</div>
+<div class="step-body">
+<p>${s.body}</p>
+<div class="math">${s.math}</div>
+</div>`;
+sc.appendChild(div);
+});
+}
+
+function nextStep(){
+if(currentStep<stepsData.length-1){
+if(currentStep>=0){
+document.getElementById('step'+currentStep).className='step done';
+}
+currentStep++;
+document.getElementById('step'+currentStep).className='step active';
+document.getElementById('step'+currentStep).scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+if(currentStep===stepsData.length-1){
+document.getElementById('nextBtn').textContent='✅ Done!';
+document.getElementById('nextBtn').disabled=true;
+}
+}
+
+function toggleStep(i){
+let el=document.getElementById('step'+i);
+if(el.classList.contains('active')){
+el.classList.remove('active');
+}else{
+el.classList.add('active');
+}
+}
+
+function showAllSteps(){
+currentStep=stepsData.length-1;
+stepsData.forEach((s,i)=>{
+document.getElementById('step'+i).className='step done';
+});
+document.getElementById('nextBtn').textContent='✅ Done!';
+document.getElementById('nextBtn').disabled=true;
+}
+
+function resetSteps(){
+currentStep=-1;
+stepsData.forEach((s,i)=>{
+document.getElementById('step'+i).className='step';
+});
+document.getElementById('nextBtn').textContent='▶ Next Step';
+document.getElementById('nextBtn').disabled=false;
+}
+
+// Init
+buildSteps();
+updateCalc();
+</script>
+</body>
+</html>

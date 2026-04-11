@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pair of Linear Equations - Consistency</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); min-height: 100vh; color: #e2e8f0; }
+  .title-bar { background: linear-gradient(90deg, #3b82f6, #8b5cf6); padding: 12px 20px; text-align: center; box-shadow: 0 4px 20px rgba(59,130,246,0.4); }
+  .title-bar h1 { font-size: clamp(14px,3vw,20px); font-weight: 700; color: white; }
+  .title-bar p { font-size: clamp(10px,2vw,13px); color: #bfdbfe; margin-top: 2px; }
+  .container { max-width: 900px; margin: 0 auto; padding: 16px; }
+  .card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 16px; margin-bottom: 16px; backdrop-filter: blur(10px); }
+  .card h2 { font-size: clamp(13px,2.5vw,16px); color: #93c5fd; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .ratio-box { background: linear-gradient(135deg, #1e3a5f, #1e293b); border: 2px solid #3b82f6; border-radius: 12px; padding: 14px; text-align: center; margin-bottom: 14px; }
+  .ratio-formula { font-size: clamp(12px,2.5vw,18px); color: #fbbf24; font-weight: bold; letter-spacing: 1px; line-height: 1.8; }
+  .types-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 14px; }
+  .type-card { border-radius: 12px; padding: 12px 8px; text-align: center; cursor: pointer; transition: all 0.3s; border: 2px solid transparent; }
+  .type-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+  .type-card.active { border-color: white; transform: translateY(-3px) scale(1.02); }
+  .type-card .icon { font-size: 28px; margin-bottom: 6px; }
+  .type-card h3 { font-size: clamp(10px,2vw,13px); font-weight: 700; margin-bottom: 4px; }
+  .type-card p { font-size: clamp(9px,1.5vw,11px); opacity: 0.85; }
+  .t1 { background: linear-gradient(135deg, #065f46, #064e3b); }
+  .t2 { background: linear-gradient(135deg, #7f1d1d, #450a0a); }
+  .t3 { background: linear-gradient(135deg, #78350f, #451a03); }
+  .graph-area { position: relative; width: 100%; aspect-ratio: 1; max-width: 400px; margin: 0 auto; }
+  canvas { border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: #0f172a; display: block; width: 100%; height: 100%; }
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; justify-content: center; }
+  .btn { padding: 7px 14px; border-radius: 20px; border: none; cursor: pointer; font-size: clamp(10px,2vw,12px); font-weight: 600; transition: all 0.3s; }
+  .btn-blue { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; }
+  .btn-green { background: linear-gradient(135deg, #22c55e, #16a34a); color: white; }
+  .btn-amber { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
+  .btn-red { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+  .btn:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+  .btn.active-btn { box-shadow: 0 0 0 3px white; }
+  .info-panel { border-radius: 12px; padding: 12px; min-height: 80px; transition: all 0.4s; }
+  .info-green { background: linear-gradient(135deg, rgba(34,197,94,0.2), rgba(22,163,74,0.1)); border: 1px solid #22c55e; }
+  .info-red { background: linear-gradient(135deg, rgba(239,68,68,0.2), rgba(220,38,38,0.1)); border: 1px solid #ef4444; }
+  .info-amber { background: linear-gradient(135deg, rgba(245,158,11,0.2), rgba(217,119,6,0.1)); border: 1px solid #f59e0b; }
+  .info-panel h3 { font-size: clamp(12px,2vw,15px); font-weight: 700; margin-bottom: 6px; }
+  .info-panel p { font-size: clamp(10px,1.8vw,12px); line-height: 1.5; opacity: 0.9; }
+  .step-container { }
+  .step { display: none; animation: fadeIn 0.4s ease; }
+  .step.active { display: block; }
+  @keyframes fadeIn { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform: translateY(0); } }
+  .step-box { background: rgba(255,255,255,0.07); border-radius: 10px; padding: 12px; margin-bottom: 8px; border-left: 3px solid #3b82f6; }
+  .step-box.highlight { border-left-color: #22c55e; background: rgba(34,197,94,0.1); }
+  .step-box p { font-size: clamp(10px,1.8vw,13px); line-height: 1.6; }
+  .step-box .math { color: #fbbf24; font-weight: bold; font-size: clamp(11px,2vw,14px); }
+  .nav-btns { display: flex; gap: 8px; justify-content: center; margin-top: 10px; }
+  .progress-dots { display: flex; gap: 6px; justify-content: center; margin: 8px 0; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.2); transition: all 0.3s; cursor: pointer; }
+  .dot.active { background: #3b82f6; transform: scale(1.3); }
+  .slider-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .slider-row label { font-size: clamp(9px,1.8vw,12px); min-width: 80px; color: #94a3b8; }
+  input[type=range] { flex: 1; accent-color: #3b82f6; cursor: pointer; }
+  .val-badge { background: #1e3a5f; padding: 2px 8px; border-radius: 6px; font-size: 12px; min-width: 30px; text-align: center; color: #93c5fd; font-weight: bold; }
+  .ratio-display { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin: 8px 0; }
+  .ratio-chip { padding: 6px 12px; border-radius: 20px; font-size: clamp(10px,1.8vw,13px); font-weight: bold; text-align: center; min-width: 80px; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: clamp(9px,1.5vw,11px); font-weight: 700; margin-left: 6px; }
+  table { width: 100%; border-collapse: collapse; font-size: clamp(9px,1.8vw,12px); }
+  th { background: rgba(59,130,246,0.3); padding: 8px 6px; text-align: center; }
+  td { padding: 7px 6px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.08); }
+  tr:hover td { background: rgba(255,255,255,0.05); }
+  .pulse { animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+  @media(max-width:500px){ .types-grid{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+
+<div class="title-bar">
+  <h1>📐 Pair of Linear Equations — Consistency (संगतता)</h1>
+  <p>CBSE Class 10 Maths | Chapter 3 | Interactive Visual Explainer</p>
+</div>
+
+<div class="container">
+
+  <!-- Key Formula -->
+  <div class="card">
+    <h2>🔑 मुख्य सूत्र (Key Ratios)</h2>
+    <div class="ratio-box">
+      <div class="ratio-formula">a₁x + b₁y + c₁ = 0</div>
+      <div class="ratio-formula">a₂x + b₂y + c₂ = 0</div>
+      <div style="margin-top:10px;font-size:clamp(10px,2vw,14px);color:#94a3b8;">Compare ratios: <span style="color:#fbbf24">a₁/a₂ &nbsp;|&nbsp; b₁/b₂ &nbsp;|&nbsp; c₁/c₂</span></div>
+    </div>
+
+    <!-- Three Type Cards -->
+    <div class="types-grid">
+      <div class="type-card t1 active" id="tc1" onclick="selectType(1)">
+        <div class="icon">✅</div>
+        <h3>Consistent<br><span style="font-size:9px">(संगत)</span></h3>
+        <p>Unique Solution<br>Lines Intersect</p>
+        <p style="margin-top:4px;color:#6ee7b7;font-weight:bold;font-size:10px">a₁/a₂ ≠ b₁/b₂</p>
+      </div>
+      <div class="type-card t2" id="tc2" onclick="selectType(2)">
+        <div class="icon">❌</div>
+        <h3>Inconsistent<br><span style="font-size:9px">(असंगत)</span></h3>
+        <p>No Solution<br>Lines Parallel</p>
+        <p style="margin-top:4px;color:#fca5a5;font-weight:bold;font-size:10px">a₁/a₂ = b₁/b₂ ≠ c₁/c₂</p>
+      </div>
+      <div class="type-card t3" id="tc3" onclick="selectType(3)">
+        <div class="icon">♾️</div>
+        <h3>Dependent<br><span style="font-size:9px">(आश्रित संगत)</span></h3>
+        <p>Infinite Solutions<br>Lines Coincide</p>
+        <p style="margin-top:4px;color:#fcd34d;font-weight:bold;font-size:10px">a₁/a₂ = b₁/b₂ = c₁/c₂</p>
+      </div>
+    </div>
+
+    <!-- Info Panel -->
+    <div class="info-panel info-green" id="infoPanel">
+      <h3 id="infoTitle" style="color:#22c55e">✅ Consistent — Unique Solution (एक अद्वितीय हल)</h3>
+      <p id="infoText">The two lines <strong>intersect at exactly one point</strong>. The system has a unique solution. This happens when <span style="color:#fbbf24">a₁/a₂ ≠ b₁/b₂</span>. ∴ The system is called <em>consistent</em> (संगत).</p>
+    </div>
+  </div>
+
+  <!-- Interactive Graph -->
+  <div class="card">
+    <h2>📊 Interactive Graph — देखो और समझो!</h2>
+    <div class="controls">
+      <button class="btn btn-green active-btn" id="gb1" onclick="setGraph(1)">Intersecting</button>
+      <button class="btn btn-red" id="gb2" onclick="setGraph(2)">Parallel</button>
+      <button class="btn btn-amber" id="gb3" onclick="setGraph(3)">Coincident</button>
+    </div>
+    <div class="graph-area">
+      <canvas id="graphCanvas"></canvas>
+    </div>
+    <div style="text-align:center;margin-top:8px;font-size:12px;color:#64748b;">
+      💡 Click the buttons above to see different line configurations
+    </div>
+  </div>
+
+  <!-- Interactive Slider Explorer -->
+  <div class="card">
+    <h2>🎛️ Ratio Explorer — अनुपात जाँचो!</h2>
+    <p style="font-size:12px;color:#94a3b8;margin-bottom:12px;">Adjust values and see which type of system you get!</p>
+    <div class="slider-row">
+      <label>a₁ =</label>
+      <input type="range" id="sa1" min="1" max="6" value="1" oninput="updateRatios()">
+      <span class="val-badge" id="va1">1</span>
+    </div>
+    <div class="slider-row">
+      <label>a₂ =</label>
+      <input type="range" id="sa2" min="1" max="6" value="2" oninput="updateRatios()">
+      <span class="val-badge" id="va2">2</span>
+    </div>
+    <div class="slider-row">
+      <label>b₁ =</label>
+      <input type="range" id="sb1" min="1" max="6" value="2" oninput="updateRatios()">
+      <span class="val-badge" id="vb1">2</span>
+    </div>
+    <div class="slider-row">
+      <label>b₂ =</label>
+      <input type="range" id="sb2" min="1" max="6" value="3" oninput="updateRatios()">
+      <span class="val-badge" id="vb2">3</span>
+    </div>
+    <div class="slider-row">
+      <label>c₁ =</label>
+      <input type="range" id="sc1" min="1" max="6" value="3" oninput="updateRatios()">
+      <span class="val-badge" id="vc1">3</span>
+    </div>
+    <div class="slider-row">
+      <label>c₂ =</label>
+      <input type="range" id="sc2" min="1" max="6" value="4" oninput="updateRatios()">
+      <span class="val-badge" id="vc2">4</span>
+    </div>
+
+    <div class="ratio-display" id="ratioDisplay"></div>
+    <div class="info-panel" id="ratioResult" style="margin-top:8px;">
+      <h3 id="ratioResultTitle"></h3>
+      <p id="ratioResultText"></p>
+    </div>
+  </div>
+
+  <!-- Worked Example -->
+  <div class="card">
+    <h2>📖 Worked Example — हल किया उदाहरण</h2>
+    <div class="step-box">
+      <p><strong>Example:</strong> Check consistency of:</p>
+      <p class="math">2x + 3y − 5 = 0 &nbsp;&nbsp; and &nbsp;&nbsp; 4x + 6y − 10 = 0</p>
+    </div>
+    <div class="progress-dots" id="progressDots"></div>
+    <div class="step-container" id="stepContainer"></div>
+    <div class="nav-btns">
+      <button class="btn btn-blue" onclick="prevStep()">← Prev</button>
+      <button class="btn btn-green" onclick="nextStep()">Next →</button>
+    </div>
+  </div>
+
+  <!-- Summary Table -->
+  <div class="card">
+    <h2>📋 Quick Reference Table</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Condition (शर्त)</th>
+          <th>Type</th>
+          <th>Graph</th>
+          <th>Solutions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="color:#6ee7b7">a₁/a₂ ≠ b₁/b₂</td>
+          <td><span class="badge" style="background:#065f46;color:#6ee7b7">Consistent</span></td>
+          <td>Intersecting ✖</td>
+          <td>Unique (1)</td>
+        </tr>
+        <tr>
+          <td style="color:#fca5a5">a₁/a₂ = b₁/b₂ ≠ c₁/c₂</td>
+          <td><span class="badge" style="background:#7f1d1d;color:#fca5a5">Inconsistent</span></td>
+          <td>Parallel ∥</td>
+          <td>None (0)</td>
+        </tr>
+        <tr>
+          <td style="color:#fcd34d">a₁/a₂ = b₁/b₂ = c₁/c₂</td>
+          <td><span class="badge" style="background:#78350f;color:#fcd34d">Dependent</span></td>
+          <td>Coincident ═</td>
+          <td>Infinite (∞)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+// ===== TYPE CARDS =====
+const typeData = [
+  { title:'✅ Consistent — Unique Solution (एक अद्वितीय हल)',
+    text:'The two lines <strong>intersect at exactly one point</strong>. The system has a unique solution. This happens when <span style="color:#fbbf24">a₁/a₂ ≠ b₁/b₂</span>. ∴ The system is called <em>consistent</em> (संगत).',
+    cls:'info-green', tc:'#22c55e' },
+  { title:'❌ Inconsistent — No Solution (कोई हल नहीं)',
+    text:'The two lines are <strong>parallel and never meet</strong>. No solution exists. This happens when <span style="color:#fbbf24">a₁/a₂ = b₁/b₂ ≠ c₁/c₂</span>. ∴ The system is called <em>inconsistent</em> (असंगत).',
+    cls:'info-red', tc:'#ef4444' },
+  { title:'♾️ Dependent — Infinite Solutions (अनंत हल)',
+    text:'The two lines <strong>coincide completely</strong> (overlap). Every point is a solution. This happens when <span style="color:#fbbf24">a₁/a₂ = b₁/b₂ = c₁/c₂</span>. ∴ Consistent & Dependent (आश्रित संगत).',
+    cls:'info-amber', tc:'#f59e0b' }
+];
+
+let currentType = 1;
+function selectType(n){
+  currentType = n;
+  [1,2,3].forEach(i=>{
+    document.getElementById('tc'+i).classList.toggle('active', i===n);
+  });
+  const d = typeData[n-1];
+  const p = document.getElementById('infoPanel');
+  p.className = 'info-panel ' + d.cls;
+  p.style.opacity=0;
+  setTimeout(()=>{ p.style.opacity=1; p.style.transition='opacity 0.4s'; },10);
+  document.getElementById('infoTitle').style.color = d.tc;
+  document.getElementById('infoTitle').innerHTML = d.title;
+  document.getElementById('infoText').innerHTML = d.text;
+  setGraph(n);
+  ['gb1','gb2','gb3'].forEach((id,i)=>{
+    document.getElementById(id).classList.toggle('active-btn', i+1===n);
+  });
+}
+
+// ===== CANVAS GRAPH =====
+let gCanvas, gCtx, animFrame=0, graphType=1, animId;
+window.onload = function(){
+  gCanvas = document.getElementById('graphCanvas');
+  gCtx = gCanvas.getContext('2d');
+  resizeCanvas();
+  drawGraph();
+  buildSteps();
+  updateRatios();
+};
+window.onresize = function(){ resizeCanvas(); drawGraph(); };
+function resizeCanvas(){
+  const s = gCanvas.parentElement.clientWidth;
+  gCanvas.width = s; gCanvas.height = s;
+}
+function setGraph(t){
+  graphType=t;
+  ['gb1','gb2','gb3'].forEach((id,i)=>{
+    document.getElementById(id).classList.toggle('active-btn', i+1===t);
+  });
+  animFrame=0;
+  if(animId) cancelAnimationFrame(animId);
+  animateGraph();
+}
+function animateGraph(){
+  animFrame++;
+  drawGraph();
+  if(animFrame<40) animId=requestAnimationFrame(animateGraph);
+}
+function drawGraph(){
+  const c = gCtx, w = gCanvas.width, h = gCanvas.height;
+  const cx=w/2, cy=h/2, sc=w/12;
+  c.clearRect(0,0,w,h);
+  // Grid bg
+  c.fillStyle='#0f172a'; c.fillRect(0,0,w,h);
+  // Grid lines
+  c.strokeStyle='rgba(255,255,255,0.06)'; c.lineWidth=1;
+  for(let i=-6;i<=6;i++){
+    c.beginPath(); c.moveTo(cx+i*sc,0); c.lineTo(cx+i*sc,h); c.stroke();
+    c.beginPath(); c.moveTo(0,cy+i*sc); c.lineTo(w,cy+i*sc); c.stroke();
+  }
+  // Axes
+  c.strokeStyle='rgba(255,255,255,0.25)'; c.lineWidth=1.5;
+  c.beginPath(); c.moveTo(0,cy); c.lineTo(w,cy); c.stroke();
+  c.beginPath(); c.moveTo(cx,0); c.lineTo(cx,h); c.stroke();
+  c.fillStyle='rgba(255,255,255,0.4)'; c.font=`${Math.max(10,w/35)}px sans-serif`;
+  c.fillText('x',w-14,cy-6); c.fillText('y',cx+6,12); c.fillText('O',cx+4,cy+14);
+
+  const ease = Math.min(1, animFrame/35);
+  if(graphType===1){
+    // Intersecting: y = x+1 and y = -x+2
+    drawLine(c,w,h,cx,cy,sc, x=>x+1, '#22c55e', 2.5, ease);
+    drawLine(c,w,h,cx,cy,sc, x=>-x+2, '#3b82f6', 2.5, ease);
+    const ix=0.5, iy=1.5;
+    if(animFrame>25){
+      c.beginPath(); c.arc(cx+ix*sc, cy-iy*sc, 6*ease, 0, 2*Math.PI);
+      c.fillStyle='#fbbf24'; c.fill();
+      c.strokeStyle='white'; c.lineWidth=2; c.stroke();
+      c.fillStyle='white'; c.font=`bold ${Math.max(9,w/38)}px sans-serif`;
+      c.fillText('Point of Intersection', cx+ix*sc+8, cy-iy*sc-8);
+    }
+    c.fillStyle='#22c55e'; c.font=`${Math.max(9,w/40)}px sans-serif`;
+    c.fillText('L₁: y = x+1', 5, 20);
+    c.fillStyle='#3b82f6'; c.fillText('L₂: y = −x+2', 5, 36);
+    c.fillStyle='white'; c.font=`bold ${Math.max(9,w/36)}px sans-serif`;
+    c.fillText('✅ INTERSECTING', cx-55, h-14);
+  } else if(graphType===2){
+    // Parallel: y = x+1 and y = x+3
+    drawLine(c,w,h,cx,cy,sc, x=>x+1, '#ef4444', 2.5, ease);
+    drawLine(c,w,h,cx,cy,sc, x=>x+3, '#f97316', 2.5, ease);
+    c.fillStyle='#ef4444'; c.font=`${Math.max(9,w/40)}px sans-serif`;
+    c.fillText('L₁: y = x+1', 5, 20);
+    c.fillStyle='#f97316'; c.fillText('L₂: y = x+3', 5, 36);
+    // Parallel label
+    for(let k=0;k<3;k++){
+      const xp = -1+k*2;
+      c.beginPath(); c.moveTo(cx+xp*sc, cy-(xp+1)*sc); c.lineTo(cx+xp*sc, cy-(xp+3)*sc);
+      c.strokeStyle='rgba(255,255,255,0.25)'; c.lineWidth=1; c.setLineDash([3,3]); c.stroke(); c.setLineDash([]);
+    }
+    c.fillStyle='white'; c.font=`bold ${Math.max(9,w/36)}px sans-serif`;
+    c.fillText('❌ PARALLEL (No solution)', cx-80, h-14);
+  } else {
+    // Coincident: same line
+    drawLine(c,w,h,cx,cy,sc, x=>0.5*x+1, '#f59e0b', 5*ease, 1);
+    drawLine(c,w,h,cx,cy,sc, x=>0.5*x+1, '#fbbf24', 2*ease, 1);
+    c.fillStyle='#f59e0b'; c.font=`${Math.max(9,w/40)}px sans-serif`;
+    c.fillText('L₁ & L₂: Same line!', 5, 20);
+    c.fillStyle='white'; c.font=`bold ${Math.max(9,w/36)}px sans-serif`;
+    c.fillText('♾️ COINCIDENT (∞ solutions)', cx-85, h-14);
+  }
+}
+function drawLine(c,w,h,cx,cy,sc,fn,color,lw,ease){
+  c.beginPath(); c.strokeStyle=color; c.lineWidth=lw;
+  let first=true;
+  const steps=100;
+  for(let i=0;i<=steps*ease;i++){
+    const xv=(i/steps)*14-7;
+    const yv=fn(xv);
+    const px=cx+xv*sc, py=cy-yv*sc;
+    if(first){ c.moveTo(px,py); first=false; } else { c.lineTo(px,py); }
+  }
+  c.stroke();
+}
+
+// ===== RATIO EXPLORER =====
+function updateRatios(){
+  const ids=['sa1','sa2','sb1','sb2','sc1','sc2'];
+  const vals=ids.map(id=>+document.getElementById(id).value);
+  const [a1,a2,b1,b2,c1,c2]=vals;
+  ['a1','a2','b1','b2','c1','c2'].forEach((k,i)=>{
+    document.getElementById('v'+k).textContent=vals[i];
+  });
+  const r1=(a1/a2).toFixed(3), r2=(b1/b2).toFixed(3), r3=(c1/c2).toFixed(3);
+  const rd=document.getElementById('ratioDisplay');
+  rd.innerHTML=`
+    <div class="ratio-chip" style="background:#1e3a5f;color:#93c5fd">a₁/a₂ = ${r1}</div>
+    <div class="ratio-chip" style="background:#1e3a5f;color:#93c5fd">b₁/b₂ = ${r2}</div>
+    <div class="ratio-chip" style="background:#1e3a5f;color:#93c5fd">c₁/c₂ = ${r3}</div>
+  `;
+  const rr=document.getElementById('ratioResult');
+  const rt=document.getElementById('ratioResultTitle');
+  const rx=document.getElementById('ratioResultText');
+  const eq=(x,y)=>Math.abs(x-y)<0.01;
+  if(!eq(r1,r2)){
+    rr.className='info-panel info-green';
+    rt.innerHTML='✅ Consistent System (संगत निकाय)';
+    rt.style.color='#22c55e';
+    rx.innerHTML=`<strong>a₁/a₂ ≠ b₁/b₂</strong> → Lines INTERSECT → Unique Solution exists! ∴ System is Consistent.`;
+  } else if(eq(r1,r2) && !eq(r2,r3)){
+    rr.className='info-panel info-red';
+    rt.innerHTML='❌ Inconsistent System (असंगत निकाय)';
+    rt.style.color='#ef4444';
+    rx.innerHTML=`<strong>a₁/a₂ = b₁/b₂ ≠ c₁/c₂</strong> → Lines are PARALLEL → No Solution! ∴ System is Inconsistent.`;
+  } else {
+    rr.className='info-panel info-amber';
+    rt.innerHTML='♾️ Consistent & Dependent (आश्रित संगत)';
+    rt.style.color='#f59e0b';
+    rx.innerHTML=`<strong>a₁/a₂ = b₁/b₂ = c₁/c₂</strong> → Lines COINCIDE → Infinite Solutions! ∴ Dependent system.`;
+  }
+}
+
+// ===== WORKED EXAMPLE STEPS =====
+const steps=[
+  { title:'Step 1: Write the equations in standard form (ax+by+c=0)',
+    body:'<span class="math">2x + 3y − 5 = 0 &nbsp;&nbsp; ...(1)</span><br><span class="math">4x + 6y − 10 = 0 &nbsp;&nbsp; ...(2)</span><br>∴ a₁=2, b₁=3, c₁=−5 &nbsp;|&nbsp; a₂=4, b₂=6, c₂=−10',
+    highlight:false },
+  { title:'Step 2: Find the ratios a₁/a₂, b₁/b₂, c₁/c₂',
+    body:'<span class="math">a₁/a₂ = 2/4 = 1/2</span><br><span class="math">b₁/b₂ = 3/6 = 1/2</span><br><span class="math">c₁/c₂ = (−5)/(−10) = 1/2</span>',
+    highlight:false },
+  { title:'Step 3: Compare the ratios',
+    body:'<span class="math">a₁/a₂ = b₁/b₂ = c₁/c₂ = 1/2</span><br>∵ All three ratios are EQUAL!',
+    highlight:false },
+  { title:'Step 4: Conclusion — निष्कर्ष',
+    body:'∵ a₁/a₂ = b₁/b₂ = c₁/c₂<br>∴ The lines are <strong>COINCIDENT</strong> (एक ही रेखा).<br>∴ The system has <strong>INFINITE SOLUTIONS</strong> (अनंत हल).<br>∴ System is <strong>Consistent & Dependent</strong> (आश्रित संगत).',
+    highlight:true }
+];
+let curStep=0;
+function buildSteps(){
+  const sc=document.getElementById('stepContainer');
+  const pd=document.getElementById('progressDots');
+  sc.innerHTML=''; pd.innerHTML='';
+  steps.forEach((s,i)=>{
+    const div=document.createElement('div');
+    div.className='step'+(i===0?' active':'');
+    div.id='step'+i;
+    div.innerHTML=`<div class="step-box ${s.highlight?'highlight':''}"><p><strong>${s.title}</strong></p><br><p>${s.body}</p></div>`;
+    sc.appendChild(div);
+    const dot=document.createElement('div');
+    dot.className='dot'+(i===0?' active':'');
+    dot.onclick=()=>goStep(i);
+    dot.id='dot'+i;
+    pd.appendChild(dot);
+  });
+}
+function goStep(n){
+  document.getElementById('step'+curStep).className='step';
+  document.getElementById('dot'+curStep).className='dot';
+  curStep=Math.max(0,Math.min(steps.length-1,n));
+  document.getElementById('step'+curStep).className='step active';
+  document.getElementById('dot'+curStep).className='dot active';
+}
+function nextStep(){ goStep(curStep+1); }
+function prevStep(){ goStep(curStep-1); }
+
+// Init
+setGraph(1);
+</script>
+</body>
+</html>

@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quadratic Equations - Class 10 Maths</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a,#1e293b);min-height:100vh;color:#1e293b}
+:root{--blue:#3b82f6;--green:#22c55e;--amber:#f59e0b;--red:#ef4444;--dark:#1e293b}
+.title-bar{background:linear-gradient(90deg,#1d4ed8,#3b82f6,#06b6d4);padding:14px 20px;text-align:center;box-shadow:0 4px 20px rgba(59,130,246,0.4)}
+.title-bar h1{color:#fff;font-size:1.2rem;font-weight:700;letter-spacing:0.5px}
+.title-bar p{color:#bfdbfe;font-size:0.8rem;margin-top:2px}
+.container{max-width:800px;margin:0 auto;padding:16px}
+.card{background:#fff;border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:0 4px 24px rgba(0,0,0,0.15)}
+.card h2{font-size:1rem;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:0.72rem;font-weight:600}
+.bg-blue{background:#dbeafe;color:#1d4ed8}
+.bg-green{background:#dcfce7;color:#166534}
+.bg-amber{background:#fef3c7;color:#92400e}
+.bg-red{background:#fee2e2;color:#991b1b}
+.formula-box{background:linear-gradient(135deg,#1d4ed8,#3b82f6);border-radius:12px;padding:16px;text-align:center;color:#fff;margin:12px 0}
+.formula-box .main-formula{font-size:1.5rem;font-weight:700;margin:6px 0;letter-spacing:1px}
+.formula-box p{font-size:0.8rem;opacity:0.9}
+.section-label{font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:#64748b;margin-bottom:8px}
+.slider-row{display:flex;align-items:center;gap:10px;margin:8px 0}
+.slider-row label{font-size:0.85rem;font-weight:600;width:60px;color:#374151}
+.slider-row input[type=range]{flex:1;accent-color:#3b82f6;height:6px}
+.slider-row .val{min-width:36px;text-align:center;font-weight:700;color:#1d4ed8;font-size:0.9rem}
+canvas{width:100%;border-radius:12px;border:2px solid #e2e8f0;display:block;background:#f8fafc}
+.roots-display{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.root-card{flex:1;min-width:120px;border-radius:10px;padding:12px;text-align:center;border:2px solid transparent}
+.root-card.real{background:#dcfce7;border-color:#22c55e}
+.root-card.complex{background:#fee2e2;border-color:#ef4444}
+.root-card.equal{background:#fef3c7;border-color:#f59e0b}
+.root-card .root-label{font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
+.root-card .root-val{font-size:1rem;font-weight:700}
+.discriminant-bar{margin:12px 0}
+.disc-label{font-size:0.8rem;margin-bottom:4px}
+.disc-track{height:12px;border-radius:6px;background:#e2e8f0;overflow:hidden;position:relative}
+.disc-fill{height:100%;border-radius:6px;transition:width 0.4s,background 0.4s}
+.disc-value{font-size:1rem;font-weight:700;text-align:center;margin-top:4px}
+.step-container{margin-top:12px}
+.step-btn{background:linear-gradient(90deg,#3b82f6,#06b6d4);color:#fff;border:none;border-radius:8px;padding:9px 18px;font-size:0.85rem;font-weight:600;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;margin-right:8px;margin-bottom:6px}
+.step-btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(59,130,246,0.4)}
+.step-btn:active{transform:translateY(0)}
+.reset-btn{background:linear-gradient(90deg,#ef4444,#f97316);color:#fff;border:none;border-radius:8px;padding:9px 18px;font-size:0.85rem;font-weight:600;cursor:pointer;transition:transform 0.15s}
+.reset-btn:hover{transform:translateY(-1px)}
+.step{background:#f8fafc;border-left:4px solid #3b82f6;border-radius:0 8px 8px 0;padding:12px;margin-top:8px;animation:slideIn 0.3s ease;display:none}
+.step.active{display:block}
+@keyframes slideIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+.step .step-num{font-size:0.72rem;font-weight:700;color:#3b82f6;text-transform:uppercase;letter-spacing:0.5px}
+.step .step-content{font-size:0.88rem;margin-top:4px;line-height:1.6}
+.step .math{font-size:1rem;font-weight:700;color:#1d4ed8;background:#dbeafe;padding:4px 10px;border-radius:6px;display:inline-block;margin:4px 0}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.info-item{background:#f1f5f9;border-radius:8px;padding:10px;text-align:center}
+.info-item .num{font-size:1.2rem;font-weight:700;color:#1d4ed8}
+.info-item .lbl{font-size:0.72rem;color:#64748b;margin-top:2px}
+.nature-indicator{display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;margin-top:10px;font-size:0.85rem;font-weight:600;transition:all 0.3s}
+.nature-indicator .dot{width:14px;height:14px;border-radius:50%;flex-shrink:0}
+.parabola-info{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.pi-chip{background:#e0f2fe;color:#0369a1;border-radius:20px;padding:4px 10px;font-size:0.75rem;font-weight:600}
+.hindi-note{background:#fef9c3;border-radius:8px;padding:10px;font-size:0.8rem;color:#78350f;border-left:3px solid #f59e0b;margin-top:10px}
+.tab-row{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.tab{padding:6px 14px;border-radius:20px;border:2px solid #e2e8f0;background:#fff;font-size:0.8rem;font-weight:600;cursor:pointer;transition:all 0.2s;color:#64748b}
+.tab.active{background:#3b82f6;border-color:#3b82f6;color:#fff}
+.example-eq{font-size:1.1rem;font-weight:700;color:#1d4ed8;text-align:center;padding:10px;background:#dbeafe;border-radius:8px;margin-bottom:10px}
+</style>
+</head>
+<body>
+<div class="title-bar">
+<h1>📐 Quadratic Equations (द्विघात समीकरण)</h1>
+<p>CBSE Class 10 Mathematics | Interactive Visual Explainer</p>
+</div>
+<div class="container">
+
+<!-- Standard Form Card -->
+<div class="card">
+<h2>📋 Standard Form <span class="badge bg-blue">Definition</span></h2>
+<div class="formula-box">
+<p>Standard Form (मानक रूप)</p>
+<div class="main-formula">ax² + bx + c = 0</div>
+<p>where a ≠ 0, and a, b, c are real numbers (वास्तविक संख्याएँ)</p>
+</div>
+<div class="info-grid">
+<div class="info-item"><div class="num" style="color:#ef4444">a</div><div class="lbl">Coefficient of x²<br>(Leading Term)</div></div>
+<div class="info-item"><div class="num" style="color:#22c55e">b</div><div class="lbl">Coefficient of x<br>(Linear Term)</div></div>
+<div class="info-item"><div class="num" style="color:#f59e0b">c</div><div class="lbl">Constant Term<br>(स्थिरांक)</div></div>
+<div class="info-item"><div class="num">a≠0</div><div class="lbl">Must be non-zero<br>(अनिवार्य शर्त)</div></div>
+</div>
+<div class="hindi-note">💡 याद रखें: यदि a = 0 हो जाए, तो समीकरण द्विघात नहीं रहता — यह रैखिक (linear) बन जाता है!</div>
+</div>
+
+<!-- Interactive Parabola -->
+<div class="card">
+<h2>🎨 Interactive Graph — Parabola Explorer</h2>
+<div class="section-label">Adjust coefficients to see the parabola change!</div>
+<div class="slider-row">
+<label>a =</label>
+<input type="range" id="sa" min="-5" max="5" step="0.5" value="1">
+<span class="val" id="va">1</span>
+</div>
+<div class="slider-row">
+<label>b =</label>
+<input type="range" id="sb" min="-8" max="8" step="0.5" value="-3">
+<span class="val" id="vb">-3</span>
+</div>
+<div class="slider-row">
+<label>c =</label>
+<input type="range" id="sc" min="-10" max="10" step="0.5" value="2">
+<span class="val" id="vc">2</span>
+</div>
+<canvas id="graphCanvas" height="260"></canvas>
+<div class="parabola-info" id="parabolaInfo"></div>
+<div class="discriminant-bar">
+<div class="disc-label">Discriminant (विविक्तकर): <strong>D = b² − 4ac</strong></div>
+<div class="disc-track"><div class="disc-fill" id="discFill"></div></div>
+<div class="disc-value" id="discVal"></div>
+</div>
+<div class="nature-indicator" id="natureInd">
+<div class="dot" id="natureDot"></div>
+<span id="natureText"></span>
+</div>
+<div class="roots-display" id="rootsDisplay"></div>
+<div class="hindi-note" id="rootsNote"></div>
+</div>
+
+<!-- Quadratic Formula -->
+<div class="card">
+<h2>🔑 Quadratic Formula (श्रीधराचार्य सूत्र)</h2>
+<div class="formula-box" style="background:linear-gradient(135deg,#166534,#22c55e)">
+<p>Roots (मूल) of ax² + bx + c = 0</p>
+<div class="main-formula">x = (−b ± √(b²−4ac)) / 2a</div>
+<p>Also called Sridharacharya Formula | b²−4ac is the Discriminant (D)</p>
+</div>
+<div class="info-grid">
+<div class="info-item"><div class="num" style="color:#22c55e">D &gt; 0</div><div class="lbl">2 distinct real roots<br>दो भिन्न वास्तविक मूल</div></div>
+<div class="info-item"><div class="num" style="color:#f59e0b">D = 0</div><div class="lbl">2 equal real roots<br>दो समान मूल</div></div>
+<div class="info-item"><div class="num" style="color:#ef4444">D &lt; 0</div><div class="lbl">No real roots<br>कोई वास्तविक मूल नहीं</div></div>
+<div class="info-item"><div class="num" style="color:#3b82f6">α+β, αβ</div><div class="lbl">Sum = −b/a<br>Product = c/a</div></div>
+</div>
+</div>
+
+<!-- Worked Example -->
+<div class="card">
+<h2>✏️ Worked Example (हल उदाहरण)</h2>
+<div class="tab-row" id="exampleTabs">
+<div class="tab active" onclick="setExample(0)">Example 1</div>
+<div class="tab" onclick="setExample(1)">Example 2</div>
+<div class="tab" onclick="setExample(2)">Example 3</div>
+</div>
+<div class="example-eq" id="exEq"></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+<button class="step-btn" onclick="nextStep()">▶ Next Step</button>
+<button class="reset-btn" onclick="resetSteps()">↺ Reset</button>
+</div>
+<div class="step-container" id="stepsContainer"></div>
+</div>
+
+<!-- Key Concepts Summary -->
+<div class="card">
+<h2>📌 Key Takeaways <span class="badge bg-green">Summary</span></h2>
+<div style="display:flex;flex-direction:column;gap:8px;font-size:0.85rem;line-height:1.6">
+<div style="display:flex;gap:8px;align-items:flex-start"><span style="font-size:1rem">🟦</span><span><strong>Degree:</strong> Quadratic equations have degree 2 (highest power of variable is 2)</span></div>
+<div style="display:flex;gap:8px;align-items:flex-start"><span style="font-size:1rem">🟩</span><span><strong>Roots / Zeros (मूल):</strong> Values of x that satisfy the equation. Max 2 roots possible.</span></div>
+<div style="display:flex;gap:8px;align-items:flex-start"><span style="font-size:1rem">🟨</span><span><strong>Parabola:</strong> Graph of y = ax²+bx+c is always a parabola. Opens up if a&gt;0, down if a&lt;0.</span></div>
+<div style="display:flex;gap:8px;align-items:flex-start"><span style="font-size:1rem">🟥</span><span><strong>Discriminant D = b²−4ac:</strong> Determines nature of roots without actually solving.</span></div>
+<div style="display:flex;gap:8px;align-items:flex-start"><span style="font-size:1rem">⭐</span><span><strong>∵</strong> α+β = −b/a <strong>∴</strong> αβ = c/a (Vieta's relations — useful for verification)</span></div>
+</div>
+<div class="hindi-note" style="margin-top:10px">📝 परीक्षा टिप: विविक्तकर (Discriminant) पहले निकालें — इससे पता चलता है कि मूल वास्तविक हैं या नहीं!</div>
+</div>
+
+</div>
+
+<script>
+// ---- Examples Data ----
+const examples=[
+{eq:"x² − 5x + 6 = 0",a:1,b:-5,c:6,steps:[
+{n:"Step 1: Identify a, b, c",c:"Compare with ax² + bx + c = 0<br><span class='math'>a = 1, b = −5, c = 6</span>"},
+{n:"Step 2: Find Discriminant D",c:"D = b² − 4ac<br><span class='math'>D = (−5)² − 4(1)(6) = 25 − 24 = 1</span><br>∵ D &gt; 0 → Two distinct real roots"},
+{n:"Step 3: Apply Formula",c:"x = (−b ± √D) / 2a<br><span class='math'>x = (5 ± √1) / 2 = (5 ± 1) / 2</span>"},
+{n:"Step 4: Find Both Roots",c:"<span class='math'>x₁ = (5+1)/2 = 3</span><br><span class='math'>x₂ = (5−1)/2 = 2</span><br>∴ Roots are <strong>3</strong> and <strong>2</strong>"},
+{n:"Step 5: Verify (Vieta's)",c:"Sum = α+β = 3+2 = 5 = −(−5)/1 ✓<br>Product = αβ = 3×2 = 6 = 6/1 ✓<br><span class='math'>Answer verified! ✅</span>"}
+]},
+{eq:"2x² + x − 3 = 0",a:2,b:1,c:-3,steps:[
+{n:"Step 1: Identify a, b, c",c:"<span class='math'>a = 2, b = 1, c = −3</span>"},
+{n:"Step 2: Find Discriminant D",c:"D = b² − 4ac<br><span class='math'>D = (1)² − 4(2)(−3) = 1 + 24 = 25</span><br>∵ D &gt; 0 → Two distinct real roots"},
+{n:"Step 3: Apply Formula",c:"<span class='math'>x = (−1 ± √25) / (2×2) = (−1 ± 5) / 4</span>"},
+{n:"Step 4: Find Both Roots",c:"<span class='math'>x₁ = (−1+5)/4 = 4/4 = 1</span><br><span class='math'>x₂ = (−1−5)/4 = −6/4 = −3/2</span>"},
+{n:"Step 5: Verify",c:"Sum = 1+(−3/2) = −1/2 = −1/2 ✓<br>Product = 1×(−3/2) = −3/2 = −3/2 ✓<br><span class='math'>Answer: x = 1 or x = −3/2 ✅</span>"}
+]},
+{eq:"x² − 4x + 4 = 0",a:1,b:-4,c:4,steps:[
+{n:"Step 1: Identify a, b, c",c:"<span class='math'>a = 1, b = −4, c = 4</span>"},
+{n:"Step 2: Find Discriminant D",c:"D = b² − 4ac<br><span class='math'>D = (−4)² − 4(1)(4) = 16 − 16 = 0</span><br>∵ D = 0 → Two equal real roots"},
+{n:"Step 3: Apply Formula",c:"<span class='math'>x = (−b) / 2a = 4 / 2 = 2</span><br>Both roots are equal!"},
+{n:"Step 4: Roots",c:"<span class='math'>α = β = 2</span><br>This is a <strong>Perfect Square</strong> equation: (x−2)² = 0"},
+{n:"Step 5: Verify",c:"Sum = 2+2 = 4 = 4/1 ✓<br>Product = 2×2 = 4 = 4/1 ✓<br><span class='math'>Answer: x = 2 (equal roots) ✅</span>"}
+]}
+];
+
+let curEx=0,curStep=-1;
+
+function setExample(i){
+curEx=i;resetSteps();
+document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',j===i));
+document.getElementById('exEq').textContent=examples[i].eq;
+}
+
+function nextStep(){
+const ex=examples[curEx];
+if(curStep<ex.steps.length-1){
+curStep++;
+const s=ex.steps[curStep];
+const sc=document.getElementById('stepsContainer');
+let el=document.createElement('div');
+el.className='step active';
+el.innerHTML=`<div class='step-num'>${s.n}</div><div class='step-content'>${s.c}</div>`;
+sc.appendChild(el);
+sc.scrollTop=sc.scrollHeight;
+}
+}
+
+function resetSteps(){
+curStep=-1;
+document.getElementById('stepsContainer').innerHTML='';
+}
+
+setExample(0);
+
+// ---- Graph ----
+const canvas=document.getElementById('graphCanvas');
+const ctx=canvas.getContext('2d');
+
+function getCoeffs(){
+return{
+a:parseFloat(document.getElementById('sa').value),
+b:parseFloat(document.getElementById('sb').value),
+c:parseFloat(document.getElementById('sc').value)
+};
+}
+
+function drawGraph(){
+const {a,b,c}=getCoeffs();
+const W=canvas.width,H=canvas.height;
+ctx.clearRect(0,0,W,H);
+
+const cx=W/2,cy=H/2,scaleX=28,scaleY=18;
+
+// Grid
+ctx.strokeStyle='#e2e8f0';ctx.lineWidth=1;
+for(let x=-8;x<=8;x++){
+const px=cx+x*scaleX;
+ctx.beginPath();ctx.moveTo(px,0);ctx.lineTo(px,H);ctx.stroke();
+}
+for(let y=-7;y<=7;y++){
+const py=cy-y*scaleY;
+ctx.beginPath();ctx.moveTo(0,py);ctx.lineTo(W,py);ctx.stroke();
+}
+
+// Axes
+ctx.strokeStyle='#94a3b8';ctx.lineWidth=2;
+ctx.beginPath();ctx.moveTo(0,cy);ctx.lineTo(W,cy);ctx.stroke();
+ctx.beginPath();ctx.moveTo(cx,0);ctx.lineTo(cx,H);ctx.stroke();
+
+// Axis labels
+ctx.fillStyle='#94a3b8';ctx.font='11px Segoe UI';ctx.textAlign='center';
+for(let x=-7;x<=7;x+=2){if(x!==0){ctx.fillText(x,cx+x*scaleX,cy+14);}}
+ctx.textAlign='right';
+for(let y=-6;y<=6;y+=2){if(y!==0){ctx.fillText(y,cx-4,cy-y*scaleY+4);}}
+ctx.fillStyle='#475569';ctx.textAlign='center';
+ctx.fillText('x',W-10,cy-6);ctx.fillText('y',cx+12,10);
+
+if(Math.abs(a)<0.01){
+// linear line
+ctx.strokeStyle='#3b82f6';ctx.lineWidth=2.5;
+ctx.beginPath();
+for(let x=-8;x<=8;x+=0.1){
+const y=b*x+c;
+const px=cx+x*scaleX,py=cy-y*scaleY;
+x===-8?ctx.moveTo(px,py):ctx.lineTo(px,py);
+}
+ctx.stroke();
+return;
+}
+
+// Parabola
+const grad=ctx.createLinearGradient(0,0,W,H);
+grad.addColorStop(0,'#3b82f6');grad.addColorStop(1,'#06b6d4');
+ctx.strokeStyle=grad;ctx.lineWidth=2.5;
+ctx.beginPath();
+let first=true;
+for(let x=-9;x<=9;x+=0.05){
+const y=a*x*x+b*x+c;
+const px=cx+x*scaleX,py=cy-y*scaleY;
+if(py<-20||py>H+20){first=true;continue;}
+first?(ctx.moveTo(px,py),first=false):ctx.lineTo(px,py);
+}
+ctx.stroke();
+
+// Vertex
+const vx=-b/(2*a),vy=a*vx*vx+b*vx+c;
+const vpx=cx+vx*scaleX,vpy=cy-vy*scaleY;
+if(vpy>-5&&vpy<H+5){
+ctx.fillStyle='#f59e0b';
+ctx.beginPath();ctx.arc(vpx,vpy,5,0,Math.PI*2);ctx.fill();
+ctx.fillStyle='#92400e';ctx.font='bold 10px Segoe UI';ctx.textAlign='left';
+ctx.fillText(`V(${vx.toFixed(1)},${vy.toFixed(1)})`,vpx+7,vpy-4);
+}
+
+// Discriminant & roots
+const D=b*b-4*a*c;
+if(D>=0){
+const r1=(-b+Math.sqrt(D))/(2*a),r2=(-b-Math.sqrt(D))/(2*a);
+[r1,r2].forEach(r=>{
+const px=cx+r*scaleX;
+if(px>0&&px<W){
+ctx.fillStyle='#ef4444';
+ctx.beginPath();ctx.arc(px,cy,5,0,Math.PI*2);ctx.fill();
+ctx.fillStyle='#991b1b';ctx.font='bold 10px Segoe UI';ctx.textAlign='center';
+ctx.fillText(`(${r.toFixed(1)},0)`,px,cy-10);
+}
+});
+}
+
+// Equation label
+ctx.fillStyle='#1d4ed8';ctx.font='bold 12px Segoe UI';ctx.textAlign='left';
+ctx.fillText(`y = ${a}x² + ${b}x + ${c}`,8,18);
+}
+
+function updateAll(){
+const {a,b,c}=getCoeffs();
+document.getElementById('va').textContent=a;
+document.getElementById('vb').textContent=b;
+document.getElementById('vc').textContent=c;
+
+const D=b*b-4*a*c;
+const Dfixed=D.toFixed(2);
+
+// Disc bar
+const fill=document.getElementById('discFill');
+const perc=Math.min(Math.max((D+100)/200*100,0),100);
+fill.style.width=perc+'%';
+fill.style.background=D>0?'#22c55e':D===0?'#f59e0b':'#ef4444';
+document.getElementById('discVal').textContent=`D = ${b}² − 4(${a})(${c}) = ${Dfixed}`;
+document.getElementById('discVal').style.color=D>0?'#166534':D===0?'#92400e':'#991b1b';
+
+// Nature
+const ni=document.getElementById('natureInd');
+const nd=document.getElementById('natureDot');
+const nt=document.getElementById('natureText');
+if(D>0){
+ni.style.background='#dcfce7';nd.style.background='#22c55e';
+nt.textContent='D > 0 → Two distinct real roots (दो भिन्न वास्तविक मूल) — Parabola crosses x-axis at 2 points';
+ni.style.color='#166534';
+}else if(D===0||Math.abs(D)<0.001){
+ni.style.background='#fef3c7';nd.style.background='#f59e0b';
+nt.textContent='D = 0 → Two equal real roots (दो समान मूल) — Parabola just touches x-axis';
+ni.style.color='#92400e';
+}else{
+ni.style.background='#fee2e2';nd.style.background='#ef4444';
+nt.textContent='D < 0 → No real roots (कोई वास्तविक मूल नहीं) — Parabola does not cross x-axis';
+ni.style.color='#991b1b';
+}
+
+// Roots display
+const rd=document.getElementById('rootsDisplay');
+const rn=document.getElementById('rootsNote');
+rd.innerHTML='';
+if(Math.abs(a)<0.01){rd.innerHTML='<div style="color:#ef4444;font-size:0.85rem">⚠️ a = 0: Not a quadratic! (द्विघात नहीं)</div>';rn.textContent='';return;}
+if(D>0.001){
+const r1=((-b+Math.sqrt(D))/(2*a)).toFixed(3);
+const r2=((-b-Math.sqrt(D))/(2*a)).toFixed(3);
+rd.innerHTML=`<div class="root-card real"><div class="root-label">Root α (मूल १)</div><div class="root-val">x = ${r1}</div></div><div class="root-card real"><div class="root-label">Root β (मूल २)</div><div class="root-val">x = ${r2}</div></div>`;
+rn.textContent=`∴ α + β = ${(parseFloat(r1)+parseFloat(r2)).toFixed(3)} ≈ ${(-b/a).toFixed(3)} = −b/a ✓ | α × β = ${(parseFloat(r1)*parseFloat(r2)).toFixed(3)} ≈ ${(c/a).toFixed(3)} = c/a ✓`;
+}else if(Math.abs(D)<=0.001){
+const r=((-b)/(2*a)).toFixed(3);
+rd.innerHTML=`<div class="root-card equal"><div class="root-label">Equal Roots (समान मूल)</div><div class="root-val">x = ${r}</div></div>`;
+rn.textContent=`∴ α = β = ${r} | Sum = ${(2*parseFloat(r)).toFixed(3)} = ${(-b/a).toFixed(3)} = −b/a ✓`;
+}else{
+rd.innerHTML=`<div class="root-card complex"><div class="root-label">No Real Roots</div><div class="root-val">D < 0</div></div>`;
+rn.textContent='∵ D < 0, इस समीकरण के कोई वास्तविक मूल नहीं हैं। (Imaginary roots exist in complex numbers)';
+}
+
+// Parabola info chips
+const pi=document.getElementById('parabolaInfo');
+const dir=a>0?'Opens Upward ↑':'Opens Downward ↓';
+const vx=-b/(2*a),vy=a*vx*vx+b*vx+c;
+pi.innerHTML=`<span class='pi-chip'>${dir}</span><span class='pi-chip'>Vertex: (${vx.toFixed(2)}, ${vy.toFixed(2)})</span><span class='pi-chip'>Axis of Symmetry: x = ${vx.toFixed(2)}</span>`;
+
+drawGraph();
+}
+
+// Resize canvas
+function resizeCanvas(){
+const w=canvas.parentElement.clientWidth-40;
+canvas.width=Math.min(w,720);
+canvas.height=Math.round(canvas.width*0.38)+20;
+updateAll();
+}
+
+['sa','sb','sc'].forEach(id=>document.getElementById(id).addEventListener('input',updateAll));
+window.addEventListener('resize',resizeCanvas);
+resizeCanvas();
+</script>
+</body>
+</html>

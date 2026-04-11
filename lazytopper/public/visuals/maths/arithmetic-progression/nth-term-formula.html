@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arithmetic Progressions - nth Term Formula</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #1e293b; min-height: 100vh; }
+  
+  .title-bar {
+    background: linear-gradient(135deg, #1e40af, #3b82f6, #06b6d4);
+    color: white; padding: 14px 20px; text-align: center;
+    box-shadow: 0 4px 20px rgba(59,130,246,0.5);
+  }
+  .title-bar h1 { font-size: 1.2rem; font-weight: 700; letter-spacing: 0.5px; }
+  .title-bar p { font-size: 0.78rem; opacity: 0.85; margin-top: 2px; }
+  .badge { background: rgba(255,255,255,0.2); border-radius: 20px; padding: 2px 10px; font-size: 0.72rem; display: inline-block; margin-top: 4px; }
+
+  .container { max-width: 700px; margin: 0 auto; padding: 16px; }
+
+  .card {
+    background: white; border-radius: 16px; padding: 18px;
+    margin-bottom: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+  }
+
+  .formula-box {
+    background: linear-gradient(135deg, #1e3a8a, #1d4ed8);
+    border-radius: 14px; padding: 20px; text-align: center;
+    margin-bottom: 16px; box-shadow: 0 8px 32px rgba(29,78,216,0.4);
+    position: relative; overflow: hidden;
+  }
+  .formula-box::before {
+    content: ''; position: absolute; top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 60%);
+    animation: pulse-bg 3s ease-in-out infinite;
+  }
+  @keyframes pulse-bg { 0%,100%{transform:scale(1);} 50%{transform:scale(1.1);} }
+  .formula-label { color: #93c5fd; font-size: 0.75rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+  .formula-main { color: white; font-size: 1.6rem; font-weight: 700; letter-spacing: 1px; }
+  .formula-hindi { color: #bfdbfe; font-size: 0.8rem; margin-top: 6px; }
+
+  .section-title { font-size: 0.9rem; font-weight: 700; color: #1e293b; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .section-title span { background: #3b82f6; color: white; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 0.72rem; flex-shrink: 0; }
+
+  /* AP Visualizer */
+  .ap-viz { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 12px 0; }
+  .ap-term {
+    width: 52px; height: 52px; border-radius: 12px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; cursor: pointer;
+    transition: all 0.3s ease; position: relative; border: 2px solid transparent;
+    font-weight: 700; font-size: 0.85rem; color: white;
+  }
+  .ap-term:hover { transform: translateY(-4px) scale(1.08); }
+  .ap-term .term-label { font-size: 0.6rem; opacity: 0.8; font-weight: 400; }
+  .ap-term.highlighted { border-color: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,0.3); transform: translateY(-4px) scale(1.1); }
+  .ap-term.active { border-color: #22c55e; box-shadow: 0 0 16px rgba(34,197,94,0.5); transform: translateY(-6px) scale(1.15); }
+
+  /* Sliders */
+  .slider-row { display: flex; align-items: center; gap: 10px; margin: 8px 0; }
+  .slider-row label { font-size: 0.78rem; font-weight: 600; color: #475569; min-width: 100px; }
+  .slider-row input[type=range] { flex: 1; accent-color: #3b82f6; cursor: pointer; }
+  .slider-val { background: #eff6ff; color: #1d4ed8; border-radius: 8px; padding: 3px 10px; font-weight: 700; font-size: 0.85rem; min-width: 36px; text-align: center; }
+
+  /* Step walkthrough */
+  .steps-container { }
+  .step {
+    border-left: 3px solid #e2e8f0; padding-left: 14px; margin-bottom: 10px;
+    opacity: 0.3; transition: all 0.5s ease; filter: blur(1px);
+    pointer-events: none;
+  }
+  .step.revealed { opacity: 1; filter: none; pointer-events: auto; }
+  .step-num { font-size: 0.7rem; color: #94a3b8; font-weight: 600; text-transform: uppercase; }
+  .step-title { font-size: 0.88rem; font-weight: 700; color: #1e293b; margin: 2px 0; }
+  .step-content { font-size: 0.8rem; color: #475569; line-height: 1.5; }
+  .step-formula { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 8px 12px; margin: 6px 0; font-weight: 600; color: #0369a1; font-size: 0.85rem; }
+  .step.revealed { border-color: #3b82f6; }
+
+  .btn {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: white; border: none; border-radius: 10px; padding: 10px 20px;
+    font-size: 0.82rem; font-weight: 600; cursor: pointer;
+    transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px;
+    box-shadow: 0 4px 12px rgba(59,130,246,0.3);
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(59,130,246,0.4); }
+  .btn:active { transform: translateY(0); }
+  .btn-green { background: linear-gradient(135deg, #22c55e, #16a34a); box-shadow: 0 4px 12px rgba(34,197,94,0.3); }
+  .btn-amber { background: linear-gradient(135deg, #f59e0b, #d97706); box-shadow: 0 4px 12px rgba(245,158,11,0.3); }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+
+  /* Result display */
+  .result-display {
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    border: 2px solid #22c55e; border-radius: 12px;
+    padding: 14px; text-align: center; margin-top: 12px;
+    display: none;
+  }
+  .result-display.show { display: block; animation: pop-in 0.4s cubic-bezier(0.175,0.885,0.32,1.275); }
+  @keyframes pop-in { from{transform:scale(0.8);opacity:0;} to{transform:scale(1);opacity:1;} }
+  .result-big { font-size: 1.8rem; font-weight: 800; color: #16a34a; }
+  .result-label { font-size: 0.75rem; color: #166534; margin-top: 2px; }
+
+  /* Pattern visualization */
+  .pattern-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin: 8px 0; }
+  .pattern-block {
+    border-radius: 8px; padding: 6px 10px; font-size: 0.78rem; font-weight: 600;
+    color: white; transition: all 0.3s;
+  }
+  .arrow-label { font-size: 0.7rem; color: #94a3b8; text-align: center; }
+  .diff-arrow { display: flex; flex-direction: column; align-items: center; }
+  .arr { color: #3b82f6; font-size: 0.9rem; }
+
+  /* Quiz */
+  .quiz-option {
+    background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 10px;
+    padding: 10px 14px; margin: 6px 0; cursor: pointer; font-size: 0.82rem;
+    font-weight: 500; transition: all 0.2s; color: #334155;
+  }
+  .quiz-option:hover { border-color: #3b82f6; background: #eff6ff; }
+  .quiz-option.correct { background: #f0fdf4; border-color: #22c55e; color: #166534; }
+  .quiz-option.wrong { background: #fef2f2; border-color: #ef4444; color: #991b1b; }
+  .quiz-feedback { font-size: 0.8rem; padding: 8px; border-radius: 8px; margin-top: 8px; font-weight: 600; display: none; }
+  .quiz-feedback.show { display: block; animation: pop-in 0.3s ease; }
+  .quiz-feedback.ok { background: #f0fdf4; color: #16a34a; }
+  .quiz-feedback.no { background: #fef2f2; color: #dc2626; }
+
+  /* Number line */
+  .number-line-wrap { overflow-x: auto; padding: 8px 0; }
+  .number-line-svg { display: block; min-width: 300px; }
+
+  .tag { display: inline-block; border-radius: 6px; padding: 2px 8px; font-size: 0.7rem; font-weight: 700; }
+  .tag-blue { background: #dbeafe; color: #1d4ed8; }
+  .tag-green { background: #dcfce7; color: #16a34a; }
+  .tag-amber { background: #fef3c7; color: #d97706; }
+
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }
+  .info-item { background: #f8fafc; border-radius: 10px; padding: 10px; text-align: center; border: 1px solid #e2e8f0; }
+  .info-item .val { font-size: 1.1rem; font-weight: 800; color: #3b82f6; }
+  .info-item .lbl { font-size: 0.68rem; color: #64748b; margin-top: 2px; }
+
+  .highlight-box { background: linear-gradient(135deg, #fffbeb, #fef3c7); border: 1.5px solid #f59e0b; border-radius: 10px; padding: 10px 14px; margin: 8px 0; font-size: 0.8rem; color: #92400e; }
+
+  @media(max-width:400px){
+    .ap-term{width:44px;height:44px;font-size:0.78rem;}
+    .formula-main{font-size:1.3rem;}
+    .info-grid{grid-template-columns:1fr 1fr;}
+  }
+</style>
+</head>
+<body>
+
+<div class="title-bar">
+  <h1>📐 Arithmetic Progressions — nth Term</h1>
+  <p>सामान्य पद सूत्र (General Term Formula) | CBSE Class 10</p>
+  <div class="badge">🎯 अध्याय 5 | Chapter 5</div>
+</div>
+
+<div class="container">
+
+  <!-- Formula Card -->
+  <div class="formula-box">
+    <div class="formula-label">🔑 The Key Formula — सूत्र</div>
+    <div class="formula-main">aₙ = a + (n − 1) × d</div>
+    <div class="formula-hindi">जहाँ: a = पहला पद | d = सार्व अंतर | n = पद संख्या | aₙ = nवाँ पद</div>
+  </div>
+
+  <!-- What is AP Card -->
+  <div class="card">
+    <div class="section-title"><span>1</span> What is an Arithmetic Progression? (AP क्या है?)</div>
+    <p style="font-size:0.8rem;color:#475569;margin-bottom:12px;">A sequence where <strong>each term differs from the previous by a constant amount</strong> called the <span class="tag tag-blue">Common Difference (d)</span>.</p>
+    
+    <div class="pattern-row" id="patternRow"></div>
+    
+    <div class="highlight-box" style="margin-top:10px;">
+      💡 <strong>Key Insight:</strong> In an AP, d = a₂ − a₁ = a₃ − a₂ = ... (always constant!)
+    </div>
+  </div>
+
+  <!-- Interactive Explorer -->
+  <div class="card">
+    <div class="section-title"><span>2</span> 🎛️ Build Your Own AP — Interactive Explorer</div>
+    
+    <div class="slider-row">
+      <label>First term (a):</label>
+      <input type="range" id="sliderA" min="1" max="20" value="3">
+      <div class="slider-val" id="valA">3</div>
+    </div>
+    <div class="slider-row">
+      <label>Common diff (d):</label>
+      <input type="range" id="sliderD" min="-5" max="10" value="4">
+      <div class="slider-val" id="valD">4</div>
+    </div>
+    <div class="slider-row">
+      <label>Find term (n):</label>
+      <input type="range" id="sliderN" min="1" max="10" value="5">
+      <div class="slider-val" id="valN">5</div>
+    </div>
+
+    <div class="ap-viz" id="apViz"></div>
+
+    <div class="number-line-wrap">
+      <svg class="number-line-svg" id="nlSvg" height="60" width="100%"></svg>
+    </div>
+
+    <div class="result-display show" id="resultDisplay">
+      <div class="result-big" id="resultBig">—</div>
+      <div class="result-label" id="resultLabel">a₅ = 3 + (5−1)×4</div>
+    </div>
+
+    <div class="info-grid" id="infoGrid">
+      <div class="info-item"><div class="val" id="iA">3</div><div class="lbl">First term (a)</div></div>
+      <div class="info-item"><div class="val" id="iD">4</div><div class="lbl">Common diff (d)</div></div>
+      <div class="info-item"><div class="val" id="iN">5</div><div class="lbl">Term number (n)</div></div>
+      <div class="info-item"><div class="val" id="iAn" style="color:#22c55e;">19</div><div class="lbl">nth term (aₙ)</div></div>
+    </div>
+  </div>
+
+  <!-- Step by Step Walkthrough -->
+  <div class="card">
+    <div class="section-title"><span>3</span> 📖 Worked Example — Step by Step</div>
+    <div class="highlight-box">
+      <strong>Problem:</strong> Find the 15th term of AP: 7, 11, 15, 19, ...
+    </div>
+    
+    <div class="steps-container" id="stepsContainer">
+      <div class="step revealed" id="step0">
+        <div class="step-num">Step 0 — Given</div>
+        <div class="step-title">Identify the AP</div>
+        <div class="step-content">The sequence is: 7, 11, 15, 19, ...</div>
+      </div>
+      <div class="step" id="step1">
+        <div class="step-num">Step 1 — Find 'a'</div>
+        <div class="step-title">First Term (पहला पद)</div>
+        <div class="step-content">The first term is:</div>
+        <div class="step-formula">a = 7</div>
+      </div>
+      <div class="step" id="step2">
+        <div class="step-num">Step 2 — Find 'd'</div>
+        <div class="step-title">Common Difference (सार्व अंतर)</div>
+        <div class="step-content">d = a₂ − a₁ = 11 − 7 = 4 ✓ (verify: 15−11=4, 19−15=4)</div>
+        <div class="step-formula">d = 4</div>
+      </div>
+      <div class="step" id="step3">
+        <div class="step-num">Step 3 — Apply Formula</div>
+        <div class="step-title">Use aₙ = a + (n−1)d</div>
+        <div class="step-content">We need n = 15:</div>
+        <div class="step-formula">a₁₅ = 7 + (15 − 1) × 4</div>
+      </div>
+      <div class="step" id="step4">
+        <div class="step-num">Step 4 — Calculate</div>
+        <div class="step-title">Simplify Step by Step</div>
+        <div class="step-content">= 7 + 14 × 4 = 7 + 56</div>
+        <div class="step-formula">∴ a₁₅ = 63 ✅</div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn" onclick="revealNext()">▶ Next Step</button>
+      <button class="btn btn-amber" onclick="resetSteps()">↺ Reset</button>
+    </div>
+  </div>
+
+  <!-- Why does the formula work? -->
+  <div class="card">
+    <div class="section-title"><span>4</span> 🧠 Why aₙ = a + (n−1)d? (Formula की समझ)</div>
+    <p style="font-size:0.8rem;color:#475569;margin-bottom:10px;">Click each term below to see how it's built from the first term!</p>
+    
+    <div id="whyViz" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0;"></div>
+    <div id="whyExplain" style="font-size:0.8rem;color:#475569;text-align:center;padding:8px;min-height:36px;transition:all 0.3s;"></div>
+    
+    <div style="background:#f0f9ff;border-radius:10px;padding:12px;margin-top:10px;font-size:0.8rem;color:#0369a1;line-height:1.7;">
+      <strong>Pattern:</strong><br>
+      a₁ = a = a + 0×d = a + (1−1)d<br>
+      a₂ = a + d = a + 1×d = a + (2−1)d<br>
+      a₃ = a + d + d = a + 2d = a + (3−1)d<br>
+      ⋮<br>
+      <strong>aₙ = a + (n−1)d ← General Formula! 🎉</strong>
+    </div>
+  </div>
+
+  <!-- Quick Quiz -->
+  <div class="card">
+    <div class="section-title"><span>5</span> 🎯 Quick Practice — स्वयं जाँचें</div>
+    <div id="quizArea"></div>
+    <div class="btn-row">
+      <button class="btn btn-green" onclick="nextQuiz()">Next Question →</button>
+    </div>
+  </div>
+
+  <div style="text-align:center;color:#475569;font-size:0.72rem;padding:16px 0;">
+    📚 CBSE Class 10 Mathematics | Chapter 5 — Arithmetic Progressions<br>
+    aₙ = a + (n−1)d | सामान्य पद | General Term
+  </div>
+</div>
+
+<script>
+// ===== AP Visualizer =====
+const colors = ['#3b82f6','#8b5cf6','#ec4899','#f59e0b','#22c55e','#06b6d4','#ef4444','#10b981','#f97316','#6366f1'];
+
+function getAP(a, d, count) {
+  return Array.from({length:count}, (_, i) => a + i * d);
+}
+
+function renderAP() {
+  const a = +document.getElementById('sliderA').value;
+  const d = +document.getElementById('sliderD').value;
+  const n = +document.getElementById('sliderN').value;
+  document.getElementById('valA').textContent = a;
+  document.getElementById('valD').textContent = d;
+  document.getElementById('valN').textContent = n;
+
+  const terms = getAP(a, d, 10);
+  const viz = document.getElementById('apViz');
+  viz.innerHTML = '';
+  terms.forEach((val, i) => {
+    const el = document.createElement('div');
+    el.className = 'ap-term' + (i === n-1 ? ' active' : '');
+    el.style.background = i === n-1 ? 'linear-gradient(135deg,#22c55e,#16a34a)' : `linear-gradient(135deg,${colors[i % colors.length]},${colors[(i+1)%colors.length]})`;
+    el.innerHTML = `${val}<span class="term-label">a${toSub(i+1)}</span>`;
+    el.addEventListener('click', () => {
+      document.querySelectorAll('.ap-term').forEach(e => e.classList.remove('highlighted'));
+      el.classList.add('highlighted');
+    });
+    el.addEventListener('mouseenter', () => {
+      showWhyForTerm(i+1, a, d);
+    });
+    viz.appendChild(el);
+  });
+
+  // Result
+  const an = a + (n-1)*d;
+  document.getElementById('resultBig').textContent = an;
+  document.getElementById('resultLabel').textContent = `a${toSub(n)} = ${a} + (${n}−1)×${d} = ${a} + ${(n-1)*d} = ${an}`;
+  document.getElementById('iA').textContent = a;
+  document.getElementById('iD').textContent = d;
+  document.getElementById('iN').textContent = n;
+  document.getElementById('iAn').textContent = an;
+
+  renderNumberLine(terms, n);
+  renderWhyViz(a, d);
+  renderPattern(a, d);
+}
+
+function toSub(n) {
+  const subs = '₀₁₂₃₄₅₆₇₈₉';
+  return String(n).split('').map(c => subs[+c]).join('');
+}
+
+function renderNumberLine(terms, activeN) {
+  const svg = document.getElementById('nlSvg');
+  const W = Math.max(300, (svg.parentElement.clientWidth || 350) - 16);
+  svg.setAttribute('width', W);
+  const minV = Math.min(...terms), maxV = Math.max(...terms);
+  const range = maxV - minV || 1;
+  const pad = 30;
+  const toX = v => pad + ((v - minV) / range) * (W - 2*pad);
+
+  let html = `<line x1="${pad}" y1="30" x2="${W-pad}" y2="30" stroke="#cbd5e1" stroke-width="2"/>`;
+  terms.forEach((v, i) => {
+    const x = toX(v);
+    const active = i === activeN - 1;
+    const col = active ? '#22c55e' : colors[i % colors.length];
+    html += `<circle cx="${x}" cy="30" r="${active?9:6}" fill="${col}" opacity="${active?1:0.7}"/>`;
+    html += `<text x="${x}" y="${active?52:48}" text-anchor="middle" font-size="10" fill="${col}" font-weight="${active?700:400}">a${toSub(i+1)}</text>`;
+    if(active) html += `<text x="${x}" y="16" text-anchor="middle" font-size="11" fill="#16a34a" font-weight="700">${v}</text>`;
+  });
+  svg.innerHTML = html;
+}
+
+function renderPattern(a, d) {
+  const row = document.getElementById('patternRow');
+  const terms = getAP(a, d, 5);
+  let html = '';
+  terms.forEach((v, i) => {
+    html += `<div class="pattern-block" style="background:${colors[i%colors.length]}">${v}</div>`;
+    if(i < 4) {
+      html += `<div class="diff-arrow"><span class="arr">→</span><span class="arrow-label" style="color:#3b82f6;font-weight:700;font-size:0.7rem;">+${d}</span></div>`;
+    }
+  });
+  html += `<span style="font-size:0.78rem;color:#94a3b8;margin-left:4px;">...</span>`;
+  row.innerHTML = html;
+}
+
+// Why viz
+function renderWhyViz(a, d) {
+  const c = document.getElementById('whyViz');
+  const terms = getAP(a, d, 6);
+  c.innerHTML = '';
+  terms.forEach((v, i) => {
+    const el = document.createElement('div');
+    el.className = 'ap-term';
+    el.style.background = `linear-gradient(135deg,${colors[i%colors.length]},${colors[(i+2)%colors.length]})`;
+    el.innerHTML = `${v}<span class="term-label">a${toSub(i+1)}</span>`;
+    el.addEventListener('click', () => showWhyForTerm(i+1, a, d));
+    c.appendChild(el);
+  });
+}
+
+function showWhyForTerm(n, a, d) {
+  const an = a + (n-1)*d;
+  const exp = document.getElementById('whyExplain');
+  exp.innerHTML = `<strong style="color:#1d4ed8">a${toSub(n)}</strong> = a + (${n}−1)×d = ${a} + ${n-1}×${d} = <strong style="color:#16a34a">${an}</strong> &nbsp;| d added <strong>${n-1}</strong> time(s)`;
+}
+
+// ===== Step Walkthrough =====
+let currentStep = 0;
+const totalSteps = 4;
+
+function revealNext() {
+  if (currentStep < totalSteps) {
+    currentStep++;
+    const el = document.getElementById('step' + currentStep);
+    if (el) {
+      el.classList.add('revealed');
+      el.scrollIntoView({behavior:'smooth', block:'nearest'});
+    }
+  }
+}
+
+function resetSteps() {
+  currentStep = 0;
+  for (let i = 1; i <= totalSteps; i++) {
+    document.getElementById('step' + i)?.classList.remove('revealed');
+  }
+}
+
+// ===== Quiz =====
+const quizzes = [
+  {
+    q: "Find the 10th term of AP: 5, 8, 11, 14, ...",
+    a: "a=5, d=3, a₁₀ = 5 + 9×3 = 5 + 27 = 32",
+    options: ["29", "32", "35", "38"],
+    correct: 1,
+    hint: "a=5, d=3, n=10 → 5+(10−1)×3 = 5+27 = 32"
+  },
+  {
+    q: "Which term of AP: 3, 8, 13, 18, ... is 78?",
+    a: "aₙ=78, a=3, d=5 → 78=3+(n−1)×5 → n=16",
+    options: ["n = 14", "n = 15", "n = 16", "n = 17"],
+    correct: 2,
+    hint: "78 = 3 + (n−1)×5 → 75 = (n−1)×5 → n−1=15 → n=16"
+  },
+  {
+    q: "The 5th term of an AP is 23 and common difference is 4. Find the first term.",
+    a: "23 = a + 4×4 → a = 23−16 = 7",
+    options: ["a = 5", "a = 7", "a = 9", "a = 11"],
+    correct: 1,
+    hint: "a₅ = a+(5−1)×4 = a+16 = 23 → a = 7"
+  },
+  {
+    q: "Find the 20th term of AP: −3, −7, −11, ...",
+    a: "a=−3, d=−4, a₂₀ = −3+19×(−4) = −3−76 = −79",
+    options: ["−79", "−75", "−83", "−71"],
+    correct: 0,
+    hint: "a=−3, d=−7−(−3)=−4 → a₂₀ = −3+19×(−4) = −79"
+  }
+];
+
+let qIdx = 0;
+let answered = false;
+
+function renderQuiz() {
+  answered = false;
+  const q = quizzes[qIdx % quizzes.length];
+  let html = `<div style="font-size:0.85rem;font-weight:600;color:#1e293b;margin-bottom:10px;">${q.q}</div>`;
+  q.options.forEach((opt, i) => {
+    html += `<div class="quiz-option" id="qopt${i}" onclick="checkAnswer(${i})">${String.fromCharCode(65+i)}) ${opt}</div>`;
+  });
+  html += `<div class="quiz-feedback" id="qFeedback"></div>`;
+  html += `<div style="font-size:0.72rem;color:#94a3b8;margin-top:6px;">💡 Hint: ${q.hint}</div>`;
+  document.getElementById('quizArea').innerHTML = html;
+}
+
+function checkAnswer(sel) {
+  if (answered) return;
+  answered = true;
+  const q = quizzes[qIdx % quizzes.length];
+  const fb = document.getElementById('qFeedback');
+  document.querySelectorAll('.quiz-option').forEach((el, i) => {
+    if (i === q.correct) el.classList.add('correct');
+    else if (i === sel && i !== q.correct) el.classList.add('wrong');
+  });
+  if (sel === q.correct) {
+    fb.textContent = '✅ शाबाश! Correct! ' + q.a;
+    fb.className = 'quiz-feedback show ok';
+  } else {
+    fb.textContent = '❌ Try again! ' + q.a;
+    fb.className = 'quiz-feedback show no';
+  }
+}
+
+function nextQuiz() {
+  qIdx++;
+  renderQuiz();
+}
+
+// ===== Slider events =====
+['sliderA','sliderD','sliderN'].forEach(id => {
+  document.getElementById(id).addEventListener('input', renderAP);
+});
+
+// Init
+renderAP();
+renderQuiz();
+
+// Re-render number line on resize
+window.addEventListener('resize', () => {
+  const a = +document.getElementById('sliderA').value;
+  const d = +document.getElementById('sliderD').value;
+  const n = +document.getElementById('sliderN').value;
+  renderNumberLine(getAP(a, d, 10), n);
+});
+</script>
+</body>
+</html>

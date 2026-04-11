@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nutrition in Humans - Life Processes</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); min-height: 100vh; color: #1e293b; }
+  
+  .title-bar { background: linear-gradient(90deg, #3b82f6, #8b5cf6); padding: 14px 20px; text-align: center; box-shadow: 0 4px 20px rgba(59,130,246,0.4); }
+  .title-bar h1 { color: white; font-size: 1.2em; font-weight: 700; letter-spacing: 1px; }
+  .title-bar p { color: rgba(255,255,255,0.85); font-size: 0.78em; margin-top: 3px; }
+  
+  .container { max-width: 800px; margin: 0 auto; padding: 16px; }
+  
+  .card { background: white; border-radius: 16px; padding: 18px; margin-bottom: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.15); }
+  
+  .section-title { font-size: 1em; font-weight: 700; color: #3b82f6; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .section-title span { background: #3b82f6; color: white; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8em; flex-shrink: 0; }
+  
+  /* Key Concept Box */
+  .key-concept { background: linear-gradient(135deg, #eff6ff, #dbeafe); border-left: 4px solid #3b82f6; border-radius: 12px; padding: 14px; margin-bottom: 16px; }
+  .key-concept h3 { color: #1d4ed8; font-size: 0.95em; margin-bottom: 6px; }
+  .key-concept p { font-size: 0.82em; color: #1e40af; line-height: 1.5; }
+  .hindi { font-size: 0.88em; color: #7c3aed; font-weight: 600; }
+  
+  /* Alimentary Canal SVG */
+  #canal-svg { width: 100%; max-width: 340px; display: block; margin: 0 auto; cursor: pointer; }
+  
+  .organ-btn { cursor: pointer; transition: all 0.3s; }
+  .organ-btn:hover { filter: brightness(1.15); }
+  
+  /* Info Panel */
+  .info-panel { background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 2px solid #22c55e; border-radius: 12px; padding: 14px; margin-top: 12px; display: none; animation: slideIn 0.3s ease; }
+  .info-panel.active { display: block; }
+  .info-panel h4 { color: #15803d; font-size: 0.95em; margin-bottom: 6px; }
+  .info-panel p { font-size: 0.8em; color: #166534; line-height: 1.5; }
+  .info-panel .enzyme-tag { display: inline-block; background: #22c55e; color: white; border-radius: 20px; padding: 2px 10px; font-size: 0.72em; margin: 3px 2px; }
+  
+  @keyframes slideIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+  
+  /* Step-by-Step */
+  .steps-container { position: relative; }
+  .step { background: #f8fafc; border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; border-left: 4px solid #e2e8f0; display: none; animation: slideIn 0.4s ease; transition: all 0.3s; }
+  .step.visible { display: block; }
+  .step.highlight { border-left-color: #3b82f6; background: #eff6ff; }
+  .step-num { font-weight: 700; color: #3b82f6; font-size: 0.85em; }
+  .step-title { font-weight: 600; color: #1e293b; font-size: 0.88em; margin: 2px 0; }
+  .step-desc { font-size: 0.78em; color: #475569; line-height: 1.5; }
+  .step-enzyme { font-size: 0.75em; background: #fef3c7; color: #92400e; border-radius: 6px; padding: 3px 8px; margin-top: 5px; display: inline-block; }
+  
+  .btn { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; border: none; border-radius: 10px; padding: 10px 20px; cursor: pointer; font-size: 0.85em; font-weight: 600; transition: all 0.3s; box-shadow: 0 2px 8px rgba(59,130,246,0.3); }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(59,130,246,0.4); }
+  .btn:active { transform: translateY(0); }
+  .btn-reset { background: linear-gradient(135deg, #ef4444, #dc2626); box-shadow: 0 2px 8px rgba(239,68,68,0.3); }
+  
+  /* Enzyme Table */
+  .enzyme-table { width: 100%; border-collapse: collapse; font-size: 0.78em; }
+  .enzyme-table th { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; padding: 8px 10px; text-align: left; }
+  .enzyme-table th:first-child { border-radius: 8px 0 0 0; }
+  .enzyme-table th:last-child { border-radius: 0 8px 0 0; }
+  .enzyme-table td { padding: 8px 10px; border-bottom: 1px solid #e2e8f0; color: #334155; }
+  .enzyme-table tr:nth-child(even) td { background: #f8fafc; }
+  .enzyme-table tr:hover td { background: #eff6ff; }
+  
+  /* Digestion Quiz */
+  .quiz-q { font-size: 0.88em; font-weight: 600; color: #1e293b; margin-bottom: 10px; }
+  .quiz-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .quiz-opt { background: #f1f5f9; border: 2px solid #e2e8f0; border-radius: 10px; padding: 10px; cursor: pointer; font-size: 0.78em; color: #334155; transition: all 0.3s; text-align: center; }
+  .quiz-opt:hover { border-color: #3b82f6; background: #eff6ff; }
+  .quiz-opt.correct { background: #f0fdf4; border-color: #22c55e; color: #15803d; }
+  .quiz-opt.wrong { background: #fef2f2; border-color: #ef4444; color: #991b1b; }
+  .quiz-feedback { margin-top: 10px; padding: 10px; border-radius: 8px; font-size: 0.78em; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.correct { background: #f0fdf4; color: #15803d; border: 1px solid #22c55e; }
+  .quiz-feedback.wrong { background: #fef2f2; color: #991b1b; border: 1px solid #ef4444; }
+  
+  /* Progress Bar */
+  .progress-bar { height: 6px; background: #e2e8f0; border-radius: 3px; margin: 10px 0; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #3b82f6, #22c55e); border-radius: 3px; transition: width 0.5s ease; }
+  
+  /* Absorption visual */
+  .absorb-container { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 10px; }
+  .absorb-item { background: linear-gradient(135deg, #fef3c7, #fde68a); border: 2px solid #f59e0b; border-radius: 12px; padding: 10px 14px; text-align: center; font-size: 0.75em; color: #92400e; font-weight: 600; cursor: pointer; transition: all 0.3s; min-width: 80px; }
+  .absorb-item:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(245,158,11,0.3); }
+  .absorb-item.absorbed { background: linear-gradient(135deg, #d1fae5, #a7f3d0); border-color: #22c55e; color: #065f46; animation: pulse 0.5s ease; }
+  @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
+  
+  .flex-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.72em; font-weight: 600; }
+  .badge-blue { background: #dbeafe; color: #1d4ed8; }
+  .badge-green { background: #dcfce7; color: #15803d; }
+  .badge-amber { background: #fef3c7; color: #92400e; }
+  
+  @media(max-width:500px){
+    .quiz-options{grid-template-columns:1fr;}
+    .title-bar h1{font-size:1em;}
+  }
+</style>
+</head>
+<body>
+
+<div class="title-bar">
+  <h1>🍽️ Nutrition in Humans — Life Processes</h1>
+  <p>CBSE Class 10 Science | Chapter 6 | पाचन तंत्र (Digestive System)</p>
+</div>
+
+<div class="container">
+
+  <!-- Key Concept -->
+  <div class="key-concept">
+    <h3>🔑 Key Concept: Holozoic Nutrition <span class="hindi">| जटिल → सरल भोजन</span></h3>
+    <p>Humans take complex food → break it into simpler molecules → absorb → assimilate.<br>
+    <strong>Alimentary Canal (आहार नाल):</strong> Mouth → Oesophagus → Stomach → Small Intestine → Large Intestine → Rectum → Anus</p>
+  </div>
+
+  <!-- Interactive Diagram -->
+  <div class="card">
+    <div class="section-title"><span>1</span> Alimentary Canal — Click any organ!</div>
+    <p style="font-size:0.75em;color:#64748b;margin-bottom:10px;">👆 Tap/Click on each organ to learn what happens there</p>
+    
+    <svg id="canal-svg" viewBox="0 0 320 420" xmlns="http://www.w3.org/2000/svg">
+      <!-- Background -->
+      <rect width="320" height="420" fill="#f8fafc" rx="12"/>
+      
+      <!-- MOUTH -->
+      <g class="organ-btn" onclick="showOrgan('mouth')">
+        <ellipse cx="160" cy="38" rx="42" ry="22" fill="#fde68a" stroke="#f59e0b" stroke-width="2.5"/>
+        <text x="160" y="42" text-anchor="middle" font-size="11" font-weight="700" fill="#92400e">MOUTH (मुँह)</text>
+      </g>
+      
+      <!-- Oesophagus -->
+      <g class="organ-btn" onclick="showOrgan('oesophagus')">
+        <rect x="148" y="62" width="24" height="55" rx="10" fill="#c7d2fe" stroke="#6366f1" stroke-width="2"/>
+        <text x="185" y="92" font-size="9" fill="#4338ca" font-weight="600">Oesophagus</text>
+        <text x="185" y="103" font-size="8" fill="#6366f1">(ग्रासनली)</text>
+        <line x1="172" y1="92" x2="183" y2="92" stroke="#6366f1" stroke-width="1.2" marker-end="url(#arr)"/>
+      </g>
+      
+      <!-- Stomach -->
+      <g class="organ-btn" onclick="showOrgan('stomach')">
+        <path d="M120,125 Q95,130 90,158 Q88,180 105,198 Q125,215 160,212 Q190,210 200,188 Q210,165 200,145 Q190,128 165,122 Z" fill="#fca5a5" stroke="#ef4444" stroke-width="2.5"/>
+        <text x="148" y="168" text-anchor="middle" font-size="11" font-weight="700" fill="#991b1b">STOMACH</text>
+        <text x="148" y="180" text-anchor="middle" font-size="9" fill="#b91c1c">(आमाशय)</text>
+      </g>
+      
+      <!-- Small Intestine - loops -->
+      <g class="organ-btn" onclick="showOrgan('smallintestine')">
+        <path d="M115,225 Q80,235 78,258 Q76,278 105,285 Q130,290 135,305 Q140,320 115,328 Q90,335 88,352 Q86,368 115,372" fill="none" stroke="#34d399" stroke-width="14" stroke-linecap="round"/>
+        <path d="M115,225 Q80,235 78,258 Q76,278 105,285 Q130,290 135,305 Q140,320 115,328 Q90,335 88,352 Q86,368 115,372" fill="none" stroke="#6ee7b7" stroke-width="8" stroke-linecap="round"/>
+        <text x="155" y="290" font-size="9" font-weight="700" fill="#065f46">Small Intestine</text>
+        <text x="155" y="302" font-size="8" fill="#059669">(छोटी आँत)</text>
+        <line x1="148" y1="293" x2="138" y2="290" stroke="#22c55e" stroke-width="1.2"/>
+      </g>
+      
+      <!-- Large Intestine -->
+      <g class="organ-btn" onclick="showOrgan('largeintestine')">
+        <path d="M115,372 Q120,390 145,395 Q185,400 210,390 Q235,378 238,355 Q240,330 235,300 Q232,278 220,262 Q200,225 185,222" fill="none" stroke="#a78bfa" stroke-width="14" stroke-linecap="round"/>
+        <path d="M115,372 Q120,390 145,395 Q185,400 210,390 Q235,378 238,355 Q240,330 235,300 Q232,278 220,262 Q200,225 185,222" fill="none" stroke="#c4b5fd" stroke-width="8" stroke-linecap="round"/>
+        <text x="248" y="360" font-size="9" font-weight="700" fill="#5b21b6">Large</text>
+        <text x="248" y="371" font-size="9" font-weight="700" fill="#5b21b6">Intestine</text>
+        <text x="248" y="382" font-size="8" fill="#7c3aed">(बड़ी आँत)</text>
+      </g>
+      
+      <!-- Rectum/Anus -->
+      <g class="organ-btn" onclick="showOrgan('rectum')">
+        <rect x="127" y="398" width="50" height="16" rx="7" fill="#94a3b8" stroke="#64748b" stroke-width="1.5"/>
+        <text x="152" y="410" text-anchor="middle" font-size="9" font-weight="600" fill="white">Rectum/Anus</text>
+      </g>
+      
+      <!-- Arrow marker -->
+      <defs>
+        <marker id="arr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6 Z" fill="#6366f1"/>
+        </marker>
+      </defs>
+      
+      <!-- Labels -->
+      <text x="8" y="15" font-size="9" fill="#94a3b8">Click organs →</text>
+    </svg>
+    
+    <div class="info-panel" id="organ-info">
+      <h4 id="organ-title">—</h4>
+      <p id="organ-desc">—</p>
+    </div>
+  </div>
+
+  <!-- Step by Step Walkthrough -->
+  <div class="card">
+    <div class="section-title"><span>2</span> Step-by-Step Digestion Journey</div>
+    <div class="progress-bar"><div class="progress-fill" id="prog" style="width:0%"></div></div>
+    <div class="steps-container" id="steps-container"></div>
+    <div class="flex-row" style="margin-top:12px;">
+      <button class="btn" onclick="nextStep()">▶ Next Step</button>
+      <button class="btn btn-reset" onclick="resetSteps()">↺ Reset</button>
+      <span id="step-counter" style="font-size:0.78em;color:#64748b;">Step 0 / 6</span>
+    </div>
+  </div>
+
+  <!-- Enzyme Table -->
+  <div class="card">
+    <div class="section-title"><span>3</span> Digestive Enzymes (पाचक एंजाइम)</div>
+    <table class="enzyme-table">
+      <thead>
+        <tr><th>Organ</th><th>Enzyme / Juice</th><th>Action</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Mouth<br><small>मुँह</small></td><td><span class="badge badge-amber">Salivary Amylase</span></td><td>Starch → Maltose</td></tr>
+        <tr><td>Stomach<br><small>आमाशय</small></td><td><span class="badge badge-blue">HCl + Pepsin</span></td><td>Proteins → Peptones</td></tr>
+        <tr><td>Liver<br><small>यकृत</small></td><td><span class="badge badge-green">Bile Juice</span></td><td>Emulsifies fats</td></tr>
+        <tr><td>Pancreas<br><small>अग्न्याशय</small></td><td><span class="badge badge-amber">Pancreatic juice</span></td><td>Carbs + Proteins + Fats</td></tr>
+        <tr><td>Small Intestine<br><small>छोटी आँत</small></td><td><span class="badge badge-green">Intestinal juice</span></td><td>Final breakdown → Glucose, AA, Fatty acids</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Absorption Interactive -->
+  <div class="card">
+    <div class="section-title"><span>4</span> Absorption — Click to Absorb!</div>
+    <p style="font-size:0.78em;color:#64748b;margin-bottom:8px;">Click each nutrient to see it absorbed by villi (विल्ली) in the small intestine:</p>
+    <div class="absorb-container" id="absorb-items">
+      <div class="absorb-item" onclick="absorb(this,'Glucose enters blood via capillaries')">🍬 Glucose</div>
+      <div class="absorb-item" onclick="absorb(this,'Amino acids enter blood directly')">🥩 Amino Acids</div>
+      <div class="absorb-item" onclick="absorb(this,'Fatty acids enter lymph vessels (lacteals)')">🧈 Fatty Acids</div>
+      <div class="absorb-item" onclick="absorb(this,'Water absorbed in large intestine')">💧 Water</div>
+      <div class="absorb-item" onclick="absorb(this,'Vitamins absorbed along with fats/water')">💊 Vitamins</div>
+    </div>
+    <div id="absorb-msg" style="margin-top:10px;font-size:0.78em;color:#059669;background:#f0fdf4;border-radius:8px;padding:8px 12px;display:none;"></div>
+  </div>
+
+  <!-- Quiz -->
+  <div class="card">
+    <div class="section-title"><span>5</span> Quick Quiz — Test Yourself!</div>
+    <div id="quiz-area"></div>
+    <button class="btn" onclick="nextQuiz()" id="quiz-btn" style="margin-top:10px;display:none;">Next Question →</button>
+  </div>
+
+  <div style="text-align:center;padding:10px;color:#64748b;font-size:0.72em;">
+    CBSE Class 10 Science | Life Processes | Holozoic / Digestive Nutrition
+  </div>
+</div>
+
+<script>
+// ---- ORGAN INFO ----
+const organData = {
+  mouth: {
+    title: "👄 Mouth (मुँह) — Ingestion & Mechanical Digestion",
+    desc: "Food is chewed (mechanical digestion) and mixed with saliva. <br><strong>Enzyme:</strong> Salivary Amylase (टायलिन) breaks starch into maltose. Tongue helps in swallowing. Bolus is formed.",
+    enzymes: ["Salivary Amylase", "Mucus"]
+  },
+  oesophagus: {
+    title: "🟣 Oesophagus (ग्रासनली) — Food Transport",
+    desc: "A muscular tube ~25cm long. Food moves down by <strong>peristalsis (क्रमाकुंचन)</strong> — rhythmic muscular contractions. No digestion occurs here.",
+    enzymes: ["No enzyme — only transport"]
+  },
+  stomach: {
+    title: "🔴 Stomach (आमाशय) — Protein Digestion",
+    desc: "Food stays ~4 hours. Gastric glands secrete gastric juice. <strong>HCl</strong> makes medium acidic (pH 2) & kills bacteria. <strong>Pepsin</strong> digests proteins into peptones. Mucus protects stomach wall. Chyme is formed.",
+    enzymes: ["HCl", "Pepsin", "Mucus", "Rennin (in infants)"]
+  },
+  smallintestine: {
+    title: "🟢 Small Intestine (छोटी आँत) — Complete Digestion & Absorption",
+    desc: "~7 metres long! Main site of digestion. Receives <strong>bile juice</strong> (from liver — emulsifies fat), <strong>pancreatic juice</strong> (digests all three — carbs, proteins, fats). Intestinal juice completes digestion. <strong>Villi (विल्ली)</strong> absorb nutrients into blood & lymph.",
+    enzymes: ["Bile Juice", "Pancreatic Amylase", "Trypsin", "Lipase", "Intestinal juice"]
+  },
+  largeintestine: {
+    title: "🟣 Large Intestine (बड़ी आँत) — Water Absorption",
+    desc: "~1.5 metres long. Absorbs <strong>water, salts, and some vitamins</strong> from undigested food. Remaining waste (faeces/मल) moves to rectum for excretion.",
+    enzymes: ["No enzyme — water absorption"]
+  },
+  rectum: {
+    title: "⬛ Rectum & Anus — Egestion (उत्सर्जन)",
+    desc: "Faeces (undigested food + dead cells + bacteria) is stored in rectum and expelled through anus. This is called <strong>egestion</strong>.",
+    enzymes: []
+  }
+};
+
+function showOrgan(id) {
+  const data = organData[id];
+  document.getElementById('organ-title').innerHTML = data.title;
+  let html = data.desc;
+  if(data.enzymes.length > 0) {
+    html += '<br><br>';
+    data.enzymes.forEach(e => { html += `<span class="enzyme-tag">${e}</span>`; });
+  }
+  document.getElementById('organ-desc').innerHTML = html;
+  const panel = document.getElementById('organ-info');
+  panel.classList.remove('active');
+  setTimeout(() => panel.classList.add('active'), 10);
+}
+
+// ---- STEPS ----
+const steps = [
+  { num:1, title:"Ingestion — मुँह (Mouth)", desc:"Food enters the mouth. Teeth chew it into smaller pieces (mechanical digestion). Tongue mixes food with saliva.", enzyme:"Salivary Amylase: Starch → Maltose (Sugar)" },
+  { num:2, title:"Transport — Oesophagus (ग्रासनली)", desc:"Bolus (ball of food) is pushed down the oesophagus by peristalsis — wave-like muscular contractions.", enzyme:"No digestion — only movement" },
+  { num:3, title:"Digestion — Stomach (आमाशय)", desc:"Gastric juice is secreted. HCl creates acidic medium. Pepsin digests proteins. Mucus protects stomach lining. Chyme is formed after ~4 hours.", enzyme:"HCl + Pepsin → Proteins into Peptones" },
+  { num:4, title:"Bile & Pancreatic Juice — Small Intestine", desc:"Liver sends bile juice via bile duct — emulsifies fats (breaks fat globules). Pancreas sends pancreatic juice — digests carbs, proteins, fats.", enzyme:"Bile = Emulsification | Pancreatic juice = All nutrients" },
+  { num:5, title:"Complete Digestion — छोटी आँत (Small Intestine)", desc:"Intestinal juice completes final digestion. Final products: Glucose (from carbs), Amino Acids (from proteins), Fatty acids + Glycerol (from fats).", enzyme:"Intestinal enzymes → Simplest molecules" },
+  { num:6, title:"Absorption & Egestion", desc:"Villi (विल्ली) in small intestine absorb nutrients into blood/lymph. Large intestine absorbs water. Faeces expelled via anus (egestion).", enzyme:"Absorption site = Small Intestine | Water = Large Intestine" }
+];
+
+let currentStep = 0;
+
+function renderSteps() {
+  const c = document.getElementById('steps-container');
+  c.innerHTML = '';
+  steps.forEach((s,i) => {
+    const div = document.createElement('div');
+    div.className = 'step' + (i < currentStep ? ' visible' : '') + (i === currentStep-1 ? ' highlight' : '');
+    div.innerHTML = `<div class="step-num">Step ${s.num} of ${steps.length}</div>
+      <div class="step-title">${s.title}</div>
+      <div class="step-desc">${s.desc}</div>
+      <div class="step-enzyme">⚗️ ${s.enzyme}</div>`;
+    c.appendChild(div);
+  });
+  document.getElementById('prog').style.width = (currentStep/steps.length*100)+'%';
+  document.getElementById('step-counter').textContent = `Step ${currentStep} / ${steps.length}`;
+}
+
+function nextStep() {
+  if(currentStep < steps.length) { currentStep++; renderSteps(); }
+}
+
+function resetSteps() {
+  currentStep = 0; renderSteps();
+}
+
+renderSteps();
+
+// ---- ABSORB ----
+function absorb(el, msg) {
+  el.classList.add('absorbed');
+  el.style.pointerEvents = 'none';
+  const m = document.getElementById('absorb-msg');
+  m.textContent = '✅ ' + msg;
+  m.style.display = 'block';
+}
+
+// ---- QUIZ ----
+const quizzes = [
+  { q:"Which enzyme in saliva digests starch?", opts:["Pepsin","Salivary Amylase","Lipase","Trypsin"], ans:1, exp:"Salivary Amylase (टायलिन) converts starch → maltose in the mouth." },
+  { q:"Where does maximum digestion and absorption occur?", opts:["Stomach","Large Intestine","Small Intestine","Mouth"], ans:2, exp:"Small Intestine (छोटी आँत) is the main site — it receives bile, pancreatic juice and intestinal juice. Villi absorb nutrients." },
+  { q:"What is the role of HCl in the stomach?", opts:["Digest fats","Create acidic medium & kill bacteria","Absorb glucose","Transport food"], ans:1, exp:"HCl makes the stomach acidic (pH≈2), kills bacteria, and activates pepsin for protein digestion." },
+  { q:"Bile juice is produced by which organ?", opts:["Pancreas","Stomach","Kidney","Liver"], ans:3, exp:"Bile juice is produced by the Liver (यकृत) and stored in the Gall Bladder. It emulsifies fats." },
+  { q:"What are the final products of carbohydrate digestion?", opts:["Amino acids","Fatty acids","Glucose","Glycerol"], ans:2, exp:"Carbohydrates are finally broken down into Glucose molecules which are absorbed into the blood." }
+];
+
+let qIndex = 0;
+let answered = false;
+
+function renderQuiz() {
+  const q = quizzes[qIndex];
+  const area = document.getElementById('quiz-area');
+  area.innerHTML = `<div class="quiz-q">Q${qIndex+1}. ${q.q}</div>
+    <div class="quiz-options">
+      ${q.opts.map((o,i) => `<div class="quiz-opt" onclick="checkAns(${i})">${o}</div>`).join('')}
+    </div>
+    <div class="quiz-feedback" id="qfb"></div>`;
+  answered = false;
+  document.getElementById('quiz-btn').style.display = 'none';
+}
+
+function checkAns(i) {
+  if(answered) return;
+  answered = true;
+  const q = quizzes[qIndex];
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts[q.ans].classList.add('correct');
+  if(i !== q.ans) opts[i].classList.add('wrong');
+  const fb = document.getElementById('qfb');
+  fb.className = 'quiz-feedback show ' + (i === q.ans ? 'correct' : 'wrong');
+  fb.innerHTML = (i === q.ans ? '✅ Correct! ' : '❌ Wrong! ') + q.exp;
+  if(qIndex < quizzes.length - 1) document.getElementById('quiz-btn').style.display = 'inline-block';
+}
+
+function nextQuiz() {
+  qIndex++;
+  renderQuiz();
+}
+
+renderQuiz();
+</script>
+</body>
+</html>

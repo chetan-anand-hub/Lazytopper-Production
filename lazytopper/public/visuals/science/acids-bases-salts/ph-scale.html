@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>pH Scale - Acids, Bases and Salts</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #1e293b; min-height: 100vh; }
+  
+  .title-bar {
+    background: linear-gradient(135deg, #1e40af, #3b82f6, #06b6d4);
+    color: white; padding: 14px 20px; text-align: center;
+    box-shadow: 0 4px 20px rgba(59,130,246,0.4);
+  }
+  .title-bar h1 { font-size: 1.3rem; font-weight: 700; letter-spacing: 0.5px; }
+  .title-bar p { font-size: 0.8rem; opacity: 0.85; margin-top: 3px; }
+  
+  .container { max-width: 700px; margin: 0 auto; padding: 16px; }
+  
+  .card {
+    background: white; border-radius: 16px; padding: 18px;
+    margin-bottom: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+  }
+  
+  .section-title {
+    font-size: 1rem; font-weight: 700; color: #1e293b;
+    margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+  }
+  .badge {
+    background: #3b82f6; color: white; font-size: 0.7rem;
+    padding: 2px 8px; border-radius: 20px; font-weight: 600;
+  }
+
+  /* pH Formula Box */
+  .formula-box {
+    background: linear-gradient(135deg, #1e293b, #334155);
+    color: white; border-radius: 14px; padding: 16px; text-align: center;
+    margin-bottom: 12px;
+  }
+  .formula-main { font-size: 1.5rem; font-weight: 700; color: #60a5fa; letter-spacing: 1px; }
+  .formula-sub { font-size: 0.78rem; color: #94a3b8; margin-top: 6px; }
+  .formula-note { font-size: 0.75rem; color: #fbbf24; margin-top: 4px; }
+
+  /* pH Scale Bar */
+  .ph-scale-wrapper { position: relative; padding: 10px 0; }
+  .ph-gradient-bar {
+    height: 44px; border-radius: 22px;
+    background: linear-gradient(to right,
+      #dc2626 0%, #ef4444 7%, #f97316 14%, #fb923c 21%,
+      #fbbf24 28%, #facc15 35%, #a3e635 42%,
+      #22c55e 50%, #16a34a 57%, #14b8a6 64%,
+      #06b6d4 71%, #3b82f6 78%, #6366f1 85%,
+      #8b5cf6 92%, #7c3aed 100%);
+    position: relative; cursor: pointer;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  }
+  .ph-numbers {
+    display: flex; justify-content: space-between;
+    padding: 4px 2px; font-size: 0.7rem; font-weight: 700; color: #475569;
+  }
+  .ph-labels {
+    display: flex; justify-content: space-between;
+    margin-top: 6px;
+  }
+  .ph-label {
+    font-size: 0.65rem; font-weight: 700; padding: 3px 8px;
+    border-radius: 10px; text-align: center;
+  }
+  .label-acidic { background: #fee2e2; color: #dc2626; }
+  .label-neutral { background: #dcfce7; color: #16a34a; }
+  .label-basic { background: #dbeafe; color: #1d4ed8; }
+
+  .ph-marker {
+    position: absolute; top: -8px;
+    width: 4px; height: 60px; background: #1e293b;
+    border-radius: 2px; transform: translateX(-50%);
+    transition: left 0.3s ease;
+    pointer-events: none;
+  }
+  .ph-marker::after {
+    content: '▼'; position: absolute; top: -16px;
+    left: 50%; transform: translateX(-50%);
+    font-size: 0.9rem; color: #1e293b;
+  }
+
+  /* Interactive slider */
+  .ph-slider-wrap { margin-top: 14px; }
+  .ph-slider {
+    width: 100%; -webkit-appearance: none; appearance: none;
+    height: 6px; border-radius: 3px; outline: none;
+    background: linear-gradient(to right,
+      #dc2626 0%, #ef4444 7%, #f97316 14%, #fb923c 21%,
+      #fbbf24 28%, #facc15 35%, #a3e635 42%,
+      #22c55e 50%, #16a34a 57%, #14b8a6 64%,
+      #06b6d4 71%, #3b82f6 78%, #6366f1 85%,
+      #8b5cf6 92%, #7c3aed 100%);
+    cursor: pointer;
+  }
+  .ph-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: white; border: 3px solid #1e293b;
+    cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+
+  .ph-display {
+    text-align: center; margin-top: 14px; padding: 16px;
+    border-radius: 14px; transition: all 0.4s ease;
+  }
+  .ph-value { font-size: 2.5rem; font-weight: 800; }
+  .ph-desc { font-size: 0.85rem; font-weight: 600; margin-top: 4px; }
+  .ph-example { font-size: 0.75rem; margin-top: 4px; opacity: 0.85; }
+
+  /* Litmus Test */
+  .litmus-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .litmus-card {
+    border-radius: 12px; padding: 14px; text-align: center;
+    border: 2px solid transparent; cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .litmus-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
+  .litmus-strip {
+    width: 60px; height: 80px; margin: 0 auto 10px;
+    border-radius: 6px; display: flex; align-items: center;
+    justify-content: center; font-size: 0.6rem; font-weight: 700;
+    color: white; transition: all 0.5s ease; position: relative;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    border: 2px solid rgba(255,255,255,0.3);
+  }
+
+  /* Examples table */
+  .examples-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+  .examples-table th {
+    background: #1e293b; color: white; padding: 8px 6px; text-align: left;
+  }
+  .examples-table td { padding: 7px 6px; border-bottom: 1px solid #e2e8f0; }
+  .examples-table tr:hover { background: #f8fafc; }
+  .ph-chip {
+    display: inline-block; padding: 2px 8px; border-radius: 10px;
+    font-weight: 700; font-size: 0.72rem; color: white;
+  }
+
+  /* Walkthrough */
+  .step-btn {
+    background: linear-gradient(135deg, #3b82f6, #6366f1);
+    color: white; border: none; padding: 10px 20px;
+    border-radius: 20px; cursor: pointer; font-size: 0.85rem;
+    font-weight: 600; transition: all 0.2s; width: 100%;
+    margin-top: 10px;
+  }
+  .step-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(99,102,241,0.4); }
+  .step-box {
+    background: #f0f9ff; border-left: 4px solid #3b82f6;
+    border-radius: 0 10px 10px 0; padding: 12px;
+    margin-top: 10px; display: none; animation: fadeIn 0.4s ease;
+  }
+  .step-box.visible { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .step-num {
+    background: #3b82f6; color: white; width: 24px; height: 24px;
+    border-radius: 50%; display: inline-flex; align-items: center;
+    justify-content: center; font-size: 0.75rem; font-weight: 700;
+    margin-right: 8px;
+  }
+  .highlight { color: #dc2626; font-weight: 700; }
+  .highlight-blue { color: #2563eb; font-weight: 700; }
+  .highlight-green { color: #16a34a; font-weight: 700; }
+
+  /* Indicators */
+  .indicator-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .indicator-card {
+    border-radius: 10px; padding: 10px 6px; text-align: center;
+    font-size: 0.68rem; font-weight: 600; cursor: pointer;
+    transition: all 0.3s; border: 2px solid transparent;
+  }
+  .indicator-card:hover { transform: scale(1.04); }
+  .ind-color {
+    width: 36px; height: 36px; border-radius: 50%;
+    margin: 0 auto 6px; border: 3px solid rgba(255,255,255,0.5);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+
+  /* Key points */
+  .key-point {
+    display: flex; align-items: flex-start; gap: 8px;
+    padding: 8px; background: #f8fafc; border-radius: 8px;
+    margin-bottom: 6px; font-size: 0.78rem;
+  }
+  .key-icon { font-size: 1rem; flex-shrink: 0; }
+
+  /* Quiz */
+  .quiz-option {
+    padding: 10px 14px; border-radius: 10px; margin-bottom: 6px;
+    border: 2px solid #e2e8f0; cursor: pointer; font-size: 0.82rem;
+    transition: all 0.2s; background: white;
+  }
+  .quiz-option:hover { border-color: #3b82f6; background: #eff6ff; }
+  .quiz-option.correct { border-color: #22c55e; background: #f0fdf4; color: #166534; }
+  .quiz-option.wrong { border-color: #ef4444; background: #fef2f2; color: #991b1b; }
+  .quiz-feedback { font-size: 0.78rem; font-weight: 600; margin-top: 8px; padding: 8px; border-radius: 8px; display: none; }
+
+  @media (max-width: 400px) {
+    .indicator-grid { grid-template-columns: repeat(2, 1fr); }
+    .formula-main { font-size: 1.2rem; }
+    .ph-value { font-size: 2rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="title-bar">
+  <h1>⚗️ pH Scale — अम्ल, क्षार और लवण</h1>
+  <p>CBSE Class 10 Science | Interactive Visual Explainer</p>
+</div>
+
+<div class="container">
+
+  <!-- Formula Card -->
+  <div class="card">
+    <div class="section-title">📐 Key Concept <span class="badge">pH क्या है?</span></div>
+    <div class="formula-box">
+      <div class="formula-main">pH = −log₁₀[H⁺]</div>
+      <div class="formula-sub">pH is the negative logarithm of hydrogen ion concentration</div>
+      <div class="formula-note">⚡ Higher [H⁺] → Lower pH → More Acidic</div>
+    </div>
+    <div class="key-point"><span class="key-icon">🔴</span><span><strong>Acidic (अम्लीय):</strong> pH &lt; 7 → More H⁺ ions in solution</span></div>
+    <div class="key-point"><span class="key-icon">🟢</span><span><strong>Neutral (उदासीन):</strong> pH = 7 → Equal H⁺ and OH⁻ ions (e.g., pure water)</span></div>
+    <div class="key-point"><span class="key-icon">🔵</span><span><strong>Basic/Alkaline (क्षारीय):</strong> pH &gt; 7 → More OH⁻ ions in solution</span></div>
+  </div>
+
+  <!-- Interactive pH Scale -->
+  <div class="card">
+    <div class="section-title">🎚️ Interactive pH Scale <span class="badge">Drag to Explore</span></div>
+    <div class="ph-scale-wrapper">
+      <div class="ph-gradient-bar" id="phBar">
+        <div class="ph-marker" id="phMarker" style="left:50%"></div>
+      </div>
+      <div class="ph-numbers">
+        <span>0</span><span>1</span><span>2</span><span>3</span><span>4</span>
+        <span>5</span><span>6</span><span>7</span><span>8</span><span>9</span>
+        <span>10</span><span>11</span><span>12</span><span>13</span><span>14</span>
+      </div>
+      <div class="ph-labels">
+        <div class="ph-label label-acidic">← Acidic (अम्लीय)</div>
+        <div class="ph-label label-neutral">Neutral</div>
+        <div class="ph-label label-basic">Basic (क्षारीय) →</div>
+      </div>
+    </div>
+    <div class="ph-slider-wrap">
+      <input type="range" class="ph-slider" id="phSlider" min="0" max="14" step="0.1" value="7">
+    </div>
+    <div class="ph-display" id="phDisplay">
+      <div class="ph-value" id="phValue">7.0</div>
+      <div class="ph-desc" id="phDesc">Neutral — Pure Water (शुद्ध जल)</div>
+      <div class="ph-example" id="phExampleText">H⁺ = OH⁻ ions | No colour change in litmus</div>
+    </div>
+  </div>
+
+  <!-- Litmus Test -->
+  <div class="card">
+    <div class="section-title">🧪 Litmus Test (लिटमस परीक्षण)</div>
+    <div class="litmus-grid">
+      <div class="litmus-card" style="background:#fff0f0; border-color:#fca5a5;" onclick="animateLitmus('acid')">
+        <div class="litmus-strip" id="litmusRed" style="background:#4ade80;">RED<br>LITMUS</div>
+        <div style="font-size:0.78rem; font-weight:700; color:#1e293b;">+ Acid (अम्ल)</div>
+        <div style="font-size:0.68rem; color:#64748b; margin-top:4px;">Click to test!</div>
+      </div>
+      <div class="litmus-card" style="background:#f0f0ff; border-color:#a5b4fc;" onclick="animateLitmus('base')">
+        <div class="litmus-strip" id="litmusBlue" style="background:#4ade80;">BLUE<br>LITMUS</div>
+        <div style="font-size:0.78rem; font-weight:700; color:#1e293b;">+ Base (क्षार)</div>
+        <div style="font-size:0.68rem; color:#64748b; margin-top:4px;">Click to test!</div>
+      </div>
+    </div>
+    <div id="litmusResult" style="text-align:center; font-size:0.8rem; margin-top:10px; padding:8px; border-radius:8px; background:#f8fafc; color:#475569;">
+      👆 Click a litmus card above to see what happens!
+    </div>
+  </div>
+
+  <!-- Common Examples -->
+  <div class="card">
+    <div class="section-title">📋 Common Examples (सामान्य उदाहरण)</div>
+    <table class="examples-table">
+      <thead>
+        <tr><th>Substance</th><th>pH</th><th>Nature</th><th>Type</th></tr>
+      </thead>
+      <tbody id="examplesBody"></tbody>
+    </table>
+  </div>
+
+  <!-- Indicators -->
+  <div class="card">
+    <div class="section-title">🌈 pH Indicators (सूचक) <span class="badge">Click to learn</span></div>
+    <div class="indicator-grid" id="indicatorGrid"></div>
+    <div id="indicatorInfo" style="font-size:0.78rem; background:#f0f9ff; border-radius:8px; padding:10px; margin-top:10px; display:none;"></div>
+  </div>
+
+  <!-- Step-by-Step Walkthrough -->
+  <div class="card">
+    <div class="section-title">📖 Worked Example <span class="badge">Step-by-step</span></div>
+    <div style="font-size:0.82rem; color:#374151; background:#fffbeb; padding:10px; border-radius:8px; border-left:4px solid #f59e0b;">
+      <strong>Question:</strong> A solution turns blue litmus red. Its pH is likely to be:<br>
+      (A) 3 &nbsp; (B) 7 &nbsp; (C) 9 &nbsp; (D) 11
+    </div>
+    <button class="step-btn" onclick="showStep(1)">▶ Show Step 1</button>
+    <div class="step-box" id="step1">
+      <span class="step-num">1</span>
+      <strong>Understand the clue:</strong> Blue litmus turns <span class="highlight">red</span> → the solution is <span class="highlight">acidic</span> (अम्लीय)
+    </div>
+    <button class="step-btn" onclick="showStep(2)" id="btn2" style="display:none">▶ Show Step 2</button>
+    <div class="step-box" id="step2">
+      <span class="step-num">2</span>
+      <strong>Apply pH rule:</strong> Acidic solutions have pH <span class="highlight">&lt; 7</span>
+    </div>
+    <button class="step-btn" onclick="showStep(3)" id="btn3" style="display:none">▶ Show Step 3</button>
+    <div class="step-box" id="step3">
+      <span class="step-num">3</span>
+      <strong>Check options:</strong> <span class="highlight-green">A = 3 ✓</span> (acidic), B = 7 (neutral), C = 9 (basic), D = 11 (basic)
+    </div>
+    <button class="step-btn" onclick="showStep(4)" id="btn4" style="display:none">✅ Show Answer</button>
+    <div class="step-box" id="step4" style="background:#f0fdf4; border-color:#22c55e;">
+      <span class="step-num" style="background:#22c55e">✓</span>
+      <strong>Answer: (A) pH = 3</strong> — It is acidic. pH &lt; 7 means acidic, so blue litmus turns red. ∴ Option A is correct!
+    </div>
+  </div>
+
+  <!-- Quick Quiz -->
+  <div class="card">
+    <div class="section-title">🎯 Quick Quiz <span class="badge">Test Yourself</span></div>
+    <div style="font-size:0.85rem; font-weight:600; color:#1e293b; margin-bottom:10px;">
+      What is the pH of a neutral solution?
+    </div>
+    <div class="quiz-option" onclick="checkQuiz(this, false)">A) 0</div>
+    <div class="quiz-option" onclick="checkQuiz(this, true)">B) 7</div>
+    <div class="quiz-option" onclick="checkQuiz(this, false)">C) 14</div>
+    <div class="quiz-option" onclick="checkQuiz(this, false)">D) 10</div>
+    <div class="quiz-feedback" id="quizFeedback"></div>
+  </div>
+
+</div>
+
+<script>
+// pH Data
+const phData = [
+  { ph: 0, desc: "Battery Acid (बैटरी अम्ल)", example: "Extremely corrosive! H₂SO₄ concentrated", color: "#dc2626" },
+  { ph: 1, desc: "Stomach Acid (आमाशय रस)", example: "HCl in gastric juice aids digestion", color: "#ef4444" },
+  { ph: 2, desc: "Lemon Juice (नींबू रस)", example: "Citric acid — very sour taste", color: "#f97316" },
+  { ph: 3, desc: "Vinegar / Cola (सिरका)", example: "Acetic acid / Phosphoric acid", color: "#fb923c" },
+  { ph: 4, desc: "Tomato Juice (टमाटर रस)", example: "Weak acid — still mildly acidic", color: "#fbbf24" },
+  { ph: 5, desc: "Black Coffee (कॉफी)", example: "Mild acid — teeth can be affected", color: "#facc15" },
+  { ph: 6, desc: "Milk / Saliva (दूध/लार)", example: "Slightly acidic — near neutral", color: "#a3e635" },
+  { ph: 7, desc: "Pure Water (शुद्ध जल)", example: "H⁺ = OH⁻ ions | No litmus colour change", color: "#22c55e" },
+  { ph: 8, desc: "Sea Water (समुद्र जल)", example: "Slightly basic — dissolved minerals", color: "#14b8a6" },
+  { ph: 9, desc: "Baking Soda (बेकिंग सोडा)", example: "NaHCO₃ — mild base used in baking", color: "#06b6d4" },
+  { ph: 10, desc: "Soap Solution (साबुन)", example: "Mildly alkaline — turns red litmus blue", color: "#3b82f6" },
+  { ph: 11, desc: "Ammonia Solution (अमोनिया)", example: "NH₃ — used in cleaning products", color: "#6366f1" },
+  { ph: 12, desc: "Lime Water (चूने का पानी)", example: "Ca(OH)₂ — used in whitewash", color: "#8b5cf6" },
+  { ph: 13, desc: "Bleach / Oven Cleaner", example: "Strong base — corrosive!", color: "#7c3aed" },
+  { ph: 14, desc: "Caustic Soda (कास्टिक सोडा)", example: "NaOH — extremely caustic base", color: "#6d28d9" }
+];
+
+const slider = document.getElementById('phSlider');
+const phValue = document.getElementById('phValue');
+const phDesc = document.getElementById('phDesc');
+const phExampleText = document.getElementById('phExampleText');
+const phDisplay = document.getElementById('phDisplay');
+const phMarker = document.getElementById('phMarker');
+
+function updatePH(val) {
+  const idx = Math.round(val);
+  const d = phData[idx];
+  phValue.textContent = parseFloat(val).toFixed(1);
+  phDesc.textContent = d.desc;
+  phExampleText.textContent = d.example;
+  phDisplay.style.background = d.color + '22';
+  phDisplay.style.borderLeft = '4px solid ' + d.color;
+  phValue.style.color = d.color;
+  phMarker.style.left = (val / 14 * 100) + '%';
+}
+
+slider.addEventListener('input', () => updatePH(slider.value));
+updatePH(7);
+
+// Litmus animation
+function animateLitmus(type) {
+  const res = document.getElementById('litmusResult');
+  if (type === 'acid') {
+    const strip = document.getElementById('litmusRed');
+    strip.style.background = '#ef4444';
+    strip.textContent = 'RED ✓';
+    res.style.background = '#fee2e2';
+    res.style.color = '#dc2626';
+    res.innerHTML = '🔴 <strong>Red Litmus + Acid:</strong> Remains RED — No change! (अम्ल में लाल लिटमस लाल रहता है)<br><small>Acid keeps red litmus red. Acid turns BLUE litmus to RED.</small>';
+    setTimeout(() => {
+      strip.style.background = '#4ade80';
+      strip.innerHTML = 'RED<br>LITMUS';
+    }, 2500);
+  } else {
+    const strip = document.getElementById('litmusBlue');
+    strip.style.background = '#3b82f6';
+    strip.innerHTML = 'BLUE ✓';
+    res.style.background = '#dbeafe';
+    res.style.color = '#1d4ed8';
+    res.innerHTML = '🔵 <strong>Blue Litmus + Base:</strong> Remains BLUE — No change! (क्षार में नीला लिटमस नीला रहता है)<br><small>Base keeps blue litmus blue. Base turns RED litmus to BLUE.</small>';
+    setTimeout(() => {
+      strip.style.background = '#4ade80';
+      strip.innerHTML = 'BLUE<br>LITMUS';
+    }, 2500);
+  }
+}
+
+// Examples Table
+const examples = [
+  { name: "Battery Acid", ph: 1, bg: "#dc2626", type: "Strong Acid" },
+  { name: "Lemon (नींबू)", ph: 2, bg: "#ef4444", type: "Weak Acid" },
+  { name: "Vinegar (सिरका)", ph: 3, bg: "#f97316", type: "Weak Acid" },
+  { name: "Black Coffee", ph: 5, bg: "#fbbf24", type: "Weak Acid" },
+  { name: "Pure Water (जल)", ph: 7, bg: "#22c55e", type: "Neutral" },
+  { name: "Baking Soda", ph: 9, bg: "#06b6d4", type: "Weak Base" },
+  { name: "Milk of Magnesia", ph: 10, bg: "#3b82f6", type: "Base" },
+  { name: "NaOH (कास्टिक सोडा)", ph: 14, bg: "#6d28d9", type: "Strong Base" }
+];
+
+const tbody = document.getElementById('examplesBody');
+examples.forEach(e => {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td>${e.name}</td><td><span class="ph-chip" style="background:${e.bg}">${e.ph}</span></td><td>${e.ph < 7 ? '🔴 Acidic' : e.ph === 7 ? '🟢 Neutral' : '🔵 Basic'}</td><td style="font-size:0.72rem;color:#475569">${e.type}</td>`;
+  tbody.appendChild(tr);
+});
+
+// Indicators
+const indicators = [
+  { name: "Litmus (लिटमस)", acidColor: "#ef4444", neutralColor: "#a855f7", baseColor: "#3b82f6", info: "Litmus: RED in acid (pH<7), VIOLET in neutral, BLUE in base (pH>7). Natural indicator from lichens." },
+  { name: "Methyl Orange", acidColor: "#f97316", neutralColor: "#fbbf24", baseColor: "#f59e0b", info: "Methyl Orange: RED/ORANGE in acid, YELLOW in base. Used in titrations. pH range: 3.1–4.4" },
+  { name: "Phenolphthalein", acidColor: "#ffffff", neutralColor: "#ffffff", baseColor: "#ec4899", info: "Phenolphthalein: COLOURLESS in acid/neutral, PINK in base. pH range: 8.2–10. Great for base detection." }
+];
+
+const grid = document.getElementById('indicatorGrid');
+const infoDiv = document.getElementById('indicatorInfo');
+
+indicators.forEach((ind, i) => {
+  const div = document.createElement('div');
+  div.className = 'indicator-card';
+  div.style.background = '#f8fafc';
+  div.innerHTML = `
+    <div style="display:flex; justify-content:center; gap:4px; margin-bottom:6px;">
+      <div class="ind-color" style="background:${ind.acidColor}; border-color:#ef4444;" title="Acid"></div>
+      <div class="ind-color" style="background:${ind.neutralColor}; border-color:#22c55e;" title="Neutral"></div>
+      <div class="ind-color" style="background:${ind.baseColor}; border-color:#3b82f6;" title="Base"></div>
+    </div>
+    <div style="color:#1e293b;">${ind.name}</div>
+    <div style="color:#64748b; font-size:0.62rem;">Acid | Neutral | Base</div>`;
+  div.onclick = () => {
+    infoDiv.style.display = 'block';
+    infoDiv.innerHTML = `<strong>🔬 ${ind.name}:</strong><br>${ind.info}`;
+    document.querySelectorAll('.indicator-card').forEach(c => c.style.border = '2px solid transparent');
+    div.style.border = '2px solid #3b82f6';
+  };
+  grid.appendChild(div);
+});
+
+// Walkthrough
+let currentStep = 0;
+function showStep(n) {
+  document.getElementById('step' + n).classList.add('visible');
+  const nextBtn = document.getElementById('btn' + (n + 1));
+  if (nextBtn) nextBtn.style.display = 'block';
+  document.querySelectorAll('.step-btn')[n - 1].style.display = 'none';
+}
+
+// Quiz
+function checkQuiz(el, correct) {
+  const opts = document.querySelectorAll('.quiz-option');
+  opts.forEach(o => { o.onclick = null; o.style.cursor = 'default'; });
+  const feedback = document.getElementById('quizFeedback');
+  feedback.style.display = 'block';
+  if (correct) {
+    el.classList.add('correct');
+    feedback.style.background = '#f0fdf4';
+    feedback.style.color = '#166534';
+    feedback.innerHTML = '✅ Correct! pH = 7 is neutral — pure water has equal H⁺ and OH⁻ ions. (शाबाश! 🌟)';
+  } else {
+    el.classList.add('wrong');
+    opts.forEach(o => { if (o.textContent.includes('B)')) o.classList.add('correct'); });
+    feedback.style.background = '#fef2f2';
+    feedback.style.color = '#991b1b';
+    feedback.innerHTML = '❌ Not quite. Neutral pH = 7. pH=0 is most acidic, pH=14 is most basic. (फिर कोशिश करें!)';
+  }
+}
+</script>
+</body>
+</html>

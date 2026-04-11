@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Substitution Method - Class 10 Maths</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%); min-height: 100vh; color: #1e293b; }
+  
+  .title-bar { background: linear-gradient(90deg, #1d4ed8, #3b82f6, #60a5fa); padding: 14px 20px; text-align: center; box-shadow: 0 4px 20px rgba(59,130,246,0.5); }
+  .title-bar h1 { color: white; font-size: clamp(14px,3.5vw,20px); font-weight: 700; letter-spacing: 0.5px; }
+  .title-bar p { color: #bfdbfe; font-size: clamp(11px,2.5vw,13px); margin-top: 3px; }
+  
+  .container { max-width: 800px; margin: 0 auto; padding: 16px; }
+  
+  .card { background: white; border-radius: 16px; padding: 18px; margin-bottom: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
+  
+  .concept-box { background: linear-gradient(135deg, #eff6ff, #dbeafe); border: 2px solid #3b82f6; border-radius: 14px; padding: 16px; text-align: center; }
+  .concept-box h2 { color: #1d4ed8; font-size: clamp(13px,3vw,17px); margin-bottom: 8px; }
+  .big-formula { background: white; border-radius: 10px; padding: 12px; margin: 10px 0; font-size: clamp(12px,2.8vw,15px); color: #1e293b; border-left: 4px solid #3b82f6; text-align: left; line-height: 1.8; }
+  .highlight { color: #3b82f6; font-weight: 700; }
+  .green { color: #22c55e; font-weight: 700; }
+  .amber { color: #f59e0b; font-weight: 700; }
+  .red { color: #ef4444; font-weight: 700; }
+
+  .steps-intro { font-size: clamp(12px,2.5vw,14px); color: #475569; background: #f8fafc; border-radius: 8px; padding: 10px 14px; margin: 10px 0; }
+
+  /* Interactive Equation Builder */
+  .eq-section h3 { color: #1d4ed8; font-size: clamp(13px,3vw,16px); margin-bottom: 10px; }
+  .eq-display { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center; margin: 12px 0; }
+  .eq-box { background: linear-gradient(135deg, #eff6ff, #dbeafe); border: 2px solid #93c5fd; border-radius: 10px; padding: 10px 16px; font-size: clamp(14px,3.5vw,18px); font-weight: 700; color: #1d4ed8; transition: all 0.3s; }
+  .eq-box.selected { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; border-color: #1d4ed8; transform: scale(1.05); box-shadow: 0 4px 15px rgba(59,130,246,0.4); }
+  
+  /* Step by Step */
+  .step-container { position: relative; }
+  .step { background: #f8fafc; border-radius: 12px; padding: 14px; margin: 8px 0; border-left: 4px solid #e2e8f0; transition: all 0.4s ease; opacity: 0; transform: translateY(20px); pointer-events: none; }
+  .step.visible { opacity: 1; transform: translateY(0); pointer-events: all; }
+  .step.active { border-left-color: #3b82f6; background: linear-gradient(135deg, #eff6ff, #f0fdf4); }
+  .step-num { display: inline-block; background: #3b82f6; color: white; border-radius: 50%; width: 26px; height: 26px; text-align: center; line-height: 26px; font-size: 12px; font-weight: 700; margin-right: 8px; }
+  .step-title { font-weight: 700; color: #1e293b; font-size: clamp(12px,2.8vw,14px); }
+  .step-body { margin-top: 8px; font-size: clamp(11px,2.5vw,13px); color: #475569; line-height: 1.7; }
+  .math-line { background: white; border-radius: 8px; padding: 8px 12px; margin: 6px 0; font-family: 'Courier New', monospace; font-size: clamp(12px,2.8vw,14px); border: 1px solid #e2e8f0; color: #1e293b; }
+  .math-line.result { border-color: #22c55e; background: #f0fdf4; color: #15803d; font-weight: 700; }
+  .math-line.subst { border-color: #f59e0b; background: #fffbeb; }
+
+  .btn { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; border: none; border-radius: 10px; padding: 10px 20px; cursor: pointer; font-size: clamp(12px,2.8vw,14px); font-weight: 600; transition: all 0.3s; box-shadow: 0 4px 12px rgba(59,130,246,0.3); margin: 6px; }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(59,130,246,0.5); }
+  .btn:active { transform: translateY(0); }
+  .btn.green-btn { background: linear-gradient(135deg, #22c55e, #16a34a); box-shadow: 0 4px 12px rgba(34,197,94,0.3); }
+  .btn.amber-btn { background: linear-gradient(135deg, #f59e0b, #d97706); box-shadow: 0 4px 12px rgba(245,158,11,0.3); }
+  .btn.reset-btn { background: linear-gradient(135deg, #ef4444, #dc2626); box-shadow: 0 4px 12px rgba(239,68,68,0.3); }
+
+  .btn-row { text-align: center; margin: 10px 0; display: flex; flex-wrap: wrap; justify-content: center; }
+
+  /* Progress dots */
+  .progress-dots { display: flex; justify-content: center; gap: 8px; margin: 10px 0; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: #e2e8f0; transition: all 0.3s; }
+  .dot.done { background: #22c55e; transform: scale(1.2); }
+  .dot.current { background: #3b82f6; transform: scale(1.3); }
+
+  /* Practice Section */
+  .practice-card { background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 2px solid #22c55e; border-radius: 14px; padding: 16px; }
+  .practice-card h3 { color: #15803d; font-size: clamp(13px,3vw,15px); margin-bottom: 10px; }
+  .input-row { display: flex; align-items: center; gap: 8px; margin: 8px 0; flex-wrap: wrap; }
+  .input-row label { font-size: clamp(12px,2.5vw,13px); color: #374151; font-weight: 600; min-width: 80px; }
+  .ans-input { border: 2px solid #86efac; border-radius: 8px; padding: 6px 10px; font-size: clamp(13px,3vw,15px); width: 70px; text-align: center; outline: none; transition: all 0.3s; background: white; }
+  .ans-input:focus { border-color: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,0.2); }
+  .feedback { font-size: clamp(12px,2.5vw,13px); padding: 8px 12px; border-radius: 8px; margin: 8px 0; display: none; font-weight: 600; }
+  .feedback.correct { background: #f0fdf4; color: #15803d; border: 1px solid #86efac; display: block; }
+  .feedback.wrong { background: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; display: block; }
+
+  /* Visual substitution animator */
+  .visual-box { background: linear-gradient(135deg, #fdf4ff, #fae8ff); border: 2px solid #c084fc; border-radius: 14px; padding: 16px; text-align: center; }
+  .visual-box h3 { color: #7c3aed; font-size: clamp(13px,3vw,15px); margin-bottom: 12px; }
+  .eq-visual { font-size: clamp(16px,4vw,22px); font-weight: 700; color: #1e293b; margin: 10px 0; line-height: 2; min-height: 48px; transition: all 0.5s; }
+  .y-token { display: inline-block; background: #f59e0b; color: white; border-radius: 8px; padding: 2px 10px; transition: all 0.6s; cursor: pointer; }
+  .y-token.replaced { background: #22c55e; animation: pop 0.4s ease; }
+  .x-expr { display: inline-block; background: #3b82f6; color: white; border-radius: 8px; padding: 2px 10px; font-size: 0.85em; }
+  @keyframes pop { 0%{transform:scale(1)} 50%{transform:scale(1.3)} 100%{transform:scale(1)} }
+
+  .tag { display: inline-block; background: #eff6ff; color: #1d4ed8; border-radius: 6px; padding: 2px 8px; font-size: 11px; font-weight: 600; margin: 2px; }
+  .hindi { color: #7c3aed; font-style: italic; font-size: 0.9em; }
+  
+  .tip-box { background: linear-gradient(135deg, #fffbeb, #fef3c7); border: 1px solid #fbbf24; border-radius: 10px; padding: 10px 14px; margin: 10px 0; font-size: clamp(11px,2.5vw,13px); color: #92400e; }
+  .tip-box strong { color: #b45309; }
+
+  @keyframes fadeSlideIn { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
+  .animate-in { animation: fadeSlideIn 0.5s ease forwards; }
+
+  .section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; margin-bottom: 8px; }
+</style>
+</head>
+<body>
+
+<div class="title-bar">
+  <h1>📐 Substitution Method | प्रतिस्थापन विधि</h1>
+  <p>Class 10 Mathematics — Pair of Linear Equations in Two Variables</p>
+</div>
+
+<div class="container">
+
+  <!-- Concept Card -->
+  <div class="card">
+    <div class="concept-box">
+      <h2>🔑 Core Idea | मूल विचार</h2>
+      <div class="big-formula">
+        <b>Step 1:</b> Express one variable in terms of the other<br>
+        <span class="hindi">(एक चर को दूसरे चर में व्यक्त करो)</span><br><br>
+        <b>Step 2:</b> <span class="highlight">Substitute</span> (प्रतिस्थापित करो) into the second equation<br><br>
+        <b>Step 3:</b> Solve the single-variable equation → get one value<br><br>
+        <b>Step 4:</b> Back-substitute → get the other value<br><br>
+        <span class="green">∴ Solution = ordered pair (x, y)</span>
+      </div>
+    </div>
+    <div class="steps-intro">
+      <b>💡 Why it works:</b> A linear equation with 2 unknowns has ∞ solutions. But when we fix one variable's expression, the second equation gives us the unique solution!
+    </div>
+  </div>
+
+  <!-- Visual Substitution Demo -->
+  <div class="card">
+    <div class="section-label">Interactive Visual</div>
+    <div class="visual-box">
+      <h3>🎯 Watch Substitution Happen! | Click the buttons below</h3>
+      <div style="font-size:clamp(12px,2.5vw,13px);color:#6b7280;margin-bottom:8px;">
+        Equations: &nbsp;<b>x − y = 2</b> &nbsp;&amp;&nbsp; <b>x + y = 8</b>
+      </div>
+      <div class="eq-visual" id="visualEq">
+        x + <span class="y-token" id="yToken">y</span> = 8
+      </div>
+      <div id="visualNote" style="font-size:clamp(11px,2.5vw,13px);color:#7c3aed;min-height:20px;margin:4px 0;"></div>
+      <div class="btn-row">
+        <button class="btn" onclick="step1Visual()">1️⃣ Express y from Eq.1</button>
+        <button class="btn amber-btn" onclick="step2Visual()">2️⃣ Substitute in Eq.2</button>
+        <button class="btn green-btn" onclick="step3Visual()">3️⃣ Solve!</button>
+        <button class="btn reset-btn" onclick="resetVisual()">↺ Reset</button>
+      </div>
+      <div id="visualResult" style="min-height:32px;font-size:clamp(13px,3vw,16px);font-weight:700;color:#15803d;margin-top:8px;transition:all 0.4s;"></div>
+    </div>
+  </div>
+
+  <!-- Step-by-Step Worked Example -->
+  <div class="card">
+    <div class="section-label">Worked Example | हल किया उदाहरण</div>
+    <div class="eq-section">
+      <h3>📘 Solve: &nbsp; 2x + 3y = 11 &nbsp;&amp;&nbsp; x − 2y = −3</h3>
+      <div class="tip-box">
+        <strong>🔍 Strategy:</strong> The second equation has <b>x alone</b> (coefficient = 1), so it's easiest to express x from Eq.2 and substitute in Eq.1!
+      </div>
+    </div>
+
+    <div class="progress-dots" id="progressDots">
+      <div class="dot current" id="d0"></div>
+      <div class="dot" id="d1"></div>
+      <div class="dot" id="d2"></div>
+      <div class="dot" id="d3"></div>
+      <div class="dot" id="d4"></div>
+    </div>
+
+    <div class="step-container" id="stepsContainer">
+      <div class="step visible active" id="step0">
+        <span class="step-num">1</span><span class="step-title">Write down the equations</span>
+        <div class="step-body">
+          <div class="math-line">Equation 1: &nbsp; 2x + 3y = 11 &nbsp;&nbsp; …(i)</div>
+          <div class="math-line">Equation 2: &nbsp; x − 2y = −3 &nbsp;&nbsp; …(ii)</div>
+          <div style="font-size:12px;color:#64748b;margin-top:6px;">We have 2 equations, 2 unknowns (x &amp; y). ∴ Unique solution exists!</div>
+        </div>
+      </div>
+
+      <div class="step" id="step1">
+        <span class="step-num">2</span><span class="step-title">Express x from Equation (ii) <span class="hindi">| x को अलग करो</span></span>
+        <div class="step-body">
+          <div class="math-line">x − 2y = −3</div>
+          <div class="math-line subst">∴ &nbsp; x = −3 + 2y &nbsp;&nbsp; …(iii)</div>
+          <div style="font-size:12px;color:#64748b;margin-top:4px;">✅ Now x is expressed as a function of y!</div>
+        </div>
+      </div>
+
+      <div class="step" id="step2">
+        <span class="step-num">3</span><span class="step-title">Substitute (iii) into Equation (i) <span class="hindi">| प्रतिस्थापन</span></span>
+        <div class="step-body">
+          <div class="math-line">2<span style="color:#3b82f6;font-weight:700;">(x)</span> + 3y = 11 &nbsp; → replace x with <span style="color:#f59e0b;font-weight:700;">(−3 + 2y)</span></div>
+          <div class="math-line subst">2<span style="color:#f59e0b;font-weight:700;">(−3 + 2y)</span> + 3y = 11</div>
+          <div class="math-line">−6 + 4y + 3y = 11</div>
+          <div class="math-line">7y = 11 + 6 = 17</div>
+          <div class="math-line result">∴ &nbsp; y = 17 ÷ 7 = <b>17/7</b></div>
+          <div style="font-size:12px;color:#64748b;margin-top:4px;">🎉 One variable solved! Now let's find x.</div>
+        </div>
+      </div>
+
+      <div class="step" id="step3">
+        <span class="step-num">4</span><span class="step-title">Back-substitute to find x <span class="hindi">| x का मान निकालो</span></span>
+        <div class="step-body">
+          <div class="math-line">From (iii): &nbsp; x = −3 + 2y</div>
+          <div class="math-line subst">x = −3 + 2 × (17/7)</div>
+          <div class="math-line">x = −3 + 34/7</div>
+          <div class="math-line">x = −21/7 + 34/7</div>
+          <div class="math-line result">∴ &nbsp; x = 13/7</div>
+        </div>
+      </div>
+
+      <div class="step" id="step4">
+        <span class="step-num">5</span><span class="step-title">Verify the solution ✓ <span class="hindi">| सत्यापन</span></span>
+        <div class="step-body">
+          <div class="math-line">Check in Eq.(i): &nbsp; 2(13/7) + 3(17/7) = 26/7 + 51/7 = 77/7 = 11 ✅</div>
+          <div class="math-line">Check in Eq.(ii): &nbsp; 13/7 − 2(17/7) = 13/7 − 34/7 = −21/7 = −3 ✅</div>
+          <div class="math-line result" style="font-size:clamp(13px,3vw,15px);">
+            ∴ Solution: &nbsp; x = 13/7, &nbsp; y = 17/7
+          </div>
+          <div style="font-size:12px;color:#64748b;margin-top:4px;">🏆 Both equations satisfied! Solution is correct.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn" onclick="prevStep()">◀ Previous</button>
+      <button class="btn green-btn" onclick="nextStep()">Next Step ▶</button>
+      <button class="btn reset-btn" onclick="resetSteps()">↺ Restart</button>
+    </div>
+  </div>
+
+  <!-- Key Rules Box -->
+  <div class="card">
+    <div class="section-label">Important Tips | महत्वपूर्ण सुझाव</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:10px;padding:12px;border-left:4px solid #3b82f6;">
+        <div style="font-weight:700;color:#1d4ed8;font-size:13px;">✅ Choose wisely</div>
+        <div style="font-size:12px;color:#374151;margin-top:6px;">Pick the equation where a variable has coefficient <b>1 or −1</b> for easier calculation</div>
+      </div>
+      <div style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-radius:10px;padding:12px;border-left:4px solid #22c55e;">
+        <div style="font-weight:700;color:#15803d;font-size:13px;">✅ Always Verify</div>
+        <div style="font-size:12px;color:#374151;margin-top:6px;">Substitute back into <b>both</b> original equations to check your answer!</div>
+      </div>
+      <div style="background:linear-gradient(135deg,#fffbeb,#fef3c7);border-radius:10px;padding:12px;border-left:4px solid #f59e0b;">
+        <div style="font-weight:700;color:#b45309;font-size:13px;">⚠️ Sign Errors</div>
+        <div style="font-size:12px;color:#374151;margin-top:6px;">Be careful with <b>negative signs</b> when expressing and substituting variables!</div>
+      </div>
+      <div style="background:linear-gradient(135deg,#fdf4ff,#fae8ff);border-radius:10px;padding:12px;border-left:4px solid #c084fc;">
+        <div style="font-weight:700;color:#7c3aed;font-size:13px;">📝 CBSE Tip</div>
+        <div style="font-size:12px;color:#374151;margin-top:6px;">Label your equations as (i), (ii), (iii)… for <b>full marks</b> in board exams!</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Practice Section -->
+  <div class="card">
+    <div class="practice-card">
+      <h3>🧠 Quick Practice | अभ्यास करो</h3>
+      <div style="font-size:clamp(12px,2.8vw,14px);color:#374151;margin-bottom:10px;">
+        Solve by Substitution Method:<br>
+        <b>x + y = 5</b> &nbsp;&amp;&nbsp; <b>2x − y = 4</b>
+      </div>
+      <div class="input-row">
+        <label>Value of x:</label>
+        <input class="ans-input" type="number" id="ansX" placeholder="?" />
+      </div>
+      <div class="input-row">
+        <label>Value of y:</label>
+        <input class="ans-input" type="number" id="ansY" placeholder="?" />
+      </div>
+      <div class="btn-row">
+        <button class="btn green-btn" onclick="checkAnswer()">✓ Check Answer</button>
+        <button class="btn" onclick="showHint()">💡 Hint</button>
+        <button class="btn reset-btn" onclick="clearPractice()">↺ Clear</button>
+      </div>
+      <div id="feedback" class="feedback"></div>
+      <div id="hint" style="display:none;background:#fffbeb;border:1px solid #fbbf24;border-radius:8px;padding:10px;margin-top:8px;font-size:clamp(11px,2.5vw,12px);color:#92400e;">
+        <b>Hint:</b><br>
+        From Eq.1: x = 5 − y<br>
+        Substitute in Eq.2: 2(5−y) − y = 4<br>
+        → 10 − 2y − y = 4 → 3y = 6 → y = ?<br>
+        Then find x from x = 5 − y
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary -->
+  <div class="card" style="background:linear-gradient(135deg,#1e293b,#1e3a5f);color:white;border-radius:16px;">
+    <div style="text-align:center;padding:8px;">
+      <div style="font-size:clamp(15px,4vw,20px);font-weight:700;margin-bottom:10px;">📋 The 4-Step Formula</div>
+      <div style="display:flex;flex-direction:column;gap:8px;max-width:500px;margin:0 auto;">
+        <div style="background:rgba(59,130,246,0.3);border-radius:10px;padding:10px;border-left:4px solid #3b82f6;text-align:left;font-size:clamp(11px,2.5vw,13px);">
+          <b style="color:#93c5fd;">Step 1:</b> &nbsp; Choose easier equation → Express one variable
+        </div>
+        <div style="background:rgba(245,158,11,0.3);border-radius:10px;padding:10px;border-left:4px solid #f59e0b;text-align:left;font-size:clamp(11px,2.5vw,13px);">
+          <b style="color:#fcd34d;">Step 2:</b> &nbsp; Substitute expression into the OTHER equation
+        </div>
+        <div style="background:rgba(34,197,94,0.3);border-radius:10px;padding:10px;border-left:4px solid #22c55e;text-align:left;font-size:clamp(11px,2.5vw,13px);">
+          <b style="color:#86efac;">Step 3:</b> &nbsp; Solve → get value of one variable
+        </div>
+        <div style="background:rgba(192,132,252,0.3);border-radius:10px;padding:10px;border-left:4px solid #c084fc;text-align:left;font-size:clamp(11px,2.5vw,13px);">
+          <b style="color:#e9d5ff;">Step 4:</b> &nbsp; Back-substitute → get other variable → Verify ✓
+        </div>
+      </div>
+      <div style="margin-top:12px;font-size:12px;color:#94a3b8;">CBSE Class 10 | Chapter 3 | प्रतिस्थापन विधि</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // ---- Step-by-Step Logic ----
+  let currentStep = 0;
+  const totalSteps = 5;
+
+  function updateDots() {
+    for (let i = 0; i < totalSteps; i++) {
+      const d = document.getElementById('d' + i);
+      if (i < currentStep) { d.className = 'dot done'; }
+      else if (i === currentStep) { d.className = 'dot current'; }
+      else { d.className = 'dot'; }
+    }
+  }
+
+  function nextStep() {
+    if (currentStep < totalSteps - 1) {
+      currentStep++;
+      const s = document.getElementById('step' + currentStep);
+      s.classList.add('visible', 'active');
+      // Remove active from previous
+      if (currentStep > 0) {
+        document.getElementById('step' + (currentStep - 1)).classList.remove('active');
+      }
+      updateDots();
+      s.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }
+
+  function prevStep() {
+    if (currentStep > 0) {
+      document.getElementById('step' + currentStep).classList.remove('visible', 'active');
+      currentStep--;
+      document.getElementById('step' + currentStep).classList.add('active');
+      updateDots();
+    }
+  }
+
+  function resetSteps() {
+    for (let i = 1; i < totalSteps; i++) {
+      const s = document.getElementById('step' + i);
+      s.classList.remove('visible', 'active');
+    }
+    document.getElementById('step0').classList.add('active');
+    currentStep = 0;
+    updateDots();
+  }
+
+  // ---- Visual Demo Logic ----
+  let visualStage = 0;
+
+  function step1Visual() {
+    if (visualStage < 1) {
+      visualStage = 1;
+      document.getElementById('visualEq').innerHTML = 'From <b>x − y = 2</b>:<br><span style="color:#3b82f6;font-size:0.8em;">x = 2 + </span><span class="y-token" id="yToken">y</span>';
+      document.getElementById('visualNote').innerHTML = '✅ Expressed x in terms of y &nbsp;<span class="tag">Eq.1 used</span>';
+      document.getElementById('visualResult').innerHTML = '';
+    }
+  }
+
+  function step2Visual() {
+    if (visualStage < 2) {
+      visualStage = 2;
+      const yt = document.getElementById('yToken');
+      document.getElementById('visualEq').innerHTML =
+        'Eq.2: &nbsp; <span class="x-expr">(2 + y)</span> + <span class="y-token replaced" id="yToken2">y</span> = 8';
+      document.getElementById('visualNote').innerHTML = '🔄 Replaced <b>x</b> with <b>(2 + y)</b> in Equation 2!';
+    }
+  }
+
+  function step3Visual() {
+    if (visualStage < 3) {
+      visualStage = 3;
+      document.getElementById('visualEq').innerHTML =
+        '2 + 2y = 8 &nbsp;→&nbsp; 2y = 6 &nbsp;→&nbsp; <b style="color:#22c55e;">y = 3</b>';
+      document.getElementById('visualNote').innerHTML = '🎉 Then x = 2 + 3 = 5';
+      document.getElementById('visualResult').innerHTML = '✅ Solution: &nbsp; x = 5, &nbsp; y = 3';
+    }
+  }
+
+  function resetVisual() {
+    visualStage = 0;
+    document.getElementById('visualEq').innerHTML = 'x + <span class="y-token" id="yToken">y</span> = 8';
+    document.getElementById('visualNote').innerHTML = '';
+    document.getElementById('visualResult').innerHTML = '';
+  }
+
+  // ---- Practice Logic ----
+  function checkAnswer() {
+    const x = parseFloat(document.getElementById('ansX').value);
+    const y = parseFloat(document.getElementById('ansY').value);
+    const fb = document.getElementById('feedback');
+    if (isNaN(x) || isNaN(y)) {
+      fb.className = 'feedback wrong';
+      fb.textContent = '⚠️ Please enter both values!';
+      return;
+    }
+    if (Math.abs(x - 3) < 0.01 && Math.abs(y - 2) < 0.01) {
+      fb.className = 'feedback correct';
+      fb.textContent = '🎉 Excellent! x = 3, y = 2 is correct! Check: 3+2=5 ✅ and 2(3)−2=4 ✅';
+    } else {
+      fb.className = 'feedback wrong';
+      fb.textContent = '❌ Not quite. Try again! Hint: From x+y=5 → x = 5−y, then substitute.';
+    }
+  }
+
+  function showHint() {
+    const h = document.getElementById('hint');
+    h.style.display = h.style.display === 'none' ? 'block' : 'none';
+  }
+
+  function clearPractice() {
+    document.getElementById('ansX').value = '';
+    document.getElementById('ansY').value = '';
+    document.getElementById('feedback').className = 'feedback';
+    document.getElementById('feedback').textContent = '';
+    document.getElementById('hint').style.display = 'none';
+  }
+</script>
+</body>
+</html>

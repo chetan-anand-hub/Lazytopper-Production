@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reactivity Series | CBSE Class 10 Science</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #1e293b; min-width: 350px; }
+  .title-bar { background: linear-gradient(135deg, #1e40af, #3b82f6, #06b6d4); padding: 14px 20px; text-align: center; box-shadow: 0 4px 20px rgba(59,130,246,0.4); }
+  .title-bar h1 { color: #fff; font-size: 1.2rem; font-weight: 700; letter-spacing: 0.5px; }
+  .title-bar p { color: #bfdbfe; font-size: 0.8rem; margin-top: 2px; }
+  .container { max-width: 700px; margin: 0 auto; padding: 16px; }
+  .card { background: #fff; border-radius: 16px; padding: 16px; margin-bottom: 14px; box-shadow: 0 4px 24px rgba(0,0,0,0.15); }
+  .card h2 { font-size: 1rem; font-weight: 700; margin-bottom: 10px; color: #1e293b; display: flex; align-items: center; gap: 8px; }
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 600; }
+  .badge-blue { background: #dbeafe; color: #1d4ed8; }
+  .badge-green { background: #dcfce7; color: #15803d; }
+  /* Reactivity Series Visual */
+  .series-container { position: relative; display: flex; flex-direction: column; gap: 0; }
+  .metal-row { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: 8px; cursor: pointer; transition: all 0.25s; margin: 2px 0; }
+  .metal-row:hover { transform: translateX(6px); box-shadow: 0 2px 12px rgba(0,0,0,0.15); }
+  .metal-row.active { transform: translateX(6px); }
+  .metal-symbol { width: 44px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1rem; color: #fff; flex-shrink: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+  .metal-name { font-size: 0.82rem; font-weight: 600; flex: 1; }
+  .metal-hint { font-size: 0.7rem; color: #64748b; }
+  .reactivity-bar { height: 10px; border-radius: 5px; transition: width 0.5s ease; }
+  .metal-info { font-size: 0.72rem; padding: 8px 10px; background: #f8fafc; border-radius: 8px; margin: 2px 0 4px 52px; display: none; border-left: 3px solid #3b82f6; color: #334155; animation: fadeIn 0.3s ease; }
+  .metal-info.show { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+  .arrow-label { position: absolute; right: 0; top: 0; bottom: 0; width: 28px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
+  .arrow-text { writing-mode: vertical-rl; text-orientation: mixed; font-size: 0.65rem; font-weight: 700; color: #ef4444; transform: rotate(180deg); }
+  /* Mnemonic */
+  .mnemonic-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+  .mnemonic-card { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; padding: 8px 12px; border-radius: 10px; font-size: 0.8rem; font-weight: 700; text-align: center; cursor: pointer; transition: transform 0.2s; min-width: 56px; }
+  .mnemonic-card:hover { transform: scale(1.1); }
+  .mnemonic-card span { display: block; font-size: 0.65rem; font-weight: 400; opacity: 0.85; margin-top: 2px; }
+  /* Displacement Reaction */
+  .beaker-area { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin: 10px 0; }
+  .beaker-wrap { text-align: center; }
+  .beaker-svg { cursor: pointer; }
+  .reaction-result { background: linear-gradient(135deg, #dcfce7, #bbf7d0); border: 2px solid #22c55e; border-radius: 12px; padding: 10px; margin-top: 10px; font-size: 0.82rem; color: #15803d; font-weight: 600; text-align: center; display: none; animation: fadeIn 0.4s ease; }
+  .reaction-result.show { display: block; }
+  .reaction-result.fail { background: linear-gradient(135deg, #fee2e2, #fecaca); border-color: #ef4444; color: #b91c1c; }
+  /* Selector */
+  .selector-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+  .sel-btn { padding: 6px 14px; border-radius: 20px; border: 2px solid #3b82f6; background: #fff; color: #3b82f6; font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .sel-btn.active, .sel-btn:hover { background: #3b82f6; color: #fff; }
+  /* Step reveal */
+  .step-box { background: #f1f5f9; border-radius: 10px; padding: 10px 12px; margin: 6px 0; display: flex; gap: 10px; align-items: flex-start; opacity: 0; transform: translateY(8px); transition: all 0.4s ease; }
+  .step-box.revealed { opacity: 1; transform: translateY(0); }
+  .step-num { width: 26px; height: 26px; border-radius: 50%; background: #3b82f6; color: #fff; font-weight: 700; font-size: 0.78rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .step-text { font-size: 0.8rem; color: #334155; line-height: 1.5; }
+  .btn-primary { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: #fff; border: none; border-radius: 10px; padding: 9px 20px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 10px rgba(59,130,246,0.3); }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(59,130,246,0.4); }
+  .equation-box { background: linear-gradient(135deg, #1e293b, #334155); color: #f1f5f9; border-radius: 12px; padding: 12px 16px; font-family: monospace; font-size: 0.9rem; text-align: center; margin: 10px 0; letter-spacing: 0.5px; }
+  .eq-highlight { color: #fbbf24; font-weight: 700; }
+  .quiz-option { padding: 8px 14px; border-radius: 8px; border: 2px solid #e2e8f0; background: #fff; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; margin: 4px 0; width: 100%; text-align: left; }
+  .quiz-option:hover { border-color: #3b82f6; background: #eff6ff; }
+  .quiz-option.correct { border-color: #22c55e; background: #dcfce7; color: #15803d; }
+  .quiz-option.wrong { border-color: #ef4444; background: #fee2e2; color: #b91c1c; }
+  .label-tag { font-size: 0.68rem; padding: 2px 7px; border-radius: 4px; font-weight: 700; }
+  footer { text-align: center; color: #475569; font-size: 0.72rem; padding: 16px; }
+</style>
+</head>
+<body>
+<div class="title-bar">
+  <h1>⚗️ Reactivity Series (क्रियाशीलता श्रृंखला)</h1>
+  <p>CBSE Class 10 Science • Metals & Non-Metals</p>
+</div>
+<div class="container">
+
+<!-- SERIES CARD -->
+<div class="card">
+  <h2>🏆 The Reactivity Series <span class="badge badge-blue">Click each metal!</span></h2>
+  <p style="font-size:0.75rem;color:#64748b;margin-bottom:10px;">↑ Most reactive at top, least reactive at bottom. Click any metal to learn more.</p>
+  <div style="display:flex;gap:8px;">
+    <div class="series-container" style="flex:1;" id="seriesContainer"></div>
+    <div style="width:32px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:4px 0;">
+      <div style="font-size:0.65rem;font-weight:700;color:#ef4444;text-align:center;">HIGH<br>⬆</div>
+      <div style="width:4px;flex:1;background:linear-gradient(to bottom,#ef4444,#f59e0b,#22c55e);border-radius:4px;margin:6px 0;"></div>
+      <div style="font-size:0.65rem;font-weight:700;color:#22c55e;text-align:center;">⬇<br>LOW</div>
+    </div>
+  </div>
+</div>
+
+<!-- MNEMONIC CARD -->
+<div class="card">
+  <h2>🧠 याद करने की तरकीब (Mnemonic)</h2>
+  <p style="font-size:0.75rem;color:#64748b;margin-bottom:10px;">Hover over each word card to reveal the metal!</p>
+  <div class="mnemonic-grid" id="mnemonicGrid"></div>
+  <div style="margin-top:10px;background:#fef3c7;border-radius:10px;padding:8px 12px;font-size:0.78rem;color:#92400e;">
+    💡 <strong>"Please Stop Calling Me A Cute Zebra Instead Lovely Sweet Gentleman"</strong>
+  </div>
+</div>
+
+<!-- DISPLACEMENT REACTION -->
+<div class="card">
+  <h2>🔬 Displacement Reaction Simulator</h2>
+  <p style="font-size:0.75rem;color:#64748b;margin-bottom:8px;">A more reactive metal displaces a less reactive metal from its salt solution.</p>
+  <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;">
+    <div>
+      <div style="font-size:0.75rem;font-weight:600;color:#1e293b;margin-bottom:4px;">Metal (Mg to add):</div>
+      <div class="selector-row" id="metalSel"></div>
+    </div>
+    <div>
+      <div style="font-size:0.75rem;font-weight:600;color:#1e293b;margin-bottom:4px;">Salt Solution:</div>
+      <div class="selector-row" id="saltSel"></div>
+    </div>
+  </div>
+  <button class="btn-primary" onclick="runDisplacement()">▶ Run Reaction</button>
+  <div class="reaction-result" id="reactionResult"></div>
+  <div class="equation-box" id="equationBox" style="display:none;"></div>
+</div>
+
+<!-- WORKED EXAMPLE -->
+<div class="card">
+  <h2>📝 Worked Example — Step by Step</h2>
+  <div style="background:#eff6ff;border-radius:10px;padding:10px;font-size:0.82rem;color:#1d4ed8;margin-bottom:10px;">
+    <strong>Q:</strong> Will Zinc (Zn) displace Copper (Cu) from Copper Sulphate (CuSO₄) solution?
+  </div>
+  <div id="stepsContainer"></div>
+  <button class="btn-primary" id="nextStepBtn" onclick="nextStep()">Reveal Step 1 →</button>
+</div>
+
+<!-- SVG DIAGRAM -->
+<div class="card">
+  <h2>🖼️ Displacement Reaction Diagram</h2>
+  <div style="text-align:center;">
+    <svg width="100%" viewBox="0 0 320 170" style="max-width:320px;" xmlns="http://www.w3.org/2000/svg">
+      <!-- Beaker 1 -->
+      <rect x="10" y="40" width="120" height="110" rx="8" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/>
+      <rect x="10" y="100" width="120" height="50" rx="0" fill="#93c5fd" opacity="0.6"/>
+      <text x="70" y="85" text-anchor="middle" font-size="10" fill="#1d4ed8" font-weight="600">CuSO₄ Solution</text>
+      <text x="70" y="97" text-anchor="middle" font-size="9" fill="#1d4ed8">(Blue)</text>
+      <!-- Zinc strip -->
+      <rect x="60" y="30" width="20" height="80" rx="4" fill="#a3a3a3" stroke="#737373" stroke-width="1.5"/>
+      <text x="70" y="24" text-anchor="middle" font-size="9" fill="#525252" font-weight="700">Zn</text>
+      <!-- Arrow -->
+      <text x="145" y="90" font-size="22" fill="#f59e0b">→</text>
+      <!-- Beaker 2 -->
+      <rect x="175" y="40" width="130" height="110" rx="8" fill="#f0fdf4" stroke="#22c55e" stroke-width="2"/>
+      <rect x="175" y="100" width="130" height="50" rx="0" fill="#86efac" opacity="0.5"/>
+      <text x="240" y="78" text-anchor="middle" font-size="9.5" fill="#15803d" font-weight="600">ZnSO₄ Solution</text>
+      <text x="240" y="90" text-anchor="middle" font-size="9" fill="#15803d">(Colourless)</text>
+      <!-- Copper deposit -->
+      <rect x="225" y="30" width="20" height="85" rx="4" fill="#f97316" stroke="#ea580c" stroke-width="1.5"/>
+      <text x="236" y="24" text-anchor="middle" font-size="9" fill="#c2410c" font-weight="700">Cu</text>
+      <text x="236" y="130" text-anchor="middle" font-size="8" fill="#15803d">deposited!</text>
+      <!-- Labels -->
+      <text x="70" y="168" text-anchor="middle" font-size="9" fill="#475569">Before Reaction</text>
+      <text x="240" y="168" text-anchor="middle" font-size="9" fill="#475569">After Reaction</text>
+    </svg>
+  </div>
+  <div class="equation-box">
+    Zn + <span class="eq-highlight">CuSO₄</span> → <span class="eq-highlight">ZnSO₄</span> + Cu↓
+  </div>
+  <p style="font-size:0.75rem;color:#475569;margin-top:6px;">∵ Zn is above Cu in the reactivity series → Zn displaces Cu ✓</p>
+</div>
+
+<!-- QUICK QUIZ -->
+<div class="card">
+  <h2>🎯 Quick Quiz</h2>
+  <div id="quizArea"></div>
+</div>
+
+</div>
+<footer>CBSE Class 10 Science • Metals & Non-Metals • Reactivity Series</footer>
+
+<script>
+const metals = [
+  { sym: "K",  name: "Potassium", hint: "Most reactive metal", color: "#7c3aed", bar: 100, info: "Reacts violently with cold water, producing H₂ gas. Kept in kerosene oil." },
+  { sym: "Na", name: "Sodium",    hint: "Floats & reacts on water", color: "#8b5cf6", bar: 93, info: "Reacts vigorously with cold water. Kept in kerosene to prevent reaction with air." },
+  { sym: "Ca", name: "Calcium",   hint: "Moderate water reaction", color: "#6366f1", bar: 86, info: "Reacts moderately with cold water. Calcium oxide (CaO) is quick lime." },
+  { sym: "Mg", name: "Magnesium", hint: "Burns brilliantly white", color: "#3b82f6", bar: 78, info: "Does NOT react with cold water. Reacts with hot water & steam. Burns with bright white flame." },
+  { sym: "Al", name: "Aluminium", hint: "Amphoteric metal", color: "#0ea5e9", bar: 70, info: "Reacts with steam. Aluminium oxide (Al₂O₃) is amphoteric — reacts with both acids & bases." },
+  { sym: "Zn", name: "Zinc",      hint: "Galvanizing agent", color: "#06b6d4", bar: 62, info: "Reacts with steam. Used for galvanizing iron to prevent rusting. Zn > Cu in reactivity." },
+  { sym: "Fe", name: "Iron",      hint: "Rusts in moist air", color: "#14b8a6", bar: 55, info: "Reacts with steam. Forms rust (Fe₂O₃·xH₂O). More reactive than Ni, Sn, Pb." },
+  { sym: "Ni", name: "Nickel",    hint: "Transition metal", color: "#10b981", bar: 47, info: "Reacts slowly with dilute acids. Used in hydrogenation of oils." },
+  { sym: "Sn", name: "Tin",       hint: "Used in soldering", color: "#22c55e", bar: 40, info: "Reacts with dilute acids. Used for tinning (tin-plating) of iron to prevent rusting." },
+  { sym: "Pb", name: "Lead",      hint: "Heavy dense metal", color: "#84cc16", bar: 33, info: "Reacts slowly with dilute H₂SO₄. Used in car batteries. Toxic metal." },
+  { sym: "H",  name: "Hydrogen",  hint: "Reference point", color: "#eab308", bar: 26, info: "Reference point in reactivity series. Metals above H displace it from dilute acids." },
+  { sym: "Cu", name: "Copper",    hint: "Does NOT react with acids", color: "#f59e0b", bar: 20, info: "DOES NOT react with dilute HCl or H₂SO₄. Reacts only with HNO₃. Reddish-brown metal." },
+  { sym: "Ag", name: "Silver",    hint: "Noble metal", color: "#f97316", bar: 10, info: "Very low reactivity. Used in jewelry, coins. Does not react with common acids." },
+  { sym: "Au", name: "Gold",      hint: "Least reactive metal", color: "#ef4444", bar: 4, info: "Least reactive. Does not corrode. Reacts only with aqua regia (HNO₃ + HCl, 1:3)." },
+];
+
+const mnemonicWords = [
+  ["Please","K","Potassium"], ["Stop","Na","Sodium"], ["Calling","Ca","Calcium"],
+  ["Me","Mg","Magnesium"], ["A","Al","Aluminium"], ["Cute","Zn","Zinc"],
+  ["Zebra","Fe","Iron"], ["Instead","Ni","Nickel"], ["Lovely","Sn","Tin"],
+  ["Sweet","Pb","Lead"], ["Gentleman","Cu","Copper"]
+];
+
+const gradients = ["#7c3aed","#8b5cf6","#6366f1","#3b82f6","#0ea5e9","#06b6d4","#14b8a6","#10b981","#22c55e","#84cc16","#eab308","#f59e0b","#f97316","#ef4444"];
+
+// Build series
+const sc = document.getElementById('seriesContainer');
+metals.forEach((m, i) => {
+  const row = document.createElement('div');
+  row.className = 'metal-row';
+  row.style.background = `linear-gradient(90deg, ${m.color}18, transparent)`;
+  row.innerHTML = `
+    <div class="metal-symbol" style="background:${m.color}">${m.sym}</div>
+    <div style="flex:1;">
+      <div style="display:flex;align-items:center;gap:6px;">
+        <div class="metal-name">${m.name}</div>
+        <div class="metal-hint">${m.hint}</div>
+      </div>
+      <div style="margin-top:3px;background:#e2e8f0;border-radius:5px;height:8px;overflow:hidden;">
+        <div class="reactivity-bar" style="width:${m.bar}%;background:${m.color};"></div>
+      </div>
+    </div>`;
+  const info = document.createElement('div');
+  info.className = 'metal-info';
+  info.id = 'info_' + m.sym;
+  info.innerHTML = `<strong>${m.sym} (${m.name}):</strong> ${m.info}`;
+  row.onclick = () => {
+    info.classList.toggle('show');
+    row.style.background = info.classList.contains('show') ? `linear-gradient(90deg, ${m.color}35, ${m.color}10)` : `linear-gradient(90deg, ${m.color}18, transparent)`;
+  };
+  sc.appendChild(row);
+  sc.appendChild(info);
+});
+
+// Mnemonic
+const mg = document.getElementById('mnemonicGrid');
+mnemonicWords.forEach(([word, sym, name]) => {
+  const c = document.createElement('div');
+  c.className = 'mnemonic-card';
+  const hue = Math.floor(Math.random()*60)+220;
+  c.style.background = `linear-gradient(135deg,hsl(${hue},60%,45%),hsl(${hue+30},65%,35%))`;
+  c.innerHTML = `${word}<span>${sym} – ${name}</span>`;
+  c.style.transform = 'scale(1)';
+  mg.appendChild(c);
+});
+
+// Displacement simulator
+const metalOpts = ["Mg","Al","Zn","Fe","Cu"];
+const saltOpts = [
+  {label:"CuSO₄",metal:"Cu",rank:12},
+  {label:"ZnSO₄",metal:"Zn",rank:6},
+  {label:"FeSO₄",metal:"Fe",rank:7},
+  {label:"AgNO₃",metal:"Ag",rank:13},
+];
+const metalRank = {Mg:4,Al:5,Zn:6,Fe:7,Cu:12};
+
+let selMetal = "Mg", selSalt = "CuSO₄";
+
+function buildSel(id, opts, isObjArr, current, setter) {
+  const el = document.getElementById(id);
+  el.innerHTML = '';
+  opts.forEach(o => {
+    const v = isObjArr ? o.label : o;
+    const b = document.createElement('button');
+    b.className = 'sel-btn' + (v === current ? ' active' : '');
+    b.textContent = v;
+    b.onclick = () => { setter(v); buildSel(id, opts, isObjArr, v, setter); };
+    el.appendChild(b);
+  });
+}
+buildSel('metalSel', metalOpts, false, selMetal, v => selMetal = v);
+buildSel('saltSel', saltOpts, true, selSalt, v => selSalt = v);
+
+function runDisplacement() {
+  const saltObj = saltOpts.find(s => s.label === selSalt);
+  const mRank = metalRank[selMetal];
+  const sRank = saltObj.rank;
+  const res = document.getElementById('reactionResult');
+  const eqBox = document.getElementById('equationBox');
+  eqBox.style.display = 'block';
+  if (selMetal === saltObj.metal) {
+    res.className = 'reaction-result show fail';
+    res.innerHTML = "⚠️ Same metal! No displacement reaction possible.";
+    eqBox.innerHTML = `No reaction`;
+    return;
+  }
+  if (mRank < sRank) {
+    res.className = 'reaction-result show';
+    res.innerHTML = `✅ Yes! ${selMetal} displaces ${saltObj.metal} from ${selSalt}. <br><strong>${selMetal} is more reactive than ${saltObj.metal}</strong>`;
+    eqBox.innerHTML = `<span class="eq-highlight">${selMetal}</span> + ${selSalt} → ${selMetal}SO₄ + <span class="eq-highlight">${saltObj.metal}↓</span>`;
+  } else {
+    res.className = 'reaction-result show fail';
+    res.innerHTML = `❌ No! ${selMetal} CANNOT displace ${saltObj.metal} from ${selSalt}.<br><strong>${selMetal} is less reactive than ${saltObj.metal}</strong>`;
+    eqBox.innerHTML = `${selMetal} + ${selSalt} → <span style="color:#f87171">No Reaction</span>`;
+  }
+}
+
+// Worked example steps
+const steps = [
+  { text: "Step 1: Identify the metals. We have Zinc (Zn) and Copper (Cu)." },
+  { text: "Step 2: Find their positions in the Reactivity Series." },
+  { text: "Step 3: Zn is ABOVE Cu in the series → Zn is MORE reactive than Cu." },
+  { text: "Step 4: A MORE reactive metal CAN displace a LESS reactive metal from its salt solution." },
+  { text: "Step 5: ∴ Zn + CuSO₄ → ZnSO₄ + Cu↓ ✓ Reaction OCCURS! Blue colour of CuSO₄ fades and a reddish-brown deposit of Cu forms." },
+];
+let currentStep = 0;
+const sc2 = document.getElementById('stepsContainer');
+function nextStep() {
+  if (currentStep >= steps.length) return;
+  const box = document.createElement('div');
+  box.className = 'step-box';
+  box.innerHTML = `<div class="step-num">${currentStep+1}</div><div class="step-text">${steps[currentStep].text}</div>`;
+  sc2.appendChild(box);
+  setTimeout(() => box.classList.add('revealed'), 30);
+  currentStep++;
+  const btn = document.getElementById('nextStepBtn');
+  if (currentStep >= steps.length) btn.textContent = '✅ Done!';
+  else btn.textContent = `Reveal Step ${currentStep+1} →`;
+}
+
+// Quiz
+const quizData = [
+  { q: "Which metal is MOST reactive in the reactivity series?", opts: ["Gold (Au)","Potassium (K)","Copper (Cu)","Iron (Fe)"], ans: 1 },
+  { q: "Can Copper (Cu) displace Iron (Fe) from FeSO₄ solution?", opts: ["Yes, Cu is above Fe","No, Cu is below Fe","Yes, they are equal","Cannot be determined"], ans: 1 },
+  { q: "Zinc is added to CuSO₄ solution. What is observed?", opts: ["No reaction","Blue colour deepens","Blue colour fades, reddish deposit forms","ZnSO₄ turns blue"], ans: 2 },
+];
+let qIdx = 0, answered = false;
+function renderQuiz() {
+  const qa = document.getElementById('quizArea');
+  if (qIdx >= quizData.length) {
+    qa.innerHTML = '<div style="text-align:center;font-weight:700;color:#15803d;font-size:1rem;padding:12px;">🎉 Quiz Complete! Great job!</div>';
+    return;
+  }
+  const q = quizData[qIdx];
+  qa.innerHTML = `<div style="font-size:0.82rem;font-weight:700;margin-bottom:8px;color:#1e293b;">Q${qIdx+1}. ${q.q}</div>` +
+    q.opts.map((o,i)=>`<button class="quiz-option" onclick="answerQ(${i})" id="qo${i}">${o}</button>`).join('');
+  answered = false;
+}
+function answerQ(i) {
+  if (answered) return;
+  answered = true;
+  const q = quizData[qIdx];
+  q.opts.forEach((_,j) => {
+    const el = document.getElementById('qo'+j);
+    if (j === q.ans) el.classList.add('correct');
+    else if (j === i) el.classList.add('wrong');
+  });
+  setTimeout(() => { qIdx++; renderQuiz(); }, 1400);
+}
+renderQuiz();
+</script>
+</body>
+</html>

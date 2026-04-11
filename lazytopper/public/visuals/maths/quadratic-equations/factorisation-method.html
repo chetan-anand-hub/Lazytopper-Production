@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quadratic Equations – Factorisation Method</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',sans-serif;background:#f0f4ff;color:#1e293b;min-width:320px}
+  .titlebar{background:linear-gradient(135deg,#1e40af,#3b82f6);color:#fff;padding:14px 20px;text-align:center;box-shadow:0 4px 15px rgba(59,130,246,0.4)}
+  .titlebar h1{font-size:1.15rem;font-weight:700;letter-spacing:.5px}
+  .titlebar p{font-size:.78rem;opacity:.85;margin-top:3px}
+  .container{max-width:680px;margin:0 auto;padding:14px}
+  .card{background:#fff;border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+  .card h2{font-size:.95rem;font-weight:700;color:#1e40af;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+  .badge{background:#3b82f6;color:#fff;border-radius:20px;padding:2px 9px;font-size:.7rem}
+  .formula-box{background:linear-gradient(135deg,#eff6ff,#dbeafe);border:2px solid #3b82f6;border-radius:12px;padding:12px 16px;text-align:center;font-size:1.05rem;font-weight:700;color:#1e40af;margin:10px 0;letter-spacing:.5px}
+  .highlight{color:#ef4444;font-weight:700}
+  .green{color:#22c55e;font-weight:700}
+  .amber{color:#f59e0b;font-weight:700}
+  .blue{color:#3b82f6;font-weight:700}
+  /* Concept visual */
+  .concept-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+  .concept-cell{background:#f8faff;border:1.5px solid #bfdbfe;border-radius:10px;padding:10px;text-align:center;font-size:.82rem}
+  .concept-cell .big{font-size:1.4rem;font-weight:700}
+  /* Step reveal */
+  .step{border-left:3px solid #3b82f6;padding:8px 12px;margin:6px 0;background:#f8faff;border-radius:0 10px 10px 0;display:none;animation:fadeIn .4s ease}
+  .step.show{display:block}
+  .step-num{background:#3b82f6;color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;margin-right:6px}
+  @keyframes fadeIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+  .btn{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border:none;border-radius:10px;padding:9px 18px;cursor:pointer;font-size:.85rem;font-weight:600;transition:.25s;box-shadow:0 2px 8px rgba(59,130,246,.3)}
+  .btn:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(59,130,246,.4)}
+  .btn:active{transform:scale(.97)}
+  .btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .btn-sm{padding:6px 13px;font-size:.78rem}
+  /* Splitter interactive */
+  #splitter{margin:12px 0}
+  .eq-display{font-size:1.1rem;font-weight:700;text-align:center;padding:10px;background:#fefce8;border:2px dashed #f59e0b;border-radius:10px;margin:8px 0}
+  .pair-boxes{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:10px 0}
+  .pair-box{background:#fff;border:2px solid #e2e8f0;border-radius:10px;padding:10px 16px;text-align:center;cursor:pointer;transition:.2s;min-width:90px}
+  .pair-box:hover{border-color:#3b82f6;transform:translateY(-2px);box-shadow:0 4px 10px rgba(0,0,0,.1)}
+  .pair-box.correct{border-color:#22c55e;background:#f0fdf4;animation:pop .3s ease}
+  .pair-box.wrong{border-color:#ef4444;background:#fef2f2;animation:shake .3s ease}
+  @keyframes pop{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+  .pair-label{font-size:.72rem;color:#64748b;margin-bottom:3px}
+  .pair-nums{font-size:1rem;font-weight:700;color:#1e293b}
+  .feedback{text-align:center;font-weight:700;font-size:.9rem;min-height:24px;margin:6px 0}
+  /* Number line */
+  #numline-wrap{overflow-x:auto;margin:10px 0}
+  .roots-display{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin:10px 0}
+  .root-chip{padding:8px 16px;border-radius:20px;font-weight:700;font-size:.9rem;background:#dcfce7;color:#166534;border:2px solid #22c55e}
+  /* Practice */
+  .problem-card{background:linear-gradient(135deg,#fef3c7,#fde68a);border:2px solid #f59e0b;border-radius:12px;padding:12px;margin:8px 0}
+  .problem-card .eq{font-size:1.1rem;font-weight:700;color:#92400e;text-align:center}
+  .ans-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}
+  .inp{border:2px solid #d1d5db;border-radius:8px;padding:6px 10px;font-size:.9rem;width:70px;text-align:center;outline:none;transition:.2s}
+  .inp:focus{border-color:#3b82f6}
+  .check-btn{background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;border:none;border-radius:8px;padding:7px 14px;cursor:pointer;font-weight:600;font-size:.82rem;transition:.2s}
+  .check-btn:hover{transform:translateY(-1px)}
+  .result-msg{font-size:.82rem;font-weight:600;margin-left:4px}
+  /* Tabs */
+  .tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+  .tab{padding:7px 14px;border-radius:20px;border:2px solid #bfdbfe;background:#fff;cursor:pointer;font-size:.8rem;font-weight:600;color:#3b82f6;transition:.2s}
+  .tab.active{background:#3b82f6;color:#fff;border-color:#3b82f6}
+  .tab-content{display:none}.tab-content.active{display:block}
+  /* SVG area diagram */
+  .area-wrap{display:flex;justify-content:center;margin:10px 0}
+  /* Progress dots */
+  .step-tracker{display:flex;gap:6px;justify-content:center;margin:8px 0;flex-wrap:wrap}
+  .dot{width:12px;height:12px;border-radius:50%;background:#e2e8f0;transition:.3s}
+  .dot.done{background:#22c55e}
+  .dot.active{background:#3b82f6}
+  small{font-size:.75rem;color:#64748b}
+  .tip-box{background:#fef9ee;border-left:4px solid #f59e0b;border-radius:0 10px 10px 0;padding:8px 12px;font-size:.82rem;margin:8px 0}
+</style>
+</head>
+<body>
+
+<div class="titlebar">
+  <h1>📐 Quadratic Equations – Factorisation Method</h1>
+  <p>CBSE Class 10 | मध्यम पद विभाजन विधि | Interactive Explainer</p>
+</div>
+
+<div class="container">
+
+  <!-- KEY CONCEPT -->
+  <div class="card">
+    <h2>🔑 Core Concept <span class="badge">अवधारणा</span></h2>
+    <p style="font-size:.83rem;margin-bottom:8px">A <b>quadratic equation</b> has the form:</p>
+    <div class="formula-box">ax² + bx + c = 0 &nbsp;(a ≠ 0)</div>
+    <p style="font-size:.83rem;margin:8px 0">To factorise by <b>splitting the middle term</b>, we find two numbers <span class="highlight">p</span> and <span class="green">q</span> such that:</p>
+    <div class="concept-grid">
+      <div class="concept-cell">
+        <div class="pair-label">Sum</div>
+        <div class="big amber">p + q = b</div>
+        <div style="font-size:.72rem;margin-top:4px">Coefficient of x (middle term)</div>
+      </div>
+      <div class="concept-cell">
+        <div class="pair-label">Product</div>
+        <div class="big blue">p × q = ac</div>
+        <div style="font-size:.72rem;margin-top:4px">Product of a & c</div>
+      </div>
+    </div>
+    <div class="tip-box">💡 <b>याद रखो:</b> Split bx into px + qx, then group and factor out common terms.</div>
+  </div>
+
+  <!-- TABS: Learn / Practice -->
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('learn')">📖 Learn & Explore</div>
+    <div class="tab" onclick="switchTab('quiz')">🎯 Find the Pair</div>
+    <div class="tab" onclick="switchTab('practice')">✏️ Practice</div>
+  </div>
+
+  <!-- TAB 1: LEARN -->
+  <div id="tab-learn" class="tab-content active">
+
+    <!-- AREA MODEL -->
+    <div class="card">
+      <h2>🟦 Area Model – Why Splitting Works</h2>
+      <p style="font-size:.82rem;margin-bottom:8px">Think of <b>x² + 5x + 6</b> as an area split into 4 rectangles:</p>
+      <div class="area-wrap">
+        <svg id="areaSvg" width="260" height="160" viewBox="0 0 260 160">
+          <!-- Grid -->
+          <rect x="10" y="10" width="120" height="100" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/>
+          <rect x="130" y="10" width="60" height="100" fill="#dcfce7" stroke="#22c55e" stroke-width="2"/>
+          <rect x="10" y="110" width="120" height="40" fill="#dcfce7" stroke="#22c55e" stroke-width="2"/>
+          <rect x="130" y="110" width="60" height="40" fill="#fef9c3" stroke="#f59e0b" stroke-width="2"/>
+          <!-- Labels -->
+          <text x="70" y="65" text-anchor="middle" font-size="18" font-weight="bold" fill="#1e40af">x²</text>
+          <text x="160" y="65" text-anchor="middle" font-size="14" font-weight="bold" fill="#166534">3x</text>
+          <text x="70" y="134" text-anchor="middle" font-size="14" font-weight="bold" fill="#166534">2x</text>
+          <text x="160" y="134" text-anchor="middle" font-size="14" font-weight="bold" fill="#92400e">6</text>
+          <!-- Axis labels -->
+          <text x="70" y="8" text-anchor="middle" font-size="11" fill="#475569">x</text>
+          <text x="160" y="8" text-anchor="middle" font-size="11" fill="#475569">3</text>
+          <text x="5" y="65" text-anchor="end" font-size="11" fill="#475569">x</text>
+          <text x="5" y="134" text-anchor="end" font-size="11" fill="#475569">2</text>
+          <!-- Brace annotation -->
+          <text x="200" y="80" font-size="11" fill="#64748b">(x+3)</text>
+          <text x="70" y="155" text-anchor="middle" font-size="11" fill="#64748b">(x+2)</text>
+        </svg>
+      </div>
+      <p style="font-size:.82rem;text-align:center">∴ &nbsp;x² + 5x + 6 = <span class="green">(x + 2)(x + 3)</span></p>
+      <p style="font-size:.78rem;color:#64748b;text-align:center;margin-top:4px">The two numbers 2 and 3: sum = 5 = b, product = 6 = c</p>
+    </div>
+
+    <!-- STEP-BY-STEP WALKTHROUGH -->
+    <div class="card">
+      <h2>🚶 Step-by-Step Walkthrough</h2>
+      <div class="eq-display">Solve: 2x² − 7x + 3 = 0</div>
+
+      <div class="step-tracker" id="tracker">
+        <div class="dot active" id="d0"></div>
+        <div class="dot" id="d1"></div>
+        <div class="dot" id="d2"></div>
+        <div class="dot" id="d3"></div>
+        <div class="dot" id="d4"></div>
+      </div>
+
+      <div id="s0" class="step show">
+        <span class="step-num">1</span><b>Identify a, b, c</b><br>
+        <span style="font-size:.85rem">a = <span class="blue">2</span>, &nbsp;b = <span class="highlight">−7</span>, &nbsp;c = <span class="green">3</span></span>
+      </div>
+      <div id="s1" class="step">
+        <span class="step-num">2</span><b>Calculate a × c</b><br>
+        <span style="font-size:.85rem">a × c = 2 × 3 = <span class="amber">6</span><br>
+        Need two numbers with <b>product = 6</b> and <b>sum = −7</b></span>
+      </div>
+      <div id="s2" class="step">
+        <span class="step-num">3</span><b>Find the pair (p, q)</b><br>
+        <span style="font-size:.85rem">Pairs with product 6: (1,6), (2,3), (−1,−6), (−2,−3)<br>
+        ✓ &nbsp;<span class="highlight">−1 + (−6) = −7</span> &nbsp;&amp;&amp;&nbsp; <span class="green">(−1)×(−6) = 6</span><br>
+        ∴ p = −1, q = −6</span>
+      </div>
+      <div id="s3" class="step">
+        <span class="step-num">4</span><b>Split the middle term</b><br>
+        <span style="font-size:.85rem">2x² − 7x + 3<br>
+        = 2x² <span class="highlight">− x − 6x</span> + 3<br>
+        = x(2x − 1) − 3(2x − 1)<br>
+        = <span class="green">(2x − 1)(x − 3)</span></span>
+      </div>
+      <div id="s4" class="step">
+        <span class="step-num">5</span><b>Find roots (मूल)</b><br>
+        <span style="font-size:.85rem">2x − 1 = 0 &nbsp;⟹&nbsp; x = <span class="green">½</span><br>
+        x − 3 = 0 &nbsp;&nbsp;&nbsp;⟹&nbsp; x = <span class="green">3</span><br>
+        ∴ Solutions: x = ½ &nbsp;or&nbsp; x = 3 ✓</span>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-sm" onclick="prevStep()">← Back</button>
+        <button class="btn btn-sm" onclick="nextStep()">Next Step →</button>
+        <button class="btn btn-sm" style="background:linear-gradient(135deg,#f59e0b,#d97706)" onclick="resetSteps()">↺ Reset</button>
+      </div>
+      <p id="step-hint" style="font-size:.75rem;color:#64748b;margin-top:6px;text-align:center"></p>
+    </div>
+
+    <!-- NUMBER LINE / ROOTS VIZ -->
+    <div class="card">
+      <h2>📊 Roots on Number Line</h2>
+      <p style="font-size:.82rem;margin-bottom:8px">For 2x² − 7x + 3 = 0, the roots are where the parabola cuts the x-axis:</p>
+      <div id="numline-wrap">
+        <svg width="320" height="80" viewBox="0 0 320 80" style="max-width:100%;display:block;margin:auto">
+          <!-- Axis -->
+          <line x1="10" y1="45" x2="310" y2="45" stroke="#94a3b8" stroke-width="2"/>
+          <!-- Ticks -->
+          <g font-size="10" fill="#475569" text-anchor="middle">
+            <line x1="50" y1="40" x2="50" y2="50" stroke="#94a3b8" stroke-width="1.5"/>
+            <text x="50" y="63">−1</text>
+            <line x1="100" y1="40" x2="100" y2="50" stroke="#94a3b8" stroke-width="1.5"/>
+            <text x="100" y="63">0</text>
+            <line x1="150" y1="40" x2="150" y2="50" stroke="#94a3b8" stroke-width="1.5"/>
+            <text x="150" y="63">1</text>
+            <line x1="200" y1="40" x2="200" y2="50" stroke="#94a3b8" stroke-width="1.5"/>
+            <text x="200" y="63">2</text>
+            <line x1="250" y1="40" x2="250" y2="50" stroke="#94a3b8" stroke-width="1.5"/>
+            <text x="250" y="63">3</text>
+            <line x1="300" y1="40" x2="300" y2="50" stroke="#94a3b8" stroke-width="1.5"/>
+            <text x="300" y="63">4</text>
+          </g>
+          <!-- Root markers -->
+          <!-- x = 1/2 => maps to 125 -->
+          <circle cx="125" cy="45" r="8" fill="#22c55e" stroke="#fff" stroke-width="2"/>
+          <text x="125" y="30" text-anchor="middle" font-size="11" fill="#166534" font-weight="bold">x=½</text>
+          <!-- x = 3 => maps to 250 -->
+          <circle cx="250" cy="45" r="8" fill="#3b82f6" stroke="#fff" stroke-width="2"/>
+          <text x="250" y="30" text-anchor="middle" font-size="11" fill="#1d4ed8" font-weight="bold">x=3</text>
+          <!-- Arrow -->
+          <polygon points="308,45 302,42 302,48" fill="#94a3b8"/>
+        </svg>
+      </div>
+      <div class="roots-display">
+        <div class="root-chip">x = ½ (root 1)</div>
+        <div class="root-chip">x = 3 (root 2)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: QUIZ -->
+  <div id="tab-quiz" class="tab-content">
+    <div class="card">
+      <h2>🎯 Find the Correct Pair <span class="badge">खेलो</span></h2>
+      <p style="font-size:.82rem;margin-bottom:6px">Click the pair of numbers whose <b>sum = b</b> and <b>product = ac</b>.</p>
+      <div id="quiz-eq" class="eq-display">Loading...</div>
+      <div style="display:flex;gap:16px;justify-content:center;font-size:.82rem;margin:6px 0;flex-wrap:wrap">
+        <span>Need: <b id="quiz-sum" class="amber"></b> (sum)</span>
+        <span>Need: <b id="quiz-prod" class="blue"></b> (product)</span>
+      </div>
+      <div id="quiz-pairs" class="pair-boxes"></div>
+      <div id="quiz-feedback" class="feedback"></div>
+      <div class="btn-row" style="justify-content:center">
+        <button class="btn btn-sm" onclick="loadQuiz()">🔄 New Question</button>
+      </div>
+      <div style="margin-top:10px;font-size:.8rem;color:#64748b;text-align:center">Score: <b id="score">0</b> / <b id="total">0</b></div>
+    </div>
+
+    <!-- Mini guide -->
+    <div class="card">
+      <h2>📋 Quick Reference</h2>
+      <div style="font-size:.82rem;line-height:1.7">
+        <p><b>Step 1:</b> Find a, b, c from ax² + bx + c = 0</p>
+        <p><b>Step 2:</b> Calculate <span class="blue">ac</span> (product target)</p>
+        <p><b>Step 3:</b> Find p, q where <span class="amber">p+q = b</span> and <span class="blue">p×q = ac</span></p>
+        <p><b>Step 4:</b> Rewrite bx = px + qx and group</p>
+        <p><b>Step 5:</b> Set each factor = 0, solve for x (मूल)</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: PRACTICE -->
+  <div id="tab-practice" class="tab-content">
+    <div class="card">
+      <h2>✏️ Practice Problems <span class="badge">अभ्यास</span></h2>
+      <p style="font-size:.8rem;color:#64748b;margin-bottom:10px">Enter the roots for each equation and check your answer.</p>
+
+      <div class="problem-card">
+        <div class="eq">x² + 7x + 12 = 0</div>
+        <div class="ans-row">
+          <span style="font-size:.82rem">x =</span>
+          <input class="inp" id="p1a" placeholder="root1" type="number" step="0.5">
+          <span style="font-size:.82rem">or</span>
+          <input class="inp" id="p1b" placeholder="root2" type="number" step="0.5">
+          <button class="check-btn" onclick="checkAns(1)">Check ✓</button>
+          <span id="r1" class="result-msg"></span>
+        </div>
+        <div id="hint1" style="display:none;font-size:.78rem;color:#166534;margin-top:6px">💡 Hint: Find p,q where sum=7, product=12 → Try 3 & 4</div>
+      </div>
+
+      <div class="problem-card">
+        <div class="eq">x² − 5x + 6 = 0</div>
+        <div class="ans-row">
+          <span style="font-size:.82rem">x =</span>
+          <input class="inp" id="p2a" placeholder="root1" type="number" step="0.5">
+          <span style="font-size:.82rem">or</span>
+          <input class="inp" id="p2b" placeholder="root2" type="number" step="0.5">
+          <button class="check-btn" onclick="checkAns(2)">Check ✓</button>
+          <span id="r2" class="result-msg"></span>
+        </div>
+        <div id="hint2" style="display:none;font-size:.78rem;color:#166534;margin-top:6px">💡 Hint: sum=−5, product=6 → Try −2 & −3</div>
+      </div>
+
+      <div class="problem-card">
+        <div class="eq">2x² + x − 6 = 0</div>
+        <div class="ans-row">
+          <span style="font-size:.82rem">x =</span>
+          <input class="inp" id="p3a" placeholder="root1" type="number" step="0.5">
+          <span style="font-size:.82rem">or</span>
+          <input class="inp" id="p3b" placeholder="root2" type="number" step="0.5">
+          <button class="check-btn" onclick="checkAns(3)">Check ✓</button>
+          <span id="r3" class="result-msg"></span>
+        </div>
+        <div id="hint3" style="display:none;font-size:.78rem;color:#166534;margin-top:6px">💡 Hint: ac=−12, sum=1 → Try 4 & −3 → roots: 3/2 & −2</div>
+      </div>
+
+      <div class="tip-box" style="margin-top:10px">
+        📌 <b>Verification (जाँच):</b> Substitute roots back: if ax²+bx+c = 0, the answer is correct!
+      </div>
+    </div>
+  </div>
+
+</div><!-- end container -->
+
+<script>
+// ===== TABS =====
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach((t,i)=>{
+    t.classList.toggle('active',['learn','quiz','practice'][i]===name)
+  });
+  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+}
+
+// ===== STEP WALKTHROUGH =====
+let currentStep=0,totalSteps=5;
+function updateSteps(){
+  for(let i=0;i<totalSteps;i++){
+    const el=document.getElementById('s'+i);
+    if(el) el.classList.toggle('show',i<=currentStep);
+    const d=document.getElementById('d'+i);
+    if(d){
+      d.classList.toggle('done',i<currentStep);
+      d.classList.toggle('active',i===currentStep);
+    }
+  }
+  const hints=['Identify coefficients from the equation','Calculate the product a×c','Find the magic pair of numbers','Rewrite and group terms','Set factors to zero and solve'];
+  const h=document.getElementById('step-hint');
+  if(h) h.textContent=currentStep<totalSteps?'Current: '+hints[currentStep]:'All steps complete! ✓';
+}
+function nextStep(){if(currentStep<totalSteps-1){currentStep++;updateSteps();}}
+function prevStep(){if(currentStep>0){currentStep--;updateSteps();}}
+function resetSteps(){currentStep=0;updateSteps();}
+updateSteps();
+
+// ===== QUIZ =====
+const quizData=[
+  {eq:'x² + 5x + 6 = 0',a:1,b:5,c:6,p:2,q:3},
+  {eq:'x² − 7x + 12 = 0',a:1,b:-7,c:12,p:-3,q:-4},
+  {eq:'2x² + 5x + 3 = 0',a:2,b:5,c:3,p:2,q:3},
+  {eq:'3x² − 10x + 3 = 0',a:3,b:-10,c:3,p:-1,q:-9},
+  {eq:'x² + x − 12 = 0',a:1,b:1,c:-12,p:4,q:-3},
+  {eq:'2x² − 3x − 2 = 0',a:2,b:-3,c:-2,p:-4,q:1},
+];
+let score=0,total=0,curQ=null;
+
+function makeFakePairs(p,q,ac){
+  const correct=[p,q];
+  const fakes=[[p+1,q-1],[p-1,q+1],[p+2,q],[p,q+2],[-p,-q],[p*2,Math.round(ac/(p*2))]];
+  let options=[correct];
+  for(let f of fakes){
+    if(options.length>=4) break;
+    if(f[0]+f[1]!==p+q||f[0]*f[1]!==ac) options.push(f);
+  }
+  // fill if needed
+  while(options.length<4) options.push([p+options.length,q-options.length]);
+  return options.sort(()=>Math.random()-.5);
+}
+
+function loadQuiz(){
+  curQ=quizData[Math.floor(Math.random()*quizData.length)];
+  document.getElementById('quiz-eq').textContent=curQ.eq;
+  document.getElementById('quiz-sum').textContent=curQ.b;
+  document.getElementById('quiz-prod').textContent=curQ.a*curQ.c;
+  document.getElementById('quiz-feedback').textContent='';
+  const pairs=makeFakePairs(curQ.p,curQ.q,curQ.a*curQ.c);
+  const box=document.getElementById('quiz-pairs');
+  box.innerHTML='';
+  pairs.forEach(pair=>{
+    const div=document.createElement('div');
+    div.className='pair-box';
+    div.innerHTML=`<div class="pair-label">p &amp; q</div><div class="pair-nums">${pair[0]} &amp; ${pair[1]}</div>
+    <div style="font-size:.7rem;color:#94a3b8">sum: ${pair[0]+pair[1]}, prod: ${pair[0]*pair[1]}</div>`;
+    div.onclick=()=>selectPair(div,pair[0],pair[1]);
+    box.appendChild(div);
+  });
+}
+
+function selectPair(el,p,q){
+  const isCorrect=(p+q===curQ.b && p*q===curQ.a*curQ.c)||(p+q===curQ.b && q*p===curQ.a*curQ.c);
+  total++;
+  document.getElementById('total').textContent=total;
+  if(isCorrect){
+    el.classList.add('correct');
+    document.getElementById('quiz-feedback').innerHTML='<span style="color:#22c55e">✅ सही! Correct pair!</span>';
+    score++;
+    document.getElementById('score').textContent=score;
+    setTimeout(loadQuiz,1400);
+  } else {
+    el.classList.add('wrong');
+    document.getElementById('quiz-feedback').innerHTML='<span style="color:#ef4444">❌ Try again! Check sum & product.</span>';
+    setTimeout(()=>el.classList.remove('wrong'),600);
+  }
+}
+loadQuiz();
+
+// ===== PRACTICE CHECK =====
+const answers=[
+  {roots:[-3,-4]},
+  {roots:[2,3]},
+  {roots:[1.5,-2]},
+];
+let hintCounts=[0,0,0];
+
+function checkAns(n){
+  const a=parseFloat(document.getElementById('p'+n+'a').value);
+  const b=parseFloat(document.getElementById('p'+n+'b').value);
+  const r=document.getElementById('r'+n);
+  const ans=answers[n-1].roots;
+  if(isNaN(a)||isNaN(b)){r.innerHTML='<span style="color:#f59e0b">Enter both roots!</span>';return;}
+  const correct=(Math.abs(a-ans[0])<0.01&&Math.abs(b-ans[1])<0.01)||(Math.abs(a-ans[1])<0.01&&Math.abs(b-ans[0])<0.01);
+  if(correct){
+    r.innerHTML='<span style="color:#22c55e">✅ सही (Correct)!</span>';
+  } else {
+    hintCounts[n-1]++;
+    r.innerHTML='<span style="color:#ef4444">❌ Try again</span>';
+    if(hintCounts[n-1]>=2){
+      document.getElementById('hint'+n).style.display='block';
+    }
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pythagoras Theorem - Class 10 Maths</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); min-height: 100vh; color: #e2e8f0; }
+  
+  .title-bar { background: linear-gradient(90deg, #3b82f6, #6366f1); padding: 14px 20px; text-align: center; box-shadow: 0 4px 20px rgba(59,130,246,0.4); }
+  .title-bar h1 { font-size: 1.1rem; font-weight: 700; letter-spacing: 0.5px; }
+  .title-bar p { font-size: 0.75rem; opacity: 0.85; margin-top: 2px; }
+  
+  .container { max-width: 700px; margin: 0 auto; padding: 16px; }
+  
+  .formula-card { background: linear-gradient(135deg, #1e3a5f, #1e293b); border: 2px solid #3b82f6; border-radius: 16px; padding: 18px; text-align: center; margin-bottom: 16px; box-shadow: 0 8px 32px rgba(59,130,246,0.2); }
+  .formula-card .label { font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .formula-card .formula { font-size: 2rem; font-weight: 800; color: #fff; text-shadow: 0 0 20px rgba(59,130,246,0.6); }
+  .formula-card .sub { font-size: 0.8rem; color: #93c5fd; margin-top: 6px; }
+  
+  .visual-section { background: #0f172a; border-radius: 16px; padding: 16px; margin-bottom: 16px; border: 1px solid #334155; }
+  .visual-section h3 { font-size: 0.85rem; color: #94a3b8; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+  
+  svg { display: block; margin: 0 auto; }
+  
+  .controls { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 12px; }
+  .btn { padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: all 0.2s; }
+  .btn-primary { background: #3b82f6; color: white; }
+  .btn-primary:hover { background: #2563eb; transform: translateY(-1px); }
+  .btn-success { background: #22c55e; color: white; }
+  .btn-success:hover { background: #16a34a; }
+  .btn-amber { background: #f59e0b; color: #1e293b; }
+  .btn-amber:hover { background: #d97706; }
+  
+  .slider-wrap { display: flex; align-items: center; gap: 10px; margin-top: 10px; flex-wrap: wrap; justify-content: center; }
+  .slider-wrap label { font-size: 0.8rem; color: #94a3b8; white-space: nowrap; }
+  input[type=range] { -webkit-appearance: none; height: 6px; border-radius: 3px; background: #334155; outline: none; width: 140px; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #3b82f6; cursor: pointer; }
+  
+  .steps-section { background: #0f172a; border-radius: 16px; padding: 16px; margin-bottom: 16px; border: 1px solid #334155; }
+  .steps-section h3 { font-size: 0.85rem; color: #94a3b8; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .step { background: #1e293b; border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; border-left: 3px solid #3b82f6; display: none; animation: fadeSlide 0.4s ease; }
+  .step.visible { display: block; }
+  .step .step-num { font-size: 0.65rem; color: #3b82f6; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+  .step .step-text { font-size: 0.85rem; color: #e2e8f0; margin-top: 4px; line-height: 1.5; }
+  .step .step-math { font-size: 1rem; color: #fbbf24; font-weight: 700; margin-top: 6px; }
+  
+  @keyframes fadeSlide { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+  
+  .example-section { background: #0f172a; border-radius: 16px; padding: 16px; margin-bottom: 16px; border: 1px solid #334155; }
+  .example-section h3 { font-size: 0.85rem; color: #94a3b8; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .ex-step { background: #1e293b; border-radius: 10px; padding: 11px 14px; margin-bottom: 8px; display: none; animation: fadeSlide 0.4s ease; border-left: 3px solid #22c55e; }
+  .ex-step.visible { display: block; }
+  .ex-step .es-label { font-size: 0.65rem; color: #22c55e; font-weight: 700; text-transform: uppercase; }
+  .ex-step .es-text { font-size: 0.85rem; margin-top: 4px; line-height: 1.5; }
+  .ex-step .es-math { font-size: 0.95rem; color: #86efac; font-weight: 700; margin-top: 5px; }
+  
+  .info-row { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+  .info-box { flex: 1; min-width: 100px; background: #1e293b; border-radius: 10px; padding: 10px; text-align: center; border: 1px solid #334155; }
+  .info-box .ib-val { font-size: 1.3rem; font-weight: 800; }
+  .info-box .ib-lab { font-size: 0.68rem; color: #94a3b8; margin-top: 2px; }
+  .info-box.blue .ib-val { color: #60a5fa; }
+  .info-box.green .ib-val { color: #4ade80; }
+  .info-box.amber .ib-val { color: #fbbf24; }
+  
+  .hint { font-size: 0.75rem; color: #64748b; text-align: center; margin-top: 8px; }
+  
+  .area-eq { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; margin: 10px 0; font-size: 1rem; font-weight: 700; }
+  .sq-box { padding: 6px 12px; border-radius: 8px; color: white; font-size: 0.9rem; }
+  .sq-a { background: #ef4444; }
+  .sq-b { background: #22c55e; }
+  .sq-c { background: #3b82f6; }
+  .eq-sign { color: #e2e8f0; font-size: 1.2rem; }
+  
+  .pulse { animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
+  
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+  .tag-cbse { background: #1e3a5f; color: #60a5fa; border: 1px solid #3b82f6; }
+</style>
+</head>
+<body>
+
+<div class="title-bar">
+  <h1>📐 Pythagoras Theorem (पाइथागोरस प्रमेय)</h1>
+  <p>Class 10 Mathematics • Triangles Chapter • <span class="tag tag-cbse">CBSE</span></p>
+</div>
+
+<div class="container">
+
+  <div class="formula-card">
+    <div class="label">The Fundamental Formula (मूल सूत्र)</div>
+    <div class="formula">a² + b² = c²</div>
+    <div class="sub">In a right triangle (समकोण त्रिभुज): sum of squares of two sides = square of hypotenuse (कर्ण)</div>
+  </div>
+
+  <div class="info-row" id="infoRow">
+    <div class="info-box blue"><div class="ib-val" id="valA">3</div><div class="ib-lab">Side a (लम्ब)</div></div>
+    <div class="info-box green"><div class="ib-val" id="valB">4</div><div class="ib-lab">Side b (आधार)</div></div>
+    <div class="info-box amber"><div class="ib-val" id="valC">5.00</div><div class="ib-lab">c (कर्ण) = √(a²+b²)</div></div>
+  </div>
+
+  <div class="visual-section">
+    <h3>🎨 Visual Proof — Squares on Sides (क्षेत्रफल दर्शन)</h3>
+    <svg id="mainSVG" viewBox="0 0 400 340" width="100%" style="max-width:420px;"></svg>
+    <div class="area-eq">
+      <div class="sq-box sq-a" id="areaA">a² = 9</div>
+      <div class="eq-sign">+</div>
+      <div class="sq-box sq-b" id="areaB">b² = 16</div>
+      <div class="eq-sign">=</div>
+      <div class="sq-box sq-c" id="areaC">c² = 25</div>
+    </div>
+    <div class="hint pulse" id="dragHint">⬆️ Drag the sliders below to change side lengths!</div>
+    <div class="slider-wrap">
+      <label>a (लम्ब):</label>
+      <input type="range" id="sliderA" min="2" max="8" value="3" step="0.5">
+      <label>b (आधार):</label>
+      <input type="range" id="sliderB" min="2" max="8" value="4" step="0.5">
+    </div>
+    <div class="controls" style="margin-top:10px;">
+      <button class="btn btn-primary" onclick="showProofAnim()">▶ Animate Proof</button>
+      <button class="btn btn-amber" onclick="showSpecial('345')">3-4-5 Triangle</button>
+      <button class="btn btn-amber" onclick="showSpecial('512')">5-12-13 Triangle</button>
+      <button class="btn btn-success" onclick="resetView()">↺ Reset</button>
+    </div>
+  </div>
+
+  <div class="steps-section">
+    <h3>📖 Step-by-Step Proof (चरण-दर-चरण प्रमाण)</h3>
+    <div id="stepContainer"></div>
+    <div class="controls">
+      <button class="btn btn-primary" id="nextStepBtn" onclick="nextStep()">Next Step →</button>
+      <button class="btn btn-primary" onclick="resetSteps()">↺ Restart</button>
+    </div>
+    <p class="hint" id="stepHint">Click "Next Step" to begin the walkthrough</p>
+  </div>
+
+  <div class="example-section">
+    <h3>✏️ Worked Example (हल किया उदाहरण)</h3>
+    <div style="background:#1e293b;border-radius:10px;padding:12px;margin-bottom:10px;font-size:0.85rem;line-height:1.6;">
+      <strong style="color:#fbbf24;">Question:</strong> In △ABC, ∠B = 90°, AB = 8 cm, BC = 15 cm. Find AC (hypotenuse / कर्ण).
+    </div>
+    <div id="exContainer"></div>
+    <div class="controls">
+      <button class="btn btn-success" id="nextExBtn" onclick="nextEx()">Show Next Step →</button>
+      <button class="btn btn-success" onclick="resetEx()">↺ Restart</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const SCALE = 30;
+let sA = 3, sB = 4;
+let proofAnimTimer = null;
+let stepIndex = 0;
+let exIndex = 0;
+
+const steps = [
+  { num: "Step 1", text: "Consider a right-angled triangle (समकोण त्रिभुज) △ABC where ∠C = 90°. The side opposite to the right angle is called the hypotenuse (कर्ण).", math: "" },
+  { num: "Step 2", text: "Draw a square on EACH side of the triangle. The area (क्षेत्रफल) of a square with side 'x' is x².", math: "Area of square = side × side = x²" },
+  { num: "Step 3", text: "The square on side 'a' has area a². The square on side 'b' has area b². The square on hypotenuse 'c' has area c².", math: "Area₁ = a²,  Area₂ = b²,  Area₃ = c²" },
+  { num: "Step 4 (Key!)", text: "Pythagoras proved that the area of the square on the hypotenuse EQUALS the sum of areas of squares on the other two sides.", math: "a² + b² = c²" },
+  { num: "Step 5", text: "∴ (Therefore) in a right triangle with legs a, b and hypotenuse c:", math: "c = √(a² + b²)" },
+  { num: "Step 6 — Converse (विलोम)", text: "If in a triangle a² + b² = c², then the angle between sides a and b must be 90°. This is the CONVERSE of Pythagoras Theorem.", math: "a² + b² = c²  ⟹  ∠C = 90°" }
+];
+
+const exSteps = [
+  { label: "Given (दिया है)", text: "△ABC, ∠B = 90°, AB = 8 cm, BC = 15 cm", math: "" },
+  { label: "To Find", text: "AC = hypotenuse (कर्ण) = ?", math: "" },
+  { label: "Apply Formula", text: "By Pythagoras Theorem (पाइथागोरस प्रमेय):", math: "AC² = AB² + BC²" },
+  { label: "Substitute Values", text: "Put the given values:", math: "AC² = 8² + 15² = 64 + 225 = 289" },
+  { label: "Find AC", text: "Taking square root (वर्गमूल) on both sides:", math: "AC = √289 = 17 cm" },
+  { label: "∴ Answer", text: "The hypotenuse AC = 17 cm. Also, (8, 15, 17) is a Pythagorean triplet (पाइथागोरस त्रिक)!", math: "8² + 15² = 64 + 225 = 289 = 17² ✓" }
+];
+
+function buildSteps() {
+  const c = document.getElementById('stepContainer');
+  c.innerHTML = '';
+  steps.forEach((s, i) => {
+    const d = document.createElement('div');
+    d.className = 'step';
+    d.id = 'step' + i;
+    d.innerHTML = `<div class="step-num">${s.num}</div><div class="step-text">${s.text}</div>${s.math ? `<div class="step-math">${s.math}</div>` : ''}`;
+    c.appendChild(d);
+  });
+}
+
+function buildEx() {
+  const c = document.getElementById('exContainer');
+  c.innerHTML = '';
+  exSteps.forEach((s, i) => {
+    const d = document.createElement('div');
+    d.className = 'ex-step';
+    d.id = 'ex' + i;
+    d.innerHTML = `<div class="es-label">${s.label}</div><div class="es-text">${s.text}</div>${s.math ? `<div class="es-math">${s.math}</div>` : ''}`;
+    c.appendChild(d);
+  });
+}
+
+function nextStep() {
+  if (stepIndex < steps.length) {
+    document.getElementById('step' + stepIndex).classList.add('visible');
+    stepIndex++;
+    document.getElementById('stepHint').textContent = `Step ${stepIndex} of ${steps.length} shown`;
+    if (stepIndex === steps.length) document.getElementById('nextStepBtn').textContent = 'All Done! ✓';
+  }
+}
+
+function resetSteps() {
+  stepIndex = 0;
+  steps.forEach((_, i) => document.getElementById('step' + i).classList.remove('visible'));
+  document.getElementById('nextStepBtn').textContent = 'Next Step →';
+  document.getElementById('stepHint').textContent = 'Click "Next Step" to begin the walkthrough';
+}
+
+function nextEx() {
+  if (exIndex < exSteps.length) {
+    document.getElementById('ex' + exIndex).classList.add('visible');
+    exIndex++;
+    if (exIndex === exSteps.length) document.getElementById('nextExBtn').textContent = 'Complete! ✓';
+  }
+}
+
+function resetEx() {
+  exIndex = 0;
+  exSteps.forEach((_, i) => document.getElementById('ex' + i).classList.remove('visible'));
+  document.getElementById('nextExBtn').textContent = 'Show Next Step →';
+}
+
+function showSpecial(type) {
+  if (type === '345') { sA = 3; sB = 4; document.getElementById('sliderA').value = 3; document.getElementById('sliderB').value = 4; }
+  else { sA = 5; sB = 12; document.getElementById('sliderA').value = 5; document.getElementById('sliderB').value = 8; }
+  updateAll();
+}
+
+function resetView() { sA = 3; sB = 4; document.getElementById('sliderA').value = 3; document.getElementById('sliderB').value = 4; updateAll(); }
+
+function showProofAnim() {
+  let frames = 0;
+  const svg = document.getElementById('mainSVG');
+  if (proofAnimTimer) clearInterval(proofAnimTimer);
+  const rects = svg.querySelectorAll('.sq-anim');
+  rects.forEach(r => { r.style.opacity = '0'; });
+  proofAnimTimer = setInterval(() => {
+    frames++;
+    if (frames === 1) { const el = svg.querySelector('.sq-red'); if(el) el.style.opacity = '1'; }
+    if (frames === 2) { const el = svg.querySelector('.sq-grn'); if(el) el.style.opacity = '1'; }
+    if (frames === 3) { const el = svg.querySelector('.sq-blu'); if(el) el.style.opacity = '1'; }
+    if (frames >= 4) clearInterval(proofAnimTimer);
+  }, 700);
+}
+
+function updateAll() {
+  const c = Math.sqrt(sA * sA + sB * sB);
+  document.getElementById('valA').textContent = sA;
+  document.getElementById('valB').textContent = sB;
+  document.getElementById('valC').textContent = c.toFixed(2);
+  document.getElementById('areaA').textContent = 'a² = ' + (sA * sA);
+  document.getElementById('areaB').textContent = 'b² = ' + (sB * sB);
+  document.getElementById('areaC').textContent = 'c² = ' + (c * c).toFixed(1);
+  drawSVG(sA, sB, c);
+}
+
+function drawSVG(a, b, c) {
+  const svg = document.getElementById('mainSVG');
+  const W = 400, H = 340;
+  const ox = 190, oy = 240;
+  const sc = Math.min(22, 200 / Math.max(a, b, c));
+  const ax = sc * b, ay = sc * a;
+
+  svg.innerHTML = '';
+
+  function el(tag, attrs, text) {
+    const e = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    if (text !== undefined) e.textContent = text;
+    return e;
+  }
+
+  function rect4(x0,y0, x1,y1, x2,y2, x3,y3, fill, opacity, cls) {
+    const p = el('polygon', { points:`${x0},${y0} ${x1},${y1} ${x2},${y2} ${x3},${y3}`, fill, opacity, stroke:'none', class: cls || '' });
+    p.style.transition = 'opacity 0.6s ease';
+    return p;
+  }
+
+  function txt(x, y, s, col, size, anchor) {
+    return el('text', { x, y, fill: col || '#e2e8f0', 'font-size': size || 12, 'text-anchor': anchor || 'middle', 'font-weight': '700', 'font-family': 'Segoe UI, sans-serif' }, s);
+  }
+
+  // Triangle vertices
+  const Tx = ox, Ty = oy;        // right angle vertex
+  const Ax = ox, Ay = oy - ay;   // top
+  const Bx = ox + ax, By = oy;   // right
+
+  // --- Square on side b (base, green) ---
+  svg.appendChild(rect4(Tx,Ty, Bx,By, Bx,Ty+ax*0.9, Tx,Ty+ax*0.9, '#22c55e', '0.25', 'sq-anim sq-grn'));
+  // border
+  const sqB = el('polygon', { points:`${Tx},${Ty} ${Bx},${By} ${Bx},${Ty+ax*0.9} ${Tx},${Ty+ax*0.9}`, fill:'none', stroke:'#22c55e', 'stroke-width': 2 });
+  svg.appendChild(sqB);
+  svg.appendChild(txt((Tx+Bx)/2, Ty+ax*0.9+14, `b² = ${(b*b).toFixed(0)}`, '#4ade80', 11));
+
+  // --- Square on side a (vertical, red) ---
+  svg.appendChild(rect4(Tx,Ty, Ax,Ay, Ax-ay*0.9,Ay, Tx-ay*0.9,Ty, '#ef4444', '0.25', 'sq-anim sq-red'));
+  const sqA = el('polygon', { points:`${Tx},${Ty} ${Ax},${Ay} ${Ax-ay*0.9},${Ay} ${Tx-ay*0.9},${Ty}`, fill:'none', stroke:'#ef4444', 'stroke-width': 2 });
+  svg.appendChild(sqA);
+  svg.appendChild(txt(Tx-ay*0.9-10, (Ty+Ay)/2, `a²=${(a*a).toFixed(0)}`, '#f87171', 11, 'end'));
+
+  // --- Square on hypotenuse (blue) ---
+  const dx = Bx - Ax, dy = By - Ay;
+  const len = Math.sqrt(dx*dx+dy*dy);
+  const nx = -dy/len, ny = dx/len;
+  const sd = c * sc;
+  const Hx1 = Ax + nx*sd, Hy1 = Ay + ny*sd;
+  const Hx2 = Bx + nx*sd, Hy2 = By + ny*sd;
+  svg.appendChild(rect4(Ax,Ay, Bx,By, Hx2,Hy2, Hx1,Hy1, '#3b82f6', '0.22', 'sq-anim sq-blu'));
+  const sqC = el('polygon', { points:`${Ax},${Ay} ${Bx},${By} ${Hx2},${Hy2} ${Hx1},${Hy1}`, fill:'none', stroke:'#3b82f6', 'stroke-width': 2 });
+  svg.appendChild(sqC);
+  const mhx = (Ax+Bx)/2 + nx*sd*0.5 + nx*14;
+  const mhy = (Ay+By)/2 + ny*sd*0.5 + ny*14;
+  svg.appendChild(txt(mhx, mhy, `c²=${(c*c).toFixed(1)}`, '#93c5fd', 11));
+
+  // Triangle fill
+  const tri = el('polygon', { points:`${Tx},${Ty} ${Ax},${Ay} ${Bx},${By}`, fill:'#f59e0b', opacity:'0.18', stroke:'none' });
+  svg.appendChild(tri);
+  const triB = el('polygon', { points:`${Tx},${Ty} ${Ax},${Ay} ${Bx},${By}`, fill:'none', stroke:'#f59e0b', 'stroke-width': 2.5 });
+  svg.appendChild(triB);
+
+  // Right angle mark
+  const ms = 9;
+  svg.appendChild(el('polyline', { points:`${Tx},${Ty-ms} ${Tx+ms},${Ty-ms} ${Tx+ms},${Ty}`, fill:'none', stroke:'#fbbf24', 'stroke-width': 2 }));
+
+  // Side labels
+  svg.appendChild(txt(Tx-8, (Ty+Ay)/2, 'a', '#f87171', 13, 'end'));
+  svg.appendChild(txt((Tx+Bx)/2, Ty+16, 'b', '#4ade80', 13));
+  svg.appendChild(txt((Ax+Bx)/2+6, (Ay+By)/2-6, 'c', '#93c5fd', 13));
+
+  // Vertex labels
+  svg.appendChild(txt(Tx-14, Ty+5, 'C', '#fbbf24', 12, 'end'));
+  svg.appendChild(txt(Ax-14, Ay, 'A', '#fbbf24', 12, 'end'));
+  svg.appendChild(txt(Bx+8, By+5, 'B', '#fbbf24', 12, 'start'));
+
+  // 90° label
+  svg.appendChild(txt(Tx+18, Ty-4, '90°', '#fbbf24', 9));
+}
+
+document.getElementById('sliderA').addEventListener('input', function() { sA = parseFloat(this.value); updateAll(); document.getElementById('dragHint').textContent = `a = ${sA}, b = ${sB} → Squares updated!`; document.getElementById('dragHint').classList.remove('pulse'); });
+document.getElementById('sliderB').addEventListener('input', function() { sB = parseFloat(this.value); updateAll(); document.getElementById('dragHint').textContent = `a = ${sA}, b = ${sB} → Squares updated!`; document.getElementById('dragHint').classList.remove('pulse'); });
+
+buildSteps();
+buildEx();
+updateAll();
+</script>
+</body>
+</html>

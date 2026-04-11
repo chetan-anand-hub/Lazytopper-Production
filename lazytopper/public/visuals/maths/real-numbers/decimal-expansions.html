@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Real Numbers – Decimal Expansions | Class 10 Maths</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);min-height:100vh;color:#1e293b}
+.titlebar{background:linear-gradient(90deg,#3b82f6,#6366f1);padding:14px 20px;text-align:center;box-shadow:0 4px 20px rgba(59,130,246,.5)}
+.titlebar h1{color:#fff;font-size:1.1rem;letter-spacing:.5px}
+.titlebar p{color:#bfdbfe;font-size:.78rem;margin-top:2px}
+.container{max-width:700px;margin:0 auto;padding:16px}
+.card{background:#fff;border-radius:16px;padding:18px;margin-bottom:16px;box-shadow:0 8px 32px rgba(0,0,0,.25)}
+.card h2{font-size:1rem;color:#3b82f6;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:.72rem;font-weight:700;color:#fff}
+.b-blue{background:#3b82f6}.b-green{background:#22c55e}.b-amber{background:#f59e0b}.b-red{background:#ef4444}
+/* KEY FORMULA */
+.formula-box{background:linear-gradient(135deg,#eff6ff,#dbeafe);border:2px solid #3b82f6;border-radius:12px;padding:14px;text-align:center;margin:10px 0}
+.formula-box .formula{font-size:1.05rem;font-weight:700;color:#1e40af;margin:6px 0}
+.formula-box .label{font-size:.75rem;color:#3b82f6}
+/* TYPE CARDS */
+.type-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.type-card{border-radius:12px;padding:14px;cursor:pointer;border:2px solid transparent;transition:all .3s}
+.type-card:hover{transform:translateY(-3px)}
+.type-card.terminating{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-color:#22c55e}
+.type-card.non-term{background:linear-gradient(135deg,#fffbeb,#fef3c7);border-color:#f59e0b}
+.type-card h3{font-size:.85rem;font-weight:700;margin-bottom:4px}
+.type-card .example{font-size:.9rem;font-family:monospace;padding:4px 8px;border-radius:6px;display:inline-block;margin-top:4px}
+.term-ex{background:#bbf7d0;color:#15803d}
+.nterm-ex{background:#fde68a;color:#92400e}
+/* NUMBER LINE */
+.numline-wrap{position:relative;margin:16px 0}
+svg.nl{width:100%;height:60px;overflow:visible}
+/* INTERACTIVE FRACTION CHECKER */
+.checker{background:linear-gradient(135deg,#f8fafc,#f1f5f9);border-radius:12px;padding:16px}
+.fraction-input{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.frac-box{display:flex;flex-direction:column;align-items:center}
+.frac-box input{width:64px;text-align:center;border:2px solid #cbd5e1;border-radius:8px;padding:6px;font-size:1rem;font-weight:700;color:#1e293b}
+.frac-box hr{width:64px;border:2px solid #1e293b;margin:2px 0}
+.frac-label{font-size:.7rem;color:#64748b;margin-top:2px}
+.check-btn{background:linear-gradient(135deg,#3b82f6,#6366f1);color:#fff;border:none;border-radius:10px;padding:10px 18px;font-size:.9rem;font-weight:700;cursor:pointer;transition:transform .2s}
+.check-btn:hover{transform:scale(1.05)}
+.result-box{border-radius:10px;padding:12px;font-size:.85rem;display:none;animation:fadeIn .4s ease}
+.result-box.show{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.step{padding:6px 10px;border-radius:8px;margin:4px 0;font-family:monospace;font-size:.82rem}
+.step-blue{background:#dbeafe;color:#1e40af}
+.step-green{background:#dcfce7;color:#15803d}
+.step-red{background:#fee2e2;color:#991b1b}
+.step-amber{background:#fef3c7;color:#92400e}
+/* WALKTHROUGH */
+.walkthrough{margin-top:10px}
+.wstep{background:#f8fafc;border-left:4px solid #3b82f6;padding:10px 14px;border-radius:0 10px 10px 0;margin:8px 0;display:none;animation:fadeIn .4s ease}
+.wstep.visible{display:block}
+.wstep .num{font-size:.7rem;color:#3b82f6;font-weight:700}
+.wstep .text{font-size:.83rem;color:#1e293b;margin-top:2px}
+.wstep .math{font-family:monospace;background:#e0e7ff;padding:4px 8px;border-radius:6px;display:inline-block;margin-top:4px;color:#3730a3}
+.nav-btns{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.nav-btn{padding:8px 16px;border-radius:8px;border:none;font-size:.82rem;font-weight:700;cursor:pointer;transition:all .2s}
+.btn-next{background:#3b82f6;color:#fff}.btn-next:hover{background:#2563eb}
+.btn-prev{background:#e2e8f0;color:#475569}.btn-prev:hover{background:#cbd5e1}
+.btn-reset{background:#ef4444;color:#fff}.btn-reset:hover{background:#dc2626}
+/* VISUALIZATION */
+.vis-wrap{position:relative;overflow:hidden;border-radius:10px;background:#f8fafc;padding:12px}
+.digit-stream{display:flex;flex-wrap:wrap;gap:2px;font-family:monospace;font-size:.95rem;max-height:64px;overflow:hidden}
+.digit{padding:2px 5px;border-radius:4px;font-weight:700;transition:background .3s}
+.d-normal{background:#e2e8f0;color:#1e293b}
+.d-repeat{background:#fde68a;color:#92400e;animation:pulse .8s infinite alternate}
+.d-dot{background:transparent;color:#64748b}
+@keyframes pulse{from{opacity:.6}to{opacity:1}}
+.toggle-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.tog-btn{padding:6px 14px;border-radius:20px;border:2px solid #e2e8f0;background:#fff;font-size:.78rem;font-weight:700;cursor:pointer;transition:all .2s}
+.tog-btn.active{border-color:#3b82f6;background:#dbeafe;color:#1e40af}
+/* QUIZ */
+.quiz-opt{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.opt-btn{padding:10px;border-radius:10px;border:2px solid #e2e8f0;background:#f8fafc;font-size:.82rem;cursor:pointer;transition:all .2s;font-weight:600}
+.opt-btn:hover{border-color:#3b82f6;background:#eff6ff}
+.opt-btn.correct{background:#dcfce7;border-color:#22c55e;color:#15803d}
+.opt-btn.wrong{background:#fee2e2;border-color:#ef4444;color:#991b1b}
+.quiz-fb{font-size:.8rem;padding:8px 12px;border-radius:8px;margin-top:8px;display:none}
+.quiz-fb.show{display:block}
+/* Tree diagram */
+.tree{text-align:center;margin:10px 0}
+.tree-node{display:inline-block;padding:6px 12px;border-radius:8px;font-size:.78rem;font-weight:700;margin:3px}
+.tn-root{background:#3b82f6;color:#fff}
+.tn-child{background:#e0e7ff;color:#3730a3}
+.tn-leaf1{background:#dcfce7;color:#15803d}
+.tn-leaf2{background:#fef3c7;color:#92400e}
+.tree-row{margin:4px 0}
+.connector{color:#94a3b8;font-size:.8rem}
+@media(max-width:420px){
+.type-grid{grid-template-columns:1fr}
+.quiz-opt{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="titlebar">
+<h1>📐 Real Numbers — Decimal Expansions</h1>
+<p>CBSE Class 10 Mathematics · Interactive Visual Explainer</p>
+</div>
+<div class="container">
+
+<!-- KEY CONCEPT -->
+<div class="card">
+<h2>🔑 Key Concept (मुख्य अवधारणा)</h2>
+<div class="formula-box">
+<div class="label">Every rational number p/q has one of two types of decimal expansion:</div>
+<div class="formula">p/q → Terminating OR Non-Terminating Repeating</div>
+<div class="label" style="margin-top:6px">∵ q has only 2's and 5's as prime factors → Terminating decimal</div>
+</div>
+<div class="tree">
+<div class="tree-row"><span class="tree-node tn-root">Real Numbers (वास्तविक संख्याएं)</span></div>
+<div class="tree-row"><span class="connector">┌──────────────────┴──────────────────┐</span></div>
+<div class="tree-row">
+<span class="tree-node tn-child">Rational (परिमेय)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<span class="tree-node" style="background:#e0e7ff;color:#3730a3">Irrational (अपरिमेय)</span>
+</div>
+<div class="tree-row"><span class="connector">┌──────────┴──────────┐</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+<div class="tree-row">
+<span class="tree-node tn-leaf1">Terminating</span>
+<span class="tree-node tn-leaf2">Non-Term. Repeating</span>
+</div>
+</div>
+</div>
+
+<!-- TYPE CARDS -->
+<div class="card">
+<h2>📊 Two Types — Click to Explore</h2>
+<div class="type-grid">
+<div class="type-card terminating" onclick="showType('term')">
+<h3 style="color:#15803d">✅ Terminating (सांत)</h3>
+<div>Decimal <strong>ends</strong> after finite digits</div>
+<div class="example term-ex">0.5 &nbsp; 1.25 &nbsp; 3.125</div>
+<div style="font-size:.72rem;margin-top:6px;color:#166534">q = 2ᵃ × 5ᵇ only</div>
+</div>
+<div class="type-card non-term" onclick="showType('nonterm')">
+<h3 style="color:#92400e">🔄 Non-Terminating Repeating (असांत आवर्ती)</h3>
+<div>Decimal <strong>repeats</strong> a pattern forever</div>
+<div class="example nterm-ex">0.333… &nbsp; 0.142857…</div>
+<div style="font-size:.72rem;margin-top:6px;color:#92400e">q has prime ≠ 2 or 5</div>
+</div>
+</div>
+<div id="type-detail" style="margin-top:12px;display:none;animation:fadeIn .4s ease"></div>
+</div>
+
+<!-- DIGIT VISUALIZER -->
+<div class="card">
+<h2>🔭 Decimal Digit Visualizer</h2>
+<div class="toggle-row" id="vis-btns">
+<button class="tog-btn active" onclick="showVis(0,this)">3/4 = 0.75</button>
+<button class="tog-btn" onclick="showVis(1,this)">1/3 = 0.333…</button>
+<button class="tog-btn" onclick="showVis(2,this)">7/22 = 0.318̄</button>
+<button class="tog-btn" onclick="showVis(3,this)">1/7 = 0.142857…</button>
+</div>
+<div class="vis-wrap">
+<div id="digit-stream" class="digit-stream"></div>
+</div>
+<div id="vis-info" style="font-size:.78rem;color:#64748b;margin-top:8px;text-align:center"></div>
+</div>
+
+<!-- INTERACTIVE CHECKER -->
+<div class="card">
+<h2>🧪 Fraction Type Checker — Try It!</h2>
+<p style="font-size:.78rem;color:#64748b;margin-bottom:10px">Enter any fraction p/q and find if its decimal is terminating or not</p>
+<div class="checker">
+<div class="fraction-input">
+<div class="frac-box">
+<input type="number" id="inp-p" value="7" min="1" max="9999"/>
+<hr>
+<input type="number" id="inp-q" value="8" min="1" max="9999"/>
+<div class="frac-label">p / q</div>
+</div>
+<button class="check-btn" onclick="checkFraction()">Check ▶</button>
+</div>
+<div class="result-box" id="result-box"></div>
+</div>
+</div>
+
+<!-- STEP BY STEP WORKED EXAMPLE -->
+<div class="card">
+<h2>📝 Worked Example — Step by Step (चरण दर चरण)</h2>
+<p style="font-size:.8rem;color:#475569;margin-bottom:8px">Is 29/200 terminating? Click <strong>Next</strong> to reveal each step.</p>
+<div class="walkthrough" id="walkthrough"></div>
+<div class="nav-btns">
+<button class="nav-btn btn-prev" onclick="wPrev()">◀ Prev</button>
+<button class="nav-btn btn-next" onclick="wNext()">Next ▶</button>
+<button class="nav-btn btn-reset" onclick="wReset()">↺ Reset</button>
+<span id="w-counter" style="font-size:.75rem;color:#94a3b8;align-self:center"></span>
+</div>
+</div>
+
+<!-- QUICK QUIZ -->
+<div class="card">
+<h2>🎯 Quick Quiz (लघु परीक्षा)</h2>
+<div id="quiz-container"></div>
+</div>
+
+<!-- RULE BOX -->
+<div class="card">
+<h2>📌 The Golden Rule (प्रमेय 1.5)</h2>
+<div style="font-size:.82rem;line-height:1.7">
+<div class="step step-blue">Let x = p/q be a rational number such that q ≠ 0</div>
+<div class="step step-green">✅ x is <strong>TERMINATING</strong> ↔ q = 2ⁿ × 5ᵐ (n,m ≥ 0)</div>
+<div class="step step-amber">🔄 x is <strong>NON-TERMINATING REPEATING</strong> ↔ q has prime factor other than 2 & 5</div>
+<div class="step step-blue" style="margin-top:8px">∴ Irrational numbers are <strong>Non-Terminating Non-Repeating</strong></div>
+<div class="step" style="background:#f1f5f9;color:#475569">e.g. √2 = 1.41421356… (never repeats!)</div>
+</div>
+</div>
+
+</div>
+
+<script>
+// ── TYPE DETAIL ──────────────────────────────────────────
+const typeDetails={
+term:`<div class="step step-green"><strong>Terminating Decimal (सांत दशमलव)</strong></div>
+<div class="step step-green">• Denominator q = 2ⁿ × 5ᵐ only</div>
+<div class="step step-green">• Examples: 1/2 = 0.5, &nbsp; 3/4 = 0.75, &nbsp; 7/8 = 0.875</div>
+<div class="step step-green">• 7/8: q=8=2³ → terminating ✅</div>
+<div class="step step-green">• Multiply to make denominator 10ⁿ → simple fraction</div>`,
+nonterm:`<div class="step step-amber"><strong>Non-Terminating Repeating (असांत आवर्ती)</strong></div>
+<div class="step step-amber">• q has a prime factor ≠ 2 or 5</div>
+<div class="step step-amber">• Examples: 1/3 = 0.3̄, &nbsp; 5/6 = 0.83̄, &nbsp; 1/7 = 0.142857̄</div>
+<div class="step step-amber">• 1/6: q=6=2×3 → 3 is not 2 or 5 → non-terminating 🔄</div>
+<div class="step step-amber">• The repeating block is called the <em>period</em> (आवर्त)</div>`
+};
+function showType(t){
+const d=document.getElementById('type-detail');
+d.innerHTML=typeDetails[t];
+d.style.display='block';
+}
+
+// ── DIGIT VISUALIZER ─────────────────────────────────────
+const visData=[
+{digits:'075',repeat:-1,label:'3/4 = 0.75 → Terminating ✅ (q=4=2²)',dot:1},
+{digits:'0333333333333333333333',repeat:1,label:'1/3 = 0.333… → Non-Terminating Repeating 🔄 (period=1)',dot:1},
+{digits:'031818181818181818181',repeat:3,label:'7/22 = 0.3̄1̄8̄ → Non-Terminating Repeating 🔄 (period=2, from pos 2)',dot:1},
+{digits:'0142857142857142857142857',repeat:1,label:'1/7 = 0.142857̄ → Non-Terminating Repeating 🔄 (period=6)',dot:1}
+];
+let curVis=0;
+function showVis(i,btn){
+curVis=i;
+document.querySelectorAll('.tog-btn').forEach(b=>b.classList.remove('active'));
+btn.classList.add('active');
+renderVis();
+}
+function renderVis(){
+const v=visData[curVis];
+const stream=document.getElementById('digit-stream');
+stream.innerHTML='';
+const chars=v.digits.split('');
+// dot after first digit
+chars.forEach((c,i)=>{
+if(i===v.dot){
+const dot=document.createElement('span');
+dot.className='digit d-dot';dot.textContent='.';
+stream.appendChild(dot);
+}
+const span=document.createElement('span');
+span.textContent=c;
+let cls='d-normal';
+if(v.repeat>0&&i>=v.repeat)cls='d-repeat';
+span.className='digit '+cls;
+stream.appendChild(span);
+});
+if(v.repeat>0){
+const dots=document.createElement('span');
+dots.className='digit d-dot';dots.textContent='…';
+stream.appendChild(dots);
+}
+document.getElementById('vis-info').textContent=v.label;
+}
+renderVis();
+
+// ── FRACTION CHECKER ──────────────────────────────────────
+function gcd(a,b){while(b){let t=b;b=a%b;a=t;}return a;}
+function primeFactors(n){
+const f={};let d=2;
+while(d*d<=n){while(n%d===0){f[d]=(f[d]||0)+1;n=Math.floor(n/d);}d++;}
+if(n>1)f[n]=(f[n]||0)+1;
+return f;
+}
+function checkFraction(){
+let p=parseInt(document.getElementById('inp-p').value)||7;
+let q=parseInt(document.getElementById('inp-q').value)||8;
+if(q===0){alert('q cannot be 0!');return;}
+p=Math.abs(p);q=Math.abs(q);
+const g=gcd(p,q);
+const rp=p/g,rq=q/g;
+const pf=primeFactors(rq);
+const keys=Object.keys(pf).map(Number);
+const isTerminating=keys.every(k=>k===2||k===5);
+const rb=document.getElementById('result-box');
+let html=`<div class="step step-blue">Fraction: ${p}/${q} = ${rp}/${rq} (after simplifying by GCD=${g})</div>`;
+html+=`<div class="step step-blue">Prime factorization of q=${rq}: `;
+if(keys.length===0)html+=`1 (q=1)`;
+else html+=keys.map(k=>`${k}${pf[k]>1?'<sup>'+pf[k]+'</sup>':''}`).join(' × ');
+html+=`</div>`;
+if(isTerminating){
+html+=`<div class="step step-green">✅ q has ONLY 2's and 5's as prime factors</div>`;
+html+=`<div class="step step-green">∴ ${p}/${q} is a <strong>TERMINATING DECIMAL</strong></div>`;
+const val=(p/q).toFixed(10).replace(/0+$/,'');
+html+=`<div class="step step-green">= ${val}</div>`;
+}else{
+const bad=keys.filter(k=>k!==2&&k!==5);
+html+=`<div class="step step-red">❌ q has prime factor(s): ${bad.join(', ')} (≠ 2 or 5)</div>`;
+html+=`<div class="step step-amber">∴ ${p}/${q} is a <strong>NON-TERMINATING REPEATING DECIMAL</strong></div>`;
+const val=(p/q).toFixed(15);
+html+=`<div class="step step-amber">≈ ${val}…</div>`;
+}
+rb.innerHTML=html;
+rb.className='result-box show';
+}
+
+// ── WALKTHROUGH ───────────────────────────────────────────
+const wSteps=[
+{num:'Step 1',text:'Write the fraction: 29/200',math:'p = 29, q = 200'},
+{num:'Step 2',text:'Find prime factorization of q (denominator):',math:'200 = 2 × 100 = 2 × 4 × 25 = 2³ × 5²'},
+{num:'Step 3',text:'Check: does q have only 2 and 5 as prime factors?',math:'200 = 2³ × 5² → YES ✅ only 2 and 5'},
+{num:'Step 4',text:'∴ 29/200 is a TERMINATING decimal (प्रमेय 1.5 से)',math:'Terminating after finite digits'},
+{num:'Step 5',text:'To find the exact decimal, multiply num & denom to get 10ⁿ:',math:'29/200 × (5/5) = 145/1000'},
+{num:'Step 6',text:'Convert to decimal directly:',math:'145/1000 = 0.145 ✅'},
+{num:'Conclusion',text:'∴ 29/200 = 0.145 — a terminating decimal with 3 decimal places!',math:'q = 2³ × 5² → max(3,2) = 3 decimal places'}
+];
+let wCur=0;
+function renderWalkthrough(){
+const w=document.getElementById('walkthrough');
+w.innerHTML='';
+for(let i=0;i<wSteps.length;i++){
+const s=wSteps[i];
+const div=document.createElement('div');
+div.className='wstep'+(i<=wCur?' visible':'');
+div.innerHTML=`<div class="num">${s.num}</div><div class="text">${s.text}</div><div class="math">${s.math}</div>`;
+w.appendChild(div);
+}
+document.getElementById('w-counter').textContent=`${Math.min(wCur+1,wSteps.length)} / ${wSteps.length}`;
+}
+function wNext(){if(wCur<wSteps.length-1){wCur++;renderWalkthrough();}}
+function wPrev(){if(wCur>0){wCur--;renderWalkthrough();}}
+function wReset(){wCur=0;renderWalkthrough();}
+renderWalkthrough();
+
+// ── QUIZ ──────────────────────────────────────────────────
+const questions=[
+{q:'Is 13/125 a terminating decimal?',opts:['Yes, q=5³ ✅','No, 13 is prime','Depends on 13','Cannot determine'],ans:0,fb:'125 = 5³. Only prime factor is 5. ∴ Terminating! 13/125 = 0.104'},
+{q:'Which of these is NON-TERMINATING REPEATING?',opts:['7/8','3/16','5/12','9/25'],ans:2,fb:'12 = 2² × 3. Has prime factor 3 (≠2,5). ∴ 5/12 is non-terminating repeating!'},
+{q:'What type of decimal is √5?',opts:['Terminating','Non-Term. Repeating','Non-Term. Non-Repeating','Rational'],ans:2,fb:'√5 is irrational → non-terminating non-repeating decimal (e.g. 2.2360679…)'},
+{q:'1/7 has how many digits in its repeating period?',opts:['1','3','6','7'],ans:2,fb:'1/7 = 0.142857142857… The period is 142857 which has 6 digits!'}
+];
+let qIdx=0,answered=false;
+function renderQuiz(){
+const q=questions[qIdx];
+const c=document.getElementById('quiz-container');
+c.innerHTML=`<div style="font-size:.85rem;font-weight:700;margin-bottom:8px;color:#1e293b">Q${qIdx+1}/${questions.length}: ${q.q}</div>
+<div class="quiz-opt">${q.opts.map((o,i)=>`<button class="opt-btn" onclick="selectOpt(${i})">${o}</button>`).join('')}</div>
+<div class="quiz-fb" id="quiz-fb"></div>
+<div style="margin-top:10px;font-size:.78rem;color:#94a3b8">Click an answer above</div>`;
+answered=false;
+}
+function selectOpt(i){
+if(answered)return;
+answered=true;
+const q=questions[qIdx];
+const btns=document.querySelectorAll('.opt-btn');
+btns[q.ans].classList.add('correct');
+if(i!==q.ans)btns[i].classList.add('wrong');
+const fb=document.getElementById('quiz-fb');
+fb.innerHTML=`<strong>${i===q.ans?'🎉 Correct!':'❌ Wrong!'}</strong> ${q.fb}`;
+fb.style.background=i===q.ans?'#dcfce7':'#fee2e2';
+fb.style.color=i===q.ans?'#15803d':'#991b1b';
+fb.className='quiz-fb show';
+setTimeout(()=>{qIdx=(qIdx+1)%questions.length;renderQuiz();},2800);
+}
+renderQuiz();
+</script>
+</body>
+</html>

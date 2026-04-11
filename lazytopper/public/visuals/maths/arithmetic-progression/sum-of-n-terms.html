@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arithmetic Progressions - Sum of n Terms</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #1e293b; min-height: 100vh; }
+  
+  .title-bar {
+    background: linear-gradient(135deg, #1e40af, #3b82f6, #06b6d4);
+    color: white; padding: 14px 20px; text-align: center;
+    box-shadow: 0 4px 20px rgba(59,130,246,0.5);
+  }
+  .title-bar h1 { font-size: 1.2rem; font-weight: 700; }
+  .title-bar p { font-size: 0.8rem; opacity: 0.85; margin-top: 2px; }
+  
+  .container { max-width: 700px; margin: 0 auto; padding: 16px; }
+  
+  .card {
+    background: white; border-radius: 16px; padding: 18px;
+    margin-bottom: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+  }
+  
+  .section-title {
+    font-size: 1rem; font-weight: 700; color: #1e293b;
+    margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+  }
+  .badge {
+    background: #3b82f6; color: white; border-radius: 20px;
+    padding: 2px 10px; font-size: 0.75rem; font-weight: 600;
+  }
+  .badge-green { background: #22c55e; }
+  .badge-amber { background: #f59e0b; }
+
+  /* Formula Box */
+  .formula-box {
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+    border-radius: 14px; padding: 18px; text-align: center; color: white;
+    margin-bottom: 12px; position: relative; overflow: hidden;
+  }
+  .formula-box::before {
+    content: '∑'; position: absolute; right: 10px; top: 5px;
+    font-size: 4rem; opacity: 0.1; font-weight: 900;
+  }
+  .formula-main { font-size: 1.4rem; font-weight: 700; margin: 6px 0; letter-spacing: 1px; }
+  .formula-sub { font-size: 0.85rem; opacity: 0.9; }
+  .formula-label { font-size: 0.75rem; opacity: 0.75; margin-top: 6px; }
+
+  /* Visual AP Blocks */
+  .ap-visual { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; justify-content: center; }
+  .ap-block {
+    width: 44px; height: 44px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.85rem; color: white;
+    transition: all 0.3s ease; cursor: pointer; position: relative;
+  }
+  .ap-block:hover { transform: scale(1.15) translateY(-3px); }
+  .ap-block.highlight { box-shadow: 0 0 0 3px #f59e0b, 0 4px 12px rgba(245,158,11,0.4); }
+  .ap-block.pair-a { animation: pairGlow 1s ease infinite alternate; }
+  .ap-block.pair-b { animation: pairGlow2 1s ease infinite alternate; }
+  @keyframes pairGlow { 0%{opacity:0.7} 100%{opacity:1;box-shadow:0 0 12px rgba(34,197,94,0.6)} }
+  @keyframes pairGlow2 { 0%{opacity:0.7} 100%{opacity:1;box-shadow:0 0 12px rgba(239,68,68,0.6)} }
+
+  /* Sliders */
+  .slider-row { display: flex; align-items: center; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .slider-label { font-size: 0.85rem; color: #475569; min-width: 70px; font-weight: 600; }
+  input[type=range] {
+    flex: 1; min-width: 120px; height: 6px; border-radius: 3px;
+    accent-color: #3b82f6; cursor: pointer;
+  }
+  .slider-val {
+    background: #3b82f6; color: white; border-radius: 8px;
+    padding: 3px 10px; font-size: 0.85rem; font-weight: 700; min-width: 40px; text-align: center;
+  }
+
+  /* Step-by-step */
+  .step { 
+    border-left: 4px solid #e2e8f0; padding: 10px 14px; margin: 8px 0;
+    border-radius: 0 10px 10px 0; background: #f8fafc;
+    transition: all 0.4s ease; display: none;
+  }
+  .step.visible { display: block; animation: slideIn 0.4s ease; }
+  @keyframes slideIn { from{opacity:0;transform:translateX(-10px)} to{opacity:1;transform:translateX(0)} }
+  .step.active { border-left-color: #3b82f6; background: #eff6ff; }
+  .step-num { font-size: 0.75rem; color: #94a3b8; font-weight: 700; margin-bottom: 4px; }
+  .step-content { font-size: 0.9rem; color: #1e293b; line-height: 1.5; }
+  .step-math { 
+    background: white; border: 2px solid #3b82f6; border-radius: 8px;
+    padding: 8px 12px; margin-top: 6px; font-size: 0.95rem; font-weight: 700;
+    color: #1e40af; text-align: center;
+  }
+
+  /* Buttons */
+  .btn {
+    background: linear-gradient(135deg, #3b82f6, #1e40af);
+    color: white; border: none; border-radius: 10px; padding: 10px 20px;
+    font-size: 0.9rem; font-weight: 600; cursor: pointer;
+    transition: all 0.2s ease; box-shadow: 0 3px 10px rgba(59,130,246,0.3);
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(59,130,246,0.4); }
+  .btn:active { transform: translateY(0); }
+  .btn-green { background: linear-gradient(135deg, #22c55e, #15803d); box-shadow: 0 3px 10px rgba(34,197,94,0.3); }
+  .btn-amber { background: linear-gradient(135deg, #f59e0b, #b45309); box-shadow: 0 3px 10px rgba(245,158,11,0.3); }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+
+  /* Result Display */
+  .result-box {
+    background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+    border: 2px solid #22c55e; border-radius: 12px;
+    padding: 14px; margin-top: 12px; text-align: center;
+  }
+  .result-val { font-size: 1.6rem; font-weight: 800; color: #15803d; }
+  .result-label { font-size: 0.8rem; color: #166534; margin-top: 2px; }
+
+  /* Pair visualization */
+  .pair-explain {
+    background: #fef3c7; border: 2px solid #f59e0b;
+    border-radius: 12px; padding: 12px; margin: 10px 0;
+    font-size: 0.85rem; color: #92400e; text-align: center;
+  }
+  .pair-arrow { font-size: 1.2rem; }
+
+  /* Progress bar for sum */
+  .sum-bar-container { margin: 10px 0; }
+  .sum-bar-label { font-size: 0.8rem; color: #64748b; margin-bottom: 4px; }
+  .sum-bar-track {
+    background: #e2e8f0; border-radius: 8px; height: 20px;
+    overflow: hidden; position: relative;
+  }
+  .sum-bar-fill {
+    background: linear-gradient(90deg, #3b82f6, #22c55e);
+    height: 100%; border-radius: 8px;
+    transition: width 0.5s ease; display: flex; align-items: center;
+    justify-content: flex-end; padding-right: 6px;
+  }
+  .sum-bar-fill span { color: white; font-size: 0.7rem; font-weight: 700; }
+
+  /* AP sequence display */
+  .seq-display {
+    font-size: 0.95rem; color: #3b82f6; font-weight: 700;
+    text-align: center; margin: 8px 0; word-break: break-all;
+  }
+
+  /* Gauss trick visual */
+  .gauss-row { display: flex; justify-content: center; gap: 4px; margin: 4px 0; flex-wrap: wrap; }
+  .gauss-num {
+    background: #eff6ff; border: 2px solid #bfdbfe;
+    border-radius: 8px; padding: 4px 8px; font-size: 0.85rem;
+    font-weight: 700; color: #1e40af; min-width: 32px; text-align: center;
+    transition: all 0.3s;
+  }
+  .gauss-num.highlight-top { background: #22c55e; color: white; border-color: #16a34a; }
+  .gauss-num.highlight-bot { background: #ef4444; color: white; border-color: #dc2626; }
+
+  .hindi { font-size: 0.8rem; color: #64748b; font-style: italic; }
+  
+  .tabs { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+  .tab {
+    padding: 7px 14px; border-radius: 20px; border: 2px solid #e2e8f0;
+    font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
+    background: white; color: #64748b;
+  }
+  .tab.active { background: #3b82f6; color: white; border-color: #3b82f6; }
+
+  .info-row {
+    display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0;
+  }
+  .info-chip {
+    background: #f1f5f9; border-radius: 8px; padding: 6px 12px;
+    font-size: 0.82rem; color: #475569; flex: 1; min-width: 100px; text-align: center;
+  }
+  .info-chip strong { display: block; font-size: 1rem; color: #1e293b; }
+
+  @media(max-width:400px) {
+    .ap-block { width: 38px; height: 38px; font-size: 0.75rem; }
+    .formula-main { font-size: 1.1rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="title-bar">
+  <h1>📐 Arithmetic Progressions — Sum of n Terms</h1>
+  <p>CBSE Class 10 Mathematics | सूत्र (Sūtra) | समांतर श्रेढ़ी का योग</p>
+</div>
+
+<div class="container">
+
+  <!-- Formula Card -->
+  <div class="card">
+    <div class="section-title">🔑 मुख्य सूत्र (Main Formula) <span class="badge">S_n</span></div>
+    <div class="formula-box">
+      <div class="formula-sub">समांतर श्रेढ़ी के n पदों का योग</div>
+      <div class="formula-main">S_n = n/2 × (2a + (n−1)d)</div>
+      <div class="formula-sub" style="margin-top:8px">Also: S_n = n/2 × (a + l)  &nbsp;|&nbsp; where l = last term</div>
+      <div class="formula-label">a = first term &nbsp;|&nbsp; d = common difference &nbsp;|&nbsp; n = number of terms &nbsp;|&nbsp; l = last term (अंतिम पद)</div>
+    </div>
+    <div class="info-row">
+      <div class="info-chip">a = first term<strong>प्रथम पद</strong></div>
+      <div class="info-chip">d = common diff<strong>सार्व अन्तर</strong></div>
+      <div class="info-chip">n = no. of terms<strong>पदों की संख्या</strong></div>
+      <div class="info-chip">S_n = sum<strong>योगफल</strong></div>
+    </div>
+  </div>
+
+  <!-- Interactive Calculator -->
+  <div class="card">
+    <div class="section-title">🎮 Interactive Explorer <span class="badge badge-green">Try It!</span></div>
+    <p style="font-size:0.85rem;color:#64748b;margin-bottom:10px">Move the sliders to explore how S_n changes. Hover/click on blocks to see values!</p>
+    
+    <div class="slider-row">
+      <span class="slider-label">a (first)</span>
+      <input type="range" id="slA" min="1" max="10" value="2">
+      <span class="slider-val" id="valA">2</span>
+    </div>
+    <div class="slider-row">
+      <span class="slider-label">d (diff)</span>
+      <input type="range" id="slD" min="1" max="10" value="3">
+      <span class="slider-val" id="valD">3</span>
+    </div>
+    <div class="slider-row">
+      <span class="slider-label">n (terms)</span>
+      <input type="range" id="slN" min="1" max="10" value="5">
+      <span class="slider-val" id="valN">5</span>
+    </div>
+
+    <div class="seq-display" id="seqDisplay">2, 5, 8, 11, 14</div>
+
+    <div class="ap-visual" id="apVisual"></div>
+
+    <div class="sum-bar-container">
+      <div class="sum-bar-label">Cumulative Sum Progress</div>
+      <div class="sum-bar-track">
+        <div class="sum-bar-fill" id="sumBar" style="width:50%"><span id="sumBarVal">40</span></div>
+      </div>
+    </div>
+
+    <div class="result-box">
+      <div class="result-label">S<sub>n</sub> = n/2 × (2a + (n−1)d) = <span id="formulaShow"></span></div>
+      <div class="result-val" id="resultVal">40</div>
+      <div class="result-label">∴ Sum of <span id="nShow">5</span> terms = <span id="resultVal2">40</span></div>
+    </div>
+  </div>
+
+  <!-- Gauss Trick — Intuition -->
+  <div class="card">
+    <div class="section-title">💡 Gauss की युक्ति (Pairing Trick) <span class="badge badge-amber">Intuition</span></div>
+    <p style="font-size:0.85rem;color:#475569;margin-bottom:10px">
+      The formula comes from a clever trick: pair the <strong>first + last</strong>, <strong>second + second-last</strong>... each pair has the <strong>same sum</strong>!
+    </p>
+
+    <div class="tabs">
+      <div class="tab active" onclick="setGaussN(6)">6 terms</div>
+      <div class="tab" onclick="setGaussN(8)">8 terms</div>
+      <div class="tab" onclick="setGaussN(10)">10 terms</div>
+    </div>
+
+    <div id="gaussViz"></div>
+    <div class="pair-explain" id="pairExplain"></div>
+
+    <div style="text-align:center;margin-top:10px">
+      <button class="btn btn-amber" onclick="animatePairs()">✨ Animate Pairs</button>
+    </div>
+  </div>
+
+  <!-- Step-by-Step Worked Example -->
+  <div class="card">
+    <div class="section-title">📝 Worked Example <span class="badge">Step-by-Step</span></div>
+    <div style="background:#fef9c3;border:2px solid #f59e0b;border-radius:10px;padding:12px;margin-bottom:12px;font-size:0.9rem;color:#78350f;">
+      <strong>Question:</strong> Find the sum of the first 12 terms of the AP: <strong>5, 8, 11, 14, ...</strong>
+      <br><span class="hindi">प्रश्न: AP 5, 8, 11, 14, ... के प्रथम 12 पदों का योग ज्ञात करो।</span>
+    </div>
+
+    <div id="steps">
+      <div class="step visible active" id="step0">
+        <div class="step-num">STEP 1 — पहचानो (Identify)</div>
+        <div class="step-content">
+          Identify the values from the AP: 5, 8, 11, 14, ...
+          <div class="step-math">a = 5 &nbsp;|&nbsp; d = 8 − 5 = 3 &nbsp;|&nbsp; n = 12</div>
+        </div>
+      </div>
+      <div class="step" id="step1">
+        <div class="step-num">STEP 2 — सूत्र लिखो (Write Formula)</div>
+        <div class="step-content">
+          Write the formula for sum of n terms:
+          <div class="step-math">S_n = n/2 × (2a + (n−1)d)</div>
+        </div>
+      </div>
+      <div class="step" id="step2">
+        <div class="step-num">STEP 3 — मान रखो (Substitute)</div>
+        <div class="step-content">
+          Put n=12, a=5, d=3 into the formula:
+          <div class="step-math">S₁₂ = 12/2 × (2×5 + (12−1)×3)</div>
+        </div>
+      </div>
+      <div class="step" id="step3">
+        <div class="step-num">STEP 4 — सरल करो (Simplify)</div>
+        <div class="step-content">
+          Simplify inside the bracket:
+          <div class="step-math">S₁₂ = 6 × (10 + 11×3) = 6 × (10 + 33) = 6 × 43</div>
+        </div>
+      </div>
+      <div class="step" id="step4">
+        <div class="step-num">STEP 5 — ∴ उत्तर (Answer)</div>
+        <div class="step-content">
+          Calculate the final answer:
+          <div class="step-math" style="background:#ecfdf5;border-color:#22c55e;color:#15803d;font-size:1.1rem">
+            ∴ S₁₂ = 6 × 43 = <strong>258</strong> ✓
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn" onclick="nextStep()" id="nextBtn">▶ Next Step</button>
+      <button class="btn btn-green" onclick="resetSteps()" id="resetBtn" style="display:none">↺ Reset</button>
+    </div>
+    <div style="margin-top:8px;font-size:0.8rem;color:#94a3b8" id="stepHint">Click "Next Step" to reveal each step</div>
+  </div>
+
+  <!-- Second Formula -->
+  <div class="card">
+    <div class="section-title">🔄 Alternative Formula <span class="badge badge-green">When last term is known</span></div>
+    <div style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:2px solid #22c55e;border-radius:12px;padding:14px;text-align:center;margin-bottom:10px">
+      <div style="font-size:1.3rem;font-weight:800;color:#15803d">S_n = n/2 × (a + l)</div>
+      <div style="font-size:0.8rem;color:#166534;margin-top:6px">l = last term (अंतिम पद) = a + (n−1)d</div>
+    </div>
+    <p style="font-size:0.85rem;color:#475569">
+      <strong>∵ (because)</strong> when we pair first+last = a+l, and there are n/2 such pairs:<br>
+      S_n = (n/2) × (a + l) — <span class="hindi">यही Gauss की युक्ति है!</span>
+    </p>
+    
+    <div style="background:#fef3c7;border-radius:10px;padding:10px;margin-top:10px;font-size:0.85rem;color:#92400e">
+      <strong>💡 Quick Tip:</strong> Use <strong>S_n = n/2 (2a+(n−1)d)</strong> when d is known.
+      Use <strong>S_n = n/2 (a+l)</strong> when both first and last terms are known.
+    </div>
+  </div>
+
+  <!-- Practice Check -->
+  <div class="card">
+    <div class="section-title">🏆 Quick Check <span class="badge badge-amber">Practice</span></div>
+    <p style="font-size:0.88rem;color:#475569;margin-bottom:10px">AP: <strong>3, 7, 11, 15, ...</strong> — Find S₁₀ (sum of 10 terms)</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+      <button class="btn" style="flex:1;background:linear-gradient(135deg,#6366f1,#4338ca)" onclick="checkAns(160,'A')">A) 160</button>
+      <button class="btn" style="flex:1;background:linear-gradient(135deg,#ec4899,#be185d)" onclick="checkAns(210,'B')">B) 210</button>
+      <button class="btn" style="flex:1;background:linear-gradient(135deg,#22c55e,#15803d)" onclick="checkAns(210,'C')">C) 220</button>
+      <button class="btn" style="flex:1;background:linear-gradient(135deg,#f59e0b,#b45309)" onclick="checkAns(210,'D')">D) 200</button>
+    </div>
+    <div id="quizResult" style="display:none;border-radius:10px;padding:10px;font-size:0.88rem;text-align:center;font-weight:600"></div>
+    <div id="quizSolution" style="display:none;margin-top:8px;background:#f8fafc;border-radius:10px;padding:10px;font-size:0.85rem;color:#1e293b">
+      <strong>Solution:</strong> a=3, d=4, n=10<br>
+      S₁₀ = 10/2 × (2×3 + 9×4) = 5 × (6+36) = 5 × 42 = <strong>210</strong> ✓
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ---- Colors for blocks ----
+const colors = ['#3b82f6','#6366f1','#8b5cf6','#ec4899','#ef4444','#f59e0b','#22c55e','#06b6d4','#10b981','#f97316'];
+
+// ---- Interactive Explorer ----
+function update() {
+  const a = +document.getElementById('slA').value;
+  const d = +document.getElementById('slD').value;
+  const n = +document.getElementById('slN').value;
+  
+  document.getElementById('valA').textContent = a;
+  document.getElementById('valD').textContent = d;
+  document.getElementById('valN').textContent = n;
+
+  // Generate terms
+  let terms = [];
+  for (let i = 0; i < n; i++) terms.push(a + i * d);
+
+  // Sequence display
+  document.getElementById('seqDisplay').textContent = terms.join(', ') + ', ...';
+
+  // Visual blocks
+  const vis = document.getElementById('apVisual');
+  vis.innerHTML = '';
+  terms.forEach((t, i) => {
+    const el = document.createElement('div');
+    el.className = 'ap-block';
+    el.style.background = `linear-gradient(135deg,${colors[i % colors.length]},${colors[(i+2) % colors.length]})`;
+    el.textContent = t;
+    el.title = `Term ${i+1}: a${i+1} = ${t}`;
+    el.onclick = () => showTooltip(el, i+1, t, a, d);
+    vis.appendChild(el);
+  });
+
+  // Sum calculation
+  const sn = (n / 2) * (2 * a + (n - 1) * d);
+  document.getElementById('formulaShow').textContent = `${n}/2 × (${2*a} + ${n-1}×${d})`;
+  document.getElementById('resultVal').textContent = sn;
+  document.getElementById('resultVal2').textContent = sn;
+  document.getElementById('nShow').textContent = n;
+
+  // Bar
+  const maxSn = 10 / 2 * (2 * 10 + 9 * 10); // max possible
+  const pct = Math.min(100, (sn / maxSn) * 100);
+  document.getElementById('sumBar').style.width = pct + '%';
+  document.getElementById('sumBarVal').textContent = sn;
+
+  // Refresh gauss
+  renderGauss(gaussN, a, d);
+}
+
+function showTooltip(el, i, val, a, d) {
+  el.style.transform = 'scale(1.2) translateY(-5px)';
+  setTimeout(() => el.style.transform = '', 500);
+}
+
+['slA','slD','slN'].forEach(id => document.getElementById(id).addEventListener('input', update));
+update();
+
+// ---- Gauss Trick ----
+let gaussN = 6;
+let gaussA = 1, gaussD = 2;
+let pairStep = 0;
+
+function setGaussN(n) {
+  gaussN = n;
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    t.classList.toggle('active', [6,8,10][i] === n);
+  });
+  pairStep = 0;
+  renderGauss(n, 1, 2);
+}
+
+function renderGauss(n, a, d) {
+  if (!a) { a=1; d=2; }
+  gaussA = a; gaussD = d;
+  let terms = [];
+  for (let i=0; i<n; i++) terms.push(a + i*d);
+  
+  const container = document.getElementById('gaussViz');
+  container.innerHTML = '';
+  
+  // Top row (forward)
+  const topRow = document.createElement('div');
+  topRow.className = 'gauss-row';
+  terms.forEach((t,i) => {
+    const el = document.createElement('div');
+    el.className = 'gauss-num';
+    el.id = `gt_${i}`;
+    el.textContent = t;
+    topRow.appendChild(el);
+  });
+  
+  // Bottom row (reversed)
+  const botRow = document.createElement('div');
+  botRow.className = 'gauss-row';
+  [...terms].reverse().forEach((t,i) => {
+    const el = document.createElement('div');
+    el.className = 'gauss-num';
+    el.id = `gb_${i}`;
+    el.textContent = t;
+    botRow.appendChild(el);
+  });
+  
+  const label1 = document.createElement('div');
+  label1.style = 'font-size:0.75rem;color:#3b82f6;font-weight:700;text-align:center;margin:2px 0';
+  label1.textContent = '→ Forward: ' + terms.join(' + ');
+  
+  const label2 = document.createElement('div');
+  label2.style = 'font-size:0.75rem;color:#ef4444;font-weight:700;text-align:center;margin:2px 0';
+  label2.textContent = '← Reversed: ' + [...terms].reverse().join(' + ');
+
+  const pairSum = terms[0] + terms[n-1];
+  const totalPairs = n / 2;
+  const sn = totalPairs * pairSum;
+  
+  container.appendChild(label1);
+  container.appendChild(topRow);
+  container.appendChild(label2);
+  container.appendChild(botRow);
+  
+  document.getElementById('pairExplain').innerHTML = 
+    `Each pair sums to: <strong>${terms[0]} + ${terms[n-1]} = ${pairSum}</strong> &nbsp;|&nbsp; 
+     There are <strong>${n}/2 = ${totalPairs}</strong> pairs<br>
+     ∴ 2S_n = ${n} × ${pairSum} = ${n * pairSum} &nbsp;⟹&nbsp; S_n = <strong>${sn}</strong>`;
+}
+renderGauss(6, 1, 2);
+
+let animTimer = null;
+function animatePairs() {
+  const n = gaussN;
+  // Reset
+  for (let i=0; i<n; i++) {
+    const t = document.getElementById(`gt_${i}`);
+    const b = document.getElementById(`gb_${i}`);
+    if(t) { t.className='gauss-num'; }
+    if(b) { b.className='gauss-num'; }
+  }
+  
+  let p = 0;
+  const half = n / 2;
+  
+  function step() {
+    if (p >= half) return;
+    const t = document.getElementById(`gt_${p}`);
+    const b = document.getElementById(`gb_${p}`);
+    const t2 = document.getElementById(`gt_${n-1-p}`);
+    const b2 = document.getElementById(`gb_${n-1-p}`);
+    if(t) t.className = 'gauss-num highlight-top';
+    if(b) b.className = 'gauss-num highlight-top';
+    if(t2) t2.className = 'gauss-num highlight-bot';
+    if(b2) b2.className = 'gauss-num highlight-bot';
+    p++;
+    animTimer = setTimeout(step, 600);
+  }
+  step();
+}
+
+// ---- Step-by-Step ----
+let currentStep = 0;
+const totalSteps = 5;
+
+function nextStep() {
+  currentStep++;
+  if (currentStep < totalSteps) {
+    document.getElementById(`step${currentStep}`).classList.add('visible','active');
+    document.getElementById(`step${currentStep-1}`).classList.remove('active');
+    if (currentStep === totalSteps - 1) {
+      document.getElementById('nextBtn').style.display = 'none';
+      document.getElementById('resetBtn').style.display = 'block';
+      document.getElementById('stepHint').textContent = '✅ Example complete! Great job!';
+    } else {
+      document.getElementById('stepHint').textContent = `Step ${currentStep+1} of ${totalSteps} revealed`;
+    }
+  }
+}
+
+function resetSteps() {
+  currentStep = 0;
+  for (let i=1; i<totalSteps; i++) {
+    const s = document.getElementById(`step${i}`);
+    s.classList.remove('visible','active');
+  }
+  document.getElementById('step0').classList.add('active');
+  document.getElementById('nextBtn').style.display = 'block';
+  document.getElementById('resetBtn').style.display = 'none';
+  document.getElementById('stepHint').textContent = 'Click "Next Step" to reveal each step';
+}
+
+// ---- Quiz ----
+function checkAns(val, opt) {
+  const correct = 210;
+  const res = document.getElementById('quizResult');
+  const sol = document.getElementById('quizSolution');
+  res.style.display = 'block';
+  sol.style.display = 'block';
+  if (val === correct && opt === 'B') {
+    res.style.background = '#dcfce7';
+    res.style.color = '#15803d';
+    res.style.border = '2px solid #22c55e';
+    res.textContent = '🎉 Correct! S₁₀ = 210 ✓ शाबाश! (Excellent!)';
+  } else {
+    res.style.background = '#fee2e2';
+    res.style.color = '#dc2626';
+    res.style.border = '2px solid #ef4444';
+    res.textContent = '❌ Not quite! Try again — Check the solution below.';
+  }
+}
+</script>
+</body>
+</html>

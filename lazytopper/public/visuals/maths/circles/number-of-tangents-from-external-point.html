@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Circles - Tangents from External Point</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%); min-height: 100vh; color: #e2e8f0; }
+
+  .title-bar { background: linear-gradient(90deg, #1d4ed8, #3b82f6, #60a5fa); padding: 14px 20px; text-align: center; box-shadow: 0 4px 20px rgba(59,130,246,0.4); }
+  .title-bar h1 { font-size: clamp(14px, 3.5vw, 20px); font-weight: 700; color: white; letter-spacing: 0.5px; }
+  .title-bar p { font-size: clamp(10px, 2.5vw, 13px); color: #bfdbfe; margin-top: 3px; }
+
+  .container { max-width: 800px; margin: 0 auto; padding: 16px; }
+
+  .card { background: rgba(30,41,59,0.85); border: 1px solid rgba(59,130,246,0.25); border-radius: 16px; padding: 18px; margin-bottom: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); backdrop-filter: blur(8px); }
+
+  .theorem-box { background: linear-gradient(135deg, rgba(59,130,246,0.15), rgba(34,197,94,0.1)); border: 2px solid #3b82f6; border-radius: 14px; padding: 16px; margin-bottom: 16px; text-align: center; }
+  .theorem-box .label { font-size: 11px; color: #60a5fa; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+  .theorem-box .stmt { font-size: clamp(13px, 3vw, 16px); color: #f1f5f9; font-weight: 600; line-height: 1.5; }
+  .theorem-box .hindi { font-size: 12px; color: #94a3b8; margin-top: 6px; }
+
+  .formula-highlight { background: linear-gradient(135deg, #f59e0b, #fbbf24); color: #1e293b; border-radius: 10px; padding: 12px 20px; font-size: clamp(14px, 3.5vw, 18px); font-weight: 800; text-align: center; margin: 10px 0; box-shadow: 0 4px 15px rgba(245,158,11,0.4); }
+
+  svg#mainDiagram { width: 100%; max-width: 480px; display: block; margin: 0 auto; cursor: pointer; }
+
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 12px 0; }
+  .btn { padding: 9px 18px; border-radius: 10px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.25s; }
+  .btn-blue { background: linear-gradient(135deg, #2563eb, #3b82f6); color: white; box-shadow: 0 3px 10px rgba(59,130,246,0.35); }
+  .btn-blue:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(59,130,246,0.5); }
+  .btn-green { background: linear-gradient(135deg, #16a34a, #22c55e); color: white; box-shadow: 0 3px 10px rgba(34,197,94,0.35); }
+  .btn-green:hover { transform: translateY(-2px); }
+  .btn-amber { background: linear-gradient(135deg, #d97706, #f59e0b); color: #1e293b; }
+  .btn-amber:hover { transform: translateY(-2px); }
+
+  .info-panel { background: rgba(15,23,42,0.6); border-radius: 12px; padding: 14px; margin-top: 12px; min-height: 60px; border-left: 4px solid #3b82f6; transition: all 0.3s; }
+  .info-panel p { font-size: 13px; line-height: 1.6; color: #cbd5e1; }
+  .info-panel strong { color: #60a5fa; }
+
+  .steps-container { counter-reset: step; }
+  .step { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 14px; opacity: 0; transform: translateX(-20px); transition: all 0.4s ease; }
+  .step.visible { opacity: 1; transform: translateX(0); }
+  .step-num { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; border-radius: 50%; min-width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; box-shadow: 0 2px 8px rgba(59,130,246,0.4); }
+  .step-content { flex: 1; background: rgba(15,23,42,0.5); border-radius: 10px; padding: 12px; border: 1px solid rgba(59,130,246,0.2); }
+  .step-content h4 { color: #60a5fa; font-size: 13px; margin-bottom: 4px; }
+  .step-content p { color: #cbd5e1; font-size: 12.5px; line-height: 1.5; }
+  .step-content .math { color: #fbbf24; font-size: 13px; font-weight: 600; margin-top: 5px; }
+
+  .properties-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 12px; }
+  .prop-card { background: rgba(15,23,42,0.6); border-radius: 12px; padding: 14px; border: 1px solid rgba(59,130,246,0.2); text-align: center; transition: transform 0.2s; }
+  .prop-card:hover { transform: translateY(-3px); border-color: #3b82f6; }
+  .prop-icon { font-size: 24px; margin-bottom: 8px; }
+  .prop-title { font-size: 12px; color: #60a5fa; font-weight: 700; margin-bottom: 4px; }
+  .prop-desc { font-size: 11.5px; color: #94a3b8; line-height: 1.5; }
+
+  .example-box { background: linear-gradient(135deg, rgba(34,197,94,0.1), rgba(59,130,246,0.1)); border: 1.5px solid #22c55e; border-radius: 12px; padding: 16px; }
+  .example-box h3 { color: #22c55e; font-size: 14px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+
+  .reveal-btn { background: linear-gradient(135deg, #7c3aed, #8b5cf6); color: white; border: none; border-radius: 8px; padding: 7px 14px; font-size: 12px; cursor: pointer; margin-top: 8px; transition: all 0.2s; }
+  .reveal-btn:hover { background: linear-gradient(135deg, #6d28d9, #7c3aed); transform: translateY(-1px); }
+
+  .answer-reveal { overflow: hidden; max-height: 0; transition: max-height 0.4s ease; }
+  .answer-reveal.open { max-height: 300px; }
+  .answer-content { background: rgba(15,23,42,0.6); border-radius: 10px; padding: 14px; margin-top: 10px; }
+  .answer-content p { font-size: 13px; color: #cbd5e1; line-height: 1.7; }
+  .answer-content .result { color: #22c55e; font-weight: 700; font-size: 14px; }
+
+  .drag-hint { font-size: 11px; color: #64748b; text-align: center; margin-top: 6px; }
+  .badge { display: inline-block; background: rgba(59,130,246,0.2); border: 1px solid #3b82f6; color: #93c5fd; border-radius: 20px; padding: 3px 10px; font-size: 11px; margin: 2px; }
+
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+  .pulse { animation: pulse 2s infinite; }
+  @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+
+  .section-title { font-size: clamp(14px,3vw,17px); font-weight: 700; color: #93c5fd; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+
+  .tangent-length-display { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 10px; margin: 12px 0; }
+  .len-box { background: rgba(15,23,42,0.6); border-radius: 10px; padding: 10px 16px; text-align: center; border: 1px solid; }
+  .len-box.pa { border-color: #22c55e; }
+  .len-box.pb { border-color: #f59e0b; }
+  .len-box-label { font-size: 11px; color: #94a3b8; }
+  .len-box-val { font-size: 20px; font-weight: 800; }
+  .len-box.pa .len-box-val { color: #22c55e; }
+  .len-box.pb .len-box-val { color: #f59e0b; }
+  .len-box.equal { border-color: #3b82f6; }
+  .len-box.equal .len-box-val { color: #60a5fa; }
+</style>
+</head>
+<body>
+
+<div class="title-bar">
+  <h1>⭕ Circles — Number of Tangents from External Point</h1>
+  <p>CBSE Class 10 Mathematics | Chapter 10 | इकाई: वृत्त</p>
+</div>
+
+<div class="container">
+
+  <!-- Theorem Statement -->
+  <div class="theorem-box">
+    <div class="label">📐 प्रमेय (Theorem 10.2)</div>
+    <div class="stmt">From an external point, exactly <span style="color:#fbbf24;font-size:1.2em">2 tangents</span> can be drawn to a circle, and they are <span style="color:#22c55e">equal in length</span>.</div>
+    <div class="hindi">बाहरी बिंदु से एक वृत्त पर दो स्पर्श रेखाएँ खींची जा सकती हैं जो लंबाई में बराबर होती हैं।</div>
+  </div>
+
+  <div class="formula-highlight">
+    PA = PB &nbsp;|&nbsp; ∠OPA = ∠OPB &nbsp;|&nbsp; △OPA ≅ △OPB
+  </div>
+
+  <!-- Interactive Diagram -->
+  <div class="card">
+    <div class="section-title">🎯 Interactive Diagram — Drag Point P!</div>
+
+    <svg id="mainDiagram" viewBox="0 0 480 320" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="circleGrad" cx="50%" cy="50%">
+          <stop offset="0%" stop-color="#1d4ed8" stop-opacity="0.3"/>
+          <stop offset="100%" stop-color="#1d4ed8" stop-opacity="0.05"/>
+        </radialGradient>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+          <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#94a3b8"/>
+        </marker>
+      </defs>
+
+      <!-- Background grid -->
+      <rect width="480" height="320" fill="rgba(15,23,42,0.5)" rx="12"/>
+
+      <!-- Circle fill -->
+      <circle id="circFill" cx="200" cy="160" r="80" fill="url(#circleGrad)"/>
+      <!-- Circle outline -->
+      <circle id="circOutline" cx="200" cy="160" r="80" fill="none" stroke="#3b82f6" stroke-width="2.5" filter="url(#glow)"/>
+
+      <!-- Radius lines to tangent points -->
+      <line id="radA" x1="200" y1="160" x2="200" y2="80" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5,4"/>
+      <line id="radB" x1="200" y1="160" x2="200" y2="240" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5,4"/>
+
+      <!-- Right angle marks at tangent points -->
+      <g id="rightAngleA"></g>
+      <g id="rightAngleB"></g>
+
+      <!-- Tangent lines -->
+      <line id="tanA" x1="380" y1="160" x2="200" y2="80" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round"/>
+      <line id="tanB" x1="380" y1="160" x2="200" y2="240" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round"/>
+
+      <!-- Triangle lines (dashed) -->
+      <line id="triLine" x1="200" y1="160" x2="380" y2="160" stroke="#8b5cf6" stroke-width="1.5" stroke-dasharray="6,4"/>
+
+      <!-- Center point -->
+      <circle cx="200" cy="160" r="5" fill="#3b82f6" filter="url(#glow)"/>
+      <text x="210" y="155" fill="#60a5fa" font-size="13" font-weight="bold">O</text>
+
+      <!-- Tangent points -->
+      <circle id="ptA" cx="200" cy="80" r="5" fill="#22c55e"/>
+      <text id="lblA" x="185" y="75" fill="#22c55e" font-size="13" font-weight="bold">A</text>
+      <circle id="ptB" cx="200" cy="240" r="5" fill="#f59e0b"/>
+      <text id="lblB" x="185" y="252" fill="#f59e0b" font-size="13" font-weight="bold">B</text>
+
+      <!-- External point P -->
+      <circle id="ptP" cx="380" cy="160" r="8" fill="#ef4444" cursor="grab" filter="url(#glow)"/>
+      <text id="lblP" x="390" y="155" fill="#ef4444" font-size="14" font-weight="bold">P</text>
+
+      <!-- Length labels -->
+      <text id="lenPALabel" x="295" y="108" fill="#22c55e" font-size="11" font-weight="bold">PA</text>
+      <text id="lenPBLabel" x="295" y="225" fill="#f59e0b" font-size="11" font-weight="bold">PB</text>
+
+      <!-- OP label -->
+      <text x="285" y="155" fill="#a78bfa" font-size="11">OP</text>
+
+      <!-- Equal sign indicator -->
+      <text id="equalSign" x="200" y="20" fill="#fbbf24" font-size="13" font-weight="bold" text-anchor="middle">PA = PB ✓</text>
+
+      <!-- Angle at P -->
+      <text id="angleP" x="355" y="145" fill="#f8fafc" font-size="10">∠APB</text>
+    </svg>
+
+    <p class="drag-hint">👆 Drag the red point P to move it — watch PA and PB stay equal!</p>
+
+    <div class="tangent-length-display" id="lengthDisplay">
+      <div class="len-box pa"><div class="len-box-label">PA (Green Tangent)</div><div class="len-box-val" id="paVal">180</div></div>
+      <div class="len-box equal"><div class="len-box-label">∴ PA = PB</div><div class="len-box-val" style="color:#fbbf24">✓</div></div>
+      <div class="len-box pb"><div class="len-box-label">PB (Amber Tangent)</div><div class="len-box-val" id="pbVal">180</div></div>
+    </div>
+
+    <div class="controls">
+      <button class="btn btn-blue" onclick="toggleProof()">🔍 Show Proof</button>
+      <button class="btn btn-green" onclick="animateTangents()">▶ Animate</button>
+      <button class="btn btn-amber" onclick="resetDiagram()">↺ Reset</button>
+    </div>
+
+    <div id="proofPanel" class="info-panel" style="display:none">
+      <p><strong>Proof using congruent triangles (RHS):</strong><br>
+      In △OAP and △OBP:<br>
+      • OA = OB (radii of same circle) ∵ same circle<br>
+      • OP = OP (common side)<br>
+      • ∠OAP = ∠OBP = 90° (radius ⊥ tangent)<br>
+      ∴ △OAP ≅ △OBP (by RHS congruence)<br>
+      ∴ <strong>PA = PB</strong> (by CPCT) &nbsp;✓</p>
+    </div>
+  </div>
+
+  <!-- Key Properties -->
+  <div class="card">
+    <div class="section-title">✨ Key Properties (मुख्य गुण)</div>
+    <div class="properties-grid">
+      <div class="prop-card">
+        <div class="prop-icon">📏</div>
+        <div class="prop-title">Equal Lengths</div>
+        <div class="prop-desc">PA = PB<br>दोनों स्पर्श रेखाएँ बराबर होती हैं</div>
+      </div>
+      <div class="prop-card">
+        <div class="prop-icon">📐</div>
+        <div class="prop-title">Right Angle</div>
+        <div class="prop-desc">∠OAP = ∠OBP = 90°<br>त्रिज्या ⊥ स्पर्श रेखा</div>
+      </div>
+      <div class="prop-card">
+        <div class="prop-icon">🔺</div>
+        <div class="prop-title">Equal Angles</div>
+        <div class="prop-desc">∠OPA = ∠OPB<br>OP कोण को समद्विभाजित करता है</div>
+      </div>
+      <div class="prop-card">
+        <div class="prop-icon">≅</div>
+        <div class="prop-title">Congruent △</div>
+        <div class="prop-desc">△OAP ≅ △OBP<br>RHS नियम से</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step by Step Walkthrough -->
+  <div class="card">
+    <div class="section-title">📖 Step-by-Step Proof Walkthrough</div>
+    <div class="controls">
+      <button class="btn btn-blue" onclick="revealStep()">➡ Next Step</button>
+      <button class="btn btn-amber" onclick="resetSteps()">↺ Reset Steps</button>
+    </div>
+    <div class="steps-container" id="stepsContainer" style="margin-top:14px">
+      <div class="step" id="step1">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <h4>Given (दिया हुआ)</h4>
+          <p>A circle with centre O. P is an external point. PA and PB are tangents drawn from P to the circle touching at A and B.</p>
+          <div class="math">Circle: centre O, radius r &nbsp;|&nbsp; External point P</div>
+        </div>
+      </div>
+      <div class="step" id="step2">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <h4>To Prove (सिद्ध करना है)</h4>
+          <p>The lengths of the two tangents are equal.</p>
+          <div class="math">PA = PB</div>
+        </div>
+      </div>
+      <div class="step" id="step3">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <h4>Construction (रचना)</h4>
+          <p>Join OA, OB, and OP to form two triangles: △OAP and △OBP.</p>
+          <div class="math">Draw: OA, OB, OP</div>
+        </div>
+      </div>
+      <div class="step" id="step4">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <h4>Key Fact: Radius ⊥ Tangent</h4>
+          <p>By Theorem 10.1: The tangent at any point of a circle is perpendicular to the radius at that point.</p>
+          <div class="math">∠OAP = 90° &nbsp;&amp;&nbsp; ∠OBP = 90°</div>
+        </div>
+      </div>
+      <div class="step" id="step5">
+        <div class="step-num">5</div>
+        <div class="step-content">
+          <h4>Congruence (सर्वांगसमता)</h4>
+          <p>In △OAP and △OBP:<br>• OA = OB (equal radii)<br>• ∠OAP = ∠OBP = 90°<br>• OP = OP (common hypotenuse)</p>
+          <div class="math">∴ △OAP ≅ △OBP &nbsp;(by RHS)</div>
+        </div>
+      </div>
+      <div class="step" id="step6">
+        <div class="step-num">6</div>
+        <div class="step-content">
+          <h4>✅ Conclusion (निष्कर्ष)</h4>
+          <p>By CPCT (Corresponding Parts of Congruent Triangles):</p>
+          <div class="math" style="font-size:16px">∴ PA = PB &nbsp;(Proved ✓)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Worked Example -->
+  <div class="card">
+    <div class="section-title">💡 Worked Example (हल किया उदाहरण)</div>
+    <div class="example-box">
+      <h3>📝 Example 1</h3>
+      <p style="font-size:13px;color:#cbd5e1;line-height:1.6">From a point P, the length of tangent to a circle is <strong style="color:#fbbf24">12 cm</strong>. If the radius of the circle is <strong style="color:#fbbf24">5 cm</strong>, find the distance OP (from external point to centre).</p>
+      <button class="reveal-btn" onclick="toggleAnswer('ans1')">🔓 Reveal Solution</button>
+      <div class="answer-reveal" id="ans1">
+        <div class="answer-content">
+          <p>Given: PA = 12 cm (tangent length), OA = 5 cm (radius)</p>
+          <p>Since OA ⊥ PA (radius ⊥ tangent):</p>
+          <p>In right △OAP:</p>
+          <p>OP² = OA² + PA²</p>
+          <p>OP² = 5² + 12² = 25 + 144 = 169</p>
+          <p class="result">∴ OP = √169 = <strong>13 cm</strong> ✓</p>
+          <p style="font-size:11px;color:#64748b;margin-top:6px">Also: PB = PA = 12 cm (tangents from external point)</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="example-box" style="margin-top:12px">
+      <h3>📝 Example 2</h3>
+      <p style="font-size:13px;color:#cbd5e1;line-height:1.6">Two tangents PA and PB are drawn to a circle with centre O. If ∠APB = 60°, find ∠AOB.</p>
+      <button class="reveal-btn" onclick="toggleAnswer('ans2')">🔓 Reveal Solution</button>
+      <div class="answer-reveal" id="ans2">
+        <div class="answer-content">
+          <p>Since △OAP ≅ △OBP:</p>
+          <p>∠OPA = ∠OPB = 60°÷2 = 30°</p>
+          <p>In △OAP: ∠OAP + ∠OPA + ∠AOP = 180°</p>
+          <p>90° + 30° + ∠AOP = 180°</p>
+          <p>∠AOP = 60°</p>
+          <p>Similarly ∠BOP = 60°</p>
+          <p class="result">∴ ∠AOB = ∠AOP + ∠BOP = <strong>120°</strong> ✓</p>
+          <p style="font-size:11px;color:#64748b;margin-top:6px">Short formula: ∠AOB + ∠APB = 180° → ∠AOB = 180° - 60° = 120°</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Facts -->
+  <div class="card">
+    <div class="section-title">⚡ Quick Revision Tags</div>
+    <div style="line-height:2.2">
+      <span class="badge">PA = PB (Equal tangents)</span>
+      <span class="badge">∠OAP = 90°</span>
+      <span class="badge">RHS Congruence</span>
+      <span class="badge">CPCT</span>
+      <span class="badge">OP² = OA² + PA²</span>
+      <span class="badge">∠AOB + ∠APB = 180°</span>
+      <span class="badge">2 tangents from external point</span>
+      <span class="badge">0 tangents from internal point</span>
+      <span class="badge">1 tangent at point on circle</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const cx = 200, cy = 160, r = 80;
+let px = 380, py = 160;
+let dragging = false;
+let proofVisible = false;
+let stepIndex = 0;
+
+const svg = document.getElementById('mainDiagram');
+const ptP = document.getElementById('ptP');
+const tanA = document.getElementById('tanA');
+const tanB = document.getElementById('tanB');
+const radA = document.getElementById('radA');
+const radB = document.getElementById('radB');
+const ptAEl = document.getElementById('ptA');
+const ptBEl = document.getElementById('ptB');
+const lblA = document.getElementById('lblA');
+const lblB = document.getElementById('lblB');
+const lblP = document.getElementById('lblP');
+const triLine = document.getElementById('triLine');
+const paVal = document.getElementById('paVal');
+const pbVal = document.getElementById('pbVal');
+const lenPALabel = document.getElementById('lenPALabel');
+const lenPBLabel = document.getElementById('lenPBLabel');
+const rightAngleA = document.getElementById('rightAngleA');
+const rightAngleB = document.getElementById('rightAngleB');
+
+function getSVGPoint(e) {
+  const rect = svg.getBoundingClientRect();
+  const vw = 480, vh = 320;
+  const scaleX = vw / rect.width;
+  const scaleY = vh / rect.height;
+  let clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  let clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  return {
+    x: (clientX - rect.left) * scaleX,
+    y: (clientY - rect.top) * scaleY
+  };
+}
+
+function getTangentPoints(px, py) {
+  const dx = px - cx, dy = py - cy;
+  const dist = Math.sqrt(dx*dx + dy*dy);
+  if (dist <= r + 1) return null;
+  const angle = Math.atan2(dy, dx);
+  const halfAngle = Math.asin(r / dist);
+  const angA = angle - halfAngle;
+  const angB = angle + halfAngle;
+  return {
+    ax: cx + r * Math.cos(angA - Math.PI/2),
+    ay: cy + r * Math.sin(angA - Math.PI/2),
+    bx: cx + r * Math.cos(angB + Math.PI/2),
+    by: cy + r * Math.sin(angB + Math.PI/2)
+  };
+}
+
+function drawRightAngle(el, ox, oy, px1, py1, px2, py2) {
+  const s = 8;
+  const d1x = (px1-ox)/Math.sqrt((px1-ox)**2+(py1-oy)**2)*s;
+  const d1y = (py1-oy)/Math.sqrt((px1-ox)**2+(py1-oy)**2)*s;
+  const d2x = (px2-ox)/Math.sqrt((px2-ox)**2+(py2-oy)**2)*s;
+  const d2y = (py2-oy)/Math.sqrt((px2-ox)**2+(py2-oy)**2)*s;
+  el.innerHTML = `<polyline points="${ox+d1x},${oy+d1y} ${ox+d1x+d2x},${oy+d1y+d2y} ${ox+d2x},${oy+d2y}" fill="none" stroke="#94a3b8" stroke-width="1.5"/>`;
+}
+
+function updateDiagram() {
+  const t = getTangentPoints(px, py);
+  if (!t) return;
+  const {ax, ay, bx, by} = t;
+
+  ptP.setAttribute('cx', px);
+  ptP.setAttribute('cy', py);
+  lblP.setAttribute('x', px + 10);
+  lblP.setAttribute('y', py - 6);
+
+  tanA.setAttribute('x1', px); tanA.setAttribute('y1', py);
+  tanA.setAttribute('x2', ax); tanA.setAttribute('y2', ay);
+  tanB.setAttribute('x1', px); tanB.setAttribute('y1', py);
+  tanB.setAttribute('x2', bx); tanB.setAttribute('y2', by);
+
+  radA.setAttribute('x1', cx); radA.setAttribute('y1', cy);
+  radA.setAttribute('x2', ax); radA.setAttribute('y2', ay);
+  radB.setAttribute('x1', cx); radB.setAttribute('y1', cy);
+  radB.setAttribute('x2', bx); radB.setAttribute('y2', by);
+
+  ptAEl.setAttribute('cx', ax); ptAEl.setAttribute('cy', ay);
+  ptBEl.setAttribute('cx', bx); ptBEl.setAttribute('cy', by);
+
+  lblA.setAttribute('x', ax - 18); lblA.setAttribute('y', ay + 5);
+  lblB.setAttribute('x', bx - 18); lblB.setAttribute('y', by + 5);
+
+  triLine.setAttribute('x1', cx); triLine.setAttribute('y1', cy);
+  triLine.setAttribute('x2', px); triLine.setAttribute('y2', py);
+
+  drawRightAngle(rightAngleA, ax, ay, cx, cy, px, py);
+  drawRightAngle(rightAngleB, bx, by, cx, cy, px, py);
+
+  const lenPA = Math.sqrt((px-ax)**2 + (py-ay)**2);
+  const lenPB = Math.sqrt((px-bx)**2 + (py-by)**2);
+
+  paVal.textContent = Math.round(lenPA * 0.5);
+  pbVal.textContent = Math.round(lenPB * 0.5);
+
+  const mAx = (px+ax)/2, mAy = (py+ay)/2;
+  const mBx = (px+bx)/2, mBy = (py+by)/2;
+  lenPALabel.setAttribute('x', mAx - 10);
+  lenPALabel.setAttribute('y', mAy - 6);
+  lenPBLabel.setAttribute('x', mBx - 10);
+  lenPBLabel.setAttribute('y', mBy + 14);
+}
+
+ptP.addEventListener('mousedown', e => { dragging = true; e.preventDefault(); });
+ptP.addEventListener('touchstart', e => { dragging = true; e.preventDefault(); }, {passive:false});
+document.addEventListener('mousemove', e => { if(!dragging) return; const p = getSVGPoint(e); const dx=p.x-cx,dy=p.y-cy; if(Math.sqrt(dx*dx+dy*dy)>r+15){px=Math.max(10,Math.min(470,p.x));py=Math.max(10,Math.min(310,p.y));updateDiagram();} });
+document.addEventListener('touchmove', e => { if(!dragging) return; const p = getSVGPoint(e); const dx=p.x-cx,dy=p.y-cy; if(Math.sqrt(dx*dx+dy*dy)>r+15){px=Math.max(10,Math.min(470,p.x));py=Math.max(10,Math.min(310,p.y));updateDiagram();} e.preventDefault(); }, {passive:false});
+document.addEventListener('mouseup', () => dragging = false);
+document.addEventListener('touchend', () => dragging = false);
+
+function toggleProof() {
+  proofVisible = !proofVisible;
+  const p = document.getElementById('proofPanel');
+  p.style.display = proofVisible ? 'block' : 'none';
+}
+
+function animateTangents() {
+  let angle = 0;
+  const startAngle = Math.atan2(py-cy, px-cx);
+  const dist = Math.sqrt((px-cx)**2 + (py-cy)**2) || 180;
+  const useDist = Math.max(dist, 100);
+  let frame = 0;
+  const anim = setInterval(() => {
+    frame++;
+    const a = startAngle + frame * 0.04;
+    px = cx + useDist * Math.cos(a);
+    py = cy + useDist * Math.sin(a);
+    px = Math.max(10, Math.min(470, px));
+    py = Math.max(10, Math.min(310, py));
+    updateDiagram();
+    if(frame >= 100) { clearInterval(anim); }
+  }, 20);
+}
+
+function resetDiagram() {
+  px = 380; py = 160;
+  updateDiagram();
+}
+
+function revealStep() {
+  if(stepIndex >= 6) return;
+  stepIndex++;
+  const el = document.getElementById('step' + stepIndex);
+  if(el) el.classList.add('visible');
+}
+
+function resetSteps() {
+  stepIndex = 0;
+  for(let i=1;i<=6;i++) {
+    const el = document.getElementById('step'+i);
+    if(el) el.classList.remove('visible');
+  }
+}
+
+function toggleAnswer(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('open');
+}
+
+updateDiagram();
+</script>
+</body>
+</html>

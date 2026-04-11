@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Areas Related to Circles - Combined Figures</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); min-height: 100vh; color: #e2e8f0; }
+  .title-bar { background: linear-gradient(90deg, #3b82f6, #6366f1); padding: 14px 20px; text-align: center; box-shadow: 0 4px 20px rgba(59,130,246,0.4); }
+  .title-bar h1 { font-size: 1.1rem; font-weight: 700; letter-spacing: 0.5px; }
+  .title-bar p { font-size: 0.75rem; opacity: 0.85; margin-top: 2px; }
+  .container { max-width: 700px; margin: 0 auto; padding: 16px; }
+  .card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 18px; margin-bottom: 16px; backdrop-filter: blur(10px); }
+  .card h2 { font-size: 1rem; color: #93c5fd; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .formula-box { background: linear-gradient(135deg, rgba(59,130,246,0.2), rgba(99,102,241,0.2)); border: 2px solid #3b82f6; border-radius: 12px; padding: 14px; text-align: center; margin: 10px 0; }
+  .formula-box .formula { font-size: 1.05rem; font-weight: 700; color: #fbbf24; line-height: 1.8; }
+  .formula-box .sub { font-size: 0.78rem; color: #94a3b8; margin-top: 6px; }
+  svg { display: block; width: 100%; }
+  .tabs { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+  .tab { padding: 8px 16px; border-radius: 20px; border: 2px solid rgba(255,255,255,0.15); background: transparent; color: #94a3b8; cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: all 0.3s; }
+  .tab.active { background: #3b82f6; border-color: #3b82f6; color: white; box-shadow: 0 4px 12px rgba(59,130,246,0.4); }
+  .tab:hover:not(.active) { border-color: #3b82f6; color: #93c5fd; }
+  .step-container { margin-top: 10px; }
+  .step { background: rgba(255,255,255,0.04); border-left: 3px solid #3b82f6; border-radius: 0 10px 10px 0; padding: 12px 14px; margin: 8px 0; opacity: 0; transform: translateX(-20px); transition: all 0.5s ease; display: none; }
+  .step.visible { opacity: 1; transform: translateX(0); display: block; }
+  .step .step-num { font-size: 0.7rem; color: #3b82f6; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+  .step .step-content { font-size: 0.85rem; margin-top: 4px; color: #e2e8f0; }
+  .step .step-math { background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.3); border-radius: 8px; padding: 8px 12px; margin-top: 8px; font-family: monospace; font-size: 0.9rem; color: #fbbf24; }
+  .btn { padding: 10px 20px; border-radius: 10px; border: none; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: all 0.3s; }
+  .btn-primary { background: linear-gradient(135deg, #3b82f6, #6366f1); color: white; box-shadow: 0 4px 12px rgba(59,130,246,0.3); }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(59,130,246,0.5); }
+  .btn-success { background: linear-gradient(135deg, #22c55e, #16a34a); color: white; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+  .highlight-green { color: #22c55e; font-weight: 700; }
+  .highlight-red { color: #ef4444; font-weight: 700; }
+  .highlight-amber { color: #f59e0b; font-weight: 700; }
+  .highlight-blue { color: #60a5fa; font-weight: 700; }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 10px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; color: #94a3b8; }
+  .legend-color { width: 16px; height: 16px; border-radius: 4px; }
+  .slider-wrap { margin: 10px 0; }
+  .slider-wrap label { font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 6px; }
+  input[type=range] { width: 100%; accent-color: #3b82f6; }
+  .value-display { display: inline-block; background: rgba(59,130,246,0.2); border: 1px solid #3b82f6; border-radius: 6px; padding: 2px 10px; font-size: 0.85rem; font-weight: 700; color: #93c5fd; margin-left: 8px; }
+  .quiz-option { background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 10px 14px; margin: 6px 0; cursor: pointer; font-size: 0.85rem; transition: all 0.3s; }
+  .quiz-option:hover { border-color: #3b82f6; background: rgba(59,130,246,0.1); }
+  .quiz-option.correct { border-color: #22c55e; background: rgba(34,197,94,0.15); color: #22c55e; }
+  .quiz-option.wrong { border-color: #ef4444; background: rgba(239,68,68,0.15); color: #ef4444; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 0.7rem; font-weight: 700; margin-left: 8px; }
+  .badge-blue { background: rgba(59,130,246,0.2); color: #60a5fa; }
+  .info-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+  .info-cell { background: rgba(255,255,255,0.04); border-radius: 10px; padding: 10px; text-align: center; }
+  .info-cell .val { font-size: 1.2rem; font-weight: 700; color: #fbbf24; }
+  .info-cell .lbl { font-size: 0.72rem; color: #64748b; margin-top: 2px; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+  .pulse { animation: pulse 2s infinite; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+  .fade-in { animation: fadeIn 0.5s ease forwards; }
+  .note { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); border-radius: 10px; padding: 10px 14px; font-size: 0.8rem; color: #fcd34d; margin-top: 10px; }
+</style>
+</head>
+<body>
+<div class="title-bar">
+  <h1>🔵 Areas Related to Circles</h1>
+  <p>Combined Figures Area | संयुक्त आकृतियाँ | CBSE Class 10</p>
+</div>
+<div class="container">
+
+  <!-- Formula Card -->
+  <div class="card fade-in">
+    <h2>📐 मुख्य सूत्र (Key Formula)</h2>
+    <div class="formula-box">
+      <div class="formula">छायांकित क्षेत्रफल = बड़ी आकृति − छोटी आकृति</div>
+      <div class="formula" style="margin-top:8px;">Shaded Area = Larger Shape − Shape to Subtract</div>
+      <div class="sub">∴ Area = A(outer) − A(inner) &nbsp;|&nbsp; Circle Area = π × r²</div>
+    </div>
+    <div class="note">💡 Tip: Always identify what to ADD and what to SUBTRACT. Draw the shapes separately first!</div>
+  </div>
+
+  <!-- Interactive Explorer -->
+  <div class="card">
+    <h2>🎯 Interactive Explorer — Choose a Figure</h2>
+    <div class="tabs">
+      <button class="tab active" onclick="setFig(0)">Square − Circle</button>
+      <button class="tab" onclick="setFig(1)">Circle − Triangle</button>
+      <button class="tab" onclick="setFig(2)">Two Circles</button>
+    </div>
+    <div id="svgWrap"></div>
+    <div class="slider-wrap">
+      <label id="sliderLabel">Adjust size: <span class="value-display" id="sliderVal">7</span></label>
+      <input type="range" id="sizeSlider" min="3" max="10" value="7" oninput="updateFig()">
+    </div>
+    <div class="info-row" id="infoRow"></div>
+    <div class="legend" id="legendDiv"></div>
+  </div>
+
+  <!-- Step by Step Walkthrough -->
+  <div class="card">
+    <h2>📖 Worked Example — छायांकित क्षेत्र <span class="badge badge-blue">Step by Step</span></h2>
+    <p style="font-size:0.82rem;color:#94a3b8;">A square of side 14 cm has a circle inscribed in it. Find the shaded area (area of square NOT covered by circle). Use π = 22/7.</p>
+    <div style="text-align:center;margin:12px 0;">
+      <svg id="exSvg" viewBox="0 0 200 200" width="200" height="200" style="display:inline-block;border-radius:12px;background:rgba(255,255,255,0.03);">
+        <rect x="25" y="25" width="150" height="150" fill="rgba(59,130,246,0.2)" stroke="#3b82f6" stroke-width="2.5" rx="4"/>
+        <circle id="exCircle" cx="100" cy="100" r="75" fill="rgba(239,68,68,0.25)" stroke="#ef4444" stroke-width="2.5"/>
+        <!-- Shaded corners -->
+        <rect x="25" y="25" width="150" height="150" fill="rgba(34,197,94,0.25)" rx="4"/>
+        <circle cx="100" cy="100" r="75" fill="rgba(30,41,59,0.7)"/>
+        <text x="100" y="104" text-anchor="middle" fill="#93c5fd" font-size="11" font-weight="700">Circle</text>
+        <text x="35" y="42" fill="#22c55e" font-size="10" font-weight="700">Square</text>
+        <line x1="25" y1="175" x2="175" y2="175" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="4"/>
+        <text x="100" y="192" text-anchor="middle" fill="#fbbf24" font-size="10">side = 14 cm</text>
+        <line x1="175" y1="25" x2="175" y2="175" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="4"/>
+        <line x1="100" y1="100" x2="175" y2="100" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="4"/>
+        <text x="145" y="94" fill="#ef4444" font-size="10">r=7</text>
+      </svg>
+    </div>
+    <div class="step-container" id="steps"></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="nextStep()">▶ Next Step</button>
+      <button class="btn" style="background:rgba(255,255,255,0.08);color:#94a3b8;" onclick="resetSteps()">↺ Reset</button>
+    </div>
+  </div>
+
+  <!-- Quiz -->
+  <div class="card">
+    <h2>🧠 Quick Check — तुरंत परीक्षण</h2>
+    <div id="quizDiv"></div>
+  </div>
+
+  <!-- Reference Formulas -->
+  <div class="card">
+    <h2>📋 Quick Reference — सन्दर्भ सूत्र</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px;">
+      <div class="info-cell"><div class="val" style="font-size:0.95rem;">π × r²</div><div class="lbl">Circle Area</div></div>
+      <div class="info-cell"><div class="val" style="font-size:0.95rem;">s²</div><div class="lbl">Square Area</div></div>
+      <div class="info-cell"><div class="val" style="font-size:0.95rem;">l × b</div><div class="lbl">Rectangle Area</div></div>
+      <div class="info-cell"><div class="val" style="font-size:0.95rem;">½ × b × h</div><div class="lbl">Triangle Area</div></div>
+      <div class="info-cell"><div class="val" style="font-size:0.95rem;">½ × r² × θ</div><div class="lbl">Sector Area (rad)</div></div>
+      <div class="info-cell"><div class="val" style="font-size:0.95rem;">(θ/360)×πr²</div><div class="lbl">Sector Area (deg)</div></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ---- FIGURE EXPLORER ----
+let currentFig = 0;
+const figs = [
+  { name:'Square − Circle', sliderLabel:'Side of square (a)', min:3, max:14, val:7 },
+  { name:'Circle − Triangle', sliderLabel:'Radius of circle (r)', min:3, max:12, val:7 },
+  { name:'Two Circles (Annulus)', sliderLabel:'Outer radius (R)', min:5, max:14, val:9 }
+];
+
+function setFig(n) {
+  currentFig = n;
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', i===n));
+  const sl = document.getElementById('sizeSlider');
+  sl.min = figs[n].min; sl.max = figs[n].max; sl.value = figs[n].val;
+  document.getElementById('sliderLabel').innerHTML = figs[n].sliderLabel + ': <span class="value-display" id="sliderVal">' + sl.value + '</span>';
+  updateFig();
+}
+
+function updateFig() {
+  const val = parseInt(document.getElementById('sizeSlider').value);
+  document.getElementById('sliderVal').textContent = val;
+  const wrap = document.getElementById('svgWrap');
+  const info = document.getElementById('infoRow');
+  const legend = document.getElementById('legendDiv');
+  const pi = Math.PI;
+
+  if(currentFig === 0) {
+    // Square with inscribed circle
+    const a = val; const r = a/2;
+    const sqA = (a*a).toFixed(2); const ciA = (pi*r*r).toFixed(2);
+    const shade = (a*a - pi*r*r).toFixed(2);
+    const S = 180; const cx = S/2; const cy = S/2;
+    const scale = (S-30)/a;
+    const pr = r*scale;
+    wrap.innerHTML = `<svg viewBox="0 0 ${S} ${S}" style="max-height:220px;border-radius:12px;background:rgba(255,255,255,0.03)">
+      <rect x="15" y="15" width="${S-30}" height="${S-30}" fill="rgba(34,197,94,0.25)" stroke="#22c55e" stroke-width="2.5" rx="3"/>
+      <circle cx="${cx}" cy="${cy}" r="${pr}" fill="rgba(30,41,59,0.85)" stroke="#ef4444" stroke-width="2.5"/>
+      <text x="${cx}" y="${15+(S-30)/2+5}" text-anchor="middle" fill="#ef4444" font-size="11" font-weight="700">r = ${r}</text>
+      <text x="${cx}" y="${S-4}" text-anchor="middle" fill="#22c55e" font-size="10">a = ${a}</text>
+      <line x1="15" y1="${S-14}" x2="${S-15}" y2="${S-14}" stroke="#22c55e" stroke-width="1" stroke-dasharray="3"/>
+      <text x="4" y="${S/2+4}" fill="#22c55e" font-size="10">${a}</text>
+    </svg>`;
+    info.innerHTML = `<div class="info-cell"><div class="val">${sqA}</div><div class="lbl">Square Area (a²)</div></div>
+      <div class="info-cell"><div class="val">${ciA}</div><div class="lbl">Circle Area (πr²)</div></div>
+      <div class="info-cell" style="grid-column:1/-1"><div class="val" style="color:#22c55e">${shade} cm²</div><div class="lbl">🟢 Shaded Area = Square − Circle</div></div>`;
+    legend.innerHTML = `<div class="legend-item"><div class="legend-color" style="background:#22c55e"></div>Square (outer)</div>
+      <div class="legend-item"><div class="legend-color" style="background:#1e293b;border:2px solid #ef4444"></div>Circle (subtract)</div>
+      <div class="legend-item"><div class="legend-color" style="background:rgba(34,197,94,0.25);border:1px solid #22c55e"></div>Shaded corners</div>`;
+  } else if(currentFig === 1) {
+    // Circle with inscribed equilateral triangle
+    const r = val;
+    const triSide = r * Math.sqrt(3);
+    const triA = (Math.sqrt(3)/4 * triSide * triSide).toFixed(2);
+    const cirA = (pi*r*r).toFixed(2);
+    const shade = (pi*r*r - Math.sqrt(3)/4*triSide*triSide).toFixed(2);
+    const S = 180; const cx = S/2; const cy = S/2;
+    const scale = (S/2-20)/r;
+    const pr = r*scale;
+    const pts = [0,1,2].map(i => {
+      const ang = -Math.PI/2 + i*2*Math.PI/3;
+      return `${cx+pr*Math.cos(ang)},${cy+pr*Math.sin(ang)}`;
+    }).join(' ');
+    wrap.innerHTML = `<svg viewBox="0 0 ${S} ${S}" style="max-height:220px;border-radius:12px;background:rgba(255,255,255,0.03)">
+      <circle cx="${cx}" cy="${cy}" r="${pr}" fill="rgba(59,130,246,0.25)" stroke="#3b82f6" stroke-width="2.5"/>
+      <polygon points="${pts}" fill="rgba(30,41,59,0.8)" stroke="#f59e0b" stroke-width="2.5"/>
+      <text x="${cx}" y="${cy+5}" text-anchor="middle" fill="#f59e0b" font-size="10" font-weight="700">△</text>
+      <text x="${cx+pr/2+8}" y="${cy-5}" fill="#3b82f6" font-size="10">r=${r}</text>
+      <line x1="${cx}" y1="${cy}" x2="${cx+pr}" y2="${cy}" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="3"/>
+    </svg>`;
+    info.innerHTML = `<div class="info-cell"><div class="val">${cirA}</div><div class="lbl">Circle Area (πr²)</div></div>
+      <div class="info-cell"><div class="val">${triA}</div><div class="lbl">Triangle Area (√3/4·s²)</div></div>
+      <div class="info-cell" style="grid-column:1/-1"><div class="val" style="color:#3b82f6">${shade} cm²</div><div class="lbl">🔵 Shaded Area = Circle − Triangle</div></div>`;
+    legend.innerHTML = `<div class="legend-item"><div class="legend-color" style="background:rgba(59,130,246,0.4)"></div>Circle</div>
+      <div class="legend-item"><div class="legend-color" style="background:#1e293b;border:2px solid #f59e0b"></div>Triangle (subtract)</div>`;
+  } else {
+    // Annulus (two circles)
+    const R = val; const r = Math.max(2, Math.floor(R*0.5));
+    const bigA = (pi*R*R).toFixed(2); const smA = (pi*r*r).toFixed(2);
+    const shade = (pi*(R*R - r*r)).toFixed(2);
+    const S = 180; const cx = S/2; const cy = S/2;
+    const scale = (S/2-15)/R;
+    const PR = R*scale; const pr = r*scale;
+    wrap.innerHTML = `<svg viewBox="0 0 ${S} ${S}" style="max-height:220px;border-radius:12px;background:rgba(255,255,255,0.03)">
+      <circle cx="${cx}" cy="${cy}" r="${PR}" fill="rgba(99,102,241,0.3)" stroke="#6366f1" stroke-width="2.5"/>
+      <circle cx="${cx}" cy="${cy}" r="${pr}" fill="rgba(30,41,59,0.9)" stroke="#ef4444" stroke-width="2.5"/>
+      <text x="${cx}" y="${cy+4}" text-anchor="middle" fill="#ef4444" font-size="10">r=${r}</text>
+      <line x1="${cx}" y1="${cy}" x2="${cx+PR}" y2="${cy}" stroke="#6366f1" stroke-width="1.5" stroke-dasharray="3"/>
+      <text x="${cx+PR/2}" y="${cy-6}" text-anchor="middle" fill="#6366f1" font-size="10">R=${R}</text>
+    </svg>`;
+    info.innerHTML = `<div class="info-cell"><div class="val">${bigA}</div><div class="lbl">Outer Circle (πR²)</div></div>
+      <div class="info-cell"><div class="val">${smA}</div><div class="lbl">Inner Circle (πr²)</div></div>
+      <div class="info-cell" style="grid-column:1/-1"><div class="val" style="color:#a78bfa">${shade} cm²</div><div class="lbl">🟣 Shaded Annulus = π(R²−r²)</div></div>`;
+    legend.innerHTML = `<div class="legend-item"><div class="legend-color" style="background:rgba(99,102,241,0.5)"></div>Outer Circle (R=${R})</div>
+      <div class="legend-item"><div class="legend-color" style="background:#1e293b;border:2px solid #ef4444"></div>Inner Circle (r=${r})</div>`;
+  }
+}
+
+// ---- STEP BY STEP ----
+const stepsData = [
+  { num:'Step 1 — पहचानें (Identify)', content:'We have a <span class="highlight-blue">square of side 14 cm</span> with an inscribed circle. The circle just fits inside → diameter = side → radius r = 7 cm.', math:'Side (a) = 14 cm &nbsp;|&nbsp; Radius (r) = a/2 = 7 cm' },
+  { num:'Step 2 — Area of Square (वर्ग का क्षेत्रफल)', content:'Calculate the area of the outer square.', math:'A(square) = a² = 14 × 14 = 196 cm²' },
+  { num:'Step 3 — Area of Circle (वृत्त का क्षेत्रफल)', content:'Calculate the area of the inscribed circle. Use π = 22/7.', math:'A(circle) = π × r² = (22/7) × 7 × 7 = 22 × 7 = 154 cm²' },
+  { num:'Step 4 — Subtract (घटाएं)', content:'Shaded area = Area of Square − Area of Circle (corners not covered by circle).', math:'A(shaded) = 196 − 154 = 42 cm²' },
+  { num:'∴ Answer (उत्तर)', content:'<span class="highlight-green">The shaded area = 42 cm²</span>. This represents the four corner regions of the square not covered by the circle.', math:'∴ Shaded Area = 42 cm²  ✓' }
+];
+let stepIdx = -1;
+
+function nextStep() {
+  stepIdx++;
+  if(stepIdx >= stepsData.length) { stepIdx = stepsData.length; return; }
+  const cont = document.getElementById('steps');
+  if(stepIdx === 0) cont.innerHTML = '';
+  const d = stepsData[stepIdx];
+  const div = document.createElement('div');
+  div.className = 'step';
+  div.innerHTML = `<div class="step-num">${d.num}</div><div class="step-content">${d.content}</div><div class="step-math">${d.math}</div>`;
+  cont.appendChild(div);
+  requestAnimationFrame(() => div.classList.add('visible'));
+}
+
+function resetSteps() {
+  stepIdx = -1;
+  document.getElementById('steps').innerHTML = '';
+}
+
+// ---- QUIZ ----
+const quizData = [
+  { q:'A circle of radius 7 cm is cut from a square of side 14 cm. What is the remaining area? (π = 22/7)', opts:['42 cm²','56 cm²','154 cm²','98 cm²'], ans:0 },
+  { q:'For an annulus with outer radius R and inner radius r, the shaded area is:', opts:['π(R+r)','π(R²+r²)','π(R²−r²)','π(R−r)²'], ans:2 },
+  { q:'A semicircle sits on top of a rectangle. To find total area, you:', opts:['Subtract semicircle','Add semicircle area + rectangle area','Only use rectangle','Divide by 2'], ans:1 }
+];
+let quizCurrent = 0; let quizAnswered = false;
+
+function renderQuiz() {
+  const q = quizData[quizCurrent];
+  const d = document.getElementById('quizDiv');
+  d.innerHTML = `<p style="font-size:0.85rem;margin-bottom:10px;color:#e2e8f0;">${quizCurrent+1}/${quizData.length}: ${q.q}</p>
+    ${q.opts.map((o,i)=>`<div class="quiz-option" id="qo${i}" onclick="answerQuiz(${i})">${String.fromCharCode(65+i)}) ${o}</div>`).join('')}
+    <div id="quizFeedback" style="margin-top:10px;font-size:0.82rem;display:none;"></div>
+    <div class="btn-row" id="quizBtnRow" style="display:none;margin-top:10px;">
+      <button class="btn btn-success" onclick="nextQuiz()">Next Question ▶</button>
+    </div>`;
+  quizAnswered = false;
+}
+
+function answerQuiz(chosen) {
+  if(quizAnswered) return;
+  quizAnswered = true;
+  const q = quizData[quizCurrent];
+  const fb = document.getElementById('quizFeedback');
+  for(let i=0;i<q.opts.length;i++) {
+    const el = document.getElementById('qo'+i);
+    el.style.pointerEvents='none';
+    if(i===q.ans) el.classList.add('correct');
+    else if(i===chosen && i!==q.ans) el.classList.add('wrong');
+  }
+  fb.style.display='block';
+  if(chosen===q.ans) fb.innerHTML='<span style="color:#22c55e">✅ सही! (Correct!)</span>';
+  else fb.innerHTML=`<span style="color:#ef4444">❌ गलत। सही उत्तर: ${String.fromCharCode(65+q.ans)}) ${q.opts[q.ans]}</span>`;
+  document.getElementById('quizBtnRow').style.display='flex';
+}
+
+function nextQuiz() {
+  quizCurrent = (quizCurrent+1) % quizData.length;
+  renderQuiz();
+}
+
+// Init
+setFig(0);
+renderQuiz();
+</script>
+</body>
+</html>

@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AP Number Line Visualization - Class 10 Maths</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#0f172a 100%);min-height:100vh;color:#e2e8f0;overflow-x:hidden}
+  .title-bar{background:linear-gradient(90deg,#3b82f6,#6366f1,#8b5cf6);padding:12px 20px;text-align:center;box-shadow:0 4px 20px rgba(59,130,246,0.4)}
+  .title-bar h1{font-size:clamp(14px,3vw,20px);font-weight:700;color:#fff;letter-spacing:1px}
+  .title-bar p{font-size:clamp(11px,2vw,13px);color:#bfdbfe;margin-top:3px}
+  .container{max-width:800px;margin:0 auto;padding:15px}
+  .card{background:linear-gradient(145deg,#1e293b,#0f172a);border:1px solid #334155;border-radius:16px;padding:18px;margin-bottom:15px;box-shadow:0 8px 32px rgba(0,0,0,0.3)}
+  .section-title{font-size:clamp(13px,2.5vw,16px);font-weight:700;color:#3b82f6;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+  .formula-box{background:linear-gradient(135deg,#1e3a5f,#1e293b);border:2px solid #3b82f6;border-radius:12px;padding:14px;text-align:center;margin:12px 0;box-shadow:0 0 20px rgba(59,130,246,0.2)}
+  .formula{font-size:clamp(16px,4vw,24px);font-weight:700;color:#60a5fa;letter-spacing:2px}
+  .formula-sub{font-size:clamp(11px,2vw,13px);color:#94a3b8;margin-top:6px}
+  .controls{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:15px;align-items:center}
+  .control-group{display:flex;flex-direction:column;gap:4px;flex:1;min-width:120px}
+  .control-group label{font-size:12px;color:#94a3b8;font-weight:600}
+  .slider-wrap{display:flex;align-items:center;gap:8px}
+  input[type=range]{flex:1;-webkit-appearance:none;height:6px;background:linear-gradient(90deg,#3b82f6,#8b5cf6);border-radius:3px;outline:none;cursor:pointer}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;background:#3b82f6;border-radius:50%;cursor:pointer;box-shadow:0 0 8px rgba(59,130,246,0.6);transition:transform 0.2s}
+  input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
+  .val-badge{background:#3b82f6;color:#fff;padding:3px 10px;border-radius:20px;font-size:13px;font-weight:700;min-width:40px;text-align:center}
+  #numberline-canvas{width:100%;border-radius:12px;display:block;cursor:pointer}
+  .info-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+  .info-chip{background:#1e3a5f;border:1px solid #3b82f6;border-radius:8px;padding:8px 12px;font-size:clamp(11px,2vw,13px);flex:1;min-width:120px;text-align:center}
+  .info-chip .chip-label{color:#94a3b8;font-size:11px}
+  .info-chip .chip-val{color:#60a5fa;font-weight:700;font-size:clamp(13px,2.5vw,16px)}
+  .steps-container{overflow:hidden}
+  .step{background:linear-gradient(135deg,#0f2744,#1e293b);border-left:4px solid #3b82f6;border-radius:0 10px 10px 0;padding:12px;margin-bottom:8px;transform:translateX(-20px);opacity:0;transition:all 0.4s ease;pointer-events:none}
+  .step.visible{transform:translateX(0);opacity:1;pointer-events:auto}
+  .step-num{background:#3b82f6;color:#fff;border-radius:50%;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;margin-right:8px}
+  .step-text{font-size:clamp(12px,2vw,14px);color:#cbd5e1;line-height:1.5}
+  .step-math{color:#f59e0b;font-weight:700}
+  .btn{background:linear-gradient(135deg,#3b82f6,#6366f1);color:#fff;border:none;border-radius:10px;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.3s;box-shadow:0 4px 15px rgba(59,130,246,0.3)}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(59,130,246,0.5)}
+  .btn:active{transform:translateY(0)}
+  .btn-green{background:linear-gradient(135deg,#22c55e,#16a34a);box-shadow:0 4px 15px rgba(34,197,94,0.3)}
+  .btn-green:hover{box-shadow:0 6px 20px rgba(34,197,94,0.5)}
+  .btn-amber{background:linear-gradient(135deg,#f59e0b,#d97706);box-shadow:0 4px 15px rgba(245,158,11,0.3)}
+  .highlight-dot{animation:pulse 1.5s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+  .legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:#94a3b8}
+  .legend-dot{width:12px;height:12px;border-radius:50%}
+  .badge{display:inline-block;background:#7c3aed;color:#fff;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:700;vertical-align:middle;margin-left:6px}
+  .example-box{background:linear-gradient(135deg,#0d2d1a,#1e293b);border:2px solid #22c55e;border-radius:12px;padding:14px;margin:10px 0}
+  .example-title{color:#22c55e;font-weight:700;font-size:14px;margin-bottom:8px}
+  .tab-row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+  .tab{background:#1e293b;border:1px solid #334155;border-radius:8px;padding:7px 14px;font-size:12px;cursor:pointer;transition:all 0.3s;color:#94a3b8}
+  .tab.active{background:#3b82f6;border-color:#3b82f6;color:#fff;box-shadow:0 0 12px rgba(59,130,246,0.4)}
+  .hidden{display:none}
+  .glow{text-shadow:0 0 12px rgba(59,130,246,0.8)}
+  .ap-term{display:inline-block;background:#1e3a5f;border:1px solid #60a5fa;border-radius:6px;padding:2px 8px;margin:2px;font-weight:700;color:#93c5fd;font-size:13px;transition:all 0.3s}
+  .ap-term:hover{background:#3b82f6;color:#fff;transform:scale(1.1)}
+  #hovered-info{min-height:28px;text-align:center;color:#f59e0b;font-size:13px;font-weight:600;margin-top:6px;transition:all 0.3s}
+</style>
+</head>
+<body>
+<div class="title-bar">
+  <h1>🔢 Arithmetic Progressions — समांतर श्रेढ़ी</h1>
+  <p>AP Number Line Visualization · CBSE Class 10 Mathematics</p>
+</div>
+<div class="container">
+
+  <!-- Formula Card -->
+  <div class="card">
+    <div class="section-title">📐 Key Formula — मुख्य सूत्र</div>
+    <div class="formula-box">
+      <div class="formula">aₙ = a + (n−1)d</div>
+      <div class="formula-sub">aₙ = nth term &nbsp;|&nbsp; a = first term (प्रथम पद) &nbsp;|&nbsp; d = common difference (सार्व अंतर) &nbsp;|&nbsp; n = term number</div>
+    </div>
+    <div class="info-row">
+      <div class="info-chip"><div class="chip-label">∴ Sum of n terms</div><div class="chip-val">Sₙ = n/2 × [2a+(n−1)d]</div></div>
+      <div class="info-chip"><div class="chip-label">∵ Common Difference</div><div class="chip-val">d = aₙ₊₁ − aₙ</div></div>
+    </div>
+  </div>
+
+  <!-- Interactive Number Line -->
+  <div class="card">
+    <div class="section-title">🎮 Interactive Number Line — संख्या रेखा <span class="badge">INTERACTIVE</span></div>
+    <div class="controls">
+      <div class="control-group">
+        <label>First Term (a) — प्रथम पद</label>
+        <div class="slider-wrap">
+          <input type="range" id="sl-a" min="-10" max="20" value="2" step="1">
+          <span class="val-badge" id="val-a">2</span>
+        </div>
+      </div>
+      <div class="control-group">
+        <label>Common Diff (d) — सार्व अंतर</label>
+        <div class="slider-wrap">
+          <input type="range" id="sl-d" min="-6" max="10" value="3" step="1">
+          <span class="val-badge" id="val-d">3</span>
+        </div>
+      </div>
+      <div class="control-group">
+        <label>Number of Terms (n)</label>
+        <div class="slider-wrap">
+          <input type="range" id="sl-n" min="3" max="10" value="6" step="1">
+          <span class="val-badge" id="val-n">6</span>
+        </div>
+      </div>
+    </div>
+    <canvas id="numberline-canvas" height="180"></canvas>
+    <div id="hovered-info">👆 Hover or tap dots to explore terms</div>
+    <div class="info-row" id="ap-chips"></div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div>AP Terms (पद)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#22c55e"></div>First Term a₁</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div>Equal Spacing = d</div>
+    </div>
+    <div class="info-row" id="summary-chips" style="margin-top:10px"></div>
+  </div>
+
+  <!-- Tabs: Examples & Verification -->
+  <div class="card">
+    <div class="section-title">📚 Explore & Learn</div>
+    <div class="tab-row">
+      <div class="tab active" onclick="switchTab('example')">Worked Example</div>
+      <div class="tab" onclick="switchTab('verify')">Verify AP</div>
+      <div class="tab" onclick="switchTab('types')">Types of AP</div>
+    </div>
+
+    <!-- Example Tab -->
+    <div id="tab-example">
+      <div class="example-box">
+        <div class="example-title">🧮 Example: Is 2, 5, 8, 11, 14, ... an AP? Find a₁₀</div>
+        <div id="step-reveal-area" class="steps-container"></div>
+        <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn" onclick="revealNextStep()">▶ Next Step</button>
+          <button class="btn btn-amber" onclick="resetSteps()">↺ Reset</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Verify Tab -->
+    <div id="tab-verify" class="hidden">
+      <div class="example-box">
+        <div class="example-title">✅ Enter a sequence — क्रम दर्ज करें — Check if it's AP</div>
+        <input id="seq-input" type="text" placeholder="e.g. 3, 7, 11, 15, 19" style="width:100%;padding:10px;border-radius:8px;background:#0f172a;border:1px solid #334155;color:#e2e8f0;font-size:14px;margin:8px 0">
+        <button class="btn btn-green" onclick="checkAP()" style="margin-top:4px">Check AP ✓</button>
+        <div id="verify-result" style="margin-top:12px;font-size:14px;line-height:1.7"></div>
+      </div>
+    </div>
+
+    <!-- Types Tab -->
+    <div id="tab-types" class="hidden">
+      <div id="types-content"></div>
+    </div>
+  </div>
+
+  <!-- Step by step walkthrough -->
+  <div class="card">
+    <div class="section-title">🪜 Step-by-Step: Find Sum — योगफल ज्ञात करें</div>
+    <div style="font-size:13px;color:#94a3b8;margin-bottom:10px">Using sliders above · AP: <span id="sum-ap-display" style="color:#60a5fa;font-weight:700"></span></div>
+    <div id="sum-steps" style="font-size:13px;line-height:2;color:#cbd5e1"></div>
+  </div>
+
+</div>
+
+<script>
+const canvas=document.getElementById('numberline-canvas');
+const ctx=canvas.getContext('2d');
+let a=2,d=3,n=6;
+let hoveredTerm=-1;
+let dotPositions=[];
+
+const steps=[
+  {text:"<span class='step-math'>Sequence: 2, 5, 8, 11, 14, ...</span><br>Check differences: 5−2=<span class='step-math'>3</span>, 8−5=<span class='step-math'>3</span>, 11−8=<span class='step-math'>3</span>"},
+  {text:"∵ All differences are equal ∴ It IS an AP!<br><span class='step-math'>First term a = 2, Common difference d = 3</span>"},
+  {text:"Using formula: <span class='step-math'>aₙ = a + (n−1)×d</span><br>For n=10: <span class='step-math'>a₁₀ = 2 + (10−1)×3</span>"},
+  {text:"<span class='step-math'>a₁₀ = 2 + 9×3 = 2 + 27 = <span style='color:#22c55e;font-size:16px'>29</span></span>"},
+  {text:"Sum of 10 terms: <span class='step-math'>S₁₀ = 10/2 × [2×2+(10−1)×3]</span><br><span class='step-math'>= 5 × [4+27] = 5 × 31 = <span style='color:#22c55e;font-size:16px'>155</span></span>"}
+];
+let stepIdx=0;
+
+function resizeCanvas(){
+  const rect=canvas.parentElement.getBoundingClientRect();
+  canvas.width=Math.floor(rect.width-36);
+  drawAll();
+}
+
+function drawAll(){
+  const W=canvas.width,H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  
+  // Background
+  const bg=ctx.createLinearGradient(0,0,W,H);
+  bg.addColorStop(0,'#0f172a');bg.addColorStop(1,'#1e293b');
+  ctx.fillStyle=bg;
+  ctx.beginPath();ctx.roundRect(0,0,W,H,12);ctx.fill();
+
+  const terms=[];
+  for(let i=0;i<n;i++) terms.push(a+i*d);
+  
+  const minV=Math.min(...terms),maxV=Math.max(...terms);
+  const pad=50,lineY=H*0.5;
+  const range=maxV-minV||1;
+  const toX=v=>pad+(v-minV)/(range)*(W-2*pad);
+  
+  // Number line
+  ctx.strokeStyle='#334155';ctx.lineWidth=3;
+  ctx.beginPath();ctx.moveTo(pad-20,lineY);ctx.lineTo(W-pad+20,lineY);ctx.stroke();
+  // Arrows
+  ctx.fillStyle='#334155';
+  [pad-20,W-pad+20].forEach((x,i)=>{
+    ctx.beginPath();
+    if(i===0){ctx.moveTo(x,lineY);ctx.lineTo(x+10,lineY-5);ctx.lineTo(x+10,lineY+5);}
+    else{ctx.moveTo(x,lineY);ctx.lineTo(x-10,lineY-5);ctx.lineTo(x-10,lineY+5);}
+    ctx.fill();
+  });
+
+  // Draw d-bracket between first two terms if n>=2
+  if(n>=2){
+    const x1=toX(terms[0]),x2=toX(terms[1]);
+    const bY=lineY-38;
+    ctx.strokeStyle='#f59e0b';ctx.lineWidth=1.5;
+    ctx.setLineDash([4,3]);
+    ctx.beginPath();ctx.moveTo(x1,lineY-6);ctx.lineTo(x1,bY);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(x2,lineY-6);ctx.lineTo(x2,bY);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(x1,bY);ctx.lineTo(x2,bY);ctx.stroke();
+    ctx.setLineDash([]);
+    // Arrow heads on bracket
+    ctx.fillStyle='#f59e0b';
+    ctx.beginPath();ctx.moveTo(x1+1,bY);ctx.lineTo(x1+7,bY-3);ctx.lineTo(x1+7,bY+3);ctx.fill();
+    ctx.beginPath();ctx.moveTo(x2-1,bY);ctx.lineTo(x2-7,bY-3);ctx.lineTo(x2-7,bY+3);ctx.fill();
+    // d label
+    ctx.fillStyle='#f59e0b';ctx.font='bold 11px Segoe UI';ctx.textAlign='center';
+    ctx.fillText('d='+d,(x1+x2)/2,bY-6);
+  }
+
+  dotPositions=[];
+  terms.forEach((v,i)=>{
+    const x=toX(v);
+    const isHov=(i===hoveredTerm);
+    const r=isHov?14:10;
+    // Glow
+    if(isHov){
+      const grd=ctx.createRadialGradient(x,lineY,0,x,lineY,28);
+      grd.addColorStop(0,'rgba(59,130,246,0.4)');grd.addColorStop(1,'transparent');
+      ctx.fillStyle=grd;ctx.beginPath();ctx.arc(x,lineY,28,0,2*Math.PI);ctx.fill();
+    }
+    // Dot
+    let col=i===0?'#22c55e':'#3b82f6';
+    if(isHov) col='#f59e0b';
+    const grd2=ctx.createRadialGradient(x-2,lineY-2,0,x,lineY,r);
+    grd2.addColorStop(0,'#fff');grd2.addColorStop(0.3,col);grd2.addColorStop(1,col+'88');
+    ctx.fillStyle=grd2;
+    ctx.beginPath();ctx.arc(x,lineY,r,0,2*Math.PI);ctx.fill();
+    ctx.strokeStyle='#fff';ctx.lineWidth=isHov?2:1;
+    ctx.beginPath();ctx.arc(x,lineY,r,0,2*Math.PI);ctx.stroke();
+    // Term label below
+    ctx.fillStyle=isHov?'#f59e0b':col;ctx.font=`${isHov?'bold ':''}12px Segoe UI`;
+    ctx.textAlign='center';
+    // Value
+    ctx.fillStyle='#e2e8f0';ctx.font='bold 11px Segoe UI';
+    ctx.fillText(v,x,lineY+28);
+    // Index label
+    ctx.fillStyle=isHov?'#f59e0b':'#94a3b8';ctx.font='10px Segoe UI';
+    ctx.fillText('a'+(i+1),x,lineY+40);
+    dotPositions.push({x,y:lineY,r:r+4,v,i});
+  });
+
+  // Update info
+  updateInfoChips(terms);
+  updateSumSteps(terms);
+}
+
+function updateInfoChips(terms){
+  const c=document.getElementById('ap-chips');
+  c.innerHTML=terms.map((v,i)=>`<div class='ap-term' title='a${i+1}=${v}'>a${i+1}=${v}</div>`).join('');
+  const s=document.getElementById('summary-chips');
+  const sum=terms.reduce((a,b)=>a+b,0);
+  s.innerHTML=`
+    <div class='info-chip'><div class='chip-label'>First Term (a)</div><div class='chip-val'>${a}</div></div>
+    <div class='info-chip'><div class='chip-label'>Common Diff (d)</div><div class='chip-val'>${d>0?'+':'''}${d}</div></div>
+    <div class='info-chip'><div class='chip-label'>Last Term (a${n})</div><div class='chip-val'>${terms[n-1]}</div></div>
+    <div class='info-chip'><div class='chip-label'>Sum S${n}</div><div class='chip-val'>${sum}</div></div>`;
+}
+
+function updateSumSteps(terms){
+  const last=terms[n-1];
+  const sum=terms.reduce((a,b)=>a+b,0);
+  const calc1=2*a+(n-1)*d;
+  document.getElementById('sum-ap-display').textContent=terms.join(', ')+', ...';
+  document.getElementById('sum-steps').innerHTML=`
+    <div>📌 a = <b style="color:#60a5fa">${a}</b>, &nbsp;d = <b style="color:#f59e0b">${d}</b>, &nbsp;n = <b style="color:#22c55e">${n}</b></div>
+    <div>📌 aₙ = a+(n−1)×d = ${a}+(${n}−1)×${d} = ${a}+${(n-1)*d} = <b style="color:#22c55e">${last}</b></div>
+    <div>📌 Sₙ = n/2 × [2a+(n−1)d]</div>
+    <div>&nbsp;&nbsp;&nbsp;&nbsp;= ${n}/2 × [2×${a}+(${n}−1)×${d}]</div>
+    <div>&nbsp;&nbsp;&nbsp;&nbsp;= ${n}/2 × [${2*a}+${(n-1)*d}]</div>
+    <div>&nbsp;&nbsp;&nbsp;&nbsp;= ${n}/2 × ${calc1}</div>
+    <div>&nbsp;&nbsp;&nbsp;&nbsp;= <b style="color:#22c55e;font-size:16px">${sum}</b></div>`;
+}
+
+function getMousePos(e){
+  const rect=canvas.getBoundingClientRect();
+  const scaleX=canvas.width/rect.width;
+  const scaleY=canvas.height/rect.height;
+  const cx=e.touches?e.touches[0].clientX:e.clientX;
+  const cy=e.touches?e.touches[0].clientY:e.clientY;
+  return{x:(cx-rect.left)*scaleX,y:(cy-rect.top)*scaleY};
+}
+
+canvas.addEventListener('mousemove',e=>{
+  const pos=getMousePos(e);
+  let found=-1;
+  dotPositions.forEach(dp=>{
+    const dist=Math.hypot(pos.x-dp.x,pos.y-dp.y);
+    if(dist<dp.r+6) found=dp.i;
+  });
+  if(found!==hoveredTerm){
+    hoveredTerm=found;
+    if(found>=0){
+      const dp=dotPositions[found];
+      document.getElementById('hovered-info').textContent=`✨ a${dp.i+1} = ${a}+(${dp.i})×${d} = ${dp.v} — Term number ${dp.i+1}`;
+    } else {
+      document.getElementById('hovered-info').textContent='👆 Hover or tap dots to explore terms';
+    }
+    drawAll();
+  }
+});
+canvas.addEventListener('touchstart',e=>{
+  e.preventDefault();
+  const pos=getMousePos(e);
+  dotPositions.forEach(dp=>{
+    const dist=Math.hypot(pos.x-dp.x,pos.y-dp.y);
+    if(dist<dp.r+10){
+      document.getElementById('hovered-info').textContent=`✨ a${dp.i+1} = ${a}+(${dp.i})×${d} = ${dp.v} — Term number ${dp.i+1}`;
+      hoveredTerm=dp.i; drawAll();
+    }
+  });
+},{passive:false});
+canvas.addEventListener('mouseleave',()=>{hoveredTerm=-1;document.getElementById('hovered-info').textContent='👆 Hover or tap dots to explore terms';drawAll();});
+
+document.getElementById('sl-a').addEventListener('input',e=>{a=+e.target.value;document.getElementById('val-a').textContent=a;drawAll()});
+document.getElementById('sl-d').addEventListener('input',e=>{d=+e.target.value;document.getElementById('val-d').textContent=d;drawAll()});
+document.getElementById('sl-n').addEventListener('input',e=>{n=+e.target.value;document.getElementById('val-n').textContent=n;drawAll()});
+
+// Steps
+function revealNextStep(){
+  if(stepIdx>=steps.length) return;
+  const area=document.getElementById('step-reveal-area');
+  const div=document.createElement('div');
+  div.className='step';
+  div.innerHTML=`<span class='step-num'>${stepIdx+1}</span><span class='step-text'>${steps[stepIdx].text}</span>`;
+  area.appendChild(div);
+  setTimeout(()=>div.classList.add('visible'),30);
+  stepIdx++;
+}
+function resetSteps(){stepIdx=0;document.getElementById('step-reveal-area').innerHTML='';}
+
+// Tabs
+function switchTab(t){
+  ['example','verify','types'].forEach(id=>{
+    document.getElementById('tab-'+id).classList.toggle('hidden',id!==t);
+  });
+  document.querySelectorAll('.tab').forEach((el,i)=>{
+    el.classList.toggle('active',['example','verify','types'][i]===t);
+  });
+  if(t==='types') renderTypes();
+}
+
+// Verify AP
+function checkAP(){
+  const raw=document.getElementById('seq-input').value;
+  const nums=raw.split(/[,\s]+/).map(Number).filter(v=>!isNaN(v)&&v!==0||raw.split(/[,\s]+/).includes(String(v)));
+  const vals=raw.split(/[,\s]+/).map(s=>s.trim()).filter(s=>s!=='').map(Number);
+  if(vals.length<3||vals.some(isNaN)){
+    document.getElementById('verify-result').innerHTML='<span style="color:#ef4444">⚠ Please enter at least 3 valid numbers separated by commas.</span>';return;
+  }
+  const diffs=[];
+  for(let i=1;i<vals.length;i++) diffs.push(vals[i]-vals[i-1]);
+  const isAP=diffs.every(v=>Math.abs(v-diffs[0])<0.001);
+  let html=`<b>Sequence:</b> ${vals.join(', ')}<br>`;
+  html+=`<b>Differences:</b> ${diffs.join(', ')}<br>`;
+  if(isAP){
+    html+=`<span style="color:#22c55e;font-size:15px">✅ YES! It is an AP (समांतर श्रेढ़ी)</span><br>`;
+    html+=`<span style="color:#60a5fa">a = ${vals[0]}, d = ${diffs[0]}</span><br>`;
+    html+=`a${vals.length+1} = ${vals[0]}+${vals.length}×${diffs[0]} = <b style="color:#22c55e">${vals[0]+vals.length*diffs[0]}</b>`;
+  } else {
+    html+=`<span style="color:#ef4444;font-size:15px">❌ NOT an AP — differences are not equal</span>`;
+  }
+  document.getElementById('verify-result').innerHTML=html;
+}
+
+// Types of AP
+function renderTypes(){
+  const types=[
+    {name:'Finite AP (सीमित)',ex:'2, 5, 8, 11',color:'#3b82f6',desc:'Fixed number of terms',d:3},
+    {name:'Infinite AP (असीमित)',ex:'1, 4, 7, 10, ...',color:'#22c55e',desc:'Continues forever',d:3},
+    {name:'Constant AP',ex:'5, 5, 5, 5',color:'#f59e0b',desc:'d = 0, all terms equal',d:0},
+    {name:'Decreasing AP',ex:'20, 15, 10, 5',color:'#ef4444',desc:'d < 0, terms decrease',d:-5}
+  ];
+  document.getElementById('types-content').innerHTML=types.map(t=>`
+    <div style="background:#0f172a;border:1px solid ${t.color};border-radius:10px;padding:12px;margin-bottom:10px">
+      <div style="color:${t.color};font-weight:700;font-size:14px">${t.name}</div>
+      <div style="color:#94a3b8;font-size:12px;margin:3px 0">${t.desc} &nbsp;|&nbsp; d=${t.d}</div>
+      <div style="color:#e2e8f0;font-size:13px;margin-top:6px">${t.ex.split(',').map(v=>`<span class='ap-term' style='border-color:${t.color};color:${t.color}'>${v.trim()}</span>`).join('')}</div>
+    </div>`).join('');
+}
+
+// Init
+window.addEventListener('load',()=>{resizeCanvas();revealNextStep();});
+window.addEventListener('resize',resizeCanvas);
+</script>
+</body>
+</html>

@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Areas of Similar Triangles | Class 10 Maths</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);min-height:100vh;color:#e2e8f0;padding:10px}
+  .titlebar{background:linear-gradient(90deg,#3b82f6,#6366f1);border-radius:14px;padding:14px 20px;text-align:center;margin-bottom:14px;box-shadow:0 4px 20px rgba(59,130,246,.4)}
+  .titlebar h1{font-size:1.2rem;font-weight:700;color:#fff;letter-spacing:.5px}
+  .titlebar p{font-size:.78rem;color:#bfdbfe;margin-top:3px}
+  .card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:16px;margin-bottom:14px;backdrop-filter:blur(4px)}
+  .formula-box{background:linear-gradient(135deg,#1e3a5f,#1e4d3d);border:2px solid #3b82f6;border-radius:14px;padding:18px;text-align:center;margin-bottom:14px;box-shadow:0 0 30px rgba(59,130,246,.2)}
+  .formula-main{font-size:1.3rem;font-weight:700;color:#fbbf24;letter-spacing:1px;margin:8px 0}
+  .formula-label{font-size:.75rem;color:#93c5fd}
+  .section-title{font-size:.95rem;font-weight:700;color:#38bdf8;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+  svg.tri-canvas{display:block;margin:0 auto;overflow:visible}
+  .slider-row{display:flex;align-items:center;gap:10px;margin:8px 0}
+  .slider-row label{font-size:.78rem;color:#94a3b8;min-width:80px}
+  input[type=range]{flex:1;accent-color:#3b82f6;cursor:pointer;height:6px}
+  .ratio-display{display:flex;justify-content:space-around;flex-wrap:wrap;gap:10px;margin:10px 0}
+  .ratio-card{background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);border-radius:10px;padding:10px 14px;text-align:center;min-width:100px;transition:all .3s}
+  .ratio-card.highlight{background:rgba(245,158,11,.15);border-color:#f59e0b;transform:scale(1.04)}
+  .ratio-card .val{font-size:1.1rem;font-weight:700;color:#fbbf24}
+  .ratio-card .lbl{font-size:.68rem;color:#94a3b8;margin-top:2px}
+  .steps-container{position:relative}
+  .step{background:rgba(255,255,255,.05);border-left:3px solid #3b82f6;border-radius:0 10px 10px 0;padding:12px;margin:8px 0;opacity:0;transform:translateX(-20px);transition:all .4s;display:none}
+  .step.visible{opacity:1;transform:translateX(0);display:block}
+  .step-num{font-size:.7rem;color:#3b82f6;font-weight:700;text-transform:uppercase;letter-spacing:1px}
+  .step-text{font-size:.82rem;color:#e2e8f0;margin-top:4px;line-height:1.5}
+  .step-math{font-size:.9rem;color:#fbbf24;font-weight:600;margin-top:6px;background:rgba(0,0,0,.2);padding:6px 10px;border-radius:6px}
+  .btn{display:inline-block;padding:10px 20px;border-radius:10px;border:none;cursor:pointer;font-weight:700;font-size:.82rem;transition:all .25s;margin:4px}
+  .btn-primary{background:linear-gradient(90deg,#3b82f6,#6366f1);color:#fff;box-shadow:0 4px 12px rgba(59,130,246,.3)}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(59,130,246,.4)}
+  .btn-green{background:linear-gradient(90deg,#22c55e,#16a34a);color:#fff}
+  .btn-amber{background:linear-gradient(90deg,#f59e0b,#d97706);color:#1e293b}
+  .btn-group{text-align:center;margin:10px 0}
+  .theorem-badge{display:inline-block;background:linear-gradient(90deg,#7c3aed,#4f46e5);color:#fff;font-size:.72rem;padding:3px 10px;border-radius:20px;margin-bottom:8px;font-weight:600}
+  .fact-row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+  .fact{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);border-radius:8px;padding:7px 10px;font-size:.75rem;color:#86efac;flex:1;min-width:130px}
+  .proof-area{display:none;background:rgba(0,0,0,.2);border-radius:10px;padding:12px;margin-top:8px}
+  .proof-area.open{display:block;animation:fadeIn .4s}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+  .toggle-btn{background:none;border:1px solid rgba(59,130,246,.4);color:#93c5fd;padding:6px 14px;border-radius:20px;cursor:pointer;font-size:.75rem;transition:all .3s}
+  .toggle-btn:hover{background:rgba(59,130,246,.15)}
+  .example-triangle{cursor:pointer;transition:all .3s}
+  .example-triangle:hover{filter:drop-shadow(0 0 6px #fbbf24)}
+  .progress-bar{height:4px;background:rgba(255,255,255,.1);border-radius:4px;margin-bottom:12px}
+  .progress-fill{height:100%;background:linear-gradient(90deg,#3b82f6,#22c55e);border-radius:4px;transition:width .4s}
+  .quiz-opt{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:10px 14px;margin:6px 0;cursor:pointer;font-size:.82rem;transition:all .25s}
+  .quiz-opt:hover{background:rgba(59,130,246,.15);border-color:#3b82f6}
+  .quiz-opt.correct{background:rgba(34,197,94,.15);border-color:#22c55e;color:#86efac}
+  .quiz-opt.wrong{background:rgba(239,68,68,.15);border-color:#ef4444;color:#fca5a5}
+  .small{font-size:.72rem;color:#64748b;margin-top:4px}
+  .highlight-text{color:#fbbf24;font-weight:700}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media(max-width:500px){.row2{grid-template-columns:1fr}.ratio-display{flex-direction:column}.fact{min-width:0}}
+</style>
+</head>
+<body>
+
+<div class="titlebar">
+  <h1>△ Areas of Similar Triangles</h2>
+  <p>CBSE Class 10 | Chapter 6 — Triangles (त्रिभुज)</p>
+</div>
+
+<!-- FORMULA BOX -->
+<div class="formula-box">
+  <div class="theorem-badge">प्रमेय (Theorem 6.6)</div>
+  <div class="formula-label">If △ABC ~ △PQR, then:</div>
+  <div class="formula-main">ar(△ABC) / ar(△PQR) = (AB/PQ)² = (BC/QR)² = (AC/PR)²</div>
+  <div class="formula-label" style="color:#86efac;margin-top:6px">∴ Area Ratio = <span style="color:#fbbf24">(Corresponding Side Ratio)²</span></div>
+</div>
+
+<!-- INTERACTIVE EXPLORER -->
+<div class="card">
+  <div class="section-title">🔬 Interactive Explorer — Drag the slider!</div>
+  <div class="slider-row">
+    <label>Scale (k)</label>
+    <input type="range" id="scaleSlider" min="1.2" max="3" step="0.05" value="2">
+    <span id="scaleVal" style="font-size:.85rem;color:#fbbf24;min-width:30px">2.0</span>
+  </div>
+  <svg class="tri-canvas" id="mainSvg" width="320" height="190" viewBox="0 0 320 190"></svg>
+  <div class="ratio-display" id="ratioDisplay">
+    <div class="ratio-card" id="sideRatioCard">
+      <div class="val" id="sideRatioVal">—</div>
+      <div class="lbl">Side Ratio (k)</div>
+    </div>
+    <div class="ratio-card highlight" id="areaRatioCard">
+      <div class="val" id="areaRatioVal">—</div>
+      <div class="lbl">Area Ratio (k²)</div>
+    </div>
+    <div class="ratio-card" id="verifCard">
+      <div class="val" id="verifVal" style="font-size:.85rem">—</div>
+      <div class="lbl">Verification ✓</div>
+    </div>
+  </div>
+  <p class="small" style="text-align:center">△ PQR (blue) ~ △ ABC (green) with scale factor k</p>
+</div>
+
+<!-- KEY FACTS -->
+<div class="card">
+  <div class="section-title">💡 Key Concepts to Remember</div>
+  <div class="fact-row">
+    <div class="fact">∵ Similar triangles have equal angles & proportional sides</div>
+    <div class="fact">∴ Area scales as the <span style="color:#fbbf24">SQUARE</span> of side ratio</div>
+  </div>
+  <div class="fact-row">
+    <div class="fact">If k = side ratio, then k² = area ratio</div>
+    <div class="fact">Perimeter ratio = k, but area ratio = k²</div>
+  </div>
+  <div style="margin-top:8px;text-align:center">
+    <button class="toggle-btn" id="proofToggle" onclick="toggleProof()">📜 Show Proof Idea</button>
+  </div>
+  <div class="proof-area" id="proofArea">
+    <div style="font-size:.8rem;line-height:1.7;color:#cbd5e1">
+      <strong style="color:#38bdf8">Proof Sketch:</strong><br>
+      For △ABC ~ △PQR with ratio k = AB/PQ:<br>
+      • Draw altitudes h₁ (from A) and h₂ (from P)<br>
+      • △ABD ~ △PQS ∴ h₁/h₂ = AB/PQ = k<br>
+      • ar(△ABC) = ½ × BC × h₁<br>
+      • ar(△PQR) = ½ × QR × h₂<br>
+      • Ratio = (BC × h₁)/(QR × h₂) = (BC/QR) × (h₁/h₂) = k × k = <span style="color:#fbbf24">k²</span>
+    </div>
+  </div>
+</div>
+
+<!-- WORKED EXAMPLE -->
+<div class="card">
+  <div class="section-title">📝 Worked Example (Step-by-Step)</div>
+  <div style="font-size:.82rem;color:#94a3b8;margin-bottom:8px">
+    <strong style="color:#e2e8f0">Problem:</strong> △ABC ~ △DEF. If BC = 6 cm, EF = 4 cm, and ar(△DEF) = 24 cm², find ar(△ABC).
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  <div id="stepsContainer">
+    <div class="step visible" id="step1">
+      <div class="step-num">Step 1 — Identify what's given</div>
+      <div class="step-text">△ABC ~ △DEF (similar triangles)<br>Corresponding sides: BC = 6 cm, EF = 4 cm<br>Area of △DEF = 24 cm²</div>
+    </div>
+    <div class="step" id="step2">
+      <div class="step-num">Step 2 — Write the theorem</div>
+      <div class="step-text">By Theorem 6.6 (Areas of Similar Triangles):</div>
+      <div class="step-math">ar(△ABC) / ar(△DEF) = (BC/EF)²</div>
+    </div>
+    <div class="step" id="step3">
+      <div class="step-num">Step 3 — Substitute values</div>
+      <div class="step-text">Putting BC = 6, EF = 4, ar(△DEF) = 24:</div>
+      <div class="step-math">ar(△ABC) / 24 = (6/4)² = (3/2)² = 9/4</div>
+    </div>
+    <div class="step" id="step4">
+      <div class="step-num">Step 4 — Solve for ar(△ABC)</div>
+      <div class="step-text">Cross-multiplying:</div>
+      <div class="step-math">ar(△ABC) = 24 × (9/4) = 6 × 9 = <span style="color:#22c55e">54 cm²</span></div>
+    </div>
+    <div class="step" id="step5">
+      <div class="step-num">✅ Answer</div>
+      <div class="step-text">∴ Area of △ABC = <strong style="color:#22c55e">54 cm²</strong><br>Notice: sides ratio = 3:2, area ratio = 9:4 (square!)</div>
+    </div>
+  </div>
+  <div class="btn-group">
+    <button class="btn btn-primary" id="nextStepBtn" onclick="nextStep()">Next Step →</button>
+    <button class="btn" style="background:rgba(255,255,255,.08);color:#94a3b8" onclick="resetSteps()">↺ Reset</button>
+  </div>
+</div>
+
+<!-- VISUAL COMPARISON -->
+<div class="card">
+  <div class="section-title">🎨 Visual Area Comparison</div>
+  <p style="font-size:.75rem;color:#64748b;margin-bottom:8px">Click a triangle to see its area highlighted</p>
+  <svg id="compSvg" width="100%" viewBox="0 0 300 140" style="display:block"></svg>
+  <div class="row2" style="margin-top:8px">
+    <div style="text-align:center;font-size:.78rem;color:#60a5fa">△ Small (k=1)<br><span id="smallArea" style="color:#fbbf24;font-weight:700">Area = A</span></div>
+    <div style="text-align:center;font-size:.78rem;color:#34d399">△ Large (k=2)<br><span id="largeArea" style="color:#fbbf24;font-weight:700">Area = 4A</span></div>
+  </div>
+  <p class="small" style="text-align:center;margin-top:6px">Side doubled → Area becomes 4× (2² = 4)</p>
+</div>
+
+<!-- QUICK QUIZ -->
+<div class="card">
+  <div class="section-title">🧠 Quick Quiz</div>
+  <div id="quizArea">
+    <div id="q1area">
+      <div style="font-size:.85rem;color:#e2e8f0;margin-bottom:8px">If two similar triangles have sides in ratio <span class="highlight-text">3:5</span>, what is their area ratio?</div>
+      <div class="quiz-opt" onclick="checkQ1(this,'wrong')">3 : 5</div>
+      <div class="quiz-opt" onclick="checkQ1(this,'correct')">9 : 25</div>
+      <div class="quiz-opt" onclick="checkQ1(this,'wrong')">6 : 10</div>
+      <div class="quiz-opt" onclick="checkQ1(this,'wrong')">√3 : √5</div>
+      <div id="q1feedback" style="display:none;font-size:.78rem;margin-top:6px;padding:8px;border-radius:8px"></div>
+    </div>
+    <div id="q2area" style="display:none;margin-top:12px">
+      <div style="font-size:.85rem;color:#e2e8f0;margin-bottom:8px">△PQR ~ △XYZ. ar(△PQR) = 100 cm², ar(△XYZ) = 49 cm². Find PQ if XY = 7 cm.</div>
+      <div class="quiz-opt" onclick="checkQ2(this,'wrong')">7 cm</div>
+      <div class="quiz-opt" onclick="checkQ2(this,'wrong')">70 cm</div>
+      <div class="quiz-opt" onclick="checkQ2(this,'correct')">10 cm</div>
+      <div class="quiz-opt" onclick="checkQ2(this,'wrong')">14 cm</div>
+      <div id="q2feedback" style="display:none;font-size:.78rem;margin-top:6px;padding:8px;border-radius:8px"></div>
+    </div>
+  </div>
+</div>
+
+<div style="text-align:center;font-size:.7rem;color:#475569;padding:10px 0 6px">CBSE Class 10 | Chapter 6: Triangles | Areas of Similar Triangles</div>
+
+<script>
+// ============ INTERACTIVE EXPLORER ============
+const slider = document.getElementById('scaleSlider');
+const mainSvg = document.getElementById('mainSvg');
+
+function triArea(pts){
+  return Math.abs((pts[1][0]-pts[0][0])*(pts[2][1]-pts[0][1])-(pts[2][0]-pts[0][0])*(pts[1][1]-pts[0][1]))/2;
+}
+
+function drawMain(){
+  const k = parseFloat(slider.value);
+  document.getElementById('scaleVal').textContent = k.toFixed(2);
+
+  // Small triangle (PQR) - base
+  const cx = 160, cy = 95;
+  const bw = 55, bh = 42;
+  // PQR small
+  const p1 = [cx-bw, cy+bh], p2=[cx+bw, cy+bh], p3=[cx, cy-bh];
+  // ABC large scaled
+  const bw2=bw*k, bh2=bh*k;
+  const q1=[cx-bw2, cy+bh2], q2=[cx+bw2, cy+bh2], q3=[cx, cy-bh2];
+
+  const a1 = triArea([p1,p2,p3]);
+  const a2 = triArea([q1,q2,q3]);
+  const sideR = k.toFixed(2);
+  const areaR = (k*k).toFixed(2);
+
+  document.getElementById('sideRatioVal').textContent = '1 : '+sideR;
+  document.getElementById('areaRatioVal').textContent = '1 : '+areaR;
+  document.getElementById('verifVal').textContent = sideR+'² = '+(k*k).toFixed(2);
+
+  const pts2str=p=>p.map(x=>x.join(',')).join(' ');
+
+  mainSvg.innerHTML=`
+    <defs>
+      <linearGradient id="gBlue" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.3"/>
+        <stop offset="100%" stop-color="#6366f1" stop-opacity="0.5"/>
+      </linearGradient>
+      <linearGradient id="gGreen" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#22c55e" stop-opacity="0.18"/>
+        <stop offset="100%" stop-color="#16a34a" stop-opacity="0.3"/>
+      </linearGradient>
+    </defs>
+    <polygon points="${pts2str(q1) + ' ' + pts2str(q2) + ' ' + pts2str(q3)}" fill="url(#gGreen)" stroke="#22c55e" stroke-width="2" stroke-linejoin="round"/>
+    <polygon points="${pts2str(p1) + ' ' + pts2str(p2) + ' ' + pts2str(p3)}" fill="url(#gBlue)" stroke="#3b82f6" stroke-width="2" stroke-linejoin="round"/>
+    <text x="${p1[0]-14}" y="${p1[1]+14}" font-size="11" fill="#93c5fd" font-weight="700">P</text>
+    <text x="${p2[0]+4}" y="${p2[1]+14}" font-size="11" fill="#93c5fd" font-weight="700">Q</text>
+    <text x="${p3[0]-4}" y="${p3[1]-6}" font-size="11" fill="#93c5fd" font-weight="700">R</text>
+    <text x="${q1[0]-14}" y="${Math.min(q1[1]+14,185)}" font-size="11" fill="#86efac" font-weight="700">A</text>
+    <text x="${Math.min(q2[0]+4,305)}" y="${Math.min(q2[1]+14,185)}" font-size="11" fill="#86efac" font-weight="700">B</text>
+    <text x="${q3[0]-4}" y="${Math.max(q3[1]-6,12)}" font-size="11" fill="#86efac" font-weight="700">C</text>
+    <text x="5" y="16" font-size="10" fill="#86efac">△ ABC (k=${sideR}×)</text>
+    <text x="5" y="30" font-size="10" fill="#93c5fd">△ PQR (base)</text>
+  `;
+}
+
+slider.addEventListener('input', drawMain);
+drawMain();
+
+// ============ COMPARISON SVG ============
+function drawComparison(){
+  const svg = document.getElementById('compSvg');
+  // Small at left, large at right
+  // small: base=60, ht=50 → area = 1500
+  // large: base=120, ht=100 → area = 6000 = 4×
+  const s = `
+    <defs>
+      <radialGradient id="rBlue" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#60a5fa" stop-opacity="0.4"/>
+        <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.15"/>
+      </radialGradient>
+      <radialGradient id="rGreen" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#34d399" stop-opacity="0.4"/>
+        <stop offset="100%" stop-color="#22c55e" stop-opacity="0.12"/>
+      </radialGradient>
+    </defs>
+    <!-- large triangle -->
+    <polygon id="largeTri" class="example-triangle" points="150,10 280,130 20,130" fill="url(#rGreen)" stroke="#22c55e" stroke-width="2" stroke-linejoin="round" onclick="clickTri('large')"/>
+    <!-- small triangle inside to show comparison -->
+    <polygon id="smallTri" class="example-triangle" points="150,70 210,130 90,130" fill="url(#rBlue)" stroke="#60a5fa" stroke-width="2" stroke-linejoin="round" onclick="clickTri('small')"/>
+    <!-- labels -->
+    <text x="150" y="100" text-anchor="middle" font-size="10" fill="#93c5fd" font-weight="700">△ PQR</text>
+    <text x="150" y="30" text-anchor="middle" font-size="10" fill="#86efac" font-weight="700">△ ABC (k=2)</text>
+    <text x="90" y="144" font-size="9" fill="#60a5fa">base: 2 units</text>
+    <text x="30" y="144" font-size="9" fill="#86efac">base: 4 units →</text>
+    <line x1="90" y1="130" x2="210" y2="130" stroke="#60a5fa" stroke-width="1.5" stroke-dasharray="3"/>
+    <line x1="20" y1="130" x2="280" y2="130" stroke="#22c55e" stroke-width="1.5" stroke-dasharray="3"/>
+  `;
+  svg.innerHTML=s;
+}
+drawComparison();
+
+function clickTri(which){
+  const svg=document.getElementById('compSvg');
+  const lt=svg.getElementById('largeTri');
+  const st=svg.getElementById('smallTri');
+  if(which==='large'){
+    lt.setAttribute('fill','rgba(34,197,94,0.5)');
+    st.setAttribute('fill','rgba(96,165,250,0.1)');
+  } else {
+    st.setAttribute('fill','rgba(96,165,250,0.5)');
+    lt.setAttribute('fill','rgba(34,197,94,0.1)');
+  }
+  setTimeout(()=>{
+    lt.setAttribute('fill','url(#rGreen)');
+    st.setAttribute('fill','url(#rBlue)');
+  },1200);
+}
+
+// ============ PROOF TOGGLE ============
+function toggleProof(){
+  const a=document.getElementById('proofArea');
+  const b=document.getElementById('proofToggle');
+  if(a.classList.contains('open')){a.classList.remove('open');b.textContent='📜 Show Proof Idea';}
+  else{a.classList.add('open');b.textContent='📜 Hide Proof Idea';}
+}
+
+// ============ STEP BY STEP ============
+let currentStep=1;
+const totalSteps=5;
+function nextStep(){
+  if(currentStep<totalSteps){
+    currentStep++;
+    const el=document.getElementById('step'+currentStep);
+    el.style.display='block';
+    setTimeout(()=>el.classList.add('visible'),10);
+    document.getElementById('progressFill').style.width=((currentStep/totalSteps)*100)+'%';
+  }
+  if(currentStep>=totalSteps){
+    document.getElementById('nextStepBtn').textContent='✅ Complete!';
+    document.getElementById('nextStepBtn').style.background='linear-gradient(90deg,#22c55e,#16a34a)';
+    document.getElementById('nextStepBtn').disabled=true;
+  }
+}
+function resetSteps(){
+  currentStep=1;
+  for(let i=2;i<=totalSteps;i++){
+    const el=document.getElementById('step'+i);
+    el.classList.remove('visible');
+    el.style.display='none';
+  }
+  document.getElementById('progressFill').style.width='20%';
+  const btn=document.getElementById('nextStepBtn');
+  btn.textContent='Next Step →';
+  btn.style.background='';
+  btn.disabled=false;
+}
+document.getElementById('progressFill').style.width='20%';
+
+// ============ QUIZ ============
+let q1done=false;
+function checkQ1(el,type){
+  if(q1done)return;
+  q1done=true;
+  const opts=document.querySelectorAll('#q1area .quiz-opt');
+  opts.forEach(o=>o.style.pointerEvents='none');
+  const fb=document.getElementById('q1feedback');
+  fb.style.display='block';
+  if(type==='correct'){
+    el.classList.add('correct');
+    fb.style.background='rgba(34,197,94,.1)';
+    fb.style.border='1px solid rgba(34,197,94,.3)';
+    fb.innerHTML='✅ <strong style="color:#22c55e">Correct!</strong> Side ratio = 3:5 → Area ratio = 3²:5² = <strong style="color:#fbbf24">9:25</strong>';
+    setTimeout(()=>{document.getElementById('q2area').style.display='block';},800);
+  } else {
+    el.classList.add('wrong');
+    opts.forEach(o=>{if(o!==el)o.classList.add('correct');});
+    fb.style.background='rgba(239,68,68,.1)';
+    fb.style.border='1px solid rgba(239,68,68,.3)';
+    fb.innerHTML='❌ Not quite! Area ratio = (side ratio)² = 3²:5² = <strong style="color:#fbbf24">9:25</strong>';
+    setTimeout(()=>{document.getElementById('q2area').style.display='block';},1200);
+  }
+}
+
+let q2done=false;
+function checkQ2(el,type){
+  if(q2done)return;
+  q2done=true;
+  const opts=document.querySelectorAll('#q2area .quiz-opt');
+  opts.forEach(o=>o.style.pointerEvents='none');
+  const fb=document.getElementById('q2feedback');
+  fb.style.display='block';
+  if(type==='correct'){
+    el.classList.add('correct');
+    fb.style.background='rgba(34,197,94,.1)';
+    fb.style.border='1px solid rgba(34,197,94,.3)';
+    fb.innerHTML='✅ <strong style="color:#22c55e">Correct!</strong> PQ²/XY² = 100/49 → PQ/7 = 10/7 → <strong style="color:#fbbf24">PQ = 10 cm</strong>';
+  } else {
+    el.classList.add('wrong');
+    opts.forEach(o=>{if(o!==el)o.classList.add('correct');});
+    fb.style.background='rgba(239,68,68,.1)';
+    fb.style.border='1px solid rgba(239,68,68,.3)';
+    fb.innerHTML='❌ ar ratio = 100:49 → side ratio = √100:√49 = 10:7 → PQ = 10 cm when XY=7';
+  }
+}
+</script>
+</body>
+</html>

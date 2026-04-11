@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reflection of Light - Class 10 Science</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#0f172a 100%);min-height:100vh;color:#e2e8f0}
+.title-bar{background:linear-gradient(90deg,#7c3aed,#8b5cf6,#a78bfa);padding:12px 20px;text-align:center;box-shadow:0 4px 20px rgba(139,92,246,0.4)}
+.title-bar h1{font-size:1.3em;font-weight:700;color:#fff;letter-spacing:1px}
+.title-bar p{font-size:0.75em;color:#ddd6fe;margin-top:2px}
+.container{max-width:800px;margin:0 auto;padding:16px}
+.formula-card{background:linear-gradient(135deg,#3b1f6e,#5b21b6);border:2px solid #8b5cf6;border-radius:20px;padding:20px;text-align:center;margin-bottom:16px;box-shadow:0 8px 32px rgba(139,92,246,0.3);position:relative;overflow:hidden}
+.formula-card::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(139,92,246,0.1) 0%,transparent 70%);animation:pulse 3s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+.formula-main{font-size:1.6em;font-weight:800;color:#fff;letter-spacing:2px;text-shadow:0 0 20px rgba(167,139,250,0.8)}
+.formula-sub{font-size:0.85em;color:#c4b5fd;margin-top:6px}
+.formula-hindi{font-size:0.8em;color:#fbbf24;margin-top:4px}
+.card{background:linear-gradient(135deg,#1e293b,#0f172a);border:1px solid #334155;border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 4px 16px rgba(0,0,0,0.3)}
+.card h2{font-size:1em;color:#a78bfa;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.mirror-sim{position:relative;background:#0a0e1a;border-radius:12px;overflow:hidden;touch-action:none}
+.mirror-sim canvas{display:block;width:100%;cursor:crosshair}
+.slider-section{background:linear-gradient(135deg,#1a1033,#1e293b);border:1px solid #8b5cf6;border-radius:16px;padding:16px;margin-bottom:14px}
+.slider-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.slider-label{font-size:0.8em;color:#94a3b8;min-width:120px}
+.slider-val{font-size:1em;font-weight:700;min-width:50px;text-align:right;color:#a78bfa}
+input[type=range]{flex:1;min-width:120px;height:6px;border-radius:3px;outline:none;cursor:pointer;-webkit-appearance:none;appearance:none;background:linear-gradient(90deg,#7c3aed,#a78bfa)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:#8b5cf6;border:2px solid #fff;box-shadow:0 2px 8px rgba(139,92,246,0.5);cursor:pointer}
+.info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+@media(max-width:500px){.info-grid{grid-template-columns:1fr}}
+.info-item{background:#1e293b;border-radius:10px;padding:10px;text-align:center;border:1px solid #334155;cursor:pointer;transition:all 0.3s}
+.info-item:hover,.info-item.active{border-color:#8b5cf6;box-shadow:0 0 12px rgba(139,92,246,0.3);transform:translateY(-2px)}
+.info-sym{font-size:1.3em;font-weight:700}
+.info-name{font-size:0.7em;color:#94a3b8;margin-top:4px}
+.info-hindi{font-size:0.65em;color:#fbbf24;margin-top:2px}
+.law-box{background:linear-gradient(135deg,#1a1033,#0f172a);border:2px solid #8b5cf6;border-radius:12px;padding:14px;margin-top:12px;text-align:center}
+.law-box h3{color:#a78bfa;font-size:0.9em;margin-bottom:6px}
+.law-box p{font-size:0.8em;color:#cbd5e1;line-height:1.5}
+.law-box .hindi{color:#fbbf24;font-size:0.75em;margin-top:4px}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.7em;font-weight:700;margin:4px}
+.badge-purple{background:#5b21b6;color:#ddd6fe}
+.badge-amber{background:#92400e;color:#fde68a}
+.hint{font-size:0.75em;color:#64748b;text-align:center;margin-top:8px}
+.reading-box{background:#0f172a;border:1px solid #334155;border-radius:10px;padding:10px;margin-top:10px;text-align:center}
+.reading-box .val{font-size:1.5em;font-weight:800;color:#a78bfa}
+.reading-box .lbl{font-size:0.7em;color:#94a3b8;margin-top:2px}
+.tab-row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.tab{padding:6px 14px;border-radius:8px;border:1px solid #334155;background:#1e293b;color:#94a3b8;cursor:pointer;font-size:0.8em;transition:all 0.3s}
+.tab.active{background:linear-gradient(135deg,#5b21b6,#7c3aed);color:#fff;border-color:#8b5cf6;box-shadow:0 2px 10px rgba(139,92,246,0.4)}
+</style>
+</head>
+<body>
+<div class="title-bar">
+<h1>🔦 Reflection of Light — प्रकाश का परावर्तन</h1>
+<p>CBSE Class 10 Science | Chapter: Light — Reflection & Refraction (प्रकाश)</p>
+</div>
+<div class="container">
+
+<div class="formula-card">
+<div class="formula-main">∠i = ∠r</div>
+<div class="formula-sub">Angle of Incidence = Angle of Reflection</div>
+<div class="formula-hindi">आपतन कोण = परावर्तन कोण</div>
+</div>
+
+<div class="card">
+<h2>🪞 Key Terms (प्रमुख शब्द)</h2>
+<div class="info-grid" id="termsGrid">
+<div class="info-item" data-term="incident">
+<div class="info-sym" style="color:#f59e0b">↘</div>
+<div class="info-name">Incident Ray</div>
+<div class="info-hindi">आपतित किरण</div>
+</div>
+<div class="info-item" data-term="reflected">
+<div class="info-sym" style="color:#22c55e">↗</div>
+<div class="info-name">Reflected Ray</div>
+<div class="info-hindi">परावर्तित किरण</div>
+</div>
+<div class="info-item" data-term="normal">
+<div class="info-sym" style="color:#8b5cf6">↑</div>
+<div class="info-name">Normal</div>
+<div class="info-hindi">अभिलम्ब</div>
+</div>
+</div>
+<div id="termDetail" style="margin-top:10px;font-size:0.8em;color:#cbd5e1;min-height:40px;padding:8px;background:#0f172a;border-radius:8px;display:none"></div>
+</div>
+
+<div class="slider-section">
+<h2 style="color:#a78bfa;font-size:1em;margin-bottom:12px">🔬 Interactive Mirror — किरण को घुमाओ!</h2>
+<div class="mirror-sim">
+<canvas id="mirrorCanvas" width="700" height="400"></canvas>
+</div>
+<div class="slider-row" style="margin-top:12px">
+<span class="slider-label">🔆 Angle of Incidence (∠i)</span>
+<input type="range" id="angleSlider" min="5" max="85" value="45" step="1">
+<span class="slider-val" id="angleVal">45°</span>
+</div>
+<div class="hint">👆 Drag the slider or click on the mirror to change the angle | कोण बदलने के लिए स्लाइडर खींचें</div>
+<div style="display:flex;gap:10px;justify-content:center;margin-top:10px;flex-wrap:wrap">
+<div class="reading-box" style="flex:1;min-width:120px">
+<div class="val" id="incAngle" style="color:#f59e0b">45°</div>
+<div class="lbl">∠i (Incidence / आपतन)</div>
+</div>
+<div class="reading-box" style="flex:1;min-width:120px">
+<div class="val" id="refAngle" style="color:#22c55e">45°</div>
+<div class="lbl">∠r (Reflection / परावर्तन)</div>
+</div>
+</div>
+</div>
+
+<div class="card">
+<h2>📜 Laws of Reflection (परावर्तन के नियम)</h2>
+<div class="tab-row" id="lawTabs">
+<div class="tab active" data-law="1">Law 1 / नियम 1</div>
+<div class="tab" data-law="2">Law 2 / नियम 2</div>
+</div>
+<div id="law1" class="law-box">
+<h3>First Law / पहला नियम</h3>
+<p>The angle of incidence is always <strong>equal</strong> to the angle of reflection.</p>
+<p class="hindi">आपतन कोण सदैव परावर्तन कोण के <strong>बराबर</strong> होता है।</p>
+<p style="margin-top:8px;font-size:0.9em;color:#a78bfa;font-weight:700">∠i = ∠r</p>
+</div>
+<div id="law2" class="law-box" style="display:none">
+<h3>Second Law / दूसरा नियम</h3>
+<p>The incident ray, reflected ray, and the normal at the point of incidence all lie in the <strong>same plane</strong>.</p>
+<p class="hindi">आपतित किरण, परावर्तित किरण और आपतन बिंदु पर अभिलम्ब — तीनों <strong>एक ही तल</strong> में होते हैं।</p>
+</div>
+</div>
+
+<div class="card">
+<h2>🔍 Types of Reflection (परावर्तन के प्रकार)</h2>
+<div class="tab-row" id="typeTabs">
+<div class="tab active" data-type="regular">Regular / नियमित</div>
+<div class="tab" data-type="diffuse">Diffuse / विसरित</div>
+</div>
+<div id="typeDisplay">
+<canvas id="typeCanvas" width="700" height="250" style="width:100%;border-radius:10px;background:#0a0e1a"></canvas>
+<p id="typeDesc" style="font-size:0.8em;color:#cbd5e1;margin-top:8px;text-align:center">Parallel rays reflect in the same direction from a smooth surface (mirror).<br><span style="color:#fbbf24">समतल दर्पण से समांतर किरणें एक ही दिशा में परावर्तित होती हैं।</span></p>
+</div>
+</div>
+
+<div class="card">
+<h2>📝 Quick Quiz (त्वरित प्रश्नोत्तरी)</h2>
+<div id="quiz">
+<p style="font-size:0.85em;color:#cbd5e1;margin-bottom:10px">If ∠i = 30°, what is ∠r?</p>
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+<button class="tab" onclick="checkQuiz(this,false)">60°</button>
+<button class="tab" onclick="checkQuiz(this,true)">30°</button>
+<button class="tab" onclick="checkQuiz(this,false)">90°</button>
+<button class="tab" onclick="checkQuiz(this,false)">45°</button>
+</div>
+<div id="quizResult" style="margin-top:10px;font-size:0.85em;display:none"></div>
+</div>
+</div>
+
+</div>
+
+<script>
+const canvas = document.getElementById('mirrorCanvas');
+const ctx = canvas.getContext('2d');
+const slider = document.getElementById('angleSlider');
+const angleVal = document.getElementById('angleVal');
+const incAngle = document.getElementById('incAngle');
+const refAngle = document.getElementById('refAngle');
+
+const W = canvas.width, H = canvas.height;
+const mirrorY = H * 0.72;
+const mirrorX1 = W * 0.15, mirrorX2 = W * 0.85;
+const pointX = W / 2, pointY = mirrorY;
+
+function degToRad(d){return d * Math.PI / 180}
+
+function drawScene(angle){
+  ctx.clearRect(0, 0, W, H);
+
+  const grad = ctx.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0, '#0a0e1a');
+  grad.addColorStop(1, '#0f172a');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.strokeStyle = '#475569';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4, 4]);
+  ctx.beginPath();
+  ctx.moveTo(pointX, mirrorY - 160);
+  ctx.lineTo(pointX, mirrorY + 10);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.fillStyle = '#64748b';
+  ctx.font = '12px Segoe UI';
+  ctx.textAlign = 'center';
+  ctx.fillText('Normal (अभिलम्ब)', pointX, mirrorY - 165);
+
+  ctx.strokeStyle = '#8b5cf6';
+  ctx.lineWidth = 4;
+  ctx.shadowColor = '#8b5cf6';
+  ctx.shadowBlur = 12;
+  ctx.beginPath();
+  ctx.moveTo(mirrorX1, mirrorY);
+  ctx.lineTo(mirrorX2, mirrorY);
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  for(let x = mirrorX1; x < mirrorX2; x += 14){
+    ctx.strokeStyle = '#4c1d95';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x, mirrorY);
+    ctx.lineTo(x - 6, mirrorY + 10);
+    ctx.stroke();
+  }
+
+  ctx.fillStyle = '#a78bfa';
+  ctx.font = 'bold 13px Segoe UI';
+  ctx.fillText('🪞 Mirror (दर्पण)', pointX, mirrorY + 30);
+
+  const incRad = degToRad(angle);
+  const rayLen = 160;
+  const incEndX = pointX - rayLen * Math.sin(incRad);
+  const incEndY = pointY - rayLen * Math.cos(incRad);
+
+  ctx.strokeStyle = '#f59e0b';
+  ctx.lineWidth = 3;
+  ctx.shadowColor = '#f59e0b';
+  ctx.shadowBlur = 8;
+  ctx.beginPath();
+  ctx.moveTo(incEndX, incEndY);
+  ctx.lineTo(pointX, pointY);
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  const arrowAngle = Math.atan2(pointY - incEndY, pointX - incEndX);
+  const arrowLen = 10;
+  const arrowMidX = (incEndX + pointX) / 2;
+  const arrowMidY = (incEndY + pointY) / 2;
+  ctx.fillStyle = '#f59e0b';
+  ctx.beginPath();
+  ctx.moveTo(arrowMidX + arrowLen * Math.cos(arrowAngle), arrowMidY + arrowLen * Math.sin(arrowAngle));
+  ctx.lineTo(arrowMidX + 6 * Math.cos(arrowAngle + 2.5), arrowMidY + 6 * Math.sin(arrowAngle + 2.5));
+  ctx.lineTo(arrowMidX + 6 * Math.cos(arrowAngle - 2.5), arrowMidY + 6 * Math.sin(arrowAngle - 2.5));
+  ctx.closePath();
+  ctx.fill();
+
+  const refEndX = pointX + rayLen * Math.sin(incRad);
+  const refEndY = pointY - rayLen * Math.cos(incRad);
+
+  ctx.strokeStyle = '#22c55e';
+  ctx.lineWidth = 3;
+  ctx.shadowColor = '#22c55e';
+  ctx.shadowBlur = 8;
+  ctx.beginPath();
+  ctx.moveTo(pointX, pointY);
+  ctx.lineTo(refEndX, refEndY);
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  const refArrowAngle = Math.atan2(refEndY - pointY, refEndX - pointX);
+  const refMidX = (pointX + refEndX) / 2;
+  const refMidY = (pointY + refEndY) / 2;
+  ctx.fillStyle = '#22c55e';
+  ctx.beginPath();
+  ctx.moveTo(refMidX + arrowLen * Math.cos(refArrowAngle), refMidY + arrowLen * Math.sin(refArrowAngle));
+  ctx.lineTo(refMidX + 6 * Math.cos(refArrowAngle + 2.5), refMidY + 6 * Math.sin(refArrowAngle + 2.5));
+  ctx.lineTo(refMidX + 6 * Math.cos(refArrowAngle - 2.5), refMidY + 6 * Math.sin(refArrowAngle - 2.5));
+  ctx.closePath();
+  ctx.fill();
+
+  if(angle > 10){
+    ctx.strokeStyle = 'rgba(251,191,36,0.3)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(pointX, pointY, 40, -Math.PI/2 - incRad, -Math.PI/2, false);
+    ctx.stroke();
+    ctx.fillStyle = '#f59e0b';
+    ctx.font = 'bold 13px Segoe UI';
+    const labelAngleI = -Math.PI/2 - incRad/2;
+    ctx.fillText('∠i=' + angle + '°', pointX + 55 * Math.cos(labelAngleI), pointY + 55 * Math.sin(labelAngleI));
+  }
+
+  if(angle > 10){
+    ctx.strokeStyle = 'rgba(34,197,94,0.3)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(pointX, pointY, 50, -Math.PI/2, -Math.PI/2 + incRad, false);
+    ctx.stroke();
+    ctx.fillStyle = '#22c55e';
+    ctx.font = 'bold 13px Segoe UI';
+    const labelAngleR = -Math.PI/2 + incRad/2;
+    ctx.fillText('∠r=' + angle + '°', pointX + 65 * Math.cos(labelAngleR), pointY + 65 * Math.sin(labelAngleR));
+  }
+
+  ctx.fillStyle = '#fff';
+  ctx.beginPath();
+  ctx.arc(pointX, pointY, 5, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.font = 'bold 12px Segoe UI';
+  ctx.fillStyle = '#f59e0b';
+  ctx.textAlign = 'left';
+  ctx.fillText('Incident Ray (आपतित किरण)', incEndX - 10, incEndY - 8);
+  ctx.fillStyle = '#22c55e';
+  ctx.textAlign = 'right';
+  ctx.fillText('Reflected Ray (परावर्तित किरण)', refEndX + 10, refEndY - 8);
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '11px Segoe UI';
+  ctx.fillText('Point of Incidence (आपतन बिंदु)', pointX, pointY + 45);
+}
+
+function updateAngle(val){
+  const a = parseInt(val);
+  angleVal.textContent = a + '°';
+  incAngle.textContent = a + '°';
+  refAngle.textContent = a + '°';
+  drawScene(a);
+}
+
+slider.addEventListener('input', function(){ updateAngle(this.value) });
+
+canvas.addEventListener('click', function(e){
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = W / rect.width;
+  const clickX = (e.clientX - rect.left) * scaleX;
+  const clickY = (e.clientY - rect.top) * (H / rect.height);
+  const dx = clickX - pointX;
+  const dy = pointY - clickY;
+  if(dy > 0){
+    let ang = Math.round(Math.atan2(Math.abs(dx), dy) * 180 / Math.PI);
+    ang = Math.max(5, Math.min(85, ang));
+    slider.value = ang;
+    updateAngle(ang);
+  }
+});
+
+drawScene(45);
+
+const termDetails = {
+  incident: '<strong style="color:#f59e0b">Incident Ray (आपतित किरण):</strong> The ray of light that falls on the mirror surface. यह वह किरण है जो दर्पण की सतह पर पड़ती है।',
+  reflected: '<strong style="color:#22c55e">Reflected Ray (परावर्तित किरण):</strong> The ray of light that bounces back from the mirror surface. यह वह किरण है जो दर्पण से वापस लौटती है।',
+  normal: '<strong style="color:#8b5cf6">Normal (अभिलम्ब):</strong> A line perpendicular (90°) to the mirror surface at the point of incidence. आपतन बिंदु पर दर्पण के लंबवत रेखा।'
+};
+document.querySelectorAll('.info-item').forEach(item => {
+  item.addEventListener('click', function(){
+    document.querySelectorAll('.info-item').forEach(i => i.classList.remove('active'));
+    this.classList.add('active');
+    const d = document.getElementById('termDetail');
+    d.style.display = 'block';
+    d.innerHTML = termDetails[this.dataset.term];
+  });
+});
+
+document.querySelectorAll('#lawTabs .tab').forEach(tab => {
+  tab.addEventListener('click', function(){
+    document.querySelectorAll('#lawTabs .tab').forEach(t => t.classList.remove('active'));
+    this.classList.add('active');
+    document.getElementById('law1').style.display = this.dataset.law === '1' ? 'block' : 'none';
+    document.getElementById('law2').style.display = this.dataset.law === '2' ? 'block' : 'none';
+  });
+});
+
+const typeCanvas = document.getElementById('typeCanvas');
+const tCtx = typeCanvas.getContext('2d');
+const tW = typeCanvas.width, tH = typeCanvas.height;
+
+function drawRegular(){
+  tCtx.clearRect(0, 0, tW, tH);
+  tCtx.fillStyle = '#0a0e1a';
+  tCtx.fillRect(0, 0, tW, tH);
+  const my = tH * 0.65;
+  tCtx.strokeStyle = '#8b5cf6';
+  tCtx.lineWidth = 3;
+  tCtx.beginPath();
+  tCtx.moveTo(tW*0.1, my);
+  tCtx.lineTo(tW*0.9, my);
+  tCtx.stroke();
+  tCtx.fillStyle = '#a78bfa';
+  tCtx.font = 'bold 12px Segoe UI';
+  tCtx.textAlign = 'center';
+  tCtx.fillText('Smooth Surface (चिकनी सतह)', tW/2, my + 25);
+  const rays = [0.25, 0.4, 0.55, 0.7];
+  rays.forEach(rx => {
+    const px = tW * rx;
+    tCtx.strokeStyle = '#f59e0b';
+    tCtx.lineWidth = 2;
+    tCtx.beginPath();
+    tCtx.moveTo(px - 40, my - 80);
+    tCtx.lineTo(px, my);
+    tCtx.stroke();
+    tCtx.strokeStyle = '#22c55e';
+    tCtx.beginPath();
+    tCtx.moveTo(px, my);
+    tCtx.lineTo(px + 40, my - 80);
+    tCtx.stroke();
+  });
+  tCtx.fillStyle = '#f59e0b';
+  tCtx.font = '11px Segoe UI';
+  tCtx.fillText('Incident Rays', tW*0.2, 25);
+  tCtx.fillStyle = '#22c55e';
+  tCtx.fillText('Reflected Rays (parallel)', tW*0.75, 25);
+}
+
+function drawDiffuse(){
+  tCtx.clearRect(0, 0, tW, tH);
+  tCtx.fillStyle = '#0a0e1a';
+  tCtx.fillRect(0, 0, tW, tH);
+  const my = tH * 0.65;
+  tCtx.strokeStyle = '#8b5cf6';
+  tCtx.lineWidth = 3;
+  tCtx.beginPath();
+  tCtx.moveTo(tW*0.1, my);
+  for(let x = tW*0.1; x <= tW*0.9; x += 20){
+    tCtx.lineTo(x + 10, my - 4 + Math.random()*8);
+    tCtx.lineTo(x + 20, my);
+  }
+  tCtx.stroke();
+  tCtx.fillStyle = '#a78bfa';
+  tCtx.font = 'bold 12px Segoe UI';
+  tCtx.textAlign = 'center';
+  tCtx.fillText('Rough Surface (खुरदरी सतह)', tW/2, my + 25);
+  const rays = [0.25, 0.4, 0.55, 0.7];
+  const offsets = [-60, -30, 20, 50];
+  rays.forEach((rx, i) => {
+    const px = tW * rx;
+    tCtx.strokeStyle = '#f59e0b';
+    tCtx.lineWidth = 2;
+    tCtx.beginPath();
+    tCtx.moveTo(px - 40, my - 80);
+    tCtx.lineTo(px, my);
+    tCtx.stroke();
+    tCtx.strokeStyle = '#22c55e';
+    tCtx.beginPath();
+    tCtx.moveTo(px, my);
+    tCtx.lineTo(px + offsets[i], my - 80);
+    tCtx.stroke();
+  });
+  tCtx.fillStyle = '#f59e0b';
+  tCtx.font = '11px Segoe UI';
+  tCtx.fillText('Incident Rays (parallel)', tW*0.2, 25);
+  tCtx.fillStyle = '#22c55e';
+  tCtx.fillText('Reflected Rays (scattered)', tW*0.75, 25);
+}
+
+drawRegular();
+
+document.querySelectorAll('#typeTabs .tab').forEach(tab => {
+  tab.addEventListener('click', function(){
+    document.querySelectorAll('#typeTabs .tab').forEach(t => t.classList.remove('active'));
+    this.classList.add('active');
+    if(this.dataset.type === 'regular'){
+      drawRegular();
+      document.getElementById('typeDesc').innerHTML = 'Parallel rays reflect in the same direction from a smooth surface (mirror).<br><span style="color:#fbbf24">समतल दर्पण से समांतर किरणें एक ही दिशा में परावर्तित होती हैं।</span>';
+    } else {
+      drawDiffuse();
+      document.getElementById('typeDesc').innerHTML = 'Parallel rays scatter in different directions from a rough surface.<br><span style="color:#fbbf24">खुरदरी सतह से समांतर किरणें अलग-अलग दिशाओं में बिखर जाती हैं।</span>';
+    }
+  });
+});
+
+function checkQuiz(btn, correct){
+  const result = document.getElementById('quizResult');
+  result.style.display = 'block';
+  document.querySelectorAll('#quiz button').forEach(b => {
+    b.style.pointerEvents = 'none';
+    b.style.opacity = '0.5';
+  });
+  btn.style.opacity = '1';
+  if(correct){
+    btn.style.background = 'linear-gradient(135deg,#065f46,#059669)';
+    btn.style.color = '#fff';
+    btn.style.borderColor = '#22c55e';
+    result.innerHTML = '✅ <strong>Correct!</strong> By the first law of reflection, ∠i = ∠r = 30°<br><span style="color:#fbbf24">सही! परावर्तन के प्रथम नियम से, ∠i = ∠r = 30°</span>';
+    result.style.color = '#4ade80';
+  } else {
+    btn.style.background = 'linear-gradient(135deg,#7f1d1d,#dc2626)';
+    btn.style.color = '#fff';
+    btn.style.borderColor = '#ef4444';
+    result.innerHTML = '❌ <strong>Try again!</strong> Remember: ∠i always equals ∠r<br><span style="color:#fbbf24">गलत! याद रखें: ∠i हमेशा ∠r के बराबर होता है</span>';
+    result.style.color = '#f87171';
+    setTimeout(() => {
+      document.querySelectorAll('#quiz button').forEach(b => {
+        b.style.pointerEvents = 'auto';
+        b.style.opacity = '1';
+        b.style.background = '#1e293b';
+        b.style.color = '#94a3b8';
+        b.style.borderColor = '#334155';
+      });
+      result.style.display = 'none';
+    }, 2000);
+  }
+}
+</script>
+</body>
+</html>
