@@ -6513,6 +6513,16 @@ input::placeholder {
   padding: var(--lt-ux-chip-padding);
   cursor: pointer;
 }
+.ux-return-bar__chip[data-active="true"] {
+  border-color: rgba(255,255,255,0.85);
+  background: #58cc02;
+  color: #ffffff;
+  font-weight: 700;
+}
+span.ux-return-bar__chip {
+  cursor: default;
+  user-select: none;
+}
 .ux-return-bar__back:focus-visible,
 .ux-return-bar__chip:focus-visible,
 .ux-journey-strip__chip:focus-visible {

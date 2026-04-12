@@ -875,6 +875,7 @@ const HighlyProbableQuestions: React.FC = () => {
         <ReturnContextBar
           backTo={back || buildTrendsUrl(grade, subjectKey)}
           backLabel={backLabel}
+          currentLabel="Predicted Q's"
           quickLinks={[
             { label: "Trends", to: buildTrendsUrl(grade, subjectKey) },
             { label: "Chapter Hub", to: buildTopicHubUrl(grade, subjectKey, currentTopicKey && currentTopicKey !== "all" ? currentTopicKey : "") },

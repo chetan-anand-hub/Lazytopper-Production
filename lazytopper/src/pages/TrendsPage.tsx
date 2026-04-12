@@ -272,6 +272,7 @@ const TrendsPage: React.FC = () => {
         <ReturnContextBar
           backTo={backTo}
           backLabel={backLabel}
+          currentLabel="Trends"
           quickLinks={[
             { label: "Chapter Hub", to: `/topic-hub/${grade}/${subjectKey}` },
             { label: "Practice", to: `/practice/${grade}/${subjectKey}` },

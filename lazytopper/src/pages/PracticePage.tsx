@@ -738,6 +738,7 @@ const packTopicKey = useMemo(() => {
         <ReturnContextBar
           backTo={back || `/trends/${grade}/${subjectKey}`}
           backLabel={backLabel}
+          currentLabel="Practice"
           quickLinks={[
             { label: "Trends", to: `/trends/${grade}/${subjectKey}` },
             {

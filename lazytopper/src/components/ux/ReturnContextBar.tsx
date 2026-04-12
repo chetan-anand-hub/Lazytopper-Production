@@ -1,16 +1,26 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 type QuickLink = {
   label: string;
   to: string;
 };
 
+function isChipActive(chipTo: string, currentPath: string): boolean {
+  if (!chipTo) return false;
+  const chipBase = chipTo.split("?")[0].replace(/\/$/, "");
+  const current = currentPath.replace(/\/$/, "");
+  if (chipBase === "" || chipBase === "/") return current === "" || current === "/";
+  return current === chipBase || current.startsWith(chipBase + "/");
+}
+
 export default function ReturnContextBar(props: {
   backTo: string;
   backLabel: string;
   quickLinks?: QuickLink[];
+  currentLabel?: string;
 }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const quickLinks = Array.isArray(props.quickLinks) ? props.quickLinks : [];
 
   return (
@@ -29,18 +39,31 @@ export default function ReturnContextBar(props: {
       >
         {"<-"} {props.backLabel}
       </button>
-      {quickLinks.length > 0 ? (
+      {(quickLinks.length > 0 || props.currentLabel) ? (
         <div className="ux-return-bar__chips" aria-label="Quick navigation">
-          {quickLinks.map((chip) => (
-            <button
-              key={`${chip.label}:${chip.to}`}
-              type="button"
+          {props.currentLabel && (
+            <span
               className="ux-return-bar__chip"
-              onClick={() => navigate(chip.to)}
+              data-active="true"
+              aria-current="page"
             >
-              {chip.label}
-            </button>
-          ))}
+              {props.currentLabel}
+            </span>
+          )}
+          {quickLinks.map((chip) => {
+            const active = isChipActive(chip.to, location.pathname);
+            return (
+              <button
+                key={`${chip.label}:${chip.to}`}
+                type="button"
+                className="ux-return-bar__chip"
+                data-active={active ? "true" : "false"}
+                onClick={() => navigate(chip.to)}
+              >
+                {chip.label}
+              </button>
+            );
+          })}
         </div>
       ) : null}
     </div>

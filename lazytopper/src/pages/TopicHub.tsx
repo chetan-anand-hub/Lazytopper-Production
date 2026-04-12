@@ -564,7 +564,7 @@ export default function TopicHub() {
     <div style={{ minHeight: "100vh", background: "var(--bg)" }}>
       <div style={{ maxWidth: 820, margin: "0 auto", padding: "16px 16px 80px" }}>
 
-        <ReturnContextBar backTo={backTo} backLabel={backLabel} />
+        <ReturnContextBar backTo={backTo} backLabel={backLabel} currentLabel="Chapter Hub" />
 
         {phase !== "learning" && (
           <div style={{ marginTop: 12 }}>
