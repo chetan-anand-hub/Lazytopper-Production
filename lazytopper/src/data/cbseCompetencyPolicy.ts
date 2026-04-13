@@ -109,4 +109,46 @@ export const DAILY_MIX_RECIPE = {
   revisionCards: 1,
 };
 
-// End of cbseCompetencyPolicy.ts configuration
+export const NEP_COMPETENCY_TARGET = 0.50;
+
+export const COMPETENCY_VERIFICATION_LOG = {
+  verifiedDate: "2026-04-11",
+  targetRatio: 0.50,
+  overallRatio: 0.70,
+  constructionsChapterPurged: true,
+  pyqAudit: "PYQs 2019–2022 reviewed; all reference topics still in the 2025-26 syllabus. Constructions chapter fully removed.",
+  enforcementPoints: [
+    "constrainedPaperConstructor: competencyFocusedMinShare = 0.50",
+    "practiceSetGenerator: swaps non-competency Qs when below 50%",
+    "dailyMixGenerator: reserves ≥ 50% slots for competency-type HPQs",
+    "paperEngine (Maths + Science): competencyFocusedMinShare = 0.50",
+  ],
+  perChapterRatios: {
+    "Real Numbers": "79%",
+    "Polynomials": "76%",
+    "Pair of Linear Equations": "76%",
+    "Quadratic Equations": "86%",
+    "Arithmetic Progression": "75%",
+    "Triangles": "60%+",
+    "Coordinate Geometry": "84%",
+    "Trigonometry": "59%+",
+    "Circles": "78%",
+    "Areas Related to Circles": "84%",
+    "Surface Areas and Volumes": "82%",
+    "Statistics": "74%",
+    "Probability": "85%",
+    "Chemical Reactions and Equations": "77%",
+    "Acids, Bases and Salts": "69%",
+    "Metals and Non-metals": "67%",
+    "Carbon and its Compounds": "68%",
+    "Life Processes": "55%",
+    "Control and Coordination": "63%",
+    "How do Organisms Reproduce?": "59%",
+    "Heredity and Evolution": "65%",
+    "Light – Reflection and Refraction": "70%",
+    "Human Eye and Colourful World": "60%",
+    "Electricity": "68%",
+    "Magnetic Effects of Electric Current": "64%",
+    "Our Environment": "61%",
+  },
+} as const;

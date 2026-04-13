@@ -7,7 +7,8 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     questionText: "The zeroes of the polynomial x² − 3 are:",
     options: ["±√3", "±3", "3, 0", "√3, 0"],
     answer: "±√3",
-    finalAnswer: "±√3"
+    finalAnswer: "±√3",
+    isCompetencyBased: false,
   },
   {
     id: "POLY-E02", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
@@ -16,7 +17,8 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     options: ["5", "6", "−5", "−6"],
     answer: "5",
     solutionSteps: ["Sum of zeroes = −(−5)/1 = 5"],
-    finalAnswer: "5"
+    finalAnswer: "5",
+    isCompetencyBased: false,
   },
   {
     id: "POLY-E03", subject: "Maths", topicKey: "Polynomials", subtopic: "Graph & Type of Polynomial",
@@ -24,7 +26,8 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     questionText: "The graph of a quadratic polynomial p(x) = ax² + bx + c opens upward when:",
     options: ["a > 0", "a < 0", "a = 0", "c > 0"],
     answer: "a > 0",
-    finalAnswer: "a > 0"
+    finalAnswer: "a > 0",
+    isCompetencyBased: false,
   },
   {
     id: "POLY-E04", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
@@ -32,7 +35,8 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     questionText: "How many zeroes can a cubic polynomial have at most?",
     options: ["1", "2", "3", "4"],
     answer: "3",
-    finalAnswer: "3"
+    finalAnswer: "3",
+    isCompetencyBased: false,
   },
   {
     id: "POLY-E05", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
@@ -41,7 +45,8 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     options: ["2", "4", "−2", "8"],
     answer: "2",
     solutionSteps: ["Let zeroes be α and 1/α", "Product = α × (1/α) = 1", "Product of zeroes = k/2 = 1", "k = 2"],
-    finalAnswer: "2"
+    finalAnswer: "2",
+    isCompetencyBased: false,
   },
   {
     id: "POLY-E06", subject: "Maths", topicKey: "Polynomials", subtopic: "Graph & Type of Polynomial",
@@ -49,7 +54,8 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     questionText: "The number of zeroes of a polynomial is equal to the number of points where the graph:",
     options: ["touches x-axis", "touches y-axis", "intersects x-axis", "intersects or touches x-axis"],
     answer: "intersects or touches x-axis",
-    finalAnswer: "intersects or touches x-axis"
+    finalAnswer: "intersects or touches x-axis",
+    isCompetencyBased: false,
   },
   {
     id: "POLY-E07", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
@@ -58,7 +64,8 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     options: ["0", "1", "−1", "3"],
     answer: "0",
     solutionSteps: ["p(1) = 1 − 4 + 3 = 0"],
-    finalAnswer: "0"
+    finalAnswer: "0",
+    isCompetencyBased: true,
   },
   {
     id: "POLY-E08", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
@@ -66,14 +73,16 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     questionText: "If α, β are zeroes of p(x) = ax² + bx + c, then αβ =",
     options: ["−b/a", "b/a", "c/a", "−c/a"],
     answer: "c/a",
-    finalAnswer: "c/a"
+    finalAnswer: "c/a",
+    isCompetencyBased: false,
   },
   {
     id: "POLY-E09", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
     section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
     questionText: "Find the zeroes of the polynomial p(x) = x² − 2x − 8 and verify the relationship between the zeroes and the coefficients.",
     solutionSteps: ["x² − 2x − 8 = (x − 4)(x + 2)", "Zeroes: 4 and −2", "Sum = 4 + (−2) = 2 = −(−2)/1 ✓", "Product = 4 × (−2) = −8 = −8/1 ✓"],
-    finalAnswer: "Zeroes: 4, −2"
+    finalAnswer: "Zeroes: 4, −2",
+    isCompetencyBased: true,
   },
   {
     id: "POLY-E10", subject: "Maths", topicKey: "Polynomials", subtopic: "Graph & Type of Polynomial",
@@ -81,14 +90,16 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     questionText: "A polynomial of degree n has at most:",
     options: ["n zeroes", "n + 1 zeroes", "n − 1 zeroes", "2n zeroes"],
     answer: "n zeroes",
-    finalAnswer: "n zeroes"
+    finalAnswer: "n zeroes",
+    isCompetencyBased: false,
   },
   {
     id: "POLY-E11", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
     section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
     questionText: "Find a quadratic polynomial whose zeroes are 3 and −1.",
     solutionSteps: ["Sum = 3 + (−1) = 2", "Product = 3 × (−1) = −3", "Polynomial = x² − (sum)x + product = x² − 2x − 3"],
-    finalAnswer: "x² − 2x − 3"
+    finalAnswer: "x² − 2x − 3",
+    isCompetencyBased: true,
   },
   {
     id: "POLY-E12", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
@@ -96,7 +107,8 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     questionText: "Assertion (A): The polynomial x² + 1 has no real zeroes.\nReason (R): x² ≥ 0 for all real x, so x² + 1 ≥ 1 > 0.",
     options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
     answer: "Both A and R are true, and R is the correct explanation of A.",
-    finalAnswer: "Both A and R are true, and R is the correct explanation of A."
+    finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
+    isCompetencyBased: true,
   },
   {
     id: "POLY-E13", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
@@ -105,7 +117,8 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     options: ["1", "2", "3", "4"],
     answer: "3",
     solutionSteps: ["p(2) = 0 ⟹ 4 − 2k + 2 = 0 ⟹ 2k = 6 ⟹ k = 3"],
-    finalAnswer: "3"
+    finalAnswer: "3",
+    isCompetencyBased: false,
   },
   {
     id: "POLY-E14", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
@@ -114,7 +127,8 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     options: ["7/10", "10/7", "3/10", "−7/10"],
     answer: "7/10",
     solutionSteps: ["1/α + 1/β = (α + β)/(αβ) = 7/10"],
-    finalAnswer: "7/10"
+    finalAnswer: "7/10",
+    isCompetencyBased: true,
   },
   {
     id: "POLY-E15", subject: "Maths", topicKey: "Polynomials", subtopic: "Graph & Type of Polynomial",
@@ -122,14 +136,16 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     questionText: "The zeroes of a polynomial p(x) are the x-coordinates of the points where the graph of y = p(x) intersects the:",
     options: ["y-axis", "x-axis", "both axes", "origin only"],
     answer: "x-axis",
-    finalAnswer: "x-axis"
+    finalAnswer: "x-axis",
+    isCompetencyBased: false,
   },
   {
     id: "POLY-E16", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
     section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
     questionText: "Find the zeroes of p(x) = 4x² − 12x + 9.",
     solutionSteps: ["4x² − 12x + 9 = (2x − 3)²", "Zero: x = 3/2 (repeated)"],
-    finalAnswer: "x = 3/2 (repeated zero)"
+    finalAnswer: "x = 3/2 (repeated zero)",
+    isCompetencyBased: true,
   },
   {
     id: "POLY-E17", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
@@ -137,7 +153,8 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     questionText: "For a quadratic polynomial ax² + bx + c, the sum of zeroes is:",
     options: ["b/a", "−b/a", "c/a", "a/c"],
     answer: "−b/a",
-    finalAnswer: "−b/a"
+    finalAnswer: "−b/a",
+    isCompetencyBased: false,
   },
   {
     id: "POLY-E18", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
@@ -146,7 +163,8 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     options: ["3/2 and −1/3", "−3/2 and 1/3", "3/2 and 1/3", "−3/2 and −1/3"],
     answer: "3/2 and −1/3",
     solutionSteps: ["6x² − 7x − 3 = 0", "(2x − 3)(3x + 1) = 0", "x = 3/2 or x = −1/3"],
-    finalAnswer: "3/2 and −1/3"
+    finalAnswer: "3/2 and −1/3",
+    isCompetencyBased: true,
   },
   {
     id: "POLY-E19", subject: "Maths", topicKey: "Polynomials", subtopic: "Graph & Type of Polynomial",
@@ -154,28 +172,32 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     questionText: "Assertion (A): A linear polynomial has exactly one zero.\nReason (R): The graph of a linear polynomial is a straight line intersecting the x-axis at exactly one point.",
     options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
     answer: "Both A and R are true, and R is the correct explanation of A.",
-    finalAnswer: "Both A and R are true, and R is the correct explanation of A."
+    finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
+    isCompetencyBased: true,
   },
   {
     id: "POLY-E20", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
     section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
     questionText: "Find a quadratic polynomial with zeroes 1/4 and −1.",
     solutionSteps: ["Sum = 1/4 + (−1) = −3/4", "Product = (1/4)(−1) = −1/4", "Polynomial = x² − (−3/4)x + (−1/4) = x² + 3x/4 − 1/4", "Multiply by 4: 4x² + 3x − 1"],
-    finalAnswer: "4x² + 3x − 1"
+    finalAnswer: "4x² + 3x − 1",
+    isCompetencyBased: true,
   },
   {
     id: "POLY-M01", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
     section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "If α, β are zeroes of p(x) = 2x² − 5x + 7, find the value of α² + β².",
     solutionSteps: ["α + β = 5/2, αβ = 7/2", "α² + β² = (α + β)² − 2αβ = 25/4 − 7 = 25/4 − 28/4 = −3/4"],
-    finalAnswer: "−3/4"
+    finalAnswer: "−3/4",
+    isCompetencyBased: true,
   },
   {
     id: "POLY-M02", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
     section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Find a quadratic polynomial, the sum and product of whose zeroes are −3 and 2 respectively.",
     solutionSteps: ["p(x) = x² − (sum)x + product = x² − (−3)x + 2 = x² + 3x + 2"],
-    finalAnswer: "x² + 3x + 2"
+    finalAnswer: "x² + 3x + 2",
+    isCompetencyBased: true,
   },
   {
     id: "POLY-M03", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
@@ -186,7 +208,8 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
       "(i) α/β + β/α = (α² + β²)/(αβ) = [(α+β)² − 2αβ]/αβ = [4/9 + 4]/(−2) = [40/9]/(−2) = −20/9",
       "(ii) α³ + β³ = (α+β)(α² − αβ + β²) = (−2/3)(40/9 − (−2)) = (−2/3)(40/9 + 2) = (−2/3)(58/9) = −116/27"
     ],
-    finalAnswer: "(i) −20/9, (ii) −116/27"
+    finalAnswer: "(i) −20/9, (ii) −116/27",
+    isCompetencyBased: true,
   },
   {
     id: "POLY-M04", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
@@ -198,7 +221,8 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
       "2x² − 3x + 1 = (2x − 1)(x − 1)",
       "All zeroes: √2, −√2, 1/2, 1"
     ],
-    finalAnswer: "√2, −√2, 1/2, 1"
+    finalAnswer: "√2, −√2, 1/2, 1",
+    isCompetencyBased: true,
   },
   {
     id: "POLY-M05", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
@@ -207,7 +231,8 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
     answer: "Both A and R are true, and R is the correct explanation of A.",
     solutionSteps: ["If zeroes are α and −α, sum = 0", "−(−8k)/4 = 0 ⟹ 2k = 0 ⟹ k = 0"],
-    finalAnswer: "Both A and R are true, and R is the correct explanation of A."
+    finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
+    isCompetencyBased: true,
   },
   {
     id: "POLY-M06", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
@@ -219,7 +244,8 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
       "x² − 5x + 6 = (x − 2)(x − 3)",
       "All zeroes: 1, 2, 3"
     ],
-    finalAnswer: "1, 2, 3"
+    finalAnswer: "1, 2, 3",
+    isCompetencyBased: true,
   },
   {
     id: "POLY-M07", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
@@ -232,7 +258,8 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
       "p = −(sum) = −(−1 + 6) = −5",
       "q = product = (−1)(6) = −6"
     ],
-    finalAnswer: "p = −5, q = −6"
+    finalAnswer: "p = −5, q = −6",
+    isCompetencyBased: true,
   },
   {
     id: "POLY-M08", subject: "Maths", topicKey: "Polynomials", subtopic: "Graph & Type of Polynomial",
@@ -240,14 +267,16 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     questionText: "If the graph of a quadratic polynomial p(x) touches the x-axis at exactly one point, then p(x) has:",
     options: ["two distinct real zeroes", "two equal real zeroes", "no real zeroes", "one real zero only"],
     answer: "two equal real zeroes",
-    finalAnswer: "two equal real zeroes"
+    finalAnswer: "two equal real zeroes",
+    isCompetencyBased: false,
   },
   {
     id: "POLY-M09", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
     section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Find a quadratic polynomial whose zeroes are 5 − 3√2 and 5 + 3√2.",
     solutionSteps: ["Sum = 10", "Product = (5)² − (3√2)² = 25 − 18 = 7", "p(x) = x² − 10x + 7"],
-    finalAnswer: "x² − 10x + 7"
+    finalAnswer: "x² − 10x + 7",
+    isCompetencyBased: true,
   },
   {
     id: "POLY-M10", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
@@ -259,7 +288,8 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
       "New product = (2α + 1)(2β + 1) = 4αβ + 2(α + β) + 1 = −8 + 2 + 1 = −5",
       "Polynomial = x² − 4x − 5"
     ],
-    finalAnswer: "x² − 4x − 5"
+    finalAnswer: "x² − 4x − 5",
+    isCompetencyBased: true,
   },
   {
     id: "POLY-M11", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
@@ -271,7 +301,8 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
       "(iii) x = 2",
       "(iv) Downward (a = −1 < 0)"
     ],
-    finalAnswer: "(i) 1, 3 (ii) 1 (iii) x = 2 (iv) Downward"
+    finalAnswer: "(i) 1, 3 (ii) 1 (iii) x = 2 (iv) Downward",
+    isCompetencyBased: true,
   },
   {
     id: "POLY-M12", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
@@ -280,7 +311,8 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     options: ["−16", "8", "2", "−8"],
     answer: "−16",
     solutionSteps: ["α + β = 6", "3α + 2β = 20 and α + β = 6", "Subtract: 2α + β = 14", "From α + β = 6: β = 6 − α, so 2α + 6 − α = 14, α = 8, β = −2", "k = αβ = 8(−2) = −16"],
-    finalAnswer: "−16"
+    finalAnswer: "−16",
+    isCompetencyBased: true,
   },
   {
     id: "POLY-M13", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
@@ -292,7 +324,8 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
       "Set remainder = x + a: 2k − 9 = 1 ⟹ k = 5",
       "a = 10 − 5(8−5) = 10 − 15 = −5"
     ],
-    finalAnswer: "k = 5, a = −5"
+    finalAnswer: "k = 5, a = −5",
+    isCompetencyBased: true,
   },
   {
     id: "POLY-M14", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
@@ -300,14 +333,16 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     questionText: "Assertion (A): A quadratic polynomial whose zeroes are −3 and 4 is x² − x − 12.\nReason (R): If α, β are zeroes, the polynomial is x² − (α+β)x + αβ.",
     options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
     answer: "Both A and R are true, and R is the correct explanation of A.",
-    finalAnswer: "Both A and R are true, and R is the correct explanation of A."
+    finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
+    isCompetencyBased: true,
   },
   {
     id: "POLY-M15", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
     section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Find the zeroes of p(x) = 3x² − x − 4 and verify the relation between zeroes and coefficients.",
     solutionSteps: ["3x² − x − 4 = (3x − 4)(x + 1)", "Zeroes: 4/3 and −1", "Sum = 4/3 − 1 = 1/3 = −(−1)/3 ✓", "Product = (4/3)(−1) = −4/3 = −4/3 ✓"],
-    finalAnswer: "4/3 and −1"
+    finalAnswer: "4/3 and −1",
+    isCompetencyBased: true,
   },
   {
     id: "POLY-M16", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
@@ -319,7 +354,8 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
       "1/α + 1/β = (α+β)/(αβ) = (−1/6)/(−1/3) = 1/2",
       "Result = −25/12 + 2(1/2) + 3(−1/3) = −25/12 + 1 − 1 = −25/12"
     ],
-    finalAnswer: "−25/12"
+    finalAnswer: "−25/12",
+    isCompetencyBased: true,
   },
   {
     id: "POLY-M17", subject: "Maths", topicKey: "Polynomials", subtopic: "Graph & Type of Polynomial",
@@ -331,21 +367,24 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
       "(iii) At least quadratic (2 zeroes)",
       "(iv) p(x) = a(x+2)(x−2) = a(x²−4). p(0) = −4a = −8 ⟹ a = 2. p(x) = 2x² − 8. Check: p(4) = 32−8 = 24 ✓"
     ],
-    finalAnswer: "(i) 2 zeroes: −2, 2 (ii) −8 (iii) Quadratic (iv) p(x) = 2x² − 8"
+    finalAnswer: "(i) 2 zeroes: −2, 2 (ii) −8 (iii) Quadratic (iv) p(x) = 2x² − 8",
+    isCompetencyBased: true,
   },
   {
     id: "POLY-M18", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
     section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "For what value of k, is −2 a zero of the polynomial 3x² + 4x + 2k?",
     solutionSteps: ["p(−2) = 3(4) + 4(−2) + 2k = 0", "12 − 8 + 2k = 0", "2k = −4, k = −2"],
-    finalAnswer: "k = −2"
+    finalAnswer: "k = −2",
+    isCompetencyBased: true,
   },
   {
     id: "POLY-M19", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
     section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "If α, β are zeroes of x² − (k + 6)x + 2(2k − 1), and α + β = αβ/2, find the value of k.",
     solutionSteps: ["α + β = k + 6, αβ = 2(2k−1) = 4k − 2", "Given: k + 6 = (4k−2)/2 = 2k − 1", "k + 6 = 2k − 1 ⟹ k = 7"],
-    finalAnswer: "k = 7"
+    finalAnswer: "k = 7",
+    isCompetencyBased: true,
   },
   {
     id: "POLY-M20", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
@@ -354,7 +393,8 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     options: ["4", "10", "16", "2"],
     answer: "4",
     solutionSteps: ["(α−β)² = (α+β)² − 4αβ = 16 − 12 = 4"],
-    finalAnswer: "4"
+    finalAnswer: "4",
+    isCompetencyBased: true,
   },
   {
     id: "POLY-H01", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
@@ -366,7 +406,8 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
       "Divide 3x⁴ + 6x³ − 2x² − 10x − 5 by (3x² − 5) to get x² + 2x + 1 = (x+1)²",
       "All zeroes: √(5/3), −√(5/3), −1, −1"
     ],
-    finalAnswer: "√(5/3), −√(5/3), −1 (repeated)"
+    finalAnswer: "√(5/3), −√(5/3), −1 (repeated)",
+    isCompetencyBased: true,
   },
   {
     id: "POLY-H02", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
@@ -380,7 +421,8 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
       "Zeroes: 2, 4, 6 (or 6, 4, 2)",
       "c = −αβγ = −(2)(4)(6) = −48"
     ],
-    finalAnswer: "c = −48"
+    finalAnswer: "c = −48",
+    isCompetencyBased: true,
   },
   {
     id: "POLY-H03", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
@@ -393,7 +435,8 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
       "Remaining zeroes: x = −1/2 and x = 1",
       "All zeroes: 2+√3, 2−√3, 1, −1/2"
     ],
-    finalAnswer: "2+√3, 2−√3, 1, −1/2"
+    finalAnswer: "2+√3, 2−√3, 1, −1/2",
+    isCompetencyBased: true,
   },
   {
     id: "POLY-H04", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
@@ -407,7 +450,8 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
       "New product = 1/((α+1)(β+1)) = a/(a − b + c)",
       "Polynomial: (a−b+c)x² − (2a−b)x + a"
     ],
-    finalAnswer: "(a−b+c)x² − (2a−b)x + a"
+    finalAnswer: "(a−b+c)x² − (2a−b)x + a",
+    isCompetencyBased: true,
   },
   {
     id: "POLY-H05", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
@@ -419,7 +463,8 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
       "From (ii) − (i): a = −3",
       "b = −7 − 2(−3) = −1"
     ],
-    finalAnswer: "a = −3, b = −1"
+    finalAnswer: "a = −3, b = −1",
+    isCompetencyBased: true,
   },
   {
     id: "POLY-H06", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
@@ -429,7 +474,8 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
       "x² − px − p − c = 0, so α + β = p, αβ = −p − c",
       "(α+1)(β+1) = αβ + α + β + 1 = (−p − c) + p + 1 = 1 − c"
     ],
-    finalAnswer: "(α+1)(β+1) = 1 − c"
+    finalAnswer: "(α+1)(β+1) = 1 − c",
+    isCompetencyBased: true,
   },
   {
     id: "POLY-H07", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
@@ -442,7 +488,8 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
       "Given remainder = x + a: coefficient of x: 2k − 9 = 1 ⟹ k = 5",
       "Constant: a = 10 + 25 − 40 = −5"
     ],
-    finalAnswer: "k = 5, a = −5"
+    finalAnswer: "k = 5, a = −5",
+    isCompetencyBased: true,
   },
   {
     id: "POLY-H08", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
@@ -451,7 +498,8 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     solutionSteps: [
       "(α² − β²)/(α − β) = α + β = 2"
     ],
-    finalAnswer: "2"
+    finalAnswer: "2",
+    isCompetencyBased: true,
   },
   {
     id: "POLY-H09", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
@@ -464,7 +512,8 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
       "Note x = 2: 8 − 12 + 6 − 2 = 0, so (x−2) divides x³ − 3x² + 3x − 2",
       "g(x) = (x³ − 3x² + 3x − 2)/(x − 2) = x² − x + 1"
     ],
-    finalAnswer: "g(x) = x² − x + 1"
+    finalAnswer: "g(x) = x² − x + 1",
+    isCompetencyBased: true,
   },
   {
     id: "POLY-H10", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
@@ -476,7 +525,8 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
       "(iii) Zeroes: x = 1/2 and x = −2/3",
       "(iv) A(x) > 0 when x > 1/2 or x < −2/3 (practically x > 1/2 since dimensions must be positive)"
     ],
-    finalAnswer: "(i) (2x−1)(3x+2), (ii) 5×11=55, (iii) 1/2, −2/3, (iv) x > 1/2"
+    finalAnswer: "(i) (2x−1)(3x+2), (ii) 5×11=55, (iii) 1/2, −2/3, (iv) x > 1/2",
+    isCompetencyBased: true,
   },
   {
     id: "POLY-H11", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
@@ -487,7 +537,8 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
       "Take k = 2 for integer coefficients: 2(x−3)(x−1/2)(x+1) = (x−3)(2x−1)(x+1)",
       "= (x−3)(2x²+x−1) = 2x³+x²−x−6x²−3x+3 = 2x³ − 5x² − 4x + 3"
     ],
-    finalAnswer: "2x³ − 5x² − 4x + 3"
+    finalAnswer: "2x³ − 5x² − 4x + 3",
+    isCompetencyBased: true,
   },
   {
     id: "POLY-H12", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
@@ -502,7 +553,8 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
       "3(25/4) − d² = 37/2 → 75/4 − d² = 74/4 → d² = 1/4 → d = 1/2",
       "Zeroes: 2, 5/2, 3"
     ],
-    finalAnswer: "2, 5/2, 3"
+    finalAnswer: "2, 5/2, 3",
+    isCompetencyBased: true,
   },
   {
     id: "POLY-H13", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
@@ -513,7 +565,8 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
       "α² + β² = (α+β)² − 2αβ = 25/4 − 4 = 25/4 − 16/4 = 9/4"
     ],
     answer: "9/4",
-    finalAnswer: "α² + β² = 9/4"
+    finalAnswer: "α² + β² = 9/4",
+    isCompetencyBased: true,
   },
   {
     id: "POLY-H14", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
@@ -522,7 +575,8 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     solutionSteps: [
       "p(x) = (x−1)(x+1)(x−2)(x+2) = (x²−1)(x²−4) = x⁴ − 5x² + 4"
     ],
-    finalAnswer: "x⁴ − 5x² + 4"
+    finalAnswer: "x⁴ − 5x² + 4",
+    isCompetencyBased: true,
   },
   {
     id: "POLY-H15", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
@@ -536,7 +590,8 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
       "2x² + 5x + 2 = (2x + 1)(x + 2)",
       "Zeroes: −1/2 and −2"
     ],
-    finalAnswer: "k = 2; zeroes are −1/2 and −2"
+    finalAnswer: "k = 2; zeroes are −1/2 and −2",
+    isCompetencyBased: true,
   },
-  { id: "POLY-AR05", subject: "Maths", topicKey: "Polynomials", subtopic: "Relationship between Zeroes and Coefficients", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): A quadratic polynomial can have at most 2 zeroes.\nReason (R): The degree of a polynomial determines the maximum number of zeroes it can have.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." },
+  { id: "POLY-AR05", subject: "Maths", topicKey: "Polynomials", subtopic: "Relationship between Zeroes and Coefficients", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): A quadratic polynomial can have at most 2 zeroes.\nReason (R): The degree of a polynomial determines the maximum number of zeroes it can have.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.", isCompetencyBased: true },
 ];

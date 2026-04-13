@@ -191,6 +191,12 @@ function makeTrianglesQuestion(spec: TrianglesQuestionSpec): TrianglesPackQuesti
     explanation: [...spec.working, `Final answer: ${spec.finalAnswer ?? spec.answer}`].join(" "),
     solutionSteps: buildSolutionSteps(spec),
     finalAnswer: spec.finalAnswer ?? spec.answer,
+    isCompetencyBased: (() => {
+      const fmt = (spec.formatOverride ?? FORMAT_BY_SECTION[spec.cbseFormat]).toLowerCase();
+      if (fmt.includes("case") || fmt.includes("assertion")) return true;
+      const bl = (spec.bloomSkill ?? defaultBloom(spec.skillFamily)).toLowerCase();
+      return bl === "applying" || bl === "analysing" || bl === "evaluating" || bl === "creating";
+    })(),
     strategyHint: spec.strategyHint ?? defaultStrategyHint(spec.skillFamily),
     predictionScore: 4,
     skillFamily: spec.skillFamily,
