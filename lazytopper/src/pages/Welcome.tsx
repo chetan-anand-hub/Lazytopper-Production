@@ -46,6 +46,12 @@ export default function Welcome() {
           </p>
         </div>
 
+        <div style={{
+          height: 1,
+          background: "rgba(255,255,255,0.1)",
+          marginBottom: 28,
+        }} />
+
         <button
           onClick={() => {
             if (user) {
@@ -64,7 +70,7 @@ export default function Welcome() {
           Get My Study Plan →
         </button>
 
-        <div style={{ textAlign: "center", marginBottom: 40 }}>
+        <div style={{ textAlign: "center", marginBottom: 56 }}>
           <a
             href="/trends/10/Maths"
             onClick={(e) => { e.preventDefault(); navigate("/trends/10/Maths"); }}
