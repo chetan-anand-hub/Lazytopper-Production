@@ -160,7 +160,7 @@ function buildRevisionSegment(subject: "Maths" | "Science", seed: number): Missi
         payload: {
           topicKey: normalizeTopicKey(bucket.topic) || bucket.topic,
           topic: bucket.topic,
-          stem: buildQuestionStem(q).split("\n")[0] || `Review key concepts from ${bucket.topic}.`,
+          stem: buildQuestionStem(q) || `Review key concepts from ${bucket.topic}.`,
         },
       });
     }
