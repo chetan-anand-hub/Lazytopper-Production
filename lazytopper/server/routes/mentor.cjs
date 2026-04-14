@@ -11,7 +11,7 @@ function createMentorRoute(deps) {
     sendJson, sendJsonWithHeaders, readJson, extractJsonObjectFromText,
     callGemini, callClaude, toClaudeMessages, selectModelForRequest,
     telemetry,
-    GEMINI_MODEL, CLAUDE_MODEL_SONNET, CLAUDE_MODEL_HAIKU,
+    GEMINI_MODEL, GEMINI_TUTOR_MODEL, CLAUDE_MODEL_SONNET, CLAUDE_MODEL_HAIKU,
     ACTIVE_PROVIDER, STUB_MODE, HAS_ANTHROPIC_PROXY, IS_DEV,
     TEACH_CACHE_TTL_MS, MAX_HISTORY_TURNS,
     tryParseJsonStrict,
@@ -142,7 +142,7 @@ function createMentorRoute(deps) {
 
   const responseBuilder = createMentorResponseBuilder({
     callGemini, callClaude, toClaudeMessages,
-    GEMINI_MODEL, HAS_ANTHROPIC_PROXY, IS_DEV,
+    GEMINI_MODEL, GEMINI_TUTOR_MODEL, HAS_ANTHROPIC_PROXY, IS_DEV,
     tryParseJsonStrict, extractJsonObjectFromText,
     buildGeminiImagePart,
     isStructuredMode, isValidMentorProtocol,
