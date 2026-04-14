@@ -84,32 +84,6 @@ export const RN2_PACK2: CanonicalQuestion[] = [
     "ncertRef": "Ex 1.3"
   },
   {
-    "id": "RN2-007",
-    "subject": "Maths",
-    "topicKey": "Real Numbers",
-    "subtopic": "HCF and LCM",
-    "section": "B",
-    "marks": 2,
-    "format": "Short",
-    "difficulty": "Medium",
-    "bloomSkill": "Applying",
-    "questionText": "Find HCF(117, 65) and express it in the form 117x + 65y.",
-    "options": [],
-    "answer": "HCF = 13",
-    "solutionSteps": [
-      "117 = 65 × 1 + 52",
-      "65 = 52 × 1 + 13",
-      "52 = 13 × 4 + 0",
-      "HCF = 13",
-      "Back-substituting: 13 = 117 × 9 + 65 × (-16) (Extended Euclidean Algorithm)"
-    ],
-    "finalAnswer": "HCF = 13",
-    "isCompetencyBased": true,
-    "pyqYear": "2020",
-    "pyqSet": "A",
-    "ncertRef": "Ex 1.1"
-  },
-  {
     "id": "RN2-008",
     "subject": "Maths",
     "topicKey": "Real Numbers",

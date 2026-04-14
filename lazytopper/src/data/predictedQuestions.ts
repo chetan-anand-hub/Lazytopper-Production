@@ -53,35 +53,6 @@ export interface PredictedQuestion {
 const predictedQuestionsBase: PredictedQuestion[] = [
   // ========== REAL NUMBERS (HIGH-ROI) ==========
 
-  {
-    id: "2026-RN-SA-01",
-    topicKey: "Real Numbers",
-    subtopic: "Euclid’s Division Lemma",
-    kind: "Short",
-    section: "B",
-    marks: 2,
-    difficulty: "Easy",
-    bloomSkill: "Understanding",
-    questionText:
-      "Using Euclid’s division lemma, show that the square of any positive integer is either of the form 3m or 3m + 1 for some integer m.",
-    answer:
-      "If n = 3q or 3q + 1 or 3q + 2, then n² is of the form 3m or 3m + 1.",
-    finalAnswer:
-      "Every perfect square is of the form 3m or 3m + 1 (never 3m + 2).",
-    explanation:
-      "Take n = 3q, 3q + 1 or 3q + 2. Then n² = 9q², 9q² + 6q + 1, or 9q² + 12q + 4. The first two can be written as 3m or 3m + 1. The last becomes 3(3q² + 4q + 1) + 1, so it is also 3m + 1. So n² is either 3m or 3m + 1.",
-    solutionSteps: [
-      "By Euclid’s lemma, any integer n can be written as 3q, 3q + 1 or 3q + 2.",
-      "Compute n² for each case.",
-      "Factor out 3 wherever possible and identify the remainder.",
-      "Show that the remainder is only 0 or 1 (never 2).",
-      "Conclude that n² is of the form 3m or 3m + 1.",
-    ],
-    strategyHint:
-      "Express n in terms of 3q + r and then square; the pattern of remainders appears automatically.",
-    pastBoardYear: "2023",
-    policyTag: "Number theory pattern/Euclid lemma",
-  },
 
   {
     id: "2026-RN-SA-02",

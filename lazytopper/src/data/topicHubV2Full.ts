@@ -735,10 +735,7 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
       "Shows up in proofs and 1–3 mark reasoning questions that are easy if you know the structure."
     ],
     "definitions": [
-      {
-        "title": "Euclid’s Division Lemma and Algorithm",
-        "description": "Euclid’s division lemma states a = bq + r (0 ≤ r < b); Euclid’s algorithm uses repeated division to find the HCF of two positive integers."
-      },
+
       {
         "title": "Fundamental Theorem of Arithmetic",
         "description": "Every composite number can be expressed as a product of prime numbers in a unique way (apart from the order of factors)."
@@ -768,7 +765,6 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     ],
     "scoreTips": [
       "Memorise the template of irrationality proof once, then reuse it (just change numbers).",
-      "Practise Euclid’s algorithm on various numbers so the steps become automatic.",
       "Do all NCERT and exemplar reasoning questions at least twice.",
       "Before exam, quickly revise: prime factorisation → terminating or not, with examples."
     ],
@@ -779,8 +775,8 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
         "question": "Is 7/40 terminating or non-terminating?"
       },
       {
-        "title": "Write HCF(42, 70) using Euclid’s division algorithm.",
-        "question": "Write HCF(42, 70) using Euclid’s division algorithm."
+        "title": "Find HCF and LCM of 12 and 18 using prime factorisation.",
+        "question": "Find HCF and LCM of 12 and 18 using prime factorisation."
       }
     ]
   },
