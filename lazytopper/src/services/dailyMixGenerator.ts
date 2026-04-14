@@ -9,6 +9,14 @@ import { canonicalChapters } from "../data/syllabus/cbse10Canonical";
 import { loadTopicMasterySnapshot, type TopicHubMasterySnapshot } from "./topicHubMastery";
 import { getDueReviews as getSRDueReviews } from "./spacedRepetitionEngine";
 
+function buildQuestionStem(q: { question?: string; assertion?: string; reason?: string; kind?: string; type?: string }): string {
+  const isAR = q.kind === "assertion-reason" || q.type === "AssertionReason" || q.type === "Assertion-Reasoning" || q.type === "AssertionReasoning";
+  if (isAR && (q.assertion || q.reason)) {
+    return `${q.question || ""}\n\nAssertion: ${q.assertion || ""}\nReason: ${q.reason || ""}`;
+  }
+  return String(q.question || "");
+}
+
 export type DailyMixIntensity = "light" | "normal" | "hard";
 
 export interface DailyMixContext {
@@ -107,7 +115,7 @@ function pickRevisionCopy(topicKey: string, fallbackLabel: string): string {
 function toQuestionItem(q: HPQQuestion, topicLabel: string, index: number): DailyMixItem {
   const marks = Number.isFinite(q.marks) ? q.marks : 1;
   const difficulty = String(q.difficulty || "Medium");
-  const stem = String(q.question || "").trim();
+  const stem = buildQuestionStem(q).trim();
   const mustCrackLabel = ["Must-crack Q1", "Must-crack Q2", "Must-crack Q3"][index] || `Must-crack Q${index + 1}`;
   return {
     id: `dailymix-q-${String(q.id || `q-${index + 1}`)}`,

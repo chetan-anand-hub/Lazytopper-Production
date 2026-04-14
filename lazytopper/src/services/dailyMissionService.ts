@@ -10,6 +10,14 @@ import type { StudySessionLog } from "./sessionLogger";
 import { getActivePaceProfile, getProfileConfig, loadPaceProfile, type PaceProfileType } from "./paceProfileService";
 import { loadTopicMasterySnapshot } from "./topicHubMastery";
 
+function buildQuestionStem(q: { question?: string; assertion?: string; reason?: string; kind?: string; type?: string }): string {
+  const isAR = q.kind === "assertion-reason" || q.type === "AssertionReason" || q.type === "Assertion-Reasoning" || q.type === "AssertionReasoning";
+  if (isAR && (q.assertion || q.reason)) {
+    return `${q.question || ""}\n\nAssertion: ${q.assertion || ""}\nReason: ${q.reason || ""}`;
+  }
+  return String(q.question || "");
+}
+
 interface PracticeQuestionView {
   id: string;
   questionText: string;
@@ -152,7 +160,7 @@ function buildRevisionSegment(subject: "Maths" | "Science", seed: number): Missi
         payload: {
           topicKey: normalizeTopicKey(bucket.topic) || bucket.topic,
           topic: bucket.topic,
-          stem: String(q.question || "").split("\n")[0] || `Review key concepts from ${bucket.topic}.`,
+          stem: buildQuestionStem(q).split("\n")[0] || `Review key concepts from ${bucket.topic}.`,
         },
       });
     }
@@ -212,7 +220,7 @@ function buildLearningSegment(topicSlug: string, subject: "Maths" | "Science", s
           questionId: String(q.id),
           topicKey: topicSlug,
           topic: meta.topicName,
-          stem: String(q.question || ""),
+          stem: buildQuestionStem(q),
           marks: q.marks || 1,
           difficulty: String(q.difficulty || "Medium"),
           modelAnswer: String(q.answer || ""),
@@ -306,7 +314,7 @@ function buildPracticeSegment(topicSlug: string, subject: "Maths" | "Science", s
             questionId: String(q.id),
             topicKey: topicSlug,
             topic: meta.topicName,
-            stem: String(q.question || ""),
+            stem: buildQuestionStem(q),
             marks: q.marks || 2,
             difficulty: String(q.difficulty || "Medium"),
             modelAnswer: String(q.answer || ""),
@@ -344,7 +352,7 @@ function buildExamSegment(subject: "Maths" | "Science", seed: number): MissionSe
         questionId: String(q.id),
         topicKey: normalizeTopicKey(bucket.topic) || bucket.topic,
         topic: bucket.topic,
-        stem: String(q.question || ""),
+        stem: buildQuestionStem(q),
         marks: q.marks || 3,
         difficulty: String(q.difficulty || "Hard"),
         modelAnswer: String(q.answer || ""),
