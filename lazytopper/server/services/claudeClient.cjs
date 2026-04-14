@@ -126,6 +126,9 @@ function createClaudeClient(cfg) {
       return { provider: 'claude', model: CLAUDE_MODEL_SONNET };
     }
 
+    // All non-visual tutor text routes to Gemini (gemini-2.5-pro).
+    // The prior Claude Haiku branch for short "simple factual" queries was
+    // intentionally removed (Task #85) — Gemini Pro handles all chat queries.
     return { provider: 'gemini', model: GEMINI_MODEL };
   }
 
