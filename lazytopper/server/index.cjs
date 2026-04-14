@@ -183,6 +183,7 @@ const routeDeps = {
   sendJson, sendJsonWithHeaders, readJson,
   callGemini, callClaude,
   GEMINI_MODEL: config.GEMINI_MODEL,
+  GEMINI_TUTOR_MODEL: config.GEMINI_TUTOR_MODEL,
   CLAUDE_MODEL_SONNET: config.CLAUDE_MODEL_SONNET,
   ACTIVE_PROVIDER: config.ACTIVE_PROVIDER,
   STUB_MODE: config.STUB_MODE,

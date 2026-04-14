@@ -8,6 +8,7 @@ function createDiagramRoutes(deps) {
     callGemini,
     callClaude,
     GEMINI_MODEL,
+    GEMINI_TUTOR_MODEL,
     CLAUDE_MODEL_SONNET,
     STUB_MODE,
     HAS_ANTHROPIC_PROXY,
@@ -111,11 +112,15 @@ function createDiagramRoutes(deps) {
     if (!questionText || questionText.length < 10) {
       return sendJson(res, 400, { ok: false, error: 'questionText too short' });
     }
+    const compareMode =
+      String(req.url || '').includes('compare=true') ||
+      String(reqJson?.compare || '') === 'true';
+
     if (STUB_MODE) {
       return sendJson(res, 200, { ok: true, svg: null });
     }
-    try {
-      const diagramPrompt = `You are a CBSE Class 10 educational diagram generator. Given a question, produce a clean SVG diagram that helps a student visualize the concept.
+
+    const diagramPrompt = `You are a CBSE Class 10 educational diagram generator. Given a question, produce a clean SVG diagram that helps a student visualize the concept.
 
 RULES:
 - Output ONLY valid SVG markup, nothing else. No markdown, no backticks, no explanation.
@@ -128,23 +133,80 @@ RULES:
 
 Question: ${questionText}`;
 
+    function extractSvg(text) {
+      const t = String(text || '');
+      if (!t || t.includes('NO_DIAGRAM') || !t.includes('<svg')) return null;
+      const m = t.match(/<svg[\s\S]*?<\/svg>/i);
+      if (!m) return null;
+      let svg = m[0];
+      svg = svg.replace(/<script[\s\S]*?<\/script>/gi, '');
+      svg = svg.replace(/on\w+="[^"]*"/gi, '');
+      return svg || null;
+    }
+
+    const geminiModel = GEMINI_TUTOR_MODEL || GEMINI_MODEL;
+
+    async function callGeminiForSvg() {
       const contents = [{ role: 'user', parts: [{ text: diagramPrompt }] }];
-      const geminiResult = await callGemini(GEMINI_MODEL, contents, {
+      const result = await callGemini(geminiModel, contents, {
         temperature: 0.3,
         maxOutputTokens: 2000,
       });
-      const text = String(geminiResult?.text || '');
-      if (!text || text.includes('NO_DIAGRAM') || !text.includes('<svg')) {
-        return sendJson(res, 200, { ok: true, svg: null });
+      return extractSvg(result?.text);
+    }
+
+    async function callClaudeForSvg() {
+      if (!HAS_ANTHROPIC_PROXY) return null;
+      const messages = [{ role: 'user', content: diagramPrompt }];
+      const result = await callClaude(CLAUDE_MODEL_SONNET, messages, '', {
+        maxTokens: 2000,
+        temperature: 0.3,
+      });
+      return extractSvg(result?.text);
+    }
+
+    try {
+      if (compareMode) {
+        const [claudeSvg, geminiSvg] = await Promise.all([
+          callClaudeForSvg().catch((err) => {
+            console.warn('[generate-diagram] Claude compare error:', err?.message);
+            return null;
+          }),
+          callGeminiForSvg().catch((err) => {
+            console.warn('[generate-diagram] Gemini compare error:', err?.message);
+            return null;
+          }),
+        ]);
+        return sendJson(res, 200, {
+          ok: true,
+          compare: true,
+          claude: { svg: claudeSvg, model: CLAUDE_MODEL_SONNET, provider: 'claude' },
+          gemini: { svg: geminiSvg, model: geminiModel, provider: 'gemini' },
+        });
       }
-      const svgMatch = text.match(/<svg[\s\S]*?<\/svg>/i);
-      if (!svgMatch) {
-        return sendJson(res, 200, { ok: true, svg: null });
+
+      if (HAS_ANTHROPIC_PROXY) {
+        const claudeSvg = await callClaudeForSvg().catch((err) => {
+          console.warn('[generate-diagram] Claude error, falling back to Gemini:', err?.message);
+          return null;
+        });
+        if (claudeSvg) {
+          return sendJson(res, 200, {
+            ok: true,
+            svg: claudeSvg,
+            provider: 'claude',
+            model: CLAUDE_MODEL_SONNET,
+          });
+        }
       }
-      let svg = svgMatch[0];
-      svg = svg.replace(/<script[\s\S]*?<\/script>/gi, '');
-      svg = svg.replace(/on\w+="[^"]*"/gi, '');
-      return sendJson(res, 200, { ok: true, svg });
+
+      const geminiSvg = await callGeminiForSvg();
+      return sendJson(res, 200, {
+        ok: true,
+        svg: geminiSvg,
+        provider: 'gemini',
+        model: geminiModel,
+      });
     } catch (err) {
       console.error('[generate-diagram] Error:', err?.message || err);
       return sendJson(res, 200, { ok: true, svg: null });
