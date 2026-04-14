@@ -1058,15 +1058,15 @@
       "generatedAt": "2026-04-11T14:47:20.473Z",
       "topicKey": "Metals and Non-Metals"
     },
-    "sin-cosine-graph": {
+    "pythagoras-theorem": {
       "subject": "maths",
-      "chapter": "trigonometry",
-      "conceptName": "Sin Cosine Graph",
-      "slug": "sin-cosine-graph",
-      "filePath": "/app/visuals/maths/trigonometry/sin-cosine-graph.html",
-      "sizeBytes": 10462,
-      "generatedAt": "2026-04-14T09:53:51.715Z",
-      "topic": "Trigonometry",
+      "chapter": "triangles",
+      "conceptName": "Pythagoras Theorem",
+      "slug": "pythagoras-theorem",
+      "filePath": "/app/visuals/maths/triangles/pythagoras-theorem.html",
+      "sizeBytes": 11995,
+      "generatedAt": "2026-04-14T10:03:30.606Z",
+      "topic": "Triangles",
       "provider": "claude",
       "model": "claude-sonnet-4-6",
       "aiGenerated": true

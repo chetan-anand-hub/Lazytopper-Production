@@ -24,40 +24,29 @@ function createDiagramRoutes(deps) {
       .replace(/^-|-$/g, '');
   }
 
-  function saveVisualToDatabase({ html, requestedFilePath, subject, topic, concept, provider, model }) {
+  function isValidHtml(html) {
+    const s = (html || '').trim();
+    const hasDoctype = /^<!DOCTYPE\s+html/i.test(s) || s.startsWith('<html');
+    const hasClosingHtml = /<\/html>/i.test(s);
+    const minLength = s.length > 500;
+    return hasDoctype && hasClosingHtml && minLength;
+  }
+
+  function saveVisualToDatabase({ html, subject, topic, concept, provider, model }) {
     if (!VISUALS_DIR || !MANIFEST_PATH) return false;
+
+    if (!isValidHtml(html)) {
+      console.warn('[generate-visual] HTML failed validity check (missing doctype/</html>/min-length), not saving');
+      return false;
+    }
+
     try {
       const safeRoot = path.resolve(VISUALS_DIR);
-      let fsPath = null;
+      const subjectSlug = toSlug(subject) || 'maths';
+      const topicSlug = toSlug(topic) || 'general';
+      const conceptSlug = toSlug(concept || topic) || 'concept';
+      const fsPath = path.resolve(safeRoot, subjectSlug, topicSlug, `${conceptSlug}.html`);
 
-      if (
-        requestedFilePath &&
-        requestedFilePath.startsWith('/app/visuals/') &&
-        requestedFilePath.endsWith('.html')
-      ) {
-        const relPath = requestedFilePath.slice('/app/visuals/'.length);
-        const candidate = path.resolve(VISUALS_DIR, relPath);
-        const inSafeRoot = candidate.startsWith(safeRoot + path.sep) || candidate === safeRoot;
-        const noTraversal = !relPath.split('/').some(seg => seg === '..' || seg === '.');
-        if (inSafeRoot && noTraversal) {
-          fsPath = candidate;
-        }
-      }
-
-      if (!fsPath) {
-        const subjectSlug = toSlug(subject) || 'maths';
-        const topicSlug = toSlug(topic) || 'general';
-        const conceptSlug = toSlug(concept || topic) || 'concept';
-        fsPath = path.resolve(VISUALS_DIR, subjectSlug, topicSlug, `${conceptSlug}.html`);
-      }
-
-      fs.mkdirSync(path.dirname(fsPath), { recursive: true });
-
-      const tmpHtml = fsPath + '.tmp';
-      fs.writeFileSync(tmpHtml, html, 'utf8');
-      fs.renameSync(tmpHtml, fsPath);
-
-      const sizeBytes = Buffer.byteLength(html, 'utf8');
       const relFromVisuals = path.relative(safeRoot, fsPath);
       const filePathUrl = '/app/visuals/' + relFromVisuals.split(path.sep).join('/');
       const parts = relFromVisuals.replace('.html', '').split(path.sep);
@@ -71,8 +60,22 @@ function createDiagramRoutes(deps) {
         if (!manifest.concepts) manifest.concepts = {};
       } catch (_) {}
 
+      const existing = manifest.concepts[slug];
+      if (existing && existing.aiGenerated !== true && fs.existsSync(fsPath)) {
+        console.log(`[generate-visual] skip: pre-built visual exists, will not overwrite: ${fsPath}`);
+        return false;
+      }
+
+      fs.mkdirSync(path.dirname(fsPath), { recursive: true });
+
+      const tmpHtml = fsPath + '.tmp';
+      fs.writeFileSync(tmpHtml, html, 'utf8');
+      fs.renameSync(tmpHtml, fsPath);
+
+      const sizeBytes = Buffer.byteLength(html, 'utf8');
+
       manifest.concepts[slug] = {
-        subject: toSlug(subject) || 'maths',
+        subject: subjectSlug,
         chapter: chapterSlug,
         conceptName: concept || topic,
         slug,
@@ -159,7 +162,6 @@ Question: ${questionText}`;
     const concept = String(reqJson?.concept || '').trim();
     const subject = String(reqJson?.subject || 'Maths').trim();
     const grade = Number(reqJson?.grade) || 10;
-    const requestedFilePath = String(reqJson?.filePath || '').trim();
 
     if (!topic && !concept) {
       return sendJson(res, 400, { ok: false, error: 'topic or concept is required' });
@@ -203,8 +205,9 @@ The visual should help a student understand this concept deeply and remember it 
       if (HAS_ANTHROPIC_PROXY) {
         const messages = [{ role: 'user', content: userPrompt }];
         result = await callClaude(CLAUDE_MODEL_SONNET, messages, visualSystemPrompt, {
-          maxTokens: 4096,
+          maxTokens: 8192,
           temperature: 0.4,
+          timeoutMs: 120000,
         });
       } else {
         const contents = [
@@ -242,7 +245,6 @@ The visual should help a student understand this concept deeply and remember it 
 
       const savedPath = saveVisualToDatabase({
         html,
-        requestedFilePath,
         subject,
         topic,
         concept,

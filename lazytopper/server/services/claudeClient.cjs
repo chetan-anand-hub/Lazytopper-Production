@@ -43,9 +43,13 @@ function createClaudeClient(cfg) {
 
     const url = `${REPLIT_ANTHROPIC_BASE_URL}/v1/messages`;
     const controller = new AbortController();
+    const effectiveTimeout =
+      config && typeof config.timeoutMs === 'number' && config.timeoutMs > 0
+        ? config.timeoutMs
+        : ANTHROPIC_TIMEOUT_MS;
     const timeoutId = setTimeout(
       () => controller.abort(),
-      ANTHROPIC_TIMEOUT_MS
+      effectiveTimeout
     );
 
     try {
@@ -82,7 +86,7 @@ function createClaudeClient(cfg) {
     } catch (err) {
       if (err && err.name === 'AbortError') {
         const timeoutErr = new Error(
-          `Claude request timed out after ${ANTHROPIC_TIMEOUT_MS}ms`
+          `Claude request timed out after ${effectiveTimeout}ms`
         );
         timeoutErr.status = 504;
         throw timeoutErr;

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pythagoras Theorem – Class 10 CBSE Maths</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f8fafc; color: #1e293b; font-size: 15px; }
+  .title-bar { background: #3b82f6; color: white; padding: 14px 24px; display: flex; align-items: center; gap: 12px; }
+  .title-bar h1 { font-size: 20px; font-weight: 700; }
+  .badge { background: rgba(255,255,255,0.25); border-radius: 20px; padding: 3px 12px; font-size: 13px; }
+  .container { max-width: 960px; margin: 0 auto; padding: 20px 16px; }
+  .theorem-box { background: #eff6ff; border-left: 5px solid #3b82f6; border-radius: 10px; padding: 16px 20px; margin-bottom: 20px; }
+  .theorem-box h2 { color: #3b82f6; font-size: 17px; margin-bottom: 6px; }
+  .theorem-box .formula { font-size: 22px; font-weight: 700; color: #1e293b; text-align: center; margin: 10px 0; letter-spacing: 1px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+  @media(max-width:640px){ .grid { grid-template-columns: 1fr; } }
+  .card { background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); padding: 18px; }
+  .card h3 { font-size: 15px; font-weight: 700; margin-bottom: 12px; color: #3b82f6; }
+  label { font-size: 13px; color: #475569; }
+  input[type=range] { width: 100%; accent-color: #3b82f6; margin: 4px 0 10px; }
+  .val-display { font-weight: 700; color: #3b82f6; }
+  .result-row { display: flex; justify-content: space-between; background: #f1f5f9; border-radius: 8px; padding: 8px 12px; margin-top: 8px; font-size: 14px; }
+  .result-row span:last-child { font-weight: 700; }
+  .check { font-size: 15px; font-weight: 700; text-align: center; padding: 10px; border-radius: 8px; margin-top: 10px; }
+  .check.ok { background: #dcfce7; color: #16a34a; }
+  .check.no { background: #fee2e2; color: #dc2626; }
+  .steps { counter-reset: step; }
+  .step { display: flex; gap: 12px; margin-bottom: 12px; align-items: flex-start; }
+  .step-num { background: #3b82f6; color: white; border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+  .step p { font-size: 14px; line-height: 1.5; }
+  .tip-box { background: #fffbeb; border: 1px solid #f59e0b; border-radius: 10px; padding: 14px 18px; margin-bottom: 20px; }
+  .tip-box h3 { color: #b45309; font-size: 15px; margin-bottom: 8px; }
+  .tip-box ul { padding-left: 18px; font-size: 14px; line-height: 1.8; }
+  .triplet-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .triplet { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 6px 12px; font-size: 13px; font-weight: 600; color: #1d4ed8; cursor: pointer; transition: background 0.2s; }
+  .triplet:hover, .triplet.active { background: #3b82f6; color: white; }
+  canvas { display: block; margin: 0 auto; }
+  .sq-legend { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; justify-content: center; font-size: 13px; }
+  .sq-dot { width: 14px; height: 14px; border-radius: 3px; display: inline-block; margin-right: 4px; vertical-align: middle; }
+</style>
+</head>
+<body>
+<div class="title-bar">
+  <div>
+    <div style="font-size:12px;opacity:0.85;">Class 10 CBSE · Maths · Chapter 6: Triangles</div>
+    <h1>📐 Pythagoras Theorem</h1>
+  </div>
+  <div class="badge">Interactive Visual</div>
+</div>
+
+<div class="container">
+  <div class="theorem-box">
+    <h2>Statement of the Theorem</h2>
+    <p style="font-size:14px;">In a <strong>right-angled triangle</strong>, the square of the <strong>hypotenuse</strong> is equal to the <strong>sum of squares of the other two sides</strong>.</p>
+    <div class="formula">a² + b² = c²</div>
+    <p style="text-align:center;font-size:13px;color:#475569;">where <b>c</b> = hypotenuse (longest side, opposite to 90°), <b>a</b> & <b>b</b> = other two sides</p>
+  </div>
+
+  <div class="grid">
+    <!-- Interactive Triangle -->
+    <div class="card">
+      <h3>🎨 Visual Proof – Squares on Sides</h3>
+      <div class="triplet-grid" id="triplets">
+        <div class="triplet active" data-a="3" data-b="4" data-c="5">3-4-5</div>
+        <div class="triplet" data-a="5" data-b="12" data-c="13">5-12-13</div>
+        <div class="triplet" data-a="8" data-b="15" data-c="17">8-15-17</div>
+        <div class="triplet" data-a="7" data-b="24" data-c="25">7-24-25</div>
+      </div>
+      <canvas id="pyCanvas" width="280" height="260" style="margin-top:12px;"></canvas>
+      <div class="sq-legend">
+        <span><span class="sq-dot" style="background:#3b82f6;"></span>a² (base)</span>
+        <span><span class="sq-dot" style="background:#22c55e;"></span>b² (height)</span>
+        <span><span class="sq-dot" style="background:#f59e0b;"></span>c² (hypotenuse)</span>
+      </div>
+    </div>
+
+    <!-- Slider Explorer -->
+    <div class="card">
+      <h3>🔢 Explore with Sliders</h3>
+      <label>Side a: <span class="val-display" id="va">3</span></label>
+      <input type="range" id="sa" min="1" max="15" value="3">
+      <label>Side b: <span class="val-display" id="vb">4</span></label>
+      <input type="range" id="sb" min="1" max="15" value="4">
+      <div class="result-row"><span>a²</span><span id="ra">9</span></div>
+      <div class="result-row"><span>b²</span><span id="rb">16</span></div>
+      <div class="result-row"><span>a² + b²</span><span id="rab">25</span></div>
+      <div class="result-row"><span>c (hypotenuse)</span><span id="rc">5.00</span></div>
+      <div class="result-row"><span>c²</span><span id="rc2">25.00</span></div>
+      <div class="check ok" id="checkMsg">✅ a² + b² = c² verified!</div>
+
+      <div style="margin-top:14px;">
+        <h3 style="margin-bottom:8px;">📏 Find Missing Side</h3>
+        <label>Enter a: <input type="number" id="fa" min="1" style="width:60px;padding:4px;border:1px solid #cbd5e1;border-radius:6px;"> &nbsp; b: <input type="number" id="fb" min="1" style="width:60px;padding:4px;border:1px solid #cbd5e1;border-radius:6px;"></label>
+        <button onclick="findC()" style="margin-top:8px;display:block;background:#3b82f6;color:white;border:none;padding:7px 18px;border-radius:8px;cursor:pointer;font-size:14px;">Find c</button>
+        <div id="findResult" style="margin-top:8px;font-size:14px;color:#16a34a;font-weight:600;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step by Step -->
+  <div class="card" style="margin-bottom:20px;">
+    <h3>📝 Step-by-Step: Verify 3-4-5 Triangle</h3>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><p>Identify the right angle. The side opposite to it is the <strong>hypotenuse</strong>. Here, c = 5.</p></div>
+      <div class="step"><div class="step-num">2</div><p>Square all sides: a² = 3² = <strong>9</strong>, b² = 4² = <strong>16</strong>, c² = 5² = <strong>25</strong></p></div>
+      <div class="step"><div class="step-num">3</div><p>Check: a² + b² = 9 + 16 = <strong>25</strong> = c² ✅ — Theorem verified!</p></div>
+      <div class="step"><div class="step-num">4</div><p>Since a² + b² = c², this is a <strong>right-angled triangle</strong> (Converse also holds).</p></div>
+    </div>
+  </div>
+
+  <!-- Exam Tips -->
+  <div class="tip-box">
+    <h3>⭐ CBSE Board Exam Tips</h3>
+    <ul>
+      <li>Always <strong>identify the hypotenuse first</strong> — it's the longest side & opposite to 90°.</li>
+      <li>Memorise Pythagorean triplets: <strong>(3,4,5), (5,12,13), (8,15,17), (7,24,25)</strong>.</li>
+      <li>Converse: If a²+b²=c², then the triangle is right-angled — used to <strong>check right angle</strong>.</li>
+      <li>In problems, if two sides are given, use <strong>c = √(a²+b²)</strong> or <strong>a = √(c²−b²)</strong>.</li>
+      <li>This theorem is used in <strong>coordinate geometry</strong> (distance formula) too!</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('pyCanvas');
+const ctx = canvas.getContext('2d');
+
+function drawTriangle(a, b, c) {
+  ctx.clearRect(0, 0, 280, 260);
+  const scale = Math.min(100/Math.max(a,b), 8);
+  const px = 30, py = 220;
+  const bx = px + a*scale, by = py;
+  const tx = px, ty = py - b*scale;
+
+  // Draw squares
+  // a² (blue) - on base
+  ctx.fillStyle = 'rgba(59,130,246,0.18)';
+  ctx.strokeStyle = '#3b82f6';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.rect(px, py, a*scale, a*scale);
+  ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#3b82f6';
+  ctx.font = 'bold 12px Segoe UI';
+  ctx.fillText('a²='+a*a, px + a*scale/2 - 14, py + a*scale/2 + 5);
+
+  // b² (green) - on height
+  ctx.fillStyle = 'rgba(34,197,94,0.18)';
+  ctx.strokeStyle = '#22c55e';
+  ctx.beginPath();
+  ctx.rect(px - b*scale, ty, b*scale, b*scale);
+  ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#22c55e';
+  ctx.fillText('b²='+b*b, px - b*scale + b*scale/2 - 14, ty + b*scale/2 + 5);
+
+  // Triangle
+  ctx.fillStyle = 'rgba(148,163,184,0.25)';
+  ctx.strokeStyle = '#334155';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.moveTo(px, py); ctx.lineTo(bx, by); ctx.lineTo(tx, ty);
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+
+  // Right angle mark
+  const s = 10;
+  ctx.strokeStyle = '#ef4444';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(px+s, py); ctx.lineTo(px+s, py-s); ctx.lineTo(px, py-s);
+  ctx.stroke();
+
+  // Labels
+  ctx.fillStyle = '#1e293b';
+  ctx.font = 'bold 13px Segoe UI';
+  ctx.fillText('a='+a, px + a*scale/2 - 8, py + 15);
+  ctx.fillText('b='+b, px - 22, py - b*scale/2);
+  ctx.fillStyle = '#f59e0b';
+  ctx.fillText('c='+c, px + a*scale/2 + 8, py - b*scale/2 - 5);
+
+  // c² square (approximate, drawn on hypotenuse side)
+  // Draw as a label box
+  ctx.fillStyle = 'rgba(245,158,11,0.15)';
+  ctx.strokeStyle = '#f59e0b';
+  ctx.lineWidth = 1.5;
+  const mx = (bx+tx)/2 + 18, my = (by+ty)/2;
+  ctx.beginPath();
+  ctx.roundRect(mx, my-14, 52, 24, 5);
+  ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#b45309';
+  ctx.font = 'bold 12px Segoe UI';
+  ctx.fillText('c²='+c*c, mx+5, my+4);
+}
+
+function updateSliders() {
+  const a = +document.getElementById('sa').value;
+  const b = +document.getElementById('sb').value;
+  const c2 = a*a + b*b;
+  const c = Math.sqrt(c2);
+  document.getElementById('va').textContent = a;
+  document.getElementById('vb').textContent = b;
+  document.getElementById('ra').textContent = a*a;
+  document.getElementById('rb').textContent = b*b;
+  document.getElementById('rab').textContent = a*a+b*b;
+  document.getElementById('rc').textContent = c.toFixed(2);
+  document.getElementById('rc2').textContent = c2.toFixed(2);
+  const msg = document.getElementById('checkMsg');
+  msg.textContent = '✅ a² + b² = c² always holds!';
+  msg.className = 'check ok';
+  drawTriangle(a, b, Math.round(c*100)/100);
+}
+
+document.getElementById('sa').addEventListener('input', updateSliders);
+document.getElementById('sb').addEventListener('input', updateSliders);
+
+document.querySelectorAll('.triplet').forEach(t => {
+  t.addEventListener('click', function() {
+    document.querySelectorAll('.triplet').forEach(x => x.classList.remove('active'));
+    this.classList.add('active');
+    const a = +this.dataset.a, b = +this.dataset.b, c = +this.dataset.c;
+    document.getElementById('sa').value = a;
+    document.getElementById('sb').value = b;
+    updateSliders();
+  });
+});
+
+function findC() {
+  const a = +document.getElementById('fa').value;
+  const b = +document.getElementById('fb').value;
+  const res = document.getElementById('findResult');
+  if (!a || !b || a<=0 || b<=0) { res.textContent = 'Please enter valid positive values.'; res.style.color='#ef4444'; return; }
+  const c = Math.sqrt(a*a + b*b);
+  res.style.color = '#16a34a';
+  res.innerHTML = `c = √(${a}²+${b}²) = √${a*a+b*b} = <strong>${c.toFixed(3)}</strong>`;
+}
+
+// Initial draw
+drawTriangle(3, 4, 5);
+</script>
+</body>
+</html>
