@@ -103,8 +103,8 @@ function createMentorResponseBuilder(deps) {
 
     const useGeminiFallback = Boolean(mentorImage) || Boolean(responseMimeType);
     const reply = useGeminiFallback
-      ? await callGemini(GEMINI_MODEL, contents, { maxOutputTokens, temperature, responseMimeType })
-      : await callRoutedModel(routingDecision, reqJson, GEMINI_MODEL, contents, {
+      ? await callGemini(GEMINI_TUTOR_MODEL, contents, { maxOutputTokens, temperature, responseMimeType })
+      : await callRoutedModel(routingDecision, reqJson, GEMINI_TUTOR_MODEL, contents, {
           maxOutputTokens, temperature, _userPrompt: userPrompt,
         }, systemPrompt);
 
@@ -370,7 +370,7 @@ function createMentorResponseBuilder(deps) {
           : structured && ['learn_teach', 'learn_mindmap', 'learn_proof', 'board_steps_ms'].includes(String(structured.kind || ''))
             ? structured : null;
     const actualProvider = useGeminiFallback ? 'gemini' : routingDecision.provider;
-    const actualModel = useGeminiFallback ? GEMINI_MODEL : routingDecision.model;
+    const actualModel = (actualProvider === 'gemini') ? GEMINI_TUTOR_MODEL : routingDecision.model;
     const trace = {
       normalized_mode: normalisedMode,
       handler_used: handlerUsed,

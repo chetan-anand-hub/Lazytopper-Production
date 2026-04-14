@@ -65,6 +65,7 @@ function resolveConfig() {
   const DIRECT_GEMINI_API_KEY = HAS_DIRECT_KEY ? API_KEY : '';
   const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
   const GEMINI_TUTOR_MODEL = process.env.GEMINI_TUTOR_MODEL || GEMINI_MODEL;
+  if (process.env.GEMINI_TUTOR_MODEL) ENV_USED.push(`GEMINI_TUTOR_MODEL=${GEMINI_TUTOR_MODEL}`);
   const GEMINI_TIMEOUT_MS = Math.max(5000, Number(process.env.GEMINI_TIMEOUT_MS || 20000) || 20000);
   const IS_DEV = String(process.env.NODE_ENV || '').toLowerCase() !== 'production';
   const REPO_ROOT = process.cwd();
