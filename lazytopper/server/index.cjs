@@ -366,7 +366,7 @@ server.listen(config.PORT, () => {
     `Claude: ${config.HAS_ANTHROPIC_PROXY ? 'ON' : 'OFF'} (sonnet=${config.CLAUDE_MODEL_SONNET}, haiku=${config.CLAUDE_MODEL_HAIKU}) | Auth: ${config.HAS_ANTHROPIC_PROXY ? 'replit-proxy' : 'none'}`
   );
   console.log(
-    `Routing: visual→${config.HAS_ANTHROPIC_PROXY ? 'claude-sonnet' : 'gemini'} | factual→${config.HAS_ANTHROPIC_PROXY ? 'claude-haiku' : 'gemini'} | chat→gemini | MaxHistory: ${config.MAX_HISTORY_TURNS} turns`
+    `Routing: visual→${config.HAS_ANTHROPIC_PROXY ? 'claude-sonnet' : 'gemini'} | chat→gemini | diagram-compare→claude+gemini | MaxHistory: ${config.MAX_HISTORY_TURNS} turns`
   );
   if (envUsedLabel) console.log(`EnvUsed: ${envUsedLabel}`);
 });

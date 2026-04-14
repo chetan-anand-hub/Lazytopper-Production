@@ -56,6 +56,7 @@ const RevisionCalendarPage = lazy(() => import("./pages/RevisionCalendarPage"));
 const MiniMockPage = lazy(() => import("./pages/MiniMockPage"));
 const ParentAccessPage = lazy(() => import("./pages/ParentAccessPage"));
 const WeeklyDigestPage = lazy(() => import("./pages/WeeklyDigestPage"));
+const DiagramComparePage = lazy(() => import("./pages/DiagramComparePage"));
 
 function RouteFallback() {
   return (
@@ -533,6 +534,7 @@ export default function App() {
           <Route path="/legal/:slug" element={withRouteSuspense(<LegalPage />)} />
           <Route path="/pricing" element={withRouteSuspense(<PricingPage />)} />
           <Route path="/admin/funnel" element={<RequireAuth>{withRouteSuspense(<FunnelPage />)}</RequireAuth>} />
+          <Route path="/admin/diagram-compare" element={withRouteSuspense(<DiagramComparePage />)} />
           <Route path="/methodology" element={withRouteSuspense(<MethodologyPage />)} />
           <Route path="/teacher" element={<RequireAuth><SectionErrorBoundary>{withRouteSuspense(<TeacherDashboardPage />)}</SectionErrorBoundary></RequireAuth>} />
           <Route path="/onboarding" element={<RequireAuth><Onboarding /></RequireAuth>} />

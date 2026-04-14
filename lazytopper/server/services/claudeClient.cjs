@@ -126,20 +126,6 @@ function createClaudeClient(cfg) {
       return { provider: 'claude', model: CLAUDE_MODEL_SONNET };
     }
 
-    if (HAS_ANTHROPIC_PROXY) {
-      const queryLen = String(userQuery || '').trim().length;
-      const isSimpleFactual =
-        queryLen > 0 &&
-        queryLen < 80 &&
-        /^(what|who|when|where|define|formula|list|name)\b/i.test(
-          String(userQuery || '')
-        );
-
-      if (isSimpleFactual) {
-        return { provider: 'claude', model: CLAUDE_MODEL_HAIKU };
-      }
-    }
-
     return { provider: 'gemini', model: GEMINI_MODEL };
   }
 

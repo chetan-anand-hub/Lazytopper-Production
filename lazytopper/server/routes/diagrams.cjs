@@ -114,6 +114,7 @@ function createDiagramRoutes(deps) {
     }
     const compareMode =
       String(req.url || '').includes('compare=true') ||
+      reqJson?.compare === true ||
       String(reqJson?.compare || '') === 'true';
 
     if (STUB_MODE) {
