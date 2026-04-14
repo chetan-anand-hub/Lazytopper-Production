@@ -491,7 +491,7 @@ export default function App() {
             >
               {(user.displayName || user.email || "S").charAt(0).toUpperCase()}
             </button>
-          ) : (
+          ) : location.pathname !== "/login" ? (
             <button
               type="button"
               onClick={() => navigate("/login")}
@@ -510,7 +510,7 @@ export default function App() {
             >
               Log in
             </button>
-          )}
+          ) : null}
         </div>
       </div>
       {/* Command palette overlay */}

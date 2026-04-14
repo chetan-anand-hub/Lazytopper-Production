@@ -11,6 +11,8 @@ export default function Login() {
   const location = useLocation();
   const { user, continueLocalSession } = useAuth();
 
+  const isLight = document.documentElement.getAttribute("data-theme") === "light";
+
   const nextPath = useMemo(() => {
     const st = (location.state || {}) as LocationState;
     if (st.from) return st.from;
@@ -42,9 +44,11 @@ export default function Login() {
       padding: 16,
     }}>
       <div style={{
-        background: "rgba(255,255,255,0.03)", backdropFilter: "blur(16px)",
+        background: isLight ? "rgba(0,0,0,0.03)" : "rgba(255,255,255,0.03)",
+        backdropFilter: "blur(16px)",
         borderRadius: 20, maxWidth: 420, width: "100%",
-        padding: "36px 28px", border: "1px solid rgba(255,255,255,0.06)",
+        padding: "36px 28px",
+        border: isLight ? "1px solid rgba(0,0,0,0.06)" : "1px solid rgba(255,255,255,0.06)",
       }}>
         <div style={{ textAlign: "center", marginBottom: 28 }}>
           <div style={{
@@ -59,10 +63,10 @@ export default function Login() {
           <h1 style={{ fontSize: "1.5rem", fontWeight: 900, margin: "0 0 6px", color: "var(--text)", fontFamily: "'Space Grotesk', sans-serif" }}>
             LazyTopper
           </h1>
-          <p style={{ fontSize: "0.92rem", color: "rgba(255,255,255,0.45)", margin: 0, lineHeight: 1.4 }}>
+          <p style={{ fontSize: "0.92rem", color: "var(--text-muted)", margin: 0, lineHeight: 1.4 }}>
             CBSE Class 10 Board Exam Prep
           </p>
-          <p style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.25)", margin: "6px 0 0" }}>
+          <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", margin: "6px 0 0" }}>
             Maths & Science — AI-powered, exam-focused
           </p>
         </div>
@@ -75,10 +79,10 @@ export default function Login() {
             appearance={{
               variables: {
                 colorPrimary: "#22c55e",
-                colorBackground: "#0a0a0a",
-                colorText: "#fff",
-                colorInputBackground: "rgba(255,255,255,0.05)",
-                colorInputText: "#fff",
+                colorBackground: isLight ? "#ffffff" : "#0a0a0a",
+                colorText: isLight ? "#111111" : "#ffffff",
+                colorInputBackground: isLight ? "rgba(0,0,0,0.04)" : "rgba(255,255,255,0.05)",
+                colorInputText: isLight ? "#111111" : "#ffffff",
                 borderRadius: "12px",
               },
               elements: {
@@ -87,9 +91,9 @@ export default function Login() {
                 headerTitle: { display: "none" },
                 headerSubtitle: { display: "none" },
                 socialButtonsBlockButton: {
-                  background: "rgba(255,255,255,0.05)",
-                  border: "1px solid rgba(255,255,255,0.1)",
-                  color: "var(--text)",
+                  background: isLight ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.05)",
+                  border: isLight ? "1px solid rgba(0,0,0,0.1)" : "1px solid rgba(255,255,255,0.1)",
+                  color: isLight ? "#111111" : "var(--text)",
                   borderRadius: "14px",
                   fontWeight: 800,
                 },
@@ -101,8 +105,8 @@ export default function Login() {
                   boxShadow: "0 0 24px rgba(34,197,94,0.3)",
                 },
                 footerActionLink: { color: "#22c55e" },
-                dividerLine: { background: "rgba(255,255,255,0.08)" },
-                dividerText: { color: "rgba(255,255,255,0.2)" },
+                dividerLine: { background: isLight ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.08)" },
+                dividerText: { color: "var(--text-muted)" },
               },
             }}
           />
@@ -110,11 +114,11 @@ export default function Login() {
 
         <div style={{
           display: "flex", alignItems: "center", gap: 12,
-          margin: "0 0 16px", color: "rgba(255,255,255,0.2)", fontSize: "0.82rem",
+          margin: "0 0 16px", color: "var(--text-muted)", fontSize: "0.82rem",
         }}>
-          <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.08)" }} />
+          <div style={{ flex: 1, height: 1, background: isLight ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.08)" }} />
           <span>or</span>
-          <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.08)" }} />
+          <div style={{ flex: 1, height: 1, background: isLight ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.08)" }} />
         </div>
 
         <button
@@ -132,7 +136,7 @@ export default function Login() {
 
         <p style={{
           textAlign: "center", marginTop: 20, fontSize: "0.75rem",
-          color: "rgba(255,255,255,0.2)", lineHeight: 1.4,
+          color: "var(--text-muted)", lineHeight: 1.4,
         }}>
           By signing in, you agree to our Terms of Service
         </p>
