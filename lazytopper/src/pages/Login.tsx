@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { SignIn } from "@clerk/react";
 import { useAuth } from "../context/AuthContext";
@@ -11,7 +11,17 @@ export default function Login() {
   const location = useLocation();
   const { user, continueLocalSession } = useAuth();
 
-  const isLight = document.documentElement.getAttribute("data-theme") === "light";
+  const [isLight, setIsLight] = useState(
+    () => document.documentElement.getAttribute("data-theme") === "light"
+  );
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsLight(document.documentElement.getAttribute("data-theme") === "light");
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+    return () => observer.disconnect();
+  }, []);
 
   const nextPath = useMemo(() => {
     const st = (location.state || {}) as LocationState;

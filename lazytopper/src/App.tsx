@@ -491,7 +491,7 @@ export default function App() {
             >
               {(user.displayName || user.email || "S").charAt(0).toUpperCase()}
             </button>
-          ) : location.pathname !== "/login" ? (
+          ) : !location.pathname.startsWith("/login") ? (
             <button
               type="button"
               onClick={() => navigate("/login")}
