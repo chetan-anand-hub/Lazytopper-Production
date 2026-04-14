@@ -1,0 +1,138 @@
+You are continuing work on LazyTopper, an AI-powered CBSE Class 10 board exam prep 
+app (Maths & Science). It is live at:
+  https://edu-tutor-ai-chetananand1503.replit.app/
+
+The app is a pnpm workspace monorepo. The main frontend is in lazytopper/ and is 
+served at /app/ (Vite, React, TypeScript). The AI backend is a Node.js CJS server 
+at lazytopper/server/.
+
+═══════════════════════════════════════════════════════
+ CRITICAL RULES — READ BEFORE TOUCHING ANYTHING
+═══════════════════════════════════════════════════════
+
+1. API KEYS ARE NEVER EXPOSED TO FRONTEND CODE
+   All AI calls (Gemini, Claude Anthropic) go exclusively through 
+   lazytopper/server/ (CJS files). Keys live in environment secrets only.
+   Never import API keys or AI SDKs in any .tsx/.ts frontend file.
+   If you ever see an API key value in a log or output, do NOT print it.
+
+2. DO NOT EDIT DATA/PREDICTION FILES WITHOUT EXPLICIT INSTRUCTION
+   lazytopper/src/data/       ← curated CBSE question bank data
+   lazytopper/src/prediction/ ← 5-signal weighted scoring engine
+   These are off-limits unless the user specifically asks you to change them.
+
+3. PROOF OF SUCCESS IS REQUIRED FOR EVERY STEP
+   - TypeScript check must pass (cd lazytopper && npx tsc --noEmit)
+   - Take a screenshot of every page you change (use app_preview with path /app/...)
+   - Run e2e tests using runTest() from the testing skill after every task
+   - Do NOT mark a task complete if tests return false positives
+
+4. GITHUB SYNC IS LIVE
+   This project is connected to GitHub. Every commit you make in Replit 
+   automatically syncs to the connected GitHub repository. Do not try to 
+   set up GitHub integration again — it is already configured.
+
+5. BUILD VERIFICATION COMMAND
+   pnpm run typecheck && pnpm --filter @workspace/api-server \
+   --filter @workspace/lazytopper-app --filter @workspace/lazytopper-video \
+   --filter lazytopper run build
+
+═══════════════════════════════════════════════════════
+ RECENTLY COMPLETED (do not redo these)
+═══════════════════════════════════════════════════════
+
+Task #88  MERGED — Tutor hotfix: GEMINI_TUTOR_MODEL passed to mentor.cjs
+Task #89  MERGED — Daily Mission assertion-reason questions show full text
+Task #90  MERGED — Euclid's Division Lemma removed from all question banks
+          (removed from CBSE 2025-26 syllabus — 22 questions, HPQ, predicted Q, topic hub)
+Task #101 MERGED — Login page: navbar "Log in" button hidden when on /login 
+          (uses startsWith, covers Clerk sub-routes); Clerk form fully visible in 
+          light mode (reactive isLight via MutationObserver + CSS vars)
+
+═══════════════════════════════════════════════════════
+ PENDING TASKS (queued, work through these in order)
+═══════════════════════════════════════════════════════
+
+Task #91 — Fix light mode: 292+ hardcoded rgba(255,255,255,...) inline styles
+  Files: App.tsx (navbar brand color, BottomNav), styles.css (light-mode CSS block),
+         ProfilePage.tsx, Dashboard.tsx, DailyMissionPage.tsx
+  Key pattern: replace rgba(255,255,255,0.03)→var(--bg-card), color:"#fff"→var(--text),
+               color:"rgba(255,255,255,0.45)"→var(--text-muted), bg:"#0a0a0a"→var(--bg)
+  Also: add sun/moon theme toggle icon button to top navbar (calls toggleTheme() from useTheme())
+  CSS vars: --bg, --bg-card, --bg-card-border, --text, --text-muted, --shadow already exist
+
+Task #92 — Daily Mission MCQ tap-to-answer + instant correct/wrong feedback
+  Files: dailyMixGenerator.ts (toQuestionItem: add options+modelAnswer to payload),
+         dailyMissionService.ts (buildLearningSegment/buildPracticeSegment: add options),
+         DailyMissionPage.tsx (render tap buttons when options.length>0; instant local 
+         check against modelAnswer; green ✓ / red ✗ UI; no AI call for MCQ)
+
+Task #94 — Command palette: React Portal + z-index fix
+  Files: CommandPalette.tsx (wrap in createPortal(…, document.body)),
+         styles.css (.command-palette-backdrop z-index: 50 → 10000)
+
+Task #95 — Daily Mix concept video embed
+  Call getTopicContent(subject, resolvedTopicKey) in dailyMixGenerator; 
+  add videoUrl: topicConfig.recommendedVideoUrl to payload;
+  render YouTube iframe for type==="video" items in DailyMissionPage.tsx
+
+Task #96 — Predictive Papers page: fix header background
+  Replace garish green gradient header with background:"var(--bg-card)", 
+  border:"1px solid var(--bg-card-border)"
+  Remove the predictivePapers.map(…) grid (all questionIds are empty — legacy dead code)
+  File: lazytopper/src/pages/PredictivePapersPage.tsx (or similar)
+
+Task #97 — HPQ step-solution visibility + board-style layout
+  File: lazytopper/src/pages/HighlyProbableQuestionsPage.tsx (lines ~2083–2155)
+  Replace: color:"rgba(255,255,255,0.85)"→var(--text), rgba(255,255,255,0.4)→var(--text-muted),
+           bg:"rgba(255,255,255,0.03)"→var(--bg-card), border rgba→var(--bg-card-border)
+
+Task #98 — Practice page: "no questions" when arriving from Dashboard
+  Dashboard.tsx line 463/714: add ?topic=${encodeURIComponent(journeyState?.currentChapter?.topicKey||"real-numbers")}
+  PracticePage.tsx topicLabel useMemo: add final fallback 
+  → topicParam.split(/[-_]/).map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(" ")
+
+Task #99 — Onboarding redesign: 2-moment flow (score slider + confirm pill + CTA)
+  File: lazytopper/src/pages/Welcome.tsx (~127 lines — full rewrite)
+  Remove: mode picker, class selector, feature cards, "Free forever" box, steps array
+  Add: big score slider (50–99%), contextual sub-line, pill badge (pace + days),
+       single CTA "Get My Study Plan →", ghost link "Explore topics first →" → /trends/10/Maths
+  Typography: headline 34-38px Space Grotesk 800, body 15px Inter rgba(255,255,255,0.65)
+
+Task #100 — Welcome page WIIFM redesign
+  File: lazytopper/src/pages/Welcome.tsx (or a separate WelcomeLanding page if it exists)
+  Outcome headline above fold, remove feature cards,
+  single "Get My Study Plan →" CTA, ghost "Explore topics first" link
+
+═══════════════════════════════════════════════════════
+ KEY ARCHITECTURE FACTS
+═══════════════════════════════════════════════════════
+
+- App base URL in dev: localhost:80/app  (path-based routing, mounted at /app/)
+- Screenshot paths: use type=app_preview, artifact_dir_name=lazytopper-app, path=/app/...
+- Theme system: document.documentElement[data-theme] = "light" | "dark" (default dark)
+  CSS vars in :root (dark defaults), [data-theme="light"] overrides in styles.css
+- useTheme() hook in lazytopper/src/context/ThemeContext.tsx provides { theme, toggleTheme }
+- useThemeColors() in lazytopper/src/utils/dashboardUtils.ts for inline theme-aware styles
+- AI server runs as "LazyTopper Gateway" workflow (lazytopper/server/index.cjs)
+- Frontend runs as "artifacts/lazytopper-app: web" workflow
+- Server is fully modularized (Task #79 complete): index.cjs is a 364-line composition root;
+  mentor route is split into 7 sub-modules under server/routes/; prompts under server/prompts/
+- 3-layer API cost optimization: static question bank → pre-generated visuals → AI fallback
+  DO NOT break this chain
+- StudentDataService: unified facade in src/services/studentDataService.ts
+
+═══════════════════════════════════════════════════════
+ HOW TO WORK
+═══════════════════════════════════════════════════════
+
+1. Start each task by reading the relevant task file in .local/tasks/
+2. Make the code change
+3. Run: cd lazytopper && npx tsc --noEmit  (must show 0 errors)
+4. Restart "artifacts/lazytopper-app: web" workflow
+5. Take a screenshot at /app/[changed-page] to visually confirm the fix
+6. Run runTest() e2e test proving the specific behaviour is correct
+7. Write .local/.commit_message (detailed, ≤30 lines)
+8. Call mark_task_complete
+
+Begin with Task #91 (light mode fix) as it is the highest-impact visible bug.

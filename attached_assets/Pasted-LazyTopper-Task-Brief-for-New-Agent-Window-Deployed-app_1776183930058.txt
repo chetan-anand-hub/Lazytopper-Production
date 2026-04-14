@@ -1,0 +1,126 @@
+LazyTopper — Task Brief for New Agent Window
+Deployed app: https://edu-tutor-ai-chetananand1503.replit.app/
+Dev preview base: localhost:80/app (screenshots use path=/app/...)
+Stack: pnpm monorepo, React + Vite app lives in lazytopper/, server is Node.js CJS in lazytopper/server/
+
+CRITICAL RULES — Read Before Touching Anything
+API keys are never in the frontend. All AI calls go through lazytopper/server/ CJS files only. Never add API keys or AI SDK calls to any src/ file.
+GitHub sync is already live. Do not set it up again.
+Do not edit lazytopper/src/data/ or lazytopper/src/prediction/ unless explicitly told to.
+TypeScript must pass with 0 errors after every change: run pnpm run typecheck
+Proof of completion: For each fix, take a live screenshot at the relevant route and confirm the fix is visually working before marking anything done. Do not mark a task complete from analysis alone — only after code is changed, TypeScript is clean, and a screenshot confirms the fix.
+Fix 1 — Visual diagrams are blank/missing in the tutor window
+File: lazytopper/src/components/VisualExplainer.tsx
+Line: 62
+
+What's broken: When the tutor window opens on any topic (e.g. /app/topic-hub/10/Maths/trigonometry), the visual diagram area appears as a large blank white box. The VisualExplainer component does a HEAD request to verify the static HTML diagram file exists (files are at lazytopper/public/visuals/maths/.../filename.html). The HEAD check on line 62 also requires Content-Type: text/html in the response header — but Vite's dev server frequently omits that header on HEAD requests. When the check fails, the component falls into a slow AI-generation fallback (/api/generate-visual), which takes 10+ seconds and holds a white rgba(255,255,255,0.9) loading overlay at zIndex:2 covering the iframe the entire time. The user sees a blank white box.
+
+Exact fix — change line 62 from:
+
+if (res.ok && res.headers.get("content-type")?.includes("text/html")) {
+  return;
+}
+
+to:
+
+if (res.ok) {
+  setLoading(false);
+  return;
+}
+
+res.ok alone is sufficient — if the file exists (200 OK), trust it, clear the loading overlay immediately, and let the iframe's own onLoad event handle rendering.
+
+Verify: Open /app/topic-hub/10/Maths/trigonometry, click Learn/Teach. The visual explainer at the top of the tutor pane should now show a dark-background interactive HTML diagram (navy gradient, not white). Take a screenshot.
+
+Fix 2 — Tutor response is cut off mid-sentence
+Files:
+
+lazytopper/src/components/tutor/TutorDrawerV2.tsx — line 103
+lazytopper/server/routes/mentorResponseBuilder.cjs — line 64
+What's broken: The client-side fetch timeout (MENTOR_SERVER_TIMEOUT_MS) is set to 9 seconds. Gemini 2.5 Pro — the model used for all tutor responses — regularly takes 12–20 seconds to generate a complete conversational teaching response. The AbortController fires at 9 seconds, killing the connection mid-generation. Whatever partial text was buffered gets stored in state and rendered to the student as a sentence cut off in the middle (e.g. ending with "...looking up at a"). The student sees an incomplete, confusing explanation.
+
+Fix 1 — increase timeout in TutorDrawerV2.tsx line 103:
+
+// BEFORE
+const MENTOR_SERVER_TIMEOUT_MS = 9_000;
+// AFTER
+const MENTOR_SERVER_TIMEOUT_MS = 28_000;
+
+Fix 2 — increase max output tokens in mentorResponseBuilder.cjs line 64 (inside the conversational_teach handler):
+
+// BEFORE
+maxOutputTokens: 1600,
+// AFTER
+maxOutputTokens: 2500,
+
+Verify: Open /app/topic-hub/10/Maths/trigonometry, trigger the tutor, ask a follow-up question in the chat input. Wait for the full response — it should be a complete explanation that ends naturally with a full sentence. Take a screenshot.
+
+Fix 3 — Light mode is broken: navbar toggle missing + 819 hardcoded dark colors
+Background on the theme system:
+
+Theme context: lazytopper/src/context/ThemeContext.tsx
+useTheme() returns { theme, toggleTheme, setTheme } where theme is "dark" | "light"
+The theme is applied by setting data-theme="light" on document.documentElement
+CSS variables are defined in lazytopper/src/styles.css:
+Dark (:root default): --bg: #0a0a0a, --bg-card: rgba(255,255,255,0.03), --bg-card-border: rgba(255,255,255,0.06), --text: #ffffff, --text-muted: rgba(255,255,255,0.45)
+Light ([data-theme="light"]): --bg: #f8fafc, --bg-card: #ffffff, --bg-card-border: #e2e8f0, --text: #1e293b, --text-muted: rgba(30,41,59,0.5)
+The problem: 57 component files contain 819 occurrences of hardcoded rgba(255,255,255,...) inline styles that never change when the theme switches. In light mode, this produces invisible white-on-white text, borders, and cards across the entire app.
+Part A — Add the toggle to the navbar (App.tsx)
+
+The toggle currently only exists buried inside the Profile/ME page. Students have no way to switch themes from the dashboard or any other page.
+
+In lazytopper/src/App.tsx:
+
+Add import near the top: import { useTheme } from "./context/ThemeContext";
+Inside the layout component where the navbar is rendered, add: const { theme, toggleTheme } = useTheme();
+In the right-side nav group (the div with display:"flex", gap:10 that holds the Search button and avatar — around line 424), add this button before the Search button:
+<button
+  type="button"
+  onClick={toggleTheme}
+  title={theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
+  style={{
+    background: "rgba(255,255,255,0.06)",
+    border: "1px solid rgba(255,255,255,0.1)",
+    borderRadius: 12,
+    padding: "6px 10px",
+    fontSize: "1rem",
+    lineHeight: 1,
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  }}
+>
+  {theme === "dark" ? "☀️" : "🌙"}
+</button>
+
+Part B — Fix hardcoded inline colors across the app
+
+Go through each of the 57 files (run grep -rln "rgba(255,255,255" lazytopper/src/ --include="*.tsx" --include="*.ts" to get the full list). For each file, replace hardcoded inline color values with CSS variables using this mapping:
+
+Hardcoded value	Replace with
+rgba(255,255,255,0.9) through rgba(255,255,255,1) (background/card)	"var(--bg-card)"
+rgba(255,255,255,0.05) to rgba(255,255,255,0.08) (subtle cards)	"var(--bg-card)"
+rgba(255,255,255,0.06) to rgba(255,255,255,0.12) (borders)	"var(--bg-card-border)"
+rgba(255,255,255,0.85) to rgba(255,255,255,1) (text)	"var(--text)"
+rgba(255,255,255,0.4) to rgba(255,255,255,0.6) (muted text)	"var(--text-muted)"
+rgba(255,255,255,0.15) to rgba(255,255,255,0.35) (very muted text)	"var(--text-muted)"
+"#fff" or "#ffffff" used as text color	"var(--text)"
+"#0a0a0a" or "#000" used as background	"var(--bg)"
+Prioritise the most visible pages first:
+
+lazytopper/src/pages/Dashboard.tsx and dashboard components under lazytopper/src/components/dashboard/
+lazytopper/src/pages/TopicHubHome.tsx and topic hub components
+lazytopper/src/components/tutor/TutorDrawerV2.tsx
+lazytopper/src/components/practice/ (all files)
+lazytopper/src/App.tsx (navbar)
+All remaining files
+IMPORTANT: Do not replace colors that are intentionally fixed — e.g. green accent rgba(34,197,94,...), blue rgba(59,130,246,...), orange rgba(249,115,22,...) — only replace white/black/grey neutrals.
+
+Verify: After changes, switch the theme toggle in the navbar to Light mode. Navigate to /app/dashboard, /app/topic-hub/10/Maths, /app/practice/10/Maths. All text must be clearly readable dark-on-light. No white-on-white or invisible elements. Take screenshots on each page in light mode.
+
+How to know you're done
+pnpm run typecheck → 0 errors
+Screenshot of /app/topic-hub/10/Maths/trigonometry with tutor open showing the visual diagram (dark navy background, NOT white)
+Screenshot of /app/topic-hub/10/Maths/trigonometry with tutor showing a complete response (full sentences, natural ending)
+Screenshot of /app/dashboard in light mode with all text clearly visible and a ☀️/🌙 button visible in the top navbar
