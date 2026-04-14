@@ -5,6 +5,7 @@ function createGeminiClient(cfg) {
     REPLIT_GEMINI_BASE_URL,
     REPLIT_GEMINI_API_KEY,
     DIRECT_GEMINI_API_KEY,
+    GEMINI_TUTOR_MODEL,
     GEMINI_TIMEOUT_MS,
   } = cfg;
 

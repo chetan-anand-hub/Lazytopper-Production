@@ -109,6 +109,7 @@ const geminiClientModule = createGeminiClient({
   REPLIT_GEMINI_BASE_URL: config.REPLIT_GEMINI_BASE_URL,
   REPLIT_GEMINI_API_KEY: config.REPLIT_GEMINI_API_KEY,
   DIRECT_GEMINI_API_KEY: config.DIRECT_GEMINI_API_KEY,
+  GEMINI_TUTOR_MODEL: config.GEMINI_TUTOR_MODEL,
   GEMINI_TIMEOUT_MS: config.GEMINI_TIMEOUT_MS,
 });
 const claudeClientModule = createClaudeClient({
@@ -155,6 +156,7 @@ const mentorRoute = createMentorRoute({
   callGemini, callClaude, toClaudeMessages, selectModelForRequest,
   telemetry,
   GEMINI_MODEL: config.GEMINI_MODEL,
+  GEMINI_TUTOR_MODEL: config.GEMINI_TUTOR_MODEL,
   CLAUDE_MODEL_SONNET: config.CLAUDE_MODEL_SONNET,
   CLAUDE_MODEL_HAIKU: config.CLAUDE_MODEL_HAIKU,
   ACTIVE_PROVIDER: config.ACTIVE_PROVIDER,

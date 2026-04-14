@@ -1,7 +1,7 @@
 function createMentorResponseBuilder(deps) {
   const {
     callGemini, callClaude, toClaudeMessages,
-    GEMINI_MODEL, HAS_ANTHROPIC_PROXY, IS_DEV,
+    GEMINI_MODEL, GEMINI_TUTOR_MODEL, HAS_ANTHROPIC_PROXY, IS_DEV,
     tryParseJsonStrict, extractJsonObjectFromText,
     buildGeminiImagePart,
     isStructuredMode, isValidMentorProtocol,
@@ -60,7 +60,7 @@ function createMentorResponseBuilder(deps) {
         { role: 'user', parts: [{ text: userPrompt }] },
       ].filter((c) => c && c.parts && c.parts[0] && String(c.parts[0].text || '').trim());
 
-      const reply = await callRoutedModel(routingDecision, reqJson, GEMINI_MODEL, contents, {
+      const reply = await callRoutedModel(routingDecision, reqJson, GEMINI_TUTOR_MODEL, contents, {
         maxOutputTokens: 1600,
         temperature: 0.7,
         _userPrompt: userPrompt,
@@ -84,9 +84,9 @@ function createMentorResponseBuilder(deps) {
 
     const maxOutputTokens =
       normalisedMode === 'board_steps_ms' || normalisedMode === 'learn_proof'
-        ? Math.min(4096, Math.max(1600, 900 + Math.round(safeMarks * 180)))
-        : normalisedMode === 'learn_teach' ? 1600
-          : normalisedMode === 'solve_with_me' ? 1400 : 900;
+        ? Math.min(6000, Math.max(2500, 1200 + Math.round(safeMarks * 240)))
+        : normalisedMode === 'learn_teach' ? 3000
+          : normalisedMode === 'solve_with_me' ? 2200 : 2000;
     const responseMimeType = isTeachContract ? 'application/json' : undefined;
 
     const requestParts = [{ text: `${systemPrompt}\n\n${userPrompt}` }];
@@ -98,8 +98,8 @@ function createMentorResponseBuilder(deps) {
     const contents = [{ role: 'user', parts: requestParts }];
 
     const temperature =
-      normalisedMode === 'board_steps_ms' || normalisedMode === 'learn_proof' ? 0.2
-        : normalisedMode === 'learn_teach' ? 0.25 : 0.35;
+      normalisedMode === 'board_steps_ms' || normalisedMode === 'learn_proof' ? 0.3
+        : normalisedMode === 'learn_teach' ? 0.55 : 0.6;
 
     const useGeminiFallback = Boolean(mentorImage) || Boolean(responseMimeType);
     const reply = useGeminiFallback
@@ -133,7 +133,7 @@ function createMentorResponseBuilder(deps) {
           const repairContents = [
             { role: 'user', parts: [{ text: `${systemPrompt}\n\n${strictRepairPrompt}` }] },
           ];
-          const repaired = await callGemini(GEMINI_MODEL, repairContents, {
+        const repaired = await callGemini(GEMINI_TUTOR_MODEL, repairContents, {
             maxOutputTokens, temperature: 0.1, responseMimeType,
           });
           finalText = repaired.text;
@@ -175,7 +175,7 @@ function createMentorResponseBuilder(deps) {
         const repairContents = [
           { role: 'user', parts: [{ text: `${systemPrompt}\n\n${repairPrompt}` }] },
         ];
-        const repaired = await callGemini(GEMINI_MODEL, repairContents, {
+        const repaired = await callGemini(GEMINI_TUTOR_MODEL, repairContents, {
           maxOutputTokens, temperature: 0.2, responseMimeType,
         });
         finalText = repaired.text;
@@ -197,7 +197,7 @@ function createMentorResponseBuilder(deps) {
         const strictContents = [
           { role: 'user', parts: [{ text: `${systemPrompt}\n\n${strictPrompt}` }] },
         ];
-        const strictReply = await callGemini(GEMINI_MODEL, strictContents, {
+        const strictReply = await callGemini(GEMINI_TUTOR_MODEL, strictContents, {
           maxOutputTokens, temperature: 0.1, responseMimeType,
         });
         finalText = strictReply.text;
@@ -235,7 +235,7 @@ function createMentorResponseBuilder(deps) {
           const repairContents = [
             { role: 'user', parts: [{ text: `${systemPrompt}\n\n${repairPrompt}` }] },
           ];
-          const repaired = await callGemini(GEMINI_MODEL, repairContents, {
+          const repaired = await callGemini(GEMINI_TUTOR_MODEL, repairContents, {
             maxOutputTokens, temperature: 0.2, responseMimeType,
           });
           finalText = repaired.text;
@@ -293,7 +293,7 @@ function createMentorResponseBuilder(deps) {
         const repairContents = [
           { role: 'user', parts: [{ text: `${systemPrompt}\n\n${repairPrompt}` }] },
         ];
-        const repaired = await callGemini(GEMINI_MODEL, repairContents, {
+        const repaired = await callGemini(GEMINI_TUTOR_MODEL, repairContents, {
           maxOutputTokens: 700, temperature: 0.2,
         });
         finalText = sanitizeExplainOutput(repaired.text);
@@ -317,7 +317,7 @@ function createMentorResponseBuilder(deps) {
         const repairContents = [
           { role: 'user', parts: [{ text: `${systemPrompt}\n\n${repairPrompt}` }] },
         ];
-        const repaired = await callGemini(GEMINI_MODEL, repairContents, {
+        const repaired = await callGemini(GEMINI_TUTOR_MODEL, repairContents, {
           maxOutputTokens: 700, temperature: 0.2,
         });
         finalText = sanitizeExplainOutput(repaired.text);
@@ -341,7 +341,7 @@ function createMentorResponseBuilder(deps) {
         const repairContents = [
           { role: 'user', parts: [{ text: `${systemPrompt}\n\n${repairPrompt}` }] },
         ];
-        const repaired = await callGemini(GEMINI_MODEL, repairContents, {
+        const repaired = await callGemini(GEMINI_TUTOR_MODEL, repairContents, {
           maxOutputTokens: 650, temperature: 0.2,
         });
         finalText = sanitizeExplainOutput(repaired.text);
