@@ -758,7 +758,6 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     ],
     "examPatterns": [
       "1 mark: identify terminating/non-terminating decimal or quick HCF/LCM fact.",
-      "2–3 marks: Euclid algorithm problem or “prove √2 is irrational” style proof.",
       "Short reasoning questions based on prime factorisation and decimals."
     ],
     "markingTips": [

@@ -1000,27 +1000,6 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
     defaultTier: "must-crack",
     questions: [
       {
-        id: "rn-hpq-1",
-        subject: "Maths",
-        topic: "Real Numbers",
-        subtopic: "Euclid’s Division Algorithm",
-        concept: "Finding HCF using Euclid’s algorithm",
-        section: "A",
-        type: "MCQ",
-        difficulty: "Easy",
-        marks: 1,
-        likelihood: "Very High",
-        tier: "must-crack",
-        bloomSkill: "Applying",
-        question:
-          "Euclid’s division algorithm is used to find: (A) LCM of two numbers (B) HCF of two numbers (C) Sum of two numbers (D) Product of two numbers",
-        answer: "HCF of two numbers",
-        explanation:
-          "Euclid’s division algorithm repeatedly applies the relation a = bq + r to get the HCF of two positive integers.",
-        pastBoardYear: "2024",
-        policyTag: "RN-Euclid-HCF-MCQ",
-      },
-      {
         id: "rn-hpq-2",
         subject: "Maths",
         topic: "Real Numbers",
@@ -2182,55 +2161,6 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
     subject: "Maths",
     defaultTier: "must-crack",
     questions: [
-      {
-        id: "math-real-hpq-1",
-        subject: "Maths",
-        topic: "Real Numbers",
-        subtopic: "Euclid’s division algorithm",
-        concept: "Meaning & use of Euclid’s algorithm",
-        section: "A",
-        type: "MCQ",
-        difficulty: "Easy",
-        marks: 1,
-        likelihood: "Very High",
-        tier: "must-crack",
-        bloomSkill: "Remembering",
-        question:
-          "Euclid’s division algorithm is mainly used to find: (A) LCM of two numbers (B) HCF of two numbers (C) Product of two numbers (D) Sum of two numbers",
-        answer: "HCF of two numbers",
-        solutionSteps: [
-          "Recall the statement: given positive integers a and b, there exist unique integers q and r such that a = bq + r, 0 ≤ r < b.",
-          "We repeatedly apply the division lemma to reduce the larger number until remainder is 0.",
-          "The last non-zero remainder obtained in this process is the HCF of the two numbers.",
-        ],
-        explanation:
-          "Board often asks the basic purpose of Euclid’s division algorithm in 1-mark MCQs.",
-      },
-      {
-        id: "math-real-hpq-2",
-        subject: "Maths",
-        topic: "Real Numbers",
-        subtopic: "Euclid’s division algorithm",
-        concept: "Finding HCF using Euclid",
-        section: "B",
-        type: "VeryShort",
-        difficulty: "Medium",
-        marks: 2,
-        likelihood: "High",
-        tier: "must-crack",
-        bloomSkill: "Applying",
-        question:
-          "Use Euclid’s division algorithm to find the HCF of 91 and 65.",
-        answer: "HCF(91, 65) = 13",
-        solutionSteps: [
-          "Apply division: 91 = 65 × 1 + 26.",
-          "Next: 65 = 26 × 2 + 13.",
-          "Next: 26 = 13 × 2 + 0, so remainder becomes 0.",
-          "Therefore, the last non-zero remainder = 13 is the HCF.",
-        ],
-        explanation:
-          "Typical 2-mark Euclid question – 2 or 3 division steps with final HCF clearly stated.",
-      },
       {
         id: "math-real-hpq-3",
         subject: "Maths",

@@ -332,17 +332,6 @@
       "generatedAt": "2026-04-11T04:39:06.695Z",
       "topicKey": "Our Environment"
     },
-    "euclids-division-lemma": {
-      "subject": "maths",
-      "chapter": "real-numbers",
-      "chapterName": "Real Numbers",
-      "conceptName": "Euclids Division Lemma",
-      "slug": "euclids-division-lemma",
-      "filePath": "/app/visuals/maths/real-numbers/euclids-division-lemma.html",
-      "sizeKB": 17.4,
-      "generatedAt": "2026-04-11T04:53:02.794Z",
-      "topicKey": "Real Numbers"
-    },
     "fundamental-theorem-of-arithmetic": {
       "subject": "maths",
       "chapter": "real-numbers",
@@ -1075,7 +1064,6 @@
   "topicKeys": {
     "Real Numbers": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
@@ -3774,385 +3762,330 @@
     ],
     "RN-E01": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-E02": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-E03": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-E04": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-E05": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-E06": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-E07": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-E08": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-E09": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-E10": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-E11": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-E12": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-E13": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-E14": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-E15": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-E16": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-E17": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-E18": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-E19": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-E20": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-M01": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-M02": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-M03": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-M04": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-M05": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-M06": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-M07": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-M08": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-M09": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-M10": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-M11": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-M12": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-M13": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-M14": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-M15": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-M16": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-M17": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-M18": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-M19": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-M20": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-H01": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-H02": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-H03": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-H04": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-H05": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-H06": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-H07": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-H08": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-H09": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-H10": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-H11": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-H12": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-H13": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-H14": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"
     ],
     "RN-H15": [
       "irrational-numbers-proof",
-      "euclids-division-lemma",
       "fundamental-theorem-of-arithmetic",
       "hcf-and-lcm-using-prime-factorisation",
       "decimal-expansions"

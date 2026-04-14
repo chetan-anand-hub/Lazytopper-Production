@@ -2,16 +2,6 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 
 export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
   {
-    id: "RN-E01", subject: "Maths", topicKey: "Real Numbers", subtopic: "Euclid Division Lemma",
-    section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering",
-    questionText: "Using Euclid's division algorithm, the HCF of 455 and 42 is:",
-    options: ["7", "14", "21", "6"],
-    answer: "7",
-    solutionSteps: ["455 = 42 × 10 + 35", "42 = 35 × 1 + 7", "35 = 7 × 5 + 0", "HCF = 7"],
-    finalAnswer: "7",
-    isCompetencyBased: false,
-  },
-  {
     id: "RN-E02", subject: "Maths", topicKey: "Real Numbers", subtopic: "Fundamental Theorem of Arithmetic",
     section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering",
     questionText: "The prime factorisation of 156 is:",
@@ -52,15 +42,6 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     isCompetencyBased: false,
   },
   {
-    id: "RN-E06", subject: "Maths", topicKey: "Real Numbers", subtopic: "Euclid Division Lemma",
-    section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding",
-    questionText: "In Euclid's division lemma, if a = bq + r, then which condition must r satisfy?",
-    options: ["0 < r < b", "0 ≤ r < b", "0 < r ≤ b", "0 ≤ r ≤ b"],
-    answer: "0 ≤ r < b",
-    finalAnswer: "0 ≤ r < b",
-    isCompetencyBased: false,
-  },
-  {
     id: "RN-E07", subject: "Maths", topicKey: "Real Numbers", subtopic: "HCF and LCM",
     section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering",
     questionText: "The HCF of two consecutive even numbers is:",
@@ -87,14 +68,6 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     solutionSteps: ["11 = 11¹", "Denominator has prime factor other than 2 or 5", "So decimal is non-terminating repeating"],
     finalAnswer: "Non-terminating repeating",
     isCompetencyBased: false,
-  },
-  {
-    id: "RN-E10", subject: "Maths", topicKey: "Real Numbers", subtopic: "Euclid Division Lemma",
-    section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
-    questionText: "Use Euclid's division algorithm to find the HCF of 135 and 225.",
-    solutionSteps: ["225 = 135 × 1 + 90", "135 = 90 × 1 + 45", "90 = 45 × 2 + 0", "HCF = 45"],
-    finalAnswer: "45",
-    isCompetencyBased: true,
   },
   {
     id: "RN-E11", subject: "Maths", topicKey: "Real Numbers", subtopic: "HCF and LCM",
@@ -143,15 +116,6 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     isCompetencyBased: true,
   },
   {
-    id: "RN-E16", subject: "Maths", topicKey: "Real Numbers", subtopic: "Euclid Division Lemma",
-    section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding",
-    questionText: "Euclid's division algorithm is used to find:",
-    options: ["LCM", "HCF", "Both HCF and LCM", "Prime factorisation"],
-    answer: "HCF",
-    finalAnswer: "HCF",
-    isCompetencyBased: false,
-  },
-  {
     id: "RN-E17", subject: "Maths", topicKey: "Real Numbers", subtopic: "Fundamental Theorem of Arithmetic",
     section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding",
     questionText: "Assertion (A): 6ⁿ can never end with digit 0 for any natural number n.\nReason (R): 6ⁿ = (2 × 3)ⁿ, which has no factor of 5.",
@@ -186,14 +150,6 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     answer: "Always irrational",
     finalAnswer: "Always irrational",
     isCompetencyBased: false,
-  },
-  {
-    id: "RN-M01", subject: "Maths", topicKey: "Real Numbers", subtopic: "Euclid Division Lemma",
-    section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "Use Euclid's division algorithm to find the HCF of 867 and 255.",
-    solutionSteps: ["867 = 255 × 3 + 102", "255 = 102 × 2 + 51", "102 = 51 × 2 + 0", "HCF = 51"],
-    finalAnswer: "51",
-    isCompetencyBased: true,
   },
   {
     id: "RN-M02", subject: "Maths", topicKey: "Real Numbers", subtopic: "Fundamental Theorem of Arithmetic",
@@ -267,19 +223,6 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     isCompetencyBased: true,
   },
   {
-    id: "RN-M09", subject: "Maths", topicKey: "Real Numbers", subtopic: "Euclid Division Lemma",
-    section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "Show that any positive odd integer is of the form 6q + 1, or 6q + 3, or 6q + 5, where q is some integer.",
-    solutionSteps: [
-      "By Euclid's division lemma, a = 6q + r, where 0 ≤ r < 6, so r = 0, 1, 2, 3, 4, 5.",
-      "a = 6q (even), 6q+1 (odd), 6q+2 (even), 6q+3 (odd), 6q+4 (even), 6q+5 (odd).",
-      "Odd integers correspond to r = 1, 3, 5.",
-      "Hence any positive odd integer is of the form 6q+1, 6q+3, or 6q+5."
-    ],
-    finalAnswer: "Proved using Euclid's division lemma",
-    isCompetencyBased: true,
-  },
-  {
     id: "RN-M10", subject: "Maths", topicKey: "Real Numbers", subtopic: "Fundamental Theorem of Arithmetic",
     section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "Assertion (A): The HCF of two numbers is 18 and their product is 12960. Then their LCM is 720.\nReason (R): HCF × LCM = Product of two numbers.",
@@ -318,20 +261,6 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     questionText: "Three bells toll at intervals of 9, 12 and 15 minutes respectively. If they start tolling together, after what time will they next toll together?",
     solutionSteps: ["Find LCM(9, 12, 15)", "9 = 3²", "12 = 2² × 3", "15 = 3 × 5", "LCM = 2² × 3² × 5 = 180 minutes = 3 hours"],
     finalAnswer: "180 minutes (3 hours)",
-    isCompetencyBased: true,
-  },
-  {
-    id: "RN-M14", subject: "Maths", topicKey: "Real Numbers", subtopic: "Euclid Division Lemma",
-    section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "Use Euclid's division lemma to show that the square of any positive integer is of the form 3m or 3m + 1 for some integer m.",
-    solutionSteps: [
-      "Let a be any positive integer. By EDL, a = 3q, 3q+1, or 3q+2.",
-      "Case 1: a = 3q → a² = 9q² = 3(3q²) = 3m where m = 3q².",
-      "Case 2: a = 3q+1 → a² = 9q² + 6q + 1 = 3(3q² + 2q) + 1 = 3m + 1.",
-      "Case 3: a = 3q+2 → a² = 9q² + 12q + 4 = 3(3q² + 4q + 1) + 1 = 3m + 1.",
-      "In all cases, a² is of the form 3m or 3m + 1."
-    ],
-    finalAnswer: "Proved",
     isCompetencyBased: true,
   },
   {
@@ -392,20 +321,6 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     isCompetencyBased: true,
   },
   {
-    id: "RN-M20", subject: "Maths", topicKey: "Real Numbers", subtopic: "Euclid Division Lemma",
-    section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing",
-    questionText: "In a seminar, the number of participants in Hindi, English and Mathematics are 60, 84 and 108 respectively.\n(i) Find the minimum number of rooms required if in each room the same number of participants are to be seated and all of them being of the same subject.\n(ii) Find the HCF of 60, 84 and 108.\n(iii) How many participants of each subject are in one room?\n(iv) What is the LCM of 60 and 84?",
-    solutionSteps: [
-      "60 = 2² × 3 × 5, 84 = 2² × 3 × 7, 108 = 2² × 3³",
-      "(ii) HCF = 2² × 3 = 12",
-      "(iii) 12 participants per room",
-      "(i) Rooms = 60/12 + 84/12 + 108/12 = 5 + 7 + 9 = 21",
-      "(iv) LCM(60, 84) = 2² × 3 × 5 × 7 = 420"
-    ],
-    finalAnswer: "(i) 21, (ii) 12, (iii) 12, (iv) 420",
-    isCompetencyBased: true,
-  },
-  {
     id: "RN-H01", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrationality Proofs",
     section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing",
     questionText: "Prove that √2 + √5 is irrational.",
@@ -417,20 +332,6 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
       "Hence √2 + √5 is irrational."
     ],
     finalAnswer: "√2 + √5 is irrational (proved by contradiction)",
-    isCompetencyBased: true,
-  },
-  {
-    id: "RN-H02", subject: "Maths", topicKey: "Real Numbers", subtopic: "Euclid Division Lemma",
-    section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing",
-    questionText: "Use Euclid's division lemma to show that the cube of any positive integer is of the form 9m, 9m + 1, or 9m + 8.",
-    solutionSteps: [
-      "Let a = 3q, 3q+1, or 3q+2.",
-      "Case 1: (3q)³ = 27q³ = 9(3q³) = 9m.",
-      "Case 2: (3q+1)³ = 27q³ + 27q² + 9q + 1 = 9(3q³ + 3q² + q) + 1 = 9m + 1.",
-      "Case 3: (3q+2)³ = 27q³ + 54q² + 36q + 8 = 9(3q³ + 6q² + 4q) + 8 = 9m + 8.",
-      "Hence proved."
-    ],
-    finalAnswer: "Proved",
     isCompetencyBased: true,
   },
   {
@@ -474,22 +375,6 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
       "Since it is expressed as p/q, it is rational."
     ],
     finalAnswer: "59/18; yes, it is rational",
-    isCompetencyBased: true,
-  },
-  {
-    id: "RN-H06", subject: "Maths", topicKey: "Real Numbers", subtopic: "Euclid Division Lemma",
-    section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing",
-    questionText: "Use Euclid's division lemma to show that the square of any positive integer is either of the form 5m, 5m + 1 or 5m + 4 for some integer m.",
-    solutionSteps: [
-      "By EDL, any positive integer a = 5q + r, where r = 0, 1, 2, 3, 4.",
-      "a = 5q: a² = 25q² = 5(5q²) = 5m.",
-      "a = 5q+1: a² = 25q² + 10q + 1 = 5(5q² + 2q) + 1 = 5m + 1.",
-      "a = 5q+2: a² = 25q² + 20q + 4 = 5(5q² + 4q) + 4 = 5m + 4.",
-      "a = 5q+3: a² = 25q² + 30q + 9 = 5(5q² + 6q + 1) + 4 = 5m + 4.",
-      "a = 5q+4: a² = 25q² + 40q + 16 = 5(5q² + 8q + 3) + 1 = 5m + 1.",
-      "Hence a² is of the form 5m, 5m + 1, or 5m + 4."
-    ],
-    finalAnswer: "Proved",
     isCompetencyBased: true,
   },
   {
@@ -572,23 +457,6 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
       "Hence √2/3 is irrational."
     ],
     finalAnswer: "√2/3 is irrational",
-    isCompetencyBased: true,
-  },
-  {
-    id: "RN-H13", subject: "Maths", topicKey: "Real Numbers", subtopic: "Euclid Division Lemma",
-    section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
-    questionText: "Find the HCF of 4052 and 12576 using Euclid's division algorithm.",
-    solutionSteps: [
-      "12576 = 4052 × 3 + 420",
-      "4052 = 420 × 9 + 272",
-      "420 = 272 × 1 + 148",
-      "272 = 148 × 1 + 124",
-      "148 = 124 × 1 + 24",
-      "124 = 24 × 5 + 4",
-      "24 = 4 × 6 + 0",
-      "HCF = 4"
-    ],
-    finalAnswer: "4",
     isCompetencyBased: true,
   },
   {

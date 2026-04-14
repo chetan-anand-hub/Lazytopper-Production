@@ -60,11 +60,10 @@ export const class10MathTopicTrends = {
       weightagePercent: 7.69,
       tier: "high-roi" as TopicTier,
       summary:
-        "Euclid division lemma, HCF/LCM, irrationality proofs, decimal expansions—often 1 short + 1 MCQ.",
+        "HCF/LCM via prime factorisation, irrationality proofs, decimal expansions—often 1 short + 1 MCQ.",
       conceptWeightage: {
-        "Euclid Division Lemma": 30,
-        "Fundamental Theorem of Arithmetic": 35,
-        "Irrationality Proofs": 25,
+        "Fundamental Theorem of Arithmetic": 55,
+        "Irrationality Proofs": 35,
         "Decimal Expansion": 10,
       },
     },

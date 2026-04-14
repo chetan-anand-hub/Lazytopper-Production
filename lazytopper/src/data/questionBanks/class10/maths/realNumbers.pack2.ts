@@ -2,64 +2,6 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 
 export const RN2_PACK2: CanonicalQuestion[] = [
   {
-    "id": "RN2-001",
-    "subject": "Maths",
-    "topicKey": "Real Numbers",
-    "subtopic": "Euclid Division Lemma",
-    "section": "A",
-    "marks": 1,
-    "format": "MCQ",
-    "difficulty": "Easy",
-    "bloomSkill": "Remembering",
-    "questionText": "If a = bq + r, according to Euclid's Division Lemma, which of the following is always true?",
-    "options": [
-      "0 ≤ r < b",
-      "0 < r ≤ b",
-      "r ≥ b",
-      "r can be any real number"
-    ],
-    "answer": "0 ≤ r < b",
-    "solutionSteps": [
-      "Euclid's Division Lemma states: For any two positive integers a and b, there exist unique integers q and r such that a = bq + r",
-      "The remainder r must satisfy: 0 ≤ r < b",
-      "This ensures r is non-negative and strictly less than the divisor b"
-    ],
-    "finalAnswer": "0 ≤ r < b",
-    "isCompetencyBased": false,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 1.1"
-  },
-  {
-    "id": "RN2-002",
-    "subject": "Maths",
-    "topicKey": "Real Numbers",
-    "subtopic": "Euclid Division Lemma",
-    "section": "A",
-    "marks": 1,
-    "format": "MCQ",
-    "difficulty": "Easy",
-    "bloomSkill": "Understanding",
-    "questionText": "Using Euclid's Division Lemma, the HCF of 135 and 225 can be found. Which pair is obtained in the first step?",
-    "options": [
-      "225 = 135 × 1 + 90",
-      "225 = 135 × 2 + 45",
-      "225 = 135 × 1 + 45",
-      "135 = 225 × 0 + 135"
-    ],
-    "answer": "225 = 135 × 1 + 90",
-    "solutionSteps": [
-      "Apply Euclid's algorithm: 225 = 135q + r",
-      "225 ÷ 135 gives quotient 1 and remainder 90",
-      "So, 225 = 135 × 1 + 90"
-    ],
-    "finalAnswer": "225 = 135 × 1 + 90",
-    "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 1.1"
-  },
-  {
     "id": "RN2-003",
     "subject": "Maths",
     "topicKey": "Real Numbers",
@@ -112,32 +54,6 @@ export const RN2_PACK2: CanonicalQuestion[] = [
     "pyqYear": undefined,
     "pyqSet": undefined,
     "ncertRef": "Ex 1.2"
-  },
-  {
-    "id": "RN2-005",
-    "subject": "Maths",
-    "topicKey": "Real Numbers",
-    "subtopic": "HCF and LCM",
-    "section": "B",
-    "marks": 2,
-    "format": "Short",
-    "difficulty": "Medium",
-    "bloomSkill": "Applying",
-    "questionText": "Find the HCF of 96 and 404 using Euclid's Division Algorithm.",
-    "options": [],
-    "answer": "4",
-    "solutionSteps": [
-      "404 = 96 × 4 + 20",
-      "96 = 20 × 4 + 16",
-      "20 = 16 × 1 + 4",
-      "16 = 4 × 4 + 0",
-      "When remainder is 0, HCF = 4"
-    ],
-    "finalAnswer": "4",
-    "isCompetencyBased": true,
-    "pyqYear": "2019",
-    "pyqSet": "A",
-    "ncertRef": "Ex 1.1"
   },
   {
     "id": "RN2-006",
@@ -363,36 +279,6 @@ export const RN2_PACK2: CanonicalQuestion[] = [
     "ncertRef": "Ex 1.3"
   },
   {
-    "id": "RN2-014",
-    "subject": "Maths",
-    "topicKey": "Real Numbers",
-    "subtopic": "Euclid Division Lemma",
-    "section": "A",
-    "marks": 1,
-    "format": "Assertion-Reasoning",
-    "difficulty": "Medium",
-    "bloomSkill": "Analysing",
-    "questionText": "Assertion (A): For any two positive integers a and b, HCF(a,b) × LCM(a,b) = a × b. Reason (R): Euclid's Division Lemma provides a systematic way to find HCF using the division algorithm.",
-    "options": [
-      "Both A and R are true, and R is the correct explanation of A.",
-      "Both A and R are true, but R is not the correct explanation of A.",
-      "A is true, R is false.",
-      "A is false, R is true."
-    ],
-    "answer": "Both A and R are true, but R is not the correct explanation of A.",
-    "solutionSteps": [
-      "A is true: HCF × LCM = product of numbers (fundamental property)",
-      "R is true: Euclid's Division Lemma is used to find HCF",
-      "However, R does not explain why the HCF-LCM product relationship exists",
-      "They are related but R is not the direct cause of A"
-    ],
-    "finalAnswer": "Both A and R are true, but R is not the correct explanation of A.",
-    "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 1.1"
-  },
-  {
     "id": "RN2-015",
     "subject": "Maths",
     "topicKey": "Real Numbers",
@@ -505,43 +391,6 @@ export const RN2_PACK2: CanonicalQuestion[] = [
     "ncertRef": "Ex 1.3"
   },
   {
-    "id": "RN2-019",
-    "subject": "Maths",
-    "topicKey": "Real Numbers",
-    "subtopic": "Fundamental Theorem of Arithmetic",
-    "section": "D",
-    "marks": 5,
-    "format": "Long",
-    "difficulty": "Hard",
-    "bloomSkill": "Evaluating",
-    "questionText": "Using the Fundamental Theorem of Arithmetic, find HCF and LCM of 240 and 336. Also express HCF as a linear combination of 240 and 336 using Euclid's Division Algorithm.",
-    "options": [],
-    "answer": "HCF = 48, LCM = 1680, 48 = 240 × (-5) + 336 × 4",
-    "solutionSteps": [
-      "Step 1: Prime factorization",
-      "240 = 2⁴ × 3 × 5",
-      "336 = 2⁴ × 3 × 7",
-      "Step 2: HCF = 2⁴ × 3 = 48",
-      "Step 3: LCM = 2⁴ × 3 × 5 × 7 = 1680",
-      "Step 4: Apply Euclid's Division Algorithm",
-      "336 = 240 × 1 + 96",
-      "240 = 96 × 2 + 48",
-      "96 = 48 × 2 + 0",
-      "HCF = 48",
-      "Step 5: Back substitution for linear combination",
-      "48 = 240 - 96 × 2",
-      "48 = 240 - (336 - 240 × 1) × 2",
-      "48 = 240 - 336 × 2 + 240 × 2",
-      "48 = 240 × 3 - 336 × 2",
-      "Or: 48 = 240 × (-5) + 336 × 4"
-    ],
-    "finalAnswer": "HCF = 48, LCM = 1680, 48 = 240 × (-5) + 336 × 4",
-    "isCompetencyBased": true,
-    "pyqYear": "2025",
-    "pyqSet": "A",
-    "ncertRef": "Ex 1.2"
-  },
-  {
     "id": "RN2-020",
     "subject": "Maths",
     "topicKey": "Real Numbers",
@@ -566,31 +415,6 @@ export const RN2_PACK2: CanonicalQuestion[] = [
     "pyqYear": undefined,
     "pyqSet": undefined,
     "ncertRef": "Ex 1.3"
-  },
-  {
-    "id": "RN2-021",
-    "subject": "Maths",
-    "topicKey": "Real Numbers",
-    "subtopic": "Euclid Division Lemma",
-    "section": "B",
-    "marks": 2,
-    "format": "Short",
-    "difficulty": "Medium",
-    "bloomSkill": "Applying",
-    "questionText": "Find GCD(1071, 462) using Euclid's Division Lemma.",
-    "options": [],
-    "answer": "21",
-    "solutionSteps": [
-      "1071 = 462 × 2 + 147",
-      "462 = 147 × 3 + 21",
-      "147 = 21 × 7 + 0",
-      "GCD = 21"
-    ],
-    "finalAnswer": "21",
-    "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 1.1"
   },
   {
     "id": "RN2-022",
@@ -643,65 +467,6 @@ export const RN2_PACK2: CanonicalQuestion[] = [
     "pyqYear": undefined,
     "pyqSet": undefined,
     "ncertRef": "Ex 1.3"
-  },
-  {
-    "id": "RN2-024",
-    "subject": "Maths",
-    "topicKey": "Real Numbers",
-    "subtopic": "Euclid Division Lemma",
-    "section": "A",
-    "marks": 1,
-    "format": "MCQ",
-    "difficulty": "Easy",
-    "bloomSkill": "Remembering",
-    "questionText": "According to Euclid's Division Lemma, if a = bq + r, then which of the following is always true?",
-    "options": [
-      "r > b",
-      "r ≥ 0 and r < b",
-      "r = 0",
-      "r > 0"
-    ],
-    "answer": "r ≥ 0 and r < b",
-    "solutionSteps": [
-      "Euclid's Division Lemma states: For any two positive integers a and b, there exist unique integers q and r such that a = bq + r.",
-      "The remainder r must satisfy the condition: 0 ≤ r < b",
-      "This means r is non-negative and strictly less than divisor b."
-    ],
-    "finalAnswer": "r ≥ 0 and r < b",
-    "isCompetencyBased": false,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 1.1"
-  },
-  {
-    "id": "RN2-025",
-    "subject": "Maths",
-    "topicKey": "Real Numbers",
-    "subtopic": "Euclid Division Lemma",
-    "section": "A",
-    "marks": 1,
-    "format": "MCQ",
-    "difficulty": "Easy",
-    "bloomSkill": "Applying",
-    "questionText": "Using Euclid's Division Lemma, find HCF(96, 36):",
-    "options": [
-      "12",
-      "6",
-      "18",
-      "24"
-    ],
-    "answer": "12",
-    "solutionSteps": [
-      "96 = 36 × 2 + 24",
-      "36 = 24 × 1 + 12",
-      "24 = 12 × 2 + 0",
-      "When remainder is 0, HCF = 12"
-    ],
-    "finalAnswer": "12",
-    "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 1.1"
   },
   {
     "id": "RN2-026",
@@ -1045,36 +810,6 @@ export const RN2_PACK2: CanonicalQuestion[] = [
     "pyqYear": "2019",
     "pyqSet": undefined,
     "ncertRef": "Ex 1.2, Ex 1.3"
-  },
-  {
-    "id": "RN2-038",
-    "subject": "Maths",
-    "topicKey": "Real Numbers",
-    "subtopic": "Euclid Division Lemma",
-    "section": "E",
-    "marks": 4,
-    "format": "Case-Based",
-    "difficulty": "Medium",
-    "bloomSkill": "Applying",
-    "questionText": "A school has 504 books and 840 notebooks. The teachers want to distribute these among students equally without any remainder. (i) Find the maximum number of students who can receive equal distribution. (ii) How many books will each student get? (iii) How many notebooks will each student get? (iv) What method/algorithm is used to solve this problem?",
-    "options": [],
-    "answer": "(i) 168 students (ii) 3 books (iii) 5 notebooks (iv) Euclid's Division Algorithm",
-    "solutionSteps": [
-      "(i) Maximum number of students = HCF(504, 840)",
-      "Using Euclid's Division Lemma:",
-      "840 = 504 × 1 + 336",
-      "504 = 336 × 1 + 168",
-      "336 = 168 × 2 + 0",
-      "HCF = 168 students",
-      "(ii) Books per student = 504 ÷ 168 = 3 books",
-      "(iii) Notebooks per student = 840 ÷ 168 = 5 notebooks",
-      "(iv) Euclid's Division Algorithm is used for finding HCF"
-    ],
-    "finalAnswer": "(i) 168 students (ii) 3 books (iii) 5 notebooks (iv) Euclid's Division Algorithm",
-    "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 1.1"
   },
   {
     "id": "RN2-039",

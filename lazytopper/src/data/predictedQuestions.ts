@@ -2484,21 +2484,6 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
 
   // ===== Real Numbers (high-roi) =====
   {
-    id: "2026-RN-MCQ-03",
-    topicKey: "Real Numbers",
-    subtopic: "Euclid's Division Algorithm",
-    kind: "MCQ",
-    section: "A",
-    marks: 1,
-    difficulty: "Easy",
-    bloomSkill: "Remembering",
-    questionText: "The HCF of 42 and 56 is:",
-    options: ["7", "8", "14", "6"],
-    answer: "14",
-    explanation:
-      "Applying Euclid's algorithm: 56 = 42 x 1 + 14 and 42 = 14 x 3 + 0, giving HCF = 14.",
-  },
-  {
     id: "2026-RN-MCQ-04",
     topicKey: "Real Numbers",
     subtopic: "Decimal Expansions",
@@ -2513,28 +2498,6 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
     answer: "14/125",
     explanation:
       "A fraction has a terminating decimal expansion when its denominator (in lowest terms) has only the prime factors 2 or 5. 125 = 5^3, so 14/125 qualifies.",
-  },
-  {
-    id: "2026-RN-SA-05",
-    topicKey: "Real Numbers",
-    subtopic: "Euclid's Division Algorithm",
-    kind: "Short",
-    section: "B",
-    marks: 2,
-    difficulty: "Medium",
-    bloomSkill: "Applying",
-    questionText:
-      "Use Euclid's division lemma to find the HCF of 135 and 225 and express it as a linear combination of 135 and 225.",
-    answer: "HCF = 45 and 45 = 2 x 135 - 225.",
-    explanation:
-      "Applying Euclid's algorithm: 225 = 135 x 1 + 90; 135 = 90 x 1 + 45; 90 = 45 x 2 + 0, so HCF = 45. Back-substituting gives 45 = 135 - (225 - 135) = 2 x 135 - 225.",
-    solutionSteps: [
-      "Perform Euclid's algorithm to find the HCF.",
-      "Express the remainder relation: 45 = 135 - 90 and 90 = 225 - 135.",
-      "Substitute to get 45 = 2 x 135 - 225.",
-    ],
-    strategyHint:
-      "After finding the HCF, work backwards to express it as a linear combination.",
   },
   {
     id: "2026-RN-AR-06",
