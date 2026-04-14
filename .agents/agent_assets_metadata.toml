@@ -1,5 +1,4 @@
 uploads = []
-outputs = []
 
 [[generated]]
 id = "iRUBeKti6UrnZ5JflcwH7"
@@ -24,3 +23,9 @@ id = "a9CQyYd2IfoIF65U_isf4"
 uri = "file://artifacts/mockup-sandbox/public/images/story-scroll-test-bg.png"
 type = "image"
 title = "Abstract test pattern background"
+
+[[outputs]]
+id = "HQLVOnCB1nmQ0dyT_S0kk"
+uri = "file://screenshots/diagram_compare_proof.jpg"
+type = "image"
+title = "SVG Diagram Quality Comparison — Claude Sonnet vs Gemini Pro"
