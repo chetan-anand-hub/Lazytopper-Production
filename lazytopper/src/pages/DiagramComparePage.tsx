@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { RequireAuth } from "../components/auth/RequireAuth";
 
 interface ModelResult {
   svg: string | null;
@@ -16,14 +17,28 @@ interface CompareResponse {
 const TEST_QUESTION =
   "In a right triangle ABC, angle B = 90 degrees. AB = 3 cm and BC = 4 cm. Find AC. Draw the triangle with all sides labelled.";
 
+function makeBlobUrl(svgContent: string): string {
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{margin:0;padding:8px;box-sizing:border-box;}svg{max-width:100%;height:auto;}</style></head><body>${svgContent}</body></html>`;
+  const blob = new Blob([html], { type: "text/html" });
+  return URL.createObjectURL(blob);
+}
+
 function SvgCard({
   result,
-  winner,
+  selected,
+  onSelect,
 }: {
   result: ModelResult;
-  winner: boolean;
+  selected: boolean;
+  onSelect: () => void;
 }) {
   const hasSvg = Boolean(result?.svg);
+  const blobUrlRef = useRef<string | null>(null);
+
+  if (hasSvg && !blobUrlRef.current) {
+    blobUrlRef.current = makeBlobUrl(result.svg!);
+  }
+
   return (
     <div
       style={{
@@ -31,23 +46,19 @@ function SvgCard({
         borderRadius: 12,
         padding: 20,
         boxShadow: "0 1px 4px rgba(0,0,0,.1)",
-        border: winner ? "2px solid #22c55e" : "1px solid #e2e8f0",
+        border: selected ? "2px solid #22c55e" : "1px solid #e2e8f0",
         flex: 1,
         minWidth: 0,
+        display: "flex",
+        flexDirection: "column",
+        gap: 12,
       }}
     >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-          marginBottom: 4,
-        }}
-      >
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <h2 style={{ margin: 0, fontSize: "1rem", fontWeight: 700 }}>
           {result?.provider === "claude" ? "Claude Sonnet" : "Gemini Pro"}
         </h2>
-        {winner && (
+        {selected && (
           <span
             style={{
               fontSize: "0.7rem",
@@ -58,7 +69,7 @@ function SvgCard({
               fontWeight: 700,
             }}
           >
-            WINNER ✓
+            SELECTED ✓
           </span>
         )}
         {!hasSvg && (
@@ -76,19 +87,24 @@ function SvgCard({
           </span>
         )}
       </div>
-      <div
-        style={{
-          fontSize: "0.75rem",
-          color: "#64748b",
-          marginBottom: 12,
-        }}
-      >
-        {result?.model} · {hasSvg ? `${(result.svg || "").length} chars` : "declined to draw"}
+
+      <div style={{ fontSize: "0.75rem", color: "#64748b" }}>
+        {result?.model}
+        {hasSvg && ` · ${(result.svg || "").length} chars`}
       </div>
+
       {hasSvg ? (
-        <div
-          style={{ border: "1px solid #f1f5f9", borderRadius: 8, padding: 12 }}
-          dangerouslySetInnerHTML={{ __html: result.svg! }}
+        <iframe
+          src={blobUrlRef.current!}
+          sandbox="allow-same-origin"
+          style={{
+            border: "1px solid #f1f5f9",
+            borderRadius: 8,
+            width: "100%",
+            height: 300,
+            display: "block",
+          }}
+          title={`${result?.provider} diagram`}
         />
       ) : (
         <div
@@ -103,23 +119,46 @@ function SvgCard({
             fontSize: "0.9rem",
           }}
         >
-          {result?.provider === "gemini" ? "Gemini Pro returned NO_DIAGRAM" : "Claude returned NO_DIAGRAM"}
+          {result?.provider === "gemini"
+            ? "Gemini Pro returned NO_DIAGRAM"
+            : "Claude returned NO_DIAGRAM"}
         </div>
+      )}
+
+      {hasSvg && (
+        <button
+          onClick={onSelect}
+          disabled={selected}
+          style={{
+            padding: "6px 16px",
+            borderRadius: 8,
+            border: selected ? "none" : "1px solid #0ea5e9",
+            background: selected ? "#22c55e" : "#fff",
+            color: selected ? "#fff" : "#0ea5e9",
+            fontWeight: 600,
+            fontSize: "0.85rem",
+            cursor: selected ? "default" : "pointer",
+          }}
+        >
+          {selected ? "Selected as winner" : "Select as winner"}
+        </button>
       )}
     </div>
   );
 }
 
-export default function DiagramComparePage() {
+function DiagramCompareInner() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<CompareResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [question, setQuestion] = useState(TEST_QUESTION);
+  const [winner, setWinner] = useState<"claude" | "gemini" | null>(null);
 
   async function runComparison(q: string) {
     setLoading(true);
     setError(null);
     setResult(null);
+    setWinner(null);
     try {
       const res = await fetch("/api/generate-diagram?compare=true", {
         method: "POST",
@@ -129,6 +168,8 @@ export default function DiagramComparePage() {
       });
       const data: CompareResponse = await res.json();
       setResult(data);
+      if (data.claude?.svg && !data.gemini?.svg) setWinner("claude");
+      else if (data.gemini?.svg && !data.claude?.svg) setWinner("gemini");
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Request failed");
     } finally {
@@ -140,9 +181,14 @@ export default function DiagramComparePage() {
     runComparison(question);
   }, []);
 
-  const claudeSvgLen = (result?.claude?.svg || "").length;
-  const geminiSvgLen = (result?.gemini?.svg || "").length;
-  const claudeWins = claudeSvgLen > 0 && claudeSvgLen >= geminiSvgLen;
+  const claudeHasSvg = Boolean(result?.claude?.svg);
+  const geminiHasSvg = Boolean(result?.gemini?.svg);
+
+  let verdictText = "";
+  if (winner === "claude") verdictText = "Reviewer selected Claude Sonnet as winner.";
+  else if (winner === "gemini") verdictText = "Reviewer selected Gemini Pro as winner.";
+  else if (result && claudeHasSvg && geminiHasSvg) verdictText = "Both models produced a diagram — select the better one above.";
+  else if (result && !claudeHasSvg && !geminiHasSvg) verdictText = "Both models returned NO_DIAGRAM for this question.";
 
   return (
     <div
@@ -153,7 +199,7 @@ export default function DiagramComparePage() {
         padding: 24,
       }}
     >
-      <div style={{ maxWidth: 960, margin: "0 auto" }}>
+      <div style={{ maxWidth: 1000, margin: "0 auto" }}>
         <h1
           style={{
             textAlign: "center",
@@ -172,7 +218,7 @@ export default function DiagramComparePage() {
             marginBottom: 20,
           }}
         >
-          Claude Sonnet vs Gemini Pro — same prompt, same rules
+          Claude Sonnet vs Gemini Pro — same prompt, same rules. Select the better diagram.
         </p>
 
         <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
@@ -231,44 +277,52 @@ export default function DiagramComparePage() {
         {result && !loading && (
           <>
             <div style={{ display: "flex", gap: 20, marginBottom: 20 }}>
-              <SvgCard result={result.claude} winner={claudeWins} />
-              <SvgCard result={result.gemini} winner={!claudeWins && geminiSvgLen > 0} />
+              <SvgCard
+                result={result.claude}
+                selected={winner === "claude"}
+                onSelect={() => setWinner("claude")}
+              />
+              <SvgCard
+                result={result.gemini}
+                selected={winner === "gemini"}
+                onSelect={() => setWinner("gemini")}
+              />
             </div>
 
-            <div
-              style={{
-                background: "#f0fdf4",
-                border: "1px solid #86efac",
-                borderRadius: 8,
-                padding: "16px 20px",
-                textAlign: "center",
-                color: "#166534",
-                lineHeight: 1.6,
-              }}
-            >
-              <strong>
-                {claudeWins
-                  ? "Verdict: Claude Sonnet wins."
-                  : geminiSvgLen > 0
-                  ? "Verdict: Gemini Pro wins."
-                  : "Both models returned NO_DIAGRAM for this question."}
-              </strong>
-              {claudeSvgLen > 0 && (
-                <span>
-                  {" "}
-                  Claude: {claudeSvgLen} chars
-                  {geminiSvgLen > 0 ? ` · Gemini: ${geminiSvgLen} chars` : " · Gemini: NO_DIAGRAM"}
-                  .
-                </span>
-              )}
-              <br />
-              <strong>
-                Final routing: Claude Sonnet (primary) → Gemini Pro (fallback).
-              </strong>
-            </div>
+            {verdictText && (
+              <div
+                style={{
+                  background: winner ? "#f0fdf4" : "#fffbeb",
+                  border: `1px solid ${winner ? "#86efac" : "#fde68a"}`,
+                  borderRadius: 8,
+                  padding: "16px 20px",
+                  textAlign: "center",
+                  color: winner ? "#166534" : "#92400e",
+                  lineHeight: 1.6,
+                }}
+              >
+                <strong>{verdictText}</strong>
+                {winner && (
+                  <>
+                    <br />
+                    <span style={{ fontSize: "0.85rem" }}>
+                      Current production routing: Claude Sonnet (primary) → Gemini Pro (fallback).
+                    </span>
+                  </>
+                )}
+              </div>
+            )}
           </>
         )}
       </div>
     </div>
+  );
+}
+
+export default function DiagramComparePage() {
+  return (
+    <RequireAuth>
+      <DiagramCompareInner />
+    </RequireAuth>
   );
 }
