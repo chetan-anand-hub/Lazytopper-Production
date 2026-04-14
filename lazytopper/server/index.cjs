@@ -187,6 +187,8 @@ const routeDeps = {
   ACTIVE_PROVIDER: config.ACTIVE_PROVIDER,
   STUB_MODE: config.STUB_MODE,
   HAS_ANTHROPIC_PROXY: config.HAS_ANTHROPIC_PROXY,
+  VISUALS_DIR: config.VISUALS_DIR,
+  MANIFEST_PATH: config.MANIFEST_PATH,
   isStubMode,
   buildStubMoreLikeThis,
   buildMoreLikeThisUserPrompt: mentorRoute.buildMoreLikeThisUserPrompt,

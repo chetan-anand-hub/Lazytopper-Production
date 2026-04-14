@@ -1057,6 +1057,19 @@
       "sizeKB": 16.9,
       "generatedAt": "2026-04-11T14:47:20.473Z",
       "topicKey": "Metals and Non-Metals"
+    },
+    "sin-cosine-graph": {
+      "subject": "maths",
+      "chapter": "trigonometry",
+      "conceptName": "Sin Cosine Graph",
+      "slug": "sin-cosine-graph",
+      "filePath": "/app/visuals/maths/trigonometry/sin-cosine-graph.html",
+      "sizeKB": 10,
+      "generatedAt": "2026-04-14T09:47:34.365Z",
+      "topicKey": "Trigonometry",
+      "provider": "claude",
+      "model": "claude-sonnet-4-6",
+      "aiGenerated": true
     }
   },
   "topicKeys": {

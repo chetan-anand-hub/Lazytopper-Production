@@ -1,3 +1,6 @@
+const fs = require('fs');
+const path = require('path');
+
 function createDiagramRoutes(deps) {
   const {
     sendJson,
@@ -8,7 +11,47 @@ function createDiagramRoutes(deps) {
     CLAUDE_MODEL_SONNET,
     STUB_MODE,
     HAS_ANTHROPIC_PROXY,
+    VISUALS_DIR,
+    MANIFEST_PATH,
   } = deps;
+
+  function saveVisualToDatabase({ html, filePath, subject, topic, concept, provider, model }) {
+    try {
+      if (!VISUALS_DIR || !MANIFEST_PATH) return;
+      if (!filePath || !filePath.startsWith('/app/visuals/')) return;
+      const relPath = filePath.replace('/app/visuals/', '');
+      const fsPath = path.join(VISUALS_DIR, relPath);
+      fs.mkdirSync(path.dirname(fsPath), { recursive: true });
+      fs.writeFileSync(fsPath, html, 'utf8');
+      const sizeKB = Math.round((Buffer.byteLength(html, 'utf8') / 1024) * 10) / 10;
+      let manifest = { version: 1, generatedAt: new Date().toISOString(), concepts: {} };
+      try {
+        const raw = fs.readFileSync(MANIFEST_PATH, 'utf8');
+        manifest = JSON.parse(raw);
+        if (!manifest.concepts) manifest.concepts = {};
+      } catch (_) {}
+      const parts = relPath.replace('.html', '').split('/');
+      const slug = parts[parts.length - 1] || relPath;
+      const chapterSlug = parts[1] || '';
+      manifest.concepts[slug] = {
+        subject: subject.toLowerCase(),
+        chapter: chapterSlug,
+        conceptName: concept || topic,
+        slug,
+        filePath,
+        sizeKB,
+        generatedAt: new Date().toISOString(),
+        topicKey: topic,
+        provider,
+        model,
+        aiGenerated: true,
+      };
+      fs.writeFileSync(MANIFEST_PATH, JSON.stringify(manifest, null, 2), 'utf8');
+      console.log(`[generate-visual] saved to database: ${fsPath} (${sizeKB}KB)`);
+    } catch (err) {
+      console.warn('[generate-visual] failed to save to database:', err?.message);
+    }
+  }
 
   async function handleGenerateDiagram(req, res) {
     let reqJson;
@@ -72,6 +115,7 @@ Question: ${questionText}`;
     const concept = String(reqJson?.concept || '').trim();
     const subject = String(reqJson?.subject || 'Maths').trim();
     const grade = Number(reqJson?.grade) || 10;
+    const requestedFilePath = String(reqJson?.filePath || '').trim();
 
     if (!topic && !concept) {
       return sendJson(res, 400, { ok: false, error: 'topic or concept is required' });
@@ -149,11 +193,27 @@ The visual should help a student understand this concept deeply and remember it 
       html = html.replace(/<iframe[\s\S]*?<\/iframe>/gi, '');
       html = html.replace(/<iframe[^>]*\/?>/gi, '');
 
+      const providerLabel = HAS_ANTHROPIC_PROXY ? 'claude' : 'gemini';
+      const modelLabel = HAS_ANTHROPIC_PROXY ? CLAUDE_MODEL_SONNET : GEMINI_MODEL;
+
+      if (requestedFilePath) {
+        saveVisualToDatabase({
+          html,
+          filePath: requestedFilePath,
+          subject,
+          topic,
+          concept,
+          provider: providerLabel,
+          model: modelLabel,
+        });
+      }
+
       return sendJson(res, 200, {
         ok: true,
         html,
-        provider: HAS_ANTHROPIC_PROXY ? 'claude' : 'gemini',
-        model: HAS_ANTHROPIC_PROXY ? CLAUDE_MODEL_SONNET : GEMINI_MODEL,
+        provider: providerLabel,
+        model: modelLabel,
+        savedToDatabase: Boolean(requestedFilePath),
       });
     } catch (err) {
       console.error('[generate-visual] Error:', err?.message || err);

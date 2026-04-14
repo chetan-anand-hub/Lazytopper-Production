@@ -73,6 +73,8 @@ function resolveConfig() {
   const FEEDBACK_DIR = path.join(REPO_ROOT, '.project_memory', 'ops', 'feedback');
   const FEEDBACK_FILE = path.join(FEEDBACK_DIR, 'triangles_feedback.jsonl');
   const TEACH_CACHE_TTL_MS = IS_DEV ? 90_000 : 60_000;
+  const VISUALS_DIR = path.join(REPO_ROOT, 'public', 'visuals');
+  const MANIFEST_PATH = path.join(VISUALS_DIR, 'manifest.json');
 
   return {
     PORT, CORS_ORIGIN, ENV_USED,
@@ -84,7 +86,7 @@ function resolveConfig() {
     STUB_MODE, ACTIVE_PROVIDER, HAS_DIRECT_KEY, IS_DEV,
     MAX_HISTORY_TURNS, TEACH_CACHE_TTL_MS,
     FEEDBACK_DIR, FEEDBACK_FILE,
-    REPO_ROOT,
+    REPO_ROOT, VISUALS_DIR, MANIFEST_PATH,
   };
 }
 

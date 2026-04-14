@@ -86,6 +86,7 @@ export function VisualExplainer({
           concept: fallbackConcept,
           subject: subject || "Maths",
           grade: 10,
+          filePath: src,
         }),
       })
         .then((r) => r.json())

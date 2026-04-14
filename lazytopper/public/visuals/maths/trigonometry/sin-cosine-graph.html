@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sin & Cosine Graphs – Class 10 CBSE Maths</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f8fafc; color: #1e293b; font-size: 15px; }
+  .title-bar { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; padding: 14px 24px; display: flex; align-items: center; gap: 12px; }
+  .title-bar h1 { font-size: 20px; font-weight: 700; }
+  .title-bar span { background: rgba(255,255,255,0.2); padding: 3px 10px; border-radius: 20px; font-size: 13px; }
+  .container { max-width: 900px; margin: 0 auto; padding: 16px; }
+  .card { background: white; border-radius: 12px; padding: 18px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+  .card h2 { font-size: 17px; color: #1e293b; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 14px; }
+  .btn { padding: 8px 18px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.2s; }
+  .btn-sin { background: #3b82f6; color: white; }
+  .btn-cos { background: #f59e0b; color: white; }
+  .btn-both { background: #22c55e; color: white; }
+  .btn:hover { opacity: 0.85; transform: translateY(-1px); }
+  .btn.active { box-shadow: 0 0 0 3px rgba(0,0,0,0.2); }
+  canvas { width: 100%; border-radius: 8px; display: block; }
+  .slider-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .slider-row label { font-size: 14px; font-weight: 600; min-width: 110px; }
+  input[type=range] { flex: 1; min-width: 120px; accent-color: #3b82f6; }
+  .val-badge { background: #eff6ff; color: #3b82f6; padding: 3px 10px; border-radius: 6px; font-weight: 700; min-width: 60px; text-align: center; font-size: 14px; }
+  .info-box { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+  .info-chip { padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; }
+  .chip-sin { background: #eff6ff; color: #3b82f6; border: 1.5px solid #3b82f6; }
+  .chip-cos { background: #fffbeb; color: #d97706; border: 1.5px solid #f59e0b; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { background: #3b82f6; color: white; padding: 8px 10px; }
+  td { padding: 7px 10px; text-align: center; border-bottom: 1px solid #e2e8f0; }
+  tr:nth-child(even) td { background: #f8fafc; }
+  .sin-val { color: #3b82f6; font-weight: 700; }
+  .cos-val { color: #d97706; font-weight: 700; }
+  .tip-box { background: #fef9c3; border-left: 4px solid #f59e0b; padding: 12px 16px; border-radius: 8px; font-size: 14px; line-height: 1.6; }
+  .tip-box strong { color: #92400e; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 8px; }
+  .leg-item { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; }
+  .leg-dot { width: 28px; height: 4px; border-radius: 2px; }
+  .point-info { background: #f0fdf4; border: 1.5px solid #22c55e; border-radius: 8px; padding: 10px 14px; font-size: 14px; margin-top: 10px; min-height: 40px; }
+</style>
+</head>
+<body>
+<div class="title-bar">
+  <div>📈</div>
+  <h1>Sin & Cosine Graphs</h1>
+  <span>Class 10 CBSE</span>
+  <span>Trigonometry</span>
+</div>
+<div class="container">
+
+  <!-- Interactive Graph -->
+  <div class="card">
+    <h2>🎛️ Interactive Graph Explorer</h2>
+    <div class="controls">
+      <button class="btn btn-sin active" id="btnSin" onclick="setMode('sin')">sin θ</button>
+      <button class="btn btn-cos" id="btnCos" onclick="setMode('cos')">cos θ</button>
+      <button class="btn btn-both" id="btnBoth" onclick="setMode('both')">Both</button>
+    </div>
+    <div class="slider-row">
+      <label>📍 Angle θ:</label>
+      <input type="range" id="angleSlider" min="0" max="360" value="0" oninput="updateAngle(this.value)">
+      <span class="val-badge" id="angleVal">0°</span>
+    </div>
+    <canvas id="graphCanvas" height="220"></canvas>
+    <div class="legend">
+      <div class="leg-item"><div class="leg-dot" style="background:#3b82f6"></div> sin θ</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#f59e0b"></div> cos θ</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#ef4444; height:2px; border-top:2px dashed #ef4444;"></div> Moving point</div>
+    </div>
+    <div class="point-info" id="pointInfo">Move the slider to explore values of sin θ and cos θ!</div>
+  </div>
+
+  <!-- Value Table -->
+  <div class="card">
+    <h2>📊 Key Values Table</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>θ</th><th>0°</th><th>30°</th><th>45°</th><th>60°</th><th>90°</th><th>180°</th><th>270°</th><th>360°</th></tr></thead>
+        <tbody>
+          <tr><td><strong>sin θ</strong></td>
+            <td class="sin-val">0</td><td class="sin-val">1/2</td><td class="sin-val">1/√2</td><td class="sin-val">√3/2</td><td class="sin-val">1</td><td class="sin-val">0</td><td class="sin-val">−1</td><td class="sin-val">0</td>
+          </tr>
+          <tr><td><strong>cos θ</strong></td>
+            <td class="cos-val">1</td><td class="cos-val">√3/2</td><td class="cos-val">1/√2</td><td class="cos-val">1/2</td><td class="cos-val">0</td><td class="cos-val">−1</td><td class="cos-val">0</td><td class="cos-val">1</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="info-box" style="margin-top:12px;">
+      <div class="info-chip chip-sin">sin: starts at 0, peaks at 90°</div>
+      <div class="info-chip chip-cos">cos: starts at 1, zero at 90°</div>
+      <div class="info-chip chip-sin">Range: [−1, 1]</div>
+      <div class="info-chip chip-cos">Period: 360°</div>
+    </div>
+  </div>
+
+  <!-- Key Properties -->
+  <div class="card">
+    <h2>🔑 Key Properties to Remember</h2>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+      <div style="background:#eff6ff; border-radius:8px; padding:12px;">
+        <div style="color:#3b82f6; font-weight:700; font-size:15px; margin-bottom:8px;">📘 sin θ</div>
+        <ul style="padding-left:16px; line-height:1.9; font-size:14px;">
+          <li>sin 0° = <strong>0</strong></li>
+          <li>sin 90° = <strong>1</strong> (maximum)</li>
+          <li>sin 180° = <strong>0</strong></li>
+          <li>sin 270° = <strong>−1</strong> (minimum)</li>
+          <li>sin 360° = <strong>0</strong></li>
+          <li>Odd function: sin(−θ) = −sin θ</li>
+        </ul>
+      </div>
+      <div style="background:#fffbeb; border-radius:8px; padding:12px;">
+        <div style="color:#d97706; font-weight:700; font-size:15px; margin-bottom:8px;">📙 cos θ</div>
+        <ul style="padding-left:16px; line-height:1.9; font-size:14px;">
+          <li>cos 0° = <strong>1</strong> (maximum)</li>
+          <li>cos 90° = <strong>0</strong></li>
+          <li>cos 180° = <strong>−1</strong> (minimum)</li>
+          <li>cos 270° = <strong>0</strong></li>
+          <li>cos 360° = <strong>1</strong></li>
+          <li>Even function: cos(−θ) = cos θ</li>
+        </ul>
+      </div>
+    </div>
+    <div style="margin-top:12px; background:#f0fdf4; border-radius:8px; padding:12px; font-size:14px; line-height:1.8;">
+      <strong style="color:#15803d;">🔗 Relationship:</strong> cos θ = sin(90° − θ) &nbsp;|&nbsp; sin²θ + cos²θ = 1 &nbsp;|&nbsp; cos θ is sin θ shifted left by 90°
+    </div>
+  </div>
+
+  <!-- Exam Tips -->
+  <div class="card">
+    <h2>⭐ CBSE Board Exam Tips</h2>
+    <div class="tip-box">
+      <strong>📝 Tip 1:</strong> The graph of cos θ is the graph of sin θ shifted 90° to the left.<br>
+      <strong>📝 Tip 2:</strong> Both graphs have the same shape (wave), same range [−1, 1], same period 360°.<br>
+      <strong>📝 Tip 3:</strong> sin θ = 0 at 0°, 180°, 360° → these are x-intercepts of sin graph.<br>
+      <strong>📝 Tip 4:</strong> cos θ = 0 at 90°, 270° → these are x-intercepts of cos graph.<br>
+      <strong>📝 Tip 5:</strong> Remember: <em>"Sin Starts at zero, Cos starts at one"</em> — easy memory trick!
+    </div>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('graphCanvas');
+const ctx = canvas.getContext('2d');
+let mode = 'sin';
+let currentAngle = 0;
+
+function setMode(m) {
+  mode = m;
+  ['btnSin','btnCos','btnBoth'].forEach(id => document.getElementById(id).classList.remove('active'));
+  document.getElementById(m === 'sin' ? 'btnSin' : m === 'cos' ? 'btnCos' : 'btnBoth').classList.add('active');
+  drawGraph();
+}
+
+function updateAngle(v) {
+  currentAngle = parseInt(v);
+  document.getElementById('angleVal').textContent = currentAngle + '°';
+  drawGraph();
+  updateInfo();
+}
+
+function updateInfo() {
+  const rad = currentAngle * Math.PI / 180;
+  const s = Math.sin(rad).toFixed(4);
+  const c = Math.cos(rad).toFixed(4);
+  let html = `θ = ${currentAngle}° &nbsp;→&nbsp; `;
+  if (mode === 'sin' || mode === 'both') html += `<span style="color:#3b82f6;font-weight:700;">sin ${currentAngle}° = ${s}</span>`;
+  if (mode === 'both') html += ' &nbsp;|&nbsp; ';
+  if (mode === 'cos' || mode === 'both') html += `<span style="color:#d97706;font-weight:700;">cos ${currentAngle}° = ${c}</span>`;
+  document.getElementById('pointInfo').innerHTML = html;
+}
+
+function drawGraph() {
+  const W = canvas.offsetWidth || 860;
+  const H = 220;
+  canvas.width = W;
+  canvas.height = H;
+  const padL = 44, padR = 20, padT = 20, padB = 30;
+  const gW = W - padL - padR;
+  const gH = H - padT - padB;
+  const midY = padT + gH / 2;
+
+  ctx.clearRect(0, 0, W, H);
+
+  // Background
+  ctx.fillStyle = '#f8fafc';
+  ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = 'white';
+  ctx.fillRect(padL, padT, gW, gH);
+
+  // Grid lines
+  ctx.strokeStyle = '#e2e8f0';
+  ctx.lineWidth = 1;
+  [0, 90, 180, 270, 360].forEach(deg => {
+    const x = padL + (deg / 360) * gW;
+    ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT + gH); ctx.stroke();
+    ctx.fillStyle = '#64748b'; ctx.font = '12px Segoe UI'; ctx.textAlign = 'center';
+    ctx.fillText(deg + '°', x, padT + gH + 18);
+  });
+  [1, 0.5, 0, -0.5, -1].forEach
