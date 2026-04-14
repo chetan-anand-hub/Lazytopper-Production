@@ -15,41 +15,85 @@ function createDiagramRoutes(deps) {
     MANIFEST_PATH,
   } = deps;
 
-  function saveVisualToDatabase({ html, filePath, subject, topic, concept, provider, model }) {
+  function toSlug(str) {
+    return String(str || '').toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
+  }
+
+  function saveVisualToDatabase({ html, requestedFilePath, subject, topic, concept, provider, model }) {
+    if (!VISUALS_DIR || !MANIFEST_PATH) return false;
     try {
-      if (!VISUALS_DIR || !MANIFEST_PATH) return;
-      if (!filePath || !filePath.startsWith('/app/visuals/')) return;
-      const relPath = filePath.replace('/app/visuals/', '');
-      const fsPath = path.join(VISUALS_DIR, relPath);
+      const safeRoot = path.resolve(VISUALS_DIR);
+      let fsPath = null;
+
+      if (
+        requestedFilePath &&
+        requestedFilePath.startsWith('/app/visuals/') &&
+        requestedFilePath.endsWith('.html')
+      ) {
+        const relPath = requestedFilePath.slice('/app/visuals/'.length);
+        const candidate = path.resolve(VISUALS_DIR, relPath);
+        const inSafeRoot = candidate.startsWith(safeRoot + path.sep) || candidate === safeRoot;
+        const noTraversal = !relPath.split('/').some(seg => seg === '..' || seg === '.');
+        if (inSafeRoot && noTraversal) {
+          fsPath = candidate;
+        }
+      }
+
+      if (!fsPath) {
+        const subjectSlug = toSlug(subject) || 'maths';
+        const topicSlug = toSlug(topic) || 'general';
+        const conceptSlug = toSlug(concept || topic) || 'concept';
+        fsPath = path.resolve(VISUALS_DIR, subjectSlug, topicSlug, `${conceptSlug}.html`);
+      }
+
       fs.mkdirSync(path.dirname(fsPath), { recursive: true });
-      fs.writeFileSync(fsPath, html, 'utf8');
-      const sizeKB = Math.round((Buffer.byteLength(html, 'utf8') / 1024) * 10) / 10;
+
+      const tmpHtml = fsPath + '.tmp';
+      fs.writeFileSync(tmpHtml, html, 'utf8');
+      fs.renameSync(tmpHtml, fsPath);
+
+      const sizeBytes = Buffer.byteLength(html, 'utf8');
+      const relFromVisuals = path.relative(safeRoot, fsPath);
+      const filePathUrl = '/app/visuals/' + relFromVisuals.split(path.sep).join('/');
+      const parts = relFromVisuals.replace('.html', '').split(path.sep);
+      const slug = parts[parts.length - 1] || 'concept';
+      const chapterSlug = parts.length > 1 ? parts[1] : '';
+
       let manifest = { version: 1, generatedAt: new Date().toISOString(), concepts: {} };
       try {
         const raw = fs.readFileSync(MANIFEST_PATH, 'utf8');
         manifest = JSON.parse(raw);
         if (!manifest.concepts) manifest.concepts = {};
       } catch (_) {}
-      const parts = relPath.replace('.html', '').split('/');
-      const slug = parts[parts.length - 1] || relPath;
-      const chapterSlug = parts[1] || '';
+
       manifest.concepts[slug] = {
-        subject: subject.toLowerCase(),
+        subject: toSlug(subject) || 'maths',
         chapter: chapterSlug,
         conceptName: concept || topic,
         slug,
-        filePath,
-        sizeKB,
+        filePath: filePathUrl,
+        sizeBytes,
         generatedAt: new Date().toISOString(),
-        topicKey: topic,
+        topic,
         provider,
         model,
         aiGenerated: true,
       };
-      fs.writeFileSync(MANIFEST_PATH, JSON.stringify(manifest, null, 2), 'utf8');
-      console.log(`[generate-visual] saved to database: ${fsPath} (${sizeKB}KB)`);
+
+      const tmpManifest = MANIFEST_PATH + '.tmp';
+      fs.writeFileSync(tmpManifest, JSON.stringify(manifest, null, 2), 'utf8');
+      fs.renameSync(tmpManifest, MANIFEST_PATH);
+
+      console.log(`[generate-visual] saved to database: ${fsPath} (${Math.round(sizeBytes / 1024)}KB)`);
+      return filePathUrl;
     } catch (err) {
       console.warn('[generate-visual] failed to save to database:', err?.message);
+      return false;
     }
   }
 
@@ -196,24 +240,23 @@ The visual should help a student understand this concept deeply and remember it 
       const providerLabel = HAS_ANTHROPIC_PROXY ? 'claude' : 'gemini';
       const modelLabel = HAS_ANTHROPIC_PROXY ? CLAUDE_MODEL_SONNET : GEMINI_MODEL;
 
-      if (requestedFilePath) {
-        saveVisualToDatabase({
-          html,
-          filePath: requestedFilePath,
-          subject,
-          topic,
-          concept,
-          provider: providerLabel,
-          model: modelLabel,
-        });
-      }
+      const savedPath = saveVisualToDatabase({
+        html,
+        requestedFilePath,
+        subject,
+        topic,
+        concept,
+        provider: providerLabel,
+        model: modelLabel,
+      });
 
       return sendJson(res, 200, {
         ok: true,
         html,
         provider: providerLabel,
         model: modelLabel,
-        savedToDatabase: Boolean(requestedFilePath),
+        savedToDatabase: Boolean(savedPath),
+        savedPath: savedPath || undefined,
       });
     } catch (err) {
       console.error('[generate-visual] Error:', err?.message || err);

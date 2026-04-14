@@ -1064,9 +1064,9 @@
       "conceptName": "Sin Cosine Graph",
       "slug": "sin-cosine-graph",
       "filePath": "/app/visuals/maths/trigonometry/sin-cosine-graph.html",
-      "sizeKB": 10,
-      "generatedAt": "2026-04-14T09:47:34.365Z",
-      "topicKey": "Trigonometry",
+      "sizeBytes": 10462,
+      "generatedAt": "2026-04-14T09:53:51.715Z",
+      "topic": "Trigonometry",
       "provider": "claude",
       "model": "claude-sonnet-4-6",
       "aiGenerated": true
