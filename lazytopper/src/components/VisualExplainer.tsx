@@ -59,9 +59,7 @@ export function VisualExplainer({
     fetch(src, { method: "HEAD" })
       .then((res) => {
         if (cancelled) return;
-        if (res.ok && res.headers.get("content-type")?.includes("text/html")) {
-          return;
-        }
+        if (res.ok) { setLoading(false); return; }
         return tryLiveFallback(cancelled);
       })
       .catch(() => {

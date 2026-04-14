@@ -61,7 +61,7 @@ function createMentorResponseBuilder(deps) {
       ].filter((c) => c && c.parts && c.parts[0] && String(c.parts[0].text || '').trim());
 
       const reply = await callRoutedModel(routingDecision, reqJson, GEMINI_TUTOR_MODEL, contents, {
-        maxOutputTokens: 1600,
+        maxOutputTokens: 2500,
         temperature: 0.7,
         _userPrompt: userPrompt,
       }, systemPrompt);
