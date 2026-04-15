@@ -892,7 +892,6 @@ const packTopicKey = useMemo(() => {
             saveTopicMasterySnapshot(updated, topicK);
           }}
           onOpenConceptDrawer={openConceptDrawer}
-          onOpenMentorSocratic={(question, idx) => openMentorForQuestion(question, idx, "hint")}
           onOpenMentorBoard={(question, idx) => openMentorForQuestion(question, idx, "check_cbse")}
         />
 

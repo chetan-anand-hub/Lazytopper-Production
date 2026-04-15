@@ -28,7 +28,6 @@ export interface PracticeQuestionCardProps {
   onSelfAssessGotIt: (q: PracticeQuestion, idx: number) => void;
   onSelfAssessNeedPractice: (q: PracticeQuestion, idx: number) => void;
   onOpenConceptDrawer: (q: PracticeQuestion) => void;
-  onOpenMentorSocratic: (q: PracticeQuestion, idx: number) => void;
   onOpenMentorBoard: (q: PracticeQuestion, idx: number) => void;
 }
 
@@ -38,7 +37,7 @@ export function PracticeQuestionCard({
   mcqSelection, mcqResult,
   onSetActiveQuestion, onToggleAnswer, onMcqSelect, onMcqResult,
   onSelfAssessGotIt, onSelfAssessNeedPractice,
-  onOpenConceptDrawer, onOpenMentorSocratic, onOpenMentorBoard,
+  onOpenConceptDrawer, onOpenMentorBoard,
 }: PracticeQuestionCardProps) {
   const [showVisual, setShowVisual] = useState(false);
   const matchedVisual = useMemo(() => {
