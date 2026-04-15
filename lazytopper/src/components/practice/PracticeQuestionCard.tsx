@@ -220,20 +220,6 @@ export function PracticeQuestionCard({
         </button>
         <button
           type="button"
-          onClick={() => onOpenMentorSocratic(q, idx)}
-          style={{
-            borderRadius: 999, padding: "5px 12px",
-            border: "1px solid rgba(34,197,94,0.3)",
-            backgroundColor: "rgba(34,197,94,0.06)",
-            fontSize: "0.78rem", color: "var(--color-success)",
-            cursor: "pointer", display: "inline-flex",
-            alignItems: "center", gap: 6,
-          }}
-        >
-          <span>Hint / Explain</span>
-        </button>
-        <button
-          type="button"
           onClick={() => onOpenMentorBoard(q, idx)}
           style={{
             borderRadius: 999, padding: "5px 12px",
