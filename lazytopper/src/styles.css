@@ -1548,7 +1548,10 @@ input::placeholder {
   border-radius: 999px;
   font-size: 0.85rem;
   font-weight: 500;
-  background: rgba(255,255,255,0.05);
+  background: var(--bg-card);
+  color: var(--text);
+  border: 1px solid var(--bg-card-border);
+  cursor: pointer;
 }
 
 .pillActive {

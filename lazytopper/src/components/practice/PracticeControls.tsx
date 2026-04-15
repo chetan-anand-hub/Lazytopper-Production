@@ -60,7 +60,7 @@ export function PracticeControls({
             style={{
               borderRadius: 999, border: "1px solid var(--bg-card-border)",
               padding: "4px 10px", fontSize: "0.78rem",
-              background: "var(--bg-card)", cursor: "pointer",
+              background: "var(--bg-card)", color: "var(--text)", cursor: "pointer",
             }}
           >
             <option value="ALL">All</option>
@@ -87,8 +87,9 @@ export function PracticeControls({
               }
               style={{
                 width: 56, borderRadius: 999,
-                border: "1px solid #cbd5f5", padding: "3px 8px",
+                border: "1px solid var(--bg-card-border)", padding: "3px 8px",
                 fontSize: "0.78rem", marginLeft: 4,
+                background: "var(--bg)", color: "var(--text)",
               }}
             />
           </label>
@@ -114,9 +115,9 @@ export function PracticeControls({
             }
             style={{
               borderRadius: 999, padding: "5px 12px",
-              border: "1px solid rgba(28,176,246,0.8)",
-              backgroundColor: "rgba(59,130,246,0.1)",
-              color: "#1e3a8a", fontSize: "0.78rem", cursor: "pointer",
+              border: "1px solid rgba(28,176,246,0.6)",
+              backgroundColor: "rgba(59,130,246,0.12)",
+              color: "var(--text)", fontSize: "0.78rem", cursor: "pointer",
             }}
             title="Demand 10 more questions for this topic"
           >
