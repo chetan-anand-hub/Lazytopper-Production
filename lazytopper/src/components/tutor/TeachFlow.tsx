@@ -290,6 +290,10 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
   }, [topicKey]);
 
   useEffect(() => {
+    isInteractiveRef.current = visualConcept?.isInteractive ?? false;
+  }, [visualConcept]);
+
+  useEffect(() => {
     if (isConceptMode && phase === "intro" && !conceptAutoStartRef.current) {
       conceptAutoStartRef.current = true;
       startLearning();

@@ -5,6 +5,7 @@ export interface VisualConcept {
   subject: "maths" | "science";
   filePath: string;
   keywords: string[];
+  isInteractive: boolean;
 }
 
 export interface ChapterVisuals {
@@ -28,7 +29,7 @@ function makePath(subject: string, chapter: string, concept: string): string {
   return `/visuals/${s}/${ch}/${co}.html`;
 }
 
-function c(subject: "maths" | "science", chapter: string, concept: string, keywords: string[]): VisualConcept {
+function c(subject: "maths" | "science", chapter: string, concept: string, keywords: string[], isInteractive = true): VisualConcept {
   return {
     id: makeId(subject, chapter, concept),
     title: concept,
@@ -36,6 +37,7 @@ function c(subject: "maths" | "science", chapter: string, concept: string, keywo
     subject,
     filePath: makePath(subject, chapter, concept),
     keywords,
+    isInteractive,
   };
 }
 
