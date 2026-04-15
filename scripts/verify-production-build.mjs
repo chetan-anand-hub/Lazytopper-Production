@@ -112,16 +112,20 @@ const DELETED_TOPICS = [
   { pattern: "euclid-division", label: "euclid-division concept note id" },
 ];
 
-const mainBundles = fs
+// Scan ALL JS chunks (not just index-*.js) to catch strings in any code-split bundle
+const allJsBundles = fs
   .readdirSync(ASSETS)
-  .filter((f) => f.startsWith("index-") && f.endsWith(".js"))
+  .filter((f) => f.endsWith(".js"))
   .map((f) => path.join(ASSETS, f));
 
 for (const { pattern, label } of DELETED_TOPICS) {
-  check(`ABSENT from build: "${label}"`, () => {
-    for (const bundle of mainBundles) {
+  check(`ABSENT from ALL js chunks: "${label}"`, () => {
+    for (const bundle of allJsBundles) {
       const content = fs.readFileSync(bundle, "utf8");
-      if (content.includes(pattern)) return false;
+      if (content.includes(pattern)) {
+        console.error(`    Found in: ${path.basename(bundle)}`);
+        return false;
+      }
     }
     return true;
   });
