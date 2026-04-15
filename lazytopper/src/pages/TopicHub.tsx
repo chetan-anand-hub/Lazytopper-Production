@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams, useSearchParams, useLocation } from "react-router-dom";
 import { getCanonicalChapters, getCanonicalChapterBySlug, formatChapterTitle, toCanonicalSubjectId } from "../data/syllabus/cbse10Canonical";
 import { getTopicV2Content, normalizeTopicKey } from "../utils/topicHubV2Store";
@@ -16,6 +16,9 @@ import type { CanonicalQuestion } from "../data/predictionTypes";
 import type { ChapterId } from "../engine/smartLearningTypes";
 import { recordDetour, recordLearnEngagement } from "../services/guidedJourneyService";
 import { useAuth } from "../context/AuthContext";
+import { fetchStepSolution, type StepSolutionResponse } from "../ai/aiClient";
+import { VisualExplainer } from "../components/VisualExplainer";
+import { getVisualConceptForQuestion } from "../data/questionVisualMap";
 import {
   getChapterMasteryLevel,
   recordQuizResult,
@@ -362,6 +365,10 @@ export default function TopicHub() {
   const [answerRevealed, setAnswerRevealed] = useState(false);
   const [miniQuizIdx, setMiniQuizIdx] = useState(0);
   const [miniQuizAnswers, setMiniQuizAnswers] = useState<{ correct: boolean; isMcq: boolean }[]>([]);
+  const [quizSolution, setQuizSolution] = useState<StepSolutionResponse | null>(null);
+  const [quizSolutionLoading, setQuizSolutionLoading] = useState(false);
+  const [quizSolutionError, setQuizSolutionError] = useState<string | null>(null);
+  const quizSolutionFetchRef = useRef<string | null>(null);
 
   const [teachDrawerOpen, setTeachDrawerOpen] = useState(false);
   const [teachContext, setTeachContext] = useState<ConceptTeachContext>({
@@ -460,6 +467,41 @@ export default function TopicHub() {
 
   const currentMiniQuiz = conceptMiniQuizzes[conceptIdx] || [];
   const currentMiniQuestion = currentMiniQuiz[miniQuizIdx] as CanonicalQuestion | undefined;
+
+  useEffect(() => {
+    if (!answerRevealed || !currentMiniQuestion) {
+      setQuizSolution(null);
+      setQuizSolutionError(null);
+      quizSolutionFetchRef.current = null;
+      return;
+    }
+    const qKey = currentMiniQuestion.id || currentMiniQuestion.questionText;
+    if (quizSolutionFetchRef.current === qKey) return;
+    quizSolutionFetchRef.current = qKey;
+    setQuizSolution(null);
+    setQuizSolutionError(null);
+    setQuizSolutionLoading(true);
+    fetchStepSolution({
+      subject: subjectTitle,
+      topic: title,
+      question: currentMiniQuestion.questionText,
+      marks: currentMiniQuestion.marks || 1,
+      type: Array.isArray(currentMiniQuestion.options) && currentMiniQuestion.options.length > 0 ? "MCQ" : "Short",
+      answer: currentMiniQuestion.answer || "",
+      explanation: currentMiniQuestion.explanation || "",
+    }).then((sol) => {
+      setQuizSolution(sol);
+      setQuizSolutionLoading(false);
+    }).catch(() => {
+      setQuizSolutionError("Could not load solution. See answer above.");
+      setQuizSolutionLoading(false);
+    });
+  }, [answerRevealed, currentMiniQuestion, subjectTitle, title]);
+
+  const quizMatchedVisual = useMemo(() => {
+    if (!currentMiniQuestion || !answerRevealed) return null;
+    return getVisualConceptForQuestion(currentMiniQuestion);
+  }, [currentMiniQuestion, answerRevealed]);
 
   const [conceptFailed, setConceptFailed] = useState(false);
 
@@ -949,15 +991,87 @@ export default function TopicHub() {
 
                 {answerRevealed && !conceptFailed && (
                   <div style={{ marginTop: 16 }}>
+                    {/* Correct / Wrong header */}
                     {(selectedAnswer === "correct" || (selectedAnswer && selectedAnswer !== "incorrect" && selectedAnswer.trim().toLowerCase() === (currentMiniQuestion.answer || "").trim().toLowerCase())) ? (
-                      <div style={{ fontSize: "0.88rem", color: "#16a34a", fontWeight: 600, marginBottom: 12, padding: "10px 14px", background: "rgba(34,197,94,0.06)", borderRadius: 10 }}>
-                        Correct!
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.92rem", color: "#16a34a", fontWeight: 700, marginBottom: 12, padding: "10px 14px", background: "rgba(34,197,94,0.06)", borderRadius: 10, border: "1px solid rgba(34,197,94,0.15)" }}>
+                        <span style={{ fontSize: "1.1rem" }}>✓</span> Correct!
                       </div>
                     ) : (
-                      <div style={{ fontSize: "0.88rem", color: "#dc2626", fontWeight: 600, marginBottom: 12, padding: "10px 14px", background: "rgba(239,68,68,0.06)", borderRadius: 10 }}>
-                        Not quite. The correct answer is: {currentMiniQuestion.answer}
+                      <div style={{ fontSize: "0.88rem", color: "#dc2626", fontWeight: 700, marginBottom: 12, padding: "10px 14px", background: "rgba(239,68,68,0.06)", borderRadius: 10, border: "1px solid rgba(239,68,68,0.15)" }}>
+                        <span style={{ fontSize: "1.1rem" }}>✗</span> Not quite — correct answer: <span style={{ color: "#22c55e" }}>{currentMiniQuestion.answer}</span>
                       </div>
                     )}
+
+                    {/* Visual diagram if matched */}
+                    {quizMatchedVisual && (
+                      <div style={{ marginBottom: 14, borderRadius: 12, overflow: "hidden", border: "1px solid rgba(99,102,241,0.2)" }}>
+                        <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "#818cf8", padding: "6px 12px", background: "rgba(99,102,241,0.06)", textTransform: "uppercase", letterSpacing: 0.4 }}>
+                          📊 Visual Aid — {quizMatchedVisual.title}
+                        </div>
+                        <VisualExplainer
+                          src={quizMatchedVisual.filePath}
+                          title={quizMatchedVisual.title}
+                          height={260}
+                          collapsible={false}
+                        />
+                      </div>
+                    )}
+
+                    {/* Step-by-step solution */}
+                    <div style={{ marginBottom: 14, padding: "12px 14px", background: "rgba(59,130,246,0.04)", borderRadius: 12, border: "1px solid rgba(59,130,246,0.15)" }}>
+                      <div style={{ fontSize: "0.75rem", fontWeight: 800, color: "#60a5fa", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 10 }}>
+                        📋 CBSE Step-by-Step Solution ({currentMiniQuestion.marks || 1} {(currentMiniQuestion.marks || 1) === 1 ? "mark" : "marks"})
+                      </div>
+
+                      {quizSolutionLoading && (
+                        <div style={{ fontSize: "0.8rem", color: "var(--text-muted)", padding: "8px 0", display: "flex", alignItems: "center", gap: 8 }}>
+                          <span style={{ display: "inline-block", width: 14, height: 14, borderRadius: "50%", border: "2px solid #3b82f6", borderTopColor: "transparent", animation: "visualSpin 0.8s linear infinite" }} />
+                          Generating solution…
+                        </div>
+                      )}
+
+                      {quizSolutionError && !quizSolution && (
+                        <div style={{ fontSize: "0.8rem", color: "var(--text-muted)", padding: "4px 0" }}>
+                          {quizSolutionError}
+                        </div>
+                      )}
+
+                      {quizSolution && quizSolution.steps.map((step, si) => (
+                        <div key={si} style={{ display: "flex", gap: 10, marginBottom: 8, padding: "8px 10px", background: "var(--bg-card)", borderRadius: 8, border: "1px solid var(--bg-card-border)" }}>
+                          <div style={{ minWidth: 24, height: 24, borderRadius: "50%", background: "rgba(59,130,246,0.8)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.7rem", fontWeight: 800, flexShrink: 0 }}>
+                            {step.stepNumber}
+                          </div>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text)", marginBottom: 2, display: "flex", alignItems: "flex-start", gap: 8, flexWrap: "wrap" }}>
+                              <span style={{ flex: 1 }}>{step.description}</span>
+                              <span style={{ fontSize: "0.68rem", fontWeight: 800, borderRadius: 999, padding: "2px 8px", background: step.marks === 0 ? "var(--bg-card)" : "rgba(59,130,246,0.12)", color: step.marks === 0 ? "var(--text-muted)" : "#60a5fa", flexShrink: 0 }}>
+                                {step.marks === 0 ? "Explanation" : step.marks === 0.5 ? "½ mark" : step.marks % 1 === 0.5 ? `${Math.floor(step.marks)}½ marks` : `${step.marks} ${step.marks === 1 ? "mark" : "marks"}`}
+                              </span>
+                            </div>
+                            {step.working && (
+                              <div style={{ fontSize: "0.76rem", color: "var(--text-muted)", lineHeight: 1.5 }}>{step.working}</div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+
+                      {quizSolution && quizSolution.commonMistakes && quizSolution.commonMistakes.length > 0 && (
+                        <div style={{ marginTop: 8, padding: "8px 10px", background: "rgba(239,68,68,0.04)", borderRadius: 8, border: "1px solid rgba(239,68,68,0.15)" }}>
+                          <div style={{ fontSize: "0.7rem", fontWeight: 800, color: "#f87171", marginBottom: 4, textTransform: "uppercase", letterSpacing: 0.4 }}>⚠ Common Mistakes</div>
+                          {quizSolution.commonMistakes.map((m, i) => (
+                            <div key={i} style={{ fontSize: "0.76rem", color: "rgba(248,113,113,0.85)", marginBottom: 2 }}>• {m}</div>
+                          ))}
+                        </div>
+                      )}
+
+                      {quizSolution?.examTip && (
+                        <div style={{ marginTop: 8, padding: "8px 10px", background: "rgba(249,115,22,0.04)", borderRadius: 8, border: "1px solid rgba(249,115,22,0.15)" }}>
+                          <div style={{ fontSize: "0.7rem", fontWeight: 800, color: "#fb923c", marginBottom: 2, textTransform: "uppercase", letterSpacing: 0.4 }}>💡 Exam Tip</div>
+                          <div style={{ fontSize: "0.76rem", color: "rgba(251,146,60,0.9)" }}>{quizSolution.examTip}</div>
+                        </div>
+                      )}
+                    </div>
+
                     <button type="button" onClick={advanceToNext}
                       style={{ padding: "10px 24px", borderRadius: 12, background: "linear-gradient(135deg, #6366f1, #4f46e5)", border: "none", color: "var(--text)", fontWeight: 600, fontSize: "0.88rem", cursor: "pointer" }}>
                       {miniQuizIdx < currentMiniQuiz.length - 1 ? `Next Question (${miniQuizIdx + 2}/${currentMiniQuiz.length})` : conceptIdx < totalConcepts - 1 ? "Next Concept →" : "See Summary"}
