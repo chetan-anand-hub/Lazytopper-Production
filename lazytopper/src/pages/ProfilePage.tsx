@@ -279,7 +279,7 @@ function AccuracyChart({ data }: { data: WeeklyAccuracy[] }) {
         {data.map((w, i) => {
           const h = (w.accuracy / maxAcc) * chartH;
           const x = i * (barW + 12) + 10;
-          const color = w.accuracy >= 80 ? "#34d399" : w.accuracy >= 50 ? "#60a5fa" : "#f87171";
+          const color = w.accuracy >= 80 ? "var(--color-success)" : w.accuracy >= 50 ? "var(--color-light-blue)" : "var(--color-pink-red)";
           return (
             <g key={w.weekLabel}>
               <rect x={x} y={chartH - h} width={barW} height={h} rx={4} fill={color} opacity={0.85} />
@@ -491,7 +491,7 @@ function StatsTab({ badgeCtx, statsByChapter }: { badgeCtx: BadgeContext; statsB
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))", gap: 12, marginBottom: 20 }}>
         {[
           { label: "Questions Solved", value: String(badgeCtx.totalQuestions), color: "#1cb0f6" },
-          { label: "Overall Accuracy", value: `${overallAccuracy}%`, color: overallAccuracy >= 70 ? "#34d399" : "#f87171" },
+          { label: "Overall Accuracy", value: `${overallAccuracy}%`, color: overallAccuracy >= 70 ? "var(--color-success)" : "var(--color-pink-red)" },
           { label: "Total Time Studied", value: formatStudyTime(totalTimeSec), color: "#ff9600" },
           { label: "Topics Mastered", value: String(badgeCtx.topicsMastered), color: "#f59e0b" },
           { label: "Current Streak", value: `${badgeCtx.streak} days`, color: "#ef4444" },
@@ -543,9 +543,9 @@ function StatsTab({ badgeCtx, statsByChapter }: { badgeCtx: BadgeContext; statsB
             <thead>
               <tr>
                 <th style={{ textAlign: "left", padding: "4px 8px", borderBottom: "1px solid var(--bg-card-border)" }}>Week</th>
-                <th style={{ textAlign: "center", padding: "4px 8px", borderBottom: "1px solid var(--bg-card-border)", color: "#34d399" }}>Easy</th>
-                <th style={{ textAlign: "center", padding: "4px 8px", borderBottom: "1px solid var(--bg-card-border)", color: "#60a5fa" }}>Medium</th>
-                <th style={{ textAlign: "center", padding: "4px 8px", borderBottom: "1px solid var(--bg-card-border)", color: "#f87171" }}>Hard</th>
+                <th style={{ textAlign: "center", padding: "4px 8px", borderBottom: "1px solid var(--bg-card-border)", color: "var(--color-success)" }}>Easy</th>
+                <th style={{ textAlign: "center", padding: "4px 8px", borderBottom: "1px solid var(--bg-card-border)", color: "var(--color-light-blue)" }}>Medium</th>
+                <th style={{ textAlign: "center", padding: "4px 8px", borderBottom: "1px solid var(--bg-card-border)", color: "var(--color-pink-red)" }}>Hard</th>
               </tr>
             </thead>
             <tbody>
@@ -593,9 +593,9 @@ function StatsTab({ badgeCtx, statsByChapter }: { badgeCtx: BadgeContext; statsB
       <h3 style={{ fontWeight: 800, fontSize: 16, marginTop: 20, marginBottom: 8 }}>Overall Difficulty Mix</h3>
       <div style={{ display: "flex", gap: 8 }}>
         {[
-          { label: "Easy", pct: diffProg.easy, color: "#34d399" },
-          { label: "Medium", pct: diffProg.medium, color: "#60a5fa" },
-          { label: "Hard", pct: diffProg.hard, color: "#f87171" },
+          { label: "Easy", pct: diffProg.easy, color: "var(--color-success)" },
+          { label: "Medium", pct: diffProg.medium, color: "var(--color-light-blue)" },
+          { label: "Hard", pct: diffProg.hard, color: "var(--color-pink-red)" },
         ].map((d) => (
           <div key={d.label} style={{ flex: 1, textAlign: "center" }}>
             <div style={{ height: 8, borderRadius: 4, background: "var(--bg-card-border)", overflow: "hidden", marginBottom: 4 }}>
@@ -1198,13 +1198,13 @@ function ParentPinManager() {
           <button type="button" onClick={() => setEditing(true)} style={{
             flex: 1, padding: "8px 0", borderRadius: 8, border: "none",
             background: hasPinState ? "rgba(59,130,246,0.1)" : "#a855f7",
-            color: hasPinState ? "#60a5fa" : "#fff",
+            color: hasPinState ? "var(--color-light-blue)" : "var(--color-on-active)",
             fontWeight: 700, fontSize: 11, cursor: "pointer",
           }}>{hasPinState ? "Change PIN" : "Set PIN"}</button>
           {hasPinState && (
             <button type="button" onClick={handleRemove} style={{
               padding: "8px 14px", borderRadius: 8, border: "1px solid rgba(239,68,68,0.2)",
-              background: "rgba(239,68,68,0.06)", color: "#f87171",
+              background: "rgba(239,68,68,0.06)", color: "var(--color-pink-red)",
               fontWeight: 600, fontSize: 11, cursor: "pointer",
             }}>Remove</button>
           )}
@@ -1229,7 +1229,7 @@ function MentalHealthResources() {
         }}>
           <span style={{ fontSize: 18 }}>📞</span>
           <div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: "#60a5fa" }}>iCall — TISS</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-light-blue)" }}>iCall — TISS</div>
             <div style={{ fontSize: 11, color: "var(--text-muted)" }}>9152987821 · Mon–Sat 8am–10pm</div>
           </div>
         </a>

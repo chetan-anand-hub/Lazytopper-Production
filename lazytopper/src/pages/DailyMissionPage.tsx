@@ -430,7 +430,7 @@ export default function DailyMissionPage() {
             )}
             <button type="button" onClick={() => navigate(backTarget)} style={{
               marginTop: 20, padding: "12px 32px", borderRadius: 12, border: "none",
-              background: "#22c55e", color: "#000", fontWeight: 800, fontSize: 15, cursor: "pointer",
+              background: "#22c55e", color: "var(--color-on-primary)", fontWeight: 800, fontSize: 15, cursor: "pointer",
             }}>
               {navState?.backLabel || "Back to Dashboard"}
             </button>
@@ -822,7 +822,7 @@ export default function DailyMissionPage() {
           </div>
           <button type="button" onClick={() => navigate(backTarget)} style={{
             marginTop: 16, padding: "12px 32px", borderRadius: 12, border: "none",
-            background: "#22c55e", color: "#000", fontWeight: 800, fontSize: 15, cursor: "pointer",
+            background: "#22c55e", color: "var(--color-on-primary)", fontWeight: 800, fontSize: 15, cursor: "pointer",
           }}>
             {navState?.backLabel || "Back to Dashboard"}
           </button>

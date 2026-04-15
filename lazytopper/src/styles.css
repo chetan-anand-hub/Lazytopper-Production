@@ -47,6 +47,8 @@
   --color-violet: #c4b5fd;
   --color-light-blue: #60a5fa;
   --color-pink-red: #f87171;
+  --color-on-primary: #000000;
+  --color-on-active: #ffffff;
 
   --radius: 16px;
   --shadow: none;
