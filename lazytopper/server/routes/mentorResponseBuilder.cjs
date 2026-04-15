@@ -60,11 +60,22 @@ function createMentorResponseBuilder(deps) {
         { role: 'user', parts: [{ text: userPrompt }] },
       ].filter((c) => c && c.parts && c.parts[0] && String(c.parts[0].text || '').trim());
 
-      const reply = await callRoutedModel(routingDecision, reqJson, GEMINI_TUTOR_MODEL, contents, {
-        maxOutputTokens: 2500,
-        temperature: 0.7,
-        _userPrompt: userPrompt,
-      }, systemPrompt);
+      let reply;
+      try {
+        reply = await callRoutedModel(routingDecision, reqJson, GEMINI_TUTOR_MODEL, contents, {
+          maxOutputTokens: 2500,
+          temperature: 0.7,
+          _userPrompt: userPrompt,
+        }, systemPrompt);
+      } catch (tutorErr) {
+        const isTimeout = tutorErr && (tutorErr.status === 504 || /timed out/i.test(tutorErr.message || ''));
+        if (isTimeout && GEMINI_TUTOR_MODEL !== GEMINI_MODEL) {
+          console.warn(`[tutor] ${GEMINI_TUTOR_MODEL} timed out, retrying with ${GEMINI_MODEL}`);
+          reply = await callGemini(GEMINI_MODEL, contents, { maxOutputTokens: 2000, temperature: 0.7 });
+        } else {
+          throw tutorErr;
+        }
+      }
 
       const responseText = (reply.text || '').trim();
       const trace = {

@@ -66,7 +66,7 @@ function resolveConfig() {
   const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
   const GEMINI_TUTOR_MODEL = process.env.GEMINI_TUTOR_MODEL || GEMINI_MODEL;
   if (process.env.GEMINI_TUTOR_MODEL) ENV_USED.push(`GEMINI_TUTOR_MODEL=${GEMINI_TUTOR_MODEL}`);
-  const GEMINI_TIMEOUT_MS = Math.max(5000, Number(process.env.GEMINI_TIMEOUT_MS || 20000) || 20000);
+  const GEMINI_TIMEOUT_MS = Math.max(5000, Number(process.env.GEMINI_TIMEOUT_MS || 55000) || 55000);
   const IS_DEV = String(process.env.NODE_ENV || '').toLowerCase() !== 'production';
   const REPO_ROOT = process.cwd();
   const MAX_HISTORY_TURNS = 4;
