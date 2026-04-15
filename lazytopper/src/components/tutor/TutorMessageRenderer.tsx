@@ -203,19 +203,19 @@ function renderInline(text: string): React.ReactNode {
     }
 
     if (matchType === "bold") {
-      parts.push(<strong key={key++} style={{ fontWeight: 700, color: "#1a1a2e" }}><MathText text={match[1]} style={{ fontSize: "inherit", lineHeight: "inherit" }} /></strong>);
+      parts.push(<strong key={key++} style={{ fontWeight: 700, color: "var(--text)" }}><MathText text={match[1]} style={{ fontSize: "inherit", lineHeight: "inherit" }} /></strong>);
     } else if (matchType === "italic") {
       parts.push(<em key={key++}><MathText text={match[1]} style={{ fontSize: "inherit", lineHeight: "inherit" }} /></em>);
     } else {
       parts.push(
         <code key={key++} style={{
-          background: "#f0f4f8",
+          background: "var(--bg-card-border)",
           padding: "2px 6px",
           borderRadius: 6,
           fontSize: "0.9em",
           fontFamily: "'Fira Code', 'Consolas', monospace",
-          color: "#1e40af",
-          border: "1px solid #e2e8f0",
+          color: "var(--text)",
+          border: "1px solid var(--bg-card-border)",
         }}>
           {match[1]}
         </code>
@@ -236,7 +236,7 @@ function renderMdNodes(nodes: MdNode[]): React.ReactNode[] {
           <h3 key={i} style={{
             fontSize: 17,
             fontWeight: 800,
-            color: "#1a1a2e",
+            color: "var(--text)",
             margin: "16px 0 8px",
             lineHeight: 1.4,
           }}>
@@ -248,7 +248,7 @@ function renderMdNodes(nodes: MdNode[]): React.ReactNode[] {
           <h4 key={i} style={{
             fontSize: 15,
             fontWeight: 700,
-            color: "#3c3c3c",
+            color: "var(--text)",
             margin: "12px 0 6px",
             lineHeight: 1.4,
           }}>
@@ -261,7 +261,7 @@ function renderMdNodes(nodes: MdNode[]): React.ReactNode[] {
             borderLeft: "3px solid #1cb0f6",
             paddingLeft: 14,
             margin: "10px 0",
-            color: "#475569",
+            color: "var(--text-muted)",
             fontStyle: "italic",
             lineHeight: 1.7,
           }}>
@@ -271,8 +271,8 @@ function renderMdNodes(nodes: MdNode[]): React.ReactNode[] {
       case "code":
         return (
           <pre key={i} style={{
-            background: "#f8fafc",
-            border: "1px solid #e2e8f0",
+            background: "var(--bg)",
+            border: "1px solid var(--bg-card-border)",
             borderRadius: 10,
             padding: "12px 16px",
             margin: "10px 0",
@@ -280,18 +280,18 @@ function renderMdNodes(nodes: MdNode[]): React.ReactNode[] {
             fontSize: 13,
             lineHeight: 1.6,
             fontFamily: "'Fira Code', 'Consolas', monospace",
-            color: "#1e293b",
+            color: "var(--text)",
           }}>
             {node.lines.join("\n")}
           </pre>
         );
       case "hr":
-        return <hr key={i} style={{ border: "none", borderTop: "1px solid #e5e5e5", margin: "14px 0" }} />;
+        return <hr key={i} style={{ border: "none", borderTop: "1px solid var(--bg-card-border)", margin: "14px 0" }} />;
       case "ul":
         return (
           <ul key={i} style={{ paddingLeft: 22, margin: "8px 0", listStyleType: "disc" }}>
             {node.items.map((item, j) => (
-              <li key={j} style={{ fontSize: 15, lineHeight: 1.7, color: "#3c3c3c", marginBottom: 4, paddingLeft: 4 }}>
+              <li key={j} style={{ fontSize: 15, lineHeight: 1.7, color: "var(--text)", marginBottom: 4, paddingLeft: 4 }}>
                 {renderInline(item)}
               </li>
             ))}
@@ -301,7 +301,7 @@ function renderMdNodes(nodes: MdNode[]): React.ReactNode[] {
         return (
           <ol key={i} style={{ paddingLeft: 22, margin: "8px 0" }}>
             {node.items.map((item, j) => (
-              <li key={j} style={{ fontSize: 15, lineHeight: 1.7, color: "#3c3c3c", marginBottom: 4, paddingLeft: 4 }}>
+              <li key={j} style={{ fontSize: 15, lineHeight: 1.7, color: "var(--text)", marginBottom: 4, paddingLeft: 4 }}>
                 {renderInline(item)}
               </li>
             ))}
@@ -309,7 +309,7 @@ function renderMdNodes(nodes: MdNode[]): React.ReactNode[] {
         );
       case "p":
         return (
-          <p key={i} style={{ fontSize: 15, lineHeight: 1.7, color: "#3c3c3c", margin: "6px 0" }}>
+          <p key={i} style={{ fontSize: 15, lineHeight: 1.7, color: "var(--text)", margin: "6px 0" }}>
             {renderInline(node.text)}
           </p>
         );
@@ -322,23 +322,23 @@ function renderMdNodes(nodes: MdNode[]): React.ReactNode[] {
 function GoalBanner({ goal }: { goal: StructuredGoal }) {
   return (
     <div style={{
-      background: "#f0fdf4",
-      border: "2px solid #bbf7d0",
+      background: "rgba(88,204,2,0.08)",
+      border: "2px solid rgba(88,204,2,0.25)",
       borderRadius: 14,
       padding: "14px 18px",
       marginBottom: 12,
     }}>
-      <div style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "#16a34a", marginBottom: 6 }}>
+      <div style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "#58cc02", marginBottom: 6 }}>
         Goal
       </div>
-      <div style={{ fontSize: 16, fontWeight: 700, color: "#15803d", lineHeight: 1.5 }}>
+      <div style={{ fontSize: 16, fontWeight: 700, color: "var(--text)", lineHeight: 1.5 }}>
         <MathText text={goal.goalLine || ""} />
       </div>
       {goal.keyIdeas && goal.keyIdeas.length > 0 && (
         <ul style={{ margin: "10px 0 0", paddingLeft: 20, listStyleType: "none" }}>
           {goal.keyIdeas.map((idea, i) => (
-            <li key={i} style={{ fontSize: 14, lineHeight: 1.7, color: "#166534", marginBottom: 4, position: "relative", paddingLeft: 4 }}>
-              <span style={{ position: "absolute", left: -16, color: "#22c55e" }}>{"\u2713"}</span>
+            <li key={i} style={{ fontSize: 14, lineHeight: 1.7, color: "var(--text-muted)", marginBottom: 4, position: "relative", paddingLeft: 4 }}>
+              <span style={{ position: "absolute", left: -16, color: "#58cc02" }}>{"\u2713"}</span>
               <MathText text={idea} />
             </li>
           ))}
@@ -352,17 +352,17 @@ function ExamLinesSection({ lines }: { lines: string[] }) {
   if (!lines.length) return null;
   return (
     <div style={{
-      background: "#eff6ff",
-      border: "2px solid #bfdbfe",
+      background: "rgba(28,176,246,0.08)",
+      border: "2px solid rgba(28,176,246,0.25)",
       borderRadius: 14,
       padding: "14px 18px",
       marginBottom: 12,
     }}>
-      <div style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "#2563eb", marginBottom: 8 }}>
+      <div style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "#1cb0f6", marginBottom: 8 }}>
         Board exam lines
       </div>
       {lines.map((line, i) => (
-        <div key={i} style={{ fontSize: 14, lineHeight: 1.7, color: "#1e40af", marginBottom: 4 }}>
+        <div key={i} style={{ fontSize: 14, lineHeight: 1.7, color: "var(--text)", marginBottom: 4 }}>
           <MathText text={line} />
         </div>
       ))}
@@ -389,12 +389,12 @@ export function StepsWithMarks({ steps, totalMarks, commonMistake }: {
           gap: 8,
           marginBottom: 10,
           padding: "8px 14px",
-          background: "#f0fdf4",
+          background: "rgba(88,204,2,0.08)",
           borderRadius: 12,
-          border: "2px solid #bbf7d0",
+          border: "2px solid rgba(88,204,2,0.25)",
         }}>
           <span style={{ fontSize: 20, fontWeight: 800, color: "#58cc02" }}>{formatMarks(displayTotal)}</span>
-          <span style={{ fontSize: 13, fontWeight: 700, color: "#15803d" }}>marks total</span>
+          <span style={{ fontSize: 13, fontWeight: 700, color: "#58cc02" }}>marks total</span>
         </div>
       )}
       <div style={{ display: "grid", gap: 8 }}>
@@ -404,17 +404,17 @@ export function StepsWithMarks({ steps, totalMarks, commonMistake }: {
             gap: 10,
             alignItems: "flex-start",
             padding: "10px 14px",
-            background: "#ffffff",
+            background: "var(--bg-card)",
             borderRadius: 12,
-            border: "2px solid #e5e5e5",
-            boxShadow: "0 2px 0 #e5e5e5",
+            border: "1px solid var(--bg-card-border)",
+            boxShadow: "0 2px 0 var(--bg-card-border)",
           }}>
             <div style={{
               width: 28,
               height: 28,
               borderRadius: "50%",
               background: "#58cc02",
-              color: "var(--text)",
+              color: "white",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -426,7 +426,7 @@ export function StepsWithMarks({ steps, totalMarks, commonMistake }: {
               {idx + 1}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 14, lineHeight: 1.7, color: "#3c3c3c" }}>
+              <div style={{ fontSize: 14, lineHeight: 1.7, color: "var(--text)" }}>
                 <MathText text={step.text} />
               </div>
             </div>
@@ -435,11 +435,11 @@ export function StepsWithMarks({ steps, totalMarks, commonMistake }: {
                 flexShrink: 0,
                 padding: "4px 10px",
                 borderRadius: 999,
-                background: "#f7f7f7",
-                border: "2px solid #e5e5e5",
+                background: "var(--bg)",
+                border: "1px solid var(--bg-card-border)",
                 fontSize: 12,
                 fontWeight: 800,
-                color: "#3c3c3c",
+                color: "var(--text)",
                 whiteSpace: "nowrap",
               }}>
                 {formatMarks(step.marks)}M
@@ -452,15 +452,15 @@ export function StepsWithMarks({ steps, totalMarks, commonMistake }: {
         <div style={{
           marginTop: 10,
           padding: "8px 14px",
-          background: "#fef2f2",
+          background: "rgba(239,68,68,0.08)",
           borderRadius: 12,
-          border: "2px solid #fecaca",
+          border: "1px solid rgba(239,68,68,0.25)",
           borderLeft: "4px solid #ef4444",
           fontSize: 13,
           lineHeight: 1.6,
-          color: "#991b1b",
+          color: "var(--text)",
         }}>
-          <span style={{ fontWeight: 800 }}>Common mistake: </span>
+          <span style={{ fontWeight: 800, color: "#ef4444" }}>Common mistake: </span>
           <MathText text={commonMistake} />
         </div>
       )}
@@ -471,18 +471,18 @@ export function StepsWithMarks({ steps, totalMarks, commonMistake }: {
 function WorkedExampleCard({ example, index }: { example: StructuredExample; index: number }) {
   return (
     <div style={{
-      background: "#ffffff",
-      border: "2px solid #e5e5e5",
+      background: "var(--bg-card)",
+      border: "1px solid var(--bg-card-border)",
       borderRadius: 14,
       padding: "14px 18px",
       marginBottom: 12,
-      boxShadow: "0 2px 0 #e5e5e5",
+      boxShadow: "0 2px 0 var(--bg-card-border)",
     }}>
-      <div style={{ fontSize: 13, fontWeight: 800, color: "#3c3c3c", marginBottom: 8 }}>
+      <div style={{ fontSize: 13, fontWeight: 800, color: "var(--text)", marginBottom: 8 }}>
         {index === 0 ? "Example: Basic" : "Example: Board-style"}
       </div>
       {example.question && (
-        <div style={{ fontSize: 14, lineHeight: 1.7, color: "#475569", marginBottom: 8 }}>
+        <div style={{ fontSize: 14, lineHeight: 1.7, color: "var(--text-muted)", marginBottom: 8 }}>
           <MathText text={example.question} />
         </div>
       )}
@@ -493,12 +493,12 @@ function WorkedExampleCard({ example, index }: { example: StructuredExample; ind
         <div style={{
           marginTop: 8,
           padding: "8px 12px",
-          background: "#f0fdf4",
+          background: "rgba(88,204,2,0.08)",
           borderRadius: 10,
-          border: "1px solid #bbf7d0",
+          border: "1px solid rgba(88,204,2,0.25)",
           fontSize: 14,
           fontWeight: 600,
-          color: "#15803d",
+          color: "#58cc02",
         }}>
           Final: <MathText text={example.finalAnswer} />
         </div>
@@ -511,8 +511,8 @@ function CheckpointCard({ question, answer }: { question?: string; answer?: stri
   if (!question) return null;
   return (
     <div style={{
-      background: "#fffbeb",
-      border: "2px solid #fde68a",
+      background: "rgba(245,158,11,0.08)",
+      border: "2px solid rgba(245,158,11,0.3)",
       borderLeft: "4px solid #f59e0b",
       borderRadius: 14,
       padding: "14px 18px",
@@ -521,11 +521,11 @@ function CheckpointCard({ question, answer }: { question?: string; answer?: stri
       <div style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "#d97706", marginBottom: 8 }}>
         Your turn
       </div>
-      <div style={{ fontSize: 15, lineHeight: 1.7, color: "#92400e", fontWeight: 600 }}>
+      <div style={{ fontSize: 15, lineHeight: 1.7, color: "var(--text)", fontWeight: 600 }}>
         <MathText text={question} />
       </div>
       {answer && (
-        <div style={{ marginTop: 8, fontSize: 13, lineHeight: 1.6, color: "#a16207" }}>
+        <div style={{ marginTop: 8, fontSize: 13, lineHeight: 1.6, color: "var(--text-muted)" }}>
           Good answer: <MathText text={answer} />
         </div>
       )}
@@ -537,8 +537,8 @@ function WatchOutCallout({ mistake, fix }: { mistake?: string; fix?: string }) {
   if (!mistake) return null;
   return (
     <div style={{
-      background: "#fef2f2",
-      border: "2px solid #fecaca",
+      background: "rgba(239,68,68,0.08)",
+      border: "2px solid rgba(239,68,68,0.25)",
       borderLeft: "4px solid #ef4444",
       borderRadius: 14,
       padding: "14px 18px",
@@ -547,11 +547,11 @@ function WatchOutCallout({ mistake, fix }: { mistake?: string; fix?: string }) {
       <div style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "#dc2626", marginBottom: 8 }}>
         Watch out
       </div>
-      <div style={{ fontSize: 14, lineHeight: 1.7, color: "#991b1b" }}>
+      <div style={{ fontSize: 14, lineHeight: 1.7, color: "var(--text)" }}>
         <MathText text={mistake} />
       </div>
       {fix && (
-        <div style={{ marginTop: 8, fontSize: 13, lineHeight: 1.6, color: "#b91c1c" }}>
+        <div style={{ marginTop: 8, fontSize: 13, lineHeight: 1.6, color: "var(--text-muted)" }}>
           Fix: <MathText text={fix} />
         </div>
       )}
@@ -597,7 +597,7 @@ export function TutorMessageRenderer({ content, structured, isCheckpoint }: Tuto
   const mdNodes = useMemo(() => parseMd(content || ""), [content]);
 
   return (
-    <div style={{ fontSize: 15, lineHeight: 1.7, color: "#3c3c3c" }}>
+    <div style={{ fontSize: 15, lineHeight: 1.7, color: "var(--text)" }}>
       {isCheckpoint && (
         <div style={{
           fontSize: 11,
@@ -657,7 +657,7 @@ export function TutorBubble({
           height: 32,
           borderRadius: "50%",
           background: "#58cc02",
-          color: "var(--text)",
+          color: "white",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -675,16 +675,16 @@ export function TutorBubble({
         maxWidth: "85%",
         borderRadius: isTutor ? "4px 16px 16px 16px" : "16px 4px 16px 16px",
         padding: "14px 18px",
-        background: isTutor ? "#ffffff" : "#dbeafe",
-        border: isTutor ? "2px solid #e5e5e5" : "2px solid #93c5fd",
-        boxShadow: isTutor ? "0 2px 0 #e5e5e5" : "0 2px 0 #93c5fd",
-        color: "#3c3c3c",
+        background: isTutor ? "var(--bg-card)" : "rgba(59,130,246,0.12)",
+        border: isTutor ? "1px solid var(--bg-card-border)" : "1px solid rgba(59,130,246,0.3)",
+        boxShadow: isTutor ? "0 2px 0 var(--bg-card-border)" : "0 2px 0 rgba(59,130,246,0.15)",
+        color: "var(--text)",
       }}>
         {showLabel && (
           <div style={{
             fontSize: 11,
             fontWeight: 800,
-            color: isTutor ? "#58cc02" : "#2563eb",
+            color: isTutor ? "#58cc02" : "#1cb0f6",
             marginBottom: 6,
             textTransform: "uppercase",
             letterSpacing: "0.04em",
@@ -706,7 +706,7 @@ export function TypingIndicator() {
         height: 32,
         borderRadius: "50%",
         background: "#58cc02",
-        color: "var(--text)",
+        color: "white",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -722,9 +722,9 @@ export function TypingIndicator() {
       <div style={{
         borderRadius: "4px 16px 16px 16px",
         padding: "14px 20px",
-        background: "#ffffff",
-        border: "2px solid #e5e5e5",
-        boxShadow: "0 2px 0 #e5e5e5",
+        background: "var(--bg-card)",
+        border: "1px solid var(--bg-card-border)",
+        boxShadow: "0 2px 0 var(--bg-card-border)",
         display: "flex",
         gap: 5,
         alignItems: "center",
@@ -735,19 +735,19 @@ export function TypingIndicator() {
             30% { transform: translateY(-6px); }
           }
         `}</style>
-        {[0, 1, 2].map((i) => (
+        {[0, 0.2, 0.4].map((delay, i) => (
           <span key={i} style={{
             width: 7,
             height: 7,
             borderRadius: "50%",
             background: "#58cc02",
             display: "inline-block",
-            animation: `tutorDotBounce 1.2s infinite`,
-            animationDelay: `${i * 0.15}s`,
+            animation: `tutorDotBounce 1.2s ease-in-out infinite`,
+            animationDelay: `${delay}s`,
           }} />
         ))}
-        <span style={{ fontSize: 13, color: "#afafaf", marginLeft: 8, fontStyle: "italic" }}>
-          Thinking...
+        <span style={{ fontSize: 12, color: "var(--text-muted)", marginLeft: 6, fontStyle: "italic" }}>
+          Ravi Sir is typing...
         </span>
       </div>
     </div>

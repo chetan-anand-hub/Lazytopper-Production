@@ -213,6 +213,13 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
   const abortRef = useRef<AbortController | null>(null);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
+  const [isNarrow, setIsNarrow] = useState(() => typeof window !== "undefined" ? window.innerWidth < 768 : false);
+
+  useEffect(() => {
+    const onResize = () => setIsNarrow(window.innerWidth < 768);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -578,8 +585,11 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
 
   if (!showChatUI) return null;
 
+  const panelHeight = isNarrow ? undefined : 580;
+
   return (
     <div style={s.container}>
+      {/* Full-width header */}
       <div style={s.chatHeader}>
         <div style={s.chatHeaderLeft}>
           <div style={s.headerAvatar}>RS</div>
@@ -597,47 +607,149 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
         </div>
       </div>
 
-      {activeVisual && (
-        <div style={s.visualPanel}>
-          <VisualExplainer
-            src={activeVisual.filePath}
-            title={activeVisual.title}
-            height={360}
-            collapsible={true}
-            defaultCollapsed={false}
-            topic={activeVisual.chapter}
-            concept={activeVisual.title}
-            subject={activeVisual.subject === "science" ? "Science" : "Maths"}
-          />
+      {/* Two-column body */}
+      <div style={{
+        display: "flex",
+        flexDirection: isNarrow ? "column" : "row",
+        border: "1px solid var(--bg-card-border)",
+        borderTop: "none",
+        borderRadius: "0 0 12px 12px",
+        overflow: "hidden",
+        ...(panelHeight ? { height: panelHeight } : {}),
+      }}>
+        {/* Left: Visual / Interactive panel */}
+        <div style={{
+          flex: isNarrow ? "0 0 auto" : "0 0 44%",
+          maxWidth: isNarrow ? "100%" : "44%",
+          borderRight: isNarrow ? "none" : "1px solid var(--bg-card-border)",
+          borderBottom: isNarrow ? "1px solid var(--bg-card-border)" : "none",
+          overflowY: "auto",
+          background: "var(--bg)",
+          display: "flex",
+          flexDirection: "column",
+        }}>
+          {activeVisual ? (
+            <VisualExplainer
+              src={activeVisual.filePath}
+              title={activeVisual.title}
+              height={isNarrow ? 280 : 540}
+              collapsible={false}
+              defaultCollapsed={false}
+              topic={activeVisual.chapter}
+              concept={activeVisual.title}
+              subject={activeVisual.subject === "science" ? "Science" : "Maths"}
+            />
+          ) : (
+            <div style={s.noVisualPlaceholder}>
+              <div style={s.noVisualIcon}>📊</div>
+              <p style={s.noVisualTitle}>Interactive Visual</p>
+              <p style={s.noVisualText}>
+                Ravi Sir will show a visual here as you learn. Ask him to{" "}
+                <em>"show me the graph"</em> or{" "}
+                <em>"draw a diagram"</em> at any time.
+              </p>
+            </div>
+          )}
         </div>
-      )}
 
-      <div style={s.chatArea}>
-        {chatMessages.map((msg, idx) => (
-          <div key={idx} style={msg.role === "tutor" ? s.tutorBubbleWrap : s.studentBubbleWrap}>
-            {msg.role === "tutor" && <div style={s.tutorAvatar}>RS</div>}
-            <div style={{
-              ...(msg.role === "tutor" ? s.tutorBubble : s.studentBubble),
-              ...(msg.isCheckpoint ? s.checkpointBubble : {}),
-            }}>
-              {msg.role === "tutor" ? <TutorMessageRenderer content={msg.content} isCheckpoint={msg.isCheckpoint} structured={msg.structured} /> : <p style={s.studentText}>{msg.content}</p>}
-            </div>
+        {/* Right: Chat panel */}
+        <div style={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
+          minWidth: 0,
+        }}>
+          {/* Scrollable messages */}
+          <div style={s.chatArea}>
+            {chatMessages.map((msg, idx) => (
+              <div key={idx} style={msg.role === "tutor" ? s.tutorBubbleWrap : s.studentBubbleWrap}>
+                {msg.role === "tutor" && <div style={s.tutorAvatar}>RS</div>}
+                <div style={{
+                  ...(msg.role === "tutor" ? s.tutorBubble : s.studentBubble),
+                  ...(msg.isCheckpoint ? s.checkpointBubble : {}),
+                }}>
+                  {msg.role === "tutor"
+                    ? <TutorMessageRenderer content={msg.content} isCheckpoint={msg.isCheckpoint} structured={msg.structured} />
+                    : <p style={s.studentText}>{msg.content}</p>}
+                </div>
+              </div>
+            ))}
+
+            {loading && (
+              <div style={s.tutorBubbleWrap}>
+                <div style={s.tutorAvatar}>RS</div>
+                <div style={s.typingBubble}>
+                  <span style={s.dot1} /><span style={s.dot2} /><span style={s.dot3} />
+                  <span style={s.typingLabel}>Ravi Sir is typing...</span>
+                </div>
+              </div>
+            )}
+
+            <div ref={chatEndRef} />
           </div>
-        ))}
 
-        {loading && (
-          <div style={s.tutorBubbleWrap}>
-            <div style={s.tutorAvatar}>RS</div>
-            <div style={s.typingBubble}>
-              <span style={s.dot1} /><span style={s.dot2} /><span style={s.dot3} />
-              <span style={s.typingLabel}>Ravi Sir is typing...</span>
+          {/* Quick action chips */}
+          {phase === "awaiting_answer" && !loading && (
+            <div style={s.quickActionsWrap}>
+              {QUICK_ACTIONS.map((action, idx) => (
+                <button
+                  key={idx}
+                  style={s.quickActionBtn}
+                  onClick={() => handleQuickAction(action.message)}
+                >
+                  {action.label}
+                </button>
+              ))}
             </div>
-          </div>
-        )}
+          )}
 
-        <div ref={chatEndRef} />
+          {/* Input area */}
+          {(phase === "awaiting_answer" || phase === "responding") && (
+            <div style={s.inputArea}>
+              <textarea
+                ref={inputRef}
+                style={s.chatInput}
+                placeholder="Type your answer, ask a question, or say 'I don't understand'..."
+                value={studentInput}
+                onChange={(e) => setStudentInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                disabled={loading}
+                rows={2}
+              />
+              <button
+                style={{
+                  ...s.sendBtn,
+                  opacity: loading || !studentInput.trim() ? 0.5 : 1,
+                }}
+                onClick={() => sendMessage()}
+                disabled={loading || !studentInput.trim()}
+              >
+                Send
+              </button>
+            </div>
+          )}
+
+          {/* Skip link */}
+          {stepCount >= 2 && phase === "awaiting_answer" && (
+            <button
+              style={s.skipLink}
+              onClick={() => {
+                markComplete();
+                if (isConceptMode && onComplete) {
+                  onComplete();
+                } else {
+                  setPhase("complete");
+                }
+              }}
+            >
+              {isConceptMode ? "I understand — close" : "I understand this topic — skip to practice"}
+            </button>
+          )}
+        </div>
       </div>
 
+      {/* Full-width: error and complete card */}
       {error && (
         <div style={s.errorBox}>
           <p style={s.errorText}>{error}</p>
@@ -660,68 +772,20 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
           </div>
         </div>
       )}
-
-      {phase === "awaiting_answer" && !loading && (
-        <div style={s.quickActionsWrap}>
-          {QUICK_ACTIONS.map((action, idx) => (
-            <button
-              key={idx}
-              style={s.quickActionBtn}
-              onClick={() => handleQuickAction(action.message)}
-            >
-              {action.label}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {(phase === "awaiting_answer" || phase === "responding") && (
-        <div style={s.inputArea}>
-          <textarea
-            ref={inputRef}
-            style={s.chatInput}
-            placeholder="Type your answer, ask a question, or say 'I don't understand'..."
-            value={studentInput}
-            onChange={(e) => setStudentInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            disabled={loading}
-            rows={2}
-          />
-          <button
-            style={{
-              ...s.sendBtn,
-              opacity: loading || !studentInput.trim() ? 0.5 : 1,
-            }}
-            onClick={() => sendMessage()}
-            disabled={loading || !studentInput.trim()}
-          >
-            Send
-          </button>
-        </div>
-      )}
-
-      {stepCount >= 2 && phase === "awaiting_answer" && (
-        <button
-          style={s.skipLink}
-          onClick={() => {
-            markComplete();
-            if (isConceptMode && onComplete) {
-              onComplete();
-            } else {
-              setPhase("complete");
-            }
-          }}
-        >
-          {isConceptMode ? "I understand — close" : "I understand this topic — skip to practice"}
-        </button>
-      )}
     </div>
   );
 }
 
 const s: Record<string, React.CSSProperties> = {
-  container: { maxWidth: 920, margin: "0 auto", padding: "16px 16px 24px", display: "flex", flexDirection: "column", width: "100%" },
-  visualPanel: { padding: "0 0 4px", borderLeft: "1px solid var(--bg-card-border)", borderRight: "1px solid var(--bg-card-border)", background: "var(--bg)" },
+  container: { maxWidth: 1200, margin: "0 auto", padding: "0 0 24px", display: "flex", flexDirection: "column", width: "100%" },
+
+  noVisualPlaceholder: {
+    flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+    padding: "32px 24px", textAlign: "center", gap: 8,
+  },
+  noVisualIcon: { fontSize: 40, marginBottom: 4 },
+  noVisualTitle: { fontSize: 15, fontWeight: 700, color: "var(--text)", margin: 0 },
+  noVisualText: { fontSize: 13, color: "var(--text-muted)", lineHeight: 1.6, maxWidth: 240, margin: 0 },
 
   introCard: { background: "var(--bg-card)", borderRadius: 16, padding: "32px 24px", textAlign: "center", border: "1px solid var(--bg-card-border)" },
   introAvatarLarge: {
@@ -742,7 +806,8 @@ const s: Record<string, React.CSSProperties> = {
   },
 
   chatHeader: {
-    background: "var(--bg-card)", borderRadius: "12px 12px 0 0", padding: "12px 16px", borderBottom: "1px solid var(--bg-card-border)",
+    background: "var(--bg-card)", borderRadius: "12px 12px 0 0", padding: "12px 16px",
+    border: "1px solid var(--bg-card-border)", borderBottom: "1px solid var(--bg-card-border)",
     marginBottom: 0,
   },
   chatHeaderLeft: { display: "flex", alignItems: "center", gap: 10, marginBottom: 8 },
@@ -763,8 +828,8 @@ const s: Record<string, React.CSSProperties> = {
   },
 
   chatArea: {
-    background: "var(--bg)", padding: "16px 16px", minHeight: 300, maxHeight: "70vh",
-    overflowY: "auto", borderLeft: "1px solid var(--bg-card-border)", borderRight: "1px solid var(--bg-card-border)",
+    background: "var(--bg)", padding: "14px 16px",
+    flex: 1, overflowY: "auto",
   },
 
   tutorBubbleWrap: { display: "flex", alignItems: "flex-start", gap: 8, marginBottom: 14 },
@@ -815,7 +880,7 @@ const s: Record<string, React.CSSProperties> = {
 
   quickActionsWrap: {
     display: "flex", flexWrap: "wrap", gap: 8, padding: "10px 16px",
-    background: "var(--bg-card)", borderLeft: "1px solid var(--bg-card-border)", borderRight: "1px solid var(--bg-card-border)",
+    background: "var(--bg-card)", borderTop: "1px solid var(--bg-card-border)",
   },
   quickActionBtn: {
     background: "var(--bg)", border: "1px solid var(--bg-card-border)", borderRadius: 20,
@@ -824,8 +889,8 @@ const s: Record<string, React.CSSProperties> = {
   },
 
   inputArea: {
-    display: "flex", gap: 8, padding: "12px 16px", background: "var(--bg-card)",
-    borderRadius: "0 0 12px 12px", border: "1px solid var(--bg-card-border)", borderTop: "none",
+    display: "flex", gap: 8, padding: "10px 12px", background: "var(--bg-card)",
+    borderTop: "1px solid var(--bg-card-border)",
     alignItems: "flex-end",
   },
   chatInput: {
@@ -844,8 +909,8 @@ const s: Record<string, React.CSSProperties> = {
     textDecoration: "underline", textAlign: "center", marginTop: 12, padding: 4,
   },
 
-  errorBox: { background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8, padding: "10px 16px", margin: "8px 0" },
-  errorText: { fontSize: 13, color: "#dc2626", margin: 0 },
+  errorBox: { background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: 8, padding: "10px 16px", margin: "8px 0" },
+  errorText: { fontSize: 13, color: "#ef4444", margin: 0 },
   retryBtn: {
     background: "transparent", color: "#dc2626", border: "1px solid #dc2626", borderRadius: 6,
     padding: "4px 12px", fontSize: 12, cursor: "pointer", marginTop: 6,
