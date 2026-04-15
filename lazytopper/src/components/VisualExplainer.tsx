@@ -36,7 +36,7 @@ function detectInteractive(html: string): boolean {
   return (
     /<input[^>]+type=["']?range["']?/i.test(html) ||
     /<select[\s>]/i.test(html) ||
-    (html.match(/<button[\s>]/gi) ?? []).length >= 3
+    (html.match(/<button[\s>]/gi) ?? []).length >= 1
   );
 }
 
