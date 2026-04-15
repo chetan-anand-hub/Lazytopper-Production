@@ -44,8 +44,38 @@ Thumbs.db
 .cursor/rules/nx-rules.mdc
 .github/instructions/nx.instructions.md
 
-# Generated reports
-.project_memory/deploy_smoke/
+# Generated reports and internal project memory
+.project_memory/
+lazytopper/docs/project_memory/
+lazytopper/docs/project_notes/
+lazytopper/docs/dev/
+lazytopper/docs/knowledge/
+lazytopper/docs/ops/
+
+# Internal docs — not part of the deployable product
+lazytopper/docs/change-log.md
+lazytopper/docs/BankHealthIntegrationNotes.md
+lazytopper/docs/DEPLOY_NOTES_*.md
+lazytopper/docs/README_PATCH.md
+lazytopper/docs/*audit*.md
+lazytopper/docs/*report*.md
+lazytopper/docs/*expansion*.md
+lazytopper/docs/*refactor*.md
+lazytopper/docs/*policy*.md
+lazytopper/docs/*notes*.md
+lazytopper/docs/*ideas*.md
+lazytopper/docs/*plan*.md
+lazytopper/docs/rulebook.md
+lazytopper/GPT_CHANGELOG*.md
+lazytopper/CHANGELOG.md
+lazytopper/.github/workflows/pmem-audit.yml
+
+# Evaluation and audit reports committed by agents
+attached_assets/*.md
+*_report.md
+*_evaluation.md
+*_audit_*.md
+*_evaluation_*.md
 
 # Replit
 .cache/
