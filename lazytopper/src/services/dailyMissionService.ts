@@ -129,20 +129,40 @@ function getTopicMeta(slug: string): { topicName: string; overview: string[]; de
   };
 }
 
+function parseMCQOptions(questionText: string): { stem: string; options: string[] } {
+  const optionRegex = /\(([A-D])\)\s*((?:(?!\([A-D]\)).)*)/g;
+  const options: string[] = [];
+  let match;
+  while ((match = optionRegex.exec(questionText)) !== null) {
+    const opt = match[2].trim().replace(/\s+/g, " ");
+    if (opt) options.push(opt);
+  }
+  if (options.length === 0) return { stem: questionText, options: [] };
+  const stemMatch = questionText.match(/^([\s\S]*?)(?:\s*\([A-D]\))/);
+  const stem = stemMatch ? stemMatch[1].trim() : questionText;
+  return { stem, options };
+}
+
 function buildRevisionSegment(subject: "Maths" | "Science", seed: number): MissionSegment {
   const dueCards = getDueReviews({ subject, limit: 4 });
   const items: DailyMixItem[] = dueCards.map((card: SRConceptCard, i: number) => {
     const meta = getTopicMeta(card.topicKey);
+    const conceptLabel = card.conceptKey.replace(/[-_]+/g, " ");
+    const allOverview = meta.overview.join("\n\n");
     return {
       id: `mission-rev-${i}`,
-      type: "revision" as const,
-      title: `Review: ${meta.topicName}`,
-      description: `Concept: ${card.conceptKey.replace(/[-_]+/g, " ")}`,
+      type: "question" as const,
+      title: `Quick Revision: ${meta.topicName}`,
+      description: `Easy | 1 mark`,
       payload: {
         topicKey: card.topicKey,
         conceptKey: card.conceptKey,
         topic: meta.topicName,
-        stem: meta.overview[0] || `Recall and review ${card.conceptKey.replace(/[-_]+/g, " ")} from ${meta.topicName}.`,
+        stem: `What do you remember about "${conceptLabel}" from ${meta.topicName}? Write the key idea or formula.`,
+        modelAnswer: allOverview || `${conceptLabel} — a key concept in ${meta.topicName}.`,
+        marks: 1,
+        difficulty: "Easy",
+        isFlashcard: true,
       },
     };
   });
@@ -154,15 +174,23 @@ function buildRevisionSegment(subject: "Maths" | "Science", seed: number): Missi
       if (items.length >= 4) break;
       const q = bucket.questions[0];
       if (!q) continue;
+      const rawStem = buildQuestionStem(q) || `Review key concepts from ${bucket.topic}.`;
+      const isMCQ = q.type === "MCQ";
+      const parsed = isMCQ ? parseMCQOptions(rawStem) : { stem: rawStem, options: [] };
       items.push({
         id: `mission-rev-fill-${items.length}`,
-        type: "revision" as const,
-        title: `Quick Recall: ${bucket.topic}`,
-        description: `Review this high-probability concept`,
+        type: "question" as const,
+        title: `Quick Revision: ${bucket.topic}`,
+        description: `${q.difficulty || "Medium"} | ${q.marks || 1} mark${(q.marks || 1) !== 1 ? "s" : ""}`,
         payload: {
           topicKey: normalizeTopicKey(bucket.topic) || bucket.topic,
           topic: bucket.topic,
-          stem: buildQuestionStem(q) || `Review key concepts from ${bucket.topic}.`,
+          stem: parsed.stem,
+          options: parsed.options,
+          modelAnswer: String(q.answer || ""),
+          explanation: String(q.explanation || ""),
+          marks: q.marks || 1,
+          difficulty: q.difficulty || "Medium",
         },
       });
     }

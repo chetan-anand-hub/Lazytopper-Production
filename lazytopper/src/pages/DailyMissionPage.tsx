@@ -326,9 +326,10 @@ export default function DailyMissionPage() {
 
   const handleMCQSelect = useCallback((selected: string) => {
     if (!currentItem || currentAnswer?.submitted) return;
-    const modelAnswer = String(currentItem.payload?.modelAnswer || "");
+    const modelAnswer = String(currentItem.payload?.modelAnswer || "").trim().toLowerCase();
     const topicKey = String(currentItem.payload?.topicKey || "");
-    const isCorrect = selected.trim().toLowerCase() === modelAnswer.trim().toLowerCase();
+    const sel = selected.trim().toLowerCase();
+    const isCorrect = sel === modelAnswer || modelAnswer.includes(sel) || sel.includes(modelAnswer);
     updateAnswer(segmentIndex, itemIndex, {
       submitted: true,
       studentAnswer: selected,
@@ -671,9 +672,10 @@ export default function DailyMissionPage() {
             <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 8 }}>
               {mcqOptions.map((opt, idx) => {
                 const label = String.fromCharCode(65 + idx);
-                const modelAnswer = String(currentItem?.payload?.modelAnswer || "");
-                const isSelected = opt.trim().toLowerCase() === currentAnswer.studentAnswer.trim().toLowerCase();
-                const isCorrectOption = opt.trim().toLowerCase() === modelAnswer.trim().toLowerCase();
+                const modelAnswer = String(currentItem?.payload?.modelAnswer || "").trim().toLowerCase();
+                const optL = opt.trim().toLowerCase();
+                const isSelected = optL === currentAnswer.studentAnswer.trim().toLowerCase();
+                const isCorrectOption = optL === modelAnswer || modelAnswer.includes(optL) || optL.includes(modelAnswer);
                 let bg = "rgba(255,255,255,0.03)";
                 let border = "1px solid rgba(255,255,255,0.08)";
                 let labelColor = "rgba(255,255,255,0.3)";
@@ -742,6 +744,45 @@ export default function DailyMissionPage() {
                 <div style={{ marginTop: 10, padding: "8px 12px", background: "rgba(34,197,94,0.08)", borderRadius: 8 }}>
                   <span style={{ fontWeight: 700, fontSize: 11, color: "#22c55e", textTransform: "uppercase", letterSpacing: 0.5 }}>Correct Answer</span>
                   <div style={{ marginTop: 4, fontWeight: 600, fontSize: 14, whiteSpace: "pre-wrap" }}>{String(currentItem.payload.modelAnswer)}</div>
+                </div>
+              )}
+
+              {hasMCQ && currentItem?.payload?.modelAnswer && (
+                <div style={{ marginTop: 10, padding: "8px 12px", background: "rgba(34,197,94,0.08)", borderRadius: 8 }}>
+                  <span style={{ fontWeight: 700, fontSize: 11, color: "#22c55e", textTransform: "uppercase", letterSpacing: 0.5 }}>Correct Answer</span>
+                  <div style={{ marginTop: 4, fontWeight: 600, fontSize: 14 }}>{String(currentItem.payload.modelAnswer)}</div>
+                </div>
+              )}
+
+              {currentItem?.payload?.explanation && String(currentItem.payload.explanation).trim() && (
+                <div style={{
+                  marginTop: 10, padding: "12px 14px",
+                  background: "rgba(147,51,234,0.07)",
+                  border: "1px solid rgba(147,51,234,0.18)",
+                  borderRadius: 10,
+                }}>
+                  <div style={{ fontWeight: 700, fontSize: 11, color: "#a855f7", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 6 }}>
+                    💡 Step-by-Step Solution
+                  </div>
+                  <div style={{ fontSize: 14, lineHeight: 1.65, whiteSpace: "pre-wrap", color: "var(--text)" }}>
+                    {String(currentItem.payload.explanation)}
+                  </div>
+                </div>
+              )}
+
+              {!currentItem?.payload?.explanation && currentItem?.payload?.isFlashcard && currentItem?.payload?.modelAnswer && (
+                <div style={{
+                  marginTop: 10, padding: "12px 14px",
+                  background: "rgba(59,130,246,0.07)",
+                  border: "1px solid rgba(59,130,246,0.18)",
+                  borderRadius: 10,
+                }}>
+                  <div style={{ fontWeight: 700, fontSize: 11, color: "#3b82f6", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 6 }}>
+                    📖 Key Concept
+                  </div>
+                  <div style={{ fontSize: 14, lineHeight: 1.65, whiteSpace: "pre-wrap", color: "var(--text)" }}>
+                    {String(currentItem.payload.modelAnswer)}
+                  </div>
                 </div>
               )}
 
