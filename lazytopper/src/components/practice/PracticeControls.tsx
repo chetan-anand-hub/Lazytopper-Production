@@ -106,23 +106,6 @@ export function PracticeControls({
           >
             Regenerate set
           </button>
-          <button
-            type="button"
-            onClick={() =>
-              onSetQuestionCount(
-                Math.max(MIN_QUESTION_COUNT, Math.min(MAX_QUESTION_COUNT, questionCount + 10))
-              )
-            }
-            style={{
-              borderRadius: 999, padding: "5px 12px",
-              border: "1px solid rgba(28,176,246,0.6)",
-              backgroundColor: "rgba(59,130,246,0.12)",
-              color: "var(--text)", fontSize: "0.78rem", cursor: "pointer",
-            }}
-            title="Demand 10 more questions for this topic"
-          >
-            +10 more
-          </button>
         </div>
       </section>
 
