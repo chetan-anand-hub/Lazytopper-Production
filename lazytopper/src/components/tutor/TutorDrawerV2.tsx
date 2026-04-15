@@ -2017,7 +2017,7 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
               padding: "9px 14px",
               fontWeight: 900,
               background: "#58cc02",
-              color: "#fff",
+              color: "var(--text)",
               borderColor: "#58cc02",
             }}
             onClick={runPrimaryAction}

@@ -124,6 +124,12 @@ body {
   box-shadow: none;
 }
 
+[data-theme="light"] .navbar {
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  color: #1e293b;
+}
+
 /* Page wrapper (legacy `.page` + preferred `.lt-page`) */
 .lt-page,
 .page {

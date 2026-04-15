@@ -16,7 +16,7 @@ export function PracticeHero({ grade, subjectKey, title, topicParam, canonicalTo
         borderRadius: 16,
         padding: "20px 18px 22px",
         background: "linear-gradient(135deg, #22c55e 0%, #3b82f6 100%)",
-        color: "#fff",
+        color: "var(--text)",
         boxShadow: "0 4px 0 rgba(70,163,2,0.3)",
         marginBottom: 18,
       }}

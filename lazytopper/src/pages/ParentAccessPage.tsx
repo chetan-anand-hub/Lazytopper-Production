@@ -115,7 +115,7 @@ export default function ParentAccessPage() {
           <h1 style={{ fontSize: 22, fontWeight: 800, color: "var(--text)", margin: "0 0 12px", fontFamily: "'Space Grotesk', sans-serif" }}>
             Parent Access Not Set Up
           </h1>
-          <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", lineHeight: 1.6 }}>
+          <p style={{ fontSize: 14, color: "var(--text-muted)", lineHeight: 1.6 }}>
             Your child needs to set a Parent PIN in the app first. Ask them to set it up in their Profile settings.
           </p>
         </div>
@@ -131,7 +131,7 @@ export default function ParentAccessPage() {
           <h1 style={{ fontSize: 22, fontWeight: 800, color: "var(--text)", margin: "0 0 8px", fontFamily: "'Space Grotesk', sans-serif" }}>
             Parent Access
           </h1>
-          <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", margin: "0 0 28px", lineHeight: 1.5 }}>
+          <p style={{ fontSize: 14, color: "var(--text-muted)", margin: "0 0 28px", lineHeight: 1.5 }}>
             Enter the 4-digit PIN set by your child
           </p>
           <div style={{ display: "flex", gap: 12, justifyContent: "center", marginBottom: 16 }}>
@@ -148,8 +148,8 @@ export default function ParentAccessPage() {
                 disabled={lockout.locked}
                 style={{
                   width: 56, height: 64, textAlign: "center", fontSize: 28, fontWeight: 800,
-                  borderRadius: 14, border: error ? "2px solid #ef4444" : "2px solid rgba(255,255,255,0.15)",
-                  background: "rgba(255,255,255,0.06)", color: "var(--text)", outline: "none",
+                  borderRadius: 14, border: error ? "2px solid #ef4444" : "2px solid var(--text-muted)",
+                  background: "var(--bg-card)", color: "var(--text)", outline: "none",
                   fontFamily: "'Space Grotesk', sans-serif",
                   opacity: lockout.locked ? 0.4 : 1,
                 }}

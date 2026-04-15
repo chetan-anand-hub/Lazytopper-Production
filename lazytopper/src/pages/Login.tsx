@@ -54,11 +54,11 @@ export default function Login() {
       padding: 16,
     }}>
       <div style={{
-        background: isLight ? "rgba(0,0,0,0.03)" : "rgba(255,255,255,0.03)",
+        background: isLight ? "rgba(0,0,0,0.03)" : "var(--bg-card)",
         backdropFilter: "blur(16px)",
         borderRadius: 20, maxWidth: 420, width: "100%",
         padding: "36px 28px",
-        border: isLight ? "1px solid rgba(0,0,0,0.06)" : "1px solid rgba(255,255,255,0.06)",
+        border: isLight ? "1px solid rgba(0,0,0,0.06)" : "1px solid var(--bg-card-border)",
       }}>
         <div style={{ textAlign: "center", marginBottom: 28 }}>
           <div style={{
@@ -91,7 +91,7 @@ export default function Login() {
                 colorPrimary: "#22c55e",
                 colorBackground: isLight ? "#ffffff" : "#0a0a0a",
                 colorText: isLight ? "#111111" : "#ffffff",
-                colorInputBackground: isLight ? "rgba(0,0,0,0.04)" : "rgba(255,255,255,0.05)",
+                colorInputBackground: isLight ? "rgba(0,0,0,0.04)" : "var(--bg-card)",
                 colorInputText: isLight ? "#111111" : "#ffffff",
                 borderRadius: "12px",
               },
@@ -101,8 +101,8 @@ export default function Login() {
                 headerTitle: { display: "none" },
                 headerSubtitle: { display: "none" },
                 socialButtonsBlockButton: {
-                  background: isLight ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.05)",
-                  border: isLight ? "1px solid rgba(0,0,0,0.1)" : "1px solid rgba(255,255,255,0.1)",
+                  background: isLight ? "rgba(0,0,0,0.05)" : "var(--bg-card)",
+                  border: isLight ? "1px solid rgba(0,0,0,0.1)" : "1px solid var(--bg-card-border)",
                   color: isLight ? "#111111" : "var(--text)",
                   borderRadius: "14px",
                   fontWeight: 800,
@@ -115,7 +115,7 @@ export default function Login() {
                   boxShadow: "0 0 24px rgba(34,197,94,0.3)",
                 },
                 footerActionLink: { color: "#22c55e" },
-                dividerLine: { background: isLight ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.08)" },
+                dividerLine: { background: isLight ? "rgba(0,0,0,0.08)" : "var(--bg-card)" },
                 dividerText: { color: "var(--text-muted)" },
               },
             }}
@@ -126,9 +126,9 @@ export default function Login() {
           display: "flex", alignItems: "center", gap: 12,
           margin: "0 0 16px", color: "var(--text-muted)", fontSize: "0.82rem",
         }}>
-          <div style={{ flex: 1, height: 1, background: isLight ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.08)" }} />
+          <div style={{ flex: 1, height: 1, background: isLight ? "rgba(0,0,0,0.08)" : "var(--bg-card)" }} />
           <span>or</span>
-          <div style={{ flex: 1, height: 1, background: isLight ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.08)" }} />
+          <div style={{ flex: 1, height: 1, background: isLight ? "rgba(0,0,0,0.08)" : "var(--bg-card)" }} />
         </div>
 
         <button

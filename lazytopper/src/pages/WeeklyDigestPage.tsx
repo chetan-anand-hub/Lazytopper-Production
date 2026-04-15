@@ -202,7 +202,7 @@ export default function WeeklyDigestPage() {
   if (shareVerifying) {
     return (
       <div style={{ minHeight: "100vh", background: "var(--bg)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 14 }}>Loading digest...</p>
+        <p style={{ color: "var(--text-muted)", fontSize: 14 }}>Loading digest...</p>
       </div>
     );
   }
@@ -245,7 +245,7 @@ export default function WeeklyDigestPage() {
           <h1 style={{ fontSize: 20, fontWeight: 800, color: "var(--text)", margin: "0 0 4px", fontFamily: "'Space Grotesk', sans-serif" }}>
             Weekly Progress Digest
           </h1>
-          <p style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", margin: 0 }}>
+          <p style={{ fontSize: 12, color: "var(--text-muted)", margin: 0 }}>
             {studentName} — Week of {new Date(weekAgo).toLocaleDateString("en-IN", { month: "short", day: "numeric" })} to {new Date().toLocaleDateString("en-IN", { month: "short", day: "numeric" })}
           </p>
         </div>
@@ -263,7 +263,7 @@ export default function WeeklyDigestPage() {
             }}>
               <div style={{ fontSize: 20, marginBottom: 4 }}>{s.icon}</div>
               <div style={{ fontSize: 22, fontWeight: 800, color: s.color }}>{s.value}</div>
-              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", marginTop: 2 }}>{s.label}</div>
+              <div style={{ fontSize: 10, color: "var(--text-muted)", textTransform: "uppercase", marginTop: 2 }}>{s.label}</div>
             </div>
           ))}
         </div>
@@ -272,12 +272,12 @@ export default function WeeklyDigestPage() {
           <div style={{ padding: 16, borderRadius: 14, textAlign: "center", background: "var(--bg-card)", border: "1px solid var(--bg-card-border)" }}>
             <div style={{ fontSize: 20, marginBottom: 4 }}>📝</div>
             <div style={{ fontSize: 22, fontWeight: 800, color: "#a855f7" }}>{questionsThisWeek}</div>
-            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", marginTop: 2 }}>Questions This Week</div>
+            <div style={{ fontSize: 10, color: "var(--text-muted)", textTransform: "uppercase", marginTop: 2 }}>Questions This Week</div>
           </div>
           <div style={{ padding: 16, borderRadius: 14, textAlign: "center", background: "var(--bg-card)", border: "1px solid var(--bg-card-border)" }}>
             <div style={{ fontSize: 20, marginBottom: 4 }}>📈</div>
             <div style={{ fontSize: 22, fontWeight: 800, color: "#22c55e" }}>{topicsImproved}</div>
-            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", marginTop: 2 }}>Topics Improved</div>
+            <div style={{ fontSize: 10, color: "var(--text-muted)", textTransform: "uppercase", marginTop: 2 }}>Topics Improved</div>
           </div>
         </div>
 
@@ -292,7 +292,7 @@ export default function WeeklyDigestPage() {
             {mockScores.map((m, idx) => (
               <div key={idx} style={{
                 display: "flex", justifyContent: "space-between", padding: "8px 0",
-                borderBottom: "1px solid rgba(255,255,255,0.04)",
+                borderBottom: "1px solid var(--bg-card-border)",
               }}>
                 <span style={{ fontSize: 12, color: "var(--text-muted)" }}>{m.subject}</span>
                 <span style={{ fontSize: 13, fontWeight: 800, color: m.percent >= 65 ? "#22c55e" : "#ef4444" }}>{m.percent}%</span>
@@ -312,7 +312,7 @@ export default function WeeklyDigestPage() {
             {weakAreas.map((w, idx) => (
               <div key={idx} style={{
                 display: "flex", justifyContent: "space-between", padding: "8px 0",
-                borderBottom: "1px solid rgba(255,255,255,0.04)",
+                borderBottom: "1px solid var(--bg-card-border)",
               }}>
                 <span style={{ fontSize: 12, color: "var(--text-muted)" }}>{w.topicName} ({w.subject})</span>
                 <span style={{ fontSize: 12, fontWeight: 800, color: "#ef4444" }}>{w.accuracy}%</span>
@@ -328,7 +328,7 @@ export default function WeeklyDigestPage() {
             style={{
               flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
               padding: "14px 0", borderRadius: 12, border: "none", cursor: "pointer",
-              background: "#25D366", color: "#fff", fontWeight: 800, fontSize: 14,
+              background: "#25D366", color: "var(--text)", fontWeight: 800, fontSize: 14,
               fontFamily: "'Space Grotesk', sans-serif",
             }}
           >
@@ -354,8 +354,8 @@ export default function WeeklyDigestPage() {
             onClick={() => navigate("/parent-dashboard", { state: { back: "/weekly-digest", backLabel: "Back to Digest" } })}
             style={{
               width: "100%", marginTop: 8, padding: "12px 0", borderRadius: 12,
-              background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
-              color: "rgba(255,255,255,0.5)", fontWeight: 600, fontSize: 12, cursor: "pointer",
+              background: "var(--bg-card)", border: "1px solid var(--bg-card-border)",
+              color: "var(--text-muted)", fontWeight: 600, fontSize: 12, cursor: "pointer",
             }}
           >
             View Full Parent Report

@@ -291,8 +291,8 @@ function TopicHubHomeContent() {
         <div
           style={{
             borderRadius: 18,
-            border: "1px solid rgba(255,255,255,0.06)",
-            background: "rgba(255,255,255,0.03)",
+            border: "1px solid var(--bg-card-border)",
+            background: "var(--bg-card)",
             padding: 16,
             marginBottom: 14,
           }}
@@ -306,8 +306,8 @@ function TopicHubHomeContent() {
         <div
           style={{
             borderRadius: 18,
-            border: "1px solid rgba(255,255,255,0.06)",
-            background: "rgba(255,255,255,0.03)",
+            border: "1px solid var(--bg-card-border)",
+            background: "var(--bg-card)",
             padding: 16,
             marginBottom: 14,
           }}
@@ -355,8 +355,8 @@ function TopicHubHomeContent() {
           <div
             style={{
               borderRadius: 18,
-              border: "1px solid rgba(255,255,255,0.06)",
-              background: "rgba(255,255,255,0.03)",
+              border: "1px solid var(--bg-card-border)",
+              background: "var(--bg-card)",
               padding: 14,
               marginBottom: 14,
             }}
@@ -381,8 +381,8 @@ function TopicHubHomeContent() {
         <div
           style={{
             borderRadius: 18,
-            border: "1px solid rgba(255,255,255,0.06)",
-            background: "rgba(255,255,255,0.03)",
+            border: "1px solid var(--bg-card-border)",
+            background: "var(--bg-card)",
             padding: 16,
           }}
         >
@@ -394,11 +394,11 @@ function TopicHubHomeContent() {
                 onChange={(event) => setGrade(String(event.target.value || "10"))}
                 style={{
                   width: "100%",
-                  border: "1px solid rgba(255,255,255,0.08)",
+                  border: "1px solid var(--bg-card-border)",
                   borderRadius: 12,
                   padding: "10px 12px",
                   fontSize: 15,
-                  background: "rgba(255,255,255,0.03)",
+                  background: "var(--bg-card)",
                 }}
               >
                 <option value="10">Class 10</option>
@@ -417,9 +417,9 @@ function TopicHubHomeContent() {
                       className="lt-pill"
                       style={{
                         padding: "8px 12px",
-                        background: active ? "#22c55e" : "rgba(255,255,255,0.03)",
-                        color: active ? "#fff" : "rgba(255,255,255,0.7)",
-                        borderColor: active ? "#22c55e" : "rgba(255,255,255,0.06)",
+                        background: active ? "#22c55e" : "var(--bg-card)",
+                        color: active ? "#fff" : "var(--text)",
+                        borderColor: active ? "#22c55e" : "var(--bg-card-border)",
                       }}
                       onClick={() => setSubject(value)}
                     >
@@ -439,11 +439,11 @@ function TopicHubHomeContent() {
                 placeholder="Search topic"
                 style={{
                   width: "100%",
-                  border: "1px solid rgba(255,255,255,0.08)",
+                  border: "1px solid var(--bg-card-border)",
                   borderRadius: 12,
                   padding: "10px 12px",
                   fontSize: 15,
-                  background: "rgba(255,255,255,0.03)",
+                  background: "var(--bg-card)",
                 }}
               />
             </div>
@@ -455,11 +455,11 @@ function TopicHubHomeContent() {
                 onChange={(event) => setSelectedTopicKeyRaw(String(event.target.value || ""))}
                 style={{
                   width: "100%",
-                  border: "1px solid rgba(255,255,255,0.08)",
+                  border: "1px solid var(--bg-card-border)",
                   borderRadius: 12,
                   padding: "10px 12px",
                   fontSize: 15,
-                  background: "rgba(255,255,255,0.03)",
+                  background: "var(--bg-card)",
                 }}
               >
                 {filteredOptions.length ? (
@@ -481,8 +481,8 @@ function TopicHubHomeContent() {
             style={{
               marginTop: 14,
               borderRadius: 14,
-              border: "1px solid rgba(255,255,255,0.06)",
-              background: "rgba(255,255,255,0.06)",
+              border: "1px solid var(--bg-card-border)",
+              background: "var(--bg-card)",
               padding: 12,
             }}
           >
@@ -509,7 +509,7 @@ function TopicHubHomeContent() {
                   fontSize: 11,
                   fontWeight: 900,
                   borderRadius: 999,
-                  border: "1px solid rgba(255,255,255,0.08)",
+                  border: "1px solid var(--bg-card-border)",
                   padding: "2px 8px",
                   background:
                     selectedTier === "must-crack"
@@ -530,9 +530,9 @@ function TopicHubHomeContent() {
               style={{
                 marginTop: 14,
                 borderRadius: 18,
-                border: "1px solid rgba(255,255,255,0.06)",
+                border: "1px solid var(--bg-card-border)",
                 background:
-                  "rgba(255,255,255,0.03)",
+                  "var(--bg-card)",
                 padding: 14,
               }}
               data-testid="triangles-topic-preview"
@@ -544,8 +544,8 @@ function TopicHubHomeContent() {
                     fontWeight: 900,
                     padding: "3px 9px",
                     borderRadius: 999,
-                    border: "1px solid rgba(255,255,255,0.08)",
-                    background: "rgba(255,255,255,0.03)",
+                    border: "1px solid var(--bg-card-border)",
+                    background: "var(--bg-card)",
                   }}
                 >
                   Start here
@@ -556,8 +556,8 @@ function TopicHubHomeContent() {
                     fontWeight: 900,
                     padding: "3px 9px",
                     borderRadius: 999,
-                    border: "1px solid rgba(255,255,255,0.08)",
-                    background: "rgba(255,255,255,0.03)",
+                    border: "1px solid var(--bg-card-border)",
+                    background: "var(--bg-card)",
                   }}
                 >
                   ~{selectedTopicContent.weightagePercent}% boards signal

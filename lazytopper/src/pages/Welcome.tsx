@@ -38,7 +38,7 @@ export default function Welcome() {
           </h1>
 
           <p style={{
-            fontSize: 15, color: "rgba(255,255,255,0.65)",
+            fontSize: 15, color: "var(--text-muted)",
             lineHeight: 1.6, maxWidth: 340, margin: "0 auto",
           }}>
             AI-powered CBSE Class 10 prep that knows<br />
@@ -48,7 +48,7 @@ export default function Welcome() {
 
         <div style={{
           height: 1,
-          background: "rgba(255,255,255,0.1)",
+          background: "var(--bg-card)",
           marginBottom: 28,
         }} />
 
@@ -75,7 +75,7 @@ export default function Welcome() {
             href="/trends/10/Maths"
             onClick={(e) => { e.preventDefault(); navigate("/trends/10/Maths"); }}
             style={{
-              fontSize: 13, color: "rgba(255,255,255,0.45)",
+              fontSize: 13, color: "var(--text-muted)",
               textDecoration: "none", cursor: "pointer",
             }}
           >
@@ -90,7 +90,7 @@ export default function Welcome() {
             "Full mock tests graded by CBSE marking scheme",
           ].map((line, i) => (
             <p key={i} style={{
-              fontSize: 14, color: "rgba(255,255,255,0.55)",
+              fontSize: 14, color: "var(--text-muted)",
               lineHeight: 1.5,
             }}>
               ✓&nbsp;&nbsp;{line}

@@ -286,14 +286,14 @@ const TrendsPage: React.FC = () => {
           borderRadius: 16, padding: "16px 20px",
           background: "linear-gradient(135deg, rgba(34,197,94,0.12) 0%, rgba(59,130,246,0.10) 100%)",
           border: "1px solid rgba(34,197,94,0.15)",
-          color: "#ffffff",
+          color: "var(--text)",
         }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
             <div style={{ flex: 1, minWidth: 200 }}>
               <h1 className="font-display" style={{ fontSize: "clamp(1.1rem, 4vw, 1.5rem)", lineHeight: 1.2, fontWeight: 700, margin: 0 }}>
                 {subjectKey} Exam Trends
               </h1>
-              <p style={{ fontSize: "0.8rem", lineHeight: 1.5, color: "rgba(255,255,255,0.5)", margin: "4px 0 0" }}>
+              <p style={{ fontSize: "0.8rem", lineHeight: 1.5, color: "var(--text-muted)", margin: "4px 0 0" }}>
                 Chapters ranked by board exam importance. Start with{" "}
                 <span style={{ color: "#ef4444", fontWeight: 600 }}>must-crack</span>, then{" "}
                 <span style={{ color: "#3b82f6", fontWeight: 600 }}>high-ROI</span>.
@@ -301,7 +301,7 @@ const TrendsPage: React.FC = () => {
             </div>
 
             <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-              <div style={{ borderRadius: 10, padding: 3, background: "rgba(255,255,255,0.06)", display: "inline-flex", gap: 3 }}>
+              <div style={{ borderRadius: 10, padding: 3, background: "var(--bg-card-border)", display: "inline-flex", gap: 3 }}>
                 {(["Maths", "Science"] as SubjectKey[]).map((subj) => {
                   const active = subj === subjectKey;
                   return (
@@ -312,7 +312,7 @@ const TrendsPage: React.FC = () => {
                         padding: "5px 14px", borderRadius: 8, border: "none",
                         fontSize: "0.78rem", fontWeight: 700, cursor: "pointer",
                         background: active ? "#22c55e" : "transparent",
-                        color: active ? "#000" : "rgba(255,255,255,0.5)",
+                        color: active ? "#000" : "var(--text-muted)",
                         transition: "all 0.1s ease-out",
                       }}
                     >
@@ -339,9 +339,9 @@ const TrendsPage: React.FC = () => {
                   onClick={() => handleTierClick(item.id === "all" ? "all" : (item.id as TierKey))}
                   style={{
                     borderRadius: 10, padding: "5px 12px",
-                    border: active ? "1px solid rgba(255,255,255,0.25)" : "1px solid rgba(255,255,255,0.08)",
-                    background: active ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.03)",
-                    color: active ? "#fff" : "rgba(255,255,255,0.45)",
+                    border: active ? "1px solid var(--text-muted)" : "1px solid var(--bg-card-border)",
+                    background: active ? "var(--bg-card)" : "var(--bg-card)",
+                    color: active ? "#fff" : "var(--text-muted)",
                     fontSize: "0.72rem", fontWeight: active ? 700 : 500, cursor: "pointer",
                     transition: "all 0.1s ease-out",
                   }}
@@ -353,7 +353,7 @@ const TrendsPage: React.FC = () => {
 
             {subjectKey === "Science" && (
               <>
-                <span style={{ width: 1, height: 18, background: "rgba(255,255,255,0.1)" }} />
+                <span style={{ width: 1, height: 18, background: "var(--bg-card)" }} />
                 {(["all", "Physics", "Chemistry", "Biology"] as StreamKey[]).map((stream) => {
                   const active = activeStream === stream;
                   return (
@@ -362,9 +362,9 @@ const TrendsPage: React.FC = () => {
                       onClick={() => setActiveStream(stream)}
                       style={{
                         borderRadius: 10, padding: "5px 12px", fontSize: "0.72rem",
-                        border: active ? "1px solid rgba(255,255,255,0.25)" : "1px solid rgba(255,255,255,0.08)",
-                        background: active ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.03)",
-                        color: active ? "#fff" : "rgba(255,255,255,0.45)",
+                        border: active ? "1px solid var(--text-muted)" : "1px solid var(--bg-card-border)",
+                        background: active ? "var(--bg-card)" : "var(--bg-card)",
+                        color: active ? "#fff" : "var(--text-muted)",
                         fontWeight: active ? 700 : 500, cursor: "pointer",
                         transition: "all 0.1s ease-out",
                       }}
@@ -380,9 +380,9 @@ const TrendsPage: React.FC = () => {
               onClick={() => setShowPaperDetails((p) => !p)}
               style={{
                 marginLeft: "auto", borderRadius: 10, padding: "5px 12px",
-                border: "1px solid rgba(255,255,255,0.08)",
-                background: showPaperDetails ? "rgba(255,255,255,0.08)" : "transparent",
-                color: "rgba(255,255,255,0.4)",
+                border: "1px solid var(--bg-card-border)",
+                background: showPaperDetails ? "var(--bg-card)" : "transparent",
+                color: "var(--text-muted)",
                 fontSize: "0.72rem", fontWeight: 500, cursor: "pointer",
               }}
             >
@@ -393,11 +393,11 @@ const TrendsPage: React.FC = () => {
           {showPaperDetails && (
             <div style={{
               marginTop: 12, padding: "12px 14px", borderRadius: 12,
-              background: "rgba(0,0,0,0.15)", border: "1px solid rgba(255,255,255,0.06)",
+              background: "rgba(0,0,0,0.15)", border: "1px solid var(--bg-card-border)",
             }}>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 16, fontSize: "0.75rem", marginBottom: 10 }}>
                 <div>
-                  <span style={{ color: "rgba(255,255,255,0.4)" }}>Difficulty: </span>
+                  <span style={{ color: "var(--text-muted)" }}>Difficulty: </span>
                   <span style={{ color: "#4ade80" }}>Easy {difficultyMix.Easy}%</span>
                   {" / "}
                   <span style={{ color: "#facc15" }}>Medium {difficultyMix.Medium}%</span>
@@ -405,15 +405,15 @@ const TrendsPage: React.FC = () => {
                   <span style={{ color: "#f87171" }}>Hard {difficultyMix.Hard}%</span>
                 </div>
               </div>
-              <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.4)", marginBottom: 6 }}>
+              <div style={{ fontSize: "0.72rem", color: "var(--text-muted)", marginBottom: 6 }}>
                 CBSE 2025-26 Blueprint (80-mark theory)
               </div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6, fontSize: "0.7rem" }}>
                 {blueprintUnits.map((item) => (
                   <span key={item.unit} style={{
                     borderRadius: 999, padding: "3px 9px",
-                    background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)",
-                    whiteSpace: "nowrap", color: "rgba(255,255,255,0.45)",
+                    background: "var(--bg-card-border)", border: "1px solid var(--bg-card-border)",
+                    whiteSpace: "nowrap", color: "var(--text-muted)",
                   }}>
                     {item.unit}: {item.marks}m
                   </span>
@@ -430,7 +430,7 @@ const TrendsPage: React.FC = () => {
                   <span key={s.label} style={{
                     borderRadius: 999, padding: "3px 9px",
                     background: "rgba(59,130,246,0.06)", border: "1px solid rgba(59,130,246,0.12)",
-                    whiteSpace: "nowrap", color: "rgba(255,255,255,0.45)",
+                    whiteSpace: "nowrap", color: "var(--text-muted)",
                   }}>
                     {s.label} ({s.detail})
                   </span>
@@ -443,7 +443,7 @@ const TrendsPage: React.FC = () => {
         {/* Topic list */}
         <section style={{ marginTop: 20 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, marginBottom: 12 }}>
-            <h2 className="font-display" style={{ fontSize: "1.05rem", fontWeight: 700, color: "#fff", margin: 0 }}>
+            <h2 className="font-display" style={{ fontSize: "1.05rem", fontWeight: 700, color: "var(--text)", margin: 0 }}>
               Chapters
             </h2>
             <div style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
@@ -457,14 +457,14 @@ const TrendsPage: React.FC = () => {
               >
                 How we predict
               </button>
-              <span style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.35)", whiteSpace: "nowrap" }}>
+              <span style={{ fontSize: "0.72rem", color: "var(--text-muted)", whiteSpace: "nowrap" }}>
                 {Math.round(totalWeightage * 10) / 10}% of paper
               </span>
             </div>
           </div>
 
           {filteredTopicEntries.length === 0 ? (
-            <p style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.4)", padding: "8px 4px" }}>
+            <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", padding: "8px 4px" }}>
               No chapters match the current filters.
             </p>
           ) : (
@@ -499,7 +499,7 @@ const TrendsPage: React.FC = () => {
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3, flexWrap: "wrap" }}>
-                          <h3 className="font-display" style={{ fontSize: "0.95rem", fontWeight: 700, color: "#fff", margin: 0 }}>
+                          <h3 className="font-display" style={{ fontSize: "0.95rem", fontWeight: 700, color: "var(--text)", margin: 0 }}>
                             {(() => { const ch = getCanonicalChapterBySlug(topicKey); return ch ? formatChapterTitle(ch) : topicName; })()}
                           </h3>
                           <span style={{
@@ -523,7 +523,7 @@ const TrendsPage: React.FC = () => {
                             )
                           )}
                         </div>
-                        <p style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.38)", margin: "2px 0 6px", lineHeight: 1.4 }}>
+                        <p style={{ fontSize: "0.78rem", color: "var(--text-muted)", margin: "2px 0 6px", lineHeight: 1.4 }}>
                           {meta.summary || tierInfo.blurb}
                         </p>
 
@@ -545,8 +545,8 @@ const TrendsPage: React.FC = () => {
                               onClick={() => toggleDropdown(topicName)}
                               style={{
                                 borderRadius: 10, padding: "6px 12px",
-                                border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.03)",
-                                fontSize: "0.72rem", fontWeight: 600, color: "rgba(255,255,255,0.5)",
+                                border: "1px solid var(--bg-card-border)", background: "var(--bg-card-border)",
+                                fontSize: "0.72rem", fontWeight: 600, color: "var(--text-muted)",
                                 cursor: "pointer",
                               }}
                             >
@@ -556,7 +556,7 @@ const TrendsPage: React.FC = () => {
                               <div style={{
                                 position: "absolute", zIndex: 50, marginTop: 4,
                                 display: "grid", gap: 3, minWidth: 190, padding: 6,
-                                borderRadius: 10, border: "1px solid rgba(255,255,255,0.08)",
+                                borderRadius: 10, border: "1px solid var(--bg-card-border)",
                                 background: "#181818",
                                 boxShadow: "0 4px 20px rgba(0,0,0,0.5)",
                               }}>
@@ -571,8 +571,8 @@ const TrendsPage: React.FC = () => {
                                     onClick={() => { action.handler(); setOpenDropdown(null); }}
                                     style={{
                                       borderRadius: 8, padding: "7px 10px", border: "none",
-                                      background: "rgba(255,255,255,0.03)", fontSize: "0.72rem",
-                                      fontWeight: 500, color: "rgba(255,255,255,0.55)",
+                                      background: "var(--bg-card)", fontSize: "0.72rem",
+                                      fontWeight: 500, color: "var(--text-muted)",
                                       cursor: "pointer", textAlign: "left",
                                     }}
                                   >
@@ -586,31 +586,31 @@ const TrendsPage: React.FC = () => {
                       </div>
 
                       <div style={{ textAlign: "right", flexShrink: 0 }}>
-                        <div style={{ fontSize: "1.1rem", fontWeight: 700, color: "#fff" }}>
+                        <div style={{ fontSize: "1.1rem", fontWeight: 700, color: "var(--text)" }}>
                           ~{meta.weightagePercent ?? 0}%
                         </div>
-                        <div style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.3)" }}>of paper</div>
+                        <div style={{ fontSize: "0.65rem", color: "var(--text-muted)" }}>of paper</div>
                       </div>
                     </div>
 
                     {sortedConcepts.length > 0 && (
                       <details style={{ marginTop: 8 }}>
                         <summary style={{
-                          fontSize: "0.72rem", color: "rgba(255,255,255,0.3)",
+                          fontSize: "0.72rem", color: "var(--text-muted)",
                           cursor: "pointer", listStyle: "none", paddingTop: 6,
-                          borderTop: "1px dashed rgba(255,255,255,0.06)",
+                          borderTop: "1px dashed var(--bg-card-border)",
                         }}>
                           Key subtopics ({sortedConcepts.length}) ▾
                         </summary>
                         <div style={{
                           marginTop: 6,
                           display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(160px,1fr))",
-                          gap: 4, fontSize: "0.75rem", color: "rgba(255,255,255,0.5)",
+                          gap: 4, fontSize: "0.75rem", color: "var(--text-muted)",
                         }}>
                           {sortedConcepts.map(([concept, pct]) => (
                             <div key={concept} style={{ display: "flex", justifyContent: "space-between", gap: 6 }}>
                               <span>{concept}</span>
-                              <span style={{ color: "rgba(255,255,255,0.25)" }}>~{pct}%</span>
+                              <span style={{ color: "var(--text-muted)" }}>~{pct}%</span>
                             </div>
                           ))}
                         </div>
@@ -631,7 +631,7 @@ const TrendsPage: React.FC = () => {
             style={{
               borderRadius: 14, padding: "14px 28px",
               border: "none",
-              background: "#58cc02", color: "#fff",
+              background: "#58cc02", color: "var(--text)",
               fontWeight: 700, fontSize: "0.92rem",
               cursor: "pointer", width: "100%", maxWidth: 360,
             }}

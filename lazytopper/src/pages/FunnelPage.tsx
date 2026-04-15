@@ -42,20 +42,20 @@ export default function FunnelPage() {
       <div style={{ maxWidth: 800, margin: "0 auto", padding: "16px 16px 100px" }}>
         <ReturnContextBar backTo="/dashboard" backLabel="Back to Dashboard" />
 
-        <h1 className="font-display" style={{ fontSize: "1.4rem", fontWeight: 900, color: "#fff", marginTop: 20, marginBottom: 8 }}>
+        <h1 className="font-display" style={{ fontSize: "1.4rem", fontWeight: 900, color: "var(--text)", marginTop: 20, marginBottom: 8 }}>
           Onboarding Funnel
         </h1>
-        <p style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.4)", marginBottom: 24 }}>
+        <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", marginBottom: 24 }}>
           Internal analytics — tracking conversion through key onboarding steps.
         </p>
 
         <div style={{
           borderRadius: 20, padding: "24px",
-          background: "rgba(255,255,255,0.03)",
-          border: "1px solid rgba(255,255,255,0.06)",
+          background: "var(--bg-card)",
+          border: "1px solid var(--bg-card-border)",
           marginBottom: 24,
         }}>
-          <h2 style={{ fontSize: "0.88rem", fontWeight: 700, color: "rgba(255,255,255,0.85)", marginBottom: 20 }}>
+          <h2 style={{ fontSize: "0.88rem", fontWeight: 700, color: "var(--text)", marginBottom: 20 }}>
             Conversion Funnel
           </h2>
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -68,7 +68,7 @@ export default function FunnelPage() {
               return (
                 <div key={step.key}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
-                    <span style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.8)", fontWeight: 600 }}>
+                    <span style={{ fontSize: "0.82rem", color: "var(--text)", fontWeight: 600 }}>
                       {i + 1}. {step.label}
                     </span>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -85,7 +85,7 @@ export default function FunnelPage() {
                       </span>
                     </div>
                   </div>
-                  <div style={{ height: 8, borderRadius: 999, background: "rgba(255,255,255,0.04)", overflow: "hidden" }}>
+                  <div style={{ height: 8, borderRadius: 999, background: "var(--bg-card-border)", overflow: "hidden" }}>
                     <div style={{
                       height: "100%", borderRadius: 999, width: `${barWidth}%`,
                       background: step.color, transition: "width 0.5s ease",
@@ -93,7 +93,7 @@ export default function FunnelPage() {
                   </div>
                   {i < FUNNEL_STEPS.length - 1 && (
                     <div style={{ display: "flex", justifyContent: "center", padding: "2px 0" }}>
-                      <span style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.15)" }}>↓</span>
+                      <span style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>↓</span>
                     </div>
                   )}
                 </div>
@@ -104,14 +104,14 @@ export default function FunnelPage() {
 
         <div style={{
           borderRadius: 20, padding: "24px",
-          background: "rgba(255,255,255,0.03)",
-          border: "1px solid rgba(255,255,255,0.06)",
+          background: "var(--bg-card)",
+          border: "1px solid var(--bg-card-border)",
         }}>
-          <h2 style={{ fontSize: "0.88rem", fontWeight: 700, color: "rgba(255,255,255,0.85)", marginBottom: 16 }}>
+          <h2 style={{ fontSize: "0.88rem", fontWeight: 700, color: "var(--text)", marginBottom: 16 }}>
             Recent Funnel Events ({recentEvents.length})
           </h2>
           {recentEvents.length === 0 ? (
-            <p style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.35)" }}>
+            <p style={{ fontSize: "0.82rem", color: "var(--text-muted)" }}>
               No funnel events recorded yet. Events are tracked as users navigate through the onboarding flow.
             </p>
           ) : (
@@ -121,16 +121,16 @@ export default function FunnelPage() {
                 return (
                   <div key={`${evt.ts}-${i}`} style={{
                     display: "flex", alignItems: "center", gap: 8, padding: "6px 10px",
-                    borderRadius: 8, background: "rgba(255,255,255,0.02)",
+                    borderRadius: 8, background: "var(--bg-card-border)",
                   }}>
                     <span style={{
                       width: 8, height: 8, borderRadius: "50%",
                       background: step?.color || "#666", flexShrink: 0,
                     }} />
-                    <span style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.7)", flex: 1 }}>
+                    <span style={{ fontSize: "0.78rem", color: "var(--text)", flex: 1 }}>
                       {step?.label || evt.name}
                     </span>
-                    <span style={{ fontSize: "0.68rem", color: "rgba(255,255,255,0.3)" }}>
+                    <span style={{ fontSize: "0.68rem", color: "var(--text-muted)" }}>
                       {new Date(evt.ts).toLocaleString()}
                     </span>
                   </div>

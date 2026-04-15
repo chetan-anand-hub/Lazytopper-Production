@@ -27,7 +27,7 @@ export function PracticeControls({
         }}
       >
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
-          <span style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.45)", marginRight: 4 }}>
+          <span style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginRight: 4 }}>
             Difficulty:
           </span>
           {(["All", "Easy", "Medium", "Hard"] as DifficultyChoice[]).map((level) => {
@@ -39,9 +39,9 @@ export function PracticeControls({
                 onClick={() => onSetDifficulty(level)}
                 style={{
                   borderRadius: 999, padding: "4px 10px",
-                  border: active ? "1px solid rgba(28,176,246,0.85)" : "1px solid rgba(255,255,255,0.1)",
-                  backgroundColor: active ? "#3b82f6" : "rgba(255,255,255,0.03)",
-                  color: active ? "#f9fafb" : "rgba(255,255,255,0.7)",
+                  border: active ? "1px solid rgba(28,176,246,0.85)" : "1px solid var(--bg-card-border)",
+                  backgroundColor: active ? "#3b82f6" : "var(--bg-card)",
+                  color: active ? "#f9fafb" : "var(--text)",
                   fontSize: "0.75rem", cursor: "pointer",
                   boxShadow: active ? "0 6px 16px rgba(28,176,246,0.3)" : "none",
                 }}
@@ -53,14 +53,14 @@ export function PracticeControls({
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-          <span style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.45)" }}>Type:</span>
+          <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>Type:</span>
           <select
             value={sectionFilter}
             onChange={(e) => onSetSectionFilter(e.target.value)}
             style={{
-              borderRadius: 999, border: "1px solid rgba(255,255,255,0.1)",
+              borderRadius: 999, border: "1px solid var(--bg-card-border)",
               padding: "4px 10px", fontSize: "0.78rem",
-              background: "rgba(255,255,255,0.03)", cursor: "pointer",
+              background: "var(--bg-card)", cursor: "pointer",
             }}
           >
             <option value="ALL">All</option>
@@ -73,7 +73,7 @@ export function PracticeControls({
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-          <label style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.45)" }}>
+          <label style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
             Questions:{" "}
             <input
               type="number"
@@ -126,7 +126,7 @@ export function PracticeControls({
       </section>
 
       <section style={{ marginBottom: 10, display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-        <span style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.45)" }}>Fast drill presets:</span>
+        <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>Fast drill presets:</span>
         {[10, 20, 40, 60, 100].map((count) => (
           <button
             key={count}
@@ -138,7 +138,7 @@ export function PracticeControls({
             {count}Q
           </button>
         ))}
-        <span className="lt-desktop-only" style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.45)" }}>
+        <span className="lt-desktop-only" style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>
           Shortcut: Alt+1/2/3/4/5 and Alt+R.
         </span>
       </section>

@@ -49,16 +49,16 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
             padding: "32px 16px",
             textAlign: "center",
             borderRadius: 16,
-            background: "#0a0a0a",
-            border: "1px solid rgba(255,255,255,0.06)",
+            background: "var(--bg)",
+            border: "1px solid var(--bg-card-border)",
             marginBottom: 12,
           }}
         >
           <div style={{ fontSize: "2rem", marginBottom: 8 }}>{"\uD83D\uDCDD"}</div>
-          <p style={{ fontSize: "0.95rem", fontWeight: 700, color: "rgba(255,255,255,0.85)", marginBottom: 4 }}>
+          <p style={{ fontSize: "0.95rem", fontWeight: 700, color: "var(--text)", marginBottom: 4 }}>
             Preparing your questions...
           </p>
-          <p style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.45)" }}>
+          <p style={{ fontSize: "0.82rem", color: "var(--text-muted)" }}>
             Picking the best questions based on your topic and difficulty level.
           </p>
         </div>
@@ -76,15 +76,15 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
             padding: "32px 16px",
             textAlign: "center",
             borderRadius: 16,
-            background: "#0a0a0a",
-            border: "1px solid rgba(255,255,255,0.06)",
+            background: "var(--bg)",
+            border: "1px solid var(--bg-card-border)",
           }}
         >
           <div style={{ fontSize: "2rem", marginBottom: 8 }}>{"\uD83D\uDD0D"}</div>
-          <p style={{ fontSize: "0.95rem", fontWeight: 700, color: "rgba(255,255,255,0.85)", marginBottom: 4 }}>
+          <p style={{ fontSize: "0.95rem", fontWeight: 700, color: "var(--text)", marginBottom: 4 }}>
             No questions found for this topic yet
           </p>
-          <p style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.45)", marginBottom: 16 }}>
+          <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", marginBottom: 16 }}>
             This can happen if the topic name didn't match our question bank. Here's what you can do:
           </p>
           <div style={{ display: "flex", flexDirection: "column", gap: 8, maxWidth: 320, margin: "0 auto" }}>

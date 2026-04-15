@@ -126,7 +126,7 @@ export default function Onboarding() {
         <h2 className="font-display" style={{ fontSize: 24, fontWeight: 700, textAlign: "center", marginBottom: 8 }}>
           One quick question
         </h2>
-        <p style={{ fontSize: 14, color: "rgba(255,255,255,0.45)", textAlign: "center", marginBottom: 28, lineHeight: 1.5 }}>
+        <p style={{ fontSize: 14, color: "var(--text-muted)", textAlign: "center", marginBottom: 28, lineHeight: 1.5 }}>
           We'll build your entire study plan from this.
         </p>
 
@@ -137,8 +137,8 @@ export default function Onboarding() {
             </span>
             <button type="button" onClick={() => { setEditingDate(!editingDate); setCustomDate(examDate); }} style={{
               fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 6,
-              background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)",
-              color: "rgba(255,255,255,0.5)", cursor: "pointer",
+              background: "var(--bg-card)", border: "1px solid var(--bg-card-border)",
+              color: "var(--text-muted)", cursor: "pointer",
             }}>{editingDate ? "Cancel" : "Edit"}</button>
           </div>
 
@@ -151,20 +151,20 @@ export default function Onboarding() {
                 min={new Date().toISOString().slice(0, 10)}
                 style={{
                   width: "100%", padding: "10px 12px", borderRadius: 10, marginBottom: 8,
-                  background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.15)",
-                  color: "#fff", fontSize: 14, fontFamily: "'Space Grotesk', sans-serif",
+                  background: "var(--bg-card)", border: "1px solid var(--text-muted)",
+                  color: "var(--text)", fontSize: 14, fontFamily: "'Space Grotesk', sans-serif",
                   outline: "none",
                 }}
               />
               <div style={{ display: "flex", gap: 8 }}>
                 <button type="button" onClick={applyCustomDate} style={{
                   flex: 1, padding: "8px 0", borderRadius: 8, border: "none",
-                  background: "#a855f7", color: "#fff", fontWeight: 700, fontSize: 12, cursor: "pointer",
+                  background: "#a855f7", color: "var(--text)", fontWeight: 700, fontSize: 12, cursor: "pointer",
                 }}>Use This Date</button>
                 {isCustomDate && (
                   <button type="button" onClick={resetToOfficial} style={{
-                    flex: 1, padding: "8px 0", borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)",
-                    background: "transparent", color: "rgba(255,255,255,0.5)", fontWeight: 700, fontSize: 12, cursor: "pointer",
+                    flex: 1, padding: "8px 0", borderRadius: 8, border: "1px solid var(--bg-card-border)",
+                    background: "transparent", color: "var(--text-muted)", fontWeight: 700, fontSize: 12, cursor: "pointer",
                   }}>Reset to Official</button>
                 )}
               </div>
@@ -189,7 +189,7 @@ export default function Onboarding() {
                 background: profileColor, color: "#000",
               }}>{config.label}</span>
             </div>
-            <p style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", lineHeight: 1.5, margin: 0 }}>{summary}</p>
+            <p style={{ fontSize: 12, color: "var(--text-muted)", lineHeight: 1.5, margin: 0 }}>{summary}</p>
           </div>
 
           <button
@@ -213,14 +213,14 @@ export default function Onboarding() {
               <div style={{ display: "flex", gap: 8, marginBottom: 6 }}>
                 <div style={{ flex: 1, padding: "8px 10px", borderRadius: 8, background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.2)" }}>
                   <div style={{ fontSize: 10, fontWeight: 700, color: "#22c55e", marginBottom: 2 }}>Phase 1 (Compulsory)</div>
-                  <div style={{ fontSize: 12, color: "rgba(255,255,255,0.7)", fontWeight: 600 }}>{formatCbseDate(cbseDates.class10.phase1)}</div>
+                  <div style={{ fontSize: 12, color: "var(--text)", fontWeight: 600 }}>{formatCbseDate(cbseDates.class10.phase1)}</div>
                 </div>
                 <div style={{ flex: 1, padding: "8px 10px", borderRadius: 8, background: "rgba(168,85,247,0.08)", border: "1px solid rgba(168,85,247,0.2)" }}>
                   <div style={{ fontSize: 10, fontWeight: 700, color: "#c084fc", marginBottom: 2 }}>Phase 2 (Optional)</div>
-                  <div style={{ fontSize: 12, color: "rgba(255,255,255,0.7)", fontWeight: 600 }}>{formatCbseDate(CBSE_PHASE2_DATE)}</div>
+                  <div style={{ fontSize: 12, color: "var(--text)", fontWeight: 600 }}>{formatCbseDate(CBSE_PHASE2_DATE)}</div>
                 </div>
               </div>
-              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", lineHeight: 1.5, margin: 0 }}>
+              <p style={{ fontSize: 11, color: "var(--text-muted)", lineHeight: 1.5, margin: 0 }}>
                 Phase 1 is the main exam. Phase 2 lets you re-attempt up to 3 subjects. Best score counts.
               </p>
             </div>
@@ -233,7 +233,7 @@ export default function Onboarding() {
             <div style={{ fontSize: 12, color: "#22c55e", fontWeight: 700, marginBottom: 4 }}>
               With {autoDaysLeft} {autoDaysLeft === 1 ? "day" : "days"} left, here's your best strategy...
             </div>
-            <p style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", lineHeight: 1.5, margin: 0 }}>
+            <p style={{ fontSize: 12, color: "var(--text-muted)", lineHeight: 1.5, margin: 0 }}>
               {autoDaysLeft <= 1
                 ? "Focus on formulas, top predicted questions, and rest well tonight."
                 : autoDaysLeft <= 7
@@ -242,7 +242,7 @@ export default function Onboarding() {
                     ? "Follow the day-by-day revision calendar. Alternate between revision and mini-mocks."
                     : "Build strong foundations chapter by chapter. You have time to cover everything thoroughly."}
             </p>
-            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", marginTop: 6 }}>
+            <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 6 }}>
               Recommended first action: {
                 autoDaysLeft <= 1 ? "Open Night Before page"
                 : autoDaysLeft <= 7 ? "Start with Predicted Questions"
@@ -269,24 +269,24 @@ export default function Onboarding() {
               style={{
                 width: "100%", height: 8,
                 appearance: "none", WebkitAppearance: "none",
-                background: `linear-gradient(to right, #22c55e ${((targetNum - 50) / 49) * 100}%, rgba(255,255,255,0.1) ${((targetNum - 50) / 49) * 100}%)`,
+                background: `linear-gradient(to right, #22c55e ${((targetNum - 50) / 49) * 100}%, var(--bg-card) ${((targetNum - 50) / 49) * 100}%)`,
                 borderRadius: 4, outline: "none", cursor: "pointer",
               }}
             />
           </div>
 
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <span style={{ fontSize: 12, color: "rgba(255,255,255,0.35)" }}>50%</span>
+            <span style={{ fontSize: 12, color: "var(--text-muted)" }}>50%</span>
             <span className="font-display" style={{
               fontSize: 36, fontWeight: 800,
               color: targetNum >= 90 ? "#22c55e" : targetNum >= 75 ? "#3b82f6" : "#f97316",
             }}>
               {targetNum}%
             </span>
-            <span style={{ fontSize: 12, color: "rgba(255,255,255,0.35)" }}>99%</span>
+            <span style={{ fontSize: 12, color: "var(--text-muted)" }}>99%</span>
           </div>
 
-          <p style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", textAlign: "center", marginTop: 8 }}>
+          <p style={{ fontSize: 12, color: "var(--text-muted)", textAlign: "center", marginTop: 8 }}>
             {targetNum >= 90
               ? "Aiming high! We'll focus on every chapter with extra practice."
               : targetNum >= 75
@@ -307,7 +307,7 @@ export default function Onboarding() {
           Build My Study Plan
         </button>
 
-        <p style={{ fontSize: 11, color: "rgba(255,255,255,0.25)", textAlign: "center", marginTop: 12 }}>
+        <p style={{ fontSize: 11, color: "var(--text-muted)", textAlign: "center", marginTop: 12 }}>
           You can update your target and study preferences anytime from your profile.
         </p>
       </div>

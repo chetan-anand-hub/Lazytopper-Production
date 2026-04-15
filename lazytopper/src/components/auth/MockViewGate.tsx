@@ -102,23 +102,23 @@ export function MockViewGate({ children }: { children: ReactNode }) {
     return (
       <div className="lt-page" style={{ textAlign: "center", paddingTop: 60 }}>
         <div style={{ fontSize: "3rem", marginBottom: 12 }}>⏰</div>
-        <h2 style={{ fontWeight: 900, fontSize: "1.3rem", marginBottom: 8, color: "#fff" }}>
+        <h2 style={{ fontWeight: 900, fontSize: "1.3rem", marginBottom: 8, color: "var(--text)" }}>
           Your Free Trial Has Ended
         </h2>
-        <p style={{ color: "rgba(255,255,255,0.55)", fontSize: "0.92rem", marginBottom: 6, lineHeight: 1.5 }}>
+        <p style={{ color: "var(--text-muted)", fontSize: "0.92rem", marginBottom: 6, lineHeight: 1.5 }}>
           Mock tests were unlocked during your trial.
         </p>
-        <p style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.85rem", marginBottom: 6, lineHeight: 1.6 }}>
+        <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginBottom: 6, lineHeight: 1.6 }}>
           Upgrade now to keep access to:
         </p>
         <div style={{
           display: "inline-flex", flexDirection: "column", gap: 6,
           textAlign: "left", marginBottom: 20,
-          background: "rgba(255,255,255,0.03)", borderRadius: 12, padding: "12px 20px",
-          border: "1px solid rgba(255,255,255,0.06)",
+          background: "var(--bg-card)", borderRadius: 12, padding: "12px 20px",
+          border: "1px solid var(--bg-card-border)",
         }}>
           {["Unlimited mock tests", "Your mastery progress & streak", "Practice history & weak-area insights"].map(item => (
-            <div key={item} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.84rem", color: "rgba(255,255,255,0.7)" }}>
+            <div key={item} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.84rem", color: "var(--text)" }}>
               <span style={{ color: "#22c55e", fontWeight: 800 }}>✓</span>
               {item}
             </div>
@@ -130,7 +130,7 @@ export function MockViewGate({ children }: { children: ReactNode }) {
             onClick={() => setShowUpgrade(true)}
             style={{
               border: "none", borderBottom: "4px solid #46a302", borderRadius: 16,
-              padding: "14px 28px", background: "#58cc02", color: "#fff",
+              padding: "14px 28px", background: "#58cc02", color: "var(--text)",
               fontSize: "1rem", fontWeight: 800, cursor: "pointer",
               textTransform: "uppercase",
             }}
@@ -154,7 +154,7 @@ export function MockViewGate({ children }: { children: ReactNode }) {
         <h2 style={{ fontWeight: 900, fontSize: "1.3rem", marginBottom: 8 }}>
           Sign in to View More
         </h2>
-        <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.92rem", marginBottom: 20, lineHeight: 1.5 }}>
+        <p style={{ color: "var(--text-muted)", fontSize: "0.92rem", marginBottom: 20, lineHeight: 1.5 }}>
           You've viewed your free sample mock paper. Sign in to unlock more.
         </p>
         <a
@@ -162,7 +162,7 @@ export function MockViewGate({ children }: { children: ReactNode }) {
           style={{
             display: "inline-block", textDecoration: "none",
             border: "none", borderBottom: "4px solid #46a302", borderRadius: 16,
-            padding: "14px 28px", background: "#58cc02", color: "#fff",
+            padding: "14px 28px", background: "#58cc02", color: "var(--text)",
             fontSize: "1rem", fontWeight: 800, cursor: "pointer",
             textTransform: "uppercase",
           }}
@@ -180,10 +180,10 @@ export function MockViewGate({ children }: { children: ReactNode }) {
         <h2 style={{ fontWeight: 900, fontSize: "1.3rem", marginBottom: 8 }}>
           Mock Paper Limit Reached
         </h2>
-        <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.92rem", marginBottom: 8, lineHeight: 1.5 }}>
+        <p style={{ color: "var(--text-muted)", fontSize: "0.92rem", marginBottom: 8, lineHeight: 1.5 }}>
           Free users can take {FREE_WEEKLY_MOCK_LIMIT} mock test per week.
         </p>
-        <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.88rem", marginBottom: 20, lineHeight: 1.5 }}>
+        <p style={{ color: "var(--text-muted)", fontSize: "0.88rem", marginBottom: 20, lineHeight: 1.5 }}>
           Unlock unlimited mock tests for ₹149/month.
         </p>
         <button
@@ -191,7 +191,7 @@ export function MockViewGate({ children }: { children: ReactNode }) {
           onClick={() => setShowUpgrade(true)}
           style={{
             border: "none", borderBottom: "4px solid #46a302", borderRadius: 16,
-            padding: "14px 28px", background: "#58cc02", color: "#fff",
+            padding: "14px 28px", background: "#58cc02", color: "var(--text)",
             fontSize: "1rem", fontWeight: 800, cursor: "pointer",
             textTransform: "uppercase",
           }}

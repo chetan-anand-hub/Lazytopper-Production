@@ -28,9 +28,9 @@ export default function SignUpPage() {
       padding: 16,
     }}>
       <div style={{
-        background: "rgba(255,255,255,0.03)", backdropFilter: "blur(16px)",
+        background: "var(--bg-card)", backdropFilter: "blur(16px)",
         borderRadius: 20, maxWidth: 420, width: "100%",
-        padding: "36px 28px", border: "1px solid rgba(255,255,255,0.06)",
+        padding: "36px 28px", border: "1px solid var(--bg-card-border)",
       }}>
         <div style={{ textAlign: "center", marginBottom: 28 }}>
           <div style={{
@@ -45,7 +45,7 @@ export default function SignUpPage() {
           <h1 style={{ fontSize: "1.5rem", fontWeight: 900, margin: "0 0 6px", color: "var(--text)", fontFamily: "'Space Grotesk', sans-serif" }}>
             Create Account
           </h1>
-          <p style={{ fontSize: "0.92rem", color: "rgba(255,255,255,0.45)", margin: 0, lineHeight: 1.4 }}>
+          <p style={{ fontSize: "0.92rem", color: "var(--text-muted)", margin: 0, lineHeight: 1.4 }}>
             CBSE Class 10 Board Exam Prep
           </p>
         </div>
@@ -60,7 +60,7 @@ export default function SignUpPage() {
                 colorPrimary: "#22c55e",
                 colorBackground: "#0a0a0a",
                 colorText: "#fff",
-                colorInputBackground: "rgba(255,255,255,0.05)",
+                colorInputBackground: "var(--bg-card)",
                 colorInputText: "#fff",
                 borderRadius: "12px",
               },
@@ -70,8 +70,8 @@ export default function SignUpPage() {
                 headerTitle: { display: "none" },
                 headerSubtitle: { display: "none" },
                 socialButtonsBlockButton: {
-                  background: "rgba(255,255,255,0.05)",
-                  border: "1px solid rgba(255,255,255,0.1)",
+                  background: "var(--bg-card)",
+                  border: "1px solid var(--bg-card-border)",
                   color: "var(--text)",
                   borderRadius: "14px",
                   fontWeight: 800,
@@ -84,8 +84,8 @@ export default function SignUpPage() {
                   boxShadow: "0 0 24px rgba(34,197,94,0.3)",
                 },
                 footerActionLink: { color: "#22c55e" },
-                dividerLine: { background: "rgba(255,255,255,0.08)" },
-                dividerText: { color: "rgba(255,255,255,0.2)" },
+                dividerLine: { background: "var(--bg-card)" },
+                dividerText: { color: "var(--text-muted)" },
               },
             }}
           />

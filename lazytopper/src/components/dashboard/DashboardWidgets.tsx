@@ -47,7 +47,7 @@ export function FirstVisitOverlay({ onDismiss }: { onDismiss: () => void }) {
       <div style={{
         width: "100%", maxWidth: 360, borderRadius: 20, padding: 28,
         background: tc.isDark ? "#1a1a2e" : "#fff",
-        border: tc.isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid #e2e8f0",
+        border: tc.isDark ? "1px solid var(--bg-card-border)" : "1px solid #e2e8f0",
         boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
       }}>
         <div style={{ textAlign: "center", marginBottom: 24 }}>
@@ -60,7 +60,7 @@ export function FirstVisitOverlay({ onDismiss }: { onDismiss: () => void }) {
           {steps.map((_, i) => (
             <div key={i} style={{
               width: 8, height: 8, borderRadius: "50%",
-              background: i === step ? "#22c55e" : (tc.isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)"),
+              background: i === step ? "#22c55e" : (tc.isDark ? "var(--text-muted)" : "rgba(0,0,0,0.1)"),
               transition: "background 0.3s",
             }} />
           ))}
@@ -70,7 +70,7 @@ export function FirstVisitOverlay({ onDismiss }: { onDismiss: () => void }) {
           {step > 0 && (
             <button onClick={() => setStep(s => s - 1)} style={{
               flex: 1, padding: "12px 0", borderRadius: 12,
-              border: tc.isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid #e2e8f0",
+              border: tc.isDark ? "1px solid var(--bg-card-border)" : "1px solid #e2e8f0",
               background: "transparent", color: tc.textSecondary,
               fontWeight: 700, fontSize: 13, cursor: "pointer",
             }}>Back</button>

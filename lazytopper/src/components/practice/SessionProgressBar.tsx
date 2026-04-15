@@ -19,10 +19,10 @@ export function SessionProgressBar({ stats }: { stats: SessionStats }) {
         alignItems: "center", fontSize: "0.8rem",
       }}
     >
-      <span style={{ fontWeight: 700, color: "rgba(255,255,255,0.85)" }}>Session Progress</span>
+      <span style={{ fontWeight: 700, color: "var(--text)" }}>Session Progress</span>
       <span style={{ color: "#22c55e" }}>{"\u2713"} {stats.gotIt} got it</span>
       <span style={{ color: "#ef4444" }}>{"\u21BB"} {stats.needPractice} need practice</span>
-      <span style={{ color: "rgba(255,255,255,0.45)" }}>
+      <span style={{ color: "var(--text-muted)" }}>
         {Math.round(stats.accuracy * 100)}% accuracy
       </span>
     </div>

@@ -132,7 +132,7 @@ export default function RevisionCalendarPage() {
                 fontSize: 20, fontWeight: 800, color: "var(--text)", margin: "0 0 4px",
                 fontFamily: "'Space Grotesk', sans-serif",
               }}>📅 30-Day Revision Calendar</h1>
-              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", margin: 0 }}>
+              <p style={{ fontSize: 13, color: "var(--text-muted)", margin: 0 }}>
                 {Math.min(30, daysLeft)} days · weighted by prediction confidence
               </p>
             </div>
@@ -160,8 +160,8 @@ export default function RevisionCalendarPage() {
                 className="print-card"
                 style={{
                   padding: "14px 16px", borderRadius: 14,
-                  background: isToday ? "rgba(34,197,94,0.08)" : day.type === "mock" ? "rgba(168,85,247,0.06)" : day.type === "rest" ? "rgba(249,115,22,0.06)" : "rgba(255,255,255,0.03)",
-                  border: isToday ? "1px solid rgba(34,197,94,0.3)" : "1px solid rgba(255,255,255,0.06)",
+                  background: isToday ? "rgba(34,197,94,0.08)" : day.type === "mock" ? "rgba(168,85,247,0.06)" : day.type === "rest" ? "rgba(249,115,22,0.06)" : "var(--bg-card)",
+                  border: isToday ? "1px solid rgba(34,197,94,0.3)" : "1px solid var(--bg-card-border)",
                   opacity: isPast ? 0.5 : 1,
                 }}
               >
@@ -170,10 +170,10 @@ export default function RevisionCalendarPage() {
                     <span style={{
                       fontSize: 11, fontWeight: 800, minWidth: 24, height: 24,
                       borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center",
-                      background: isToday ? "#22c55e" : day.type === "mock" ? "#a855f7" : day.type === "rest" ? "#fb923c" : "rgba(255,255,255,0.15)",
-                      color: isToday || day.type === "mock" || day.type === "rest" ? "#000" : "rgba(255,255,255,0.6)",
+                      background: isToday ? "#22c55e" : day.type === "mock" ? "#a855f7" : day.type === "rest" ? "#fb923c" : "var(--text-muted)",
+                      color: isToday || day.type === "mock" || day.type === "rest" ? "#000" : "var(--text-muted)",
                     }}>D{day.day}</span>
-                    <span style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.7)" }}>{day.dateLabel}</span>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: "var(--text)" }}>{day.dateLabel}</span>
                     {isToday && <span style={{ fontSize: 9, fontWeight: 800, color: "#22c55e", textTransform: "uppercase", letterSpacing: 0.5 }}>Today</span>}
                   </div>
                   {day.type === "mock" && <span style={{ fontSize: 11, fontWeight: 700, color: "#a855f7" }}>📝 Full Mock Test Day</span>}

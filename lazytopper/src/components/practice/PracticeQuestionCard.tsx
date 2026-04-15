@@ -90,7 +90,7 @@ export function PracticeQuestionCard({
           const isWrongChoice = result === "wrong" && isSelected;
           let bg = "transparent";
           let border = "1px solid transparent";
-          let optColor = "rgba(255,255,255,0.9)";
+          let optColor = "var(--text)";
           if (isCorrect) { bg = "rgba(34,197,94,0.08)"; border = "1px solid rgba(34,197,94,0.3)"; optColor = "#22c55e"; }
           else if (isWrongChoice) { bg = "rgba(239,68,68,0.08)"; border = "1px solid rgba(239,68,68,0.3)"; optColor = "#ef4444"; }
           else if (isSelected && !result) { bg = "rgba(59,130,246,0.08)"; border = "1px solid rgba(59,130,246,0.4)"; }
@@ -107,7 +107,7 @@ export function PracticeQuestionCard({
                 width: "100%", textAlign: "left", marginBottom: 4, transition: "all 0.15s",
               }}
             >
-              <span style={{ fontWeight: 700, minWidth: 22, color: isCorrect ? "#22c55e" : isWrongChoice ? "#ef4444" : "rgba(255,255,255,0.45)" }}>
+              <span style={{ fontWeight: 700, minWidth: 22, color: isCorrect ? "#22c55e" : isWrongChoice ? "#ef4444" : "var(--text-muted)" }}>
                 {isCorrect ? "\u2713" : isWrongChoice ? "\u2717" : String.fromCharCode(65 + oi) + "."}
               </span>
               <MathText text={opt} />
@@ -148,8 +148,8 @@ export function PracticeQuestionCard({
       onClick={() => onSetActiveQuestion(String(q.id))}
       style={{
         borderRadius: 18, padding: "14px 16px 12px",
-        backgroundColor: "rgba(255,255,255,0.03)",
-        border: "1px solid rgba(255,255,255,0.08)",
+        backgroundColor: "var(--bg-card)",
+        border: "1px solid var(--bg-card-border)",
         boxShadow: "0 10px 24px rgba(0,0,0,0.08)",
       }}
     >
@@ -158,11 +158,11 @@ export function PracticeQuestionCard({
         alignItems: "flex-start", marginBottom: 6, gap: 8,
       }}>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center", marginBottom: 6 }}>
-          <div style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.45)" }}>
+          <div style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
             <span style={{
               display: "inline-flex", alignItems: "center", justifyContent: "center",
               width: 22, height: 22, borderRadius: 999,
-              backgroundColor: "rgba(255,255,255,0.08)", color: "#fff",
+              backgroundColor: "var(--bg-card)", color: "var(--text)",
               fontSize: "0.75rem", fontWeight: 600, marginRight: 8,
             }}>{idx + 1}</span>
             <span>{q.marks} mark{q.marks !== 1 ? "s" : ""} - {q.section}</span>
@@ -181,7 +181,7 @@ export function PracticeQuestionCard({
       </header>
 
       <p style={{
-        fontSize: "0.9rem", color: "#fff", lineHeight: 1.6,
+        fontSize: "0.9rem", color: "var(--text)", lineHeight: 1.6,
         whiteSpace: "pre-wrap", marginBottom: 8,
       }}>
         <MathText text={q.questionText} />
@@ -251,11 +251,11 @@ export function PracticeQuestionCard({
       {isOpen && (
         <div style={{
           marginTop: 10, padding: "12px 14px",
-          background: "rgba(255,255,255,0.06)", borderRadius: 12,
-          border: "1px solid rgba(255,255,255,0.06)",
+          background: "var(--bg-card)", borderRadius: 12,
+          border: "1px solid var(--bg-card-border)",
         }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-            <strong style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.85)" }}>
+            <strong style={{ fontSize: "0.82rem", color: "var(--text)" }}>
               Step-by-Step Solution ({q.marks} {q.marks === 1 ? "mark" : "marks"})
             </strong>
           </div>
@@ -275,28 +275,28 @@ export function PracticeQuestionCard({
               {solutionData.steps.map((step) => (
                 <div key={step.stepNumber} style={{
                   display: "flex", gap: 10, marginBottom: 8,
-                  padding: "8px 10px", background: "rgba(255,255,255,0.03)",
-                  borderRadius: 8, border: "1px solid rgba(255,255,255,0.06)",
+                  padding: "8px 10px", background: "var(--bg-card)",
+                  borderRadius: 8, border: "1px solid var(--bg-card-border)",
                 }}>
                   <div style={{
                     minWidth: 28, height: 28, borderRadius: "50%",
-                    background: "rgba(59,130,246,0.8)", color: "#fff",
+                    background: "rgba(59,130,246,0.8)", color: "var(--text)",
                     display: "flex", alignItems: "center", justifyContent: "center",
                     fontSize: "0.75rem", fontWeight: 700, flexShrink: 0,
                   }}>{step.stepNumber}</div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "rgba(255,255,255,0.85)", marginBottom: 2 }}>
+                    <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text)", marginBottom: 2 }}>
                       <MathText text={step.description} />
                       <span style={{
                         marginLeft: 8, fontSize: "0.7rem", fontWeight: 700,
-                        color: step.marks === 0 ? "rgba(255,255,255,0.4)" : "#60a5fa",
-                        background: step.marks === 0 ? "rgba(255,255,255,0.04)" : "rgba(59,130,246,0.1)",
+                        color: step.marks === 0 ? "var(--text-muted)" : "#60a5fa",
+                        background: step.marks === 0 ? "var(--bg-card)" : "rgba(59,130,246,0.1)",
                         borderRadius: 999, padding: "1px 7px",
                       }}>
                         {step.marks === 0 ? "Explanation" : step.marks === 0.5 ? "\u00BD mark" : step.marks % 1 === 0.5 ? `${Math.floor(step.marks)}\u00BD marks` : `${step.marks} ${step.marks === 1 ? "mark" : "marks"}`}
                       </span>
                     </div>
-                    <div style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.45)", lineHeight: 1.5 }}>
+                    <div style={{ fontSize: "0.78rem", color: "var(--text-muted)", lineHeight: 1.5 }}>
                       <MathText text={step.working} />
                     </div>
                   </div>
@@ -391,7 +391,7 @@ export function PracticeQuestionCard({
           display: "flex", gap: 8, marginTop: 10,
           padding: "10px 0 2px", borderTop: "1px solid rgba(0,0,0,0.08)",
         }}>
-          <span style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.45)", alignSelf: "center" }}>
+          <span style={{ fontSize: "0.78rem", color: "var(--text-muted)", alignSelf: "center" }}>
             How did you do?
           </span>
           <button

@@ -243,7 +243,7 @@ function DiagramCompareInner() {
               borderRadius: 8,
               border: "none",
               background: loading ? "#94a3b8" : "#0ea5e9",
-              color: "#fff",
+              color: "var(--text)",
               fontWeight: 600,
               cursor: loading ? "not-allowed" : "pointer",
               whiteSpace: "nowrap",

@@ -23,7 +23,7 @@ export function ExploreMorePanel({ gradeNum, subjectForQuickActions, daysLeftVal
           <button key={a.label} onClick={() => navigate(a.path, { state: { back: "/dashboard", backLabel: "Back to Dashboard" } })} style={{
             display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
             padding: "14px 12px", borderRadius: 12, border: `1px solid ${a.border}`,
-            background: a.bg, color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "'Inter', sans-serif",
+            background: a.bg, color: "var(--text)", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "'Inter', sans-serif",
           }}>
             <span style={{ fontSize: 16 }}>{a.icon}</span>
             {a.label}

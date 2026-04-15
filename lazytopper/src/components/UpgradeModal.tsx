@@ -112,7 +112,7 @@ export function UpgradeModal({ open, onClose, featureLabel }: UpgradeModalProps)
           style={{
             width: "100%", border: "none", borderBottom: "4px solid #46a302",
             borderRadius: 16, padding: "14px 20px",
-            background: "#58cc02", color: "#fff",
+            background: "#58cc02", color: "var(--text)",
             fontSize: "1rem", fontWeight: 800, cursor: "pointer",
             textTransform: "uppercase", letterSpacing: "0.5px",
           }}

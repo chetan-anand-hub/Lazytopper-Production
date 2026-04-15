@@ -455,7 +455,7 @@ const MockBuilder: React.FC = () => {
         style={{
           border: "none",
           background: "transparent",
-          color: "rgba(255,255,255,0.5)",
+          color: "var(--text-muted)",
           fontSize: "0.9rem",
           display: "flex",
           alignItems: "center",
@@ -480,7 +480,7 @@ const MockBuilder: React.FC = () => {
             display: "inline-flex",
             padding: 4,
             borderRadius: 999,
-            background: "rgba(255,255,255,0.08)",
+            background: "var(--bg-card)",
             boxShadow: "0 12px 30px rgba(0,0,0,0.3)",
             border: "1px solid rgba(0,0,0,0.08)",
             gap: 4,
@@ -502,7 +502,7 @@ const MockBuilder: React.FC = () => {
                   background: active
                     ? "linear-gradient(135deg,#facc15,#f97316)"
                     : "transparent",
-                  color: active ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.2)",
+                  color: active ? "var(--text)" : "var(--text-muted)",
                   transition: "all 0.15s ease",
                   minWidth: 80,
                 }}
@@ -521,7 +521,7 @@ const MockBuilder: React.FC = () => {
           padding: "22px 22px 24px",
           background:
             "linear-gradient(135deg,#58cc02,rgba(28,176,246,0.95))",
-          color: "rgba(255,255,255,0.6)",
+          color: "var(--text-muted)",
           boxShadow: "0 26px 70px rgba(88,204,2,0.4)",
           marginBottom: 18,
         }}
@@ -566,7 +566,7 @@ const MockBuilder: React.FC = () => {
           borderRadius: 26,
           padding: "16px 18px 18px",
           background: "#58cc02",
-          color: "rgba(255,255,255,0.6)",
+          color: "var(--text-muted)",
           boxShadow: "0 20px 55px rgba(0,0,0,0.35)",
           border: "1px solid rgba(0,0,0,0.08)",
           marginBottom: 20,
@@ -624,9 +624,9 @@ const MockBuilder: React.FC = () => {
             style={{
               borderRadius: 26,
               padding: "16px 18px 14px",
-              background: "rgba(255,255,255,0.03)",
+              background: "var(--bg-card)",
               boxShadow: "0 18px 40px rgba(0,0,0,0.08)",
-              border: "1px solid rgba(255,255,255,0.06)",
+              border: "1px solid var(--bg-card-border)",
               marginBottom: 16,
             }}
           >
@@ -657,7 +657,7 @@ const MockBuilder: React.FC = () => {
                   style={{
                     margin: 0,
                     fontSize: "0.9rem",
-                    color: "rgba(255,255,255,0.5)",
+                    color: "var(--text-muted)",
                   }}
                 >
                   {section.subtitle}
@@ -666,7 +666,7 @@ const MockBuilder: React.FC = () => {
                   style={{
                     margin: "4px 0 0",
                     fontSize: "0.82rem",
-                    color: "rgba(255,255,255,0.45)",
+                    color: "var(--text-muted)",
                   }}
                 >
                   {section.questions.length} / {section.targetQuestions}{" "}
@@ -678,8 +678,8 @@ const MockBuilder: React.FC = () => {
                 onClick={() => toggleSection(section.id)}
                 style={{
                   borderRadius: 999,
-                  border: "1px solid rgba(255,255,255,0.1)",
-                  background: "rgba(255,255,255,0.03)",
+                  border: "1px solid var(--bg-card-border)",
+                  background: "var(--bg-card)",
                   padding: "6px 12px",
                   fontSize: "0.8rem",
                   cursor: "pointer",
@@ -699,7 +699,7 @@ const MockBuilder: React.FC = () => {
                 marginTop: 10,
                 marginBottom: isOpen ? 8 : 0,
                 fontSize: "0.86rem",
-                color: "rgba(255,255,255,0.5)",
+                color: "var(--text-muted)",
               }}
             >
               {section.description}
@@ -719,7 +719,7 @@ const MockBuilder: React.FC = () => {
                   <p
                     style={{
                       fontSize: "0.85rem",
-                      color: "rgba(255,255,255,0.45)",
+                      color: "var(--text-muted)",
                       marginTop: 6,
                       marginBottom: 2,
                     }}
@@ -742,8 +742,8 @@ const MockBuilder: React.FC = () => {
                         style={{
                           borderRadius: 18,
                           padding: "10px 12px 9px",
-                          background: "rgba(255,255,255,0.03)",
-                          border: "1px solid rgba(255,255,255,0.06)",
+                          background: "var(--bg-card)",
+                          border: "1px solid var(--bg-card-border)",
                         }}
                       >
                         {/* Meta chips row */}
@@ -761,8 +761,8 @@ const MockBuilder: React.FC = () => {
                             style={{
                               borderRadius: 999,
                               padding: "4px 10px",
-                              background: "rgba(255,255,255,0.08)",
-                              color: "rgba(255,255,255,0.95)",
+                              background: "var(--bg-card)",
+                              color: "var(--text)",
                               fontWeight: 600,
                             }}
                           >
@@ -806,12 +806,12 @@ const MockBuilder: React.FC = () => {
                             onClick={() => toggleSolution(q.id)}
                             style={{
                               borderRadius: 999,
-                              border: "1px solid rgba(255,255,255,0.1)",
+                              border: "1px solid var(--bg-card-border)",
                               padding: "4px 10px",
                               fontSize: "0.78rem",
                               cursor: "pointer",
-                              background: solOpen ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.03)",
-                              color: solOpen ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.85)",
+                              background: solOpen ? "var(--bg-card)" : "var(--bg-card)",
+                              color: solOpen ? "var(--text)" : "var(--text)",
                               display: "inline-flex",
                               alignItems: "center",
                               gap: 6,
@@ -826,7 +826,7 @@ const MockBuilder: React.FC = () => {
                           style={{
                             fontSize: "0.95rem",
                             lineHeight: 1.6,
-                            color: "rgba(255,255,255,0.85)",
+                            color: "var(--text)",
                           }}
                         >
                           {q.questionText}

@@ -27,6 +27,7 @@ import { initPaceProfileFromExamDate } from "./services/paceProfileService";
 import { startTracking, stopTracking, isFocusTrackingEnabled } from "./services/focusTracker";
 import { getGuidedJourneyState, getPhaseRoute } from "./services/guidedJourneyService";
 import { isMissionCompletedToday, getMissionResumeInfo } from "./services/dailyMissionService";
+import { useTheme } from "./context/ThemeContext";
 
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const TrendsPage = lazy(() => import("./pages/TrendsPage"));
@@ -62,10 +63,10 @@ function RouteFallback() {
   return (
     <div style={{ minHeight: "50vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
       <div style={{
-        background: "rgba(255,255,255,0.03)", backdropFilter: "blur(16px)",
-        border: "1px solid rgba(255,255,255,0.06)", borderRadius: 16, padding: 24,
+        background: "var(--bg-card)", backdropFilter: "blur(16px)",
+        border: "1px solid var(--bg-card-border)", borderRadius: 16, padding: 24,
       }}>
-        <h3 style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: 16, color: "#fff" }}>Loading...</h3>
+        <h3 style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: 16, color: "var(--text)" }}>Loading...</h3>
       </div>
     </div>
   );
@@ -119,7 +120,7 @@ function BottomNav() {
     current.startsWith("/mock-paper") ||
     current.startsWith("/mock-builder");
   const activeColor = "#22c55e";
-  const inactiveColor = "rgba(255,255,255,0.3)";
+  const inactiveColor = "var(--text-muted)";
 
   const isLearn = isTrends || current.startsWith("/topic-hub") || current.startsWith("/daily-mix") || current.startsWith("/daily-mission") || current.startsWith("/study-plan") || current.startsWith("/planner");
   const isPractice = isPredictive || current.startsWith("/practice") || current.startsWith("/exam-simulation") || current.startsWith("/highly-probable") || current.startsWith("/weak-area") || current.startsWith("/topic-mock") || current.startsWith("/chapter-test");
@@ -213,7 +214,7 @@ function BottomNav() {
         padding: "6px 8px 10px",
         background: "rgba(10,10,10,0.95)",
         backdropFilter: "blur(16px)",
-        borderTop: "1px solid rgba(255,255,255,0.06)",
+        borderTop: "1px solid var(--bg-card-border)",
         zIndex: 20,
       }}
     >
@@ -259,6 +260,7 @@ export default function App() {
   const navigate = useNavigate();
   const { mode, setMode } = useVibeMode();
   const { user } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const { isTrialActive, isTrialExpired, daysLeftInTrial, isPremium } = useSubscription();
 
   useEffect(() => {
@@ -418,7 +420,7 @@ export default function App() {
             background: "linear-gradient(135deg, #22c55e, #3b82f6)", display: "flex", alignItems: "center", justifyContent: "center",
             color: "#000", fontWeight: 900, fontSize: 14,
           }}>LT</div>
-          <span style={{ fontWeight: 800, fontSize: "1.1rem", color: "#fff", fontFamily: "'Space Grotesk', sans-serif" }}>LazyTopper</span>
+          <span style={{ fontWeight: 800, fontSize: "1.1rem", color: "var(--text)", fontFamily: "'Space Grotesk', sans-serif" }}>LazyTopper</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           {user && isTrialActive && (
@@ -466,12 +468,24 @@ export default function App() {
           )}
           <button
             type="button"
+            onClick={toggleTheme}
+            title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            style={{
+              background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12,
+              padding: "6px 10px", fontSize: "1rem", fontWeight: 700,
+              cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+            }}
+          >
+            {theme === "dark" ? "☀️" : "🌙"}
+          </button>
+          <button
+            type="button"
             onClick={() => setPaletteOpen(true)}
             title="Search (Ctrl+K)"
             style={{
-              background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12,
+              background: "var(--bg-card)", border: "1px solid var(--bg-card-border)", borderRadius: 12,
               padding: "6px 12px", fontSize: "0.78rem", fontWeight: 700,
-              color: "rgba(255,255,255,0.35)", cursor: "pointer", display: "flex", alignItems: "center", gap: 4,
+              color: "var(--text-muted)", cursor: "pointer", display: "flex", alignItems: "center", gap: 4,
             }}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -496,10 +510,10 @@ export default function App() {
               type="button"
               onClick={() => navigate("/login")}
               style={{
-                border: "1px solid rgba(255,255,255,0.1)",
+                border: "1px solid var(--bg-card-border)",
                 borderRadius: 12,
-                background: "rgba(255,255,255,0.04)",
-                color: "rgba(255,255,255,0.6)",
+                background: "var(--bg-card)",
+                color: "var(--text-muted)",
                 fontWeight: 800,
                 fontSize: "0.78rem",
                 padding: "6px 14px",

@@ -122,14 +122,14 @@ export function useThemeColors() {
   return {
     isDark,
     textPrimary: isDark ? "#fff" : "#1e293b",
-    textSecondary: isDark ? "rgba(255,255,255,0.55)" : "rgba(30,41,59,0.6)",
-    textMuted: isDark ? "rgba(255,255,255,0.35)" : "rgba(30,41,59,0.4)",
-    textFaint: isDark ? "rgba(255,255,255,0.25)" : "rgba(30,41,59,0.25)",
-    cardBg: isDark ? "rgba(255,255,255,0.03)" : "#fff",
-    cardBorder: isDark ? "rgba(255,255,255,0.06)" : "#e2e8f0",
-    subtleBg: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)",
-    divider: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.06)",
-    ringTrack: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.08)",
+    textSecondary: isDark ? "var(--text-muted)" : "rgba(30,41,59,0.6)",
+    textMuted: isDark ? "var(--text-muted)" : "rgba(30,41,59,0.4)",
+    textFaint: isDark ? "var(--text-muted)" : "rgba(30,41,59,0.25)",
+    cardBg: isDark ? "var(--bg-card)" : "#fff",
+    cardBorder: isDark ? "var(--bg-card)" : "#e2e8f0",
+    subtleBg: isDark ? "var(--bg-card)" : "rgba(0,0,0,0.03)",
+    divider: isDark ? "var(--bg-card)" : "rgba(0,0,0,0.06)",
+    ringTrack: isDark ? "var(--bg-card)" : "rgba(0,0,0,0.08)",
     overlayBg: isDark ? "rgba(0,0,0,0.85)" : "rgba(0,0,0,0.5)",
   };
 }
@@ -140,7 +140,7 @@ export const THEME_STYLES = `
   .db-root.theme-dark { background:#0a0a0a; color:#fff; }
   .db-root.theme-light { background:#f8fafc; color:#1e293b; }
   .db-root .font-display { font-family:'Space Grotesk',sans-serif; }
-  .db-root.theme-dark .glass-card { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:16px; }
+  .db-root.theme-dark .glass-card { background:var(--bg-card-border); border:1px solid var(--bg-card-border); border-radius:16px; }
   .db-root.theme-light .glass-card { background:#fff; border:1px solid #e2e8f0; border-radius:16px; box-shadow:0 1px 3px rgba(0,0,0,0.06); }
   .db-root.theme-dark .glass-accent { background:rgba(34,197,94,0.06); border:1px solid rgba(34,197,94,0.15); border-radius:16px; }
   .db-root.theme-light .glass-accent { background:rgba(34,197,94,0.04); border:1px solid rgba(34,197,94,0.2); border-radius:16px; }
@@ -151,7 +151,7 @@ export const THEME_STYLES = `
   .db-root * { box-sizing:border-box; }
   .db-root ::-webkit-scrollbar { height:4px; }
   .db-root ::-webkit-scrollbar-track { background:transparent; }
-  .db-root.theme-dark ::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.1); border-radius:2px; }
+  .db-root.theme-dark ::-webkit-scrollbar-thumb { background:var(--bg-card); border-radius:2px; }
   .db-root.theme-light ::-webkit-scrollbar-thumb { background:rgba(0,0,0,0.1); border-radius:2px; }
 `;
 

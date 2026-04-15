@@ -57,13 +57,13 @@ export function BreathingMoment({ onComplete }: Props) {
       </div>
 
       <h2 style={{
-        fontSize: 22, fontWeight: 800, color: "#fff", margin: "0 0 8px",
+        fontSize: 22, fontWeight: 800, color: "var(--text)", margin: "0 0 8px",
         fontFamily: "'Space Grotesk', sans-serif",
       }}>
         Take a deep breath
       </h2>
       <p style={{
-        fontSize: 16, color: "rgba(255,255,255,0.6)", margin: "0 0 32px",
+        fontSize: 16, color: "var(--text-muted)", margin: "0 0 32px",
       }}>
         You've got this.
       </p>
@@ -85,8 +85,8 @@ export function BreathingMoment({ onComplete }: Props) {
         }}
         style={{
           padding: "10px 24px", borderRadius: 10,
-          border: "1px solid rgba(255,255,255,0.15)",
-          background: "transparent", color: "rgba(255,255,255,0.5)",
+          border: "1px solid var(--text-muted)",
+          background: "transparent", color: "var(--text-muted)",
           fontWeight: 600, fontSize: 13, cursor: "pointer",
         }}
       >

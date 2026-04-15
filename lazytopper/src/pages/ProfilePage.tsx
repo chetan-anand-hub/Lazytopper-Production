@@ -79,7 +79,7 @@ function MasteryRing({ level, size = 56 }: { level: MasteryLevel; size?: number 
   const filled = fraction * circ;
   return (
     <svg width={size} height={size} style={{ display: "block" }}>
-      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth={5} />
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--bg-card)" strokeWidth={5} />
       <circle
         cx={size / 2}
         cy={size / 2}
@@ -283,10 +283,10 @@ function AccuracyChart({ data }: { data: WeeklyAccuracy[] }) {
           return (
             <g key={w.weekLabel}>
               <rect x={x} y={chartH - h} width={barW} height={h} rx={4} fill={color} opacity={0.85} />
-              <text x={x + barW / 2} y={chartH - h - 4} textAnchor="middle" fontSize={10} fontWeight={600} fill="rgba(255,255,255,0.85)">
+              <text x={x + barW / 2} y={chartH - h - 4} textAnchor="middle" fontSize={10} fontWeight={600} fill="var(--text)">
                 {w.accuracy}%
               </text>
-              <text x={x + barW / 2} y={chartH + 14} textAnchor="middle" fontSize={9} fill="rgba(255,255,255,0.45)">
+              <text x={x + barW / 2} y={chartH + 14} textAnchor="middle" fontSize={9} fill="var(--text-muted)">
                 {w.weekLabel}
               </text>
             </g>
@@ -317,8 +317,8 @@ function OverviewTab({ milestones, subjectTab, setSubjectTab, grade }: {
               padding: "6px 16px",
               borderRadius: 20,
               border: "none",
-              background: subjectTab === s ? "#1cb0f6" : "rgba(255,255,255,0.06)",
-              color: subjectTab === s ? "#fff" : "rgba(255,255,255,0.85)",
+              background: subjectTab === s ? "#1cb0f6" : "var(--bg-card)",
+              color: subjectTab === s ? "#fff" : "var(--text)",
               fontWeight: 600,
               fontSize: 13,
               cursor: "pointer",
@@ -352,14 +352,14 @@ function OverviewTab({ milestones, subjectTab, setSubjectTab, grade }: {
                 padding: "10px 6px",
                 borderRadius: 12,
                 background: "var(--bg-card)",
-                border: `1px solid ${level !== "not_started" ? MASTERY_COLORS[level] + "30" : "rgba(255,255,255,0.06)"}`,
+                border: `1px solid ${level !== "not_started" ? MASTERY_COLORS[level] + "30" : "var(--bg-card-border)"}`,
               }}
             >
               <MasteryRing level={level} size={52} />
               <span style={{ marginTop: 4, fontSize: 10, fontWeight: 700, color: MASTERY_COLORS[level] }}>
                 {MASTERY_LABELS[level]}
               </span>
-              <span style={{ fontSize: 8, fontWeight: 600, color: "rgba(255,255,255,0.3)" }}>{MASTERY_POINTS[level]}pts</span>
+              <span style={{ fontSize: 8, fontWeight: 600, color: "var(--text-muted)" }}>{MASTERY_POINTS[level]}pts</span>
               <span style={{ marginTop: 2, fontSize: 11, fontWeight: 600, textAlign: "center", lineHeight: 1.2, color: "var(--text-muted)" }}>
                 {TOPIC_DISPLAY_NAMES[tk] || tk}
               </span>
@@ -407,7 +407,7 @@ function AchievementsTab({ earned }: { earned: EarnedBadge[] }) {
               style={{
                 padding: "14px 10px",
                 borderRadius: 14,
-                background: isEarned ? "rgba(245,158,11,0.08)" : "rgba(255,255,255,0.06)",
+                background: isEarned ? "rgba(245,158,11,0.08)" : "var(--bg-card)",
                 border: isEarned ? "2px solid #f59e0b" : "1px solid #e5e5e5",
                 textAlign: "center",
                 opacity: isEarned ? 1 : 0.5,
@@ -542,19 +542,19 @@ function StatsTab({ badgeCtx, statsByChapter }: { badgeCtx: BadgeContext; statsB
           <table style={{ width: "100%", fontSize: 12, borderCollapse: "collapse" }}>
             <thead>
               <tr>
-                <th style={{ textAlign: "left", padding: "4px 8px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>Week</th>
-                <th style={{ textAlign: "center", padding: "4px 8px", borderBottom: "1px solid rgba(255,255,255,0.06)", color: "#34d399" }}>Easy</th>
-                <th style={{ textAlign: "center", padding: "4px 8px", borderBottom: "1px solid rgba(255,255,255,0.06)", color: "#60a5fa" }}>Medium</th>
-                <th style={{ textAlign: "center", padding: "4px 8px", borderBottom: "1px solid rgba(255,255,255,0.06)", color: "#f87171" }}>Hard</th>
+                <th style={{ textAlign: "left", padding: "4px 8px", borderBottom: "1px solid var(--bg-card-border)" }}>Week</th>
+                <th style={{ textAlign: "center", padding: "4px 8px", borderBottom: "1px solid var(--bg-card-border)", color: "#34d399" }}>Easy</th>
+                <th style={{ textAlign: "center", padding: "4px 8px", borderBottom: "1px solid var(--bg-card-border)", color: "#60a5fa" }}>Medium</th>
+                <th style={{ textAlign: "center", padding: "4px 8px", borderBottom: "1px solid var(--bg-card-border)", color: "#f87171" }}>Hard</th>
               </tr>
             </thead>
             <tbody>
               {weeklyDiffProg.map((w) => (
                 <tr key={w.weekLabel}>
-                  <td style={{ padding: "4px 8px", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>{w.weekLabel}</td>
-                  <td style={{ textAlign: "center", padding: "4px 8px", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>{w.easyPct}%</td>
-                  <td style={{ textAlign: "center", padding: "4px 8px", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>{w.medPct}%</td>
-                  <td style={{ textAlign: "center", padding: "4px 8px", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>{w.hardPct}%</td>
+                  <td style={{ padding: "4px 8px", borderBottom: "1px solid var(--bg-card-border)" }}>{w.weekLabel}</td>
+                  <td style={{ textAlign: "center", padding: "4px 8px", borderBottom: "1px solid var(--bg-card-border)" }}>{w.easyPct}%</td>
+                  <td style={{ textAlign: "center", padding: "4px 8px", borderBottom: "1px solid var(--bg-card-border)" }}>{w.medPct}%</td>
+                  <td style={{ textAlign: "center", padding: "4px 8px", borderBottom: "1px solid var(--bg-card-border)" }}>{w.hardPct}%</td>
                 </tr>
               ))}
             </tbody>
@@ -575,10 +575,10 @@ function StatsTab({ badgeCtx, statsByChapter }: { badgeCtx: BadgeContext; statsB
               return (
                 <g key={w.weekLabel}>
                   <rect x={x} y={110 - h} width={36} height={h} rx={4} fill="#ff9600" opacity={0.75} />
-                  <text x={x + 18} y={110 - h - 4} textAnchor="middle" fontSize={10} fontWeight={600} fill="rgba(255,255,255,0.85)">
+                  <text x={x + 18} y={110 - h - 4} textAnchor="middle" fontSize={10} fontWeight={600} fill="var(--text)">
                     {w.avgSeconds}s
                   </text>
-                  <text x={x + 18} y={130} textAnchor="middle" fontSize={9} fill="rgba(255,255,255,0.45)">
+                  <text x={x + 18} y={130} textAnchor="middle" fontSize={9} fill="var(--text-muted)">
                     {w.weekLabel}
                   </text>
                 </g>
@@ -680,7 +680,7 @@ export default function ProfilePage() {
             width: 52,
             height: 52,
             borderRadius: "50%",
-            background: "rgba(255,255,255,0.2)",
+            background: "var(--text-muted)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -696,15 +696,15 @@ export default function ProfilePage() {
         </div>
 
         <div style={{ display: "flex", gap: 16, marginTop: 16 }}>
-          <div style={{ flex: 1, background: "rgba(255,255,255,0.15)", borderRadius: 12, padding: "10px 14px", textAlign: "center" }}>
+          <div style={{ flex: 1, background: "var(--text-muted)", borderRadius: 12, padding: "10px 14px", textAlign: "center" }}>
             <div style={{ fontSize: 22, fontWeight: 800 }}>{badgeCtx.streak}</div>
             <div style={{ fontSize: 11, opacity: 0.85 }}>Day Streak</div>
           </div>
-          <div style={{ flex: 1, background: "rgba(255,255,255,0.15)", borderRadius: 12, padding: "10px 14px", textAlign: "center" }}>
+          <div style={{ flex: 1, background: "var(--text-muted)", borderRadius: 12, padding: "10px 14px", textAlign: "center" }}>
             <div style={{ fontSize: 22, fontWeight: 800 }}>{daysLeft}</div>
             <div style={{ fontSize: 11, opacity: 0.85 }}>Days to Exam</div>
           </div>
-          <div style={{ flex: 1, background: "rgba(255,255,255,0.15)", borderRadius: 12, padding: "10px 14px", textAlign: "center" }}>
+          <div style={{ flex: 1, background: "var(--text-muted)", borderRadius: 12, padding: "10px 14px", textAlign: "center" }}>
             <div style={{ fontSize: 22, fontWeight: 800 }}>{earnedBadges.length}</div>
             <div style={{ fontSize: 11, opacity: 0.85 }}>Badges</div>
           </div>
@@ -714,12 +714,12 @@ export default function ProfilePage() {
       <div style={{
         borderRadius: 14, padding: "14px 16px", marginBottom: 20,
         border: "2px solid",
-        borderColor: sub.tier === "premium" ? "#58cc02" : sub.isTrialActive ? "#1cb0f6" : "rgba(255,255,255,0.08)",
-        background: sub.tier === "premium" ? "rgba(34,197,94,0.08)" : sub.isTrialActive ? "rgba(59,130,246,0.08)" : "rgba(255,255,255,0.03)",
+        borderColor: sub.tier === "premium" ? "#58cc02" : sub.isTrialActive ? "#1cb0f6" : "var(--bg-card-border)",
+        background: sub.tier === "premium" ? "rgba(34,197,94,0.08)" : sub.isTrialActive ? "rgba(59,130,246,0.08)" : "var(--bg-card)",
         display: "flex", alignItems: "center", justifyContent: "space-between",
       }}>
         <div>
-          <div style={{ fontWeight: 800, fontSize: "0.92rem", color: "rgba(255,255,255,0.85)" }}>
+          <div style={{ fontWeight: 800, fontSize: "0.92rem", color: "var(--text)" }}>
             {sub.tier === "premium" ? "Premium" : sub.isTrialActive ? "Trial" : "Free Plan"}
           </div>
           <div style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginTop: 2 }}>
@@ -738,7 +738,7 @@ export default function ProfilePage() {
             onClick={() => setShowUpgradeModal(true)}
             style={{
               border: "none", borderBottom: "3px solid #46a302", borderRadius: 12,
-              padding: "8px 16px", background: "#58cc02", color: "#fff",
+              padding: "8px 16px", background: "#58cc02", color: "var(--text)",
               fontWeight: 800, fontSize: "0.82rem", cursor: "pointer",
               textTransform: "uppercase", whiteSpace: "nowrap",
             }}
@@ -763,11 +763,11 @@ export default function ProfilePage() {
               padding: "8px 0",
               borderRadius: 10,
               border: "none",
-              background: tab === t ? "rgba(255,255,255,0.1)" : "transparent",
+              background: tab === t ? "var(--bg-card)" : "transparent",
               fontWeight: tab === t ? 700 : 500,
               fontSize: 13,
               cursor: "pointer",
-              color: tab === t ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.45)",
+              color: tab === t ? "var(--text)" : "var(--text-muted)",
               boxShadow: tab === t ? "0 1px 4px rgba(0,0,0,0.3)" : "none",
               textTransform: "capitalize",
             }}
@@ -855,7 +855,7 @@ export default function ProfilePage() {
             style={{
               padding: "10px 20px",
               borderRadius: 16,
-              border: "2px solid rgba(255,255,255,0.08)",
+              border: "2px solid var(--bg-card-border)",
               background: "var(--bg-card)",
               fontWeight: 700,
               fontSize: 13,
@@ -868,8 +868,8 @@ export default function ProfilePage() {
         )}
       </div>
 
-      <div style={{ marginTop: 16, padding: "12px 16px", background: "var(--bg-card-border)", borderRadius: 12, border: "2px solid rgba(255,255,255,0.08)" }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.85)", marginBottom: 6 }}>Study Mode</div>
+      <div style={{ marginTop: 16, padding: "12px 16px", background: "var(--bg-card-border)", borderRadius: 12, border: "2px solid var(--bg-card-border)" }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text)", marginBottom: 6 }}>Study Mode</div>
         <div style={{ display: "flex", gap: 8 }}>
           {(["beast", "zombie"] as const).map(m => (
             <button
@@ -884,8 +884,8 @@ export default function ProfilePage() {
               style={{
                 flex: 1, padding: "8px 0", borderRadius: 10, border: "none",
                 fontWeight: 700, fontSize: 13, cursor: "pointer",
-                background: (localStorage.getItem("vibeMode") || "") === m ? "#58cc02" : "rgba(255,255,255,0.08)",
-                color: (localStorage.getItem("vibeMode") || "") === m ? "#fff" : "rgba(255,255,255,0.85)",
+                background: (localStorage.getItem("vibeMode") || "") === m ? "#58cc02" : "var(--bg-card)",
+                color: (localStorage.getItem("vibeMode") || "") === m ? "#fff" : "var(--text)",
               }}
             >
               {m === "beast" ? "🔥 Challenge" : "😌 Relaxed"}
@@ -918,7 +918,7 @@ export default function ProfilePage() {
         <span style={{ fontSize: 18 }}>📊</span>
         <div style={{ textAlign: "left" }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: "#22c55e" }}>Weekly Progress Digest</div>
-          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}>View and share your weekly summary</div>
+          <div style={{ fontSize: 11, color: "var(--text-muted)" }}>View and share your weekly summary</div>
         </div>
       </button>
 
@@ -930,8 +930,8 @@ export default function ProfilePage() {
 function ThemeToggle() {
   const { theme, setTheme } = useTheme();
   return (
-    <div style={{ marginTop: 16, padding: "12px 16px", background: "var(--bg-card-border)", borderRadius: 12, border: "2px solid rgba(255,255,255,0.08)" }}>
-      <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.85)", marginBottom: 6 }}>Appearance</div>
+    <div style={{ marginTop: 16, padding: "12px 16px", background: "var(--bg-card-border)", borderRadius: 12, border: "2px solid var(--bg-card-border)" }}>
+      <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text)", marginBottom: 6 }}>Appearance</div>
       <div style={{ display: "flex", gap: 8 }}>
         {([
           { value: "dark" as AppTheme, label: "Dark", icon: "🌙" },
@@ -944,8 +944,8 @@ function ThemeToggle() {
             style={{
               flex: 1, padding: "8px 0", borderRadius: 10, border: "none",
               fontWeight: 700, fontSize: 13, cursor: "pointer",
-              background: theme === opt.value ? "#58cc02" : "rgba(255,255,255,0.08)",
-              color: theme === opt.value ? "#fff" : "rgba(255,255,255,0.85)",
+              background: theme === opt.value ? "#58cc02" : "var(--bg-card)",
+              color: theme === opt.value ? "#fff" : "var(--text)",
             }}
           >
             {opt.icon} {opt.label}
@@ -959,10 +959,10 @@ function ThemeToggle() {
 function FocusTrackingToggle() {
   const [enabled, setEnabled] = useState(isFocusTrackingEnabled);
   return (
-    <div style={{ marginTop: 16, padding: "12px 16px", background: "var(--bg-card-border)", borderRadius: 12, border: "2px solid rgba(255,255,255,0.08)" }}>
+    <div style={{ marginTop: 16, padding: "12px 16px", background: "var(--bg-card-border)", borderRadius: 12, border: "2px solid var(--bg-card-border)" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div>
-          <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.85)" }}>Focus Tracking</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text)" }}>Focus Tracking</div>
           <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>Track active vs idle study time</div>
         </div>
         <button
@@ -974,7 +974,7 @@ function FocusTrackingToggle() {
           }}
           style={{
             width: 48, height: 26, borderRadius: 13, border: "none", cursor: "pointer",
-            background: enabled ? "#22c55e" : "rgba(255,255,255,0.15)",
+            background: enabled ? "#22c55e" : "var(--text-muted)",
             position: "relative", transition: "background 0.2s",
           }}
         >
@@ -994,8 +994,8 @@ function PaceProfileSelector() {
   if (!paceProfile) return null;
   const profileColors: Record<string, string> = { marathon: "#3b82f6", sprint: "#f97316", crash: "#ef4444" };
   return (
-    <div style={{ marginTop: 16, padding: "12px 16px", background: "var(--bg-card-border)", borderRadius: 12, border: "2px solid rgba(255,255,255,0.08)" }}>
-      <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.85)", marginBottom: 4 }}>Study Pace</div>
+    <div style={{ marginTop: 16, padding: "12px 16px", background: "var(--bg-card-border)", borderRadius: 12, border: "2px solid var(--bg-card-border)" }}>
+      <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text)", marginBottom: 4 }}>Study Pace</div>
       <p style={{ fontSize: 11, color: "var(--text-muted)", marginBottom: 10, lineHeight: 1.4 }}>
         {paceProfile.isManualOverride
           ? `Manual override active. Auto-detected: ${getProfileConfig(paceProfile.detectedType).label}.`
@@ -1012,14 +1012,14 @@ function PaceProfileSelector() {
               setPaceProfile(updated);
             }} style={{
               flex: 1, padding: "8px 4px", borderRadius: 10,
-              border: isActive ? `2px solid ${color}` : "1px solid rgba(255,255,255,0.08)",
-              background: isActive ? `${color}15` : "rgba(255,255,255,0.08)",
+              border: isActive ? `2px solid ${color}` : "1px solid var(--bg-card-border)",
+              background: isActive ? `${color}15` : "var(--bg-card)",
               cursor: "pointer",
             }}>
-              <div style={{ fontSize: 11, fontWeight: 800, color: isActive ? color : "rgba(255,255,255,0.5)", textTransform: "uppercase" }}>
+              <div style={{ fontSize: 11, fontWeight: 800, color: isActive ? color : "var(--text-muted)", textTransform: "uppercase" }}>
                 {cfg.label}
               </div>
-              <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>{cfg.tagline}</div>
+              <div style={{ fontSize: 9, color: "var(--text-muted)", marginTop: 2 }}>{cfg.tagline}</div>
             </button>
           );
         })}
@@ -1055,10 +1055,10 @@ function isCountdownHidden(): boolean {
 function CountdownToggle() {
   const [hidden, setHidden] = useState(isCountdownHidden);
   return (
-    <div style={{ marginTop: 16, padding: "12px 16px", background: "var(--bg-card-border)", borderRadius: 12, border: "2px solid rgba(255,255,255,0.08)" }}>
+    <div style={{ marginTop: 16, padding: "12px 16px", background: "var(--bg-card-border)", borderRadius: 12, border: "2px solid var(--bg-card-border)" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div>
-          <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.85)" }}>Hide Countdown</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text)" }}>Hide Countdown</div>
           <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>Hide "days left" from Dashboard</div>
         </div>
         <button
@@ -1070,7 +1070,7 @@ function CountdownToggle() {
           }}
           style={{
             width: 48, height: 26, borderRadius: 13, border: "none", cursor: "pointer",
-            background: hidden ? "#22c55e" : "rgba(255,255,255,0.15)",
+            background: hidden ? "#22c55e" : "var(--text-muted)",
             position: "relative", transition: "background 0.2s",
           }}
         >
@@ -1097,7 +1097,7 @@ function NightBeforeLink() {
         <span style={{ fontSize: 20 }}>🌙</span>
         <div style={{ textAlign: "left" }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: "#22c55e" }}>Night Before Exam</div>
-          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}>Key formulas, top predicted questions & exam tips</div>
+          <div style={{ fontSize: 11, color: "var(--text-muted)" }}>Key formulas, top predicted questions & exam tips</div>
         </div>
       </button>
     </div>
@@ -1151,17 +1151,17 @@ function ParentPinManager() {
   };
 
   return (
-    <div style={{ marginTop: 16, padding: "14px 16px", background: "var(--bg-card-border)", borderRadius: 12, border: "2px solid rgba(255,255,255,0.08)" }}>
+    <div style={{ marginTop: 16, padding: "14px 16px", background: "var(--bg-card-border)", borderRadius: 12, border: "2px solid var(--bg-card-border)" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <span style={{ fontSize: 16 }}>🔑</span>
-          <span style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.85)" }}>Parent PIN</span>
+          <span style={{ fontSize: 13, fontWeight: 700, color: "var(--text)" }}>Parent PIN</span>
         </div>
         {hasPinState && !editing && (
           <span style={{ fontSize: 11, fontWeight: 600, color: "#22c55e" }}>Active</span>
         )}
       </div>
-      <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", margin: "0 0 10px", lineHeight: 1.4 }}>
+      <p style={{ fontSize: 11, color: "var(--text-muted)", margin: "0 0 10px", lineHeight: 1.4 }}>
         {hasPinState ? "Your parents can access progress at /parent using this PIN." : "Set a 4-digit PIN so parents can check your progress."}
       </p>
       {saved && <p style={{ fontSize: 11, color: "#22c55e", fontWeight: 700, margin: "0 0 8px" }}>PIN saved!</p>}
@@ -1173,8 +1173,8 @@ function ParentPinManager() {
                 value={d} onChange={(e) => handleDigit(i, e.target.value)} onKeyDown={(e) => handleKeyDown(i, e)}
                 style={{
                   width: 40, height: 44, textAlign: "center", fontSize: 20, fontWeight: 800,
-                  borderRadius: 10, border: "2px solid rgba(255,255,255,0.12)",
-                  background: "rgba(255,255,255,0.04)", color: "var(--text)", outline: "none",
+                  borderRadius: 10, border: "2px solid var(--bg-card-border)",
+                  background: "var(--bg-card)", color: "var(--text)", outline: "none",
                   fontFamily: "'Space Grotesk', sans-serif",
                 }}
               />
@@ -1183,13 +1183,13 @@ function ParentPinManager() {
           <div style={{ display: "flex", gap: 6 }}>
             <button type="button" onClick={handleSave} disabled={digits.join("").length !== 4} style={{
               flex: 1, padding: "8px 0", borderRadius: 8, border: "none",
-              background: digits.join("").length === 4 ? "#22c55e" : "rgba(255,255,255,0.06)",
-              color: digits.join("").length === 4 ? "#000" : "rgba(255,255,255,0.3)",
+              background: digits.join("").length === 4 ? "#22c55e" : "var(--bg-card)",
+              color: digits.join("").length === 4 ? "#000" : "var(--text-muted)",
               fontWeight: 700, fontSize: 11, cursor: "pointer",
             }}>Save PIN</button>
             <button type="button" onClick={() => { setEditing(false); setDigits(["", "", "", ""]); }} style={{
-              flex: 1, padding: "8px 0", borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)",
-              background: "transparent", color: "rgba(255,255,255,0.4)", fontWeight: 600, fontSize: 11, cursor: "pointer",
+              flex: 1, padding: "8px 0", borderRadius: 8, border: "1px solid var(--bg-card-border)",
+              background: "transparent", color: "var(--text-muted)", fontWeight: 600, fontSize: 11, cursor: "pointer",
             }}>Cancel</button>
           </div>
         </div>
@@ -1216,9 +1216,9 @@ function ParentPinManager() {
 
 function MentalHealthResources() {
   return (
-    <div style={{ marginTop: 16, padding: "12px 16px", background: "var(--bg-card-border)", borderRadius: 12, border: "2px solid rgba(255,255,255,0.08)" }}>
-      <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.85)", marginBottom: 8 }}>Feeling overwhelmed?</div>
-      <p style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", lineHeight: 1.5, margin: "0 0 12px" }}>
+    <div style={{ marginTop: 16, padding: "12px 16px", background: "var(--bg-card-border)", borderRadius: 12, border: "2px solid var(--bg-card-border)" }}>
+      <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text)", marginBottom: 8 }}>Feeling overwhelmed?</div>
+      <p style={{ fontSize: 12, color: "var(--text-muted)", lineHeight: 1.5, margin: "0 0 12px" }}>
         Board exams can be stressful — it's perfectly okay to ask for help.
       </p>
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -1290,19 +1290,19 @@ function ReferralSection() {
         {[0, 1, 2].map(i => (
           <div key={i} style={{
             flex: 1, height: 6, borderRadius: 999,
-            background: i < progress ? "#a855f7" : "rgba(255,255,255,0.08)",
+            background: i < progress ? "#a855f7" : "var(--bg-card)",
             transition: "background 0.3s",
           }} />
         ))}
       </div>
-      <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.4)", marginBottom: 12 }}>
+      <div style={{ fontSize: "0.72rem", color: "var(--text-muted)", marginBottom: 12 }}>
         {progress}/3 friends joined
         {earned && <span style={{ color: "#22c55e", marginLeft: 8 }}>🎉 {referral.rewardWeeksEarned} week{referral.rewardWeeksEarned > 1 ? "s" : ""} earned!</span>}
       </div>
 
       <div style={{
         padding: "8px 12px", borderRadius: 10,
-        background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
+        background: "var(--bg-card)", border: "1px solid var(--bg-card-border)",
         fontFamily: "monospace", fontSize: "0.88rem", color: "#c084fc",
         fontWeight: 700, marginBottom: 10, textAlign: "center", letterSpacing: 2,
       }}>
@@ -1340,7 +1340,7 @@ function ReferralSection() {
             flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
             padding: "8px 12px", borderRadius: 10,
             background: "var(--bg-card-border)", border: "1px solid var(--bg-card-border)",
-            color: copied ? "#22c55e" : "rgba(255,255,255,0.7)",
+            color: copied ? "#22c55e" : "var(--text)",
             fontWeight: 700, fontSize: "0.78rem", cursor: "pointer",
           }}
         >
@@ -1352,9 +1352,9 @@ function ReferralSection() {
           style={{
             flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
             padding: "8px 12px", borderRadius: 10,
-            background: showQR ? "rgba(168,85,247,0.15)" : "rgba(255,255,255,0.06)",
+            background: showQR ? "rgba(168,85,247,0.15)" : "var(--bg-card)",
             border: "1px solid var(--bg-card-border)",
-            color: showQR ? "#c084fc" : "rgba(255,255,255,0.7)",
+            color: showQR ? "#c084fc" : "var(--text)",
             fontWeight: 700, fontSize: "0.78rem", cursor: "pointer",
           }}
         >

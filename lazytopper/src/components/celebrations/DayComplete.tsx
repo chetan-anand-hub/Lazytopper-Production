@@ -35,24 +35,24 @@ export default function DayComplete({ visible, streak, onDone }: Props) {
         <div className="lt-cel-day-complete" style={{ fontSize: 48, marginBottom: 8 }}>
           ✅
         </div>
-        <h2 style={{ fontSize: 22, fontWeight: 800, color: "#fff", margin: "0 0 4px" }}>
+        <h2 style={{ fontSize: 22, fontWeight: 800, color: "var(--text)", margin: "0 0 4px" }}>
           Day Complete!
         </h2>
-        <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", margin: "0 0 16px" }}>
+        <p style={{ fontSize: 14, color: "var(--text-muted)", margin: "0 0 16px" }}>
           Great work today. Keep the streak alive!
         </p>
         <div style={{ fontSize: 36, fontWeight: 800, color: "#ff9600", marginBottom: 4 }}>
           🔥 <span className="lt-cel-streak-num">{streak}</span>
         </div>
-        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", marginBottom: 16 }}>
+        <div style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 16 }}>
           day streak
         </div>
         <button
           onClick={() => { setShow(false); onDone?.(); }}
           style={{
-            background: "rgba(255,255,255,0.1)",
-            color: "#fff",
-            border: "1px solid rgba(255,255,255,0.15)",
+            background: "var(--bg-card)",
+            color: "var(--text)",
+            border: "1px solid var(--text-muted)",
             borderRadius: 12,
             padding: "10px 24px",
             fontWeight: 600,

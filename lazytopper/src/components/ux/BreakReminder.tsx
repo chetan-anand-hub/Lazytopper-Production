@@ -66,18 +66,18 @@ export function BreakReminder() {
       padding: 20,
     }}>
       <div style={{
-        background: "rgba(255,255,255,0.06)", border: "1px solid rgba(34,197,94,0.3)",
+        background: "var(--bg-card)", border: "1px solid rgba(34,197,94,0.3)",
         borderRadius: 20, maxWidth: 360, width: "100%", padding: "32px 24px",
         textAlign: "center",
       }}>
         <div style={{ fontSize: 48, marginBottom: 16 }}>🧘</div>
         <h2 style={{
-          fontSize: 20, fontWeight: 800, color: "#fff", margin: "0 0 8px",
+          fontSize: 20, fontWeight: 800, color: "var(--text)", margin: "0 0 8px",
           fontFamily: "'Space Grotesk', sans-serif",
         }}>
           Time for a break!
         </h2>
-        <p style={{ fontSize: 14, color: "rgba(255,255,255,0.6)", lineHeight: 1.6, margin: "0 0 24px" }}>
+        <p style={{ fontSize: 14, color: "var(--text-muted)", lineHeight: 1.6, margin: "0 0 24px" }}>
           You've been studying for 25+ minutes — great effort!
           Take 5 minutes to stretch, drink water, and rest your eyes.
         </p>
@@ -98,8 +98,8 @@ export function BreakReminder() {
           onClick={snooze}
           style={{
             width: "100%", padding: "12px 0", borderRadius: 12,
-            border: "1px solid rgba(255,255,255,0.1)",
-            background: "transparent", color: "rgba(255,255,255,0.6)",
+            border: "1px solid var(--bg-card-border)",
+            background: "transparent", color: "var(--text-muted)",
             fontWeight: 600, fontSize: 13, cursor: "pointer",
           }}
         >

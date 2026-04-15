@@ -117,8 +117,8 @@ export default function ShareProgressPrompt({ triggerType, score, subject, miles
     }}>
       <div style={{ fontSize: 28, flexShrink: 0 }}>🎉</div>
       <div style={{ flex: 1 }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", marginBottom: 2 }}>{message}</div>
-        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)" }}>Share your progress with your parents?</div>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text)", marginBottom: 2 }}>{message}</div>
+        <div style={{ fontSize: 12, color: "var(--text-muted)" }}>Share your progress with your parents?</div>
         <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
           <button onClick={handleShare} disabled={sharing || shared} style={{
             padding: "6px 14px", borderRadius: 8, border: "none",
@@ -127,8 +127,8 @@ export default function ShareProgressPrompt({ triggerType, score, subject, miles
             fontWeight: 700, fontSize: 11, cursor: sharing ? "default" : "pointer",
           }}>{shared ? "Shared!" : sharing ? "Sharing..." : "Share via WhatsApp"}</button>
           <button onClick={handleDismiss} style={{
-            padding: "6px 14px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)",
-            background: "transparent", color: "rgba(255,255,255,0.4)", fontWeight: 600, fontSize: 11, cursor: "pointer",
+            padding: "6px 14px", borderRadius: 8, border: "1px solid var(--bg-card-border)",
+            background: "transparent", color: "var(--text-muted)", fontWeight: 600, fontSize: 11, cursor: "pointer",
           }}>Not Now</button>
         </div>
       </div>

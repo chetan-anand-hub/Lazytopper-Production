@@ -85,7 +85,7 @@ const LegalPage: React.FC = () => {
         <button type="button" onClick={() => { window.location.href = "/"; }} style={{
           marginTop: 16, border: "none", borderBottom: "4px solid #46a302",
           borderRadius: 16, padding: "12px 24px", background: "#58cc02",
-          color: "#fff", fontWeight: 800, fontSize: "0.9rem", cursor: "pointer",
+          color: "var(--text)", fontWeight: 800, fontSize: "0.9rem", cursor: "pointer",
           textTransform: "uppercase",
         }}>
           Go Home
@@ -98,7 +98,7 @@ const LegalPage: React.FC = () => {
     <div style={{
       maxWidth: 720, margin: "0 auto", padding: "40px 20px 80px",
       fontFamily: '"Nunito", "Segoe UI", system-ui, sans-serif',
-      color: "rgba(255,255,255,0.85)", lineHeight: 1.7,
+      color: "var(--text)", lineHeight: 1.7,
     }}>
       <button type="button" onClick={() => { window.location.href = "/"; }} style={{
         background: "none", border: "none", color: "#58cc02", fontWeight: 700,

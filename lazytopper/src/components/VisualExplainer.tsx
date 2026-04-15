@@ -322,7 +322,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   retryBtn: {
     background: "#3b82f6",
-    color: "#fff",
+    color: "var(--text)",
     border: "none",
     borderRadius: 8,
     padding: "6px 16px",

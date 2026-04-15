@@ -12,7 +12,7 @@ const STATUS_COLORS: Record<string, { bg: string; border: string; text: string; 
   correct: { bg: "rgba(34,197,94,0.08)", border: "rgba(34,197,94,0.2)", text: "#22c55e", icon: "\u2705" },
   partial: { bg: "rgba(250,204,21,0.08)", border: "rgba(250,204,21,0.2)", text: "#fbbf24", icon: "\u26A0\uFE0F" },
   incorrect: { bg: "rgba(239,68,68,0.08)", border: "rgba(239,68,68,0.2)", text: "#ef4444", icon: "\u274C" },
-  missing: { bg: "rgba(255,255,255,0.03)", border: "rgba(255,255,255,0.06)", text: "rgba(255,255,255,0.45)", icon: "\u2796" },
+  missing: { bg: "var(--bg-card)", border: "var(--bg-card-border)", text: "var(--text-muted)", icon: "\u2796" },
 };
 
 export function SolutionChecker({ question, marks, subject, topic }: SolutionCheckerProps) {
@@ -92,7 +92,7 @@ export function SolutionChecker({ question, marks, subject, topic }: SolutionChe
     ? result.percentage >= 80 ? "#22c55e"
       : result.percentage >= 50 ? "#fbbf24"
         : "#ef4444"
-    : "rgba(255,255,255,0.45)";
+    : "var(--text-muted)";
 
   return (
     <div style={{
@@ -129,7 +129,7 @@ export function SolutionChecker({ question, marks, subject, topic }: SolutionChe
             padding: "16px 14px",
             borderRadius: 12,
             border: "2px dashed rgba(168,85,247,0.3)",
-            background: "rgba(255,255,255,0.04)",
+            background: "var(--bg-card)",
             color: "#c4b5fd",
             fontSize: "0.82rem",
             fontWeight: 600,
@@ -158,7 +158,7 @@ export function SolutionChecker({ question, marks, subject, topic }: SolutionChe
                 maxWidth: "100%",
                 maxHeight: 200,
                 borderRadius: 10,
-                border: "1px solid rgba(255,255,255,0.06)",
+                border: "1px solid var(--bg-card-border)",
               }}
             />
             <button
@@ -173,7 +173,7 @@ export function SolutionChecker({ question, marks, subject, topic }: SolutionChe
                 borderRadius: "50%",
                 border: "none",
                 background: "rgba(0,0,0,0.6)",
-                color: "#fff",
+                color: "var(--text)",
                 fontSize: "0.7rem",
                 cursor: "pointer",
                 display: "flex",
@@ -199,7 +199,7 @@ export function SolutionChecker({ question, marks, subject, topic }: SolutionChe
                 background: loading
                   ? "linear-gradient(135deg, #a78bfa, #8b5cf6)"
                   : "linear-gradient(135deg, #7c3aed, #6d28d9)",
-                color: "#fff",
+                color: "var(--text)",
                 fontSize: "0.82rem",
                 fontWeight: 600,
                 cursor: loading ? "not-allowed" : "pointer",
@@ -243,7 +243,7 @@ export function SolutionChecker({ question, marks, subject, topic }: SolutionChe
               height: 52,
               borderRadius: "50%",
               background: result.percentage >= 80 ? "#22c55e" : result.percentage >= 50 ? "#fbbf24" : "#ef4444",
-              color: "#fff",
+              color: "var(--text)",
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
@@ -259,7 +259,7 @@ export function SolutionChecker({ question, marks, subject, topic }: SolutionChe
               <div style={{ fontSize: "0.85rem", fontWeight: 700, color: percentColor }}>
                 {result.percentage}% — {result.percentage >= 80 ? "Excellent!" : result.percentage >= 50 ? "Good effort!" : "Needs improvement"}
               </div>
-              <div style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.45)", marginTop: 2 }}>
+              <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: 2 }}>
                 {result.overallFeedback}
               </div>
             </div>
@@ -287,13 +287,13 @@ export function SolutionChecker({ question, marks, subject, topic }: SolutionChe
                       fontWeight: 700,
                       padding: "1px 6px",
                       borderRadius: 999,
-                      background: step.marksGiven > 0 ? "rgba(59,130,246,0.1)" : "rgba(255,255,255,0.04)",
-                      color: step.marksGiven > 0 ? "#60a5fa" : "rgba(255,255,255,0.4)",
+                      background: step.marksGiven > 0 ? "rgba(59,130,246,0.1)" : "var(--bg-card)",
+                      color: step.marksGiven > 0 ? "#60a5fa" : "var(--text-muted)",
                     }}>
                       {step.marksGiven > 0 ? `+${step.marksGiven}` : "0"} {step.marksGiven === 1 ? "mark" : "marks"}
                     </span>
                   </div>
-                  <div style={{ fontSize: "0.74rem", color: "rgba(255,255,255,0.45)", marginTop: 2 }}>
+                  <div style={{ fontSize: "0.74rem", color: "var(--text-muted)", marginTop: 2 }}>
                     {step.feedback}
                   </div>
                 </div>
@@ -313,7 +313,7 @@ export function SolutionChecker({ question, marks, subject, topic }: SolutionChe
                 {"\uD83D\uDCA1"} Tips to score more
               </div>
               {result.improvementTips.map((tip, i) => (
-                <div key={i} style={{ fontSize: "0.74rem", color: "rgba(255,255,255,0.7)", marginBottom: 2 }}>
+                <div key={i} style={{ fontSize: "0.74rem", color: "var(--text)", marginBottom: 2 }}>
                   {"\u2022"} {tip}
                 </div>
               ))}
@@ -329,7 +329,7 @@ export function SolutionChecker({ question, marks, subject, topic }: SolutionChe
               padding: "8px 12px",
               borderRadius: 8,
               border: "1px solid rgba(206,130,255,0.3)",
-              background: "rgba(255,255,255,0.04)",
+              background: "var(--bg-card)",
               color: "#c4b5fd",
               fontSize: "0.78rem",
               fontWeight: 600,

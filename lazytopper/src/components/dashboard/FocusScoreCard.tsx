@@ -30,11 +30,11 @@ export function FocusScoreCard() {
         }}>{pct}%</span>
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.35)", textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 2 }}>Focus Score</div>
+        <div style={{ fontSize: 11, fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 2 }}>Focus Score</div>
         <div className="font-display" style={{ fontSize: 14, fontWeight: 700, marginBottom: 2 }}>
           {activeMin} min active / {totalMin} min total
         </div>
-        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)" }}>{msg}</div>
+        <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{msg}</div>
       </div>
     </div>
   );

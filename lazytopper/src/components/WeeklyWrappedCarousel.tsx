@@ -34,7 +34,7 @@ function ActivityBarChart({ dailyCounts }: { dailyCounts: DailyCount[] }) {
             style={{
               width: "100%",
               height: `${Math.max(4, (bar.count / max) * 60)}px`,
-              background: bar.count > 0 ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.2)",
+              background: bar.count > 0 ? "var(--text)" : "var(--text-muted)",
               borderRadius: 4,
               transition: "height 0.4s ease",
             }}
@@ -54,9 +54,9 @@ function AccuracyRing({ accuracy }: { accuracy: number }) {
   return (
     <div style={{ position: "relative", width: 90, height: 90 }}>
       <svg width="90" height="90" viewBox="0 0 90 90">
-        <circle cx="45" cy="45" r="36" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="6" />
+        <circle cx="45" cy="45" r="36" fill="none" stroke="var(--text-muted)" strokeWidth="6" />
         <circle
-          cx="45" cy="45" r="36" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="6"
+          cx="45" cy="45" r="36" fill="none" stroke="var(--text)" strokeWidth="6"
           strokeDasharray={circumference} strokeDashoffset={offset}
           strokeLinecap="round" transform="rotate(-90 45 45)"
           style={{ transition: "stroke-dashoffset 0.6s ease" }}
@@ -79,7 +79,7 @@ function TopicBar({ topic, maxTotal }: { topic: TopicPerformance; maxTotal: numb
         <span style={{ textTransform: "capitalize", fontWeight: 600 }}>{name}</span>
         <span style={{ opacity: 0.8 }}>{Math.round(topic.accuracy * 100)}%</span>
       </div>
-      <div style={{ height: 8, background: "rgba(255,255,255,0.15)", borderRadius: 999, overflow: "hidden" }}>
+      <div style={{ height: 8, background: "var(--text-muted)", borderRadius: 999, overflow: "hidden" }}>
         <div style={{ height: "100%", width: `${pct}%`, background: "rgba(255,255,255,0.85)", borderRadius: 999, transition: "width 0.4s ease" }} />
       </div>
     </div>
@@ -137,7 +137,7 @@ export const WeeklyWrappedCarousel: React.FC<WeeklyWrappedCarouselProps> = ({
             </div>
             <div style={{ marginTop: 12, display: "flex", gap: 8 }}>
               {(["Easy", "Medium", "Hard"] as const).map((d) => (
-                <div key={d} style={{ textAlign: "center", flex: 1, padding: "4px 0", background: "rgba(255,255,255,0.12)", borderRadius: 8 }}>
+                <div key={d} style={{ textAlign: "center", flex: 1, padding: "4px 0", background: "var(--bg-card-border)", borderRadius: 8 }}>
                   <div style={{ fontWeight: 800, fontSize: 16 }}>{summary.difficultyCounts[d]}</div>
                   <div style={{ fontSize: 10, opacity: 0.7 }}>{d}</div>
                 </div>
@@ -220,7 +220,7 @@ export const WeeklyWrappedCarousel: React.FC<WeeklyWrappedCarouselProps> = ({
           <div style={{ fontSize: 13, opacity: 0.8, marginTop: 8 }}>
             This is when you're most productive. Own this time slot!
           </div>
-          <div style={{ marginTop: 16, padding: "12px 16px", background: "rgba(255,255,255,0.12)", borderRadius: 12 }}>
+          <div style={{ marginTop: 16, padding: "12px 16px", background: "var(--bg-card-border)", borderRadius: 12 }}>
             <div style={{ fontSize: 13, fontWeight: 700 }}>Consistency Score</div>
             <div style={{ fontSize: 32, fontWeight: 900 }}>{summary.consistencyPercentile}%</div>
             <div style={{ fontSize: 11, opacity: 0.7 }}>
@@ -243,7 +243,7 @@ export const WeeklyWrappedCarousel: React.FC<WeeklyWrappedCarouselProps> = ({
       style={{
         borderRadius: 20,
         overflow: "hidden",
-        color: "#fff",
+        color: "var(--text)",
         position: "relative",
         minHeight: 380,
         display: "flex",
@@ -283,7 +283,7 @@ export const WeeklyWrappedCarousel: React.FC<WeeklyWrappedCarouselProps> = ({
                 width: i === index ? 24 : 8,
                 height: 8,
                 borderRadius: 999,
-                background: i === index ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.3)",
+                background: i === index ? "var(--text)" : "var(--text-muted)",
                 border: "none",
                 cursor: "pointer",
                 transition: "all 0.3s ease",
@@ -309,10 +309,10 @@ export const WeeklyWrappedCarousel: React.FC<WeeklyWrappedCarouselProps> = ({
             disabled={index === 0}
             style={{
               padding: "6px 16px",
-              background: index === 0 ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.2)",
+              background: index === 0 ? "var(--bg-card)" : "var(--text-muted)",
               border: "none",
               borderRadius: 8,
-              color: "#fff",
+              color: "var(--text)",
               fontWeight: 600,
               fontSize: 13,
               cursor: index === 0 ? "default" : "pointer",
@@ -327,10 +327,10 @@ export const WeeklyWrappedCarousel: React.FC<WeeklyWrappedCarouselProps> = ({
             disabled={index === slides.length - 1}
             style={{
               padding: "6px 16px",
-              background: index === slides.length - 1 ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.2)",
+              background: index === slides.length - 1 ? "var(--bg-card)" : "var(--text-muted)",
               border: "none",
               borderRadius: 8,
-              color: "#fff",
+              color: "var(--text)",
               fontWeight: 600,
               fontSize: 13,
               cursor: index === slides.length - 1 ? "default" : "pointer",
@@ -347,10 +347,10 @@ export const WeeklyWrappedCarousel: React.FC<WeeklyWrappedCarouselProps> = ({
               onClick={onShare}
               style={{
                 padding: "6px 16px",
-                background: "rgba(255,255,255,0.2)",
+                background: "var(--text-muted)",
                 border: "none",
                 borderRadius: 8,
-                color: "#fff",
+                color: "var(--text)",
                 fontWeight: 600,
                 fontSize: 13,
                 cursor: "pointer",
@@ -364,10 +364,10 @@ export const WeeklyWrappedCarousel: React.FC<WeeklyWrappedCarouselProps> = ({
             onClick={onClose}
             style={{
               padding: "6px 16px",
-              background: "rgba(255,255,255,0.2)",
+              background: "var(--text-muted)",
               border: "none",
               borderRadius: 8,
-              color: "#fff",
+              color: "var(--text)",
               fontWeight: 600,
               fontSize: 13,
               cursor: "pointer",

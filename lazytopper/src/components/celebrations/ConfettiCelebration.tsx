@@ -71,10 +71,10 @@ export default function ConfettiCelebration({ visible, onDone, badge, shareCard,
             <div style={{ fontSize: 56, marginBottom: 12 }} className="lt-cel-badge-pop">
               {badge.emoji}
             </div>
-            <h2 style={{ fontSize: 22, fontWeight: 800, color: "#fff", margin: "0 0 6px" }}>
+            <h2 style={{ fontSize: 22, fontWeight: 800, color: "var(--text)", margin: "0 0 6px" }}>
               {badge.title}
             </h2>
-            <p style={{ fontSize: 14, color: "rgba(255,255,255,0.6)", margin: "0 0 20px" }}>
+            <p style={{ fontSize: 14, color: "var(--text-muted)", margin: "0 0 20px" }}>
               {badge.subtitle}
             </p>
             {shareCard && (
@@ -82,7 +82,7 @@ export default function ConfettiCelebration({ visible, onDone, badge, shareCard,
                 onClick={shareCard.onShare}
                 style={{
                   background: "#25d366",
-                  color: "#fff",
+                  color: "var(--text)",
                   border: "none",
                   borderRadius: 12,
                   padding: "10px 24px",
@@ -99,9 +99,9 @@ export default function ConfettiCelebration({ visible, onDone, badge, shareCard,
             <button
               onClick={() => { setShow(false); onDone?.(); }}
               style={{
-                background: "rgba(255,255,255,0.1)",
-                color: "#fff",
-                border: "1px solid rgba(255,255,255,0.15)",
+                background: "var(--bg-card)",
+                color: "var(--text)",
+                border: "1px solid var(--text-muted)",
                 borderRadius: 12,
                 padding: "10px 24px",
                 fontWeight: 600,

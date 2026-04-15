@@ -86,14 +86,14 @@ export default function NightBeforePage() {
           <p style={{ fontSize: 15, color: "#22c55e", fontWeight: 600, margin: "0 0 12px", fontStyle: "italic" }}>
             "{randomMessage}"
           </p>
-          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", margin: 0, lineHeight: 1.5 }}>
+          <p style={{ fontSize: 13, color: "var(--text-muted)", margin: 0, lineHeight: 1.5 }}>
             No new learning tonight. Just quick revision, key formulas, and rest.
           </p>
         </div>
 
         <div style={{
           padding: "20px 18px", borderRadius: 16, marginBottom: 20,
-          background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
+          background: "var(--bg-card)", border: "1px solid var(--bg-card-border)",
         }}>
           <h2 style={{ fontSize: 16, fontWeight: 800, color: "var(--text)", margin: "0 0 16px", fontFamily: "'Space Grotesk', sans-serif" }}>
             📐 Key Formulas
@@ -108,8 +108,8 @@ export default function NightBeforePage() {
               </div>
               {section.formulas.map((f, fi) => (
                 <div key={fi} style={{
-                  fontSize: 13, color: "rgba(255,255,255,0.75)", padding: "4px 0",
-                  borderBottom: fi < section.formulas.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none",
+                  fontSize: 13, color: "var(--text)", padding: "4px 0",
+                  borderBottom: fi < section.formulas.length - 1 ? "1px solid var(--bg-card-border)" : "none",
                   fontFamily: "'Inter', sans-serif",
                 }}>
                   {f}
@@ -121,7 +121,7 @@ export default function NightBeforePage() {
 
         <div style={{
           padding: "20px 18px", borderRadius: 16, marginBottom: 20,
-          background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
+          background: "var(--bg-card)", border: "1px solid var(--bg-card-border)",
         }}>
           <h2 style={{ fontSize: 16, fontWeight: 800, color: "var(--text)", margin: "0 0 16px", fontFamily: "'Space Grotesk', sans-serif" }}>
             🎯 Top 20 Most-Predicted Questions
@@ -129,7 +129,7 @@ export default function NightBeforePage() {
           {topQuestions.map((item, idx) => (
             <div key={idx} style={{
               padding: "12px 0",
-              borderBottom: idx < topQuestions.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none",
+              borderBottom: idx < topQuestions.length - 1 ? "1px solid var(--bg-card-border)" : "none",
             }}>
               <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
                 <span style={{
@@ -138,10 +138,10 @@ export default function NightBeforePage() {
                   background: item.subject === "Maths" ? "#3b82f6" : "#22c55e", flexShrink: 0,
                 }}>{idx + 1}</span>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 13, color: "rgba(255,255,255,0.8)", lineHeight: 1.5 }}>
+                  <div style={{ fontSize: 13, color: "var(--text)", lineHeight: 1.5 }}>
                     {item.question.question}
                   </div>
-                  <div style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", marginTop: 4 }}>
+                  <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 4 }}>
                     {item.subject} · {item.question.topic || "General"} · {item.question.likelihood}
                   </div>
                 </div>
@@ -160,10 +160,10 @@ export default function NightBeforePage() {
           {EXAM_TIPS.map((tip, idx) => (
             <div key={idx} style={{
               display: "flex", alignItems: "flex-start", gap: 10, padding: "8px 0",
-              borderBottom: idx < EXAM_TIPS.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none",
+              borderBottom: idx < EXAM_TIPS.length - 1 ? "1px solid var(--bg-card-border)" : "none",
             }}>
               <span style={{ fontSize: 18, flexShrink: 0 }}>{tip.icon}</span>
-              <span style={{ fontSize: 13, color: "rgba(255,255,255,0.7)", lineHeight: 1.5 }}>{tip.text}</span>
+              <span style={{ fontSize: 13, color: "var(--text)", lineHeight: 1.5 }}>{tip.text}</span>
             </div>
           ))}
         </div>

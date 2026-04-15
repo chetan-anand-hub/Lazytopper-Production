@@ -92,7 +92,7 @@ export default function MiniMockPage() {
             <h1 style={{ fontSize: 22, fontWeight: 800, color: "var(--text)", margin: "0 0 8px", fontFamily: "'Space Grotesk', sans-serif" }}>
               15-Minute Mini Mock
             </h1>
-            <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", margin: "0 0 24px", lineHeight: 1.5 }}>
+            <p style={{ fontSize: 14, color: "var(--text-muted)", margin: "0 0 24px", lineHeight: 1.5 }}>
               {TOTAL_QUESTIONS} high-probability questions · 5 Maths + 5 Science<br />
               Timed at 15 minutes · Focus on speed & accuracy
             </p>
@@ -100,7 +100,7 @@ export default function MiniMockPage() {
               onClick={() => setState("active")}
               style={{
                 width: "100%", padding: "16px 0", borderRadius: 14, border: "none",
-                background: "#a855f7", color: "#fff", fontWeight: 800, fontSize: 16,
+                background: "#a855f7", color: "var(--text)", fontWeight: 800, fontSize: 16,
                 fontFamily: "'Space Grotesk', sans-serif", cursor: "pointer",
                 boxShadow: "0 0 24px rgba(168,85,247,0.3)",
               }}
@@ -126,7 +126,7 @@ export default function MiniMockPage() {
             <h2 style={{ fontSize: 20, fontWeight: 800, color: "var(--text)", margin: "0 0 8px", fontFamily: "'Space Grotesk', sans-serif" }}>
               Mini Mock Complete!
             </h2>
-            <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", margin: "0 0 16px" }}>
+            <p style={{ fontSize: 14, color: "var(--text-muted)", margin: "0 0 16px" }}>
               {attemptedCount} of {TOTAL_QUESTIONS} answered · {formatTime(TOTAL_TIME - timeLeft)} used
             </p>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 20 }}>
@@ -137,7 +137,7 @@ export default function MiniMockPage() {
               ].map((s) => (
                 <div key={s.label} style={{ padding: "10px 8px", borderRadius: 10, background: "var(--bg-card)", textAlign: "center" }}>
                   <div style={{ fontSize: 20, fontWeight: 800, color: s.color }}>{s.count}</div>
-                  <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", textTransform: "uppercase" }}>{s.label}</div>
+                  <div style={{ fontSize: 10, color: "var(--text-muted)", textTransform: "uppercase" }}>{s.label}</div>
                 </div>
               ))}
             </div>
@@ -157,10 +157,10 @@ export default function MiniMockPage() {
                     background: item.subject === "Maths" ? "#3b82f6" : "#22c55e", flexShrink: 0,
                   }}>{idx + 1}</span>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 12, color: "rgba(255,255,255,0.7)", lineHeight: 1.5, marginBottom: 4 }}>
+                    <div style={{ fontSize: 12, color: "var(--text)", lineHeight: 1.5, marginBottom: 4 }}>
                       {item.question.question}
                     </div>
-                    <div style={{ fontSize: 10, color: "rgba(255,255,255,0.35)" }}>
+                    <div style={{ fontSize: 10, color: "var(--text-muted)" }}>
                       {item.subject} · {confidence[idx] ? `Marked: ${confidence[idx]}` : "Not attempted"}
                     </div>
                   </div>
@@ -189,7 +189,7 @@ export default function MiniMockPage() {
       <div style={{
         position: "sticky", top: 0, zIndex: 10, padding: "12px 16px",
         background: "rgba(10,10,10,0.95)", backdropFilter: "blur(12px)",
-        borderBottom: "1px solid rgba(255,255,255,0.06)",
+        borderBottom: "1px solid var(--bg-card-border)",
       }}>
         <div style={{ maxWidth: 500, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -198,7 +198,7 @@ export default function MiniMockPage() {
               color: timeLeft <= 60 ? "#ef4444" : timeLeft <= 180 ? "#f97316" : "#a855f7",
               fontFamily: "'Space Grotesk', sans-serif",
             }}>{formatTime(timeLeft)}</span>
-            <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}>
+            <span style={{ fontSize: 11, color: "var(--text-muted)" }}>
               Q {currentIdx + 1}/{TOTAL_QUESTIONS}
             </span>
           </div>
@@ -211,9 +211,9 @@ export default function MiniMockPage() {
                   width: 20, height: 20, borderRadius: 4, cursor: "pointer",
                   display: "flex", alignItems: "center", justifyContent: "center",
                   fontSize: 9, fontWeight: 700,
-                  background: idx === currentIdx ? "#a855f7" : answers[idx] ? "rgba(34,197,94,0.2)" : "rgba(255,255,255,0.06)",
-                  color: idx === currentIdx ? "#fff" : answers[idx] ? "#4ade80" : "rgba(255,255,255,0.4)",
-                  border: idx === currentIdx ? "1px solid #a855f7" : "1px solid rgba(255,255,255,0.08)",
+                  background: idx === currentIdx ? "#a855f7" : answers[idx] ? "rgba(34,197,94,0.2)" : "var(--bg-card)",
+                  color: idx === currentIdx ? "#fff" : answers[idx] ? "#4ade80" : "var(--text-muted)",
+                  border: idx === currentIdx ? "1px solid #a855f7" : "1px solid var(--bg-card-border)",
                 }}
               >{idx + 1}</div>
             ))}
@@ -237,14 +237,14 @@ export default function MiniMockPage() {
                 color: currentQ.subject === "Maths" ? "#60a5fa" : "#4ade80",
                 border: `1px solid ${currentQ.subject === "Maths" ? "rgba(59,130,246,0.3)" : "rgba(34,197,94,0.3)"}`,
               }}>{currentQ.subject}</span>
-              <span style={{ fontSize: 10, color: "rgba(255,255,255,0.35)" }}>{currentQ.question.likelihood}</span>
+              <span style={{ fontSize: 10, color: "var(--text-muted)" }}>{currentQ.question.likelihood}</span>
             </div>
 
             <div style={{
               padding: "20px 18px", borderRadius: 16, marginBottom: 20,
               background: "var(--bg-card)", border: "1px solid var(--bg-card-border)",
             }}>
-              <div style={{ fontSize: 15, color: "rgba(255,255,255,0.85)", lineHeight: 1.7 }}>
+              <div style={{ fontSize: 15, color: "var(--text)", lineHeight: 1.7 }}>
                 {currentQ.question.question}
               </div>
             </div>
@@ -255,7 +255,7 @@ export default function MiniMockPage() {
               placeholder="Write your answer here..."
               style={{
                 width: "100%", minHeight: 120, padding: 14, borderRadius: 12,
-                background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)",
+                background: "var(--bg-card)", border: "1px solid var(--bg-card-border)",
                 color: "var(--text)", fontSize: 13, fontFamily: "'Inter', sans-serif",
                 resize: "vertical", outline: "none",
               }}
@@ -268,9 +268,9 @@ export default function MiniMockPage() {
                 return (
                   <button key={level} onClick={() => setConfidence(prev => ({ ...prev, [currentIdx]: level }))} style={{
                     flex: 1, padding: "10px 0", borderRadius: 10,
-                    background: isActive ? `${colors[level]}20` : "rgba(255,255,255,0.03)",
-                    border: isActive ? `1px solid ${colors[level]}50` : "1px solid rgba(255,255,255,0.06)",
-                    color: isActive ? colors[level] : "rgba(255,255,255,0.4)",
+                    background: isActive ? `${colors[level]}20` : "var(--bg-card)",
+                    border: isActive ? `1px solid ${colors[level]}50` : "1px solid var(--bg-card-border)",
+                    color: isActive ? colors[level] : "var(--text-muted)",
                     fontSize: 11, fontWeight: 700, cursor: "pointer", textTransform: "capitalize",
                   }}>{level}</button>
                 );
@@ -283,8 +283,8 @@ export default function MiniMockPage() {
                 onClick={() => setCurrentIdx(i => i - 1)}
                 style={{
                   flex: 1, padding: "14px 0", borderRadius: 12,
-                  background: "rgba(255,255,255,0.06)", border: "none",
-                  color: currentIdx === 0 ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.6)",
+                  background: "var(--bg-card)", border: "none",
+                  color: currentIdx === 0 ? "var(--text-muted)" : "var(--text-muted)",
                   fontWeight: 700, fontSize: 14, cursor: currentIdx === 0 ? "default" : "pointer",
                 }}>← Prev</button>
               <button

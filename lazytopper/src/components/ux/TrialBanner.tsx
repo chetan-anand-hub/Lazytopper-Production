@@ -37,7 +37,7 @@ export function TrialBanner() {
             }}>
               Trial ended
             </span>
-            <span style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.5)" }}>
+            <span style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>
               — Upgrade to keep your streak, mastery data & practice history
             </span>
           </div>
@@ -46,7 +46,7 @@ export function TrialBanner() {
             onClick={() => setShowUpgrade(true)}
             style={{
               border: "none", borderRadius: 10,
-              padding: "5px 14px", background: "#ef4444", color: "#fff",
+              padding: "5px 14px", background: "#ef4444", color: "var(--text)",
               fontSize: "0.78rem", fontWeight: 800, cursor: "pointer",
               whiteSpace: "nowrap",
             }}
@@ -107,7 +107,7 @@ export function TrialBanner() {
 
           <div style={{
             width: 80, height: 5, borderRadius: 999,
-            background: "rgba(255,255,255,0.06)", overflow: "hidden",
+            background: "var(--bg-card)", overflow: "hidden",
           }}>
             <div style={{
               height: "100%", borderRadius: 999,
@@ -118,7 +118,7 @@ export function TrialBanner() {
           </div>
 
           {subMessage && (
-            <span style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.45)" }}>
+            <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>
               — {subMessage}
             </span>
           )}
@@ -130,7 +130,7 @@ export function TrialBanner() {
             onClick={() => setShowUpgrade(true)}
             style={{
               border: "none", borderRadius: 8,
-              padding: "3px 10px", background: accentColor, color: "#fff",
+              padding: "3px 10px", background: accentColor, color: "var(--text)",
               fontSize: "0.72rem", fontWeight: 800, cursor: "pointer",
               whiteSpace: "nowrap", opacity: 0.9,
             }}
@@ -158,7 +158,7 @@ export function TrialBanner() {
             onClick={() => setDismissed(true)}
             style={{
               position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)",
-              background: "none", border: "none", color: "rgba(255,255,255,0.25)",
+              background: "none", border: "none", color: "var(--text-muted)",
               fontSize: "0.82rem", cursor: "pointer", padding: "2px 4px",
             }}
             title="Dismiss"

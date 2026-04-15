@@ -282,7 +282,7 @@ export default function ChapterTestPage() {
               </p>
 
               <div style={{ marginTop: 16, display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
-                <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "8px 16px", borderRadius: 12, background: "rgba(255,255,255,0.15)" }}>
+                <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "8px 16px", borderRadius: 12, background: "var(--text-muted)" }}>
                   <span style={{ fontSize: 16 }}>{MASTERY_ICONS[currentLevel]}</span>
                   <span style={{ fontWeight: 700, fontSize: "0.85rem" }}>Current: {MASTERY_LABELS[currentLevel]}</span>
                 </div>
@@ -292,8 +292,8 @@ export default function ChapterTestPage() {
                   {([10, 15, 20] as const).map((n) => (
                     <button key={n} onClick={() => setTestSize(n)} style={{
                       padding: "5px 12px", borderRadius: 10, border: "none", cursor: "pointer",
-                      background: testSize === n ? "#fff" : "rgba(255,255,255,0.15)",
-                      color: testSize === n ? "#16a34a" : "rgba(255,255,255,0.8)",
+                      background: testSize === n ? "#fff" : "var(--text-muted)",
+                      color: testSize === n ? "#16a34a" : "var(--text)",
                       fontWeight: 700, fontSize: "0.8rem", transition: "all 0.15s",
                     }}>{n}</button>
                   ))}
@@ -304,8 +304,8 @@ export default function ChapterTestPage() {
                   {([["mixed", "Mixed"], ["mcq", "MCQ Only"], ["subjective", "Subjective"]] as const).map(([val, label]) => (
                     <button key={val} onClick={() => setSectionMode(val)} style={{
                       padding: "5px 12px", borderRadius: 10, border: "none", cursor: "pointer",
-                      background: sectionMode === val ? "#fff" : "rgba(255,255,255,0.15)",
-                      color: sectionMode === val ? "#16a34a" : "rgba(255,255,255,0.8)",
+                      background: sectionMode === val ? "#fff" : "var(--text-muted)",
+                      color: sectionMode === val ? "#16a34a" : "var(--text)",
                       fontWeight: 700, fontSize: "0.75rem", transition: "all 0.15s",
                     }}>{label}</button>
                   ))}
@@ -314,7 +314,7 @@ export default function ChapterTestPage() {
                 <button onClick={() => setTimerEnabled((p) => !p)} style={{
                   display: "inline-flex", alignItems: "center", gap: 6, padding: "5px 14px",
                   borderRadius: 10, border: "none", cursor: "pointer",
-                  background: "rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.85)",
+                  background: "var(--text-muted)", color: "var(--text)",
                   fontSize: "0.78rem", fontWeight: 600,
                 }}>
                   {timerEnabled ? "⏱ Timed" : "📖 Untimed"} — tap to switch
@@ -340,7 +340,7 @@ export default function ChapterTestPage() {
                     Start Chapter Test
                   </button>
                 ) : (
-                  <div style={{ padding: "16px 20px", borderRadius: 14, background: "rgba(255,255,255,0.1)" }}>
+                  <div style={{ padding: "16px 20px", borderRadius: 14, background: "var(--bg-card-border)" }}>
                     <p style={{ fontWeight: 700, fontSize: "0.9rem", marginBottom: 6 }}>
                       Complete all concepts first
                     </p>
@@ -383,16 +383,16 @@ export default function ChapterTestPage() {
                   style={{
                     fontSize: "0.82rem",
                     fontWeight: 600,
-                    color: isTimeLow ? "#ef4444" : "rgba(255,255,255,0.6)",
+                    color: isTimeLow ? "#ef4444" : "var(--text-muted)",
                   }}
                 >
                   {timerEnabled ? `Time: ${formatTime(timeRemaining)}` : `Elapsed: ${formatTime(elapsed)}`}
                 </span>
-                <span style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.4)" }}>
+                <span style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>
                   Q{currentIdx + 1}/{questions.length} &middot; {answeredCount} answered
                 </span>
               </div>
-              <div style={{ height: 6, borderRadius: 999, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
+              <div style={{ height: 6, borderRadius: 999, background: "var(--bg-card-border)", overflow: "hidden" }}>
                 <div
                   style={{
                     height: "100%",
@@ -423,13 +423,13 @@ export default function ChapterTestPage() {
                     width: 32,
                     height: 32,
                     borderRadius: 8,
-                    border: i === currentIdx ? "2px solid #22c55e" : "1px solid rgba(255,255,255,0.06)",
+                    border: i === currentIdx ? "2px solid #22c55e" : "1px solid var(--bg-card-border)",
                     background: answers[i]
                       ? answers[i].correct
                         ? "rgba(34,197,94,0.2)"
                         : "rgba(239,68,68,0.2)"
-                      : "rgba(255,255,255,0.03)",
-                    color: i === currentIdx ? "#22c55e" : "rgba(255,255,255,0.5)",
+                      : "var(--bg-card)",
+                    color: i === currentIdx ? "#22c55e" : "var(--text-muted)",
                     fontWeight: 700,
                     fontSize: "0.75rem",
                     cursor: "pointer",
@@ -463,7 +463,7 @@ export default function ChapterTestPage() {
               <div style={{ fontSize: "2rem", fontWeight: 800, color: computeWeightedAccuracy(quizResult) >= 70 ? "#22c55e" : "#f59e0b" }}>
                 {quizResult.correctAnswers}/{quizResult.totalQuestions}
               </div>
-              <div style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.5)", marginTop: 4 }}>
+              <div style={{ fontSize: "0.85rem", color: "var(--text-muted)", marginTop: 4 }}>
                 {computeWeightedAccuracy(quizResult)}% weighted accuracy &middot; {formatTime(elapsed)}
               </div>
 
@@ -481,7 +481,7 @@ export default function ChapterTestPage() {
               >
                 <span style={{ fontSize: 20 }}>{MASTERY_ICONS[masteryRecord.level]}</span>
                 <div style={{ textAlign: "left" }}>
-                  <div style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.5)" }}>Your Progress</div>
+                  <div style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>Your Progress</div>
                   {masteryRecord.level === "mastered" ? (
                     <MasteredBadge animate={true} />
                   ) : (
@@ -489,7 +489,7 @@ export default function ChapterTestPage() {
                       {MASTERY_LABELS[masteryRecord.level]}
                     </div>
                   )}
-                  <div style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.4)" }}>{MASTERY_POINTS[masteryRecord.level]}pts</div>
+                  <div style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>{MASTERY_POINTS[masteryRecord.level]}pts</div>
                 </div>
               </div>
 
@@ -499,7 +499,7 @@ export default function ChapterTestPage() {
                   style={{
                     padding: "12px 24px",
                     borderRadius: 14,
-                    border: "1px solid rgba(255,255,255,0.1)",
+                    border: "1px solid var(--bg-card-border)",
                     background: "var(--bg-card)",
                     color: "var(--text)",
                     fontWeight: 700,
@@ -540,10 +540,10 @@ export default function ChapterTestPage() {
                       padding: "16px",
                       background: "var(--bg-card)",
                       borderRadius: 14,
-                      border: `1px solid ${ans?.correct ? "rgba(34,197,94,0.2)" : ans ? "rgba(239,68,68,0.2)" : "rgba(255,255,255,0.06)"}`,
+                      border: `1px solid ${ans?.correct ? "rgba(34,197,94,0.2)" : ans ? "rgba(239,68,68,0.2)" : "var(--bg-card-border)"}`,
                     }}
                   >
-                    <div style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.85)", lineHeight: 1.6, marginBottom: 8 }}>
+                    <div style={{ fontSize: "0.85rem", color: "var(--text)", lineHeight: 1.6, marginBottom: 8 }}>
                       <strong style={{ color: ans?.correct ? "#22c55e" : "#ef4444" }}>Q{i + 1}.</strong> {q.questionText}
                     </div>
                     {isMcq &&
@@ -563,7 +563,7 @@ export default function ChapterTestPage() {
                                 : isSelectedOpt
                                   ? "rgba(239,68,68,0.12)"
                                   : "transparent",
-                              color: isCorrectOpt ? "#22c55e" : isSelectedOpt ? "#ef4444" : "rgba(255,255,255,0.6)",
+                              color: isCorrectOpt ? "#22c55e" : isSelectedOpt ? "#ef4444" : "var(--text-muted)",
                             }}
                           >
                             ({String.fromCharCode(97 + oi)}) {opt}
@@ -621,7 +621,7 @@ function TestQuestion({
         border: "1px solid var(--bg-card-border)",
       }}
     >
-      <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.4)", marginBottom: 8 }}>
+      <div style={{ fontSize: "0.72rem", color: "var(--text-muted)", marginBottom: 8 }}>
         Question {idx + 1} &middot; {question.marks || 1} mark{(question.marks || 1) > 1 ? "s" : ""} &middot;{" "}
         {question.difficulty || "Medium"}
       </div>
@@ -635,9 +635,9 @@ function TestQuestion({
           {question.options!.map((opt, oi) => {
             const isSelected = answer?.selected === opt;
             const isCorrect = answered && opt.trim().toLowerCase() === (question.answer || "").trim().toLowerCase();
-            let bg = "rgba(255,255,255,0.03)";
-            let borderColor = "rgba(255,255,255,0.06)";
-            let textColor = "rgba(255,255,255,0.7)";
+            let bg = "var(--bg-card)";
+            let borderColor = "var(--bg-card)";
+            let textColor = "var(--text)";
             if (answered && isCorrect) {
               bg = "rgba(34,197,94,0.12)";
               borderColor = "rgba(34,197,94,0.3)";

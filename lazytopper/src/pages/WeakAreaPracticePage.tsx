@@ -16,7 +16,7 @@ type ViewTab = "weak-areas" | "learning-path" | "reviews";
 function ProgressBar({ value, max, color }: { value: number; max: number; color: string }) {
   const pct = max > 0 ? Math.min(100, (value / max) * 100) : 0;
   return (
-    <div style={{ height: 8, background: "rgba(255,255,255,0.06)", borderRadius: 4, overflow: "hidden", width: "100%" }}>
+    <div style={{ height: 8, background: "var(--bg-card-border)", borderRadius: 4, overflow: "hidden", width: "100%" }}>
       <div
         style={{
           height: "100%",
@@ -37,7 +37,7 @@ function WeakAreaCard({ area, onPractice }: { area: WeakArea; onPractice: (area:
       style={{
         padding: "14px 16px",
         borderRadius: 14,
-        background: "rgba(255,255,255,0.03)",
+        background: "var(--bg-card)",
         border: `2px solid ${urgencyColor}20`,
         marginBottom: 10,
       }}
@@ -45,7 +45,7 @@ function WeakAreaCard({ area, onPractice }: { area: WeakArea; onPractice: (area:
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
         <div>
           <div style={{ fontWeight: 700, fontSize: 15 }}>{area.topicName}</div>
-          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", marginTop: 2 }}>{area.subject}</div>
+          <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>{area.subject}</div>
         </div>
         <div
           style={{
@@ -63,15 +63,15 @@ function WeakAreaCard({ area, onPractice }: { area: WeakArea; onPractice: (area:
 
       <div style={{ display: "flex", gap: 16, marginBottom: 10, fontSize: 12 }}>
         <div>
-          <span style={{ color: "rgba(255,255,255,0.45)" }}>Accuracy: </span>
+          <span style={{ color: "var(--text-muted)" }}>Accuracy: </span>
           <span style={{ fontWeight: 700 }}>{area.accuracy}%</span>
         </div>
         <div>
-          <span style={{ color: "rgba(255,255,255,0.45)" }}>Mastery: </span>
+          <span style={{ color: "var(--text-muted)" }}>Mastery: </span>
           <span style={{ fontWeight: 700 }}>{area.masteryPercent}%</span>
         </div>
         <div>
-          <span style={{ color: "rgba(255,255,255,0.45)" }}>Attempts: </span>
+          <span style={{ color: "var(--text-muted)" }}>Attempts: </span>
           <span style={{ fontWeight: 700 }}>{area.totalAttempts}</span>
         </div>
       </div>
@@ -87,8 +87,8 @@ function WeakAreaCard({ area, onPractice }: { area: WeakArea; onPractice: (area:
                 fontSize: 11,
                 padding: "2px 8px",
                 borderRadius: 10,
-                background: "rgba(255,255,255,0.06)",
-                color: "rgba(255,255,255,0.45)",
+                background: "var(--bg-card)",
+                color: "var(--text-muted)",
               }}
             >
               {c}
@@ -106,7 +106,7 @@ function WeakAreaCard({ area, onPractice }: { area: WeakArea; onPractice: (area:
           borderRadius: 12,
           border: "none",
           background: "#58cc02",
-          color: "#fff",
+          color: "var(--text)",
           fontWeight: 800,
           fontSize: 14,
           cursor: "pointer",
@@ -143,7 +143,7 @@ function LearningPathView({
             <div style={{ fontWeight: 800, fontSize: 18 }}>
               {path.status === "completed" ? "Path Completed!" : `Day ${path.daysCompleted + 1} of ${path.totalDays}`}
             </div>
-            <div style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", marginTop: 4 }}>
+            <div style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 4 }}>
               {path.weakAreasAtStart} weak areas targeted
             </div>
           </div>
@@ -151,7 +151,7 @@ function LearningPathView({
             <div style={{ fontSize: 28, fontWeight: 900, color: "#58cc02" }}>
               {Math.round((path.daysCompleted / path.totalDays) * 100)}%
             </div>
-            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)" }}>complete</div>
+            <div style={{ fontSize: 11, color: "var(--text-muted)" }}>complete</div>
           </div>
         </div>
         <ProgressBar value={path.daysCompleted} max={path.totalDays} color="#58cc02" />
@@ -168,8 +168,8 @@ function LearningPathView({
             style={{
               padding: "12px 14px",
               borderRadius: 12,
-              background: isCompleted ? "rgba(34,197,94,0.08)" : isToday ? "rgba(245,158,11,0.08)" : "rgba(255,255,255,0.03)",
-              border: isToday ? "2px solid #f59e0b" : "1px solid rgba(255,255,255,0.06)",
+              background: isCompleted ? "rgba(34,197,94,0.08)" : isToday ? "rgba(245,158,11,0.08)" : "var(--bg-card)",
+              border: isToday ? "2px solid #f59e0b" : "1px solid var(--bg-card-border)",
               marginBottom: 8,
               opacity: isFuture ? 0.6 : 1,
             }}
@@ -181,7 +181,7 @@ function LearningPathView({
                 </span>
                 <div>
                   <div style={{ fontWeight: 700, fontSize: 14 }}>Day {day.day}</div>
-                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)" }}>{day.date} - {day.estimatedMinutes} min</div>
+                  <div style={{ fontSize: 11, color: "var(--text-muted)" }}>{day.date} - {day.estimatedMinutes} min</div>
                 </div>
               </div>
               {isToday && !isCompleted && (
@@ -198,7 +198,7 @@ function LearningPathView({
                     borderRadius: 20,
                     border: "none",
                     background: "#58cc02",
-                    color: "#fff",
+                    color: "var(--text)",
                     fontWeight: 700,
                     fontSize: 12,
                     cursor: "pointer",
@@ -238,9 +238,9 @@ function LearningPathView({
           width: "100%",
           padding: "10px 0",
           borderRadius: 12,
-          border: "2px solid rgba(255,255,255,0.08)",
-          background: "rgba(255,255,255,0.03)",
-          color: "rgba(255,255,255,0.85)",
+          border: "2px solid var(--bg-card-border)",
+          background: "var(--bg-card)",
+          color: "var(--text)",
           fontWeight: 700,
           fontSize: 13,
           cursor: "pointer",
@@ -264,8 +264,8 @@ function ReviewCard({ card }: { card: SRConceptCard }) {
       style={{
         padding: "10px 14px",
         borderRadius: 12,
-        background: "rgba(255,255,255,0.03)",
-        border: "1px solid rgba(255,255,255,0.06)",
+        background: "var(--bg-card)",
+        border: "1px solid var(--bg-card-border)",
         marginBottom: 8,
         display: "flex",
         justifyContent: "space-between",
@@ -274,7 +274,7 @@ function ReviewCard({ card }: { card: SRConceptCard }) {
     >
       <div>
         <div style={{ fontWeight: 600, fontSize: 14 }}>{card.conceptKey}</div>
-        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.45)" }}>{card.topicKey} - {card.subject}</div>
+        <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{card.topicKey} - {card.subject}</div>
       </div>
       <span
         style={{
@@ -372,7 +372,7 @@ export default function WeakAreaPracticePage() {
       </button>
 
       <h2 style={{ fontWeight: 900, fontSize: 22, marginBottom: 4 }}>Fix My Weak Areas</h2>
-      <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 14, marginBottom: 16 }}>
+      <p style={{ color: "var(--text-muted)", fontSize: 14, marginBottom: 16 }}>
         Targeted practice to close your gaps and boost your score.
       </p>
 
@@ -406,15 +406,15 @@ export default function WeakAreaPracticePage() {
         >
           <div style={{ padding: "12px 8px", borderRadius: 12, background: "rgba(239,68,68,0.08)", textAlign: "center" }}>
             <div style={{ fontSize: 22, fontWeight: 900, color: "#ef4444" }}>{summary.totalWeak}</div>
-            <div style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.45)" }}>Weak Areas</div>
+            <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)" }}>Weak Areas</div>
           </div>
           <div style={{ padding: "12px 8px", borderRadius: 12, background: "rgba(34,197,94,0.08)", textAlign: "center" }}>
             <div style={{ fontSize: 22, fontWeight: 900, color: "#22c55e" }}>{summary.closedThisWeek}</div>
-            <div style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.45)" }}>Closed This Week</div>
+            <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)" }}>Closed This Week</div>
           </div>
           <div style={{ padding: "12px 8px", borderRadius: 12, background: "rgba(59,130,246,0.08)", textAlign: "center" }}>
             <div style={{ fontSize: 22, fontWeight: 900, color: "#3b82f6" }}>{summary.overallMasteryPercent}%</div>
-            <div style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.45)" }}>Overall Mastery</div>
+            <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)" }}>Overall Mastery</div>
           </div>
         </div>
       )}
@@ -428,8 +428,8 @@ export default function WeakAreaPracticePage() {
               padding: "6px 14px",
               borderRadius: 20,
               border: "none",
-              background: subjectFilter === s ? "#1cb0f6" : "rgba(255,255,255,0.06)",
-              color: subjectFilter === s ? "#fff" : "rgba(255,255,255,0.85)",
+              background: subjectFilter === s ? "#1cb0f6" : "var(--bg-card)",
+              color: subjectFilter === s ? "#fff" : "var(--text)",
               fontWeight: 600,
               fontSize: 12,
               cursor: "pointer",
@@ -458,9 +458,9 @@ export default function WeakAreaPracticePage() {
             style={{
               padding: "8px 16px",
               borderRadius: 12,
-              border: tab === t.id ? "2px solid #58cc02" : "2px solid rgba(255,255,255,0.08)",
-              background: tab === t.id ? "rgba(34,197,94,0.08)" : "rgba(255,255,255,0.03)",
-              color: tab === t.id ? "#22c55e" : "rgba(255,255,255,0.5)",
+              border: tab === t.id ? "2px solid #58cc02" : "2px solid var(--bg-card-border)",
+              background: tab === t.id ? "rgba(34,197,94,0.08)" : "var(--bg-card)",
+              color: tab === t.id ? "#22c55e" : "var(--text-muted)",
               fontWeight: 700,
               fontSize: 13,
               cursor: "pointer",
@@ -481,7 +481,7 @@ export default function WeakAreaPracticePage() {
             <div style={{ textAlign: "center", padding: "40px 20px" }}>
               <div style={{ fontSize: 48, marginBottom: 12 }}>&#127881;</div>
               <h3 style={{ fontWeight: 800, fontSize: 18, color: "#22c55e" }}>No Weak Areas!</h3>
-              <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 14, marginTop: 8 }}>
+              <p style={{ color: "var(--text-muted)", fontSize: 14, marginTop: 8 }}>
                 All your topics are looking strong. Keep practicing to maintain your skills.
               </p>
             </div>
@@ -495,7 +495,7 @@ export default function WeakAreaPracticePage() {
                   borderRadius: 14,
                   border: "none",
                   background: "linear-gradient(135deg, #ff9600, #ef4444)",
-                  color: "#fff",
+                  color: "var(--text)",
                   fontWeight: 800,
                   fontSize: 15,
                   cursor: "pointer",
@@ -521,8 +521,8 @@ export default function WeakAreaPracticePage() {
                 padding: "14px 0",
                 borderRadius: 14,
                 border: "none",
-                background: isGenerating ? "rgba(255,255,255,0.1)" : "linear-gradient(135deg, #1cb0f6, #58cc02)",
-                color: "#fff",
+                background: isGenerating ? "var(--bg-card)" : "linear-gradient(135deg, #1cb0f6, #58cc02)",
+                color: "var(--text)",
                 fontWeight: 800,
                 fontSize: 15,
                 cursor: isGenerating ? "wait" : "pointer",
@@ -550,7 +550,7 @@ export default function WeakAreaPracticePage() {
             <div style={{ textAlign: "center", padding: "40px 20px" }}>
               <div style={{ fontSize: 48, marginBottom: 12 }}>&#128218;</div>
               <h3 style={{ fontWeight: 800, fontSize: 18 }}>No Reviews Yet</h3>
-              <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 14, marginTop: 8 }}>
+              <p style={{ color: "var(--text-muted)", fontSize: 14, marginTop: 8 }}>
                 Practice some topics and concepts will be added to your review schedule automatically.
               </p>
             </div>
@@ -563,16 +563,16 @@ export default function WeakAreaPracticePage() {
                   { label: "Review", value: srStats.review, color: "#8b5cf6" },
                   { label: "Mastered", value: srStats.mastered, color: "#22c55e" },
                 ].map((s) => (
-                  <div key={s.label} style={{ padding: "10px 4px", borderRadius: 10, background: "rgba(255,255,255,0.03)", textAlign: "center" }}>
+                  <div key={s.label} style={{ padding: "10px 4px", borderRadius: 10, background: "var(--bg-card-border)", textAlign: "center" }}>
                     <div style={{ fontSize: 18, fontWeight: 900, color: s.color }}>{s.value}</div>
-                    <div style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,0.45)" }}>{s.label}</div>
+                    <div style={{ fontSize: 10, fontWeight: 600, color: "var(--text-muted)" }}>{s.label}</div>
                   </div>
                 ))}
               </div>
               {dueReviews.length > 0 ? (
                 dueReviews.map((card) => <ReviewCard key={`${card.topicKey}::${card.conceptKey}`} card={card} />)
               ) : (
-                <p style={{ textAlign: "center", color: "rgba(255,255,255,0.45)", fontSize: 14, padding: 20 }}>
+                <p style={{ textAlign: "center", color: "var(--text-muted)", fontSize: 14, padding: 20 }}>
                   No reviews due today. Check back tomorrow!
                 </p>
               )}

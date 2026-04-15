@@ -60,12 +60,12 @@ function getTopicMasteryPercent(topicKey: string): number {
 
 function HeatmapCell({ value, label }: { value: number; label: string }) {
   const bg =
-    value === 0 ? "rgba(255,255,255,0.06)" :
+    value === 0 ? "var(--bg-card)" :
     value < 25 ? "rgba(239,68,68,0.15)" :
     value < 50 ? "rgba(245,158,11,0.15)" :
     value < 75 ? "rgba(34,197,94,0.15)" :
     "rgba(34,197,94,0.25)";
-  const textColor = value === 0 ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.85)";
+  const textColor = value === 0 ? "var(--text-muted)" : "var(--text)";
 
   return (
     <div
@@ -89,7 +89,7 @@ function HeatmapCell({ value, label }: { value: number; label: string }) {
 const CBSE_BENCHMARK_PERCENT = 65;
 
 function MockScoreChart({ scores }: { scores: MockScoreEntry[] }) {
-  if (scores.length === 0) return <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 13 }}>No mock tests taken yet.</p>;
+  if (scores.length === 0) return <p style={{ color: "var(--text-muted)", fontSize: 13 }}>No mock tests taken yet.</p>;
   const sorted = [...scores].sort((a, b) => a.timestamp - b.timestamp).slice(-8);
   const barW = Math.min(36, Math.floor(280 / sorted.length));
   const chartH = 100;
@@ -105,13 +105,13 @@ function MockScoreChart({ scores }: { scores: MockScoreEntry[] }) {
         return (
           <g key={d.id}>
             <rect x={x} y={chartH - h} width={barW} height={h} rx={3} fill={color} opacity={0.8} />
-            <text x={x + barW / 2} y={chartH - h - 3} textAnchor="middle" fontSize={9} fontWeight={700} fill="rgba(255,255,255,0.85)">
+            <text x={x + barW / 2} y={chartH - h - 3} textAnchor="middle" fontSize={9} fontWeight={700} fill="var(--text)">
               {d.percent}%
             </text>
-            <text x={x + barW / 2} y={chartH + 12} textAnchor="middle" fontSize={7} fill="rgba(255,255,255,0.45)">
+            <text x={x + barW / 2} y={chartH + 12} textAnchor="middle" fontSize={7} fill="var(--text-muted)">
               {dateLabel}
             </text>
-            <text x={x + barW / 2} y={chartH + 22} textAnchor="middle" fontSize={7} fill="rgba(255,255,255,0.35)">
+            <text x={x + barW / 2} y={chartH + 22} textAnchor="middle" fontSize={7} fill="var(--text-muted)">
               {d.subject.slice(0, 4)}
             </text>
           </g>
@@ -138,16 +138,16 @@ function DailyStudyChart() {
       <h3 style={{ fontWeight: 800, fontSize: 16, marginBottom: 10 }}>Daily Study Time (7 Days)</h3>
       <div style={{
         display: "flex", alignItems: "flex-end", gap: 6, height: 110, padding: 14, borderRadius: 14,
-        background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)",
+        background: "var(--bg-card)", border: "1px solid var(--bg-card-border)",
       }}>
         {last7.map((d) => {
           const h = maxMin > 0 ? Math.max(4, (d.minutes / maxMin) * 90) : 4;
-          const color = d.minutes >= 60 ? "#22c55e" : d.minutes >= 30 ? "#3b82f6" : d.minutes > 0 ? "#f97316" : "rgba(255,255,255,0.06)";
+          const color = d.minutes >= 60 ? "#22c55e" : d.minutes >= 30 ? "#3b82f6" : d.minutes > 0 ? "#f97316" : "var(--bg-card)";
           return (
             <div key={d.day} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
-              <span style={{ fontSize: 8, color: "rgba(255,255,255,0.5)", fontWeight: 700 }}>{d.minutes > 0 ? `${d.minutes}m` : ""}</span>
+              <span style={{ fontSize: 8, color: "var(--text-muted)", fontWeight: 700 }}>{d.minutes > 0 ? `${d.minutes}m` : ""}</span>
               <div style={{ width: "100%", height: h, borderRadius: 4, background: color }} />
-              <span style={{ fontSize: 8, color: "rgba(255,255,255,0.35)" }}>{d.day}</span>
+              <span style={{ fontSize: 8, color: "var(--text-muted)" }}>{d.day}</span>
             </div>
           );
         })}
@@ -182,7 +182,7 @@ function ParentRecommendations({ weakAreas }: { weakAreas: { topicName: string; 
           padding: "10px 14px", marginBottom: 6, borderRadius: 10,
           background: "rgba(34,197,94,0.06)", border: "1px solid rgba(34,197,94,0.15)",
         }}>
-          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.7)", lineHeight: 1.5, margin: 0 }}>{r}</p>
+          <p style={{ fontSize: 13, color: "var(--text)", lineHeight: 1.5, margin: 0 }}>{r}</p>
         </div>
       ))}
     </div>
@@ -222,7 +222,7 @@ function FocusScoreTrend() {
       <h3 style={{ fontWeight: 800, fontSize: 16, marginBottom: 10 }}>Focus Score Trend (7 Days)</h3>
       <div style={{
         padding: "12px 10px", borderRadius: 14,
-        background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)",
+        background: "var(--bg-card)", border: "1px solid var(--bg-card-border)",
         overflowX: "auto",
       }}>
         <svg width={chartW} height={chartH + 18} style={{ display: "block" }}>
@@ -233,9 +233,9 @@ function FocusScoreTrend() {
             <g key={i}>
               <circle cx={p.x} cy={p.y} r={3.5} fill={last7[i].focusPct >= 70 ? "#22c55e" : last7[i].focusPct >= 50 ? "#3b82f6" : "#f97316"} stroke="#0a0a0a" strokeWidth={1.5} />
               {last7[i].focusPct > 0 && (
-                <text x={p.x} y={p.y - 7} textAnchor="middle" fontSize={8} fontWeight={700} fill="rgba(255,255,255,0.7)">{last7[i].focusPct}%</text>
+                <text x={p.x} y={p.y - 7} textAnchor="middle" fontSize={8} fontWeight={700} fill="var(--text)">{last7[i].focusPct}%</text>
               )}
-              <text x={p.x} y={chartH + 12} textAnchor="middle" fontSize={7} fill="rgba(255,255,255,0.35)">{last7[i].day}</text>
+              <text x={p.x} y={chartH + 12} textAnchor="middle" fontSize={7} fill="var(--text-muted)">{last7[i].day}</text>
             </g>
           ))}
         </svg>
@@ -279,7 +279,7 @@ function StudyHoursComparison() {
       <h3 style={{ fontWeight: 800, fontSize: 16, marginBottom: 10 }}>Recommended vs Actual Study Hours</h3>
       <div style={{
         padding: "14px 10px", borderRadius: 14,
-        background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)",
+        background: "var(--bg-card)", border: "1px solid var(--bg-card-border)",
       }}>
         <div style={{ display: "flex", alignItems: "flex-end", gap: 4, height: barH + 20 }}>
           {last7.map((d) => {
@@ -287,20 +287,20 @@ function StudyHoursComparison() {
             const recH = maxH > 0 ? (d.recommended / maxH) * barH : 0;
             return (
               <div key={d.day} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 2, position: "relative" }}>
-                <span style={{ fontSize: 7, color: "rgba(255,255,255,0.5)", fontWeight: 700 }}>
+                <span style={{ fontSize: 7, color: "var(--text-muted)", fontWeight: 700 }}>
                   {d.actual > 0 ? `${d.actual}h` : ""}
                 </span>
                 <div style={{ position: "relative", width: "100%" }}>
                   <div style={{
                     width: "100%", height: actualH, borderRadius: 3,
-                    background: d.actual >= d.recommended ? "#22c55e" : d.actual > 0 ? "#f97316" : "rgba(255,255,255,0.04)",
+                    background: d.actual >= d.recommended ? "#22c55e" : d.actual > 0 ? "#f97316" : "var(--bg-card)",
                   }} />
                   <div style={{
                     position: "absolute", bottom: recH, left: 0, right: 0, height: 2,
                     background: "rgba(59,130,246,0.6)", borderRadius: 1,
                   }} />
                 </div>
-                <span style={{ fontSize: 7, color: "rgba(255,255,255,0.35)" }}>{d.day}</span>
+                <span style={{ fontSize: 7, color: "var(--text-muted)" }}>{d.day}</span>
               </div>
             );
           })}
@@ -308,11 +308,11 @@ function StudyHoursComparison() {
         <div style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 10 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
             <div style={{ width: 8, height: 8, borderRadius: 2, background: "#22c55e" }} />
-            <span style={{ fontSize: 9, color: "rgba(255,255,255,0.5)" }}>Actual</span>
+            <span style={{ fontSize: 9, color: "var(--text-muted)" }}>Actual</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
             <div style={{ width: 8, height: 2, background: "rgba(59,130,246,0.6)" }} />
-            <span style={{ fontSize: 9, color: "rgba(255,255,255,0.5)" }}>Recommended ({recommendedDailyHours}h/day · {paceLabel})</span>
+            <span style={{ fontSize: 9, color: "var(--text-muted)" }}>Recommended ({recommendedDailyHours}h/day · {paceLabel})</span>
           </div>
         </div>
         <div style={{
@@ -347,11 +347,11 @@ function WeeklyFocusCard() {
       <h3 style={{ fontWeight: 800, fontSize: 16, marginBottom: 10 }}>Focus This Week</h3>
       <div style={{
         display: "flex", alignItems: "center", gap: 16, padding: 16, borderRadius: 14,
-        background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)",
+        background: "var(--bg-card)", border: "1px solid var(--bg-card-border)",
       }}>
         <div style={{ position: "relative", flexShrink: 0 }}>
           <svg width={52} height={52} style={{ transform: "rotate(-90deg)" }}>
-            <circle cx={26} cy={26} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={4} />
+            <circle cx={26} cy={26} r={r} fill="none" stroke="var(--bg-card)" strokeWidth={4} />
             <circle cx={26} cy={26} r={r} fill="none" stroke={ringColor} strokeWidth={4}
               strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round" />
           </svg>
@@ -362,7 +362,7 @@ function WeeklyFocusCard() {
         </div>
         <div>
           <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 2 }}>{focusedHrs} hrs active / {totalHrs} hrs total</div>
-          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)" }}>
+          <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
             {pct >= 75 ? "Strong focus this week!" : pct >= 50 ? "Good effort — room to improve" : "Encourage fewer distractions during study"}
           </div>
         </div>
@@ -372,7 +372,7 @@ function WeeklyFocusCard() {
 }
 
 function WeeklyChart({ data }: { data: { week: string; accuracy: number; count: number }[] }) {
-  if (data.length === 0) return <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 13 }}>No data available yet.</p>;
+  if (data.length === 0) return <p style={{ color: "var(--text-muted)", fontSize: 13 }}>No data available yet.</p>;
   const maxAcc = 100;
   const barW = Math.min(36, Math.floor(280 / data.length));
   const chartH = 100;
@@ -385,10 +385,10 @@ function WeeklyChart({ data }: { data: { week: string; accuracy: number; count: 
         return (
           <g key={d.week}>
             <rect x={x} y={chartH - h} width={barW} height={h} rx={3} fill={color} opacity={0.8} />
-            <text x={x + barW / 2} y={chartH - h - 3} textAnchor="middle" fontSize={9} fontWeight={700} fill="rgba(255,255,255,0.85)">
+            <text x={x + barW / 2} y={chartH - h - 3} textAnchor="middle" fontSize={9} fontWeight={700} fill="var(--text)">
               {d.accuracy}%
             </text>
-            <text x={x + barW / 2} y={chartH + 12} textAnchor="middle" fontSize={8} fill="rgba(255,255,255,0.45)">
+            <text x={x + barW / 2} y={chartH + 12} textAnchor="middle" fontSize={8} fill="var(--text-muted)">
               {d.week}
             </text>
           </g>
@@ -594,7 +594,7 @@ export default function ParentDashboardPage() {
   if (!shareVerified) {
     return (
       <div className="lt-page" style={{ paddingTop: 40, textAlign: "center" }}>
-        <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 16 }}>Verifying share link...</p>
+        <p style={{ color: "var(--text-muted)", fontSize: 16 }}>Verifying share link...</p>
       </div>
     );
   }
@@ -603,7 +603,7 @@ export default function ParentDashboardPage() {
     return (
       <div className="lt-page" style={{ paddingTop: 40, textAlign: "center" }}>
         <h2 style={{ color: "#e74c3c", fontWeight: 800 }}>Invalid or Expired Link</h2>
-        <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 14 }}>This share link is invalid or has expired. Please ask the student to generate a new one.</p>
+        <p style={{ color: "var(--text-muted)", fontSize: 14 }}>This share link is invalid or has expired. Please ask the student to generate a new one.</p>
       </div>
     );
   }
@@ -620,7 +620,7 @@ export default function ParentDashboardPage() {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
         <div>
           <h2 style={{ fontWeight: 900, fontSize: 22, margin: 0 }}>Progress Report</h2>
-          <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 13, margin: "4px 0 0" }}>
+          <p style={{ color: "var(--text-muted)", fontSize: 13, margin: "4px 0 0" }}>
             {displayName} - Class 10
           </p>
         </div>
@@ -631,12 +631,12 @@ export default function ParentDashboardPage() {
               style={{
                 padding: "8px 14px",
                 borderRadius: 10,
-                border: "2px solid rgba(255,255,255,0.08)",
-                background: "rgba(255,255,255,0.03)",
+                border: "2px solid var(--bg-card-border)",
+                background: "var(--bg-card)",
                 fontWeight: 700,
                 fontSize: 12,
                 cursor: "pointer",
-                color: "rgba(255,255,255,0.85)",
+                color: "var(--text)",
               }}
             >
               {shareLink || "Share Link"}
@@ -661,10 +661,10 @@ export default function ParentDashboardPage() {
       </div>
 
       {overallStats.totalQuestions === 0 && !isSharedView && (
-        <div style={{ textAlign: "center", padding: "28px 16px", marginBottom: 20, background: "rgba(255,255,255,0.03)", borderRadius: 14, border: "1px solid rgba(255,255,255,0.06)" }}>
+        <div style={{ textAlign: "center", padding: "28px 16px", marginBottom: 20, background: "var(--bg-card-border)", borderRadius: 14, border: "1px solid var(--bg-card-border)" }}>
           <div style={{ fontSize: "2rem", marginBottom: 8 }}>📈</div>
           <h3 style={{ fontWeight: 800, fontSize: "1rem", margin: "0 0 4px" }}>No activity yet</h3>
-          <p style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.45)", margin: 0, lineHeight: 1.5 }}>
+          <p style={{ fontSize: "0.85rem", color: "var(--text-muted)", margin: 0, lineHeight: 1.5 }}>
             Once your child starts practicing, their accuracy trends, mock test scores, and chapter mastery will appear here.
           </p>
         </div>
@@ -673,17 +673,17 @@ export default function ParentDashboardPage() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, marginBottom: 20 }}>
         <div style={{ padding: 14, borderRadius: 14, background: "rgba(59,130,246,0.08)", textAlign: "center" }}>
           <div style={{ fontSize: 26, fontWeight: 900, color: "#3b82f6" }}>{overallStats.totalQuestions}</div>
-          <div style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.45)" }}>Questions Solved</div>
+          <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)" }}>Questions Solved</div>
         </div>
         <div style={{ padding: 14, borderRadius: 14, background: overallStats.accuracy >= 70 ? "rgba(34,197,94,0.08)" : "rgba(239,68,68,0.08)", textAlign: "center" }}>
           <div style={{ fontSize: 26, fontWeight: 900, color: overallStats.accuracy >= 70 ? "#22c55e" : "#ef4444" }}>
             {overallStats.accuracy}%
           </div>
-          <div style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.45)" }}>Accuracy</div>
+          <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)" }}>Accuracy</div>
         </div>
         <div style={{ padding: 14, borderRadius: 14, background: "rgba(245,158,11,0.08)", textAlign: "center" }}>
           <div style={{ fontSize: 26, fontWeight: 900, color: "#f59e0b" }}>{weakSummary.overallMasteryPercent}%</div>
-          <div style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.45)" }}>Overall Mastery</div>
+          <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)" }}>Overall Mastery</div>
         </div>
       </div>
 
@@ -736,8 +736,8 @@ export default function ParentDashboardPage() {
                 onClick={() => setSubjectTab(s)}
                 style={{
                   padding: "4px 12px", borderRadius: 16, border: "none",
-                  background: subjectTab === s ? "#1cb0f6" : "rgba(255,255,255,0.06)",
-                  color: subjectTab === s ? "#fff" : "rgba(255,255,255,0.85)",
+                  background: subjectTab === s ? "#1cb0f6" : "var(--bg-card)",
+                  color: subjectTab === s ? "#fff" : "var(--text)",
                   fontWeight: 600, fontSize: 11, cursor: "pointer",
                 }}
               >
@@ -772,7 +772,7 @@ export default function ParentDashboardPage() {
             >
               <div>
                 <div style={{ fontWeight: 700, fontSize: 14 }}>{w.topicName}</div>
-                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)" }}>
+                <div style={{ fontSize: 11, color: "var(--text-muted)" }}>
                   {w.subject} - Accuracy: {w.accuracy}% - Mastery: {w.masteryPercent}%
                 </div>
               </div>
@@ -801,16 +801,16 @@ export default function ParentDashboardPage() {
       <div style={{ marginBottom: 20 }}>
         <h3 style={{ fontWeight: 800, fontSize: 16, marginBottom: 10 }}>Study Summary</h3>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-          <div style={{ padding: 12, borderRadius: 12, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-            <div style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.45)" }}>Total Study Time</div>
+          <div style={{ padding: 12, borderRadius: 12, background: "var(--bg-card-border)", border: "1px solid var(--bg-card-border)" }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-muted)" }}>Total Study Time</div>
             <div style={{ fontSize: 18, fontWeight: 800, marginTop: 4 }}>
               {overallStats.studyTimeMinutes >= 60
                 ? `${Math.floor(overallStats.studyTimeMinutes / 60)}h ${overallStats.studyTimeMinutes % 60}m`
                 : `${overallStats.studyTimeMinutes}m`}
             </div>
           </div>
-          <div style={{ padding: 12, borderRadius: 12, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-            <div style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.45)" }}>Weak Areas Remaining</div>
+          <div style={{ padding: 12, borderRadius: 12, background: "var(--bg-card-border)", border: "1px solid var(--bg-card-border)" }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-muted)" }}>Weak Areas Remaining</div>
             <div style={{ fontSize: 18, fontWeight: 800, marginTop: 4, color: "#ef4444" }}>
               {weakSummary.totalWeak}
             </div>
@@ -818,7 +818,7 @@ export default function ParentDashboardPage() {
         </div>
       </div>
 
-      <p style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", textAlign: "center", marginTop: 24 }}>
+      <p style={{ fontSize: 11, color: "var(--text-muted)", textAlign: "center", marginTop: 24 }}>
         Generated by LazyTopper - CBSE Class 10 Board Prep
       </p>
     </div>

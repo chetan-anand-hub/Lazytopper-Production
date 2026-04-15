@@ -121,7 +121,7 @@ export default function WeeklyWrappedPage() {
             alignItems: "center",
             gap: 8,
             padding: "6px 14px",
-            background: streakDays > 0 ? "linear-gradient(135deg, rgba(245,158,11,0.08), rgba(245,158,11,0.12))" : "rgba(255,255,255,0.03)",
+            background: streakDays > 0 ? "linear-gradient(135deg, rgba(245,158,11,0.08), rgba(245,158,11,0.12))" : "var(--bg-card)",
             borderRadius: 999,
             fontWeight: 800,
             fontSize: 14,
@@ -143,9 +143,9 @@ export default function WeeklyWrappedPage() {
             marginTop: 24,
             padding: 32,
             textAlign: "center",
-            background: "linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.03))",
+            background: "linear-gradient(135deg, var(--bg-card), var(--bg-card))",
             borderRadius: 20,
-            border: "1px solid rgba(255,255,255,0.06)",
+            border: "1px solid var(--bg-card-border)",
           }}
         >
           <div style={{ fontSize: 48, marginBottom: 12 }}>📚</div>
@@ -160,7 +160,7 @@ export default function WeeklyWrappedPage() {
               marginTop: 16,
               padding: "10px 24px",
               background: "#1cb0f6",
-              color: "#fff",
+              color: "var(--text)",
               border: "none",
               borderRadius: 10,
               fontWeight: 700,
@@ -178,7 +178,7 @@ export default function WeeklyWrappedPage() {
             padding: 28,
             background: "linear-gradient(135deg, #58cc02, #46a302)",
             borderRadius: 20,
-            color: "#fff",
+            color: "var(--text)",
             textAlign: "center",
           }}
         >
@@ -191,7 +191,7 @@ export default function WeeklyWrappedPage() {
             style={{
               marginTop: 16,
               padding: "12px 20px",
-              background: "rgba(255,255,255,0.15)",
+              background: "var(--text-muted)",
               borderRadius: 12,
               display: "inline-flex",
               gap: 16,
@@ -208,9 +208,9 @@ export default function WeeklyWrappedPage() {
               onClick={() => setShowEarly(true)}
               style={{
                 padding: "10px 24px",
-                background: "rgba(255,255,255,0.2)",
-                color: "#fff",
-                border: "1px solid rgba(255,255,255,0.3)",
+                background: "var(--text-muted)",
+                color: "var(--text)",
+                border: "1px solid var(--text-muted)",
                 borderRadius: 10,
                 fontWeight: 700,
                 fontSize: 14,
@@ -241,8 +241,8 @@ export default function WeeklyWrappedPage() {
                 key={stat.label}
                 style={{
                   padding: "14px 12px",
-                  background: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.06)",
+                  background: "var(--bg-card)",
+                  border: "1px solid var(--bg-card-border)",
                   borderRadius: 14,
                   textAlign: "center",
                 }}
@@ -288,7 +288,7 @@ export default function WeeklyWrappedPage() {
                     marginTop: 10,
                     padding: "6px 16px",
                     background: "#b86800",
-                    color: "#fff",
+                    color: "var(--text)",
                     border: "none",
                     borderRadius: 8,
                     fontWeight: 700,
@@ -331,7 +331,7 @@ export default function WeeklyWrappedPage() {
               style={{
                 padding: "10px 24px",
                 background: shareStatus === "copied" ? "#58cc02" : "#1cb0f6",
-                color: "#fff",
+                color: "var(--text)",
                 border: "none",
                 borderRadius: 10,
                 fontWeight: 700,
@@ -356,11 +356,11 @@ export default function WeeklyWrappedPage() {
           style={{
             padding: "8px 20px",
             background: "transparent",
-            border: "1px solid rgba(255,255,255,0.06)",
+            border: "1px solid var(--bg-card-border)",
             borderRadius: 10,
             fontWeight: 600,
             fontSize: 13,
-            color: "rgba(255,255,255,0.4)",
+            color: "var(--text-muted)",
             cursor: "pointer",
           }}
         >

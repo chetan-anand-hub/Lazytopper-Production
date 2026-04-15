@@ -379,7 +379,7 @@ export default function DailyMissionPage() {
           background: "rgba(0,0,0,0.6)", zIndex: 9998, animation: "fadeIn 0.3s ease",
         }}>
           <div className="lt-cel-milestone-card" style={{
-            background: "var(--bg)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 20,
+            background: "var(--bg)", border: "1px solid var(--bg-card-border)", borderRadius: 20,
             padding: "40px 32px", textAlign: "center", maxWidth: 400, boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
           }}>
             <div className="lt-cel-day-complete" style={{ fontSize: 64, marginBottom: 12 }}>🏆</div>
@@ -450,9 +450,9 @@ export default function DailyMissionPage() {
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           {!completed && completedSegments.length === 0 && (
             <button type="button" onClick={() => setExtendedMode((p) => !p)} style={{
-              padding: "5px 10px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.1)",
-              background: extendedMode ? "rgba(168,85,247,0.15)" : "rgba(255,255,255,0.04)",
-              color: extendedMode ? "#a855f7" : "rgba(255,255,255,0.6)",
+              padding: "5px 10px", borderRadius: 999, border: "1px solid var(--bg-card-border)",
+              background: extendedMode ? "rgba(168,85,247,0.15)" : "var(--bg-card)",
+              color: extendedMode ? "#a855f7" : "var(--text-muted)",
               fontSize: 11, fontWeight: 700, cursor: "pointer",
             }}>
               {extendedMode ? "60 min ✓" : "Extend to 60 min"}
@@ -460,7 +460,7 @@ export default function DailyMissionPage() {
           )}
           <div style={{
             display: "flex", alignItems: "center", gap: 6, padding: "5px 12px",
-            background: "rgba(255,255,255,0.04)", borderRadius: 999, fontSize: 13, fontWeight: 700,
+            background: "var(--bg-card)", borderRadius: 999, fontSize: 13, fontWeight: 700,
           }}>
             <span>⏱</span>
             <span>{formatTime(elapsedSeconds)}</span>
@@ -482,8 +482,8 @@ export default function DailyMissionPage() {
               }
             }} style={{
               flex: 1, minWidth: 0, padding: "8px 4px", borderRadius: 10,
-              border: isCurrent ? `2px solid ${seg.color}` : "1px solid rgba(255,255,255,0.06)",
-              background: isDone ? `${seg.color}15` : isCurrent ? `${seg.color}10` : "rgba(255,255,255,0.02)",
+              border: isCurrent ? `2px solid ${seg.color}` : "1px solid var(--bg-card-border)",
+              background: isDone ? `${seg.color}15` : isCurrent ? `${seg.color}10` : "var(--bg-card)",
               cursor: isDone || isCurrent ? "pointer" : "default",
               opacity: !isDone && !isCurrent ? 0.4 : 1,
               transition: "all 0.3s ease",
@@ -503,7 +503,7 @@ export default function DailyMissionPage() {
           <span>{currentSegment?.label} — {segmentAnswered}/{currentSegment?.items.length ?? 0}</span>
           <span>{Math.min(Math.round(elapsedSeconds / 60), mission.totalMinutes)} of {mission.totalMinutes} min</span>
         </div>
-        <div style={{ height: 6, background: "rgba(255,255,255,0.06)", borderRadius: 999, overflow: "hidden" }}>
+        <div style={{ height: 6, background: "var(--bg-card-border)", borderRadius: 999, overflow: "hidden" }}>
           <div style={{
             height: "100%", width: `${overallProgress}%`,
             background: completed ? "#22c55e" : (currentSegment?.color || "#3b82f6"),
@@ -522,12 +522,12 @@ export default function DailyMissionPage() {
           return (
             <button key={i} type="button" onClick={() => setItemIndex(i)} style={{
               width: 32, height: 32, borderRadius: 8,
-              border: isCurr ? `2px solid ${currentSegment.color}` : "1px solid rgba(255,255,255,0.06)",
+              border: isCurr ? `2px solid ${currentSegment.color}` : "1px solid var(--bg-card-border)",
               background: ans?.submitted
                 ? ans.correct === false ? "rgba(239,68,68,0.08)" : "rgba(34,197,94,0.08)"
-                : isCurr ? `${currentSegment.color}18` : "rgba(255,255,255,0.03)",
+                : isCurr ? `${currentSegment.color}18` : "var(--bg-card)",
               fontWeight: 700, fontSize: 13, cursor: "pointer",
-              color: isCurr ? currentSegment.color : "rgba(255,255,255,0.4)",
+              color: isCurr ? currentSegment.color : "var(--text-muted)",
             }}>
               {ans?.submitted ? (ans.correct === false ? "✗" : "✓") : i + 1}
             </button>
@@ -537,7 +537,7 @@ export default function DailyMissionPage() {
 
       {currentItem && (
         <div style={{
-          marginTop: 16, border: `1px solid ${currentSegment?.color || "rgba(255,255,255,0.06)"}25`,
+          marginTop: 16, border: `1px solid ${currentSegment?.color || "var(--bg-card-border)"}25`,
           borderRadius: 16, padding: 20, background: "var(--bg-card)", boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
         }}>
           <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", marginBottom: 12 }}>
@@ -551,7 +551,7 @@ export default function DailyMissionPage() {
             {isQuestionItem && itemDifficulty && (
               <span style={{
                 fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 999,
-                border: "1px solid rgba(255,255,255,0.08)",
+                border: "1px solid var(--bg-card-border)",
                 color: itemDifficulty === "Easy" ? "#22c55e" : itemDifficulty === "Hard" ? "#ef4444" : "#f59e0b",
               }}>
                 {itemDifficulty}
@@ -579,7 +579,7 @@ export default function DailyMissionPage() {
                 placeholder="Type your answer here..."
                 rows={4}
                 style={{
-                  width: "100%", padding: 12, border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10,
+                  width: "100%", padding: 12, border: "1px solid var(--bg-card-border)", borderRadius: 10,
                   fontSize: 14, resize: "vertical", fontFamily: "inherit", boxSizing: "border-box",
                   background: "var(--bg-card)", color: "var(--text)",
                 }}
@@ -592,14 +592,14 @@ export default function DailyMissionPage() {
                   disabled={!currentAnswer.studentAnswer.trim()}
                   style={{
                     padding: "10px 24px",
-                    background: currentAnswer.studentAnswer.trim() ? (currentSegment?.color || "#3b82f6") : "rgba(255,255,255,0.1)",
+                    background: currentAnswer.studentAnswer.trim() ? (currentSegment?.color || "#3b82f6") : "var(--bg-card)",
                     color: "var(--text)", border: "none", borderRadius: 10, fontWeight: 700, fontSize: 14,
                     cursor: currentAnswer.studentAnswer.trim() ? "pointer" : "default",
                   }}>
                   Submit (Ctrl+Enter)
                 </button>
                 <button type="button" onClick={handleSkip} style={{
-                  padding: "10px 20px", background: "rgba(255,255,255,0.06)",
+                  padding: "10px 20px", background: "var(--bg-card)",
                   color: "var(--text-muted)", border: "1px solid var(--bg-card-border)",
                   borderRadius: 10, fontWeight: 600, fontSize: 14, cursor: "pointer",
                 }}>
@@ -624,9 +624,9 @@ export default function DailyMissionPage() {
             <div style={{
               marginTop: 16, padding: 14, borderRadius: 12,
               background: currentAnswer.correct === true ? "rgba(34,197,94,0.06)"
-                : currentAnswer.correct === false ? "rgba(239,68,68,0.06)" : "rgba(255,255,255,0.04)",
+                : currentAnswer.correct === false ? "rgba(239,68,68,0.06)" : "var(--bg-card)",
               border: `1px solid ${currentAnswer.correct === true ? "rgba(34,197,94,0.15)"
-                : currentAnswer.correct === false ? "rgba(239,68,68,0.15)" : "rgba(255,255,255,0.06)"}`,
+                : currentAnswer.correct === false ? "rgba(239,68,68,0.15)" : "var(--bg-card)"}`,
             }}>
               {currentAnswer.studentAnswer && currentAnswer.studentAnswer !== "(read)" && currentAnswer.studentAnswer !== "(skipped)" && (
                 <div style={{ fontSize: 12, opacity: 0.5, marginBottom: 6 }}>

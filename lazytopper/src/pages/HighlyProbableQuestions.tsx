@@ -861,7 +861,7 @@ const HighlyProbableQuestions: React.FC = () => {
       style={{
         minHeight: "100vh",
         background:
-          "linear-gradient(180deg, rgba(34,197,94,0.08) 0%, rgba(255,255,255,0.03) 100%)",
+          "linear-gradient(180deg, rgba(34,197,94,0.08) 0%, var(--bg-card) 100%)",
         paddingBottom: "80px",
       }}
     >
@@ -895,8 +895,8 @@ const HighlyProbableQuestions: React.FC = () => {
             borderRadius: 32,
             padding: "24px 24px 24px 28px",
             background:
-              "linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.06) 20%, #1cb0f6 65%, #22c1c3 100%)",
-            color: "rgba(255,255,255,0.95)",
+              "linear-gradient(135deg, var(--bg-card) 0%, var(--bg-card) 20%, #1cb0f6 65%, #22c1c3 100%)",
+            color: "var(--text)",
             boxShadow: "0 24px 60px rgba(88,204,2,0.3)",
             display: "flex",
             flexDirection: "row",
@@ -965,9 +965,9 @@ const HighlyProbableQuestions: React.FC = () => {
               <span
                 style={{
                   borderRadius: 999,
-                  border: "1px solid rgba(255,255,255,0.06)",
-                  background: "rgba(255,255,255,0.08)",
-                  color: "rgba(255,255,255,0.6)",
+                  border: "1px solid var(--bg-card-border)",
+                  background: "var(--bg-card)",
+                  color: "var(--text-muted)",
                   fontSize: "0.75rem",
                   padding: "6px 12px",
                 }}
@@ -980,9 +980,9 @@ const HighlyProbableQuestions: React.FC = () => {
                 style={{
                   borderRadius: 999,
                   padding: "6px 14px",
-                  border: "1px solid rgba(255,255,255,0.06)",
-                  background: "rgba(255,255,255,0.08)",
-                  color: "rgba(255,255,255,0.6)",
+                  border: "1px solid var(--bg-card-border)",
+                  background: "var(--bg-card)",
+                  color: "var(--text-muted)",
                   fontSize: "0.75rem",
                   cursor: "pointer",
                 }}
@@ -1019,17 +1019,17 @@ const HighlyProbableQuestions: React.FC = () => {
                           borderRadius: 999,
                           padding: "6px 14px",
                           border: active
-                            ? "1px solid rgba(255,255,255,0.06)"
-                            : "1px solid rgba(255,255,255,0.06)",
+                            ? "1px solid var(--bg-card)"
+                            : "1px solid var(--bg-card)",
                           background: active
-                            ? "rgba(255,255,255,0.12)"
-                            : "rgba(255,255,255,0.08)",
-                          color: active ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.45)",
+                            ? "var(--bg-card)"
+                            : "var(--bg-card)",
+                          color: active ? "var(--text)" : "var(--text-muted)",
                           fontSize: "0.75rem",
                           fontWeight: active ? 600 : 500,
                           cursor: "pointer",
                           boxShadow: active
-                            ? "0 6px 18px rgba(255,255,255,0.1)"
+                            ? "0 6px 18px var(--bg-card)"
                             : "none",
                           transition: "all 0.15s ease-out",
                         }}
@@ -1067,12 +1067,12 @@ const HighlyProbableQuestions: React.FC = () => {
                           borderRadius: 999,
                           padding: "5px 11px",
                           border: active
-                            ? "1px solid rgba(255,255,255,0.15)"
-                            : "1px solid rgba(255,255,255,0.06)",
+                            ? "1px solid var(--text-muted)"
+                            : "1px solid var(--bg-card)",
                           background: active
-                            ? "rgba(255,255,255,0.12)"
+                            ? "var(--bg-card)"
                             : "transparent",
-                          color: active ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.45)",
+                          color: active ? "var(--text)" : "var(--text-muted)",
                           cursor: "pointer",
                           transition: "all 0.15s ease-out",
                         }}
@@ -1108,11 +1108,11 @@ const HighlyProbableQuestions: React.FC = () => {
                           padding: "5px 11px",
                           border: active
                             ? "1px solid rgba(255,150,0,0.4)"
-                            : "1px solid rgba(255,255,255,0.06)",
+                            : "1px solid var(--bg-card)",
                           background: active
                             ? "rgba(245,158,11,0.12)"
                             : "transparent",
-                          color: active ? "#f59e0b" : "rgba(255,255,255,0.45)",
+                          color: active ? "#f59e0b" : "var(--text-muted)",
                           fontWeight: active ? 600 : 400,
                           cursor: "pointer",
                           transition: "all 0.15s ease-out",
@@ -1129,7 +1129,7 @@ const HighlyProbableQuestions: React.FC = () => {
                   style={{
                     marginTop: 8,
                     fontSize: "0.78rem",
-                    color: "rgba(255,255,255,0.6)",
+                    color: "var(--text-muted)",
                   }}
                 >
                   <button
@@ -1137,9 +1137,9 @@ const HighlyProbableQuestions: React.FC = () => {
                     style={{
                       borderRadius: 999,
                       padding: "4px 10px",
-                      border: "1px dashed rgba(255,255,255,0.06)",
-                      background: "rgba(255,255,255,0.06)",
-                      color: "rgba(255,255,255,0.6)",
+                      border: "1px dashed var(--bg-card-border)",
+                      background: "var(--bg-card)",
+                      color: "var(--text-muted)",
                       cursor: "pointer",
                       fontSize: "0.78rem",
                     }}
@@ -1185,8 +1185,8 @@ const HighlyProbableQuestions: React.FC = () => {
                       fontSize: "0.8rem",
                       fontWeight: 600,
                       cursor: "pointer",
-                      background: active ? "rgba(255,255,255,0.08)" : "transparent",
-                      color: active ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.45)",
+                      background: active ? "var(--bg-card)" : "transparent",
+                      color: active ? "var(--text)" : "var(--text-muted)",
                       boxShadow: active
                         ? "0 6px 16px rgba(88,204,2,0.25)"
                         : "none",
@@ -1250,12 +1250,12 @@ const HighlyProbableQuestions: React.FC = () => {
                           padding: "4px 10px",
                           fontSize: "0.75rem",
                           border: active
-                            ? "1px solid rgba(255,255,255,0.15)"
-                            : "1px solid rgba(255,255,255,0.06)",
+                            ? "1px solid var(--text-muted)"
+                            : "1px solid var(--bg-card)",
                           background: active
-                            ? "rgba(255,255,255,0.12)"
+                            ? "var(--bg-card)"
                             : "transparent",
-                          color: active ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.45)",
+                          color: active ? "var(--text)" : "var(--text-muted)",
                           cursor: "pointer",
                           transition: "all 0.15s ease-out",
                         }}
@@ -1274,9 +1274,9 @@ const HighlyProbableQuestions: React.FC = () => {
                 marginTop: 12,
                 padding: "8px 10px",
                 borderRadius: 16,
-                background: "rgba(255,255,255,0.08)",
+                background: "var(--bg-card)",
                 fontSize: "0.75rem",
-                color: "rgba(255,255,255,0.6)",
+                color: "var(--text-muted)",
                 display: "flex",
                 flexDirection: "column",
                 gap: 4,
@@ -1295,9 +1295,9 @@ const HighlyProbableQuestions: React.FC = () => {
                   marginTop: 2,
                   borderRadius: 999,
                   padding: "4px 10px",
-                  border: "1px solid rgba(255,255,255,0.9)",
-                  background: "rgba(255,255,255,0.03)",
-                  color: "rgba(255,255,255,0.85)",
+                  border: "1px solid var(--text)",
+                  background: "var(--bg-card)",
+                  color: "var(--text)",
                   fontSize: "0.7rem",
                   fontWeight: 600,
                   cursor: "pointer",
@@ -1325,7 +1325,7 @@ const HighlyProbableQuestions: React.FC = () => {
                 style={{
                   fontSize: "1.25rem",
                   fontWeight: 650,
-                  color: "rgba(255,255,255,0.85)",
+                  color: "var(--text)",
                   marginBottom: 4,
                 }}
               >
@@ -1334,7 +1334,7 @@ const HighlyProbableQuestions: React.FC = () => {
               <p
                 style={{
                   fontSize: "0.8rem",
-                  color: "rgba(255,255,255,0.4)",
+                  color: "var(--text-muted)",
                 }}
               >
                 Each card = one chapter. Inside you get a mini{" "}
@@ -1352,7 +1352,7 @@ const HighlyProbableQuestions: React.FC = () => {
                       padding: "8px 12px",
                       background:
                         "linear-gradient(90deg, rgba(88,204,2,0.94), rgba(28,176,246,0.9))",
-                      color: "rgba(255,255,255,0.6)",
+                      color: "var(--text-muted)",
                       fontSize: "0.8rem",
                       display: "flex",
                       flexWrap: "wrap",
@@ -1388,8 +1388,8 @@ const HighlyProbableQuestions: React.FC = () => {
                   marginTop: 8,
                   borderRadius: 14,
                   padding: "8px 12px",
-                  background: "rgba(255,255,255,0.04)",
-                  color: "rgba(255,255,255,0.85)",
+                  background: "var(--bg-card)",
+                  color: "var(--text)",
                   fontSize: "0.78rem",
                   display: "flex",
                   flexWrap: "wrap",
@@ -1409,7 +1409,7 @@ const HighlyProbableQuestions: React.FC = () => {
                 style={{
                   display: "block",
                   fontSize: "0.78rem",
-                  color: "rgba(255,255,255,0.4)",
+                  color: "var(--text-muted)",
                   marginBottom: 4,
                 }}
               >
@@ -1430,12 +1430,12 @@ const HighlyProbableQuestions: React.FC = () => {
                 style={{
                   width: "100%",
                   borderRadius: 999,
-                  border: "1px solid rgba(255,255,255,0.1)",
+                  border: "1px solid var(--bg-card-border)",
                   padding: "8px 14px",
                   fontSize: "0.85rem",
                   outline: "none",
-                  backgroundColor: "rgba(255,255,255,0.03)",
-                  boxShadow: "0 8px 18px rgba(255,255,255,0.1)",
+                  backgroundColor: "var(--bg-card)",
+                  boxShadow: "0 8px 18px var(--bg-card-border)",
                 }}
               >
                 <option value="all">All topics</option>
@@ -1454,7 +1454,7 @@ const HighlyProbableQuestions: React.FC = () => {
           <p
             style={{
               fontSize: "0.82rem",
-              color: "rgba(255,255,255,0.4)",
+              color: "var(--text-muted)",
               padding: "8px 4px",
             }}
           >
@@ -1509,19 +1509,19 @@ const HighlyProbableQuestions: React.FC = () => {
                     style={{
                       borderRadius: 22,
                       padding: "16px 18px 12px",
-                      backgroundColor: "rgba(255,255,255,0.08)",
+                      backgroundColor: "var(--bg-card)",
                       border:
                         tier === "must-crack"
                           ? "1px solid rgba(255,75,75,0.6)"
                           : tier === "high-roi"
                           ? "1px solid rgba(28,176,246,0.5)"
-                          : "1px solid rgba(255,255,255,0.1)",
+                          : "1px solid var(--bg-card)",
                       boxShadow:
                         tier === "must-crack"
                           ? "0 14px 30px rgba(255,75,75,0.2)"
                           : tier === "high-roi"
                           ? "0 14px 30px rgba(28,176,246,0.25)"
-                          : "0 10px 24px rgba(255,255,255,0.1)",
+                          : "0 10px 24px var(--bg-card)",
                     }}
                   >
                     {/* Header row */}
@@ -1546,7 +1546,7 @@ const HighlyProbableQuestions: React.FC = () => {
                             style={{
                               fontSize: "1rem",
                               fontWeight: 650,
-                              color: "rgba(255,255,255,0.85)",
+                              color: "var(--text)",
                             }}
                           >
                             {bucket.topic}
@@ -1592,8 +1592,8 @@ const HighlyProbableQuestions: React.FC = () => {
                               padding: "2px 8px",
                               fontSize: "0.75rem",
                               cursor: "pointer",
-                              backgroundColor: "rgba(255,255,255,0.02)",
-                              color: "rgba(255,255,255,0.85)",
+                              backgroundColor: "var(--bg-card)",
+                              color: "var(--text)",
                             }}
                             aria-label={expanded ? "Collapse chapter" : "Expand chapter"}
                           >
@@ -1618,7 +1618,7 @@ const HighlyProbableQuestions: React.FC = () => {
                         <p
                           style={{
                             fontSize: "0.83rem",
-                            color: "rgba(255,255,255,0.4)",
+                            color: "var(--text-muted)",
                             marginBottom: 4,
                           }}
                         >
@@ -1663,10 +1663,10 @@ const HighlyProbableQuestions: React.FC = () => {
                               borderRadius: 999,
                               padding: "4px 10px",
                               border:
-                                "1px solid rgba(255,255,255,0.1)",
-                              background: "rgba(255,255,255,0.12)",
+                                "1px solid var(--bg-card)",
+                              background: "var(--bg-card)",
                               fontSize: "0.75rem",
-                              color: "rgba(255,255,255,0.4)",
+                              color: "var(--text-muted)",
                               cursor: "pointer",
                             }}
                           >
@@ -1679,7 +1679,7 @@ const HighlyProbableQuestions: React.FC = () => {
                       <div
                         style={{
                           fontSize: "0.78rem",
-                          color: "rgba(255,255,255,0.4)",
+                          color: "var(--text-muted)",
                           textAlign: "right",
                           whiteSpace: "nowrap",
                         }}
@@ -1688,7 +1688,7 @@ const HighlyProbableQuestions: React.FC = () => {
                         <span
                           style={{
                             fontWeight: 600,
-                            color: "rgba(255,255,255,0.85)",
+                            color: "var(--text)",
                           }}
                         >
                           {bucket.subject ?? subjectKey}
@@ -1700,7 +1700,7 @@ const HighlyProbableQuestions: React.FC = () => {
                             <span
                               style={{
                                 fontWeight: 600,
-                                color: "rgba(255,255,255,0.85)",
+                                color: "var(--text)",
                               }}
                             >
                               {streamLabel}
@@ -1716,7 +1716,7 @@ const HighlyProbableQuestions: React.FC = () => {
                         style={{
                           marginTop: 10,
                           paddingTop: 8,
-                          borderTop: "1px dashed rgba(255,255,255,0.1)",
+                          borderTop: "1px dashed var(--bg-card-border)",
                           display: "flex",
                           flexDirection: "column",
                           gap: 8,
@@ -1731,16 +1731,16 @@ const HighlyProbableQuestions: React.FC = () => {
                             borderRadius: 16,
                             padding: "8px 10px",
                             backgroundColor:
-                              "rgba(255,255,255,0.06)",
+                              "var(--bg-card)",
                             border:
-                              "1px solid rgba(255,255,255,0.08)",
+                              "1px solid var(--bg-card)",
                           }}
                         >
                           {renderQuestionMetaChips(q)}
                           <div
                             style={{
                               fontSize: "0.85rem",
-                              color: "rgba(255,255,255,0.85)",
+                              color: "var(--text)",
                               marginBottom: 4,
                               lineHeight: 1.35,
                             }}
@@ -1771,7 +1771,7 @@ const HighlyProbableQuestions: React.FC = () => {
                                 {(q as any).aROptions?.length ? (
                                   <div style={{ marginTop: 2, display: "flex", flexDirection: "column", gap: 2 }}>
                                     {(q as any).aROptions.map((opt: any) => (
-                                      <div key={opt.label} style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.85)" }}>
+                                      <div key={opt.label} style={{ fontSize: "0.8rem", color: "var(--text)" }}>
                                         <strong>{opt.label}.</strong> {opt.text}
                                       </div>
                                     ))}
@@ -1793,10 +1793,10 @@ const HighlyProbableQuestions: React.FC = () => {
                                       gap: 8,
                                       padding: "3px 0",
                                       fontSize: "0.84rem",
-                                      color: "rgba(255,255,255,0.85)",
+                                      color: "var(--text)",
                                     }}
                                   >
-                                    <span style={{ fontWeight: 600, color: "rgba(255,255,255,0.4)", minWidth: 20 }}>
+                                    <span style={{ fontWeight: 600, color: "var(--text-muted)", minWidth: 20 }}>
                                       {String.fromCharCode(65 + oi)}.
                                     </span>
                                     <MathText text={opt} />
@@ -1819,10 +1819,10 @@ const HighlyProbableQuestions: React.FC = () => {
                                 marginBottom: 6,
                                 padding: "6px 8px",
                                 borderRadius: 8,
-                                border: "1px solid rgba(255,255,255,0.1)",
-                                background: "rgba(255,255,255,0.12)",
+                                border: "1px solid var(--bg-card-border)",
+                                background: "var(--bg-card)",
                                 fontSize: "0.75rem",
-                                color: "rgba(255,255,255,0.85)",
+                                color: "var(--text)",
                               }}
                               title={q.confidenceRationale || ""}
                             >
@@ -1835,7 +1835,7 @@ const HighlyProbableQuestions: React.FC = () => {
                               {q.confidenceRationale ? (
                                 <div style={{ marginTop: 2 }}>{q.confidenceRationale}</div>
                               ) : null}
-                              <div style={{ marginTop: 2, fontSize: "0.68rem", color: "rgba(255,255,255,0.4)", fontStyle: "italic" }}>
+                              <div style={{ marginTop: 2, fontSize: "0.68rem", color: "var(--text-muted)", fontStyle: "italic" }}>
                                 Based on pattern analysis — not a guarantee
                               </div>
                             </div>
@@ -1845,7 +1845,7 @@ const HighlyProbableQuestions: React.FC = () => {
                             <div
                               style={{
                                 fontSize: "0.8rem",
-                                color: "rgba(255,255,255,0.5)",
+                                color: "var(--text-muted)",
                                 marginTop: 2,
                               }}
                             >
@@ -1858,7 +1858,7 @@ const HighlyProbableQuestions: React.FC = () => {
                             <div
                               style={{
                                 fontSize: "0.7rem",
-                                color: "rgba(255,255,255,0.45)",
+                                color: "var(--text-muted)",
                                 marginTop: 2,
                               }}
                             >
@@ -1884,7 +1884,7 @@ const HighlyProbableQuestions: React.FC = () => {
                                 flexWrap: "wrap",
                                 gap: 6,
                                 fontSize: "0.75rem",
-                                color: "rgba(255,255,255,0.4)",
+                                color: "var(--text-muted)",
                               }}
                             >
                               <span>How did this feel?</span>
@@ -1997,13 +1997,13 @@ const HighlyProbableQuestions: React.FC = () => {
                                   borderRadius: 999,
                                   border: isInBasket(q.id)
                                     ? "1px solid rgba(88,204,2,0.8)"
-                                    : "1px solid rgba(255,255,255,0.1)",
+                                    : "1px solid var(--bg-card)",
                                   padding: "4px 10px",
                                   fontSize: "0.75rem",
                                   background: isInBasket(q.id)
                                     ? "rgba(88,204,2,0.06)"
-                                    : "rgba(255,255,255,0.03)",
-                                  color: isInBasket(q.id) ? "#818cf8" : "rgba(255,255,255,0.85)",
+                                    : "var(--bg-card)",
+                                  color: isInBasket(q.id) ? "#818cf8" : "var(--text)",
                                   cursor: isInBasket(q.id) ? "default" : "pointer",
                                   opacity: isInBasket(q.id) ? 0.95 : 1,
                                   whiteSpace: "nowrap",
@@ -2040,7 +2040,7 @@ const HighlyProbableQuestions: React.FC = () => {
                                   >
                                     Step-by-Step Solution
                                     {solutionData[q.id] && (
-                                      <span style={{ fontWeight: 400, color: "rgba(255,255,255,0.4)", marginLeft: 8 }}>
+                                      <span style={{ fontWeight: 400, color: "var(--text-muted)", marginLeft: 8 }}>
                                         ({solutionData[q.id].totalMarks} marks)
                                       </span>
                                     )}
@@ -2058,7 +2058,7 @@ const HighlyProbableQuestions: React.FC = () => {
                                       borderRadius: 999,
                                       padding: "2px 10px",
                                       fontSize: "0.7rem",
-                                      color: "rgba(255,255,255,0.4)",
+                                      color: "var(--text-muted)",
                                       cursor: "pointer",
                                     }}
                                   >
@@ -2088,9 +2088,9 @@ const HighlyProbableQuestions: React.FC = () => {
                                           gap: 10,
                                           marginBottom: 8,
                                           padding: "8px 10px",
-                                          background: "rgba(255,255,255,0.03)",
+                                          background: "var(--bg-card)",
                                           borderRadius: 8,
-                                          border: "1px solid rgba(255,255,255,0.06)",
+                                          border: "1px solid var(--bg-card-border)",
                                         }}
                                       >
                                         <div
@@ -2099,7 +2099,7 @@ const HighlyProbableQuestions: React.FC = () => {
                                             height: 28,
                                             borderRadius: "50%",
                                             background: "#1e40af",
-                                            color: "#fff",
+                                            color: "var(--text)",
                                             display: "flex",
                                             alignItems: "center",
                                             justifyContent: "center",
@@ -2115,7 +2115,7 @@ const HighlyProbableQuestions: React.FC = () => {
                                             style={{
                                               fontSize: "0.8rem",
                                               fontWeight: 600,
-                                              color: "rgba(255,255,255,0.85)",
+                                              color: "var(--text)",
                                               marginBottom: 2,
                                             }}
                                           >
@@ -2125,8 +2125,8 @@ const HighlyProbableQuestions: React.FC = () => {
                                                 marginLeft: 8,
                                                 fontSize: "0.7rem",
                                                 fontWeight: 700,
-                                                color: step.marks === 0 ? "rgba(255,255,255,0.45)" : "#60a5fa",
-                                                background: step.marks === 0 ? "rgba(255,255,255,0.06)" : "#dbeafe",
+                                                color: step.marks === 0 ? "var(--text-muted)" : "#60a5fa",
+                                                background: step.marks === 0 ? "var(--bg-card)" : "#dbeafe",
                                                 borderRadius: 999,
                                                 padding: "1px 7px",
                                               }}
@@ -2137,7 +2137,7 @@ const HighlyProbableQuestions: React.FC = () => {
                                           <div
                                             style={{
                                               fontSize: "0.78rem",
-                                              color: "rgba(255,255,255,0.4)",
+                                              color: "var(--text-muted)",
                                               lineHeight: 1.5,
                                             }}
                                           >

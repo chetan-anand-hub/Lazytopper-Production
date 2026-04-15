@@ -214,7 +214,7 @@ const MockPaperPage: React.FC = () => {
             padding: "22px 22px 24px",
             background:
               "linear-gradient(135deg,rgba(88,204,2,0.98),rgba(28,176,246,0.95))",
-            color: "rgba(255,255,255,0.6)",
+            color: "var(--text-muted)",
             boxShadow: "0 26px 70px rgba(88,204,2,0.3)",
             marginBottom: 20,
             display: "flex",
@@ -282,9 +282,9 @@ const MockPaperPage: React.FC = () => {
                 style={{
                   borderRadius: 999,
                   padding: "6px 14px",
-                  border: "1px solid rgba(255,255,255,0.06)",
+                  border: "1px solid var(--bg-card-border)",
                   background: "#58cc02",
-                  color: "rgba(255,255,255,0.6)",
+                  color: "var(--text-muted)",
                   fontSize: "0.8rem",
                   cursor: "pointer",
                 }}
@@ -301,7 +301,7 @@ const MockPaperPage: React.FC = () => {
                   padding: "7px 16px",
                   border: "none",
                   background: "#22c55e",
-                  color: "rgba(255,255,255,0.85)",
+                  color: "var(--text)",
                   fontSize: "0.8rem",
                   fontWeight: 600,
                   cursor: "pointer",
@@ -329,8 +329,8 @@ const MockPaperPage: React.FC = () => {
                     placeholder={`0-${totalMarks}`}
                     style={{
                       width: 70, padding: "5px 8px", borderRadius: 8,
-                      border: "1px solid rgba(255,255,255,0.3)", background: "rgba(255,255,255,0.15)",
-                      color: "#fff", fontSize: "0.85rem", fontWeight: 600,
+                      border: "1px solid var(--text-muted)", background: "var(--text-muted)",
+                      color: "var(--text)", fontSize: "0.85rem", fontWeight: 600,
                     }}
                   />
                   <span style={{ fontSize: "0.8rem", opacity: 0.7 }}>/ {totalMarks}</span>
@@ -340,7 +340,7 @@ const MockPaperPage: React.FC = () => {
                     disabled={!scoreInput}
                     style={{
                       padding: "5px 14px", borderRadius: 16, border: "none",
-                      background: scoreInput ? "#3b82f6" : "#555", color: "#fff",
+                      background: scoreInput ? "#3b82f6" : "#555", color: "var(--text)",
                       fontSize: "0.8rem", fontWeight: 600, cursor: scoreInput ? "pointer" : "default",
                     }}
                   >
@@ -371,9 +371,9 @@ const MockPaperPage: React.FC = () => {
         {/* Paper body */}
         <main
           style={{
-            background: "rgba(255,255,255,0.03)",
+            background: "var(--bg-card)",
             borderRadius: 24,
-            border: "1px solid rgba(255,255,255,0.06)",
+            border: "1px solid var(--bg-card-border)",
             padding: "20px 22px 26px",
             boxShadow: "0 20px 45px rgba(0,0,0,0.08)",
           }}
@@ -385,7 +385,7 @@ const MockPaperPage: React.FC = () => {
               fontSize: "1rem",
               textTransform: "uppercase",
               letterSpacing: "0.12em",
-              color: "rgba(255,255,255,0.45)",
+              color: "var(--text-muted)",
             }}
           >
             CBSE Board-style Mock Paper • {subject} • Class 10
@@ -395,7 +395,7 @@ const MockPaperPage: React.FC = () => {
               marginTop: 0,
               marginBottom: 16,
               fontSize: "0.85rem",
-              color: "rgba(255,255,255,0.5)",
+              color: "var(--text-muted)",
             }}
           >
             General instructions: Attempt all questions. Use log tables or
@@ -413,7 +413,7 @@ const MockPaperPage: React.FC = () => {
                   style={{
                     margin: "12px 0 6px",
                     fontSize: "0.98rem",
-                    color: "rgba(255,255,255,0.85)",
+                    color: "var(--text)",
                   }}
                 >
                   Section {sec} • {section.questions.length} questions ·{" "}
@@ -424,7 +424,7 @@ const MockPaperPage: React.FC = () => {
                     margin: "0 0 4px 1.2rem",
                     padding: 0,
                     fontSize: "0.9rem",
-                    color: "rgba(255,255,255,0.85)",
+                    color: "var(--text)",
                   }}
                 >
                   {section.questions.map((q) => (
@@ -468,7 +468,7 @@ const MockPaperPage: React.FC = () => {
                         style={{
                           marginTop: 2,
                           fontSize: "0.75rem",
-                          color: "rgba(255,255,255,0.45)",
+                          color: "var(--text-muted)",
                         }}
                       >
                         Topic: {q.topicKey} • Marks: {q.marks} • Difficulty:{" "}
@@ -491,7 +491,7 @@ const MockPaperPage: React.FC = () => {
             onClick={() => navigate("/weak-area-practice", { state: { back: "/predictive-papers", backLabel: "Back to Mock Tests" } })}
             style={{
               padding: "12px 28px", borderRadius: 16, border: "none",
-              background: "#ff9600", color: "#fff", fontWeight: 800,
+              background: "#ff9600", color: "var(--text)", fontWeight: 800,
               fontSize: "0.95rem", cursor: "pointer",
               boxShadow: "0 4px 12px rgba(255,150,0,0.3)",
             }}

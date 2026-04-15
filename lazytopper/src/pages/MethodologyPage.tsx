@@ -80,7 +80,7 @@ export default function MethodologyPage() {
             style={{
               fontSize: "clamp(1.3rem, 4vw, 1.8rem)",
               fontWeight: 800,
-              color: "#fff",
+              color: "var(--text)",
               margin: "0 0 8px",
             }}
           >
@@ -90,7 +90,7 @@ export default function MethodologyPage() {
             style={{
               fontSize: "0.88rem",
               lineHeight: 1.7,
-              color: "rgba(255,255,255,0.6)",
+              color: "var(--text-muted)",
               margin: 0,
             }}
           >
@@ -103,7 +103,7 @@ export default function MethodologyPage() {
         <section style={{ marginTop: 28 }}>
           <h2
             className="font-display"
-            style={{ fontSize: "1.1rem", fontWeight: 700, color: "#fff", marginBottom: 16 }}
+            style={{ fontSize: "1.1rem", fontWeight: 700, color: "var(--text)", marginBottom: 16 }}
           >
             The 5 Signals
           </h2>
@@ -129,7 +129,7 @@ export default function MethodologyPage() {
                   <span style={{ fontSize: "1.3rem" }}>{signal.icon}</span>
                   <h3
                     className="font-display"
-                    style={{ fontSize: "0.95rem", fontWeight: 700, color: "#fff", margin: 0 }}
+                    style={{ fontSize: "0.95rem", fontWeight: 700, color: "var(--text)", margin: 0 }}
                   >
                     {signal.name}
                   </h3>
@@ -152,7 +152,7 @@ export default function MethodologyPage() {
                   style={{
                     fontSize: "0.82rem",
                     lineHeight: 1.6,
-                    color: "rgba(255,255,255,0.55)",
+                    color: "var(--text-muted)",
                     margin: "0 0 8px",
                   }}
                 >
@@ -164,7 +164,7 @@ export default function MethodologyPage() {
                     borderRadius: 10,
                     background: "rgba(0,0,0,0.2)",
                     fontSize: "0.78rem",
-                    color: "rgba(255,255,255,0.45)",
+                    color: "var(--text-muted)",
                     fontStyle: "italic",
                     lineHeight: 1.5,
                   }}
@@ -179,7 +179,7 @@ export default function MethodologyPage() {
         <section style={{ marginTop: 28 }}>
           <h2
             className="font-display"
-            style={{ fontSize: "1.1rem", fontWeight: 700, color: "#fff", marginBottom: 12 }}
+            style={{ fontSize: "1.1rem", fontWeight: 700, color: "var(--text)", marginBottom: 12 }}
           >
             How the Score is Calculated
           </h2>
@@ -206,7 +206,7 @@ export default function MethodologyPage() {
               style={{
                 fontSize: "0.8rem",
                 lineHeight: 1.6,
-                color: "rgba(255,255,255,0.5)",
+                color: "var(--text-muted)",
                 marginTop: 12,
                 marginBottom: 0,
               }}
@@ -222,7 +222,7 @@ export default function MethodologyPage() {
         <section style={{ marginTop: 28 }}>
           <h2
             className="font-display"
-            style={{ fontSize: "1.1rem", fontWeight: 700, color: "#fff", marginBottom: 12 }}
+            style={{ fontSize: "1.1rem", fontWeight: 700, color: "var(--text)", marginBottom: 12 }}
           >
             Confidence Levels
           </h2>
@@ -245,7 +245,7 @@ export default function MethodologyPage() {
                 <div style={{ fontSize: "0.88rem", fontWeight: 700, color: level.color }}>
                   {level.label} ({level.range})
                 </div>
-                <div style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.45)", marginTop: 4 }}>
+                <div style={{ fontSize: "0.78rem", color: "var(--text-muted)", marginTop: 4 }}>
                   {level.desc}
                 </div>
               </div>
@@ -258,19 +258,19 @@ export default function MethodologyPage() {
             marginTop: 28,
             padding: "16px 20px",
             borderRadius: 14,
-            background: "rgba(255,255,255,0.03)",
-            border: "1px solid rgba(255,255,255,0.06)",
+            background: "var(--bg-card)",
+            border: "1px solid var(--bg-card-border)",
           }}
         >
           <p
             style={{
               fontSize: "0.8rem",
               lineHeight: 1.6,
-              color: "rgba(255,255,255,0.4)",
+              color: "var(--text-muted)",
               margin: 0,
             }}
           >
-            <strong style={{ color: "rgba(255,255,255,0.6)" }}>Disclaimer:</strong> These
+            <strong style={{ color: "var(--text-muted)" }}>Disclaimer:</strong> These
             predictions are data-driven estimates based on publicly available CBSE papers and
             policy documents. They are not leaked papers or insider information. CBSE can
             change their pattern at any time. Always prepare the full syllabus — use predictions

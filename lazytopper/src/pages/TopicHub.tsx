@@ -612,12 +612,12 @@ export default function TopicHub() {
             }}>
               <div>
                 <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#818cf8" }}>{totalConcepts}</div>
-                <div style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.4)", fontWeight: 500 }}>Concepts</div>
+                <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", fontWeight: 500 }}>Concepts</div>
               </div>
               {weightage > 0 && (
                 <div>
                   <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#f59e0b" }}>~{weightage}%</div>
-                  <div style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.4)", fontWeight: 500 }}>Exam Weightage</div>
+                  <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", fontWeight: 500 }}>Exam Weightage</div>
                 </div>
               )}
               <div style={{ textAlign: "center" }}>
@@ -627,7 +627,7 @@ export default function TopicHub() {
                 <div style={{ fontSize: "0.75rem", color: MASTERY_COLORS[chapterMasteryLevel], fontWeight: 600 }}>
                   {MASTERY_LABELS[chapterMasteryLevel]}
                 </div>
-                <div style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.35)", fontWeight: 600 }}>
+                <div style={{ fontSize: "0.65rem", color: "var(--text-muted)", fontWeight: 600 }}>
                   {MASTERY_POINTS[chapterMasteryLevel]}pts
                 </div>
               </div>
@@ -657,7 +657,7 @@ export default function TopicHub() {
                 </div>
                 {allDefinitions.slice(0, 3).map((d, idx) => (
                   <div key={idx} style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginBottom: 4, lineHeight: 1.5 }}>
-                    <span style={{ fontWeight: 600, color: "rgba(255,255,255,0.7)" }}>{d.title}</span> — {d.description}
+                    <span style={{ fontWeight: 600, color: "var(--text)" }}>{d.title}</span> — {d.description}
                   </div>
                 ))}
               </div>
@@ -671,8 +671,8 @@ export default function TopicHub() {
                 marginTop: 24, padding: "14px 40px", borderRadius: 14,
                 background: hasEnoughContent
                   ? "#22c55e"
-                  : "rgba(255,255,255,0.1)",
-                border: "none", color: "#fff", fontWeight: 700, fontSize: "1rem",
+                  : "var(--bg-card)",
+                border: "none", color: "var(--text)", fontWeight: 700, fontSize: "1rem",
                 cursor: hasEnoughContent ? "pointer" : "not-allowed",
                 boxShadow: hasEnoughContent ? "0 4px 14px rgba(88,204,2,0.12)" : "none",
                 transition: "transform 0.15s",
@@ -708,7 +708,7 @@ export default function TopicHub() {
             </button>
 
             {!hasEnoughContent && (
-              <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.4)", marginTop: 8 }}>
+              <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginTop: 8 }}>
                 Content for this topic is being prepared.
               </p>
             )}
@@ -743,7 +743,7 @@ export default function TopicHub() {
               <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "var(--text-muted)" }}>
                 {title} — Concept {conceptIdx + 1} of {totalConcepts}
               </span>
-              <span style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.4)" }}>
+              <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>
                 {Math.round(((conceptIdx + 1) / totalConcepts) * 100)}%
               </span>
             </div>
@@ -786,7 +786,7 @@ export default function TopicHub() {
                 />
 
                 <div style={{
-                  fontSize: "0.9rem", color: "rgba(255,255,255,0.7)", lineHeight: 1.7,
+                  fontSize: "0.9rem", color: "var(--text)", lineHeight: 1.7,
                   padding: "12px 16px", background: "var(--bg)", borderRadius: 12,
                 }}>
                   <div style={{ fontWeight: 600, fontSize: "0.78rem", color: "#818cf8", marginBottom: 4 }}>
@@ -886,7 +886,7 @@ export default function TopicHub() {
                         width: 8, height: 8, borderRadius: 4,
                         background: qi < miniQuizAnswers.length
                           ? miniQuizAnswers[qi]?.correct ? "#22c55e" : "#ef4444"
-                          : qi === miniQuizIdx ? "#818cf8" : "rgba(255,255,255,0.1)",
+                          : qi === miniQuizIdx ? "#818cf8" : "var(--bg-card)",
                       }} />
                     ))}
                   </div>
@@ -902,9 +902,9 @@ export default function TopicHub() {
                       const isSelected = selectedAnswer === option;
                       const correctAnswer = (currentMiniQuestion.answer || "").trim().toLowerCase();
                       const isCorrect = option.trim().toLowerCase() === correctAnswer;
-                      let borderColor = "rgba(255,255,255,0.06)";
-                      let bg = "rgba(255,255,255,0.03)";
-                      let textColor = "rgba(255,255,255,0.7)";
+                      let borderColor = "var(--bg-card)";
+                      let bg = "var(--bg-card)";
+                      let textColor = "var(--text)";
                       if (answerRevealed) {
                         if (isCorrect) { borderColor = "rgba(34,197,94,0.3)"; bg = "rgba(34,197,94,0.08)"; textColor = "#22c55e"; }
                         else if (isSelected && !isCorrect) { borderColor = "rgba(239,68,68,0.3)"; bg = "rgba(239,68,68,0.08)"; textColor = "#ef4444"; }
@@ -972,7 +972,7 @@ export default function TopicHub() {
                 background: "var(--bg-card)", borderRadius: 18, padding: "24px", textAlign: "center",
                 border: "1px solid var(--bg-card-border)",
               }}>
-                <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.88rem" }}>
+                <p style={{ color: "var(--text-muted)", fontSize: "0.88rem" }}>
                   No more concepts to review. You've covered everything!
                 </p>
                 <button

@@ -56,7 +56,7 @@ export function SprintDashboard({ daysLeft, navigate, gradeNum }: {
           <span style={{ fontSize: 18 }}>⚡</span>
           <span className="font-display" style={{ fontSize: 16, fontWeight: 800, color: "#ef4444" }}>Final Sprint — {daysLeft} days left</span>
         </div>
-        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", lineHeight: 1.5 }}>
+        <div style={{ fontSize: 12, color: "var(--text-muted)", lineHeight: 1.5 }}>
           Only essentials: predicted questions, key formulas & mini mocks.
         </div>
       </div>
@@ -71,19 +71,19 @@ export function SprintDashboard({ daysLeft, navigate, gradeNum }: {
         <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
           <div style={{ flex: 1, padding: "8px 10px", borderRadius: 8, background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.2)" }}>
             <div style={{ fontSize: 10, fontWeight: 700, color: "#22c55e" }}>Phase 1</div>
-            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.7)", fontWeight: 600 }}>{formatCbseDate(cbseDates.class10.phase1)}</div>
-            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.35)" }}>Compulsory</div>
+            <div style={{ fontSize: 12, color: "var(--text)", fontWeight: 600 }}>{formatCbseDate(cbseDates.class10.phase1)}</div>
+            <div style={{ fontSize: 10, color: "var(--text-muted)" }}>Compulsory</div>
           </div>
           <div style={{ flex: 1, padding: "8px 10px", borderRadius: 8, background: "rgba(168,85,247,0.08)", border: "1px solid rgba(168,85,247,0.2)" }}>
             <div style={{ fontSize: 10, fontWeight: 700, color: "#c084fc" }}>Phase 2</div>
-            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.7)", fontWeight: 600 }}>{formatCbseDate(CBSE_PHASE2_DATE)}</div>
-            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.35)" }}>{phase2DaysLeft} days left</div>
+            <div style={{ fontSize: 12, color: "var(--text)", fontWeight: 600 }}>{formatCbseDate(CBSE_PHASE2_DATE)}</div>
+            <div style={{ fontSize: 10, color: "var(--text-muted)" }}>{phase2DaysLeft} days left</div>
           </div>
         </div>
-        <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", lineHeight: 1.5, marginBottom: 6 }}>
+        <div style={{ fontSize: 11, color: "var(--text-muted)", lineHeight: 1.5, marginBottom: 6 }}>
           Phase 2 is optional — re-attempt up to 3 subjects to improve. Best score counts.
         </div>
-        <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", lineHeight: 1.5 }}>
+        <div style={{ fontSize: 10, color: "var(--text-muted)", lineHeight: 1.5 }}>
           Both exams cover the full syllabus. 75% attendance required for eligibility.
         </div>
       </div>
@@ -94,7 +94,7 @@ export function SprintDashboard({ daysLeft, navigate, gradeNum }: {
       }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
           <span className="font-display" style={{ fontSize: 14, fontWeight: 700 }}>Today's Revision Checklist</span>
-          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}>{completedCount}/{checklistItems.length}</span>
+          <span style={{ fontSize: 11, color: "var(--text-muted)" }}>{completedCount}/{checklistItems.length}</span>
         </div>
         {checklistItems.map((item) => (
           <button
@@ -103,20 +103,20 @@ export function SprintDashboard({ daysLeft, navigate, gradeNum }: {
             onClick={() => toggleCheck(item.key)}
             style={{
               display: "flex", alignItems: "center", gap: 10, width: "100%",
-              padding: "10px 0", borderBottom: "1px solid rgba(255,255,255,0.04)",
+              padding: "10px 0", borderBottom: "1px solid var(--bg-card-border)",
               background: "none", border: "none", cursor: "pointer", textAlign: "left",
             }}
           >
             <div style={{
               width: 22, height: 22, borderRadius: 6, flexShrink: 0,
-              border: checklist[item.key] ? "2px solid #22c55e" : "2px solid rgba(255,255,255,0.15)",
+              border: checklist[item.key] ? "2px solid #22c55e" : "2px solid var(--text-muted)",
               background: checklist[item.key] ? "rgba(34,197,94,0.2)" : "transparent",
               display: "flex", alignItems: "center", justifyContent: "center",
               fontSize: 12, color: "#22c55e",
             }}>{checklist[item.key] ? "✓" : ""}</div>
             <span style={{ fontSize: 12 }}>{item.icon}</span>
             <span style={{
-              fontSize: 13, color: checklist[item.key] ? "rgba(255,255,255,0.35)" : "rgba(255,255,255,0.7)",
+              fontSize: 13, color: checklist[item.key] ? "var(--text-muted)" : "var(--text)",
               textDecoration: checklist[item.key] ? "line-through" : "none",
             }}>{item.label}</span>
           </button>
@@ -125,7 +125,7 @@ export function SprintDashboard({ daysLeft, navigate, gradeNum }: {
 
       <div style={{
         padding: "16px 18px", marginBottom: 16, borderRadius: 16,
-        background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)",
+        background: "var(--bg-card)", border: "1px solid var(--bg-card-border)",
       }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
           <span className="font-display" style={{ fontSize: 14, fontWeight: 700, color: "#60a5fa" }}>🎯 Top 10 Predicted — Maths</span>
@@ -138,7 +138,7 @@ export function SprintDashboard({ daysLeft, navigate, gradeNum }: {
         {mathsQ.map((q, i) => (
           <div key={i} style={{
             padding: "8px 0",
-            borderBottom: i < mathsQ.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none",
+            borderBottom: i < mathsQ.length - 1 ? "1px solid var(--bg-card-border)" : "none",
             display: "flex", gap: 8, alignItems: "flex-start",
           }}>
             <span style={{
@@ -146,14 +146,14 @@ export function SprintDashboard({ daysLeft, navigate, gradeNum }: {
               borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
               background: "#3b82f6", flexShrink: 0, marginTop: 2,
             }}>{i + 1}</span>
-            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.7)", lineHeight: 1.5 }}>{q.question}</div>
+            <div style={{ fontSize: 12, color: "var(--text)", lineHeight: 1.5 }}>{q.question}</div>
           </div>
         ))}
       </div>
 
       <div style={{
         padding: "16px 18px", marginBottom: 16, borderRadius: 16,
-        background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)",
+        background: "var(--bg-card)", border: "1px solid var(--bg-card-border)",
       }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
           <span className="font-display" style={{ fontSize: 14, fontWeight: 700, color: "#4ade80" }}>🎯 Top 10 Predicted — Science</span>
@@ -166,7 +166,7 @@ export function SprintDashboard({ daysLeft, navigate, gradeNum }: {
         {scienceQ.map((q, i) => (
           <div key={i} style={{
             padding: "8px 0",
-            borderBottom: i < scienceQ.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none",
+            borderBottom: i < scienceQ.length - 1 ? "1px solid var(--bg-card-border)" : "none",
             display: "flex", gap: 8, alignItems: "flex-start",
           }}>
             <span style={{
@@ -174,7 +174,7 @@ export function SprintDashboard({ daysLeft, navigate, gradeNum }: {
               borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
               background: "#22c55e", flexShrink: 0, marginTop: 2,
             }}>{i + 1}</span>
-            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.7)", lineHeight: 1.5 }}>{q.question}</div>
+            <div style={{ fontSize: 12, color: "var(--text)", lineHeight: 1.5 }}>{q.question}</div>
           </div>
         ))}
       </div>
@@ -192,8 +192,8 @@ export function SprintDashboard({ daysLeft, navigate, gradeNum }: {
             }}>{section.subject}</div>
             {section.items.map((f, fi) => (
               <div key={fi} style={{
-                fontSize: 12, color: "rgba(255,255,255,0.65)", padding: "3px 0",
-                borderBottom: fi < section.items.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none",
+                fontSize: 12, color: "var(--text-muted)", padding: "3px 0",
+                borderBottom: fi < section.items.length - 1 ? "1px solid var(--bg-card-border)" : "none",
               }}>{f}</div>
             ))}
           </div>
@@ -207,7 +207,7 @@ export function SprintDashboard({ daysLeft, navigate, gradeNum }: {
 
       <button type="button" onClick={() => navigate("/mini-mock")} style={{
         width: "100%", padding: "16px 0", borderRadius: 14, border: "none", marginBottom: 16,
-        background: "#a855f7", color: "#fff", fontWeight: 800, fontSize: 15,
+        background: "#a855f7", color: "var(--text)", fontWeight: 800, fontSize: 15,
         fontFamily: "'Space Grotesk', sans-serif", cursor: "pointer",
         boxShadow: "0 0 24px rgba(168,85,247,0.3)",
       }}>⚡ Start 15-Minute Mini Mock</button>

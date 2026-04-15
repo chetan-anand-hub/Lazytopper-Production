@@ -296,7 +296,7 @@ export function MentorSolveDrawer(props: {
         style={{
           width: "min(920px, 100%)", maxHeight: "92vh", overflow: "hidden",
           borderRadius: 22, background: "rgba(255,255,255,0.92)",
-          border: "1px solid rgba(255,255,255,0.35)",
+          border: "1px solid var(--text-muted)",
           boxShadow: "0 30px 90px rgba(0,0,0,0.2)",
           display: "flex", flexDirection: "column",
         }}
@@ -369,20 +369,20 @@ function DrawerHeader({ mentorTitle, seed, loading, onReset, onClose }: {
       <div style={{ display: "grid", gap: 2 }}>
         <div style={{ fontWeight: 950, fontSize: 14 }}>{mentorTitle} - {seed.title}</div>
         {seed.questionFamilyLabel && (
-          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.85)" }}>Family: {seed.questionFamilyLabel}</div>
+          <div style={{ fontSize: 12, color: "var(--text)" }}>Family: {seed.questionFamilyLabel}</div>
         )}
         {seed.strategyContextHeader && (
-          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.45)" }}>Strategy context is being used for this question.</div>
+          <div style={{ fontSize: 12, color: "var(--text-muted)" }}>Strategy context is being used for this question.</div>
         )}
       </div>
       <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
         <button onClick={onReset} disabled={loading} style={{
-          borderRadius: 999, padding: "6px 10px", border: "1px solid rgba(255,255,255,0.06)",
-          background: "rgba(255,255,255,0.03)", fontWeight: 900, cursor: loading ? "not-allowed" : "pointer",
+          borderRadius: 999, padding: "6px 10px", border: "1px solid var(--bg-card-border)",
+          background: "var(--bg-card)", fontWeight: 900, cursor: loading ? "not-allowed" : "pointer",
         }} title="Reset">Reset</button>
         <button onClick={onClose} style={{
-          borderRadius: 999, padding: "6px 10px", border: "1px solid rgba(255,255,255,0.06)",
-          background: "rgba(255,255,255,0.03)", fontWeight: 900, cursor: "pointer",
+          borderRadius: 999, padding: "6px 10px", border: "1px solid var(--bg-card-border)",
+          background: "var(--bg-card)", fontWeight: 900, cursor: "pointer",
         }} title="Close">-</button>
       </div>
     </div>
@@ -409,8 +409,8 @@ function OfflineBoardStepsPanel({ getSteps }: { getSteps: () => { subjectKey: st
       <div style={{ display: "grid", gap: 10 }}>
         {tpl.steps.map((s: import("../../data/boardSteps/types").BoardStep) => (
           <div key={s.id} style={{
-            padding: 10, borderRadius: 14, background: "rgba(255,255,255,0.03)",
-            border: "1px solid rgba(255,255,255,0.08)",
+            padding: 10, borderRadius: 14, background: "var(--bg-card-border)",
+            border: "1px solid var(--bg-card-border)",
           }}>
             <div style={{ display: "flex", gap: 8, alignItems: "baseline" }}>
               <div style={{ fontWeight: 950 }}>{s.title}</div>
@@ -448,7 +448,7 @@ function MentorAssistantMessage({ msg, seed, renderAssistantContent, onPracticeN
   return (
     <div style={{
       display: "grid", gap: 10, padding: 12, borderRadius: 16,
-      background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)",
+      background: "var(--bg-card)", border: "1px solid var(--bg-card-border)",
     }}>
       {bodyText && (
         <div style={{
@@ -472,26 +472,26 @@ function ImageUploadPanel({ fileInputRef, attachedImage, onImageChange, onRemove
   return (
     <div style={{
       marginTop: 12, padding: 12, borderRadius: 14,
-      background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)",
+      background: "var(--bg-card)", border: "1px solid var(--bg-card-border)",
     }}>
       <input ref={fileInputRef} type="file" accept=".jpg,.jpeg,.png,image/jpeg,image/png" onChange={onImageChange} style={{ display: "none" }} />
       <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
         <button type="button" onClick={() => fileInputRef.current?.click()} style={{
-          borderRadius: 999, padding: "6px 10px", border: "1px solid rgba(255,255,255,0.06)",
-          background: "rgba(255,255,255,0.03)", fontWeight: 900, cursor: "pointer",
+          borderRadius: 999, padding: "6px 10px", border: "1px solid var(--bg-card-border)",
+          background: "var(--bg-card)", fontWeight: 900, cursor: "pointer",
         }}>Upload solution photo</button>
         <div style={{ fontSize: 12, opacity: 0.8 }}>{attachedImage ? attachedImage.name : "Accepts JPG or PNG up to 3 MB."}</div>
         {attachedImage && (
           <button type="button" onClick={onRemoveImage} style={{
-            borderRadius: 999, padding: "6px 10px", border: "1px solid rgba(255,255,255,0.06)",
-            background: "rgba(255,255,255,0.03)", fontWeight: 900, cursor: "pointer",
+            borderRadius: 999, padding: "6px 10px", border: "1px solid var(--bg-card-border)",
+            background: "var(--bg-card)", fontWeight: 900, cursor: "pointer",
           }}>Remove</button>
         )}
       </div>
       {attachedImage?.previewUrl && (
         <img src={attachedImage.previewUrl} alt="Solution preview" style={{
           marginTop: 10, maxWidth: 180, maxHeight: 180, display: "block",
-          borderRadius: 12, border: "1px solid rgba(255,255,255,0.08)", objectFit: "cover",
+          borderRadius: 12, border: "1px solid var(--bg-card-border)", objectFit: "cover",
         }} />
       )}
     </div>
@@ -507,13 +507,13 @@ function SocraticInput({ input, loading, onSetInput, onSend }: {
         placeholder="Answer mentor's question..."
         onKeyDown={(e) => { if (e.key === "Enter") onSend(); }}
         style={{
-          flex: 1, borderRadius: 14, border: "1px solid rgba(255,255,255,0.06)",
-          padding: "10px 12px", fontSize: 14, outline: "none", background: "rgba(255,255,255,0.03)",
+          flex: 1, borderRadius: 14, border: "1px solid var(--bg-card-border)",
+          padding: "10px 12px", fontSize: 14, outline: "none", background: "var(--bg-card-border)",
         }} disabled={loading} />
       <button onClick={onSend} disabled={loading || !input.trim()} style={{
-        borderRadius: 14, border: "1px solid rgba(255,255,255,0.06)", padding: "10px 12px",
+        borderRadius: 14, border: "1px solid var(--bg-card-border)", padding: "10px 12px",
         fontSize: 14, fontWeight: 900, cursor: loading || !input.trim() ? "not-allowed" : "pointer",
-        background: loading || !input.trim() ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.03)",
+        background: loading || !input.trim() ? "var(--bg-card)" : "var(--bg-card)",
       }}>Send</button>
     </div>
   );
@@ -528,16 +528,16 @@ function BoardCheckInput({ input, loading, attachedImage, onSetInput, onSend }: 
       <textarea value={input} onChange={(e) => onSetInput(e.target.value)}
         placeholder="Paste your working or add a short note for CBSE checking..." rows={4}
         style={{
-          width: "100%", borderRadius: 14, border: "1px solid rgba(255,255,255,0.06)",
+          width: "100%", borderRadius: 14, border: "1px solid var(--bg-card-border)",
           padding: "10px 12px", fontSize: 14, outline: "none",
-          background: "rgba(255,255,255,0.03)", color: "#fff", resize: "vertical",
+          background: "var(--bg-card)", color: "var(--text)", resize: "vertical",
         }} disabled={loading} />
       <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
         <button type="button" onClick={onSend} disabled={loading || (!input.trim() && !attachedImage)} style={{
-          borderRadius: 14, border: "1px solid rgba(255,255,255,0.06)", padding: "10px 12px",
+          borderRadius: 14, border: "1px solid var(--bg-card-border)", padding: "10px 12px",
           fontSize: 14, fontWeight: 900,
           cursor: loading || (!input.trim() && !attachedImage) ? "not-allowed" : "pointer",
-          background: loading || (!input.trim() && !attachedImage) ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.03)",
+          background: loading || (!input.trim() && !attachedImage) ? "var(--bg-card)" : "var(--bg-card)",
         }}>{loading ? "Sending..." : "Send for CBSE check"}</button>
         <div style={{ fontSize: 12, opacity: 0.7 }}>
           Tip: Copy this step-pattern in your answer sheet - that's how marks are awarded.

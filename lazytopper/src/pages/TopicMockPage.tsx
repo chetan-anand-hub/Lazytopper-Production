@@ -175,9 +175,9 @@ export default function TopicMockPage() {
               onClick={() => switchSet(s)}
               style={{
                 padding: "6px 16px", borderRadius: 12, cursor: "pointer",
-                border: s === currentSet ? "2px solid #58cc02" : "1px solid rgba(255,255,255,0.06)",
-                background: s === currentSet ? "#58cc02" : "rgba(255,255,255,0.06)",
-                color: s === currentSet ? "#fff" : "rgba(255,255,255,0.5)",
+                border: s === currentSet ? "2px solid #58cc02" : "1px solid var(--bg-card-border)",
+                background: s === currentSet ? "#58cc02" : "var(--bg-card)",
+                color: s === currentSet ? "#fff" : "var(--text-muted)",
                 fontWeight: s === currentSet ? 700 : 500, fontSize: "0.82rem",
               }}
             >
@@ -204,7 +204,7 @@ export default function TopicMockPage() {
               <div style={{ marginTop: 20, display: "flex", gap: 12, flexWrap: "wrap" }}>
                 {paper.sections.map(sec => (
                   <div key={sec.section} style={{
-                    background: "rgba(255,255,255,0.15)", borderRadius: 12, padding: "8px 14px",
+                    background: "var(--text-muted)", borderRadius: 12, padding: "8px 14px",
                     fontSize: "0.78rem",
                   }}>
                     <strong>Sec {sec.section}</strong>: {sec.questions.length} Q × {sec.marksPerQuestion}m = {sec.sectionMarks}m
@@ -234,7 +234,7 @@ export default function TopicMockPage() {
                 <button
                   onClick={handlePrint}
                   style={{
-                    padding: "10px 20px", borderRadius: 14, border: "2px solid rgba(255,255,255,0.4)",
+                    padding: "10px 20px", borderRadius: 14, border: "2px solid var(--text-muted)",
                     background: "transparent", color: "var(--text)", fontWeight: 600, fontSize: "0.82rem", cursor: "pointer",
                   }}
                 >
@@ -316,11 +316,11 @@ function QuestionDisplay({ q, idx, section, showAnswer, selectedAnswer, chosenBr
           const letter = String.fromCharCode(97 + oi);
           const isSelected = isThisBranch && selectedAnswer === opt;
           const isCorrect = showAnswer && opt.trim().toLowerCase() === (question.answer || "").trim().toLowerCase();
-          let bg = "rgba(255,255,255,0.03)";
+          let bg = "var(--bg-card)";
           if (showAnswer && isCorrect) bg = "rgba(34,197,94,0.15)";
           else if (showAnswer && isSelected && !isCorrect) bg = "rgba(239,68,68,0.15)";
           else if (isSelected) bg = "rgba(99,102,241,0.15)";
-          if (otherBranchAnswered) bg = "rgba(255,255,255,0.06)";
+          if (otherBranchAnswered) bg = "var(--bg-card)";
 
           return (
             <div
@@ -330,8 +330,8 @@ function QuestionDisplay({ q, idx, section, showAnswer, selectedAnswer, chosenBr
               style={{
                 padding: "6px 12px", borderRadius: 8, marginBottom: 4, fontSize: "0.82rem",
                 background: bg, cursor: (!showAnswer && isInteractive && !otherBranchAnswered) ? "pointer" : "default",
-                border: isSelected ? "1px solid #6366f1" : "1px solid rgba(255,255,255,0.06)",
-                color: otherBranchAnswered ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.85)",
+                border: isSelected ? "1px solid #6366f1" : "1px solid var(--bg-card-border)",
+                color: otherBranchAnswered ? "var(--text-muted)" : "var(--text)",
                 opacity: otherBranchAnswered ? 0.5 : 1,
               }}
             >
@@ -352,7 +352,7 @@ function QuestionDisplay({ q, idx, section, showAnswer, selectedAnswer, chosenBr
     const isThisBranch = chosenBranch === branch;
     if (isThisBranch) {
       return (
-        <div style={{ marginTop: 8, padding: "6px 12px", borderRadius: 8, background: selectedAnswer === "correct" ? "rgba(34,197,94,0.15)" : "rgba(239,68,68,0.15)", fontSize: "0.78rem", color: "rgba(255,255,255,0.85)" }}>
+        <div style={{ marginTop: 8, padding: "6px 12px", borderRadius: 8, background: selectedAnswer === "correct" ? "rgba(34,197,94,0.15)" : "rgba(239,68,68,0.15)", fontSize: "0.78rem", color: "var(--text)" }}>
           Self-marked: <strong>{selectedAnswer === "correct" ? "Correct" : "Incorrect"}</strong>
         </div>
       );
@@ -383,12 +383,12 @@ function QuestionDisplay({ q, idx, section, showAnswer, selectedAnswer, chosenBr
   }
 
   return (
-    <div style={{ marginBottom: 16, paddingBottom: 12, borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-      <div style={{ fontSize: "0.84rem", color: answeredOr ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.85)", lineHeight: 1.6 }}>
+    <div style={{ marginBottom: 16, paddingBottom: 12, borderBottom: "1px solid var(--bg-card-border)" }}>
+      <div style={{ fontSize: "0.84rem", color: answeredOr ? "var(--text-muted)" : "var(--text)", lineHeight: 1.6 }}>
         <strong style={{ color: SECTION_COLORS[section] }}>Q{qNum}.</strong>{" "}
         {q.main.questionText}
         {q.main.subtopic && (
-          <span style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.4)", marginLeft: 8 }}>[{q.main.subtopic}]</span>
+          <span style={{ fontSize: "0.72rem", color: "var(--text-muted)", marginLeft: 8 }}>[{q.main.subtopic}]</span>
         )}
         <TimeGuideChip marks={q.main.marks} section={section} />
       </div>
@@ -410,10 +410,10 @@ function QuestionDisplay({ q, idx, section, showAnswer, selectedAnswer, chosenBr
           opacity: answeredMain ? 0.5 : 1,
         }}>
           <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "#f59e0b", marginBottom: 4 }}>OR</div>
-          <div style={{ fontSize: "0.84rem", color: answeredMain ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.85)", lineHeight: 1.6 }}>
+          <div style={{ fontSize: "0.84rem", color: answeredMain ? "var(--text-muted)" : "var(--text)", lineHeight: 1.6 }}>
             {q.or.questionText}
             {q.or.subtopic && (
-              <span style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.4)", marginLeft: 8 }}>[{q.or.subtopic}]</span>
+              <span style={{ fontSize: "0.72rem", color: "var(--text-muted)", marginLeft: 8 }}>[{q.or.subtopic}]</span>
             )}
           </div>
           {renderOptions(q.or, "or")}
@@ -455,11 +455,11 @@ function TakingPhase({ paper, currentSectionIdx, elapsed, timerEnabled, answers,
               Time: {formatTime(elapsed)}
             </span>
           )}
-          <span style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.4)" }}>
+          <span style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>
             Section {sec.section} — {answeredCount}/{sec.questions.length} answered
           </span>
         </div>
-        <div style={{ height: 6, borderRadius: 999, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
+        <div style={{ height: 6, borderRadius: 999, background: "var(--bg-card-border)", overflow: "hidden" }}>
           <div style={{
             height: "100%", borderRadius: 999,
             width: `${sec.questions.length > 0 ? (answeredCount / sec.questions.length) * 100 : 0}%`,
@@ -517,14 +517,14 @@ function ReviewPhase({ paper, analytics, answers, previousBest, onGoToWeakPracti
         background: "var(--bg-card)", borderRadius: 20, padding: "28px 24px", textAlign: "center",
         border: "1px solid var(--bg-card-border)", boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
       }}>
-        <div style={{ fontSize: "0.72rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)", marginBottom: 8 }}>
+        <div style={{ fontSize: "0.72rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--text-muted)", marginBottom: 8 }}>
           Mock Result — {paper.topicDisplayName} — Set {paper.setIndex}
         </div>
         <CountUpReveal value={analytics.percentScore} previousBest={previousBest} style={{ fontSize: "3rem", fontWeight: 800, color: scoreColor }} />
         <div style={{ fontSize: "0.9rem", color: "var(--text-muted)", marginTop: 4 }}>
           {analytics.marksScored} / {analytics.totalMarks} marks
         </div>
-        <div style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.4)", marginTop: 4 }}>
+        <div style={{ fontSize: "0.78rem", color: "var(--text-muted)", marginTop: 4 }}>
           Time: {formatTime(analytics.timeAnalysis.totalSeconds)}
         </div>
       </div>
@@ -533,7 +533,7 @@ function ReviewPhase({ paper, analytics, answers, previousBest, onGoToWeakPracti
         marginTop: 20, background: "var(--bg-card)", borderRadius: 16, padding: "20px",
         border: "1px solid var(--bg-card-border)",
       }}>
-        <h3 style={{ fontSize: "0.88rem", fontWeight: 700, color: "rgba(255,255,255,0.9)", marginBottom: 12 }}>Section Breakdown</h3>
+        <h3 style={{ fontSize: "0.88rem", fontWeight: 700, color: "var(--text)", marginBottom: 12 }}>Section Breakdown</h3>
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
           {analytics.sectionBreakdown.map(sb => (
             <div key={sb.section} style={{
@@ -541,8 +541,8 @@ function ReviewPhase({ paper, analytics, answers, previousBest, onGoToWeakPracti
               background: `${SECTION_COLORS[sb.section]}10`, border: `1px solid ${SECTION_COLORS[sb.section]}30`,
             }}>
               <div style={{ fontSize: "0.72rem", fontWeight: 700, color: SECTION_COLORS[sb.section] }}>Section {sb.section}</div>
-              <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "rgba(255,255,255,0.9)" }}>{sb.scored}/{sb.maxMarks}</div>
-              <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.4)" }}>{sb.percent}% accuracy</div>
+              <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "var(--text)" }}>{sb.scored}/{sb.maxMarks}</div>
+              <div style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>{sb.percent}% accuracy</div>
               {analytics.timeAnalysis.perSectionSeconds[sb.section] != null && (
                 <div style={{ fontSize: "0.68rem", color: "var(--text-muted)", marginTop: 2 }}>
                   {formatTime(analytics.timeAnalysis.perSectionSeconds[sb.section])}
@@ -557,16 +557,16 @@ function ReviewPhase({ paper, analytics, answers, previousBest, onGoToWeakPracti
         marginTop: 20, background: "var(--bg-card)", borderRadius: 16, padding: "20px",
         border: "1px solid var(--bg-card-border)",
       }}>
-        <h3 style={{ fontSize: "0.88rem", fontWeight: 700, color: "rgba(255,255,255,0.9)", marginBottom: 12 }}>Subtopic Heatmap</h3>
+        <h3 style={{ fontSize: "0.88rem", fontWeight: 700, color: "var(--text)", marginBottom: 12 }}>Subtopic Heatmap</h3>
         {analytics.subtopicHeatmap.map(s => (
           <div key={s.subtopic} style={{ marginBottom: 8 }}>
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem", marginBottom: 3 }}>
-              <span style={{ color: "rgba(255,255,255,0.85)" }}>{s.subtopic}</span>
+              <span style={{ color: "var(--text)" }}>{s.subtopic}</span>
               <span style={{ fontWeight: 600, color: s.percent >= 70 ? "#16a34a" : s.percent >= 40 ? "#f59e0b" : "#ef4444" }}>
                 {s.correct}/{s.total} ({s.percent}%)
               </span>
             </div>
-            <div style={{ height: 6, borderRadius: 999, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
+            <div style={{ height: 6, borderRadius: 999, background: "var(--bg-card-border)", overflow: "hidden" }}>
               <div style={{
                 height: "100%", borderRadius: 999, width: `${s.percent}%`,
                 background: s.percent >= 70 ? "#22c55e" : s.percent >= 40 ? "#f59e0b" : "#ef4444",
@@ -604,7 +604,7 @@ function ReviewPhase({ paper, analytics, answers, previousBest, onGoToWeakPracti
       )}
 
       <div style={{ marginTop: 20 }}>
-        <h3 style={{ fontSize: "0.88rem", fontWeight: 700, color: "rgba(255,255,255,0.9)", marginBottom: 12 }}>Full Paper Review</h3>
+        <h3 style={{ fontSize: "0.88rem", fontWeight: 700, color: "var(--text)", marginBottom: 12 }}>Full Paper Review</h3>
         {paper.sections.map(sec => (
           <div key={sec.section} style={{
             background: "var(--bg-card)", borderRadius: 16, padding: "16px", marginBottom: 12,

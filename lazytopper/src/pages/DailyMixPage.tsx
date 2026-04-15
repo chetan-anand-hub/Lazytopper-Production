@@ -434,7 +434,7 @@ export default function DailyMixPage() {
         <div
           style={{
             display: "flex", alignItems: "center", gap: 8, padding: "6px 14px",
-            background: streakDays > 0 ? "rgba(249,115,22,0.1)" : "rgba(255,255,255,0.06)",
+            background: streakDays > 0 ? "rgba(249,115,22,0.1)" : "var(--bg-card)",
             borderRadius: 999, fontWeight: 800, fontSize: 14,
           }}
         >
@@ -472,12 +472,12 @@ export default function DailyMixPage() {
             onClick={() => playback.seek(i)}
             style={{
               width: 36, height: 36, borderRadius: 10,
-              border: i === playback.currentIndex ? "2px solid #3b82f6" : "1px solid rgba(255,255,255,0.06)",
+              border: i === playback.currentIndex ? "2px solid #3b82f6" : "1px solid var(--bg-card-border)",
               background: questionStates[i]?.submitted
                 ? questionStates[i]?.correct === false ? "rgba(239,68,68,0.08)" : "rgba(34,197,94,0.08)"
-                : i === playback.currentIndex ? "rgba(59,130,246,0.1)" : "rgba(255,255,255,0.03)",
+                : i === playback.currentIndex ? "rgba(59,130,246,0.1)" : "var(--bg-card)",
               fontWeight: 700, fontSize: 14, cursor: "pointer",
-              color: i === playback.currentIndex ? "#3b82f6" : "rgba(255,255,255,0.45)",
+              color: i === playback.currentIndex ? "#3b82f6" : "var(--text-muted)",
             }}
           >
             {questionStates[i]?.submitted ? (questionStates[i]?.correct === false ? "✗" : "✓") : i + 1}
@@ -495,7 +495,7 @@ export default function DailyMixPage() {
           <span
             style={{
               fontSize: 11, fontWeight: 800, padding: "2px 10px", borderRadius: 999,
-              background: isQuestionItem ? (difficultyColors[itemDifficulty] || "rgba(255,255,255,0.2)") : (currentItem?.type === "video" ? "#ff9600" : "#0ea5e9"),
+              background: isQuestionItem ? (difficultyColors[itemDifficulty] || "var(--text-muted)") : (currentItem?.type === "video" ? "#ff9600" : "#0ea5e9"),
               color: "var(--text)",
               textTransform: "uppercase", letterSpacing: 0.5,
             }}
@@ -539,7 +539,7 @@ export default function DailyMixPage() {
                 disabled={!qs?.studentAnswer?.trim()}
                 style={{
                   padding: "10px 24px",
-                  background: qs?.studentAnswer?.trim() ? "#3b82f6" : "rgba(255,255,255,0.1)",
+                  background: qs?.studentAnswer?.trim() ? "#3b82f6" : "var(--bg-card)",
                   color: "var(--text)", border: "none", borderRadius: 10, fontWeight: 700, fontSize: 14,
                   cursor: qs?.studentAnswer?.trim() ? "pointer" : "default",
                 }}
@@ -564,7 +564,7 @@ export default function DailyMixPage() {
               type="button"
               onClick={() => handleMarkRead(playback.currentIndex)}
               style={{
-                padding: "10px 24px", background: "#22c55e", color: "#fff",
+                padding: "10px 24px", background: "#22c55e", color: "var(--text)",
                 border: "none", borderRadius: 10, fontWeight: 700, fontSize: 14, cursor: "pointer",
               }}
             >
@@ -575,8 +575,8 @@ export default function DailyMixPage() {
           <div
             style={{
               marginTop: 16, padding: 16, borderRadius: 12,
-              background: qs.correct === false ? "rgba(239,68,68,0.06)" : qs.correct === true ? "rgba(34,197,94,0.06)" : "rgba(255,255,255,0.04)",
-              border: `1px solid ${qs.correct === false ? "rgba(239,68,68,0.2)" : qs.correct === true ? "rgba(34,197,94,0.2)" : "rgba(255,255,255,0.06)"}`,
+              background: qs.correct === false ? "rgba(239,68,68,0.06)" : qs.correct === true ? "rgba(34,197,94,0.06)" : "var(--bg-card)",
+              border: `1px solid ${qs.correct === false ? "rgba(239,68,68,0.2)" : qs.correct === true ? "rgba(34,197,94,0.2)" : "var(--bg-card-border)"}`,
             }}
           >
             {qs.feedbackLoading ? (
@@ -626,7 +626,7 @@ export default function DailyMixPage() {
           <button
             type="button"
             onClick={() => navigate(backTarget)}
-            style={{ padding: "8px 24px", background: "#22c55e", color: "#fff", border: "none", borderRadius: 10, fontWeight: 700, fontSize: 14, cursor: "pointer" }}
+            style={{ padding: "8px 24px", background: "#22c55e", color: "var(--text)", border: "none", borderRadius: 10, fontWeight: 700, fontSize: 14, cursor: "pointer" }}
           >
             {navState?.backLabel ? `Done — ${navState.backLabel}` : "Done — Back to Dashboard"}
           </button>

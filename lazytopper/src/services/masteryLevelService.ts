@@ -30,7 +30,7 @@ export const MASTERY_LABELS: Record<MasteryLevel, string> = {
 };
 
 export const MASTERY_COLORS: Record<MasteryLevel, string> = {
-  not_started: "rgba(255,255,255,0.15)",
+  not_started: "var(--text-muted)",
   attempted: "#94a3b8",
   familiar: "#3b82f6",
   proficient: "#22c55e",

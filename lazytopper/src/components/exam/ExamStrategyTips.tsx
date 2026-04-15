@@ -69,7 +69,7 @@ export function ExamStrategyTips({ onDismiss }: ExamStrategyTipsProps) {
           </div>
           <h3
             className="font-display"
-            style={{ fontSize: "1.1rem", fontWeight: 700, color: "#fff", margin: 0 }}
+            style={{ fontSize: "1.1rem", fontWeight: 700, color: "var(--text)", margin: 0 }}
           >
             Before You Begin
           </h3>
@@ -81,10 +81,10 @@ export function ExamStrategyTips({ onDismiss }: ExamStrategyTipsProps) {
           }}
           style={{
             background: "transparent",
-            border: "1px solid rgba(255,255,255,0.1)",
+            border: "1px solid var(--bg-card-border)",
             borderRadius: 8,
             padding: "4px 10px",
-            color: "rgba(255,255,255,0.4)",
+            color: "var(--text-muted)",
             fontSize: "0.72rem",
             cursor: "pointer",
           }}
@@ -101,13 +101,13 @@ export function ExamStrategyTips({ onDismiss }: ExamStrategyTipsProps) {
               padding: "10px 14px",
               borderRadius: 12,
               background: "rgba(0,0,0,0.15)",
-              border: "1px solid rgba(255,255,255,0.04)",
+              border: "1px solid var(--bg-card-border)",
             }}
           >
-            <div style={{ fontSize: "0.82rem", fontWeight: 700, color: "rgba(255,255,255,0.85)", marginBottom: 4 }}>
+            <div style={{ fontSize: "0.82rem", fontWeight: 700, color: "var(--text)", marginBottom: 4 }}>
               {tip.title}
             </div>
-            <div style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.5)", lineHeight: 1.5 }}>
+            <div style={{ fontSize: "0.78rem", color: "var(--text-muted)", lineHeight: 1.5 }}>
               {tip.body}
             </div>
           </div>
@@ -119,7 +119,7 @@ export function ExamStrategyTips({ onDismiss }: ExamStrategyTipsProps) {
           style={{
             fontSize: "0.75rem",
             fontWeight: 700,
-            color: "rgba(255,255,255,0.5)",
+            color: "var(--text-muted)",
             marginBottom: 8,
             letterSpacing: "0.05em",
             textTransform: "uppercase",

@@ -87,11 +87,11 @@ export function WhyThisQuestionPanel({
 
               <div style={{ display: "grid", gap: 10 }}>
                 <div>
-                  <div style={{ fontSize: "0.78rem", fontWeight: 800, color: "rgba(255,255,255,0.85)", marginBottom: 4 }}>
+                  <div style={{ fontSize: "0.78rem", fontWeight: 800, color: "var(--text)", marginBottom: 4 }}>
                     Learning objects
                   </div>
                   {learningObjects.length > 0 ? (
-                    <ul style={{ margin: 0, paddingLeft: 18, fontSize: "0.78rem", color: "rgba(255,255,255,0.85)", lineHeight: 1.45 }}>
+                    <ul style={{ margin: 0, paddingLeft: 18, fontSize: "0.78rem", color: "var(--text)", lineHeight: 1.45 }}>
                       {learningObjects.map((lo) => (
                         <li key={lo.loId}>
                           <strong>{lo.title}:</strong> {lo.description}
@@ -99,7 +99,7 @@ export function WhyThisQuestionPanel({
                       ))}
                     </ul>
                   ) : (
-                    <div style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.45)" }}>
+                    <div style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>
                       Learning objects are being mapped for this question.
                     </div>
                   )}
@@ -107,10 +107,10 @@ export function WhyThisQuestionPanel({
 
                 {commonMistakes.length > 0 && (
                   <div>
-                    <div style={{ fontSize: "0.78rem", fontWeight: 800, color: "rgba(255,255,255,0.85)", marginBottom: 4 }}>
+                    <div style={{ fontSize: "0.78rem", fontWeight: 800, color: "var(--text)", marginBottom: 4 }}>
                       Common mistakes
                     </div>
-                    <ul style={{ margin: 0, paddingLeft: 18, fontSize: "0.78rem", color: "rgba(255,255,255,0.85)", lineHeight: 1.45 }}>
+                    <ul style={{ margin: 0, paddingLeft: 18, fontSize: "0.78rem", color: "var(--text)", lineHeight: 1.45 }}>
                       {commonMistakes.map((mistake) => (
                         <li key={mistake}>{mistake}</li>
                       ))}
@@ -130,7 +130,7 @@ export function WhyThisQuestionPanel({
               </div>
             </>
           ) : (
-            <div style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.45)" }}>
+            <div style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
               This question isn&apos;t tagged yet. Practice normally.
             </div>
           )}

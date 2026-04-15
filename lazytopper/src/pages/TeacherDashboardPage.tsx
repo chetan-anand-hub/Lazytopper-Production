@@ -179,11 +179,11 @@ export default function TeacherDashboardPage() {
           >
             <h1
               className="font-display"
-              style={{ fontSize: "1.5rem", fontWeight: 800, color: "#fff", margin: "0 0 8px" }}
+              style={{ fontSize: "1.5rem", fontWeight: 800, color: "var(--text)", margin: "0 0 8px" }}
             >
               Teacher Dashboard
             </h1>
-            <p style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.5)", margin: 0 }}>
+            <p style={{ fontSize: "0.85rem", color: "var(--text-muted)", margin: 0 }}>
               Create a class, share the join code with your students, and track their progress.
             </p>
           </section>
@@ -191,7 +191,7 @@ export default function TeacherDashboardPage() {
           <section style={{ marginTop: 24 }}>
             <h2
               className="font-display"
-              style={{ fontSize: "1rem", fontWeight: 700, color: "#fff", marginBottom: 12 }}
+              style={{ fontSize: "1rem", fontWeight: 700, color: "var(--text)", marginBottom: 12 }}
             >
               Create New Class
             </h2>
@@ -206,9 +206,9 @@ export default function TeacherDashboardPage() {
                   flex: 1,
                   padding: "10px 14px",
                   borderRadius: 12,
-                  border: "1px solid rgba(255,255,255,0.1)",
-                  background: "rgba(255,255,255,0.04)",
-                  color: "#fff",
+                  border: "1px solid var(--bg-card-border)",
+                  background: "var(--bg-card)",
+                  color: "var(--text)",
                   fontSize: "0.88rem",
                   outline: "none",
                 }}
@@ -221,7 +221,7 @@ export default function TeacherDashboardPage() {
                   borderRadius: 12,
                   border: "none",
                   background: newClassName.trim() ? "#8b5cf6" : "#64748b",
-                  color: "#fff",
+                  color: "var(--text)",
                   fontWeight: 700,
                   fontSize: "0.85rem",
                   cursor: newClassName.trim() ? "pointer" : "default",
@@ -236,7 +236,7 @@ export default function TeacherDashboardPage() {
             <section style={{ marginTop: 24 }}>
               <h2
                 className="font-display"
-                style={{ fontSize: "1rem", fontWeight: 700, color: "#fff", marginBottom: 12 }}
+                style={{ fontSize: "1rem", fontWeight: 700, color: "var(--text)", marginBottom: 12 }}
               >
                 Your Classes
               </h2>
@@ -250,13 +250,13 @@ export default function TeacherDashboardPage() {
                       padding: "14px 18px",
                       borderRadius: 14,
                       border: "1px solid rgba(139,92,246,0.15)",
-                      background: "rgba(255,255,255,0.03)",
+                      background: "var(--bg-card)",
                       cursor: "pointer",
-                      color: "#fff",
+                      color: "var(--text)",
                     }}
                   >
                     <div style={{ fontWeight: 700, fontSize: "0.95rem" }}>{cls.className}</div>
-                    <div style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.4)", marginTop: 4 }}>
+                    <div style={{ fontSize: "0.78rem", color: "var(--text-muted)", marginTop: 4 }}>
                       Join code: <strong style={{ color: "#8b5cf6" }}>{cls.joinCode}</strong>
                       {" · "}
                       {cls.students.length} students
@@ -313,11 +313,11 @@ export default function TeacherDashboardPage() {
             <div>
               <h1
                 className="font-display"
-                style={{ fontSize: "1.4rem", fontWeight: 800, color: "#fff", margin: "0 0 4px" }}
+                style={{ fontSize: "1.4rem", fontWeight: 800, color: "var(--text)", margin: "0 0 4px" }}
               >
                 {activeClass.className}
               </h1>
-              <div style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.5)" }}>
+              <div style={{ fontSize: "0.82rem", color: "var(--text-muted)" }}>
                 {activeClass.students.length} students · Created{" "}
                 {new Date(activeClass.createdAt).toLocaleDateString()}
               </div>
@@ -343,9 +343,9 @@ export default function TeacherDashboardPage() {
                 style={{
                   padding: "8px 14px",
                   borderRadius: 12,
-                  border: "1px solid rgba(255,255,255,0.1)",
-                  background: copiedCode ? "rgba(34,197,94,0.15)" : "rgba(255,255,255,0.04)",
-                  color: copiedCode ? "#22c55e" : "rgba(255,255,255,0.6)",
+                  border: "1px solid var(--bg-card-border)",
+                  background: copiedCode ? "rgba(34,197,94,0.15)" : "var(--bg-card)",
+                  color: copiedCode ? "#22c55e" : "var(--text-muted)",
                   fontSize: "0.78rem",
                   fontWeight: 600,
                   cursor: "pointer",
@@ -363,14 +363,14 @@ export default function TeacherDashboardPage() {
                   flex: "1 1 140px",
                   padding: "12px 16px",
                   borderRadius: 14,
-                  background: "rgba(255,255,255,0.06)",
+                  background: "var(--bg-card)",
                   textAlign: "center",
                 }}
               >
                 <div style={{ fontSize: "1.8rem", fontWeight: 800, color: "#22c55e" }}>
                   {classStats.readiness}%
                 </div>
-                <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.4)" }}>
+                <div style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>
                   Class Readiness
                 </div>
               </div>
@@ -379,14 +379,14 @@ export default function TeacherDashboardPage() {
                   flex: "1 1 140px",
                   padding: "12px 16px",
                   borderRadius: 14,
-                  background: "rgba(255,255,255,0.06)",
+                  background: "var(--bg-card)",
                   textAlign: "center",
                 }}
               >
                 <div style={{ fontSize: "1.8rem", fontWeight: 800, color: "#3b82f6" }}>
                   {classStats.classAvg}%
                 </div>
-                <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.4)" }}>
+                <div style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>
                   Average Accuracy
                 </div>
               </div>
@@ -395,7 +395,7 @@ export default function TeacherDashboardPage() {
                   flex: "1 1 140px",
                   padding: "12px 16px",
                   borderRadius: 14,
-                  background: classStats.struggling.length > 0 ? "rgba(239,68,68,0.08)" : "rgba(255,255,255,0.06)",
+                  background: classStats.struggling.length > 0 ? "rgba(239,68,68,0.08)" : "var(--bg-card)",
                   textAlign: "center",
                 }}
               >
@@ -408,7 +408,7 @@ export default function TeacherDashboardPage() {
                 >
                   {classStats.struggling.length}
                 </div>
-                <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.4)" }}>
+                <div style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>
                   Struggling Students
                 </div>
               </div>
@@ -420,11 +420,11 @@ export default function TeacherDashboardPage() {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
             <h2
               className="font-display"
-              style={{ fontSize: "1rem", fontWeight: 700, color: "#fff", margin: 0 }}
+              style={{ fontSize: "1rem", fontWeight: 700, color: "var(--text)", margin: 0 }}
             >
               Topic-wise Mastery Heatmap
             </h2>
-            <div style={{ borderRadius: 10, padding: 3, background: "rgba(255,255,255,0.06)", display: "inline-flex", gap: 3 }}>
+            <div style={{ borderRadius: 10, padding: 3, background: "var(--bg-card-border)", display: "inline-flex", gap: 3 }}>
               {(["maths", "science"] as CanonicalSubjectId[]).map((subj) => {
                 const active = subj === selectedSubject;
                 return (
@@ -439,7 +439,7 @@ export default function TeacherDashboardPage() {
                       fontWeight: 700,
                       cursor: "pointer",
                       background: active ? "#8b5cf6" : "transparent",
-                      color: active ? "#fff" : "rgba(255,255,255,0.5)",
+                      color: active ? "#fff" : "var(--text-muted)",
                     }}
                   >
                     {subj === "maths" ? "Maths" : "Science"}
@@ -454,8 +454,8 @@ export default function TeacherDashboardPage() {
               style={{
                 overflowX: "auto",
                 borderRadius: 14,
-                border: "1px solid rgba(255,255,255,0.06)",
-                background: "rgba(255,255,255,0.02)",
+                border: "1px solid var(--bg-card-border)",
+                background: "var(--bg-card)",
               }}
             >
               <div style={{ display: "flex", flexDirection: "column", minWidth: 500 }}>
@@ -469,7 +469,7 @@ export default function TeacherDashboardPage() {
                         alignItems: "center",
                         gap: 12,
                         padding: "8px 16px",
-                        borderBottom: "1px solid rgba(255,255,255,0.04)",
+                        borderBottom: "1px solid var(--bg-card-border)",
                       }}
                     >
                       <div
@@ -477,13 +477,13 @@ export default function TeacherDashboardPage() {
                           width: 200,
                           flexShrink: 0,
                           fontSize: "0.78rem",
-                          color: "rgba(255,255,255,0.7)",
+                          color: "var(--text)",
                           fontWeight: 500,
                         }}
                       >
                         {formatChapterTitle(ch)}
                       </div>
-                      <div style={{ flex: 1, height: 10, borderRadius: 999, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
+                      <div style={{ flex: 1, height: 10, borderRadius: 999, background: "var(--bg-card-border)", overflow: "hidden" }}>
                         <div
                           style={{
                             height: "100%",
@@ -542,16 +542,16 @@ export default function TeacherDashboardPage() {
                     }}
                   >
                     <div>
-                      <div style={{ fontWeight: 600, fontSize: "0.88rem", color: "rgba(255,255,255,0.85)" }}>
+                      <div style={{ fontWeight: 600, fontSize: "0.88rem", color: "var(--text)" }}>
                         {student.name}
                       </div>
-                      <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.4)", marginTop: 2 }}>
+                      <div style={{ fontSize: "0.72rem", color: "var(--text-muted)", marginTop: 2 }}>
                         {student.totalPracticed} questions practiced · Last active {daysAgo === 0 ? "today" : `${daysAgo}d ago`}
                       </div>
                     </div>
                     <div style={{ textAlign: "right" }}>
                       <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "#ef4444" }}>{avg}%</div>
-                      <div style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.3)" }}>avg accuracy</div>
+                      <div style={{ fontSize: "0.65rem", color: "var(--text-muted)" }}>avg accuracy</div>
                     </div>
                   </div>
                 );
@@ -563,7 +563,7 @@ export default function TeacherDashboardPage() {
         <section style={{ marginTop: 24 }}>
           <h2
             className="font-display"
-            style={{ fontSize: "1rem", fontWeight: 700, color: "#fff", marginBottom: 12 }}
+            style={{ fontSize: "1rem", fontWeight: 700, color: "var(--text)", marginBottom: 12 }}
           >
             All Students
           </h2>
@@ -571,17 +571,17 @@ export default function TeacherDashboardPage() {
             style={{
               overflowX: "auto",
               borderRadius: 14,
-              border: "1px solid rgba(255,255,255,0.06)",
-              background: "rgba(255,255,255,0.02)",
+              border: "1px solid var(--bg-card-border)",
+              background: "var(--bg-card)",
             }}
           >
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.8rem" }}>
               <thead>
-                <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
-                  <th style={{ textAlign: "left", padding: "10px 16px", color: "rgba(255,255,255,0.5)", fontWeight: 600 }}>Name</th>
-                  <th style={{ textAlign: "right", padding: "10px 16px", color: "rgba(255,255,255,0.5)", fontWeight: 600 }}>Avg Accuracy</th>
-                  <th style={{ textAlign: "right", padding: "10px 16px", color: "rgba(255,255,255,0.5)", fontWeight: 600 }}>Qs Practiced</th>
-                  <th style={{ textAlign: "right", padding: "10px 16px", color: "rgba(255,255,255,0.5)", fontWeight: 600 }}>Last Active</th>
+                <tr style={{ borderBottom: "1px solid var(--bg-card-border)" }}>
+                  <th style={{ textAlign: "left", padding: "10px 16px", color: "var(--text-muted)", fontWeight: 600 }}>Name</th>
+                  <th style={{ textAlign: "right", padding: "10px 16px", color: "var(--text-muted)", fontWeight: 600 }}>Avg Accuracy</th>
+                  <th style={{ textAlign: "right", padding: "10px 16px", color: "var(--text-muted)", fontWeight: 600 }}>Qs Practiced</th>
+                  <th style={{ textAlign: "right", padding: "10px 16px", color: "var(--text-muted)", fontWeight: 600 }}>Last Active</th>
                 </tr>
               </thead>
               <tbody>
@@ -601,9 +601,9 @@ export default function TeacherDashboardPage() {
                     return (
                       <tr
                         key={student.id}
-                        style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}
+                        style={{ borderBottom: "1px solid var(--bg-card-border)" }}
                       >
-                        <td style={{ padding: "10px 16px", color: "rgba(255,255,255,0.85)" }}>
+                        <td style={{ padding: "10px 16px", color: "var(--text)" }}>
                           {student.name}
                         </td>
                         <td
@@ -616,10 +616,10 @@ export default function TeacherDashboardPage() {
                         >
                           {avg}%
                         </td>
-                        <td style={{ padding: "10px 16px", textAlign: "right", color: "rgba(255,255,255,0.6)" }}>
+                        <td style={{ padding: "10px 16px", textAlign: "right", color: "var(--text-muted)" }}>
                           {student.totalPracticed}
                         </td>
-                        <td style={{ padding: "10px 16px", textAlign: "right", color: "rgba(255,255,255,0.4)" }}>
+                        <td style={{ padding: "10px 16px", textAlign: "right", color: "var(--text-muted)" }}>
                           {daysAgo === 0 ? "Today" : `${daysAgo}d ago`}
                         </td>
                       </tr>
