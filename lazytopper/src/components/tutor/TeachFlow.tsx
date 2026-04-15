@@ -715,19 +715,19 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
 
 const s: Record<string, React.CSSProperties> = {
   container: { maxWidth: 920, margin: "0 auto", padding: "16px 16px 24px", display: "flex", flexDirection: "column", width: "100%" },
-  visualPanel: { padding: "0 0 4px", borderLeft: "1px solid #e5e7eb", borderRight: "1px solid #e5e7eb", background: "#f8f9fb" },
+  visualPanel: { padding: "0 0 4px", borderLeft: "1px solid var(--bg-card-border)", borderRight: "1px solid var(--bg-card-border)", background: "var(--bg)" },
 
-  introCard: { background: "white", borderRadius: 16, padding: "32px 24px", textAlign: "center", border: "1px solid #e5e7eb" },
+  introCard: { background: "var(--bg-card)", borderRadius: 16, padding: "32px 24px", textAlign: "center", border: "1px solid var(--bg-card-border)" },
   introAvatarLarge: {
     width: 56, height: 56, borderRadius: "50%", background: "#58cc02",
     color: "white", display: "flex", alignItems: "center", justifyContent: "center",
     fontSize: 20, fontWeight: 700, margin: "0 auto 16px", letterSpacing: 1,
     boxShadow: "0 4px 0 #46a302",
   },
-  introTitle: { fontSize: 22, fontWeight: 700, color: "#1a1a2e", margin: "0 0 8px" },
-  introSub: { fontSize: 14, color: "#666", lineHeight: 1.6, maxWidth: 440, margin: "0 auto 20px" },
+  introTitle: { fontSize: 22, fontWeight: 700, color: "var(--text)", margin: "0 0 8px" },
+  introSub: { fontSize: 14, color: "var(--text-muted)", lineHeight: 1.6, maxWidth: 440, margin: "0 auto 20px" },
   introFeatures: { display: "flex", justifyContent: "center", gap: 20, marginBottom: 24, flexWrap: "wrap" },
-  introFeature: { display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "#555" },
+  introFeature: { display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "var(--text-muted)" },
   featureIcon: { fontSize: 16 },
   startBtn: {
     background: "#58cc02", color: "white", border: "none",
@@ -736,7 +736,7 @@ const s: Record<string, React.CSSProperties> = {
   },
 
   chatHeader: {
-    background: "white", borderRadius: "12px 12px 0 0", padding: "12px 16px", borderBottom: "1px solid #e5e7eb",
+    background: "var(--bg-card)", borderRadius: "12px 12px 0 0", padding: "12px 16px", borderBottom: "1px solid var(--bg-card-border)",
     marginBottom: 0,
   },
   chatHeaderLeft: { display: "flex", alignItems: "center", gap: 10, marginBottom: 8 },
@@ -746,10 +746,10 @@ const s: Record<string, React.CSSProperties> = {
     display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 800,
     letterSpacing: 0.5, boxShadow: "0 2px 0 #46a302",
   },
-  headerTitle: { fontSize: 15, fontWeight: 600, color: "#1a1a2e" },
-  headerSub: { fontSize: 12, color: "#888" },
+  headerTitle: { fontSize: 15, fontWeight: 600, color: "var(--text)" },
+  headerSub: { fontSize: 12, color: "var(--text-muted)" },
   progressBar: {
-    height: 4, background: "#e5e7eb", borderRadius: 2, overflow: "hidden",
+    height: 4, background: "var(--bg-card-border)", borderRadius: 2, overflow: "hidden",
   },
   progressFill: {
     height: "100%", background: "#58cc02", borderRadius: 2,
@@ -757,8 +757,8 @@ const s: Record<string, React.CSSProperties> = {
   },
 
   chatArea: {
-    background: "#f8f9fb", padding: "16px 16px", minHeight: 300, maxHeight: "70vh",
-    overflowY: "auto", borderLeft: "1px solid #e5e7eb", borderRight: "1px solid #e5e7eb",
+    background: "var(--bg)", padding: "16px 16px", minHeight: 300, maxHeight: "70vh",
+    overflowY: "auto", borderLeft: "1px solid var(--bg-card-border)", borderRight: "1px solid var(--bg-card-border)",
   },
 
   tutorBubbleWrap: { display: "flex", alignItems: "flex-start", gap: 8, marginBottom: 14 },
@@ -770,17 +770,17 @@ const s: Record<string, React.CSSProperties> = {
     flexShrink: 0, marginTop: 2, letterSpacing: 0.5, boxShadow: "0 2px 0 #46a302",
   },
   tutorBubble: {
-    background: "white", borderRadius: "4px 16px 16px 16px", padding: "14px 18px",
-    maxWidth: "92%", border: "2px solid #e5e5e5", boxShadow: "0 2px 0 #e5e5e5",
+    background: "var(--bg-card)", borderRadius: "4px 16px 16px 16px", padding: "14px 18px",
+    maxWidth: "92%", border: "2px solid var(--bg-card-border)", boxShadow: "0 2px 0 var(--bg-card-border)",
   },
   studentBubble: {
-    background: "#dbeafe", borderRadius: "16px 4px 16px 16px",
-    padding: "14px 18px", maxWidth: "85%", color: "#3c3c3c",
-    border: "2px solid #93c5fd", boxShadow: "0 2px 0 #93c5fd",
+    background: "rgba(59,130,246,0.12)", borderRadius: "16px 4px 16px 16px",
+    padding: "14px 18px", maxWidth: "85%", color: "var(--text)",
+    border: "2px solid rgba(59,130,246,0.35)", boxShadow: "0 2px 0 rgba(59,130,246,0.2)",
   },
   studentText: { fontSize: 14, lineHeight: 1.6, margin: 0, color: "inherit" },
   checkpointBubble: {
-    borderLeft: "3px solid #f59e0b", background: "#fffbeb",
+    borderLeft: "3px solid #f59e0b", background: "rgba(251,191,36,0.08)",
   },
   checkpointLabel: {
     fontSize: 11, fontWeight: 700, color: "#d97706", textTransform: "uppercase" as const,
@@ -788,8 +788,8 @@ const s: Record<string, React.CSSProperties> = {
   },
 
   typingBubble: {
-    background: "white", borderRadius: "4px 14px 14px 14px", padding: "12px 18px",
-    border: "1px solid #e5e7eb", display: "flex", gap: 4, alignItems: "center",
+    background: "var(--bg-card)", borderRadius: "4px 14px 14px 14px", padding: "12px 18px",
+    border: "1px solid var(--bg-card-border)", display: "flex", gap: 4, alignItems: "center",
   },
   dot1: {
     width: 6, height: 6, borderRadius: "50%", background: "#58cc02",
@@ -804,28 +804,28 @@ const s: Record<string, React.CSSProperties> = {
     animation: "bounce 1.4s infinite", animationDelay: "0.4s",
   },
   typingLabel: {
-    fontSize: 12, color: "#888", marginLeft: 8, fontStyle: "italic",
+    fontSize: 12, color: "var(--text-muted)", marginLeft: 8, fontStyle: "italic",
   },
 
   quickActionsWrap: {
     display: "flex", flexWrap: "wrap", gap: 8, padding: "10px 16px",
-    background: "white", borderLeft: "1px solid #e5e7eb", borderRight: "1px solid #e5e7eb",
+    background: "var(--bg-card)", borderLeft: "1px solid var(--bg-card-border)", borderRight: "1px solid var(--bg-card-border)",
   },
   quickActionBtn: {
-    background: "#f3f4f6", border: "1px solid #e5e7eb", borderRadius: 20,
-    padding: "6px 14px", fontSize: 12, color: "#555", cursor: "pointer",
+    background: "var(--bg)", border: "1px solid var(--bg-card-border)", borderRadius: 20,
+    padding: "6px 14px", fontSize: 12, color: "var(--text-muted)", cursor: "pointer",
     transition: "all 0.2s", fontWeight: 500, whiteSpace: "nowrap",
   },
 
   inputArea: {
-    display: "flex", gap: 8, padding: "12px 16px", background: "white",
-    borderRadius: "0 0 12px 12px", border: "1px solid #e5e7eb", borderTop: "none",
+    display: "flex", gap: 8, padding: "12px 16px", background: "var(--bg-card)",
+    borderRadius: "0 0 12px 12px", border: "1px solid var(--bg-card-border)", borderTop: "none",
     alignItems: "flex-end",
   },
   chatInput: {
-    flex: 1, padding: "10px 14px", fontSize: 14, border: "1px solid #d1d5db", borderRadius: 10,
+    flex: 1, padding: "10px 14px", fontSize: 14, border: "1px solid var(--bg-card-border)", borderRadius: 10,
     resize: "none", fontFamily: "inherit", outline: "none", lineHeight: 1.5,
-    minHeight: 42, maxHeight: 120,
+    minHeight: 42, maxHeight: 120, background: "var(--bg)", color: "var(--text)",
   },
   sendBtn: {
     background: "#58cc02", color: "white", border: "none",
@@ -834,7 +834,7 @@ const s: Record<string, React.CSSProperties> = {
   },
 
   skipLink: {
-    background: "none", border: "none", color: "#888", fontSize: 13, cursor: "pointer",
+    background: "none", border: "none", color: "var(--text-muted)", fontSize: 13, cursor: "pointer",
     textDecoration: "underline", textAlign: "center", marginTop: 12, padding: 4,
   },
 
@@ -844,14 +844,14 @@ const s: Record<string, React.CSSProperties> = {
     background: "transparent", color: "#dc2626", border: "1px solid #dc2626", borderRadius: 6,
     padding: "4px 12px", fontSize: 12, cursor: "pointer", marginTop: 6,
   },
-  loadingText: { fontSize: 14, color: "#888", marginTop: 16 },
+  loadingText: { fontSize: 14, color: "var(--text-muted)", marginTop: 16 },
 
-  completedBanner: { background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 16, padding: "32px 24px", textAlign: "center" },
-  completeCard: { background: "white", border: "1px solid #e5e7eb", borderRadius: "0 0 16px 16px", padding: "32px 24px", textAlign: "center" },
+  completedBanner: { background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.25)", borderRadius: 16, padding: "32px 24px", textAlign: "center" },
+  completeCard: { background: "var(--bg-card)", border: "1px solid var(--bg-card-border)", borderRadius: "0 0 16px 16px", padding: "32px 24px", textAlign: "center" },
   completeTick: { fontSize: 36, marginBottom: 8 },
-  completeMsg: { fontSize: 18, fontWeight: 600, color: "#1a1a2e", margin: "0 0 6px" },
-  completeSub: { fontSize: 14, color: "#666", lineHeight: 1.5, margin: "0 0 4px" },
-  completedDate: { fontSize: 13, color: "#888", marginTop: 4 },
+  completeMsg: { fontSize: 18, fontWeight: 600, color: "var(--text)", margin: "0 0 6px" },
+  completeSub: { fontSize: 14, color: "var(--text-muted)", lineHeight: 1.5, margin: "0 0 4px" },
+  completedDate: { fontSize: 13, color: "var(--text-muted)", marginTop: 4 },
   primaryBtn: {
     background: "#58cc02", color: "white", border: "none",
     borderRadius: 12, padding: "10px 24px", fontSize: 14, fontWeight: 700, cursor: "pointer",

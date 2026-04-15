@@ -594,8 +594,8 @@ export default function DailyMissionPage() {
                   const label = String.fromCharCode(65 + idx);
                   return (
                     <button key={idx} type="button" onClick={() => handleMCQSelect(opt)} style={{
-                      padding: "12px 16px", borderRadius: 12, border: "1px solid rgba(255,255,255,0.12)",
-                      background: "rgba(255,255,255,0.04)", color: "var(--text)", textAlign: "left",
+                      padding: "12px 16px", borderRadius: 12, border: "1px solid var(--bg-card-border)",
+                      background: "var(--bg-card)", color: "var(--text)", textAlign: "left",
                       fontSize: 14, fontWeight: 500, cursor: "pointer", display: "flex", gap: 12, alignItems: "flex-start",
                       transition: "background 0.15s ease, border-color 0.15s ease",
                     }}>
@@ -609,8 +609,8 @@ export default function DailyMissionPage() {
                 })}
               </div>
               <button type="button" onClick={handleSkip} style={{
-                marginTop: 12, padding: "8px 16px", background: "rgba(255,255,255,0.04)",
-                color: "var(--text-muted)", border: "1px solid rgba(255,255,255,0.06)",
+                marginTop: 12, padding: "8px 16px", background: "var(--bg-card)",
+                color: "var(--text-muted)", border: "1px solid var(--bg-card-border)",
                 borderRadius: 10, fontWeight: 600, fontSize: 13, cursor: "pointer",
               }}>
                 Skip
@@ -676,9 +676,9 @@ export default function DailyMissionPage() {
                 const optL = opt.trim().toLowerCase();
                 const isSelected = optL === currentAnswer.studentAnswer.trim().toLowerCase();
                 const isCorrectOption = optL === modelAnswer || modelAnswer.includes(optL) || optL.includes(modelAnswer);
-                let bg = "rgba(255,255,255,0.03)";
-                let border = "1px solid rgba(255,255,255,0.08)";
-                let labelColor = "rgba(255,255,255,0.3)";
+                let bg = "var(--bg-card)";
+                let border = "1px solid var(--bg-card-border)";
+                let labelColor = "var(--text-muted)";
                 if (isSelected && currentAnswer.correct) {
                   bg = "rgba(34,197,94,0.15)";
                   border = "1px solid rgba(34,197,94,0.4)";
@@ -713,9 +713,9 @@ export default function DailyMissionPage() {
             <div style={{
               marginTop: 16, padding: 16, borderRadius: 12,
               background: currentAnswer.correct === true ? "rgba(34,197,94,0.1)"
-                : currentAnswer.correct === false ? "rgba(239,68,68,0.1)" : "rgba(255,255,255,0.04)",
+                : currentAnswer.correct === false ? "rgba(239,68,68,0.1)" : "var(--bg-card)",
               border: `1px solid ${currentAnswer.correct === true ? "rgba(34,197,94,0.3)"
-                : currentAnswer.correct === false ? "rgba(239,68,68,0.3)" : "rgba(255,255,255,0.08)"}`,
+                : currentAnswer.correct === false ? "rgba(239,68,68,0.3)" : "var(--bg-card-border)"}`,
             }}>
               {!hasMCQ && currentAnswer.studentAnswer && currentAnswer.studentAnswer !== "(read)" && currentAnswer.studentAnswer !== "(skipped)" && (
                 <div style={{ fontSize: 12, opacity: 0.5, marginBottom: 8 }}>

@@ -79,7 +79,7 @@ export default function ConceptTeachDrawer({ open, onClose, context }: ConceptTe
           height: "100vh",
           maxHeight: "100vh",
           minHeight: "100vh",
-          background: "#ffffff",
+          background: "var(--bg)",
           borderRadius: 0,
           boxShadow: "none",
           display: "flex",
@@ -91,8 +91,8 @@ export default function ConceptTeachDrawer({ open, onClose, context }: ConceptTe
         <div
           style={{
             padding: "16px 24px",
-            borderBottom: "1px solid #e2e8f0",
-            background: "#f7f7f7",
+            borderBottom: "1px solid var(--bg-card-border)",
+            background: "var(--bg-card)",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
@@ -100,22 +100,22 @@ export default function ConceptTeachDrawer({ open, onClose, context }: ConceptTe
           }}
         >
           <div>
-            <div style={{ fontSize: "1rem", fontWeight: 700, color: "#1e293b" }}>
+            <div style={{ fontSize: "1rem", fontWeight: 700, color: "var(--text)" }}>
               Teach Me: {topicLabel}
             </div>
-            <div style={{ fontSize: "0.78rem", color: "#64748b", marginTop: 2 }}>
+            <div style={{ fontSize: "0.78rem", color: "var(--text-muted)", marginTop: 2 }}>
               {context.subject} &middot; Learn the concept step by step
             </div>
           </div>
           <button
             onClick={onClose}
             style={{
-              background: "#f1f5f9",
-              border: "1px solid #cbd5e1",
+              background: "var(--bg)",
+              border: "1px solid var(--bg-card-border)",
               borderRadius: 999,
               padding: "6px 16px",
               fontSize: "0.82rem",
-              color: "#475569",
+              color: "var(--text-muted)",
               cursor: "pointer",
               fontWeight: 500,
             }}
