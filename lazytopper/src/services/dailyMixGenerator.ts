@@ -128,6 +128,8 @@ function toQuestionItem(q: HPQQuestion, topicLabel: string, index: number): Dail
       stem,
       tier: String(q.tier || "must-crack"),
       mode: "must-crack",
+      modelAnswer: String(q.answer || ""),
+      options: Array.isArray((q as unknown as { options?: string[] }).options) ? (q as unknown as { options: string[] }).options : [],
     },
   };
 }

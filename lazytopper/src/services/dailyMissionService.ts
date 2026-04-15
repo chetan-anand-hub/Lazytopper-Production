@@ -24,6 +24,7 @@ interface PracticeQuestionView {
   difficulty: string;
   marks: number;
   answer: string;
+  options: string[];
 }
 
 function toPracticeView(q: CanonicalQuestion): PracticeQuestionView {
@@ -33,6 +34,7 @@ function toPracticeView(q: CanonicalQuestion): PracticeQuestionView {
     difficulty: q.difficulty || "Medium",
     marks: q.marks || 2,
     answer: q.answer || "",
+    options: Array.isArray(q.options) ? (q.options as string[]) : [],
   };
 }
 
@@ -224,6 +226,7 @@ function buildLearningSegment(topicSlug: string, subject: "Maths" | "Science", s
           marks: q.marks || 1,
           difficulty: String(q.difficulty || "Medium"),
           modelAnswer: String(q.answer || ""),
+          options: Array.isArray((q as unknown as { options?: string[] }).options) ? (q as unknown as { options: string[] }).options : [],
         },
       });
     }
@@ -252,6 +255,7 @@ function buildLearningSegment(topicSlug: string, subject: "Maths" | "Science", s
           marks: pq.marks || 1,
           difficulty: pq.difficulty,
           modelAnswer: pq.answer,
+          options: pq.options,
         },
       });
     }
@@ -293,6 +297,7 @@ function buildPracticeSegment(topicSlug: string, subject: "Maths" | "Science", s
         marks: pq.marks,
         difficulty: pq.difficulty,
         modelAnswer: pq.answer,
+        options: pq.options,
       },
     });
   }
@@ -318,6 +323,7 @@ function buildPracticeSegment(topicSlug: string, subject: "Maths" | "Science", s
             marks: q.marks || 2,
             difficulty: String(q.difficulty || "Medium"),
             modelAnswer: String(q.answer || ""),
+            options: Array.isArray((q as unknown as { options?: string[] }).options) ? (q as unknown as { options: string[] }).options : [],
           },
         });
       }
@@ -356,6 +362,7 @@ function buildExamSegment(subject: "Maths" | "Science", seed: number): MissionSe
         marks: q.marks || 3,
         difficulty: String(q.difficulty || "Hard"),
         modelAnswer: String(q.answer || ""),
+        options: Array.isArray((q as unknown as { options?: string[] }).options) ? (q as unknown as { options: string[] }).options : [],
         timed: true,
       },
     });
@@ -395,6 +402,7 @@ function buildMockTestSegment(topicSlug: string, subject: "Maths" | "Science", _
         marks: pq.marks,
         difficulty: pq.difficulty,
         modelAnswer: pq.answer,
+        options: pq.options,
         timed: true,
       },
     };
@@ -453,6 +461,7 @@ function buildWeakDrillSegment(subject: "Maths" | "Science", excludeSlug: string
         marks: pq.marks,
         difficulty: pq.difficulty,
         modelAnswer: pq.answer,
+        options: pq.options,
       },
     };
   });

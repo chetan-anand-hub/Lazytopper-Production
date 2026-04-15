@@ -324,6 +324,20 @@ export default function DailyMissionPage() {
     });
   }, [segmentIndex, itemIndex, updateAnswer]);
 
+  const handleMCQSelect = useCallback((selected: string) => {
+    if (!currentItem || currentAnswer?.submitted) return;
+    const modelAnswer = String(currentItem.payload?.modelAnswer || "");
+    const topicKey = String(currentItem.payload?.topicKey || "");
+    const isCorrect = selected.trim().toLowerCase() === modelAnswer.trim().toLowerCase();
+    updateAnswer(segmentIndex, itemIndex, {
+      submitted: true,
+      studentAnswer: selected,
+      feedback: "",
+      correct: isCorrect,
+    });
+    persistMasteryForQuestion(topicKey, currentItem.id, isCorrect);
+  }, [currentItem, currentAnswer, segmentIndex, itemIndex, updateAnswer]);
+
   useEffect(() => {
     if (inputRef.current && currentAnswer && !currentAnswer.submitted && isQuestionItem) {
       inputRef.current.focus();
@@ -367,6 +381,8 @@ export default function DailyMissionPage() {
   const itemTitle = currentItem?.title ?? "Question";
   const itemMarks = isQuestionItem ? Number(currentItem?.payload?.marks || 2) : 0;
   const itemDifficulty = isQuestionItem ? String(currentItem?.payload?.difficulty || currentItem?.description?.split("|")[0]?.trim() || "Medium") : "";
+  const mcqOptions: string[] = Array.isArray(currentItem?.payload?.options) ? (currentItem.payload.options as string[]).filter((o: unknown) => typeof o === "string" && (o as string).trim().length > 0) : [];
+  const hasMCQ = isQuestionItem && mcqOptions.length > 0;
 
   return (
     <div className="lt-page" style={{ maxWidth: 680, margin: "0 auto", padding: "24px 16px", minHeight: "100vh" }}>
@@ -570,7 +586,38 @@ export default function DailyMissionPage() {
           <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 6 }}>{itemTitle}</div>
           {itemStem && <div style={{ fontSize: 14, lineHeight: 1.65, whiteSpace: "pre-wrap", opacity: 0.9 }}>{itemStem}</div>}
 
-          {currentAnswer && !currentAnswer.submitted && isQuestionItem && (
+          {currentAnswer && !currentAnswer.submitted && isQuestionItem && hasMCQ && (
+            <div style={{ marginTop: 16 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {mcqOptions.map((opt, idx) => {
+                  const label = String.fromCharCode(65 + idx);
+                  return (
+                    <button key={idx} type="button" onClick={() => handleMCQSelect(opt)} style={{
+                      padding: "12px 16px", borderRadius: 12, border: "1px solid rgba(255,255,255,0.12)",
+                      background: "rgba(255,255,255,0.04)", color: "var(--text)", textAlign: "left",
+                      fontSize: 14, fontWeight: 500, cursor: "pointer", display: "flex", gap: 12, alignItems: "flex-start",
+                      transition: "background 0.15s ease, border-color 0.15s ease",
+                    }}>
+                      <span style={{
+                        fontWeight: 800, fontSize: 13, color: currentSegment?.color || "#3b82f6",
+                        minWidth: 20, paddingTop: 1,
+                      }}>{label}</span>
+                      <span style={{ lineHeight: 1.5 }}>{opt}</span>
+                    </button>
+                  );
+                })}
+              </div>
+              <button type="button" onClick={handleSkip} style={{
+                marginTop: 12, padding: "8px 16px", background: "rgba(255,255,255,0.04)",
+                color: "var(--text-muted)", border: "1px solid rgba(255,255,255,0.06)",
+                borderRadius: 10, fontWeight: 600, fontSize: 13, cursor: "pointer",
+              }}>
+                Skip
+              </button>
+            </div>
+          )}
+
+          {currentAnswer && !currentAnswer.submitted && isQuestionItem && !hasMCQ && (
             <div style={{ marginTop: 16 }}>
               <textarea
                 ref={inputRef}
@@ -620,30 +667,86 @@ export default function DailyMissionPage() {
             </div>
           )}
 
+          {currentAnswer?.submitted && hasMCQ && mcqOptions.length > 0 && currentAnswer.studentAnswer !== "(skipped)" && (
+            <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 8 }}>
+              {mcqOptions.map((opt, idx) => {
+                const label = String.fromCharCode(65 + idx);
+                const modelAnswer = String(currentItem?.payload?.modelAnswer || "");
+                const isSelected = opt.trim().toLowerCase() === currentAnswer.studentAnswer.trim().toLowerCase();
+                const isCorrectOption = opt.trim().toLowerCase() === modelAnswer.trim().toLowerCase();
+                let bg = "rgba(255,255,255,0.03)";
+                let border = "1px solid rgba(255,255,255,0.08)";
+                let labelColor = "rgba(255,255,255,0.3)";
+                if (isSelected && currentAnswer.correct) {
+                  bg = "rgba(34,197,94,0.15)";
+                  border = "1px solid rgba(34,197,94,0.4)";
+                  labelColor = "#22c55e";
+                } else if (isSelected && !currentAnswer.correct) {
+                  bg = "rgba(239,68,68,0.15)";
+                  border = "1px solid rgba(239,68,68,0.4)";
+                  labelColor = "#ef4444";
+                } else if (!currentAnswer.correct && isCorrectOption) {
+                  bg = "rgba(34,197,94,0.1)";
+                  border = "1px solid rgba(34,197,94,0.3)";
+                  labelColor = "#22c55e";
+                }
+                return (
+                  <div key={idx} style={{
+                    padding: "10px 14px", borderRadius: 10, border,
+                    background: bg, display: "flex", gap: 10, alignItems: "flex-start",
+                    opacity: !isSelected && !((!currentAnswer.correct) && isCorrectOption) ? 0.5 : 1,
+                  }}>
+                    <span style={{ fontWeight: 800, fontSize: 12, color: labelColor, minWidth: 18, paddingTop: 2 }}>{label}</span>
+                    <span style={{ fontSize: 13, lineHeight: 1.5, color: "var(--text)" }}>{opt}</span>
+                    {isSelected && currentAnswer.correct && <span style={{ marginLeft: "auto", color: "#22c55e", fontWeight: 800 }}>✓</span>}
+                    {isSelected && !currentAnswer.correct && <span style={{ marginLeft: "auto", color: "#ef4444", fontWeight: 800 }}>✗</span>}
+                    {!isSelected && !currentAnswer.correct && isCorrectOption && <span style={{ marginLeft: "auto", color: "#22c55e", fontWeight: 800 }}>✓</span>}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
           {currentAnswer?.submitted && (
             <div style={{
-              marginTop: 16, padding: 14, borderRadius: 12,
-              background: currentAnswer.correct === true ? "rgba(34,197,94,0.06)"
-                : currentAnswer.correct === false ? "rgba(239,68,68,0.06)" : "var(--bg-card)",
-              border: `1px solid ${currentAnswer.correct === true ? "rgba(34,197,94,0.15)"
-                : currentAnswer.correct === false ? "rgba(239,68,68,0.15)" : "var(--bg-card)"}`,
+              marginTop: 16, padding: 16, borderRadius: 12,
+              background: currentAnswer.correct === true ? "rgba(34,197,94,0.1)"
+                : currentAnswer.correct === false ? "rgba(239,68,68,0.1)" : "rgba(255,255,255,0.04)",
+              border: `1px solid ${currentAnswer.correct === true ? "rgba(34,197,94,0.3)"
+                : currentAnswer.correct === false ? "rgba(239,68,68,0.3)" : "rgba(255,255,255,0.08)"}`,
             }}>
-              {currentAnswer.studentAnswer && currentAnswer.studentAnswer !== "(read)" && currentAnswer.studentAnswer !== "(skipped)" && (
-                <div style={{ fontSize: 12, opacity: 0.5, marginBottom: 6 }}>
+              {!hasMCQ && currentAnswer.studentAnswer && currentAnswer.studentAnswer !== "(read)" && currentAnswer.studentAnswer !== "(skipped)" && (
+                <div style={{ fontSize: 12, opacity: 0.5, marginBottom: 8 }}>
                   Your answer: {currentAnswer.studentAnswer}
                 </div>
               )}
-              <div style={{ fontSize: 14, lineHeight: 1.5 }}>
-                {currentAnswer.feedback || "Submitted!"}
-              </div>
-              {currentItem?.payload?.modelAnswer && currentAnswer.correct !== true && (
-                <div style={{ marginTop: 8, padding: "8px 12px", background: "var(--bg-card)", borderRadius: 8, fontSize: 13, opacity: 0.8 }}>
-                  <span style={{ fontWeight: 700, fontSize: 11, textTransform: "uppercase", letterSpacing: 0.3, opacity: 0.5 }}>Model Answer</span>
-                  <div style={{ marginTop: 4, whiteSpace: "pre-wrap" }}>{String(currentItem.payload.modelAnswer)}</div>
+
+              {currentAnswer.correct !== null && currentAnswer.studentAnswer !== "(read)" && (
+                <div style={{ marginBottom: 8 }}>
+                  <div style={{ fontSize: 20, fontWeight: 900, color: currentAnswer.correct ? "#22c55e" : "#ef4444" }}>
+                    {currentAnswer.correct ? "✓ Correct!" : "✗ Incorrect"}
+                  </div>
+                  {currentAnswer.feedback && (
+                    <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>AI Evaluation</div>
+                  )}
                 </div>
               )}
+
+              {currentAnswer.feedback && currentAnswer.feedback.length > 0 && (
+                <div style={{ fontSize: 14, lineHeight: 1.6, marginBottom: 8 }}>
+                  {currentAnswer.feedback}
+                </div>
+              )}
+
+              {!hasMCQ && currentAnswer.correct !== true && currentItem?.payload?.modelAnswer && (
+                <div style={{ marginTop: 10, padding: "8px 12px", background: "rgba(34,197,94,0.08)", borderRadius: 8 }}>
+                  <span style={{ fontWeight: 700, fontSize: 11, color: "#22c55e", textTransform: "uppercase", letterSpacing: 0.5 }}>Correct Answer</span>
+                  <div style={{ marginTop: 4, fontWeight: 600, fontSize: 14, whiteSpace: "pre-wrap" }}>{String(currentItem.payload.modelAnswer)}</div>
+                </div>
+              )}
+
               <button type="button" onClick={advanceToNext} style={{
-                marginTop: 12, padding: "10px 24px", background: currentSegment?.color || "#3b82f6",
+                marginTop: 14, padding: "10px 24px", background: currentSegment?.color || "#3b82f6",
                 color: "var(--text)", border: "none", borderRadius: 10, fontWeight: 700, fontSize: 14, cursor: "pointer",
               }}>
                 {itemIndex < (currentSegment?.items.length ?? 1) - 1 ? "Next →" :
