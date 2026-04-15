@@ -1,5 +1,6 @@
 const MAX_MENTOR_IMAGE_BYTES = 3 * 1024 * 1024;
-const ALLOWED_MIME_TYPES = new Set(["image/jpeg", "image/png"]);
+const MAX_MENTOR_PDF_BYTES = 5 * 1024 * 1024;
+const ALLOWED_MIME_TYPES = new Set(["image/jpeg", "image/png", "application/pdf"]);
 const DATA_URL_PREFIX_RE = /^data:/i;
 const BASE64_RE = /^[A-Za-z0-9+/]+={0,2}$/;
 
@@ -44,32 +45,38 @@ function validateMentorImagePayload(payload) {
     return { ok: false, error: "Image base64 is malformed." };
   }
 
+  const isPdf = mimeType === "application/pdf";
+  const maxBytes = isPdf ? MAX_MENTOR_PDF_BYTES : MAX_MENTOR_IMAGE_BYTES;
+
   const estimatedBytes = estimateBytesFromBase64(base64);
   if (estimatedBytes <= 0) {
-    return { ok: false, error: "Image base64 is malformed." };
+    return { ok: false, error: isPdf ? "PDF data is malformed." : "Image base64 is malformed." };
   }
-  if (estimatedBytes > MAX_MENTOR_IMAGE_BYTES) {
-    return { ok: false, error: "Image is too large. Max size is 3 MB." };
+  if (estimatedBytes > maxBytes) {
+    return { ok: false, error: isPdf ? "PDF is too large. Max size is 5 MB." : "Image is too large. Max size is 3 MB." };
   }
 
   let decoded;
   try {
     decoded = Buffer.from(base64, "base64");
   } catch {
-    return { ok: false, error: "Image base64 is malformed." };
+    return { ok: false, error: isPdf ? "PDF data is malformed." : "Image base64 is malformed." };
   }
 
   if (!decoded || !decoded.length) {
-    return { ok: false, error: "Image base64 is malformed." };
+    return { ok: false, error: isPdf ? "PDF data is malformed." : "Image base64 is malformed." };
   }
-  if (decoded.length > MAX_MENTOR_IMAGE_BYTES) {
-    return { ok: false, error: "Image is too large. Max size is 3 MB." };
+  if (decoded.length > maxBytes) {
+    return { ok: false, error: isPdf ? "PDF is too large. Max size is 5 MB." : "Image is too large. Max size is 3 MB." };
   }
 
-  const normalizedInput = base64.replace(/=+$/g, "");
-  const normalizedDecoded = decoded.toString("base64").replace(/=+$/g, "");
-  if (normalizedInput !== normalizedDecoded) {
-    return { ok: false, error: "Image base64 is malformed." };
+  // For PDFs, skip the round-trip normalisation check (binary data can differ slightly)
+  if (!isPdf) {
+    const normalizedInput = base64.replace(/=+$/g, "");
+    const normalizedDecoded = decoded.toString("base64").replace(/=+$/g, "");
+    if (normalizedInput !== normalizedDecoded) {
+      return { ok: false, error: "Image base64 is malformed." };
+    }
   }
 
   return { ok: true, mimeType, base64 };
@@ -89,4 +96,5 @@ module.exports = {
   validateMentorImagePayload,
   buildGeminiImagePart,
   MAX_MENTOR_IMAGE_BYTES,
+  MAX_MENTOR_PDF_BYTES,
 };

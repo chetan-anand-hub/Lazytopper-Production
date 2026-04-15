@@ -26,8 +26,10 @@ function createCheckSolutionRoute(deps) {
     const imageBase64 = String(payload.imageBase64 || '').trim();
     const imageMimeType = String(payload.imageMimeType || 'image/jpeg').trim();
 
+    const isPdf = imageMimeType === 'application/pdf';
+
     if (!question) return sendJson(res, 400, { error: 'Missing question text' });
-    if (!imageBase64) return sendJson(res, 400, { error: 'Missing solution image' });
+    if (!imageBase64) return sendJson(res, 400, { error: isPdf ? 'Missing solution PDF' : 'Missing solution image' });
 
     const imgCheck = validateMentorImagePayload(payload);
     if (!imgCheck || !imgCheck.ok) {
@@ -65,7 +67,7 @@ function createCheckSolutionRoute(deps) {
         'Total marks: ' + marks + '\n' +
         'Subject: ' + subject + '\n' +
         (topic ? 'Chapter/Topic: ' + topic + '\n' : '') +
-        '\nThe attached image shows the student\'s handwritten answer. Carefully read their work and evaluate it.\n\n' +
+        '\nThe attached ' + (isPdf ? 'PDF (may contain multiple pages of handwritten work)' : 'image') + ' shows the student\'s handwritten answer. Carefully read ALL pages/content and evaluate the complete solution.\n\n' +
         'RESPOND with this exact JSON structure:\n' +
         '{\n' +
         '  "totalMarks": ' + marks + ',\n' +
