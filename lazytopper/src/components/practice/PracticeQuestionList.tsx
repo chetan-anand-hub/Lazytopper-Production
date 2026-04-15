@@ -26,7 +26,6 @@ export interface PracticeQuestionListProps {
   onSelfAssessGotIt: (q: PracticeQuestion, idx: number) => void;
   onSelfAssessNeedPractice: (q: PracticeQuestion, idx: number) => void;
   onOpenConceptDrawer: (q: PracticeQuestion) => void;
-  onOpenMentorSocratic: (q: PracticeQuestion, idx: number) => void;
   onOpenMentorBoard: (q: PracticeQuestion, idx: number) => void;
 }
 
@@ -38,7 +37,7 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
     sessionStats,
     onSetActiveQuestion, onToggleAnswer, onMcqSelect, onMcqResult,
     onSelfAssessGotIt, onSelfAssessNeedPractice,
-    onOpenConceptDrawer, onOpenMentorSocratic, onOpenMentorBoard,
+    onOpenConceptDrawer, onOpenMentorBoard,
   } = props;
 
   return (
@@ -146,7 +145,6 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
               onSelfAssessGotIt={(question) => onSelfAssessGotIt(question, idx)}
               onSelfAssessNeedPractice={(question) => onSelfAssessNeedPractice(question, idx)}
               onOpenConceptDrawer={onOpenConceptDrawer}
-              onOpenMentorSocratic={(question) => onOpenMentorSocratic(question, idx)}
               onOpenMentorBoard={(question) => onOpenMentorBoard(question, idx)}
             />
           ))}
