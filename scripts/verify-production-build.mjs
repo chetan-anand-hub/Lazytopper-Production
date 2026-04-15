@@ -1,25 +1,31 @@
 /**
  * verify-production-build.mjs
  *
- * Quick sanity-check script for the LazyTopper production dist.
+ * Sanity-check for the LazyTopper production dist before publishing.
  * Run after every production build:
  *   node scripts/verify-production-build.mjs
  *
+ * Exit code 0 = safe to deploy. Exit code 1 = do NOT deploy.
+ *
  * Checks:
- *  1. index.html exists and is fresh (< 2 hrs old)
- *  2. index-*.js bundle exists (main question-bank bundle)
- *  3. No CBSE-deleted topic content leaks through into the build
- *  4. Minimum expected assets present (fonts, CSS, JS chunks)
+ *  1. dist/index.html exists
+ *  2. dist is FRESH — newest file in lazytopper/src/** must be OLDER than newest dist asset
+ *     (proves the production build actually ran after the last source change)
+ *  3. Main JS bundle (index-*.js) exists
+ *  4. CSS bundle exists
+ *  5. KaTeX fonts present (proves asset bundling worked)
+ *  6. CBSE-deleted topic content is ABSENT from the bundle
+ *  7. Minimum expected JS chunk count (proves tree-shaking didn't collapse everything)
  */
 
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import { execSync } from "child_process";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DIST = path.join(__dirname, "../artifacts/lazytopper-app/dist/public/app");
 const ASSETS = path.join(DIST, "assets");
+const SRC_DIR = path.join(__dirname, "../lazytopper/src");
 
 let passed = 0;
 let failed = 0;
@@ -40,16 +46,46 @@ function check(label, fn) {
   }
 }
 
+/** Walk a directory recursively and return the max mtime in milliseconds. */
+function newestMtime(dir) {
+  let max = 0;
+  function walk(d) {
+    for (const entry of fs.readdirSync(d, { withFileTypes: true })) {
+      const full = path.join(d, entry.name);
+      if (entry.isDirectory()) {
+        walk(full);
+      } else {
+        const mt = fs.statSync(full).mtimeMs;
+        if (mt > max) max = mt;
+      }
+    }
+  }
+  walk(dir);
+  return max;
+}
+
 console.log("\n🔍  Verifying production build …\n");
 
 // 1. index.html exists
 check("index.html exists", () => fs.existsSync(path.join(DIST, "index.html")));
 
-// 2. index.html is fresh (< 2 hours old)
-check("index.html freshness (< 2 hrs)", () => {
-  const stat = fs.statSync(path.join(DIST, "index.html"));
-  const ageMs = Date.now() - stat.mtimeMs;
-  return ageMs < 2 * 60 * 60 * 1000;
+// 2. Freshness: newest src file must be OLDER than newest dist asset
+//    If dist is older than src, the build is stale.
+check("Dist is fresh (built after latest source change)", () => {
+  const newestSrc = newestMtime(SRC_DIR);
+  const newestDist = newestMtime(ASSETS);
+  const isStale = newestDist < newestSrc;
+  if (isStale) {
+    const srcDate = new Date(newestSrc).toISOString();
+    const distDate = new Date(newestDist).toISOString();
+    console.error(
+      `\n  ⚠️  DIST IS STALE — run NODE_ENV=production pnpm run build before publishing\n` +
+      `      Newest src : ${srcDate}\n` +
+      `      Newest dist: ${distDate}\n`
+    );
+    return false;
+  }
+  return true;
 });
 
 // 3. Main JS bundle exists
@@ -70,11 +106,10 @@ check("KaTeX fonts present", () => {
   return files.length >= 5;
 });
 
-// 6. CBSE-deleted content checks — these must be ABSENT from the bundle
+// 6. CBSE-deleted topic content checks — these must be ABSENT from the bundle
 const DELETED_TOPICS = [
-  // Euclid's Division Lemma (deleted from CBSE 2025-26 Maths syllabus)
   { pattern: "Euclid Division Lemma", label: "Euclid Division Lemma" },
-  { pattern: "euclid-division", label: "euclid-division concept note" },
+  { pattern: "euclid-division", label: "euclid-division concept note id" },
 ];
 
 const mainBundles = fs

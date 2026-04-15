@@ -137,15 +137,18 @@ TypeScript is used throughout, with pnpm workspaces and composite projects. API 
 ### How to deploy changes
 1. Make source edits in `lazytopper/src/` and `lazytopper/server/`
 2. Run TypeScript typecheck: `pnpm run typecheck` (must be 0 errors)
-3. Run production build: `cd lazytopper && NODE_ENV=production npx vite build`
-4. Run build verification: `node scripts/verify-production-build.mjs` (all 8 checks must pass)
+3. Run production build from workspace root: `NODE_ENV=production pnpm run build`
+4. Run build verification: `node scripts/verify-production-build.mjs` (all checks must pass)
 5. Commit source changes: `git add <src files> && git commit -m "..."` (dist/ is git-ignored by design)
 6. Push to GitHub: `git push origin main`
 7. Publish via Replit Deploy button to push the new dist/ to the live `.replit.app` domain
 
+**WARNING**: Never use `cd lazytopper && npx vite build` as the production build command — this skips the workspace typecheck and the `bom:guard` prebuild script.
+
 ### Build verification script
 `scripts/verify-production-build.mjs` checks:
-- `index.html` exists and is < 2 hours old (proves build ran recently)
+- `index.html` exists
+- Dist is FRESH — newest file in `lazytopper/src/**` must be older than newest dist asset (stale-build guard; fails with `DIST IS STALE — run NODE_ENV=production pnpm run build before publishing`)
 - Main JS bundle (`index-*.js`) and CSS bundle exist
 - KaTeX fonts are present (proves asset bundling worked)
 - Deleted CBSE topics are absent from the bundle (content audit guard)
