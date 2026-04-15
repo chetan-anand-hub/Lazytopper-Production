@@ -292,7 +292,7 @@ export default function ChapterTestPage() {
                   {([10, 15, 20] as const).map((n) => (
                     <button key={n} onClick={() => setTestSize(n)} style={{
                       padding: "5px 12px", borderRadius: 10, border: "none", cursor: "pointer",
-                      background: testSize === n ? "#fff" : "var(--text-muted)",
+                      background: testSize === n ? "var(--bg-card)" : "var(--bg-card-border)",
                       color: testSize === n ? "#16a34a" : "var(--text)",
                       fontWeight: 700, fontSize: "0.8rem", transition: "all 0.15s",
                     }}>{n}</button>
@@ -304,7 +304,7 @@ export default function ChapterTestPage() {
                   {([["mixed", "Mixed"], ["mcq", "MCQ Only"], ["subjective", "Subjective"]] as const).map(([val, label]) => (
                     <button key={val} onClick={() => setSectionMode(val)} style={{
                       padding: "5px 12px", borderRadius: 10, border: "none", cursor: "pointer",
-                      background: sectionMode === val ? "#fff" : "var(--text-muted)",
+                      background: sectionMode === val ? "var(--bg-card)" : "var(--bg-card-border)",
                       color: sectionMode === val ? "#16a34a" : "var(--text)",
                       fontWeight: 700, fontSize: "0.75rem", transition: "all 0.15s",
                     }}>{label}</button>
@@ -331,7 +331,7 @@ export default function ChapterTestPage() {
                       borderRadius: 14,
                       border: "none",
                       cursor: "pointer",
-                      background: "#fff",
+                      background: "var(--bg-card)",
                       color: "#16a34a",
                       fontWeight: 800,
                       fontSize: "1rem",
@@ -351,7 +351,7 @@ export default function ChapterTestPage() {
                       onClick={() => navigate(backTo)}
                       style={{
                         marginTop: 12, padding: "10px 28px", borderRadius: 12,
-                        border: "none", cursor: "pointer", background: "#fff",
+                        border: "none", cursor: "pointer", background: "var(--bg-card)",
                         color: "#16a34a", fontWeight: 700, fontSize: "0.88rem",
                       }}
                     >
@@ -516,7 +516,7 @@ export default function ChapterTestPage() {
                     borderRadius: 14,
                     border: "none",
                     background: "#22c55e",
-                    color: "#000",
+                    color: "var(--text)",
                     fontWeight: 800,
                     fontSize: "0.88rem",
                     cursor: "pointer",
@@ -739,7 +739,7 @@ function TestQuestion({
             borderRadius: 14,
             border: "none",
             background: "#22c55e",
-            color: "#000",
+            color: "var(--text)",
             fontWeight: 700,
             fontSize: "0.88rem",
             cursor: "pointer",

@@ -166,7 +166,7 @@ body {
   font-size: 1.9rem;
   font-weight: 700;
   margin-bottom: 10px;
-  color: #ffffff;
+  color: var(--text);
 }
 
 .subtitle {

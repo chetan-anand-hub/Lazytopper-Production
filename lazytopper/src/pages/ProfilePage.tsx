@@ -1184,7 +1184,7 @@ function ParentPinManager() {
             <button type="button" onClick={handleSave} disabled={digits.join("").length !== 4} style={{
               flex: 1, padding: "8px 0", borderRadius: 8, border: "none",
               background: digits.join("").length === 4 ? "#22c55e" : "var(--bg-card)",
-              color: digits.join("").length === 4 ? "#000" : "var(--text-muted)",
+              color: digits.join("").length === 4 ? "var(--text)" : "var(--text-muted)",
               fontWeight: 700, fontSize: 11, cursor: "pointer",
             }}>Save PIN</button>
             <button type="button" onClick={() => { setEditing(false); setDigits(["", "", "", ""]); }} style={{
