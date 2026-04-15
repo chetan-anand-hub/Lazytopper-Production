@@ -225,13 +225,11 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
   const chatEndRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const [isNarrow, setIsNarrow] = useState(() => typeof window !== "undefined" ? window.innerWidth < 768 : false);
-  const [isInteractive, setIsInteractive] = useState(false);
   const isInteractiveRef = useRef(false);
   const visualRef = useRef<VisualExplainerHandle>(null);
 
   const handleInteractiveDetected = useCallback((val: boolean) => {
     isInteractiveRef.current = val;
-    setIsInteractive(val);
   }, []);
 
   useEffect(() => {
