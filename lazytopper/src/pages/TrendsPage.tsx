@@ -339,9 +339,9 @@ const TrendsPage: React.FC = () => {
                   onClick={() => handleTierClick(item.id === "all" ? "all" : (item.id as TierKey))}
                   style={{
                     borderRadius: 10, padding: "5px 12px",
-                    border: active ? "1px solid var(--text-muted)" : "1px solid var(--bg-card-border)",
-                    background: active ? "var(--bg-card)" : "var(--bg-card)",
-                    color: active ? "#fff" : "var(--text-muted)",
+                    border: active ? "1px solid rgba(34,197,94,0.5)" : "1px solid var(--bg-card-border)",
+                    background: active ? "rgba(34,197,94,0.15)" : "var(--bg-card)",
+                    color: active ? "#22c55e" : "var(--text-muted)",
                     fontSize: "0.72rem", fontWeight: active ? 700 : 500, cursor: "pointer",
                     transition: "all 0.1s ease-out",
                   }}
@@ -362,9 +362,9 @@ const TrendsPage: React.FC = () => {
                       onClick={() => setActiveStream(stream)}
                       style={{
                         borderRadius: 10, padding: "5px 12px", fontSize: "0.72rem",
-                        border: active ? "1px solid var(--text-muted)" : "1px solid var(--bg-card-border)",
-                        background: active ? "var(--bg-card)" : "var(--bg-card)",
-                        color: active ? "#fff" : "var(--text-muted)",
+                        border: active ? "1px solid rgba(34,197,94,0.5)" : "1px solid var(--bg-card-border)",
+                        background: active ? "rgba(34,197,94,0.15)" : "var(--bg-card)",
+                        color: active ? "#22c55e" : "var(--text-muted)",
                         fontWeight: active ? 700 : 500, cursor: "pointer",
                         transition: "all 0.1s ease-out",
                       }}
@@ -545,8 +545,8 @@ const TrendsPage: React.FC = () => {
                               onClick={() => toggleDropdown(topicName)}
                               style={{
                                 borderRadius: 10, padding: "6px 12px",
-                                border: "1px solid var(--bg-card-border)", background: "var(--bg-card-border)",
-                                fontSize: "0.72rem", fontWeight: 600, color: "var(--text-muted)",
+                                border: "1px solid var(--bg-card-border)", background: "var(--bg-card)",
+                                fontSize: "0.72rem", fontWeight: 600, color: "var(--text)",
                                 cursor: "pointer",
                               }}
                             >
@@ -557,8 +557,8 @@ const TrendsPage: React.FC = () => {
                                 position: "absolute", zIndex: 50, marginTop: 4,
                                 display: "grid", gap: 3, minWidth: 190, padding: 6,
                                 borderRadius: 10, border: "1px solid var(--bg-card-border)",
-                                background: "#181818",
-                                boxShadow: "0 4px 20px rgba(0,0,0,0.5)",
+                                background: "var(--bg-card)",
+                                boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
                               }}>
                                 {[
                                   { label: "Practice questions", handler: () => handlePracticeFromTopic(topicName) },
@@ -571,8 +571,8 @@ const TrendsPage: React.FC = () => {
                                     onClick={() => { action.handler(); setOpenDropdown(null); }}
                                     style={{
                                       borderRadius: 8, padding: "7px 10px", border: "none",
-                                      background: "var(--bg-card)", fontSize: "0.72rem",
-                                      fontWeight: 500, color: "var(--text-muted)",
+                                      background: "transparent", fontSize: "0.72rem",
+                                      fontWeight: 500, color: "var(--text)",
                                       cursor: "pointer", textAlign: "left",
                                     }}
                                   >
