@@ -430,7 +430,7 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
         stepIndex: nextStep,
         nearCompletion: isNearEnd,
         ...(currentVisual ? { visualTitle: currentVisual.title } : {}),
-        ...(isGraphRequest && currentVisual ? { graphRequest: true } : {}),
+        ...(isGraphRequest ? { graphRequest: true } : {}),
         ...(conceptContext ? { conceptContext } : {}),
       });
 
