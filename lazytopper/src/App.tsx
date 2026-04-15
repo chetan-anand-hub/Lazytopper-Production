@@ -418,7 +418,7 @@ export default function App() {
           <div style={{
             width: 32, height: 32, borderRadius: 10,
             background: "linear-gradient(135deg, #22c55e, #3b82f6)", display: "flex", alignItems: "center", justifyContent: "center",
-            color: "#000", fontWeight: 900, fontSize: 14,
+            color: "var(--text)", fontWeight: 900, fontSize: 14,
           }}>LT</div>
           <span style={{ fontWeight: 800, fontSize: "1.1rem", color: "var(--text)", fontFamily: "'Space Grotesk', sans-serif" }}>LazyTopper</span>
         </div>
@@ -504,7 +504,7 @@ export default function App() {
               style={{
                 width: 34, height: 34, borderRadius: "50%",
                 background: "linear-gradient(135deg, #22c55e, #3b82f6)", border: "none",
-                color: "#000", fontWeight: 900, fontSize: 14,
+                color: "var(--text)", fontWeight: 900, fontSize: 14,
                 cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
               }}
             >

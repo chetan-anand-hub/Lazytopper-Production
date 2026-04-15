@@ -25,7 +25,7 @@ export function JourneyCard({ journeyState, raviMessage, journeyProgress, onCont
           width: 32, height: 32, borderRadius: "50%",
           background: "linear-gradient(135deg, #22c55e, #3b82f6)",
           display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 14, fontWeight: 800, color: "#000", flexShrink: 0,
+          fontSize: 14, fontWeight: 800, color: "var(--text)", flexShrink: 0,
         }}>R</div>
         <span className="font-display" style={{ fontSize: 14, fontWeight: 700, color: "#22c55e" }}>Ravi Sir's Recommendation</span>
       </div>

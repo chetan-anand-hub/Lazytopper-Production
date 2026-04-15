@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { SignUp } from "@clerk/react";
 import { useAuth } from "../context/AuthContext";
@@ -9,6 +9,18 @@ export default function SignUpPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
+
+  const [isLight, setIsLight] = useState(
+    () => document.documentElement.getAttribute("data-theme") === "light"
+  );
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsLight(document.documentElement.getAttribute("data-theme") === "light");
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+    return () => observer.disconnect();
+  }, []);
 
   const nextPath = useMemo(() => {
     const st = (location.state || {}) as LocationState;
@@ -37,7 +49,7 @@ export default function SignUpPage() {
             width: 56, height: 56, borderRadius: 16,
             background: "linear-gradient(135deg, #22c55e, #3b82f6)",
             display: "inline-flex", alignItems: "center", justifyContent: "center",
-            color: "#000", fontWeight: 900, fontSize: 22, marginBottom: 12,
+            color: "var(--text)", fontWeight: 900, fontSize: 22, marginBottom: 12,
             boxShadow: "0 0 30px rgba(34,197,94,0.3)",
           }}>
             LT
@@ -58,10 +70,10 @@ export default function SignUpPage() {
             appearance={{
               variables: {
                 colorPrimary: "#22c55e",
-                colorBackground: "#0a0a0a",
-                colorText: "#fff",
-                colorInputBackground: "var(--bg-card)",
-                colorInputText: "#fff",
+                colorBackground: isLight ? "#ffffff" : "#0a0a0a",
+                colorText: isLight ? "#111111" : "#ffffff",
+                colorInputBackground: isLight ? "rgba(0,0,0,0.04)" : "var(--bg-card)",
+                colorInputText: isLight ? "#111111" : "#ffffff",
                 borderRadius: "12px",
               },
               elements: {
@@ -70,15 +82,15 @@ export default function SignUpPage() {
                 headerTitle: { display: "none" },
                 headerSubtitle: { display: "none" },
                 socialButtonsBlockButton: {
-                  background: "var(--bg-card)",
-                  border: "1px solid var(--bg-card-border)",
-                  color: "var(--text)",
+                  background: isLight ? "rgba(0,0,0,0.05)" : "var(--bg-card)",
+                  border: isLight ? "1px solid rgba(0,0,0,0.1)" : "1px solid var(--bg-card-border)",
+                  color: isLight ? "#111111" : "var(--text)",
                   borderRadius: "14px",
                   fontWeight: 800,
                 },
                 formButtonPrimary: {
                   background: "#22c55e",
-                  color: "#000",
+                  color: isLight ? "#ffffff" : "var(--text)",
                   fontWeight: 800,
                   borderRadius: "14px",
                   boxShadow: "0 0 24px rgba(34,197,94,0.3)",

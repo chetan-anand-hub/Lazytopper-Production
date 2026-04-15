@@ -26,7 +26,7 @@ export default function Welcome() {
             width: 56, height: 56, borderRadius: "50%", margin: "0 auto 20px",
             background: "linear-gradient(135deg, #22c55e, #3b82f6)",
             display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 26, fontWeight: 900, color: "#000",
+            fontSize: 26, fontWeight: 900, color: "var(--text)",
             boxShadow: "0 0 28px rgba(34,197,94,0.35)",
           }}>R</div>
 

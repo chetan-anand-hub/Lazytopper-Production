@@ -65,7 +65,7 @@ export default function Login() {
             width: 56, height: 56, borderRadius: 16,
             background: "linear-gradient(135deg, #22c55e, #3b82f6)",
             display: "inline-flex", alignItems: "center", justifyContent: "center",
-            color: "#000", fontWeight: 900, fontSize: 22, marginBottom: 12,
+            color: "var(--text)", fontWeight: 900, fontSize: 22, marginBottom: 12,
             boxShadow: "0 0 30px rgba(34,197,94,0.3)",
           }}>
             LT
@@ -109,7 +109,7 @@ export default function Login() {
                 },
                 formButtonPrimary: {
                   background: "#22c55e",
-                  color: "#000",
+                  color: "var(--text)",
                   fontWeight: 800,
                   borderRadius: "14px",
                   boxShadow: "0 0 24px rgba(34,197,94,0.3)",

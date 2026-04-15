@@ -19,7 +19,7 @@ export function DashboardHeader({ user, streak, xpEstimate, paceProfile, onToggl
           width: 44, height: 44, borderRadius: "50%",
           background: "linear-gradient(135deg, #22c55e, #3b82f6)",
           display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 18, fontWeight: 800, color: "#000",
+          fontSize: 18, fontWeight: 800, color: "var(--text)",
         }}>{(user?.displayName || user?.email || "S").charAt(0).toUpperCase()}</div>
         <div>
           <div style={{ fontSize: 11, color: tc.textMuted, fontWeight: 500, textTransform: "uppercase", letterSpacing: 1 }}>{greetingLabel()}</div>
