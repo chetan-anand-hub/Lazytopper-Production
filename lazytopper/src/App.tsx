@@ -471,12 +471,17 @@ export default function App() {
             onClick={toggleTheme}
             title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
             style={{
-              background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12,
-              padding: "6px 10px", fontSize: "1rem", fontWeight: 700,
-              cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+              display: "flex", alignItems: "center", gap: 5,
+              background: theme === "dark" ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.08)",
+              border: theme === "dark" ? "1px solid rgba(255,255,255,0.22)" : "1px solid rgba(0,0,0,0.18)",
+              borderRadius: 20, padding: "5px 11px",
+              cursor: "pointer", fontWeight: 700, fontSize: "0.75rem",
+              color: theme === "dark" ? "#e2e8f0" : "#334155",
+              letterSpacing: 0.2, transition: "all 0.2s",
             }}
           >
-            {theme === "dark" ? "☀️" : "🌙"}
+            <span style={{ fontSize: "0.9rem", lineHeight: 1 }}>{theme === "dark" ? "☀️" : "🌙"}</span>
+            <span>{theme === "dark" ? "Light" : "Dark"}</span>
           </button>
           <button
             type="button"
