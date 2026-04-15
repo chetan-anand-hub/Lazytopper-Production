@@ -206,17 +206,16 @@ const realNumbersConfig: TopicContentConfig = {
     "Small chapter but guaranteed proof + reasoning questions – pure bonus marks if you revise once properly.",
 
   quickRevisionRoadmap: [
-    "1️⃣ Revise Euclid’s Division Algorithm: a = bq + r, 0 ≤ r < b. Practise 3 HCF questions using repeated division.",
-    "2️⃣ Do 4–5 sums on Fundamental Theorem of Arithmetic – write any integer as product of primes and use it to find HCF/LCM.",
-    "3️⃣ Learn the decimal expansion rule: in lowest form p/q, if q = 2^m × 5^n ⇒ terminating; otherwise non-terminating recurring. Solve mixed PYQs.",
-    "4️⃣ Practise 2–3 ‘prove √2, √3 type numbers are irrational’ questions with clean step-wise reasoning.",
+    "1️⃣ Do 4–5 sums on Fundamental Theorem of Arithmetic – write any integer as a product of primes and use it to find HCF/LCM.",
+    "2️⃣ Learn the decimal expansion rule: in lowest form p/q, if q = 2^m × 5^n ⇒ terminating; otherwise non-terminating recurring. Solve mixed PYQs.",
+    "3️⃣ Practise 2–3 ‘prove √2, √3 type numbers are irrational’ questions with clean step-wise reasoning.",
   ],
 
   keyConceptsSummary:
-    "Lock these three: (i) Euclid’s Division Algorithm for HCF, (ii) Fundamental Theorem of Arithmetic (unique prime factorisation), (iii) decimal expansion criteria for rational numbers. For each, know the statement, one standard proof idea, and 2–3 question patterns: HCF/LCM using Euclid, “express as product of primes”, and terminating vs non-terminating decimals. These alone cover most board questions from this chapter.",
+    "Lock these two: (i) Fundamental Theorem of Arithmetic (unique prime factorisation — find HCF/LCM using prime factors), (ii) decimal expansion criteria for rational numbers. For each, know the statement, one standard proof idea, and 2–3 question patterns: HCF/LCM via prime factorisation, “express as product of primes”, and terminating vs non-terminating decimals. These cover the board questions from this chapter.",
 
   boardExamplesSummary:
-    "Typical PYQs: prove √2 or √3 is irrational; use Euclid to find HCF of two numbers; decide whether a rational number has terminating or non-terminating decimal expansion; express a given decimal as p/q and comment on its type. Keep one solved example of each pattern in your notebook.",
+    "Typical PYQs: prove √2 or √3 is irrational; find HCF/LCM using prime factorisation; decide whether a rational number has terminating or non-terminating decimal expansion; express a given decimal as p/q and comment on its type. Keep one solved example of each pattern in your notebook.",
 
   recommendedVideoSummary:
     "Choose a 30–40 min ‘Real Numbers one-shot’ that slowly explains all proofs. One focused watch + written notes > 5 random reels.",
@@ -229,14 +228,6 @@ const realNumbersConfig: TopicContentConfig = {
   },
 
   conceptNotes: [
-    {
-      id: "euclid-division",
-      title: "Euclid’s Division Algorithm & HCF",
-      summary:
-        "For integers a, b (b > 0), we can write a = bq + r. Repeating this on (b, r) gives HCF(a, b). Board questions use this to find HCF or prove facts like “HCF of two consecutive integers is 1”.",
-      examTip:
-        "Always mention “by Euclid’s Division Algorithm, we have…” and show at least 2–3 steps of division.",
-    },
     {
       id: "fta",
       title: "Fundamental Theorem of Arithmetic",
@@ -256,7 +247,6 @@ const realNumbersConfig: TopicContentConfig = {
   ],
 
   commonMistakes: [
-    "Forgetting to write “a = bq + r, 0 ≤ r < b” while using Euclid’s division algorithm.",
     "Not reducing the fraction to lowest form before applying the terminating / non-terminating rule.",
     "Writing proofs of irrational numbers without clearly stating the contradiction (e.g., ‘2 divides p but p is odd’).",
   ],
@@ -268,13 +258,6 @@ const realNumbersConfig: TopicContentConfig = {
       question:
         "Without dividing, determine whether 13/3125 has a terminating or non-terminating recurring decimal expansion.",
       patternTag: "Decimal expansion test",
-    },
-    {
-      id: "rn-ex2",
-      title: "HCF using Euclid",
-      question:
-        "Use Euclid’s Division Algorithm to find the HCF of 455 and 42 and verify it using prime factorisation.",
-      patternTag: "Euclid HCF",
     },
     {
       id: "rn-ex3",

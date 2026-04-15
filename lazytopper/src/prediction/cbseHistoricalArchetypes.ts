@@ -51,7 +51,6 @@ export const CBSE_HISTORICAL_ARCHETYPES: CbseArchetypeEntry[] = [
   // ═══════════════════════════════════════════
   //  2017 CBSE Board entries (pre-NEP)
   // ═══════════════════════════════════════════
-  m("Real Numbers", "Euclid Division Lemma", 2, "Short", "Applying", "procedural", 2017),
   m("Real Numbers", "Fundamental Theorem of Arithmetic", 1, "MCQ", "Understanding", "conceptual", 2017),
   m("Polynomials", "Coefficient–root Relations", 2, "Short", "Applying", "procedural", 2017),
   m("Polynomials", "Zeros & Factorisation", 1, "MCQ", "Understanding", "conceptual", 2017),
@@ -111,23 +110,18 @@ export const CBSE_HISTORICAL_ARCHETYPES: CbseArchetypeEntry[] = [
   // ═══════════════════════════════════════════
   //  MATHS — Real Numbers
   // ═══════════════════════════════════════════
-  m("Real Numbers", "Euclid Division Lemma", 1, "MCQ", "Remembering", "conceptual", 2018),
   m("Real Numbers", "Fundamental Theorem of Arithmetic", 2, "Short", "Applying", "procedural", 2018),
   m("Real Numbers", "Irrationality Proofs", 3, "Short", "Applying", "procedural", 2018),
-  m("Real Numbers", "Euclid Division Lemma", 1, "MCQ", "Understanding", "conceptual", 2019),
   m("Real Numbers", "Fundamental Theorem of Arithmetic", 2, "Short", "Applying", "procedural", 2019),
   m("Real Numbers", "Decimal Expansion", 1, "MCQ", "Remembering", "conceptual", 2019),
   m("Real Numbers", "Irrationality Proofs", 3, "Short", "Applying", "procedural", 2020),
   m("Real Numbers", "Fundamental Theorem of Arithmetic", 1, "MCQ", "Understanding", "conceptual", 2020),
-  m("Real Numbers", "Euclid Division Lemma", 2, "Short", "Applying", "procedural", 2020),
   m("Real Numbers", "Irrationality Proofs", 2, "Short", "Applying", "procedural", 2022),
   m("Real Numbers", "Fundamental Theorem of Arithmetic", 1, "MCQ", "Understanding", "conceptual", 2022),
-  m("Real Numbers", "Euclid Division Lemma", 1, "MCQ", "Remembering", "conceptual", 2023),
   m("Real Numbers", "Fundamental Theorem of Arithmetic", 2, "Short", "Applying", "procedural", 2023),
   m("Real Numbers", "Irrationality Proofs", 1, "Assertion-Reasoning", "Analysing", "assertion-reasoning", 2023),
   m("Real Numbers", "Fundamental Theorem of Arithmetic", 1, "MCQ", "Understanding", "conceptual", 2024),
   m("Real Numbers", "Irrationality Proofs", 2, "Short", "Applying", "procedural", 2024),
-  m("Real Numbers", "Euclid Division Lemma", 1, "Assertion-Reasoning", "Analysing", "assertion-reasoning", 2024),
   m("Real Numbers", "Fundamental Theorem of Arithmetic", 1, "MCQ", "Understanding", "conceptual", 2025, S),
   m("Real Numbers", "Irrationality Proofs", 2, "Short", "Applying", "procedural", 2025, S),
 
