@@ -68,6 +68,9 @@
   --text: #1e293b;
   --text-muted: rgba(30,41,59,0.5);
   --shadow: 0 1px 3px rgba(0,0,0,0.08);
+  --lt-input-bg: #ffffff;
+  --lt-input-border: #e2e8f0;
+  --lt-input-placeholder: rgba(30,41,59,0.35);
 }
 
 [data-theme="light"] .glass-card {
@@ -77,6 +80,47 @@
 [data-theme="light"] .dark-page {
   background: var(--bg);
   color: var(--text);
+}
+
+/* Light mode: global form element overrides */
+[data-theme="light"] input,
+[data-theme="light"] select {
+  border: 1px solid var(--bg-card-border);
+  background: var(--bg-card);
+  color: var(--text);
+}
+
+[data-theme="light"] input:focus,
+[data-theme="light"] select:focus {
+  border-color: #22c55e;
+  background: var(--bg-card);
+  box-shadow: 0 0 0 3px rgba(34,197,94,0.15);
+}
+
+[data-theme="light"] input::placeholder,
+[data-theme="light"] textarea::placeholder {
+  color: var(--text-muted);
+}
+
+[data-theme="light"] textarea {
+  border: 1px solid var(--bg-card-border);
+  background: var(--bg-card);
+  color: var(--text);
+}
+
+/* Light mode: ghost/secondary button */
+[data-theme="light"] .cta-btn.ghost {
+  background: var(--bg-card-border);
+  color: var(--text-muted);
+  border: 1px solid var(--bg-card-border);
+}
+
+/* Light mode: general class patterns that use dark-only rgba white values */
+[data-theme="light"] .glass-accent-green,
+[data-theme="light"] .glass-accent-blue,
+[data-theme="light"] .glass-accent-orange,
+[data-theme="light"] .glass-accent-red {
+  border-width: 1px;
 }
 
 .glass-accent-green {
