@@ -17,7 +17,7 @@ function parseAndStripHighlights(text: string): { cleanText: string; keywords: s
     captured.split(",").map((k) => k.trim()).filter(Boolean).forEach((k) => keywords.push(k));
     return "";
   });
-  return { cleanText: cleanText.replace(/\s{2,}/g, " ").trim(), keywords };
+  return { cleanText: cleanText.replace(/ {2,}/g, " ").trim(), keywords };
 }
 
 export interface ConceptContext {
