@@ -126,6 +126,36 @@ TypeScript is used throughout, with pnpm workspaces and composite projects. API 
 - **Label updates**: "Topic Mock Paper" → "Chapter Test", "Build topic mock" → "Chapter Test" in TrendsPage dropdown
 - **Command palette**: "Mock Test" command now goes to `/exam-simulation` instead of `/predictive-papers`
 
+## Production Deployment Pipeline (Task #109)
+
+### Architecture
+- **Source**: `lazytopper/` Vite app (TypeScript, React)
+- **Build output**: `artifacts/lazytopper-app/dist/public/app/` — pre-built static files served in production
+- **CRITICAL**: Production serves pre-built static files. Source edits do NOT reach the live site until a production build is run and the app is re-published.
+- **NEVER** confirm a fix by checking the Vite dev server preview — always verify against the built dist files or the live deployed URL.
+
+### How to deploy changes
+1. Make source edits in `lazytopper/src/` and `lazytopper/server/`
+2. Run TypeScript typecheck: `pnpm run typecheck` (must be 0 errors)
+3. Run production build: `cd lazytopper && NODE_ENV=production npx vite build`
+4. Run build verification: `node scripts/verify-production-build.mjs` (all 8 checks must pass)
+5. Commit source changes: `git add <src files> && git commit -m "..."` (dist/ is git-ignored by design)
+6. Push to GitHub: `git push origin main`
+7. Publish via Replit Deploy button to push the new dist/ to the live `.replit.app` domain
+
+### Build verification script
+`scripts/verify-production-build.mjs` checks:
+- `index.html` exists and is < 2 hours old (proves build ran recently)
+- Main JS bundle (`index-*.js`) and CSS bundle exist
+- KaTeX fonts are present (proves asset bundling worked)
+- Deleted CBSE topics are absent from the bundle (content audit guard)
+- Minimum 15 JS chunk files (proves tree-shaking didn't collapse everything)
+
+### Deleted CBSE topics — must never appear in the production build
+These topics were removed from the 2025-26 syllabus and are fully purged from source and built JS:
+- **Euclid's Division Algorithm / Division Lemma** (Maths — Real Numbers)
+- **Constructions** chapter (Maths — removed in Task #74)
+
 ## CBSE 2025-26 Syllabus Updates (Task #74)
 - **Constructions chapter removed** from CBSE 2025-26 Class 10 Maths syllabus. Removed from all data files, question banks, topic registries, prediction engine, server prompts, and UI. 2.5% weightage redistributed proportionally across remaining 13 topics.
 - **Two-exam system**: Phase 1 (compulsory, Feb 17, 2026) and Phase 2 (optional re-attempt for up to 3 subjects, May 15, 2026). Best score counts. Dates in `cbseDates.ts`, prediction in `cbseExamDate.ts`. Info cards on Onboarding and SprintDashboard.
