@@ -73,13 +73,16 @@ export const VisualExplainer = forwardRef<VisualExplainerHandle, VisualExplainer
     const iframeRef = useRef<HTMLIFrameElement | null>(null);
     const containerRef = useRef<HTMLDivElement | null>(null);
     const blobUrlRef = useRef<string | null>(null);
+    const iframeReadyRef = useRef(false);
+    const highlightQueueRef = useRef<string[] | null>(null);
     const onInteractiveDetectedRef = useRef(onInteractiveDetected);
     useEffect(() => { onInteractiveDetectedRef.current = onInteractiveDetected; }, [onInteractiveDetected]);
 
     useImperativeHandle(ref, () => ({
       highlight: (keywords: string[]) => {
         const iframe = iframeRef.current;
-        if (!iframe?.contentWindow) return;
+        if (!iframe?.contentWindow) { highlightQueueRef.current = keywords; return; }
+        if (!iframeReadyRef.current) { highlightQueueRef.current = keywords; return; }
         iframe.contentWindow.postMessage({ type: "lt-highlight", keywords }, "*");
       },
     }), []);
@@ -89,6 +92,14 @@ export const VisualExplainer = forwardRef<VisualExplainerHandle, VisualExplainer
     const handleLoad = useCallback(() => {
       setLoading(false);
       setError(false);
+      iframeReadyRef.current = true;
+      const queued = highlightQueueRef.current;
+      if (queued && iframeRef.current?.contentWindow) {
+        highlightQueueRef.current = null;
+        setTimeout(() => {
+          iframeRef.current?.contentWindow?.postMessage({ type: "lt-highlight", keywords: queued }, "*");
+        }, 150);
+      }
     }, []);
 
     const handleError = useCallback(() => {
@@ -106,6 +117,8 @@ export const VisualExplainer = forwardRef<VisualExplainerHandle, VisualExplainer
       setLoading(true);
       setError(false);
       setResolvedSrc(null);
+      iframeReadyRef.current = false;
+      highlightQueueRef.current = null;
 
       if (blobUrlRef.current) {
         URL.revokeObjectURL(blobUrlRef.current);
