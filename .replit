@@ -24,13 +24,17 @@ modules = ["nodejs-24"]
 runButton = "Project"
 
   [[workflows.workflow]]
-  name = "Project"
-  mode = "parallel"
-  author = "agent"
+name = "Project"
+mode = "parallel"
+author = "agent"
 
-  [[workflows.workflow.tasks]]
-  task = "workflow.run"
-  args = "LazyTopper Gateway"
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "LazyTopper Gateway"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Verify production build is fresh"
 
   [[workflows.workflow]]
   name = "LazyTopper Gateway"
@@ -43,6 +47,17 @@ runButton = "Project"
 
   [workflows.workflow.metadata]
   outputType = "console"
+
+[[workflows.workflow]]
+name = "Verify production build is fresh"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node scripts/verify-production-build.mjs"
+
+[workflows.workflow.metadata]
+isValidation = true
 
   [agent]
   stack = "PNPM_WORKSPACE"
