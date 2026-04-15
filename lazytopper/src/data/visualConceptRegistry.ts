@@ -500,7 +500,10 @@ export function findVisualForConcept(
     }
   }
 
-  return bestMatch;
+  // Always return at least the first concept when the chapter resolved correctly
+  // — ensures every valid chapter shows a visual, even when search terms don't
+  // match any specific keyword (e.g. generic "trigonometry" or "statistics" slugs)
+  return bestMatch ?? chapter.concepts[0] ?? null;
 }
 
 export function getVisualsForChapter(
