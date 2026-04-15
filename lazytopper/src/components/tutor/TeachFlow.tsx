@@ -7,7 +7,7 @@ import {
 import { TutorMessageRenderer } from "./TutorMessageRenderer";
 import { extractTutorText as sharedExtractTutorText, extractStructuredSection, extractStepsBlock, stepsDataToStructured } from "./tutorStructuredExtract";
 import { VisualExplainer } from "../VisualExplainer";
-import { findVisualForConcept } from "../../data/visualConceptRegistry";
+import { findVisualForConcept, type VisualConcept } from "../../data/visualConceptRegistry";
 
 export interface ConceptContext {
   questionText?: string;
@@ -192,6 +192,15 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
     return findVisualForConcept(subject, topicKey, searchTerms);
   }, [topicKey, subject, conceptContext?.subtopic, conceptContext?.concept, nodeId]);
 
+  const [activeVisual, setActiveVisual] = useState<VisualConcept | null>(null);
+  useEffect(() => {
+    setActiveVisual(visualConcept ?? null);
+  }, [visualConcept]);
+
+  function detectGraphOrDiagramRequest(text: string): boolean {
+    return /\b(graph|draw|plot|show|picture|visual|diagram|line|intersect|image|see it|look like)\b/i.test(text);
+  }
+
   const [phase, setPhase] = useState<Phase>(
     savedSession ? savedSession.phase : wasCompleted ? "previously_completed" : "intro"
   );
@@ -330,6 +339,7 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
         messages: [],
         conversational: true,
         stepIndex: 0,
+        ...(visualConcept ? { visualTitle: visualConcept.title } : {}),
         ...(conceptContext ? {
           conceptContext: {
             questionText: conceptContext.questionText,
@@ -384,6 +394,14 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
     const updatedMessages: ChatMessage[] = [...chatMessages, { role: "student", content: text }];
     setChatMessages(updatedMessages);
 
+    if (detectGraphOrDiagramRequest(text)) {
+      const graphTerms = ["graph", "graphical", "lines", "intersection", "geometric", "plot"];
+      const graphVisual = findVisualForConcept(subject, topicKey, graphTerms);
+      if (graphVisual && graphVisual.filePath !== activeVisual?.filePath) {
+        setActiveVisual(graphVisual);
+      }
+    }
+
     try {
       const conversationHistory = buildConversationMessages();
       conversationHistory.push({ role: "user", content: text });
@@ -391,6 +409,7 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
       const nextStep = stepCount + 1;
       const isNearEnd = nextStep >= MAX_TEACH_STEPS;
 
+      const currentVisual = activeVisual ?? visualConcept;
       const payload = await callMentor({
         mode: conceptContext ? "concept_teach" : "learn_teach",
         section: "learn",
@@ -405,6 +424,7 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
         conversational: true,
         stepIndex: nextStep,
         nearCompletion: isNearEnd,
+        ...(currentVisual ? { visualTitle: currentVisual.title } : {}),
         ...(conceptContext ? { conceptContext } : {}),
       });
 
@@ -571,17 +591,17 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
         </div>
       </div>
 
-      {visualConcept && (
+      {activeVisual && (
         <div style={s.visualPanel}>
           <VisualExplainer
-            src={visualConcept.filePath}
-            title={visualConcept.title}
+            src={activeVisual.filePath}
+            title={activeVisual.title}
             height={360}
             collapsible={true}
             defaultCollapsed={false}
-            topic={visualConcept.chapter}
-            concept={visualConcept.title}
-            subject={visualConcept.subject === "science" ? "Science" : "Maths"}
+            topic={activeVisual.chapter}
+            concept={activeVisual.title}
+            subject={activeVisual.subject === "science" ? "Science" : "Maths"}
           />
         </div>
       )}

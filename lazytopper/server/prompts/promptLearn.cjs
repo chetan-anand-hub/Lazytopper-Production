@@ -153,6 +153,7 @@ function buildConversationalTeachSystemPrompt(payload, isConceptTeach) {
   const conceptFocusName = conceptSubtopic || conceptConcept || topicName;
 
   const isStepRequest = /step[- ]by[- ]step|show me the steps|stepwise|marking scheme/i.test(studentAttempt);
+  const visualTitle = String(payload.visualTitle || '').trim();
 
   let stepGuidance = '';
   if (isFirstStep && hasConceptContext) {
@@ -231,6 +232,14 @@ function buildConversationalTeachSystemPrompt(payload, isConceptTeach) {
     '- Keep responses under 250 words — be concise but complete',
     '- Reference CBSE board exam patterns naturally: "This type of question comes for 2 marks in board exams"',
     '',
+    ...(visualTitle ? [
+      'VISUAL CONTEXT:',
+      `The student has an interactive visual titled "${visualTitle}" displayed above your message.`,
+      `IMPORTANT: In your FIRST message, explicitly reference this visual. Say something like "Notice the interactive above — it shows..." or "As you can see in the visual at the top..." to anchor your explanation to what they see on screen.`,
+      `In follow-up messages, refer back to the visual when it helps: "Remember the diagram above?" or "Look at the visual again — you'll notice..."`,
+      `If the student asks to see a graph or diagram for this topic, tell them to look at or interact with the visual above.`,
+      '',
+    ] : []),
     'CURRENT STEP GUIDANCE:',
     stepGuidance,
     '',

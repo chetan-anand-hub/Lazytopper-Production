@@ -11,6 +11,23 @@ interface VisualExplainerProps {
   subject?: string;
 }
 
+const BASE = (import.meta.env.BASE_URL ?? "/").replace(/\/$/, "");
+
+function toAbsoluteSrc(src: string): string {
+  if (src.startsWith("blob:") || src.startsWith("http")) return src;
+  if (src.startsWith("/")) return `${BASE}${src}`;
+  return src;
+}
+
+let keyframesInjected = false;
+function ensureKeyframes() {
+  if (keyframesInjected) return;
+  keyframesInjected = true;
+  const style = document.createElement("style");
+  style.textContent = `@keyframes visualSpin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`;
+  document.head.appendChild(style);
+}
+
 export function VisualExplainer({
   src,
   title,
@@ -25,10 +42,14 @@ export function VisualExplainer({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
-  const [resolvedSrc, setResolvedSrc] = useState(src);
+  const [resolvedSrc, setResolvedSrc] = useState(() => toAbsoluteSrc(src));
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const blobUrlRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    ensureKeyframes();
+  }, []);
 
   const handleLoad = useCallback(() => {
     setLoading(false);
@@ -49,14 +70,15 @@ export function VisualExplainer({
   useEffect(() => {
     setLoading(true);
     setError(false);
-    setResolvedSrc(src);
+    const absSrc = toAbsoluteSrc(src);
+    setResolvedSrc(absSrc);
     if (blobUrlRef.current) {
       URL.revokeObjectURL(blobUrlRef.current);
       blobUrlRef.current = null;
     }
     let cancelled = false;
 
-    fetch(src, { method: "HEAD" })
+    fetch(absSrc, { method: "HEAD" })
       .then((res) => {
         if (cancelled) return;
         if (res.ok) { setLoading(false); return; }
