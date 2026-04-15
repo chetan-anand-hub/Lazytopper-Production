@@ -154,6 +154,7 @@ function buildConversationalTeachSystemPrompt(payload, isConceptTeach) {
 
   const isStepRequest = /step[- ]by[- ]step|show me the steps|stepwise|marking scheme/i.test(studentAttempt);
   const visualTitle = String(payload.visualTitle || '').trim();
+  const isGraphRequest = Boolean(payload.graphRequest);
 
   let stepGuidance = '';
   if (isFirstStep && hasConceptContext) {
@@ -235,11 +236,20 @@ function buildConversationalTeachSystemPrompt(payload, isConceptTeach) {
     ...(visualTitle ? [
       'VISUAL CONTEXT:',
       `The student has an interactive visual titled "${visualTitle}" displayed above your message.`,
-      `IMPORTANT: In your FIRST message, explicitly reference this visual. Say something like "Notice the interactive above — it shows..." or "As you can see in the visual at the top..." to anchor your explanation to what they see on screen.`,
-      `In follow-up messages, refer back to the visual when it helps: "Remember the diagram above?" or "Look at the visual again — you'll notice..."`,
-      `If the student asks to see a graph or diagram for this topic, tell them to look at or interact with the visual above.`,
+      isFirstStep
+        ? `IMPORTANT: This is your FIRST message. You MUST start by explicitly referencing this visual. Begin with something like "Take a look at the interactive above — it shows ${visualTitle}. As you explore it..." and then build your explanation around what the student sees.`
+        : `Refer back to the visual when it helps: "Remember the diagram above?" or "Look at the visual again — you'll notice..."`,
+      isGraphRequest
+        ? `CRITICAL: The student just asked to see a graph or diagram. The interactive visual titled "${visualTitle}" IS already displayed above. Start your response by narrating it: describe what it shows, point out the key elements by name, and walk the student through how to read/interpret it. Then continue with your explanation.`
+        : `If the student asks to see a graph or diagram for this topic, tell them to look at or interact with the visual already shown above.`,
       '',
-    ] : []),
+    ] : [
+      ...(isGraphRequest ? [
+        'VISUAL NOTE:',
+        'The student asked to see a graph or diagram. No pre-loaded visual is available for this topic at the moment. Describe the concept using clear textual descriptions and step-by-step reasoning instead.',
+        '',
+      ] : []),
+    ]),
     'CURRENT STEP GUIDANCE:',
     stepGuidance,
     '',

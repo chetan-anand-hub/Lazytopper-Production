@@ -394,11 +394,16 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
     const updatedMessages: ChatMessage[] = [...chatMessages, { role: "student", content: text }];
     setChatMessages(updatedMessages);
 
-    if (detectGraphOrDiagramRequest(text)) {
+    const isGraphRequest = detectGraphOrDiagramRequest(text);
+    let resolvedVisualForRequest: typeof activeVisual = activeVisual ?? visualConcept ?? null;
+    if (isGraphRequest) {
       const graphTerms = ["graph", "graphical", "lines", "intersection", "geometric", "plot"];
       const graphVisual = findVisualForConcept(subject, topicKey, graphTerms);
-      if (graphVisual && graphVisual.filePath !== activeVisual?.filePath) {
-        setActiveVisual(graphVisual);
+      if (graphVisual) {
+        resolvedVisualForRequest = graphVisual;
+        if (graphVisual.filePath !== activeVisual?.filePath) {
+          setActiveVisual(graphVisual);
+        }
       }
     }
 
@@ -409,7 +414,7 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
       const nextStep = stepCount + 1;
       const isNearEnd = nextStep >= MAX_TEACH_STEPS;
 
-      const currentVisual = activeVisual ?? visualConcept;
+      const currentVisual = resolvedVisualForRequest;
       const payload = await callMentor({
         mode: conceptContext ? "concept_teach" : "learn_teach",
         section: "learn",
@@ -425,6 +430,7 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
         stepIndex: nextStep,
         nearCompletion: isNearEnd,
         ...(currentVisual ? { visualTitle: currentVisual.title } : {}),
+        ...(isGraphRequest && currentVisual ? { graphRequest: true } : {}),
         ...(conceptContext ? { conceptContext } : {}),
       });
 

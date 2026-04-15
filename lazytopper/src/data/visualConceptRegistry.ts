@@ -45,9 +45,8 @@ export const MATHS_VISUALS: ChapterVisuals[] = [
     chapterName: "Real Numbers",
     subject: "maths",
     concepts: [
-      c("maths", "real-numbers", "Euclids Division Lemma", ["hcf", "euclid", "division", "algorithm", "lemma"]),
-      c("maths", "real-numbers", "Fundamental Theorem of Arithmetic", ["prime", "factorisation", "unique", "fundamental"]),
-      c("maths", "real-numbers", "HCF and LCM using Prime Factorisation", ["hcf", "lcm", "prime", "factors"]),
+      c("maths", "real-numbers", "Fundamental Theorem of Arithmetic", ["prime", "factorisation", "unique", "fundamental", "euclid", "hcf", "algorithm", "lemma"]),
+      c("maths", "real-numbers", "HCF and LCM using Prime Factorisation", ["hcf", "lcm", "prime", "factors", "division"]),
       c("maths", "real-numbers", "Irrational Numbers Proof", ["irrational", "proof", "contradiction", "sqrt2"]),
       c("maths", "real-numbers", "Decimal Expansions", ["terminating", "non-terminating", "repeating", "decimal"]),
     ],
@@ -340,6 +339,7 @@ const topicKeyToChapterMap: Record<string, string> = (() => {
   }
 
   const scienceTopicKeys: Record<string, string> = {
+    // Pretty names
     "Chemical Reactions and Equations": "Chemical Reactions and Equations",
     "Acids Bases and Salts": "Acids Bases and Salts",
     "Metals and Non-Metals": "Metals and Non-Metals",
@@ -353,6 +353,32 @@ const topicKeyToChapterMap: Record<string, string> = (() => {
     "Electricity": "Electricity",
     "Magnetic Effects of Electric Current": "Magnetic Effects of Electric Current",
     "Our Environment": "Our Environment",
+    // Canonical slugs (as used in URL routing and TopicHub topicKey)
+    "chemical-reactions-and-equations": "Chemical Reactions and Equations",
+    "acids-bases-and-salts": "Acids Bases and Salts",
+    "metals-and-non-metals": "Metals and Non-Metals",
+    "carbon-and-its-compounds": "Carbon and its Compounds",
+    "life-processes": "Life Processes",
+    "control-and-co-ordination": "Control and Coordination",
+    "control-and-coordination": "Control and Coordination",
+    "reproduction": "How do Organisms Reproduce",
+    "how-do-organisms-reproduce": "How do Organisms Reproduce",
+    "heredity-and-evolution": "Heredity and Evolution",
+    "light-reflection-and-refraction": "Light Reflection and Refraction",
+    "light-reflection-and-refraction-incl-human-eye-prism": "Light Reflection and Refraction",
+    "human-eye-and-colourful-world": "Human Eye and Colourful World",
+    "human-eye": "Human Eye and Colourful World",
+    "electricity": "Electricity",
+    "magnetic-effects-of-electric-current": "Magnetic Effects of Electric Current",
+    "magnetic-effects": "Magnetic Effects of Electric Current",
+    "our-environment": "Our Environment",
+    // Maths canonical slug aliases (for slugs that differ from topicKey pretty names)
+    "pair-of-linear-equations": "Pair of Linear Equations",
+    "pair-of-linear-equations-in-two-variables": "Pair of Linear Equations",
+    "arithmetic-progressions": "Arithmetic Progression",
+    "arithmetic-progression": "Arithmetic Progression",
+    "areas-related-to-circles": "Areas Related to Circles",
+    "surface-areas-and-volumes": "Surface Areas and Volumes",
   };
   for (const [key, val] of Object.entries(scienceTopicKeys)) {
     if (!map[key]) map[key] = val;
@@ -439,7 +465,9 @@ export function findVisualForConcept(
   const subjectNorm = subject.toLowerCase().includes("sci") ? "science" : "maths";
   const chapters = subjectNorm === "science" ? SCIENCE_VISUALS : MATHS_VISUALS;
 
-  const chapterNorm = chapterKey.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  // Resolve canonical slugs and aliases through the lookup map before normalization
+  const resolvedKey = topicKeyToChapterMap[chapterKey] ?? chapterKey;
+  const chapterNorm = resolvedKey.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 
   const chapter = chapters.find((ch) => {
     const k = ch.chapterKey.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
