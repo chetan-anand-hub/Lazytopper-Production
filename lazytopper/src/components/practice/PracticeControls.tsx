@@ -126,23 +126,6 @@ export function PracticeControls({
         </div>
       </section>
 
-      <section style={{ marginBottom: 10, display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-        <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>Fast drill presets:</span>
-        {[10, 20, 40, 60, 100].map((count) => (
-          <button
-            key={count}
-            type="button"
-            className="lt-pill"
-            style={{ padding: "4px 10px", fontSize: "0.74rem" }}
-            onClick={() => onSetQuestionCount(Math.max(MIN_QUESTION_COUNT, Math.min(MAX_QUESTION_COUNT, count)))}
-          >
-            {count}Q
-          </button>
-        ))}
-        <span className="lt-desktop-only" style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>
-          Shortcut: Alt+1/2/3/4/5 and Alt+R.
-        </span>
-      </section>
     </>
   );
 }
