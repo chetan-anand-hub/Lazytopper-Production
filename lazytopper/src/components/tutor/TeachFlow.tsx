@@ -6,8 +6,19 @@ import {
 } from "../../services/topicHubMastery";
 import { TutorMessageRenderer } from "./TutorMessageRenderer";
 import { extractTutorText as sharedExtractTutorText, extractStructuredSection, extractStepsBlock, stepsDataToStructured } from "./tutorStructuredExtract";
-import { VisualExplainer } from "../VisualExplainer";
+import { VisualExplainer, type VisualExplainerHandle } from "../VisualExplainer";
 import { findVisualForConcept, type VisualConcept } from "../../data/visualConceptRegistry";
+
+const HIGHLIGHT_RE = /\[HIGHLIGHT:\s*([^\]]+)\]/gi;
+
+function parseAndStripHighlights(text: string): { cleanText: string; keywords: string[] } {
+  const keywords: string[] = [];
+  const cleanText = text.replace(HIGHLIGHT_RE, (_, captured: string) => {
+    captured.split(",").map((k) => k.trim()).filter(Boolean).forEach((k) => keywords.push(k));
+    return "";
+  });
+  return { cleanText: cleanText.replace(/\s{2,}/g, " ").trim(), keywords };
+}
 
 export interface ConceptContext {
   questionText?: string;
@@ -214,6 +225,14 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
   const chatEndRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const [isNarrow, setIsNarrow] = useState(() => typeof window !== "undefined" ? window.innerWidth < 768 : false);
+  const [isInteractive, setIsInteractive] = useState(false);
+  const isInteractiveRef = useRef(false);
+  const visualRef = useRef<VisualExplainerHandle>(null);
+
+  const handleInteractiveDetected = useCallback((val: boolean) => {
+    isInteractiveRef.current = val;
+    setIsInteractive(val);
+  }, []);
 
   useEffect(() => {
     const onResize = () => setIsNarrow(window.innerWidth < 768);
@@ -346,6 +365,7 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
         messages: [],
         conversational: true,
         stepIndex: 0,
+        isInteractive: isInteractiveRef.current,
         ...(visualConcept ? { visualTitle: visualConcept.title } : {}),
         ...(conceptContext ? {
           conceptContext: {
@@ -374,6 +394,9 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
           : startStructured;
       }
 
+      const { cleanText: tutorTextFinal, keywords: startHighlights } = parseAndStripHighlights(tutorText);
+      tutorText = tutorTextFinal;
+
       const newMessages: ChatMessage[] = [
         { role: "tutor", content: tutorText, structured: structuredData },
       ];
@@ -381,6 +404,10 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
       setChatMessages(newMessages);
       setStepCount(1);
       setPhase("awaiting_answer");
+
+      if (startHighlights.length > 0 && visualConcept) {
+        setTimeout(() => { visualRef.current?.highlight(startHighlights); }, 700);
+      }
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "Something went wrong. Please try again.";
       setError(msg);
@@ -436,6 +463,7 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
         conversational: true,
         stepIndex: nextStep,
         nearCompletion: isNearEnd,
+        isInteractive: isInteractiveRef.current,
         ...(currentVisual ? { visualTitle: currentVisual.title } : {}),
         ...(isGraphRequest ? { graphRequest: true } : {}),
         ...(conceptContext ? { conceptContext } : {}),
@@ -468,6 +496,9 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
         }
       }
 
+      const { cleanText: tutorTextClean, keywords: sendHighlights } = parseAndStripHighlights(tutorText);
+      tutorText = tutorTextClean;
+
       const newTutorMessages: ChatMessage[] = [
         ...updatedMessages,
         { role: "tutor", content: tutorText, structured: responseStructured },
@@ -475,6 +506,10 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
 
       setChatMessages(newTutorMessages);
       setStepCount(nextStep);
+
+      if (sendHighlights.length > 0 && currentVisual) {
+        setTimeout(() => { visualRef.current?.highlight(sendHighlights); }, 700);
+      }
 
       if (nextStep >= MAX_TEACH_STEPS) {
         markComplete();
@@ -630,6 +665,7 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
         }}>
           {activeVisual ? (
             <VisualExplainer
+              ref={visualRef}
               src={activeVisual.filePath}
               title={activeVisual.title}
               height={isNarrow ? 280 : 540}
@@ -638,6 +674,7 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
               topic={activeVisual.chapter}
               concept={activeVisual.title}
               subject={activeVisual.subject === "science" ? "Science" : "Maths"}
+              onInteractiveDetected={handleInteractiveDetected}
             />
           ) : (
             <div style={s.noVisualPlaceholder}>

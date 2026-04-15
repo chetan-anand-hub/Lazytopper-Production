@@ -155,6 +155,7 @@ function buildConversationalTeachSystemPrompt(payload, isConceptTeach) {
   const isStepRequest = /step[- ]by[- ]step|show me the steps|stepwise|marking scheme/i.test(studentAttempt);
   const visualTitle = String(payload.visualTitle || '').trim();
   const isGraphRequest = Boolean(payload.graphRequest);
+  const isInteractive = Boolean(payload.isInteractive);
 
   let stepGuidance = '';
   if (isFirstStep && hasConceptContext) {
@@ -235,14 +236,38 @@ function buildConversationalTeachSystemPrompt(payload, isConceptTeach) {
     '',
     ...(visualTitle ? [
       'VISUAL CONTEXT:',
-      `The student has an interactive visual titled "${visualTitle}" displayed above your message.`,
+      `The student has an interactive visual titled "${visualTitle}" displayed to the left of your chat.`,
       isFirstStep
         ? `IMPORTANT: This is your FIRST message. You MUST start by explicitly referencing this visual. Begin with something like "Take a look at the interactive above — it shows ${visualTitle}. As you explore it..." and then build your explanation around what the student sees.`
         : `Refer back to the visual when it helps: "Remember the diagram above?" or "Look at the visual again — you'll notice..."`,
       isGraphRequest
-        ? `CRITICAL: The student just asked to see a graph or diagram. The interactive visual titled "${visualTitle}" IS already displayed above. Start your response by narrating it: describe what it shows, point out the key elements by name, and walk the student through how to read/interpret it. Then continue with your explanation.`
-        : `If the student asks to see a graph or diagram for this topic, tell them to look at or interact with the visual already shown above.`,
+        ? `CRITICAL: The student just asked to see a graph or diagram. The interactive visual titled "${visualTitle}" IS already displayed. Start your response by narrating it: describe what it shows, point out the key elements by name, and walk the student through how to read/interpret it. Then continue with your explanation.`
+        : `If the student asks to see a graph or diagram for this topic, tell them to look at or interact with the visual already shown.`,
       '',
+      'HIGHLIGHT ANNOTATIONS:',
+      'You can make specific parts of the visual glow on screen by writing [HIGHLIGHT: part_name] anywhere in your response.',
+      'The annotation is invisible to the student — only the glow effect on the visual appears. Use it to direct attention to exactly the right element.',
+      'Examples of correct usage:',
+      '  "Look at the [HIGHLIGHT: axon] — this long cable-like structure carries signals away from the cell body."',
+      '  "The [HIGHLIGHT: cerebellum] is what keeps you balanced when you walk or ride a bike."',
+      '  "See where the parabola crosses the [HIGHLIGHT: x-axis] — that crossing point is the zero of the polynomial!"',
+      '  "Try dragging the [HIGHLIGHT: a slider] and notice how the parabola opens wider or narrower."',
+      'RULES for [HIGHLIGHT: ...]:',
+      '  - Use the exact id, label, or visible text of the element (e.g. "Dendrites", "axon", "Cell Body", "x-axis", "Cerebrum")',
+      '  - Place it naturally inside your sentence — do NOT write it as a separate line or label',
+      '  - Use 1–2 highlights per response, not more',
+      '  - Only highlight when it genuinely helps direct the student\'s attention',
+      '',
+      ...(isInteractive ? [
+        'INTERACTIVE NUDGE:',
+        `This visual has interactive controls (sliders, tabs, clickable parts). In EVERY response, actively invite the student to try something specific:`,
+        '  - "Drag the \'a\' slider to the right and watch the parabola open wider — then tell me what you notice!"',
+        '  - "Click the \'Reflex Arc\' tab — then press \'Trigger Stimulus\' to see the whole pathway animate step by step!"',
+        '  - "Hover over each part of the neuron in the diagram — what does each one do?"',
+        '  - "Change the \'b\' slider to 0 and see how many places the graph crosses the x-axis. Is it more or less than before?"',
+        'Make the nudge feel like an exciting challenge, not an instruction. End your nudge with a question to keep the student engaged.',
+        '',
+      ] : []),
     ] : [
       ...(isGraphRequest ? [
         'VISUAL NOTE:',
