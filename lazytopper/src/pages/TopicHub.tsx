@@ -653,12 +653,12 @@ export default function TopicHub() {
               marginTop: 20, display: "flex", gap: 24, justifyContent: "center", flexWrap: "wrap",
             }}>
               <div>
-                <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#818cf8" }}>{totalConcepts}</div>
+                <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "var(--color-accent)" }}>{totalConcepts}</div>
                 <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", fontWeight: 500 }}>Concepts</div>
               </div>
               {weightage > 0 && (
                 <div>
-                  <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#f59e0b" }}>~{weightage}%</div>
+                  <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "var(--color-warning)" }}>~{weightage}%</div>
                   <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", fontWeight: 500 }}>Exam Weightage</div>
                 </div>
               )}
@@ -761,7 +761,7 @@ export default function TopicHub() {
                 borderRadius: 14, padding: "16px 18px", border: "1px solid rgba(99,102,241,0.2)",
                 textAlign: "left",
               }}>
-                <div style={{ fontWeight: 700, fontSize: "0.85rem", color: "#4338ca", marginBottom: 8 }}>
+                <div style={{ fontWeight: 700, fontSize: "0.85rem", color: "var(--color-accent-dark)", marginBottom: 8 }}>
                   Score Maximizer Tips
                 </div>
                 <ul style={{ margin: 0, paddingLeft: 18 }}>
@@ -810,7 +810,7 @@ export default function TopicHub() {
                 <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
                   <span style={{
                     width: 32, height: 32, borderRadius: 999,
-                    background: "rgba(99,102,241,0.08)", color: "#818cf8",
+                    background: "rgba(99,102,241,0.08)", color: "var(--color-accent)",
                     display: "flex", alignItems: "center", justifyContent: "center",
                     fontWeight: 800, fontSize: "0.85rem", flexShrink: 0,
                   }}>
@@ -831,7 +831,7 @@ export default function TopicHub() {
                   fontSize: "0.9rem", color: "var(--text)", lineHeight: 1.7,
                   padding: "12px 16px", background: "var(--bg)", borderRadius: 12,
                 }}>
-                  <div style={{ fontWeight: 600, fontSize: "0.78rem", color: "#818cf8", marginBottom: 4 }}>
+                  <div style={{ fontWeight: 600, fontSize: "0.78rem", color: "var(--color-accent)", marginBottom: 4 }}>
                     What it means
                   </div>
                   {currentDef.description}
@@ -839,7 +839,7 @@ export default function TopicHub() {
 
                 {currentDef.examTip && (
                   <div style={{
-                    marginTop: 12, fontSize: "0.82rem", color: "#d97706",
+                    marginTop: 12, fontSize: "0.82rem", color: "var(--color-warning)",
                     padding: "10px 16px", background: "rgba(250,204,21,0.06)", borderRadius: 12,
                     border: "1px solid rgba(250,204,21,0.2)",
                   }}>
@@ -854,14 +854,14 @@ export default function TopicHub() {
                     padding: "10px 16px", background: "rgba(34,197,94,0.06)", borderRadius: 12,
                     border: "1px solid rgba(34,197,94,0.2)",
                   }}>
-                    <span style={{ fontWeight: 700, color: "#16a34a" }}>When to use: </span>
+                    <span style={{ fontWeight: 700, color: "var(--primary-dark)" }}>When to use: </span>
                     {examPatterns[conceptIdx]}
                   </div>
                 )}
 
                 {markingTips[conceptIdx] && (
                   <div style={{
-                    marginTop: 10, fontSize: "0.82rem", color: "#7f1d1d",
+                    marginTop: 10, fontSize: "0.82rem", color: "var(--color-dark-red)",
                     padding: "10px 16px", background: "rgba(239,68,68,0.06)", borderRadius: 12,
                     border: "1px solid rgba(239,68,68,0.2)",
                   }}>
@@ -881,7 +881,7 @@ export default function TopicHub() {
                     style={{
                       padding: "8px 16px", borderRadius: 10,
                       background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.2)",
-                      color: "#4338ca", fontWeight: 600, fontSize: "0.82rem",
+                      color: "var(--color-accent-dark)", fontWeight: 600, fontSize: "0.82rem",
                       cursor: "pointer",
                     }}
                   >
@@ -918,7 +918,7 @@ export default function TopicHub() {
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
                   <span style={{
                     fontSize: "0.78rem", fontWeight: 700, padding: "3px 10px",
-                    borderRadius: 999, background: "rgba(99,102,241,0.08)", color: "#818cf8",
+                    borderRadius: 999, background: "rgba(99,102,241,0.08)", color: "var(--color-accent)",
                   }}>
                     Mini Quiz — Q{miniQuizIdx + 1}/{currentMiniQuiz.length}
                   </span>
@@ -964,11 +964,11 @@ export default function TopicHub() {
                   !answerRevealed && (
                     <div style={{ display: "flex", gap: 8 }}>
                       <button type="button" onClick={() => handleCheckpointAnswer("correct")}
-                        style={{ padding: "8px 18px", borderRadius: 10, border: "1px solid #22c55e", background: "rgba(34,197,94,0.08)", color: "#22c55e", fontSize: "0.82rem", fontWeight: 600, cursor: "pointer" }}>
+                        style={{ padding: "8px 18px", borderRadius: 10, border: "1px solid #22c55e", background: "rgba(34,197,94,0.08)", color: "var(--color-success)", fontSize: "0.82rem", fontWeight: 600, cursor: "pointer" }}>
                         I got it right
                       </button>
                       <button type="button" onClick={() => handleCheckpointAnswer("incorrect")}
-                        style={{ padding: "8px 18px", borderRadius: 10, border: "1px solid #ef4444", background: "rgba(239,68,68,0.08)", color: "#ef4444", fontSize: "0.82rem", fontWeight: 600, cursor: "pointer" }}>
+                        style={{ padding: "8px 18px", borderRadius: 10, border: "1px solid #ef4444", background: "rgba(239,68,68,0.08)", color: "var(--color-error)", fontSize: "0.82rem", fontWeight: 600, cursor: "pointer" }}>
                         I got it wrong
                       </button>
                     </div>
@@ -978,7 +978,7 @@ export default function TopicHub() {
                 {conceptFailed && (
                   <div style={{ marginTop: 16, textAlign: "center", padding: 20, background: "rgba(249,115,22,0.06)", borderRadius: 14, border: "1px solid rgba(249,115,22,0.2)" }}>
                     <div style={{ fontSize: "1.5rem", marginBottom: 8 }}>📝</div>
-                    <div style={{ fontSize: "0.95rem", fontWeight: 700, color: "#fb923c", marginBottom: 6 }}>Not quite there yet</div>
+                    <div style={{ fontSize: "0.95rem", fontWeight: 700, color: "var(--color-orange)", marginBottom: 6 }}>Not quite there yet</div>
                     <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", lineHeight: 1.5, marginBottom: 14 }}>
                       You need 70%+ to mark this concept as familiar. Review the material and try again.
                     </p>
@@ -993,19 +993,19 @@ export default function TopicHub() {
                   <div style={{ marginTop: 16 }}>
                     {/* Correct / Wrong header */}
                     {(selectedAnswer === "correct" || (selectedAnswer && selectedAnswer !== "incorrect" && selectedAnswer.trim().toLowerCase() === (currentMiniQuestion.answer || "").trim().toLowerCase())) ? (
-                      <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.92rem", color: "#16a34a", fontWeight: 700, marginBottom: 12, padding: "10px 14px", background: "rgba(34,197,94,0.06)", borderRadius: 10, border: "1px solid rgba(34,197,94,0.15)" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.92rem", color: "var(--primary-dark)", fontWeight: 700, marginBottom: 12, padding: "10px 14px", background: "rgba(34,197,94,0.06)", borderRadius: 10, border: "1px solid rgba(34,197,94,0.15)" }}>
                         <span style={{ fontSize: "1.1rem" }}>✓</span> Correct!
                       </div>
                     ) : (
-                      <div style={{ fontSize: "0.88rem", color: "#dc2626", fontWeight: 700, marginBottom: 12, padding: "10px 14px", background: "rgba(239,68,68,0.06)", borderRadius: 10, border: "1px solid rgba(239,68,68,0.15)" }}>
-                        <span style={{ fontSize: "1.1rem" }}>✗</span> Not quite — correct answer: <span style={{ color: "#22c55e" }}>{currentMiniQuestion.answer}</span>
+                      <div style={{ fontSize: "0.88rem", color: "var(--color-error)", fontWeight: 700, marginBottom: 12, padding: "10px 14px", background: "rgba(239,68,68,0.06)", borderRadius: 10, border: "1px solid rgba(239,68,68,0.15)" }}>
+                        <span style={{ fontSize: "1.1rem" }}>✗</span> Not quite — correct answer: <span style={{ color: "var(--color-success)" }}>{currentMiniQuestion.answer}</span>
                       </div>
                     )}
 
                     {/* Visual diagram if matched */}
                     {quizMatchedVisual && (
                       <div style={{ marginBottom: 14, borderRadius: 12, overflow: "hidden", border: "1px solid rgba(99,102,241,0.2)" }}>
-                        <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "#818cf8", padding: "6px 12px", background: "rgba(99,102,241,0.06)", textTransform: "uppercase", letterSpacing: 0.4 }}>
+                        <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--color-accent)", padding: "6px 12px", background: "rgba(99,102,241,0.06)", textTransform: "uppercase", letterSpacing: 0.4 }}>
                           📊 Visual Aid — {quizMatchedVisual.title}
                         </div>
                         <VisualExplainer
@@ -1019,7 +1019,7 @@ export default function TopicHub() {
 
                     {/* Step-by-step solution */}
                     <div style={{ marginBottom: 14, padding: "12px 14px", background: "rgba(59,130,246,0.04)", borderRadius: 12, border: "1px solid rgba(59,130,246,0.15)" }}>
-                      <div style={{ fontSize: "0.75rem", fontWeight: 800, color: "#60a5fa", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 10 }}>
+                      <div style={{ fontSize: "0.75rem", fontWeight: 800, color: "var(--color-light-blue)", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 10 }}>
                         📋 CBSE Step-by-Step Solution ({currentMiniQuestion.marks || 1} {(currentMiniQuestion.marks || 1) === 1 ? "mark" : "marks"})
                       </div>
 
@@ -1057,7 +1057,7 @@ export default function TopicHub() {
 
                       {quizSolution && quizSolution.commonMistakes && quizSolution.commonMistakes.length > 0 && (
                         <div style={{ marginTop: 8, padding: "8px 10px", background: "rgba(239,68,68,0.04)", borderRadius: 8, border: "1px solid rgba(239,68,68,0.15)" }}>
-                          <div style={{ fontSize: "0.7rem", fontWeight: 800, color: "#f87171", marginBottom: 4, textTransform: "uppercase", letterSpacing: 0.4 }}>⚠ Common Mistakes</div>
+                          <div style={{ fontSize: "0.7rem", fontWeight: 800, color: "var(--color-pink-red)", marginBottom: 4, textTransform: "uppercase", letterSpacing: 0.4 }}>⚠ Common Mistakes</div>
                           {quizSolution.commonMistakes.map((m, i) => (
                             <div key={i} style={{ fontSize: "0.76rem", color: "rgba(248,113,113,0.85)", marginBottom: 2 }}>• {m}</div>
                           ))}
@@ -1066,7 +1066,7 @@ export default function TopicHub() {
 
                       {quizSolution?.examTip && (
                         <div style={{ marginTop: 8, padding: "8px 10px", background: "rgba(249,115,22,0.04)", borderRadius: 8, border: "1px solid rgba(249,115,22,0.15)" }}>
-                          <div style={{ fontSize: "0.7rem", fontWeight: 800, color: "#fb923c", marginBottom: 2, textTransform: "uppercase", letterSpacing: 0.4 }}>💡 Exam Tip</div>
+                          <div style={{ fontSize: "0.7rem", fontWeight: 800, color: "var(--color-orange)", marginBottom: 2, textTransform: "uppercase", letterSpacing: 0.4 }}>💡 Exam Tip</div>
                           <div style={{ fontSize: "0.76rem", color: "rgba(251,146,60,0.9)" }}>{quizSolution.examTip}</div>
                         </div>
                       )}
@@ -1126,7 +1126,7 @@ export default function TopicHub() {
                 padding: "16px 24px", background: "rgba(34,197,94,0.06)", borderRadius: 14,
                 border: "1px solid rgba(34,197,94,0.2)",
               }}>
-                <div style={{ fontSize: "1.6rem", fontWeight: 800, color: "#16a34a" }}>
+                <div style={{ fontSize: "1.6rem", fontWeight: 800, color: "var(--primary-dark)" }}>
                   {progress.conceptsCompleted.length}/{totalConcepts}
                 </div>
                 <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", fontWeight: 500, marginTop: 2 }}>
@@ -1138,7 +1138,7 @@ export default function TopicHub() {
                   padding: "16px 24px", background: "rgba(99,102,241,0.08)", borderRadius: 14,
                   border: "1px solid rgba(99,102,241,0.2)",
                 }}>
-                  <div style={{ fontSize: "1.6rem", fontWeight: 800, color: "#818cf8" }}>
+                  <div style={{ fontSize: "1.6rem", fontWeight: 800, color: "var(--color-accent)" }}>
                     {progress.quizCorrect}/{progress.quizTotal}
                   </div>
                   <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", fontWeight: 500, marginTop: 2 }}>

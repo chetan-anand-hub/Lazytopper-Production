@@ -107,7 +107,7 @@ export function PracticeQuestionCard({
                 width: "100%", textAlign: "left", marginBottom: 4, transition: "all 0.15s",
               }}
             >
-              <span style={{ fontWeight: 700, minWidth: 22, color: isCorrect ? "#22c55e" : isWrongChoice ? "#ef4444" : "var(--text-muted)" }}>
+              <span style={{ fontWeight: 700, minWidth: 22, color: isCorrect ? "var(--color-success)" : isWrongChoice ? "var(--color-error)" : "var(--text-muted)" }}>
                 {isCorrect ? "\u2713" : isWrongChoice ? "\u2717" : String.fromCharCode(65 + oi) + "."}
               </span>
               <MathText text={opt} />
@@ -119,7 +119,7 @@ export function PracticeQuestionCard({
             marginTop: 6, padding: "8px 12px", borderRadius: 10,
             fontSize: "0.82rem", fontWeight: 700,
             background: result === "correct" ? "rgba(34,197,94,0.08)" : "rgba(239,68,68,0.08)",
-            color: result === "correct" ? "#22c55e" : "#ef4444",
+            color: result === "correct" ? "var(--color-success)" : "var(--color-error)",
             display: "flex", alignItems: "center", gap: 8,
           }}>
             {result === "correct" ? (
@@ -172,7 +172,7 @@ export function PracticeQuestionCard({
             <span style={{
               padding: "2px 8px", borderRadius: 999, fontSize: "0.68rem", fontWeight: 700,
               background: "rgba(251,191,36,0.1)", border: "1px solid rgba(251,191,36,0.25)",
-              color: "#fbbf24",
+              color: "var(--color-warning)",
             }}>
               Assertion & Reasoning
             </span>
@@ -211,7 +211,7 @@ export function PracticeQuestionCard({
             borderRadius: 999, padding: "5px 12px",
             border: "1px solid rgba(59,130,246,0.3)",
             backgroundColor: "rgba(59,130,246,0.06)",
-            fontSize: "0.78rem", color: "#3b82f6",
+            fontSize: "0.78rem", color: "var(--color-info)",
             cursor: "pointer", display: "inline-flex",
             alignItems: "center", gap: 6,
           }}
@@ -225,7 +225,7 @@ export function PracticeQuestionCard({
             borderRadius: 999, padding: "5px 12px",
             border: "1px solid rgba(34,197,94,0.3)",
             backgroundColor: "rgba(34,197,94,0.06)",
-            fontSize: "0.78rem", color: "#22c55e",
+            fontSize: "0.78rem", color: "var(--color-success)",
             cursor: "pointer", display: "inline-flex",
             alignItems: "center", gap: 6,
           }}
@@ -239,7 +239,7 @@ export function PracticeQuestionCard({
             borderRadius: 999, padding: "5px 12px",
             border: "1px solid rgba(206,130,255,0.3)",
             backgroundColor: "rgba(206,130,255,0.06)",
-            fontSize: "0.78rem", color: "#c4b5fd",
+            fontSize: "0.78rem", color: "var(--color-violet)",
             cursor: "pointer", display: "inline-flex",
             alignItems: "center", gap: 6,
           }}
@@ -261,12 +261,12 @@ export function PracticeQuestionCard({
           </div>
 
           {solutionLoading && (
-            <div style={{ fontSize: "0.82rem", color: "#3b82f6", padding: "8px 0" }}>
+            <div style={{ fontSize: "0.82rem", color: "var(--color-info)", padding: "8px 0" }}>
               Loading step-by-step solution...
             </div>
           )}
           {solutionError && (
-            <div style={{ fontSize: "0.82rem", color: "#ef4444", padding: "8px 0" }}>
+            <div style={{ fontSize: "0.82rem", color: "var(--color-error)", padding: "8px 0" }}>
               {solutionError}
             </div>
           )}
@@ -289,7 +289,7 @@ export function PracticeQuestionCard({
                       <MathText text={step.description} />
                       <span style={{
                         marginLeft: 8, fontSize: "0.7rem", fontWeight: 700,
-                        color: step.marks === 0 ? "var(--text-muted)" : "#60a5fa",
+                        color: step.marks === 0 ? "var(--text-muted)" : "var(--color-light-blue)",
                         background: step.marks === 0 ? "var(--bg-card)" : "rgba(59,130,246,0.1)",
                         borderRadius: 999, padding: "1px 7px",
                       }}>
@@ -308,7 +308,7 @@ export function PracticeQuestionCard({
                   marginTop: 8, padding: "8px 10px",
                   background: "rgba(239,68,68,0.06)", borderRadius: 8, border: "1px solid rgba(239,68,68,0.2)",
                 }}>
-                  <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#ef4444", marginBottom: 4 }}>
+                  <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "var(--color-error)", marginBottom: 4 }}>
                     Common Mistakes
                   </div>
                   {solutionData.commonMistakes.map((m, i) => (
@@ -322,7 +322,7 @@ export function PracticeQuestionCard({
                 <div style={{
                   marginTop: 8, padding: "8px 10px",
                   background: "rgba(34,197,94,0.06)", borderRadius: 8, border: "1px solid rgba(34,197,94,0.2)",
-                  fontSize: "0.75rem", color: "#22c55e",
+                  fontSize: "0.75rem", color: "var(--color-success)",
                 }}>
                   <strong>Exam Tip:</strong> {solutionData.examTip}
                 </div>
@@ -334,7 +334,7 @@ export function PracticeQuestionCard({
                   marginTop: 12, width: "100%", padding: "10px 14px",
                   borderRadius: 10, border: "1px solid rgba(206,130,255,0.3)",
                   background: "linear-gradient(135deg, rgba(206,130,255,0.06), rgba(206,130,255,0.08))",
-                  color: "#c4b5fd", fontSize: "0.82rem", fontWeight: 600,
+                  color: "var(--color-violet)", fontSize: "0.82rem", fontWeight: 600,
                   cursor: "pointer", display: "flex", alignItems: "center",
                   justifyContent: "center", gap: 8,
                 }}
@@ -351,7 +351,7 @@ export function PracticeQuestionCard({
                       width: "100%", padding: "10px 14px",
                       borderRadius: 10, border: "1px solid rgba(59,130,246,0.3)",
                       background: "linear-gradient(135deg, rgba(59,130,246,0.06), rgba(59,130,246,0.10))",
-                      color: "#60a5fa", fontSize: "0.82rem", fontWeight: 600,
+                      color: "var(--color-light-blue)", fontSize: "0.82rem", fontWeight: 600,
                       cursor: "pointer", display: "flex", alignItems: "center",
                       justifyContent: "center", gap: 8,
                     }}
@@ -401,7 +401,7 @@ export function PracticeQuestionCard({
               borderRadius: 999, padding: "4px 14px",
               border: "1px solid rgba(34,197,94,0.3)",
               backgroundColor: "rgba(34,197,94,0.08)",
-              fontSize: "0.76rem", color: "#22c55e",
+              fontSize: "0.76rem", color: "var(--color-success)",
               cursor: "pointer", fontWeight: 700,
             }}
           >
@@ -414,7 +414,7 @@ export function PracticeQuestionCard({
               borderRadius: 999, padding: "4px 14px",
               border: "1px solid rgba(239,68,68,0.3)",
               backgroundColor: "rgba(239,68,68,0.08)",
-              fontSize: "0.76rem", color: "#ef4444",
+              fontSize: "0.76rem", color: "var(--color-error)",
               cursor: "pointer", fontWeight: 700,
             }}
           >
@@ -425,7 +425,7 @@ export function PracticeQuestionCard({
       {selfAssessment && (
         <div style={{
           marginTop: 8, fontSize: "0.76rem", fontWeight: 600,
-          color: selfAssessment === "got_it" ? "#22c55e" : "#ef4444",
+          color: selfAssessment === "got_it" ? "var(--color-success)" : "var(--color-error)",
           display: "flex", alignItems: "center", gap: 6,
         }}>
           {selfAssessment === "got_it" ? (
