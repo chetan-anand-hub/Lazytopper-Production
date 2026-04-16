@@ -1533,14 +1533,14 @@ export const promptDPracticePacks: PracticePacksIndex =
           },
           {
             "id": "M-REAL-5",
-            "text": "Prove that √5 is an irrational number.",
+            "text": "[Competency-based — Higher Order Thinking] Prove that √5 is an irrational number.",
             "marks": 3,
             "difficulty": "Hard",
             "questionType": "subjective"
           },
           {
             "id": "M-REAL-6",
-            "text": "[Assertion-Reason — Competency-based] Assertion (A): 6ⁿ can never end with the digit 0 for any natural number n. Reason (R): 6ⁿ = (2 × 3)ⁿ = 2ⁿ × 3ⁿ, which has no factor of 5 in its prime factorisation.",
+            "text": "[Assertion-Reason — Competency-based] Assertion (A): √2 is irrational. Reason (R): If p is a prime number, then √p is irrational.",
             "marks": 1,
             "difficulty": "Easy",
             "questionType": "assertion-reason"
@@ -1561,10 +1561,10 @@ export const promptDPracticePacks: PracticePacksIndex =
           },
           {
             "id": "M-REAL-9",
-            "text": "[MCQ — Competency-based] If p is a prime number and p divides a², which of the following must be true? (a) p divides a (b) p divides 2a (c) p² divides a (d) p divides a only if a is even",
-            "marks": 1,
+            "text": "Prove that if p is a prime and p divides a², then p divides a.",
+            "marks": 2,
             "difficulty": "Medium",
-            "questionType": "MCQ"
+            "questionType": "subjective"
           },
           {
             "id": "M-REAL-10",
