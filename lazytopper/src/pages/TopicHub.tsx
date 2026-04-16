@@ -742,6 +742,29 @@ export default function TopicHub() {
               </p>
             )}
 
+            {progress.lessonCompleted && (
+              <div style={{
+                marginTop: 16,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+                background: "linear-gradient(135deg, rgba(88,204,2,0.15) 0%, rgba(255,200,0,0.15) 100%)",
+                border: "1.5px solid rgba(88,204,2,0.4)",
+                borderRadius: 14,
+                padding: "10px 20px",
+              }}>
+                <span style={{ fontSize: "1.3rem" }}>🏆</span>
+                <div style={{ textAlign: "left" }}>
+                  <div style={{ fontSize: "0.85rem", fontWeight: 800, color: "#58cc02", lineHeight: 1.2 }}>
+                    Chapter Mastered!
+                  </div>
+                  <div style={{ fontSize: "0.72rem", color: "var(--text-muted)", fontWeight: 500 }}>
+                    You've completed all concepts in this chapter
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div style={{
               marginTop: 20, display: "flex", gap: 24, justifyContent: "center", flexWrap: "wrap",
             }}>
