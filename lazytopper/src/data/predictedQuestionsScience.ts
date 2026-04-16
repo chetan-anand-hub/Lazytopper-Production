@@ -1393,69 +1393,6 @@ export const sciencePredictedQuestions: SciencePredictedQuestion[] = [
   },
 
   // ================================================================
-  // OUR ENVIRONMENT / SOURCES OF ENERGY
-  // ================================================================
-
-  {
-    id: "2026-ENV-MCQ-01",
-    topicKey: "OurEnvironment",
-    subtopic: "Food Chains & Trophic Levels",
-    kind: "MCQ",
-    section: "A",
-    marks: 1,
-    difficulty: "Easy",
-    bloomSkill: "Remembering",
-    questionText:
-      "Which of the following is a correct food chain?",
-    options: [
-      "Grass → Deer → Tiger → Vulture",
-      "Tiger → Deer → Grass",
-      "Vulture → Deer → Grass",
-      "Grass → Tiger → Deer",
-    ],
-    answer: "Grass → Deer → Tiger → Vulture",
-    explanation:
-      "Producer (grass) → primary consumer (deer) → secondary consumer (tiger) → tertiary consumer (vulture as scavenger).",
-    policyTag: "Food chain order MCQ",
-  },
-
-  {
-    id: "2026-ENV-SA-02",
-    topicKey: "OurEnvironment",
-    subtopic: "Biomagnification & Waste",
-    kind: "Short",
-    section: "B",
-    marks: 2,
-    difficulty: "Medium",
-    bloomSkill: "Understanding",
-    questionText:
-      "What is biomagnification? Why are top-level consumers more affected by it?",
-    answer:
-      "Biomagnification is the progressive increase in the concentration of non-biodegradable harmful chemicals in the food chain. Top-level consumers are more affected because they receive chemicals accumulated from all previous trophic levels.",
-    explanation:
-      "Persistent pollutants like DDT accumulate and magnify up the food chain.",
-    policyTag: "Biomagnification definition",
-  },
-
-  {
-    id: "2026-ENV-CASE-04",
-    topicKey: "OurEnvironment",
-    subtopic: "Waste Management & Lifestyle",
-    kind: "Case-Based",
-    section: "E",
-    marks: 4,
-    difficulty: "Medium",
-    bloomSkill: "Analysing",
-    questionText:
-      "A housing society generates large amounts of kitchen waste, plastic waste and paper waste daily.\n(i) Which of these are biodegradable and which are non-biodegradable?\n(ii) Suggest one method each to manage biodegradable and non-biodegradable waste.\n(iii) Why is it important to reduce use of plastic bags?\n(iv) Suggest two lifestyle changes to reduce solid waste generation.",
-    answer:
-      "(i) Kitchen waste and paper waste are biodegradable; most plastic waste is non-biodegradable.\n(ii) Biodegradable: composting/vermicomposting; Non-biodegradable: recycling or proper segregation and collection.\n(iii) Plastic bags cause soil and water pollution and harm animals; they are non-biodegradable.\n(iv) Carry cloth bags, avoid single-use plastics, buy only what is needed, reuse and recycle (any two valid points).",
-    explanation:
-      "Case-based question links solid waste management concepts with practical lifestyle suggestions.",
-    policyTag: "Environment case-study",
-  },
-
-  // ================================================================
   // EXTRA DEPTH PACK 2026 — PHYSICS & BIOLOGY HIGH-ROI TOPICS
   // Electricity, Magnetic Effects, Human Eye, Life Processes
   // ================================================================
@@ -2041,50 +1978,6 @@ Phenotypes: 3 tall : 1 dwarf.`,
     policyTag: "Heredity & evolution – Mendel’s monohybrid cross",
   },
 
-  // ------------------------ OUR ENVIRONMENT ------------------------
-
-  {
-    id: "2026-OE-SA-05",
-    topicKey: "OurEnvironment",
-    subtopic: "Food Chains & Food Webs",
-    kind: "Short",
-    section: "B",
-    marks: 2,
-    difficulty: "Medium",
-    bloomSkill: "Understanding",
-    questionText:
-      "Define (a) food chain and (b) trophic level. Why do food chains generally have only 3–4 trophic levels?",
-    answer:
-      `(a) Food chain: a sequence of organisms where each is eaten by the next higher one in the chain.
-(b) Trophic level: the position of an organism in a food chain, based on the source of its food.
-Food chains usually have 3–4 levels because a lot of energy is lost (about 90%) at each step, so very little energy is left to support more levels.`,
-    explanation:
-      "Reinforces the idea of energy flow and 10% law limiting food chain length.",
-    policyTag: "Our environment – food chains and energy flow",
-  },
-
-  {
-    id: "2026-OE-CS-02",
-    topicKey: "OurEnvironment",
-    subtopic: "Waste Management & Pollution",
-    kind: "Case-Based",
-    section: "E",
-    marks: 4,
-    difficulty: "Medium",
-    bloomSkill: "Analysing",
-    questionText:
-      `A town faces a problem of overflowing garbage bins and open dumping.
-(a) Name any two problems caused by open dumping of wastes.
-(b) Suggest two methods to reduce the load on landfills.
-(c) Why is segregation of waste at source important?`,
-    answer:
-      `(a) Foul smell, breeding of flies and rats, spread of diseases, soil and water pollution (any two).
-(b) Methods: composting biodegradable waste, recycling paper/plastic/metals, reducing use of disposable items (any two).
-(c) Segregation ensures that biodegradable and recyclable materials can be processed properly, reducing mixed waste and improving efficiency of waste management.`,
-    explanation:
-      "Connects textbook discussion on waste management with real-life civic problems and solutions.",
-    policyTag: "Our environment – solid waste management and pollution",
-  },
   {
     id: "2026-ELEC-LA-12",
     topicKey: "Electricity",
@@ -2356,31 +2249,6 @@ Food chains usually have 3–4 levels because a lot of energy is lost (about 90%
     policyTag: "Acids Bases Salts 5-mark preparation of salts",
   },
 
-  {
-    id: "2026-ENV-LA-05",
-    topicKey: "OurEnvironment",
-    subtopic: "Ecosystem & Food Chains",
-    kind: "Short",
-    section: "D",
-    marks: 5,
-    difficulty: "Medium",
-    bloomSkill: "Understanding",
-    questionText:
-      "(a) What is an ecosystem? List its two components.\n(b) Construct a food chain comprising four trophic levels.\n(c) What will happen if we kill all the organisms in one trophic level?\n(d) Why is the flow of energy in an ecosystem unidirectional?",
-    answer:
-      "(a) An ecosystem is a self-sustaining unit of living organisms interacting with their physical environment. Components: biotic (living) and abiotic (non-living). (b) Grass → Grasshopper → Frog → Snake. (c) The organisms in the next trophic level will starve and the previous level will overpopulate. (d) Energy flows from producers to consumers and is lost as heat at each level; it cannot be recycled.",
-    explanation:
-      "Energy flow is unidirectional because energy is used up and lost as heat at each trophic level, unlike nutrients which can be recycled.",
-    solutionSteps: [
-      "Define ecosystem and its components.",
-      "Construct a 4-level food chain.",
-      "Explain impact of removing one level.",
-      "Explain unidirectional energy flow with 10% rule.",
-    ],
-    strategyHint: "Mention the 10% law for energy transfer between trophic levels.",
-    pastBoardYear: "2024",
-    policyTag: "Environment 5-mark ecosystem & food chain",
-  },
 ];
 export type PredictedQuestionScience = SciencePredictedQuestion;
 // Back-compat alias expected by older mock builders

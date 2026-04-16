@@ -168,11 +168,6 @@ const SCIENCE_TOPIC_TO_SLUG: Record<string, Class10ScienceTopicKey> = {
   "Electricity": "Electricity",
   "Magnetic Effects of Electric Current": "MagneticEffects",
   "MagneticEffects": "MagneticEffects",
-  "Our Environment / Sources of Energy": "OurEnvironment",
-  "Our Environment": "OurEnvironment",
-  "OurEnvironment": "OurEnvironment",
-  "Management of Natural Resources": "OurEnvironment",
-  "Sources of Energy": "OurEnvironment",
 };
 
 function canonicalTopicKey(topicKey: string, subject: LTSubjectKey): string {

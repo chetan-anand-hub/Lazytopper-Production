@@ -1225,46 +1225,4 @@ export const topicHubContent: TopicHubBlock[] = [
       },
     ],
   },
-  {
-    subject: 'science',
-    topicKey: 'science_our_environment',
-    topicName: 'Our Environment',
-    unitName: 'Natural Resources',
-    whyItMatters: [
-      'Very scoring, theory-heavy chapter; definitions and reasoning are straightforward.',
-      'Focuses on ecosystems, food chains, and human impact.',
-    ],
-    coreIdeas: [
-      'Ecosystem: biotic and abiotic components.',
-      'Food chains, food webs, and trophic levels.',
-      '10% law of energy transfer.',
-      'Biological magnification and impact of non-biodegradable substances.',
-      'Waste management basics.',
-    ],
-    commonMistakes: [
-      'Confusing producers/consumers/decomposers.',
-      'Weak explanation of 10% law (must mention energy loss at each level).',
-      'Not connecting biomagnification to non-biodegradable pollutants.',
-    ],
-    examPatterns: [
-      '1 mark: definition or example (e.g. decomposer).',
-      '2–3 marks: 10% law explanation or food chain diagram.',
-      '3–4 marks: biomagnification and environmental impact reasoning.',
-    ],
-    howToScore95Plus: [
-      'Learn definitions with 1–2 examples each.',
-      'Practise food chain and food web diagrams.',
-      'Use simple numeric examples when explaining 10% law.',
-    ],
-    microExamples: [
-      {
-        question: 'Define food chain.',
-        hint: 'Sequence of organisms where one is eaten by the next.',
-      },
-      {
-        question: 'Why is energy flow in ecosystem unidirectional?',
-        hint: 'Energy is lost as heat and cannot be reused.',
-      },
-    ],
-  },
 ];

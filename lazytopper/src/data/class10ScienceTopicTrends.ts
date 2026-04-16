@@ -30,8 +30,7 @@ export type Class10ScienceTopicKey =
   | "Light"
   | "HumanEyeAndColourfulWorld"
   | "Electricity"
-  | "MagneticEffects"
-  | "OurEnvironment";
+  | "MagneticEffects";
 
 /**
  * Parameter type for science topics.  While most modules should use
@@ -335,28 +334,6 @@ export const class10ScienceTopicTrends: Class10ScienceTrendsRoot = {
       ],
     },
 
-    OurEnvironment: {
-      topicKey: "OurEnvironment",
-      topicName: "Our Environment",
-      tier: "high-roi",
-      weightagePercent: 6.25,
-      concepts: [
-        {
-          name: "Food Chains & Trophic Levels",
-          sharePercent: 60,
-          question_types: ["Very Short", "Short"],
-          summary_and_exam_tips:
-            "Learn key terms (biomagnification, biodegradable vs non-biodegradable). Mostly theory, easy to score.",
-        },
-        {
-          name: "Ozone Layer & Waste Management",
-          sharePercent: 40,
-          question_types: ["Short"],
-          summary_and_exam_tips:
-            "Effects of ozone depletion, biodegradable vs non-biodegradable waste — prepare crisp bullet points.",
-        },
-      ],
-    },
   },
 
   // Rough difficulty mix (can tune later, matches Maths style)
