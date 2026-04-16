@@ -19,6 +19,7 @@ import { useAuth } from "../context/AuthContext";
 import { fetchStepSolution, type StepSolutionResponse } from "../ai/aiClient";
 import { VisualExplainer } from "../components/VisualExplainer";
 import { getVisualConceptForQuestion } from "../data/questionVisualMap";
+import { findVisualForQuestion } from "../data/visualConceptRegistry";
 import {
   getChapterMasteryLevel,
   recordQuizResult,
@@ -503,6 +504,15 @@ export default function TopicHub() {
     return getVisualConceptForQuestion(currentMiniQuestion);
   }, [currentMiniQuestion, answerRevealed]);
 
+  const conceptMatchedVisual = useMemo(() => {
+    if (!currentDef || showingCheckpoint) return null;
+    return findVisualForQuestion(
+      `${currentDef.title} ${currentDef.description || ""}`,
+      topicKey,
+      subjectTitle,
+    );
+  }, [currentDef, showingCheckpoint, topicKey, subjectTitle]);
+
   const [conceptFailed, setConceptFailed] = useState(false);
 
   const advanceMiniQuiz = useCallback(() => {
@@ -821,11 +831,25 @@ export default function TopicHub() {
                   </h2>
                 </div>
 
-                <QuestionVisualAid
-                  subject={subjectTitle}
-                  topicKey={topicKey}
-                  questionText={`${currentDef.title} ${currentDef.description || ""}`}
-                />
+                {conceptMatchedVisual ? (
+                  <div style={{ marginBottom: 14, borderRadius: 12, overflow: "hidden", border: "1px solid rgba(99,102,241,0.2)" }}>
+                    <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--color-accent)", padding: "6px 12px", background: "rgba(99,102,241,0.06)", textTransform: "uppercase", letterSpacing: 0.4 }}>
+                      🎛 Interactive — {conceptMatchedVisual.title}
+                    </div>
+                    <VisualExplainer
+                      src={conceptMatchedVisual.filePath}
+                      title={conceptMatchedVisual.title}
+                      height={320}
+                      collapsible={false}
+                    />
+                  </div>
+                ) : (
+                  <QuestionVisualAid
+                    subject={subjectTitle}
+                    topicKey={topicKey}
+                    questionText={`${currentDef.title} ${currentDef.description || ""}`}
+                  />
+                )}
 
                 <div style={{
                   fontSize: "0.9rem", color: "var(--text)", lineHeight: 1.7,

@@ -321,41 +321,33 @@ export default function ChapterTestPage() {
                 </button>
               </div>
 
-              <div style={{ marginTop: 20 }}>
-                {areAllConceptsCompleted(topicKey) ? (
-                  <button
-                    onClick={startTest}
-                    disabled={questions.length === 0}
-                    style={{
-                      padding: "12px 36px",
-                      borderRadius: 14,
-                      border: "none",
-                      cursor: "pointer",
-                      background: "var(--bg-card)",
-                      color: "#16a34a",
-                      fontWeight: 800,
-                      fontSize: "1rem",
-                    }}
-                  >
-                    Start Chapter Test
-                  </button>
-                ) : (
-                  <div style={{ padding: "16px 20px", borderRadius: 14, background: "var(--bg-card-border)" }}>
-                    <p style={{ fontWeight: 700, fontSize: "0.9rem", marginBottom: 6 }}>
-                      Complete all concepts first
-                    </p>
-                    <p style={{ fontSize: "0.8rem", opacity: 0.8 }}>
-                      Finish all concept lessons in the Topic Hub before attempting the Chapter Test.
-                    </p>
+              <div style={{ marginTop: 20, display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+                <button
+                  onClick={startTest}
+                  disabled={questions.length === 0}
+                  style={{
+                    padding: "12px 36px",
+                    borderRadius: 14,
+                    border: "none",
+                    cursor: questions.length === 0 ? "not-allowed" : "pointer",
+                    background: "var(--bg-card)",
+                    color: "#16a34a",
+                    fontWeight: 800,
+                    fontSize: "1rem",
+                    opacity: questions.length === 0 ? 0.5 : 1,
+                  }}
+                >
+                  Start Chapter Test
+                </button>
+                {!areAllConceptsCompleted(topicKey) && (
+                  <div style={{ textAlign: "center", fontSize: "0.78rem", color: "var(--text-muted)", maxWidth: 320 }}>
+                    Tip: Completing all concepts in the Chapter Hub first will help you score better.{" "}
                     <button
+                      type="button"
                       onClick={() => navigate(backTo)}
-                      style={{
-                        marginTop: 12, padding: "10px 28px", borderRadius: 12,
-                        border: "none", cursor: "pointer", background: "var(--bg-card)",
-                        color: "#16a34a", fontWeight: 700, fontSize: "0.88rem",
-                      }}
+                      style={{ background: "none", border: "none", cursor: "pointer", color: "var(--color-accent)", fontWeight: 600, fontSize: "0.78rem", padding: 0 }}
                     >
-                      Go to Topic Hub
+                      Go to Chapter Hub
                     </button>
                   </div>
                 )}
