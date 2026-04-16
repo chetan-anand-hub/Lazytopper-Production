@@ -2051,77 +2051,59 @@ export const topicHubV2Enrichment: Record<string, Partial<TopicHubV2Content>> = 
   "science_periodic_classification": {
     workedExamples: [
       {
-        title: "Mendeleev’s placement",
-        question: "Why did Mendeleev leave gaps in his periodic table and how were they justified later?"
+        title: "Periodic trend — atomic size",
+        question: "Explain why atomic size decreases across a period from left to right."
       },
       {
-        title: "Modern periodic law",
-        question: "State the modern periodic law and explain how it differs from Mendeleev’s periodic law."
+        title: "Mendeleev's periodic table",
+        question: "State any two merits and two limitations of Mendeleev's periodic table."
       }
     ],
     competencies: [
-      { id: "S10-science_periodic_classification-C1", description: "State Mendeleev’s periodic law and the modern periodic law and compare the two.", bloomLevel: "Understand" },
-      { id: "S10-science_periodic_classification-C2", description: "Describe the arrangement of elements in the modern periodic table with respect to periods and groups.", bloomLevel: "Understand" },
-      { id: "S10-science_periodic_classification-C3", description: "Explain periodic trends such as atomic size, metallic character and valency across periods and down groups.", bloomLevel: "Analyze" },
-      { id: "S10-science_periodic_classification-C4", description: "Predict the position of an element in the periodic table based on its properties or electronic configuration.", bloomLevel: "Apply" }
+      { id: "S10-science_periodic_classification-C1", description: "Describe early attempts at classification of elements including Dobereiner's triads and Newlands' Law of Octaves and identify their limitations.", bloomLevel: "Understand" },
+      { id: "S10-science_periodic_classification-C2", description: "Explain the merits and limitations of Mendeleev's periodic table.", bloomLevel: "Analyze" },
+      { id: "S10-science_periodic_classification-C3", description: "State Modern Periodic Law and relate periodic trends in atomic size, metallic character, and valency to electronic configuration.", bloomLevel: "Apply" }
     ],
     misconceptions: [
       {
-        concept: "Group number and valency",
-        commonError: "Assuming the group number always equals the valency for all elements.",
-        correction: "Valency is related to the number of valence electrons; for transition elements and heavy main group elements, group number and valency may differ." 
+        concept: "Atomic size trend across a period",
+        commonError: "Thinking atomic size increases across a period because more electrons are added.",
+        correction: "The nuclear charge increases faster than electron shielding, so the effective nuclear pull on the same shell increases, making atoms smaller."
       },
       {
-        concept: "Periodic trends",
-        commonError: "Believing atomic size always increases down a group and across a period without exceptions.",
-        correction: "Atomic radius generally decreases across a period and increases down a group; however, there are small irregularities such as the lanthanide contraction." 
-      },
-      {
-        concept: "Metallic character",
-        commonError: "Thinking that metallic character strictly depends on atomic weight.",
-        correction: "Metallic character is influenced by the ability to lose electrons, which depends on ionisation energy and position in the periodic table, not directly on atomic mass." 
+        concept: "Basis of Modern Periodic Law",
+        commonError: "Stating that the Modern Periodic Law uses atomic mass as the basis for arrangement.",
+        correction: "The Modern Periodic Law is based on atomic number (number of protons), not atomic mass."
       }
     ],
     caseStudies: [
       {
         id: "science_periodic_classification-CS1",
-        tier: "high-roi",
+        tier: "good-to-do",
         contextText:
-          "A student is tasked with identifying an unknown element that has an electronic configuration of 2, 8, 1. Using the periodic table, she must determine its group, period and likely properties to decide how to store it safely in the laboratory.",
+          "Dmitri Mendeleev arranged 63 known elements in a table based on increasing atomic mass and left gaps for elements not yet discovered. He predicted the properties of these missing elements. Later, Henry Moseley showed that atomic number, not mass, is the correct basis for arrangement.",
         subQuestions: [
           {
             id: "science_periodic_classification-CS1-Q1",
-            questionText: "Which group and period does the element belong to?",
-            questionType: "MCQ",
+            questionText: "Why did Mendeleev leave gaps in his periodic table?",
+            questionType: "ShortAnswer",
             marks: 1,
-            bloomLevel: "Apply",
-            options: ["Group 1, Period 3", "Group 2, Period 2", "Group 1, Period 2", "Group 2, Period 3"],
-            correctAnswer: "Group 1, Period 3",
-            explanation: "The configuration 2, 8, 1 indicates one valence electron and three shells ⇒ sodium in group 1 period 3.",
-            hint: "Count the shells and valence electrons.",
-            competencyCode: "S10-science_periodic_classification-C4"
+            bloomLevel: "Understand",
+            correctAnswer: "Mendeleev left gaps for elements that had not yet been discovered, predicting their properties based on the periodic trend.",
+            explanation: "His table predicted properties of yet-undiscovered elements like eka-aluminium (gallium) and eka-silicon (germanium).",
+            hint: "Think about what a 'gap' implies in a classification system.",
+            competencyCode: "S10-science_periodic_classification-C2"
           },
           {
             id: "science_periodic_classification-CS1-Q2",
-            questionText: "Predict two chemical properties of this element based on its position in the periodic table.",
+            questionText: "Why was atomic number chosen over atomic mass as the basis for the Modern Periodic Table?",
             questionType: "ShortAnswer",
             marks: 2,
             bloomLevel: "Analyze",
-            correctAnswer: "It is highly reactive, forms ionic compounds readily and reacts vigorously with water to produce hydrogen gas and a strong alkali.",
-            explanation: "Group 1 elements (alkali metals) have low ionisation energies and react strongly with non‑metals and water.",
-            hint: "Recall the general properties of alkali metals.",
+            correctAnswer: "Atomic mass led to anomalous pairs (e.g., Co before Ni) where element order conflicted with their properties. Atomic number removed these anomalies and gave a consistent arrangement matching observed chemical behaviour.",
+            explanation: "The atomic number uniquely identifies an element and directly determines its electronic configuration and hence its chemical properties.",
+            hint: "Consider the anomalous pairs in Mendeleev's table.",
             competencyCode: "S10-science_periodic_classification-C3"
-          },
-          {
-            id: "science_periodic_classification-CS1-Q3",
-            questionText: "Suggest suitable storage conditions for this element in the lab and explain why.",
-            questionType: "ShortAnswer",
-            marks: 1,
-            bloomLevel: "Apply",
-            correctAnswer: "Store under kerosene oil or inert atmosphere to prevent reaction with oxygen and moisture.",
-            explanation: "Alkali metals like sodium oxidise quickly in air and react with water; storing under kerosene prevents contact with air and moisture.",
-            hint: "How are reactive metals typically stored?",
-            competencyCode: "S10-science_periodic_classification-C4"
           }
         ]
       }
@@ -2314,8 +2296,7 @@ export const topicHubV2Enrichment: Record<string, Partial<TopicHubV2Content>> = 
     competencies: [
       { id: "S10-science_heredity_evolution-C1", description: "State Mendel’s laws of inheritance and apply them to simple crosses.", bloomLevel: "Understand" },
       { id: "S10-science_heredity_evolution-C2", description: "Distinguish between dominant and recessive traits and calculate genotypic and phenotypic ratios.", bloomLevel: "Apply" },
-      { id: "S10-science_heredity_evolution-C3", description: "Explain the mechanism of sex determination in humans and recognise XY and XX chromosomes.", bloomLevel: "Understand" },
-      { id: "S10-science_heredity_evolution-C4", description: "Discuss the principles of evolution by natural selection and provide examples of adaptation.", bloomLevel: "Analyze" }
+      { id: "S10-science_heredity_evolution-C3", description: "Explain the mechanism of sex determination in humans and recognise XY and XX chromosomes.", bloomLevel: "Understand" }
     ],
     misconceptions: [
       {
@@ -2328,11 +2309,6 @@ export const topicHubV2Enrichment: Record<string, Partial<TopicHubV2Content>> = 
         commonError: "Using phenotype and genotype interchangeably or confusing them.",
         correction: "Phenotype is the observable characteristic; genotype is the genetic makeup that determines the phenotype." 
       },
-      {
-        concept: "Evolution goal",
-        commonError: "Assuming evolution is purposeful and always leads to ‘better’ organisms.",
-        correction: "Evolution is driven by random mutations and natural selection; it does not have a predetermined direction or goal." 
-      }
     ],
     caseStudies: [
       {
@@ -2655,88 +2631,4 @@ export const topicHubV2Enrichment: Record<string, Partial<TopicHubV2Content>> = 
     labActivities: []
   },
 
-  /**
-   * Management of Natural Resources
-   */
-  "science_natural_resources_management": {
-    workedExamples: [
-      {
-        title: "The 5Rs",
-        question: "Explain the 5Rs approach to sustainable management of natural resources with one example for each."
-      },
-      {
-        title: "Water harvesting",
-        question: "Describe the purpose of rainwater harvesting and how it can be implemented in urban areas."
-      }
-    ],
-    competencies: [
-      { id: "S10-science_natural_resources_management-C1", description: "Identify renewable and non‑renewable resources and discuss the need for conservation.", bloomLevel: "Understand" },
-      { id: "S10-science_natural_resources_management-C2", description: "Describe methods for sustainable management of water, forests and wildlife (such as rainwater harvesting and joint forest management).", bloomLevel: "Apply" },
-      { id: "S10-science_natural_resources_management-C3", description: "Discuss the environmental impact of extraction and consumption of fossil fuels and the importance of using alternative energy sources.", bloomLevel: "Analyze" },
-      { id: "S10-science_natural_resources_management-C4", description: "Promote community participation and awareness for conservation of natural resources.", bloomLevel: "Evaluate" }
-    ],
-    misconceptions: [
-      {
-        concept: "Resource abundance",
-        commonError: "Believing natural resources like water and fossil fuels are inexhaustible because they are abundant now.",
-        correction: "Many resources are finite or renew slowly; overuse leads to depletion and ecological imbalance." 
-      },
-      {
-        concept: "Sustainability",
-        commonError: "Thinking sustainability only involves recycling without reducing consumption.",
-        correction: "Sustainability includes reducing usage, reusing, repurposing and recycling; reduction is the first priority." 
-      },
-      {
-        concept: "Energy sources",
-        commonError: "Assuming renewable energy sources are always cheap and universally applicable.",
-        correction: "Renewables have upfront costs and geographical limitations; a mix of energy sources may be necessary." 
-      }
-    ],
-    caseStudies: [
-      {
-        id: "science_natural_resources_management-CS1",
-        tier: "high-roi",
-        contextText:
-          "A village faces water scarcity during the summer. The community discusses implementing rainwater harvesting systems and reducing dependence on groundwater. They also consider planting trees and regulating the use of firewood to conserve forest resources.",
-        subQuestions: [
-          {
-            id: "science_natural_resources_management-CS1-Q1",
-            questionText: "How does rainwater harvesting help alleviate water scarcity?",
-            questionType: "ShortAnswer",
-            marks: 2,
-            bloomLevel: "Apply",
-            correctAnswer: "It collects and stores rainwater for later use, recharges groundwater and reduces runoff, ensuring water availability during dry periods.",
-            explanation: "Harvesting captures rainfall that would otherwise flow away, replenishing local water sources and reducing dependence on external supplies.",
-            hint: "Think about water storage and replenishment.",
-            competencyCode: "S10-science_natural_resources_management-C2"
-          },
-          {
-            id: "science_natural_resources_management-CS1-Q2",
-            questionText: "Explain one benefit of planting trees for natural resource management in this village.",
-            questionType: "ShortAnswer",
-            marks: 1,
-            bloomLevel: "Analyze",
-            correctAnswer: "Trees prevent soil erosion, enhance groundwater recharge, provide habitat for wildlife and contribute to climate regulation.",
-            explanation: "Roots hold soil, leaves slow down rainwater, and trees support biodiversity and carbon sequestration.",
-            hint: "Consider multiple ecological roles of trees.",
-            competencyCode: "S10-science_natural_resources_management-C1"
-          },
-          {
-            id: "science_natural_resources_management-CS1-Q3",
-            questionText: "Suggest one measure besides rainwater harvesting and afforestation that the villagers can adopt to manage natural resources sustainably.",
-            questionType: "ShortAnswer",
-            marks: 1,
-            bloomLevel: "Evaluate",
-            correctAnswer: "Practice sustainable firewood use through community woodlots and efficient stoves or switch to alternative energy sources like biogas.",
-            explanation: "Reducing firewood consumption preserves forest resources and improves health by reducing smoke exposure.",
-            hint: "Think about fuel alternatives and efficient usage.",
-            competencyCode: "S10-science_natural_resources_management-C4"
-          }
-        ]
-      }
-    ],
-    labActivities: []
-  }
-
 };
-

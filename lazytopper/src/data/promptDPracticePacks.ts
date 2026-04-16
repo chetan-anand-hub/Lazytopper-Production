@@ -338,6 +338,101 @@ export const promptDPracticePacks: PracticePacksIndex =
         }
       ]
     },
+    "periodic_classification": {
+      "subject": "science",
+      "topicKey": "periodic_classification",
+      "topicName": "Periodic Classification of Elements",
+      "modes": {
+        "speed_practice": {
+          "targetCount": 10,
+          "difficultyMix": {
+            "Easy": 5,
+            "Medium": 4,
+            "Hard": 1
+          }
+        },
+        "exam_mix": {
+          "targetCount": 10,
+          "difficultyMix": {
+            "Easy": 3,
+            "Medium": 5,
+            "Hard": 2
+          }
+        }
+      },
+      "questions": [
+        {
+          "id": "S-PER-1",
+          "text": "State Mendeleev's Periodic Law.",
+          "marks": 1,
+          "difficulty": "Easy",
+          "questionType": "subjective"
+        },
+        {
+          "id": "S-PER-2",
+          "text": "State the Modern Periodic Law.",
+          "marks": 1,
+          "difficulty": "Easy",
+          "questionType": "subjective"
+        },
+        {
+          "id": "S-PER-3",
+          "text": "What were Dobereiner's triads? Give one example.",
+          "marks": 2,
+          "difficulty": "Easy",
+          "questionType": "subjective"
+        },
+        {
+          "id": "S-PER-4",
+          "text": "State Newlands' Law of Octaves and mention one limitation.",
+          "marks": 2,
+          "difficulty": "Medium",
+          "questionType": "subjective"
+        },
+        {
+          "id": "S-PER-5",
+          "text": "Mention any two merits of Mendeleev's Periodic Table.",
+          "marks": 2,
+          "difficulty": "Easy",
+          "questionType": "subjective"
+        },
+        {
+          "id": "S-PER-6",
+          "text": "State any two limitations of Mendeleev's Periodic Table.",
+          "marks": 2,
+          "difficulty": "Medium",
+          "questionType": "subjective"
+        },
+        {
+          "id": "S-PER-7",
+          "text": "How does the atomic size change on moving from left to right across a period? Give a reason.",
+          "marks": 2,
+          "difficulty": "Medium",
+          "questionType": "subjective"
+        },
+        {
+          "id": "S-PER-8",
+          "text": "How does the metallic character of elements change (a) across a period and (b) down a group in the Modern Periodic Table?",
+          "marks": 2,
+          "difficulty": "Medium",
+          "questionType": "subjective"
+        },
+        {
+          "id": "S-PER-9",
+          "text": "Elements in the same group of the Periodic Table have similar chemical properties. Why?",
+          "marks": 2,
+          "difficulty": "Medium",
+          "questionType": "subjective"
+        },
+        {
+          "id": "S-PER-10",
+          "text": "How did Mendeleev's Periodic Table overcome the limitations of Dobereiner's triads and Newlands' Law of Octaves? Explain with two points.",
+          "marks": 3,
+          "difficulty": "Hard",
+          "questionType": "subjective"
+        }
+      ]
+    },
     "carbon_compounds": {
       "subject": "science",
       "topicKey": "carbon_compounds",
@@ -623,101 +718,6 @@ export const promptDPracticePacks: PracticePacksIndex =
         }
       ]
     },
-    "periodic_classification": {
-      "subject": "science",
-      "topicKey": "periodic_classification",
-      "topicName": "Periodic Classification of Elements",
-      "modes": {
-        "speed_practice": {
-          "targetCount": 10,
-          "difficultyMix": {
-            "Easy": 5,
-            "Medium": 4,
-            "Hard": 1
-          }
-        },
-        "exam_mix": {
-          "targetCount": 10,
-          "difficultyMix": {
-            "Easy": 3,
-            "Medium": 5,
-            "Hard": 2
-          }
-        }
-      },
-      "questions": [
-        {
-          "id": "S-PER-1",
-          "text": "State Modern Periodic Law.",
-          "marks": 1,
-          "difficulty": "Easy",
-          "questionType": "subjective"
-        },
-        {
-          "id": "S-PER-2",
-          "text": "Define period and group in Modern Periodic Table.",
-          "marks": 2,
-          "difficulty": "Easy",
-          "questionType": "subjective"
-        },
-        {
-          "id": "S-PER-3",
-          "text": "How does atomic size change on moving down a group and why?",
-          "marks": 2,
-          "difficulty": "Medium",
-          "questionType": "subjective"
-        },
-        {
-          "id": "S-PER-4",
-          "text": "State how metallic character varies on moving from left to right in a period. Give reason.",
-          "marks": 2,
-          "difficulty": "Medium",
-          "questionType": "subjective"
-        },
-        {
-          "id": "S-PER-5",
-          "text": "Explain why elements in a group show similar chemical properties.",
-          "marks": 2,
-          "difficulty": "Medium",
-          "questionType": "subjective"
-        },
-        {
-          "id": "S-PER-6",
-          "text": "What were limitations of Dobereiner’s triads as a classification scheme? (Any two)",
-          "marks": 2,
-          "difficulty": "Medium",
-          "questionType": "subjective"
-        },
-        {
-          "id": "S-PER-7",
-          "text": "An element X is in group 1 and element Y is in group 17. Predict type of bond in compound XY and justify.",
-          "marks": 3,
-          "difficulty": "Medium",
-          "questionType": "subjective"
-        },
-        {
-          "id": "S-PER-8",
-          "text": "In same period of periodic table, element A has atomic number 12 and B has 17. Compare their metallic character and size.",
-          "marks": 3,
-          "difficulty": "Medium",
-          "questionType": "subjective"
-        },
-        {
-          "id": "S-PER-9",
-          "text": "Explain why noble gases are placed in separate group in Modern Periodic Table.",
-          "marks": 2,
-          "difficulty": "Easy",
-          "questionType": "subjective"
-        },
-        {
-          "id": "S-PER-10",
-          "text": "Element X forms basic oxide, is solid at room temperature and forms XCl2. Predict its position (group and likely side) in periodic table with reason.",
-          "marks": 3,
-          "difficulty": "Hard",
-          "questionType": "subjective"
-        }
-      ]
-    },
     "control_coordination": {
       "subject": "science",
       "topicKey": "control_coordination",
@@ -911,7 +911,7 @@ export const promptDPracticePacks: PracticePacksIndex =
     "heredity_evolution": {
       "subject": "science",
       "topicKey": "heredity_evolution",
-      "topicName": "Heredity and Evolution",
+      "topicName": "Heredity",
       "modes": {
         "speed_practice": {
           "targetCount": 10,
@@ -967,20 +967,6 @@ export const promptDPracticePacks: PracticePacksIndex =
           "questionType": "subjective"
         },
         {
-          "id": "S-HER-6",
-          "text": "What evidence do fossils provide in support of evolution?",
-          "marks": 2,
-          "difficulty": "Medium",
-          "questionType": "subjective"
-        },
-        {
-          "id": "S-HER-7",
-          "text": "Differentiate between homologous and analogous organs with one example each.",
-          "marks": 3,
-          "difficulty": "Medium",
-          "questionType": "subjective"
-        },
-        {
           "id": "S-HER-8",
           "text": "Explain briefly how sex of a child is determined in human beings.",
           "marks": 3,
@@ -988,17 +974,31 @@ export const promptDPracticePacks: PracticePacksIndex =
           "questionType": "subjective"
         },
         {
-          "id": "S-HER-9",
-          "text": "Define speciation and mention any two factors that lead to it.",
-          "marks": 3,
-          "difficulty": "Hard",
+          "id": "S-HER-11",
+          "text": "What is meant by a dominant trait? Give one example from Mendel's experiments.",
+          "marks": 1,
+          "difficulty": "Easy",
           "questionType": "subjective"
         },
         {
-          "id": "S-HER-10",
-          "text": "Give one example each where evolution is observed in day-to-day life (e.g. bacteria, insects).",
+          "id": "S-HER-12",
+          "text": "In Mendel's monohybrid cross, what does the 3:1 phenotypic ratio in F₂ generation represent?",
           "marks": 2,
-          "difficulty": "Medium",
+          "difficulty": "Easy",
+          "questionType": "subjective"
+        },
+        {
+          "id": "S-HER-13",
+          "text": "What are the two ways in which variations arise in organisms? Why is variation important for a species?",
+          "marks": 2,
+          "difficulty": "Easy",
+          "questionType": "subjective"
+        },
+        {
+          "id": "S-HER-14",
+          "text": "A man has blood group A (genotype AO) and a woman has blood group B (genotype BO). List all possible blood groups their children could have. Show using a cross.",
+          "marks": 3,
+          "difficulty": "Hard",
           "questionType": "subjective"
         }
       ]
@@ -1377,101 +1377,6 @@ export const promptDPracticePacks: PracticePacksIndex =
         {
           "id": "S-ENV-10",
           "text": "Suggest any two ways students can contribute to environmental protection in school.",
-          "marks": 2,
-          "difficulty": "Easy",
-          "questionType": "subjective"
-        }
-      ]
-    },
-    "natural_resources_management": {
-      "subject": "science",
-      "topicKey": "natural_resources_management",
-      "topicName": "Management of Natural Resources",
-      "modes": {
-        "speed_practice": {
-          "targetCount": 10,
-          "difficultyMix": {
-            "Easy": 5,
-            "Medium": 4,
-            "Hard": 1
-          }
-        },
-        "exam_mix": {
-          "targetCount": 10,
-          "difficultyMix": {
-            "Easy": 3,
-            "Medium": 5,
-            "Hard": 2
-          }
-        }
-      },
-      "questions": [
-        {
-          "id": "S-NR-1",
-          "text": "What do you mean by ‘natural resources’? Give one example.",
-          "marks": 1,
-          "difficulty": "Easy",
-          "questionType": "subjective"
-        },
-        {
-          "id": "S-NR-2",
-          "text": "State the three R’s of waste management.",
-          "marks": 1,
-          "difficulty": "Easy",
-          "questionType": "subjective"
-        },
-        {
-          "id": "S-NR-3",
-          "text": "Why should we conserve forests? Give two reasons.",
-          "marks": 2,
-          "difficulty": "Easy",
-          "questionType": "subjective"
-        },
-        {
-          "id": "S-NR-4",
-          "text": "Explain how water harvesting helps in sustainable management of water resources.",
-          "marks": 3,
-          "difficulty": "Medium",
-          "questionType": "subjective"
-        },
-        {
-          "id": "S-NR-5",
-          "text": "What is meant by sustainable development? Give one example.",
-          "marks": 2,
-          "difficulty": "Medium",
-          "questionType": "subjective"
-        },
-        {
-          "id": "S-NR-6",
-          "text": "Describe briefly the Chipko movement and its significance.",
-          "marks": 3,
-          "difficulty": "Medium",
-          "questionType": "subjective"
-        },
-        {
-          "id": "S-NR-7",
-          "text": "Why is reuse considered better than recycle in waste management?",
-          "marks": 2,
-          "difficulty": "Medium",
-          "questionType": "subjective"
-        },
-        {
-          "id": "S-NR-8",
-          "text": "State any three problems caused by excessive use of fossil fuels.",
-          "marks": 3,
-          "difficulty": "Medium",
-          "questionType": "subjective"
-        },
-        {
-          "id": "S-NR-9",
-          "text": "What role can local people play in managing forests and wildlife?",
-          "marks": 3,
-          "difficulty": "Medium",
-          "questionType": "subjective"
-        },
-        {
-          "id": "S-NR-10",
-          "text": "Suggest any two ways you as a student can help in conservation of natural resources.",
           "marks": 2,
           "difficulty": "Easy",
           "questionType": "subjective"

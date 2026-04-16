@@ -1358,53 +1358,60 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     "subject": "Science",
     "topicKey": "science_periodic_classification",
     "topicName": "Periodic Classification of Elements",
-    "tier": "high-roi",
+    "tier": "good-to-do",
     "overview": [
-      "Helps understand how element properties are organised; high conceptual value.",
-      "Regularly appears in reasoning-style questions about trends."
+      "Chemistry chapter covering the development of the modern periodic table.",
+      "Tests understanding of trends in atomic size, valency, and metallic character.",
+      "Mendeleev's contributions and limitations are frequently asked."
     ],
     "definitions": [
       {
-        "title": "Modern periodic table",
-        "description": "The modern periodic table arranges elements by increasing atomic number into 18 groups (vertical columns) and 7 periods (horizontal rows)."
+        "title": "Dobereiner's Triads",
+        "description": "Dobereiner arranged elements in groups of three (triads) where the atomic mass of the middle element was roughly the arithmetic mean of the other two (e.g., Li, Na, K)."
       },
       {
-        "title": "Periodic trends",
-        "description": "Across a period, atomic size decreases and non-metallic character increases; down a group, atomic size increases and metallic character increases. Valency follows a pattern based on the group number."
+        "title": "Newlands' Law of Octaves",
+        "description": "Newlands arranged elements by increasing atomic mass and observed that every eighth element had properties similar to the first, like notes in a musical octave."
       },
       {
-        "title": "Historical classification attempts",
-        "description": "Döbereiner’s triads grouped elements in threes with the middle element’s atomic mass being the average; Newlands’ law of octaves noted that every eighth element had similar properties."
+        "title": "Mendeleev's Periodic Law",
+        "description": "Properties of elements are a periodic function of their atomic masses. Mendeleev left gaps for undiscovered elements and predicted their properties."
       },
       {
-        "title": "Predicting properties from periodic table position",
-        "description": "An element’s group and period reveal its valency, metallic/non-metallic nature, and likely chemical behaviour."
+        "title": "Modern Periodic Law",
+        "description": "Properties of elements are a periodic function of their atomic numbers (Moseley). Elements in the same group have similar chemical properties due to the same valence electron configuration."
+      },
+      {
+        "title": "Periodic Trends",
+        "description": "Across a period (left to right): atomic size decreases, metallic character decreases, valency first increases then decreases. Down a group: atomic size increases, metallic character increases."
       }
     ],
     "examPatterns": [
-      "1 mark: identify group/period/metal/non-metal.",
-      "2–3 marks: justify trends (size, reactivity, valency).",
-      "3–4 marks: compare given elements based on position in the table."
+      "1 mark: define Dobereiner's triads or Newlands' Law of Octaves; give one limitation of Mendeleev's table.",
+      "2–3 marks: compare atomic size or metallic character trends across a period and down a group.",
+      "3 marks: explain why Mendeleev's periodic table was an improvement over earlier attempts."
     ],
     "markingTips": [
-      "Confusing direction of trends (left to right vs top to bottom).",
-      "Mixing group number with period number.",
-      "Vague reasoning when explaining trends."
+      "Confusing atomic number with atomic mass when explaining the Modern Periodic Law.",
+      "Not giving specific examples for triads or octaves.",
+      "Stating trends without explaining the electron configuration reason.",
+      "Ignoring noble gases when discussing valency trends across a period."
     ],
     "scoreTips": [
-      "Draw mini periodic table in rough with labelled groups and periods.",
-      "Practise 10–15 reasoning questions about trends with clear explanations.",
-      "Use arrows in your notes: what increases/decreases across period and down group."
+      "Make a comparison table: Dobereiner → Newlands → Mendeleev → Modern Table.",
+      "Memorise two limitations of Mendeleev's periodic table (hydrogen position, isotopes).",
+      "Practise explaining trends (atomic size, metallic character) across periods and groups.",
+      "Note: anomalous pairs in Mendeleev's table (Ar before K, Co before Ni) are a common exam point."
     ],
     "workedExamples": [],
     "quickQuiz": [
       {
-        "title": "In a period, how does atomic radius change left to right?",
-        "question": "In a period, how does atomic radius change left to right?"
+        "title": "What is Mendeleev's Periodic Law?",
+        "question": "State Mendeleev's Periodic Law."
       },
       {
-        "title": "In a group, how does metallic character change top to bottom?",
-        "question": "In a group, how does metallic character change top to bottom?"
+        "title": "How does atomic size change across a period?",
+        "question": "How does atomic size change as you move from left to right across a period, and why?"
       }
     ]
   },
@@ -1523,10 +1530,10 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
   "science_heredity_evolution": {
     "subject": "Science",
     "topicKey": "science_heredity_evolution",
-    "topicName": "Heredity and Evolution",
+    "topicName": "Heredity",
     "tier": "high-roi",
     "overview": [
-      "Concept-heavy chapter; Mendel + evolution reasoning questions are common.",
+      "Concept-heavy chapter; Mendel's laws and sex determination questions are common.",
       "Tests clarity of genotype–phenotype ideas."
     ],
     "definitions": [
@@ -1541,16 +1548,12 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
       {
         "title": "Sex determination in humans",
         "description": "Sex in humans is determined by the 23rd pair of chromosomes: XX produces a female and XY produces a male; the father’s sperm determines the sex of the child."
-      },
-      {
-        "title": "Evidence for evolution",
-        "description": "Evidence includes fossils (preserved remains), homologous organs (same structure, different function) indicating common ancestry, and analogous organs (different structure, same function) showing convergent evolution."
       }
     ],
     "examPatterns": [
       "1 mark: definition, trait identification.",
       "2–3 marks: monohybrid cross, genotype ratio, sex determination.",
-      "3–4 marks: homologous/analogous organs and evolution reasoning."
+      "3–4 marks: monohybrid and dihybrid cross analysis and sex-linked traits."
     ],
     "markingTips": [
       "Confusing genotype notation (Tt, TT, tt).",
@@ -1559,8 +1562,7 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     ],
     "scoreTips": [
       "Practise Punnett squares for standard crosses until you can draw them in seconds.",
-      "Learn precise differences between homologous and analogous organs.",
-      "Revise NCERT reasoning questions thoroughly."
+      "Revise NCERT reasoning questions on sex determination thoroughly."
     ],
     "workedExamples": [],
     "quickQuiz": [
@@ -1742,60 +1744,6 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
       {
         "title": "Why is energy flow in ecosystem unidirectional?",
         "question": "Why is energy flow in ecosystem unidirectional?"
-      }
-    ]
-  },
-  "science_natural_resources_management": {
-    "subject": "Science",
-    "topicKey": "science_natural_resources_management",
-    "topicName": "Management of Natural Resources",
-    "tier": "high-roi",
-    "overview": [
-      "Simple but important chapter on sustainability and responsible resource use.",
-      "Easy marks with structured bullet-point answers."
-    ],
-    "definitions": [
-      {
-        "title": "The 3 R’s of sustainability",
-        "description": "Reduce (use less), Reuse (use again without processing), and Recycle (reprocess waste into new products) are the key principles of sustainable resource management."
-      },
-      {
-        "title": "Sustainable management of natural resources",
-        "description": "Forests, wildlife, water, coal, and petroleum must be managed sustainably through conservation, afforestation, rainwater harvesting, and efficient use of fossil fuels."
-      },
-      {
-        "title": "Community-based resource management",
-        "description": "Local communities play a vital role in conservation; movements like the Chipko movement (tree-hugging) and traditional water harvesting systems demonstrate effective people-led resource management."
-      },
-      {
-        "title": "Pollution and resource depletion",
-        "description": "Excessive use of resources leads to pollution and long-term depletion; understanding the environmental impact of human activities is essential for sustainable development."
-      }
-    ],
-    "examPatterns": [
-      "1 mark: define 3 R’s or give example.",
-      "2–3 marks: explain sustainable management or specific movement.",
-      "3–4 marks: case-based reasoning about resource use and community roles."
-    ],
-    "markingTips": [
-      "Writing generic “save environment” lines without specific points.",
-      "Forgetting to mention concrete examples (water harvesting, afforestation).",
-      "Mixing this chapter with “Our Environment” content."
-    ],
-    "scoreTips": [
-      "Prepare 4–5 bullet points per resource (forest, water, fossil fuels).",
-      "Include named examples like Chipko movement, Rainwater harvesting.",
-      "Keep answers structured: problem → effect → solution."
-    ],
-    "workedExamples": [],
-    "quickQuiz": [
-      {
-        "title": "What is meant by ‘Reduce’ in 3 R’s?",
-        "question": "What is meant by ‘Reduce’ in 3 R’s?"
-      },
-      {
-        "title": "Name one traditional method of water conservation in India.",
-        "question": "Name one traditional method of water conservation in India."
       }
     ]
   }

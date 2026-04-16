@@ -222,23 +222,23 @@ export const class10ScienceTopicTrends: Class10ScienceTrendsRoot = {
 
     HeredityEvolution: {
       topicKey: "HeredityEvolution",
-      topicName: "Heredity & Evolution",
+      topicName: "Heredity",
       tier: "good-to-do",
       weightagePercent: 5,
       concepts: [
         {
-          name: "Mendel’s Experiments & Ratios",
-          sharePercent: 60,
+          name: "Mendel's Experiments & Ratios",
+          sharePercent: 70,
           question_types: ["Short", "Reasoning"],
           summary_and_exam_tips:
             "Monohybrid vs dihybrid, 3:1 and 9:3:3:1 ratios. Write phenotype + genotype clearly.",
         },
         {
-          name: "Basic Ideas of Evolution",
-          sharePercent: 40,
+          name: "Sex Determination",
+          sharePercent: 30,
           question_types: ["Short"],
           summary_and_exam_tips:
-            "Fossils, homologous vs analogous organs, and speciation — usually 2–3 markers.",
+            "XX (female) vs XY (male); the father's sperm determines sex. Usually 2-3 markers.",
         },
       ],
     },
@@ -337,23 +337,23 @@ export const class10ScienceTopicTrends: Class10ScienceTrendsRoot = {
 
     OurEnvironment: {
       topicKey: "OurEnvironment",
-      topicName: "Our Environment / Sources of Energy",
+      topicName: "Our Environment",
       tier: "high-roi",
       weightagePercent: 6.25,
       concepts: [
         {
           name: "Food Chains & Trophic Levels",
-          sharePercent: 50,
+          sharePercent: 60,
           question_types: ["Very Short", "Short"],
           summary_and_exam_tips:
             "Learn key terms (biomagnification, biodegradable vs non-biodegradable). Mostly theory, easy to score.",
         },
         {
-          name: "Conventional vs Non-conventional Energy",
-          sharePercent: 50,
+          name: "Ozone Layer & Waste Management",
+          sharePercent: 40,
           question_types: ["Short"],
           summary_and_exam_tips:
-            "Advantages / disadvantages questions — prepare crisp bullet points.",
+            "Effects of ozone depletion, biodegradable vs non-biodegradable waste — prepare crisp bullet points.",
         },
       ],
     },

@@ -259,13 +259,12 @@ export const SCIENCE_VISUALS: ChapterVisuals[] = [
     ],
   },
   {
-    chapterKey: "Heredity and Evolution",
-    chapterName: "Heredity and Evolution",
+    chapterKey: "Heredity",
+    chapterName: "Heredity",
     subject: "science",
     concepts: [
       c("science", "heredity-evolution", "Mendels Laws of Inheritance", ["mendel", "dominant", "recessive", "F1", "F2"]),
       c("science", "heredity-evolution", "Sex Determination", ["XX", "XY", "sex", "chromosome", "determination"]),
-      c("science", "heredity-evolution", "Evolution and Speciation", ["evolution", "speciation", "natural", "selection", "variation"]),
     ],
   },
   {
@@ -348,7 +347,7 @@ const topicKeyToChapterMap: Record<string, string> = (() => {
     "Life Processes": "Life Processes",
     "Control and Coordination": "Control and Coordination",
     "How do Organisms Reproduce": "How do Organisms Reproduce",
-    "Heredity and Evolution": "Heredity and Evolution",
+    "Heredity and Evolution": "Heredity",
     "Light Reflection and Refraction": "Light Reflection and Refraction",
     "Human Eye and Colourful World": "Human Eye and Colourful World",
     "Electricity": "Electricity",
@@ -364,7 +363,7 @@ const topicKeyToChapterMap: Record<string, string> = (() => {
     "control-and-coordination": "Control and Coordination",
     "reproduction": "How do Organisms Reproduce",
     "how-do-organisms-reproduce": "How do Organisms Reproduce",
-    "heredity-and-evolution": "Heredity and Evolution",
+    "heredity-and-evolution": "Heredity",
     "light-reflection-and-refraction": "Light Reflection and Refraction",
     "light-reflection-and-refraction-incl-human-eye-prism": "Light Reflection and Refraction",
     "human-eye-and-colourful-world": "Human Eye and Colourful World",
