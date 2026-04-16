@@ -364,11 +364,11 @@ export const class10SciencePredictiveEngine: SciencePredictiveEngineSpec = {
     },
 
     // ------------------------------------------------------
-    // 3. OUR ENVIRONMENT / NATURAL RESOURCES (SCI-ENV)
+    // 3. OUR ENVIRONMENT (SCI-ENV)
     // ------------------------------------------------------
     {
       code: "SCI-ENV",
-      topic: "Our Environment / Natural Resources",
+      topic: "Our Environment",
       weightagePercent: 4,
       tier: "good-to-do",
       adaptiveDiagnostics: [
@@ -385,13 +385,12 @@ export const class10SciencePredictiveEngine: SciencePredictiveEngineSpec = {
         "Food chains/webs",
         "Pollution",
         "Waste management",
-        "Conservation",
       ],
       syllabusPolicy: ["Env/biodegradable Qs per NEP"],
       subtopics: [
         {
           subtopic: "Food chains/webs",
-          weightagePercent: 30,
+          weightagePercent: 34,
           questions: [
             {
               id: "2026-ENV-01",
@@ -412,7 +411,7 @@ export const class10SciencePredictiveEngine: SciencePredictiveEngineSpec = {
         },
         {
           subtopic: "Pollution",
-          weightagePercent: 25,
+          weightagePercent: 33,
           questions: [
             {
               id: "2026-ENV-02",
@@ -434,7 +433,7 @@ export const class10SciencePredictiveEngine: SciencePredictiveEngineSpec = {
         },
         {
           subtopic: "Waste management",
-          weightagePercent: 25,
+          weightagePercent: 33,
           questions: [
             {
               id: "2026-ENV-03",
@@ -451,28 +450,6 @@ export const class10SciencePredictiveEngine: SciencePredictiveEngineSpec = {
                 "Case-based question focusing on real-life application of solid waste management practices.",
               pastBoardYear: "2022",
               policyTag: "Environment/Waste management case",
-            },
-          ],
-        },
-        {
-          subtopic: "Conservation",
-          weightagePercent: 20,
-          questions: [
-            {
-              id: "2026-ENV-04",
-              type: "Short",
-              section: "B",
-              marks: 2,
-              difficulty: "Easy",
-              bloomSkill: "Understanding",
-              questionText:
-                "State any two measures that can be taken at the individual level to conserve natural resources.",
-              answer:
-                "Examples: using public transport, switching off unnecessary lights and fans, reducing water wastage, reusing and recycling materials.",
-              explanation:
-                "Simple 2-marker linking daily-life actions to conservation of resources.",
-              pastBoardYear: "2021",
-              policyTag: "Environment/Conservation NEP",
             },
           ],
         },

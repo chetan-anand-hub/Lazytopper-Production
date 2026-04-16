@@ -792,41 +792,7 @@ export const sciencePredictedQuestions: SciencePredictedQuestion[] = [
     policyTag: "Monohybrid cross 3-mark",
   },
 
-  {
-    id: "2026-HE-SA-03",
-    topicKey: "HeredityEvolution",
-    subtopic: "Homologous & Analogous Organs",
-    kind: "Short",
-    section: "B",
-    marks: 2,
-    difficulty: "Medium",
-    bloomSkill: "Understanding",
-    questionText:
-      "Differentiate between homologous and analogous organs with one example each.",
-    answer:
-      "Homologous organs: same basic structure but different functions (e.g., forelimbs of humans and wings of birds).\nAnalogous organs: different basic structure but similar functions (e.g., wings of insects and wings of birds).",
-    explanation:
-      "Homologous structures indicate common ancestry; analogous structures arise due to convergent evolution.",
-    policyTag: "Homologous vs analogous",
-  },
 
-  {
-    id: "2026-HE-CASE-04",
-    topicKey: "HeredityEvolution",
-    subtopic: "Evolutionary Evidence",
-    kind: "Case-Based",
-    section: "E",
-    marks: 4,
-    difficulty: "Medium",
-    bloomSkill: "Analysing",
-    questionText:
-      "Fossils of an organism show that it had both reptilian and avian characters.\n(i) What does this suggest about evolution?\n(ii) Name one such fossil organism.\n(iii) How do fossils help in evolutionary studies?\n(iv) State one more piece of evidence for evolution apart from fossils.",
-    answer:
-      "(i) It suggests that modern groups may have evolved from common ancestors and intermediate forms existed.\n(ii) Archaeopteryx.\n(iii) Fossils show progressive changes in body structure over geological time scales, linking present-day organisms with their ancestors.\n(iv) Comparative anatomy, vestigial organs, embryological evidence, or molecular evidence (any one).",
-    explanation:
-      "Intermediate fossils like Archaeopteryx support the idea of gradual evolution with transitional features.",
-    policyTag: "Fossil/evolution case",
-  },
 
   // ================================================================
   // LIGHT – REFLECTION & REFRACTION
@@ -1472,24 +1438,6 @@ export const sciencePredictedQuestions: SciencePredictedQuestion[] = [
   },
 
   {
-    id: "2026-ENV-SA-03",
-    topicKey: "OurEnvironment",
-    subtopic: "Conventional vs Non-conventional Energy",
-    kind: "Short",
-    section: "C",
-    marks: 3,
-    difficulty: "Medium",
-    bloomSkill: "Applying",
-    questionText:
-      "Differentiate between renewable and non-renewable sources of energy with two examples of each.",
-    answer:
-      "Renewable sources can be replenished in a short time (e.g., solar energy, wind energy). Non-renewable sources are available in limited quantities and take millions of years to form (e.g., coal, petroleum).",
-    explanation:
-      "Definition plus examples is a standard pattern; emphasise sustainability.",
-    policyTag: "Energy resources comparison",
-  },
-
-  {
     id: "2026-ENV-CASE-04",
     topicKey: "OurEnvironment",
     subtopic: "Waste Management & Lifestyle",
@@ -1706,24 +1654,24 @@ Use: electric bell, crane to lift scrap iron, etc.`,
   },
 
   {
-    id: "2026-HE-SA-03",
-    topicKey: "HumanEyeAndColourfulWorld",
-    subtopic: "Persistence of Vision & Power of Accommodation",
-    kind: "Short",
-    section: "B",
-    marks: 2,
-    difficulty: "Medium",
-    bloomSkill: "Understanding",
-    questionText:
-      `(a) What is persistence of vision?
-(b) How does the eye adjust its focal length to see objects at different distances?`,
-    answer:
-      `(a) Persistence of vision is the time (about 1/16 s) for which an image continues to be seen by the eye even after the object is removed.
-(b) The ciliary muscles change the curvature of the eye lens to adjust its focal length (power of accommodation).`,
-    explanation:
-      "Tests basic understanding of eye’s functioning for moving pictures and focusing at different distances.",
-    policyTag: "Human eye – basic physiology and accommodation",
-  },
+      id: "2026-HE-SA-03",
+      topicKey: "HumanEyeAndColourfulWorld",
+      subtopic: "Persistence of Vision & Power of Accommodation",
+      kind: "Short",
+      section: "B",
+      marks: 2,
+      difficulty: "Medium",
+      bloomSkill: "Understanding",
+      questionText:
+        `(a) What is persistence of vision?
+  (b) How does the eye adjust its focal length to see objects at different distances?`,
+      answer:
+        `(a) Persistence of vision is the time (about 1/16 s) for which an image continues to be seen by the eye even after the object is removed.
+  (b) The ciliary muscles change the curvature of the eye lens to adjust its focal length (power of accommodation).`,
+      explanation:
+        "Tests basic understanding of eye's functioning for moving pictures and focusing at different distances.",
+      policyTag: "Human eye – basic physiology and accommodation",
+    },
 
   {
     id: "2026-HE-SA-04",
@@ -2091,29 +2039,6 @@ Phenotypes: 3 tall : 1 dwarf.`,
     explanation:
       "Tests application of Mendel's law of segregation using a standard monohybrid cross.",
     policyTag: "Heredity & evolution – Mendel’s monohybrid cross",
-  },
-
-  {
-    id: "2026-HEV-CS-02",
-    topicKey: "HeredityEvolution",
-    subtopic: "Variation & Natural Selection",
-    kind: "Case-Based",
-    section: "E",
-    marks: 4,
-    difficulty: "Medium",
-    bloomSkill: "Analysing",
-    questionText:
-      `In a population of beetles, most individuals are green and a few are brown. Due to a change in environment, the green beetles are easily seen by predators but brown beetles are not.
-(a) What happens to the number of brown beetles over several generations?
-(b) Which process of evolution does this situation illustrate?
-(c) How is this process useful for the survival of species?`,
-    answer:
-      `(a) The number of brown beetles increases because they survive and reproduce more.
-(b) This illustrates natural selection.
-(c) Natural selection favours individuals with advantageous variations, helping species adapt better to changing environment and survive.`,
-    explanation:
-      "Applies variation and natural selection concepts in a simple textbook-style example.",
-    policyTag: "Heredity & evolution – natural selection and adaptation",
   },
 
   // ------------------------ OUR ENVIRONMENT ------------------------

@@ -533,37 +533,6 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         explanation:
           "Standard CBSE case-based Mendelian genetics problem.",
       },
-      {
-        id: "sci-he-comp-02",
-        subject: "Science",
-        stream: "Biology",
-        topic: "Heredity and Evolution",
-        subtopic: "Basic Ideas of Evolution",
-        concept: "Assertion–Reason on evolution",
-        section: "A",
-        type: "AssertionReason",
-        difficulty: "Medium",
-        marks: 1,
-        likelihood: "Medium-High",
-        tier: "high-roi",
-        bloomSkill: "Analysing",
-        kind: "assertion-reason",
-        question: "Assertion–Reason: refer to assertion and reason below.",
-        assertion:
-          "Homologous organs provide evidence for evolution.",
-        reason:
-          "Homologous organs have different basic structure but perform the same function.",
-        aROptions: [
-          { label: "A", text: "Both Assertion and Reason are true and Reason is the correct explanation." },
-          { label: "B", text: "Both Assertion and Reason are true but Reason is not the correct explanation." },
-          { label: "C", text: "Assertion is true but Reason is false." },
-          { label: "D", text: "Assertion is false but Reason is true." },
-        ],
-        correctOption: "C",
-        answer: "C",
-        explanation:
-          "Assertion is true — homologous organs do provide evidence for evolution. But the reason is false — homologous organs have the SAME basic structure but may perform different functions (e.g., forelimbs of bat, whale, human).",
-      },
     ],
   },
   {
@@ -1028,34 +997,6 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         correctOption: "A",
         answer: "A",
         explanation: "1/2 = 1/2 = 5/10 = 1/2, so dependent system with infinite solutions.",
-      },
-    ],
-  },
-  {
-    topic: "Our Environment",
-    subject: "Science",
-    stream: "General",
-    defaultTier: "good-to-do",
-    questions: [
-      {
-        id: "sci-soe-comp-01",
-        subject: "Science",
-        stream: "General",
-        topic: "Our Environment",
-        subtopic: "Sources of Energy — Renewable vs Non-renewable",
-        concept: "Case-based energy comparison",
-        section: "E",
-        type: "CaseBased",
-        difficulty: "Medium",
-        marks: 4,
-        likelihood: "Medium",
-        tier: "good-to-do",
-        bloomSkill: "Evaluating",
-        question:
-          "A village committee is deciding between a solar power plant and a thermal power plant.\n(a) List two advantages of a solar power plant over a thermal power plant.\n(b) Why is a thermal plant considered non-renewable?\n(c) What is a solar cell panel?\n(d) Which energy source would you recommend for the village and why?",
-        answer:
-          "(a) No pollution, renewable source. (b) Relies on fossil fuels which are finite. (c) A large combination of solar cells arranged to generate higher voltage. (d) Solar — sustainable, eco-friendly, and suitable for rural areas.",
-        explanation: "Case study comparing renewable and non-renewable sources.",
       },
     ],
   },
