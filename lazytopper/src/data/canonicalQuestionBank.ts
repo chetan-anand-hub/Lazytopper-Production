@@ -570,7 +570,7 @@ export const canonicalQuestionBank: CanonicalQuestion[] = [
   {
     "id": "sci-bio-heredity-3m-2026-01",
     "subject": "Science",
-    "topicKey": "Heredity & Evolution",
+    "topicKey": "Heredity",
     "subtopic": "Heredity",
     "section": "B",
     "marks": 3,

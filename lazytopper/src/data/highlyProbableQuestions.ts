@@ -2423,9 +2423,9 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
     ],
   },
 
-  // -------------------- Science: Heredity and Evolution --------------------
+  // -------------------- Science: Heredity --------------------
   {
-    topic: "Heredity and Evolution",
+    topic: "Heredity",
     subject: "Science",
     stream: "Biology",
     defaultTier: "high-roi",
@@ -2434,7 +2434,7 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         id: "sci-he-hpq-1",
         subject: "Science",
         stream: "Biology",
-        topic: "Heredity and Evolution",
+        topic: "Heredity",
         subtopic: "Mendel’s experiments",
         concept: "Monohybrid cross",
         section: "A",
@@ -2454,7 +2454,7 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         id: "sci-he-hpq-2",
         subject: "Science",
         stream: "Biology",
-        topic: "Heredity and Evolution",
+        topic: "Heredity",
         subtopic: "Sex determination",
         concept: "XX–XY mechanism",
         section: "B",

@@ -1796,7 +1796,7 @@ Function of kidneys: filtration of blood to remove nitrogenous wastes like urea 
   // ================================================================
   // DEPTH PACK 2026 — REMAINING SCIENCE TOPICS
   // Acids/Bases, Metals, Carbon Compounds, Control & Coordination,
-  // Reproduction, Heredity & Evolution, Our Environment, core Chemistry
+  // Reproduction, Heredity, Our Environment, core Chemistry
   // ================================================================
 
   // ------------------------ ACIDS, BASES & SALTS ------------------------

@@ -343,7 +343,7 @@ const topicKeyToChapterMap: Record<string, string> = (() => {
     "Life Processes": "Life Processes",
     "Control and Coordination": "Control and Coordination",
     "How do Organisms Reproduce": "How do Organisms Reproduce",
-    "Heredity and Evolution": "Heredity",
+    "Heredity": "Heredity",
     "Light Reflection and Refraction": "Light Reflection and Refraction",
     "Human Eye and Colourful World": "Human Eye and Colourful World",
     "Electricity": "Electricity",

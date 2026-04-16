@@ -144,7 +144,7 @@ export const COMPETENCY_VERIFICATION_LOG = {
     "Life Processes": "55%",
     "Control and Coordination": "63%",
     "How do Organisms Reproduce?": "59%",
-    "Heredity and Evolution": "65%",
+    "Heredity": "65%",
     "Light – Reflection and Refraction": "70%",
     "Human Eye and Colourful World": "60%",
     "Electricity": "68%",
