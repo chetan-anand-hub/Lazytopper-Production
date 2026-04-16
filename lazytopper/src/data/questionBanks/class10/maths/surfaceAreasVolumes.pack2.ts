@@ -1,7 +1,7 @@
 import type { CanonicalQuestion } from "../../../predictionTypes";
 
 export const SAV2_PACK2: CanonicalQuestion[] = [
-  {
+{
     "id": "SAV2-001",
     "subject": "Maths",
     "topicKey": "Surface Areas and Volumes",
@@ -31,7 +31,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 13.1"
   },
-  {
+{
     "id": "SAV2-002",
     "subject": "Maths",
     "topicKey": "Surface Areas and Volumes",
@@ -60,7 +60,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 13.1"
   },
-  {
+{
     "id": "SAV2-003",
     "subject": "Maths",
     "topicKey": "Surface Areas and Volumes",
@@ -90,7 +90,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 13.1"
   },
-  {
+{
     "id": "SAV2-004",
     "subject": "Maths",
     "topicKey": "Surface Areas and Volumes",
@@ -115,7 +115,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 13.1"
   },
-  {
+{
     "id": "SAV2-005",
     "subject": "Maths",
     "topicKey": "Surface Areas and Volumes",
@@ -146,7 +146,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 13.2"
   },
-  {
+{
     "id": "SAV2-006",
     "subject": "Maths",
     "topicKey": "Surface Areas and Volumes",
@@ -175,7 +175,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "pyqSet": "Delhi",
     "ncertRef": "Ex 13.2"
   },
-  {
+{
     "id": "SAV2-007",
     "subject": "Maths",
     "topicKey": "Surface Areas and Volumes",
@@ -202,171 +202,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 13.2"
   },
-  {
-    "id": "SAV2-008",
-    "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
-    "subtopic": "Frustum of Cone",
-    "section": "A",
-    "marks": 1,
-    "format": "MCQ",
-    "difficulty": "Easy",
-    "bloomSkill": "Remembering",
-    "questionText": "The slant height of a frustum of a cone is defined as:",
-    "options": [
-      "Distance between centers of two bases",
-      "Distance along the lateral surface between two circular bases",
-      "Height of original cone",
-      "Sum of radii of two bases"
-    ],
-    "answer": "Distance along the lateral surface between two circular bases",
-    "solutionSteps": [
-      "Slant height (l) of frustum is the distance measured along the slant surface",
-      "It connects corresponding points on the two circular bases"
-    ],
-    "finalAnswer": "Distance along the lateral surface between two circular bases",
-    "isCompetencyBased": false,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 13.3"
-  },
-  {
-    "id": "SAV2-009",
-    "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
-    "subtopic": "Frustum of Cone",
-    "section": "A",
-    "marks": 1,
-    "format": "MCQ",
-    "difficulty": "Medium",
-    "bloomSkill": "Understanding",
-    "questionText": "The curved surface area of frustum of a cone is given by:",
-    "options": [
-      "π(r₁ + r₂)l",
-      "π(r₁ - r₂)l",
-      "πr₁l",
-      "2π(r₁ + r₂)h"
-    ],
-    "answer": "π(r₁ + r₂)l",
-    "solutionSteps": [
-      "For frustum with radii r₁ (top) and r₂ (bottom) and slant height l",
-      "Curved surface area = π(r₁ + r₂)l",
-      "This is derived from the difference of two cones"
-    ],
-    "finalAnswer": "π(r₁ + r₂)l",
-    "isCompetencyBased": false,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 13.3"
-  },
-  {
-    "id": "SAV2-010",
-    "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
-    "subtopic": "Frustum of Cone",
-    "section": "B",
-    "marks": 2,
-    "format": "Short",
-    "difficulty": "Medium",
-    "bloomSkill": "Applying",
-    "questionText": "A frustum of a cone has radii 7 cm and 5 cm at its two ends and slant height 10 cm. Find the curved surface area.",
-    "options": [],
-    "answer": "120π cm² or 377 cm²",
-    "solutionSteps": [
-      "Radii: r₁ = 7 cm, r₂ = 5 cm",
-      "Slant height l = 10 cm",
-      "Curved surface area = π(r₁ + r₂)l",
-      "= π(7 + 5)(10)",
-      "= 120π cm² ≈ 377 cm²"
-    ],
-    "finalAnswer": "120π cm² or 377 cm²",
-    "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 13.3"
-  },
-  {
-    "id": "SAV2-011",
-    "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
-    "subtopic": "Frustum of Cone",
-    "section": "B",
-    "marks": 2,
-    "format": "Short",
-    "difficulty": "Medium",
-    "bloomSkill": "Applying",
-    "questionText": "The total surface area of a frustum of cone with radii 3 cm and 4 cm and height 5 cm is:",
-    "options": [],
-    "answer": "≈ 82.8π cm² or (7π√26 + 25π) cm²",
-    "solutionSteps": [
-      "r₁ = 3 cm, r₂ = 4 cm, h = 5 cm",
-      "Slant height l = √(h² + (r₂-r₁)²) = √(25 + 1) = √26 cm",
-      "Curved surface area = π(3 + 4)√26 = 7π√26 cm²",
-      "Area of two bases = π(3)² + π(4)² = 9π + 16π = 25π cm²",
-      "Total = 7π√26 + 25π ≈ 57.8π + 25π = 82.8π cm²"
-    ],
-    "finalAnswer": "≈ 82.8π cm² or (7π√26 + 25π) cm²",
-    "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 13.3"
-  },
-  {
-    "id": "SAV2-012",
-    "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
-    "subtopic": "Frustum of Cone",
-    "section": "A",
-    "marks": 1,
-    "format": "MCQ",
-    "difficulty": "Medium",
-    "bloomSkill": "Applying",
-    "questionText": "The volume of a frustum of a cone is given by:",
-    "options": [
-      "(1/3)πh(r₁² + r₂² + r₁r₂)",
-      "(1/3)πr₁²h",
-      "πh(r₁ + r₂)²",
-      "(2/3)πh(r₁ + r₂)"
-    ],
-    "answer": "(1/3)πh(r₁² + r₂² + r₁r₂)",
-    "solutionSteps": [
-      "Volume of frustum = Volume of larger cone - Volume of smaller cone",
-      "This simplifies to V = (1/3)πh(r₁² + r₂² + r₁r₂)",
-      "where h is height, r₁ and r₂ are radii of two bases"
-    ],
-    "finalAnswer": "(1/3)πh(r₁² + r₂² + r₁r₂)",
-    "isCompetencyBased": false,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 13.4"
-  },
-  {
-    "id": "SAV2-013",
-    "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
-    "subtopic": "Frustum of Cone",
-    "section": "B",
-    "marks": 2,
-    "format": "Short",
-    "difficulty": "Medium",
-    "bloomSkill": "Applying",
-    "questionText": "A frustum of cone has height 12 cm, radii of ends 8 cm and 5 cm. Find its volume.",
-    "options": [],
-    "answer": "516π cm³ ≈ 1621 cm³",
-    "solutionSteps": [
-      "h = 12 cm, r₁ = 8 cm, r₂ = 5 cm",
-      "Volume = (1/3)πh(r₁² + r₂² + r₁r₂)",
-      "= (1/3)π(12)(64 + 25 + 40)",
-      "= (1/3)π(12)(129)",
-      "= 4π(129) = 516π cm³"
-    ],
-    "finalAnswer": "516π cm³ ≈ 1621 cm³",
-    "isCompetencyBased": true,
-    "pyqYear": "2021",
-    "pyqSet": "All India",
-    "ncertRef": "Ex 13.4"
-  },
-  {
+{
     "id": "SAV2-014",
     "subject": "Maths",
     "topicKey": "Surface Areas and Volumes",
@@ -393,7 +229,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 13.1"
   },
-  {
+{
     "id": "SAV2-015",
     "subject": "Maths",
     "topicKey": "Surface Areas and Volumes",
@@ -417,36 +253,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "pyqSet": "Delhi",
     "ncertRef": "Ex 13.2"
   },
-  {
-    "id": "SAV2-016",
-    "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
-    "subtopic": "Frustum of Cone",
-    "section": "A",
-    "marks": 1,
-    "format": "Assertion-Reasoning",
-    "difficulty": "Medium",
-    "bloomSkill": "Understanding",
-    "questionText": "Assertion (A): The curved surface area of a frustum depends only on the sum of radii and slant height. Reason (R): The formula is π(r₁ + r₂)l where l is slant height.",
-    "options": [
-      "Both A and R are true, and R is the correct explanation of A.",
-      "Both A and R are true, but R is not the correct explanation of A.",
-      "A is true, R is false.",
-      "A is false, R is true."
-    ],
-    "answer": "Both A and R are true, and R is the correct explanation of A.",
-    "solutionSteps": [
-      "CSA of frustum = π(r₁ + r₂)l",
-      "This depends only on the sum (r₁ + r₂) and slant height l",
-      "The reason correctly explains why A is true"
-    ],
-    "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
-    "isCompetencyBased": false,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 13.3"
-  },
-  {
+{
     "id": "SAV2-017",
     "subject": "Maths",
     "topicKey": "Surface Areas and Volumes",
@@ -475,7 +282,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 13.2"
   },
-  {
+{
     "id": "SAV2-018",
     "subject": "Maths",
     "topicKey": "Surface Areas and Volumes",
@@ -505,7 +312,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 13.1"
   },
-  {
+{
     "id": "SAV2-019",
     "subject": "Maths",
     "topicKey": "Surface Areas and Volumes",
@@ -534,34 +341,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "pyqSet": "Delhi",
     "ncertRef": "Ex 13.1"
   },
-  {
-    "id": "SAV2-020",
-    "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
-    "subtopic": "Frustum of Cone",
-    "section": "E",
-    "marks": 4,
-    "format": "Case-Based",
-    "difficulty": "Hard",
-    "bloomSkill": "Analysing",
-    "questionText": "A company manufactures containers in the shape of a frustum of a cone. The container has a height of 20 cm, with the top radius being 6 cm and bottom radius being 10 cm. (i) Find the slant height of the frustum. (ii) Calculate the curved surface area. (iii) Find the total surface area including both bases. (iv) Calculate the volume of the container.",
-    "options": [],
-    "answer": "(i) 4√26 cm (ii) 64π√26 cm² (iii) (64π√26 + 136π) cm² (iv) 3920π/3 cm³",
-    "solutionSteps": [
-      "(i) Slant height l = √(h² + (r₂-r₁)²) = √(400 + 16) = √416 = 4√26 ≈ 20.4 cm",
-      "(ii) CSA = π(r₁ + r₂)l = π(6 + 10)(4√26) = 64π√26 ≈ 326π cm²",
-      "Using l ≈ 20.4: CSA ≈ 16π(20.4) ≈ 326π cm²",
-      "(iii) TSA = CSA + πr₁² + πr₂² = 64π√26 + 36π + 100π ≈ 326π + 136π = 462π cm²",
-      "(iv) V = (1/3)πh(r₁² + r₂² + r₁r₂) = (1/3)π(20)(36 + 100 + 60)",
-      "= (20π/3)(196) = 3920π/3 cm³"
-    ],
-    "finalAnswer": "(i) 4√26 cm (ii) 64π√26 cm² (iii) (64π√26 + 136π) cm² (iv) 3920π/3 cm³",
-    "isCompetencyBased": true,
-    "pyqYear": "2024",
-    "pyqSet": "All India",
-    "ncertRef": "Ex 13.4"
-  },
-  {
+{
     "id": "SAV2-021",
     "subject": "Maths",
     "topicKey": "Surface Areas and Volumes",
@@ -591,9 +371,9 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "isCompetencyBased": true,
     "pyqYear": "2025",
     "pyqSet": "Delhi",
-    "ncertRef": "Ex 13.2, Ex 13.5"
+    "ncertRef": "Ex 13.2"
   },
-  {
+{
     "id": "SAV2-022",
     "subject": "Maths",
     "topicKey": "Surface Areas and Volumes",
@@ -622,7 +402,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 13.1"
   },
-  {
+{
     "id": "SAV2-023",
     "subject": "Maths",
     "topicKey": "Surface Areas and Volumes",
@@ -650,7 +430,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "pyqSet": "Delhi",
     "ncertRef": "Ex 13.2"
   },
-  {
+{
     "id": "SAV2-024",
     "subject": "Maths",
     "topicKey": "Surface Areas and Volumes",
@@ -679,7 +459,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 13.1"
   },
-  {
+{
     "id": "SAV2-025",
     "subject": "Maths",
     "topicKey": "Surface Areas and Volumes",
@@ -708,7 +488,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 13.1"
   },
-  {
+{
     "id": "SAV2-026",
     "subject": "Maths",
     "topicKey": "Surface Areas and Volumes",
@@ -734,7 +514,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 13.1"
   },
-  {
+{
     "id": "SAV2-027",
     "subject": "Maths",
     "topicKey": "Surface Areas and Volumes",
@@ -758,7 +538,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 13.1"
   },
-  {
+{
     "id": "SAV2-028",
     "subject": "Maths",
     "topicKey": "Surface Areas and Volumes",
@@ -789,7 +569,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 13.1"
   },
-  {
+{
     "id": "SAV2-029",
     "subject": "Maths",
     "topicKey": "Surface Areas and Volumes",
@@ -820,7 +600,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 13.1"
   },
-  {
+{
     "id": "SAV2-030",
     "subject": "Maths",
     "topicKey": "Surface Areas and Volumes",
@@ -849,7 +629,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 13.2"
   },
-  {
+{
     "id": "SAV2-031",
     "subject": "Maths",
     "topicKey": "Surface Areas and Volumes",
@@ -876,7 +656,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 13.2"
   },
-  {
+{
     "id": "SAV2-032",
     "subject": "Maths",
     "topicKey": "Surface Areas and Volumes",
@@ -908,7 +688,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 13.2"
   },
-  {
+{
     "id": "SAV2-033",
     "subject": "Maths",
     "topicKey": "Surface Areas and Volumes",
@@ -933,145 +713,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 13.2"
   },
-  {
-    "id": "SAV2-034",
-    "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
-    "subtopic": "Frustum of Cone",
-    "section": "A",
-    "marks": 1,
-    "format": "MCQ",
-    "difficulty": "Easy",
-    "bloomSkill": "Remembering",
-    "questionText": "A frustum of a cone is formed when a cone is cut by a plane parallel to the base. What are the two circular surfaces called?",
-    "options": [
-      "Bases",
-      "Vertices",
-      "Lateral surfaces",
-      "Slant heights"
-    ],
-    "answer": "Bases",
-    "solutionSteps": [
-      "A frustum has two parallel circular surfaces",
-      "These are called the top base (smaller) and bottom base (larger)"
-    ],
-    "finalAnswer": "Bases",
-    "isCompetencyBased": false,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 13.3"
-  },
-  {
-    "id": "SAV2-035",
-    "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
-    "subtopic": "Frustum of Cone",
-    "section": "B",
-    "marks": 2,
-    "format": "Short",
-    "difficulty": "Medium",
-    "bloomSkill": "Understanding",
-    "questionText": "The radii of the circular ends of a frustum are 10 cm and 8 cm, and the slant height is 12 cm. Find its curved surface area.",
-    "options": [],
-    "answer": "216π cm² ≈ 678.24 cm²",
-    "solutionSteps": [
-      "Curved surface area of frustum = π(r₁ + r₂)l",
-      "where r₁ = 10 cm, r₂ = 8 cm, l = 12 cm",
-      "CSA = π(10 + 8)(12) = π(18)(12) = 216π cm²",
-      "≈ 678.24 cm²"
-    ],
-    "finalAnswer": "216π cm² ≈ 678.24 cm²",
-    "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 13.3"
-  },
-  {
-    "id": "SAV2-036",
-    "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
-    "subtopic": "Frustum of Cone",
-    "section": "B",
-    "marks": 2,
-    "format": "MCQ",
-    "difficulty": "Medium",
-    "bloomSkill": "Applying",
-    "questionText": "A frustum has radii 6 cm and 4 cm with height 3 cm. The slant height is:",
-    "options": [
-      "√10 cm",
-      "√13 cm",
-      "√17 cm",
-      "√20 cm"
-    ],
-    "answer": "√13 cm",
-    "solutionSteps": [
-      "Slant height l = √(h² + (r₁ - r₂)²)",
-      "l = √(3² + (6-4)²) = √(9 + 4) = √13 cm"
-    ],
-    "finalAnswer": "√13 cm",
-    "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 13.3"
-  },
-  {
-    "id": "SAV2-037",
-    "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
-    "subtopic": "Frustum of Cone",
-    "section": "C",
-    "marks": 2,
-    "format": "Short",
-    "difficulty": "Hard",
-    "bloomSkill": "Analysing",
-    "questionText": "A frustum of a cone has radii 12 cm and 8 cm, and height 8 cm. Find the total surface area (including both bases).",
-    "options": [],
-    "answer": "80π√5 + 208π ≈ 1216.77 cm²",
-    "solutionSteps": [
-      "First find slant height: l = √(h² + (r₁-r₂)²) = √(8² + (12-8)²) = √(64+16) = √80 = 4√5 cm",
-      "Curved surface area = π(r₁+r₂)l = π(12+8)(4√5) = 80π√5 cm²",
-      "Area of top base = πr₂² = π(8)² = 64π cm²",
-      "Area of bottom base = πr₁² = π(12)² = 144π cm²",
-      "Total surface area = 80π√5 + 64π + 144π = 80π√5 + 208π = 80π(√5 + 2.6) ≈ 80π(4.836)",
-      "Simpler: 80π(2.236) + 208π ≈ 178.88π + 208π ≈ 1216.77 cm²"
-    ],
-    "finalAnswer": "80π√5 + 208π ≈ 1216.77 cm²",
-    "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 13.3"
-  },
-  {
-    "id": "SAV2-038",
-    "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
-    "subtopic": "Frustum of Cone",
-    "section": "C",
-    "marks": 2,
-    "format": "MCQ",
-    "difficulty": "Hard",
-    "bloomSkill": "Analysing",
-    "questionText": "A container in the shape of a frustum has radii 20 cm and 10 cm with slant height 26 cm. The volume of the frustum is:",
-    "options": [
-      "5600π cm³",
-      "7000π cm³",
-      "8400π cm³",
-      "4200π cm³"
-    ],
-    "answer": "5600π cm³",
-    "solutionSteps": [
-      "First find height: h² + (r₁-r₂)² = l² → h² + 10² = 26²",
-      "h² = 676 - 100 = 576 → h = 24 cm",
-      "Volume of frustum = (1/3)πh(r₁² + r₂² + r₁r₂)",
-      "V = (1/3)π(24)(400 + 100 + 200) = (1/3)π(24)(700) = 8π(700) = 5600π"
-      ],
-    "finalAnswer": "5600π cm³",
-    "isCompetencyBased": true,
-    "pyqYear": "2023",
-    "pyqSet": undefined,
-    "ncertRef": "Ex 13.3"
-  },
-  {
+{
     "id": "SAV2-039",
     "subject": "Maths",
     "topicKey": "Surface Areas and Volumes",
@@ -1096,7 +738,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 13.1"
   },
-  {
+{
     "id": "SAV2-040",
     "subject": "Maths",
     "topicKey": "Surface Areas and Volumes",
@@ -1126,36 +768,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 13.2"
   },
-  {
-    "id": "SAV2-041",
-    "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
-    "subtopic": "Frustum of Cone",
-    "section": "C",
-    "marks": 2,
-    "format": "Assertion-Reasoning",
-    "difficulty": "Hard",
-    "bloomSkill": "Evaluating",
-    "questionText": "Assertion: The curved surface area of a frustum with radii 10 cm and 5 cm and slant height 15 cm is 225π cm². Reason: The formula for curved surface area of frustum is π(r₁ + r₂)l.",
-    "options": [
-      "Both A and R are true, and R is the correct explanation of A.",
-      "Both A and R are true, but R is not the correct explanation of A.",
-      "A is true, R is false.",
-      "A is false, R is true."
-    ],
-    "answer": "Both A and R are true, and R is the correct explanation of A.",
-    "solutionSteps": [
-      "Curved surface area = π(r₁ + r₂)l = π(10 + 5)(15) = π(15)(15) = 225π cm²",
-      "Both assertion and reason are true",
-      "Reason directly explains the assertion"
-    ],
-    "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
-    "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 13.3"
-  },
-  {
+{
     "id": "SAV2-042",
     "subject": "Maths",
     "topicKey": "Surface Areas and Volumes",
@@ -1190,7 +803,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 13.1, Ex 13.2"
   },
-  {
+{
     "id": "SAV2-043",
     "subject": "Maths",
     "topicKey": "Surface Areas and Volumes",
@@ -1222,7 +835,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 13.2"
   },
-  {
+{
     "id": "SAV2-044",
     "subject": "Maths",
     "topicKey": "Surface Areas and Volumes",
@@ -1254,31 +867,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 13.1"
   },
-  {
-    "id": "SAV2-045",
-    "subject": "Maths",
-    "topicKey": "Surface Areas and Volumes",
-    "subtopic": "Frustum of Cone",
-    "section": "B",
-    "marks": 2,
-    "format": "Short",
-    "difficulty": "Medium",
-    "bloomSkill": "Applying",
-    "questionText": "A frustum of a cone is cut from a cone of height 20 cm and base radius 12 cm, by removing the top cone of height 8 cm. Find the height of the frustum.",
-    "options": [],
-    "answer": "12 cm",
-    "solutionSteps": [
-      "Original cone height = 20 cm",
-      "Removed cone height = 8 cm",
-      "Height of frustum = 20 - 8 = 12 cm"
-    ],
-    "finalAnswer": "12 cm",
-    "isCompetencyBased": true,
-    "pyqYear": "2024",
-    "pyqSet": undefined,
-    "ncertRef": "Ex 13.3"
-  },
-  {
+{
     "id": "SAV2-046",
     "subject": "Maths",
     "topicKey": "Surface Areas and Volumes",
@@ -1303,5 +892,275 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "pyqYear": "2025",
     "pyqSet": undefined,
     "ncertRef": "Ex 13.1, Ex 13.2"
+  },
+  {
+    "id": "SAV2-R01",
+    "subject": "Maths",
+    "topicKey": "Surface Areas and Volumes",
+    "subtopic": "Cylinder/Cone/Sphere",
+    "section": "A",
+    "marks": 1,
+    "format": "MCQ",
+    "difficulty": "Easy",
+    "bloomSkill": "Remembering",
+    "questionText": "A solid sphere of radius r is melted and recast into small spheres of radius r/3. How many such spheres are formed?",
+    "options": ["9", "27", "3", "81"],
+    "answer": "27",
+    "solutionSteps": ["Volume of large sphere = (4/3)πr³", "Volume of each small sphere = (4/3)π(r/3)³ = (4/3)πr³/27", "Number = 27"],
+    "finalAnswer": "27",
+    "isCompetencyBased": true,
+    "ncertRef": "Ex 13.3"
+  },
+  {
+    "id": "SAV2-R02",
+    "subject": "Maths",
+    "topicKey": "Surface Areas and Volumes",
+    "subtopic": "Combination/Transformation",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "A vessel is in the form of a hollow hemisphere mounted by a hollow cylinder. The diameter of the hemisphere is 14 cm and the total height of the vessel is 13 cm. Find the inner surface area of the vessel.",
+    "options": [],
+    "answer": "572 cm²",
+    "solutionSteps": ["r = 7 cm, height of cylinder = 13 - 7 = 6 cm", "Inner SA = CSA of cylinder + CSA of hemisphere", "= 2πrh + 2πr² = 2π(7)(6) + 2π(49) = 84π + 98π = 182π ≈ 572 cm²"],
+    "finalAnswer": "572 cm²",
+    "isCompetencyBased": true,
+    "ncertRef": "Ex 13.2"
+  },
+  {
+    "id": "SAV2-R03",
+    "subject": "Maths",
+    "topicKey": "Surface Areas and Volumes",
+    "subtopic": "Cylinder/Cone/Sphere",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "A conical tent is 10 m high and the radius of its base is 24 m. Find the slant height and the cost of the canvas required to make the tent at the rate of Rs 70 per m².",
+    "options": [],
+    "answer": "Slant height = 26 m, Cost = Rs 1,37,280",
+    "solutionSteps": ["l = √(10² + 24²) = √(100 + 576) = √676 = 26 m", "CSA = πrl = (22/7)(24)(26) = 1961.14 m²", "Cost = 1961.14 × 70 ≈ Rs 1,37,280"],
+    "finalAnswer": "Slant height = 26 m, Cost ≈ Rs 1,37,280",
+    "isCompetencyBased": true,
+    "ncertRef": "Ex 13.1"
+  },
+  {
+    "id": "SAV2-R04",
+    "subject": "Maths",
+    "topicKey": "Surface Areas and Volumes",
+    "subtopic": "Combination/Transformation",
+    "section": "E",
+    "marks": 4,
+    "format": "Case-Based",
+    "difficulty": "Hard",
+    "bloomSkill": "Analysing",
+    "questionText": "A solid wooden toy is in the form of a hemisphere surmounted by a cone. The diameter of the hemisphere is 6 cm and the height of the toy is 10 cm.\n(i) Find the radius of cone. (ii) Find height of cone. (iii) Find total volume. (iv) Find total surface area.",
+    "options": [],
+    "answer": "(i) 3 cm (ii) 7 cm (iii) 39π ≈ 122.5 cm³ (iv) 40.86π ≈ 128.4 cm²",
+    "solutionSteps": ["(i) Radius of cone = radius of hemisphere = 3 cm", "(ii) Height of cone = 10 - 3 = 7 cm", "(iii) V = (2/3)π(27) + (1/3)π(9)(7) = 18π + 21π = 39π ≈ 122.5 cm³", "(iv) l = √(9+49) = √58 ≈ 7.62 cm. TSA = πrl + 2πr² = 3π(7.62) + 2π(9) = 22.86π + 18π = 40.86π ≈ 128.4 cm²"],
+    "finalAnswer": "(i) 3 cm (ii) 7 cm (iii) 39π ≈ 122.5 cm³ (iv) 40.86π ≈ 128.4 cm²",
+    "isCompetencyBased": true,
+    "ncertRef": "Ex 13.2"
+  },
+  {
+    "id": "SAV2-R05",
+    "subject": "Maths",
+    "topicKey": "Surface Areas and Volumes",
+    "subtopic": "Cylinder/Cone/Sphere",
+    "section": "A",
+    "marks": 1,
+    "format": "Assertion-Reasoning",
+    "difficulty": "Medium",
+    "bloomSkill": "Analysing",
+    "questionText": "Assertion (A): A cone and a cylinder of same base radius and height have a volume ratio of 1:3.\nReason (R): Volume of cone = (1/3)πr²h and Volume of cylinder = πr²h.",
+    "options": ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
+    "answer": "Both A and R are true, and R is the correct explanation of A.",
+    "solutionSteps": ["Ratio = (1/3)πr²h : πr²h = 1:3 ✓"],
+    "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "isCompetencyBased": true,
+    "ncertRef": "Ex 13.1"
+  },
+  {
+    "id": "SAV2-R06",
+    "subject": "Maths",
+    "topicKey": "Surface Areas and Volumes",
+    "subtopic": "Combination/Transformation",
+    "section": "D",
+    "marks": 5,
+    "format": "Long",
+    "difficulty": "Hard",
+    "bloomSkill": "Applying",
+    "questionText": "A cistern, internally measuring 150 cm × 120 cm × 110 cm, has 129,600 cm³ of water in it. Porous bricks are placed in the water until the cistern is full to the brim. Each brick absorbs one-seventeenth of its own volume of water. How many bricks of dimensions 22.5 cm × 7.5 cm × 6.5 cm can be put in without overflow?",
+    "options": [],
+    "answer": "1792 bricks",
+    "solutionSteps": ["Volume of cistern = 150×120×110 = 1,980,000 cm³", "Empty space = 1,980,000 - 129,600 = 1,850,400 cm³", "Volume of one brick = 22.5×7.5×6.5 = 1096.875 cm³", "Let n = number of bricks. Volume occupied = n×1096.875, water absorbed = n×1096.875/17", "n×1096.875 - n×1096.875/17 = 1,850,400", "n×1096.875×(16/17) = 1,850,400 → n = 1792"],
+    "finalAnswer": "1792 bricks",
+    "isCompetencyBased": true,
+    "ncertRef": "Ex 13.3"
+  },
+  {
+    "id": "SAV2-R07",
+    "subject": "Maths",
+    "topicKey": "Surface Areas and Volumes",
+    "subtopic": "Cylinder/Cone/Sphere",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Hard",
+    "bloomSkill": "Applying",
+    "questionText": "A 20 m deep well with diameter 7 m is dug and the earth from digging is evenly spread out to form a platform 22 m × 14 m. Find the height of the platform.",
+    "options": [],
+    "answer": "2.5 m",
+    "solutionSteps": ["Volume of earth = π(3.5)²(20) = (22/7)(12.25)(20) = 770 m³", "Volume of platform = 22 × 14 × h = 308h", "308h = 770 → h = 2.5 m"],
+    "finalAnswer": "2.5 m",
+    "isCompetencyBased": true,
+    "ncertRef": "Ex 13.3"
+  },
+  {
+    "id": "SAV2-R08",
+    "subject": "Maths",
+    "topicKey": "Surface Areas and Volumes",
+    "subtopic": "Combination/Transformation",
+    "section": "A",
+    "marks": 1,
+    "format": "MCQ",
+    "difficulty": "Easy",
+    "bloomSkill": "Understanding",
+    "questionText": "When a solid is melted and recast into another shape, which quantity remains conserved?",
+    "options": ["Surface area", "Volume", "Height", "Radius"],
+    "answer": "Volume",
+    "solutionSteps": ["Volume is conserved when a solid is melted and recast."],
+    "finalAnswer": "Volume",
+    "isCompetencyBased": false,
+    "ncertRef": "Ex 13.3"
+  },
+  {
+    "id": "SAV2-R09",
+    "subject": "Maths",
+    "topicKey": "Surface Areas and Volumes",
+    "subtopic": "Cylinder/Cone/Sphere",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Easy",
+    "bloomSkill": "Applying",
+    "questionText": "How many spheres of radius 2 cm can be made from a solid cylinder of radius 8 cm and height 6 cm?",
+    "options": [],
+    "answer": "36 spheres",
+    "solutionSteps": ["V_cylinder = π(64)(6) = 384π cm³", "V_sphere = (4/3)π(8) = 32π/3 cm³", "Number = 384π / (32π/3) = 384×3/32 = 36"],
+    "finalAnswer": "36 spheres",
+    "isCompetencyBased": true,
+    "ncertRef": "Ex 13.3"
+  },
+  {
+    "id": "SAV2-R10",
+    "subject": "Maths",
+    "topicKey": "Surface Areas and Volumes",
+    "subtopic": "Combination/Transformation",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "A spherical ball of radius 3 cm is melted and recast into three spherical balls. The radii of two of the balls are 1.5 cm and 2 cm. Find the radius of the third ball.",
+    "options": [],
+    "answer": "r = 2.5 cm",
+    "solutionSteps": ["V_original = (4/3)π(27) = 36π cm³", "V1 = (4/3)π(3.375) = 4.5π, V2 = (4/3)π(8) = 32π/3", "V3 = 36π - 4.5π - 32π/3 = 36π - 4.5π - 10.67π = 20.83π... let r³ = V3/(4π/3)", "27 = 3.375 + 8 + r³ → r³ = 15.625 → r = 2.5 cm"],
+    "finalAnswer": "r = 2.5 cm",
+    "isCompetencyBased": true,
+    "ncertRef": "Ex 13.3"
+  },
+  {
+    "id": "SAV2-R11",
+    "subject": "Maths",
+    "topicKey": "Surface Areas and Volumes",
+    "subtopic": "Cylinder/Cone/Sphere",
+    "section": "A",
+    "marks": 1,
+    "format": "MCQ",
+    "difficulty": "Easy",
+    "bloomSkill": "Remembering",
+    "questionText": "The total surface area of a solid hemisphere of radius r is:",
+    "options": ["2πr²", "3πr²", "4πr²", "πr²"],
+    "answer": "3πr²",
+    "solutionSteps": ["TSA of hemisphere = CSA + base = 2πr² + πr² = 3πr²"],
+    "finalAnswer": "3πr²",
+    "isCompetencyBased": false,
+    "ncertRef": "Ex 13.1"
+  },
+  {
+    "id": "SAV2-R12",
+    "subject": "Maths",
+    "topicKey": "Surface Areas and Volumes",
+    "subtopic": "Combination/Transformation",
+    "section": "E",
+    "marks": 4,
+    "format": "Case-Based",
+    "difficulty": "Medium",
+    "bloomSkill": "Analysing",
+    "questionText": "A school organises a sports day. The school arranges trophies in the shape of a cylinder surmounted by a hemisphere. The radius of both is 3 cm and the height of the cylinder is 10 cm.\n(i) Find height of hemisphere part. (ii) Find total height. (iii) Find the volume. (iv) Find the total surface area.",
+    "options": [],
+    "answer": "(i) 3 cm (ii) 13 cm (iii) 90π+18π = 108π cm³ (iv) 60π+18π+9π = 87π cm²",
+    "solutionSteps": ["(i) Height of hemisphere = radius = 3 cm", "(ii) Total height = 10 + 3 = 13 cm", "(iii) V = πr²h + (2/3)πr³ = π(9)(10) + (2/3)π(27) = 90π + 18π = 108π ≈ 339.4 cm³", "(iv) TSA = 2πrh + 2πr² + πr² = 2π(3)(10) + 3π(9) = 60π + 27π = 87π ≈ 273.3 cm²"],
+    "finalAnswer": "(i) 3 cm (ii) 13 cm (iii) 108π cm³ (iv) 87π cm²",
+    "isCompetencyBased": true,
+    "ncertRef": "Ex 13.2"
+  },
+  {
+    "id": "SAV2-R13",
+    "subject": "Maths",
+    "topicKey": "Surface Areas and Volumes",
+    "subtopic": "Cylinder/Cone/Sphere",
+    "section": "D",
+    "marks": 5,
+    "format": "Long",
+    "difficulty": "Hard",
+    "bloomSkill": "Applying",
+    "questionText": "A copper rod of diameter 1 cm and length 8 cm is drawn into a wire of length 18 m of uniform thickness. Find the thickness of the wire.",
+    "options": [],
+    "answer": "Diameter ≈ 0.067 cm",
+    "solutionSteps": ["Volume of rod = π(0.5)²(8) = 2π cm³", "Volume of wire = π(r)²(1800) = 1800πr²", "1800πr² = 2π → r² = 1/900 → r = 1/30 cm", "Diameter = 2/30 = 1/15 cm ≈ 0.067 cm"],
+    "finalAnswer": "Diameter = 1/15 cm ≈ 0.067 cm",
+    "isCompetencyBased": true,
+    "ncertRef": "Ex 13.3"
+  },
+  {
+    "id": "SAV2-R14",
+    "subject": "Maths",
+    "topicKey": "Surface Areas and Volumes",
+    "subtopic": "Combination/Transformation",
+    "section": "A",
+    "marks": 1,
+    "format": "Assertion-Reasoning",
+    "difficulty": "Easy",
+    "bloomSkill": "Understanding",
+    "questionText": "Assertion (A): A solid sphere of radius 3 cm is melted into a cylinder of radius 3 cm. The height of the cylinder is 4 cm.\nReason (R): (4/3)πr³ = πR²h gives h when volume is conserved.",
+    "options": ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
+    "answer": "Both A and R are true, and R is the correct explanation of A.",
+    "solutionSteps": ["(4/3)π(27) = π(9)h → 36 = 9h → h = 4 ✓"],
+    "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "isCompetencyBased": true,
+    "ncertRef": "Ex 13.3"
+  },
+  {
+    "id": "SAV2-R15",
+    "subject": "Maths",
+    "topicKey": "Surface Areas and Volumes",
+    "subtopic": "Cylinder/Cone/Sphere",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "The diameter of a metallic ball is 4.2 cm. What is the mass of the ball if the density of the metal is 8.9 g per cm³? (Use π = 22/7)",
+    "options": [],
+    "answer": "345.39 g",
+    "solutionSteps": ["r = 2.1 cm", "V = (4/3)(22/7)(2.1)³ = (4/3)(22/7)(9.261) = 38.808 cm³", "Mass = 38.808 × 8.9 ≈ 345.4 g"],
+    "finalAnswer": "≈ 345.4 g",
+    "isCompetencyBased": true,
+    "ncertRef": "Ex 13.1"
   }
 ];

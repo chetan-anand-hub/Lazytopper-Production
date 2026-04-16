@@ -60,7 +60,6 @@ export const MATHS_VISUALS: ChapterVisuals[] = [
       c("maths", "polynomials", "Zeroes of a Polynomial", ["zeroes", "roots", "graph", "x-axis"]),
       c("maths", "polynomials", "Relationship between Zeroes and Coefficients", ["sum", "product", "zeroes", "coefficients", "vieta"]),
       c("maths", "polynomials", "Graphical Meaning of Zeroes", ["parabola", "graph", "intersection", "quadratic"]),
-      c("maths", "polynomials", "Division Algorithm for Polynomials", ["division", "quotient", "remainder", "algorithm"]),
     ],
   },
   {
@@ -71,7 +70,6 @@ export const MATHS_VISUALS: ChapterVisuals[] = [
       c("maths", "linear-equations", "Graphical Method", ["graph", "intersection", "lines", "solution"]),
       c("maths", "linear-equations", "Substitution Method", ["substitution", "solve", "variable", "replace"]),
       c("maths", "linear-equations", "Elimination Method", ["elimination", "add", "subtract", "cancel"]),
-      c("maths", "linear-equations", "Cross Multiplication Method", ["cross", "multiply", "formula", "determinant"]),
       c("maths", "linear-equations", "Consistency of Equations", ["consistent", "inconsistent", "parallel", "coincident", "ratios"]),
     ],
   },
@@ -157,7 +155,6 @@ export const MATHS_VISUALS: ChapterVisuals[] = [
     concepts: [
       c("maths", "surface-areas-volumes", "Combination of Solids", ["combination", "cone", "cylinder", "hemisphere"]),
       c("maths", "surface-areas-volumes", "Conversion of Solids", ["melt", "recast", "volume", "conservation"]),
-      c("maths", "surface-areas-volumes", "Frustum of a Cone", ["frustum", "slant", "height", "volume", "surface"]),
     ],
   },
   {
@@ -168,7 +165,6 @@ export const MATHS_VISUALS: ChapterVisuals[] = [
       c("maths", "statistics", "Mean of Grouped Data", ["mean", "assumed", "direct", "step", "deviation"]),
       c("maths", "statistics", "Median of Grouped Data", ["median", "cumulative", "frequency", "class"]),
       c("maths", "statistics", "Mode of Grouped Data", ["mode", "modal", "class", "frequency"]),
-      c("maths", "statistics", "Ogive Curve", ["ogive", "cumulative", "frequency", "graph", "less", "more"]),
     ],
   },
   {

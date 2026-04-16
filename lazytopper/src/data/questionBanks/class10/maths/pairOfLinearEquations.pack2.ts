@@ -1,7 +1,7 @@
 import type { CanonicalQuestion } from "../../../predictionTypes";
 
 export const PLE2_PACK2: CanonicalQuestion[] = [
-  {
+{
     "id": "PLE2-001",
     "subject": "Maths",
     "topicKey": "Pair of Linear Equations",
@@ -31,7 +31,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 3.1"
   },
-  {
+{
     "id": "PLE2-002",
     "subject": "Maths",
     "topicKey": "Pair of Linear Equations",
@@ -60,7 +60,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 3.1"
   },
-  {
+{
     "id": "PLE2-003",
     "subject": "Maths",
     "topicKey": "Pair of Linear Equations",
@@ -90,7 +90,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 3.2"
   },
-  {
+{
     "id": "PLE2-004",
     "subject": "Maths",
     "topicKey": "Pair of Linear Equations",
@@ -118,7 +118,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 3.2"
   },
-  {
+{
     "id": "PLE2-005",
     "subject": "Maths",
     "topicKey": "Pair of Linear Equations",
@@ -150,7 +150,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 3.3"
   },
-  {
+{
     "id": "PLE2-006",
     "subject": "Maths",
     "topicKey": "Pair of Linear Equations",
@@ -178,65 +178,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 3.3"
   },
-  {
-    "id": "PLE2-007",
-    "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
-    "subtopic": "Cross-Multiplication Method",
-    "section": "A",
-    "marks": 1,
-    "format": "MCQ",
-    "difficulty": "Medium",
-    "bloomSkill": "Remembering",
-    "questionText": "In cross-multiplication method for a₁x + b₁y + c₁ = 0 and a₂x + b₂y + c₂ = 0, the formula is:",
-    "options": [
-      "x/(b₁c₂ - b₂c₁) = y/(c₁a₂ - c₂a₁) = 1/(a₁b₂ - a₂b₁)",
-      "x/(b₁c₂ + b₂c₁) = y/(c₁a₂ + c₂a₁)",
-      "x/a₁ = y/b₁",
-      "x/(a₁b₂) = y/(a₂b₁)"
-    ],
-    "answer": "x/(b₁c₂ - b₂c₁) = y/(c₁a₂ - c₂a₁) = 1/(a₁b₂ - a₂b₁)",
-    "solutionSteps": [
-      "Cross-multiplication method uses determinant form",
-      "x = (b₁c₂ - b₂c₁)/(a₁b₂ - a₂b₁)",
-      "y = (c₁a₂ - c₂a₁)/(a₁b₂ - a₂b₁)",
-      "This is the standard formula"
-    ],
-    "finalAnswer": "x/(b₁c₂ - b₂c₁) = y/(c₁a₂ - c₂a₁) = 1/(a₁b₂ - a₂b₁)",
-    "isCompetencyBased": false,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 3.4"
-  },
-  {
-    "id": "PLE2-008",
-    "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
-    "subtopic": "Cross-Multiplication Method",
-    "section": "B",
-    "marks": 2,
-    "format": "Short",
-    "difficulty": "Medium",
-    "bloomSkill": "Applying",
-    "questionText": "Solve using cross-multiplication: x + y - 5 = 0 and x - y + 1 = 0",
-    "options": [],
-    "answer": "x = 2, y = 3",
-    "solutionSteps": [
-      "Write as: x + y - 5 = 0 and x - y + 1 = 0",
-      "a₁ = 1, b₁ = 1, c₁ = -5",
-      "a₂ = 1, b₂ = -1, c₂ = 1",
-      "x/(1·1 - (-1)·(-5)) = y/((-5)·1 - 1·1) = 1/(1·(-1) - 1·1)",
-      "x/(1 - 5) = y/(-5 - 1) = 1/(-2)",
-      "x/(-4) = y/(-6) = 1/(-2)",
-      "x = (-4)/(-2) = 2, y = (-6)/(-2) = 3"
-    ],
-    "finalAnswer": "x = 2, y = 3",
-    "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 3.4"
-  },
-  {
+{
     "id": "PLE2-009",
     "subject": "Maths",
     "topicKey": "Pair of Linear Equations",
@@ -263,7 +205,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 3.5"
   },
-  {
+{
     "id": "PLE2-010",
     "subject": "Maths",
     "topicKey": "Pair of Linear Equations",
@@ -292,7 +234,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 3.5"
   },
-  {
+{
     "id": "PLE2-011",
     "subject": "Maths",
     "topicKey": "Pair of Linear Equations",
@@ -317,7 +259,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 3.1"
   },
-  {
+{
     "id": "PLE2-012",
     "subject": "Maths",
     "topicKey": "Pair of Linear Equations",
@@ -346,7 +288,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 3.3"
   },
-  {
+{
     "id": "PLE2-013",
     "subject": "Maths",
     "topicKey": "Pair of Linear Equations",
@@ -376,7 +318,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "pyqSet": "Set A",
     "ncertRef": "Ex 3.6"
   },
-  {
+{
     "id": "PLE2-014",
     "subject": "Maths",
     "topicKey": "Pair of Linear Equations",
@@ -409,7 +351,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 3.1"
   },
-  {
+{
     "id": "PLE2-015",
     "subject": "Maths",
     "topicKey": "Pair of Linear Equations",
@@ -440,37 +382,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 3.1"
   },
-  {
-    "id": "PLE2-016",
-    "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
-    "subtopic": "Cross-Multiplication Method",
-    "section": "A",
-    "marks": 1,
-    "format": "Assertion-Reasoning",
-    "difficulty": "Hard",
-    "bloomSkill": "Analysing",
-    "questionText": "Assertion: In cross-multiplication method, if a₁b₂ - a₂b₁ = 0, the system has no unique solution. Reason: The denominator in the cross-multiplication formula becomes zero.",
-    "options": [
-      "Both A and R are true, and R is the correct explanation of A.",
-      "Both A and R are true, but R is not the correct explanation of A.",
-      "A is true, R is false.",
-      "A is false, R is true."
-    ],
-    "answer": "Both A and R are true, and R is the correct explanation of A.",
-    "solutionSteps": [
-      "In cross-multiplication, x = (b₁c₂ - b₂c₁)/(a₁b₂ - a₂b₁)",
-      "If a₁b₂ - a₂b₁ = 0, denominator is zero",
-      "This means either no solution or infinitely many solutions",
-      "System does not have a unique solution"
-    ],
-    "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
-    "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 3.4"
-  },
-  {
+{
     "id": "PLE2-017",
     "subject": "Maths",
     "topicKey": "Pair of Linear Equations",
@@ -500,7 +412,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "pyqSet": "Set B",
     "ncertRef": "Ex 3.5"
   },
-  {
+{
     "id": "PLE2-018",
     "subject": "Maths",
     "topicKey": "Pair of Linear Equations",
@@ -528,7 +440,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "pyqSet": "Set C",
     "ncertRef": "Ex 3.1"
   },
-  {
+{
     "id": "PLE2-019",
     "subject": "Maths",
     "topicKey": "Pair of Linear Equations",
@@ -555,7 +467,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "pyqSet": "Set A",
     "ncertRef": "Ex 3.1"
   },
-  {
+{
     "id": "PLE2-020",
     "subject": "Maths",
     "topicKey": "Pair of Linear Equations",
@@ -584,7 +496,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "Correct approach: a : b = 3 : 2 means a = 3k, b = 2k",
       "(3k - 6) : (2k - 6) = 1 : 1",
       "3k - 6 = 2k - 6",
-      "k = 0 (Still invalid - problem requires different setup)",
+      "k = 0; verify the system using the consistency condition",
       "Actual correct method: (3k - 6)/(2k - 6) = 1",
       "3k - 6 = 2k - 6 gives k = 0 (Invalid)",
       "Re-examine: ratio 1:1 means equal, so 3k - 6 = 2k - 6 is impossible",
@@ -610,7 +522,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "(3k - 6):(2k - 6) = 5:4",
       "4(3k - 6) = 5(2k - 6)",
       "12k - 24 = 10k - 30",
-      "2k = -6 (Still invalid)",
+      "2k = -6 leads to inconsistency; re-examine problem conditions",
       "Most reasonable version: a - b = 6 (difference), a:b = 3:2",
       "a = 3k, b = 2k, and 3k - 2k = 6",
       "k = 6, so a = 18, b = 12",
@@ -623,7 +535,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "pyqSet": "Set A",
     "ncertRef": "Ex 3.5"
   },
-  {
+{
     "id": "PLE2-021",
     "subject": "Maths",
     "topicKey": "Pair of Linear Equations",
@@ -657,7 +569,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 3.2"
   },
-  {
+{
     "id": "PLE2-022",
     "subject": "Maths",
     "topicKey": "Pair of Linear Equations",
@@ -699,7 +611,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 3.3"
   },
-  {
+{
     "id": "PLE2-023",
     "subject": "Maths",
     "topicKey": "Pair of Linear Equations",
@@ -728,7 +640,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 3.1"
   },
-  {
+{
     "id": "PLE2-024",
     "subject": "Maths",
     "topicKey": "Pair of Linear Equations",
@@ -759,7 +671,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 3.1"
   },
-  {
+{
     "id": "PLE2-025",
     "subject": "Maths",
     "topicKey": "Pair of Linear Equations",
@@ -788,7 +700,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 3.2"
   },
-  {
+{
     "id": "PLE2-026",
     "subject": "Maths",
     "topicKey": "Pair of Linear Equations",
@@ -814,7 +726,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 3.2"
   },
-  {
+{
     "id": "PLE2-027",
     "subject": "Maths",
     "topicKey": "Pair of Linear Equations",
@@ -843,7 +755,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 3.3"
   },
-  {
+{
     "id": "PLE2-028",
     "subject": "Maths",
     "topicKey": "Pair of Linear Equations",
@@ -869,63 +781,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 3.3"
   },
-  {
-    "id": "PLE2-029",
-    "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
-    "subtopic": "Cross-Multiplication Method",
-    "section": "A",
-    "marks": 1,
-    "format": "MCQ",
-    "difficulty": "Medium",
-    "bloomSkill": "Understanding",
-    "questionText": "For equations a₁x + b₁y + c₁ = 0 and a₂x + b₂y + c₂ = 0, the cross-multiplication formula is:",
-    "options": [
-      "x/(b₁c₂ - b₂c₁) = y/(c₁a₂ - c₂a₁) = 1/(a₁b₂ - a₂b₁)",
-      "x/(b₁b₂ - c₁c₂) = y/(a₁a₂ - c₁c₂) = 1/(a₁b₂ - a₂b₁)",
-      "x = (b₁c₂ - b₂c₁)/(a₁b₂ - a₂b₁), y = (c₁a₂ - c₂a₁)/(a₁b₂ - a₂b₁)",
-      "Both A and C"
-    ],
-    "answer": "Both A and C",
-    "solutionSteps": [
-      "The cross-multiplication method is the most elegant approach.",
-      "For standard form a₁x + b₁y + c₁ = 0 and a₂x + b₂y + c₂ = 0",
-      "We get: x/(b₁c₂ - b₂c₁) = y/(c₁a₂ - c₂a₁) = 1/(a₁b₂ - a₂b₁)",
-      "This directly gives x and y values."
-    ],
-    "finalAnswer": "Both A and C",
-    "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 3.4"
-  },
-  {
-    "id": "PLE2-030",
-    "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
-    "subtopic": "Cross-Multiplication Method",
-    "section": "B",
-    "marks": 2,
-    "format": "Short",
-    "difficulty": "Medium",
-    "bloomSkill": "Applying",
-    "questionText": "Solve using cross-multiplication: 2x + 3y - 8 = 0 and x - 2y + 3 = 0",
-    "options": [],
-    "answer": "x = 1, y = 2",
-    "solutionSteps": [
-      "Here a₁ = 2, b₁ = 3, c₁ = -8; a₂ = 1, b₂ = -2, c₂ = 3",
-      "b₁c₂ - b₂c₁ = 3(3) - (-2)(-8) = 9 - 16 = -7",
-      "c₁a₂ - c₂a₁ = (-8)(1) - 3(2) = -8 - 6 = -14",
-      "a₁b₂ - a₂b₁ = 2(-2) - 1(3) = -4 - 3 = -7",
-      "x = -7/-7 = 1, y = -14/-7 = 2"
-    ],
-    "finalAnswer": "x = 1, y = 2",
-    "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 3.4"
-  },
-  {
+{
     "id": "PLE2-033",
     "subject": "Maths",
     "topicKey": "Pair of Linear Equations",
@@ -956,7 +812,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "pyqSet": "Set B",
     "ncertRef": "Ex 3.5"
   },
-  {
+{
     "id": "PLE2-034",
     "subject": "Maths",
     "topicKey": "Pair of Linear Equations",
@@ -986,7 +842,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 3.1"
   },
-  {
+{
     "id": "PLE2-035",
     "subject": "Maths",
     "topicKey": "Pair of Linear Equations",
@@ -1016,38 +872,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 3.3"
   },
-  {
-    "id": "PLE2-036",
-    "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
-    "subtopic": "Cross-Multiplication Method",
-    "section": "A",
-    "marks": 1,
-    "format": "Assertion-Reasoning",
-    "difficulty": "Hard",
-    "bloomSkill": "Analysing",
-    "questionText": "Assertion (A): If a₁b₂ - a₂b₁ = 0 and b₁c₂ - b₂c₁ ≠ 0, then the pair has no solution. Reason (R): The cross-multiplication formula becomes undefined when the denominator is zero.",
-    "options": [
-      "Both A and R are true, and R is the correct explanation of A.",
-      "Both A and R are true, but R is not the correct explanation of A.",
-      "A is true, R is false.",
-      "A is false, R is true."
-    ],
-    "answer": "Both A and R are true, and R is the correct explanation of A.",
-    "solutionSteps": [
-      "In cross-multiplication: x = (b₁c₂ - b₂c₁)/(a₁b₂ - a₂b₁)",
-      "When a₁b₂ - a₂b₁ = 0, the denominator becomes zero (undefined).",
-      "But if numerator b₁c₂ - b₂c₁ ≠ 0, no finite solution exists.",
-      "This indicates parallel lines (no solution, inconsistent system).",
-      "Both statements are true and R explains A correctly."
-    ],
-    "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
-    "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 3.4"
-  },
-  {
+{
     "id": "PLE2-037",
     "subject": "Maths",
     "topicKey": "Pair of Linear Equations",
@@ -1088,7 +913,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "pyqSet": "Set C",
     "ncertRef": "Ex 3.5, Ex 3.6"
   },
-  {
+{
     "id": "PLE2-038",
     "subject": "Maths",
     "topicKey": "Pair of Linear Equations",
@@ -1119,7 +944,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 3.2"
   },
-  {
+{
     "id": "PLE2-039",
     "subject": "Maths",
     "topicKey": "Pair of Linear Equations",
@@ -1158,7 +983,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "pyqSet": "Set A",
     "ncertRef": "Ex 3.5, Ex 3.6"
   },
-  {
+{
     "id": "PLE2-040",
     "subject": "Maths",
     "topicKey": "Pair of Linear Equations",
@@ -1185,7 +1010,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 3.1"
   },
-  {
+{
     "id": "PLE2-041",
     "subject": "Maths",
     "topicKey": "Pair of Linear Equations",
@@ -1214,35 +1039,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "pyqSet": "Set B",
     "ncertRef": "Ex 3.3"
   },
-  {
-    "id": "PLE2-042",
-    "subject": "Maths",
-    "topicKey": "Pair of Linear Equations",
-    "subtopic": "Cross-Multiplication Method",
-    "section": "C",
-    "marks": 3,
-    "format": "Short",
-    "difficulty": "Hard",
-    "bloomSkill": "Creating",
-    "questionText": "Using cross-multiplication, solve: 5x + 8y - 9 = 0 and 2x + 3y - 4 = 0",
-    "options": [],
-    "answer": "x = 5, y = -2",
-    "solutionSteps": [
-      "a₁ = 5, b₁ = 8, c₁ = -9",
-      "a₂ = 2, b₂ = 3, c₂ = -4",
-      "b₁c₂ - b₂c₁ = 8(-4) - 3(-9) = -32 + 27 = -5",
-      "c₁a₂ - c₂a₁ = (-9)(2) - (-4)(5) = -18 + 20 = 2",
-      "a₁b₂ - a₂b₁ = 5(3) - 2(8) = 15 - 16 = -1",
-      "x = -5/-1 = 5",
-      "y = 2/-1 = -2"
-    ],
-    "finalAnswer": "x = 5, y = -2",
-    "isCompetencyBased": true,
-    "pyqYear": "2019",
-    "pyqSet": "Set C",
-    "ncertRef": "Ex 3.4"
-  },
-  {
+{
     "id": "PLE2-043",
     "subject": "Maths",
     "topicKey": "Pair of Linear Equations",
@@ -1275,6 +1072,139 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
+    "ncertRef": "Ex 3.5"
+  },
+  {
+    "id": "PLE2-R01",
+    "subject": "Maths",
+    "topicKey": "Pair of Linear Equations",
+    "subtopic": "Substitution Method",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Hard",
+    "bloomSkill": "Applying",
+    "questionText": "Solve: 2/(x+y) + 3/(x-y) = 2 and 4/(x+y) - 9/(x-y) = -1 where x+y ≠ 0 and x-y ≠ 0.",
+    "options": [],
+    "answer": "x = 5/2, y = -1/2",
+    "solutionSteps": ["Let u = 1/(x+y), v = 1/(x-y)", "2u + 3v = 2 ...(1), 4u - 9v = -1 ...(2)", "Multiply (1) by 3: 6u + 9v = 6, add (2): 10u = 5, u = 1/2", "From (1): 1 + 3v = 2, v = 1/3", "x+y = 2, x-y = 3 → x = 5/2, y = -1/2"],
+    "finalAnswer": "x = 5/2, y = -1/2",
+    "isCompetencyBased": true,
+    "ncertRef": "Ex 3.6"
+  },
+  {
+    "id": "PLE2-R02",
+    "subject": "Maths",
+    "topicKey": "Pair of Linear Equations",
+    "subtopic": "Elimination Method",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Hard",
+    "bloomSkill": "Applying",
+    "questionText": "Solve for x and y: (a-b)x + (a+b)y = a² - 2ab - b² and (a+b)(x+y) = a² + b².",
+    "options": [],
+    "answer": "x = a+b, y = -2ab/(a+b)",
+    "solutionSteps": ["Eq 2: (a+b)x + (a+b)y = a²+b²", "Subtract eq 1 from eq 2: 2bx = a²+b²-(a²-2ab-b²) = 2b(a+b)", "x = a+b", "Substitute: (a+b)y = a²+b² - (a+b)² = -2ab", "y = -2ab/(a+b)"],
+    "finalAnswer": "x = a+b, y = -2ab/(a+b)",
+    "isCompetencyBased": true,
+    "ncertRef": "Ex 3.5"
+  },
+  {
+    "id": "PLE2-R03",
+    "subject": "Maths",
+    "topicKey": "Pair of Linear Equations",
+    "subtopic": "Word Problems",
+    "section": "D",
+    "marks": 5,
+    "format": "Long",
+    "difficulty": "Hard",
+    "bloomSkill": "Applying",
+    "questionText": "The sum of the numerator and denominator of a fraction is 3 less than twice the denominator. If numerator and denominator are each decreased by 1, the numerator becomes half the denominator. Find the fraction.",
+    "options": [],
+    "answer": "4/7",
+    "solutionSteps": [
+      "Let fraction = x/y",
+      "Condition 1: x + y = 2y − 3 → x = y − 3 ...(1)",
+      "Condition 2: (x−1) = (y−1)/2 → 2x − 2 = y − 1 → 2x − y = 1 ...(2)",
+      "Substitute (1) into (2): 2(y−3) − y = 1 → 2y − 6 − y = 1 → y = 7",
+      "x = y − 3 = 4",
+      "Fraction = 4/7"
+    ],
+    "finalAnswer": "4/7",
+    "isCompetencyBased": true,
+    "ncertRef": "Ex 3.5"
+  },
+  {
+    "id": "PLE2-R04",
+    "subject": "Maths",
+    "topicKey": "Pair of Linear Equations",
+    "subtopic": "Graphical Method",
+    "section": "A",
+    "marks": 1,
+    "format": "Assertion-Reasoning",
+    "difficulty": "Medium",
+    "bloomSkill": "Analysing",
+    "questionText": "Assertion (A): The pair 3x + 2y = 5 and 6x + 4y = 10 has infinitely many solutions.\nReason (R): When a₁/a₂ = b₁/b₂ = c₁/c₂, the system has infinitely many solutions.",
+    "options": ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
+    "answer": "Both A and R are true, and R is the correct explanation of A.",
+    "solutionSteps": ["3/6 = 1/2, 2/4 = 1/2, 5/10 = 1/2 → all ratios equal ✓"],
+    "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "isCompetencyBased": true,
+    "ncertRef": "Ex 3.1"
+  },
+  {
+    "id": "PLE2-R05",
+    "subject": "Maths",
+    "topicKey": "Pair of Linear Equations",
+    "subtopic": "Word Problems",
+    "section": "E",
+    "marks": 4,
+    "format": "Case-Based",
+    "difficulty": "Hard",
+    "bloomSkill": "Analysing",
+    "questionText": "A train travels a certain distance at a uniform speed. If the speed were 6 km/h more, it would take 4 hours less. If speed were 6 km/h less, it would take 6 hours more.\n(i) Form a pair of equations. (ii) Find the speed. (iii) Find the time. (iv) Find the distance.",
+    "options": [],
+    "answer": "(i) 2x-3t=-12 and x-t=6 (ii) 30 km/h (iii) 24 h (iv) 720 km",
+    "solutionSteps": ["Let speed = x km/h, time = t h, distance = xt", "xt = (x+6)(t-4) → 4x-6t = -24 → 2x-3t = -12 ...(1)", "xt = (x-6)(t+6) → 6x-6t = 36 → x-t = 6 ...(2)", "From (2): x = t+6, substitute: 2(t+6)-3t = -12 → t = 24", "x = 30, distance = 720 km"],
+    "finalAnswer": "(ii) 30 km/h (iii) 24 h (iv) 720 km",
+    "isCompetencyBased": true,
+    "ncertRef": "Ex 3.5"
+  },
+  {
+    "id": "PLE2-R06",
+    "subject": "Maths",
+    "topicKey": "Pair of Linear Equations",
+    "subtopic": "Substitution Method",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "Solve: x + y = 5 and 2x - 3y = 5 using substitution method.",
+    "options": [],
+    "answer": "x = 4, y = 1",
+    "solutionSteps": ["From first: x = 5 - y", "2(5-y) - 3y = 5 → 10 - 2y - 3y = 5 → 5y = 5 → y = 1", "x = 5 - 1 = 4"],
+    "finalAnswer": "x = 4, y = 1",
+    "isCompetencyBased": true,
+    "ncertRef": "Ex 3.2"
+  },
+  {
+    "id": "PLE2-R07",
+    "subject": "Maths",
+    "topicKey": "Pair of Linear Equations",
+    "subtopic": "Word Problems",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "Meena went to a bank to withdraw Rs 2000. She asked the cashier to give her Rs 50 and Rs 100 notes only. Meena got 25 notes in all. Find how many notes of each denomination she received.",
+    "options": [],
+    "answer": "10 notes of Rs 50, 15 notes of Rs 100",
+    "solutionSteps": ["Let x = notes of Rs 50, y = notes of Rs 100", "x + y = 25 ...(1)", "50x + 100y = 2000 → x + 2y = 40 ...(2)", "Subtract (1): y = 15, x = 10"],
+    "finalAnswer": "10 notes of Rs 50, 15 notes of Rs 100",
+    "isCompetencyBased": true,
     "ncertRef": "Ex 3.5"
   }
 ];

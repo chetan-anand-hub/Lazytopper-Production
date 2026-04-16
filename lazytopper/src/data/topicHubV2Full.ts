@@ -23,7 +23,7 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
       },
       {
         "title": "Methods of solving linear equations",
-        "description": "A pair of linear equations can be solved by graphical method, substitution, elimination, or cross-multiplication; each method has its own advantages depending on the problem."
+        "description": "A pair of linear equations can be solved by graphical method, substitution, or elimination; each method has its own advantages depending on the problem."
       },
       {
         "title": "Conditions for consistency of a system",
@@ -44,7 +44,7 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     ],
     "examPatterns": [
       "1 mark: type of solution given ratios or quick conceptual check.",
-      "2–3 marks: solve using substitution/elimination/cross-multiplication.",
+      "2–3 marks: solve using substitution or elimination method.",
       "3–4 marks: word problems (age, upstream–downstream, money, digits).",
       "Case-based: short table/graph plus a couple of sub-questions on solutions."
     ],

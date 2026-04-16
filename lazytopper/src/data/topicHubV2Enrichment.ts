@@ -42,11 +42,6 @@ export const topicHubV2Enrichment: Record<string, Partial<TopicHubV2Content>> = 
     ],
     misconceptions: [
       {
-        concept: "Solving methods",
-        commonError: "Students often assume cross‑multiplication and elimination are the same and mix steps from both methods.",
-        correction: "Differentiate the procedures: elimination eliminates one variable by adding/subtracting equations, while cross‑multiplication involves proportionate comparison." 
-      },
-      {
         concept: "Nature of solution",
         commonError: "Mixing up the conditions a₁/a₂ = b₁/b₂ = c₁/c₂ for infinitely many solutions and a₁/a₂ = b₁/b₂ ≠ c₁/c₂ for no solution.",
         correction: "Remember: equal ratios of coefficients including constants imply coincident lines; unequal constant ratio implies parallel lines with no intersection." 
@@ -1157,15 +1152,10 @@ export const topicHubV2Enrichment: Record<string, Partial<TopicHubV2Content>> = 
         title: "Using the Factor Theorem",
         question: "Show that x = 2 is a zero of the polynomial f(x) = x³ − 6x² + 11x − 6 and hence factorise f(x)."
       },
-      {
-        title: "Dividing a polynomial",
-        question: "Divide the polynomial p(x) = x⁴ − 5x³ + 2x² + 4x − 3 by x² − 1 and state the quotient and remainder."
-      }
     ],
     competencies: [
       { id: "M10-maths_polynomials-C1", description: "Use the Remainder and Factor theorems to evaluate polynomials at given values and find their factors.", bloomLevel: "Apply" },
       { id: "M10-maths_polynomials-C2", description: "Relate the sum and product of zeros of a quadratic or cubic polynomial to its coefficients.", bloomLevel: "Analyze" },
-      { id: "M10-maths_polynomials-C3", description: "Perform polynomial division to obtain quotient and remainder when dividing by a linear or quadratic factor.", bloomLevel: "Apply" },
       { id: "M10-maths_polynomials-C4", description: "Model real‑life situations using polynomial functions and interpret the significance of their zeros.", bloomLevel: "Apply" }
     ],
     misconceptions: [
@@ -1214,8 +1204,8 @@ export const topicHubV2Enrichment: Record<string, Partial<TopicHubV2Content>> = 
             correctAnswer: "B(t) = (t − 1)(t − 2)(t − 3); zeros at t = 1, 2, 3.",
             explanation:
               "After factoring out (t − 1), the quadratic factor t² − 5t + 6 factorises to (t − 2)(t − 3).",
-            hint: "Use synthetic division to reduce the cubic and then factorise the resulting quadratic.",
-            competencyCode: "M10-maths_polynomials-C3"
+            hint: "Use the Factor Theorem to verify (t−1) is a factor, then factorise the resulting quadratic.",
+            competencyCode: "M10-maths_polynomials-C1"
           },
           {
             id: "maths_polynomials-CS1-Q3",
@@ -1761,7 +1751,7 @@ export const topicHubV2Enrichment: Record<string, Partial<TopicHubV2Content>> = 
     competencies: [
       { id: "M10-maths_surface_areas_volumes-C1", description: "Compute surface areas and volumes of basic solids: cube, cuboid, cylinder, cone, sphere and hemisphere.", bloomLevel: "Apply" },
       { id: "M10-maths_surface_areas_volumes-C2", description: "Solve problems involving combination or transformation of solid figures by equating volumes.", bloomLevel: "Apply" },
-      { id: "M10-maths_surface_areas_volumes-C3", description: "Relate dimensions to surface area and volume formulas, including frustums and hollows.", bloomLevel: "Analyze" },
+      { id: "M10-maths_surface_areas_volumes-C3", description: "Relate dimensions to surface area and volume formulas for cylinders, cones, spheres, and their combinations.", bloomLevel: "Analyze" },
       { id: "M10-maths_surface_areas_volumes-C4", description: "Interpret and solve real‑life problems such as paint required, water storage and manufacturing using 3D geometry.", bloomLevel: "Analyze" }
     ],
     misconceptions: [

@@ -293,7 +293,7 @@ const pleConfig: TopicContentConfig = {
   ],
 
   keyConceptsSummary:
-    "Three big ideas: (i) solving a pair of linear equations algebraically (elimination, substitution, cross-multiplication), (ii) graphical meaning of solutions and the condition for lines to intersect / coincide / be parallel, (iii) word problems – mixture, numbers, money, geometry stories. Comfort with translating real-world data into equations is what turns this topic into a marks-machine.",
+    "Three big ideas: (i) solving a pair of linear equations algebraically (substitution and elimination), (ii) graphical meaning of solutions and the condition for lines to intersect / coincide / be parallel, (iii) word problems – mixture, numbers, money, geometry stories. Comfort with translating real-world data into equations is what turns this topic into a marks-machine.",
 
   boardExamplesSummary:
     "A classic 3-mark PYQ: “Form a pair of linear equations for this situation and solve it”. Another type asks you to change a condition so that the system has infinitely many or no solution. Case-based questions usually combine a small table of values or a short story with 2–3 subparts.",
@@ -1730,21 +1730,21 @@ const statisticsConfig: TopicContentConfig = {
   quickRevisionRoadmap: [
     "1️⃣ Revise formulas for mean of grouped data (including step-deviation method).",
     "2️⃣ Practise 4–5 questions each on median and mode of grouped frequency distribution.",
-    "3️⃣ Draw at least one ogive and practise reading median/percentiles from the graph.",
-    "4️⃣ Do 3–4 case-study or interpretation questions based on data tables and graphs.",
+    "3️⃣ Practise the empirical formula Mode = 3 Median − 2 Mean with real data examples.",
+    "4️⃣ Do 3–4 case-study or interpretation questions based on data tables.",
   ],
 
   keyConceptsSummary:
     "The chapter is about summarising large data using averages and graphs. You must be comfortable handling class intervals, midpoints, cumulative frequencies and using them in formulas.",
 
   boardExamplesSummary:
-    "Typical PYQs: calculate mean/median/mode from grouped data tables; draw ogive to find median; compare two data sets; read information off a given graph.",
+    "Typical PYQs: calculate mean/median/mode from grouped data tables; verify using the empirical formula Mode = 3 Median − 2 Mean; compare two data sets.",
 
   recommendedVideoSummary:
     "Choose a chapter video that slowly walks through 2–3 full tables for each of mean, median and mode, including all working columns.",
   recommendedVideoUrl: "https://www.youtube.com/watch?v=E23D8tPLX0o",
   recommendedVideo: {
-    title: "Statistics Class 10 | Mean, Median, Mode & Ogive",
+    title: "Statistics Class 10 | Mean, Median, Mode",
     url: "https://www.youtube.com/watch?v=E23D8tPLX0o",
     channel: "Any trusted Class 10 Maths channel",
     meta: "≈1.5 hr • Full chapter",
@@ -1793,10 +1793,10 @@ const statisticsConfig: TopicContentConfig = {
     },
     {
       id: "stat-ex2",
-      title: "Median from ogive",
+      title: "Mode of grouped data",
       question:
-        "The ogive given represents the marks of 100 students. Use it to find the median marks.",
-      patternTag: "Graph-based median",
+        "The following distribution shows the number of runs scored by cricket players in a one-day match. Find the mode: Runs: 0–20, 20–40, 40–60, 60–80, 80–100; Players: 4, 8, 15, 12, 6.",
+      patternTag: "Grouped mode",
     },
   ],
 };

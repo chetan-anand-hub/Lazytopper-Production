@@ -1,7 +1,7 @@
 import type { CanonicalQuestion } from "../../../predictionTypes";
 
 export const PL2_PACK2: CanonicalQuestion[] = [
-  {
+{
     "id": "PL2-001",
     "subject": "Maths",
     "topicKey": "Polynomials",
@@ -29,7 +29,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 2.1"
   },
-  {
+{
     "id": "PL2-002",
     "subject": "Maths",
     "topicKey": "Polynomials",
@@ -56,7 +56,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 2.1"
   },
-  {
+{
     "id": "PL2-003",
     "subject": "Maths",
     "topicKey": "Polynomials",
@@ -84,7 +84,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 2.1"
   },
-  {
+{
     "id": "PL2-004",
     "subject": "Maths",
     "topicKey": "Polynomials",
@@ -112,7 +112,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 2.2"
   },
-  {
+{
     "id": "PL2-005",
     "subject": "Maths",
     "topicKey": "Polynomials",
@@ -140,35 +140,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 2.2"
   },
-  {
-    "id": "PL2-006",
-    "subject": "Maths",
-    "topicKey": "Polynomials",
-    "subtopic": "Division Algorithm",
-    "section": "A",
-    "marks": 1,
-    "format": "MCQ",
-    "difficulty": "Easy",
-    "bloomSkill": "Remembering",
-    "questionText": "The division algorithm for polynomials states: Dividend = Divisor × Quotient + ___",
-    "options": [
-      "Remainder",
-      "Product",
-      "Divisor",
-      "Coefficient"
-    ],
-    "answer": "Remainder",
-    "solutionSteps": [
-      "Division algorithm: f(x) = g(x) × q(x) + r(x)",
-      "where r(x) is the remainder"
-    ],
-    "finalAnswer": "Remainder",
-    "isCompetencyBased": false,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 2.3"
-  },
-  {
+{
     "id": "PL2-007",
     "subject": "Maths",
     "topicKey": "Polynomials",
@@ -193,7 +165,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 2.1, Ex 2.2"
   },
-  {
+{
     "id": "PL2-008",
     "subject": "Maths",
     "topicKey": "Polynomials",
@@ -218,31 +190,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 2.2"
   },
-  {
-    "id": "PL2-009",
-    "subject": "Maths",
-    "topicKey": "Polynomials",
-    "subtopic": "Division Algorithm",
-    "section": "B",
-    "marks": 2,
-    "format": "Short",
-    "difficulty": "Medium",
-    "bloomSkill": "Applying",
-    "questionText": "Divide x² + 3x + 2 by x + 1 and write the result in the form p(x) = g(x) × q(x) + r(x).",
-    "options": [],
-    "answer": "x² + 3x + 2 = (x + 1)(x + 2) + 0",
-    "solutionSteps": [
-      "Using polynomial division or factorization: x² + 3x + 2 = (x+1)(x+2)",
-      "Quotient = x + 2, Remainder = 0",
-      "In the form: (x + 1)(x + 2) + 0"
-    ],
-    "finalAnswer": "x² + 3x + 2 = (x + 1)(x + 2) + 0",
-    "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 2.3"
-  },
-  {
+{
     "id": "PL2-010",
     "subject": "Maths",
     "topicKey": "Polynomials",
@@ -266,7 +214,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 2.1"
   },
-  {
+{
     "id": "PL2-011",
     "subject": "Maths",
     "topicKey": "Polynomials",
@@ -290,7 +238,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 2.2"
   },
-  {
+{
     "id": "PL2-012",
     "subject": "Maths",
     "topicKey": "Polynomials",
@@ -314,30 +262,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 2.1"
   },
-  {
-    "id": "PL2-013",
-    "subject": "Maths",
-    "topicKey": "Polynomials",
-    "subtopic": "Division Algorithm",
-    "section": "B",
-    "marks": 2,
-    "format": "Short",
-    "difficulty": "Medium",
-    "bloomSkill": "Applying",
-    "questionText": "Use the remainder theorem to find the remainder when p(x) = x³ + 1 is divided by x + 1.",
-    "options": [],
-    "answer": "Remainder = 0",
-    "solutionSteps": [
-      "By remainder theorem: remainder = p(-1)",
-      "p(-1) = (-1)³ + 1 = -1 + 1 = 0"
-    ],
-    "finalAnswer": "Remainder = 0",
-    "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 2.3"
-  },
-  {
+{
     "id": "PL2-014",
     "subject": "Maths",
     "topicKey": "Polynomials",
@@ -361,7 +286,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 2.2"
   },
-  {
+{
     "id": "PL2-015",
     "subject": "Maths",
     "topicKey": "Polynomials",
@@ -389,7 +314,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 2.2"
   },
-  {
+{
     "id": "PL2-016",
     "subject": "Maths",
     "topicKey": "Polynomials",
@@ -418,37 +343,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 2.2"
   },
-  {
-    "id": "PL2-017",
-    "subject": "Maths",
-    "topicKey": "Polynomials",
-    "subtopic": "Division Algorithm",
-    "section": "C",
-    "marks": 2,
-    "format": "MCQ",
-    "difficulty": "Hard",
-    "bloomSkill": "Analysing",
-    "questionText": "When p(x) = 2x³ + x² - 5x - 2 is divided by g(x), quotient is 2x - 3 and remainder is 4. Then g(x) =",
-    "options": [
-      "x² + 2x + 1",
-      "x² + 2x - 1",
-      "x² - 2x + 1",
-      "x² - 2x - 1"
-    ],
-    "answer": "x² + 2x + 1",
-    "solutionSteps": [
-      "Using p(x) = g(x) × q(x) + r(x)",
-      "2x³ + x² - 5x - 2 = g(x)(2x - 3) + 4",
-      "2x³ + x² - 5x - 6 = g(x)(2x - 3)",
-      "Dividing: g(x) = x² + 2x + 1"
-    ],
-    "finalAnswer": "x² + 2x + 1",
-    "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 2.3"
-  },
-  {
+{
     "id": "PL2-018",
     "subject": "Maths",
     "topicKey": "Polynomials",
@@ -473,31 +368,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 2.2"
   },
-  {
-    "id": "PL2-019",
-    "subject": "Maths",
-    "topicKey": "Polynomials",
-    "subtopic": "Division Algorithm",
-    "section": "C",
-    "marks": 3,
-    "format": "Short",
-    "difficulty": "Hard",
-    "bloomSkill": "Applying",
-    "questionText": "Divide 3x³ - x² + 5x - 5 by x - 1 and verify using the remainder theorem.",
-    "options": [],
-    "answer": "Quotient = 3x² + 2x + 7, Remainder = 2",
-    "solutionSteps": [
-      "Using polynomial long division",
-      "3x³ - x² + 5x - 5 = (x - 1)(3x² + 2x + 7) + 2",
-      "Verification: p(1) = 3(1)³ - (1)² + 5(1) - 5 = 3 - 1 + 5 - 5 = 2 ✓"
-    ],
-    "finalAnswer": "Quotient = 3x² + 2x + 7, Remainder = 2",
-    "isCompetencyBased": true,
-    "pyqYear": "2023",
-    "pyqSet": undefined,
-    "ncertRef": "Ex 2.3"
-  },
-  {
+{
     "id": "PL2-020",
     "subject": "Maths",
     "topicKey": "Polynomials",
@@ -521,7 +392,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 2.2"
   },
-  {
+{
     "id": "PL2-021",
     "subject": "Maths",
     "topicKey": "Polynomials",
@@ -549,7 +420,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 2.1"
   },
-  {
+{
     "id": "PL2-022",
     "subject": "Maths",
     "topicKey": "Polynomials",
@@ -577,36 +448,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 2.2"
   },
-  {
-    "id": "PL2-023",
-    "subject": "Maths",
-    "topicKey": "Polynomials",
-    "subtopic": "Division Algorithm",
-    "section": "D",
-    "marks": 1,
-    "format": "Assertion-Reasoning",
-    "difficulty": "Easy",
-    "bloomSkill": "Understanding",
-    "questionText": "Assertion (A): The remainder when p(x) is divided by (x - a) is p(a). Reason (R): This is the remainder theorem.",
-    "options": [
-      "Both A and R are true, and R is the correct explanation of A.",
-      "Both A and R are true, but R is not the correct explanation of A.",
-      "A is true, R is false.",
-      "A is false, R is true."
-    ],
-    "answer": "Both A and R are true, and R is the correct explanation of A.",
-    "solutionSteps": [
-      "A is true: Remainder theorem states remainder = p(a)",
-      "R is true: This is indeed the remainder theorem",
-      "R explains A correctly"
-    ],
-    "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
-    "isCompetencyBased": false,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 2.3"
-  },
-  {
+{
     "id": "PL2-024",
     "subject": "Maths",
     "topicKey": "Polynomials",
@@ -635,7 +477,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 2.1"
   },
-  {
+{
     "id": "PL2-025",
     "subject": "Maths",
     "topicKey": "Polynomials",
@@ -664,36 +506,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 2.2"
   },
-  {
-    "id": "PL2-026",
-    "subject": "Maths",
-    "topicKey": "Polynomials",
-    "subtopic": "Division Algorithm",
-    "section": "D",
-    "marks": 1,
-    "format": "Assertion-Reasoning",
-    "difficulty": "Medium",
-    "bloomSkill": "Understanding",
-    "questionText": "Assertion (A): If p(x) = g(x) × q(x) + r(x), then degree of r(x) < degree of g(x). Reason (R): This is the division algorithm for polynomials.",
-    "options": [
-      "Both A and R are true, and R is the correct explanation of A.",
-      "Both A and R are true, but R is not the correct explanation of A.",
-      "A is true, R is false.",
-      "A is false, R is true."
-    ],
-    "answer": "Both A and R are true, and R is the correct explanation of A.",
-    "solutionSteps": [
-      "A is true: In division algorithm, remainder degree < divisor degree",
-      "R is true: This is the division algorithm statement",
-      "R correctly explains A"
-    ],
-    "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
-    "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 2.3"
-  },
-  {
+{
     "id": "PL2-027",
     "subject": "Maths",
     "topicKey": "Polynomials",
@@ -717,7 +530,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 2.1, Ex 2.2"
   },
-  {
+{
     "id": "PL2-028",
     "subject": "Maths",
     "topicKey": "Polynomials",
@@ -741,31 +554,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 2.1, Ex 2.2"
   },
-  {
-    "id": "PL2-029",
-    "subject": "Maths",
-    "topicKey": "Polynomials",
-    "subtopic": "Division Algorithm",
-    "section": "E",
-    "marks": 4,
-    "format": "Case-Based",
-    "difficulty": "Hard",
-    "bloomSkill": "Analysing",
-    "questionText": "A company's profit function is P(x) = x³ - 6x² + 11x - 6, where x is the number of units sold (in hundreds). (i) Show that x - 1, x - 2, and x - 3 are factors. (ii) Find the profit when x = 1, 2, 3. (iii) Write P(x) in factored form using the division algorithm.",
-    "options": [],
-    "answer": "P(x) = (x-1)(x-2)(x-3); Profit = 0 at break-even points",
-    "solutionSteps": [
-      "(i) P(1) = 1 - 6 + 11 - 6 = 0, P(2) = 8 - 24 + 22 - 6 = 0, P(3) = 27 - 54 + 33 - 6 = 0",
-      "(ii) Profit at x = 1, 2, 3 is 0 (break-even points)",
-      "(iii) P(x) = (x-1)(x-2)(x-3)"
-    ],
-    "finalAnswer": "P(x) = (x-1)(x-2)(x-3); Profit = 0 at break-even points",
-    "isCompetencyBased": true,
-    "pyqYear": "2022",
-    "pyqSet": undefined,
-    "ncertRef": "Ex 2.1, Ex 2.3"
-  },
-  {
+{
     "id": "PL2-030",
     "subject": "Maths",
     "topicKey": "Polynomials",
@@ -794,7 +583,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 2.1"
   },
-  {
+{
     "id": "PL2-031",
     "subject": "Maths",
     "topicKey": "Polynomials",
@@ -823,30 +612,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 2.2"
   },
-  {
-    "id": "PL2-032",
-    "subject": "Maths",
-    "topicKey": "Polynomials",
-    "subtopic": "Division Algorithm",
-    "section": "B",
-    "marks": 2,
-    "format": "Short",
-    "difficulty": "Medium",
-    "bloomSkill": "Applying",
-    "questionText": "If p(x) = x³ - 3x² + 4x - 2 is divided by (x - 1), find the remainder using the remainder theorem.",
-    "options": [],
-    "answer": "Remainder = 0",
-    "solutionSteps": [
-      "By remainder theorem: R = p(1)",
-      "p(1) = 1 - 3 + 4 - 2 = 0"
-    ],
-    "finalAnswer": "Remainder = 0",
-    "isCompetencyBased": true,
-    "pyqYear": "2020",
-    "pyqSet": undefined,
-    "ncertRef": "Ex 2.3"
-  },
-  {
+{
     "id": "PL2-033",
     "subject": "Maths",
     "topicKey": "Polynomials",
@@ -870,7 +636,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 2.1"
   },
-  {
+{
     "id": "PL2-034",
     "subject": "Maths",
     "topicKey": "Polynomials",
@@ -893,7 +659,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 2.2"
   },
-  {
+{
     "id": "PL2-035",
     "subject": "Maths",
     "topicKey": "Polynomials",
@@ -922,31 +688,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 2.1"
   },
-  {
-    "id": "PL2-036",
-    "subject": "Maths",
-    "topicKey": "Polynomials",
-    "subtopic": "Division Algorithm",
-    "section": "C",
-    "marks": 3,
-    "format": "Short",
-    "difficulty": "Hard",
-    "bloomSkill": "Evaluating",
-    "questionText": "If x³ - 3x + 5 is divided by x² - 1, find the quotient and remainder.",
-    "options": [],
-    "answer": "Quotient = x, Remainder = -2x + 5",
-    "solutionSteps": [
-      "Using polynomial division:",
-      "x³ - 3x + 5 = (x² - 1) × x + (-2x + 5)",
-      "Quotient = x, Remainder = -2x + 5"
-    ],
-    "finalAnswer": "Quotient = x, Remainder = -2x + 5",
-    "isCompetencyBased": true,
-    "pyqYear": "2023",
-    "pyqSet": undefined,
-    "ncertRef": "Ex 2.3"
-  },
-  {
+{
     "id": "PL2-037",
     "subject": "Maths",
     "topicKey": "Polynomials",
@@ -971,7 +713,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 2.2"
   },
-  {
+{
     "id": "PL2-038",
     "subject": "Maths",
     "topicKey": "Polynomials",
@@ -997,31 +739,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 2.2"
   },
-  {
-    "id": "PL2-039",
-    "subject": "Maths",
-    "topicKey": "Polynomials",
-    "subtopic": "Division Algorithm",
-    "section": "C",
-    "marks": 5,
-    "format": "Long",
-    "difficulty": "Hard",
-    "bloomSkill": "Analysing",
-    "questionText": "Verify the division algorithm for p(x) = x⁴ - 3x² + 2x + 5, g(x) = x² - 1 by finding quotient and remainder, and verify p(x) = g(x) × q(x) + r(x).",
-    "options": [],
-    "answer": "q(x) = x² - 2, r(x) = 2x + 3",
-    "solutionSteps": [
-      "Divide x⁴ - 3x² + 2x + 5 by x² - 1",
-      "x⁴ - 3x² + 2x + 5 = (x² - 1)(x² - 2) + (2x + 3)",
-      "Verification: (x² - 1)(x² - 2) + 2x + 3 = x⁴ - 2x² - x² + 2 + 2x + 3 = x⁴ - 3x² + 2x + 5 ✓"
-    ],
-    "finalAnswer": "q(x) = x² - 2, r(x) = 2x + 3",
-    "isCompetencyBased": true,
-    "pyqYear": "2025",
-    "pyqSet": undefined,
-    "ncertRef": "Ex 2.3"
-  },
-  {
+{
     "id": "PL2-040",
     "subject": "Maths",
     "topicKey": "Polynomials",
@@ -1048,7 +766,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 2.1, Ex 2.2"
   },
-  {
+{
     "id": "PL2-041",
     "subject": "Maths",
     "topicKey": "Polynomials",
@@ -1073,7 +791,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 2.2"
   },
-  {
+{
     "id": "PL2-042",
     "subject": "Maths",
     "topicKey": "Polynomials",
@@ -1097,30 +815,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 2.1"
   },
-  {
-    "id": "PL2-043",
-    "subject": "Maths",
-    "topicKey": "Polynomials",
-    "subtopic": "Division Algorithm",
-    "section": "B",
-    "marks": 2,
-    "format": "Short",
-    "difficulty": "Medium",
-    "bloomSkill": "Applying",
-    "questionText": "Find the remainder when p(x) = x⁴ - x³ + 1 is divided by (x + 1).",
-    "options": [],
-    "answer": "Remainder = 3",
-    "solutionSteps": [
-      "By remainder theorem: R = p(-1)",
-      "p(-1) = (-1)⁴ - (-1)³ + 1 = 1 + 1 + 1 = 3"
-    ],
-    "finalAnswer": "Remainder = 3",
-    "isCompetencyBased": true,
-    "pyqYear": "2022",
-    "pyqSet": undefined,
-    "ncertRef": "Ex 2.3"
-  },
-  {
+{
     "id": "PL2-044",
     "subject": "Maths",
     "topicKey": "Polynomials",
@@ -1148,5 +843,221 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "pyqYear": undefined,
     "pyqSet": undefined,
     "ncertRef": "Ex 2.2"
+  },
+  {
+    "id": "PL2-R01",
+    "subject": "Maths",
+    "topicKey": "Polynomials",
+    "subtopic": "Relationship between Zeroes and Coefficients",
+    "section": "A",
+    "marks": 1,
+    "format": "MCQ",
+    "difficulty": "Easy",
+    "bloomSkill": "Applying",
+    "questionText": "If α and β are zeroes of x² + 5x + 6, then α² + β² =",
+    "options": ["13", "25", "37", "1"],
+    "answer": "13",
+    "solutionSteps": ["α + β = -5, αβ = 6", "α² + β² = (α + β)² - 2αβ = 25 - 12 = 13"],
+    "finalAnswer": "13",
+    "isCompetencyBased": true,
+    "ncertRef": "Ex 2.2"
+  },
+  {
+    "id": "PL2-R02",
+    "subject": "Maths",
+    "topicKey": "Polynomials",
+    "subtopic": "Zeroes of Polynomial",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "Find the zeroes of 4x² - 4x - 3 and verify the relationship between zeroes and coefficients.",
+    "options": [],
+    "answer": "Zeroes: 3/2 and -1/2",
+    "solutionSteps": ["4x² - 4x - 3 = (2x - 3)(2x + 1)", "Zeroes: x = 3/2 and x = -1/2", "Sum = 1 = 4/4 ✓", "Product = -3/4 = -3/4 ✓"],
+    "finalAnswer": "3/2 and -1/2",
+    "isCompetencyBased": true,
+    "ncertRef": "Ex 2.2"
+  },
+  {
+    "id": "PL2-R03",
+    "subject": "Maths",
+    "topicKey": "Polynomials",
+    "subtopic": "Relationship between Zeroes and Coefficients",
+    "section": "A",
+    "marks": 1,
+    "format": "Assertion-Reasoning",
+    "difficulty": "Medium",
+    "bloomSkill": "Analysing",
+    "questionText": "Assertion (A): If α and β are zeroes of p(x) = x² - (p+q)x + pq, then α = p and β = q.\nReason (R): For quadratic ax² + bx + c, sum of zeroes = -b/a and product = c/a.",
+    "options": ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
+    "answer": "Both A and R are true, and R is the correct explanation of A.",
+    "solutionSteps": ["Sum of zeroes = p + q = -(-(p+q))/1 ✓", "Product of zeroes = pq = pq/1 ✓"],
+    "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "isCompetencyBased": true,
+    "ncertRef": "Ex 2.2"
+  },
+  {
+    "id": "PL2-R04",
+    "subject": "Maths",
+    "topicKey": "Polynomials",
+    "subtopic": "Zeroes of Polynomial",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Hard",
+    "bloomSkill": "Applying",
+    "questionText": "Find all zeroes of 2x⁴ - 13x³ + 19x² + 7x - 3 if two of its zeroes are 2 + √3 and 2 - √3.",
+    "options": [],
+    "answer": "Zeroes: 2+√3, 2-√3, 3, -1/2",
+    "solutionSteps": ["(x-(2+√3))(x-(2-√3)) = x² - 4x + 1", "Divide by (x² - 4x + 1) to get quotient 2x² - 5x - 3", "2x² - 5x - 3 = (2x + 1)(x - 3)", "All zeroes: 2+√3, 2-√3, 3, -1/2"],
+    "finalAnswer": "2+√3, 2-√3, 3, -1/2",
+    "isCompetencyBased": true,
+    "ncertRef": "Ex 2.3"
+  },
+  {
+    "id": "PL2-R05",
+    "subject": "Maths",
+    "topicKey": "Polynomials",
+    "subtopic": "Relationship between Zeroes and Coefficients",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "If α and β are the zeroes of 2x² + 5x + k such that α² + β² + αβ = 21/4, find k.",
+    "options": [],
+    "answer": "k = 2",
+    "solutionSteps": ["α + β = -5/2, αβ = k/2", "α² + β² + αβ = (α+β)² - αβ = 25/4 - k/2 = 21/4", "k/2 = 1, so k = 2"],
+    "finalAnswer": "k = 2",
+    "isCompetencyBased": true,
+    "ncertRef": "Ex 2.2"
+  },
+  {
+    "id": "PL2-R06",
+    "subject": "Maths",
+    "topicKey": "Polynomials",
+    "subtopic": "Zeroes of Polynomial",
+    "section": "E",
+    "marks": 4,
+    "format": "Case-Based",
+    "difficulty": "Medium",
+    "bloomSkill": "Analysing",
+    "questionText": "A ball is thrown from a building. Its height (in metres) after t seconds is h(t) = -5t² + 20t + 25.\n(i) Find the zeroes of h(t). (ii) When does the ball hit the ground? (iii) Find the sum of zeroes. (iv) Find the product of zeroes.",
+    "options": [],
+    "answer": "(i) t = 5, -1 (ii) t = 5 s (iii) 4 (iv) -5",
+    "solutionSteps": ["(i) -5t² + 20t + 25 = 0 → t² - 4t - 5 = 0 → (t-5)(t+1) = 0 → t = 5, -1", "(ii) Ball hits at t = 5 s (positive)", "(iii) Sum = -20/(-5) = 4", "(iv) Product = 25/(-5) = -5"],
+    "finalAnswer": "(i) 5 and -1 (ii) 5 s (iii) 4 (iv) -5",
+    "isCompetencyBased": true,
+    "ncertRef": "Ex 2.1"
+  },
+  {
+    "id": "PL2-R07",
+    "subject": "Maths",
+    "topicKey": "Polynomials",
+    "subtopic": "Relationship between Zeroes and Coefficients",
+    "section": "A",
+    "marks": 1,
+    "format": "MCQ",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "If α and β are zeroes of 3x² + 2x - 1, then (1/α) + (1/β) equals:",
+    "options": ["-2", "2", "3", "-3"],
+    "answer": "2",
+    "solutionSteps": ["α + β = -2/3, αβ = -1/3", "1/α + 1/β = (α+β)/(αβ) = (-2/3)/(-1/3) = 2"],
+    "finalAnswer": "2",
+    "isCompetencyBased": true,
+    "ncertRef": "Ex 2.2"
+  },
+  {
+    "id": "PL2-R08",
+    "subject": "Maths",
+    "topicKey": "Polynomials",
+    "subtopic": "Zeroes of Polynomial",
+    "section": "A",
+    "marks": 1,
+    "format": "Assertion-Reasoning",
+    "difficulty": "Easy",
+    "bloomSkill": "Understanding",
+    "questionText": "Assertion (A): x = 2 is a zero of p(x) = x³ - 8.\nReason (R): A number a is a zero of p(x) if p(a) = 0.",
+    "options": ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
+    "answer": "Both A and R are true, and R is the correct explanation of A.",
+    "solutionSteps": ["p(2) = 8 - 8 = 0 ✓"],
+    "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "isCompetencyBased": true,
+    "ncertRef": "Ex 2.1"
+  },
+  {
+    "id": "PL2-R09",
+    "subject": "Maths",
+    "topicKey": "Polynomials",
+    "subtopic": "Relationship between Zeroes and Coefficients",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Hard",
+    "bloomSkill": "Applying",
+    "questionText": "If α and β are zeroes of 6x² - 7x - 3, find (i) 1/α + 1/β and (ii) α³ + β³.",
+    "options": [],
+    "answer": "(i) -7/3, (ii) 721/216",
+    "solutionSteps": ["α + β = 7/6, αβ = -3/6 = -1/2", "(i) 1/α + 1/β = (α+β)/(αβ) = (7/6)/(-1/2) = -7/3", "(ii) α³ + β³ = (α+β)³ - 3αβ(α+β) = (7/6)³ - 3(-1/2)(7/6) = 343/216 + 378/216 = 721/216"],
+    "finalAnswer": "(i) -7/3, (ii) 721/216",
+    "isCompetencyBased": true,
+    "ncertRef": "Ex 2.2"
+  },
+  {
+    "id": "PL2-R10",
+    "subject": "Maths",
+    "topicKey": "Polynomials",
+    "subtopic": "Graph & Type of Polynomial",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Analysing",
+    "questionText": "The graph of a polynomial intersects the x-axis at -3, -1, and 2. Find the polynomial and the sum and product of all its zeroes.",
+    "options": [],
+    "answer": "p(x) = (x+3)(x+1)(x-2); Sum = -2, Product = 6",
+    "solutionSteps": ["Zeroes: -3, -1, 2", "p(x) = (x+3)(x+1)(x-2)", "Sum = -3 + (-1) + 2 = -2", "Product = (-3)(-1)(2) = 6"],
+    "finalAnswer": "Sum = -2, Product = 6",
+    "isCompetencyBased": true,
+    "ncertRef": "Ex 2.1"
+  },
+  {
+    "id": "PL2-R11",
+    "subject": "Maths",
+    "topicKey": "Polynomials",
+    "subtopic": "Zeroes of Polynomial",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Easy",
+    "bloomSkill": "Applying",
+    "questionText": "Find the value of k such that x = -1 is a zero of p(x) = kx² + 3x - 4.",
+    "options": [],
+    "answer": "k = 7",
+    "solutionSteps": ["p(-1) = k(-1)² + 3(-1) - 4 = 0", "k - 3 - 4 = 0", "k = 7"],
+    "finalAnswer": "k = 7",
+    "isCompetencyBased": true,
+    "ncertRef": "Ex 2.1"
+  },
+  {
+    "id": "PL2-R12",
+    "subject": "Maths",
+    "topicKey": "Polynomials",
+    "subtopic": "Relationship between Zeroes and Coefficients",
+    "section": "A",
+    "marks": 1,
+    "format": "MCQ",
+    "difficulty": "Easy",
+    "bloomSkill": "Remembering",
+    "questionText": "For p(x) = ax³ + bx² + cx + d, the product of all three zeroes α, β, γ is:",
+    "options": ["-d/a", "d/a", "-b/a", "c/a"],
+    "answer": "-d/a",
+    "solutionSteps": ["For cubic ax³ + bx² + cx + d: αβγ = -d/a"],
+    "finalAnswer": "-d/a",
+    "isCompetencyBased": false,
+    "ncertRef": "NCERT theory"
   }
 ];

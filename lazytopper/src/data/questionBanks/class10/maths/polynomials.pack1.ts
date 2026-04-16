@@ -1,7 +1,7 @@
 import type { CanonicalQuestion } from "../../../predictionTypes";
 
 export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
-  {
+{
     id: "POLY-E01", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
     section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering",
     questionText: "The zeroes of the polynomial x² − 3 are:",
@@ -10,7 +10,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "±√3",
     isCompetencyBased: false,
   },
-  {
+{
     id: "POLY-E02", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
     section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering",
     questionText: "If α and β are zeroes of x² − 5x + 6, then α + β is:",
@@ -20,7 +20,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "5",
     isCompetencyBased: false,
   },
-  {
+{
     id: "POLY-E03", subject: "Maths", topicKey: "Polynomials", subtopic: "Graph & Type of Polynomial",
     section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding",
     questionText: "The graph of a quadratic polynomial p(x) = ax² + bx + c opens upward when:",
@@ -29,7 +29,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "a > 0",
     isCompetencyBased: false,
   },
-  {
+{
     id: "POLY-E04", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
     section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering",
     questionText: "How many zeroes can a cubic polynomial have at most?",
@@ -38,7 +38,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "3",
     isCompetencyBased: false,
   },
-  {
+{
     id: "POLY-E05", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
     section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering",
     questionText: "If one zero of 2x² − 8x + k is the reciprocal of the other, then k is:",
@@ -48,7 +48,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "2",
     isCompetencyBased: false,
   },
-  {
+{
     id: "POLY-E06", subject: "Maths", topicKey: "Polynomials", subtopic: "Graph & Type of Polynomial",
     section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding",
     questionText: "The number of zeroes of a polynomial is equal to the number of points where the graph:",
@@ -57,7 +57,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "intersects or touches x-axis",
     isCompetencyBased: false,
   },
-  {
+{
     id: "POLY-E07", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
     section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying",
     questionText: "If p(x) = x² − 4x + 3, then p(1) is:",
@@ -67,7 +67,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "0",
     isCompetencyBased: true,
   },
-  {
+{
     id: "POLY-E08", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
     section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering",
     questionText: "If α, β are zeroes of p(x) = ax² + bx + c, then αβ =",
@@ -76,7 +76,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "c/a",
     isCompetencyBased: false,
   },
-  {
+{
     id: "POLY-E09", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
     section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
     questionText: "Find the zeroes of the polynomial p(x) = x² − 2x − 8 and verify the relationship between the zeroes and the coefficients.",
@@ -84,7 +84,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "Zeroes: 4, −2",
     isCompetencyBased: true,
   },
-  {
+{
     id: "POLY-E10", subject: "Maths", topicKey: "Polynomials", subtopic: "Graph & Type of Polynomial",
     section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding",
     questionText: "A polynomial of degree n has at most:",
@@ -93,7 +93,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "n zeroes",
     isCompetencyBased: false,
   },
-  {
+{
     id: "POLY-E11", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
     section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
     questionText: "Find a quadratic polynomial whose zeroes are 3 and −1.",
@@ -101,7 +101,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "x² − 2x − 3",
     isCompetencyBased: true,
   },
-  {
+{
     id: "POLY-E12", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
     section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding",
     questionText: "Assertion (A): The polynomial x² + 1 has no real zeroes.\nReason (R): x² ≥ 0 for all real x, so x² + 1 ≥ 1 > 0.",
@@ -110,7 +110,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
     isCompetencyBased: true,
   },
-  {
+{
     id: "POLY-E13", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
     section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering",
     questionText: "The value of k for which x = 2 is a zero of p(x) = x² − kx + 2 is:",
@@ -120,7 +120,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "3",
     isCompetencyBased: false,
   },
-  {
+{
     id: "POLY-E14", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
     section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying",
     questionText: "If α, β are the zeroes of x² − 7x + 10, then 1/α + 1/β =",
@@ -130,7 +130,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "7/10",
     isCompetencyBased: true,
   },
-  {
+{
     id: "POLY-E15", subject: "Maths", topicKey: "Polynomials", subtopic: "Graph & Type of Polynomial",
     section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding",
     questionText: "The zeroes of a polynomial p(x) are the x-coordinates of the points where the graph of y = p(x) intersects the:",
@@ -139,7 +139,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "x-axis",
     isCompetencyBased: false,
   },
-  {
+{
     id: "POLY-E16", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
     section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
     questionText: "Find the zeroes of p(x) = 4x² − 12x + 9.",
@@ -147,7 +147,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "x = 3/2 (repeated zero)",
     isCompetencyBased: true,
   },
-  {
+{
     id: "POLY-E17", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
     section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering",
     questionText: "For a quadratic polynomial ax² + bx + c, the sum of zeroes is:",
@@ -156,7 +156,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "−b/a",
     isCompetencyBased: false,
   },
-  {
+{
     id: "POLY-E18", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
     section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying",
     questionText: "The zeroes of 6x² − 3 − 7x are:",
@@ -166,7 +166,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "3/2 and −1/3",
     isCompetencyBased: true,
   },
-  {
+{
     id: "POLY-E19", subject: "Maths", topicKey: "Polynomials", subtopic: "Graph & Type of Polynomial",
     section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding",
     questionText: "Assertion (A): A linear polynomial has exactly one zero.\nReason (R): The graph of a linear polynomial is a straight line intersecting the x-axis at exactly one point.",
@@ -175,7 +175,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
     isCompetencyBased: true,
   },
-  {
+{
     id: "POLY-E20", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
     section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
     questionText: "Find a quadratic polynomial with zeroes 1/4 and −1.",
@@ -183,7 +183,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "4x² + 3x − 1",
     isCompetencyBased: true,
   },
-  {
+{
     id: "POLY-M01", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
     section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "If α, β are zeroes of p(x) = 2x² − 5x + 7, find the value of α² + β².",
@@ -191,7 +191,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "−3/4",
     isCompetencyBased: true,
   },
-  {
+{
     id: "POLY-M02", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
     section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Find a quadratic polynomial, the sum and product of whose zeroes are −3 and 2 respectively.",
@@ -199,7 +199,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "x² + 3x + 2",
     isCompetencyBased: true,
   },
-  {
+{
     id: "POLY-M03", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
     section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "If α, β are zeroes of 3x² + 2x − 6, find the value of (i) α/β + β/α (ii) α³ + β³.",
@@ -211,7 +211,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "(i) −20/9, (ii) −116/27",
     isCompetencyBased: true,
   },
-  {
+{
     id: "POLY-M04", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
     section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Find all the zeroes of 2x⁴ − 3x³ − 3x² + 6x − 2, if you know that two of its zeroes are √2 and −√2.",
@@ -224,7 +224,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "√2, −√2, 1/2, 1",
     isCompetencyBased: true,
   },
-  {
+{
     id: "POLY-M05", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
     section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "Assertion (A): If one zero of p(x) = 4x² − 8kx − 9 is the negative of the other, then k = 0.\nReason (R): Sum of zeroes = −b/a.",
@@ -234,7 +234,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
     isCompetencyBased: true,
   },
-  {
+{
     id: "POLY-M06", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
     section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Obtain all zeroes of f(x) = x³ − 6x² + 11x − 6, if x = 1 is a zero.",
@@ -247,7 +247,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "1, 2, 3",
     isCompetencyBased: true,
   },
-  {
+{
     id: "POLY-M07", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
     section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "If the zeroes of the polynomial x² + px + q are double in value to the zeroes of 2x² − 5x − 3, find the values of p and q.",
@@ -261,7 +261,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "p = −5, q = −6",
     isCompetencyBased: true,
   },
-  {
+{
     id: "POLY-M08", subject: "Maths", topicKey: "Polynomials", subtopic: "Graph & Type of Polynomial",
     section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "If the graph of a quadratic polynomial p(x) touches the x-axis at exactly one point, then p(x) has:",
@@ -270,7 +270,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "two equal real zeroes",
     isCompetencyBased: false,
   },
-  {
+{
     id: "POLY-M09", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
     section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Find a quadratic polynomial whose zeroes are 5 − 3√2 and 5 + 3√2.",
@@ -278,7 +278,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "x² − 10x + 7",
     isCompetencyBased: true,
   },
-  {
+{
     id: "POLY-M10", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
     section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "If α, β are zeroes of x² − x − 2, form a polynomial whose zeroes are (2α + 1) and (2β + 1).",
@@ -291,7 +291,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "x² − 4x − 5",
     isCompetencyBased: true,
   },
-  {
+{
     id: "POLY-M11", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
     section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "A parabolic arch is modelled by the polynomial p(x) = −x² + 4x − 3. The x-axis represents the ground.\n(i) Find the zeroes of p(x).\n(ii) What is the maximum height of the arch?\n(iii) At what value of x does the arch reach its maximum height?\n(iv) Does the parabola open upward or downward?",
@@ -304,7 +304,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "(i) 1, 3 (ii) 1 (iii) x = 2 (iv) Downward",
     isCompetencyBased: true,
   },
-  {
+{
     id: "POLY-M12", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
     section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "If α, β are zeroes of x² − 6x + k and 3α + 2β = 20, then k =",
@@ -314,20 +314,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "−16",
     isCompetencyBased: true,
   },
-  {
-    id: "POLY-M13", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
-    section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "If the polynomial f(x) = x⁴ − 6x³ + 16x² − 25x + 10 is divided by x² − 2x + k, the remainder is (x + a). Find k and a.",
-    solutionSteps: [
-      "Perform polynomial division of f(x) by (x² − 2x + k)",
-      "Quotient = x² − 4x + (8 − k), Remainder = (2k − 9)x + (10 − k(8−k))",
-      "Set remainder = x + a: 2k − 9 = 1 ⟹ k = 5",
-      "a = 10 − 5(8−5) = 10 − 15 = −5"
-    ],
-    finalAnswer: "k = 5, a = −5",
-    isCompetencyBased: true,
-  },
-  {
+{
     id: "POLY-M14", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
     section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "Assertion (A): A quadratic polynomial whose zeroes are −3 and 4 is x² − x − 12.\nReason (R): If α, β are zeroes, the polynomial is x² − (α+β)x + αβ.",
@@ -336,7 +323,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
     isCompetencyBased: true,
   },
-  {
+{
     id: "POLY-M15", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
     section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Find the zeroes of p(x) = 3x² − x − 4 and verify the relation between zeroes and coefficients.",
@@ -344,7 +331,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "4/3 and −1",
     isCompetencyBased: true,
   },
-  {
+{
     id: "POLY-M16", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
     section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "If α, β are zeroes of p(x) = 6x² + x − 2, find the value of α/β + β/α + 2(1/α + 1/β) + 3αβ.",
@@ -357,7 +344,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "−25/12",
     isCompetencyBased: true,
   },
-  {
+{
     id: "POLY-M17", subject: "Maths", topicKey: "Polynomials", subtopic: "Graph & Type of Polynomial",
     section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "The graph of a polynomial p(x) passes through points (−2, 0), (0, −8), (2, 0) and (4, 24).\n(i) How many zeroes does p(x) have? Name them.\n(ii) What is the value of p(0)?\n(iii) Is the polynomial linear, quadratic or cubic?\n(iv) Write a possible expression for p(x).",
@@ -370,7 +357,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "(i) 2 zeroes: −2, 2 (ii) −8 (iii) Quadratic (iv) p(x) = 2x² − 8",
     isCompetencyBased: true,
   },
-  {
+{
     id: "POLY-M18", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
     section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "For what value of k, is −2 a zero of the polynomial 3x² + 4x + 2k?",
@@ -378,7 +365,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "k = −2",
     isCompetencyBased: true,
   },
-  {
+{
     id: "POLY-M19", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
     section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "If α, β are zeroes of x² − (k + 6)x + 2(2k − 1), and α + β = αβ/2, find the value of k.",
@@ -386,7 +373,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "k = 7",
     isCompetencyBased: true,
   },
-  {
+{
     id: "POLY-M20", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
     section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "If α, β are zeroes of x² − 4x + 3, then (α − β)² =",
@@ -396,7 +383,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "4",
     isCompetencyBased: true,
   },
-  {
+{
     id: "POLY-H01", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
     section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Obtain all zeroes of 3x⁴ + 6x³ − 2x² − 10x − 5, if two of its zeroes are √(5/3) and −√(5/3).",
@@ -409,7 +396,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "√(5/3), −√(5/3), −1 (repeated)",
     isCompetencyBased: true,
   },
-  {
+{
     id: "POLY-H02", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
     section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing",
     questionText: "If α, β, γ are zeroes of the polynomial p(x) = x³ − 12x² + 44x + c, and α + β + γ = 12, αβ + βγ + γα = 44, find c if the zeroes are in AP.",
@@ -424,7 +411,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "c = −48",
     isCompetencyBased: true,
   },
-  {
+{
     id: "POLY-H03", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
     section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Find all zeroes of p(x) = 2x⁴ − 9x³ + 5x² + 3x − 1, if two of its zeroes are (2 + √3) and (2 − √3).",
@@ -438,7 +425,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "2+√3, 2−√3, 1, −1/2",
     isCompetencyBased: true,
   },
-  {
+{
     id: "POLY-H04", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
     section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing",
     questionText: "If α, β are zeroes of ax² + bx + c, form the quadratic whose zeroes are 1/(α+1) and 1/(β+1).",
@@ -453,7 +440,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "(a−b+c)x² − (2a−b)x + a",
     isCompetencyBased: true,
   },
-  {
+{
     id: "POLY-H05", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
     section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "If x³ + ax² + bx + 6 has (x − 2) as a factor and leaves remainder 3 when divided by (x − 3), find a and b.",
@@ -466,7 +453,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "a = −3, b = −1",
     isCompetencyBased: true,
   },
-  {
+{
     id: "POLY-H06", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
     section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing",
     questionText: "If α, β are zeroes of x² − p(x + 1) − c, show that (α + 1)(β + 1) = 1 − c.",
@@ -477,21 +464,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "(α+1)(β+1) = 1 − c",
     isCompetencyBased: true,
   },
-  {
-    id: "POLY-H07", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
-    section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
-    questionText: "If the polynomial x⁴ − 6x³ + 16x² − 25x + 10 is divided by another polynomial x² − 2x + k, the remainder comes out to be (x + a). Find k and a.",
-    solutionSteps: [
-      "Divide x⁴ − 6x³ + 16x² − 25x + 10 by x² − 2x + k",
-      "Quotient = x² − 4x + (8−k)",
-      "Remainder = (2k − 9)x + (10 + k² − 8k)",
-      "Given remainder = x + a: coefficient of x: 2k − 9 = 1 ⟹ k = 5",
-      "Constant: a = 10 + 25 − 40 = −5"
-    ],
-    finalAnswer: "k = 5, a = −5",
-    isCompetencyBased: true,
-  },
-  {
+{
     id: "POLY-H08", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
     section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing",
     questionText: "If α, β are zeroes of p(x) = x² − 2x + 3 with α > β, find the value of (α² − β²)/(α − β).",
@@ -501,7 +474,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "2",
     isCompetencyBased: true,
   },
-  {
+{
     id: "POLY-H09", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
     section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "On dividing x³ − 3x² + x + 2 by a polynomial g(x), the quotient and remainder were (x − 2) and (−2x + 4) respectively. Find g(x).",
@@ -515,7 +488,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "g(x) = x² − x + 1",
     isCompetencyBased: true,
   },
-  {
+{
     id: "POLY-H10", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
     section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Analysing",
     questionText: "A rectangular garden has area given by A(x) = 6x² + x − 2 square units.\n(i) Find the dimensions (as linear factors) of the garden.\n(ii) If x = 3, find the actual dimensions.\n(iii) Find the zeroes of A(x).\n(iv) For what values of x is the area positive?",
@@ -528,7 +501,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "(i) (2x−1)(3x+2), (ii) 5×11=55, (iii) 1/2, −2/3, (iv) x > 1/2",
     isCompetencyBased: true,
   },
-  {
+{
     id: "POLY-H11", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
     section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Find a cubic polynomial with zeroes 3, 1/2 and −1.",
@@ -540,7 +513,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "2x³ − 5x² − 4x + 3",
     isCompetencyBased: true,
   },
-  {
+{
     id: "POLY-H12", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
     section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing",
     questionText: "If the zeroes of the polynomial f(x) = 2x³ − 15x² + 37x − 30 are in AP, find them.",
@@ -556,7 +529,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "2, 5/2, 3",
     isCompetencyBased: true,
   },
-  {
+{
     id: "POLY-H13", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
     section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Evaluating",
     questionText: "If α, β are zeroes of 2x² − 5x + 4, find the value of α² + β².",
@@ -568,7 +541,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "α² + β² = 9/4",
     isCompetencyBased: true,
   },
-  {
+{
     id: "POLY-H14", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
     section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Find a polynomial of degree 4 whose zeroes are 1, −1, 2 and −2.",
@@ -578,7 +551,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "x⁴ − 5x² + 4",
     isCompetencyBased: true,
   },
-  {
+{
     id: "POLY-H15", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
     section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing",
     questionText: "If α, β are zeroes of p(x) = 2x² + 5x + k, such that α² + β² + αβ = 21/4, find k. Also find the zeroes.",
@@ -593,5 +566,31 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "k = 2; zeroes are −1/2 and −2",
     isCompetencyBased: true,
   },
-  { id: "POLY-AR05", subject: "Maths", topicKey: "Polynomials", subtopic: "Relationship between Zeroes and Coefficients", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): A quadratic polynomial can have at most 2 zeroes.\nReason (R): The degree of a polynomial determines the maximum number of zeroes it can have.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.", isCompetencyBased: true },
+{ id: "POLY-AR05", subject: "Maths", topicKey: "Polynomials", subtopic: "Relationship between Zeroes and Coefficients", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): A quadratic polynomial can have at most 2 zeroes.\nReason (R): The degree of a polynomial determines the maximum number of zeroes it can have.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.", isCompetencyBased: true }  ,
+  {
+    id: "POLY-M13-R", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
+    section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
+    questionText: "Find all the zeroes of 2x³ + x² − 6x − 3 if two of its zeroes are √3 and −√3.",
+    solutionSteps: [
+      "Since √3 and −√3 are zeroes, (x − √3)(x + √3) = x² − 3 is a factor.",
+      "Divide 2x³ + x² − 6x − 3 by x² − 3: quotient = 2x + 1",
+      "Third zero: 2x + 1 = 0 ⟹ x = −1/2",
+      "All zeroes: √3, −√3, −1/2"
+    ],
+    finalAnswer: "√3, −√3, −1/2",
+    isCompetencyBased: true,
+  },
+  {
+    id: "POLY-H07-R", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
+    section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
+    questionText: "If α and β are the zeroes of the quadratic polynomial f(x) = ax² + bx + c, prove that: (α/β) + (β/α) = (b² − 2ac)/ac.",
+    solutionSteps: [
+      "α + β = −b/a, αβ = c/a",
+      "α/β + β/α = (α² + β²)/(αβ)",
+      "α² + β² = (α + β)² − 2αβ = b²/a² − 2c/a = (b² − 2ac)/a²",
+      "So (α² + β²)/(αβ) = [(b² − 2ac)/a²] / (c/a) = (b² − 2ac)/(ac)",
+    ],
+    finalAnswer: "Proved: (α/β) + (β/α) = (b² − 2ac)/ac",
+    isCompetencyBased: true,
+  }
 ];

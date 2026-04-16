@@ -181,9 +181,8 @@ export const class10MathTopicTrends = {
       summary:
         "Standard solids + combination problems + unit conversions—often one medium/long calculation.",
       conceptWeightage: {
-        "Cylinder/Cone/Sphere": 60,
-        "Combination/Transformation": 30,
-        "Frustum": 10,
+        "Cylinder/Cone/Sphere": 65,
+        "Combination/Transformation": 35,
       },
     },
 
@@ -191,12 +190,11 @@ export const class10MathTopicTrends = {
       weightagePercent: 8.97,
       tier: "high-roi" as TopicTier,
       summary:
-        "Grouped data mean/median/mode + ogive interpretation—high-frequency, scoring chapter.",
+        "Grouped data mean/median/mode—high-frequency, scoring chapter.",
       conceptWeightage: {
-        "Mean (Step Deviation)": 35,
-        "Median of Grouped Data": 30,
+        "Mean (Step Deviation)": 40,
+        "Median of Grouped Data": 35,
         "Mode of Grouped Data": 25,
-        "Graph/Ogive": 10,
       },
     },
 

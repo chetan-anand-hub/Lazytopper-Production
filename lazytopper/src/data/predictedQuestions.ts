@@ -245,7 +245,7 @@ const predictedQuestionsBase: PredictedQuestion[] = [
       "Identify x and y as numerator and denominator.",
     ],
     strategyHint:
-      "Translate the fraction condition into an equation using cross-multiplication.",
+      "Translate the fraction condition into two equations and solve by substitution or elimination.",
     pastBoardYear: "2020",
     policyTag: "Classic 4–5 mark linear word problem",
   },
@@ -1124,20 +1124,20 @@ const predictedQuestionsBase: PredictedQuestion[] = [
   {
     id: "2026-SAV-SA-02",
     topicKey: "Surface Areas and Volumes",
-    subtopic: "Frustum/Combination",
+    subtopic: "Combination/Transformation",
     kind: "Short",
     section: "C",
     marks: 3,
     difficulty: "Medium",
     bloomSkill: "Applying",
     questionText:
-      "A bucket is in the shape of a frustum of a cone with top radius 14 cm, bottom radius 7 cm and height 20 cm. Find its volume. (Use π = 22/7.)",
+      "A hemispherical tank is made up of an iron sheet 1 cm thick. If the inner radius is 1 m, then find the volume of the iron used to make the tank. (Use π = 22/7.)",
     answer:
-      "Volume = (1/3)πh(R²+Rr+r²) = (1/3)·(22/7)·20·(196+98+49) = (20·22/21)·343 ≈ 7,180 cm³.",
+      "Outer radius = 1.01 m. Volume = (2/3)π(1.01³ − 1³) = (2/3)·(22/7)·0.030301 ≈ 0.06348 m³.",
     explanation:
-      "Apply frustum volume formula with R=14, r=7, h=20.",
+      "Volume of hollow hemisphere = (2/3)π(R³ − r³) where R = outer radius and r = inner radius.",
     pastBoardYear: "2024",
-    policyTag: "Frustum formula application",
+    policyTag: "Hollow hemisphere volume",
   },
 
   // ===== MORE: STATISTICS =====
@@ -1397,19 +1397,19 @@ const predictedQuestionsBase: PredictedQuestion[] = [
   {
     id: "2026-STAT-SA-04",
     topicKey: "Statistics",
-    subtopic: "Ogive interpretation (qualitative)",
+    subtopic: "Mode of Grouped Data",
     kind: "Short",
     section: "B",
     marks: 2,
     difficulty: "Medium",
-    bloomSkill: "Understanding",
+    bloomSkill: "Applying",
     questionText:
-      "A ‘less than’ ogive for marks of 100 students shows that 60 students scored below 40. Interpret the median approximately from the graph if the curve crosses 50 on the cumulative axis at 42 marks.",
+      "Find the mode of the following data:\nClass: 10–20, 20–30, 30–40, 40–50, 50–60\nFrequency: 5, 9, 15, 10, 6",
     answer:
-      "Median ≈ 42 marks.",
+      "Modal class: 30–40. Mode = 30 + [(15−9)/(30−9−10)] × 10 ≈ 35.45.",
     explanation:
-      "Median corresponds to N/2 on cumulative frequency; read x-value.",
-    policyTag: "Ogive reading",
+      "Identify modal class (highest frequency), then apply mode formula: l + [(f₁−f₀)/(2f₁−f₀−f₂)]×h.",
+    policyTag: "Mode grouped data",
   },
 
   // ===== PROBABILITY (Richer) =====
@@ -1708,19 +1708,19 @@ const predictedQuestionsBase: PredictedQuestion[] = [
   {
     id: "2026-SAV-CASE-05",
     topicKey: "Surface Areas and Volumes",
-    subtopic: "Frustum/real-life",
+    subtopic: "Combination/Transformation",
     kind: "Case-Based",
     section: "E",
     marks: 4,
     difficulty: "Medium",
     bloomSkill: "Analysing",
     questionText:
-      "A bucket is in the shape of a frustum of a cone with top radius 14 cm, bottom radius 7 cm, and height 20 cm. (i) Find its curved surface area. (ii) If filled with water, find the volume of water it can hold. (Use π=22/7.)",
+      "A wooden toy is made by joining a hemisphere of radius 3.5 cm on top of a cylinder of radius 3.5 cm and height 10 cm. (i) Find the total height of the toy. (ii) Find the curved surface area of the cylindrical part. (iii) Find the surface area of the hemispherical part. (iv) Find the total volume. (Use π = 22/7.)",
     answer:
-      "(i) l=√(h²+(R−r)²)=√(400+49)=√449. CSA=π(R+r)l. (ii) Volume=(1/3)πh(R²+Rr+r²). Substitute values to compute.",
+      "(i) 13.5 cm. (ii) CSA cylinder = 2πrh = 220 cm². (iii) CSA hemisphere = 2πr² = 77 cm². (iv) V = πr²h + (2/3)πr³ = 385 + 179.67 ≈ 564.67 cm³.",
     explanation:
-      "Use frustum formulae for CSA and volume with given R,r,h.",
-    policyTag: "Frustum board-pattern",
+      "Cylinder + Hemisphere combination. TSA excludes the joining circle.",
+    policyTag: "Combination solid (cylinder + hemisphere)",
   },
 
   // ===== STATISTICS (grouped median/mode) =====
@@ -2519,28 +2519,6 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
     answer: "x + 1",
     explanation:
       "Substitute x = −1: (−1)³ + (−1)² − 4(−1) − 4 = −1 + 1 + 4 − 4 = 0, so x + 1 is a factor by the Factor Theorem.",
-  },
-  {
-    id: "2026-POLY-SA-07",
-    topicKey: "Polynomials",
-    subtopic: "Zeros & Factorisation",
-    kind: "Short",
-    section: "C",
-    marks: 3,
-    difficulty: "Medium",
-    bloomSkill: "Applying",
-    questionText:
-      "Divide the polynomial p(x) = x⁴ − 5x³ + 7x − 3 by x² − 2 and find the quotient and remainder.",
-    answer: "Quotient = x² − 5x + 2; Remainder = 1 − 3x.",
-    explanation:
-      "Perform polynomial long division. After dividing term by term, the quotient is x² − 5x + 2 and the remainder is 1 − 3x.",
-    solutionSteps: [
-      "Arrange p(x) and the divisor in descending powers.",
-      "Divide the highest degree term and subtract repeatedly.",
-      "Stop when the degree of the remainder is less than that of the divisor.",
-    ],
-    strategyHint:
-      "Align like terms carefully during polynomial division.",
   },
   {
     id: "2026-POLY-CASE-08",

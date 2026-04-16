@@ -1,7 +1,7 @@
 import type { CanonicalQuestion } from "../../../predictionTypes";
 
 export const ST2_PACK2: CanonicalQuestion[] = [
-  {
+{
     "id": "ST2-001",
     "subject": "Maths",
     "topicKey": "Statistics",
@@ -29,7 +29,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 14.1"
   },
-  {
+{
     "id": "ST2-002",
     "subject": "Maths",
     "topicKey": "Statistics",
@@ -57,7 +57,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 14.1"
   },
-  {
+{
     "id": "ST2-003",
     "subject": "Maths",
     "topicKey": "Statistics",
@@ -83,7 +83,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 14.1"
   },
-  {
+{
     "id": "ST2-004",
     "subject": "Maths",
     "topicKey": "Statistics",
@@ -112,7 +112,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 14.2"
   },
-  {
+{
     "id": "ST2-005",
     "subject": "Maths",
     "topicKey": "Statistics",
@@ -140,7 +140,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 14.2"
   },
-  {
+{
     "id": "ST2-006",
     "subject": "Maths",
     "topicKey": "Statistics",
@@ -166,7 +166,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 14.2"
   },
-  {
+{
     "id": "ST2-007",
     "subject": "Maths",
     "topicKey": "Statistics",
@@ -194,7 +194,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 14.3"
   },
-  {
+{
     "id": "ST2-008",
     "subject": "Maths",
     "topicKey": "Statistics",
@@ -222,7 +222,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 14.3"
   },
-  {
+{
     "id": "ST2-009",
     "subject": "Maths",
     "topicKey": "Statistics",
@@ -247,90 +247,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 14.3"
   },
-  {
-    "id": "ST2-010",
-    "subject": "Maths",
-    "topicKey": "Statistics",
-    "subtopic": "Ogive",
-    "section": "A",
-    "marks": 1,
-    "format": "MCQ",
-    "difficulty": "Easy",
-    "bloomSkill": "Remembering",
-    "questionText": "An ogive is a graph used to find:",
-    "options": [
-      "Median graphically",
-      "Mode graphically",
-      "Mean graphically",
-      "Range"
-    ],
-    "answer": "Median graphically",
-    "solutionSteps": [
-      "Ogive is the cumulative frequency curve",
-      "It is used to find the median and quartiles graphically"
-    ],
-    "finalAnswer": "Median graphically",
-    "isCompetencyBased": false,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 14.4"
-  },
-  {
-    "id": "ST2-011",
-    "subject": "Maths",
-    "topicKey": "Statistics",
-    "subtopic": "Ogive",
-    "section": "A",
-    "marks": 1,
-    "format": "MCQ",
-    "difficulty": "Easy",
-    "bloomSkill": "Understanding",
-    "questionText": "Which type of ogive shows cumulative frequency on the y-axis?",
-    "options": [
-      "Less than ogive",
-      "Greater than ogive",
-      "Both (a) and (b)",
-      "Neither (a) nor (b)"
-    ],
-    "answer": "Both (a) and (b)",
-    "solutionSteps": [
-      "Less than ogive: cumulative frequencies from start to each class",
-      "Greater than ogive: cumulative frequencies from each class to end",
-      "Both show cumulative frequency on y-axis"
-    ],
-    "finalAnswer": "Both (a) and (b)",
-    "isCompetencyBased": false,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 14.4"
-  },
-  {
-    "id": "ST2-012",
-    "subject": "Maths",
-    "topicKey": "Statistics",
-    "subtopic": "Ogive",
-    "section": "B",
-    "marks": 2,
-    "format": "Short",
-    "difficulty": "Medium",
-    "bloomSkill": "Applying",
-    "questionText": "Draw a less than ogive for:\n\nClass: 0-10, 10-20, 20-30, 30-40\nFrequency: 3, 8, 5, 4\n\nFind median graphically.",
-    "options": [],
-    "answer": "Median ≈ 18-19",
-    "solutionSteps": [
-      "Cumulative frequencies: 3, 11, 16, 20",
-      "Plot points: (10,3), (20,11), (30,16), (40,20)",
-      "n = 20, n/2 = 10",
-      "Mark point at CF = 10 on y-axis, draw horizontal to curve, then vertical to x-axis",
-      "Median ≈ 18-19"
-    ],
-    "finalAnswer": "Median ≈ 18-19",
-    "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 14.4"
-  },
-  {
+{
     "id": "ST2-013",
     "subject": "Maths",
     "topicKey": "Statistics",
@@ -359,7 +276,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 14.1"
   },
-  {
+{
     "id": "ST2-014",
     "subject": "Maths",
     "topicKey": "Statistics",
@@ -388,7 +305,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 14.2"
   },
-  {
+{
     "id": "ST2-015",
     "subject": "Maths",
     "topicKey": "Statistics",
@@ -417,7 +334,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "pyqSet": "A",
     "ncertRef": "Ex 14.1"
   },
-  {
+{
     "id": "ST2-016",
     "subject": "Maths",
     "topicKey": "Statistics",
@@ -446,7 +363,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 14.3"
   },
-  {
+{
     "id": "ST2-017",
     "subject": "Maths",
     "topicKey": "Statistics",
@@ -475,36 +392,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "pyqSet": "B",
     "ncertRef": "Ex 14.2"
   },
-  {
-    "id": "ST2-018",
-    "subject": "Maths",
-    "topicKey": "Statistics",
-    "subtopic": "Ogive",
-    "section": "B",
-    "marks": 1,
-    "format": "Assertion-Reasoning",
-    "difficulty": "Medium",
-    "bloomSkill": "Analysing",
-    "questionText": "Assertion (A): Less than ogive and greater than ogive intersect at a point.\nReason (R): Both ogives use cumulative frequency on the y-axis.",
-    "options": [
-      "Both A and R are true, and R is the correct explanation of A.",
-      "Both A and R are true, but R is not the correct explanation of A.",
-      "A is true, R is false.",
-      "A is false, R is true."
-    ],
-    "answer": "Both A and R are true, but R is not the correct explanation of A.",
-    "solutionSteps": [
-      "Assertion: Both ogives intersect at the point corresponding to median - TRUE",
-      "Reason: Both use CF on y-axis - TRUE",
-      "But R doesn't explain why they intersect (intersection point is at median)"
-    ],
-    "finalAnswer": "Both A and R are true, but R is not the correct explanation of A.",
-    "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 14.4"
-  },
-  {
+{
     "id": "ST2-019",
     "subject": "Maths",
     "topicKey": "Statistics",
@@ -535,7 +423,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "pyqSet": "A",
     "ncertRef": "Ex 14.1"
   },
-  {
+{
     "id": "ST2-020",
     "subject": "Maths",
     "topicKey": "Statistics",
@@ -566,7 +454,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "pyqSet": "C",
     "ncertRef": "Ex 14.2, Ex 14.3"
   },
-  {
+{
     "id": "ST2-021",
     "subject": "Maths",
     "topicKey": "Statistics",
@@ -606,35 +494,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "pyqSet": "A",
     "ncertRef": "Ex 14.1, Ex 14.2, Ex 14.3"
   },
-  {
-    "id": "ST2-022",
-    "subject": "Maths",
-    "topicKey": "Statistics",
-    "subtopic": "Ogive and Quartiles",
-    "section": "C",
-    "marks": 3,
-    "format": "Short",
-    "difficulty": "Hard",
-    "bloomSkill": "Evaluating",
-    "questionText": "From the less than ogive of a frequency distribution with 60 observations, the cumulative frequencies at class boundaries 0, 10, 20, 30, 40 are 0, 8, 22, 40, 54 respectively, and at 50 is 60.\n\nFind Q₁ (first quartile) and Q₃ (third quartile).",
-    "options": [],
-    "answer": "Q₁ ≈ 15; Q₃ ≈ 35",
-    "solutionSteps": [
-      "Total observations = 60",
-      "Q₁ position = n/4 = 15",
-      "Q₃ position = 3n/4 = 45",
-      "For Q₁ (CF = 15): Class 10-20 (CF changes from 8 to 22)",
-      "Q₁ = 10 + ((15-8)/(22-8)) × 10 = 10 + (7/14) × 10 = 10 + 5 = 15",
-      "For Q₃ (CF = 45): Class 30-40 (CF changes from 40 to 54)",
-      "Q₃ = 30 + ((45-40)/(54-40)) × 10 = 30 + (5/14) × 10 = 30 + 3.57 = 33.57 ≈ 35"
-    ],
-    "finalAnswer": "Q₁ ≈ 15; Q₃ ≈ 35",
-    "isCompetencyBased": true,
-    "pyqYear": "2020",
-    "pyqSet": "B",
-    "ncertRef": "Ex 14.4"
-  },
-  {
+{
     "id": "ST2-023",
     "subject": "Maths",
     "topicKey": "Statistics",
@@ -663,7 +523,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 14.1"
   },
-  {
+{
     "id": "ST2-024",
     "subject": "Maths",
     "topicKey": "Statistics",
@@ -693,7 +553,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 14.1"
   },
-  {
+{
     "id": "ST2-025",
     "subject": "Maths",
     "topicKey": "Statistics",
@@ -723,7 +583,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 14.1"
   },
-  {
+{
     "id": "ST2-026",
     "subject": "Maths",
     "topicKey": "Statistics",
@@ -751,7 +611,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 14.1"
   },
-  {
+{
     "id": "ST2-027",
     "subject": "Maths",
     "topicKey": "Statistics",
@@ -781,7 +641,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 14.2"
   },
-  {
+{
     "id": "ST2-028",
     "subject": "Maths",
     "topicKey": "Statistics",
@@ -813,7 +673,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 14.2"
   },
-  {
+{
     "id": "ST2-029",
     "subject": "Maths",
     "topicKey": "Statistics",
@@ -841,7 +701,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 14.2"
   },
-  {
+{
     "id": "ST2-030",
     "subject": "Maths",
     "topicKey": "Statistics",
@@ -870,7 +730,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 14.3"
   },
-  {
+{
     "id": "ST2-031",
     "subject": "Maths",
     "topicKey": "Statistics",
@@ -901,7 +761,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 14.3"
   },
-  {
+{
     "id": "ST2-032",
     "subject": "Maths",
     "topicKey": "Statistics",
@@ -926,92 +786,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 14.3"
   },
-  {
-    "id": "ST2-033",
-    "subject": "Maths",
-    "topicKey": "Statistics",
-    "subtopic": "Ogive",
-    "section": "A",
-    "marks": 1,
-    "format": "MCQ",
-    "difficulty": "Easy",
-    "bloomSkill": "Remembering",
-    "questionText": "An ogive is a graphical representation of:",
-    "options": [
-      "Frequency distribution",
-      "Cumulative frequency distribution",
-      "Class intervals",
-      "Class frequencies"
-    ],
-    "answer": "Cumulative frequency distribution",
-    "solutionSteps": [
-      "An ogive is a smooth curve drawn on a graph",
-      "It represents the cumulative frequency distribution",
-      "Points plotted are (class upper limit, cumulative frequency)",
-      "It helps in finding median graphically"
-    ],
-    "finalAnswer": "Cumulative frequency distribution",
-    "isCompetencyBased": false,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 14.4"
-  },
-  {
-    "id": "ST2-034",
-    "subject": "Maths",
-    "topicKey": "Statistics",
-    "subtopic": "Ogive",
-    "section": "B",
-    "marks": 2,
-    "format": "MCQ",
-    "difficulty": "Medium",
-    "bloomSkill": "Understanding",
-    "questionText": "For a 'less than' ogive, the points are plotted at:",
-    "options": [
-      "(Lower limit, Cumulative frequency)",
-      "(Upper limit, Cumulative frequency)",
-      "(Midpoint, Cumulative frequency)",
-      "(Class width, Frequency)"
-    ],
-    "answer": "(Upper limit, Cumulative frequency)",
-    "solutionSteps": [
-      "A 'less than' ogive shows values less than or equal to upper limits",
-      "Points are plotted with x-coordinate = upper class limit",
-      "Points are plotted with y-coordinate = cumulative frequency",
-      "These points are then joined by a smooth curve"
-    ],
-    "finalAnswer": "(Upper limit, Cumulative frequency)",
-    "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 14.4"
-  },
-  {
-    "id": "ST2-035",
-    "subject": "Maths",
-    "topicKey": "Statistics",
-    "subtopic": "Ogive",
-    "section": "B",
-    "marks": 2,
-    "format": "Short",
-    "difficulty": "Medium",
-    "bloomSkill": "Applying",
-    "questionText": "From a 'less than' ogive, if the cumulative frequency reaches 50 at the point (35, 50), what does this tell us?",
-    "options": [],
-    "answer": "50 observations have values less than or equal to 35",
-    "solutionSteps": [
-      "A 'less than' ogive shows cumulative frequency distribution",
-      "Point (35, 50) means at upper limit 35, cumulative frequency is 50",
-      "This indicates 50 observations have values ≤ 35",
-      "Or, 50 observations lie below or at class boundary 35"
-    ],
-    "finalAnswer": "50 observations have values less than or equal to 35",
-    "isCompetencyBased": true,
-    "pyqYear": "2021",
-    "pyqSet": undefined,
-    "ncertRef": "Ex 14.4"
-  },
-  {
+{
     "id": "ST2-036",
     "subject": "Maths",
     "topicKey": "Statistics",
@@ -1041,7 +816,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 14.1"
   },
-  {
+{
     "id": "ST2-037",
     "subject": "Maths",
     "topicKey": "Statistics",
@@ -1072,7 +847,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 14.2"
   },
-  {
+{
     "id": "ST2-038",
     "subject": "Maths",
     "topicKey": "Statistics",
@@ -1104,37 +879,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 14.3"
   },
-  {
-    "id": "ST2-039",
-    "subject": "Maths",
-    "topicKey": "Statistics",
-    "subtopic": "Ogive",
-    "section": "C",
-    "marks": 3,
-    "format": "Short",
-    "difficulty": "Hard",
-    "bloomSkill": "Analysing",
-    "questionText": "Using an ogive, find the median from the following: Class: 0-10, 10-20, 20-30, 30-40; CF: 5, 15, 35, 50",
-    "options": [],
-    "answer": "25",
-    "solutionSteps": [
-      "Total frequency n = 50",
-      "n/2 = 25",
-      "From ogive, find where cumulative frequency = 25",
-      "CF at 20 = 15, CF at 30 = 35",
-      "So n/2 lies in class 20-30",
-      "l = 20, cf = 15, f = 20, h = 10",
-      "Median = 20 + [(25 - 15)/20] × 10",
-      "= 20 + (10/20) × 10",
-      "= 20 + 5 = 25"
-    ],
-    "finalAnswer": "25",
-    "isCompetencyBased": true,
-    "pyqYear": "2019",
-    "pyqSet": undefined,
-    "ncertRef": "Ex 14.4"
-  },
-  {
+{
     "id": "ST2-040",
     "subject": "Maths",
     "topicKey": "Statistics",
@@ -1165,7 +910,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 14.1"
   },
-  {
+{
     "id": "ST2-041",
     "subject": "Maths",
     "topicKey": "Statistics",
@@ -1197,7 +942,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 14.2"
   },
-  {
+{
     "id": "ST2-042",
     "subject": "Maths",
     "topicKey": "Statistics",
@@ -1229,7 +974,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 14.3"
   },
-  {
+{
     "id": "ST2-043",
     "subject": "Maths",
     "topicKey": "Statistics",
@@ -1239,9 +984,9 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Medium",
     "bloomSkill": "Applying",
-    "questionText": "A school conducted a survey on the daily commute time (in minutes) of 50 students. The grouped frequency distribution is given below:\n\nClass Interval (minutes): 0-10, 10-20, 20-30, 30-40, 40-50\nFrequency: 8, 12, 15, 10, 5\n\nBased on this data, answer the following:\n(i) What is the modal class?\n(ii) Calculate the median commute time.\n(iii) Find the mean commute time.\n(iv) What does the ogive curve represent in this context?",
+    "questionText": "A school conducted a survey on the daily commute time (in minutes) of 50 students. The grouped frequency distribution is given below:\n\nClass Interval (minutes): 0-10, 10-20, 20-30, 30-40, 40-50\nFrequency: 8, 12, 15, 10, 5\n\nBased on this data, answer the following:\n(i) What is the modal class?\n(ii) Calculate the median commute time.\n(iii) Find the mean commute time.\n(iv) Using the empirical formula, find the mode of the distribution.",
     "options": [],
-    "answer": "(i) 20-30 (ii) 23.33 minutes (iii) 23.4 minutes (iv) Cumulative frequency curve",
+    "answer": "(i) 20-30 (ii) 23.33 minutes (iii) 23.4 minutes (iv) Mode ≈ 23.2 minutes",
     "solutionSteps": [
       "(i) Modal class: Frequencies are 8, 12, 15, 10, 5. Highest is 15, so modal class = 20-30",
       "(ii) Median: n = 50, n/2 = 25. CF: 8, 20, 35, 45, 50. Median class = 20-30 (CF 35 ≥ 25)",
@@ -1250,15 +995,15 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "(iii) Mean: Midpoints: 5, 15, 25, 35, 45",
       "Σ(fi×xi) = 8(5) + 12(15) + 15(25) + 10(35) + 5(45) = 40+180+375+350+225 = 1170",
       "Mean = 1170/50 = 23.4 minutes",
-      "(iv) The ogive represents cumulative frequency distribution, helping visualize the proportion of students with commute time less than specific limits"
+      "(iv) Mode = 3 Median - 2 Mean = 3(23.33) - 2(23.4) = 70 - 46.8 = 23.2 minutes"
     ],
-    "finalAnswer": "(i) 20-30 (ii) 23.33 minutes (iii) 23.4 minutes (iv) Cumulative frequency curve",
+    "finalAnswer": "(i) 20-30 (ii) 23.33 minutes (iii) 23.4 minutes (iv) Mode ≈ 23.2 minutes",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": undefined,
-    "ncertRef": "Ex 14.1, 14.2, 14.3, 14.4"
+    "ncertRef": "Ex 14.1, 14.2, 14.3"
   },
-  {
+{
     "id": "ST2-044",
     "subject": "Maths",
     "topicKey": "Statistics",
@@ -1295,7 +1040,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 14.1"
   },
-  {
+{
     "id": "ST2-045",
     "subject": "Maths",
     "topicKey": "Statistics",
@@ -1305,9 +1050,9 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "format": "Long",
     "difficulty": "Hard",
     "bloomSkill": "Analysing",
-    "questionText": "The daily expenses (in rupees) of 100 families are given below:\n\nExpenses: 0-100, 100-200, 200-300, 300-400, 400-500, 500-600\nFrequency: 10, 14, 27, 30, 12, 7\n\nFind:\n(a) The modal class and calculate mode\n(b) The median class and calculate median\n(c) Compare the three measures of central tendency and explain which one best represents the data. Draw the less than type ogive to verify your answer graphically.",
+    "questionText": "The daily expenses (in rupees) of 100 families are given below:\n\nExpenses: 0-100, 100-200, 200-300, 300-400, 400-500, 500-600\nFrequency: 10, 14, 27, 30, 12, 7\n\nFind:\n(a) The modal class and calculate mode\n(b) The median class and calculate median\n(c) Compare the three measures of central tendency and explain which one best represents the data. Use the empirical relationship Mode = 3 Median − 2 Mean to verify your answer.",
     "options": [],
-    "answer": "(a) Mode ≈ 314 rupees (b) Median ≈ 296 rupees (c) Median represents best; ogive confirms skewed distribution",
+    "answer": "(a) Mode ≈ 314 rupees (b) Median ≈ 296 rupees (c) Median best represents data; empirical estimate: 3(296)−2(299) = 290 (approx, as formula holds for moderate skew)",
     "solutionSteps": [
       "(a) Modal Class: Frequencies: 10, 14, 27, 30, 12, 7",
       "Maximum frequency = 30, Modal class = 300-400",
@@ -1330,10 +1075,172 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "Distribution is slightly right-skewed (mode > mean)",
       "Median is most appropriate as it is least affected by skewness"
     ],
-    "finalAnswer": "(a) Mode ≈ 314 rupees (b) Median ≈ 296 rupees (c) Median represents best; ogive confirms skewed distribution",
+    "finalAnswer": "(a) Mode ≈ 314 rupees (b) Median ≈ 296 rupees (c) Median best represents data; empirical estimate ≈ 290 (formula is approximate for moderately skewed data)",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": undefined,
-    "ncertRef": "Ex 14.2, 14.3, 14.4"
+    "ncertRef": "Ex 14.2, 14.3"
+  },
+  {
+    "id": "STAT2-R01",
+    "subject": "Maths",
+    "topicKey": "Statistics",
+    "subtopic": "Mean (Step Deviation)",
+    "section": "A",
+    "marks": 1,
+    "format": "MCQ",
+    "difficulty": "Easy",
+    "bloomSkill": "Remembering",
+    "questionText": "In the step deviation method for computing mean, if all class widths are equal, the mean is calculated as:",
+    "options": ["A + (Σfᵢuᵢ/Σfᵢ) × h", "A + Σfᵢuᵢ", "A × (Σfᵢuᵢ/Σfᵢ)", "A + Σfᵢuᵢ/h"],
+    "answer": "A + (Σfᵢuᵢ/Σfᵢ) × h",
+    "solutionSteps": ["In step deviation: x̄ = A + (Σfᵢuᵢ/Σfᵢ) × h where uᵢ = (xᵢ - A)/h"],
+    "finalAnswer": "A + (Σfᵢuᵢ/Σfᵢ) × h",
+    "isCompetencyBased": false,
+    "ncertRef": "Ex 14.1"
+  },
+  {
+    "id": "STAT2-R02",
+    "subject": "Maths",
+    "topicKey": "Statistics",
+    "subtopic": "Median of Grouped Data",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "Find the median class and median for: Class: 0–20, 20–40, 40–60, 60–80, 80–100; Frequency: 6, 8, 10, 9, 7.",
+    "options": [],
+    "answer": "Median = 52",
+    "solutionSteps": ["n = 40, n/2 = 20", "CF: 6, 14, 24, 33, 40. Median class: 40–60", "Median = 40 + (20-14)/10 × 20 = 40 + 12 = 52"],
+    "finalAnswer": "Median = 52",
+    "isCompetencyBased": true,
+    "ncertRef": "Ex 14.3"
+  },
+  {
+    "id": "STAT2-R03",
+    "subject": "Maths",
+    "topicKey": "Statistics",
+    "subtopic": "Mode of Grouped Data",
+    "section": "A",
+    "marks": 1,
+    "format": "Assertion-Reasoning",
+    "difficulty": "Medium",
+    "bloomSkill": "Analysing",
+    "questionText": "Assertion (A): For the data with frequencies 3, 8, 12, 8, 3 in class intervals of width 10, mode = 3 Mean - 2 Median.\nReason (R): The empirical relationship Mode = 3 Median - 2 Mean holds for moderately skewed data.",
+    "options": ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
+    "answer": "A is false, R is true.",
+    "solutionSteps": ["The empirical formula Mode = 3 Median - 2 Mean is the correct statement (not 3 Mean - 2 Median as stated in Assertion A). So A is false. R is correctly stated and true."],
+    "finalAnswer": "A is false, R is true.",
+    "isCompetencyBased": true,
+    "ncertRef": "Ex 14.2"
+  },
+  {
+    "id": "STAT2-R04",
+    "subject": "Maths",
+    "topicKey": "Statistics",
+    "subtopic": "Mean (Step Deviation)",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Hard",
+    "bloomSkill": "Applying",
+    "questionText": "The mean of the following data is 53. Find the missing values p and q:\nClass: 0–20, 20–40, 40–60, 60–80, 80–100\nFrequency: 15, p, 21, q, 17\nTotal = 100",
+    "options": [],
+    "answer": "p = 18, q = 29",
+    "solutionSteps": ["15 + p + 21 + q + 17 = 100 → p + q = 47", "Σfx = 15(10)+p(30)+21(50)+q(70)+17(90) = 150+30p+1050+70q+1530 = 2730+30p+70q", "(2730+30p+70q)/100 = 53 → 30p+70q = 2570", "From p+q=47: p = 47-q, 30(47-q)+70q = 2570 → 1410+40q = 2570 → q = 29, p = 18"],
+    "finalAnswer": "p = 18, q = 29",
+    "isCompetencyBased": true,
+    "ncertRef": "Ex 14.1"
+  },
+  {
+    "id": "STAT2-R05",
+    "subject": "Maths",
+    "topicKey": "Statistics",
+    "subtopic": "Median of Grouped Data",
+    "section": "E",
+    "marks": 4,
+    "format": "Case-Based",
+    "difficulty": "Hard",
+    "bloomSkill": "Analysing",
+    "questionText": "The daily wages of 50 workers in a factory are given below:\nWages (Rs): 100–120, 120–140, 140–160, 160–180, 180–200\nWorkers: 12, 14, 8, 6, 10\n(i) Find mean wages. (ii) Find modal class. (iii) Find mode. (iv) Find median wages.",
+    "options": [],
+    "answer": "(i) Rs 145.2 (ii) 120-140 (iii) Rs 125 (iv) Rs 138.57",
+    "solutionSteps": ["(i) Σfx = 12(110)+14(130)+8(150)+6(170)+10(190) = 1320+1820+1200+1020+1900 = 7260. Mean = 7260/50 = 145.2", "(ii) Modal class: 120-140 (highest freq = 14)", "(iii) f₀=12,f₁=14,f₂=8; Mode = 120+(14-12)/(28-12-8)×20 = 120+5 = 125", "(iv) n/2=25, CF: 12,26. Median class: 120-140. Median = 120+(25-12)/14×20 = 120+18.57 = 138.57"],
+    "finalAnswer": "(ii) 120-140 (iii) Rs 125 (iv) Rs 138.57",
+    "isCompetencyBased": true,
+    "ncertRef": "Ex 14.3"
+  },
+  {
+    "id": "STAT2-R06",
+    "subject": "Maths",
+    "topicKey": "Statistics",
+    "subtopic": "Mean (Step Deviation)",
+    "section": "A",
+    "marks": 1,
+    "format": "MCQ",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "Using step deviation method with assumed mean A = 25 and h = 5, if Σfᵢ = 50 and Σfᵢuᵢ = 10, then the mean is:",
+    "options": ["26", "24", "25", "27"],
+    "answer": "26",
+    "solutionSteps": ["Mean = A + (Σfᵢuᵢ/Σfᵢ) × h = 25 + (10/50) × 5 = 25 + 1 = 26"],
+    "finalAnswer": "26",
+    "isCompetencyBased": true,
+    "ncertRef": "Ex 14.1"
+  },
+  {
+    "id": "STAT2-R07",
+    "subject": "Maths",
+    "topicKey": "Statistics",
+    "subtopic": "Mode of Grouped Data",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "A survey on shoe sizes of 200 people gave: Size: 6–7, 7–8, 8–9, 9–10, 10–11; Frequency: 19, 32, 74, 48, 27. Find the modal shoe size.",
+    "options": [],
+    "answer": "8.6",
+    "solutionSteps": ["Modal class: 8–9 (f₁=74)", "f₀=32, f₂=48, l=8, h=1", "Mode = 8 + (74-32)/(148-32-48)×1 = 8 + 42/68 = 8 + 0.62 = 8.62"],
+    "finalAnswer": "≈ 8.62",
+    "isCompetencyBased": true,
+    "ncertRef": "Ex 14.2"
+  },
+  {
+    "id": "STAT2-R08",
+    "subject": "Maths",
+    "topicKey": "Statistics",
+    "subtopic": "Median of Grouped Data",
+    "section": "A",
+    "marks": 1,
+    "format": "MCQ",
+    "difficulty": "Easy",
+    "bloomSkill": "Understanding",
+    "questionText": "The median formula for grouped data is l + [(n/2 - cf)/f] × h. What does 'cf' represent?",
+    "options": ["Frequency of median class", "Cumulative frequency before median class", "Cumulative frequency of median class", "Total frequency"],
+    "answer": "Cumulative frequency before median class",
+    "solutionSteps": ["cf = cumulative frequency of all classes preceding the median class"],
+    "finalAnswer": "Cumulative frequency before median class",
+    "isCompetencyBased": false,
+    "ncertRef": "Ex 14.3"
+  },
+  {
+    "id": "STAT2-R09",
+    "subject": "Maths",
+    "topicKey": "Statistics",
+    "subtopic": "Mean (Step Deviation)",
+    "section": "D",
+    "marks": 5,
+    "format": "Long",
+    "difficulty": "Hard",
+    "bloomSkill": "Applying",
+    "questionText": "The heights of 50 students are recorded as follows:\nHeight (cm): 130–135, 135–140, 140–145, 145–150, 150–155, 155–160\nFrequency: 2, 8, 12, 20, 5, 3\nFind (i) mean using step deviation (ii) modal class and mode (iii) median.",
+    "options": [],
+    "answer": "(i) ≈145.2 cm (ii) 145-150, mode≈146.74 (iii) ≈145.75",
+    "solutionSteps": ["(i) a = 147.5, h = 5, Σfᵢ=50. dᵢ: -3,-2,-1,0,1,2. Σfᵢdᵢ = -6-16-12+0+5+6 = -23. Mean = 147.5+(-23/50)×5 = 147.5-2.3 = 145.2", "(ii) Modal class: 145-150. f₀=12,f₁=20,f₂=5. Mode = 145+(20-12)/(40-12-5)×5 = 145+1.74 = 146.74", "(iii) n/2=25, CF: 2,10,22,42. Median class: 145-150. Median = 145+(25-22)/20×5 = 145.75"],
+    "finalAnswer": "(i) ≈145.2 cm (ii) ≈146.74 (iii) ≈145.75",
+    "isCompetencyBased": true,
+    "ncertRef": "Ex 14.1"
   }
 ];

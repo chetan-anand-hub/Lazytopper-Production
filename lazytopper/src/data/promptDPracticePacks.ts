@@ -2613,7 +2613,7 @@ export const promptDPracticePacks: PracticePacksIndex =
         },
         {
           "id": "M-STAT-10",
-          "text": "Explain briefly how ogives are used to find median graphically.",
+          "text": "Using the empirical relationship Mode = 3 Median − 2 Mean, find the mode if Mean = 50.5 and Median = 52.",
           "marks": 3,
           "difficulty": "Medium",
           "questionType": "subjective"
