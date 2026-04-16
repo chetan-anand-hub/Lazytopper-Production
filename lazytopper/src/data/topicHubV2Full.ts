@@ -745,10 +745,10 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
         }
       ],
       "examPatterns": [
-      "1 mark (MCQ/A-R): Which of the following is irrational? — or — 6ⁿ can never end in digit 0 (A-R on FTA application).",
-      "2–3 marks (FTA): Find HCF and LCM of two numbers using prime factorisation; verify HCF × LCM = product.",
+      "1 mark (MCQ/Assertion-Reason): Which of the following is irrational? — or — 6ⁿ can never end in digit 0 (A-R on FTA application).",
+      "2–3 marks (FTA): Find HCF and LCM of two numbers using prime factorisation; verify HCF × LCM = product of the two numbers.",
       "2–3 marks (Irrationality): Prove √2, √3, or √5 is irrational using proof by contradiction.",
-      "3–5 marks: Prove a compound surd like 3 + 2√5 or 5 − 2√3 is irrational; or a multi-part case-based question on HCF/LCM.",
+      "3–5 marks: Prove a compound surd like 3 + 2√5 or 5 − 2√3 is irrational; or a multi-part case-based question on HCF/LCM."
     ],
       "markingTips": [
         "Not writing the full 'assume p/q in lowest terms, so gcd(p,q) = 1' step at the start of the irrationality proof — this loses the setup mark.",
@@ -1103,7 +1103,8 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     "markingTips": [
       "Not drawing radius to point of tangency, missing 90° angle.",
       "Weak justification for equality of tangents.",
-      "Messy diagrams with unlabeled points."
+      "Messy diagrams with unlabeled points.",
+      "Writing 'PA = PB' without showing the congruence step (RHS or SSS); examiners award marks only when the proof step is explicit.",
     ],
     "scoreTips": [
       "Memorise key tangent theorems and their exact statements.",
@@ -1400,7 +1401,8 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     "markingTips": [
       "Mixing voluntary and involuntary actions.",
       "Confusing hormone names with glands or functions.",
-      "Poor diagrams of neuron and brain (missing labels)."
+      "Poor diagrams of neuron and brain (missing labels).",
+      "Not tracing the reflex arc in the correct sequence; wrong neuron order loses marks.",
     ],
     "scoreTips": [
       "Make a table of hormones, glands, and functions — revise daily for 5 minutes.",
@@ -1455,7 +1457,8 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     "markingTips": [
       "Mixing up names of asexual reproduction types.",
       "Confusing male and female reproductive parts.",
-      "Overwriting unimportant details and missing key steps."
+      "Overwriting unimportant details and missing key steps.",
+      "Using imprecise plant-part terminology — e.g. 'pistil' when asked specifically about 'stigma' or 'ovary'.",
     ],
     "scoreTips": [
       "Practise diagrams of male/female reproductive systems and flower structure until labels come naturally.",
@@ -1506,7 +1509,8 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     "markingTips": [
       "Confusing genotype notation (Tt, TT, tt).",
       "Mixing acquired and inherited traits.",
-      "Weak explanation of sex determination."
+      "Weak explanation of sex determination.",
+      "Not writing both parents' genotypes before drawing the Punnett square, leaving the working incomplete.",
     ],
     "scoreTips": [
       "Practise Punnett squares for monohybrid crosses until you can draw and fill them in under one minute.",
@@ -1621,7 +1625,8 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     "markingTips": [
       "Mixing which lens corrects which defect.",
       "Poor or incomplete diagrams of normal and defective eyes.",
-      "Unclear reasoning of atmospheric phenomena."
+      "Unclear reasoning of atmospheric phenomena.",
+      "Omitting the planets-vs-stars contrast in twinkling answers; examiners expect mention of the apparent disc.",
     ],
     "scoreTips": [
       "Practise neat labelled eye diagrams for each defect and its correction.",
