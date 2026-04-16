@@ -852,7 +852,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "section": "A",
     "marks": 1,
     "format": "MCQ",
-    "difficulty": "Easy",
+    "difficulty": "Medium",
     "bloomSkill": "Applying",
     "questionText": "If α and β are zeroes of x² + 5x + 6, then α² + β² =",
     "options": ["13", "25", "37", "1"],
@@ -875,10 +875,10 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "questionText": "Find the zeroes of 4x² - 4x - 3 and verify the relationship between zeroes and coefficients.",
     "options": [],
     "answer": "Zeroes: 3/2 and -1/2",
-    "solutionSteps": ["4x² - 4x - 3 = (2x - 3)(2x + 1)", "Zeroes: x = 3/2 and x = -1/2", "Sum = 1 = 4/4 ✓", "Product = -3/4 = -3/4 ✓"],
+    "solutionSteps": ["4x² - 4x - 3 = (2x - 3)(2x + 1)", "Zeroes: x = 3/2 and x = -1/2", "Sum = 1 = -(-4)/4 ✓", "Product = -3/4 = -3/4 ✓"],
     "finalAnswer": "3/2 and -1/2",
     "isCompetencyBased": true,
-    "ncertRef": "Ex 2.2"
+    "ncertRef": "Ex 2.1, Ex 2.2"
   },
   {
     "id": "PL2-R03",
@@ -950,7 +950,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": ["(i) -5t² + 20t + 25 = 0 → t² - 4t - 5 = 0 → (t-5)(t+1) = 0 → t = 5, -1", "(ii) Ball hits at t = 5 s (positive)", "(iii) Sum = -20/(-5) = 4", "(iv) Product = 25/(-5) = -5"],
     "finalAnswer": "(i) 5 and -1 (ii) 5 s (iii) 4 (iv) -5",
     "isCompetencyBased": true,
-    "ncertRef": "Ex 2.1"
+    "ncertRef": "Ex 2.1, Ex 2.2"
   },
   {
     "id": "PL2-R07",
@@ -1022,7 +1022,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": ["Zeroes: -3, -1, 2", "p(x) = (x+3)(x+1)(x-2)", "Sum = -3 + (-1) + 2 = -2", "Product = (-3)(-1)(2) = 6"],
     "finalAnswer": "Sum = -2, Product = 6",
     "isCompetencyBased": true,
-    "ncertRef": "Ex 2.1"
+    "ncertRef": "Ex 2.1, Ex 2.2"
   },
   {
     "id": "PL2-R11",
@@ -1058,6 +1058,6 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": ["For cubic ax³ + bx² + cx + d: αβγ = -d/a"],
     "finalAnswer": "-d/a",
     "isCompetencyBased": false,
-    "ncertRef": "NCERT theory"
+    "ncertRef": "Ex 2.2"
   }
 ];

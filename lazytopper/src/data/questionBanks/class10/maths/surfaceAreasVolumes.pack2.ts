@@ -909,7 +909,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": ["Volume of large sphere = (4/3)πr³", "Volume of each small sphere = (4/3)π(r/3)³ = (4/3)πr³/27", "Number = 27"],
     "finalAnswer": "27",
     "isCompetencyBased": true,
-    "ncertRef": "Ex 13.3"
+    "ncertRef": "Ex 13.2"
   },
   {
     "id": "SAV2-R02",
@@ -927,7 +927,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": ["r = 7 cm, height of cylinder = 13 - 7 = 6 cm", "Inner SA = CSA of cylinder + CSA of hemisphere", "= 2πrh + 2πr² = 2π(7)(6) + 2π(49) = 84π + 98π = 182π ≈ 572 cm²"],
     "finalAnswer": "572 cm²",
     "isCompetencyBased": true,
-    "ncertRef": "Ex 13.2"
+    "ncertRef": "Ex 13.1"
   },
   {
     "id": "SAV2-R03",
@@ -963,7 +963,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": ["(i) Radius of cone = radius of hemisphere = 3 cm", "(ii) Height of cone = 10 - 3 = 7 cm", "(iii) V = (2/3)π(27) + (1/3)π(9)(7) = 18π + 21π = 39π ≈ 122.5 cm³", "(iv) l = √(9+49) = √58 ≈ 7.62 cm. TSA = πrl + 2πr² = 3π(7.62) + 2π(9) = 22.86π + 18π = 40.86π ≈ 128.4 cm²"],
     "finalAnswer": "(i) 3 cm (ii) 7 cm (iii) 39π ≈ 122.5 cm³ (iv) 40.86π ≈ 128.4 cm²",
     "isCompetencyBased": true,
-    "ncertRef": "Ex 13.2"
+    "ncertRef": "Ex 13.1, Ex 13.2"
   },
   {
     "id": "SAV2-R05",
@@ -999,7 +999,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": ["Volume of cistern = 150×120×110 = 1,980,000 cm³", "Empty space = 1,980,000 - 129,600 = 1,850,400 cm³", "Volume of one brick = 22.5×7.5×6.5 = 1096.875 cm³", "Let n = number of bricks. Volume occupied = n×1096.875, water absorbed = n×1096.875/17", "n×1096.875 - n×1096.875/17 = 1,850,400", "n×1096.875×(16/17) = 1,850,400 → n = 1792"],
     "finalAnswer": "1792 bricks",
     "isCompetencyBased": true,
-    "ncertRef": "Ex 13.3"
+    "ncertRef": "Ex 13.2"
   },
   {
     "id": "SAV2-R07",
@@ -1017,7 +1017,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": ["Volume of earth = π(3.5)²(20) = (22/7)(12.25)(20) = 770 m³", "Volume of platform = 22 × 14 × h = 308h", "308h = 770 → h = 2.5 m"],
     "finalAnswer": "2.5 m",
     "isCompetencyBased": true,
-    "ncertRef": "Ex 13.3"
+    "ncertRef": "Ex 13.2"
   },
   {
     "id": "SAV2-R08",
@@ -1035,7 +1035,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": ["Volume is conserved when a solid is melted and recast."],
     "finalAnswer": "Volume",
     "isCompetencyBased": false,
-    "ncertRef": "Ex 13.3"
+    "ncertRef": "Ex 13.2"
   },
   {
     "id": "SAV2-R09",
@@ -1053,7 +1053,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": ["V_cylinder = π(64)(6) = 384π cm³", "V_sphere = (4/3)π(8) = 32π/3 cm³", "Number = 384π / (32π/3) = 384×3/32 = 36"],
     "finalAnswer": "36 spheres",
     "isCompetencyBased": true,
-    "ncertRef": "Ex 13.3"
+    "ncertRef": "Ex 13.2"
   },
   {
     "id": "SAV2-R10",
@@ -1071,7 +1071,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": ["V_original = (4/3)π(27) = 36π cm³", "V1 = (4/3)π(3.375) = 4.5π, V2 = (4/3)π(8) = 32π/3", "V3 = 36π - 4.5π - 32π/3 = 36π - 4.5π - 10.67π = 20.83π... let r³ = V3/(4π/3)", "27 = 3.375 + 8 + r³ → r³ = 15.625 → r = 2.5 cm"],
     "finalAnswer": "r = 2.5 cm",
     "isCompetencyBased": true,
-    "ncertRef": "Ex 13.3"
+    "ncertRef": "Ex 13.2"
   },
   {
     "id": "SAV2-R11",
@@ -1107,7 +1107,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": ["(i) Height of hemisphere = radius = 3 cm", "(ii) Total height = 10 + 3 = 13 cm", "(iii) V = πr²h + (2/3)πr³ = π(9)(10) + (2/3)π(27) = 90π + 18π = 108π ≈ 339.4 cm³", "(iv) TSA = 2πrh + 2πr² + πr² = 2π(3)(10) + 3π(9) = 60π + 27π = 87π ≈ 273.3 cm²"],
     "finalAnswer": "(i) 3 cm (ii) 13 cm (iii) 108π cm³ (iv) 87π cm²",
     "isCompetencyBased": true,
-    "ncertRef": "Ex 13.2"
+    "ncertRef": "Ex 13.1, Ex 13.2"
   },
   {
     "id": "SAV2-R13",
@@ -1125,7 +1125,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": ["Volume of rod = π(0.5)²(8) = 2π cm³", "Volume of wire = π(r)²(1800) = 1800πr²", "1800πr² = 2π → r² = 1/900 → r = 1/30 cm", "Diameter = 2/30 = 1/15 cm ≈ 0.067 cm"],
     "finalAnswer": "Diameter = 1/15 cm ≈ 0.067 cm",
     "isCompetencyBased": true,
-    "ncertRef": "Ex 13.3"
+    "ncertRef": "Ex 13.2"
   },
   {
     "id": "SAV2-R14",
@@ -1143,7 +1143,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": ["(4/3)π(27) = π(9)h → 36 = 9h → h = 4 ✓"],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "isCompetencyBased": true,
-    "ncertRef": "Ex 13.3"
+    "ncertRef": "Ex 13.2"
   },
   {
     "id": "SAV2-R15",
@@ -1161,6 +1161,6 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": ["r = 2.1 cm", "V = (4/3)(22/7)(2.1)³ = (4/3)(22/7)(9.261) = 38.808 cm³", "Mass = 38.808 × 8.9 ≈ 345.4 g"],
     "finalAnswer": "≈ 345.4 g",
     "isCompetencyBased": true,
-    "ncertRef": "Ex 13.1"
+    "ncertRef": "Ex 13.2"
   }
 ];

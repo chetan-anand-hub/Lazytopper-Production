@@ -1115,7 +1115,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": ["n = 40, n/2 = 20", "CF: 6, 14, 24, 33, 40. Median class: 40–60", "Median = 40 + (20-14)/10 × 20 = 40 + 12 = 52"],
     "finalAnswer": "Median = 52",
     "isCompetencyBased": true,
-    "ncertRef": "Ex 14.3"
+    "ncertRef": "Ex 14.2"
   },
   {
     "id": "STAT2-R03",
@@ -1133,7 +1133,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": ["The empirical formula Mode = 3 Median - 2 Mean is the correct statement (not 3 Mean - 2 Median as stated in Assertion A). So A is false. R is correctly stated and true."],
     "finalAnswer": "A is false, R is true.",
     "isCompetencyBased": true,
-    "ncertRef": "Ex 14.2"
+    "ncertRef": "Ex 14.2, Ex 14.3"
   },
   {
     "id": "STAT2-R04",
@@ -1169,7 +1169,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": ["(i) Σfx = 12(110)+14(130)+8(150)+6(170)+10(190) = 1320+1820+1200+1020+1900 = 7260. Mean = 7260/50 = 145.2", "(ii) Modal class: 120-140 (highest freq = 14)", "(iii) f₀=12,f₁=14,f₂=8; Mode = 120+(14-12)/(28-12-8)×20 = 120+5 = 125", "(iv) n/2=25, CF: 12,26. Median class: 120-140. Median = 120+(25-12)/14×20 = 120+18.57 = 138.57"],
     "finalAnswer": "(ii) 120-140 (iii) Rs 125 (iv) Rs 138.57",
     "isCompetencyBased": true,
-    "ncertRef": "Ex 14.3"
+    "ncertRef": "Ex 14.1, Ex 14.2, Ex 14.3"
   },
   {
     "id": "STAT2-R06",
@@ -1201,11 +1201,11 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A survey on shoe sizes of 200 people gave: Size: 6–7, 7–8, 8–9, 9–10, 10–11; Frequency: 19, 32, 74, 48, 27. Find the modal shoe size.",
     "options": [],
-    "answer": "8.6",
+    "answer": "8.62",
     "solutionSteps": ["Modal class: 8–9 (f₁=74)", "f₀=32, f₂=48, l=8, h=1", "Mode = 8 + (74-32)/(148-32-48)×1 = 8 + 42/68 = 8 + 0.62 = 8.62"],
     "finalAnswer": "≈ 8.62",
     "isCompetencyBased": true,
-    "ncertRef": "Ex 14.2"
+    "ncertRef": "Ex 14.3"
   },
   {
     "id": "STAT2-R08",
@@ -1223,7 +1223,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": ["cf = cumulative frequency of all classes preceding the median class"],
     "finalAnswer": "Cumulative frequency before median class",
     "isCompetencyBased": false,
-    "ncertRef": "Ex 14.3"
+    "ncertRef": "Ex 14.2"
   },
   {
     "id": "STAT2-R09",
@@ -1241,6 +1241,6 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": ["(i) a = 147.5, h = 5, Σfᵢ=50. dᵢ: -3,-2,-1,0,1,2. Σfᵢdᵢ = -6-16-12+0+5+6 = -23. Mean = 147.5+(-23/50)×5 = 147.5-2.3 = 145.2", "(ii) Modal class: 145-150. f₀=12,f₁=20,f₂=5. Mode = 145+(20-12)/(40-12-5)×5 = 145+1.74 = 146.74", "(iii) n/2=25, CF: 2,10,22,42. Median class: 145-150. Median = 145+(25-22)/20×5 = 145.75"],
     "finalAnswer": "(i) ≈145.2 cm (ii) ≈146.74 (iii) ≈145.75",
     "isCompetencyBased": true,
-    "ncertRef": "Ex 14.1"
+    "ncertRef": "Ex 14.1, Ex 14.2, Ex 14.3"
   }
 ];
