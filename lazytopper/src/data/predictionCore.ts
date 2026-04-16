@@ -14,6 +14,10 @@ import { QUESTION_TYPE_MULTIPLIER } from "../data/cbseCompetencyPolicy";
 import { computePredictionScore } from "./predictionScoring";
 import { getCanonicalHistoricalDataset } from "../prediction/historicalDataset";
 import { scoreTopicRecurrenceConfidence } from "../prediction/probabilisticScoring";
+import {
+  isScienceDeletedFor2026_27,
+  SCIENCE_DELETED_CHAPTERS_2026_27,
+} from "../prediction/cbseHistoricalArchetypes";
 
 type CanonicalQuestionWithScore = CanonicalQuestion & { _adjustedScore?: number };
 
@@ -126,12 +130,20 @@ function dedupeById(questions: CanonicalQuestion[]): CanonicalQuestion[] {
   return Array.from(byId.values());
 }
 
+function isScienceDeletedQuestion(q: CanonicalQuestion, targetYear: number): boolean {
+  if (q.subject !== "Science") return false;
+  if (targetYear < SCIENCE_DELETED_CHAPTERS_2026_27.effectiveFromYear) return false;
+  return isScienceDeletedFor2026_27(q.topicKey, q.subtopic);
+}
+
 function buildUnifiedQuestionBank(): CanonicalQuestionWithScore[] {
+  const targetYear = predictionTargetYear();
+
   const merged = dedupeById([
     ...canonicalQuestionBank,
     ...toCanonicalFromMathPredicted(),
     ...toCanonicalFromSciencePredicted(),
-  ]);
+  ]).filter((q) => !isScienceDeletedQuestion(q, targetYear));
 
   return merged.map((q) => {
     const explicit = Number(q.predictionScore ?? 0);

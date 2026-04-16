@@ -2,6 +2,10 @@ import { getCanonicalHistoricalDataset, type HistoricalQuestionItem } from "./hi
 import { computeRotationSignal, type RotationSignal } from "./rotationPairTracker";
 import { computeSQPSignal, type SQPSignal } from "./sqpIngestionPipeline";
 import { isGuaranteedArchetype, getGuaranteedBoost } from "./guaranteedArchetypes";
+import {
+  isScienceDeletedFor2026_27,
+  SCIENCE_DELETED_CHAPTERS_2026_27,
+} from "./cbseHistoricalArchetypes";
 
 export interface FiveSignalWeights {
   historicalFrequency: number;
@@ -218,6 +222,47 @@ export function compute5SignalScore(
   }
 
   const resolvedTopic = normalizeTopicKey(input.topic);
+
+  // Guard: if this Science topic/subtopic has been removed from the 2026-27
+  // syllabus, return a zeroed score so it never surfaces in recommendations.
+  // Historical archetype data is preserved for trend analysis; only forward
+  // predictions are blocked.
+  if (
+    input.subject === "Science" &&
+    targetYear >= SCIENCE_DELETED_CHAPTERS_2026_27.effectiveFromYear &&
+    isScienceDeletedFor2026_27(resolvedTopic, input.subtopic)
+  ) {
+    return {
+      compositeScore: 0,
+      confidencePercent: 0,
+      confidenceBand: "low",
+      confidenceRationale: `Excluded from ${targetYear} predictions — topic removed from 2026-27 CBSE Science syllabus.`,
+      signals: {
+        historicalFrequency: 0,
+        rotation: 0,
+        sqpAlignment: 0,
+        nepPolicy: 0,
+        difficultyDistribution: 0,
+      },
+      rotationDetail: {
+        gapYears: 0,
+        lastAppeared: null,
+        appearedYears: [],
+        totalYears: 0,
+        rotationBoost: 0,
+        pairPartnerLastAppeared: null,
+      },
+      sqpDetail: {
+        matchesSQP: false,
+        sqpYear: null,
+        sqpBoost: 0,
+        sqpMatchType: "none",
+        sqpMatchDetails: "Topic excluded from 2026-27 syllabus.",
+      },
+      isGuaranteed: false,
+      guaranteedBoost: 0,
+    };
+  }
 
   const histSignal = computeHistoricalFrequencySignal(
     input.subject, resolvedTopic, input.subtopic, targetYear, cutoffYear

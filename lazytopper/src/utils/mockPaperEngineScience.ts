@@ -12,6 +12,10 @@ import {
 } from "../prediction/constrainedPaperConstructor";
 import { getCanonicalHistoricalDataset } from "../prediction/historicalDataset";
 import { scoreTopicRecurrenceConfidence } from "../prediction/probabilisticScoring";
+import {
+  isScienceDeletedFor2026_27,
+  SCIENCE_DELETED_CHAPTERS_2026_27,
+} from "../prediction/cbseHistoricalArchetypes";
 
 // --- Types for the built Science mock paper -------------------------
 
@@ -190,13 +194,28 @@ export function buildScienceMockPaperFromBank(
   };
 
   const targetYear = new Date().getFullYear();
+
+  // Filter out questions for Science chapters deleted from the 2026-27 syllabus
+  // before the bank reaches the scoring or selection logic.
+  const eligibleBank =
+    targetYear >= SCIENCE_DELETED_CHAPTERS_2026_27.effectiveFromYear
+      ? bank.filter(
+          (q) =>
+            !isScienceDeletedFor2026_27(
+              class10ScienceTopicTrends.topics[
+                q.topicKey as keyof typeof class10ScienceTopicTrends.topics
+              ]?.topicName ?? q.topicKey,
+              q.subtopic
+            )
+        )
+      : bank;
   const historicalItems = getCanonicalHistoricalDataset().items;
   const topicFilter = paperMeta.focusTopics?.length
     ? new Set(paperMeta.focusTopics)
     : null;
   const candidateBank = topicFilter
-    ? bank.filter((question) => topicFilter.has(question.topicKey))
-    : bank;
+    ? eligibleBank.filter((question) => topicFilter.has(question.topicKey))
+    : eligibleBank;
 
   const byId = new Map(candidateBank.map((question) => [question.id, question]));
   const constrainedCandidates: ConstrainedPaperCandidate[] = candidateBank.map(
@@ -297,7 +316,7 @@ export function buildScienceMockPaperFromBank(
     const { questions, marks } = pickQuestionsForSection(
       sec,
       targetMarks,
-      bank,
+      eligibleBank,
       paperMeta.focusTopics,
       paperMeta.difficultyMix,
       shuffle,

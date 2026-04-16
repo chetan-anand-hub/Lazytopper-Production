@@ -1,4 +1,8 @@
 import type { HistoricalQuestionItem } from "./historicalDataset";
+import {
+  isScienceDeletedFor2026_27,
+  SCIENCE_DELETED_CHAPTERS_2026_27,
+} from "./cbseHistoricalArchetypes";
 
 export interface ProbabilisticScoreInput {
   subject: "Maths" | "Science";
@@ -83,6 +87,23 @@ export function scoreTopicRecurrenceConfidence(args: {
   historicalItems: HistoricalQuestionItem[];
 }): ProbabilisticScoreResult {
   const { input, context, historicalItems } = args;
+
+  // Guard: Science topics/subtopics deleted from the 2026-27 CBSE syllabus
+  // must score zero so they are never surfaced in recommendations or papers.
+  if (
+    input.subject === "Science" &&
+    context.targetYear >= SCIENCE_DELETED_CHAPTERS_2026_27.effectiveFromYear &&
+    isScienceDeletedFor2026_27(input.topic, input.subtopic)
+  ) {
+    const HPQ_CONFIDENCE_FLOOR = 0.18;
+    return {
+      posterior: 0,
+      confidence: HPQ_CONFIDENCE_FLOOR,
+      confidenceBand: "low",
+      rationale: `Excluded from ${context.targetYear} predictions — topic removed from 2026-27 CBSE Science syllabus.`,
+    };
+  }
+
   const subjectItems = historicalItems.filter((x) => x.subject === input.subject);
 
   const inputFormat = norm(input.format);

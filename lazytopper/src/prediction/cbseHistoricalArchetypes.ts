@@ -681,3 +681,87 @@ export const CBSE_HISTORICAL_ARCHETYPES: CbseArchetypeEntry[] = [
   sc("Our Environment / Sources of Energy", "Food Chains & Trophic Levels", 1, "MCQ", "Understanding", "conceptual", 2021, S),
   sc("Our Environment / Sources of Energy", "Conventional vs Non-conventional Energy", 2, "Short", "Understanding", "conceptual", 2021, S),
 ];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 2026-27 CBSE Science syllabus deletions
+//
+// Historical entries above are preserved for trend analysis but the prediction
+// engine must NOT surface these topics in any 2026-27 (or later) output.
+//
+// Deleted FULL chapters:
+//   • Periodic Classification of Elements
+//   • Management of Natural Resources
+//
+// Deleted content within chapters that otherwise remain:
+//   • Evolution section of "Heredity & Evolution" — Mendel / genetics stays.
+//     Subtopics to exclude: anything evolution-related (fossils, homologous /
+//     analogous organs, speciation, natural selection, evolutionary evidence).
+//   • Sources of Energy section of "Our Environment / Sources of Energy" —
+//     ecology (food chains, pollution, waste management) stays.
+// ─────────────────────────────────────────────────────────────────────────────
+export const SCIENCE_DELETED_CHAPTERS_2026_27 = {
+  effectiveFromYear: 2026,
+
+  /** Full chapters removed entirely. */
+  deletedTopics: [
+    "Periodic Classification of Elements",
+    "Periodic Classification",
+    "Management of Natural Resources",
+  ] as const,
+
+  /**
+   * Subtopic-level keyword fragments deleted from otherwise-retained chapters.
+   * Matched as substrings (case-insensitive) against the normalised subtopic name.
+   */
+  deletedSubtopicKeywords: [
+    // Heredity & Evolution — evolution portion removed
+    "evolution",
+    "fossil",
+    "homologous",
+    "analogous",
+    "speciation",
+    "natural selection",
+    // Our Environment / Sources of Energy — energy portion removed
+    "sources of energy",
+    "conventional",
+    "non conventional",
+    "nonconventional",
+  ] as const,
+} as const;
+
+function normStr(raw: string): string {
+  return raw.trim().toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/\s+/g, " ");
+}
+
+/**
+ * Returns true when the given topic (and optional subtopic) corresponds to
+ * content deleted from the CBSE Class 10 Science syllabus for 2026-27.
+ * Historical archetype data is preserved; use this guard before generating
+ * any prediction, weighting, or recommendation for targetYear >= 2026.
+ *
+ * Logic:
+ *  1. Full-chapter deletions: match the topic name alone.
+ *  2. Partial-chapter deletions (Evolution, Sources of Energy): match the
+ *     subtopic name against deleted keyword fragments so that sibling subtopics
+ *     (Mendel's experiments, food chains, etc.) are NOT excluded.
+ */
+export function isScienceDeletedFor2026_27(topic: string, subtopic?: string): boolean {
+  const normTopic = normStr(topic);
+  const normSub = normStr(subtopic ?? "");
+
+  // 1. Full chapter deletions — matched on topic name only.
+  for (const dt of SCIENCE_DELETED_CHAPTERS_2026_27.deletedTopics) {
+    const normDT = normStr(dt);
+    if (normTopic.includes(normDT) || normDT.includes(normTopic)) return true;
+  }
+
+  // 2. Subtopic-level deletions — only relevant when a subtopic is supplied.
+  if (normSub) {
+    for (const kw of SCIENCE_DELETED_CHAPTERS_2026_27.deletedSubtopicKeywords) {
+      const normKW = normStr(kw);
+      if (normSub.includes(normKW)) return true;
+    }
+  }
+
+  return false;
+}
