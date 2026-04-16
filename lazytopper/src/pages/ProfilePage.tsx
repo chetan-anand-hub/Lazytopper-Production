@@ -45,6 +45,88 @@ import { saveLearnerProgress } from "../services/studentProgressStore";
 
 type ProfileTab = "overview" | "achievements" | "stats";
 
+const TOPIC_MASTERY_KEY_PREFIX = "lazytopper.topicHub.mastery.v1.";
+
+interface LessonProgress {
+  conceptsCompleted: string[];
+  conceptsStarted: string[];
+  quizCorrect: number;
+  quizTotal: number;
+  lessonCompleted: boolean;
+}
+
+function loadCompletedChapters(): string[] {
+  if (typeof window === "undefined") return [];
+  const completed: string[] = [];
+  try {
+    for (let i = 0; i < window.localStorage.length; i++) {
+      const key = window.localStorage.key(i);
+      if (!key || !key.startsWith(TOPIC_MASTERY_KEY_PREFIX)) continue;
+      const topicKey = key.slice(TOPIC_MASTERY_KEY_PREFIX.length);
+      if (!topicKey) continue;
+      const raw = window.localStorage.getItem(key);
+      if (!raw) continue;
+      const parsed = JSON.parse(raw) as Partial<LessonProgress>;
+      if (parsed.lessonCompleted === true) {
+        completed.push(topicKey);
+      }
+    }
+  } catch { /* ignore */ }
+  return completed;
+}
+
+function ChapterCompletionMilestones() {
+  const completed = useMemo(() => loadCompletedChapters(), []);
+
+  if (completed.length === 0) return null;
+
+  return (
+    <div style={{ marginBottom: 24 }}>
+      <h3 style={{ fontWeight: 800, fontSize: 16, marginBottom: 12, display: "flex", alignItems: "center", gap: 8 }}>
+        <span>🏆</span> Chapter Mastery Badges
+      </h3>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", gap: 10 }}>
+        {completed.map((topicKey) => (
+          <div
+            key={topicKey}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              padding: "14px 8px 10px",
+              borderRadius: 14,
+              background: "linear-gradient(145deg, rgba(245,158,11,0.12) 0%, rgba(251,191,36,0.06) 100%)",
+              border: "2px solid rgba(245,158,11,0.4)",
+              gap: 6,
+            }}
+          >
+            <div style={{ fontSize: 28, lineHeight: 1 }}>🥇</div>
+            <div style={{
+              fontSize: 11,
+              fontWeight: 800,
+              color: "#f59e0b",
+              textTransform: "uppercase",
+              letterSpacing: 0.5,
+              lineHeight: 1.2,
+            }}>
+              Mastered
+            </div>
+            <div style={{
+              fontSize: 11,
+              fontWeight: 600,
+              textAlign: "center",
+              color: "var(--text)",
+              lineHeight: 1.3,
+            }}>
+              {TOPIC_DISPLAY_NAMES[topicKey] || topicKey}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 const TOPIC_DISPLAY_NAMES: Record<string, string> = {
   "real-numbers": "Real Numbers",
   "polynomials": "Polynomials",
@@ -329,6 +411,7 @@ function OverviewTab({ milestones, subjectTab, setSubjectTab, grade }: {
         ))}
       </div>
 
+      <ChapterCompletionMilestones />
       <h3 style={{ fontWeight: 800, fontSize: 16, marginBottom: 12 }}>Chapter Mastery</h3>
       {topics.every((tk) => getTopicMasteryLevel(tk, grade, subjectTab) === "not_started") ? (
         <div style={{ textAlign: "center", padding: "24px 16px", background: "var(--bg-card)", borderRadius: 14, border: "1px solid var(--bg-card-border)", marginBottom: 16 }}>
