@@ -726,56 +726,52 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     ]
   },
   "maths_real_numbers": {
-    "subject": "Maths",
-    "topicKey": "maths_real_numbers",
-    "topicName": "Real Numbers",
-    "tier": "high-roi",
-    "overview": [
-      "Forms the base for divisibility, HCF–LCM, and irrational numbers.",
-      "Shows up in proofs and 1–3 mark reasoning questions that are easy if you know the structure."
-    ],
-    "definitions": [
-
-      {
-        "title": "Fundamental Theorem of Arithmetic",
-        "description": "Every composite number can be expressed as a product of prime numbers in a unique way (apart from the order of factors)."
-      },
-      {
-        "title": "HCF and LCM relationship",
-        "description": "For any two positive integers, HCF × LCM = product of the two numbers; this is used to find one value when the other is known."
-      },
-      {
-        "title": "Terminating and non-terminating decimals",
-        "description": "A rational number p/q has a terminating decimal if the prime factors of q (in lowest terms) are only 2 and/or 5; otherwise it is non-terminating recurring."
-      }
-    ],
-    "examPatterns": [
-      "1 mark: identify terminating/non-terminating decimal or quick HCF/LCM fact.",
-      "Short reasoning questions based on prime factorisation and decimals."
-    ],
-    "markingTips": [
-      "Not writing numbers as products of primes before using theory.",
-      "Confusing “terminating” with “recurring/non-terminating”.",
-      "Messy contradiction proofs for irrational numbers (skipping the “assume rational” step).",
-      "Forgetting to mention that p and q are coprime in proofs."
-    ],
-    "scoreTips": [
-      "Memorise the template of irrationality proof once, then reuse it (just change numbers).",
-      "Do all NCERT and exemplar reasoning questions at least twice.",
-      "Before exam, quickly revise: prime factorisation → terminating or not, with examples."
-    ],
-    "workedExamples": [],
-    "quickQuiz": [
-      {
-        "title": "Is 7/40 terminating or non-terminating?",
-        "question": "Is 7/40 terminating or non-terminating?"
-      },
-      {
-        "title": "Find HCF and LCM of 12 and 18 using prime factorisation.",
-        "question": "Find HCF and LCM of 12 and 18 using prime factorisation."
-      }
-    ]
-  },
+      "subject": "Maths",
+      "topicKey": "maths_real_numbers",
+      "topicName": "Real Numbers",
+      "tier": "high-roi",
+      "overview": [
+        "Only two topics in the 2026-27 CBSE syllabus: Fundamental Theorem of Arithmetic (with HCF–LCM as its key application) and Proof of Irrationality of √2, √3, √5.",
+        "The irrationality proof is the highest-value question — master the contradiction template once and you can extend it to any compound surd like 3 + 2√5."
+      ],
+      "definitions": [
+        {
+          "title": "Fundamental Theorem of Arithmetic",
+          "description": "Every composite number can be expressed as a product of prime numbers in a unique way (apart from the order of factors). Key application: HCF of two numbers = product of the lowest powers of all common prime factors; LCM = product of the highest powers of all prime factors. Also, HCF × LCM = product of the two numbers — use this to find one when the other is known."
+        },
+        {
+          "title": "Proof of Irrationality",
+          "description": "√2, √3, and √5 are irrational. The standard proof uses contradiction: assume the number equals p/q in lowest terms (p and q coprime), square both sides, show the prime divides both p and q, contradicting coprimality. This template extends to compound surds: to prove 3 + 2√5 is irrational, assume it equals a rational r, isolate √5 = (r − 3)/2, conclude √5 is rational — a contradiction."
+        }
+      ],
+      "examPatterns": [
+        "1 mark (MCQ/Assertion-Reason): Which of the following is irrational? — or — 6ⁿ can never end in digit 0 (A-R on FTA application).",
+        "2–3 marks: Prove √2 or √3 is irrational; or find HCF and LCM using prime factorisation and verify HCF × LCM = product.",
+        "3–5 marks: Prove a compound surd like 3 + 2√5 or 5 − 2√3 is irrational; or a multi-part case-based question on HCF/LCM."
+      ],
+      "markingTips": [
+        "Not writing the full 'assume p/q in lowest terms, so gcd(p,q) = 1' step at the start of the irrationality proof — this loses the setup mark.",
+        "Forgetting to explicitly state that p and q are coprime — without this, the final contradiction has no force.",
+        "Jumping to 'therefore irrational' without explicitly writing 'this contradicts our assumption that p and q are coprime'.",
+        "In FTA questions, not showing the step-by-step prime factorisation before stating HCF or LCM."
+      ],
+      "scoreTips": [
+        "Learn the irrationality proof template cold: Assume → Square → Show prime divides p → Let p = k·prime → Show prime divides q → Contradict coprime → Conclude.",
+        "Extend the template to compound surds in one extra line: isolate the irrational part and show it must be rational — contradiction.",
+        "For HCF/LCM questions, always show the full factor tree; examiners award method marks even if the final answer has an arithmetic slip."
+      ],
+      "workedExamples": [],
+      "quickQuiz": [
+        {
+          "title": "State the Fundamental Theorem of Arithmetic and find HCF(12, 18) using prime factorisation.",
+          "question": "State the Fundamental Theorem of Arithmetic and find HCF(12, 18) using prime factorisation."
+        },
+        {
+          "title": "Prove that √3 is irrational using proof by contradiction.",
+          "question": "Prove that √3 is irrational using proof by contradiction."
+        }
+      ]
+    },
   "maths_polynomials": {
     "subject": "Maths",
     "topicKey": "maths_polynomials",

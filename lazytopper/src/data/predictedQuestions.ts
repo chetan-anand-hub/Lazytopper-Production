@@ -2457,18 +2457,18 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
   {
     id: "2026-RN-MCQ-04",
     topicKey: "Real Numbers",
-    subtopic: "Decimal Expansions",
+    subtopic: "Fundamental Theorem of Arithmetic",
     kind: "MCQ",
     section: "A",
     marks: 1,
     difficulty: "Easy",
     bloomSkill: "Understanding",
     questionText:
-      "Which of the following rational numbers has a terminating decimal expansion?",
-    options: ["2/15", "3/7", "14/125", "1/11"],
-    answer: "14/125",
+      "The LCM of two numbers is 180 and their HCF is 12. If one number is 36, the other number is:",
+    options: ["48", "60", "72", "90"],
+    answer: "60",
     explanation:
-      "A fraction has a terminating decimal expansion when its denominator (in lowest terms) has only the prime factors 2 or 5. 125 = 5^3, so 14/125 qualifies.",
+      "Using the property: Product of two numbers = HCF × LCM. So the other number = (HCF × LCM) / first number = (12 × 180) / 36 = 2160 / 36 = 60.",
   },
   {
     id: "2026-RN-AR-06",

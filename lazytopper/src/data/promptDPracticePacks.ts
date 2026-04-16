@@ -1481,100 +1481,100 @@ export const promptDPracticePacks: PracticePacksIndex =
   },
   "maths": {
     "real_numbers": {
-      "subject": "maths",
-      "topicKey": "real_numbers",
-      "topicName": "Real Numbers",
-      "modes": {
-        "speed_practice": {
-          "targetCount": 10,
-          "difficultyMix": {
-            "Easy": 5,
-            "Medium": 4,
-            "Hard": 1
+        "subject": "maths",
+        "topicKey": "real_numbers",
+        "topicName": "Real Numbers",
+        "modes": {
+          "speed_practice": {
+            "targetCount": 10,
+            "difficultyMix": {
+              "Easy": 5,
+              "Medium": 4,
+              "Hard": 1
+            }
+          },
+          "exam_mix": {
+            "targetCount": 10,
+            "difficultyMix": {
+              "Easy": 3,
+              "Medium": 5,
+              "Hard": 2
+            }
           }
         },
-        "exam_mix": {
-          "targetCount": 10,
-          "difficultyMix": {
-            "Easy": 3,
-            "Medium": 5,
-            "Hard": 2
+        "questions": [
+          {
+            "id": "M-REAL-1",
+            "text": "[MCQ — Competency-based] Which of the following is an irrational number? (a) √4 (b) √9/√16 (c) √5 (d) 0.333...",
+            "marks": 1,
+            "difficulty": "Easy",
+            "questionType": "MCQ"
+          },
+          {
+            "id": "M-REAL-2",
+            "text": "Prove that 3 + 2√5 is irrational, given that √5 is irrational.",
+            "marks": 2,
+            "difficulty": "Medium",
+            "questionType": "subjective"
+          },
+          {
+            "id": "M-REAL-3",
+            "text": "Find the HCF and LCM of 96 and 360 using the prime factorisation method. Verify that HCF × LCM = product of the two numbers.",
+            "marks": 3,
+            "difficulty": "Medium",
+            "questionType": "subjective"
+          },
+          {
+            "id": "M-REAL-4",
+            "text": "Express 392 as a product of prime factors and hence find the HCF of 392 and 252.",
+            "marks": 3,
+            "difficulty": "Medium",
+            "questionType": "subjective"
+          },
+          {
+            "id": "M-REAL-5",
+            "text": "Prove that √5 is an irrational number.",
+            "marks": 3,
+            "difficulty": "Hard",
+            "questionType": "subjective"
+          },
+          {
+            "id": "M-REAL-6",
+            "text": "[Assertion-Reason — Competency-based] Assertion (A): 6ⁿ can never end with the digit 0 for any natural number n. Reason (R): 6ⁿ = (2 × 3)ⁿ = 2ⁿ × 3ⁿ, which has no factor of 5 in its prime factorisation.",
+            "marks": 1,
+            "difficulty": "Easy",
+            "questionType": "assertion-reason"
+          },
+          {
+            "id": "M-REAL-7",
+            "text": "Show that the product of two consecutive positive integers is always even, using the Fundamental Theorem of Arithmetic idea.",
+            "marks": 2,
+            "difficulty": "Medium",
+            "questionType": "subjective"
+          },
+          {
+            "id": "M-REAL-8",
+            "text": "[Competency-based] If HCF of two numbers is 9 and their product is 1458, find their LCM. Also verify using HCF × LCM = product.",
+            "marks": 2,
+            "difficulty": "Easy",
+            "questionType": "MCQ"
+          },
+          {
+            "id": "M-REAL-9",
+            "text": "Prove that if p is a prime and p divides a², then p divides a.",
+            "marks": 2,
+            "difficulty": "Medium",
+            "questionType": "subjective"
+          },
+          {
+            "id": "M-REAL-10",
+            "text": "[Case-Based — Competency-based] Three bells ring at intervals of 12, 15, and 18 minutes respectively. They ring together at 8:00 AM. (i) Find the LCM of 12, 15, and 18. (ii) After how many minutes will they ring together again? (iii) How many times will they ring together between 8:00 AM and 12:00 PM (excluding 8:00 AM)?",
+            "marks": 4,
+            "difficulty": "Hard",
+            "questionType": "case-based"
           }
-        }
+        ]
       },
-      "questions": [
-        {
-          "id": "M-REAL-1",
-          "text": "State whether 27/125 has a terminating or non-terminating decimal expansion.",
-          "marks": 1,
-          "difficulty": "Easy",
-          "questionType": "subjective"
-        },
-        {
-          "id": "M-REAL-2",
-          "text": "Without actual division, decide whether 13/2^2·5^3 will have a terminating decimal expansion. Justify briefly.",
-          "marks": 2,
-          "difficulty": "Medium",
-          "questionType": "subjective"
-        },
-        {
-          "id": "M-REAL-3",
-          "text": "Use Euclid’s division algorithm to find the HCF of 84 and 120.",
-          "marks": 2,
-          "difficulty": "Medium",
-          "questionType": "subjective"
-        },
-        {
-          "id": "M-REAL-4",
-          "text": "Express 392 as a product of prime factors and hence find the HCF of 392 and 252.",
-          "marks": 3,
-          "difficulty": "Medium",
-          "questionType": "subjective"
-        },
-        {
-          "id": "M-REAL-5",
-          "text": "Prove that √5 is an irrational number.",
-          "marks": 3,
-          "difficulty": "Hard",
-          "questionType": "subjective"
-        },
-        {
-          "id": "M-REAL-6",
-          "text": "Explain why 2/7 has a non-terminating repeating decimal expansion.",
-          "marks": 2,
-          "difficulty": "Easy",
-          "questionType": "subjective"
-        },
-        {
-          "id": "M-REAL-7",
-          "text": "Show that the product of two consecutive positive integers is always even, using Fundamental Theorem of Arithmetic idea.",
-          "marks": 2,
-          "difficulty": "Medium",
-          "questionType": "subjective"
-        },
-        {
-          "id": "M-REAL-8",
-          "text": "If HCF of two numbers is 9 and their product is 1458, find their LCM.",
-          "marks": 2,
-          "difficulty": "Easy",
-          "questionType": "subjective"
-        },
-        {
-          "id": "M-REAL-9",
-          "text": "Prove that any positive integer of the form 6q+2 or 6q+4 is always even but not divisible by 3.",
-          "marks": 3,
-          "difficulty": "Hard",
-          "questionType": "subjective"
-        },
-        {
-          "id": "M-REAL-10",
-          "text": "Check whether 17/2·5^2·3 will have a terminating decimal or not. Give reason based on its denominator.",
-          "marks": 2,
-          "difficulty": "Medium",
-          "questionType": "subjective"
-        }
-      ]
-    },
     "polynomials": {
       "subject": "maths",
       "topicKey": "polynomials",

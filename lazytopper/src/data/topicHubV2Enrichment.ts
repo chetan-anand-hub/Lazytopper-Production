@@ -1063,90 +1063,90 @@ export const topicHubV2Enrichment: Record<string, Partial<TopicHubV2Content>> = 
    * Real Numbers
    */
   "maths_real_numbers": {
-    workedExamples: [
-      {
-        title: "Using Euclid’s algorithm",
-        question: "Find the HCF of 96 and 404 using Euclid’s division algorithm."
-      },
-      {
-        title: "Terminating decimal check",
-        question: "Without performing long division, determine whether \(\frac{5}{24}\) has a terminating decimal expansion."
-      }
-    ],
-    competencies: [
-      { id: "M10-maths_real_numbers-C1", description: "Apply Euclid’s division lemma to find the highest common factor of two numbers.", bloomLevel: "Apply" },
-      { id: "M10-maths_real_numbers-C2", description: "Use the Fundamental Theorem of Arithmetic to express composite numbers as products of primes.", bloomLevel: "Understand" },
-      { id: "M10-maths_real_numbers-C3", description: "Determine whether rational numbers have terminating or recurring decimal expansions based on prime factorisation of denominators.", bloomLevel: "Analyze" },
-      { id: "M10-maths_real_numbers-C4", description: "Prove irrationality of square roots of prime numbers and simple surds.", bloomLevel: "Analyze" }
-    ],
-    misconceptions: [
-      {
-        concept: "HCF vs LCM",
-        commonError: "Confusing highest common factor with least common multiple when applying Euclid’s algorithm.",
-        correction: "HCF is the greatest divisor common to both numbers; Euclid’s algorithm finds the HCF, not the LCM." 
-      },
-      {
-        concept: "Terminating decimals",
-        commonError: "Believing that a rational number terminates if its denominator is even or odd without reducing it to lowest terms.",
-        correction: "Reduce the fraction to simplest form; if the denominator has prime factors other than 2 or 5, the decimal is non‑terminating recurring." 
-      },
-      {
-        concept: "Irrational proofs",
-        commonError: "Skipping the step of assuming the number is rational in contradiction proofs for irrationality.",
-        correction: "To prove \(\sqrt{p}\) is irrational, assume \(\sqrt{p}\) = m/n in lowest terms and derive a contradiction using prime factorisation." 
-      }
-    ],
-    caseStudies: [
-      {
-        id: "maths_real_numbers-CS1",
-        tier: "high-roi",
-        contextText:
-          "A shopkeeper packs gift boxes using pieces of ribbon cut from rolls of different lengths. She has rolls of length 84 cm and 140 cm. She wants to cut both into equal shorter pieces of maximum possible length without any waste.",
-        subQuestions: [
-          {
-            id: "maths_real_numbers-CS1-Q1",
-            questionText: "What is the maximum length of each piece?",
-            questionType: "MCQ",
-            marks: 1,
-            bloomLevel: "Apply",
-            options: ["12 cm", "14 cm", "28 cm", "7 cm"],
-            correctAnswer: "28 cm",
-            explanation: "The required length is the HCF of 84 cm and 140 cm, which is 28 cm.",
-            hint: "Find the highest common factor of the two lengths.",
-            competencyCode: "M10-maths_real_numbers-C1"
-          },
-          {
-            id: "maths_real_numbers-CS1-Q2",
-            questionText:
-              "Use Euclid’s division algorithm to find the HCF of 84 and 140.",
-            questionType: "ShortAnswer",
-            marks: 2,
-            bloomLevel: "Apply",
-            correctAnswer: "HCF = 28.",
-            explanation:
-              "Divide 140 by 84: 140 = 84 × 1 + 56; then divide 84 by 56: 84 = 56 × 1 + 28; 56 = 28 × 2 + 0. The last non‑zero remainder is 28.",
-            hint: "Apply the division algorithm repeatedly until the remainder is zero.",
-            competencyCode: "M10-maths_real_numbers-C1"
-          },
-          {
-            id: "maths_real_numbers-CS1-Q3",
-            questionText:
-              "Assertion (A): The decimal expansion of \(\frac{1}{28}\) is non‑terminating repeating. Reason (R): The denominator 28 has prime factors other than 2 and 5.",
-            questionType: "AssertionReason",
-            marks: 1,
-            bloomLevel: "Analyze",
-            options: ["Both A and R are true and R explains A", "Both A and R are true but R does not explain A", "A is true but R is false", "A is false but R is true"],
-            correctAnswer: "Both A and R are true and R explains A",
-            explanation:
-              "28 = 2² × 7. Since 7 is a prime other than 2 or 5, the decimal expansion of 1/28 repeats and does not terminate.",
-            hint: "Check the prime factors of the denominator.",
-            competencyCode: "M10-maths_real_numbers-C3"
-          }
-        ]
-      }
-    ],
-    labActivities: []
-  },
+      workedExamples: [
+        {
+          title: "Finding HCF and LCM using prime factorisation",
+          question: "Find the HCF and LCM of 96 and 360 using the prime factorisation method. Verify that HCF × LCM = product of the two numbers."
+        },
+        {
+          title: "Proving irrationality of a compound surd",
+          question: "Prove that 3 + 2√5 is irrational, given that √5 is irrational."
+        }
+      ],
+      competencies: [
+        { id: "M10-maths_real_numbers-C1", description: "Use the Fundamental Theorem of Arithmetic to express composite numbers as products of primes and find HCF/LCM.", bloomLevel: "Apply" },
+        { id: "M10-maths_real_numbers-C2", description: "Apply the property HCF × LCM = product of two numbers to solve related problems.", bloomLevel: "Apply" },
+        { id: "M10-maths_real_numbers-C3", description: "Prove irrationality of √2, √3, √5 using contradiction, starting from the assumption that the number is rational in lowest terms.", bloomLevel: "Analyze" },
+        { id: "M10-maths_real_numbers-C4", description: "Extend the irrationality proof template to compound surds such as 3 + 2√5, 5 − 2√3, and √2/3.", bloomLevel: "Evaluate" }
+      ],
+      misconceptions: [
+        {
+          concept: "HCF vs LCM",
+          commonError: "Confusing highest common factor with least common multiple — students take highest powers for HCF and lowest powers for LCM.",
+          correction: "HCF uses the lowest power of each common prime factor; LCM uses the highest power of every prime factor present in either number."
+        },
+        {
+          concept: "Irrational number proofs",
+          commonError: "Skipping the step of stating that p and q are coprime at the beginning of the contradiction proof.",
+          correction: "The contradiction only works because gcd(p, q) = 1. Always write: 'Let √p = a/b where a, b are integers with gcd(a, b) = 1, b ≠ 0.'"
+        },
+        {
+          concept: "Extending the proof to compound surds",
+          commonError: "Trying to prove 3 + 2√5 is irrational from scratch instead of using the known irrationality of √5.",
+          correction: "Assume 3 + 2√5 = r (rational), isolate √5 = (r − 3)/2. Since r is rational, (r − 3)/2 is rational — contradicting that √5 is irrational."
+        }
+      ],
+      caseStudies: [
+        {
+          id: "maths_real_numbers-CS1",
+          tier: "high-roi",
+          contextText:
+            "A school organises a cultural event with three dance groups. The groups have 84, 140, and 196 students respectively. The coordinator wants to split each group into the largest possible equal-sized teams, with all teams having the same number of students.",
+          subQuestions: [
+            {
+              id: "maths_real_numbers-CS1-Q1",
+              questionText: "What is the maximum number of students in each team?",
+              questionType: "MCQ",
+              marks: 1,
+              bloomLevel: "Apply",
+              options: ["14", "21", "28", "7"],
+              correctAnswer: "28",
+              explanation: "The maximum team size is HCF(84, 140, 196). 84 = 2² × 3 × 7; 140 = 2² × 5 × 7; 196 = 2² × 7². HCF = 2² × 7 = 28.",
+              hint: "Find the HCF of all three group sizes using prime factorisation.",
+              competencyCode: "M10-maths_real_numbers-C1"
+            },
+            {
+              id: "maths_real_numbers-CS1-Q2",
+              questionText:
+                "Using prime factorisation, find the HCF and LCM of 84 and 140. Also verify that HCF × LCM = product of the two numbers.",
+              questionType: "ShortAnswer",
+              marks: 2,
+              bloomLevel: "Apply",
+              correctAnswer: "HCF = 28, LCM = 420; 28 × 420 = 11760 = 84 × 140.",
+              explanation:
+                "84 = 2² × 3 × 7; 140 = 2² × 5 × 7. HCF = 2² × 7 = 28. LCM = 2² × 3 × 5 × 7 = 420. Verification: 28 × 420 = 11760 = 84 × 140 ✓",
+              hint: "Write both numbers as products of prime factors, then pick lowest powers for HCF and highest powers for LCM.",
+              competencyCode: "M10-maths_real_numbers-C2"
+            },
+            {
+              id: "maths_real_numbers-CS1-Q3",
+              questionText:
+                "Assertion (A): 6ⁿ can never end with the digit 0 for any natural number n. Reason (R): 6ⁿ = (2 × 3)ⁿ = 2ⁿ × 3ⁿ, which contains no factor of 5 in its prime factorisation.",
+              questionType: "AssertionReason",
+              marks: 1,
+              bloomLevel: "Analyze",
+              options: ["Both A and R are true and R explains A", "Both A and R are true but R does not explain A", "A is true but R is false", "A is false but R is true"],
+              correctAnswer: "Both A and R are true and R explains A",
+              explanation:
+                "For a number to end in 0 it must be divisible by 10 = 2 × 5. Since 6ⁿ = 2ⁿ × 3ⁿ has no factor of 5, it cannot end in 0. R correctly explains A using the Fundamental Theorem of Arithmetic.",
+              hint: "For any number to end in 0, its prime factorisation must include both 2 and 5.",
+              competencyCode: "M10-maths_real_numbers-C1"
+            }
+          ]
+        }
+      ],
+      labActivities: []
+    },
 
   /**
    * Polynomials

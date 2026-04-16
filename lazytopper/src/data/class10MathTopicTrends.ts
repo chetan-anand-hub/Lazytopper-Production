@@ -57,14 +57,13 @@ export const class10MathTopicTrends = {
 
   topics: {
     "Real Numbers": {
-      weightagePercent: 7.69,
+      weightagePercent: 7.5,
       tier: "high-roi" as TopicTier,
       summary:
-        "HCF/LCM via prime factorisation, irrationality proofs, decimal expansions—often 1 short + 1 MCQ.",
+        "Only FTA (with HCF/LCM applications) and irrationality proofs of √2, √3, √5 — often 1 MCQ/A-R + 1 proof question.",
       conceptWeightage: {
-        "Fundamental Theorem of Arithmetic": 55,
-        "Irrationality Proofs": 35,
-        "Decimal Expansion": 10,
+        "Fundamental Theorem of Arithmetic": 60,
+        "Irrationality Proofs": 40,
       },
     },
 

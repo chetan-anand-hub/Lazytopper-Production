@@ -47,10 +47,9 @@ export const MATHS_VISUALS: ChapterVisuals[] = [
     chapterName: "Real Numbers",
     subject: "maths",
     concepts: [
-      c("maths", "real-numbers", "Fundamental Theorem of Arithmetic", ["prime", "factorisation", "unique", "fundamental", "euclid", "hcf", "algorithm", "lemma"]),
-      c("maths", "real-numbers", "HCF and LCM using Prime Factorisation", ["hcf", "lcm", "prime", "factors", "division"]),
-      c("maths", "real-numbers", "Irrational Numbers Proof", ["irrational", "proof", "contradiction", "sqrt2"]),
-      c("maths", "real-numbers", "Decimal Expansions", ["terminating", "non-terminating", "repeating", "decimal"]),
+      c("maths", "real-numbers", "Fundamental Theorem of Arithmetic", ["prime", "factorisation", "unique", "fundamental", "hcf", "lcm", "factors", "composite"]),
+      c("maths", "real-numbers", "HCF and LCM using Prime Factorisation", ["hcf", "lcm", "prime", "factors"]),
+      c("maths", "real-numbers", "Irrational Numbers Proof", ["irrational", "proof", "contradiction", "sqrt2", "sqrt3", "sqrt5"]),
     ],
   },
   {

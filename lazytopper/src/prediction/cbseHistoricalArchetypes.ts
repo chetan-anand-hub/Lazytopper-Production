@@ -113,7 +113,6 @@ export const CBSE_HISTORICAL_ARCHETYPES: CbseArchetypeEntry[] = [
   m("Real Numbers", "Fundamental Theorem of Arithmetic", 2, "Short", "Applying", "procedural", 2018),
   m("Real Numbers", "Irrationality Proofs", 3, "Short", "Applying", "procedural", 2018),
   m("Real Numbers", "Fundamental Theorem of Arithmetic", 2, "Short", "Applying", "procedural", 2019),
-  m("Real Numbers", "Decimal Expansion", 1, "MCQ", "Remembering", "conceptual", 2019),
   m("Real Numbers", "Irrationality Proofs", 3, "Short", "Applying", "procedural", 2020),
   m("Real Numbers", "Fundamental Theorem of Arithmetic", 1, "MCQ", "Understanding", "conceptual", 2020),
   m("Real Numbers", "Irrationality Proofs", 2, "Short", "Applying", "procedural", 2022),
