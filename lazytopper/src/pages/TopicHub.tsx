@@ -627,6 +627,13 @@ export default function TopicHub() {
     advanceMiniQuiz({
       onConceptPass: () => {
         if (conceptIdx < totalConcepts - 1) {
+          const nextDef = definitions[conceptIdx + 1] as V2Definition | undefined;
+          if (nextDef) {
+            updateProgress((prev) => {
+              if (prev.conceptsStarted.includes(nextDef.title)) return prev;
+              return { ...prev, conceptsStarted: [...prev.conceptsStarted, nextDef.title] };
+            });
+          }
           setConceptIdx(conceptIdx + 1);
           setPhase("learning");
         } else {
@@ -635,7 +642,7 @@ export default function TopicHub() {
         }
       },
     });
-  }, [advanceMiniQuiz, conceptIdx, totalConcepts, markLessonCompleted]);
+  }, [advanceMiniQuiz, conceptIdx, totalConcepts, markLessonCompleted, definitions, updateProgress]);
 
   const handleCheckpointAnswer = useCallback(
     (option: string) => {
