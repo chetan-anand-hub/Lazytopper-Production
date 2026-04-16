@@ -390,17 +390,6 @@
           ],
           "recommended_concept_packs": 16,
           "visual_min": 6
-        },
-        {
-          "chapter_id": "S10_CH_ENV",
-          "unit_id": "S10_U5",
-          "title": "Our Environment",
-          "cbse_scope_bullets": [
-            "Ecosystem; environmental problems; ozone depletion; waste production and solutions.",
-            "Biodegradable vs non-biodegradable."
-          ],
-          "recommended_concept_packs": 10,
-          "visual_min": 3
         }
       ]
     }

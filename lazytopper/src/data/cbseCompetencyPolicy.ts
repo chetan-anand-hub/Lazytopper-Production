@@ -149,6 +149,5 @@ export const COMPETENCY_VERIFICATION_LOG = {
     "Human Eye and Colourful World": "60%",
     "Electricity": "68%",
     "Magnetic Effects of Electric Current": "64%",
-    "Our Environment": "61%",
   },
 } as const;
