@@ -746,7 +746,8 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
       ],
       "examPatterns": [
         "1 mark (MCQ/Assertion-Reason): Which of the following is irrational? — or — 6ⁿ can never end in digit 0 (A-R on FTA application).",
-        "2–3 marks: Prove √2 or √3 is irrational; or find HCF and LCM using prime factorisation and verify HCF × LCM = product.",
+        "2–3 marks (FTA): Find HCF and LCM of two numbers using prime factorisation; verify HCF × LCM = product of the two numbers.",
+        "2–3 marks (Irrationality): Prove √2, √3, or √5 is irrational using proof by contradiction.",
         "3–5 marks: Prove a compound surd like 3 + 2√5 or 5 − 2√3 is irrational; or a multi-part case-based question on HCF/LCM."
       ],
       "markingTips": [

@@ -307,10 +307,10 @@ export const RN2_PACK2: CanonicalQuestion[] = [
     "options": [],
     "answer": "(i) 24 books per shelf (ii) 11 shelves",
     "solutionSteps": [
-      "Part (i): Need to find HCF(144, 120)",
-      "144 = 120 × 1 + 24",
-      "120 = 24 × 5 + 0",
-      "HCF = 24 books per shelf",
+      "Part (i): Need to find HCF(144, 120) using prime factorisation.",
+      "144 = 2⁴ × 3²",
+      "120 = 2³ × 3 × 5",
+      "HCF = 2³ × 3 = 24 books per shelf",
       "Part (ii): History shelves = 144/24 = 6, Science shelves = 120/24 = 5",
       "Total shelves = 6 + 5 = 11"
     ],
@@ -318,7 +318,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "B",
-    "ncertRef": "Ex 1.1"
+    "ncertRef": "Ex 1.3"
   },
   {
     "id": "RN2-018",
@@ -679,7 +679,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
-    "ncertRef": "Ex 1.4"
+    "ncertRef": "Ex 1.3"
   },
   {
     "id": "RN2-035",
@@ -713,7 +713,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
-    "ncertRef": "Ex 1.4"
+    "ncertRef": "Ex 1.3"
   },
   {
     "id": "RN2-036",
@@ -739,7 +739,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
-    "ncertRef": "Ex 1.4"
+    "ncertRef": "Ex 1.3"
   },
   {
     "id": "RN2-037",
@@ -857,7 +857,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
-    "ncertRef": "Ex 1.4"
+    "ncertRef": "Ex 1.3"
   },
   {
     "id": "RN2-042",
@@ -919,7 +919,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
     "isCompetencyBased": false,
     "pyqYear": "2023",
     "pyqSet": undefined,
-    "ncertRef": "Ex 1.4"
+    "ncertRef": "Ex 1.3"
   },
   {
       "id": "RN2-044",
