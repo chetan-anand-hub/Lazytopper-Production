@@ -181,7 +181,7 @@ function buildFallbackCheckpoint(def: V2Definition, topicName: string): Canonica
   };
 }
 
-type LessonPhase = "landing" | "learning" | "summary";
+type LessonPhase = "landing" | "menu" | "learning" | "summary";
 
 const TIER_STYLES: Record<string, { bg: string; text: string; label: string }> = {
   "must-crack": { bg: "rgba(239,68,68,0.1)", text: "#ef4444", label: "Must Crack" },
@@ -451,17 +451,44 @@ export default function TopicHub() {
     updateProgress((prev) => ({ ...prev, lessonCompleted: true }));
   }, [updateProgress]);
 
+  useEffect(() => {
+    if (phase === "menu" && progress.conceptsCompleted.length >= totalConcepts && !progress.lessonCompleted) {
+      markLessonCompleted();
+    }
+  }, [phase, progress.conceptsCompleted.length, progress.lessonCompleted, totalConcepts, markLessonCompleted]);
+
   const [masteryVersion, setMasteryVersion] = useState(0);
   const chapterMasteryLevel = useMemo(() => getChapterMasteryLevel(chapterId), [chapterId, masteryVersion]);
 
   const startLearning = useCallback(() => {
-    setPhase("learning");
+    setPhase("menu");
     setConceptIdx(0);
     setShowingCheckpoint(false);
     setSelectedAnswer(null);
     setAnswerRevealed(false);
     setMiniQuizIdx(0);
     setMiniQuizAnswers([]);
+  }, []);
+
+  const jumpToConcept = useCallback((idx: number) => {
+    setConceptIdx(idx);
+    setShowingCheckpoint(false);
+    setSelectedAnswer(null);
+    setAnswerRevealed(false);
+    setMiniQuizIdx(0);
+    setMiniQuizAnswers([]);
+    setConceptFailed(false);
+    setPhase("learning");
+  }, []);
+
+  const backToMenu = useCallback(() => {
+    setShowingCheckpoint(false);
+    setSelectedAnswer(null);
+    setAnswerRevealed(false);
+    setMiniQuizIdx(0);
+    setMiniQuizAnswers([]);
+    setConceptFailed(false);
+    setPhase("menu");
   }, []);
 
   const currentDef = definitions[conceptIdx] as V2Definition | undefined;
@@ -528,7 +555,7 @@ export default function TopicHub() {
 
   const [conceptFailed, setConceptFailed] = useState(false);
 
-  const advanceMiniQuiz = useCallback(() => {
+  const advanceMiniQuiz = useCallback((opts?: { onConceptPass?: () => void }) => {
     if (miniQuizIdx < currentMiniQuiz.length - 1) {
       setMiniQuizIdx((i) => i + 1);
       setSelectedAnswer(null);
@@ -557,20 +584,20 @@ export default function TopicHub() {
         return;
       }
 
-      if (conceptIdx < totalConcepts - 1) {
-        setShowingCheckpoint(false);
-        setSelectedAnswer(null);
-        setAnswerRevealed(false);
-        setMiniQuizIdx(0);
-        setMiniQuizAnswers([]);
-        setConceptFailed(false);
-        setConceptIdx((prev) => prev + 1);
+      setShowingCheckpoint(false);
+      setSelectedAnswer(null);
+      setAnswerRevealed(false);
+      setMiniQuizIdx(0);
+      setMiniQuizAnswers([]);
+      setConceptFailed(false);
+
+      if (opts?.onConceptPass) {
+        opts.onConceptPass();
       } else {
-        markLessonCompleted();
-        setPhase("summary");
+        setPhase("menu");
       }
     }
-  }, [miniQuizIdx, currentMiniQuiz, miniQuizAnswers, currentDef, conceptIdx, totalConcepts, markConceptCompleted, markLessonCompleted, chapterId]);
+  }, [miniQuizIdx, currentMiniQuiz, miniQuizAnswers, currentDef, markConceptCompleted, chapterId]);
 
   const retryConcept = useCallback(() => {
     setShowingCheckpoint(true);
@@ -584,6 +611,20 @@ export default function TopicHub() {
   const advanceToNext = useCallback(() => {
     advanceMiniQuiz();
   }, [advanceMiniQuiz]);
+
+  const advanceToNextConcept = useCallback(() => {
+    advanceMiniQuiz({
+      onConceptPass: () => {
+        if (conceptIdx < totalConcepts - 1) {
+          setConceptIdx(conceptIdx + 1);
+          setPhase("learning");
+        } else {
+          markLessonCompleted();
+          setPhase("menu");
+        }
+      },
+    });
+  }, [advanceMiniQuiz, conceptIdx, totalConcepts, markLessonCompleted]);
 
   const handleCheckpointAnswer = useCallback(
     (option: string) => {
@@ -799,28 +840,139 @@ export default function TopicHub() {
           </div>
         )}
 
+        {phase === "menu" && (() => {
+          const allDone = progress.conceptsCompleted.length >= totalConcepts;
+          return (
+            <div style={{ marginTop: 20 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+                <div>
+                  <h2 style={{ fontSize: "1.1rem", fontWeight: 800, color: "var(--text)", margin: 0 }}>
+                    {title}
+                  </h2>
+                  <div style={{ fontSize: "0.78rem", color: "var(--text-muted)", marginTop: 2 }}>
+                    {progress.conceptsCompleted.length} of {totalConcepts} concepts done
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setPhase("landing")}
+                  style={{ padding: "4px 12px", borderRadius: 8, border: "1px solid var(--bg-card-border)", background: "var(--bg-card)", color: "var(--text-muted)", fontSize: "0.78rem", fontWeight: 600, cursor: "pointer" }}
+                >
+                  ← Overview
+                </button>
+              </div>
+
+              <div style={{ height: 6, borderRadius: 999, background: "var(--bg-card-border)", overflow: "hidden", marginBottom: 16 }}>
+                <div style={{
+                  height: "100%", borderRadius: 999, transition: "width 0.4s ease",
+                  width: `${(progress.conceptsCompleted.length / Math.max(totalConcepts, 1)) * 100}%`,
+                  background: allDone ? "linear-gradient(90deg,#f59e0b,#d97706)" : "linear-gradient(90deg,#22c55e,#16a34a)",
+                }} />
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {definitions.map((def, idx) => {
+                  const isDone = progress.conceptsCompleted.includes((def as V2Definition).title);
+                  return (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => jumpToConcept(idx)}
+                      style={{
+                        display: "flex", alignItems: "flex-start", gap: 14,
+                        padding: "14px 16px", borderRadius: 14, cursor: "pointer",
+                        border: isDone ? "1.5px solid rgba(34,197,94,0.35)" : "1px solid var(--bg-card-border)",
+                        background: isDone ? "rgba(34,197,94,0.05)" : "var(--bg-card)",
+                        textAlign: "left", width: "100%",
+                        transition: "transform 0.12s, box-shadow 0.12s",
+                      }}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.transform = "translateY(-1px)"; (e.currentTarget as HTMLElement).style.boxShadow = "0 4px 16px rgba(0,0,0,0.15)"; }}
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.transform = ""; (e.currentTarget as HTMLElement).style.boxShadow = ""; }}
+                    >
+                      <div style={{
+                        width: 32, height: 32, borderRadius: 999, flexShrink: 0, display: "flex",
+                        alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: "0.85rem",
+                        background: isDone ? "rgba(34,197,94,0.12)" : "rgba(99,102,241,0.08)",
+                        color: isDone ? "#22c55e" : "var(--color-accent)",
+                      }}>
+                        {isDone ? "✓" : idx + 1}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontWeight: 700, fontSize: "0.92rem", color: "var(--text)", marginBottom: 3 }}>
+                          {(def as V2Definition).title}
+                        </div>
+                        <div style={{ fontSize: "0.78rem", color: "var(--text-muted)", lineHeight: 1.4, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
+                          {(def as V2Definition).description}
+                        </div>
+                      </div>
+                      <div style={{
+                        fontSize: "0.68rem", fontWeight: 700, padding: "3px 9px", borderRadius: 999, flexShrink: 0,
+                        background: isDone ? "rgba(34,197,94,0.12)" : "rgba(99,102,241,0.08)",
+                        color: isDone ? "#22c55e" : "var(--color-accent)",
+                      }}>
+                        {isDone ? "Done" : "Start"}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 8, alignItems: "center" }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    trackUxEvent("topichub_topic_mock_click", "TopicHub", { topicKey, destination: "chapter_test" });
+                    navigate(
+                      buildTopicMockUrl(grade, subjectTitle, topicKey),
+                      { state: { back: `/topic-hub/${grade}/${subject}/${topicKey}`, backLabel: `Back to ${title}` } }
+                    );
+                  }}
+                  style={{
+                    width: "100%", padding: "14px", borderRadius: 14,
+                    background: allDone ? "linear-gradient(135deg,#f59e0b,#d97706)" : "transparent",
+                    border: allDone ? "none" : "1px solid var(--bg-card-border)",
+                    color: allDone ? "var(--text)" : "var(--text-muted)",
+                    fontWeight: 700, fontSize: allDone ? "0.95rem" : "0.85rem",
+                    cursor: "pointer", boxShadow: allDone ? "0 4px 14px rgba(245,158,11,0.3)" : "none",
+                  }}
+                >
+                  {allDone ? "🏆 Take Chapter Test — All concepts done!" : "Take Chapter Test"}
+                </button>
+              </div>
+            </div>
+          );
+        })()}
+
         {phase === "learning" && (
           <div style={{ marginTop: 16 }}>
             <div style={{
               display: "flex", alignItems: "center", justifyContent: "space-between",
-              marginBottom: 12,
+              marginBottom: 6,
             }}>
-              <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "var(--text-muted)" }}>
-                {title} — Concept {conceptIdx + 1} of {totalConcepts}
-              </span>
+              <button
+                type="button"
+                onClick={backToMenu}
+                style={{
+                  padding: "4px 12px", borderRadius: 8, border: "1px solid var(--bg-card-border)",
+                  background: "var(--bg-card)", color: "var(--text-muted)", fontSize: "0.78rem",
+                  fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 5,
+                }}
+              >
+                ← Concepts
+              </button>
               <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>
-                {Math.round(((conceptIdx + 1) / totalConcepts) * 100)}%
+                {progress.conceptsCompleted.length}/{totalConcepts} done
               </span>
             </div>
 
             <div style={{
               height: 6, borderRadius: 999, background: "var(--bg-card-border)", overflow: "hidden",
-              marginBottom: 20,
+              marginBottom: 16,
             }}>
               <div style={{
                 height: "100%", borderRadius: 999, transition: "width 0.3s ease",
-                width: `${((conceptIdx + 1) / totalConcepts) * 100}%`,
-                background: "linear-gradient(90deg, #6366f1, #8b5cf6)",
+                width: `${(progress.conceptsCompleted.length / Math.max(totalConcepts, 1)) * 100}%`,
+                background: "linear-gradient(90deg, #22c55e, #16a34a)",
               }} />
             </div>
 
@@ -1109,10 +1261,25 @@ export default function TopicHub() {
                       )}
                     </div>
 
-                    <button type="button" onClick={advanceToNext}
-                      style={{ padding: "10px 24px", borderRadius: 12, background: "linear-gradient(135deg, #6366f1, #4f46e5)", border: "none", color: "var(--text)", fontWeight: 600, fontSize: "0.88rem", cursor: "pointer" }}>
-                      {miniQuizIdx < currentMiniQuiz.length - 1 ? `Next Question (${miniQuizIdx + 2}/${currentMiniQuiz.length})` : conceptIdx < totalConcepts - 1 ? "Next Concept →" : "See Summary"}
-                    </button>
+                    {miniQuizIdx < currentMiniQuiz.length - 1 ? (
+                      <button type="button" onClick={advanceToNext}
+                        style={{ padding: "10px 24px", borderRadius: 12, background: "linear-gradient(135deg, #6366f1, #4f46e5)", border: "none", color: "var(--text)", fontWeight: 600, fontSize: "0.88rem", cursor: "pointer" }}>
+                        {`Next Question (${miniQuizIdx + 2}/${currentMiniQuiz.length})`}
+                      </button>
+                    ) : (
+                      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                        <button type="button" onClick={advanceToNext}
+                          style={{ padding: "10px 24px", borderRadius: 12, background: "linear-gradient(135deg, #22c55e, #16a34a)", border: "none", color: "var(--text)", fontWeight: 700, fontSize: "0.88rem", cursor: "pointer" }}>
+                          ← Back to Concepts
+                        </button>
+                        {conceptIdx < totalConcepts - 1 && (
+                          <button type="button" onClick={advanceToNextConcept}
+                            style={{ padding: "10px 20px", borderRadius: 12, background: "var(--bg-card)", border: "1px solid var(--bg-card-border)", color: "var(--text-muted)", fontWeight: 600, fontSize: "0.82rem", cursor: "pointer" }}>
+                            Next Concept →
+                          </button>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
