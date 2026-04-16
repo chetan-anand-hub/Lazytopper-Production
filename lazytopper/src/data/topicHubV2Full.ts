@@ -98,11 +98,11 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
         "description": "The mode is the most frequently occurring value; for grouped data it is calculated using the modal class (class with highest frequency) and the mode formula."
       },
       {
-        "title": "Frequency distribution table",
+        "title": "Grouped data and frequency table",
         "description": "A frequency table organises raw data into class intervals with their corresponding frequencies, making it easier to compute central tendency measures."
       },
       {
-        "title": "Choosing the right central tendency measure",
+        "title": "Comparing mean, median and mode for grouped data",
         "description": "Mean is best for symmetric data, median for skewed data, and mode for identifying the most common category; the choice depends on the data distribution and context."
       }
     ],
@@ -226,7 +226,7 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
         "description": "V = IR, resistance and factors affecting resistance."
       },
       {
-        "title": "Resistivity",
+        "title": "Resistivity and Ohm's law application",
         "description": "Resistivity (ρ) is a material property measured in Ω·m that indicates how strongly a material opposes electric current; it distinguishes conductors from insulators."
       },
       {
@@ -494,7 +494,7 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
         "description": "Ethanol (C₂H₅OH) is used as a solvent and in beverages; ethanoic acid (CH₃COOH) is the acid in vinegar. Both have characteristic chemical reactions."
       },
       {
-        "title": "Soaps, detergents, and cleansing action",
+        "title": "Cleansing action of soaps and functional groups",
         "description": "Soaps are sodium/potassium salts of fatty acids that form micelles to trap grease in water; detergents work similarly but are effective in hard water too."
       }
     ],
