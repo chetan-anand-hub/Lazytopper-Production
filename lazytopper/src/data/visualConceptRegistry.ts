@@ -113,7 +113,6 @@ export const MATHS_VISUALS: ChapterVisuals[] = [
     concepts: [
       c("maths", "coordinate-geometry", "Distance Formula", ["distance", "formula", "two", "points", "sqrt"]),
       c("maths", "coordinate-geometry", "Section Formula", ["section", "ratio", "midpoint", "internal", "division"]),
-      c("maths", "coordinate-geometry", "Area of Triangle using Coordinates", ["area", "triangle", "coordinates", "vertices"]),
       c("maths", "coordinate-geometry", "Coordinate Plane Plotter", ["plot", "axes", "quadrant", "point"]),
     ],
   },

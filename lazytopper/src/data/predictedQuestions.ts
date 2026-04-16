@@ -1025,44 +1025,6 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     policyTag: "Theorem application",
   },
 
-  // ===== MORE: COORDINATE GEOMETRY =====
-  {
-    id: "2026-CG-MCQ-03",
-    topicKey: "Coordinate Geometry",
-    subtopic: "Area of Triangle (Coordinates)",
-    kind: "MCQ",
-    section: "A",
-    marks: 1,
-    difficulty: "Easy",
-    bloomSkill: "Remembering",
-    questionText:
-      "Area of the triangle with vertices (0,0), (4,0), (0,3) is:",
-    options: ["6", "7", "12", "3"],
-    answer: "6",
-    explanation:
-      "Right triangle with legs 4 and 3: area = 1/2·4·3=6.",
-    pastBoardYear: "2022",
-    policyTag: "Direct area computation",
-  },
-  {
-    id: "2026-CG-SA-04",
-    topicKey: "Coordinate Geometry",
-    subtopic: "Collinearity Test",
-    kind: "Short",
-    section: "B",
-    marks: 2,
-    difficulty: "Medium",
-    bloomSkill: "Analysing",
-    questionText:
-      "Check whether the points (1,2), (3,6), (5,10) are collinear.",
-    answer:
-      "Yes, they are collinear.",
-    explanation:
-      "Area of triangle using determinant is zero (or equal slopes). Slopes 2→6 is 2; 6→10 is 2.",
-    pastBoardYear: "2023",
-    policyTag: "Collinearity via slope/area",
-  },
-
   // ===== MORE: CIRCLES =====
   {
     id: "2026-CIRC-SA-02",
@@ -2671,29 +2633,6 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
     strategyHint:
       "Multiply the coordinates by the opposite segment lengths and divide by the total parts.",
   },
-  {
-    id: "2026-CG-CASE-11",
-    topicKey: "Coordinate Geometry",
-    subtopic: "Distance Formula",
-    kind: "Case-Based",
-    section: "E",
-    marks: 4,
-    difficulty: "Medium",
-    bloomSkill: "Analysing",
-    questionText:
-      "Given triangle P(1, 1), Q(4, 5) and R(7, 1):\n(a) Show that PQ = QR.\n(b) Find the area of ΔPQR using the coordinate method.\n(c) State the type of triangle PQR is.",
-    answer:
-      "(a) PQ = QR = 5 units. (b) Area of ΔPQR = 12 square units. (c) ΔPQR is an isosceles triangle.",
-    explanation:
-      "Compute PQ = √[(4 − 1)² + (5 − 1)²] = 5 and QR = √[(7 − 4)² + (1 − 5)²] = 5. Using the determinant formula, area = ½|1(5 − 1) + 4(1 − 1) + 7(1 − 5)| = 12. Two equal sides imply an isosceles triangle.",
-    solutionSteps: [
-      "Use the distance formula to show PQ and QR both equal 5.",
-      "Use the coordinate area formula to compute area.",
-      "Conclude that the triangle is isosceles.",
-    ],
-    strategyHint:
-      "Compute side lengths and use the determinant method for area.",
-  },
 
   // ===== Circles (high‑roi) =====
   {
@@ -2931,33 +2870,6 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
     pastBoardYear: "2024",
   },
 
-  {
-    id: "2026-CG-LA-05",
-    topicKey: "Coordinate Geometry",
-    subtopic: "Area of Triangle & Collinearity",
-    kind: "Short",
-    section: "D",
-    marks: 5,
-    difficulty: "Medium",
-    bloomSkill: "Applying",
-    questionText:
-      "Find the area of the triangle formed by the points A(2, −1), B(3, 4) and C(−2, 3). Also determine whether the points P(1, 1), Q(3, 5) and R(−1, −3) are collinear.",
-    answer:
-      "Area = ½|2(4−3) + 3(3−(−1)) + (−2)((−1)−4)| = ½|2+12+10| = 12 sq units. For P,Q,R: ½|1(5−(−3))+3((−3)−1)+(−1)(1−5)| = ½|8−12+4| = 0, so collinear.",
-    finalAnswer: "Area of triangle ABC = 12 sq units; P, Q, R are collinear.",
-    explanation:
-      "Use the coordinate geometry formula for area of a triangle using vertices. If the area is zero, the points are collinear.",
-    solutionSteps: [
-      "Apply area formula: ½|x₁(y₂−y₃) + x₂(y₃−y₁) + x₃(y₁−y₂)|.",
-      "Substitute A(2,−1), B(3,4), C(−2,3).",
-      "Compute and simplify to get area.",
-      "Repeat for P(1,1), Q(3,5), R(−1,−3).",
-      "If area = 0, state that the points are collinear.",
-    ],
-    strategyHint: "For collinearity, show that the area of the triangle formed by the three points is zero.",
-    pastBoardYear: "2023",
-    policyTag: "Coordinate Geometry 5-mark area & collinearity",
-  },
 
   {
     id: "2026-AP-LA-03",

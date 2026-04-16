@@ -132,11 +132,10 @@ export const class10MathTopicTrends = {
       weightagePercent: 7.69,
       tier: "high-roi" as TopicTier,
       summary:
-        "Distance/section/area of triangle—direct scoring, recurring in Section A/B.",
+        "Distance formula and section formula—direct scoring, recurring in Section A/B.",
       conceptWeightage: {
-        "Distance Formula": 40,
-        "Section Formula": 35,
-        "Area of Triangle": 25,
+        "Distance Formula": 55,
+        "Section Formula": 45,
       },
     },
 

@@ -203,87 +203,6 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "ncertRef": "Ex 7.3"
   },
   {
-    "id": "CG2-008",
-    "subject": "Maths",
-    "topicKey": "Coordinate Geometry",
-    "subtopic": "Area of Triangle",
-    "section": "B",
-    "marks": 2,
-    "format": "Short",
-    "difficulty": "Medium",
-    "bloomSkill": "Applying",
-    "questionText": "Find the area of triangle with vertices A(1, 1), B(4, 2), and C(2, 5).",
-    "options": [],
-    "answer": "5.5 square units",
-    "solutionSteps": [
-      "Area = (1/2)|x₁(y₂-y₃) + x₂(y₃-y₁) + x₃(y₁-y₂)|",
-      "Area = (1/2)|1(2-5) + 4(5-1) + 2(1-2)|",
-      "Area = (1/2)|1(-3) + 4(4) + 2(-1)|",
-      "Area = (1/2)|-3 + 16 - 2| = (1/2)|11| = 5.5"
-    ],
-    "finalAnswer": "5.5 square units",
-    "isCompetencyBased": false,
-    "pyqYear": "2019",
-    "pyqSet": "I",
-    "ncertRef": "Ex 7.4"
-  },
-  {
-    "id": "CG2-009",
-    "subject": "Maths",
-    "topicKey": "Coordinate Geometry",
-    "subtopic": "Area of Triangle",
-    "section": "A",
-    "marks": 1,
-    "format": "MCQ",
-    "difficulty": "Medium",
-    "bloomSkill": "Understanding",
-    "questionText": "If the area of a triangle with vertices (0, 0), (k, 0), and (0, 2) is 4 square units, find k.",
-    "options": [
-      "±4",
-      "±2",
-      "±8",
-      "±1"
-    ],
-    "answer": "±4",
-    "solutionSteps": [
-      "Area = (1/2)|x₁(y₂-y₃) + x₂(y₃-y₁) + x₃(y₁-y₂)|",
-      "4 = (1/2)|0(0-2) + k(2-0) + 0(0-0)|",
-      "4 = (1/2)|2k|",
-      "8 = 2|k|",
-      "k = ±4"
-    ],
-    "finalAnswer": "±4",
-    "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 7.4"
-  },
-  {
-    "id": "CG2-010",
-    "subject": "Maths",
-    "topicKey": "Coordinate Geometry",
-    "subtopic": "Area of Triangle",
-    "section": "C",
-    "marks": 3,
-    "format": "Short",
-    "difficulty": "Hard",
-    "bloomSkill": "Analysing",
-    "questionText": "Show that points A(-2, 3), B(1, 2), and C(4, 1) are collinear. What is the geometric significance?",
-    "options": [],
-    "answer": "The three points are collinear as they lie on the same straight line",
-    "solutionSteps": [
-      "Area = (1/2)|(-2)(2-1) + 1(1-3) + 4(3-2)|",
-      "Area = (1/2)|(-2)(1) + 1(-2) + 4(1)|",
-      "Area = (1/2)|-2 - 2 + 4| = (1/2)|0| = 0",
-      "Since area = 0, points are collinear (lie on same line)"
-    ],
-    "finalAnswer": "The three points are collinear as they lie on the same straight line",
-    "isCompetencyBased": true,
-    "pyqYear": "2022",
-    "pyqSet": "I",
-    "ncertRef": "Ex 7.4"
-  },
-  {
     "id": "CG2-011",
     "subject": "Maths",
     "topicKey": "Coordinate Geometry",
@@ -340,35 +259,6 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "pyqYear": undefined,
     "pyqSet": undefined,
     "ncertRef": "Ex 7.2"
-  },
-  {
-    "id": "CG2-013",
-    "subject": "Maths",
-    "topicKey": "Coordinate Geometry",
-    "subtopic": "Area of Triangle",
-    "section": "A",
-    "marks": 1,
-    "format": "Assertion-Reasoning",
-    "difficulty": "Hard",
-    "bloomSkill": "Analysing",
-    "questionText": "Assertion (A): If the area of a triangle is zero, the three points must be collinear. Reason (R): The area formula using coordinates directly measures perpendicular distance.",
-    "options": [
-      "Both A and R are true, and R is the correct explanation of A.",
-      "Both A and R are true, but R is not the correct explanation of A.",
-      "A is true, R is false.",
-      "A is false, R is true."
-    ],
-    "answer": "Both A and R are true, but R is not the correct explanation of A.",
-    "solutionSteps": [
-      "A is true: zero area implies points on same line",
-      "R is technically true but doesn't directly explain A",
-      "Area = 0 when determinant = 0, which happens when points are collinear"
-    ],
-    "finalAnswer": "Both A and R are true, but R is not the correct explanation of A.",
-    "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 7.4"
   },
   {
     "id": "CG2-014",
@@ -450,34 +340,6 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "pyqYear": "2024",
     "pyqSet": "I",
     "ncertRef": "Ex 7.1, Ex 7.2"
-  },
-  {
-    "id": "CG2-017",
-    "subject": "Maths",
-    "topicKey": "Coordinate Geometry",
-    "subtopic": "Area of Triangle",
-    "section": "E",
-    "marks": 4,
-    "format": "Case-Based",
-    "difficulty": "Hard",
-    "bloomSkill": "Evaluating",
-    "questionText": "Three vertices of a triangle are given as A(1, 3), B(4, -2), and C(-1, -5). (i) Calculate the area of triangle ABC. (ii) Find the coordinates of the centroid. (iii) Can this triangle be isosceles? Verify with side lengths.",
-    "options": [],
-    "answer": "(i) 17 sq units (ii) (4/3, -4/3) (iii) Yes, isosceles with AB = BC",
-    "solutionSteps": [
-      "(i) Area = (1/2)|1(-2-(-5)) + 4(-5-3) + (-1)(3-(-2))|",
-      "Area = (1/2)|1(3) + 4(-8) + (-1)(5)| = (1/2)|3-32-5| = (1/2)|-34| = 17",
-      "(ii) Centroid = [(1+4-1)/3, (3-2-5)/3] = (4/3, -4/3)",
-      "(iii) AB = √[(4-1)² + (-2-3)²] = √[9+25] = √34",
-      "BC = √[(-1-4)² + (-5+2)²] = √[25+9] = √34",
-      "AC = √[(-1-1)² + (-5-3)²] = √[4+64] = √68",
-      "AB = BC, so it IS isosceles"
-    ],
-    "finalAnswer": "(i) 17 sq units (ii) (4/3, -4/3) (iii) Yes, isosceles with AB = BC",
-    "isCompetencyBased": true,
-    "pyqYear": "2025",
-    "pyqSet": "II",
-    "ncertRef": "Ex 7.1, Ex 7.4"
   },
   {
     "id": "CG2-018",
@@ -565,32 +427,6 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "pyqYear": undefined,
     "pyqSet": undefined,
     "ncertRef": "Ex 7.1, Ex 7.2"
-  },
-  {
-    "id": "CG2-021",
-    "subject": "Maths",
-    "topicKey": "Coordinate Geometry",
-    "subtopic": "Area of Triangle",
-    "section": "B",
-    "marks": 2,
-    "format": "Short",
-    "difficulty": "Medium",
-    "bloomSkill": "Applying",
-    "questionText": "A triangle has vertices at A(0, 0), B(4, 0), and C(2, h). If its area is 6 square units, find the value of h.",
-    "options": [],
-    "answer": "h = 3 or h = -3",
-    "solutionSteps": [
-      "Area = (1/2)|x₁(y₂-y₃) + x₂(y₃-y₁) + x₃(y₁-y₂)|",
-      "6 = (1/2)|0(0-h) + 4(h-0) + 2(0-0)|",
-      "6 = (1/2)|4h|",
-      "12 = 4|h|",
-      "h = ±3"
-    ],
-    "finalAnswer": "h = 3 or h = -3",
-    "isCompetencyBased": true,
-    "pyqYear": "2020",
-    "pyqSet": "II",
-    "ncertRef": "Ex 7.4"
   },
   {
     "id": "CG2-022",
@@ -841,91 +677,6 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "ncertRef": "Ex 7.2"
   },
   {
-    "id": "CG2-031",
-    "subject": "Maths",
-    "topicKey": "Coordinate Geometry",
-    "subtopic": "Area of Triangle",
-    "section": "A",
-    "marks": 1,
-    "format": "MCQ",
-    "difficulty": "Easy",
-    "bloomSkill": "Remembering",
-    "questionText": "The area of triangle with vertices at (0, 0), (4, 0), and (0, 3) is:",
-    "options": [
-      "6",
-      "12",
-      "3",
-      "24"
-    ],
-    "answer": "6",
-    "solutionSteps": [
-      "Area = (1/2)|x₁(y₂-y₃) + x₂(y₃-y₁) + x₃(y₁-y₂)|",
-      "= (1/2)|0(0-3) + 4(3-0) + 0(0-0)|",
-      "= (1/2)|0 + 12 + 0| = 6"
-    ],
-    "finalAnswer": "6",
-    "isCompetencyBased": false,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 7.3"
-  },
-  {
-    "id": "CG2-032",
-    "subject": "Maths",
-    "topicKey": "Coordinate Geometry",
-    "subtopic": "Area of Triangle",
-    "section": "B",
-    "marks": 2,
-    "format": "Short",
-    "difficulty": "Medium",
-    "bloomSkill": "Applying",
-    "questionText": "Find the area of triangle with vertices A(1, 2), B(3, 4), and C(5, 2).",
-    "options": [],
-    "answer": "4 square units",
-    "solutionSteps": [
-      "Area = (1/2)|x₁(y₂-y₃) + x₂(y₃-y₁) + x₃(y₁-y₂)|",
-      "= (1/2)|1(4-2) + 3(2-2) + 5(2-4)|",
-      "= (1/2)|1×2 + 3×0 + 5×(-2)|",
-      "= (1/2)|2 + 0 - 10| = (1/2)|-8| = 4"
-    ],
-    "finalAnswer": "4 square units",
-    "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 7.3"
-  },
-  {
-    "id": "CG2-033",
-    "subject": "Maths",
-    "topicKey": "Coordinate Geometry",
-    "subtopic": "Area of Triangle",
-    "section": "C",
-    "marks": 2,
-    "format": "MCQ",
-    "difficulty": "Medium",
-    "bloomSkill": "Analysing",
-    "questionText": "For what value of k are the points (1, 2), (3, 4), and (5, k) collinear?",
-    "options": [
-      "5",
-      "6",
-      "7",
-      "8"
-    ],
-    "answer": "6",
-    "solutionSteps": [
-      "For collinear points, area = 0",
-      "0 = (1/2)|1(4-k) + 3(k-2) + 5(2-4)|",
-      "0 = |4-k + 3k-6 - 10|",
-      "0 = |2k - 12|",
-      "2k = 12, k = 6"
-    ],
-    "finalAnswer": "6",
-    "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 7.3"
-  },
-  {
     "id": "CG2-034",
     "subject": "Maths",
     "topicKey": "Coordinate Geometry",
@@ -1041,37 +792,6 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "ncertRef": "Ex 7.1"
   },
   {
-    "id": "CG2-038",
-    "subject": "Maths",
-    "topicKey": "Coordinate Geometry",
-    "subtopic": "Area of Triangle",
-    "section": "C",
-    "marks": 1,
-    "format": "Assertion-Reasoning",
-    "difficulty": "Medium",
-    "bloomSkill": "Analysing",
-    "questionText": "Assertion (A): Area of triangle with vertices (0, 0), (3, 0), (0, 4) is 6 square units. Reason (R): For a right triangle, area = (1/2) × base × height.",
-    "options": [
-      "Both A and R are true, and R is the correct explanation of A.",
-      "Both A and R are true, but R is not the correct explanation of A.",
-      "A is true, R is false.",
-      "A is false, R is true."
-    ],
-    "answer": "Both A and R are true, and R is the correct explanation of A.",
-    "solutionSteps": [
-      "Triangle has vertices at origin and on axes, so it's right-angled",
-      "Area = (1/2) × 3 × 4 = 6 square units",
-      "A is true",
-      "R is the standard formula for right triangle area",
-      "R explains A"
-    ],
-    "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
-    "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 7.3"
-  },
-  {
     "id": "CG2-039",
     "subject": "Maths",
     "topicKey": "Coordinate Geometry",
@@ -1135,44 +855,6 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "ncertRef": "Ex 7.1"
   },
   {
-    "id": "CG2-041",
-    "subject": "Maths",
-    "topicKey": "Coordinate Geometry",
-    "subtopic": "Area of Triangle",
-    "section": "D",
-    "marks": 5,
-    "format": "Long",
-    "difficulty": "Hard",
-    "bloomSkill": "Evaluating",
-    "questionText": "A quadrilateral ABCD has vertices A(1, 2), B(4, 5), C(6, 3), and D(3, 0). Find the area of the quadrilateral. Also, find the coordinates of the point of intersection of diagonals AC and BD.",
-    "options": [],
-    "answer": "Area = 12 sq units; Intersection point = (3.5, 2.5)",
-    "solutionSteps": [
-      "Method 1: Divide quadrilateral into triangles ABC and ACD",
-      "Area of ABC = (1/2)|1(5-3) + 4(3-2) + 6(2-5)| = (1/2)|2 + 4 - 18| = 6",
-      "Area of ACD = (1/2)|1(3-0) + 6(0-2) + 3(2-3)| = (1/2)|3 - 12 - 3| = 6",
-      "Total area using diagonal method:",
-      "Area of ABD = (1/2)|1(5-0) + 4(0-2) + 3(2-5)| = (1/2)|5 - 8 - 9| = 6",
-      "Area of BCD = (1/2)|4(3-0) + 6(0-5) + 3(5-3)| = (1/2)|12 - 30 + 6| = 6",
-      "Using shoelace formula: Area = (1/2)|1×5 - 4×2 + 4×3 - 6×5 + 6×0 - 3×3 + 3×2 - 1×0|",
-      "= (1/2)|5 - 8 + 12 - 30 + 0 - 9 + 6 - 0| = (1/2)|-24| = 12",
-      "For intersection: Line AC goes from (1,2) to (6,3): parametric form (1+5t, 2+t)",
-      "Line BD goes from (4,5) to (3,0): parametric form (4-s, 5-5s)",
-      "1+5t = 4-s and 2+t = 5-5s",
-      "5t + s = 3 and t + 5s = 3",
-      "Solving: 5t + s = 3 and t + 5s = 3",
-      "From eq2: t = 3 - 5s, substitute: 5(3-5s) + s = 3",
-      "15 - 25s + s = 3 → -24s = -12 → s = 0.5",
-      "t = 3 - 5(0.5) = 0.5",
-      "Intersection = (1 + 5(0.5), 2 + 0.5) = (3.5, 2.5)"
-    ],
-    "finalAnswer": "Area = 12 sq units; Intersection point = (3.5, 2.5)",
-    "isCompetencyBased": true,
-    "pyqYear": "2020",
-    "pyqSet": "II",
-    "ncertRef": "Ex 7.3, Ex 7.4"
-  },
-  {
     "id": "CG2-042",
     "subject": "Maths",
     "topicKey": "Coordinate Geometry",
@@ -1204,41 +886,6 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "pyqYear": "2021",
     "pyqSet": "I",
     "ncertRef": "Ex 7.1"
-  },
-  {
-    "id": "CG2-043",
-    "subject": "Maths",
-    "topicKey": "Coordinate Geometry",
-    "subtopic": "Area of Triangle",
-    "section": "D",
-    "marks": 5,
-    "format": "Long",
-    "difficulty": "Hard",
-    "bloomSkill": "Evaluating",
-    "questionText": "The vertices of a triangle are A(-2, 3), B(4, 5), and C(2, -1). Find: (i) Area of triangle (ii) Length of median from A to BC (iii) Check if the triangle is right-angled at any vertex.",
-    "options": [],
-    "answer": "Area = 16 sq units; Median AM = √26; Not a right-angled triangle",
-    "solutionSteps": [
-      "(i) Area = (1/2)|(-2)(5-(-1)) + 4((-1)-3) + 2(3-5)|",
-      "= (1/2)|(-2)(6) + 4(-4) + 2(-2)|",
-      "= (1/2)|-12 - 16 - 4| = (1/2)|-32| = 16",
-      "= (1/2)|(-2)(6) + 4(-4) + 2(-2)| = (1/2)|-12-16-4| = 16",
-      "= (1/2)|(-2)(5-(-1)) + 4((-1)-3) + 2(3-5)|",
-      "= (1/2)|(-2)×6 + 4×(-4) + 2×(-2)| = (1/2)|-12-16-4| = 16 sq units",
-      "(ii) Midpoint of BC: M = ((4+2)/2, (5+(-1))/2) = (3, 2)",
-      "AM = √[(3-(-2))² + (2-3)²] = √[25 + 1] = √26",
-      "(iii) AB = √[(4-(-2))² + (5-3)²] = √[36+4] = √40 = 2√10",
-      "BC = √[(2-4)² + (-1-5)²] = √[4+36] = √40 = 2√10",
-      "CA = √[(-2-2)² + (3-(-1))²] = √[16+16] = √32 = 4√2",
-      "Check: AB² + BC² = 40 + 40 = 80; CA² = 32. No right angle there.",
-      "Check CA² + BC²: 32 + 40 = 72 ≠ 40. Check AB² + CA²: 40 + 32 = 72 ≠ 40",
-      "Since no pair satisfies Pythagoras theorem, triangle is not right-angled."
-    ],
-    "finalAnswer": "Area = 16 sq units; Median AM = √26; Not a right-angled triangle",
-    "isCompetencyBased": true,
-    "pyqYear": "2022",
-    "pyqSet": "I",
-    "ncertRef": "Ex 7.1, Ex 7.3"
   },
   {
     "id": "CG2-044",
