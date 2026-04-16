@@ -374,6 +374,7 @@ export default function TopicHub() {
   const [quizSolutionLoading, setQuizSolutionLoading] = useState(false);
   const [quizSolutionError, setQuizSolutionError] = useState<string | null>(null);
   const quizSolutionFetchRef = useRef<string | null>(null);
+  const allDoneConfettiFiredRef = useRef<string | null>(null);
 
   const [teachDrawerOpen, setTeachDrawerOpen] = useState(false);
   const [teachContext, setTeachContext] = useState<ConceptTeachContext>({
@@ -391,9 +392,19 @@ export default function TopicHub() {
     setSelectedAnswer(null);
     setAnswerRevealed(false);
     setProgress(loadLessonProgress(topicKey));
+    allDoneConfettiFiredRef.current = null;
   }, [topicKey]);
 
   const totalConcepts = definitions.length;
+  const allConceptsDone = progress.conceptsCompleted.length >= totalConcepts && totalConcepts > 0;
+
+  useEffect(() => {
+    if (phase === "menu" && allConceptsDone && allDoneConfettiFiredRef.current !== topicKey) {
+      allDoneConfettiFiredRef.current = topicKey;
+      gam.triggerConfetti();
+    }
+  }, [phase, allConceptsDone, topicKey]);
+
   const updateProgress = useCallback(
     (updater: (prev: LessonProgress) => LessonProgress) => {
       setProgress((prev) => {
@@ -859,7 +870,7 @@ export default function TopicHub() {
         )}
 
         {phase === "menu" && (() => {
-          const allDone = progress.conceptsCompleted.length >= totalConcepts;
+          const allDone = totalConcepts > 0 && progress.conceptsCompleted.length >= totalConcepts;
           return (
             <div style={{ marginTop: 20 }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
@@ -887,6 +898,73 @@ export default function TopicHub() {
                   background: allDone ? "linear-gradient(90deg,#f59e0b,#d97706)" : "linear-gradient(90deg,#22c55e,#16a34a)",
                 }} />
               </div>
+
+              {allDone && (
+                <div style={{
+                  marginBottom: 18,
+                  borderRadius: 16,
+                  background: "linear-gradient(135deg,rgba(245,158,11,0.12),rgba(217,119,6,0.08))",
+                  border: "1.5px solid rgba(245,158,11,0.4)",
+                  padding: "18px 18px 14px",
+                  textAlign: "center",
+                }}>
+                  <div style={{ fontSize: "1.6rem", marginBottom: 4 }}>🏅</div>
+                  <div style={{ fontWeight: 800, fontSize: "1.05rem", color: "#d97706", marginBottom: 2 }}>
+                    All concepts mastered!
+                  </div>
+                  <div style={{
+                    display: "inline-block",
+                    background: "linear-gradient(90deg,#f59e0b,#d97706)",
+                    color: "#fff",
+                    fontWeight: 700,
+                    fontSize: "0.7rem",
+                    letterSpacing: "0.06em",
+                    textTransform: "uppercase",
+                    borderRadius: 999,
+                    padding: "3px 12px",
+                    marginBottom: 14,
+                  }}>
+                    Chapter Mastery Badge
+                  </div>
+                  <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
+                    <button
+                      type="button"
+                      onClick={goToPractice}
+                      style={{
+                        padding: "10px 18px", borderRadius: 12,
+                        background: "var(--bg-card)",
+                        border: "1.5px solid rgba(245,158,11,0.4)",
+                        color: "var(--text)",
+                        fontWeight: 700, fontSize: "0.85rem",
+                        cursor: "pointer",
+                      }}
+                    >
+                      Practice Questions →
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        trackUxEvent("topichub_all_done_banner_chapter_test", "TopicHub", { topicKey });
+                        navigate(
+                          buildTopicMockUrl(grade, subjectTitle, topicKey),
+                          { state: { back: `/topic-hub/${grade}/${subject}/${topicKey}`, backLabel: `Back to ${title}` } }
+                        );
+                      }}
+                      style={{
+                        padding: "10px 18px", borderRadius: 12,
+                        background: "linear-gradient(135deg,#f59e0b,#d97706)",
+                        border: "none",
+                        color: "#fff",
+                        fontWeight: 700, fontSize: "0.85rem",
+                        cursor: "pointer",
+                        boxShadow: "0 3px 10px rgba(245,158,11,0.35)",
+                      }}
+                    >
+                      Take Chapter Test 🏆
+                    </button>
+                  </div>
+                </div>
+              )}
 
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 {definitions.map((def, idx) => {
