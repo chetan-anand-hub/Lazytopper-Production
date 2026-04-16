@@ -9,7 +9,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     answer: "2² × 3 × 13",
     solutionSteps: ["156 = 2 × 78", "78 = 2 × 39", "39 = 3 × 13", "156 = 2² × 3 × 13"],
     finalAnswer: "2² × 3 × 13",
-    isCompetencyBased: false,
+    isCompetencyBased: true,
   },
   {
     id: "RN-E03", subject: "Maths", topicKey: "Real Numbers", subtopic: "HCF and LCM",
@@ -19,7 +19,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     answer: "150",
     solutionSteps: ["HCF × LCM = a × b", "12 × LCM = 1800", "LCM = 150"],
     finalAnswer: "150",
-    isCompetencyBased: false,
+    isCompetencyBased: true,
   },
   {
       id: "RN-E04", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrationality Proofs",
@@ -29,7 +29,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
       answer: "√9",
       solutionSteps: ["√9 = 3, which is a rational number", "√3, √5, √7 are irrational (3, 5, 7 are primes)"],
       finalAnswer: "√9",
-      isCompetencyBased: false,
+      isCompetencyBased: true,
     },
   {
     id: "RN-E05", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrationality Proofs",
@@ -39,7 +39,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     answer: "√5",
     solutionSteps: ["√4 = 2, rational", "√9/√16 = 3/4, rational", "√5 is irrational (5 is not a perfect square)", "0.¯3 = 1/3, rational"],
     finalAnswer: "√5",
-    isCompetencyBased: false,
+    isCompetencyBased: true,
   },
   {
     id: "RN-E07", subject: "Maths", topicKey: "Real Numbers", subtopic: "HCF and LCM",
@@ -48,7 +48,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     options: ["1", "2", "4", "Cannot be determined"],
     answer: "2",
     finalAnswer: "2",
-    isCompetencyBased: false,
+    isCompetencyBased: true,
   },
   {
     id: "RN-E08", subject: "Maths", topicKey: "Real Numbers", subtopic: "Fundamental Theorem of Arithmetic",
@@ -57,7 +57,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     options: ["exactly one way", "exactly two ways", "a unique way (except for order)", "infinitely many ways"],
     answer: "a unique way (except for order)",
     finalAnswer: "a unique way (except for order)",
-    isCompetencyBased: false,
+    isCompetencyBased: true,
   },
   {
       id: "RN-E09", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrationality Proofs",
@@ -67,7 +67,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
       answer: "Irrational",
       solutionSteps: ["Let r be non-zero rational and x be irrational", "Assume r·x = q (rational), then x = q/r = rational — contradiction", "So r·x must be irrational"],
       finalAnswer: "Irrational",
-      isCompetencyBased: false,
+      isCompetencyBased: true,
     },
   {
     id: "RN-E11", subject: "Maths", topicKey: "Real Numbers", subtopic: "HCF and LCM",
@@ -87,7 +87,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     answer: "2",
     solutionSteps: ["3 × 5 × 7 + 7 = 7(3 × 5 + 1) = 7 × 16 = 112", "112 = 2⁴ × 7, so it has 2 prime factors (2 and 7)"],
     finalAnswer: "2",
-    isCompetencyBased: false,
+    isCompetencyBased: true,
   },
   {
       id: "RN-E13", subject: "Maths", topicKey: "Real Numbers", subtopic: "Fundamental Theorem of Arithmetic",
@@ -97,7 +97,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
       answer: "It is a composite number",
       solutionSteps: ["7 × 11 × 13 + 13 = 13(7 × 11 + 1) = 13 × 78 = 13 × 2 × 3 × 13", "It has factors 2, 3, 13 — so it is composite"],
       finalAnswer: "It is a composite number",
-      isCompetencyBased: false,
+      isCompetencyBased: true,
     },
   {
     id: "RN-E14", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrationality Proofs",
@@ -114,7 +114,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     questionText: "Find the HCF and LCM of 6 and 20 by the prime factorisation method.",
     solutionSteps: ["6 = 2 × 3", "20 = 2² × 5", "HCF = 2", "LCM = 2² × 3 × 5 = 60"],
     finalAnswer: "HCF = 2, LCM = 60",
-    isCompetencyBased: true,
+    isCompetencyBased: false,
   },
   {
     id: "RN-E17", subject: "Maths", topicKey: "Real Numbers", subtopic: "Fundamental Theorem of Arithmetic",
@@ -138,7 +138,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
         "Hence √7 is irrational."
       ],
       finalAnswer: "√7 is irrational (proved by contradiction)",
-      isCompetencyBased: true,
+      isCompetencyBased: false,
     },
   {
     id: "RN-E19", subject: "Maths", topicKey: "Real Numbers", subtopic: "HCF and LCM",
@@ -157,7 +157,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     options: ["Always rational", "Always irrational", "Sometimes rational, sometimes irrational", "Always zero"],
     answer: "Always irrational",
     finalAnswer: "Always irrational",
-    isCompetencyBased: false,
+    isCompetencyBased: true,
   },
   {
     id: "RN-M02", subject: "Maths", topicKey: "Real Numbers", subtopic: "Fundamental Theorem of Arithmetic",
@@ -165,7 +165,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     questionText: "Find the HCF and LCM of 26 and 91 using the prime factorisation method. Verify that HCF × LCM = product of the two numbers.",
     solutionSteps: ["26 = 2 × 13", "91 = 7 × 13", "HCF = 13", "LCM = 2 × 7 × 13 = 182", "Verification: 13 × 182 = 2366 = 26 × 91 ✓"],
     finalAnswer: "HCF = 13, LCM = 182",
-    isCompetencyBased: true,
+    isCompetencyBased: false,
   },
   {
     id: "RN-M03", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrationality Proofs",
@@ -179,7 +179,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
       "But p and q were co-prime, contradiction. Hence √3 is irrational."
     ],
     finalAnswer: "√3 is irrational (proved by contradiction)",
-    isCompetencyBased: true,
+    isCompetencyBased: false,
   },
   {
     id: "RN-M04", subject: "Maths", topicKey: "Real Numbers", subtopic: "HCF and LCM",
@@ -187,7 +187,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     questionText: "Find the largest number that divides 245 and 1029, leaving remainder 5 in each case.",
     solutionSteps: ["The required number divides (245 − 5) = 240 and (1029 − 5) = 1024", "Find HCF(240, 1024)", "240 = 2⁴ × 3 × 5", "1024 = 2¹⁰", "HCF = 2⁴ = 16"],
     finalAnswer: "16",
-    isCompetencyBased: true,
+    isCompetencyBased: false,
   },
   {
     id: "RN-M05", subject: "Maths", topicKey: "Real Numbers", subtopic: "Fundamental Theorem of Arithmetic",
@@ -198,7 +198,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
       "7 × 6 × 5 × 4 × 3 × 2 × 1 + 5 = 5(7 × 6 × 4 × 3 × 2 × 1 + 1) = 5 × 1009 → composite"
     ],
     finalAnswer: "Both are composite (each has factors beyond 1 and itself)",
-    isCompetencyBased: true,
+    isCompetencyBased: false,
   },
   {
       id: "RN-M06", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrationality Proofs",
@@ -212,7 +212,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
         "Hence 5 − √3 is irrational."
       ],
       finalAnswer: "5 − √3 is irrational (proved by contradiction)",
-      isCompetencyBased: true,
+      isCompetencyBased: false,
     },
   {
     id: "RN-M07", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrationality Proofs",
@@ -226,7 +226,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
       "Hence 3 + 2√5 is irrational."
     ],
     finalAnswer: "3 + 2√5 is irrational (proved by contradiction)",
-    isCompetencyBased: true,
+    isCompetencyBased: false,
   },
   {
     id: "RN-M08", subject: "Maths", topicKey: "Real Numbers", subtopic: "HCF and LCM",
@@ -234,7 +234,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     questionText: "There is a circular path around a sports field. Sonia takes 18 minutes to drive one round, while Ravi takes 12 minutes. If they both start at the same point and same time, going in the same direction, after how many minutes will they meet again at the starting point?",
     solutionSteps: ["Find LCM(18, 12)", "18 = 2 × 3²", "12 = 2² × 3", "LCM = 2² × 3² = 36"],
     finalAnswer: "36 minutes",
-    isCompetencyBased: true,
+    isCompetencyBased: false,
   },
   {
     id: "RN-M10", subject: "Maths", topicKey: "Real Numbers", subtopic: "Fundamental Theorem of Arithmetic",
@@ -259,7 +259,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
       "Hence √2 is irrational."
     ],
     finalAnswer: "√2 is irrational (proved by contradiction)",
-    isCompetencyBased: true,
+    isCompetencyBased: false,
   },
   {
       id: "RN-M12", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrationality Proofs",
@@ -277,7 +277,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     questionText: "Three bells toll at intervals of 9, 12 and 15 minutes respectively. If they start tolling together, after what time will they next toll together?",
     solutionSteps: ["Find LCM(9, 12, 15)", "9 = 3²", "12 = 2² × 3", "15 = 3 × 5", "LCM = 2² × 3² × 5 = 180 minutes = 3 hours"],
     finalAnswer: "180 minutes (3 hours)",
-    isCompetencyBased: true,
+    isCompetencyBased: false,
   },
   {
     id: "RN-M15", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrationality Proofs",
@@ -295,7 +295,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     questionText: "Find the HCF and LCM of 510 and 92 using prime factorisation.",
     solutionSteps: ["510 = 2 × 3 × 5 × 17", "92 = 2² × 23", "HCF = 2", "LCM = 2² × 3 × 5 × 17 × 23 = 23460"],
     finalAnswer: "HCF = 2, LCM = 23460",
-    isCompetencyBased: true,
+    isCompetencyBased: false,
   },
   {
       id: "RN-M17", subject: "Maths", topicKey: "Real Numbers", subtopic: "Fundamental Theorem of Arithmetic",
@@ -338,7 +338,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
       "Hence √5 is irrational."
     ],
     finalAnswer: "√5 is irrational (proved by contradiction)",
-    isCompetencyBased: true,
+    isCompetencyBased: false,
   },
   {
     id: "RN-H01", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrationality Proofs",
@@ -352,7 +352,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
       "Hence √2 + √5 is irrational."
     ],
     finalAnswer: "√2 + √5 is irrational (proved by contradiction)",
-    isCompetencyBased: true,
+    isCompetencyBased: false,
   },
   {
     id: "RN-H03", subject: "Maths", topicKey: "Real Numbers", subtopic: "Fundamental Theorem of Arithmetic",
@@ -367,7 +367,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
       "The property HCF × LCM = product holds only for two numbers, not three."
     ],
     finalAnswer: "HCF = 6, LCM = 360; property doesn't hold for 3 numbers",
-    isCompetencyBased: true,
+    isCompetencyBased: false,
   },
   {
     id: "RN-H04", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrationality Proofs",
@@ -380,7 +380,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
       "Hence 1/(2 + √3) is irrational."
     ],
     finalAnswer: "Proved by rationalisation and contradiction",
-    isCompetencyBased: true,
+    isCompetencyBased: false,
   },
   {
       id: "RN-H05", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrationality Proofs",
@@ -393,7 +393,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
         "Part 2: (3 + √5)(3 − √5) = 9 − 5 = 4, which is rational."
       ],
       finalAnswer: "3 + √5 is irrational; (3 + √5)(3 − √5) = 4 is rational",
-      isCompetencyBased: true,
+      isCompetencyBased: false,
     },
   {
     id: "RN-H07", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrationality Proofs",
@@ -407,7 +407,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
       "Both a, b divisible by p contradicts co-prime. Hence √p is irrational."
     ],
     finalAnswer: "√p is irrational for any prime p",
-    isCompetencyBased: true,
+    isCompetencyBased: false,
   },
   {
     id: "RN-H08", subject: "Maths", topicKey: "Real Numbers", subtopic: "HCF and LCM",
@@ -420,7 +420,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
       "HCF = 2 × 5 × 17 = 170 litres"
     ],
     finalAnswer: "170 litres",
-    isCompetencyBased: true,
+    isCompetencyBased: false,
   },
   {
     id: "RN-H09", subject: "Maths", topicKey: "Real Numbers", subtopic: "Fundamental Theorem of Arithmetic",
@@ -434,7 +434,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
       "Hence 12ⁿ can never end with digit 0."
     ],
     finalAnswer: "No, 12ⁿ cannot end with digit 0",
-    isCompetencyBased: true,
+    isCompetencyBased: false,
   },
   {
     id: "RN-H10", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrationality Proofs",
@@ -448,7 +448,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
       "Hence 5 − 2√3 is irrational."
     ],
     finalAnswer: "Both √3 and 5 − 2√3 are irrational",
-    isCompetencyBased: true,
+    isCompetencyBased: false,
   },
   {
     id: "RN-H11", subject: "Maths", topicKey: "Real Numbers", subtopic: "HCF and LCM",
@@ -475,7 +475,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
       "Hence √2/3 is irrational."
     ],
     finalAnswer: "√2/3 is irrational",
-    isCompetencyBased: true,
+    isCompetencyBased: false,
   },
   {
     id: "RN-H14", subject: "Maths", topicKey: "Real Numbers", subtopic: "Fundamental Theorem of Arithmetic",
@@ -489,7 +489,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
       "5th time: 12:00 + 5 × 20 = 12:00 + 100 min = 1:40 PM"
     ],
     finalAnswer: "12:20 PM; 5th time at 1:40 PM",
-    isCompetencyBased: true,
+    isCompetencyBased: false,
   },
   {
     id: "RN-H15", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrationality Proofs",
@@ -503,6 +503,6 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
       "Hence 7 − 3√2 is irrational."
     ],
     finalAnswer: "7 − 3√2 is irrational",
-    isCompetencyBased: true,
+    isCompetencyBased: false,
   },
 ];

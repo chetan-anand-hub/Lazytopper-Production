@@ -24,7 +24,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
       "This unique factorization (up to order) is a key property of integers"
     ],
     "finalAnswer": "A product of prime numbers in a unique way",
-    "isCompetencyBased": false,
+    "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
     "ncertRef": "Ex 1.2"
@@ -50,7 +50,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
       "Therefore, 260 = 2² × 5 × 13"
     ],
     "finalAnswer": "2² × 5 × 13",
-    "isCompetencyBased": true,
+    "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
     "ncertRef": "Ex 1.2"
@@ -98,7 +98,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
       "answer": "√11",
       "solutionSteps": ["√16 = 4 (rational)", "√25/√9 = 5/3 (rational)", "√11 is irrational (11 is prime, not a perfect square)", "22/7 is rational"],
       "finalAnswer": "√11",
-      "isCompetencyBased": false,
+      "isCompetencyBased": true,
       "pyqYear": undefined,
       "pyqSet": undefined,
       "ncertRef": "Ex 1.3"
@@ -145,7 +145,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
         "Hence √3 is irrational."
       ],
       "finalAnswer": "√3 is irrational",
-      "isCompetencyBased": true,
+      "isCompetencyBased": false,
       "pyqYear": "2022",
       "pyqSet": "B",
       "ncertRef": "Ex 1.3"
@@ -173,7 +173,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
       "Therefore, √5 is irrational"
     ],
     "finalAnswer": "√5 is irrational",
-    "isCompetencyBased": true,
+    "isCompetencyBased": false,
     "pyqYear": "2021",
     "pyqSet": "A",
     "ncertRef": "Ex 1.3"
@@ -203,7 +203,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
       "√0.25 = 0.5 (rational)"
     ],
     "finalAnswer": "√7",
-    "isCompetencyBased": false,
+    "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
     "ncertRef": "Ex 1.3"
@@ -230,7 +230,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
       "Therefore, 3 + 2√5 is irrational"
     ],
     "finalAnswer": "3 + 2√5 is irrational",
-    "isCompetencyBased": true,
+    "isCompetencyBased": false,
     "pyqYear": "2022",
     "pyqSet": "A",
     "ncertRef": "Ex 1.3"
@@ -368,7 +368,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
       "Therefore, 2 - √3 is irrational"
     ],
     "finalAnswer": "2 - √3 is irrational",
-    "isCompetencyBased": true,
+    "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
     "ncertRef": "Ex 1.3"
@@ -394,7 +394,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
         "Hence 2 + 3√5 is irrational."
       ],
       "finalAnswer": "2 + 3√5 is irrational",
-      "isCompetencyBased": true,
+      "isCompetencyBased": false,
       "pyqYear": undefined,
       "pyqSet": undefined,
       "ncertRef": "Ex 1.3"
@@ -420,7 +420,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
       "LCM = 22338"
     ],
     "finalAnswer": "22338",
-    "isCompetencyBased": true,
+    "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
     "ncertRef": "Ex 1.3"
@@ -448,7 +448,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
       "For example: 12 = 2² × 3 is the unique prime factorization."
     ],
     "finalAnswer": "Every composite number can be expressed uniquely as a product of prime numbers",
-    "isCompetencyBased": false,
+    "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
     "ncertRef": "Ex 1.2"
@@ -476,7 +476,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
       "Therefore, 360 = 2³ × 3² × 5"
     ],
     "finalAnswer": "2³ × 3² × 5",
-    "isCompetencyBased": true,
+    "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
     "ncertRef": "Ex 1.2"
@@ -533,7 +533,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
       "12 × 18 = 216 ✓"
     ],
     "finalAnswer": "LCM = 36",
-    "isCompetencyBased": true,
+    "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
     "ncertRef": "Ex 1.3"
@@ -591,7 +591,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
         "This is derived from the prime factorisation of a and b."
       ],
       "finalAnswer": "HCF(a, b) × LCM(a, b) = a × b",
-      "isCompetencyBased": false,
+      "isCompetencyBased": true,
       "pyqYear": undefined,
       "pyqSet": undefined,
       "ncertRef": "Ex 1.3"
@@ -617,7 +617,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
         "Pieces from 36 m rope: 36/12 = 3."
       ],
       "finalAnswer": "Maximum length = 12 m; 4 pieces and 3 pieces respectively",
-      "isCompetencyBased": true,
+      "isCompetencyBased": false,
       "pyqYear": "2020",
       "pyqSet": undefined,
       "ncertRef": "Ex 1.3"
@@ -676,7 +676,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
       "Therefore, √2 is irrational"
     ],
     "finalAnswer": "Proof by contradiction",
-    "isCompetencyBased": true,
+    "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
     "ncertRef": "Ex 1.4"
@@ -710,7 +710,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
       "Therefore √p is irrational for any prime p"
     ],
     "finalAnswer": "Always irrational",
-    "isCompetencyBased": false,
+    "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
     "ncertRef": "Ex 1.4"
@@ -736,7 +736,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
       "Therefore, 3√2 is irrational"
     ],
     "finalAnswer": "Proof by contradiction assuming rationality",
-    "isCompetencyBased": true,
+    "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
     "ncertRef": "Ex 1.4"
@@ -763,7 +763,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
       "a × b = 48 × 80 = 3840 ✓"
     ],
     "finalAnswer": "HCF = 16, LCM = 240",
-    "isCompetencyBased": true,
+    "isCompetencyBased": false,
     "pyqYear": "2019",
     "pyqSet": undefined,
     "ncertRef": "Ex 1.2, Ex 1.3"
@@ -823,7 +823,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
       "R correctly explains why A is true"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
-    "isCompetencyBased": false,
+    "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
     "ncertRef": "Ex 1.3"
@@ -886,7 +886,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
       "Also: 12 × 240 = 2880 and 48 × 60 = 2880 ✓"
     ],
     "finalAnswer": "The other number is 60",
-    "isCompetencyBased": true,
+    "isCompetencyBased": false,
     "pyqYear": "2022",
     "pyqSet": undefined,
     "ncertRef": "Ex 1.3"
@@ -916,7 +916,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
       "Hence, √2 + √3 is irrational"
     ],
     "finalAnswer": "Proved by assuming rationality and deriving contradiction",
-    "isCompetencyBased": true,
+    "isCompetencyBased": false,
     "pyqYear": "2023",
     "pyqSet": undefined,
     "ncertRef": "Ex 1.4"
@@ -942,7 +942,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
         "Hence 7 − 2√3 is irrational."
       ],
       "finalAnswer": "7 − 2√3 is irrational",
-      "isCompetencyBased": true,
+      "isCompetencyBased": false,
       "pyqYear": "2024",
       "pyqSet": undefined,
       "ncertRef": "Ex 1.3"

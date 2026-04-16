@@ -1547,7 +1547,7 @@ export const promptDPracticePacks: PracticePacksIndex =
           },
           {
             "id": "M-REAL-7",
-            "text": "Show that the product of two consecutive positive integers is always even, using the Fundamental Theorem of Arithmetic idea.",
+            "text": "Prove that √3 is an irrational number.",
             "marks": 2,
             "difficulty": "Medium",
             "questionType": "subjective"
@@ -1561,10 +1561,10 @@ export const promptDPracticePacks: PracticePacksIndex =
           },
           {
             "id": "M-REAL-9",
-            "text": "Prove that if p is a prime and p divides a², then p divides a.",
-            "marks": 2,
+            "text": "[MCQ — Competency-based] If p is a prime number and p divides a², which of the following must be true? (a) p divides a (b) p divides 2a (c) p² divides a (d) p divides a only if a is even",
+            "marks": 1,
             "difficulty": "Medium",
-            "questionType": "subjective"
+            "questionType": "MCQ"
           },
           {
             "id": "M-REAL-10",
