@@ -296,7 +296,6 @@ const MockBuilder: React.FC = () => {
           "HumanEyeAndColourfulWorld",
           "Electricity",
           "MagneticEffects",
-          "OurEnvironment",
         ];
 
         // First try generic fuzzy matching

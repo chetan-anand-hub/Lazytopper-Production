@@ -25,7 +25,6 @@ const TOPIC_NAMES: Record<string, string> = {
   "light-reflection-refraction": "Light & Refraction",
   "control-and-coordination": "Control & Coordination",
   "heredity-and-evolution": "Heredity & Evolution",
-  "our-environment": "Our Environment",
 };
 
 const ALL_MATHS_TOPICS = [
@@ -40,7 +39,6 @@ const ALL_SCIENCE_TOPICS = [
   "carbon-and-its-compounds", "life-processes", "how-do-organisms-reproduce",
   "human-eye-colourful-world", "electricity", "magnetic-effects-of-electric-current",
   "light-reflection-refraction", "control-and-coordination", "heredity-and-evolution",
-  "our-environment",
 ];
 
 function getTopicMasteryPercent(topicKey: string): number {

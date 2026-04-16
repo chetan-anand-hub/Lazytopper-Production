@@ -83,7 +83,6 @@ const CANONICAL_WEIGHTAGE: Record<string, number> = {
   "light-reflection-and-refraction-incl-human-eye-prism": 10,
   "electricity": 9,
   "magnetic-effects-of-electric-current": 7,
-  "our-environment": 5,
 };
 
 function lookupWeightage(topicKey: string): number {

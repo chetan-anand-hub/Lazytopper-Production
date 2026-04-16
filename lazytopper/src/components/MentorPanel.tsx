@@ -150,7 +150,6 @@ const CHAPTERS_BY_SUBJECT: Record<"Maths" | "Science", string[]> = {
     "The Human Eye and the Colourful World",
     "Electricity",
     "Magnetic Effects of Electric Current",
-    "Our Environment",
   ],
 };
 
