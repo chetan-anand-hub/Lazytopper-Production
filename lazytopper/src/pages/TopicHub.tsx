@@ -224,6 +224,18 @@ export default function TopicHub() {
     }
   }, [grade, subject, topicKey, navigate, params]);
 
+  // Guard: redirect deleted or unknown chapter keys to the subject hub.
+  // This prevents broken pages for chapters removed from the 2026-27 syllabus
+  // (e.g. Periodic Classification, Management of Natural Resources, Sources of Energy).
+  useEffect(() => {
+    if (!rawTopicKey) return;
+    const canonicalChapter = getCanonicalChapterBySlug(topicKey);
+    const canonicalSubjectId = toCanonicalSubjectId(subject);
+    if (!canonicalChapter || canonicalChapter.subjectId !== canonicalSubjectId) {
+      navigate(`/topic-hub/${grade}/${subject}`, { replace: true });
+    }
+  }, [rawTopicKey, topicKey, subject, grade, navigate]);
+
   const v2 = useMemo(() => getTopicV2Content(topicKey), [topicKey]);
   const rawTitle = String(v2?.topicName || topicKey || "").trim() || "Topic";
   const title = (() => { const ch = getCanonicalChapterBySlug(topicKey); return ch ? formatChapterTitle(ch) : rawTitle; })();

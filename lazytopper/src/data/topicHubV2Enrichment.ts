@@ -2046,72 +2046,6 @@ export const topicHubV2Enrichment: Record<string, Partial<TopicHubV2Content>> = 
   },
 
   /**
-   * Periodic Classification of Elements
-   */
-  "science_periodic_classification": {
-    workedExamples: [
-      {
-        title: "Periodic trend — atomic size",
-        question: "Explain why atomic size decreases across a period from left to right."
-      },
-      {
-        title: "Mendeleev's periodic table",
-        question: "State any two merits and two limitations of Mendeleev's periodic table."
-      }
-    ],
-    competencies: [
-      { id: "S10-science_periodic_classification-C1", description: "Describe early attempts at classification of elements including Dobereiner's triads and Newlands' Law of Octaves and identify their limitations.", bloomLevel: "Understand" },
-      { id: "S10-science_periodic_classification-C2", description: "Explain the merits and limitations of Mendeleev's periodic table.", bloomLevel: "Analyze" },
-      { id: "S10-science_periodic_classification-C3", description: "State Modern Periodic Law and relate periodic trends in atomic size, metallic character, and valency to electronic configuration.", bloomLevel: "Apply" }
-    ],
-    misconceptions: [
-      {
-        concept: "Atomic size trend across a period",
-        commonError: "Thinking atomic size increases across a period because more electrons are added.",
-        correction: "The nuclear charge increases faster than electron shielding, so the effective nuclear pull on the same shell increases, making atoms smaller."
-      },
-      {
-        concept: "Basis of Modern Periodic Law",
-        commonError: "Stating that the Modern Periodic Law uses atomic mass as the basis for arrangement.",
-        correction: "The Modern Periodic Law is based on atomic number (number of protons), not atomic mass."
-      }
-    ],
-    caseStudies: [
-      {
-        id: "science_periodic_classification-CS1",
-        tier: "good-to-do",
-        contextText:
-          "Dmitri Mendeleev arranged 63 known elements in a table based on increasing atomic mass and left gaps for elements not yet discovered. He predicted the properties of these missing elements. Later, Henry Moseley showed that atomic number, not mass, is the correct basis for arrangement.",
-        subQuestions: [
-          {
-            id: "science_periodic_classification-CS1-Q1",
-            questionText: "Why did Mendeleev leave gaps in his periodic table?",
-            questionType: "ShortAnswer",
-            marks: 1,
-            bloomLevel: "Understand",
-            correctAnswer: "Mendeleev left gaps for elements that had not yet been discovered, predicting their properties based on the periodic trend.",
-            explanation: "His table predicted properties of yet-undiscovered elements like eka-aluminium (gallium) and eka-silicon (germanium).",
-            hint: "Think about what a 'gap' implies in a classification system.",
-            competencyCode: "S10-science_periodic_classification-C2"
-          },
-          {
-            id: "science_periodic_classification-CS1-Q2",
-            questionText: "Why was atomic number chosen over atomic mass as the basis for the Modern Periodic Table?",
-            questionType: "ShortAnswer",
-            marks: 2,
-            bloomLevel: "Analyze",
-            correctAnswer: "Atomic mass led to anomalous pairs (e.g., Co before Ni) where element order conflicted with their properties. Atomic number removed these anomalies and gave a consistent arrangement matching observed chemical behaviour.",
-            explanation: "The atomic number uniquely identifies an element and directly determines its electronic configuration and hence its chemical properties.",
-            hint: "Consider the anomalous pairs in Mendeleev's table.",
-            competencyCode: "S10-science_periodic_classification-C3"
-          }
-        ]
-      }
-    ],
-    labActivities: []
-  },
-
-  /**
    * Control and Coordination
    */
   "science_control_coordination": {
@@ -2280,7 +2214,7 @@ export const topicHubV2Enrichment: Record<string, Partial<TopicHubV2Content>> = 
   },
 
   /**
-   * Heredity and Evolution
+   * Heredity
    */
   "science_heredity_evolution": {
     workedExamples: [

@@ -1354,67 +1354,6 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
       }
     ]
   },
-  "science_periodic_classification": {
-    "subject": "Science",
-    "topicKey": "science_periodic_classification",
-    "topicName": "Periodic Classification of Elements",
-    "tier": "good-to-do",
-    "overview": [
-      "Chemistry chapter covering the development of the modern periodic table.",
-      "Tests understanding of trends in atomic size, valency, and metallic character.",
-      "Mendeleev's contributions and limitations are frequently asked."
-    ],
-    "definitions": [
-      {
-        "title": "Dobereiner's Triads",
-        "description": "Dobereiner arranged elements in groups of three (triads) where the atomic mass of the middle element was roughly the arithmetic mean of the other two (e.g., Li, Na, K)."
-      },
-      {
-        "title": "Newlands' Law of Octaves",
-        "description": "Newlands arranged elements by increasing atomic mass and observed that every eighth element had properties similar to the first, like notes in a musical octave."
-      },
-      {
-        "title": "Mendeleev's Periodic Law",
-        "description": "Properties of elements are a periodic function of their atomic masses. Mendeleev left gaps for undiscovered elements and predicted their properties."
-      },
-      {
-        "title": "Modern Periodic Law",
-        "description": "Properties of elements are a periodic function of their atomic numbers (Moseley). Elements in the same group have similar chemical properties due to the same valence electron configuration."
-      },
-      {
-        "title": "Periodic Trends",
-        "description": "Across a period (left to right): atomic size decreases, metallic character decreases, valency first increases then decreases. Down a group: atomic size increases, metallic character increases."
-      }
-    ],
-    "examPatterns": [
-      "1 mark: define Dobereiner's triads or Newlands' Law of Octaves; give one limitation of Mendeleev's table.",
-      "2–3 marks: compare atomic size or metallic character trends across a period and down a group.",
-      "3 marks: explain why Mendeleev's periodic table was an improvement over earlier attempts."
-    ],
-    "markingTips": [
-      "Confusing atomic number with atomic mass when explaining the Modern Periodic Law.",
-      "Not giving specific examples for triads or octaves.",
-      "Stating trends without explaining the electron configuration reason.",
-      "Ignoring noble gases when discussing valency trends across a period."
-    ],
-    "scoreTips": [
-      "Make a comparison table: Dobereiner → Newlands → Mendeleev → Modern Table.",
-      "Memorise two limitations of Mendeleev's periodic table (hydrogen position, isotopes).",
-      "Practise explaining trends (atomic size, metallic character) across periods and groups.",
-      "Note: anomalous pairs in Mendeleev's table (Ar before K, Co before Ni) are a common exam point."
-    ],
-    "workedExamples": [],
-    "quickQuiz": [
-      {
-        "title": "What is Mendeleev's Periodic Law?",
-        "question": "State Mendeleev's Periodic Law."
-      },
-      {
-        "title": "How does atomic size change across a period?",
-        "question": "How does atomic size change as you move from left to right across a period, and why?"
-      }
-    ]
-  },
   "science_control_coordination": {
     "subject": "Science",
     "topicKey": "science_control_coordination",

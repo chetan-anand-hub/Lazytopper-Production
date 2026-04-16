@@ -252,7 +252,7 @@ export const canonicalChapters: CanonicalChapter[] = [
     subjectId: "science",
     unitId: "S10_U2",
     ncertChapterNum: 9,
-    title: "Heredity and Evolution",
+    title: "Heredity",
     canonicalSlug: "heredity-and-evolution",
     recommendedConceptPacks: 12,
     visualMin: 3,

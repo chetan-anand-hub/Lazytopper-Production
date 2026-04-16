@@ -142,17 +142,15 @@ const CHAPTERS_BY_SUBJECT: Record<"Maths" | "Science", string[]> = {
     "Acids, Bases and Salts",
     "Metals and Non-Metals",
     "Carbon and Its Compounds",
-    "Periodic Classification of Elements",
     "Life Processes",
     "Control and Coordination",
     "How do Organisms Reproduce?",
-    "Heredity and Evolution",
+    "Heredity",
     "Light - Reflection and Refraction",
     "The Human Eye and the Colourful World",
     "Electricity",
     "Magnetic Effects of Electric Current",
     "Our Environment",
-    "Sustainable Management of Natural Resources",
   ],
 };
 

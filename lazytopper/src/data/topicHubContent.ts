@@ -1019,47 +1019,6 @@ export const topicHubContent: TopicHubBlock[] = [
   },
   {
     subject: 'science',
-    topicKey: 'science_periodic_classification',
-    topicName: 'Periodic Classification of Elements',
-    unitName: 'Chemical Substances – Nature and Behaviour',
-    whyItMatters: [
-      'Helps understand how element properties are organised; high conceptual value.',
-      'Regularly appears in reasoning-style questions about trends.',
-    ],
-    coreIdeas: [
-      'Modern periodic table: groups, periods, layout.',
-      'Trends: atomic size, valency, metallic and non-metallic nature.',
-      'Dobereiner’s triads, Newlands’ law of octaves (historical background).',
-      'Predicting properties (metals, non-metals, valency) from position.',
-    ],
-    commonMistakes: [
-      'Confusing direction of trends (left to right vs top to bottom).',
-      'Mixing group number with period number.',
-      'Vague reasoning when explaining trends.',
-    ],
-    examPatterns: [
-      '1 mark: identify group/period/metal/non-metal.',
-      '2–3 marks: justify trends (size, reactivity, valency).',
-      '3–4 marks: compare given elements based on position in the table.',
-    ],
-    howToScore95Plus: [
-      'Draw mini periodic table in rough with labelled groups and periods.',
-      'Practise 10–15 reasoning questions about trends with clear explanations.',
-      'Use arrows in your notes: what increases/decreases across period and down group.',
-    ],
-    microExamples: [
-      {
-        question: 'In a period, how does atomic radius change left to right?',
-        hint: 'Decreases.',
-      },
-      {
-        question: 'In a group, how does metallic character change top to bottom?',
-        hint: 'Increases.',
-      },
-    ],
-  },
-  {
-    subject: 'science',
     topicKey: 'science_control_coordination',
     topicName: 'Control and Coordination',
     unitName: 'World of Living',
@@ -1144,7 +1103,7 @@ export const topicHubContent: TopicHubBlock[] = [
   {
     subject: 'science',
     topicKey: 'science_heredity_evolution',
-    topicName: 'Heredity and Evolution',
+    topicName: 'Heredity',
     unitName: 'World of Living',
     whyItMatters: [
       'Concept-heavy chapter; Mendel + evolution reasoning questions are common.',
@@ -1308,45 +1267,4 @@ export const topicHubContent: TopicHubBlock[] = [
       },
     ],
   },
-  {
-    subject: 'science',
-    topicKey: 'science_natural_resources_management',
-    topicName: 'Management of Natural Resources',
-    unitName: 'Natural Resources',
-    whyItMatters: [
-      'Simple but important chapter on sustainability and responsible resource use.',
-      'Easy marks with structured bullet-point answers.',
-    ],
-    coreIdeas: [
-      '3 R’s: Reduce, Reuse, Recycle.',
-      'Sustainable management of forests, wildlife, water, coal, petroleum.',
-      'Community-based resource management (Chipko movement, etc.).',
-      'Pollution and long-term resource depletion.',
-    ],
-    commonMistakes: [
-      'Writing generic “save environment” lines without specific points.',
-      'Forgetting to mention concrete examples (water harvesting, afforestation).',
-      'Mixing this chapter with “Our Environment” content.',
-    ],
-    examPatterns: [
-      '1 mark: define 3 R’s or give example.',
-      '2–3 marks: explain sustainable management or specific movement.',
-      '3–4 marks: case-based reasoning about resource use and community roles.',
-    ],
-    howToScore95Plus: [
-      'Prepare 4–5 bullet points per resource (forest, water, fossil fuels).',
-      'Include named examples like Chipko movement, Rainwater harvesting.',
-      'Keep answers structured: problem → effect → solution.',
-    ],
-    microExamples: [
-      {
-        question: 'What is meant by ‘Reduce’ in 3 R’s?',
-        hint: 'Use less; avoid unnecessary consumption.',
-      },
-      {
-        question: 'Name one traditional method of water conservation in India.',
-        hint: 'Tanks, stepwells, johads (any valid example).',
-      },
-    ],
-  }
 ];
