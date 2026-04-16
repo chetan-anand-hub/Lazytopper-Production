@@ -103,7 +103,27 @@ const TOPICHUB_LAST_ROUTE_KEY = "lazytopper.topicHub.lastRoute.v1";
 const TOPICHUB_RECENT_TOPICS_KEY = "lazytopper.topicHub.recentTopics.v1";
 const MAX_RECENT_TOPICS = 10;
 const TOPIC_MASTERY_KEY_PREFIX = "lazytopper.topicHub.mastery.v1.";
+const TOPIC_LAST_CONCEPT_KEY_PREFIX = "lazytopper.topicHub.lastConcept.v1.";
 const MAX_CONCEPT_CARDS = 5;
+
+function loadLastConceptIdx(topicKey: string): number | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(TOPIC_LAST_CONCEPT_KEY_PREFIX + topicKey);
+    if (raw === null) return null;
+    const n = parseInt(raw, 10);
+    return isNaN(n) ? null : n;
+  } catch {
+    return null;
+  }
+}
+
+function saveLastConceptIdx(topicKey: string, idx: number): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(TOPIC_LAST_CONCEPT_KEY_PREFIX + topicKey, String(idx));
+  } catch { /* ignore */ }
+}
 
 
 function upsertRecentTopic(list: RecentTopicRecord[], entry: RecentTopicRecord): RecentTopicRecord[] {
@@ -377,6 +397,7 @@ export default function TopicHub() {
 
   const [phase, setPhase] = useState<LessonPhase>("landing");
   const [conceptIdx, setConceptIdx] = useState(0);
+  const [lastConceptIdx, setLastConceptIdx] = useState<number | null>(() => loadLastConceptIdx(topicKey));
   const [showingCheckpoint, setShowingCheckpoint] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [answerRevealed, setAnswerRevealed] = useState(false);
@@ -405,6 +426,7 @@ export default function TopicHub() {
     setAnswerRevealed(false);
     setProgress(loadLessonProgress(topicKey));
     allDoneConfettiFiredRef.current = null;
+    setLastConceptIdx(loadLastConceptIdx(topicKey));
   }, [topicKey]);
 
   const totalConcepts = definitions.length;
@@ -495,16 +517,6 @@ export default function TopicHub() {
   const [masteryVersion, setMasteryVersion] = useState(0);
   const chapterMasteryLevel = useMemo(() => getChapterMasteryLevel(chapterId), [chapterId, masteryVersion]);
 
-  const startLearning = useCallback(() => {
-    setPhase("menu");
-    setConceptIdx(0);
-    setShowingCheckpoint(false);
-    setSelectedAnswer(null);
-    setAnswerRevealed(false);
-    setMiniQuizIdx(0);
-    setMiniQuizAnswers([]);
-  }, []);
-
   const jumpToConcept = useCallback((idx: number) => {
     const def = (definitions[idx] as V2Definition | undefined);
     if (def) {
@@ -513,6 +525,8 @@ export default function TopicHub() {
         return { ...prev, conceptsStarted: [...prev.conceptsStarted, def.title] };
       });
     }
+    saveLastConceptIdx(topicKey, idx);
+    setLastConceptIdx(idx);
     setConceptIdx(idx);
     setShowingCheckpoint(false);
     setSelectedAnswer(null);
@@ -521,7 +535,22 @@ export default function TopicHub() {
     setMiniQuizAnswers([]);
     setConceptFailed(false);
     setPhase("learning");
-  }, [definitions, updateProgress]);
+  }, [definitions, updateProgress, topicKey]);
+
+  const startLearning = useCallback(() => {
+    const saved = loadLastConceptIdx(topicKey);
+    if (saved !== null && saved >= 0 && saved < definitions.length) {
+      jumpToConcept(saved);
+    } else {
+      setPhase("menu");
+      setConceptIdx(0);
+      setShowingCheckpoint(false);
+      setSelectedAnswer(null);
+      setAnswerRevealed(false);
+      setMiniQuizIdx(0);
+      setMiniQuizAnswers([]);
+    }
+  }, [topicKey, definitions.length, jumpToConcept]);
 
   const backToMenu = useCallback(() => {
     setShowingCheckpoint(false);
@@ -861,25 +890,64 @@ export default function TopicHub() {
               </div>
             )}
 
-            <button
-              type="button"
-              onClick={startLearning}
-              disabled={!hasEnoughContent}
-              style={{
-                marginTop: 24, padding: "14px 40px", borderRadius: 14,
-                background: hasEnoughContent
-                  ? "#22c55e"
-                  : "var(--bg-card)",
-                border: "none", color: "var(--text)", fontWeight: 700, fontSize: "1rem",
-                cursor: hasEnoughContent ? "pointer" : "not-allowed",
-                boxShadow: hasEnoughContent ? "0 4px 14px rgba(88,204,2,0.12)" : "none",
-                transition: "transform 0.15s",
-              }}
-              onMouseDown={(e) => { if (hasEnoughContent) (e.target as HTMLElement).style.transform = "scale(0.97)"; }}
-              onMouseUp={(e) => { (e.target as HTMLElement).style.transform = "scale(1)"; }}
-            >
-              {progress.lessonCompleted ? "Review Again" : chapterMasteryLevel !== "not_started" ? "Continue Learning" : "Start Learning"}
-            </button>
+            {(() => {
+              const resumeIdx = lastConceptIdx !== null && lastConceptIdx >= 0 && lastConceptIdx < definitions.length ? lastConceptIdx : null;
+              const resumeDef = resumeIdx !== null ? (definitions[resumeIdx] as V2Definition | undefined) : undefined;
+              const resumeLabel = resumeDef ? `Resume: ${resumeDef.title} →` : null;
+              const buttonLabel = progress.lessonCompleted
+                ? "Review Again"
+                : resumeLabel && !progress.lessonCompleted
+                  ? resumeLabel
+                  : chapterMasteryLevel !== "not_started"
+                    ? "Continue Learning"
+                    : "Start Learning";
+              return (
+                <>
+                  <button
+                    type="button"
+                    onClick={startLearning}
+                    disabled={!hasEnoughContent}
+                    style={{
+                      marginTop: 24, padding: "14px 40px", borderRadius: 14,
+                      background: hasEnoughContent
+                        ? "#22c55e"
+                        : "var(--bg-card)",
+                      border: "none", color: "var(--text)", fontWeight: 700, fontSize: "1rem",
+                      cursor: hasEnoughContent ? "pointer" : "not-allowed",
+                      boxShadow: hasEnoughContent ? "0 4px 14px rgba(88,204,2,0.12)" : "none",
+                      transition: "transform 0.15s",
+                    }}
+                    onMouseDown={(e) => { if (hasEnoughContent) (e.target as HTMLElement).style.transform = "scale(0.97)"; }}
+                    onMouseUp={(e) => { (e.target as HTMLElement).style.transform = "scale(1)"; }}
+                  >
+                    {buttonLabel}
+                  </button>
+                  {resumeLabel && !progress.lessonCompleted && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPhase("menu");
+                        setConceptIdx(0);
+                        setShowingCheckpoint(false);
+                        setSelectedAnswer(null);
+                        setAnswerRevealed(false);
+                        setMiniQuizIdx(0);
+                        setMiniQuizAnswers([]);
+                      }}
+                      style={{
+                        marginTop: 8, padding: "6px 20px", borderRadius: 10,
+                        background: "transparent",
+                        border: "1px solid var(--bg-card-border)", color: "var(--text-muted)",
+                        fontWeight: 600, fontSize: "0.78rem", cursor: "pointer",
+                        display: "block", marginInline: "auto",
+                      }}
+                    >
+                      or view all concepts
+                    </button>
+                  )}
+                </>
+              );
+            })()}
 
             <button
               type="button"
@@ -1034,12 +1102,17 @@ export default function TopicHub() {
                   const defTitle = (def as V2Definition).title;
                   const isDone = progress.conceptsCompleted.includes(defTitle);
                   const isInProgress = !isDone && progress.conceptsStarted.includes(defTitle);
+                  const isResume = lastConceptIdx === idx && !isDone;
                   const status: "done" | "inprogress" | "notstarted" = isDone ? "done" : isInProgress ? "inprogress" : "notstarted";
                   const statusLabel = status === "done" ? "Done" : status === "inprogress" ? "In Progress" : "Not Started";
                   const statusColor = status === "done" ? "#22c55e" : status === "inprogress" ? "#f59e0b" : "var(--color-accent)";
                   const statusBg = status === "done" ? "rgba(34,197,94,0.12)" : status === "inprogress" ? "rgba(245,158,11,0.12)" : "rgba(99,102,241,0.08)";
-                  const cardBorder = status === "done" ? "1.5px solid rgba(34,197,94,0.35)" : status === "inprogress" ? "1.5px solid rgba(245,158,11,0.3)" : "1px solid var(--bg-card-border)";
-                  const cardBg = status === "done" ? "rgba(34,197,94,0.05)" : status === "inprogress" ? "rgba(245,158,11,0.04)" : "var(--bg-card)";
+                  const cardBorder = isResume
+                    ? "2px solid #22c55e"
+                    : status === "done" ? "1.5px solid rgba(34,197,94,0.35)" : status === "inprogress" ? "1.5px solid rgba(245,158,11,0.3)" : "1px solid var(--bg-card-border)";
+                  const cardBg = isResume
+                    ? "rgba(34,197,94,0.08)"
+                    : status === "done" ? "rgba(34,197,94,0.05)" : status === "inprogress" ? "rgba(245,158,11,0.04)" : "var(--bg-card)";
                   return (
                     <button
                       key={idx}
@@ -1052,9 +1125,10 @@ export default function TopicHub() {
                         background: cardBg,
                         textAlign: "left", width: "100%",
                         transition: "transform 0.12s, box-shadow 0.12s",
+                        boxShadow: isResume ? "0 0 0 3px rgba(34,197,94,0.18)" : "none",
                       }}
-                      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.transform = "translateY(-1px)"; (e.currentTarget as HTMLElement).style.boxShadow = "0 4px 16px rgba(0,0,0,0.15)"; }}
-                      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.transform = ""; (e.currentTarget as HTMLElement).style.boxShadow = ""; }}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.transform = "translateY(-1px)"; (e.currentTarget as HTMLElement).style.boxShadow = isResume ? "0 4px 16px rgba(34,197,94,0.25)" : "0 4px 16px rgba(0,0,0,0.15)"; }}
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.transform = ""; (e.currentTarget as HTMLElement).style.boxShadow = isResume ? "0 0 0 3px rgba(34,197,94,0.18)" : ""; }}
                     >
                       <div style={{
                         width: 32, height: 32, borderRadius: 999, flexShrink: 0, display: "flex",
@@ -1072,12 +1146,22 @@ export default function TopicHub() {
                           {(def as V2Definition).description}
                         </div>
                       </div>
-                      <div style={{
-                        fontSize: "0.68rem", fontWeight: 700, padding: "3px 9px", borderRadius: 999, flexShrink: 0,
-                        background: statusBg,
-                        color: statusColor,
-                      }}>
-                        {statusLabel}
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4, flexShrink: 0 }}>
+                        {isResume && (
+                          <div style={{
+                            fontSize: "0.68rem", fontWeight: 700, padding: "3px 9px", borderRadius: 999,
+                            background: "rgba(34,197,94,0.18)", color: "#16a34a",
+                          }}>
+                            Resume →
+                          </div>
+                        )}
+                        <div style={{
+                          fontSize: "0.68rem", fontWeight: 700, padding: "3px 9px", borderRadius: 999,
+                          background: statusBg,
+                          color: statusColor,
+                        }}>
+                          {statusLabel}
+                        </div>
                       </div>
                     </button>
                   );
