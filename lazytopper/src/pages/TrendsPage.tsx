@@ -57,6 +57,20 @@ function isTierKey(value: unknown): value is TierKey {
   return value === "must-crack" || value === "high-roi" || value === "good-to-do";
 }
 
+const LESSON_PROGRESS_KEY_PREFIX = "lazytopper.topicHub.mastery.v1.";
+
+function isLessonCompleted(topicKey: string): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    const raw = window.localStorage.getItem(LESSON_PROGRESS_KEY_PREFIX + topicKey);
+    if (!raw) return false;
+    const parsed = JSON.parse(raw) as { lessonCompleted?: boolean };
+    return parsed.lessonCompleted === true;
+  } catch {
+    return false;
+  }
+}
+
 const tierMeta: Record<TierKey, { label: string; blurb: string }> = {
   "must-crack": { label: "Must-crack", blurb: "Appears almost every year - do these first." },
   "high-roi": { label: "High-ROI", blurb: "Great marks for the time spent - do after must-crack." },
@@ -486,6 +500,7 @@ const TrendsPage: React.FC = () => {
                 const tierInfo = tierMeta[tier];
                 const tc = tierColor(tier);
                 const ml = getChapterMasteryLevel(`${grade}-${subjectKey}-${topicKey}`);
+                const lessonDone = isLessonCompleted(topicKey);
 
                 const isDropdownOpen = openDropdown === topicName;
 
@@ -521,6 +536,16 @@ const TrendsPage: React.FC = () => {
                                 {MASTERY_ICONS[ml]} {MASTERY_LABELS[ml]}
                               </span>
                             )
+                          )}
+                          {lessonDone && ml !== "mastered" && (
+                            <span style={{
+                              display: "inline-flex", alignItems: "center", gap: 3,
+                              borderRadius: 999, padding: "2px 8px", fontSize: "0.68rem", fontWeight: 600,
+                              background: "#22c55e18", color: "#16a34a",
+                              border: "1px solid #22c55e30",
+                            }}>
+                              ✓ Completed
+                            </span>
                           )}
                         </div>
                         <p style={{ fontSize: "0.78rem", color: "var(--text-muted)", margin: "2px 0 6px", lineHeight: 1.4 }}>
