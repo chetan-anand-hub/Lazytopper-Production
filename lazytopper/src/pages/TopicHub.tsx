@@ -405,6 +405,14 @@ export default function TopicHub() {
     }
   }, [phase, allConceptsDone, topicKey]);
 
+  useEffect(() => {
+    if (phase !== "landing" || !progress.lessonCompleted) return;
+    const sessionKey = `lt.confetti.return.${topicKey}`;
+    if (sessionStorage.getItem(sessionKey)) return;
+    sessionStorage.setItem(sessionKey, "1");
+    gam.triggerConfetti();
+  }, [phase, progress.lessonCompleted, topicKey]);
+
   const updateProgress = useCallback(
     (updater: (prev: LessonProgress) => LessonProgress) => {
       setProgress((prev) => {
