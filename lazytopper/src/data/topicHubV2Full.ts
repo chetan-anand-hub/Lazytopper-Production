@@ -158,7 +158,7 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
         "description": "The exact values of all six trigonometric ratios at 0°, 30°, 45°, 60°, and 90° form a standard table that must be memorised for quick recall in exams."
       },
       {
-        "title": "Reciprocal and co-function relationships",
+        "title": "Trigonometric identities and reciprocal relationships",
         "description": "Each trigonometric ratio has a reciprocal pair (sin–cosec, cos–sec, tan–cot) and co-function identities such as sin θ = cos(90° − θ)."
       },
       {
@@ -170,7 +170,7 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
         "description": "Using identities and standard values to simplify or evaluate compound trigonometric expressions is a frequently tested exam skill."
       },
       {
-        "title": "Applying trigonometric ratios to height and distance",
+        "title": "Height and distance problems using trigonometric ratios",
         "description": "Basic problems involving heights and distances use trig ratios to find unknown lengths or angles in right-angled triangle models."
       }
     ],
@@ -302,7 +302,7 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
         "description": "The human excretory system removes metabolic wastes; the nephron (the functional unit of the kidney) filters blood through glomerular filtration, tubular reabsorption, and secretion to form urine."
       },
       {
-        "title": "Transport in plants",
+        "title": "Photosynthesis and transport in plants",
         "description": "Xylem transports water and minerals upward from roots using transpiration pull, and phloem translocates prepared food (sucrose) from leaves to other parts of the plant."
       }
     ],
@@ -490,7 +490,7 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
         "description": "A homologous series is a family of compounds with the same functional group (e.g., –OH, –COOH, –CHO) and a general formula, differing by a –CH₂– unit."
       },
       {
-        "title": "Properties of ethanol and ethanoic acid",
+        "title": "Properties of functional groups: ethanol and ethanoic acid",
         "description": "Ethanol (C₂H₅OH) is used as a solvent and in beverages; ethanoic acid (CH₃COOH) is the acid in vinegar. Both have characteristic chemical reactions."
       },
       {
@@ -613,7 +613,7 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
         "description": "If a straight current-carrying conductor is held in the right hand with the thumb pointing in the direction of current, the curled fingers show the direction of the magnetic field."
       },
       {
-        "title": "Force on a current-carrying conductor",
+        "title": "Force on a conductor and Flemings left-hand rule",
         "description": "A current-carrying conductor placed in a magnetic field experiences a force whose direction depends on the directions of the current and the field."
       },
       {
@@ -843,7 +843,7 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     ],
     "definitions": [
       {
-        "title": "Arithmetic Progression basics",
+        "title": "Arithmetic Progression and common difference",
         "description": "An arithmetic progression (AP) is a sequence where each term differs from the previous by a constant called the common difference (d); 'a' denotes the first term."
       },
       {
@@ -855,11 +855,11 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
         "description": "Sₙ = n/2 [2a + (n − 1)d] or Sₙ = n/2 (first term + last term)."
       },
       {
-        "title": "Checking if a sequence is an AP",
+        "title": "Checking common difference to identify an AP",
         "description": "A sequence is an AP if the difference between consecutive terms is constant; compute each pair’s difference and verify they are all equal."
       },
       {
-        "title": "Word problems on AP",
+        "title": "AP word problems using sum formula",
         "description": "Real-life problems on savings, seating arrangements, and patterns are modelled using the nth term or sum formula of an AP."
       }
     ],
@@ -970,7 +970,7 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
         "description": "The exact values of all six trigonometric ratios at the standard angles 0°, 30°, 45°, 60°, and 90° must be memorised for quick calculations."
       },
       {
-        "title": "Reciprocal and co-function relations",
+        "title": "Trigonometric identities and reciprocal relations",
         "description": "Reciprocal pairs (sin–cosec, cos–sec, tan–cot) and co-function identities like sin θ = cos(90° − θ) connect different trigonometric ratios."
       },
       {
@@ -1147,7 +1147,7 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
         "description": "The area of a ring (annulus) is the difference between the areas of the outer and inner circles: π(R² − r²)."
       },
       {
-        "title": "Composite shapes with circles",
+        "title": "Combined figures and composite areas",
         "description": "Many exam problems involve composite figures made of semicircles, quadrants, and rectangles; the shaded area is found by adding or subtracting individual areas."
       }
     ],
@@ -1201,7 +1201,7 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
         "description": "When two or more basic solids are joined (e.g., cylinder + hemisphere), the total surface area and volume are calculated by combining individual measurements."
       },
       {
-        "title": "Melting and recasting",
+        "title": "Melting, recasting and conversion of solids",
         "description": "When a solid is melted and recast into a different shape, the volume remains constant; this principle is used to find the dimensions or count of new shapes."
       },
       {
@@ -1315,11 +1315,11 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
         "description": "The reactivity series arranges metals in decreasing order of reactivity; a more reactive metal can displace a less reactive one from its salt solution."
       },
       {
-        "title": "Corrosion and its prevention",
+        "title": "Corrosion prevention and reactivity",
         "description": "Corrosion is the slow deterioration of metals by chemical reaction with the environment; rusting of iron requires both oxygen and moisture, and is prevented by painting, oiling, galvanising, or alloying."
       },
       {
-        "title": "Basic metallurgical processes",
+        "title": "Extraction of metals through metallurgical processes",
         "description": "Extraction of metals from ores involves steps like concentration of ore, reduction (using carbon or electrolysis), and refining to obtain pure metal."
       },
       {
@@ -1366,7 +1366,7 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
     ],
     "definitions": [
       {
-        "title": "Structure and function of a neuron",
+        "title": "Neuron structure and nervous system",
         "description": "A neuron consists of a cell body, dendrites (receive impulses), and an axon (transmits impulses). Neurons communicate across a synapse using chemical signals."
       },
       {
@@ -1374,7 +1374,7 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
         "description": "A reflex action is a rapid, involuntary response to a stimulus; the reflex arc pathway runs from receptor → sensory neuron → spinal cord → motor neuron → effector."
       },
       {
-        "title": "Parts and functions of the human brain",
+        "title": "Brain parts and nervous system functions",
         "description": "The cerebrum handles thinking and voluntary actions, the cerebellum controls balance and coordination, and the medulla regulates involuntary functions like breathing and heartbeat."
       },
       {
@@ -1482,7 +1482,7 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
         "description": "Mendel’s experiments on pea plants established the laws of dominance, segregation, and independent assortment; a monohybrid cross studies inheritance of one trait at a time."
       },
       {
-        "title": "Dominant and recessive traits",
+        "title": "Dominant and recessive traits in Mendels inheritance",
         "description": "A dominant trait is expressed when at least one dominant allele is present; a recessive trait appears only when both alleles are recessive. Genotype is the allele combination; phenotype is the visible trait."
       },
       {
@@ -1598,7 +1598,7 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
         "description": "White light splits into seven colours (VIBGYOR) when passing through a prism; a rainbow forms when sunlight is dispersed by water droplets acting as tiny prisms."
       },
       {
-        "title": "Atmospheric refraction phenomena",
+        "title": "Atmospheric refraction and dispersion of light",
         "description": "Atmospheric refraction causes the twinkling of stars, advanced sunrise and delayed sunset, and the apparent flattening of the Sun near the horizon."
       }
     ],

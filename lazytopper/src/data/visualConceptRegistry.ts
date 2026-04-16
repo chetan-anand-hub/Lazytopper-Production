@@ -305,16 +305,6 @@ export const SCIENCE_VISUALS: ChapterVisuals[] = [
       c("science", "magnetic-effects", "Electric Motor and Generator", ["motor", "generator", "AC", "DC", "electromagnetic"]),
     ],
   },
-  {
-    chapterKey: "Our Environment",
-    chapterName: "Our Environment",
-    subject: "science",
-    concepts: [
-      c("science", "environment", "Food Chain and Food Web", ["food", "chain", "web", "trophic", "energy"]),
-      c("science", "environment", "Ecosystem and Energy Flow", ["ecosystem", "producer", "consumer", "decomposer"]),
-      c("science", "environment", "Ozone Layer and Biodegradability", ["ozone", "CFC", "biodegradable", "non-biodegradable"]),
-    ],
-  },
 ];
 
 export const ALL_VISUALS: ChapterVisuals[] = [...MATHS_VISUALS, ...SCIENCE_VISUALS];
@@ -347,7 +337,6 @@ const topicKeyToChapterMap: Record<string, string> = (() => {
     "Human Eye and Colourful World": "Human Eye and Colourful World",
     "Electricity": "Electricity",
     "Magnetic Effects of Electric Current": "Magnetic Effects of Electric Current",
-    "Our Environment": "Our Environment",
     // Canonical slugs (as used in URL routing and TopicHub topicKey)
     "chemical-reactions-and-equations": "Chemical Reactions and Equations",
     "acids-bases-and-salts": "Acids Bases and Salts",
@@ -366,7 +355,6 @@ const topicKeyToChapterMap: Record<string, string> = (() => {
     "electricity": "Electricity",
     "magnetic-effects-of-electric-current": "Magnetic Effects of Electric Current",
     "magnetic-effects": "Magnetic Effects of Electric Current",
-    "our-environment": "Our Environment",
     // Maths canonical slug aliases (for slugs that differ from topicKey pretty names)
     "pair-of-linear-equations": "Pair of Linear Equations",
     "pair-of-linear-equations-in-two-variables": "Pair of Linear Equations",
