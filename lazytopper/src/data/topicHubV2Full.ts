@@ -747,10 +747,6 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
       {
         "title": "Terminating and non-terminating decimals",
         "description": "A rational number p/q has a terminating decimal if the prime factors of q (in lowest terms) are only 2 and/or 5; otherwise it is non-terminating recurring."
-      },
-      {
-        "title": "Rational number representation",
-        "description": "A rational number is any number that can be expressed in the form p/q where p and q are integers and q ≠ 0."
       }
     ],
     "examPatterns": [

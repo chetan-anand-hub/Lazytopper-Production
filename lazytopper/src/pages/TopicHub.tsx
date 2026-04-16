@@ -19,7 +19,7 @@ import { useAuth } from "../context/AuthContext";
 import { fetchStepSolution, type StepSolutionResponse } from "../ai/aiClient";
 import { VisualExplainer } from "../components/VisualExplainer";
 import { getVisualConceptForQuestion } from "../data/questionVisualMap";
-import { findVisualForQuestion } from "../data/visualConceptRegistry";
+import { getVisualsForTopicKey } from "../data/visualConceptRegistry";
 import {
   getChapterMasteryLevel,
   recordQuizResult,
@@ -506,12 +506,25 @@ export default function TopicHub() {
 
   const conceptMatchedVisual = useMemo(() => {
     if (!currentDef || showingCheckpoint) return null;
-    return findVisualForQuestion(
-      `${currentDef.title} ${currentDef.description || ""}`,
-      topicKey,
-      subjectTitle,
-    );
-  }, [currentDef, showingCheckpoint, topicKey, subjectTitle]);
+    const chapterVisuals = getVisualsForTopicKey(topicKey);
+    if (chapterVisuals.length === 0) return null;
+    const STOP = new Set(["and", "the", "not", "non", "for", "its", "are", "of", "using", "with"]);
+    const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+    const conceptWords = norm(currentDef.title).split(" ").filter((w) => w.length >= 3 && !STOP.has(w));
+    let bestMatch = chapterVisuals[0];
+    let bestScore = 0;
+    for (const v of chapterVisuals) {
+      const titleWords = norm(v.title).split(" ").filter((w) => w.length >= 3 && !STOP.has(w));
+      let score = 0;
+      for (const tw of titleWords) {
+        for (const cw of conceptWords) {
+          if (tw.includes(cw) || cw.includes(tw)) score += 2;
+        }
+      }
+      if (score > bestScore) { bestScore = score; bestMatch = v; }
+    }
+    return bestMatch;
+  }, [currentDef, showingCheckpoint, topicKey]);
 
   const [conceptFailed, setConceptFailed] = useState(false);
 
