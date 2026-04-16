@@ -782,6 +782,26 @@ export default function TopicHub() {
                     You've completed all concepts in this chapter
                   </div>
                 </div>
+                <button
+                  onClick={() => gam.triggerConfetti()}
+                  title="Celebrate again!"
+                  style={{
+                    marginLeft: 4,
+                    background: "none",
+                    border: "1px solid rgba(88,204,2,0.35)",
+                    borderRadius: 8,
+                    padding: "3px 8px",
+                    cursor: "pointer",
+                    fontSize: "0.75rem",
+                    color: "#58cc02",
+                    fontWeight: 600,
+                    lineHeight: 1.4,
+                    whiteSpace: "nowrap",
+                    opacity: 0.8,
+                  }}
+                >
+                  🎉 Celebrate!
+                </button>
               </div>
             )}
 
