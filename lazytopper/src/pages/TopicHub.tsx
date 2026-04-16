@@ -113,19 +113,23 @@ function upsertRecentTopic(list: RecentTopicRecord[], entry: RecentTopicRecord):
 
 interface LessonProgress {
   conceptsCompleted: string[];
+  conceptsStarted: string[];
   quizCorrect: number;
   quizTotal: number;
   lessonCompleted: boolean;
 }
 
+const EMPTY_PROGRESS: LessonProgress = { conceptsCompleted: [], conceptsStarted: [], quizCorrect: 0, quizTotal: 0, lessonCompleted: false };
+
 function loadLessonProgress(topicKey: string): LessonProgress {
-  if (typeof window === "undefined") return { conceptsCompleted: [], quizCorrect: 0, quizTotal: 0, lessonCompleted: false };
+  if (typeof window === "undefined") return { ...EMPTY_PROGRESS };
   try {
     const raw = window.localStorage.getItem(TOPIC_MASTERY_KEY_PREFIX + topicKey);
-    if (!raw) return { conceptsCompleted: [], quizCorrect: 0, quizTotal: 0, lessonCompleted: false };
-    return JSON.parse(raw) as LessonProgress;
+    if (!raw) return { ...EMPTY_PROGRESS };
+    const parsed = JSON.parse(raw) as Partial<LessonProgress>;
+    return { ...EMPTY_PROGRESS, ...parsed };
   } catch {
-    return { conceptsCompleted: [], quizCorrect: 0, quizTotal: 0, lessonCompleted: false };
+    return { ...EMPTY_PROGRESS };
   }
 }
 
@@ -471,6 +475,13 @@ export default function TopicHub() {
   }, []);
 
   const jumpToConcept = useCallback((idx: number) => {
+    const def = (definitions[idx] as V2Definition | undefined);
+    if (def) {
+      updateProgress((prev) => {
+        if (prev.conceptsStarted.includes(def.title)) return prev;
+        return { ...prev, conceptsStarted: [...prev.conceptsStarted, def.title] };
+      });
+    }
     setConceptIdx(idx);
     setShowingCheckpoint(false);
     setSelectedAnswer(null);
@@ -479,7 +490,7 @@ export default function TopicHub() {
     setMiniQuizAnswers([]);
     setConceptFailed(false);
     setPhase("learning");
-  }, []);
+  }, [definitions, updateProgress]);
 
   const backToMenu = useCallback(() => {
     setShowingCheckpoint(false);
@@ -872,7 +883,15 @@ export default function TopicHub() {
 
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 {definitions.map((def, idx) => {
-                  const isDone = progress.conceptsCompleted.includes((def as V2Definition).title);
+                  const defTitle = (def as V2Definition).title;
+                  const isDone = progress.conceptsCompleted.includes(defTitle);
+                  const isInProgress = !isDone && progress.conceptsStarted.includes(defTitle);
+                  const status: "done" | "inprogress" | "notstarted" = isDone ? "done" : isInProgress ? "inprogress" : "notstarted";
+                  const statusLabel = status === "done" ? "Done" : status === "inprogress" ? "In Progress" : "Not Started";
+                  const statusColor = status === "done" ? "#22c55e" : status === "inprogress" ? "#f59e0b" : "var(--color-accent)";
+                  const statusBg = status === "done" ? "rgba(34,197,94,0.12)" : status === "inprogress" ? "rgba(245,158,11,0.12)" : "rgba(99,102,241,0.08)";
+                  const cardBorder = status === "done" ? "1.5px solid rgba(34,197,94,0.35)" : status === "inprogress" ? "1.5px solid rgba(245,158,11,0.3)" : "1px solid var(--bg-card-border)";
+                  const cardBg = status === "done" ? "rgba(34,197,94,0.05)" : status === "inprogress" ? "rgba(245,158,11,0.04)" : "var(--bg-card)";
                   return (
                     <button
                       key={idx}
@@ -881,8 +900,8 @@ export default function TopicHub() {
                       style={{
                         display: "flex", alignItems: "flex-start", gap: 14,
                         padding: "14px 16px", borderRadius: 14, cursor: "pointer",
-                        border: isDone ? "1.5px solid rgba(34,197,94,0.35)" : "1px solid var(--bg-card-border)",
-                        background: isDone ? "rgba(34,197,94,0.05)" : "var(--bg-card)",
+                        border: cardBorder,
+                        background: cardBg,
                         textAlign: "left", width: "100%",
                         transition: "transform 0.12s, box-shadow 0.12s",
                       }}
@@ -892,10 +911,10 @@ export default function TopicHub() {
                       <div style={{
                         width: 32, height: 32, borderRadius: 999, flexShrink: 0, display: "flex",
                         alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: "0.85rem",
-                        background: isDone ? "rgba(34,197,94,0.12)" : "rgba(99,102,241,0.08)",
-                        color: isDone ? "#22c55e" : "var(--color-accent)",
+                        background: statusBg,
+                        color: statusColor,
                       }}>
-                        {isDone ? "✓" : idx + 1}
+                        {status === "done" ? "✓" : status === "inprogress" ? "…" : idx + 1}
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontWeight: 700, fontSize: "0.92rem", color: "var(--text)", marginBottom: 3 }}>
@@ -907,10 +926,10 @@ export default function TopicHub() {
                       </div>
                       <div style={{
                         fontSize: "0.68rem", fontWeight: 700, padding: "3px 9px", borderRadius: 999, flexShrink: 0,
-                        background: isDone ? "rgba(34,197,94,0.12)" : "rgba(99,102,241,0.08)",
-                        color: isDone ? "#22c55e" : "var(--color-accent)",
+                        background: statusBg,
+                        color: statusColor,
                       }}>
-                        {isDone ? "Done" : "Start"}
+                        {statusLabel}
                       </div>
                     </button>
                   );
