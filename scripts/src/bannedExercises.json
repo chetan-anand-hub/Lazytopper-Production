@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "Banned NCERT exercise references per board/year. Used by validateQuestionBanks CI script. When a question bank file contains a ncertRef matching a banned exercise, the build fails.",
+  "rules": [
+    {
+      "board": "CBSE",
+      "year": "2026-27",
+      "subject": "Maths",
+      "grade": "Class 10",
+      "reason": "NCERT Ch 13 Ex 13.3 (Frustum of Cone) was deleted from the CBSE Class 10 syllabus from 2023-24 onwards. Questions may still be valid (Ex 13.1 = Surface Area, Ex 13.2 = Volume), but the ncertRef metadata must point to Ex 13.1 or Ex 13.2.",
+      "bannedExercises": ["Ex 13.3"],
+      "questionBankDir": "../../lib/shared-data/src/questionBanks/maths"
+    },
+    {
+      "board": "CBSE",
+      "year": "2026-27",
+      "subject": "Science",
+      "grade": "Class 10",
+      "reason": "Chapter 15 (Our Environment) was removed from the CBSE Class 10 Science syllabus for 2026-27. All InText and Exercise questions referencing Ch 15 are out-of-syllabus.",
+      "bannedExercises": ["NCERT Ch15 Exercise", "NCERT Ch15 InText"],
+      "questionBankDir": "../../lib/shared-data/src/questionBanks/science"
+    }
+  ]
+}
