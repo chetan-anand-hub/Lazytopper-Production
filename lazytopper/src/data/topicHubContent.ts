@@ -40,10 +40,10 @@ export const topicHubContent: TopicHubBlock[] = [
       'Skipping units in word problems (km, rupees, years).',
     ],
     examPatterns: [
-      '1 mark: type of solution given ratios or quick conceptual check.',
-      '2–3 marks: solve using substitution/elimination/cross-multiplication.',
-      '3–4 marks: word problems (age, upstream–downstream, money, digits).',
-      'Case-based: short table/graph plus a couple of sub-questions on solutions.',
+      '1 mark (Consistency Conditions): type of solution given ratios a₁/a₂, b₁/b₂, c₁/c₂ — unique, no, or infinite.',
+      '2–3 marks (Algebraic Methods): solve a pair of equations using substitution or elimination.',
+      '3–4 marks (Word Problems): age, upstream–downstream, money, digit-reversal problems set up as two equations.',
+      'Case-based (Graph/Table): short data set or graph with 2–3 sub-questions on solution interpretation.',
     ],
     howToScore95Plus: [
       'Fix one default method (e.g. elimination) and become very fast + accurate at it.',
@@ -88,10 +88,10 @@ export const topicHubContent: TopicHubBlock[] = [
       'Not writing formula properly before substitution (can lose 1 mark).',
     ],
     examPatterns: [
-      '1 mark: identify median class, modal class, or compute mean for simple data.',
-      '2–3 marks: calculate mean/median/mode for discrete or grouped data.',
-      '4–5 marks: long answer with a full grouped table + central tendency + interpretation.',
-      'Case-based: small real-life data (marks, heights, daily wages) with simple sub-parts.',
+      '1 mark (Mean/Median/Mode): identify median class, modal class, or compute mean for simple data.',
+      '2–3 marks (Central Tendency): calculate mean, median, or mode for discrete or grouped data.',
+      '4–5 marks (Full Analysis): complete grouped table + formula application + central tendency calculation.',
+      'Case-based (Data Interpretation): real-life data (marks, heights, wages) with 2–3 sub-parts on different measures.',
     ],
     howToScore95Plus: [
       'Memorise all three main formulas + when to use each (mean, median, mode).',
@@ -137,10 +137,10 @@ export const topicHubContent: TopicHubBlock[] = [
       'Calculation mistakes when using tables or simplifying surds.',
     ],
     examPatterns: [
-      '1 mark: direct value look-up (e.g. sin 30°, tan 45°).',
-      '2–3 marks: evaluate expressions, prove/distinguish simple identities.',
-      '3–4 marks: use of identities + simplification.',
-      'Linked to applications: basic ratio use with heights and distances.',
+      '1 mark (Standard Values): direct table look-up — e.g. sin 30°, cos 45°, tan 60°.',
+      '2–3 marks (Identities): evaluate expressions or simplify using Pythagorean identities.',
+      '3–4 marks (Identity Proof): prove a given trigonometric identity step by step.',
+      'Linked to (Height-Distance): basic ratio application to angle of elevation or depression.',
     ],
     howToScore95Plus: [
       'Drill the trig table daily until you can recall all values in under 30 seconds.',
@@ -186,10 +186,10 @@ export const topicHubContent: TopicHubBlock[] = [
       'Drawing circuits very messily (hard to understand connections).',
     ],
     examPatterns: [
-      '1 mark: conceptual definition or unit-based MCQ.',
-      '2 marks: short numerical or explain difference between series and parallel.',
-      '3 marks: numerical involving equivalent resistance + current/voltage.',
-      '4–5 marks: mixed theory + numerical or case-based questions with a circuit diagram.',
+      '1 mark (Definitions/Units): conceptual definition or unit-based MCQ (V, I, R, P).',
+      '2 marks (Series/Parallel): short numerical or explain difference between series and parallel circuits.',
+      '3 marks (Equivalent Resistance): numerical involving equivalent resistance + Ohm\'s law.',
+      '4–5 marks (Mixed Circuit): theory + numerical or case-based with labelled circuit diagram.',
     ],
     howToScore95Plus: [
       'Make a formula table for all V–I–R–P–E relationships; revise daily.',
@@ -234,10 +234,10 @@ export const topicHubContent: TopicHubBlock[] = [
       'Over-describing less important subpoints and missing main steps.',
     ],
     examPatterns: [
-      '1 mark: definitions, identify parts in diagrams.',
-      '2–3 marks: explain a process (e.g. respiration, excretion, peristalsis) in steps.',
-      '3–4 marks: labelled diagrams (heart, nephron, human alimentary canal) plus explanation.',
-      'Case-based: small passage about exercise, breathing rate, kidney failure etc.',
+      '1 mark (Definitions/Parts): define a process or identify labelled parts in a diagram.',
+      '2–3 marks (Process Steps): explain a life process (respiration, excretion, peristalsis) step by step.',
+      '3–4 marks (Labelled Diagrams): draw and label heart, nephron, or alimentary canal with explanation.',
+      'Case-based (Applied Biology): passage about exercise, kidney failure, or breathing rate with sub-questions.',
     ],
     howToScore95Plus: [
       'Perfect diagrams + labels: heart, nephron, human digestive system, alveoli.',
@@ -282,10 +282,10 @@ export const topicHubContent: TopicHubBlock[] = [
       'Weak, unlabelled or messy diagrams leading to confusion.',
     ],
     examPatterns: [
-      '1 mark: identify which triangles are similar or state theorem name.',
-      '2–3 marks: prove triangles similar and hence derive a relation.',
-      '4–5 marks: application of BPT or Pythagoras theorem in a geometry configuration.',
-      'Short proof-type questions: show AD/DB = AE/EC etc.',
+      '1 mark (Similarity Criterion): identify the applicable criterion (AA, SSS, SAS) or state a theorem name.',
+      '2–3 marks (Similarity Proof): prove two triangles similar and hence derive a ratio or length.',
+      '4–5 marks (BPT/Pythagoras): complex geometry application using Basic Proportionality Theorem or Pythagoras.',
+      'Short Proof (Proportionality): structured proof with given, to prove, and construction — e.g. show AD/DB = AE/EC.',
     ],
     howToScore95Plus: [
       'Memorise statement + rough idea of proof of BPT, its converse, and Pythagoras theorem.',
@@ -330,10 +330,10 @@ export const topicHubContent: TopicHubBlock[] = [
       'Writing answers > 1 or < 0.',
     ],
     examPatterns: [
-      '1 mark: direct probability from very small sample space.',
-      '2–3 marks: bag/coin/dice question with simple events.',
-      '3–4 marks: worded probability with “not”, “at least one”, etc.',
-      'Case-based: frequency table + relative frequency ↔ probability question.',
+      '1 mark (Theoretical Probability): find P(E) from a small clearly-defined sample space.',
+      '2–3 marks (Standard Experiments): bag/coin/dice questions using equally likely outcomes.',
+      '3–4 marks (Combined/Complement): worded questions with \'not\', \'at least one\', or combined events.',
+      'Case-based (Frequency → Probability): frequency table with relative frequency interpreted as probability.',
     ],
     howToScore95Plus: [
       'Memorise outcomes: coin (2), dice (6), standard deck (52, 4 suits, 13 cards each).',
@@ -378,10 +378,10 @@ export const topicHubContent: TopicHubBlock[] = [
       'Vague answers about “soap action” without mentioning micelles.',
     ],
     examPatterns: [
-      '1 mark: functional group identification, naming short-chain compounds.',
-      '2–3 marks: definition of homologous series, comparison of saturated vs unsaturated.',
-      '3–4 marks: explain properties of ethanol/ethanoic acid, or cleansing action of soaps.',
-      'Diagram-based: electron dot structure of simple molecules (CH₄, H₂O, etc.).',
+      '1 mark (Functional Groups/Naming): identify a functional group or name a short-chain compound.',
+      '2–3 marks (Homologous Series): define or compare members of a homologous series; saturated vs unsaturated.',
+      '3–4 marks (Ethanol/Ethanoic Acid/Soaps): explain properties, uses, or cleansing action of these compounds.',
+      'Diagram-based (Electron Dot Structures): draw electron dot structures of CH₄, CO₂, H₂O etc.',
     ],
     howToScore95Plus: [
       'Make a table of common functional groups + examples and revise regularly.',
@@ -426,10 +426,10 @@ export const topicHubContent: TopicHubBlock[] = [
       'Writing oxidation and reduction half-reactions incorrectly.',
     ],
     examPatterns: [
-      '1 mark: identify type of reaction or write balanced equation.',
-      '2–3 marks: balance equation + identify reaction type + explain briefly.',
-      '3–4 marks: short notes on oxidation/reduction, rancidity, corrosion etc.',
-      'Case-based: small passage about a process involving multiple reactions.',
+      '1 mark (Reaction Types/Balancing): identify the type of reaction or complete/balance a given equation.',
+      '2–3 marks (Balance + Classify): balance an equation, name reaction type, and briefly explain.',
+      '3–4 marks (Oxidation/Corrosion): notes or explanations on oxidation, reduction, rancidity, or corrosion.',
+      'Case-based (Multi-step Process): passage describing a process with multiple reaction types.',
     ],
     howToScore95Plus: [
       'Practise balancing 15–20 representative equations daily for a few days.',
@@ -473,10 +473,10 @@ export const topicHubContent: TopicHubBlock[] = [
       'Vague answers about “strength of field” without linking to current/distance.',
     ],
     examPatterns: [
-      '1 mark: direction questions using rules.',
-      '2–3 marks: explanation of rule + labelled diagram.',
-      '3–4 marks: principle, construction and working of electric motor.',
-      'Case-based: small passage with current, magnet, and force direction.',
+      '1 mark (Direction Rules): determine direction using right-hand thumb rule or Fleming\'s left-hand rule.',
+      '2–3 marks (Rules + Diagrams): explain a rule with a neat labelled diagram.',
+      '3–4 marks (Electric Motor): describe principle, construction, and working of an electric motor.',
+      'Case-based (Conductor + Field): passage with current, field, and force direction sub-questions.',
     ],
     howToScore95Plus: [
       'Memorise each rule with the exact finger mapping and practise with examples.',
@@ -522,10 +522,10 @@ export const topicHubContent: TopicHubBlock[] = [
       'Leaving roots unsimplified (e.g. not simplifying surds).',
     ],
     examPatterns: [
-      '1 mark: discriminant + nature of roots.',
-      '2–3 marks: solve a quadratic by factoring or formula.',
-      '3–4 marks: word problems (area, age, money, speed).',
-      'Sometimes combined with graph interpretation (conceptually).',
+      '1 mark (Discriminant): compute D = b² − 4ac and state nature of roots.',
+      '2–3 marks (Solving Methods): solve a quadratic by factorisation, completing the square, or quadratic formula.',
+      '3–4 marks (Word Problems): real-life problems (area, age, speed, money) modelled as quadratic equations.',
+      'Graph-based (Roots): conceptually identify roots or nature of roots from a parabola sketch.',
     ],
     howToScore95Plus: [
       'Practise at least 30–40 quadratics of mixed difficulty.',
@@ -613,14 +613,15 @@ export const topicHubContent: TopicHubBlock[] = [
       'Forgetting that the number of zeroes is at most the degree, not always equal.',
     ],
     examPatterns: [
-      '1 mark: degree of polynomial, number of zeroes from a graph.',
-      '2–3 marks: find polynomial from given zeroes, or zeroes from polynomial.',
-      'Graph-based: identify number of zeroes or their sign from a sketch.',
+      '1 mark (Degree/Zeroes): state degree of a polynomial or count zeroes from a graph.',
+      '2–3 marks (Zeroes and Coefficients): find sum/product of zeroes, form polynomial from given zeroes.',
+      'Graph-based (Graphical Zeroes): identify number and approximate positions of zeroes from a sketch.',
     ],
     howToScore95Plus: [
       'Memorise formulas for sum and product of zeroes and practise both directions (roots → polynomial and polynomial → roots).',
       'Redo all NCERT examples without looking at solutions.',
       'Practise reading zeroes from simple graphs to handle case-based questions.',
+      'In exam, write formula first (α + β = −b/a, αβ = c/a), then substitute — examiners award formula mark.',
     ],
     microExamples: [
       {
@@ -656,9 +657,9 @@ export const topicHubContent: TopicHubBlock[] = [
       'Simple arithmetic slip-ups when substituting.',
     ],
     examPatterns: [
-      '1 mark: identify AP or find a small nth term.',
-      '2–3 marks: find nth term, number of terms, or sum.',
-      '3–4 marks: word problems (donation patterns, rows of seats, etc.).',
+      '1 mark (AP Identification): check if a sequence is an AP or find a simple nth term.',
+      '2–3 marks (nth Term/Sum Formula): find the nth term, total terms, or sum using aₙ or Sₙ formula.',
+      '3–4 marks (Word Problems): donation patterns, seating arrangements, distance problems modelled as AP.',
     ],
     howToScore95Plus: [
       'Make a mini formula card and revise daily.',
@@ -700,14 +701,15 @@ export const topicHubContent: TopicHubBlock[] = [
       'Misusing section formula ratio (m:n vs n:m).',
     ],
     examPatterns: [
-      '1 mark: identify quadrant or simple distance.',
-      '2–3 marks: distance, mid-point, or section formula problems.',
-      '3–4 marks: area-of-triangle questions and collinearity checks.',
+      '1 mark (Quadrant/Distance): identify quadrant of a point or compute simple distance between two points.',
+      '2–3 marks (Distance/Midpoint/Section): apply distance, mid-point, or section formula in a standard problem.',
+      '3–4 marks (Area/Collinearity): find area of triangle using coordinates or verify collinearity of three points.',
     ],
     howToScore95Plus: [
-      'Memorise distance, mid-point, section, and area formulas in one sheet.',
+      'Memorise distance, mid-point, section, and area formulas on one sheet and revise daily.',
       'Practise 20–25 mixed problems so you instantly recognise which formula to use.',
       'Always write formula first, then substitute with brackets to avoid sign errors.',
+      'For area-of-triangle questions, check collinearity by verifying area = 0; examiners award this step.',
     ],
     microExamples: [
       {
@@ -743,9 +745,9 @@ export const topicHubContent: TopicHubBlock[] = [
       'Forgetting which ratios are undefined at 0° or 90°.',
     ],
     examPatterns: [
-      '1 mark: direct trig value or small expression.',
-      '2–3 marks: simplify expressions using identities and standard values.',
-      '3–4 marks: use of given trig information (e.g. sin θ = 3/5) to find other ratios.',
+      '1 mark (Standard Values): recall exact trig ratio at 0°, 30°, 45°, 60°, or 90°.',
+      '2–3 marks (Identities and Simplification): simplify or evaluate expressions using Pythagorean and reciprocal identities.',
+      '3–4 marks (Given Ratio → Find Others): given one trig ratio, use identities to find all remaining ratios.',
     ],
     howToScore95Plus: [
       'Drill the trig table daily (all 6 ratios at 5 key angles).',
@@ -786,8 +788,8 @@ export const topicHubContent: TopicHubBlock[] = [
       'Forgetting units or rounding incorrectly.',
     ],
     examPatterns: [
-      '3–4 marks: one/two-step height and distance problems.',
-      'Sometimes appears as part of case-based questions with a diagram.',
+      '3–4 marks (Height and Distance): one/two-step problems involving angle of elevation or depression.',
+      'Case-based (Multi-step Diagram): passage with a figure showing two observation points or combined heights.',
     ],
     howToScore95Plus: [
       'Train yourself to first draw a diagram for every word problem.',
@@ -827,14 +829,15 @@ export const topicHubContent: TopicHubBlock[] = [
       'Messy diagrams with unlabeled points.',
     ],
     examPatterns: [
-      '1 mark: property of tangent or radius.',
-      '2–3 marks: proof that tangents from external point are equal.',
-      '3–4 marks: combined tangent + triangle geometry questions.',
+      '1 mark (Tangent Properties): state a property of tangent (perpendicularity to radius, uniqueness at a point).',
+      '2–3 marks (Equal Tangents Proof): prove that tangents drawn from an external point to a circle are equal.',
+      '3–4 marks (Tangent + Triangle Geometry): combined problems with tangent lengths and triangle properties.',
     ],
     howToScore95Plus: [
-      'Memorise key tangent theorems and their statements.',
-      'Practise 6–8 standard proofs like PA = PB, right-angle at point of tangency.',
-      'Draw neat diagrams with clear labels and right-angle marks.',
+      'Memorise key tangent theorems and their exact statements.',
+      'Practise 6–8 standard proofs like PA = PB and right-angle at point of tangency.',
+      'Draw neat diagrams with clear labels, right-angle marks, and centre O labelled.',
+      'In proofs, write all three steps: construction, congruence criterion, conclusion — examiners look for each.',
     ],
     microExamples: [
       {
@@ -870,13 +873,14 @@ export const topicHubContent: TopicHubBlock[] = [
       'Rounding too early in multi-steps.',
     ],
     examPatterns: [
-      '2–3 marks: direct sector/segment area.',
-      '3–4 marks: paths surrounding fields, flower beds, shaded parts between shapes.',
+      '2–3 marks (Sector/Segment): direct application of sector area formula (θ/360 × πr²) or segment area.',
+      '3–4 marks (Composite Shapes): paths around fields, shaded regions between sectors and triangles.',
     ],
     howToScore95Plus: [
-      'Memorise circle and sector formulas solidly.',
+      'Memorise circle and sector formulas solidly (area, arc length, segment area).',
       'Practise 10+ shaded region problems to build pattern recognition.',
       'In exam, sketch clearly, mark radii/angles, and show each area calculation step.',
+      'Always keep π as 22/7 or 3.14 as stated in the question — don\'t mix them.',
     ],
     microExamples: [
       {
@@ -912,8 +916,8 @@ export const topicHubContent: TopicHubBlock[] = [
       'Ignoring volume conservation in recasting questions.',
     ],
     examPatterns: [
-      '2–3 marks: direct SA/volume for one solid.',
-      '3–4 marks: combination or recasting with multiple steps.',
+      '2–3 marks (Single Solid): compute TSA, CSA, or volume of one standard solid (cylinder, cone, sphere).',
+      '3–4 marks (Combination/Recasting): surface area of combined solids, or volume conservation in melting/recasting.',
     ],
     howToScore95Plus: [
       'Make a neat formula sheet and revise frequently.',
@@ -955,14 +959,15 @@ export const topicHubContent: TopicHubBlock[] = [
       'Mixing indicators and their colour changes.',
     ],
     examPatterns: [
-      '1 mark: formula/name of a salt, indicator colour change, simple pH question.',
-      '2–3 marks: explain a pH-related scenario or property of an acid/base/salt.',
-      '3–4 marks: preparation and uses of salts like baking soda, POP.',
+      '1 mark (Salts/Indicators/pH): formula or name of a common salt, indicator colour change, or simple pH value.',
+      '2–3 marks (pH and Properties): explain a pH scenario (tooth decay, digestion) or acid/base property.',
+      '3–4 marks (Preparation and Uses): preparation method and uses of baking soda, washing soda, or Plaster of Paris.',
     ],
     howToScore95Plus: [
       'Build a table of common salts with their formulas, preparation equations, and uses.',
-      'Learn colour changes of main indicators in acid vs base.',
+      'Learn colour changes of main indicators in acid vs base — litmus, methyl orange, phenolphthalein.',
       'Revise NCERT examples on pH applications and answer them in 4–5 lines.',
+      'In exam, always include the chemical formula when naming a salt; examiners award that point.',
     ],
     microExamples: [
       {
@@ -998,14 +1003,15 @@ export const topicHubContent: TopicHubBlock[] = [
       'Very vague answers like “metal is strong” without specific properties.',
     ],
     examPatterns: [
-      '1 mark: example of metal/non-metal, property, or definition.',
-      '2–3 marks: explanation of corrosion, prevention, or property comparison.',
-      '3–4 marks: short note on extraction or reactivity-related processes.',
+      '1 mark (Properties/Definitions): name a metal/non-metal or state its physical/chemical property.',
+      '2–3 marks (Corrosion/Reactivity): explain rusting, prevention methods, or displacement using reactivity series.',
+      '3–4 marks (Extraction/Metallurgy): describe stages of metal extraction — concentration, reduction, refining.',
     ],
     howToScore95Plus: [
-      'Memorise reactivity series using mnemonics.',
-      'Make a T-chart of metals and non-metals with properties and examples.',
-      'Learn 3–4 crisp points on corrosion: conditions, chemical reaction, prevention.',
+      'Memorise reactivity series using a mnemonic (e.g. Please Stop Calling Me A Zebra Instead Have Copper Silver Gold).',
+      'Make a T-chart of metals and non-metals with properties and examples for quick revision.',
+      'Learn 3–4 crisp points on corrosion: conditions needed, chemical equation, prevention methods.',
+      'In exam, always link alloy examples to their advantages (e.g. stainless steel → strength + rust resistance).',
     ],
     microExamples: [
       {
@@ -1040,14 +1046,15 @@ export const topicHubContent: TopicHubBlock[] = [
       'Poor diagrams of neuron and brain (missing labels).',
     ],
     examPatterns: [
-      '1 mark: name hormone, gland, or brain part.',
-      '2–3 marks: reflex arc / brain function / hormone action.',
-      '3–4 marks: coordinated explanation of nervous + endocrine control.',
+      '1 mark (Hormones/Glands/Brain): name a hormone, gland, or brain region and its function.',
+      '2–3 marks (Reflex Arc/Brain): draw and explain reflex arc pathway, or describe functions of brain parts.',
+      '3–4 marks (Integrated Control): coordinated explanation linking nervous system and endocrine glands.',
     ],
     howToScore95Plus: [
-      'Make a table of hormones, glands, and functions.',
-      'Practise labelled neuron and brain diagrams.',
-      'Learn 3–4 bullet points for reflex action and plant movements.',
+      'Make a table of hormones, glands, and functions — revise daily for 5 minutes.',
+      'Practise drawing labelled neuron and brain diagrams until they are second nature.',
+      'Learn 4 bullet points each for reflex action pathway and plant tropic movements.',
+      'In exam, trace the reflex arc in order: stimulus → receptor → sensory nerve → spinal cord → motor nerve → effector.',
     ],
     microExamples: [
       {
@@ -1081,14 +1088,15 @@ export const topicHubContent: TopicHubBlock[] = [
       'Overwriting unimportant details and missing key steps.',
     ],
     examPatterns: [
-      '1 mark: definition/type example.',
-      '2–3 marks: process explanation or diagram labelling.',
-      '3–5 marks: human reproduction or plant reproduction in detail.',
+      '1 mark (Reproduction Type/Definition): name or define a mode of asexual reproduction with an organism example.',
+      '2–3 marks (Process/Diagram): explain pollination/fertilisation steps or label a reproductive diagram.',
+      '3–5 marks (Human/Plant Reproduction): describe human reproductive system or complete plant reproduction process.',
     ],
     howToScore95Plus: [
-      'Practise diagrams of male/female reproductive systems and flower structure.',
-      'Prepare crisp notes on each asexual reproduction mode.',
-      'Redo NCERT long questions and draw diagrams repeatedly.',
+      'Practise diagrams of male/female reproductive systems and flower structure until labels come naturally.',
+      'Prepare crisp 3-line notes on each asexual reproduction mode with one organism example each.',
+      'Redo NCERT long questions and draw diagrams repeatedly — diagrams are heavily marked.',
+      'In exam, for \'how do organisms reproduce\' questions, state the mode first, then the organism, then explain briefly.',
     ],
     microExamples: [
       {
@@ -1107,38 +1115,40 @@ export const topicHubContent: TopicHubBlock[] = [
     topicName: 'Heredity',
     unitName: 'World of Living',
     whyItMatters: [
-      'Concept-heavy chapter; Mendel + evolution reasoning questions are common.',
-      'Tests clarity of genotype–phenotype ideas.',
+      'Concept-heavy chapter; Mendel’s laws and sex determination questions are common.',
+      'Tests clarity of genotype–phenotype ideas and inheritance patterns.',
     ],
     coreIdeas: [
-      'Mendel’s laws of inheritance and monohybrid cross.',
-      'Dominant vs recessive traits; genotype vs phenotype.',
-      'Sex determination in humans (XX, XY).',
-      'Evolution evidence: fossils, homologous vs analogous organs.',
+      'Mendel’s laws of inheritance and monohybrid cross using Punnett square.',
+      'Dominant vs recessive traits; genotype (allele combination) vs phenotype (visible trait).',
+      'Sex determination in humans: XX produces female, XY produces male; father determines sex.',
+      'Acquired traits are not inherited; only heritable changes in genes pass to offspring.',
     ],
     commonMistakes: [
-      'Confusing genotype notation (Tt, TT, tt).',
-      'Mixing acquired and inherited traits.',
-      'Weak explanation of sex determination.',
+      'Confusing genotype notation (Tt, TT, tt) or filling Punnett square incorrectly.',
+      'Mixing acquired traits (like muscle tone) with heritable (genetic) traits.',
+      'Weak sex determination explanation — not stating that the father’s sperm determines sex.',
+      'Not giving both phenotype ratio and genotype ratio after completing a cross.',
     ],
     examPatterns: [
-      '1 mark: definition, trait identification.',
-      '2–3 marks: monohybrid cross, genotype ratio, sex determination.',
-      '3–4 marks: homologous/analogous organs and evolution reasoning.',
+      '1 mark (Heredity Concepts): definition, trait identification, or genotype notation check.',
+      '2–3 marks (Monohybrid Cross): draw Punnett square, state phenotype/genotype ratios, or explain sex determination.',
+      '3–4 marks (Cross Analysis): complete monohybrid cross with F1 and F2 generations, phenotype/genotype ratios, and reasoning.',
     ],
     howToScore95Plus: [
-      'Practise Punnett squares for standard crosses until you can draw them in seconds.',
-      'Learn precise differences between homologous and analogous organs.',
-      'Revise NCERT reasoning questions thoroughly.',
+      'Practise Punnett squares for monohybrid crosses until you can draw and fill them in under one minute.',
+      'Write a crisp 4-step sex determination explanation: parents → gametes → offspring → XX/XY conclusion.',
+      'Make a table of 5 dominant–recessive trait pairs with correct notation (TT, Tt, tt).',
+      'In exam, always state both phenotype ratio and genotype ratio when completing a cross.',
     ],
     microExamples: [
       {
         question: 'What is phenotype ratio in monohybrid cross of Tt × Tt?',
-        hint: '3 tall : 1 dwarf.',
+        hint: '3 tall : 1 dwarf (or 3 dominant : 1 recessive).',
       },
       {
         question: 'Which chromosomes determine sex in humans?',
-        hint: 'X and Y.',
+        hint: 'XX = female, XY = male; the father’s sperm (X or Y) determines the sex of the child.',
       },
     ],
   },
@@ -1165,14 +1175,15 @@ export const topicHubContent: TopicHubBlock[] = [
       'Confusing image type (real/virtual, inverted/erect).',
     ],
     examPatterns: [
-      '1 mark: definition/formula/diagram labelling.',
-      '2–3 marks: numerical using mirror or lens formula.',
-      '3–5 marks: ray diagram + explanation combination.',
+      '1 mark (Definitions/Laws): state laws of reflection/refraction, mirror/lens formula, or label a diagram part.',
+      '2–3 marks (Numericals): solve using mirror formula, lens formula, or Snell\'s law with sign convention.',
+      '3–5 marks (Ray Diagram + Explanation): draw standard ray diagrams for mirrors/lenses with image description.',
     ],
     howToScore95Plus: [
-      'Memorise mirror and lens formulas and sign conventions firmly.',
-      'Practise standard ray diagrams multiple times until you can draw them from memory.',
-      'Solve NCERT and exemplar numericals and mark any tricky ones for revision.',
+      'Memorise mirror and lens formulas and sign conventions firmly; practice with 5–6 signed examples.',
+      'Practise standard ray diagrams multiple times until you can draw them from memory in under 2 minutes.',
+      'Solve NCERT and exemplar numericals and mark any tricky ones (especially sign errors) for revision.',
+      'In exam, always state sign convention at the start of a numerical; examiners often award 1 mark for it.',
     ],
     microExamples: [
       {
@@ -1206,14 +1217,15 @@ export const topicHubContent: TopicHubBlock[] = [
       'Unclear reasoning of atmospheric phenomena.',
     ],
     examPatterns: [
-      '1 mark: naming a defect or part of eye.',
-      '2–3 marks: explaining a defect and correction.',
-      '3–4 marks: explaining atmospheric refraction phenomena.',
+      '1 mark (Eye Parts/Defects): name a part of the eye or identify a vision defect.',
+      '2–3 marks (Defects and Correction): explain a vision defect with a labelled diagram and corrective lens.',
+      '3–4 marks (Atmospheric Phenomena): explain twinkling of stars, rainbow, advanced sunrise, or atmospheric refraction.',
     ],
     howToScore95Plus: [
       'Practise neat labelled eye diagrams for each defect and its correction.',
       'Memorise 3–4 line explanations for twinkling stars, rainbow, advanced sunrise/delayed sunset.',
-      'Revise NCERT examples and diagrams closely.',
+      'Revise NCERT examples and diagrams closely — most questions come directly from the text.',
+      'In exam, for atmospheric refraction answers, always mention \'continuous change in refractive index\'.',
     ],
     microExamples: [
       {
