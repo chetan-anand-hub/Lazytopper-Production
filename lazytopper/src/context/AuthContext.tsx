@@ -85,14 +85,27 @@ function shouldAutoAnonBootstrap(): boolean {
   return Boolean(import.meta.env.DEV) && isAutomation;
 }
 
-async function signIntoFirebase(uid: string): Promise<void> {
+async function signIntoFirebase(
+  uid: string,
+  getToken: () => Promise<string | null>
+): Promise<void> {
   if (!firebaseConfigured || !authClient) return;
   if (authClient.currentUser?.uid === uid) return;
   try {
+    const sessionToken = await getToken();
+    if (!sessionToken) {
+      if (import.meta.env.DEV) {
+        console.warn("[AuthContext] No Clerk session token available — skipping Firebase sign-in");
+      }
+      return;
+    }
     const resp = await fetch("/api/auth/firebase-token", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ uid }),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${sessionToken}`,
+      },
+      body: JSON.stringify({}),
     });
     const data = (await resp.json()) as { ok: boolean; token?: string; error?: string };
     if (data.ok && data.token) {
@@ -153,7 +166,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       void (async () => {
         if (firebaseSignedInUid.current !== uid) {
           firebaseSignedInUid.current = uid;
-          await signIntoFirebase(uid);
+          const getToken = () =>
+            clerk.session?.getToken() ?? Promise.resolve(null);
+          await signIntoFirebase(uid, getToken);
         }
         await Promise.allSettled([
           ensureLearnerCloudBaseline(uid),

@@ -1,5 +1,55 @@
+const jwksRsa = require('jwks-rsa');
+const jwt = require('jsonwebtoken');
+
+function deriveClerkJwksUri() {
+  const key = String(process.env.VITE_CLERK_PUBLISHABLE_KEY || '').trim();
+  const b64 = key.replace(/^pk_(test|live)_/, '');
+  if (!b64) return null;
+  try {
+    const domain = Buffer.from(b64, 'base64').toString('utf8').replace(/\$$/, '');
+    if (!domain || !domain.includes('.')) return null;
+    return `https://${domain}/.well-known/jwks.json`;
+  } catch {
+    return null;
+  }
+}
+
 function createFirebaseAuthRoute(deps) {
-  const { sendJson, readJson, firebaseAdmin } = deps;
+  const { sendJson, firebaseAdmin } = deps;
+
+  const jwksUri = deriveClerkJwksUri();
+  const jwksClient = jwksUri
+    ? jwksRsa({ jwksUri, cache: true, cacheMaxAge: 600_000, rateLimit: true })
+    : null;
+
+  if (jwksUri) {
+    console.log('[firebase-auth] Clerk JWKS URI:', jwksUri);
+  } else {
+    console.warn('[firebase-auth] VITE_CLERK_PUBLISHABLE_KEY not set — Clerk JWT verification disabled');
+  }
+
+  async function verifyClerkJwt(token) {
+    if (!jwksClient) {
+      throw new Error('Clerk JWKS client not configured (missing VITE_CLERK_PUBLISHABLE_KEY)');
+    }
+    const decoded = jwt.decode(token, { complete: true });
+    if (!decoded || !decoded.header || !decoded.header.kid) {
+      throw new Error('Invalid JWT: missing kid header');
+    }
+    const kid = decoded.header.kid;
+    const signingKey = await new Promise((resolve, reject) => {
+      jwksClient.getSigningKey(kid, (err, key) => {
+        if (err) { reject(err); return; }
+        resolve(key.getPublicKey());
+      });
+    });
+    return new Promise((resolve, reject) => {
+      jwt.verify(token, signingKey, { algorithms: ['RS256'] }, (err, payload) => {
+        if (err) { reject(err); return; }
+        resolve(payload);
+      });
+    });
+  }
 
   async function handleFirebaseToken(req, res) {
     if (!firebaseAdmin) {
@@ -9,16 +59,20 @@ function createFirebaseAuthRoute(deps) {
       });
     }
 
-    let payload;
-    try {
-      payload = await readJson(req);
-    } catch {
-      return sendJson(res, 400, { ok: false, error: 'Invalid JSON' });
+    const authHeader = String(req.headers['authorization'] || '');
+    const bearerToken = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
+    if (!bearerToken) {
+      return sendJson(res, 401, { ok: false, error: 'Missing Authorization: Bearer <clerk-session-token>' });
     }
 
-    const uid = String(payload.uid || '').trim();
-    if (!uid || uid.length > 128) {
-      return sendJson(res, 400, { ok: false, error: 'Missing or invalid uid' });
+    let uid;
+    try {
+      const payload = await verifyClerkJwt(bearerToken);
+      uid = String(payload.sub || '').trim();
+      if (!uid) throw new Error('Missing sub claim in verified Clerk token');
+    } catch (err) {
+      console.error('[firebase-auth] Clerk JWT verification failed:', err?.message || String(err));
+      return sendJson(res, 401, { ok: false, error: 'Invalid or expired session token' });
     }
 
     try {

@@ -437,17 +437,36 @@ export async function startSession(req: StartSessionRequest): Promise<StartSessi
       newSession.owner = uid;
       sessions[sessionId] = newSession;
       writeLocalSessions(sessions);
-      void upsertLearnerProfileBaseline(db, uid, now).catch(() => {});
       const sessionRef = doc(db, "learnerProfiles", uid, "sessions", sessionId);
-      void setDoc(sessionRef, newSession).catch(() => {});
-      void writeTranscript(uid, sessionId, {
-        itemId: "session_start",
-        role: "system",
-        kind: "session_start",
-        content: `Session started (${newSession.kind}) for ${newSession.subjectId}.`,
-        cursor: 0,
-        completed: false,
-      }).catch(() => {});
+      const sessionPath = `learnerProfiles/${uid}/sessions/${sessionId}`;
+      const cloudOps = [
+        { label: "upsertBaseline", fn: () => upsertLearnerProfileBaseline(db, uid, now) },
+        { label: `setDoc(${sessionPath})`, fn: () => setDoc(sessionRef, newSession) },
+        {
+          label: `writeTranscript(${sessionPath}/session_start)`,
+          fn: () =>
+            writeTranscript(uid, sessionId, {
+              itemId: "session_start",
+              role: "system",
+              kind: "session_start",
+              content: `Session started (${newSession.kind}) for ${newSession.subjectId}.`,
+              cursor: 0,
+              completed: false,
+            }),
+        },
+      ];
+      const results = await Promise.allSettled(cloudOps.map((op) => op.fn()));
+      if (import.meta.env.DEV) {
+        results.forEach((result, i) => {
+          if (result.status === "rejected") {
+            console.warn("[sessionApi] startSession cloud op failed", {
+              uid,
+              op: cloudOps[i].label,
+              error: result.reason,
+            });
+          }
+        });
+      }
     }
   } catch (error) {
     if (import.meta.env.DEV) {
@@ -516,34 +535,61 @@ export async function submitSessionAnswer(
     const uid = String(user?.uid || "").trim();
     if (uid) {
       const sessionRef = doc(db, "learnerProfiles", uid, "sessions", sessionId);
-      void updateDoc(sessionRef, {
-        answers: updatedSession.answers,
-        cursor: updatedSession.cursor,
-        completed: updatedSession.completed,
-        metrics: updatedSession.metrics,
-        updatedAt: updatedSession.updatedAt,
-      }).catch(() => {});
-      void Promise.all([
-        writeTranscript(uid, sessionId, {
-          itemId: currentItem.id,
-          role: "student",
-          kind: "answer_submission",
-          content: String(answer || ""),
-          cursor: previousCursor,
-          completed: updatedSession.completed,
-        }),
-        writeTranscript(uid, sessionId, {
-          itemId: currentItem.id,
-          role: "system",
-          kind: "feedback",
-          content: feedback.correct ? "Correct path." : "Needs improvement.",
-          score: feedback.score,
-          correct: feedback.correct,
-          missingKeywords: feedback.missingKeywords,
-          cursor: feedback.nextCursor,
-          completed: feedback.completed,
-        }),
-      ]).catch(() => {});
+      const sessionPath = `learnerProfiles/${uid}/sessions/${sessionId}`;
+      const cloudOps = [
+        {
+          label: `updateDoc(${sessionPath})`,
+          fn: () =>
+            updateDoc(sessionRef, {
+              answers: updatedSession.answers,
+              cursor: updatedSession.cursor,
+              completed: updatedSession.completed,
+              metrics: updatedSession.metrics,
+              updatedAt: updatedSession.updatedAt,
+            }),
+        },
+        {
+          label: `writeTranscript(${sessionPath}/answer_submission)`,
+          fn: () =>
+            writeTranscript(uid, sessionId, {
+              itemId: currentItem.id,
+              role: "student",
+              kind: "answer_submission",
+              content: String(answer || ""),
+              cursor: previousCursor,
+              completed: updatedSession.completed,
+            }),
+        },
+        {
+          label: `writeTranscript(${sessionPath}/feedback)`,
+          fn: () =>
+            writeTranscript(uid, sessionId, {
+              itemId: currentItem.id,
+              role: "system",
+              kind: "feedback",
+              content: feedback.correct ? "Correct path." : "Needs improvement.",
+              score: feedback.score,
+              correct: feedback.correct,
+              missingKeywords: feedback.missingKeywords,
+              cursor: feedback.nextCursor,
+              completed: feedback.completed,
+            }),
+        },
+      ];
+      const results = await Promise.allSettled(cloudOps.map((op) => op.fn()));
+      if (import.meta.env.DEV) {
+        results.forEach((result, i) => {
+          if (result.status === "rejected") {
+            console.warn("[sessionApi] submitSessionAnswer cloud op failed", {
+              uid,
+              sessionId,
+              itemId,
+              op: cloudOps[i].label,
+              error: result.reason,
+            });
+          }
+        });
+      }
     }
   } catch (error) {
     if (import.meta.env.DEV) {
