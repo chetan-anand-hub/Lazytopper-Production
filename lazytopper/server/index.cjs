@@ -100,6 +100,7 @@ const { createShareRoutes } = require('./routes/share.cjs');
 const { createDiagramRoutes } = require('./routes/diagrams.cjs');
 const { createQuestionRoutes } = require('./routes/questions.cjs');
 const { createMentorRoute } = require('./routes/mentor.cjs');
+const { createFirebaseAuthRoute } = require('./routes/firebaseAuth.cjs');
 
 const { sendJson, sendJsonWithHeaders } = createHttpUtils(config.CORS_ORIGIN);
 
@@ -201,6 +202,7 @@ const routeDeps = {
 const shareRoutes = createShareRoutes(routeDeps);
 const diagramRoutes = createDiagramRoutes(routeDeps);
 const questionRoutes = createQuestionRoutes(routeDeps);
+const firebaseAuthRoute = createFirebaseAuthRoute({ sendJson, readJson, firebaseAdmin });
 
 async function handleRequest(req, res) {
   const reqUrlRaw = String(req.url || "");
@@ -218,6 +220,7 @@ async function handleRequest(req, res) {
       reqPath === '/api/generate-visual' ||
       reqPath === '/api/session/start' ||
       reqPath === '/api/share-token' ||
+      reqPath === '/api/auth/firebase-token' ||
       /^\/api\/session\/[^/]+$/.test(reqPath) ||
       /^\/api\/session\/[^/]+\/submit$/.test(reqPath)
     )
@@ -338,6 +341,10 @@ async function handleRequest(req, res) {
   }
   if (req.method === 'POST' && req.url === '/api/check-solution') {
     return questionRoutes.handleCheckSolution(req, res);
+  }
+
+  if (req.method === 'POST' && reqPath === '/api/auth/firebase-token') {
+    return firebaseAuthRoute.handleFirebaseToken(req, res);
   }
   if (req.method === 'POST' && reqPath === '/api/generate-visual') {
     return diagramRoutes.handleGenerateVisual(req, res);

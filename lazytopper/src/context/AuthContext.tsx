@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, useRef, type ReactNode } from "react";
 import { useUser, useClerk } from "@clerk/react";
+import { signInWithCustomToken, signOut as firebaseSignOut } from "firebase/auth";
 import {
   hydrateLocalProgressFromCloud,
   ensureLearnerProgressBaseline,
@@ -8,6 +9,7 @@ import {
 } from "../services/studentProgressStore";
 import { ensureLearnerCloudBaseline } from "../services/studentCloudStore";
 import { activateTrial, hydrateSubscriptionFromCloud } from "../services/subscriptionService";
+import { authClient, firebaseConfigured } from "../services/firebaseClient";
 
 export type AuthUser = {
   uid: string;
@@ -83,11 +85,46 @@ function shouldAutoAnonBootstrap(): boolean {
   return Boolean(import.meta.env.DEV) && isAutomation;
 }
 
+async function signIntoFirebase(uid: string): Promise<void> {
+  if (!firebaseConfigured || !authClient) return;
+  if (authClient.currentUser?.uid === uid) return;
+  try {
+    const resp = await fetch("/api/auth/firebase-token", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ uid }),
+    });
+    const data = (await resp.json()) as { ok: boolean; token?: string; error?: string };
+    if (data.ok && data.token) {
+      await signInWithCustomToken(authClient, data.token);
+      if (import.meta.env.DEV) {
+        console.info("[AuthContext] Firebase Auth signed in for uid=%s", uid);
+      }
+    } else if (import.meta.env.DEV) {
+      console.warn("[AuthContext] Firebase token endpoint returned error:", data.error);
+    }
+  } catch (err) {
+    if (import.meta.env.DEV) {
+      console.warn("[AuthContext] Firebase sign-in failed — cloud sync disabled for this session:", err);
+    }
+  }
+}
+
+async function signOutOfFirebase(): Promise<void> {
+  if (!authClient) return;
+  try {
+    await firebaseSignOut(authClient);
+  } catch {
+    // ignore sign-out errors
+  }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const { user: clerkUser, isLoaded: clerkLoaded } = useUser();
   const clerk = useClerk();
 
   const [localUser, setLocalUser] = useState<AuthUser | null>(() => readLocalSession());
+  const firebaseSignedInUid = useRef<string | null>(null);
 
   const mappedClerkUser: AuthUser | null = clerkUser
     ? {
@@ -114,6 +151,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setActiveProgressUser(uid);
     if (uid && !user?.isLocalSession) {
       void (async () => {
+        if (firebaseSignedInUid.current !== uid) {
+          firebaseSignedInUid.current = uid;
+          await signIntoFirebase(uid);
+        }
         await Promise.allSettled([
           ensureLearnerCloudBaseline(uid),
           ensureLearnerProgressBaseline(uid),
@@ -138,6 +179,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logoutHandler = async () => {
+    firebaseSignedInUid.current = null;
+    void signOutOfFirebase();
     if (clerkUser) {
       await clerk.signOut();
     }

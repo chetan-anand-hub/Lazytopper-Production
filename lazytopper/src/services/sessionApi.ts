@@ -449,7 +449,11 @@ export async function startSession(req: StartSessionRequest): Promise<StartSessi
         completed: false,
       }).catch(() => {});
     }
-  } catch {}
+  } catch (error) {
+    if (import.meta.env.DEV) {
+      console.warn("[sessionApi] startSession cloud sync failed — local session still created", { sessionId, error });
+    }
+  }
 
   return { ok: true, sessionId, session: newSession };
 }
@@ -476,7 +480,11 @@ export async function getSession(sessionId: string): Promise<GetSessionResponse>
         return { ok: true, session };
       }
     }
-  } catch {}
+  } catch (error) {
+    if (import.meta.env.DEV) {
+      console.warn("[sessionApi] getSession cloud fetch failed", { sessionId, error });
+    }
+  }
 
   throw createSessionError(SESSION_NOT_FOUND, "Session not found.");
 }
@@ -537,7 +545,11 @@ export async function submitSessionAnswer(
         }),
       ]).catch(() => {});
     }
-  } catch {}
+  } catch (error) {
+    if (import.meta.env.DEV) {
+      console.warn("[sessionApi] submitSessionAnswer cloud sync failed — local answer still saved", { sessionId, itemId, error });
+    }
+  }
 
   return {
     ok: true,

@@ -1,0 +1,63 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    // Learner profiles and all subcollections (sessions, messages, mistakeLogs)
+    match /learnerProfiles/{uid} {
+      allow read, write: if isOwner(uid);
+
+      match /sessions/{sessionId} {
+        allow read, write: if isOwner(uid);
+
+        match /messages/{messageId} {
+          allow read, write: if isOwner(uid);
+        }
+      }
+
+      match /mistakeLogs/{logId} {
+        allow read, write: if isOwner(uid);
+      }
+    }
+
+    // Dashboard UI preferences
+    match /dashboardPrefs/{uid} {
+      allow read, write: if isOwner(uid);
+    }
+
+    // Core progress snapshot (chapter stats, attempts, mastery, streaks, badges)
+    match /learnerProgress/{uid} {
+      allow read, write: if isOwner(uid);
+    }
+
+    // Subscription status (trial + premium)
+    match /subscriptions/{uid} {
+      allow read, write: if isOwner(uid);
+    }
+
+    // Share-report collections — written by server-side Admin SDK only;
+    // client can read their own but not write (Admin SDK bypasses rules)
+    match /practiceInsights/{uid} {
+      allow read: if isOwner(uid);
+    }
+
+    match /mockScoreHistory/{uid} {
+      allow read: if isOwner(uid);
+    }
+
+    match /weakAreaSummary/{uid} {
+      allow read: if isOwner(uid);
+    }
+
+    match /topicMastery/{uid} {
+      allow read: if isOwner(uid);
+    }
+  }
+}
