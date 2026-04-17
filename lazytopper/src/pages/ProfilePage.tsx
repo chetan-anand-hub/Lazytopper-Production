@@ -121,7 +121,13 @@ function isoToTs(iso: string): number {
   try { return new Date(iso).getTime(); } catch { return 0; }
 }
 
-/** Collect learn events (updatedAt) from every canonical topic's mastery snapshot */
+/**
+ * Collect learn-activity events per canonical chapter node.
+ * TopicHub's in-session `conceptsCompleted[]` stores concept titles only (no timestamps),
+ * so the persisted topicHubMastery node `updatedAt` is the only available per-concept
+ * timestamp. Counting non-unseen nodes by their `updatedAt` gives the best-available
+ * "concepts completed" count per day/period.
+ */
 function collectLearnEvents(): number[] {
   const events: number[] = [];
   for (const ch of canonicalChapters) {
@@ -383,6 +389,20 @@ export default function ProfilePage() {
   const [subjectTab, setSubjectTab]     = useState<SubjectTab>("maths");
   const [expandedTopic, setExpandedTopic] = useState<string | null>(null);
   const [expandedWeak, setExpandedWeak]   = useState<number | null>(null);
+  const [hideCountdown, setHideCountdown] = useState<boolean>(
+    () => localStorage.getItem("lazytopper.hideCountdown") === "true"
+  );
+
+  // Sync hideCountdown when user changes it in Settings (storage event)
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === "lazytopper.hideCountdown") {
+        setHideCountdown(e.newValue === "true");
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
 
   // ── Derived data ────────────────────────────────────────────────────────────
 
@@ -503,7 +523,7 @@ export default function ProfilePage() {
             </div>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            {daysLeft > 0 && (
+            {!hideCountdown && daysLeft > 0 && (
               <div style={{
                 display: "flex", alignItems: "center", gap: 6,
                 background: "#fff1f2", border: "1px solid #fecdd3",
@@ -875,9 +895,10 @@ export default function ProfilePage() {
                           <IcoPen size={13} /> Practice
                         </button>
                         <button
-                          onClick={() => navigate("/exam-simulation", {
-                            state: { topicKey: w.topicKey, subject: w.subject.toLowerCase(), back: "/profile" }
-                          })}
+                          onClick={() => navigate(
+                            `/exam-simulation?subject=${encodeURIComponent(w.subject)}&topicKey=${encodeURIComponent(w.topicKey)}`,
+                            { state: { back: "/profile", backLabel: "Back to Dashboard" } }
+                          )}
                           style={{
                             flex: 1, padding: "9px 0", borderRadius: 10, border: "none",
                             background: "#7c3aed", color: "#fff", fontSize: 11, fontWeight: 700,
