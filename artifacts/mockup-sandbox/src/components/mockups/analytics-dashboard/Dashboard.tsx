@@ -92,22 +92,21 @@ export function Dashboard() {
               <div className="text-xs text-slate-500 font-medium">Class 10 · CBSE</div>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5 bg-orange-50 border border-orange-100 rounded-lg px-3 py-2">
-              <Flame className="w-4 h-4 text-orange-500" />
-              <div>
-                <div className="text-base font-bold text-slate-900 leading-none">9</div>
-                <div className="text-[9px] text-orange-600 font-semibold uppercase tracking-wide leading-tight">Streak</div>
-              </div>
-            </div>
-            <div className="flex items-center gap-1.5 bg-indigo-50 border border-indigo-100 rounded-lg px-3 py-2">
-              <Calendar className="w-4 h-4 text-indigo-500" />
-              <div>
-                <div className="text-base font-bold text-slate-900 leading-none">72</div>
-                <div className="text-[9px] text-indigo-600 font-semibold uppercase tracking-wide leading-tight">Days</div>
-              </div>
+          <div className="flex items-center gap-1.5 bg-rose-50 border border-rose-100 rounded-xl px-3 py-2 text-right">
+            <Calendar className="w-4 h-4 text-rose-500 flex-shrink-0" />
+            <div>
+              <div className="text-base font-black text-rose-600 leading-none">72</div>
+              <div className="text-[9px] text-rose-500 font-semibold uppercase tracking-wide leading-tight">days to exam</div>
             </div>
           </div>
+        </div>
+        <div className="flex items-center gap-2 mt-4">
+          <div className="flex items-center gap-1.5 bg-orange-50 border border-orange-100 rounded-lg px-3 py-1.5">
+            <Flame className="w-3.5 h-3.5 text-orange-500" />
+            <span className="text-sm font-bold text-slate-900">9 day streak</span>
+          </div>
+          <div className="text-xs text-slate-400">·</div>
+          <div className="text-xs text-slate-500 font-medium">347 questions solved · 82% accuracy</div>
         </div>
       </header>
 

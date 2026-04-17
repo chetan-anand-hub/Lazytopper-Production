@@ -71,10 +71,10 @@ const badges = [
   { name: 'Night Owl', emoji: '💎' },
 ];
 
-const actionColors: Record<string, { border: string; text: string; btn: string }> = {
-  Learn: { border: 'border-cyan-500/40', text: 'text-cyan-400', btn: 'bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500/30' },
-  Practice: { border: 'border-orange-500/40', text: 'text-orange-400', btn: 'bg-orange-500/20 text-orange-300 hover:bg-orange-500/30' },
-  'Take Test': { border: 'border-pink-500/40', text: 'text-pink-400', btn: 'bg-pink-500/20 text-pink-300 hover:bg-pink-500/30' },
+const actionColors: Record<string, { borderColor: string; textColor: string; btnBg: string; btnColor: string }> = {
+  Learn: { borderColor: 'rgba(6,182,212,0.4)', textColor: '#22d3ee', btnBg: 'rgba(6,182,212,0.18)', btnColor: '#67e8f9' },
+  Practice: { borderColor: 'rgba(249,115,22,0.4)', textColor: '#fb923c', btnBg: 'rgba(249,115,22,0.18)', btnColor: '#fdba74' },
+  'Take Test': { borderColor: 'rgba(236,72,153,0.4)', textColor: '#f472b6', btnBg: 'rgba(236,72,153,0.18)', btnColor: '#f9a8d4' },
 };
 
 export function Scorecard() {
@@ -217,17 +217,17 @@ export function Scorecard() {
             {currentWeak.map((a, i) => {
               const c = actionColors[a.action];
               return (
-                <div key={i} style={{ background: '#111828', border: `1px solid ${c.border}`, borderRadius: 14, padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div key={i} style={{ background: '#111828', border: `1px solid ${c.borderColor}`, borderRadius: 14, padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                     <div style={{ width: 36, height: 36, borderRadius: 10, background: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <a.icon style={{ width: 16, height: 16 }} className={c.text} />
+                      <a.icon style={{ width: 16, height: 16, color: c.textColor }} />
                     </div>
                     <div>
                       <div style={{ fontSize: 13, fontWeight: 700, color: '#e2e8f0' }}>{a.topic}</div>
-                      <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', marginTop: 2 }} className={c.text}>{a.gap}</div>
+                      <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', marginTop: 2, color: c.textColor }}>{a.gap}</div>
                     </div>
                   </div>
-                  <button style={{ fontSize: 11, fontWeight: 800, padding: '6px 12px', borderRadius: 8, border: 'none', cursor: 'pointer', transition: 'all 0.15s' }} className={c.btn}>{a.action}</button>
+                  <button style={{ fontSize: 11, fontWeight: 800, padding: '6px 12px', borderRadius: 8, border: 'none', cursor: 'pointer', background: c.btnBg, color: c.btnColor }}>{a.action}</button>
                 </div>
               );
             })}
