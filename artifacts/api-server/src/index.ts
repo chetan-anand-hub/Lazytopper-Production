@@ -98,7 +98,93 @@ function startGateway(): void {
   }
 }
 
+const WARMUP_INITIAL_DELAY_MS = 45_000;
+const WARMUP_INTERVAL_MS = 6 * 60 * 60 * 1000;
+
+function runWarmup(wsRoot: string): void {
+  if (!process.env["DATABASE_URL"]) {
+    logger.warn("[warmup] DATABASE_URL not set — skipping solution cache warmup");
+    return;
+  }
+
+  const scriptPath = path.join(wsRoot, "lazytopper", "scripts", "warmup-solution-cache.mjs");
+  if (!fs.existsSync(scriptPath)) {
+    logger.warn({ scriptPath }, "[warmup] Warmup script not found — skipping");
+    return;
+  }
+
+  const lazytopperDir = path.join(wsRoot, "lazytopper");
+  const gatewayUrl = `http://localhost:${GATEWAY_PORT}`;
+
+  logger.info({ gatewayUrl }, "[warmup] Starting solution cache warmup");
+
+  const child: ChildProcess = spawn(
+    "node",
+    ["--import", "tsx/esm", scriptPath],
+    {
+      cwd: lazytopperDir,
+      env: {
+        ...process.env,
+        GATEWAY_URL: gatewayUrl,
+      },
+      stdio: ["ignore", "pipe", "pipe"],
+    },
+  );
+
+  const lines: string[] = [];
+
+  child.stdout?.on("data", (data: Buffer) => {
+    const text = data.toString().trim();
+    if (text) {
+      lines.push(text);
+      logger.info({ warmup: true }, text);
+    }
+  });
+
+  child.stderr?.on("data", (data: Buffer) => {
+    const text = data.toString().trim();
+    if (text) logger.warn({ warmup: true }, text);
+  });
+
+  child.on("exit", (code: number | null) => {
+    const newlyWarmed = lines
+      .join("\n")
+      .match(/Newly warmed\s*:\s*(\d+)/)?.[1] ?? "?";
+    logger.info(
+      { code, newlyWarmed },
+      `[warmup] Solution cache warmup finished — ${newlyWarmed} new question(s) warmed`,
+    );
+  });
+
+  child.on("error", (err: Error) => {
+    logger.error({ err }, "[warmup] Failed to spawn warmup script");
+  });
+}
+
+function scheduleWarmup(): void {
+  const candidates = [
+    process.cwd(),
+    path.resolve(__dirname, "..", "..", ".."),
+    path.resolve(__dirname, "..", "..", "..", ".."),
+  ];
+
+  const wsRoot = candidates.find((p) =>
+    fs.existsSync(path.join(p, "lazytopper", "scripts", "warmup-solution-cache.mjs")),
+  );
+
+  if (!wsRoot) {
+    logger.warn("[warmup] Could not locate warmup script — cache warming disabled");
+    return;
+  }
+
+  setTimeout(() => {
+    runWarmup(wsRoot);
+    setInterval(() => runWarmup(wsRoot), WARMUP_INTERVAL_MS).unref();
+  }, WARMUP_INITIAL_DELAY_MS);
+}
+
 startGateway();
+scheduleWarmup();
 
 app.listen(port, "0.0.0.0", (err) => {
   if (err) {
