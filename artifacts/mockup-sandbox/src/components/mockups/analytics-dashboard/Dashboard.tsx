@@ -171,7 +171,7 @@ export function Dashboard() {
   const toggleWeak  = (idx: number)  => setExpandedWeak(p => p === idx ? null : idx);
 
   return (
-    <div className="font-sans bg-slate-50" style={{ width: 390, minHeight: 844, overflowY: 'auto', WebkitOverflowScrolling: 'touch' as any }}>
+    <div className="font-sans bg-slate-50" style={{ width: 390, minHeight: 844, overflowY: 'auto' }}>
 
       {/* ── Header ── */}
       <header className="bg-white border-b border-slate-100 px-5" style={{ paddingTop: 44, paddingBottom: 16 }}>
