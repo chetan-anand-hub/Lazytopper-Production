@@ -110,8 +110,7 @@ function computeActivityData(range: Range): ChartBar[] {
         name: dayLabel(dayStart),
         Learn:    learnEvents.filter(t => t >= dayStart && t < dayEnd).length,
         Practice: practiceAttempts.filter(a => a.timestamp >= dayStart && a.timestamp < dayEnd).length,
-        Test:     testEntries.filter(e => e.timestamp >= dayStart && e.timestamp < dayEnd)
-                    .reduce((s, e) => s + Math.round(e.totalMarks), 0),
+        Test:     testEntries.filter(e => e.timestamp >= dayStart && e.timestamp < dayEnd).length,
       });
     }
     return result;
@@ -126,8 +125,7 @@ function computeActivityData(range: Range): ChartBar[] {
         name: `Wk ${4 - w}`,
         Learn:    learnEvents.filter(t => t >= weekStart && t < weekEnd).length,
         Practice: practiceAttempts.filter(a => a.timestamp >= weekStart && a.timestamp < weekEnd).length,
-        Test:     testEntries.filter(e => e.timestamp >= weekStart && e.timestamp < weekEnd)
-                    .reduce((s, e) => s + Math.round(e.totalMarks), 0),
+        Test:     testEntries.filter(e => e.timestamp >= weekStart && e.timestamp < weekEnd).length,
       });
     }
     return result;
@@ -146,8 +144,7 @@ function computeActivityData(range: Range): ChartBar[] {
         name: monthLabel(monthStart),
         Learn:    learnEvents.filter(t => t >= monthStart && t < monthEnd).length,
         Practice: practiceAttempts.filter(a => a.timestamp >= monthStart && a.timestamp < monthEnd).length,
-        Test:     testEntries.filter(e => e.timestamp >= monthStart && e.timestamp < monthEnd)
-                    .reduce((s, e) => s + Math.round(e.totalMarks), 0),
+        Test:     testEntries.filter(e => e.timestamp >= monthStart && e.timestamp < monthEnd).length,
       });
     }
     return result;
@@ -178,8 +175,7 @@ function computeActivityData(range: Range): ChartBar[] {
       name: monthLabel(monthStart),
       Learn:    learnEvents.filter(t => t >= monthStart && t < monthEnd).length,
       Practice: practiceAttempts.filter(a => a.timestamp >= monthStart && a.timestamp < monthEnd).length,
-      Test:     testEntries.filter(e => e.timestamp >= monthStart && e.timestamp < monthEnd)
-                  .reduce((s, e) => s + Math.round(e.totalMarks), 0),
+      Test:     testEntries.filter(e => e.timestamp >= monthStart && e.timestamp < monthEnd).length,
     });
   }
   return result;
@@ -671,7 +667,7 @@ export default function ProfilePage() {
                       <MiniBar label="Mastery"           pct={t.masteryPct}  color="#10b981" />
                       <div style={{ display: "flex", gap: 6, paddingTop: 4 }}>
                         <button
-                          onClick={() => navigate(`/topic-hub/${t.topicKey}?subject=${subjectTab}`)}
+                          onClick={() => navigate(`/topic-hub/10/${subjectTab}/${t.topicKey}`)}
                           style={{
                             flex: 1, padding: "7px 0", borderRadius: 8, border: "none",
                             background: "#4f46e5", color: "#fff", fontSize: 11, fontWeight: 700,
@@ -681,7 +677,7 @@ export default function ProfilePage() {
                           <BookOpen size={12} /> Learn
                         </button>
                         <button
-                          onClick={() => navigate(`/practice?topic=${t.topicKey}`)}
+                          onClick={() => navigate(`/practice/10/${subjectTab}`)}
                           style={{
                             flex: 1, padding: "7px 0", borderRadius: 8, border: "none",
                             background: "#0ea5e9", color: "#fff", fontSize: 11, fontWeight: 700,
@@ -776,7 +772,7 @@ export default function ProfilePage() {
                         display: "flex", gap: 8,
                       }}>
                         <button
-                          onClick={() => navigate(`/topic-hub/${w.topicKey}`)}
+                          onClick={() => navigate(`/topic-hub/10/${w.subject.toLowerCase()}/${w.topicKey}`)}
                           style={{
                             flex: 1, padding: "9px 0", borderRadius: 10, border: "none",
                             background: "#4338ca", color: "#fff", fontSize: 11, fontWeight: 700,
@@ -786,7 +782,7 @@ export default function ProfilePage() {
                           <BookOpen size={13} /> Learn
                         </button>
                         <button
-                          onClick={() => navigate(`/practice?topic=${w.topicKey}`)}
+                          onClick={() => navigate(`/practice/10/${w.subject.toLowerCase()}`)}
                           style={{
                             flex: 1, padding: "9px 0", borderRadius: 10, border: "none",
                             background: "#0284c7", color: "#fff", fontSize: 11, fontWeight: 700,
@@ -796,7 +792,7 @@ export default function ProfilePage() {
                           <PenTool size={13} /> Practice
                         </button>
                         <button
-                          onClick={() => navigate(`/chapter-test?topic=${w.topicKey}`)}
+                          onClick={() => navigate(`/chapter-test/10/${w.subject.toLowerCase()}/${w.topicKey}`)}
                           style={{
                             flex: 1, padding: "9px 0", borderRadius: 10, border: "none",
                             background: "#7c3aed", color: "#fff", fontSize: 11, fontWeight: 700,
