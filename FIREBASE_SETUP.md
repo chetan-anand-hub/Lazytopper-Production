@@ -41,9 +41,11 @@ Once you have the Firebase CLI installed:
 ```bash
 npm install -g firebase-tools
 firebase login
-firebase use lazzyy-topper        # or: firebase use --add
+firebase use --add                # select your project (or: firebase use lazzyy-topper)
 firebase deploy --only firestore
 ```
+
+> **Note on `.firebaserc`**: The repo includes `.firebaserc` pre-set to `lazzyy-topper`. If you are deploying to a different Firebase project (e.g. a staging project), run `firebase use --add` to add it and switch to it before deploying, or edit `.firebaserc` accordingly.
 
 This deploys both `firestore.rules` and `firestore.indexes.json` from the repo root.
 
