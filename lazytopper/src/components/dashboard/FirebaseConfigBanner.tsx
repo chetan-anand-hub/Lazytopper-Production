@@ -6,21 +6,25 @@ export function FirebaseConfigBanner() {
 
   if (firebaseConfigured || dismissed) return null;
 
-  const missing: string[] = [];
   const env = import.meta.env;
+  const missing: string[] = [];
   if (!env.VITE_FIREBASE_API_KEY) missing.push("VITE_FIREBASE_API_KEY");
   if (!env.VITE_FIREBASE_AUTH_DOMAIN) missing.push("VITE_FIREBASE_AUTH_DOMAIN");
   if (!env.VITE_FIREBASE_PROJECT_ID) missing.push("VITE_FIREBASE_PROJECT_ID");
   if (!env.VITE_FIREBASE_APP_ID) missing.push("VITE_FIREBASE_APP_ID");
+  if (!env.VITE_FIREBASE_MESSAGING_SENDER_ID) missing.push("VITE_FIREBASE_MESSAGING_SENDER_ID");
+  if (!env.VITE_FIREBASE_STORAGE_BUCKET) missing.push("VITE_FIREBASE_STORAGE_BUCKET");
 
   return (
     <div style={{
-      margin: "0 0 16px 0",
+      position: "sticky",
+      top: 0,
+      zIndex: 100,
+      margin: "0 -4px 16px",
       padding: "12px 14px",
       borderRadius: 12,
-      background: "rgba(239,68,68,0.08)",
-      border: "1px solid rgba(239,68,68,0.3)",
-      position: "relative",
+      background: "rgba(239,68,68,0.10)",
+      border: "1px solid rgba(239,68,68,0.35)",
     }}>
       <button
         type="button"

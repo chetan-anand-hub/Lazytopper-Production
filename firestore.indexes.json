@@ -2,7 +2,7 @@
   "indexes": [
     {
       "collectionGroup": "mistakeLogs",
-      "queryScope": "COLLECTION",
+      "queryScope": "COLLECTION_GROUP",
       "fields": [
         { "fieldPath": "timestamp", "order": "ASCENDING" },
         { "fieldPath": "timestamp", "order": "DESCENDING" }
