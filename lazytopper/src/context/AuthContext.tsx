@@ -9,6 +9,7 @@ import {
 } from "../services/studentProgressStore";
 import { ensureLearnerCloudBaseline } from "../services/studentCloudStore";
 import { activateTrial, hydrateSubscriptionFromCloud } from "../services/subscriptionService";
+import { hydrateMistakeLogsFromCloud } from "../services/mistakeLogService";
 import { authClient, firebaseConfigured } from "../services/firebaseClient";
 
 export type AuthUser = {
@@ -194,6 +195,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         ensureLearnerCloudBaseline(uid),
         ensureLearnerProgressBaseline(uid),
         hydrateLocalProgressFromCloud(uid),
+        hydrateMistakeLogsFromCloud(uid),
         hydrateSubscriptionFromCloud(uid).then(() => {
           activateTrial(uid);
         }),

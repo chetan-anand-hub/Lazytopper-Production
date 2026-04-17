@@ -98,6 +98,40 @@ export async function logMistakes(
 }
 
 /**
+ * One-time hydration: if localStorage has no mistake log entries for the user,
+ * fetch the most recent 200 entries from Firestore and populate localStorage.
+ *
+ * Called on profile load (sign-in) so history survives cleared browser data
+ * or device switches. No-ops when Firestore is unavailable.
+ */
+export async function hydrateMistakeLogsFromCloud(uid: string): Promise<void> {
+  const existing = readLocal(uid);
+  if (existing.length > 0) return; // localStorage already has data — skip
+
+  if (!firestoreDb) return;
+
+  try {
+    const q = query(
+      collection(firestoreDb, "learnerProfiles", uid, "mistakeLogs"),
+      orderBy("timestamp", "desc"),
+      limit(MAX_LOCAL_ENTRIES)
+    );
+    const snap = await getDocs(q);
+    if (snap.empty) return;
+
+    const remote = snap.docs.map((d) => {
+      const data = d.data() as MistakeLogEntry;
+      return { ...data, id: data.id || d.id };
+    });
+
+    writeLocal(uid, remote);
+  } catch {
+    // Firestore unavailable — silently no-op; localStorage will be populated
+    // organically on the next getMistakeLogs call.
+  }
+}
+
+/**
  * Return mistake log entries for the given user within the last `days` days,
  * sorted newest-first.
  *
