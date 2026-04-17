@@ -1,272 +1,298 @@
-import React, { useState } from "react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
-import { Flame, Calendar, Trophy, ArrowRight, Star, Sparkles, Map, Target } from "lucide-react";
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
-
-function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
+import React, { useState } from 'react';
+import {
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
+} from 'recharts';
 
 const activityData = [
-  { day: "Mon", learn: 30, practice: 20, test: 0 },
-  { day: "Tue", learn: 45, practice: 40, test: 0 },
-  { day: "Wed", learn: 20, practice: 50, test: 30 },
-  { day: "Thu", learn: 60, practice: 20, test: 0 },
-  { day: "Fri", learn: 15, practice: 45, test: 45 },
-  { day: "Sat", learn: 80, practice: 60, test: 0 },
-  { day: "Sun", learn: 30, practice: 40, test: 60 },
+  { day: 'Mon', learn: 30, practice: 20, test: 0 },
+  { day: 'Tue', learn: 45, practice: 40, test: 0 },
+  { day: 'Wed', learn: 20, practice: 50, test: 30 },
+  { day: 'Thu', learn: 60, practice: 20, test: 0 },
+  { day: 'Fri', learn: 15, practice: 45, test: 45 },
+  { day: 'Sat', learn: 80, practice: 60, test: 0 },
+  { day: 'Sun', learn: 30, practice: 40, test: 60 },
 ];
 
-type MasteryLevel = "Mastered" | "Needs Practice" | "Unseen";
+type MasteryLevel = 'mastered' | 'needs_practice' | 'unseen';
 
-interface Topic {
-  id: string;
-  name: string;
-  mastery: MasteryLevel;
-}
+interface Topic { name: string; mastery: MasteryLevel }
 
 const mathsTopics: Topic[] = [
-  { id: "1", name: "Real Numbers", mastery: "Mastered" },
-  { id: "2", name: "Polynomials", mastery: "Mastered" },
-  { id: "3", name: "Linear Eq.", mastery: "Needs Practice" },
-  { id: "4", name: "Quadratic Eq.", mastery: "Needs Practice" },
-  { id: "5", name: "AP", mastery: "Mastered" },
-  { id: "6", name: "Triangles", mastery: "Unseen" },
-  { id: "7", name: "Coordinates", mastery: "Mastered" },
-  { id: "8", name: "Trigonometry", mastery: "Needs Practice" },
-  { id: "9", name: "Apps of Trig", mastery: "Unseen" },
-  { id: "10", name: "Circles", mastery: "Unseen" },
-  { id: "11", name: "Constructions", mastery: "Unseen" },
-  { id: "12", name: "Areas", mastery: "Needs Practice" },
-  { id: "13", name: "Surface Areas", mastery: "Unseen" },
-  { id: "14", name: "Statistics", mastery: "Mastered" },
-  { id: "15", name: "Probability", mastery: "Mastered" },
+  { name: 'Real Numbers', mastery: 'mastered' },
+  { name: 'Polynomials', mastery: 'mastered' },
+  { name: 'Linear Eq.', mastery: 'needs_practice' },
+  { name: 'Quadratic Eq.', mastery: 'needs_practice' },
+  { name: 'AP', mastery: 'mastered' },
+  { name: 'Triangles', mastery: 'unseen' },
+  { name: 'Coordinates', mastery: 'mastered' },
+  { name: 'Trigonometry', mastery: 'needs_practice' },
+  { name: 'Apps of Trig', mastery: 'unseen' },
+  { name: 'Circles', mastery: 'unseen' },
+  { name: 'Constructions', mastery: 'unseen' },
+  { name: 'Areas', mastery: 'needs_practice' },
+  { name: 'Surface Areas', mastery: 'unseen' },
+  { name: 'Statistics', mastery: 'mastered' },
+  { name: 'Probability', mastery: 'mastered' },
 ];
 
 const scienceTopics: Topic[] = [
-  { id: "1", name: "Chemical Rxn", mastery: "Mastered" },
-  { id: "2", name: "Acids Bases", mastery: "Needs Practice" },
-  { id: "3", name: "Metals", mastery: "Mastered" },
-  { id: "4", name: "Carbon", mastery: "Unseen" },
-  { id: "5", name: "Periodic", mastery: "Unseen" },
-  { id: "6", name: "Life Processes", mastery: "Mastered" },
-  { id: "7", name: "Control Coord", mastery: "Needs Practice" },
-  { id: "8", name: "Reproduction", mastery: "Unseen" },
-  { id: "9", name: "Heredity", mastery: "Unseen" },
-  { id: "10", name: "Light", mastery: "Needs Practice" },
-  { id: "11", name: "Eye", mastery: "Mastered" },
-  { id: "12", name: "Electricity", mastery: "Needs Practice" },
-  { id: "13", name: "Magnetic", mastery: "Unseen" },
-  { id: "14", name: "Environment", mastery: "Mastered" },
-  { id: "15", name: "Nat Resources", mastery: "Mastered" },
+  { name: 'Chemical Rxn', mastery: 'mastered' },
+  { name: 'Acids Bases', mastery: 'needs_practice' },
+  { name: 'Metals', mastery: 'mastered' },
+  { name: 'Carbon', mastery: 'unseen' },
+  { name: 'Periodic', mastery: 'unseen' },
+  { name: 'Life Processes', mastery: 'mastered' },
+  { name: 'Control Coord', mastery: 'needs_practice' },
+  { name: 'Reproduction', mastery: 'unseen' },
+  { name: 'Heredity', mastery: 'unseen' },
+  { name: 'Light', mastery: 'needs_practice' },
+  { name: 'Eye', mastery: 'mastered' },
+  { name: 'Electricity', mastery: 'needs_practice' },
+  { name: 'Magnetic', mastery: 'unseen' },
+  { name: 'Environment', mastery: 'mastered' },
+  { name: 'Nat Resources', mastery: 'mastered' },
 ];
+
+const weakAreas = {
+  maths: [
+    { name: 'Linear Equations', action: 'Learn' },
+    { name: 'Trigonometry', action: 'Practice' },
+    { name: 'Areas', action: 'Take Test' },
+  ],
+  science: [
+    { name: 'Acids & Bases', action: 'Learn' },
+    { name: 'Light Reflection', action: 'Practice' },
+    { name: 'Electricity', action: 'Take Test' },
+  ],
+};
 
 const badges = [
-  { id: 1, name: "Early Bird", icon: "🌅", color: "bg-amber-100 text-amber-700 border-amber-200" },
-  { id: 2, name: "Math Wizard", icon: "🧙‍♂️", color: "bg-rose-100 text-rose-700 border-rose-200" },
-  { id: 3, name: "7 Day Streak", icon: "🔥", color: "bg-orange-100 text-orange-700 border-orange-200" },
-  { id: 4, name: "Test Ace", icon: "🎯", color: "bg-yellow-100 text-yellow-700 border-yellow-200" },
-  { id: 5, name: "Night Owl", icon: "🦉", color: "bg-fuchsia-100 text-fuchsia-700 border-fuchsia-200" },
+  { name: 'Early Bird', icon: '🌅' },
+  { name: 'Math Wizard', icon: '🧙‍♂️' },
+  { name: '5 Day Streak', icon: '🔥' },
+  { name: 'Test Ace', icon: '🎯' },
+  { name: 'Night Owl', icon: '🦉' },
 ];
 
-export function Journey() {
-  const [subject, setSubject] = useState<"Maths" | "Science">("Maths");
+const actionStyle: Record<string, { bg: string; color: string }> = {
+  Learn: { bg: '#fff3e0', color: '#e65100' },
+  Practice: { bg: '#fce4ec', color: '#c62828' },
+  'Take Test': { bg: '#fff8e1', color: '#f57f17' },
+};
 
-  const currentTopics = subject === "Maths" ? mathsTopics : scienceTopics;
-  const weakAreas = currentTopics.filter((t) => t.mastery === "Needs Practice").slice(0, 3);
+function DonutRing({ pct, color, label, sub }: { pct: number; color: string; label: string; sub: string }) {
+  const r = 30;
+  const circumference = 2 * Math.PI * r;
+  const dash = (pct / 100) * circumference;
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+      <svg width="76" height="76" viewBox="0 0 76 76">
+        <circle cx="38" cy="38" r={r} fill="none" stroke="#f5ebe0" strokeWidth="8" />
+        <circle
+          cx="38" cy="38" r={r} fill="none" stroke={color} strokeWidth="8"
+          strokeDasharray={`${dash} ${circumference - dash}`}
+          strokeLinecap="round"
+          transform="rotate(-90 38 38)"
+        />
+        <text x="38" y="43" textAnchor="middle" style={{ fontSize: 14, fontWeight: 800, fill: '#431c1c' }}>{pct}%</text>
+      </svg>
+      <div style={{ fontSize: 11, fontWeight: 700, color: '#6b3a2a' }}>{label}</div>
+      <div style={{ fontSize: 9, fontWeight: 600, color: '#a3715c', textAlign: 'center', lineHeight: 1.3 }}>{sub}</div>
+    </div>
+  );
+}
+
+function ProgressRing({ streak, accuracy }: { streak: number; accuracy: number }) {
+  const r = 52;
+  const circumference = 2 * Math.PI * r;
+  const dash = (accuracy / 100) * circumference;
+  return (
+    <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+      <svg width="136" height="136" viewBox="0 0 136 136">
+        <defs>
+          <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#fb923c" />
+            <stop offset="100%" stopColor="#f43f5e" />
+          </linearGradient>
+        </defs>
+        <circle cx="68" cy="68" r={r} fill="none" stroke="#f5ebe0" strokeWidth="10" />
+        <circle
+          cx="68" cy="68" r={r} fill="none" stroke="url(#ringGrad)" strokeWidth="10"
+          strokeDasharray={`${dash} ${circumference - dash}`}
+          strokeLinecap="round"
+          transform="rotate(-90 68 68)"
+        />
+      </svg>
+      <div style={{ position: 'absolute', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <div style={{ fontSize: 28, fontWeight: 900, color: '#431c1c', lineHeight: 1 }}>{accuracy}%</div>
+        <div style={{ fontSize: 10, fontWeight: 700, color: '#a3715c', textTransform: 'uppercase', letterSpacing: '0.07em', marginTop: 2 }}>accuracy</div>
+        <div style={{ fontSize: 12, fontWeight: 800, color: '#fb923c', marginTop: 6 }}>🔥 {streak} days</div>
+      </div>
+    </div>
+  );
+}
+
+export function Journey() {
+  const [subject, setSubject] = useState<'maths' | 'science'>('maths');
+  const topics = subject === 'maths' ? mathsTopics : scienceTopics;
+  const currentWeak = weakAreas[subject];
+
+  const masteryEmoji = (m: MasteryLevel) =>
+    m === 'mastered' ? '✅' : m === 'needs_practice' ? '🔄' : '⭕';
+  const masteryTextColor = (m: MasteryLevel) =>
+    m === 'mastered' ? '#5c3d11' : m === 'needs_practice' ? '#c45120' : '#9ca3af';
+  const masteryBg = (m: MasteryLevel) =>
+    m === 'mastered' ? '#fef9c3' : m === 'needs_practice' ? '#fff7ed' : '#f9fafb';
+  const masteryBorder = (m: MasteryLevel) =>
+    m === 'mastered' ? '#fde68a' : m === 'needs_practice' ? '#fed7aa' : '#e5e7eb';
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-neutral-900 p-4 font-sans">
-      <div className="w-[390px] h-[844px] bg-[#FFFbf5] rounded-[40px] shadow-2xl overflow-hidden flex flex-col relative border-[8px] border-neutral-800">
-        
-        {/* Header Section */}
-        <div className="px-6 pt-12 pb-6 bg-[#FFEFE5] rounded-b-[40px] shadow-sm relative z-10 shrink-0">
-          <div className="flex justify-between items-start mb-6">
-            <div>
-              <h1 className="text-3xl font-bold text-orange-950 font-serif mb-1">Hi, Kavya!</h1>
-              <p className="text-orange-800/80 text-sm font-medium">Your journey is looking beautiful today.</p>
-            </div>
-            <div className="w-12 h-12 rounded-full bg-orange-200 border-2 border-white flex items-center justify-center shadow-sm">
-              <span className="text-orange-800 font-bold text-lg font-serif">KR</span>
-            </div>
-          </div>
+    <div className="font-sans" style={{ width: 390, minHeight: 844, background: '#fffbf5', overflowY: 'auto', WebkitOverflowScrolling: 'touch' as const }}>
 
-          <div className="flex gap-3">
-            <div className="flex-1 bg-white/80 backdrop-blur-sm rounded-2xl p-3 flex items-center gap-3 border border-orange-100 shadow-sm">
-              <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600">
-                <Flame size={20} className="fill-orange-500 text-orange-500" />
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-orange-950 leading-none">5</div>
-                <div className="text-[10px] text-orange-800 uppercase font-bold tracking-wider mt-0.5">Day Streak</div>
-              </div>
-            </div>
-            <div className="flex-1 bg-white/80 backdrop-blur-sm rounded-2xl p-3 flex items-center gap-3 border border-orange-100 shadow-sm">
-              <div className="w-10 h-10 rounded-full bg-rose-100 flex items-center justify-center text-rose-600">
-                <Calendar size={20} className="text-rose-500" />
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-orange-950 leading-none">72</div>
-                <div className="text-[10px] text-rose-800 uppercase font-bold tracking-wider mt-0.5">Days Left</div>
-              </div>
-            </div>
+      {/* ── Header ── */}
+      <div style={{ background: '#ffefe5', padding: '44px 20px 20px', borderRadius: '0 0 32px 32px', marginBottom: 20 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
+          <div>
+            <div style={{ fontSize: 26, fontWeight: 900, color: '#431c1c', lineHeight: 1.1, fontFamily: 'Georgia, serif' }}>Hi, Kavya!</div>
+            <div style={{ fontSize: 12, color: '#9a5c45', fontWeight: 600, marginTop: 4 }}>72 days left — let's go! 💪</div>
           </div>
+          <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#ffcdb2', border: '2px solid #fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, fontWeight: 800, color: '#8b3a3a' }}>KR</div>
         </div>
 
-        <div className="flex-1 overflow-y-auto pb-12 pt-4 px-5 space-y-8 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
-          
-          {/* Chart Section */}
-          <section className="space-y-3">
-            <div className="flex items-center gap-2 px-1">
-              <Map size={18} className="text-orange-400" />
-              <h2 className="text-lg font-bold text-orange-950 font-serif">This Week's Path</h2>
-            </div>
-            <div className="bg-white rounded-[28px] p-5 border border-orange-100 shadow-sm">
-              <div className="h-[180px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={activityData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#fed7aa" opacity={0.5} />
-                    <XAxis 
-                      dataKey="day" 
-                      axisLine={false} 
-                      tickLine={false} 
-                      tick={{ fill: '#c2410c', fontSize: 12 }} 
-                      dy={10}
-                    />
-                    <YAxis 
-                      axisLine={false} 
-                      tickLine={false} 
-                      tick={{ fill: '#c2410c', fontSize: 12 }} 
-                    />
-                    <Tooltip 
-                      cursor={{fill: '#fff7ed'}}
-                      contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', backgroundColor: '#fff' }}
-                    />
-                    <Bar dataKey="learn" name="Learn" stackId="a" fill="#fcd34d" radius={[0, 0, 4, 4]} />
-                    <Bar dataKey="practice" name="Practice" stackId="a" fill="#fb923c" />
-                    <Bar dataKey="test" name="Test" stackId="a" fill="#f43f5e" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-              <div className="flex justify-center gap-4 mt-4">
-                <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-full bg-[#fcd34d]"></div><span className="text-xs text-orange-800 font-medium">Learn</span></div>
-                <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-full bg-[#fb923c]"></div><span className="text-xs text-orange-800 font-medium">Practice</span></div>
-                <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-full bg-[#f43f5e]"></div><span className="text-xs text-orange-800 font-medium">Test</span></div>
-              </div>
-            </div>
-          </section>
+        {/* Hero: large circular progress ring */}
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 8 }}>
+          <ProgressRing streak={5} accuracy={78} />
+        </div>
+        <div style={{ textAlign: 'center', fontSize: 12, color: '#9a5c45', fontWeight: 600 }}>Your journey is looking beautiful today ✨</div>
+      </div>
 
-          {/* Mastery Grid Section */}
-          <section className="space-y-4">
-            <div className="flex items-center justify-between px-1">
-              <div className="flex items-center gap-2">
-                <Sparkles size={18} className="text-amber-500" />
-                <h2 className="text-lg font-bold text-orange-950 font-serif">Knowledge Map</h2>
-              </div>
-              <div className="bg-orange-100/80 p-1 rounded-full flex">
-                <button 
-                  onClick={() => setSubject("Maths")}
-                  className={cn(
-                    "px-4 py-1.5 rounded-full text-sm font-bold transition-all",
-                    subject === "Maths" ? "bg-white text-orange-600 shadow-sm" : "text-orange-800/60"
-                  )}
-                >
-                  Maths
-                </button>
-                <button 
-                  onClick={() => setSubject("Science")}
-                  className={cn(
-                    "px-4 py-1.5 rounded-full text-sm font-bold transition-all",
-                    subject === "Science" ? "bg-white text-orange-600 shadow-sm" : "text-orange-800/60"
-                  )}
-                >
-                  Science
-                </button>
-              </div>
-            </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 20, padding: '0 16px 40px' }}>
 
-            <div className="bg-white rounded-[28px] p-5 border border-orange-100 shadow-sm">
-              <div className="grid grid-cols-3 gap-2">
-                {currentTopics.map((topic) => (
-                  <div 
-                    key={topic.id}
-                    className={cn(
-                      "aspect-square rounded-2xl p-2 flex flex-col items-center justify-center text-center gap-1 border transition-all",
-                      topic.mastery === "Mastered" && "bg-amber-50 border-amber-200",
-                      topic.mastery === "Needs Practice" && "bg-rose-50 border-rose-200",
-                      topic.mastery === "Unseen" && "bg-neutral-50 border-neutral-200 border-dashed opacity-60"
-                    )}
-                  >
-                    {topic.mastery === "Mastered" && <Star size={16} className="text-amber-500 fill-amber-500" />}
-                    {topic.mastery === "Needs Practice" && <Target size={16} className="text-rose-500" />}
-                    {topic.mastery === "Unseen" && <div className="w-4 h-4 rounded-full border-2 border-neutral-300" />}
-                    
-                    <span className={cn(
-                      "text-[10px] leading-tight font-medium",
-                      topic.mastery === "Mastered" && "text-amber-900",
-                      topic.mastery === "Needs Practice" && "text-rose-900",
-                      topic.mastery === "Unseen" && "text-neutral-500"
-                    )}>
-                      {topic.name}
-                    </span>
+        {/* ── Activity Chart: smooth gradient area chart ── */}
+        <section style={{ background: '#fff', borderRadius: 24, border: '1px solid #f5e0d0', padding: '16px 14px 12px', boxShadow: '0 2px 12px rgba(200,120,80,0.06)' }}>
+          <div style={{ fontSize: 14, fontWeight: 800, color: '#431c1c', fontFamily: 'Georgia, serif', marginBottom: 12 }}>This Week's Path 🗺️</div>
+          <div style={{ height: 160 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={activityData} margin={{ top: 4, right: 0, left: -28, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="gLearn" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#fcd34d" stopOpacity={0.6} />
+                    <stop offset="95%" stopColor="#fcd34d" stopOpacity={0.05} />
+                  </linearGradient>
+                  <linearGradient id="gPractice" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#fb923c" stopOpacity={0.6} />
+                    <stop offset="95%" stopColor="#fb923c" stopOpacity={0.05} />
+                  </linearGradient>
+                  <linearGradient id="gTest" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#f43f5e" stopOpacity={0.6} />
+                    <stop offset="95%" stopColor="#f43f5e" stopOpacity={0.05} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#fed7aa" strokeOpacity={0.4} />
+                <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#c2410c', fontWeight: 600 }} dy={8} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#c2410c', fontWeight: 600 }} />
+                <Tooltip
+                  cursor={{ stroke: '#fde68a', strokeWidth: 1 }}
+                  contentStyle={{ borderRadius: 14, border: 'none', boxShadow: '0 4px 14px rgba(0,0,0,0.07)', background: '#fff' }}
+                />
+                <Area type="monotone" dataKey="learn" name="Learn" stroke="#fcd34d" strokeWidth={2} fill="url(#gLearn)" />
+                <Area type="monotone" dataKey="practice" name="Practice" stroke="#fb923c" strokeWidth={2} fill="url(#gPractice)" />
+                <Area type="monotone" dataKey="test" name="Test" stroke="#f43f5e" strokeWidth={2} fill="url(#gTest)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 8 }}>
+            {[['Learn', '#fcd34d'], ['Practice', '#fb923c'], ['Test', '#f43f5e']].map(([l, c]) => (
+              <div key={l} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 10, fontWeight: 700, color: '#9a5c45' }}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: c, display: 'inline-block' }} />{l}
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ── Subject split: donut rings side by side ── */}
+        <section style={{ background: '#fff', borderRadius: 24, border: '1px solid #f5e0d0', padding: '16px 20px', boxShadow: '0 2px 12px rgba(200,120,80,0.06)' }}>
+          <div style={{ fontSize: 14, fontWeight: 800, color: '#431c1c', fontFamily: 'Georgia, serif', marginBottom: 16 }}>Subject Mastery 🎓</div>
+          <div style={{ display: 'flex', justifyContent: 'space-around' }}>
+            <DonutRing pct={47} color="#fb923c" label="Maths" sub="7 of 15 mastered" />
+            <DonutRing pct={33} color="#f43f5e" label="Science" sub="5 of 15 mastered" />
+          </div>
+        </section>
+
+        {/* ── Knowledge Map with emoji icons ── */}
+        <section style={{ background: '#fff', borderRadius: 24, border: '1px solid #f5e0d0', padding: '16px 14px', boxShadow: '0 2px 12px rgba(200,120,80,0.06)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+            <div style={{ fontSize: 14, fontWeight: 800, color: '#431c1c', fontFamily: 'Georgia, serif' }}>Knowledge Map 🧭</div>
+            <div style={{ background: '#fff3e0', borderRadius: 100, padding: 3, display: 'flex' }}>
+              {(['maths', 'science'] as const).map(s => (
+                <button key={s} onClick={() => setSubject(s)} style={{
+                  padding: '5px 14px', borderRadius: 100, fontSize: 11, fontWeight: 700, border: 'none', cursor: 'pointer',
+                  background: subject === s ? '#fff' : 'transparent',
+                  color: subject === s ? '#c45120' : '#a37060',
+                  boxShadow: subject === s ? '0 1px 4px rgba(0,0,0,0.1)' : 'none',
+                  transition: 'all 0.2s',
+                }}>{s === 'maths' ? 'Maths' : 'Science'}</button>
+              ))}
+            </div>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 6 }}>
+            {topics.map((t, i) => (
+              <div key={i} style={{
+                background: masteryBg(t.mastery),
+                border: `1px solid ${masteryBorder(t.mastery)}`,
+                borderRadius: 12, padding: '7px 6px',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+                textAlign: 'center',
+              }}>
+                <div style={{ fontSize: 16 }}>{masteryEmoji(t.mastery)}</div>
+                <div style={{ fontSize: 9, fontWeight: 700, color: masteryTextColor(t.mastery), lineHeight: 1.3 }}>{t.name}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 12 }}>
+            {[['✅', 'Mastered'], ['🔄', 'Review'], ['⭕', 'Unseen']].map(([e, l]) => (
+              <div key={l} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, fontWeight: 700, color: '#9a5c45' }}>
+                <span>{e}</span>{l}
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ── Focus Areas ── */}
+        <section style={{ background: '#fff', borderRadius: 24, border: '1px solid #f5e0d0', padding: '16px 14px', boxShadow: '0 2px 12px rgba(200,120,80,0.06)' }}>
+          <div style={{ fontSize: 14, fontWeight: 800, color: '#431c1c', fontFamily: 'Georgia, serif', marginBottom: 12 }}>Needs a little love 💛</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {currentWeak.map((a, i) => {
+              const s = actionStyle[a.action];
+              return (
+                <div key={i} style={{ borderRadius: 18, border: '1px solid #f5e0d0', background: '#fffbf5', padding: '12px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', overflow: 'hidden', position: 'relative' }}>
+                  <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 4, background: '#fb923c', borderRadius: '18px 0 0 18px' }} />
+                  <div style={{ paddingLeft: 10 }}>
+                    <div style={{ fontSize: 13, fontWeight: 800, color: '#431c1c' }}>{a.name}</div>
+                    <div style={{ fontSize: 10, color: '#9a5c45', fontWeight: 600, marginTop: 2 }}>Needs a little more love 🌱</div>
                   </div>
-                ))}
-              </div>
-              
-              <div className="flex justify-between items-center mt-4 px-2">
-                <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-amber-400"></div><span className="text-[10px] text-neutral-500 uppercase font-bold">Mastered</span></div>
-                <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-rose-400"></div><span className="text-[10px] text-neutral-500 uppercase font-bold">Review</span></div>
-                <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full border border-neutral-300"></div><span className="text-[10px] text-neutral-500 uppercase font-bold">Unseen</span></div>
-              </div>
-            </div>
-          </section>
-
-          {/* Weak Areas Section */}
-          <section className="space-y-3">
-            <div className="flex items-center gap-2 px-1">
-              <Target size={18} className="text-rose-400" />
-              <h2 className="text-lg font-bold text-orange-950 font-serif">Focus Areas</h2>
-            </div>
-            <div className="space-y-3">
-              {weakAreas.map((area, idx) => (
-                <div key={idx} className="bg-white rounded-[24px] p-4 flex items-center justify-between border border-rose-100 shadow-sm relative overflow-hidden">
-                  <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-rose-200"></div>
-                  <div>
-                    <h3 className="font-bold text-orange-950">{area.name}</h3>
-                    <p className="text-xs text-orange-800/70 mt-0.5">Needs a little more love</p>
-                  </div>
-                  <button className="bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold px-4 py-2 rounded-full transition-colors flex items-center gap-1">
-                    Practice <ArrowRight size={12} />
+                  <button style={{ background: s.bg, color: s.color, fontSize: 11, fontWeight: 800, padding: '6px 14px', borderRadius: 100, border: 'none', cursor: 'pointer', flexShrink: 0 }}>
+                    {a.action}
                   </button>
                 </div>
-              ))}
-            </div>
-          </section>
+              );
+            })}
+          </div>
+        </section>
 
-          {/* Badges Section */}
-          <section className="space-y-3 pb-8">
-            <div className="flex items-center gap-2 px-1">
-              <Trophy size={18} className="text-yellow-500" />
-              <h2 className="text-lg font-bold text-orange-950 font-serif">Passport Stamps</h2>
-            </div>
-            <div className="flex overflow-x-auto gap-3 pb-4 -mx-5 px-5 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
-              {badges.map((badge) => (
-                <div 
-                  key={badge.id} 
-                  className={cn(
-                    "flex-shrink-0 w-[100px] h-[110px] rounded-[24px] flex flex-col items-center justify-center p-3 border shadow-sm",
-                    badge.color
-                  )}
-                >
-                  <div className="text-3xl mb-2 filter drop-shadow-sm">{badge.icon}</div>
-                  <span className="text-xs font-bold text-center leading-tight">{badge.name}</span>
-                </div>
-              ))}
-            </div>
-          </section>
+        {/* ── Badges / Passport Stamps ── */}
+        <section style={{ background: '#fff', borderRadius: 24, border: '1px solid #f5e0d0', padding: '16px 14px', boxShadow: '0 2px 12px rgba(200,120,80,0.06)' }}>
+          <div style={{ fontSize: 14, fontWeight: 800, color: '#431c1c', fontFamily: 'Georgia, serif', marginBottom: 12 }}>Passport Stamps 🌟</div>
+          <div style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 6, scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+            {badges.map((b, i) => (
+              <div key={i} style={{ flexShrink: 0, width: 88, height: 96, borderRadius: 20, background: '#fff8f0', border: '1px solid #fed7aa', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                <div style={{ fontSize: 28 }}>{b.icon}</div>
+                <div style={{ fontSize: 9, fontWeight: 700, color: '#6b3a2a', textAlign: 'center', lineHeight: 1.3, padding: '0 6px' }}>{b.name}</div>
+              </div>
+            ))}
+          </div>
+        </section>
 
-        </div>
       </div>
     </div>
   );
