@@ -697,32 +697,42 @@ export default function ProfilePage() {
               const dot    = statusDot(t.status);
               return (
                 <div key={t.topicKey}>
-                  <button
-                    onClick={() => toggleTopic(t.topicKey)}
-                    style={{
-                      width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between",
-                      padding: "10px 12px", borderRadius: 12, cursor: "pointer", transition: "all 0.15s",
-                      background: isOpen ? "#eef2ff" : "var(--bg-card-border, #f8fafc)",
-                      border: `1px solid ${isOpen ? "#c7d2fe" : "var(--bg-card-border, #e2e8f0)"}`,
-                      textAlign: "left",
-                    }}
-                  >
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
+                  {/* Row: pill navigates to TopicHub; chevron button expands details */}
+                  <div style={{
+                    display: "flex", alignItems: "center",
+                    background: isOpen ? "#eef2ff" : "var(--bg-card-border, #f8fafc)",
+                    border: `1px solid ${isOpen ? "#c7d2fe" : "var(--bg-card-border, #e2e8f0)"}`,
+                    borderRadius: 12, overflow: "hidden",
+                  }}>
+                    <button
+                      onClick={() => navigate(`/topic-hub/10/${subjectTab}/${t.topicKey}`)}
+                      style={{
+                        flex: 1, display: "flex", alignItems: "center", gap: 8,
+                        padding: "10px 12px", background: "transparent", border: "none",
+                        cursor: "pointer", textAlign: "left", minWidth: 0,
+                      }}
+                    >
                       <span style={{ width: 10, height: 10, borderRadius: "50%", background: dot, flexShrink: 0, display: "inline-block" }} />
                       <span style={{ fontSize: 12, fontWeight: 600, color: textColor, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         {t.name}
                       </span>
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
                       {t.masteryPct > 0 && (
-                        <span style={{ fontSize: 10, fontWeight: 700, color: dot }}>{t.masteryPct}%</span>
+                        <span style={{ fontSize: 10, fontWeight: 700, color: dot, flexShrink: 0 }}>{t.masteryPct}%</span>
                       )}
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); toggleTopic(t.topicKey); }}
+                      style={{
+                        padding: "10px 12px", background: "transparent", border: "none",
+                        cursor: "pointer", display: "flex", alignItems: "center", flexShrink: 0,
+                      }}
+                    >
                       {isOpen
                         ? <IcoChevronUp size={14} color="#6366f1" />
                         : <IcoChevronDown size={14} color={mutedColor} />
                       }
-                    </div>
-                  </button>
+                    </button>
+                  </div>
 
                   {isOpen && (
                     <div style={{
@@ -855,7 +865,7 @@ export default function ProfilePage() {
                           <IcoBook size={13} /> Learn
                         </button>
                         <button
-                          onClick={() => navigate(`/practice/10/${w.subject.toLowerCase()}`)}
+                          onClick={() => navigate(`/practice/10/${w.subject.toLowerCase()}?topic=${w.topicKey}`)}
                           style={{
                             flex: 1, padding: "9px 0", borderRadius: 10, border: "none",
                             background: "#0284c7", color: "#fff", fontSize: 11, fontWeight: 700,
@@ -865,7 +875,9 @@ export default function ProfilePage() {
                           <IcoPen size={13} /> Practice
                         </button>
                         <button
-                          onClick={() => navigate(`/chapter-test/10/${w.subject.toLowerCase()}/${w.topicKey}`)}
+                          onClick={() => navigate("/exam-simulation", {
+                            state: { topicKey: w.topicKey, subject: w.subject.toLowerCase(), back: "/profile" }
+                          })}
                           style={{
                             flex: 1, padding: "9px 0", borderRadius: 10, border: "none",
                             background: "#7c3aed", color: "#fff", fontSize: 11, fontWeight: 700,
