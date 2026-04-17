@@ -125,6 +125,24 @@ export function Scorecard() {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 24, padding: '0 20px 40px' }}>
 
+        {/* ── Subject Split Cards ── */}
+        <div style={{ display: 'flex', gap: 10 }}>
+          {[
+            { label: 'Maths', mastered: 7, total: 15, acc: 72, color: '#06b6d4', bg: 'rgba(6,182,212,0.1)', border: 'rgba(6,182,212,0.3)' },
+            { label: 'Science', mastered: 5, total: 15, acc: 68, color: '#a3e635', bg: 'rgba(163,230,53,0.1)', border: 'rgba(163,230,53,0.3)' },
+          ].map(s => (
+            <div key={s.label} style={{ flex: 1, background: s.bg, border: `1px solid ${s.border}`, borderRadius: 14, padding: '14px 12px' }}>
+              <div style={{ fontSize: 10, fontWeight: 800, color: s.color, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>{s.label}</div>
+              <div style={{ fontSize: 28, fontWeight: 900, color: '#fff', lineHeight: 1, letterSpacing: '-1px', marginBottom: 4 }}>{s.mastered}<span style={{ fontSize: 13, color: s.color, fontWeight: 700 }}>/{s.total}</span></div>
+              <div style={{ fontSize: 9, color: s.color, fontWeight: 600, marginBottom: 10 }}>topics mastered</div>
+              <div style={{ height: 4, background: '#1e293b', borderRadius: 4, overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: `${s.acc}%`, background: s.color, borderRadius: 4 }} />
+              </div>
+              <div style={{ fontSize: 9, color: '#94a3b8', fontWeight: 700, marginTop: 4 }}>{s.acc}% accuracy</div>
+            </div>
+          ))}
+        </div>
+
         {/* ── Activity Chart ── */}
         <section>
           <SectionLabel>Combat Log</SectionLabel>
