@@ -1021,6 +1021,7 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
           "Now 49 = 7 × 7.",
           "Hence 392 = 2 × 2 × 2 × 7 × 7 = 2³ × 7².",
         ],
+        finalAnswer: "392 = 2³ × 7²",
         explanation:
           "Standard 2-mark pattern: express a composite number as a product of primes using the Fundamental Theorem of Arithmetic.",
         policyTag: "RN-FTA-2M",
@@ -1047,6 +1048,7 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
           "The rational number 13/40 is already in lowest terms.",
           "Since the denominator has only the prime factors 2 and 5, the decimal expansion of 13/40 is terminating.",
         ],
+        finalAnswer: "13/40 has a terminating decimal expansion (denominator = 2³ × 5)",
         explanation:
           "A rational number p/q has a terminating decimal expansion if the prime factorisation of q is of the form 2ⁿ5ᵐ, where n, m are non-negative integers.",
         policyTag: "RN-terminating-3M",
@@ -1074,6 +1076,7 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
           "Substitute back: 2q² = (2k)² = 4k² ⇒ q² = 2k², so q² is even and q is also even.",
           "If both p and q are even, they have a common factor 2, contradicting that p/q was in lowest terms. Therefore our assumption is wrong and √2 is irrational.",
         ],
+        finalAnswer: "Hence √2 is irrational",
         explanation:
           "This is the classic 4–5 mark proof-by-contradiction question on irrational numbers. Boards often ask for √2, √3 or similar proofs.",
         policyTag: "RN-irrationality-proof",
@@ -1131,6 +1134,7 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
           "Substitute the value of y back into one of the original equations to find x.",
           "Write the final ordered pair neatly as (x, y).",
         ],
+        finalAnswer: "x = 34/13, y = 25/13",
         explanation:
           "Standard 3-mark PYQ pattern: line up coefficients of one variable, eliminate it, then back-substitute.",
       },
@@ -1164,6 +1168,7 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
           "Set each factor equal to zero: x − 2 = 0 or x + 3 = 0.",
           "Solve to get x = 2 and x = −3.",
         ],
+        finalAnswer: "Zeroes are x = 2 and x = −3",
         explanation:
           "Very common 1–2 mark pattern: when p(x) is already factorised, just equate each factor to zero.",
       },
@@ -1190,6 +1195,7 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
           "Compute α + β = −(−5)/2 = 5/2.",
           "Compute αβ = 3/2.",
         ],
+        finalAnswer: "Sum of zeroes = 5/2, product of zeroes = 3/2",
         explanation:
           "This pattern checks if you remember the formula α + β = −b/a and αβ = c/a without solving the quadratic.",
       },
@@ -1224,6 +1230,7 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
           "Compute the discriminant: Δ = b² − 4ac = (−3)² − 4·2·(−5) = 9 + 40 = 49.",
           "Substitute into the formula and simplify.",
         ],
+        finalAnswer: "x = 2 or x = −5/2",
         explanation:
           "Basic but compulsory pattern: direct use of the quadratic formula on a board-style equation.",
       },
@@ -1263,6 +1270,7 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
           "So 9/25 + cos²θ = 1 ⇒ cos²θ = 1 − 9/25 = 16/25.",
           "Since θ is acute, cos θ is positive ⇒ cos θ = 4/5.",
         ],
+        finalAnswer: "cos θ = 4/5",
         explanation:
           "Core identity-based question – appears frequently in simple 2-mark forms.",
       },
@@ -1857,6 +1865,7 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
           "Substitute values: 1/15 = 1/v + 1/30 ⇒ 1/v = 1/15 − 1/30 = 1/30.",
           "So v = +30 cm. Positive v means image on other side (real and inverted).",
         ],
+        finalAnswer: "v = +30 cm; image is real, inverted and of the same size as the object",
         explanation:
           "Lens formula numericals with simple focal length and object distances are common 3-markers.",
         policyTag: "Lens numeric",
@@ -2012,6 +2021,7 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
           "Add: 3/6 + 2/6 + 1/6 = 6/6 = 1, so 1/R = 1.",
           "Therefore R = 1 Ω.",
         ],
+        finalAnswer: "Equivalent resistance R = 1 Ω",
         explanation:
           "Parallel combination numericals are standard; examiner checks correct formula and substitution.",
         policyTag: "Series/parallel numeric",
@@ -2185,6 +2195,7 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
           "Substitute: (5k)² = 5q² ⇒ 25k² = 5q² ⇒ q² = 5k², so q is also divisible by 5.",
           "This contradicts the assumption that p and q are coprime. Therefore √5 is irrational.",
         ],
+        finalAnswer: "Hence √5 is irrational",
         explanation:
           "Classic 3-mark proof using Fundamental Theorem of Arithmetic; appears often in Real Numbers.",
       },
@@ -2217,6 +2228,7 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
           "In an AP, the difference between consecutive terms is constant.",
           "Check each option: only 3, 6, 9, 12 has a constant difference of 3.",
         ],
+        finalAnswer: "Option (B): 3, 6, 9, 12 is an AP with common difference d = 3",
         explanation:
           "Simple identification of AP and common difference is a standard 1-mark question.",
       },
@@ -2242,6 +2254,7 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
           "Subtract: (a + 8d) − (a + 3d) = 26 − 11 ⇒ 5d = 15 ⇒ d = 3.",
           "Substitute in a + 3d = 11 ⇒ a + 9 = 11 ⇒ a = 2.",
         ],
+        finalAnswer: "First term a = 2, common difference d = 3",
         explanation:
           "Pair of linear equations in a and d often appears as a 2-mark AP question.",
       },
@@ -2265,6 +2278,7 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
           "Use Sₙ = n/2 [2a + (n − 1)d].",
           "Compute: S₃₀ = 30/2 [2×7 + 29×3] = 15 [14 + 87] = 15 × 101 = 1515.",
         ],
+        finalAnswer: "S₃₀ = 1515",
         explanation:
           "Direct substitution in Sₙ formula is a standard 3-mark pattern in AP.",
       },
@@ -2296,6 +2310,7 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         solutionSteps: [
           "AA (Angle-Angle) criterion states: if two angles of one triangle are equal to two angles of another triangle, the triangles are similar.",
         ],
+        finalAnswer: "The triangles are similar (by AA criterion)",
         explanation:
           "Direct AA similarity recall is a frequently asked 1-mark question.",
       },
@@ -2321,6 +2336,7 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
           "Let EC = x. Then 3/5 = 4.5/x ⇒ 3x = 22.5 ⇒ x = 7.5.",
           "So AC = AE + EC = 4.5 + 7.5 = 12 cm.",
         ],
+        finalAnswer: "AC = 12 cm",
         explanation:
           "Standard use of BPT connecting segments on sides with a line parallel to the third side.",
       },
@@ -2345,6 +2361,7 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
           "Given side ratio = 3 : 5.",
           "Therefore area ratio = 3² : 5² = 9 : 25.",
         ],
+        finalAnswer: "Ratio of areas = 9 : 25",
         explanation:
           "Area of similar triangles relation is a favourite conceptual 3-mark question.",
       },
