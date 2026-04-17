@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { getMistakeLogs, type MistakeLogEntry } from "../../services/mistakeLogService";
 
 interface MistakeInsightsPanelProps {
@@ -57,8 +57,49 @@ function trendLabel(t: TrendDir): string {
 }
 
 export function MistakeInsightsPanel({ uid }: MistakeInsightsPanelProps) {
-  const logs = useMemo(() => getMistakeLogs(uid, 28), [uid]);
+  const [logs, setLogs] = useState<MistakeLogEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    getMistakeLogs(uid, 28)
+      .then((entries) => {
+        if (!cancelled) {
+          setLogs(entries);
+          setLoading(false);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [uid]);
+
   const weeks = useMemo(() => aggregateByWeek(logs), [logs]);
+
+  const CHART_H = 80;
+  const BAR_W = 9;
+  const BAR_GAP = 3;
+  const GROUP_PAD = 20;
+  const GROUP_W = 4 * BAR_W + 3 * BAR_GAP + GROUP_PAD;
+  const CHART_W = 4 * GROUP_W + 10;
+  const WEEK_LABELS = ["3 wks ago", "2 wks ago", "Last week", "This week"];
+
+  if (loading) {
+    return (
+      <div style={{ marginBottom: 20 }}>
+        <h3 style={{ fontWeight: 800, fontSize: 16, marginBottom: 8, marginTop: 20 }}>
+          ✏️ Mistake Insights
+        </h3>
+        <div style={{ fontSize: "0.8rem", color: "var(--text-muted)", padding: "12px 0" }}>
+          Loading your mistake history…
+        </div>
+      </div>
+    );
+  }
 
   if (logs.length < 3) {
     return (
@@ -98,13 +139,13 @@ export function MistakeInsightsPanel({ uid }: MistakeInsightsPanelProps) {
   );
 
   const improvements = MISTAKE_DEFS
-    .map(d => ({ ...d, delta: thisWeek[d.key] - lastWeek[d.key] }))
-    .filter(d => d.delta < 0)
+    .map((d) => ({ ...d, delta: thisWeek[d.key] - lastWeek[d.key] }))
+    .filter((d) => d.delta < 0)
     .sort((a, b) => a.delta - b.delta);
 
   const worsening = MISTAKE_DEFS
-    .map(d => ({ ...d, delta: thisWeek[d.key] - lastWeek[d.key] }))
-    .filter(d => d.delta > 0)
+    .map((d) => ({ ...d, delta: thisWeek[d.key] - lastWeek[d.key] }))
+    .filter((d) => d.delta > 0)
     .sort((a, b) => b.delta - a.delta);
 
   let summary = "";
@@ -122,15 +163,7 @@ export function MistakeInsightsPanel({ uid }: MistakeInsightsPanelProps) {
     }
   }
 
-  const maxVal = Math.max(...weeks.flatMap(w => MKEYS.map(k => w[k])), 1);
-
-  const CHART_H = 80;
-  const BAR_W = 9;
-  const BAR_GAP = 3;
-  const GROUP_PAD = 20;
-  const GROUP_W = 4 * BAR_W + 3 * BAR_GAP + GROUP_PAD;
-  const CHART_W = 4 * GROUP_W + 10;
-  const WEEK_LABELS = ["3 wks ago", "2 wks ago", "Last week", "This week"];
+  const maxVal = Math.max(...weeks.flatMap((w) => MKEYS.map((k) => w[k])), 1);
 
   return (
     <div style={{ marginBottom: 20 }}>
@@ -141,7 +174,7 @@ export function MistakeInsightsPanel({ uid }: MistakeInsightsPanelProps) {
         Based on {logs.length} answer check{logs.length !== 1 ? "s" : ""} in the last 28 days
       </div>
 
-      {/* Grouped bar chart */}
+      {/* Grouped bar chart — 4 mistake types × 4 weekly buckets */}
       <div style={{ overflowX: "auto", marginBottom: 14 }}>
         <svg width={CHART_W} height={CHART_H + 38}>
           {weeks.map((weekData, wi) => {
@@ -149,9 +182,12 @@ export function MistakeInsightsPanel({ uid }: MistakeInsightsPanelProps) {
             return (
               <g key={wi}>
                 {MKEYS.map((k, ki) => {
-                  const h = maxVal > 0 ? Math.max(Math.round((weekData[k] / maxVal) * CHART_H), weekData[k] > 0 ? 2 : 0) : 0;
+                  const h = Math.max(
+                    Math.round((weekData[k] / maxVal) * CHART_H),
+                    weekData[k] > 0 ? 2 : 0
+                  );
                   const x = groupX + ki * (BAR_W + BAR_GAP);
-                  const color = MISTAKE_DEFS.find(d => d.key === k)!.color;
+                  const color = MISTAKE_DEFS.find((d) => d.key === k)!.color;
                   return (
                     <g key={k}>
                       <rect
@@ -185,9 +221,9 @@ export function MistakeInsightsPanel({ uid }: MistakeInsightsPanelProps) {
         </svg>
       </div>
 
-      {/* Mistake type breakdown + trend */}
+      {/* Mistake type breakdown with trend indicators */}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12 }}>
-        {MISTAKE_DEFS.map(d => {
+        {MISTAKE_DEFS.map((d) => {
           const t = calcTrend(thisWeek[d.key], lastWeek[d.key]);
           const total28 = totals[d.key];
           return (

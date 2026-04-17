@@ -1,4 +1,12 @@
-import { collection, addDoc } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  query,
+  where,
+  orderBy,
+  getDocs,
+  limit,
+} from "firebase/firestore";
 import { firestoreDb } from "./firebaseClient";
 
 const LOCAL_KEY_PREFIX = "lazytopper.mistakeLogs.v1";
@@ -42,15 +50,30 @@ function readLocal(uid: string): MistakeLogEntry[] {
 
 function writeLocal(uid: string, entries: MistakeLogEntry[]): void {
   try {
-    localStorage.setItem(localKey(uid), JSON.stringify(entries.slice(0, MAX_LOCAL_ENTRIES)));
+    localStorage.setItem(
+      localKey(uid),
+      JSON.stringify(entries.slice(0, MAX_LOCAL_ENTRIES))
+    );
   } catch {
     // quota exceeded or SSR — ignore
   }
 }
 
+/** Merge two entry arrays by ID, primary wins, sorted newest-first. */
+function mergeByID(
+  primary: MistakeLogEntry[],
+  secondary: MistakeLogEntry[]
+): MistakeLogEntry[] {
+  const seen = new Set(primary.map((e) => e.id));
+  const merged = [...primary, ...secondary.filter((e) => !seen.has(e.id))];
+  return merged.sort(
+    (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+  );
+}
+
 /**
  * Write a mistake log entry for a completed answer check.
- * Always writes to localStorage. Attempts Firestore write fire-and-forget.
+ * Always writes to localStorage first. Attempts Firestore write fire-and-forget.
  */
 export async function logMistakes(
   uid: string,
@@ -69,17 +92,57 @@ export async function logMistakes(
         full
       );
     } catch {
-      // Firestore write failed — localStorage copy is the source of truth
+      // Firestore write failed — localStorage copy remains the source of truth
     }
   }
 }
 
 /**
  * Return mistake log entries for the given user within the last `days` days,
- * sorted newest-first. Reads from localStorage only (fast, offline-capable).
+ * sorted newest-first.
+ *
+ * Primary source: Firestore subcollection `learnerProfiles/{uid}/mistakeLogs`
+ * (when Firebase is configured and reachable).
+ * Fallback: localStorage cache — always works offline or when Firestore is
+ * unavailable / not yet configured.
+ *
+ * Firestore results are merged into localStorage so subsequent reads are fast
+ * even when offline, and locally-written entries that pre-date cloud config
+ * are preserved.
  */
-export function getMistakeLogs(uid: string, days: number): MistakeLogEntry[] {
+export async function getMistakeLogs(
+  uid: string,
+  days: number
+): Promise<MistakeLogEntry[]> {
   const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
+  const cutoffIso = new Date(cutoff).toISOString();
+
+  if (firestoreDb) {
+    try {
+      const q = query(
+        collection(firestoreDb, "learnerProfiles", uid, "mistakeLogs"),
+        where("timestamp", ">=", cutoffIso),
+        orderBy("timestamp", "desc"),
+        limit(MAX_LOCAL_ENTRIES)
+      );
+      const snap = await getDocs(q);
+      const remote = snap.docs.map((d) => d.data() as MistakeLogEntry);
+
+      // Merge with local cache so locally-written entries are not lost
+      const merged = mergeByID(remote, readLocal(uid));
+      writeLocal(uid, merged);
+
+      return remote;
+    } catch (error) {
+      console.warn(
+        "[mistakeLogService] Firestore read failed — using local cache",
+        { uid, error }
+      );
+      // Fall through to localStorage
+    }
+  }
+
+  // No Firestore or read failed: filter local cache by date window
   return readLocal(uid)
     .filter((e) => {
       try {
