@@ -20,9 +20,14 @@
  *
  * CLI flags:
  *   --dry-run             List uncached questions without calling the API
- *   --limit N             Only process the first N uncached questions
+ *   --limit N             Only process the first N questions (uncached, or cached when --force)
  *   --prewritten-only     Only warm questions that have pre-written solutionSteps
  *   --ai-only             Only warm questions that need an AI call
+ *   --force               Re-generate and overwrite existing AI-cached solutions
+ *                         (uses ON CONFLICT DO UPDATE instead of DO NOTHING).
+ *                         Pre-written solutionSteps entries are never force-refreshed
+ *                         because they are always correct.  Use this flag after
+ *                         improving the Gemini prompt to refresh stale AI answers.
  */
 
 import crypto from 'crypto';
@@ -33,6 +38,7 @@ const DELAY_MS = Number(process.env.WARMUP_DELAY_MS || 1200);
 const DRY_RUN = process.argv.includes('--dry-run');
 const PREWRITTEN_ONLY = process.argv.includes('--prewritten-only');
 const AI_ONLY = process.argv.includes('--ai-only');
+const FORCE = process.argv.includes('--force');
 
 const LIMIT_ARG = process.argv.indexOf('--limit');
 const MAX_QUESTIONS = LIMIT_ARG >= 0 ? Number(process.argv[LIMIT_ARG + 1]) : Infinity;
@@ -58,6 +64,13 @@ async function getExistingHashes() {
 async function saveToDb(hash, solutionJson) {
   await pool.query(
     'INSERT INTO step_solutions (question_hash, solution_json) VALUES ($1, $2) ON CONFLICT (question_hash) DO NOTHING',
+    [hash, JSON.stringify(solutionJson)]
+  );
+}
+
+async function saveToDbForce(hash, solutionJson) {
+  await pool.query(
+    'INSERT INTO step_solutions (question_hash, solution_json) VALUES ($1, $2) ON CONFLICT (question_hash) DO UPDATE SET solution_json = EXCLUDED.solution_json',
     [hash, JSON.stringify(solutionJson)]
   );
 }
@@ -100,7 +113,7 @@ function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function processChunk(questions, useDelay) {
+async function processChunk(questions, useDelay, forceUpdate = false) {
   let warmed = 0;
   let failed = 0;
 
@@ -122,7 +135,11 @@ async function processChunk(questions, useDelay) {
         console.log('SKIP (empty solution)');
         failed++;
       } else {
-        await saveToDb(hash, solution);
+        if (forceUpdate) {
+          await saveToDbForce(hash, solution);
+        } else {
+          await saveToDb(hash, solution);
+        }
         console.log(`OK (${solution.steps.length} steps)`);
         warmed++;
       }
@@ -150,27 +167,40 @@ async function main() {
   const existingHashes = await getExistingHashes();
   console.log(`[warmup] ${existingHashes.size} / ${total} questions already cached`);
 
+  const hasPrewrittenSteps = (q) => Array.isArray(q.solutionSteps) && q.solutionSteps.length > 0;
+
   const allUncached = canonicalQuestionBank.filter((q) => {
     const hash = computeQuestionHash(String(q.questionText || '').trim(), Number(q.marks) || 1);
     return !existingHashes.has(hash);
   });
 
-  const prewrittenUncached = allUncached.filter(
-    (q) => Array.isArray(q.solutionSteps) && q.solutionSteps.length > 0
-  );
-  const aiUncached = allUncached.filter(
-    (q) => !Array.isArray(q.solutionSteps) || q.solutionSteps.length === 0
-  );
+  const prewrittenUncached = allUncached.filter(hasPrewrittenSteps);
+  const aiUncached = allUncached.filter((q) => !hasPrewrittenSteps(q));
+
+  // In force mode, also include AI questions that are already cached so they get re-generated.
+  // Pre-written entries are excluded from force-refresh — they are always correct.
+  const aiAlreadyCached = FORCE
+    ? canonicalQuestionBank.filter((q) => {
+        if (hasPrewrittenSteps(q)) return false;
+        const hash = computeQuestionHash(String(q.questionText || '').trim(), Number(q.marks) || 1);
+        return existingHashes.has(hash);
+      })
+    : [];
 
   console.log(`[warmup] Uncached: ${allUncached.length} total`);
   console.log(`[warmup]   → ${prewrittenUncached.length} have pre-written solutionSteps (fast, no AI)`);
   console.log(`[warmup]   → ${aiUncached.length} need an AI-generated solution`);
+  if (FORCE) {
+    console.log(`[warmup] --force: ${aiAlreadyCached.length} already-cached AI solution(s) will be overwritten`);
+  }
 
   let toProcessPrewritten = prewrittenUncached;
-  let toProcessAi = aiUncached;
+  let toProcessAiNew = aiUncached;
+  let toProcessAiForce = aiAlreadyCached;
 
   if (PREWRITTEN_ONLY) {
-    toProcessAi = [];
+    toProcessAiNew = [];
+    toProcessAiForce = [];
     console.log('[warmup] Mode: --prewritten-only (skipping AI questions)');
   }
   if (AI_ONLY) {
@@ -179,9 +209,18 @@ async function main() {
   }
 
   if (Number.isFinite(MAX_QUESTIONS)) {
-    const combined = [...toProcessPrewritten, ...toProcessAi].slice(0, MAX_QUESTIONS);
-    toProcessPrewritten = combined.filter((q) => Array.isArray(q.solutionSteps) && q.solutionSteps.length > 0);
-    toProcessAi = combined.filter((q) => !Array.isArray(q.solutionSteps) || q.solutionSteps.length === 0);
+    const combined = [...toProcessPrewritten, ...toProcessAiNew, ...toProcessAiForce].slice(0, MAX_QUESTIONS);
+    toProcessPrewritten = combined.filter(hasPrewrittenSteps);
+    const aiCombined = combined.filter((q) => !hasPrewrittenSteps(q));
+    const forceHashes = new Set(toProcessAiForce.map((q) =>
+      computeQuestionHash(String(q.questionText || '').trim(), Number(q.marks) || 1)
+    ));
+    toProcessAiNew = aiCombined.filter((q) =>
+      !forceHashes.has(computeQuestionHash(String(q.questionText || '').trim(), Number(q.marks) || 1))
+    );
+    toProcessAiForce = aiCombined.filter((q) =>
+      forceHashes.has(computeQuestionHash(String(q.questionText || '').trim(), Number(q.marks) || 1))
+    );
     console.log(`[warmup] --limit ${MAX_QUESTIONS}: processing ${combined.length} questions`);
   }
 
@@ -189,36 +228,48 @@ async function main() {
     console.log('\n[warmup] DRY RUN — questions that would be warmed:\n');
     console.log('  Pre-written (no AI call needed):');
     for (const q of toProcessPrewritten) {
-      console.log(`    [pre] ${String(q.id || '?').padEnd(28)} ${String(q.questionText || '').slice(0, 70)}`);
+      console.log(`    [pre]       ${String(q.id || '?').padEnd(28)} ${String(q.questionText || '').slice(0, 70)}`);
     }
-    console.log('\n  AI-generated:');
-    for (const q of toProcessAi) {
-      console.log(`    [ai]  ${String(q.id || '?').padEnd(28)} ${String(q.questionText || '').slice(0, 70)}`);
+    console.log(FORCE ? '\n  AI-generated (new + force-refresh of cached):' : '\n  AI-generated:');
+    for (const q of toProcessAiNew) {
+      console.log(`    [ai]        ${String(q.id || '?').padEnd(28)} ${String(q.questionText || '').slice(0, 70)}`);
+    }
+    for (const q of toProcessAiForce) {
+      console.log(`    [ai/force]  ${String(q.id || '?').padEnd(28)} ${String(q.questionText || '').slice(0, 70)}`);
     }
     await pool.end();
     return;
   }
 
-  let totalWarmed = 0;
+  let totalNewlyInserted = 0;
+  let totalOverwritten = 0;
   let totalFailed = 0;
 
   if (toProcessPrewritten.length > 0) {
     console.log(`\n[warmup] Phase 1: Warming ${toProcessPrewritten.length} pre-written questions (fast, no AI)...`);
-    const { warmed, failed } = await processChunk(toProcessPrewritten, false);
-    totalWarmed += warmed;
+    const { warmed, failed } = await processChunk(toProcessPrewritten, false, false);
+    totalNewlyInserted += warmed;
     totalFailed += failed;
   }
 
-  if (toProcessAi.length > 0) {
-    console.log(`\n[warmup] Phase 2: Warming ${toProcessAi.length} AI questions (${DELAY_MS}ms delay between calls)...`);
-    const { warmed, failed } = await processChunk(toProcessAi, true);
-    totalWarmed += warmed;
+  if (toProcessAiNew.length > 0) {
+    console.log(`\n[warmup] Phase 2a: Warming ${toProcessAiNew.length} new AI questions (${DELAY_MS}ms delay between calls)...`);
+    const { warmed, failed } = await processChunk(toProcessAiNew, true, false);
+    totalNewlyInserted += warmed;
+    totalFailed += failed;
+  }
+
+  if (toProcessAiForce.length > 0) {
+    console.log(`\n[warmup] Phase 2b: Force-refreshing ${toProcessAiForce.length} cached AI questions (${DELAY_MS}ms delay)...`);
+    const { warmed, failed } = await processChunk(toProcessAiForce, true, true);
+    totalOverwritten += warmed;
     totalFailed += failed;
   }
 
   await pool.end();
 
-  const nowCached = existingHashes.size + totalWarmed;
+  // Only newly inserted rows increase the cached count; overwritten rows were already counted.
+  const nowCached = existingHashes.size + totalNewlyInserted;
   const pct = total > 0 ? Math.round((nowCached / total) * 100) : 0;
 
   console.log('');
@@ -226,7 +277,10 @@ async function main() {
   console.log('│         warmup-solution-cache results        │');
   console.log('├─────────────────────────────────────────────┤');
   console.log(`│  Already cached before run : ${String(existingHashes.size).padStart(6)}            │`);
-  console.log(`│  Newly warmed              : ${String(totalWarmed).padStart(6)}            │`);
+  console.log(`│  Newly inserted            : ${String(totalNewlyInserted).padStart(6)}            │`);
+  if (FORCE) {
+  console.log(`│  Force-overwritten (AI)    : ${String(totalOverwritten).padStart(6)}            │`);
+  }
   console.log(`│  Failed / skipped          : ${String(totalFailed).padStart(6)}            │`);
   console.log(`│  Total cached now          : ${String(nowCached).padStart(6)} / ${String(total).padEnd(6)}    │`);
   console.log(`│  Coverage                  : ${String(pct + '%').padStart(6)}            │`);

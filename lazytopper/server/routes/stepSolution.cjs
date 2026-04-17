@@ -49,6 +49,19 @@ async function saveSolution(hash, solutionJson) {
   }
 }
 
+async function saveSolutionForce(hash, solutionJson) {
+  const pool = getPool();
+  if (!pool) return;
+  try {
+    await pool.query(
+      'INSERT INTO step_solutions (question_hash, solution_json) VALUES ($1, $2) ON CONFLICT (question_hash) DO UPDATE SET solution_json = EXCLUDED.solution_json',
+      [hash, JSON.stringify(solutionJson)]
+    );
+  } catch (e) {
+    console.warn('[step-solution-cache] cache force-write failed:', e.message);
+  }
+}
+
 function buildFromPrewrittenSteps(stepsArr, finalAnswer, totalMarks, qType, section, isObjectiveTypeFn) {
   const isObj = isObjectiveTypeFn ? isObjectiveTypeFn(qType, section) : false;
   totalMarks = Number(totalMarks) || 1;
@@ -349,4 +362,4 @@ function createStepSolutionRoute(deps) {
   return { handleStepSolution };
 }
 
-module.exports = { createStepSolutionRoute };
+module.exports = { createStepSolutionRoute, saveSolutionForce };
