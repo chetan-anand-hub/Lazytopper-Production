@@ -37,7 +37,7 @@ export function PracticeQuestionCard({
   mcqSelection, mcqResult,
   onSetActiveQuestion, onToggleAnswer, onMcqSelect, onMcqResult,
   onSelfAssessGotIt, onSelfAssessNeedPractice,
-  onOpenConceptDrawer, onOpenMentorBoard,
+  onOpenConceptDrawer, onOpenMentorBoard: _onOpenMentorBoard,
 }: PracticeQuestionCardProps) {
   const [showVisual, setShowVisual] = useState(false);
   const [showChecker, setShowChecker] = useState(false);
