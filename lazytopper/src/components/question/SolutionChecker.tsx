@@ -271,7 +271,7 @@ export function SolutionChecker({
     } finally {
       setLoading(false);
     }
-  }, [imageBase64, imageMimeType, textAnswer, question, marks, subject, topic]);
+  }, [imageBase64, imageMimeType, textAnswer, question, marks, subject, topic, user]);
 
   const handleClear = useCallback(() => {
     setImagePreview(null);

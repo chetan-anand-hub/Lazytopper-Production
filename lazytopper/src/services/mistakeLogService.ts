@@ -128,11 +128,19 @@ export async function getMistakeLogs(
       const snap = await getDocs(q);
       const remote = snap.docs.map((d) => d.data() as MistakeLogEntry);
 
-      // Merge with local cache so locally-written entries are not lost
+      // Merge with local cache so locally-written entries (written while offline
+      // or before Firestore was ready) are not silently dropped.
       const merged = mergeByID(remote, readLocal(uid));
       writeLocal(uid, merged);
 
-      return remote;
+      // Return the merged set filtered to the requested date window
+      return merged.filter((e) => {
+        try {
+          return new Date(e.timestamp).getTime() >= cutoff;
+        } catch {
+          return false;
+        }
+      });
     } catch (error) {
       console.warn(
         "[mistakeLogService] Firestore read failed — using local cache",
