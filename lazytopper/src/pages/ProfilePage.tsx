@@ -1500,7 +1500,7 @@ export default function ProfilePage() {
                         </button>
                         <button
                           onClick={() => navigate(
-                            `/chapter-test/10/${w.subject.toLowerCase()}/${w.topicKey}`,
+                            `/exam-simulation?subject=${w.subject}`,
                             { state: { back: "/profile", backLabel: "Back to Dashboard" } }
                           )}
                           style={{
