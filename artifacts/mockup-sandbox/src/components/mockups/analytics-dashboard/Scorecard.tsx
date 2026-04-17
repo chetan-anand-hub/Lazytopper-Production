@@ -148,7 +148,7 @@ export function Scorecard() {
           <SectionLabel>Combat Log</SectionLabel>
           <div style={{ background: '#111828', borderRadius: 16, border: '1px solid #1e293b', padding: '16px 12px 12px' }}>
             <div style={{ display: 'flex', gap: 16, justifyContent: 'flex-end', marginBottom: 8 }}>
-              {[['Learn', '#06b6d4'], ['Practice', '#a3e635'], ['Test', '#ec4899']].map(([label, color]) => (
+              {[['Learn', '#06b6d4'], ['Practice', '#a3e635'], ['Test', '#f97316']].map(([label, color]) => (
                 <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                   <span style={{ width: 8, height: 8, borderRadius: '50%', background: color }} />{label}
                 </div>
@@ -167,7 +167,7 @@ export function Scorecard() {
                   />
                   <Bar dataKey="learn" name="Learn" fill="#06b6d4" radius={[3, 3, 0, 0]} maxBarSize={10} />
                   <Bar dataKey="practice" name="Practice" fill="#a3e635" radius={[3, 3, 0, 0]} maxBarSize={10} />
-                  <Bar dataKey="test" name="Test" fill="#ec4899" radius={[3, 3, 0, 0]} maxBarSize={10} />
+                  <Bar dataKey="test" name="Test" fill="#f97316" radius={[3, 3, 0, 0]} maxBarSize={10} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -195,15 +195,17 @@ export function Scorecard() {
           </div>
 
           <SectionLabel>Mastery Matrix</SectionLabel>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 6 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 4 }}>
             {topics.map((t, i) => {
-              const bg = t.status === 'mastered' ? 'rgba(163,230,53,0.12)' : t.status === 'needs_practice' ? 'rgba(249,115,22,0.12)' : '#111828';
-              const border = t.status === 'mastered' ? 'rgba(163,230,53,0.35)' : t.status === 'needs_practice' ? 'rgba(249,115,22,0.35)' : '#1e293b';
-              const dot = t.status === 'mastered' ? '#a3e635' : t.status === 'needs_practice' ? '#fb923c' : '#334155';
+              const bg = t.status === 'mastered' ? '#16a34a' : t.status === 'needs_practice' ? '#ea580c' : '#1e293b';
+              const opacity = t.status === 'mastered' ? 0.85 : t.status === 'needs_practice' ? 0.8 : 0.4;
               return (
-                <div key={i} style={{ background: bg, border: `1px solid ${border}`, borderRadius: 10, padding: '8px 6px', minHeight: 56, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                  <div style={{ width: 6, height: 6, borderRadius: '50%', background: dot, alignSelf: 'flex-end', boxShadow: t.status !== 'unseen' ? `0 0 5px ${dot}` : 'none' }} />
-                  <div style={{ fontSize: 9, fontWeight: 700, color: t.status === 'mastered' ? '#d9f99d' : t.status === 'needs_practice' ? '#fed7aa' : '#475569', lineHeight: 1.3 }}>{t.name}</div>
+                <div
+                  key={i}
+                  title={t.name}
+                  style={{ background: bg, borderRadius: 6, height: 40, opacity, cursor: 'default', display: 'flex', alignItems: 'flex-end', padding: '3px 4px' }}
+                >
+                  <div style={{ fontSize: 8, fontWeight: 700, color: '#fff', lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>{t.name.split(' ')[0]}</div>
                 </div>
               );
             })}
