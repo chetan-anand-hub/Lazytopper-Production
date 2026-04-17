@@ -195,7 +195,7 @@ function BottomNav() {
       active: isMe,
       onClick: () => {
         if (navUser) {
-          go("/dashboard");
+          go("/profile");
         } else {
           window.location.href = "/";
         }

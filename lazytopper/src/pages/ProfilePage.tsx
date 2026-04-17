@@ -6,10 +6,52 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Label,
 } from "recharts";
-import {
-  Settings, Flame, Calendar, BookOpen, PenTool, FileText,
-  Trophy, ChevronDown, ChevronUp,
-} from "lucide-react";
+// Inline icon helpers (no lucide-react dependency)
+const IcoSettings = ({ size = 17, color = "currentColor" }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+  </svg>
+);
+const IcoFlame = ({ size = 13, color = "currentColor" }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
+  </svg>
+);
+const IcoCalendar = ({ size = 14, color = "currentColor" }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+  </svg>
+);
+const IcoBook = ({ size = 12, color = "currentColor" }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+  </svg>
+);
+const IcoPen = ({ size = 12, color = "currentColor" }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/>
+  </svg>
+);
+const IcoFile = ({ size = 13, color = "currentColor" }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+  </svg>
+);
+const IcoTrophy = ({ size = 16, color = "currentColor" }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="8 21 12 21 16 21"/><line x1="12" y1="17" x2="12" y2="21"/><path d="M7 4h10v7a5 5 0 0 1-10 0z"/><path d="M7 9H4a2 2 0 0 1-2-2V5h5"/><path d="M17 9h3a2 2 0 0 0 2-2V5h-5"/>
+  </svg>
+);
+const IcoChevronUp = ({ size = 14, color = "currentColor" }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="18 15 12 9 6 15"/>
+  </svg>
+);
+const IcoChevronDown = ({ size = 14, color = "currentColor" }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="6 9 12 15 18 9"/>
+  </svg>
+);
 import { loadInsights } from "../services/practiceInsights";
 import { loadMockScoreHistory } from "../services/mockScoreHistory";
 import { loadTopicMasterySnapshot } from "../services/topicHubMastery";
@@ -184,8 +226,8 @@ function computeActivityData(range: Range): ChartBar[] {
 function computeSubjectStats() {
   const allAttempts = loadInsights().attempts;
   const result = {
-    maths:   { mastered: 0, total: 0, acc: 0 },
-    science: { mastered: 0, total: 0, acc: 0 },
+    maths:   { mastered: 0, total: 0, acc: 0, attempted: 0 },
+    science: { mastered: 0, total: 0, acc: 0, attempted: 0 },
   };
 
   for (const ch of canonicalChapters) {
@@ -199,6 +241,7 @@ function computeSubjectStats() {
 
   for (const subj of ["maths", "science"] as const) {
     const subjAttempts = allAttempts.filter(a => a.subject === subj);
+    result[subj].attempted = subjAttempts.length;
     result[subj].acc = subjAttempts.length > 0
       ? Math.round((subjAttempts.filter(a => a.correct).length / subjAttempts.length) * 100)
       : 0;
@@ -292,6 +335,22 @@ function CustomTooltip({ active, payload, label }: {
         </div>
       ))}
     </div>
+  );
+}
+
+// ── SVG circular ring ────────────────────────────────────────────────────────
+
+function CircleRing({ pct, color, size = 64 }: { pct: number; color: string; size?: number }) {
+  const stroke = 7;
+  const r = (size - stroke) / 2;
+  const circ = 2 * Math.PI * r;
+  const dash = Math.max(0, Math.min(1, pct / 100)) * circ;
+  return (
+    <svg width={size} height={size} style={{ transform: "rotate(-90deg)", display: "block" }}>
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--bg-card-border, #f1f5f9)" strokeWidth={stroke} />
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth={stroke}
+        strokeDasharray={`${dash} ${circ}`} strokeLinecap="round" />
+    </svg>
   );
 }
 
@@ -450,7 +509,7 @@ export default function ProfilePage() {
                 background: "#fff1f2", border: "1px solid #fecdd3",
                 borderRadius: 14, padding: "8px 12px",
               }}>
-                <Calendar size={14} color="#f43f5e" />
+                <IcoCalendar size={14} color="#f43f5e" />
                 <div>
                   <div style={{ fontSize: 15, fontWeight: 900, color: "#e11d48", lineHeight: 1 }}>{daysLeft}</div>
                   <div style={{ fontSize: 9, color: "#f43f5e", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>days left</div>
@@ -466,7 +525,7 @@ export default function ProfilePage() {
                 display: "flex", alignItems: "center", justifyContent: "center",
               }}
             >
-              <Settings size={17} color={mutedColor} />
+              <IcoSettings size={17} color={mutedColor} />
             </button>
           </div>
         </div>
@@ -478,7 +537,7 @@ export default function ProfilePage() {
             background: "#fff7ed", border: "1px solid #fed7aa",
             borderRadius: 10, padding: "6px 12px",
           }}>
-            <Flame size={13} color="#f97316" />
+            <IcoFlame size={13} color="#f97316" />
             <span style={{ fontSize: 13, fontWeight: 800, color: textColor }}>{heroStats.streak} day streak</span>
           </div>
           <span style={{ color: mutedColor, fontSize: 12 }}>·</span>
@@ -568,24 +627,38 @@ export default function ProfilePage() {
           {(["maths", "science"] as const).map(s => {
             const st = subjectStats[s];
             const pct = st.total > 0 ? Math.round((st.mastered / st.total) * 100) : 0;
-            const barColor = s === "maths" ? "#4f46e5" : "#0ea5e9";
+            const ringColor = s === "maths" ? "#4f46e5" : "#0ea5e9";
             return (
               <div key={s} style={{ ...cardStyle, flex: 1, padding: "16px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
                   <span style={{ fontSize: 11, fontWeight: 800, color: mutedColor, textTransform: "uppercase", letterSpacing: "0.06em" }}>
                     {s === "maths" ? "Maths" : "Science"}
                   </span>
                   <span style={{ fontSize: 10, fontWeight: 600, color: mutedColor }}>{st.mastered}/{st.total}</span>
                 </div>
-                <div style={{ fontSize: 26, fontWeight: 900, color: textColor, lineHeight: 1 }}>{pct}%</div>
-                <div style={{ fontSize: 10, color: mutedColor, fontWeight: 500, marginBottom: 12 }}>mastered</div>
-                <div>
+                {/* Circular ring centred with % label */}
+                <div style={{ position: "relative", width: 64, height: 64, margin: "0 auto 12px" }}>
+                  <CircleRing pct={pct} color={ringColor} size={64} />
+                  <div style={{
+                    position: "absolute", inset: 0,
+                    display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+                  }}>
+                    <span style={{ fontSize: 14, fontWeight: 900, color: textColor, lineHeight: 1 }}>{pct}%</span>
+                    <span style={{ fontSize: 8, color: mutedColor, fontWeight: 600 }}>mastered</span>
+                  </div>
+                </div>
+                {/* Accuracy bar */}
+                <div style={{ marginBottom: 6 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, fontWeight: 600, color: mutedColor, marginBottom: 3 }}>
                     <span>Accuracy</span><span>{st.acc}%</span>
                   </div>
-                  <div style={{ height: 6, borderRadius: 6, background: "var(--bg-card-border, #f1f5f9)", overflow: "hidden" }}>
-                    <div style={{ width: `${st.acc}%`, height: "100%", borderRadius: 6, background: barColor }} />
+                  <div style={{ height: 5, borderRadius: 5, background: "var(--bg-card-border, #f1f5f9)", overflow: "hidden" }}>
+                    <div style={{ width: `${st.acc}%`, height: "100%", borderRadius: 5, background: ringColor }} />
                   </div>
+                </div>
+                {/* Questions attempted */}
+                <div style={{ fontSize: 10, color: mutedColor, fontWeight: 500, textAlign: "center" }}>
+                  {st.attempted} Qs attempted
                 </div>
               </div>
             );
@@ -645,8 +718,8 @@ export default function ProfilePage() {
                         <span style={{ fontSize: 10, fontWeight: 700, color: dot }}>{t.masteryPct}%</span>
                       )}
                       {isOpen
-                        ? <ChevronUp size={14} color="#6366f1" />
-                        : <ChevronDown size={14} color={mutedColor} />
+                        ? <IcoChevronUp size={14} color="#6366f1" />
+                        : <IcoChevronDown size={14} color={mutedColor} />
                       }
                     </div>
                   </button>
@@ -674,7 +747,7 @@ export default function ProfilePage() {
                             cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 4,
                           }}
                         >
-                          <BookOpen size={12} /> Learn
+                          <IcoBook size={12} /> Learn
                         </button>
                         <button
                           onClick={() => navigate(`/practice/10/${subjectTab}`)}
@@ -684,7 +757,7 @@ export default function ProfilePage() {
                             cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 4,
                           }}
                         >
-                          <PenTool size={12} /> Practice
+                          <IcoPen size={12} /> Practice
                         </button>
                       </div>
                     </div>
@@ -759,7 +832,7 @@ export default function ProfilePage() {
                           fontSize: 11, fontWeight: 700, cursor: "pointer", flexShrink: 0,
                         }}
                       >
-                        Fix it {isOpen ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                        Fix it {isOpen ? <IcoChevronUp size={12} /> : <IcoChevronDown size={12} />}
                       </button>
                     </div>
 
@@ -779,7 +852,7 @@ export default function ProfilePage() {
                             cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 5,
                           }}
                         >
-                          <BookOpen size={13} /> Learn
+                          <IcoBook size={13} /> Learn
                         </button>
                         <button
                           onClick={() => navigate(`/practice/10/${w.subject.toLowerCase()}`)}
@@ -789,7 +862,7 @@ export default function ProfilePage() {
                             cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 5,
                           }}
                         >
-                          <PenTool size={13} /> Practice
+                          <IcoPen size={13} /> Practice
                         </button>
                         <button
                           onClick={() => navigate(`/chapter-test/10/${w.subject.toLowerCase()}/${w.topicKey}`)}
@@ -799,7 +872,7 @@ export default function ProfilePage() {
                             cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 5,
                           }}
                         >
-                          <FileText size={13} /> Test
+                          <IcoFile size={13} /> Test
                         </button>
                       </div>
                     )}
@@ -813,7 +886,7 @@ export default function ProfilePage() {
         {/* ── Badges ── */}
         <div style={cardStyle}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
-            <Trophy size={16} color="#eab308" />
+            <IcoTrophy size={16} color="#eab308" />
             <span style={{ fontSize: 14, fontWeight: 800, color: textColor }}>Earned Badges</span>
           </div>
           {badges.length === 0 ? (
