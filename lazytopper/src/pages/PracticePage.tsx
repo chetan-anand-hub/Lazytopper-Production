@@ -613,6 +613,8 @@ const packTopicKey = useMemo(() => {
           section: q.section || "",
           answer: q.answer || "",
           explanation: q.explanation || "",
+          solutionSteps: q.solutionSteps?.length ? q.solutionSteps : undefined,
+          finalAnswer: q.finalAnswer || undefined,
         });
         setPracticeSolutionData((prev) => ({ ...prev, [id]: result }));
       } catch (err: unknown) {

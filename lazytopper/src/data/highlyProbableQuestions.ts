@@ -940,6 +940,7 @@ export interface HPQQuestion {
   // Solutions
   answer?: string;
   solutionSteps?: string[];
+  finalAnswer?: string;
   explanation?: string;
 
   // Optional extra tags (especially for Science)

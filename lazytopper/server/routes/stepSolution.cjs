@@ -49,6 +49,51 @@ async function saveSolution(hash, solutionJson) {
   }
 }
 
+function buildFromPrewrittenSteps(stepsArr, finalAnswer, totalMarks, qType, section, isObjectiveTypeFn) {
+  const isObj = isObjectiveTypeFn ? isObjectiveTypeFn(qType, section) : false;
+  totalMarks = Number(totalMarks) || 1;
+  const n = stepsArr.length;
+
+  const steps = stepsArr.map((stepText, i) => {
+    const isFirst = i === 0;
+    const isLast = i === n - 1;
+    let m;
+    if (n === 1) {
+      m = totalMarks;
+    } else if (totalMarks >= 2 && (isFirst || isLast)) {
+      m = 0.5;
+    } else {
+      const middleCount = Math.max(1, n - (totalMarks >= 2 ? 2 : 0));
+      m = Math.max(0.5, (totalMarks - (totalMarks >= 2 ? 1 : 0)) / middleCount);
+    }
+    m = Math.round(m * 2) / 2;
+
+    let description;
+    if (isFirst) {
+      description = isObj ? 'Correct answer' : 'Approach and setup';
+    } else if (isLast && finalAnswer) {
+      description = '\u2234 ' + finalAnswer;
+    } else if (isLast) {
+      description = 'Final answer';
+    } else {
+      description = 'Step ' + (i + 1);
+    }
+
+    return { stepNumber: i + 1, description, working: stepText, marks: m };
+  });
+
+  return {
+    totalMarks,
+    steps,
+    commonMistakes: isObj
+      ? ['Not reading all options before marking — similar-sounding options trap you']
+      : ['Skipping intermediate working steps — board examiners award marks for method, not just the final answer'],
+    examTip: isObj
+      ? 'For MCQs: read all 4 options first, eliminate obviously wrong ones, then pick. No negative marking in CBSE — never leave blank.'
+      : 'Write each step on a new line. Method marks are awarded even if the final answer has a calculation error.',
+  };
+}
+
 function createStepSolutionRoute(deps) {
   const {
     sendJson,
@@ -79,12 +124,19 @@ function createStepSolutionRoute(deps) {
     const section = String(payload.section || '').trim();
     const existingAnswer = String(payload.answer || '').trim();
     const existingExplanation = String(payload.explanation || '').trim();
+    const prewrittenSteps = Array.isArray(payload.solutionSteps)
+      ? payload.solutionSteps.map(s => String(s).trim()).filter(Boolean)
+      : [];
+    const finalAnswer = String(payload.finalAnswer || '').trim();
 
     if (!question) {
       return sendJson(res, 400, { error: 'Missing question text' });
     }
 
     if (isStubMode()) {
+      if (prewrittenSteps.length > 0) {
+        return sendJson(res, 200, buildFromPrewrittenSteps(prewrittenSteps, finalAnswer, marks, qType, section, isObjectiveType));
+      }
       if (existingAnswer || existingExplanation) {
         return sendJson(res, 200, buildFallbackSteps(existingAnswer, existingExplanation, marks, qType, section, subject));
       }
@@ -92,6 +144,13 @@ function createStepSolutionRoute(deps) {
     }
 
     const questionHash = computeQuestionHash(question, marks);
+
+    // Short-circuit: pre-written steps from the question bank — no AI call needed.
+    if (prewrittenSteps.length > 0) {
+      const solution = buildFromPrewrittenSteps(prewrittenSteps, finalAnswer, marks, qType, section, isObjectiveType);
+      void saveSolution(questionHash, solution);
+      return sendJson(res, 200, solution);
+    }
 
     const cached = await getCachedSolution(questionHash);
     if (cached) {

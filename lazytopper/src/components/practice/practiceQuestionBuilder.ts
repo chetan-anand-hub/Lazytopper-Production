@@ -40,6 +40,7 @@ interface RawQuestion {
   subtopicKey?: string;
   options?: Record<string, string>;
   solutionSteps?: string[];
+  finalAnswer?: string;
   explanation?: string;
   answer?: string;
   subject?: string;
@@ -245,6 +246,7 @@ export function buildPracticeQuestionsFromEngine(args: {
       questionText: q.questionText ?? q.text ?? "",
       options: q.options,
       solutionSteps: q.solutionSteps ?? [],
+      finalAnswer: (q.finalAnswer as string | undefined) ?? "",
       explanation: q.explanation ?? "",
       answer: q.answer ?? "",
       subject: q.subject ?? "",

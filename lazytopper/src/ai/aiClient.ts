@@ -167,6 +167,8 @@ export async function fetchStepSolution(req: {
   section?: string;
   answer?: string;
   explanation?: string;
+  solutionSteps?: string[];
+  finalAnswer?: string;
 }): Promise<StepSolutionResponse> {
   const res = await fetch(`${API_BASE}/step-solution`, {
     method: "POST",

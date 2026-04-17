@@ -572,6 +572,8 @@ const HighlyProbableQuestions: React.FC = () => {
         section: q.section,
         answer: q.answer,
         explanation: q.explanation,
+        solutionSteps: q.solutionSteps?.length ? q.solutionSteps : undefined,
+        finalAnswer: q.finalAnswer || undefined,
       });
       setSolutionData((prev) => ({ ...prev, [qId]: result }));
     } catch (err: any) {
