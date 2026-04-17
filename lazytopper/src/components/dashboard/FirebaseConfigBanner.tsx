@@ -13,7 +13,6 @@ export function FirebaseConfigBanner() {
   if (!env.VITE_FIREBASE_PROJECT_ID) missing.push("VITE_FIREBASE_PROJECT_ID");
   if (!env.VITE_FIREBASE_APP_ID) missing.push("VITE_FIREBASE_APP_ID");
   if (!env.VITE_FIREBASE_MESSAGING_SENDER_ID) missing.push("VITE_FIREBASE_MESSAGING_SENDER_ID");
-  if (!env.VITE_FIREBASE_STORAGE_BUCKET) missing.push("VITE_FIREBASE_STORAGE_BUCKET");
 
   return (
     <div style={{

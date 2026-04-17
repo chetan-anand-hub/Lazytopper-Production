@@ -16,7 +16,6 @@ Add all of the following in Replit → Secrets:
 | `VITE_FIREBASE_PROJECT_ID` | same |
 | `VITE_FIREBASE_APP_ID` | same |
 | `VITE_FIREBASE_MESSAGING_SENDER_ID` | same |
-| `VITE_FIREBASE_STORAGE_BUCKET` | same |
 | `FIREBASE_SERVICE_ACCOUNT_KEY` | Project settings → Service accounts → Generate new private key → copy entire JSON |
 
 After adding secrets, restart both:
