@@ -547,26 +547,29 @@ function StatsTab({ badgeCtx, statsByChapter, uid }: { badgeCtx: BadgeContext; s
 
   if (badgeCtx.totalQuestions === 0) {
     return (
-      <div style={{ textAlign: "center", padding: "32px 16px" }}>
-        <div style={{ fontSize: "2.5rem", marginBottom: 12 }}>📊</div>
-        <h3 style={{ fontSize: "1.1rem", fontWeight: 800, marginBottom: 6 }}>
-          Your stats will appear here
-        </h3>
-        <p style={{ fontSize: "0.88rem", color: "var(--text-muted)", marginBottom: 16, lineHeight: 1.5 }}>
-          Start practicing any topic to see your accuracy, streak, mastery progress, and badges.
-        </p>
-        <button
-          type="button"
-          onClick={() => window.location.assign("/trends/10/Maths")}
-          style={{
-            padding: "10px 24px", borderRadius: 12,
-            background: "#58cc02", border: "none", borderBottom: "3px solid #46a302",
-            color: "var(--text)", fontWeight: 800, fontSize: "0.88rem", cursor: "pointer",
-          }}
-        >
-          Start Practicing
-        </button>
-      </div>
+      <>
+        <div style={{ textAlign: "center", padding: "32px 16px" }}>
+          <div style={{ fontSize: "2.5rem", marginBottom: 12 }}>📊</div>
+          <h3 style={{ fontSize: "1.1rem", fontWeight: 800, marginBottom: 6 }}>
+            Your stats will appear here
+          </h3>
+          <p style={{ fontSize: "0.88rem", color: "var(--text-muted)", marginBottom: 16, lineHeight: 1.5 }}>
+            Start practicing any topic to see your accuracy, streak, mastery progress, and badges.
+          </p>
+          <button
+            type="button"
+            onClick={() => window.location.assign("/trends/10/Maths")}
+            style={{
+              padding: "10px 24px", borderRadius: 12,
+              background: "#58cc02", border: "none", borderBottom: "3px solid #46a302",
+              color: "var(--text)", fontWeight: 800, fontSize: "0.88rem", cursor: "pointer",
+            }}
+          >
+            Start Practicing
+          </button>
+        </div>
+        {uid && <MistakeInsightsPanel uid={uid} />}
+      </>
     );
   }
 
