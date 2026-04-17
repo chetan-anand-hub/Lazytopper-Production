@@ -158,7 +158,7 @@ export function MockViewGate({ children }: { children: ReactNode }) {
           You've viewed your free sample mock paper. Sign in to unlock more.
         </p>
         <a
-          href="/login"
+          href={import.meta.env.BASE_URL + "login"}
           style={{
             display: "inline-block", textDecoration: "none",
             border: "none", borderBottom: "4px solid #46a302", borderRadius: 16,

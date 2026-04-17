@@ -417,7 +417,7 @@ export default function SettingsPage() {
           {user && (
             <button type="button" onClick={async () => {
               try { resetAllStudentData(); await logout(); } catch {}
-              window.location.href = "/login";
+              window.location.href = import.meta.env.BASE_URL + "login";
             }} style={{
               width: "100%", padding: "14px 16px", background: "transparent", border: "none",
               display: "flex", alignItems: "center", gap: 12, cursor: "pointer",

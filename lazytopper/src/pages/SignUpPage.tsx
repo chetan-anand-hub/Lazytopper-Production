@@ -65,8 +65,8 @@ export default function SignUpPage() {
         <div style={{ display: "flex", justifyContent: "center", marginBottom: 16 }}>
           <SignUp
             routing="path"
-            path="/sign-up"
-            signInUrl="/login"
+            path={import.meta.env.BASE_URL + "sign-up"}
+            signInUrl={import.meta.env.BASE_URL + "login"}
             appearance={{
               variables: {
                 colorPrimary: "#22c55e",
