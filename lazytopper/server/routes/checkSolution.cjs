@@ -11,6 +11,41 @@ function createCheckSolutionRoute(deps) {
     validateMentorImagePayload,
   } = deps;
 
+  function buildStubResponse(marks) {
+    return {
+      ok: true,
+      totalMarks: marks,
+      marksAwarded: Math.round(marks * 0.7 * 2) / 2,
+      percentage: 70,
+      annotatedSteps: [
+        {
+          stepNumber: 1,
+          description: 'Writing the given data and formula',
+          studentWork: 'Written correctly',
+          status: 'correct',
+          marksAwarded: Math.round(marks * 0.25 * 2) / 2,
+          marksDeducted: 0,
+          teacherAnnotation: '✓ Good. Given data and formula stated correctly.',
+          mistakeType: null,
+          correctedWorking: null,
+        },
+        {
+          stepNumber: 2,
+          description: 'Substitution and working',
+          studentWork: 'Mostly correct but presentation unclear',
+          status: 'partial',
+          marksAwarded: Math.max(0.5, Math.round(marks * 0.45 * 2) / 2),
+          marksDeducted: Math.round(marks * 0.1 * 2) / 2,
+          teacherAnnotation: '½ Correct approach but final answer needs units.',
+          mistakeType: 'presentation',
+          correctedWorking: 'Write units with every numerical answer. Box or underline the final answer.',
+        },
+      ],
+      mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 1 },
+      teacherNote: 'Good attempt! Your approach to this problem is correct and you have stated the right formula. The main area to improve is presentation — always include units with your answer and box or underline the final result so the examiner can award full marks. With a little attention to these details you should score very well in the board exam.',
+    };
+  }
+
   async function handleCheckSolution(req, res) {
     let payload;
     try {
@@ -25,113 +60,137 @@ function createCheckSolutionRoute(deps) {
     const topic = String(payload.topic || '').trim();
     const imageBase64 = String(payload.imageBase64 || '').trim();
     const imageMimeType = String(payload.imageMimeType || 'image/jpeg').trim();
+    const textAnswer = String(payload.textAnswer || '').trim();
 
     const isPdf = imageMimeType === 'application/pdf';
+    const hasImage = imageBase64.length > 0;
+    const hasText = textAnswer.length > 0;
 
     if (!question) return sendJson(res, 400, { error: 'Missing question text' });
-    if (!imageBase64) return sendJson(res, 400, { error: isPdf ? 'Missing solution PDF' : 'Missing solution image' });
+    if (!hasImage && !hasText) {
+      return sendJson(res, 400, { error: 'Missing solution — provide an image or type your answer' });
+    }
 
-    const imgCheck = validateMentorImagePayload(payload);
-    if (!imgCheck || !imgCheck.ok) {
-      return sendJson(res, 400, { error: imgCheck ? imgCheck.error : 'Invalid image' });
+    if (hasImage) {
+      const imgCheck = validateMentorImagePayload(payload);
+      if (!imgCheck || !imgCheck.ok) {
+        return sendJson(res, 400, { error: imgCheck ? imgCheck.error : 'Invalid image' });
+      }
     }
 
     if (isStubMode()) {
-      return sendJson(res, 200, {
-        ok: true,
-        totalMarks: marks,
-        marksAwarded: Math.round(marks * 0.7 * 2) / 2,
-        percentage: 70,
-        steps: [
-          { stepNumber: 1, description: 'Step identification', status: 'correct', feedback: 'Good start with writing the given data.', marksGiven: 0.5 },
-          { stepNumber: 2, description: 'Working', status: 'partial', feedback: 'Calculation is mostly correct but needs cleaner presentation.', marksGiven: Math.max(0.5, marks - 1) },
-          { stepNumber: 3, description: 'Final answer', status: 'missing', feedback: 'Box or underline your final answer for the examiner.', marksGiven: 0 },
-        ],
-        overallFeedback: 'Good attempt! Your approach is correct. Focus on presenting the final answer clearly and writing each step neatly.',
-        improvementTips: ['Underline or box your final answer', 'Write the formula before substituting values', 'Show units where applicable'],
-      });
+      return sendJson(res, 200, buildStubResponse(marks));
     }
 
     try {
       const isMaths = /math/i.test(subject);
+
       const systemPrompt =
-        'You are a strict but supportive CBSE Class 10 board exam evaluator for ' + subject + '. ' +
-        'You are checking a student\'s handwritten solution against the official CBSE marking scheme. ' +
-        'Evaluate EXACTLY as a real board examiner would — award marks step by step. ' +
-        'Be encouraging but honest about errors. ' +
-        'You must respond ONLY with valid JSON, no markdown fences.';
+        'You are a CBSE Class 10 board examiner grading a student\'s paper like a real teacher marking with a red pen. ' +
+        'For each step in the student\'s work you: identify exactly what was written, assess correctness, award or deduct marks, ' +
+        'classify the type of mistake (conceptual/calculation/silly/presentation), and show the corrected version for wrong steps. ' +
+        'Respond ONLY with valid JSON, no markdown fences.';
+
+      const gradingRules =
+        'GRADING RULES:\n' +
+        '1. Identify EVERY step in the student\'s work in order — don\'t skip any\n' +
+        '2. marksAwarded (total) = sum of all annotatedSteps[].marksAwarded, capped at ' + marks + '\n' +
+        '3. mistakeType meanings:\n' +
+        '   - "conceptual": wrong formula, law, theorem, or definition\n' +
+        '   - "calculation": correct method but arithmetic/algebra error\n' +
+        '   - "silly": minor avoidable error (wrong sign, copying mistake, dropped negative)\n' +
+        '   - "presentation": correct working but missing units, labels, state symbols, boxed answer\n' +
+        '4. correctedWorking: for incorrect/partial steps ONLY — write EXACTLY what the student should have written\n' +
+        '5. teacherNote: 3–4 plain-English sentences — start with overall assessment, mention what was done well, state the single most important thing to fix\n' +
+        (isMaths
+          ? '6. For Maths: check formula, substitution, calculation, proper notation (√ ² ± ∴), final answer boxed/underlined, units where applicable\n'
+          : '6. For Science: check terminology, balanced equations, state symbols (s/l/g/aq), NCERT-standard language, diagrams labelled\n') +
+        '7. Be accurate but encouraging — exactly as a real CBSE board examiner would grade';
+
+      const jsonSchema =
+        'RESPOND with this exact JSON:\n' +
+        '{\n' +
+        '  "totalMarks": ' + marks + ',\n' +
+        '  "marksAwarded": <number>,\n' +
+        '  "annotatedSteps": [\n' +
+        '    {\n' +
+        '      "stepNumber": 1,\n' +
+        '      "description": "what this step checks (e.g. Writing formula, Substitution, Final answer)",\n' +
+        '      "studentWork": "exactly what the student wrote for this step (empty string if step is missing)",\n' +
+        '      "status": "correct" | "partial" | "incorrect" | "missing",\n' +
+        '      "marksAwarded": <marks given for this step>,\n' +
+        '      "marksDeducted": <marks lost (0 if correct)>,\n' +
+        '      "teacherAnnotation": "brief teacher comment — \u2713 Good / \u00d7 Error explanation / \u00bd Partially correct",\n' +
+        '      "mistakeType": null | "conceptual" | "calculation" | "silly" | "presentation",\n' +
+        '      "correctedWorking": null | "the correct version of this step"\n' +
+        '    }\n' +
+        '  ],\n' +
+        '  "mistakeSummary": { "conceptual": 0, "calculation": 0, "silly": 0, "presentation": 0 },\n' +
+        '  "teacherNote": "3–4 sentence plain-language teacher summary"\n' +
+        '}';
 
       const userPrompt =
-        'EVALUATE this student\'s handwritten solution for the following CBSE board exam question.\n\n' +
+        'Grade this student\'s answer for the following CBSE board exam question.\n\n' +
         'Question: ' + question + '\n' +
         'Total marks: ' + marks + '\n' +
         'Subject: ' + subject + '\n' +
         (topic ? 'Chapter/Topic: ' + topic + '\n' : '') +
-        '\nThe attached ' + (isPdf ? 'PDF (may contain multiple pages of handwritten work)' : 'image') + ' shows the student\'s handwritten answer. Carefully read ALL pages/content and evaluate the complete solution.\n\n' +
-        'RESPOND with this exact JSON structure:\n' +
-        '{\n' +
-        '  "totalMarks": ' + marks + ',\n' +
-        '  "marksAwarded": <number — total marks you would award as board examiner>,\n' +
-        '  "steps": [\n' +
-        '    {\n' +
-        '      "stepNumber": 1,\n' +
-        '      "description": "what this step checks (e.g. Writing the formula, Substitution, Final answer)",\n' +
-        '      "status": "correct" | "partial" | "incorrect" | "missing",\n' +
-        '      "feedback": "specific feedback — what was right/wrong, what the correct version should be",\n' +
-        '      "marksGiven": <marks awarded for this step>\n' +
-        '    }\n' +
-        '  ],\n' +
-        '  "overallFeedback": "2-3 sentences of encouraging overall feedback with specific improvement areas",\n' +
-        '  "improvementTips": ["3 specific tips to improve their answer for board exam"]\n' +
-        '}\n\n' +
-        'EVALUATION RULES:\n' +
-        '1. Read the handwritten text carefully — allow for messy handwriting\n' +
-        '2. Award partial marks generously (CBSE allows ½ marks) if the approach is correct\n' +
-        '3. Check for: correct formula, proper substitution, accurate calculation, clear final answer\n' +
-        '4. Status meanings: "correct"=full marks, "partial"=some marks, "incorrect"=0 marks, "missing"=step not attempted\n' +
-        '5. marksAwarded MUST equal the sum of all step marksGiven values\n' +
-        '6. Be specific in feedback — say WHAT was wrong and WHAT it should be\n' +
-        (isMaths ? '7. For Maths: check mathematical accuracy, proper notation (√, ², ±), labeled diagram if needed\n' :
-          '7. For Science: check terminology, balanced equations, state symbols, NCERT-standard language\n');
+        '\n' +
+        (hasImage
+          ? 'The attached ' + (isPdf ? 'PDF (may contain multiple pages of handwritten work)' : 'image') + ' shows the student\'s handwritten answer. Read ALL content carefully and evaluate the complete solution.\n\n'
+          : 'The student\'s typed answer is:\n"""\n' + textAnswer + '\n"""\n\n') +
+        jsonSchema + '\n\n' + gradingRules;
 
-      const contents = [
-        {
-          role: 'user',
-          parts: [
-            { text: systemPrompt + '\n\n' + userPrompt },
-            buildGeminiImagePart({ mimeType: imageMimeType, base64: imageBase64 }),
-          ],
-        },
-      ];
+      const textPart = { text: systemPrompt + '\n\n' + userPrompt };
+      const parts = hasImage
+        ? [textPart, buildGeminiImagePart({ mimeType: imageMimeType, base64: imageBase64 })]
+        : [textPart];
+
+      const contents = [{ role: 'user', parts }];
 
       const reply = await callGemini(GEMINI_MODEL, contents, {
-        temperature: 0.2,
-        maxOutputTokens: 2048,
+        temperature: 0.15,
+        maxOutputTokens: 2500,
       });
 
       const parsed = extractJsonObjectFromText(reply.text);
-      if (parsed && Array.isArray(parsed.steps)) {
-        const steps = parsed.steps
+
+      if (parsed && Array.isArray(parsed.annotatedSteps)) {
+        const VALID_MISTAKE_TYPES = new Set(['conceptual', 'calculation', 'silly', 'presentation']);
+
+        const annotatedSteps = parsed.annotatedSteps
           .filter((s) => s && s.description)
           .map((s, i) => ({
             stepNumber: i + 1,
             description: String(s.description || '').trim(),
+            studentWork: String(s.studentWork || '').trim(),
             status: ['correct', 'partial', 'incorrect', 'missing'].includes(s.status) ? s.status : 'partial',
-            feedback: String(s.feedback || '').trim(),
-            marksGiven: Math.max(0, Math.round(Number(s.marksGiven || 0) * 2) / 2),
+            marksAwarded: Math.max(0, Math.round(Number(s.marksAwarded || 0) * 2) / 2),
+            marksDeducted: Math.max(0, Math.round(Number(s.marksDeducted || 0) * 2) / 2),
+            teacherAnnotation: String(s.teacherAnnotation || '').trim(),
+            mistakeType: VALID_MISTAKE_TYPES.has(s.mistakeType) ? s.mistakeType : null,
+            correctedWorking: s.correctedWorking ? String(s.correctedWorking).trim() : null,
           }));
 
-        const marksAwarded = steps.reduce((sum, s) => sum + s.marksGiven, 0);
-        const capped = Math.min(marksAwarded, marks);
+        const totalAwarded = annotatedSteps.reduce((sum, s) => sum + s.marksAwarded, 0);
+        const capped = Math.min(totalAwarded, marks);
+
+        const rawSummary = parsed.mistakeSummary || {};
+        const mistakeSummary = {
+          conceptual: Math.max(0, Number(rawSummary.conceptual || 0)),
+          calculation: Math.max(0, Number(rawSummary.calculation || 0)),
+          silly: Math.max(0, Number(rawSummary.silly || 0)),
+          presentation: Math.max(0, Number(rawSummary.presentation || 0)),
+        };
 
         return sendJson(res, 200, {
           ok: true,
           totalMarks: marks,
           marksAwarded: capped,
           percentage: Math.round((capped / marks) * 100),
-          steps,
-          overallFeedback: String(parsed.overallFeedback || '').trim(),
-          improvementTips: Array.isArray(parsed.improvementTips) ? parsed.improvementTips.map(String) : [],
+          annotatedSteps,
+          mistakeSummary,
+          teacherNote: String(parsed.teacherNote || '').trim(),
           provider: ACTIVE_PROVIDER,
           model: GEMINI_MODEL,
         });

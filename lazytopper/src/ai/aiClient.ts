@@ -176,12 +176,25 @@ export async function fetchStepSolution(req: {
   return handleJsonResponse<StepSolutionResponse>(res);
 }
 
-export interface CheckSolutionStep {
+export type MistakeType = "conceptual" | "calculation" | "silly" | "presentation";
+
+export interface CheckSolutionAnnotatedStep {
   stepNumber: number;
   description: string;
+  studentWork: string;
   status: "correct" | "partial" | "incorrect" | "missing";
-  feedback: string;
-  marksGiven: number;
+  marksAwarded: number;
+  marksDeducted: number;
+  teacherAnnotation: string;
+  mistakeType: MistakeType | null;
+  correctedWorking: string | null;
+}
+
+export interface CheckSolutionMistakeSummary {
+  conceptual: number;
+  calculation: number;
+  silly: number;
+  presentation: number;
 }
 
 export interface CheckSolutionResponse {
@@ -189,9 +202,9 @@ export interface CheckSolutionResponse {
   totalMarks: number;
   marksAwarded: number;
   percentage: number;
-  steps: CheckSolutionStep[];
-  overallFeedback: string;
-  improvementTips: string[];
+  annotatedSteps: CheckSolutionAnnotatedStep[];
+  mistakeSummary: CheckSolutionMistakeSummary;
+  teacherNote: string;
   error?: string;
 }
 
@@ -200,8 +213,9 @@ export async function checkSolutionImage(req: {
   topic: string;
   question: string;
   marks: number;
-  imageBase64: string;
-  imageMimeType: string;
+  imageBase64?: string;
+  imageMimeType?: string;
+  textAnswer?: string;
 }): Promise<CheckSolutionResponse> {
   const res = await fetch(`${API_BASE}/check-solution`, {
     method: "POST",

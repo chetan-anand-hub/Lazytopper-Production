@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useCallback } from "react";
 import { type PracticeQuestion } from "../../data/predictionDataService";
 import { MathText } from "../question/MathText";
 import { QuestionVisualAid } from "../question/QuestionVisualAid";
@@ -40,6 +40,18 @@ export function PracticeQuestionCard({
   onOpenConceptDrawer, onOpenMentorBoard,
 }: PracticeQuestionCardProps) {
   const [showVisual, setShowVisual] = useState(false);
+  const cardRef = useRef<HTMLElement>(null);
+
+  const handleRequestStepSolution = useCallback(() => {
+    if (!isOpen) {
+      onSetActiveQuestion(String(q.id));
+      onToggleAnswer(q.id, q);
+    }
+    setTimeout(() => {
+      cardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 80);
+  }, [isOpen, q, onSetActiveQuestion, onToggleAnswer]);
+
   const matchedVisual = useMemo(() => {
     return getVisualConceptForQuestion({
       id: String(q.id),
@@ -142,6 +154,7 @@ export function PracticeQuestionCard({
 
   return (
     <article
+      ref={cardRef}
       data-testid="practice-question-card"
       data-question-id={String(q.id)}
       onClick={() => onSetActiveQuestion(String(q.id))}
@@ -365,6 +378,7 @@ export function PracticeQuestionCard({
                 marks={q.marks}
                 subject={subjectKey}
                 topic={topicLabel}
+                onRequestStepSolution={handleRequestStepSolution}
               />
             </div>
           )}
