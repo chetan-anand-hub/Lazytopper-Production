@@ -57,6 +57,7 @@ const RevisionCalendarPage = lazy(() => import("./pages/RevisionCalendarPage"));
 const MiniMockPage = lazy(() => import("./pages/MiniMockPage"));
 const ParentAccessPage = lazy(() => import("./pages/ParentAccessPage"));
 const WeeklyDigestPage = lazy(() => import("./pages/WeeklyDigestPage"));
+const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const DiagramComparePage = lazy(() => import("./pages/DiagramComparePage"));
 
 function RouteFallback() {
@@ -666,6 +667,12 @@ export default function App() {
           <Route
             path="/profile"
             element={<RequireAuth>{withRouteSuspense(<ProfilePage />)}</RequireAuth>}
+          />
+
+          {/* Settings */}
+          <Route
+            path="/settings"
+            element={<RequireAuth>{withRouteSuspense(<SettingsPage />)}</RequireAuth>}
           />
 
           {/* Catch-all: redirect unknown routes to a sensible default */}
