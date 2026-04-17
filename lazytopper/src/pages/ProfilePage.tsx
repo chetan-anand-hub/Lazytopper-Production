@@ -752,7 +752,10 @@ export default function ProfilePage() {
     };
   }, []);
 
-  const handleWhatsAppShare = useCallback(() => {
+  const [whatsAppModalOpen, setWhatsAppModalOpen] = useState(false);
+  const [whatsAppMessage, setWhatsAppMessage] = useState("");
+
+  const buildWhatsAppMessage = useCallback(() => {
     const lines: string[] = [
       `🚀 My LazyTopper Progress`,
       ``,
@@ -762,9 +765,19 @@ export default function ProfilePage() {
     ];
     if (daysLeft > 0) lines.push(`📅 ${daysLeft} days to boards — let's go!`);
     lines.push(``, `Study smarter at https://lazytopper.in`);
-    const text = encodeURIComponent(lines.join("\n"));
-    window.open(`https://wa.me/?text=${text}`, "_blank", "noopener,noreferrer");
+    return lines.join("\n");
   }, [heroStats, daysLeft]);
+
+  const handleWhatsAppShare = useCallback(() => {
+    setWhatsAppMessage(buildWhatsAppMessage());
+    setWhatsAppModalOpen(true);
+  }, [buildWhatsAppMessage]);
+
+  const handleSendWhatsApp = useCallback(() => {
+    const text = encodeURIComponent(whatsAppMessage);
+    window.open(`https://wa.me/?text=${text}`, "_blank", "noopener,noreferrer");
+    setWhatsAppModalOpen(false);
+  }, [whatsAppMessage]);
 
   const [sharingInstagram, setSharingInstagram] = useState(false);
   const [instagramTip, setInstagramTip] = useState<string | null>(null);
@@ -894,6 +907,7 @@ export default function ProfilePage() {
   if (loading) return <ProfileSkeleton />;
 
   return (
+    <>
     <div style={{ maxWidth: 560, margin: "0 auto", paddingBottom: 100 }}>
 
       {/* ── Header ── */}
@@ -1718,5 +1732,128 @@ export default function ProfilePage() {
       </div>
 
     </div>
+
+    {/* WhatsApp Customise Message Modal */}
+    {whatsAppModalOpen && (
+      <div
+        onClick={() => setWhatsAppModalOpen(false)}
+        style={{
+          position: "fixed",
+          inset: 0,
+          background: "rgba(0,0,0,0.55)",
+          zIndex: 9999,
+          display: "flex",
+          alignItems: "flex-end",
+          justifyContent: "center",
+          padding: "0 0 env(safe-area-inset-bottom, 0px)",
+        }}
+      >
+        <div
+          onClick={e => e.stopPropagation()}
+          style={{
+            background: "#fff",
+            borderRadius: "20px 20px 0 0",
+            padding: "24px 20px 28px",
+            width: "100%",
+            maxWidth: 480,
+            boxSizing: "border-box",
+            boxShadow: "0 -4px 32px rgba(0,0,0,0.18)",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="#22c55e">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                <path d="M12 0C5.373 0 0 5.373 0 12c0 2.125.556 4.122 1.528 5.858L.057 23.215a.5.5 0 0 0 .615.637l5.543-1.453A11.94 11.94 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.794 9.794 0 0 1-5.003-1.373l-.358-.213-3.713.974.992-3.614-.234-.372A9.793 9.793 0 0 1 2.182 12C2.182 6.57 6.57 2.182 12 2.182S21.818 6.57 21.818 12 17.43 21.818 12 21.818z"/>
+              </svg>
+              <span style={{ fontSize: 15, fontWeight: 800, color: "#15803d" }}>
+                Customise your message
+              </span>
+            </div>
+            <button
+              onClick={() => setWhatsAppModalOpen(false)}
+              style={{
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                fontSize: 20,
+                color: "#9ca3af",
+                lineHeight: 1,
+                padding: 4,
+              }}
+              aria-label="Close"
+            >
+              ✕
+            </button>
+          </div>
+
+          <textarea
+            value={whatsAppMessage}
+            onChange={e => setWhatsAppMessage(e.target.value)}
+            rows={8}
+            style={{
+              width: "100%",
+              boxSizing: "border-box",
+              border: "1.5px solid #d1fae5",
+              borderRadius: 12,
+              padding: "12px 14px",
+              fontSize: 13,
+              lineHeight: 1.6,
+              fontFamily: "inherit",
+              color: "#1e293b",
+              background: "#f0fdf4",
+              resize: "vertical",
+              outline: "none",
+            }}
+            onFocus={e => { e.currentTarget.style.borderColor = "#22c55e"; }}
+            onBlur={e => { e.currentTarget.style.borderColor = "#d1fae5"; }}
+          />
+
+          <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
+            <button
+              onClick={() => setWhatsAppModalOpen(false)}
+              style={{
+                flex: 1,
+                padding: "12px 8px",
+                borderRadius: 12,
+                border: "1.5px solid #e5e7eb",
+                background: "#fff",
+                color: "#6b7280",
+                fontSize: 13,
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSendWhatsApp}
+              style={{
+                flex: 2,
+                padding: "12px 8px",
+                borderRadius: 12,
+                border: "none",
+                background: "#22c55e",
+                color: "#fff",
+                fontSize: 13,
+                fontWeight: 800,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 6,
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                <path d="M12 0C5.373 0 0 5.373 0 12c0 2.125.556 4.122 1.528 5.858L.057 23.215a.5.5 0 0 0 .615.637l5.543-1.453A11.94 11.94 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.794 9.794 0 0 1-5.003-1.373l-.358-.213-3.713.974.992-3.614-.234-.372A9.793 9.793 0 0 1 2.182 12C2.182 6.57 6.57 2.182 12 2.182S21.818 6.57 21.818 12 17.43 21.818 12 21.818z"/>
+              </svg>
+              Send on WhatsApp
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 }
