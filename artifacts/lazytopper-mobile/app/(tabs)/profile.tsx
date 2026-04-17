@@ -1,4 +1,7 @@
 import { Feather } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Print from "expo-print";
+import * as Sharing from "expo-sharing";
 import React, { useState } from "react";
 import {
   Alert,
@@ -17,6 +20,24 @@ import { useAuth } from "@/context/AuthContext";
 import { useSubscription } from "@/context/SubscriptionContext";
 import { useColors } from "@/hooks/useColors";
 import { FirebasePhoneAuth } from "@/components/FirebasePhoneAuth";
+
+const BADGE_META: Record<string, { name: string; icon: string }> = {
+  "first-practice":       { name: "First Steps",          icon: "🎯" },
+  "10-questions":         { name: "Getting Warmed Up",     icon: "🔥" },
+  "50-questions":         { name: "Half Century",          icon: "🏏" },
+  "100-questions":        { name: "Century Club",          icon: "💯" },
+  "streak-3":             { name: "3-Day Spark",           icon: "⚡" },
+  "streak-7":             { name: "No Zero Week",          icon: "🗓️" },
+  "streak-14":            { name: "Streak Beast",          icon: "💪" },
+  "streak-30":            { name: "Board Warrior",         icon: "🏆" },
+  "streak-60":            { name: "Consistency Legend",    icon: "💎" },
+  "first-mastery":        { name: "Topic Conquered",       icon: "👑" },
+  "5-topics-mastered":    { name: "Five Star",             icon: "⭐" },
+  "all-topics-started":   { name: "Explorer",              icon: "🧭" },
+  "accuracy-80":          { name: "Sharpshooter",          icon: "🎯" },
+  "accuracy-90":          { name: "Laser Focus",           icon: "🔬" },
+  "perfect-set":          { name: "Flawless",              icon: "✨" },
+};
 
 export default function ProfileScreen() {
   const colors = useColors();
@@ -231,6 +252,214 @@ export default function ProfileScreen() {
     ]);
   };
 
+  const [sharingProgress, setSharingProgress] = useState(false);
+
+  const handleShareProgress = async () => {
+    if (!user) return;
+    setSharingProgress(true);
+    try {
+      const name = user.displayName ?? "Student";
+      const initials = name
+        .split(" ")
+        .map((w: string) => w[0] ?? "")
+        .join("")
+        .toUpperCase()
+        .slice(0, 2);
+
+      const escapeHtml = (s: string) =>
+        s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+      const snapshotKey = `lazytopper.progress.snapshot.v1:${user.uid}`;
+      let streak = 0;
+      let questions = 0;
+      let accuracy = 0;
+      let topBadge: { name: string; icon: string } | null = null;
+
+      try {
+        const raw = await AsyncStorage.getItem(snapshotKey);
+        if (raw) {
+          const snapshot = JSON.parse(raw) as {
+            streak?: number;
+            attempts?: { correct: boolean }[];
+            badges?: { id: string; earnedAt: string }[];
+          };
+
+          streak = typeof snapshot.streak === "number" ? snapshot.streak : 0;
+
+          const attempts = Array.isArray(snapshot.attempts) ? snapshot.attempts : [];
+          questions = attempts.length;
+          if (questions > 0) {
+            const correct = attempts.filter((a) => a.correct).length;
+            accuracy = Math.round((correct / questions) * 100);
+          }
+
+          const badges = Array.isArray(snapshot.badges) ? snapshot.badges : [];
+          if (badges.length > 0) {
+            const sorted = [...badges].sort(
+              (a, b) => new Date(b.earnedAt).getTime() - new Date(a.earnedAt).getTime()
+            );
+            const latest = sorted[0];
+            topBadge = BADGE_META[latest.id] ?? { name: latest.id, icon: "🏅" };
+          }
+        }
+      } catch {
+      }
+
+      const html = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=360" />
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 360px;
+    background: linear-gradient(160deg, #1e1b4b 0%, #4c1d95 60%, #1e1b4b 100%);
+    font-family: -apple-system, 'Helvetica Neue', sans-serif;
+    color: #fff;
+    padding: 32px 24px 28px;
+  }
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .logo-circle {
+    width: 44px; height: 44px;
+    background: rgba(88, 204, 2, 0.25);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+  }
+  .brand-col .brand-name {
+    font-size: 18px; font-weight: 700; color: #fff;
+  }
+  .brand-col .brand-sub {
+    font-size: 11px; color: rgba(255,255,255,0.55); margin-top: 1px;
+  }
+  .report-label {
+    display: inline-block;
+    background: rgba(88,204,2,0.18);
+    color: #88f000;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+  }
+  .avatar-row {
+    display: flex; align-items: center; gap: 14px; margin-bottom: 22px;
+  }
+  .avatar {
+    width: 52px; height: 52px;
+    border-radius: 26px;
+    background: rgba(255,255,255,0.12);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 700; color: #fff;
+  }
+  .student-name { font-size: 17px; font-weight: 700; }
+  .student-sub { font-size: 12px; color: rgba(255,255,255,0.55); margin-top: 3px; }
+  .stats-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px; margin-bottom: 18px;
+  }
+  .stat-box {
+    background: rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 14px 10px;
+    text-align: center;
+  }
+  .stat-icon { font-size: 20px; margin-bottom: 6px; }
+  .stat-value { font-size: 22px; font-weight: 700; }
+  .stat-label { font-size: 10px; color: rgba(255,255,255,0.55); margin-top: 3px; }
+  .badge-box {
+    background: rgba(255,255,255,0.06);
+    border-radius: 14px;
+    padding: 14px 16px;
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 22px;
+  }
+  .badge-icon { font-size: 30px; }
+  .badge-title { font-size: 11px; color: rgba(255,255,255,0.5); margin-bottom: 3px; }
+  .badge-name { font-size: 14px; font-weight: 600; }
+  .footer {
+    text-align: center;
+    font-size: 11px; color: rgba(255,255,255,0.35);
+    letter-spacing: 0.5px;
+  }
+</style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo-circle">📚</div>
+    <div class="brand-col">
+      <div class="brand-name">LazyTopper</div>
+      <div class="brand-sub">CBSE Class 10 · Board Prep</div>
+    </div>
+  </div>
+
+  <div class="report-label">Progress Report</div>
+
+  <div class="avatar-row">
+    <div class="avatar">${escapeHtml(initials)}</div>
+    <div>
+      <div class="student-name">${escapeHtml(name)}</div>
+      <div class="student-sub">Class 10 · CBSE</div>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-box">
+      <div class="stat-icon">⚡</div>
+      <div class="stat-value">${streak}</div>
+      <div class="stat-label">Day Streak</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-icon">✅</div>
+      <div class="stat-value">${questions}</div>
+      <div class="stat-label">Questions</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-icon">🎯</div>
+      <div class="stat-value">${accuracy}%</div>
+      <div class="stat-label">Accuracy</div>
+    </div>
+  </div>
+
+  <div class="badge-box">
+    <div class="badge-icon">${topBadge ? topBadge.icon : "🌱"}</div>
+    <div>
+      <div class="badge-title">Latest Achievement</div>
+      <div class="badge-name">${topBadge ? escapeHtml(topBadge.name) : "Keep practising to earn badges!"}</div>
+    </div>
+  </div>
+
+  <div class="footer">lazytopper.com · Ace your boards 🚀</div>
+</body>
+</html>`;
+
+      const { uri } = await Print.printToFileAsync({ html, base64: false });
+
+      const canShare = await Sharing.isAvailableAsync();
+      if (canShare) {
+        await Sharing.shareAsync(uri, {
+          mimeType: "application/pdf",
+          dialogTitle: "Share My Progress",
+          UTI: "com.adobe.pdf",
+        });
+      } else {
+        Alert.alert("Sharing not available", "Your device does not support sharing files.");
+      }
+    } catch (err) {
+      Alert.alert("Error", "Could not generate progress card. Please try again.");
+    } finally {
+      setSharingProgress(false);
+    }
+  };
+
   return (
     <ScrollView
       style={[styles.scroll, { backgroundColor: colors.background }]}
@@ -253,6 +482,17 @@ export default function ProfileScreen() {
           </View>
         )}
       </View>
+
+      <Pressable
+        style={[styles.shareBtn, { backgroundColor: colors.primary, opacity: sharingProgress ? 0.7 : 1 }]}
+        onPress={handleShareProgress}
+        disabled={sharingProgress}
+      >
+        <Feather name="share-2" size={16} color="#fff" />
+        <Text style={styles.shareBtnText}>
+          {sharingProgress ? "Generating…" : "Share My Progress"}
+        </Text>
+      </Pressable>
 
       <View style={[styles.subCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
         <View style={styles.subHeader}>
@@ -548,5 +788,19 @@ const styles = StyleSheet.create({
   signOutText: {
     fontFamily: "Inter_600SemiBold",
     fontSize: 14,
+  },
+  shareBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    paddingVertical: 14,
+    borderRadius: 14,
+    marginBottom: 16,
+  },
+  shareBtnText: {
+    fontFamily: "Inter_600SemiBold",
+    fontSize: 15,
+    color: "#fff",
   },
 });
