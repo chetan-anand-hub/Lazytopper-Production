@@ -88,16 +88,16 @@ function shouldAutoAnonBootstrap(): boolean {
 async function signIntoFirebase(
   uid: string,
   getToken: () => Promise<string | null>
-): Promise<void> {
-  if (!firebaseConfigured || !authClient) return;
-  if (authClient.currentUser?.uid === uid) return;
+): Promise<boolean> {
+  if (!firebaseConfigured || !authClient) return false;
+  if (authClient.currentUser?.uid === uid) return true;
   try {
     const sessionToken = await getToken();
     if (!sessionToken) {
       if (import.meta.env.DEV) {
         console.warn("[AuthContext] No Clerk session token available — skipping Firebase sign-in");
       }
-      return;
+      return false;
     }
     const resp = await fetch("/api/auth/firebase-token", {
       method: "POST",
@@ -113,13 +113,18 @@ async function signIntoFirebase(
       if (import.meta.env.DEV) {
         console.info("[AuthContext] Firebase Auth signed in for uid=%s", uid);
       }
-    } else if (import.meta.env.DEV) {
-      console.warn("[AuthContext] Firebase token endpoint returned error:", data.error);
+      return true;
+    } else {
+      if (import.meta.env.DEV) {
+        console.warn("[AuthContext] Firebase token endpoint returned error:", data.error);
+      }
+      return false;
     }
   } catch (err) {
     if (import.meta.env.DEV) {
       console.warn("[AuthContext] Firebase sign-in failed — cloud sync disabled for this session:", err);
     }
+    return false;
   }
 }
 
@@ -165,10 +170,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (uid && !user?.isLocalSession) {
       void (async () => {
         if (firebaseSignedInUid.current !== uid) {
-          firebaseSignedInUid.current = uid;
           const getToken = () =>
             clerk.session?.getToken() ?? Promise.resolve(null);
-          await signIntoFirebase(uid, getToken);
+          const success = await signIntoFirebase(uid, getToken);
+          if (success) {
+            firebaseSignedInUid.current = uid;
+          }
         }
         await Promise.allSettled([
           ensureLearnerCloudBaseline(uid),

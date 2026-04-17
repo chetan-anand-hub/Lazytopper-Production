@@ -1,14 +1,17 @@
 const jwksRsa = require('jwks-rsa');
 const jwt = require('jsonwebtoken');
 
-function deriveClerkJwksUri() {
+function deriveClerkConfig() {
   const key = String(process.env.VITE_CLERK_PUBLISHABLE_KEY || '').trim();
   const b64 = key.replace(/^pk_(test|live)_/, '');
   if (!b64) return null;
   try {
     const domain = Buffer.from(b64, 'base64').toString('utf8').replace(/\$$/, '');
     if (!domain || !domain.includes('.')) return null;
-    return `https://${domain}/.well-known/jwks.json`;
+    return {
+      jwksUri: `https://${domain}/.well-known/jwks.json`,
+      issuer: `https://${domain}`,
+    };
   } catch {
     return null;
   }
@@ -17,19 +20,19 @@ function deriveClerkJwksUri() {
 function createFirebaseAuthRoute(deps) {
   const { sendJson, firebaseAdmin } = deps;
 
-  const jwksUri = deriveClerkJwksUri();
-  const jwksClient = jwksUri
-    ? jwksRsa({ jwksUri, cache: true, cacheMaxAge: 600_000, rateLimit: true })
+  const clerkConfig = deriveClerkConfig();
+  const jwksClient = clerkConfig
+    ? jwksRsa({ jwksUri: clerkConfig.jwksUri, cache: true, cacheMaxAge: 600_000, rateLimit: true })
     : null;
 
-  if (jwksUri) {
-    console.log('[firebase-auth] Clerk JWKS URI:', jwksUri);
+  if (clerkConfig) {
+    console.log('[firebase-auth] Clerk JWKS URI:', clerkConfig.jwksUri, '| issuer:', clerkConfig.issuer);
   } else {
     console.warn('[firebase-auth] VITE_CLERK_PUBLISHABLE_KEY not set — Clerk JWT verification disabled');
   }
 
   async function verifyClerkJwt(token) {
-    if (!jwksClient) {
+    if (!jwksClient || !clerkConfig) {
       throw new Error('Clerk JWKS client not configured (missing VITE_CLERK_PUBLISHABLE_KEY)');
     }
     const decoded = jwt.decode(token, { complete: true });
@@ -44,10 +47,15 @@ function createFirebaseAuthRoute(deps) {
       });
     });
     return new Promise((resolve, reject) => {
-      jwt.verify(token, signingKey, { algorithms: ['RS256'] }, (err, payload) => {
-        if (err) { reject(err); return; }
-        resolve(payload);
-      });
+      jwt.verify(
+        token,
+        signingKey,
+        { algorithms: ['RS256'], issuer: clerkConfig.issuer },
+        (err, payload) => {
+          if (err) { reject(err); return; }
+          resolve(payload);
+        }
+      );
     });
   }
 

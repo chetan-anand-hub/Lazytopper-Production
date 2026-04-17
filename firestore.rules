@@ -1,3 +1,12 @@
+// Deploy these rules using the Firebase CLI:
+//   firebase deploy --only firestore:rules
+//
+// Requires a .firebaserc pointing to your Firebase project, or run:
+//   firebase use --add   (to select a project)
+//
+// These rules enforce per-UID access: each authenticated student can only
+// read and write documents under their own UID path.
+
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -25,39 +34,71 @@ service cloud.firestore {
       match /mistakeLogs/{logId} {
         allow read, write: if isOwner(uid);
       }
+
+      match /{document=**} {
+        allow read, write: if isOwner(uid);
+      }
     }
 
-    // Dashboard UI preferences
+    // Dashboard UI preferences and any future subcollections
     match /dashboardPrefs/{uid} {
       allow read, write: if isOwner(uid);
+
+      match /{document=**} {
+        allow read, write: if isOwner(uid);
+      }
     }
 
     // Core progress snapshot (chapter stats, attempts, mastery, streaks, badges)
     match /learnerProgress/{uid} {
       allow read, write: if isOwner(uid);
+
+      match /{document=**} {
+        allow read, write: if isOwner(uid);
+      }
     }
 
-    // Subscription status (trial + premium)
+    // Subscription status (trial + premium) and any future subcollections
     match /subscriptions/{uid} {
       allow read, write: if isOwner(uid);
+
+      match /{document=**} {
+        allow read, write: if isOwner(uid);
+      }
     }
 
     // Share-report collections — written by server-side Admin SDK only;
     // client can read their own but not write (Admin SDK bypasses rules)
     match /practiceInsights/{uid} {
       allow read: if isOwner(uid);
+
+      match /{document=**} {
+        allow read: if isOwner(uid);
+      }
     }
 
     match /mockScoreHistory/{uid} {
       allow read: if isOwner(uid);
+
+      match /{document=**} {
+        allow read: if isOwner(uid);
+      }
     }
 
     match /weakAreaSummary/{uid} {
       allow read: if isOwner(uid);
+
+      match /{document=**} {
+        allow read: if isOwner(uid);
+      }
     }
 
     match /topicMastery/{uid} {
       allow read: if isOwner(uid);
+
+      match /{document=**} {
+        allow read: if isOwner(uid);
+      }
     }
   }
 }
