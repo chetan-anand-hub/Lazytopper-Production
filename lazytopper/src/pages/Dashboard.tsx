@@ -53,6 +53,7 @@ import {
 } from "../services/paceProfileService";
 import { getLatestMockScores } from "../services/mockScoreHistory";
 import ShareProgressPrompt from "../components/ShareProgressPrompt";
+import { FirebaseConfigBanner } from "../components/dashboard/FirebaseConfigBanner";
 import { useTheme } from "../context/ThemeContext";
 import {
   type SubjectTitle,
@@ -507,6 +508,8 @@ export default function Dashboard() {
           paceProfile={paceProfile}
           onTogglePaceSelector={() => setShowPaceSelector((p) => !p)}
         />
+
+        <FirebaseConfigBanner />
 
         {paceProfile && (() => {
           const msgs: Record<string, string> = {

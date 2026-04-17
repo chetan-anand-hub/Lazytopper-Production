@@ -40,7 +40,7 @@ service cloud.firestore {
       }
     }
 
-    // Dashboard UI preferences and any future subcollections
+    // Dashboard UI preferences
     match /dashboardPrefs/{uid} {
       allow read, write: if isOwner(uid);
 
@@ -58,7 +58,7 @@ service cloud.firestore {
       }
     }
 
-    // Subscription status (trial + premium) and any future subcollections
+    // Subscription status (trial + premium)
     match /subscriptions/{uid} {
       allow read, write: if isOwner(uid);
 
@@ -67,38 +67,63 @@ service cloud.firestore {
       }
     }
 
-    // Share-report collections — written by server-side Admin SDK only;
-    // client can read their own but not write (Admin SDK bypasses rules)
+    // Practice analytics — written client-side, read for insights panels
     match /practiceInsights/{uid} {
-      allow read: if isOwner(uid);
+      allow read, write: if isOwner(uid);
 
       match /{document=**} {
-        allow read: if isOwner(uid);
+        allow read, write: if isOwner(uid);
       }
     }
 
+    // Mock exam score history — written client-side
     match /mockScoreHistory/{uid} {
-      allow read: if isOwner(uid);
+      allow read, write: if isOwner(uid);
 
       match /{document=**} {
-        allow read: if isOwner(uid);
+        allow read, write: if isOwner(uid);
       }
     }
 
+    // Weak area aggregation — computed and written client-side
     match /weakAreaSummary/{uid} {
-      allow read: if isOwner(uid);
+      allow read, write: if isOwner(uid);
 
       match /{document=**} {
-        allow read: if isOwner(uid);
+        allow read, write: if isOwner(uid);
       }
     }
 
+    // Topic mastery percentages map — written client-side
     match /topicMastery/{uid} {
-      allow read: if isOwner(uid);
+      allow read, write: if isOwner(uid);
 
       match /{document=**} {
-        allow read: if isOwner(uid);
+        allow read, write: if isOwner(uid);
       }
+    }
+
+    // Spaced repetition schedule (FSRS) — written client-side
+    match /srSchedules/{uid} {
+      allow read, write: if isOwner(uid);
+
+      match /{document=**} {
+        allow read, write: if isOwner(uid);
+      }
+    }
+
+    // AI-generated personalised learning path — written client-side
+    match /learningPaths/{uid} {
+      allow read, write: if isOwner(uid);
+
+      match /{document=**} {
+        allow read, write: if isOwner(uid);
+      }
+    }
+
+    // Deny everything else
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }
