@@ -126,7 +126,10 @@ export async function getMistakeLogs(
         limit(MAX_LOCAL_ENTRIES)
       );
       const snap = await getDocs(q);
-      const remote = snap.docs.map((d) => d.data() as MistakeLogEntry);
+      const remote = snap.docs.map((d) => {
+        const data = d.data() as MistakeLogEntry;
+        return { ...data, id: data.id || d.id };
+      });
 
       // Merge with local cache so locally-written entries (written while offline
       // or before Firestore was ready) are not silently dropped.
