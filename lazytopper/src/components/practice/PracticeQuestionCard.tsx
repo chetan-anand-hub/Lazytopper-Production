@@ -40,7 +40,9 @@ export function PracticeQuestionCard({
   onOpenConceptDrawer, onOpenMentorBoard,
 }: PracticeQuestionCardProps) {
   const [showVisual, setShowVisual] = useState(false);
+  const [showChecker, setShowChecker] = useState(false);
   const cardRef = useRef<HTMLElement>(null);
+  const stepSolutionRef = useRef<HTMLDivElement>(null);
 
   const handleRequestStepSolution = useCallback(() => {
     if (!isOpen) {
@@ -48,8 +50,8 @@ export function PracticeQuestionCard({
       onToggleAnswer(q.id, q);
     }
     setTimeout(() => {
-      cardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 80);
+      stepSolutionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 120);
   }, [isOpen, q, onSetActiveQuestion, onToggleAnswer]);
 
   const matchedVisual = useMemo(() => {
@@ -232,26 +234,42 @@ export function PracticeQuestionCard({
         </button>
         <button
           type="button"
-          onClick={() => onOpenMentorBoard(q, idx)}
+          onClick={() => {
+            onSetActiveQuestion(String(q.id));
+            setShowChecker((v) => !v);
+          }}
           style={{
             borderRadius: 999, padding: "5px 12px",
             border: "1px solid rgba(206,130,255,0.3)",
-            backgroundColor: "rgba(206,130,255,0.06)",
+            backgroundColor: showChecker ? "rgba(206,130,255,0.14)" : "rgba(206,130,255,0.06)",
             fontSize: "0.78rem", color: "var(--color-violet)",
             cursor: "pointer", display: "inline-flex",
             alignItems: "center", gap: 6,
           }}
         >
-          <span>Check my answer</span>
+          <span>{showChecker ? "Hide checker" : "Check my answer"}</span>
         </button>
       </div>
 
+      {showChecker && (
+        <SolutionChecker
+          question={q.questionText}
+          marks={q.marks}
+          subject={subjectKey}
+          topic={topicLabel}
+          onRequestStepSolution={handleRequestStepSolution}
+        />
+      )}
+
       {isOpen && (
-        <div style={{
-          marginTop: 10, padding: "12px 14px",
-          background: "var(--bg-card)", borderRadius: 12,
-          border: "1px solid var(--bg-card-border)",
-        }}>
+        <div
+          ref={stepSolutionRef}
+          style={{
+            marginTop: 10, padding: "12px 14px",
+            background: "var(--bg-card)", borderRadius: 12,
+            border: "1px solid var(--bg-card-border)",
+          }}
+        >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
             <strong style={{ fontSize: "0.82rem", color: "var(--text)" }}>
               Step-by-Step Solution ({q.marks} {q.marks === 1 ? "mark" : "marks"})
@@ -373,13 +391,6 @@ export function PracticeQuestionCard({
                   )}
                 </div>
               )}
-              <SolutionChecker
-                question={q.questionText}
-                marks={q.marks}
-                subject={subjectKey}
-                topic={topicLabel}
-                onRequestStepSolution={handleRequestStepSolution}
-              />
             </div>
           )}
         </div>
