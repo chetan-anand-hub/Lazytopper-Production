@@ -54,32 +54,34 @@ function buildFromPrewrittenSteps(stepsArr, finalAnswer, totalMarks, qType, sect
   totalMarks = Number(totalMarks) || 1;
   const n = stepsArr.length;
 
-  const steps = stepsArr.map((stepText, i) => {
-    const isFirst = i === 0;
-    const isLast = i === n - 1;
-    let m;
-    if (n === 1) {
-      m = totalMarks;
-    } else if (totalMarks >= 2 && (isFirst || isLast)) {
-      m = 0.5;
-    } else {
-      const middleCount = Math.max(1, n - (totalMarks >= 2 ? 2 : 0));
-      m = Math.max(0.5, (totalMarks - (totalMarks >= 2 ? 1 : 0)) / middleCount);
-    }
-    m = Math.round(m * 2) / 2;
+  // Distribute marks: first/last get 0.5 each when totalMarks >= 2; middle steps share the rest.
+  const rawMarks = stepsArr.map((_, i) => {
+    if (n === 1) return totalMarks;
+    if (totalMarks < 2) return totalMarks / n;
+    if (i === 0 || i === n - 1) return 0.5;
+    const middleCount = Math.max(1, n - 2);
+    return (totalMarks - 1) / middleCount;
+  }).map(m => Math.round(m * 2) / 2);
 
+  // Normalize: adjust last step so sum equals totalMarks exactly.
+  const currentSum = rawMarks.reduce((a, b) => a + b, 0);
+  const diff = Math.round((totalMarks - currentSum) * 2) / 2;
+  if (diff !== 0 && rawMarks.length > 0) {
+    rawMarks[rawMarks.length - 1] = Math.max(0.5, rawMarks[rawMarks.length - 1] + diff);
+  }
+
+  const steps = stepsArr.map((stepText, i) => {
     let description;
-    if (isFirst) {
+    if (i === 0) {
       description = isObj ? 'Correct answer' : 'Approach and setup';
-    } else if (isLast && finalAnswer) {
+    } else if (i === n - 1 && finalAnswer) {
       description = '\u2234 ' + finalAnswer;
-    } else if (isLast) {
+    } else if (i === n - 1) {
       description = 'Final answer';
     } else {
       description = 'Step ' + (i + 1);
     }
-
-    return { stepNumber: i + 1, description, working: stepText, marks: m };
+    return { stepNumber: i + 1, description, working: stepText, marks: rawMarks[i] };
   });
 
   return {

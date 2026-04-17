@@ -158,6 +158,53 @@ export interface StepSolutionResponse {
   examTip?: string;
 }
 
+function buildLocalSolution(
+  stepsArr: string[],
+  finalAnswer: string | undefined,
+  totalMarks: number,
+  isObjective: boolean,
+): StepSolutionResponse {
+  const n = stepsArr.length;
+  const rawMarks = stepsArr.map((_, i) => {
+    if (n === 1) return totalMarks;
+    if (totalMarks < 2) return totalMarks / n;
+    if (i === 0 || i === n - 1) return 0.5;
+    const middleCount = Math.max(1, n - 2);
+    return (totalMarks - 1) / middleCount;
+  }).map((m) => Math.round(m * 2) / 2);
+
+  const currentSum = rawMarks.reduce((a, b) => a + b, 0);
+  const diff = Math.round((totalMarks - currentSum) * 2) / 2;
+  if (diff !== 0 && rawMarks.length > 0) {
+    rawMarks[rawMarks.length - 1] = Math.max(0.5, rawMarks[rawMarks.length - 1] + diff);
+  }
+
+  const steps: StepSolutionStep[] = stepsArr.map((working, i) => {
+    let description: string;
+    if (i === 0) {
+      description = isObjective ? "Correct answer" : "Approach and setup";
+    } else if (i === n - 1 && finalAnswer) {
+      description = "\u2234 " + finalAnswer;
+    } else if (i === n - 1) {
+      description = "Final answer";
+    } else {
+      description = "Step " + (i + 1);
+    }
+    return { stepNumber: i + 1, description, working, marks: rawMarks[i] };
+  });
+
+  return {
+    totalMarks,
+    steps,
+    commonMistakes: isObjective
+      ? ["Not reading all options before marking — similar-sounding options trap you"]
+      : ["Skipping intermediate working steps — board examiners award marks for method, not just the final answer"],
+    examTip: isObjective
+      ? "For MCQs: read all 4 options first, eliminate obviously wrong ones, then pick. No negative marking in CBSE — never leave blank."
+      : "Write each step on a new line. Method marks are awarded even if the final answer has a calculation error.",
+  };
+}
+
 export async function fetchStepSolution(req: {
   subject: string;
   topic: string;
@@ -170,6 +217,13 @@ export async function fetchStepSolution(req: {
   solutionSteps?: string[];
   finalAnswer?: string;
 }): Promise<StepSolutionResponse> {
+  // Client-side fast path: use pre-written steps directly — no network call needed.
+  if (req.solutionSteps && req.solutionSteps.length > 0) {
+    const isObjective = /^(MCQ|Objective|Section A)$/i.test(req.type ?? "") ||
+      /^A$/i.test(req.section ?? "");
+    return buildLocalSolution(req.solutionSteps, req.finalAnswer, req.marks, isObjective);
+  }
+
   const res = await fetch(`${API_BASE}/step-solution`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
