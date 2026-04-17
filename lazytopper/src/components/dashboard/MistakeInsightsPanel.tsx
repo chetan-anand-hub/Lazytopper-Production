@@ -155,9 +155,15 @@ export function MistakeInsightsPanel({ uid }: MistakeInsightsPanelProps) {
     const pct = Math.round((totals[mostCommon.key] / grandTotal) * 100);
     summary = `Your most common mistake is ${mostCommon.label} (${pct}% of errors).`;
     if (improvements.length > 0) {
-      summary += ` ${improvements[0].label} mistakes are down this week — keep it up!`;
+      const best = improvements[0];
+      const prev = lastWeek[best.key];
+      const pctDown = prev > 0 ? Math.round((-best.delta / prev) * 100) : 100;
+      summary += ` ${best.label} mistakes are down ${pctDown}% this week — keep it up!`;
     } else if (worsening.length > 0) {
-      summary += ` Watch out for ${worsening[0].label} mistakes, which are up this week.`;
+      const worst = worsening[0];
+      const prev = lastWeek[worst.key];
+      const pctUp = prev > 0 ? Math.round((worst.delta / prev) * 100) : 100;
+      summary += ` Watch out for ${worst.label} mistakes, which are up ${pctUp}% this week.`;
     } else {
       summary += " Your mistake pattern is stable this week.";
     }

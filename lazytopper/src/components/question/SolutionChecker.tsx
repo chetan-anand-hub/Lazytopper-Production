@@ -244,7 +244,12 @@ export function SolutionChecker({
 
       if (response.ok) {
         setResult(response);
-        if (user?.uid && !user.isLocalSession && response.percentage < 100) {
+        const mistakeCount =
+          response.mistakeSummary.conceptual +
+          response.mistakeSummary.calculation +
+          response.mistakeSummary.silly +
+          response.mistakeSummary.presentation;
+        if (user?.uid && !user.isLocalSession && mistakeCount > 0) {
           const marksLost = response.totalMarks - response.marksAwarded;
           logMistakes(user.uid, {
             timestamp: new Date().toISOString(),

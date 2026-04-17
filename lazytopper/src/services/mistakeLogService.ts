@@ -26,7 +26,7 @@ export interface MistakeLogEntry {
     silly: number;
     presentation: number;
   };
-  stepDetails?: Array<{
+  stepDetails: Array<{
     stepNumber: number;
     mistakeType: string;
     marksDeducted: number;
