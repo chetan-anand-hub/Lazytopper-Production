@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useProfile } from "../context/ProfileContext";
 import { useAuth } from "../context/AuthContext";
@@ -50,6 +50,17 @@ const IcoChevronUp = ({ size = 14, color = "currentColor" }: { size?: number; co
 const IcoChevronDown = ({ size = 14, color = "currentColor" }: { size?: number; color?: string }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <polyline points="6 9 12 15 18 9"/>
+  </svg>
+);
+const IcoShare = ({ size = 16, color = "currentColor" }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+  </svg>
+);
+const IcoDownload = ({ size = 16, color = "currentColor" }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
   </svg>
 );
 import { loadInsights } from "../services/practiceInsights";
@@ -622,6 +633,51 @@ export default function ProfilePage() {
     return () => clearTimeout(id);
   }, []);
 
+  const shareCardRef = useRef<HTMLDivElement>(null);
+  const [sharing, setSharing] = useState(false);
+
+  const handleShare = useCallback(async () => {
+    if (!shareCardRef.current || sharing) return;
+    setSharing(true);
+    try {
+      const { default: html2canvas } = await import("html2canvas");
+      const canvas = await html2canvas(shareCardRef.current, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: null,
+        logging: false,
+      });
+
+      const blob = await new Promise<Blob | null>(resolve =>
+        canvas.toBlob(resolve, "image/png")
+      );
+      if (!blob) throw new Error("Failed to generate image");
+
+      const file = new File([blob], "my-progress.png", { type: "image/png" });
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: "My LazyTopper Progress",
+          text: `Check out my study progress! 🔥`,
+        });
+      } else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "my-progress.png";
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
+      }
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name !== "AbortError") {
+        console.error("Share failed:", err);
+      }
+    } finally {
+      setSharing(false);
+    }
+  }, [sharing]);
+
   // Sync hideCountdown when user changes it in Settings (same or cross-tab storage event)
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
@@ -703,9 +759,12 @@ export default function ProfilePage() {
           earnedAt: e.earnedAt,
         };
       });
+      rows.sort((a, b) => new Date(b.earnedAt).getTime() - new Date(a.earnedAt).getTime());
       setBadges(rows);
     } catch {}
   }, []);
+
+  const topBadge = badges.length > 0 ? badges[0] : null;
 
   // ── Handlers ────────────────────────────────────────────────────────────────
 
@@ -803,6 +862,42 @@ export default function ProfilePage() {
 
       {/* ── Body ── */}
       <div style={{ display: "flex", flexDirection: "column", gap: 20, padding: "20px 16px" }}>
+
+        {/* ── Share Progress button ── */}
+        <button
+          onClick={handleShare}
+          disabled={sharing}
+          style={{
+            width: "100%",
+            padding: "13px 20px",
+            borderRadius: 16,
+            border: "2px solid #4f46e5",
+            background: sharing ? "#e0e7ff" : "linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)",
+            color: sharing ? "#4f46e5" : "#fff",
+            fontSize: 14,
+            fontWeight: 800,
+            cursor: sharing ? "not-allowed" : "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 8,
+            letterSpacing: "0.01em",
+            boxShadow: sharing ? "none" : "0 4px 14px rgba(79, 70, 229, 0.3)",
+            transition: "all 0.2s",
+          }}
+        >
+          {sharing ? (
+            <>
+              <IcoDownload size={16} color="#4f46e5" />
+              Generating…
+            </>
+          ) : (
+            <>
+              <IcoShare size={16} color="#fff" />
+              Share My Progress
+            </>
+          )}
+        </button>
 
         {/* ── Activity Chart ── */}
         <div style={cardStyle}>
@@ -1229,6 +1324,187 @@ export default function ProfilePage() {
         </div>
 
       </div>
+
+      {/* ── Hidden Share Card (captured by html2canvas) ── */}
+      <div
+        ref={shareCardRef}
+        style={{
+          position: "fixed",
+          left: -9999,
+          top: 0,
+          width: 360,
+          background: "linear-gradient(145deg, #1e1b4b 0%, #312e81 40%, #4c1d95 100%)",
+          borderRadius: 24,
+          padding: "28px 24px 24px",
+          fontFamily: "'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif",
+          color: "#fff",
+          boxShadow: "0 20px 60px rgba(0,0,0,0.4)",
+          overflow: "hidden",
+        }}
+        aria-hidden="true"
+      >
+        {/* Card header: logo + brand */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{
+              width: 32, height: 32, borderRadius: 10,
+              background: "rgba(255,255,255,0.15)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 16,
+            }}>
+              🚀
+            </div>
+            <div style={{ fontSize: 14, fontWeight: 800, color: "#c7d2fe", letterSpacing: "0.02em" }}>
+              LazyTopper
+            </div>
+          </div>
+          <div style={{
+            background: "rgba(244, 63, 94, 0.2)",
+            border: "1px solid rgba(244, 63, 94, 0.4)",
+            borderRadius: 12,
+            padding: "4px 10px",
+            fontSize: 11,
+            fontWeight: 700,
+            color: "#fda4af",
+          }}>
+            {daysLeft > 0 ? `📅 ${daysLeft} days to boards` : "📅 Board exam ready!"}
+          </div>
+        </div>
+
+        {/* Student name */}
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 2 }}>
+            Weekly Progress Report
+          </div>
+          <div style={{ fontSize: 22, fontWeight: 900, color: "#fff", lineHeight: 1.2 }}>
+            {displayName}
+          </div>
+          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", fontWeight: 500, marginTop: 2 }}>
+            Class 10 · CBSE
+          </div>
+        </div>
+
+        {/* Stats row */}
+        <div style={{
+          display: "flex",
+          gap: 10,
+          marginBottom: 20,
+        }}>
+          {/* Streak */}
+          <div style={{
+            flex: 1,
+            background: "rgba(255,255,255,0.08)",
+            borderRadius: 16,
+            padding: "14px 10px",
+            textAlign: "center",
+            border: "1px solid rgba(255,255,255,0.12)",
+          }}>
+            <div style={{ fontSize: 24, fontWeight: 900, color: "#fb923c", lineHeight: 1 }}>
+              {heroStats.streak}
+            </div>
+            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.55)", fontWeight: 700, marginTop: 4, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+              🔥 Streak
+            </div>
+          </div>
+
+          {/* Questions */}
+          <div style={{
+            flex: 1,
+            background: "rgba(255,255,255,0.08)",
+            borderRadius: 16,
+            padding: "14px 10px",
+            textAlign: "center",
+            border: "1px solid rgba(255,255,255,0.12)",
+          }}>
+            <div style={{ fontSize: 24, fontWeight: 900, color: "#38bdf8", lineHeight: 1 }}>
+              {heroStats.totalQ}
+            </div>
+            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.55)", fontWeight: 700, marginTop: 4, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+              📚 Questions
+            </div>
+          </div>
+
+          {/* Accuracy */}
+          <div style={{
+            flex: 1,
+            background: "rgba(255,255,255,0.08)",
+            borderRadius: 16,
+            padding: "14px 10px",
+            textAlign: "center",
+            border: "1px solid rgba(255,255,255,0.12)",
+          }}>
+            <div style={{ fontSize: 24, fontWeight: 900, color: "#34d399", lineHeight: 1 }}>
+              {heroStats.accuracy}%
+            </div>
+            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.55)", fontWeight: 700, marginTop: 4, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+              🎯 Accuracy
+            </div>
+          </div>
+        </div>
+
+        {/* Top badge */}
+        {topBadge ? (
+          <div style={{
+            background: "rgba(255,255,255,0.08)",
+            border: "1px solid rgba(255,255,255,0.12)",
+            borderRadius: 16,
+            padding: "12px 16px",
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+            marginBottom: 16,
+          }}>
+            <div style={{ fontSize: 28 }}>{topBadge.icon}</div>
+            <div>
+              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 2 }}>
+                Latest Badge
+              </div>
+              <div style={{ fontSize: 14, fontWeight: 800, color: "#fde68a" }}>
+                {topBadge.name}
+              </div>
+              {badges.length > 1 && (
+                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.45)", marginTop: 1 }}>
+                  + {badges.length - 1} more badge{badges.length > 2 ? "s" : ""}
+                </div>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div style={{
+            background: "rgba(255,255,255,0.08)",
+            border: "1px solid rgba(255,255,255,0.12)",
+            borderRadius: 16,
+            padding: "12px 16px",
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+            marginBottom: 16,
+          }}>
+            <div style={{ fontSize: 28 }}>🏅</div>
+            <div>
+              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 2 }}>
+                Next Badge
+              </div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.6)" }}>
+                Keep practising to earn one!
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Footer */}
+        <div style={{
+          textAlign: "center",
+          fontSize: 10,
+          color: "rgba(255,255,255,0.3)",
+          fontWeight: 600,
+          letterSpacing: "0.04em",
+          marginTop: 4,
+        }}>
+          lazytopper.com · Keep the streak alive! 🔥
+        </div>
+      </div>
+
     </div>
   );
 }
