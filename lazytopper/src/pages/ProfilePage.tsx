@@ -389,15 +389,16 @@ export default function ProfilePage() {
   const [subjectTab, setSubjectTab]     = useState<SubjectTab>("maths");
   const [expandedTopic, setExpandedTopic] = useState<string | null>(null);
   const [expandedWeak, setExpandedWeak]   = useState<number | null>(null);
+  // SettingsPage stores "1" for hide, "0" for show
   const [hideCountdown, setHideCountdown] = useState<boolean>(
-    () => localStorage.getItem("lazytopper.hideCountdown") === "true"
+    () => localStorage.getItem("lazytopper.hideCountdown") === "1"
   );
 
-  // Sync hideCountdown when user changes it in Settings (storage event)
+  // Sync hideCountdown when user changes it in Settings (same or cross-tab storage event)
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
       if (e.key === "lazytopper.hideCountdown") {
-        setHideCountdown(e.newValue === "true");
+        setHideCountdown(e.newValue === "1");
       }
     };
     window.addEventListener("storage", onStorage);
@@ -896,7 +897,7 @@ export default function ProfilePage() {
                         </button>
                         <button
                           onClick={() => navigate(
-                            `/exam-simulation?subject=${encodeURIComponent(w.subject)}&topicKey=${encodeURIComponent(w.topicKey)}`,
+                            `/chapter-test/10/${w.subject.toLowerCase()}/${w.topicKey}`,
                             { state: { back: "/profile", backLabel: "Back to Dashboard" } }
                           )}
                           style={{
