@@ -96,9 +96,7 @@ export async function loadStudentProfile(uid: string): Promise<StudentProfile | 
         }
       }
     } catch (error) {
-      if (import.meta.env.DEV) {
-        console.warn("[studentCloudStore] loadStudentProfile cloud read failed", { uid, error });
-      }
+      console.warn("[studentCloudStore] loadStudentProfile cloud read failed", { uid, error });
       // fall through to local copy
     }
   }
@@ -118,9 +116,7 @@ export async function saveStudentProfile(uid: string, profile: StudentProfile): 
       { merge: true }
     );
   } catch (error) {
-    if (import.meta.env.DEV) {
-      console.warn("[studentCloudStore] saveStudentProfile cloud write failed", { uid, error });
-    }
+    console.warn("[studentCloudStore] saveStudentProfile cloud write failed", { uid, error });
     // keep local fallback only
   }
 }
@@ -138,9 +134,7 @@ export async function loadDashboardPrefs(uid: string): Promise<DashboardPrefs | 
         }
       }
     } catch (error) {
-      if (import.meta.env.DEV) {
-        console.warn("[studentCloudStore] loadDashboardPrefs cloud read failed", { uid, error });
-      }
+      console.warn("[studentCloudStore] loadDashboardPrefs cloud read failed", { uid, error });
       // ignore and use local
     }
   }
@@ -157,9 +151,7 @@ export async function saveDashboardPrefs(uid: string, prefs: DashboardPrefs): Pr
   try {
     await setDoc(doc(firestoreDb, "dashboardPrefs", uid), payload, { merge: true });
   } catch (error) {
-    if (import.meta.env.DEV) {
-      console.warn("[studentCloudStore] saveDashboardPrefs cloud write failed", { uid, error });
-    }
+    console.warn("[studentCloudStore] saveDashboardPrefs cloud write failed", { uid, error });
     // keep local fallback only
   }
 }
@@ -190,9 +182,7 @@ export async function ensureLearnerCloudBaseline(uid: string): Promise<void> {
       ),
     ]);
   } catch (error) {
-    if (import.meta.env.DEV) {
-      console.warn("[studentCloudStore] ensureLearnerCloudBaseline failed", { uid: safeUid, error });
-    }
+    console.warn("[studentCloudStore] ensureLearnerCloudBaseline failed", { uid: safeUid, error });
     // noop: local fallbacks stay active
   }
 }

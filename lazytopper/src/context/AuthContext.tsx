@@ -167,26 +167,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const uid = user?.uid || null;
     setActiveProgressUser(uid);
-    if (uid && !user?.isLocalSession) {
-      void (async () => {
-        if (firebaseSignedInUid.current !== uid) {
-          const getToken = () =>
-            clerk.session?.getToken() ?? Promise.resolve(null);
+    if (!uid || user?.isLocalSession) return;
+
+    let cancelled = false;
+
+    void (async () => {
+      if (firebaseSignedInUid.current !== uid) {
+        const getToken = () =>
+          clerk.session?.getToken() ?? Promise.resolve(null);
+        for (let attempt = 0; attempt < 3; attempt++) {
+          if (cancelled) return;
+          if (attempt > 0) {
+            await new Promise<void>((r) => setTimeout(r, 2000 * attempt));
+          }
           const success = await signIntoFirebase(uid, getToken);
           if (success) {
             firebaseSignedInUid.current = uid;
+            break;
           }
         }
-        await Promise.allSettled([
-          ensureLearnerCloudBaseline(uid),
-          ensureLearnerProgressBaseline(uid),
-          hydrateLocalProgressFromCloud(uid),
-          hydrateSubscriptionFromCloud(uid).then(() => {
-            activateTrial(uid);
-          }),
-        ]);
-      })();
-    }
+      }
+
+      if (cancelled) return;
+
+      await Promise.allSettled([
+        ensureLearnerCloudBaseline(uid),
+        ensureLearnerProgressBaseline(uid),
+        hydrateLocalProgressFromCloud(uid),
+        hydrateSubscriptionFromCloud(uid).then(() => {
+          activateTrial(uid);
+        }),
+      ]);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [user?.uid, user?.isLocalSession]);
 
   const signInWithGoogleHandler = async () => {

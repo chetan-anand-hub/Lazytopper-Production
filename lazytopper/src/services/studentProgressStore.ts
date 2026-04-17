@@ -189,9 +189,7 @@ export async function loadLearnerProgress(uid: string): Promise<LearnerProgressS
     writeJson(snapshotKey(uid), merged);
     return merged;
   } catch (error) {
-    if (import.meta.env.DEV) {
-      console.warn("[studentProgressStore] loadLearnerProgress cloud read failed", { uid, error });
-    }
+    console.warn("[studentProgressStore] loadLearnerProgress cloud read failed", { uid, error });
     return local;
   }
 }
@@ -215,9 +213,7 @@ export async function saveLearnerProgress(
       { merge: true }
     );
   } catch (error) {
-    if (import.meta.env.DEV) {
-      console.warn("[studentProgressStore] saveLearnerProgress cloud write failed", { uid, collection: "learnerProgress", error });
-    }
+    console.warn("[studentProgressStore] saveLearnerProgress cloud write failed", { uid, collection: "learnerProgress", error });
   }
 }
 
@@ -271,8 +267,6 @@ export async function ensureLearnerProgressBaseline(uid: string): Promise<void> 
       { merge: true }
     );
   } catch (error) {
-    if (import.meta.env.DEV) {
-      console.warn("[studentProgressStore] ensureLearnerProgressBaseline failed", { uid: safeUid, collection: "learnerProgress", error });
-    }
+    console.warn("[studentProgressStore] ensureLearnerProgressBaseline failed", { uid: safeUid, collection: "learnerProgress", error });
   }
 }

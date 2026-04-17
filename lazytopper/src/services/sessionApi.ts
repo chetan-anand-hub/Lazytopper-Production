@@ -456,22 +456,18 @@ export async function startSession(req: StartSessionRequest): Promise<StartSessi
         },
       ];
       const results = await Promise.allSettled(cloudOps.map((op) => op.fn()));
-      if (import.meta.env.DEV) {
-        results.forEach((result, i) => {
-          if (result.status === "rejected") {
-            console.warn("[sessionApi] startSession cloud op failed", {
-              uid,
-              op: cloudOps[i].label,
-              error: result.reason,
-            });
-          }
-        });
-      }
+      results.forEach((result, i) => {
+        if (result.status === "rejected") {
+          console.warn("[sessionApi] startSession cloud op failed", {
+            uid,
+            op: cloudOps[i].label,
+            error: result.reason,
+          });
+        }
+      });
     }
   } catch (error) {
-    if (import.meta.env.DEV) {
-      console.warn("[sessionApi] startSession cloud sync failed — local session still created", { sessionId, error });
-    }
+    console.warn("[sessionApi] startSession cloud sync failed — local session still created", { sessionId, error });
   }
 
   return { ok: true, sessionId, session: newSession };
@@ -500,9 +496,7 @@ export async function getSession(sessionId: string): Promise<GetSessionResponse>
       }
     }
   } catch (error) {
-    if (import.meta.env.DEV) {
-      console.warn("[sessionApi] getSession cloud fetch failed", { sessionId, error });
-    }
+    console.warn("[sessionApi] getSession cloud fetch failed", { sessionId, error });
   }
 
   throw createSessionError(SESSION_NOT_FOUND, "Session not found.");
@@ -577,24 +571,20 @@ export async function submitSessionAnswer(
         },
       ];
       const results = await Promise.allSettled(cloudOps.map((op) => op.fn()));
-      if (import.meta.env.DEV) {
-        results.forEach((result, i) => {
-          if (result.status === "rejected") {
-            console.warn("[sessionApi] submitSessionAnswer cloud op failed", {
-              uid,
-              sessionId,
-              itemId,
-              op: cloudOps[i].label,
-              error: result.reason,
-            });
-          }
-        });
-      }
+      results.forEach((result, i) => {
+        if (result.status === "rejected") {
+          console.warn("[sessionApi] submitSessionAnswer cloud op failed", {
+            uid,
+            sessionId,
+            itemId,
+            op: cloudOps[i].label,
+            error: result.reason,
+          });
+        }
+      });
     }
   } catch (error) {
-    if (import.meta.env.DEV) {
-      console.warn("[sessionApi] submitSessionAnswer cloud sync failed — local answer still saved", { sessionId, itemId, error });
-    }
+    console.warn("[sessionApi] submitSessionAnswer cloud sync failed — local answer still saved", { sessionId, itemId, error });
   }
 
   return {
