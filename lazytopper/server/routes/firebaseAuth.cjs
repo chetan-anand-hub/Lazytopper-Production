@@ -2,6 +2,14 @@ const jwksRsa = require('jwks-rsa');
 const jwt = require('jsonwebtoken');
 
 function deriveClerkConfig() {
+  // Prefer explicit env vars for operational reliability
+  const explicitJwksUri = String(process.env.CLERK_JWKS_URI || '').trim();
+  const explicitIssuer = String(process.env.CLERK_ISSUER || '').trim();
+  if (explicitJwksUri && explicitIssuer) {
+    return { jwksUri: explicitJwksUri, issuer: explicitIssuer };
+  }
+
+  // Auto-derive from publishable key (fallback for dev convenience)
   const key = String(process.env.VITE_CLERK_PUBLISHABLE_KEY || '').trim();
   const b64 = key.replace(/^pk_(test|live)_/, '');
   if (!b64) return null;
