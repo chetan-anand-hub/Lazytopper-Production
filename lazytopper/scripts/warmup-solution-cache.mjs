@@ -9,11 +9,14 @@
  * Usage (from the lazytopper/ directory):
  *   node --import tsx/esm scripts/warmup-solution-cache.mjs
  *
+ * Prerequisites:
+ *   1. DATABASE_URL env var must be set (PostgreSQL connection string)
+ *   2. The API gateway must be running (GATEWAY_URL, default: http://localhost:3001)
+ *
  * Environment variables:
- *   DATABASE_URL          PostgreSQL connection string (required)
- *   GATEWAY_URL           API server base URL (default: http://localhost:3001)
- *   WARMUP_DELAY_MS       Delay between AI requests in ms (default: 1200)
- *   WARMUP_CONCURRENCY    Parallel requests for pre-written-step questions (default: 5)
+ *   DATABASE_URL      PostgreSQL connection string (required)
+ *   GATEWAY_URL       API server base URL (default: http://localhost:3001)
+ *   WARMUP_DELAY_MS   Delay between AI-generated requests in ms (default: 1200)
  *
  * CLI flags:
  *   --dry-run             List uncached questions without calling the API
@@ -24,14 +27,9 @@
 
 import crypto from 'crypto';
 import pg from 'pg';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const GATEWAY_URL = (process.env.GATEWAY_URL || 'http://localhost:3001').replace(/\/+$/, '');
 const DELAY_MS = Number(process.env.WARMUP_DELAY_MS || 1200);
-const CONCURRENCY = Math.max(1, Number(process.env.WARMUP_CONCURRENCY || 5));
 const DRY_RUN = process.argv.includes('--dry-run');
 const PREWRITTEN_ONLY = process.argv.includes('--prewritten-only');
 const AI_ONLY = process.argv.includes('--ai-only');
@@ -102,7 +100,7 @@ function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function processChunk(questions, existingHashes, label, useDelay) {
+async function processChunk(questions, useDelay) {
   let warmed = 0;
   let failed = 0;
 
@@ -112,8 +110,8 @@ async function processChunk(questions, existingHashes, label, useDelay) {
     const marks = Number(q.marks) || 1;
     const hash = computeQuestionHash(questionText, marks);
     const hasPrewritten = Array.isArray(q.solutionSteps) && q.solutionSteps.length > 0;
-    const tag = hasPrewritten ? '[pre]' : '[ai]';
-    const prefix = `${label}[${i + 1}/${questions.length}]${tag} ${String(q.id || '?').padEnd(24)}`;
+    const tag = hasPrewritten ? '[pre]' : '[ai] ';
+    const prefix = `[${i + 1}/${questions.length}] ${tag} ${String(q.id || '?').padEnd(24)}`;
 
     process.stdout.write(`${prefix} ${questionText.slice(0, 55).replace(/\n/g, ' ')}... `);
 
@@ -206,14 +204,14 @@ async function main() {
 
   if (toProcessPrewritten.length > 0) {
     console.log(`\n[warmup] Phase 1: Warming ${toProcessPrewritten.length} pre-written questions (fast, no AI)...`);
-    const { warmed, failed } = await processChunk(toProcessPrewritten, existingHashes, '', false);
+    const { warmed, failed } = await processChunk(toProcessPrewritten, false);
     totalWarmed += warmed;
     totalFailed += failed;
   }
 
   if (toProcessAi.length > 0) {
     console.log(`\n[warmup] Phase 2: Warming ${toProcessAi.length} AI questions (${DELAY_MS}ms delay between calls)...`);
-    const { warmed, failed } = await processChunk(toProcessAi, existingHashes, '', true);
+    const { warmed, failed } = await processChunk(toProcessAi, true);
     totalWarmed += warmed;
     totalFailed += failed;
   }
