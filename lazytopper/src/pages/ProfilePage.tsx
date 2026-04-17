@@ -42,6 +42,7 @@ import {
   type BadgeContext,
 } from "../services/badgeEngine";
 import { saveLearnerProgress } from "../services/studentProgressStore";
+import { MistakeInsightsPanel } from "../components/dashboard/MistakeInsightsPanel";
 
 type ProfileTab = "overview" | "achievements" | "stats";
 
@@ -508,7 +509,7 @@ function AchievementsTab({ earned }: { earned: EarnedBadge[] }) {
   );
 }
 
-function StatsTab({ badgeCtx, statsByChapter }: { badgeCtx: BadgeContext; statsByChapter: Record<string, { totalTimeSeconds?: number; totalQuestionsAttempted?: number; lastPracticedAt?: string }> }) {
+function StatsTab({ badgeCtx, statsByChapter, uid }: { badgeCtx: BadgeContext; statsByChapter: Record<string, { totalTimeSeconds?: number; totalQuestionsAttempted?: number; lastPracticedAt?: string }>; uid?: string }) {
   const weeklyData = useMemo(() => computeWeeklyAccuracy(), []);
   const diffProg = useMemo(() => computeDifficultyProgress(), []);
   const weeklyDiffProg = useMemo(() => computeWeeklyDifficultyProgression(), []);
@@ -618,6 +619,8 @@ function StatsTab({ badgeCtx, statsByChapter }: { badgeCtx: BadgeContext; statsB
 
       <h3 style={{ fontWeight: 800, fontSize: 16, marginBottom: 8 }}>Weekly Accuracy</h3>
       <AccuracyChart data={weeklyData} />
+
+      {uid && <MistakeInsightsPanel uid={uid} />}
 
       <h3 style={{ fontWeight: 800, fontSize: 16, marginTop: 20, marginBottom: 8 }}>Difficulty Progression (Weekly)</h3>
       {weeklyDiffProg.length > 0 ? (
@@ -869,7 +872,7 @@ export default function ProfilePage() {
         />
       )}
       {tab === "achievements" && <AchievementsTab earned={earnedBadges} />}
-      {tab === "stats" && <StatsTab badgeCtx={badgeCtx} statsByChapter={statsByChapter} />}
+      {tab === "stats" && <StatsTab badgeCtx={badgeCtx} statsByChapter={statsByChapter} uid={user?.isLocalSession ? undefined : user?.uid} />}
 
       <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 24 }}>
         <div style={{ display: "flex", gap: 10 }}>

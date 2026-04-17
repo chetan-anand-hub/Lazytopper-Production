@@ -1,5 +1,7 @@
 import { useState, useRef, useCallback } from "react";
 import { checkSolutionImage, type CheckSolutionResponse, type MistakeType } from "../../ai/aiClient";
+import { useAuth } from "../../context/AuthContext";
+import { logMistakes } from "../../services/mistakeLogService";
 
 interface SolutionCheckerProps {
   question: string;
@@ -169,6 +171,7 @@ function MistakeSummaryLine({ summary }: { summary: CheckSolutionResponse["mista
 export function SolutionChecker({
   question, marks, subject, topic, onRequestStepSolution,
 }: SolutionCheckerProps) {
+  const { user } = useAuth();
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [imageMimeType, setImageMimeType] = useState<string>("image/jpeg");
@@ -241,6 +244,25 @@ export function SolutionChecker({
 
       if (response.ok) {
         setResult(response);
+        if (user?.uid && !user.isLocalSession && response.percentage < 100) {
+          const marksLost = response.totalMarks - response.marksAwarded;
+          logMistakes(user.uid, {
+            timestamp: new Date().toISOString(),
+            questionText: question,
+            topic,
+            subject,
+            totalMarks: response.totalMarks,
+            marksLost,
+            mistakeCounts: response.mistakeSummary,
+            stepDetails: response.annotatedSteps
+              .filter((s) => s.mistakeType != null)
+              .map((s) => ({
+                stepNumber: s.stepNumber,
+                mistakeType: String(s.mistakeType),
+                marksDeducted: s.marksDeducted,
+              })),
+          }).catch(() => {});
+        }
       } else {
         setError(response.error || "Could not evaluate. Try a clearer image or type your answer.");
       }
