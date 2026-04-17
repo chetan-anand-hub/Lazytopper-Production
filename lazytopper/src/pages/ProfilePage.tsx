@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useProfile } from "../context/ProfileContext";
 import { useAuth } from "../context/AuthContext";
@@ -376,6 +376,160 @@ function MiniBar({ label, pct, color }: { label: string; pct: number; color: str
   );
 }
 
+// ── Skeleton helpers ──────────────────────────────────────────────────────────
+
+const SHIMMER_STYLE_ID = "lt-skeleton-shimmer";
+
+function injectShimmerCSS() {
+  if (document.getElementById(SHIMMER_STYLE_ID)) return;
+  const el = document.createElement("style");
+  el.id = SHIMMER_STYLE_ID;
+  el.textContent = `
+    @keyframes lt-shimmer {
+      0%   { background-position: -200% 0; }
+      100% { background-position:  200% 0; }
+    }
+    .lt-skel {
+      background: linear-gradient(90deg,
+        var(--bg-card-border,#f1f5f9) 25%,
+        #e2e8f0 50%,
+        var(--bg-card-border,#f1f5f9) 75%
+      );
+      background-size: 200% 100%;
+      animation: lt-shimmer 1.4s ease-in-out infinite;
+      border-radius: 8px;
+    }
+  `;
+  document.head.appendChild(el);
+}
+
+function Skel({ w = "100%", h = 12, r = 8, mb = 0 }: { w?: number | string; h?: number; r?: number; mb?: number }) {
+  return (
+    <div
+      className="lt-skel"
+      style={{ width: w, height: h, borderRadius: r, marginBottom: mb, flexShrink: 0 }}
+    />
+  );
+}
+
+function SkeletonCard({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
+  return (
+    <div style={{
+      background: "var(--bg-card, #fff)",
+      border: "1px solid var(--bg-card-border, #e2e8f0)",
+      borderRadius: 20,
+      padding: "20px",
+      ...style,
+    }}>
+      {children}
+    </div>
+  );
+}
+
+function ProfileSkeleton() {
+  return (
+    <div style={{ maxWidth: 560, margin: "0 auto", paddingBottom: 100 }}>
+      {/* Header skeleton */}
+      <div style={{
+        background: "var(--bg-card, #fff)",
+        borderBottom: "1px solid var(--bg-card-border, #e2e8f0)",
+        padding: "44px 20px 16px",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <Skel w={44} h={44} r={99} />
+            <div>
+              <Skel w={120} h={14} mb={6} />
+              <Skel w={80} h={10} />
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: 8 }}>
+            <Skel w={80} h={38} r={14} />
+            <Skel w={38} h={38} r={12} />
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
+          <Skel w={120} h={30} r={10} />
+          <Skel w={180} h={14} r={8} />
+        </div>
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 20, padding: "20px 16px" }}>
+
+        {/* Activity chart skeleton */}
+        <SkeletonCard>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+            <Skel w={70} h={14} />
+            <Skel w={120} h={28} r={10} />
+          </div>
+          <div style={{ display: "flex", gap: 12, marginBottom: 12 }}>
+            <Skel w={50} h={10} /><Skel w={60} h={10} /><Skel w={45} h={10} />
+          </div>
+          {/* Fake bars */}
+          <div style={{ height: 175, display: "flex", alignItems: "flex-end", gap: 6, padding: "0 4px" }}>
+            {[70, 100, 55, 130, 90, 45, 110].map((h, i) => (
+              <Skel key={i} w="13%" h={h} r={4} />
+            ))}
+          </div>
+        </SkeletonCard>
+
+        {/* Subject cards skeleton */}
+        <div style={{ display: "flex", gap: 12 }}>
+          {[0, 1].map(i => (
+            <SkeletonCard key={i} style={{ flex: 1, padding: "16px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 14 }}>
+                <Skel w={50} h={11} /><Skel w={30} h={11} />
+              </div>
+              <div style={{ display: "flex", justifyContent: "center", marginBottom: 14 }}>
+                <Skel w={64} h={64} r={99} />
+              </div>
+              <Skel w="100%" h={6} r={6} mb={8} />
+              <Skel w="60%" h={10} r={6} />
+            </SkeletonCard>
+          ))}
+        </div>
+
+        {/* Syllabus mastery skeleton */}
+        <SkeletonCard>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}>
+            <Skel w={130} h={14} />
+            <Skel w={110} h={28} r={10} />
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Skel key={i} w="100%" h={42} r={12} />
+            ))}
+          </div>
+        </SkeletonCard>
+
+        {/* Focus areas skeleton */}
+        <SkeletonCard>
+          <Skel w={140} h={14} mb={14} />
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {[0, 1, 2].map(i => (
+              <Skel key={i} w="100%" h={72} r={14} />
+            ))}
+          </div>
+        </SkeletonCard>
+
+        {/* Badges skeleton */}
+        <SkeletonCard>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
+            <Skel w={16} h={16} r={4} />
+            <Skel w={110} h={14} />
+          </div>
+          <div style={{ display: "flex", gap: 10 }}>
+            {[0, 1, 2].map(i => (
+              <Skel key={i} w={76} h={90} r={14} />
+            ))}
+          </div>
+        </SkeletonCard>
+
+      </div>
+    </div>
+  );
+}
+
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
 const RANGES: Range[] = ["7D", "4W", "3M", "All"];
@@ -385,6 +539,7 @@ export default function ProfilePage() {
   const { profile } = useProfile();
   const { user } = useAuth();
 
+  const [loading, setLoading]           = useState<boolean>(true);
   const [range, setRange]               = useState<Range>("7D");
   const [subjectTab, setSubjectTab]     = useState<SubjectTab>("maths");
   const [expandedTopic, setExpandedTopic] = useState<string | null>(null);
@@ -393,6 +548,13 @@ export default function ProfilePage() {
   const [hideCountdown, setHideCountdown] = useState<boolean>(
     () => localStorage.getItem("lazytopper.hideCountdown") === "1"
   );
+
+  // Inject shimmer CSS and resolve loading state after a brief paint cycle
+  useEffect(() => {
+    injectShimmerCSS();
+    const id = setTimeout(() => setLoading(false), 200);
+    return () => clearTimeout(id);
+  }, []);
 
   // Sync hideCountdown when user changes it in Settings (same or cross-tab storage event)
   useEffect(() => {
@@ -495,6 +657,8 @@ export default function ProfilePage() {
 
   const mutedColor = "var(--text-muted, #94a3b8)";
   const textColor  = "var(--text, #0f172a)";
+
+  if (loading) return <ProfileSkeleton />;
 
   return (
     <div style={{ maxWidth: 560, margin: "0 auto", paddingBottom: 100 }}>

@@ -9,6 +9,14 @@ const port = Number(rawPort);
 
 const basePath = process.env.BASE_PATH || "/";
 
+// When building with a sub-path base (e.g. /app/), output into dist/public/<sub>
+// so the verification script (which checks dist/public/app/) stays in sync.
+const subDir = basePath === "/" ? "" : basePath.replace(/^\/|\/$/g, "");
+const outDir = path.resolve(
+  import.meta.dirname,
+  subDir ? `dist/public/${subDir}` : "dist/public",
+);
+
 export default defineConfig({
   base: basePath,
   plugins: [
@@ -38,7 +46,7 @@ export default defineConfig({
   },
   root: path.resolve(import.meta.dirname),
   build: {
-    outDir: path.resolve(import.meta.dirname, "dist/public"),
+    outDir,
     emptyOutDir: false,
   },
   server: {
