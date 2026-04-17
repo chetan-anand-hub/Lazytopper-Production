@@ -1,3 +1,54 @@
+const crypto = require('crypto');
+
+let _pool = null;
+function getPool() {
+  if (!process.env.DATABASE_URL) return null;
+  if (!_pool) {
+    try {
+      const pg = require('pg');
+      const Pool = pg.Pool || pg.default?.Pool;
+      _pool = new Pool({ connectionString: process.env.DATABASE_URL });
+      _pool.on('error', (err) => console.warn('[step-solution-cache] pool error:', err.message));
+    } catch (e) {
+      console.warn('[step-solution-cache] pg unavailable:', e.message);
+      return null;
+    }
+  }
+  return _pool;
+}
+
+function computeQuestionHash(question, marks) {
+  return crypto.createHash('sha256').update(question + '|' + marks).digest('hex');
+}
+
+async function getCachedSolution(hash) {
+  const pool = getPool();
+  if (!pool) return null;
+  try {
+    const result = await pool.query(
+      'SELECT solution_json FROM step_solutions WHERE question_hash = $1 LIMIT 1',
+      [hash]
+    );
+    return result.rows.length > 0 ? result.rows[0].solution_json : null;
+  } catch (e) {
+    console.warn('[step-solution-cache] cache read failed:', e.message);
+    return null;
+  }
+}
+
+async function saveSolution(hash, solutionJson) {
+  const pool = getPool();
+  if (!pool) return;
+  try {
+    await pool.query(
+      'INSERT INTO step_solutions (question_hash, solution_json) VALUES ($1, $2) ON CONFLICT (question_hash) DO NOTHING',
+      [hash, JSON.stringify(solutionJson)]
+    );
+  } catch (e) {
+    console.warn('[step-solution-cache] cache write failed:', e.message);
+  }
+}
+
 function createStepSolutionRoute(deps) {
   const {
     sendJson,
@@ -40,6 +91,13 @@ function createStepSolutionRoute(deps) {
       return sendJson(res, 200, buildStubStepSolution(question, marks, subject, qType, section));
     }
 
+    const questionHash = computeQuestionHash(question, marks);
+
+    const cached = await getCachedSolution(questionHash);
+    if (cached) {
+      return sendJson(res, 200, cached);
+    }
+
     try {
       const isMaths = /math/i.test(subject);
       const systemPrompt =
@@ -51,32 +109,32 @@ function createStepSolutionRoute(deps) {
 
       const mathsExample =
         'CBSE MARKING SCHEME FORMAT EXAMPLES (Maths):\n' +
-        '--- Example: 3-mark question "Solve 2x² − 5x + 3 = 0 using quadratic formula" ---\n' +
-        'Step 1: desc="Writing the quadratic formula", working="For ax² + bx + c = 0, x = (−b ± √(b²−4ac)) / 2a. Here a = 2, b = −5, c = 3", marks=0.5\n' +
-        'Step 2: desc="Computing the discriminant", working="D = b² − 4ac = (−5)² − 4(2)(3) = 25 − 24 = 1", marks=1\n' +
-        'Step 3: desc="Substituting in the formula", working="x = (5 ± √1) / 4 = (5 ± 1) / 4", marks=1\n' +
-        'Step 4: desc="Writing both roots", working="x = (5+1)/4 = 3/2 or x = (5−1)/4 = 1 ∴ x = 3/2, 1", marks=0.5\n' +
+        '--- Example: 3-mark question "Solve 2x\u00b2 \u2212 5x + 3 = 0 using quadratic formula" ---\n' +
+        'Step 1: desc="Writing the quadratic formula", working="For ax\u00b2 + bx + c = 0, x = (\u2212b \u00b1 \u221a(b\u00b2\u22124ac)) / 2a. Here a = 2, b = \u22125, c = 3", marks=0.5\n' +
+        'Step 2: desc="Computing the discriminant", working="D = b\u00b2 \u2212 4ac = (\u22125)\u00b2 \u2212 4(2)(3) = 25 \u2212 24 = 1", marks=1\n' +
+        'Step 3: desc="Substituting in the formula", working="x = (5 \u00b1 \u221a1) / 4 = (5 \u00b1 1) / 4", marks=1\n' +
+        'Step 4: desc="Writing both roots", working="x = (5+1)/4 = 3/2 or x = (5\u22121)/4 = 1 \u2234 x = 3/2, 1", marks=0.5\n' +
         '--- Example: 2-mark question "Find the 10th term of AP: 2, 7, 12, ..." ---\n' +
-        'Step 1: desc="Identifying a, d and writing formula", working="Here a = 2, d = 7 − 2 = 5. Using aₙ = a + (n−1)d", marks=0.5\n' +
-        'Step 2: desc="Substituting n = 10", working="a₁₀ = 2 + (10−1)(5) = 2 + 45 = 47", marks=1\n' +
-        'Step 3: desc="Stating the answer", working="∴ The 10th term of the AP is 47.", marks=0.5\n';
+        'Step 1: desc="Identifying a, d and writing formula", working="Here a = 2, d = 7 \u2212 2 = 5. Using a\u2099 = a + (n\u22121)d", marks=0.5\n' +
+        'Step 2: desc="Substituting n = 10", working="a\u2081\u2080 = 2 + (10\u22121)(5) = 2 + 45 = 47", marks=1\n' +
+        'Step 3: desc="Stating the answer", working="\u2234 The 10th term of the AP is 47.", marks=0.5\n';
 
       const scienceExample =
         'CBSE MARKING SCHEME FORMAT EXAMPLES (Science):\n' +
         '--- Example: 2-mark question "Write the balanced chemical equation when iron reacts with copper sulphate" ---\n' +
-        'Step 1: desc="Writing reactants and products", working="Fe + CuSO₄ → FeSO₄ + Cu", marks=0.5\n' +
-        'Step 2: desc="Balanced equation with state symbols", working="Fe(s) + CuSO₄(aq) → FeSO₄(aq) + Cu(s)", marks=1\n' +
+        'Step 1: desc="Writing reactants and products", working="Fe + CuSO\u2084 \u2192 FeSO\u2084 + Cu", marks=0.5\n' +
+        'Step 2: desc="Balanced equation with state symbols", working="Fe(s) + CuSO\u2084(aq) \u2192 FeSO\u2084(aq) + Cu(s)", marks=1\n' +
         'Step 3: desc="Identifying type of reaction", working="This is a displacement reaction (Fe displaces Cu).", marks=0.5\n' +
         '--- Example: 3-mark question "What is refraction? State Snell\'s law with formula" ---\n' +
         'Step 1: desc="Defining refraction", working="Refraction is the change in direction of light when it passes from one transparent medium to another.", marks=1\n' +
         'Step 2: desc="Stating Snell\'s law", working="The ratio of sine of angle of incidence to sine of angle of refraction is constant for a given pair of media. This constant is called refractive index.", marks=1\n' +
-        'Step 3: desc="Writing the formula", working="sin i / sin r = n₂₁ (refractive index of medium 2 w.r.t. medium 1)", marks=1\n';
+        'Step 3: desc="Writing the formula", working="sin i / sin r = n\u2082\u2081 (refractive index of medium 2 w.r.t. medium 1)", marks=1\n';
 
       const isObj = isObjectiveType(qType, section);
 
       const mcqInstructions = isObj ? (
-        '\n\nIMPORTANT — THIS IS AN OBJECTIVE/MCQ QUESTION (Section A, ' + marks + ' mark):\n' +
-        '- Do NOT use step patterns like "Writing given data" or "Stating the formula" — these don\'t apply to MCQs.\n' +
+        '\n\nIMPORTANT \u2014 THIS IS AN OBJECTIVE/MCQ QUESTION (Section A, ' + marks + ' mark):\n' +
+        '- Do NOT use step patterns like "Writing given data" or "Stating the formula" \u2014 these don\'t apply to MCQs.\n' +
         '- Structure: ONE step with the correct answer + clear justification. Then one BONUS step (marks=0) explaining WHY this is correct, to help the student learn.\n' +
         '- The "description" for step 1 should be "Correct answer" (not "Writing given data").\n' +
         '- The "working" for step 1 should state: "Option (X) is correct: [brief reason]".\n' +
@@ -87,7 +145,7 @@ function createStepSolutionRoute(deps) {
       ) : '';
 
       const answerContext = (existingAnswer || existingExplanation) ? (
-        '\n\nKNOWN ANSWER (use this to build your detailed solution — expand on this, don\'t just repeat it):\n' +
+        '\n\nKNOWN ANSWER (use this to build your detailed solution \u2014 expand on this, don\'t just repeat it):\n' +
         (existingAnswer ? 'Answer: ' + existingAnswer + '\n' : '') +
         (existingExplanation ? 'Explanation: ' + existingExplanation + '\n' : '') +
         'IMPORTANT: Your solution must EXPAND on this answer to create a full, self-explanatory CBSE marking scheme solution.\n' +
@@ -109,7 +167,7 @@ function createStepSolutionRoute(deps) {
         '{\n' +
         '  "totalMarks": ' + marks + ',\n' +
         '  "steps": [\n' +
-        '    { "stepNumber": 1, "description": "what the student must write (e.g. Writing the formula)", "working": "the EXACT content to write in the answer sheet — formulas, equations, calculations, with proper notation", "marks": 0.5 }\n' +
+        '    { "stepNumber": 1, "description": "what the student must write (e.g. Writing the formula)", "working": "the EXACT content to write in the answer sheet \u2014 formulas, equations, calculations, with proper notation", "marks": 0.5 }\n' +
         '  ],\n' +
         '  "commonMistakes": ["specific mistake that loses marks in CBSE board evaluation"],\n' +
         '  "examTip": "specific board exam writing tip for this type of question"\n' +
@@ -117,17 +175,17 @@ function createStepSolutionRoute(deps) {
         'STRICT CBSE MARKING SCHEME RULES:\n' +
         '1. The marks of all steps MUST sum to EXACTLY ' + marks + '\n' +
         (isObj ? '2. For MCQ/Objective: only 1 scored step + 1 explanatory step (marks=0)\n' :
-        '2. Use HALF MARKS (0.5) — CBSE marking schemes use ½ marks extensively for setup steps (writing given/formula) and final answer steps\n') +
+        '2. Use HALF MARKS (0.5) \u2014 CBSE marking schemes use \u00bd marks extensively for setup steps (writing given/formula) and final answer steps\n') +
         '3. The "description" field = what the examiner looks for (e.g. "Writing the formula", "Substituting values", "Computing discriminant")\n' +
-        '4. The "working" field = the EXACT content a student should write in their answer sheet — show real formulas, real numbers, real calculations\n' +
-        '5. For Maths: show actual mathematical working with symbols (√, ², ±, ∴, ∵) — not descriptions of what to do\n' +
+        '4. The "working" field = the EXACT content a student should write in their answer sheet \u2014 show real formulas, real numbers, real calculations\n' +
+        '5. For Maths: show actual mathematical working with symbols (\u221a, \u00b2, \u00b1, \u2234, \u2235) \u2014 not descriptions of what to do\n' +
         '6. For Science: use NCERT-standard terminology, balanced equations with state symbols (s/l/g/aq), proper scientific notation\n' +
-        (isObj ? '' : '7. Follow CBSE step pattern: Given/Definition → Formula/Law → Substitution/Application → Simplification → Final Answer\n') +
-        '8. Each "working" must be self-contained and DETAILED ENOUGH that a student can LEARN from it — not just see the answer\n' +
+        (isObj ? '' : '7. Follow CBSE step pattern: Given/Definition \u2192 Formula/Law \u2192 Substitution/Application \u2192 Simplification \u2192 Final Answer\n') +
+        '8. Each "working" must be self-contained and DETAILED ENOUGH that a student can LEARN from it \u2014 not just see the answer\n' +
         '9. commonMistakes must be SPECIFIC to this question (not generic advice)\n' +
         '10. examTip must reference the CBSE board marking pattern for this question type\n' +
         (isObj ? '' : '11. For word problems: include step for framing the equation AND step for rejecting invalid values with reason\n') +
-        '12. Total steps: ' + (isObj ? '1-mark MCQ → 2 steps (1 scored + 1 explanatory)' : '2-mark Q → 3 steps, 3-mark Q → 4 steps, 5-mark Q → 5-6 steps (matching CBSE scheme density)');
+        '12. Total steps: ' + (isObj ? '1-mark MCQ \u2192 2 steps (1 scored + 1 explanatory)' : '2-mark Q \u2192 3 steps, 3-mark Q \u2192 4 steps, 5-mark Q \u2192 5-6 steps (matching CBSE scheme density)');
 
       const contents = [
         { role: 'user', parts: [{ text: systemPrompt + '\n\n' + userPrompt }] },
@@ -200,14 +258,18 @@ function createStepSolutionRoute(deps) {
           }
         }
 
-        return sendJson(res, 200, {
+        const response = {
           totalMarks: marks,
           steps,
           commonMistakes: Array.isArray(parsed.commonMistakes) ? parsed.commonMistakes.map(String) : [],
           examTip: String(parsed.examTip || '').trim() || undefined,
           provider: ACTIVE_PROVIDER,
           model: GEMINI_MODEL,
-        });
+        };
+
+        await saveSolution(questionHash, response);
+
+        return sendJson(res, 200, response);
       }
 
       if (existingAnswer || existingExplanation) {
