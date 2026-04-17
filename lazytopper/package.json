@@ -126,7 +126,6 @@
     "start:quick": "npm run blackbox && npx tsc --noEmit && npm run build"
   },
   "dependencies": {
-    "pg": "^8.20.0",
     "@clerk/react": "^6.2.0",
     "firebase": "^12.9.0",
     "firebase-admin": "^13.7.0",
@@ -135,10 +134,12 @@
     "jwks-rsa": "^3.2.2",
     "katex": "^0.16.44",
     "mammoth": "^1.11.0",
+    "pg": "^8.20.0",
     "qrcode": "^1.5.4",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "react-router-dom": "^7.9.5"
+    "react-router-dom": "^7.9.5",
+    "recharts": "^3.8.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
