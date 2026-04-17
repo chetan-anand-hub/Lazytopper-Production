@@ -124,12 +124,35 @@ export function MistakeInsightsPanel({ uid }: MistakeInsightsPanelProps) {
   }
 
   const totals: WeeklyBucket = { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
+  const subjectTotals: Record<string, number> = {};
   for (const log of logs) {
     for (const k of MKEYS) {
       totals[k] += log.mistakeCounts[k] || 0;
     }
+    const subjectMistakes = MKEYS.reduce((s, k) => s + (log.mistakeCounts[k] || 0), 0);
+    if (subjectMistakes > 0 && log.subject) {
+      subjectTotals[log.subject] = (subjectTotals[log.subject] || 0) + subjectMistakes;
+    }
   }
   const grandTotal = MKEYS.reduce((s, k) => s + totals[k], 0);
+
+  const SUBJECT_ALIASES: Record<string, string> = {
+    math: "Maths", mathematics: "Maths", maths: "Maths",
+    science: "Science", sci: "Science",
+  };
+  const normalizedTotals: Record<string, number> = {};
+  for (const [subj, cnt] of Object.entries(subjectTotals)) {
+    const canonical = SUBJECT_ALIASES[subj.toLowerCase()] ?? subj;
+    normalizedTotals[canonical] = (normalizedTotals[canonical] || 0) + cnt;
+  }
+
+  const subjectEntries = Object.entries(normalizedTotals).sort((a, b) => b[1] - a[1]);
+  const topSubject =
+    subjectEntries.length > 0 && subjectEntries[0][1] > (subjectEntries[1]?.[1] ?? 0)
+      ? subjectEntries[0][0]
+      : null;
+  const isTie =
+    subjectEntries.length > 1 && subjectEntries[0][1] === subjectEntries[1][1];
 
   const thisWeek = weeks[3];
   const lastWeek = weeks[2];
@@ -154,6 +177,11 @@ export function MistakeInsightsPanel({ uid }: MistakeInsightsPanelProps) {
   } else {
     const pct = Math.round((totals[mostCommon.key] / grandTotal) * 100);
     summary = `Your most common mistake is ${mostCommon.label} (${pct}% of errors).`;
+    if (isTie && subjectEntries.length > 1) {
+      summary += ` ${subjectEntries[0][0]} and ${subjectEntries[1][0]} are equally error-prone — split your revision time between them.`;
+    } else if (topSubject) {
+      summary += ` ${topSubject} is your biggest weak spot right now — focus your revision there.`;
+    }
     if (improvements.length > 0) {
       const best = improvements[0];
       const prev = lastWeek[best.key];
@@ -176,6 +204,37 @@ export function MistakeInsightsPanel({ uid }: MistakeInsightsPanelProps) {
       <h3 style={{ fontWeight: 800, fontSize: 16, marginBottom: 4, marginTop: 20 }}>
         ✏️ Mistake Insights
       </h3>
+
+      {/* Subject breakdown pills */}
+      {subjectEntries.length > 0 && (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 8 }}>
+          {subjectEntries.map(([subject, count], i) => (
+            <span
+              key={subject}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4,
+                padding: "3px 9px",
+                borderRadius: 20,
+                fontSize: "0.75rem",
+                fontWeight: 700,
+                background: i === 0
+                  ? "rgba(239,68,68,0.12)"
+                  : "rgba(59,130,246,0.10)",
+                color: i === 0 ? "#ef4444" : "#3b82f6",
+                border: `1px solid ${i === 0 ? "rgba(239,68,68,0.25)" : "rgba(59,130,246,0.2)"}`,
+              }}
+            >
+              {subject}: {count} mistake{count !== 1 ? "s" : ""}
+              {i === 0 && subjectEntries.length > 1 && (
+                <span style={{ fontSize: "0.65rem", opacity: 0.8 }}>▲ most</span>
+              )}
+            </span>
+          ))}
+        </div>
+      )}
+
       <div style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 12 }}>
         Based on {logs.length} answer check{logs.length !== 1 ? "s" : ""} in the last 28 days
       </div>
