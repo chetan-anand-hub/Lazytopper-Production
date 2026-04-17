@@ -142,6 +142,72 @@ function collectLearnEvents(): number[] {
   return events;
 }
 
+interface TrendResult {
+  current: number;
+  previous: number;
+  pct: number | null;
+  label: string;
+}
+
+function computeTrend(range: Range): TrendResult | null {
+  if (range === "All") return null;
+
+  const now = Date.now();
+  const practiceAttempts = loadInsights().attempts;
+  const testEntries = loadMockScoreHistory().entries;
+  const learnEvents = collectLearnEvents();
+
+  function countAll(from: number, to: number): number {
+    return (
+      learnEvents.filter(t => t >= from && t < to).length +
+      practiceAttempts.filter(a => a.timestamp >= from && a.timestamp < to).length +
+      testEntries.filter(e => e.timestamp >= from && e.timestamp < to).length
+    );
+  }
+
+  let current = 0;
+  let previous = 0;
+  let label = "";
+
+  if (range === "7D") {
+    const curStart  = startOfDay(now - 6 * 86400000);
+    const curEnd    = startOfDay(now) + 86400000;
+    const prevStart = curStart - 7 * 86400000;
+    const prevEnd   = curStart;
+    current  = countAll(curStart, curEnd);
+    previous = countAll(prevStart, prevEnd);
+    label = "vs last week";
+  } else if (range === "4W") {
+    const curStart  = startOfDay(now - (3 * 7 + 6) * 86400000);
+    const curEnd    = startOfDay(now) + 86400000;
+    const prevStart = curStart - 28 * 86400000;
+    const prevEnd   = curStart;
+    current  = countAll(curStart, curEnd);
+    previous = countAll(prevStart, prevEnd);
+    label = "vs prev 4 wks";
+  } else if (range === "3M") {
+    const d = new Date(now);
+    d.setMonth(d.getMonth() - 2, 1);
+    d.setHours(0, 0, 0, 0);
+    const curStart = d.getTime();
+    const curEnd   = startOfDay(now) + 86400000;
+
+    const pd = new Date(d);
+    pd.setMonth(pd.getMonth() - 3);
+    const prevStart = pd.getTime();
+    const prevEnd   = curStart;
+    current  = countAll(curStart, curEnd);
+    previous = countAll(prevStart, prevEnd);
+    label = "vs prev 3 months";
+  }
+
+  const pct = previous === 0
+    ? (current > 0 ? null : 0)
+    : Math.round(((current - previous) / previous) * 100);
+
+  return { current, previous, pct, label };
+}
+
 function computeActivityData(range: Range): ChartBar[] {
   const now = Date.now();
 
@@ -606,6 +672,9 @@ export default function ProfilePage() {
   // Chart data
   const chartData = useMemo(() => computeActivityData(range), [range]);
 
+  // Trend indicator
+  const trend = useMemo(() => computeTrend(range), [range]);
+
   // Weak areas
   const weakSpots = useMemo((): WeakSpot[] => {
     const { weakAreas } = getWeakAreas({ limit: 3 });
@@ -761,6 +830,55 @@ export default function ProfilePage() {
               ))}
             </div>
           </div>
+
+          {/* Trend indicator */}
+          {trend && (
+            <div style={{ marginBottom: 10 }}>
+              {trend.pct === null ? (
+                <span style={{
+                  display: "inline-flex", alignItems: "center", gap: 4,
+                  fontSize: 11, fontWeight: 700,
+                  color: "#4f46e5",
+                  background: "#eef2ff",
+                  borderRadius: 8, padding: "3px 9px",
+                }}>
+                  ↑ New activity · {trend.label}
+                </span>
+              ) : trend.pct === 0 ? (
+                <span style={{
+                  display: "inline-flex", alignItems: "center", gap: 4,
+                  fontSize: 11, fontWeight: 700,
+                  color: "#64748b",
+                  background: "var(--bg-card-border, #f1f5f9)",
+                  borderRadius: 8, padding: "3px 9px",
+                }}>
+                  → No change · {trend.label}
+                </span>
+              ) : trend.pct > 0 ? (
+                <span style={{
+                  display: "inline-flex", alignItems: "center", gap: 4,
+                  fontSize: 11, fontWeight: 700,
+                  color: "#16a34a",
+                  background: "#f0fdf4",
+                  borderRadius: 8, padding: "3px 9px",
+                }}>
+                  <IcoChevronUp size={12} color="#16a34a" />
+                  {trend.pct}% · {trend.label}
+                </span>
+              ) : (
+                <span style={{
+                  display: "inline-flex", alignItems: "center", gap: 4,
+                  fontSize: 11, fontWeight: 700,
+                  color: "#dc2626",
+                  background: "#fef2f2",
+                  borderRadius: 8, padding: "3px 9px",
+                }}>
+                  <IcoChevronDown size={12} color="#dc2626" />
+                  {Math.abs(trend.pct)}% · {trend.label}
+                </span>
+              )}
+            </div>
+          )}
 
           {/* Legend */}
           <div style={{ display: "flex", gap: 12, marginBottom: 8 }}>
