@@ -111,7 +111,7 @@ function trianglesVid(qt) {
 
 function circlesVid(qt) {
   const q = qt.toLowerCase();
-  if (/equal tangents|pa\s*=\s*pb|from external point|lengths.*tangents.*equal|tangents.*from.*external/.test(q))
+  if (/equal tangents|pa\s*=\s*pb|from\s+(?:an?\s+)?external point|lengths.*tangents.*equal|tangents.*from.*external/.test(q))
     return 'maths-circles-number-of-tangents-from-external-point';
   if (/tangent.*perp|radius.*⊥|oa\s*⊥|perp.*radius|right angle.*tangent|tangent.*right angle/.test(q))
     return 'maths-circles-tangent-properties';

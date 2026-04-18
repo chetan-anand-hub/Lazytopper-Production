@@ -260,7 +260,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "Therefore, OP bisects AB at right angles."
     ],
     "finalAnswer": "OP bisects AB at right angles",
-    "visualExplainerId": "maths-circles-tangent-to-a-circle",
+    "visualExplainerId": "maths-circles-number-of-tangents-from-external-point",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -574,7 +574,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "The length would be: AB = √[(O₁O₂)² - (r₁ + r₂)²] = √[100 - 64] = √36 = 6 cm"
     ],
     "finalAnswer": "AB = 4√6 cm ≈ 9.8 cm for external tangent; 6 cm for internal tangent",
-    "visualExplainerId": "maths-circles-tangent-to-a-circle",
+    "visualExplainerId": "maths-circles-number-of-tangents-from-external-point",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -609,7 +609,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "Therefore PO ≈ 30.9 cm"
     ],
     "finalAnswer": "≈ 30.9 cm",
-    "visualExplainerId": "maths-circles-tangent-to-a-circle",
+    "visualExplainerId": "maths-circles-number-of-tangents-from-external-point",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "Set A",
@@ -851,7 +851,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "∠AOB = 130°"
     ],
     "finalAnswer": "130°",
-    "visualExplainerId": "maths-circles-tangent-to-a-circle",
+    "visualExplainerId": "maths-circles-number-of-tangents-from-external-point",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1118,6 +1118,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
     "options": [],
     "answer": "(i) PD = PE = 12 cm, (ii) ∠DPE ≈ 45.24°, (iii) 60 cm²",
     "solutionSteps": [
+      "Construction: Draw a circle with centre O and mark external point P. Draw tangents PD and PE touching the circle at D and E. Join OD, OE, and OP.",
       "(i) Finding length of tangents PD and PE:",
       "Given: OP = 13 cm, radius OD = OE = 5 cm",
       "OD ⊥ PD (tangent property)",
@@ -1148,7 +1149,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "Note: Area of quadrilateral ODPE = 60 cm²"
     ],
     "finalAnswer": "(i) PD = PE = 12 cm, (ii) ∠DPE ≈ 45.24°, (iii) 60 cm²",
-    "visualExplainerId": "maths-circles-tangent-to-a-circle",
+    "visualExplainerId": "maths-circles-number-of-tangents-from-external-point",
     "isCompetencyBased": true,
     "pyqYear": "2019",
     "pyqSet": "All India",
@@ -1270,7 +1271,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Both A and R are true, but R is not the correct explanation of A.",
     "explanation": "Both statements are individually correct. However, the Reason does not directly cause or explain the Assertion — they are independent true facts about the same concept.",
-    "visualExplainerId": "maths-circles-tangent-to-a-circle",
+    "visualExplainerId": "maths-circles-number-of-tangents-from-external-point",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,

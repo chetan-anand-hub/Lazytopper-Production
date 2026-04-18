@@ -387,6 +387,7 @@ export function PracticeQuestionCard({
                         topic={matchedVisual.chapter}
                         concept={matchedVisual.title}
                         subject={matchedVisual.subject === "science" ? "Science" : "Maths"}
+                        questionText={q.questionText}
                       />
                     </div>
                   )}
