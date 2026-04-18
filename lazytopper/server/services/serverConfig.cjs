@@ -76,6 +76,15 @@ function resolveConfig() {
   const VISUALS_DIR = path.join(REPO_ROOT, 'public', 'visuals');
   const MANIFEST_PATH = path.join(VISUALS_DIR, 'manifest.json');
 
+  // How often (ms) the background top-up job re-checks and fills the pool.
+  // Default: 24 h.  Set WARM_POOL_TOP_UP_INTERVAL_MS=0 to disable recurring top-up.
+  const WARM_POOL_TOP_UP_INTERVAL_MS = Math.max(
+    0,
+    Number(process.env.WARM_POOL_TOP_UP_INTERVAL_MS ?? 86_400_000) || 0
+  );
+  if (process.env.WARM_POOL_TOP_UP_INTERVAL_MS) ENV_USED.push(`WARM_POOL_TOP_UP_INTERVAL_MS=${WARM_POOL_TOP_UP_INTERVAL_MS}`);
+  if (process.env.WARM_POOL_TARGET_COUNT) ENV_USED.push(`WARM_POOL_TARGET_COUNT=${process.env.WARM_POOL_TARGET_COUNT}`);
+
   return {
     PORT, CORS_ORIGIN, ENV_USED,
     GEMINI_API_KEY, DIRECT_GEMINI_API_KEY, GEMINI_MODEL, GEMINI_TUTOR_MODEL, GEMINI_TIMEOUT_MS,
@@ -87,6 +96,7 @@ function resolveConfig() {
     MAX_HISTORY_TURNS, TEACH_CACHE_TTL_MS,
     FEEDBACK_DIR, FEEDBACK_FILE,
     REPO_ROOT, VISUALS_DIR, MANIFEST_PATH,
+    WARM_POOL_TOP_UP_INTERVAL_MS,
   };
 }
 

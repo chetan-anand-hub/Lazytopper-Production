@@ -105,7 +105,9 @@ function loadTopicKeys() {
 // ---------------------------------------------------------------------------
 const MARKS_VALUES = [1, 2, 3, 5];
 const DIFFICULTIES = ['easy', 'medium', 'hard'];
-const TARGET_COUNT = 5;
+// Minimum number of low-hit questions that must exist in the pool for a combo
+// before it is considered "full".  Override with WARM_POOL_TARGET_COUNT env var.
+const TARGET_COUNT = Math.max(1, Number(process.env.WARM_POOL_TARGET_COUNT || 5) || 5);
 const QUESTIONS_PER_CALL = 5;
 const MAX_RETRIES_PER_COMBO = 3;
 

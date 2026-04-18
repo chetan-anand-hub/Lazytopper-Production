@@ -454,6 +454,8 @@ server.listen(config.PORT, () => {
   if (envUsedLabel) console.log(`EnvUsed: ${envUsedLabel}`);
 
   if (!config.STUB_MODE && process.env.DATABASE_URL) {
+    const topUpIntervalMs = config.WARM_POOL_TOP_UP_INTERVAL_MS;
+
     console.log('[warm] Scheduling background question pool pre-warm (60 s delay)...');
     setTimeout(() => {
       if (_warmPoolRunning) {
@@ -465,6 +467,29 @@ server.listen(config.PORT, () => {
         (e) => console.error('[warm] Startup runWarmPool error:', e.message)
       ).finally(() => { _warmPoolRunning = false; });
     }, 60_000);
+
+    if (topUpIntervalMs > 0) {
+      const intervalLabel = topUpIntervalMs >= 3_600_000
+        ? `${(topUpIntervalMs / 3_600_000).toFixed(1)} h`
+        : `${(topUpIntervalMs / 60_000).toFixed(1)} min`;
+      console.log(`[warm] Scheduling recurring pool top-up every ${intervalLabel} (WARM_POOL_TOP_UP_INTERVAL_MS=${topUpIntervalMs}).`);
+
+      const topUpTimer = setInterval(() => {
+        if (_warmPoolRunning) {
+          console.log('[warm] Top-up skipped — a warm run is already in progress.');
+          return;
+        }
+        console.log('[warm] Starting scheduled pool top-up run...');
+        _warmPoolRunning = true;
+        warmPoolRunner.runWarmPool({ delayMs: 400 }).catch(
+          (e) => console.error('[warm] Scheduled top-up runWarmPool error:', e.message)
+        ).finally(() => { _warmPoolRunning = false; });
+      }, topUpIntervalMs);
+
+      topUpTimer.unref();
+    } else {
+      console.log('[warm] Recurring pool top-up disabled (WARM_POOL_TOP_UP_INTERVAL_MS=0).');
+    }
   } else {
     console.log('[warm] Skipping pool pre-warm (STUB_MODE or no DATABASE_URL).');
   }
