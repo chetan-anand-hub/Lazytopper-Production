@@ -376,7 +376,7 @@ export default function DailyMixPage() {
               {streakDays} day streak — keep it going!
             </p>
             {currentBadge && (
-              <div style={{ marginTop: 12, padding: "8px 16px", background: "rgba(59,130,246,0.1)", borderRadius: 12, fontSize: 14, fontWeight: 700, color: "#60a5fa" }}>
+              <div style={{ marginTop: 12, padding: "8px 16px", background: "rgba(59,130,246,0.1)", borderRadius: 12, fontSize: 14, fontWeight: 700, color: "var(--color-light-blue)" }}>
                 {currentBadge.description}
               </div>
             )}
@@ -393,7 +393,7 @@ export default function DailyMixPage() {
           onClick={() => setShowQuickWin(false)}
         >
           <div onClick={e => e.stopPropagation()} style={{
-            background: "#1a1a2e", borderRadius: 24, padding: "36px 28px", textAlign: "center",
+            background: "var(--bg-card)", borderRadius: 24, padding: "36px 28px", textAlign: "center",
             maxWidth: 380, width: "100%", border: "1px solid rgba(34,197,94,0.3)",
             boxShadow: "0 0 60px rgba(34,197,94,0.15)",
           }}>

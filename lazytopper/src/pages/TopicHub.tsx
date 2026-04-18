@@ -1601,7 +1601,7 @@ export default function TopicHub() {
                           <div style={{ flex: 1 }}>
                             <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text)", marginBottom: 2, display: "flex", alignItems: "flex-start", gap: 8, flexWrap: "wrap" }}>
                               <span style={{ flex: 1 }}>{step.description}</span>
-                              <span style={{ fontSize: "0.68rem", fontWeight: 800, borderRadius: 999, padding: "2px 8px", background: step.marks === 0 ? "var(--bg-card)" : "rgba(59,130,246,0.12)", color: step.marks === 0 ? "var(--text-muted)" : "#60a5fa", flexShrink: 0 }}>
+                              <span style={{ fontSize: "0.68rem", fontWeight: 800, borderRadius: 999, padding: "2px 8px", background: step.marks === 0 ? "var(--bg-card)" : "rgba(59,130,246,0.12)", color: step.marks === 0 ? "var(--text-muted)" : "var(--color-light-blue)", flexShrink: 0 }}>
                                 {step.marks === 0 ? "Explanation" : step.marks === 0.5 ? "½ mark" : step.marks % 1 === 0.5 ? `${Math.floor(step.marks)}½ marks` : `${step.marks} ${step.marks === 1 ? "mark" : "marks"}`}
                               </span>
                             </div>

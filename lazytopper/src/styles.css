@@ -46,6 +46,7 @@
   --color-dark-red: #7f1d1d;
   --color-violet: #c4b5fd;
   --color-light-blue: #60a5fa;
+  --color-light-green: #4ade80;
   --color-pink-red: #f87171;
   --color-on-primary: #000000;
   --color-on-active: #ffffff;
@@ -95,6 +96,10 @@
   --lt-input-bg: #ffffff;
   --lt-input-border: #e2e8f0;
   --lt-input-placeholder: rgba(30,41,59,0.35);
+  /* Pastel accent colours used in chips/badges — darkened for light-mode contrast */
+  --color-violet: #6d28d9;
+  --color-light-blue: #1d4ed8;
+  --color-light-green: #15803d;
 }
 
 [data-theme="light"] .glass-card {

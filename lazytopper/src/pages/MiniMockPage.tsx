@@ -188,7 +188,7 @@ export default function MiniMockPage() {
     <div style={{ minHeight: "100vh", background: "var(--bg)" }}>
       <div style={{
         position: "sticky", top: 0, zIndex: 10, padding: "12px 16px",
-        background: "rgba(10,10,10,0.95)", backdropFilter: "blur(12px)",
+        background: "var(--bg-card)", backdropFilter: "blur(12px)",
         borderBottom: "1px solid var(--bg-card-border)",
       }}>
         <div style={{ maxWidth: 500, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -212,7 +212,7 @@ export default function MiniMockPage() {
                   display: "flex", alignItems: "center", justifyContent: "center",
                   fontSize: 9, fontWeight: 700,
                   background: idx === currentIdx ? "#a855f7" : answers[idx] ? "rgba(34,197,94,0.2)" : "var(--bg-card)",
-                  color: idx === currentIdx ? "#fff" : answers[idx] ? "#4ade80" : "var(--text-muted)",
+                  color: idx === currentIdx ? "#fff" : answers[idx] ? "var(--color-light-green)" : "var(--text-muted)",
                   border: idx === currentIdx ? "1px solid #a855f7" : "1px solid var(--bg-card-border)",
                 }}
               >{idx + 1}</div>
@@ -234,7 +234,7 @@ export default function MiniMockPage() {
               <span style={{
                 padding: "3px 10px", borderRadius: 6, fontSize: 10, fontWeight: 700,
                 background: currentQ.subject === "Maths" ? "rgba(59,130,246,0.15)" : "rgba(34,197,94,0.15)",
-                color: currentQ.subject === "Maths" ? "#60a5fa" : "#4ade80",
+                color: currentQ.subject === "Maths" ? "var(--color-light-blue)" : "var(--color-light-green)",
                 border: `1px solid ${currentQ.subject === "Maths" ? "rgba(59,130,246,0.3)" : "rgba(34,197,94,0.3)"}`,
               }}>{currentQ.subject}</span>
               <span style={{ fontSize: 10, color: "var(--text-muted)" }}>{currentQ.question.likelihood}</span>

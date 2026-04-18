@@ -65,13 +65,13 @@ const tierMeta: Record<
     label: "High-ROI",
     emoji: "💎",
     chipBg: "rgba(99,102,241,0.12)",
-    chipText: "#a5b4fc",
+    chipText: "var(--color-violet)",
   },
   "good-to-do": {
     label: "Good-to-do",
     emoji: "🌈",
     chipBg: "rgba(59,130,246,0.12)",
-    chipText: "#60a5fa",
+    chipText: "var(--color-light-blue)",
   },
 };
 
@@ -523,7 +523,7 @@ const StudyPlanPage: React.FC = () => {
                             fontSize: "0.74rem",
                             border: "1px solid rgba(28,176,246,0.8)",
                             backgroundColor: "rgba(99,102,241,0.08)",
-                            color: "#60a5fa",
+                            color: "var(--color-light-blue)",
                             cursor: "pointer",
                           }}
                         >
@@ -538,7 +538,7 @@ const StudyPlanPage: React.FC = () => {
                             fontSize: "0.74rem",
                             border: "1px solid rgba(206,130,255,0.7)",
                             backgroundColor: "rgba(168,85,247,0.08)",
-                            color: "#c4b5fd",
+                            color: "var(--color-violet)",
                             cursor: "pointer",
                           }}
                         >

@@ -415,7 +415,7 @@ export default function DailyMissionPage() {
               </div>
             )}
             {currentBadge && (
-              <div style={{ marginTop: 8, padding: "6px 12px", background: "rgba(59,130,246,0.1)", borderRadius: 10, fontSize: 12, fontWeight: 700, color: "#60a5fa" }}>
+              <div style={{ marginTop: 8, padding: "6px 12px", background: "rgba(59,130,246,0.1)", borderRadius: 10, fontSize: 12, fontWeight: 700, color: "var(--color-light-blue)" }}>
                 {currentBadge.description}
               </div>
             )}
@@ -434,7 +434,7 @@ export default function DailyMissionPage() {
           position: "fixed", inset: 0, display: "flex", alignItems: "center", justifyContent: "center",
           background: "rgba(0,0,0,0.5)", zIndex: 9998, animation: "fadeIn 0.2s ease",
         }}>
-          <div style={{ textAlign: "center" }}>
+          <div style={{ textAlign: "center", color: "#ffffff" }}>
             <div style={{ fontSize: 48, marginBottom: 12 }}>✅</div>
             <h3 style={{ fontWeight: 900, fontSize: 20, margin: 0, color: currentSegment.color }}>
               {currentSegment.label} Complete!

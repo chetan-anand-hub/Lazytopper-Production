@@ -2037,7 +2037,7 @@ const HighlyProbableQuestions: React.FC = () => {
                                     style={{
                                       fontSize: "0.85rem",
                                       fontWeight: 700,
-                                      color: "#60a5fa",
+                                      color: "var(--color-light-blue)",
                                     }}
                                   >
                                     Step-by-Step Solution
@@ -2101,7 +2101,7 @@ const HighlyProbableQuestions: React.FC = () => {
                                             height: 28,
                                             borderRadius: "50%",
                                             background: "#1e40af",
-                                            color: "var(--text)",
+                                            color: "#ffffff",
                                             display: "flex",
                                             alignItems: "center",
                                             justifyContent: "center",
@@ -2127,7 +2127,7 @@ const HighlyProbableQuestions: React.FC = () => {
                                                 marginLeft: 8,
                                                 fontSize: "0.7rem",
                                                 fontWeight: 700,
-                                                color: step.marks === 0 ? "var(--text-muted)" : "#60a5fa",
+                                                color: step.marks === 0 ? "var(--text-muted)" : "var(--color-light-blue)",
                                                 background: step.marks === 0 ? "var(--bg-card)" : "#dbeafe",
                                                 borderRadius: 999,
                                                 padding: "1px 7px",

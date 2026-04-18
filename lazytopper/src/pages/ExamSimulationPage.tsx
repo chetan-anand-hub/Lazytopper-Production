@@ -198,9 +198,10 @@ export default function ExamSimulationPage() {
 
           <div style={{
             marginTop: 24,
-            background: "linear-gradient(135deg, #1e293b 0%, #334155 100%)",
+            background: "var(--bg-card)",
+            border: "1px solid var(--bg-card-border)",
             borderRadius: 24, padding: "32px 28px", color: "var(--text)",
-            boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
           }}>
             <div style={{ fontSize: "0.7rem", letterSpacing: "0.2em", textTransform: "uppercase", opacity: 0.7, marginBottom: 8 }}>
               Exam Simulation Mode

@@ -81,9 +81,9 @@ const PredictivePapersPage: React.FC = () => {
           onClick={() => startExamSimulation("Maths")}
           style={{
             flex: "1 1 240px", padding: "20px 24px", borderRadius: 20,
-            background: "linear-gradient(135deg, #1e293b 0%, #334155 100%)",
-            color: "var(--text)", border: "none", cursor: "pointer", textAlign: "left",
-            boxShadow: "0 4px 16px rgba(0,0,0,0.15)",
+            background: "var(--bg-card)", color: "var(--text)",
+            border: "1px solid var(--bg-card-border)", cursor: "pointer", textAlign: "left",
+            boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
           }}
         >
           <div style={{ fontSize: "0.68rem", letterSpacing: "0.15em", textTransform: "uppercase", opacity: 0.7, marginBottom: 4 }}>
@@ -104,9 +104,9 @@ const PredictivePapersPage: React.FC = () => {
           onClick={() => startExamSimulation("Science")}
           style={{
             flex: "1 1 240px", padding: "20px 24px", borderRadius: 20,
-            background: "linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%)",
-            color: "var(--text)", border: "none", cursor: "pointer", textAlign: "left",
-            boxShadow: "0 4px 16px rgba(0,0,0,0.15)",
+            background: "var(--bg-card)", color: "var(--text)",
+            border: "1px solid var(--bg-card-border)", cursor: "pointer", textAlign: "left",
+            boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
           }}
         >
           <div style={{ fontSize: "0.68rem", letterSpacing: "0.15em", textTransform: "uppercase", opacity: 0.7, marginBottom: 4 }}>

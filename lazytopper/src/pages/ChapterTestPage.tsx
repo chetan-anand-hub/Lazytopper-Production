@@ -363,7 +363,7 @@ export default function ChapterTestPage() {
                 position: "sticky",
                 top: 0,
                 zIndex: 10,
-                background: "rgba(10,10,10,0.95)",
+                background: "var(--bg-card)",
                 padding: "10px 16px",
                 borderRadius: 12,
                 marginBottom: 16,
