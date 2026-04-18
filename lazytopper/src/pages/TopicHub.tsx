@@ -423,6 +423,7 @@ export default function TopicHub() {
   const [quizSolutionError, setQuizSolutionError] = useState<string | null>(null);
   const quizSolutionFetchRef = useRef<string | null>(null);
   const allDoneConfettiFiredRef = useRef<string | null>(null);
+  const stepSolutionRef = useRef<HTMLDivElement>(null);
 
   const [teachDrawerOpen, setTeachDrawerOpen] = useState(false);
   const [teachContext, setTeachContext] = useState<ConceptTeachContext>({
@@ -739,6 +740,14 @@ export default function TopicHub() {
     },
     [answerRevealed, currentMiniQuestion, recordQuizAnswer]
   );
+
+  const handleRequestStepSolution = useCallback(() => {
+    const verdict = aiCheckerResult && aiCheckerResult.percentage >= 70 ? "correct" : "incorrect";
+    handleCheckpointAnswer(verdict);
+    setTimeout(() => {
+      stepSolutionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 120);
+  }, [aiCheckerResult, handleCheckpointAnswer]);
 
   const openTeachDrawer = useCallback(
     (concept: string, questionText: string, subtopic?: string) => {
@@ -1432,6 +1441,7 @@ export default function TopicHub() {
                             subject={subjectTitle}
                             topic={title}
                             onResult={(r) => setAiCheckerResult(r)}
+                            onRequestStepSolution={handleRequestStepSolution}
                           />
                           {/* Self-assessment buttons: appear after AI check OR after student skips */}
                           {(aiCheckerResult || aiCheckerSkipped) ? (
@@ -1565,7 +1575,7 @@ export default function TopicHub() {
                     )}
 
                     {/* Step-by-step solution */}
-                    <div style={{ marginBottom: 14, padding: "12px 14px", background: "rgba(59,130,246,0.04)", borderRadius: 12, border: "1px solid rgba(59,130,246,0.15)" }}>
+                    <div ref={stepSolutionRef} style={{ marginBottom: 14, padding: "12px 14px", background: "rgba(59,130,246,0.04)", borderRadius: 12, border: "1px solid rgba(59,130,246,0.15)" }}>
                       <div style={{ fontSize: "0.75rem", fontWeight: 800, color: "var(--color-light-blue)", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 10 }}>
                         📋 CBSE Step-by-Step Solution ({currentMiniQuestion.marks || 1} {(currentMiniQuestion.marks || 1) === 1 ? "mark" : "marks"})
                       </div>
