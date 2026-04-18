@@ -200,6 +200,12 @@ const TrendsPage: React.FC = () => {
 
   const totalWeightage = filteredTopicEntries.reduce((sum, [, meta]) => sum + (meta.weightagePercent ?? 0), 0);
 
+  const completedChapterCount = useMemo(
+    () => topicEntries.filter(([name]) => isLessonCompleted(normalizeTopicKey(name))).length,
+    [topicEntries],
+  );
+  const totalChapterCount = topicEntries.length;
+
   const maxBoardWeightage = useMemo(() => {
     const values = topicEntries.map(([, meta]) => Number(meta.weightagePercent ?? 0)).filter((v) => Number.isFinite(v) && v > 0);
     return values.length ? Math.max(...values) : 14;
@@ -476,6 +482,42 @@ const TrendsPage: React.FC = () => {
               </span>
             </div>
           </div>
+
+          {/* Chapter completion summary bar */}
+          {totalChapterCount > 0 && (
+            <div style={{ marginBottom: 14 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>
+                  {completedChapterCount === 0
+                    ? "No chapters completed yet"
+                    : completedChapterCount === totalChapterCount
+                    ? "All chapters completed!"
+                    : `${completedChapterCount} of ${totalChapterCount} chapters completed`}
+                </span>
+                {completedChapterCount > 0 && (
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>
+                    {Math.round((completedChapterCount / totalChapterCount) * 100)}%
+                  </span>
+                )}
+              </div>
+              <div style={{
+                height: 5,
+                borderRadius: 999,
+                background: "rgba(255,255,255,0.08)",
+                overflow: "hidden",
+              }}>
+                <div style={{
+                  height: "100%",
+                  borderRadius: 999,
+                  width: `${(completedChapterCount / totalChapterCount) * 100}%`,
+                  background: completedChapterCount === totalChapterCount
+                    ? "var(--accent-green, #22c55e)"
+                    : "rgba(59,130,246,0.7)",
+                  transition: "width 0.4s ease",
+                }} />
+              </div>
+            </div>
+          )}
 
           {filteredTopicEntries.length === 0 ? (
             <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", padding: "8px 4px" }}>
