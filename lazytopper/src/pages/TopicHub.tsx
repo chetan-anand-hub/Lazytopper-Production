@@ -1383,16 +1383,17 @@ export default function TopicHub() {
                       const isSelected = selectedAnswer === option;
                       const correctAnswer = (currentMiniQuestion.answer || "").trim().toLowerCase();
                       const isCorrect = option.trim().toLowerCase() === correctAnswer;
+                      const revealed = answerRevealed && miniQuizAnswers[miniQuizIdx] !== undefined;
                       let borderColor = "var(--bg-card)";
                       let bg = "var(--bg-card)";
                       let textColor = "var(--text)";
-                      if (answerRevealed) {
+                      if (revealed) {
                         if (isCorrect) { borderColor = "rgba(34,197,94,0.3)"; bg = "rgba(34,197,94,0.08)"; textColor = "#22c55e"; }
                         else if (isSelected && !isCorrect) { borderColor = "rgba(239,68,68,0.3)"; bg = "rgba(239,68,68,0.08)"; textColor = "#ef4444"; }
                       } else if (isSelected) { borderColor = "rgba(99,102,241,0.4)"; bg = "rgba(99,102,241,0.08)"; }
                       return (
                         <button key={idx} type="button" onClick={() => handleCheckpointAnswer(option)} disabled={answerRevealed}
-                          style={{ padding: "12px 16px", borderRadius: 12, border: `2px solid ${borderColor}`, background: bg, color: textColor, fontWeight: 500, fontSize: "0.85rem", cursor: answerRevealed ? "default" : "pointer", textAlign: "left", transition: "all 0.15s", opacity: answerRevealed && !isSelected && !isCorrect ? 0.5 : 1 }}>
+                          style={{ padding: "12px 16px", borderRadius: 12, border: `2px solid ${borderColor}`, background: bg, color: textColor, fontWeight: 500, fontSize: "0.85rem", cursor: answerRevealed ? "default" : "pointer", textAlign: "left", transition: "all 0.15s", opacity: revealed && !isSelected && !isCorrect ? 0.5 : 1 }}>
                           <span style={{ fontWeight: 700, marginRight: 8 }}>{String.fromCharCode(65 + idx)}.</span>
                           {option}
                         </button>
@@ -1428,9 +1429,8 @@ export default function TopicHub() {
                   </div>
                 )}
 
-                {answerRevealed && !conceptFailed && (
+                {answerRevealed && !conceptFailed && miniQuizAnswers[miniQuizIdx] !== undefined && (
                   <div style={{ marginTop: 16 }}>
-                    {/* Correct / Wrong header */}
                     {(selectedAnswer === "correct" || (selectedAnswer && selectedAnswer !== "incorrect" && selectedAnswer.trim().toLowerCase() === (currentMiniQuestion.answer || "").trim().toLowerCase())) ? (
                       <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.92rem", color: "var(--primary-dark)", fontWeight: 700, marginBottom: 12, padding: "10px 14px", background: "rgba(34,197,94,0.06)", borderRadius: 10, border: "1px solid rgba(34,197,94,0.15)" }}>
                         <span style={{ fontSize: "1.1rem" }}>✓</span> Correct!
@@ -1441,7 +1441,22 @@ export default function TopicHub() {
                       </div>
                     )}
 
-                    {/* Visual diagram if matched */}
+                    {currentMiniQuestion.explanation && String(currentMiniQuestion.explanation).trim() && (
+                      <div style={{
+                        marginBottom: 14, padding: "12px 14px",
+                        background: "rgba(147,51,234,0.07)",
+                        border: "1px solid rgba(147,51,234,0.18)",
+                        borderRadius: 10,
+                      }}>
+                        <div style={{ fontWeight: 700, fontSize: "0.7rem", color: "#a855f7", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 6 }}>
+                          💡 Why this is correct
+                        </div>
+                        <div style={{ fontSize: "0.82rem", lineHeight: 1.65, whiteSpace: "pre-wrap", color: "var(--text)" }}>
+                          {String(currentMiniQuestion.explanation)}
+                        </div>
+                      </div>
+                    )}
+
                     {quizMatchedVisual && (
                       <div style={{ marginBottom: 14, borderRadius: 12, overflow: "hidden", border: "1px solid rgba(99,102,241,0.2)" }}>
                         <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--color-accent)", padding: "6px 12px", background: "rgba(99,102,241,0.06)", textTransform: "uppercase", letterSpacing: 0.4 }}>
