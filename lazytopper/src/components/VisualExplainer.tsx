@@ -197,7 +197,7 @@ export const VisualExplainer = forwardRef<VisualExplainerHandle, VisualExplainer
 
       return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [src, topic, concept, subject, title, retryKey]);
+    }, [src, topic, concept, subject, title, retryKey, questionText]);
 
     useEffect(() => {
       if (!fullscreen) return;
