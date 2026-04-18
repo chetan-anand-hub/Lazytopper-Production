@@ -437,6 +437,8 @@ function getDiagramStep(questionText, visualId) {
       return 'Construction: Draw the two triangles with equal corresponding angles or proportional sides as given. Label corresponding vertices.';
     if (/\bdraw\b|\bdiagram\b|\bsketch\b/i.test(qt))
       return 'Diagram: Sketch the two similar triangles with corresponding vertices aligned and matching angle marks shown.';
+    if (/\bheight\b|\bbuilding\b|\btower\b|\bangle\b|\bscale.*model\b/i.test(qt))
+      return 'Construction: Draw the two similar right triangles — scale model and actual structure (or pole and shadow). Label all given measurements (base, height, angle). Show corresponding angles as equal and corresponding sides as proportional.';
     return null;
   }
 
@@ -694,6 +696,8 @@ function getDiagramStep(questionText, visualId) {
 
   // ── CHEMISTRY: METALS & NON-METALS ──────────────────────────────────────────
   if (visualId === 'science-metals-nonmetals-extraction-of-metals') {
+    if (/galvaniz/i.test(qt))
+      return 'Diagram: Draw a labelled cross-section of galvanized iron — outer zinc (Zn) coating over iron (Fe) base. Label: Zn as "protective/sacrificial anode" and Fe as "base metal". Show how the zinc layer prevents oxygen and moisture from reaching iron.';
     if (/\bdraw\b|\bdiagram\b|\belectrolysis\b/i.test(qt))
       return 'Diagram: Draw the electrolytic cell for the extraction/refining of the metal described. Label the cathode (−), anode (+), electrolyte, and direction of ion movement.';
     return null;

@@ -407,6 +407,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
     "options": [],
     "answer": "Height = 13√3/2 m ≈ 11.26 m",
     "solutionSteps": [
+      "Construction: Draw a right-angled triangle representing the ladder problem — hypotenuse = 13 m (ladder), angle at ground = 60°. Label the opposite side h (wall height) and use trigonometry to find h.",
       "The ladder forms the hypotenuse of a right triangle = 13 m",
       "Angle with ground = 60°, so angle with wall = 30°",
       "Height (h) = hypotenuse × sin(60°)",
@@ -414,7 +415,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "h ≈ 11.26 m"
     ],
     "finalAnswer": "Height = 13√3/2 m ≈ 11.26 m",
-    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
+    "visualExplainerId": "maths-triangles-pythagoras-theorem-visual-proof",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1485,6 +1486,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
     "options": [],
     "answer": "(a) 50√3 m (b) Yes, AA similarity (c) ≈ 41°",
     "solutionSteps": [
+      "Construction: Draw two similar right triangles — small model (base 2 m, height 2√3 m, 60° at base) and the building triangle (base 50 m, 60° at base, unknown height h). Label all given measurements and show the similarity correspondence.",
       "(a) In the small model: tan(60°) = height/base = 2√3/2 = √3",
       "For the building: tan(60°) = Height/50",
       "Height = 50 × tan(60°) = 50√3 m",

@@ -255,6 +255,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
     "options": [],
     "answer": "Genetic variation provides adaptability, disease resistance, and survival advantage",
     "solutionSteps": [
+      "Diagram: Draw a simple cross-pollination diagram — pollen from Plant A (genetic makeup X) transferred to the stigma of Plant B (genetic makeup Y), producing seeds with varied genetic combinations. Label both parent plants and show the genetic mixing.",
       "Cross-pollination introduces genetic diversity",
       "Offspring have traits from two different parents",
       "This variation helps population adapt to changing environments",

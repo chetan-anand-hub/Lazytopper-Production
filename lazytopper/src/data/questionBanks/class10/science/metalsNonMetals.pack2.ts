@@ -473,13 +473,14 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "options": [],
     "answer": "4Na + O₂ → 2Na₂O; Basic oxide is formed",
     "solutionSteps": [
+      "Balanced equation: 4Na + O₂ → 2Na₂O (sodium reacts with oxygen to form sodium oxide, a basic oxide).",
       "Sodium is a highly reactive metal in Group 1",
       "It reacts vigorously with oxygen even at room temperature",
       "The product is a metallic oxide (basic oxide)",
       "Balanced equation: 4Na + O₂ → 2Na₂O"
     ],
     "finalAnswer": "4Na + O₂ → 2Na₂O; Basic oxide is formed",
-    "visualExplainerId": "science-metals-nonmetals-physical-properties-of-metals",
+    "visualExplainerId": "science-metals-nonmetals-reactivity-series",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1330,6 +1331,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "options": [],
     "answer": "More reactive metal displaces less reactive metal. Fe + CuSO₄ → FeSO₄ + Cu, Mg + FeSO₄ → MgSO₄ + Fe, Zn + CuSO₄ → ZnSO₄ + Cu",
     "solutionSteps": [
+      "Balanced equations: Fe + CuSO₄ → FeSO₄ + Cu; Mg + FeSO₄ → MgSO₄ + Fe; Zn + CuSO₄ → ZnSO₄ + Cu. Use these as the three displacement examples (more reactive metal displaces less reactive).",
       "Step 1: Understand that the reactivity series is arranged by ease of losing electrons",
       "Step 2: A metal higher in the series has greater tendency to lose electrons and form cations",
       "Step 3: It can therefore displace metal cations of lower metals from solutions",
@@ -1359,6 +1361,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
     "options": [],
     "answer": "Rust is Fe₂O₃.xH₂O formed by oxidation. It weakens structures. Galvanization coats Fe with Zn layer, which acts as barrier and sacrificial anode.",
     "solutionSteps": [
+      "Diagram: Draw a labelled cross-section of galvanized iron — outer zinc (Zn) layer as a protective coating over the inner iron (Fe) base. Label: Zn as \"protective/sacrificial anode\" and Fe as \"base metal\". Show how Zn prevents contact with O₂ and moisture.",
       "Step 1: Rusting is oxidation of iron in presence of moisture and oxygen",
       "Step 2: Chemical equation: 4Fe + 3O₂ + 2xH₂O → 2Fe₂O₃.xH₂O (rust)",
       "Step 3: Rust is a reddish-brown powder that is porous and flaky",
@@ -1370,7 +1373,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
       "Step 9: This prevents both oxygen and water from reaching iron"
     ],
     "finalAnswer": "Rust is Fe₂O₃.xH₂O formed by oxidation. It weakens structures. Galvanization coats Fe with Zn layer, which acts as barrier and sacrificial anode.",
-    "visualExplainerId": "science-metals-nonmetals-physical-properties-of-metals",
+    "visualExplainerId": "science-metals-nonmetals-extraction-of-metals",
     "isCompetencyBased": true,
     "pyqYear": "2025",
     "pyqSet": "SET-C",
