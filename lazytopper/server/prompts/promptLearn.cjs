@@ -1,3 +1,61 @@
+// Server-side canonical topic key → default visual title lookup.
+// This is a fallback for when the client does not send visualTitle
+// (e.g. edge-case code paths, future API integrations).
+// Keys are canonical slug forms (lowercase, hyphens). Values must match the
+// title of the first visual concept in visualConceptRegistry.ts for that chapter.
+const TOPIC_DEFAULT_VISUAL = {
+  // Maths
+  'trigonometry': 'Trigonometric Ratios',
+  'introduction-to-trigonometry': 'Trigonometric Ratios',
+  'maths-introduction-trigonometry': 'Trigonometric Ratios',
+  'maths-applications-trigonometry': 'Height and Distance Problems',
+  'pair-of-linear-equations': 'Graphical Method',
+  'pair-of-linear-equations-in-two-variables': 'Graphical Method',
+  'linear-equations': 'Graphical Method',
+  'polynomials': 'Zeroes of a Polynomial',
+  'quadratic-equations': 'Standard Form and Roots',
+  'arithmetic-progression': 'AP Definition and Common Difference',
+  'arithmetic-progressions': 'AP Definition and Common Difference',
+  'triangles': 'Similar Triangles',
+  'coordinate-geometry': 'Distance Formula',
+  'circles': 'Tangent to a Circle',
+  'areas-related-to-circles': 'Area of Sector and Segment',
+  'surface-areas-and-volumes': 'Cylinder Surface Area',
+  'statistics': 'Histogram vs Bar Graph',
+  'probability': 'Classical Probability',
+  'real-numbers': 'Fundamental Theorem of Arithmetic',
+  // Science
+  'electricity': 'V-I Relationship',
+  'light-reflection-and-refraction': 'Laws of Reflection',
+  'light-reflection-and-refraction-incl-human-eye-prism': 'Laws of Reflection',
+  'magnetic-effects': 'Magnetic Field Lines',
+  'magnetic-effects-of-electric-current': 'Magnetic Field Lines',
+  'chemical-reactions-and-equations': 'Types of Reactions',
+  'acids-bases-and-salts': 'pH Scale',
+  'metals-and-non-metals': 'Reactivity Series',
+  'carbon-and-its-compounds': 'Covalent Bonding',
+  'life-processes': 'Nutrition in Plants',
+  'control-and-coordination': 'Neuron Structure',
+  'control-and-co-ordination': 'Neuron Structure',
+  'reproduction': 'Sexual Reproduction in Flowering Plants',
+  'how-do-organisms-reproduce': 'Sexual Reproduction in Flowering Plants',
+  'heredity': 'Mendel\'s Pea Plant Experiment',
+  'heredity-and-evolution': 'Mendel\'s Pea Plant Experiment',
+  'human-eye': 'Human Eye Structure',
+  'human-eye-and-colourful-world': 'Human Eye Structure',
+};
+
+/** Normalise a topic key to the canonical slug form used in TOPIC_DEFAULT_VISUAL. */
+function normaliseTopicSlugForVisual(topicKey) {
+  return String(topicKey || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+}
+
+/** Look up the default visual title for a topic key. Returns '' when not found. */
+function getDefaultVisualTitleForTopic(topicKey) {
+  const slug = normaliseTopicSlugForVisual(topicKey);
+  return TOPIC_DEFAULT_VISUAL[slug] || '';
+}
+
 function createLearnPrompts(ctx) {
   const {
     getLearnSeedPack, diagramLabelsForType,
@@ -153,7 +211,10 @@ function buildConversationalTeachSystemPrompt(payload, isConceptTeach) {
   const conceptFocusName = conceptSubtopic || conceptConcept || topicName;
 
   const isStepRequest = /step[- ]by[- ]step|show me the steps|stepwise|marking scheme/i.test(studentAttempt);
-  const visualTitle = String(payload.visualTitle || '').trim();
+  // Client sends visualTitle when it has found and is showing a visual.
+  // Fall back to server-side lookup by canonical topic key so the AI always
+  // references the correct visual even if the client omits the field.
+  const visualTitle = String(payload.visualTitle || '').trim() || getDefaultVisualTitleForTopic(topicKey);
   const isGraphRequest = Boolean(payload.graphRequest);
   const isInteractive = Boolean(payload.isInteractive);
 
