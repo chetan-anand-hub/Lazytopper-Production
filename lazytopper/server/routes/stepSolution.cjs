@@ -17,8 +17,11 @@ function getPool() {
   return _pool;
 }
 
+// Increment this when the prompt structure changes to automatically bypass stale cache entries.
+const CACHE_VERSION = 'v2';
+
 function computeQuestionHash(question, marks) {
-  return crypto.createHash('sha256').update(question + '|' + marks).digest('hex');
+  return crypto.createHash('sha256').update(CACHE_VERSION + '|' + question + '|' + marks).digest('hex');
 }
 
 async function getCachedSolution(hash) {
@@ -329,6 +332,23 @@ function createStepSolutionRoute(deps) {
               steps[steps.length - 1].marks = Math.round(steps[steps.length - 1].marks * 2) / 2;
             }
             for (let i = 0; i < steps.length; i++) steps[i].stepNumber = i + 1;
+          }
+        }
+
+        // MCQ guard: if the AI omitted the explanatory step (marks=0, "Why this is
+        // correct"), append one from existingExplanation so students always see the
+        // conceptual reasoning. Runs after normalization so it isn't clipped.
+        if (isObj) {
+          const hasWhyStep = steps.some(
+            (s) => s.marks === 0 && /why/i.test(s.description || '')
+          );
+          if (!hasWhyStep && existingExplanation) {
+            steps.push({
+              stepNumber: steps.length + 1,
+              description: 'Why this is correct',
+              working: existingExplanation,
+              marks: 0,
+            });
           }
         }
 
