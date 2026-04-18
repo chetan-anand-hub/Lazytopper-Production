@@ -7,7 +7,12 @@ import {
   resolveTopicKey as resolveCanonicalTopicKey,
   toPracticePackKey,
 } from "../../utils/topicResolver";
-import { generateMoreLikeThis } from "../../ai/aiClient";
+import {
+  generateMoreLikeThis,
+  fetchCachedAiQuestions,
+  saveAiGeneratedQuestions,
+  type CachedAiQuestion,
+} from "../../ai/aiClient";
 import { getTrigRubric } from "../../data/contentStrategy/trigonometry/trigonometryRubrics";
 import { getTrianglesRubric } from "../../data/contentStrategy/triangles";
 import type {
@@ -543,6 +548,59 @@ export async function buildPracticeQuestionsWithAiTopup(
     (`Generate a CBSE Class ${args.grade} ${args.subjectKey} question for topic "${args.topicLabel}" at ${fallbackDifficulty} level.` +
       (desiredSection ? ` Focus ONLY on Board Section ${desiredSection}.` : ``));
 
+  const template: PracticeQuestion | undefined = seed ?? mergedWithCanonical[0];
+
+  function mapVariantToPracticeQuestion(
+    variant: CachedAiQuestion | { text?: string; marks?: number | null; difficulty?: string | null; bloomSkill?: string | null },
+    index: number,
+    idPrefix: string,
+  ): PracticeQuestion | null {
+    if (!template) return null;
+    const variantText = normaliseQuestionText((variant as { text?: string }).text ?? "");
+    return {
+      ...template,
+      id: `${seedId}-${idPrefix}-${index + 1}`,
+      marks: variant.marks != null ? variant.marks : template.marks ?? seedMarks ?? 1,
+      difficulty:
+        ((variant.difficulty as PracticeQuestion["difficulty"]) ??
+          (template.difficulty as PracticeQuestion["difficulty"])) ??
+        (fallbackDifficulty as PracticeQuestion["difficulty"]),
+      section: desiredSection ?? template.section ?? "",
+      bloomSkill: (String(
+        variant.bloomSkill ?? template.bloomSkill ?? seedBloomSkill ?? "Understanding",
+      ) as BloomLevel),
+      questionText: variantText || template.questionText || seedQuestionText,
+      solutionSteps: template.solutionSteps ?? [],
+      explanation: template.explanation ?? "",
+      answer: template.answer ?? "",
+    };
+  }
+
+  // --- Step 1: Check DB cache for already-generated questions ---
+  let cachedVariants: CachedAiQuestion[] = [];
+  try {
+    cachedVariants = await fetchCachedAiQuestions({
+      topicKey: args.topicLabel,
+      subject: args.subjectKey,
+      difficulty: fallbackDifficulty,
+      marks: seedMarks,
+      n: missingAfterCanonical,
+    });
+  } catch (_) { /* non-fatal: fall through to AI */ }
+
+  const cachedQuestions: PracticeQuestion[] = cachedVariants
+    .map((v, i) => mapVariantToPracticeQuestion(v, i, "CACHE"))
+    .filter((q): q is PracticeQuestion => q !== null);
+
+  const remainingShortfall = Math.max(0, missingAfterCanonical - cachedQuestions.length);
+
+  if (remainingShortfall === 0) {
+    // Full cache hit — skip AI call
+    const merged = [...mergedWithCanonical, ...cachedQuestions];
+    return enforceDifficultyFilter(expandQuestionsForDrill(merged, safeCount), args.difficulty);
+  }
+
+  // --- Step 2: Call AI only for the remaining shortfall ---
   try {
     const response = await generateMoreLikeThis({
       subject: args.subjectKey,
@@ -553,40 +611,36 @@ export async function buildPracticeQuestionsWithAiTopup(
         difficulty: seedDifficulty,
         bloomSkill: seedBloomSkill,
       },
-      numVariants: missingAfterCanonical,
+      numVariants: remainingShortfall,
     });
 
     const variants = response?.variants ?? [];
 
-    const template: PracticeQuestion | undefined = seed ?? mergedWithCanonical[0];
+    const aiQuestions: PracticeQuestion[] = variants
+      .map((v, i) => mapVariantToPracticeQuestion(v, i, "AI"))
+      .filter((q): q is PracticeQuestion => q !== null);
 
-    const aiQuestions: PracticeQuestion[] = !template
-      ? []
-      : variants.map((variant, index) => {
-          const variantText = normaliseQuestionText(variant.text);
+    // --- Step 3: Persist new AI variants fire-and-forget ---
+    if (variants.length > 0) {
+      saveAiGeneratedQuestions({
+        topicKey: args.topicLabel,
+        subject: args.subjectKey,
+        difficulty: fallbackDifficulty,
+        marks: seedMarks,
+        variants: variants.map((v) => ({
+          text: (v as { text?: string }).text ?? "",
+          marks: (v.marks ?? seedMarks) as number | null,
+          difficulty: (v.difficulty ?? fallbackDifficulty) as string | null,
+          bloomSkill: ((v as { bloomSkill?: string }).bloomSkill ?? null) as string | null,
+        })),
+      });
+    }
 
-          return {
-            ...template,
-            id: `${seedId}-AI-${index + 1}`,
-            marks: variant.marks != null ? variant.marks : template.marks ?? seedMarks ?? 1,
-            difficulty:
-              ((variant.difficulty as PracticeQuestion["difficulty"]) ??
-                (template.difficulty as PracticeQuestion["difficulty"])) ??
-              (fallbackDifficulty as PracticeQuestion["difficulty"]),
-            section: desiredSection ?? template.section ?? "",
-            bloomSkill:
-              (String(variant.bloomSkill ?? template.bloomSkill ?? seedBloomSkill ?? "Understanding") as BloomLevel),
-            questionText: variantText || template.questionText || seedQuestionText,
-            solutionSteps: template.solutionSteps ?? [],
-            explanation: template.explanation ?? "",
-            answer: template.answer ?? "",
-          };
-        });
-
-    const merged = [...mergedWithCanonical, ...aiQuestions];
+    const merged = [...mergedWithCanonical, ...cachedQuestions, ...aiQuestions];
     return enforceDifficultyFilter(expandQuestionsForDrill(merged, safeCount), args.difficulty);
   } catch (err) {
     console.error("AI top-up failed for practice set:", err);
-    return enforceDifficultyFilter(expandQuestionsForDrill(mergedWithCanonical, safeCount), args.difficulty);
+    const merged = [...mergedWithCanonical, ...cachedQuestions];
+    return enforceDifficultyFilter(expandQuestionsForDrill(merged, safeCount), args.difficulty);
   }
 }

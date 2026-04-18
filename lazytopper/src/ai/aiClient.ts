@@ -288,6 +288,60 @@ export interface GenerateVisualRequest {
   grade?: number;
 }
 
+// ─── AI Questions Cache ───────────────────────────────────────────────────────
+
+export interface CachedAiQuestion {
+  text: string;
+  marks: number | null;
+  difficulty: string | null;
+  bloomSkill: string | null;
+}
+
+/**
+ * Fetch up to `n` cached AI-generated questions for a topic from the server DB.
+ * Returns an empty array on any network or parse failure (non-fatal).
+ */
+export async function fetchCachedAiQuestions(params: {
+  topicKey: string;
+  subject: string;
+  difficulty?: string | null;
+  marks?: number | null;
+  n: number;
+}): Promise<CachedAiQuestion[]> {
+  try {
+    const qs = new URLSearchParams({
+      topicKey: params.topicKey,
+      subject: params.subject,
+      n: String(params.n),
+    });
+    if (params.difficulty) qs.set("difficulty", params.difficulty);
+    if (params.marks != null) qs.set("marks", String(params.marks));
+    const res = await fetch(`${API_BASE}/ai-questions?${qs}`);
+    const data = await handleJsonResponse<{ ok: boolean; questions: CachedAiQuestion[] }>(res);
+    return data.questions ?? [];
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Fire-and-forget: persist newly generated AI question variants to the DB cache.
+ * Failures are silently swallowed — caching is best-effort.
+ */
+export async function saveAiGeneratedQuestions(params: {
+  topicKey: string;
+  subject: string;
+  difficulty?: string | null;
+  marks?: number | null;
+  variants: CachedAiQuestion[];
+}): Promise<void> {
+  fetch(`${API_BASE}/ai-questions`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(params),
+  }).catch(() => {});
+}
+
 export interface GenerateVisualResponse {
   ok: boolean;
   html: string | null;

@@ -123,6 +123,7 @@ const { createDiagramRoutes } = require('./routes/diagrams.cjs');
 const { createQuestionRoutes } = require('./routes/questions.cjs');
 const { createMentorRoute } = require('./routes/mentor.cjs');
 const { createUserProgressRoutes } = require('./routes/userProgress.cjs');
+const { createAiQuestionsRoute } = require('./routes/aiQuestions.cjs');
 const { createTutorCache } = require('./services/tutorCache.cjs');
 const { pickFromPool, markServed, saveToPool } = require('./services/generatedQuestionPool.cjs');
 const { createWarmPoolRunner } = require('./services/warmQuestionPool.cjs');
@@ -251,6 +252,7 @@ const routeDeps = {
 const shareRoutes = createShareRoutes(routeDeps);
 const diagramRoutes = createDiagramRoutes(routeDeps);
 const userProgressRoutes = createUserProgressRoutes(routeDeps);
+const aiQuestionsRoute = createAiQuestionsRoute(routeDeps);
 const questionRoutes = createQuestionRoutes(routeDeps);
 const firebaseAuthRoute = createFirebaseAuthRoute({ sendJson, readJson, firebaseAdmin });
 
@@ -282,6 +284,7 @@ async function handleRequest(req, res) {
       reqPath === '/api/user/progress/focus' ||
       reqPath === '/api/user/progress/mastery' ||
       reqPath === '/api/user/progress/mission' ||
+      reqPath === '/api/ai-questions' ||
       /^\/api\/session\/[^/]+$/.test(reqPath) ||
       /^\/api\/session\/[^/]+\/submit$/.test(reqPath)
     )
@@ -447,6 +450,13 @@ async function handleRequest(req, res) {
   }
   if (req.method === 'POST' && reqPath === '/api/user/progress/mission') {
     return userProgressRoutes.handleMission(req, res);
+  }
+
+  if (req.method === 'GET' && reqPath === '/api/ai-questions') {
+    return aiQuestionsRoute.handleGet(req, res);
+  }
+  if (req.method === 'POST' && reqPath === '/api/ai-questions') {
+    return aiQuestionsRoute.handlePost(req, res);
   }
 
   if (req.method === 'POST' && reqPath === '/api/auth/firebase-token') {
