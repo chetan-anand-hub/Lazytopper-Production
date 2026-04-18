@@ -60,6 +60,7 @@ const WeeklyDigestPage = lazy(() => import("./pages/WeeklyDigestPage"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const DiagramComparePage = lazy(() => import("./pages/DiagramComparePage"));
 const CacheStatsPage = lazy(() => import("./pages/CacheStatsPage"));
+const DifficultyBreakdownPage = lazy(() => import("./pages/DifficultyBreakdownPage"));
 
 function RouteFallback() {
   return (
@@ -557,6 +558,7 @@ export default function App() {
           <Route path="/admin/funnel" element={<RequireAuth>{withRouteSuspense(<FunnelPage />)}</RequireAuth>} />
           <Route path="/admin/diagram-compare" element={withRouteSuspense(<DiagramComparePage />)} />
           <Route path="/admin/cache-stats" element={<RequireAuth>{withRouteSuspense(<CacheStatsPage />)}</RequireAuth>} />
+          <Route path="/admin/difficulty-breakdown" element={<RequireAuth>{withRouteSuspense(<DifficultyBreakdownPage />)}</RequireAuth>} />
           <Route path="/methodology" element={withRouteSuspense(<MethodologyPage />)} />
           <Route path="/teacher" element={<RequireAuth><SectionErrorBoundary>{withRouteSuspense(<TeacherDashboardPage />)}</SectionErrorBoundary></RequireAuth>} />
           <Route path="/onboarding" element={<RequireAuth><Onboarding /></RequireAuth>} />

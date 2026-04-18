@@ -1,4 +1,4 @@
-import { Database, TrendingUp, ExternalLink } from "lucide-react";
+import { Database, TrendingUp, ExternalLink, BarChart3, BookOpen } from "lucide-react";
 
 export default function AdminPage() {
   return (
@@ -8,6 +8,36 @@ export default function AdminPage() {
           <h1 className="text-2xl font-bold tracking-tight">Admin</h1>
           <p className="text-white/40 text-sm mt-1">LazyTopper internal tools</p>
         </div>
+
+        <a
+          href="/app/admin/difficulty-breakdown"
+          className="block rounded-xl border border-white/10 bg-white/5 hover:bg-white/8 p-6 transition-colors group mb-3"
+        >
+          <div className="flex items-start justify-between">
+            <div className="flex items-center gap-3">
+              <div className="rounded-lg bg-white/10 p-2.5">
+                <BarChart3 size={18} className="text-purple-400" />
+              </div>
+              <div>
+                <h2 className="text-base font-semibold text-white">Question Difficulty Breakdown</h2>
+                <p className="text-xs text-white/40 mt-0.5">
+                  Easy / Medium / Hard + Section A–E counts per chapter
+                </p>
+              </div>
+            </div>
+            <ExternalLink size={14} className="text-white/30 group-hover:text-white/60 mt-1 transition-colors" />
+          </div>
+          <div className="flex gap-4 mt-4">
+            <div className="flex items-center gap-1.5 text-xs text-white/30">
+              <BookOpen size={11} />
+              Maths &amp; Science
+            </div>
+            <div className="flex items-center gap-1.5 text-xs text-white/30">
+              <BarChart3 size={11} />
+              Threshold alerts
+            </div>
+          </div>
+        </a>
 
         <a
           href="/app/admin/cache-stats"
