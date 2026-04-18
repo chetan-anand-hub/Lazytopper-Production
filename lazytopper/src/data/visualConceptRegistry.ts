@@ -115,6 +115,7 @@ export const MATHS_VISUALS: ChapterVisuals[] = [
       c("maths", "coordinate-geometry", "Distance Formula", ["distance", "formula", "two", "points", "sqrt"]),
       c("maths", "coordinate-geometry", "Section Formula", ["section", "ratio", "midpoint", "internal", "division"]),
       c("maths", "coordinate-geometry", "Coordinate Plane Plotter", ["plot", "axes", "quadrant", "point"]),
+      c("maths", "coordinate-geometry", "Collinearity Condition", ["collinear", "collinearity", "area", "triangle", "zero", "three", "points", "condition"]),
     ],
   },
   {
@@ -155,6 +156,7 @@ export const MATHS_VISUALS: ChapterVisuals[] = [
     concepts: [
       c("maths", "surface-areas-volumes", "Combination of Solids", ["combination", "cone", "cylinder", "hemisphere"]),
       c("maths", "surface-areas-volumes", "Conversion of Solids", ["melt", "recast", "volume", "conservation"]),
+      c("maths", "surface-areas-volumes", "Surface Area Formulas", ["total", "curved", "surface", "area", "CSA", "TSA", "cylinder", "cone", "sphere", "hemisphere"]),
     ],
   },
   {
@@ -165,6 +167,8 @@ export const MATHS_VISUALS: ChapterVisuals[] = [
       c("maths", "statistics", "Mean of Grouped Data", ["mean", "assumed", "direct", "step", "deviation"]),
       c("maths", "statistics", "Median of Grouped Data", ["median", "cumulative", "frequency", "class"]),
       c("maths", "statistics", "Mode of Grouped Data", ["mode", "modal", "class", "frequency"]),
+      c("maths", "statistics", "Frequency Distribution Table", ["frequency", "distribution", "table", "tally", "class", "interval", "cumulative", "grouped"]),
+      c("maths", "statistics", "Central Tendency Comparison", ["mean", "median", "mode", "central", "tendency", "choosing", "right", "measure", "skewed", "outlier", "empirical"]),
     ],
   },
   {
@@ -221,6 +225,7 @@ export const SCIENCE_VISUALS: ChapterVisuals[] = [
       c("science", "carbon-compounds", "Homologous Series", ["homologous", "CH2", "series", "properties"]),
       c("science", "carbon-compounds", "Functional Groups", ["alcohol", "aldehyde", "ketone", "carboxylic", "functional"]),
       c("science", "carbon-compounds", "Carbon Chain Structures", ["straight", "branched", "cyclic", "isomers"]),
+      c("science", "carbon-compounds", "Soaps and Detergents", ["soap", "detergent", "cleansing", "action", "micelle", "hydrophilic", "hydrophobic", "saponification", "hard", "water"]),
     ],
   },
   {
@@ -293,6 +298,7 @@ export const SCIENCE_VISUALS: ChapterVisuals[] = [
       c("science", "electricity", "Series and Parallel Circuits", ["series", "parallel", "circuit", "resistor", "combination"]),
       c("science", "electricity", "Electric Power and Energy", ["power", "P=VI", "energy", "kWh", "watt"]),
       c("science", "electricity", "Circuit Diagram Builder", ["circuit", "ammeter", "voltmeter", "battery", "switch"]),
+      c("science", "electricity", "Resistivity", ["resistivity", "rho", "R=rhoL/A", "length", "area", "conductor", "specific", "resistance", "intrinsic"]),
     ],
   },
   {

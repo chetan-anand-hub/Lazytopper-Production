@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Soaps and Detergents - Carbon Compounds Class 10 Science</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1a2e1a 50%,#0f172a 100%);min-height:100vh;color:#e2e8f0;}
+.title-bar{background:linear-gradient(90deg,#16a34a,#22c55e,#4ade80);padding:12px 20px;text-align:center;box-shadow:0 4px 20px rgba(34,197,94,0.4);}
+.title-bar h1{font-size:1.15em;font-weight:700;color:#fff;}
+.title-bar p{font-size:0.75em;color:#bbf7d0;margin-top:2px;}
+.container{max-width:780px;margin:0 auto;padding:16px;}
+.card{background:linear-gradient(135deg,#1e293b,#0f172a);border:1px solid #334155;border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 4px 16px rgba(0,0,0,0.3);}
+.card h2{font-size:1em;color:#4ade80;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.def-box{background:linear-gradient(135deg,#1a3a2a,#1e3a5f);border:2px solid #22c55e;border-radius:12px;padding:14px;font-size:0.83em;color:#cbd5e1;line-height:1.6;margin-bottom:12px;}
+.def-box strong{color:#4ade80;}
+.structure-card{background:linear-gradient(135deg,#1a3a2a,#1e293b);border:2px solid #22c55e;border-radius:16px;padding:18px;text-align:center;margin-bottom:14px;}
+.structure-card h2{color:#4ade80;font-size:1em;margin-bottom:14px;}
+.soap-molecule{display:flex;flex-direction:column;align-items:center;gap:8px;margin:10px auto;}
+.hydrophilic{background:linear-gradient(135deg,#1d4ed8,#3b82f6);border-radius:50%;width:60px;height:60px;display:flex;align-items:center;justify-content:center;font-size:0.7em;font-weight:700;color:#fff;flex-shrink:0;}
+.chain{display:flex;flex-direction:column;align-items:center;gap:2px;}
+.chain-seg{width:10px;height:14px;background:linear-gradient(180deg,#f59e0b,#d97706);border-radius:2px;}
+.hydrophobic{background:linear-gradient(135deg,#b45309,#92400e);border-radius:4px;padding:6px 20px;font-size:0.7em;font-weight:700;color:#fde68a;}
+.labels-row{display:flex;justify-content:center;gap:30px;margin-top:10px;flex-wrap:wrap;}
+.label-item{text-align:center;font-size:0.72em;color:#94a3b8;}
+.label-item strong{display:block;color:#e2e8f0;margin-bottom:2px;}
+.micelle-wrap{position:relative;width:180px;height:180px;margin:20px auto;}
+.micelle-circle{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:80px;height:80px;background:radial-gradient(circle,#92400e 0%,#78350f 100%);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.65em;color:#fde68a;font-weight:700;text-align:center;z-index:2;}
+.step-box{background:linear-gradient(135deg,#1e293b,#0f172a);border-left:4px solid #22c55e;border-radius:8px;padding:12px;margin:8px 0;display:none;animation:fadeIn 0.35s ease;}
+.step-box.visible{display:block;}
+.step-box.blue{border-left-color:#3b82f6;}
+.step-box.amber{border-left-color:#f59e0b;}
+.step-num{font-size:0.7em;color:#22c55e;font-weight:700;text-transform:uppercase;letter-spacing:1px;}
+.step-box.blue .step-num{color:#60a5fa;}
+.step-box.amber .step-num{color:#fbbf24;}
+.step-text{font-size:0.85em;color:#cbd5e1;margin-top:4px;line-height:1.5;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.step-btn{background:linear-gradient(135deg,#16a34a,#22c55e);color:#fff;border:none;padding:8px 18px;border-radius:10px;cursor:pointer;font-size:0.85em;transition:all 0.3s;box-shadow:0 2px 10px rgba(34,197,94,0.3);margin:4px 4px 4px 0;}
+.step-btn:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(34,197,94,0.5);}
+.step-btn.red{background:linear-gradient(135deg,#b91c1c,#ef4444);}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0;}
+@media(max-width:480px){.compare-grid{grid-template-columns:1fr;}}
+.compare-card{border-radius:12px;padding:14px;}
+.compare-card.soap{background:linear-gradient(135deg,#1a3a2a,#1e293b);border:2px solid #22c55e;}
+.compare-card.detergent{background:linear-gradient(135deg,#1a2a3a,#1e293b);border:2px solid #3b82f6;}
+.compare-card h3{font-size:0.9em;font-weight:700;margin-bottom:8px;}
+.compare-card.soap h3{color:#4ade80;}
+.compare-card.detergent h3{color:#60a5fa;}
+.compare-card ul{padding-left:16px;}
+.compare-card li{font-size:0.78em;color:#cbd5e1;margin:4px 0;line-height:1.4;}
+.hindi{color:#fbbf24;font-size:0.8em;font-weight:600;}
+.badge{background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;border-radius:20px;padding:3px 10px;font-size:0.68em;font-weight:600;}
+</style>
+</head>
+<body>
+<div class="title-bar">
+<h1>🧼 Soaps, Detergents & Cleansing Action</h1>
+<p>CBSE Class 10 Science | Carbon & its Compounds | <span style="color:#fde68a;">साबुन, अपमार्जक और शोधन क्रिया</span></p>
+</div>
+<div class="container">
+
+<div class="card">
+<h2>🔬 What are Soaps? <span class="badge">Chemistry</span></h2>
+<div class="def-box">
+<strong>Soaps</strong> are sodium or potassium salts of long-chain fatty acids (carboxylic acids).<br>
+General formula: <strong>R–COONa</strong> (where R = long hydrocarbon chain, e.g., C₁₇H₃₅)<br><br>
+Made by <strong>saponification</strong> — boiling fat/oil with NaOH (caustic soda):<br>
+<strong>Fat + NaOH → Soap + Glycerol</strong><br><br>
+<span class="hindi">साबुन वसा अम्लों के सोडियम/पोटेशियम लवण होते हैं। इन्हें तेल/वसा को NaOH के साथ उबालकर बनाया जाता है।</span>
+</div>
+</div>
+
+<div class="structure-card">
+<h2>🧬 Structure of a Soap Molecule</h2>
+<div style="display:flex;justify-content:center;align-items:center;gap:40px;flex-wrap:wrap;">
+  <div style="text-align:center;">
+    <svg width="160" height="200" viewBox="0 0 160 200">
+      <circle cx="80" cy="40" r="30" fill="url(#head-grad)" stroke="#3b82f6" stroke-width="2"/>
+      <defs>
+        <linearGradient id="head-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#1d4ed8"/>
+          <stop offset="100%" style="stop-color:#3b82f6"/>
+        </linearGradient>
+      </defs>
+      <text x="80" y="35" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">COO⁻Na⁺</text>
+      <text x="80" y="50" text-anchor="middle" fill="#bfdbfe" font-size="9">Ionic head</text>
+      <line x1="80" y1="70" x2="80" y2="170" stroke="#f59e0b" stroke-width="4" stroke-dasharray="8,4"/>
+      <text x="96" y="120" fill="#fbbf24" font-size="9">Hydrocarbon</text>
+      <text x="96" y="132" fill="#fbbf24" font-size="9">chain (tail)</text>
+      <circle cx="80" cy="175" r="8" fill="#92400e"/>
+      <text x="80" y="179" text-anchor="middle" fill="#fde68a" font-size="8">CH₃</text>
+    </svg>
+  </div>
+  <div>
+    <div style="display:flex;align-items:center;gap:10px;margin:8px 0;">
+      <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#1d4ed8,#3b82f6);display:flex;align-items:center;justify-content:center;flex-shrink:0;"></div>
+      <div><div style="font-size:0.82em;font-weight:700;color:#60a5fa;">Hydrophilic Head</div><div style="font-size:0.72em;color:#94a3b8;">Water-loving (जल-अनुरागी) — ionic, attracts water</div></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;margin:8px 0;">
+      <div style="width:8px;height:30px;background:linear-gradient(180deg,#f59e0b,#92400e);border-radius:3px;margin-left:11px;flex-shrink:0;"></div>
+      <div><div style="font-size:0.82em;font-weight:700;color:#fbbf24;">Hydrophobic Tail</div><div style="font-size:0.72em;color:#94a3b8;">Water-hating (जल-विकर्षी) — dissolves in oil/grease</div></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="card">
+<h2>🔄 How Cleansing Action Works — Step by Step</h2>
+<div id="cs1" class="step-box"><span class="step-num">Step 1 — Soap in Water</span><div class="step-text">Soap molecules disperse in water. The ionic (hydrophilic) head faces water; the hydrocarbon (hydrophobic) tail tries to avoid water.</div></div>
+<div id="cs2" class="step-box blue"><span class="step-num">Step 2 — Micelle Formation</span><div class="step-text">Soap molecules cluster around a grease/oil droplet. The hydrophobic tails bury into the grease while hydrophilic heads face outward into water. This cluster is called a <strong style="color:#60a5fa;">micelle</strong>.</div></div>
+<div id="cs3" class="step-box"><span class="step-num">Step 3 — Grease is Trapped</span><div class="step-text">The grease/dirt is trapped inside the micelle — surrounded by soap molecules on all sides. The micelle is now suspended in water (emulsified).</div></div>
+<div id="cs4" class="step-box amber"><span class="step-num">Step 4 — Rinsed Away</span><div class="step-text">When rinsed, the micelles (with trapped grease) are washed away in the water — leaving the surface clean. This is emulsification!</div></div>
+<div style="margin-top:10px;">
+  <button class="step-btn" id="cs-btn" onclick="nextCS()">▶ Next Step</button>
+  <button class="step-btn red" onclick="resetCS()">↺ Reset</button>
+</div>
+</div>
+
+<div class="card">
+<h2>⚖ Soaps vs Detergents</h2>
+<div class="compare-grid">
+  <div class="compare-card soap">
+    <h3>🧼 Soaps</h3>
+    <ul>
+      <li>Made from natural fats/oils + NaOH</li>
+      <li>Work poorly in hard water (form scum with Ca²⁺, Mg²⁺ ions)</li>
+      <li>Biodegradable — eco-friendly</li>
+      <li>Slightly alkaline; gentle on skin</li>
+      <li>e.g., bathing soap, laundry soap</li>
+    </ul>
+  </div>
+  <div class="compare-card detergent">
+    <h3>🧴 Detergents</h3>
+    <ul>
+      <li>Synthetic; made from petrochemicals</li>
+      <li>Work in hard water — no scum formed</li>
+      <li>Many are non-biodegradable — cause water pollution</li>
+      <li>Can be acidic, neutral, or alkaline</li>
+      <li>e.g., washing powder, dishwash liquid</li>
+    </ul>
+  </div>
+</div>
+<div style="margin-top:12px;font-size:0.78em;color:#94a3b8;line-height:1.5;"><strong style="color:#e2e8f0;">Hard water</strong> contains dissolved Ca²⁺ and Mg²⁺ ions. These react with soap molecules to form an insoluble precipitate (scum), reducing the soap's cleansing efficiency. Detergents avoid this problem.</div>
+</div>
+
+</div>
+<script>
+let csStep=0;
+function nextCS(){
+  csStep++;
+  if(csStep<=4) document.getElementById('cs'+csStep).classList.add('visible');
+  if(csStep>=4) document.getElementById('cs-btn').disabled=true;
+}
+function resetCS(){
+  csStep=0;
+  for(let i=1;i<=4;i++) document.getElementById('cs'+i).classList.remove('visible');
+  document.getElementById('cs-btn').disabled=false;
+}
+</script>
+</body>
+</html>

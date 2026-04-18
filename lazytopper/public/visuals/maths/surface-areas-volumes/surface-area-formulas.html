@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Total and Curved Surface Areas - Surface Areas & Volumes Class 10</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a,#1e3a5f);min-height:100vh;color:#1e293b;}
+.titlebar{background:linear-gradient(90deg,#7c3aed,#a855f7,#06b6d4);padding:14px 20px;text-align:center;box-shadow:0 4px 20px rgba(168,85,247,0.5);}
+.titlebar h1{color:#fff;font-size:1.15rem;font-weight:700;}
+.titlebar p{color:#e9d5ff;font-size:0.78rem;margin-top:2px;}
+.container{max-width:750px;margin:0 auto;padding:16px;}
+.card{background:#fff;border-radius:16px;padding:18px;margin-bottom:16px;box-shadow:0 8px 32px rgba(0,0,0,0.2);}
+.section-title{font-size:1rem;font-weight:700;color:#1e293b;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.badge{background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;border-radius:20px;padding:3px 10px;font-size:0.7rem;font-weight:600;}
+.def-box{background:linear-gradient(135deg,#f5f3ff,#ede9fe);border:2px solid #a855f7;border-radius:12px;padding:12px;margin:10px 0;font-size:0.82rem;color:#3b0764;line-height:1.6;}
+.def-box strong{color:#7c3aed;}
+.shape-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.shape-tab{flex:1;min-width:80px;padding:8px 6px;border:2px solid #e2e8f0;background:#f8fafc;border-radius:10px;font-size:0.73rem;font-weight:600;cursor:pointer;color:#64748b;transition:all 0.3s;text-align:center;}
+.shape-tab.active{border-color:#7c3aed;background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;}
+.shape-panel{display:none;animation:fadeIn 0.35s ease;}
+.shape-panel.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.shape-layout{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start;}
+@media(max-width:480px){.shape-layout{grid-template-columns:1fr;}}
+.shape-svg-wrap{display:flex;justify-content:center;align-items:center;padding:10px;background:#f8fafc;border-radius:12px;border:1px solid #e2e8f0;}
+.formula-grid{display:flex;flex-direction:column;gap:10px;}
+.f-row{background:linear-gradient(135deg,#f5f3ff,#ede9fe);border:1px solid #c4b5fd;border-radius:10px;padding:10px 12px;}
+.f-label{font-size:0.68rem;font-weight:700;color:#7c3aed;text-transform:uppercase;letter-spacing:0.5px;}
+.f-formula{font-size:0.88rem;font-weight:700;color:#3b0764;margin-top:4px;}
+.f-note{font-size:0.68rem;color:#6d28d9;margin-top:3px;}
+.slider-section{background:linear-gradient(135deg,#fefce8,#fef9c3);border:2px solid #f59e0b;border-radius:12px;padding:16px;margin:12px 0;}
+.slider-section h3{font-size:0.88rem;font-weight:700;color:#92400e;margin-bottom:12px;}
+.slider-row{display:flex;align-items:center;gap:10px;margin:8px 0;flex-wrap:wrap;}
+.slider-row label{font-size:0.75rem;font-weight:600;color:#92400e;min-width:80px;}
+input[type=range]{flex:1;min-width:100px;accent-color:#7c3aed;}
+.val-tag{background:#7c3aed;color:#fff;border-radius:8px;padding:3px 10px;font-size:0.78rem;font-weight:700;min-width:50px;text-align:center;}
+.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;}
+.r-box{border-radius:10px;padding:10px;text-align:center;}
+.r-box.csa{background:linear-gradient(135deg,#eff6ff,#dbeafe);border:2px solid #93c5fd;}
+.r-box.tsa{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:2px solid #86efac;}
+.r-label{font-size:0.68rem;font-weight:700;color:#475569;text-transform:uppercase;}
+.r-val{font-size:1.1rem;font-weight:800;color:#1d4ed8;margin-top:4px;}
+.r-box.tsa .r-val{color:#16a34a;}
+.step-box{background:#f8fafc;border-left:4px solid #7c3aed;border-radius:0 10px 10px 0;padding:10px 14px;margin:8px 0;display:none;animation:slideIn 0.3s ease;}
+.step-box.visible{display:block;}
+.step-box.green{border-left-color:#22c55e;}
+@keyframes slideIn{from{opacity:0;transform:translateX(-8px);}to{opacity:1;transform:translateX(0);}}
+.step-num{display:inline-block;background:#7c3aed;color:#fff;border-radius:50%;width:22px;height:22px;font-size:0.7rem;font-weight:700;text-align:center;line-height:22px;margin-right:6px;}
+.step-box.green .step-num{background:#22c55e;}
+.step-text{font-size:0.82rem;color:#334155;margin-top:4px;line-height:1.5;}
+.step-math{font-size:0.9rem;font-weight:700;color:#7c3aed;margin-top:6px;}
+.step-btn{display:inline-block;background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;border:none;border-radius:20px;padding:8px 20px;font-size:0.78rem;font-weight:600;cursor:pointer;transition:all 0.3s;margin:6px 4px 0 0;}
+.step-btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(124,58,237,0.4);}
+.step-btn.red{background:linear-gradient(135deg,#ef4444,#b91c1c);}
+.hindi{color:#7c3aed;font-weight:600;font-size:0.8rem;}
+</style>
+</head>
+<body>
+<div class="titlebar">
+<h1>📐 Total & Curved Surface Areas</h1>
+<p>CBSE Class 10 Mathematics | Surface Areas & Volumes | <span style="color:#fde68a;">कुल और वक्र पृष्ठीय क्षेत्रफल</span></p>
+</div>
+<div class="container">
+
+<div class="card">
+<div class="section-title">📖 CSA vs TSA <span class="badge">Core Concept</span></div>
+<div class="def-box">
+<strong>Curved Surface Area (CSA)</strong> — area of only the curved surface(s), excluding flat ends.<br>
+<strong>Total Surface Area (TSA)</strong> — area of ALL surfaces including flat ends.<br>
+<strong>TSA = CSA + Area of flat faces</strong><br><br>
+<span class="hindi">वक्र पृष्ठीय क्षेत्रफल = केवल घुमावदार भाग | कुल पृष्ठीय क्षेत्रफल = सभी सतहें मिलाकर</span>
+</div>
+</div>
+
+<div class="card">
+<div class="section-title">🔵 Formulas by Shape <span class="badge">Tap to select</span></div>
+<div class="shape-tabs">
+  <button class="shape-tab active" onclick="showShape('cylinder', this)">🔵 Cylinder</button>
+  <button class="shape-tab" onclick="showShape('cone', this)">🔺 Cone</button>
+  <button class="shape-tab" onclick="showShape('sphere', this)">⚪ Sphere</button>
+  <button class="shape-tab" onclick="showShape('hemisphere', this)">🌙 Hemisphere</button>
+</div>
+
+<div class="shape-panel active" id="p-cylinder">
+  <div class="shape-layout">
+    <div class="shape-svg-wrap">
+      <svg width="120" height="140" viewBox="0 0 120 140">
+        <ellipse cx="60" cy="20" rx="40" ry="10" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/>
+        <rect x="20" y="20" width="80" height="100" fill="#eff6ff" stroke="none"/>
+        <line x1="20" y1="20" x2="20" y2="120" stroke="#3b82f6" stroke-width="2"/>
+        <line x1="100" y1="20" x2="100" y2="120" stroke="#3b82f6" stroke-width="2"/>
+        <ellipse cx="60" cy="120" rx="40" ry="10" fill="#bfdbfe" stroke="#3b82f6" stroke-width="2"/>
+        <text x="105" y="70" font-size="11" fill="#1d4ed8" font-weight="bold">h</text>
+        <line x1="60" y1="120" x2="100" y2="120" stroke="#1d4ed8" stroke-width="1.5" stroke-dasharray="4,2"/>
+        <text x="78" y="133" font-size="11" fill="#1d4ed8" font-weight="bold">r</text>
+      </svg>
+    </div>
+    <div class="formula-grid">
+      <div class="f-row"><div class="f-label">CSA</div><div class="f-formula">2πrh</div><div class="f-note">Curved surface only (no circular ends)</div></div>
+      <div class="f-row"><div class="f-label">TSA</div><div class="f-formula">2πr(r + h)</div><div class="f-note">= 2πrh + 2πr² (curved + 2 circles)</div></div>
+      <div class="f-row"><div class="f-label">Volume</div><div class="f-formula">πr²h</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="shape-panel" id="p-cone">
+  <div class="shape-layout">
+    <div class="shape-svg-wrap">
+      <svg width="120" height="140" viewBox="0 0 120 140">
+        <ellipse cx="60" cy="120" rx="45" ry="10" fill="#fde68a" stroke="#f59e0b" stroke-width="2"/>
+        <line x1="15" y1="120" x2="60" y2="20" stroke="#f59e0b" stroke-width="2"/>
+        <line x1="105" y1="120" x2="60" y2="20" stroke="#f59e0b" stroke-width="2"/>
+        <text x="65" y="70" font-size="11" fill="#92400e" font-weight="bold">l</text>
+        <line x1="60" y1="120" x2="105" y2="120" stroke="#92400e" stroke-width="1.5" stroke-dasharray="4,2"/>
+        <text x="80" y="133" font-size="11" fill="#92400e" font-weight="bold">r</text>
+        <line x1="60" y1="20" x2="60" y2="120" stroke="#d97706" stroke-width="1.5" stroke-dasharray="4,2"/>
+        <text x="63" y="75" font-size="10" fill="#d97706">h</text>
+      </svg>
+    </div>
+    <div class="formula-grid">
+      <div class="f-row"><div class="f-label">Slant Height</div><div class="f-formula">l = √(r² + h²)</div></div>
+      <div class="f-row"><div class="f-label">CSA</div><div class="f-formula">πrl</div><div class="f-note">Curved surface only (no circular base)</div></div>
+      <div class="f-row"><div class="f-label">TSA</div><div class="f-formula">πr(r + l)</div><div class="f-note">= πrl + πr² (curved + base circle)</div></div>
+      <div class="f-row"><div class="f-label">Volume</div><div class="f-formula">⅓πr²h</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="shape-panel" id="p-sphere">
+  <div class="shape-layout">
+    <div class="shape-svg-wrap">
+      <svg width="120" height="140" viewBox="0 0 120 140">
+        <circle cx="60" cy="70" r="45" fill="#dcfce7" stroke="#22c55e" stroke-width="2"/>
+        <ellipse cx="60" cy="70" rx="45" ry="12" fill="none" stroke="#16a34a" stroke-width="1.5" stroke-dasharray="5,3"/>
+        <line x1="60" y1="70" x2="105" y2="70" stroke="#16a34a" stroke-width="1.5"/>
+        <text x="80" y="65" font-size="12" fill="#16a34a" font-weight="bold">r</text>
+      </svg>
+    </div>
+    <div class="formula-grid">
+      <div class="f-row"><div class="f-label">CSA = TSA</div><div class="f-formula">4πr²</div><div class="f-note">Sphere has only one curved surface — no flat ends</div></div>
+      <div class="f-row"><div class="f-label">Volume</div><div class="f-formula">⁴⁄₃πr³</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="shape-panel" id="p-hemisphere">
+  <div class="shape-layout">
+    <div class="shape-svg-wrap">
+      <svg width="120" height="140" viewBox="0 0 120 140">
+        <path d="M15,80 A45,45 0 0,1 105,80 Z" fill="#fce7f3" stroke="#ec4899" stroke-width="2"/>
+        <ellipse cx="60" cy="80" rx="45" ry="10" fill="#fce7f3" stroke="#ec4899" stroke-width="2"/>
+        <line x1="60" y1="80" x2="105" y2="80" stroke="#be185d" stroke-width="1.5"/>
+        <text x="80" y="73" font-size="12" fill="#be185d" font-weight="bold">r</text>
+      </svg>
+    </div>
+    <div class="formula-grid">
+      <div class="f-row"><div class="f-label">CSA</div><div class="f-formula">2πr²</div><div class="f-note">Curved dome only</div></div>
+      <div class="f-row"><div class="f-label">TSA</div><div class="f-formula">3πr²</div><div class="f-note">= 2πr² (dome) + πr² (circular base)</div></div>
+      <div class="f-row"><div class="f-label">Volume</div><div class="f-formula">⅔πr³</div></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="card">
+<div class="section-title">🎛 Calculator — Cylinder</div>
+<div class="slider-section">
+  <h3>Adjust dimensions:</h3>
+  <div class="slider-row"><label>Radius (r):</label><input type="range" min="1" max="20" value="7" id="cyl-r" oninput="calcCyl()"><span class="val-tag" id="cyl-r-v">7 cm</span></div>
+  <div class="slider-row"><label>Height (h):</label><input type="range" min="1" max="30" value="10" id="cyl-h" oninput="calcCyl()"><span class="val-tag" id="cyl-h-v">10 cm</span></div>
+  <div class="result-grid">
+    <div class="r-box csa"><div class="r-label">CSA = 2πrh</div><div class="r-val" id="cyl-csa">—</div></div>
+    <div class="r-box tsa"><div class="r-label">TSA = 2πr(r+h)</div><div class="r-val" id="cyl-tsa">—</div></div>
+  </div>
+</div>
+</div>
+
+<div class="card">
+<div class="section-title">📋 Worked Example</div>
+<p style="font-size:0.82rem;color:#475569;margin-bottom:10px;"><strong>Q:</strong> A cone has base radius 7 cm, height 24 cm. Find its CSA and TSA. (Use π = 22/7)</p>
+<div id="ex1" class="step-box"><span class="step-num">1</span><div class="step-text">Find slant height: l = √(r² + h²)</div><div class="step-math">l = √(7² + 24²) = √(49 + 576) = √625 = 25 cm</div></div>
+<div id="ex2" class="step-box"><span class="step-num">2</span><div class="step-text">Calculate CSA:</div><div class="step-math">CSA = πrl = (22/7) × 7 × 25 = 22 × 25 = 550 cm²</div></div>
+<div id="ex3" class="step-box green"><span class="step-num green">3</span><div class="step-text">Calculate TSA:</div><div class="step-math">TSA = πr(r + l) = (22/7) × 7 × (7 + 25) = 22 × 32 = 704 cm²</div></div>
+<div style="margin-top:10px;">
+  <button class="step-btn" id="ex-btn" onclick="nextEx()">▶ Next Step</button>
+  <button class="step-btn red" onclick="resetEx()">↺ Reset</button>
+</div>
+</div>
+
+</div>
+<script>
+function showShape(s, btn){
+  document.querySelectorAll('.shape-tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.shape-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('p-'+s).classList.add('active');
+}
+function calcCyl(){
+  const r=parseFloat(document.getElementById('cyl-r').value);
+  const h=parseFloat(document.getElementById('cyl-h').value);
+  document.getElementById('cyl-r-v').textContent=r+' cm';
+  document.getElementById('cyl-h-v').textContent=h+' cm';
+  const csa=(2*Math.PI*r*h).toFixed(2);
+  const tsa=(2*Math.PI*r*(r+h)).toFixed(2);
+  document.getElementById('cyl-csa').textContent=csa+' cm²';
+  document.getElementById('cyl-tsa').textContent=tsa+' cm²';
+}
+calcCyl();
+let exStep=0;
+function nextEx(){
+  exStep++;
+  if(exStep<=3) document.getElementById('ex'+exStep).classList.add('visible');
+  if(exStep>=3) document.getElementById('ex-btn').disabled=true;
+}
+function resetEx(){
+  exStep=0;
+  for(let i=1;i<=3;i++) document.getElementById('ex'+i).classList.remove('visible');
+  document.getElementById('ex-btn').disabled=false;
+}
+</script>
+</body>
+</html>

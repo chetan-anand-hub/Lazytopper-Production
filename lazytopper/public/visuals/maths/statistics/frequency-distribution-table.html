@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frequency Distribution Table - Statistics Class 10</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a,#1e3a5f);min-height:100vh;color:#1e293b;}
+.titlebar{background:linear-gradient(90deg,#1d4ed8,#3b82f6,#06b6d4);padding:14px 20px;text-align:center;box-shadow:0 4px 20px rgba(59,130,246,0.5);}
+.titlebar h1{color:#fff;font-size:1.2rem;font-weight:700;}
+.titlebar p{color:#bfdbfe;font-size:0.78rem;margin-top:2px;}
+.container{max-width:750px;margin:0 auto;padding:16px;}
+.card{background:#fff;border-radius:16px;padding:18px;margin-bottom:16px;box-shadow:0 8px 32px rgba(0,0,0,0.2);}
+.section-title{font-size:1rem;font-weight:700;color:#1e293b;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.badge{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border-radius:20px;padding:3px 10px;font-size:0.7rem;font-weight:600;}
+.def-box{background:linear-gradient(135deg,#eff6ff,#dbeafe);border:2px solid #3b82f6;border-radius:12px;padding:14px;margin:10px 0;font-size:0.85rem;color:#1e3a5f;line-height:1.6;}
+.def-box strong{color:#1d4ed8;}
+table{width:100%;border-collapse:collapse;font-size:0.8rem;margin:12px 0;}
+th{background:linear-gradient(135deg,#1d4ed8,#3b82f6);color:#fff;padding:9px 8px;text-align:center;}
+td{padding:8px 6px;text-align:center;border-bottom:1px solid #e2e8f0;}
+tr:nth-child(even) td{background:#f0f9ff;}
+tr:hover td{background:#dbeafe;transition:background 0.2s;}
+.cf-row td{background:linear-gradient(90deg,#fef9c3,#fef08a)!important;font-weight:700;}
+.highlight{color:#1d4ed8;font-weight:700;}
+.bar-wrap{display:flex;align-items:flex-end;gap:6px;height:100px;padding:8px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;margin:12px 0;}
+.bar{flex:1;border-radius:4px 4px 0 0;transition:height 0.6s ease;position:relative;cursor:pointer;}
+.bar:hover{filter:brightness(1.15);}
+.bar-label{font-size:0.58rem;text-align:center;color:#64748b;margin-top:4px;}
+.bar-tip{position:absolute;top:-24px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:2px 7px;border-radius:5px;font-size:0.6rem;white-space:nowrap;opacity:0;transition:opacity 0.2s;pointer-events:none;}
+.bar:hover .bar-tip{opacity:1;}
+.step-btn{display:inline-block;background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border:none;border-radius:20px;padding:8px 20px;font-size:0.78rem;font-weight:600;cursor:pointer;transition:all 0.3s;margin:6px 4px 6px 0;}
+.step-btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(59,130,246,0.4);}
+.step-box{background:#f8fafc;border-left:4px solid #3b82f6;border-radius:0 10px 10px 0;padding:10px 14px;margin:8px 0;display:none;animation:slideIn 0.3s ease;}
+.step-box.visible{display:block;}
+@keyframes slideIn{from{opacity:0;transform:translateX(-10px);}to{opacity:1;transform:translateX(0);}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.step-num{display:inline-block;background:#3b82f6;color:#fff;border-radius:50%;width:22px;height:22px;font-size:0.7rem;font-weight:700;text-align:center;line-height:22px;margin-right:6px;}
+.pill-row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;}
+.pill{padding:5px 14px;border-radius:20px;font-size:0.72rem;font-weight:600;cursor:pointer;border:2px solid transparent;transition:all 0.3s;}
+.pill.blue{background:#dbeafe;color:#1d4ed8;border-color:#93c5fd;}
+.pill.green{background:#dcfce7;color:#16a34a;border-color:#86efac;}
+.pill.amber{background:#fef3c7;color:#92400e;border-color:#fcd34d;}
+.pill:hover{transform:scale(1.05);box-shadow:0 3px 10px rgba(0,0,0,0.12);}
+.term-popup{display:none;background:#1e293b;color:#fff;border-radius:10px;padding:10px 14px;font-size:0.75rem;margin-top:6px;animation:fadeIn 0.3s;line-height:1.5;}
+.term-popup.show{display:block;}
+.hindi{color:#7c3aed;font-weight:600;}
+.interactive-wrap{background:linear-gradient(135deg,#fefce8,#fef9c3);border:2px solid #f59e0b;border-radius:12px;padding:16px;}
+.slider-row{display:flex;align-items:center;gap:10px;margin:8px 0;flex-wrap:wrap;}
+.slider-row label{font-size:0.75rem;font-weight:600;color:#92400e;min-width:100px;}
+input[type=range]{flex:1;min-width:100px;accent-color:#3b82f6;}
+.val-tag{background:#3b82f6;color:#fff;border-radius:8px;padding:3px 10px;font-size:0.78rem;font-weight:700;min-width:40px;text-align:center;}
+.summary-box{background:linear-gradient(135deg,#eff6ff,#dbeafe);border:2px solid #3b82f6;border-radius:10px;padding:10px;text-align:center;margin-top:10px;font-size:0.85rem;color:#1d4ed8;font-weight:700;}
+</style>
+</head>
+<body>
+<div class="titlebar">
+<h1>📋 Frequency Distribution Table — Statistics</h1>
+<p>CBSE Class 10 Mathematics | <span style="color:#fde68a;">बारंबारता वितरण सारणी</span></p>
+</div>
+<div class="container">
+
+<div class="card">
+<div class="section-title">📖 What is a Frequency Distribution Table? <span class="badge">Key Concept</span></div>
+<div class="def-box">
+A <strong>Frequency Distribution Table</strong> organises raw data into <strong>class intervals</strong> and shows how many data values (frequency) fall in each class.<br><br>
+<strong>Class Width (h)</strong> = Upper Boundary − Lower Boundary &nbsp;|&nbsp; <strong>Midpoint (xᵢ)</strong> = (Lower + Upper) / 2<br>
+<span class="hindi">बारंबारता वितरण सारणी आँकड़ों को वर्गों में व्यवस्थित करती है।</span>
+</div>
+<div class="pill-row">
+  <span class="pill blue" onclick="showTerm('cf')">Cumulative Frequency</span>
+  <span class="pill green" onclick="showTerm('class')">Class Interval</span>
+  <span class="pill amber" onclick="showTerm('mid')">Class Midpoint</span>
+</div>
+<div class="term-popup" id="term-popup"></div>
+</div>
+
+<div class="card">
+<div class="section-title">📊 Example Table — Marks of 40 Students</div>
+<table id="freq-table">
+<thead><tr><th>Class Interval</th><th>Tally</th><th>Frequency (fᵢ)</th><th>Cumulative Freq.</th><th>Midpoint (xᵢ)</th></tr></thead>
+<tbody>
+<tr><td>0 – 10</td><td>|| ||</td><td>4</td><td>4</td><td>5</td></tr>
+<tr><td>10 – 20</td><td>|| || ||</td><td>6</td><td>10</td><td>15</td></tr>
+<tr><td>20 – 30</td><td>|| || || ||</td><td>9</td><td>19</td><td>25</td></tr>
+<tr><td>30 – 40</td><td>|| || || || ||</td><td>12</td><td>31</td><td>35</td></tr>
+<tr><td>40 – 50</td><td>|| || ||</td><td>6</td><td>37</td><td>45</td></tr>
+<tr class="cf-row"><td>50 – 60</td><td>|||</td><td>3</td><td class="highlight">40</td><td>55</td></tr>
+</tbody>
+</table>
+<div id="freq-bar" class="bar-wrap">
+  <div style="writing-mode:vertical-rl;font-size:0.6rem;color:#64748b;margin-right:4px;transform:rotate(180deg);">Frequency →</div>
+</div>
+<div style="font-size:0.7rem;color:#64748b;text-align:center;">Class Intervals →</div>
+</div>
+
+<div class="card">
+<div class="section-title">🔢 Build a Table Step-by-Step</div>
+<div id="s1" class="step-box"><span class="step-num">1</span><strong>Collect raw data</strong> — list all values (e.g., scores of students).</div>
+<div id="s2" class="step-box"><span class="step-num">2</span><strong>Decide class width (h)</strong> — divide range by number of classes. Example: Range 0–60, 6 classes → h = 10.</div>
+<div id="s3" class="step-box"><span class="step-num">3</span><strong>Tally each value</strong> — go through data and put a mark in the correct class row.</div>
+<div id="s4" class="step-box"><span class="step-num">4</span><strong>Count tallies → Frequency (fᵢ)</strong> — total marks per row = frequency of that class.</div>
+<div id="s5" class="step-box"><span class="step-num">5</span><strong>Cumulative Frequency</strong> — add each frequency to the running total. Last CF = Σfᵢ (total observations).</div>
+<div id="s6" class="step-box"><span class="step-num">6</span><strong>Find Midpoint</strong> — xᵢ = (Lower + Upper) / 2. Used later to calculate Mean.</div>
+<button class="step-btn" id="step-go" onclick="nextStep()">▶ Next Step</button>
+<button class="step-btn" style="background:linear-gradient(135deg,#ef4444,#b91c1c);" onclick="resetSteps()">↺ Reset</button>
+</div>
+
+<div class="card">
+<div class="section-title">🎛 Interactive: Adjust Frequencies</div>
+<div class="interactive-wrap">
+  <div class="slider-row"><label>Class 0–10 (f₁):</label><input type="range" min="1" max="15" value="4" id="f1" oninput="updateChart()"><span class="val-tag" id="v1">4</span></div>
+  <div class="slider-row"><label>Class 10–20 (f₂):</label><input type="range" min="1" max="15" value="6" id="f2" oninput="updateChart()"><span class="val-tag" id="v2">6</span></div>
+  <div class="slider-row"><label>Class 20–30 (f₃):</label><input type="range" min="1" max="15" value="9" id="f3" oninput="updateChart()"><span class="val-tag" id="v3">9</span></div>
+  <div class="slider-row"><label>Class 30–40 (f₄):</label><input type="range" min="1" max="15" value="12" id="f4" oninput="updateChart()"><span class="val-tag" id="v4">12</span></div>
+  <div class="slider-row"><label>Class 40–50 (f₅):</label><input type="range" min="1" max="15" value="6" id="f5" oninput="updateChart()"><span class="val-tag" id="v5">6</span></div>
+  <div class="slider-row"><label>Class 50–60 (f₆):</label><input type="range" min="1" max="15" value="3" id="f6" oninput="updateChart()"><span class="val-tag" id="v6">3</span></div>
+  <div class="summary-box" id="summary">Total Observations (Σfᵢ) = 40 | Modal Class: 30–40</div>
+</div>
+</div>
+
+</div>
+<script>
+const terms = {
+  cf: "Cumulative Frequency (संचयी बारंबारता): Running total of frequencies. The last CF equals total observations (N).",
+  class: "Class Interval (वर्ग अंतराल): A range of values grouped together, e.g., 20–30. Both ends define the class boundaries.",
+  mid: "Midpoint (मध्य-बिंदु): xᵢ = (Lower + Upper) / 2. Represents the class in calculations like Mean."
+};
+function showTerm(k) {
+  const p = document.getElementById('term-popup');
+  p.textContent = terms[k];
+  p.classList.toggle('show', !p.classList.contains('show') || p.textContent !== terms[k]);
+  if(p.classList.contains('show')) p.textContent = terms[k];
+}
+let step = 0;
+function nextStep() {
+  step++;
+  if (step <= 6) {
+    document.getElementById('s'+step).classList.add('visible');
+  }
+  if (step >= 6) document.getElementById('step-go').disabled = true;
+}
+function resetSteps() {
+  step = 0;
+  for (let i=1;i<=6;i++) document.getElementById('s'+i).classList.remove('visible');
+  document.getElementById('step-go').disabled = false;
+}
+const colors = ['#3b82f6','#22c55e','#f59e0b','#ef4444','#a855f7','#06b6d4'];
+const labels = ['0–10','10–20','20–30','30–40','40–50','50–60'];
+function buildBar() {
+  const wrap = document.getElementById('freq-bar');
+  const axis = wrap.children[0];
+  wrap.innerHTML = '';
+  wrap.appendChild(axis);
+  const freqs = [4,6,9,12,6,3];
+  const max = Math.max(...freqs);
+  freqs.forEach((f,i)=>{
+    const col = document.createElement('div');
+    col.style.cssText = `display:flex;flex-direction:column;align-items:center;flex:1;`;
+    const bar = document.createElement('div');
+    bar.className = 'bar';
+    bar.style.cssText = `height:${Math.round(f/max*80)}px;background:${colors[i]};border-radius:4px 4px 0 0;position:relative;transition:height 0.6s;cursor:pointer;width:100%;`;
+    const tip = document.createElement('div');
+    tip.className = 'bar-tip';
+    tip.textContent = `f=${f}`;
+    bar.appendChild(tip);
+    bar.onmouseenter=()=>tip.style.opacity='1';
+    bar.onmouseleave=()=>tip.style.opacity='0';
+    const lbl = document.createElement('div');
+    lbl.className = 'bar-label';
+    lbl.textContent = labels[i];
+    col.appendChild(bar);
+    col.appendChild(lbl);
+    wrap.appendChild(col);
+  });
+}
+function updateChart() {
+  const ids=['f1','f2','f3','f4','f5','f6'];
+  const freqs = ids.map((id,i)=>{
+    const v=parseInt(document.getElementById(id).value);
+    document.getElementById('v'+(i+1)).textContent=v;
+    return v;
+  });
+  const total = freqs.reduce((a,b)=>a+b,0);
+  const modalIdx = freqs.indexOf(Math.max(...freqs));
+  document.getElementById('summary').textContent = `Total Observations (Σfᵢ) = ${total} | Modal Class: ${labels[modalIdx]}`;
+  const wrap = document.getElementById('freq-bar');
+  const bars = wrap.querySelectorAll('.bar');
+  const max = Math.max(...freqs);
+  bars.forEach((b,i)=>{ b.style.height = Math.round(freqs[i]/max*80)+'px'; b.querySelector('.bar-tip').textContent='f='+freqs[i]; });
+}
+buildBar();
+</script>
+</body>
+</html>

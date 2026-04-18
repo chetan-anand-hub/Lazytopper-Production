@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Collinearity Condition - Coordinate Geometry Class 10</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a,#1e3a5f);min-height:100vh;color:#1e293b;}
+.titlebar{background:linear-gradient(90deg,#1d4ed8,#3b82f6,#06b6d4);padding:14px 20px;text-align:center;box-shadow:0 4px 20px rgba(59,130,246,0.5);}
+.titlebar h1{color:#fff;font-size:1.2rem;font-weight:700;}
+.titlebar p{color:#bfdbfe;font-size:0.78rem;margin-top:2px;}
+.container{max-width:750px;margin:0 auto;padding:16px;}
+.card{background:#fff;border-radius:16px;padding:18px;margin-bottom:16px;box-shadow:0 8px 32px rgba(0,0,0,0.2);}
+.section-title{font-size:1rem;font-weight:700;color:#1e293b;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.badge{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border-radius:20px;padding:3px 10px;font-size:0.7rem;font-weight:600;}
+.formula-box{background:linear-gradient(135deg,#eff6ff,#dbeafe);border:2px solid #3b82f6;border-radius:12px;padding:14px;text-align:center;margin:10px 0;}
+.formula{font-size:1.05rem;font-weight:700;color:#1d4ed8;letter-spacing:0.5px;}
+.formula-note{font-size:0.72rem;color:#3b82f6;margin-top:6px;}
+.def-text{font-size:0.83rem;color:#334155;line-height:1.6;margin:10px 0;}
+.def-text strong{color:#1d4ed8;}
+.canvas-wrap{background:#f8fafc;border-radius:12px;border:1px solid #e2e8f0;padding:10px;margin:12px 0;overflow:hidden;}
+canvas{display:block;width:100%;cursor:crosshair;}
+.coord-inputs{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0;}
+.point-input{background:linear-gradient(135deg,#f0f9ff,#e0f2fe);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:8px;font-size:0.78rem;flex:1;min-width:140px;}
+.point-label{font-weight:700;color:#1d4ed8;min-width:28px;}
+.coord-field{width:48px;border:1px solid #93c5fd;border-radius:6px;padding:3px 6px;font-size:0.78rem;text-align:center;color:#1e293b;}
+.result-box{border-radius:12px;padding:12px;text-align:center;margin-top:10px;font-size:0.9rem;font-weight:700;transition:all 0.4s;}
+.result-box.collinear{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:2px solid #22c55e;color:#15803d;}
+.result-box.not-collinear{background:linear-gradient(135deg,#fff7ed,#fed7aa);border:2px solid #f97316;color:#c2410c;}
+.area-val{font-size:1.1rem;font-weight:800;margin-top:4px;}
+.step-box{background:#f8fafc;border-left:4px solid #3b82f6;border-radius:0 10px 10px 0;padding:10px 14px;margin:8px 0;display:none;animation:slideIn 0.3s ease;}
+.step-box.visible{display:block;}
+.step-box.green{border-left-color:#22c55e;}
+.step-box.amber{border-left-color:#f59e0b;}
+@keyframes slideIn{from{opacity:0;transform:translateX(-8px);}to{opacity:1;transform:translateX(0);}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.step-num{display:inline-block;background:#3b82f6;color:#fff;border-radius:50%;width:22px;height:22px;font-size:0.7rem;font-weight:700;text-align:center;line-height:22px;margin-right:6px;}
+.step-box.green .step-num{background:#22c55e;}
+.step-box.amber .step-num{background:#f59e0b;}
+.step-text{font-size:0.82rem;color:#334155;margin-top:4px;line-height:1.5;}
+.step-math{font-size:0.9rem;font-weight:700;color:#1d4ed8;margin-top:6px;}
+.step-btn{display:inline-block;background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border:none;border-radius:20px;padding:8px 20px;font-size:0.78rem;font-weight:600;cursor:pointer;transition:all 0.3s;margin:6px 4px 0 0;}
+.step-btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(59,130,246,0.4);}
+.step-btn.red{background:linear-gradient(135deg,#ef4444,#b91c1c);}
+.methods-tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.tab-btn{flex:1;min-width:100px;padding:8px;border:2px solid #e2e8f0;background:#f8fafc;border-radius:10px;font-size:0.75rem;font-weight:600;cursor:pointer;color:#64748b;transition:all 0.3s;}
+.tab-btn.active{border-color:#3b82f6;background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;}
+.method-panel{display:none;}
+.method-panel.active{display:block;animation:fadeIn 0.35s ease;}
+.hindi{color:#7c3aed;font-weight:600;font-size:0.8rem;}
+</style>
+</head>
+<body>
+<div class="titlebar">
+<h1>📐 Collinearity Condition — Coordinate Geometry</h1>
+<p>CBSE Class 10 Mathematics | <span style="color:#fde68a;">संरेखता की शर्त</span></p>
+</div>
+<div class="container">
+
+<div class="card">
+<div class="section-title">📖 What is Collinearity? <span class="badge">Key Concept</span></div>
+<div class="def-text">Three points A(x₁,y₁), B(x₂,y₂) and C(x₃,y₃) are called <strong>collinear</strong> if they all lie on the same straight line — i.e., they do not form a triangle.<br><br>
+<strong>Condition:</strong> Area of triangle formed by A, B, C = 0</div>
+<div class="formula-box">
+<div class="formula">Area = ½ |x₁(y₂−y₃) + x₂(y₃−y₁) + x₃(y₁−y₂)| = 0</div>
+<div class="formula-note">If Area = 0 → Points are Collinear | If Area ≠ 0 → Not Collinear</div>
+</div>
+<div class="hindi">तीन बिंदु संरेख हैं यदि उनसे बना त्रिभुज का क्षेत्रफल शून्य हो।</div>
+</div>
+
+<div class="card">
+<div class="section-title">🎛 Interactive Plotter</div>
+<div class="coord-inputs">
+  <div class="point-input"><span class="point-label" style="color:#ef4444;">A</span>x:<input class="coord-field" id="ax" type="number" value="1" oninput="updatePlot()"> y:<input class="coord-field" id="ay" type="number" value="1" oninput="updatePlot()"></div>
+  <div class="point-input"><span class="point-label" style="color:#22c55e;">B</span>x:<input class="coord-field" id="bx" type="number" value="3" oninput="updatePlot()"> y:<input class="coord-field" id="by" type="number" value="3" oninput="updatePlot()"></div>
+  <div class="point-input"><span class="point-label" style="color:#f59e0b;">C</span>x:<input class="coord-field" id="cx" type="number" value="5" oninput="updatePlot()"> y:<input class="coord-field" id="cy" type="number" value="5" oninput="updatePlot()"></div>
+</div>
+<div class="canvas-wrap"><canvas id="plot" height="240"></canvas></div>
+<div class="result-box collinear" id="result-box">
+  <div id="result-msg">✅ Points are COLLINEAR (संरेख)</div>
+  <div class="area-val" id="area-val">Area = 0</div>
+</div>
+</div>
+
+<div class="card">
+<div class="section-title">🧮 Two Methods to Check Collinearity</div>
+<div class="methods-tabs">
+  <button class="tab-btn active" onclick="showMethod('area', this)">Area Method</button>
+  <button class="tab-btn" onclick="showMethod('slope', this)">Slope Method</button>
+</div>
+<div class="method-panel active" id="m-area">
+  <div class="formula-box"><div class="formula">Area = ½ |x₁(y₂−y₃) + x₂(y₃−y₁) + x₃(y₁−y₂)|</div><div class="formula-note">Set Area = 0 to find collinearity condition</div></div>
+  <div class="def-text">If Area = 0, the three points are collinear. This is the most commonly used method for Class 10.</div>
+</div>
+<div class="method-panel" id="m-slope">
+  <div class="formula-box"><div class="formula">Slope AB = Slope BC → (y₂−y₁)/(x₂−x₁) = (y₃−y₂)/(x₃−x₂)</div><div class="formula-note">If slopes of any two pairs of segments are equal, points are collinear</div></div>
+  <div class="def-text">If the slope from A to B equals the slope from B to C, all three points lie on the same line.</div>
+</div>
+</div>
+
+<div class="card">
+<div class="section-title">📋 Worked Example</div>
+<p style="font-size:0.82rem;color:#475569;margin-bottom:10px;"><strong>Q:</strong> Check if A(1,1), B(2,3), C(3,5) are collinear.</p>
+<div id="ws1" class="step-box"><span class="step-num">1</span><div class="step-text">Write down coordinates: A(1,1), B(2,3), C(3,5)</div></div>
+<div id="ws2" class="step-box"><span class="step-num">2</span><div class="step-text">Apply area formula:</div><div class="step-math">Area = ½ |x₁(y₂−y₃) + x₂(y₃−y₁) + x₃(y₁−y₂)|</div></div>
+<div id="ws3" class="step-box green"><span class="step-num green">3</span><div class="step-text">Substitute values:</div><div class="step-math">= ½ |1(3−5) + 2(5−1) + 3(1−3)|</div></div>
+<div id="ws4" class="step-box"><span class="step-num">4</span><div class="step-text">Simplify each bracket:</div><div class="step-math">= ½ |1(−2) + 2(4) + 3(−2)| = ½|−2 + 8 − 6|</div></div>
+<div id="ws5" class="step-box amber"><span class="step-num amber">5</span><div class="step-text">Final result:</div><div class="step-math">= ½|0| = 0 → ∴ Points are COLLINEAR ✅</div></div>
+<div style="margin-top:10px;">
+  <button class="step-btn" id="ws-btn" onclick="nextWS()">▶ Next Step</button>
+  <button class="step-btn red" onclick="resetWS()">↺ Reset</button>
+</div>
+</div>
+
+</div>
+<script>
+const W=320,H=240,PAD=30;
+function updatePlot(){
+  const vals=(['ax','ay','bx','by','cx','cy']).map(id=>parseFloat(document.getElementById(id).value)||0);
+  const [ax,ay,bx,by,cx2,cy]=vals;
+  const area2=Math.abs(ax*(by-cy)+bx*(cy-ay)+cx2*(ay-by));
+  const area=area2/2;
+  const rb=document.getElementById('result-box');
+  document.getElementById('area-val').textContent='Area = '+area.toFixed(4);
+  if(area<0.001){rb.className='result-box collinear';document.getElementById('result-msg').textContent='✅ Points are COLLINEAR (संरेख)';}
+  else{rb.className='result-box not-collinear';document.getElementById('result-msg').textContent='❌ Points are NOT Collinear (असंरेख)';}
+  drawPlot(ax,ay,bx,by,cx2,cy,area);
+}
+function drawPlot(ax,ay,bx,by,cx,cy,area){
+  const canvas=document.getElementById('plot');
+  const dpr=window.devicePixelRatio||1;
+  const rect=canvas.getBoundingClientRect();
+  const cw=rect.width||320;
+  canvas.width=cw*dpr;canvas.height=H*dpr;
+  canvas.style.height=H+'px';
+  const ctx=canvas.getContext('2d');
+  ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,cw,H);
+  const pts=[[ax,ay],[bx,by],[cx,cy]];
+  const xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]);
+  const minX=Math.min(...xs)-1,maxX=Math.max(...xs)+1;
+  const minY=Math.min(...ys)-1,maxY=Math.max(...ys)+1;
+  const rngX=Math.max(maxX-minX,1),rngY=Math.max(maxY-minY,1);
+  const scaleX=(cw-2*PAD)/rngX,scaleY=(H-2*PAD)/rngY;
+  const sc=Math.min(scaleX,scaleY);
+  const offX=PAD+(cw-2*PAD-(maxX-minX)*sc)/2-minX*sc;
+  const offY=H-PAD-(H-2*PAD-(maxY-minY)*sc)/2+minY*sc;
+  const toC=(px,py)=>[(px*sc+offX),(offY-py*sc)];
+  // Grid
+  ctx.strokeStyle='#e2e8f0';ctx.lineWidth=0.5;
+  for(let gx=Math.floor(minX);gx<=Math.ceil(maxX);gx++){const [cx2,cy2]=toC(gx,minY);const [cx3,cy3]=toC(gx,maxY);ctx.beginPath();ctx.moveTo(cx2,cy2);ctx.lineTo(cx3,cy3);ctx.stroke();}
+  for(let gy=Math.floor(minY);gy<=Math.ceil(maxY);gy++){const [cx2,cy2]=toC(minX,gy);const [cx3,cy3]=toC(maxX,gy);ctx.beginPath();ctx.moveTo(cx2,cy2);ctx.lineTo(cx3,cy3);ctx.stroke();}
+  // Axes
+  ctx.strokeStyle='#94a3b8';ctx.lineWidth=1;
+  if(minY<=0&&maxY>=0){const [ox,oy]=toC(minX,0);const [ox2,oy2]=toC(maxX,0);ctx.beginPath();ctx.moveTo(ox,oy);ctx.lineTo(ox2,oy2);ctx.stroke();}
+  if(minX<=0&&maxX>=0){const [ox,oy]=toC(0,minY);const [ox2,oy2]=toC(0,maxY);ctx.beginPath();ctx.moveTo(ox,oy);ctx.lineTo(ox2,oy2);ctx.stroke();}
+  // Triangle or Line
+  const pA=toC(ax,ay),pB=toC(bx,by),pC=toC(cx,cy);
+  if(area<0.001){ctx.strokeStyle='#3b82f6';ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(pA[0],pA[1]);ctx.lineTo(pB[0],pB[1]);ctx.lineTo(pC[0],pC[1]);ctx.stroke();}
+  else{ctx.fillStyle='rgba(239,68,68,0.15)';ctx.strokeStyle='#ef4444';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(pA[0],pA[1]);ctx.lineTo(pB[0],pB[1]);ctx.lineTo(pC[0],pC[1]);ctx.closePath();ctx.fill();ctx.stroke();}
+  // Points
+  [['A',ax,ay,'#ef4444'],[' B',bx,by,'#22c55e'],['C',cx,cy,'#f59e0b']].forEach(([lbl,px,py,col])=>{
+    const[cx2,cy2]=toC(px,py);
+    ctx.beginPath();ctx.arc(cx2,cy2,6,0,2*Math.PI);ctx.fillStyle=col;ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();
+    ctx.fillStyle=col;ctx.font='bold 11px Segoe UI';ctx.fillText(`${lbl}(${px},${py})`,cx2+8,cy2-6);
+  });
+}
+updatePlot();
+
+function showMethod(m, btn){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.method-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('m-'+m).classList.add('active');
+}
+let wsStep=0;
+function nextWS(){
+  wsStep++;
+  if(wsStep<=5) document.getElementById('ws'+wsStep).classList.add('visible');
+  if(wsStep>=5) document.getElementById('ws-btn').disabled=true;
+}
+function resetWS(){
+  wsStep=0;
+  for(let i=1;i<=5;i++) document.getElementById('ws'+i).classList.remove('visible');
+  document.getElementById('ws-btn').disabled=false;
+}
+window.addEventListener('resize',updatePlot);
+</script>
+</body>
+</html>

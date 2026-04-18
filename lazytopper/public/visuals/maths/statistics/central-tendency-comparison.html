@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Choosing Central Tendency Measure - Statistics Class 10</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a,#1e3a5f);min-height:100vh;color:#1e293b;}
+.titlebar{background:linear-gradient(90deg,#1d4ed8,#3b82f6,#06b6d4);padding:14px 20px;text-align:center;box-shadow:0 4px 20px rgba(59,130,246,0.5);}
+.titlebar h1{color:#fff;font-size:1.15rem;font-weight:700;}
+.titlebar p{color:#bfdbfe;font-size:0.78rem;margin-top:2px;}
+.container{max-width:750px;margin:0 auto;padding:16px;}
+.card{background:#fff;border-radius:16px;padding:18px;margin-bottom:16px;box-shadow:0 8px 32px rgba(0,0,0,0.2);}
+.section-title{font-size:1rem;font-weight:700;color:#1e293b;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.badge{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border-radius:20px;padding:3px 10px;font-size:0.7rem;font-weight:600;}
+.compare-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:12px 0;}
+@media(max-width:480px){.compare-grid{grid-template-columns:1fr;}}
+.measure-card{border-radius:14px;padding:14px;border:2px solid transparent;transition:all 0.3s;cursor:pointer;}
+.measure-card.mean{background:linear-gradient(135deg,#eff6ff,#dbeafe);border-color:#93c5fd;}
+.measure-card.median{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-color:#86efac;}
+.measure-card.mode{background:linear-gradient(135deg,#fef3c7,#fde68a);border-color:#fcd34d;}
+.measure-card:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(0,0,0,0.15);}
+.measure-card.selected{transform:translateY(-4px);box-shadow:0 8px 24px rgba(0,0,0,0.2);border-width:3px;}
+.m-title{font-size:1rem;font-weight:800;margin-bottom:6px;}
+.mean .m-title{color:#1d4ed8;}
+.median .m-title{color:#16a34a;}
+.mode .m-title{color:#92400e;}
+.m-formula{font-size:0.8rem;font-weight:700;padding:5px 8px;border-radius:8px;margin-bottom:8px;display:inline-block;}
+.mean .m-formula{background:#dbeafe;color:#1d4ed8;}
+.median .m-formula{background:#dcfce7;color:#16a34a;}
+.mode .m-formula{background:#fef9c3;color:#92400e;}
+.m-desc{font-size:0.73rem;color:#475569;line-height:1.5;}
+.m-use{font-size:0.7rem;font-weight:600;margin-top:8px;padding:4px 8px;border-radius:6px;display:inline-block;}
+.mean .m-use{background:#bfdbfe;color:#1e40af;}
+.median .m-use{background:#bbf7d0;color:#15803d;}
+.mode .m-use{background:#fde68a;color:#78350f;}
+.detail-panel{background:#f8fafc;border-radius:12px;padding:14px;border-left:4px solid #3b82f6;display:none;animation:fadeIn 0.3s ease;margin-top:8px;}
+.detail-panel.show{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.rule-row{display:flex;align-items:flex-start;gap:10px;margin:6px 0;font-size:0.78rem;color:#334155;line-height:1.5;}
+.rule-icon{font-size:1rem;flex-shrink:0;}
+.quiz-wrap{background:linear-gradient(135deg,#fefce8,#fef9c3);border:2px solid #f59e0b;border-radius:12px;padding:16px;}
+.quiz-q{font-size:0.88rem;font-weight:700;color:#1e293b;margin-bottom:12px;}
+.quiz-opts{display:flex;flex-direction:column;gap:8px;}
+.opt-btn{padding:9px 14px;border-radius:10px;border:2px solid #e2e8f0;background:#fff;font-size:0.8rem;font-weight:600;cursor:pointer;transition:all 0.3s;text-align:left;color:#334155;}
+.opt-btn:hover{border-color:#3b82f6;background:#eff6ff;color:#1d4ed8;}
+.opt-btn.correct{background:#dcfce7;border-color:#22c55e;color:#15803d;}
+.opt-btn.wrong{background:#fee2e2;border-color:#ef4444;color:#b91c1c;}
+.quiz-feedback{font-size:0.78rem;font-weight:600;margin-top:10px;padding:8px 12px;border-radius:8px;display:none;}
+.quiz-feedback.show{display:block;}
+.quiz-feedback.ok{background:#dcfce7;color:#15803d;border:1px solid #86efac;}
+.quiz-feedback.bad{background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5;}
+.next-btn{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border:none;border-radius:20px;padding:8px 20px;font-size:0.78rem;font-weight:600;cursor:pointer;margin-top:10px;display:none;}
+.next-btn.show{display:inline-block;}
+.next-btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(59,130,246,0.4);}
+.score-bar{height:6px;background:#e2e8f0;border-radius:3px;margin:10px 0;}
+.score-fill{height:100%;border-radius:3px;transition:width 0.5s;background:linear-gradient(90deg,#3b82f6,#22c55e);}
+.hindi{color:#7c3aed;font-weight:600;font-size:0.8rem;}
+</style>
+</head>
+<body>
+<div class="titlebar">
+<h1>🎯 Choosing the Right Central Tendency Measure</h1>
+<p>CBSE Class 10 Mathematics | <span style="color:#fde68a;">केंद्रीय प्रवृत्ति का सही माप चुनना</span></p>
+</div>
+<div class="container">
+
+<div class="card">
+<div class="section-title">📌 The Three Measures <span class="badge">Click to Explore</span></div>
+<div class="compare-grid">
+  <div class="measure-card mean" onclick="selectMeasure('mean')">
+    <div class="m-title">📊 Mean</div>
+    <div class="m-formula">x̄ = Σfᵢxᵢ / Σfᵢ</div>
+    <div class="m-desc">Average of all values. Affected by extreme values.</div>
+    <div class="m-use">✅ Use when: data is symmetric, no outliers</div>
+  </div>
+  <div class="measure-card median" onclick="selectMeasure('median')">
+    <div class="m-title">📍 Median</div>
+    <div class="m-formula">M = l + ((N/2 − cf)/f) × h</div>
+    <div class="m-desc">Middle value when data is arranged in order.</div>
+    <div class="m-use">✅ Use when: data has extreme values/skewed</div>
+  </div>
+  <div class="measure-card mode" onclick="selectMeasure('mode')">
+    <div class="m-title">🏆 Mode</div>
+    <div class="m-formula">Z = l + ((f₁−f₀)/(2f₁−f₀−f₂)) × h</div>
+    <div class="m-desc">Most frequently occurring value.</div>
+    <div class="m-use">✅ Use when: most common value is needed</div>
+  </div>
+</div>
+<div class="detail-panel" id="detail-panel"></div>
+</div>
+
+<div class="card">
+<div class="section-title">🗺 When to Use Which? <span class="badge">Decision Guide</span></div>
+<div class="rule-row"><span class="rule-icon">🔵</span><span><strong>Mean</strong> — best when all values matter equally and data has no extreme outliers. e.g., average marks of a class, average rainfall.</span></div>
+<div class="rule-row"><span class="rule-icon">🟢</span><span><strong>Median</strong> — best when data is skewed or has very high/low outliers. e.g., average income of a city (few very rich people skew Mean upward).</span></div>
+<div class="rule-row"><span class="rule-icon">🟡</span><span><strong>Mode</strong> — best when the most common value is most useful. e.g., most popular shoe size, most sold product.</span></div>
+<div class="rule-row"><span class="rule-icon">📐</span><span><strong>Empirical relation</strong>: Mode = 3 × Median − 2 × Mean (approx. for moderately skewed data).</span></div>
+<div class="hindi" style="margin-top:8px;">माध्य, माध्यिका और बहुलक — इनमें से सही माप का चुनाव आँकड़ों की प्रकृति पर निर्भर करता है।</div>
+</div>
+
+<div class="card">
+<div class="section-title">🧠 Quick Quiz</div>
+<div class="quiz-wrap">
+  <div class="score-bar"><div class="score-fill" id="score-fill" style="width:0%"></div></div>
+  <div id="q-count" style="font-size:0.72rem;color:#92400e;margin-bottom:10px;">Question 1 of 4</div>
+  <div class="quiz-q" id="quiz-q"></div>
+  <div class="quiz-opts" id="quiz-opts"></div>
+  <div class="quiz-feedback" id="quiz-fb"></div>
+  <button class="next-btn" id="next-btn" onclick="nextQ()">Next Question ▶</button>
+</div>
+</div>
+
+</div>
+<script>
+const details = {
+  mean: {
+    title: "📊 Mean — Details",
+    points: [
+      "Uses ALL data values; most mathematically convenient.",
+      "Badly affected by outliers (extreme values) — one very large number can shift the mean significantly.",
+      "Best for: symmetric distributions (bell-shaped), exam marks, heights, weights.",
+      "Formula for grouped data: x̄ = Σfᵢxᵢ / Σfᵢ (Direct Method)"
+    ],
+    color: "#1d4ed8"
+  },
+  median: {
+    title: "📍 Median — Details",
+    points: [
+      "Middle value — exactly half the data is below it and half above.",
+      "NOT affected by extreme values → robust for skewed data.",
+      "Best for: income data, property prices, any data with outliers.",
+      "For grouped data: identify the median class where CF first exceeds N/2."
+    ],
+    color: "#16a34a"
+  },
+  mode: {
+    title: "🏆 Mode — Details",
+    points: [
+      "The value (or class) that occurs most frequently.",
+      "A dataset can have no mode, one mode, or multiple modes.",
+      "Best for: fashion, retail, logistics — where 'most common' matters.",
+      "Modal class = class with highest frequency; formula refines within the class."
+    ],
+    color: "#92400e"
+  }
+};
+function selectMeasure(m) {
+  document.querySelectorAll('.measure-card').forEach(el=>el.classList.remove('selected'));
+  document.querySelector('.measure-card.'+m).classList.add('selected');
+  const d = details[m];
+  const panel = document.getElementById('detail-panel');
+  panel.style.borderColor = d.color;
+  panel.innerHTML = `<strong style="color:${d.color};font-size:0.9rem;">${d.title}</strong><ul style="margin-top:8px;padding-left:18px;">${d.points.map(p=>`<li style="font-size:0.78rem;color:#334155;margin:4px 0;">${p}</li>`).join('')}</ul>`;
+  panel.classList.add('show');
+}
+
+const questions = [
+  {q:"A city records incomes: ₹10K, ₹12K, ₹11K, ₹9K, ₹200K. Which measure best represents 'typical' income?", opts:["Mean","Median","Mode","All are equal"], ans:1, exp:"Median is best — the ₹200K outlier inflates the Mean, giving a misleadingly high 'average'."},
+  {q:"A shoe factory wants to know the most popular size to manufacture more of. Which measure should they use?", opts:["Mean","Median","Mode","Range"], ans:2, exp:"Mode gives the most frequently sold size — exactly what the factory needs to maximise production."},
+  {q:"Students' marks in a test follow a symmetric bell curve with no outliers. Best measure of central tendency?", opts:["Median","Mode","Mean","Cumulative Frequency"], ans:2, exp:"Mean is ideal for symmetric data — it uses every value and equals the median and mode in a perfect bell curve."},
+  {q:"Which empirical relation connects the three measures for moderately skewed data?", opts:["Mean = Median = Mode","Mode = 3·Median − 2·Mean","Median = 2·Mode − Mean","Mode = Mean + Median"], ans:1, exp:"Mode ≈ 3·Median − 2·Mean is the empirical (approximate) relation used for moderately skewed distributions."}
+];
+let qi=0, score=0;
+function showQ() {
+  const q = questions[qi];
+  document.getElementById('q-count').textContent = `Question ${qi+1} of ${questions.length}`;
+  document.getElementById('score-fill').style.width = (score/questions.length*100)+'%';
+  document.getElementById('quiz-q').textContent = q.q;
+  const opts = document.getElementById('quiz-opts');
+  opts.innerHTML = '';
+  q.opts.forEach((o,i)=>{
+    const btn = document.createElement('button');
+    btn.className='opt-btn';
+    btn.textContent = o;
+    btn.onclick = ()=>answer(i);
+    opts.appendChild(btn);
+  });
+  document.getElementById('quiz-fb').className='quiz-feedback';
+  document.getElementById('next-btn').className='next-btn';
+}
+function answer(i) {
+  const q = questions[qi];
+  const btns = document.querySelectorAll('.opt-btn');
+  btns.forEach((b,j)=>{ b.onclick=null; if(j===q.ans)b.classList.add('correct'); else if(j===i)b.classList.add('wrong'); });
+  const fb = document.getElementById('quiz-fb');
+  const correct = i===q.ans;
+  if(correct) score++;
+  fb.textContent = (correct?'✅ Correct! ':'❌ Not quite. ')+q.exp;
+  fb.className='quiz-feedback show '+(correct?'ok':'bad');
+  document.getElementById('next-btn').className='next-btn show';
+}
+function nextQ() {
+  qi++;
+  if(qi<questions.length){ showQ(); }
+  else {
+    document.getElementById('quiz-q').textContent = `🎉 Quiz Complete! Score: ${score}/${questions.length}`;
+    document.getElementById('quiz-opts').innerHTML='';
+    document.getElementById('quiz-fb').className='quiz-feedback';
+    document.getElementById('next-btn').className='next-btn';
+    document.getElementById('score-fill').style.width=(score/questions.length*100)+'%';
+  }
+}
+showQ();
+</script>
+</body>
+</html>
