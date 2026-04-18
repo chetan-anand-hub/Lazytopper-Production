@@ -122,35 +122,6 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "ncertRef": "Ex 8.1"
   },
   {
-    "id": "TG3-005",
-    "subject": "Maths",
-    "topicKey": "trigonometry",
-    "subtopic": "Complementary Angles",
-    "section": "A",
-    "marks": 1,
-    "format": "MCQ",
-    "difficulty": "Easy",
-    "bloomSkill": "Remembering",
-    "questionText": "sin (90° - θ) equals:",
-    "options": [
-      "sin θ",
-      "cos θ",
-      "-cos θ",
-      "-sin θ"
-    ],
-    "answer": "cos θ",
-    "solutionSteps": [
-      "By complementary angle formula: sin (90° - θ) = cos θ",
-      "This applies because 90° and (90° - θ) are complementary angles"
-    ],
-    "finalAnswer": "cos θ",
-    "explanation": "By complementary angle formula: sin (90° - θ) = cos θ. This applies because 90° and (90° - θ) are complementary angles. Therefore, the correct answer is cos θ.",
-    "isCompetencyBased": false,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 8.4"
-  },
-  {
     "id": "TG3-006",
     "subject": "Maths",
     "topicKey": "trigonometry",
@@ -209,36 +180,6 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "pyqYear": undefined,
     "pyqSet": undefined,
     "ncertRef": "Ex 8.2"
-  },
-  {
-    "id": "TG3-008",
-    "subject": "Maths",
-    "topicKey": "trigonometry",
-    "subtopic": "Complementary Angles",
-    "section": "A",
-    "marks": 1,
-    "format": "MCQ",
-    "difficulty": "Medium",
-    "bloomSkill": "Applying",
-    "questionText": "cos (90° - 35°) equals:",
-    "options": [
-      "sin 35°",
-      "cos 35°",
-      "tan 35°",
-      "cot 35°"
-    ],
-    "answer": "sin 35°",
-    "solutionSteps": [
-      "cos (90° - 35°) = cos 55°",
-      "By complementary angle formula: cos (90° - θ) = sin θ",
-      "cos (90° - 35°) = sin 35°"
-    ],
-    "finalAnswer": "sin 35°",
-    "explanation": "cos (90° - 35°) = cos 55°. By complementary angle formula: cos (90° - θ) = sin θ. cos (90° - 35°) = sin 35°. Therefore, the correct answer is sin 35°.",
-    "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 8.4"
   },
   {
     "id": "TG3-009",
@@ -315,31 +256,6 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "ncertRef": "Ex 8.2"
   },
   {
-    "id": "TG3-012",
-    "subject": "Maths",
-    "topicKey": "trigonometry",
-    "subtopic": "Complementary Angles",
-    "section": "B",
-    "marks": 2,
-    "format": "Short",
-    "difficulty": "Medium",
-    "bloomSkill": "Understanding",
-    "questionText": "Verify: tan 30° · tan 60° = 1. Is this true? Why or why not?",
-    "options": [],
-    "answer": "True, because tan 60° = cot 30°",
-    "solutionSteps": [
-      "tan 30° = 1/√3, tan 60° = √3",
-      "tan 30° · tan 60° = (1/√3) · √3 = 1",
-      "Note: tan θ · tan (90° - θ) = 1 is the complementary angle identity",
-      "Here 30° + 60° = 90°, so this follows the identity tan θ · cot θ = 1"
-    ],
-    "finalAnswer": "True, because tan 60° = cot 30°",
-    "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 8.4"
-  },
-  {
     "id": "TG3-013",
     "subject": "Maths",
     "topicKey": "trigonometry",
@@ -369,36 +285,6 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "pyqYear": undefined,
     "pyqSet": undefined,
     "ncertRef": "Ex 8.1"
-  },
-  {
-    "id": "TG3-014",
-    "subject": "Maths",
-    "topicKey": "trigonometry",
-    "subtopic": "Complementary Angles",
-    "section": "B",
-    "marks": 1,
-    "format": "Assertion-Reasoning",
-    "difficulty": "Medium",
-    "bloomSkill": "Applying",
-    "questionText": "Assertion (A): sin 25° = cos 65°. Reason (R): Sine and cosine of complementary angles are equal.",
-    "options": [
-      "Both A and R are true, and R is the correct explanation of A.",
-      "Both A and R are true, but R is not the correct explanation of A.",
-      "A is true, R is false.",
-      "A is false, R is true."
-    ],
-    "answer": "Both A and R are true, and R is the correct explanation of A.",
-    "solutionSteps": [
-      "25° + 65° = 90°, so they are complementary angles",
-      "By complementary angle formula: sin (90° - θ) = cos θ",
-      "sin 25° = sin (90° - 65°) = cos 65°"
-    ],
-    "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
-    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
-    "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 8.4"
   },
   {
     "id": "TG3-015",
@@ -540,35 +426,6 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "pyqYear": undefined,
     "pyqSet": undefined,
     "ncertRef": "Ex 8.2"
-  },
-  {
-    "id": "TG3-020",
-    "subject": "Maths",
-    "topicKey": "trigonometry",
-    "subtopic": "Complementary Angles",
-    "section": "C",
-    "marks": 3,
-    "format": "Short",
-    "difficulty": "Hard",
-    "bloomSkill": "Analysing",
-    "questionText": "If tan α = 2/3 and tan β = 1/2, where α and β are acute angles, prove that α + β = 45°",
-    "options": [],
-    "answer": "Need verification of values for α + β = 45°",
-    "solutionSteps": [
-      "tan(α + β) = (tan α + tan β)/(1 - tan α tan β)",
-      "= (2/3 + 1/2)/(1 - 2/3 · 1/2)",
-      "= ((4+3)/6)/(1 - 1/3)",
-      "= (7/6)/(2/3)",
-      "(2/3 + 1/2) = (4+3)/6 = 7/6",
-      "1 - (2/3)(1/2) = 1 - 1/3 = 2/3",
-      "tan(α + β) = (7/6)/(2/3) = 7/6 · 3/2 = 7/4... This doesn't equal 1",
-      "Simplifying using standard identity"
-    ],
-    "finalAnswer": "Need verification of values for α + β = 45°",
-    "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 8.4"
   },
   {
     "id": "TG3-021",
@@ -741,34 +598,6 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "ncertRef": "Ex 8.1"
   },
   {
-    "id": "TG3-027",
-    "subject": "Maths",
-    "topicKey": "trigonometry",
-    "subtopic": "Complementary Angles",
-    "section": "A",
-    "marks": 1,
-    "format": "MCQ",
-    "difficulty": "Medium",
-    "bloomSkill": "Applying",
-    "questionText": "tan 10° · cot 10° = ?",
-    "options": [
-      "0",
-      "1",
-      "∞",
-      "undefined"
-    ],
-    "answer": "1",
-    "solutionSteps": [
-      "tan θ · cot θ = tan θ · (1/tan θ) = 1 for all θ where tan θ ≠ 0"
-    ],
-    "finalAnswer": "1",
-    "explanation": "tan θ · cot θ = tan θ · (1/tan θ) = 1 for all θ where tan θ ≠ 0. Therefore, the correct answer is 1.",
-    "isCompetencyBased": false,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 8.4"
-  },
-  {
     "id": "TG3-028",
     "subject": "Maths",
     "topicKey": "trigonometry",
@@ -900,35 +729,6 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "ncertRef": "Ex 8.2"
   },
   {
-    "id": "TG3-036",
-    "subject": "Maths",
-    "topicKey": "trigonometry",
-    "subtopic": "Complementary Angles",
-    "section": "A",
-    "marks": 1,
-    "format": "MCQ",
-    "difficulty": "Easy",
-    "bloomSkill": "Understanding",
-    "questionText": "sin 25° = cos ?",
-    "options": [
-      "25°",
-      "65°",
-      "35°",
-      "55°"
-    ],
-    "answer": "65°",
-    "solutionSteps": [
-      "sin θ = cos(90° - θ)",
-      "sin 25° = cos(90° - 25°) = cos 65°"
-    ],
-    "finalAnswer": "65°",
-    "explanation": "sin θ = cos(90° - θ). sin 25° = cos(90° - 25°) = cos 65°. Therefore, the correct answer is 65°.",
-    "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 8.4"
-  },
-  {
     "id": "TG3-037",
     "subject": "Maths",
     "topicKey": "trigonometry",
@@ -1043,33 +843,6 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "ncertRef": "Ex 8.3"
   },
   {
-    "id": "TG3-041",
-    "subject": "Maths",
-    "topicKey": "trigonometry",
-    "subtopic": "Complementary Angles",
-    "section": "B",
-    "marks": 1,
-    "format": "Short",
-    "difficulty": "Medium",
-    "bloomSkill": "Understanding",
-    "questionText": "If tan 2A = cot (A - 18°), find the value of A.",
-    "options": [],
-    "answer": "36°",
-    "solutionSteps": [
-      "tan 2A = cot(A - 18°)",
-      "tan 2A = tan[90° - (A - 18°)]",
-      "tan 2A = tan(108° - A)",
-      "2A = 108° - A",
-      "3A = 108°",
-      "A = 36°"
-    ],
-    "finalAnswer": "36°",
-    "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 8.4"
-  },
-  {
     "id": "TG3-042",
     "subject": "Maths",
     "topicKey": "trigonometry",
@@ -1158,31 +931,6 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "ncertRef": "Ex 8.3"
   },
   {
-    "id": "TG3-045",
-    "subject": "Maths",
-    "topicKey": "trigonometry",
-    "subtopic": "Complementary Angles",
-    "section": "B",
-    "marks": 1,
-    "format": "Short",
-    "difficulty": "Medium",
-    "bloomSkill": "Applying",
-    "questionText": "If sin θ = cos 35°, find θ.",
-    "options": [],
-    "answer": "55°",
-    "solutionSteps": [
-      "sin θ = cos 35°",
-      "sin θ = sin(90° - 35°)",
-      "sin θ = sin 55°",
-      "θ = 55°"
-    ],
-    "finalAnswer": "55°",
-    "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 8.4"
-  },
-  {
     "id": "TG3-046",
     "subject": "Maths",
     "topicKey": "trigonometry",
@@ -1266,37 +1014,6 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "pyqYear": "2023",
     "pyqSet": "Delhi",
     "ncertRef": "Ex 8.3"
-  },
-  {
-    "id": "TG3-049",
-    "subject": "Maths",
-    "topicKey": "trigonometry",
-    "subtopic": "Complementary Angles",
-    "section": "C",
-    "marks": 1,
-    "format": "MCQ",
-    "difficulty": "Hard",
-    "bloomSkill": "Evaluating",
-    "questionText": "tan 1° × tan 2° × tan 3° × ... × tan 89° = ?",
-    "options": [
-      "0",
-      "1",
-      "undefined",
-      "∞"
-    ],
-    "answer": "1",
-    "solutionSteps": [
-      "Using complementary angle property: tan θ × tan(90° - θ) = 1",
-      "Pairing: tan 1° × tan 89° = 1, tan 2° × tan 88° = 1, ..., tan 44° × tan 46° = 1",
-      "Middle term: tan 45° = 1",
-      "Product = 1 × 1 × ... × 1 × 1 = 1"
-    ],
-    "finalAnswer": "1",
-    "explanation": "Using complementary angle property: tan θ × tan(90° - θ) = 1. Pairing: tan 1° × tan 89° = 1, tan 2° × tan 88° = 1, .., tan 44° × tan 46° = 1. Middle term: tan 45° = 1. Product = 1 × 1 × .. × 1 × 1 = 1. Therefore, the correct answer is 1.",
-    "isCompetencyBased": true,
-    "pyqYear": "2020",
-    "pyqSet": "All India",
-    "ncertRef": "Ex 8.4"
   },
   {
     "id": "TG3-050",
@@ -1420,35 +1137,6 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "ncertRef": "Ex 8.1, Ex 8.4"
   },
   {
-    "id": "TG3-055",
-    "subject": "Maths",
-    "topicKey": "trigonometry",
-    "subtopic": "Complementary Angles",
-    "section": "D",
-    "marks": 1,
-    "format": "MCQ",
-    "difficulty": "Easy",
-    "bloomSkill": "Remembering",
-    "questionText": "cos 72° = sin ?",
-    "options": [
-      "18°",
-      "72°",
-      "28°",
-      "45°"
-    ],
-    "answer": "18°",
-    "solutionSteps": [
-      "sin θ = cos(90° - θ)",
-      "cos 72° = sin(90° - 72°) = sin 18°"
-    ],
-    "finalAnswer": "18°",
-    "explanation": "sin θ = cos(90° - θ). cos 72° = sin(90° - 72°) = sin 18°. Therefore, the correct answer is 18°.",
-    "isCompetencyBased": false,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 8.4"
-  },
-  {
     "id": "TG3-056",
     "subject": "Maths",
     "topicKey": "trigonometry",
@@ -1563,43 +1251,6 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "pyqYear": undefined,
     "pyqSet": undefined,
     "ncertRef": "Ex 8.2"
-  },
-  {
-    "id": "TG3-060",
-    "subject": "Maths",
-    "topicKey": "trigonometry",
-    "subtopic": "Complementary Angles",
-    "section": "D",
-    "marks": 1,
-    "format": "MCQ",
-    "difficulty": "Medium",
-    "bloomSkill": "Analysing",
-    "questionText": "If A + B = 90°, then tan A tan B + sin A sec B is equal to:",
-    "options": [
-      "1",
-      "tan A",
-      "sec B",
-      "sin A"
-    ],
-    "answer": "1",
-    "solutionSteps": [
-      "A + B = 90°, so B = 90° - A",
-      "tan A tan B = tan A tan(90° - A) = tan A cot A = 1",
-      "sin A sec B = sin A sec(90° - A) = sin A cosec A = 1",
-      "tan A tan B + sin A sec B = 1 + 1 - 1 = 1",
-      "Using identities: tan A cot A = 1 and sin A cosec A = 1",
-      "But sec(90° - A) = cosec A",
-      "So: 1 + sin A cosec A = tan A cot A + 1",
-      "Correct: tan(90°-A)=cot A, sin A sec(90°-A)=sin A cosec A=1",
-      "tan A cot A = 1",
-      "Each side simplifies to 2, confirming the identity"
-    ],
-    "finalAnswer": "1",
-    "explanation": "A + B = 90°, so B = 90° - A. tan A tan B = tan A tan(90° - A) = tan A cot A = 1. sin A sec B = sin A sec(90° - A) = sin A cosec A = 1. tan A tan B + sin A sec B = 1 + 1 - 1 = 1. Using identities: tan A cot A = 1 and sin A cosec A = 1. But sec(90° - A) = cosec A. So: 1 + sin A cosec A = tan A cot A + 1. Correct: tan(90°-A)=cot A, sin A sec(90°-A)=sin A cosec A=1. tan A cot A = 1. Each side simplifies to 2, confirming the identity. Therefore, the correct answer is 1.",
-    "isCompetencyBased": true,
-    "pyqYear": undefined,
-    "pyqSet": undefined,
-    "ncertRef": "Ex 8.4"
   },
   {
     "id": "TG3-061",

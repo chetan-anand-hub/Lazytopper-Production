@@ -2140,22 +2140,6 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
       "Relate the angle of depression to the angle of elevation and apply the tangent ratio.",
   },
   {
-    id: "2026-TRIG-AR-13",
-    topicKey: "Trigonometry",
-    subtopic: "Trig Ratios/Values",
-    kind: "Assertion-Reasoning",
-    section: "A",
-    marks: 1,
-    difficulty: "Medium",
-    bloomSkill: "Understanding",
-    questionText:
-      "Assertion (A): sin(90° − θ) = cos θ for all θ.\nReason (R): In a right triangle, exchanging the roles of the adjacent and opposite sides for complementary angles gives the cofunction identity.",
-    answer:
-      "Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
-    explanation:
-      "The cofunction identity follows from considering complementary angles in a right triangle. The reason clearly explains the assertion.",
-  },
-  {
     id: "2026-TRIG-CASE-14",
     topicKey: "Trigonometry",
     subtopic: "Application/Heights & Distances",
