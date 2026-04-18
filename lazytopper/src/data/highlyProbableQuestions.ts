@@ -1788,28 +1788,6 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
           "Short direct theory questions on human reproduction are frequent and high scoring.",
         policyTag: "Reproduction concept",
       },
-      {
-        id: "sci-hdor-hpq-3",
-        subject: "Science",
-        stream: "Biology",
-        topic: "How do Organisms Reproduce?",
-        subtopic: "Contraception/STD Awareness",
-        concept: "Case-based on spacing/STD prevention",
-        section: "E",
-        type: "CaseBased",
-        difficulty: "Medium",
-        marks: 4,
-        likelihood: "Medium-High",
-        tier: "high-roi",
-        bloomSkill: "Analysing",
-        question:
-          "A couple wants to delay pregnancy and also protect themselves from sexually transmitted diseases. (a) Name one method that helps them achieve both. (b) Name one permanent method of birth control. (c) Why is it important to create awareness about STDs among adolescents?",
-        answer:
-          "(a) Use of condoms. (b) Surgical methods such as tubectomy or vasectomy. (c) STDs can cause serious health problems and spread silently; awareness helps in prevention, early detection and safe practices.",
-        explanation:
-          "Reproductive health, contraception and STD awareness are strongly emphasised in NEP-aligned case-based questions.",
-        policyTag: "NEP health/awareness",
-      },
     ],
   },
 

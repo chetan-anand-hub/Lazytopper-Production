@@ -891,20 +891,6 @@ export const promptDPracticePacks: PracticePacksIndex =
           "marks": 2,
           "difficulty": "Medium",
           "questionType": "subjective"
-        },
-        {
-          "id": "S-REP-9",
-          "text": "State any three methods to avoid pregnancy and mention one advantage of family planning.",
-          "marks": 3,
-          "difficulty": "Medium",
-          "questionType": "subjective"
-        },
-        {
-          "id": "S-REP-10",
-          "text": "Explain the need for sex education among adolescents.",
-          "marks": 2,
-          "difficulty": "Easy",
-          "questionType": "subjective"
         }
       ]
     },

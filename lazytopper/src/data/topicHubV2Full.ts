@@ -1452,10 +1452,6 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
         "title": "Human reproductive system",
         "description": "The male reproductive system produces sperm, and the female system produces eggs and supports pregnancy; the menstrual cycle prepares the uterus for implantation every ~28 days."
       },
-      {
-        "title": "Reproductive health and family planning",
-        "description": "Reproductive health includes awareness of contraceptive methods, prevention of sexually transmitted diseases, and understanding the importance of planned parenthood."
-      }
     ],
     "examPatterns": [
       "1 mark (Reproduction Type/Definition): name or define a mode of asexual reproduction with an organism example.",

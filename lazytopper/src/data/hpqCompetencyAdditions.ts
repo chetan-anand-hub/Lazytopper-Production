@@ -1438,34 +1438,6 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
     ],
   },
   {
-    topic: "How do Organisms Reproduce?",
-    subject: "Science",
-    stream: "Biology",
-    defaultTier: "must-crack",
-    questions: [
-      {
-        id: "sci-repro-comp-02",
-        subject: "Science",
-        stream: "Biology",
-        topic: "How do Organisms Reproduce?",
-        subtopic: "Human Reproduction",
-        concept: "Case-based reproductive health",
-        section: "E",
-        type: "CaseBased",
-        difficulty: "Medium",
-        marks: 4,
-        likelihood: "High",
-        tier: "must-crack",
-        bloomSkill: "Applying",
-        question:
-          "A health worker visits a village to educate adolescents about reproductive health.\n(a) What changes occur in boys during puberty?\n(b) Name two methods of contraception.\n(c) Why is it important to maintain menstrual hygiene?\n(d) What is the role of placenta during pregnancy?",
-        answer:
-          "(a) Voice deepening, facial hair growth, body growth, reproductive maturity. (b) Barrier methods (condom), oral contraceptive pills. (c) To prevent infections and maintain overall reproductive health. (d) Placenta provides nourishment (glucose, oxygen) to the embryo and removes waste products.",
-        explanation: "Case-based reproductive health awareness — aligns with CBSE competency pattern.",
-      },
-    ],
-  },
-  {
     topic: "Real Numbers",
     subject: "Maths",
     defaultTier: "must-crack",

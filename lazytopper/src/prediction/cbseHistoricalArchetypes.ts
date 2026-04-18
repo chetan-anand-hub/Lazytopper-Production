@@ -712,8 +712,8 @@ export const SCIENCE_DELETED_CHAPTERS_2026_27 = {
     // Heredity & Evolution — evolution portion removed
     "evolution",
     "fossil",
-    "homologous",
-    "analogous",
+    "homologous organ",
+    "analogous organ",
     "speciation",
     "natural selection",
     // Our Environment / Sources of Energy — energy portion removed
@@ -721,6 +721,10 @@ export const SCIENCE_DELETED_CHAPTERS_2026_27 = {
     "conventional",
     "non conventional",
     "nonconventional",
+    // How do Organisms Reproduce? — reproductive health (contraception, STIs, family planning) removed
+    "reproductive health",
+    "contraception",
+    "family planning",
   ] as const,
 } as const;
 

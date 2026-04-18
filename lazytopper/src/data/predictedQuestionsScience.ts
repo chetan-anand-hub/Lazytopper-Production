@@ -734,24 +734,6 @@ export const sciencePredictedQuestions: SciencePredictedQuestion[] = [
     policyTag: "Double fertilisation",
   },
 
-  {
-    id: "2026-REP-CASE-05",
-    topicKey: "Reproduction",
-    subtopic: "Adolescence & Reproductive Health",
-    kind: "Case-Based",
-    section: "E",
-    marks: 4,
-    difficulty: "Medium",
-    bloomSkill: "Analysing",
-    questionText:
-      "A group of teenagers attend a workshop on reproductive health.\n(i) Why is it important to educate adolescents about reproductive health?\n(ii) Mention two methods to prevent sexually transmitted infections.\n(iii) What is the role of family and school in maintaining adolescent health?\n(iv) Name any one sexually transmitted disease.",
-    answer:
-      "(i) To help them make informed decisions, avoid infections, and respect their own and others’ bodies.\n(ii) Use of condoms, monogamous relationships, proper medical advice (any two correct points).\n(iii) Family and school provide correct information, emotional support, and promote healthy habits and respect.\n(iv) HIV/AIDS, syphilis, gonorrhoea (any one).",
-    explanation:
-      "NCERT emphasises awareness, prevention of STIs, and role of family/school.",
-    policyTag: "Reproductive health case-study",
-  },
-
   // ================================================================
   // HEREDITY & EVOLUTION
   // ================================================================
@@ -1931,29 +1913,6 @@ Sexual reproduction involves two parents and fusion of gametes leading to variat
     explanation:
       "Summarises key textbook differences and typical examples.",
     policyTag: "Reproduction – comparison of modes and examples",
-  },
-
-  {
-    id: "2026-RP-CS-02",
-    topicKey: "Reproduction",
-    subtopic: "Birth Control & Population",
-    kind: "Case-Based",
-    section: "E",
-    marks: 4,
-    difficulty: "Medium",
-    bloomSkill: "Analysing",
-    questionText:
-      `A couple wants to delay the birth of their first child and consults a doctor for advice.
-(a) Why is it important to have awareness about birth control methods?
-(b) Name two temporary and one permanent method of birth control.
-(c) State one social message promoted by family planning programmes.`,
-    answer:
-      `(a) Awareness helps couples choose safe, reliable methods and prevents unwanted pregnancies, unsafe abortions and spread of STDs.
-(b) Temporary methods: condoms, oral pills, copper-T, etc.; permanent: vasectomy or tubectomy.
-(c) Small family norm / better health and education for children / women empowerment (any one).`,
-    explanation:
-      "Connects reproductive health concepts with social issues and government programmes.",
-    policyTag: "Reproduction – family planning and reproductive health",
   },
 
   // ------------------------ HEREDITY & EVOLUTION ------------------------

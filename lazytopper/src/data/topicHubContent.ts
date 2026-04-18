@@ -1080,7 +1080,6 @@ export const topicHubContent: TopicHubBlock[] = [
       'Asexual reproduction methods: fission, budding, fragmentation, regeneration, spore formation.',
       'Sexual reproduction in flowering plants.',
       'Human reproductive system basics and menstrual cycle.',
-      'Reproductive health basics and family planning awareness.',
     ],
     commonMistakes: [
       'Mixing up names of asexual reproduction types.',
