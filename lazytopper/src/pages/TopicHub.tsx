@@ -1432,8 +1432,15 @@ export default function TopicHub() {
                 {answerRevealed && !conceptFailed && miniQuizAnswers[miniQuizIdx] !== undefined && (
                   <div style={{ marginTop: 16 }}>
                     {(selectedAnswer === "correct" || (selectedAnswer && selectedAnswer !== "incorrect" && selectedAnswer.trim().toLowerCase() === (currentMiniQuestion.answer || "").trim().toLowerCase())) ? (
-                      <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.92rem", color: "var(--primary-dark)", fontWeight: 700, marginBottom: 12, padding: "10px 14px", background: "rgba(34,197,94,0.06)", borderRadius: 10, border: "1px solid rgba(34,197,94,0.15)" }}>
-                        <span style={{ fontSize: "1.1rem" }}>✓</span> Correct!
+                      <div style={{ fontSize: "0.92rem", color: "var(--primary-dark)", fontWeight: 700, marginBottom: 12, padding: "10px 14px", background: "rgba(34,197,94,0.06)", borderRadius: 10, border: "1px solid rgba(34,197,94,0.15)" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <span style={{ fontSize: "1.1rem" }}>✓</span> Correct!
+                        </div>
+                        {selectedAnswer === "correct" && currentMiniQuestion.answer && (
+                          <div style={{ marginTop: 4, fontSize: "0.8rem", fontWeight: 500, color: "var(--text-muted)" }}>
+                            Answer: <span style={{ color: "#22c55e", fontWeight: 700 }}>{currentMiniQuestion.answer}</span>
+                          </div>
+                        )}
                       </div>
                     ) : (
                       <div style={{ fontSize: "0.88rem", color: "var(--color-error)", fontWeight: 700, marginBottom: 12, padding: "10px 14px", background: "rgba(239,68,68,0.06)", borderRadius: 10, border: "1px solid rgba(239,68,68,0.15)" }}>
