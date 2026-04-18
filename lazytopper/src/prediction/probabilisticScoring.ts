@@ -2,6 +2,8 @@ import type { HistoricalQuestionItem } from "./historicalDataset";
 import {
   isScienceDeletedFor2026_27,
   SCIENCE_DELETED_CHAPTERS_2026_27,
+  isMathsDeletedFor2026_27,
+  MATHS_DELETED_CHAPTERS_2026_27,
 } from "./cbseHistoricalArchetypes";
 
 export interface ProbabilisticScoreInput {
@@ -101,6 +103,22 @@ export function scoreTopicRecurrenceConfidence(args: {
       confidence: HPQ_CONFIDENCE_FLOOR,
       confidenceBand: "low",
       rationale: `Excluded from ${context.targetYear} predictions — topic removed from 2026-27 CBSE Science syllabus.`,
+    };
+  }
+
+  // Guard: Maths topics/subtopics deleted from the 2026-27 CBSE syllabus
+  // must score zero so they are never surfaced in recommendations or papers.
+  if (
+    input.subject === "Maths" &&
+    context.targetYear >= MATHS_DELETED_CHAPTERS_2026_27.effectiveFromYear &&
+    isMathsDeletedFor2026_27(input.topic, input.subtopic)
+  ) {
+    const HPQ_CONFIDENCE_FLOOR = 0.18;
+    return {
+      posterior: 0,
+      confidence: HPQ_CONFIDENCE_FLOOR,
+      confidenceBand: "low",
+      rationale: `Excluded from ${context.targetYear} predictions — topic removed from 2026-27 CBSE Maths syllabus.`,
     };
   }
 

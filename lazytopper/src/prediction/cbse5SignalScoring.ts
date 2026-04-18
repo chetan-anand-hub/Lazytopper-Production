@@ -5,6 +5,8 @@ import { isGuaranteedArchetype, getGuaranteedBoost } from "./guaranteedArchetype
 import {
   isScienceDeletedFor2026_27,
   SCIENCE_DELETED_CHAPTERS_2026_27,
+  isMathsDeletedFor2026_27,
+  MATHS_DELETED_CHAPTERS_2026_27,
 } from "./cbseHistoricalArchetypes";
 
 export interface FiveSignalWeights {
@@ -258,6 +260,45 @@ export function compute5SignalScore(
         sqpBoost: 0,
         sqpMatchType: "none",
         sqpMatchDetails: "Topic excluded from 2026-27 syllabus.",
+      },
+      isGuaranteed: false,
+      guaranteedBoost: 0,
+    };
+  }
+
+  // Guard: if this Maths topic/subtopic has been removed from the 2026-27
+  // syllabus, return a zeroed score for the same reason.
+  if (
+    input.subject === "Maths" &&
+    targetYear >= MATHS_DELETED_CHAPTERS_2026_27.effectiveFromYear &&
+    isMathsDeletedFor2026_27(resolvedTopic, input.subtopic)
+  ) {
+    return {
+      compositeScore: 0,
+      confidencePercent: 0,
+      confidenceBand: "low",
+      confidenceRationale: `Excluded from ${targetYear} predictions — topic removed from 2026-27 CBSE Maths syllabus.`,
+      signals: {
+        historicalFrequency: 0,
+        rotation: 0,
+        sqpAlignment: 0,
+        nepPolicy: 0,
+        difficultyDistribution: 0,
+      },
+      rotationDetail: {
+        gapYears: 0,
+        lastAppeared: null,
+        appearedYears: [],
+        totalYears: 0,
+        rotationBoost: 0,
+        pairPartnerLastAppeared: null,
+      },
+      sqpDetail: {
+        matchesSQP: false,
+        sqpYear: null,
+        sqpBoost: 0,
+        sqpMatchType: "none",
+        sqpMatchDetails: "Topic excluded from 2026-27 Maths syllabus.",
       },
       isGuaranteed: false,
       guaranteedBoost: 0,

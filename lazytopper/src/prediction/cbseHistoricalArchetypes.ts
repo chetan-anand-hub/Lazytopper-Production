@@ -678,6 +678,66 @@ export const CBSE_HISTORICAL_ARCHETYPES: CbseArchetypeEntry[] = [
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
+// 2026-27 CBSE Maths syllabus deletions
+//
+// CBSE has historically trimmed the Maths syllabus (e.g. Constructions was
+// removed in earlier rationalisation rounds; Statistics / Probability scope
+// has been narrowed at various points).  No topics are deleted for 2026-27 as
+// of the current confirmed syllabus.  The config object below intentionally
+// starts empty so that adding a future deletion requires ONLY editing this
+// object — no changes to the scoring logic are needed.
+//
+// How to add a deletion when CBSE announces one:
+//   • Full chapter removed  → add the chapter name to `deletedTopics`.
+//   • Partial removal       → add keyword fragment(s) to
+//                             `deletedSubtopicKeywords` (matched as
+//                             case-insensitive substrings of the subtopic).
+// ─────────────────────────────────────────────────────────────────────────────
+export const MATHS_DELETED_CHAPTERS_2026_27 = {
+  effectiveFromYear: 2026,
+
+  /** Full Maths chapters removed entirely (none confirmed for 2026-27). */
+  deletedTopics: [] as string[],
+
+  /**
+   * Subtopic-level keyword fragments deleted from otherwise-retained Maths
+   * chapters (none confirmed for 2026-27).  Matched as case-insensitive
+   * substrings against the normalised subtopic name.
+   */
+  deletedSubtopicKeywords: [] as string[],
+} as const;
+
+/**
+ * Returns true when the given topic (and optional subtopic) corresponds to
+ * content deleted from the CBSE Class 10 Maths syllabus for 2026-27.
+ * Historical archetype data is preserved; use this guard before generating
+ * any prediction, weighting, or recommendation for targetYear >= 2026.
+ *
+ * Logic mirrors isScienceDeletedFor2026_27:
+ *  1. Full-chapter deletions: match the topic name alone.
+ *  2. Partial-chapter deletions: match the subtopic name against deleted
+ *     keyword fragments so that sibling subtopics are NOT excluded.
+ */
+export function isMathsDeletedFor2026_27(topic: string, subtopic?: string): boolean {
+  const normTopic = normStr(topic);
+  const normSub = normStr(subtopic ?? "");
+
+  for (const dt of MATHS_DELETED_CHAPTERS_2026_27.deletedTopics) {
+    const normDT = normStr(dt);
+    if (normTopic.includes(normDT) || normDT.includes(normTopic)) return true;
+  }
+
+  if (normSub) {
+    for (const kw of MATHS_DELETED_CHAPTERS_2026_27.deletedSubtopicKeywords) {
+      const normKW = normStr(kw);
+      if (normSub.includes(normKW)) return true;
+    }
+  }
+
+  return false;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // 2026-27 CBSE Science syllabus deletions
 //
 // Historical entries above are preserved for trend analysis but the prediction
