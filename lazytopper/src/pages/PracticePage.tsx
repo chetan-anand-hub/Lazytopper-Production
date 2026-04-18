@@ -46,6 +46,7 @@ import type {
 } from "../data/contentStrategy/types";
 import type { StudentMentorIntent } from "../types/studentMentorIntent";
 import { recordDetour, recordPracticeInPhase } from "../services/guidedJourneyService";
+import { isMissionCompletedToday, getMissionResumeInfo } from "../services/dailyMissionService";
 import { useAuth } from "../context/AuthContext";
 import {
   type SubjectKey,
@@ -766,6 +767,39 @@ const packTopicKey = useMemo(() => {
           subject={subjectKey}
           topic={topicParam.toLowerCase() !== "generic" ? topicLabel : undefined}
         />
+
+        {(() => {
+          const missionSubject = subjectKey as "Maths" | "Science";
+          const resumeInfo = getMissionResumeInfo(missionSubject);
+          const doneToday = isMissionCompletedToday(missionSubject);
+          if (doneToday && !resumeInfo) return null;
+          const isResume = !!resumeInfo;
+          const label = isResume
+            ? `Resume Today's Mission — ${resumeInfo.completedSegments}/${resumeInfo.totalSegments} segments done`
+            : "Start Today's Mission — 4 segments, ~30 min";
+          const bg = isResume
+            ? "linear-gradient(90deg, #f59e0b 0%, #ef4444 100%)"
+            : "linear-gradient(90deg, #6366f1 0%, #22c55e 100%)";
+          return (
+            <button
+              onClick={() => navigate(`/daily-mission/${grade}/${subjectKey}`, { state: { back: `/practice/${grade}/${subjectKey}`, backLabel: "Back to Practice" } })}
+              style={{
+                display: "flex", alignItems: "center", justifyContent: "space-between",
+                width: "100%", padding: "12px 16px", borderRadius: 12, border: "none",
+                background: bg, color: "#fff", fontSize: 13, fontWeight: 600,
+                cursor: "pointer", marginBottom: 14, gap: 8,
+                boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
+                fontFamily: "'Inter', sans-serif",
+              }}
+            >
+              <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ fontSize: 18 }}>{isResume ? "▶️" : "🎯"}</span>
+                {label}
+              </span>
+              <span style={{ opacity: 0.85, fontSize: 16 }}>→</span>
+            </button>
+          );
+        })()}
 
         <PracticeHero
           grade={grade}
