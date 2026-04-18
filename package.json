@@ -8,6 +8,7 @@
     "typecheck:libs": "tsc --build",
     "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck",
     "validate:banks": "pnpm --filter @workspace/scripts run validate:banks",
+    "check:coverage": "node scripts/checkQuestionBankCoverage.mjs",
     "deploy:firestore-rules": "node scripts/deploy-firestore-rules.mjs"
   },
   "private": true,

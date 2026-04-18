@@ -36,6 +36,10 @@ args = "LazyTopper Gateway"
 task = "workflow.run"
 args = "Verify production build is fresh"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "check-coverage"
+
   [[workflows.workflow]]
   name = "LazyTopper Gateway"
   author = "agent"
@@ -55,6 +59,17 @@ author = "agent"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "node scripts/verify-production-build.mjs"
+
+[workflows.workflow.metadata]
+isValidation = true
+
+[[workflows.workflow]]
+name = "check-coverage"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pnpm run check:coverage"
 
 [workflows.workflow.metadata]
 isValidation = true
