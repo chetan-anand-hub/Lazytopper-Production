@@ -71,6 +71,7 @@ function createMoreLikeThisRoute(deps) {
     buildStubMoreLikeThis,
     buildMoreLikeThisUserPrompt,
     pickFromPool,
+    markServed,
     saveToPool,
   } = deps;
 
@@ -98,13 +99,19 @@ function createMoreLikeThisRoute(deps) {
     if (pickFromPool && topicKey) {
       try {
         const pooled = await pickFromPool(topicKey, subject, marks, enforcedDiff, numVariants);
-        if (pooled.length >= Math.min(numVariants, 3)) {
+        if (pooled.length >= numVariants) {
+          // Only increment hit_count now that we've decided to serve these rows.
+          const ids = pooled.map(q => q.id).filter(Boolean);
+          if (markServed && ids.length > 0) {
+            void markServed(ids).catch(e => console.warn('[more-like-this] markServed failed (non-fatal):', e.message));
+          }
+          console.info(`[more-like-this] pool HIT topic=${topicKey} marks=${marks} diff=${enforcedDiff} served=${pooled.length}`);
           return sendJson(res, 200, {
             subject,
             topicKey,
             provider: 'pool',
             model: 'generated_questions_cache',
-            variants: pooled.map((q, idx) => ({ ...q, index: idx })),
+            variants: pooled.map(({ id: _id, ...q }, idx) => ({ ...q, index: idx })),
           });
         }
       } catch (e) {

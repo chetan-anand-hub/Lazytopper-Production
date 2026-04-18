@@ -101,7 +101,7 @@ const { createDiagramRoutes } = require('./routes/diagrams.cjs');
 const { createQuestionRoutes } = require('./routes/questions.cjs');
 const { createMentorRoute } = require('./routes/mentor.cjs');
 const { createTutorCache } = require('./services/tutorCache.cjs');
-const { pickFromPool, saveToPool } = require('./services/generatedQuestionPool.cjs');
+const { pickFromPool, markServed, saveToPool } = require('./services/generatedQuestionPool.cjs');
 const { createFirebaseAuthRoute } = require('./routes/firebaseAuth.cjs');
 
 const { sendJson, sendJsonWithHeaders } = createHttpUtils(config.CORS_ORIGIN);
@@ -206,6 +206,7 @@ const routeDeps = {
   buildStubMoreLikeThis,
   buildMoreLikeThisUserPrompt: mentorRoute.buildMoreLikeThisUserPrompt,
   pickFromPool,
+  markServed,
   saveToPool,
   buildFallbackSteps, buildStubStepSolution,
   isObjectiveType, extractJsonObjectFromText,
