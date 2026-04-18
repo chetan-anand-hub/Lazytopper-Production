@@ -165,6 +165,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
       "Product of zeroes: 4 × (-2) = -8 = c/a"
     ],
     "finalAnswer": "Zeroes are 4 and -2",
+    "visualExplainerId": "maths-polynomials-relationship-between-zeroes-and-coefficients",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -190,6 +191,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
       "If one zero is 1, other zero = -11/3"
     ],
     "finalAnswer": "k = -11, other zero = -11/3",
+    "visualExplainerId": "maths-polynomials-zeroes-of-a-polynomial",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": undefined,
@@ -214,6 +216,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
       "So x = -1 is NOT a zero"
     ],
     "finalAnswer": "No, x = -1 is not a zero",
+    "visualExplainerId": "maths-polynomials-zeroes-of-a-polynomial",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -238,6 +241,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
       "= x² - 8x + 15"
     ],
     "finalAnswer": "x² - 8x + 15",
+    "visualExplainerId": "maths-polynomials-zeroes-of-a-polynomial",
     "isCompetencyBased": true,
     "pyqYear": "2020",
     "pyqSet": undefined,
@@ -262,6 +266,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
       "Zeroes: x = 1, x = -2, x = 3"
     ],
     "finalAnswer": "x = 1, -2, 3",
+    "visualExplainerId": "maths-polynomials-zeroes-of-a-polynomial",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -286,6 +291,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
       "= (-p)² - 4q = p² - 4q"
     ],
     "finalAnswer": "(α - β)² = p² - 4q",
+    "visualExplainerId": "maths-polynomials-zeroes-of-a-polynomial",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -314,6 +320,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
       "Here: α + β + γ = -(-6)/1 = 6"
     ],
     "finalAnswer": "6",
+    "visualExplainerId": "maths-polynomials-zeroes-of-a-polynomial",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -343,6 +350,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
       "Therefore, b² = 4ac"
     ],
     "finalAnswer": "4ac",
+    "visualExplainerId": "maths-polynomials-zeroes-of-a-polynomial",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": undefined,
@@ -368,6 +376,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
       "Product of zeroes = -c = -(1) = -1"
     ],
     "finalAnswer": "Sum = 3, Sum of pairs = 1, Product = -1",
+    "visualExplainerId": "maths-polynomials-zeroes-of-a-polynomial",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -392,6 +401,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
       "α² + β² = (α + β)² - 2αβ = 9 - 2(3/2) = 9 - 3 = 6"
     ],
     "finalAnswer": "1/α + 1/β = 2, α² + β² = 6",
+    "visualExplainerId": "maths-polynomials-zeroes-of-a-polynomial",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": undefined,
@@ -421,6 +431,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "A is false, R is true.",
     "explanation": "The Assertion contains an incorrect claim. The Reason, however, is a true and valid statement on its own.",
+    "visualExplainerId": "maths-polynomials-zeroes-of-a-polynomial",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -450,6 +461,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "A is false, R is true.",
     "explanation": "The Assertion contains an incorrect claim. The Reason, however, is a true and valid statement on its own.",
+    "visualExplainerId": "maths-polynomials-relationship-between-zeroes-and-coefficients",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -480,6 +492,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "A is false, R is true.",
     "explanation": "The Assertion contains an incorrect claim. The Reason, however, is a true and valid statement on its own.",
+    "visualExplainerId": "maths-polynomials-zeroes-of-a-polynomial",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -510,6 +523,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "A is false, R is true.",
     "explanation": "The Assertion contains an incorrect claim. The Reason, however, is a true and valid statement on its own.",
+    "visualExplainerId": "maths-polynomials-relationship-between-zeroes-and-coefficients",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -534,6 +548,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
       "(iii) Area > 0 when x > -2 (since x must be positive for width, x > 0)"
     ],
     "finalAnswer": "Zeroes: -2, -3; Area positive for x > 0",
+    "visualExplainerId": "maths-polynomials-zeroes-of-a-polynomial",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -558,6 +573,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
       "(iii) For -16t² + 64t: Sum = -64/-16 = 4, Product = 0/-16 = 0"
     ],
     "finalAnswer": "Zeroes: 0, 4; Sum = 4; Product = 0",
+    "visualExplainerId": "maths-polynomials-relationship-between-zeroes-and-coefficients",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": undefined,
@@ -642,6 +658,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
       "Solving: a = -2, b = -6"
     ],
     "finalAnswer": "a = -2, b = -6",
+    "visualExplainerId": "maths-polynomials-zeroes-of-a-polynomial",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -665,6 +682,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
       "α² + β² = (α + β)² - 2αβ = 16 - 6 = 10"
     ],
     "finalAnswer": "α² + β² = 10",
+    "visualExplainerId": "maths-polynomials-zeroes-of-a-polynomial",
     "isCompetencyBased": true,
     "pyqYear": "2019",
     "pyqSet": undefined,
@@ -694,6 +712,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
       "p(2) = 16 - 1 = 15 ≠ 0, so 2 is not a zero"
     ],
     "finalAnswer": "2",
+    "visualExplainerId": "maths-polynomials-zeroes-of-a-polynomial",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -719,6 +738,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
       "2p²/9 = q → 2p² = 9q"
     ],
     "finalAnswer": "2p² = 9q",
+    "visualExplainerId": "maths-polynomials-relationship-between-zeroes-and-coefficients",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": undefined,
@@ -745,6 +765,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
       "New polynomial = x² - 15x + 56"
     ],
     "finalAnswer": "x² - 15x + 56",
+    "visualExplainerId": "maths-polynomials-zeroes-of-a-polynomial",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -772,6 +793,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
       "Zeroes: -3, -1, 1"
     ],
     "finalAnswer": "Sum=-3, Sum of products=-1, Product=3, p(x)=(x+3)(x+1)(x-1)",
+    "visualExplainerId": "maths-polynomials-zeroes-of-a-polynomial",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -797,6 +819,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
       "Multiply by 12: 12x² - 7x + 1"
     ],
     "finalAnswer": "12x² - 7x + 1",
+    "visualExplainerId": "maths-polynomials-zeroes-of-a-polynomial",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": undefined,
@@ -821,6 +844,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
       "Verification: 2(1/8) - (1/4) - (1/2) + 2 = 1/4 - 1/4 - 2/4 + 8/4 = 6/4 ≠ 0"
     ],
     "finalAnswer": "No, x = 1/2 is not a zero",
+    "visualExplainerId": "maths-polynomials-zeroes-of-a-polynomial",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -850,6 +874,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
       "Other zero = 3/2"
     ],
     "finalAnswer": "3/2",
+    "visualExplainerId": "maths-polynomials-relationship-between-zeroes-and-coefficients",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -889,6 +914,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "answer": "Zeroes: 3/2 and -1/2",
     "solutionSteps": ["4x² - 4x - 3 = (2x - 3)(2x + 1)", "Zeroes: x = 3/2 and x = -1/2", "Sum = 1 = -(-4)/4 ✓", "Product = -3/4 = -3/4 ✓"],
     "finalAnswer": "3/2 and -1/2",
+    "visualExplainerId": "maths-polynomials-relationship-between-zeroes-and-coefficients",
     "isCompetencyBased": true,
     "ncertRef": "Ex 2.1, Ex 2.2"
   },
@@ -926,6 +952,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "answer": "Zeroes: 2+√3, 2-√3, 3, -1/2",
     "solutionSteps": ["(x-(2+√3))(x-(2-√3)) = x² - 4x + 1", "Divide by (x² - 4x + 1) to get quotient 2x² - 5x - 3", "2x² - 5x - 3 = (2x + 1)(x - 3)", "All zeroes: 2+√3, 2-√3, 3, -1/2"],
     "finalAnswer": "2+√3, 2-√3, 3, -1/2",
+    "visualExplainerId": "maths-polynomials-zeroes-of-a-polynomial",
     "isCompetencyBased": true,
     "ncertRef": "Ex 2.3"
   },
@@ -944,6 +971,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "answer": "k = 2",
     "solutionSteps": ["α + β = -5/2, αβ = k/2", "α² + β² + αβ = (α+β)² - αβ = 25/4 - k/2 = 21/4", "k/2 = 1, so k = 2"],
     "finalAnswer": "k = 2",
+    "visualExplainerId": "maths-polynomials-zeroes-of-a-polynomial",
     "isCompetencyBased": true,
     "ncertRef": "Ex 2.2"
   },
@@ -1019,6 +1047,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "answer": "(i) -7/3, (ii) 721/216",
     "solutionSteps": ["α + β = 7/6, αβ = -3/6 = -1/2", "(i) 1/α + 1/β = (α+β)/(αβ) = (7/6)/(-1/2) = -7/3", "(ii) α³ + β³ = (α+β)³ - 3αβ(α+β) = (7/6)³ - 3(-1/2)(7/6) = 343/216 + 378/216 = 721/216"],
     "finalAnswer": "(i) -7/3, (ii) 721/216",
+    "visualExplainerId": "maths-polynomials-zeroes-of-a-polynomial",
     "isCompetencyBased": true,
     "ncertRef": "Ex 2.2"
   },
@@ -1037,6 +1066,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "answer": "p(x) = (x+3)(x+1)(x-2); Sum = -2, Product = 6",
     "solutionSteps": ["Zeroes: -3, -1, 2", "p(x) = (x+3)(x+1)(x-2)", "Sum = -3 + (-1) + 2 = -2", "Product = (-3)(-1)(2) = 6"],
     "finalAnswer": "Sum = -2, Product = 6",
+    "visualExplainerId": "maths-polynomials-graphical-meaning-of-zeroes",
     "isCompetencyBased": true,
     "ncertRef": "Ex 2.1, Ex 2.2"
   },
@@ -1055,6 +1085,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "answer": "k = 7",
     "solutionSteps": ["p(-1) = k(-1)² + 3(-1) - 4 = 0", "k - 3 - 4 = 0", "k = 7"],
     "finalAnswer": "k = 7",
+    "visualExplainerId": "maths-polynomials-zeroes-of-a-polynomial",
     "isCompetencyBased": true,
     "ncertRef": "Ex 2.1"
   },

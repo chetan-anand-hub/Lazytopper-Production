@@ -80,6 +80,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "Mean = Σfx/Σf = 620/30 = 20.67 ≈ 20"
     ],
     "finalAnswer": "20",
+    "visualExplainerId": "maths-statistics-mean-of-grouped-data",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -165,6 +166,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "Median = 30 + ((15-10)/8) × 10 = 30 + 6.25 = 36.25 ≈ 34"
     ],
     "finalAnswer": "34",
+    "visualExplainerId": "maths-statistics-median-of-grouped-data",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -248,6 +250,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "Mode = 40 + (3/8) × 10 = 40 + 3.75 = 43.75 ≈ 44"
     ],
     "finalAnswer": "44",
+    "visualExplainerId": "maths-statistics-mode-of-grouped-data",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -277,6 +280,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "f = 9"
     ],
     "finalAnswer": "f = 9",
+    "visualExplainerId": "maths-statistics-mean-of-grouped-data",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -306,6 +310,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "f = 6"
     ],
     "finalAnswer": "f = 6",
+    "visualExplainerId": "maths-statistics-median-of-grouped-data",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -335,6 +340,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "Mean = 25 + 3 = 28"
     ],
     "finalAnswer": "28",
+    "visualExplainerId": "maths-statistics-mean-of-grouped-data",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "A",
@@ -426,6 +432,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "Mean = 150 + (-160/50) = 150 - 3.2 = 146.8 ≈ 145"
     ],
     "finalAnswer": "(i) 145 (ii) 145",
+    "visualExplainerId": "maths-statistics-mean-of-grouped-data",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "A",
@@ -457,6 +464,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "(iii) Mode (33.33) > Median (30), showing scores concentrated around 33-34"
     ],
     "finalAnswer": "Median = 28; Mode = 33.33",
+    "visualExplainerId": "maths-statistics-median-of-grouped-data",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "C",
@@ -497,6 +505,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "Observation: Mean = 40, Median ≈ 33.33, Mode = 35"
     ],
     "finalAnswer": "f₁ = 15, f₂ = 20; Mean = 40, Median ≈ 33.33, Mode = 35",
+    "visualExplainerId": "maths-statistics-median-of-grouped-data",
     "isCompetencyBased": true,
     "pyqYear": "2025",
     "pyqSet": "A",
@@ -617,6 +626,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "Mean = 350/20 = 17.5"
     ],
     "finalAnswer": "17.5",
+    "visualExplainerId": "maths-statistics-mean-of-grouped-data",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -680,6 +690,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "h = class width"
     ],
     "finalAnswer": "Cumulative frequency of the class before median class",
+    "visualExplainerId": "maths-statistics-median-of-grouped-data",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -708,6 +719,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "Therefore, median class is 20-30"
     ],
     "finalAnswer": "20-30",
+    "visualExplainerId": "maths-statistics-median-of-grouped-data",
     "isCompetencyBased": true,
     "pyqYear": "2020",
     "pyqSet": undefined,
@@ -769,6 +781,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "(f1 - f0) is the difference between modal class and previous class"
     ],
     "finalAnswer": "Difference between modal class and previous class frequency",
+    "visualExplainerId": "maths-statistics-mode-of-grouped-data",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -794,6 +807,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "Therefore, modal class is 20-30"
     ],
     "finalAnswer": "20-30",
+    "visualExplainerId": "maths-statistics-frequency-distribution-table",
     "isCompetencyBased": true,
     "pyqYear": "2019",
     "pyqSet": undefined,
@@ -824,6 +838,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "Or with alternative: 42 - (3×3)/40 = 42 - 2.25 = 39.75"
     ],
     "finalAnswer": "Requires class midpoint; typically 39.75 to 41.25",
+    "visualExplainerId": "maths-statistics-mean-of-grouped-data",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": undefined,
@@ -855,6 +870,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "= 25 + 10 = 35"
     ],
     "finalAnswer": "35",
+    "visualExplainerId": "maths-statistics-median-of-grouped-data",
     "isCompetencyBased": true,
     "pyqYear": "2020",
     "pyqSet": undefined,
@@ -887,6 +903,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "= 40 + 6 = 46"
     ],
     "finalAnswer": "46",
+    "visualExplainerId": "maths-statistics-mode-of-grouped-data",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": undefined,
@@ -1014,6 +1031,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "(iv) Mode = 3 Median - 2 Mean = 3(23.33) - 2(23.4) = 70 - 46.8 = 23.2 minutes"
     ],
     "finalAnswer": "(i) 20-30 (ii) 23.33 minutes (iii) 23.4 minutes (iv) Mode ≈ 23.2 minutes",
+    "visualExplainerId": "maths-statistics-median-of-grouped-data",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": undefined,
@@ -1051,6 +1069,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "Mean is suitable as data is roughly symmetric with no extreme outliers"
     ],
     "finalAnswer": "(a) Mean = 32 marks (b) Mean = 32.33 marks (c) Mean is appropriate for this symmetric distribution",
+    "visualExplainerId": "maths-statistics-median-of-grouped-data",
     "isCompetencyBased": true,
     "pyqYear": "2025",
     "pyqSet": undefined,
@@ -1092,6 +1111,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "Median is most appropriate as it is least affected by skewness"
     ],
     "finalAnswer": "(a) Mode ≈ 314 rupees (b) Median ≈ 296 rupees (c) Median best represents data; empirical estimate ≈ 290 (formula is approximate for moderately skewed data)",
+    "visualExplainerId": "maths-statistics-median-of-grouped-data",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": undefined,
@@ -1131,6 +1151,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "answer": "Median = 52",
     "solutionSteps": ["n = 40, n/2 = 20", "CF: 6, 14, 24, 33, 40. Median class: 40–60", "Median = 40 + (20-14)/10 × 20 = 40 + 12 = 52"],
     "finalAnswer": "Median = 52",
+    "visualExplainerId": "maths-statistics-median-of-grouped-data",
     "isCompetencyBased": true,
     "ncertRef": "Ex 14.2"
   },
@@ -1168,6 +1189,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "answer": "p = 18, q = 29",
     "solutionSteps": ["15 + p + 21 + q + 17 = 100 → p + q = 47", "Σfx = 15(10)+p(30)+21(50)+q(70)+17(90) = 150+30p+1050+70q+1530 = 2730+30p+70q", "(2730+30p+70q)/100 = 53 → 30p+70q = 2570", "From p+q=47: p = 47-q, 30(47-q)+70q = 2570 → 1410+40q = 2570 → q = 29, p = 18"],
     "finalAnswer": "p = 18, q = 29",
+    "visualExplainerId": "maths-statistics-mean-of-grouped-data",
     "isCompetencyBased": true,
     "ncertRef": "Ex 14.1"
   },
@@ -1186,6 +1208,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "answer": "(i) Rs 145.2 (ii) 120-140 (iii) Rs 125 (iv) Rs 138.57",
     "solutionSteps": ["(i) Σfx = 12(110)+14(130)+8(150)+6(170)+10(190) = 1320+1820+1200+1020+1900 = 7260. Mean = 7260/50 = 145.2", "(ii) Modal class: 120-140 (highest freq = 14)", "(iii) f₀=12,f₁=14,f₂=8; Mode = 120+(14-12)/(28-12-8)×20 = 120+5 = 125", "(iv) n/2=25, CF: 12,26. Median class: 120-140. Median = 120+(25-12)/14×20 = 120+18.57 = 138.57"],
     "finalAnswer": "(ii) 120-140 (iii) Rs 125 (iv) Rs 138.57",
+    "visualExplainerId": "maths-statistics-median-of-grouped-data",
     "isCompetencyBased": true,
     "ncertRef": "Ex 14.1, Ex 14.2, Ex 14.3"
   },
@@ -1223,6 +1246,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "answer": "8.62",
     "solutionSteps": ["Modal class: 8–9 (f₁=74)", "f₀=32, f₂=48, l=8, h=1", "Mode = 8 + (74-32)/(148-32-48)×1 = 8 + 42/68 = 8 + 0.62 = 8.62"],
     "finalAnswer": "≈ 8.62",
+    "visualExplainerId": "maths-statistics-frequency-distribution-table",
     "isCompetencyBased": true,
     "ncertRef": "Ex 14.3"
   },
@@ -1260,6 +1284,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
     "answer": "(i) ≈145.2 cm (ii) 145-150, mode≈146.74 (iii) ≈145.75",
     "solutionSteps": ["(i) a = 147.5, h = 5, Σfᵢ=50. dᵢ: -3,-2,-1,0,1,2. Σfᵢdᵢ = -6-16-12+0+5+6 = -23. Mean = 147.5+(-23/50)×5 = 147.5-2.3 = 145.2", "(ii) Modal class: 145-150. f₀=12,f₁=20,f₂=5. Mode = 145+(20-12)/(40-12-5)×5 = 145+1.74 = 146.74", "(iii) n/2=25, CF: 2,10,22,42. Median class: 145-150. Median = 145+(25-22)/20×5 = 145.75"],
     "finalAnswer": "(i) ≈145.2 cm (ii) ≈146.74 (iii) ≈145.75",
+    "visualExplainerId": "maths-statistics-median-of-grouped-data",
     "isCompetencyBased": true,
     "ncertRef": "Ex 14.1, Ex 14.2, Ex 14.3"
   }

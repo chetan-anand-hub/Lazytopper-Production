@@ -116,6 +116,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "x = 7 - 2(2) = 3"
     ],
     "finalAnswer": "x = 3, y = 2",
+    "visualExplainerId": "maths-linear-equations-substitution-method",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -177,6 +178,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "From second equation: 3(1) - y = 1, so y = 2"
     ],
     "finalAnswer": "x = 1, y = 2",
+    "visualExplainerId": "maths-linear-equations-elimination-method",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -204,6 +206,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "Verification: 9 + 6 = 15 ✓ and 9 - 6 = 3 ✓"
     ],
     "finalAnswer": "The numbers are 9 and 6",
+    "visualExplainerId": "maths-linear-equations-graphical-method",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -233,6 +236,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "Cost of pencil = Rs. 3, Cost of pen = Rs. 5"
     ],
     "finalAnswer": "Pencil = Rs. 3, Pen = Rs. 5",
+    "visualExplainerId": "maths-linear-equations-graphical-method",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -258,6 +262,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "Therefore, lines are coincident"
     ],
     "finalAnswer": "The lines are coincident",
+    "visualExplainerId": "maths-linear-equations-consistency-of-equations",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -287,6 +292,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "Since 1/y = 3/5, y = 5/3"
     ],
     "finalAnswer": "x = 5/4, y = 5/3",
+    "visualExplainerId": "maths-linear-equations-graphical-method",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -317,6 +323,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "x = 240 km (by train), y = 130 km (by car)"
     ],
     "finalAnswer": "Distance covered by train = 240 km",
+    "visualExplainerId": "maths-linear-equations-graphical-method",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "Set A",
@@ -413,6 +420,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "x = 50 - 20 = 30 liters (pure milk)"
     ],
     "finalAnswer": "Pure milk = 30 L, Adulterated milk = 20 L",
+    "visualExplainerId": "maths-linear-equations-graphical-method",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "Set B",
@@ -441,6 +449,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "Any l and w such that l + w = 28 satisfies both conditions"
     ],
     "finalAnswer": "The equations are dependent; infinitely many solutions exist where l + w = 28",
+    "visualExplainerId": "maths-linear-equations-graphical-method",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "Set C",
@@ -468,6 +477,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "c = 12"
     ],
     "finalAnswer": "c = 12",
+    "visualExplainerId": "maths-linear-equations-graphical-method",
     "isCompetencyBased": false,
     "pyqYear": "2021",
     "pyqSet": "Set A",
@@ -536,6 +546,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "18 - 6 = 12, 12 - 6 = 6, and 12:6 = 2:1 ✓"
     ],
     "finalAnswer": "The numbers are 18 and 12",
+    "visualExplainerId": "maths-linear-equations-graphical-method",
     "isCompetencyBased": true,
     "pyqYear": "2025",
     "pyqSet": "Set A",
@@ -570,6 +581,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "x = 12/16 = 3/4"
     ],
     "finalAnswer": "x = 3/4, y = 1/16",
+    "visualExplainerId": "maths-linear-equations-graphical-method",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -612,6 +624,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "Add: 17x = 94, so x = 94/17"
     ],
     "finalAnswer": "x = 6, y = 2",
+    "visualExplainerId": "maths-linear-equations-graphical-method",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -730,6 +743,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "Therefore, x = 1 + 2 = 3"
     ],
     "finalAnswer": "x = 3, y = 1",
+    "visualExplainerId": "maths-linear-equations-substitution-method",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -786,6 +800,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "34/7 - y = 3, so y = 34/7 - 21/7 = 13/7"
     ],
     "finalAnswer": "x = 17/7, y = 13/7",
+    "visualExplainerId": "maths-linear-equations-elimination-method",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -817,6 +832,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "Number = 10(2) + 4 = 24"
     ],
     "finalAnswer": "24",
+    "visualExplainerId": "maths-linear-equations-graphical-method",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "Set B",
@@ -920,6 +936,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "(c) Verification: 10 + 25 = 35 ✓ and 150(10) + 200(25) = 6500 ✓"
     ],
     "finalAnswer": "(a) x + y = 35, 150x + 200y = 6500. (b) Fiction: 10 books, Non-fiction: 25 books",
+    "visualExplainerId": "maths-linear-equations-graphical-method",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "Set C",
@@ -951,6 +968,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "(6.5 - 3.5)/3 = 3/3 = 1 ✓"
     ],
     "finalAnswer": "x = 6.5, y = 3.5",
+    "visualExplainerId": "maths-linear-equations-substitution-method",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -990,6 +1008,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "Subtracting: 2s = 5, so s = 2.5 km/h"
     ],
     "finalAnswer": "Speed of boat in still water = 7.5 km/h, Speed of stream = 2.5 km/h",
+    "visualExplainerId": "maths-linear-equations-graphical-method",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "Set A",
@@ -1017,6 +1036,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "Therefore, infinitely many solutions exist."
     ],
     "finalAnswer": "Infinitely many solutions (the two equations represent the same line)",
+    "visualExplainerId": "maths-linear-equations-graphical-method",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1046,6 +1066,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "So 1/y = 3/10, therefore y = 10/3"
     ],
     "finalAnswer": "x = 2, y = 10/3",
+    "visualExplainerId": "maths-linear-equations-elimination-method",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "Set B",
@@ -1081,6 +1102,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "After 5 years: 55 + 5 = 60, 15 + 5 = 20, 60 = 3(20) ✓"
     ],
     "finalAnswer": "Father: 55 years, Son: 15 years",
+    "visualExplainerId": "maths-linear-equations-graphical-method",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1101,6 +1123,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "answer": "x = 5/2, y = -1/2",
     "solutionSteps": ["Let u = 1/(x+y), v = 1/(x-y)", "2u + 3v = 2 ...(1), 4u - 9v = -1 ...(2)", "Multiply (1) by 3: 6u + 9v = 6, add (2): 10u = 5, u = 1/2", "From (1): 1 + 3v = 2, v = 1/3", "x+y = 2, x-y = 3 → x = 5/2, y = -1/2"],
     "finalAnswer": "x = 5/2, y = -1/2",
+    "visualExplainerId": "maths-linear-equations-graphical-method",
     "isCompetencyBased": true,
     "ncertRef": "Ex 3.6"
   },
@@ -1119,6 +1142,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "answer": "x = a+b, y = -2ab/(a+b)",
     "solutionSteps": ["Eq 2: (a+b)x + (a+b)y = a²+b²", "Subtract eq 1 from eq 2: 2bx = a²+b²-(a²-2ab-b²) = 2b(a+b)", "x = a+b", "Substitute: (a+b)y = a²+b² - (a+b)² = -2ab", "y = -2ab/(a+b)"],
     "finalAnswer": "x = a+b, y = -2ab/(a+b)",
+    "visualExplainerId": "maths-linear-equations-graphical-method",
     "isCompetencyBased": true,
     "ncertRef": "Ex 3.5"
   },
@@ -1144,6 +1168,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "Fraction = 4/7"
     ],
     "finalAnswer": "4/7",
+    "visualExplainerId": "maths-linear-equations-graphical-method",
     "isCompetencyBased": true,
     "ncertRef": "Ex 3.5"
   },
@@ -1181,6 +1206,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "answer": "(i) 2x-3t=-12 and x-t=6 (ii) 30 km/h (iii) 24 h (iv) 720 km",
     "solutionSteps": ["Let speed = x km/h, time = t h, distance = xt", "xt = (x+6)(t-4) → 4x-6t = -24 → 2x-3t = -12 ...(1)", "xt = (x-6)(t+6) → 6x-6t = 36 → x-t = 6 ...(2)", "From (2): x = t+6, substitute: 2(t+6)-3t = -12 → t = 24", "x = 30, distance = 720 km"],
     "finalAnswer": "(ii) 30 km/h (iii) 24 h (iv) 720 km",
+    "visualExplainerId": "maths-linear-equations-graphical-method",
     "isCompetencyBased": true,
     "ncertRef": "Ex 3.5"
   },
@@ -1199,6 +1225,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "answer": "x = 4, y = 1",
     "solutionSteps": ["From first: x = 5 - y", "2(5-y) - 3y = 5 → 10 - 2y - 3y = 5 → 5y = 5 → y = 1", "x = 5 - 1 = 4"],
     "finalAnswer": "x = 4, y = 1",
+    "visualExplainerId": "maths-linear-equations-substitution-method",
     "isCompetencyBased": true,
     "ncertRef": "Ex 3.2"
   },
@@ -1217,6 +1244,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "answer": "10 notes of Rs 50, 15 notes of Rs 100",
     "solutionSteps": ["Let x = notes of Rs 50, y = notes of Rs 100", "x + y = 25 ...(1)", "50x + 100y = 2000 → x + 2y = 40 ...(2)", "Subtract (1): y = 15, x = 10"],
     "finalAnswer": "10 notes of Rs 50, 15 notes of Rs 100",
+    "visualExplainerId": "maths-linear-equations-graphical-method",
     "isCompetencyBased": true,
     "ncertRef": "Ex 3.5"
   },
@@ -1227,5 +1255,5 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
   { id: "PLE2-R12", subject: "Maths", topicKey: "Pair of Linear Equations", subtopic: "Substitution Method", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If 2x − y = 3 and x + y = 6, then y equals:", options: ["3","4","2","1"], answer: "3", explanation: "The correct answer is 3. Adding: 3x = 9 → x = 3. Then y = 6 − 3 = 3.", finalAnswer: "Adding: 3x = 9 → x = 3. Then y = 6 − 3 = 3.", isCompetencyBased: false },
   { id: "PLE2-R13", subject: "Maths", topicKey: "Pair of Linear Equations", subtopic: "Substitution Method", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The solution of x + 2y = 8 and 3x − 2y = 0 is:", options: ["x=2, y=3","x=3, y=2","x=4, y=2","x=1, y=4"], answer: "x=2, y=3", explanation: "The correct answer is x=2, y=3. Adding the equations: 4x = 8 → x = 2. Then 2 + 2y = 8 → y = 3. Verify in eq2: 3(2) − 2(3) = 6 − 6 = 0. ✓", finalAnswer: "x = 2, y = 3", isCompetencyBased: false },
   { id: "PLE2-R14", subject: "Maths", topicKey: "Pair of Linear Equations", subtopic: "Graphical Method", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): The system 3x + 2y = 12 and 6x + 4y = 24 is consistent.\nReason (R): When the ratio of coefficients and constants are equal, the system has infinitely many solutions.", options: ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "6x+4y=24 is 2×(3x+2y=12): all ratios equal, infinite solutions. R explains why A is consistent.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.", isCompetencyBased: true },
-  { id: "PLE2-R15", subject: "Maths", topicKey: "Pair of Linear Equations", subtopic: "Problem Solving", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Five years hence, the age of Jacob will be three times that of his son. Five years ago, Jacob's age was seven times that of his son. Find their present ages.", solutionSteps: ["Let Jacob's present age = x; son's present age = y.","Five years hence: x+5 = 3(y+5) → x+5 = 3y+15 → x−3y = 10 …(1)","Five years ago: x−5 = 7(y−5) → x−5 = 7y−35 → x−7y = −30 …(2)","Subtracting (2) from (1): 4y = 40 → y = 10.","From (1): x = 10 + 3(10) = 40.","Verification: 5 years hence — 45 = 3×15 ✓. 5 years ago — 35 = 7×5 ✓."], answer: "Jacob is 40 years old; his son is 10 years old.", explanation: "See solution steps for full working.", finalAnswer: "Jacob is 40 years old; his son is 10 years old.", isCompetencyBased: true }
+  { id: "PLE2-R15", subject: "Maths", topicKey: "Pair of Linear Equations", subtopic: "Problem Solving", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Five years hence, the age of Jacob will be three times that of his son. Five years ago, Jacob's age was seven times that of his son. Find their present ages.", solutionSteps: ["Let Jacob's present age = x; son's present age = y.","Five years hence: x+5 = 3(y+5) → x+5 = 3y+15 → x−3y = 10 …(1)","Five years ago: x−5 = 7(y−5) → x−5 = 7y−35 → x−7y = −30 …(2)","Subtracting (2) from (1): 4y = 40 → y = 10.","From (1): x = 10 + 3(10) = 40.","Verification: 5 years hence — 45 = 3×15 ✓. 5 years ago — 35 = 7×5 ✓."], answer: "Jacob is 40 years old; his son is 10 years old.", explanation: "See solution steps for full working.", finalAnswer: "Jacob is 40 years old; his son is 10 years old.", visualExplainerId: "maths-linear-equations-graphical-method", isCompetencyBased: true }
 ];

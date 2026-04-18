@@ -113,20 +113,20 @@ const FILE_CONFIGS = [
   mkCfg('src/data/questionBanks/class10/science/carbonCompounds.pack2.ts', carbonVid),
 
   /* ── MATHS: SURFACE AREAS & VOLUMES ─────────────────────────────────────── */
-  mkCfg('src/data/questionBanks/class10/maths/surfaceAreasVolumes.pack1.ts', surfaceVid),
-  mkCfg('src/data/questionBanks/class10/maths/surfaceAreasVolumes.pack2.ts', surfaceVid),
+  mkCfg('src/data/questionBanks/class10/maths/surfaceAreasVolumes.pack1.ts', surfaceVid, true),
+  mkCfg('src/data/questionBanks/class10/maths/surfaceAreasVolumes.pack2.ts', surfaceVid, true),
 
   /* ── MATHS: STATISTICS ───────────────────────────────────────────────────── */
-  mkCfg('src/data/questionBanks/class10/maths/statistics.pack1.ts', statisticsVid),
-  mkCfg('src/data/questionBanks/class10/maths/statistics.pack2.ts', statisticsVid),
+  mkCfg('src/data/questionBanks/class10/maths/statistics.pack1.ts', statisticsVid, true),
+  mkCfg('src/data/questionBanks/class10/maths/statistics.pack2.ts', statisticsVid, true),
 
   /* ── MATHS: POLYNOMIALS ──────────────────────────────────────────────────── */
-  mkCfg('src/data/questionBanks/class10/maths/polynomials.pack1.ts', polynomialsVid),
-  mkCfg('src/data/questionBanks/class10/maths/polynomials.pack2.ts', polynomialsVid),
+  mkCfg('src/data/questionBanks/class10/maths/polynomials.pack1.ts', polynomialsVid, true),
+  mkCfg('src/data/questionBanks/class10/maths/polynomials.pack2.ts', polynomialsVid, true),
 
   /* ── MATHS: PROBABILITY ──────────────────────────────────────────────────── */
-  mkCfg('src/data/questionBanks/class10/maths/probability.pack1.ts', probabilityVid),
-  mkCfg('src/data/questionBanks/class10/maths/probability.pack2.ts', probabilityVid),
+  mkCfg('src/data/questionBanks/class10/maths/probability.pack1.ts', probabilityVid, true),
+  mkCfg('src/data/questionBanks/class10/maths/probability.pack2.ts', probabilityVid, true),
 
   /* ── MATHS: ARITHMETIC PROGRESSIONS ─────────────────────────────────────── */
   mkCfg('src/data/questionBanks/class10/maths/arithmeticProgression.pack1.ts', apVid),
@@ -140,12 +140,21 @@ const FILE_CONFIGS = [
   mkCfg('src/data/questionBanks/class10/maths/realNumbers.pack1.ts', realNumbersVid),
   mkCfg('src/data/questionBanks/class10/maths/realNumbers.pack2.ts', realNumbersVid),
 
-  /* ── MATHS: PAIR OF LINEAR EQUATIONS ────────────────────────────────────── */
-  mkCfg('src/data/questionBanks/class10/maths/pairOfLinearEquations.pack1.ts', linearEqVid),
-  mkCfg('src/data/questionBanks/class10/maths/pairOfLinearEquations.pack2.ts', linearEqVid),
+  /* ── MATHS: PAIR OF LINEAR EQUATIONS (alwaysAssignId — algebraic topic) ── */
+  mkCfg('src/data/questionBanks/class10/maths/pairOfLinearEquations.pack1.ts', linearEqVid, true),
+  mkCfg('src/data/questionBanks/class10/maths/pairOfLinearEquations.pack2.ts', linearEqVid, true),
 ];
 
-function mkCfg(file, getVisualId) { return { file, getVisualId }; }
+/**
+ * alwaysAssignId — when true, the script assigns a visualExplainerId to
+ * every B/C/D/E question in the file, bypassing the requiresDiagram() gate.
+ * Use for topics where every question benefits from a visual reference even
+ * if it is not a prove/draw/construct type question (e.g. 3D geometry, data
+ * analysis, linear systems, algebraic topics added in Tasks #335 and #342).
+ * The diagram-step prepend logic is still gated by requiresDiagram() so text
+ * is not modified for pure calculation questions.
+ */
+function mkCfg(file, getVisualId, alwaysAssignId = false) { return { file, getVisualId, alwaysAssignId }; }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // VISUAL ID SELECTORS  (one per topic, shared across pack1/pack2)
@@ -1102,9 +1111,14 @@ for (const config of FILE_CONFIGS) {
     let changed = false;
 
     const diagramRequired = requiresDiagram(questionText);
+    // shouldHaveId is true when the question either genuinely needs a diagram
+    // (prove/draw/construct/etc.) OR the pack is configured to always tag every
+    // B-E question regardless of type (alwaysAssignId).
+    const shouldHaveId = diagramRequired || config.alwaysAssignId;
 
-    if (!diagramRequired) {
-      // Pure calculation question — strip any mis-assigned visualExplainerId
+    if (!shouldHaveId) {
+      // Pure calculation question in a requiresDiagram-gated pack — strip any
+      // mis-assigned visualExplainerId (Task #336 intentional clean-up).
       if (hasVisualExplainerId(newText)) {
         newText = removeVisualIdFromQuestion(newText);
         fVids--; // count removals as negative to surface them in the summary
@@ -1121,15 +1135,17 @@ for (const config of FILE_CONFIGS) {
       continue;
     }
 
-    // 1) Add visualExplainerId (only for diagram-required questions)
+    // 1) Add visualExplainerId (for diagram-required or alwaysAssignId questions)
     if (!hasVisualExplainerId(q.text)) {
       newText = addVisualIdToQuestion(newText, visualId);
       fVids++;
       changed = true;
     }
 
-    // 2) Prepend diagram step (only if question has solutionSteps and needs one)
+    // 2) Prepend diagram step — still only for questions that genuinely need one
+    //    (alwaysAssignId bypasses assignment gating but not step gating)
     if (hasSolutionSteps(newText) &&
+        diagramRequired &&
         needsDiagramStep(questionText) &&
         !firstStepIsAlreadyDiagram(newText)) {
       const step = getDiagramStep(questionText, visualId);
