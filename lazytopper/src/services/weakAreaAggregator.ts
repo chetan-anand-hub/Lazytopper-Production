@@ -54,7 +54,7 @@ const TOPIC_NAMES: Record<string, string> = {
   "magnetic-effects-of-electric-current": "Magnetic Effects",
   "light-reflection-refraction": "Light & Refraction",
   "control-and-coordination": "Control & Coordination",
-  "heredity-and-evolution": "Heredity & Evolution",
+  "heredity-and-evolution": "Heredity",
   "our-environment": "Our Environment",
 };
 

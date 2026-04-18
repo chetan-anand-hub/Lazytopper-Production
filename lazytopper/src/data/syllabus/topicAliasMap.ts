@@ -66,6 +66,7 @@ export const canonicalTopicAliasMap: Record<string, string[]> = {
     "science_control_coordination",
   ],
   "heredity-and-evolution": [
+    "heredity",
     "science_heredity_evolution",
   ],
   "our-environment": [

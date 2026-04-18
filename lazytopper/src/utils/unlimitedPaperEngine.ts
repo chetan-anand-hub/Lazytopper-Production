@@ -156,6 +156,7 @@ const SCIENCE_TOPIC_TO_SLUG: Record<string, Class10ScienceTopicKey> = {
   "How do Organisms Reproduce?": "Reproduction",
   "How do Organisms Reproduce": "Reproduction",
   "Reproduction": "Reproduction",
+  "Heredity": "HeredityEvolution",
   "Heredity & Evolution": "HeredityEvolution",
   "Heredity and Evolution": "HeredityEvolution",
   "HeredityEvolution": "HeredityEvolution",

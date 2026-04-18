@@ -203,7 +203,7 @@ export const GUARANTEED_SCIENCE_ARCHETYPES: GuaranteedArchetype[] = [
   },
   {
     subject: "Science",
-    topic: "Heredity & Evolution",
+    topic: "Heredity",
     subtopic: "Mendel's Experiments & Ratios",
     description: "Monohybrid/dihybrid cross with ratios",
     minMarks: 2,
