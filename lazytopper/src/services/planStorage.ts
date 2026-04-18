@@ -4,6 +4,7 @@ import {
   saveStrategyPlanV1 as _saveStrategyPlan,
 } from "./strategyStorage";
 import { getActiveProgressUser, saveLearnerProgressSegment } from "./studentProgressStore";
+import { syncStreak } from "./dbSyncService";
 
 function streakDateKey(): string {
   return `lazytopper.streak.date:${getActiveProgressUser() || "anonymous"}`;
@@ -35,7 +36,10 @@ export function updateAndGetStreak(): number {
       localStorage.setItem(dateKey, todayStr);
       localStorage.setItem(countKey, "1");
       const uid = getActiveProgressUser();
-      if (uid) void saveLearnerProgressSegment(uid, "streak", 1);
+      if (uid) {
+        void saveLearnerProgressSegment(uid, "streak", 1);
+        syncStreak(uid, 1);
+      }
       return 1;
     }
 
@@ -59,7 +63,10 @@ export function updateAndGetStreak(): number {
     localStorage.setItem(dateKey, todayStr);
     localStorage.setItem(countKey, String(next));
     const uid = getActiveProgressUser();
-    if (uid) void saveLearnerProgressSegment(uid, "streak", next);
+    if (uid) {
+      void saveLearnerProgressSegment(uid, "streak", next);
+      syncStreak(uid, next);
+    }
     return next;
   } catch {
     return 0;

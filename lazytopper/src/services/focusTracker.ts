@@ -1,3 +1,6 @@
+import { getActiveProgressUser } from "./studentProgressStore";
+import { syncFocus } from "./dbSyncService";
+
 const FOCUS_ENABLED_KEY = "lazytopper.focus.enabled";
 const FOCUS_DAILY_KEY = "lazytopper.focus.daily";
 const HEARTBEAT_INTERVAL = 30_000;
@@ -210,6 +213,8 @@ function persistDaily(): void {
       return Date.now() - d.getTime() < 60 * 86400_000;
     });
     localStorage.setItem(FOCUS_DAILY_KEY, JSON.stringify(recent));
+    const uid = getActiveProgressUser();
+    if (uid) syncFocus(uid, recent);
   } catch {}
 }
 

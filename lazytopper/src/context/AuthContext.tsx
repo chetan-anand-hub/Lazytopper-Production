@@ -11,6 +11,7 @@ import { ensureLearnerCloudBaseline } from "../services/studentCloudStore";
 import { activateTrial, hydrateSubscriptionFromCloud } from "../services/subscriptionService";
 import { hydrateMistakeLogsFromCloud } from "../services/mistakeLogService";
 import { authClient, firebaseConfigured } from "../services/firebaseClient";
+import { restoreFromDB } from "../services/dbSyncService";
 
 export type AuthUser = {
   uid: string;
@@ -195,6 +196,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (cancelled) return;
 
       await Promise.allSettled([
+        restoreFromDB(uid),
         ensureLearnerCloudBaseline(uid),
         ensureLearnerProgressBaseline(uid),
         hydrateLocalProgressFromCloud(uid),

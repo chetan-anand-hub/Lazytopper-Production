@@ -33,8 +33,16 @@ try {
   console.warn('[share] firebase-admin not available:', e.message);
 }
 
+const vm = require('vm');
+const { createRequire } = require('module');
+
 require.extensions['.ts'] = (module, filename) => {
-  const source = fs.readFileSync(filename, 'utf8');
+  const rawSource = fs.readFileSync(filename, 'utf8');
+  // `import.meta` is ESM-only and cannot be used in vm.runInThisContext (plain
+  // JS). In the server context, Vite env vars aren't available anyway, so we
+  // substitute a process.env-backed object — callers that depend on these vars
+  // gracefully fall back to sensible defaults when they are undefined.
+  const source = rawSource.replace(/\bimport\.meta\b/g, '({ env: process.env })');
   const transpiled = ts.transpileModule(source, {
     compilerOptions: {
       module: 'CommonJS',
@@ -43,7 +51,21 @@ require.extensions['.ts'] = (module, filename) => {
     },
     fileName: path.basename(filename),
   });
-  module._compile(transpiled.outputText, filename);
+  // Node v24 routes require() calls to ESM-type-package files through
+  // loadESMFromCJS → importSyncForRequire, which runs the code as an ES module.
+  // In that context `module`, `exports`, `require`, `__filename`, and
+  // `__dirname` are all undefined, so module._compile() fails.
+  //
+  // vm.runInThisContext() evaluates code in the V8 context directly and never
+  // triggers the ESM loader, so the standard CJS variables are always present.
+  // createRequire(filename) gives a per-file require whose relative-path
+  // resolution is anchored to the loaded file's directory.
+  const fn = vm.runInThisContext(
+    '(function(exports, require, module, __filename, __dirname) {\n' +
+    transpiled.outputText + '\n})',
+    { filename, lineOffset: 0, displayErrors: true }
+  );
+  fn(module.exports, createRequire(filename), module, filename, path.dirname(filename));
 };
 
 const { resolveConfig } = require('./services/serverConfig.cjs');
@@ -100,6 +122,7 @@ const { createShareRoutes } = require('./routes/share.cjs');
 const { createDiagramRoutes } = require('./routes/diagrams.cjs');
 const { createQuestionRoutes } = require('./routes/questions.cjs');
 const { createMentorRoute } = require('./routes/mentor.cjs');
+const { createUserProgressRoutes } = require('./routes/userProgress.cjs');
 const { createTutorCache } = require('./services/tutorCache.cjs');
 const { pickFromPool, markServed, saveToPool } = require('./services/generatedQuestionPool.cjs');
 const { createWarmPoolRunner } = require('./services/warmQuestionPool.cjs');
@@ -227,6 +250,7 @@ const routeDeps = {
 };
 const shareRoutes = createShareRoutes(routeDeps);
 const diagramRoutes = createDiagramRoutes(routeDeps);
+const userProgressRoutes = createUserProgressRoutes(routeDeps);
 const questionRoutes = createQuestionRoutes(routeDeps);
 const firebaseAuthRoute = createFirebaseAuthRoute({ sendJson, readJson, firebaseAdmin });
 
@@ -251,6 +275,13 @@ async function handleRequest(req, res) {
       reqPath === '/api/share-token' ||
       reqPath === '/api/auth/firebase-token' ||
       reqPath === '/api/admin/warm-question-pool' ||
+      reqPath === '/api/user/progress' ||
+      reqPath === '/api/user/progress/sync' ||
+      reqPath === '/api/user/progress/xp' ||
+      reqPath === '/api/user/progress/streak' ||
+      reqPath === '/api/user/progress/focus' ||
+      reqPath === '/api/user/progress/mastery' ||
+      reqPath === '/api/user/progress/mission' ||
       /^\/api\/session\/[^/]+$/.test(reqPath) ||
       /^\/api\/session\/[^/]+\/submit$/.test(reqPath)
     )
@@ -258,7 +289,7 @@ async function handleRequest(req, res) {
     res.writeHead(204, {
       'Access-Control-Allow-Origin': config.CORS_ORIGIN,
       'Access-Control-Allow-Methods': 'POST, OPTIONS, GET',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Lazytopper-Uid, X-Admin-Key',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Lazytopper-Uid, X-Admin-Key, X-User-ID',
       'Access-Control-Max-Age': '86400',
     });
     return res.end();
@@ -394,6 +425,28 @@ async function handleRequest(req, res) {
   }
   if (req.method === 'POST' && req.url === '/api/check-solution') {
     return questionRoutes.handleCheckSolution(req, res);
+  }
+
+  if (req.method === 'GET' && reqPath === '/api/user/progress') {
+    return userProgressRoutes.handleGet(req, res);
+  }
+  if (req.method === 'POST' && reqPath === '/api/user/progress/sync') {
+    return userProgressRoutes.handleSync(req, res);
+  }
+  if (req.method === 'POST' && reqPath === '/api/user/progress/xp') {
+    return userProgressRoutes.handleXP(req, res);
+  }
+  if (req.method === 'POST' && reqPath === '/api/user/progress/streak') {
+    return userProgressRoutes.handleStreak(req, res);
+  }
+  if (req.method === 'POST' && reqPath === '/api/user/progress/focus') {
+    return userProgressRoutes.handleFocus(req, res);
+  }
+  if (req.method === 'POST' && reqPath === '/api/user/progress/mastery') {
+    return userProgressRoutes.handleMastery(req, res);
+  }
+  if (req.method === 'POST' && reqPath === '/api/user/progress/mission') {
+    return userProgressRoutes.handleMission(req, res);
   }
 
   if (req.method === 'POST' && reqPath === '/api/auth/firebase-token') {

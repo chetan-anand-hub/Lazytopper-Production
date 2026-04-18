@@ -1,3 +1,6 @@
+import { getActiveProgressUser } from "../services/studentProgressStore";
+import { syncXP } from "../services/dbSyncService";
+
 const XP_KEY = "lazytopper.xp";
 
 export function awardXP(amount: number): number {
@@ -9,6 +12,8 @@ export function awardXP(amount: number): number {
   try {
     localStorage.setItem(XP_KEY, String(next));
   } catch {}
+  const uid = getActiveProgressUser();
+  if (uid) syncXP(uid, next);
   return next;
 }
 
