@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { getMistakeLogs, type MistakeLogEntry } from "../../services/mistakeLogService";
+import { useAuth } from "../../context/AuthContext";
 
 interface MistakeInsightsPanelProps {
   uid: string;
@@ -59,6 +60,7 @@ function trendLabel(t: TrendDir): string {
 export function MistakeInsightsPanel({ uid }: MistakeInsightsPanelProps) {
   const [logs, setLogs] = useState<MistakeLogEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const { mistakeLogsHydrated } = useAuth();
 
   useEffect(() => {
     let cancelled = false;
@@ -76,7 +78,7 @@ export function MistakeInsightsPanel({ uid }: MistakeInsightsPanelProps) {
     return () => {
       cancelled = true;
     };
-  }, [uid]);
+  }, [uid, mistakeLogsHydrated]);
 
   const weeks = useMemo(() => aggregateByWeek(logs), [logs]);
 

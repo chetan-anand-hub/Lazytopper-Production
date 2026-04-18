@@ -27,6 +27,7 @@ type AuthContextType = {
   loading: boolean;
   firebaseReady: boolean;
   phoneRecaptchaStatus: PhoneRecaptchaStatus;
+  mistakeLogsHydrated: number;
   getToken: () => Promise<string | null>;
   signInWithGoogle: () => Promise<void>;
   initPhoneRecaptcha: (recaptchaContainerId: string) => Promise<void>;
@@ -144,6 +145,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const clerk = useClerk();
 
   const [localUser, setLocalUser] = useState<AuthUser | null>(() => readLocalSession());
+  const [mistakeLogsHydrated, setMistakeLogsHydrated] = useState(0);
   const firebaseSignedInUid = useRef<string | null>(null);
 
   const mappedClerkUser: AuthUser | null = clerkUser
@@ -196,7 +198,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         ensureLearnerCloudBaseline(uid),
         ensureLearnerProgressBaseline(uid),
         hydrateLocalProgressFromCloud(uid),
-        hydrateMistakeLogsFromCloud(uid),
+        hydrateMistakeLogsFromCloud(uid).then(() => {
+          if (!cancelled) setMistakeLogsHydrated((n) => n + 1);
+        }),
         hydrateSubscriptionFromCloud(uid).then(() => {
           activateTrial(uid);
         }),
@@ -237,6 +241,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     loading,
     firebaseReady: true,
     phoneRecaptchaStatus: "idle",
+    mistakeLogsHydrated,
     getToken: () => clerk.session?.getToken() ?? Promise.resolve(null),
     signInWithGoogle: signInWithGoogleHandler,
     initPhoneRecaptcha: noopAsync,
