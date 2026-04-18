@@ -103,7 +103,7 @@ function createMoreLikeThisRoute(deps) {
           // Only increment hit_count now that we've decided to serve these rows.
           const ids = pooled.map(q => q.id).filter(Boolean);
           if (markServed && ids.length > 0) {
-            void markServed(ids).catch(e => console.warn('[more-like-this] markServed failed (non-fatal):', e.message));
+            await markServed(ids);
           }
           console.info(`[more-like-this] pool HIT topic=${topicKey} marks=${marks} diff=${enforcedDiff} served=${pooled.length}`);
           return sendJson(res, 200, {

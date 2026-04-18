@@ -44,8 +44,20 @@ function norm(v) {
   return s === '' ? null : s;
 }
 
-function hashText(text) {
-  return crypto.createHash('md5').update(String(text)).digest('hex');
+/**
+ * Hash the full dedup key: (topicKey, subject, marks, difficulty, questionText).
+ * All five fields feed the hash so questions with the same text but different
+ * marks/difficulty are treated as distinct pool entries.
+ */
+function hashKey(topicKey, subject, marks, difficulty, questionText) {
+  const composite = [
+    String(topicKey ?? ''),
+    String(subject ?? ''),
+    marks != null ? String(marks) : 'null',
+    difficulty != null ? String(difficulty) : 'null',
+    String(questionText),
+  ].join('|');
+  return crypto.createHash('md5').update(composite).digest('hex');
 }
 
 /**
@@ -145,7 +157,7 @@ async function saveToPool(topicKey, subject, marks, difficulty, variants) {
   try {
     let saved = 0;
     for (const questionText of rows) {
-      const qHash = hashText(questionText);
+      const qHash = hashKey(normTopic, normSubject, normMarks, normDiff, questionText);
       const bloomSkill = norm(
         variants.find(v => String(v?.text || '').trim() === questionText)?.bloomSkill
       ) || null;
