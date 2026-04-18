@@ -402,8 +402,8 @@ function firstStepIsAlreadyDiagram(qText) {
          first.startsWith('refer to') ||
          first.startsWith('circuit diagram:') ||
          first.startsWith('punnett square:') ||
-         first.startsWith('draw the structural') ||
-         first.startsWith('draw the electron') ||
+         first.startsWith('draw ') ||
+         first.startsWith('draw the') ||
          first.startsWith('write the balanced') ||
          first.startsWith('balanced equation:') ||
          first.startsWith('write the skeletal');
