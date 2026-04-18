@@ -13,5 +13,5 @@ export const tutorCacheTable = pgTable("tutor_cache", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-export type TutorCacheRow = typeof tutorCacheTable.$inferSelect;
-export type NewTutorCacheRow = typeof tutorCacheTable.$inferInsert;
+export type TutorCache = typeof tutorCacheTable.$inferSelect;
+export type NewTutorCache = typeof tutorCacheTable.$inferInsert;
