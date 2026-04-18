@@ -16,7 +16,8 @@ import type { CanonicalQuestion } from "../data/predictionTypes";
 import type { ChapterId } from "../engine/smartLearningTypes";
 import { recordDetour, recordLearnEngagement } from "../services/guidedJourneyService";
 import { useAuth } from "../context/AuthContext";
-import { fetchStepSolution, type StepSolutionResponse } from "../ai/aiClient";
+import { fetchStepSolution, type StepSolutionResponse, type CheckSolutionResponse } from "../ai/aiClient";
+import { SolutionChecker } from "../components/question/SolutionChecker";
 import { VisualExplainer } from "../components/VisualExplainer";
 import { getVisualConceptForQuestion } from "../data/questionVisualMap";
 import { getVisualsForTopicKey } from "../data/visualConceptRegistry";
@@ -402,6 +403,7 @@ export default function TopicHub() {
   const [answerRevealed, setAnswerRevealed] = useState(false);
   const [miniQuizIdx, setMiniQuizIdx] = useState(0);
   const [miniQuizAnswers, setMiniQuizAnswers] = useState<{ correct: boolean; isMcq: boolean }[]>([]);
+  const [aiCheckerResult, setAiCheckerResult] = useState<CheckSolutionResponse | null>(null);
   const [quizSolution, setQuizSolution] = useState<StepSolutionResponse | null>(null);
   const [quizSolutionLoading, setQuizSolutionLoading] = useState(false);
   const [quizSolutionError, setQuizSolutionError] = useState<string | null>(null);
@@ -565,6 +567,10 @@ export default function TopicHub() {
 
   const currentMiniQuiz = conceptMiniQuizzes[conceptIdx] || [];
   const currentMiniQuestion = currentMiniQuiz[miniQuizIdx] as CanonicalQuestion | undefined;
+
+  useEffect(() => {
+    setAiCheckerResult(null);
+  }, [miniQuizIdx, showingCheckpoint]);
 
   useEffect(() => {
     if (!answerRevealed || !currentMiniQuestion) {
@@ -1402,16 +1408,65 @@ export default function TopicHub() {
                   </div>
                 ) : (
                   !answerRevealed && (
-                    <div style={{ display: "flex", gap: 8 }}>
-                      <button type="button" onClick={() => handleCheckpointAnswer("correct")}
-                        style={{ padding: "8px 18px", borderRadius: 10, border: "1px solid #22c55e", background: "rgba(34,197,94,0.08)", color: "var(--color-success)", fontSize: "0.82rem", fontWeight: 600, cursor: "pointer" }}>
-                        I got it right
-                      </button>
-                      <button type="button" onClick={() => handleCheckpointAnswer("incorrect")}
-                        style={{ padding: "8px 18px", borderRadius: 10, border: "1px solid #ef4444", background: "rgba(239,68,68,0.08)", color: "var(--color-error)", fontSize: "0.82rem", fontWeight: 600, cursor: "pointer" }}>
-                        I got it wrong
-                      </button>
-                    </div>
+                    <>
+                      {(currentMiniQuestion.marks || 1) > 1 ? (
+                        <>
+                          <SolutionChecker
+                            question={currentMiniQuestion.questionText}
+                            marks={currentMiniQuestion.marks || 2}
+                            subject={subjectTitle}
+                            topic={title}
+                            onResult={(r) => setAiCheckerResult(r)}
+                          />
+                          <div style={{ marginTop: 12 }}>
+                            <div style={{ fontSize: "0.72rem", color: "var(--text-muted)", marginBottom: 6 }}>
+                              {aiCheckerResult
+                                ? "Based on the AI check — confirm or override:"
+                                : "Or self-assess without AI:"}
+                            </div>
+                            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                              <button type="button" onClick={() => handleCheckpointAnswer("correct")}
+                                style={{
+                                  padding: "8px 18px", borderRadius: 10, fontSize: "0.82rem", fontWeight: 600, cursor: "pointer",
+                                  border: aiCheckerResult && aiCheckerResult.percentage >= 70
+                                    ? "2px solid #22c55e"
+                                    : "1px solid #22c55e",
+                                  background: aiCheckerResult && aiCheckerResult.percentage >= 70
+                                    ? "rgba(34,197,94,0.15)"
+                                    : "rgba(34,197,94,0.08)",
+                                  color: "var(--color-success)",
+                                }}>
+                                {aiCheckerResult && aiCheckerResult.percentage >= 70 ? "✓ " : ""}I got it right
+                              </button>
+                              <button type="button" onClick={() => handleCheckpointAnswer("incorrect")}
+                                style={{
+                                  padding: "8px 18px", borderRadius: 10, fontSize: "0.82rem", fontWeight: 600, cursor: "pointer",
+                                  border: aiCheckerResult && aiCheckerResult.percentage < 70
+                                    ? "2px solid #ef4444"
+                                    : "1px solid #ef4444",
+                                  background: aiCheckerResult && aiCheckerResult.percentage < 70
+                                    ? "rgba(239,68,68,0.15)"
+                                    : "rgba(239,68,68,0.08)",
+                                  color: "var(--color-error)",
+                                }}>
+                                {aiCheckerResult && aiCheckerResult.percentage < 70 ? "✗ " : ""}I got it wrong
+                              </button>
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <div style={{ display: "flex", gap: 8 }}>
+                          <button type="button" onClick={() => handleCheckpointAnswer("correct")}
+                            style={{ padding: "8px 18px", borderRadius: 10, border: "1px solid #22c55e", background: "rgba(34,197,94,0.08)", color: "var(--color-success)", fontSize: "0.82rem", fontWeight: 600, cursor: "pointer" }}>
+                            I got it right
+                          </button>
+                          <button type="button" onClick={() => handleCheckpointAnswer("incorrect")}
+                            style={{ padding: "8px 18px", borderRadius: 10, border: "1px solid #ef4444", background: "rgba(239,68,68,0.08)", color: "var(--color-error)", fontSize: "0.82rem", fontWeight: 600, cursor: "pointer" }}>
+                            I got it wrong
+                          </button>
+                        </div>
+                      )}
+                    </>
                   )
                 )}
 

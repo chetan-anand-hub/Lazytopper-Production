@@ -9,6 +9,7 @@ interface SolutionCheckerProps {
   subject: string;
   topic: string;
   onRequestStepSolution?: () => void;
+  onResult?: (result: CheckSolutionResponse) => void;
 }
 
 const MAX_IMAGE_BYTES = 3 * 1024 * 1024;
@@ -169,7 +170,7 @@ function MistakeSummaryLine({ summary }: { summary: CheckSolutionResponse["mista
 }
 
 export function SolutionChecker({
-  question, marks, subject, topic, onRequestStepSolution,
+  question, marks, subject, topic, onRequestStepSolution, onResult,
 }: SolutionCheckerProps) {
   const { user } = useAuth();
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -244,6 +245,7 @@ export function SolutionChecker({
 
       if (response.ok) {
         setResult(response);
+        onResult?.(response);
         const mistakeCount =
           response.mistakeSummary.conceptual +
           response.mistakeSummary.calculation +
