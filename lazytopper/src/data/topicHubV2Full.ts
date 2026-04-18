@@ -737,11 +737,19 @@ export const topicHubV2Content: Record<string, TopicHubV2Content> = {
       "definitions": [
         {
           "title": "Fundamental Theorem of Arithmetic",
-          "description": "Every composite number can be expressed as a product of prime numbers in a unique way (apart from the order of factors). Key application: HCF of two numbers = product of the lowest powers of all common prime factors; LCM = product of the highest powers of all prime factors. Also, HCF × LCM = product of the two numbers — use this to find one when the other is known."
+          "description": "Every composite number can be expressed as a product of prime numbers in a unique way (apart from the order of factors). This uniqueness is the foundation of the subject — it guarantees that the prime factorisation of any number is one-of-a-kind, and it underpins both the HCF–LCM method and the irrationality proofs."
         },
         {
-          "title": "Proof of Irrationality",
-          "description": "√2, √3, and √5 are irrational. The standard proof uses contradiction: assume the number equals p/q in lowest terms (p and q coprime), square both sides, show the prime divides both p and q, contradicting coprimality. This template extends to compound surds: to prove 3 + 2√5 is irrational, assume it equals a rational r, isolate √5 = (r − 3)/2, conclude √5 is rational — a contradiction."
+          "title": "HCF and LCM relationship",
+          "description": "Using prime factorisation: HCF = product of the lowest powers of all common prime factors; LCM = product of the highest powers of all prime factors present. The key relationship to memorise: HCF × LCM = product of the two numbers. Use this to find one when the other and the product of the numbers are given — a common 2–3 mark question type."
+        },
+        {
+          "title": "Proof of Irrational Numbers",
+          "description": "√2, √3, and √5 are irrational. The proof uses contradiction: assume √2 = p/q where p and q are coprime integers (gcd = 1). Squaring gives p² = 2q², so 2 divides p² and therefore 2 divides p. Write p = 2k; substituting gives q² = 2k², so 2 divides q. Now 2 divides both p and q — contradicting gcd(p, q) = 1. Therefore √2 is irrational. The same template proves compound surds like 3 + 2√5 are irrational: assume it equals a rational r, isolate √5 = (r − 3)/2, and conclude √5 is rational — a contradiction."
+        },
+        {
+          "title": "Terminating and non-terminating decimals",
+          "description": "A rational number p/q in its lowest terms has a terminating decimal expansion if and only if the prime factorisation of q has only the primes 2 and 5 (i.e. q = 2ᵐ × 5ⁿ). If q has any prime factor other than 2 or 5, the decimal is non-terminating and repeating. Example: 7/8 = 7/2³ terminates (= 0.875); 1/7 is non-terminating repeating. This connects rational numbers to their decimal form — a common 1-mark MCQ."
         }
       ],
       "examPatterns": [

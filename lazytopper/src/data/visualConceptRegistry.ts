@@ -50,6 +50,7 @@ export const MATHS_VISUALS: ChapterVisuals[] = [
       c("maths", "real-numbers", "Fundamental Theorem of Arithmetic", ["prime", "factorisation", "unique", "fundamental", "hcf", "lcm", "factors", "composite"]),
       c("maths", "real-numbers", "HCF and LCM using Prime Factorisation", ["hcf", "lcm", "prime", "factors"]),
       c("maths", "real-numbers", "Irrational Numbers Proof", ["irrational", "proof", "contradiction", "sqrt2", "sqrt3", "sqrt5"]),
+      c("maths", "real-numbers", "Decimal Expansions", ["decimal", "terminating", "non-terminating", "repeating", "rational"]),
     ],
   },
   {
