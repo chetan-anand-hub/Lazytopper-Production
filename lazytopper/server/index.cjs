@@ -102,6 +102,7 @@ const { createQuestionRoutes } = require('./routes/questions.cjs');
 const { createMentorRoute } = require('./routes/mentor.cjs');
 const { createTutorCache } = require('./services/tutorCache.cjs');
 const { pickFromPool, markServed, saveToPool } = require('./services/generatedQuestionPool.cjs');
+const { createWarmPoolRunner } = require('./services/warmQuestionPool.cjs');
 const { createFirebaseAuthRoute } = require('./routes/firebaseAuth.cjs');
 
 const { sendJson, sendJsonWithHeaders } = createHttpUtils(config.CORS_ORIGIN);
@@ -142,6 +143,13 @@ function toClaudeMessages(messages) {
 function selectModelForRequest(mode, userQuery) {
   return claudeClientModule.selectModelForRequest(mode, userQuery);
 }
+
+const warmPoolRunner = createWarmPoolRunner({
+  callGemini,
+  saveToPool,
+  GEMINI_MODEL: config.GEMINI_MODEL,
+});
+let _warmPoolRunning = false;
 
 const {
   buildStubTutorStructured, buildStubText, buildStubMoreLikeThis,
@@ -241,6 +249,7 @@ async function handleRequest(req, res) {
       reqPath === '/api/session/start' ||
       reqPath === '/api/share-token' ||
       reqPath === '/api/auth/firebase-token' ||
+      reqPath === '/api/admin/warm-question-pool' ||
       /^\/api\/session\/[^/]+$/.test(reqPath) ||
       /^\/api\/session\/[^/]+\/submit$/.test(reqPath)
     )
@@ -248,7 +257,7 @@ async function handleRequest(req, res) {
     res.writeHead(204, {
       'Access-Control-Allow-Origin': config.CORS_ORIGIN,
       'Access-Control-Allow-Methods': 'POST, OPTIONS, GET',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Lazytopper-Uid',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Lazytopper-Uid, X-Admin-Key',
       'Access-Control-Max-Age': '86400',
     });
     return res.end();
@@ -390,6 +399,29 @@ async function handleRequest(req, res) {
     return diagramRoutes.handleGenerateVisual(req, res);
   }
 
+  if (req.method === 'POST' && reqPath === '/api/admin/warm-question-pool') {
+    const adminSecret = process.env.WARM_POOL_ADMIN_SECRET;
+    if (!adminSecret) {
+      return sendJson(res, 503, { ok: false, error: 'Endpoint disabled: WARM_POOL_ADMIN_SECRET env var is not configured' });
+    }
+    const providedKey = req.headers['x-admin-key'] || '';
+    if (providedKey !== adminSecret) {
+      return sendJson(res, 401, { ok: false, error: 'Unauthorized: valid X-Admin-Key header required' });
+    }
+    if (_warmPoolRunning) {
+      return sendJson(res, 409, { ok: false, error: 'A warm-pool run is already in progress. Check server logs for progress.' });
+    }
+    let reqJson = {};
+    try { reqJson = await readJson(req); } catch (_) {}
+    const delayMs = Number(reqJson.delayMs ?? 300);
+    sendJson(res, 202, { ok: true, message: 'Pool warm run started in background. Check server logs for progress.' });
+    _warmPoolRunning = true;
+    warmPoolRunner.runWarmPool({ delayMs }).catch(
+      (e) => console.error('[warm] runWarmPool error:', e.message)
+    ).finally(() => { _warmPoolRunning = false; });
+    return;
+  }
+
   return sendJson(res, 404, { error: 'Not Found' });
 }
 
@@ -416,4 +448,20 @@ server.listen(config.PORT, () => {
     `Routing: visual→${config.HAS_ANTHROPIC_PROXY ? 'claude-sonnet' : 'gemini'} | chat→gemini | diagram-compare→claude+gemini | MaxHistory: ${config.MAX_HISTORY_TURNS} turns`
   );
   if (envUsedLabel) console.log(`EnvUsed: ${envUsedLabel}`);
+
+  if (!config.STUB_MODE && process.env.DATABASE_URL) {
+    console.log('[warm] Scheduling background question pool pre-warm (60 s delay)...');
+    setTimeout(() => {
+      if (_warmPoolRunning) {
+        console.log('[warm] Startup warm skipped — another run already in progress.');
+        return;
+      }
+      _warmPoolRunning = true;
+      warmPoolRunner.runWarmPool({ delayMs: 400 }).catch(
+        (e) => console.error('[warm] Startup runWarmPool error:', e.message)
+      ).finally(() => { _warmPoolRunning = false; });
+    }, 60_000);
+  } else {
+    console.log('[warm] Skipping pool pre-warm (STUB_MODE or no DATABASE_URL).');
+  }
 });
