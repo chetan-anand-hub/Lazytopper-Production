@@ -737,6 +737,23 @@ export function isMathsDeletedFor2026_27(topic: string, subtopic?: string): bool
   return false;
 }
 
+/**
+ * Year-gated wrapper around isMathsDeletedFor2026_27.
+ * Returns true only when targetYear >= effectiveFromYear AND the topic/subtopic
+ * matches a deleted Maths chapter or subtopic keyword.
+ *
+ * Prefer this function at call sites so the year gate is part of the guard
+ * itself rather than scattered inline across the codebase.
+ */
+export function isMathsDeletedForYear(
+  topic: string,
+  subtopic: string | undefined,
+  targetYear: number
+): boolean {
+  if (targetYear < MATHS_DELETED_CHAPTERS_2026_27.effectiveFromYear) return false;
+  return isMathsDeletedFor2026_27(topic, subtopic);
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // 2026-27 CBSE Science syllabus deletions
 //

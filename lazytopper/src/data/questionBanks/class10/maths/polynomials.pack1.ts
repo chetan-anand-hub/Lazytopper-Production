@@ -613,5 +613,6 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     ],
     finalAnswer: "Proved: (α/β) + (β/α) = (b² − 2ac)/ac",
     isCompetencyBased: true,
-  }
+  },
+  { id: "POLY-ND01", subject: "Maths", topicKey: "Polynomials", subtopic: "Relationship Between Zeros", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "The zeros of the polynomial p(x) = 2x³ − 5x² − 14x + 8 are α, β, γ. Without finding the zeros, determine the values of: (i) α + β + γ, (ii) αβ + βγ + γα, (iii) αβγ.", solutionSteps: ["For a cubic ax³ + bx² + cx + d with zeros α, β, γ:","α + β + γ = −b/a = −(−5)/2 = 5/2","αβ + βγ + γα = c/a = (−14)/2 = −7","αβγ = −d/a = −8/2 = −4"], answer: "α + β + γ = 5/2; αβ + βγ + γα = −7; αβγ = −4.", explanation: "See solution steps for full working.", finalAnswer: "α + β + γ = 5/2; αβ + βγ + γα = −7; αβγ = −4.", isCompetencyBased: true }
 ];

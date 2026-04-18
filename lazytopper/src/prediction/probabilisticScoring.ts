@@ -2,8 +2,7 @@ import type { HistoricalQuestionItem } from "./historicalDataset";
 import {
   isScienceDeletedFor2026_27,
   SCIENCE_DELETED_CHAPTERS_2026_27,
-  isMathsDeletedFor2026_27,
-  MATHS_DELETED_CHAPTERS_2026_27,
+  isMathsDeletedForYear,
 } from "./cbseHistoricalArchetypes";
 
 export interface ProbabilisticScoreInput {
@@ -110,8 +109,7 @@ export function scoreTopicRecurrenceConfidence(args: {
   // must score zero so they are never surfaced in recommendations or papers.
   if (
     input.subject === "Maths" &&
-    context.targetYear >= MATHS_DELETED_CHAPTERS_2026_27.effectiveFromYear &&
-    isMathsDeletedFor2026_27(input.topic, input.subtopic)
+    isMathsDeletedForYear(input.topic, input.subtopic, context.targetYear)
   ) {
     const HPQ_CONFIDENCE_FLOOR = 0.18;
     return {

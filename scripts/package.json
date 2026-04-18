@@ -9,7 +9,9 @@
     "validateQuestionBanks": "tsx ./src/validateQuestionBanks.ts",
     "validate:banks": "tsx ./src/validateQuestionBanks.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "node --import tsx/esm --test src/syllabusGuard.test.ts"
+    "test": "node --import tsx/esm --test src/syllabusGuard.test.ts",
+    "test:prediction:deleted-zeroing": "node --import tsx/esm --test src/deletionGuard.test.ts",
+    "test:matrix:all": "node --import tsx/esm --test src/syllabusGuard.test.ts src/deletionGuard.test.ts"
   },
   "devDependencies": {
     "@types/node": "catalog:",

@@ -418,6 +418,41 @@ const sectionAQuestions = [
         ],
         formatOverride: "Assertion-Reasoning",
       },
+      {
+        questionId: "2026-TRI-P1-A-017",
+        questionText:
+          "In △ABC, if ∠A = ∠D, ∠B = ∠E, then △ABC ~ △DEF by:",
+        options: ["AA similarity criterion", "SAS similarity criterion", "SSS similarity criterion", "RHS congruence"],
+        answer: "AA similarity criterion",
+        working: ["Two pairs of equal angles satisfy the AA criterion for triangle similarity."],
+      },
+      {
+        questionId: "2026-TRI-P1-A-018",
+        questionText:
+          "The ratio of the perimeters of two similar triangles is 3:5. The ratio of their areas is:",
+        options: ["9:25", "3:5", "27:125", "√3 : √5"],
+        answer: "9:25",
+        working: ["Area ratio = (perimeter ratio)² = (3/5)² = 9/25, i.e., 9:25."],
+      },
+      {
+        questionId: "2026-TRI-P1-A-019",
+        questionText:
+          "In a right triangle with the right angle at C, if CD is the altitude to the hypotenuse AB, which of the following is true?",
+        options: ["△ACD ~ △ABC", "△ACD ~ △BCD", "△ACD ~ △BAC", "△BCD ~ △CAB"],
+        answer: "△ACD ~ △ABC",
+        working: ["In △ACD and △ABC, ∠A is common and both have a right angle, so AA similarity gives △ACD ~ △ABC."],
+      },
+      {
+        questionId: "2026-TRI-P1-A-020",
+        questionText:
+          "Assertion (A): The diagonals of a trapezium ABCD (AB ∥ CD) divide each other in the same ratio.\nReason (R): The diagonals create pairs of similar triangles using the AA criterion and the property of parallel lines.",
+        answer: "Both A and R are true, and R is the correct explanation of A.",
+        working: [
+          "With AB ∥ CD, alternate interior angles give two pairs of equal angles in the triangles formed by the diagonals.",
+          "By AA, the triangles are similar, so their sides are proportional, proving the diagonals divide each other in the same ratio.",
+        ],
+        formatOverride: "Assertion-Reasoning",
+      },
     ]
   ),
 ];

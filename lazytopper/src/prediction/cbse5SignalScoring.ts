@@ -5,8 +5,7 @@ import { isGuaranteedArchetype, getGuaranteedBoost } from "./guaranteedArchetype
 import {
   isScienceDeletedFor2026_27,
   SCIENCE_DELETED_CHAPTERS_2026_27,
-  isMathsDeletedFor2026_27,
-  MATHS_DELETED_CHAPTERS_2026_27,
+  isMathsDeletedForYear,
 } from "./cbseHistoricalArchetypes";
 
 export interface FiveSignalWeights {
@@ -270,8 +269,7 @@ export function compute5SignalScore(
   // syllabus, return a zeroed score for the same reason.
   if (
     input.subject === "Maths" &&
-    targetYear >= MATHS_DELETED_CHAPTERS_2026_27.effectiveFromYear &&
-    isMathsDeletedFor2026_27(resolvedTopic, input.subtopic)
+    isMathsDeletedForYear(resolvedTopic, input.subtopic, targetYear)
   ) {
     return {
       compositeScore: 0,
