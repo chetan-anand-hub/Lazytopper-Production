@@ -10,6 +10,7 @@ const { findVisualForTopicFromStore } = require('../services/topicVisualLookup.c
 function createMentorRoute(deps) {
   const {
     sendJson, sendJsonWithHeaders, readJson, extractJsonObjectFromText,
+    tutorCache,
     callGemini, callClaude, toClaudeMessages, selectModelForRequest,
     telemetry,
     GEMINI_MODEL, GEMINI_TUTOR_MODEL, CLAUDE_MODEL_SONNET, CLAUDE_MODEL_HAIKU,
@@ -321,6 +322,38 @@ function createMentorRoute(deps) {
       isMindmapTeach, routingDecision, handlerUsed,
     });
 
+    // Tutor Q&A semantic cache — only for non-image, non-teach-contract, cacheable modes.
+    let _cacheFingerprint = null;
+    let _cacheQuestionNorm = null;
+    const _cacheSubject = String(payload?.subject || '').trim();
+    const _cacheTopicKey = String(payload?.topicKey || payload?.topic || '').trim();
+    const _canUseQACache = tutorCache && !mentorImage && !isTeachContract && !isTrianglesEvaluation
+      && tutorCache.isCacheableMode(normalisedMode) && originalQuery.length >= 10;
+
+    if (_canUseQACache) {
+      try {
+        const cacheResult = await tutorCache.lookup(normalisedMode, originalQuery, _cacheSubject);
+        if (cacheResult?.response) {
+          const cachedData = cacheResult.response;
+          telemetry.increment('tutor_cache_hit');
+          return sendJson(res, 200, {
+            ok: true,
+            data: {
+              text: typeof cachedData.text === 'string' ? cachedData.text : JSON.stringify(cachedData.structured || cachedData),
+              structured: cachedData.structured || null,
+              trace: { normalized_mode: normalisedMode, handler_used: handlerUsed, schema_used: cachedData.schema_used || 'text', repair_used: false, qa_cache_hit: true },
+            },
+          });
+        }
+        if (cacheResult) {
+          _cacheFingerprint = cacheResult.fingerprint;
+          _cacheQuestionNorm = cacheResult.questionNormalized;
+        }
+      } catch (e) {
+        console.warn('[mentor] tutor-cache lookup error (non-fatal):', e.message);
+      }
+    }
+
     try {
       if (isTeachContract) {
         const cacheKey = buildTeachContractCacheKey(payload);
@@ -349,6 +382,14 @@ function createMentorRoute(deps) {
       }
 
       const result = await buildMentorResponse();
+      // Save to tutor Q&A cache on success (fire-and-forget).
+      if (_canUseQACache && _cacheFingerprint && _cacheQuestionNorm && result?.status === 200 && result?.body?.data) {
+        const { text, structured } = result.body.data;
+        void tutorCache.save(
+          _cacheFingerprint, normalisedMode, _cacheSubject, _cacheTopicKey,
+          _cacheQuestionNorm, { text, structured, schema_used: result.body.data.trace?.schema_used || 'text' }
+        );
+      }
       return sendJson(res, result.status, result.body);
     } catch (err) {
       if (err && err.status === 429) {

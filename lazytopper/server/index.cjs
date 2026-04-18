@@ -100,6 +100,7 @@ const { createShareRoutes } = require('./routes/share.cjs');
 const { createDiagramRoutes } = require('./routes/diagrams.cjs');
 const { createQuestionRoutes } = require('./routes/questions.cjs');
 const { createMentorRoute } = require('./routes/mentor.cjs');
+const { createTutorCache } = require('./services/tutorCache.cjs');
 const { createFirebaseAuthRoute } = require('./routes/firebaseAuth.cjs');
 
 const { sendJson, sendJsonWithHeaders } = createHttpUtils(config.CORS_ORIGIN);
@@ -152,8 +153,16 @@ const {
   getEnsureDiagramFields: () => mentorRoute.ensureDiagramFields,
 });
 
+const tutorCache = createTutorCache({
+  HAS_REPLIT_PROXY: config.HAS_REPLIT_PROXY,
+  REPLIT_GEMINI_BASE_URL: config.REPLIT_GEMINI_BASE_URL,
+  REPLIT_GEMINI_API_KEY: config.REPLIT_GEMINI_API_KEY,
+  DIRECT_GEMINI_API_KEY: config.DIRECT_GEMINI_API_KEY,
+});
+
 const mentorRoute = createMentorRoute({
   sendJson, sendJsonWithHeaders, readJson, extractJsonObjectFromText,
+  tutorCache,
   callGemini, callClaude, toClaudeMessages, selectModelForRequest,
   telemetry,
   GEMINI_MODEL: config.GEMINI_MODEL,

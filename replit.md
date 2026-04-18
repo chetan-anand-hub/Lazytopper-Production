@@ -34,6 +34,14 @@ A Pricing page details subscription tiers. A Referral Program offers premium acc
 ## Server Architecture
 The LazyTopper AI server is fully modularized. `server/index.cjs` acts as a composition root. Configuration and utilities are separated. The mentor route is split into seven sub-modules handling request classification, prompt building, response generation, validation, diagram helpers, and teach contract handling. The prompt system is divided into seven domain modules for modularity. AI clients handle model routing. Other routes include share, diagrams, moreLikeThis, stepSolution, checkSolution, and questions. `StudentDataService.ts` provides a unified facade for student data management. The API employs a 3-layer cost optimization strategy: static question bank → pre-generated visuals → AI fallback. All modules use factory functions with dependency injection.
 
+## Tutor Q&A Semantic Cache
+`lazytopper/server/services/tutorCache.cjs` implements a keyword-fingerprint-based cache for tutor responses stored in Postgres (`tutor_cache` table). For `explain`, `board_steps_ms`, and `solve` mode requests (without image attachments), the server:
+1. Builds a keyword fingerprint (stemmed, stopword-filtered tokens) of the student's question
+2. Fetches stored rows for the same mode+subject and computes Jaccard similarity in JS
+3. Cache HIT (≥ 0.38 Jaccard) → returns the stored AI response instantly, labeled `qa_cache_hit: true`
+4. Cache MISS → runs the normal Gemini call, then stores the fingerprint + full response
+Hit count and `updated_at` are maintained for future analytics. Teach contracts, triangles evaluation, image requests, and session-specific modes bypass this cache.
+
 ## Routing Architecture
 The frontend has a single entry point, with all client-side routes served from `/`. The API server (`/shared-api/*`) runs on port 8080, and an AI Gateway proxy (`/api/*`) routes through the API server to port 3001. In development, Vite serves the frontend and proxies API calls. In production, static files are pre-built and served.
 
