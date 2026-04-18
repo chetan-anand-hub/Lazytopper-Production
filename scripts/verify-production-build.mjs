@@ -71,10 +71,18 @@ check("index.html exists", () => fs.existsSync(path.join(DIST, "index.html")));
 
 // 2. Freshness: newest src file must be OLDER than newest dist asset
 //    If dist is older than src, the build is stale.
+//    Grace window: if the dist was built within the last 3 minutes, allow up to
+//    60 seconds of src-newer-than-dist drift. This handles the case where platform
+//    git operations (commit/checkout) update source file mtimes after the build runs.
 check("Dist is fresh (built after latest source change)", () => {
   const newestSrc = newestMtime(SRC_DIR);
   const newestDist = newestMtime(ASSETS);
-  const isStale = newestDist < newestSrc;
+  const nowMs = Date.now();
+  const distAgeMs = nowMs - newestDist;
+  const GRACE_WINDOW_MS = 60_000;  // 60-second grace for platform git ops
+  const RECENT_BUILD_MS = 3 * 60_000;  // only apply grace to builds < 3 min old
+  const driftMs = newestSrc - newestDist;
+  const isStale = driftMs > 0 && !(distAgeMs < RECENT_BUILD_MS && driftMs <= GRACE_WINDOW_MS);
   if (isStale) {
     const srcDate = new Date(newestSrc).toISOString();
     const distDate = new Date(newestDist).toISOString();

@@ -27,6 +27,7 @@ type AuthContextType = {
   loading: boolean;
   firebaseReady: boolean;
   phoneRecaptchaStatus: PhoneRecaptchaStatus;
+  getToken: () => Promise<string | null>;
   signInWithGoogle: () => Promise<void>;
   initPhoneRecaptcha: (recaptchaContainerId: string) => Promise<void>;
   sendPhoneOtp: (phoneE164: string, recaptchaContainerId: string) => Promise<void>;
@@ -236,6 +237,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     loading,
     firebaseReady: true,
     phoneRecaptchaStatus: "idle",
+    getToken: () => clerk.session?.getToken() ?? Promise.resolve(null),
     signInWithGoogle: signInWithGoogleHandler,
     initPhoneRecaptcha: noopAsync,
     sendPhoneOtp: noopAsync,

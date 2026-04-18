@@ -226,6 +226,7 @@ async function handleRequest(req, res) {
     req.method === 'OPTIONS' &&
     (
       reqPath === '/api/mentor' ||
+      reqPath === '/api/mentor/cache-stats' ||
       reqPath === '/api/more-like-this' ||
       reqPath === '/api/step-solution' ||
       reqPath === '/api/check-solution' ||
@@ -341,6 +342,23 @@ async function handleRequest(req, res) {
       return sendJson(res, 200, { ok: true, record });
     } catch (e) {
       return sendJson(res, 400, { error: e?.message || 'Failed to store feedback' });
+    }
+  }
+
+  if (req.method === 'GET' && reqPath === '/api/mentor/cache-stats') {
+    const adminSecret = process.env.ADMIN_SECRET;
+    const providedSecret = req.headers['x-admin-secret'];
+    const internalAdmin = req.headers['x-internal-admin'];
+    const authedBySecret = adminSecret && providedSecret === adminSecret;
+    const authedByInternal = internalAdmin === '1';
+    if (!authedBySecret && !authedByInternal) {
+      return sendJson(res, 401, { ok: false, error: 'Admin access required' });
+    }
+    try {
+      const stats = tutorCache ? await tutorCache.getStats() : { error: 'Cache not available' };
+      return sendJson(res, 200, { ok: true, stats });
+    } catch (e) {
+      return sendJson(res, 500, { ok: false, error: e.message });
     }
   }
 

@@ -43,6 +43,9 @@ const STOPWORDS = new Set([
   'first','second','third','last','next','same','different','new','old',
 ]);
 
+// In-process hit/miss counters (reset on server restart; DB hit_count persists)
+const _stats = { hits: 0, misses: 0 };
+
 let _pool = null;
 
 function getPool() {
@@ -120,7 +123,11 @@ async function findSimilarResponse(fingerprint, normalizedMode, subject) {
        ORDER BY created_at DESC LIMIT 500`,
       [normalizedMode, subject]
     );
-    if (result.rows.length === 0) return null;
+    if (result.rows.length === 0) {
+      _stats.misses++;
+      console.info('[tutor-cache] MISS cold-cache (no entries for mode+subject)');
+      return null;
+    }
 
     let bestScore = 0;
     let bestRow = null;
@@ -140,10 +147,12 @@ async function findSimilarResponse(fingerprint, normalizedMode, subject) {
         'UPDATE tutor_cache SET hit_count = hit_count + 1, updated_at = NOW() WHERE id = $1',
         [bestRow.id]
       );
+      _stats.hits++;
       console.info(`[tutor-cache] HIT jaccard=${bestScore.toFixed(3)} id=${bestRow.id}`);
       return bestRow.response_json;
     }
 
+    _stats.misses++;
     console.info(`[tutor-cache] MISS best_jaccard=${bestScore.toFixed(3)} fingerprint=[${fingerprint.slice(0,5).join(',')}]`);
     return null;
   } catch (e) {
@@ -175,6 +184,53 @@ async function saveResponse(fingerprint, normalizedMode, subject, topicKey, ques
   }
 }
 
+async function fetchCacheStats() {
+  const pool = getPool();
+  const base = {
+    totalEntries: 0,
+    dbHitCount: 0,
+    sessionHits: _stats.hits,
+    sessionMisses: _stats.misses,
+    hitRate: null,
+    topFingerprints: [],
+  };
+  if (!pool) return base;
+  try {
+    const [countRes, topRes] = await Promise.all([
+      pool.query('SELECT COUNT(*) AS total, COALESCE(SUM(hit_count), 0) AS db_hits FROM tutor_cache'),
+      pool.query(
+        `SELECT id, mode, subject, topic_key, question_normalized, hit_count, updated_at
+         FROM tutor_cache ORDER BY hit_count DESC LIMIT 10`
+      ),
+    ]);
+    const totalEntries = parseInt(countRes.rows[0]?.total || 0, 10);
+    const dbHitCount = parseInt(countRes.rows[0]?.db_hits || 0, 10);
+    const sessionHits = _stats.hits;
+    const sessionMisses = _stats.misses;
+    const totalReqs = sessionHits + sessionMisses;
+    const hitRate = totalReqs > 0 ? Math.round((sessionHits / totalReqs) * 100) : null;
+    return {
+      totalEntries,
+      dbHitCount,
+      sessionHits,
+      sessionMisses,
+      hitRate,
+      topFingerprints: topRes.rows.map(r => ({
+        id: r.id,
+        mode: r.mode,
+        subject: r.subject,
+        topicKey: r.topic_key,
+        questionNormalized: r.question_normalized,
+        hitCount: r.hit_count,
+        lastHit: r.updated_at,
+      })),
+    };
+  } catch (e) {
+    console.warn('[tutor-cache] fetchCacheStats error:', e.message);
+    return base;
+  }
+}
+
 function createTutorCache(_cfg) {
   async function lookup(normalizedMode, originalQuery, subject) {
     if (!isCacheableMode(normalizedMode)) return null;
@@ -201,7 +257,11 @@ function createTutorCache(_cfg) {
     }
   }
 
-  return { lookup, save, isCacheableMode };
+  async function getStats() {
+    return fetchCacheStats();
+  }
+
+  return { lookup, save, isCacheableMode, getStats };
 }
 
 module.exports = { createTutorCache };
