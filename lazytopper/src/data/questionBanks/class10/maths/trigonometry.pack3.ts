@@ -255,6 +255,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "options": [],
     "answer": "Proved: tan θ · cot θ = 1",
     "solutionSteps": [
+      "Construction: Draw a right-angled triangle with angle θ. Label the opposite side, adjacent side, and hypotenuse to relate sin, cos, and tan.",
       "tan θ · cot θ = (sin θ/cos θ) · (cos θ/sin θ)",
       "= (sin θ · cos θ)/(cos θ · sin θ)",
       "= 1"
@@ -332,6 +333,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "options": [],
     "answer": "Proved: 1 + tan²θ = sec²θ",
     "solutionSteps": [
+      "Construction: Draw a right-angled triangle with angle θ. Label the opposite side, adjacent side, and hypotenuse to relate sin, cos, and tan.",
       "Start with the identity: sin²θ + cos²θ = 1",
       "Divide both sides by cos²θ:",
       "sin²θ/cos²θ + cos²θ/cos²θ = 1/cos²θ",
@@ -486,6 +488,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "options": [],
     "answer": "Proved: (sin θ + cos θ)² + (sin θ - cos θ)² = 2",
     "solutionSteps": [
+      "Construction: Draw a right-angled triangle with angle θ. Label the opposite side, adjacent side, and hypotenuse to relate sin, cos, and tan.",
       "LHS = (sin θ + cos θ)² + (sin θ - cos θ)²",
       "= sin²θ + 2sin θ cos θ + cos²θ + sin²θ - 2sin θ cos θ + cos²θ",
       "= 2sin²θ + 2cos²θ",
@@ -513,6 +516,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "options": [],
     "answer": "Proved",
     "solutionSteps": [
+      "Construction: Draw a right-angled triangle with angle θ. Label the opposite side, adjacent side, and hypotenuse to relate sin, cos, and tan.",
       "LHS = (sec θ - 1)/(sec θ + 1)",
       "= (1/cos θ - 1)/(1/cos θ + 1)",
       "= ((1 - cos θ)/cos θ)/((1 + cos θ)/cos θ)",
@@ -568,6 +572,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "options": [],
     "answer": "Proved",
     "solutionSteps": [
+      "Construction: Draw a right-angled triangle with angle θ. Label the opposite side, adjacent side, and hypotenuse to relate sin, cos, and tan.",
       "LHS = (cosec θ - cot θ)²",
       "= (1/sin θ - cos θ/sin θ)²",
       "= ((1 - cos θ)/sin θ)²",
@@ -852,6 +857,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "options": [],
     "answer": "Proved: sec²θ - tan²θ = 1",
     "solutionSteps": [
+      "Construction: Draw a right-angled triangle with angle θ. Label the opposite side, adjacent side, and hypotenuse to relate sin, cos, and tan.",
       "sec²θ - tan²θ = (1/cos²θ) - (sin²θ/cos²θ)",
       "= (1 - sin²θ)/cos²θ",
       "= cos²θ/cos²θ = 1"
@@ -1405,6 +1411,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "options": [],
     "answer": "Proved",
     "solutionSteps": [
+      "Construction: Draw a right-angled triangle with angle θ. Label the opposite side, adjacent side, and hypotenuse to relate sin, cos, and tan.",
       "LHS = (tan θ + sec θ - 1)/(tan θ - sec θ + 1)",
       "Multiply numerator and denominator by (tan θ - sec θ - 1)",
       "Use the identity: tan² θ - sec² θ = -1, so (tan θ - sec θ)(tan θ + sec θ) = -1",

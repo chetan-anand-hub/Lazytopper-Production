@@ -122,7 +122,7 @@ function trigVid(qt) {
   const q = qt.toLowerCase();
   if (/\bheight\b|\bdistance\b|\belevation\b|\bdepression\b|\btower\b|\bcliff\b|\blighthouse\b/.test(q))
     return 'maths-trigonometry-height-and-distance-problems';
-  if (/\bidentit|\bsin²\s*\+\s*cos²|prove.*trig|trig.*prove|prove.*identity/.test(q))
+  if (/\bidentit|\bsin²\s*\+\s*cos²|prove.*trig|trig.*prove|prove.*identity|\bprove\s+that\b|\bprove\b.*(?:lhs|rhs|cosec|cot\s|sec\s|tan\s|sin\s|cos\s)/.test(q))
     return 'maths-trigonometry-trigonometric-identities';
   if (/30°|45°|60°|standard angle|table of ratios/.test(q))
     return 'maths-trigonometry-trigonometric-ratios-of-standard-angles';
