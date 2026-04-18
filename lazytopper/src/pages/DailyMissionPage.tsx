@@ -536,17 +536,29 @@ export default function DailyMissionPage() {
           const ansIdx = getAnswerIndex(segmentIndex, i);
           const ans = ansIdx >= 0 ? answers[ansIdx] : null;
           const isCurr = i === itemIndex;
+          const dotBg = ans?.submitted
+            ? ans.correct === true ? "rgba(34,197,94,0.18)"
+            : ans.correct === false ? "rgba(239,68,68,0.18)"
+            : "rgba(156,163,175,0.15)"
+            : isCurr ? `${currentSegment.color}18` : "var(--bg-card)";
+          const dotLabel = ans?.submitted
+            ? ans.correct === true ? "✓"
+            : ans.correct === false ? "✗"
+            : "·"
+            : i + 1;
           return (
             <button key={i} type="button" onClick={() => setItemIndex(i)} style={{
               width: 32, height: 32, borderRadius: 8,
               border: isCurr ? `2px solid ${currentSegment.color}` : "1px solid var(--bg-card-border)",
-              background: ans?.submitted
-                ? ans.correct === false ? "rgba(239,68,68,0.08)" : "rgba(34,197,94,0.08)"
-                : isCurr ? `${currentSegment.color}18` : "var(--bg-card)",
+              background: dotBg,
               fontWeight: 700, fontSize: 13, cursor: "pointer",
-              color: isCurr ? currentSegment.color : "var(--text-muted)",
+              color: ans?.submitted
+                ? ans.correct === true ? "#22c55e"
+                : ans.correct === false ? "#ef4444"
+                : "var(--text-muted)"
+                : isCurr ? currentSegment.color : "var(--text-muted)",
             }}>
-              {ans?.submitted ? (ans.correct === false ? "✗" : "✓") : i + 1}
+              {dotLabel}
             </button>
           );
         })}
@@ -723,37 +735,52 @@ export default function DailyMissionPage() {
                 </div>
               )}
 
+              {/* AI loading indicator — shown while mentor call is in flight */}
+              {!hasMCQ && isQuestionItem && currentAnswer.feedback === null && currentAnswer.correct === null && currentAnswer.studentAnswer !== "(skipped)" && (
+                <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 13, color: "var(--text-muted)", marginBottom: 10 }}>
+                  <span style={{
+                    display: "inline-block", width: 14, height: 14, borderRadius: "50%",
+                    border: "2px solid var(--text-muted)", borderTopColor: "transparent",
+                    animation: "spin 0.8s linear infinite",
+                    flexShrink: 0,
+                  }} />
+                  Checking your answer…
+                </div>
+              )}
+
+              {/* Verdict banner — shown when we have a definitive verdict */}
               {currentAnswer.correct !== null && currentAnswer.studentAnswer !== "(read)" && (
                 <div style={{ marginBottom: 8 }}>
                   <div style={{ fontSize: 20, fontWeight: 900, color: currentAnswer.correct ? "#22c55e" : "#ef4444" }}>
                     {currentAnswer.correct ? "✓ Correct!" : "✗ Incorrect"}
                   </div>
-                  {currentAnswer.feedback && (
-                    <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>AI Evaluation</div>
-                  )}
                 </div>
               )}
 
+              {/* AI feedback text */}
               {currentAnswer.feedback && currentAnswer.feedback.length > 0 && (
                 <div style={{ fontSize: 14, lineHeight: 1.6, marginBottom: 8 }}>
                   {currentAnswer.feedback}
                 </div>
               )}
 
-              {!hasMCQ && currentAnswer.correct !== true && currentItem?.payload?.modelAnswer && (
-                <div style={{ marginTop: 10, padding: "8px 12px", background: "rgba(34,197,94,0.08)", borderRadius: 8 }}>
-                  <span style={{ fontWeight: 700, fontSize: 11, color: "#22c55e", textTransform: "uppercase", letterSpacing: 0.5 }}>Correct Answer</span>
+              {/* Model answer — always shown for non-MCQ questions after submit (lets student self-assess) */}
+              {!hasMCQ && isQuestionItem && currentItem?.payload?.modelAnswer && currentAnswer.studentAnswer !== "(read)" && currentAnswer.studentAnswer !== "(skipped)" && (
+                <div style={{ marginTop: 10, padding: "8px 12px", background: "rgba(34,197,94,0.08)", borderRadius: 8, border: "1px solid rgba(34,197,94,0.15)" }}>
+                  <span style={{ fontWeight: 700, fontSize: 11, color: "#22c55e", textTransform: "uppercase", letterSpacing: 0.5 }}>Model Answer</span>
                   <div style={{ marginTop: 4, fontWeight: 600, fontSize: 14, whiteSpace: "pre-wrap" }}>{String(currentItem.payload.modelAnswer)}</div>
                 </div>
               )}
 
-              {hasMCQ && currentItem?.payload?.modelAnswer && (
-                <div style={{ marginTop: 10, padding: "8px 12px", background: "rgba(34,197,94,0.08)", borderRadius: 8 }}>
+              {/* MCQ model answer (shown when wrong to reinforce the correct option) */}
+              {hasMCQ && currentAnswer.correct === false && currentItem?.payload?.modelAnswer && (
+                <div style={{ marginTop: 10, padding: "8px 12px", background: "rgba(34,197,94,0.08)", borderRadius: 8, border: "1px solid rgba(34,197,94,0.15)" }}>
                   <span style={{ fontWeight: 700, fontSize: 11, color: "#22c55e", textTransform: "uppercase", letterSpacing: 0.5 }}>Correct Answer</span>
                   <div style={{ marginTop: 4, fontWeight: 600, fontSize: 14 }}>{String(currentItem.payload.modelAnswer)}</div>
                 </div>
               )}
 
+              {/* Explanation / step-by-step */}
               {currentItem?.payload?.explanation && String(currentItem.payload.explanation).trim() && (
                 <div style={{
                   marginTop: 10, padding: "12px 14px",
@@ -762,7 +789,7 @@ export default function DailyMissionPage() {
                   borderRadius: 10,
                 }}>
                   <div style={{ fontWeight: 700, fontSize: 11, color: "#a855f7", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 6 }}>
-                    💡 Step-by-Step Solution
+                    💡 Why this is correct
                   </div>
                   <div style={{ fontSize: 14, lineHeight: 1.65, whiteSpace: "pre-wrap", color: "var(--text)" }}>
                     {String(currentItem.payload.explanation)}
@@ -786,13 +813,49 @@ export default function DailyMissionPage() {
                 </div>
               )}
 
-              <button type="button" onClick={advanceToNext} style={{
-                marginTop: 14, padding: "10px 24px", background: currentSegment?.color || "#3b82f6",
-                color: "var(--text)", border: "none", borderRadius: 10, fontWeight: 700, fontSize: 14, cursor: "pointer",
-              }}>
-                {itemIndex < (currentSegment?.items.length ?? 1) - 1 ? "Next →" :
-                  segmentIndex < (mission?.segments.length ?? 1) - 1 ? "Next Segment →" : "Finish Mission 🏆"}
-              </button>
+              {/* Self-assess buttons for non-MCQ when AI couldn't determine correct/incorrect */}
+              {!hasMCQ && isQuestionItem && currentAnswer.correct === null && currentAnswer.feedback !== null && currentAnswer.studentAnswer !== "(skipped)" && (
+                <div style={{ marginTop: 14 }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-muted)", marginBottom: 8 }}>
+                    How did you do?
+                  </div>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button
+                      type="button"
+                      onClick={() => updateAnswer(segmentIndex, itemIndex, { correct: true })}
+                      style={{
+                        flex: 1, padding: "9px 16px", borderRadius: 10,
+                        border: "1px solid rgba(34,197,94,0.4)",
+                        background: "rgba(34,197,94,0.08)",
+                        color: "#22c55e", fontWeight: 700, fontSize: 13, cursor: "pointer",
+                      }}>
+                      ✓ I got it right
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => updateAnswer(segmentIndex, itemIndex, { correct: false })}
+                      style={{
+                        flex: 1, padding: "9px 16px", borderRadius: 10,
+                        border: "1px solid rgba(239,68,68,0.4)",
+                        background: "rgba(239,68,68,0.08)",
+                        color: "#ef4444", fontWeight: 700, fontSize: 13, cursor: "pointer",
+                      }}>
+                      ✗ I got it wrong
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Next button — for non-MCQ question items, only show after verdict is known */}
+              {(!isQuestionItem || hasMCQ || currentAnswer.correct !== null) && (
+                <button type="button" onClick={advanceToNext} style={{
+                  marginTop: 14, padding: "10px 24px", background: currentSegment?.color || "#3b82f6",
+                  color: "var(--text)", border: "none", borderRadius: 10, fontWeight: 700, fontSize: 14, cursor: "pointer",
+                }}>
+                  {itemIndex < (currentSegment?.items.length ?? 1) - 1 ? "Next →" :
+                    segmentIndex < (mission?.segments.length ?? 1) - 1 ? "Next Segment →" : "Finish Mission 🏆"}
+                </button>
+              )}
             </div>
           )}
         </div>
