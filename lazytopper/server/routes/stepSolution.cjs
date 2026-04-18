@@ -20,8 +20,11 @@ function getPool() {
 // Increment this when the prompt structure changes to automatically bypass stale cache entries.
 const CACHE_VERSION = 'v2';
 
-function computeQuestionHash(question, marks) {
-  return crypto.createHash('sha256').update(CACHE_VERSION + '|' + question + '|' + marks).digest('hex');
+function computeQuestionHash(question, marks, isObjective) {
+  // Only apply the version prefix for MCQ/objective questions. Multi-mark questions
+  // keep their original hash format so their cached entries remain valid.
+  const prefix = isObjective ? CACHE_VERSION + '|' : '';
+  return crypto.createHash('sha256').update(prefix + question + '|' + marks).digest('hex');
 }
 
 async function getCachedSolution(hash) {
@@ -161,7 +164,7 @@ function createStepSolutionRoute(deps) {
       return sendJson(res, 200, buildStubStepSolution(question, marks, subject, qType, section));
     }
 
-    const questionHash = computeQuestionHash(question, marks);
+    const questionHash = computeQuestionHash(question, marks, isObjectiveType(qType, section));
 
     // Short-circuit: pre-written steps from the question bank — no AI call needed.
     if (prewrittenSteps.length > 0) {
@@ -335,20 +338,29 @@ function createStepSolutionRoute(deps) {
           }
         }
 
-        // MCQ guard: if the AI omitted the explanatory step (marks=0, "Why this is
-        // correct"), append one from existingExplanation so students always see the
-        // conceptual reasoning. Runs after normalization so it isn't clipped.
+        // MCQ guard: if the AI omitted the explanatory step, append one from
+        // existingExplanation so students always see the conceptual reasoning.
+        // Detection is loose: any marks===0 step OR any description matching /why/i
+        // counts as an explanatory step to avoid false-positives.
+        // Runs after normalization so it cannot be clipped.
+        let skipCache = false;
         if (isObj) {
           const hasWhyStep = steps.some(
-            (s) => s.marks === 0 && /why/i.test(s.description || '')
+            (s) => s.marks === 0 || /why/i.test(s.description || '')
           );
-          if (!hasWhyStep && existingExplanation) {
-            steps.push({
-              stepNumber: steps.length + 1,
-              description: 'Why this is correct',
-              working: existingExplanation,
-              marks: 0,
-            });
+          if (!hasWhyStep) {
+            if (existingExplanation) {
+              steps.push({
+                stepNumber: steps.length + 1,
+                description: 'Why this is correct',
+                working: existingExplanation,
+                marks: 0,
+              });
+            } else {
+              // No fallback available — don't cache this incomplete response so the
+              // next request gets a fresh AI call with a chance of including Step 2.
+              skipCache = true;
+            }
           }
         }
 
@@ -361,7 +373,7 @@ function createStepSolutionRoute(deps) {
           model: GEMINI_MODEL,
         };
 
-        await saveSolution(questionHash, response);
+        if (!skipCache) await saveSolution(questionHash, response);
 
         return sendJson(res, 200, response);
       }
