@@ -1,15 +1,36 @@
 'use strict';
 
 /**
- * addDiagramLinks.cjs
- * Adds visualExplainerId to every B/C/D/E question in the 34 diagram-heavy
- * topic files, and prepends a diagram reference step to solutionSteps for
- * proof / ray-diagram / construction / biology-structure / chemistry questions.
+ * addDiagramLinks.cjs — Internal maintenance utility (Task #334).
  *
- * Handles three question formats found in these files:
+ * PURPOSE:
+ *   Adds visualExplainerId to every B/C/D/E question in the 34 diagram-heavy
+ *   topic files, and prepends a diagram reference step to solutionSteps for
+ *   proof / ray-diagram / construction / biology-structure / chemistry questions.
+ *
+ * USAGE:
+ *   node lazytopper/scripts/addDiagramLinks.cjs
+ *   (Fully idempotent: re-running makes 0 changes when everything is in order.)
+ *
+ * FORMAT SENSITIVITY:
+ *   This script is tightly coupled to the three question-object formats used
+ *   in the 34 target pack files. DO NOT reformat those files without also
+ *   updating the parsers here:
  *   1. Single-line compact   { id: "...", ..., isCompetencyBased: true }
  *   2. Multi-line JSON       { "id": "...", ..., "isCompetencyBased": true }
  *   3. No isCompetencyBased  { id: "...", ..., finalAnswer: "..." }
+ *   String insertion relies on finding the exact literal sequence
+ *   `solutionSteps: ["` (TS) or `"solutionSteps": [` (JSON).
+ *   Formatting changes (extra spaces, trailing commas, etc.) will break it.
+ *
+ * MAINTENANCE:
+ *   - When adding new pack files: add a mkCfg() entry to FILE_CONFIGS.
+ *   - When adding new question types: extend DIAGRAM_NEEDED, the appropriate
+ *     *Vid() selector function, and getDiagramStep().
+ *   - firstStepIsAlreadyDiagram() must stay in sync with every prefix variant
+ *     used in getDiagramStep() to keep the script idempotent.
+ *   - Run `node scripts/ops/validate_visual_ids.mjs` (if present) after any
+ *     batch edit to confirm all IDs still resolve to registry entries.
  */
 
 const fs   = require('fs');
