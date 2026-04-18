@@ -1,0 +1,31 @@
+#214 - Fix Practice Page: Hard Difficulty & Regenerate Bugs
+What & Why
+Two connected bugs on the Practice page make the Hard difficulty filter and the Regenerate button broken:
+
+Hard difficulty returns only 2 questions — Selecting Hard and requesting 12 questions shows just 2. Root cause: inside practiceSetGenerator.ts, a "competency enforcement" block (lines 326–341) swaps some selected Hard questions for competency-based Easy/Medium questions from the wider candidate pool. Immediately after, enforceDifficultyFilter strips all non-Hard questions, so only the 2 Hard ones that weren't swapped out survive.
+
+Regenerate does nothing — Because only 2 Hard questions are displayed, Regenerate marks them as "seen", re-runs the engine, and encounters the same 2 Hard candidates again — but they're now excluded. The canonical fallback is invoked but runs into the same competency-swap path, so 0 Hard questions remain and the UI appears stuck.
+
+Both bugs share one fix: the competency enforcement swap must be skipped when the user has pinned to a single difficulty (Hard, Medium, or Easy). The swap should only activate in "All" (mixed) mode.
+
+Done looks like
+Selecting Hard + 12 questions returns exactly 12 Hard questions (not 2)
+Pressing Regenerate loads a new set of 12 Hard questions; repeating it continues to cycle through unseen questions
+"All" difficulty mode is unaffected — it still applies the competency enforcement and adaptive mix as before
+No visible regressions on Medium, Easy, or All difficulty modes
+Out of scope
+Adding new Hard questions to the question banks
+Changing the competency enforcement logic for "All" mode
+UI changes to the Regenerate button itself
+Steps
+Skip competency enforcement for single-difficulty mode — In practiceSetGenerator.ts, wrap the competency enforcement block (lines 326–341) in a guard so it only runs when !isSingleDifficultyFilter. This prevents Easy/Medium questions from being swapped in when the user explicitly chose Hard.
+
+Verify the Regenerate flow end-to-end — With Bug 2 fixed, trace that regenerateQuestions in PracticePage.tsx correctly increments regenerationKey, re-triggers the question-build effect with the updated excludeKeys, and returns a fresh non-overlapping set of Hard questions. Add a console.warn (dev-only) if the engine returns 0 results after exclusion so it's easier to debug in future.
+
+Smoke-test both bugs — Manually verify: (a) Hard + 12 shows 12, (b) Regenerate cycles to a new set of 12, (c) All difficulty is unaffected, (d) Easy and Medium also return full requested counts.
+
+Relevant files
+lazytopper/src/data/practiceSetGenerator.ts:326-341
+lazytopper/src/components/practice/practiceQuestionBuilder.ts:404-411
+lazytopper/src/pages/PracticePage.tsx:564-570
+lazytopper/src/pages/PracticePage.tsx:470-558

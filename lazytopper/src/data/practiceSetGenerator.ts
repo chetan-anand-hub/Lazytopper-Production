@@ -327,7 +327,7 @@ export function generatePracticeSet(
   const compCount = selected.filter(q => q.isCompetencyBased).length;
   const compTarget = Math.ceil(selected.length * COMPETENCY_MIN_SHARE);
 
-  if (compCount < compTarget) {
+  if (compCount < compTarget && !isSingleDifficultyFilter) {
     const compCandidates = candidates.filter(
       q => q.isCompetencyBased && !takenIds.has(q.id)
     );

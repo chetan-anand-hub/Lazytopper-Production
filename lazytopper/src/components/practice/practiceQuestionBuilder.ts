@@ -450,6 +450,14 @@ export async function buildPracticeQuestionsWithAiTopup(
     });
   }
 
+  if (import.meta.env.DEV && bankQuestions.length === 0 && excludeKeys && excludeKeys.size > 0) {
+    console.warn(
+      '[practiceBuilder] 0 questions remain after excludeKeys filter — topic:', args.topicLabel,
+      '| difficulty:', args.difficulty,
+      '| excluded count:', excludeKeys.size,
+    );
+  }
+
   if (bankQuestions.length === 0 && packMap) {
     const allPacks = Object.values(packMap).filter(Boolean);
     let poolQuestions: PracticeQuestion[] = [];
