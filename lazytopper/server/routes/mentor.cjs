@@ -5,6 +5,7 @@ const { createMentorTeachHelpers } = require('./mentorTeachHelpers.cjs');
 const { createMentorBsre } = require('./mentorBsre.cjs');
 const { createMentorResponseBuilder } = require('./mentorResponseBuilder.cjs');
 const { createMentorModeHandler } = require('./mentorModeHandler.cjs');
+const { findVisualForTopicFromStore } = require('../services/topicVisualLookup.cjs');
 
 function createMentorRoute(deps) {
   const {
@@ -25,6 +26,7 @@ function createMentorRoute(deps) {
     trianglesRubricMap,
     isStubMode, buildStubTutorStructured, buildStubText,
     FEEDBACK_DIR, FEEDBACK_FILE,
+    VISUALS_DIR,
   } = deps;
 
   const teachCache = new Map();
@@ -165,6 +167,8 @@ function createMentorRoute(deps) {
     ensureDiagramLineInText,
     summarizeValidationIssues,
     toGeminiContents,
+    findVisualForTopicFromStore,
+    VISUALS_DIR,
   });
 
   function buildTeachContractCacheKey(payload) {

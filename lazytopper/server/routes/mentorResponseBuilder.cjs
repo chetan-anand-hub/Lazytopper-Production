@@ -24,6 +24,8 @@ function createMentorResponseBuilder(deps) {
     ensureDiagramLineInText,
     summarizeValidationIssues,
     toGeminiContents,
+    findVisualForTopicFromStore,
+    VISUALS_DIR,
   } = deps;
 
   function callRoutedModel(routingDecision, reqJson, model, geminiContents, config, sysPrompt) {
@@ -86,9 +88,28 @@ function createMentorResponseBuilder(deps) {
         provider: routingDecision.provider,
         model_used: routingDecision.model,
       };
+
+      // Look up the topic's pre-built visual from the persistent visual store.
+      // This supplements the client-side visualTitle — the client uses this to
+      // confirm or override its own visual rendering.
+      const topicKeyRaw = payload && (payload.topic || payload.topicKey || '');
+      const subjectRaw = payload && (payload.subject || 'Maths');
+      const serverVisual = (VISUALS_DIR && findVisualForTopicFromStore)
+        ? findVisualForTopicFromStore(topicKeyRaw, subjectRaw, VISUALS_DIR)
+        : null;
+
       return {
         status: 200,
-        body: { ok: true, data: { text: responseText, structured: null, responseText, trace } },
+        body: {
+          ok: true,
+          data: {
+            text: responseText,
+            structured: null,
+            responseText,
+            trace,
+            ...(serverVisual ? { visual: serverVisual } : {}),
+          },
+        },
         structured: null, trace, text: responseText,
       };
     }

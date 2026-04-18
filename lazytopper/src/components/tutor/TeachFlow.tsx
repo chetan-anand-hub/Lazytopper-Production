@@ -385,6 +385,24 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
         tutorText = `Hey there! \u{1F44B} I'm Ravi Sir, and I'm excited to explore **${topicDisplayName}** with you today!\n\nLet me start with something you already know. Think about when you share a pizza equally among friends \u2014 that's actually math in action!\n\nReady to dive in? Tell me \u2014 what do you already know about ${topicDisplayName}?`;
       }
 
+      // Apply server-returned visual if the client didn't resolve one locally.
+      // The server looks up the pre-built visual from the persistent file store
+      // (public/visuals/) by canonical topic key — this guarantees the correct
+      // visual appears even when the client's registry lookup misses.
+      const serverVisual = (payload as Record<string, unknown>).data as Record<string, unknown> | undefined;
+      const svRaw = serverVisual?.visual as { filePath: string; title: string; chapter: string; subject: string } | null | undefined;
+      if (svRaw?.filePath && svRaw.title && !activeVisual) {
+        setActiveVisual({
+          id: `${svRaw.subject}-${svRaw.chapter}-${svRaw.title}`,
+          title: svRaw.title,
+          chapter: svRaw.chapter,
+          subject: svRaw.subject as "maths" | "science",
+          filePath: svRaw.filePath,
+          keywords: [],
+          isInteractive: true,
+        });
+      }
+
       let structuredData = extractStructuredSection(payload);
 
       const { cleanText: cleanedStart, stepsData: startSteps } = extractStepsBlock(tutorText);
