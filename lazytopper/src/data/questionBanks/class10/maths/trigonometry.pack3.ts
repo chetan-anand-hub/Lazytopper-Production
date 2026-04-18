@@ -122,6 +122,35 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "ncertRef": "Ex 8.1"
   },
   {
+    "id": "TG3-005",
+    "subject": "Maths",
+    "topicKey": "trigonometry",
+    "subtopic": "Trigonometric Ratios",
+    "section": "A",
+    "marks": 1,
+    "format": "MCQ",
+    "difficulty": "Easy",
+    "bloomSkill": "Remembering",
+    "questionText": "In a right-angled triangle, sin θ is defined as:",
+    "options": [
+      "opposite/hypotenuse",
+      "adjacent/hypotenuse",
+      "opposite/adjacent",
+      "hypotenuse/opposite"
+    ],
+    "answer": "opposite/hypotenuse",
+    "solutionSteps": [
+      "In a right-angled triangle with angle θ,",
+      "sin θ = length of opposite side / length of hypotenuse"
+    ],
+    "finalAnswer": "opposite/hypotenuse",
+    "explanation": "By definition, sin θ = opposite/hypotenuse in a right-angled triangle. This is the foundational definition of the sine ratio.",
+    "isCompetencyBased": false,
+    "pyqYear": undefined,
+    "pyqSet": undefined,
+    "ncertRef": "Ex 8.1"
+  },
+  {
     "id": "TG3-006",
     "subject": "Maths",
     "topicKey": "trigonometry",
@@ -176,6 +205,37 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     ],
     "finalAnswer": "1",
     "explanation": "Using identity: sin²θ + cos²θ = 1. This is true for all angles, including θ = 60°. Therefore, sin²60° + cos²60° = 1. Therefore, the correct answer is 1.",
+    "isCompetencyBased": false,
+    "pyqYear": undefined,
+    "pyqSet": undefined,
+    "ncertRef": "Ex 8.2"
+  },
+  {
+    "id": "TG3-008",
+    "subject": "Maths",
+    "topicKey": "trigonometry",
+    "subtopic": "Values of Standard Angles",
+    "section": "A",
+    "marks": 1,
+    "format": "MCQ",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "The value of tan 45° + sin 90° - cos 0° is:",
+    "options": [
+      "0",
+      "1",
+      "2",
+      "3"
+    ],
+    "answer": "1",
+    "solutionSteps": [
+      "tan 45° = 1",
+      "sin 90° = 1",
+      "cos 0° = 1",
+      "tan 45° + sin 90° - cos 0° = 1 + 1 - 1 = 1"
+    ],
+    "finalAnswer": "1",
+    "explanation": "tan 45° = 1, sin 90° = 1, cos 0° = 1. So tan 45° + sin 90° - cos 0° = 1 + 1 - 1 = 1. Therefore, the correct answer is 1.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -256,6 +316,32 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "ncertRef": "Ex 8.2"
   },
   {
+    "id": "TG3-012",
+    "subject": "Maths",
+    "topicKey": "trigonometry",
+    "subtopic": "Trigonometric Identities",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "Prove that: 1 + tan²θ = sec²θ",
+    "options": [],
+    "answer": "Proved: 1 + tan²θ = sec²θ",
+    "solutionSteps": [
+      "Start with the identity: sin²θ + cos²θ = 1",
+      "Divide both sides by cos²θ:",
+      "sin²θ/cos²θ + cos²θ/cos²θ = 1/cos²θ",
+      "tan²θ + 1 = sec²θ",
+      "Hence proved: 1 + tan²θ = sec²θ"
+    ],
+    "finalAnswer": "Proved: 1 + tan²θ = sec²θ",
+    "isCompetencyBased": true,
+    "pyqYear": undefined,
+    "pyqSet": undefined,
+    "ncertRef": "Ex 8.3"
+  },
+  {
     "id": "TG3-013",
     "subject": "Maths",
     "topicKey": "trigonometry",
@@ -281,6 +367,36 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
+    "isCompetencyBased": true,
+    "pyqYear": undefined,
+    "pyqSet": undefined,
+    "ncertRef": "Ex 8.1"
+  },
+  {
+    "id": "TG3-014",
+    "subject": "Maths",
+    "topicKey": "trigonometry",
+    "subtopic": "Trigonometric Ratios",
+    "section": "B",
+    "marks": 1,
+    "format": "Assertion-Reasoning",
+    "difficulty": "Medium",
+    "bloomSkill": "Understanding",
+    "questionText": "Assertion (A): For any angle θ, sin θ · cosec θ = 1. Reason (R): cosec θ is the reciprocal of sin θ.",
+    "options": [
+      "Both A and R are true, and R is the correct explanation of A.",
+      "Both A and R are true, but R is not the correct explanation of A.",
+      "A is true, R is false.",
+      "A is false, R is true."
+    ],
+    "answer": "Both A and R are true, and R is the correct explanation of A.",
+    "solutionSteps": [
+      "cosec θ = 1/sin θ by definition",
+      "Therefore sin θ · cosec θ = sin θ · (1/sin θ) = 1",
+      "The Reason (R) directly explains why the Assertion (A) is true"
+    ],
+    "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Since cosec θ = 1/sin θ, we have sin θ · cosec θ = 1. The Reason correctly explains the Assertion.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -426,6 +542,34 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "pyqYear": undefined,
     "pyqSet": undefined,
     "ncertRef": "Ex 8.2"
+  },
+  {
+    "id": "TG3-020",
+    "subject": "Maths",
+    "topicKey": "trigonometry",
+    "subtopic": "Trigonometric Identities",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Hard",
+    "bloomSkill": "Evaluating",
+    "questionText": "Prove that: (cosec θ - cot θ)² = (1 - cos θ)/(1 + cos θ)",
+    "options": [],
+    "answer": "Proved",
+    "solutionSteps": [
+      "LHS = (cosec θ - cot θ)²",
+      "= (1/sin θ - cos θ/sin θ)²",
+      "= ((1 - cos θ)/sin θ)²",
+      "= (1 - cos θ)²/sin²θ",
+      "= (1 - cos θ)²/(1 - cos²θ)",
+      "= (1 - cos θ)²/[(1 - cos θ)(1 + cos θ)]",
+      "= (1 - cos θ)/(1 + cos θ) = RHS"
+    ],
+    "finalAnswer": "Proved",
+    "isCompetencyBased": true,
+    "pyqYear": "2023",
+    "pyqSet": "SET-A",
+    "ncertRef": "Ex 8.3"
   },
   {
     "id": "TG3-021",
@@ -598,6 +742,36 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "ncertRef": "Ex 8.1"
   },
   {
+    "id": "TG3-027",
+    "subject": "Maths",
+    "topicKey": "trigonometry",
+    "subtopic": "Values of Standard Angles",
+    "section": "A",
+    "marks": 1,
+    "format": "MCQ",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "The value of sin²30° + cos²60° is:",
+    "options": [
+      "0",
+      "1/4",
+      "1/2",
+      "1"
+    ],
+    "answer": "1/2",
+    "solutionSteps": [
+      "sin 30° = 1/2, so sin²30° = (1/2)² = 1/4",
+      "cos 60° = 1/2, so cos²60° = (1/2)² = 1/4",
+      "sin²30° + cos²60° = 1/4 + 1/4 = 1/2"
+    ],
+    "finalAnswer": "1/2",
+    "explanation": "sin 30° = 1/2 and cos 60° = 1/2. So sin²30° + cos²60° = 1/4 + 1/4 = 1/2. Therefore, the correct answer is 1/2.",
+    "isCompetencyBased": false,
+    "pyqYear": undefined,
+    "pyqSet": undefined,
+    "ncertRef": "Ex 8.2"
+  },
+  {
     "id": "TG3-028",
     "subject": "Maths",
     "topicKey": "trigonometry",
@@ -729,6 +903,35 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "ncertRef": "Ex 8.2"
   },
   {
+    "id": "TG3-036",
+    "subject": "Maths",
+    "topicKey": "trigonometry",
+    "subtopic": "Trigonometric Identities",
+    "section": "A",
+    "marks": 1,
+    "format": "MCQ",
+    "difficulty": "Easy",
+    "bloomSkill": "Remembering",
+    "questionText": "cosec²θ - cot²θ equals:",
+    "options": [
+      "0",
+      "1",
+      "-1",
+      "2"
+    ],
+    "answer": "1",
+    "solutionSteps": [
+      "This is a standard Pythagorean identity",
+      "cosec²θ - cot²θ = 1 (derived from sin²θ + cos²θ = 1 by dividing by sin²θ)"
+    ],
+    "finalAnswer": "1",
+    "explanation": "cosec²θ - cot²θ = 1 is a fundamental Pythagorean trigonometric identity. Therefore, the correct answer is 1.",
+    "isCompetencyBased": false,
+    "pyqYear": undefined,
+    "pyqSet": undefined,
+    "ncertRef": "Ex 8.3"
+  },
+  {
     "id": "TG3-037",
     "subject": "Maths",
     "topicKey": "trigonometry",
@@ -843,6 +1046,30 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "ncertRef": "Ex 8.3"
   },
   {
+    "id": "TG3-041",
+    "subject": "Maths",
+    "topicKey": "trigonometry",
+    "subtopic": "Values of Standard Angles",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "Find the value of: sin²45° - cos²45°",
+    "options": [],
+    "answer": "0",
+    "solutionSteps": [
+      "sin 45° = 1/√2, so sin²45° = 1/2",
+      "cos 45° = 1/√2, so cos²45° = 1/2",
+      "sin²45° - cos²45° = 1/2 - 1/2 = 0"
+    ],
+    "finalAnswer": "0",
+    "isCompetencyBased": false,
+    "pyqYear": undefined,
+    "pyqSet": undefined,
+    "ncertRef": "Ex 8.2"
+  },
+  {
     "id": "TG3-042",
     "subject": "Maths",
     "topicKey": "trigonometry",
@@ -931,6 +1158,31 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "ncertRef": "Ex 8.3"
   },
   {
+    "id": "TG3-045",
+    "subject": "Maths",
+    "topicKey": "trigonometry",
+    "subtopic": "Trigonometric Ratios",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "If sin θ = 12/13, find the value of tan θ.",
+    "options": [],
+    "answer": "tan θ = 12/5",
+    "solutionSteps": [
+      "sin θ = 12/13, so opposite = 12, hypotenuse = 13",
+      "adjacent² = 13² - 12² = 169 - 144 = 25",
+      "adjacent = 5",
+      "tan θ = opposite/adjacent = 12/5"
+    ],
+    "finalAnswer": "tan θ = 12/5",
+    "isCompetencyBased": true,
+    "pyqYear": undefined,
+    "pyqSet": undefined,
+    "ncertRef": "Ex 8.1"
+  },
+  {
     "id": "TG3-046",
     "subject": "Maths",
     "topicKey": "trigonometry",
@@ -1013,6 +1265,33 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "Delhi",
+    "ncertRef": "Ex 8.3"
+  },
+  {
+    "id": "TG3-049",
+    "subject": "Maths",
+    "topicKey": "trigonometry",
+    "subtopic": "Trigonometric Identities",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Hard",
+    "bloomSkill": "Analysing",
+    "questionText": "If tan θ + cot θ = 2, find the value of tan²θ + cot²θ.",
+    "options": [],
+    "answer": "2",
+    "solutionSteps": [
+      "Given: tan θ + cot θ = 2",
+      "Squaring both sides: (tan θ + cot θ)² = 4",
+      "tan²θ + 2·tan θ·cot θ + cot²θ = 4",
+      "Since tan θ · cot θ = 1:",
+      "tan²θ + 2(1) + cot²θ = 4",
+      "tan²θ + cot²θ = 4 - 2 = 2"
+    ],
+    "finalAnswer": "2",
+    "isCompetencyBased": true,
+    "pyqYear": undefined,
+    "pyqSet": undefined,
     "ncertRef": "Ex 8.3"
   },
   {
@@ -1137,6 +1416,36 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "ncertRef": "Ex 8.1, Ex 8.4"
   },
   {
+    "id": "TG3-055",
+    "subject": "Maths",
+    "topicKey": "trigonometry",
+    "subtopic": "Trigonometric Ratios",
+    "section": "D",
+    "marks": 5,
+    "format": "Long",
+    "difficulty": "Hard",
+    "bloomSkill": "Creating",
+    "questionText": "If sin θ = p/q (where q > 0 and 0 < θ < 90°), express all six trigonometric ratios in terms of p and q. Verify using the identity sin²θ + cos²θ = 1.",
+    "options": [],
+    "answer": "sin θ = p/q, cos θ = √(q²-p²)/q, tan θ = p/√(q²-p²), cosec θ = q/p, sec θ = q/√(q²-p²), cot θ = √(q²-p²)/p",
+    "solutionSteps": [
+      "Given: sin θ = p/q, so opposite = p, hypotenuse = q",
+      "By Pythagoras theorem: adjacent² = q² - p²",
+      "adjacent = √(q² - p²)",
+      "cos θ = √(q² - p²)/q",
+      "tan θ = opposite/adjacent = p/√(q² - p²)",
+      "cosec θ = 1/sin θ = q/p",
+      "sec θ = 1/cos θ = q/√(q² - p²)",
+      "cot θ = 1/tan θ = √(q² - p²)/p",
+      "Verification: sin²θ + cos²θ = p²/q² + (q² - p²)/q² = q²/q² = 1 ✓"
+    ],
+    "finalAnswer": "sin θ = p/q, cos θ = √(q²-p²)/q, tan θ = p/√(q²-p²), cosec θ = q/p, sec θ = q/√(q²-p²), cot θ = √(q²-p²)/p",
+    "isCompetencyBased": true,
+    "pyqYear": undefined,
+    "pyqSet": undefined,
+    "ncertRef": "Ex 8.1"
+  },
+  {
     "id": "TG3-056",
     "subject": "Maths",
     "topicKey": "trigonometry",
@@ -1247,6 +1556,32 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "Check: May need reworking. Expected simple answer"
     ],
     "finalAnswer": "2√3 - 1",
+    "isCompetencyBased": false,
+    "pyqYear": undefined,
+    "pyqSet": undefined,
+    "ncertRef": "Ex 8.2"
+  },
+  {
+    "id": "TG3-060",
+    "subject": "Maths",
+    "topicKey": "trigonometry",
+    "subtopic": "Values of Standard Angles",
+    "section": "D",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "Evaluate: cos²30° + sin²60° - tan²45°",
+    "options": [],
+    "answer": "1/2",
+    "solutionSteps": [
+      "cos 30° = √3/2, so cos²30° = 3/4",
+      "sin 60° = √3/2, so sin²60° = 3/4",
+      "tan 45° = 1, so tan²45° = 1",
+      "cos²30° + sin²60° - tan²45° = 3/4 + 3/4 - 1",
+      "= 6/4 - 1 = 3/2 - 1 = 1/2"
+    ],
+    "finalAnswer": "1/2",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
