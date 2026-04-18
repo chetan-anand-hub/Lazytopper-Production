@@ -20,6 +20,7 @@ type Props = {
   visualExplainerId?: string | null;
   visualSubject?: string | null;
   visualTopic?: string | null;
+  questionText?: string | null;
   title?: string;
   note?: string;
 };
@@ -239,6 +240,7 @@ export function DiagramBlock({
   visualExplainerId,
   visualSubject,
   visualTopic,
+  questionText,
   title = "Diagram",
   note,
 }: Props) {
@@ -266,6 +268,7 @@ export function DiagramBlock({
           topic={resolvedVisual.chapter}
           concept={resolvedVisual.title}
           subject={resolvedVisual.subject === "science" ? "Science" : "Maths"}
+          questionText={questionText ?? undefined}
         />
       </div>
     );

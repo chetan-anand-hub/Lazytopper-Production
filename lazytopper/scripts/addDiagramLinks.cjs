@@ -384,6 +384,9 @@ const DIAGRAM_NEEDED = [
   /\bcircuit\b/i,
   /punnett square/i,
   /genetic.*cross|monohybrid|dihybrid/i,
+  /sex.determination/i,
+  /use a cross|show.*cross|cross between|cross diagram/i,
+  /xx.*xy|xy.*xx/i,
   /derive.*formula/i,
 ];
 
@@ -418,7 +421,7 @@ function getDiagramStep(questionText, visualId) {
   if (visualId === 'maths-triangles-basic-proportionality-theorem')
     return 'Construction: Draw △ABC with line DE ∥ BC, where D is on AB and E is on AC. Label all given measurements.';
 
-  if (visualId === 'maths-triangles-pythagoras-theorem')
+  if (visualId === 'maths-triangles-pythagoras-theorem-visual-proof')
     return 'Construction: Draw right-angled △ABC with the right angle at B. Mark hypotenuse AC and both legs AB and BC.';
 
   if (visualId === 'maths-triangles-areas-of-similar-triangles')

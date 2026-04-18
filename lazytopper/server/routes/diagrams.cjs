@@ -225,6 +225,7 @@ Question: ${questionText}`;
     const concept = String(reqJson?.concept || '').trim();
     const subject = String(reqJson?.subject || 'Maths').trim();
     const grade = Number(reqJson?.grade) || 10;
+    const questionContext = String(reqJson?.questionText || '').trim().slice(0, 500);
 
     if (!topic && !concept) {
       return sendJson(res, 400, { ok: false, error: 'topic or concept is required' });
@@ -259,7 +260,7 @@ CRITICAL RULES:
 Topic: ${topic}
 Concept: ${concept || topic}
 Subject: ${subject}
-Grade: Class ${grade} CBSE
+Grade: Class ${grade} CBSE${questionContext ? `\nQuestion context: ${questionContext}` : ''}
 
 The visual should help a student understand this concept deeply and remember it for board exams.`;
 

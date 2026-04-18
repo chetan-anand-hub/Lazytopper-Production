@@ -13,6 +13,7 @@ interface VisualExplainerProps {
   topic?: string;
   concept?: string;
   subject?: string;
+  questionText?: string;
   onInteractiveDetected?: (isInteractive: boolean) => void;
 }
 
@@ -62,6 +63,7 @@ export const VisualExplainer = forwardRef<VisualExplainerHandle, VisualExplainer
       topic,
       concept,
       subject,
+      questionText,
       onInteractiveDetected,
     },
     ref
@@ -161,7 +163,13 @@ export const VisualExplainer = forwardRef<VisualExplainerHandle, VisualExplainer
         fetch("/api/generate-visual", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ topic: fallbackTopic, concept: fallbackConcept, subject: subject || "Maths", grade: 10 }),
+          body: JSON.stringify({
+            topic: fallbackTopic,
+            concept: fallbackConcept,
+            subject: subject || "Maths",
+            grade: 10,
+            ...(questionText ? { questionText: questionText.slice(0, 500) } : {}),
+          }),
         })
           .then((r) => r.json())
           .then((data) => {
