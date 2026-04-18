@@ -100,7 +100,7 @@ const getResponseError = (payload: unknown, fallback: string) => {
 };
 const MENTOR_MAX_ATTEMPTS = 2;
 const MENTOR_RETRY_BASE_MS = 900;
-const MENTOR_SERVER_TIMEOUT_MS = 28_000;
+const MENTOR_SERVER_TIMEOUT_MS = 60_000;
 
 const waitMs = (ms: number) =>
   new Promise<void>((resolve) => {

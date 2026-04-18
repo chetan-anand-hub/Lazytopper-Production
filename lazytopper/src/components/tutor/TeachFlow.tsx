@@ -36,7 +36,7 @@ interface TeachFlowProps {
   conceptContext?: ConceptContext;
 }
 
-type Phase = "intro" | "teaching" | "awaiting_answer" | "responding" | "complete" | "previously_completed";
+type Phase = "intro" | "teaching" | "awaiting_answer" | "responding" | "complete" | "previously_completed" | "concept_done";
 
 interface ChatMessage {
   role: "tutor" | "student";
@@ -59,7 +59,7 @@ const SESSION_TTL_MS = 30 * 60 * 1000;
 const MAX_TEACH_STEPS = 5;
 
 const VALID_PHASES: ReadonlySet<Phase> = new Set([
-  "intro", "teaching", "awaiting_answer", "responding", "complete", "previously_completed",
+  "intro", "teaching", "awaiting_answer", "responding", "complete", "previously_completed", "concept_done",
 ]);
 
 const RESUMABLE_PHASES: ReadonlySet<Phase> = new Set([
@@ -220,8 +220,11 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>(savedSession?.chatMessages ?? []);
   const [studentInput, setStudentInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isSlowRequest, setIsSlowRequest] = useState(false);
+  const slowTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [error, setError] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const lastSentMessageRef = useRef<string | null>(null);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const [isNarrow, setIsNarrow] = useState(() => typeof window !== "undefined" ? window.innerWidth < 768 : false);
@@ -440,7 +443,11 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
   async function sendMessage(overrideText?: string) {
     const text = (overrideText ?? studentInput).trim();
     if (!text) return;
+    lastSentMessageRef.current = text;
     setLoading(true);
+    setIsSlowRequest(false);
+    if (slowTimerRef.current) clearTimeout(slowTimerRef.current);
+    slowTimerRef.current = setTimeout(() => setIsSlowRequest(true), 10_000);
     setError(null);
     setPhase("responding");
     if (!overrideText) setStudentInput("");
@@ -533,8 +540,8 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
 
       if (nextStep >= MAX_TEACH_STEPS) {
         markComplete();
-        if (isConceptMode && onComplete) {
-          onComplete();
+        if (isConceptMode) {
+          setPhase("concept_done");
         } else {
           setPhase("complete");
         }
@@ -547,6 +554,8 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
       setPhase("awaiting_answer");
     } finally {
       setLoading(false);
+      setIsSlowRequest(false);
+      if (slowTimerRef.current) { clearTimeout(slowTimerRef.current); slowTimerRef.current = null; }
       setTimeout(() => inputRef.current?.focus(), 100);
     }
   }
@@ -636,7 +645,7 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
     );
   }
 
-  const showChatUI = phase === "teaching" || phase === "awaiting_answer" || phase === "responding" || phase === "complete";
+  const showChatUI = phase === "teaching" || phase === "awaiting_answer" || phase === "responding" || phase === "complete" || phase === "concept_done";
 
   if (!showChatUI) return null;
 
@@ -651,8 +660,8 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
           <div>
             <div style={s.headerTitle}>Ravi Sir &middot; {topicDisplayName}</div>
             <div style={s.headerSub}>
-              {phase === "complete"
-                ? "Lesson complete!"
+              {phase === "complete" || phase === "concept_done"
+                ? "Concept complete!"
                 : `Step ${stepCount} of ${MAX_TEACH_STEPS}`}
             </div>
           </div>
@@ -738,7 +747,9 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
                 <div style={s.tutorAvatar}>RS</div>
                 <div style={s.typingBubble}>
                   <span style={s.dot1} /><span style={s.dot2} /><span style={s.dot3} />
-                  <span style={s.typingLabel}>Ravi Sir is typing...</span>
+                  <span style={s.typingLabel}>
+                    {isSlowRequest ? "Still thinking… ⏳ (complex question)" : "Ravi Sir is typing..."}
+                  </span>
                 </div>
               </div>
             )}
@@ -793,24 +804,56 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
               style={s.skipLink}
               onClick={() => {
                 markComplete();
-                if (isConceptMode && onComplete) {
-                  onComplete();
+                if (isConceptMode) {
+                  setPhase("concept_done");
                 } else {
                   setPhase("complete");
                 }
               }}
             >
-              {isConceptMode ? "I understand — close" : "I understand this topic — skip to practice"}
+              {isConceptMode ? "I understand this concept" : "I understand this topic — skip to practice"}
             </button>
           )}
         </div>
       </div>
 
-      {/* Full-width: error and complete card */}
+      {/* Full-width: error, concept_done, and complete card */}
       {error && (
         <div style={s.errorBox}>
           <p style={s.errorText}>{error}</p>
-          <button style={s.retryBtn} onClick={() => setError(null)}>Dismiss</button>
+          <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
+            {lastSentMessageRef.current && (
+              <button
+                style={s.retryBtn}
+                onClick={() => {
+                  const msg = lastSentMessageRef.current;
+                  if (!msg) return;
+                  setChatMessages((prev) => prev.filter((m) => !(m.role === "student" && m.content === msg)));
+                  setError(null);
+                  sendMessage(msg);
+                }}
+              >
+                Tap to retry
+              </button>
+            )}
+            <button style={{ ...s.retryBtn, background: "none", border: "1px solid var(--text-muted)", color: "var(--text-muted)" }} onClick={() => setError(null)}>Dismiss</button>
+          </div>
+        </div>
+      )}
+
+      {phase === "concept_done" && (
+        <div style={s.completeCard}>
+          <div style={s.completeTick}>✓</div>
+          <p style={s.completeMsg}>Concept covered!</p>
+          <p style={s.completeSub}>You can keep asking questions or move to the next concept.</p>
+          <div style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 16, flexWrap: "wrap" }}>
+            <button style={s.secondaryBtn} onClick={() => setPhase("awaiting_answer")}>
+              Ask more questions
+            </button>
+            <button style={s.primaryBtn} onClick={() => onComplete?.()}>
+              Next concept →
+            </button>
+          </div>
         </div>
       )}
 

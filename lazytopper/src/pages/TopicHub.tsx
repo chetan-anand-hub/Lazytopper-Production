@@ -247,13 +247,26 @@ export default function TopicHub() {
   // Guard: redirect deleted or unknown chapter keys to the subject hub.
   // This prevents broken pages for chapters removed from the 2026-27 syllabus
   // (e.g. Periodic Classification, Management of Natural Resources, Sources of Energy).
+  // A 150ms debounce prevents a spurious redirect caused by React re-renders where
+  // rawTopicKey is briefly defined but the derived topicKey is momentarily stale.
+  const guardRedirectTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     if (!rawTopicKey) return;
     const canonicalChapter = getCanonicalChapterBySlug(topicKey);
     const canonicalSubjectId = toCanonicalSubjectId(subject);
     if (!canonicalChapter || canonicalChapter.subjectId !== canonicalSubjectId) {
-      navigate(`/topic-hub/${grade}/${subject}`, { replace: true });
+      if (guardRedirectTimer.current) clearTimeout(guardRedirectTimer.current);
+      guardRedirectTimer.current = setTimeout(() => {
+        const recheckChapter = getCanonicalChapterBySlug(topicKey);
+        const recheckSubjectId = toCanonicalSubjectId(subject);
+        if (!recheckChapter || recheckChapter.subjectId !== recheckSubjectId) {
+          navigate(`/topic-hub/${grade}/${subject}`, { replace: true });
+        }
+      }, 150);
+    } else {
+      if (guardRedirectTimer.current) { clearTimeout(guardRedirectTimer.current); guardRedirectTimer.current = null; }
     }
+    return () => { if (guardRedirectTimer.current) { clearTimeout(guardRedirectTimer.current); guardRedirectTimer.current = null; } };
   }, [rawTopicKey, topicKey, subject, grade, navigate]);
 
   const v2 = useMemo(() => getTopicV2Content(topicKey), [topicKey]);
