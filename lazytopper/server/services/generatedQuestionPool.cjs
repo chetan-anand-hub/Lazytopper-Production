@@ -155,22 +155,27 @@ async function saveToPool(topicKey, subject, marks, difficulty, variants) {
   if (rows.length === 0) return;
 
   try {
-    let saved = 0;
-    for (const questionText of rows) {
+    // Build a single bulk INSERT … ON CONFLICT DO NOTHING statement.
+    // Each row gets 7 parameters; the shared topic/marks/diff are inlined once per row.
+    const params = [];
+    const valueClauses = rows.map((questionText, i) => {
       const qHash = hashKey(normTopic, normSubject, normMarks, normDiff, questionText);
       const bloomSkill = norm(
         variants.find(v => String(v?.text || '').trim() === questionText)?.bloomSkill
       ) || null;
-      const result = await pool.query(
-        `INSERT INTO generated_questions
-           (topic_key, subject, marks, difficulty, question_text, question_hash, bloom_skill, hit_count, created_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, 0, NOW())
-         ON CONFLICT (topic_key, subject, question_hash) DO NOTHING`,
-        [normTopic, normSubject, normMarks, normDiff, questionText, qHash, bloomSkill]
-      );
-      if (result.rowCount > 0) saved++;
-    }
-    console.info(`[gen-q-pool] SAVED topic=${normTopic} marks=${normMarks} diff=${normDiff} new=${saved}/${rows.length}`);
+      const base = i * 7;
+      params.push(normTopic, normSubject, normMarks, normDiff, questionText, qHash, bloomSkill);
+      return `($${base + 1}, $${base + 2}, $${base + 3}, $${base + 4}, $${base + 5}, $${base + 6}, $${base + 7}, 0, NOW())`;
+    });
+
+    const result = await pool.query(
+      `INSERT INTO generated_questions
+         (topic_key, subject, marks, difficulty, question_text, question_hash, bloom_skill, hit_count, created_at)
+       VALUES ${valueClauses.join(', ')}
+       ON CONFLICT (topic_key, subject, question_hash) DO NOTHING`,
+      params
+    );
+    console.info(`[gen-q-pool] SAVED topic=${normTopic} marks=${normMarks} diff=${normDiff} new=${result.rowCount}/${rows.length}`);
   } catch (e) {
     console.warn('[gen-q-pool] saveToPool error:', e.message);
   }
