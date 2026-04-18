@@ -287,6 +287,16 @@ export const canonicalChapters: CanonicalChapter[] = [
     recommendedConceptPacks: 16,
     visualMin: 6,
   },
+  {
+    chapterId: "S10_CH_OUR_ENV",
+    subjectId: "science",
+    unitId: "S10_U5",
+    ncertChapterNum: 15,
+    title: "Our Environment",
+    canonicalSlug: "our-environment",
+    recommendedConceptPacks: 8,
+    visualMin: 3,
+  },
 ];
 
 const chapterBySlug = (() => {

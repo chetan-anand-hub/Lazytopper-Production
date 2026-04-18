@@ -71,6 +71,10 @@ export const canonicalTopicAliasMap: Record<string, string[]> = {
   ],
   "our-environment": [
     "science_our_environment",
+    "our-environment-food-chains",
+    "s10-ch-our-env",
+    "S10_CH_OUR_ENV",
+    "our environment",
   ],
   "light-reflection-and-refraction-incl-human-eye-prism": [
     "light-reflection-refraction",
