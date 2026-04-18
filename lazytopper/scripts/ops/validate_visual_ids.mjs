@@ -1,12 +1,15 @@
 /**
- * validate_visual_ids.mjs — CI guard for diagram-heavy pack files (Task #334).
+ * validate_visual_ids.mjs — CI guard for diagram-heavy pack files.
  *
- * Asserts: every B/C/D/E question in the 34 targeted pack files has a
- * `visualExplainerId` that resolves to a registered entry in
- * visualConceptRegistry.ts.
+ * Asserts: every B/C/D/E question in the 42 targeted pack files that carries
+ * a `visualExplainerId` points to a registered entry in visualConceptRegistry.ts.
+ *
+ * NOTE: Not every B-E question is required to have a visualExplainerId.
+ * Task #336 intentionally removed IDs from pure calculation questions.
+ * This guard only catches INVALID IDs (present but not in the registry).
  *
  * Usage:  node lazytopper/scripts/ops/validate_visual_ids.mjs
- * Exit 0 = all OK, Exit 1 = failures found.
+ * Exit 0 = all OK, Exit 1 = invalid IDs found.
  */
 
 import { readFileSync } from 'fs';
@@ -18,6 +21,7 @@ const LAZYTOPPER = join(__dirname, '..', '..');
 const BANK_DIR   = join(LAZYTOPPER, 'src', 'data', 'questionBanks', 'class10');
 
 const TARGETED_PACKS = [
+  // Original 34 packs (Task #334)
   'maths/triangles.pack2.ts','maths/triangles.pack3.ts',
   'maths/circles.pack1.ts','maths/circles.pack2.ts',
   'maths/trigonometry.pack2.ts','maths/trigonometry.pack3.ts',
@@ -35,6 +39,11 @@ const TARGETED_PACKS = [
   'science/acidsBasesSalts.pack1.ts','science/acidsBasesSalts.pack2.ts',
   'science/metalsNonMetals.pack1.ts','science/metalsNonMetals.pack2.ts',
   'science/carbonCompounds.pack1.ts','science/carbonCompounds.pack2.ts',
+  // 8 new packs added in Task #335
+  'maths/surfaceAreasVolumes.pack1.ts','maths/surfaceAreasVolumes.pack2.ts',
+  'maths/statistics.pack1.ts','maths/statistics.pack2.ts',
+  'maths/polynomials.pack1.ts','maths/polynomials.pack2.ts',
+  'maths/probability.pack1.ts','maths/probability.pack2.ts',
 ];
 
 /** Mirrors the makeId() function in visualConceptRegistry.ts */
@@ -94,6 +103,7 @@ const registryIds = extractRegistryIds();
 console.log(`Registry: ${registryIds.size} valid visual IDs loaded.\n`);
 
 let totalChecked = 0;
+let totalWithId = 0;
 let failures = 0;
 const report = [];
 
@@ -103,27 +113,26 @@ for (const rel of TARGETED_PACKS) {
   let packFail = 0;
   for (const { id, vid } of questions) {
     totalChecked++;
-    if (!vid) {
-      report.push(`  MISSING visualExplainerId: [${rel}] ${id}`);
-      packFail++;
-      failures++;
-    } else if (!registryIds.has(vid)) {
+    if (!vid) continue; // No ID is fine — Task #336 intentionally removed IDs from calculation-only questions
+    totalWithId++;
+    if (!registryIds.has(vid)) {
       report.push(`  INVALID visualExplainerId "${vid}": [${rel}] ${id}`);
       packFail++;
       failures++;
     }
   }
   const status = packFail === 0 ? '✅' : `❌ (${packFail} issues)`;
-  console.log(`${status}  ${rel} (${questions.length} B-E questions)`);
+  console.log(`${status}  ${rel} (${questions.length} B-E questions, ${questions.filter(q => q.vid).length} with ID)`);
 }
 
 console.log('\n──────────────────────────────────────────────────────────');
 console.log(`Checked ${totalChecked} B-E questions across ${TARGETED_PACKS.length} packs.`);
+console.log(`${totalWithId} questions carry a visualExplainerId (${totalChecked - totalWithId} intentionally without).`);
 
 if (failures === 0) {
-  console.log('✅  All visualExplainerIds present and valid.');
+  console.log('✅  All present visualExplainerIds are valid.');
   process.exit(0);
 } else {
-  console.log(`❌  ${failures} failures:\n${report.join('\n')}`);
+  console.log(`❌  ${failures} INVALID IDs found:\n${report.join('\n')}`);
   process.exit(1);
 }
