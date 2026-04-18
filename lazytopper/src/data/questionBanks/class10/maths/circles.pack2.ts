@@ -694,6 +694,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
     "options": [],
     "answer": "130°",
     "solutionSteps": [
+      "Construction: Draw a circle with centre O and external point P. Draw tangents PA and PB, touching the circle at A and B. Join OA, OB, and OP.",
       "In quadrilateral OAPB:",
       "∠OAP = 90° (radius perpendicular to tangent)",
       "∠OBP = 90° (radius perpendicular to tangent)",

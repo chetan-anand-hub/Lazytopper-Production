@@ -597,6 +597,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "options": [],
     "answer": "(i) Ladder length = 10 m; (ii) Height = 5√3 m ≈ 8.66 m",
     "solutionSteps": [
+      "Diagram: Draw a vertical tower or building of height h. Mark the observation point P on the ground, the angle of elevation θ at P, and label all given distances.",
       "(i) Let ladder length = L. cos 60° = base/ladder = 5/L",
       "1/2 = 5/L, so L = 10 m",
       "(ii) sin 60° = height/ladder = h/10",
@@ -1112,6 +1113,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     ],
     "answer": "5√3 m",
     "solutionSteps": [
+      "Diagram: Draw a vertical tower or building of height h. Mark the observation point P on the ground, the angle of elevation θ at P, and label all given distances.",
       "sin 60° = height/hypotenuse",
       "√3/2 = height/10",
       "height = 10 × √3/2 = 5√3 m"
