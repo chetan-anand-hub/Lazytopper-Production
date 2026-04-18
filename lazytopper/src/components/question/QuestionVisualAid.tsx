@@ -64,13 +64,16 @@ function inferVisualKind(props: QuestionVisualAidProps): VisualKind | null {
   const text = norm(props.questionText);
   const combined = `${topic} ${text}`;
 
+  // Non-MCQ flag: 2+ mark questions should show diagrams without needing "draw"/"figure" words
+  const nonMcq = (props.marks ?? 1) >= 2;
+
   const visualTrigger =
     /\b(draw|diagram|graph|figure|plot|construct|ray|circuit|labelled|label|structure|cross section)\b/.test(
       combined
     ) || (props.kind || "").toLowerCase() === "case-based";
 
   const topicNeedsVisual =
-    /\b(height and distance|coordinate|circle|lens|mirror|light|electricity|magnetic|life process|human eye|heredity|nephron|kidney|heart|circulation|triangle|similarity|pythagoras|bpt|prism|dispersion|digestive|neuron|food chain|food web|flower|reproduction in plants|tangent|sector|area of circle|circumference|construction|arithmetic progression|quadratic|probability|cylinder|cone|sphere|frustum|mensuration|surface area|volume|chemical reaction|carbon|organic|electromagnetic|induction|generator|motor|reproductive|excretory|urine|kidney)\b/.test(
+    /\b(height and distance|coordinate|circle|lens|mirror|light|electricity|magnetic|life process|human eye|heredity|nephron|kidney|heart|circulation|triangle|similarity|pythagoras|bpt|prism|dispersion|digestive|neuron|food chain|food web|flower|reproduction in plants|tangent|sector|area of circle|circumference|construction|arithmetic progression|quadratic|probability|cylinder|cone|sphere|frustum|mensuration|surface area|volume|chemical reaction|carbon|organic|electromagnetic|induction|generator|motor|reproductive|excretory|urine|kidney|parallel|angle|prove|median|altitude|perpendicular|bisect|similar|congruent|right angle)\b/.test(
       combined
     );
 
@@ -110,10 +113,19 @@ function inferVisualKind(props: QuestionVisualAidProps): VisualKind | null {
   if (/\b(circle|circumference|area of circle|semicircle|diameter|chord)\b/.test(combined)) return "circle-general";
   if (/\b(height and distance|angle of elevation|angle of depression|top of (a |the )?tower|top of (a |the )?building|shadow|lighthouse)\b/.test(combined))
     return "height-distance";
+  // BPT: explicit keywords OR parallel-line-in-triangle pattern for non-MCQ (e.g. "DE ∥ BC, AD=4, DB=6")
   if (/\b(bpt|basic proportionality|thales)\b/.test(combined)) return "bpt";
+  if (nonMcq && /\b(parallel|∥)\b/.test(text) && /\b(triangle|abc|△|de.*bc|ad.*db|ae.*ec)\b/.test(text)) return "bpt";
   if (/\b(pythagoras|pythagorean|hypotenuse)\b/.test(combined)) return "pythagoras";
+  // Pythagoras context: right-angle + sides pattern for non-MCQ (e.g. "∠B=90°, prove AB²+BC²=AC²")
+  if (nonMcq && /\b(right angle|right.angled|90|∠.*90|ab.2|bc.2|ac.2)\b/.test(text) && /\b(triangle|abc|△|prove|right)\b/.test(text)) return "pythagoras";
   if (/\b(similar|similarity|aa criterion|sas criterion|sss criterion)\b/.test(combined)) return "similar-triangles";
-  if (/\b(triangle|congruence)\b/.test(combined) && visualTrigger) return "right-triangle";
+  // Similar triangles: "prove triangles are similar" / "show △ABC ~ △DEF" for non-MCQ
+  if (nonMcq && /\b(similar|~|cpct|cpst|corresponding)\b/.test(text) && /\b(triangle|△|abc)\b/.test(text)) return "similar-triangles";
+  // Right triangle: any non-MCQ question about triangles with geometric operations
+  if (/\b(triangle|congruence)\b/.test(combined) && (nonMcq || visualTrigger)) return "right-triangle";
+  // Height & distance: angle + height context for non-MCQ (e.g. "tower 20m, angle 60°")
+  if (nonMcq && /\b(angle|degree|°|elevation|depression|tower|pole|height|shadow)\b/.test(text)) return "height-distance";
 
   return null;
 }

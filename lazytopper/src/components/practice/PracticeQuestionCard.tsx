@@ -210,40 +210,6 @@ export function PracticeQuestionCard({
         marks={q.marks}
       />
 
-      {matchedVisual && q.format !== "MCQ" && (
-        <div style={{ marginBottom: 10 }}>
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); setShowVisual((v) => !v); }}
-            style={{
-              borderRadius: 999, padding: "5px 12px",
-              border: "1px solid rgba(59,130,246,0.3)",
-              backgroundColor: showVisual ? "rgba(59,130,246,0.12)" : "rgba(59,130,246,0.05)",
-              fontSize: "0.78rem", color: "var(--color-light-blue)",
-              cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6,
-            }}
-          >
-            <span style={{ fontSize: "0.9rem" }}>📐</span>
-            {showVisual ? "Hide visual" : `See visual: ${matchedVisual.title}`}
-          </button>
-          {showVisual && (
-            <div style={{ marginTop: 8 }}>
-              <VisualExplainer
-                src={matchedVisual.filePath}
-                title={matchedVisual.title}
-                height={300}
-                collapsible={false}
-                defaultCollapsed={false}
-                topic={matchedVisual.chapter}
-                concept={matchedVisual.title}
-                subject={matchedVisual.subject === "science" ? "Science" : "Maths"}
-                questionText={q.questionText}
-              />
-            </div>
-          )}
-        </div>
-      )}
-
       <div style={{
         display: "flex", flexWrap: "wrap", gap: 8,
         alignItems: "center", marginBottom: 8,
@@ -393,7 +359,7 @@ export function PracticeQuestionCard({
                 <span style={{ fontSize: "1rem" }}>{"\uD83D\uDCA1"}</span>
                 Teach me this concept
               </button>
-              {matchedVisual && q.format === "MCQ" && (
+              {matchedVisual && (
                 <div style={{ marginTop: 8 }}>
                   <button
                     type="button"
