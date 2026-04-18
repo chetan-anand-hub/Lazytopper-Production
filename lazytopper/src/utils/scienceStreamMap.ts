@@ -13,6 +13,7 @@ export const SCIENCE_STREAM_BY_TOPIC: Record<
   ControlAndCoordination: "Biology",
   Reproduction: "Biology",
   HeredityEvolution: "Biology",
+  OurEnvironment: "Biology",
 
   Light: "Physics",
   HumanEyeAndColourfulWorld: "Physics",
