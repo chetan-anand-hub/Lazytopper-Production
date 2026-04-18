@@ -273,34 +273,25 @@ export default function DailyMissionPage() {
 
     updateAnswer(segmentIndex, itemIndex, { submitted: true });
 
-    let isCorrect: boolean | null = null;
     try {
       const resp = await callMentor("explain", {
         subject: safeSubject,
         topicKey,
         questionText: stem,
-        studentQuestion: `My answer: "${currentAnswer.studentAnswer}". Give me brief feedback: is my answer correct? What did I miss? Keep it under 3 sentences.`,
+        studentQuestion: `My answer: "${currentAnswer.studentAnswer}". Briefly explain what is correct and what could be improved — 2-3 sentences max. Do NOT judge if the answer is right or wrong overall.`,
       });
 
       const feedbackText = String(
-        resp?.data?.text || resp?.data?.structured?.explanation || "Good attempt! Review the model answer for comparison."
+        resp?.data?.text || resp?.data?.structured?.explanation || "Review the model answer below and compare with your working."
       );
 
-      isCorrect = feedbackText.toLowerCase().includes("correct") && !feedbackText.toLowerCase().includes("incorrect")
-        ? true
-        : feedbackText.toLowerCase().includes("incorrect") || feedbackText.toLowerCase().includes("wrong")
-          ? false
-          : null;
-
-      updateAnswer(segmentIndex, itemIndex, { feedback: feedbackText, correct: isCorrect });
+      updateAnswer(segmentIndex, itemIndex, { feedback: feedbackText, correct: null });
     } catch {
       updateAnswer(segmentIndex, itemIndex, {
-        feedback: "Good attempt! Check the textbook for the model answer.",
+        feedback: "Compare your working with the model answer below.",
         correct: null,
       });
     }
-
-    persistMasteryForQuestion(topicKey, currentItem.id, isCorrect);
   }, [currentItem, currentAnswer, segmentIndex, itemIndex, updateAnswer, safeSubject]);
 
   const handleSkip = useCallback(() => {
@@ -813,7 +804,7 @@ export default function DailyMissionPage() {
                 </div>
               )}
 
-              {/* Self-assess buttons for non-MCQ when AI couldn't determine correct/incorrect */}
+              {/* Self-assess buttons — always shown for non-MCQ questions once AI feedback is ready */}
               {!hasMCQ && isQuestionItem && currentAnswer.correct === null && currentAnswer.feedback !== null && currentAnswer.studentAnswer !== "(skipped)" && (
                 <div style={{ marginTop: 14 }}>
                   <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-muted)", marginBottom: 8 }}>
@@ -822,7 +813,11 @@ export default function DailyMissionPage() {
                   <div style={{ display: "flex", gap: 8 }}>
                     <button
                       type="button"
-                      onClick={() => updateAnswer(segmentIndex, itemIndex, { correct: true })}
+                      onClick={() => {
+                        const tk = String(currentItem?.payload?.topicKey || "");
+                        updateAnswer(segmentIndex, itemIndex, { correct: true });
+                        persistMasteryForQuestion(tk, currentItem?.id ?? "", true);
+                      }}
                       style={{
                         flex: 1, padding: "9px 16px", borderRadius: 10,
                         border: "1px solid rgba(34,197,94,0.4)",
@@ -833,7 +828,11 @@ export default function DailyMissionPage() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => updateAnswer(segmentIndex, itemIndex, { correct: false })}
+                      onClick={() => {
+                        const tk = String(currentItem?.payload?.topicKey || "");
+                        updateAnswer(segmentIndex, itemIndex, { correct: false });
+                        persistMasteryForQuestion(tk, currentItem?.id ?? "", false);
+                      }}
                       style={{
                         flex: 1, padding: "9px 16px", borderRadius: 10,
                         border: "1px solid rgba(239,68,68,0.4)",
