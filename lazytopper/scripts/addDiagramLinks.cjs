@@ -112,35 +112,79 @@ const FILE_CONFIGS = [
   mkCfg('src/data/questionBanks/class10/science/carbonCompounds.pack1.ts', carbonVid),
   mkCfg('src/data/questionBanks/class10/science/carbonCompounds.pack2.ts', carbonVid),
 
-  /* ── MATHS: SURFACE AREAS & VOLUMES ─────────────────────────────────────── */
+  /*
+   * ── MATHS: SURFACE AREAS & VOLUMES  (alwaysAssignId = true) ──────────────
+   * Every B-E question deals with a 3-D solid (cylinder, cone, sphere, frustum,
+   * combination-of-solids, conversion) where seeing the shape diagram is helpful
+   * even for pure-calculation questions. Task #335 established this policy; the
+   * alwaysAssignId flag preserves it against Task #336-style stripping.
+   */
   mkCfg('src/data/questionBanks/class10/maths/surfaceAreasVolumes.pack1.ts', surfaceVid, true),
   mkCfg('src/data/questionBanks/class10/maths/surfaceAreasVolumes.pack2.ts', surfaceVid, true),
 
-  /* ── MATHS: STATISTICS ───────────────────────────────────────────────────── */
+  /*
+   * ── MATHS: STATISTICS  (alwaysAssignId = true) ────────────────────────────
+   * Every B-E question involves a frequency distribution (mean/median/mode, ogive,
+   * histogram) whose corresponding visual explainer shows how the statistic is
+   * read off the graph.  The visual adds conceptual context even when the question
+   * only asks for a numerical answer.  Policy set in Task #335.
+   */
   mkCfg('src/data/questionBanks/class10/maths/statistics.pack1.ts', statisticsVid, true),
   mkCfg('src/data/questionBanks/class10/maths/statistics.pack2.ts', statisticsVid, true),
 
-  /* ── MATHS: POLYNOMIALS ──────────────────────────────────────────────────── */
+  /*
+   * ── MATHS: POLYNOMIALS  (alwaysAssignId = true) ───────────────────────────
+   * Every B-E question relates to polynomial zeroes / graph intersections.  The
+   * parabola / curve visual is relevant even when the question is purely algebraic
+   * (e.g. "find zeroes of 2x² + 5x – 3") because students must understand the
+   * geometric meaning.  Policy set in Task #335.
+   */
   mkCfg('src/data/questionBanks/class10/maths/polynomials.pack1.ts', polynomialsVid, true),
   mkCfg('src/data/questionBanks/class10/maths/polynomials.pack2.ts', polynomialsVid, true),
 
-  /* ── MATHS: PROBABILITY ──────────────────────────────────────────────────── */
+  /*
+   * ── MATHS: PROBABILITY  (alwaysAssignId = true) ───────────────────────────
+   * Every B-E question involves sample spaces, events, and favourable outcomes.
+   * The visual explainer shows the sample space tree / Venn diagram that students
+   * should visualise even when solving by formula.  Policy set in Task #335.
+   */
   mkCfg('src/data/questionBanks/class10/maths/probability.pack1.ts', probabilityVid, true),
   mkCfg('src/data/questionBanks/class10/maths/probability.pack2.ts', probabilityVid, true),
 
-  /* ── MATHS: ARITHMETIC PROGRESSIONS ─────────────────────────────────────── */
+  /*
+   * ── MATHS: ARITHMETIC PROGRESSIONS  (requiresDiagram-gated, default) ─────
+   * Most AP questions are pure substitution into nth-term / Sn formulae and do
+   * not benefit from a diagram step.  Only "prove / derive" questions (e.g. derive
+   * Sn formula) pass requiresDiagram() and receive an ID + a diagram step.
+   */
   mkCfg('src/data/questionBanks/class10/maths/arithmeticProgression.pack1.ts', apVid),
   mkCfg('src/data/questionBanks/class10/maths/arithmeticProgression.pack2.ts', apVid),
 
-  /* ── MATHS: QUADRATIC EQUATIONS ──────────────────────────────────────────── */
+  /*
+   * ── MATHS: QUADRATIC EQUATIONS  (requiresDiagram-gated, default) ──────────
+   * Most QE questions are algebraic (factorise, apply formula, evaluate
+   * discriminant).  Only questions containing "draw / prove / derive" pass
+   * requiresDiagram() and get an ID + diagram step (e.g. derive the formula).
+   */
   mkCfg('src/data/questionBanks/class10/maths/quadraticEquations.pack1.ts', quadraticVid),
   mkCfg('src/data/questionBanks/class10/maths/quadraticEquations.pack2.ts', quadraticVid),
 
-  /* ── MATHS: REAL NUMBERS ─────────────────────────────────────────────────── */
+  /*
+   * ── MATHS: REAL NUMBERS  (requiresDiagram-gated, default) ────────────────
+   * Irrational-proof questions ("Prove √2 is irrational") pass requiresDiagram()
+   * because they are proof-based.  HCF/LCM pure calculation questions do not.
+   */
   mkCfg('src/data/questionBanks/class10/maths/realNumbers.pack1.ts', realNumbersVid),
   mkCfg('src/data/questionBanks/class10/maths/realNumbers.pack2.ts', realNumbersVid),
 
-  /* ── MATHS: PAIR OF LINEAR EQUATIONS (alwaysAssignId — algebraic topic) ── */
+  /*
+   * ── MATHS: PAIR OF LINEAR EQUATIONS  (alwaysAssignId = true) ─────────────
+   * PLE questions are algebraic (solve by substitution/elimination, consistency
+   * analysis, word problems).  None use "prove/draw/construct" so requiresDiagram()
+   * would never fire.  However, every question benefits from seeing the graphical
+   * interpretation (intersection, parallel, coincident lines) from the visual
+   * library.  alwaysAssignId ensures all B-E questions get a reference.
+   */
   mkCfg('src/data/questionBanks/class10/maths/pairOfLinearEquations.pack1.ts', linearEqVid, true),
   mkCfg('src/data/questionBanks/class10/maths/pairOfLinearEquations.pack2.ts', linearEqVid, true),
 ];
