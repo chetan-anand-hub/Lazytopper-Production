@@ -1,13 +1,34 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { checkSolutionImage, type CheckSolutionResponse, type MistakeType } from "../../ai/aiClient";
 import { useAuth } from "../../context/AuthContext";
 import { logMistakes } from "../../services/mistakeLogService";
+
+const CHECK_RESULT_KEY_PREFIX = "lazytopper.checkResult.v1.";
+
+function loadSavedResult(questionId: string): CheckSolutionResponse | null {
+  try {
+    const raw = localStorage.getItem(CHECK_RESULT_KEY_PREFIX + questionId);
+    if (!raw) return null;
+    return JSON.parse(raw) as CheckSolutionResponse;
+  } catch {
+    return null;
+  }
+}
+
+function saveResult(questionId: string, result: CheckSolutionResponse): void {
+  try {
+    localStorage.setItem(CHECK_RESULT_KEY_PREFIX + questionId, JSON.stringify(result));
+  } catch {
+  }
+}
+
 
 interface SolutionCheckerProps {
   question: string;
   marks: number;
   subject: string;
   topic: string;
+  questionId?: string;
   onRequestStepSolution?: () => void;
   onResult?: (result: CheckSolutionResponse) => void;
 }
@@ -170,7 +191,7 @@ function MistakeSummaryLine({ summary }: { summary: CheckSolutionResponse["mista
 }
 
 export function SolutionChecker({
-  question, marks, subject, topic, onRequestStepSolution, onResult,
+  question, marks, subject, topic, questionId, onRequestStepSolution, onResult,
 }: SolutionCheckerProps) {
   const { user } = useAuth();
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -182,8 +203,19 @@ export function SolutionChecker({
   const [showTextInput, setShowTextInput] = useState(false);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<CheckSolutionResponse | null>(null);
+  const [isFromCache, setIsFromCache] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!questionId) return;
+    const saved = loadSavedResult(questionId);
+    if (saved) {
+      setResult(saved);
+      setIsFromCache(true);
+      onResult?.(saved);
+    }
+  }, [questionId]);
 
   const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -245,6 +277,10 @@ export function SolutionChecker({
 
       if (response.ok) {
         setResult(response);
+        setIsFromCache(false);
+        if (questionId) {
+          saveResult(questionId, response);
+        }
         onResult?.(response);
         const mistakeCount =
           response.mistakeSummary.conceptual +
@@ -278,7 +314,7 @@ export function SolutionChecker({
     } finally {
       setLoading(false);
     }
-  }, [imageBase64, imageMimeType, textAnswer, question, marks, subject, topic, user]);
+  }, [imageBase64, imageMimeType, textAnswer, question, marks, subject, topic, user, questionId]);
 
   const handleClear = useCallback(() => {
     setImagePreview(null);
@@ -286,7 +322,21 @@ export function SolutionChecker({
     setFileName(null);
     setIsPdf(false);
     setResult(null);
+    setIsFromCache(false);
     setError(null);
+    setTextAnswer("");
+    setShowTextInput(false);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }, []);
+
+  const handleRecheck = useCallback(() => {
+    setResult(null);
+    setIsFromCache(false);
+    setError(null);
+    setImagePreview(null);
+    setImageBase64(null);
+    setFileName(null);
+    setIsPdf(false);
     setTextAnswer("");
     setShowTextInput(false);
     if (fileInputRef.current) fileInputRef.current.value = "";
@@ -483,6 +533,31 @@ export function SolutionChecker({
       {/* ── Result ────────────────── */}
       {result && (
         <div style={{ marginTop: 4 }}>
+          {/* Cached result notice */}
+          {isFromCache && (
+            <div style={{
+              display: "flex", alignItems: "center", justifyContent: "space-between",
+              gap: 8, padding: "6px 10px", marginBottom: 8,
+              borderRadius: 8, background: "rgba(168,85,247,0.06)",
+              border: "1px solid rgba(168,85,247,0.2)",
+            }}>
+              <span style={{ fontSize: "0.72rem", color: "#a78bfa", fontWeight: 600 }}>
+                📋 Showing your previous check result
+              </span>
+              <button
+                type="button"
+                onClick={handleRecheck}
+                style={{
+                  flexShrink: 0, padding: "3px 10px", borderRadius: 999,
+                  border: "1px solid rgba(168,85,247,0.4)",
+                  background: "rgba(168,85,247,0.1)", color: "#c4b5fd",
+                  fontSize: "0.71rem", fontWeight: 700, cursor: "pointer",
+                }}
+              >
+                Re-check
+              </button>
+            </div>
+          )}
           {/* Score banner */}
           <div style={{
             display: "flex", alignItems: "center", gap: 12,
@@ -558,19 +633,21 @@ export function SolutionChecker({
             </button>
           )}
 
-          {/* Try another */}
-          <button
-            type="button"
-            onClick={handleClear}
-            style={{
-              marginTop: 8, width: "100%", padding: "8px 12px",
-              borderRadius: 8, border: "1px solid rgba(206,130,255,0.3)",
-              background: "var(--bg-card)", color: "#c4b5fd",
-              fontSize: "0.78rem", fontWeight: 600, cursor: "pointer",
-            }}
-          >
-            Try another solution
-          </button>
+          {/* Try another / Re-check */}
+          {!isFromCache && (
+            <button
+              type="button"
+              onClick={handleClear}
+              style={{
+                marginTop: 8, width: "100%", padding: "8px 12px",
+                borderRadius: 8, border: "1px solid rgba(206,130,255,0.3)",
+                background: "var(--bg-card)", color: "#c4b5fd",
+                fontSize: "0.78rem", fontWeight: 600, cursor: "pointer",
+              }}
+            >
+              Try another solution
+            </button>
+          )}
         </div>
       )}
     </div>

@@ -1440,6 +1440,7 @@ export default function TopicHub() {
                             marks={currentMiniQuestion.marks || 2}
                             subject={subjectTitle}
                             topic={title}
+                            questionId={currentMiniQuestion.id ? String(currentMiniQuestion.id) : undefined}
                             onResult={(r) => setAiCheckerResult(r)}
                             onRequestStepSolution={handleRequestStepSolution}
                           />
