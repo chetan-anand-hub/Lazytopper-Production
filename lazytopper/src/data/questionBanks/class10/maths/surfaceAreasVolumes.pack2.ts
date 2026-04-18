@@ -113,6 +113,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "Total surface area = 16π + 20π = 36π cm²"
     ],
     "finalAnswer": "36π cm²",
+    "visualExplainerId": "maths-surface-areas-volumes-surface-area-formulas",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -202,6 +203,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "R = ∛67.5 ≈ 4.07 cm"
     ],
     "finalAnswer": "R ≈ 4.07 cm",
+    "visualExplainerId": "maths-surface-areas-volumes-conversion-of-solids",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -229,6 +231,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "Total Surface Area = 96π + 64π = 160π cm²"
     ],
     "finalAnswer": "Volume = 832π/3 cm³; Surface Area = 160π cm²",
+    "visualExplainerId": "maths-surface-areas-volumes-surface-area-formulas",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -253,6 +256,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "Number of cones = 288π ÷ π = 288"
     ],
     "finalAnswer": "288 complete cones",
+    "visualExplainerId": "maths-surface-areas-volumes-conversion-of-solids",
     "isCompetencyBased": true,
     "pyqYear": "2019",
     "pyqSet": "Delhi",
@@ -343,6 +347,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "= π(5)²(8) + (1/3)π(5)²(6) = 200π + 50π = 250π cm³"
     ],
     "finalAnswer": "(i) 5π√61 cm² (ii) 80π cm² (iii) 5π√61 + 105π cm² (iv) 250π cm³",
+    "visualExplainerId": "maths-surface-areas-volumes-combination-of-solids",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "Delhi",
@@ -375,6 +380,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "Change for cylinder = (188π - 133.0π)/133.0π × 100% ≈ +41.4%"
     ],
     "finalAnswer": "(i) Sphere radius ≈ 5.13 cm; Surface area increases by ~148%; (ii) Cylinder radius ≈ 4.74 cm; Surface area increases by ~41%",
+    "visualExplainerId": "maths-surface-areas-volumes-conversion-of-solids",
     "isCompetencyBased": true,
     "pyqYear": "2025",
     "pyqSet": "Delhi",
@@ -433,6 +439,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "r² = 36.4, r ≈ 6.03 cm ≈ 6 cm"
     ],
     "finalAnswer": "6 cm (approximately)",
+    "visualExplainerId": "maths-surface-areas-volumes-conversion-of-solids",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "Delhi",
@@ -519,6 +526,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "Total excluding base = 60π + 18π + 9π = 87π ≈ 273 cm²"
     ],
     "finalAnswer": "78π cm² (curved only) or 87π cm² (with top surface)",
+    "visualExplainerId": "maths-surface-areas-volumes-combination-of-solids",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -543,6 +551,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "Total curved surface area = 98π + 70π = 168π ≈ 527.52 cm²"
     ],
     "finalAnswer": "168π ≈ 527.52 cm²",
+    "visualExplainerId": "maths-surface-areas-volumes-combination-of-solids",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -574,6 +583,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "Total SA = 160π + 50π = 210π cm²"
     ],
     "finalAnswer": "210π cm²",
+    "visualExplainerId": "maths-surface-areas-volumes-combination-of-solids",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -605,6 +615,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "Both A and R are correct, and R explains why A is true"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "visualExplainerId": "maths-surface-areas-volumes-combination-of-solids",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -662,6 +673,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "h = 288 × 3/16 = 864/16 = 54 cm"
     ],
     "finalAnswer": "54 cm",
+    "visualExplainerId": "maths-surface-areas-volumes-conversion-of-solids",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -694,6 +706,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "Number = 686π / (343π/6) = 686 × 6/343 = 4116/343 = 12"
     ],
     "finalAnswer": "12",
+    "visualExplainerId": "maths-surface-areas-volumes-conversion-of-solids",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": undefined,
@@ -719,6 +732,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "h = 100/25 = 4 cm"
     ],
     "finalAnswer": "4 cm",
+    "visualExplainerId": "maths-surface-areas-volumes-conversion-of-solids",
     "isCompetencyBased": true,
     "pyqYear": "2019",
     "pyqSet": undefined,
@@ -744,6 +758,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "(iv) For 100 items = 100 × 196π = 19600π cm²"
     ],
     "finalAnswer": "(i) 98π cm² (ii) 98π cm² (iii) 196π ≈ 615.44 cm² (iv) 19600π ≈ 61544 cm²",
+    "visualExplainerId": "maths-surface-areas-volumes-combination-of-solids",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -774,6 +789,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "Assertion is true, reason is true, and reason explains why assertion is correct"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "visualExplainerId": "maths-surface-areas-volumes-conversion-of-solids",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -809,6 +825,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "(iii) Mass = Volume × Density = (4400π/3) × 2 = 8800π/3 g ≈ 9214 g"
     ],
     "finalAnswer": "(i) TSA = 460π cm² ≈ 1445 cm² (ii) Volume = 4400π/3 ≈ 4613 cm³ (iii) Mass = 8800π/3 ≈ 9214 g",
+    "visualExplainerId": "maths-surface-areas-volumes-surface-area-formulas",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": undefined,
@@ -841,6 +858,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "New sphere has less surface area despite same volume"
     ],
     "finalAnswer": "(i) r = 6 cm (ii) SA = 144π ≈ 452.39 cm² (iii) Original total = 200π ≈ 628.32 cm². New sphere has less SA.",
+    "visualExplainerId": "maths-surface-areas-volumes-conversion-of-solids",
     "isCompetencyBased": true,
     "pyqYear": "2020",
     "pyqSet": undefined,
@@ -873,6 +891,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "This implies the hemisphere adds to the outer surface. Correct interpretation: TSA = 5×100 + 50π + base of cube if exposed"
     ],
     "finalAnswer": "500 + 50π cm²",
+    "visualExplainerId": "maths-surface-areas-volumes-combination-of-solids",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -899,6 +918,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "Actual: 72π + 12π = 84π cm³ ≈ 263.89 cm³"
     ],
     "finalAnswer": "84π cm³ ≈ 263.89 cm³",
+    "visualExplainerId": "maths-surface-areas-volumes-surface-area-formulas",
     "isCompetencyBased": true,
     "pyqYear": "2025",
     "pyqSet": undefined,
@@ -938,6 +958,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "answer": "572 cm²",
     "solutionSteps": ["r = 7 cm, height of cylinder = 13 - 7 = 6 cm", "Inner SA = CSA of cylinder + CSA of hemisphere", "= 2πrh + 2πr² = 2π(7)(6) + 2π(49) = 84π + 98π = 182π ≈ 572 cm²"],
     "finalAnswer": "572 cm²",
+    "visualExplainerId": "maths-surface-areas-volumes-conversion-of-solids",
     "isCompetencyBased": true,
     "ncertRef": "Ex 13.1"
   },
@@ -956,6 +977,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "answer": "Slant height = 26 m, Cost = Rs 1,37,280",
     "solutionSteps": ["l = √(10² + 24²) = √(100 + 576) = √676 = 26 m", "CSA = πrl = (22/7)(24)(26) = 1961.14 m²", "Cost = 1961.14 × 70 ≈ Rs 1,37,280"],
     "finalAnswer": "Slant height = 26 m, Cost ≈ Rs 1,37,280",
+    "visualExplainerId": "maths-surface-areas-volumes-surface-area-formulas",
     "isCompetencyBased": true,
     "ncertRef": "Ex 13.1"
   },
@@ -974,6 +996,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "answer": "(i) 3 cm (ii) 7 cm (iii) 39π ≈ 122.5 cm³ (iv) 40.86π ≈ 128.4 cm²",
     "solutionSteps": ["(i) Radius of cone = radius of hemisphere = 3 cm", "(ii) Height of cone = 10 - 3 = 7 cm", "(iii) V = (2/3)π(27) + (1/3)π(9)(7) = 18π + 21π = 39π ≈ 122.5 cm³", "(iv) l = √(9+49) = √58 ≈ 7.62 cm. TSA = πrl + 2πr² = 3π(7.62) + 2π(9) = 22.86π + 18π = 40.86π ≈ 128.4 cm²"],
     "finalAnswer": "(i) 3 cm (ii) 7 cm (iii) 39π ≈ 122.5 cm³ (iv) 40.86π ≈ 128.4 cm²",
+    "visualExplainerId": "maths-surface-areas-volumes-combination-of-solids",
     "isCompetencyBased": true,
     "ncertRef": "Ex 13.1, Ex 13.2"
   },
@@ -1011,6 +1034,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "answer": "1792 bricks",
     "solutionSteps": ["Volume of cistern = 150×120×110 = 1,980,000 cm³", "Empty space = 1,980,000 - 129,600 = 1,850,400 cm³", "Volume of one brick = 22.5×7.5×6.5 = 1096.875 cm³", "Let n = number of bricks. Volume occupied = n×1096.875, water absorbed = n×1096.875/17", "n×1096.875 - n×1096.875/17 = 1,850,400", "n×1096.875×(16/17) = 1,850,400 → n = 1792"],
     "finalAnswer": "1792 bricks",
+    "visualExplainerId": "maths-surface-areas-volumes-surface-area-formulas",
     "isCompetencyBased": true,
     "ncertRef": "Ex 13.2"
   },
@@ -1029,6 +1053,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "answer": "2.5 m",
     "solutionSteps": ["Volume of earth = π(3.5)²(20) = (22/7)(12.25)(20) = 770 m³", "Volume of platform = 22 × 14 × h = 308h", "308h = 770 → h = 2.5 m"],
     "finalAnswer": "2.5 m",
+    "visualExplainerId": "maths-surface-areas-volumes-surface-area-formulas",
     "isCompetencyBased": true,
     "ncertRef": "Ex 13.2"
   },
@@ -1066,6 +1091,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "answer": "36 spheres",
     "solutionSteps": ["V_cylinder = π(64)(6) = 384π cm³", "V_sphere = (4/3)π(8) = 32π/3 cm³", "Number = 384π / (32π/3) = 384×3/32 = 36"],
     "finalAnswer": "36 spheres",
+    "visualExplainerId": "maths-surface-areas-volumes-surface-area-formulas",
     "isCompetencyBased": true,
     "ncertRef": "Ex 13.2"
   },
@@ -1084,6 +1110,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "answer": "r = 2.5 cm",
     "solutionSteps": ["V_original = (4/3)π(27) = 36π cm³", "V1 = (4/3)π(3.375) = 4.5π, V2 = (4/3)π(8) = 32π/3", "V3 = 36π - 4.5π - 32π/3 = 36π - 4.5π - 10.67π = 20.83π... let r³ = V3/(4π/3)", "27 = 3.375 + 8 + r³ → r³ = 15.625 → r = 2.5 cm"],
     "finalAnswer": "r = 2.5 cm",
+    "visualExplainerId": "maths-surface-areas-volumes-conversion-of-solids",
     "isCompetencyBased": true,
     "ncertRef": "Ex 13.2"
   },
@@ -1121,6 +1148,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "answer": "(i) 3 cm (ii) 13 cm (iii) 90π+18π = 108π cm³ (iv) 60π+18π+9π = 87π cm²",
     "solutionSteps": ["(i) Height of hemisphere = radius = 3 cm", "(ii) Total height = 10 + 3 = 13 cm", "(iii) V = πr²h + (2/3)πr³ = π(9)(10) + (2/3)π(27) = 90π + 18π = 108π ≈ 339.4 cm³", "(iv) TSA = 2πrh + 2πr² + πr² = 2π(3)(10) + 3π(9) = 60π + 27π = 87π ≈ 273.3 cm²"],
     "finalAnswer": "(i) 3 cm (ii) 13 cm (iii) 108π cm³ (iv) 87π cm²",
+    "visualExplainerId": "maths-surface-areas-volumes-combination-of-solids",
     "isCompetencyBased": true,
     "ncertRef": "Ex 13.1, Ex 13.2"
   },
@@ -1139,6 +1167,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "answer": "Diameter ≈ 0.067 cm",
     "solutionSteps": ["Volume of rod = π(0.5)²(8) = 2π cm³", "Volume of wire = π(r)²(1800) = 1800πr²", "1800πr² = 2π → r² = 1/900 → r = 1/30 cm", "Diameter = 2/30 = 1/15 cm ≈ 0.067 cm"],
     "finalAnswer": "Diameter = 1/15 cm ≈ 0.067 cm",
+    "visualExplainerId": "maths-surface-areas-volumes-surface-area-formulas",
     "isCompetencyBased": true,
     "ncertRef": "Ex 13.2"
   },
@@ -1176,6 +1205,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "answer": "345.39 g",
     "solutionSteps": ["r = 2.1 cm", "V = (4/3)(22/7)(2.1)³ = (4/3)(22/7)(9.261) = 38.808 cm³", "Mass = 38.808 × 8.9 ≈ 345.4 g"],
     "finalAnswer": "≈ 345.4 g",
+    "visualExplainerId": "maths-surface-areas-volumes-surface-area-formulas",
     "isCompetencyBased": true,
     "ncertRef": "Ex 13.2"
   },

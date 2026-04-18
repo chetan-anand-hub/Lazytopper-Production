@@ -111,6 +111,22 @@ const FILE_CONFIGS = [
   /* ── CHEMISTRY: CARBON COMPOUNDS ────────────────────────────────────────── */
   mkCfg('src/data/questionBanks/class10/science/carbonCompounds.pack1.ts', carbonVid),
   mkCfg('src/data/questionBanks/class10/science/carbonCompounds.pack2.ts', carbonVid),
+
+  /* ── MATHS: SURFACE AREAS & VOLUMES ─────────────────────────────────────── */
+  mkCfg('src/data/questionBanks/class10/maths/surfaceAreasVolumes.pack1.ts', surfaceVid),
+  mkCfg('src/data/questionBanks/class10/maths/surfaceAreasVolumes.pack2.ts', surfaceVid),
+
+  /* ── MATHS: STATISTICS ───────────────────────────────────────────────────── */
+  mkCfg('src/data/questionBanks/class10/maths/statistics.pack1.ts', statisticsVid),
+  mkCfg('src/data/questionBanks/class10/maths/statistics.pack2.ts', statisticsVid),
+
+  /* ── MATHS: POLYNOMIALS ──────────────────────────────────────────────────── */
+  mkCfg('src/data/questionBanks/class10/maths/polynomials.pack1.ts', polynomialsVid),
+  mkCfg('src/data/questionBanks/class10/maths/polynomials.pack2.ts', polynomialsVid),
+
+  /* ── MATHS: PROBABILITY ──────────────────────────────────────────────────── */
+  mkCfg('src/data/questionBanks/class10/maths/probability.pack1.ts', probabilityVid),
+  mkCfg('src/data/questionBanks/class10/maths/probability.pack2.ts', probabilityVid),
 ];
 
 function mkCfg(file, getVisualId) { return { file, getVisualId }; }
@@ -304,6 +320,52 @@ function carbonVid(qt) {
   if (/straight chain|branched chain|\bcyclic\b|\bisomer\b|chain structure/.test(q))
     return 'science-carbon-compounds-carbon-chain-structures';
   return 'science-carbon-compounds-covalent-bonding-in-carbon';
+}
+
+function surfaceVid(qt) {
+  const q = qt.toLowerCase();
+  if (/melt|recast|convert|reshape|recasted|transform|hollow|bore/.test(q))
+    return 'maths-surface-areas-volumes-conversion-of-solids';
+  if (/combination|surmount|mounted|placed on|topped with|attached|joined|combined|embed/.test(q))
+    return 'maths-surface-areas-volumes-combination-of-solids';
+  return 'maths-surface-areas-volumes-surface-area-formulas';
+}
+
+function statisticsVid(qt) {
+  const q = qt.toLowerCase();
+  if (/\bmedian\b/.test(q))
+    return 'maths-statistics-median-of-grouped-data';
+  if (/\bmode\b/.test(q))
+    return 'maths-statistics-mode-of-grouped-data';
+  if (/\bmean\b/.test(q))
+    return 'maths-statistics-mean-of-grouped-data';
+  if (/frequency|distribution|ogive|histogram|cumulative/.test(q))
+    return 'maths-statistics-frequency-distribution-table';
+  return 'maths-statistics-central-tendency-comparison';
+}
+
+function polynomialsVid(qt) {
+  const q = qt.toLowerCase();
+  if (/graph|parabola|geometrically|geometric.*meaning|intersect.*x.axis|number of zero/.test(q))
+    return 'maths-polynomials-graphical-meaning-of-zeroes';
+  if (/sum.*zero|product.*zero|relation.*zero|coefficient.*zero|zero.*coefficient|zero.*sum|zero.*product|relationship/.test(q))
+    return 'maths-polynomials-relationship-between-zeroes-and-coefficients';
+  return 'maths-polynomials-zeroes-of-a-polynomial';
+}
+
+function probabilityVid(qt) {
+  const q = qt.toLowerCase();
+  if (/\bdie\b|\bdice\b|\bcard\b|\bplaying card\b|\bdeck\b/.test(q))
+    return 'maths-probability-dice-and-cards-sample-space';
+  if (/\bcomplementary\b|at least|not.*event|event.*not|p\s*\(\s*\w+['\u2019]\s*\)/.test(q))
+    return 'maths-probability-complementary-events';
+  if (/two.*coins|three.*coins|two.*dice|sample space.*compound|compound.*event/.test(q))
+    return 'maths-probability-sample-space-for-compound-events';
+  if (/experimental|empirical|frequency.*probability|toss.*\d+\s*times|times.*toss/.test(q))
+    return 'maths-probability-experimental-probability';
+  if (/favourable|number of.*outcome|outcome.*number of/.test(q))
+    return 'maths-probability-favourable-outcomes';
+  return 'maths-probability-classical-probability';
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -788,6 +850,78 @@ function getDiagramStep(questionText, visualId) {
       return 'Draw a soap micelle: show the hydrophilic (ionic, negatively charged) heads pointing outward into water, and the long hydrophobic carbon-chain tails pointing inward, enclosing the grease/oil droplet in the centre.';
     return null;
   }
+
+  // ── MATHS: SURFACE AREAS & VOLUMES ───────────────────────────────────────────
+  if (visualId === 'maths-surface-areas-volumes-combination-of-solids') {
+    if (/\bdraw\b|\bdiagram\b|\bsketch\b/i.test(qt))
+      return 'Diagram: Sketch the combined solid showing each component shape (cylinder, cone, hemisphere, etc.) with all given dimensions labelled.';
+    return null;
+  }
+
+  if (visualId === 'maths-surface-areas-volumes-conversion-of-solids') {
+    if (/\bdraw\b|\bdiagram\b/i.test(qt))
+      return 'Diagram: Draw the original solid and the resulting solid side by side. Label all relevant dimensions (radius, height, slant height) for both shapes.';
+    return null;
+  }
+
+  if (visualId === 'maths-surface-areas-volumes-surface-area-formulas') {
+    if (/\bdraw\b|\bdiagram\b|\bsketch\b/i.test(qt))
+      return 'Diagram: Draw the solid and label all given dimensions (radius r, height h, slant height l as applicable).';
+    return null;
+  }
+
+  // ── MATHS: STATISTICS ─────────────────────────────────────────────────────────
+  if (visualId === 'maths-statistics-median-of-grouped-data') {
+    if (/ogive|\bdraw\b|\bgraph\b|\bcumulative\b/i.test(qt))
+      return 'Plot: Draw the less-than ogive by plotting cumulative frequency against the upper class boundary. Mark n/2 on the y-axis and read off the median from the x-axis.';
+    return null;
+  }
+
+  if (visualId === 'maths-statistics-mode-of-grouped-data') {
+    if (/histogram|\bdraw\b|\bgraph\b/i.test(qt))
+      return 'Diagram: Draw a histogram with class intervals on the x-axis and frequency on the y-axis. Identify the modal class as the rectangle with the greatest height.';
+    return null;
+  }
+
+  if (visualId === 'maths-statistics-mean-of-grouped-data') {
+    if (/\bdraw\b|\bgraph\b|\bhistogram\b/i.test(qt))
+      return 'Diagram: Draw a frequency distribution table showing class intervals, frequencies, midpoints (xᵢ), and the products fᵢxᵢ needed to compute the mean.';
+    return null;
+  }
+
+  if (visualId === 'maths-statistics-frequency-distribution-table') {
+    if (/\bdraw\b|\bogive\b|\bhistogram\b|\bgraph\b/i.test(qt))
+      return 'Diagram: Draw the required graph (histogram, frequency polygon, or ogive) with class intervals on the x-axis and frequency / cumulative frequency on the y-axis. Label all axes and class boundaries.';
+    return null;
+  }
+
+  if (visualId === 'maths-statistics-central-tendency-comparison') {
+    if (/\bdraw\b|\bgraph\b/i.test(qt))
+      return 'Diagram: Draw the frequency distribution table and set up columns for all relevant calculations (midpoints, fᵢxᵢ, cumulative frequency) needed to find mean, median, and/or mode.';
+    return null;
+  }
+
+  // ── MATHS: POLYNOMIALS ────────────────────────────────────────────────────────
+  if (visualId === 'maths-polynomials-graphical-meaning-of-zeroes') {
+    if (/\bdraw\b|\bgraph\b|\bsketch\b|\bparabola\b/i.test(qt))
+      return 'Diagram: Draw the parabola y = p(x) on a coordinate plane. Mark the points where the graph crosses (or touches) the x-axis — these are the zeroes of the polynomial.';
+    return null;
+  }
+
+  if (visualId === 'maths-polynomials-relationship-between-zeroes-and-coefficients') {
+    if (/\bdraw\b|\bgraph\b/i.test(qt))
+      return 'Diagram: Sketch the graph of the polynomial to visually locate the zeroes, then verify the sum and product relationships algebraically.';
+    return null;
+  }
+
+  if (visualId === 'maths-polynomials-zeroes-of-a-polynomial') {
+    if (/\bdraw\b|\bgraph\b|\bsketch\b/i.test(qt))
+      return 'Diagram: Sketch the graph of the polynomial. Zeroes are the x-coordinates of the points where the graph intersects or touches the x-axis.';
+    return null;
+  }
+
+  // ── MATHS: PROBABILITY ────────────────────────────────────────────────────────
+  // Probability questions are descriptive/computational — no diagram step needed.
 
   return null; // No diagram step for this visual/question combination
 }

@@ -116,6 +116,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "1/13",
     "explanation": "Total cards = 52. Number of aces = 4. P(ace) = 4/52 = 1/13. Therefore, the correct answer is 1/13.",
+    "visualExplainerId": "maths-probability-dice-and-cards-sample-space",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -170,6 +171,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "P(at least one head) = 3/4"
     ],
     "finalAnswer": "3/4",
+    "visualExplainerId": "maths-probability-complementary-events",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -194,6 +196,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "P(No Rain) = 1 - 0.6 = 0.4"
     ],
     "finalAnswer": "0.4",
+    "visualExplainerId": "maths-probability-classical-probability",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -224,6 +227,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "1/6",
     "explanation": "Total outcomes = 6 × 6 = 36. Outcomes with sum 7 = {(1,6), (2,5), (3,4), (4,3), (5,2), (6,1)} = 6. P(sum = 7) = 6/36 = 1/6. Therefore, the correct answer is 1/6.",
+    "visualExplainerId": "maths-probability-dice-and-cards-sample-space",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -254,6 +258,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "1.5",
     "explanation": "Probability always lies between 0 and 1 (inclusive). 0 ≤ P(E) ≤ 1. 1.5 > 1, so it cannot be a probability. Therefore, the correct answer is 1.5.",
+    "visualExplainerId": "maths-probability-classical-probability",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -278,6 +283,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "P(white) = 0/10 = 0 (Impossible event)"
     ],
     "finalAnswer": "0",
+    "visualExplainerId": "maths-probability-classical-probability",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -302,6 +308,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "P(multiple of 5) = 4/20 = 1/5"
     ],
     "finalAnswer": "1/5",
+    "visualExplainerId": "maths-probability-classical-probability",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -326,6 +333,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "P(Fail) = 1 - 3/4 = 1/4"
     ],
     "finalAnswer": "1/4",
+    "visualExplainerId": "maths-probability-classical-probability",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -355,6 +363,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "P(doublet) = 6/36 = 1/6"
     ],
     "finalAnswer": "1/6",
+    "visualExplainerId": "maths-probability-dice-and-cards-sample-space",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "Delhi",
@@ -380,6 +389,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "P(both white) = (6/10) × (5/9) = 30/90 = 1/3"
     ],
     "finalAnswer": "1/3",
+    "visualExplainerId": "maths-probability-classical-probability",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "All India",
@@ -410,6 +420,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
+    "visualExplainerId": "maths-probability-favourable-outcomes",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -440,6 +451,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "A is true, R is false.",
     "explanation": "The Assertion is a correct statement. However, the Reason given contains an incorrect claim or formula, making R false.",
+    "visualExplainerId": "maths-probability-complementary-events",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -470,6 +482,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
+    "visualExplainerId": "maths-probability-dice-and-cards-sample-space",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -495,6 +508,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "P(not blue) = 7/12"
     ],
     "finalAnswer": "7/12",
+    "visualExplainerId": "maths-probability-classical-probability",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "Delhi",
@@ -522,6 +536,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "= 1 - 8930/9900 ≈ 0.095"
     ],
     "finalAnswer": "(i) ≈ 0.905 (ii) ≈ 0.095",
+    "visualExplainerId": "maths-probability-complementary-events",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "All India",
@@ -549,6 +564,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "P(both boys) = (120/200) × (119/199) = 14280/39800 ≈ 0.358"
     ],
     "finalAnswer": "(i) 3/5 (ii) 2/5 (iii) ≈ 0.358",
+    "visualExplainerId": "maths-probability-classical-probability",
     "isCompetencyBased": true,
     "pyqYear": "2025",
     "pyqSet": "Delhi",
@@ -579,6 +595,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "(iv) P(neither) = 1 - 22/50 = 28/50 = 14/25"
     ],
     "finalAnswer": "(i) 3/10 (ii) 7/50 (iii) 11/25 (iv) 14/25",
+    "visualExplainerId": "maths-probability-classical-probability",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "All India",
@@ -604,6 +621,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "P(not multiple of 10) = 90/100 = 9/10"
     ],
     "finalAnswer": "9/10",
+    "visualExplainerId": "maths-probability-classical-probability",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "Delhi",
@@ -634,6 +652,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "1/2",
     "explanation": "Total cards = 52. Red cards (hearts + diamonds) = 26 + 26 = 26. P(red) = 26/52 = 1/2. Therefore, the correct answer is 1/2.",
+    "visualExplainerId": "maths-probability-dice-and-cards-sample-space",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "All India",
@@ -818,6 +837,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
+    "visualExplainerId": "maths-probability-classical-probability",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -848,6 +868,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "6/36",
     "explanation": "Total outcomes when rolling two dice = 6 × 6 = 36. Favorable outcomes for sum = 7: (1,6), (2,5), (3,4), (4,3), (5,2), (6,1) = 6. P(sum = 7) = 6/36 = 1/6. Therefore, the correct answer is 6/36.",
+    "visualExplainerId": "maths-probability-dice-and-cards-sample-space",
     "isCompetencyBased": true,
     "pyqYear": "2019",
     "pyqSet": "I",
@@ -872,6 +893,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "P(red) = Number of red balls / Total balls = 5/8"
     ],
     "finalAnswer": "5/8",
+    "visualExplainerId": "maths-probability-classical-probability",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -896,6 +918,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "P(not A) = 1 - 2/5 = (5-2)/5 = 3/5"
     ],
     "finalAnswer": "3/5",
+    "visualExplainerId": "maths-probability-complementary-events",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -926,6 +949,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "8/20",
     "explanation": "Total numbers from 1 to 20 = 20. Prime numbers: 2, 3, 5, 7, 11, 13, 17, 19 = 8 primes. P(prime) = 8/20 = 2/5. Therefore, the correct answer is 8/20.",
+    "visualExplainerId": "maths-probability-classical-probability",
     "isCompetencyBased": true,
     "pyqYear": "2020",
     "pyqSet": "II",
@@ -956,6 +980,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Getting a number greater than 100 when rolling a die",
     "explanation": "An impossible event has probability 0. When rolling a standard die, maximum number is 6. Getting a number > 100 is impossible, so P = 0. Therefore, the correct answer is Getting a number greater than 100 when rolling a die.",
+    "visualExplainerId": "maths-probability-classical-probability",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -987,6 +1012,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
+    "visualExplainerId": "maths-probability-complementary-events",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1012,6 +1038,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "P(black) = 3/10"
     ],
     "finalAnswer": "3/10",
+    "visualExplainerId": "maths-probability-classical-probability",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1043,6 +1070,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "2/5",
     "explanation": "Total students = 40. Students who like math = 24. Students who don't like math = 40 - 24 = 16. P(not like math) = 16/40 = 2/5. Therefore, the correct answer is 2/5.",
+    "visualExplainerId": "maths-probability-classical-probability",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "I",
@@ -1067,6 +1095,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "P(vowel) = 5/26"
     ],
     "finalAnswer": "5/26",
+    "visualExplainerId": "maths-probability-classical-probability",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1098,6 +1127,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
+    "visualExplainerId": "maths-probability-classical-probability",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1128,6 +1158,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "(iv) P(winning) + P(losing) = 1/4 + 3/4 = 1 ✓"
     ],
     "finalAnswer": "(i) 1/4, (ii) 3/4, (iii) 1/5 or 4/5, (iv) Sum = 1",
+    "visualExplainerId": "maths-probability-classical-probability",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1160,6 +1191,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "By complementary rule: P(not E) = 1 - P(E) = 1 - 13/20 = 7/20 ✓"
     ],
     "finalAnswer": "(i) 13/20, (ii) 7/20, (iii) Sum = 1, verified ✓",
+    "visualExplainerId": "maths-probability-dice-and-cards-sample-space",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "I",
@@ -1194,6 +1226,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "Probability decreases as favorable cards are removed"
     ],
     "finalAnswer": "(i) 3/13, (ii) 10/13, (iii) 3/23, (iv) Probability changes with card removal",
+    "visualExplainerId": "maths-probability-dice-and-cards-sample-space",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "II",
