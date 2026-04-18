@@ -726,7 +726,6 @@ export default function DailyMissionPage() {
                 </div>
               )}
 
-              {/* AI loading indicator — shown while mentor call is in flight */}
               {!hasMCQ && isQuestionItem && currentAnswer.feedback === null && currentAnswer.correct === null && currentAnswer.studentAnswer !== "(skipped)" && (
                 <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 13, color: "var(--text-muted)", marginBottom: 10 }}>
                   <span style={{
@@ -739,7 +738,6 @@ export default function DailyMissionPage() {
                 </div>
               )}
 
-              {/* Verdict banner — shown when we have a definitive verdict */}
               {currentAnswer.correct !== null && currentAnswer.studentAnswer !== "(read)" && (
                 <div style={{ marginBottom: 8 }}>
                   <div style={{ fontSize: 20, fontWeight: 900, color: currentAnswer.correct ? "#22c55e" : "#ef4444" }}>
@@ -748,14 +746,12 @@ export default function DailyMissionPage() {
                 </div>
               )}
 
-              {/* AI feedback text */}
               {currentAnswer.feedback && currentAnswer.feedback.length > 0 && (
                 <div style={{ fontSize: 14, lineHeight: 1.6, marginBottom: 8 }}>
                   {currentAnswer.feedback}
                 </div>
               )}
 
-              {/* Model answer — always shown for non-MCQ questions after submit (lets student self-assess) */}
               {!hasMCQ && isQuestionItem && currentItem?.payload?.modelAnswer && currentAnswer.studentAnswer !== "(read)" && currentAnswer.studentAnswer !== "(skipped)" && (
                 <div style={{ marginTop: 10, padding: "8px 12px", background: "rgba(34,197,94,0.08)", borderRadius: 8, border: "1px solid rgba(34,197,94,0.15)" }}>
                   <span style={{ fontWeight: 700, fontSize: 11, color: "#22c55e", textTransform: "uppercase", letterSpacing: 0.5 }}>Model Answer</span>
@@ -763,15 +759,13 @@ export default function DailyMissionPage() {
                 </div>
               )}
 
-              {/* MCQ model answer (shown when wrong to reinforce the correct option) */}
-              {hasMCQ && currentAnswer.correct === false && currentItem?.payload?.modelAnswer && (
+              {hasMCQ && currentItem?.payload?.modelAnswer && currentAnswer.studentAnswer !== "(skipped)" && (
                 <div style={{ marginTop: 10, padding: "8px 12px", background: "rgba(34,197,94,0.08)", borderRadius: 8, border: "1px solid rgba(34,197,94,0.15)" }}>
                   <span style={{ fontWeight: 700, fontSize: 11, color: "#22c55e", textTransform: "uppercase", letterSpacing: 0.5 }}>Correct Answer</span>
                   <div style={{ marginTop: 4, fontWeight: 600, fontSize: 14 }}>{String(currentItem.payload.modelAnswer)}</div>
                 </div>
               )}
 
-              {/* Explanation / step-by-step */}
               {currentItem?.payload?.explanation && String(currentItem.payload.explanation).trim() && (
                 <div style={{
                   marginTop: 10, padding: "12px 14px",
@@ -804,7 +798,6 @@ export default function DailyMissionPage() {
                 </div>
               )}
 
-              {/* Self-assess buttons — always shown for non-MCQ questions once AI feedback is ready */}
               {!hasMCQ && isQuestionItem && currentAnswer.correct === null && currentAnswer.feedback !== null && currentAnswer.studentAnswer !== "(skipped)" && (
                 <div style={{ marginTop: 14 }}>
                   <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-muted)", marginBottom: 8 }}>
@@ -845,7 +838,6 @@ export default function DailyMissionPage() {
                 </div>
               )}
 
-              {/* Next button — for non-MCQ question items, only show after verdict is known */}
               {(!isQuestionItem || hasMCQ || currentAnswer.correct !== null) && (
                 <button type="button" onClick={advanceToNext} style={{
                   marginTop: 14, padding: "10px 24px", background: currentSegment?.color || "#3b82f6",
