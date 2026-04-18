@@ -991,7 +991,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
     "questionText": "In pea plants, yellow seed (Y) is dominant over green seed (y). A heterozygous yellow plant (Yy) is crossed with a green plant (yy). Show the cross with Punnett square and determine the phenotypic ratio.",
     "options": undefined,
     "answer": "Yy × yy → 50% yellow (Yy) : 50% green (yy); phenotypic ratio 1:1",
-    "solutionSteps": ["Parents: Yy (yellow) × yy (green)", "Gametes: Yy produces Y and y; yy produces y only", "Punnett square: Yy, Yy, yy, yy... wait — Yy × yy → Yy and yy", "Results: 2 Yy (yellow) : 2 yy (green)", "Phenotypic ratio: 1 yellow : 1 green", "This is a test cross — identifies heterozygous parent"],
+    "solutionSteps": ["Parents: Yy (yellow) × yy (green)", "Gametes: Yy produces Y and y; yy produces only y", "Punnett square: Y row × y column → Yy (yellow); y row × y column → yy (green)", "Results: 2 Yy (yellow) : 2 yy (green)", "Phenotypic ratio: 1 yellow : 1 green", "This cross is called a test cross and is used to identify whether a yellow plant is homozygous or heterozygous"],
     "finalAnswer": "Yy × yy → 1 yellow (Yy) : 1 green (yy) phenotypic ratio",
     "explanation": "The test cross Yy × yy produces 50% yellow and 50% green offspring, a 1:1 ratio.",
     "isCompetencyBased": true,
