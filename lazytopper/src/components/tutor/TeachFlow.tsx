@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { useAuth } from "../../context/AuthContext";
 import {
   loadTopicMasterySnapshot,
   saveTopicMasterySnapshot,
@@ -47,6 +48,7 @@ interface ChatMessage {
 
 interface TeachFlowSessionState {
   topicKey: string;
+  sessionId: string;
   phase: Phase;
   stepCount: number;
   chatMessages: ChatMessage[];
@@ -55,7 +57,7 @@ interface TeachFlowSessionState {
 
 const SESSION_STORAGE_PREFIX = "lazytopper.teachFlow.session.";
 const COMPLETION_STORAGE_PREFIX = "lazytopper.teachFlow.completed.";
-const SESSION_TTL_MS = 30 * 60 * 1000;
+const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 const MAX_TEACH_STEPS = 5;
 
 const VALID_PHASES: ReadonlySet<Phase> = new Set([
@@ -86,25 +88,40 @@ function normalizeTopicKey(topicKey: string): string {
     .replace(/^_+|_+$/g, "") || "topic";
 }
 
-function getSessionKey(topicKey: string): string {
-  return `${SESSION_STORAGE_PREFIX}${normalizeTopicKey(topicKey)}`;
+function normalizeUserId(uid: string): string {
+  return String(uid || "anon")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9_-]+/g, "_")
+    .replace(/^_+|_+$/g, "") || "anon";
+}
+
+function buildSessionId(userId: string, topicKey: string, conceptKey: string): string {
+  const u = normalizeUserId(userId);
+  const t = normalizeTopicKey(topicKey);
+  const c = conceptKey ? normalizeTopicKey(conceptKey) : "";
+  return c ? `${u}__${t}__${c}` : `${u}__${t}`;
+}
+
+function getSessionKey(sessionId: string): string {
+  return `${SESSION_STORAGE_PREFIX}${sessionId}`;
 }
 
 function getCompletionKey(topicKey: string): string {
   return `${COMPLETION_STORAGE_PREFIX}${normalizeTopicKey(topicKey)}`;
 }
 
-function saveSessionState(topicKey: string, state: TeachFlowSessionState): void {
+function saveSessionState(sessionId: string, state: TeachFlowSessionState): void {
   if (typeof window === "undefined") return;
   try {
-    window.localStorage.setItem(getSessionKey(topicKey), JSON.stringify(state));
+    window.localStorage.setItem(getSessionKey(sessionId), JSON.stringify(state));
   } catch { /* ignore quota errors */ }
 }
 
-function loadSessionState(topicKey: string): TeachFlowSessionState | null {
+function loadSessionState(sessionId: string, topicKey: string): TeachFlowSessionState | null {
   if (typeof window === "undefined") return null;
   try {
-    const raw = window.localStorage.getItem(getSessionKey(topicKey));
+    const raw = window.localStorage.getItem(getSessionKey(sessionId));
     if (!raw) return null;
     const parsed = JSON.parse(raw) as Record<string, unknown>;
     if (typeof parsed !== "object" || parsed === null) return null;
@@ -113,7 +130,7 @@ function loadSessionState(topicKey: string): TeachFlowSessionState | null {
     if (storedKey !== normalizedKey) return null;
     const savedAt = Number(parsed.savedAt);
     if (!Number.isFinite(savedAt) || Date.now() - savedAt > SESSION_TTL_MS) {
-      window.localStorage.removeItem(getSessionKey(topicKey));
+      window.localStorage.removeItem(getSessionKey(sessionId));
       return null;
     }
     const rawPhase = String(parsed.phase || "") as Phase;
@@ -127,15 +144,15 @@ function loadSessionState(topicKey: string): TeachFlowSessionState | null {
         )
       : [];
     if (chatMessages.length === 0) return null;
-    return { topicKey: normalizedKey, phase, stepCount, chatMessages, savedAt };
+    return { topicKey: normalizedKey, sessionId, phase, stepCount, chatMessages, savedAt };
   } catch {
     return null;
   }
 }
 
-function clearSessionState(topicKey: string): void {
+function clearSessionState(sessionId: string): void {
   if (typeof window === "undefined") return;
-  try { window.localStorage.removeItem(getSessionKey(topicKey)); } catch { /* */ }
+  try { window.localStorage.removeItem(getSessionKey(sessionId)); } catch { /* */ }
 }
 
 function markTopicCompleted(topicKey: string): void {
@@ -188,9 +205,18 @@ function formatTopicName(topicKey: string): string {
 }
 
 export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, conceptContext }: TeachFlowProps) {
+  const { user } = useAuth();
+  const userId = user?.uid ?? "anon";
   const isConceptMode = Boolean(conceptContext);
+
+  const conceptKey = [conceptContext?.concept, conceptContext?.subtopic, nodeId]
+    .filter(Boolean)
+    .join("_");
+
+  const sessionId = buildSessionId(userId, topicKey, conceptKey);
+
   const wasCompleted = isConceptMode ? false : hasTopicBeenCompleted(topicKey);
-  const savedSession = isConceptMode ? null : loadSessionState(topicKey);
+  const savedSession = loadSessionState(sessionId, topicKey);
   const topicDisplayName = formatTopicName(topicKey);
 
   const visualConcept = useMemo(() => {
@@ -218,6 +244,7 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
   const conceptAutoStartRef = useRef(false);
   const [stepCount, setStepCount] = useState(savedSession?.stepCount ?? 0);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>(savedSession?.chatMessages ?? []);
+  const [isResumedSession, setIsResumedSession] = useState(savedSession !== null);
   const [studentInput, setStudentInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [isSlowRequest, setIsSlowRequest] = useState(false);
@@ -246,16 +273,16 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
   }, [chatMessages, loading]);
 
   const persistSession = useCallback(() => {
-    if (isConceptMode) return;
-    if (phase === "complete" || phase === "previously_completed" || phase === "intro") return;
-    saveSessionState(topicKey, {
+    if (phase === "complete" || phase === "concept_done" || phase === "previously_completed" || phase === "intro") return;
+    saveSessionState(sessionId, {
       topicKey,
+      sessionId,
       phase,
       stepCount,
       chatMessages,
       savedAt: Date.now(),
     });
-  }, [topicKey, phase, stepCount, chatMessages, isConceptMode]);
+  }, [sessionId, topicKey, phase, stepCount, chatMessages]);
 
   useEffect(() => {
     persistSession();
@@ -269,32 +296,41 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
     return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
   }, [persistSession]);
 
-  const prevTopicKeyRef = useRef(topicKey);
+  const prevSessionIdRef = useRef(sessionId);
   useEffect(() => {
-    if (prevTopicKeyRef.current === topicKey) return;
-    prevTopicKeyRef.current = topicKey;
-    const restored = loadSessionState(topicKey);
+    if (prevSessionIdRef.current === sessionId) return;
+    prevSessionIdRef.current = sessionId;
+    const restored = loadSessionState(sessionId, topicKey);
     if (restored) {
       setPhase(restored.phase);
       setStepCount(restored.stepCount);
       setChatMessages(restored.chatMessages);
-    } else if (hasTopicBeenCompleted(topicKey)) {
+      setIsResumedSession(true);
+    } else if (!isConceptMode && hasTopicBeenCompleted(topicKey)) {
       setPhase("previously_completed");
       setStepCount(0);
       setChatMessages([]);
+      setIsResumedSession(false);
     } else {
       setPhase("intro");
       setStepCount(0);
       setChatMessages([]);
+      setIsResumedSession(false);
     }
     setStudentInput("");
     setError(null);
     setLoading(false);
-  }, [topicKey]);
+  }, [sessionId, topicKey, isConceptMode]);
 
   useEffect(() => {
     isInteractiveRef.current = visualConcept?.isInteractive ?? false;
   }, [visualConcept]);
+
+  useEffect(() => {
+    if (!isResumedSession) return;
+    const timer = setTimeout(() => setIsResumedSession(false), 5000);
+    return () => clearTimeout(timer);
+  }, [isResumedSession]);
 
   useEffect(() => {
     if (isConceptMode && phase === "intro" && !conceptAutoStartRef.current) {
@@ -304,9 +340,9 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
   });
 
   function markComplete() {
+    clearSessionState(sessionId);
     if (isConceptMode) return;
     markTopicCompleted(topicKey);
-    clearSessionState(topicKey);
     const snapshot = loadTopicMasterySnapshot(topicKey);
     const effectiveNodeId = nodeId ?? topicKey;
     const updated = upsertNodeProgress(snapshot, effectiveNodeId, {
@@ -572,12 +608,13 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
   }
 
   function reset() {
-    clearSessionState(topicKey);
+    clearSessionState(sessionId);
     setPhase("intro");
     setStepCount(0);
     setChatMessages([]);
     setStudentInput("");
     setError(null);
+    setIsResumedSession(false);
   }
 
   if (phase === "previously_completed") {
@@ -728,6 +765,12 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
         }}>
           {/* Scrollable messages */}
           <div style={s.chatArea}>
+            {isResumedSession && (
+              <div style={s.resumeBanner}>
+                <span style={s.resumeIcon}>↩</span>
+                Resuming your last session&hellip;
+              </div>
+            )}
             {chatMessages.map((msg, idx) => (
               <div key={idx} style={msg.role === "tutor" ? s.tutorBubbleWrap : s.studentBubbleWrap}>
                 {msg.role === "tutor" && <div style={s.tutorAvatar}>RS</div>}
@@ -939,6 +982,14 @@ const s: Record<string, React.CSSProperties> = {
     background: "var(--bg)", padding: "14px 16px",
     flex: 1, overflowY: "auto",
   },
+
+  resumeBanner: {
+    display: "flex", alignItems: "center", gap: 6, padding: "7px 12px",
+    background: "rgba(88,204,2,0.08)", border: "1px solid rgba(88,204,2,0.3)",
+    borderRadius: 8, marginBottom: 12, fontSize: 13, color: "var(--text-muted)",
+    fontStyle: "italic",
+  },
+  resumeIcon: { fontSize: 14, flexShrink: 0 },
 
   tutorBubbleWrap: { display: "flex", alignItems: "flex-start", gap: 8, marginBottom: 14 },
   studentBubbleWrap: { display: "flex", justifyContent: "flex-end", marginBottom: 14 },
