@@ -1,6 +1,15 @@
-import registry from "./cbse10Registry_2025_26.json";
+import registry2025_26 from "./cbse10Registry_2025_26.json";
+import registry2026_27 from "./cbse10Registry_2026_27.json";
 import { canonicalChapters } from "./cbse10Canonical";
 import { resolveCanonicalTopicKey } from "./topicAliasMap";
+
+function resolveTargetYear(): number {
+  const env = Number((import.meta as { env?: Record<string, string> }).env?.VITE_PREDICTION_TARGET_YEAR || "");
+  if (Number.isFinite(env) && env >= 2018) return env;
+  return new Date().getFullYear();
+}
+
+const registry = resolveTargetYear() >= 2026 ? registry2026_27 : registry2025_26;
 
 type ScopeMode = "assessed" | "enrichment";
 
