@@ -772,32 +772,60 @@ const packTopicKey = useMemo(() => {
           const missionSubject = subjectKey as "Maths" | "Science";
           const resumeInfo = getMissionResumeInfo(missionSubject);
           const doneToday = isMissionCompletedToday(missionSubject);
-          if (doneToday && !resumeInfo) return null;
+          const showMission = !doneToday || !!resumeInfo;
           const isResume = !!resumeInfo;
-          const label = isResume
+          const missionLabel = isResume
             ? `Resume Today's Mission — ${resumeInfo.completedSegments}/${resumeInfo.totalSegments} segments done`
             : "Start Today's Mission — 4 segments, ~30 min";
-          const bg = isResume
+          const missionBg = isResume
             ? "linear-gradient(90deg, #f59e0b 0%, #ef4444 100%)"
             : "linear-gradient(90deg, #6366f1 0%, #22c55e 100%)";
           return (
-            <button
-              onClick={() => navigate(`/daily-mission/${grade}/${subjectKey}`, { state: { back: `/practice/${grade}/${subjectKey}`, backLabel: "Back to Practice" } })}
-              style={{
-                display: "flex", alignItems: "center", justifyContent: "space-between",
-                width: "100%", padding: "12px 16px", borderRadius: 12, border: "none",
-                background: bg, color: "#fff", fontSize: 13, fontWeight: 600,
-                cursor: "pointer", marginBottom: 14, gap: 8,
-                boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
-                fontFamily: "'Inter', sans-serif",
-              }}
-            >
-              <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ fontSize: 18 }}>{isResume ? "▶️" : "🎯"}</span>
-                {label}
-              </span>
-              <span style={{ opacity: 0.85, fontSize: 16 }}>→</span>
-            </button>
+            <div style={{ marginBottom: 14 }}>
+              {showMission && (
+                <button
+                  onClick={() => navigate(`/daily-mission/${grade}/${subjectKey}`, { state: { back: `/practice/${grade}/${subjectKey}`, backLabel: "Back to Practice" } })}
+                  style={{
+                    display: "flex", alignItems: "center", justifyContent: "space-between",
+                    width: "100%", padding: "12px 16px", borderRadius: 12, border: "none",
+                    background: missionBg, color: "#fff", fontSize: 13, fontWeight: 600,
+                    cursor: "pointer", marginBottom: 10, gap: 8,
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
+                    fontFamily: "'Inter', sans-serif",
+                  }}
+                >
+                  <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ fontSize: 18 }}>{isResume ? "▶️" : "🎯"}</span>
+                    {missionLabel}
+                  </span>
+                  <span style={{ opacity: 0.85, fontSize: 16 }}>→</span>
+                </button>
+              )}
+              <div style={{ display: "flex", gap: 8 }}>
+                {[
+                  { icon: "✏️", label: "Quick Practice", sub: "Topic questions", href: null as string | null },
+                  { icon: "📝", label: "Mock Test", sub: "Full exam paper", href: `/exam-simulation/${grade}/${subjectKey}` },
+                  { icon: "🔮", label: "Predicted Q's", sub: "HPQ for board", href: `/highly-probable/${grade}/${subjectKey}` },
+                ].map(({ icon, label, sub, href }) => (
+                  <button
+                    key={label}
+                    onClick={() => { if (href) navigate(href, { state: { back: `/practice/${grade}/${subjectKey}`, backLabel: "Back to Practice" } }); else document.querySelector<HTMLElement>(".practice-controls-root")?.scrollIntoView({ behavior: "smooth" }); }}
+                    style={{
+                      flex: 1, display: "flex", flexDirection: "column", alignItems: "center",
+                      gap: 3, padding: "10px 6px", borderRadius: 10,
+                      border: "1.5px solid rgba(255,255,255,0.1)",
+                      background: "rgba(255,255,255,0.05)", color: "var(--text)",
+                      fontSize: 11, fontWeight: 600, cursor: "pointer",
+                      fontFamily: "'Inter', sans-serif", textAlign: "center",
+                    }}
+                  >
+                    <span style={{ fontSize: 20 }}>{icon}</span>
+                    <span>{label}</span>
+                    <span style={{ fontSize: 10, opacity: 0.6, fontWeight: 400 }}>{sub}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
           );
         })()}
 
