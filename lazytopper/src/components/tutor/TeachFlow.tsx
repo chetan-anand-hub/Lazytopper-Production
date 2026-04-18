@@ -247,6 +247,7 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
   const [isResumedSession, setIsResumedSession] = useState(savedSession !== null);
   const [studentInput, setStudentInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [streamingText, setStreamingText] = useState<string | null>(null);
   const [isSlowRequest, setIsSlowRequest] = useState(false);
   const slowTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -270,7 +271,7 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [chatMessages, loading]);
+  }, [chatMessages, loading, streamingText]);
 
   const persistSession = useCallback(() => {
     if (phase === "complete" || phase === "concept_done" || phase === "previously_completed" || phase === "intro") return;
@@ -382,6 +383,73 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
     }
   }
 
+  async function callMentorStream(
+    body: Record<string, unknown>,
+    onToken: (accumulatedText: string) => void,
+  ): Promise<{ responseText: string; visual: Record<string, unknown> | null }> {
+    if (abortRef.current) abortRef.current.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+    const timeoutId = setTimeout(() => controller.abort(), 90000);
+    try {
+      const res = await fetch("/api/mentor/stream", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode: body.mode, messages: body.messages, payload: body }),
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+      if (!res.ok || !res.body) {
+        const raw = await res.text().catch(() => "");
+        let errPayload: Record<string, unknown> = {};
+        try { errPayload = raw ? JSON.parse(raw) as Record<string, unknown> : {}; } catch { errPayload = { error: raw }; }
+        throw new Error((errPayload?.error as string) || `Stream error ${res.status}`);
+      }
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let fullText = "";
+      let visual: Record<string, unknown> | null = null;
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() ?? "";
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed.startsWith("data: ")) continue;
+            const jsonStr = trimmed.slice(6);
+            try {
+              const event = JSON.parse(jsonStr) as Record<string, unknown>;
+              if (typeof event.token === "string") {
+                fullText += event.token;
+                onToken(fullText);
+              } else if (event.done) {
+                if (typeof event.responseText === "string") fullText = event.responseText;
+                if (event.visual && typeof event.visual === "object") {
+                  visual = event.visual as Record<string, unknown>;
+                }
+              } else if (typeof event.error === "string") {
+                throw new Error(event.error);
+              }
+            } catch (parseErr) {
+              if (parseErr instanceof Error && parseErr.message !== jsonStr) throw parseErr;
+            }
+          }
+        }
+      } finally {
+        try { reader.releaseLock(); } catch { /* ignore */ }
+      }
+      return { responseText: fullText, visual };
+    } catch (err: unknown) {
+      clearTimeout(timeoutId);
+      if (err instanceof Error && err.name === "AbortError") throw new Error("Took too long — tap to retry.");
+      throw err;
+    }
+  }
+
   function buildConversationMessages(): { role: string; content: string }[] {
     return chatMessages.map((m) => ({
       role: m.role === "tutor" ? "assistant" : "user",
@@ -391,66 +459,70 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
 
   async function startLearning() {
     setLoading(true);
+    setStreamingText("");
     setError(null);
     setPhase("teaching");
+    const mentorBody = {
+      mode: conceptContext ? "concept_teach" : "learn_teach",
+      section: "learn",
+      subSection: conceptContext ? "concept_teach" : "teach",
+      selectedTab: "teach",
+      topic: topicKey,
+      subject,
+      grade,
+      nodeId: nodeId ?? `${topicKey}-step-1`,
+      messages: [],
+      conversational: true,
+      stepIndex: 0,
+      isInteractive: isInteractiveRef.current,
+      ...(visualConcept ? { visualTitle: visualConcept.title } : {}),
+      ...(conceptContext ? {
+        conceptContext: {
+          questionText: conceptContext.questionText,
+          marks: conceptContext.marks,
+          subtopic: conceptContext.subtopic,
+          concept: conceptContext.concept,
+        },
+      } : {}),
+    };
     try {
-      const payload = await callMentor({
-        mode: conceptContext ? "concept_teach" : "learn_teach",
-        section: "learn",
-        subSection: conceptContext ? "concept_teach" : "teach",
-        selectedTab: "teach",
-        topic: topicKey,
-        subject,
-        grade,
-        nodeId: nodeId ?? `${topicKey}-step-1`,
-        messages: [],
-        conversational: true,
-        stepIndex: 0,
-        isInteractive: isInteractiveRef.current,
-        ...(visualConcept ? { visualTitle: visualConcept.title } : {}),
-        ...(conceptContext ? {
-          conceptContext: {
-            questionText: conceptContext.questionText,
-            marks: conceptContext.marks,
-            subtopic: conceptContext.subtopic,
-            concept: conceptContext.concept,
-          },
-        } : {}),
-      });
-
-      let tutorText = extractTutorText(payload);
+      let tutorText = "";
+      let serverVisualRaw: Record<string, unknown> | null = null;
+      try {
+        const streamResult = await callMentorStream(mentorBody, (text) => {
+          setStreamingText(text);
+        });
+        tutorText = streamResult.responseText;
+        serverVisualRaw = streamResult.visual;
+      } catch {
+        const fallbackPayload = await callMentor(mentorBody);
+        tutorText = extractTutorText(fallbackPayload) || "";
+        const svContainer = (fallbackPayload as Record<string, unknown>).data as Record<string, unknown> | undefined;
+        serverVisualRaw = svContainer?.visual as Record<string, unknown> | null ?? null;
+      }
 
       if (!tutorText) {
         tutorText = `Hey there! \u{1F44B} I'm Ravi Sir, and I'm excited to explore **${topicDisplayName}** with you today!\n\nLet me start with something you already know. Think about when you share a pizza equally among friends \u2014 that's actually math in action!\n\nReady to dive in? Tell me \u2014 what do you already know about ${topicDisplayName}?`;
       }
 
-      // Apply server-returned visual if the client didn't resolve one locally.
-      // The server looks up the pre-built visual from the persistent file store
-      // (public/visuals/) by canonical topic key — this guarantees the correct
-      // visual appears even when the client's registry lookup misses.
-      const serverVisual = (payload as Record<string, unknown>).data as Record<string, unknown> | undefined;
-      const svRaw = serverVisual?.visual as { filePath: string; title: string; chapter: string; subject: string } | null | undefined;
+      const svRaw = serverVisualRaw as { filePath?: string; title?: string; chapter?: string; subject?: string } | null;
       if (svRaw?.filePath && svRaw.title && !activeVisual) {
         setActiveVisual({
           id: `${svRaw.subject}-${svRaw.chapter}-${svRaw.title}`,
           title: svRaw.title,
-          chapter: svRaw.chapter,
-          subject: svRaw.subject as "maths" | "science",
+          chapter: svRaw.chapter ?? "",
+          subject: (svRaw.subject as "maths" | "science") ?? "maths",
           filePath: svRaw.filePath,
           keywords: [],
           isInteractive: true,
         });
       }
 
-      let structuredData = extractStructuredSection(payload);
-
+      let structuredData = null;
       const { cleanText: cleanedStart, stepsData: startSteps } = extractStepsBlock(tutorText);
       if (startSteps) {
         tutorText = cleanedStart;
-        const startStructured = stepsDataToStructured(startSteps);
-        structuredData = structuredData
-          ? { ...structuredData, workedExamples: [...(structuredData.workedExamples || []), ...(startStructured.workedExamples || [])] }
-          : startStructured;
+        structuredData = stepsDataToStructured(startSteps);
       }
 
       const { cleanText: tutorTextFinal, keywords: startHighlights } = parseAndStripHighlights(tutorText);
@@ -473,6 +545,7 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
       setPhase("intro");
     } finally {
       setLoading(false);
+      setStreamingText(null);
     }
   }
 
@@ -481,6 +554,7 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
     if (!text) return;
     lastSentMessageRef.current = text;
     setLoading(true);
+    setStreamingText("");
     setIsSlowRequest(false);
     if (slowTimerRef.current) clearTimeout(slowTimerRef.current);
     slowTimerRef.current = setTimeout(() => setIsSlowRequest(true), 10_000);
@@ -512,7 +586,7 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
       const isNearEnd = nextStep >= MAX_TEACH_STEPS;
 
       const currentVisual = resolvedVisualForRequest;
-      const payload = await callMentor({
+      const mentorBody = {
         mode: conceptContext ? "concept_teach" : "learn_teach",
         section: "learn",
         subSection: conceptContext ? "concept_teach" : "teach",
@@ -530,17 +604,26 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
         ...(currentVisual ? { visualTitle: currentVisual.title } : {}),
         ...(isGraphRequest ? { graphRequest: true } : {}),
         ...(conceptContext ? { conceptContext } : {}),
-      });
+      };
 
-      let tutorText = extractTutorText(payload);
+      let tutorText = "";
+      let responseStructured = null;
+      try {
+        const streamResult = await callMentorStream(mentorBody, (t) => {
+          setStreamingText(t);
+        });
+        tutorText = streamResult.responseText;
+      } catch {
+        const fallbackPayload = await callMentor(mentorBody);
+        tutorText = extractTutorText(fallbackPayload) || "";
+        responseStructured = extractStructuredSection(fallbackPayload);
+      }
 
       if (!tutorText) {
         tutorText = nextStep < MAX_TEACH_STEPS
           ? "Great thinking! Let me build on that with the next idea..."
           : "Brilliant work today! You've covered the core concepts of this topic. Keep practicing and you'll ace this in the board exam! \u{1F4AA}";
       }
-
-      let responseStructured = extractStructuredSection(payload);
 
       const { cleanText, stepsData } = extractStepsBlock(tutorText);
       if (stepsData) {
@@ -590,6 +673,7 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
       setPhase("awaiting_answer");
     } finally {
       setLoading(false);
+      setStreamingText(null);
       setIsSlowRequest(false);
       if (slowTimerRef.current) { clearTimeout(slowTimerRef.current); slowTimerRef.current = null; }
       setTimeout(() => inputRef.current?.focus(), 100);
@@ -785,7 +869,16 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
               </div>
             ))}
 
-            {loading && (
+            {loading && streamingText !== null && streamingText.length > 0 && (
+              <div style={s.tutorBubbleWrap}>
+                <div style={s.tutorAvatar}>RS</div>
+                <div style={{ ...s.tutorBubble, position: "relative" }}>
+                  <TutorMessageRenderer content={streamingText} isCheckpoint={false} structured={null} />
+                  <span style={s.streamingCursor} aria-hidden="true" />
+                </div>
+              </div>
+            )}
+            {loading && (streamingText === null || streamingText.length === 0) && (
               <div style={s.tutorBubbleWrap}>
                 <div style={s.tutorAvatar}>RS</div>
                 <div style={s.typingBubble}>
@@ -1035,6 +1128,11 @@ const s: Record<string, React.CSSProperties> = {
   },
   typingLabel: {
     fontSize: 12, color: "var(--text-muted)", marginLeft: 8, fontStyle: "italic",
+  },
+  streamingCursor: {
+    display: "inline-block", width: 2, height: "1em", background: "#58cc02",
+    verticalAlign: "middle", marginLeft: 2,
+    animation: "blink 1s step-end infinite",
   },
 
   quickActionsWrap: {

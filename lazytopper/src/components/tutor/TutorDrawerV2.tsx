@@ -292,6 +292,7 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
   const [doubtInput, setDoubtInput] = useState("");
   const [doubtError, setDoubtError] = useState<string | null>(null);
   const [doubtLoading, setDoubtLoading] = useState(false);
+  const [doubtStreamingText, setDoubtStreamingText] = useState<string | null>(null);
   const [chatTurns, setChatTurns] = useState<TutorChatTurn[]>([]);
   const [showLessonPack, setShowLessonPack] = useState(true);
   const [feedbackChoice, setFeedbackChoice] = useState<"yes" | "no" | null>(null);
@@ -903,6 +904,7 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
       setShowLessonPack(false);
       setChatTurns((prev) => [...prev, { role: "user", text: promptTrimmed }]);
       setDoubtLoading(true);
+      setDoubtStreamingText("");
 
       const last = currentResponse || {};
       const doubtContext = {
@@ -920,9 +922,98 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
         lastResponseSummary: last.summary,
       };
 
+      const body = buildPayload(tab, doubtContext, promptTrimmed, false, undefined);
+
+      const streamBody = {
+        mode: "learn_teach",
+        messages: [{ role: "user", content: promptTrimmed }],
+        payload: {
+          ...body.payload,
+          conversational: true,
+          questionText: promptTrimmed,
+        },
+      };
+
+      let streamedText = "";
+      let streamingSucceeded = false;
       try {
-        const mentorPrompt = promptTrimmed;
-        const body = buildPayload(tab, doubtContext, mentorPrompt, false, undefined);
+        const abortController = new AbortController();
+        const timeoutId = setTimeout(() => abortController.abort(), 90_000);
+        const streamRes = await fetch("/api/mentor/stream", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(streamBody),
+          signal: abortController.signal,
+        }).finally(() => clearTimeout(timeoutId));
+
+        if (streamRes.ok && streamRes.body) {
+          const reader = streamRes.body.getReader();
+          const decoder = new TextDecoder();
+          let buffer = "";
+          try {
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              buffer += decoder.decode(value, { stream: true });
+              const lines = buffer.split("\n");
+              buffer = lines.pop() ?? "";
+              for (const line of lines) {
+                const trimmed = line.trim();
+                if (!trimmed.startsWith("data: ")) continue;
+                const jsonStr = trimmed.slice(6);
+                try {
+                  const event = JSON.parse(jsonStr) as Record<string, unknown>;
+                  if (typeof event.token === "string") {
+                    streamedText += event.token;
+                    setDoubtStreamingText(streamedText);
+                  } else if (event.done && typeof event.responseText === "string") {
+                    streamedText = event.responseText;
+                    setDoubtStreamingText(streamedText);
+                  } else if (typeof event.error === "string") {
+                    throw new Error(event.error);
+                  }
+                } catch (parseErr) {
+                  if (parseErr instanceof Error && parseErr.message !== jsonStr) throw parseErr;
+                }
+              }
+            }
+            streamingSucceeded = streamedText.trim().length > 0;
+          } finally {
+            try { reader.releaseLock(); } catch { /* ignore */ }
+          }
+        }
+      } catch {
+        streamedText = "";
+        streamingSucceeded = false;
+      }
+
+      if (streamingSucceeded) {
+        setChatTurns((prev) => [...prev, { role: "assistant", text: streamedText.trim() }]);
+        setDoubtInput("");
+        setDoubtStreamingText(null);
+        setDoubtLoading(false);
+        requestWithRecovery(body).then((result) => {
+          const structured = result.structured;
+          if (structured && currentKey) {
+            const meta = extractDiagramMeta(structured);
+            setResponses((prev) => ({
+              ...prev,
+              [currentKey]: {
+                ...(prev[currentKey] || {}),
+                structured,
+                diagramType: meta.diagramType,
+                diagramLabels: meta.diagramLabels as Record<string, string> | string[] | null,
+                diagramSpec: meta.diagramSpec as MentorDiagramSpec | null,
+                responseId: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+                summary: JSON.stringify(structured).slice(0, 280),
+              },
+            }));
+          }
+        }).catch(() => { /* lesson panel update failed non-fatally */ });
+        return;
+      }
+
+      try {
         const result = await requestWithRecovery(body);
         const structured = result.structured;
         if (structured && currentKey) {
@@ -952,6 +1043,7 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
       } catch (err) {
         setDoubtError(toTutorErrorMessage(err, "Mentor error. Please retry."));
       } finally {
+        setDoubtStreamingText(null);
         setDoubtLoading(false);
       }
     },
@@ -975,6 +1067,7 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
       cancelInFlight();
       setDoubtInput("");
       setDoubtError(null);
+      setDoubtStreamingText(null);
       setChatTurns([]);
       setShowMoreActions(false);
       return;
@@ -1432,10 +1525,11 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
       text: turn.text,
       tone: "neutral" as const,
     }));
+    const streamingDisplay = doubtStreamingText !== null && doubtStreamingText.length > 0 ? doubtStreamingText : null;
     const allMessages = [
       ...chatMessages,
       ...(doubtLoading
-        ? [{ id: "pending", role: "assistant" as const, title: "Tutor", text: "Thinking...", tone: "neutral" as const }]
+        ? [{ id: "pending", role: "assistant" as const, title: "Tutor", text: streamingDisplay ?? "Thinking...", tone: "neutral" as const, streaming: streamingDisplay !== null }]
         : []),
     ];
     const bubbleStyle = (role: "assistant" | "user", tone?: "neutral" | "warn") => ({
@@ -1632,9 +1726,12 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
                         justifyContent: msg.role === "user" ? "flex-end" : "flex-start",
                       }}
                     >
-                      <div style={bubbleStyle(msg.role, msg.tone)}>
+                      <div style={{ ...bubbleStyle(msg.role, msg.tone), position: "relative" }}>
                         <div style={{ fontSize: 12, fontWeight: 800, marginBottom: 4, opacity: 0.8 }}>{msg.title}</div>
                         <TutorMessageRenderer content={cleanDisplayText(msg.text)} />
+                        {"streaming" in msg && msg.streaming && (
+                          <span style={{ display: "inline-block", width: 2, height: "1em", background: "#58cc02", verticalAlign: "middle", marginLeft: 2, animation: "blink 1s step-end infinite" }} aria-hidden="true" />
+                        )}
                       </div>
                     </div>
                   ))}

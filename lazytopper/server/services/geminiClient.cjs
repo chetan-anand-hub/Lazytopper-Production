@@ -154,7 +154,130 @@ function createGeminiClient(cfg) {
     return { text, raw: data };
   }
 
-  return { callGemini };
+  async function* callGeminiStream(model, finalContents, config) {
+    if (!GEMINI_API_KEY) {
+      throw new Error('No Gemini auth available for streaming.');
+    }
+
+    const body = {
+      contents: finalContents,
+      generationConfig: {
+        temperature: config && typeof config.temperature === 'number' ? config.temperature : 0.7,
+        maxOutputTokens: config && typeof config.maxOutputTokens === 'number' ? config.maxOutputTokens : 4096,
+      },
+    };
+
+    const proxyStreamUrl = HAS_REPLIT_PROXY
+      ? `${REPLIT_GEMINI_BASE_URL}/models/${encodeURIComponent(model)}:streamGenerateContent?alt=sse`
+      : null;
+    const directStreamUrl = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:streamGenerateContent?alt=sse`;
+
+    const streamUrl = proxyStreamUrl || directStreamUrl;
+    const streamKey = HAS_REPLIT_PROXY ? REPLIT_GEMINI_API_KEY : GEMINI_API_KEY;
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), GEMINI_TIMEOUT_MS);
+
+    let response;
+    try {
+      response = await fetch(streamUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': streamKey },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
+    } catch (err) {
+      clearTimeout(timeoutId);
+      if (err && err.name === 'AbortError') {
+        const e = new Error(`Gemini stream timed out after ${GEMINI_TIMEOUT_MS}ms`);
+        e.status = 504;
+        throw e;
+      }
+      throw err;
+    }
+
+    if (!response.ok) {
+      clearTimeout(timeoutId);
+      const errText = await response.text().catch(() => '');
+      if (HAS_REPLIT_PROXY && DIRECT_GEMINI_API_KEY && proxyStreamUrl) {
+        console.warn(`[callGeminiStream] Proxy failed (${response.status}), falling back to direct`);
+        const directController = new AbortController();
+        const directTimeoutId = setTimeout(() => directController.abort(), GEMINI_TIMEOUT_MS);
+        let directResp;
+        try {
+          directResp = await fetch(directStreamUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-goog-api-key': DIRECT_GEMINI_API_KEY },
+            body: JSON.stringify(body),
+            signal: directController.signal,
+          });
+        } catch (fallbackErr) {
+          clearTimeout(directTimeoutId);
+          throw fallbackErr;
+        }
+        if (!directResp.ok) {
+          clearTimeout(directTimeoutId);
+          const fallbackErrText = await directResp.text().catch(() => '');
+          const e = new Error(`Gemini stream failed: ${directResp.status} - ${fallbackErrText}`);
+          e.status = directResp.status;
+          throw e;
+        }
+        yield* _drainGeminiSSE(directResp.body, directController, directTimeoutId);
+        return;
+      }
+      const e = new Error(`Gemini stream failed: ${response.status} - ${errText}`);
+      e.status = response.status;
+      throw e;
+    }
+
+    yield* _drainGeminiSSE(response.body, controller, timeoutId);
+  }
+
+  async function* _drainGeminiSSE(body, controller, timeoutId) {
+    const decoder = new TextDecoder();
+    const reader = body.getReader();
+    let buffer = '';
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop();
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed || trimmed.startsWith(':')) continue;
+          if (trimmed.startsWith('data: ')) {
+            const jsonStr = trimmed.slice(6).trim();
+            if (jsonStr === '[DONE]') return;
+            try {
+              const parsed = JSON.parse(jsonStr);
+              const parts =
+                parsed &&
+                parsed.candidates &&
+                parsed.candidates[0] &&
+                parsed.candidates[0].content &&
+                Array.isArray(parsed.candidates[0].content.parts)
+                  ? parsed.candidates[0].content.parts
+                  : [];
+              for (const part of parts) {
+                if (part && part.text) {
+                  yield String(part.text);
+                }
+              }
+            } catch {
+              /* skip malformed chunks */
+            }
+          }
+        }
+      }
+    } finally {
+      clearTimeout(timeoutId);
+      try { reader.releaseLock(); } catch { /* ignore */ }
+    }
+  }
+
+  return { callGemini, callGeminiStream };
 }
 
 module.exports = { createGeminiClient };

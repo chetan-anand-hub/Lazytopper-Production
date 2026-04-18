@@ -130,6 +130,9 @@ const claudeClientModule = createClaudeClient({
 function callGemini(model, finalContents, cfg) {
   return geminiClientModule.callGemini(model, finalContents, cfg);
 }
+function callGeminiStream(model, finalContents, cfg) {
+  return geminiClientModule.callGeminiStream(model, finalContents, cfg);
+}
 function callClaude(model, messages, systemPrompt, cfg) {
   return claudeClientModule.callClaude(model, messages, systemPrompt, cfg);
 }
@@ -164,8 +167,9 @@ const tutorCache = createTutorCache({
 const mentorRoute = createMentorRoute({
   sendJson, sendJsonWithHeaders, readJson, extractJsonObjectFromText,
   tutorCache,
-  callGemini, callClaude, toClaudeMessages, selectModelForRequest,
+  callGemini, callGeminiStream, callClaude, toClaudeMessages, selectModelForRequest,
   telemetry,
+  CORS_ORIGIN: config.CORS_ORIGIN,
   GEMINI_MODEL: config.GEMINI_MODEL,
   GEMINI_TUTOR_MODEL: config.GEMINI_TUTOR_MODEL,
   CLAUDE_MODEL_SONNET: config.CLAUDE_MODEL_SONNET,
@@ -227,6 +231,7 @@ async function handleRequest(req, res) {
     (
       reqPath === '/api/mentor' ||
       reqPath === '/api/mentor/cache-stats' ||
+      reqPath === '/api/mentor/stream' ||
       reqPath === '/api/more-like-this' ||
       reqPath === '/api/step-solution' ||
       reqPath === '/api/check-solution' ||
@@ -364,6 +369,9 @@ async function handleRequest(req, res) {
 
   if (req.method === 'POST' && req.url === '/api/mentor') {
     return mentorRoute.handleMentorRequest(req, res);
+  }
+  if (req.method === 'POST' && req.url === '/api/mentor/stream') {
+    return mentorRoute.handleMentorStreamRequest(req, res);
   }
   if (req.method === 'POST' && req.url === '/api/more-like-this') {
     return questionRoutes.handleMoreLikeThis(req, res);

@@ -11,11 +11,12 @@ function createMentorRoute(deps) {
   const {
     sendJson, sendJsonWithHeaders, readJson, extractJsonObjectFromText,
     tutorCache,
-    callGemini, callClaude, toClaudeMessages, selectModelForRequest,
+    callGemini, callGeminiStream, callClaude, toClaudeMessages, selectModelForRequest,
     telemetry,
     GEMINI_MODEL, GEMINI_TUTOR_MODEL, CLAUDE_MODEL_SONNET, CLAUDE_MODEL_HAIKU,
     ACTIVE_PROVIDER, STUB_MODE, HAS_ANTHROPIC_PROXY, IS_DEV,
     TEACH_CACHE_TTL_MS, MAX_HISTORY_TURNS,
+    CORS_ORIGIN,
     tryParseJsonStrict,
     loadTrianglesMentorSeed, normalizeLines, mergeLines,
     validateTutorStructured, buildTutorFallback, validateAttemptLoop,
@@ -411,7 +412,104 @@ function createMentorRoute(deps) {
     }
   }
 
-  return { handleMentorRequest, buildMoreLikeThisUserPrompt, ensureDiagramFields };
+  async function handleMentorStreamRequest(req, res) {
+    let reqJson;
+    try { reqJson = await readJson(req); } catch {
+      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': CORS_ORIGIN });
+      return res.end(JSON.stringify({ error: 'Invalid JSON' }));
+    }
+
+    const { mode, persona, payload } = normalizeMentorRequest(reqJson);
+    const flags = modeHandler.classifyRequest(reqJson, payload, mode);
+    const { isConversationalTeach, imageError } = flags;
+
+    if (imageError) {
+      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': CORS_ORIGIN });
+      return res.end(JSON.stringify({ error: `Invalid image: ${imageError}` }));
+    }
+
+    if (!isConversationalTeach) {
+      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': CORS_ORIGIN });
+      return res.end(JSON.stringify({ error: 'Streaming is only supported for conversational mode. Use /api/mentor for structured modes.' }));
+    }
+
+    const stubMode = isStubMode();
+    if (stubMode || !callGeminiStream) {
+      res.writeHead(503, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': CORS_ORIGIN });
+      return res.end(JSON.stringify({ error: 'Streaming not available in stub mode.' }));
+    }
+
+    if (!mode) {
+      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': CORS_ORIGIN });
+      return res.end(JSON.stringify({ error: 'Missing "mode" in request body' }));
+    }
+
+    const normalisedMode = modeHandler.resolveNormalisedMode(mode, flags);
+    const { systemPrompt } = modeHandler.buildSystemPrompt(normalisedMode, persona, flags, payload);
+
+    let userPrompt;
+    try {
+      userPrompt = modeHandler.buildUserPrompt(normalisedMode, payload, flags, reqJson);
+      if (userPrompt === null) {
+        res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': CORS_ORIGIN });
+        return res.end(JSON.stringify({ error: `Unsupported mode: ${mode}` }));
+      }
+    } catch (e) {
+      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': CORS_ORIGIN });
+      return res.end(JSON.stringify({ error: 'Invalid payload' }));
+    }
+
+    const history = toGeminiContents(reqJson && reqJson.messages);
+    const contents = [
+      { role: 'user', parts: [{ text: String(systemPrompt || '').trim() }] },
+      { role: 'model', parts: [{ text: 'Understood. I will teach as Ravi Sir using the Socratic method with examples and questions.' }] },
+      ...history,
+      { role: 'user', parts: [{ text: String(userPrompt || '').trim() }] },
+    ].filter((c) => c && c.parts && c.parts[0] && String(c.parts[0].text || '').trim());
+
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+      'Access-Control-Allow-Origin': CORS_ORIGIN,
+      'X-Accel-Buffering': 'no',
+    });
+
+    const sendEvent = (data) => {
+      try {
+        res.write(`data: ${JSON.stringify(data)}\n\n`);
+      } catch { /* ignore write errors on closed connection */ }
+    };
+
+    let fullText = '';
+    try {
+      const tokenStream = callGeminiStream(GEMINI_TUTOR_MODEL, contents, {
+        maxOutputTokens: 4096,
+        temperature: 0.7,
+      });
+      for await (const token of tokenStream) {
+        if (res.writableEnded) break;
+        fullText += token;
+        sendEvent({ token });
+      }
+
+      const topicKeyRaw = payload && (payload.topic || payload.topicKey || '');
+      const subjectRaw = payload && (payload.subject || 'Maths');
+      const serverVisual = (VISUALS_DIR && findVisualForTopicFromStore)
+        ? findVisualForTopicFromStore(topicKeyRaw, subjectRaw, VISUALS_DIR)
+        : null;
+
+      sendEvent({ done: true, responseText: fullText.trim(), visual: serverVisual || null });
+    } catch (err) {
+      console.error('[mentor/stream] error:', err?.message || err);
+      const isTimeout = err && (err.status === 504 || /timed out/i.test(err.message || ''));
+      sendEvent({ error: isTimeout ? 'Ravi Sir is taking too long. Please retry.' : (err.message || 'Stream error') });
+    } finally {
+      if (!res.writableEnded) res.end();
+    }
+  }
+
+  return { handleMentorRequest, handleMentorStreamRequest, buildMoreLikeThisUserPrompt, ensureDiagramFields };
 }
 
 module.exports = { createMentorRoute };
