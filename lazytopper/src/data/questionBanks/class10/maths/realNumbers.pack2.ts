@@ -145,6 +145,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
         "Hence √3 is irrational."
       ],
       "finalAnswer": "√3 is irrational",
+      "visualExplainerId": "maths-real-numbers-irrational-numbers-proof",
       "isCompetencyBased": false,
       "pyqYear": "2022",
       "pyqSet": "B",
@@ -173,6 +174,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
       "Therefore, √5 is irrational"
     ],
     "finalAnswer": "√5 is irrational",
+    "visualExplainerId": "maths-real-numbers-irrational-numbers-proof",
     "isCompetencyBased": false,
     "pyqYear": "2021",
     "pyqSet": "A",
@@ -230,6 +232,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
       "Therefore, 3 + 2√5 is irrational"
     ],
     "finalAnswer": "3 + 2√5 is irrational",
+    "visualExplainerId": "maths-real-numbers-irrational-numbers-proof",
     "isCompetencyBased": false,
     "pyqYear": "2022",
     "pyqSet": "A",
@@ -394,6 +397,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
         "Hence 2 + 3√5 is irrational."
       ],
       "finalAnswer": "2 + 3√5 is irrational",
+      "visualExplainerId": "maths-real-numbers-irrational-numbers-proof",
       "isCompetencyBased": false,
       "pyqYear": undefined,
       "pyqSet": undefined,
@@ -676,6 +680,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
       "Therefore, √2 is irrational"
     ],
     "finalAnswer": "Proof by contradiction",
+    "visualExplainerId": "maths-real-numbers-irrational-numbers-proof",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -736,6 +741,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
       "Therefore, 3√2 is irrational"
     ],
     "finalAnswer": "Proof by contradiction assuming rationality",
+    "visualExplainerId": "maths-real-numbers-irrational-numbers-proof",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -916,6 +922,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
       "Hence, √2 + √3 is irrational"
     ],
     "finalAnswer": "Proved by assuming rationality and deriving contradiction",
+    "visualExplainerId": "maths-real-numbers-irrational-numbers-proof",
     "isCompetencyBased": false,
     "pyqYear": "2023",
     "pyqSet": undefined,
@@ -942,6 +949,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
         "Hence 7 − 2√3 is irrational."
       ],
       "finalAnswer": "7 − 2√3 is irrational",
+      "visualExplainerId": "maths-real-numbers-irrational-numbers-proof",
       "isCompetencyBased": false,
       "pyqYear": "2024",
       "pyqSet": undefined,
@@ -1002,6 +1010,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
       "Hence our assumption is false. Therefore, √2 is irrational."
     ],
     "finalAnswer": "√2 is irrational",
+    "visualExplainerId": "maths-real-numbers-irrational-numbers-proof",
     "isCompetencyBased": false,
     "pyqYear": "2023",
     "pyqSet": "A",
@@ -1056,6 +1065,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
       "Our assumption is false. Therefore, 5 − 3√2 is irrational."
     ],
     "finalAnswer": "5 − 3√2 is irrational",
+    "visualExplainerId": "maths-real-numbers-irrational-numbers-proof",
     "isCompetencyBased": false,
     "pyqYear": "2024",
     "pyqSet": undefined,
@@ -1112,6 +1122,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
       "Therefore 2 + √3 is irrational."
     ],
     "finalAnswer": "√3 is irrational, hence 2 + √3 is irrational",
+    "visualExplainerId": "maths-real-numbers-irrational-numbers-proof",
     "isCompetencyBased": false,
     "pyqYear": "2023",
     "pyqSet": "B",
@@ -1265,6 +1276,7 @@ export const RN2_PACK2: CanonicalQuestion[] = [
       "Therefore 3 − 2√5 is irrational."
     ],
     "finalAnswer": "√5 is irrational; hence 3 − 2√5 is irrational",
+    "visualExplainerId": "maths-real-numbers-irrational-numbers-proof",
     "isCompetencyBased": false,
     "pyqYear": "2024",
     "pyqSet": "B",

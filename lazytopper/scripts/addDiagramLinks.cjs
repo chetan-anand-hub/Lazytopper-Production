@@ -127,6 +127,22 @@ const FILE_CONFIGS = [
   /* ── MATHS: PROBABILITY ──────────────────────────────────────────────────── */
   mkCfg('src/data/questionBanks/class10/maths/probability.pack1.ts', probabilityVid),
   mkCfg('src/data/questionBanks/class10/maths/probability.pack2.ts', probabilityVid),
+
+  /* ── MATHS: ARITHMETIC PROGRESSIONS ─────────────────────────────────────── */
+  mkCfg('src/data/questionBanks/class10/maths/arithmeticProgression.pack1.ts', apVid),
+  mkCfg('src/data/questionBanks/class10/maths/arithmeticProgression.pack2.ts', apVid),
+
+  /* ── MATHS: QUADRATIC EQUATIONS ──────────────────────────────────────────── */
+  mkCfg('src/data/questionBanks/class10/maths/quadraticEquations.pack1.ts', quadraticVid),
+  mkCfg('src/data/questionBanks/class10/maths/quadraticEquations.pack2.ts', quadraticVid),
+
+  /* ── MATHS: REAL NUMBERS ─────────────────────────────────────────────────── */
+  mkCfg('src/data/questionBanks/class10/maths/realNumbers.pack1.ts', realNumbersVid),
+  mkCfg('src/data/questionBanks/class10/maths/realNumbers.pack2.ts', realNumbersVid),
+
+  /* ── MATHS: PAIR OF LINEAR EQUATIONS ────────────────────────────────────── */
+  mkCfg('src/data/questionBanks/class10/maths/pairOfLinearEquations.pack1.ts', linearEqVid),
+  mkCfg('src/data/questionBanks/class10/maths/pairOfLinearEquations.pack2.ts', linearEqVid),
 ];
 
 function mkCfg(file, getVisualId) { return { file, getVisualId }; }
@@ -366,6 +382,54 @@ function probabilityVid(qt) {
   if (/favourable|number of.*outcome|outcome.*number of/.test(q))
     return 'maths-probability-favourable-outcomes';
   return 'maths-probability-classical-probability';
+}
+
+function apVid(qt) {
+  const q = qt.toLowerCase();
+  if (/\bsum\b.*\bterm|\bterm.*\bsum|\bs_?n\b|sum of.*\bap\b|sum of.*progression|sum of.*first/.test(q))
+    return 'maths-arithmetic-progression-sum-of-n-terms';
+  if (/\bnth\s+term\b|n[- ]th term|\ba_?n\b|find.*term|which term|\blast term\b|general term/.test(q))
+    return 'maths-arithmetic-progression-nth-term-formula';
+  if (/common difference|\bap\b.*\bsequence\b|\bsequence\b.*\bap\b|is.*ap|arithmetic progression/.test(q))
+    return 'maths-arithmetic-progression-ap-definition-and-common-difference';
+  return 'maths-arithmetic-progression-ap-definition-and-common-difference';
+}
+
+function quadraticVid(qt) {
+  const q = qt.toLowerCase();
+  if (/discriminant|nature.*root|root.*nature|real.*equal|distinct root|imaginary root|b[²2]\s*[-−]\s*4ac/.test(q))
+    return 'maths-quadratic-equations-nature-of-roots-using-discriminant';
+  if (/quadratic formula|shridhar|sridhar|[−-]b\s*[±]\s*√|derive.*formula|formula.*root/.test(q))
+    return 'maths-quadratic-equations-quadratic-formula';
+  if (/factoris|factor.*method|splitting.*middle|middle.*term|split.*term/.test(q))
+    return 'maths-quadratic-equations-factorisation-method';
+  return 'maths-quadratic-equations-standard-form-and-roots';
+}
+
+function realNumbersVid(qt) {
+  const q = qt.toLowerCase();
+  if (/irrational|prove.*√|√.*irrational|contradiction|assumption.*rational/.test(q))
+    return 'maths-real-numbers-irrational-numbers-proof';
+  if (/\bhcf\b|\blcm\b|highest common factor|lowest common multiple/.test(q))
+    return 'maths-real-numbers-hcf-and-lcm-using-prime-factorisation';
+  if (/prime factori|fundamental theorem|composite.*prime|unique.*factor/.test(q))
+    return 'maths-real-numbers-fundamental-theorem-of-arithmetic';
+  if (/decimal|terminating|non.terminating|repeating|recurring/.test(q))
+    return 'maths-real-numbers-decimal-expansions';
+  return 'maths-real-numbers-fundamental-theorem-of-arithmetic';
+}
+
+function linearEqVid(qt) {
+  const q = qt.toLowerCase();
+  if (/consistent|inconsistent|parallel lines|coincident|a1.*a2|a₁.*a₂|ratio.*coefficient|no solution.*condition|condition.*solution/.test(q))
+    return 'maths-linear-equations-consistency-of-equations';
+  if (/\bgraph|graphical|plot.*line|draw.*line|geometrical/.test(q))
+    return 'maths-linear-equations-graphical-method';
+  if (/substitut/.test(q))
+    return 'maths-linear-equations-substitution-method';
+  if (/eliminat/.test(q))
+    return 'maths-linear-equations-elimination-method';
+  return 'maths-linear-equations-graphical-method';
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

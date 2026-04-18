@@ -554,6 +554,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
       "= -(m+n)"
     ],
     "finalAnswer": "S_{m+n} = -(m+n) [Proven]",
+    "visualExplainerId": "maths-arithmetic-progression-sum-of-n-terms",
     "isCompetencyBased": true,
     "pyqYear": "2019",
     "pyqSet": "Set-I",

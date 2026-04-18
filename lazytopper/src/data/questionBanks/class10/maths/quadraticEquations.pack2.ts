@@ -1239,6 +1239,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
       "x = [-b ± √(b² - 4ac)] / 2a"
     ],
     "finalAnswer": "x = [-b ± √(b² - 4ac)] / 2a",
+    "visualExplainerId": "maths-quadratic-equations-quadratic-formula",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,

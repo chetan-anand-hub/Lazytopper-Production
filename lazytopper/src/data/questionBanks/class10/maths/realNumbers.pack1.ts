@@ -150,7 +150,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
         "Hence √7 is irrational."
       ],
       finalAnswer: "√7 is irrational (proved by contradiction)",
-      isCompetencyBased: false,
+      visualExplainerId: "maths-real-numbers-irrational-numbers-proof", isCompetencyBased: false,
     },
   {
     id: "RN-E19", subject: "Maths", topicKey: "Real Numbers", subtopic: "HCF and LCM",
@@ -193,7 +193,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
       "But p and q were co-prime, contradiction. Hence √3 is irrational."
     ],
     finalAnswer: "√3 is irrational (proved by contradiction)",
-    isCompetencyBased: false,
+    visualExplainerId: "maths-real-numbers-irrational-numbers-proof", isCompetencyBased: false,
   },
   {
     id: "RN-M04", subject: "Maths", topicKey: "Real Numbers", subtopic: "HCF and LCM",
@@ -226,7 +226,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
         "Hence 5 − √3 is irrational."
       ],
       finalAnswer: "5 − √3 is irrational (proved by contradiction)",
-      isCompetencyBased: false,
+      visualExplainerId: "maths-real-numbers-irrational-numbers-proof", isCompetencyBased: false,
     },
   {
     id: "RN-M07", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrationality Proofs",
@@ -240,7 +240,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
       "Hence 3 + 2√5 is irrational."
     ],
     finalAnswer: "3 + 2√5 is irrational (proved by contradiction)",
-    isCompetencyBased: false,
+    visualExplainerId: "maths-real-numbers-irrational-numbers-proof", isCompetencyBased: false,
   },
   {
     id: "RN-M08", subject: "Maths", topicKey: "Real Numbers", subtopic: "HCF and LCM",
@@ -273,7 +273,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
       "Hence √2 is irrational."
     ],
     finalAnswer: "√2 is irrational (proved by contradiction)",
-    isCompetencyBased: false,
+    visualExplainerId: "maths-real-numbers-irrational-numbers-proof", isCompetencyBased: false,
   },
   {
       id: "RN-M12", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrationality Proofs",
@@ -352,7 +352,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
       "Hence √5 is irrational."
     ],
     finalAnswer: "√5 is irrational (proved by contradiction)",
-    isCompetencyBased: false,
+    visualExplainerId: "maths-real-numbers-irrational-numbers-proof", isCompetencyBased: false,
   },
   {
     id: "RN-H01", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrationality Proofs",
@@ -366,7 +366,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
       "Hence √2 + √5 is irrational."
     ],
     finalAnswer: "√2 + √5 is irrational (proved by contradiction)",
-    isCompetencyBased: false,
+    visualExplainerId: "maths-real-numbers-irrational-numbers-proof", isCompetencyBased: false,
   },
   {
     id: "RN-H03", subject: "Maths", topicKey: "Real Numbers", subtopic: "Fundamental Theorem of Arithmetic",
@@ -394,7 +394,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
       "Hence 1/(2 + √3) is irrational."
     ],
     finalAnswer: "Proved by rationalisation and contradiction",
-    isCompetencyBased: false,
+    visualExplainerId: "maths-real-numbers-irrational-numbers-proof", isCompetencyBased: false,
   },
   {
       id: "RN-H05", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrationality Proofs",
@@ -407,7 +407,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
         "Part 2: (3 + √5)(3 − √5) = 9 − 5 = 4, which is rational."
       ],
       finalAnswer: "3 + √5 is irrational; (3 + √5)(3 − √5) = 4 is rational",
-      isCompetencyBased: false,
+      visualExplainerId: "maths-real-numbers-irrational-numbers-proof", isCompetencyBased: false,
     },
   {
     id: "RN-H07", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrationality Proofs",
@@ -421,7 +421,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
       "Both a, b divisible by p contradicts co-prime. Hence √p is irrational."
     ],
     finalAnswer: "√p is irrational for any prime p",
-    isCompetencyBased: false,
+    visualExplainerId: "maths-real-numbers-irrational-numbers-proof", isCompetencyBased: false,
   },
   {
     id: "RN-H08", subject: "Maths", topicKey: "Real Numbers", subtopic: "HCF and LCM",
@@ -462,7 +462,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
       "Hence 5 − 2√3 is irrational."
     ],
     finalAnswer: "Both √3 and 5 − 2√3 are irrational",
-    isCompetencyBased: false,
+    visualExplainerId: "maths-real-numbers-irrational-numbers-proof", isCompetencyBased: false,
   },
   {
     id: "RN-H11", subject: "Maths", topicKey: "Real Numbers", subtopic: "HCF and LCM",
@@ -489,7 +489,7 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
       "Hence √2/3 is irrational."
     ],
     finalAnswer: "√2/3 is irrational",
-    isCompetencyBased: false,
+    visualExplainerId: "maths-real-numbers-irrational-numbers-proof", isCompetencyBased: false,
   },
   {
     id: "RN-H14", subject: "Maths", topicKey: "Real Numbers", subtopic: "Fundamental Theorem of Arithmetic",
@@ -517,11 +517,11 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
       "Hence 7 − 3√2 is irrational."
     ],
     finalAnswer: "7 − 3√2 is irrational",
-    isCompetencyBased: false,
+    visualExplainerId: "maths-real-numbers-irrational-numbers-proof", isCompetencyBased: false,
   },
   { id: "RN-N01", subject: "Maths", topicKey: "Real Numbers", subtopic: "HCF and LCM", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "HCF of 72 and 120 is:", options: ["24","12","36","48"], answer: "24", explanation: "The correct answer is 24. 72 = 2³×3², 120 = 2³×3×5. HCF = 2³×3 = 24.", finalAnswer: "72 = 2³×3², 120 = 2³×3×5. HCF = 2³×3 = 24.", isCompetencyBased: false },
   { id: "RN-N02", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrational Numbers", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Which of the following is irrational?", options: ["√4","√9","√2","0.5"], answer: "√2", explanation: "The correct answer is √2. √2 is irrational; its decimal expansion is non-terminating, non-repeating.", finalAnswer: "√2 is irrational; its decimal expansion is non-terminating, non-repeating.", isCompetencyBased: false },
   { id: "RN-N03", subject: "Maths", topicKey: "Real Numbers", subtopic: "Euclid's Algorithm", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Using Euclid's division algorithm, HCF(455, 42) is:", options: ["7","14","21","1"], answer: "7", explanation: "The correct answer is 7. 455 = 42×10 + 35; 42 = 35×1 + 7; 35 = 7×5 + 0. HCF = 7.", finalAnswer: "455 = 42×10 + 35; 42 = 35×1 + 7; 35 = 7×5 + 0. HCF = 7.", isCompetencyBased: false },
   { id: "RN-ND01", subject: "Maths", topicKey: "Real Numbers", subtopic: "Euclid's Algorithm", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Use Euclid's division algorithm to find HCF of 867 and 255. Hence find their LCM.", solutionSteps: ["Apply Euclid's algorithm: dividend = divisor × quotient + remainder","867 = 255 × 3 + 102","255 = 102 × 2 + 51","102 = 51 × 2 + 0","Since remainder is 0, HCF(867, 255) = 51.","LCM × HCF = Product of the two numbers","LCM = (867 × 255) / 51 = 867 × 5 = 4335"], answer: "HCF = 51; LCM = 4335.", explanation: "See solution steps for full working.", finalAnswer: "HCF = 51; LCM = 4335.", isCompetencyBased: true },
-  { id: "RN-ND02", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrational Numbers", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Prove that √5 is irrational. Hence prove that 2 + √5 is also irrational.", solutionSteps: ["Assume √5 is rational. Then √5 = p/q where p, q are integers, q ≠ 0, and HCF(p, q) = 1.","Squaring: 5 = p²/q² → p² = 5q².","5 divides p², so 5 divides p (if a prime divides a², it divides a). Let p = 5m.","Then (5m)² = 5q² → 25m² = 5q² → 5m² = q².","5 divides q², so 5 divides q. But then 5 is a common factor of p and q, contradicting HCF = 1.","Contradiction! So √5 is irrational. ✓","Now suppose 2 + √5 is rational = r (say). Then √5 = r − 2, which is rational.","But √5 is irrational — contradiction. Therefore 2 + √5 is irrational. ✓"], answer: "√5 is irrational (by contradiction); hence 2 + √5 is also irrational.", explanation: "See solution steps for full working.", finalAnswer: "√5 is irrational (by contradiction); hence 2 + √5 is also irrational.", isCompetencyBased: true }
+  { id: "RN-ND02", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrational Numbers", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Prove that √5 is irrational. Hence prove that 2 + √5 is also irrational.", solutionSteps: ["Assume √5 is rational. Then √5 = p/q where p, q are integers, q ≠ 0, and HCF(p, q) = 1.","Squaring: 5 = p²/q² → p² = 5q².","5 divides p², so 5 divides p (if a prime divides a², it divides a). Let p = 5m.","Then (5m)² = 5q² → 25m² = 5q² → 5m² = q².","5 divides q², so 5 divides q. But then 5 is a common factor of p and q, contradicting HCF = 1.","Contradiction! So √5 is irrational. ✓","Now suppose 2 + √5 is rational = r (say). Then √5 = r − 2, which is rational.","But √5 is irrational — contradiction. Therefore 2 + √5 is irrational. ✓"], answer: "√5 is irrational (by contradiction); hence 2 + √5 is also irrational.", explanation: "See solution steps for full working.", finalAnswer: "√5 is irrational (by contradiction); hence 2 + √5 is also irrational.", visualExplainerId: "maths-real-numbers-irrational-numbers-proof", isCompetencyBased: true }
 ];

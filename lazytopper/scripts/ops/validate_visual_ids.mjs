@@ -44,6 +44,11 @@ const TARGETED_PACKS = [
   'maths/statistics.pack1.ts','maths/statistics.pack2.ts',
   'maths/polynomials.pack1.ts','maths/polynomials.pack2.ts',
   'maths/probability.pack1.ts','maths/probability.pack2.ts',
+  // 8 new packs added in Task #342
+  'maths/arithmeticProgression.pack1.ts','maths/arithmeticProgression.pack2.ts',
+  'maths/quadraticEquations.pack1.ts','maths/quadraticEquations.pack2.ts',
+  'maths/realNumbers.pack1.ts','maths/realNumbers.pack2.ts',
+  'maths/pairOfLinearEquations.pack1.ts','maths/pairOfLinearEquations.pack2.ts',
 ];
 
 /** Mirrors the makeId() function in visualConceptRegistry.ts */
