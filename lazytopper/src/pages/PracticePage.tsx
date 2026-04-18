@@ -743,7 +743,7 @@ const packTopicKey = useMemo(() => {
           backLabel={backLabel}
           currentLabel="Practice"
           quickLinks={[
-            { label: "Trends", to: `/trends/${grade}/${subjectKey}` },
+            { label: "Chapters", to: `/trends/${grade}/${subjectKey}` },
             {
               label: "Chapter Hub",
               to:
@@ -772,12 +772,17 @@ const packTopicKey = useMemo(() => {
           const missionSubject = subjectKey as "Maths" | "Science";
           const resumeInfo = getMissionResumeInfo(missionSubject);
           const doneToday = isMissionCompletedToday(missionSubject);
-          const showMission = !doneToday || !!resumeInfo;
+          const showMission = true;
           const isResume = !!resumeInfo;
-          const missionLabel = isResume
+          const isDone = doneToday && !resumeInfo;
+          const missionLabel = isDone
+            ? "Today's Mission complete — great work!"
+            : isResume
             ? `Resume Today's Mission — ${resumeInfo.completedSegments}/${resumeInfo.totalSegments} segments done`
             : "Start Today's Mission — 4 segments, ~30 min";
-          const missionBg = isResume
+          const missionBg = isDone
+            ? "linear-gradient(90deg, #22c55e 0%, #16a34a 100%)"
+            : isResume
             ? "linear-gradient(90deg, #f59e0b 0%, #ef4444 100%)"
             : "linear-gradient(90deg, #6366f1 0%, #22c55e 100%)";
           return (
