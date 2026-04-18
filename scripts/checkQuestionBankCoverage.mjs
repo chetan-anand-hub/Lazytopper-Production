@@ -1,16 +1,15 @@
 /**
  * checkQuestionBankCoverage.mjs
  *
- * Verifies that every Class 10 Maths question-bank pack has enough questions
- * to cover all five CBSE exam sections (A–E).  Re-run this script after any
- * question-bank edit to catch gaps before they reach students.
+ * Verifies that every Class 10 question-bank pack (Maths + Science) has enough
+ * questions to cover all five CBSE exam sections (A–E).  Re-run this script
+ * after any question-bank edit to catch gaps before they reach students.
  *
  * Usage:
  *   node scripts/checkQuestionBankCoverage.mjs            # run report
  *   node scripts/checkQuestionBankCoverage.mjs --self-test # verify counting logic only
  *
- * CBSE blueprint (80-mark paper) — derived from marksAllocation in
- * lazytopper/src/data/class10MathTopicTrends.ts:
+ * CBSE blueprint (80-mark paper) — applies equally to Maths and Science:
  *
  *   Section A  – 20 questions × 1 mark  = 20 marks  (MCQ / Assertion-Reasoning)
  *   Section B  –  5 questions × 2 marks = 10 marks  (Short Answer)
@@ -28,18 +27,22 @@ import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const BANK_DIR = join(
+const MATHS_DIR = join(
   __dirname,
   "../lazytopper/src/data/questionBanks/class10/maths"
 );
+const SCIENCE_DIR = join(
+  __dirname,
+  "../lazytopper/src/data/questionBanks/class10/science"
+);
 
-// ── CBSE blueprint question counts (from class10MathTopicTrends.ts) ────────
-// marksAllocation values ÷ marks-per-question:
-//   "Section A (MCQ/Assertion, 1 mark)": 20  →  20 ÷ 1  = 20 questions
-//   "Section B (Short Answer, 2 marks)": 10  →  10 ÷ 2  =  5 questions
-//   "Section C (Short Answer, 3 marks)": 18  →  18 ÷ 3  =  6 questions
-//   "Section D (Long Answer, 5 marks)":  20  →  20 ÷ 5  =  4 questions
-//   "Section E (Case-Based, 4 marks)":   12  →  12 ÷ 4  =  3 questions
+// ── CBSE blueprint question counts ─────────────────────────────────────────
+// Same blueprint applies to both Maths and Science (80-mark paper structure):
+//   Section A (MCQ/Assertion, 1 mark): 20  →  20 ÷ 1  = 20 questions
+//   Section B (Short Answer, 2 marks): 10  →  10 ÷ 2  =  5 questions
+//   Section C (Short Answer, 3 marks): 18  →  18 ÷ 3  =  6 questions
+//   Section D (Long Answer, 5 marks):  20  →  20 ÷ 5  =  4 questions
+//   Section E (Case-Based, 4 marks):   12  →  12 ÷ 4  =  3 questions
 const BLUEPRINT = { A: 20, B: 5, C: 6, D: 4, E: 3 };
 const SECTIONS = /** @type {const} */ (["A", "B", "C", "D", "E"]);
 
@@ -189,6 +192,92 @@ const sectionEQuestions = buildGroup({ cbseFormat: "E", skillFamily: "Case" }, [
   console.log(" Self-test PASSED: all counting assertions OK.\n");
 }
 
+// ── Analyse a directory of pack files ─────────────────────────────────────
+
+function analyseDir(dir) {
+  const files = readdirSync(dir)
+    .filter((f) => f.endsWith(".ts"))
+    .sort();
+
+  return files.map((file) => {
+    const content = readFileSync(join(dir, file), "utf8");
+    const counts = countSections(content);
+    const flags = SECTIONS.filter(
+      (sec) => counts[sec] < BLUEPRINT[sec]
+    ).map((sec) => ({ section: sec, count: counts[sec], min: BLUEPRINT[sec] }));
+    return { file: file.replace(".ts", ""), counts, flags };
+  });
+}
+
+// ── Render a subject report ────────────────────────────────────────────────
+
+const COL = 42;
+const SEP = "─".repeat(86);
+
+function renderReport(subject, results) {
+  console.log("\n" + SEP);
+  console.log(` LazyTopper – Question-Bank Coverage Report  (CBSE Class 10 ${subject})`);
+  console.log(
+    ` Blueprint minimums  A≥${BLUEPRINT.A}  B≥${BLUEPRINT.B}  C≥${BLUEPRINT.C}  D≥${BLUEPRINT.D}  E≥${BLUEPRINT.E}  ` +
+    `(same CBSE 80-mark paper structure)`
+  );
+  console.log(SEP);
+  console.log(
+    `${"Pack".padEnd(COL)}  ${"A".padStart(3)}  ${"B".padStart(3)}  ${"C".padStart(3)}  ${"D".padStart(3)}  ${"E".padStart(3)}  ${"Total".padStart(5)}  Status`
+  );
+  console.log(SEP);
+
+  const flaggedPacks = [];
+
+  for (const { file, counts, flags } of results) {
+    const total = SECTIONS.reduce((s, k) => s + counts[k], 0);
+    const isEmpty = total === 0;
+    const status = isEmpty
+      ? "⚠  EMPTY — no questions found"
+      : flags.length === 0
+        ? "OK"
+        : `⚠  ${flags.map((f) => `${f.section}=${f.count}<${f.min}`).join(", ")}`;
+    if (flags.length > 0 || isEmpty) flaggedPacks.push({ file, flags, isEmpty });
+
+    console.log(
+      `${file.padEnd(COL)}  ${String(counts.A).padStart(3)}  ${String(counts.B).padStart(3)}  ${String(counts.C).padStart(3)}  ${String(counts.D).padStart(3)}  ${String(counts.E).padStart(3)}  ${String(total).padStart(5)}  ${status}`
+    );
+  }
+
+  console.log(SEP);
+
+  if (flaggedPacks.length === 0) {
+    console.log(
+      ` All ${subject} packs meet the CBSE blueprint per-section minimums.\n`
+    );
+    return 0;
+  }
+
+  console.log(` ${flaggedPacks.length} ${subject} pack(s) have coverage gaps:\n`);
+  for (const { file, flags, isEmpty } of flaggedPacks) {
+    console.log(` Pack: ${file}`);
+    if (isEmpty) {
+      console.log(`   Pack is EMPTY — no questions found in any section.`);
+    } else {
+      for (const { section, count, min } of flags) {
+        console.log(
+          `   Section ${section} (${SECTION_LABELS[section]}): ${count} question(s) found — blueprint requires at least ${min}`
+        );
+      }
+    }
+    console.log();
+  }
+
+  console.log(
+    " Fix the marks / section field on each flagged question, or add missing questions."
+  );
+  console.log(
+    " Re-run this script after adding questions to confirm gaps are resolved."
+  );
+  console.log();
+  return 1;
+}
+
 // ── Main ───────────────────────────────────────────────────────────────────
 
 if (process.argv.includes("--self-test")) {
@@ -196,73 +285,12 @@ if (process.argv.includes("--self-test")) {
   process.exit(0);
 }
 
-// Load and analyse every pack
-const files = readdirSync(BANK_DIR)
-  .filter((f) => f.endsWith(".ts"))
-  .sort();
+const mathsResults = analyseDir(MATHS_DIR);
+const scienceResults = analyseDir(SCIENCE_DIR);
 
-const results = files.map((file) => {
-  const content = readFileSync(join(BANK_DIR, file), "utf8");
-  const counts = countSections(content);
-  const flags = SECTIONS.filter(
-    (sec) => counts[sec] < BLUEPRINT[sec]
-  ).map((sec) => ({ section: sec, count: counts[sec], min: BLUEPRINT[sec] }));
-  return { file: file.replace(".ts", ""), counts, flags };
-});
+const mathsFailed = renderReport("Maths", mathsResults);
+const scienceFailed = renderReport("Science", scienceResults);
 
-// ── Render report ──────────────────────────────────────────────────────────
-
-const COL = 38;
-const SEP = "─".repeat(82);
-
-console.log("\n" + SEP);
-console.log(" LazyTopper – Question-Bank Coverage Report  (CBSE Class 10 Maths)");
-console.log(
-  ` Blueprint minimums  A≥${BLUEPRINT.A}  B≥${BLUEPRINT.B}  C≥${BLUEPRINT.C}  D≥${BLUEPRINT.D}  E≥${BLUEPRINT.E}  ` +
-  `(source: class10MathTopicTrends.ts marksAllocation)`
-);
-console.log(SEP);
-console.log(
-  `${"Pack".padEnd(COL)}  ${"A".padStart(3)}  ${"B".padStart(3)}  ${"C".padStart(3)}  ${"D".padStart(3)}  ${"E".padStart(3)}  ${"Total".padStart(5)}  Status`
-);
-console.log(SEP);
-
-const flaggedPacks = [];
-
-for (const { file, counts, flags } of results) {
-  const total = SECTIONS.reduce((s, k) => s + counts[k], 0);
-  const status =
-    flags.length === 0
-      ? "OK"
-      : `⚠  ${flags.map((f) => `${f.section}=${f.count}<${f.min}`).join(", ")}`;
-  if (flags.length > 0) flaggedPacks.push({ file, flags });
-
-  console.log(
-    `${file.padEnd(COL)}  ${String(counts.A).padStart(3)}  ${String(counts.B).padStart(3)}  ${String(counts.C).padStart(3)}  ${String(counts.D).padStart(3)}  ${String(counts.E).padStart(3)}  ${String(total).padStart(5)}  ${status}`
-  );
-}
-
-console.log(SEP);
-
-// ── Summary ────────────────────────────────────────────────────────────────
-if (flaggedPacks.length === 0) {
-  console.log(
-    " All packs meet the CBSE blueprint per-section minimums.\n"
-  );
-} else {
-  console.log(` ${flaggedPacks.length} pack(s) have coverage gaps:\n`);
-  for (const { file, flags } of flaggedPacks) {
-    console.log(` Pack: ${file}`);
-    for (const { section, count, min } of flags) {
-      console.log(
-        `   Section ${section} (${SECTION_LABELS[section]}): ${count} question(s) found — blueprint requires at least ${min}`
-      );
-    }
-    console.log();
-  }
-  console.log(
-    " Re-run this script after adding questions to confirm gaps are resolved."
-  );
-  console.log();
+if (mathsFailed || scienceFailed) {
   process.exitCode = 1;
 }
