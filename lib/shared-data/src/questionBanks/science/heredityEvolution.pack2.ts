@@ -24,6 +24,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
       "It had easily distinguishable traits and short generation time"
     ],
     "finalAnswer": "Pea plant",
+    "explanation": "Mendel chose Pisum sativum (garden pea) for his experiments. It had easily distinguishable traits and short generation time. Therefore, the correct answer is Pea plant.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -52,6 +53,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
       "Dominant traits appeared 3 times for every 1 recessive trait"
     ],
     "finalAnswer": "3:1",
+    "explanation": "In monohybrid cross, Mendel observed phenotypic ratio in F2. Dominant traits appeared 3 times for every 1 recessive trait. Therefore, the correct answer is 3:1.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -80,6 +82,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
       "They control the same trait but produce different effects"
     ],
     "finalAnswer": "Different forms of a gene",
+    "explanation": "Alleles are alternate forms of the same gene. They control the same trait but produce different effects. Therefore, the correct answer is Different forms of a gene.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -109,6 +112,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
       "Therefore, A is false but R is true"
     ],
     "finalAnswer": "A is false, R is true.",
+    "explanation": "The Assertion contains an incorrect claim. The Reason, however, is a true and valid statement on its own.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -187,6 +191,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
       "The 23rd pair consists of sex chromosomes: XX (female) or XY (male)"
     ],
     "finalAnswer": "Chromosome 23 (X and Y)",
+    "explanation": "Humans have 23 pairs of chromosomes. The 23rd pair consists of sex chromosomes: XX (female) or XY (male). Therefore, the correct answer is Chromosome 23 (X and Y).",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -240,6 +245,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
       "Published in 'On the Origin of Species' (1859)"
     ],
     "finalAnswer": "Charles Darwin",
+    "explanation": "Charles Darwin proposed the theory of evolution by natural selection. Published in 'On the Origin of Species' (1859). Therefore, the correct answer is Charles Darwin.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -269,6 +275,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
       "Indicate common ancestry with organisms that used them functionally"
     ],
     "finalAnswer": "Are non-functional but present in current organisms",
+    "explanation": "Vestigial organs are reduced in size and function. Examples: Human appendix, wisdom teeth, coccyx. Indicate common ancestry with organisms that used them functionally. Therefore, the correct answer is Are non-functional but present in current organisms.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -322,6 +329,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
       "Results from reproductive isolation and accumulated genetic differences"
     ],
     "finalAnswer": "Formation of new species from existing species",
+    "explanation": "Speciation is the evolutionary process by which new species arise. Results from reproductive isolation and accumulated genetic differences. Therefore, the correct answer is Formation of new species from existing species.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -455,6 +463,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
       "R correctly explains why A is true"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -511,6 +520,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
       "Ratio: 1 ZZ : 1 ZW = 50% male : 50% female"
     ],
     "finalAnswer": "50% male and 50% female",
+    "explanation": "Female bird: ZW (can contribute Z or W). Male bird: ZZ (can contribute only Z). Offspring: ZZ (male) from Z+Z, ZW (female) from Z+W. Ratio: 1 ZZ : 1 ZW = 50% male : 50% female. Therefore, the correct answer is 50% male and 50% female.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -566,6 +576,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
       "Each gamete receives only one allele for each trait"
     ],
     "finalAnswer": "Alleles separate during gamete formation",
+    "explanation": "Law of segregation: Mendel's first law. Alleles of a trait separate during meiosis. Each gamete receives only one allele for each trait. Therefore, the correct answer is Alleles separate during gamete formation.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -688,6 +699,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
       "Therefore A is true but R is false"
     ],
     "finalAnswer": "A is true, R is false.",
+    "explanation": "The Assertion is a correct statement. However, the Reason given contains an incorrect claim or formula, making R false.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -717,6 +729,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
       "Phenotypic ratio: 3 tall : 1 dwarf"
     ],
     "finalAnswer": "3:1",
+    "explanation": "In F₁ generation, all plants were tall (heterozygous Tt). In F₂ generation, self-pollination of F₁ gave: TT, Tt, Tt, tt. Phenotypic ratio: 3 tall : 1 dwarf. Therefore, the correct answer is 3:1.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -747,6 +760,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
       "These features made it ideal for genetic studies"
     ],
     "finalAnswer": "It had easily distinguishable traits and could self-pollinate",
+    "explanation": "Pea plants had contrasting traits (tall/dwarf, green/yellow seeds). Could undergo both self-pollination and cross-pollination. Short life cycle allowed multiple generations in short time. These features made it ideal for genetic studies. Therefore, the correct answer is It had easily distinguishable traits and could self-pollinate.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -778,6 +792,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
       "This is a test cross"
     ],
     "finalAnswer": "50% Aa : 50% aa",
+    "explanation": "Cross: Aa × aa. Gametes from Aa: A and a. Gametes from aa: only a. Punnett square: Aa (50%) and aa (50%). This is a test cross. Therefore, the correct answer is 50% Aa : 50% aa.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -834,6 +849,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
       "Independent assortment causes this 9:3:3:1 ratio"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "Set-1",
@@ -864,6 +880,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
       "Male offspring: 50% chance when father's Y combines with mother's X"
     ],
     "finalAnswer": "Presence or absence of Y chromosome",
+    "explanation": "Males: XY (have Y chromosome). Females: XX (no Y chromosome). Y chromosome carries male-determining genes. Male offspring: 50% chance when father's Y combines with mother's X. Therefore, the correct answer is Presence or absence of Y chromosome.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -920,6 +937,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
       "Proves evolution from common ancestor"
     ],
     "finalAnswer": "Similar bone structure in vertebrate limbs",
+    "explanation": "Homologous structures show common ancestry. Forelimbs of humans, dogs, whales, birds have similar basic structure. Different functions but same origin = homology. Proves evolution from common ancestor. Therefore, the correct answer is Similar bone structure in vertebrate limbs.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -950,6 +968,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
       "Shows convergent evolution, not common ancestry"
     ],
     "finalAnswer": "Convergent evolution",
+    "explanation": "Analogous structures: different origin, similar function. Wings of birds, bats, insects - adapted to same environment. Different evolutionary paths led to similar adaptations. Shows convergent evolution, not common ancestry. Therefore, the correct answer is Convergent evolution.",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "Set-2",
@@ -1006,6 +1025,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
       "Vestigial structures are direct evidence of evolution"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "Set-1",
@@ -1037,6 +1057,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
       "Leads to adaptation and speciation"
     ],
     "finalAnswer": "Natural selection",
+    "explanation": "Darwin's mechanism of evolution. Organisms with beneficial traits survive better. These traits passed to next generation. Over time, favorable traits become common. Leads to adaptation and speciation. Therefore, the correct answer is Natural selection.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1067,6 +1088,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
       "Accumulation of genetic differences leads to new species"
     ],
     "finalAnswer": "One species evolves into two or more different species",
+    "explanation": "Speciation: formation of new species from ancestral species. Results from reproductive isolation. Allopatric speciation: geographic isolation prevents gene flow. Accumulation of genetic differences leads to new species. Therefore, the correct answer is One species evolves into two or more different species.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1124,6 +1146,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
       "X^a Y probability = 1/4 = 25% affected son"
     ],
     "finalAnswer": "25%",
+    "explanation": "Cross: X^A X^a × X^A Y. Possible offspring: X^A X^A (normal daughter), X^A X^a (carrier daughter), X^A Y (normal son), X^a Y (affected son). For affected son: needs X^a from mother and Y from father. X^a Y probability = 1/4 = 25% affected son. Therefore, the correct answer is 25%.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1155,6 +1178,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
       "Results in 2:1 instead of expected ratio"
     ],
     "finalAnswer": "Lethal alleles",
+    "explanation": "Expected test cross ratio for Aa × aa should be 1:1. If ratio deviates, it indicates deviation from normal Mendelian inheritance. Lethal alleles cause death of certain genotypes. Example: AA lethal in yellow coat mice - only Aa survives. Results in 2:1 instead of expected ratio. Therefore, the correct answer is Lethal alleles.",
     "isCompetencyBased": true,
     "pyqYear": "2020",
     "pyqSet": "Set-2",
@@ -1187,6 +1211,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
       "Both assertion and reason are correct explanations"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1323,6 +1348,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
       "Sons: X^a Y (color-blind)"
     ],
     "finalAnswer": "X^a X^a; all daughters normal",
+    "explanation": "Color-blind is X-linked recessive. Color-blind woman: X^a X^a (homozygous recessive). Normal man: X^A Y (has dominant allele). Cross: X^a X^a × X^A Y. Daughters: X^A X^a (carriers, phenotypically normal). Sons: X^a Y (color-blind). Therefore, the correct answer is X^a X^a; all daughters normal.",
     "isCompetencyBased": true,
     "pyqYear": "2019",
     "pyqSet": "Set-1",
@@ -1355,6 +1381,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
       "Classic example of evolution in action"
     ],
     "finalAnswer": "Adaptive radiation",
+    "explanation": "Adaptive radiation: rapid evolution of diverse species from common ancestor. Darwin's finches: descended from single ancestral species. Different islands and food sources drove divergence. Each population adapted to local environment. Resulted in 13+ species with different beak morphologies. Classic example of evolution in action. Therefore, the correct answer is Adaptive radiation.",
     "isCompetencyBased": true,
     "pyqYear": "2025",
     "pyqSet": "Set-2",
@@ -1413,6 +1440,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
       "Fossil evidence of evolution"
     ],
     "finalAnswer": "Transitional form",
+    "explanation": "Transitional forms: organisms showing intermediate characteristics. Link between ancestral and derived species. Example: Archaeopteryx (link between reptiles and birds). Fossil evidence of evolution. Therefore, the correct answer is Transitional form.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1443,6 +1471,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
       "In monohybrid cross, F₁ are all heterozygous and show dominant trait"
     ],
     "finalAnswer": "First filial generation (offspring of pure parents)",
+    "explanation": "F₀ or P: Parental generation (pure-breeding). F₁: First filial generation (offspring from P cross). F₂: Second filial generation (F₁ × F₁ offspring). In monohybrid cross, F₁ are all heterozygous and show dominant trait. Therefore, the correct answer is First filial generation (offspring of pure parents).",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,

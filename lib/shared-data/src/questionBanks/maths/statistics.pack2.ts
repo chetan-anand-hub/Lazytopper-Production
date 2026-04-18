@@ -24,6 +24,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "where a is assumed mean, d = (x - a), f is frequency, and h is class width"
     ],
     "finalAnswer": "Mean = a + (Σfd/Σf) × h",
+    "explanation": "The assumed mean method uses the formula: Mean = a + (Σfd/Σf) × h. where a is assumed mean, d = (x - a), f is frequency, and h is class width. Therefore, the correct answer is Mean = a + (Σfd/Σf) × h.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -52,6 +53,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "'x' is the class mark, calculated as (upper limit + lower limit)/2"
     ],
     "finalAnswer": "Class mark or midpoint",
+    "explanation": "In direct method: Mean = Σ(f × x)/Σf. 'x' is the class mark, calculated as (upper limit + lower limit)/2. Therefore, the correct answer is Class mark or midpoint.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -107,6 +109,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "f = frequency of median class, h = class width"
     ],
     "finalAnswer": "Median = l + ((n/2 - cf)/f) × h",
+    "explanation": "Where l = lower limit of median class. n = total frequency, cf = cumulative frequency before median class. f = frequency of median class, h = class width. Therefore, the correct answer is Median = l + ((n/2 - cf)/f) × h.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -135,6 +138,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "where n is the total frequency"
     ],
     "finalAnswer": "n/2",
+    "explanation": "Median class is the class where cumulative frequency first exceeds n/2. where n is the total frequency. Therefore, the correct answer is n/2.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -189,6 +193,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "Mode lies within this class"
     ],
     "finalAnswer": "Highest frequency",
+    "explanation": "Modal class is the class with the highest frequency. Mode lies within this class. Therefore, the correct answer is Highest frequency.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -217,6 +222,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "f₀ = frequency of preceding class, f₂ = frequency of succeeding class"
     ],
     "finalAnswer": "Frequency of modal class",
+    "explanation": "In the mode formula: f₁ = frequency of modal class. f₀ = frequency of preceding class, f₂ = frequency of succeeding class. Therefore, the correct answer is Frequency of modal class.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -270,6 +276,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "It is used to find the median and quartiles graphically"
     ],
     "finalAnswer": "Median graphically",
+    "explanation": "Ogive is the cumulative frequency curve. It is used to find the median and quartiles graphically. Therefore, the correct answer is Median graphically.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -299,6 +306,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "Both show cumulative frequency on y-axis"
     ],
     "finalAnswer": "Both (a) and (b)",
+    "explanation": "Less than ogive: cumulative frequencies from start to each class. Greater than ogive: cumulative frequencies from each class to end. Both show cumulative frequency on y-axis. Therefore, the correct answer is Both (a) and (b).",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -441,6 +449,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "The reason correctly explains why modal class has highest frequency"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -470,6 +479,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "The reason explains why we need CF to find n/2 position"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "B",
@@ -499,6 +509,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "But R doesn't explain why they intersect (intersection point is at median)"
     ],
     "finalAnswer": "Both A and R are true, but R is not the correct explanation of A.",
+    "explanation": "Both statements are individually correct. However, the Reason does not directly cause or explain the Assertion — they are independent true facts about the same concept.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -658,6 +669,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "Both expressions are equivalent"
     ],
     "finalAnswer": "Both (a) and (c)",
+    "explanation": "Step deviation method: d' = (x-a)/h or d = x-a. Mean = a + h(Σfd'/Σf) = a + (Σfd/Σf) × h. Both expressions are equivalent. Therefore, the correct answer is Both (a) and (c).",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -688,6 +700,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "The mean is calculated using class midpoints"
     ],
     "finalAnswer": "Class midpoint",
+    "explanation": "In the formula Σ(fi × xi) / Σfi for mean of grouped data. fi represents the frequency of each class. xi represents the midpoint of each class interval. The mean is calculated using class midpoints. Therefore, the correct answer is Class midpoint.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -718,6 +731,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "= 15"
     ],
     "finalAnswer": "15",
+    "explanation": "Class midpoint = (Lower limit + Upper limit) / 2. = (10 + 20) / 2. = 30 / 2. = 15. Therefore, the correct answer is 15.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -776,6 +790,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "We find the class where cumulative frequency ≥ n/2"
     ],
     "finalAnswer": "The position of median value",
+    "explanation": "In grouped data, median is found using n/2. Here n is the total number of observations. n/2 gives the position/location of the median. We find the class where cumulative frequency ≥ n/2. Therefore, the correct answer is The position of median value.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -865,6 +880,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "Mode lies within this modal class"
     ],
     "finalAnswer": "Highest frequency",
+    "explanation": "Mode is the value that appears most frequently. In grouped data, the modal class is the class interval with the highest frequency. Mode lies within this modal class. Therefore, the correct answer is Highest frequency.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -951,6 +967,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "It helps in finding median graphically"
     ],
     "finalAnswer": "Cumulative frequency distribution",
+    "explanation": "An ogive is a smooth curve drawn on a graph. It represents the cumulative frequency distribution. Points plotted are (class upper limit, cumulative frequency). It helps in finding median graphically. Therefore, the correct answer is Cumulative frequency distribution.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1160,6 +1177,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "R is TRUE and explains why A is false"
     ],
     "finalAnswer": "A is false, R is true.",
+    "explanation": "The Assertion contains an incorrect claim. The Reason, however, is a true and valid statement on its own.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1192,6 +1210,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "Both are true and R explains A"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1224,6 +1243,7 @@ export const ST2_PACK2: CanonicalQuestion[] = [
       "Mode exists in the class with highest frequency"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,

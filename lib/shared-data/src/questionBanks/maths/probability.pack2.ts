@@ -25,6 +25,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "P(heads) = 1/2"
     ],
     "finalAnswer": "1/2",
+    "explanation": "Total outcomes when a coin is tossed = {H, T} = 2. Favourable outcomes (getting heads) = {H} = 1. P(heads) = 1/2. Therefore, the correct answer is 1/2.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -54,6 +55,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "P(number < 7) = 6/6 = 1"
     ],
     "finalAnswer": "1",
+    "explanation": "Total outcomes = {1, 2, 3, 4, 5, 6} = 6. Numbers less than 7 = {1, 2, 3, 4, 5, 6} = 6. P(number < 7) = 6/6 = 1. Therefore, the correct answer is 1.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -83,6 +85,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "All these are ≤ 6, so it's a sure event"
     ],
     "finalAnswer": "Getting a number ≤ 6 on rolling a die",
+    "explanation": "A sure event has probability = 1. All outcomes on a die are {1, 2, 3, 4, 5, 6}. All these are ≤ 6, so it's a sure event. Therefore, the correct answer is Getting a number ≤ 6 on rolling a die.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -112,6 +115,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "P(ace) = 4/52 = 1/13"
     ],
     "finalAnswer": "1/13",
+    "explanation": "Total cards = 52. Number of aces = 4. P(ace) = 4/52 = 1/13. Therefore, the correct answer is 1/13.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -141,6 +145,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "P(E') = 1 - 0.3 = 0.7"
     ],
     "finalAnswer": "0.7",
+    "explanation": "P(E) + P(E') = 1. P(E') = 1 - P(E). P(E') = 1 - 0.3 = 0.7. Therefore, the correct answer is 0.7.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -218,6 +223,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "P(sum = 7) = 6/36 = 1/6"
     ],
     "finalAnswer": "1/6",
+    "explanation": "Total outcomes = 6 × 6 = 36. Outcomes with sum 7 = {(1,6), (2,5), (3,4), (4,3), (5,2), (6,1)} = 6. P(sum = 7) = 6/36 = 1/6. Therefore, the correct answer is 1/6.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -247,6 +253,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "1.5 > 1, so it cannot be a probability"
     ],
     "finalAnswer": "1.5",
+    "explanation": "Probability always lies between 0 and 1 (inclusive). 0 ≤ P(E) ≤ 1. 1.5 > 1, so it cannot be a probability. Therefore, the correct answer is 1.5.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -402,6 +409,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "R correctly explains why A is true"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -431,6 +439,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "E and E' form a complete sample space (one always occurs)"
     ],
     "finalAnswer": "A is true, R is false.",
+    "explanation": "The Assertion is a correct statement. However, the Reason given contains an incorrect claim or formula, making R false.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -460,6 +469,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "Classical probability = Favourable/Total outcomes"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -623,6 +633,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "P(red) = 26/52 = 1/2"
     ],
     "finalAnswer": "1/2",
+    "explanation": "Total cards = 52. Red cards (hearts + diamonds) = 26 + 26 = 26. P(red) = 26/52 = 1/2. Therefore, the correct answer is 1/2.",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "All India",
@@ -652,6 +663,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "Probability = Favorable outcomes / Total outcomes = 2/6 = 1/3"
     ],
     "finalAnswer": "1/3",
+    "explanation": "Total possible outcomes when rolling a die = 6. Favorable outcomes (numbers > 4) = {5, 6} = 2. Probability = Favorable outcomes / Total outcomes = 2/6 = 1/3. Therefore, the correct answer is 1/3.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -682,6 +694,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "Getting a number > 6 is impossible"
     ],
     "finalAnswer": "Getting a number greater than 6 on rolling a die",
+    "explanation": "An impossible event has probability = 0. An impossible event cannot occur under any circumstances. When rolling a die, outcomes are {1, 2, 3, 4, 5, 6}. Getting a number > 6 is impossible. Therefore, the correct answer is Getting a number greater than 6 on rolling a die.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -711,6 +724,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "P(not E) = 1 - 0.7 = 0.3"
     ],
     "finalAnswer": "0.3",
+    "explanation": "By the complementary event rule: P(E) + P(not E) = 1. P(not E) = 1 - P(E). P(not E) = 1 - 0.7 = 0.3. Therefore, the correct answer is 0.3.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -741,6 +755,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "P(not ace) = 1 - P(ace) = 1 - 1/13 = 12/13"
     ],
     "finalAnswer": "12/13",
+    "explanation": "Total cards = 52. Number of aces = 4. P(ace) = 4/52 = 1/13. P(not ace) = 1 - P(ace) = 1 - 1/13 = 12/13. Therefore, the correct answer is 12/13.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -770,6 +785,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "Example: Getting a number between 1 and 6 on rolling a die"
     ],
     "finalAnswer": "1",
+    "explanation": "A sure event is an event that will definitely occur. The probability of a sure event is 1. Example: Getting a number between 1 and 6 on rolling a die. Therefore, the correct answer is 1.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -801,6 +817,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "R is the correct explanation of A"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -830,6 +847,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "P(sum = 7) = 6/36 = 1/6"
     ],
     "finalAnswer": "6/36",
+    "explanation": "Total outcomes when rolling two dice = 6 × 6 = 36. Favorable outcomes for sum = 7: (1,6), (2,5), (3,4), (4,3), (5,2), (6,1) = 6. P(sum = 7) = 6/36 = 1/6. Therefore, the correct answer is 6/36.",
     "isCompetencyBased": true,
     "pyqYear": "2019",
     "pyqSet": "I",
@@ -907,6 +925,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "P(prime) = 8/20 = 2/5"
     ],
     "finalAnswer": "8/20",
+    "explanation": "Total numbers from 1 to 20 = 20. Prime numbers: 2, 3, 5, 7, 11, 13, 17, 19 = 8 primes. P(prime) = 8/20 = 2/5. Therefore, the correct answer is 8/20.",
     "isCompetencyBased": true,
     "pyqYear": "2020",
     "pyqSet": "II",
@@ -936,6 +955,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "Getting a number > 100 is impossible, so P = 0"
     ],
     "finalAnswer": "Getting a number greater than 100 when rolling a die",
+    "explanation": "An impossible event has probability 0. When rolling a standard die, maximum number is 6. Getting a number > 100 is impossible, so P = 0. Therefore, the correct answer is Getting a number greater than 100 when rolling a die.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -966,6 +986,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "R correctly explains why the sum is 1"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1021,6 +1042,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "P(not like math) = 16/40 = 2/5"
     ],
     "finalAnswer": "2/5",
+    "explanation": "Total students = 40. Students who like math = 24. Students who don't like math = 40 - 24 = 16. P(not like math) = 16/40 = 2/5. Therefore, the correct answer is 2/5.",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "I",
@@ -1075,6 +1097,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "R explains why probabilities must be between 0 and 1"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1200,6 +1223,7 @@ export const PR2_PACK2: CanonicalQuestion[] = [
       "P(red on both) = (3/8) × (3/8) = 9/64"
     ],
     "finalAnswer": "9/64",
+    "explanation": "P(red on first spin) = 3/8. P(red on second spin) = 3/8 (independent event). P(red on both) = (3/8) × (3/8) = 9/64. Therefore, the correct answer is 9/64.",
     "isCompetencyBased": true,
     "pyqYear": "2025",
     "pyqSet": "I",

@@ -25,6 +25,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "Therefore, the line perpendicular to the radius at the point of contact is the tangent."
     ],
     "finalAnswer": "Tangent",
+    "explanation": "By definition, a tangent is a line that touches a circle at exactly one point. The radius at the point of contact is perpendicular to the tangent. Therefore, the line perpendicular to the radius at the point of contact is the tangent. Therefore, the correct answer is Tangent.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -54,6 +55,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "Since OP ⊥ tangent, the angle between OP and PQ = 90° - 65° = 25°."
     ],
     "finalAnswer": "25°",
+    "explanation": "The radius OP is perpendicular to the tangent at P. The tangent makes 65° with chord PQ. Since OP ⊥ tangent, the angle between OP and PQ = 90° - 65° = 25°. Therefore, the correct answer is 25°.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -83,6 +85,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "They make equal angles with the line joining the external point to the center."
     ],
     "finalAnswer": "2",
+    "explanation": "From an external point, exactly 2 tangents can be drawn to a circle. These two tangents are of equal length. They make equal angles with the line joining the external point to the center. Therefore, the correct answer is 2.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -112,6 +115,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "Therefore, PA = PB."
     ],
     "finalAnswer": "PA = PB",
+    "explanation": "From an external point, the two tangent segments to a circle are equal in length. This is a fundamental property of tangents from an external point. Therefore, PA = PB. Therefore, the correct answer is PA = PB.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -142,6 +146,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "The correct reason is that a tangent touches the circle at only one point, and the shortest distance from the center to the tangent is along the perpendicular (the radius)."
     ],
     "finalAnswer": "Both A and R are true, but R is not the correct explanation of A.",
+    "explanation": "Both statements are individually correct. However, the Reason does not directly cause or explain the Assertion — they are independent true facts about the same concept.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -653,6 +658,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "Hence, 0 tangents can be drawn from an interior point."
     ],
     "finalAnswer": "0",
+    "explanation": "A tangent line touches a circle at exactly one point and does not pass through the interior. From a point inside the circle, any line passing through it will intersect the circle at two points. Therefore, no line through an interior point can be a tangent. Hence, 0 tangents can be drawn from an interior point. Therefore, the correct answer is 0.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -710,6 +716,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "Therefore, the angle between the tangent and radius at P is 90°."
     ],
     "finalAnswer": "90°",
+    "explanation": "By the fundamental property of tangents: A tangent to a circle is always perpendicular to the radius at the point of contact. Therefore, the angle between the tangent and radius at P is 90°. Therefore, the correct answer is 90°.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -738,6 +745,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "This follows from the congruence of right triangles formed by the radii and tangents."
     ],
     "finalAnswer": "They are equal in length",
+    "explanation": "From an external point, two tangents drawn to a circle are always equal in length. This follows from the congruence of right triangles formed by the radii and tangents. Therefore, the correct answer is They are equal in length.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -946,6 +954,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "Therefore both are true with correct causal relationship"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1139,6 +1148,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "Therefore, the answer is 0."
     ],
     "finalAnswer": "0",
+    "explanation": "A tangent to a circle can only be drawn from an external point or a point on the circle. From any point inside the circle, no tangent can be drawn to that circle. Therefore, the answer is 0. Therefore, the correct answer is 0.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1167,6 +1177,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "Therefore, OP ⊥ tangent at P."
     ],
     "finalAnswer": "Perpendicular to the tangent",
+    "explanation": "By the fundamental property: A tangent to a circle is perpendicular to the radius at the point of tangency. Therefore, OP ⊥ tangent at P. Therefore, the correct answer is Perpendicular to the tangent.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1227,6 +1238,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "Therefore: Both true, but R is not the correct explanation"
     ],
     "finalAnswer": "Both A and R are true, but R is not the correct explanation of A.",
+    "explanation": "Both statements are individually correct. However, the Reason does not directly cause or explain the Assertion — they are independent true facts about the same concept.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,

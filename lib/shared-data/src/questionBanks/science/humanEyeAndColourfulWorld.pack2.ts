@@ -25,6 +25,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "It acts as the primary refracting surface of the eye."
     ],
     "finalAnswer": "B) Cornea",
+    "explanation": "The cornea is the transparent front layer of the eye. It covers the iris and pupil. It acts as the primary refracting surface of the eye. Therefore, the correct answer is B) Cornea.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -54,6 +55,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "They are connected to the lens via the suspensory ligaments."
     ],
     "finalAnswer": "B) Ciliary muscles",
+    "explanation": "The ciliary muscles support the lens. These muscles help change the shape of the lens for accommodation. They are connected to the lens via the suspensory ligaments. Therefore, the correct answer is B) Ciliary muscles.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -83,6 +85,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "The pupil is the opening in the iris."
     ],
     "finalAnswer": "C) Iris",
+    "explanation": "The iris is a muscular diaphragm that controls pupil size. It regulates the amount of light entering the eye. The pupil is the opening in the iris. Therefore, the correct answer is C) Iris.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -112,6 +115,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "This shifts the focal point onto the retina, allowing distant objects to be seen clearly."
     ],
     "finalAnswer": "B) Concave lens",
+    "explanation": "Myopia (short-sightedness) occurs when light rays converge before reaching the retina. A concave lens diverges light rays before they enter the eye. This shifts the focal point onto the retina, allowing distant objects to be seen clearly. Therefore, the correct answer is B) Concave lens.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -141,6 +145,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "Near objects cannot be focused on the retina, causing blurred near vision."
     ],
     "finalAnswer": "B) Light rays converge behind the retina",
+    "explanation": "In hypermetropia, the eyeball is too short or the cornea is too flat. Light rays converge at a point behind the retina. Near objects cannot be focused on the retina, causing blurred near vision. Therefore, the correct answer is B) Light rays converge behind the retina.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -171,6 +176,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "Bifocal lenses are used to correct this defect."
     ],
     "finalAnswer": "A) Loss of elasticity in the lens due to aging",
+    "explanation": "Presbyopia develops with age as the lens loses elasticity. The ciliary muscles cannot change the lens shape effectively. Both near and far vision are affected, especially close vision. Bifocal lenses are used to correct this defect. Therefore, the correct answer is A) Loss of elasticity in the lens due to aging.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -201,6 +207,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "Cylindrical lenses are used to correct this defect."
     ],
     "finalAnswer": "C) Inability to focus on objects in all directions",
+    "explanation": "Astigmatism results from irregular curvature of the cornea or lens. Different meridians have different focal lengths. Objects appear blurred in all directions. Cylindrical lenses are used to correct this defect. Therefore, the correct answer is C) Inability to focus on objects in all directions.",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "Delhi",
@@ -231,6 +238,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "The refracted light intensity fluctuates, making stars appear to twinkle."
     ],
     "finalAnswer": "B) Atmospheric refraction causes fluctuation in light intensity",
+    "explanation": "Light from stars travels through the Earth's atmosphere. The atmosphere has layers of varying density and temperature. These variations cause refraction of starlight. The refracted light intensity fluctuates, making stars appear to twinkle. Therefore, the correct answer is B) Atmospheric refraction causes fluctuation in light intensity.",
     "isCompetencyBased": true,
     "pyqYear": "2019",
     "pyqSet": "All India",
@@ -261,6 +269,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "This results in the sun appearing higher than its actual position."
     ],
     "finalAnswer": "C) Atmospheric refraction",
+    "explanation": "The sun appears at the horizon even when it is actually below the horizon. Light from the sun undergoes refraction in the atmosphere. The denser air near the Earth's surface bends light rays. This results in the sun appearing higher than its actual position. Therefore, the correct answer is C) Atmospheric refraction.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -291,6 +300,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "This separation of colors is called dispersion."
     ],
     "finalAnswer": "B) Splitting of white light into its constituent colors",
+    "explanation": "White light is a mixture of different colors. Each color has a different wavelength. Different colors refract at different angles. This separation of colors is called dispersion. Therefore, the correct answer is B) Splitting of white light into its constituent colors.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -321,6 +331,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "Red light appears at the top of the primary rainbow."
     ],
     "finalAnswer": "B) Red",
+    "explanation": "Rainbows are formed due to dispersion of sunlight in water droplets. Red light has the longest wavelength and refracts the least. Violet light has the shortest wavelength and refracts the most. Red light appears at the top of the primary rainbow. Therefore, the correct answer is B) Red.",
     "isCompetencyBased": false,
     "pyqYear": "2020",
     "pyqSet": "All India",
@@ -351,6 +362,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "This is called Rayleigh scattering, making the sky appear blue."
     ],
     "finalAnswer": "B) Scattering of light",
+    "explanation": "Sunlight contains all colors of the visible spectrum. Blue light has shorter wavelengths than red light. Shorter wavelengths are scattered more by air molecules. This is called Rayleigh scattering, making the sky appear blue. Therefore, the correct answer is B) Scattering of light.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -381,6 +393,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "This makes the sun appear reddish or orange."
     ],
     "finalAnswer": "C) Blue light is scattered more than red light",
+    "explanation": "At sunrise and sunset, sunlight travels through a thicker layer of atmosphere. Blue light (shorter wavelength) is scattered away from our line of sight. Red light (longer wavelength) is scattered less and reaches our eyes. This makes the sun appear reddish or orange. Therefore, the correct answer is C) Blue light is scattered more than red light.",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "Delhi",
@@ -544,6 +557,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "The lens provides the remaining refraction and fine-tuning through accommodation."
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -575,6 +589,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "The power of the concave lens must match the degree of myopia for correction."
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "All India",
@@ -607,6 +622,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "This causes the sky to appear reddish at sunset."
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": "2025",
     "pyqSet": "Delhi",
@@ -715,6 +731,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "Other parts have fixed roles (cornea for refraction, iris for pupil control, retina for image formation)"
     ],
     "finalAnswer": "Ciliary muscles",
+    "explanation": "The ciliary muscles control the curvature of the lens. This changes the focal length for accommodation. Other parts have fixed roles (cornea for refraction, iris for pupil control, retina for image formation). Therefore, the correct answer is Ciliary muscles.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -744,6 +761,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "This is also called the least distance of distinct vision"
     ],
     "finalAnswer": "25 cm",
+    "explanation": "The near point is the closest distance at which the eye can form a clear image. For a normal adult eye, this distance is approximately 25 cm. This is also called the least distance of distinct vision. Therefore, the correct answer is 25 cm.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -773,6 +791,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "This enables focusing on objects close to the eye"
     ],
     "finalAnswer": "Ciliary muscles are contracted",
+    "explanation": "When ciliary muscles contract, they allow the lens to become more curved. A more curved lens has greater refractive power. This enables focusing on objects close to the eye. Therefore, the correct answer is Ciliary muscles are contracted.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -803,6 +822,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "It is also called short-sightedness"
     ],
     "finalAnswer": "Very close to the eye",
+    "explanation": "Myopia is a refractive error where the eye focuses light in front of the retina. This causes distant objects to appear blurred. Only nearby objects can be seen clearly. It is also called short-sightedness. Therefore, the correct answer is Very close to the eye.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -833,6 +853,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "Convex lenses have positive power"
     ],
     "finalAnswer": "Convex lens",
+    "explanation": "Hypermetropia occurs when the eye focuses light behind the retina. A convex lens converges light rays before they enter the eye. This shifts the focal point forward onto the retina. Convex lenses have positive power. Therefore, the correct answer is Convex lens.",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "Delhi",
@@ -863,6 +884,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "Positive power indicates a convex lens"
     ],
     "finalAnswer": "+40 cm",
+    "explanation": "Power P = 1/f, where f is in meters. 2.5 = 1/f. f = 1/2.5 = 0.4 m = 40 cm. Positive power indicates a convex lens. Therefore, the correct answer is +40 cm.",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "All India",
@@ -893,6 +915,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "It affects both near and distant vision"
     ],
     "finalAnswer": "The lens loses its elasticity with age",
+    "explanation": "Presbyopia is age-related deterioration of vision. The lens becomes less flexible and elastic with age. This reduces the ability of ciliary muscles to change lens shape. It affects both near and distant vision. Therefore, the correct answer is The lens loses its elasticity with age.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -949,6 +972,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "This causes the apparent position of stars to change rapidly"
     ],
     "finalAnswer": "Atmospheric refraction",
+    "explanation": "Stars twinkle because of continuous refraction of their light in Earth's atmosphere. The atmosphere has layers of varying densities and temperatures. Light from stars undergoes refraction as it passes through these layers. This causes the apparent position of stars to change rapidly. Therefore, the correct answer is Atmospheric refraction.",
     "isCompetencyBased": true,
     "pyqYear": "2019",
     "pyqSet": "All India",
@@ -979,6 +1003,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "Stars appear as point sources, so any refraction causes visible twinkling"
     ],
     "finalAnswer": "Subtend a larger angle at the eye",
+    "explanation": "Planets appear as extended objects, not point sources like stars. Light from different parts of the planet undergoes different refractions. These variations average out, preventing noticeable twinkling. Stars appear as point sources, so any refraction causes visible twinkling. Therefore, the correct answer is Subtend a larger angle at the eye.",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "Delhi",
@@ -1010,6 +1035,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "The same effect makes the sun appear higher at sunset"
     ],
     "finalAnswer": "Refraction through layers of atmosphere",
+    "explanation": "Light from the sun undergoes refraction in Earth's atmosphere. The atmosphere is denser near Earth's surface. Light bends away from the normal as it enters less dense regions. This causes the sun to appear higher in the sky than it actually is. The same effect makes the sun appear higher at sunset. Therefore, the correct answer is Refraction through layers of atmosphere.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1040,6 +1066,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "Therefore, violet has the highest refractive index"
     ],
     "finalAnswer": "Violet",
+    "explanation": "Dispersion occurs because different colors have different refractive indices. Violet light has the shortest wavelength in visible light. Shorter wavelengths are refracted more than longer wavelengths. Therefore, violet has the highest refractive index. Therefore, the correct answer is Violet.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1070,6 +1097,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "Violet (shortest wavelength) is refracted most, so it appears innermost"
     ],
     "finalAnswer": "VIBGYOR (inside to outside)",
+    "explanation": "In a primary rainbow, violet appears on the inner arc. Red appears on the outer arc. This is due to the different angles of refraction. Violet (shortest wavelength) is refracted most, so it appears innermost. Therefore, the correct answer is VIBGYOR (inside to outside).",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "All India",
@@ -1127,6 +1155,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "Blue light is scattered more than red light by atmospheric molecules"
     ],
     "finalAnswer": "Rayleigh scattering",
+    "explanation": "The sky appears blue because of Rayleigh scattering. Blue light has a shorter wavelength than red light. According to Rayleigh's law, scattering is inversely proportional to the fourth power of wavelength. Blue light is scattered more than red light by atmospheric molecules. Therefore, the correct answer is Rayleigh scattering.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1158,6 +1187,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "This makes the sun appear red at sunset"
     ],
     "finalAnswer": "Blue light is scattered away by the atmosphere",
+    "explanation": "At sunset, light travels through a longer path in the atmosphere. Blue light (shorter wavelength) is scattered more than red light. Due to Rayleigh scattering, most blue light is scattered out of the line of sight. Only red light (longer wavelength) reaches our eyes. This makes the sun appear red at sunset. Therefore, the correct answer is Blue light is scattered away by the atmosphere.",
     "isCompetencyBased": true,
     "pyqYear": "2025",
     "pyqSet": "Delhi",
@@ -1188,6 +1218,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "Therefore, the sky would appear red instead of blue"
     ],
     "finalAnswer": "Red",
+    "explanation": "Currently, scattering ∝ λ⁻⁴, so shorter wavelengths scatter more. If scattering ∝ λ², longer wavelengths would scatter more. Red light (longest wavelength) would be scattered most. Therefore, the sky would appear red instead of blue. Therefore, the correct answer is Red.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1218,6 +1249,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "The lens provides fine-tuning through accommodation"
     ],
     "finalAnswer": "Both A and R are true, but R is not the correct explanation of A.",
+    "explanation": "Both statements are individually correct. However, the Reason does not directly cause or explain the Assertion — they are independent true facts about the same concept.",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "All India",
@@ -1249,6 +1281,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "Thus, a concave lens corrects myopia by diverging light"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "Delhi",
@@ -1280,6 +1313,7 @@ export const HEC2_PACK2: CanonicalQuestion[] = [
       "Both the assertion and reason are correct, and the reason explains the assertion"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": "2020",
     "pyqSet": "All India",

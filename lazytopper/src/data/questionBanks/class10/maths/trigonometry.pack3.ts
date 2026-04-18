@@ -27,6 +27,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "cos θ = 4/5 (taking positive value)"
     ],
     "finalAnswer": "4/5",
+    "explanation": "In a right triangle, sin²θ + cos²θ = 1. If sin θ = 3/5, then (3/5)² + cos²θ = 1. 9/25 + cos²θ = 1. cos²θ = 16/25. cos θ = 4/5 (taking positive value). Therefore, the correct answer is 4/5.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -55,6 +56,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "tan 45° = opposite/adjacent = 1/1 = 1"
     ],
     "finalAnswer": "1",
+    "explanation": "In a 45-45-90 triangle, the opposite and adjacent sides are equal. tan 45° = opposite/adjacent = 1/1 = 1. Therefore, the correct answer is 1.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -84,6 +86,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "sin 30° + cos 60° = 1/2 + 1/2 = 1"
     ],
     "finalAnswer": "1",
+    "explanation": "sin 30° = 1/2. cos 60° = 1/2. sin 30° + cos 60° = 1/2 + 1/2 = 1. Therefore, the correct answer is 1.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -112,6 +115,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "This is true for all values of θ"
     ],
     "finalAnswer": "sin²θ + cos²θ = 1",
+    "explanation": "The Pythagorean identity states: sin²θ + cos²θ = 1. This is true for all values of θ. Therefore, the correct answer is sin²θ + cos²θ = 1.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -140,6 +144,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "This applies because 90° and (90° - θ) are complementary angles"
     ],
     "finalAnswer": "cos θ",
+    "explanation": "By complementary angle formula: sin (90° - θ) = cos θ. This applies because 90° and (90° - θ) are complementary angles. Therefore, the correct answer is cos θ.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -169,6 +174,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "sin θ = opposite/hypotenuse = 4/5"
     ],
     "finalAnswer": "4/5",
+    "explanation": "If tan θ = 4/3, then opposite = 4, adjacent = 3. hypotenuse = √(4² + 3²) = √25 = 5. sin θ = opposite/hypotenuse = 4/5. Therefore, the correct answer is 4/5.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -198,6 +204,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "Therefore, sin²60° + cos²60° = 1"
     ],
     "finalAnswer": "1",
+    "explanation": "Using identity: sin²θ + cos²θ = 1. This is true for all angles, including θ = 60°. Therefore, sin²60° + cos²60° = 1. Therefore, the correct answer is 1.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -227,6 +234,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "cos (90° - 35°) = sin 35°"
     ],
     "finalAnswer": "sin 35°",
+    "explanation": "cos (90° - 35°) = cos 55°. By complementary angle formula: cos (90° - θ) = sin θ. cos (90° - 35°) = sin 35°. Therefore, the correct answer is sin 35°.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -356,6 +364,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "This gives: sin²θ + cos²θ = 1"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -385,6 +394,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "sin 25° = sin (90° - 65°) = cos 65°"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -415,6 +425,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "Therefore, tan θ is undefined when cos θ = 0"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -666,6 +677,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "Both expressions are equivalent"
     ],
     "finalAnswer": "Both (2) and (3)",
+    "explanation": "cot θ = cos θ/sin θ = 1/tan θ. Both expressions are equivalent. Therefore, the correct answer is Both (2) and (3).",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -693,6 +705,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "cos 0° = 1 (from unit circle or standard values)"
     ],
     "finalAnswer": "1",
+    "explanation": "cos 0° = 1 (from unit circle or standard values). Therefore, the correct answer is 1.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -721,6 +734,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "cos θ = 3/5"
     ],
     "finalAnswer": "3/5",
+    "explanation": "sec θ = 1/cos θ = 5/3. cos θ = 3/5. Therefore, the correct answer is 3/5.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -748,6 +762,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "tan θ · cot θ = tan θ · (1/tan θ) = 1 for all θ where tan θ ≠ 0"
     ],
     "finalAnswer": "1",
+    "explanation": "tan θ · cot θ = tan θ · (1/tan θ) = 1 for all θ where tan θ ≠ 0. Therefore, the correct answer is 1.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -849,6 +864,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "cos θ = adjacent/hypotenuse = 4/5"
     ],
     "finalAnswer": "4/5",
+    "explanation": "sin θ = 3/5, so opposite = 3, hypotenuse = 5. Using Pythagoras: adjacent² = 5² - 3² = 25 - 9 = 16. adjacent = 4. cos θ = adjacent/hypotenuse = 4/5. Therefore, the correct answer is 4/5.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -877,6 +893,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "sin 30° = 1/2"
     ],
     "finalAnswer": "1/2",
+    "explanation": "Standard angle value from trigonometric table. sin 30° = 1/2. Therefore, the correct answer is 1/2.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -905,6 +922,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "sin 25° = cos(90° - 25°) = cos 65°"
     ],
     "finalAnswer": "65°",
+    "explanation": "sin θ = cos(90° - θ). sin 25° = cos(90° - 25°) = cos 65°. Therefore, the correct answer is 65°.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -934,6 +952,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "Dividing by hypotenuse²: sin² θ + cos² θ = 1"
     ],
     "finalAnswer": "sin² θ + cos² θ = 1",
+    "explanation": "Fundamental identity derived from Pythagoras theorem. In a right-angled triangle: opposite² + adjacent² = hypotenuse². Dividing by hypotenuse²: sin² θ + cos² θ = 1. Therefore, the correct answer is sin² θ + cos² θ = 1.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -964,6 +983,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "sec θ = hypotenuse/adjacent = 13/12"
     ],
     "finalAnswer": "13/12",
+    "explanation": "tan θ = 5/12 (opposite/adjacent). Using Pythagoras: hypotenuse² = 5² + 12² = 25 + 144 = 169. hypotenuse = 13. sec θ = hypotenuse/adjacent = 13/12. Therefore, the correct answer is 13/12.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1016,6 +1036,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "cos² θ · sec² θ = cos² θ · (1/cos² θ) = 1"
     ],
     "finalAnswer": "1",
+    "explanation": "1 - sin² θ = cos² θ. cos² θ · sec² θ = cos² θ · (1/cos² θ) = 1. Therefore, the correct answer is 1.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1072,6 +1093,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "height = 10 × √3/2 = 5√3 m"
     ],
     "finalAnswer": "5√3 m",
+    "explanation": "sin 60° = height/hypotenuse. √3/2 = height/10. height = 10 × √3/2 = 5√3 m. Therefore, the correct answer is 5√3 m.",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "Delhi",
@@ -1100,6 +1122,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "tan 60° × cot 60° = √3 × (1/√3) = 1"
     ],
     "finalAnswer": "1",
+    "explanation": "tan 60° = √3, cot 60° = 1/√3. tan 60° × cot 60° = √3 × (1/√3) = 1. Therefore, the correct answer is 1.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1128,6 +1151,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "Rearranging: sec² θ - tan² θ = 1"
     ],
     "finalAnswer": "tan² θ + 1 = sec² θ",
+    "explanation": "From tan² θ + 1 = sec² θ. Rearranging: sec² θ - tan² θ = 1. Therefore, the correct answer is tan² θ + 1 = sec² θ.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1182,6 +1206,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "R explains why A is true using the identity"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1211,6 +1236,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "sin 18° = (√5 - 1)/4"
     ],
     "finalAnswer": "(√5 - 1)/4",
+    "explanation": "sin 18° is a standard angle value. Using geometry of regular pentagon or algebraic derivation. sin 18° = (√5 - 1)/4. Therefore, the correct answer is (√5 - 1)/4.",
     "isCompetencyBased": false,
     "pyqYear": "2022",
     "pyqSet": "All India",
@@ -1266,6 +1292,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "Product = 1 × 1 × ... × 1 × 1 = 1"
     ],
     "finalAnswer": "1",
+    "explanation": "Using complementary angle property: tan θ × tan(90° - θ) = 1. Pairing: tan 1° × tan 89° = 1, tan 2° × tan 88° = 1, .., tan 44° × tan 46° = 1. Middle term: tan 45° = 1. Product = 1 × 1 × .. × 1 × 1 = 1. Therefore, the correct answer is 1.",
     "isCompetencyBased": true,
     "pyqYear": "2020",
     "pyqSet": "All India",
@@ -1296,6 +1323,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "R correctly explains why A is true"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1414,6 +1442,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "cos 72° = sin(90° - 72°) = sin 18°"
     ],
     "finalAnswer": "18°",
+    "explanation": "sin θ = cos(90° - θ). cos 72° = sin(90° - 72°) = sin 18°. Therefore, the correct answer is 18°.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1468,6 +1497,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "cosec θ + cot θ = 3"
     ],
     "finalAnswer": "3",
+    "explanation": "cosec² θ - cot² θ = 1 (fundamental identity). (cosec θ - cot θ)(cosec θ + cot θ) = 1. (1/3)(cosec θ + cot θ) = 1. cosec θ + cot θ = 3. Therefore, the correct answer is 3.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1498,6 +1528,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "= sin² θ - cos² θ"
     ],
     "finalAnswer": "sin² θ - cos² θ",
+    "explanation": "sin⁴ θ - cos⁴ θ = (sin² θ)² - (cos² θ)². = (sin² θ - cos² θ)(sin² θ + cos² θ). = (sin² θ - cos² θ)(1). = sin² θ - cos² θ. Therefore, the correct answer is sin² θ - cos² θ.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1564,6 +1595,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "Each side simplifies to 2, confirming the identity"
     ],
     "finalAnswer": "1",
+    "explanation": "A + B = 90°, so B = 90° - A. tan A tan B = tan A tan(90° - A) = tan A cot A = 1. sin A sec B = sin A sec(90° - A) = sin A cosec A = 1. tan A tan B + sin A sec B = 1 + 1 - 1 = 1. Using identities: tan A cot A = 1 and sin A cosec A = 1. But sec(90° - A) = cosec A. So: 1 + sin A cosec A = tan A cot A + 1. Correct: tan(90°-A)=cot A, sin A sec(90°-A)=sin A cosec A=1. tan A cot A = 1. Each side simplifies to 2, confirming the identity. Therefore, the correct answer is 1.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1595,6 +1627,7 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "R explains the derivation of A"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,

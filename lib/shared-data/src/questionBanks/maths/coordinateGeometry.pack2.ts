@@ -25,6 +25,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "d = √[9 + 16] = √25 = 5"
     ],
     "finalAnswer": "5",
+    "explanation": "The correct answer is 5. This is a fundamental result that should be recalled directly from the key concepts of this topic.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -56,6 +57,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "y = ±12"
     ],
     "finalAnswer": "±12",
+    "explanation": "Distance PQ = 13. Therefore, the correct answer is ±12.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -110,6 +112,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "M = [6/2, 10/2] = (3, 5)"
     ],
     "finalAnswer": "(3, 5)",
+    "explanation": "The correct answer is (3, 5). This is a fundamental result that should be recalled directly from the key concepts of this topic.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -141,6 +144,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "B = (7, 8)"
     ],
     "finalAnswer": "(7, 8)",
+    "explanation": "Let B = (x, y). Therefore, the correct answer is (7, 8).",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -197,6 +201,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "P = (6, 3)"
     ],
     "finalAnswer": "(6, 3)",
+    "explanation": "Using section formula with m = 3, n = 2. x = (3·10 + 2·0)/(3+2) = 30/5 = 6. y = (3·5 + 2·0)/(3+2) = 15/5 = 3. P = (6, 3). Therefore, the correct answer is (6, 3).",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -253,6 +258,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "k = ±4"
     ],
     "finalAnswer": "±4",
+    "explanation": "Area = (1/2)|x₁(y₂-y₃) + x₂(y₃-y₁) + x₃(y₁-y₂)|. 4 = (1/2)|0(0-2) + k(2-0) + 0(0-0)|. 4 = (1/2)|2k|. 8 = 2|k|. k = ±4. Therefore, the correct answer is ±4.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -307,6 +313,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "R explains A perfectly"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -336,6 +343,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "R explains the principle correctly"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -365,6 +373,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "Area = 0 when determinant = 0, which happens when points are collinear"
     ],
     "finalAnswer": "Both A and R are true, but R is not the correct explanation of A.",
+    "explanation": "Both statements are individually correct. However, the Reason does not directly cause or explain the Assertion — they are independent true facts about the same concept.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -561,6 +570,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "Distance from (4,3) to B = √[(4-6)² + (3-3)²] = 2"
     ],
     "finalAnswer": "(4, 3)",
+    "explanation": "Point equidistant from A and B lies on perpendicular bisector. Therefore, the correct answer is (4, 3).",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -616,6 +626,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "AB = √[64 + 36] = √100 = 10"
     ],
     "finalAnswer": "10",
+    "explanation": "O = (0, 0), A = (8, 0), B = (0, 6). Therefore, the correct answer is 10.",
     "isCompetencyBased": true,
     "pyqYear": "2019",
     "pyqSet": "II",
@@ -672,6 +683,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "= √25 = 5"
     ],
     "finalAnswer": "5",
+    "explanation": "The correct answer is 5. This is a fundamental result that should be recalled directly from the key concepts of this topic.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -701,6 +713,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "Both distances are equal"
     ],
     "finalAnswer": "(3, 4) and (4, 3)",
+    "explanation": "Distance of (3, 4) from origin = √(9 + 16) = 5. Distance of (4, 3) from origin = √(16 + 9) = 5. Both distances are equal. Therefore, the correct answer is (3, 4) and (4, 3).",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -756,6 +769,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "= (6, 8)"
     ],
     "finalAnswer": "(6, 8)",
+    "explanation": "Midpoint M = ((4+8)/2, (6+10)/2). = (12/2, 16/2). = (6, 8). Therefore, the correct answer is (6, 8).",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -810,6 +824,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "= ((2x₂+x₁)/3, (2y₂+y₁)/3)"
     ],
     "finalAnswer": "((2x₁+x₂)/3, (2y₁+y₂)/3)",
+    "explanation": "Section formula for ratio m:n is ((mx₂+nx₁)/(m+n), (my₂+ny₁)/(m+n)). For ratio 2:1: ((2x₂+1x₁)/(2+1), (2y₂+1y₁)/(2+1)). = ((2x₂+x₁)/3, (2y₂+y₁)/3). Therefore, the correct answer is ((2x₁+x₂)/3, (2y₁+y₂)/3).",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -864,6 +879,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "= (1/2)|0 + 12 + 0| = 6"
     ],
     "finalAnswer": "6",
+    "explanation": "Area = (1/2)|x₁(y₂-y₃) + x₂(y₃-y₁) + x₃(y₁-y₂)|. = (1/2)|0(0-3) + 4(3-0) + 0(0-0)|. = (1/2)|0 + 12 + 0| = 6. Therefore, the correct answer is 6.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1005,6 +1021,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "R explains A"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1035,6 +1052,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "R is correct and explains A"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1066,6 +1084,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "R explains A"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,

@@ -24,6 +24,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
       "x² + 2x + 1 = 0 has degree 2, so it is quadratic"
     ],
     "finalAnswer": "x² + 2x + 1 = 0",
+    "explanation": "A quadratic equation has the form ax² + bx + c = 0 where a ≠ 0. x² + 2x + 1 = 0 has degree 2, so it is quadratic. Therefore, the correct answer is x² + 2x + 1 = 0.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -53,6 +54,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
       "x = 2 or x = 3"
     ],
     "finalAnswer": "x = 2, 3",
+    "explanation": "x² - 5x + 6 = 0. Factors: (x - 2)(x - 3) = 0. x = 2 or x = 3. Therefore, the correct answer is x = 2, 3.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -82,6 +84,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
       "x = -1/2 or x = -3"
     ],
     "finalAnswer": "x = -1/2, -3",
+    "explanation": "2x² + 7x + 3 = 0. (2x + 1)(x + 3) = 0. x = -1/2 or x = -3. Therefore, the correct answer is x = -1/2, -3.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -110,6 +113,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
       "= (x + 3)² - 9"
     ],
     "finalAnswer": "(x + 3)² - 9",
+    "explanation": "x² + 6x = (x)² + 2(3)(x) + (3)² - (3)². = (x + 3)² - 9. Therefore, the correct answer is (x + 3)² - 9.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -142,6 +146,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
       "x = 1 or x = -5"
     ],
     "finalAnswer": "x = 1, -5",
+    "explanation": "x² + 4x - 5 = 0. x² + 4x = 5. (x + 2)² - 4 = 5. (x + 2)² = 9. x + 2 = ±3. x = 1 or x = -5. Therefore, the correct answer is x = 1, -5.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -169,6 +174,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
       "The standard quadratic formula is x = [-b ± √(b² - 4ac)] / 2a"
     ],
     "finalAnswer": "x = [-b ± √(b² - 4ac)] / 2a",
+    "explanation": "The correct answer is x = [-b ± √(b² - 4ac)] / 2a. This is a fundamental result that should be recalled directly from the key concepts of this topic.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -199,6 +205,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
       "x = 3 or x = 1"
     ],
     "finalAnswer": "x = 1, 3",
+    "explanation": "a = 1, b = -4, c = 3. Therefore, the correct answer is x = 1, 3.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -229,6 +236,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
       "x = -1/2 or x = -2"
     ],
     "finalAnswer": "x = -1/2, -2",
+    "explanation": "a = 2, b = 5, c = 2. Δ = 25 - 16 = 9. Therefore, the correct answer is x = -1/2, -2.",
     "isCompetencyBased": true,
     "pyqYear": "2020",
     "pyqSet": "Set-1",
@@ -257,6 +265,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
       "Δ = (-5)² - 4(1)(6) = 25 - 24 = 1"
     ],
     "finalAnswer": "1",
+    "explanation": "Δ = b² - 4ac. Δ = (-5)² - 4(1)(6) = 25 - 24 = 1. Therefore, the correct answer is 1.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -286,6 +295,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
       "Both roots have the same value"
     ],
     "finalAnswer": "real and equal",
+    "explanation": "When discriminant Δ = 0. The roots are x = -b/2a (equal roots). Both roots have the same value. Therefore, the correct answer is real and equal.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -316,6 +326,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
       "k = ±2"
     ],
     "finalAnswer": "k = ±2",
+    "explanation": "For equal roots: Δ = 0. k² - 4(1)(1) = 0. k² = 4. k = ±2. Therefore, the correct answer is k = ±2.",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "Set-2",
@@ -344,6 +355,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
       "Here: α + β = -(-p)/1 = p"
     ],
     "finalAnswer": "p",
+    "explanation": "By Vieta's formulas, sum of roots = -b/a. Here: α + β = -(-p)/1 = p. Therefore, the correct answer is p.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -668,6 +680,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
       "A is true and R correctly explains A"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -697,6 +710,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
       "Both A and R are true, and R explains why A is correct"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "Set-1",
@@ -726,6 +740,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
       "A is true and R correctly exemplifies A"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -756,6 +771,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
       "R is false"
     ],
     "finalAnswer": "A is true, R is false.",
+    "explanation": "The Assertion is a correct statement. However, the Reason given contains an incorrect claim or formula, making R false.",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "Set-2",
@@ -785,6 +801,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
       "R is true: discriminant can be negative"
     ],
     "finalAnswer": "A is false, R is true.",
+    "explanation": "The Assertion contains an incorrect claim. The Reason, however, is a true and valid statement on its own.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1049,6 +1066,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
       "Roots are x = 3 and x = -3"
     ],
     "finalAnswer": "(x-3)(x+3) = 0",
+    "explanation": "x² - 9 = (x)² - (3)². = (x - 3)(x + 3) by difference of squares. Roots are x = 3 and x = -3. Therefore, the correct answer is (x-3)(x+3) = 0.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1104,6 +1122,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
       "Roots are 0 and 0 (or x = 0 with multiplicity 2)"
     ],
     "finalAnswer": "0, 0",
+    "explanation": "x² = 0. This is a double root at x = 0. Roots are 0 and 0 (or x = 0 with multiplicity 2). Therefore, the correct answer is 0, 0.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1280,6 +1299,7 @@ export const QE2_PACK2: CanonicalQuestion[] = [
       "Δ = b² - 4ac = 25 - 24 = 1"
     ],
     "finalAnswer": "1",
+    "explanation": "a = 3, b = -5, c = 2. Δ = b² - 4ac = 25 - 24 = 1. Therefore, the correct answer is 1.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,

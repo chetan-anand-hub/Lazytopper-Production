@@ -25,6 +25,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
       "a₄ = 5 + 9 = 14"
     ],
     "finalAnswer": "14",
+    "explanation": "Using formula: aₙ = a + (n-1)d. a₄ = 5 + (4-1)×3. a₄ = 5 + 9 = 14. Therefore, the correct answer is 14.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -53,6 +54,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
       "d = 3"
     ],
     "finalAnswer": "3",
+    "explanation": "For aₙ = 3n + 2, d = coefficient of n. d = 3. Therefore, the correct answer is 3.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -135,6 +137,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
       "d = 3"
     ],
     "finalAnswer": "3",
+    "explanation": "a₅ = a + 4d = 12. a₁₂ = a + 11d = 33. Subtracting: 7d = 21. d = 3. Therefore, the correct answer is 3.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -165,6 +168,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
       "S₅ = 5/2 × 16 = 40"
     ],
     "finalAnswer": "40",
+    "explanation": "The correct answer is 40. This is a fundamental result that should be recalled directly from the key concepts of this topic.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -246,6 +250,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
       "d = a₂ - a₁ = 14 - 8 = 6"
     ],
     "finalAnswer": "a = 8, d = 6",
+    "explanation": "S₁ = 3(1)² + 5(1) = 8, so a₁ = 8. S₂ = 3(4) + 10 = 22. a₂ = S₂ - S₁ = 22 - 8 = 14. d = a₂ - a₁ = 14 - 8 = 6. Therefore, the correct answer is a = 8, d = 6.",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "Set-I",
@@ -382,6 +387,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
       "R explains A correctly"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -411,6 +417,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
       "R correctly explains the method ✓"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -440,6 +447,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
       "R correctly explains A ✓"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -627,6 +635,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
       "a₆ = 5 + 25 = 30"
     ],
     "finalAnswer": "30",
+    "explanation": "a = 5, d = 5, n = 6. aₙ = a + (n-1)d. a₆ = 5 + (6-1)×5. a₆ = 5 + 25 = 30. Therefore, the correct answer is 30.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -656,6 +665,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
       "a₅ = 2 + (5-1)×3 = 2 + 12 = 14"
     ],
     "finalAnswer": "14",
+    "explanation": "First term a = 2, common difference d = 5 - 2 = 3. nth term formula: aₙ = a + (n-1)d. a₅ = 2 + (5-1)×3 = 2 + 12 = 14. Therefore, the correct answer is 14.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -687,6 +697,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
       "n = 16"
     ],
     "finalAnswer": "16th",
+    "explanation": "a = 3, d = 5, aₙ = 78. 78 = 3 + (n-1)×5. 75 = (n-1)×5. n-1 = 15. n = 16. Therefore, the correct answer is 16th.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -716,6 +727,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
       "a₆ = 10 - 10 = 0"
     ],
     "finalAnswer": "0",
+    "explanation": "aₙ = a + (n-1)d. a₆ = 10 + (6-1)×(-2). a₆ = 10 - 10 = 0. Therefore, the correct answer is 0.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -745,6 +757,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
       "Sₙ = n/2(a + l) = 10/2(1 + 10) = 5×11 = 55"
     ],
     "finalAnswer": "55",
+    "explanation": "AP: 1, 2, 3, .., 10. a = 1, l = 10, n = 10. Sₙ = n/2(a + l) = 10/2(1 + 10) = 5×11 = 55. Therefore, the correct answer is 55.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -775,6 +788,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
       "S₈ = 4[10 + 35] = 4×45 = 180"
     ],
     "finalAnswer": "180",
+    "explanation": "a = 5, d = 5, n = 8. Therefore, the correct answer is 180.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -861,6 +875,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
       "R explains A correctly"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -891,6 +906,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
       "Both statements are correct"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -921,6 +937,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
       "Therefore a = -1, d = 3"
     ],
     "finalAnswer": "A is false, R is true.",
+    "explanation": "The Assertion contains an incorrect claim. The Reason, however, is a true and valid statement on its own.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1002,6 +1019,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
       "a₁₀ = 100 + (10-1)×10 = 100 + 90 = 190"
     ],
     "finalAnswer": "190",
+    "explanation": "a = 100, d = 10, n = 10. aₙ = a + (n-1)d. a₁₀ = 100 + (10-1)×10 = 100 + 90 = 190. Therefore, the correct answer is 190.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1149,6 +1167,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
       "d = a₂ - a₁ = (1/q + 1) - 1/q = 1"
     ],
     "finalAnswer": "1",
+    "explanation": "a₁ = 1/q. a₂ = (1+q)/q = 1/q + 1. d = a₂ - a₁ = (1/q + 1) - 1/q = 1. Therefore, the correct answer is 1.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1180,6 +1199,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
       "First three terms: 7, 11, 15 with d = 4"
     ],
     "finalAnswer": "7, 11, 15",
+    "explanation": "Sₙ = 5n + 2n². a₁ = S₁ = 5(1) + 2(1)² = 7. S₂ = 5(2) + 2(2)² = 18, so a₂ = S₂ - S₁ = 18 - 7 = 11. S₃ = 5(3) + 2(3)² = 33, so a₃ = S₃ - S₂ = 33 - 18 = 15. First three terms: 7, 11, 15 with d = 4. Therefore, the correct answer is 7, 11, 15.",
     "isCompetencyBased": false,
     "pyqYear": "2020",
     "pyqSet": "A",
@@ -1213,6 +1233,7 @@ export const AP2_PACK2: CanonicalQuestion[] = [
       "Sₙ = n/2(a + l) = 14/2(105 + 196) = 7 × 301 = 2107"
     ],
     "finalAnswer": "2107",
+    "explanation": "Multiples of 7 between 100 and 200: 105, 112, 119, .., 196. a = 105, d = 7, l = 196. Finding n: l = a + (n-1)d. 196 = 105 + (n-1)7. 91 = 7(n-1). n-1 = 13, so n = 14. Sₙ = n/2(a + l) = 14/2(105 + 196) = 7 × 301 = 2107. Therefore, the correct answer is 2107.",
     "isCompetencyBased": true,
     "pyqYear": "2019",
     "pyqSet": "B",

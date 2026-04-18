@@ -25,6 +25,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Lions are carnivores (heterotrophs), fungi are saprophytes (heterotrophs)"
     ],
     "finalAnswer": "Green plant",
+    "explanation": "Autotrophs are organisms that can produce their own food using sunlight or chemical energy. Green plants are autotrophs as they perform photosynthesis. Lions are carnivores (heterotrophs), fungi are saprophytes (heterotrophs). Therefore, the correct answer is Green plant.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -54,6 +55,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Other pigments are accessory pigments that help in light absorption"
     ],
     "finalAnswer": "Chlorophyll",
+    "explanation": "Chlorophyll is the main photosynthetic pigment in green plants. It absorbs light energy in the visible spectrum (red and blue wavelengths). Other pigments are accessory pigments that help in light absorption. Therefore, the correct answer is Chlorophyll.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -83,6 +85,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Light energy and chlorophyll are conditions, not raw materials"
     ],
     "finalAnswer": "Water and carbon dioxide",
+    "explanation": "Photosynthesis equation: 6CO₂ + 6H₂O + light energy → C₆H₁₂O₆ + 6O₂. Raw materials (reactants) are water and carbon dioxide. Light energy and chlorophyll are conditions, not raw materials. Therefore, the correct answer is Water and carbon dioxide.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -114,6 +117,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "All are examples of holozoic nutrition"
     ],
     "finalAnswer": "All of the above",
+    "explanation": "Holozoic nutrition involves ingestion of solid food particles. Amoeba engulfs food through pseudopodia. Hydra uses tentacles to capture prey. Humans use mouth and digestive system. All are examples of holozoic nutrition. Therefore, the correct answer is All of the above.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -167,6 +171,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Therefore, overall photosynthesis becomes zero"
     ],
     "finalAnswer": "Decrease to zero",
+    "explanation": "Light is an essential requirement for photosynthesis (light reactions). Without light, light-dependent reactions cannot occur. Therefore, overall photosynthesis becomes zero. Therefore, the correct answer is Decrease to zero.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -197,6 +202,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "3-PGA is then reduced to G3P, eventually forming glucose"
     ],
     "finalAnswer": "3-PGA (3-Phosphoglycerate)",
+    "explanation": "Calvin cycle is the light-independent reaction. CO₂ combines with RuBP (5-carbon compound) catalyzed by Rubisco enzyme. This forms an unstable 6-carbon intermediate that splits into two 3-PGA molecules. 3-PGA is then reduced to G3P, eventually forming glucose. Therefore, the correct answer is 3-PGA (3-Phosphoglycerate).",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -226,6 +232,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "This energy is used for various life activities"
     ],
     "finalAnswer": "Breakdown of food to release energy",
+    "explanation": "Respiration is a catabolic process (breakdown). It releases energy from organic molecules like glucose. This energy is used for various life activities. Therefore, the correct answer is Breakdown of food to release energy.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -255,6 +262,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Mitochondria is called the 'powerhouse of the cell'"
     ],
     "finalAnswer": "Mitochondrion",
+    "explanation": "Glycolysis occurs in cytoplasm (produces 2 ATP). Krebs cycle and electron transport chain occur in mitochondria. Mitochondria is called the 'powerhouse of the cell'. Therefore, the correct answer is Mitochondrion.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -284,6 +292,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Lactic acid buildup causes muscle fatigue"
     ],
     "finalAnswer": "Lactic acid",
+    "explanation": "During intense exercise, oxygen supply is limited. Pyruvate is converted to lactic acid instead of entering Krebs cycle. Lactic acid buildup causes muscle fatigue. Therefore, the correct answer is Lactic acid.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -314,6 +323,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "R correctly explains why A is true"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -367,6 +377,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Facultative anaerobes: can survive with or without oxygen (e.g., E. coli)"
     ],
     "finalAnswer": "Some bacteria that cannot survive in oxygen",
+    "explanation": "Obligate anaerobes: cannot survive in presence of oxygen. Example: Some bacteria in sewage, deep soil. Facultative anaerobes: can survive with or without oxygen (e.g., E. coli). Therefore, the correct answer is Some bacteria that cannot survive in oxygen.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -397,6 +408,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Electrons from NADH enter electron transport chain where oxygen is final acceptor"
     ],
     "finalAnswer": "Pyruvate",
+    "explanation": "In anaerobic glycolysis, NAD⁺ is regenerated as NADH transfers electrons to pyruvate. Pyruvate is reduced to lactate by lactate dehydrogenase. In aerobic conditions, pyruvate enters mitochondria for Krebs cycle. Electrons from NADH enter electron transport chain where oxygen is final acceptor. Therefore, the correct answer is Pyruvate.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -427,6 +439,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Vena cava: carries deoxygenated blood from body to heart"
     ],
     "finalAnswer": "Pulmonary vein",
+    "explanation": "Pulmonary artery: carries deoxygenated blood from heart to lungs. Pulmonary vein: carries oxygenated blood from lungs to heart. Aorta: carries oxygenated blood from heart to body. Vena cava: carries deoxygenated blood from body to heart. Therefore, the correct answer is Pulmonary vein.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -456,6 +469,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Hemocyanin is found in molluscs and arthropods"
     ],
     "finalAnswer": "Hemoglobin",
+    "explanation": "Hemoglobin is the iron-containing protein in RBCs. Each hemoglobin molecule can bind 4 oxygen molecules. Hemocyanin is found in molluscs and arthropods. Therefore, the correct answer is Hemoglobin.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -511,6 +525,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Helps in immune response and returns proteins to blood"
     ],
     "finalAnswer": "Tissue fluid that flows in lymphatic vessels",
+    "explanation": "Lymph is derived from tissue fluid that enters lymphatic capillaries. It flows through lymphatic vessels with one-way valves. Lymph contains lymphocytes and drains into blood at subclavian veins. Helps in immune response and returns proteins to blood. Therefore, the correct answer is Tissue fluid that flows in lymphatic vessels.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -541,6 +556,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "R correctly explains why A is true"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -571,6 +587,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Important for regulating glucose, detoxification, and nutrient processing"
     ],
     "finalAnswer": "It carries nutrient-rich blood from intestines to liver for processing",
+    "explanation": "Hepatic portal vein is unique as it connects two capillary beds. It carries blood from intestines (capillaries) to liver (capillaries). This allows liver to process nutrients before they enter systemic circulation. Important for regulating glucose, detoxification, and nutrient processing. Therefore, the correct answer is It carries nutrient-rich blood from intestines to liver for processing.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -601,6 +618,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Collecting duct collects filtrate from many nephrons"
     ],
     "finalAnswer": "Nephron",
+    "explanation": "Nephron is the basic filtration unit of kidney. Each kidney has about 1 million nephrons. Glomerulus is part of nephron. Collecting duct collects filtrate from many nephrons. Therefore, the correct answer is Nephron.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -631,6 +649,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Ammonia is toxic and needs dilution"
     ],
     "finalAnswer": "Urea",
+    "explanation": "Urea is formed in liver from amino acid deamination. It is less toxic than ammonia. Uric acid is main waste in birds and reptiles. Ammonia is toxic and needs dilution. Therefore, the correct answer is Urea.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -687,6 +706,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "R correctly explains that selective reabsorption involves active transport of useful substances"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -772,6 +792,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Lion is a carnivore (heterotrophic), Fungus is a saprophyte (heterotrophic)."
     ],
     "finalAnswer": "Green plant",
+    "explanation": "Autotrophic organisms are those that prepare their own food using sunlight and raw materials. Green plants contain chlorophyll and perform photosynthesis. Lion is a carnivore (heterotrophic), Fungus is a saprophyte (heterotrophic). Therefore, the correct answer is Green plant.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -800,6 +821,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "The equation is: 6CO₂ + 6H₂O + light energy → C₆H₁₂O₆ + 6O₂"
     ],
     "finalAnswer": "Photosynthesis",
+    "explanation": "Photosynthesis is the process of food preparation in plants using light energy. The equation is: 6CO₂ + 6H₂O + light energy → C₆H₁₂O₆ + 6O₂. Therefore, the correct answer is Photosynthesis.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -964,6 +986,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "General equation: C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O + Energy (ATP)"
     ],
     "finalAnswer": "Respiration",
+    "explanation": "Respiration is the breakdown of glucose to release energy in the form of ATP. General equation: C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O + Energy (ATP). Therefore, the correct answer is Respiration.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1103,6 +1126,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Vena cava brings deoxygenated blood to heart."
     ],
     "finalAnswer": "Pulmonary vein",
+    "explanation": "Pulmonary artery carries deoxygenated blood to lungs. Pulmonary vein carries oxygenated blood from lungs to heart. Aorta carries oxygenated blood from heart to body. Vena cava brings deoxygenated blood to heart. Therefore, the correct answer is Pulmonary vein.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1270,6 +1294,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Urea is less toxic than ammonia and requires less water for excretion than ammonia."
     ],
     "finalAnswer": "Urea",
+    "explanation": "Urea is produced from the deamination of amino acids in the liver. It is the major nitrogenous waste excreted by humans. Urea is less toxic than ammonia and requires less water for excretion than ammonia. Therefore, the correct answer is Urea.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1299,6 +1324,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "It performs ultrafiltration, selective reabsorption, and secretion."
     ],
     "finalAnswer": "Nephron",
+    "explanation": "Nephron is the microscopic filtering unit of the kidney. Each kidney contains about 10 lakh nephrons. It performs ultrafiltration, selective reabsorption, and secretion. Therefore, the correct answer is Nephron.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,

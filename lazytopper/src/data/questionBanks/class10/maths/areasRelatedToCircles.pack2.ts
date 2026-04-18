@@ -26,6 +26,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "= (22/7 × 49)/6 = (22 × 7)/6 = 154/6 cm² ≈ 25.67 cm²"
     ],
     "finalAnswer": "B) 154/6 cm²",
+    "explanation": "Area of sector = (θ/360°) × πr². = (60°/360°) × π × 7². = (1/6) × 22/7 × 49. = (22/7 × 49)/6 = (22 × 7)/6 = 154/6 cm² ≈ 25.67 cm². Therefore, the correct answer is B) 154/6 cm².",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -56,6 +57,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "= 5π cm"
     ],
     "finalAnswer": "A) 5π cm",
+    "explanation": "Arc length = (θ/360°) × 2πr. = (90°/360°) × 2π × 10. = (1/4) × 20π. = 5π cm. Therefore, the correct answer is A) 5π cm.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -86,6 +88,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "θ = 60°"
     ],
     "finalAnswer": "C) 60°",
+    "explanation": "Area = (θ/360°) × πr². 18.84 = (θ/360°) × 3.14 × 36. 18.84 = (θ/360°) × 113.04. θ = 60°. Therefore, the correct answer is C) 60°.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -114,6 +117,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "Area of segment = Area of sector - Area of triangle formed by two radii and chord"
     ],
     "finalAnswer": "B) Area of sector - Area of triangle",
+    "explanation": "A segment is the region between a chord and the arc. Area of segment = Area of sector - Area of triangle formed by two radii and chord. Therefore, the correct answer is B) Area of sector - Area of triangle.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -249,6 +253,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "Since A is false and R is true, answer is option 4"
     ],
     "finalAnswer": "A is false, R is true.",
+    "explanation": "The Assertion contains an incorrect claim. The Reason, however, is a true and valid statement on its own.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -279,6 +284,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "θ = (22 × 360°)/132 = 60°"
     ],
     "finalAnswer": "C) 60°",
+    "explanation": "Arc length = (θ/360°) × 2πr. 22 = (θ/360°) × 2 × (22/7) × 21. 22 = (θ/360°) × 132. θ = (22 × 360°)/132 = 60°. Therefore, the correct answer is C) 60°.",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "Delhi",
@@ -385,6 +391,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "R is the correct mathematical explanation of A"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -522,6 +529,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "Area₁ = (3/5) × 60 = 36 cm²"
     ],
     "finalAnswer": "B) 36 cm²",
+    "explanation": "For sectors of same circle: Area ∝ Central angle. Let angles be 3x and 5x. Area₁/Area₂ = 3x/5x = 3/5. Area₁/60 = 3/5. Area₁ = (3/5) × 60 = 36 cm². Therefore, the correct answer is B) 36 cm².",
     "isCompetencyBased": true,
     "pyqYear": "2019",
     "pyqSet": "Delhi",
@@ -553,6 +561,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "Since A is false and R is true, the answer is option (4)"
     ],
     "finalAnswer": "A is false, R is true.",
+    "explanation": "The Assertion contains an incorrect claim. The Reason, however, is a true and valid statement on its own.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -612,6 +621,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "Difference = πr² - 2r² = (π - 2)r²"
     ],
     "finalAnswer": "A) (π - 2)r²",
+    "explanation": "For largest inscribed square in circle of radius r: diagonal = 2r. Side of square = 2r/√2 = r√2. Area of square = (r√2)² = 2r². Area of circle = πr². Difference = πr² - 2r² = (π - 2)r². Therefore, the correct answer is A) (π - 2)r².",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -670,6 +680,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "θ = 60°"
     ],
     "finalAnswer": "60°",
+    "explanation": "Area of sector = (θ/360°) × πr². 102.67 = (θ/360°) × 22/7 × 196. 102.67 = (θ/360°) × 616. θ = 60°. Therefore, the correct answer is 60°.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -698,6 +709,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "This is the standard formula for segment area"
     ],
     "finalAnswer": "Sector and triangle",
+    "explanation": "Area of segment = Area of sector - Area of triangle. This is the standard formula for segment area. Therefore, the correct answer is Sector and triangle.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -802,6 +814,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "A is true and R is the correct formula"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -831,6 +844,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "Both statements are true and related"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -860,6 +874,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "Segment area = sector area = (1/2)πr²"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1057,6 +1072,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "So area of sector with angle θ = (θ/360°) × πr²"
     ],
     "finalAnswer": "(θ/360°) × πr²",
+    "explanation": "Area of a full circle = πr². Full angle = 360°. So area of sector with angle θ = (θ/360°) × πr². Therefore, the correct answer is (θ/360°) × πr².",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1136,6 +1152,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "r = 10.5 cm"
     ],
     "finalAnswer": "10.5 cm",
+    "explanation": "Arc length = (θ/360°) × 2πr. 22 = (120°/360°) × 2 × 22/7 × r. 22 = (1/3) × 44r/7. r = 10.5 cm. Therefore, the correct answer is 10.5 cm.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,

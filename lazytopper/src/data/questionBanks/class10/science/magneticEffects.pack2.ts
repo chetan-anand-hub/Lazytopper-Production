@@ -25,6 +25,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "This pattern can be verified using the right-hand thumb rule."
     ],
     "finalAnswer": "Concentric circles",
+    "explanation": "A straight current-carrying conductor produces a magnetic field around it. The field lines form concentric circles centered on the wire. This pattern can be verified using the right-hand thumb rule. Therefore, the correct answer is Concentric circles.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -54,6 +55,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "Other options are correct characteristics of field lines."
     ],
     "finalAnswer": "They originate from south pole and end at north pole",
+    "explanation": "Magnetic field lines originate from north pole and end at south pole (outside the magnet). Inside the magnet, they travel from south to north. Other options are correct characteristics of field lines. Therefore, the correct answer is They originate from south pole and end at north pole.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -83,6 +85,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "This means wire must be perpendicular to magnetic field."
     ],
     "finalAnswer": "Wire is perpendicular to field",
+    "explanation": "Force on current-carrying wire: F = BIL sin θ. Force is maximum when sin θ = 1, i.e., θ = 90°. This means wire must be perpendicular to magnetic field. Therefore, the correct answer is Wire is perpendicular to field.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -112,6 +115,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "Fleming's right-hand rule is used for electromagnetic induction."
     ],
     "finalAnswer": "Direction of force on current-carrying conductor",
+    "explanation": "Fleming's left-hand rule: Thumb (Force), Index (field), Middle (current). It determines the direction of force when current flows through a conductor in a magnetic field. Fleming's right-hand rule is used for electromagnetic induction. Therefore, the correct answer is Direction of force on current-carrying conductor.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -141,6 +145,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "The reason states correct function but applied to wrong rule."
     ],
     "finalAnswer": "A is false, R is true.",
+    "explanation": "The Assertion contains an incorrect claim. The Reason, however, is a true and valid statement on its own.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -171,6 +176,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "Soft iron core → stronger field than air/wood"
     ],
     "finalAnswer": "Increasing the current through the coil",
+    "explanation": "Strength of electromagnet depends on: number of turns, current, and core material. Higher current → stronger magnetic field. More turns → stronger field. Soft iron core → stronger field than air/wood. Therefore, the correct answer is Increasing the current through the coil.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -225,6 +231,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "Without it, the coil would oscillate back and forth."
     ],
     "finalAnswer": "Reversing the direction of current in the coil periodically",
+    "explanation": "Commutator is a split ring that rotates with the coil. It ensures current reversal every half rotation. This maintains continuous rotation in one direction. Without it, the coil would oscillate back and forth. Therefore, the correct answer is Reversing the direction of current in the coil periodically.",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "Delhi",
@@ -254,6 +261,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "The direction of force is given by Fleming's left-hand rule."
     ],
     "finalAnswer": "Force on a current-carrying conductor in a magnetic field",
+    "explanation": "When current flows through a conductor in a magnetic field, it experiences a force. This force causes the coil to rotate in the motor. The direction of force is given by Fleming's left-hand rule. Therefore, the correct answer is Force on a current-carrying conductor in a magnetic field.",
     "isCompetencyBased": true,
     "pyqYear": "2020",
     "pyqSet": "All India",
@@ -310,6 +318,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "This is the principle of generators and transformers."
     ],
     "finalAnswer": "Generation of electric current due to changing magnetic field",
+    "explanation": "Faraday discovered that changing magnetic flux induces EMF. This induces current in a conductor. Rate of change of flux determines magnitude of induced EMF. This is the principle of generators and transformers. Therefore, the correct answer is Generation of electric current due to changing magnetic field.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -340,6 +349,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "This induced field repels the approaching magnet."
     ],
     "finalAnswer": "Repels the magnet",
+    "explanation": "By Lenz's law, induced effect opposes the cause. When magnet approaches, flux increases. Induced current creates field opposing this increase. This induced field repels the approaching magnet. Therefore, the correct answer is Repels the magnet.",
     "isCompetencyBased": true,
     "pyqYear": "2019",
     "pyqSet": "Delhi",
@@ -395,6 +405,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "Both statements are correct and logically connected."
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -425,6 +436,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "Slip rings produce AC; commutator produces DC."
     ],
     "finalAnswer": "DC generator with commutator",
+    "explanation": "DC generator uses a split-ring commutator. Commutator reverses connections every half rotation. This converts alternating EMF into unidirectional (DC) output. Slip rings produce AC; commutator produces DC. Therefore, the correct answer is DC generator with commutator.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -455,6 +467,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "AC and DC generators differ in output waveform, not fundamentally in voltage."
     ],
     "finalAnswer": "AC's direction changes periodically with time",
+    "explanation": "AC: Current direction reverses at regular intervals (50/60 Hz in India/US). DC: Current flows in only one direction. AC uses slip rings in generators; DC uses commutator. AC and DC generators differ in output waveform, not fundamentally in voltage. Therefore, the correct answer is AC's direction changes periodically with time.",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "All India",
@@ -622,6 +635,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "Opposite currents: field repels."
     ],
     "finalAnswer": "Attractive force",
+    "explanation": "Wire A carrying current I₁ creates magnetic field around wire B. By right-hand rule, field direction is determined. Current I₂ in wire B experiences force F = BI₂L in field of wire A. Same direction currents: field from A attracts current in B. Opposite currents: field repels. Therefore, the correct answer is Attractive force.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -653,6 +667,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "Reason is true but explains why steel is NOT preferred."
     ],
     "finalAnswer": "Both A and R are true, but R is not the correct explanation of A.",
+    "explanation": "Both statements are individually correct. However, the Reason does not directly cause or explain the Assertion — they are independent true facts about the same concept.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -740,6 +755,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "Lower current → weaker magnetic field"
     ],
     "finalAnswer": "Field strength increases",
+    "explanation": "Magnetic field strength is directly proportional to current. Higher current → stronger magnetic field. Lower current → weaker magnetic field. Therefore, the correct answer is Field strength increases.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -769,6 +785,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "The field disappears when current is switched off"
     ],
     "finalAnswer": "Electric current flowing through a coil",
+    "explanation": "An electromagnet uses electric current to generate a magnetic field. When current flows through a coil, it acts as a magnet. The field disappears when current is switched off. Therefore, the correct answer is Electric current flowing through a coil.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -798,6 +815,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "Iron core increases permeability → stronger field"
     ],
     "finalAnswer": "Increasing the current and using an iron core",
+    "explanation": "More coils → stronger field. Larger current → stronger field. Iron core increases permeability → stronger field. Therefore, the correct answer is Increasing the current and using an iron core.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -827,6 +845,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "Fleming's Right Hand Rule is for generators (induced current)"
     ],
     "finalAnswer": "Direction of force on a current-carrying conductor in a magnetic field",
+    "explanation": "Fleming's Left Hand Rule: Thumb=Force, Index=Field, Middle=Current. Used for motors (force determination). Fleming's Right Hand Rule is for generators (induced current). Therefore, the correct answer is Direction of force on a current-carrying conductor in a magnetic field.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -856,6 +875,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "R correctly explains why A is true"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -885,6 +905,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "Based on Fleming's Left Hand Rule"
     ],
     "finalAnswer": "Electrical energy to mechanical energy",
+    "explanation": "Motor: Electrical input → Mechanical output (rotation). Uses magnetic force on current-carrying conductor. Based on Fleming's Left Hand Rule. Therefore, the correct answer is Electrical energy to mechanical energy.",
     "isCompetencyBased": false,
     "pyqYear": "2021",
     "pyqSet": "Delhi",
@@ -939,6 +960,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "Results in continuous rotation in one direction"
     ],
     "finalAnswer": "The commutator reverses the current direction regularly",
+    "explanation": "Commutator switches current direction every half rotation. This keeps the force direction consistent. Results in continuous rotation in one direction. Therefore, the correct answer is The commutator reverses the current direction regularly.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -968,6 +990,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "Principle behind generators and transformers"
     ],
     "finalAnswer": "Electric current from a changing magnetic field",
+    "explanation": "Induction: Change in magnetic flux → induced EMF/current. Discovered by Michael Faraday. Principle behind generators and transformers. Therefore, the correct answer is Electric current from a changing magnetic field.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -997,6 +1020,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "Slower motion → weaker current"
     ],
     "finalAnswer": "Stronger than when moved slowly",
+    "explanation": "Faraday's Law: Induced EMF ∝ rate of change of flux. Faster motion → larger rate of change → stronger current. Slower motion → weaker current. Therefore, the correct answer is Stronger than when moved slowly.",
     "isCompetencyBased": true,
     "pyqYear": "2020",
     "pyqSet": "Delhi",
@@ -1050,6 +1074,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "R correctly explains A"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1079,6 +1104,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "AC frequency is typically 50 Hz or 60 Hz"
     ],
     "finalAnswer": "AC changes direction periodically while DC flows in one direction",
+    "explanation": "DC (Direct Current): Flows in one direction, from battery. AC (Alternating Current): Changes direction periodically, from generator. AC frequency is typically 50 Hz or 60 Hz. Therefore, the correct answer is AC changes direction periodically while DC flows in one direction.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1108,6 +1134,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "Induces alternating EMF and current"
     ],
     "finalAnswer": "Periodic change in magnetic flux through the coil",
+    "explanation": "Rotating coil → flux through it changes periodically. Flux alternates from maximum in one direction to maximum opposite. Induces alternating EMF and current. Therefore, the correct answer is Periodic change in magnetic flux through the coil.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1163,6 +1190,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "Current in opposite directions would repel"
     ],
     "finalAnswer": "Attract each other",
+    "explanation": "Magnetic field from wire 1 passes through wire 2. Using Fleming's Left Hand Rule on wire 2. Current in same direction → fields aid each other → attraction. Current in opposite directions would repel. Therefore, the correct answer is Attract each other.",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "Delhi",
@@ -1277,6 +1305,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "This means conductor is perpendicular to the field"
     ],
     "finalAnswer": "Perpendicular to the magnetic field",
+    "explanation": "Force F = BIL sin(θ) where θ is angle between conductor and field. Force is maximum when sin(θ) = 1, i.e., θ = 90°. This means conductor is perpendicular to the field. Therefore, the correct answer is Perpendicular to the magnetic field.",
     "isCompetencyBased": true,
     "pyqYear": "2025",
     "pyqSet": "All India",
@@ -1333,6 +1362,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "This explains why DC is constant"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,

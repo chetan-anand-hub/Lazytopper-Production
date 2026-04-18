@@ -26,6 +26,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "Total = 2πr² + 2πrh + πr² = 2πrh + 3πr²"
     ],
     "finalAnswer": "2πrh + 3πr²",
+    "explanation": "For hemisphere: curved surface = 2πr². For cylinder: lateral surface = 2πrh. For cylinder base (only bottom): πr². Total = 2πr² + 2πrh + πr² = 2πrh + 3πr². Therefore, the correct answer is 2πrh + 3πr².",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -55,6 +56,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "Total volume = 18π + 12π = 30π cm³"
     ],
     "finalAnswer": "30π cm³",
+    "explanation": "Volume of hemisphere = (2/3)πr³ = (2/3)π(3)³ = 18π cm³. Volume of cone = (1/3)πr²h = (1/3)π(3)²(4) = 12π cm³. Total volume = 18π + 12π = 30π cm³. Therefore, the correct answer is 30π cm³.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -85,6 +87,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "Options A and C are equivalent"
     ],
     "finalAnswer": "Both A and C",
+    "explanation": "Volume of cylinder = πr²h₁. Volume of cone = (1/3)πr²h₂. Total = πr²h₁ + (1/3)πr²h₂ = πr²(h₁ + h₂/3). Options A and C are equivalent. Therefore, the correct answer is Both A and C.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -141,6 +144,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "h = 96 cm"
     ],
     "finalAnswer": "96 cm",
+    "explanation": "Volume of sphere = (4/3)πr³ = (4/3)π(6)³ = 288π cm³. Volume of cone = (1/3)πR²h where R = 3 cm. 288π = (1/3)π(3)²h. 288 = 3h. h = 96 cm. Therefore, the correct answer is 96 cm.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -170,6 +174,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "Number of spheres = 128π ÷ (256π/3000) = 128π × 3000/(256π) = 1500"
     ],
     "finalAnswer": "1500",
+    "explanation": "Volume of cone = (1/3)π(4)²(24) = 128π cm³. Volume of one sphere = (4/3)π(0.4)³ = (4/3)π(0.064) = 0.256π/3 cm³. Number of spheres = 128π ÷ (256π/3000) = 128π × 3000/(256π) = 1500. Therefore, the correct answer is 1500.",
     "isCompetencyBased": true,
     "pyqYear": "2020",
     "pyqSet": "Delhi",
@@ -277,6 +282,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "R correctly explains A"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -307,6 +313,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "R explains why πr² (top of cylinder) is excluded from being counted twice"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -397,6 +404,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "Total = 686π/3 + 490π = (686π + 1470π)/3 = 2156π/3 ≈ 718.67π cm³"
     ],
     "finalAnswer": "2156π/3 cm³",
+    "explanation": "Volume of hemisphere = (2/3)πr³ = (2/3)π(7)³ = 686π/3 cm³. Volume of cylinder = πr²h = π(7)²(10) = 490π cm³. Total = 686π/3 + 490π = (686π + 1470π)/3 = 2156π/3 ≈ 718.67π cm³. Therefore, the correct answer is 2156π/3 cm³.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -454,6 +462,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "Total curved surface area = 2πrh + 2πr²"
     ],
     "finalAnswer": "2πrh + 2πr²",
+    "explanation": "Curved surface area of cylinder = 2πrh. Curved surface area of hemisphere = 2πr². Total curved surface area = 2πrh + 2πr². Therefore, the correct answer is 2πrh + 2πr².",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -483,6 +492,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "Curved surfaces of cylinder and cone are included"
     ],
     "finalAnswer": "Base of cylinder and curved surfaces of both",
+    "explanation": "Top of cylinder is hidden by cone base. So only base of cylinder is counted. Curved surfaces of cylinder and cone are included. Therefore, the correct answer is Base of cylinder and curved surfaces of both.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -624,6 +634,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
       "Therefore, total volume remains constant"
     ],
     "finalAnswer": "Volume",
+    "explanation": "When melting and recasting, mass/material remains same. Volume is directly proportional to mass. Therefore, total volume remains constant. Therefore, the correct answer is Volume.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -908,6 +919,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "answer": "27",
     "solutionSteps": ["Volume of large sphere = (4/3)πr³", "Volume of each small sphere = (4/3)π(r/3)³ = (4/3)πr³/27", "Number = 27"],
     "finalAnswer": "27",
+    "explanation": "Volume of large sphere = (4/3)πr³. Volume of each small sphere = (4/3)π(r/3)³ = (4/3)πr³/27. Number = 27. Therefore, the correct answer is 27.",
     "isCompetencyBased": true,
     "ncertRef": "Ex 13.2"
   },
@@ -980,6 +992,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "answer": "Both A and R are true, and R is the correct explanation of A.",
     "solutionSteps": ["Ratio = (1/3)πr²h : πr²h = 1:3 ✓"],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "ncertRef": "Ex 13.1"
   },
@@ -1034,6 +1047,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "answer": "Volume",
     "solutionSteps": ["Volume is conserved when a solid is melted and recast."],
     "finalAnswer": "Volume",
+    "explanation": "Volume is conserved when a solid is melted and recast. Therefore, the correct answer is Volume.",
     "isCompetencyBased": false,
     "ncertRef": "Ex 13.2"
   },
@@ -1088,6 +1102,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "answer": "3πr²",
     "solutionSteps": ["TSA of hemisphere = CSA + base = 2πr² + πr² = 3πr²"],
     "finalAnswer": "3πr²",
+    "explanation": "TSA of hemisphere = CSA + base = 2πr² + πr² = 3πr². Therefore, the correct answer is 3πr².",
     "isCompetencyBased": false,
     "ncertRef": "Ex 13.1"
   },
@@ -1142,6 +1157,7 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "answer": "Both A and R are true, and R is the correct explanation of A.",
     "solutionSteps": ["(4/3)π(27) = π(9)h → 36 = 9h → h = 4 ✓"],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "ncertRef": "Ex 13.2"
   },

@@ -26,6 +26,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "Since a₁/a₂ = b₁/b₂ = c₁/c₂, lines are coincident"
     ],
     "finalAnswer": "Coincident lines",
+    "explanation": "Compare a₁/a₂ = 2/4 = 1/2. Compare b₁/b₂ = 3/6 = 1/2. Compare c₁/c₂ = 5/10 = 1/2. Since a₁/a₂ = b₁/b₂ = c₁/c₂, lines are coincident. Therefore, the correct answer is Coincident lines.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -55,6 +56,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "Infinitely many points satisfy both equations"
     ],
     "finalAnswer": "Infinitely many solutions",
+    "explanation": "Second equation is 2(x + y) = 2(4). Both equations represent the same line. Infinitely many points satisfy both equations. Therefore, the correct answer is Infinitely many solutions.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -85,6 +87,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "Step 4: Find the other variable"
     ],
     "finalAnswer": "Substitute this value in the other equation",
+    "explanation": "Step 1: Solve one equation for one variable. Step 2: Substitute in the other equation. Step 3: Solve the resulting single variable equation. Step 4: Find the other variable. Therefore, the correct answer is Substitute this value in the other equation.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -145,6 +148,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "Now subtract to eliminate x"
     ],
     "finalAnswer": "Multiply first by 2, second by 3",
+    "explanation": "First equation: 3x + 2y = 5. Second equation: 2x - y = 4. To eliminate x, coefficients must be equal. Multiply first by 2: 6x + 4y = 10. Multiply second by 3: 6x - 3y = 12. Now subtract to eliminate x. Therefore, the correct answer is Multiply first by 2, second by 3.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -346,6 +350,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "Parallel lines have no solution"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -377,6 +382,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "Coincident lines have infinitely many solutions"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -635,6 +641,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "This intersection point represents the values of x and y that satisfy both equations simultaneously."
     ],
     "finalAnswer": "The solution(s) of the pair of equations",
+    "explanation": "In the graphical method, we plot both linear equations as straight lines. The point where these two lines intersect gives the common solution. This intersection point represents the values of x and y that satisfy both equations simultaneously. Therefore, the correct answer is The solution(s) of the pair of equations.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -666,6 +673,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "Substituting: y = 4 - 3 = 1"
     ],
     "finalAnswer": "(3, 1)",
+    "explanation": "From x + y = 4, we get y = 4 - x. From x - y = 2, we get y = x - 2. Setting equal: 4 - x = x - 2. 6 = 2x, so x = 3. Substituting: y = 4 - 3 = 1. Therefore, the correct answer is (3, 1).",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -695,6 +703,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "This reduces the system to a single equation with one variable."
     ],
     "finalAnswer": "Express one variable in terms of the other from one equation",
+    "explanation": "The substitution method involves solving one equation for one variable. This expression is then substituted into the second equation. This reduces the system to a single equation with one variable. Therefore, the correct answer is Express one variable in terms of the other from one equation.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -750,6 +759,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "This leaves a single equation with one variable."
     ],
     "finalAnswer": "To eliminate one variable when we add or subtract",
+    "explanation": "The elimination method aims to eliminate one variable. By making coefficients equal and then adding/subtracting, one variable cancels out. This leaves a single equation with one variable. Therefore, the correct answer is To eliminate one variable when we add or subtract.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -837,6 +847,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "The reason correctly explains why the assertion is true."
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -867,6 +878,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "R is true but does not directly explain A; it only describes the procedure."
     ],
     "finalAnswer": "Both A and R are true, but R is not the correct explanation of A.",
+    "explanation": "Both statements are individually correct. However, the Reason does not directly cause or explain the Assertion — they are independent true facts about the same concept.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1150,6 +1162,7 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
     "answer": "Both A and R are true, and R is the correct explanation of A.",
     "solutionSteps": ["3/6 = 1/2, 2/4 = 1/2, 5/10 = 1/2 → all ratios equal ✓"],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "ncertRef": "Ex 3.1"
   },

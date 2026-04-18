@@ -26,6 +26,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Therefore, budding in hydra is the correct answer"
     ],
     "finalAnswer": "Budding in hydra",
+    "explanation": "Asexual reproduction involves only one parent organism. Budding in hydra is a form of asexual reproduction where a new organism develops from a bud. Other options involve sexual reproduction (two parents). Therefore, budding in hydra is the correct answer. Therefore, the correct answer is Budding in hydra.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -56,6 +57,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Each daughter cell is genetically identical to the parent"
     ],
     "finalAnswer": "Two identical daughter cells",
+    "explanation": "Bacteria reproduce by binary fission. In binary fission, one bacterium divides into two identical daughter cells. This is an asexual reproduction method. Each daughter cell is genetically identical to the parent. Therefore, the correct answer is Two identical daughter cells.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -86,6 +88,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "This is a form of asexual reproduction producing genetically identical plants"
     ],
     "finalAnswer": "Tubers",
+    "explanation": "Vegetative propagation is asexual reproduction in plants. Potato plants have underground stems called tubers. New potato plants grow from the 'eyes' on tubers. This is a form of asexual reproduction producing genetically identical plants. Therefore, the correct answer is Tubers.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -141,6 +144,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Pistil is the female reproductive organ"
     ],
     "finalAnswer": "Stamen",
+    "explanation": "Flower has male and female reproductive organs. The male reproductive organ is the stamen. Stamen consists of anther (produces pollen) and filament. Pistil is the female reproductive organ. Therefore, the correct answer is Stamen.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -171,6 +175,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "This transfer is called pollination"
     ],
     "finalAnswer": "Anther to stigma",
+    "explanation": "Pollination is a crucial step in sexual reproduction of plants. Pollen is produced in the anther (male organ). Pollen must be transferred to the stigma (part of female organ). This transfer is called pollination. Therefore, the correct answer is Anther to stigma.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -201,6 +206,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Options B, C, and D describe cross-pollination"
     ],
     "finalAnswer": "Pollen from one flower pollinates another flower on the same plant",
+    "explanation": "Pollination is classified as self-pollination and cross-pollination. Self-pollination: Pollen from anther of one flower fertilizes stigma of the same flower or another flower on the same plant. Cross-pollination: Pollen from one plant fertilizes flowers of a different plant. Options B, C, and D describe cross-pollination. Therefore, the correct answer is Pollen from one flower pollinates another flower on the same plant.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -286,6 +292,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Ductus deferens transports sperm"
     ],
     "finalAnswer": "Seminiferous tubule",
+    "explanation": "Testis is the male reproductive gland. Testis contains seminiferous tubules. Sperm are produced in seminiferous tubules through spermatogenesis. Epididymis stores and matures sperm. Ductus deferens transports sperm. Therefore, the correct answer is Seminiferous tubule.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -317,6 +324,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Embryo is developing organism after several divisions"
     ],
     "finalAnswer": "Ovum",
+    "explanation": "Gametes are sex cells involved in sexual reproduction. Male gamete is sperm (produced in testis). Female gamete is ovum or egg (produced in ovary). Zygote is formed after fertilization. Embryo is developing organism after several divisions. Therefore, the correct answer is Ovum.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -348,6 +356,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Fertilized ovum then travels to uterus for implantation"
     ],
     "finalAnswer": "Fallopian tube",
+    "explanation": "Ovum is released from ovary during ovulation. Ovum travels through fallopian tube. Sperm travel up through vagina, cervix, uterus to fallopian tube. Fertilization (fusion of sperm and ovum) occurs in the fallopian tube. Fertilized ovum then travels to uterus for implantation. Therefore, the correct answer is Fallopian tube.",
     "isCompetencyBased": true,
     "pyqYear": "2019",
     "pyqSet": "B",
@@ -405,6 +414,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "This is an adaptive feature for successful spermatogenesis"
     ],
     "finalAnswer": "A",
+    "explanation": "The correct answer is: A. Evaluate each statement independently before checking if R explains A.",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "A",
@@ -437,6 +447,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Diaphragm is a barrier method"
     ],
     "finalAnswer": "Intrauterine device (IUD)",
+    "explanation": "IUD is a T-shaped device inserted into the uterus. IUD prevents implantation of fertilized ovum in the uterine wall. It also increases prostaglandins causing sperm death. Condom is a barrier method. Pills contain hormones to prevent ovulation. Diaphragm is a barrier method. Therefore, the correct answer is Intrauterine device (IUD).",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -469,6 +480,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Only HIV/AIDS is viral; others are bacterial"
     ],
     "finalAnswer": "HIV/AIDS",
+    "explanation": "STIs are sexually transmitted infections. Gonorrhea is caused by bacterium Neisseria gonorrhoeae. Syphilis is caused by bacterium Treponema pallidum. HIV/AIDS is caused by virus HIV. Chlamydia is caused by bacterium Chlamydia trachomatis. Only HIV/AIDS is viral; others are bacterial. Therefore, the correct answer is HIV/AIDS.",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "B",
@@ -528,6 +540,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "This is important for comprehensive reproductive health"
     ],
     "finalAnswer": "A",
+    "explanation": "The correct answer is: A. Evaluate each statement independently before checking if R explains A.",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "C",
@@ -560,6 +573,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Reason correctly explains the cyclical nature"
     ],
     "finalAnswer": "A",
+    "explanation": "The correct answer is: A. Evaluate each statement independently before checking if R explains A.",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "A",
@@ -792,6 +806,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Both daughter cells are genetically identical to each other and the parent."
     ],
     "finalAnswer": "B. Two genetically identical daughter cells",
+    "explanation": "Binary fission in amoeba is a form of asexual reproduction. The parent cell divides into two equal-sized daughter cells. Both daughter cells are genetically identical to each other and the parent. Therefore, the correct answer is B. Two genetically identical daughter cells.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -847,6 +862,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Carpel is the female part."
     ],
     "finalAnswer": "B. Stamen",
+    "explanation": "A flower has male and female reproductive parts. The stamen is the male part consisting of anther and filament. The anther produces pollen grains. Carpel is the female part. Therefore, the correct answer is B. Stamen.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -878,6 +894,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Animal-pollinated plants: Zoophily"
     ],
     "finalAnswer": "C. Anemophily",
+    "explanation": "Different types of pollination exist based on pollinating agents. Wind-pollinated plants: Anemophily. Insect-pollinated plants: Entomophily. Water-pollinated plants: Hydrophily. Animal-pollinated plants: Zoophily. Therefore, the correct answer is C. Anemophily.",
     "isCompetencyBased": false,
     "pyqYear": "2021",
     "pyqSet": "Delhi",
@@ -963,6 +980,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Epididymis stores and matures sperms."
     ],
     "finalAnswer": "C. Testis",
+    "explanation": "The male reproductive system produces sperms. Testes are the site of sperm production (spermatogenesis). Prostate and seminal vesicles add secretions to semen. Epididymis stores and matures sperms. Therefore, the correct answer is C. Testis.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -993,6 +1011,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "If sperm meets the ovum in the fallopian tube, fertilization occurs there."
     ],
     "finalAnswer": "C. Fallopian tube",
+    "explanation": "Fertilization is the fusion of egg and sperm. The ovum is released from the ovary during ovulation. It travels through the fallopian tube. If sperm meets the ovum in the fallopian tube, fertilization occurs there. Therefore, the correct answer is C. Fallopian tube.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1108,6 +1127,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Diabetes, asthma, and arthritis are not sexually transmitted."
     ],
     "finalAnswer": "B. Syphilis",
+    "explanation": "Sexually transmitted infections spread through sexual contact. Syphilis is caused by the bacterium Treponema pallidum. Other STIs include gonorrhea, chlamydia, and HIV/AIDS. Diabetes, asthma, and arthritis are not sexually transmitted. Therefore, the correct answer is B. Syphilis.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1164,6 +1184,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Therefore, A is false but R is true."
     ],
     "finalAnswer": "D. A is false, R is true.",
+    "explanation": "The Assertion contains an incorrect claim. The Reason, however, is a true and valid statement on its own.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1194,6 +1215,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Exercise improves circulation and hormonal balance."
     ],
     "finalAnswer": "B. Regular exercise and balanced diet",
+    "explanation": "Reproductive health requires overall physical and mental well-being. Regular exercise and balanced diet support healthy reproductive function. Good nutrition provides essential micronutrients for reproductive hormones. Exercise improves circulation and hormonal balance. Therefore, the correct answer is B. Regular exercise and balanced diet.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1225,6 +1247,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Therefore, A is false but R is true."
     ],
     "finalAnswer": "D. A is false, R is true.",
+    "explanation": "The Assertion contains an incorrect claim. The Reason, however, is a true and valid statement on its own.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1257,6 +1280,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "A is slightly imprecise (not 'direct' blood vessels but through placenta), R is true but independent."
     ],
     "finalAnswer": "B. Both A and R are true, but R is not the correct explanation of A.",
+    "explanation": "Both statements are individually correct. However, the Reason does not directly cause or explain the Assertion — they are independent true facts about the same concept.",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "All India",

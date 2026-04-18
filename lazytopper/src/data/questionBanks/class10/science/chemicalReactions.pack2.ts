@@ -25,6 +25,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "This is a combination reaction"
     ],
     "finalAnswer": "A) 2H₂ + O₂ → 2H₂O",
+    "explanation": "A combination reaction involves two or more substances combining to form one product. 2H₂ + O₂ → 2H₂O: Two elements (H and O) combine to form water. This is a combination reaction. Therefore, the correct answer is A) 2H₂ + O₂ → 2H₂O.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -54,6 +55,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "This is a decomposition reaction"
     ],
     "finalAnswer": "B) Decomposition reaction",
+    "explanation": "CaCO₃ → CaO + CO₂. One compound breaks down into two simpler substances. This is a decomposition reaction. Therefore, the correct answer is B) Decomposition reaction.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -84,6 +86,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Equation is balanced"
     ],
     "finalAnswer": "B) CH₄ + 2O₂ → CO₂ + 2H₂O",
+    "explanation": "Count atoms on both sides. Left: C=1, H=4, O=4 (from 2O₂). Right: C=1, H=4, O=4 (2 from CO₂, 2 from 2H₂O). Equation is balanced. Therefore, the correct answer is B) CH₄ + 2O₂ → CO₂ + 2H₂O.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -113,6 +116,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "4Fe + 3O₂ → 2Fe₂O₃ is balanced"
     ],
     "finalAnswer": "A) 4Fe + 3O₂ → 2Fe₂O₃",
+    "explanation": "Count Fe atoms: need 4 on left to get 2Fe₂O₃ on right. Count O atoms: need 3O₂ (6 atoms) to balance 6 O atoms in 2Fe₂O₃. 4Fe + 3O₂ → 2Fe₂O₃ is balanced. Therefore, the correct answer is A) 4Fe + 3O₂ → 2Fe₂O₃.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -143,6 +147,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "This is double displacement"
     ],
     "finalAnswer": "B) AgNO₃ + NaCl → AgCl↓ + NaNO₃",
+    "explanation": "Double displacement: AB + CD → AD + CB. AgNO₃ + NaCl → AgCl + NaNO₃. Ag and Na exchange partners (anions). This is double displacement. Therefore, the correct answer is B) AgNO₃ + NaCl → AgCl↓ + NaNO₃.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -173,6 +178,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Mg is oxidized"
     ],
     "finalAnswer": "A) Mg",
+    "explanation": "Oxidation is loss of electrons or increase in oxidation state. Mg: 0 → +2 (loses 2 electrons, oxidized). O₂: 0 → -2 (gains electrons, reduced). Mg is oxidized. Therefore, the correct answer is A) Mg.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -203,6 +209,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Both occur, so it's a redox reaction"
     ],
     "finalAnswer": "B) H₂ + Cl₂ → 2HCl",
+    "explanation": "Redox reaction: both oxidation and reduction occur. H₂: 0 → +1 (oxidation). Cl₂: 0 → -1 (reduction). Both occur, so it's a redox reaction. Therefore, the correct answer is B) H₂ + Cl₂ → 2HCl.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -232,6 +239,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "This happens in presence of oxygen and moisture"
     ],
     "finalAnswer": "A) Iron oxide",
+    "explanation": "Corrosion is oxidation of metals. Iron rusts to form iron oxide (Fe₂O₃·xH₂O). This happens in presence of oxygen and moisture. Therefore, the correct answer is A) Iron oxide.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -262,6 +270,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Heating does not prevent corrosion"
     ],
     "finalAnswer": "D) Heating",
+    "explanation": "Corrosion requires oxygen and moisture. Galvanization, painting, oiling prevent contact with oxygen/moisture. Heating increases corrosion rate by increasing reaction rate. Heating does not prevent corrosion. Therefore, the correct answer is D) Heating.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -291,6 +300,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "This produces unpleasant smell and taste"
     ],
     "finalAnswer": "C) Fats and oils",
+    "explanation": "Rancidity is the process of decomposition of fats and oils. Fats get oxidized on exposure to air/oxygen. This produces unpleasant smell and taste. Therefore, the correct answer is C) Fats and oils.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -443,6 +453,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Reason correctly explains assertion"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -473,6 +484,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Only two products are formed (CaO, CO₂)"
     ],
     "finalAnswer": "A is true, R is false.",
+    "explanation": "The Assertion is a correct statement. However, the Reason given contains an incorrect claim or formula, making R false.",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "Set-C",
@@ -503,6 +515,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Reason correctly explains why it's effective"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -637,6 +650,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Already balanced with coefficient 1"
     ],
     "finalAnswer": "A) 1",
+    "explanation": "Fe is a single atom, H₂SO₄ is formula unit. Fe + H₂SO₄ → FeSO₄ + H₂. Count: Fe(1), H(2), S(1), O(4) on both sides. Already balanced with coefficient 1. Therefore, the correct answer is A) 1.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -668,6 +682,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "This is both decomposition and endothermic"
     ],
     "finalAnswer": "C) Thermal decomposition of CaCO₃",
+    "explanation": "Decomposition: breaks into simpler substances. Endothermic: absorbs heat. CaCO₃ → CaO + CO₂ (decomposition, requires heat). Must heat CaCO₃ to decompose it. This is both decomposition and endothermic. Therefore, the correct answer is C) Thermal decomposition of CaCO₃.",
     "isCompetencyBased": true,
     "pyqYear": "2019",
     "pyqSet": "Set-A",
@@ -750,6 +765,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Coefficient of O₂ = 3"
     ],
     "finalAnswer": "C) 3",
+    "explanation": "Unbalanced: Fe + O₂ → Fe₂O₃. Balance Fe: 2Fe + O₂ → Fe₂O₃. Balance O: Need 3 oxygen atoms on right, so 3/2 O₂. Multiply by 2: 4Fe + 3O₂ → 2Fe₂O₃. Coefficient of O₂ = 3. Therefore, the correct answer is C) 3.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -780,6 +796,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Cu is oxidized, O₂ is reduced"
     ],
     "finalAnswer": "B) Cu",
+    "explanation": "Oxidation is loss of electrons. Cu goes from 0 to +2 oxidation state (loses 2 electrons). O goes from 0 to -2 oxidation state (gains electrons). Cu is oxidized, O₂ is reduced. Therefore, the correct answer is B) Cu.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -810,6 +827,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Dry conditions do not accelerate corrosion"
     ],
     "finalAnswer": "C) Dry air",
+    "explanation": "Corrosion requires moisture and oxygen. Salt accelerates corrosion. Dry air prevents corrosion. Dry conditions do not accelerate corrosion. Therefore, the correct answer is C) Dry air.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -865,6 +883,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Cu is the displaced element"
     ],
     "finalAnswer": "B) Cu",
+    "explanation": "This is a displacement reaction. Fe (more reactive) displaces Cu (less reactive) from CuSO₄. Cu is released as free element. Cu is the displaced element. Therefore, the correct answer is B) Cu.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -896,6 +915,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Reason correctly explains the assertion"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -926,6 +946,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "This is double displacement (or double decomposition)"
     ],
     "finalAnswer": "A) Na₂SO₄ + BaCl₂ → BaSO₄ + 2NaCl",
+    "explanation": "Double displacement: AB + CD → AD + CB. Option A: Na₂SO₄ + BaCl₂ → BaSO₄↓ + 2NaCl. Na and Ba exchange partners, Cl and SO₄ exchange partners. This is double displacement (or double decomposition). Therefore, the correct answer is A) Na₂SO₄ + BaCl₂ → BaSO₄ + 2NaCl.",
     "isCompetencyBased": true,
     "pyqYear": "2020",
     "pyqSet": undefined,
@@ -956,6 +977,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Antioxidants inhibit oxidation reaction"
     ],
     "finalAnswer": "B) Adding antioxidants or using airtight containers",
+    "explanation": "Rancidity is oxidation of fats and oils. Prevention methods: reduce O₂ exposure, add antioxidants. Airtight containers prevent oxidation. Antioxidants inhibit oxidation reaction. Therefore, the correct answer is B) Adding antioxidants or using airtight containers.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1012,6 +1034,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Reason correctly explains assertion"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1067,6 +1090,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Coefficients: 1, 1, 1"
     ],
     "finalAnswer": "A) 1, 1, 1",
+    "explanation": "Unbalanced: C + O₂ → CO₂. C atoms: 1 on each side (balanced). O atoms: 2 on left, 2 on right (balanced). Coefficients: 1, 1, 1. Therefore, the correct answer is A) 1, 1, 1.",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": undefined,
@@ -1098,6 +1122,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Both B and C satisfy both criteria"
     ],
     "finalAnswer": "D) Both B and C",
+    "explanation": "Decomposition: compound breaks into 2+ products. Redox: involves transfer of electrons. 2KClO₃ → 2KCl + 3O₂: Cl goes from +5 to -1 and 0 (redox + decomposition). NaCl → Na + Cl₂: Na goes from +1 to 0, Cl from -1 to 0 (redox + decomposition). Both B and C satisfy both criteria. Therefore, the correct answer is D) Both B and C.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1154,6 +1179,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "R correctly explains A"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,

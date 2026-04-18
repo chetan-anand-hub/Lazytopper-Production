@@ -24,6 +24,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
       "Setting each factor to zero: x = 2 or x = 3"
     ],
     "finalAnswer": "2, 3",
+    "explanation": "Factorize: x² - 5x + 6 = (x-2)(x-3). Setting each factor to zero: x = 2 or x = 3. Therefore, the correct answer is 2, 3.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -51,6 +52,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
       "Polynomial = (x-1)(x+2) = x² + 2x - x - 2 = x² + x - 2"
     ],
     "finalAnswer": "x² + x - 2",
+    "explanation": "Polynomial = (x-1)(x+2) = x² + 2x - x - 2 = x² + x - 2. Therefore, the correct answer is x² + x - 2.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -79,6 +81,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
       "x³ - 1 = (x-1)(x² + x + 1), which gives 3 zeroes (one real, two complex)"
     ],
     "finalAnswer": "3",
+    "explanation": "A cubic polynomial has at most 3 zeroes. x³ - 1 = (x-1)(x² + x + 1), which gives 3 zeroes (one real, two complex). Therefore, the correct answer is 3.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -107,6 +110,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
       "Here: α + β = -(-7)/1 = 7"
     ],
     "finalAnswer": "7",
+    "explanation": "For quadratic ax² + bx + c, sum of zeroes = -b/a. Here: α + β = -(-7)/1 = 7. Therefore, the correct answer is 7.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -135,6 +139,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
       "Here: αβ = 1/2"
     ],
     "finalAnswer": "1/2",
+    "explanation": "For quadratic ax² + bx + c, product of zeroes = c/a. Here: αβ = 1/2. Therefore, the correct answer is 1/2.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -415,6 +420,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
       "R is true: By fundamental theorem, every polynomial of degree n has exactly n roots in complex numbers"
     ],
     "finalAnswer": "A is false, R is true.",
+    "explanation": "The Assertion contains an incorrect claim. The Reason, however, is a true and valid statement on its own.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -443,6 +449,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
       "R is true: Expansion gives x² - (α + β)x + αβ = ax² + bx + c after dividing by a"
     ],
     "finalAnswer": "A is false, R is true.",
+    "explanation": "The Assertion contains an incorrect claim. The Reason, however, is a true and valid statement on its own.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -472,6 +479,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
       "R is true: The discriminant is indeed -4"
     ],
     "finalAnswer": "A is false, R is true.",
+    "explanation": "The Assertion contains an incorrect claim. The Reason, however, is a true and valid statement on its own.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -501,6 +509,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
       "4k = 1, k = 1/4"
     ],
     "finalAnswer": "A is false, R is true.",
+    "explanation": "The Assertion contains an incorrect claim. The Reason, however, is a true and valid statement on its own.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -578,6 +587,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
       "Total zeroes = 3"
     ],
     "finalAnswer": "3",
+    "explanation": "The polynomial has factors (x-2) twice and (x+1) once. Zeroes: x = 2 (multiplicity 2) and x = -1 (multiplicity 1). Total zeroes = 3. Therefore, the correct answer is 3.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -607,6 +617,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
       "b² = 4c"
     ],
     "finalAnswer": "b² = 4c",
+    "explanation": "For equal zeroes, discriminant = 0. b² - 4c = 0. b² = 4c. Therefore, the correct answer is b² = 4c.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -859,6 +870,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "answer": "13",
     "solutionSteps": ["α + β = -5, αβ = 6", "α² + β² = (α + β)² - 2αβ = 25 - 12 = 13"],
     "finalAnswer": "13",
+    "explanation": "α + β = -5, αβ = 6. α² + β² = (α + β)² - 2αβ = 25 - 12 = 13. Therefore, the correct answer is 13.",
     "isCompetencyBased": true,
     "ncertRef": "Ex 2.2"
   },
@@ -895,6 +907,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "answer": "Both A and R are true, and R is the correct explanation of A.",
     "solutionSteps": ["Sum of zeroes = p + q = -(-(p+q))/1 ✓", "Product of zeroes = pq = pq/1 ✓"],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "ncertRef": "Ex 2.2"
   },
@@ -967,6 +980,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "answer": "2",
     "solutionSteps": ["α + β = -2/3, αβ = -1/3", "1/α + 1/β = (α+β)/(αβ) = (-2/3)/(-1/3) = 2"],
     "finalAnswer": "2",
+    "explanation": "α + β = -2/3, αβ = -1/3. 1/α + 1/β = (α+β)/(αβ) = (-2/3)/(-1/3) = 2. Therefore, the correct answer is 2.",
     "isCompetencyBased": true,
     "ncertRef": "Ex 2.2"
   },
@@ -985,6 +999,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "answer": "Both A and R are true, and R is the correct explanation of A.",
     "solutionSteps": ["p(2) = 8 - 8 = 0 ✓"],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "ncertRef": "Ex 2.1"
   },
@@ -1057,6 +1072,7 @@ export const PL2_PACK2: CanonicalQuestion[] = [
     "answer": "-d/a",
     "solutionSteps": ["For cubic ax³ + bx² + cx + d: αβγ = -d/a"],
     "finalAnswer": "-d/a",
+    "explanation": "For cubic ax³ + bx² + cx + d: αβγ = -d/a. Therefore, the correct answer is -d/a.",
     "isCompetencyBased": false,
     "ncertRef": "Ex 2.2"
   }

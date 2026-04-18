@@ -24,6 +24,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "It is measured in Amperes (A)."
     ],
     "finalAnswer": "Charge",
+    "explanation": "Electric current is the flow of electric charge through a conductor. It is measured in Amperes (A). Therefore, the correct answer is Charge.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -52,6 +53,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "1 Ampere = 1 Coulomb/second"
     ],
     "finalAnswer": "Ampere",
+    "explanation": "Electric current is measured in Amperes (A). 1 Ampere = 1 Coulomb/second. Therefore, the correct answer is Ampere.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -105,6 +107,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "Both forms are equivalent"
     ],
     "finalAnswer": "Both B and C are correct",
+    "explanation": "Ohm's Law: V = I × R (Voltage = Current × Resistance). Rearranging: I = V/R. Both forms are equivalent. Therefore, the correct answer is Both B and C are correct.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -160,6 +163,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "Velocity affects current, not resistance directly"
     ],
     "finalAnswer": "Velocity of charge carriers",
+    "explanation": "Resistance depends on: R = ρL/A. ρ = resistivity (material). L = length. A = cross-sectional area. Velocity affects current, not resistance directly. Therefore, the correct answer is Velocity of charge carriers.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -213,6 +217,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "V_total = I × R_total = 2 × 10 = 20 V"
     ],
     "finalAnswer": "20 V",
+    "explanation": "In series: R_total = R₁ + R₂ + R₃ = 2 + 3 + 5 = 10 Ω. V_total = I × R_total = 2 × 10 = 20 V. Therefore, the correct answer is 20 V.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -241,6 +246,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "The reciprocals add up, making R_total smaller than any individual resistance"
     ],
     "finalAnswer": "Less than the smallest individual resistance",
+    "explanation": "In parallel: 1/R_total = 1/R₁ + 1/R₂ + .. The reciprocals add up, making R_total smaller than any individual resistance. Therefore, the correct answer is Less than the smallest individual resistance.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -296,6 +302,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "All are equivalent expressions"
     ],
     "finalAnswer": "All of the above",
+    "explanation": "H = I²Rt (Joule's Law). H = V²/R × t (derived from above). H = VIt (another form). All are equivalent expressions. Therefore, the correct answer is All of the above.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -373,6 +380,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "Power measures energy per unit time"
     ],
     "finalAnswer": "Energy consumption",
+    "explanation": "Power P = Energy/Time = Work/Time. P = VI (also valid). Power measures energy per unit time. Therefore, the correct answer is Energy consumption.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -402,6 +410,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "I = 1500/220 ≈ 6.8 A"
     ],
     "finalAnswer": "6.8 A",
+    "explanation": "Given: P = 1500 W, V = 220 V. P = VI, so I = P/V. I = 1500/220 ≈ 6.8 A. Therefore, the correct answer is 6.8 A.",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "C",
@@ -457,6 +466,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "Conductors have abundant free electrons, insulators have very few"
     ],
     "finalAnswer": "A is true, R is false.",
+    "explanation": "The Assertion is a correct statement. However, the Reason given contains an incorrect claim or formula, making R false.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -487,6 +497,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "R explains A correctly"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "A",
@@ -517,6 +528,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "R explains A correctly"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "B",
@@ -772,6 +784,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "1 Ohm = 1 Volt/1 Ampere"
     ],
     "finalAnswer": "Ohm",
+    "explanation": "Resistance = Voltage/Current. Unit = Volt/Ampere = Ohm (Ω). Named after Georg Simon Ohm. 1 Ohm = 1 Volt/1 Ampere. Therefore, the correct answer is Ohm.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -804,6 +817,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "So R correctly explains A"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -861,6 +875,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "This is different from parallel connection"
     ],
     "finalAnswer": "Sum of individual resistances",
+    "explanation": "In series connection: R_total = R₁ + R₂ + R₃ + .. Current flows through each resistor in sequence. Total resistance increases with each additional resistor. This is different from parallel connection. Therefore, the correct answer is Sum of individual resistances.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -891,6 +906,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "Total resistance decreases with parallel connection"
     ],
     "finalAnswer": "Less than the smallest resistance",
+    "explanation": "In parallel: 1/R_eq = 1/R₁ + 1/R₂ + 1/R₃ + .. R_eq is always less than the smallest resistance. More paths allow more current to flow. Total resistance decreases with parallel connection. Therefore, the correct answer is Less than the smallest resistance.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1007,6 +1023,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "All three forms are equivalent"
     ],
     "finalAnswer": "All of the above",
+    "explanation": "Joule's Law: H = I²Rt (heat is proportional to square of current). From V = IR: H = I²Rt = I × (IR) × t = VIt. Also: H = V²t/R (when expressed in terms of voltage). All three forms are equivalent. Therefore, the correct answer is All of the above.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1094,6 +1111,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "Can also be expressed as P = VI or P = I²R"
     ],
     "finalAnswer": "Energy per unit time",
+    "explanation": "Power = Energy/Time. P = W/t (where W is work/energy). SI unit: Watt (J/s). Can also be expressed as P = VI or P = I²R. Therefore, the correct answer is Energy per unit time.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1125,6 +1143,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "1 Watt = 1 Joule/1 Second"
     ],
     "finalAnswer": "Watt",
+    "explanation": "Power = Energy/Time. SI unit of energy = Joule (J). SI unit of time = Second (s). SI unit of power = Joule/Second = Watt (W). 1 Watt = 1 Joule/1 Second. Therefore, the correct answer is Watt.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1214,6 +1233,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "R correctly explains why A is important"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1245,6 +1265,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "R correctly explains the reason for A"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,

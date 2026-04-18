@@ -26,6 +26,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Forms 4 covalent bonds to complete octet"
     ],
     "finalAnswer": "4 electrons in valence shell",
+    "explanation": "Carbon atomic number is 6. Electronic configuration: 2,4. 4 electrons in outermost shell (valence shell). Forms 4 covalent bonds to complete octet. Therefore, the correct answer is 4 electrons in valence shell.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -55,6 +56,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "This forms double bond (C=C)"
     ],
     "finalAnswer": "Double covalent bond",
+    "explanation": "Ethene: C=C with 4 hydrogens. Each carbon shares 2 electron pairs with other carbon. This forms double bond (C=C). Therefore, the correct answer is Double covalent bond.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -85,6 +87,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Same functional group, similar properties"
     ],
     "finalAnswer": "Members differ by CH2 unit",
+    "explanation": "Homologous series: consecutive organic compounds. Differ by one -CH2- group. Example: CH4, C2H6, C3H8 differ by CH2. Same functional group, similar properties. Therefore, the correct answer is Members differ by CH2 unit.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -115,6 +118,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Ethane: C2H6 = C2H2(2)+2 = C2H6 ✓"
     ],
     "finalAnswer": "CnH2n+2",
+    "explanation": "Alkanes: saturated hydrocarbons. Single bonds only. Methane: CH4 = C1H2(1)+2 = C1H4 ✓. Ethane: C2H6 = C2H2(2)+2 = C2H6 ✓. Therefore, the correct answer is CnH2n+2.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -146,6 +150,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Name: Butane"
     ],
     "finalAnswer": "Butane",
+    "explanation": "Count carbon atoms: 4. All single bonds. Prefix for 4 carbons: but-. Suffix for alkane: -ane. Name: Butane. Therefore, the correct answer is Butane.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -177,6 +182,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Name: Propene (double bond position 1 is implicit)"
     ],
     "finalAnswer": "Propene",
+    "explanation": "3 carbon atoms present. Double bond between C1 and C2. Prefix: prop-. Suffix for double bond: -ene. Name: Propene (double bond position 1 is implicit). Therefore, the correct answer is Propene.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -207,6 +213,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "This is redox/oxidation reaction"
     ],
     "finalAnswer": "Oxidation reaction",
+    "explanation": "CH4 + 2O2 → CO2 + 2H2O. Carbon loses electrons (oxidized). Oxygen gains electrons (reduced). This is redox/oxidation reaction. Therefore, the correct answer is Oxidation reaction.",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "Set-2",
@@ -238,6 +245,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Alkanes cannot undergo addition (saturated)"
     ],
     "finalAnswer": "Alkenes and alkynes",
+    "explanation": "Addition requires unsaturation (C=C or C≡C). Alkenes: contain C=C double bonds. Alkynes: contain C≡C triple bonds. H2, Br2, HCl can add across these bonds. Alkanes cannot undergo addition (saturated). Therefore, the correct answer is Alkenes and alkynes.",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "Set-1",
@@ -294,6 +302,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Homolytic fission occurs with light/heat"
     ],
     "finalAnswer": "Heat and sunlight",
+    "explanation": "CH4 + Cl2 → CH3Cl + HCl (substitution). This requires UV light or heat. Breaks C-H or Cl-Cl bonds. Homolytic fission occurs with light/heat. Therefore, the correct answer is Heat and sunlight.",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "Set-1",
@@ -325,6 +334,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Explains extreme hardness of diamond"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "Set-1",
@@ -356,6 +366,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Both undergo combustion, substitution similarly"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": "2025",
     "pyqSet": "Set-2",
@@ -387,6 +398,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "So A is true but R is false"
     ],
     "finalAnswer": "A is true, R is false.",
+    "explanation": "The Assertion is a correct statement. However, the Reason given contains an incorrect claim or formula, making R false.",
     "isCompetencyBased": true,
     "pyqYear": "2019",
     "pyqSet": "Set-1",
@@ -419,6 +431,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "This allows soap to remove dirt"
     ],
     "finalAnswer": "Amphipathic nature",
+    "explanation": "Soap: long chain carboxylic acid salt. Has hydrophobic tail (nonpolar) and hydrophilic head (polar). Amphipathic: has both hydrophobic and hydrophilic parts. Hydrophobic tail interacts with oil/grease. Hydrophilic head remains in water. This allows soap to remove dirt. Therefore, the correct answer is Amphipathic nature.",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "Set-2",
@@ -450,6 +463,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Detergent-metal compounds remain soluble"
     ],
     "finalAnswer": "Soap reacts with Ca2+/Mg2+ ions; detergents don't",
+    "explanation": "Hard water contains Ca2+ and Mg2+ ions. Soap + Ca2+/Mg2+ → insoluble salt (scum). Example: 2C17H35COO-Na+ + Ca2+ → (C17H35COO-)2Ca + 2Na+. Detergents: synthetic, don't form scum with hard water. Detergent-metal compounds remain soluble. Therefore, the correct answer is Soap reacts with Ca2+/Mg2+ ions; detergents don't.",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "Set-1",
@@ -481,6 +495,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Example: Sodium stearate C17H35COONa"
     ],
     "finalAnswer": "CnH2n+1COONa",
+    "explanation": "Soap: sodium salt of long-chain carboxylic acid. Long hydrophobic chain: CnH2n+1-. Carboxylate head: -COO-Na+. Complete formula: CnH2n+1COONa. Example: Sodium stearate C17H35COONa. Therefore, the correct answer is CnH2n+1COONa.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -512,6 +527,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Name: 2-Methylbutane (common: isobutane, but IUPAC: 2-methylbutane)"
     ],
     "finalAnswer": "2-Methylbutane",
+    "explanation": "Structure: CH3-CH(CH3)-CH2-CH3. Identify longest carbon chain: 4 carbons = butane. Methyl group attached to C2. Position from nearer end: position 2. Name: 2-Methylbutane (common: isobutane, but IUPAC: 2-methylbutane). Therefore, the correct answer is 2-Methylbutane.",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "Set-2",
@@ -544,6 +560,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "No weak layers in diamond"
     ],
     "finalAnswer": "Graphite has weak van der Waals forces between layers",
+    "explanation": "Graphite: layered structure. Within layers: strong C-C covalent bonds. Between layers: weak van der Waals forces. Layers can slide over each other easily. Diamond: rigid 3D network of strong bonds. No weak layers in diamond. Therefore, the correct answer is Graphite has weak van der Waals forces between layers.",
     "isCompetencyBased": true,
     "pyqYear": "2025",
     "pyqSet": "Set-1",
@@ -576,6 +593,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Triple bond allows two molecules of Br2 to add"
     ],
     "finalAnswer": "Decolorizes in two stages (tetrabromo product)",
+    "explanation": "Ethyne: HC≡CH (triple bond). First addition: HC≡CH + Br2 → CHBr=CHBr. Decolorizes bromine (brown → colorless). Second addition: CHBr=CHBr + Br2 → CHBr2-CHBr2. Can undergo two consecutive additions. Triple bond allows two molecules of Br2 to add. Therefore, the correct answer is Decolorizes in two stages (tetrabromo product).",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "Set-2",
@@ -704,6 +722,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "sp3 hybridization of carbon"
     ],
     "finalAnswer": "109.5°",
+    "explanation": "Methane: tetrahedral structure. Central carbon with 4 hydrogen atoms. Tetrahedral geometry gives 109.5° bond angles. sp3 hybridization of carbon. Therefore, the correct answer is 109.5°.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -789,6 +808,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Valence electrons = electrons in outermost shell = 4"
     ],
     "finalAnswer": "4",
+    "explanation": "Atomic number of C = 6. Electronic configuration = 2,4. Valence electrons = electrons in outermost shell = 4. Therefore, the correct answer is 4.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -818,6 +838,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Both atoms contribute electrons to the shared pair"
     ],
     "finalAnswer": "Covalent bond",
+    "explanation": "Carbon atoms share electrons to form bonds. In ethane, C-C and C-H bonds are covalent. Both atoms contribute electrons to the shared pair. Therefore, the correct answer is Covalent bond.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -848,6 +869,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Catenation = chain formation"
     ],
     "finalAnswer": "Tetravalency",
+    "explanation": "Tetravalency refers to the ability of carbon to form 4 covalent bonds. This is due to 4 valence electrons in carbon. Allotropy = different forms of same element. Catenation = chain formation. Therefore, the correct answer is Tetravalency.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -878,6 +900,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Polymerization = formation of polymers from monomers"
     ],
     "finalAnswer": "Catenation",
+    "explanation": "Catenation is the property of forming long chains. Carbon atoms link with each other via C-C bonds. This creates organic compounds with multiple carbon atoms. Polymerization = formation of polymers from monomers. Therefore, the correct answer is Catenation.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -907,6 +930,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Formula = C₁H₂(₁)₊₂ = CH₄ (methane)"
     ],
     "finalAnswer": "CH₄",
+    "explanation": "Alkanes follow the general formula CₙH₂ₙ₊₂. First member: n=1. Formula = C₁H₂(₁)₊₂ = CH₄ (methane). Therefore, the correct answer is CH₄.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -936,6 +960,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "This helps distinguish homologs"
     ],
     "finalAnswer": "Different physical properties",
+    "explanation": "Homologous series have: same general formula, differ by CH₂, same functional group, similar chemical properties. Physical properties (bp, mp, density) vary gradually, not in the same manner. This helps distinguish homologs. Therefore, the correct answer is Different physical properties.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -965,6 +990,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Each member of alkane series differs by CH₂ unit"
     ],
     "finalAnswer": "C₃H₈",
+    "explanation": "Propane = ethane + CH₂. C₂H₆ + CH₂ = C₃H₈. Each member of alkane series differs by CH₂ unit. Therefore, the correct answer is C₃H₈.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -995,6 +1021,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Name = Ethanol"
     ],
     "finalAnswer": "Ethanol",
+    "explanation": "CH₃CH₂OH has 2 carbon atoms. Prefix 'Eth' = 2 carbons. Suffix 'ol' = alcohol group (-OH). Name = Ethanol. Therefore, the correct answer is Ethanol.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1024,6 +1051,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "'-ol' = alcohol, '-al' = aldehyde, '-one' = ketone"
     ],
     "finalAnswer": "Carboxylic acid",
+    "explanation": "Suffix '-oic acid' denotes carboxylic acid group (-COOH). Example: Ethanoic acid (acetic acid) = CH₃COOH. '-ol' = alcohol, '-al' = aldehyde, '-one' = ketone. Therefore, the correct answer is Carboxylic acid.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1055,6 +1083,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Name = 2-Propanol (isopropanol)"
     ],
     "finalAnswer": "2-Propanol",
+    "explanation": "Structure has 3 carbons in main chain. Prefix = Prop (3 carbons). -OH group is on 2nd carbon. Suffix = -an-ol (alcohol). Name = 2-Propanol (isopropanol). Therefore, the correct answer is 2-Propanol.",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "Delhi",
@@ -1084,6 +1113,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "This is an oxidation reaction"
     ],
     "finalAnswer": "CO₂ and H₂O",
+    "explanation": "Complete combustion of hydrocarbons produces CO₂ and H₂O. C₂H₆ + 3.5O₂ → 2CO₂ + 3H₂O. This is an oxidation reaction. Therefore, the correct answer is CO₂ and H₂O.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1114,6 +1144,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Brown color of Br₂ disappears"
     ],
     "finalAnswer": "Addition reaction",
+    "explanation": "Ethene has a C=C double bond. Br₂ adds across the double bond: C₂H₄ + Br₂ → C₂H₄Br₂. Double bond breaks, Br atoms add. Brown color of Br₂ disappears. Therefore, the correct answer is Addition reaction.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1144,6 +1175,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Alcohols are weak acids"
     ],
     "finalAnswer": "Ethanol has acidic hydrogen in -OH group",
+    "explanation": "2C₂H₅OH + 2Na → 2C₂H₅ONa + H₂. The H of -OH group reacts with Na. This hydrogen is acidic in nature. Alcohols are weak acids. Therefore, the correct answer is Ethanol has acidic hydrogen in -OH group.",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "All India",
@@ -1175,6 +1207,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Burning = combustion (oxidation)"
     ],
     "finalAnswer": "Reaction with Cl₂ in sunlight",
+    "explanation": "Alkanes have C-C and C-H single bonds. They undergo substitution, not addition. CH₄ + Cl₂ → CH₃Cl + HCl (in sunlight). H atom is replaced by Cl atom. Burning = combustion (oxidation). Therefore, the correct answer is Reaction with Cl₂ in sunlight.",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "Delhi",
@@ -1205,6 +1238,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "General structure: RCOONa (where R is long alkyl chain)"
     ],
     "finalAnswer": "Long-chain carboxylic acids",
+    "explanation": "Soap = Na/K salt of long-chain fatty acids. Fatty acids: C₁₅H₃₁COOH, C₁₇H₃₅COOH, etc. Produced by saponification of fats/oils. General structure: RCOONa (where R is long alkyl chain). Therefore, the correct answer is Long-chain carboxylic acids.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1235,6 +1269,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Reduces cleaning efficiency"
     ],
     "finalAnswer": "Soap forms insoluble precipitate with Ca²⁺ and Mg²⁺ ions",
+    "explanation": "Hard water contains Ca²⁺ and Mg²⁺ ions. 2C₁₇H₃₅COONa + Ca²⁺ → (C₁₇H₃₅COO)₂Ca↓ + 2Na⁺. Insoluble precipitate formed = scum. Reduces cleaning efficiency. Therefore, the correct answer is Soap forms insoluble precipitate with Ca²⁺ and Mg²⁺ ions.",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "All India",
@@ -1265,6 +1300,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Also known as synthetic detergents or soapless soaps"
     ],
     "finalAnswer": "Work effectively in hard water",
+    "explanation": "Detergents have sulphonate or sulphate groups. Do not form precipitate with hard water ions. Work well in hard and soft water. Also known as synthetic detergents or soapless soaps. Therefore, the correct answer is Work effectively in hard water.",
     "isCompetencyBased": true,
     "pyqYear": "2025",
     "pyqSet": "Delhi",
@@ -1295,6 +1331,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Dirt particle is suspended in water and removed"
     ],
     "finalAnswer": "Hydrophobic tail enters dirt, hydrophilic head faces water",
+    "explanation": "Soap molecule has two parts: hydrophobic tail (long alkyl chain), hydrophilic head (COO⁻). Tail surrounds oil/dirt particle. Head faces water, forms micelle. Dirt particle is suspended in water and removed. Therefore, the correct answer is Hydrophobic tail enters dirt, hydrophilic head faces water.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1325,6 +1362,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "R explains A correctly"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1355,6 +1393,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "R explains A"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "All India",
@@ -1386,6 +1425,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "R correctly explains A"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "All India",

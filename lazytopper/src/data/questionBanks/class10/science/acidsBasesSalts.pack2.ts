@@ -27,6 +27,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "- Conduct electricity in solution"
     ],
     "finalAnswer": "A) Sour taste and turn blue litmus red",
+    "explanation": "Acids have characteristic properties:. - Taste sour. - Turn blue litmus paper red. - React with bases to form salts and water. - Conduct electricity in solution. Therefore, the correct answer is A) Sour taste and turn blue litmus red.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -58,6 +59,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "- Conduct electricity in solution"
     ],
     "finalAnswer": "B) Bitter taste and turn red litmus blue",
+    "explanation": "Bases have characteristic properties:. - Taste bitter. - Feel slippery to touch. - Turn red litmus paper blue. - Conduct electricity in solution. Therefore, the correct answer is B) Bitter taste and turn red litmus blue.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -89,6 +91,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "Pure water has pH = 7"
     ],
     "finalAnswer": "B) 7",
+    "explanation": "pH scale ranges from 0 to 14. pH < 7: Acidic solution. pH = 7: Neutral solution. pH > 7: Basic/Alkaline solution. Pure water has pH = 7. Therefore, the correct answer is B) 7.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -120,6 +123,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "- Litmus paper (qualitative test)"
     ],
     "finalAnswer": "C) pH meter or Universal indicator",
+    "explanation": "pH indicators are used to measure acidity/basicity. Common indicators:. - Universal indicator (shows color range for different pH). - pH meter (digital measurement). - Litmus paper (qualitative test). Therefore, the correct answer is C) pH meter or Universal indicator.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -150,6 +154,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "HCl is a strong acid that completely dissociates"
     ],
     "finalAnswer": "B) Hydrochloric acid (HCl)",
+    "explanation": "Strong acids completely ionize in water. Common strong acids: HCl, H₂SO₄, HNO₃. Common weak acids: CH₃COOH, H₂CO₃, citric acid. HCl is a strong acid that completely dissociates. Therefore, the correct answer is B) Hydrochloric acid (HCl).",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -181,6 +186,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "This solution would have high acidity"
     ],
     "finalAnswer": "B) It is strongly acidic",
+    "explanation": "pH scale: 0-14. pH < 7: Acidic (lower pH = more acidic). pH 3 is far from 7, indicating strong acidity. Therefore, the correct answer is B) It is strongly acidic.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -211,6 +217,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "This is an exothermic reaction"
     ],
     "finalAnswer": "B) Salt and water",
+    "explanation": "Neutralization reaction:. Acid + Base → Salt + Water. Example: HCl + NaOH → NaCl + H₂O. This is an exothermic reaction. Therefore, the correct answer is B) Salt and water.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -241,6 +248,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "These raise the pH to neutral range (6.5-7.5)"
     ],
     "finalAnswer": "B) Lime (CaO) or calcium carbonate",
+    "explanation": "Acidic soil needs a basic substance to neutralize. Lime (CaO) is basic and reacts with acid. Calcium carbonate (CaCO₃) also works. These raise the pH to neutral range (6.5-7.5). Therefore, the correct answer is B) Lime (CaO) or calcium carbonate.",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "SET-A",
@@ -271,6 +279,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "NH₄Cl is acidic (strong acid + weak base)"
     ],
     "finalAnswer": "B) Na₂CO₃ (sodium carbonate)",
+    "explanation": "Salts formed from weak acid + strong base are basic. Na₂CO₃ is from H₂CO₃ (weak) + NaOH (strong). NaCl, KCl are neutral (strong acid + strong base). NH₄Cl is acidic (strong acid + weak base). Therefore, the correct answer is B) Na₂CO₃ (sodium carbonate).",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -352,6 +361,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "The solution becomes less acidic (closer to neutral)"
     ],
     "finalAnswer": "B) pH increases (becomes less acidic/neutral)",
+    "explanation": "Dilution decreases concentration of H⁺ ions. Therefore, the correct answer is B) pH increases (becomes less acidic/neutral).",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -382,6 +392,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "CH₃COOH reaches equilibrium with mostly un-ionized molecules"
     ],
     "finalAnswer": "B) Complete vs partial ionization in water",
+    "explanation": "Strong acids: HCl → H⁺ + Cl⁻ (complete ionization, 100%). Weak acids: CH₃COOH ⇌ CH₃COO⁻ + H⁺ (partial ionization). HCl completely dissociates, producing more H⁺ ions. CH₃COOH reaches equilibrium with mostly un-ionized molecules. Therefore, the correct answer is B) Complete vs partial ionization in water.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -412,6 +423,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "Salts of strong acid + weak base are always acidic"
     ],
     "finalAnswer": "B) NH₄⁺ ion undergoes hydrolysis releasing H⁺ ions",
+    "explanation": "NH₄Cl is formed from strong acid (HCl) and weak base (NH₃·H₂O). NH₄⁺ undergoes hydrolysis: NH₄⁺ + H₂O ⇌ NH₃·H₂O + H⁺. This releases free H⁺ ions, making the solution acidic. Salts of strong acid + weak base are always acidic. Therefore, the correct answer is B) NH₄⁺ ion undergoes hydrolysis releasing H⁺ ions.",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "SET-B",
@@ -442,6 +454,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "The increase in temperature is a direct result of heat release"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -472,6 +485,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "Blood maintains this pH through buffer systems, not just acid-base balance"
     ],
     "finalAnswer": "A is true, R is false.",
+    "explanation": "The Assertion is a correct statement. However, the Reason given contains an incorrect claim or formula, making R false.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -502,6 +516,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "Neither ion hydrolyzes to release H⁺ or OH⁻"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -658,6 +673,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "Used to detect presence of bases"
     ],
     "finalAnswer": "B) Basic solution",
+    "explanation": "Phenolphthalein is a pH indicator. Colorless in acidic and neutral solutions. Pink/magenta in basic solutions (pH > 8.2). Used to detect presence of bases. Therefore, the correct answer is B) Basic solution.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -772,6 +788,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "Rate depends on [H⁺], not molecular formula"
     ],
     "finalAnswer": "B) HCl provides more H⁺ ions due to complete ionization",
+    "explanation": "HCl is a strong acid: HCl → H⁺ + Cl⁻ (complete ionization, 100%). CH₃COOH is weak acid: ⇌ H⁺ + CH₃COO⁻ (partial ionization). More H⁺ ions available from HCl → faster reaction. Fewer H⁺ ions from acetic acid → slower reaction. Therefore, the correct answer is B) HCl provides more H⁺ ions due to complete ionization.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -801,6 +818,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "Turmeric and phenolphthalein are indicators for basic solutions."
     ],
     "finalAnswer": "A) Methyl orange",
+    "explanation": "Indicators are substances that change color based on pH. Methyl orange turns red in acidic solutions (pH < 4.4). Turmeric and phenolphthalein are indicators for basic solutions. Therefore, the correct answer is A) Methyl orange.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -831,6 +849,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "pH < 7 is acidic, pH > 7 is basic, pH = 7 is neutral."
     ],
     "finalAnswer": "C) Neutral",
+    "explanation": "The pH scale ranges from 0 to 14. Therefore, the correct answer is C) Neutral.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -861,6 +880,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "Lower pH value means higher [H⁺] concentration and stronger acidity."
     ],
     "finalAnswer": "B) Strongly acidic",
+    "explanation": "pH values 0-3 indicate strongly acidic solutions. pH values 4-6 indicate weakly acidic solutions. Lemon juice with pH = 2 is strongly acidic. Therefore, the correct answer is B) Strongly acidic.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -890,6 +910,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "NaCl is sodium chloride, formed from HCl and NaOH."
     ],
     "finalAnswer": "A) HCl and NaOH",
+    "explanation": "Neutralization: Acid + Base → Salt + Water. HCl (strong acid) + NaOH (strong base) → NaCl (salt) + H₂O. NaCl is sodium chloride, formed from HCl and NaOH. Therefore, the correct answer is A) HCl and NaOH.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -920,6 +941,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "The reaction releases heat, making it exothermic."
     ],
     "finalAnswer": "D) Salt, water, and heat",
+    "explanation": "Neutralization is an exothermic reaction. Acid + Base → Salt + Water + Heat energy. All four products are formed in a neutralization reaction. The reaction releases heat, making it exothermic. Therefore, the correct answer is D) Salt, water, and heat.",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": undefined,
@@ -950,6 +972,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "The reason correctly explains why salts are ionic."
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": undefined,
@@ -980,6 +1003,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "Using Moles = Molarity × Volume, 0.01 M has the fewest moles of HCl."
     ],
     "finalAnswer": "B) 0.01 M HCl",
+    "explanation": "The amount of base needed depends on the concentration of acid. Lower concentration requires less base for complete neutralization. 0.01 M HCl is the most dilute, requiring the least base. Using Moles = Molarity × Volume, 0.01 M has the fewest moles of HCl. Therefore, the correct answer is B) 0.01 M HCl.",
     "isCompetencyBased": true,
     "pyqYear": "2020",
     "pyqSet": undefined,
@@ -1010,6 +1034,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "The salt formed is sodium sulfate, Na₂SO₄."
     ],
     "finalAnswer": "B) Na₂SO₄",
+    "explanation": "H₂SO₄ is a diprotic acid (has 2 H⁺ ions). NaOH is a monobasic base. Complete neutralization: H₂SO₄ + 2NaOH → Na₂SO₄ + 2H₂O. The salt formed is sodium sulfate, Na₂SO₄. Therefore, the correct answer is B) Na₂SO₄.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1090,6 +1115,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "The reason correctly explains why the reaction is exothermic."
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": undefined,
@@ -1145,6 +1171,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "This is a classic double displacement reaction."
     ],
     "finalAnswer": "B) BaSO₄",
+    "explanation": "H₂SO₄ + BaCl₂ → BaSO₄↓ + 2HCl. Barium sulfate (BaSO₄) is sparingly soluble in water. It forms a white precipitate due to its low solubility. This is a classic double displacement reaction. Therefore, the correct answer is B) BaSO₄.",
     "isCompetencyBased": true,
     "pyqYear": "2020",
     "pyqSet": undefined,
@@ -1201,6 +1228,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "The reason correctly explains this phenomenon."
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": undefined,
@@ -1310,6 +1338,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "NH₃ + H₂O ⇌ NH₄⁺ + OH⁻ (reversible reaction)"
     ],
     "finalAnswer": "C) NH₃",
+    "explanation": "Strong bases: NaOH, KOH, Ca(OH)₂ - fully ionize in water. Weak bases: NH₃ (ammonia) - partially ionizes in water. NH₃ + H₂O ⇌ NH₄⁺ + OH⁻ (reversible reaction). Therefore, the correct answer is C) NH₃.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1340,6 +1369,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "Therefore, pH increases (moves towards neutral/basic direction)."
     ],
     "finalAnswer": "A) pH increases",
+    "explanation": "Adding water dilutes the acid solution. Therefore, the correct answer is A) pH increases.",
     "isCompetencyBased": true,
     "pyqYear": "2025",
     "pyqSet": undefined,
@@ -1423,6 +1453,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "pH < 7 for NH₄NO₃ solution."
     ],
     "finalAnswer": "A) Acidic",
+    "explanation": "HNO₃ is a strong acid; NH₃ is a weak base. NH₄NO₃ is a salt of strong acid and weak base. NH₄⁺ undergoes hydrolysis: NH₄⁺ + H₂O ⇌ NH₃ + H₃O⁺. Hydrolysis produces H₃O⁺ ions, making the solution acidic. pH < 7 for NH₄NO₃ solution. Therefore, the correct answer is A) Acidic.",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": undefined,

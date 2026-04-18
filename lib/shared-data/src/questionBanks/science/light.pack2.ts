@@ -24,6 +24,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "Both angles are measured from the normal to the surface"
     ],
     "finalAnswer": "Second law of reflection",
+    "explanation": "The second law of reflection states that the angle of incidence equals the angle of reflection. Both angles are measured from the normal to the surface. Therefore, the correct answer is Second law of reflection.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -53,6 +54,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "By law of reflection, angle of reflection = angle of incidence = 60°"
     ],
     "finalAnswer": "60°",
+    "explanation": "Angle to mirror surface = 30°. Angle of incidence (from normal) = 90° - 30° = 60°. By law of reflection, angle of reflection = angle of incidence = 60°. Therefore, the correct answer is 60°.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -81,6 +83,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "This is indeed the first law, and it explains why the assertion is true"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "Delhi",
@@ -109,6 +112,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "f = 40 / 2 = 20 cm"
     ],
     "finalAnswer": "20 cm",
+    "explanation": "Focal length (f) = Radius of curvature (R) / 2. f = 40 / 2 = 20 cm. Therefore, the correct answer is 20 cm.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -138,6 +142,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "Center of curvature is at distance R = 2f = 2(15) = 30 cm"
     ],
     "finalAnswer": "At the center of curvature",
+    "explanation": "For a real, inverted, same-sized image in a concave mirror. Object distance must equal radius of curvature. Center of curvature is at distance R = 2f = 2(15) = 30 cm. Therefore, the correct answer is At the center of curvature.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -217,6 +222,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "Standard form: 1/f = 1/u + 1/v"
     ],
     "finalAnswer": "1/f = 1/u + 1/v",
+    "explanation": "The mirror formula relates object distance (u), image distance (v), and focal length (f). Standard form: 1/f = 1/u + 1/v. Therefore, the correct answer is 1/f = 1/u + 1/v.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -247,6 +253,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "The diverging nature explains the image characteristics"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "All India",
@@ -275,6 +282,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "where n is refractive index and θ is angle of incidence/refraction"
     ],
     "finalAnswer": "n₁ sin θ₁ = n₂ sin θ₂",
+    "explanation": "Snell's law: n₁ sin θ₁ = n₂ sin θ₂. where n is refractive index and θ is angle of incidence/refraction. Therefore, the correct answer is n₁ sin θ₁ = n₂ sin θ₂.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -305,6 +313,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "Therefore θ₂ > θ₁, light bends away from normal"
     ],
     "finalAnswer": "Away from the normal",
+    "explanation": "When light goes from denser (higher n) to rarer (lower n) medium. Using Snell's law: n₁ sin θ₁ = n₂ sin θ₂. Since n₁ > n₂, we need sin θ₂ > sin θ₁. Therefore θ₂ > θ₁, light bends away from normal. Therefore, the correct answer is Away from the normal.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -360,6 +369,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "At critical angle, refraction angle = 90°"
     ],
     "finalAnswer": "Glass to air",
+    "explanation": "Critical angle occurs when light goes from denser to rarer medium. Glass (n ≈ 1.5) to air (n = 1) is denser to rarer. At critical angle, refraction angle = 90°. Therefore, the correct answer is Glass to air.",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "All India",
@@ -389,6 +399,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "where f is focal length, u is object distance, v is image distance"
     ],
     "finalAnswer": "1/f = 1/u + 1/v",
+    "explanation": "The lens formula is identical in form to mirror formula. 1/f = 1/u + 1/v. where f is focal length, u is object distance, v is image distance. Therefore, the correct answer is 1/f = 1/u + 1/v.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -419,6 +430,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "Therefore u = 2f and v = 2f"
     ],
     "finalAnswer": "u = v = 2f",
+    "explanation": "Magnification m = -v/u. For m = -1 (same-sized image), u = v. Using lens formula: 1/f = 1/u + 1/u = 2/u. Therefore u = 2f and v = 2f. Therefore, the correct answer is u = v = 2f.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -475,6 +487,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "Image distance v is always negative and |v| < |u|"
     ],
     "finalAnswer": "Virtual, erect, and diminished",
+    "explanation": "Concave lens diverges all incident rays. The diverged rays appear to come from a virtual focus. Virtual image is always erect and diminished. Image distance v is always negative and |v| < |u|. Therefore, the correct answer is Virtual, erect, and diminished.",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "Delhi",
@@ -505,6 +518,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "Power is measured in diopters (D)"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "All India",
@@ -627,6 +641,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "v = speed in medium"
     ],
     "finalAnswer": "Speed of light in vacuum / Speed of light in medium",
+    "explanation": "Refractive index n = c/v. where c = speed in vacuum (3×10⁸ m/s). v = speed in medium. Therefore, the correct answer is Speed of light in vacuum / Speed of light in medium.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -655,6 +670,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "They are therefore called converging mirrors"
     ],
     "finalAnswer": "Converging mirror",
+    "explanation": "Concave mirrors converge parallel incident rays to a focal point. They are therefore called converging mirrors. Therefore, the correct answer is Converging mirror.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -711,6 +727,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "Number of images = 360°/90° - 1 = 4 - 1 = 3"
     ],
     "finalAnswer": "3",
+    "explanation": "For two mirrors at angle θ, number of images = (360°/θ) - 1. Here θ = 90°. Number of images = 360°/90° - 1 = 4 - 1 = 3. Therefore, the correct answer is 3.",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "All India",
@@ -739,6 +756,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "This is a fundamental law of reflection"
     ],
     "finalAnswer": "The normal to the reflecting surface",
+    "explanation": "Both angles of incidence and reflection are measured from the normal (perpendicular) to the reflecting surface. This is a fundamental law of reflection. Therefore, the correct answer is The normal to the reflecting surface.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -769,6 +787,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "The upright nature comes from the geometry of plane mirror reflection"
     ],
     "finalAnswer": "Both A and R are true, but R is not the correct explanation of A.",
+    "explanation": "Both statements are individually correct. However, the Reason does not directly cause or explain the Assertion — they are independent true facts about the same concept.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -797,6 +816,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "R = 2 × 15 = 30 cm"
     ],
     "finalAnswer": "30 cm",
+    "explanation": "Relationship: R = 2f, where R is radius of curvature and f is focal length. R = 2 × 15 = 30 cm. Therefore, the correct answer is 30 cm.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -827,6 +847,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "Magnification m = -v/u = -1 (same size, inverted)"
     ],
     "finalAnswer": "Real, inverted, and same size as object",
+    "explanation": "When object is at center of curvature (u = R = 2f). Using mirror formula: 1/f = 1/u + 1/v gives v = R = 2f. Image is at center of curvature on opposite side. Magnification m = -v/u = -1 (same size, inverted). Therefore, the correct answer is Real, inverted, and same size as object.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -858,6 +879,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "v = 50/3 = 16.67 cm (in front of mirror)"
     ],
     "finalAnswer": "16.67 cm in front of mirror",
+    "explanation": "Using mirror formula: 1/f = 1/u + 1/v. Given: f = 10 cm, u = 25 cm. 1/10 = 1/25 + 1/v. 1/v = 1/10 - 1/25 = (5-2)/50 = 3/50. v = 50/3 = 16.67 cm (in front of mirror). Therefore, the correct answer is 16.67 cm in front of mirror.",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "Set 2",
@@ -915,6 +937,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "This is useful in searchlights for long-distance illumination"
     ],
     "finalAnswer": "To produce parallel rays of light",
+    "explanation": "When object is at focal point (u = f) of concave mirror. From mirror formula: 1/f = 1/f + 1/v gives 1/v = 0, so v = ∞. Image at infinity means reflected rays are parallel. This is useful in searchlights for long-distance illumination. Therefore, the correct answer is To produce parallel rays of light.",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "Set 1",
@@ -945,6 +968,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "This change in speed causes bending of light"
     ],
     "finalAnswer": "Wavelength and speed of light",
+    "explanation": "Frequency remains constant during refraction. When light enters a different medium, its speed changes. As v = fλ, if v changes and f is constant, λ must change. This change in speed causes bending of light. Therefore, the correct answer is Wavelength and speed of light.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -974,6 +998,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "v = (3 × 10⁸)/1.5 = 2 × 10⁸ m/s"
     ],
     "finalAnswer": "2 × 10⁸ m/s",
+    "explanation": "Refractive index n = c/v. 1.5 = (3 × 10⁸)/v. v = (3 × 10⁸)/1.5 = 2 × 10⁸ m/s. Therefore, the correct answer is 2 × 10⁸ m/s.",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "Set 1",
@@ -1004,6 +1029,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "This difference in speed causes refraction and apparent bending"
     ],
     "finalAnswer": "A is true, R is false.",
+    "explanation": "The Assertion is a correct statement. However, the Reason given contains an incorrect claim or formula, making R false.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1033,6 +1059,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "This applies to both converging and diverging lenses"
     ],
     "finalAnswer": "1/f = 1/u + 1/v",
+    "explanation": "The lens formula is: 1/f = 1/u + 1/v. where f = focal length, u = object distance, v = image distance. This applies to both converging and diverging lenses. Therefore, the correct answer is 1/f = 1/u + 1/v.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1064,6 +1091,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "v = 60 cm (positive, real image)"
     ],
     "finalAnswer": "60 cm",
+    "explanation": "Using lens formula: 1/f = 1/u + 1/v. Given: f = 20 cm, u = 30 cm. 1/20 = 1/30 + 1/v. 1/v = 1/20 - 1/30 = (3-2)/60 = 1/60. v = 60 cm (positive, real image). Therefore, the correct answer is 60 cm.",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "Set 1",
@@ -1153,6 +1181,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "The diverging nature produces diminished, erect images"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1188,6 +1217,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "u = 6 cm (object between f and 2f)"
     ],
     "finalAnswer": "30 cm and 6 cm",
+    "explanation": "Using lens formula: 1/f = 1/u + 1/v. Given: f = 10 cm, v = 15 cm. 1/10 = 1/u + 1/15. 1/u = 1/10 - 1/15 = (3-2)/30 = 1/30. u = 30 cm (object beyond 2f, real image). If v = -15 cm (virtual image on same side). 1/10 = 1/u - 1/15. 1/u = 1/10 + 1/15 = (3+2)/30 = 1/6. u = 6 cm (object between f and 2f). Therefore, the correct answer is 30 cm and 6 cm.",
     "isCompetencyBased": true,
     "pyqYear": "2025",
     "pyqSet": "Set 2",
@@ -1302,6 +1332,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "Angle of incidence = 90° - 40° = 50°"
     ],
     "finalAnswer": "50°",
+    "explanation": "Angle to mirror surface = 40°. Angle of incidence is measured from normal (perpendicular to surface). Angle of incidence = 90° - 40° = 50°. Therefore, the correct answer is 50°.",
     "isCompetencyBased": true,
     "pyqYear": "2019",
     "pyqSet": "Set 1",
@@ -1388,6 +1419,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "Positive power indicates converging lens"
     ],
     "finalAnswer": "+4 D",
+    "explanation": "Power P = 1/f (in meters). f = 25 cm = 0.25 m. P = 1/0.25 = 4 D (diopters). Positive power indicates converging lens. Therefore, the correct answer is +4 D.",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "Set 3",

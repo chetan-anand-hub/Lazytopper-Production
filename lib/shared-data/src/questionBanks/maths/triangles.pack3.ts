@@ -24,6 +24,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "When all three angles of one triangle are equal to all three angles of another triangle, they are similar."
     ],
     "finalAnswer": "AAA similarity",
+    "explanation": "Similarity criteria based on equal corresponding angles is AAA (Angle-Angle-Angle) similarity. When all three angles of one triangle are equal to all three angles of another triangle, they are similar. Therefore, the correct answer is AAA similarity.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -51,6 +52,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "SAS (Side-Angle-Side) similarity states: If two sides of one triangle are proportional to two sides of another triangle and the included angles are equal, then the triangles are similar."
     ],
     "finalAnswer": "SAS criterion",
+    "explanation": "SAS (Side-Angle-Side) similarity states: If two sides of one triangle are proportional to two sides of another triangle and the included angles are equal, then the triangles are similar. Therefore, the correct answer is SAS criterion.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -79,6 +81,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "Here, all three pairs of sides are proportional, so △ABC ~ △DEF by SSS."
     ],
     "finalAnswer": "SSS criterion",
+    "explanation": "SSS (Side-Side-Side) similarity: If all three corresponding sides of two triangles are in the same ratio, then the triangles are similar. Here, all three pairs of sides are proportional, so △ABC ~ △DEF by SSS. Therefore, the correct answer is SSS criterion.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -159,6 +162,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "The Basic Proportionality Theorem (Thales' Theorem) states: If a line is drawn parallel to one side of a triangle, it divides the other two sides proportionally (in the same ratio)."
     ],
     "finalAnswer": "Ratio",
+    "explanation": "The Basic Proportionality Theorem (Thales' Theorem) states: If a line is drawn parallel to one side of a triangle, it divides the other two sides proportionally (in the same ratio). Therefore, the correct answer is Ratio.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -188,6 +192,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "This is the proportionality relation established by the theorem."
     ],
     "finalAnswer": "AE/EC",
+    "explanation": "By Basic Proportionality Theorem (BPT), when DE ∥ BC:. AD/DB = AE/EC. This is the proportionality relation established by the theorem. Therefore, the correct answer is AE/EC.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -265,6 +270,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "In a right-angled triangle, the side opposite to the 90° angle is the longest side, called the hypotenuse."
     ],
     "finalAnswer": "Hypotenuse",
+    "explanation": "In a right-angled triangle, the side opposite to the 90° angle is the longest side, called the hypotenuse. Therefore, the correct answer is Hypotenuse.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -292,6 +298,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "Pythagoras Theorem: In a right-angled triangle with legs a and b, and hypotenuse c: c² = a² + b²"
     ],
     "finalAnswer": "a² + b²",
+    "explanation": "Pythagoras Theorem: In a right-angled triangle with legs a and b, and hypotenuse c: c² = a² + b². Therefore, the correct answer is a² + b².",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -321,6 +328,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "c = √25 = 5 cm"
     ],
     "finalAnswer": "5 cm",
+    "explanation": "Using Pythagoras Theorem: c² = a² + b². c² = 3² + 4² = 9 + 16 = 25. c = √25 = 5 cm. Therefore, the correct answer is 5 cm.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -427,6 +435,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "Theorem: If two triangles are similar with similarity ratio k (ratio of corresponding sides), then the ratio of their areas is k²."
     ],
     "finalAnswer": "k²",
+    "explanation": "Theorem: If two triangles are similar with similarity ratio k (ratio of corresponding sides), then the ratio of their areas is k². Therefore, the correct answer is k².",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -454,6 +463,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "If the ratio of sides is 2:3, then the ratio of areas = (2)²:(3)² = 4:9"
     ],
     "finalAnswer": "4:9",
+    "explanation": "If the ratio of sides is 2:3, then the ratio of areas = (2)²:(3)² = 4:9. Therefore, the correct answer is 4:9.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -607,6 +617,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "AA criterion is sufficient for similarity; we don't need to prove all three angles."
     ],
     "finalAnswer": "Both A and R are true, but R is not the correct explanation of A.",
+    "explanation": "Both statements are individually correct. However, the Reason does not directly cause or explain the Assertion — they are independent true facts about the same concept.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -637,6 +648,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "Therefore, A is true and R is the correct explanation of A."
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -667,6 +679,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "Both A and R are true, and R correctly explains A."
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -807,6 +820,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "When two triangles are similar, their corresponding angles are equal and their corresponding sides are proportional."
     ],
     "finalAnswer": "All of the above",
+    "explanation": "When two triangles are similar, their corresponding angles are equal and their corresponding sides are proportional. Therefore, the correct answer is All of the above.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -834,6 +848,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "SAS (Side-Angle-Side) similarity: If two sides of one triangle are proportional to two sides of another triangle and the included angles are equal, then triangles are similar."
     ],
     "finalAnswer": "Two sides and included angle in the same ratio",
+    "explanation": "SAS (Side-Angle-Side) similarity: If two sides of one triangle are proportional to two sides of another triangle and the included angles are equal, then triangles are similar. Therefore, the correct answer is Two sides and included angle in the same ratio.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -885,6 +900,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "The Basic Proportionality Theorem states: If a line is drawn parallel to one side of a triangle, it divides the other two sides in the same ratio."
     ],
     "finalAnswer": "proportion",
+    "explanation": "The Basic Proportionality Theorem states: If a line is drawn parallel to one side of a triangle, it divides the other two sides in the same ratio. Therefore, the correct answer is proportion.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -963,6 +979,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "c = 5 cm"
     ],
     "finalAnswer": "5 cm",
+    "explanation": "By Pythagoras Theorem: c² = a² + b². c² = 3² + 4² = 9 + 16 = 25. c = 5 cm. Therefore, the correct answer is 5 cm.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -992,6 +1009,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "Therefore, (5, 12, 13) is a Pythagorean triple"
     ],
     "finalAnswer": "(5, 12, 13)",
+    "explanation": "A Pythagorean triple satisfies a² + b² = c². 5² + 12² = 25 + 144 = 169 = 13². Therefore, (5, 12, 13) is a Pythagorean triple. Therefore, the correct answer is (5, 12, 13).",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1070,6 +1088,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "If two triangles are similar with a ratio of corresponding sides as k:1, then the ratio of their areas is k²:1"
     ],
     "finalAnswer": "k²",
+    "explanation": "If two triangles are similar with a ratio of corresponding sides as k:1, then the ratio of their areas is k²:1. Therefore, the correct answer is k².",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1148,6 +1167,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "SSS (Side-Side-Side) similarity: If all three pairs of corresponding sides of two triangles are proportional, then the triangles are similar."
     ],
     "finalAnswer": "SSS",
+    "explanation": "SSS (Side-Side-Side) similarity: If all three pairs of corresponding sides of two triangles are proportional, then the triangles are similar. Therefore, the correct answer is SSS.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1255,6 +1275,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "The reason correctly explains why the assertion is true"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1284,6 +1305,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "The reason is the correct theorem for areas of similar triangles"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1312,6 +1334,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "The reason correctly explains the assertion"
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,

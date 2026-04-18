@@ -7,6 +7,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     questionText: "The zeroes of the polynomial x² − 3 are:",
     options: ["±√3", "±3", "3, 0", "√3, 0"],
     answer: "±√3",
+    explanation: "The correct answer is ±√3. This follows directly from the key concepts and formulas for this topic.",
     finalAnswer: "±√3"
   },
   {
@@ -15,6 +16,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     questionText: "If α and β are zeroes of x² − 5x + 6, then α + β is:",
     options: ["5", "6", "−5", "−6"],
     answer: "5",
+    explanation: "Sum of zeroes = −(−5)/1 = 5. Therefore, the correct answer is 5.",
     solutionSteps: ["Sum of zeroes = −(−5)/1 = 5"],
     finalAnswer: "5"
   },
@@ -24,6 +26,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     questionText: "The graph of a quadratic polynomial p(x) = ax² + bx + c opens upward when:",
     options: ["a > 0", "a < 0", "a = 0", "c > 0"],
     answer: "a > 0",
+    explanation: "The correct answer is a > 0. This follows directly from the key concepts and formulas for this topic.",
     finalAnswer: "a > 0"
   },
   {
@@ -32,6 +35,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     questionText: "How many zeroes can a cubic polynomial have at most?",
     options: ["1", "2", "3", "4"],
     answer: "3",
+    explanation: "The correct answer is 3. This follows directly from the key concepts and formulas for this topic.",
     finalAnswer: "3"
   },
   {
@@ -40,6 +44,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     questionText: "If one zero of 2x² − 8x + k is the reciprocal of the other, then k is:",
     options: ["2", "4", "−2", "8"],
     answer: "2",
+    explanation: "Let zeroes be α and 1/α. Product = α × (1/α) = 1. Product of zeroes = k/2 = 1. k = 2. Therefore, the correct answer is 2.",
     solutionSteps: ["Let zeroes be α and 1/α", "Product = α × (1/α) = 1", "Product of zeroes = k/2 = 1", "k = 2"],
     finalAnswer: "2"
   },
@@ -49,6 +54,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     questionText: "The number of zeroes of a polynomial is equal to the number of points where the graph:",
     options: ["touches x-axis", "touches y-axis", "intersects x-axis", "intersects or touches x-axis"],
     answer: "intersects or touches x-axis",
+    explanation: "The correct answer is intersects or touches x-axis. This follows directly from the key concepts and formulas for this topic.",
     finalAnswer: "intersects or touches x-axis"
   },
   {
@@ -57,6 +63,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     questionText: "If p(x) = x² − 4x + 3, then p(1) is:",
     options: ["0", "1", "−1", "3"],
     answer: "0",
+    explanation: "p(1) = 1 − 4 + 3 = 0. Therefore, the correct answer is 0.",
     solutionSteps: ["p(1) = 1 − 4 + 3 = 0"],
     finalAnswer: "0"
   },
@@ -66,6 +73,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     questionText: "If α, β are zeroes of p(x) = ax² + bx + c, then αβ =",
     options: ["−b/a", "b/a", "c/a", "−c/a"],
     answer: "c/a",
+    explanation: "The correct answer is c/a. This follows directly from the key concepts and formulas for this topic.",
     finalAnswer: "c/a"
   },
   {
@@ -81,6 +89,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     questionText: "A polynomial of degree n has at most:",
     options: ["n zeroes", "n + 1 zeroes", "n − 1 zeroes", "2n zeroes"],
     answer: "n zeroes",
+    explanation: "The correct answer is n zeroes. This follows directly from the key concepts and formulas for this topic.",
     finalAnswer: "n zeroes"
   },
   {
@@ -96,6 +105,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     questionText: "Assertion (A): The polynomial x² + 1 has no real zeroes.\nReason (R): x² ≥ 0 for all real x, so x² + 1 ≥ 1 > 0.",
     options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
     answer: "Both A and R are true, and R is the correct explanation of A.",
+    explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     finalAnswer: "Both A and R are true, and R is the correct explanation of A."
   },
   {
@@ -104,6 +114,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     questionText: "The value of k for which x = 2 is a zero of p(x) = x² − kx + 2 is:",
     options: ["1", "2", "3", "4"],
     answer: "3",
+    explanation: "p(2) = 0 ⟹ 4 − 2k + 2 = 0 ⟹ 2k = 6 ⟹ k = 3. Therefore, the correct answer is 3.",
     solutionSteps: ["p(2) = 0 ⟹ 4 − 2k + 2 = 0 ⟹ 2k = 6 ⟹ k = 3"],
     finalAnswer: "3"
   },
@@ -113,6 +124,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     questionText: "If α, β are the zeroes of x² − 7x + 10, then 1/α + 1/β =",
     options: ["7/10", "10/7", "3/10", "−7/10"],
     answer: "7/10",
+    explanation: "1/α + 1/β = (α + β)/(αβ) = 7/10. Therefore, the correct answer is 7/10.",
     solutionSteps: ["1/α + 1/β = (α + β)/(αβ) = 7/10"],
     finalAnswer: "7/10"
   },
@@ -122,6 +134,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     questionText: "The zeroes of a polynomial p(x) are the x-coordinates of the points where the graph of y = p(x) intersects the:",
     options: ["y-axis", "x-axis", "both axes", "origin only"],
     answer: "x-axis",
+    explanation: "The correct answer is x-axis. This follows directly from the key concepts and formulas for this topic.",
     finalAnswer: "x-axis"
   },
   {
@@ -137,6 +150,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     questionText: "For a quadratic polynomial ax² + bx + c, the sum of zeroes is:",
     options: ["b/a", "−b/a", "c/a", "a/c"],
     answer: "−b/a",
+    explanation: "The correct answer is −b/a. This follows directly from the key concepts and formulas for this topic.",
     finalAnswer: "−b/a"
   },
   {
@@ -145,6 +159,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     questionText: "The zeroes of 6x² − 3 − 7x are:",
     options: ["3/2 and −1/3", "−3/2 and 1/3", "3/2 and 1/3", "−3/2 and −1/3"],
     answer: "3/2 and −1/3",
+    explanation: "6x² − 7x − 3 = 0. (2x − 3)(3x + 1) = 0. x = 3/2 or x = −1/3. Therefore, the correct answer is 3/2 and −1/3.",
     solutionSteps: ["6x² − 7x − 3 = 0", "(2x − 3)(3x + 1) = 0", "x = 3/2 or x = −1/3"],
     finalAnswer: "3/2 and −1/3"
   },
@@ -154,6 +169,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     questionText: "Assertion (A): A linear polynomial has exactly one zero.\nReason (R): The graph of a linear polynomial is a straight line intersecting the x-axis at exactly one point.",
     options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
     answer: "Both A and R are true, and R is the correct explanation of A.",
+    explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     finalAnswer: "Both A and R are true, and R is the correct explanation of A."
   },
   {
@@ -206,6 +222,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     questionText: "Assertion (A): If one zero of p(x) = 4x² − 8kx − 9 is the negative of the other, then k = 0.\nReason (R): Sum of zeroes = −b/a.",
     options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
     answer: "Both A and R are true, and R is the correct explanation of A.",
+    explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     solutionSteps: ["If zeroes are α and −α, sum = 0", "−(−8k)/4 = 0 ⟹ 2k = 0 ⟹ k = 0"],
     finalAnswer: "Both A and R are true, and R is the correct explanation of A."
   },
@@ -240,6 +257,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     questionText: "If the graph of a quadratic polynomial p(x) touches the x-axis at exactly one point, then p(x) has:",
     options: ["two distinct real zeroes", "two equal real zeroes", "no real zeroes", "one real zero only"],
     answer: "two equal real zeroes",
+    explanation: "The correct answer is two equal real zeroes. This follows directly from the key concepts and formulas for this topic.",
     finalAnswer: "two equal real zeroes"
   },
   {
@@ -279,6 +297,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     questionText: "If α, β are zeroes of x² − 6x + k and 3α + 2β = 20, then k =",
     options: ["−16", "8", "2", "−8"],
     answer: "−16",
+    explanation: "α + β = 6. 3α + 2β = 20 and α + β = 6. Subtract: 2α + β = 14. From α + β = 6: β = 6 − α, so 2α + 6 − α = 14, α = 8, β = −2. k = αβ = 8(−2) = −16. Therefore, the correct answer is −16.",
     solutionSteps: ["α + β = 6", "3α + 2β = 20 and α + β = 6", "Subtract: 2α + β = 14", "From α + β = 6: β = 6 − α, so 2α + 6 − α = 14, α = 8, β = −2", "k = αβ = 8(−2) = −16"],
     finalAnswer: "−16"
   },
@@ -300,6 +319,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     questionText: "Assertion (A): A quadratic polynomial whose zeroes are −3 and 4 is x² − x − 12.\nReason (R): If α, β are zeroes, the polynomial is x² − (α+β)x + αβ.",
     options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
     answer: "Both A and R are true, and R is the correct explanation of A.",
+    explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     finalAnswer: "Both A and R are true, and R is the correct explanation of A."
   },
   {
@@ -353,6 +373,7 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     questionText: "If α, β are zeroes of x² − 4x + 3, then (α − β)² =",
     options: ["4", "10", "16", "2"],
     answer: "4",
+    explanation: "(α−β)² = (α+β)² − 4αβ = 16 − 12 = 4. Therefore, the correct answer is 4.",
     solutionSteps: ["(α−β)² = (α+β)² − 4αβ = 16 − 12 = 4"],
     finalAnswer: "4"
   },
@@ -538,5 +559,5 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     ],
     finalAnswer: "k = 2; zeroes are −1/2 and −2"
   },
-  { id: "POLY-AR05", subject: "Maths", topicKey: "Polynomials", subtopic: "Relationship between Zeroes and Coefficients", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): A quadratic polynomial can have at most 2 zeroes.\nReason (R): The degree of a polynomial determines the maximum number of zeroes it can have.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." },
+  { id: "POLY-AR05", subject: "Maths", topicKey: "Polynomials", subtopic: "Relationship between Zeroes and Coefficients", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): A quadratic polynomial can have at most 2 zeroes.\nReason (R): The degree of a polynomial determines the maximum number of zeroes it can have.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." },
 ];
