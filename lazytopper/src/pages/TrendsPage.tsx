@@ -412,11 +412,11 @@ const TrendsPage: React.FC = () => {
               <div style={{ display: "flex", flexWrap: "wrap", gap: 16, fontSize: "0.75rem", marginBottom: 10 }}>
                 <div>
                   <span style={{ color: "var(--text-muted)" }}>Difficulty: </span>
-                  <span style={{ color: "#4ade80" }}>Easy {difficultyMix.Easy}%</span>
+                  <span style={{ color: "#16a34a" }}>Easy {difficultyMix.Easy}%</span>
                   {" / "}
-                  <span style={{ color: "#facc15" }}>Medium {difficultyMix.Medium}%</span>
+                  <span style={{ color: "#d97706" }}>Medium {difficultyMix.Medium}%</span>
                   {" / "}
-                  <span style={{ color: "#f87171" }}>Hard {difficultyMix.Hard}%</span>
+                  <span style={{ color: "#dc2626" }}>Hard {difficultyMix.Hard}%</span>
                 </div>
               </div>
               <div style={{ fontSize: "0.72rem", color: "var(--text-muted)", marginBottom: 6 }}>
