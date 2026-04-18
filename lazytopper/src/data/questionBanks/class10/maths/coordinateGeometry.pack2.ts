@@ -173,7 +173,6 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "P = (5, 6)"
     ],
     "finalAnswer": "(5, 6)",
-    "visualExplainerId": "maths-coordinate-geometry-section-formula",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "II",
@@ -292,7 +291,6 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "Also check diagonals: both bisect each other at (3.5, 1.5)"
     ],
     "finalAnswer": "PQRS forms a parallelogram (opposite sides equal)",
-    "visualExplainerId": "maths-coordinate-geometry-distance-formula",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "II",
@@ -319,7 +317,6 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "x = (4/7·1 + 1·6)/(4/7 + 1) = (4/7 + 6)/(11/7) = (46/7)/(11/7) = 46/11"
     ],
     "finalAnswer": "k = 4/7, P = (46/11, 0)",
-    "visualExplainerId": "maths-coordinate-geometry-section-formula",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -348,7 +345,6 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "Ratio = 10:28 = 5:14 (not a simple factor)"
     ],
     "finalAnswer": "(i) √73 units (ii) 5 units (iii) Diagonal ≠ simple perimeter ratio",
-    "visualExplainerId": "maths-coordinate-geometry-section-formula",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "I",
@@ -407,7 +403,6 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "Midpoint = [(2+0)/2, (0+4)/2] = (1, 2)"
     ],
     "finalAnswer": "The point is the midpoint at (1, 2)",
-    "visualExplainerId": "maths-coordinate-geometry-section-formula",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -497,7 +492,6 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "m:n = 1:1"
     ],
     "finalAnswer": "The point divides the segment in the ratio 1:1 (at midpoint)",
-    "visualExplainerId": "maths-coordinate-geometry-section-formula",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -584,7 +578,6 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "Yes, PQ = QP (distance is symmetric)"
     ],
     "finalAnswer": "5; PQ = QP = 5",
-    "visualExplainerId": "maths-coordinate-geometry-distance-formula",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -640,7 +633,6 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "Therefore B = (5, 7)"
     ],
     "finalAnswer": "B(5, 7)",
-    "visualExplainerId": "maths-coordinate-geometry-section-formula",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -696,7 +688,6 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "= (12/3, 15/3) = (4, 5)"
     ],
     "finalAnswer": "(4, 5)",
-    "visualExplainerId": "maths-coordinate-geometry-section-formula",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -722,7 +713,6 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "All sides are equal, so triangle is equilateral"
     ],
     "finalAnswer": "All sides = 4 units; Triangle is equilateral",
-    "visualExplainerId": "maths-coordinate-geometry-distance-formula",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -753,7 +743,6 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "Both coordinates positive, so Quadrant I"
     ],
     "finalAnswer": "I",
-    "visualExplainerId": "maths-coordinate-geometry-section-formula",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -785,7 +774,6 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
-    "visualExplainerId": "maths-coordinate-geometry-section-formula",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -817,7 +805,6 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
-    "visualExplainerId": "maths-coordinate-geometry-distance-formula",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -842,7 +829,6 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "(iii) AC = √[(22-10)² + (32-20)²] = √[144+144] = √288 = 12√2"
     ],
     "finalAnswer": "C(22, 32); D(16, 26); AC = 12√2 units",
-    "visualExplainerId": "maths-coordinate-geometry-section-formula",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -878,7 +864,6 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "For a=7, √[(3-7)²+(7-4)²] = √[16+9] = √25 = 5 ✓"
     ],
     "finalAnswer": "0 or 7",
-    "visualExplainerId": "maths-coordinate-geometry-distance-formula",
     "isCompetencyBased": true,
     "pyqYear": "2019",
     "pyqSet": "I",
@@ -912,7 +897,6 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "Therefore isosceles right-angled triangle"
     ],
     "finalAnswer": "Isosceles right-angled",
-    "visualExplainerId": "maths-coordinate-geometry-distance-formula",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "I",
@@ -943,7 +927,6 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "= (14/2, 18/2) = (7, 9)"
     ],
     "finalAnswer": "(7, 9)",
-    "visualExplainerId": "maths-coordinate-geometry-section-formula",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "II",
@@ -971,7 +954,6 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "All four sides are equal, so it's a rhombus"
     ],
     "finalAnswer": "All sides = √34; It is a rhombus",
-    "visualExplainerId": "maths-coordinate-geometry-distance-formula",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -997,7 +979,6 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "We need more information about the vertices"
     ],
     "finalAnswer": "The given information is insufficient",
-    "visualExplainerId": "maths-coordinate-geometry-section-formula",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1023,7 +1004,6 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "(iv) Midpoint of MF = ((−1+5)/2, (7/2+13/2)/2) = (2, 10/4) = (2, 5). Midpoint of HS = ((−4+8)/2, (2+8)/2) = (2, 5). Both equal (2,5). ✓"
     ],
     "finalAnswer": "(i) M(−1, 7/2) (ii) F(5, 13/2) (iii) 3√5 (iv) Both midpoints = (2,5) ✓",
-    "visualExplainerId": "maths-coordinate-geometry-section-formula",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1050,7 +1030,6 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "(v) Distance = √((4−8/3)²+(3−2)²) = √((4/3)²+1²) = √(16/9+9/9) = √(25/9) = 5/3."
     ],
     "finalAnswer": "(i) XY=10, YZ=8, XZ=6 (ii) Right angle at Z (iii) Circumcentre (4,3) (iv) Centroid (8/3,2) (v) 5/3",
-    "visualExplainerId": "maths-coordinate-geometry-distance-formula",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1063,7 +1042,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
   { id: "CG2-053", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Section Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The midpoint of (−3, 4) and (5, −2) is:", options: ["(1, 1)","(1, 2)","(2, 1)","(0, 1)"], answer: "(1, 1)", explanation: "The correct answer is (1, 1). Midpoint = ((−3+5)/2, (4+(−2))/2) = (2/2, 2/2) = (1, 1).", finalAnswer: "Midpoint = ((−3+5)/2, (4+(−2))/2) = (2/2, 2/2) = (1, 1).", isCompetencyBased: false },
   { id: "CG2-054", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Distance Formula", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If A(2, y) and B(6, 4) and AB = 5, then y equals:", options: ["1 or 7","0 or 8","1 or −7","7 only"], answer: "1 or 7", explanation: "The correct answer is 1 or 7. AB² = 16+(y−4)² = 25 → (y−4)² = 9 → y−4 = ±3 → y = 7 or y = 1.", finalAnswer: "AB² = 16+(y−4)² = 25 → (y−4)² = 9 → y−4 = ±3 → y = 7 or y = 1.", isCompetencyBased: false },
   { id: "CG2-055", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Distance Formula", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): The distance of the point (3, 4) from the origin is 5.\nReason (R): The distance formula between (x₁, y₁) and (x₂, y₂) is √((x₂−x₁)²+(y₂−y₁)²).", options: ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "d = √(3²+4²) = √25 = 5. R gives the formula used to compute A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.", isCompetencyBased: true },
-  { id: "CG2-056", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Section Formula", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Find the coordinates of the point P which divides the join of A(−1, 7) and B(4, −3) in the ratio 2:3. Also find the distance AP.", solutionSteps: ["P divides AB in ratio m:n = 2:3.","x = (2×4+3×(−1))/(2+3) = (8−3)/5 = 1","y = (2×(−3)+3×7)/5 = (−6+21)/5 = 15/5 = 3","So P = (1, 3).","AP = √((1−(−1))²+(3−7)²) = √(4+16) = √20 = 2√5."], answer: "P = (1, 3); AP = 2√5 units.", explanation: "See solution steps.", finalAnswer: "P = (1, 3); AP = 2√5 units.", visualExplainerId: "maths-coordinate-geometry-section-formula", isCompetencyBased: false },
-  { id: "CG2-057", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Area of Triangle", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Verify that the points (1, −1), (4, 1), and (−2, −3) are collinear using the area method.", solutionSteps: ["Area = ½|x₁(y₂−y₃) + x₂(y₃−y₁) + x₃(y₁−y₂)|","= ½|1(1−(−3)) + 4((−3)−(−1)) + (−2)(−1−1)|","= ½|1(4) + 4(−2) + (−2)(−2)|","= ½|4 − 8 + 4| = ½|0| = 0","Area = 0 ✓, so the three points are collinear."], answer: "Area = 0, so the points are collinear.", explanation: "See solution steps.", finalAnswer: "Area = 0, so the points are collinear.", visualExplainerId: "maths-coordinate-geometry-collinearity-condition", isCompetencyBased: false },
-  { id: "CG2-058", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Section Formula", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "The vertices of a triangle are A(2, 4), B(−4, 2) and C(−2, −6). Find the coordinates of the centroid.", solutionSteps: ["Centroid G = ((x₁+x₂+x₃)/3, (y₁+y₂+y₃)/3)","x = (2+(−4)+(−2))/3 = −4/3","y = (4+2+(−6))/3 = 0/3 = 0","G = (−4/3, 0)"], answer: "Centroid G = (−4/3, 0).", explanation: "See solution steps.", finalAnswer: "Centroid G = (−4/3, 0).", visualExplainerId: "maths-coordinate-geometry-distance-formula", isCompetencyBased: false }
+  { id: "CG2-056", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Section Formula", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Find the coordinates of the point P which divides the join of A(−1, 7) and B(4, −3) in the ratio 2:3. Also find the distance AP.", solutionSteps: ["P divides AB in ratio m:n = 2:3.","x = (2×4+3×(−1))/(2+3) = (8−3)/5 = 1","y = (2×(−3)+3×7)/5 = (−6+21)/5 = 15/5 = 3","So P = (1, 3).","AP = √((1−(−1))²+(3−7)²) = √(4+16) = √20 = 2√5."], answer: "P = (1, 3); AP = 2√5 units.", explanation: "See solution steps.", finalAnswer: "P = (1, 3); AP = 2√5 units.", isCompetencyBased: false },
+  { id: "CG2-057", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Area of Triangle", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Verify that the points (1, −1), (4, 1), and (−2, −3) are collinear using the area method.", solutionSteps: ["Area = ½|x₁(y₂−y₃) + x₂(y₃−y₁) + x₃(y₁−y₂)|","= ½|1(1−(−3)) + 4((−3)−(−1)) + (−2)(−1−1)|","= ½|1(4) + 4(−2) + (−2)(−2)|","= ½|4 − 8 + 4| = ½|0| = 0","Area = 0 ✓, so the three points are collinear."], answer: "Area = 0, so the points are collinear.", explanation: "See solution steps.", finalAnswer: "Area = 0, so the points are collinear.", isCompetencyBased: false },
+  { id: "CG2-058", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Section Formula", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "The vertices of a triangle are A(2, 4), B(−4, 2) and C(−2, −6). Find the coordinates of the centroid.", solutionSteps: ["Centroid G = ((x₁+x₂+x₃)/3, (y₁+y₂+y₃)/3)","x = (2+(−4)+(−2))/3 = −4/3","y = (4+2+(−6))/3 = 0/3 = 0","G = (−4/3, 0)"], answer: "Centroid G = (−4/3, 0).", explanation: "See solution steps.", finalAnswer: "Centroid G = (−4/3, 0).", isCompetencyBased: false }
 ];

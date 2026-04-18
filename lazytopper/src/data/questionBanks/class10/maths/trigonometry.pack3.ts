@@ -288,7 +288,6 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "tan A = sin A/cos A = (7/25)/(24/25) = 7/24"
     ],
     "finalAnswer": "cos A = 24/25, tan A = 7/24",
-    "visualExplainerId": "maths-trigonometry-trigonometric-ratios",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -313,7 +312,6 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "= 1/4 + 3/4 = 4/4 = 1"
     ],
     "finalAnswer": "1",
-    "visualExplainerId": "maths-trigonometry-trigonometric-ratios-of-standard-angles",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -373,7 +371,6 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
-    "visualExplainerId": "maths-trigonometry-trigonometric-ratios",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -404,7 +401,6 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Since cosec θ = 1/sin θ, we have sin θ · cosec θ = 1. The Reason correctly explains the Assertion.",
-    "visualExplainerId": "maths-trigonometry-trigonometric-ratios",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -436,7 +432,6 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
-    "visualExplainerId": "maths-trigonometry-trigonometric-ratios",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -468,7 +463,6 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "sin θ cos θ = 1/2"
     ],
     "finalAnswer": "1/2",
-    "visualExplainerId": "maths-trigonometry-trigonometric-ratios",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "SET-A",
@@ -552,7 +546,6 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "= 2 sin 30° = 2 · (1/2) = 1"
     ],
     "finalAnswer": "1",
-    "visualExplainerId": "maths-trigonometry-trigonometric-ratios",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -811,7 +804,6 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "Standard angle values from trigonometric tables"
     ],
     "finalAnswer": "sin 0° = 0, sin 30° = 1/2, sin 45° = 1/√2, sin 60° = √3/2, sin 90° = 1",
-    "visualExplainerId": "maths-trigonometry-trigonometric-ratios-of-standard-angles",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -837,7 +829,6 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "cot θ = cos θ/sin θ = (12/13)/(5/13) = 12/5"
     ],
     "finalAnswer": "sin θ = 5/13, cot θ = 12/5",
-    "visualExplainerId": "maths-trigonometry-trigonometric-ratios",
     "isCompetencyBased": true,
     "pyqYear": "2020",
     "pyqSet": "SET-A",
@@ -1014,7 +1005,6 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     ],
     "finalAnswer": "13/12",
     "explanation": "tan θ = 5/12 (opposite/adjacent). Using Pythagoras: hypotenuse² = 5² + 12² = 25 + 144 = 169. hypotenuse = 13. sec θ = hypotenuse/adjacent = 13/12. Therefore, the correct answer is 13/12.",
-    "visualExplainerId": "maths-trigonometry-trigonometric-ratios",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1039,7 +1029,6 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "= 1 + 3/2 = 2"
     ],
     "finalAnswer": "2",
-    "visualExplainerId": "maths-trigonometry-trigonometric-ratios-of-standard-angles",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1069,7 +1058,6 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     ],
     "finalAnswer": "1",
     "explanation": "1 - sin² θ = cos² θ. cos² θ · sec² θ = cos² θ · (1/cos² θ) = 1. Therefore, the correct answer is 1.",
-    "visualExplainerId": "maths-trigonometry-trigonometric-ratios",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1094,7 +1082,6 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "sin²45° - cos²45° = 1/2 - 1/2 = 0"
     ],
     "finalAnswer": "0",
-    "visualExplainerId": "maths-trigonometry-trigonometric-ratios-of-standard-angles",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1156,7 +1143,6 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     ],
     "finalAnswer": "1",
     "explanation": "tan 60° = √3, cot 60° = 1/√3. tan 60° × cot 60° = √3 × (1/√3) = 1. Therefore, the correct answer is 1.",
-    "visualExplainerId": "maths-trigonometry-trigonometric-ratios-of-standard-angles",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1213,7 +1199,6 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "tan θ = opposite/adjacent = 12/5"
     ],
     "finalAnswer": "tan θ = 12/5",
-    "visualExplainerId": "maths-trigonometry-trigonometric-ratios",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1244,7 +1229,6 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
-    "visualExplainerId": "maths-trigonometry-trigonometric-ratios",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1275,7 +1259,6 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     ],
     "finalAnswer": "(√5 - 1)/4",
     "explanation": "sin 18° is a standard angle value. Using geometry of regular pentagon or algebraic derivation. sin 18° = (√5 - 1)/4. Therefore, the correct answer is (√5 - 1)/4.",
-    "visualExplainerId": "maths-trigonometry-trigonometric-ratios",
     "isCompetencyBased": false,
     "pyqYear": "2022",
     "pyqSet": "All India",
@@ -1301,7 +1284,6 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "sin² θ + cosec² θ = 2"
     ],
     "finalAnswer": "2",
-    "visualExplainerId": "maths-trigonometry-trigonometric-ratios",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "Delhi",
@@ -1329,7 +1311,6 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "tan²θ + cot²θ = 4 - 2 = 2"
     ],
     "finalAnswer": "2",
-    "visualExplainerId": "maths-trigonometry-trigonometric-ratios",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1361,7 +1342,6 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
-    "visualExplainerId": "maths-trigonometry-trigonometric-ratios",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1456,7 +1436,6 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "Verification: sin² A + cos² A = 9/25 + 16/25 = 1 ✓"
     ],
     "finalAnswer": "Triangle is valid. All trigonometric ratios calculated.",
-    "visualExplainerId": "maths-trigonometry-trigonometric-ratios",
     "isCompetencyBased": true,
     "pyqYear": "2025",
     "pyqSet": "All India",
@@ -1487,7 +1466,6 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "Verification: sin²θ + cos²θ = p²/q² + (q² - p²)/q² = q²/q² = 1 ✓"
     ],
     "finalAnswer": "sin θ = p/q, cos θ = √(q²-p²)/q, tan θ = p/√(q²-p²), cosec θ = q/p, sec θ = q/√(q²-p²), cot θ = √(q²-p²)/p",
-    "visualExplainerId": "maths-trigonometry-trigonometric-identities",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1512,7 +1490,6 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "cosec 60° = 2/√3 = 2√3/3"
     ],
     "finalAnswer": "2/√3 or 2√3/3",
-    "visualExplainerId": "maths-trigonometry-trigonometric-ratios-of-standard-angles",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1544,7 +1521,6 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     ],
     "finalAnswer": "3",
     "explanation": "cosec² θ - cot² θ = 1 (fundamental identity). (cosec θ - cot θ)(cosec θ + cot θ) = 1. (1/3)(cosec θ + cot θ) = 1. cosec θ + cot θ = 3. Therefore, the correct answer is 3.",
-    "visualExplainerId": "maths-trigonometry-trigonometric-ratios",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1576,7 +1552,6 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     ],
     "finalAnswer": "sin² θ - cos² θ",
     "explanation": "sin⁴ θ - cos⁴ θ = (sin² θ)² - (cos² θ)². = (sin² θ - cos² θ)(sin² θ + cos² θ). = (sin² θ - cos² θ)(1). = sin² θ - cos² θ. Therefore, the correct answer is sin² θ - cos² θ.",
-    "visualExplainerId": "maths-trigonometry-trigonometric-ratios",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1607,7 +1582,6 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "Check: May need reworking. Expected simple answer"
     ],
     "finalAnswer": "2√3 - 1",
-    "visualExplainerId": "maths-trigonometry-trigonometric-ratios-of-standard-angles",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1634,7 +1608,6 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "= 6/4 - 1 = 3/2 - 1 = 1/2"
     ],
     "finalAnswer": "1/2",
-    "visualExplainerId": "maths-trigonometry-trigonometric-ratios-of-standard-angles",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1691,7 +1664,6 @@ export const TG3_PACK3: CanonicalQuestion[] = [
       "sin² θ + cos² θ = 16/25 + 9/25 = 25/25 = 1 ✓"
     ],
     "finalAnswer": "Verified",
-    "visualExplainerId": "maths-trigonometry-trigonometric-identities",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,

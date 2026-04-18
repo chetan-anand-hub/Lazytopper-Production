@@ -108,7 +108,6 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "By AAA criterion, △ABC ~ △PQR"
     ],
     "finalAnswer": "Yes, △ABC ~ △PQR by AA criterion",
-    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -136,7 +135,6 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "By SSS similarity criterion, △ABC ~ △XYZ"
     ],
     "finalAnswer": "Yes, by SSS similarity (ratio 1:2)",
-    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -220,7 +218,6 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "EC = (3 × 6)/4 = 18/4 = 4.5 cm"
     ],
     "finalAnswer": "EC = 4.5 cm",
-    "visualExplainerId": "maths-triangles-basic-proportionality-theorem",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -246,7 +243,6 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "QC = (1.5 × 4)/2 = 6/2 = 3 cm"
     ],
     "finalAnswer": "QC = 3 cm",
-    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -359,7 +355,6 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "Since the condition is satisfied, it is a right-angled triangle with hypotenuse 13 cm."
     ],
     "finalAnswer": "Yes, it is a right-angled triangle (5-12-13 is a Pythagorean triplet)",
-    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -387,7 +382,6 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "b = 6 cm"
     ],
     "finalAnswer": "6 cm",
-    "visualExplainerId": "maths-triangles-pythagoras-theorem-visual-proof",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": undefined,
@@ -495,7 +489,6 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "Ratio of sides = √16:√25 = 4:5"
     ],
     "finalAnswer": "4:5",
-    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -521,7 +514,6 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "Area of △PQR = 36/9 = 4 cm²"
     ],
     "finalAnswer": "4 cm²",
-    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": undefined,
@@ -546,7 +538,6 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "Therefore, △ABC ~ △DEF"
     ],
     "finalAnswer": "Yes, by SSS similarity criterion",
-    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -600,7 +591,6 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "Verify with correct diagonal configuration for given quadrilateral constraint"
     ],
     "finalAnswer": "Requires specific quadrilateral configuration",
-    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -722,7 +712,6 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "By AA criterion, △ADE ~ △ABC"
     ],
     "finalAnswer": "(i) 2.25 cm (ii) By AA criterion (corresponding angles equal)",
-    "visualExplainerId": "maths-triangles-basic-proportionality-theorem",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -750,7 +739,6 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "m₁:m₂ = 2:3"
     ],
     "finalAnswer": "(i) 90 cm² (ii) 2:3 (iii) 2:3",
-    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -811,7 +799,6 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "By SAS similarity criterion, △ABC ~ △PQR"
     ],
     "finalAnswer": "Yes, by SAS similarity criterion",
-    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": undefined,
@@ -892,7 +879,6 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "By SSS similarity criterion, ΔABC ~ ΔDEF"
     ],
     "finalAnswer": "Yes, the triangles are similar by SSS criterion",
-    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -945,7 +931,6 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "EC = (5 × 6)/4 = 30/4 = 7.5 cm"
     ],
     "finalAnswer": "EC = 7.5 cm",
-    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -971,7 +956,6 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "QC = (4 × 6)/3 = 24/3 = 8 cm"
     ],
     "finalAnswer": "QC = 8 cm",
-    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": "2020",
     "pyqSet": "Delhi",
@@ -1058,7 +1042,6 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "b = 12 cm"
     ],
     "finalAnswer": "12 cm",
-    "visualExplainerId": "maths-triangles-pythagoras-theorem-visual-proof",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1084,7 +1067,6 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "Since 6² + 8² = 10², the triangle is right-angled"
     ],
     "finalAnswer": "Yes, the triangle is right-angled with the right angle opposite to the side of 10 cm",
-    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "All India",
@@ -1139,7 +1121,6 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "Area(ΔDEF) = (27 × 4)/9 = 12 cm²"
     ],
     "finalAnswer": "12 cm²",
-    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1165,7 +1146,6 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "Area of larger = 48 × (25/16) = 48 × 25/16 = 75 cm²"
     ],
     "finalAnswer": "75 cm²",
-    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": "2019",
     "pyqSet": "Delhi",
@@ -1221,7 +1201,6 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "∠A = ∠P (50°), but ∠B ≠ ∠Q, so not similar as per AAA criterion"
     ],
     "finalAnswer": "Yes, ΔABC ~ ΔPQR by AAA criterion as all corresponding angles are equal",
-    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1275,7 +1254,6 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "Verification: 5² + 12² = 25 + 144 = 169 = 13² ✓"
     ],
     "finalAnswer": "AC = 13 cm; Verified by Pythagoras Theorem",
-    "visualExplainerId": "maths-triangles-pythagoras-theorem-visual-proof",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "All India",
@@ -1389,7 +1367,6 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "By SAS similarity criterion, ΔABC ~ ΔPQR"
     ],
     "finalAnswer": "Yes, by SAS similarity criterion",
-    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1414,7 +1391,6 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "c = 25 cm"
     ],
     "finalAnswer": "25 cm",
-    "visualExplainerId": "maths-triangles-pythagoras-theorem-visual-proof",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1440,7 +1416,6 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "Since AD/DB = AE/EC, by converse of Basic Proportionality Theorem, DE || BC"
     ],
     "finalAnswer": "Yes, DE || BC because AD/DB = AE/EC = 1/2",
-    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1466,7 +1441,6 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "Ratio of sides = √(9:16) = 3:4"
     ],
     "finalAnswer": "3:4",
-    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "Delhi",
@@ -1525,7 +1499,6 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "Verification: AB² + BC² = 52 + 117 = 169 = 13² = AC² ✓"
     ],
     "finalAnswer": "BD = 6 cm, AB = 2√13 cm, BC = 3√13 cm",
-    "visualExplainerId": "maths-triangles-pythagoras-theorem-visual-proof",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "All India",
@@ -1556,7 +1529,6 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "If Area(ΔABC) = 20.25 cm², then Area(ΔADE) = 20.25/9 = 2.25 cm², and trapezoid = 18 cm² ✓"
     ],
     "finalAnswer": "Area ratio = 1:9, Area(ΔADE) = 2.25 cm², Area(ΔABC) = 20.25 cm²",
-    "visualExplainerId": "maths-triangles-areas-of-similar-triangles",
     "isCompetencyBased": true,
     "pyqYear": "2025",
     "pyqSet": "All India",
@@ -1581,7 +1553,6 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "XZ = PR × 2 = 6 × 2 = 12 cm"
     ],
     "finalAnswer": "YZ = 10 cm, XZ = 12 cm",
-    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1608,7 +1579,6 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "h = 8 m"
     ],
     "finalAnswer": "8 m",
-    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,

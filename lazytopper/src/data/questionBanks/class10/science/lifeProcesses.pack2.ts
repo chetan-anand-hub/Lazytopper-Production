@@ -118,7 +118,6 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "All of the above",
     "explanation": "Holozoic nutrition involves ingestion of solid food particles. Amoeba engulfs food through pseudopodia. Hydra uses tentacles to capture prey. Humans use mouth and digestive system. All are examples of holozoic nutrition. Therefore, the correct answer is All of the above.",
-    "visualExplainerId": "science-life-processes-respiration-and-excretion",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -143,7 +142,6 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Examples help clarify the distinction"
     ],
     "finalAnswer": "See answer field",
-    "visualExplainerId": "science-life-processes-respiration-and-excretion",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -174,7 +172,6 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Decrease to zero",
     "explanation": "Light is an essential requirement for photosynthesis (light reactions). Without light, light-dependent reactions cannot occur. Therefore, overall photosynthesis becomes zero. Therefore, the correct answer is Decrease to zero.",
-    "visualExplainerId": "science-life-processes-photosynthesis",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -206,7 +203,6 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "3-PGA (3-Phosphoglycerate)",
     "explanation": "Calvin cycle is the light-independent reaction. CO₂ combines with RuBP (5-carbon compound) catalyzed by Rubisco enzyme. This forms an unstable 6-carbon intermediate that splits into two 3-PGA molecules. 3-PGA is then reduced to G3P, eventually forming glucose. Therefore, the correct answer is 3-PGA (3-Phosphoglycerate).",
-    "visualExplainerId": "science-life-processes-photosynthesis",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -328,7 +324,6 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
-    "visualExplainerId": "science-life-processes-respiration-and-excretion",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -353,7 +348,6 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Energy is captured in ATP molecules"
     ],
     "finalAnswer": "C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O + Energy (ATP)",
-    "visualExplainerId": "science-life-processes-respiration-and-excretion",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "Delhi",
@@ -384,7 +378,6 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Some bacteria that cannot survive in oxygen",
     "explanation": "Obligate anaerobes: cannot survive in presence of oxygen. Example: Some bacteria in sewage, deep soil. Facultative anaerobes: can survive with or without oxygen (e.g., E. coli). Therefore, the correct answer is Some bacteria that cannot survive in oxygen.",
-    "visualExplainerId": "science-life-processes-respiration-and-excretion",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -416,7 +409,6 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Pyruvate",
     "explanation": "In anaerobic glycolysis, NAD⁺ is regenerated as NADH transfers electrons to pyruvate. Pyruvate is reduced to lactate by lactate dehydrogenase. In aerobic conditions, pyruvate enters mitochondria for Krebs cycle. Electrons from NADH enter electron transport chain where oxygen is final acceptor. Therefore, the correct answer is Pyruvate.",
-    "visualExplainerId": "science-life-processes-respiration-and-excretion",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -503,7 +495,6 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Atria receive blood, ventricles pump blood"
     ],
     "finalAnswer": "See answer field",
-    "visualExplainerId": "science-life-processes-human-heart-and-blood-circulation",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "All India",
@@ -535,7 +526,6 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Tissue fluid that flows in lymphatic vessels",
     "explanation": "Lymph is derived from tissue fluid that enters lymphatic capillaries. It flows through lymphatic vessels with one-way valves. Lymph contains lymphocytes and drains into blood at subclavian veins. Helps in immune response and returns proteins to blood. Therefore, the correct answer is Tissue fluid that flows in lymphatic vessels.",
-    "visualExplainerId": "science-life-processes-respiration-and-excretion",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -567,7 +557,6 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
-    "visualExplainerId": "science-life-processes-human-heart-and-blood-circulation",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -599,7 +588,6 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "It carries nutrient-rich blood from intestines to liver for processing",
     "explanation": "Hepatic portal vein is unique as it connects two capillary beds. It carries blood from intestines (capillaries) to liver (capillaries). This allows liver to process nutrients before they enter systemic circulation. Important for regulating glucose, detoxification, and nutrient processing. Therefore, the correct answer is It carries nutrient-rich blood from intestines to liver for processing.",
-    "visualExplainerId": "science-life-processes-human-heart-and-blood-circulation",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -688,7 +676,6 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Normal kidneys function 24/7 but dialysis is thrice weekly"
     ],
     "finalAnswer": "See answer field",
-    "visualExplainerId": "science-life-processes-respiration-and-excretion",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "Delhi",
@@ -720,7 +707,6 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
-    "visualExplainerId": "science-life-processes-respiration-and-excretion",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -750,7 +736,6 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "This maintains osmoregulation and homeostasis"
     ],
     "finalAnswer": "See answer field",
-    "visualExplainerId": "science-life-processes-respiration-and-excretion",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "All India",
@@ -778,7 +763,6 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Transpiration continues in darkness but at lower rate without photosynthetic activity driving it"
     ],
     "finalAnswer": "See answer field",
-    "visualExplainerId": "science-life-processes-photosynthesis",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "Delhi",
@@ -861,7 +845,6 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Chlorophyll in leaves captures light energy."
     ],
     "finalAnswer": "CO₂, H₂O, and light energy",
-    "visualExplainerId": "science-life-processes-photosynthesis",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -891,7 +874,6 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Epidermis is protective; vascular bundles transport; guard cells regulate stomata."
     ],
     "finalAnswer": "Mesophyll (Palisade and Spongy parenchyma)",
-    "visualExplainerId": "science-life-processes-photosynthesis",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -921,7 +903,6 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Lion is a predator (carnivore); grasshopper is a herbivore."
     ],
     "finalAnswer": "Fungus",
-    "visualExplainerId": "science-life-processes-respiration-and-excretion",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -947,7 +928,6 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Reduced stomata and sunken stomata further minimize water loss."
     ],
     "finalAnswer": "Adaptations reduce transpiration, conserve water, enabling photosynthesis in arid conditions.",
-    "visualExplainerId": "science-life-processes-respiration-and-excretion",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -978,7 +958,6 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Both processes work together in plants."
     ],
     "finalAnswer": "Both photosynthesis and transpiration",
-    "visualExplainerId": "science-life-processes-respiration-and-excretion",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "Delhi",
@@ -1032,7 +1011,6 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "or C₆H₁₂O₆ → 2C₃H₆O₃ (lactic acid) + Energy [in muscles]"
     ],
     "finalAnswer": "Aerobic requires O₂ and produces more energy; anaerobic doesn't require O₂ and produces less energy.",
-    "visualExplainerId": "science-life-processes-respiration-and-excretion",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1063,7 +1041,6 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Lactic acid accumulation causes muscle fatigue and soreness."
     ],
     "finalAnswer": "Oxygen is not available in sufficient amount",
-    "visualExplainerId": "science-life-processes-respiration-and-excretion",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "All India",
@@ -1089,7 +1066,6 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Also helps remove excess CO₂ and convert lactic acid back to glucose."
     ],
     "finalAnswer": "Faster breathing provides oxygen for aerobic respiration to restore ATP and remove metabolic wastes.",
-    "visualExplainerId": "science-life-processes-respiration-and-excretion",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1120,7 +1096,6 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "R correctly explains A."
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
-    "visualExplainerId": "science-life-processes-respiration-and-excretion",
     "isCompetencyBased": true,
     "pyqYear": "2020",
     "pyqSet": "Delhi",
@@ -1176,7 +1151,6 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Ventricles are more muscular as they pump blood against pressure."
     ],
     "finalAnswer": "RA-deoxygenated from body, RV-to lungs, LA-oxygenated from lungs, LV-to body",
-    "visualExplainerId": "science-life-processes-human-heart-and-blood-circulation",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1206,7 +1180,6 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "This is called translocation."
     ],
     "finalAnswer": "Sugars and amino acids",
-    "visualExplainerId": "science-life-processes-respiration-and-excretion",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1237,7 +1210,6 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "This could be a sign of heart failure or cardiomyopathy."
     ],
     "finalAnswer": "Weakened heart muscle contractility",
-    "visualExplainerId": "science-life-processes-respiration-and-excretion",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "Delhi",
@@ -1263,7 +1235,6 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Systemic circulation has higher oxygen content and pressure for better oxygenation."
     ],
     "finalAnswer": "Double circulation maintains separate high-pressure systems for better oxygen delivery.",
-    "visualExplainerId": "science-life-processes-human-heart-and-blood-circulation",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "All India",
@@ -1294,7 +1265,6 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Therefore, left ventricle needs thicker, stronger muscles."
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
-    "visualExplainerId": "science-life-processes-human-heart-and-blood-circulation",
     "isCompetencyBased": true,
     "pyqYear": "2019",
     "pyqSet": "Delhi",
@@ -1379,7 +1349,6 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Secretion helps maintain ion balance and remove additional wastes."
     ],
     "finalAnswer": "Ultrafiltration, Selective Reabsorption, Secretion",
-    "visualExplainerId": "science-life-processes-respiration-and-excretion",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1410,7 +1379,6 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Presence of glucose in urine indicates kidney dysfunction or diabetes."
     ],
     "finalAnswer": "Glucose is filtered but reabsorbed in proximal convoluted tubule",
-    "visualExplainerId": "science-life-processes-respiration-and-excretion",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "All India",
@@ -1436,7 +1404,6 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Both together suggest serious kidney dysfunction."
     ],
     "finalAnswer": "Indicates kidney damage or disease; glomerulus filtering proteins or reduced reabsorption.",
-    "visualExplainerId": "science-life-processes-respiration-and-excretion",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1462,7 +1429,6 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "(d) Lifestyle management: Regular exercise increases insulin sensitivity, balanced diet with complex carbohydrates, weight management, stress reduction"
     ],
     "finalAnswer": "(a) Type 2 Diabetes Mellitus. (b) Blood glucose exceeds renal threshold, so excess is not reabsorbed. (c) Osmotic effect of glucose causes water loss, triggering thirst. (d) Exercise, balanced diet, weight management, stress reduction.",
-    "visualExplainerId": "science-life-processes-respiration-and-excretion",
     "isCompetencyBased": true,
     "pyqYear": "2025",
     "pyqSet": "Delhi",
@@ -1524,7 +1490,6 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Renal blood flow is ~1.2 L/min to handle metabolic wastes from all organs."
     ],
     "finalAnswer": "Different organs have different metabolic rates supported by selective blood flow control. Cardiovascular system delivers oxygen and nutrients proportional to metabolic demands. Excretory system removes metabolic byproducts via multiple pathways.",
-    "visualExplainerId": "science-life-processes-human-heart-and-blood-circulation",
     "isCompetencyBased": true,
     "pyqYear": "2020",
     "pyqSet": "All India",
@@ -1631,7 +1596,6 @@ export const LP2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": ["Kidney contains about 1 million nephrons — functional units for urine formation","Step 1 — Ultrafiltration: blood enters glomerulus (capillary tuft) at high pressure; small molecules filter into Bowman's capsule (filtrate); blood cells and proteins remain","Step 2 — Selective reabsorption: PCT and loop of Henle reabsorb useful substances (glucose, amino acids, salts, water) back into capillaries","Step 3 — Tubular secretion: DCT secretes remaining wastes (creatinine, excess H+, K+) from capillaries into tubule","Collecting duct: additional water reabsorption regulated by ADH; concentrated urine passes to renal pelvis","Urine composition: ~95% water, ~2% urea, salts, creatinine; passes via ureters to bladder"],
     "finalAnswer": "Ultrafiltration (Bowman's capsule) → selective reabsorption (PCT/loop) → tubular secretion (DCT) → collecting duct → concentrated urine",
     "explanation": "Nephron forms urine through filtration, selective reabsorption, and tubular secretion.",
-    "visualExplainerId": "science-life-processes-respiration-and-excretion",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,

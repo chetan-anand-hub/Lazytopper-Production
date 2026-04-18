@@ -174,7 +174,6 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "∠AOB = 360° - 90° - 90° - 60° = 120°"
     ],
     "finalAnswer": "120°",
-    "visualExplainerId": "maths-circles-tangent-to-a-circle",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -203,7 +202,6 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "PA = 12 cm"
     ],
     "finalAnswer": "12 cm",
-    "visualExplainerId": "maths-circles-number-of-tangents-from-external-point",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -229,7 +227,6 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "Therefore, exactly 1 tangent can be drawn from a point on the circle."
     ],
     "finalAnswer": "Exactly 1 tangent",
-    "visualExplainerId": "maths-circles-tangent-to-a-circle",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -260,7 +257,6 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "Therefore, OP bisects AB at right angles."
     ],
     "finalAnswer": "OP bisects AB at right angles",
-    "visualExplainerId": "maths-circles-number-of-tangents-from-external-point",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -293,7 +289,6 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "By the property of right triangles, OT < OP."
     ],
     "finalAnswer": "OT < OP",
-    "visualExplainerId": "maths-circles-tangent-to-a-circle",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -325,7 +320,6 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "Therefore, O₁P is parallel to O₂Q, not perpendicular."
       ],
     "finalAnswer": "O₁P is parallel to O₂Q",
-    "visualExplainerId": "maths-circles-tangent-to-a-circle",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -354,7 +348,6 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "OP = 6/sin(20°) ≈ 17.54 cm"
     ],
     "finalAnswer": "OP ≈ 17.54 cm or 6/sin(20°)",
-    "visualExplainerId": "maths-circles-number-of-tangents-from-external-point",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -384,7 +377,6 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "Perimeter = 12 + 15 + 13 = 40 cm"
     ],
     "finalAnswer": "40 cm",
-    "visualExplainerId": "maths-circles-tangent-to-a-circle",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -416,7 +408,6 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "The correct reason is the geometric position of the external point relative to the circle."
     ],
     "finalAnswer": "Both A and R are true, but R is not the correct explanation of A.",
-    "visualExplainerId": "maths-circles-number-of-tangents-from-external-point",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -448,7 +439,6 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "The geometric principle of the shortest distance being perpendicular is the fundamental reason for the tangent-radius perpendicularity."
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
-    "visualExplainerId": "maths-circles-tangent-properties",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -481,7 +471,6 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "∠CQD = 90° > ∠APB = 60°, so Q is closer to the circle than P."
     ],
     "finalAnswer": "(i) 120°, (ii) 90°, (iii) 2√3 m, (iv) Q is closer to the circle than P",
-    "visualExplainerId": "maths-circles-tangent-to-a-circle",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -520,7 +509,6 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "Yes, sum of opposite sides are equal ✓"
     ],
     "finalAnswer": "(i) AB = 9 cm, BC = 11 cm, CA = 10 cm; (ii) s = 15 cm; (iii) Tangent segments from external point are equal; (iv) Verified",
-    "visualExplainerId": "maths-circles-tangent-to-a-circle",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -609,7 +597,6 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "Therefore PO ≈ 30.9 cm"
     ],
     "finalAnswer": "≈ 30.9 cm",
-    "visualExplainerId": "maths-circles-number-of-tangents-from-external-point",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "Set A",
@@ -643,7 +630,6 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "Generally, PT ≠ OT, so it's a right-angled triangle but not necessarily isosceles."
     ],
     "finalAnswer": "Right-angled but not isosceles",
-    "visualExplainerId": "maths-circles-tangent-to-a-circle",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "Set B",
@@ -789,7 +775,6 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "Therefore, angle OAT = 90°"
     ],
     "finalAnswer": "90°",
-    "visualExplainerId": "maths-circles-tangent-to-a-circle",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -823,7 +808,6 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "PA = 8 cm"
     ],
     "finalAnswer": "8 cm",
-    "visualExplainerId": "maths-circles-number-of-tangents-from-external-point",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "All India",
@@ -852,7 +836,6 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "∠AOB = 130°"
     ],
     "finalAnswer": "130°",
-    "visualExplainerId": "maths-circles-number-of-tangents-from-external-point",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -887,7 +870,6 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "PA = 24 cm"
     ],
     "finalAnswer": "24 cm",
-    "visualExplainerId": "maths-circles-number-of-tangents-from-external-point",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "Mumbai",
@@ -917,7 +899,6 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "For two separate circles: 4 common tangents exist (2 external + 2 internal)"
     ],
     "finalAnswer": "4",
-    "visualExplainerId": "maths-circles-tangent-to-a-circle",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -947,7 +928,6 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "∠APO = arcsin(0.6) ≈ 37° (or sin⁻¹(3/5))"
     ],
     "finalAnswer": "OP = 10 cm, ∠APO ≈ 37°",
-    "visualExplainerId": "maths-circles-number-of-tangents-from-external-point",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -979,7 +959,6 @@ export const CI2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
-    "visualExplainerId": "maths-circles-number-of-tangents-from-external-point",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1011,7 +990,6 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "∠POQ = 60°"
     ],
     "finalAnswer": "60°",
-    "visualExplainerId": "maths-circles-tangent-to-a-circle",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1150,7 +1128,6 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "Note: Area of quadrilateral ODPE = 60 cm²"
     ],
     "finalAnswer": "(i) PD = PE = 12 cm, (ii) ∠DPE ≈ 45.24°, (iii) 60 cm²",
-    "visualExplainerId": "maths-circles-number-of-tangents-from-external-point",
     "isCompetencyBased": true,
     "pyqYear": "2019",
     "pyqSet": "All India",
@@ -1239,7 +1216,6 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "∠APB = 80°"
     ],
     "finalAnswer": "80°",
-    "visualExplainerId": "maths-circles-tangent-to-a-circle",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1272,7 +1248,6 @@ export const CI2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Both A and R are true, but R is not the correct explanation of A.",
     "explanation": "Both statements are individually correct. However, the Reason does not directly cause or explain the Assertion — they are independent true facts about the same concept.",
-    "visualExplainerId": "maths-circles-number-of-tangents-from-external-point",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1303,7 +1278,6 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "AB = 2√(8² - 5²) = 2√(64 - 25) = 2√39 cm ≈ 12.49 cm"
     ],
     "finalAnswer": "AB = 2√39 cm ≈ 12.49 cm",
-    "visualExplainerId": "maths-circles-tangent-to-a-circle",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1329,7 +1303,6 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "∠APB = 2 × 22.62° ≈ 45.24°"
     ],
     "finalAnswer": "Tangent = 12 cm, angle ≈ 45.24°",
-    "visualExplainerId": "maths-circles-number-of-tangents-from-external-point",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,

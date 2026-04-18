@@ -429,6 +429,19 @@ function needsDiagramStep(questionText) {
   return DIAGRAM_NEEDED.some(re => re.test(questionText));
 }
 
+/**
+ * requiresDiagram — per-question guard for visualExplainerId assignment.
+ *
+ * Returns true only when the question text contains at least one keyword that
+ * signals a visual/diagram is genuinely useful (construction, proof, ray diagram,
+ * circuit, height-distance scenario, structural formula, Punnett square, etc.).
+ * Pure calculation questions ("Find the resistance given V and I") return false
+ * and must not receive a visualExplainerId.
+ */
+function requiresDiagram(questionText) {
+  return DIAGRAM_NEEDED.some(re => re.test(questionText));
+}
+
 function firstStepIsAlreadyDiagram(qText) {
   const first = getFirstSolutionStep(qText).toLowerCase();
   return first.startsWith('construction:') ||
@@ -807,6 +820,30 @@ function addVisualIdToQuestion(qText, visualId) {
   );
 }
 
+/**
+ * removeVisualIdFromQuestion — strips a previously-assigned visualExplainerId
+ * from a question object string, handling all three source formats.
+ * Used to clean up mis-assignments on pure calculation questions.
+ */
+function removeVisualIdFromQuestion(qText) {
+  // Case 1: Multi-line JSON format — "visualExplainerId": "...",\n  "isCompetencyBased":
+  if (/\n\s+"visualExplainerId"\s*:\s*"[^"]*",\n/.test(qText)) {
+    return qText.replace(/\n(\s+)"visualExplainerId"\s*:\s*"[^"]*",\n/, '\n');
+  }
+
+  // Case 2: Compact single-line — visualExplainerId: "...", isCompetencyBased
+  if (/\bvisualExplainerId\s*:\s*"[^"]*",\s*isCompetencyBased\b/.test(qText)) {
+    return qText.replace(/\bvisualExplainerId\s*:\s*"[^"]*",\s*isCompetencyBased\b/, 'isCompetencyBased');
+  }
+
+  // Case 3: Compact, no isCompetencyBased — , visualExplainerId: "..." }
+  if (/,\s*visualExplainerId\s*:\s*"[^"]*"\s*\}/.test(qText)) {
+    return qText.replace(/,\s*visualExplainerId\s*:\s*"[^"]*"(\s*\})/, '$1');
+  }
+
+  return qText;
+}
+
 function prependDiagramStep(qText, step) {
   const escaped = step.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
 
@@ -866,7 +903,27 @@ for (const config of FILE_CONFIGS) {
     let newText = q.text;
     let changed = false;
 
-    // 1) Add visualExplainerId
+    const diagramRequired = requiresDiagram(questionText);
+
+    if (!diagramRequired) {
+      // Pure calculation question — strip any mis-assigned visualExplainerId
+      if (hasVisualExplainerId(newText)) {
+        newText = removeVisualIdFromQuestion(newText);
+        fVids--; // count removals as negative to surface them in the summary
+        changed = true;
+      }
+      // Skip all further processing for this question
+      if (changed) {
+        const s = q.start + offset;
+        const e = q.end   + offset;
+        content = content.slice(0, s) + newText + content.slice(e);
+        offset += newText.length - q.text.length;
+        fileChanged = true;
+      }
+      continue;
+    }
+
+    // 1) Add visualExplainerId (only for diagram-required questions)
     if (!hasVisualExplainerId(q.text)) {
       newText = addVisualIdToQuestion(newText, visualId);
       fVids++;
@@ -896,7 +953,8 @@ for (const config of FILE_CONFIGS) {
 
   if (fileChanged) {
     fs.writeFileSync(filePath, content, 'utf-8');
-    console.log(`✓ ${config.file.replace('src/data/questionBanks/class10/', '')}: +${fVids} visualIds, +${fSteps} diagSteps`);
+    const vidSummary = fVids >= 0 ? `+${fVids} visualIds` : `${fVids} visualIds removed`;
+    console.log(`✓ ${config.file.replace('src/data/questionBanks/class10/', '')}: ${vidSummary}, +${fSteps} diagSteps`);
     filesModified++;
     totalVisualIds += fVids;
     totalDiagramSteps += fSteps;

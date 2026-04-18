@@ -112,7 +112,6 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
       "Distance and processing time make reflex actions faster"
     ],
     "finalAnswer": "Reflex actions bypass the brain, so impulse reaches muscle faster",
-    "visualExplainerId": "science-control-coordination-reflex-arc",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -204,7 +203,6 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Both A and R are true, but R is not the correct explanation of A.",
     "explanation": "Both statements are individually correct. However, the Reason does not directly cause or explain the Assertion — they are independent true facts about the same concept.",
-    "visualExplainerId": "science-control-coordination-nervous-system",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -291,7 +289,6 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
       "Blood is diverted from digestive organs to muscles"
     ],
     "finalAnswer": "Adrenaline; increases heart rate, blood pressure, muscle strength",
-    "visualExplainerId": "science-control-coordination-nervous-system",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -323,7 +320,6 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
-    "visualExplainerId": "science-control-coordination-nervous-system",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -411,7 +407,6 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
       "They enhance crop yield in agriculture"
     ],
     "finalAnswer": "Gibberellins promote cell division and elongation; used in seedless grape production",
-    "visualExplainerId": "science-control-coordination-nervous-system",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -443,7 +438,6 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "A is false, R is true.",
     "explanation": "The Assertion contains an incorrect claim. The Reason, however, is a true and valid statement on its own.",
-    "visualExplainerId": "science-control-coordination-nervous-system",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -469,7 +463,6 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
       "Functional difference in direction of impulse transmission"
     ],
     "finalAnswer": "Sensory: long dendrite, short axon, receptor to CNS; Motor: short dendrite, long axon, CNS to muscle",
-    "visualExplainerId": "science-control-coordination-nervous-system",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "Delhi",
@@ -496,7 +489,6 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
       "Brain processes the stimulus after reflex action, creating sensation of pain"
     ],
     "finalAnswer": "Reflex arc bypasses brain, spinal cord directly controls response via sensory-motor neuron pathway, faster than conscious decision-making",
-    "visualExplainerId": "science-control-coordination-reflex-arc",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "All India",
@@ -523,7 +515,6 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
       "Gross motor movements may remain possible but lack precision"
     ],
     "finalAnswer": "Balance, coordination, fine motor skills affected; cerebellum essential for movement coordination",
-    "visualExplainerId": "science-control-coordination-nervous-system",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "Delhi",
@@ -551,7 +542,6 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
       "These changes are normal and occur in all adolescent males"
     ],
     "finalAnswer": "(i) Testosterone (ii) Testes (iii) Puberty activation (iv) Yes, normal",
-    "visualExplainerId": "science-control-coordination-nervous-system",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "Competency Based",
@@ -580,7 +570,6 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
       "Strategic hormone application only to fruits optimizes productivity"
     ],
     "finalAnswer": "(i) Promotes cell division and fruit enlargement (ii) Pruning + selective gibberellin application (iii) Cytokinins for bushiness, ethylene for height control",
-    "visualExplainerId": "science-control-coordination-nervous-system",
     "isCompetencyBased": true,
     "pyqYear": "2025",
     "pyqSet": "Competency Based",
@@ -612,7 +601,6 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
       "Both systems are integrated and work together for homeostasis"
     ],
     "finalAnswer": "Nervous: fast, electrical, short-duration, localized; Endocrine: slow, chemical, long-duration, widespread; integrated example: blood glucose regulation",
-    "visualExplainerId": "science-control-coordination-nervous-system",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "All India",
@@ -639,7 +627,6 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
       "Allows longer storage and transport without spoilage"
     ],
     "finalAnswer": "Ethylene promotes ripening; used to ripen bananas and mangoes commercially",
-    "visualExplainerId": "science-control-coordination-nervous-system",
     "isCompetencyBased": true,
     "pyqYear": "2020",
     "pyqSet": "Delhi",
@@ -697,7 +684,6 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
       "This generates action potential in next neuron"
     ],
     "finalAnswer": "Chemical transmission of impulses across synapses",
-    "visualExplainerId": "science-control-coordination-nervous-system",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -852,7 +838,6 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
-    "visualExplainerId": "science-control-coordination-reflex-arc",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "All India",
@@ -883,7 +868,6 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Medulla oblongata",
     "explanation": "Medulla oblongata is part of the brainstem. It contains vital centers that control involuntary functions. Functions include: heart rate, breathing, blood pressure control. Therefore, the correct answer is Medulla oblongata.",
-    "visualExplainerId": "science-control-coordination-reflex-arc",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -914,7 +898,6 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Balance and coordination of movements",
     "explanation": "Cerebellum is the second largest part of the brain. It coordinates voluntary muscle movements. It maintains balance and posture. Therefore, the correct answer is Balance and coordination of movements.",
-    "visualExplainerId": "science-control-coordination-nervous-system",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -975,7 +958,6 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Metabolism decreases",
     "explanation": "Thyroid hormone regulates metabolic rate. Low thyroid hormone → Low metabolic rate. This causes fatigue, weight gain, and reduced energy. Therefore, the correct answer is Metabolism decreases.",
-    "visualExplainerId": "science-control-coordination-nervous-system",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1006,7 +988,6 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Adrenaline",
     "explanation": "Adrenaline is secreted by adrenal medulla. It is released in response to stress or danger. It increases heart rate, blood pressure, and glucose availability for muscles. Therefore, the correct answer is Adrenaline.",
-    "visualExplainerId": "science-control-coordination-nervous-system",
     "isCompetencyBased": true,
     "pyqYear": "2019",
     "pyqSet": "Delhi",
@@ -1068,7 +1049,6 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Auxin redistributes away from light, causing unequal growth",
     "explanation": "This is phototropism - directional growth towards light. Light causes auxin to redistribute to the shaded side. Higher auxin on shaded side promotes more growth there. This causes the plant to bend towards light. Therefore, the correct answer is Auxin redistributes away from light, causing unequal growth.",
-    "visualExplainerId": "science-control-coordination-nervous-system",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1099,7 +1079,6 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
-    "visualExplainerId": "science-control-coordination-nervous-system",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "All India",
@@ -1130,7 +1109,6 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Abscisic acid",
     "explanation": "Abscisic acid (ABA) is a stress hormone. It causes stomata to close during water stress. This reduces water loss and helps plants survive drought. Therefore, the correct answer is Abscisic acid.",
-    "visualExplainerId": "science-control-coordination-nervous-system",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1156,7 +1134,6 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
       "Describe signal transmission across synapse"
     ],
     "finalAnswer": "A synapse is the junction between the axon terminal of one neuron and the dendrite of another. It consists of a synaptic cleft (gap). Neurotransmitters released from the presynaptic neuron cross the gap and bind to receptors on the postsynaptic membrane, transmitting the signal.",
-    "visualExplainerId": "science-control-coordination-nervous-system",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1210,7 +1187,6 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
       "Ensure functions are distinct and accurate"
     ],
     "finalAnswer": "1. Cerebrum: Controls voluntary movements, thought, memory, and intelligence. 2. Cerebellum: Coordinates movements and maintains balance. 3. Brainstem (Medulla oblongata): Controls involuntary functions like breathing and heart rate.",
-    "visualExplainerId": "science-control-coordination-nervous-system",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1236,7 +1212,6 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
       "Provide examples if needed"
     ],
     "finalAnswer": "Nervous system: Fast response (milliseconds), short duration (seconds to minutes). Endocrine system: Slow response (hours/days), long-lasting effects (hours to days/weeks). Nervous system uses electrical impulses, while endocrine system uses hormones in blood.",
-    "visualExplainerId": "science-control-coordination-nervous-system",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1262,7 +1237,6 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
       "Explain the mechanism of bending"
     ],
     "finalAnswer": "Gravitropism is the growth response of plants towards gravity (roots grow down, shoots grow up). Gravity causes auxin to accumulate on the lower side of root or shoot. In roots, high auxin inhibits cell growth on lower side, so roots bend downward. In shoots, high auxin promotes growth on lower side, causing upward bending.",
-    "visualExplainerId": "science-control-coordination-plant-hormones-and-tropisms",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "All India",
@@ -1294,7 +1268,6 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Both A and R are true, but R is not the correct explanation of A.",
     "explanation": "Both statements are individually correct. However, the Reason does not directly cause or explain the Assertion — they are independent true facts about the same concept.",
-    "visualExplainerId": "science-control-coordination-nervous-system",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1322,7 +1295,6 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
       "Mention treatment approach"
     ],
     "finalAnswer": "In type 1 diabetes, pancreatic beta cells don't produce insulin. Without insulin, cells cannot take up glucose from blood efficiently. This causes: (1) Persistent high blood glucose (hyperglycemia), (2) Glucose accumulates in urine, (3) Cells lack energy despite high blood glucose, (4) The body breaks down fats for energy, producing harmful ketones. Treatment: External insulin injection is required.",
-    "visualExplainerId": "science-control-coordination-nervous-system",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1349,7 +1321,6 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
       "Mention commercial use"
     ],
     "finalAnswer": "Auxin promotes cell division and elongation. In untreated cuttings, endogenous auxin may be insufficient for rapid root initiation. External auxin powder: (1) Increases auxin concentration at the base of cutting, (2) Stimulates cell division in the cambium region, (3) Promotes differentiation into root cells, (4) Accelerates root formation and growth. This is why horticulturists use auxin rooting powders for plant propagation.",
-    "visualExplainerId": "science-control-coordination-plant-hormones-and-tropisms",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1408,7 +1379,6 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
       "Use diagrams if helpful"
     ],
     "finalAnswer": "The nervous and endocrine systems are coordinated control systems:\n\n1. NERVOUS SYSTEM ROLE: Detects changes rapidly via sensory receptors, sends quick signals through neurons, enables immediate responses. Example: Sudden heat detection → reflex withdrawal.\n\n2. ENDOCRINE SYSTEM ROLE: Releases hormones into bloodstream for long-term, widespread effects. Example: Temperature regulation maintained by thyroid hormone affecting metabolic rate.\n\nEXAMPLE - BLOOD GLUCOSE REGULATION:\n• Nervous System: Pancreas detects high blood glucose (via sensor neurons).\n• Endocrine System: Beta cells release insulin hormone.\n• Result: Insulin causes cells to absorb glucose, blood glucose decreases.\n• Feedback: When glucose is normal, insulin secretion decreases.\n\nWhen you eat: Nervous system signals pancreas → Pancreatic hormones (insulin/glucagon) regulate blood glucose → Maintains stable glucose level.\n\nCONCLUSION: Nervous system provides rapid responses for immediate threats. Endocrine system provides sustained control. Together they maintain internal stability (homeostasis) essential for life.",
-    "visualExplainerId": "science-control-coordination-nervous-system",
     "isCompetencyBased": true,
     "pyqYear": "2025",
     "pyqSet": "All India",
@@ -1439,7 +1409,6 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
       "Summarize importance for plants"
     ],
     "finalAnswer": "FIVE MAJOR PLANT HORMONES:\n\n1. AUXIN (Indole-3-acetic acid - IAA)\nSource: Shoot apex, leaf primordia\nFunctions: Cell elongation, apical dominance, phototropism, gravitropism, root initiation\nResponse: Plant bends toward light (phototropism) due to unequal auxin distribution\n\n2. GIBBERELLIN\nSource: Growing tips, roots, seeds\nFunctions: Stem elongation, seed germination, flowering\nResponse: Seeds germinate when exposed to appropriate light/temperature stimuli\n\n3. CYTOKININ\nSource: Root tips\nFunctions: Cell division, delay of senescence, apical dominance\nResponse: Stimulates growth in presence of nutrients\n\n4. ABSCISIC ACID (ABA)\nSource: Leaves, stem, roots\nFunctions: Seed dormancy, stomatal closure during drought stress\nResponse: Stomata close during water stress to conserve water\n\n5. ETHYLENE\nSource: Ripening fruits, aging leaves\nFunctions: Fruit ripening, senescence, flower senescence\nResponse: Fruits ripen and fall (seed dispersal)\n\nPLANT RESPONSES TO ENVIRONMENTAL STIMULI:\n• Light: Phototropism (auxin), photomorphogenesis (light receptors)\n• Gravity: Gravitropism (auxin in roots/shoots)\n• Water stress: Stomatal closure via ABA\n• Temperature: Seed dormancy/germination via gibberellin\n• Mechanical stress: Ethylene production\n\nCONCLUSION: Plant hormones work individually and synergistically to coordinate growth, development, and responses to environment, ensuring plant survival and reproduction.",
-    "visualExplainerId": "science-control-coordination-plant-hormones-and-tropisms",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "All India",
@@ -1546,7 +1515,6 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": ["Nervous coordination: electrical impulses travel through neurons; response is fast (milliseconds)","Example: withdrawing hand from a hot surface (reflex arc via spinal cord)","Hormonal coordination: chemical messengers (hormones) secreted into blood; slow but long-lasting","Example: adrenaline secreted during stress causes increased heart rate"],
     "finalAnswer": "Nervous = fast, electrical, via neurons; Hormonal = slow, chemical, via blood",
     "explanation": "Nervous coordination is rapid (electrical impulses) while hormonal is slow (chemical messengers via blood).",
-    "visualExplainerId": "science-control-coordination-nervous-system",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1568,7 +1536,6 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": ["Neuron structure: cell body (soma) with nucleus and cytoplasm; dendrites (receive signals); axon (transmit signals); myelin sheath; axon terminals","Nerve impulse: electrochemical signal; Na+ rushes in, K+ rushes out creating action potential along the axon","Synapse: junction between axon terminal of one neuron and dendrite of next; neurotransmitters (e.g., acetylcholine) carry signal across the gap","Reflex arc: Receptor (sense organ) → Sensory neuron → Spinal cord (relay neuron) → Motor neuron → Effector (muscle/gland)","Example: touching hot object → pain receptor → sensory neuron → spinal cord → motor neuron → hand withdraws; brain receives signal AFTER response occurs","Reflex arcs are faster than conscious responses because they bypass the brain"],
     "finalAnswer": "Neuron: dendrites-cell body-axon; impulse electrochemical; synapse via neurotransmitters; reflex arc = receptor to effector via spinal cord",
     "explanation": "The reflex arc allows rapid responses by bypassing the brain — spinal cord acts as coordinator.",
-    "visualExplainerId": "science-control-coordination-reflex-arc",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
