@@ -1,5 +1,6 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
+import { fileURLToPath } from "node:url";
 
 interface BannedSubtopicRule {
   board: string;
@@ -80,13 +81,13 @@ const RULES: BannedSubtopicRule[] = [
 
 const SUBTOPIC_PATTERN = /["']?subtopic["']?\s*:\s*["'`]([^"'`]+)["'`]/g;
 
-interface Violation {
+export interface Violation {
   file: string;
   subtopic: string;
   matchCount: number;
 }
 
-function scanFile(filePath: string, bannedSubtopics: string[]): Violation[] {
+export function scanFile(filePath: string, bannedSubtopics: string[]): Violation[] {
   const content = readFileSync(filePath, "utf-8");
   const violations: Violation[] = [];
 
@@ -166,4 +167,6 @@ function runGuard(): void {
   }
 }
 
-runGuard();
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  runGuard();
+}
