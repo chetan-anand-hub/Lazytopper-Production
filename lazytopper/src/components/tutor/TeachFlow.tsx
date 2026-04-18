@@ -321,7 +321,7 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
     if (abortRef.current) abortRef.current.abort();
     const controller = new AbortController();
     abortRef.current = controller;
-    const timeoutId = setTimeout(() => controller.abort(), 30000);
+    const timeoutId = setTimeout(() => controller.abort(), 60000);
     try {
       const res = await fetch("/api/mentor", {
         method: "POST",
@@ -341,7 +341,7 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
       return payload;
     } catch (err: unknown) {
       clearTimeout(timeoutId);
-      if (err instanceof Error && err.name === "AbortError") throw new Error("The tutor is taking too long. Please try again.");
+      if (err instanceof Error && err.name === "AbortError") throw new Error("Took too long — tap to retry.");
       throw err;
     }
   }
@@ -828,7 +828,12 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
                 onClick={() => {
                   const msg = lastSentMessageRef.current;
                   if (!msg) return;
-                  setChatMessages((prev) => prev.filter((m) => !(m.role === "student" && m.content === msg)));
+                  setChatMessages((prev) => {
+                    const lastIdx = [...prev].reverse().findIndex((m) => m.role === "student" && m.content === msg);
+                    if (lastIdx === -1) return prev;
+                    const realIdx = prev.length - 1 - lastIdx;
+                    return prev.filter((_, i) => i !== realIdx);
+                  });
                   setError(null);
                   sendMessage(msg);
                 }}
