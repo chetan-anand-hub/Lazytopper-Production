@@ -798,7 +798,7 @@ export default function DailyMissionPage() {
                 </div>
               )}
 
-              {!hasMCQ && isQuestionItem && currentAnswer.correct === null && currentAnswer.feedback !== null && currentAnswer.studentAnswer !== "(skipped)" && (
+              {!hasMCQ && isQuestionItem && currentAnswer.correct === null && currentAnswer.studentAnswer !== "(read)" && currentAnswer.studentAnswer !== "(skipped)" && (
                 <div style={{ marginTop: 14 }}>
                   <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-muted)", marginBottom: 8 }}>
                     How did you do?
