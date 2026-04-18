@@ -103,7 +103,7 @@ function trianglesVid(qt) {
   if (/\bbpt\b|thales|basic proportionality|\bde\s*[∥‖]\s*bc\b|parallel.*\bde\b|\bde\b.*parallel/.test(q))
     return 'maths-triangles-basic-proportionality-theorem';
   if (/\bpythagoras\b|hypotenuse|right[- ]angle.*proof|prove.*right[- ]angle/.test(q))
-    return 'maths-triangles-pythagoras-theorem';
+    return 'maths-triangles-pythagoras-theorem-visual-proof';
   if (/areas?\s+of\s+similar|ratio\s+of\s+areas|area.*similar/.test(q))
     return 'maths-triangles-areas-of-similar-triangles';
   return 'maths-triangles-similar-triangles-and-criteria';
@@ -233,7 +233,7 @@ function chemRxnVid(qt) {
   const q = qt.toLowerCase();
   if (/oxidation|reduction|\bredox\b|gain.*oxygen|loss.*oxygen/.test(q))
     return 'science-chemical-reactions-oxidation-and-reduction';
-  if (/corrosion|rancidity|\brust\b|iron.*oxide|tarnish/.test(q))
+  if (/corrosion|rancidity|\brust\b|tarnish/.test(q))
     return 'science-chemical-reactions-corrosion-and-rancidity';
   if (/balance|balanced.*equation|balance.*equation/.test(q))
     return 'science-chemical-reactions-balancing-chemical-equations';
