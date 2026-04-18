@@ -70,6 +70,8 @@ function createMoreLikeThisRoute(deps) {
     isStubMode,
     buildStubMoreLikeThis,
     buildMoreLikeThisUserPrompt,
+    pickFromPool,
+    saveToPool,
   } = deps;
 
   async function handleMoreLikeThis(req, res) {
@@ -85,10 +87,33 @@ function createMoreLikeThisRoute(deps) {
       return sendJson(res, 200, { ...stub, provider: ACTIVE_PROVIDER });
     }
 
-    try {
-      const { userPrompt, numVariants } = buildMoreLikeThisUserPrompt(payload);
-      const subject = payload.subject || 'Maths/Science';
+    const { userPrompt, numVariants } = buildMoreLikeThisUserPrompt(payload);
+    const subject = payload.subject || 'Maths/Science';
+    const topicKey = payload.topicKey || null;
+    const seed = payload.seedQuestion || {};
+    const enforcedDiff = payload.requestedDifficulty || seed.difficulty || null;
+    const marks = seed.marks != null ? seed.marks : null;
 
+    // --- Pool check: serve from cache if we have enough stored variants ---
+    if (pickFromPool && topicKey) {
+      try {
+        const pooled = await pickFromPool(topicKey, subject, marks, enforcedDiff, numVariants);
+        if (pooled.length >= Math.min(numVariants, 3)) {
+          return sendJson(res, 200, {
+            subject,
+            topicKey,
+            provider: 'pool',
+            model: 'generated_questions_cache',
+            variants: pooled.map((q, idx) => ({ ...q, index: idx })),
+          });
+        }
+      } catch (e) {
+        console.warn('[more-like-this] pool check failed (non-fatal):', e.message);
+      }
+    }
+
+    // --- AI generation path ---
+    try {
       const systemPrompt =
         'You are an expert CBSE Class 10 board question setter for Maths and Science. ' +
         'You strictly follow the CBSE exam blueprint, marks scheme and language style. ' +
@@ -104,12 +129,10 @@ function createMoreLikeThisRoute(deps) {
       });
 
       let variants = [];
-      const seed = payload.seedQuestion || {};
-      const enforcedDiff = payload.requestedDifficulty || seed.difficulty || undefined;
 
       const mapQuestion = (q, idx) => ({
         text: String(q.questionText || q.text || '').trim(),
-        marks: q.marks != null ? q.marks : (seed.marks != null ? seed.marks : undefined),
+        marks: q.marks != null ? q.marks : (marks != null ? marks : undefined),
         difficulty: enforcedDiff || q.difficulty || undefined,
         bloomSkill: q.bloomSkill || seed.bloomSkill || undefined,
         index: idx,
@@ -134,8 +157,8 @@ function createMoreLikeThisRoute(deps) {
         if (lines.length > 0) {
           variants = lines.slice(0, numVariants).map((line, idx) => ({
             text: line.replace(/^\d+[.)]\s*/, '').trim(),
-            marks: seed.marks,
-            difficulty: seed.difficulty,
+            marks: marks,
+            difficulty: enforcedDiff,
             bloomSkill: seed.bloomSkill,
             index: idx,
           }));
@@ -145,7 +168,7 @@ function createMoreLikeThisRoute(deps) {
       if (variants.length === 0) {
         return sendJson(res, 200, {
           subject,
-          topicKey: payload.topicKey || null,
+          topicKey,
           provider: ACTIVE_PROVIDER,
           model: GEMINI_MODEL,
           variants: [],
@@ -153,9 +176,16 @@ function createMoreLikeThisRoute(deps) {
         });
       }
 
+      // --- Save generated variants to the pool (fire-and-forget) ---
+      if (saveToPool && topicKey && variants.length > 0) {
+        void saveToPool(topicKey, subject, marks, enforcedDiff, variants).catch(
+          e => console.warn('[more-like-this] saveToPool failed (non-fatal):', e.message)
+        );
+      }
+
       return sendJson(res, 200, {
         subject,
-        topicKey: payload.topicKey || null,
+        topicKey,
         provider: ACTIVE_PROVIDER,
         model: GEMINI_MODEL,
         variants,
