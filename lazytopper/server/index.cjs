@@ -178,6 +178,7 @@ const mentorRoute = createMentorRoute({
   isStubMode, buildStubTutorStructured, buildStubText,
   FEEDBACK_DIR: config.FEEDBACK_DIR,
   FEEDBACK_FILE: config.FEEDBACK_FILE,
+  VISUALS_DIR: config.VISUALS_DIR,
 });
 
 const routeDeps = {
