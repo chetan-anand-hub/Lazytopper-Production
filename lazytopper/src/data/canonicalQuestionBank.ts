@@ -22,7 +22,7 @@ import { CARBON_COMPOUNDS_PACK1 } from './questionBanks/class10/science/carbonCo
 import { LIFE_PROCESSES_PACK1 } from './questionBanks/class10/science/lifeProcesses.pack1';
 import { CONTROL_AND_COORDINATION_PACK1 } from './questionBanks/class10/science/controlAndCoordination.pack1';
 import { REPRODUCTION_PACK1 } from './questionBanks/class10/science/reproduction.pack1';
-import { HEREDITY_EVOLUTION_PACK1 } from './questionBanks/class10/science/heredityEvolution.pack1';
+import { HEREDITY_PACK1 } from './questionBanks/class10/science/heredity.pack1';
 import { LIGHT_PACK1 } from './questionBanks/class10/science/light.pack1';
 import { HUMAN_EYE_PACK1 } from './questionBanks/class10/science/humanEyeAndColourfulWorld.pack1';
 import { ELECTRICITY_PACK1 } from './questionBanks/class10/science/electricity.pack1';
@@ -50,7 +50,7 @@ import { CC2_PACK2 } from './questionBanks/class10/science/carbonCompounds.pack2
 import { LP2_PACK2 } from './questionBanks/class10/science/lifeProcesses.pack2';
 import { CNC2_PACK2 } from './questionBanks/class10/science/controlAndCoordination.pack2';
 import { REP2_PACK2 } from './questionBanks/class10/science/reproduction.pack2';
-import { HE2_PACK2 } from './questionBanks/class10/science/heredityEvolution.pack2';
+import { HE2_PACK2 } from './questionBanks/class10/science/heredity.pack2';
 import { LT2_PACK2 } from './questionBanks/class10/science/light.pack2';
 import { HEC2_PACK2 } from './questionBanks/class10/science/humanEyeAndColourfulWorld.pack2';
 import { EL2_PACK2 } from './questionBanks/class10/science/electricity.pack2';
@@ -100,7 +100,7 @@ export const canonicalQuestionBank: CanonicalQuestion[] = [
   ...CNC2_PACK2,
   ...REPRODUCTION_PACK1,
   ...REP2_PACK2,
-  ...HEREDITY_EVOLUTION_PACK1,
+  ...HEREDITY_PACK1,
   ...HE2_PACK2,
   ...LIGHT_PACK1,
   ...LT2_PACK2,
