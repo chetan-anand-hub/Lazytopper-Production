@@ -450,6 +450,83 @@ export function findVisualForQuestion(
   return bestScore > 3 ? bestMatch : null;
 }
 
+export interface QuestionMatchResult {
+  concept: VisualConcept | null;
+  score: number;
+  isFallback: boolean;
+}
+
+export function findVisualForQuestionWithScore(
+  questionText: string,
+  topicKey?: string,
+  subject?: string,
+): QuestionMatchResult {
+  const terms = questionText
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .split(/\s+/)
+    .filter((t) => t.length > 2);
+
+  if (topicKey) {
+    const chapterVisuals = getVisualsForTopicKey(topicKey);
+    if (chapterVisuals.length > 0) {
+      let bestMatch: VisualConcept | null = null;
+      let bestScore = 0;
+      for (const concept of chapterVisuals) {
+        let score = 0;
+        const titleLower = concept.title.toLowerCase();
+        const allKeywords = [...concept.keywords, ...titleLower.split(/\s+/)];
+        for (const term of terms) {
+          if (titleLower.includes(term)) score += 3;
+          for (const kw of allKeywords) {
+            if (kw.includes(term) || term.includes(kw)) score += 1;
+          }
+        }
+        if (score > bestScore) {
+          bestScore = score;
+          bestMatch = concept;
+        }
+      }
+      const isFallback = !bestMatch || bestScore <= 2;
+      return {
+        concept: isFallback ? chapterVisuals[0] : bestMatch,
+        score: bestScore,
+        isFallback,
+      };
+    }
+  }
+
+  const subjectNorm = subject?.toLowerCase().includes("sci") ? "science" : "maths";
+  const chapters = subjectNorm === "science" ? SCIENCE_VISUALS : MATHS_VISUALS;
+  let bestMatch: VisualConcept | null = null;
+  let bestScore = 0;
+
+  for (const chapter of chapters) {
+    for (const concept of chapter.concepts) {
+      let score = 0;
+      const titleLower = concept.title.toLowerCase();
+      const allKeywords = [...concept.keywords, ...titleLower.split(/\s+/)];
+      for (const term of terms) {
+        if (titleLower.includes(term)) score += 3;
+        for (const kw of allKeywords) {
+          if (kw.includes(term) || term.includes(kw)) score += 1;
+        }
+      }
+      if (score > bestScore) {
+        bestScore = score;
+        bestMatch = concept;
+      }
+    }
+  }
+
+  const isFallback = bestScore <= 3;
+  return {
+    concept: isFallback ? null : bestMatch,
+    score: bestScore,
+    isFallback,
+  };
+}
+
 export function findVisualForConcept(
   subject: string,
   chapterKey: string,
@@ -517,4 +594,88 @@ export function getVisualsForChapter(
 
 export function getAllConceptsList(): VisualConcept[] {
   return ALL_VISUALS.flatMap((ch) => ch.concepts);
+}
+
+export interface ConceptMatchResult {
+  concept: VisualConcept | null;
+  score: number;
+  isFallback: boolean;
+}
+
+export function findVisualForConceptWithScore(
+  subject: string,
+  chapterKey: string,
+  searchTerms: string[]
+): ConceptMatchResult {
+  const subjectNorm = subject.toLowerCase().includes("sci") ? "science" : "maths";
+  const chapters = subjectNorm === "science" ? SCIENCE_VISUALS : MATHS_VISUALS;
+
+  const resolvedKey = topicKeyToChapterMap[chapterKey] ?? chapterKey;
+  const chapterNorm = resolvedKey.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+
+  const chapter = chapters.find((ch) => {
+    const k = ch.chapterKey.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+    return k === chapterNorm || k.includes(chapterNorm) || chapterNorm.includes(k);
+  });
+
+  if (!chapter) return { concept: null, score: 0, isFallback: true };
+
+  const terms = searchTerms.map((t) => t.toLowerCase().trim()).filter(Boolean);
+  if (terms.length === 0) {
+    return { concept: chapter.concepts[0] ?? null, score: 0, isFallback: true };
+  }
+
+  let bestMatch: VisualConcept | null = null;
+  let bestScore = 0;
+
+  for (const concept of chapter.concepts) {
+    let score = 0;
+    const titleLower = concept.title.toLowerCase();
+    const allKeywords = [...concept.keywords, ...titleLower.split(/\s+/)];
+    for (const term of terms) {
+      if (titleLower.includes(term)) score += 3;
+      for (const kw of allKeywords) {
+        if (kw.includes(term) || term.includes(kw)) score += 1;
+      }
+    }
+    if (score > bestScore) {
+      bestScore = score;
+      bestMatch = concept;
+    }
+  }
+
+  const isFallback = bestScore === 0;
+  const result = bestMatch ?? chapter.concepts[0] ?? null;
+  return { concept: result, score: bestScore, isFallback };
+}
+
+export function tokenizeForVisualSearch(text: string): string[] {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .split(/\s+/)
+    .filter((t) => t.length > 1);
+}
+
+export function scoreConceptFull(concept: VisualConcept, terms: string[]): number {
+  let score = 0;
+  const titleLower = concept.title.toLowerCase();
+  const allKeywords = [...concept.keywords, ...titleLower.split(/\s+/)];
+  for (const term of terms) {
+    if (titleLower.includes(term)) score += 3;
+    for (const kw of allKeywords) {
+      if (kw.includes(term) || term.includes(kw)) score += 1;
+    }
+  }
+  return score;
+}
+
+export function scoreConceptByKeywordsOnly(concept: VisualConcept, terms: string[]): number {
+  let score = 0;
+  for (const term of terms) {
+    for (const kw of concept.keywords) {
+      if (kw.toLowerCase().includes(term) || term.includes(kw.toLowerCase())) score += 1;
+    }
+  }
+  return score;
 }
