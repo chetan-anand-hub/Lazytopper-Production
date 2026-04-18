@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Experimental Probability - Probability | CBSE Class 10</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f0f4ff; color: #1e293b; min-height: 100vh; }
+
+  .title-bar {
+    background: linear-gradient(135deg, #1e293b 0%, #0891b2 100%);
+    color: white; padding: 14px 20px; text-align: center;
+    box-shadow: 0 4px 15px rgba(8,145,178,0.4);
+  }
+  .title-bar h1 { font-size: 1.2rem; font-weight: 700; letter-spacing: 0.5px; }
+  .title-bar p { font-size: 0.78rem; opacity: 0.85; margin-top: 3px; }
+
+  .container { max-width: 700px; margin: 0 auto; padding: 16px; }
+
+  .card {
+    background: white; border-radius: 16px; padding: 18px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08); margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-size: 1rem; font-weight: 700; color: #0891b2;
+    border-left: 4px solid #0891b2; padding-left: 10px; margin-bottom: 14px;
+  }
+
+  .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+  .compare-box { border-radius: 14px; padding: 14px; border: 2px solid; }
+  .compare-box.theoretical { border-color: #3b82f6; background: linear-gradient(135deg, #eff6ff, #dbeafe); }
+  .compare-box.experimental { border-color: #0891b2; background: linear-gradient(135deg, #ecfeff, #cffafe); }
+  .compare-box h3 { font-size: 0.88rem; font-weight: 700; margin-bottom: 6px; }
+  .compare-box.theoretical h3 { color: #1e40af; }
+  .compare-box.experimental h3 { color: #0e7490; }
+  .compare-box .formula { font-size: 0.82rem; font-weight: 600; margin: 6px 0; padding: 6px 10px; border-radius: 8px; }
+  .compare-box.theoretical .formula { background: #dbeafe; color: #1e40af; }
+  .compare-box.experimental .formula { background: #cffafe; color: #0e7490; }
+  .compare-box p { font-size: 0.75rem; line-height: 1.5; color: #475569; }
+
+  /* Simulator */
+  .sim-controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+  .sim-btn {
+    padding: 9px 18px; border-radius: 10px; border: none; cursor: pointer;
+    font-weight: 700; font-size: 0.85rem; transition: all 0.2s;
+  }
+  .btn-flip { background: #0891b2; color: white; }
+  .btn-flip:hover { background: #0e7490; }
+  .btn-many { background: #3b82f6; color: white; }
+  .btn-many:hover { background: #2563eb; }
+  .btn-reset { background: #f1f5f9; color: #475569; }
+  .btn-reset:hover { background: #e2e8f0; }
+
+  .exp-select {
+    padding: 8px 12px; border-radius: 10px; border: 2px solid #e2e8f0;
+    font-size: 0.82rem; color: #1e293b; background: white; outline: none;
+    cursor: pointer;
+  }
+  .exp-select:focus { border-color: #0891b2; }
+
+  .trial-count { font-size: 0.8rem; color: #64748b; margin-left: auto; }
+
+  /* Coin animation */
+  .coin-display {
+    text-align: center; font-size: 3.5rem; margin: 8px 0;
+    min-height: 64px; display: flex; align-items: center; justify-content: center;
+    transition: opacity 0.15s;
+  }
+
+  /* Stats row */
+  .stats-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 10px 0; }
+  .stat-chip {
+    flex: 1; min-width: 90px; border-radius: 12px; padding: 12px 10px;
+    text-align: center; border: 2px solid;
+  }
+  .stat-chip.total { border-color: #94a3b8; background: #f8fafc; }
+  .stat-chip.fav { border-color: #22c55e; background: #f0fdf4; }
+  .stat-chip.theory { border-color: #3b82f6; background: #eff6ff; }
+  .stat-chip.exp-p { border-color: #0891b2; background: #ecfeff; }
+  .stat-chip .val { font-size: 1.15rem; font-weight: 800; display: block; margin-top: 2px; }
+  .stat-chip .lbl { font-size: 0.7rem; color: #64748b; }
+
+  /* Bar comparison */
+  .bar-compare { margin: 12px 0; }
+  .bar-label { display: flex; justify-content: space-between; font-size: 0.75rem; color: #64748b; margin-bottom: 4px; }
+  .bar-wrap { height: 36px; background: #f1f5f9; border-radius: 10px; overflow: hidden; position: relative; margin-bottom: 8px; }
+  .bar-fill {
+    height: 100%; border-radius: 10px; display: flex; align-items: center;
+    padding-left: 10px; color: white; font-weight: 700; font-size: 0.78rem;
+    transition: width 0.6s ease;
+  }
+  .bar-theory { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+  .bar-exp { background: linear-gradient(90deg, #0891b2, #22d3ee); }
+
+  /* History */
+  .history-row {
+    display: flex; flex-wrap: wrap; gap: 5px; max-height: 80px;
+    overflow-y: auto; margin-top: 8px; padding: 6px;
+    background: #f8fafc; border-radius: 8px;
+    scrollbar-width: thin;
+  }
+  .h-chip {
+    font-size: 0.72rem; padding: 2px 7px; border-radius: 6px; font-weight: 600;
+  }
+  .h-chip.h { background: #dbeafe; color: #1e40af; }
+  .h-chip.t { background: #fef3c7; color: #92400e; }
+  .h-chip.six { background: #dcfce7; color: #166534; }
+  .h-chip.other { background: #fee2e2; color: #991b1b; }
+
+  /* Convergence note */
+  .convergence-box {
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    border: 2px solid #22c55e; border-radius: 12px;
+    padding: 12px 14px; font-size: 0.82rem; color: #166534; line-height: 1.65;
+    margin-top: 10px;
+  }
+
+  /* Quiz */
+  .quiz-q { font-size: 0.88rem; font-weight: 600; color: #1e293b; margin-bottom: 10px; line-height: 1.5; }
+  .quiz-options { display: flex; flex-direction: column; gap: 8px; }
+  .quiz-opt {
+    padding: 10px 14px; border-radius: 10px; border: 2px solid #e2e8f0;
+    cursor: pointer; font-size: 0.83rem; font-weight: 500;
+    transition: all 0.2s; background: white; text-align: left;
+  }
+  .quiz-opt:hover { border-color: #0891b2; background: #ecfeff; }
+  .quiz-opt.correct { border-color: #22c55e; background: #dcfce7; color: #166534; }
+  .quiz-opt.wrong { border-color: #ef4444; background: #fee2e2; color: #991b1b; }
+  .quiz-feedback { margin-top: 10px; font-size: 0.82rem; font-weight: 600; padding: 8px 12px; border-radius: 8px; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.correct { background: #dcfce7; color: #166534; }
+  .quiz-feedback.wrong { background: #fee2e2; color: #991b1b; }
+  .next-btn {
+    margin-top: 10px; padding: 8px 20px; border-radius: 10px;
+    background: #0891b2; color: white; border: none; cursor: pointer;
+    font-weight: 600; font-size: 0.82rem; display: none;
+  }
+  .next-btn.show { display: inline-block; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; }
+  .badge-cyan { background: #cffafe; color: #0e7490; }
+
+  .tip-box {
+    background: #f0fdf4; border: 1.5px solid #22c55e; border-radius: 10px;
+    padding: 12px 14px; font-size: 0.82rem; line-height: 1.7; color: #166534;
+    margin-top: 10px;
+  }
+
+  @media(max-width:420px){
+    .compare-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="title-bar">
+  <h1>🔬 Experimental Probability | प्रायोगिक प्रायिकता</h1>
+  <p>CBSE Class 10 Mathematics — Interactive Visual Explainer</p>
+</div>
+
+<div class="container">
+
+  <!-- Comparison Card -->
+  <div class="card">
+    <div class="section-title">📐 Theoretical vs Experimental Probability</div>
+    <div class="compare-grid">
+      <div class="compare-box theoretical">
+        <h3>📘 Theoretical Probability</h3>
+        <div class="formula">P(E) = n(E) / n(S)</div>
+        <p>Calculated using <b>logical reasoning</b> — assuming all outcomes are equally likely. No actual experiment is needed.</p>
+      </div>
+      <div class="compare-box experimental">
+        <h3>🔬 Experimental Probability</h3>
+        <div class="formula">P(E) = Frequency / Total Trials</div>
+        <p>Calculated from <b>actual observations</b> of a repeated experiment. Also called <em>relative frequency</em>.</p>
+      </div>
+    </div>
+    <div style="font-size:0.82rem;line-height:1.8;color:#374151;margin-top:4px;">
+      <div>🔹 Experimental probability <b>varies</b> from trial to trial — it is not fixed like theoretical probability.</div>
+      <div>🔹 As the number of trials <b>increases</b>, experimental probability gets <b>closer to theoretical</b> probability (Law of Large Numbers).</div>
+      <div>🔹 Both always lie in the range <b>0 ≤ P(E) ≤ 1</b>.</div>
+    </div>
+  </div>
+
+  <!-- Live Simulator -->
+  <div class="card">
+    <div class="section-title">🧪 Live Simulator — Run the Experiment!</div>
+
+    <div class="sim-controls">
+      <select class="exp-select" id="expSelect" onchange="resetSim()">
+        <option value="coin">🪙 Coin Toss — P(Heads)</option>
+        <option value="dice">🎲 Die Roll — P(getting 6)</option>
+        <option value="prime">🎲 Die Roll — P(Prime)</option>
+      </select>
+    </div>
+
+    <div class="coin-display" id="coinDisplay">🪙</div>
+
+    <div class="sim-controls">
+      <button class="sim-btn btn-flip" onclick="flipOnce()">Flip Once ▶</button>
+      <button class="sim-btn btn-many" onclick="flipMany(10)">×10 Trials</button>
+      <button class="sim-btn btn-many" onclick="flipMany(50)">×50 Trials</button>
+      <button class="sim-btn btn-reset" onclick="resetSim()">Reset</button>
+      <span class="trial-count" id="trialCount">0 trials</span>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-chip total">
+        <span class="lbl">Total Trials (n)</span>
+        <span class="val" id="statTotal">0</span>
+      </div>
+      <div class="stat-chip fav">
+        <span class="lbl">Favourable (f)</span>
+        <span class="val" id="statFav">0</span>
+      </div>
+      <div class="stat-chip exp-p">
+        <span class="lbl">Exp. Probability</span>
+        <span class="val" id="statExp">—</span>
+      </div>
+      <div class="stat-chip theory">
+        <span class="lbl">Theoretical P</span>
+        <span class="val" id="statTheory">—</span>
+      </div>
+    </div>
+
+    <!-- Bar comparison -->
+    <div class="bar-compare" id="barCompare" style="display:none;">
+      <div class="bar-label">
+        <span>Theoretical Probability</span>
+        <span id="theoryPct">0%</span>
+      </div>
+      <div class="bar-wrap">
+        <div class="bar-fill bar-theory" id="barTheory" style="width:0%"></div>
+      </div>
+      <div class="bar-label">
+        <span>Experimental Probability</span>
+        <span id="expPct">0%</span>
+      </div>
+      <div class="bar-wrap">
+        <div class="bar-fill bar-exp" id="barExp" style="width:0%">0%</div>
+      </div>
+    </div>
+
+    <!-- History chips -->
+    <div style="font-size:0.75rem;color:#94a3b8;margin-top:6px;margin-bottom:4px;">Recent outcomes:</div>
+    <div class="history-row" id="historyRow">
+      <span style="font-size:0.75rem;color:#94a3b8;font-style:italic;">No trials yet</span>
+    </div>
+
+    <div class="convergence-box" id="convergenceBox" style="display:none;">
+      <b>📈 Law of Large Numbers:</b> After <span id="convTrials">0</span> trials, experimental probability = <span id="convExp">—</span> vs theoretical = <span id="convTheory">—</span>. The more you flip, the closer they get!
+    </div>
+  </div>
+
+  <!-- Frequency Table Worked Example -->
+  <div class="card">
+    <div class="section-title">📋 Frequency Table → Experimental Probability</div>
+    <div style="background:#fef3c7;border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:0.82rem;color:#92400e;border:1.5px solid #f59e0b;">
+      <b>Question:</b> A die was rolled 200 times. The results are shown below. Find the experimental probability of each outcome.
+    </div>
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:0.8rem;">
+        <thead>
+          <tr style="background:#0891b2;color:white;">
+            <th style="padding:8px;border:1px solid #0e7490;text-align:center;">Outcome</th>
+            <th style="padding:8px;border:1px solid #0e7490;text-align:center;">Frequency (f)</th>
+            <th style="padding:8px;border:1px solid #0e7490;text-align:center;">Exp. P = f/200</th>
+            <th style="padding:8px;border:1px solid #0e7490;text-align:center;">Theoretical P</th>
+          </tr>
+        </thead>
+        <tbody id="freqTableBody"></tbody>
+        <tfoot>
+          <tr style="background:#f8fafc;font-weight:700;">
+            <td style="padding:8px;border:1px solid #e2e8f0;text-align:center;">Total</td>
+            <td style="padding:8px;border:1px solid #e2e8f0;text-align:center;">200</td>
+            <td style="padding:8px;border:1px solid #e2e8f0;text-align:center;color:#22c55e;">≈ 1</td>
+            <td style="padding:8px;border:1px solid #e2e8f0;text-align:center;color:#3b82f6;">6/6 = 1</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    <div class="tip-box">
+      📝 <b>Key Observation:</b> The sum of all experimental probabilities ≈ 1 (slight rounding). Each experimental probability is close to but not exactly equal to 1/6 ≈ 0.167. This difference shrinks with more trials.
+    </div>
+  </div>
+
+  <!-- Key Facts -->
+  <div class="card">
+    <div class="section-title">💡 Key Facts for the Exam</div>
+    <div style="font-size:0.82rem;line-height:1.9;color:#374151;">
+      <div>🔹 <b>Experimental probability</b> formula: P(E) = Number of times event occurred ÷ Total number of trials.</div>
+      <div>🔹 It is also written as <b>relative frequency</b> in data-based questions.</div>
+      <div>🔹 Experimental probability <b>may not equal</b> theoretical probability — that's normal.</div>
+      <div>🔹 <b>More trials = closer to theoretical.</b> This is the Law of Large Numbers.</div>
+      <div>🔹 Class 10 CBSE: You mainly use <b>theoretical probability</b>; experimental appears in case-based data questions.</div>
+    </div>
+  </div>
+
+  <!-- Quiz -->
+  <div class="card">
+    <div class="section-title">🧠 Quick Quiz — Test Yourself!</div>
+    <div id="quizContainer"></div>
+  </div>
+
+</div>
+
+<script>
+const expConfigs = {
+  coin: {
+    icon: (r) => (r === 1 ? "🪙 H" : "🪙 T"),
+    isFav: (r) => r === 1,
+    randMax: 2,
+    theoretical: "1/2 = 0.5",
+    theoryPct: 50
+  },
+  dice: {
+    icon: (r) => ["⚀","⚁","⚂","⚃","⚄","⚅"][r-1],
+    isFav: (r) => r === 6,
+    randMax: 6,
+    theoretical: "1/6 ≈ 0.167",
+    theoryPct: 16.67
+  },
+  prime: {
+    icon: (r) => ["⚀","⚁","⚂","⚃","⚄","⚅"][r-1],
+    isFav: (r) => [2,3,5].includes(r),
+    randMax: 6,
+    theoretical: "3/6 = 0.5",
+    theoryPct: 50
+  }
+};
+
+let trials = 0;
+let favCount = 0;
+let history = [];
+let animating = false;
+
+function getConfig() {
+  return expConfigs[document.getElementById("expSelect").value];
+}
+
+function roll() {
+  const cfg = getConfig();
+  return Math.floor(Math.random() * cfg.randMax) + 1;
+}
+
+function resetSim() {
+  trials = 0; favCount = 0; history = [];
+  const cfg = getConfig();
+  document.getElementById("coinDisplay").textContent = cfg.randMax === 2 ? "🪙" : "🎲";
+  document.getElementById("statTotal").textContent = "0";
+  document.getElementById("statFav").textContent = "0";
+  document.getElementById("statExp").textContent = "—";
+  document.getElementById("statTheory").textContent = cfg.theoretical;
+  document.getElementById("trialCount").textContent = "0 trials";
+  document.getElementById("barCompare").style.display = "none";
+  document.getElementById("convergenceBox").style.display = "none";
+  document.getElementById("historyRow").innerHTML = '<span style="font-size:0.75rem;color:#94a3b8;font-style:italic;">No trials yet</span>';
+}
+
+function updateUI(result) {
+  const cfg = getConfig();
+  const isFav = cfg.isFav(result);
+  document.getElementById("coinDisplay").textContent = cfg.icon(result);
+  document.getElementById("statTotal").textContent = trials;
+  document.getElementById("statFav").textContent = favCount;
+  const expP = trials > 0 ? (favCount / trials).toFixed(3) : "—";
+  document.getElementById("statExp").textContent = expP;
+  document.getElementById("statTheory").textContent = cfg.theoretical;
+  document.getElementById("trialCount").textContent = trials + " trials";
+
+  if (trials > 0) {
+    const expPct = ((favCount / trials) * 100).toFixed(1);
+    document.getElementById("barCompare").style.display = "block";
+    document.getElementById("theoryPct").textContent = cfg.theoryPct.toFixed(1) + "%";
+    document.getElementById("expPct").textContent = expPct + "%";
+    document.getElementById("barTheory").style.width = Math.min(cfg.theoryPct, 100) + "%";
+    document.getElementById("barTheory").textContent = cfg.theoryPct.toFixed(1) + "%";
+    document.getElementById("barExp").style.width = Math.min(parseFloat(expPct), 100) + "%";
+    document.getElementById("barExp").textContent = expPct + "%";
+
+    if (trials >= 20) {
+      document.getElementById("convergenceBox").style.display = "block";
+      document.getElementById("convTrials").textContent = trials;
+      document.getElementById("convExp").textContent = expP;
+      document.getElementById("convTheory").textContent = cfg.theoretical;
+    }
+  }
+
+  const chip = document.createElement("span");
+  chip.className = "h-chip " + (isFav ? "six" : "other");
+  chip.textContent = cfg.icon(result);
+  const hr = document.getElementById("historyRow");
+  if (hr.querySelector('span[style]')) hr.innerHTML = "";
+  hr.appendChild(chip);
+  if (hr.children.length > 60) hr.removeChild(hr.firstChild);
+  hr.scrollTop = hr.scrollHeight;
+}
+
+async function flipOnce() {
+  if (animating) return;
+  animating = true;
+  const cfg = getConfig();
+  const result = roll();
+  trials++;
+  if (cfg.isFav(result)) favCount++;
+  history.push(result);
+  const disp = document.getElementById("coinDisplay");
+  disp.style.opacity = "0";
+  await new Promise(r => setTimeout(r, 120));
+  disp.style.opacity = "1";
+  updateUI(result);
+  animating = false;
+}
+
+async function flipMany(n) {
+  for (let i = 0; i < n; i++) {
+    const cfg = getConfig();
+    const result = roll();
+    trials++;
+    if (cfg.isFav(result)) favCount++;
+    history.push(result);
+  }
+  updateUI(history[history.length-1]);
+}
+
+// Frequency table data
+const freqData = [
+  {outcome: "1 ⚀", freq: 32},
+  {outcome: "2 ⚁", freq: 35},
+  {outcome: "3 ⚂", freq: 28},
+  {outcome: "4 ⚃", freq: 36},
+  {outcome: "5 ⚄", freq: 33},
+  {outcome: "6 ⚅", freq: 36},
+];
+const tbody = document.getElementById("freqTableBody");
+freqData.forEach(row => {
+  const expP = (row.freq / 200).toFixed(3);
+  const tr = document.createElement("tr");
+  tr.innerHTML = `
+    <td style="padding:7px;border:1px solid #e2e8f0;text-align:center;font-weight:600;">${row.outcome}</td>
+    <td style="padding:7px;border:1px solid #e2e8f0;text-align:center;">${row.freq}</td>
+    <td style="padding:7px;border:1px solid #e2e8f0;text-align:center;color:#0891b2;font-weight:600;">${expP}</td>
+    <td style="padding:7px;border:1px solid #e2e8f0;text-align:center;color:#3b82f6;">1/6 ≈ 0.167</td>
+  `;
+  tbody.appendChild(tr);
+});
+
+// Quiz
+const quizData = [
+  {
+    q: "🪙 A coin is tossed 100 times and Heads appears 48 times. What is the experimental probability of Heads?",
+    opts: ["0.50", "0.48", "0.52", "0.25"],
+    ans: 1,
+    exp: "Exp P(Heads) = 48/100 = 0.48 ✔ (Note: theoretical is 0.5, but experimental differs)"
+  },
+  {
+    q: "🎲 A die is rolled 300 times. '6' appears 55 times. Experimental P(6) = ?",
+    opts: ["1/6", "55/300", "6/300", "55/6"],
+    ans: 1,
+    exp: "Exp P(6) = 55/300 ≈ 0.183 ✔ (Theoretical is 1/6 ≈ 0.167)"
+  },
+  {
+    q: "As the number of trials increases, experimental probability will:",
+    opts: ["Stay exactly the same", "Become more random", "Get closer to theoretical probability", "Always equal 1"],
+    ans: 2,
+    exp: "Law of Large Numbers: more trials → experimental probability converges to theoretical probability ✔"
+  },
+  {
+    q: "📋 In a survey, 150 students prefer cricket out of 500 surveyed. What is the experimental probability of a student preferring cricket?",
+    opts: ["1/5", "3/10", "2/5", "3/4"],
+    ans: 1,
+    exp: "Exp P = 150/500 = 3/10 ✔"
+  }
+];
+
+let currentQ = 0;
+let answered = false;
+
+function renderQuiz() {
+  const q = quizData[currentQ];
+  const c = document.getElementById("quizContainer");
+  c.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <span class="badge badge-cyan">Q ${currentQ+1}/${quizData.length}</span>
+      <span style="font-size:0.75rem;color:#94a3b8;">Click an option</span>
+    </div>
+    <div class="quiz-q">${q.q}</div>
+    <div class="quiz-options">
+      ${q.opts.map((o,i)=>`<button class="quiz-opt" onclick="answer(${i})">${o}</button>`).join('')}
+    </div>
+    <div class="quiz-feedback" id="qfb"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQ()">Next Question ▶</button>
+  `;
+  answered = false;
+}
+
+function answer(idx) {
+  if (answered) return;
+  answered = true;
+  const q = quizData[currentQ];
+  const opts = document.querySelectorAll('.quiz-opt');
+  const fb = document.getElementById('qfb');
+  opts.forEach((o,i) => {
+    if (i === q.ans) o.classList.add('correct');
+    else if (i === idx) o.classList.add('wrong');
+  });
+  const correct = idx === q.ans;
+  fb.className = 'quiz-feedback show ' + (correct ? 'correct' : 'wrong');
+  fb.textContent = (correct ? '✅ ' : '❌ ') + q.exp;
+  document.getElementById('nextBtn').classList.add('show');
+}
+
+function nextQ() {
+  currentQ = (currentQ + 1) % quizData.length;
+  renderQuiz();
+}
+
+// Init
+const cfg = getConfig();
+document.getElementById("statTheory").textContent = cfg.theoretical;
+renderQuiz();
+</script>
+
+</body>
+</html>

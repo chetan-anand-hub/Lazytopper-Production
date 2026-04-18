@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sample Space for Compound Events - Probability | CBSE Class 10</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f0f4ff; color: #1e293b; min-height: 100vh; }
+
+  .title-bar {
+    background: linear-gradient(135deg, #1e293b 0%, #7c3aed 100%);
+    color: white; padding: 14px 20px; text-align: center;
+    box-shadow: 0 4px 15px rgba(124,58,237,0.4);
+  }
+  .title-bar h1 { font-size: 1.2rem; font-weight: 700; letter-spacing: 0.5px; }
+  .title-bar p { font-size: 0.78rem; opacity: 0.85; margin-top: 3px; }
+
+  .container { max-width: 700px; margin: 0 auto; padding: 16px; }
+
+  .card {
+    background: white; border-radius: 16px; padding: 18px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08); margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-size: 1rem; font-weight: 700; color: #7c3aed;
+    border-left: 4px solid #7c3aed; padding-left: 10px; margin-bottom: 14px;
+  }
+
+  .info-box {
+    background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+    border: 2px solid #7c3aed; border-radius: 14px;
+    padding: 14px 16px; margin-bottom: 14px;
+  }
+  .info-box p { font-size: 0.83rem; line-height: 1.65; color: #4c1d95; }
+  .info-box strong { color: #5b21b6; }
+
+  .concept-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+  .concept-card { border-radius: 12px; padding: 12px; font-size: 0.78rem; line-height: 1.5; border: 2px solid; }
+  .concept-card.purple { border-color: #7c3aed; background: #f5f3ff; }
+  .concept-card.blue { border-color: #3b82f6; background: #eff6ff; }
+  .concept-card.green { border-color: #22c55e; background: #f0fdf4; }
+  .concept-card.amber { border-color: #f59e0b; background: #fffbeb; }
+  .concept-card strong { display: block; margin-bottom: 4px; font-size: 0.82rem; }
+
+  /* Experiment tabs */
+  .exp-tabs { display: flex; gap: 8px; justify-content: center; margin-bottom: 14px; flex-wrap: wrap; }
+  .tab-btn {
+    padding: 8px 14px; border-radius: 20px; border: 2px solid #7c3aed;
+    background: white; color: #7c3aed; font-weight: 600; cursor: pointer;
+    font-size: 0.8rem; transition: all 0.2s;
+  }
+  .tab-btn.active { background: #7c3aed; color: white; }
+
+  .exp-desc {
+    background: #fef3c7; border: 1.5px solid #f59e0b; border-radius: 10px;
+    padding: 10px 14px; font-size: 0.82rem; color: #92400e;
+    margin-bottom: 12px; line-height: 1.5;
+  }
+
+  /* Grid table */
+  .grid-wrapper { overflow-x: auto; margin-bottom: 12px; }
+  .sample-table {
+    border-collapse: collapse; width: 100%; font-size: 0.78rem;
+  }
+  .sample-table th {
+    background: #7c3aed; color: white; padding: 8px 6px; text-align: center;
+    font-weight: 700; border: 1px solid #5b21b6;
+  }
+  .sample-table td {
+    padding: 7px 6px; text-align: center; border: 1px solid #e2e8f0;
+    cursor: pointer; transition: background 0.2s; font-weight: 500;
+    white-space: nowrap;
+  }
+  .sample-table td.row-head {
+    background: #ede9fe; color: #5b21b6; font-weight: 700; cursor: default;
+  }
+  .sample-table td.neutral { background: #f8fafc; color: #374151; }
+  .sample-table td.favorable { background: #dcfce7; color: #166534; font-weight: 700; box-shadow: inset 0 0 0 2px #22c55e; }
+  .sample-table td.unfavorable { background: #fee2e2; color: #991b1b; opacity: 0.6; }
+
+  .event-prompt { font-size: 0.82rem; font-weight: 600; color: #475569; margin-bottom: 8px; }
+  .event-select {
+    width: 100%; padding: 8px 12px; border-radius: 10px;
+    border: 2px solid #e2e8f0; font-size: 0.85rem; color: #1e293b;
+    background: white; outline: none; cursor: pointer; margin-bottom: 12px;
+  }
+  .event-select:focus { border-color: #7c3aed; }
+
+  .result-row { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+  .result-chip {
+    flex: 1; min-width: 90px; background: #f8fafc; border-radius: 10px;
+    padding: 10px 12px; text-align: center; border: 1.5px solid #e2e8f0;
+  }
+  .result-chip strong { display: block; font-size: 1.1rem; color: #7c3aed; margin-top: 2px; }
+  .result-chip span { font-size: 0.72rem; color: #64748b; }
+
+  .prob-display {
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    border: 2px solid #22c55e; border-radius: 12px;
+    padding: 10px; text-align: center; margin-top: 8px;
+  }
+  .prob-fraction { font-size: 1.4rem; font-weight: 800; color: #166534; }
+  .prob-sub { font-size: 0.74rem; color: #4ade80; margin-top: 2px; }
+
+  /* Steps */
+  .step {
+    border-radius: 12px; border: 2px solid #e2e8f0;
+    margin-bottom: 10px; overflow: hidden;
+  }
+  .step-header {
+    display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+    cursor: pointer; background: #f8fafc; transition: background 0.2s;
+  }
+  .step-header:hover { background: #f5f3ff; }
+  .step-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: #7c3aed; color: white; display: flex;
+    align-items: center; justify-content: center; font-weight: 700;
+    font-size: 0.82rem; flex-shrink: 0;
+  }
+  .step-title { font-weight: 600; font-size: 0.88rem; color: #1e293b; flex: 1; }
+  .step-arrow { color: #94a3b8; transition: transform 0.3s; }
+  .step-arrow.open { transform: rotate(90deg); }
+  .step-content {
+    max-height: 0; overflow: hidden; transition: max-height 0.4s ease;
+    padding: 0 14px; background: white;
+  }
+  .step-content.open { max-height: 400px; padding: 12px 14px; }
+  .step-content p { font-size: 0.83rem; line-height: 1.6; color: #374151; margin-bottom: 6px; }
+  .step-content .hl { color: #7c3aed; font-weight: 700; }
+  .step-content .gr { color: #22c55e; font-weight: 700; }
+
+  /* Quiz */
+  .quiz-q { font-size: 0.88rem; font-weight: 600; color: #1e293b; margin-bottom: 10px; line-height: 1.5; }
+  .quiz-options { display: flex; flex-direction: column; gap: 8px; }
+  .quiz-opt {
+    padding: 10px 14px; border-radius: 10px; border: 2px solid #e2e8f0;
+    cursor: pointer; font-size: 0.83rem; font-weight: 500;
+    transition: all 0.2s; background: white; text-align: left;
+  }
+  .quiz-opt:hover { border-color: #7c3aed; background: #f5f3ff; }
+  .quiz-opt.correct { border-color: #22c55e; background: #dcfce7; color: #166534; }
+  .quiz-opt.wrong { border-color: #ef4444; background: #fee2e2; color: #991b1b; }
+  .quiz-feedback { margin-top: 10px; font-size: 0.82rem; font-weight: 600; padding: 8px 12px; border-radius: 8px; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.correct { background: #dcfce7; color: #166534; }
+  .quiz-feedback.wrong { background: #fee2e2; color: #991b1b; }
+  .next-btn {
+    margin-top: 10px; padding: 8px 20px; border-radius: 10px;
+    background: #7c3aed; color: white; border: none; cursor: pointer;
+    font-weight: 600; font-size: 0.82rem; display: none;
+  }
+  .next-btn.show { display: inline-block; }
+
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; }
+  .badge-purple { background: #ede9fe; color: #5b21b6; }
+
+  .tip-box {
+    background: #f0fdf4; border: 1.5px solid #22c55e; border-radius: 10px;
+    padding: 12px 14px; font-size: 0.82rem; line-height: 1.7; color: #166534;
+  }
+
+  @media(max-width:420px){
+    .concept-grid { grid-template-columns: 1fr; }
+    .sample-table th, .sample-table td { font-size: 0.7rem; padding: 5px 4px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="title-bar">
+  <h1>📊 Sample Space — Compound Events | यौगिक घटनाएँ</h1>
+  <p>CBSE Class 10 Mathematics — Interactive Visual Explainer</p>
+</div>
+
+<div class="container">
+
+  <!-- Definition Card -->
+  <div class="card">
+    <div class="section-title">📐 What is a Compound Event? (यौगिक घटना)</div>
+    <div class="info-box">
+      <p>A <strong>compound event</strong> involves <strong>two or more experiments</strong> performed together (e.g., tossing two coins, or throwing two dice). The sample space is built as <strong>ordered pairs</strong> — one outcome from each experiment.</p>
+      <p style="margin-top:6px;"><strong>Key Rule:</strong> If experiment 1 has m outcomes and experiment 2 has n outcomes, then the combined sample space has <strong>m × n outcomes</strong>.</p>
+    </div>
+    <div class="concept-grid">
+      <div class="concept-card purple">
+        <strong>🪙🪙 Two Coins</strong>
+        n(S) = 2 × 2 = 4<br>
+        S = {HH, HT, TH, TT}
+      </div>
+      <div class="concept-card blue">
+        <strong>🎲🎲 Two Dice</strong>
+        n(S) = 6 × 6 = 36<br>
+        Ordered pairs (d1, d2)
+      </div>
+      <div class="concept-card green">
+        <strong>🪙🎲 Coin + Die</strong>
+        n(S) = 2 × 6 = 12<br>
+        Pairs like (H,1), (T,4)...
+      </div>
+      <div class="concept-card amber">
+        <strong>⚠️ Order Matters!</strong>
+        (H,T) and (T,H) are different outcomes — both must be listed.
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive Grid -->
+  <div class="card">
+    <div class="section-title">🧪 Interactive — Explore the Sample Space Grid!</div>
+
+    <div class="exp-tabs" id="expTabs"></div>
+    <div class="exp-desc" id="expDesc"></div>
+
+    <div class="event-prompt">Select an event to highlight favourable outcomes:</div>
+    <select class="event-select" id="eventSelect" onchange="renderGrid()"></select>
+
+    <div class="grid-wrapper">
+      <table class="sample-table" id="sampleTable"></table>
+    </div>
+
+    <div class="result-row">
+      <div class="result-chip">
+        <span>n(S) — Total</span>
+        <strong id="nS">0</strong>
+      </div>
+      <div class="result-chip">
+        <span>n(E) — Favourable</span>
+        <strong id="nE" style="color:#22c55e">0</strong>
+      </div>
+      <div class="result-chip">
+        <span>P(E)</span>
+        <strong id="probChip" style="color:#7c3aed">0</strong>
+      </div>
+    </div>
+
+    <div class="prob-display">
+      <div style="font-size:0.74rem;color:#4ade80;margin-bottom:2px;">Probability P(E) =</div>
+      <div class="prob-fraction" id="probFrac">0</div>
+      <div class="prob-sub" id="probDec">= 0.000</div>
+    </div>
+  </div>
+
+  <!-- Step-by-step worked example -->
+  <div class="card">
+    <div class="section-title">📝 Worked Example — Two Coins Tossed</div>
+    <div style="background:#fef3c7;border-radius:10px;padding:12px;margin-bottom:12px;font-size:0.83rem;color:#92400e;border:1.5px solid #f59e0b;">
+      <b>Question:</b> Two fair coins are tossed simultaneously. Find the probability of getting <b>at least one Head</b>.
+    </div>
+    <div>
+      <div class="step" id="s1">
+        <div class="step-header" onclick="toggleStep('s1')">
+          <div class="step-num">1</div>
+          <div class="step-title">List the Sample Space</div>
+          <div class="step-arrow" id="arr-s1">▶</div>
+        </div>
+        <div class="step-content" id="sc-s1">
+          <p>Write all possible outcomes for tossing 2 coins as ordered pairs (Coin1, Coin2):</p>
+          <p>S = <span class="hl">{(H,H), (H,T), (T,H), (T,T)}</span></p>
+          <p>∴ n(S) = <span class="hl">4</span></p>
+        </div>
+      </div>
+      <div class="step" id="s2">
+        <div class="step-header" onclick="toggleStep('s2')">
+          <div class="step-num">2</div>
+          <div class="step-title">Identify Event E = "at least one Head"</div>
+          <div class="step-arrow" id="arr-s2">▶</div>
+        </div>
+        <div class="step-content" id="sc-s2">
+          <p>"At least one Head" means 1 or more Heads — include all outcomes except (T,T).</p>
+          <p>Favourable: <span class="gr">{(H,H), (H,T), (T,H)}</span></p>
+          <p>∴ n(E) = <span class="gr">3</span></p>
+        </div>
+      </div>
+      <div class="step" id="s3">
+        <div class="step-header" onclick="toggleStep('s3')">
+          <div class="step-num">3</div>
+          <div class="step-title">Apply the Formula</div>
+          <div class="step-arrow" id="arr-s3">▶</div>
+        </div>
+        <div class="step-content" id="sc-s3">
+          <p>P(E) = n(E) / n(S) = <span class="gr">3</span> / <span class="hl">4</span></p>
+          <p>P(at least one Head) = <span class="hl">3/4</span></p>
+        </div>
+      </div>
+      <div class="step" id="s4">
+        <div class="step-header" onclick="toggleStep('s4')">
+          <div class="step-num">4</div>
+          <div class="step-title">Verify using Complement</div>
+          <div class="step-arrow" id="arr-s4">▶</div>
+        </div>
+        <div class="step-content" id="sc-s4">
+          <p>P(not E) = P(no Head) = P(TT) = 1/4</p>
+          <p>Check: P(E) + P(not E) = 3/4 + 1/4 = <span class="gr">1 ✔</span></p>
+          <p>Alternatively: P(at least one H) = 1 − P(no H) = 1 − 1/4 = <span class="hl">3/4 ✔</span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Key Rules -->
+  <div class="card">
+    <div class="section-title">💡 Key Rules for Compound Sample Spaces</div>
+    <div style="font-size:0.82rem;line-height:1.9;color:#374151;">
+      <div>🔹 <b>Multiplication rule:</b> Combined n(S) = n(S₁) × n(S₂) for two independent experiments.</div>
+      <div>🔹 <b>Always write ordered pairs</b> — (H,T) and (T,H) are different events.</div>
+      <div>🔹 <b>"At least one"</b> events are easier using complement: 1 − P(none).</div>
+      <div>🔹 <b>Two dice</b> → 36 outcomes; label them (d1, d2) and use a 6×6 grid to avoid missing any.</div>
+      <div>🔹 Sum of all probabilities in any sample space = <b>1</b>.</div>
+    </div>
+    <div class="tip-box" style="margin-top:10px;">
+      📝 <b>Exam Tip:</b> For two-dice problems, draw a small 6×6 grid on rough paper. Mark the favourable cells and count — this is much faster than listing all 36 pairs.
+    </div>
+  </div>
+
+  <!-- Quiz -->
+  <div class="card">
+    <div class="section-title">🧠 Quick Quiz — Test Yourself!</div>
+    <div id="quizContainer"></div>
+  </div>
+
+</div>
+
+<script>
+const experiments = [
+  {
+    label: "🪙🪙 Two Coins",
+    desc: "Two fair coins are tossed simultaneously. The sample space consists of all ordered pairs (Coin1, Coin2). n(S) = 2 × 2 = 4.",
+    row: ["H","T"],
+    col: ["H","T"],
+    rowLabel: "Coin 1 →",
+    colLabel: "Coin 2",
+    pair: (r,c) => `(${r},${c})`,
+    events: [
+      { name: "Getting exactly 2 Heads", favorable: ["(H,H)"] },
+      { name: "Getting exactly 1 Head", favorable: ["(H,T)","(T,H)"] },
+      { name: "Getting at least 1 Head", favorable: ["(H,H)","(H,T)","(T,H)"] },
+      { name: "Getting exactly 2 Tails", favorable: ["(T,T)"] },
+      { name: "Getting at least 1 Tail", favorable: ["(H,T)","(T,H)","(T,T)"] },
+      { name: "Getting no Head (Complement of at least 1)", favorable: ["(T,T)"] },
+    ]
+  },
+  {
+    label: "🎲🎲 Two Dice",
+    desc: "Two fair dice are thrown together. Each outcome is an ordered pair (Die1, Die2). n(S) = 6 × 6 = 36.",
+    row: [1,2,3,4,5,6],
+    col: [1,2,3,4,5,6],
+    rowLabel: "Die 1 →",
+    colLabel: "Die 2",
+    pair: (r,c) => `(${r},${c})`,
+    events: [
+      { name: "Getting a Sum of 7", favorable: ["(1,6)","(2,5)","(3,4)","(4,3)","(5,2)","(6,1)"] },
+      { name: "Getting a Sum of 8", favorable: ["(2,6)","(3,5)","(4,4)","(5,3)","(6,2)"] },
+      { name: "Getting a Sum of 11", favorable: ["(5,6)","(6,5)"] },
+      { name: "Getting a Doublet (same numbers)", favorable: ["(1,1)","(2,2)","(3,3)","(4,4)","(5,5)","(6,6)"] },
+      { name: "Getting Sum ≤ 4", favorable: ["(1,1)","(1,2)","(1,3)","(2,1)","(2,2)","(3,1)"] },
+      { name: "Getting Sum = 2 (snake eyes)", favorable: ["(1,1)"] },
+    ]
+  },
+  {
+    label: "🪙🎲 Coin + Die",
+    desc: "A coin is tossed and a die is rolled simultaneously. n(S) = 2 × 6 = 12.",
+    row: ["H","T"],
+    col: [1,2,3,4,5,6],
+    rowLabel: "Coin →",
+    colLabel: "Die",
+    pair: (r,c) => `(${r},${c})`,
+    events: [
+      { name: "Getting Head and Even number", favorable: ["(H,2)","(H,4)","(H,6)"] },
+      { name: "Getting Tail and Odd number", favorable: ["(T,1)","(T,3)","(T,5)"] },
+      { name: "Getting Head and Prime number", favorable: ["(H,2)","(H,3)","(H,5)"] },
+      { name: "Getting Head and number > 4", favorable: ["(H,5)","(H,6)"] },
+      { name: "Getting Tail and number ≤ 3", favorable: ["(T,1)","(T,2)","(T,3)"] },
+    ]
+  }
+];
+
+let currentExp = 0;
+
+function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+
+function initTabs() {
+  const tabs = document.getElementById("expTabs");
+  tabs.innerHTML = experiments.map((e, i) =>
+    `<button class="tab-btn ${i===0?'active':''}" onclick="switchExp(${i},event)">${e.label}</button>`
+  ).join('');
+}
+
+function switchExp(i, e) {
+  currentExp = i;
+  document.querySelectorAll('.tab-btn').forEach((b,j) => b.classList.toggle('active', j===i));
+  populateEvents();
+  renderGrid();
+}
+
+function populateEvents() {
+  const exp = experiments[currentExp];
+  const sel = document.getElementById("eventSelect");
+  sel.innerHTML = exp.events.map((ev,i) =>
+    `<option value="${i}">${ev.name}</option>`
+  ).join('');
+}
+
+function renderGrid() {
+  const exp = experiments[currentExp];
+  document.getElementById("expDesc").textContent = exp.desc;
+  const evIdx = parseInt(document.getElementById("eventSelect").value) || 0;
+  const ev = exp.events[evIdx];
+
+  const table = document.getElementById("sampleTable");
+  let html = `<tr><th>${exp.colLabel} ↓ / ${exp.rowLabel}</th>`;
+  exp.col.forEach(c => { html += `<th>${c}</th>`; });
+  html += '</tr>';
+
+  let total = 0, fav = 0;
+  exp.row.forEach(r => {
+    html += `<tr><td class="row-head">${r}</td>`;
+    exp.col.forEach(c => {
+      const pairLabel = exp.pair(r, c);
+      const isFav = ev.favorable.includes(pairLabel);
+      const cls = isFav ? 'favorable' : 'unfavorable';
+      html += `<td class="${cls}">${pairLabel}</td>`;
+      total++;
+      if (isFav) fav++;
+    });
+    html += '</tr>';
+  });
+  table.innerHTML = html;
+
+  document.getElementById("nS").textContent = total;
+  document.getElementById("nE").textContent = fav;
+
+  const g = gcd(fav, total) || 1;
+  const fr = fav === 0 ? "0" : `${fav/g}/${total/g}`;
+  document.getElementById("probChip").textContent = fr;
+  document.getElementById("probFrac").textContent = fr;
+  document.getElementById("probDec").textContent = "= " + (fav/total).toFixed(4);
+}
+
+function toggleStep(id) {
+  const content = document.getElementById('sc-' + id);
+  const arrow = document.getElementById('arr-' + id);
+  content.classList.toggle('open');
+  arrow.classList.toggle('open');
+}
+
+// Quiz
+const quizData = [
+  {
+    q: "🪙🪙 Two coins are tossed. What is n(S)?",
+    opts: ["2", "4", "8", "6"],
+    ans: 1,
+    exp: "S = {HH, HT, TH, TT} → n(S) = 2×2 = 4 ✔"
+  },
+  {
+    q: "🎲🎲 Two dice are thrown. What is n(S)?",
+    opts: ["12", "6", "36", "18"],
+    ans: 2,
+    exp: "n(S) = 6×6 = 36 ordered pairs ✔"
+  },
+  {
+    q: "🎲🎲 Two dice are rolled. How many ways can we get a sum of 7?",
+    opts: ["4", "5", "6", "7"],
+    ans: 2,
+    exp: "Pairs giving sum 7: (1,6),(2,5),(3,4),(4,3),(5,2),(6,1) → 6 ways ✔"
+  },
+  {
+    q: "🪙🪙 Two fair coins are tossed. P(exactly 1 Head) = ?",
+    opts: ["1/4", "3/4", "1/2", "1"],
+    ans: 2,
+    exp: "Favourable: {HT, TH} → n(E)=2, n(S)=4 → P = 2/4 = 1/2 ✔"
+  }
+];
+
+let currentQ = 0;
+let answered = false;
+
+function renderQuiz() {
+  const q = quizData[currentQ];
+  const c = document.getElementById("quizContainer");
+  c.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <span class="badge badge-purple">Q ${currentQ+1}/${quizData.length}</span>
+      <span style="font-size:0.75rem;color:#94a3b8;">Click an option</span>
+    </div>
+    <div class="quiz-q">${q.q}</div>
+    <div class="quiz-options">
+      ${q.opts.map((o,i)=>`<button class="quiz-opt" onclick="answer(${i})">${o}</button>`).join('')}
+    </div>
+    <div class="quiz-feedback" id="qfb"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQ()">Next Question ▶</button>
+  `;
+  answered = false;
+}
+
+function answer(idx) {
+  if (answered) return;
+  answered = true;
+  const q = quizData[currentQ];
+  const opts = document.querySelectorAll('.quiz-opt');
+  const fb = document.getElementById('qfb');
+  opts.forEach((o,i) => {
+    if (i === q.ans) o.classList.add('correct');
+    else if (i === idx) o.classList.add('wrong');
+  });
+  const correct = idx === q.ans;
+  fb.className = 'quiz-feedback show ' + (correct ? 'correct' : 'wrong');
+  fb.textContent = (correct ? '✅ ' : '❌ ') + q.exp;
+  document.getElementById('nextBtn').classList.add('show');
+}
+
+function nextQ() {
+  currentQ = (currentQ + 1) % quizData.length;
+  renderQuiz();
+}
+
+initTabs();
+populateEvents();
+renderGrid();
+renderQuiz();
+</script>
+
+</body>
+</html>

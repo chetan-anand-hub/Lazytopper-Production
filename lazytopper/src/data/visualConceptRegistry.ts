@@ -179,6 +179,9 @@ export const MATHS_VISUALS: ChapterVisuals[] = [
       c("maths", "probability", "Classical Probability", ["classical", "equally", "likely", "outcomes", "events"]),
       c("maths", "probability", "Complementary Events", ["complementary", "P(not E)", "1-P(E)"]),
       c("maths", "probability", "Dice and Cards Sample Space", ["dice", "cards", "sample", "space", "outcomes"]),
+      c("maths", "probability", "Favourable Outcomes", ["favourable", "favorable", "n(E)", "count", "identify", "desired", "satisfy"]),
+      c("maths", "probability", "Sample Space for Compound Events", ["compound", "two coins", "two dice", "ordered pair", "simultaneously", "combined", "at least one", "head", "tail", "joint"]),
+      c("maths", "probability", "Experimental Probability", ["experimental", "frequency", "trials", "relative", "observed", "survey", "data", "empirical", "repeated"]),
     ],
   },
 ];
