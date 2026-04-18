@@ -299,6 +299,87 @@ async function runMarksSectionValidation(
 }
 
 // ---------------------------------------------------------------------------
+// Check 3: Duplicate question IDs (within each file)
+// ---------------------------------------------------------------------------
+
+const ID_PATTERN = /["']?id["']?\s*:\s*["'`]([^"'`]+)["'`]/g;
+
+interface DuplicateIdViolation {
+  file: string;
+  id: string;
+  count: number;
+}
+
+function scanFileForDuplicateIds(filePath: string): DuplicateIdViolation[] {
+  let src: string;
+  try {
+    src = readFileSync(filePath, "utf8");
+  } catch {
+    return [];
+  }
+  const counts = new Map<string, number>();
+  for (const match of src.matchAll(new RegExp(ID_PATTERN.source, "g"))) {
+    const id = match[1];
+    counts.set(id, (counts.get(id) ?? 0) + 1);
+  }
+  const violations: DuplicateIdViolation[] = [];
+  for (const [id, count] of counts) {
+    if (count > 1) violations.push({ file: filePath, id, count });
+  }
+  return violations;
+}
+
+function runDuplicateIdValidation(
+  workspaceRoot: string,
+  questionBankRoots: string[]
+): boolean {
+  console.log("\nChecking for duplicate question IDs within each pack file...");
+
+  let totalFilesScanned = 0;
+  const allViolations: DuplicateIdViolation[] = [];
+
+  for (const root of questionBankRoots) {
+    const relRoot = relative(workspaceRoot, root);
+    console.log(`  Scanning: ${relRoot} (recursively)`);
+
+    let tsFiles: string[];
+    try {
+      tsFiles = collectTsFiles(root, true);
+    } catch (err) {
+      console.error(`  ERROR reading directory: ${err}`);
+      return true;
+    }
+
+    totalFilesScanned += tsFiles.length;
+    console.log(`    Found ${tsFiles.length} .ts file(s)`);
+
+    for (const filePath of tsFiles) {
+      allViolations.push(...scanFileForDuplicateIds(filePath));
+    }
+  }
+
+  if (allViolations.length === 0) {
+    console.log(
+      `  ✓ No duplicate question IDs found across ${totalFilesScanned} file(s).`
+    );
+    console.log(`\nDuplicate ID check passed.\n`);
+    return false;
+  }
+
+  console.error(
+    `\nDuplicate ID check FAILED — ${allViolations.length} duplicate(s) found:\n`
+  );
+  for (const v of allViolations) {
+    const relFile = relative(workspaceRoot, v.file);
+    console.error(`  ✗ ID "${v.id}" appears ${v.count} time(s) in ${relFile}`);
+  }
+  console.error(
+    `\nRenumber the duplicate IDs to unique values before merging.\n`
+  );
+  return true;
+}
+
+// ---------------------------------------------------------------------------
 // Entry point — run all checks
 // ---------------------------------------------------------------------------
 
@@ -314,8 +395,9 @@ async function main(): Promise<void> {
 
   const bannedFailed = runBannedExerciseValidation(workspaceRoot, questionBankRoots);
   const marksFailed = await runMarksSectionValidation(workspaceRoot, questionBankRoots);
+  const dupIdFailed = runDuplicateIdValidation(workspaceRoot, questionBankRoots);
 
-  if (bannedFailed || marksFailed) {
+  if (bannedFailed || marksFailed || dupIdFailed) {
     console.error("=== Question bank validation FAILED ===");
     process.exit(1);
   } else {
