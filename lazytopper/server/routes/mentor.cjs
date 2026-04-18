@@ -509,6 +509,58 @@ function createMentorRoute(deps) {
     }
   }
 
+  function tryExtractJsonField(text, fieldName) {
+    const re = new RegExp('"' + fieldName + '"\\s*:\\s*');
+    const m = re.exec(text);
+    if (!m) return { found: false };
+    const startIdx = m.index + m[0].length;
+    if (startIdx >= text.length) return { found: false };
+    const firstChar = text[startIdx];
+
+    if (firstChar === '"') {
+      let i = startIdx + 1;
+      while (i < text.length) {
+        if (text[i] === '\\') { i += 2; continue; }
+        if (text[i] === '"') {
+          try {
+            const val = JSON.parse(text.slice(startIdx, i + 1));
+            return { found: true, value: val };
+          } catch { return { found: false }; }
+        }
+        i++;
+      }
+      return { found: false };
+    }
+
+    if (firstChar === '[' || firstChar === '{') {
+      let depth = 0;
+      let inString = false;
+      let escape = false;
+      for (let i = startIdx; i < text.length; i++) {
+        const c = text[i];
+        if (escape) { escape = false; continue; }
+        if (inString && c === '\\') { escape = true; continue; }
+        if (c === '"') { inString = !inString; continue; }
+        if (inString) continue;
+        if (c === '{' || c === '[') depth++;
+        else if (c === '}' || c === ']') {
+          depth--;
+          if (depth === 0) {
+            try {
+              const val = JSON.parse(text.slice(startIdx, i + 1));
+              return { found: true, value: val };
+            } catch { return { found: false }; }
+          }
+        }
+      }
+      return { found: false };
+    }
+
+    return { found: false };
+  }
+
+  const PARTIAL_STREAM_FIELDS = ['goalLine', 'keyIdeas', 'workedExamples', 'checkpointQuestion', 'checkpointAnswer', 'commonMistake', 'commonFix'];
+
   async function handleMentorStreamStructuredRequest(req, res) {
     let reqJson;
     try { reqJson = await readJson(req); } catch {
@@ -577,10 +629,19 @@ function createMentorRoute(deps) {
     let fullText = '';
     try {
       const tokenStream = callGeminiStream(GEMINI_TUTOR_MODEL, contents, { maxOutputTokens, temperature });
+      const emittedFields = new Set();
       for await (const token of tokenStream) {
         if (res.writableEnded) break;
         fullText += token;
         sendEvent({ token });
+        for (const fieldName of PARTIAL_STREAM_FIELDS) {
+          if (emittedFields.has(fieldName)) continue;
+          const result = tryExtractJsonField(fullText, fieldName);
+          if (result.found) {
+            emittedFields.add(fieldName);
+            sendEvent({ field: fieldName, value: result.value });
+          }
+        }
       }
 
       let structured = null;

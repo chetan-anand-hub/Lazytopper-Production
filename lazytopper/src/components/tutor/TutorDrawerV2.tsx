@@ -242,42 +242,112 @@ type TutorChatTurn = {
   text: string;
 };
 
-function LessonPanelSkeleton({ streamingText }: { streamingText: string | null }) {
+function LessonPanelSkeleton({ streamingText, partialLesson }: { streamingText: string | null; partialLesson: Record<string, unknown> | null }) {
   const shimmerBase = {
     borderRadius: 8,
     background: "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)",
     backgroundSize: "200% 100%",
     animation: "lt-shimmer 1.4s ease-in-out infinite",
   };
+
+  const goalLine = typeof partialLesson?.goalLine === "string" ? partialLesson.goalLine : null;
+  const keyIdeas = Array.isArray(partialLesson?.keyIdeas) ? (partialLesson.keyIdeas as unknown[]) : null;
+  const workedExamples = Array.isArray(partialLesson?.workedExamples) ? (partialLesson.workedExamples as unknown[]) : null;
+  const checkpointQuestion = typeof partialLesson?.checkpointQuestion === "string" ? partialLesson.checkpointQuestion : null;
+  const checkpointAnswer = typeof partialLesson?.checkpointAnswer === "string" ? partialLesson.checkpointAnswer : null;
+  const commonMistake = typeof partialLesson?.commonMistake === "string" ? partialLesson.commonMistake : null;
+  const commonFix = typeof partialLesson?.commonFix === "string" ? partialLesson.commonFix : null;
+  const firstExampleQ =
+    workedExamples && workedExamples.length > 0 && isRecord(workedExamples[0]) && typeof workedExamples[0].question === "string"
+      ? workedExamples[0].question
+      : null;
+
   return (
     <>
       <style>{`@keyframes lt-shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }`}</style>
       <div style={{ display: "grid", gap: 12, padding: "4px 0" }}>
         <div style={{ ...shimmerBase, height: 180, borderRadius: 12 }} />
         <div style={{ borderRadius: 16, padding: "12px 12px", background: "#fff", border: "2px solid #e5e5e5", display: "grid", gap: 10 }}>
-          <div>
-            <div style={{ ...shimmerBase, height: 11, width: "30%", marginBottom: 8 }} />
-            <div style={{ ...shimmerBase, height: 20, width: "80%", marginBottom: 6 }} />
-            <div style={{ ...shimmerBase, height: 13, width: "95%" }} />
-          </div>
+          {goalLine ? (
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 900, opacity: 0.7 }}>Today&apos;s goal</div>
+              <div style={{ marginTop: 4, fontWeight: 900, fontSize: 16, lineHeight: 1.45 }}>{goalLine}</div>
+              {keyIdeas && keyIdeas.length > 0 && (
+                <div style={{ marginTop: 8, display: "grid", gap: 4 }}>
+                  {keyIdeas.slice(0, 3).map((line, idx) => (
+                    <div key={idx} style={{ fontSize: 13, lineHeight: 1.5, opacity: 0.84 }}>{String(line)}</div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div>
+              <div style={{ ...shimmerBase, height: 11, width: "30%", marginBottom: 8 }} />
+              <div style={{ ...shimmerBase, height: 20, width: "80%", marginBottom: 6 }} />
+              <div style={{ ...shimmerBase, height: 13, width: "95%" }} />
+            </div>
+          )}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 10 }}>
-            {(["#f7f7f7", "#f7f7f7", "#fffbeb"] as const).map((bg, i) => (
-              <div key={i} style={{ borderRadius: 12, padding: "10px 12px", background: bg, border: `1px solid ${bg === "#fffbeb" ? "#fde68a" : "#e5e5e5"}` }}>
-                <div style={{ ...shimmerBase, height: 14, width: "45%", marginBottom: 10 }} />
-                <div style={{ ...shimmerBase, height: 13, width: "90%", marginBottom: 6 }} />
-                <div style={{ ...shimmerBase, height: 13, width: "75%", marginBottom: 6 }} />
-                <div style={{ ...shimmerBase, height: 13, width: "60%" }} />
-              </div>
-            ))}
+            <div style={{ borderRadius: 12, padding: "10px 12px", background: "#f7f7f7", border: "1px solid #e5e5e5" }}>
+              {firstExampleQ ? (
+                <>
+                  <div style={{ fontWeight: 800, marginBottom: 6 }}>One example</div>
+                  <div style={{ fontSize: 13, lineHeight: 1.5 }}>{firstExampleQ}</div>
+                </>
+              ) : (
+                <>
+                  <div style={{ ...shimmerBase, height: 14, width: "45%", marginBottom: 10 }} />
+                  <div style={{ ...shimmerBase, height: 13, width: "90%", marginBottom: 6 }} />
+                  <div style={{ ...shimmerBase, height: 13, width: "75%", marginBottom: 6 }} />
+                  <div style={{ ...shimmerBase, height: 13, width: "60%" }} />
+                </>
+              )}
+            </div>
+            <div style={{ borderRadius: 12, padding: "10px 12px", background: "#f7f7f7", border: "1px solid #e5e5e5" }}>
+              {checkpointQuestion ? (
+                <>
+                  <div style={{ fontWeight: 800, marginBottom: 6 }}>Your turn</div>
+                  <div style={{ fontSize: 13, lineHeight: 1.5 }}>{checkpointQuestion}</div>
+                  {checkpointAnswer && (
+                    <div style={{ marginTop: 6, fontSize: 12, opacity: 0.78 }}>Good answer: {checkpointAnswer}</div>
+                  )}
+                </>
+              ) : (
+                <>
+                  <div style={{ ...shimmerBase, height: 14, width: "45%", marginBottom: 10 }} />
+                  <div style={{ ...shimmerBase, height: 13, width: "90%", marginBottom: 6 }} />
+                  <div style={{ ...shimmerBase, height: 13, width: "75%", marginBottom: 6 }} />
+                  <div style={{ ...shimmerBase, height: 13, width: "60%" }} />
+                </>
+              )}
+            </div>
+            <div style={{ borderRadius: 12, padding: "10px 12px", background: "#fffbeb", border: "1px solid #fde68a" }}>
+              {commonMistake ? (
+                <>
+                  <div style={{ fontWeight: 800, marginBottom: 6 }}>Watch out</div>
+                  <div style={{ fontSize: 13, lineHeight: 1.5 }}>{commonMistake}</div>
+                  {commonFix && (
+                    <div style={{ marginTop: 6, fontSize: 12, opacity: 0.8 }}>Fix: {commonFix}</div>
+                  )}
+                </>
+              ) : (
+                <>
+                  <div style={{ ...shimmerBase, height: 14, width: "45%", marginBottom: 10 }} />
+                  <div style={{ ...shimmerBase, height: 13, width: "90%", marginBottom: 6 }} />
+                  <div style={{ ...shimmerBase, height: 13, width: "75%", marginBottom: 6 }} />
+                  <div style={{ ...shimmerBase, height: 13, width: "60%" }} />
+                </>
+              )}
+            </div>
           </div>
         </div>
-        {streamingText && streamingText.trim().length > 0 && (
+        {!partialLesson && streamingText && streamingText.trim().length > 0 && (
           <div style={{ padding: "10px 12px", borderRadius: 12, background: "#f7f7f7", border: "1px solid #e5e5e5", fontSize: 12, color: "#555", lineHeight: 1.5, maxHeight: 80, overflow: "hidden", whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
             <span style={{ fontWeight: 700, display: "block", marginBottom: 4, fontSize: 11 }}>Generating lesson...</span>
             {streamingText.slice(-200)}
           </div>
         )}
-        {!streamingText && (
+        {!partialLesson && !streamingText && (
           <div style={{ fontSize: 12, opacity: 0.55, textAlign: "center", paddingTop: 4 }}>
             Preparing your lesson panel...
           </div>
@@ -354,6 +424,7 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
   const [notices, setNotices] = useState<Record<string, string>>({});
   const [hintVariant] = useState(() => getHintVariant());
   const [lessonStreamingText, setLessonStreamingText] = useState<string | null>(null);
+  const [partialLesson, setPartialLesson] = useState<Record<string, unknown> | null>(null);
   const isDev = Boolean(import.meta?.env?.DEV);
   const abortRef = useRef<AbortController | null>(null);
   const continuitySessionByNodeRef = useRef<Record<string, string>>({});
@@ -838,6 +909,7 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
       setErrors((prev) => ({ ...prev, [key]: "" }));
       setNotices((prev) => ({ ...prev, [key]: "" }));
       setLessonStreamingText(null);
+      setPartialLesson(null);
       setLoadingKey(key);
 
       const controller = new AbortController();
@@ -886,6 +958,8 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
                       if (typeof event.token === "string") {
                         accText += event.token;
                         setLessonStreamingText(accText);
+                      } else if (typeof event.field === "string" && "value" in event) {
+                        setPartialLesson((prev) => ({ ...(prev ?? {}), [event.field as string]: event.value }));
                       } else if (event.done) {
                         if (isRecord(event.structured)) {
                           streamedStructured = event.structured as MentorStructured;
@@ -953,6 +1027,7 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
         }));
       } finally {
         setLessonStreamingText(null);
+        setPartialLesson(null);
         if (abortRef.current === controller) {
           abortRef.current = null;
         }
@@ -1961,7 +2036,7 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
     }
 
     if (!currentResponse && isLoading) {
-      return <LessonPanelSkeleton streamingText={lessonStreamingText} />;
+      return <LessonPanelSkeleton streamingText={lessonStreamingText} partialLesson={partialLesson} />;
     }
 
     if (!currentResponse) {
