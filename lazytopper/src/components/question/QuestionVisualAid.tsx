@@ -73,9 +73,11 @@ function inferVisualKind(props: QuestionVisualAidProps): VisualKind | null {
     ) || (props.kind || "").toLowerCase() === "case-based";
 
   const topicNeedsVisual =
-    /\b(height and distance|coordinate|circle|lens|mirror|light|electricity|magnetic|life process|human eye|heredity|nephron|kidney|heart|circulation|triangle|similarity|pythagoras|bpt|prism|dispersion|digestive|neuron|food chain|food web|flower|reproduction in plants|tangent|sector|area of circle|circumference|construction|arithmetic progression|quadratic|probability|cylinder|cone|sphere|frustum|mensuration|surface area|volume|chemical reaction|carbon|organic|electromagnetic|induction|generator|motor|reproductive|excretory|urine|kidney|parallel|angle|prove|median|altitude|perpendicular|bisect|similar|congruent|right angle)\b/.test(
+    /\b(height and distance|coordinate|circle|lens|mirror|light|electricity|magnetic|life process|human eye|heredity|nephron|kidney|heart|circulation|triangle|similarity|pythagoras|bpt|prism|dispersion|digestive|neuron|food chain|food web|flower|reproduction in plants|tangent|tangents|sector|area of circle|circumference|construction|arithmetic progression|quadratic|probability|cylinder|cone|sphere|frustum|mensuration|surface area|volume|chemical reaction|carbon|organic|electromagnetic|induction|generator|motor|reproductive|excretory|urine|kidney|parallel|angle|prove|median|altitude|perpendicular|bisect|similar|congruent|right angle|resistor|midpoint|mid-point|collinear|section formula|equidistant|centroid|concentric|inscribed|circumscribed)\b/.test(
       combined
-    );
+    ) ||
+    // Point-notation "(x, y)" in question text signals a Coordinate Geometry question
+    (nonMcq && /\(\s*-?\d+\.?\d*\s*,\s*-?\d+\.?\d*\s*\)/.test(text));
 
   if (!visualTrigger && !topicNeedsVisual) return null;
 
@@ -102,15 +104,39 @@ function inferVisualKind(props: QuestionVisualAidProps): VisualKind | null {
   if (/\b(prism|dispersion|spectrum|vibgyor|rainbow)\b/.test(combined)) return "prism";
   if (/\b(nephron)\b/.test(combined)) return "nephron";
   if (/\b(heart|circulation|blood flow|atrium|ventricle)\b/.test(combined)) return "heart";
-  if (/\b(magnetic|field line|solenoid|compass)\b/.test(combined) && !/\b(electromagnetic induction)\b/.test(combined)) return "magnetic";
-  if (/\b(parallel.{0,8}circuit|circuit.{0,8}parallel)\b/.test(combined)) return "circuit-parallel";
-  if (/\b(electric|resistance|ohm|circuit|series circuit)\b/.test(combined)) return "circuit";
-  if (/\b(lens|convex lens|concave lens|image formation)\b/.test(combined)) return "lens";
-  if (/\b(mirror|refraction|reflection|ray)\b/.test(combined)) return "ray";
+
+  // Magnetic: add field lines (plural), bar magnet, current-carrying conductor, electromagnet
+  if (/\b(magnetic|field lines?|solenoid|compass|bar magnet|current.carrying|electromagnet)\b/.test(combined) && !/\b(electromagnetic induction)\b/.test(combined)) return "magnetic";
+
+  // Parallel circuit: catch "resistors connected in parallel" without requiring "circuit" keyword
+  if (/\b(parallel.{0,8}circuit|circuit.{0,8}parallel|resistors?.{0,20}parallel|parallel.{0,20}resistors?|connected in parallel)\b/.test(combined)) return "circuit-parallel";
+
+  // Circuit: add resistor (singular & plural), ammeter, voltmeter, Ω symbol, joule/heating effect
+  if (/\b(electric|resistance|resistors?|ohm|Ω|circuit|series circuit|ammeter|voltmeter|potential difference|current through|joule.*heat|heating effect)\b/.test(combined)) return "circuit";
+
+  // Light/Lens: add concave mirror, convex mirror, focal length (near lens/object context), image formed
+  if (/\b(lens|convex lens|concave lens|image formation|lens formula|power of lens|dioptre)\b/.test(combined)) return "lens";
+  if (/\b(mirror|concave mirror|convex mirror|plane mirror|refraction|reflection|ray|angle of incidence|angle of reflection|incident ray)\b/.test(combined)) return "ray";
+  // Lens fallback: "object placed at … cm" or "focal length" near image context for non-MCQ
+  if (nonMcq && /\b(focal length|object placed|image formed|object distance|image distance)\b/.test(combined) && /\b(light|reflection|refraction|lens|mirror|optic)\b/.test(topic)) return "lens";
+
+  // Coordinate Geometry: detect midpoint, collinear, section formula, centroid, equidistant,
+  // vertices of polygon, and numeric point notation (x, y) — none of these require "coordinate" keyword
   if (/\b(coordinate|graph|distance formula)\b/.test(combined) && !/\b(quadratic|parabola)\b/.test(combined)) return "coordinate";
-  if (/\b(sector|arc\s+length|area of sector|major sector|minor sector)\b/.test(combined)) return "circle-sector";
-  if (/\b(tangent|tangent to a circle|length of tangent|tangent from external)\b/.test(combined)) return "circle-tangent";
-  if (/\b(circle|circumference|area of circle|semicircle|diameter|chord)\b/.test(combined)) return "circle-general";
+  if (nonMcq && /\b(midpoint|mid-point|mid point|collinear|centroid|section formula|equidistant|trisection|divides.*in.*ratio|divides.*ratio.*internally|vertices of (a |the )?(triangle|quadrilateral|square|rectangle|rhombus|parallelogram))\b/.test(combined)) return "coordinate";
+  // Point notation (x, y) in question text for 2+ mark CG questions
+  if (nonMcq && /\(\s*-?\d+\.?\d*\s*,\s*-?\d+\.?\d*\s*\)/.test(text) && !/\b(assertion|reason|option|mcq)\b/.test(combined)) return "coordinate";
+
+  if (/\b(sector|arc\s*length|area of sector|major sector|minor sector)\b/.test(combined)) return "circle-sector";
+
+  // Tangent: broaden to plural "tangents", "PA = PB", "from an external point", "touches the circle"
+  if (/tangents?\b/.test(combined) || /\b(tangent to a circle|length of tangent|tangent from external|two tangents from|pa.*=.*pb|external point.*tangent|tangent.*external point|touches the circle at|point of tangency)\b/.test(combined)) return "circle-tangent";
+  // Tangent: non-MCQ with "from an external point P" (common phrasing without "tangent" keyword)
+  if (nonMcq && /\b(from an external point|external point p|two equal|pa = pb)\b/.test(combined) && /\b(circle|chord|radius|arc)\b/.test(combined)) return "circle-tangent";
+
+  // Circle general: add inscribed, circumscribed, concentric, angle subtended, cyclic quadrilateral
+  if (/\b(circle|circumference|area of circle|semicircle|diameter|chord|inscribed|circumscribed|concentric|angle subtended|cyclic quadrilateral|arc)\b/.test(combined)) return "circle-general";
+
   if (/\b(height and distance|angle of elevation|angle of depression|top of (a |the )?tower|top of (a |the )?building|shadow|lighthouse)\b/.test(combined))
     return "height-distance";
   // BPT: explicit keywords OR parallel-line-in-triangle pattern for non-MCQ (e.g. "DE ∥ BC, AD=4, DB=6")
@@ -119,6 +145,8 @@ function inferVisualKind(props: QuestionVisualAidProps): VisualKind | null {
   if (/\b(pythagoras|pythagorean|hypotenuse)\b/.test(combined)) return "pythagoras";
   // Pythagoras context: right-angle + sides pattern for non-MCQ (e.g. "∠B=90°, prove AB²+BC²=AC²")
   if (nonMcq && /\b(right angle|right.angled|90|∠.*90|ab.2|bc.2|ac.2)\b/.test(text) && /\b(triangle|abc|△|prove|right)\b/.test(text)) return "pythagoras";
+  // Ladder / leaning-against-wall problems are Pythagoras in disguise
+  if (nonMcq && /\b(ladder|leans against|rests against|foot of.*wall|foot of.*building|reaches.*wall)\b/.test(text)) return "pythagoras";
   if (/\b(similar|similarity|aa criterion|sas criterion|sss criterion)\b/.test(combined)) return "similar-triangles";
   // Similar triangles: "prove triangles are similar" / "show △ABC ~ △DEF" for non-MCQ
   if (nonMcq && /\b(similar|~|cpct|cpst|corresponding)\b/.test(text) && /\b(triangle|△|abc)\b/.test(text)) return "similar-triangles";
@@ -1273,7 +1301,12 @@ export function QuestionVisualAid(props: QuestionVisualAidProps): React.ReactEle
 
   if (!kind) {
     const needsDiagram = /\b(draw|diagram|figure|sketch|illustrate|label|labelled)\b/.test(qt);
-    if (!needsDiagram) return null;
+    // Also activate AI fallback for 2+ mark questions in diagram-heavy topics where no SVG template matched
+    const nonMcqLocal = (props.marks ?? 1) >= 2;
+    const diagramHeavyTopic = /\b(triangle|circle|tangent|sector|arc|electricity|circuit|resistance|resistor|light|reflection|refraction|lens|mirror|magnetic|solenoid|height.*distance|elevation|depression|trigonometry|coordinate|cone|sphere|cylinder|frustum|mensuration)\b/i.test(
+      `${props.topicKey || ""} ${props.questionText || ""}`
+    );
+    if (!needsDiagram && !(nonMcqLocal && diagramHeavyTopic)) return null;
     return (
       <div className="qva-container" style={containerStyle}>
         <AiDiagramFallback questionText={props.questionText || ""} />
