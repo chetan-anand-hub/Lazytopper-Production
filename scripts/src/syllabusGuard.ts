@@ -28,6 +28,54 @@ const RULES: BannedSubtopicRule[] = [
       "../../lazytopper/src/data/questionBanks/class10/maths"
     ),
   },
+  {
+    // Source: CBSE Class 10 Science syllabus rationalisation 2026-27
+    // Reference: CBSE Curriculum 2026-27, Secondary (Class IX-X), Science
+    board: "CBSE",
+    year: "2026-27",
+    subject: "Science",
+    grade: "Class 10",
+    bannedSubtopics: [
+      // Ch 9 (Heredity and Evolution) — Evolution section deleted
+      "Evolution",
+      "Natural Selection",
+      "Speciation",
+      "Phylogeny",
+      "Fossil",
+      "Human Evolution",
+      "Evolutionary Relationships",
+      "Acquired Traits",
+      "Origin of Life",
+      // Ch 14 (Sources of Energy) — entire chapter deleted
+      "Sources of Energy",
+      "Conventional Sources",
+      "Non-conventional Sources",
+      "Solar Energy",
+      "Wind Energy",
+      "Hydropower",
+      "Nuclear Energy",
+      "Biogas",
+      "Tidal Energy",
+      "Geothermal Energy",
+      "Fossil Fuels",
+      "Thermal Power",
+      // Ch 15 (Our Environment) — entire chapter deleted
+      "Our Environment",
+      "Ecosystem",
+      "Food Chain",
+      "Food Web",
+      "Biodegradable",
+      "Ozone Depletion",
+      "Biological Magnification",
+      "Energy Flow",
+      "Trophic Levels",
+      "Waste Management",
+    ],
+    questionBankDir: join(
+      import.meta.dirname,
+      "../../lazytopper/src/data/questionBanks/class10/science"
+    ),
+  },
 ];
 
 const SUBTOPIC_PATTERN = /["']?subtopic["']?\s*:\s*["'`]([^"'`]+)["'`]/g;
