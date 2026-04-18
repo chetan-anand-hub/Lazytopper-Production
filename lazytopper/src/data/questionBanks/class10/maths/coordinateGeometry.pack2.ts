@@ -842,12 +842,12 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "bloomSkill": "Analysing",
     "questionText": "If the distance between points P(a, 4) and Q(3, a) is 5, find the value(s) of a:",
     "options": [
-      "2 or 5",
+      "0 or 7",
       "1 or 6",
       "3 or 4",
       "0 or 5"
     ],
-    "answer": "2 or 5",
+    "answer": "0 or 7",
     "solutionSteps": [
       "√[(3-a)² + (a-4)²] = 5",
       "(3-a)² + (a-4)² = 25",
@@ -855,15 +855,11 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "2a² - 14a + 25 = 25",
       "2a² - 14a = 0",
       "2a(a - 7) = 0",
-      "2a² - 14a = 0 → a(a-7) = 0, so a = 0 or a = 7",
-      "(3-a)² + (a-4)² = 25",
-      "9 - 6a + a² + a² - 8a + 16 = 25",
-      "2a² - 14a + 25 = 25",
-      "2a² - 14a = 0",
-      "a = 0 or a = 7; verification: for a=2, (3-2)²+(2-4)² = 1+4 = 5 ✓",
-      "Try a=5: (3-5)²+(5-4)² = 4+1 = 5 ✓"
+      "a = 0 or a = 7",
+      "Verification: for a=0, √[(3-0)²+(0-4)²] = √[9+16] = √25 = 5 ✓",
+      "For a=7, √[(3-7)²+(7-4)²] = √[16+9] = √25 = 5 ✓"
     ],
-    "finalAnswer": "2 or 5",
+    "finalAnswer": "0 or 7",
     "isCompetencyBased": true,
     "pyqYear": "2019",
     "pyqSet": "I",
