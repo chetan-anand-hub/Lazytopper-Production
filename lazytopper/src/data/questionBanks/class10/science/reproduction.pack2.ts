@@ -114,6 +114,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Other valid examples: Fragmentation (Starfish), Spore formation (Fungi)"
     ],
     "finalAnswer": "Budding in Hydra and Fission in Bacteria (or any two different methods with examples)",
+    "visualExplainerId": "science-reproduction-types-of-asexual-reproduction",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -234,6 +235,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Example of cross-pollination: Apple, Mango"
     ],
     "finalAnswer": "Self-pollination: Same plant or same flower; Cross-pollination: Different plants",
+    "visualExplainerId": "science-reproduction-flower-structure-and-pollination",
     "isCompetencyBased": true,
     "pyqYear": "2020",
     "pyqSet": "A",
@@ -261,6 +263,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Reduces harmful effects of recessive genes"
     ],
     "finalAnswer": "Genetic variation provides adaptability, disease resistance, and survival advantage",
+    "visualExplainerId": "science-reproduction-flower-structure-and-pollination",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -384,6 +387,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Progesterone: maintains pregnancy, thickens uterine lining"
     ],
     "finalAnswer": "Testis: Testosterone; Ovary: Estrogen and Progesterone",
+    "visualExplainerId": "science-reproduction-human-reproductive-system",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -415,6 +419,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "A",
     "explanation": "The correct answer is: A. Evaluate each statement independently before checking if R explains A.",
+    "visualExplainerId": "science-reproduction-human-reproductive-system",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "A",
@@ -509,6 +514,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Prevents unsafe abortions and their complications"
     ],
     "finalAnswer": "Contraception enables family planning, prevents STIs, improves women's and child health, and supports socio-economic development",
+    "visualExplainerId": "science-reproduction-types-of-asexual-reproduction",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -541,6 +547,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "A",
     "explanation": "The correct answer is: A. Evaluate each statement independently before checking if R explains A.",
+    "visualExplainerId": "science-reproduction-types-of-asexual-reproduction",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "C",
@@ -574,6 +581,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "A",
     "explanation": "The correct answer is: A. Evaluate each statement independently before checking if R explains A.",
+    "visualExplainerId": "science-reproduction-types-of-asexual-reproduction",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "A",
@@ -604,6 +612,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Ensures sustainable high yield and adaptability to changing environmental conditions"
     ],
     "finalAnswer": "(a) Genetic diversity and hybrid vigor (b) Hybrid vigor/Heterosis (c) Maintains diversity and prevents inbreeding depression",
+    "visualExplainerId": "science-reproduction-flower-structure-and-pollination",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "B",
@@ -639,6 +648,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "HRT (Hormone Replacement Therapy) as per medical advice"
     ],
     "finalAnswer": "(a) Permanent end of menstruation due to estrogen depletion (b) Low estrogen causes vasodilation, neurological symptoms, and bone loss (c) Calcium, vitamin D, exercise, HRT",
+    "visualExplainerId": "science-reproduction-types-of-asexual-reproduction",
     "isCompetencyBased": true,
     "pyqYear": "2025",
     "pyqSet": "C",
@@ -682,6 +692,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Spermatogenesis completes in testis; Oogenesis completes in fallopian tube"
     ],
     "finalAnswer": "Gametogenesis produces haploid gametes through meiosis. Spermatogenesis: testis, continuous, 74 days, 4 sperm per cell from puberty. Oogenesis: ovary, cyclic, variable duration, 1 ovum per cell from fetal stage.",
+    "visualExplainerId": "science-reproduction-human-reproductive-system",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "A",
@@ -713,6 +724,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "This is why sexually reproducing species have better long-term survival prospects"
     ],
     "finalAnswer": "Asexual reproduction produces genetic clones with no variation, making populations vulnerable to environmental changes and diseases. Sexual reproduction provides genetic diversity enabling population adaptation.",
+    "visualExplainerId": "science-reproduction-types-of-asexual-reproduction",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -743,6 +755,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Structures involved: Egg cell, Polar nuclei, Synergids, Antipodal cells in embryo sac"
     ],
     "finalAnswer": "Two sperm fusions: (1) Sperm+Egg→Zygote→Embryo, (2) Sperm+Polar nuclei→Endosperm nucleus→Endosperm tissue",
+    "visualExplainerId": "science-reproduction-types-of-asexual-reproduction",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "B",
@@ -777,6 +790,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Reversible methods can be discontinued anytime"
     ],
     "finalAnswer": "Reversible: Condom, IUD, Pills, Injectables; Irreversible: Tubectomy, Vasectomy",
+    "visualExplainerId": "science-reproduction-types-of-asexual-reproduction",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "A",
@@ -863,6 +877,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "B. Stamen",
     "explanation": "A flower has male and female reproductive parts. The stamen is the male part consisting of anther and filament. The anther produces pollen grains. Carpel is the female part. Therefore, the correct answer is B. Stamen.",
+    "visualExplainerId": "science-reproduction-flower-structure-and-pollination",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -895,6 +910,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "C. Anemophily",
     "explanation": "Different types of pollination exist based on pollinating agents. Wind-pollinated plants: Anemophily. Insect-pollinated plants: Entomophily. Water-pollinated plants: Hydrophily. Animal-pollinated plants: Zoophily. Therefore, the correct answer is C. Anemophily.",
+    "visualExplainerId": "science-reproduction-flower-structure-and-pollination",
     "isCompetencyBased": false,
     "pyqYear": "2021",
     "pyqSet": "Delhi",
@@ -921,6 +937,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "This is insect pollination or entomophily."
     ],
     "finalAnswer": "Brightly colored petals attract insects which help in pollination by transferring pollen.",
+    "visualExplainerId": "science-reproduction-flower-structure-and-pollination",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -950,6 +967,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Cross-pollination is when pollen transfers between different plants."
     ],
     "finalAnswer": "B. Pollen from anther of the same flower pollinates its own stigma",
+    "visualExplainerId": "science-reproduction-flower-structure-and-pollination",
     "isCompetencyBased": true,
     "pyqYear": "2019",
     "pyqSet": "All India",
@@ -981,6 +999,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "C. Testis",
     "explanation": "The male reproductive system produces sperms. Testes are the site of sperm production (spermatogenesis). Prostate and seminal vesicles add secretions to semen. Epididymis stores and matures sperms. Therefore, the correct answer is C. Testis.",
+    "visualExplainerId": "science-reproduction-human-reproductive-system",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1012,6 +1031,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "C. Fallopian tube",
     "explanation": "Fertilization is the fusion of egg and sperm. The ovum is released from the ovary during ovulation. It travels through the fallopian tube. If sperm meets the ovum in the fallopian tube, fertilization occurs there. Therefore, the correct answer is C. Fallopian tube.",
+    "visualExplainerId": "science-reproduction-types-of-asexual-reproduction",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1038,6 +1058,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Hormonal secretion for pregnancy maintenance"
     ],
     "finalAnswer": "The placenta provides nutrients, oxygen, and hormones to the fetus; removes wastes; and provides immunity.",
+    "visualExplainerId": "science-reproduction-types-of-asexual-reproduction",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1067,6 +1088,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "The cycle includes menstruation, proliferation, ovulation, and secretion phases."
     ],
     "finalAnswer": "C. 28 days",
+    "visualExplainerId": "science-reproduction-types-of-asexual-reproduction",
     "isCompetencyBased": false,
     "pyqYear": "2020",
     "pyqSet": "Delhi",
@@ -1097,6 +1119,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "This marks the start of the luteal phase."
     ],
     "finalAnswer": "B. 14",
+    "visualExplainerId": "science-reproduction-types-of-asexual-reproduction",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "All India",
@@ -1128,6 +1151,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "B. Syphilis",
     "explanation": "Sexually transmitted infections spread through sexual contact. Syphilis is caused by the bacterium Treponema pallidum. Other STIs include gonorrhea, chlamydia, and HIV/AIDS. Diabetes, asthma, and arthritis are not sexually transmitted. Therefore, the correct answer is B. Syphilis.",
+    "visualExplainerId": "science-reproduction-types-of-asexual-reproduction",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1154,6 +1178,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Surgical methods: Tubectomy (female), Vasectomy (male)"
     ],
     "finalAnswer": "Any two valid methods: Condoms, contraceptive pills, IUD, tubectomy, vasectomy, etc.",
+    "visualExplainerId": "science-reproduction-types-of-asexual-reproduction",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1185,6 +1210,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "D. A is false, R is true.",
     "explanation": "The Assertion contains an incorrect claim. The Reason, however, is a true and valid statement on its own.",
+    "visualExplainerId": "science-reproduction-types-of-asexual-reproduction",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1216,6 +1242,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "B. Regular exercise and balanced diet",
     "explanation": "Reproductive health requires overall physical and mental well-being. Regular exercise and balanced diet support healthy reproductive function. Good nutrition provides essential micronutrients for reproductive hormones. Exercise improves circulation and hormonal balance. Therefore, the correct answer is B. Regular exercise and balanced diet.",
+    "visualExplainerId": "science-reproduction-types-of-asexual-reproduction",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1248,6 +1275,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "D. A is false, R is true.",
     "explanation": "The Assertion contains an incorrect claim. The Reason, however, is a true and valid statement on its own.",
+    "visualExplainerId": "science-reproduction-flower-structure-and-pollination",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1281,6 +1309,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "B. Both A and R are true, but R is not the correct explanation of A.",
     "explanation": "Both statements are individually correct. However, the Reason does not directly cause or explain the Assertion — they are independent true facts about the same concept.",
+    "visualExplainerId": "science-reproduction-types-of-asexual-reproduction",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "All India",
@@ -1308,6 +1337,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "(iv) The farmer can manually pollinate flowers using a brush or hand-pollinate using cotton swabs."
     ],
     "finalAnswer": "Bees act as pollinators enabling cross-pollination in tomato flowers, which is essential for fruit development. Without pollination, fruits cannot form. Manual pollination is an alternative.",
+    "visualExplainerId": "science-reproduction-types-of-asexual-reproduction",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "Regional",
@@ -1391,6 +1421,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "Significance: Double fertilization is unique to flowering plants and ensures efficient seed production with adequate nutrition."
     ],
     "finalAnswer": "Double fertilization is the fusion of two sperm cells with egg and polar nuclei respectively, resulting in zygote (embryo) and endosperm (food storage). This ensures viable, well-nourished seeds and fruit formation, a key feature of flowering plants.",
+    "visualExplainerId": "science-reproduction-types-of-asexual-reproduction",
     "isCompetencyBased": true,
     "pyqYear": "2025",
     "pyqSet": "All India",
@@ -1461,6 +1492,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "- Transports nutrients and removes wastes"
     ],
     "finalAnswer": "Fertilization → Cleavage → Blastocyst → Implantation → Embryonic development → Fetal development → Birth. Placenta provides nutrition; umbilical cord transports nutrients and removes wastes.",
+    "visualExplainerId": "science-reproduction-types-of-asexual-reproduction",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "All India",
@@ -1491,6 +1523,7 @@ export const REP2_PACK2: CanonicalQuestion[] = [
       "8. Promotion of mental health and self-esteem"
     ],
     "finalAnswer": "Reproductive health education empowers adolescents to make informed decisions, prevent STIs and unwanted pregnancies, understand their changing bodies, and develop healthy relationships and behaviors.",
+    "visualExplainerId": "science-reproduction-types-of-asexual-reproduction",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,

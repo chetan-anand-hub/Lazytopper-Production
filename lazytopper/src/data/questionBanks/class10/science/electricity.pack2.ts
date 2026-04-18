@@ -132,6 +132,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "V = 2 × 5 = 10 V"
     ],
     "finalAnswer": "10 V",
+    "visualExplainerId": "science-electricity-ohms-law",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -164,6 +165,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Velocity of charge carriers",
     "explanation": "Resistance depends on: R = ρL/A. ρ = resistivity (material). L = length. A = cross-sectional area. Velocity affects current, not resistance directly. Therefore, the correct answer is Velocity of charge carriers.",
+    "visualExplainerId": "science-electricity-ohms-law",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -189,6 +191,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "R = 3.4 × 10⁻⁸ / 10⁻⁶ = 0.034 Ω"
     ],
     "finalAnswer": "0.034 Ω",
+    "visualExplainerId": "science-electricity-resistivity",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -213,11 +216,13 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     ],
     "answer": "20 V",
     "solutionSteps": [
+      "Circuit Diagram: Draw the circuit using standard symbols — cell/battery (long and short parallel lines), switch (gap in wire), ammeter A (in series), voltmeter V (in parallel), and resistors connected as specified.",
       "In series: R_total = R₁ + R₂ + R₃ = 2 + 3 + 5 = 10 Ω",
       "V_total = I × R_total = 2 × 10 = 20 V"
     ],
     "finalAnswer": "20 V",
     "explanation": "In series: R_total = R₁ + R₂ + R₃ = 2 + 3 + 5 = 10 Ω. V_total = I × R_total = 2 × 10 = 20 V. Therefore, the correct answer is 20 V.",
+    "visualExplainerId": "science-electricity-circuit-diagram-builder",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -242,11 +247,13 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     ],
     "answer": "Less than the smallest individual resistance",
     "solutionSteps": [
+      "Circuit Diagram: Draw the circuit using standard symbols — cell/battery (long and short parallel lines), switch (gap in wire), ammeter A (in series), voltmeter V (in parallel), and resistors connected as specified.",
       "In parallel: 1/R_total = 1/R₁ + 1/R₂ + ...",
       "The reciprocals add up, making R_total smaller than any individual resistance"
     ],
     "finalAnswer": "Less than the smallest individual resistance",
     "explanation": "In parallel: 1/R_total = 1/R₁ + 1/R₂ + .. The reciprocals add up, making R_total smaller than any individual resistance. Therefore, the correct answer is Less than the smallest individual resistance.",
+    "visualExplainerId": "science-electricity-circuit-diagram-builder",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -272,6 +279,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "Series resistance is 9 times the parallel resistance"
     ],
     "finalAnswer": "Series: 18 Ω; Parallel: 2 Ω; Ratio = 9:1",
+    "visualExplainerId": "science-electricity-series-and-parallel-circuits",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -327,6 +335,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "H = 7,920,000 J = 7920 kJ"
     ],
     "finalAnswer": "7920 kJ",
+    "visualExplainerId": "science-electricity-ohms-law",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "B",
@@ -351,6 +360,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "Energy = Power × Time = 0.1 × 5 = 0.5 kWh"
     ],
     "finalAnswer": "0.5 kWh",
+    "visualExplainerId": "science-electricity-electric-power-and-energy",
     "isCompetencyBased": true,
     "pyqYear": "2020",
     "pyqSet": "A",
@@ -411,6 +421,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "6.8 A",
     "explanation": "Given: P = 1500 W, V = 220 V. P = VI, so I = P/V. I = 1500/220 ≈ 6.8 A. Therefore, the correct answer is 6.8 A.",
+    "visualExplainerId": "science-electricity-ohms-law",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "C",
@@ -437,6 +448,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "Higher power = brighter light"
     ],
     "finalAnswer": "60 W bulb is brighter (higher power rating)",
+    "visualExplainerId": "science-electricity-ohms-law",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -467,6 +479,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "A is true, R is false.",
     "explanation": "The Assertion is a correct statement. However, the Reason given contains an incorrect claim or formula, making R false.",
+    "visualExplainerId": "science-electricity-ohms-law",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -498,6 +511,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
+    "visualExplainerId": "science-electricity-ohms-law",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "A",
@@ -522,6 +536,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     ],
     "answer": "Both A and R are true, and R is the correct explanation of A.",
     "solutionSteps": [
+      "Circuit Diagram: Draw the circuit using standard symbols — cell/battery (long and short parallel lines), switch (gap in wire), ammeter A (in series), voltmeter V (in parallel), and resistors connected as specified.",
       "Assertion is true: series circuit breaks when one component fails",
       "Reasoning is true: current must flow through all components",
       "When one breaks, circuit is open, current = 0 everywhere",
@@ -529,6 +544,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
+    "visualExplainerId": "science-electricity-circuit-diagram-builder",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "B",
@@ -557,6 +573,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "The fuse protects by breaking circuit when current exceeds 20 A"
     ],
     "finalAnswer": "(a) Kettle: 4.55 A, Toaster: 3.64 A, Microwave: 4.09 A (b) Fuse won't blow (Total current 12.28 A < 20 A)",
+    "visualExplainerId": "science-electricity-ohms-law",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "A",
@@ -576,6 +593,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     "options": [],
     "answer": "Series: R=11Ω, I=0.545A, P=3.27W; Parallel: R=1Ω, I=5.5A, P=33W; Power greater in parallel",
     "solutionSteps": [
+      "Circuit Diagram: Draw resistors in the specified configuration (series: end-to-end; parallel: side-by-side). Include cell, switch, ammeter (in series), and voltmeter (across each resistor).",
       "(a) Series: R_total = 2 + 3 + 6 = 11 Ω",
       "I = V/R = 6/11 ≈ 0.545 A",
       "(b) Parallel: 1/R = 1/2 + 1/3 + 1/6 = 3/6 + 2/6 + 1/6 = 6/6 = 1",
@@ -586,6 +604,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "Power is much greater in parallel (lower resistance = higher current)"
     ],
     "finalAnswer": "Series: R=11Ω, I=0.545A, P=3.27W; Parallel: R=1Ω, I=5.5A, P=33W; Power greater in parallel",
+    "visualExplainerId": "science-electricity-series-and-parallel-circuits",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "C",
@@ -620,6 +639,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "- Unplug devices when not in use"
     ],
     "finalAnswer": "(a) 870 W (b) 6.96 kWh/day (c) Rs. 1044/month (d) Use LED bulbs, efficient appliances, reduce usage hours",
+    "visualExplainerId": "science-electricity-electric-power-and-energy",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "B",
@@ -645,6 +665,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "Second resistor might be non-ohmic (like filament bulb) where resistance changes with temperature/current"
     ],
     "finalAnswer": "First resistor obeys Ohm's Law; Second is non-ohmic (resistance varies)",
+    "visualExplainerId": "science-electricity-ohms-law",
     "isCompetencyBased": true,
     "pyqYear": "2025",
     "pyqSet": "A",
@@ -671,6 +692,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "Also, thinner wire has less mass → temperature rise is faster"
     ],
     "finalAnswer": "Thinner wire gets hotter (higher resistance, less mass)",
+    "visualExplainerId": "science-electricity-ohms-law",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "C",
@@ -699,6 +721,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "Advantage 3: Can add/remove appliances easily without affecting others"
     ],
     "finalAnswer": "Parallel allows independent operation and maintains full voltage; Series has shared voltage and affects all if one fails",
+    "visualExplainerId": "science-electricity-series-and-parallel-circuits",
     "isCompetencyBased": true,
     "pyqYear": "2019",
     "pyqSet": "B",
@@ -724,6 +747,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "Higher current means more charge flows per unit time"
     ],
     "finalAnswer": "I = Q/t (Current = Charge/Time)",
+    "visualExplainerId": "science-electricity-ohms-law",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -754,6 +778,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "Current flowing through the conductor is 2 amperes"
     ],
     "finalAnswer": "2 A",
+    "visualExplainerId": "science-electricity-ohms-law",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -845,6 +870,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "Or 2 × 10⁻³ Ω·mm²/m if expressed differently"
     ],
     "finalAnswer": "2 × 10⁻⁶ Ω·m",
+    "visualExplainerId": "science-electricity-resistivity",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -937,6 +963,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "In series, resistances simply add up"
     ],
     "finalAnswer": "10 Ω",
+    "visualExplainerId": "science-electricity-ohms-law",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -967,6 +994,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "R_eq = 12/5 = 2.4 Ω"
     ],
     "finalAnswer": "2.4 Ω",
+    "visualExplainerId": "science-electricity-ohms-law",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "Delhi",
@@ -993,6 +1021,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "Parallel allows independent control and optimal operation of each appliance"
     ],
     "finalAnswer": "Parallel connection ensures each appliance operates at constant voltage, independent control, and safety.",
+    "visualExplainerId": "science-electricity-series-and-parallel-circuits",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1054,6 +1083,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "H = 9 × 2 × 300 = 5400 J"
     ],
     "finalAnswer": "5400 J",
+    "visualExplainerId": "science-electricity-ohms-law",
     "isCompetencyBased": true,
     "pyqYear": "2019",
     "pyqSet": "AllIndia",
@@ -1081,6 +1111,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "Filament reaches high temperature (~2500K) and glows"
     ],
     "finalAnswer": "Filament has higher resistance, producing more heat (H = I²Rt), reaching glow temperature.",
+    "visualExplainerId": "science-electricity-ohms-law",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1174,6 +1205,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "Or in Joules: E = 1000 × 600 = 600,000 J = 600 kJ"
     ],
     "finalAnswer": "0.167 kWh",
+    "visualExplainerId": "science-electricity-electric-power-and-energy",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "Delhi",
@@ -1202,6 +1234,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "Or using P = V²/R: R = V²/P = 14400/60 = 240 Ω"
     ],
     "finalAnswer": "I = 0.5 A, R = 240 Ω",
+    "visualExplainerId": "science-electricity-ohms-law",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1226,6 +1259,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     ],
     "answer": "Both A and R are true, and R is the correct explanation of A.",
     "solutionSteps": [
+      "Circuit Diagram: Draw the circuit using standard symbols — cell/battery (long and short parallel lines), switch (gap in wire), ammeter A (in series), voltmeter V (in parallel), and resistors connected as specified.",
       "Fuse is a safety device that protects circuits from overcurrent",
       "When current exceeds safe limit, fuse wire melts due to heating (H = I²Rt)",
       "Low melting point ensures it melts quickly at high currents",
@@ -1234,6 +1268,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
+    "visualExplainerId": "science-electricity-circuit-diagram-builder",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1258,6 +1293,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     ],
     "answer": "Both A and R are true, and R is the correct explanation of A.",
     "solutionSteps": [
+      "Circuit Diagram: Draw the circuit using standard symbols — cell/battery (long and short parallel lines), switch (gap in wire), ammeter A (in series), voltmeter V (in parallel), and resistors connected as specified.",
       "Parallel circuit has multiple branches with independent paths",
       "If one path is broken, other paths remain intact",
       "Current can choose alternative routes",
@@ -1266,6 +1302,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
+    "visualExplainerId": "science-electricity-circuit-diagram-builder",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1293,6 +1330,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "Part (c): Since 4.78 A < 5 A, fuse won't blow, all can operate"
     ],
     "finalAnswer": "(a) Bulb: 0.174 A, Heater: 4.35 A, Fan: 0.26 A; (b) 4.78 A; (c) Yes, all can operate safely",
+    "visualExplainerId": "science-electricity-ohms-law",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "AllIndia",
@@ -1328,6 +1366,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "- Lower resistance in copper means less voltage drop and power loss"
     ],
     "finalAnswer": "H = I²Rt. Copper is preferred for wiring due to low resistivity, resulting in minimal heat loss and voltage drop, making it more efficient and economical than nichrome.",
+    "visualExplainerId": "science-electricity-ohms-law",
     "isCompetencyBased": true,
     "pyqYear": "2020",
     "pyqSet": "AllIndia",
@@ -1372,6 +1411,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "5. Safety: Individual fuses/switches for each branch"
     ],
     "finalAnswer": "Parallel is preferred for household use as it provides independent control, constant voltage, safety, and prevents total circuit failure.",
+    "visualExplainerId": "science-electricity-series-and-parallel-circuits",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "Delhi",
@@ -1541,6 +1581,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
     "solutionSteps": ["(i) Energy = Power x Time","Bulb: 100 W x 5 h = 500 Wh = 0.5 kWh/day","Iron: 800 W x 1 h = 800 Wh = 0.8 kWh/day","Geyser: 2000 W x 0.5 h = 1000 Wh = 1.0 kWh/day","Total per day = 0.5 + 0.8 + 1.0 = 2.3 kWh","Monthly = 2.3 x 30 = 69 kWh","(ii) Cost = 69 x Rs 5 = Rs 345"],
     "finalAnswer": "(i) Bulb=0.5, Iron=0.8, Geyser=1.0 kWh/day; (ii) 69 kWh x Rs5 = Rs345",
     "explanation": "Monthly consumption 69 kWh; bill = Rs 345.",
+    "visualExplainerId": "science-electricity-electric-power-and-energy",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,

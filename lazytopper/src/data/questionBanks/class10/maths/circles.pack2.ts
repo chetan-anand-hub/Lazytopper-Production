@@ -174,6 +174,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "∠AOB = 360° - 90° - 90° - 60° = 120°"
     ],
     "finalAnswer": "120°",
+    "visualExplainerId": "maths-circles-tangent-to-a-circle",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -202,6 +203,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "PA = 12 cm"
     ],
     "finalAnswer": "12 cm",
+    "visualExplainerId": "maths-circles-number-of-tangents-from-external-point",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -227,6 +229,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "Therefore, exactly 1 tangent can be drawn from a point on the circle."
     ],
     "finalAnswer": "Exactly 1 tangent",
+    "visualExplainerId": "maths-circles-tangent-to-a-circle",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -257,6 +260,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "Therefore, OP bisects AB at right angles."
     ],
     "finalAnswer": "OP bisects AB at right angles",
+    "visualExplainerId": "maths-circles-tangent-to-a-circle",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -289,6 +293,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "By the property of right triangles, OT < OP."
     ],
     "finalAnswer": "OT < OP",
+    "visualExplainerId": "maths-circles-tangent-to-a-circle",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -320,6 +325,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "Therefore, O₁P is parallel to O₂Q, not perpendicular."
       ],
     "finalAnswer": "O₁P is parallel to O₂Q",
+    "visualExplainerId": "maths-circles-tangent-to-a-circle",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -348,6 +354,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "OP = 6/sin(20°) ≈ 17.54 cm"
     ],
     "finalAnswer": "OP ≈ 17.54 cm or 6/sin(20°)",
+    "visualExplainerId": "maths-circles-number-of-tangents-from-external-point",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -377,6 +384,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "Perimeter = 12 + 15 + 13 = 40 cm"
     ],
     "finalAnswer": "40 cm",
+    "visualExplainerId": "maths-circles-tangent-to-a-circle",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -408,6 +416,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "The correct reason is the geometric position of the external point relative to the circle."
     ],
     "finalAnswer": "Both A and R are true, but R is not the correct explanation of A.",
+    "visualExplainerId": "maths-circles-number-of-tangents-from-external-point",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -439,6 +448,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "The geometric principle of the shortest distance being perpendicular is the fundamental reason for the tangent-radius perpendicularity."
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
+    "visualExplainerId": "maths-circles-tangent-properties",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -471,6 +481,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "∠CQD = 90° > ∠APB = 60°, so Q is closer to the circle than P."
     ],
     "finalAnswer": "(i) 120°, (ii) 90°, (iii) 2√3 m, (iv) Q is closer to the circle than P",
+    "visualExplainerId": "maths-circles-tangent-to-a-circle",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -509,6 +520,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "Yes, sum of opposite sides are equal ✓"
     ],
     "finalAnswer": "(i) AB = 9 cm, BC = 11 cm, CA = 10 cm; (ii) s = 15 cm; (iii) Tangent segments from external point are equal; (iv) Verified",
+    "visualExplainerId": "maths-circles-tangent-to-a-circle",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -528,6 +540,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
     "options": [],
     "answer": "AB = 4√6 cm ≈ 9.8 cm for external tangent; 6 cm for internal tangent",
     "solutionSteps": [
+      "Construction: Draw a circle with centre O and mark the point of tangency. Draw the tangent line at that point.",
       "(i) Proving O₁A ⊥ AP and O₂B ⊥ BP:",
       "Since AP is a tangent to the circle with center O₁ at point A,",
       "the radius O₁A is perpendicular to the tangent AP. [Tangent-Radius Perpendicularity]",
@@ -561,6 +574,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "The length would be: AB = √[(O₁O₂)² - (r₁ + r₂)²] = √[100 - 64] = √36 = 6 cm"
     ],
     "finalAnswer": "AB = 4√6 cm ≈ 9.8 cm for external tangent; 6 cm for internal tangent",
+    "visualExplainerId": "maths-circles-tangent-to-a-circle",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -595,6 +609,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "Therefore PO ≈ 30.9 cm"
     ],
     "finalAnswer": "≈ 30.9 cm",
+    "visualExplainerId": "maths-circles-tangent-to-a-circle",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "Set A",
@@ -628,6 +643,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "Generally, PT ≠ OT, so it's a right-angled triangle but not necessarily isosceles."
     ],
     "finalAnswer": "Right-angled but not isosceles",
+    "visualExplainerId": "maths-circles-tangent-to-a-circle",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "Set B",
@@ -688,6 +704,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "∠AOB = 360° - 230° = 130°"
     ],
     "finalAnswer": "130°",
+    "visualExplainerId": "maths-circles-tangent-to-a-circle",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "Set C",
@@ -771,6 +788,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "Therefore, angle OAT = 90°"
     ],
     "finalAnswer": "90°",
+    "visualExplainerId": "maths-circles-tangent-to-a-circle",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -804,6 +822,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "PA = 8 cm"
     ],
     "finalAnswer": "8 cm",
+    "visualExplainerId": "maths-circles-number-of-tangents-from-external-point",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "All India",
@@ -832,6 +851,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "∠AOB = 130°"
     ],
     "finalAnswer": "130°",
+    "visualExplainerId": "maths-circles-tangent-to-a-circle",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -866,6 +886,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "PA = 24 cm"
     ],
     "finalAnswer": "24 cm",
+    "visualExplainerId": "maths-circles-number-of-tangents-from-external-point",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "Mumbai",
@@ -895,6 +916,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "For two separate circles: 4 common tangents exist (2 external + 2 internal)"
     ],
     "finalAnswer": "4",
+    "visualExplainerId": "maths-circles-tangent-to-a-circle",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -924,6 +946,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "∠APO = arcsin(0.6) ≈ 37° (or sin⁻¹(3/5))"
     ],
     "finalAnswer": "OP = 10 cm, ∠APO ≈ 37°",
+    "visualExplainerId": "maths-circles-number-of-tangents-from-external-point",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -955,6 +978,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
+    "visualExplainerId": "maths-circles-number-of-tangents-from-external-point",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -986,6 +1010,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "∠POQ = 60°"
     ],
     "finalAnswer": "60°",
+    "visualExplainerId": "maths-circles-tangent-to-a-circle",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1005,6 +1030,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
     "options": [],
     "answer": "(1) 48 m, (2) ≈45.24°, (3) ≈7.69 m, (4) 960 m²",
     "solutionSteps": [
+      "Construction: Draw a circle with centre O. Mark the tangent at point P and the radius OP. Note OP ⊥ tangent.",
       "(1) Length of tangent from P:",
       "Radius OA = 20 m, OP = 52 m",
       "In right triangle OAP: PA² = OP² - OA²",
@@ -1029,6 +1055,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "Total area = 2 × 480 = 960 m²"
     ],
     "finalAnswer": "(1) 48 m, (2) ≈45.24°, (3) ≈7.69 m, (4) 960 m²",
+    "visualExplainerId": "maths-circles-tangent-properties",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1048,6 +1075,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
     "options": [],
     "answer": "All three properties proven using triangle congruence (RHS criterion) and properties of perpendicular bisectors",
     "solutionSteps": [
+      "Construction: Draw a circle with centre O and external point P. Draw tangents PA and PB, touching the circle at A and B. Join OA, OB, and OP.",
       "Let O be center, P be external point, A and B be points of tangency",
       "",
       "(i) Proving PA = PB:",
@@ -1070,6 +1098,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "Also, OP ⊥ AB at its midpoint M"
     ],
     "finalAnswer": "All three properties proven using triangle congruence (RHS criterion) and properties of perpendicular bisectors",
+    "visualExplainerId": "maths-circles-number-of-tangents-from-external-point",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "CBSE Board",
@@ -1119,6 +1148,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "Note: Area of quadrilateral ODPE = 60 cm²"
     ],
     "finalAnswer": "(i) PD = PE = 12 cm, (ii) ∠DPE ≈ 45.24°, (iii) 60 cm²",
+    "visualExplainerId": "maths-circles-tangent-to-a-circle",
     "isCompetencyBased": true,
     "pyqYear": "2019",
     "pyqSet": "All India",
@@ -1207,6 +1237,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "∠APB = 80°"
     ],
     "finalAnswer": "80°",
+    "visualExplainerId": "maths-circles-tangent-to-a-circle",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1239,6 +1270,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Both A and R are true, but R is not the correct explanation of A.",
     "explanation": "Both statements are individually correct. However, the Reason does not directly cause or explain the Assertion — they are independent true facts about the same concept.",
+    "visualExplainerId": "maths-circles-tangent-to-a-circle",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1269,6 +1301,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "AB = 2√(8² - 5²) = 2√(64 - 25) = 2√39 cm ≈ 12.49 cm"
     ],
     "finalAnswer": "AB = 2√39 cm ≈ 12.49 cm",
+    "visualExplainerId": "maths-circles-tangent-to-a-circle",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1294,6 +1327,7 @@ export const CI2_PACK2: CanonicalQuestion[] = [
       "∠APB = 2 × 22.62° ≈ 45.24°"
     ],
     "finalAnswer": "Tangent = 12 cm, angle ≈ 45.24°",
+    "visualExplainerId": "maths-circles-number-of-tangents-from-external-point",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1309,5 +1343,5 @@ export const CI2_PACK2: CanonicalQuestion[] = [
   { id: "CI2-053", subject: "Maths", topicKey: "Circles", subtopic: "Tangent Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If PA = 5 cm is a tangent to a circle of radius 3 cm, the distance OP (O = centre) is:", options: ["√34 cm","4 cm","√5 cm","8 cm"], answer: "√34 cm", explanation: "The correct answer is √34 cm. OP² = OA² + PA² = 9 + 25 = 34. OP = √34 cm.", finalAnswer: "OP² = OA² + PA² = 9 + 25 = 34. OP = √34 cm.", isCompetencyBased: false },
   { id: "CI2-054", subject: "Maths", topicKey: "Circles", subtopic: "Chord Properties", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The number of tangents that can be drawn from a point inside a circle is:", options: ["0","1","2","Infinite"], answer: "0", explanation: "The correct answer is 0. No tangent can be drawn from a point inside the circle since every line through it intersects the circle.", finalAnswer: "No tangent can be drawn from a point inside the circle since every line through it intersects the circle.", isCompetencyBased: false },
   { id: "CI2-055", subject: "Maths", topicKey: "Circles", subtopic: "Tangent Properties", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): The tangent to a circle at any point is unique.\nReason (R): Only one line can be drawn perpendicular to a radius at a given point on the circle.", options: ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "A unique perpendicular to the radius at the point of contact gives the unique tangent — R directly explains A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.", isCompetencyBased: true },
-  { id: "CI2-056", subject: "Maths", topicKey: "Circles", subtopic: "Tangent Properties", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Prove that the tangents drawn from an external point to a circle are equal in length. Use this to prove that if a parallelogram circumscribes a circle, it must be a rhombus.", solutionSteps: ["Given: PA and PB are tangents from external point P to a circle with centre O.","Proof: In △OAP and △OBP: OA = OB (radii), OP = OP (common), ∠OAP = ∠OBP = 90° (radius ⊥ tangent).","By RHS congruence: △OAP ≅ △OBP. Therefore PA = PB. ✓","Now, let ABCD be a parallelogram circumscribing a circle, with the circle touching AB, BC, CD, DA at P, Q, R, S.","Using the tangent-equality theorem: AP = AS, BP = BQ, CR = CQ, DR = DS.","So AB + CD = (AP+PB) + (CR+RD) = (AS+BQ) + (CQ+DS) = (AS+DS) + (BQ+CQ) = AD + BC.","But in a parallelogram, AB = CD and AD = BC. So 2AB = 2AD → AB = AD.","All sides are equal, so ABCD is a rhombus. ✓"], answer: "Tangents from external point are equal; a parallelogram circumscribing a circle must be a rhombus.", explanation: "See solution steps for full working.", finalAnswer: "Tangents from external point are equal; a parallelogram circumscribing a circle must be a rhombus.", isCompetencyBased: true }
+  { id: "CI2-056", subject: "Maths", topicKey: "Circles", subtopic: "Tangent Properties", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Prove that the tangents drawn from an external point to a circle are equal in length. Use this to prove that if a parallelogram circumscribes a circle, it must be a rhombus.", solutionSteps: ["Construction: Draw a circle with centre O and external point P. Draw tangents PA and PB, touching the circle at A and B. Join OA, OB, and OP.", "Given: PA and PB are tangents from external point P to a circle with centre O.","Proof: In △OAP and △OBP: OA = OB (radii), OP = OP (common), ∠OAP = ∠OBP = 90° (radius ⊥ tangent).","By RHS congruence: △OAP ≅ △OBP. Therefore PA = PB. ✓","Now, let ABCD be a parallelogram circumscribing a circle, with the circle touching AB, BC, CD, DA at P, Q, R, S.","Using the tangent-equality theorem: AP = AS, BP = BQ, CR = CQ, DR = DS.","So AB + CD = (AP+PB) + (CR+RD) = (AS+BQ) + (CQ+DS) = (AS+DS) + (BQ+CQ) = AD + BC.","But in a parallelogram, AB = CD and AD = BC. So 2AB = 2AD → AB = AD.","All sides are equal, so ABCD is a rhombus. ✓"], answer: "Tangents from external point are equal; a parallelogram circumscribing a circle must be a rhombus.", explanation: "See solution steps for full working.", finalAnswer: "Tangents from external point are equal; a parallelogram circumscribing a circle must be a rhombus.", visualExplainerId: "maths-circles-number-of-tangents-from-external-point", isCompetencyBased: true }
 ];

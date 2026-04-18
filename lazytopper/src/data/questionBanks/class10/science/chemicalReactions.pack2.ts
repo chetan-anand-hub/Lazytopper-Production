@@ -324,6 +324,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Digestion: Complex molecules break down into simpler ones (decomposition)"
     ],
     "finalAnswer": "(a) Combustion/exothermic (b) Decomposition",
+    "visualExplainerId": "science-chemical-reactions-types-of-chemical-reactions",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -343,11 +344,13 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     "options": [],
     "answer": "4Al + 3O₂ → 2Al₂O₃",
     "solutionSteps": [
+      "Write the skeletal (unbalanced) chemical equation first. Then balance by adjusting stoichiometric coefficients so the number of atoms of each element is equal on both sides.",
       "Al needs to be even (2 in product), so use 4Al on left",
       "Al₂O₃ has 3 oxygen, so 2 of them need 6 O atoms = 3O₂",
       "Check: Left (4Al, 6O), Right (4Al, 6O) ✓"
     ],
     "finalAnswer": "4Al + 3O₂ → 2Al₂O₃",
+    "visualExplainerId": "science-chemical-reactions-balancing-chemical-equations",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "Set-B",
@@ -372,6 +375,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Zn reduces Cu²⁺, so Zn is reducing agent"
     ],
     "finalAnswer": "Reducing agent: Zn; Oxidizing agent: CuSO₄ (Cu²⁺)",
+    "visualExplainerId": "science-chemical-reactions-types-of-chemical-reactions",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -397,6 +401,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Airtight containers prevent oxygen exposure"
     ],
     "finalAnswer": "Store in cool, dark, airtight containers; add antioxidants",
+    "visualExplainerId": "science-chemical-reactions-corrosion-and-rancidity",
     "isCompetencyBased": true,
     "pyqYear": "2020",
     "pyqSet": "Set-A",
@@ -423,6 +428,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Combination reactions are usually simpler (A+B→C)"
     ],
     "finalAnswer": "No, rusting is a redox reaction involving oxidation of Fe",
+    "visualExplainerId": "science-chemical-reactions-types-of-chemical-reactions",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -454,6 +460,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
+    "visualExplainerId": "science-chemical-reactions-oxidation-and-reduction",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -485,6 +492,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "A is true, R is false.",
     "explanation": "The Assertion is a correct statement. However, the Reason given contains an incorrect claim or formula, making R false.",
+    "visualExplainerId": "science-chemical-reactions-types-of-chemical-reactions",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "Set-C",
@@ -516,6 +524,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
+    "visualExplainerId": "science-chemical-reactions-corrosion-and-rancidity",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -535,6 +544,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     "options": [],
     "answer": "(a) 2Mg + O₂ → 2MgO (b) Combination/exothermic reaction (c) Forms Mg(OH)₂ which is basic (d) Product is basic/alkaline",
     "solutionSteps": [
+      "Write the skeletal (unbalanced) chemical equation first. Then balance by adjusting stoichiometric coefficients so the number of atoms of each element is equal on both sides.",
       "Mg burns in O₂ to form MgO: 2Mg + O₂ → 2MgO (balanced: 2Mg, 2O)",
       "It's combination reaction (two elements form compound) and exothermic (releases heat)",
       "MgO reacts with water: MgO + H₂O → Mg(OH)₂",
@@ -542,6 +552,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Shows that MgO is basic/alkaline in nature"
     ],
     "finalAnswer": "(a) 2Mg + O₂ → 2MgO (b) Combination/exothermic reaction (c) Forms Mg(OH)₂ which is basic (d) Product is basic/alkaline",
+    "visualExplainerId": "science-chemical-reactions-balancing-chemical-equations",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "Set-A",
@@ -561,6 +572,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     "options": [],
     "answer": "(a) 2CuO + C → 2Cu + CO₂ (b) All are correct (c) Reducing agent (d) CaCO₃ precipitate forms",
     "solutionSteps": [
+      "Write the balanced redox equation. Identify: (i) the substance oxidised — gains oxygen / loses hydrogen / loses electrons; (ii) the substance reduced — loses oxygen / gains hydrogen / gains electrons.",
       "Equation: 2CuO + C → 2Cu + CO₂ (balanced: 2Cu, 3O on both sides)",
       "Cu²⁺ → Cu⁰ (reduction, gains electrons, Student B correct)",
       "C⁰ → C⁴⁺ (oxidation, loses electrons, Student A correct)",
@@ -569,6 +581,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "CO₂ reacts with Ca(OH)₂: CO₂ + Ca(OH)₂ → CaCO₃↓ + H₂O (white precipitate)"
     ],
     "finalAnswer": "(a) 2CuO + C → 2Cu + CO₂ (b) All are correct (c) Reducing agent (d) CaCO₃ precipitate forms",
+    "visualExplainerId": "science-chemical-reactions-oxidation-and-reduction",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "Set-B",
@@ -620,6 +633,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Rancidity: Involves organic compounds; mainly food; affects quality/taste"
     ],
     "finalAnswer": "Corrosion is oxidation of metals (requires O₂, H₂O, forms Fe₂O₃); prevented by coating/painting. Rancidity is oxidation of fats (requires O₂, light, heat); prevented by cool storage and antioxidants. Both are oxidation but affect different materials and require different prevention methods.",
+    "visualExplainerId": "science-chemical-reactions-corrosion-and-rancidity",
     "isCompetencyBased": true,
     "pyqYear": "2025",
     "pyqSet": "Set-C",
@@ -707,6 +721,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "H is oxidized, Fe is reduced"
     ],
     "finalAnswer": "H is oxidized; Fe³⁺ is reduced",
+    "visualExplainerId": "science-chemical-reactions-types-of-chemical-reactions",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -734,6 +749,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Al's self-protective oxide makes it more resistant despite higher reactivity"
     ],
     "finalAnswer": "Al forms dense, self-protecting Al₂O₃ layer; Fe forms porous Fe₂O₃ that doesn't prevent further corrosion",
+    "visualExplainerId": "science-chemical-reactions-types-of-chemical-reactions",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "Set-B",
@@ -847,12 +863,14 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     "options": [],
     "answer": "1, 1, 2",
     "solutionSteps": [
+      "Write the skeletal (unbalanced) chemical equation first. Then balance by adjusting stoichiometric coefficients so the number of atoms of each element is equal on both sides.",
       "Unbalanced: H₂ + Cl₂ → HCl",
       "H atoms: 2 on left, 1 on right → multiply HCl by 2",
       "Cl atoms: 2 on left, 2 on right (now balanced)",
       "Balanced equation: H₂ + Cl₂ → 2HCl"
     ],
     "finalAnswer": "1, 1, 2",
+    "visualExplainerId": "science-chemical-reactions-balancing-chemical-equations",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -884,6 +902,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "B) Cu",
     "explanation": "This is a displacement reaction. Fe (more reactive) displaces Cu (less reactive) from CuSO₄. Cu is released as free element. Cu is the displaced element. Therefore, the correct answer is B) Cu.",
+    "visualExplainerId": "science-chemical-reactions-types-of-chemical-reactions",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -916,6 +935,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
+    "visualExplainerId": "science-chemical-reactions-oxidation-and-reduction",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -947,6 +967,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "A) Na₂SO₄ + BaCl₂ → BaSO₄ + 2NaCl",
     "explanation": "Double displacement: AB + CD → AD + CB. Option A: Na₂SO₄ + BaCl₂ → BaSO₄↓ + 2NaCl. Na and Ba exchange partners, Cl and SO₄ exchange partners. This is double displacement (or double decomposition). Therefore, the correct answer is A) Na₂SO₄ + BaCl₂ → BaSO₄ + 2NaCl.",
+    "visualExplainerId": "science-chemical-reactions-types-of-chemical-reactions",
     "isCompetencyBased": true,
     "pyqYear": "2020",
     "pyqSet": undefined,
@@ -978,6 +999,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "B) Adding antioxidants or using airtight containers",
     "explanation": "Rancidity is oxidation of fats and oils. Prevention methods: reduce O₂ exposure, add antioxidants. Airtight containers prevent oxidation. Antioxidants inhibit oxidation reaction. Therefore, the correct answer is B) Adding antioxidants or using airtight containers.",
+    "visualExplainerId": "science-chemical-reactions-corrosion-and-rancidity",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1003,6 +1025,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Balanced: 3Mg + N₂ → Mg₃N₂"
     ],
     "finalAnswer": "3, 1, 1",
+    "visualExplainerId": "science-chemical-reactions-balancing-chemical-equations",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1035,6 +1058,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
+    "visualExplainerId": "science-chemical-reactions-types-of-chemical-reactions",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1060,6 +1084,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Cl₂ is the oxidizing agent (causes oxidation, gets reduced)"
     ],
     "finalAnswer": "Oxidizing agent: Cl₂; Reducing agent: Na",
+    "visualExplainerId": "science-chemical-reactions-types-of-chemical-reactions",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1084,6 +1109,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     ],
     "answer": "A) 1, 1, 1",
     "solutionSteps": [
+      "Write the skeletal (unbalanced) chemical equation first. Then balance by adjusting stoichiometric coefficients so the number of atoms of each element is equal on both sides.",
       "Unbalanced: C + O₂ → CO₂",
       "C atoms: 1 on each side (balanced)",
       "O atoms: 2 on left, 2 on right (balanced)",
@@ -1091,6 +1117,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "A) 1, 1, 1",
     "explanation": "Unbalanced: C + O₂ → CO₂. C atoms: 1 on each side (balanced). O atoms: 2 on left, 2 on right (balanced). Coefficients: 1, 1, 1. Therefore, the correct answer is A) 1, 1, 1.",
+    "visualExplainerId": "science-chemical-reactions-balancing-chemical-equations",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": undefined,
@@ -1123,6 +1150,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "D) Both B and C",
     "explanation": "Decomposition: compound breaks into 2+ products. Redox: involves transfer of electrons. 2KClO₃ → 2KCl + 3O₂: Cl goes from +5 to -1 and 0 (redox + decomposition). NaCl → Na + Cl₂: Na goes from +1 to 0, Cl from -1 to 0 (redox + decomposition). Both B and C satisfy both criteria. Therefore, the correct answer is D) Both B and C.",
+    "visualExplainerId": "science-chemical-reactions-oxidation-and-reduction",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1148,6 +1176,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Called corrosion or rusting"
     ],
     "finalAnswer": "Fe₂O₃·xH₂O; Corrosion",
+    "visualExplainerId": "science-chemical-reactions-corrosion-and-rancidity",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1180,6 +1209,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
+    "visualExplainerId": "science-chemical-reactions-oxidation-and-reduction",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1199,6 +1229,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     "options": [],
     "answer": "4Al + 3O₂ → 2Al₂O₃",
     "solutionSteps": [
+      "Write the skeletal (unbalanced) chemical equation first. Then balance by adjusting stoichiometric coefficients so the number of atoms of each element is equal on both sides.",
       "Step 1: Write unbalanced equation: Al + O₂ → Al₂O₃",
       "Step 2: Balance Al: 2Al on right, so 2Al on left",
       "Step 3: Now count O: 2 O atoms on left, 3 on right → need 3 O₂",
@@ -1207,6 +1238,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Verify: Al: 4=4 ✓, O: 6=6 ✓"
     ],
     "finalAnswer": "4Al + 3O₂ → 2Al₂O₃",
+    "visualExplainerId": "science-chemical-reactions-balancing-chemical-equations",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": undefined,
@@ -1226,6 +1258,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     "options": [],
     "answer": "(a) 2C₂H₆ + 7O₂ → 4CO₂ + 6H₂O (Combustion); (b) 2H₂O₂ → 2H₂O + O₂ (Decomposition)",
     "solutionSteps": [
+      "Write the skeletal (unbalanced) chemical equation first. Then balance by adjusting stoichiometric coefficients so the number of atoms of each element is equal on both sides.",
       "(a) Combustion reaction - organic compound burns in O₂",
       "C₂H₆ has 2 C and 6 H",
       "2 C → 2CO₂, 6 H → 3H₂O",
@@ -1235,6 +1268,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "2H₂O₂ → 2H₂O + O₂ (balanced)"
     ],
     "finalAnswer": "(a) 2C₂H₆ + 7O₂ → 4CO₂ + 6H₂O (Combustion); (b) 2H₂O₂ → 2H₂O + O₂ (Decomposition)",
+    "visualExplainerId": "science-chemical-reactions-balancing-chemical-equations",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": undefined,
@@ -1262,6 +1296,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Mg is oxidized (oxidation state increases)"
     ],
     "finalAnswer": "Mg is oxidized; Mg: 0→+2 (loses electrons), O₂: 0→-2 (gains electrons)",
+    "visualExplainerId": "science-chemical-reactions-oxidation-and-reduction",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1288,6 +1323,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Key difference: Corrosion in metals, Rancidity in organic compounds"
     ],
     "finalAnswer": "Corrosion is oxidation of metals (e.g., rusting); Rancidity is oxidation of fats/oils (e.g., spoiling of ghee)",
+    "visualExplainerId": "science-chemical-reactions-corrosion-and-rancidity",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": undefined,
@@ -1307,6 +1343,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     "options": [],
     "answer": "(a) Single/Displacement reaction; (b) Fe + CuSO₄ → FeSO₄ + Cu; (c) Fe = reducing agent, CuSO₄ = oxidizing agent; (d) Basis of metal extraction method",
     "solutionSteps": [
+      "Write the skeletal (unbalanced) chemical equation first. Then balance by adjusting stoichiometric coefficients so the number of atoms of each element is equal on both sides.",
       "(a) One element (Fe) displaces another (Cu) from a compound = Single displacement reaction",
       "(b) Check balance: Fe:1=1✓, Cu:1=1✓, S:1=1✓, O:4=4✓ → Already balanced",
       "(c) Fe:0→+2 (oxidized, so reducing agent); Cu:+2→0 (reduced, so oxidizing agent)",
@@ -1314,6 +1351,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Used to extract metals like Cu, Sn, Pb using more reactive metals"
     ],
     "finalAnswer": "(a) Single/Displacement reaction; (b) Fe + CuSO₄ → FeSO₄ + Cu; (c) Fe = reducing agent, CuSO₄ = oxidizing agent; (d) Basis of metal extraction method",
+    "visualExplainerId": "science-chemical-reactions-balancing-chemical-equations",
     "isCompetencyBased": true,
     "pyqYear": "2019",
     "pyqSet": undefined,
@@ -1345,6 +1383,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "(e) Application: Fuel for heating, cooking, vehicles (LPG)"
     ],
     "finalAnswer": "2C₄H₁₀ + 13O₂ → 8CO₂ + 10H₂O; (a) Combustion/Redox; (b) C:-2.5→+4, O:0→-2; (c) C₄H₁₀ oxidized, O₂ reduced; (d) Electron transfer occurs; (e) Fuel/energy source",
+    "visualExplainerId": "science-chemical-reactions-oxidation-and-reduction",
     "isCompetencyBased": true,
     "pyqYear": "2025",
     "pyqSet": undefined,
@@ -1364,6 +1403,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
     "options": [],
     "answer": "6.022×10²³ electrons (or 1 mole of electrons transferred)",
     "solutionSteps": [
+      "Write the balanced redox equation. Identify: (i) the substance oxidised — gains oxygen / loses hydrogen / loses electrons; (ii) the substance reduced — loses oxygen / gains hydrogen / gains electrons.",
       "(a) Na loses 1e⁻: Na• → Na⁺ + e⁻",
       "Cl gains 1e⁻: :Cl: + e⁻ → Cl⁻",
       "(b) Na is oxidized (0→+1, loses e⁻)",
@@ -1377,6 +1417,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "So 1 mol Na → 1 mol e⁻ = 6.022×10²³ electrons"
     ],
     "finalAnswer": "6.022×10²³ electrons (or 1 mole of electrons transferred)",
+    "visualExplainerId": "science-chemical-reactions-oxidation-and-reduction",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,

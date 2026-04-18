@@ -118,6 +118,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "B) Area of sector - Area of triangle",
     "explanation": "A segment is the region between a chord and the arc. Area of segment = Area of sector - Area of triangle formed by two radii and chord. Therefore, the correct answer is B) Area of sector - Area of triangle.",
+    "visualExplainerId": "maths-areas-circles-sector-and-segment",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -144,6 +145,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "= (616/8) = 77 cm²"
     ],
     "finalAnswer": "77 cm²",
+    "visualExplainerId": "maths-areas-circles-sector-and-segment",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -170,6 +172,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "= 44 cm"
     ],
     "finalAnswer": "44 cm",
+    "visualExplainerId": "maths-areas-circles-sector-and-segment",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -196,6 +199,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "Segment area = 92.73 - 48 ≈ 44.73 cm²"
     ],
     "finalAnswer": "≈ 44.73 cm²",
+    "visualExplainerId": "maths-areas-circles-sector-and-segment",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -222,6 +226,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "Difference = 157 - 100 = 57 cm²"
     ],
     "finalAnswer": "57 cm²",
+    "visualExplainerId": "maths-areas-circles-area-of-sector-formula",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -254,6 +259,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "A is false, R is true.",
     "explanation": "The Assertion contains an incorrect claim. The Reason, however, is a true and valid statement on its own.",
+    "visualExplainerId": "maths-areas-circles-sector-and-segment",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -285,6 +291,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "C) 60°",
     "explanation": "Arc length = (θ/360°) × 2πr. 22 = (θ/360°) × 2 × (22/7) × 21. 22 = (θ/360°) × 132. θ = (22 × 360°)/132 = 60°. Therefore, the correct answer is C) 60°.",
+    "visualExplainerId": "maths-areas-circles-sector-and-segment",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "Delhi",
@@ -309,6 +316,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "Area of segment = 19.625 - 12.5 = 7.125 cm²"
     ],
     "finalAnswer": "7.125 cm²",
+    "visualExplainerId": "maths-areas-circles-sector-and-segment",
     "isCompetencyBased": false,
     "pyqYear": "2020",
     "pyqSet": "All India",
@@ -335,6 +343,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "Remaining area = 616 - 102.67 = 513.33 cm²"
     ],
     "finalAnswer": "(i) 102.67 cm² (ii) 513.33 cm²",
+    "visualExplainerId": "maths-areas-circles-sector-and-segment",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -361,6 +370,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "= 792/7 ≈ 113.14 m²"
     ],
     "finalAnswer": "(i) ≈40.86 m² (ii) ≈113.14 m²",
+    "visualExplainerId": "maths-areas-circles-area-of-sector-formula",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "CBSE",
@@ -392,6 +402,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
+    "visualExplainerId": "maths-areas-circles-sector-and-segment",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -416,6 +427,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "In 50 revolutions, distance = 220 × 50 = 11000 cm = 110 m"
     ],
     "finalAnswer": "11000 cm or 110 m",
+    "visualExplainerId": "maths-areas-circles-area-of-sector-formula",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "All India",
@@ -441,6 +453,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "= (1/2) × π × 64 = 32π ≈ 100.48 cm²"
     ],
     "finalAnswer": "32π cm² or 100.48 cm²",
+    "visualExplainerId": "maths-areas-circles-area-of-sector-formula",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -468,6 +481,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "= 169[45.24(π/360) - sin(45.24°)/2] ≈ 21.4 cm²"
     ],
     "finalAnswer": "≈ 21.4 cm²",
+    "visualExplainerId": "maths-areas-circles-sector-and-segment",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -498,6 +512,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "= 20 + 20 + πd = 40 + 3.14 × 15 = 40 + 47.1 = 87.1 m"
     ],
     "finalAnswer": "Area = 476.63 m²; Perimeter = 87.1 m",
+    "visualExplainerId": "maths-areas-circles-area-of-sector-formula",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "All India",
@@ -530,6 +545,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "B) 36 cm²",
     "explanation": "For sectors of same circle: Area ∝ Central angle. Let angles be 3x and 5x. Area₁/Area₂ = 3x/5x = 3/5. Area₁/60 = 3/5. Area₁ = (3/5) × 60 = 36 cm². Therefore, the correct answer is B) 36 cm².",
+    "visualExplainerId": "maths-areas-circles-sector-and-segment",
     "isCompetencyBased": true,
     "pyqYear": "2019",
     "pyqSet": "Delhi",
@@ -562,6 +578,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "A is false, R is true.",
     "explanation": "The Assertion contains an incorrect claim. The Reason, however, is a true and valid statement on its own.",
+    "visualExplainerId": "maths-areas-circles-sector-and-segment",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -590,6 +607,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "Area of segment = 198.72 - 60 = 138.72 cm²"
     ],
     "finalAnswer": "Distance = 5 cm; Area of segment ≈ 138.72 cm²",
+    "visualExplainerId": "maths-areas-circles-sector-and-segment",
     "isCompetencyBased": true,
     "pyqYear": "2025",
     "pyqSet": "All India",
@@ -650,6 +668,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "Area = (θ/360°) × πr² = (76.4/360) × 3.14 × 144 ≈ 95.9 cm²"
     ],
     "finalAnswer": "θ ≈ 76.4°; Area ≈ 95.9 cm²",
+    "visualExplainerId": "maths-areas-circles-sector-and-segment",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -710,6 +729,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Sector and triangle",
     "explanation": "Area of segment = Area of sector - Area of triangle. This is the standard formula for segment area. Therefore, the correct answer is Sector and triangle.",
+    "visualExplainerId": "maths-areas-circles-sector-and-segment",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -735,6 +755,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "Area of segment = 113.14 - 72 = 41.14 cm²"
     ],
     "finalAnswer": "41.14 cm²",
+    "visualExplainerId": "maths-areas-circles-sector-and-segment",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -760,6 +781,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "θ = 180°"
     ],
     "finalAnswer": "180°",
+    "visualExplainerId": "maths-areas-circles-sector-and-segment",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -785,6 +807,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "Area enclosed = 100 - 78.5 = 21.5 cm²"
     ],
     "finalAnswer": "21.5 cm²",
+    "visualExplainerId": "maths-areas-circles-area-of-sector-formula",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -815,6 +838,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
+    "visualExplainerId": "maths-areas-circles-sector-and-segment",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -845,6 +869,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
+    "visualExplainerId": "maths-areas-circles-sector-and-segment",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -875,6 +900,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Both A and R are true, and R is the correct explanation of A.",
     "explanation": "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
+    "visualExplainerId": "maths-areas-circles-combined-figures-area",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -905,6 +931,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "= 78.5 cm²"
     ],
     "finalAnswer": "78.5 cm²",
+    "visualExplainerId": "maths-areas-circles-area-of-sector-formula",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "Set 1",
@@ -930,6 +957,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "Q4: One sector of semicircle = (1/4) × 693 = 346.5 m²"
     ],
     "finalAnswer": "Q1: 693 m² | Q2: 196 m² | Q3: 497 m² | Q4: 346.5 m²",
+    "visualExplainerId": "maths-areas-circles-sector-and-segment",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -959,6 +987,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "Ratio = (60°/360°)/(120°/360°) = 60°/120° = 1:2"
     ],
     "finalAnswer": "1:2",
+    "visualExplainerId": "maths-areas-circles-area-of-sector-formula",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "Set 2",
@@ -988,6 +1017,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "(iii) Arc length = (106.26°/360°) × 2π × 10 = 18.55 cm"
     ],
     "finalAnswer": "(i) θ ≈ 106.26° (ii) Segment area ≈ 44.73 cm² (iii) Arc length ≈ 18.55 cm",
+    "visualExplainerId": "maths-areas-circles-sector-and-segment",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "Set 3",
@@ -1014,6 +1044,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "(iii) If internal: overlap area = 628.57 - 400 = 228.57 cm²"
     ],
     "finalAnswer": "(i) 1028.57 cm² (ii) 125.71 cm (iii) 228.57 cm²",
+    "visualExplainerId": "maths-areas-circles-area-of-sector-formula",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "Set 1",
@@ -1043,6 +1074,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "Distance in 10 revolutions = 10 × 3.14 = 31.4 m"
     ],
     "finalAnswer": "31.4 m",
+    "visualExplainerId": "maths-areas-circles-area-of-sector-formula",
     "isCompetencyBased": true,
     "pyqYear": "2025",
     "pyqSet": "Set 2",
@@ -1098,6 +1130,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "Required area = 100 - 78.5 = 21.5 cm²"
     ],
     "finalAnswer": "21.5 cm²",
+    "visualExplainerId": "maths-areas-circles-area-of-sector-formula",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1122,6 +1155,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "Area of segment = 50.29 - 32 = 18.29 cm²"
     ],
     "finalAnswer": "18.29 cm²",
+    "visualExplainerId": "maths-areas-circles-sector-and-segment",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1177,6 +1211,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "Area of ring = 615.44 - 153.86 = 461.58 ≈ 462 cm²"
     ],
     "finalAnswer": "462 cm²",
+    "visualExplainerId": "maths-areas-circles-area-of-sector-formula",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1208,6 +1243,7 @@ export const ARC2_PACK2: CanonicalQuestion[] = [
       "r = 21 cm"
     ],
     "finalAnswer": "21 cm",
+    "visualExplainerId": "maths-areas-circles-sector-and-segment",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,

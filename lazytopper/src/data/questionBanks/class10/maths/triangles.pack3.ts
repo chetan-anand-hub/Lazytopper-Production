@@ -108,6 +108,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "By AAA criterion, △ABC ~ △PQR"
     ],
     "finalAnswer": "Yes, △ABC ~ △PQR by AA criterion",
+    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -135,6 +136,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "By SSS similarity criterion, △ABC ~ △XYZ"
     ],
     "finalAnswer": "Yes, by SSS similarity (ratio 1:2)",
+    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -218,6 +220,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "EC = (3 × 6)/4 = 18/4 = 4.5 cm"
     ],
     "finalAnswer": "EC = 4.5 cm",
+    "visualExplainerId": "maths-triangles-basic-proportionality-theorem",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -243,6 +246,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "QC = (1.5 × 4)/2 = 6/2 = 3 cm"
     ],
     "finalAnswer": "QC = 3 cm",
+    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -355,6 +359,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "Since the condition is satisfied, it is a right-angled triangle with hypotenuse 13 cm."
     ],
     "finalAnswer": "Yes, it is a right-angled triangle (5-12-13 is a Pythagorean triplet)",
+    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -382,6 +387,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "b = 6 cm"
     ],
     "finalAnswer": "6 cm",
+    "visualExplainerId": "maths-triangles-pythagoras-theorem-visual-proof",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": undefined,
@@ -408,6 +414,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "h ≈ 11.26 m"
     ],
     "finalAnswer": "Height = 13√3/2 m ≈ 11.26 m",
+    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -487,6 +494,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "Ratio of sides = √16:√25 = 4:5"
     ],
     "finalAnswer": "4:5",
+    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -512,6 +520,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "Area of △PQR = 36/9 = 4 cm²"
     ],
     "finalAnswer": "4 cm²",
+    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": undefined,
@@ -536,6 +545,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "Therefore, △ABC ~ △DEF"
     ],
     "finalAnswer": "Yes, by SSS similarity criterion",
+    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -555,12 +565,14 @@ export const TR3_PACK3: CanonicalQuestion[] = [
     "options": [],
     "answer": "DE ∥ BC (by converse of BPT)",
     "solutionSteps": [
+      "Construction: Draw △ABC with line DE ∥ BC, where D is on AB and E is on AC. Label all given measurements.",
       "Given: AD:DB = 2:3 and AE:EC = 2:3",
       "This means AD/DB = AE/EC",
       "By converse of Basic Proportionality Theorem: If a line divides two sides of a triangle proportionally, then it is parallel to the third side.",
       "Therefore, DE ∥ BC"
     ],
     "finalAnswer": "DE ∥ BC (by converse of BPT)",
+    "visualExplainerId": "maths-triangles-basic-proportionality-theorem",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -587,6 +599,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "Verify with correct diagonal configuration for given quadrilateral constraint"
     ],
     "finalAnswer": "Requires specific quadrilateral configuration",
+    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -708,6 +721,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "By AA criterion, △ADE ~ △ABC"
     ],
     "finalAnswer": "(i) 2.25 cm (ii) By AA criterion (corresponding angles equal)",
+    "visualExplainerId": "maths-triangles-basic-proportionality-theorem",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -735,6 +749,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "m₁:m₂ = 2:3"
     ],
     "finalAnswer": "(i) 90 cm² (ii) 2:3 (iii) 2:3",
+    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -754,6 +769,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
     "options": [],
     "answer": "All three relations proven using similarity of triangles formed by altitude to hypotenuse",
     "solutionSteps": [
+      "Construction: Draw the two triangles with equal corresponding angles or proportional sides as given. Label corresponding vertices.",
       "Given: △ABC with ∠B = 90°, D on AC, BD ⊥ AC",
       "(i) In △ABD and △CBA:",
       "∠ADB = ∠ABC = 90° (given and BD ⊥ AC)",
@@ -768,6 +784,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "Therefore BC² = CD × AC"
     ],
     "finalAnswer": "All three relations proven using similarity of triangles formed by altitude to hypotenuse",
+    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": undefined,
@@ -793,6 +810,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "By SAS similarity criterion, △ABC ~ △PQR"
     ],
     "finalAnswer": "Yes, by SAS similarity criterion",
+    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": undefined,
@@ -873,6 +891,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "By SSS similarity criterion, ΔABC ~ ΔDEF"
     ],
     "finalAnswer": "Yes, the triangles are similar by SSS criterion",
+    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -925,6 +944,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "EC = (5 × 6)/4 = 30/4 = 7.5 cm"
     ],
     "finalAnswer": "EC = 7.5 cm",
+    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -950,6 +970,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "QC = (4 × 6)/3 = 24/3 = 8 cm"
     ],
     "finalAnswer": "QC = 8 cm",
+    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": "2020",
     "pyqSet": "Delhi",
@@ -1036,6 +1057,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "b = 12 cm"
     ],
     "finalAnswer": "12 cm",
+    "visualExplainerId": "maths-triangles-pythagoras-theorem-visual-proof",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1061,6 +1083,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "Since 6² + 8² = 10², the triangle is right-angled"
     ],
     "finalAnswer": "Yes, the triangle is right-angled with the right angle opposite to the side of 10 cm",
+    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "All India",
@@ -1115,6 +1138,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "Area(ΔDEF) = (27 × 4)/9 = 12 cm²"
     ],
     "finalAnswer": "12 cm²",
+    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1140,6 +1164,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "Area of larger = 48 × (25/16) = 48 × 25/16 = 75 cm²"
     ],
     "finalAnswer": "75 cm²",
+    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": "2019",
     "pyqSet": "Delhi",
@@ -1195,6 +1220,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "∠A = ∠P (50°), but ∠B ≠ ∠Q, so not similar as per AAA criterion"
     ],
     "finalAnswer": "Yes, ΔABC ~ ΔPQR by AAA criterion as all corresponding angles are equal",
+    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1214,12 +1240,14 @@ export const TR3_PACK3: CanonicalQuestion[] = [
     "options": [],
     "answer": "DE is parallel to BC by converse of Basic Proportionality Theorem",
     "solutionSteps": [
+      "Construction: Draw the two triangles with equal corresponding angles or proportional sides as given. Label corresponding vertices.",
       "Given: AD/DB = AE/EC = 2/3",
       "This means AD/AB = AE/AC (by rearranging)",
       "By converse of Basic Proportionality Theorem, if a line divides two sides of a triangle in the same ratio, then it is parallel to the third side",
       "Therefore, DE || BC"
     ],
     "finalAnswer": "DE is parallel to BC by converse of Basic Proportionality Theorem",
+    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1246,6 +1274,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "Verification: 5² + 12² = 25 + 144 = 169 = 13² ✓"
     ],
     "finalAnswer": "AC = 13 cm; Verified by Pythagoras Theorem",
+    "visualExplainerId": "maths-triangles-pythagoras-theorem-visual-proof",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "All India",
@@ -1359,6 +1388,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "By SAS similarity criterion, ΔABC ~ ΔPQR"
     ],
     "finalAnswer": "Yes, by SAS similarity criterion",
+    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1383,6 +1413,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "c = 25 cm"
     ],
     "finalAnswer": "25 cm",
+    "visualExplainerId": "maths-triangles-pythagoras-theorem-visual-proof",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1408,6 +1439,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "Since AD/DB = AE/EC, by converse of Basic Proportionality Theorem, DE || BC"
     ],
     "finalAnswer": "Yes, DE || BC because AD/DB = AE/EC = 1/2",
+    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1433,6 +1465,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "Ratio of sides = √(9:16) = 3:4"
     ],
     "finalAnswer": "3:4",
+    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "Delhi",
@@ -1460,6 +1493,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "angle ≈ 40.9° or approximately 41°"
     ],
     "finalAnswer": "(a) 50√3 m (b) Yes, AA similarity (c) ≈ 41°",
+    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1489,6 +1523,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "Verification: AB² + BC² = 52 + 117 = 169 = 13² = AC² ✓"
     ],
     "finalAnswer": "BD = 6 cm, AB = 2√13 cm, BC = 3√13 cm",
+    "visualExplainerId": "maths-triangles-pythagoras-theorem-visual-proof",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "All India",
@@ -1519,6 +1554,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "If Area(ΔABC) = 20.25 cm², then Area(ΔADE) = 20.25/9 = 2.25 cm², and trapezoid = 18 cm² ✓"
     ],
     "finalAnswer": "Area ratio = 1:9, Area(ΔADE) = 2.25 cm², Area(ΔABC) = 20.25 cm²",
+    "visualExplainerId": "maths-triangles-areas-of-similar-triangles",
     "isCompetencyBased": true,
     "pyqYear": "2025",
     "pyqSet": "All India",
@@ -1543,6 +1579,7 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "XZ = PR × 2 = 6 × 2 = 12 cm"
     ],
     "finalAnswer": "YZ = 10 cm, XZ = 12 cm",
+    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1569,10 +1606,11 @@ export const TR3_PACK3: CanonicalQuestion[] = [
       "h = 8 m"
     ],
     "finalAnswer": "8 m",
+    "visualExplainerId": "maths-triangles-similar-triangles-and-criteria",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
     "ncertRef": "Ex 6.5"
   },
-  { id: "TR3-064", subject: "Maths", topicKey: "Triangles", subtopic: "Pythagoras Theorem", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "In △ABC, ∠B = 90°. D is the midpoint of BC. Prove that AC² = AD² + 3CD².", solutionSteps: ["Given: △ABC with ∠B = 90°, D is midpoint of BC so BD = DC = CD.","In △ABD (right-angled at B): AD² = AB² + BD² …(1)","In △ABC (right-angled at B): AC² = AB² + BC² = AB² + (BD+DC)² = AB² + (2DC)² = AB² + 4DC² …(2)","From (1): AB² = AD² − BD² = AD² − CD² (since BD = CD).","Substituting into (2): AC² = (AD² − CD²) + 4CD² = AD² + 3CD². ✓"], answer: "AC² = AD² + 3CD² (proved using Pythagoras theorem in △ABD and △ABC).", explanation: "See solution steps for full working.", finalAnswer: "AC² = AD² + 3CD² (proved using Pythagoras theorem in △ABD and △ABC).", isCompetencyBased: true }
+  { id: "TR3-064", subject: "Maths", topicKey: "Triangles", subtopic: "Pythagoras Theorem", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "In △ABC, ∠B = 90°. D is the midpoint of BC. Prove that AC² = AD² + 3CD².", solutionSteps: ["Construction: Draw the two triangles with equal corresponding angles or proportional sides as given. Label corresponding vertices.", "Given: △ABC with ∠B = 90°, D is midpoint of BC so BD = DC = CD.","In △ABD (right-angled at B): AD² = AB² + BD² …(1)","In △ABC (right-angled at B): AC² = AB² + BC² = AB² + (BD+DC)² = AB² + (2DC)² = AB² + 4DC² …(2)","From (1): AB² = AD² − BD² = AD² − CD² (since BD = CD).","Substituting into (2): AC² = (AD² − CD²) + 4CD² = AD² + 3CD². ✓"], answer: "AC² = AD² + 3CD² (proved using Pythagoras theorem in △ABD and △ABC).", explanation: "See solution steps for full working.", finalAnswer: "AC² = AD² + 3CD² (proved using Pythagoras theorem in △ABD and △ABC).", visualExplainerId: "maths-triangles-similar-triangles-and-criteria", isCompetencyBased: true }
 ];
