@@ -440,7 +440,7 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
     }
   }
 
-  async function sendMessage(overrideText?: string) {
+  async function sendMessage(overrideText?: string, baseMessages?: ChatMessage[]) {
     const text = (overrideText ?? studentInput).trim();
     if (!text) return;
     lastSentMessageRef.current = text;
@@ -452,7 +452,7 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
     setPhase("responding");
     if (!overrideText) setStudentInput("");
 
-    const updatedMessages: ChatMessage[] = [...chatMessages, { role: "student", content: text }];
+    const updatedMessages: ChatMessage[] = [...(baseMessages ?? chatMessages), { role: "student", content: text }];
     setChatMessages(updatedMessages);
 
     const isGraphRequest = detectGraphOrDiagramRequest(text);
@@ -828,14 +828,17 @@ export function TeachFlow({ topicKey, subject, grade, nodeId, onComplete, concep
                 onClick={() => {
                   const msg = lastSentMessageRef.current;
                   if (!msg) return;
-                  setChatMessages((prev) => {
-                    const lastIdx = [...prev].reverse().findIndex((m) => m.role === "student" && m.content === msg);
-                    if (lastIdx === -1) return prev;
-                    const realIdx = prev.length - 1 - lastIdx;
-                    return prev.filter((_, i) => i !== realIdx);
-                  });
+                  // Remove only the last occurrence of this student message from the
+                  // current chatMessages snapshot, then pass the cleaned list directly
+                  // to sendMessage to avoid a stale-closure double-append.
+                  const lastIdx = [...chatMessages].reverse().findIndex(
+                    (m) => m.role === "student" && m.content === msg
+                  );
+                  const cleaned = lastIdx === -1
+                    ? chatMessages
+                    : chatMessages.filter((_, i) => i !== chatMessages.length - 1 - lastIdx);
                   setError(null);
-                  sendMessage(msg);
+                  sendMessage(msg, cleaned);
                 }}
               >
                 Tap to retry
