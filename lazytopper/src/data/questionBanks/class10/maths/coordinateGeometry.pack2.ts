@@ -77,6 +77,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "options": [],
     "answer": "Triangle ABC is isosceles with AB = BC = 2√5",
     "solutionSteps": [
+      "Plot: Mark the three points A(1, 2), B(5, 4), and C(3, 0) on a coordinate grid. Label them. Visually check which two sides appear equal (isosceles).",
       "AB = √[(5-1)² + (4-2)²] = √[16+4] = √20 = 2√5",
       "BC = √[(3-5)² + (0-4)²] = √[4+16] = √20 = 2√5",
       "AC = √[(3-1)² + (0-2)²] = √[4+4] = √8 = 2√2",
@@ -367,6 +368,7 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "options": [],
     "answer": "(i) (x-3)² + (y-4)² = 25 (ii) y = 0 or 8 (iii) All points on circle equidistant from center (iv) 10 units",
     "solutionSteps": [
+      "Plot: Mark all given points on a coordinate grid. Label them with their coordinates. This visual setup helps confirm geometric properties (collinearity, triangle type, quadrilateral shape) before computing.",
       "(i) Distance CP = 5, so √[(x-3)² + (y-4)²] = 5",
       "Squaring: (x-3)² + (y-4)² = 25",
       "(ii) (6-3)² + (y-4)² = 25",

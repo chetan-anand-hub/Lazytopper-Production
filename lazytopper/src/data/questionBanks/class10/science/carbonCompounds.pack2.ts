@@ -268,6 +268,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
     "options": [],
     "answer": "2C2H6 + 7O2 → 4CO2 + 6H2O",
     "solutionSteps": [
+      "Balanced equations: Record all relevant combustion/reaction equations before solving. Use these as reference when answering each part.",
       "Ethane: C2H6",
       "Complete combustion produces CO2 and H2O",
       "Balance carbon: 2 on left, need 4CO2",
@@ -656,6 +657,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
     "options": [],
     "answer": "(a) CH4+2O2→CO2+2H2O; 2C2H4+6O2→4CO2+4H2O; 2C2H2+5O2→4CO2+2H2O (b) CH4: no change; C2H4 & C2H2: brown to colorless (c) Different degrees of unsaturation (d) Combustion=oxidation; Br2=addition",
     "solutionSteps": [
+      "Balanced equations: Record all relevant combustion/reaction equations before solving. Use these as reference when answering each part.",
       "Combustion: complete oxidation of organic compounds",
       "Products: CO2 + H2O (complete combustion)",
       "Bromine test: detects unsaturation (C=C, C≡C)",

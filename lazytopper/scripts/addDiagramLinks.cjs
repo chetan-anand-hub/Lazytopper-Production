@@ -220,7 +220,7 @@ function electricityVid(qt) {
 
 function magneticVid(qt) {
   const q = qt.toLowerCase();
-  if (/\bmotor\b|generator|\bac\b|\bdc\b|electromagnetic induction|dynamo/.test(q))
+  if (/\bmotor\b|generator|\bac\b|\bdc\b|electromagnetic induction|dynamo|domestic.*circuit|household.*circuit|live.*wire|neutral.*wire|earth.*wire|\bmcb\b|miniature circuit breaker/.test(q))
     return 'science-magnetic-effects-electric-motor-and-generator';
   if (/fleming|force on conductor|left.hand rule|right.hand rule/.test(q))
     return 'science-magnetic-effects-flemings-left-hand-rule';
@@ -397,17 +397,20 @@ function needsDiagramStep(questionText) {
 }
 
 function firstStepIsAlreadyDiagram(qText) {
-  const first = getFirstSolutionStep(qText);
+  const first = getFirstSolutionStep(qText).toLowerCase();
   return first.startsWith('construction:') ||
          first.startsWith('ray diagram:') ||
          first.startsWith('diagram:') ||
          first.startsWith('refer to') ||
          first.startsWith('circuit diagram:') ||
          first.startsWith('punnett square:') ||
+         first.startsWith('plot:') ||
+         first.startsWith('electron dot diagram:') ||
+         first.startsWith('balanced equation:') ||
+         first.startsWith('balanced equations:') ||
          first.startsWith('draw ') ||
          first.startsWith('draw the') ||
          first.startsWith('write the balanced') ||
-         first.startsWith('balanced equation:') ||
          first.startsWith('write the skeletal');
 }
 
@@ -474,6 +477,8 @@ function getDiagramStep(questionText, visualId) {
   if (visualId.includes('coordinate-geometry')) {
     if (/\bdraw\b|\bplot\b|\bdiagram\b/i.test(qt))
       return 'Diagram: Plot the given points on a coordinate plane. Label coordinates, draw the relevant line segments or triangle, and mark all known values.';
+    if (/\bprove\b|\bshow\b|\bverify\b/i.test(qt))
+      return 'Plot: Mark all given points on a coordinate grid. Label them with their coordinates. This visual setup helps confirm geometric properties (collinearity, triangle type, quadrilateral shape) before computing.';
     return null;
   }
 
@@ -526,8 +531,12 @@ function getDiagramStep(questionText, visualId) {
   }
 
   if (visualId === 'science-human-eye-dispersion-of-light-and-rainbow') {
+    if (/two prisms?|newton.*prism|prism.*newton/i.test(qt))
+      return 'Diagram: Draw Newton\'s two-prism experiment — first prism disperses white light into VIBGYOR spectrum; inverted second prism recombines the spectrum back into white light. Label both prisms and all colour bands.';
     if (/\bdraw\b|\bdiagram\b/i.test(qt))
       return 'Diagram: Draw a triangular glass prism. Show the incident white light ray entering one face, refracting at both faces, and splitting into a spectrum of colours (VIBGYOR) on emergence.';
+    if (/\bprove\b|\bexperiment\b/i.test(qt))
+      return 'Diagram: Draw Newton\'s two-prism experiment showing dispersion and recombination of white light through two prisms arranged in opposite orientations.';
     return null;
   }
 
@@ -624,6 +633,10 @@ function getDiagramStep(questionText, visualId) {
 
   // ── MAGNETIC EFFECTS ─────────────────────────────────────────────────────────
   if (visualId === 'science-magnetic-effects-electric-motor-and-generator') {
+    if (/domestic.*circuit|household.*circuit|live.*wire|neutral.*wire|earth.*wire/i.test(qt))
+      return 'Circuit Diagram: Draw the domestic household wiring circuit showing: Live wire (L, red/brown), Neutral wire (N, black/blue), Earth wire (E, green/yellow), MCB/fuse box, energy meter, and household appliances connected in parallel across L and N.';
+    if (/\bmcb\b|miniature circuit breaker/i.test(qt))
+      return 'Circuit Diagram: Draw a household circuit with the MCB inserted in series on the live wire between the main supply and the domestic circuit, showing how an overload or short circuit causes the MCB to trip and break the circuit automatically.';
     if (/\bdraw\b|\bdiagram\b|\blabel\b/i.test(qt))
       return 'Diagram: Draw the electric motor (or generator) showing the rectangular coil ABCD between the poles of a magnet, commutator (motor) or slip rings (generator), carbon brushes, and external circuit.';
     return null;
@@ -667,6 +680,8 @@ function getDiagramStep(questionText, visualId) {
     return 'Write the balanced neutralisation equation: Acid + Base → Salt + Water. Include state symbols (aq), (l), (s) if required.';
 
   if (visualId === 'science-acids-bases-salts-common-salt-and-its-products') {
+    if (/balanced.*equation|chemical.*equation|write.*equation/i.test(qt))
+      return 'Balanced equation: Write the chemical equation for the reaction, balancing atoms on both sides. Include state symbols (s), (l), (aq), (g) where applicable.';
     if (/\bdraw\b|\bdiagram\b/i.test(qt)) return null;
     return null;
   }
@@ -685,8 +700,8 @@ function getDiagramStep(questionText, visualId) {
   }
 
   if (visualId === 'science-metals-nonmetals-ionic-bonding') {
-    if (/\bdraw\b|\belectron dot\b|\blewis\b|\bdiagram\b/i.test(qt))
-      return 'Draw the electron dot (Lewis) diagram showing electron transfer from the metal atom to the non-metal atom. Show the resulting positively and negatively charged ions with square brackets and charges.';
+    if (/\bdraw\b|\belectron dot\b|\blewis\b|\bdiagram\b|\bshow\b.*electron|\bshow\b.*formation/i.test(qt))
+      return 'Electron Dot Diagram: Draw the electron dot (Lewis) diagram showing electron transfer from the metal atom (e.g., Na with 1 valence dot) to the non-metal atom (e.g., Cl with 7 valence dots). Show the resulting ions (Na⁺ and Cl⁻) with square brackets and charges.';
     return null;
   }
 
@@ -700,6 +715,8 @@ function getDiagramStep(questionText, visualId) {
   if (visualId === 'science-carbon-compounds-covalent-bonding-in-carbon') {
     if (/\bdraw\b|\bstructural\b|\belectron dot\b|\blewis\b/i.test(qt))
       return 'Draw the structural formula showing each covalent bond as a line (—) between atoms, or the electron dot structure with shared electron pairs. Show all atoms with their bonds clearly.';
+    if (/balanced.*equation|combustion|burn.*equation|equation.*methane|equation.*ethanol/i.test(qt))
+      return 'Balanced equations: Record all relevant combustion/reaction equations before solving. Use these as reference when answering each part.';
     return null;
   }
 
