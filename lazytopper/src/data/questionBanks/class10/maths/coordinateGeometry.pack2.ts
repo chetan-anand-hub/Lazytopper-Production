@@ -983,5 +983,56 @@ export const CG2_PACK2: CanonicalQuestion[] = [
     "pyqYear": undefined,
     "pyqSet": undefined,
     "ncertRef": "Ex 7.2"
+  },
+  {
+    "id": "CG2-047",
+    "subject": "Maths",
+    "topicKey": "Coordinate Geometry",
+    "subtopic": "Section Formula",
+    "section": "E",
+    "marks": 4,
+    "format": "Case-Based",
+    "difficulty": "Hard",
+    "bloomSkill": "Analysing",
+    "questionText": "A city has four landmarks: a hospital H(−4, 2), a school S(8, 8), a market M and a fire station F. M divides HS in ratio 1:3 and F divides HS in ratio 3:1.\n(i) Find the coordinates of M.\n(ii) Find the coordinates of F.\n(iii) Find the distance MF.\n(iv) Show that the midpoint of MF coincides with the midpoint of HS.",
+    "options": [],
+    "answer": "(i) M(−1, 3.5) (ii) F(5, 6.5) (iii) 3√5 (iv) Midpoints both equal (2, 5)",
+    "solutionSteps": [
+      "(i) M divides HS in 1:3: x = (1×8+3×(−4))/(1+3) = (8−12)/4 = −1. y = (1×8+3×2)/4 = (8+6)/4 = 14/4 = 7/2. M(−1, 7/2).",
+      "(ii) F divides HS in 3:1: x = (3×8+1×(−4))/4 = (24−4)/4 = 5. y = (3×8+1×2)/4 = (24+2)/4 = 26/4 = 13/2. F(5, 13/2).",
+      "(iii) MF = √((5−(−1))²+(13/2−7/2)²) = √(36+9) = √45 = 3√5.",
+      "(iv) Midpoint of MF = ((−1+5)/2, (7/2+13/2)/2) = (2, 10/4) = (2, 5). Midpoint of HS = ((−4+8)/2, (2+8)/2) = (2, 5). Both equal (2,5). ✓"
+    ],
+    "finalAnswer": "(i) M(−1, 7/2) (ii) F(5, 13/2) (iii) 3√5 (iv) Both midpoints = (2,5) ✓",
+    "isCompetencyBased": true,
+    "pyqYear": undefined,
+    "pyqSet": undefined,
+    "ncertRef": "Ex 7.2, Ex 7.3"
+  },
+  {
+    "id": "CG2-048",
+    "subject": "Maths",
+    "topicKey": "Coordinate Geometry",
+    "subtopic": "Distance Formula",
+    "section": "D",
+    "marks": 5,
+    "format": "Long",
+    "difficulty": "Hard",
+    "bloomSkill": "Analysing",
+    "questionText": "Three service centres of a utility company are at X(0, 6), Y(8, 0) and Z(0, 0).\n(i) Find the lengths XY, YZ and XZ.\n(ii) Show that △XYZ is right-angled and identify the vertex at which the right angle is formed.\n(iii) Find the circumcentre of △XYZ.\n(iv) Find the centroid G of △XYZ.\n(v) Find the distance between the circumcentre and the centroid.",
+    "options": [],
+    "answer": "(i) XY=10, YZ=8, XZ=6 (ii) Right angle at Z (iii) (4,3) (iv) (8/3,2) (v) 5/3",
+    "solutionSteps": [
+      "(i) XY = √((8−0)²+(0−6)²) = √(64+36) = √100 = 10. YZ = √((0−8)²+(0−0)²) = 8. XZ = √((0−0)²+(6−0)²) = 6.",
+      "(ii) XZ² + YZ² = 36 + 64 = 100 = XY². So XY is the hypotenuse and the right angle is at Z(0,0).",
+      "(iii) For a right triangle, the circumcentre is the midpoint of the hypotenuse XY: ((0+8)/2, (6+0)/2) = (4, 3).",
+      "(iv) G = ((0+8+0)/3, (6+0+0)/3) = (8/3, 2).",
+      "(v) Distance = √((4−8/3)²+(3−2)²) = √((4/3)²+1²) = √(16/9+9/9) = √(25/9) = 5/3."
+    ],
+    "finalAnswer": "(i) XY=10, YZ=8, XZ=6 (ii) Right angle at Z (iii) Circumcentre (4,3) (iv) Centroid (8/3,2) (v) 5/3",
+    "isCompetencyBased": true,
+    "pyqYear": undefined,
+    "pyqSet": undefined,
+    "ncertRef": "Ex 7.1, Ex 7.2"
   }
 ];
