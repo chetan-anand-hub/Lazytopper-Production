@@ -30,7 +30,8 @@ export type Class10ScienceTopicKey =
   | "Light"
   | "HumanEyeAndColourfulWorld"
   | "Electricity"
-  | "MagneticEffects";
+  | "MagneticEffects"
+  | "OurEnvironment";
 
 /**
  * Parameter type for science topics.  While most modules should use
@@ -330,6 +331,29 @@ export const class10ScienceTopicTrends: Class10ScienceTrendsRoot = {
           question_types: ["Short", "Long"],
           summary_and_exam_tips:
             "Labelled diagrams + principle statements give easy marks.",
+        },
+      ],
+    },
+
+    OurEnvironment: {
+      topicKey: "OurEnvironment",
+      topicName: "Our Environment",
+      tier: "good-to-do",
+      weightagePercent: 3.75,
+      concepts: [
+        {
+          name: "Food Chains, Trophic Levels & Energy Flow",
+          sharePercent: 60,
+          question_types: ["Very Short", "Short", "Case-Based"],
+          summary_and_exam_tips:
+            "Know the 10% energy rule and draw simple food chains. Frequently asked as 1–2 mark factual questions or short case passages.",
+        },
+        {
+          name: "Pollution, Waste Management & Ozone Depletion",
+          sharePercent: 40,
+          question_types: ["Short"],
+          summary_and_exam_tips:
+            "Focus on biodegradable vs non-biodegradable waste, causes of ozone depletion, and effects of pollution. Quick 1–2 markers if you know definitions.",
         },
       ],
     },

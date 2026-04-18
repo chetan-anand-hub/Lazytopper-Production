@@ -363,6 +363,102 @@ export const class10SciencePredictiveEngine: SciencePredictiveEngineSpec = {
       ],
     },
 
+    // ------------------------------------------------------
+    // 3. OUR ENVIRONMENT — ECOLOGY ONLY (SCI-ENV)
+    //    Sources of Energy and Management of Natural Resources
+    //    are NOT part of the 2026-27 CBSE syllabus and must not
+    //    appear in any prediction, question bank, or study plan.
+    // ------------------------------------------------------
+    {
+      code: "SCI-ENV",
+      topic: "Our Environment (Ecology)",
+      weightagePercent: 4,
+      tier: "good-to-do",
+      adaptiveDiagnostics: [
+        {
+          diagnosticType: "Quick Diagnostic",
+          numQs: 1,
+          typicalQTypes: ["MCQ", "Short"],
+          bloomSkills: ["Remembering", "Understanding"],
+          predictionLogic:
+            "Ecology concepts (food chains, trophic levels, pollution) appear as quick 1–2 mark questions; one diagnostic question is sufficient.",
+        },
+      ],
+      mustAskConcepts: [
+        "Food chains and food webs",
+        "Trophic levels and 10% energy rule",
+        "Biodegradable vs non-biodegradable waste",
+        "Ozone layer and ozone depletion",
+        "Ecosystem balance and environmental awareness",
+      ],
+      syllabusPolicy: [
+        "Sources of Energy chapter deleted from 2026-27 syllabus — do NOT include",
+        "Management of Natural Resources chapter deleted from 2026-27 syllabus — do NOT include",
+        "Only ecology subtopics of the original Our Environment chapter are in scope",
+      ],
+      subtopics: [
+        {
+          subtopic: "Food Chains, Trophic Levels & Energy Flow",
+          weightagePercent: 60,
+          questions: [
+            {
+              id: "2026-ENV-01",
+              type: "MCQ",
+              section: "A",
+              marks: 1,
+              difficulty: "Easy",
+              bloomSkill: "Remembering",
+              questionText:
+                "In a food chain, the percentage of energy transferred from one trophic level to the next is approximately: (A) 1% (B) 10% (C) 50% (D) 90%",
+              answer: "10%",
+              explanation:
+                "Only about 10% of the energy at one trophic level is available to the next level; the rest is lost as heat.",
+              pastBoardYear: "2023",
+              policyTag: "MCQ/Fact",
+            },
+            {
+              id: "2026-ENV-02",
+              type: "Short",
+              section: "B",
+              marks: 2,
+              difficulty: "Medium",
+              bloomSkill: "Understanding",
+              questionText:
+                "What is a food web? How does it differ from a food chain?",
+              answer:
+                "A food chain is a linear sequence of organisms where each one is eaten by the next. A food web is a network of interconnected food chains in an ecosystem, showing that most organisms are part of multiple feeding relationships.",
+              explanation:
+                "Food webs reflect realistic feeding relationships better than simple chains; they show the complexity of energy flow in an ecosystem.",
+              pastBoardYear: "2022",
+              policyTag: "Short/Concept",
+            },
+          ],
+        },
+        {
+          subtopic: "Pollution, Waste Management & Ozone Depletion",
+          weightagePercent: 40,
+          questions: [
+            {
+              id: "2026-ENV-03",
+              type: "Short",
+              section: "B",
+              marks: 2,
+              difficulty: "Easy",
+              bloomSkill: "Understanding",
+              questionText:
+                "Distinguish between biodegradable and non-biodegradable substances. Give one example of each.",
+              answer:
+                "Biodegradable: substances broken down by microorganisms (e.g. vegetable peels). Non-biodegradable: substances that cannot be broken down naturally (e.g. plastic bags).",
+              explanation:
+                "Non-biodegradable substances accumulate in the environment and cause long-term pollution, while biodegradable substances are recycled naturally.",
+              pastBoardYear: "2024",
+              policyTag: "Short/Distinction",
+            },
+          ],
+        },
+      ],
+    },
+
   ],
 
   // ==== ENGINE RULES – straight from your JSON/philosophy ====
