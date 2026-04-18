@@ -63,7 +63,7 @@ function createMentorResponseBuilder(deps) {
       let reply;
       try {
         reply = await callRoutedModel(routingDecision, reqJson, GEMINI_TUTOR_MODEL, contents, {
-          maxOutputTokens: 2500,
+          maxOutputTokens: 4096,
           temperature: 0.7,
           _userPrompt: userPrompt,
         }, systemPrompt);
@@ -71,7 +71,7 @@ function createMentorResponseBuilder(deps) {
         const isTimeout = tutorErr && (tutorErr.status === 504 || /timed out/i.test(tutorErr.message || ''));
         if (isTimeout && GEMINI_TUTOR_MODEL !== GEMINI_MODEL) {
           console.warn(`[tutor] ${GEMINI_TUTOR_MODEL} timed out, retrying with ${GEMINI_MODEL}`);
-          reply = await callGemini(GEMINI_MODEL, contents, { maxOutputTokens: 2000, temperature: 0.7 });
+          reply = await callGemini(GEMINI_MODEL, contents, { maxOutputTokens: 3500, temperature: 0.7 });
         } else {
           throw tutorErr;
         }
@@ -96,8 +96,8 @@ function createMentorResponseBuilder(deps) {
     const maxOutputTokens =
       normalisedMode === 'board_steps_ms' || normalisedMode === 'learn_proof'
         ? Math.min(6000, Math.max(2500, 1200 + Math.round(safeMarks * 240)))
-        : normalisedMode === 'learn_teach' ? 3000
-          : normalisedMode === 'solve_with_me' ? 2200 : 2000;
+        : normalisedMode === 'learn_teach' ? 4096
+          : normalisedMode === 'solve_with_me' ? 3000 : 4096;
     const responseMimeType = isTeachContract ? 'application/json' : undefined;
 
     const requestParts = [{ text: `${systemPrompt}\n\n${userPrompt}` }];
