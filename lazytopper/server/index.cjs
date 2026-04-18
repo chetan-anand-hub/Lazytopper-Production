@@ -240,6 +240,7 @@ async function handleRequest(req, res) {
       reqPath === '/api/mentor' ||
       reqPath === '/api/mentor/cache-stats' ||
       reqPath === '/api/mentor/stream' ||
+      reqPath === '/api/mentor/stream-structured' ||
       reqPath === '/api/more-like-this' ||
       reqPath === '/api/step-solution' ||
       reqPath === '/api/check-solution' ||
@@ -381,6 +382,9 @@ async function handleRequest(req, res) {
   }
   if (req.method === 'POST' && req.url === '/api/mentor/stream') {
     return mentorRoute.handleMentorStreamRequest(req, res);
+  }
+  if (req.method === 'POST' && req.url === '/api/mentor/stream-structured') {
+    return mentorRoute.handleMentorStreamStructuredRequest(req, res);
   }
   if (req.method === 'POST' && req.url === '/api/more-like-this') {
     return questionRoutes.handleMoreLikeThis(req, res);

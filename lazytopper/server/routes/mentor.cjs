@@ -509,7 +509,123 @@ function createMentorRoute(deps) {
     }
   }
 
-  return { handleMentorRequest, handleMentorStreamRequest, buildMoreLikeThisUserPrompt, ensureDiagramFields };
+  async function handleMentorStreamStructuredRequest(req, res) {
+    let reqJson;
+    try { reqJson = await readJson(req); } catch {
+      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': CORS_ORIGIN });
+      return res.end(JSON.stringify({ error: 'Invalid JSON' }));
+    }
+
+    const { mode, persona, payload } = normalizeMentorRequest(reqJson);
+    const flags = modeHandler.classifyRequest(reqJson, payload, mode);
+    const { imageError } = flags;
+
+    if (imageError) {
+      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': CORS_ORIGIN });
+      return res.end(JSON.stringify({ error: `Invalid image: ${imageError}` }));
+    }
+
+    const stubMode = isStubMode();
+    if (stubMode || !callGeminiStream) {
+      res.writeHead(503, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': CORS_ORIGIN });
+      return res.end(JSON.stringify({ error: 'Streaming not available in stub mode.' }));
+    }
+
+    if (!mode) {
+      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': CORS_ORIGIN });
+      return res.end(JSON.stringify({ error: 'Missing "mode" in request body' }));
+    }
+
+    const normalisedMode = modeHandler.resolveNormalisedMode(mode, flags);
+    const isTeachContract = isTeachContractRequest(payload, normalisedMode);
+
+    const { systemPrompt } = modeHandler.buildSystemPrompt(normalisedMode, persona, flags, payload);
+
+    let userPrompt;
+    try {
+      userPrompt = modeHandler.buildUserPrompt(normalisedMode, payload, flags, reqJson);
+      if (userPrompt === null) {
+        res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': CORS_ORIGIN });
+        return res.end(JSON.stringify({ error: `Unsupported mode: ${mode}` }));
+      }
+    } catch (e) {
+      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': CORS_ORIGIN });
+      return res.end(JSON.stringify({ error: 'Invalid payload' }));
+    }
+
+    const maxOutputTokens = normalisedMode === 'learn_teach' ? 4096 : 3500;
+    const temperature = normalisedMode === 'learn_teach' ? 0.55 : 0.6;
+
+    const contents = [
+      { role: 'user', parts: [{ text: `${String(systemPrompt || '').trim()}\n\n${String(userPrompt || '').trim()}` }] },
+    ];
+
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+      'Access-Control-Allow-Origin': CORS_ORIGIN,
+      'X-Accel-Buffering': 'no',
+    });
+
+    const sendEvent = (data) => {
+      try {
+        res.write(`data: ${JSON.stringify(data)}\n\n`);
+      } catch { /* ignore write errors on closed connection */ }
+    };
+
+    let fullText = '';
+    try {
+      const tokenStream = callGeminiStream(GEMINI_TUTOR_MODEL, contents, { maxOutputTokens, temperature });
+      for await (const token of tokenStream) {
+        if (res.writableEnded) break;
+        fullText += token;
+        sendEvent({ token });
+      }
+
+      let structured = null;
+      try {
+        structured = extractJsonObjectFromText(fullText) || tryParseJsonStrict(fullText);
+      } catch { /* fallback below */ }
+
+      if (!structured && isTeachContract) {
+        structured = buildLearnTeachFallback(payload);
+      } else if (!structured && isStructuredMode(normalisedMode)) {
+        structured = buildTutorFallback(normalisedMode, payload);
+      }
+
+      if (structured && typeof structured === 'object') {
+        if (isTeachContract) {
+          try {
+            const coerced = coerceLearnTeachContractStructured(structured, payload);
+            structured = coerced.structured;
+          } catch { /* keep original */ }
+        }
+        const attemptText = extractStudentAttempt(payload, reqJson?.messages);
+        if (attemptText && isTrianglesTopic(payload)) {
+          structured.attempt_loop = buildAttemptLoopHeuristic(payload, attemptText);
+        }
+        structured = orchestrateTutorResponse({ mode: normalisedMode, payload, messages: reqJson?.messages, structuredDraft: structured });
+        structured = attachTutorDiagramIntent(structured, payload);
+      }
+
+      const topicKeyRaw = payload && (payload.topic || payload.topicKey || '');
+      const subjectRaw = payload && (payload.subject || 'Maths');
+      const serverVisual = (VISUALS_DIR && findVisualForTopicFromStore)
+        ? findVisualForTopicFromStore(topicKeyRaw, subjectRaw, VISUALS_DIR)
+        : null;
+
+      sendEvent({ done: true, responseText: fullText.trim(), structured: structured || null, visual: serverVisual || null });
+    } catch (err) {
+      console.error('[mentor/stream-structured] error:', err?.message || err);
+      const isTimeout = err && (err.status === 504 || /timed out/i.test(err.message || ''));
+      sendEvent({ error: isTimeout ? 'Lesson panel is taking too long. Please retry.' : (err.message || 'Stream error') });
+    } finally {
+      if (!res.writableEnded) res.end();
+    }
+  }
+
+  return { handleMentorRequest, handleMentorStreamRequest, handleMentorStreamStructuredRequest, buildMoreLikeThisUserPrompt, ensureDiagramFields };
 }
 
 module.exports = { createMentorRoute };

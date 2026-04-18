@@ -241,6 +241,52 @@ type TutorChatTurn = {
   role: "user" | "assistant";
   text: string;
 };
+
+function LessonPanelSkeleton({ streamingText }: { streamingText: string | null }) {
+  const shimmerBase = {
+    borderRadius: 8,
+    background: "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)",
+    backgroundSize: "200% 100%",
+    animation: "lt-shimmer 1.4s ease-in-out infinite",
+  };
+  return (
+    <>
+      <style>{`@keyframes lt-shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }`}</style>
+      <div style={{ display: "grid", gap: 12, padding: "4px 0" }}>
+        <div style={{ ...shimmerBase, height: 180, borderRadius: 12 }} />
+        <div style={{ borderRadius: 16, padding: "12px 12px", background: "#fff", border: "2px solid #e5e5e5", display: "grid", gap: 10 }}>
+          <div>
+            <div style={{ ...shimmerBase, height: 11, width: "30%", marginBottom: 8 }} />
+            <div style={{ ...shimmerBase, height: 20, width: "80%", marginBottom: 6 }} />
+            <div style={{ ...shimmerBase, height: 13, width: "95%" }} />
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 10 }}>
+            {(["#f7f7f7", "#f7f7f7", "#fffbeb"] as const).map((bg, i) => (
+              <div key={i} style={{ borderRadius: 12, padding: "10px 12px", background: bg, border: `1px solid ${bg === "#fffbeb" ? "#fde68a" : "#e5e5e5"}` }}>
+                <div style={{ ...shimmerBase, height: 14, width: "45%", marginBottom: 10 }} />
+                <div style={{ ...shimmerBase, height: 13, width: "90%", marginBottom: 6 }} />
+                <div style={{ ...shimmerBase, height: 13, width: "75%", marginBottom: 6 }} />
+                <div style={{ ...shimmerBase, height: 13, width: "60%" }} />
+              </div>
+            ))}
+          </div>
+        </div>
+        {streamingText && streamingText.trim().length > 0 && (
+          <div style={{ padding: "10px 12px", borderRadius: 12, background: "#f7f7f7", border: "1px solid #e5e5e5", fontSize: 12, color: "#555", lineHeight: 1.5, maxHeight: 80, overflow: "hidden", whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
+            <span style={{ fontWeight: 700, display: "block", marginBottom: 4, fontSize: 11 }}>Generating lesson...</span>
+            {streamingText.slice(-200)}
+          </div>
+        )}
+        {!streamingText && (
+          <div style={{ fontSize: 12, opacity: 0.55, textAlign: "center", paddingTop: 4 }}>
+            Preparing your lesson panel...
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
+
 type TutorDrawerProps = {
   open: boolean;
   onClose: () => void;
@@ -307,6 +353,7 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
   const [showMoreActions, setShowMoreActions] = useState(false);
   const [notices, setNotices] = useState<Record<string, string>>({});
   const [hintVariant] = useState(() => getHintVariant());
+  const [lessonStreamingText, setLessonStreamingText] = useState<string | null>(null);
   const isDev = Boolean(import.meta?.env?.DEV);
   const abortRef = useRef<AbortController | null>(null);
   const continuitySessionByNodeRef = useRef<Record<string, string>>({});
@@ -790,6 +837,7 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
       cancelInFlight();
       setErrors((prev) => ({ ...prev, [key]: "" }));
       setNotices((prev) => ({ ...prev, [key]: "" }));
+      setLessonStreamingText(null);
       setLoadingKey(key);
 
       const controller = new AbortController();
@@ -801,9 +849,80 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
         const hintLadderState =
           opts?.requestNextHint && isRecord(attemptLoop) ? attemptLoop.hint_ladder : undefined;
         const body = buildPayload(nextTab, undefined, opts?.prompt, opts?.requestNextHint, hintLadderState);
-        const result = await requestWithRecovery(body, controller.signal);
-        const nextStructured = result.structured;
-        if (!nextStructured) throw new Error("Mentor response incomplete. Please retry.");
+
+        let streamedStructured: MentorStructured | null = null;
+        let streamingSucceeded = false;
+
+        if (!opts?.requestNextHint) {
+          try {
+            const streamStructuredController = new AbortController();
+            const streamTimeoutId = setTimeout(() => streamStructuredController.abort(), MENTOR_SERVER_TIMEOUT_MS);
+            const streamRes = await fetch("/api/mentor/stream-structured", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(body),
+              signal: streamStructuredController.signal,
+            });
+            clearTimeout(streamTimeoutId);
+
+            if (streamRes.ok && streamRes.body) {
+              const reader = streamRes.body.getReader();
+              const decoder = new TextDecoder();
+              let buffer = "";
+              let accText = "";
+              try {
+                while (true) {
+                  const { done, value } = await reader.read();
+                  if (done) break;
+                  buffer += decoder.decode(value, { stream: true });
+                  const lines = buffer.split("\n");
+                  buffer = lines.pop() ?? "";
+                  for (const line of lines) {
+                    const trimmed = line.trim();
+                    if (!trimmed.startsWith("data: ")) continue;
+                    const jsonStr = trimmed.slice(6);
+                    try {
+                      const event = JSON.parse(jsonStr) as Record<string, unknown>;
+                      if (typeof event.token === "string") {
+                        accText += event.token;
+                        setLessonStreamingText(accText);
+                      } else if (event.done) {
+                        if (isRecord(event.structured)) {
+                          streamedStructured = event.structured as MentorStructured;
+                          streamingSucceeded = true;
+                        }
+                      } else if (typeof event.error === "string") {
+                        throw new Error(event.error);
+                      }
+                    } catch (parseErr) {
+                      if (parseErr instanceof Error && parseErr.message !== jsonStr) throw parseErr;
+                    }
+                  }
+                }
+              } finally {
+                try { reader.releaseLock(); } catch { /* ignore */ }
+              }
+            }
+          } catch (streamErr) {
+            if (getErrorName(streamErr) === "AbortError") throw streamErr;
+            streamingSucceeded = false;
+            streamedStructured = null;
+          }
+        }
+
+        setLessonStreamingText(null);
+
+        let nextStructured: MentorStructured;
+        if (streamingSucceeded && streamedStructured) {
+          nextStructured = streamedStructured;
+        } else {
+          const result = await requestWithRecovery(body, controller.signal);
+          if (!result.structured) throw new Error("Mentor response incomplete. Please retry.");
+          nextStructured = result.structured;
+          if (result.warning) {
+            setNotices((prev) => ({ ...prev, [key]: result.warning }));
+          }
+        }
 
         const modeApi = "learn_teach";
         const meta = extractDiagramMeta(nextStructured);
@@ -826,9 +945,6 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
             summary: JSON.stringify(nextStructured).slice(0, 280),
           },
         }));
-        if (result.warning) {
-          setNotices((prev) => ({ ...prev, [key]: result.warning }));
-        }
       } catch (err) {
         if (getErrorName(err) === "AbortError") return;
         setErrors((prev) => ({
@@ -836,6 +952,7 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
           [key]: toTutorErrorMessage(err, "Mentor error. Please retry."),
         }));
       } finally {
+        setLessonStreamingText(null);
         if (abortRef.current === controller) {
           abortRef.current = null;
         }
@@ -1844,7 +1961,7 @@ export default function TutorDrawerV2(props: TutorDrawerProps) {
     }
 
     if (!currentResponse && isLoading) {
-      return <div style={{ padding: 12, opacity: 0.75 }}>Tutor is preparing your lesson...</div>;
+      return <LessonPanelSkeleton streamingText={lessonStreamingText} />;
     }
 
     if (!currentResponse) {
