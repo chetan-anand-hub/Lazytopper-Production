@@ -117,6 +117,18 @@ function mkCfg(file, getVisualId) { return { file, getVisualId }; }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // VISUAL ID SELECTORS  (one per topic, shared across pack1/pack2)
+//
+// ACCEPTED ID ALIASES (all validated against visualConceptRegistry.ts):
+//   Triangles:
+//     maths-triangles-pythagoras-theorem-visual-proof   ← Pythagoras proof
+//       (Note: registry uses "visual-proof" suffix, NOT bare "pythagoras-theorem")
+//     maths-triangles-basic-proportionality-theorem     ← BPT / Thales
+//     maths-triangles-areas-of-similar-triangles        ← area ratio questions
+//     maths-triangles-similar-triangles-and-criteria    ← default
+//   Circles:
+//     maths-circles-number-of-tangents-from-external-point  ← tangent length questions
+//     maths-circles-tangent-to-a-circle                     ← tangent-perpendicular
+//   When adding new topics update this alias table AND validate_visual_ids.mjs.
 // ─────────────────────────────────────────────────────────────────────────────
 
 function trianglesVid(qt) {
