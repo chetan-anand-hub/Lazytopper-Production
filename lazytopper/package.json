@@ -86,6 +86,7 @@
     "test:step2:connectivity": "node scripts/ops/step2_refactor_connectivity_acceptance.mjs",
     "test:agent2:guard": "node scripts/ops/agent2_test_guard.mjs",
     "test:agent3:uiux": "node scripts/ops/agent3_uiux_guard.mjs",
+    "test:prediction:deleted-zeroing": "tsx scripts/ops/science_deleted_zeroing_acceptance.ts",
     "test:prediction:bank-health": "node scripts/ops/prediction_bank_health_acceptance.mjs",
     "test:practice:weightage-mix": "node scripts/ops/practice_weightage_mix_acceptance.mjs",
     "test:canonical:generator": "node scripts/ops/canonical_generator_acceptance.mjs",
