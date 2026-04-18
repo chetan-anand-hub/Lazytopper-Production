@@ -390,7 +390,7 @@ function mistakeStyle(t: MistakeType): { color: string; bg: string } {
 }
 
 function statusDot(s: TopicRow["status"]): string {
-  return s === "mastered" ? "#10b981" : s === "needs_practice" ? "#f59e0b" : s === "learning" ? "#6366f1" : "#cbd5e1";
+  return s === "mastered" ? "#10b981" : s === "needs_practice" ? "#f59e0b" : s === "learning" ? "#6366f1" : "#94a3b8";
 }
 
 // ── Custom Tooltip ────────────────────────────────────────────────────────────
@@ -1403,7 +1403,7 @@ export default function ProfilePage() {
 
           {/* Legend */}
           <div style={{ display: "flex", gap: 14, marginTop: 14, flexWrap: "wrap" }}>
-            {[["#10b981","Mastered"],["#f59e0b","Review"],["#6366f1","Learning"],["#cbd5e1","Unseen"]].map(([c,l]) => (
+            {[["#10b981","Mastered"],["#f59e0b","Review"],["#6366f1","Learning"],["#94a3b8","Unseen"]].map(([c,l]) => (
               <div key={l} style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 10, fontWeight: 700, color: mutedColor, textTransform: "uppercase", letterSpacing: "0.05em" }}>
                 <span style={{ width: 8, height: 8, borderRadius: "50%", background: c, display: "inline-block" }} />
                 {l}

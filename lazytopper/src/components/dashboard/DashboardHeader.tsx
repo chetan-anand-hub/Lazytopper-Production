@@ -1,6 +1,7 @@
 
 import { greetingLabel, useThemeColors } from "./dashboardUtils";
 import { getProfileConfig, type PaceProfileType } from "../../services/paceProfileService";
+import { useTheme } from "../../context/ThemeContext";
 
 export interface DashboardHeaderProps {
   user: { displayName?: string | null; email?: string | null } | null;
@@ -12,6 +13,7 @@ export interface DashboardHeaderProps {
 
 export function DashboardHeader({ user, streak, xpEstimate, paceProfile, onTogglePaceSelector }: DashboardHeaderProps) {
   const tc = useThemeColors();
+  const { theme, toggleTheme } = useTheme();
   return (
     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -48,6 +50,19 @@ export function DashboardHeader({ user, streak, xpEstimate, paceProfile, onToggl
           <span style={{ fontSize: 14 }}>{"⚡"}</span>
           <span style={{ fontSize: 12, fontWeight: 800, color: "#c084fc" }}>{xpEstimate.toLocaleString()}</span>
         </div>
+        <button
+          type="button"
+          onClick={toggleTheme}
+          title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+          style={{
+            width: 34, height: 34, borderRadius: "50%", border: "none",
+            background: theme === "dark" ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.07)",
+            cursor: "pointer", fontSize: 16, lineHeight: 1,
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}
+        >
+          {theme === "dark" ? "☀️" : "🌙"}
+        </button>
       </div>
     </div>
   );

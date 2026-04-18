@@ -407,7 +407,7 @@ const TrendsPage: React.FC = () => {
           {showPaperDetails && (
             <div style={{
               marginTop: 12, padding: "12px 14px", borderRadius: 12,
-              background: "rgba(0,0,0,0.15)", border: "1px solid var(--bg-card-border)",
+              background: "var(--bg-card)", border: "1px solid var(--bg-card-border)",
             }}>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 16, fontSize: "0.75rem", marginBottom: 10 }}>
                 <div>
