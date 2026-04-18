@@ -130,6 +130,22 @@ function defaultStrategyHint(skillFamily: TrigSkillFamily): string {
   }
 }
 
+function defaultVisualId(skillFamily: TrigSkillFamily): string {
+  switch (skillFamily) {
+    case "Heights_Distances":
+    case "Case_Study":
+      return "maths-trigonometry-height-and-distance-problems";
+    case "Standard_Values":
+      return "maths-trigonometry-trigonometric-ratios-of-standard-angles";
+    case "Identity_Simplify":
+    case "Proof_Pattern":
+    case "Equation_Solve":
+      return "maths-trigonometry-trigonometric-identities";
+    default:
+      return "maths-trigonometry-trigonometric-ratios";
+  }
+}
+
 function buildSolutionSteps(spec: TrigQuestionSpec): string[] {
   const lines = [...spec.working];
   if (spec.cbseFormat === "C" || spec.cbseFormat === "D") {
@@ -173,6 +189,7 @@ function makeTrigQuestion(spec: TrigQuestionSpec): TrigPackQuestion {
     predictionScore: 4,
     skillFamily: spec.skillFamily,
     loIds: [...spec.loIds],
+    visualExplainerId: spec.cbseFormat !== "A" ? defaultVisualId(spec.skillFamily) : undefined,
   };
 }
 

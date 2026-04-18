@@ -158,6 +158,15 @@ function defaultStrategyHint(skillFamily: TrianglesSkillFamily): string {
   }
 }
 
+function defaultVisualId(skillFamily: TrianglesSkillFamily): string {
+  switch (skillFamily) {
+    case "BPT": return "maths-triangles-basic-proportionality-theorem";
+    case "Area Ratio": return "maths-triangles-areas-of-similar-triangles";
+    case "Proof": return "maths-triangles-pythagoras-theorem-visual-proof";
+    default: return "maths-triangles-similar-triangles-and-criteria";
+  }
+}
+
 function buildSolutionSteps(spec: TrianglesQuestionSpec): string[] {
   const lines = [...spec.working];
   if (spec.cbseFormat === "C" || spec.cbseFormat === "D") {
@@ -201,6 +210,7 @@ function makeTrianglesQuestion(spec: TrianglesQuestionSpec): TrianglesPackQuesti
     predictionScore: 4,
     skillFamily: spec.skillFamily,
     loIds: [...spec.loIds],
+    visualExplainerId: spec.cbseFormat !== "A" ? defaultVisualId(spec.skillFamily) : undefined,
   };
 }
 
