@@ -60,15 +60,6 @@ interface RawQuestion {
 export const MIN_QUESTION_COUNT = 3;
 export const MAX_QUESTION_COUNT = 100;
 
-/**
- * When the topic bank is short on questions, we pull from other chapters in the
- * same subject (the "global pool fallback"). This constant caps how many
- * questions we accept from each individual chapter so no single large chapter
- * drowns out the rest, giving better cross-chapter variety.
- * Increase this value to allow deeper draws per chapter.
- */
-export const GLOBAL_POOL_FALLBACK_DEPTH_PER_CHAPTER = 8;
-
 export type QuestionStrategyDetails = {
   meta: QuestionMeta;
   learningObjects: LearningObject[];
@@ -465,86 +456,6 @@ export async function buildPracticeQuestionsWithAiTopup(
       '| difficulty:', args.difficulty,
       '| excluded count:', excludeKeys.size,
     );
-  }
-
-  // Cross-chapter fallback: runs whenever the topic bank is short (not just
-  // when it is completely empty). This surfaces canonical questions from other
-  // chapters in the same subject BEFORE falling back to AI, improving variety
-  // and reducing AI spend.
-  //
-  // IMPORTANT: difficulty and section filters are applied PER CHAPTER before
-  // the depth cap so that matching Hard/Easy questions are never skipped just
-  // because they happen to sit beyond position N in the raw chapter list.
-  // The cap only limits how many already-matching questions each chapter can
-  // contribute, ensuring no single large chapter dominates the pool.
-  if (bankQuestions.length < safeCount && packMap) {
-    const allPacks = Object.values(packMap).filter(Boolean);
-
-    // Pre-compute filters once so we don't repeat them in the per-chapter loop
-    const wantedDiff = args.difficulty !== "All" ? args.difficulty.toLowerCase() : null;
-    const desiredSectionForPool = normalizeBoardPattern(args.sectionFilter);
-    const existingTexts = new Set(
-      bankQuestions.map((q) => String(q.questionText || "").trim().toLowerCase().slice(0, 120))
-    );
-
-    let poolQuestions: PracticeQuestion[] = [];
-    for (const p of allPacks) {
-      if (!Array.isArray(p?.questions)) continue;
-
-      // Convert the whole chapter to PracticeQuestion first …
-      const chapterQuestions = p.questions.map((q) =>
-        mapUnifiedQuestionToPractice(q as unknown as RawQuestion, String(q.id))
-      );
-
-      // … then apply all filters (difficulty, section, excludeKeys, dedup) …
-      let filtered = chapterQuestions;
-      if (wantedDiff) {
-        filtered = filtered.filter(
-          (q) => String(q.difficulty ?? "").toLowerCase() === wantedDiff
-        );
-      }
-      if (desiredSectionForPool) {
-        filtered = filtered.filter(
-          (q) => inferBoardPatternFromQuestion(q) === desiredSectionForPool
-        );
-      }
-      if (excludeKeys && excludeKeys.size > 0) {
-        filtered = filtered.filter((q) => {
-          const key = String(q.questionText || "").trim().toLowerCase().slice(0, 120);
-          return !excludeKeys.has(key);
-        });
-      }
-      // Exclude questions already present in the topic bank (avoid duplicates)
-      filtered = filtered.filter((q) => {
-        const key = String(q.questionText || "").trim().toLowerCase().slice(0, 120);
-        return !existingTexts.has(key);
-      });
-
-      // … and ONLY THEN cap per-chapter depth, guaranteeing we never miss
-      // eligible questions that happen to sit beyond the first N raw entries.
-      const chapterContribution = filtered.slice(0, GLOBAL_POOL_FALLBACK_DEPTH_PER_CHAPTER);
-      poolQuestions.push(...chapterContribution);
-    }
-
-    if (poolQuestions.length > 0) {
-      // Deduplicate within the pool itself (same canonical text may appear in
-      // multiple chapter packs) so the depth cap is not wasted on repeats.
-      const poolSeenTexts = new Set<string>();
-      poolQuestions = poolQuestions.filter((q) => {
-        const key = String(q.questionText || "").trim().toLowerCase().slice(0, 120);
-        if (!key || poolSeenTexts.has(key)) return false;
-        poolSeenTexts.add(key);
-        return true;
-      });
-
-      for (let i = poolQuestions.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [poolQuestions[i], poolQuestions[j]] = [poolQuestions[j], poolQuestions[i]];
-      }
-      // Supplement (do not replace) the existing topic-bank questions
-      const needed = safeCount - bankQuestions.length;
-      bankQuestions = [...bankQuestions, ...poolQuestions.slice(0, needed)];
-    }
   }
 
   const desiredSection = normalizeBoardPattern(args.sectionFilter);
