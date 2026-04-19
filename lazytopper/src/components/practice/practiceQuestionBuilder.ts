@@ -60,6 +60,15 @@ interface RawQuestion {
 export const MIN_QUESTION_COUNT = 3;
 export const MAX_QUESTION_COUNT = 100;
 
+/**
+ * When the topic bank is short on questions, we pull from other chapters in the
+ * same subject (the "global pool fallback"). This constant caps how many
+ * questions we accept from each individual chapter so no single large chapter
+ * drowns out the rest, giving better cross-chapter variety.
+ * Increase this value to allow deeper draws per chapter.
+ */
+export const GLOBAL_POOL_FALLBACK_DEPTH_PER_CHAPTER = 8;
+
 export type QuestionStrategyDetails = {
   meta: QuestionMeta;
   learningObjects: LearningObject[];
@@ -458,12 +467,19 @@ export async function buildPracticeQuestionsWithAiTopup(
     );
   }
 
-  if (bankQuestions.length === 0 && packMap) {
+  // Cross-chapter fallback: runs whenever the topic bank is short (not just
+  // when it is completely empty). This surfaces canonical questions from other
+  // chapters in the same subject BEFORE falling back to AI, improving variety
+  // and reducing AI spend. A per-chapter depth cap ensures no single large
+  // chapter dominates the supplemental pool.
+  if (bankQuestions.length < safeCount && packMap) {
     const allPacks = Object.values(packMap).filter(Boolean);
     let poolQuestions: PracticeQuestion[] = [];
     for (const p of allPacks) {
       if (!Array.isArray(p?.questions)) continue;
-      for (const q of p.questions) {
+      // Cap per chapter so variety is spread evenly across chapters
+      const chapterSlice = p.questions.slice(0, GLOBAL_POOL_FALLBACK_DEPTH_PER_CHAPTER);
+      for (const q of chapterSlice) {
         poolQuestions.push(mapUnifiedQuestionToPractice(q as unknown as RawQuestion, String(q.id)));
       }
     }
@@ -471,6 +487,16 @@ export async function buildPracticeQuestionsWithAiTopup(
       poolQuestions = poolQuestions.filter((q) => {
         const key = String(q.questionText || "").trim().toLowerCase().slice(0, 120);
         return !excludeKeys.has(key);
+      });
+    }
+    // Exclude questions already present in the topic bank (avoid duplicates)
+    if (bankQuestions.length > 0) {
+      const existingTexts = new Set(
+        bankQuestions.map((q) => String(q.questionText || "").trim().toLowerCase().slice(0, 120))
+      );
+      poolQuestions = poolQuestions.filter((q) => {
+        const key = String(q.questionText || "").trim().toLowerCase().slice(0, 120);
+        return !existingTexts.has(key);
       });
     }
     if (args.difficulty !== "All") {
@@ -491,7 +517,9 @@ export async function buildPracticeQuestionsWithAiTopup(
         const j = Math.floor(Math.random() * (i + 1));
         [poolQuestions[i], poolQuestions[j]] = [poolQuestions[j], poolQuestions[i]];
       }
-      bankQuestions = poolQuestions.slice(0, safeCount);
+      // Supplement (do not replace) the existing topic-bank questions
+      const needed = safeCount - bankQuestions.length;
+      bankQuestions = [...bankQuestions, ...poolQuestions.slice(0, needed)];
     }
   }
 
@@ -552,7 +580,15 @@ export async function buildPracticeQuestionsWithAiTopup(
     return enforceDifficultyFilter(mergedWithCanonical.slice(0, safeCount), args.difficulty);
   }
 
-  const seedFromBank: PracticeQuestion | undefined = mergedWithCanonical[0];
+  // Pick a varied seed so each AI top-up session generates different questions.
+  // We rotate through available canonical questions rather than always using
+  // index 0, which previously caused all AI variants to share the same template.
+  const seedPool = mergedWithCanonical.filter((q) => !!q.questionText);
+  const seedFromBank: PracticeQuestion | undefined =
+    seedPool.length > 1
+      ? seedPool[Math.floor(Math.random() * seedPool.length)]
+      : (seedPool[0] ?? mergedWithCanonical[0]);
+
   const fallbackDifficulty: InternalDifficultyBucket =
     args.difficulty === "All"
       ? "Medium"
