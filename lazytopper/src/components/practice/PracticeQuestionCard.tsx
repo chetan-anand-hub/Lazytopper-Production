@@ -59,7 +59,7 @@ export function PracticeQuestionCard({
   const cardRef = useRef<HTMLElement>(null);
   const stepSolutionRef = useRef<HTMLDivElement>(null);
 
-  const { user } = useAuth();
+  const { user, getToken } = useAuth();
   type ReportState = "idle" | "open" | "submitting" | "done" | "error";
   const [reportState, setReportState] = useState<ReportState>("idle");
   const [reportType, setReportType] = useState<string>(REPORT_TYPES[0]);
@@ -72,9 +72,12 @@ export function PracticeQuestionCard({
     setReportState("submitting");
     setReportError(undefined);
     try {
+      const token = await getToken();
+      const authHeaders: Record<string, string> = { "Content-Type": "application/json" };
+      if (token) authHeaders["Authorization"] = `Bearer ${token}`;
       const res = await fetch("/shared-api/questions/report", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: authHeaders,
         body: JSON.stringify({
           questionId: String(q.id),
           reportType,
@@ -94,7 +97,7 @@ export function PracticeQuestionCard({
       setReportError("Network error — please try again");
       setReportState("error");
     }
-  }, [q.id, reportType, reportComment, topicLabel, subjectKey, user?.uid]);
+  }, [q.id, reportType, reportComment, topicLabel, subjectKey, user?.uid, getToken]);
 
   const handleRequestStepSolution = useCallback(() => {
     if (!isOpen) {

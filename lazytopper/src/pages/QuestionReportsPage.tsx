@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import ReturnContextBar from "../components/ux/ReturnContextBar";
+import { useAuth } from "../context/AuthContext";
 
 interface QuestionReport {
   id: number;
@@ -14,16 +15,23 @@ interface QuestionReport {
 }
 
 export default function QuestionReportsPage() {
+  const { getToken } = useAuth();
   const [reports, setReports] = useState<QuestionReport[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [forbidden, setForbidden] = useState(false);
   const [resolving, setResolving] = useState<number | null>(null);
 
   async function fetchReports() {
     setLoading(true);
     setError(null);
+    setForbidden(false);
     try {
-      const res = await fetch("/shared-api/admin/question-reports");
+      const headers: Record<string, string> = {};
+      const token = await getToken();
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+      const res = await fetch("/shared-api/admin/question-reports", { headers });
+      if (res.status === 403) { setForbidden(true); return; }
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
       if (!json.ok) throw new Error(json.error || "Unknown error");
@@ -38,7 +46,10 @@ export default function QuestionReportsPage() {
   async function resolveReport(id: number) {
     setResolving(id);
     try {
-      const res = await fetch(`/shared-api/admin/question-reports/${id}/resolve`, { method: "PATCH" });
+      const headers: Record<string, string> = {};
+      const token = await getToken();
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+      const res = await fetch(`/shared-api/admin/question-reports/${id}/resolve`, { method: "PATCH", headers });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
       if (!json.ok) throw new Error(json.error || "Unknown error");
@@ -71,20 +82,32 @@ export default function QuestionReportsPage() {
               Unresolved student-flagged issues
             </p>
           </div>
-          <button
-            type="button"
-            onClick={fetchReports}
-            disabled={loading}
-            style={{
-              padding: "7px 16px", borderRadius: 8, fontSize: "0.82rem",
-              fontWeight: 600, cursor: loading ? "not-allowed" : "pointer",
-              background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.15)",
-              color: "#fff", opacity: loading ? 0.6 : 1,
-            }}
-          >
-            {loading ? "Refreshing…" : "Refresh"}
-          </button>
+          {!forbidden && (
+            <button
+              type="button"
+              onClick={fetchReports}
+              disabled={loading}
+              style={{
+                padding: "7px 16px", borderRadius: 8, fontSize: "0.82rem",
+                fontWeight: 600, cursor: loading ? "not-allowed" : "pointer",
+                background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.15)",
+                color: "#fff", opacity: loading ? 0.6 : 1,
+              }}
+            >
+              {loading ? "Refreshing…" : "Refresh"}
+            </button>
+          )}
         </div>
+
+        {forbidden && (
+          <div style={{
+            padding: "24px 20px", borderRadius: 10, marginBottom: 20,
+            background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.2)",
+            color: "rgba(255,255,255,0.7)", fontSize: "0.9rem", textAlign: "center",
+          }}>
+            You don't have permission to view this page.
+          </div>
+        )}
 
         {error && (
           <div style={{
@@ -96,7 +119,7 @@ export default function QuestionReportsPage() {
           </div>
         )}
 
-        {!loading && !error && reports.length === 0 && (
+        {!loading && !error && !forbidden && reports.length === 0 && (
           <div style={{
             textAlign: "center", padding: "48px 0",
             color: "rgba(255,255,255,0.3)", fontSize: "0.92rem",
