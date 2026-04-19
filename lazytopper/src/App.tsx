@@ -62,6 +62,7 @@ const DiagramComparePage = lazy(() => import("./pages/DiagramComparePage"));
 const VisualAuditPage = lazy(() => import("./pages/VisualAuditPage"));
 const CacheStatsPage = lazy(() => import("./pages/CacheStatsPage"));
 const DifficultyBreakdownPage = lazy(() => import("./pages/DifficultyBreakdownPage"));
+const QuestionReportsPage = lazy(() => import("./pages/QuestionReportsPage"));
 
 function RouteFallback() {
   return (
@@ -577,6 +578,7 @@ export default function App() {
           <Route path="/admin/visual-audit" element={withRouteSuspense(<VisualAuditPage />)} />
           <Route path="/admin/cache-stats" element={<RequireAuth>{withRouteSuspense(<CacheStatsPage />)}</RequireAuth>} />
           <Route path="/admin/difficulty-breakdown" element={<RequireAuth>{withRouteSuspense(<DifficultyBreakdownPage />)}</RequireAuth>} />
+          <Route path="/admin/question-reports" element={<RequireAuth>{withRouteSuspense(<QuestionReportsPage />)}</RequireAuth>} />
           <Route path="/methodology" element={withRouteSuspense(<MethodologyPage />)} />
           <Route path="/teacher" element={<RequireAuth><SectionErrorBoundary>{withRouteSuspense(<TeacherDashboardPage />)}</SectionErrorBoundary></RequireAuth>} />
           <Route path="/onboarding" element={<RequireAuth><Onboarding /></RequireAuth>} />

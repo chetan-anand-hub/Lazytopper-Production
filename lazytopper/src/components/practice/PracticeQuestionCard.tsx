@@ -8,6 +8,14 @@ import type { StepSolutionResponse } from "../../ai/aiClient";
 import { CorrectBurst, WrongShake } from "../celebrations";
 import { getVisualConceptForQuestion } from "../../data/questionVisualMap";
 import { VisualExplainer } from "../VisualExplainer";
+import { useAuth } from "../../context/AuthContext";
+
+const REPORT_TYPES = [
+  "Wrong answer given",
+  "Wrong solution steps",
+  "Question text has a typo or is unclear",
+  "Other",
+] as const;
 
 export interface PracticeQuestionCardProps {
   q: PracticeQuestion;
@@ -50,6 +58,43 @@ export function PracticeQuestionCard({
   const [showChecker, setShowChecker] = useState(false);
   const cardRef = useRef<HTMLElement>(null);
   const stepSolutionRef = useRef<HTMLDivElement>(null);
+
+  const { user } = useAuth();
+  type ReportState = "idle" | "open" | "submitting" | "done" | "error";
+  const [reportState, setReportState] = useState<ReportState>("idle");
+  const [reportType, setReportType] = useState<string>(REPORT_TYPES[0]);
+  const [reportComment, setReportComment] = useState("");
+  const [reportError, setReportError] = useState<string | undefined>();
+
+  const handleSubmitReport = useCallback(async () => {
+    const uid = user?.uid || "";
+    if (!uid) return;
+    setReportState("submitting");
+    setReportError(undefined);
+    try {
+      const res = await fetch("/api/questions/report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-User-ID": uid },
+        body: JSON.stringify({
+          questionId: String(q.id),
+          reportType,
+          comment: reportComment.slice(0, 200),
+          topicKey: topicLabel,
+          subject: subjectKey,
+        }),
+      });
+      const json = await res.json();
+      if (json.ok) {
+        setReportState("done");
+      } else {
+        setReportError(json.error || "Failed to submit report");
+        setReportState("error");
+      }
+    } catch {
+      setReportError("Network error — please try again");
+      setReportState("error");
+    }
+  }, [q.id, reportType, reportComment, topicLabel, subjectKey, user?.uid]);
 
   const handleRequestStepSolution = useCallback(() => {
     if (!isOpen) {
@@ -469,6 +514,110 @@ export function PracticeQuestionCard({
               </WrongShake>
               Follow-up queued
             </>
+          )}
+        </div>
+      )}
+
+      {isOpen && reportState === "done" && (
+        <div style={{
+          marginTop: 10, fontSize: "0.75rem", color: "var(--text-muted)",
+          padding: "6px 10px", background: "rgba(34,197,94,0.06)",
+          border: "1px solid rgba(34,197,94,0.2)", borderRadius: 8,
+        }}>
+          ✓ Thanks — we'll review it.
+        </div>
+      )}
+
+      {isOpen && reportState !== "done" && (
+        <div style={{ marginTop: 10 }}>
+          {reportState === "idle" && (
+            <button
+              type="button"
+              onClick={() => setReportState("open")}
+              style={{
+                background: "none", border: "none", padding: 0,
+                fontSize: "0.73rem", color: "var(--text-muted)",
+                cursor: "pointer", textDecoration: "underline",
+                textDecorationStyle: "dotted",
+              }}
+            >
+              ⚑ Report issue
+            </button>
+          )}
+
+          {(reportState === "open" || reportState === "submitting" || reportState === "error") && (
+            <div style={{
+              padding: "10px 12px", borderRadius: 10,
+              border: "1px solid rgba(255,255,255,0.1)",
+              background: "rgba(255,255,255,0.03)",
+              display: "flex", flexDirection: "column", gap: 8,
+            }}>
+              <select
+                value={reportType}
+                onChange={(e) => setReportType(e.target.value)}
+                disabled={reportState === "submitting"}
+                style={{
+                  background: "rgba(0,0,0,0.3)", color: "var(--text)",
+                  border: "1px solid rgba(255,255,255,0.15)", borderRadius: 6,
+                  padding: "5px 8px", fontSize: "0.78rem", cursor: "pointer",
+                }}
+              >
+                {REPORT_TYPES.map((t) => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
+              </select>
+
+              <input
+                type="text"
+                maxLength={200}
+                placeholder="Extra detail (optional)"
+                value={reportComment}
+                onChange={(e) => setReportComment(e.target.value)}
+                disabled={reportState === "submitting"}
+                style={{
+                  background: "rgba(0,0,0,0.3)", color: "var(--text)",
+                  border: "1px solid rgba(255,255,255,0.15)", borderRadius: 6,
+                  padding: "5px 8px", fontSize: "0.78rem",
+                  outline: "none",
+                }}
+              />
+
+              {reportState === "error" && reportError && (
+                <div style={{ fontSize: "0.73rem", color: "var(--color-error)" }}>
+                  {reportError}
+                </div>
+              )}
+
+              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                <button
+                  type="button"
+                  onClick={handleSubmitReport}
+                  disabled={reportState === "submitting"}
+                  style={{
+                    padding: "5px 14px", borderRadius: 6, fontSize: "0.78rem",
+                    fontWeight: 600, cursor: reportState === "submitting" ? "not-allowed" : "pointer",
+                    background: "rgba(239,68,68,0.12)",
+                    border: "1px solid rgba(239,68,68,0.3)",
+                    color: "var(--color-error)",
+                    opacity: reportState === "submitting" ? 0.6 : 1,
+                  }}
+                >
+                  {reportState === "submitting" ? "Submitting…" : "Submit"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setReportState("idle"); setReportComment(""); setReportError(undefined); }}
+                  disabled={reportState === "submitting"}
+                  style={{
+                    background: "none", border: "none", padding: 0,
+                    fontSize: "0.73rem", color: "var(--text-muted)",
+                    cursor: "pointer", textDecoration: "underline",
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
           )}
         </div>
       )}

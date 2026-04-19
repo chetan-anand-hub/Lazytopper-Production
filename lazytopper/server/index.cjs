@@ -128,6 +128,7 @@ const { createTutorCache } = require('./services/tutorCache.cjs');
 const { pickFromPool, markServed, saveToPool } = require('./services/generatedQuestionPool.cjs');
 const { createWarmPoolRunner } = require('./services/warmQuestionPool.cjs');
 const { createFirebaseAuthRoute } = require('./routes/firebaseAuth.cjs');
+const { createQuestionReportRoutes } = require('./routes/questionReport.cjs');
 
 const { sendJson, sendJsonWithHeaders } = createHttpUtils(config.CORS_ORIGIN);
 
@@ -255,6 +256,7 @@ const userProgressRoutes = createUserProgressRoutes(routeDeps);
 const aiQuestionsRoute = createAiQuestionsRoute(routeDeps);
 const questionRoutes = createQuestionRoutes(routeDeps);
 const firebaseAuthRoute = createFirebaseAuthRoute({ sendJson, readJson, firebaseAdmin });
+const questionReportRoutes = createQuestionReportRoutes({ sendJson, readJson });
 
 async function handleRequest(req, res) {
   const reqUrlRaw = String(req.url || "");
@@ -277,6 +279,9 @@ async function handleRequest(req, res) {
       reqPath === '/api/share-token' ||
       reqPath === '/api/auth/firebase-token' ||
       reqPath === '/api/admin/warm-question-pool' ||
+      reqPath === '/api/questions/report' ||
+      reqPath === '/api/admin/question-reports' ||
+      /^\/api\/admin\/question-reports\/\d+\/resolve$/.test(reqPath) ||
       reqPath === '/api/user/progress' ||
       reqPath === '/api/user/progress/sync' ||
       reqPath === '/api/user/progress/xp' ||
@@ -464,6 +469,19 @@ async function handleRequest(req, res) {
   }
   if (req.method === 'POST' && reqPath === '/api/generate-visual') {
     return diagramRoutes.handleGenerateVisual(req, res);
+  }
+
+  if (req.method === 'POST' && reqPath === '/api/questions/report') {
+    return questionReportRoutes.handlePostReport(req, res);
+  }
+  if (req.method === 'GET' && reqPath === '/api/admin/question-reports') {
+    return questionReportRoutes.handleGetReports(req, res);
+  }
+  {
+    const resolveMatch = reqPath.match(/^\/api\/admin\/question-reports\/(\d+)\/resolve$/);
+    if (req.method === 'PATCH' && resolveMatch) {
+      return questionReportRoutes.handleResolveReport(req, res, resolveMatch[1]);
+    }
   }
 
   if (req.method === 'POST' && reqPath === '/api/admin/warm-question-pool') {
