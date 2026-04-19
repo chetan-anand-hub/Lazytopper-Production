@@ -231,11 +231,7 @@ export async function downloadWorksheetPdf(opts: WorksheetOptions): Promise<void
     }
   }
 
-  const hasAnyAnswer = cappedQuestions.some(
-    (q) => q.answer || q.finalAnswer || (Array.isArray(q.solutionSteps) && q.solutionSteps.length > 0)
-  );
-
-  if (hasAnyAnswer) {
+  if (cappedQuestions.length > 0) {
     doc.addPage();
     y = marginT;
 
@@ -270,8 +266,6 @@ export async function downloadWorksheetPdf(opts: WorksheetOptions): Promise<void
     for (let i = 0; i < cappedQuestions.length; i++) {
       const q = cappedQuestions[i];
       const marks = Number(q.marks) || 1;
-      const hasAnswer = q.answer || q.finalAnswer || (Array.isArray(q.solutionSteps) && q.solutionSteps.length > 0);
-      if (!hasAnswer) continue;
 
       checkPageBreak(16);
 
@@ -281,9 +275,12 @@ export async function downloadWorksheetPdf(opts: WorksheetOptions): Promise<void
       doc.text(`Q${i + 1}.  [${marks} mark${marks !== 1 ? "s" : ""}]`, marginL, y);
       space(5);
 
-      if (Array.isArray(q.solutionSteps) && q.solutionSteps.length > 0) {
-        for (let si = 0; si < q.solutionSteps.length; si++) {
-          const stepText = `${si + 1}. ${sanitizeText(q.solutionSteps[si])}`;
+      const hasSolutionSteps = Array.isArray(q.solutionSteps) && q.solutionSteps.length > 0;
+      const finalAnswer = q.finalAnswer || q.answer;
+
+      if (hasSolutionSteps) {
+        for (let si = 0; si < (q.solutionSteps as string[]).length; si++) {
+          const stepText = `${si + 1}. ${sanitizeText((q.solutionSteps as string[])[si])}`;
           const stepLines = doc.splitTextToSize(stepText, contentW - 6);
           const stepH = 8.5 * 0.352778 * 1.35;
           ensureSpace(stepLines.length * stepH + 2);
@@ -296,7 +293,6 @@ export async function downloadWorksheetPdf(opts: WorksheetOptions): Promise<void
         }
       }
 
-      const finalAnswer = q.finalAnswer || q.answer;
       if (finalAnswer) {
         space(2);
         ensureSpace(8);
@@ -306,6 +302,13 @@ export async function downloadWorksheetPdf(opts: WorksheetOptions): Promise<void
         const ansLines = doc.splitTextToSize(`Therefore: ${sanitizeText(finalAnswer)}`, contentW - 6);
         doc.text(ansLines, marginL + 6, y);
         y += ansLines.length * 9 * 0.352778 * 1.35;
+      } else if (!hasSolutionSteps) {
+        ensureSpace(7);
+        doc.setFontSize(8.5);
+        doc.setFont("helvetica", "normal");
+        setColor(muted);
+        doc.text("Answer not available for this question.", marginL + 6, y);
+        y += 8.5 * 0.352778 * 1.35;
       }
 
       space(5);
