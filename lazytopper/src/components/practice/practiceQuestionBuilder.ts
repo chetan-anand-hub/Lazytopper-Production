@@ -473,6 +473,20 @@ export async function buildPracticeQuestionsWithAiTopup(
         return !excludeKeys.has(key);
       });
     }
+    if (args.difficulty !== "All") {
+      const wantedDiff = args.difficulty.toLowerCase();
+      const diffFiltered = poolQuestions.filter((q) =>
+        String(q.difficulty ?? "").toLowerCase() === wantedDiff
+      );
+      if (diffFiltered.length > 0) poolQuestions = diffFiltered;
+    }
+    const desiredSectionForPool = normalizeBoardPattern(args.sectionFilter);
+    if (desiredSectionForPool) {
+      const secFiltered = poolQuestions.filter(
+        (q) => inferBoardPatternFromQuestion(q) === desiredSectionForPool
+      );
+      if (secFiltered.length > 0) poolQuestions = secFiltered;
+    }
     if (poolQuestions.length > 0) {
       for (let i = poolQuestions.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -569,10 +583,11 @@ export async function buildPracticeQuestionsWithAiTopup(
       ...template,
       id: `${seedId}-${idPrefix}-${index + 1}`,
       marks: variant.marks != null ? variant.marks : template.marks ?? seedMarks ?? 1,
-      difficulty:
-        ((variant.difficulty as PracticeQuestion["difficulty"]) ??
-          (template.difficulty as PracticeQuestion["difficulty"])) ??
-        (fallbackDifficulty as PracticeQuestion["difficulty"]),
+      difficulty: args.difficulty !== "All"
+        ? (args.difficulty as PracticeQuestion["difficulty"])
+        : ((variant.difficulty as PracticeQuestion["difficulty"]) ??
+            (template.difficulty as PracticeQuestion["difficulty"])) ??
+          (fallbackDifficulty as PracticeQuestion["difficulty"]),
       section: desiredSection ?? template.section ?? "",
       bloomSkill: (String(
         variant.bloomSkill ?? template.bloomSkill ?? seedBloomSkill ?? "Understanding",

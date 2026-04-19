@@ -71,6 +71,7 @@ import { PracticeControls } from "../components/practice/PracticeControls";
 import { PracticeHero } from "../components/practice/PracticeHero";
 import { WhyThisQuestionPanel } from "../components/practice/WhyThisQuestionPanel";
 import { PracticeQuestionList } from "../components/practice/PracticeQuestionList";
+import { downloadWorksheet } from "../components/practice/worksheetGenerator";
 
 const QTYPE_FIRST_TRIG = import.meta.env.VITE_QTYPE_FIRST_TRIGONOMETRY === "true";
 
@@ -570,6 +571,17 @@ const packTopicKey = useMemo(() => {
     setRegenerationKey((prev) => prev + 1);
   };
 
+  const handleDownloadWorksheet = () => {
+    downloadWorksheet({
+      topicLabel: topicLabel || topicParam,
+      subjectKey,
+      grade,
+      difficulty,
+      sectionFilter,
+      questions: filteredQuestions,
+    });
+  };
+
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (!event.altKey) return;
@@ -859,6 +871,8 @@ const packTopicKey = useMemo(() => {
             });
             regenerateQuestions();
           }}
+          onDownloadWorksheet={handleDownloadWorksheet}
+          hasQuestions={filteredQuestions.length > 0}
         />
 
         {isWhyThisQuestionEnabled && (

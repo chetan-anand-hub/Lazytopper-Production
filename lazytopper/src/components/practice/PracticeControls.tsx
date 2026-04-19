@@ -10,6 +10,8 @@ export interface PracticeControlsProps {
   questionCount: number;
   onSetQuestionCount: (n: number) => void;
   onRegenerate: () => void;
+  onDownloadWorksheet?: () => void;
+  hasQuestions?: boolean;
 }
 
 export function PracticeControls({
@@ -17,10 +19,13 @@ export function PracticeControls({
   sectionFilter, onSetSectionFilter,
   questionCount, onSetQuestionCount,
   onRegenerate,
+  onDownloadWorksheet,
+  hasQuestions,
 }: PracticeControlsProps) {
   return (
     <>
       <section
+        className="practice-controls-root"
         style={{
           display: "flex", flexWrap: "wrap", gap: 10,
           alignItems: "center", justifyContent: "space-between", marginBottom: 14,
@@ -106,6 +111,27 @@ export function PracticeControls({
           >
             Regenerate set
           </button>
+          {onDownloadWorksheet && hasQuestions && (
+            <button
+              type="button"
+              onClick={onDownloadWorksheet}
+              title="Download printable worksheet (PDF)"
+              style={{
+                borderRadius: 999, padding: "5px 12px",
+                border: "1px solid rgba(99,102,241,0.7)",
+                backgroundColor: "var(--bg-card)", color: "#818cf8",
+                fontSize: "0.78rem", cursor: "pointer",
+                display: "inline-flex", alignItems: "center", gap: 5,
+              }}
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              Worksheet
+            </button>
+          )}
         </div>
       </section>
 
