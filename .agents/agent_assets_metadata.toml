@@ -29,3 +29,9 @@ id = "HQLVOnCB1nmQ0dyT_S0kk"
 uri = "file://screenshots/diagram_compare_proof.jpg"
 type = "image"
 title = "SVG Diagram Quality Comparison — Claude Sonnet vs Gemini Pro"
+
+[[outputs]]
+id = "Pu3dhaGfwQqjoMgWIDlcz"
+uri = "file://lazytopper-product-features.docx"
+type = "word_document"
+title = "LazyTopper — Product Feature Document (April 2026)"
