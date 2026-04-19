@@ -105,9 +105,18 @@ function loadTopicKeys() {
 // ---------------------------------------------------------------------------
 const MARKS_VALUES = [1, 2, 3, 5];
 const DIFFICULTIES = ['easy', 'medium', 'hard'];
-// Minimum number of low-hit questions that must exist in the pool for a combo
-// before it is considered "full".  Override with WARM_POOL_TARGET_COUNT env var.
+// Minimum number of questions that must exist in the pool for a combo before it
+// is considered "full".  Override with WARM_POOL_TARGET_COUNT env var.
 const TARGET_COUNT = Math.max(1, Number(process.env.WARM_POOL_TARGET_COUNT || 5) || 5);
+// Hard questions are scarcer in static banks so we pre-generate more of them.
+// Override with WARM_POOL_HARD_TARGET_COUNT env var.
+const HARD_TARGET_COUNT = Math.max(TARGET_COUNT, Number(process.env.WARM_POOL_HARD_TARGET_COUNT || 10) || 10);
+
+/** Return the fill target for a given difficulty level. */
+function targetForDifficulty(difficulty) {
+  return String(difficulty).toLowerCase() === 'hard' ? HARD_TARGET_COUNT : TARGET_COUNT;
+}
+
 const QUESTIONS_PER_CALL = 5;
 const MAX_RETRIES_PER_COMBO = 3;
 
@@ -122,6 +131,10 @@ function buildWarmPrompt(topicKey, subject, marks, difficulty) {
     `Generate ${QUESTIONS_PER_CALL} NEW CBSE board-style questions for this topic where:`,
     `- Each question is worth exactly ${marks} mark${marks !== 1 ? 's' : ''}.`,
     `- Every question MUST have difficulty: "${difficulty}". Do NOT vary difficulty.`,
+    `  Difficulty rubric (CBSE Class 10 board standard):`,
+    `  Easy: 1-mark MCQ or Assertion-Reasoning. Direct recall, single formula, plug-and-chug. Student only needs to remember a definition or fact. No multi-step working required.`,
+    `  Medium: 2–3 marks. 2–3 steps of working. Student must apply a concept to a slightly varied scenario. Needs understanding beyond rote recall.`,
+    `  Hard: 5 marks. Multi-step proof, derivation, or novel real-world application. Requires synthesis across two or more concepts. No single-step path to the answer. Student must plan the full solution strategy.`,
     '- Questions must be syllabus-aligned for CBSE Class 10.',
     '- Change numbers, scenarios, or wording so each variant is distinct.',
     '- Each variant must test a meaningfully different aspect or scenario.',
@@ -285,8 +298,9 @@ function createWarmPoolRunner(deps) {
    * Returns the total number of questions newly saved across all retry attempts.
    */
   async function warmOne(pgPool, topicKey, subject, marks, difficulty) {
+    const target = targetForDifficulty(difficulty);
     const initialCount = await countInPool(pgPool, topicKey, subject, marks, difficulty);
-    if (initialCount >= TARGET_COUNT) {
+    if (initialCount >= target) {
       console.info(`[warm] SKIP  ${topicKey} ${subject} marks=${marks} diff=${difficulty} (${initialCount} already in pool)`);
       return 0;
     }
@@ -295,7 +309,7 @@ function createWarmPoolRunner(deps) {
 
     for (let attempt = 1; attempt <= MAX_RETRIES_PER_COMBO; attempt++) {
       const currentCount = await countInPool(pgPool, topicKey, subject, marks, difficulty);
-      if (currentCount >= TARGET_COUNT) break;
+      if (currentCount >= target) break;
 
       let variants;
       try {
@@ -316,8 +330,8 @@ function createWarmPoolRunner(deps) {
     }
 
     const finalCount = await countInPool(pgPool, topicKey, subject, marks, difficulty);
-    if (finalCount < TARGET_COUNT) {
-      console.warn(`[warm] PARTIAL ${topicKey} ${subject} marks=${marks} diff=${difficulty}: pool has ${finalCount}/${TARGET_COUNT} after ${MAX_RETRIES_PER_COMBO} attempt(s)`);
+    if (finalCount < target) {
+      console.warn(`[warm] PARTIAL ${topicKey} ${subject} marks=${marks} diff=${difficulty}: pool has ${finalCount}/${target} after ${MAX_RETRIES_PER_COMBO} attempt(s)`);
     }
 
     return totalSaved;
