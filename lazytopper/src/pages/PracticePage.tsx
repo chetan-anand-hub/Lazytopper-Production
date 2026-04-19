@@ -571,8 +571,8 @@ const packTopicKey = useMemo(() => {
     setRegenerationKey((prev) => prev + 1);
   };
 
-  const handleDownloadWorksheet = () => {
-    downloadWorksheet({
+  const handleDownloadWorksheet = async () => {
+    await downloadWorksheet({
       topicLabel: topicLabel || topicParam,
       subjectKey,
       grade,

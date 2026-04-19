@@ -9,12 +9,14 @@ export interface WorksheetOptions {
   questions: PracticeQuestion[];
 }
 
+export const WORKSHEET_MAX_QUESTIONS = 50;
+
 function sectionLabel(s: string): string {
   const map: Record<string, string> = {
-    A: "Section A — 1 mark",
-    B: "Section B — 2 marks",
-    C: "Section C — 3 marks",
-    D: "Section D — 5 marks",
+    A: "Section A (1 mark)",
+    B: "Section B (2 marks)",
+    C: "Section C (3 marks)",
+    D: "Section D (5 marks)",
     E: "Section E — Case-Based (4 marks)",
   };
   return map[s] || `Section ${s}`;
@@ -25,252 +27,314 @@ function difficultyLabel(d: string): string {
   return d;
 }
 
-function escapeHtml(s: string): string {
-  return String(s || "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+function sanitizeText(s: unknown): string {
+  return String(s ?? "")
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[\u201c\u201d]/g, '"')
+    .replace(/\u2014/g, "--")
+    .replace(/\u2013/g, "-")
+    .replace(/\u2026/g, "...")
+    .replace(/[^\x09\x0A\x0D\x20-\x7E\u00A0-\uD7FF]/g, "?")
+    .trim();
 }
 
-function renderOptions(options: string[] | Record<string, string> | undefined): string {
-  if (!options) return "";
-  let items: string[];
-  if (Array.isArray(options)) {
-    items = options.map(String);
-  } else if (typeof options === "object") {
-    items = Object.values(options).map(String);
-  } else {
-    return "";
+export async function downloadWorksheetPdf(opts: WorksheetOptions): Promise<void> {
+  const { jsPDF } = await import("jspdf");
+
+  const {
+    topicLabel,
+    subjectKey,
+    grade,
+    difficulty,
+    sectionFilter,
+    questions,
+  } = opts;
+
+  const cappedQuestions = questions.slice(0, WORKSHEET_MAX_QUESTIONS);
+
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+
+  const pageW = 210;
+  const pageH = 297;
+  const marginL = 16;
+  const marginR = 16;
+  const marginT = 18;
+  const marginB = 18;
+  const contentW = pageW - marginL - marginR;
+
+  const totalMarks = cappedQuestions.reduce((sum, q) => sum + (Number(q.marks) || 1), 0);
+  const dateStr = new Date().toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+
+  let y = marginT;
+
+  function ensureSpace(needed: number): void {
+    if (y + needed > pageH - marginB) {
+      doc.addPage();
+      y = marginT;
+    }
   }
-  if (items.length === 0) return "";
-  return `<ol type="A" style="margin:6px 0 0 18px;padding:0;font-size:13px;color:#374151;">
-    ${items.map((v) => `<li style="margin-bottom:3px;">${escapeHtml(v)}</li>`).join("")}
-  </ol>`;
-}
 
-function blankLines(marks: number): string {
-  const lines = Math.max(2, Math.min(8, marks * 2));
-  return Array(lines)
-    .fill('<div style="border-bottom:1px solid #d1d5db;height:22px;margin-bottom:4px;"></div>')
-    .join("");
-}
+  function hexToRgb(hex: string): [number, number, number] {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    if (!result) return [0, 0, 0];
+    return [parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)];
+  }
 
-export function generateWorksheetHtml(opts: WorksheetOptions): string {
-  const { topicLabel, subjectKey, grade, difficulty, sectionFilter, questions } = opts;
-  const dateStr = new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
+  function setColor(hex: string): void {
+    const [r, g, b] = hexToRgb(hex);
+    doc.setTextColor(r, g, b);
+  }
 
-  const filterLine = [
-    `Difficulty: ${difficultyLabel(difficulty)}`,
-    sectionFilter !== "ALL" ? `Type: ${sectionLabel(sectionFilter)}` : "All question types",
-    `${questions.length} questions`,
-  ].join(" · ");
+  function space(mm: number): void {
+    y += mm;
+  }
 
-  const totalMarks = questions.reduce((sum, q) => sum + (Number(q.marks) || 1), 0);
+  function checkPageBreak(minRemaining = 20): void {
+    if (y > pageH - marginB - minRemaining) {
+      doc.addPage();
+      y = marginT;
+    }
+  }
 
-  const questionItems = questions
-    .map((q, i) => {
-      const marks = Number(q.marks) || 1;
-      const sec = String(q.section || "").toUpperCase();
-      const secBadge = (sec === "A" || sec === "B" || sec === "C" || sec === "D" || sec === "E")
-        ? `<span style="display:inline-block;background:#e0f2fe;color:#0369a1;border-radius:4px;padding:1px 6px;font-size:11px;font-weight:600;margin-left:6px;">§${sec}</span>`
-        : "";
-      const marksBadge = `<span style="float:right;font-size:12px;color:#6b7280;">[${marks} mark${marks !== 1 ? "s" : ""}]</span>`;
-      const opts2 = q.options ? renderOptions(q.options) : "";
-      const answer = opts2 ? "" : blankLines(marks);
+  const blue = "#1d4ed8";
+  const muted = "#6b7280";
+  const heading = "#111827";
+  const green = "#059669";
 
-      return `
-        <div style="margin-bottom:22px;page-break-inside:avoid;">
-          <div style="font-size:14px;font-weight:600;color:#111827;line-height:1.5;">
-            ${marksBadge}
-            <span style="color:#374151;">Q${i + 1}.</span>${secBadge}
-            <span style="margin-left:4px;">${escapeHtml(q.questionText)}</span>
-          </div>
-          ${opts2}
-          ${!opts2 ? `<div style="margin-top:8px;">${answer}</div>` : ""}
-        </div>
-      `;
-    })
-    .join("");
+  const [br, bg, bb] = hexToRgb(blue);
 
-  const answerKeyItems = questions
-    .map((q, i) => {
-      const marks = Number(q.marks) || 1;
-      const hasAnswer = q.answer || q.finalAnswer || (Array.isArray(q.solutionSteps) && q.solutionSteps.length > 0);
-      if (!hasAnswer) return "";
+  doc.setDrawColor(br, bg, bb);
+  doc.setLineWidth(0.6);
+  doc.line(marginL, y, pageW - marginR, y);
+  space(2);
 
-      const stepsHtml = Array.isArray(q.solutionSteps) && q.solutionSteps.length > 0
-        ? `<ol style="margin:4px 0 0 20px;padding:0;font-size:12px;color:#374151;">
-            ${q.solutionSteps.map((s) => `<li style="margin-bottom:3px;">${escapeHtml(String(s))}</li>`).join("")}
-           </ol>`
-        : "";
-      const finalAns = q.finalAnswer || q.answer
-        ? `<div style="margin-top:4px;font-size:12px;color:#065f46;font-weight:600;">∴ ${escapeHtml(String(q.finalAnswer || q.answer))}</div>`
-        : "";
+  setColor(blue);
+  doc.setFontSize(7);
+  doc.setFont("helvetica", "bold");
+  doc.text("LAZYTOPPER · CBSE BOARD PREP", marginL, y);
+  space(5);
 
-      return `
-        <div style="margin-bottom:14px;page-break-inside:avoid;border-left:3px solid #6ee7b7;padding-left:10px;">
-          <div style="font-size:13px;font-weight:700;color:#111827;">
-            Q${i + 1}. <span style="font-size:11px;color:#6b7280;font-weight:400;">[${marks} mark${marks !== 1 ? "s" : ""}]</span>
-          </div>
-          ${stepsHtml}
-          ${finalAns}
-        </div>
-      `;
-    })
-    .join("");
+  setColor(heading);
+  doc.setFontSize(20);
+  doc.setFont("helvetica", "bold");
+  doc.text(sanitizeText(topicLabel), marginL, y);
+  space(6);
 
-  const hasAnyAnswer = questions.some(
+  setColor(muted);
+  doc.setFontSize(9);
+  doc.setFont("helvetica", "normal");
+  doc.text(`Class ${grade} · ${subjectKey} · Difficulty: ${difficultyLabel(difficulty)} · ${sectionFilter !== "ALL" ? sectionLabel(sectionFilter) : "All types"}`, marginL, y);
+  space(4);
+
+  doc.setFontSize(9);
+  doc.text(`${cappedQuestions.length} questions · Total: ${totalMarks} marks · ${dateStr}`, marginL, y);
+  space(5);
+
+  setColor("#374151");
+  doc.setFontSize(8);
+  const nameY = y;
+  doc.text("Name: _______________________________", marginL, nameY);
+  doc.text("Roll No: ______________", marginL + 82, nameY);
+  doc.text(`Date: ___________`, marginL + 128, nameY);
+  space(5);
+
+  const [lgr, lgg, lgb] = hexToRgb("#d1d5db");
+  doc.setDrawColor(lgr, lgg, lgb);
+  doc.setLineWidth(0.3);
+  doc.line(marginL, y, pageW - marginR, y);
+  space(3);
+
+  setColor("#0c4a6e");
+  doc.setFontSize(7.5);
+  doc.setFont("helvetica", "normal");
+  doc.text(
+    "Instructions: Read all questions carefully. Show full working for non-MCQ questions — CBSE awards marks for method. No negative marking. Attempt all questions.",
+    marginL, y,
+    { maxWidth: contentW }
+  );
+  space(6);
+
+  doc.setDrawColor(lgr, lgg, lgb);
+  doc.setLineWidth(0.3);
+  doc.line(marginL, y, pageW - marginR, y);
+  space(5);
+
+  for (let i = 0; i < cappedQuestions.length; i++) {
+    const q = cappedQuestions[i];
+    const marks = Number(q.marks) || 1;
+    const sec = String(q.section || "").toUpperCase();
+    const secStr = (sec === "A" || sec === "B" || sec === "C" || sec === "D" || sec === "E")
+      ? ` [§${sec}]` : "";
+    const marksStr = `[${marks} mark${marks !== 1 ? "s" : ""}]`;
+
+    checkPageBreak(20);
+
+    const qNum = `Q${i + 1}.${secStr}`;
+    doc.setFontSize(9.5);
+    doc.setFont("helvetica", "bold");
+    setColor(heading);
+
+    doc.text(qNum, marginL, y);
+
+    doc.setFontSize(8);
+    doc.setFont("helvetica", "normal");
+    setColor(muted);
+    doc.text(marksStr, pageW - marginR - doc.getTextWidth(marksStr), y);
+
+    space(5);
+
+    const qLines = doc.splitTextToSize(sanitizeText(q.questionText), contentW - 4);
+    const qLineH = 9.5 * 0.352778 * 1.4;
+    ensureSpace(qLines.length * qLineH + 4);
+    doc.setFontSize(9.5);
+    doc.setFont("helvetica", "normal");
+    setColor("#1f2937");
+    doc.text(qLines, marginL + 4, y);
+    y += qLines.length * qLineH;
+
+    if (Array.isArray(q.options) && q.options.length > 0) {
+      const optLetters = ["A", "B", "C", "D", "E"];
+      for (let oi = 0; oi < q.options.length; oi++) {
+        space(2.5);
+        ensureSpace(5);
+        doc.setFontSize(9);
+        doc.setFont("helvetica", "normal");
+        setColor("#374151");
+        const optText = `(${optLetters[oi] ?? oi + 1}) ${sanitizeText(q.options[oi])}`;
+        const optLines = doc.splitTextToSize(optText, contentW - 10);
+        doc.text(optLines, marginL + 8, y);
+        y += optLines.length * 9 * 0.352778 * 1.35;
+      }
+      space(3);
+    } else {
+      const blankCount = Math.max(2, Math.min(6, marks * 2));
+      space(2);
+      for (let bi = 0; bi < blankCount; bi++) {
+        ensureSpace(6);
+        doc.setDrawColor(lgr, lgg, lgb);
+        doc.setLineWidth(0.25);
+        doc.line(marginL + 4, y, pageW - marginR, y);
+        space(5.5);
+      }
+    }
+
+    space(4);
+
+    if (i < cappedQuestions.length - 1) {
+      doc.setDrawColor(lgr, lgg, lgb);
+      doc.setLineWidth(0.15);
+      doc.line(marginL, y - 1, pageW - marginR, y - 1);
+    }
+  }
+
+  const hasAnyAnswer = cappedQuestions.some(
     (q) => q.answer || q.finalAnswer || (Array.isArray(q.solutionSteps) && q.solutionSteps.length > 0)
   );
 
-  const answerKeySection = hasAnyAnswer ? `
-    <div style="page-break-before:always;padding-top:8px;">
-      <div style="border-bottom:2px solid #059669;margin-bottom:16px;padding-bottom:8px;">
-        <div style="font-size:18px;font-weight:800;color:#111827;">Answer Key / Model Answers</div>
-        <div style="font-size:12px;color:#6b7280;margin-top:2px;">
-          ${escapeHtml(topicLabel)} · Class ${escapeHtml(grade)} ${escapeHtml(subjectKey)} ·
-          Note: For board exams, marks are also awarded for correct method/working — show all steps.
-        </div>
-      </div>
-      ${answerKeyItems || '<p style="color:#6b7280;font-size:13px;">Full model answers are available in the LazyTopper app.</p>'}
-    </div>
-  ` : "";
+  if (hasAnyAnswer) {
+    doc.addPage();
+    y = marginT;
 
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Practice Worksheet — ${escapeHtml(topicLabel)}</title>
-  <style>
-    @page { margin: 18mm 16mm; }
-    * { box-sizing: border-box; }
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      color: #111827;
-      background: #fff;
-      margin: 0;
-      padding: 0;
-    }
-    .header {
-      border-bottom: 2px solid #1d4ed8;
-      padding-bottom: 10px;
-      margin-bottom: 18px;
-    }
-    .header-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-    }
-    .brand { font-size: 12px; font-weight: 700; color: #1d4ed8; letter-spacing: 0.04em; }
-    .title { font-size: 22px; font-weight: 800; color: #111827; margin: 4px 0 2px; }
-    .subtitle { font-size: 13px; color: #4b5563; }
-    .meta-row {
-      display: flex;
-      gap: 24px;
-      margin-top: 10px;
-      font-size: 12px;
-      color: #6b7280;
-    }
-    .meta-row strong { color: #374151; }
-    .student-line {
-      display: flex;
-      gap: 32px;
-      margin-top: 10px;
-      font-size: 12px;
-      color: #374151;
-    }
-    .student-field {
-      flex: 1;
-      border-bottom: 1px solid #9ca3af;
-      padding-bottom: 2px;
-    }
-    .student-field label { font-weight: 600; margin-right: 8px; }
-    .instructions {
-      background: #f0f9ff;
-      border-left: 3px solid #38bdf8;
-      padding: 8px 12px;
-      font-size: 12px;
-      color: #0c4a6e;
-      margin-bottom: 20px;
-      border-radius: 0 4px 4px 0;
-    }
-    .questions { margin-top: 4px; }
-    .footer {
-      margin-top: 28px;
-      border-top: 1px solid #e5e7eb;
-      padding-top: 8px;
-      font-size: 11px;
-      color: #9ca3af;
-      text-align: center;
-    }
-    @media print {
-      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-      .no-print { display: none !important; }
-    }
-  </style>
-</head>
-<body>
+    const [gr, gg, gbv] = hexToRgb(green);
+    doc.setDrawColor(gr, gg, gbv);
+    doc.setLineWidth(0.6);
+    doc.line(marginL, y, pageW - marginR, y);
+    space(4);
 
-  <button class="no-print" onclick="window.print()" style="
-    position:fixed;top:16px;right:16px;z-index:999;
-    background:#1d4ed8;color:#fff;border:none;border-radius:8px;
-    padding:10px 22px;font-size:14px;font-weight:700;cursor:pointer;
-    box-shadow:0 2px 12px rgba(29,78,216,0.35);
-  ">Print / Save PDF</button>
+    setColor(green);
+    doc.setFontSize(16);
+    doc.setFont("helvetica", "bold");
+    doc.text("Answer Key / Model Answers", marginL, y);
+    space(6);
 
-  <div class="header">
-    <div class="header-top">
-      <div>
-        <div class="brand">LazyTopper · CBSE Board Prep</div>
-        <div class="title">${escapeHtml(topicLabel)}</div>
-        <div class="subtitle">Class ${escapeHtml(grade)} · ${escapeHtml(subjectKey)}</div>
-      </div>
-      <div style="text-align:right;font-size:12px;color:#6b7280;">
-        <div>${dateStr}</div>
-        <div style="font-size:16px;font-weight:800;color:#111827;margin-top:6px;">Total: ${totalMarks} marks</div>
-      </div>
-    </div>
-    <div class="meta-row">
-      <span>${filterLine}</span>
-    </div>
-    <div class="student-line">
-      <div class="student-field"><label>Name:</label></div>
-      <div class="student-field"><label>Roll No:</label></div>
-      <div class="student-field"><label>Date:</label></div>
-    </div>
-  </div>
+    setColor(muted);
+    doc.setFontSize(8);
+    doc.setFont("helvetica", "normal");
+    doc.text(
+      `${sanitizeText(topicLabel)} · Class ${grade} ${subjectKey} · Note: CBSE awards marks for correct method, not just final answer.`,
+      marginL, y,
+      { maxWidth: contentW }
+    );
+    space(6);
 
-  <div class="instructions">
-    <strong>Instructions:</strong>
-    Read all questions carefully.
-    Show full working for non-MCQ questions — CBSE awards marks for method.
-    No negative marking.
-    Attempt all questions.
-  </div>
+    const [gr2, gg2, gb2] = hexToRgb("#d1d5db");
+    doc.setDrawColor(gr2, gg2, gb2);
+    doc.setLineWidth(0.3);
+    doc.line(marginL, y, pageW - marginR, y);
+    space(5);
 
-  <div class="questions">
-    ${questionItems}
-  </div>
+    for (let i = 0; i < cappedQuestions.length; i++) {
+      const q = cappedQuestions[i];
+      const marks = Number(q.marks) || 1;
+      const hasAnswer = q.answer || q.finalAnswer || (Array.isArray(q.solutionSteps) && q.solutionSteps.length > 0);
+      if (!hasAnswer) continue;
 
-  ${answerKeySection}
+      checkPageBreak(16);
 
-  <div class="footer">
-    Generated by LazyTopper · lazytopper.in · CBSE Class ${escapeHtml(grade)} ${escapeHtml(subjectKey)} — ${escapeHtml(topicLabel)}
-  </div>
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "bold");
+      setColor(heading);
+      doc.text(`Q${i + 1}.  [${marks} mark${marks !== 1 ? "s" : ""}]`, marginL, y);
+      space(5);
 
-</body>
-</html>`;
+      if (Array.isArray(q.solutionSteps) && q.solutionSteps.length > 0) {
+        for (let si = 0; si < q.solutionSteps.length; si++) {
+          const stepText = `${si + 1}. ${sanitizeText(q.solutionSteps[si])}`;
+          const stepLines = doc.splitTextToSize(stepText, contentW - 6);
+          const stepH = 8.5 * 0.352778 * 1.35;
+          ensureSpace(stepLines.length * stepH + 2);
+          doc.setFontSize(8.5);
+          doc.setFont("helvetica", "normal");
+          setColor("#374151");
+          doc.text(stepLines, marginL + 6, y);
+          y += stepLines.length * stepH;
+          space(1);
+        }
+      }
+
+      const finalAnswer = q.finalAnswer || q.answer;
+      if (finalAnswer) {
+        space(2);
+        ensureSpace(8);
+        doc.setFontSize(9);
+        doc.setFont("helvetica", "bold");
+        setColor(green);
+        const ansLines = doc.splitTextToSize(`Therefore: ${sanitizeText(finalAnswer)}`, contentW - 6);
+        doc.text(ansLines, marginL + 6, y);
+        y += ansLines.length * 9 * 0.352778 * 1.35;
+      }
+
+      space(5);
+
+      doc.setDrawColor(lgr, lgg, lgb);
+      doc.setLineWidth(0.15);
+      doc.line(marginL, y - 1, pageW - marginR, y - 1);
+    }
+  }
+
+  const pageCount = (doc as unknown as { internal: { getNumberOfPages(): number } }).internal.getNumberOfPages();
+  for (let pi = 1; pi <= pageCount; pi++) {
+    doc.setPage(pi);
+    doc.setFontSize(7);
+    doc.setFont("helvetica", "normal");
+    setColor(muted);
+    doc.text(
+      `Generated by LazyTopper · lazytopper.in · Page ${pi} of ${pageCount}`,
+      pageW / 2,
+      pageH - 8,
+      { align: "center" }
+    );
+  }
+
+  const slug = sanitizeText(topicLabel).replace(/[^a-zA-Z0-9]+/g, "-").toLowerCase().slice(0, 40);
+  doc.save(`lazytopper-worksheet-${slug}.pdf`);
 }
 
-export function downloadWorksheet(opts: WorksheetOptions): void {
-  const html = generateWorksheetHtml(opts);
-  const win = window.open("", "_blank");
-  if (!win) {
-    alert("Pop-up blocked. Please allow pop-ups for this site to download the worksheet.");
-    return;
-  }
-  win.document.open();
-  win.document.write(html);
-  win.document.close();
+export async function downloadWorksheet(opts: WorksheetOptions): Promise<void> {
+  const cappedOpts = { ...opts, questions: opts.questions.slice(0, WORKSHEET_MAX_QUESTIONS) };
+  await downloadWorksheetPdf(cappedOpts);
 }
