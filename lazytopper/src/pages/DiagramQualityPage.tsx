@@ -283,6 +283,15 @@ function DiagramCard({
     prevSvg.current = svg;
   }
 
+  useEffect(() => {
+    return () => {
+      if (blobUrlRef.current) {
+        URL.revokeObjectURL(blobUrlRef.current);
+        blobUrlRef.current = null;
+      }
+    };
+  }, []);
+
   return (
     <div
       style={{
