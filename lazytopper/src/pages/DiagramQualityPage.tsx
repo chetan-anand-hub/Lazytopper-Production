@@ -16,7 +16,7 @@ interface CompareResponse {
   gemini_pro: ModelResult;
 }
 
-const CURRENT_BPT_SVG = `<svg viewBox="0 0 400 280" width="100%" height="auto" aria-label="Current BPT template">
+const CURRENT_BPT_SVG = `<svg viewBox="0 0 400 280" width="100%" height="auto" aria-label="Basic Proportionality Theorem — DE ∥ AB">
   <polygon points="50,250 350,250 200,30" fill="none" stroke="#3c3c3c" stroke-width="2.2"/>
   <line x1="115" y1="165" x2="285" y2="165" stroke="#0ea5e9" stroke-width="2.5"/>
   <text x="35" y="268" font-size="15" fill="#3c3c3c" font-weight="700">A</text>
@@ -24,12 +24,12 @@ const CURRENT_BPT_SVG = `<svg viewBox="0 0 400 280" width="100%" height="auto" a
   <text x="192" y="24" font-size="15" fill="#3c3c3c" font-weight="700">C</text>
   <text x="96" y="162" font-size="15" fill="#0ea5e9" font-weight="700">D</text>
   <text x="288" y="162" font-size="15" fill="#0ea5e9" font-weight="700">E</text>
-  <text x="155" y="188" font-size="14" fill="#0ea5e9" font-weight="700">DE ∥ AB</text>
-  <text x="72" y="218" font-size="13" fill="#94a3b8">AD</text>
-  <text x="288" y="218" font-size="13" fill="#94a3b8">BE</text>
-  <text x="140" y="106" font-size="13" fill="#dc2626" font-weight="600">CD</text>
-  <text x="236" y="106" font-size="13" fill="#dc2626" font-weight="600">CE</text>
-  <text x="58" y="276" font-size="11" fill="#94a3b8">CD/DA = CE/EB (BPT) — no given values shown</text>
+  <text x="160" y="188" font-size="15" fill="#0ea5e9" font-weight="700">DE ∥ AB</text>
+  <text x="80" y="218" font-size="14" fill="#94a3b8">AD</text>
+  <text x="290" y="218" font-size="14" fill="#94a3b8">BE</text>
+  <text x="144" y="106" font-size="14" fill="#dc2626" font-weight="600">CD</text>
+  <text x="236" y="106" font-size="14" fill="#dc2626" font-weight="600">CE</text>
+  <text x="70" y="275" font-size="12" fill="#94a3b8">CD/DA = CE/EB (BPT)</text>
 </svg>`;
 
 const IMPROVED_BPT_SVG = `<svg viewBox="0 0 400 280" width="100%" height="auto" aria-label="Improved BPT — AD=3cm AB=7.5cm AE=4cm">
@@ -76,7 +76,8 @@ const CURRENT_LENS_SVG = `<svg viewBox="0 0 400 280" width="100%" height="auto" 
   <line x1="330" y1="140" x2="330" y2="175" stroke="#22c55e" stroke-width="2.5"/>
   <polygon points="330,175 325,163 335,163" fill="#22c55e"/>
   <text x="336" y="180" font-size="13" fill="#22c55e" font-weight="600">Image</text>
-  <text x="88" y="26" font-size="11" fill="#94a3b8">Generic positions — f, u, v values not shown</text>
+  <text x="100" y="28" font-size="12" fill="#94a3b8">Ray 1: parallel → through F'</text>
+  <text x="100" y="265" font-size="12" fill="#94a3b8">Ray 2: through centre → straight</text>
 </svg>`;
 
 const IMPROVED_LENS_SVG = `<svg viewBox="0 0 400 280" width="100%" height="auto" aria-label="Improved lens — f=20cm u=30cm v=60cm">
@@ -145,7 +146,6 @@ const CURRENT_HEART_SVG = `<svg viewBox="0 0 400 280" width="100%" height="auto"
   <text x="76" y="272" font-size="11" fill="#2563eb">Deoxygenated</text>
   <rect x="200" y="264" width="12" height="8" fill="#dc2626" rx="2"/>
   <text x="216" y="272" font-size="11" fill="#dc2626">Oxygenated</text>
-  <text x="60" y="240" font-size="10" fill="#94a3b8">(no flow arrows — circuit paths not shown)</text>
 </svg>`;
 
 const IMPROVED_HEART_SVG = `<svg viewBox="0 0 400 280" width="100%" height="auto" aria-label="Improved heart — double circulation with flow arrows">
@@ -199,7 +199,7 @@ const SAMPLE_QUESTIONS = [
     title: "BPT — Basic Proportionality Theorem",
     subtitle: "Maths / Triangles",
     question:
-      "In △ABC, DE ∥ BC. If AD = 3 cm, AB = 7.5 cm and AE = 4 cm, find AC.",
+      "In △ABC, DE ∥ BC. If AD = 3 cm, AB = 7.5 cm and AE = 4 cm, find AC and DE/BC.",
     subject: "Maths",
     topic: "Triangles",
     currentSvg: CURRENT_BPT_SVG,

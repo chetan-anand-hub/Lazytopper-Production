@@ -200,6 +200,7 @@ STRICT RULES:
           claude: { svg: claudeSvg, model: CLAUDE_MODEL_SONNET, provider: 'claude' },
           gemini_flash: { svg: geminiFlashSvg, model: geminiFlashModel, provider: 'gemini_flash' },
           gemini_pro: { svg: geminiProSvg, model: geminiProModel, provider: 'gemini_pro' },
+          gemini: { svg: geminiProSvg, model: geminiProModel, provider: 'gemini' },
         });
       }
 
