@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import { RequireAuth } from "../components/auth/RequireAuth";
 
 interface ModelResult {
@@ -200,16 +201,31 @@ function DiagramCompareInner() {
       }}
     >
       <div style={{ maxWidth: 1000, margin: "0 auto" }}>
-        <h1
-          style={{
-            textAlign: "center",
-            color: "#1e293b",
-            fontSize: "1.25rem",
-            marginBottom: 4,
-          }}
-        >
-          SVG Diagram Quality Comparison
-        </h1>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+          <h1
+            style={{
+              color: "#1e293b",
+              fontSize: "1.25rem",
+              margin: 0,
+            }}
+          >
+            SVG Diagram Quality Comparison
+          </h1>
+          <Link
+            to="/admin/diagram-quality"
+            style={{
+              fontSize: "0.82rem",
+              background: "#7c3aed",
+              color: "#fff",
+              padding: "6px 14px",
+              borderRadius: 8,
+              textDecoration: "none",
+              fontWeight: 600,
+            }}
+          >
+            5-Column Quality Page →
+          </Link>
+        </div>
         <p
           style={{
             textAlign: "center",
@@ -218,7 +234,7 @@ function DiagramCompareInner() {
             marginBottom: 20,
           }}
         >
-          Claude Sonnet vs Gemini Pro — same prompt, same rules. Select the better diagram.
+          Claude Sonnet vs Gemini — same prompt, same rules. Select the better diagram.
         </p>
 
         <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>

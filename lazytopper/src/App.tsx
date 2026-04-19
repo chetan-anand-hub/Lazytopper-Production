@@ -59,6 +59,7 @@ const ParentAccessPage = lazy(() => import("./pages/ParentAccessPage"));
 const WeeklyDigestPage = lazy(() => import("./pages/WeeklyDigestPage"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const DiagramComparePage = lazy(() => import("./pages/DiagramComparePage"));
+const DiagramQualityPage = lazy(() => import("./pages/DiagramQualityPage"));
 const VisualAuditPage = lazy(() => import("./pages/VisualAuditPage"));
 const CacheStatsPage = lazy(() => import("./pages/CacheStatsPage"));
 const DifficultyBreakdownPage = lazy(() => import("./pages/DifficultyBreakdownPage"));
@@ -575,6 +576,7 @@ export default function App() {
           <Route path="/pricing" element={withRouteSuspense(<PricingPage />)} />
           <Route path="/admin/funnel" element={<RequireAuth>{withRouteSuspense(<FunnelPage />)}</RequireAuth>} />
           <Route path="/admin/diagram-compare" element={withRouteSuspense(<DiagramComparePage />)} />
+          <Route path="/admin/diagram-quality" element={withRouteSuspense(<DiagramQualityPage />)} />
           <Route path="/admin/visual-audit" element={withRouteSuspense(<VisualAuditPage />)} />
           <Route path="/admin/cache-stats" element={<RequireAuth>{withRouteSuspense(<CacheStatsPage />)}</RequireAuth>} />
           <Route path="/admin/difficulty-breakdown" element={<RequireAuth>{withRouteSuspense(<DifficultyBreakdownPage />)}</RequireAuth>} />

@@ -117,22 +117,33 @@ function createDiagramRoutes(deps) {
       reqJson?.compare === true ||
       String(reqJson?.compare || '') === 'true';
 
+    const subject = String(reqJson?.subject || '').trim();
+    const topic = String(reqJson?.topic || '').trim();
+
     if (STUB_MODE) {
       return sendJson(res, 200, { ok: true, svg: null });
     }
 
-    const diagramPrompt = `You are a CBSE Class 10 educational diagram generator. Given a question, produce a clean SVG diagram that helps a student visualize the concept.
+    const subjectLine = subject || topic
+      ? `Subject: ${subject || 'General'} | Topic: ${topic || 'General'}\n`
+      : '';
 
-RULES:
-- Output ONLY valid SVG markup, nothing else. No markdown, no backticks, no explanation.
-- The SVG must have viewBox="0 0 400 280", width="100%", height="auto".
-- Use these colors: stroke="#3c3c3c", accent="#0ea5e9", red="#dc2626", green="#22c55e", faint="#94a3b8".
-- Label all important parts clearly with <text> elements.
-- Keep it simple and educational — like a textbook diagram.
-- Do NOT include <script>, <style>, or any interactive elements.
-- If the question doesn't warrant a diagram, output exactly: NO_DIAGRAM
+    const diagramPrompt = `You are a CBSE Class 10 educational diagram generator.
+${subjectLine}
+Produce a clean, accurately-labeled SVG diagram that precisely illustrates this question:
+"${questionText}"
 
-Question: ${questionText}`;
+STRICT RULES:
+- Output ONLY valid SVG markup. No markdown, no backticks, no explanation whatsoever.
+- SVG must have viewBox="0 0 400 300" width="100%" height="auto"
+- Colors: main stroke="#1e293b", key elements="#3b82f6", labels="#0f172a", secondary="#64748b", red="#dc2626", green="#16a34a"
+- Label ALL important parts with <text> elements using fontSize="13" or "14"
+- Show EXACT given values from the question (measurements, angles, distances, positions) on the diagram
+- MATHS: draw with correct proportions, mark given lengths directly on the diagram sides
+- PHYSICS: show object/image, ray paths with arrows, label focal points with actual values from the question
+- BIOLOGY: show all anatomical parts labeled, include directional arrows for flow/processes
+- No <script>, <style block>, or interactive elements. Pure static SVG only.
+- If the question doesn't need a diagram, output exactly: NO_DIAGRAM`;
 
     function extractSvg(text) {
       const t = String(text || '');
@@ -145,13 +156,14 @@ Question: ${questionText}`;
       return svg || null;
     }
 
-    const geminiModel = GEMINI_TUTOR_MODEL || GEMINI_MODEL;
+    const geminiFlashModel = GEMINI_MODEL;
+    const geminiProModel = GEMINI_TUTOR_MODEL || 'gemini-2.5-pro';
 
-    async function callGeminiForSvg() {
+    async function callGeminiForSvg(model) {
       const contents = [{ role: 'user', parts: [{ text: diagramPrompt }] }];
-      const result = await callGemini(geminiModel, contents, {
-        temperature: 0.3,
-        maxOutputTokens: 2000,
+      const result = await callGemini(model, contents, {
+        temperature: 0.2,
+        maxOutputTokens: 4000,
       });
       return extractSvg(result?.text);
     }
@@ -160,21 +172,25 @@ Question: ${questionText}`;
       if (!HAS_ANTHROPIC_PROXY) return null;
       const messages = [{ role: 'user', content: diagramPrompt }];
       const result = await callClaude(CLAUDE_MODEL_SONNET, messages, '', {
-        maxTokens: 2000,
-        temperature: 0.3,
+        maxTokens: 4000,
+        temperature: 0.2,
       });
       return extractSvg(result?.text);
     }
 
     try {
       if (compareMode) {
-        const [claudeSvg, geminiSvg] = await Promise.all([
+        const [claudeSvg, geminiFlashSvg, geminiProSvg] = await Promise.all([
           callClaudeForSvg().catch((err) => {
             console.warn('[generate-diagram] Claude compare error:', err?.message);
             return null;
           }),
-          callGeminiForSvg().catch((err) => {
-            console.warn('[generate-diagram] Gemini compare error:', err?.message);
+          callGeminiForSvg(geminiFlashModel).catch((err) => {
+            console.warn('[generate-diagram] Gemini Flash compare error:', err?.message);
+            return null;
+          }),
+          callGeminiForSvg(geminiProModel).catch((err) => {
+            console.warn('[generate-diagram] Gemini Pro compare error:', err?.message);
             return null;
           }),
         ]);
@@ -182,7 +198,8 @@ Question: ${questionText}`;
           ok: true,
           compare: true,
           claude: { svg: claudeSvg, model: CLAUDE_MODEL_SONNET, provider: 'claude' },
-          gemini: { svg: geminiSvg, model: geminiModel, provider: 'gemini' },
+          gemini_flash: { svg: geminiFlashSvg, model: geminiFlashModel, provider: 'gemini_flash' },
+          gemini_pro: { svg: geminiProSvg, model: geminiProModel, provider: 'gemini_pro' },
         });
       }
 
@@ -201,12 +218,13 @@ Question: ${questionText}`;
         }
       }
 
-      const geminiSvg = await callGeminiForSvg();
+      const gModel = geminiProModel;
+      const geminiSvg = await callGeminiForSvg(gModel);
       return sendJson(res, 200, {
         ok: true,
         svg: geminiSvg,
         provider: 'gemini',
-        model: geminiModel,
+        model: gModel,
       });
     } catch (err) {
       console.error('[generate-diagram] Error:', err?.message || err);
