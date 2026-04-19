@@ -11,6 +11,7 @@ export interface PracticeQuestionListProps {
   filteredQuestions: PracticeQuestion[];
   subjectKey: string;
   topicLabel: string;
+  difficultyFilter?: string;
   expandedAnswers: Record<string, boolean>;
   selfAssessments: Record<string, "got_it" | "need_practice">;
   mcqSelections: Record<string, number>;
@@ -31,7 +32,7 @@ export interface PracticeQuestionListProps {
 
 export function PracticeQuestionList(props: PracticeQuestionListProps) {
   const {
-    isLoading, error, questions, filteredQuestions, subjectKey, topicLabel,
+    isLoading, error, questions, filteredQuestions, subjectKey, topicLabel, difficultyFilter,
     expandedAnswers, selfAssessments, mcqSelections, mcqResults,
     practiceSolutionLoading, practiceSolutionError, practiceSolutionData,
     sessionStats,
@@ -131,6 +132,7 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
               idx={idx}
               subjectKey={subjectKey}
               topicLabel={topicLabel}
+              difficultyFilter={difficultyFilter}
               isOpen={!!expandedAnswers[q.id]}
               selfAssessment={selfAssessments[q.id]}
               solutionLoading={!!practiceSolutionLoading[q.id]}

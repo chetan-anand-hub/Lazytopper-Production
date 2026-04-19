@@ -943,6 +943,7 @@ const packTopicKey = useMemo(() => {
           filteredQuestions={filteredQuestions}
           subjectKey={subjectKey}
           topicLabel={topicLabel}
+          difficultyFilter={difficulty}
           expandedAnswers={expandedAnswers}
           selfAssessments={selfAssessments}
           mcqSelections={mcqSelections}

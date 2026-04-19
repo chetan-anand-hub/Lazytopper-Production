@@ -21,6 +21,7 @@ export interface PracticeQuestionCardProps {
   solutionData: StepSolutionResponse | undefined;
   mcqSelection: number | undefined;
   mcqResult: string | undefined;
+  difficultyFilter?: string;
   onSetActiveQuestion: (id: string) => void;
   onToggleAnswer: (id: string, q: PracticeQuestion) => void;
   onMcqSelect: (qId: string, optionIdx: number) => void;
@@ -31,10 +32,16 @@ export interface PracticeQuestionCardProps {
   onOpenMentorBoard: (q: PracticeQuestion, idx: number) => void;
 }
 
+const DIFFICULTY_BADGE: Record<string, { emoji: string; color: string; bg: string; border: string }> = {
+  Easy:   { emoji: "🟢", color: "#22c55e", bg: "rgba(34,197,94,0.08)",   border: "1px solid rgba(34,197,94,0.25)"   },
+  Medium: { emoji: "🟡", color: "#f59e0b", bg: "rgba(245,158,11,0.08)",  border: "1px solid rgba(245,158,11,0.25)"  },
+  Hard:   { emoji: "🔴", color: "#ef4444", bg: "rgba(239,68,68,0.08)",   border: "1px solid rgba(239,68,68,0.25)"   },
+};
+
 export function PracticeQuestionCard({
   q, idx, subjectKey, topicLabel,
   isOpen, selfAssessment, solutionLoading, solutionError, solutionData,
-  mcqSelection, mcqResult,
+  mcqSelection, mcqResult, difficultyFilter,
   onSetActiveQuestion, onToggleAnswer, onMcqSelect, onMcqResult,
   onSelfAssessGotIt, onSelfAssessNeedPractice,
   onOpenConceptDrawer, onOpenMentorBoard: _onOpenMentorBoard,
@@ -182,6 +189,16 @@ export function PracticeQuestionCard({
             <span>{q.marks} mark{q.marks !== 1 ? "s" : ""} - {q.section}</span>
             <TimeGuideChip marks={q.marks} section={q.section || ""} />
           </div>
+          {difficultyFilter === "All" && q.difficulty && DIFFICULTY_BADGE[q.difficulty] && (
+            <span style={{
+              padding: "2px 8px", borderRadius: 999, fontSize: "0.68rem", fontWeight: 700,
+              background: DIFFICULTY_BADGE[q.difficulty].bg,
+              border: DIFFICULTY_BADGE[q.difficulty].border,
+              color: DIFFICULTY_BADGE[q.difficulty].color,
+            }}>
+              {DIFFICULTY_BADGE[q.difficulty].emoji} {q.difficulty}
+            </span>
+          )}
           {(q.format === "Assertion-Reasoning" || /^Assertion\s*\(A\)/i.test(q.questionText)) && (
             <span style={{
               padding: "2px 8px", borderRadius: 999, fontSize: "0.68rem", fontWeight: 700,
