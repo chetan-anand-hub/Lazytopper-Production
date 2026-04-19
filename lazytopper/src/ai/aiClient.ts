@@ -64,6 +64,8 @@ export interface MoreLikeThisRequest {
   topicKey: string;
   seedQuestion: MoreLikeThisSeedQuestion;
   numVariants: number;
+  requestedDifficulty?: string;
+  requestedSection?: string;
 }
 
 export interface MoreLikeThisVariant extends MoreLikeThisSeedQuestion {

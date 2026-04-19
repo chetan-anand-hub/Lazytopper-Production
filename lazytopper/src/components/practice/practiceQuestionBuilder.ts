@@ -475,17 +475,16 @@ export async function buildPracticeQuestionsWithAiTopup(
     }
     if (args.difficulty !== "All") {
       const wantedDiff = args.difficulty.toLowerCase();
-      const diffFiltered = poolQuestions.filter((q) =>
+      poolQuestions = poolQuestions.filter((q) =>
         String(q.difficulty ?? "").toLowerCase() === wantedDiff
       );
-      if (diffFiltered.length > 0) poolQuestions = diffFiltered;
     }
     const desiredSectionForPool = normalizeBoardPattern(args.sectionFilter);
     if (desiredSectionForPool) {
       const secFiltered = poolQuestions.filter(
         (q) => inferBoardPatternFromQuestion(q) === desiredSectionForPool
       );
-      if (secFiltered.length > 0) poolQuestions = secFiltered;
+      poolQuestions = secFiltered;
     }
     if (poolQuestions.length > 0) {
       for (let i = poolQuestions.length - 1; i > 0; i--) {
@@ -635,6 +634,8 @@ export async function buildPracticeQuestionsWithAiTopup(
         bloomSkill: seedBloomSkill,
       },
       numVariants: remainingShortfall,
+      requestedDifficulty: args.difficulty !== "All" ? args.difficulty : undefined,
+      requestedSection: desiredSection ?? undefined,
     });
 
     const variants = response?.variants ?? [];

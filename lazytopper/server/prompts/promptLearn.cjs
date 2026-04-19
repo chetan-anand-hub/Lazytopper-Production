@@ -565,6 +565,18 @@ function buildMoreLikeThisUserPrompt(payload) {
   const requestedDifficulty = payload.requestedDifficulty || difficulty || '';
   const enforcedDifficulty = requestedDifficulty || 'same as seed';
 
+  const requestedSection = payload.requestedSection || '';
+  const SECTION_DESCRIPTIONS = {
+    A: 'Section A — 1 mark, objective/MCQ single-sentence question',
+    B: 'Section B — 2 marks, short-answer, 2–3 lines',
+    C: 'Section C — 3 marks, short-answer with working, 4–6 lines',
+    D: 'Section D — 5 marks, long-answer with full working and multiple sub-steps',
+    E: 'Section E — 4 marks, case-based / competency-focused with a scenario passage',
+  };
+  const sectionDesc = requestedSection && SECTION_DESCRIPTIONS[requestedSection]
+    ? SECTION_DESCRIPTIONS[requestedSection]
+    : null;
+
   const lines = [
     `We are building an exam-style practice set for CBSE Class 10 ${subject}.`,
     topicKey ? `Topic key (chapter) in our system: ${topicKey}.` : '',
@@ -574,11 +586,12 @@ function buildMoreLikeThisUserPrompt(payload) {
     'Seed question:',
     seedText,
     '',
-    `Metadata: marks=${marks || 'same as seed'}, difficulty=${enforcedDifficulty}, bloomSkill=${bloom || 'same as seed'}.`,
+    `Metadata: marks=${marks || 'same as seed'}, difficulty=${enforcedDifficulty}, bloomSkill=${bloom || 'same as seed'}${requestedSection ? `, section=${requestedSection}` : ''}.`,
     '',
     `Generate ${numVariants} new CBSE board-style questions that:`,
     '- Keep the same marks value as the seed (or as close as reasonable).',
     `- MANDATORY: Every generated question MUST have difficulty "${enforcedDifficulty}". Do NOT vary the difficulty across variants.`,
+    sectionDesc ? `- MANDATORY: Every question MUST be in CBSE ${sectionDesc}. Match the question format, length, and style strictly.` : '',
     '- Stay in the same Bloom level as the seed.',
     '- Change numbers, scenarios, or wording so they are not copies of the seed.',
     '- Avoid near-duplicate questions: each variant must test a meaningfully different aspect, use different numerical values, or present a different scenario.',
@@ -590,13 +603,14 @@ function buildMoreLikeThisUserPrompt(payload) {
     '      "questionText": "...",',
     '      "marks": <number>,',
     `      "difficulty": "${enforcedDifficulty}",`,
+    requestedSection ? `      "section": "${requestedSection}",` : '',
     '      "bloomSkill": "Remembering | Understanding | Applying | Analysing | Evaluating | Creating"',
     '    }',
     '  ]',
     '}',
     '',
     'Do not include explanations, answers, or any text outside this JSON.',
-  ];
+  ].filter(l => l !== '');
 
   return { userPrompt: lines.join('\n'), numVariants };
 }
