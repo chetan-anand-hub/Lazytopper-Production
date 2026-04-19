@@ -147,7 +147,7 @@ STRICT RULES:
 
     function extractSvg(text) {
       const t = String(text || '');
-      if (!t || t.includes('NO_DIAGRAM') || !t.includes('<svg')) return null;
+      if (!t || !t.includes('<svg')) return null;
       const m = t.match(/<svg[\s\S]*?<\/svg>/i);
       if (!m) return null;
       let svg = m[0];
