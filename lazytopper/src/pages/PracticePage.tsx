@@ -873,6 +873,7 @@ const packTopicKey = useMemo(() => {
           }}
           onDownloadWorksheet={handleDownloadWorksheet}
           hasQuestions={filteredQuestions.length > 0}
+          visibleQuestionCount={filteredQuestions.length}
         />
 
         {isWhyThisQuestionEnabled && (

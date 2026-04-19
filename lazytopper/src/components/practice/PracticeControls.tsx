@@ -1,6 +1,7 @@
 
 import type { DifficultyChoice } from "./practiceQuestionBuilder";
 import { MIN_QUESTION_COUNT, MAX_QUESTION_COUNT } from "./practiceQuestionBuilder";
+import { WORKSHEET_MAX_QUESTIONS } from "./worksheetGenerator";
 
 export interface PracticeControlsProps {
   difficulty: DifficultyChoice;
@@ -12,6 +13,7 @@ export interface PracticeControlsProps {
   onRegenerate: () => void;
   onDownloadWorksheet?: () => void;
   hasQuestions?: boolean;
+  visibleQuestionCount?: number;
 }
 
 export function PracticeControls({
@@ -21,7 +23,9 @@ export function PracticeControls({
   onRegenerate,
   onDownloadWorksheet,
   hasQuestions,
+  visibleQuestionCount = 0,
 }: PracticeControlsProps) {
+  const willTruncate = visibleQuestionCount > WORKSHEET_MAX_QUESTIONS;
   return (
     <>
       <section
@@ -115,7 +119,11 @@ export function PracticeControls({
             <button
               type="button"
               onClick={onDownloadWorksheet}
-              title="Download printable worksheet (PDF)"
+              title={
+                willTruncate
+                  ? `PDF will include first ${WORKSHEET_MAX_QUESTIONS} of ${visibleQuestionCount} questions`
+                  : "Download printable worksheet (PDF)"
+              }
               style={{
                 borderRadius: 999, padding: "5px 12px",
                 border: "1px solid rgba(99,102,241,0.7)",
@@ -129,7 +137,9 @@ export function PracticeControls({
                 <polyline points="7 10 12 15 17 10"/>
                 <line x1="12" y1="15" x2="12" y2="3"/>
               </svg>
-              Download PDF
+              {willTruncate
+                ? `Download PDF (first ${WORKSHEET_MAX_QUESTIONS})`
+                : "Download PDF"}
             </button>
           )}
         </div>
