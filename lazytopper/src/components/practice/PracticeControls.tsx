@@ -12,6 +12,8 @@ export interface PracticeControlsProps {
   onSetQuestionCount: (n: number) => void;
   onRegenerate: () => void;
   onDownloadWorksheet?: () => void;
+  onCopyLink?: () => void;
+  linkCopied?: boolean;
   hasQuestions?: boolean;
   visibleQuestionCount?: number;
 }
@@ -22,6 +24,8 @@ export function PracticeControls({
   questionCount, onSetQuestionCount,
   onRegenerate,
   onDownloadWorksheet,
+  onCopyLink,
+  linkCopied = false,
   hasQuestions,
   visibleQuestionCount = 0,
 }: PracticeControlsProps) {
@@ -115,6 +119,34 @@ export function PracticeControls({
           >
             Regenerate set
           </button>
+          {onCopyLink && hasQuestions && (
+            <button
+              type="button"
+              onClick={onCopyLink}
+              title="Copy a shareable link to this exact question set"
+              style={{
+                borderRadius: 999, padding: "5px 12px",
+                border: linkCopied ? "1px solid rgba(34,197,94,0.8)" : "1px solid rgba(99,102,241,0.7)",
+                backgroundColor: "var(--bg-card)",
+                color: linkCopied ? "#4ade80" : "#818cf8",
+                fontSize: "0.78rem", cursor: "pointer",
+                display: "inline-flex", alignItems: "center", gap: 5,
+                transition: "color 0.2s, border-color 0.2s",
+              }}
+            >
+              {linkCopied ? (
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              ) : (
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                </svg>
+              )}
+              {linkCopied ? "Link copied!" : "Copy link"}
+            </button>
+          )}
           {onDownloadWorksheet && hasQuestions && (
             <button
               type="button"

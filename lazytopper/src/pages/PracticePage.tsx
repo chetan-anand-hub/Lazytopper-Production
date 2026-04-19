@@ -582,6 +582,52 @@ const packTopicKey = useMemo(() => {
     });
   };
 
+  const [linkCopied, setLinkCopied] = useState(false);
+  const linkCopiedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (linkCopiedTimerRef.current) clearTimeout(linkCopiedTimerRef.current);
+    };
+  }, []);
+
+  const handleCopyLink = useCallback(() => {
+    const ids = filteredQuestions.map((q) => String(q.id)).filter(Boolean);
+    if (ids.length === 0) return;
+
+    const base = window.location.origin + window.location.pathname;
+    const params = new URLSearchParams();
+    params.set("topic", topicParam);
+    if (difficulty !== "All") params.set("difficulty", difficulty);
+    if (sectionFilter !== "ALL") params.set("section", sectionFilter);
+    params.set("count", String(ids.length));
+    params.set("focusBankIds", ids.join(","));
+    params.set("strictFocus", "true");
+
+    const url = `${base}?${params.toString()}`;
+
+    navigator.clipboard.writeText(url).then(() => {
+      setLinkCopied(true);
+      if (linkCopiedTimerRef.current) clearTimeout(linkCopiedTimerRef.current);
+      linkCopiedTimerRef.current = setTimeout(() => setLinkCopied(false), 2500);
+    }).catch(() => {
+      try {
+        const ta = document.createElement("textarea");
+        ta.value = url;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+        setLinkCopied(true);
+        if (linkCopiedTimerRef.current) clearTimeout(linkCopiedTimerRef.current);
+        linkCopiedTimerRef.current = setTimeout(() => setLinkCopied(false), 2500);
+      } catch {}
+    });
+  }, [filteredQuestions, topicParam, difficulty, sectionFilter]);
+
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (!event.altKey) return;
@@ -872,6 +918,8 @@ const packTopicKey = useMemo(() => {
             regenerateQuestions();
           }}
           onDownloadWorksheet={handleDownloadWorksheet}
+          onCopyLink={handleCopyLink}
+          linkCopied={linkCopied}
           hasQuestions={filteredQuestions.length > 0}
           visibleQuestionCount={filteredQuestions.length}
         />
