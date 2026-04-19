@@ -463,7 +463,7 @@ export default function Dashboard() {
             {[
               { label: "Practice", icon: "✏️", path: `/practice/${gradeNum}/${subjectForQuickActions}` },
               { label: "Predicted Q's", icon: "🎯", path: `/highly-probable/${gradeNum}/${subjectForQuickActions}` },
-              { label: "Chapters", icon: "📊", path: `/trends/${gradeNum}/${subjectForQuickActions}` },
+              { label: "Exam Trends", icon: "📊", path: `/trends/${gradeNum}/${subjectForQuickActions}` },
               { label: "All Chapters", icon: "📚", path: `/topic-hub/${gradeNum}/${subjectForQuickActions}` },
             ].map((a) => (
               <button key={a.label} onClick={() => navigate(a.path, { state: { back: "/dashboard", backLabel: "Back to Dashboard" } })} style={{

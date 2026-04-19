@@ -25,6 +25,8 @@ import { useSubscription } from "./hooks/useSubscription";
 import { ErrorBoundary, SectionErrorBoundary } from "./components/ErrorBoundary";
 import { initPaceProfileFromExamDate } from "./services/paceProfileService";
 import { startTracking, stopTracking, isFocusTrackingEnabled } from "./services/focusTracker";
+import { getGuidedJourneyState, getPhaseRoute } from "./services/guidedJourneyService";
+import { isMissionCompletedToday, getMissionResumeInfo } from "./services/dailyMissionService";
 import { useTheme } from "./context/ThemeContext";
 
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -101,13 +103,15 @@ function HomeRedirect() {
 }
 
 /**
- * BottomNav — three tabs: Home (dashboard), Chapters (chapter list), Practice.
- * Home is always the first tab so new students immediately find their daily plan.
- * Practice always navigates to the Practice page — no silent context-switching.
+ * BottomNav — three tabs: Learn, Practice, Me.
+ * Learn uses guided journey / daily mission logic to navigate smartly.
+ * Practice navigates directly to the practice page.
+ * Me navigates to /profile for logged-in users, or home for guests.
  */
 function BottomNav() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user: navUser } = useAuth();
 
   const current = location.pathname;
   const go = (path: string) => navigate(path);
@@ -115,53 +119,70 @@ function BottomNav() {
   const activeColor = "#22c55e";
   const inactiveColor = "var(--text-muted)";
 
-  const isHomeDash = current === "/dashboard";
-  const isChapters =
-    current.startsWith("/trends") ||
-    current.startsWith("/topic-hub") ||
+  const isHome = current === "/";
+  const isTrends = current.startsWith("/trends") || current.startsWith("/topic-hub");
+  const isPredictive =
+    current.startsWith("/predictive-papers") ||
+    current.startsWith("/mock-paper") ||
+    current.startsWith("/mock-builder");
+  const isLearn =
+    isTrends ||
     current.startsWith("/daily-mix") ||
+    current.startsWith("/daily-mission") ||
     current.startsWith("/study-plan") ||
     current.startsWith("/planner");
   const isPractice =
+    isPredictive ||
     current.startsWith("/practice") ||
     current.startsWith("/exam-simulation") ||
     current.startsWith("/highly-probable") ||
     current.startsWith("/weak-area") ||
     current.startsWith("/topic-mock") ||
-    current.startsWith("/chapter-test") ||
-    current.startsWith("/predictive-papers") ||
-    current.startsWith("/mock-paper") ||
-    current.startsWith("/mock-builder") ||
-    current.startsWith("/daily-mission");
+    current.startsWith("/chapter-test");
+  const isMe =
+    isHome ||
+    current === "/dashboard" ||
+    current === "/profile" ||
+    current === "/weekly-wrapped" ||
+    current === "/parent-dashboard";
 
   const navItems = [
     {
-      label: "Home",
-      icon: (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-          <polyline points="9 22 9 12 15 12 15 22"/>
-        </svg>
-      ),
-      active: isHomeDash,
-      onClick: () => go("/dashboard"),
-    },
-    {
-      label: "Chapters",
+      label: "Learn",
       icon: (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
           <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
         </svg>
       ),
-      active: isChapters,
+      active: isLearn,
       onClick: () => {
         let ctx = { grade: "10", subject: "Maths" };
         try {
           const raw = localStorage.getItem("lazytopper.lastSubjectContext");
           if (raw) { const p = JSON.parse(raw); if (p?.grade && p?.subject) ctx = p; }
         } catch {}
-        go(`/trends/${ctx.grade}/${ctx.subject}`);
+        if (navUser) {
+          const resumeInfo = getMissionResumeInfo("Maths") || getMissionResumeInfo("Science");
+          if (resumeInfo) {
+            const subj = getMissionResumeInfo("Maths") ? "Maths" : "Science";
+            go(`/daily-mission/${ctx.grade}/${subj}`);
+            return;
+          }
+          const missionSubj = ctx.subject || "Maths";
+          if (!isMissionCompletedToday(missionSubj as "Maths" | "Science")) {
+            go(`/daily-mission/${ctx.grade}/${missionSubj}`);
+            return;
+          }
+          try {
+            const journey = getGuidedJourneyState(navUser.uid);
+            if (journey.currentChapter && (journey.currentChapter.phase === "practice" || journey.currentChapter.phase === "mock")) {
+              go(getPhaseRoute(journey.currentChapter, ctx.grade));
+              return;
+            }
+          } catch {}
+        }
+        go(`/practice/${ctx.grade}/${ctx.subject}`);
       },
     },
     {
@@ -180,6 +201,23 @@ function BottomNav() {
           if (raw) { const p = JSON.parse(raw); if (p?.grade && p?.subject) ctx = p; }
         } catch {}
         go(`/practice/${ctx.grade}/${ctx.subject}`);
+      },
+    },
+    {
+      label: "Me",
+      icon: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+      ),
+      active: isMe,
+      onClick: () => {
+        if (navUser) {
+          go("/profile");
+        } else {
+          window.location.href = "/";
+        }
       },
     },
   ];

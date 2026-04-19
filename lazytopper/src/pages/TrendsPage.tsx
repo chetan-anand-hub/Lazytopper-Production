@@ -292,7 +292,7 @@ const TrendsPage: React.FC = () => {
         <ReturnContextBar
           backTo={backTo}
           backLabel={backLabel}
-          currentLabel="Chapters"
+          currentLabel="Trends"
           quickLinks={[
             { label: "Chapter Hub", to: `/topic-hub/${grade}/${subjectKey}` },
             { label: "Practice", to: `/practice/${grade}/${subjectKey}` },
@@ -311,7 +311,7 @@ const TrendsPage: React.FC = () => {
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
             <div style={{ flex: 1, minWidth: 200 }}>
               <h1 className="font-display" style={{ fontSize: "clamp(1.1rem, 4vw, 1.5rem)", lineHeight: 1.2, fontWeight: 700, margin: 0 }}>
-                {subjectKey} Chapters
+                {subjectKey} Exam Trends
               </h1>
               <p style={{ fontSize: "0.8rem", lineHeight: 1.5, color: "var(--text-muted)", margin: "4px 0 0" }}>
                 Chapters ranked by board exam importance. Start with{" "}
