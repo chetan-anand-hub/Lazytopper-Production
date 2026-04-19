@@ -40,11 +40,20 @@ app.use("/shared-api", router);
 
 const GATEWAY_PORT = parseInt(process.env["GATEWAY_PORT"] || "3001", 10);
 
+// Headers that are set server-side by privileged code paths and must never
+// be forwarded from external (browser) requests to the gateway.
+const STRIPPED_PROXY_HEADERS = new Set([
+  "x-internal-auth",
+  "x-internal-admin",
+  "x-user-id",
+]);
+
 app.use("/api", (req, res) => {
   const bodyData = req.body ? JSON.stringify(req.body) : "";
   const fwdHeaders: Record<string, string> = {};
   for (const [k, v] of Object.entries(req.headers)) {
     if (k === "host" || k === "connection" || k === "content-length") continue;
+    if (STRIPPED_PROXY_HEADERS.has(k.toLowerCase())) continue;
     if (typeof v === "string") fwdHeaders[k] = v;
   }
   if (bodyData) {

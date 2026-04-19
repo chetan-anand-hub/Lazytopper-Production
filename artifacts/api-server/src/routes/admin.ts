@@ -7,15 +7,19 @@ const router: IRouter = Router();
 const GATEWAY_PORT = parseInt(process.env["GATEWAY_PORT"] || "3001", 10);
 
 /**
- * Optional admin guard.  If ADMIN_CLERK_UIDS is set (comma-separated list of
- * Clerk user IDs), only those users may call admin routes.  If the env var is
- * unset, any authenticated user may access (matches legacy behaviour for
- * pre-existing admin pages like /admin/cache-stats).
+ * Admin role guard.  Requires ADMIN_CLERK_UIDS to be set (comma-separated
+ * Clerk user IDs).  In production, returns 503 if the env var is missing so
+ * admin endpoints are never accidentally open.  In non-production environments
+ * the guard is skipped for developer convenience.
  */
 function requireAdminRole(req: Request, res: Response, next: NextFunction): void {
   const rawEnv = process.env["ADMIN_CLERK_UIDS"] || "";
   const adminUids = rawEnv.split(",").map((s) => s.trim()).filter(Boolean);
   if (adminUids.length === 0) {
+    if (process.env["NODE_ENV"] === "production") {
+      res.status(503).json({ ok: false, error: "Admin access not configured" });
+      return;
+    }
     return next();
   }
   const { userId } = getAuth(req);
