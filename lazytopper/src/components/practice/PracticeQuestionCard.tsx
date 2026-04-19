@@ -61,7 +61,10 @@ export function PracticeQuestionCard({
 
   const { user, getToken } = useAuth();
   type ReportState = "idle" | "open" | "submitting" | "done" | "error";
-  const [reportState, setReportState] = useState<ReportState>("idle");
+  const reportedKey = `reported_q_${q.id}`;
+  const [reportState, setReportState] = useState<ReportState>(
+    () => (typeof sessionStorage !== "undefined" && sessionStorage.getItem(reportedKey) ? "done" : "idle"),
+  );
   const [reportType, setReportType] = useState<string>(REPORT_TYPES[0]);
   const [reportComment, setReportComment] = useState("");
   const [reportError, setReportError] = useState<string | undefined>();
@@ -88,6 +91,7 @@ export function PracticeQuestionCard({
       });
       const json = await res.json();
       if (json.ok) {
+        try { sessionStorage.setItem(reportedKey, "1"); } catch (_) {}
         setReportState("done");
       } else {
         setReportError(json.error || "Failed to submit report");
@@ -97,7 +101,7 @@ export function PracticeQuestionCard({
       setReportError("Network error — please try again");
       setReportState("error");
     }
-  }, [q.id, reportType, reportComment, topicLabel, subjectKey, user?.uid, getToken]);
+  }, [q.id, reportType, reportComment, topicLabel, subjectKey, user?.uid, getToken, reportedKey]);
 
   const handleRequestStepSolution = useCallback(() => {
     if (!isOpen) {
