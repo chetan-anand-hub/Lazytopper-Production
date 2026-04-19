@@ -73,6 +73,8 @@ const CURRENT_LENS_SVG = `<svg viewBox="0 0 400 280" width="100%" height="auto" 
   <polygon points="330,140 320,134 322,144" fill="#dc2626"/>
   <line x1="80" y1="80" x2="330" y2="175" stroke="#0ea5e9" stroke-width="1.5"/>
   <polygon points="330,175 320,168 322,178" fill="#0ea5e9"/>
+  <line x1="80" y1="140" x2="200" y2="140" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="200" y1="140" x2="330" y2="175" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 2"/>
   <line x1="330" y1="140" x2="330" y2="175" stroke="#22c55e" stroke-width="2.5"/>
   <polygon points="330,175 325,163 335,163" fill="#22c55e"/>
   <text x="336" y="180" font-size="13" fill="#22c55e" font-weight="600">Image</text>
@@ -139,8 +141,10 @@ const CURRENT_HEART_SVG = `<svg viewBox="0 0 400 280" width="100%" height="auto"
   <polygon points="200,6 195,16 205,16" fill="#dc2626"/>
   <text x="206" y="10" font-size="12" fill="#dc2626" font-weight="700">Aorta</text>
   <path d="M160 50 L145 20" stroke="#2563eb" stroke-width="2" fill="none"/>
-  <text x="70" y="25" font-size="12" fill="#2563eb" font-weight="600">PA</text>
+  <polygon points="145,20 152,28 156,18" fill="#2563eb"/>
+  <text x="80" y="25" font-size="12" fill="#2563eb" font-weight="600">PA</text>
   <path d="M260 50 L275 20" stroke="#dc2626" stroke-width="2" fill="none"/>
+  <polygon points="275,20 268,28 280,22" fill="#dc2626"/>
   <text x="280" y="18" font-size="12" fill="#dc2626" font-weight="600">PV</text>
   <rect x="60" y="264" width="12" height="8" fill="#2563eb" rx="2"/>
   <text x="76" y="272" font-size="11" fill="#2563eb">Deoxygenated</text>
@@ -170,7 +174,6 @@ const IMPROVED_HEART_SVG = `<svg viewBox="0 0 400 280" width="100%" height="auto
   <path d="M258 56 L278 24" stroke="#dc2626" stroke-width="2" fill="none"/>
   <polygon points="278,24 270,35 280,30" fill="#dc2626"/>
   <text x="284" y="24" font-size="12" fill="#dc2626" font-weight="700">PV</text>
-  <path d="M152 56 L132 24" stroke="#2563eb" stroke-width="2" fill="none"/>
   <path d="M25 80 Q8 122 25 165" stroke="#2563eb" stroke-width="1.5" fill="none" stroke-dasharray="5 3"/>
   <polygon points="25,165 20,152 30,155" fill="#2563eb"/>
   <text x="2" y="68" font-size="10" fill="#2563eb">Body</text>
