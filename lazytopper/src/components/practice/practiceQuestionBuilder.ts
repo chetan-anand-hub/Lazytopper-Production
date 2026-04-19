@@ -527,6 +527,16 @@ export async function buildPracticeQuestionsWithAiTopup(
     }
 
     if (poolQuestions.length > 0) {
+      // Deduplicate within the pool itself (same canonical text may appear in
+      // multiple chapter packs) so the depth cap is not wasted on repeats.
+      const poolSeenTexts = new Set<string>();
+      poolQuestions = poolQuestions.filter((q) => {
+        const key = String(q.questionText || "").trim().toLowerCase().slice(0, 120);
+        if (!key || poolSeenTexts.has(key)) return false;
+        poolSeenTexts.add(key);
+        return true;
+      });
+
       for (let i = poolQuestions.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [poolQuestions[i], poolQuestions[j]] = [poolQuestions[j], poolQuestions[i]];
