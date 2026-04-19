@@ -72,9 +72,9 @@ export function PracticeQuestionCard({
     setReportState("submitting");
     setReportError(undefined);
     try {
-      const res = await fetch("/api/questions/report", {
+      const res = await fetch("/shared-api/questions/report", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "X-User-ID": uid },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           questionId: String(q.id),
           reportType,

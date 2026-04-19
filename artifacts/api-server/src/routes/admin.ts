@@ -1,10 +1,30 @@
-import { Router, type IRouter, type Request } from "express";
-import { requireAuth } from "@clerk/express";
+import { Router, type IRouter, type Request, type Response, type NextFunction } from "express";
+import { requireAuth, getAuth } from "@clerk/express";
 import http from "http";
 
 const router: IRouter = Router();
 
 const GATEWAY_PORT = parseInt(process.env["GATEWAY_PORT"] || "3001", 10);
+
+/**
+ * Optional admin guard.  If ADMIN_CLERK_UIDS is set (comma-separated list of
+ * Clerk user IDs), only those users may call admin routes.  If the env var is
+ * unset, any authenticated user may access (matches legacy behaviour for
+ * pre-existing admin pages like /admin/cache-stats).
+ */
+function requireAdminRole(req: Request, res: Response, next: NextFunction): void {
+  const rawEnv = process.env["ADMIN_CLERK_UIDS"] || "";
+  const adminUids = rawEnv.split(",").map((s) => s.trim()).filter(Boolean);
+  if (adminUids.length === 0) {
+    return next();
+  }
+  const { userId } = getAuth(req);
+  if (!userId || !adminUids.includes(userId)) {
+    res.status(403).json({ ok: false, error: "Admin access required" });
+    return;
+  }
+  return next();
+}
 
 function callGateway(
   path: string,
@@ -20,7 +40,9 @@ function callGateway(
       method,
       headers: {
         "x-internal-admin": "1",
-        ...(bodyStr ? { "content-type": "application/json", "content-length": String(Buffer.byteLength(bodyStr)) } : {}),
+        ...(bodyStr
+          ? { "content-type": "application/json", "content-length": String(Buffer.byteLength(bodyStr)) }
+          : {}),
       },
     };
     const req = http.request(opts, (res) => {
@@ -32,11 +54,7 @@ function callGateway(
       });
     });
     req.on("error", reject);
-    if (bodyStr) {
-      req.end(bodyStr);
-    } else {
-      req.end();
-    }
+    if (bodyStr) req.end(bodyStr); else req.end();
   });
 }
 
@@ -57,6 +75,7 @@ router.get(
 router.get(
   "/admin/question-reports",
   requireAuth(),
+  requireAdminRole,
   async (_req, res): Promise<void> => {
     try {
       const { statusCode, body } = await callGateway("/api/admin/question-reports");
@@ -71,6 +90,7 @@ router.get(
 router.patch(
   "/admin/question-reports/:id/resolve",
   requireAuth(),
+  requireAdminRole,
   async (req: Request, res): Promise<void> => {
     try {
       const { id } = req.params;

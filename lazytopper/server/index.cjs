@@ -279,7 +279,6 @@ async function handleRequest(req, res) {
       reqPath === '/api/share-token' ||
       reqPath === '/api/auth/firebase-token' ||
       reqPath === '/api/admin/warm-question-pool' ||
-      reqPath === '/api/questions/report' ||
       reqPath === '/api/admin/question-reports' ||
       /^\/api\/admin\/question-reports\/\d+\/resolve$/.test(reqPath) ||
       reqPath === '/api/user/progress' ||

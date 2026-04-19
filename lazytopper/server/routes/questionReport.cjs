@@ -88,6 +88,9 @@ const ALLOWED_TYPES = [
 // ---------------------------------------------------------------------------
 
 async function handlePostReport(req, res, { sendJson, readJson }) {
+  if (req.headers['x-internal-auth'] !== '1') {
+    return sendJson(res, 401, { ok: false, error: 'Unauthorized' });
+  }
   const uid = (req.headers['x-user-id'] || '').trim();
   if (!uid) return sendJson(res, 400, { ok: false, error: 'X-User-ID header required' });
 
