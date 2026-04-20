@@ -577,9 +577,9 @@ export async function buildPracticeQuestionsWithAiTopup(
       ) as BloomLevel),
       questionText: variantText || template.questionText || seedQuestionText,
       solutionSteps: variantSteps ?? (template.solutionSteps ?? []),
-      finalAnswer: String(variant.finalAnswer || template.finalAnswer || ""),
+      finalAnswer: String(variant.finalAnswer?.trim() || template.finalAnswer || ""),
       explanation: template.explanation ?? "",
-      answer: String(variant.answer || template.answer || ""),
+      answer: String(variant.answer?.trim() || template.answer || ""),
     };
   }
 
