@@ -72,6 +72,11 @@ import {
 } from "../services/badgeEngine";
 import { canonicalChapters } from "../data/syllabus/cbse10Canonical";
 import { normalizeTopicKey } from "../utils/topicResolver";
+import {
+  getMistakeInsights, getMistakeTrend,
+  type MistakeInsights, type MistakeTrend, type RecommendedAction,
+  getRecommendedNextActions,
+} from "../services/mistakeInsightsService";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -629,6 +634,29 @@ export default function ProfilePage() {
   const [hideCountdown, setHideCountdown] = useState<boolean>(
     () => localStorage.getItem("lazytopper.hideCountdown") === "1"
   );
+
+  const [mistakeInsights, setMistakeInsights] = useState<MistakeInsights | null>(null);
+  const [mistakeTrend, setMistakeTrend]       = useState<MistakeTrend | null>(null);
+  const [mistakeActions, setMistakeActions]   = useState<RecommendedAction[]>([]);
+
+  useEffect(() => {
+    const uid = user?.uid;
+    if (!uid || user?.isLocalSession) return;
+    const days = range === "7D" ? 7 : range === "4W" ? 28 : range === "3M" ? 90 : 30;
+    const prevDays = days;
+    let cancelled = false;
+    Promise.all([
+      getMistakeInsights(uid, days),
+      getMistakeTrend(uid, days, prevDays),
+      getRecommendedNextActions(uid, days),
+    ]).then(([ins, trend, actions]) => {
+      if (cancelled) return;
+      setMistakeInsights(ins);
+      setMistakeTrend(trend);
+      setMistakeActions(actions);
+    }).catch(() => {});
+    return () => { cancelled = true; };
+  }, [user, range]);
 
   // Inject shimmer CSS and resolve loading state after a brief paint cycle
   useEffect(() => {
@@ -1517,6 +1545,165 @@ export default function ProfilePage() {
                 );
               })}
             </div>
+          </div>
+        )}
+
+        {/* ── Where You Lose Marks — mistake intelligence ── */}
+        {user?.uid && !user?.isLocalSession && (
+          <div style={cardStyle}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
+              <span style={{ fontSize: 16 }}>🔍</span>
+              <span style={{ fontSize: 14, fontWeight: 800, color: textColor }}>Where You Lose Marks</span>
+            </div>
+
+            {(!mistakeInsights || !mistakeInsights.hasEnoughData) ? (
+              <div style={{
+                textAlign: "center", padding: "20px 8px",
+                color: "var(--text-muted, #94a3b8)", fontSize: 13,
+              }}>
+                <div style={{ fontSize: 26, marginBottom: 8 }}>📝</div>
+                Check your first answer to start tracking mistake patterns
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+
+                {/* Top row: mistake type badge + trend */}
+                <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                  {mistakeInsights.topMistakeType && (() => {
+                    const TYPE_STYLE: Record<string, { color: string; bg: string; label: string }> = {
+                      conceptual:   { color: "#ef4444", bg: "#fef2f2", label: "Conceptual" },
+                      calculation:  { color: "#f59e0b", bg: "#fffbeb", label: "Calculation" },
+                      silly:        { color: "#f97316", bg: "#fff7ed", label: "Silly" },
+                      presentation: { color: "#3b82f6", bg: "#eff6ff", label: "Presentation" },
+                    };
+                    const ts = TYPE_STYLE[mistakeInsights.topMistakeType] ?? { color: "#64748b", bg: "#f1f5f9", label: mistakeInsights.topMistakeType };
+                    return (
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <span style={{ fontSize: 12, color: mutedColor, fontWeight: 600 }}>Top mistake:</span>
+                        <span style={{
+                          fontSize: 11, fontWeight: 800, padding: "3px 10px",
+                          borderRadius: 999, color: ts.color, background: ts.bg,
+                          textTransform: "uppercase", letterSpacing: "0.04em",
+                        }}>
+                          {ts.label}
+                        </span>
+                      </div>
+                    );
+                  })()}
+
+                  {mistakeTrend && mistakeTrend.overallPctChange !== null && (
+                    <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                      <span style={{
+                        fontSize: 13,
+                        color: mistakeTrend.direction === "improving" ? "#22c55e"
+                          : mistakeTrend.direction === "worsening" ? "#ef4444"
+                          : "#f59e0b",
+                      }}>
+                        {mistakeTrend.direction === "improving" ? "↓" : mistakeTrend.direction === "worsening" ? "↑" : "→"}
+                      </span>
+                      <span style={{
+                        fontSize: 11, fontWeight: 700,
+                        color: mistakeTrend.direction === "improving" ? "#22c55e"
+                          : mistakeTrend.direction === "worsening" ? "#ef4444"
+                          : "#f59e0b",
+                      }}>
+                        {mistakeTrend.direction === "improving"
+                          ? `${Math.abs(mistakeTrend.overallPctChange)}% fewer marks lost`
+                          : mistakeTrend.direction === "worsening"
+                          ? `${Math.abs(mistakeTrend.overallPctChange)}% more marks lost`
+                          : "Stable"}
+                      </span>
+                      <span style={{ fontSize: 10, color: mutedColor }}>{mistakeTrend.label}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Stats row */}
+                <div style={{ display: "flex", gap: 8 }}>
+                  <div style={{
+                    flex: 1, padding: "10px 12px", borderRadius: 10,
+                    background: "rgba(239,68,68,0.05)", border: "1px solid rgba(239,68,68,0.15)",
+                    textAlign: "center",
+                  }}>
+                    <div style={{ fontSize: 18, fontWeight: 900, color: "#ef4444" }}>
+                      {mistakeInsights.totalMarksLost}
+                    </div>
+                    <div style={{ fontSize: 9, fontWeight: 700, color: mutedColor, textTransform: "uppercase", letterSpacing: "0.06em", marginTop: 2 }}>
+                      Marks Lost
+                    </div>
+                  </div>
+                  <div style={{
+                    flex: 1, padding: "10px 12px", borderRadius: 10,
+                    background: "rgba(99,102,241,0.05)", border: "1px solid rgba(99,102,241,0.15)",
+                    textAlign: "center",
+                  }}>
+                    <div style={{ fontSize: 18, fontWeight: 900, color: "#6366f1" }}>
+                      {mistakeInsights.totalChecked}
+                    </div>
+                    <div style={{ fontSize: 9, fontWeight: 700, color: mutedColor, textTransform: "uppercase", letterSpacing: "0.06em", marginTop: 2 }}>
+                      Answers Checked
+                    </div>
+                  </div>
+                </div>
+
+                {/* Topic hotspot */}
+                {mistakeInsights.topHotspot && (
+                  <div style={{
+                    padding: "10px 12px", borderRadius: 10,
+                    background: "var(--bg-card-border, #f8fafc)",
+                    border: "1px solid var(--bg-card-border, #e2e8f0)",
+                  }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: mutedColor, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>
+                      Most marks lost in
+                    </div>
+                    <div style={{ fontSize: 13, fontWeight: 800, color: textColor }}>
+                      {mistakeInsights.topHotspot.topic}
+                      <span style={{ fontSize: 10, color: mutedColor, fontWeight: 500, marginLeft: 6 }}>
+                        {mistakeInsights.topHotspot.subject}
+                      </span>
+                    </div>
+                    <div style={{ fontSize: 11, color: mutedColor, marginTop: 2 }}>
+                      {mistakeInsights.topHotspot.marksLost} marks lost across {mistakeInsights.topHotspot.count} checked answer{mistakeInsights.topHotspot.count !== 1 ? "s" : ""}
+                    </div>
+                  </div>
+                )}
+
+                {/* Primary recommended action */}
+                {mistakeActions.length > 0 && (
+                  <div style={{
+                    padding: "10px 12px", borderRadius: 10,
+                    background: "rgba(99,102,241,0.04)", border: "1px solid rgba(99,102,241,0.18)",
+                  }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: "#6366f1", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>
+                      💡 Next Action
+                    </div>
+                    <div style={{ fontSize: 12, color: textColor, lineHeight: 1.5, marginBottom: 8 }}>
+                      {mistakeActions[0].label}
+                    </div>
+                    {mistakeActions[0].topic && (
+                      <button
+                        onClick={() => {
+                          const act = mistakeActions[0];
+                          if (act.type === "learn" && act.topic) {
+                            navigate(`/topic-hub/10/${(act.subject || "maths").toLowerCase()}/${act.topic}`);
+                          } else if (act.topic) {
+                            navigate(`/practice/10/${(act.subject || "maths").toLowerCase()}?topic=${encodeURIComponent(act.topic)}`);
+                          }
+                        }}
+                        style={{
+                          padding: "7px 14px", borderRadius: 8, border: "none",
+                          background: "#6366f1", color: "#fff",
+                          fontSize: 11, fontWeight: 700, cursor: "pointer",
+                        }}
+                      >
+                        {mistakeActions[0].type === "learn" ? "Learn this topic" : "Practice now"}
+                      </button>
+                    )}
+                  </div>
+                )}
+
+              </div>
+            )}
           </div>
         )}
 

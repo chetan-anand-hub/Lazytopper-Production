@@ -2,6 +2,7 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { checkSolutionImage, type CheckSolutionResponse, type MistakeType } from "../../ai/aiClient";
 import { useAuth } from "../../context/AuthContext";
 import { logMistakes } from "../../services/mistakeLogService";
+import { getMistakeInsights, type MistakeInsights, type CheckerMistakeType } from "../../services/mistakeInsightsService";
 
 const CHECK_RESULT_KEY_PREFIX = "lazytopper.checkResult.v1.";
 
@@ -206,6 +207,8 @@ export function SolutionChecker({
   const [isFromCache, setIsFromCache] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [insightData, setInsightData] = useState<MistakeInsights | null>(null);
+  const [insightReady, setInsightReady] = useState(false);
 
   useEffect(() => {
     if (!questionId) return;
@@ -216,6 +219,27 @@ export function SolutionChecker({
       onResult?.(saved);
     }
   }, [questionId]);
+
+  useEffect(() => {
+    if (!result || !user?.uid || user?.isLocalSession) {
+      setInsightData(null);
+      setInsightReady(false);
+      return;
+    }
+    let cancelled = false;
+    const timer = setTimeout(() => {
+      if (!cancelled) setInsightReady(true);
+    }, 1500);
+    getMistakeInsights(user.uid, 7).then((ins) => {
+      if (cancelled) return;
+      setInsightData(ins);
+      setInsightReady(true);
+      clearTimeout(timer);
+    }).catch(() => {
+      if (!cancelled) setInsightReady(true);
+    });
+    return () => { cancelled = true; clearTimeout(timer); };
+  }, [result, user]);
 
   const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -612,6 +636,89 @@ export function SolutionChecker({
               </div>
             </div>
           )}
+
+          {/* ── Improvement Insight card ── */}
+          {insightReady && insightData?.hasEnoughData && (() => {
+            const ms = result!.mistakeSummary;
+            const totals: Record<string, number> = {
+              conceptual: ms.conceptual, calculation: ms.calculation,
+              silly: ms.silly, presentation: ms.presentation,
+            };
+            const TYPES = ["conceptual","calculation","silly","presentation"] as const;
+            const currentTop = TYPES.reduce<CheckerMistakeType | null>((best, t) =>
+              (totals[t] > (best ? totals[best] : -1)) ? t : best, null);
+            if (!currentTop || totals[currentTop] === 0) return null;
+
+            const historicCount = insightData.mistakeCounts[currentTop] ?? 0;
+            const TYPE_LABEL: Record<string, string> = {
+              conceptual: "Conceptual", calculation: "Calculation",
+              silly: "Silly", presentation: "Presentation",
+            };
+            const TYPE_COLOR: Record<string, string> = {
+              conceptual: "#ef4444", calculation: "#f59e0b",
+              silly: "#f97316", presentation: "#3b82f6",
+            };
+
+            const ordinal = (n: number) => {
+              if (n === 1) return "1st"; if (n === 2) return "2nd"; if (n === 3) return "3rd";
+              return `${n}th`;
+            };
+
+            const trendMsg = insightData.topMistakeType === currentTop && historicCount > 2
+              ? `This is your ${ordinal(historicCount)} ${TYPE_LABEL[currentTop].toLowerCase()} mistake this week.`
+              : historicCount > 1
+              ? `You've had ${historicCount} ${TYPE_LABEL[currentTop].toLowerCase()} mistakes this week.`
+              : null;
+
+            const ctaLabel = currentTop === "conceptual" ? "Learn this topic"
+              : currentTop === "presentation" ? "Retry with focus on presentation"
+              : "Practice this topic";
+
+            return (
+              <div style={{
+                marginTop: 10, padding: "11px 14px", borderRadius: 10,
+                background: "rgba(99,102,241,0.04)",
+                border: "1px solid rgba(99,102,241,0.18)",
+              }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: "#6366f1", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>
+                  💡 Improvement Insight
+                </div>
+                {trendMsg && (
+                  <div style={{ fontSize: 12, color: "var(--text)", lineHeight: 1.5, marginBottom: 6 }}>
+                    <span style={{
+                      display: "inline-block", fontSize: 10, fontWeight: 800,
+                      padding: "1px 7px", borderRadius: 999, marginRight: 6,
+                      color: TYPE_COLOR[currentTop], background: `${TYPE_COLOR[currentTop]}18`,
+                      textTransform: "uppercase", letterSpacing: "0.04em",
+                    }}>
+                      {TYPE_LABEL[currentTop]}
+                    </span>
+                    {trendMsg}
+                  </div>
+                )}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const top = insightData.topHotspot;
+                    const t = top?.topic;
+                    const s = (top?.subject || "maths").toLowerCase();
+                    if (currentTop === "conceptual" && t) {
+                      window.location.href = `/app/topic-hub/10/${s}/${encodeURIComponent(t)}`;
+                    } else if (t) {
+                      window.location.href = `/app/practice/10/${s}?topic=${encodeURIComponent(t)}`;
+                    }
+                  }}
+                  style={{
+                    padding: "6px 12px", borderRadius: 8, border: "none",
+                    background: "#6366f1", color: "#fff",
+                    fontSize: 11, fontWeight: 700, cursor: "pointer",
+                  }}
+                >
+                  {ctaLabel}
+                </button>
+              </div>
+            );
+          })()}
 
           {/* See Model Answer CTA */}
           {onRequestStepSolution && (
