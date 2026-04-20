@@ -162,16 +162,33 @@ async function countIncompleteRows(pool) {
   return parseInt(result.rows[0]?.cnt ?? '0', 10);
 }
 
-async function fetchBatch(pool, offset) {
+/**
+ * Snapshot ALL incomplete IDs upfront (no paging needed — just ids, cheap).
+ * Processing proceeds from this fixed list so skipped/stuck rows cannot
+ * re-appear in the same run.
+ */
+async function fetchAllIncompleteIds(pool) {
   const result = await pool.query(
-    `SELECT id, topic_key, subject, marks, difficulty, question_text
+    `SELECT id
      FROM generated_questions
      WHERE (answer IS NULL OR answer = '' OR solution_steps IS NULL OR final_answer IS NULL OR final_answer = '')
        AND question_text IS NOT NULL
        AND question_text <> ''
-     ORDER BY id ASC
-     LIMIT $1 OFFSET $2`,
-    [BATCH_SIZE, offset]
+     ORDER BY id ASC`
+  );
+  return result.rows.map((r) => r.id);
+}
+
+/**
+ * Fetch full row data for a specific batch of IDs.
+ */
+async function fetchRowsByIds(pool, ids) {
+  const result = await pool.query(
+    `SELECT id, topic_key, subject, marks, difficulty, question_text
+     FROM generated_questions
+     WHERE id = ANY($1::int[])
+     ORDER BY id ASC`,
+    [ids]
   );
   return result.rows;
 }
@@ -250,7 +267,12 @@ async function main() {
     return;
   }
 
-  // ── Step 3: Process in batches ─────────────────────────────────────────────
+  // ── Step 3: Snapshot all incomplete IDs first ──────────────────────────────
+  // Snapshotting prevents skipped rows from re-appearing in later batches and
+  // guarantees the loop terminates even if Gemini cannot repair some rows.
+  const allIncompleteIds = await fetchAllIncompleteIds(pool);
+  console.log(`[backfill] Snapshotted ${allIncompleteIds.length} incomplete IDs — processing in batches of ${BATCH_SIZE}`);
+
   const stats = {
     totalScanned: 0,
     incompleteFound: totalIncomplete,
@@ -259,17 +281,17 @@ async function main() {
     failed: 0,
   };
 
-  let offset = 0;
   let batchNum = 0;
 
-  while (true) {
-    const batch = await fetchBatch(pool, 0); // always offset 0 — completed rows are excluded by WHERE
-    if (batch.length === 0) break;
+  for (let i = 0; i < allIncompleteIds.length; i += BATCH_SIZE) {
+    const batchIds = allIncompleteIds.slice(i, i + BATCH_SIZE);
+    const batch = await fetchRowsByIds(pool, batchIds);
+    if (batch.length === 0) continue;
 
     batchNum++;
     stats.totalScanned += batch.length;
-    const batchIds = batch.map((r) => r.id).join(', ');
-    console.log(`\n[backfill] Batch ${batchNum}: processing ${batch.length} row(s) — ids: [${batchIds}]`);
+    const batchIdStr = batch.map((r) => r.id).join(', ');
+    console.log(`\n[backfill] Batch ${batchNum}: processing ${batch.length} row(s) — ids: [${batchIdStr}]`);
 
     // ── Call Gemini ────────────────────────────────────────────────────────
     let repairItems = [];

@@ -86,24 +86,27 @@ async function pickFromPool(topicKey, subject, marks, difficulty, n) {
          AND subject   = $2
          AND (marks    = $3 OR ($3 IS NULL AND marks IS NULL))
          AND (difficulty = $4 OR ($4 IS NULL AND difficulty IS NULL))
+         AND question_text IS NOT NULL AND question_text <> ''
          AND answer IS NOT NULL AND answer <> ''
-         AND solution_steps IS NOT NULL
+         AND solution_steps IS NOT NULL AND jsonb_array_length(solution_steps) > 0
          AND final_answer IS NOT NULL AND final_answer <> ''
        ORDER BY hit_count ASC, created_at DESC
        LIMIT $5`,
       [normTopic, normSubject, normMarks, normDiff, n]
     );
 
-    return result.rows.map(r => ({
-      id: r.id,
-      text: r.question_text,
-      marks: r.marks,
-      difficulty: r.difficulty,
-      bloomSkill: r.bloom_skill,
-      answer: r.answer || undefined,
-      solutionSteps: Array.isArray(r.solution_steps) ? r.solution_steps : undefined,
-      finalAnswer: r.final_answer || undefined,
-    }));
+    return result.rows
+      .map(r => ({
+        id: r.id,
+        text: r.question_text,
+        marks: r.marks,
+        difficulty: r.difficulty,
+        bloomSkill: r.bloom_skill,
+        answer: r.answer || undefined,
+        solutionSteps: Array.isArray(r.solution_steps) ? r.solution_steps : undefined,
+        finalAnswer: r.final_answer || undefined,
+      }))
+      .filter(isCompleteVariant);
   } catch (e) {
     console.warn('[gen-q-pool] pickFromPool error:', e.message);
     return [];
