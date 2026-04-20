@@ -1,0 +1,169 @@
+I want you to fully close the remaining “More Like This” question-solution mismatch issue AND implement a safe one-time backfill for old cached rows in generated_questions.
+
+Please read the existing implementation first before coding.
+
+Context from current audit:
+- The backend generation/schema fix already exists.
+- aiClient.ts already includes answer, solutionSteps, and finalAnswer for MoreLikeThisVariant and CachedAiQuestion.
+- practiceQuestionBuilder.ts already has isCompleteVariant() and now rejects variants missing answer / solutionSteps / finalAnswer.
+- However, the issue is NOT fully solved yet because isCompleteVariant() does NOT require non-empty question text.
+- mapVariantToPracticeQuestion() still uses:
+  questionText: variantText || template.questionText || seedQuestionText
+  which means a malformed variant with blank text but valid solution fields can still show template question text with variant solution data.
+- Also, incomplete variants can still be persisted into the cache/DB and only rejected later on read.
+- Separately, there are old warm-pooled rows in generated_questions that were created before answers/solutions were generated, so they remain unusable cache rows today.
+
+I want this fixed completely and cleanly.
+
+GOALS
+
+1) Fully harden variant completeness
+Update the logic so a variant is considered usable ONLY if all of the following are present and non-empty:
+- text
+- answer
+- solutionSteps (array with at least one non-empty step)
+- finalAnswer
+
+Do not allow blank/whitespace-only strings.
+Trim safely.
+
+2) Eliminate question-text fallback for AI/cached variants
+For AI/cached variant mapping:
+- never fall back to template.questionText if the variant’s own text is missing
+- instead reject the variant completely
+- template fallback for questionText must not remain in any path that can produce a student-facing AI variant
+
+This is critical.
+
+3) Prevent incomplete variants from being saved to cache / DB
+Audit all save paths:
+- saveAiGeneratedQuestions(...)
+- server-side generated question pool save logic
+- any More Like This persistence flow
+
+Ensure incomplete variants are filtered out BEFORE persistence.
+Do not keep storing broken rows and relying on read-time rejection later.
+
+4) Add a server-side completeness guard too
+Do not rely only on frontend validation.
+Implement a shared or duplicated server-side completeness check so:
+- incomplete variants from Gemini are not saved to generated_questions
+- incomplete variants are not returned from API responses if avoidable
+
+5) Add a one-time backfill script for existing old rows
+Create a safe backfill script that:
+- reads generated_questions rows where answer IS NULL OR solution_steps IS NULL OR final_answer IS NULL
+- groups them into batches (for example 10 per batch)
+- sends the existing question text + subject + marks + difficulty + topic_key to Gemini
+- asks Gemini to return:
+  - answer
+  - solutionSteps
+  - finalAnswer
+for each existing question
+- updates the matching rows with SQL UPDATE
+
+Important:
+- do NOT create new rows
+- only UPDATE existing rows
+- skip rows where question_text is blank
+- log batch progress clearly
+- if a row cannot be repaired, leave it untouched and continue
+- if Gemini returns incomplete output for a row, do NOT update that row
+
+6) Make the backfill idempotent
+The script must be safe to re-run.
+Meaning:
+- it should only target incomplete rows
+- already-complete rows should be skipped
+- failed rows should be safely retryable later
+
+7) Add a dry-run option
+The backfill script should support:
+- dry run mode (show how many rows would be processed, maybe sample IDs)
+- real execution mode
+
+8) Add verification output
+At the end of the script, print a clear summary like:
+- total rows scanned
+- incomplete rows found
+- rows successfully updated
+- rows skipped
+- rows failed
+
+9) Keep current working behavior intact
+Do not break:
+- PracticeQuestion flow
+- existing step-solution flow
+- existing AI top-up flow
+- current cache read behavior for complete rows
+
+10) Clean up repo hygiene in this area
+Remove or avoid unrelated pasted text artifacts in the change.
+Keep this work scoped.
+
+FILES TO INSPECT FIRST
+Please inspect these first before coding:
+- lazytopper/src/components/practice/practiceQuestionBuilder.ts
+- lazytopper/src/ai/aiClient.ts
+- lazytopper/server/services/generatedQuestionPool.cjs
+- lazytopper/server/services/warmQuestionPool.cjs
+- any route handling /api/more-like-this
+- any ai-questions persistence code
+- DB migration/schema references for generated_questions
+
+IMPLEMENTATION EXPECTATIONS
+
+A) Frontend hardening
+- update isCompleteVariant()
+- remove unsafe questionText fallback
+- ensure only fully valid variants are mapped into PracticeQuestion
+
+B) Server/cache hardening
+- add completeness filter before saving to generated_questions
+- if possible, also filter before returning response payloads
+
+C) Backfill script
+Create a script in a sensible server/scripts location, something like:
+- lazytopper/server/scripts/backfillGeneratedQuestionSolutions.cjs
+
+The script should:
+- connect using DATABASE_URL
+- query incomplete rows
+- call Gemini in batches
+- update rows safely
+- support DRY_RUN=1 or --dry-run
+- log progress
+
+D) Prompt design for backfill
+The Gemini backfill prompt should:
+- not ask for new questions
+- only repair existing questions
+- return structured JSON for each input row
+- include a stable row id in the prompt and response so updates map cleanly
+
+Example desired response shape:
+{
+  "items": [
+    {
+      "id": 123,
+      "answer": "...",
+      "solutionSteps": ["...", "..."],
+      "finalAnswer": "..."
+    }
+  ]
+}
+
+E) Final response to me
+After implementing, tell me:
+1. exact files changed/created
+2. how the hardening now works
+3. how the backfill script is run
+4. any tradeoffs or remaining edge cases
+
+IMPORTANT PRODUCT RULE
+A student must never see:
+- template question + variant solution
+- variant question + missing solution
+- cached incomplete variant reused silently
+
+That must now be impossible.
