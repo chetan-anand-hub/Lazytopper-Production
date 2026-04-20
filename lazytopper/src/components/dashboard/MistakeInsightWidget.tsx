@@ -135,7 +135,7 @@ export function MistakeInsightWidget({ uid, gradeNum }: MistakeInsightWidgetProp
         {/* Marks lost */}
         {totalMarksLost > 0 && (
           <span style={{ fontSize: 12, color: tc.textSecondary }}>
-            <span style={{ fontWeight: 700, color: tc.text }}>{totalMarksLost}</span>{" "}
+            <span style={{ fontWeight: 700, color: tc.textPrimary }}>{totalMarksLost}</span>{" "}
             mark{totalMarksLost !== 1 ? "s" : ""} lost this week
           </span>
         )}
