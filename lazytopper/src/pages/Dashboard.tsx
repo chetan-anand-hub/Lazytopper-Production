@@ -88,6 +88,7 @@ import {
   JourneyCard,
   PaceSelectorPanel,
   HeroActionCard,
+  MistakeInsightWidget,
 } from "../components/dashboard";
 
 export default function Dashboard() {
@@ -688,6 +689,10 @@ export default function Dashboard() {
             </div>
             <span style={{ color: tc.textFaint, fontSize: 16 }}>→</span>
           </div>
+        )}
+
+        {daysLeftValue > 7 && user && !user.isLocalSession && (
+          <MistakeInsightWidget uid={user.uid} gradeNum={gradeNum} />
         )}
 
         {daysLeftValue > 7 && <DailyMixPreview items={dailyMixPreview} totalMinutes={dailyMixMinutes} gradeNum={gradeNum} subjectForQuickActions={subjectForQuickActions} navigate={navigate} />}
