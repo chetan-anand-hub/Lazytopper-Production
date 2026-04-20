@@ -1,0 +1,92 @@
+I audited the fix, and the main result is:
+
+**The server-side fix is real, but the end-to-end mismatch bug is not fully fixed yet.**
+
+What is good
+
+The backend prompt now explicitly requires `answer`, `solutionSteps`, and `finalAnswer` for each generated variant 
+
+The route now preserves those fields from the model response when building returned variants 
+
+The generated-question pool now reads and writes `answer`, `solution_steps`, and `final_answer` from the DB, instead of only text/marks/difficulty/bloomSkill  
+
+So the **backend data layer improvement is legitimate**.
+
+Blocker still present
+
+Your current frontend/client integration at `b5597e4` is still using the **old stale-template mapping path**.
+
+In `practiceQuestionBuilder.ts`, `mapVariantToPracticeQuestion(...)` still returns:
+
+* `solutionSteps: template.solutionSteps ?? []`
+* `answer: template.answer ?? ""`
+
+instead of using the variant’s own generated solution fields 
+
+That means even after the backend starts returning proper `answer` and `solutionSteps`, the practice builder can still attach the **seed/template solution** to a new AI-generated question.
+
+So the exact bug you wanted to kill is still alive in the current `main` state.
+
+Second blocker
+
+Your `aiClient.ts` types were **not updated** to match the new backend payload.
+
+`MoreLikeThisVariant` still only extends the old seed-question shape plus `index` 
+
+`CachedAiQuestion` also still only contains:
+
+* `text`
+* `marks`
+* `difficulty`
+* `bloomSkill` 
+
+So even though the server now stores/returns richer fields, the client typings and save/fetch flow are still not aligned. That is a strong signal the frontend path is incomplete.
+
+High-risk product issue
+
+The commit message itself admits that about **3,600 pre-existing warm-pool rows still have NULL answers** in the DB 
+
+So even if the code were fully wired, cached older rows can still surface incomplete AI questions unless you:
+
+* backfill them, or
+* refuse to serve cached rows missing answer/steps/finalAnswer.
+
+Repo hygiene issue
+
+The earlier fix commit `704962c` included unrelated junk:
+
+* pasted ChatGPT text files
+* attached assets/images
+* unrelated mockup file changes 
+
+And the full compare from `7e9f08b...b5597e4` is also very noisy, with many unrelated files and admin/reporting changes mixed into the same range, including pasted text assets and image files
+
+That makes review and rollback riskier than it should be.
+
+Verdict
+
+**Status: partial fix, not safe to consider fully resolved.**
+
+The server now generates and stores richer solution data, but the practice frontend is still mapping AI variants through the old template-based path, so students can still see mismatched solutions.
+
+What must be fixed next
+
+1. In `practiceQuestionBuilder.ts`, map the variant’s own:
+
+* `answer`
+* `solutionSteps`
+* `finalAnswer`
+
+instead of copying from `template` 
+
+2. Update `aiClient.ts` types for:
+
+* `MoreLikeThisVariant`
+* `CachedAiQuestion`
+* save/fetch payloads  
+
+3. Reject or skip cached pool rows missing required solution fields, because the existing NULL rows are still a live risk 
+
+4. Clean the repo history going forward by keeping hotfixes narrowly scoped.
+
+If you want, send me the next commit after you patch `practiceQuestionBuilder.ts` and `aiClient.ts`, and I’ll re-audit that exact state.
