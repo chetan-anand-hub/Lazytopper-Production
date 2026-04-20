@@ -1,8 +1,12 @@
 import { useState, useRef, useCallback, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { checkSolutionImage, type CheckSolutionResponse, type MistakeType } from "../../ai/aiClient";
 import { useAuth } from "../../context/AuthContext";
 import { logMistakes } from "../../services/mistakeLogService";
-import { getMistakeInsights, type MistakeInsights, type CheckerMistakeType } from "../../services/mistakeInsightsService";
+import {
+  getMistakeInsights, getMistakeTrend,
+  type MistakeInsights, type MistakeTrend, type CheckerMistakeType,
+} from "../../services/mistakeInsightsService";
 
 const CHECK_RESULT_KEY_PREFIX = "lazytopper.checkResult.v1.";
 
@@ -195,6 +199,7 @@ export function SolutionChecker({
   question, marks, subject, topic, questionId, onRequestStepSolution, onResult,
 }: SolutionCheckerProps) {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [imageMimeType, setImageMimeType] = useState<string>("image/jpeg");
@@ -208,6 +213,7 @@ export function SolutionChecker({
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [insightData, setInsightData] = useState<MistakeInsights | null>(null);
+  const [insightTrend, setInsightTrend] = useState<MistakeTrend | null>(null);
   const [insightReady, setInsightReady] = useState(false);
 
   useEffect(() => {
@@ -223,6 +229,7 @@ export function SolutionChecker({
   useEffect(() => {
     if (!result || !user?.uid || user?.isLocalSession) {
       setInsightData(null);
+      setInsightTrend(null);
       setInsightReady(false);
       return;
     }
@@ -230,9 +237,13 @@ export function SolutionChecker({
     const timer = setTimeout(() => {
       if (!cancelled) setInsightReady(true);
     }, 1500);
-    getMistakeInsights(user.uid, 7).then((ins) => {
+    Promise.all([
+      getMistakeInsights(user.uid, 7),
+      getMistakeTrend(user.uid, 7, 7),
+    ]).then(([ins, trend]) => {
       if (cancelled) return;
       setInsightData(ins);
+      setInsightTrend(trend);
       setInsightReady(true);
       clearTimeout(timer);
     }).catch(() => {
@@ -664,15 +675,38 @@ export function SolutionChecker({
               return `${n}th`;
             };
 
-            const trendMsg = insightData.topMistakeType === currentTop && historicCount > 2
+            const recurMsg = insightData.topMistakeType === currentTop && historicCount > 2
               ? `This is your ${ordinal(historicCount)} ${TYPE_LABEL[currentTop].toLowerCase()} mistake this week.`
               : historicCount > 1
               ? `You've had ${historicCount} ${TYPE_LABEL[currentTop].toLowerCase()} mistakes this week.`
               : null;
 
+            const trend = insightTrend;
+            const trendByType = trend?.byType?.[currentTop];
+            const trendMsg = trendByType !== undefined && trendByType !== null
+              ? trendByType <= -10
+                ? `${TYPE_LABEL[currentTop]} mistakes down ${Math.abs(trendByType)}% vs last week — improving!`
+                : trendByType >= 10
+                ? `${TYPE_LABEL[currentTop]} mistakes up ${trendByType}% vs last week — needs attention.`
+                : `${TYPE_LABEL[currentTop]} mistakes stable vs last week.`
+              : null;
+
             const ctaLabel = currentTop === "conceptual" ? "Learn this topic"
               : currentTop === "presentation" ? "Retry with focus on presentation"
               : "Practice this topic";
+
+            const handleCta = () => {
+              const top = insightData.topHotspot;
+              const t = top?.topic;
+              const s = (top?.subject || subject || "Maths").toLowerCase();
+              if (currentTop === "conceptual" && t) {
+                navigate(`/topic-hub/10/${s}/${encodeURIComponent(t)}`);
+              } else if (t) {
+                navigate(`/practice/10/${s}?topic=${encodeURIComponent(t)}`);
+              } else {
+                navigate(`/practice/10/${s}?topic=${encodeURIComponent(topic)}`);
+              }
+            };
 
             return (
               <div style={{
@@ -683,8 +717,10 @@ export function SolutionChecker({
                 <div style={{ fontSize: 10, fontWeight: 700, color: "#6366f1", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>
                   💡 Improvement Insight
                 </div>
-                {trendMsg && (
-                  <div style={{ fontSize: 12, color: "var(--text)", lineHeight: 1.5, marginBottom: 6 }}>
+
+                {/* Recurrence message */}
+                {recurMsg && (
+                  <div style={{ fontSize: 12, color: "var(--text)", lineHeight: 1.5, marginBottom: 4 }}>
                     <span style={{
                       display: "inline-block", fontSize: 10, fontWeight: 800,
                       padding: "1px 7px", borderRadius: 999, marginRight: 6,
@@ -693,21 +729,29 @@ export function SolutionChecker({
                     }}>
                       {TYPE_LABEL[currentTop]}
                     </span>
+                    {recurMsg}
+                  </div>
+                )}
+
+                {/* Trend signal */}
+                {trendMsg && (
+                  <div style={{
+                    fontSize: 11, fontWeight: 600, lineHeight: 1.4, marginBottom: 8,
+                    color: (trendByType ?? 0) <= -10 ? "#22c55e"
+                      : (trendByType ?? 0) >= 10 ? "#ef4444"
+                      : "#f59e0b",
+                    display: "flex", alignItems: "center", gap: 4,
+                  }}>
+                    <span style={{ fontSize: 12 }}>
+                      {(trendByType ?? 0) <= -10 ? "↓" : (trendByType ?? 0) >= 10 ? "↑" : "→"}
+                    </span>
                     {trendMsg}
                   </div>
                 )}
+
                 <button
                   type="button"
-                  onClick={() => {
-                    const top = insightData.topHotspot;
-                    const t = top?.topic;
-                    const s = (top?.subject || "maths").toLowerCase();
-                    if (currentTop === "conceptual" && t) {
-                      window.location.href = `/app/topic-hub/10/${s}/${encodeURIComponent(t)}`;
-                    } else if (t) {
-                      window.location.href = `/app/practice/10/${s}?topic=${encodeURIComponent(t)}`;
-                    }
-                  }}
+                  onClick={handleCta}
                   style={{
                     padding: "6px 12px", borderRadius: 8, border: "none",
                     background: "#6366f1", color: "#fff",
