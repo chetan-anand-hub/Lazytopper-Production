@@ -542,13 +542,26 @@ export async function buildPracticeQuestionsWithAiTopup(
 
   const template: PracticeQuestion | undefined = seed ?? mergedWithCanonical[0];
 
+  type VariantShape = {
+    text?: string;
+    marks?: number | null;
+    difficulty?: string | null;
+    bloomSkill?: string | null;
+    answer?: string | null;
+    solutionSteps?: string[] | null;
+    finalAnswer?: string | null;
+  };
+
   function mapVariantToPracticeQuestion(
-    variant: CachedAiQuestion | { text?: string; marks?: number | null; difficulty?: string | null; bloomSkill?: string | null },
+    variant: VariantShape,
     index: number,
     idPrefix: string,
   ): PracticeQuestion | null {
     if (!template) return null;
-    const variantText = normaliseQuestionText((variant as { text?: string }).text ?? "");
+    const variantText = normaliseQuestionText(variant.text ?? "");
+    const variantSteps = Array.isArray(variant.solutionSteps) && variant.solutionSteps.length > 0
+      ? variant.solutionSteps
+      : null;
     return {
       ...template,
       id: `${seedId}-${idPrefix}-${index + 1}`,
@@ -563,12 +576,10 @@ export async function buildPracticeQuestionsWithAiTopup(
         variant.bloomSkill ?? template.bloomSkill ?? seedBloomSkill ?? "Understanding",
       ) as BloomLevel),
       questionText: variantText || template.questionText || seedQuestionText,
-      solutionSteps: (Array.isArray((variant as CachedAiQuestion).solutionSteps) && ((variant as CachedAiQuestion).solutionSteps as string[]).length > 0)
-        ? ((variant as CachedAiQuestion).solutionSteps as string[])
-        : (template.solutionSteps ?? []),
-      finalAnswer: String((variant as CachedAiQuestion).finalAnswer || template.finalAnswer || ""),
+      solutionSteps: variantSteps ?? (template.solutionSteps ?? []),
+      finalAnswer: String(variant.finalAnswer || template.finalAnswer || ""),
       explanation: template.explanation ?? "",
-      answer: String((variant as CachedAiQuestion).answer || template.answer || ""),
+      answer: String(variant.answer || template.answer || ""),
     };
   }
 
