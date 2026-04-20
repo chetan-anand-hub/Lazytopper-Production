@@ -1562,7 +1562,7 @@ export default function ProfilePage() {
                 color: "var(--text-muted, #94a3b8)", fontSize: 13,
               }}>
                 <div style={{ fontSize: 26, marginBottom: 8 }}>📝</div>
-                Check your first answer to start tracking mistake patterns
+                Check a few answers to start tracking your mistake patterns
               </div>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -1685,7 +1685,7 @@ export default function ProfilePage() {
                         onClick={() => {
                           const act = mistakeActions[0];
                           if (act.type === "learn" && act.topic) {
-                            navigate(`/topic-hub/10/${(act.subject || "maths").toLowerCase()}/${act.topic}`);
+                            navigate(`/topic-hub/10/${(act.subject || "maths").toLowerCase()}/${encodeURIComponent(act.topic)}`);
                           } else if (act.topic) {
                             navigate(`/practice/10/${(act.subject || "maths").toLowerCase()}?topic=${encodeURIComponent(act.topic)}`);
                           }
