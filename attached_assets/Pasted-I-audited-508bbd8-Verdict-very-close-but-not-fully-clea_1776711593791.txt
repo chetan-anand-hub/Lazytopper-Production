@@ -1,0 +1,139 @@
+I audited `508bbd8`.
+
+Verdict: **very close, but not fully “clean and complete” yet.**
+The main hardening work is real, but I found **2 important issues**.
+
+## What is correctly implemented
+
+The shared server-side completeness guard is real. `questionCompleteness.cjs` now requires all four:
+
+* `text`
+* `answer`
+* `solutionSteps` with at least one non-empty step
+* `finalAnswer` 
+
+`generatedQuestionPool.cjs` now:
+
+* imports the shared guard
+* filters incomplete variants before insert
+* excludes rows with missing answer / solution_steps / final_answer at SQL read time 
+
+`moreLikeThis.cjs` now filters parsed AI variants through `isCompleteVariant()` before both:
+
+* saving to pool
+* sending the HTTP response 
+
+`aiQuestions.cjs` GET now filters through `isCompleteVariant()` before `markServed()` and before returning JSON 
+
+`warmQuestionPool.cjs` now drops incomplete Gemini output before returning variants for saving 
+
+On the frontend, `practiceQuestionBuilder.ts` now:
+
+* requires non-empty `text`
+* removes template question-text fallback
+* uses `questionText: variantText`
+* filters before save 
+
+So the original dangerous path — **template question text + variant solution** — is now blocked in the main product flow.
+
+---
+
+## Issue 1 — the backfill script can get stuck in an infinite retry loop
+
+This is the biggest problem.
+
+In `backfillGeneratedQuestionSolutions.cjs`, the main loop always does:
+
+* `fetchBatch(pool, 0)`
+  not a moving offset / cursor / id window 
+
+And when a row is skipped because:
+
+* Gemini returns no matching item
+* or Gemini returns incomplete output
+
+the script **does not mark that row as attempted or move past it**. It just increments `skipped` and continues 
+
+Because the query always fetches the first incomplete rows again, any unrepaired row in the first batch can keep reappearing forever.
+
+So this claim is **not correct as written**:
+
+> “If Gemini returns incomplete output for a row, that row is left unchanged and skipped safely.”
+
+It is left unchanged, yes — but with the current loop shape, it may be re-fetched endlessly.
+
+### What needs to change
+
+The script should use one of these:
+
+* snapshot ids first, then process that fixed list
+* `WHERE id > lastSeenId ORDER BY id ASC LIMIT 10`
+* or keep an in-memory `attemptedIds` set and exclude them
+
+Right now it is not safely terminating in the presence of unrepaired rows.
+
+---
+
+## Issue 2 — the “single source of truth at every layer” claim is slightly overstated
+
+Most layers do use the shared predicate, but not literally all.
+
+### Why
+
+`pickFromPool()` in `generatedQuestionPool.cjs` uses SQL filtering, not the shared predicate, and that SQL currently checks:
+
+* answer present
+* solution_steps not null
+* final_answer present
+
+but it does **not** check:
+
+* `question_text` non-empty
+* `solution_steps` contains at least one non-empty string 
+
+That means the SQL filter is **not fully equivalent** to `isCompleteVariant()`.
+
+This matters especially because `moreLikeThis.cjs` pool-hit path serves `pickFromPool()` results directly, without re-filtering them again through `isCompleteVariant()` before response 
+
+Now, in practice, future saved rows should be clean because `saveToPool()` filters before insert. So this is a **small structural gap**, not a likely common runtime bug.
+
+But strictly speaking, this sentence is too strong:
+
+> “A variant needs text + answer + solutionSteps + finalAnswer to pass at any layer.”
+
+That is true in the main flow, but the DB SQL layer is not a byte-for-byte mirror of the predicate.
+
+---
+
+## My final audit decision
+
+### Approved
+
+* frontend hardening: **yes**
+* shared server completeness guard: **yes**
+* save-path filtering: **yes**
+* response-path filtering: **mostly yes**
+* backfill concept: **good**
+
+### Not fully approved yet
+
+Because:
+
+1. **backfill script can loop forever on skipped rows**
+2. **pool SQL is not a full mirror of the shared completeness predicate**
+
+---
+
+## Best summary
+
+I would describe the current state as:
+
+**The “More Like This” mismatch issue is functionally closed in the main student-facing flow.
+The backfill implementation is not yet production-safe because of its retry loop behavior.**
+
+So your report is **mostly right**, but I would not call it fully clean/live until the backfill loop is fixed.
+
+The fastest next fix is:
+
+* change the backfill batching to advance by stable id/cursor instead of re-querying `offset 0`
+* optionally tighten `pickFromPool()` SQL to also require non-empty `question_text` and better step validity.
