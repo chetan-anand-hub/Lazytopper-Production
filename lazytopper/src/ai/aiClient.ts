@@ -70,6 +70,9 @@ export interface MoreLikeThisRequest {
 
 export interface MoreLikeThisVariant extends MoreLikeThisSeedQuestion {
   index: number;
+  answer?: string;
+  solutionSteps?: string[];
+  finalAnswer?: string;
 }
 
 export interface MoreLikeThisResponse {
@@ -297,6 +300,9 @@ export interface CachedAiQuestion {
   marks: number | null;
   difficulty: string | null;
   bloomSkill: string | null;
+  answer?: string | null;
+  solutionSteps?: string[] | null;
+  finalAnswer?: string | null;
 }
 
 /**

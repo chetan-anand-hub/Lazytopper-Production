@@ -563,9 +563,12 @@ export async function buildPracticeQuestionsWithAiTopup(
         variant.bloomSkill ?? template.bloomSkill ?? seedBloomSkill ?? "Understanding",
       ) as BloomLevel),
       questionText: variantText || template.questionText || seedQuestionText,
-      solutionSteps: template.solutionSteps ?? [],
+      solutionSteps: (Array.isArray((variant as CachedAiQuestion).solutionSteps) && ((variant as CachedAiQuestion).solutionSteps as string[]).length > 0)
+        ? ((variant as CachedAiQuestion).solutionSteps as string[])
+        : (template.solutionSteps ?? []),
+      finalAnswer: String((variant as CachedAiQuestion).finalAnswer || template.finalAnswer || ""),
       explanation: template.explanation ?? "",
-      answer: template.answer ?? "",
+      answer: String((variant as CachedAiQuestion).answer || template.answer || ""),
     };
   }
 
@@ -582,6 +585,7 @@ export async function buildPracticeQuestionsWithAiTopup(
   } catch (_) { /* non-fatal: fall through to AI */ }
 
   const cachedQuestions: PracticeQuestion[] = cachedVariants
+    .filter((v) => !!(v.answer && v.answer.trim()))
     .map((v, i) => mapVariantToPracticeQuestion(v, i, "CACHE"))
     .filter((q): q is PracticeQuestion => q !== null);
 
@@ -627,6 +631,9 @@ export async function buildPracticeQuestionsWithAiTopup(
           marks: (v.marks ?? seedMarks) as number | null,
           difficulty: (v.difficulty ?? fallbackDifficulty) as string | null,
           bloomSkill: ((v as { bloomSkill?: string }).bloomSkill ?? null) as string | null,
+          answer: (v.answer ?? null) as string | null,
+          solutionSteps: (Array.isArray(v.solutionSteps) ? v.solutionSteps : null) as string[] | null,
+          finalAnswer: (v.finalAnswer ?? null) as string | null,
         })),
       });
     }
