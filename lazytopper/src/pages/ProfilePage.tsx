@@ -1665,6 +1665,24 @@ export default function ProfilePage() {
                     <div style={{ fontSize: 11, color: mutedColor, marginTop: 2 }}>
                       {mistakeInsights.topHotspot.marksLost} marks lost across {mistakeInsights.topHotspot.count} checked answer{mistakeInsights.topHotspot.count !== 1 ? "s" : ""}
                     </div>
+                    <button
+                      onClick={() => {
+                        const hs = mistakeInsights.topHotspot!;
+                        const subj = (hs.subject || "maths").toLowerCase();
+                        const diff = hs.dominantType === "conceptual" ? "Easy" : "Medium";
+                        navigate(
+                          `/practice/10/${subj}?topic=${encodeURIComponent(hs.topic)}&difficulty=${diff}&targeted=1&targetMistakeType=${hs.dominantType}`
+                        );
+                      }}
+                      style={{
+                        marginTop: 10, padding: "7px 14px", borderRadius: 8, border: "none",
+                        background: "#6366f1", color: "#fff",
+                        fontSize: 11, fontWeight: 700, cursor: "pointer",
+                        display: "flex", alignItems: "center", gap: 5,
+                      }}
+                    >
+                      <span>🎯</span> Fix My Mistakes
+                    </button>
                   </div>
                 )}
 

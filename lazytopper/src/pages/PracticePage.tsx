@@ -124,6 +124,8 @@ const PracticePage: React.FC = () => {
     : (subjectKey === "Science" ? "chemical-reactions-and-equations" : "real-numbers");
   const topicKeyParam = qp.get("topicKey");
   const journeyMentorMode = String(qp.get("journeyMentor") || "").trim().toLowerCase();
+  const isTargetedSession = qp.get("targeted") === "1";
+  const targetMistakeType = qp.get("targetMistakeType") || "";
 
   const navState = (location.state as PracticeNavState) || {};
   // Support deep-linking via URL query params (e.g., /practice/10/Maths?topic=Triangles&section=A)
@@ -900,6 +902,33 @@ const packTopicKey = useMemo(() => {
           canonicalTopicKey={canonicalTopicKey || topicParam}
           questionCount={questionCount}
         />
+
+        {isTargetedSession && ((() => {
+          const MISTAKE_LABEL: Record<string, string> = {
+            conceptual: "Conceptual", calculation: "Calculation",
+            silly: "Silly", presentation: "Presentation",
+          };
+          const mistakeLabel = MISTAKE_LABEL[targetMistakeType] || targetMistakeType;
+          const displayTopic = topicLabel || rawTopicParam;
+          return (
+            <div style={{
+              margin: "0 0 10px 0", padding: "10px 14px",
+              borderRadius: 10, background: "rgba(99,102,241,0.08)",
+              border: "1px solid rgba(99,102,241,0.25)",
+              display: "flex", alignItems: "center", gap: 10,
+            }}>
+              <span style={{ fontSize: 16 }}>🎯</span>
+              <div>
+                <span style={{ fontSize: 12, fontWeight: 700, color: "#6366f1" }}>Targeted session</span>
+                <span style={{ fontSize: 12, color: "var(--text)", fontWeight: 500 }}>
+                  {" — focusing on "}
+                  <strong>{displayTopic}</strong>
+                  {mistakeLabel ? ` (${mistakeLabel} mistakes)` : ""}
+                </span>
+              </div>
+            </div>
+          );
+        })())}
 
         <PracticeControls
           difficulty={difficulty}

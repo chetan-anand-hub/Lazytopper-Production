@@ -708,6 +708,15 @@ export function SolutionChecker({
               }
             };
 
+            const handleFixMyMistakes = () => {
+              const top = insightData.topHotspot;
+              const t = top?.topic || topic;
+              const s = (top?.subject || subject || "Maths").toLowerCase();
+              const mistakeTypeForSession = top?.dominantType ?? insightData.topMistakeType ?? currentTop;
+              const diff = mistakeTypeForSession === "conceptual" ? "Easy" : "Medium";
+              navigate(`/practice/10/${s}?topic=${encodeURIComponent(t)}&difficulty=${diff}&targeted=1&targetMistakeType=${mistakeTypeForSession}`);
+            };
+
             return (
               <div style={{
                 marginTop: 10, padding: "11px 14px", borderRadius: 10,
@@ -749,17 +758,34 @@ export function SolutionChecker({
                   </div>
                 )}
 
-                <button
-                  type="button"
-                  onClick={handleCta}
-                  style={{
-                    padding: "6px 12px", borderRadius: 8, border: "none",
-                    background: "#6366f1", color: "#fff",
-                    fontSize: 11, fontWeight: 700, cursor: "pointer",
-                  }}
-                >
-                  {ctaLabel}
-                </button>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  <button
+                    type="button"
+                    onClick={handleCta}
+                    style={{
+                      padding: "6px 12px", borderRadius: 8, border: "none",
+                      background: "#6366f1", color: "#fff",
+                      fontSize: 11, fontWeight: 700, cursor: "pointer",
+                    }}
+                  >
+                    {ctaLabel}
+                  </button>
+                  {insightData.topHotspot && (
+                    <button
+                      type="button"
+                      onClick={handleFixMyMistakes}
+                      style={{
+                        padding: "6px 12px", borderRadius: 8,
+                        border: "1px solid rgba(99,102,241,0.35)",
+                        background: "rgba(99,102,241,0.08)", color: "#6366f1",
+                        fontSize: 11, fontWeight: 700, cursor: "pointer",
+                        display: "flex", alignItems: "center", gap: 4,
+                      }}
+                    >
+                      <span>🎯</span> Fix My Mistakes
+                    </button>
+                  )}
+                </div>
               </div>
             );
           })()}
