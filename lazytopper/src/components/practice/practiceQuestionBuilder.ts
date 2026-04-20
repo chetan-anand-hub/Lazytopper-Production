@@ -552,16 +552,23 @@ export async function buildPracticeQuestionsWithAiTopup(
     finalAnswer?: string | null;
   };
 
+  function isCompleteVariant(v: VariantShape): boolean {
+    return !!(
+      v.answer?.trim() &&
+      Array.isArray(v.solutionSteps) &&
+      v.solutionSteps.length > 0 &&
+      v.finalAnswer?.trim()
+    );
+  }
+
   function mapVariantToPracticeQuestion(
     variant: VariantShape,
     index: number,
     idPrefix: string,
   ): PracticeQuestion | null {
     if (!template) return null;
+    if (!isCompleteVariant(variant)) return null;
     const variantText = normaliseQuestionText(variant.text ?? "");
-    const variantSteps = Array.isArray(variant.solutionSteps) && variant.solutionSteps.length > 0
-      ? variant.solutionSteps
-      : null;
     return {
       ...template,
       id: `${seedId}-${idPrefix}-${index + 1}`,
@@ -576,10 +583,10 @@ export async function buildPracticeQuestionsWithAiTopup(
         variant.bloomSkill ?? template.bloomSkill ?? seedBloomSkill ?? "Understanding",
       ) as BloomLevel),
       questionText: variantText || template.questionText || seedQuestionText,
-      solutionSteps: variantSteps ?? (template.solutionSteps ?? []),
-      finalAnswer: String(variant.finalAnswer?.trim() || template.finalAnswer || ""),
+      solutionSteps: variant.solutionSteps as string[],
+      finalAnswer: String(variant.finalAnswer),
       explanation: template.explanation ?? "",
-      answer: String(variant.answer?.trim() || template.answer || ""),
+      answer: String(variant.answer),
     };
   }
 
@@ -596,7 +603,7 @@ export async function buildPracticeQuestionsWithAiTopup(
   } catch (_) { /* non-fatal: fall through to AI */ }
 
   const cachedQuestions: PracticeQuestion[] = cachedVariants
-    .filter((v) => !!(v.answer && v.answer.trim()))
+    .filter(isCompleteVariant)
     .map((v, i) => mapVariantToPracticeQuestion(v, i, "CACHE"))
     .filter((q): q is PracticeQuestion => q !== null);
 
