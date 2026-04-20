@@ -1,0 +1,195 @@
+Yes — **you can call the OpenAI Batch API from Replit**. Replit is just your server/runtime, and OpenAI’s official JS SDK supports **server-side JavaScript environments like Node.js, Deno, and Bun**, which fits a normal Replit backend setup. OpenAI’s Batch API supports asynchronous jobs, gives **50% lower costs** than synchronous API usage, and is designed for large offline workloads with completion **within 24 hours**. The batch create reference also explicitly lists **`/v1/images/generations`** as a supported batch endpoint, and each batch input file can contain up to **50,000 requests** and be up to **200 MB**. ([OpenAI Developers][1])
+
+That means your 900-question pipeline is feasible in Replit if you structure it as a backend job system:
+
+1. generate structured solution + step marks,
+2. validate against your marking rules,
+3. queue image-generation requests in batches,
+4. collect results and store them in your DB/object storage.
+   Because Batch is asynchronous, it is best for **bulk publishing**, not “generate instantly while student waits.” ([OpenAI Developers][2])
+
+On the CBSE marking requirement: **yes, it can be incorporated**, but there is an important limit. If you want “strict adherence with CBSE marking scheme published on the official website,” the safest source is the official CBSE Academics sample-paper and marking-scheme pages and PDFs. CBSE currently publishes Class X **Science**, **Mathematics (Basic)**, and **Mathematics (Standard)** sample question papers and marking schemes on its Academics site for the 2025–26 session. ([CBSE Academic][3])
+
+But there is a practical caveat: **CBSE does not publish an official marking scheme for every arbitrary question you invent**. It publishes marking schemes for official/sample papers. So for your 900-question product, “strict adherence” can mean one of two things:
+
+* **Strict official mapping**: only for questions that are actual CBSE/sample-paper questions with an official published marking scheme.
+* **Derived CBSE-aligned marking**: for new/generated questions, you create marks-per-step using a rubric learned from official CBSE marking-scheme patterns, chapter weightage, answer style, and step allocation conventions. This can be highly aligned, but it is not literally an official CBSE marking scheme for that exact custom question. ([CBSE Academic][3])
+
+So the correct product wording should be:
+
+* **“Aligned to official CBSE marking-scheme patterns”** for custom/generated questions.
+* **“Mapped to official CBSE marking scheme”** only when the question exists in an official CBSE source. ([CBSE Academic][3])
+
+A good production architecture for you would be:
+
+**Stage A: Step-mark generation**
+
+* Input: question, subject, chapter, marks, question type.
+* Output JSON like:
+
+  * final answer
+  * ordered steps
+  * marks per step
+  * examiner notes
+  * accepted alternatives
+  * diagram requirements
+* Force the model to return structured output only.
+* Add a rule engine that checks:
+
+  * total marks add up correctly,
+  * no step exceeds remaining marks,
+  * mandatory theorem/law names appear where needed,
+  * final answer is present,
+  * unit/significant-label checks are present.
+    This is where your “marks per step” requirement should live, not inside image generation. The image layer should simply **render** already-approved step data. That separation will improve consistency and reduce cost. ([OpenAI Developers][4])
+
+**Stage B: Official-scheme grounding**
+
+* Build a repository of official CBSE PDFs from the Academics site:
+
+  * Class X Science marking schemes,
+  * Class X Maths Standard marking schemes,
+  * Class X Maths Basic marking schemes,
+  * archived prior years too. ([CBSE Academic][3])
+* Tag each official question by:
+
+  * chapter,
+  * cognitive skill,
+  * answer style,
+  * mark breakup pattern,
+  * theorem/formula usage,
+  * diagram requirement.
+* For each new question, retrieve the closest official examples first, then generate the stepwise marking from those references.
+  This is how you get much closer to true CBSE alignment.
+
+**Stage C: Diagram/image rendering**
+
+* Feed the approved structured solution to image generation.
+* One prompt per image:
+
+  * base question diagram,
+  * step 1,
+  * step 2,
+  * final answer diagram.
+* Include the marks label in the prompt, for example:
+
+  * “Display a clean CBSE-style label on the top right: Step 2 — 1 mark”
+  * “Use consistent alignment and typography across all steps.”
+    OpenAI’s image APIs support generating images from prompts, and GPT Image is positioned for stronger instruction following and text rendering than older image models. ([OpenAI Developers][5])
+
+For your use case, the cheapest robust architecture is usually:
+
+* **Text/marking generation** with a text model using structured outputs.
+* **Image generation** only after the text is approved.
+* **Batch API** for bulk runs.
+  This is cheaper than asking one image call to “figure out the pedagogy and the marking scheme itself.”
+
+On cost, your new requirement adds a **text-generation and validation layer**, but that cost is usually still modest compared with image volume. The main extra cost comes from:
+
+* retrieving/processing official marking-scheme references,
+* generating structured stepwise mark breakdowns,
+* possibly doing a second-pass validator call,
+* then generating images.
+  Batch can reduce the API cost for the batch-supported requests by **50% compared with synchronous APIs**. ([OpenAI Developers][2])
+
+For a realistic 900-question system, I would budget in **three buckets**:
+
+1. **Curriculum + marking intelligence**
+
+   * ingest official CBSE marking-scheme PDFs
+   * tag them by chapter/question type
+   * create validator rules
+
+2. **Per-question text generation**
+
+   * structured solution steps
+   * step-wise marks
+   * scheme-alignment notes
+   * review/validation pass
+
+3. **Per-question images**
+
+   * question diagram
+   * each step diagram
+   * final summary image
+
+The image bucket will still usually dominate if you generate 4–6 images per question. The marking requirement mostly increases **engineering complexity** more than raw image cost.
+
+My recommendation for your product:
+
+* Use **Batch API from Replit** for the **bulk image pipeline**. ([OpenAI Developers][2])
+* Keep the **marking logic separate from image generation**.
+* Build a **CBSE scheme-grounded rubric engine** from official CBSE PDFs. ([CBSE Academic][3])
+* Label the output as:
+
+  * **“official-CBSE-mapped”** when source matched,
+  * **“CBSE-style derived marking”** otherwise.
+    That wording protects you academically and legally.
+
+A good JSON shape for each question would be:
+
+```json
+{
+  "question_id": "MATH_T10_001",
+  "subject": "Mathematics",
+  "chapter": "Triangles",
+  "total_marks": 5,
+  "cbse_alignment_mode": "derived_from_official_scheme",
+  "official_references": [
+    {
+      "year": "2025-26",
+      "subject": "Mathematics Standard",
+      "source_type": "CBSE marking scheme"
+    }
+  ],
+  "solution_steps": [
+    {
+      "step_no": 1,
+      "title": "Apply Basic Proportionality Theorem",
+      "marks": 1,
+      "expected_work": "AD/DB = AE/EC"
+    },
+    {
+      "step_no": 2,
+      "title": "Substitute values and solve for EC",
+      "marks": 2,
+      "expected_work": "3/4.5 = 4/EC => EC = 6 cm"
+    },
+    {
+      "step_no": 3,
+      "title": "Find AC",
+      "marks": 1,
+      "expected_work": "AC = AE + EC = 10 cm"
+    },
+    {
+      "step_no": 4,
+      "title": "State final conclusion",
+      "marks": 1,
+      "expected_work": "Hence proved and answer stated with unit"
+    }
+  ],
+  "image_plan": [
+    {"type": "question_diagram"},
+    {"type": "step_diagram", "step_no": 1},
+    {"type": "step_diagram", "step_no": 2},
+    {"type": "step_diagram", "step_no": 3}
+  ]
+}
+```
+
+That structure will let you:
+
+* generate,
+* audit,
+* render,
+* and revise at scale.
+
+The biggest thing I would not promise to users is: **“every one of the 900 custom questions follows the official CBSE marking scheme exactly.”** For custom questions, that is only defendable if you instead say **“derived from official CBSE marking-scheme patterns and validated against official exemplars.”** ([CBSE Academic][3])
+
+I can turn this into a concrete Replit architecture next — with a suggested pipeline, DB schema, and Batch JSONL format for your 900-question workflow.
+
+[1]: https://developers.openai.com/api/docs/libraries "Libraries | OpenAI API"
+[2]: https://developers.openai.com/api/docs/guides/batch "Batch API | OpenAI API"
+[3]: https://cbseacademic.nic.in/SQP_CLASSX_2025-26.html "CBSE | Academics Unit - Class X 2025-2026 SQP and MS"
+[4]: https://developers.openai.com/api/docs/guides/cost-optimization?utm_source=chatgpt.com "Cost optimization | OpenAI API"
+[5]: https://developers.openai.com/api/docs/guides/image-generation "Image generation | OpenAI API"

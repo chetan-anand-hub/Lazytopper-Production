@@ -139,6 +139,11 @@ function buildWarmPrompt(topicKey, subject, marks, difficulty) {
     '- Change numbers, scenarios, or wording so each variant is distinct.',
     '- Each variant must test a meaningfully different aspect or scenario.',
     '',
+    'For EACH question you MUST also provide:',
+    '  - "answer": the concise correct answer (for MCQ: the exact option text; for short/long: key result with unit)',
+    '  - "solutionSteps": array of strings, each being one numbered working step a student writes (CBSE marking-scheme style)',
+    '  - "finalAnswer": one sentence stating the final result with unit (e.g. "∴ AC = 10 cm")',
+    '',
     'Return ONLY a single JSON object with this exact shape:',
     '{',
     '  "questions": [',
@@ -146,12 +151,15 @@ function buildWarmPrompt(topicKey, subject, marks, difficulty) {
     '      "questionText": "...",',
     `      "marks": ${marks},`,
     `      "difficulty": "${difficulty}",`,
-    '      "bloomSkill": "Remembering | Understanding | Applying | Analysing | Evaluating | Creating"',
+    '      "bloomSkill": "Remembering | Understanding | Applying | Analysing | Evaluating | Creating",',
+    '      "answer": "...",',
+    '      "solutionSteps": ["Step 1...", "Step 2...", "..."],',
+    '      "finalAnswer": "∴ ..."',
     '    }',
     '  ]',
     '}',
     '',
-    'Do not include explanations, answers, or any text outside this JSON.',
+    'Do not include any text outside this JSON.',
   ];
   return lines.join('\n');
 }
@@ -274,7 +282,7 @@ function createWarmPoolRunner(deps) {
 
     const reply = await callGemini(GEMINI_MODEL, contents, {
       temperature: 0.7,
-      maxOutputTokens: 2048,
+      maxOutputTokens: 4096,
     });
 
     const rawQuestions = extractQuestionsFromReply(String(reply?.text || ''));
@@ -285,6 +293,9 @@ function createWarmPoolRunner(deps) {
         marks,
         difficulty,
         bloomSkill: q.bloomSkill || null,
+        answer: String(q.answer || '').trim() || null,
+        solutionSteps: Array.isArray(q.solutionSteps) ? q.solutionSteps.map(s => String(s).trim()).filter(Boolean) : null,
+        finalAnswer: String(q.finalAnswer || '').trim() || null,
       }))
       .filter((v) => v.text.length > 0);
   }

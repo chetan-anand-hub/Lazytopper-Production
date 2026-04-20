@@ -142,6 +142,9 @@ function createMoreLikeThisRoute(deps) {
         marks: q.marks != null ? q.marks : (marks != null ? marks : undefined),
         difficulty: enforcedDiff || q.difficulty || undefined,
         bloomSkill: q.bloomSkill || seed.bloomSkill || undefined,
+        answer: String(q.answer || '').trim() || undefined,
+        solutionSteps: Array.isArray(q.solutionSteps) ? q.solutionSteps.map(s => String(s).trim()).filter(Boolean) : undefined,
+        finalAnswer: String(q.finalAnswer || '').trim() || undefined,
         index: idx,
       });
 

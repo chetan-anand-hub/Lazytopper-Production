@@ -1,0 +1,86 @@
+Yes — I audited the current repo and checked the questions/solution flow as it exists right now.
+
+What exists today
+
+The canonical question model already supports the fields you care about: `marks`, `section`, `solutionSteps`, `finalAnswer`, and `visualExplainerId` are part of `CanonicalQuestion` 
+
+In the practice flow, bank questions are mapped through with those fields intact, so when a question already exists in your bank, its stepwise solution and final answer are preserved into the practice experience 
+
+The worksheet/PDF export is also real and live. It prints question text, section, marks, and then on the answer-key pages it renders `solutionSteps` and `finalAnswer` for each question  
+
+There is also a client-side “step solution” formatter. If a question already has `solutionSteps`, the app does not need to call the backend; it converts those existing steps into numbered steps with allocated marks locally 
+
+What your question bank looks like today
+
+In current bank files, many questions already have proper stepwise solutions and final answers. For example, in `trigonometry.pack2.ts`, medium and hard questions include explicit diagram-first steps plus final answers, and many of them are linked to `visualExplainerId` entries like `maths-trigonometry-height-and-distance-problems`  
+
+On the science side, `lifeProcesses.pack1.ts` contains board-style transportation questions with full `solutionSteps`; your double-circulation question is already present as `LP-D04` with a multi-step answer covering pulmonary circulation, systemic circulation, heart chambers, and advantage 
+
+You also already have heart-diagram-linked case-based content. `LP-M11` explicitly begins with a labelled-heart reference and carries `visualExplainerId: "science-life-processes-human-heart-and-blood-circulation"` 
+
+What is strong
+
+Your repo is already set up for:
+
+* question banks with authored stepwise solutions
+* final answers
+* visual linkage through `visualExplainerId`
+* worksheet/PDF answer-key generation
+* client-side step-mark display from existing steps
+
+So for bank-authored questions, the foundation is good.
+
+What is not fully there yet
+
+The biggest gap is this:
+
+When the app does AI top-up for missing practice questions, it only generates new question variants with:
+
+* `questionText`
+* `marks`
+* `difficulty`
+* `bloomSkill`
+* optionally `section`
+
+It does not generate fresh `solutionSteps`, `finalAnswer`, per-step CBSE marks, or diagram plans for those new AI-created questions  
+
+Even more importantly, when AI variants are mapped back into practice questions, they inherit `solutionSteps` and `answer` from the seed/template question rather than generating a truly matched new solution for the new wording 
+
+That means your current system is safeest for:
+
+* authored bank questions
+
+But riskier for:
+
+* AI-generated “more like this” questions
+
+Because the new question text may differ while the attached steps can still be inherited from the old template.
+
+My audit verdict
+
+As of today, your repo is in a solid state for a bank-first product:
+
+* authored questions already support solutions well
+* many diagram-heavy questions now start with a diagram/construction step
+* worksheet export is production-usable
+* visual explainers are wired
+
+But it is not yet fully ready for your larger vision of:
+
+* 900 questions
+* strict step-by-step marking
+* diagram/image per step
+* CBSE-scheme-aligned marks for every generated variant
+
+The current weakness is the AI top-up path, not the bank structure.
+
+What I would label the current state as
+
+I would describe LazyTopper today as:
+
+“Bank-authored stepwise solutions with visual support are substantially implemented; AI-generated variants are question-text capable but not yet solution-safe.”
+
+The first thing I would fix next is:
+generate and store `solutionSteps`, `finalAnswer`, `stepMarks`, and `diagramPlan` for every AI-created variant before it is shown to students.
+
+If you want, I can do the next layer of audit too: I can inspect the exact backend endpoints for `/api/more-like-this`, `/api/step-solution`, and `/api/generate-visual` and tell you what has to change to support your CBSE marking-scheme + diagram pipeline cleanly.

@@ -65,7 +65,7 @@ function hashKey(topicKey, subject, marks, difficulty, questionText) {
  * Returns candidates with their DB ids but does NOT yet increment hit_count.
  * Call markServed(ids) if and only if you decide to serve these rows.
  *
- * @returns {Promise<Array<{id, text, marks, difficulty, bloomSkill}>>}
+ * @returns {Promise<Array<{id, text, marks, difficulty, bloomSkill, answer, solutionSteps, finalAnswer}>>}
  */
 async function pickFromPool(topicKey, subject, marks, difficulty, n) {
   const pool = getPool();
@@ -79,7 +79,7 @@ async function pickFromPool(topicKey, subject, marks, difficulty, n) {
 
   try {
     const result = await pool.query(
-      `SELECT id, question_text, marks, difficulty, bloom_skill
+      `SELECT id, question_text, marks, difficulty, bloom_skill, answer, solution_steps, final_answer
        FROM generated_questions
        WHERE topic_key = $1
          AND subject   = $2
@@ -96,6 +96,9 @@ async function pickFromPool(topicKey, subject, marks, difficulty, n) {
       marks: r.marks,
       difficulty: r.difficulty,
       bloomSkill: r.bloom_skill,
+      answer: r.answer || undefined,
+      solutionSteps: Array.isArray(r.solution_steps) ? r.solution_steps : undefined,
+      finalAnswer: r.final_answer || undefined,
     }));
   } catch (e) {
     console.warn('[gen-q-pool] pickFromPool error:', e.message);
@@ -135,7 +138,7 @@ async function markServed(ids) {
  * @param {string}  subject
  * @param {number|null} marks
  * @param {string|null} difficulty
- * @param {Array<{text, marks, difficulty, bloomSkill}>} variants
+ * @param {Array<{text, marks, difficulty, bloomSkill, answer, solutionSteps, finalAnswer}>} variants
  */
 async function saveToPool(topicKey, subject, marks, difficulty, variants) {
   const pool = getPool();
@@ -156,21 +159,25 @@ async function saveToPool(topicKey, subject, marks, difficulty, variants) {
 
   try {
     // Build a single bulk INSERT … ON CONFLICT DO NOTHING statement.
-    // Each row gets 7 parameters; the shared topic/marks/diff are inlined once per row.
+    // Each row gets 10 parameters (7 original + answer, solution_steps, final_answer).
     const params = [];
     const valueClauses = rows.map((questionText, i) => {
       const qHash = hashKey(normTopic, normSubject, normMarks, normDiff, questionText);
-      const bloomSkill = norm(
-        variants.find(v => String(v?.text || '').trim() === questionText)?.bloomSkill
-      ) || null;
-      const base = i * 7;
-      params.push(normTopic, normSubject, normMarks, normDiff, questionText, qHash, bloomSkill);
-      return `($${base + 1}, $${base + 2}, $${base + 3}, $${base + 4}, $${base + 5}, $${base + 6}, $${base + 7}, 0, NOW())`;
+      const variant = variants.find(v => String(v?.text || '').trim() === questionText) || {};
+      const bloomSkill = norm(variant.bloomSkill) || null;
+      const answer = String(variant.answer || '').trim() || null;
+      const solutionSteps = Array.isArray(variant.solutionSteps) && variant.solutionSteps.length > 0
+        ? JSON.stringify(variant.solutionSteps)
+        : null;
+      const finalAnswer = String(variant.finalAnswer || '').trim() || null;
+      const base = i * 10;
+      params.push(normTopic, normSubject, normMarks, normDiff, questionText, qHash, bloomSkill, answer, solutionSteps, finalAnswer);
+      return `($${base + 1}, $${base + 2}, $${base + 3}, $${base + 4}, $${base + 5}, $${base + 6}, $${base + 7}, 0, NOW(), $${base + 8}, $${base + 9}, $${base + 10})`;
     });
 
     const result = await pool.query(
       `INSERT INTO generated_questions
-         (topic_key, subject, marks, difficulty, question_text, question_hash, bloom_skill, hit_count, created_at)
+         (topic_key, subject, marks, difficulty, question_text, question_hash, bloom_skill, hit_count, created_at, answer, solution_steps, final_answer)
        VALUES ${valueClauses.join(', ')}
        ON CONFLICT (topic_key, subject, question_hash) DO NOTHING`,
       params
