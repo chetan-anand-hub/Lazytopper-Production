@@ -553,11 +553,17 @@ export async function buildPracticeQuestionsWithAiTopup(
   };
 
   function isCompleteVariant(v: VariantShape): boolean {
+    const text = (v.text ?? "").trim();
+    const answer = (v.answer ?? "").trim();
+    const finalAnswer = (v.finalAnswer ?? "").trim();
+    const steps = v.solutionSteps;
     return !!(
-      v.answer?.trim() &&
-      Array.isArray(v.solutionSteps) &&
-      v.solutionSteps.length > 0 &&
-      v.finalAnswer?.trim()
+      text &&
+      answer &&
+      finalAnswer &&
+      Array.isArray(steps) &&
+      steps.length > 0 &&
+      steps.some((s) => String(s ?? "").trim().length > 0)
     );
   }
 
@@ -569,6 +575,10 @@ export async function buildPracticeQuestionsWithAiTopup(
     if (!template) return null;
     if (!isCompleteVariant(variant)) return null;
     const variantText = normaliseQuestionText(variant.text ?? "");
+    // variantText is guaranteed non-empty because isCompleteVariant checked it.
+    // We never fall back to template.questionText — a variant with missing text
+    // is rejected above so template question + variant solution is impossible.
+    if (!variantText) return null;
     return {
       ...template,
       id: `${seedId}-${idPrefix}-${index + 1}`,
@@ -582,7 +592,7 @@ export async function buildPracticeQuestionsWithAiTopup(
       bloomSkill: (String(
         variant.bloomSkill ?? template.bloomSkill ?? seedBloomSkill ?? "Understanding",
       ) as BloomLevel),
-      questionText: variantText || template.questionText || seedQuestionText,
+      questionText: variantText,
       solutionSteps: variant.solutionSteps as string[],
       finalAnswer: String(variant.finalAnswer),
       explanation: template.explanation ?? "",
@@ -637,14 +647,17 @@ export async function buildPracticeQuestionsWithAiTopup(
       .map((v, i) => mapVariantToPracticeQuestion(v, i, "AI"))
       .filter((q): q is PracticeQuestion => q !== null);
 
-    // --- Step 3: Persist new AI variants fire-and-forget ---
-    if (variants.length > 0) {
+    // --- Step 3: Persist ONLY complete AI variants fire-and-forget ---
+    // Filter with isCompleteVariant before saving so incomplete variants
+    // (blank text, missing answer/solutionSteps/finalAnswer) never reach the DB.
+    const completeForSave = variants.filter(isCompleteVariant);
+    if (completeForSave.length > 0) {
       saveAiGeneratedQuestions({
         topicKey: args.topicLabel,
         subject: args.subjectKey,
         difficulty: fallbackDifficulty,
         marks: seedMarks,
-        variants: variants.map((v) => ({
+        variants: completeForSave.map((v) => ({
           text: (v as { text?: string }).text ?? "",
           marks: (v.marks ?? seedMarks) as number | null,
           difficulty: (v.difficulty ?? fallbackDifficulty) as string | null,

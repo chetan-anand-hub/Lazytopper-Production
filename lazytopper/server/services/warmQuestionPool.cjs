@@ -20,6 +20,7 @@
 'use strict';
 
 const path = require('path');
+const { isCompleteVariant } = require('./questionCompleteness.cjs');
 
 // ---------------------------------------------------------------------------
 // Fallback chapter lists (used only when canonical TS files cannot be loaded)
@@ -286,7 +287,7 @@ function createWarmPoolRunner(deps) {
     });
 
     const rawQuestions = extractQuestionsFromReply(String(reply?.text || ''));
-    return rawQuestions
+    const mapped = rawQuestions
       .filter((q) => q && (q.questionText || q.text))
       .map((q) => ({
         text: String(q.questionText || q.text || '').trim(),
@@ -296,8 +297,12 @@ function createWarmPoolRunner(deps) {
         answer: String(q.answer || '').trim() || null,
         solutionSteps: Array.isArray(q.solutionSteps) ? q.solutionSteps.map(s => String(s).trim()).filter(Boolean) : null,
         finalAnswer: String(q.finalAnswer || '').trim() || null,
-      }))
-      .filter((v) => v.text.length > 0);
+      }));
+    const complete = mapped.filter(isCompleteVariant);
+    if (complete.length < mapped.length) {
+      console.warn(`[warm] generateVariants: dropped ${mapped.length - complete.length} incomplete variant(s) for topic=${topicKey} marks=${marks} diff=${difficulty}`);
+    }
+    return complete;
   }
 
   /**

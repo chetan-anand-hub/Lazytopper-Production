@@ -12,6 +12,8 @@
  *   Saves new AI-generated questions to the pool (deduplicated by question_hash).
  */
 
+const { isCompleteVariant } = require('../services/questionCompleteness.cjs');
+
 function createAiQuestionsRoute({ sendJson, readJson, pickFromPool, markServed, saveToPool }) {
   async function handleGet(req, res) {
     const url = new URL(req.url, 'http://localhost');
@@ -27,7 +29,11 @@ function createAiQuestionsRoute({ sendJson, readJson, pickFromPool, markServed, 
     }
 
     try {
-      const candidates = await pickFromPool(topicKey, subject, marks, difficulty, n);
+      const raw = await pickFromPool(topicKey, subject, marks, difficulty, n);
+      const candidates = raw.filter(isCompleteVariant);
+      if (candidates.length < raw.length) {
+        console.warn(`[ai-questions] GET: dropped ${raw.length - candidates.length} incomplete row(s) before serving`);
+      }
       if (candidates.length > 0) {
         const ids = candidates.map(q => q.id).filter(Boolean);
         if (ids.length > 0) {

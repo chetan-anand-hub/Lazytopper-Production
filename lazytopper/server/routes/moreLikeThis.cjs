@@ -60,6 +60,8 @@ function extractVariantsJson(rawText) {
   return null;
 }
 
+const { isCompleteVariant } = require('../services/questionCompleteness.cjs');
+
 function createMoreLikeThisRoute(deps) {
   const {
     sendJson,
@@ -186,9 +188,16 @@ function createMoreLikeThisRoute(deps) {
         });
       }
 
-      // --- Save generated variants to the pool (fire-and-forget) ---
-      if (saveToPool && topicKey && variants.length > 0) {
-        void saveToPool(topicKey, subject, marks, enforcedDiff, variants).catch(
+      // --- Completeness guard: only keep variants with text + answer + solutionSteps + finalAnswer ---
+      const completeVariants = variants.filter(isCompleteVariant);
+      const droppedCount = variants.length - completeVariants.length;
+      if (droppedCount > 0) {
+        console.warn(`[more-like-this] dropped ${droppedCount}/${variants.length} incomplete variant(s) (missing text/answer/solutionSteps/finalAnswer)`);
+      }
+
+      // --- Save ONLY complete variants to the pool (fire-and-forget) ---
+      if (saveToPool && topicKey && completeVariants.length > 0) {
+        void saveToPool(topicKey, subject, marks, enforcedDiff, completeVariants).catch(
           e => console.warn('[more-like-this] saveToPool failed (non-fatal):', e.message)
         );
       }
@@ -198,7 +207,7 @@ function createMoreLikeThisRoute(deps) {
         topicKey,
         provider: ACTIVE_PROVIDER,
         model: GEMINI_MODEL,
-        variants,
+        variants: completeVariants,
       });
     } catch (err) {
       console.error(err);

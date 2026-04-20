@@ -20,6 +20,7 @@
  */
 
 const crypto = require('crypto');
+const { isCompleteVariant } = require('./questionCompleteness.cjs');
 
 let _pool = null;
 
@@ -85,6 +86,9 @@ async function pickFromPool(topicKey, subject, marks, difficulty, n) {
          AND subject   = $2
          AND (marks    = $3 OR ($3 IS NULL AND marks IS NULL))
          AND (difficulty = $4 OR ($4 IS NULL AND difficulty IS NULL))
+         AND answer IS NOT NULL AND answer <> ''
+         AND solution_steps IS NOT NULL
+         AND final_answer IS NOT NULL AND final_answer <> ''
        ORDER BY hit_count ASC, created_at DESC
        LIMIT $5`,
       [normTopic, normSubject, normMarks, normDiff, n]
@@ -151,9 +155,12 @@ async function saveToPool(topicKey, subject, marks, difficulty, variants) {
   const normMarks = marks != null ? Number(marks) : null;
   const normDiff = norm(difficulty);
 
-  const rows = variants
-    .map(v => String(v?.text || '').trim())
-    .filter(Boolean);
+  const completeVariants = variants.filter(isCompleteVariant);
+  if (completeVariants.length === 0) {
+    console.info(`[gen-q-pool] saveToPool: all ${variants.length} variant(s) failed completeness check — nothing saved`);
+    return;
+  }
+  const rows = completeVariants.map(v => String(v?.text || '').trim()).filter(Boolean);
 
   if (rows.length === 0) return;
 
@@ -163,7 +170,7 @@ async function saveToPool(topicKey, subject, marks, difficulty, variants) {
     const params = [];
     const valueClauses = rows.map((questionText, i) => {
       const qHash = hashKey(normTopic, normSubject, normMarks, normDiff, questionText);
-      const variant = variants.find(v => String(v?.text || '').trim() === questionText) || {};
+      const variant = completeVariants.find(v => String(v?.text || '').trim() === questionText) || {};
       const bloomSkill = norm(variant.bloomSkill) || null;
       const answer = String(variant.answer || '').trim() || null;
       const solutionSteps = Array.isArray(variant.solutionSteps) && variant.solutionSteps.length > 0
