@@ -413,8 +413,11 @@ function createWarmPoolRunner(deps) {
       const batch = combos.slice(batchStart, batchStart + CONCURRENCY);
 
       const results = await Promise.allSettled(
-        batch.map(async ({ topicKey, subject, marks, difficulty }) => {
-          if (delayMs > 0) await sleep(delayMs);
+        batch.map(async ({ topicKey, subject, marks, difficulty }, workerIndex) => {
+          // Base delay + small per-worker jitter (0–200 ms) to spread burst within the batch.
+          if (delayMs > 0 || workerIndex > 0) {
+            await sleep(delayMs + workerIndex * 50 + Math.floor(Math.random() * 150));
+          }
           const count = await warmOne(pgPool, topicKey, subject, marks, difficulty);
           return { topicKey, subject, marks, difficulty, count };
         })
