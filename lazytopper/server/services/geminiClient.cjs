@@ -113,41 +113,75 @@ function createGeminiClient(cfg) {
 
     const primaryUrl = DIRECT_GEMINI_API_KEY ? directUrl : proxyUrl;
     const primaryKey = DIRECT_GEMINI_API_KEY ? DIRECT_GEMINI_API_KEY : REPLIT_GEMINI_API_KEY;
-
     const fallbackUrl = DIRECT_GEMINI_API_KEY && HAS_REPLIT_PROXY ? proxyUrl : null;
     const fallbackKey = DIRECT_GEMINI_API_KEY && HAS_REPLIT_PROXY ? REPLIT_GEMINI_API_KEY : null;
 
-    let { response, rawText } = await withRetry(() => doRequest(true, primaryUrl, primaryKey));
+    const retryMimeRegex =
+      /responseMimeType|response_mime_type|Unknown name.*responseMimeType/i;
+
+    const runWithFallback = async (includeMimeType) => {
+      let response, rawText;
+      let primaryThrewNon429 = false;
+
+      try {
+        ({ response, rawText } = await withRetry(() =>
+          doRequest(includeMimeType, primaryUrl, primaryKey)
+        ));
+      } catch (primaryErr) {
+        if (primaryErr.status === 429 || !fallbackUrl) {
+          throw primaryErr;
+        }
+        primaryThrewNon429 = true;
+        console.warn(
+          `[callGemini] Primary threw (${primaryErr.status || primaryErr.message}), falling back to proxy`
+        );
+        ({ response, rawText } = await doRequest(includeMimeType, fallbackUrl, fallbackKey));
+        return { response, rawText, usedFallback: true };
+      }
+
+      return { response, rawText, usedFallback: false };
+    };
+
+    let { response, rawText, usedFallback } = await runWithFallback(true);
 
     if (
       !response.ok &&
       config &&
       typeof config.responseMimeType === 'string' &&
-      config.responseMimeType.trim()
+      config.responseMimeType.trim() &&
+      retryMimeRegex.test(rawText)
     ) {
-      const retryMimeRegex =
-        /responseMimeType|response_mime_type|Unknown name.*responseMimeType/i;
-      if (retryMimeRegex.test(rawText)) {
-        ({ response, rawText } = await withRetry(() => doRequest(false, primaryUrl, primaryKey)));
+      const activeUrl = usedFallback ? fallbackUrl : primaryUrl;
+      const activeKey = usedFallback ? fallbackKey : primaryKey;
+      if (usedFallback) {
+        ({ response, rawText } = await doRequest(false, activeUrl, activeKey));
+      } else {
+        try {
+          ({ response, rawText } = await withRetry(() => doRequest(false, primaryUrl, primaryKey)));
+        } catch (retryErr) {
+          if (retryErr.status === 429 || !fallbackUrl) throw retryErr;
+          console.warn(
+            `[callGemini] Primary mime-retry threw, falling back to proxy`
+          );
+          ({ response, rawText } = await doRequest(false, fallbackUrl, fallbackKey));
+          usedFallback = true;
+        }
       }
     }
 
-    if (!response.ok && fallbackUrl && fallbackKey) {
+    if (!response.ok && !usedFallback && fallbackUrl) {
       console.warn(
-        `[callGemini] Primary failed (${response.status}), falling back to proxy`
+        `[callGemini] Primary returned (${response.status}), falling back to proxy`
       );
       ({ response, rawText } = await doRequest(true, fallbackUrl, fallbackKey));
       if (
         !response.ok &&
         config &&
         typeof config.responseMimeType === 'string' &&
-        config.responseMimeType.trim()
+        config.responseMimeType.trim() &&
+        retryMimeRegex.test(rawText)
       ) {
-        const retryMimeRegex =
-          /responseMimeType|response_mime_type|Unknown name.*responseMimeType/i;
-        if (retryMimeRegex.test(rawText)) {
-          ({ response, rawText } = await doRequest(false, fallbackUrl, fallbackKey));
-        }
+        ({ response, rawText } = await doRequest(false, fallbackUrl, fallbackKey));
       }
     }
 
@@ -200,7 +234,6 @@ function createGeminiClient(cfg) {
 
     const primaryStreamUrl = DIRECT_GEMINI_API_KEY ? directStreamUrl : proxyStreamUrl;
     const primaryStreamKey = DIRECT_GEMINI_API_KEY ? DIRECT_GEMINI_API_KEY : REPLIT_GEMINI_API_KEY;
-
     const fallbackStreamUrl = DIRECT_GEMINI_API_KEY && HAS_REPLIT_PROXY ? proxyStreamUrl : null;
     const fallbackStreamKey = DIRECT_GEMINI_API_KEY && HAS_REPLIT_PROXY ? REPLIT_GEMINI_API_KEY : null;
 
@@ -227,30 +260,41 @@ function createGeminiClient(cfg) {
       return { response, controller, timeoutId };
     };
 
-    let { response, controller, timeoutId } = await withRetry(async () => {
-      const result = await doStreamFetch(primaryStreamUrl, primaryStreamKey);
-      if (result.response.status === 429) {
-        clearTimeout(result.timeoutId);
-        const errText = await result.response.text().catch(() => '');
-        const err = new Error(`Gemini stream rate limited (429): ${errText}`);
-        err.status = 429;
-        err.retryAfter = result.response.headers.get('Retry-After');
-        throw err;
+    let primaryResult;
+    let usedFallback = false;
+
+    try {
+      primaryResult = await withRetry(async () => {
+        const result = await doStreamFetch(primaryStreamUrl, primaryStreamKey);
+        if (result.response.status === 429) {
+          clearTimeout(result.timeoutId);
+          const errText = await result.response.text().catch(() => '');
+          const err = new Error(`Gemini stream rate limited (429): ${errText}`);
+          err.status = 429;
+          err.retryAfter = result.response.headers.get('Retry-After');
+          throw err;
+        }
+        return result;
+      });
+    } catch (primaryErr) {
+      if (primaryErr.status === 429 || !fallbackStreamUrl) {
+        throw primaryErr;
       }
-      return result;
-    });
+      console.warn(
+        `[callGeminiStream] Primary threw (${primaryErr.status || primaryErr.message}), falling back to proxy`
+      );
+      primaryResult = await doStreamFetch(fallbackStreamUrl, fallbackStreamKey);
+      usedFallback = true;
+    }
+
+    let { response, controller, timeoutId } = primaryResult;
 
     if (!response.ok) {
       clearTimeout(timeoutId);
       const errText = await response.text().catch(() => '');
-      if (fallbackStreamUrl && fallbackStreamKey) {
-        console.warn(`[callGeminiStream] Primary failed (${response.status}), falling back to proxy`);
-        let fallbackResult;
-        try {
-          fallbackResult = await doStreamFetch(fallbackStreamUrl, fallbackStreamKey);
-        } catch (fallbackErr) {
-          throw fallbackErr;
-        }
+      if (!usedFallback && fallbackStreamUrl) {
+        console.warn(`[callGeminiStream] Primary returned (${response.status}), falling back to proxy`);
+        const fallbackResult = await doStreamFetch(fallbackStreamUrl, fallbackStreamKey);
         if (!fallbackResult.response.ok) {
           clearTimeout(fallbackResult.timeoutId);
           const fallbackErrText = await fallbackResult.response.text().catch(() => '');

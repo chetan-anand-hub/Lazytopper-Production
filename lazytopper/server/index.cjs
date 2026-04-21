@@ -329,7 +329,7 @@ async function handleRequest(req, res) {
         gemini: {
           active: !config.STUB_MODE,
           model: config.GEMINI_MODEL,
-          auth: config.HAS_REPLIT_PROXY ? 'replit-proxy' : (config.HAS_DIRECT_KEY ? 'direct-key' : 'none'),
+          auth: config.HAS_DIRECT_KEY ? 'direct-key' : (config.HAS_REPLIT_PROXY ? 'replit-proxy' : 'none'),
           routes: ['tutoring_chat', 'more_like_this', 'step_solution'],
         },
         anthropic: {
