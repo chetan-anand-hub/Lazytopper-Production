@@ -9,6 +9,35 @@ function createGeminiClient(cfg) {
     GEMINI_TIMEOUT_MS,
   } = cfg;
 
+  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  async function withRetry(fn, maxAttempts = 5) {
+    const baseDelayMs = 1000;
+    let lastErr;
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      try {
+        return await fn();
+      } catch (err) {
+        const status = err && (err.status || err.statusCode);
+        if (status === 429) {
+          lastErr = err;
+          if (attempt < maxAttempts - 1) {
+            let delayMs = baseDelayMs * Math.pow(2, attempt);
+            const retryAfter = err.retryAfter;
+            if (retryAfter) {
+              const parsed = parseInt(retryAfter, 10);
+              if (!isNaN(parsed)) delayMs = parsed * 1000;
+            }
+            await sleep(delayMs);
+            continue;
+          }
+        }
+        throw err;
+      }
+    }
+    throw lastErr;
+  }
+
   async function callGemini(model, finalContents, config) {
     if (!GEMINI_API_KEY) {
       throw new Error(
@@ -55,6 +84,13 @@ function createGeminiClient(cfg) {
           signal: controller.signal,
         });
         const rawText = await response.text();
+        if (response.status === 429) {
+          const err = new Error(`Gemini rate limited (429): ${rawText}`);
+          err.status = 429;
+          err.retryAfter = response.headers.get('Retry-After');
+          err.body = rawText;
+          throw err;
+        }
         return { response, rawText };
       } catch (err) {
         if (err && err.name === 'AbortError') {
@@ -75,12 +111,14 @@ function createGeminiClient(cfg) {
       : null;
     const directUrl = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
 
-    const primaryUrl = proxyUrl || directUrl;
-    const primaryKey = HAS_REPLIT_PROXY
-      ? REPLIT_GEMINI_API_KEY
-      : GEMINI_API_KEY;
+    const primaryUrl = DIRECT_GEMINI_API_KEY ? directUrl : proxyUrl;
+    const primaryKey = DIRECT_GEMINI_API_KEY ? DIRECT_GEMINI_API_KEY : REPLIT_GEMINI_API_KEY;
 
-    let { response, rawText } = await doRequest(true, primaryUrl, primaryKey);
+    const fallbackUrl = DIRECT_GEMINI_API_KEY && HAS_REPLIT_PROXY ? proxyUrl : null;
+    const fallbackKey = DIRECT_GEMINI_API_KEY && HAS_REPLIT_PROXY ? REPLIT_GEMINI_API_KEY : null;
+
+    let { response, rawText } = await withRetry(() => doRequest(true, primaryUrl, primaryKey));
+
     if (
       !response.ok &&
       config &&
@@ -90,23 +128,15 @@ function createGeminiClient(cfg) {
       const retryMimeRegex =
         /responseMimeType|response_mime_type|Unknown name.*responseMimeType/i;
       if (retryMimeRegex.test(rawText)) {
-        ({ response, rawText } = await doRequest(
-          false,
-          primaryUrl,
-          primaryKey
-        ));
+        ({ response, rawText } = await withRetry(() => doRequest(false, primaryUrl, primaryKey)));
       }
     }
 
-    if (!response.ok && HAS_REPLIT_PROXY && DIRECT_GEMINI_API_KEY) {
+    if (!response.ok && fallbackUrl && fallbackKey) {
       console.warn(
-        `[callGemini] Proxy failed (${response.status}), falling back to direct Gemini key`
+        `[callGemini] Primary failed (${response.status}), falling back to proxy`
       );
-      ({ response, rawText } = await doRequest(
-        true,
-        directUrl,
-        DIRECT_GEMINI_API_KEY
-      ));
+      ({ response, rawText } = await doRequest(true, fallbackUrl, fallbackKey));
       if (
         !response.ok &&
         config &&
@@ -116,11 +146,7 @@ function createGeminiClient(cfg) {
         const retryMimeRegex =
           /responseMimeType|response_mime_type|Unknown name.*responseMimeType/i;
         if (retryMimeRegex.test(rawText)) {
-          ({ response, rawText } = await doRequest(
-            false,
-            directUrl,
-            DIRECT_GEMINI_API_KEY
-          ));
+          ({ response, rawText } = await doRequest(false, fallbackUrl, fallbackKey));
         }
       }
     }
@@ -172,57 +198,67 @@ function createGeminiClient(cfg) {
       : null;
     const directStreamUrl = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:streamGenerateContent?alt=sse`;
 
-    const streamUrl = proxyStreamUrl || directStreamUrl;
-    const streamKey = HAS_REPLIT_PROXY ? REPLIT_GEMINI_API_KEY : GEMINI_API_KEY;
+    const primaryStreamUrl = DIRECT_GEMINI_API_KEY ? directStreamUrl : proxyStreamUrl;
+    const primaryStreamKey = DIRECT_GEMINI_API_KEY ? DIRECT_GEMINI_API_KEY : REPLIT_GEMINI_API_KEY;
 
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), GEMINI_TIMEOUT_MS);
+    const fallbackStreamUrl = DIRECT_GEMINI_API_KEY && HAS_REPLIT_PROXY ? proxyStreamUrl : null;
+    const fallbackStreamKey = DIRECT_GEMINI_API_KEY && HAS_REPLIT_PROXY ? REPLIT_GEMINI_API_KEY : null;
 
-    let response;
-    try {
-      response = await fetch(streamUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': streamKey },
-        body: JSON.stringify(body),
-        signal: controller.signal,
-      });
-    } catch (err) {
-      clearTimeout(timeoutId);
-      if (err && err.name === 'AbortError') {
-        const e = new Error(`Gemini stream timed out after ${GEMINI_TIMEOUT_MS}ms`);
-        e.status = 504;
-        throw e;
+    const doStreamFetch = async (url, key) => {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), GEMINI_TIMEOUT_MS);
+      let response;
+      try {
+        response = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+          body: JSON.stringify(body),
+          signal: controller.signal,
+        });
+      } catch (err) {
+        clearTimeout(timeoutId);
+        if (err && err.name === 'AbortError') {
+          const e = new Error(`Gemini stream timed out after ${GEMINI_TIMEOUT_MS}ms`);
+          e.status = 504;
+          throw e;
+        }
+        throw err;
       }
-      throw err;
-    }
+      return { response, controller, timeoutId };
+    };
+
+    let { response, controller, timeoutId } = await withRetry(async () => {
+      const result = await doStreamFetch(primaryStreamUrl, primaryStreamKey);
+      if (result.response.status === 429) {
+        clearTimeout(result.timeoutId);
+        const errText = await result.response.text().catch(() => '');
+        const err = new Error(`Gemini stream rate limited (429): ${errText}`);
+        err.status = 429;
+        err.retryAfter = result.response.headers.get('Retry-After');
+        throw err;
+      }
+      return result;
+    });
 
     if (!response.ok) {
       clearTimeout(timeoutId);
       const errText = await response.text().catch(() => '');
-      if (HAS_REPLIT_PROXY && DIRECT_GEMINI_API_KEY && proxyStreamUrl) {
-        console.warn(`[callGeminiStream] Proxy failed (${response.status}), falling back to direct`);
-        const directController = new AbortController();
-        const directTimeoutId = setTimeout(() => directController.abort(), GEMINI_TIMEOUT_MS);
-        let directResp;
+      if (fallbackStreamUrl && fallbackStreamKey) {
+        console.warn(`[callGeminiStream] Primary failed (${response.status}), falling back to proxy`);
+        let fallbackResult;
         try {
-          directResp = await fetch(directStreamUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'x-goog-api-key': DIRECT_GEMINI_API_KEY },
-            body: JSON.stringify(body),
-            signal: directController.signal,
-          });
+          fallbackResult = await doStreamFetch(fallbackStreamUrl, fallbackStreamKey);
         } catch (fallbackErr) {
-          clearTimeout(directTimeoutId);
           throw fallbackErr;
         }
-        if (!directResp.ok) {
-          clearTimeout(directTimeoutId);
-          const fallbackErrText = await directResp.text().catch(() => '');
-          const e = new Error(`Gemini stream failed: ${directResp.status} - ${fallbackErrText}`);
-          e.status = directResp.status;
+        if (!fallbackResult.response.ok) {
+          clearTimeout(fallbackResult.timeoutId);
+          const fallbackErrText = await fallbackResult.response.text().catch(() => '');
+          const e = new Error(`Gemini stream failed: ${fallbackResult.response.status} - ${fallbackErrText}`);
+          e.status = fallbackResult.response.status;
           throw e;
         }
-        yield* _drainGeminiSSE(directResp.body, directController, directTimeoutId);
+        yield* _drainGeminiSSE(fallbackResult.response.body, fallbackResult.controller, fallbackResult.timeoutId);
         return;
       }
       const e = new Error(`Gemini stream failed: ${response.status} - ${errText}`);

@@ -523,7 +523,7 @@ server.listen(config.PORT, () => {
     ? `base=${config.GEMINI_MODEL}, tutor=${config.GEMINI_TUTOR_MODEL}`
     : config.GEMINI_MODEL;
   console.log(
-    `Gemini: ${config.STUB_MODE ? 'OFF' : 'ON'} (${tutorModelLabel}) | Auth: ${config.HAS_REPLIT_PROXY ? 'replit-proxy' : (config.HAS_DIRECT_KEY ? 'direct-key' : 'none')}`
+    `Gemini: ${config.STUB_MODE ? 'OFF' : 'ON'} (${tutorModelLabel}) | Auth: ${config.HAS_DIRECT_KEY ? 'direct-key' : (config.HAS_REPLIT_PROXY ? 'replit-proxy' : 'none')}`
   );
   console.log(
     `Claude: ${config.HAS_ANTHROPIC_PROXY ? 'ON' : 'OFF'} (sonnet=${config.CLAUDE_MODEL_SONNET}, haiku=${config.CLAUDE_MODEL_HAIKU}) | Auth: ${config.HAS_ANTHROPIC_PROXY ? 'replit-proxy' : 'none'}`
