@@ -121,7 +121,6 @@ function createGeminiClient(cfg) {
 
     const runWithFallback = async (includeMimeType) => {
       let response, rawText;
-      let primaryThrewNon429 = false;
 
       try {
         ({ response, rawText } = await withRetry(() =>
@@ -131,7 +130,6 @@ function createGeminiClient(cfg) {
         if (primaryErr.status === 429 || !fallbackUrl) {
           throw primaryErr;
         }
-        primaryThrewNon429 = true;
         console.warn(
           `[callGemini] Primary threw (${primaryErr.status || primaryErr.message}), falling back to proxy`
         );
