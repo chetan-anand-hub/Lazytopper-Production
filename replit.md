@@ -62,9 +62,9 @@ Question banks and prediction engine aligned to 2026-27 CBSE Class 10 syllabus. 
 - **Validation**: Zod, `drizzle-zod`
 - **API Codegen**: Orval
 - **Build Tool**: esbuild
-- **AI Providers**: Dual-provider setup via Replit AI Integration proxy:
-  - **Gemini** (`gemini-2.5-flash`): Primary for tutoring, structured responses, image-based solution checking
-  - **Claude** (Sonnet `claude-sonnet-4-6`, Haiku `claude-haiku-4-5`): Visual explainer generation (Sonnet), simple factual queries (Haiku)
+- **AI Providers**:
+  - **Gemini** (`gemini-2.5-flash` base, `gemini-2.5-pro` tutor): Direct Google API key (`API_KEY` env var) is PRIMARY — Replit proxy is emergency fallback only. Includes exponential backoff retry on 429. Confirmed `Auth: direct-key` at startup (no Replit markup).
+  - **Claude** (Sonnet `claude-sonnet-4-6`, Haiku `claude-haiku-4-5`): Visual explainer generation (Sonnet), simple factual queries (Haiku) — via Replit AI Integration proxy
 - **LaTeX Rendering**: KaTeX library
 - **Image Upload for Solution Checking**: Gemini Vision API
 - **Animated Video**: `artifacts/lazytopper-video` (embedded explainer video)
