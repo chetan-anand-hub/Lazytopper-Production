@@ -110,6 +110,7 @@ export const sciencePredictedQuestions: SciencePredictedQuestion[] = [
       "For reaction type, check if ions are exchanged and whether a precipitate forms.",
     pastBoardYear: "2023",
     policyTag: "Precipitation/double-displacement pattern",
+    finalAnswer: "(a) BaCl₂(aq) + Na₂SO₄(aq) → BaSO₄(s) + 2NaCl(aq)\\n(b) Double displacement and precipitation reaction.",
   },
 
   {
@@ -137,6 +138,7 @@ export const sciencePredictedQuestions: SciencePredictedQuestion[] = [
       "Use oxygen-based definition of redox for simple reactions at Class 10 level.",
     pastBoardYear: "2021",
     policyTag: "Redox identification",
+    finalAnswer: "(a) Copper is oxidised; oxygen is reduced.\\n(b) Copper gains oxygen to form copper(II) oxide, while oxygen is used up in forming the compound.",
   },
 
   {
@@ -1891,6 +1893,13 @@ export const sciencePredictedQuestions: SciencePredictedQuestion[] = [
     explanation:
       "In series, resistances add. Use I = V / R with the equivalent resistance.",
     policyTag: "Electricity numericals – series combination",
+    solutionSteps: [
+      "In a series combination, total resistance R_total = R1 + R2.",
+      "Substitute R1 = 3 Ω and R2 = 6 Ω: R_total = 3 + 6 = 9 Ω.",
+      "Apply Ohm's law: I = V / R_total = 9 V / 9 Ω.",
+      "Therefore, total current I = 1 A.",
+    ],
+    finalAnswer: "R_total = 3 Ω + 6 Ω = 9 Ω; I = V / R = 9 V / 9 Ω = 1 A.",
   },
 
   {
@@ -1909,6 +1918,15 @@ export const sciencePredictedQuestions: SciencePredictedQuestion[] = [
     explanation:
       "Use P = VI to find current, then apply Ohm's law V = IR to find resistance.",
     policyTag: "Electricity numericals – power, current, resistance",
+    solutionSteps: [
+      "Given: Power (P) = 60 W, Voltage (V) = 220 V.",
+      "(a) Use the formula P = VI. Rearrange to find current: I = P / V.",
+      "Substitute values: I = 60 W / 220 V = 0.2727 A (approx 0.27 A).",
+      "(b) Use Ohm's law: V = IR, so R = V / I.",
+      "Substitute values: R = 220 V / 0.2727 A = approx 807 Ω (or using R = V²/P = 220²/60 = 807 Ω).",
+      "Therefore, current drawn ≈ 0.27 A and resistance of filament ≈ 807 Ω.",
+    ],
+    finalAnswer: "P = VI ⇒ I = P / V = 60 / 220 ≈ 0.27 A; R = V / I ≈ 220 / 0.27 ≈ 815 Ω.",
   },
 
   {
@@ -2170,6 +2188,7 @@ The phenomenon responsible is atmospheric refraction.`,
       "For the red sun at sunrise/sunset: Sunlight travels a much longer distance through the atmosphere.",
       "Most of the blue light is scattered away, allowing the longer wavelengths (red and orange) to reach the observer directly, making the sun appear reddish.",
     ],
+    finalAnswer: "(a) Scattering of sunlight by molecules and fine dust particles.\n(b) During sunrise and sunset, sunlight travels a longer path through the atmosphere; blue light is scattered away and red light (least scattered) reaches the observer, so the Sun appears reddish.\n(c) Example: bluish colour of smoke, danger signals painted red (any one linked with scattering).",
   },
 
   // ------------------------ LIFE PROCESSES ------------------------
@@ -2214,6 +2233,14 @@ The phenomenon responsible is atmospheric refraction.`,
     explanation:
       "Focuses on the advantage of separate circuits for efficient oxygen supply and temperature regulation.",
     policyTag: "Life processes – circulation and transport of substances",
+    solutionSteps: [
+      "Double circulation means blood passes through the heart twice in one complete circuit — once via the pulmonary circuit and once via the systemic circuit.",
+      "The pulmonary circuit carries deoxygenated blood from the heart to the lungs for oxygenation, and returns oxygenated blood to the heart.",
+      "The systemic circuit then pumps this oxygenated blood from the heart to all body tissues.",
+      "This separation ensures oxygenated and deoxygenated blood never mix, maintaining a consistently high oxygen supply to tissues.",
+      "High oxygen supply is essential for efficient aerobic respiration and energy release, which warm-blooded animals like humans require to maintain body temperature.",
+    ],
+    finalAnswer: "Double circulation (pulmonary and systemic) ensures complete separation of oxygenated and deoxygenated blood. This maintains a high level of oxygen supply to body tissues, which is essential for efficient energy production in warm-blooded animals like humans.",
   },
 
   {
@@ -2233,6 +2260,15 @@ Function of kidneys: filtration of blood to remove nitrogenous wastes like urea 
     explanation:
       "Combines diagram-based recall with functional understanding of kidneys.",
     policyTag: "Life processes – excretion and homeostasis",
+    solutionSteps: [
+      "Draw a neat, well-proportioned outline diagram of the human excretory system.",
+      "Label the two kidneys (bean-shaped organs located on either side of the vertebral column).",
+      "Label the two ureters, which carry urine from the kidneys to the urinary bladder.",
+      "Label the urinary bladder, which temporarily stores urine.",
+      "Label the urethra, through which urine is expelled from the body.",
+      "Function of kidneys: The kidneys filter blood to remove nitrogenous waste products like urea, and also regulate water and mineral salt balance in the body.",
+    ],
+    finalAnswer: "Diagram should show kidneys, ureters, urinary bladder and urethra. Function of kidneys: filtration of blood to remove nitrogenous wastes like urea and regulation of water and salt balance.",
   },
 
   {
@@ -2255,9 +2291,14 @@ Function of kidneys: filtration of blood to remove nitrogenous wastes like urea 
       "Links unbalanced diet with lifestyle diseases and asks for corrective steps, connecting textbook concepts with daily life.",
     policyTag: "Life processes case-study – nutrition and lifestyle",
     solutionSteps: [
-      "The question text for this case-based question is missing.",
-      "Please provide the question text to generate the appropriate solution steps and answer.",
+      "(a) Rita is likely to suffer from obesity with micronutrient deficiency.",
+      "Fast foods are high in fats, sugars, and calories but low in essential vitamins and minerals.",
+      "Excess caloric intake leads to fat accumulation (obesity), while deficiency of micronutrients causes fatigue and poor health.",
+      "(b) Dietary change 1: Include more fruits, vegetables, whole grains, and legumes in daily meals.",
+      "Dietary change 2: Reduce or avoid fried foods, aerated drinks, and processed/junk food.",
+      "Lifestyle change: Engage in regular physical exercise such as walking, jogging, or sports for at least 30 minutes a day.",
     ],
+    finalAnswer: "(a) She may suffer from obesity with micronutrient deficiency because fast foods are high in fats and sugars but poor in vitamins and minerals.\n(b) Dietary: include fruits/vegetables, reduce junk food. Lifestyle: regular physical exercise.",
   },
 
   // ================================================================
@@ -2402,6 +2443,7 @@ Series is of alcohols: CH₃–OH, C₂H₅–OH, C₃H₇–OH, C₄H₉–OH. 
       "The first member CH₃–OH is methanol, belonging to the alcohol homologous series (general formula CnH2n+1OH).",
       "The third member is propanol (C₃H₇OH) and the fourth member is butanol (C₄H₉OH).",
     ],
+    finalAnswer: "A homologous series is a group of organic compounds having the same functional group and similar chemical properties in which successive members differ by –CH₂– unit and 14 u in molecular mass.\nCharacteristics: same functional group; show gradation in physical properties; differ by –CH₂–, etc. (any two).\nSeries is of alcohols: CH₃–OH, C₂H₅–OH, C₃H₇–OH, C₄H₉–OH. So 3rd and 4th members: C₃H₇–OH and C₄H₉–OH.",
   },
 
   {
@@ -2429,6 +2471,7 @@ Series is of alcohols: CH₃–OH, C₂H₅–OH, C₃H₇–OH, C₄H₉–OH. 
       "The question text for this case-based question is missing.",
       "Please provide the question text to generate the appropriate solution steps and answer.",
     ],
+    finalAnswer: "(a) Calcium and magnesium ions of hard water react with soap to form insoluble calcium/magnesium salts (scum).\n(b) Detergents are sodium salts of sulphonic acids and form soluble salts with Ca²⁺/Mg²⁺, so they do not form scum and clean better in hard water.\n(c) Detergents are non-biodegradable and cause water pollution / foam in rivers, etc.",
   },
 
   // ------------------------ CONTROL & COORDINATION ------------------------
@@ -2456,6 +2499,7 @@ They protect the body from injury and enable quick responses without involving t
       "Reflex actions are important as they provide quick responses to dangerous stimuli, protecting the body from harm.",
       "They allow for rapid survival responses without conscious thought, saving time in critical situations.",
     ],
+    finalAnswer: "Reflex action is a sudden, automatic and involuntary response to a stimulus controlled by the spinal cord, e.g. withdrawing hand on touching a hot object.\nThey protect the body from injury and enable quick responses without involving the thinking brain.",
   },
 
   {
@@ -2573,6 +2617,7 @@ Phenotypes: 3 tall : 1 dwarf.`,
       "Always reduce the parallel block first, then solve series current, then branch currents.",
     policyTag: "Electricity 5-mark competency numerical with diagram",
     pastBoardYear: "2025",
+    finalAnswer: "(a) Parallel part: 1/Rp = 1/6 + 1/3 = 1/2 ⇒ Rp = 2 Ω. Equivalent: Req = 4 + 2 = 6 Ω. (b) Total current I = V/Req = 12/6 = 2 A. (c) Voltage across parallel branch = I×Rp = 2×2 = 4 V. Hence I2 = 4/6 = 2/3 A and I3 = 4/3 A.",
   },
 
   {
@@ -2600,6 +2645,7 @@ Phenotypes: 3 tall : 1 dwarf.`,
     strategyHint: "Always start with the diagram, then explain each part asked.",
     pastBoardYear: "2023",
     policyTag: "Life Processes 5-mark digestive system",
+    finalAnswer: "(i) HCl creates acidic medium, activates pepsinogen to pepsin, kills ingested bacteria. (ii) Bile juice emulsifies fats into smaller droplets for lipase action. (iii) Villi increase surface area for efficient absorption of digested food into blood.",
   },
 
   {
@@ -2627,6 +2673,7 @@ Phenotypes: 3 tall : 1 dwarf.`,
     strategyHint: "Use arrows to show blood flow direction in the diagram.",
     pastBoardYear: "2024",
     policyTag: "Life Processes 5-mark heart & circulation",
+    finalAnswer: "Double circulation: blood passes through the heart twice in one complete cycle — once through pulmonary circuit (heart→lungs→heart) and once through systemic circuit (heart→body→heart). It is necessary to maintain separation of oxygenated and deoxygenated blood for efficient oxygen supply to body tissues.",
   },
 
   {
@@ -2654,6 +2701,7 @@ Phenotypes: 3 tall : 1 dwarf.`,
     strategyHint: "Draw the reflex arc first, then trace the impulse path step by step.",
     pastBoardYear: "2023",
     policyTag: "Control & Coordination 5-mark reflex arc",
+    finalAnswer: "Reflex arc: receptor → sensory neuron → spinal cord → motor neuron → effector. When touching hot object: heat receptor detects stimulus → impulse travels via sensory nerve to spinal cord → spinal cord processes and sends response via motor nerve → hand muscles contract to withdraw. Difference: reflex action is involuntary and controlled by spinal cord; walking is voluntary and controlled by brain.",
   },
 
   {
@@ -2679,6 +2727,7 @@ Phenotypes: 3 tall : 1 dwarf.`,
     strategyHint: "Label at least 5 parts in the diagram for full marks.",
     pastBoardYear: "2022",
     policyTag: "Reproduction 5-mark female reproductive system",
+    finalAnswer: "(i) Ovary produces eggs (ova) and female hormones (oestrogen, progesterone). (ii) Fallopian tube is the site of fertilisation; it carries the egg from ovary to uterus. (iii) Implantation occurs in the uterus wall; after implantation, the embryo develops and the placenta forms for nutrient and waste exchange.",
   },
 
   {
@@ -2707,6 +2756,7 @@ Phenotypes: 3 tall : 1 dwarf.`,
     strategyHint: "Use sign convention: u is negative, f is positive for convex lens.",
     pastBoardYear: "2024",
     policyTag: "Light 5-mark lens numerical + ray diagram",
+    finalAnswer: "Using 1/v − 1/u = 1/f: 1/v = 1/15 + 1/(−30) = 1/15 − 1/30 = 1/30. v = 30 cm. Magnification m = v/u = 30/(−30) = −1. Image size = |m| × 5 = 5 cm. Image is real, inverted, same size, formed at 2F on the other side.",
   },
 
   {
@@ -2734,6 +2784,7 @@ Phenotypes: 3 tall : 1 dwarf.`,
     strategyHint: "Remember: sulphide ores are roasted, carbonate ores are calcinated.",
     pastBoardYear: "2023",
     policyTag: "Metals & Non-Metals 5-mark extraction",
+    finalAnswer: "Example: Zinc from zinc blende (ZnS). Steps: (i) Concentration of ore by froth floatation. (ii) Roasting: 2ZnS + 3O₂ → 2ZnO + 2SO₂. (iii) Reduction: ZnO + C → Zn + CO. (iv) Refining by electrolytic refining.",
   },
 
   {
@@ -2761,6 +2812,7 @@ Phenotypes: 3 tall : 1 dwarf.`,
     strategyHint: "Focus on how rotation causes changing flux, which induces EMF.",
     pastBoardYear: "2024",
     policyTag: "Magnetic Effects 5-mark AC generator",
+    finalAnswer: "Principle: Electromagnetic induction — when a coil rotates in a magnetic field, the magnetic flux through it changes, inducing an EMF. Working: As the armature rotates, it cuts magnetic field lines; by Faraday's law, an EMF is induced that changes direction every half rotation, producing AC. Slip rings maintain continuous contact between the rotating coil and external circuit, allowing current to flow out.",
   },
 
   {
@@ -2788,6 +2840,7 @@ Phenotypes: 3 tall : 1 dwarf.`,
     strategyHint: "Always draw the Punnett square for full marks.",
     pastBoardYear: "2023",
     policyTag: "Heredity 5-mark monohybrid cross",
+    finalAnswer: "P: TT × tt → F₁: all Tt (tall). F₁ × F₁: Tt × Tt → F₂: TT, Tt, Tt, tt. Phenotypic ratio: 3 tall : 1 short. Genotypic ratio: 1 TT : 2 Tt : 1 tt.",
   },
 
   {
@@ -2815,6 +2868,7 @@ Phenotypes: 3 tall : 1 dwarf.`,
     strategyHint: "Remember: baking soda → soda ash (heat) → washing soda (recrystallise with water).",
     pastBoardYear: "2022",
     policyTag: "Acids Bases Salts 5-mark preparation of salts",
+    finalAnswer: "(a) 2NaHCO₃ → Na₂CO₃ + H₂O + CO₂, then Na₂CO₃ + 10H₂O → Na₂CO₃·10H₂O. (b) Washing soda: used in glass/soap/paper industries and as cleaning agent. Baking soda: used in baking and as antacid. (c) Dry HCl does not produce H⁺ ions; acids produce H⁺ only in aqueous solution.",
   },
 
 ];

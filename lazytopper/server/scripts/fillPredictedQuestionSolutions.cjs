@@ -21,7 +21,7 @@ const { createGeminiClient } = require('../services/geminiClient.cjs');
 const { resolveConfig }      = require('../services/serverConfig.cjs');
 
 const DRY_RUN           = process.env.DRY_RUN === '1';
-const BATCH_SIZE        = 3;
+const BATCH_SIZE        = 10;
 const DELAY_BETWEEN_MS  = 1200;
 const GEMINI_MODEL      = process.env.FILL_MODEL || 'gemini-2.5-flash';
 const MAX_ATTEMPTS      = 4;
@@ -97,6 +97,7 @@ function extractQuestions(fileText) {
 
     questions.push({
       id, hasSolutionSteps, hasFinalAnswer,
+      needsFill: !hasSolutionSteps || !hasFinalAnswer,
       marks:    marksM    ? Number(marksM[1]) : 2,
       kind:     kindM     ? kindM[1]          : 'Short',
       topicKey: topicM    ? topicM[1]         : '',
@@ -124,33 +125,64 @@ function applyPatches(fileText, patches, closingPattern) {
 
   for (const patch of patches) {
     const idStr  = `id: "${patch.id}"`;
-    const idIdx  = result.indexOf(idStr);
+
+    // Find the occurrence that is missing solutionSteps OR finalAnswer (handles duplicate IDs).
+    let idIdx = -1;
+    let closeIdx = -1;
+    let blockMissingSteps = false;
+    let blockMissingFinalAnswer = false;
+    let searchFrom = 0;
+    while (true) {
+      const candidateIdx = result.indexOf(idStr, searchFrom);
+      if (candidateIdx === -1) break;
+      const candidateClose = result.indexOf(closingPattern, candidateIdx);
+      if (candidateClose === -1) break;
+      const body = result.slice(candidateIdx, candidateClose);
+      const hasSteps = body.includes('solutionSteps:');
+      const hasFA    = body.includes('finalAnswer:');
+      if (!hasSteps || !hasFA) {
+        // Found a block that still needs at least one field
+        idIdx = candidateIdx;
+        closeIdx = candidateClose;
+        blockMissingSteps = !hasSteps;
+        blockMissingFinalAnswer = !hasFA;
+        break;
+      }
+      // This occurrence is already complete — look for a later duplicate
+      searchFrom = candidateClose + 1;
+    }
+
     if (idIdx === -1) {
-      console.warn(`  [patch] NOT FOUND in file: ${patch.id}`);
+      // Either not found at all, or all occurrences are fully complete
+      if (result.indexOf(idStr) === -1) {
+        console.warn(`  [patch] NOT FOUND in file: ${patch.id}`);
+      } else {
+        console.log(`  [patch] SKIP (already patched): ${patch.id}`);
+      }
       continue;
     }
 
-    const closeIdx = result.indexOf(closingPattern, idIdx);
     if (closeIdx === -1) {
       console.warn(`  [patch] Closing not found for: ${patch.id}`);
       continue;
     }
 
-    // Guard: skip if already has solutionSteps (idempotent)
-    if (result.slice(idIdx, closeIdx).includes('solutionSteps:')) {
-      console.log(`  [patch] SKIP (already patched): ${patch.id}`);
-      continue;
+    let insert = '';
+
+    // Only add solutionSteps if the block is missing them
+    if (blockMissingSteps) {
+      const stepsBlock = patch.solutionSteps
+        .map(s => `${stepIndent}"${escapeStr(s)}",`)
+        .join('\n');
+      insert += `\n${fieldIndent}solutionSteps: [\n${stepsBlock}\n${fieldIndent}],`;
     }
 
-    const stepsBlock = patch.solutionSteps
-      .map(s => `${stepIndent}"${escapeStr(s)}",`)
-      .join('\n');
-
-    let insert = `\n${fieldIndent}solutionSteps: [\n${stepsBlock}\n${fieldIndent}],`;
-
-    if (!patch.hasFinalAnswer && patch.finalAnswer) {
+    // Only add finalAnswer if the block is missing it and we have a value
+    if (blockMissingFinalAnswer && patch.finalAnswer) {
       insert += `\n${fieldIndent}finalAnswer: "${escapeStr(patch.finalAnswer)}",`;
     }
+
+    if (!insert) continue; // nothing to add
 
     result = result.slice(0, closeIdx) + insert + result.slice(closeIdx);
     patchCount++;
@@ -276,12 +308,15 @@ async function processFile(fileSpec, gemini) {
   // Re-read file each time to get updated gap count (incremental writes below)
   const fileText0 = fs.readFileSync(filePath, 'utf8');
   const allQ0     = extractQuestions(fileText0);
-  const gapQ      = allQ0.filter(q => !q.hasSolutionSteps);
+  // Include questions missing solutionSteps OR finalAnswer (or both)
+  const gapQ      = allQ0.filter(q => q.needsFill);
+  const noSteps   = allQ0.filter(q => !q.hasSolutionSteps).length;
+  const noFA      = allQ0.filter(q => !q.hasFinalAnswer).length;
 
   console.log(`\n──────────────────────────────────────`);
   console.log(`File   : ${fileName}`);
   console.log(`Subject: ${fileSpec.subject}`);
-  console.log(`Total  : ${allQ0.length}  |  Have solutions: ${allQ0.length - gapQ.length}  |  Missing: ${gapQ.length}`);
+  console.log(`Total  : ${allQ0.length}  |  Missing solutionSteps: ${noSteps}  |  Missing finalAnswer: ${noFA}  |  Need fill: ${gapQ.length}`);
 
   if (gapQ.length === 0) {
     console.log('✅ All questions already have solutions — nothing to do.');

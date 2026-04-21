@@ -109,6 +109,7 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     strategyHint: "Use sum and product of zeroes formula; no factorisation needed.",
     pastBoardYear: "2024",
     policyTag: "Formula based MCQ/Polynomials",
+    finalAnswer: "5/2",
   },
 
   {
@@ -166,6 +167,7 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     strategyHint: "Eliminate x or y by multiplying equations suitably.",
     pastBoardYear: "2023",
     policyTag: "NEP-2020/MCQ emphasis/Must-crack",
+    finalAnswer: "2",
   },
 
   {
@@ -389,6 +391,7 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     strategyHint: "Remember that the first term corresponds to n = 1.",
     pastBoardYear: "2022",
     policyTag: "Direct formula MCQ/AP",
+    finalAnswer: "34",
   },
 
   {
@@ -445,6 +448,7 @@ const predictedQuestionsBase: PredictedQuestion[] = [
       "Recognise the classic 3–4–5 right triangle pattern for quick mental calculation.",
     pastBoardYear: "2021",
     policyTag: "Direct formula MCQ/Distance",
+    finalAnswer: "5",
   },
 
   {
@@ -787,6 +791,7 @@ const predictedQuestionsBase: PredictedQuestion[] = [
     strategyHint: "Remember there are 4 cards of each denomination.",
     pastBoardYear: "2021",
     policyTag: "Basic probability/Single-event",
+    finalAnswer: "1/13",
   },
 
   {
@@ -2237,6 +2242,7 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
     ],
     strategyHint:
       "Translate the charges into equations and use elimination to solve.",
+    finalAnswer: "5 km at ₹10 per km and 5 km at ₹8 per km.",
   },
   {
     id: "2026-PLE-SA-10",
@@ -2258,6 +2264,7 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
       "Simplify and solve for x.",
       "Back‑substitute to find y.",
     ],
+    finalAnswer: "x = 2, y = 3.",
   },
   {
     id: "2026-PLE-AR-11",
@@ -2305,6 +2312,7 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
       "Back‑substitute to find 1/x.",
     ],
     strategyHint: "Convert times to rates and form equations for the combined rates.",
+    finalAnswer: "Pipe B alone can fill the tank in 15 hours and the leak alone would empty it in 24 hours.",
   },
 
   // ===== Quadratic Equations (must‑crack) =====
@@ -2379,6 +2387,7 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
     ],
     strategyHint:
       "Apply the quadratic formula when factorisation is not obvious.",
+    finalAnswer: "t = 1 or t = −1/3.",
   },
   {
     id: "2026-QE-SA-10",
@@ -2402,6 +2411,7 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
     ],
     strategyHint:
       "Translate the statement into algebra and solve the resulting quadratic.",
+    finalAnswer: "Breadth = 10 m and length = 30 m.",
   },
   {
     id: "2026-QE-AR-11",
@@ -2449,6 +2459,7 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
     ],
     strategyHint:
       "Express areas in terms of x and apply the quadratic formula.",
+    finalAnswer: "The quadratic equation is 4x² − 140x + 476 = 0 and the path is approximately 3.81 m wide.",
   },
 
   // ===== Triangles (must‑crack) =====
@@ -2494,6 +2505,7 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
       "Cross‑multiply and solve for x.",
     ],
     strategyHint: "Relate the segments using the Basic Proportionality Theorem.",
+    finalAnswer: "AE = 6 cm.",
   },
   {
     id: "2026-TRI-AR-09",
@@ -2584,6 +2596,7 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
     ],
     strategyHint:
       "Use half‑angle identities for 1 ± cos θ.",
+    finalAnswer: "Using 1 − cos θ = 2 sin²(θ/2) and 1 + cos θ = 2 cos²(θ/2), the given expression simplifies to tan²(θ/2).",
   },
   {
     id: "2026-TRIG-SA-12",
@@ -2607,6 +2620,7 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
     ],
     strategyHint:
       "Relate the angle of depression to the angle of elevation and apply the tangent ratio.",
+    finalAnswer: "Approximately 25.98 m.",
   },
   {
     id: "2026-TRIG-CASE-14",
@@ -2630,6 +2644,7 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
     ],
     strategyHint:
       "Use the same angle of elevation for both objects since observations are simultaneous.",
+    finalAnswer: "Angle of elevation of the Sun = 60°; height of the tower = 36 m.",
   },
 
   // ===== Statistics (must‑crack) =====
@@ -2698,6 +2713,7 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
     ],
     strategyHint:
       "Use the direct formula \\(\\\\bar{x} = \\\\frac{\\\\Sigma f_i x_i}{\\\\Sigma f_i}\\).",
+    finalAnswer: "Mean ≈ 4.71.",
   },
   {
     id: "2026-STAT-SA-10",
@@ -2721,6 +2737,7 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
     ],
     strategyHint:
       "Choose a convenient assumed mean to simplify calculations.",
+    finalAnswer: "Mean ≈ 22.86.",
   },
   {
     id: "2026-STAT-AR-11",
@@ -2768,6 +2785,7 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
     ],
     strategyHint:
       "Apply step‑deviation and interpret both mean and modal class.",
+    finalAnswer: "(a) The modal class is 140–160. (b) Mean ≈ ₹148. (c) Wages cluster around the middle class; most workers earn between ₹140 and ₹160, indicating moderate dispersion.",
   },
 
   // ===== Probability (must‑crack) =====
@@ -2836,6 +2854,7 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
     ],
     strategyHint:
       "Count favourable outcomes and divide by total outcomes.",
+    finalAnswer: "(i) 1/3, (ii) 4/5.",
   },
   {
     id: "2026-PROB-SA-12",
@@ -2858,6 +2877,7 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
     ],
     strategyHint:
       "Enumerate outcomes for two coin tosses and classify them by number of heads.",
+    finalAnswer: "(i) 1/2, (ii) 3/4, (iii) 3/4.",
   },
   {
     id: "2026-PROB-AR-13",
@@ -2902,6 +2922,7 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
     ],
     strategyHint:
       "Adjust the denominator after the first draw and consider both orders for mixed draws.",
+    finalAnswer: "(a) 1/7, (b) 8/35, (c) 3/7.",
   },
 
   // ===== Real Numbers (high-roi) =====
@@ -3019,6 +3040,7 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
     ],
     strategyHint:
       "Test small integer values to identify factors and relate roots to real‑world contexts.",
+    finalAnswer: "(a) f(x) = (x − 1)(x − 2)(x − 3). (b) The roots are x = 1, 2 and 3 hours. (c) All three roots are positive and correspond to possible times when the population could become zero.",
   },
 
   // ===== Arithmetic Progression (high‑roi) =====
@@ -3089,6 +3111,7 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
     ],
     strategyHint:
       "Use the nth‑term formula and solve the resulting system.",
+    finalAnswer: "First term = 10, common difference = 3.",
   },
   {
     id: "2026-AP-AR-08",
@@ -3184,6 +3207,7 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
     ],
     strategyHint:
       "Multiply the coordinates by the opposite segment lengths and divide by the total parts.",
+    finalAnswer: "The point is (28/5, 21/5) or (5.6, 4.2).",
   },
 
   // ===== Circles (high‑roi) =====
@@ -3259,6 +3283,7 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
     ],
     strategyHint:
       "Use the property that tangents from an external point are equal and perpendicular to the radius.",
+    finalAnswer: "7 cm.",
   },
   {
     id: "2026-CIRC-CASE-11",
@@ -3282,6 +3307,7 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
     ],
     strategyHint:
       "Remember the relationship between distance from the centre and chord length.",
+    finalAnswer: "(a) The chord at 4 cm from the centre is 6 cm; the chord at 3 cm is 8 cm. (b) The chord closer to the centre (3 cm away) is longer.",
   },
 
   // ===== Surface Areas and Volumes (high‑roi) =====
@@ -3361,6 +3387,7 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
     ],
     strategyHint:
       "Conservation of volume applies when recasting shapes.",
+    finalAnswer: "80 cones.",
   },
   {
     id: "2026-SAV-CASE-09",
@@ -3384,6 +3411,7 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
     ],
     strategyHint:
       "Paint both inner and outer surfaces except the open top.",
+    finalAnswer: "Approximately ₹13,020.",
   },
 
   // ===== Areas Related to Circles (good‑to‑do) =====
@@ -3432,6 +3460,7 @@ const predictedQuestionsAdditions: PredictedQuestion[] = [
     ],
     strategyHint:
       "Break the track into simple geometric shapes: a rectangle and a circle.",
+    finalAnswer: "Length ≈ 225.6 m; Area ≈ 3,256 m².",
   },
   {
     id: "2026-TRIG-LA-13",
