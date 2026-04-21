@@ -108,10 +108,15 @@ const MARKS_VALUES = [1, 2, 3, 5];
 const DIFFICULTIES = ['easy', 'medium', 'hard'];
 // Minimum number of questions that must exist in the pool for a combo before it
 // is considered "full".  Override with WARM_POOL_TARGET_COUNT env var.
-const TARGET_COUNT = Math.max(1, Number(process.env.WARM_POOL_TARGET_COUNT || 5) || 5);
+const TARGET_COUNT = Math.max(1, Number(process.env.WARM_POOL_TARGET_COUNT || 20) || 20);
 // Hard questions are scarcer in static banks so we pre-generate more of them.
 // Override with WARM_POOL_HARD_TARGET_COUNT env var.
-const HARD_TARGET_COUNT = Math.max(TARGET_COUNT, Number(process.env.WARM_POOL_HARD_TARGET_COUNT || 10) || 10);
+const HARD_TARGET_COUNT = Math.max(TARGET_COUNT, Number(process.env.WARM_POOL_HARD_TARGET_COUNT || 20) || 20);
+
+// Number of combinations to process in parallel during a warm run.
+// Keep this at 5 or below on Gemini free-tier to avoid rate-limit errors.
+// Override with WARM_POOL_CONCURRENCY env var.
+const CONCURRENCY = Math.max(1, Number(process.env.WARM_POOL_CONCURRENCY || 5) || 5);
 
 /** Return the fill target for a given difficulty level. */
 function targetForDifficulty(difficulty) {
@@ -393,33 +398,47 @@ function createWarmPoolRunner(deps) {
     let skipped = 0;
     let saved = 0;
     let errors = 0;
+    let completed = 0;
 
     console.info(
       `[warm] Starting pool warm run: ${total} combinations ` +
       `(${mathsTopicKeys.length} maths + ${scienceTopicKeys.length} science chapters ` +
-      `× ${MARKS_VALUES.length} marks × ${DIFFICULTIES.length} difficulties)`
+      `× ${MARKS_VALUES.length} marks × ${DIFFICULTIES.length} difficulties) ` +
+      `concurrency=${CONCURRENCY}`
     );
 
-    for (let i = 0; i < combos.length; i++) {
-      const { topicKey, subject, marks, difficulty } = combos[i];
-      try {
-        const count = await warmOne(pgPool, topicKey, subject, marks, difficulty);
-        if (count === 0) {
-          skipped++;
+    // Process combos in parallel batches of CONCURRENCY.
+    // Promise.allSettled ensures one failing combo does not abort the whole batch.
+    for (let batchStart = 0; batchStart < combos.length; batchStart += CONCURRENCY) {
+      const batch = combos.slice(batchStart, batchStart + CONCURRENCY);
+
+      const results = await Promise.allSettled(
+        batch.map(async ({ topicKey, subject, marks, difficulty }) => {
+          if (delayMs > 0) await sleep(delayMs);
+          const count = await warmOne(pgPool, topicKey, subject, marks, difficulty);
+          return { topicKey, subject, marks, difficulty, count };
+        })
+      );
+
+      for (const result of results) {
+        completed++;
+        if (result.status === 'fulfilled') {
+          const { topicKey, subject, marks, difficulty, count } = result.value;
+          if (count === 0) {
+            skipped++;
+          } else {
+            saved += count;
+          }
+          if (onProgress) {
+            onProgress({ index: completed, total, topicKey, subject, marks, difficulty });
+          }
         } else {
-          saved += count;
+          errors++;
+          console.warn(`[warm] ERROR in batch: ${result.reason && result.reason.message}`);
+          if (onProgress) {
+            onProgress({ index: completed, total });
+          }
         }
-      } catch (e) {
-        errors++;
-        console.warn(`[warm] ERROR ${topicKey} ${subject} marks=${marks} diff=${difficulty}: ${e.message}`);
-      }
-
-      if (onProgress) {
-        onProgress({ index: i + 1, total, topicKey, subject, marks, difficulty });
-      }
-
-      if (delayMs > 0 && i < combos.length - 1) {
-        await sleep(delayMs);
       }
     }
 
@@ -440,6 +459,19 @@ module.exports = { createWarmPoolRunner, loadTopicKeys, MARKS_VALUES, DIFFICULTI
 // ---------------------------------------------------------------------------
 // Standalone mode: node warmQuestionPool.cjs
 // ---------------------------------------------------------------------------
+//
+// DIRECT GEMINI KEY (bypass Replit proxy, pay Google at cost):
+//   AI_PROVIDER=gemini API_KEY=<your-google-api-key> node warmQuestionPool.cjs
+//
+// This is recommended for bulk warm runs where token cost matters.
+// Without these vars the script uses the Replit AI proxy (same Gemini model,
+// but routed through Replit's billing at a small markup).
+//
+// Optional tuning env vars:
+//   WARM_POOL_TARGET_COUNT      — questions per easy/medium combo (default 20)
+//   WARM_POOL_HARD_TARGET_COUNT — questions per hard combo       (default 20)
+//   WARM_POOL_CONCURRENCY       — parallel combos per batch      (default 5)
+//
 if (require.main === module) {
   // Set up TypeScript transpilation so we can require .ts files directly
   const fs = require('fs');
