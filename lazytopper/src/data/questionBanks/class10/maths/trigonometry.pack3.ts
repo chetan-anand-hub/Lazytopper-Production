@@ -1669,7 +1669,27 @@ export const TG3_PACK3: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 8.3"
   },
-  { id: "TG3-063", subject: "Maths", topicKey: "trigonometry", subtopic: "Heights and distances", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "From the top of a 10 m high building, the angle of elevation of the top of a tower is 60° and the angle of depression of the foot of the tower is 45°. The height of the tower is:", options: ["10(1+√3) m","10√3 m","20 m","10(√3−1) m"], answer: "10(1+√3) m", explanation: "The correct answer is 10(1+√3) m. Let tower height = H, horizontal distance = d. tan 45° = 10/d → d = 10. tan 60° = (H−10)/d → H−10 = 10√3 → H = 10+10√3 = 10(1+√3) m.", finalAnswer: "Let tower height = H, horizontal distance = d. tan 45° = 10/d → d = 10. tan 60° = (H−10)/d → H−10 = 10√3 → H = 10+10√3 = 10(1+√3) m.", isCompetencyBased: false },
-  { id: "TG3-064", subject: "Maths", topicKey: "trigonometry", subtopic: "Standard values and quick recall", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If tan θ = 1/√3, then θ equals:", options: ["30°","45°","60°","90°"], answer: "30°", explanation: "The correct answer is 30°. tan 30° = 1/√3. So θ = 30°.", finalAnswer: "tan 30° = 1/√3. So θ = 30°.", isCompetencyBased: false },
-  { id: "TG3-065", subject: "Maths", topicKey: "trigonometry", subtopic: "Trigonometric identities", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): cosec²θ − cot²θ = 1 for all values of θ where the expressions are defined.\nReason (R): This identity is derived from the Pythagorean identity sin²θ + cos²θ = 1 by dividing both sides by sin²θ.", options: ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Dividing sin²θ + cos²θ = 1 by sin²θ gives 1 + cot²θ = cosec²θ, i.e., cosec²θ − cot²θ = 1.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.", isCompetencyBased: true }
+  { id: "TG3-063", subject: "Maths", topicKey: "trigonometry", subtopic: "Heights and distances", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "From the top of a 10 m high building, the angle of elevation of the top of a tower is 60° and the angle of depression of the foot of the tower is 45°. The height of the tower is:", options: ["10(1+√3) m","10√3 m","20 m","10(√3−1) m"], answer: "10(1+√3) m", explanation: "The correct answer is 10(1+√3) m. Let tower height = H, horizontal distance = d. tan 45° = 10/d → d = 10. tan 60° = (H−10)/d → H−10 = 10√3 → H = 10+10√3 = 10(1+√3) m.", finalAnswer: "Let tower height = H, horizontal distance = d. tan 45° = 10/d → d = 10. tan 60° = (H−10)/d → H−10 = 10√3 → H = 10+10√3 = 10(1+√3) m.", isCompetencyBased: false,
+    solutionSteps: [
+      "Let the height of the building be 10 m and the horizontal distance to the tower be x m.",
+      "From the angle of depression of 45° to the foot of the tower, tan 45° = 10/x, so x = 10 m.",
+      "Let the height of the tower above the building be y. From the angle of elevation of 60°, tan 60° = y/x.",
+      "Substitute x=10: √3 = y/10, so y = 10√3 m. Total tower height = 10 + 10√3 = 10(1+√3) m.",
+    ],
+  },
+  { id: "TG3-064", subject: "Maths", topicKey: "trigonometry", subtopic: "Standard values and quick recall", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If tan θ = 1/√3, then θ equals:", options: ["30°","45°","60°","90°"], answer: "30°", explanation: "The correct answer is 30°. tan 30° = 1/√3. So θ = 30°.", finalAnswer: "tan 30° = 1/√3. So θ = 30°.", isCompetencyBased: false,
+    solutionSteps: [
+      "The given trigonometric equation is tan θ = 1/√3.",
+      "Recall the standard trigonometric values for common angles.",
+      "We know that tan 30° has a value of 1/√3.",
+      "Therefore, comparing the given equation with the standard value, θ = 30°.",
+    ],
+  },
+  { id: "TG3-065", subject: "Maths", topicKey: "trigonometry", subtopic: "Trigonometric identities", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): cosec²θ − cot²θ = 1 for all values of θ where the expressions are defined.\nReason (R): This identity is derived from the Pythagorean identity sin²θ + cos²θ = 1 by dividing both sides by sin²θ.", options: ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Dividing sin²θ + cos²θ = 1 by sin²θ gives 1 + cot²θ = cosec²θ, i.e., cosec²θ − cot²θ = 1.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.", isCompetencyBased: true,
+    solutionSteps: [
+      "Reason (R) states the fundamental trigonometric identities: 1 + tan^2 A = sec^2 A and 1 + cot^2 A = cosec^2 A, which are true.",
+      "For Assertion (A), substitute these identities: (1 + tan^2 A) / (1 + cot^2 A) = sec^2 A / cosec^2 A = (1/cos^2 A) / (1/sin^2 A).",
+      "Simplify the expression: sin^2 A / cos^2 A = tan^2 A. This confirms Assertion (A) is true and Reason (R) correctly explains it.",
+    ],
+  }
 ];

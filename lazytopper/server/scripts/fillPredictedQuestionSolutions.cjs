@@ -3,13 +3,15 @@
 /**
  * fillPredictedQuestionSolutions.cjs
  *
- * Fills missing `solutionSteps` (and `finalAnswer` where absent) in all three
- * predicted-question TypeScript source files by calling Gemini with CBSE
- * marking-scheme prompts.
+ * Fills missing `solutionSteps` (and `finalAnswer` where absent) in:
+ *  - the original three predicted-question TS files
+ *  - all maths and science pack files under questionBanks/class10/
+ *  - highlyProbableQuestions.ts (HPQ — uses `question:` field, not `questionText:`)
  *
  * Usage:
  *   node server/scripts/fillPredictedQuestionSolutions.cjs
  *   DRY_RUN=1 node server/scripts/fillPredictedQuestionSolutions.cjs
+ *   FILL_ONLY_FILE=realNumbers.pack1 node server/scripts/fillPredictedQuestionSolutions.cjs
  *
  * Idempotent: questions that already have solutionSteps are skipped.
  * Safe to re-run after partial completion.
@@ -26,21 +28,51 @@ const DELAY_BETWEEN_MS  = 1200;
 const GEMINI_MODEL      = process.env.FILL_MODEL || 'gemini-2.5-flash';
 const MAX_ATTEMPTS      = 4;
 
+// ---------------------------------------------------------------------------
+// Build the full file list dynamically so new pack files are picked up auto.
+// ---------------------------------------------------------------------------
+const PACK_BASE = path.resolve(__dirname, '../../src/data/questionBanks/class10');
+
+function buildPackFileSpecs(subdir, subject) {
+  const dir = path.join(PACK_BASE, subdir);
+  if (!fs.existsSync(dir)) return [];
+  return fs.readdirSync(dir)
+    .filter(f => f.endsWith('.ts'))
+    .sort()
+    .map(f => ({
+      relativePath:   `../../src/data/questionBanks/class10/${subdir}/${f}`,
+      subject,
+      closingPattern: '\n  },',
+      questionField:  'questionText',
+    }));
+}
+
 const FILES = [
   {
     relativePath:   '../../src/data/predictedQuestions.ts',
     subject:        'Mathematics',
     closingPattern: '\n  },',
+    questionField:  'questionText',
   },
   {
     relativePath:   '../../src/data/predictedQuestionsScience.ts',
     subject:        'Science',
     closingPattern: '\n  },',
+    questionField:  'questionText',
   },
   {
     relativePath:   '../../src/data/predictedScienceQuestions.ts',
     subject:        'Science',
     closingPattern: '\n      },',
+    questionField:  'questionText',
+  },
+  ...buildPackFileSpecs('maths', 'Mathematics'),
+  ...buildPackFileSpecs('science', 'Science'),
+  {
+    relativePath:   '../../src/data/highlyProbableQuestions.ts',
+    subject:        'Mathematics',
+    closingPattern: '\n      },',
+    questionField:  'question',
   },
 ];
 
@@ -48,15 +80,26 @@ function sleep(ms) {
   return new Promise(r => setTimeout(r, ms));
 }
 
+/**
+ * Escape a string for embedding inside a TypeScript/JS double-quoted string.
+ * Handles backslashes, double-quotes, and literal newline/carriage-return/tab
+ * characters so AI-generated text with literal whitespace never breaks syntax.
+ */
 function escapeStr(s) {
-  return String(s || '').replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+  return String(s || '')
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g,  '\\"')
+    .replace(/\n/g, '\\n')
+    .replace(/\r/g, '\\r')
+    .replace(/\t/g, '\\t');
 }
 
 // ---------------------------------------------------------------------------
 // Parse question metadata from raw TypeScript source text.
 // Uses id-boundary scanning — no eval, no tsc.
+// questionField: 'questionText' (pack files / predicted files) or 'question' (HPQ)
 // ---------------------------------------------------------------------------
-function extractQuestions(fileText) {
+function extractQuestions(fileText, questionField = 'questionText') {
   const questions = [];
   const idRegex   = /\bid:\s*["']([\w-]+)["']/g;
   const allMatches = [...fileText.matchAll(idRegex)];
@@ -65,7 +108,6 @@ function extractQuestions(fileText) {
     const m     = allMatches[i];
     const id    = m[1];
     const start = m.index;
-    // Slice from this id to the next id (or end of file) to get the object body
     const end   = (i + 1 < allMatches.length) ? allMatches[i + 1].index : fileText.length;
     const body  = fileText.slice(start, end);
 
@@ -73,26 +115,31 @@ function extractQuestions(fileText) {
     const hasFinalAnswer   = /\bfinalAnswer\s*:/.test(body);
 
     const marksM    = body.match(/\bmarks\s*:\s*(\d+)/);
-    const kindM     = body.match(/\b(?:kind|type)\s*:\s*["']([\w-]+)["']/);
-    const topicM    = body.match(/\btopicKey\s*:\s*["']([\w]+)["']/);
+    const kindM     = body.match(/\b(?:kind|type|format)\s*:\s*["']([\w-]+)["']/);
+    const topicM    = body.match(/\b(?:topicKey|topic)\s*:\s*["']([\w\s]+)["']/);
     const subtopicM = body.match(/\bsubtopic\s*:\s*["']([\s\S]*?)["']/);
 
-    // questionText: handles inline, multi-line, and backtick template literals
+    // Extract the question text using the correct field name
     let questionText = '';
-    const qtInline   = body.match(/\bquestionText\s*:\s*"([\s\S]*?)",\s*\n/);
-    const qtMulti    = body.match(/\bquestionText\s*:\s*\n\s+"([\s\S]*?)",\s*\n/);
-    const qtTemplate = body.match(/\bquestionText\s*:\s*`([\s\S]*?)`,/);
-    if (qtMulti)        questionText = qtMulti[1].replace(/\\n/g, '\n');
-    else if (qtInline)  questionText = qtInline[1].replace(/\\n/g, '\n');
-    else if (qtTemplate) questionText = qtTemplate[1].trim();
+    const qfEsc = questionField.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const qtMulti    = body.match(new RegExp(`\\b${qfEsc}\\s*:\\s*\\n\\s+"([\\s\\S]*?)",\\s*\\n`));
+    const qtInline   = body.match(new RegExp(`\\b${qfEsc}\\s*:\\s*"([\\s\\S]*?)",\\s*\\n`));
+    const qtSingleLine = body.match(new RegExp(`\\b${qfEsc}\\s*:\\s*"((?:[^"\\\\]|\\\\.)*)"`));
+    const qtTemplate = body.match(new RegExp(`\\b${qfEsc}\\s*:\\s*\`([\\s\\S]*?)\`,`));
+    if (qtMulti)          questionText = qtMulti[1].replace(/\\n/g, '\n');
+    else if (qtInline)    questionText = qtInline[1].replace(/\\n/g, '\n');
+    else if (qtSingleLine) questionText = qtSingleLine[1].replace(/\\n/g, '\n');
+    else if (qtTemplate)  questionText = qtTemplate[1].trim();
 
-    // answer: same treatment
+    // answer field
     let answer = '';
-    const ansInline  = body.match(/\banswer\s*:\s*"([\s\S]*?)",\s*\n/);
-    const ansMulti   = body.match(/\banswer\s*:\s*\n\s+"([\s\S]*?)",\s*\n/);
+    const ansMulti    = body.match(/\banswer\s*:\s*\n\s+"([\s\S]*?)",\s*\n/);
+    const ansInline   = body.match(/\banswer\s*:\s*"([\s\S]*?)",\s*\n/);
+    const ansSingleLine = body.match(/\banswer\s*:\s*"((?:[^"\\]|\\.)*)"/);
     const ansTemplate = body.match(/\banswer\s*:\s*`([\s\S]*?)`,/);
-    if (ansMulti)        answer = ansMulti[1].replace(/\\n/g, '\n');
-    else if (ansInline)  answer = ansInline[1].replace(/\\n/g, '\n');
+    if (ansMulti)         answer = ansMulti[1].replace(/\\n/g, '\n');
+    else if (ansInline)   answer = ansInline[1].replace(/\\n/g, '\n');
+    else if (ansSingleLine) answer = ansSingleLine[1].replace(/\\n/g, '\n');
     else if (ansTemplate) answer = ansTemplate[1].trim();
 
     questions.push({
@@ -113,37 +160,70 @@ function extractQuestions(fileText) {
 // ---------------------------------------------------------------------------
 // Apply patches to file text in a single pass.
 // closingPattern: e.g. '\n  },' or '\n      },'
+// Handles both multi-line objects (standard) and inline single-line objects.
 // ---------------------------------------------------------------------------
 function applyPatches(fileText, patches, closingPattern) {
   let result     = fileText;
   let patchCount = 0;
 
-  const indentMatch  = closingPattern.match(/\n(\s*)/);
+  const indentMatch   = closingPattern.match(/\n(\s*)/);
   const closingIndent = indentMatch ? indentMatch[1] : '  ';
-  const fieldIndent  = closingIndent + '  ';
-  const stepIndent   = closingIndent + '    ';
+  const fieldIndent   = closingIndent + '  ';
+  const stepIndent    = closingIndent + '    ';
 
   for (const patch of patches) {
-    const idStr  = `id: "${patch.id}"`;
+    const idStr = `id: "${patch.id}"`;
+    const idStrJson = `"id": "${patch.id}"`;
 
-    // Find the occurrence that is missing solutionSteps OR finalAnswer (handles duplicate IDs).
+    // Find the occurrence missing solutionSteps OR finalAnswer (handles duplicate IDs).
+    // Supports both TS-style (id: "...") and JSON-style ("id": "...") for pack2 files.
+    // Detects inline vs multi-line FIRST to avoid false-positive closingPattern matches.
     let idIdx = -1;
     let closeIdx = -1;
+    let isInline = false;
     let blockMissingSteps = false;
     let blockMissingFinalAnswer = false;
     let searchFrom = 0;
     while (true) {
-      const candidateIdx = result.indexOf(idStr, searchFrom);
+      let candidateIdx = result.indexOf(idStr, searchFrom);
+      if (candidateIdx === -1) candidateIdx = result.indexOf(idStrJson, searchFrom);
       if (candidateIdx === -1) break;
-      const candidateClose = result.indexOf(closingPattern, candidateIdx);
+
+      // Detect inline vs multi-line: an inline object has its closing `}` on the same line.
+      const cLineEnd = result.indexOf('\n', candidateIdx);
+      const cLineContent = cLineEnd !== -1 ? result.slice(candidateIdx, cLineEnd) : result.slice(candidateIdx);
+      const cHasCloseOnLine = cLineContent.includes('}');
+
+      let candidateClose = -1;
+      let candidateIsInline = false;
+
+      if (cHasCloseOnLine) {
+        const lastClose = cLineContent.lastIndexOf('},');
+        if (lastClose !== -1) {
+          candidateClose = candidateIdx + lastClose;
+          candidateIsInline = true;
+        } else {
+          const lastBrace = cLineContent.lastIndexOf('}');
+          if (lastBrace !== -1) {
+            candidateClose = candidateIdx + lastBrace;
+            candidateIsInline = true;
+          }
+        }
+      } else {
+        candidateClose = result.indexOf(closingPattern, candidateIdx);
+      }
+
       if (candidateClose === -1) break;
-      const body = result.slice(candidateIdx, candidateClose);
+
+      const bodyEnd = candidateIsInline ? (cLineEnd !== -1 ? cLineEnd + 1 : candidateClose) : candidateClose;
+      const body = result.slice(candidateIdx, bodyEnd);
       const hasSteps = body.includes('solutionSteps:');
       const hasFA    = body.includes('finalAnswer:');
+
       if (!hasSteps || !hasFA) {
-        // Found a block that still needs at least one field
         idIdx = candidateIdx;
         closeIdx = candidateClose;
+        isInline = candidateIsInline;
         blockMissingSteps = !hasSteps;
         blockMissingFinalAnswer = !hasFA;
         break;
@@ -153,8 +233,8 @@ function applyPatches(fileText, patches, closingPattern) {
     }
 
     if (idIdx === -1) {
-      // Either not found at all, or all occurrences are fully complete
-      if (result.indexOf(idStr) === -1) {
+      const anyOccurrence = result.indexOf(idStr) !== -1 || result.indexOf(idStrJson) !== -1;
+      if (!anyOccurrence) {
         console.warn(`  [patch] NOT FOUND in file: ${patch.id}`);
       } else {
         console.log(`  [patch] SKIP (already patched): ${patch.id}`);
@@ -167,9 +247,9 @@ function applyPatches(fileText, patches, closingPattern) {
       continue;
     }
 
+    // Build the insert string (only include fields that are actually missing)
     let insert = '';
 
-    // Only add solutionSteps if the block is missing them
     if (blockMissingSteps) {
       const stepsBlock = patch.solutionSteps
         .map(s => `${stepIndent}"${escapeStr(s)}",`)
@@ -177,14 +257,21 @@ function applyPatches(fileText, patches, closingPattern) {
       insert += `\n${fieldIndent}solutionSteps: [\n${stepsBlock}\n${fieldIndent}],`;
     }
 
-    // Only add finalAnswer if the block is missing it and we have a value
     if (blockMissingFinalAnswer && patch.finalAnswer) {
       insert += `\n${fieldIndent}finalAnswer: "${escapeStr(patch.finalAnswer)}",`;
     }
 
-    if (!insert) continue; // nothing to add
+    if (!insert) continue;
 
-    result = result.slice(0, closeIdx) + insert + result.slice(closeIdx);
+    if (isInline) {
+      // For inline objects the last field has no trailing comma before `}`.
+      // trimEnd() removes any trailing whitespace, then prepend `,` before insert.
+      const beforeClose = result.slice(0, closeIdx).trimEnd();
+      result = beforeClose + ',' + insert + '\n' + closingIndent + result.slice(closeIdx);
+    } else {
+      result = result.slice(0, closeIdx) + insert + result.slice(closeIdx);
+    }
+
     patchCount++;
     console.log(`  [patch] ✓ ${patch.id}  (${patch.solutionSteps.length} steps)`);
   }
@@ -242,15 +329,12 @@ JSON output:
   const rawText = result.text || '';
 
   function repairJsonStrings(s) {
-    // Walk the JSON char-by-char to fix literal newlines and invalid escapes
-    // inside string values — the two main causes of parse failures.
     let out = '';
     let inString = false;
     let escaped = false;
     for (let i = 0; i < s.length; i++) {
       const c = s[i];
       if (escaped) {
-        // If the escape char is not a valid JSON escape, double the backslash
         if (!'"\\/bfnrtu'.includes(c)) out += '\\';
         out += c;
         escaped = false;
@@ -272,13 +356,9 @@ JSON output:
   }
 
   function tryParse(s) {
-    // Strip markdown code fences if present
     let cleaned = s.replace(/^[\s\S]*?```(?:json)?\s*/m, '').replace(/\s*```[\s\S]*$/m, '').trim();
     if (!cleaned.startsWith('[') && !cleaned.startsWith('{')) cleaned = s;
-
-    // Repair literal newlines and invalid escape sequences inside JSON strings
     cleaned = repairJsonStrings(cleaned);
-
     return JSON.parse(cleaned);
   }
 
@@ -304,10 +384,10 @@ JSON output:
 async function processFile(fileSpec, gemini) {
   const filePath  = path.resolve(__dirname, fileSpec.relativePath);
   const fileName  = path.basename(filePath);
+  const qField    = fileSpec.questionField || 'questionText';
 
-  // Re-read file each time to get updated gap count (incremental writes below)
   const fileText0 = fs.readFileSync(filePath, 'utf8');
-  const allQ0     = extractQuestions(fileText0);
+  const allQ0     = extractQuestions(fileText0, qField);
   // Include questions missing solutionSteps OR finalAnswer (or both)
   const gapQ      = allQ0.filter(q => q.needsFill);
   const noSteps   = allQ0.filter(q => !q.hasSolutionSteps).length;
@@ -397,7 +477,6 @@ async function processFile(fileSpec, gemini) {
       }
 
       if (patches.length > 0) {
-        // Write incrementally after each batch so partial progress is never lost
         const currentText = fs.readFileSync(filePath, 'utf8');
         const { result: newText, patchCount } = applyPatches(currentText, patches, fileSpec.closingPattern);
         fs.writeFileSync(filePath, newText, 'utf8');
@@ -430,13 +509,13 @@ async function main() {
     process.exit(1);
   }
 
-  // Routing: after Task #396 merged, HAS_DIRECT_KEY means direct-key is PRIMARY.
   const authLabel = config.HAS_DIRECT_KEY
     ? 'direct-key → Google (no markup ✓)'
     : config.HAS_REPLIT_PROXY
       ? 'replit-proxy (markup applies)'
       : 'NO auth — will fail';
   console.log(`\nGemini auth: ${authLabel}`);
+  console.log(`Total file list: ${FILES.length} files`);
 
   const gemini = createGeminiClient(config);
   let totalQ = 0, totalOk = 0, totalFail = 0;
@@ -445,6 +524,14 @@ async function main() {
   const activeFiles = onlyFile
     ? FILES.filter(f => path.basename(f.relativePath).includes(onlyFile))
     : FILES;
+
+  if (activeFiles.length === 0) {
+    console.error(`\nERROR: FILL_ONLY_FILE="${onlyFile}" matched no files.`);
+    process.exit(1);
+  }
+
+  console.log(`Active files: ${activeFiles.length}`);
+  if (onlyFile) activeFiles.forEach(f => console.log('  ' + path.basename(f.relativePath)));
 
   for (const fileSpec of activeFiles) {
     const r = await processFile(fileSpec, gemini);

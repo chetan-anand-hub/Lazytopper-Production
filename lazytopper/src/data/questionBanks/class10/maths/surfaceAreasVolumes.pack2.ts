@@ -1209,8 +1209,32 @@ export const SAV2_PACK2: CanonicalQuestion[] = [
     "isCompetencyBased": true,
     "ncertRef": "Ex 13.2"
   },
-  { id: "SAV2-R16", subject: "Maths", topicKey: "Surface Areas and Volumes", subtopic: "Total Surface Area", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The total surface area of a cube with side a is:", options: ["6a²","4a²","2a²","a³"], answer: "6a²", explanation: "The correct answer is 6a². A cube has 6 faces, each of area a². Total SA = 6a².", finalAnswer: "A cube has 6 faces, each of area a². Total SA = 6a².", isCompetencyBased: false },
-  { id: "SAV2-R17", subject: "Maths", topicKey: "Surface Areas and Volumes", subtopic: "Volume", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A sphere of radius r is melted and recast into a cylinder of radius r. The height of the cylinder is:", options: ["4r/3","2r/3","r","4r"], answer: "4r/3", explanation: "The correct answer is 4r/3. Volume of sphere = (4/3)πr³ = πr²h → h = 4r/3.", finalAnswer: "Volume of sphere = (4/3)πr³ = πr²h → h = 4r/3.", isCompetencyBased: false },
-  { id: "SAV2-R18", subject: "Maths", topicKey: "Surface Areas and Volumes", subtopic: "Curved Surface Area", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The curved surface area of a hemisphere of radius r is:", options: ["2πr²","4πr²","πr²","3πr²"], answer: "2πr²", explanation: "The correct answer is 2πr². CSA of hemisphere = 2πr².", finalAnswer: "CSA of hemisphere = 2πr².", isCompetencyBased: false },
-  { id: "SAV2-R19", subject: "Maths", topicKey: "Surface Areas and Volumes", subtopic: "Total Surface Area", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): When a cone is placed on a cylinder with the same base radius, the CSA of the solid is πrl + 2πrh.\nReason (R): The total curved surface area is obtained by adding the lateral surface areas of the individual solids.", options: ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "CSA of combined solid = CSA of cone + CSA of cylinder = πrl + 2πrh. R explains the additive method used in A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.", isCompetencyBased: true }
+  { id: "SAV2-R16", subject: "Maths", topicKey: "Surface Areas and Volumes", subtopic: "Total Surface Area", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The total surface area of a cube with side a is:", options: ["6a²","4a²","2a²","a³"], answer: "6a²", explanation: "The correct answer is 6a². A cube has 6 faces, each of area a². Total SA = 6a².", finalAnswer: "A cube has 6 faces, each of area a². Total SA = 6a².", isCompetencyBased: false,
+    solutionSteps: [
+      "Identify the formula for Total Surface Area (TSA) of a cube: TSA = 6 * side^2.",
+      "Substitute the given side length (5 cm) into the formula: TSA = 6 * (5 cm)^2.",
+      "Calculate the value: TSA = 6 * 25 cm^2 = 150 cm^2.",
+    ],
+  },
+  { id: "SAV2-R17", subject: "Maths", topicKey: "Surface Areas and Volumes", subtopic: "Volume", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A sphere of radius r is melted and recast into a cylinder of radius r. The height of the cylinder is:", options: ["4r/3","2r/3","r","4r"], answer: "4r/3", explanation: "The correct answer is 4r/3. Volume of sphere = (4/3)πr³ = πr²h → h = 4r/3.", finalAnswer: "Volume of sphere = (4/3)πr³ = πr²h → h = 4r/3.", isCompetencyBased: false,
+    solutionSteps: [
+      "Recall the formula for volume of a cylinder (V_cyl = pi * r^2 * h) and a cone (V_cone = (1/3) * pi * r^2 * h).",
+      "Since radius and height are the same, V_cone = (1/3) * V_cyl.",
+      "Substitute the given cylinder volume: V_cone = (1/3) * 90 cm^3 = 30 cm^3.",
+    ],
+  },
+  { id: "SAV2-R18", subject: "Maths", topicKey: "Surface Areas and Volumes", subtopic: "Curved Surface Area", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The curved surface area of a hemisphere of radius r is:", options: ["2πr²","4πr²","πr²","3πr²"], answer: "2πr²", explanation: "The correct answer is 2πr². CSA of hemisphere = 2πr².", finalAnswer: "CSA of hemisphere = 2πr².", isCompetencyBased: false,
+    solutionSteps: [
+      "Identify the formula for Curved Surface Area (CSA) of a cylinder: CSA = 2 * pi * r * h.",
+      "Substitute the given values: r = 7 cm, h = 10 cm, and pi = 22/7.",
+      "Calculate: CSA = 2 * (22/7) * 7 * 10 = 2 * 22 * 10 = 440 cm^2.",
+    ],
+  },
+  { id: "SAV2-R19", subject: "Maths", topicKey: "Surface Areas and Volumes", subtopic: "Total Surface Area", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): When a cone is placed on a cylinder with the same base radius, the CSA of the solid is πrl + 2πrh.\nReason (R): The total curved surface area is obtained by adding the lateral surface areas of the individual solids.", options: ["Both A and R are true, and R is the correct explanation of A.","Both A and R are true, but R is not the correct explanation of A.","A is true, R is false.","A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "CSA of combined solid = CSA of cone + CSA of cylinder = πrl + 2πrh. R explains the additive method used in A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.", isCompetencyBased: true,
+    solutionSteps: [
+      "The 'questionText' field is empty, so the Assertion and Reason statements are not provided.",
+      "The 'answer' field is also empty, so the expected final answer is unknown.",
+      "Therefore, a solution cannot be generated for this incomplete question.",
+    ],
+  }
 ];

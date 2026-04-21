@@ -10,6 +10,11 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     explanation: "The correct answer is ±√3. This follows directly from the key concepts and formulas for this topic.",
     finalAnswer: "±√3",
     isCompetencyBased: false,
+    solutionSteps: [
+      "To find the zeroes, set the polynomial equal to zero: x² - 3 = 0.",
+      "Add 3 to both sides: x² = 3.",
+      "Take the square root of both sides: x = ±√3.",
+    ],
   },
 {
     id: "POLY-E02", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
@@ -31,6 +36,11 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     explanation: "The correct answer is a > 0. This follows directly from the key concepts and formulas for this topic.",
     finalAnswer: "a > 0",
     isCompetencyBased: false,
+    solutionSteps: [
+      "The graph of a quadratic polynomial p(x) = ax² + bx + c is a parabola.",
+      "The direction in which the parabola opens is determined by the sign of the leading coefficient 'a'.",
+      "For the parabola to open upward, the coefficient 'a' must be positive, i.e., a > 0.",
+    ],
   },
 {
     id: "POLY-E04", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
@@ -41,6 +51,11 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     explanation: "The correct answer is 3. This follows directly from the key concepts and formulas for this topic.",
     finalAnswer: "3",
     isCompetencyBased: false,
+    solutionSteps: [
+      "The maximum number of zeroes a polynomial can have is equal to its degree.",
+      "A cubic polynomial is a polynomial of degree 3.",
+      "Therefore, a cubic polynomial can have at most 3 zeroes.",
+    ],
   },
 {
     id: "POLY-E05", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
@@ -62,6 +77,11 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     explanation: "The correct answer is intersects or touches x-axis. This follows directly from the key concepts and formulas for this topic.",
     finalAnswer: "intersects or touches x-axis",
     isCompetencyBased: false,
+    solutionSteps: [
+      "A zero of a polynomial p(x) is a value of x for which p(x) = 0.",
+      "Graphically, p(x) = 0 means the point lies on the x-axis.",
+      "Therefore, the number of zeroes is the number of times the graph intersects or touches the x-axis.",
+    ],
   },
 {
     id: "POLY-E07", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
@@ -83,6 +103,11 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     explanation: "The correct answer is c/a. This follows directly from the key concepts and formulas for this topic.",
     finalAnswer: "c/a",
     isCompetencyBased: false,
+    solutionSteps: [
+      "For a quadratic polynomial p(x) = ax² + bx + c, where a ≠ 0.",
+      "The product of its zeroes (αβ) is given by the constant term divided by the coefficient of x².",
+      "Thus, αβ = c/a.",
+    ],
   },
 {
     id: "POLY-E09", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
@@ -101,6 +126,11 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     explanation: "The correct answer is n zeroes. This follows directly from the key concepts and formulas for this topic.",
     finalAnswer: "n zeroes",
     isCompetencyBased: false,
+    solutionSteps: [
+      "The degree of a polynomial is the highest power of the variable in the polynomial.",
+      "A fundamental property of polynomials states that a polynomial of degree 'n' can have at most 'n' real zeroes.",
+      "Therefore, a polynomial of degree n has at most n zeroes.",
+    ],
   },
 {
     id: "POLY-E11", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
@@ -119,6 +149,12 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
     isCompetencyBased: true,
+    solutionSteps: [
+      "To find the zeroes of a polynomial p(x), we set p(x) = 0. So, for x² + 1, we set x² + 1 = 0.",
+      "This implies x² = -1. However, the square of any real number x (x²) is always greater than or equal to 0.",
+      "Therefore, x² can never be equal to -1 for any real number x. This means the polynomial x² + 1 has no real zeroes, making Assertion (A) true.",
+      "Reason (R) states x² >= 0 for all real x, which is correct. Consequently, x² + 1 >= 1, meaning x² + 1 is always positive and never zero. This correctly explains why there are no real zeroes. Thus, R is true and is the correct explanation of A.",
+    ],
   },
 {
     id: "POLY-E13", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
@@ -151,6 +187,11 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     explanation: "The correct answer is x-axis. This follows directly from the key concepts and formulas for this topic.",
     finalAnswer: "x-axis",
     isCompetencyBased: false,
+    solutionSteps: [
+      "The zeroes of a polynomial p(x) are the values of x for which p(x) = 0.",
+      "When we graph y = p(x), the condition p(x) = 0 means that the y-coordinate of the point is 0.",
+      "Points with a y-coordinate of 0 lie on the x-axis. Therefore, the zeroes are the x-coordinates where the graph intersects the x-axis.",
+    ],
   },
 {
     id: "POLY-E16", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
@@ -169,6 +210,11 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     explanation: "The correct answer is −b/a. This follows directly from the key concepts and formulas for this topic.",
     finalAnswer: "−b/a",
     isCompetencyBased: false,
+    solutionSteps: [
+      "For a general quadratic polynomial of the form ax² + bx + c, let the zeroes be alpha and beta.",
+      "According to Vieta's formulas, the sum of the zeroes (alpha + beta) is given by the formula: - (coefficient of x) / (coefficient of x²).",
+      "Substituting the coefficients from the given polynomial, the sum of zeroes = -b/a.",
+    ],
   },
 {
     id: "POLY-E18", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
@@ -190,6 +236,11 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
     isCompetencyBased: true,
+    solutionSteps: [
+      "Assertion (A): A linear polynomial ax+b (a!=0) has exactly one zero x = -b/a. So, A is true.",
+      "Reason (R): The graph of a linear polynomial y=ax+b is a straight line. It intersects the x-axis (where y=0) at exactly one point. So, R is true.",
+      "The x-intercept of the graph represents the zero of the polynomial. Since the line intersects the x-axis at one point, it has one zero. Thus, R correctly explains A.",
+    ],
   },
 {
     id: "POLY-E20", subject: "Maths", topicKey: "Polynomials", subtopic: "Coefficient–root Relations",
@@ -287,6 +338,11 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     explanation: "The correct answer is two equal real zeroes. This follows directly from the key concepts and formulas for this topic.",
     finalAnswer: "two equal real zeroes",
     isCompetencyBased: false,
+    solutionSteps: [
+      "When the graph of a quadratic polynomial touches the x-axis at exactly one point, it means the parabola has only one x-intercept.",
+      "This single x-intercept indicates that the two roots (zeroes) of the quadratic equation are identical.",
+      "Therefore, the quadratic polynomial has two equal real zeroes.",
+    ],
   },
 {
     id: "POLY-M09", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
@@ -342,6 +398,11 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.",
     finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
     isCompetencyBased: true,
+    solutionSteps: [
+      "Reason (R): The general form of a quadratic polynomial with zeroes α and β is k[x² − (α+β)x + αβ]. For k=1, R is true.",
+      "Assertion (A): Given zeroes α = -3 and β = 4. Sum of zeroes (α+β) = -3 + 4 = 1. Product of zeroes (αβ) = (-3)(4) = -12.",
+      "Using the formula from R, the polynomial is x² − (1)x + (-12) = x² − x − 12. This matches A. So, A is true and R correctly explains A.",
+    ],
   },
 {
     id: "POLY-M15", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
@@ -587,7 +648,13 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "k = 2; zeroes are −1/2 and −2",
     visualExplainerId: "maths-polynomials-zeroes-of-a-polynomial", isCompetencyBased: true,
   },
-{ id: "POLY-AR05", subject: "Maths", topicKey: "Polynomials", subtopic: "Relationship between Zeroes and Coefficients", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): A quadratic polynomial can have at most 2 zeroes.\nReason (R): The degree of a polynomial determines the maximum number of zeroes it can have.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.", isCompetencyBased: true }  ,
+{ id: "POLY-AR05", subject: "Maths", topicKey: "Polynomials", subtopic: "Relationship between Zeroes and Coefficients", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): A quadratic polynomial can have at most 2 zeroes.\nReason (R): The degree of a polynomial determines the maximum number of zeroes it can have.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A.", isCompetencyBased: true,
+    solutionSteps: [
+      "Assertion (A): A quadratic polynomial has degree 2. A polynomial of degree 'n' can have at most 'n' zeroes. So, a quadratic polynomial can have at most 2 zeroes. Thus, A is true.",
+      "Reason (R): The degree of a polynomial is the highest power of the variable, and it determines the maximum number of zeroes the polynomial can have. Thus, R is true.",
+      "Reason (R) correctly explains why a quadratic polynomial (degree 2) can have at most 2 zeroes, as the degree dictates this maximum.",
+    ],
+  }  ,
   {
     id: "POLY-M13-R", subject: "Maths", topicKey: "Polynomials", subtopic: "Zeros & Factorisation",
     section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",

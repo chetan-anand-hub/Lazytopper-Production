@@ -54,6 +54,11 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     explanation: "Any two consecutive even numbers look like 2n and 2n+2 = 2(n+1), where n and n+1 are consecutive integers with HCF 1. So the only common factor of 2n and 2(n+1) is 2. Example: HCF(4, 6) = 2, HCF(10, 12) = 2.",
     finalAnswer: "2",
     isCompetencyBased: true,
+    solutionSteps: [
+      "Let two consecutive even numbers be 2n and 2n+2, where n is a natural number.",
+      "We can write 2n = 2 * n and 2n+2 = 2 * (n+1).",
+      "Since n and n+1 are consecutive integers, their HCF is 1. Therefore, HCF(2n, 2n+2) = 2 * HCF(n, n+1) = 2 * 1 = 2.",
+    ],
   },
   {
     id: "RN-E08", subject: "Maths", topicKey: "Real Numbers", subtopic: "Fundamental Theorem of Arithmetic",
@@ -64,6 +69,11 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     explanation: "The Fundamental Theorem of Arithmetic guarantees that every composite number has exactly one prime factorisation, regardless of the order in which you write the prime factors. For example, 12 = 2² × 3 = 2 × 2 × 3 — the order differs but the prime factors and their powers are always the same.",
     finalAnswer: "a unique way (except for order)",
     isCompetencyBased: true,
+    solutionSteps: [
+      "The Fundamental Theorem of Arithmetic is a core concept in number theory.",
+      "It states that every composite number can be uniquely factorized into a product of prime numbers.",
+      "The order in which the prime factors appear does not change the uniqueness of the factorization.",
+    ],
   },
   {
     id: "RN-E09", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrationality Proofs",
@@ -118,6 +128,11 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     explanation: "A is true: √2 is irrational (proved by contradiction in NCERT). R is also true: if p is a prime, √p is irrational (since p cannot be a perfect square). R correctly explains A because 2 is prime, so the reason directly justifies the assertion.",
     finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
     isCompetencyBased: true,
+    solutionSteps: [
+      "Assertion (A): √2 is an irrational number. This statement is true, as proven by contradiction.",
+      "Reason (R): The square root of every prime number is irrational. This statement is also true (e.g., √3, √5, √7 are irrational).",
+      "Since 2 is a prime number, Reason (R) directly explains why √2 is irrational. Thus, R is the correct explanation for A.",
+    ],
   },
   {
     id: "RN-E15", subject: "Maths", topicKey: "Real Numbers", subtopic: "HCF and LCM",
@@ -136,6 +151,12 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     explanation: "A number ends in 0 only if it has both 2 and 5 as prime factors (because 10 = 2 × 5). 6ⁿ = 2ⁿ × 3ⁿ — it has prime factors 2 and 3 only, never 5. Without a factor of 5, the number cannot end in 0. So A is true, and R is the direct reason why A is true.",
     finalAnswer: "Both A and R are true, and R is the correct explanation of A.",
     isCompetencyBased: true,
+    solutionSteps: [
+      "For any number to end with the digit 0, its prime factorization must contain both 2 and 5.",
+      "The prime factorization of 6ⁿ is (2 × 3)ⁿ = 2ⁿ × 3ⁿ.",
+      "Since 5 is not a prime factor of 6ⁿ, it cannot end with the digit 0 for any natural number n.",
+      "Therefore, Assertion (A) is true, and Reason (R) correctly explains A.",
+    ],
   },
   {
       id: "RN-E18", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrationality Proofs",
@@ -172,6 +193,12 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     explanation: "If r ≠ 0 is rational and x is irrational, their product r·x is always irrational. Proof: assume r·x = q (rational) → x = q/r, a ratio of two rationals, which would be rational — contradiction. Note: if r = 0, then 0 × (irrational) = 0, which is rational, but the question specifies r is non-zero.",
     finalAnswer: "Always irrational",
     isCompetencyBased: true,
+    solutionSteps: [
+      "Let 'r' be a non-zero rational number and 'i' be an irrational number.",
+      "Assume, for contradiction, that their product 'ri' is rational.",
+      "Then, i = (ri)/r. Since 'ri' and 'r' are rational, their quotient 'i' must also be rational.",
+      "This contradicts our initial assumption that 'i' is an irrational number. Hence, the product 'ri' must be irrational.",
+    ],
   },
   {
     id: "RN-M02", subject: "Maths", topicKey: "Real Numbers", subtopic: "Fundamental Theorem of Arithmetic",
@@ -282,6 +309,11 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
       options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."],
       answer: "A is true, R is false.",
       explanation: "√3 + √5 is indeed irrational, but the reason is incorrect — for example, √2 + (−√2) = 0 is rational. R is a false generalisation.",
+      solutionSteps: [
+        "Assertion (A): Assume √3 + √5 = r (rational). Then √5 = r − √3. Squaring: 5 = r² − 2r√3 + 3, so 2r√3 = r² − 2, giving √3 = (r²−2)/(2r), which is rational — contradiction. So √3 + √5 is irrational. A is TRUE.",
+        "Reason (R): The sum of two irrational numbers is NOT always irrational. Counter-example: √2 + (−√2) = 0, which is rational. So R is FALSE.",
+        "Since A is true and R is false, the correct option is: A is true, R is false.",
+      ],
       finalAnswer: "A is true, R is false.",
       isCompetencyBased: true,
     },
@@ -302,6 +334,11 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     explanation: "√2 + √3 is indeed irrational, but the reason is false because √2 + (−√2) = 0 (rational).",
     finalAnswer: "A is true, R is false.",
     isCompetencyBased: true,
+    solutionSteps: [
+      "Assertion (A): Assume √2 + √3 = r, where r is rational. Then √3 = r - √2. Squaring both sides gives 3 = r^2 - 2r√2 + 2.",
+      "Rearranging, 2r√2 = r^2 - 1. So, √2 = (r^2 - 1) / (2r). Since r is rational, (r^2 - 1) / (2r) is rational. This contradicts that √2 is irrational. Thus, A is true.",
+      "Reason (R): Consider two irrational numbers, √2 and -√2. Their sum is √2 + (-√2) = 0, which is a rational number. Thus, R is false.",
+    ],
   },
   {
     id: "RN-M16", subject: "Maths", topicKey: "Real Numbers", subtopic: "Fundamental Theorem of Arithmetic",
@@ -519,9 +556,28 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     finalAnswer: "7 − 3√2 is irrational",
     visualExplainerId: "maths-real-numbers-irrational-numbers-proof", isCompetencyBased: false,
   },
-  { id: "RN-N01", subject: "Maths", topicKey: "Real Numbers", subtopic: "HCF and LCM", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "HCF of 72 and 120 is:", options: ["24","12","36","48"], answer: "24", explanation: "The correct answer is 24. 72 = 2³×3², 120 = 2³×3×5. HCF = 2³×3 = 24.", finalAnswer: "72 = 2³×3², 120 = 2³×3×5. HCF = 2³×3 = 24.", isCompetencyBased: false },
-  { id: "RN-N02", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrational Numbers", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Which of the following is irrational?", options: ["√4","√9","√2","0.5"], answer: "√2", explanation: "The correct answer is √2. √2 is irrational; its decimal expansion is non-terminating, non-repeating.", finalAnswer: "√2 is irrational; its decimal expansion is non-terminating, non-repeating.", isCompetencyBased: false },
-  { id: "RN-N03", subject: "Maths", topicKey: "Real Numbers", subtopic: "Euclid's Algorithm", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Using Euclid's division algorithm, HCF(455, 42) is:", options: ["7","14","21","1"], answer: "7", explanation: "The correct answer is 7. 455 = 42×10 + 35; 42 = 35×1 + 7; 35 = 7×5 + 0. HCF = 7.", finalAnswer: "455 = 42×10 + 35; 42 = 35×1 + 7; 35 = 7×5 + 0. HCF = 7.", isCompetencyBased: false },
+  { id: "RN-N01", subject: "Maths", topicKey: "Real Numbers", subtopic: "HCF and LCM", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "HCF of 72 and 120 is:", options: ["24","12","36","48"], answer: "24", explanation: "The correct answer is 24. 72 = 2³×3², 120 = 2³×3×5. HCF = 2³×3 = 24.", finalAnswer: "72 = 2³×3², 120 = 2³×3×5. HCF = 2³×3 = 24.", isCompetencyBased: false,
+    solutionSteps: [
+      "Find the prime factorization of 72: 72 = 2 x 36 = 2 x 2 x 18 = 2 x 2 x 2 x 9 = 2^3 x 3^2.",
+      "Find the prime factorization of 120: 120 = 2 x 60 = 2 x 2 x 30 = 2 x 2 x 2 x 15 = 2^3 x 3 x 5.",
+      "HCF is the product of the lowest powers of common prime factors. Common factors are 2 and 3.",
+      "HCF(72, 120) = 2^3 x 3^1 = 8 x 3 = 24.",
+    ],
+  },
+  { id: "RN-N02", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrational Numbers", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Which of the following is irrational?", options: ["√4","√9","√2","0.5"], answer: "√2", explanation: "The correct answer is √2. √2 is irrational; its decimal expansion is non-terminating, non-repeating.", finalAnswer: "√2 is irrational; its decimal expansion is non-terminating, non-repeating.", isCompetencyBased: false,
+    solutionSteps: [
+      "An irrational number cannot be expressed as a fraction p/q where p, q are integers and q is not zero. Its decimal expansion is non-terminating and non-repeating.",
+      "Numbers like sqrt(4)=2, sqrt(9)=3, sqrt(16)=4 are rational as they are integers.",
+      "sqrt(2) is a non-perfect square root, and its decimal expansion is non-terminating and non-repeating (1.414...). Therefore, sqrt(2) is irrational.",
+    ],
+  },
+  { id: "RN-N03", subject: "Maths", topicKey: "Real Numbers", subtopic: "Euclid's Algorithm", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Using Euclid's division algorithm, HCF(455, 42) is:", options: ["7","14","21","1"], answer: "7", explanation: "The correct answer is 7. 455 = 42×10 + 35; 42 = 35×1 + 7; 35 = 7×5 + 0. HCF = 7.", finalAnswer: "455 = 42×10 + 35; 42 = 35×1 + 7; 35 = 7×5 + 0. HCF = 7.", isCompetencyBased: false,
+    solutionSteps: [
+      "An even integer is defined as an integer that is divisible by 2, leaving a remainder of 0.",
+      "According to Euclid's Division Lemma, any positive integer 'a' divided by 2 can be expressed as a = 2q + r, where 0 <= r < 2. So, r can be 0 or 1.",
+      "For 'a' to be an even integer, the remainder 'r' must be 0. Therefore, a = 2q + 0, which simplifies to a = 2q.",
+    ],
+  },
   { id: "RN-ND01", subject: "Maths", topicKey: "Real Numbers", subtopic: "Euclid's Algorithm", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Use Euclid's division algorithm to find HCF of 867 and 255. Hence find their LCM.", solutionSteps: ["Apply Euclid's algorithm: dividend = divisor × quotient + remainder","867 = 255 × 3 + 102","255 = 102 × 2 + 51","102 = 51 × 2 + 0","Since remainder is 0, HCF(867, 255) = 51.","LCM × HCF = Product of the two numbers","LCM = (867 × 255) / 51 = 867 × 5 = 4335"], answer: "HCF = 51; LCM = 4335.", explanation: "See solution steps for full working.", finalAnswer: "HCF = 51; LCM = 4335.", isCompetencyBased: true },
   { id: "RN-ND02", subject: "Maths", topicKey: "Real Numbers", subtopic: "Irrational Numbers", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Prove that √5 is irrational. Hence prove that 2 + √5 is also irrational.", solutionSteps: ["Assume √5 is rational. Then √5 = p/q where p, q are integers, q ≠ 0, and HCF(p, q) = 1.","Squaring: 5 = p²/q² → p² = 5q².","5 divides p², so 5 divides p (if a prime divides a², it divides a). Let p = 5m.","Then (5m)² = 5q² → 25m² = 5q² → 5m² = q².","5 divides q², so 5 divides q. But then 5 is a common factor of p and q, contradicting HCF = 1.","Contradiction! So √5 is irrational. ✓","Now suppose 2 + √5 is rational = r (say). Then √5 = r − 2, which is rational.","But √5 is irrational — contradiction. Therefore 2 + √5 is irrational. ✓"], answer: "√5 is irrational (by contradiction); hence 2 + √5 is also irrational.", explanation: "See solution steps for full working.", finalAnswer: "√5 is irrational (by contradiction); hence 2 + √5 is also irrational.", visualExplainerId: "maths-real-numbers-irrational-numbers-proof", isCompetencyBased: true }
 ];

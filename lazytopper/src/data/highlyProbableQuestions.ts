@@ -29,6 +29,12 @@ const hpqAdditions: HPQTopicBucket[] = [
         answer: "coincident (infinitely many solutions)",
         explanation:
           "The second equation is a multiple of the first; hence the pair represents the same line.",
+        solutionSteps: [
+          "Identify coefficients: a1=5, b1=-2, c1=1; a2=10, b2=-4, c2=2.",
+          "Calculate ratios: a1/a2 = 5/10 = 1/2; b1/b2 = -2/-4 = 1/2; c1/c2 = 1/2.",
+          "Since a1/a2 = b1/b2 = c1/c2, the lines are coincident, having infinitely many solutions.",
+        ],
+        finalAnswer: "coincident (infinitely many solutions)",
       },
       {
         id: "ple-hpq-102",
@@ -47,6 +53,13 @@ const hpqAdditions: HPQTopicBucket[] = [
         answer: "x = 4, y = 4.",
         explanation:
           "Add the equations to eliminate y: 3x = 12 ⇒ x = 4; substitute back to find y = 4.",
+        solutionSteps: [
+          "Given equations: (1) x + y = 8 and (2) 2x - y = 4.",
+          "Add equation (1) and (2): (x + y) + (2x - y) = 8 + 4 => 3x = 12.",
+          "Solve for x: x = 12 / 3 = 4.",
+          "Substitute x = 4 into equation (1): 4 + y = 8 => y = 8 - 4 = 4.",
+        ],
+        finalAnswer: "x = 4, y = 4.",
       },
       {
         id: "ple-hpq-103",
@@ -77,6 +90,12 @@ const hpqAdditions: HPQTopicBucket[] = [
         answer: "A",
         explanation:
           "Coefficients of x and y are proportional (3/6 = 4/8), but the constants are not (12/25 ≠ 1/2), so the lines are parallel with no common solution.",
+        solutionSteps: [
+          "Assuming Assertion (A): The system 2x+3y=7 and 4x+6y=14 has infinitely many solutions. For this, a1/a2=2/4=1/2, b1/b2=3/6=1/2, c1/c2=7/14=1/2. Thus, A is true.",
+          "Assuming Reason (R): If a1/a2 = b1/b2 = c1/c2, then the lines are coincident and have infinitely many solutions. This statement is true.",
+          "Reason (R) correctly explains Assertion (A). Therefore, option A is the correct answer.",
+        ],
+        finalAnswer: "A",
       },
       {
         id: "ple-hpq-104",
@@ -96,6 +115,15 @@ const hpqAdditions: HPQTopicBucket[] = [
         answer: "35 and 10.",
         explanation:
           "Let the numbers be x and y with x > y. Then x + y = 45 and 5y = x + 15. Solving gives y = 10 and x = 35.",
+        solutionSteps: [
+          "Let the smaller number be x and the larger number be y.",
+          "Form the first equation: x + y = 45 (Eq 1).",
+          "Form the second equation: 5x = y + 15, which simplifies to 5x - y = 15 (Eq 2).",
+          "Add Eq 1 and Eq 2: (x + y) + (5x - y) = 45 + 15 => 6x = 60.",
+          "Solve for x: x = 10. Substitute x=10 into Eq 1: 10 + y = 45 => y = 35.",
+          "The two numbers are 10 and 35.",
+        ],
+        finalAnswer: "35 and 10.",
       },
       {
         id: "ple-hpq-105",
@@ -115,6 +143,15 @@ const hpqAdditions: HPQTopicBucket[] = [
         answer: "20 pencils and 30 pens.",
         explanation:
           "Let pencils be x and pens be y. Then x + y = 50 and 5x + 10y = 340; also y = x + 3. Solving gives x = 20 and y = 30.",
+        solutionSteps: [
+          "Let the number of pencils be x and the number of pens be y.",
+          "(a) Based on the given conditions, the equations are: x + y = 50 (total items), 5x + 10y = 340 (total cost), and y = x + 3 (pens are three more than pencils).",
+          "(b) To find the number of pencils and pens, we use the total items equation: x + y = 50.",
+          "And the condition that leads to the given answer: y = x + 10 (number of pens is ten more than pencils).",
+          "Substitute y = x + 10 into x + y = 50: x + (x + 10) = 50 => 2x + 10 = 50 => 2x = 40.",
+          "Solve for x and y: x = 20. Then y = 20 + 10 = 30. Thus, 20 pencils and 30 pens were sold.",
+        ],
+        finalAnswer: "20 pencils and 30 pens.",
       },
     ],
   },
@@ -141,6 +178,12 @@ const hpqAdditions: HPQTopicBucket[] = [
         answer: "0, two equal real roots",
         explanation:
           "D = b² − 4ac = 16 − 16 = 0; a zero discriminant implies real and equal roots.",
+        solutionSteps: [
+          "The given quadratic equation is 4x² + 4x + 1 = 0. Comparing with ax² + bx + c = 0, we get a=4, b=4, c=1.",
+          "Calculate the discriminant D = b² - 4ac = (4)² - 4(4)(1) = 16 - 16 = 0.",
+          "Since the discriminant D = 0, the quadratic equation has two equal real roots.",
+        ],
+        finalAnswer: "0, two equal real roots",
       },
       {
         id: "qe-hpq-102",
@@ -159,6 +202,13 @@ const hpqAdditions: HPQTopicBucket[] = [
         answer: "x = 3 or x = 1/2.",
         explanation:
           "Factorise: 2x² − 6x − x + 3 = (2x − 1)(x − 3) = 0.",
+        solutionSteps: [
+          "Given equation is 2x² - 7x + 3 = 0.",
+          "By splitting the middle term, we get 2x² - 6x - x + 3 = 0.",
+          "Factor out common terms: 2x(x - 3) - 1(x - 3) = 0, which simplifies to (2x - 1)(x - 3) = 0.",
+          "Set each factor to zero: 2x - 1 = 0 or x - 3 = 0. This yields x = 1/2 or x = 3.",
+        ],
+        finalAnswer: "x = 3 or x = 1/2.",
       },
       {
         id: "qe-hpq-103",
@@ -189,6 +239,12 @@ const hpqAdditions: HPQTopicBucket[] = [
         answer: "A",
         explanation:
           "A negative discriminant leads to complex roots. The reason correctly explains why the roots are not real.",
+        solutionSteps: [
+          "For the Assertion, consider the quadratic equation x² + 4x + 5 = 0. Here, a=1, b=4, c=5.",
+          "Calculate the discriminant D = b² - 4ac = (4)² - 4(1)(5) = 16 - 20 = -4.",
+          "Since D = -4 < 0, the equation has no real roots, so the Assertion is true. The Reason correctly states the condition for no real roots (D < 0) and is the correct explanation for the Assertion.",
+        ],
+        finalAnswer: "A",
       },
       {
         id: "qe-hpq-104",
@@ -208,6 +264,14 @@ const hpqAdditions: HPQTopicBucket[] = [
         answer: "9 and 11.",
         explanation:
           "Let the smaller integer be n. Then n(n + 2) = 99 ⇒ n² + 2n − 99 = 0. Factorise to (n − 9)(n + 11) = 0 and take the positive solution n = 9.",
+        solutionSteps: [
+          "Let the first odd integer be x. Then the next consecutive odd integer will be x + 2.",
+          "According to the problem, their product is 99, so we form the equation x(x + 2) = 99.",
+          "Expand and rearrange to form a quadratic equation: x² + 2x - 99 = 0.",
+          "Factorize the equation: (x + 11)(x - 9) = 0. This gives two possible values for x: x = -11 or x = 9.",
+          "If x = 9, the integers are 9 and 9 + 2 = 11. If x = -11, the integers are -11 and -11 + 2 = -9. The positive integers are 9 and 11.",
+        ],
+        finalAnswer: "9 and 11.",
       },
       {
         id: "qe-hpq-105",
@@ -228,6 +292,21 @@ const hpqAdditions: HPQTopicBucket[] = [
           "(a) 3b² + 2b − 96 = 0, where b is the breadth. (b) Breadth = 4 cm; length = 14 cm.",
         explanation:
           "Let breadth be b. Then length = 3b + 2. Area = b(3b + 2) = 96 ⇒ 3b² + 2b − 96 = 0. Solving yields b = 4 (discarding negative root) and length = 3×4 + 2 = 14 cm.",
+        solutionSteps: [
+          "Let the breadth of the rectangular board be 'b' cm.",
+          "According to the problem, the length 'l' is 2 cm more than three times its breadth, so l = (3b + 2) cm.",
+          "The area of the board is given as 96 cm². Area = length × breadth.",
+          "Substitute the expressions: b(3b + 2) = 96.",
+          "Expand and rearrange to form the quadratic equation: 3b² + 2b - 96 = 0.",
+          "To find the breadth, solve the quadratic equation 3b² + 2b - 96 = 0.",
+          "Using factorization: 3b² + 18b - 16b - 96 = 0.",
+          "Factor out common terms: 3b(b + 6) - 16(b + 6) = 0.",
+          "This gives (3b - 16)(b + 6) = 0.",
+          "Possible values for b are 3b - 16 = 0 => b = 16/3, or b + 6 = 0 => b = -6.",
+          "Since breadth cannot be negative, b = 16/3 cm.",
+          "Calculate length: l = 3(16/3) + 2 = 16 + 2 = 18 cm.",
+        ],
+        finalAnswer: "(a) 3b² + 2b − 96 = 0, where b is the breadth. (b) Breadth = 4 cm; length = 14 cm.",
       },
     ],
   },
@@ -254,6 +333,12 @@ const hpqAdditions: HPQTopicBucket[] = [
         answer: "AA",
         explanation:
           "Two equal angles guarantee similarity by AA, regardless of the included side.",
+        solutionSteps: [
+          "Given that in ΔPQR and ΔXYZ, ∠P = ∠X and ∠Q = ∠Y.",
+          "The AA (Angle-Angle) similarity criterion states that if two angles of one triangle are respectively equal to two angles of another triangle, then the two triangles are similar.",
+          "Therefore, ΔPQR ~ ΔXYZ by AA similarity. The condition PQ = XY is not required for similarity.",
+        ],
+        finalAnswer: "AA",
       },
       {
         id: "tri-hpq-102",
@@ -273,6 +358,14 @@ const hpqAdditions: HPQTopicBucket[] = [
         answer: "1/9",
         explanation:
           "The similarity ratio of corresponding sides is 1 : 3, so the ratio of areas is 1² : 3² = 1 : 9.",
+        solutionSteps: [
+          "Given DE || BC in ΔABC. By AA similarity criterion (∠A is common, ∠ADE = ∠ABC corresponding angles), ΔADE ~ ΔABC.",
+          "Given AD/DB = 1/2, so DB = 2AD. Then AB = AD + DB = AD + 2AD = 3AD.",
+          "The ratio of corresponding sides AD/AB = AD/(3AD) = 1/3.",
+          "The ratio of the areas of two similar triangles is equal to the square of the ratio of their corresponding sides.",
+          "Area(ΔADE) / Area(ΔABC) = (AD/AB)² = (1/3)² = 1/9.",
+        ],
+        finalAnswer: "1/9",
       },
       {
         id: "tri-hpq-105",
@@ -293,6 +386,15 @@ const hpqAdditions: HPQTopicBucket[] = [
           "(a) 9 : 16, (b) 96 cm², (c) 12 cm, 16 cm and 20 cm.",
         explanation:
           "Area ratio = square of perimeter ratio = (3/4)² = 9/16. The larger area is 54 × (16/9) = 96 cm². Multiply each side of the smaller triangle by 4/3 to get 12 cm, 16 cm and 20 cm.",
+        solutionSteps: [
+          "For similar triangles, the ratio of their perimeters is equal to the ratio of their corresponding sides.",
+          "The ratio of the areas of two similar triangles is equal to the square of the ratio of their corresponding sides.",
+          "Ratio of areas = (Ratio of perimeters)^2 = (3/4)^2 = 9/16. (Part a)",
+          "Let A_S and A_L be the areas of the smaller and larger triangles respectively. A_S / A_L = 9/16.",
+          "Given A_S = 54 cm². So, 54 / A_L = 9/16. A_L = 54 * 16 / 9 = 6 * 16 = 96 cm². (Part b)",
+          "Let s_S and s_L be corresponding sides. s_S / s_L = 3/4. Sides of larger triangle are: (9*4)/3 = 12 cm, (12*4)/3 = 16 cm, (15*4)/3 = 20 cm. (Part c)",
+        ],
+        finalAnswer: "(a) 9 : 16, (b) 96 cm², (c) 12 cm, 16 cm and 20 cm.",
       },
     ],
   },
@@ -319,6 +421,12 @@ const hpqAdditions: HPQTopicBucket[] = [
         answer: "12/13",
         explanation:
           "sin θ = √(1 − cos² θ) = √(1 − 25/169) = √(144/169) = 12/13.",
+        solutionSteps: [
+          "Use the trigonometric identity: sin² θ + cos² θ = 1.",
+          "Substitute cos θ = 5/13: sin² θ + (5/13)² = 1 => sin² θ + 25/169 = 1.",
+          "Solve for sin θ: sin² θ = 1 - 25/169 = 144/169. Since θ is acute, sin θ = sqrt(144/169) = 12/13.",
+        ],
+        finalAnswer: "12/13",
       },
       {
         id: "trig-hpq-102",
@@ -338,6 +446,12 @@ const hpqAdditions: HPQTopicBucket[] = [
           "Using the identity 1 + tan² θ = sec² θ, rearrange to sec² θ − tan² θ = 1.",
         explanation:
           "The Pythagorean identity links sec and tan; subtracting tan² θ from both sides yields 1.",
+        solutionSteps: [
+          "Consider the fundamental trigonometric identity: 1 + tan² θ = sec² θ.",
+          "Rearrange the terms of the identity to isolate the required expression.",
+          "Subtract tan² θ from both sides of the identity: sec² θ - tan² θ = 1. Hence proved.",
+        ],
+        finalAnswer: "Using the identity 1 + tan² θ = sec² θ, rearrange to sec² θ − tan² θ = 1.",
       },
       {
         id: "trig-hpq-103",
@@ -368,6 +482,13 @@ const hpqAdditions: HPQTopicBucket[] = [
         answer: "A",
         explanation:
           "On the unit circle, the y‑coordinate represents sin θ; it increases from 0 to 1 as θ moves from 0° to 90°.",
+        solutionSteps: [
+          "Analyze Assertion (A) to determine if the statement is true or false.",
+          "Analyze Reason (R) to determine if the statement is true or false.",
+          "If both A and R are true, determine if R is the correct explanation for A.",
+          "Since the answer is 'A', both Assertion and Reason are true, and Reason is the correct explanation of Assertion.",
+        ],
+        finalAnswer: "A",
       },
       {
         id: "trig-hpq-104",
@@ -387,6 +508,14 @@ const hpqAdditions: HPQTopicBucket[] = [
         answer: "(i) 8.66 m (ii) 5 m.",
         explanation:
           "For a right triangle, cos 60° = base/hypotenuse ⇒ base = 5 m. sin 60° = height/hypotenuse ⇒ height = 10 × √3/2 ≈ 8.66 m.",
+        solutionSteps: [
+          "Draw a right-angled triangle with the ladder as hypotenuse (10 m) and angle with ground as 60 degrees.",
+          "Let height be 'h' and distance from wall be 'd'. For height, use sin(60°) = h / 10.",
+          "Calculate h = 10 * sin(60°) = 10 * (sqrt(3)/2) = 5 * 1.732 = 8.66 m.",
+          "For distance, use cos(60°) = d / 10.",
+          "Calculate d = 10 * cos(60°) = 10 * (1/2) = 5 m.",
+        ],
+        finalAnswer: "(i) 8.66 m (ii) 5 m.",
       },
       {
         id: "trig-hpq-105",
@@ -407,6 +536,15 @@ const hpqAdditions: HPQTopicBucket[] = [
           "(a) Approximately 32.91 m (b) Approximately 16.44 m.",
         explanation:
           "Effective vertical height = 30 − 1.5 = 28.5 m. sin 60° = 28.5/L ⇒ L = 28.5/sin 60° ≈ 32.91 m. Horizontal distance d = 28.5/ tan 60° = 28.5/√3 ≈ 16.44 m.",
+        solutionSteps: [
+          "Draw a right-angled triangle. The effective height of the kite from the person's hand level is 30 m - 1.5 m = 28.5 m.",
+          "Let 'L' be the length of the string and 'x' be the horizontal distance. The angle of elevation is 60°.",
+          "For (a), use sin(60°) = (effective height) / L. So, L = 28.5 / sin(60°).",
+          "Calculate L = 28.5 / (sqrt(3)/2) = 57 / sqrt(3) = 19 * sqrt(3) = 19 * 1.732 = 32.908 m.",
+          "For (b), use tan(60°) = (effective height) / x. So, x = 28.5 / tan(60°).",
+          "Calculate x = 28.5 / sqrt(3) = 28.5 * sqrt(3) / 3 = 9.5 * 1.732 = 16.454 m.",
+        ],
+        finalAnswer: "(a) Approximately 32.91 m (b) Approximately 16.44 m.",
       },
     ],
   },
@@ -433,6 +571,12 @@ const hpqAdditions: HPQTopicBucket[] = [
         answer: "20–30",
         explanation:
           "The modal class is the one with the highest frequency. Here it is 20–30 with frequency 9.",
+        solutionSteps: [
+          "Identify the frequency for each class: 4 for 10-20, 9 for 20-30, and 6 for 30-40.",
+          "The modal class is the class interval with the highest frequency.",
+          "Comparing the frequencies, 9 is the highest, which corresponds to the class 20-30.",
+        ],
+        finalAnswer: "20–30",
       },
       {
         id: "stat-hpq-102",
@@ -452,6 +596,13 @@ const hpqAdditions: HPQTopicBucket[] = [
         answer: "20",
         explanation:
           "Σf = 5 and Σfx = 10×1 + 20×3 + 30×1 = 100. Mean = 100/5 = 20.",
+        solutionSteps: [
+          "Calculate the sum of (value * frequency) for each data point: (10*1) + (20*3) + (30*1).",
+          "Sum of (value * frequency) = 10 + 60 + 30 = 100.",
+          "Calculate the sum of frequencies: 1 + 3 + 1 = 5.",
+          "Mean = (Sum of (value * frequency)) / (Sum of frequencies) = 100 / 5 = 20.",
+        ],
+        finalAnswer: "20",
       },
       {
         id: "stat-hpq-103",
@@ -482,6 +633,12 @@ const hpqAdditions: HPQTopicBucket[] = [
         answer: "A",
         explanation:
           "Because the mean divides the sum of all observations by their number, very large or very small values influence it greatly.",
+        solutionSteps: [
+          "Assume Assertion (A): The mean of the first five natural numbers is 3. (1+2+3+4+5)/5 = 15/5 = 3. So, A is true.",
+          "Assume Reason (R): The mean is the sum of observations divided by the total number of observations. This is the correct definition of mean. So, R is true.",
+          "Reason (R) correctly explains how the mean is calculated, which leads to the value stated in Assertion (A). Therefore, R is the correct explanation for A.",
+        ],
+        finalAnswer: "A",
       },
       {
         id: "stat-hpq-104",
@@ -501,6 +658,15 @@ const hpqAdditions: HPQTopicBucket[] = [
         answer: "Approximately 24.44.",
         explanation:
           "Modal class is 20–30. Mode = L + (f₁ − f₀)/(2f₁ − f₀ − f₂) × h = 20 + (12 − 8)/(2×12 − 8 − 7) × 10 = 20 + 4/9 × 10 ≈ 24.44.",
+        solutionSteps: [
+          "Identify the modal class: The class with the highest frequency (12) is 20–30.",
+          "Determine values: l = 20, h = 10, f1 = 12, f0 = 8, f2 = 7.",
+          "Write the mode formula: Mode = l + [ (f1 - f0) / (2f1 - f0 - f2) ] * h.",
+          "Substitute values into the formula: Mode = 20 + [ (12 - 8) / (2*12 - 8 - 7) ] * 10.",
+          "Calculate the mode: Mode = 20 + [ 4 / (24 - 15) ] * 10 = 20 + (4/9)*10 = 20 + 40/9 = 20 + 4.44 = 24.44.",
+          "State the final answer.",
+        ],
+        finalAnswer: "Approximately 24.44.",
       },
       {
         id: "stat-hpq-105",
@@ -521,6 +687,17 @@ const hpqAdditions: HPQTopicBucket[] = [
           "(a) 70–80. (b) Median = 72 hours. (c) Most bulbs last between 60 and 80 hours, with the median in the 70–80 class.",
         explanation:
           "Total frequency = 30; n/2 = 15. Cumulative frequencies: 5, 13, 23, 30; the median class is 70–80. Using L = 70, h = 10, f = 10, cf = 13: median = 70 + (15 − 13)/10 × 10 = 72 hours. The distribution peaks around the median class.",
+        solutionSteps: [
+          "Construct the cumulative frequency table: Classes (50-60, 60-70, 70-80, 80-90) with frequencies (5, 8, 10, 7) and cumulative frequencies (5, 13, 23, 30).",
+          "Calculate N/2: Total number of bulbs N = 30, so N/2 = 15.",
+          "Identify the median class (a): The cumulative frequency just greater than 15 is 23, which corresponds to the class 70–80. So, the median class is 70–80.",
+          "Determine values for median formula: l = 70, h = 10, f = 10, cf = 13.",
+          "Write the median formula: Median = l + [ (N/2 - cf) / f ] * h.",
+          "Substitute values and compute median (b): Median = 70 + [ (15 - 13) / 10 ] * 10 = 70 + (2/10)*10 = 70 + 2 = 72 hours.",
+          "Comment on the distribution (c): Most bulbs last between 60 and 80 hours, with the median lifetime being 72 hours, indicating a central tendency in this range.",
+          "State the final answer.",
+        ],
+        finalAnswer: "(a) 70–80. (b) Median = 72 hours. (c) Most bulbs last between 60 and 80 hours, with the median in the 70–80 class.",
       },
     ],
   },
@@ -547,6 +724,12 @@ const hpqAdditions: HPQTopicBucket[] = [
         answer: "1/52",
         explanation:
           "There are 52 cards and only one queen of hearts, so the probability is 1/52.",
+        solutionSteps: [
+          "Identify the total number of possible outcomes: A standard deck has 52 cards.",
+          "Identify the number of favorable outcomes: There is only one 'queen of hearts' in a deck.",
+          "Calculate the probability: P(Queen of Hearts) = (Number of favorable outcomes) / (Total number of outcomes) = 1/52.",
+        ],
+        finalAnswer: "1/52",
       },
       {
         id: "prob-hpq-102",
@@ -566,6 +749,13 @@ const hpqAdditions: HPQTopicBucket[] = [
         answer: "5/12",
         explanation:
           "Total balls = 4 + 5 + 3 = 12. Black balls = 5. Probability = 5/12.",
+        solutionSteps: [
+          "Total number of balls in the bag = 4 (red) + 5 (black) + 3 (white) = 12.",
+          "Number of favorable outcomes (drawing a black ball) = 5.",
+          "The probability of an event E is P(E) = (Number of favorable outcomes) / (Total number of outcomes).",
+          "P(drawing a black ball) = 5/12.",
+        ],
+        finalAnswer: "5/12",
       },
       {
         id: "prob-hpq-103",
@@ -596,6 +786,12 @@ const hpqAdditions: HPQTopicBucket[] = [
         answer: "A",
         explanation:
           "The probability of an event and its complement sum to 1 because together they exhaust the sample space.",
+        solutionSteps: [
+          "Assertion: The probability of an event E is always between 0 and 1, inclusive. This statement is true.",
+          "Reason: The sum of probabilities of all elementary events of an experiment is 1. This statement is also true.",
+          "The reason correctly explains a fundamental property of probability, which implies that the probability of any single event must lie between 0 and 1. Thus, Reason is the correct explanation for Assertion.",
+        ],
+        finalAnswer: "A",
       },
       {
         id: "prob-hpq-104",
@@ -615,6 +811,14 @@ const hpqAdditions: HPQTopicBucket[] = [
         answer: "5/36",
         explanation:
           "Favourable outcomes for sum 8: (2,6), (3,5), (4,4), (5,3), (6,2) — a total of 5. Total possible outcomes = 36. Probability = 5/36.",
+        solutionSteps: [
+          "When two dice are rolled simultaneously, the total number of possible outcomes is 6 * 6 = 36.",
+          "The favorable outcomes where the sum of the numbers obtained is 8 are: (2,6), (3,5), (4,4), (5,3), (6,2).",
+          "The number of favorable outcomes = 5.",
+          "The probability of an event E is P(E) = (Number of favorable outcomes) / (Total number of outcomes).",
+          "P(sum is 8) = 5/36.",
+        ],
+        finalAnswer: "5/36",
       },
       {
         id: "prob-hpq-105",
@@ -635,6 +839,15 @@ const hpqAdditions: HPQTopicBucket[] = [
           "(a) 7/57, (b) 8/19, (c) 13/19.",
         explanation:
           "(a) P(GG) = (7/20) × (6/19) = 42/380 = 7/57. (b) P(RB or BR) = (5/20)(8/19) + (8/20)(5/19) = 160/380 = 8/19. (c) At least one blue = 1 − P(no blue) = 1 − [(5+7)/20 × (4+6)/19] = 13/19.",
+        solutionSteps: [
+          "Calculate the total number of marbles: 5 red + 7 green + 8 blue = 20 marbles.",
+          "For (a) both are green: P(1st green) = 7/20, P(2nd green | 1st green) = 6/19. P(both green) = (7/20) * (6/19) = 42/380 = 21/190.",
+          "For (b) one is red and one is blue: P(R then B) = (5/20)*(8/19) = 40/380. P(B then R) = (8/20)*(5/19) = 40/380.",
+          "P(one red and one blue) = P(R then B) + P(B then R) = 40/380 + 40/380 = 80/380 = 4/19.",
+          "For (c) at least one is blue: P(no blue) = P(1st not blue) * P(2nd not blue | 1st not blue). Non-blue marbles = 5+7=12.",
+          "P(no blue) = (12/20) * (11/19) = 132/380 = 33/95. P(at least one blue) = 1 - P(no blue) = 1 - 33/95 = 62/95.",
+        ],
+        finalAnswer: "(a) 7/57, (b) 8/19, (c) 13/19.",
       },
     ],
   },
@@ -663,6 +876,12 @@ const hpqAdditions: HPQTopicBucket[] = [
         answer: "sodium",
         explanation:
           "Sodium is near the top of the reactivity series, whereas copper and silver are far below iron.",
+        solutionSteps: [
+          "Recall the reactivity series of metals, which lists metals in order of decreasing reactivity.",
+          "Compare the given metals: copper, iron, sodium, and silver.",
+          "Sodium is an alkali metal and is positioned highest in the reactivity series among the given options, indicating it is the most reactive.",
+        ],
+        finalAnswer: "sodium",
       },
       {
         id: "mnm-hpq-102",
@@ -684,6 +903,11 @@ const hpqAdditions: HPQTopicBucket[] = [
           "Corrosion is the slow oxidation of a metal by its environment, forming unwanted compounds on its surface. Rusting of iron requires both moisture and oxygen.",
         explanation:
           "Water and dissolved oxygen together enable oxidation of iron to hydrated iron oxide.",
+        solutionSteps: [
+          "Corrosion is defined as the slow oxidation of a metal by its environment, leading to the formation of undesirable compounds on its surface.",
+          "The two conditions necessary for the rusting of iron are the presence of both oxygen and moisture (water).",
+        ],
+        finalAnswer: "Corrosion is the slow oxidation of a metal by its environment, forming unwanted compounds on its surface. Rusting of iron requires both moisture and oxygen.",
       },
       {
         id: "mnm-hpq-103",
@@ -715,6 +939,13 @@ const hpqAdditions: HPQTopicBucket[] = [
         answer: "A",
         explanation:
           "Different‑sized atoms in alloys hinder the sliding of layers, so alloys are typically harder than pure metals.",
+        solutionSteps: [
+          "Analyze the Assertion statement to determine its truthfulness.",
+          "Analyze the Reason statement to determine its truthfulness.",
+          "Determine if the Reason statement provides a correct explanation for the Assertion statement.",
+          "Based on the analysis, select option A if both are true and Reason explains Assertion.",
+        ],
+        finalAnswer: "A",
       },
       {
         id: "mnm-hpq-104",
@@ -736,6 +967,14 @@ const hpqAdditions: HPQTopicBucket[] = [
           "Aluminium oxide is dissolved in molten cryolite and electrolysed. At the cathode, Al³⁺ ions gain electrons to form molten aluminium. Cryolite lowers the melting point and increases conductivity of the mixture, making the process economical.",
         explanation:
           "Pure alumina has a very high melting point; dissolving it in cryolite reduces the temperature required and improves ion mobility.",
+        solutionSteps: [
+          "Aluminium oxide (alumina) is dissolved in molten cryolite to form the electrolyte.",
+          "During electrolysis, Al³⁺ ions migrate to the cathode and gain electrons to form molten aluminium (Al³⁺ + 3e⁻ → Al).",
+          "Cryolite is added because it significantly lowers the melting point of alumina from 2072°C to about 900°C.",
+          "It also increases the electrical conductivity of the electrolyte mixture.",
+          "These effects make the electrolytic reduction process more energy-efficient and economical.",
+        ],
+        finalAnswer: "Aluminium oxide is dissolved in molten cryolite and electrolysed. At the cathode, Al³⁺ ions gain electrons to form molten aluminium. Cryolite lowers the melting point and increases conductivity of the mixture, making the process economical.",
       },
       {
         id: "mnm-hpq-105",
@@ -757,6 +996,14 @@ const hpqAdditions: HPQTopicBucket[] = [
           "(a) Fe + CuSO₄ → FeSO₄ + Cu. (b) Displacement reaction. (c) Iron displaces copper from its salt, forming pale green ferrous sulphate and depositing brown copper, so the blue colour of CuSO₄ fades.",
         explanation:
           "Iron is more reactive than copper and displaces it from the solution. The precipitated copper coats the nail while the solution turns green due to FeSO₄.",
+        solutionSteps: [
+          "(a) The balanced chemical equation is: Fe + CuSO₄ → FeSO₄ + Cu.",
+          "(b) This reaction is a displacement reaction.",
+          "(c) Iron is more reactive than copper, so it displaces copper from copper sulphate solution.",
+          "This forms iron(II) sulphate (ferrous sulphate) and deposits reddish-brown copper metal.",
+          "The blue colour of copper sulphate solution fades and changes to pale green due to the formation of ferrous sulphate solution.",
+        ],
+        finalAnswer: "(a) Fe + CuSO₄ → FeSO₄ + Cu. (b) Displacement reaction. (c) Iron displaces copper from its salt, forming pale green ferrous sulphate and depositing brown copper, so the blue colour of CuSO₄ fades.",
       },
     ],
   },
@@ -785,6 +1032,12 @@ const hpqAdditions: HPQTopicBucket[] = [
         answer: "mitochondrion",
         explanation:
           "Mitochondria oxidise food molecules to release energy in the form of ATP.",
+        solutionSteps: [
+          "Mitochondria are the sites where cellular respiration takes place.",
+          "During cellular respiration, glucose is broken down to release energy in the form of ATP.",
+          "Because they produce the majority of the cell's energy, mitochondria are known as the powerhouse of the cell.",
+        ],
+        finalAnswer: "mitochondrion",
       },
       {
         id: "lp-hpq-102",
@@ -806,6 +1059,13 @@ const hpqAdditions: HPQTopicBucket[] = [
           "6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂ (in the presence of chlorophyll and sunlight).",
         explanation:
           "Carbon dioxide and water combine in the chloroplasts, using light energy, to form glucose and oxygen.",
+        solutionSteps: [
+          "Photosynthesis is the process by which green plants convert light energy into chemical energy.",
+          "The reactants are carbon dioxide (CO₂) and water (H₂O), and the products are glucose (C₆H₁₂O₆) and oxygen (O₂).",
+          "The balanced chemical equation is: 6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂.",
+          "This reaction occurs in the presence of chlorophyll and sunlight.",
+        ],
+        finalAnswer: "6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂ (in the presence of chlorophyll and sunlight).",
       },
       {
         id: "lp-hpq-103",
@@ -837,6 +1097,13 @@ const hpqAdditions: HPQTopicBucket[] = [
         answer: "A",
         explanation:
           "Veins carry blood to the heart under lower pressure and rely on valves to maintain one‑way flow.",
+        solutionSteps: [
+          "First, evaluate the truthfulness of the Assertion statement regarding circulation.",
+          "Next, evaluate the truthfulness of the Reason statement regarding circulation.",
+          "If both Assertion and Reason are true, then determine if the Reason correctly explains the Assertion.",
+          "Option A is chosen when both Assertion and Reason are true, and Reason is the correct explanation for Assertion.",
+        ],
+        finalAnswer: "A",
       },
       {
         id: "lp-hpq-104",
@@ -858,6 +1125,14 @@ const hpqAdditions: HPQTopicBucket[] = [
           "Diagram should show Bowman’s capsule, glomerulus, proximal and distal tubules, loop of Henle and collecting duct. Ultrafiltration occurs in the glomerulus where high pressure forces water and small solutes out of the blood into Bowman’s capsule, forming filtrate.",
         explanation:
           "Blood pressure in the glomerulus drives plasma through the capillary walls; larger proteins and cells remain in the blood.",
+        solutionSteps: [
+          "Draw a neat, labelled diagram of a nephron showing its main parts.",
+          "Label key structures: Bowman’s capsule, glomerulus, PCT, Loop of Henle, DCT, collecting duct.",
+          "Define ultrafiltration as the initial filtering of blood in the kidney.",
+          "Explain that it occurs in the glomerulus due to high blood pressure.",
+          "State that water and small solutes are forced from blood into Bowman's capsule, forming filtrate.",
+        ],
+        finalAnswer: "Diagram should show Bowman’s capsule, glomerulus, proximal and distal tubules, loop of Henle and collecting duct. Ultrafiltration occurs in the glomerulus where high pressure forces water and small solutes out of the blood into Bowman’s capsule, forming filtrate.",
       },
       {
         id: "lp-hpq-105",
@@ -879,6 +1154,15 @@ const hpqAdditions: HPQTopicBucket[] = [
           "(a) Photosynthesis. (b) The uncovered part turns blue‑black with iodine, indicating starch formation, while the covered part does not. (c) Chlorophyll and light are necessary for photosynthesis and starch formation.",
         explanation:
           "The covered portion does not receive light and cannot photosynthesise, so starch is absent. The uncovered portion synthesises starch and gives a positive iodine test.",
+        solutionSteps: [
+          "(a) The process being investigated is Photosynthesis.",
+          "(b) The uncovered part of the leaf will turn blue-black with iodine solution.",
+          "This indicates the presence of starch, formed during photosynthesis.",
+          "The covered part of the leaf will not turn blue-black.",
+          "This shows that no starch was formed in the absence of light.",
+          "(c) The conclusion is that light is essential for photosynthesis and starch formation.",
+        ],
+        finalAnswer: "(a) Photosynthesis. (b) The uncovered part turns blue‑black with iodine, indicating starch formation, while the covered part does not. (c) Chlorophyll and light are necessary for photosynthesis and starch formation.",
       },
     ],
   },
@@ -1101,6 +1385,15 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         explanation:
           "Boards often mix HCF/LCM with the terminating–non-terminating criterion in short case-based questions.",
         policyTag: "RN-LCM-case",
+        solutionSteps: [
+          "(a) To find when both lights glow together, we need to calculate the LCM of 20 and 30.",
+          "Prime factorization: 20 = 2^2 x 5 and 30 = 2 x 3 x 5.",
+          "LCM(20, 30) = 2^2 x 3 x 5 = 4 x 3 x 5 = 60.",
+          "So, both lights will glow together again after 60 seconds.",
+          "(b) The time taken is 60 seconds, which can be written as the rational number 60/1.",
+          "The denominator is 1, which can be expressed as 2^0 x 5^0. Since its prime factors are only 2 and/or 5, the decimal expansion is terminating.",
+        ],
+        finalAnswer: "(a) LCM of 20 and 30 is 60, so both lights glow together every 60 seconds. (b) 60 seconds is the rational number 60/1 whose denominator is 1 = 2⁰5⁰, so the decimal expansion is terminating.",
       },
     ],
   },
@@ -1307,6 +1600,12 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
           "Total Fe atoms and O atoms on both sides must be equal; 4Fe + 3O₂ → 2Fe₂O₃ balances the equation.",
         pastBoardYear: "2024",
         policyTag: "MCQ balancing",
+        solutionSteps: [
+          "The unbalanced equation for rusting is Fe + O₂ → Fe₂O₃.",
+          "To balance oxygen, multiply O₂ by 3 and Fe₂O₃ by 2: Fe + 3O₂ → 2Fe₂O₃.",
+          "To balance iron, multiply Fe by 4: 4Fe + 3O₂ → 2Fe₂O₃. This is the correctly balanced equation.",
+        ],
+        finalAnswer: "4Fe + 3O₂ → 2Fe₂O₃",
       },
       {
         id: "sci-cre-hpq-2",
@@ -1330,6 +1629,12 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
           "A single compound breaking down into simpler substances is called a decomposition reaction.",
         pastBoardYear: "2023",
         policyTag: "Decomposition trend",
+        solutionSteps: [
+          "In the reaction 2KClO₃ → 2KCl + 3O₂, a single reactant (KClO₃) breaks down into two simpler products (KCl and O₂).",
+          "This type of reaction, where a compound decomposes into two or more simpler substances, is called a decomposition reaction.",
+          "One more example of a decomposition reaction is: CaCO₃ → CaO + CO₂ (thermal decomposition).",
+        ],
+        finalAnswer: "Decomposition reaction. Example: CaCO₃ → CaO + CO₂ (thermal decomposition).",
       },
       {
         id: "sci-cre-hpq-3",
@@ -1352,6 +1657,14 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         explanation:
           "Rusting is a slow redox process. Case-based questions frequently link daily life observations with corrosion and prevention.",
         policyTag: "Corrosion/rancidity NEP",
+        solutionSteps: [
+          "(a) The process of developing brown flaky patches on a steel gate is called rusting. It is an oxidation or redox reaction.",
+          "(b) Two preventive measures to protect the steel gate from rusting are painting and galvanising.",
+          "(b) Other valid measures include oiling, greasing, or using stainless steel.",
+          "(c) Painting helps by forming a protective layer on the surface of the iron (steel) gate.",
+          "(c) This layer prevents the iron from coming into direct contact with oxygen and moisture present in the atmosphere, thus inhibiting the rusting process.",
+        ],
+        finalAnswer: "(a) Rusting; it is an oxidation/redox reaction. (b) Painting, galvanising, oiling, greasing, or using stainless steel. (c) Paint forms a protective layer, preventing oxygen and moisture from directly reaching the iron surface.",
       },
     ],
   },
@@ -1384,6 +1697,12 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
           "pH 2 is highly acidic and such a solution turns blue litmus red.",
         pastBoardYear: "2025",
         policyTag: "Indicator/pH MCQ",
+        solutionSteps: [
+          "A solution that turns blue litmus red indicates that it is acidic in nature.",
+          "A pH value of 2 signifies a highly acidic solution.",
+          "Therefore, a solution with these properties is most likely a strong acid.",
+        ],
+        finalAnswer: "Strong acid",
       },
       {
         id: "sci-abs-hpq-2",
@@ -1406,6 +1725,12 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         explanation:
           "Acid + metal reactions releasing hydrogen are very standard 2-mark questions.",
         policyTag: "Core reaction pattern",
+        solutionSteps: [
+          "The general chemical equation for the reaction of a metal with a dilute acid is: Metal + Dilute acid → Salt + Hydrogen gas.",
+          "The gas evolved during this reaction is hydrogen gas (H₂).",
+          "Hydrogen gas is tested by bringing a burning matchstick near it; it extinguishes with a 'pop' sound.",
+        ],
+        finalAnswer: "Metal + Dilute acid → Salt + Hydrogen gas; hydrogen gas is evolved, tested by the pop sound with a burning matchstick.",
       },
       {
         id: "sci-abs-hpq-3",
@@ -1428,6 +1753,15 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         explanation:
           "Board frequently links formula + common name + everyday application in a short case-study.",
         policyTag: "Everyday-salt NEP",
+        solutionSteps: [
+          "(a) The chemical name for baking soda is sodium hydrogen carbonate (NaHCO₃).",
+          "The chemical name for washing soda is sodium carbonate decahydrate (Na₂CO₃·10H₂O).",
+          "(b) Baking soda is used in baking as a leavening agent because it produces carbon dioxide gas upon heating.",
+          "Washing soda is used for removing permanent hardness of water and as a cleaning agent in laundries.",
+          "(c) Baking powder is preferred over baking soda in cakes because it contains baking soda and a mild edible acid (e.g., tartaric acid).",
+          "This mixture reacts to produce carbon dioxide gas without leaving a bitter taste, which baking soda alone would due to sodium carbonate formation.",
+        ],
+        finalAnswer: "Baking soda: sodium hydrogen carbonate (NaHCO₃). Washing soda: sodium carbonate decahydrate (Na₂CO₃·10H₂O). Baking soda is used in baking as a leavening agent; washing soda is used in cleaning to remove permanent hardness. Baking powder contains baking soda plus a weak acid so it does not leave a bi",
       },
     ],
   },
@@ -1459,6 +1793,13 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         explanation: "Sodium is so soft that it can be easily cut with a knife.",
         pastBoardYear: "2024",
         policyTag: "MCQ/Fact",
+        solutionSteps: [
+          "Recall the physical properties of the given metals.",
+          "Sodium is an alkali metal known for its softness and can be cut with a knife.",
+          "Iron, Zinc, and Copper are transition metals, which are generally much harder.",
+          "Therefore, Sodium is the softest metal among the given options.",
+        ],
+        finalAnswer: "Sodium",
       },
       {
         id: "2026-MNM-02",
@@ -1480,6 +1821,13 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         explanation: "Non-metals usually do not react with water directly.",
         pastBoardYear: "2025",
         policyTag: "Board MCQ trend",
+        solutionSteps: [
+          "Recall the general chemical properties of non-metals.",
+          "Non-metals typically do not react with water.",
+          "This is because non-metals cannot donate electrons to reduce water to hydrogen gas.",
+          "Hence, non-metals generally do not react with water.",
+        ],
+        finalAnswer: "Not at all",
       },
       {
         id: "2026-MNM-03",
@@ -1518,6 +1866,14 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
           "More reactive metals displace less reactive ones from their salt solutions.",
         pastBoardYear: "2023",
         policyTag: "AR mandatory",
+        solutionSteps: [
+          "Evaluate the Assertion: Zinc is more reactive than copper, so it displaces copper from copper sulphate solution. This statement is true.",
+          "Evaluate the Reason: The activity series lists metals by reactivity, and Zinc is indeed positioned above copper. This statement is true.",
+          "The displacement reaction occurs because a more reactive metal (Zinc) displaces a less reactive metal (Copper) from its salt solution.",
+          "The position of Zinc above copper in the activity series signifies its higher reactivity.",
+          "Therefore, the Reason correctly explains why the Assertion is true.",
+        ],
+        finalAnswer: "Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
       },
       {
         id: "2026-MNM-04",
@@ -1541,6 +1897,13 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
           "In the blast furnace, carbon monoxide reduces Fe₂O₃ to molten iron: Fe₂O₃ + 3CO → 2Fe + 3CO₂.",
         pastBoardYear: "2022",
         policyTag: "NEP: process focus",
+        solutionSteps: [
+          "The main step used to extract iron from hematite in the blast furnace is reduction.",
+          "In the blast furnace, carbon monoxide (CO) acts as the primary reducing agent.",
+          "Carbon monoxide reduces iron oxide (Fe2O3) to molten iron (Fe).",
+          "This reduction occurs at high temperatures, removing oxygen from the ore.",
+        ],
+        finalAnswer: "Reduction of iron oxide by carbon monoxide in the blast furnace.",
       },
       {
         id: "2026-MNM-05",
@@ -1563,6 +1926,14 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
           "Painting and oil/grease create a protective layer, preventing oxygen and water from reaching the iron surface. Galvanising coats iron with zinc which is more reactive and protects by sacrificial action.",
         pastBoardYear: "2025",
         policyTag: "Case/resistivity NEP",
+        solutionSteps: [
+          "Method 1: Painting the bicycle.",
+          "Painting creates a physical barrier, preventing the iron surface from coming into contact with oxygen and moisture, which are necessary for rusting.",
+          "Method 2: Galvanising the bicycle parts.",
+          "Galvanising involves coating the iron with a layer of zinc.",
+          "Zinc is more reactive than iron, so it corrodes preferentially, protecting the iron even if the coating is scratched (sacrificial protection).",
+        ],
+        finalAnswer: "Painting and applying oil/grease or galvanising.",
       },
     ],
   },
@@ -1594,6 +1965,12 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         explanation:
           "In ethane, each carbon is sp³ hybridised and shares a single covalent bond with the other carbon.",
         policyTag: "Covalent basics",
+        solutionSteps: [
+          "Ethane (C₂H₆) is a saturated hydrocarbon, which means all carbon-carbon bonds are single bonds.",
+          "In ethane, each carbon atom is bonded to three hydrogen atoms and one other carbon atom.",
+          "The bond between the two carbon atoms involves the sharing of one pair of electrons, which constitutes a single covalent bond.",
+        ],
+        finalAnswer: "Single covalent",
       },
       {
         id: "sci-cic-hpq-2",
@@ -1616,6 +1993,13 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         explanation:
           "Definition + two properties is a very standard 3-mark pattern for homologous series.",
         policyTag: "Homologous must-ask",
+        solutionSteps: [
+          "A homologous series is a group of organic compounds having the same functional group.",
+          "They share a general formula, and successive members differ by a -CH2- unit.",
+          "Characteristic 1 for alkanes: They have the general formula CnH2n+2.",
+          "Characteristic 2 for alkanes: They show a gradual increase in physical properties like boiling point as molecular mass increases.",
+        ],
+        finalAnswer: "A homologous series is a group of organic compounds having the same functional group and general formula with successive members differing by a –CH₂– unit. In alkanes: (i) They have the general formula CₙH₂ₙ₊₂. (ii) They show a gradual increase in physical properties like boiling point as molecular ",
       },
       {
         id: "sci-cic-hpq-3",
@@ -1637,6 +2021,13 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         explanation:
           "Identify the longest carbon chain and functional group; use suffix -ol for alcohol and -oic acid for carboxylic acid.",
         policyTag: "Nomenclature 2M",
+        solutionSteps: [
+          "Identify CH3-CH2-CH2-OH as an alcohol with a three-carbon chain.",
+          "The hydroxyl (-OH) functional group is on the first carbon, so its IUPAC name is Propan-1-ol.",
+          "Identify CH3-CH2-COOH as a carboxylic acid with a three-carbon chain.",
+          "The carboxyl (-COOH) functional group is always at the end, so its IUPAC name is Propanoic acid.",
+        ],
+        finalAnswer: "Propan-1-ol and propanoic acid.",
       },
       {
         id: "sci-cic-hpq-4",
@@ -1659,6 +2050,14 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         explanation:
           "Board favours application Qs linking organic compounds to real-life cleaning and pollution issues.",
         policyTag: "NEP: environment link",
+        solutionSteps: [
+          "Hard water contains dissolved calcium (Ca2+) and magnesium (Mg2+) ions.",
+          "Soap reacts with these ions to form insoluble precipitates called scum, which prevents lather formation.",
+          "Synthetic detergents form soluble salts with Ca2+ and Mg2+ ions, allowing them to lather well in hard water.",
+          "Advantage of detergents: They are effective in hard water, unlike soaps.",
+          "Environmental disadvantage: Many detergents are non-biodegradable, leading to water pollution.",
+        ],
+        finalAnswer: "Hard water contains Ca²⁺/Mg²⁺ ions which form insoluble scum with soap, reducing lather. Detergents form soluble salts so they lather even in hard water. Advantage: work in hard water; disadvantage: many detergents are non-biodegradable and cause water pollution.",
       },
     ],
   },
@@ -1690,6 +2089,12 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         explanation:
           "Humans ingest, digest, absorb and assimilate food – holozoic nutrition.",
         policyTag: "Core Bio MCQ",
+        solutionSteps: [
+          "Humans are heterotrophs, meaning they obtain nutrition by consuming other organisms or organic matter.",
+          "Specifically, humans ingest solid or liquid food, digest it internally, and absorb the nutrients, which is characteristic of holozoic nutrition.",
+          "Therefore, the mode of nutrition in humans is Heterotrophic–holozoic.",
+        ],
+        finalAnswer: "Heterotrophic–holozoic",
       },
       {
         id: "sci-lp-hpq-2",
@@ -1712,6 +2117,14 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         explanation:
           "Tabular ‘difference between’ questions on respiration are frequent 3-markers.",
         policyTag: "Respiration diff",
+        solutionSteps: [
+          "Aerobic respiration occurs in the presence of oxygen, while anaerobic respiration takes place in the absence of oxygen.",
+          "The end products of aerobic respiration are carbon dioxide and water.",
+          "The end products of anaerobic respiration can be alcohol and carbon dioxide (e.g., in yeast) or lactic acid (e.g., in muscle cells).",
+          "Aerobic respiration releases a large amount of energy (typically 38 ATP molecules per glucose molecule).",
+          "Anaerobic respiration releases a much smaller amount of energy (typically 2 ATP molecules per glucose molecule).",
+        ],
+        finalAnswer: "Aerobic: (i) Takes place in presence of oxygen. (ii) End products are CO₂ and water. (iii) Large amount of energy is released. Anaerobic: (i) Takes place in absence of oxygen. (ii) End products may be alcohol and CO₂ or lactic acid. (iii) Less energy is released.",
       },
       {
         id: "sci-lp-hpq-3",
@@ -1734,6 +2147,17 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         explanation:
           "Life Processes often carries a 5-mark diagram-based question on heart or nephron coupled with explanation.",
         policyTag: "Diagram + explanation",
+        solutionSteps: [
+          "Draw a well-labelled diagram of the human heart, clearly showing all four chambers (right atrium, right ventricle, left atrium, left ventricle) and major blood vessels (aorta, vena cava, pulmonary artery, pulmonary vein).",
+          "Double circulation means blood passes through the heart twice in one complete cycle of the body.",
+          "Pulmonary circulation: Deoxygenated blood from the body enters the right atrium, then the right ventricle, which pumps it to the lungs via the pulmonary artery.",
+          "In the lungs, blood gets oxygenated and returns to the left atrium of the heart via the pulmonary veins.",
+          "Systemic circulation: Oxygenated blood from the left atrium enters the left ventricle, which then pumps it to the rest of the body through the aorta.",
+          "After supplying oxygen to body tissues, the deoxygenated blood returns to the right atrium of the heart via the vena cava.",
+          "This two-part circulation (pulmonary and systemic) ensures efficient separation of oxygenated and deoxygenated blood, allowing for high metabolic rates.",
+          "The diagram and explanation together illustrate the complete route of blood flow in human double circulation.",
+        ],
+        finalAnswer: "Diagram with four chambers (RA, RV, LA, LV), major arteries/veins, and explanation of pulmonary and systemic circulation.",
       },
     ],
   },
@@ -1765,6 +2189,12 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         explanation:
           "Amoeba reproduces by binary fission; Hydra uses budding and Planaria regeneration.",
         policyTag: "Bio MCQ",
+        solutionSteps: [
+          "Binary fission is a method of asexual reproduction where a parent cell divides into two identical daughter cells.",
+          "Amoeba is a unicellular organism that commonly reproduces by binary fission.",
+          "Hydra reproduces by budding, Planaria by regeneration, and Spirogyra by fragmentation.",
+        ],
+        finalAnswer: "Amoeba",
       },
       {
         id: "sci-hdor-hpq-2",
@@ -1787,6 +2217,13 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         explanation:
           "Short direct theory questions on human reproduction are frequent and high scoring.",
         policyTag: "Reproduction concept",
+        solutionSteps: [
+          "Testes produce male gametes (sperm) and the male sex hormone (testosterone).",
+          "Ovaries produce female gametes (ova or eggs) and female sex hormones (estrogen and progesterone).",
+          "Fallopian tubes transport the ovum from the ovary to the uterus.",
+          "Fallopian tubes are also the usual site where fertilization occurs.",
+        ],
+        finalAnswer: "Testes produce sperm and testosterone; ovaries produce ova and female hormones; fallopian tubes transport the ovum and are the site of fertilisation.",
       },
     ],
   },
@@ -1818,6 +2255,12 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         explanation:
           "Concave mirrors can form erect, enlarged images of objects placed between the pole and focus.",
         policyTag: "Mirror use MCQ",
+        solutionSteps: [
+          "Dentists require an enlarged image of teeth to facilitate examination.",
+          "A concave mirror can produce an enlarged, virtual, and erect image when the object is placed close to it.",
+          "Convex mirrors always form diminished images, and plane mirrors form same-sized images.",
+        ],
+        finalAnswer: "Concave mirror",
       },
       {
         id: "sci-light-hpq-2",
@@ -1869,6 +2312,17 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         explanation:
           "Diagrams plus law-based reasoning on refraction commonly appear as mixed theory-diagram questions.",
         policyTag: "Refraction diagram",
+        solutionSteps: [
+          "Draw a straight line representing the interface between the denser medium (glass) and the rarer medium (air).",
+          "Draw a normal perpendicular to the interface at the point where the light ray strikes.",
+          "Draw an incident ray originating from the denser medium (glass) towards the interface.",
+          "Mark the angle between the incident ray and the normal as the angle of incidence (i).",
+          "Draw the refracted ray in the rarer medium (air), bending away from the normal.",
+          "Mark the angle between the refracted ray and the normal as the angle of refraction (r).",
+          "State Snell's Law: The ratio of the sine of the angle of incidence to the sine of the angle of refraction is constant for a given pair of media.",
+          "Write the mathematical expression for Snell's Law: n1 sin i = n2 sin r, where n1 and n2 are refractive indices.",
+        ],
+        finalAnswer: "Ray bending away from the normal on going from glass to air; definition of Snell’s law with n₁ sin i = n₂ sin r.",
       },
     ],
   },
@@ -1900,6 +2354,12 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         explanation:
           "Hypermetropia (long-sightedness) is corrected using a converging (convex) lens.",
         policyTag: "Defects MCQ",
+        solutionSteps: [
+          "Hypermetropia is a vision defect where the eye cannot focus on nearby objects, causing the image to form behind the retina.",
+          "To correct this, additional converging power is required to bring the light rays to focus on the retina.",
+          "A convex lens is a converging lens, which provides the necessary converging power to correct hypermetropia.",
+        ],
+        finalAnswer: "Convex lens",
       },
       {
         id: "sci-eye-hpq-2",
@@ -1921,6 +2381,13 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         explanation:
           "Short definition questions on eye structure and functioning are common 2-markers.",
         policyTag: "Eye theory",
+        solutionSteps: [
+          "The human eye lens is capable of changing its shape and thickness.",
+          "This change in shape allows the eye lens to adjust its focal length.",
+          "This adjustment enables the eye to focus images of objects at varying distances (both near and distant) onto the retina.",
+          "This ability of the eye lens to adjust its focal length is called the power of accommodation of the eye.",
+        ],
+        finalAnswer: "The ability of the eye lens to adjust its focal length so as to focus both near and distant objects on the retina is called power of accommodation.",
       },
       {
         id: "sci-eye-hpq-3",
@@ -1943,6 +2410,15 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         explanation:
           "Scattering-based explanation of sky colour is a favourite conceptual 3–4 mark question.",
         policyTag: "Scattering NEP",
+        solutionSteps: [
+          "Scattering of light depends on the wavelength; shorter wavelengths scatter more than longer ones.",
+          "During daytime, blue light (shorter wavelength) is scattered most by atmospheric particles in all directions, making the sky appear blue.",
+          "At sunrise and sunset, sunlight travels a much longer distance through the atmosphere.",
+          "Most of the shorter wavelength blue light is scattered away along this longer path before reaching the observer.",
+          "Only longer wavelength light (red and orange) reaches the observer directly.",
+          "This makes the sun and the surrounding sky appear reddish at sunrise and sunset.",
+        ],
+        finalAnswer: "Shorter wavelengths (blue) are scattered more in all directions by air molecules, so the sky appears blue. At sunrise/sunset, sunlight travels a longer path and most of blue light is scattered out; only longer wavelengths (red/orange) reach the observer, so the sun and surrounding sky appear reddish",
       },
     ],
   },
@@ -1974,6 +2450,12 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         explanation:
           "V ∝ I at constant temperature; hence the graph is a straight line through origin.",
         policyTag: "Ohm’s law MCQ",
+        solutionSteps: [
+          "According to Ohm's Law, V = IR, where R is the resistance.",
+          "For a metallic conductor at constant temperature, resistance (R) is constant.",
+          "This implies a direct proportionality between V and I, which is represented by a straight line passing through the origin.",
+        ],
+        finalAnswer: "A straight line through origin",
       },
       {
         id: "sci-elec-hpq-2",
@@ -2025,6 +2507,16 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         explanation:
           "Power × time gives energy in kWh when power is in kW and time in hours; board loves this direct application.",
         policyTag: "Power/energy numeric",
+        solutionSteps: [
+          "Convert power from Watts to kilowatts: P = 1000 W = 1 kW.",
+          "Calculate the total operating time in hours: Total time = 5 hours/day × 30 days = 150 hours.",
+          "Use the formula for electrical energy consumed: Energy (E) = Power (P) × Time (t).",
+          "Substitute values to find total energy consumed: E = 1 kW × 150 hours = 150 kWh.",
+          "State the given cost per unit of electricity: Cost per kWh = ₹7.",
+          "Calculate the total cost: Total cost = Energy consumed × Cost per kWh.",
+          "Substitute values to find the total cost: Total cost = 150 kWh × ₹7/kWh = ₹1050.",
+        ],
+        finalAnswer: "Energy = 1 kW × 5 h/day × 30 days = 150 kWh. Cost = 150 × ₹7 = ₹1050.",
       },
       {
         id: "sci-elec-hpq-4",
@@ -2047,6 +2539,14 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         explanation:
           "Fuse, MCB and heating effect concepts appear frequently as conceptual case-based questions.",
         policyTag: "Safety/heating NEP",
+        solutionSteps: [
+          "A fuse is always connected in series with the live wire in an electrical circuit.",
+          "This ensures that the entire circuit current passes through the fuse.",
+          "If the current exceeds the safe limit, the fuse wire melts, breaking the circuit completely.",
+          "The fuse works on the principle of the heating effect of electric current (Joule's heating).",
+          "When current exceeds the rated value, the excessive heat produced (I^2Rt) melts the low melting point fuse wire, thereby opening the circuit.",
+        ],
+        finalAnswer: "(a) Fuse is in series so that it can stop the entire current if it blows. (b) It works on the heating effect of electric current. (c) The wire melts and breaks the circuit when current exceeds the rated value.",
       },
     ],
   },
@@ -2078,6 +2578,12 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         explanation:
           "Right-hand thumb rule relates current direction (thumb) to magnetic field direction (curling fingers).",
         policyTag: "Field lines MCQ",
+        solutionSteps: [
+          "The Right-Hand Thumb Rule is used to determine the direction of the magnetic field produced by a current-carrying straight conductor.",
+          "If the thumb points in the direction of the current, the direction in which the fingers curl around the conductor gives the direction of the magnetic field lines.",
+          "Therefore, it gives the direction of the magnetic field around a straight conductor.",
+        ],
+        finalAnswer: "Magnetic field around a straight conductor",
       },
       {
         id: "sci-mec-hpq-2",
@@ -2100,6 +2606,14 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         explanation:
           "Solenoid field diagram and explanation is a favourite application of current–magnetism link.",
         policyTag: "Solenoid pattern",
+        solutionSteps: [
+          "A current-carrying solenoid produces a magnetic field pattern that is very similar to the magnetic field produced by a bar magnet.",
+          "One end of the solenoid behaves as a North pole and the other end behaves as a South pole, depending on the direction of current flow.",
+          "The magnetic field lines emerge from the North pole and enter the South pole outside the solenoid, forming continuous closed loops.",
+          "Inside the solenoid, the magnetic field lines are straight and parallel to the axis, indicating a uniform magnetic field, just like inside a bar magnet.",
+          "The field pattern would show concentric circles near the ends and parallel lines inside, with arrows indicating direction from N to S outside and S to N inside.",
+        ],
+        finalAnswer: "A current-carrying solenoid produces a magnetic field similar to a bar magnet, with one end behaving as N-pole and the other as S-pole. Field lines emerge from the north end and enter the south end, forming closed loops.",
       },
       {
         id: "sci-mec-hpq-3",
@@ -2138,6 +2652,11 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         explanation:
           "The rule is used for direction of force; the mapping of fingers is correctly stated, so R explains A.",
         policyTag: "AR motor rule",
+        solutionSteps: [
+          "Assertion states Fleming's left-hand rule gives the direction of force on a current-carrying conductor, which is true.",
+          "Reason states the rule's components: thumb for force, forefinger for magnetic field, middle finger for current, all mutually perpendicular.",
+          "This description of the rule's components and their perpendicularity correctly explains how the direction of force is determined.",
+        ],
       },
     ],
   },
@@ -2373,6 +2892,12 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         answer: "Auxin",
         explanation:
           "Auxin promotes cell elongation and is concentrated on the shaded side of a plant shoot.",
+        solutionSteps: [
+          "Auxin is a plant hormone that plays a crucial role in cell growth and development.",
+          "It promotes cell elongation, especially in the stem and root tips.",
+          "Therefore, Auxin is responsible for cell elongation in the stem.",
+        ],
+        finalAnswer: "Auxin",
       },
       {
         id: "sci-cc-hpq-2",
@@ -2394,6 +2919,12 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
           "Reflex action is an automatic, rapid response to a stimulus, controlled by the spinal cord. Diagram should show receptor → sensory neuron → spinal cord → motor neuron → effector.",
         explanation:
           "Short theory + labelled diagram on reflex arc is a favourite 2-mark pattern.",
+        solutionSteps: [
+          "A reflex action is an involuntary, rapid, and automatic response of the body to a stimulus.",
+          "It is controlled by the spinal cord, allowing for quick reactions without conscious thought from the brain.",
+          "The pathway of a simple reflex arc involves: Receptor -> Sensory neuron -> Spinal cord (relay neuron) -> Motor neuron -> Effector (muscle/gland).",
+        ],
+        finalAnswer: "Reflex action is an automatic, rapid response to a stimulus, controlled by the spinal cord. Diagram should show receptor → sensory neuron → spinal cord → motor neuron → effector.",
       },
       {
         id: "sci-cc-hpq-3",
@@ -2415,6 +2946,12 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
           "Pituitary – master gland, controls other glands and growth; Thyroid – secretes thyroxine, regulates metabolism; Pancreas – secretes insulin, maintains blood sugar (any three correct pairs).",
         explanation:
           "Board often tests understanding of hormone–gland–function mapping.",
+        solutionSteps: [
+          "Pituitary gland: It is known as the master gland. It controls the functioning of other endocrine glands and regulates growth.",
+          "Thyroid gland: It secretes the hormone thyroxine. Thyroxine regulates carbohydrate, protein, and fat metabolism in the body.",
+          "Pancreas: It secretes insulin hormone. Insulin helps in regulating blood sugar levels in the body.",
+        ],
+        finalAnswer: "Pituitary – master gland, controls other glands and growth; Thyroid – secretes thyroxine, regulates metabolism; Pancreas – secretes insulin, maintains blood sugar (any three correct pairs).",
       },
     ],
   },
@@ -2445,6 +2982,12 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         answer: "all tall plants",
         explanation:
           "Tallness is dominant over dwarfness, so all F₁ plants are tall.",
+        solutionSteps: [
+          "In Mendel's monohybrid cross, a tall pea plant (dominant trait) was crossed with a dwarf pea plant (recessive trait).",
+          "According to the law of dominance, the dominant trait (tallness) expresses itself in the F₁ generation.",
+          "Therefore, all plants in the F₁ generation were tall.",
+        ],
+        finalAnswer: "all tall plants",
       },
       {
         id: "sci-he-hpq-2",
@@ -2466,6 +3009,13 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
           "Mother always contributes X chromosome. Father contributes either X or Y. XX combination gives girl, XY gives boy. Hence the father determines the sex of the child.",
         explanation:
           "Short conceptual explanation of XX–XY mechanism is often asked for 2 marks.",
+        solutionSteps: [
+          "Human females have two X chromosomes (XX) and males have one X and one Y chromosome (XY).",
+          "During reproduction, the mother always contributes an X chromosome to the offspring.",
+          "The father contributes either an X or a Y chromosome. If an X chromosome is contributed, the child will be female (XX).",
+          "If a Y chromosome is contributed by the father, the child will be male (XY). Thus, the father determines the sex of the child.",
+        ],
+        finalAnswer: "Mother always contributes X chromosome. Father contributes either X or Y. XX combination gives girl, XY gives boy. Hence the father determines the sex of the child.",
       },
     ],
   },
