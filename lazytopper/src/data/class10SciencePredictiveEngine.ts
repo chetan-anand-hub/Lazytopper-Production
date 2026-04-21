@@ -45,6 +45,8 @@ export interface ScienceSubtopicQuestion {
   explanation: string;
   pastBoardYear?: string;
   policyTag?: string;
+  solutionSteps?: string[];
+  finalAnswer?: string;
 }
 
 export interface ScienceSubtopicSpec {

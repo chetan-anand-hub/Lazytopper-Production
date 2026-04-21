@@ -193,10 +193,7 @@ export const sciencePredictedQuestions: SciencePredictedQuestion[] = [
       "(iv) The mass remains unchanged because the reaction is carried out in a closed test tube, preventing any matter from entering or leaving the system.",
       "(iv) According to the Law of conservation of mass, the total mass of reactants equals the total mass of products in a closed system, even if a new substance like a precipitate is formed.",
     ],
-    finalAnswer: "(i) BaCl₂(aq) + Na₂SO₄(aq) → BaSO₄(s) + 2NaCl(aq)
-(ii) Barium sulphate (BaSO₄)
-(iii) Law of conservation of mass
-(iv) System is closed; mass of reactants equals mass of products, even though a solid forms.",
+    finalAnswer: "(i) BaCl₂(aq) + Na₂SO₄(aq) → BaSO₄(s) + 2NaCl(aq)\n(ii) Barium sulphate (BaSO₄)\n(iii) Law of conservation of mass\n(iv) System is closed; mass of reactants equals mass of products, even though a solid forms.",
   },
 
   // ================================================================
@@ -279,8 +276,7 @@ export const sciencePredictedQuestions: SciencePredictedQuestion[] = [
       "(b) One use of baking soda is as a leavening agent in baking.",
       "(b) When heated during baking, it decomposes to produce carbon dioxide gas, which makes cakes and bread fluffy.",
     ],
-    finalAnswer: "(a) Sodium hydrogen carbonate, NaHCO₃
-(b) Used in baking as a leavening agent; on heating it releases CO₂ which makes cakes and bread fluffy.",
+    finalAnswer: "(a) Sodium hydrogen carbonate, NaHCO₃\n(b) Used in baking as a leavening agent; on heating it releases CO₂ which makes cakes and bread fluffy.",
   },
 
   {
@@ -306,9 +302,7 @@ export const sciencePredictedQuestions: SciencePredictedQuestion[] = [
       "CaSO₄·2H₂O(s) --(373 K)--> CaSO₄·½H₂O(s) + 1½H₂O(g)",
       "It should be stored in a moisture-proof container because it readily absorbs moisture and sets into a hard mass of gypsum.",
     ],
-    finalAnswer: "(a) Plaster of Paris is calcium sulphate hemihydrate, CaSO₄·½H₂O.
-(b) Gypsum (CaSO₄·2H₂O) is heated at about 373 K to form Plaster of Paris.
-(c) It absorbs moisture and sets to hard gypsum, so it must be kept dry.",
+    finalAnswer: "(a) Plaster of Paris is calcium sulphate hemihydrate, CaSO₄·½H₂O.\n(b) Gypsum (CaSO₄·2H₂O) is heated at about 373 K to form Plaster of Paris.\n(c) It absorbs moisture and sets to hard gypsum, so it must be kept dry.",
   },
 
   {
@@ -335,10 +329,7 @@ export const sciencePredictedQuestions: SciencePredictedQuestion[] = [
       "Such pH-related questions are important in agriculture because proper soil pH is crucial for optimum nutrient absorption by plants.",
       "Maintaining the correct pH ensures healthy plant growth, better crop yield, and efficient use of fertilizers.",
     ],
-    finalAnswer: "(i) Soil is acidic.
-(ii) He can add quicklime (CaO) or slaked lime (Ca(OH)₂).
-(iii) Very acidic soil damages roots and reduces nutrient availability, lowering crop yield.
-(iv) Proper pH ensures optimum nutrient uptake and healthy plant growth.",
+    finalAnswer: "(i) Soil is acidic.\n(ii) He can add quicklime (CaO) or slaked lime (Ca(OH)₂).\n(iii) Very acidic soil damages roots and reduces nutrient availability, lowering crop yield.\n(iv) Proper pH ensures optimum nutrient uptake and healthy plant growth.",
   },
 
   // ================================================================
@@ -391,8 +382,7 @@ export const sciencePredictedQuestions: SciencePredictedQuestion[] = [
       "Corrosion of iron is called rusting.",
       "It can be prevented by galvanisation (coating with zinc).",
     ],
-    finalAnswer: "(a) Corrosion is the gradual deterioration of metals by reaction with air, moisture or chemicals.
-(b) Corrosion of iron is called rusting; it can be prevented by galvanisation (coating with zinc), painting, or oiling/greasing.",
+    finalAnswer: "(a) Corrosion is the gradual deterioration of metals by reaction with air, moisture or chemicals.\n(b) Corrosion of iron is called rusting; it can be prevented by galvanisation (coating with zinc), painting, or oiling/greasing.",
   },
 
   {
@@ -418,8 +408,7 @@ export const sciencePredictedQuestions: SciencePredictedQuestion[] = [
       "Aluminium forms a thin, protective layer of aluminium oxide (Al2O3) on its surface when exposed to air.",
       "This oxide layer is stable and prevents further corrosion of the underlying metal.",
     ],
-    finalAnswer: "(i) Sodium and potassium are highly reactive metals; they react vigorously with oxygen and moisture, so they are stored under kerosene.
-(ii) Aluminium forms a thin, protective layer of aluminium oxide on its surface which prevents further corrosion.",
+    finalAnswer: "(i) Sodium and potassium are highly reactive metals; they react vigorously with oxygen and moisture, so they are stored under kerosene.\n(ii) Aluminium forms a thin, protective layer of aluminium oxide on its surface which prevents further corrosion.",
   },
 
   {
@@ -445,9 +434,7 @@ export const sciencePredictedQuestions: SciencePredictedQuestion[] = [
       "Only strong reducing conditions, such as electrolytic reduction, can break these stable bonds to obtain the pure metal.",
       "An example of a highly reactive metal obtained by electrolysis is sodium (Na) or potassium (K) or aluminium (Al).",
     ],
-    finalAnswer: "(i) Reduction using a suitable reducing agent like carbon (smelting) is used.
-(ii) Calcination is heating the ore in the absence or limited supply of air to remove volatile impurities.
-(iii) Highly reactive metals form very stable compounds; only strong reducing conditions like electrolysis can free",
+    finalAnswer: "(i) Reduction using a suitable reducing agent like carbon (smelting) is used.\n(ii) Calcination is heating the ore in the absence or limited supply of air to remove volatile impurities.\n(iii) Highly reactive metals form very stable compounds; only strong reducing conditions like electrolysis can free",
   },
 
   // ================================================================
@@ -524,8 +511,7 @@ export const sciencePredictedQuestions: SciencePredictedQuestion[] = [
       "(b) Characteristic 1: Members of a homologous series show similar chemical properties due to the same functional group.",
       "(b) Characteristic 2: There is a gradation in physical properties (e.g., melting point, boiling point) as molecular mass increases, and successive members differ by a constant mass of 14 u.",
     ],
-    finalAnswer: "(a) A homologous series is a group of organic compounds having the same functional group and general formula, with successive members differing by –CH₂–.
-(b) Members show similar chemical properties, gradation in physical properties, and differ by a constant mass of 14 u.",
+    finalAnswer: "(a) A homologous series is a group of organic compounds having the same functional group and general formula, with successive members differing by –CH₂–.\n(b) Members show similar chemical properties, gradation in physical properties, and differ by a constant mass of 14 u.",
   },
 
   {
@@ -576,9 +562,7 @@ export const sciencePredictedQuestions: SciencePredictedQuestion[] = [
       "Soaps form scum in hard water because they react with calcium and magnesium ions to form insoluble precipitates.",
       "Synthetic detergents do not form scum with hard water, making them effective for washing in both soft and hard water.",
     ],
-    finalAnswer: "(i) Soap molecules have hydrophobic tails that attach to oil and hydrophilic heads that stay in water; agitation breaks the grease into small droplets.
-(ii) A micelle is an aggregate of soap molecules in water, with hydrophobic tails inwards and hydrophilic heads outwards.
-(iii) In hard water, calci",
+    finalAnswer: "(i) Soap molecules have hydrophobic tails that attach to oil and hydrophilic heads that stay in water; agitation breaks the grease into small droplets.\n(ii) A micelle is an aggregate of soap molecules in water, with hydrophobic tails inwards and hydrophilic heads outwards.\n(iii) In hard water, calci",
   },
 
   // ================================================================
@@ -660,8 +644,7 @@ export const sciencePredictedQuestions: SciencePredictedQuestion[] = [
       "(ii) Pancreatic juice contains digestive enzymes such as trypsin, amylase, and lipase.",
       "These enzymes digest proteins, starch, and fats, respectively, into simpler forms.",
     ],
-    finalAnswer: "(i) Bile emulsifies fats and provides an alkaline medium for the action of pancreatic enzymes.
-(ii) Pancreatic juice contains enzymes like trypsin, amylase, and lipase that digest proteins, starch, and fats respectively.",
+    finalAnswer: "(i) Bile emulsifies fats and provides an alkaline medium for the action of pancreatic enzymes.\n(ii) Pancreatic juice contains enzymes like trypsin, amylase, and lipase that digest proteins, starch, and fats respectively.",
   },
 
   {
@@ -741,10 +724,7 @@ export const sciencePredictedQuestions: SciencePredictedQuestion[] = [
       "(iii) The pigment that transports oxygen in blood is Haemoglobin.",
       "(iv) Dietary changes should include iron-rich foods like green leafy vegetables, jaggery, and pulses. Also ensure adequate intake of carbohydrates and proteins.",
     ],
-    finalAnswer: "(i) Nutrition is directly affected.
-(ii) Without proper nutrients, the body cannot carry out efficient cellular respiration, leading to less energy production.
-(iii) Haemoglobin.
-(iv) Include iron-rich foods (green leafy vegetables, jaggery, pulses), adequate carbohydrates and proteins, and regular ",
+    finalAnswer: "(i) Nutrition is directly affected.\n(ii) Without proper nutrients, the body cannot carry out efficient cellular respiration, leading to less energy production.\n(iii) Haemoglobin.\n(iv) Include iron-rich foods (green leafy vegetables, jaggery, pulses), adequate carbohydrates and proteins, and regular ",
   },
 
   {
@@ -826,8 +806,7 @@ export const sciencePredictedQuestions: SciencePredictedQuestion[] = [
       "Reflex actions are crucial for survival as they provide immediate protection against harmful stimuli.",
       "For example, quickly withdrawing a hand from a hot object prevents severe burns and injury.",
     ],
-    finalAnswer: "(a) A reflex action is a rapid, automatic response to a stimulus that does not involve conscious thought.
-(b) It helps protect the body from sudden harmful stimuli, e.g., withdrawing hand from a hot object quickly.",
+    finalAnswer: "(a) A reflex action is a rapid, automatic response to a stimulus that does not involve conscious thought.\n(b) It helps protect the body from sudden harmful stimuli, e.g., withdrawing hand from a hot object quickly.",
   },
 
   {
@@ -853,8 +832,7 @@ export const sciencePredictedQuestions: SciencePredictedQuestion[] = [
       "Plants bend towards light due to a phenomenon called phototropism, mediated by the hormone auxin.",
       "When light falls on a plant from one direction, auxin migrates to the shaded side, causing cells on the shaded side to elongate more rapidly than those on the illuminated side, thus bending the plant towards the light source.",
     ],
-    finalAnswer: "Two hormones: (i) Auxin – promotes cell elongation, especially in stem. (ii) Gibberellin – promotes stem elongation/seed germination (other correct examples acceptable).
-Plants bend towards light due to unequal distribution of auxin on the shaded side, causing more elongation there (phototropism).",
+    finalAnswer: "Two hormones: (i) Auxin – promotes cell elongation, especially in stem. (ii) Gibberellin – promotes stem elongation/seed germination (other correct examples acceptable).\nPlants bend towards light due to unequal distribution of auxin on the shaded side, causing more elongation there (phototropism).",
   },
 
   {
@@ -881,10 +859,7 @@ Plants bend towards light due to unequal distribution of auxin on the shaded sid
       "Hormonal coordination involves hormones traveling through the bloodstream to reach target organs, which is a relatively slow process.",
       "Nervous coordination involves rapid electrical impulses transmitted along nerve fibers, leading to much quicker responses.",
     ],
-    finalAnswer: "(i) Endocrine (hormonal) system.
-(ii) Growth hormone.
-(iii) Pituitary gland.
-(iv) Hormones travel through blood to target organs, so responses are slower and more prolonged compared to rapid nerve impulses.",
+    finalAnswer: "(i) Endocrine (hormonal) system.\n(ii) Growth hormone.\n(iii) Pituitary gland.\n(iv) Hormones travel through blood to target organs, so responses are slower and more prolonged compared to rapid nerve impulses.",
   },
 
   // ================================================================
@@ -937,8 +912,7 @@ Plants bend towards light due to unequal distribution of auxin on the shaded sid
       "Multiple fission is an asexual reproduction method where the parent cell divides into many daughter cells simultaneously.",
       "An example of an organism that reproduces by multiple fission is Plasmodium.",
     ],
-    finalAnswer: "Binary fission: parent cell splits into two almost equal halves, e.g., Amoeba.
-Multiple fission: parent cell divides into many daughter cells at once, e.g., Plasmodium.",
+    finalAnswer: "Binary fission: parent cell splits into two almost equal halves, e.g., Amoeba.\nMultiple fission: parent cell divides into many daughter cells at once, e.g., Plasmodium.",
   },
 
   {
@@ -964,9 +938,7 @@ Multiple fission: parent cell divides into many daughter cells at once, e.g., Pl
       "Ovaries: Produce female sex hormones (oestrogen and progesterone).",
       "Uterus: Site of implantation of the fertilised egg and development of the embryo/foetus.",
     ],
-    finalAnswer: "(i) Testes produce male gametes (sperms) and male sex hormone (testosterone).
-(ii) Ovaries produce female gametes (ova) and female sex hormones (oestrogen and progesterone).
-(iii) Uterus is the site of implantation of fertilised egg and development of the embryo/foetus.",
+    finalAnswer: "(i) Testes produce male gametes (sperms) and male sex hormone (testosterone).\n(ii) Ovaries produce female gametes (ova) and female sex hormones (oestrogen and progesterone).\n(iii) Uterus is the site of implantation of fertilised egg and development of the embryo/foetus.",
   },
 
   {
@@ -1133,8 +1105,7 @@ Multiple fission: parent cell divides into many daughter cells at once, e.g., Pl
       "New Cartesian Sign Convention: All distances are measured from the pole. Distances in the direction of incident light are positive.",
       "Distances in the opposite direction are negative. Heights above the principal axis are positive, below are negative.",
     ],
-    finalAnswer: "Mirror formula: 1/f = 1/v + 1/u
-Where f is focal length, v is image distance, u is object distance (all measured from pole with sign conventions). In the new Cartesian sign convention: all distances measured from pole; distances in direction of incident light taken as positive, opposite direction as",
+    finalAnswer: "Mirror formula: 1/f = 1/v + 1/u\nWhere f is focal length, v is image distance, u is object distance (all measured from pole with sign conventions). In the new Cartesian sign convention: all distances measured from pole; distances in direction of incident light taken as positive, opposite direction as",
   },
 
   {
@@ -1213,10 +1184,7 @@ Where f is focal length, v is image distance, u is object distance (all measured
       "In a glass slab, the emergent ray is parallel to the incident ray.",
       "In a prism, the emergent ray is deviated from the incident ray and is not parallel to it.",
     ],
-    finalAnswer: "(i) Refraction of light.
-(ii) Due to successive refractions at the air-glass and glass-air interfaces.
-(iii) Greater thickness of slab results in more lateral displacement.
-(iv) In a slab, emergent ray is parallel to incident ray; in a prism, emergent ray deviates and is not parallel.",
+    finalAnswer: "(i) Refraction of light.\n(ii) Due to successive refractions at the air-glass and glass-air interfaces.\n(iii) Greater thickness of slab results in more lateral displacement.\n(iv) In a slab, emergent ray is parallel to incident ray; in a prism, emergent ray deviates and is not parallel.",
   },
 
   {
@@ -1577,10 +1545,7 @@ Where f is focal length, v is image distance, u is object distance (all measured
       "(ii) The longer wavelength red and orange light, which is scattered least, reaches our eyes, making the Sun appear reddish.",
       "(iii) The phenomenon responsible for these observations is Scattering of light.",
     ],
-    finalAnswer: "(i) Shorter wavelengths (blue light) are scattered more by air molecules, so we see the sky as blue.
-(ii) At sunrise and sunset, light travels a longer path through the atmosphere; shorter wavelengths are scattered away and longer (red) wavelengths reach the eye.
-(iii) Scattering of light.
-(iv) Use ",
+    finalAnswer: "(i) Shorter wavelengths (blue light) are scattered more by air molecules, so we see the sky as blue.\n(ii) At sunrise and sunset, light travels a longer path through the atmosphere; shorter wavelengths are scattered away and longer (red) wavelengths reach the eye.\n(iii) Scattering of light.\n(iv) Use ",
   },
 
   // ================================================================
@@ -1682,8 +1647,7 @@ Where f is focal length, v is image distance, u is object distance (all measured
       "For (ii) Resistance of the bulb: Use the formula P = V²/R. Rearrange to R = V²/P.",
       "Substitute values: R = (220 V)² / 100 W = 48400 / 100 = 484 Ω.",
     ],
-    finalAnswer: "(i) P = VI ⇒ I = P/V = 100/220 ≈ 0.455 A.
-(ii) Using P = V²/R ⇒ R = V²/P = 220² / 100 = 484 Ω.",
+    finalAnswer: "(i) P = VI ⇒ I = P/V = 100/220 ≈ 0.455 A.\n(ii) Using P = V²/R ⇒ R = V²/P = 220² / 100 = 484 Ω.",
   },
 
   {
@@ -1734,9 +1698,7 @@ Where f is focal length, v is image distance, u is object distance (all measured
       "(iii) The earth wire provides a low-resistance path for leakage current from faulty appliances to the ground, preventing electric shock.",
       "(iv) A safety device used is a fuse. Its function is to break the circuit when current exceeds a safe limit, protecting appliances.",
     ],
-    finalAnswer: "(i) Devices are connected in parallel so that each gets the same voltage and works independently.
-(ii) Live wire carries high potential; touching it allows current to flow through the body, which can be fatal.
-(iii) Earth wire provides a low-resistance path to the ground for leakage current, prevent",
+    finalAnswer: "(i) Devices are connected in parallel so that each gets the same voltage and works independently.\n(ii) Live wire carries high potential; touching it allows current to flow through the body, which can be fatal.\n(iii) Earth wire provides a low-resistance path to the ground for leakage current, prevent",
   },
 
   {
@@ -1765,12 +1727,7 @@ Where f is focal length, v is image distance, u is object distance (all measured
       "Total current Ip = V / Rp = 12 V / (12/11 Ω) = 11 A.",
       "Heat produced Hp = Ip² * Rp * t = (11 A)² * (12/11 Ω) * 120 s = 11 * 12 * 120 = 15840 J.",
     ],
-    finalAnswer: "Series: R_s = 2+4+6 = 12 Ω.
-I_s = V/R_s = 12/12 = 1 A.
-Heat H_s = I²Rt = 1²×12×120 = 1440 J.
-Parallel: 1/R_p = 1/2 + 1/4 + 1/6 = (6+3+2)/12 = 11/12 ⇒ R_p = 12/11 Ω ≈ 1.09 Ω.
-I_p = 12 / (12/11) = 11 A.
-H_p = I²R_p t ≈ 11²×(12/11)×120 ≈ 11×12×120 = 15840 J.",
+    finalAnswer: "Series: R_s = 2+4+6 = 12 Ω.\nI_s = V/R_s = 12/12 = 1 A.\nHeat H_s = I²Rt = 1²×12×120 = 1440 J.\nParallel: 1/R_p = 1/2 + 1/4 + 1/6 = (6+3+2)/12 = 11/12 ⇒ R_p = 12/11 Ω ≈ 1.09 Ω.\nI_p = 12 / (12/11) = 11 A.\nH_p = I²R_p t ≈ 11²×(12/11)×120 ≈ 11×12×120 = 15840 J.",
   },
 
   // ================================================================
@@ -1828,8 +1785,7 @@ H_p = I²R_p t ≈ 11²×(12/11)×120 ≈ 11×12×120 = 15840 J.",
       "Property 1: Magnetic field lines emerge from the North pole and enter the South pole outside the magnet.",
       "Property 2: Magnetic field lines never intersect each other.",
     ],
-    finalAnswer: "Diagram showing lines emerging from north pole and entering south pole with density higher near poles.
-Properties: (i) They emerge from N and enter at S pole. (ii) They never intersect each other. (iii) Closer lines indicate stronger field (any two).",
+    finalAnswer: "Diagram showing lines emerging from north pole and entering south pole with density higher near poles.\nProperties: (i) They emerge from N and enter at S pole. (ii) They never intersect each other. (iii) Closer lines indicate stronger field (any two).",
   },
 
   {
@@ -1880,10 +1836,7 @@ Properties: (i) They emerge from N and enter at S pole. (ii) They never intersec
       "It also depends on the number of turns in the coil, the strength of the magnet, and the area of the coil.",
       "An electric generator (or dynamo) is a device that works on the principle of electromagnetic induction.",
     ],
-    finalAnswer: "(i) Electromagnetic induction (EMI).
-(ii) The galvanometer shows deflection in the opposite direction (current reverses).
-(iii) Speed of motion, number of turns in the coil, strength of magnet, and area of coil.
-(iv) Generator/dynamo.",
+    finalAnswer: "(i) Electromagnetic induction (EMI).\n(ii) The galvanometer shows deflection in the opposite direction (current reverses).\n(iii) Speed of motion, number of turns in the coil, strength of magnet, and area of coil.\n(iv) Generator/dynamo.",
   },
 
   // ================================================================
@@ -1986,9 +1939,7 @@ A proper fuse rating slightly above 3.9 A is used so it melts if current exceeds
       "Using a proper rating of fuse ensures that it melts and breaks the circuit if the current exceeds a safe limit.",
       "This prevents damage to appliances, short circuits, and potential fire hazards caused by overheating.",
     ],
-    finalAnswer: "Total power = 750 + 75 + 15 + 15 = 855 W.
-I_total = P_total / V = 855 / 220 ≈ 3.9 A.
-A proper fuse rating slightly above 3.9 A is used so it melts if current exceeds safe limit, protecting appliances and preventing fire.",
+    finalAnswer: "Total power = 750 + 75 + 15 + 15 = 855 W.\nI_total = P_total / V = 855 / 220 ≈ 3.9 A.\nA proper fuse rating slightly above 3.9 A is used so it melts if current exceeds safe limit, protecting appliances and preventing fire.",
   },
 
   // ------------------------ MAGNETIC EFFECTS OF CURRENT ------------------------
@@ -2562,14 +2513,7 @@ Sexual reproduction involves two parents and fusion of gametes leading to variat
       "Give budding in Hydra as an example of asexual reproduction.",
       "Give humans as an example of sexual reproduction.",
     ],
-    finalAnswer: "Asexual Reproduction:
-1. Involves a single parent.
-2. Does not involve the formation and fusion of gametes.
-Example: Budding in Hydra.
-Sexual Reproduction:
-1. Involves two parents.
-2. Involves the formation and fusion of gametes.
-Example: Humans.",
+    finalAnswer: "Asexual Reproduction:\n1. Involves a single parent.\n2. Does not involve the formation and fusion of gametes.\nExample: Budding in Hydra.\nSexual Reproduction:\n1. Involves two parents.\n2. Involves the formation and fusion of gametes.\nExample: Humans.",
   },
 
   // ------------------------ HEREDITY & EVOLUTION ------------------------
@@ -2599,19 +2543,7 @@ Phenotypes: 3 tall : 1 dwarf.`,
       "State the F2 genotypic ratio as 1 TT : 2 Tt : 1 tt.",
       "State the F2 phenotypic ratio as 3 Tall : 1 Dwarf.",
     ],
-    finalAnswer: "P generation: Pure Tall (TT) x Pure Dwarf (tt)
-F1 generation: All Tt (Tall)
-
-F1 self-cross: Tt x Tt
-Gametes: T, t (from each F1 parent)
-
-Punnett Square for F2 generation:
-    T   t
-T  TT  Tt
-t  Tt  tt
-
-F2 Genotypic Ratio: 1 TT : 2 Tt : 1 tt
-F2 Phenotypic Ratio: 3 Tall : 1 Dwarf",
+    finalAnswer: "P generation: Pure Tall (TT) x Pure Dwarf (tt)\nF1 generation: All Tt (Tall)\n\nF1 self-cross: Tt x Tt\nGametes: T, t (from each F1 parent)\n\nPunnett Square for F2 generation:\n    T   t\nT  TT  Tt\nt  Tt  tt\n\nF2 Genotypic Ratio: 1 TT : 2 Tt : 1 tt\nF2 Phenotypic Ratio: 3 Tall : 1 Dwarf",
   },
 
   {
