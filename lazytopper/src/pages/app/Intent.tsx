@@ -7,8 +7,8 @@ const MODES = [
     title: "Practice",
     sub: "Worksheets, sets & mock tests",
     pill: "Most popular",
-    color: "hsl(142,71%,45%)",
-    bg: "hsla(142,71%,45%,0.13)",
+    color: "var(--mob-primary)",
+    bg: "rgba(26,58,92,0.08)",
     route: "/app/practice",
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -21,8 +21,8 @@ const MODES = [
     title: "Exam Trends",
     sub: "9 years of board data visualised",
     pill: "Data-driven",
-    color: "hsl(217,91%,60%)",
-    bg: "hsla(217,91%,60%,0.13)",
+    color: "hsl(217,76%,45%)",
+    bg: "rgba(59,130,246,0.08)",
     route: "/app/exam-trends",
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -35,13 +35,13 @@ const MODES = [
     title: "Check & Improve",
     sub: "Upload answers · AI examiner grades",
     pill: "AI-powered",
-    color: "hsl(280,70%,65%)",
-    bg: "hsla(280,70%,65%,0.13)",
+    color: "hsl(280,60%,50%)",
+    bg: "rgba(139,92,246,0.08)",
     route: "/app/check-improve",
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M15 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-        <polyline points="17 3 17 8 12 8"/>
+        <polyline points="13 2 13 9 20 9"/>
         <path d="m9 15 2 2 4-4"/>
       </svg>
     ),
@@ -59,7 +59,7 @@ export default function Intent() {
       onBack={() => navigate("/welcome")}
       showNav={false}
     >
-      <div className="screen-pad animate-float-up" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         {MODES.map((m) => (
           <button
             key={m.key}
@@ -72,9 +72,9 @@ export default function Intent() {
               gap: 14,
               padding: "16px 16px",
               cursor: "pointer",
-              border: "none",
-              background: "var(--bg-card)",
-              color: "var(--text)",
+              border: `1px solid var(--mob-card-border)`,
+              background: "var(--mob-card)",
+              color: "var(--mob-fg)",
               textAlign: "left",
             }}
           >
@@ -98,7 +98,7 @@ export default function Intent() {
             {/* Text */}
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3 }}>
-                <span style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1rem" }}>
+                <span style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1rem", color: "var(--mob-fg)" }}>
                   {m.title}
                 </span>
                 <span
@@ -114,11 +114,11 @@ export default function Intent() {
                   {m.pill}
                 </span>
               </div>
-              <div style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>{m.sub}</div>
+              <div style={{ fontSize: "0.78rem", color: "var(--mob-fg-muted)" }}>{m.sub}</div>
             </div>
 
             {/* ArrowRight */}
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--mob-fg-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
               <polyline points="9 18 15 12 9 6"/>
             </svg>
           </button>
@@ -130,12 +130,12 @@ export default function Intent() {
             marginTop: 8,
             padding: "14px 16px",
             borderRadius: 14,
-            border: "1.5px dashed hsla(255,100%,100%,0.12)",
-            background: "transparent",
+            border: "1.5px dashed rgba(0,0,0,0.12)",
+            background: "var(--mob-muted)",
           }}
         >
-          <div style={{ fontWeight: 600, fontSize: "0.82rem", marginBottom: 4 }}>Just exploring?</div>
-          <div style={{ fontSize: "0.74rem", color: "var(--text-muted)", lineHeight: 1.5 }}>
+          <div style={{ fontWeight: 600, fontSize: "0.82rem", marginBottom: 4, color: "var(--mob-fg)" }}>Just exploring?</div>
+          <div style={{ fontSize: "0.74rem", color: "var(--mob-fg-muted)", lineHeight: 1.5 }}>
             No sign-up needed to browse Exam Trends or try a practice set.
             Your progress saves once you create a free account.
           </div>

@@ -28,19 +28,19 @@ export default function CheckImprove() {
   const navigate = useNavigate();
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const [view, setView]                 = useState<View>("upload");
-  const [tab, setTab]                   = useState<Tab>("upload");
-  const [fileBase64, setFileBase64]     = useState<string | null>(null);
-  const [fileMime, setFileMime]         = useState<string>("image/jpeg");
-  const [fileLoaded, setFileLoaded]     = useState(false);
-  const [textAnswer, setTextAnswer]     = useState("");
-  const [subject, setSubject]           = useState<"Maths" | "Science">("Maths");
-  const [topic, setTopic]               = useState(MATHS_TOPICS[0]);
-  const [question, setQuestion]         = useState("");
-  const [marks, setMarks]               = useState(3);
-  const [grading, setGrading]           = useState(false);
-  const [gradeResult, setGradeResult]   = useState<CheckSolutionResponse | null>(null);
-  const [gradeError, setGradeError]     = useState<string | null>(null);
+  const [view, setView]               = useState<View>("upload");
+  const [tab, setTab]                 = useState<Tab>("upload");
+  const [fileBase64, setFileBase64]   = useState<string | null>(null);
+  const [fileMime, setFileMime]       = useState<string>("image/jpeg");
+  const [fileLoaded, setFileLoaded]   = useState(false);
+  const [textAnswer, setTextAnswer]   = useState("");
+  const [subject, setSubject]         = useState<"Maths" | "Science">("Maths");
+  const [topic, setTopic]             = useState(MATHS_TOPICS[0]);
+  const [question, setQuestion]       = useState("");
+  const [marks, setMarks]             = useState(3);
+  const [grading, setGrading]         = useState(false);
+  const [gradeResult, setGradeResult] = useState<CheckSolutionResponse | null>(null);
+  const [gradeError, setGradeError]   = useState<string | null>(null);
 
   const hasContent = tab === "upload" ? fileLoaded : textAnswer.trim().length > 10;
   const canGrade   = hasContent && question.trim().length > 0;
@@ -70,7 +70,7 @@ export default function CheckImprove() {
       const req = {
         subject,
         topic,
-        question: question.trim() || "Answer from uploaded sheet",
+        question: question.trim(),
         marks,
         ...(tab === "upload" && fileBase64
           ? { imageBase64: fileBase64, imageMimeType: fileMime }
@@ -91,7 +91,13 @@ export default function CheckImprove() {
   }
 
   if (view === "graded" && gradeResult) {
-    return <GradedResult result={gradeResult} onBack={() => setView("upload")} navigate={navigate} />;
+    return (
+      <GradedResult
+        result={gradeResult}
+        onBack={() => { setView("upload"); setGradeResult(null); }}
+        navigate={navigate}
+      />
+    );
   }
 
   const topicList = subject === "Maths" ? MATHS_TOPICS : SCIENCE_TOPICS;
@@ -102,26 +108,27 @@ export default function CheckImprove() {
       subtitle="Board-style examiner grading"
       showNav
     >
-      <div
-        className="screen-pad animate-float-up"
-        style={{ paddingBottom: 136, display: "flex", flexDirection: "column", gap: 14 }}
-      >
+      <div style={{ paddingBottom: 120, display: "flex", flexDirection: "column", gap: 14 }}>
 
-        {/* ── How it works info panel ──────────────────────────── */}
+        {/* ── How it works panel ───────────────────────────────── */}
         <div
           className="card-soft"
-          style={{ padding: "14px 16px", background: "hsla(142,71%,45%,0.06)", border: "1px solid hsla(142,71%,45%,0.18)" }}
+          style={{
+            padding: "14px 16px",
+            background: "var(--mob-success-soft)",
+            border: "1px solid rgba(34,197,94,0.2)",
+          }}
         >
-          <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "0.88rem", marginBottom: 8, color: "hsl(142,71%,55%)" }}>
+          <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "0.88rem", marginBottom: 6, color: "var(--mob-success)" }}>
             How this works
           </div>
-          <div style={{ fontSize: "0.74rem", color: "var(--text-muted)", lineHeight: 1.6 }}>
+          <div style={{ fontSize: "0.74rem", color: "var(--mob-fg-muted)", lineHeight: 1.6 }}>
             Upload a photo of your written answer. Our AI examiner grades it against the CBSE marking scheme and shows exactly where you lost marks.
           </div>
         </div>
 
         {/* ── Upload / Type tab toggle ──────────────────────────── */}
-        <div style={{ display: "flex", background: "var(--bg-card)", borderRadius: 12, padding: 4, gap: 4 }}>
+        <div style={{ display: "flex", background: "var(--mob-muted)", borderRadius: 12, padding: 4, gap: 4, border: `1px solid var(--mob-card-border)` }}>
           {(["upload", "type"] as Tab[]).map((t) => (
             <button
               key={t}
@@ -131,12 +138,13 @@ export default function CheckImprove() {
                 height: 36,
                 borderRadius: 9,
                 border: "none",
-                background: tab === t ? "hsla(255,100%,100%,0.1)" : "transparent",
-                color: tab === t ? "var(--text)" : "var(--text-muted)",
+                background: tab === t ? "var(--mob-card)" : "transparent",
+                color: tab === t ? "var(--mob-fg)" : "var(--mob-fg-muted)",
                 fontFamily: "var(--font-body)",
                 fontWeight: 600,
                 fontSize: "0.82rem",
                 cursor: "pointer",
+                boxShadow: tab === t ? "0 1px 3px rgba(0,0,0,0.07)" : "none",
                 transition: "background 0.15s",
               }}
             >
@@ -169,9 +177,9 @@ export default function CheckImprove() {
                 minHeight: 140,
                 borderRadius: 16,
                 border: fileLoaded
-                  ? "2px solid hsl(142,71%,45%)"
-                  : "2px dashed hsla(255,100%,100%,0.15)",
-                background: fileLoaded ? "hsla(142,71%,45%,0.08)" : "var(--bg-card)",
+                  ? `2px solid var(--mob-success)`
+                  : `2px dashed var(--mob-card-border)`,
+                background: fileLoaded ? "var(--mob-success-soft)" : "var(--mob-muted)",
                 cursor: "pointer",
                 gap: 10,
                 transition: "border 0.2s, background 0.2s",
@@ -179,68 +187,54 @@ export default function CheckImprove() {
             >
               {fileLoaded ? (
                 <>
-                  {/* CheckCircle */}
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="hsl(142,71%,55%)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--mob-success)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
                   </svg>
-                  <span style={{ fontSize: "0.82rem", color: "hsl(142,71%,55%)", fontWeight: 600 }}>Image loaded</span>
-                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>Tap to change</span>
+                  <span style={{ fontSize: "0.82rem", color: "var(--mob-success)", fontWeight: 600 }}>Image loaded</span>
+                  <span style={{ fontSize: "0.72rem", color: "var(--mob-fg-muted)" }}>Tap to change</span>
                 </>
               ) : (
                 <>
-                  {/* Upload SVG */}
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--mob-fg-muted)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                     <polyline points="17 8 12 3 7 8"/>
                     <line x1="12" y1="3" x2="12" y2="15"/>
                   </svg>
-                  <span style={{ fontSize: "0.82rem", color: "var(--text-muted)" }}>Tap to upload a photo</span>
+                  <span style={{ fontSize: "0.82rem", color: "var(--mob-fg-muted)" }}>Tap to upload a photo</span>
                 </>
               )}
             </button>
 
             {/* Camera / files buttons */}
             <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
-              <button
-                onClick={() => {
-                  if (fileRef.current) {
-                    fileRef.current.setAttribute("capture", "environment");
-                    fileRef.current.click();
-                  }
-                }}
-                className="card-soft tap"
-                style={{
-                  flex: 1, height: 40, border: "none", cursor: "pointer",
-                  fontSize: "0.78rem", color: "var(--text-muted)", display: "flex",
-                  alignItems: "center", justifyContent: "center", gap: 6, background: "var(--bg-card)",
-                }}
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-                  <circle cx="12" cy="13" r="4"/>
-                </svg>
-                Camera
-              </button>
-              <button
-                onClick={() => {
-                  if (fileRef.current) {
-                    fileRef.current.removeAttribute("capture");
-                    fileRef.current.click();
-                  }
-                }}
-                className="card-soft tap"
-                style={{
-                  flex: 1, height: 40, border: "none", cursor: "pointer",
-                  fontSize: "0.78rem", color: "var(--text-muted)", display: "flex",
-                  alignItems: "center", justifyContent: "center", gap: 6, background: "var(--bg-card)",
-                }}
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/>
-                  <polyline points="13 2 13 9 20 9"/>
-                </svg>
-                Files
-              </button>
+              {[
+                {
+                  label: "Camera",
+                  action: () => { if (fileRef.current) { fileRef.current.setAttribute("capture", "environment"); fileRef.current.click(); } },
+                  icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>,
+                },
+                {
+                  label: "Files",
+                  action: () => { if (fileRef.current) { fileRef.current.removeAttribute("capture"); fileRef.current.click(); } },
+                  icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>,
+                },
+              ].map(({ label, action, icon }) => (
+                <button
+                  key={label}
+                  onClick={action}
+                  className="card-soft tap"
+                  style={{
+                    flex: 1, height: 40, border: `1px solid var(--mob-card-border)`,
+                    cursor: "pointer", fontSize: "0.78rem",
+                    color: "var(--mob-fg-muted)", display: "flex",
+                    alignItems: "center", justifyContent: "center",
+                    gap: 6, background: "var(--mob-card)",
+                  }}
+                >
+                  {icon}{label}
+                </button>
+              ))}
             </div>
           </div>
         )}
@@ -255,9 +249,9 @@ export default function CheckImprove() {
               width: "100%",
               minHeight: 140,
               borderRadius: 14,
-              border: "1px solid hsla(255,100%,100%,0.1)",
-              background: "var(--bg-card)",
-              color: "var(--text)",
+              border: `1px solid var(--mob-card-border)`,
+              background: "var(--mob-card)",
+              color: "var(--mob-fg)",
               fontFamily: "var(--font-body)",
               fontSize: "0.88rem",
               padding: "14px",
@@ -268,9 +262,9 @@ export default function CheckImprove() {
           />
         )}
 
-        {/* ── Subject & topic selector ─────────────────────────── */}
+        {/* ── Subject & topic ───────────────────────────────────── */}
         <div className="card-soft" style={{ padding: "14px 16px", display: "flex", flexDirection: "column", gap: 10 }}>
-          <div style={{ fontSize: "0.72rem", color: "var(--text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+          <div style={{ fontSize: "0.72rem", color: "var(--mob-fg-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>
             Subject & topic
           </div>
           <div style={{ display: "flex", gap: 8 }}>
@@ -280,9 +274,9 @@ export default function CheckImprove() {
                 onClick={() => switchSubject(s)}
                 style={{
                   flex: 1, height: 36, borderRadius: 10,
-                  border: subject === s ? "none" : "1px solid hsla(255,100%,100%,0.1)",
-                  background: subject === s ? "hsl(142,71%,45%)" : "transparent",
-                  color: subject === s ? "#000" : "var(--text-muted)",
+                  border: subject === s ? "none" : `1px solid var(--mob-card-border)`,
+                  background: subject === s ? "var(--mob-primary)" : "var(--mob-muted)",
+                  color: subject === s ? "#ffffff" : "var(--mob-fg-muted)",
                   fontWeight: 600, fontSize: "0.82rem", cursor: "pointer",
                 }}
               >
@@ -295,8 +289,8 @@ export default function CheckImprove() {
             onChange={(e) => setTopic(e.target.value)}
             style={{
               width: "100%", height: 40, borderRadius: 10,
-              border: "1px solid hsla(255,100%,100%,0.1)",
-              background: "var(--bg)", color: "var(--text)",
+              border: `1px solid var(--mob-card-border)`,
+              background: "var(--mob-muted)", color: "var(--mob-fg)",
               fontFamily: "var(--font-body)", fontSize: "0.85rem", padding: "0 10px",
             }}
           >
@@ -304,9 +298,9 @@ export default function CheckImprove() {
           </select>
         </div>
 
-        {/* ── Question + marks brief ───────────────────────────── */}
+        {/* ── Question + marks ─────────────────────────────────── */}
         <div className="card-soft" style={{ padding: "14px 16px", display: "flex", flexDirection: "column", gap: 10 }}>
-          <div style={{ fontSize: "0.72rem", color: "var(--text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+          <div style={{ fontSize: "0.72rem", color: "var(--mob-fg-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>
             Question (brief description)
           </div>
           <input
@@ -316,13 +310,13 @@ export default function CheckImprove() {
             placeholder="e.g. Prove Pythagoras theorem"
             style={{
               width: "100%", height: 40, borderRadius: 10,
-              border: "1px solid hsla(255,100%,100%,0.1)",
-              background: "var(--bg)", color: "var(--text)",
+              border: `1px solid var(--mob-card-border)`,
+              background: "var(--mob-muted)", color: "var(--mob-fg)",
               fontFamily: "var(--font-body)", fontSize: "0.85rem",
               padding: "0 12px", boxSizing: "border-box",
             }}
           />
-          <div style={{ fontSize: "0.72rem", color: "var(--text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+          <div style={{ fontSize: "0.72rem", color: "var(--mob-fg-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>
             Marks
           </div>
           <div style={{ display: "flex", gap: 8 }}>
@@ -332,11 +326,14 @@ export default function CheckImprove() {
                 onClick={() => setMarks(m)}
                 className="pill tap"
                 style={{
-                  flex: 1, border: marks === m ? "none" : "1px solid hsla(255,100%,100%,0.1)",
-                  background: marks === m ? "hsl(217,91%,60%)" : "var(--bg-card)",
-                  color: marks === m ? "#000" : "var(--text-muted)",
-                  fontWeight: marks === m ? 700 : 400, cursor: "pointer",
-                  textAlign: "center", padding: "6px 0",
+                  flex: 1,
+                  border: marks === m ? "none" : `1px solid var(--mob-card-border)`,
+                  background: marks === m ? "var(--mob-primary)" : "var(--mob-muted)",
+                  color: marks === m ? "#ffffff" : "var(--mob-fg-muted)",
+                  fontWeight: marks === m ? 700 : 400,
+                  cursor: "pointer",
+                  textAlign: "center",
+                  padding: "6px 0",
                 }}
               >
                 {m}
@@ -346,13 +343,23 @@ export default function CheckImprove() {
         </div>
 
         {/* ── Tip card ─────────────────────────────────────────── */}
-        <div style={{ padding: "12px 14px", borderRadius: 12, background: "hsla(217,91%,60%,0.07)", border: "1px solid hsla(217,91%,60%,0.15)", fontSize: "0.74rem", color: "var(--text-muted)", lineHeight: 1.5 }}>
-          <strong style={{ color: "hsl(217,91%,65%)" }}>Tip:</strong> Clear lighting + flat paper = better grading. Include your working steps, not just the final answer.
+        <div
+          style={{
+            padding: "12px 14px",
+            borderRadius: 12,
+            background: "rgba(59,130,246,0.06)",
+            border: "1px solid rgba(59,130,246,0.14)",
+            fontSize: "0.74rem",
+            color: "var(--mob-fg-muted)",
+            lineHeight: 1.5,
+          }}
+        >
+          <strong style={{ color: "hsl(217,76%,45%)" }}>Tip:</strong> Clear lighting + flat paper = better grading. Include your working steps, not just the final answer.
         </div>
 
-        {/* Error state */}
+        {/* Error */}
         {gradeError && (
-          <div style={{ padding: "12px 14px", borderRadius: 12, background: "hsla(0,72%,51%,0.1)", border: "1px solid hsla(0,72%,51%,0.25)", color: "hsl(0,72%,65%)", fontSize: "0.82rem" }}>
+          <div style={{ padding: "12px 14px", borderRadius: 12, background: "var(--mob-danger-soft)", border: "1px solid rgba(239,68,68,0.2)", color: "var(--mob-danger)", fontSize: "0.82rem" }}>
             {gradeError}
           </div>
         )}
@@ -362,13 +369,13 @@ export default function CheckImprove() {
       <div
         style={{
           position: "fixed",
-          bottom: 68,
+          bottom: "var(--mob-nav-height)",
           left: "50%",
           transform: "translateX(-50%)",
           width: "100%",
-          maxWidth: 480,
-          borderTop: "1px solid hsla(255,100%,100%,0.07)",
-          background: "hsla(0,0%,7%,0.96)",
+          maxWidth: 440,
+          borderTop: `1px solid var(--mob-card-border)`,
+          background: "rgba(245,245,247,0.97)",
           backdropFilter: "blur(12px)",
           WebkitBackdropFilter: "blur(12px)",
           padding: "12px 20px",
@@ -384,8 +391,8 @@ export default function CheckImprove() {
             height: 52,
             borderRadius: 14,
             border: "none",
-            background: canGrade && !grading ? "hsl(280,70%,60%)" : "hsla(280,70%,60%,0.3)",
-            color: canGrade && !grading ? "#fff" : "hsla(255,100%,100%,0.4)",
+            background: canGrade && !grading ? "hsl(280,60%,50%)" : "rgba(139,92,246,0.25)",
+            color: canGrade && !grading ? "#ffffff" : "rgba(0,0,0,0.3)",
             fontFamily: "var(--font-display)",
             fontWeight: 800,
             fontSize: "1rem",
@@ -396,7 +403,7 @@ export default function CheckImprove() {
           {grading ? "Grading…" : "Grade my answers →"}
         </button>
         {!canGrade && !grading && (
-          <div style={{ textAlign: "center", fontSize: "0.68rem", color: "var(--text-muted)", marginTop: 6 }}>
+          <div style={{ textAlign: "center", fontSize: "0.68rem", color: "var(--mob-fg-muted)", marginTop: 6 }}>
             {!hasContent ? "Upload or type an answer first" : "Add a question description to continue"}
           </div>
         )}
@@ -408,10 +415,10 @@ export default function CheckImprove() {
 /* ── GradedResult sub-component ───────────────────────────────── */
 function StatusBadge({ status }: { status: CheckSolutionAnnotatedStep["status"] }) {
   const map: Record<string, { label: string; color: string; bg: string }> = {
-    correct:   { label: "Correct",   color: "hsl(142,71%,45%)",  bg: "hsla(142,71%,45%,0.12)" },
-    partial:   { label: "Partial",   color: "hsl(38,92%,50%)",   bg: "hsla(38,92%,50%,0.12)" },
-    incorrect: { label: "Incorrect", color: "hsl(0,72%,55%)",    bg: "hsla(0,72%,51%,0.12)" },
-    missing:   { label: "Missing",   color: "hsl(0,72%,55%)",    bg: "hsla(0,72%,51%,0.12)" },
+    correct:   { label: "Correct",   color: "var(--mob-success)",  bg: "var(--mob-success-soft)" },
+    partial:   { label: "Partial",   color: "var(--mob-warning)",  bg: "var(--mob-warning-soft)" },
+    incorrect: { label: "Incorrect", color: "var(--mob-danger)",   bg: "var(--mob-danger-soft)" },
+    missing:   { label: "Missing",   color: "var(--mob-danger)",   bg: "var(--mob-danger-soft)" },
   };
   const s = map[status] ?? map.incorrect;
   return (
@@ -435,39 +442,21 @@ function GradedResult({
   const incorrect = result.annotatedSteps.filter((s) => s.status === "incorrect" || s.status === "missing").length;
   const lost      = result.annotatedSteps.filter((s) => s.status !== "correct");
 
+  const pct = Math.round(result.percentage);
+  const ringColor = pct >= 70 ? "var(--mob-success)" : pct >= 40 ? "var(--mob-warning)" : "var(--mob-danger)";
+
   return (
-    <MobileShell
-      title="Your Result"
-      showBack
-      onBack={onBack}
-      showNav
-    >
-      <div className="screen-pad animate-float-up" style={{ display: "flex", flexDirection: "column", gap: 16, paddingBottom: 32 }}>
+    <MobileShell title="Your Result" showBack onBack={onBack} showNav>
+      <div style={{ display: "flex", flexDirection: "column", gap: 16, paddingBottom: 32 }}>
 
         {/* ── Score card ───────────────────────────────────────── */}
-        <div
-          className="shadow-elev"
-          style={{
-            borderRadius: 20,
-            overflow: "hidden",
-            border: "1px solid hsla(255,100%,100%,0.07)",
-          }}
-        >
-          {/* Dark header */}
-          <div
-            style={{
-              background: "var(--bg-card)",
-              padding: "20px 18px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
+        <div className="card-soft" style={{ overflow: "hidden" }}>
+          <div style={{ padding: "20px 18px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <div>
-              <div style={{ fontSize: "0.72rem", color: "var(--text-muted)", marginBottom: 4 }}>Score</div>
-              <div style={{ fontFamily: "var(--font-display)", fontWeight: 900, fontSize: "2rem", lineHeight: 1 }}>
+              <div style={{ fontSize: "0.72rem", color: "var(--mob-fg-muted)", marginBottom: 4 }}>Score</div>
+              <div style={{ fontFamily: "var(--font-display)", fontWeight: 900, fontSize: "2rem", lineHeight: 1, color: "var(--mob-fg)" }}>
                 {result.marksAwarded}
-                <span style={{ fontSize: "1rem", color: "var(--text-muted)", fontWeight: 400 }}>
+                <span style={{ fontSize: "1rem", color: "var(--mob-fg-muted)", fontWeight: 400 }}>
                   /{result.totalMarks}
                 </span>
               </div>
@@ -477,36 +466,30 @@ function GradedResult({
                 width: 64,
                 height: 64,
                 borderRadius: "50%",
-                border: `4px solid ${result.percentage >= 70 ? "hsl(142,71%,45%)" : result.percentage >= 40 ? "hsl(38,92%,50%)" : "hsl(0,72%,55%)"}`,
+                border: `4px solid ${ringColor}`,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 fontFamily: "var(--font-display)",
                 fontWeight: 800,
                 fontSize: "1.1rem",
-                color: result.percentage >= 70 ? "hsl(142,71%,55%)" : result.percentage >= 40 ? "hsl(38,92%,50%)" : "hsl(0,72%,65%)",
+                color: ringColor,
               }}
             >
-              {Math.round(result.percentage)}%
+              {pct}%
             </div>
           </div>
 
           {/* Stats row */}
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(3, 1fr)",
-              borderTop: "1px solid hsla(255,100%,100%,0.06)",
-            }}
-          >
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", borderTop: `1px solid var(--mob-card-border)` }}>
             {[
-              { label: "Correct", count: correct, color: "hsl(142,71%,55%)" },
-              { label: "Partial", count: partial,  color: "hsl(38,92%,50%)" },
-              { label: "Wrong",   count: incorrect, color: "hsl(0,72%,65%)" },
+              { label: "Correct", count: correct,   color: "var(--mob-success)" },
+              { label: "Partial", count: partial,   color: "var(--mob-warning)" },
+              { label: "Wrong",   count: incorrect, color: "var(--mob-danger)" },
             ].map(({ label, count: c, color }) => (
               <div key={label} style={{ textAlign: "center", padding: "12px 8px" }}>
                 <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.2rem", color }}>{c}</div>
-                <div style={{ fontSize: "0.68rem", color: "var(--text-muted)" }}>{label}</div>
+                <div style={{ fontSize: "0.68rem", color: "var(--mob-fg-muted)" }}>{label}</div>
               </div>
             ))}
           </div>
@@ -515,22 +498,22 @@ function GradedResult({
         {/* ── Where you lost marks ──────────────────────────────── */}
         {lost.length > 0 && (
           <div>
-            <div style={{ fontSize: "0.72rem", color: "var(--text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>
+            <div style={{ fontSize: "0.72rem", color: "var(--mob-fg-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>
               Where you lost marks
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {lost.map((step) => (
                 <div key={step.stepNumber} className="card-soft" style={{ padding: "12px 14px" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
-                    <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>Step {step.stepNumber}</span>
+                    <span style={{ fontSize: "0.72rem", color: "var(--mob-fg-muted)" }}>Step {step.stepNumber}</span>
                     <StatusBadge status={step.status} />
                   </div>
-                  <div style={{ fontSize: "0.8rem", lineHeight: 1.5, marginBottom: 4 }}>{step.description}</div>
+                  <div style={{ fontSize: "0.8rem", lineHeight: 1.5, marginBottom: 4, color: "var(--mob-fg)" }}>{step.description}</div>
                   {step.teacherAnnotation && (
-                    <div style={{ fontSize: "0.74rem", color: "var(--text-muted)", fontStyle: "italic" }}>{step.teacherAnnotation}</div>
+                    <div style={{ fontSize: "0.74rem", color: "var(--mob-fg-muted)", fontStyle: "italic" }}>{step.teacherAnnotation}</div>
                   )}
                   {step.marksDeducted > 0 && (
-                    <div style={{ fontSize: "0.68rem", color: "hsl(0,72%,65%)", marginTop: 4 }}>
+                    <div style={{ fontSize: "0.68rem", color: "var(--mob-danger)", marginTop: 4 }}>
                       −{step.marksDeducted} mark{step.marksDeducted !== 1 ? "s" : ""}
                     </div>
                   )}
@@ -544,16 +527,16 @@ function GradedResult({
         {result.teacherNote && (
           <div
             className="card-soft"
-            style={{ padding: "14px 16px", background: "hsla(217,91%,60%,0.07)", border: "1px solid hsla(217,91%,60%,0.15)" }}
+            style={{ padding: "14px 16px", background: "rgba(59,130,246,0.05)", border: "1px solid rgba(59,130,246,0.12)" }}
           >
-            <div style={{ fontWeight: 600, fontSize: "0.82rem", marginBottom: 6, color: "hsl(217,91%,65%)" }}>Examiner insight</div>
-            <div style={{ fontSize: "0.78rem", color: "var(--text-muted)", lineHeight: 1.6 }}>{result.teacherNote}</div>
+            <div style={{ fontWeight: 600, fontSize: "0.82rem", marginBottom: 6, color: "hsl(217,76%,45%)" }}>Examiner insight</div>
+            <div style={{ fontSize: "0.78rem", color: "var(--mob-fg-muted)", lineHeight: 1.6 }}>{result.teacherNote}</div>
           </div>
         )}
 
         {/* ── Recommended next ─────────────────────────────────── */}
         <div>
-          <div style={{ fontSize: "0.72rem", color: "var(--text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>
+          <div style={{ fontSize: "0.72rem", color: "var(--mob-fg-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>
             Recommended next
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -561,10 +544,9 @@ function GradedResult({
               onClick={() => navigate("/app/topic-hub")}
               style={{
                 width: "100%", height: 48, borderRadius: 14,
-                border: "1px solid hsla(255,100%,100%,0.12)",
-                background: "transparent", color: "var(--text)",
-                fontFamily: "var(--font-body)", fontWeight: 600,
-                fontSize: "0.88rem", cursor: "pointer",
+                border: `1px solid var(--mob-card-border)`,
+                background: "var(--mob-card)", color: "var(--mob-fg)",
+                fontFamily: "var(--font-body)", fontWeight: 600, fontSize: "0.88rem", cursor: "pointer",
               }}
             >
               Revise topic →
@@ -573,10 +555,9 @@ function GradedResult({
               onClick={() => navigate("/app/practice/worksheets")}
               style={{
                 width: "100%", height: 48, borderRadius: 14,
-                border: "1px solid hsla(255,100%,100%,0.12)",
-                background: "transparent", color: "var(--text)",
-                fontFamily: "var(--font-body)", fontWeight: 600,
-                fontSize: "0.88rem", cursor: "pointer",
+                border: `1px solid var(--mob-card-border)`,
+                background: "var(--mob-card)", color: "var(--mob-fg)",
+                fontFamily: "var(--font-body)", fontWeight: 600, fontSize: "0.88rem", cursor: "pointer",
               }}
             >
               Generate targeted worksheet →
@@ -588,11 +569,7 @@ function GradedResult({
         <div style={{ textAlign: "center" }}>
           <button
             onClick={() => navigate("/app/me")}
-            style={{
-              background: "none", border: "none",
-              color: "var(--text-muted)", fontSize: "0.8rem",
-              cursor: "pointer", textDecoration: "underline",
-            }}
+            style={{ background: "none", border: "none", color: "var(--mob-fg-muted)", fontSize: "0.8rem", cursor: "pointer", textDecoration: "underline" }}
           >
             See full progress in Me →
           </button>
