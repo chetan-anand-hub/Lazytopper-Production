@@ -1878,7 +1878,7 @@ export const sciencePredictedQuestions: SciencePredictedQuestion[] = [
   },
 
   {
-    id: "2026-EL-SA-04",
+    id: "2026-EL-SA-04b",
     topicKey: "Electricity",
     subtopic: "Resistors in Series & Parallel",
     kind: "Short",
@@ -1903,7 +1903,7 @@ export const sciencePredictedQuestions: SciencePredictedQuestion[] = [
   },
 
   {
-    id: "2026-EL-SA-05",
+    id: "2026-EL-SA-05b",
     topicKey: "Electricity",
     subtopic: "Power of an Appliance",
     kind: "Short",
@@ -2218,7 +2218,7 @@ The phenomenon responsible is atmospheric refraction.`,
   },
 
   {
-    id: "2026-LP-SA-03",
+    id: "2026-LP-SA-03b",
     topicKey: "LifeProcesses",
     subtopic: "Human Circulatory System",
     kind: "Short",
@@ -2244,7 +2244,7 @@ The phenomenon responsible is atmospheric refraction.`,
   },
 
   {
-    id: "2026-LP-SA-04",
+    id: "2026-LP-SA-04b",
     topicKey: "LifeProcesses",
     subtopic: "Excretion in Humans",
     kind: "Short",
@@ -2649,7 +2649,7 @@ Phenotypes: 3 tall : 1 dwarf.`,
   },
 
   {
-    id: "2026-LP-LA-07",
+    id: "2026-LP-LA-07b",
     topicKey: "LifeProcesses",
     subtopic: "Transportation in Humans",
     kind: "Short",
