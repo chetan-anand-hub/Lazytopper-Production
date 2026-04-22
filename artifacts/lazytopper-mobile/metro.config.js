@@ -21,4 +21,13 @@ config.resolver.extraNodeModules = {
   "scheduler": path.resolve(projectRoot, "node_modules/scheduler"),
 };
 
+// Exclude transient/temp workspace directories from the file watcher to prevent
+// ENOENT crashes when directories are deleted while Metro is watching them.
+const blockList = [
+  /[/\\]\.local[/\\].*/,
+  /[/\\]attached_assets[/\\].*/,
+  /[/\\]\.git[/\\].*/,
+];
+config.resolver.blockList = blockList;
+
 module.exports = config;
