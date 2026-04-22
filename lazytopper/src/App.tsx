@@ -64,12 +64,12 @@ const CacheStatsPage = lazy(() => import("./pages/CacheStatsPage"));
 const DifficultyBreakdownPage = lazy(() => import("./pages/DifficultyBreakdownPage"));
 const QuestionReportsPage = lazy(() => import("./pages/QuestionReportsPage"));
 
-// Mobile baseline pages (#436 stubs — filled in Task #437)
-const MobileIntentPage = lazy(() => import("./pages/mobile/MobileIntentPage"));
-const MobileAppPracticePage = lazy(() => import("./pages/mobile/MobileAppPracticePage"));
-const MobileWorksheetsPage = lazy(() => import("./pages/mobile/MobileWorksheetsPage"));
-const MobileWorksheetReadyPage = lazy(() => import("./pages/mobile/MobileWorksheetReadyPage"));
-const MobileCheckImprovePage = lazy(() => import("./pages/mobile/MobileCheckImprovePage"));
+// Mobile baseline pages (#437 — real implementations)
+const Intent            = lazy(() => import("./pages/app/Intent"));
+const PracticeHome      = lazy(() => import("./pages/app/PracticeHome"));
+const Worksheets        = lazy(() => import("./pages/app/Worksheets"));
+const WorksheetReady    = lazy(() => import("./pages/app/WorksheetReady"));
+const CheckImprove      = lazy(() => import("./pages/app/CheckImprove"));
 
 function RouteFallback() {
   return (
@@ -709,20 +709,20 @@ export default function App() {
             element={<RequireAuth>{withRouteSuspense(<SettingsPage />)}</RequireAuth>}
           />
 
-          {/* ── Mobile baseline /app/* routes (#436 stubs) ─────────────── */}
+          {/* ── Mobile baseline /app/* routes (#437 real implementations) ─── */}
 
           {/* Intent screen — BottomNav hidden by visibility gate in BottomNav() */}
-          <Route path="/app/intent" element={withRouteSuspense(<MobileIntentPage />)} />
+          <Route path="/app/intent" element={withRouteSuspense(<Intent />)} />
 
           {/* Practice hub */}
-          <Route path="/app/practice" element={withRouteSuspense(<MobileAppPracticePage />)} />
+          <Route path="/app/practice" element={withRouteSuspense(<PracticeHome />)} />
 
-          {/* Worksheets flow */}
-          <Route path="/app/practice/worksheets/ready" element={withRouteSuspense(<MobileWorksheetReadyPage />)} />
-          <Route path="/app/practice/worksheets" element={withRouteSuspense(<MobileWorksheetsPage />)} />
+          {/* Worksheets flow — ready must be before the parent to avoid partial match */}
+          <Route path="/app/practice/worksheets/ready" element={withRouteSuspense(<WorksheetReady />)} />
+          <Route path="/app/practice/worksheets" element={withRouteSuspense(<Worksheets />)} />
 
-          {/* Check & Improve — upload → real grading (Task #437) */}
-          <Route path="/app/check-improve" element={withRouteSuspense(<MobileCheckImprovePage />)} />
+          {/* Check & Improve — upload → real AI grading */}
+          <Route path="/app/check-improve" element={withRouteSuspense(<CheckImprove />)} />
 
           {/* Alias routes: resolve grade/subject from localStorage, redirect to existing param routes */}
           <Route path="/app/exam-trends" element={<ExamTrendsAlias />} />
