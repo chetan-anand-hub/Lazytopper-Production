@@ -9,7 +9,7 @@ const MODES = [
     pill: "Most popular",
     color: "var(--mob-primary)",
     bg: "rgba(26,58,92,0.08)",
-    route: "/app/practice",
+    route: "/practice-hub",
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
@@ -23,7 +23,7 @@ const MODES = [
     pill: "Data-driven",
     color: "hsl(217,76%,45%)",
     bg: "rgba(59,130,246,0.08)",
-    route: "/app/exam-trends",
+    route: "/exam-trends",
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
@@ -37,7 +37,7 @@ const MODES = [
     pill: "AI-powered",
     color: "hsl(280,60%,50%)",
     bg: "rgba(139,92,246,0.08)",
-    route: "/app/check-improve",
+    route: "/check-improve",
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M15 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>

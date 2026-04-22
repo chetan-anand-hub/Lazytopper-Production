@@ -128,7 +128,7 @@ function BottomNav() {
   const current = location.pathname;
 
   // ── Visibility gate ────────────────────────────────────────────────
-  if (current === "/welcome" || current.startsWith("/app/intent")) {
+  if (current === "/welcome" || current.startsWith("/intent")) {
     return null;
   }
 
@@ -138,7 +138,7 @@ function BottomNav() {
 
   // ── Active-state detection ─────────────────────────────────────────
   const isPracticeActive =
-    current.startsWith("/app/practice") ||
+    current.startsWith("/practice-hub") ||
     current.startsWith("/practice") ||
     current.startsWith("/exam-simulation") ||
     current.startsWith("/highly-probable") ||
@@ -154,13 +154,11 @@ function BottomNav() {
     current.startsWith("/planner");
 
   const isExamTrendsActive =
-    current.startsWith("/app/exam-trends") ||
-    current.startsWith("/app/topic-hub") ||
+    current.startsWith("/exam-trends") ||
     current.startsWith("/trends") ||
     current.startsWith("/topic-hub");
 
   const isMeActive =
-    current === "/app/me" ||
     current === "/profile" ||
     current === "/dashboard" ||
     current === "/" ||
@@ -178,7 +176,7 @@ function BottomNav() {
         </svg>
       ),
       active: isPracticeActive,
-      onClick: () => go("/app/practice"),
+      onClick: () => go("/practice-hub"),
     },
     {
       label: "Exam Trends",
@@ -190,7 +188,7 @@ function BottomNav() {
         </svg>
       ),
       active: isExamTrendsActive,
-      onClick: () => go("/app/exam-trends"),
+      onClick: () => go("/exam-trends"),
     },
     {
       label: "Me",
@@ -204,7 +202,7 @@ function BottomNav() {
       active: isMeActive,
       onClick: () => {
         if (navUser) {
-          go("/app/me");
+          go("/profile");
         } else {
           go("/welcome");
         }
@@ -709,27 +707,25 @@ export default function App() {
             element={<RequireAuth>{withRouteSuspense(<SettingsPage />)}</RequireAuth>}
           />
 
-          {/* ── Mobile baseline /app/* routes (#437 real implementations) ─── */}
+          {/* ── Mobile baseline routes (#437)
+               Note: BrowserRouter basename="/app" strips /app from all URLs.
+               Route paths here are relative to that basename — no /app/ prefix. ─── */}
 
-          {/* Intent screen — BottomNav hidden by visibility gate in BottomNav() */}
-          <Route path="/app/intent" element={withRouteSuspense(<Intent />)} />
+          {/* Intent screen — BottomNav hidden by visibility gate when path starts with /intent */}
+          <Route path="/intent" element={withRouteSuspense(<Intent />)} />
 
-          {/* Practice hub */}
-          <Route path="/app/practice" element={withRouteSuspense(<PracticeHome />)} />
+          {/* Practice hub — named /practice-hub to avoid ambiguity with /practice/:grade/:subject */}
+          <Route path="/practice-hub" element={withRouteSuspense(<PracticeHome />)} />
 
           {/* Worksheets flow — ready must be before the parent to avoid partial match */}
-          <Route path="/app/practice/worksheets/ready" element={withRouteSuspense(<WorksheetReady />)} />
-          <Route path="/app/practice/worksheets" element={withRouteSuspense(<Worksheets />)} />
+          <Route path="/practice/worksheets/ready" element={withRouteSuspense(<WorksheetReady />)} />
+          <Route path="/practice/worksheets" element={withRouteSuspense(<Worksheets />)} />
 
           {/* Check & Improve — upload → real AI grading */}
-          <Route path="/app/check-improve" element={withRouteSuspense(<CheckImprove />)} />
+          <Route path="/check-improve" element={withRouteSuspense(<CheckImprove />)} />
 
           {/* Alias routes: resolve grade/subject from localStorage, redirect to existing param routes */}
-          <Route path="/app/exam-trends" element={<ExamTrendsAlias />} />
-          <Route path="/app/topic-hub" element={<TopicHubAlias />} />
-
-          {/* Me: redirect to profile (auth gate on /profile handles unauthenticated users) */}
-          <Route path="/app/me" element={<Navigate to="/profile" replace />} />
+          <Route path="/exam-trends" element={<ExamTrendsAlias />} />
 
           {/* Catch-all: redirect unknown routes to a sensible default */}
           <Route path="*" element={<HomeRedirect />} />

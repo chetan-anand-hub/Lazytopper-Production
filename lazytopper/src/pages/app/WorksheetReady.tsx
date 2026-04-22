@@ -31,7 +31,7 @@ export default function WorksheetReady() {
     <MobileShell
       title="Worksheet Ready"
       showBack
-      onBack={() => navigate("/app/practice/worksheets")}
+      onBack={() => navigate("/practice/worksheets")}
       showNav
     >
       <div style={{ display: "flex", flexDirection: "column", gap: 16, paddingBottom: 32 }}>
@@ -155,7 +155,7 @@ export default function WorksheetReady() {
         </button>
 
         <button
-          onClick={() => navigate("/app/practice/worksheets")}
+          onClick={() => navigate("/practice/worksheets")}
           style={{
             background: "none",
             border: "none",

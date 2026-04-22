@@ -62,7 +62,7 @@ export default function PracticeHome() {
     if (key === "predicted") return `/highly-probable/10/${subject}`;
     if (key === "timed")     return `/practice/10/${subject}?timed=1`;
     if (key === "mock")      return `/exam-simulation`;
-    return "/app/practice";
+    return "/practice-hub";
   }
 
   return (
@@ -76,7 +76,7 @@ export default function PracticeHome() {
         {/* ── Featured: Worksheet Generator ─────────────────────── */}
         <button
           className="tap"
-          onClick={() => navigate("/app/practice/worksheets")}
+          onClick={() => navigate("/practice/worksheets")}
           style={{
             display: "block",
             width: "100%",
