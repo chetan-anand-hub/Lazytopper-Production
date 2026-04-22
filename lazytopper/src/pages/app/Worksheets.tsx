@@ -54,7 +54,7 @@ const PRESETS = [
   {
     key: "quick-drill",
     label: "Quick drill",
-    desc: "Sections A–B · All difficulty · 15 questions",
+    desc: "All sections · All difficulty · 15 questions",
     section: "All" as const,
     difficulty: "All" as const,
     count: 15,
@@ -62,7 +62,7 @@ const PRESETS = [
   {
     key: "marks-focus",
     label: "High-marks focus",
-    desc: "Section C–E · Hard difficulty · 20 questions",
+    desc: "All sections · Hard difficulty · 20 questions",
     section: "All" as const,
     difficulty: "Hard" as const,
     count: 20,
