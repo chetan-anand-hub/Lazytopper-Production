@@ -1,0 +1,83 @@
+This revised mobile-only plan is much closer and the scope correction is accepted.
+
+I am approving the overall direction, but add these 4 requirements before coding starts:
+
+## 1. Shared mobile shell/header component is required
+
+Do not implement each mobile page header ad hoc.
+
+Create one shared mobile screen wrapper/component that handles:
+
+* sticky top header pattern
+* back button / title / optional subtitle
+* screen padding
+* safe-area handling
+* bottom-nav offset
+* scrollable content container
+
+This is required for parity consistency across:
+
+* intent
+* practice
+* worksheets
+* worksheetReady
+* checkImprove
+* graded
+* examTrends
+* topicHub
+* me
+
+## 2. Explicit context resolution for alias routes is required
+
+For these mobile routes:
+
+* `/app/exam-trends`
+* `/app/topic-hub`
+* `/app/me`
+
+define explicitly how grade/subject/topic context resolves when entered directly.
+
+Do not leave this implicit.
+
+Use a deterministic rule, for example:
+
+* grade = 10
+* subject = last selected subject if available
+* otherwise fallback subject = Maths
+
+If Topic Hub requires topic selection before render, route the user to the appropriate selector or entry state instead of guessing silently.
+
+## 3. Do not ship fake graded-result data as final behavior
+
+For `/app/check-improve`:
+
+* upload shell can be built new
+* but graded result must use real checking/grading logic where possible
+
+If `SolutionChecker` cannot be reused cleanly:
+
+* flag graded integration as blocked
+* do not silently ship a static fake graded result as if it were real production behavior
+
+## 4. BottomNav visibility rules must be explicit
+
+Do not show BottomNav blindly on every mobile screen.
+
+Use these rules unless a locked baseline screen clearly requires otherwise:
+
+* landing: no bottom nav
+* intent: no bottom nav
+* practice: show
+* exam trends: show
+* me: show
+* worksheet / worksheetReady / checkImprove / graded / topicHub: show only if it does not conflict with baseline composition and screen actions
+
+## After these corrections
+
+Proceed with the mobile-only implementation sequence:
+
+* #436 mobile foundation
+* #437 new mobile pages
+* #438 responsive corrections
+
+Desktop baseline work remains separate and paused for now.
