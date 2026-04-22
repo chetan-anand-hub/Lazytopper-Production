@@ -1441,6 +1441,8 @@ export default function TopicHub() {
                             subject={subjectTitle}
                             topic={title}
                             questionId={currentMiniQuestion.id ? String(currentMiniQuestion.id) : undefined}
+                            solutionSteps={currentMiniQuestion.solutionSteps}
+                            finalAnswer={currentMiniQuestion.finalAnswer}
                             onResult={(r) => setAiCheckerResult(r)}
                             onRequestStepSolution={handleRequestStepSolution}
                           />

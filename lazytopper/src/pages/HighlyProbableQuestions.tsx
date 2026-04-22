@@ -2232,6 +2232,8 @@ const HighlyProbableQuestions: React.FC = () => {
                                       subject={bucket.subject ?? subjectKey}
                                       topic={bucket.topic}
                                       questionId={q.id ? String(q.id) : undefined}
+                                      solutionSteps={q.solutionSteps}
+                                      finalAnswer={q.finalAnswer}
                                     />
                                   </div>
                                 )}

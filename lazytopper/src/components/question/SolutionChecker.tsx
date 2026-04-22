@@ -34,6 +34,8 @@ interface SolutionCheckerProps {
   subject: string;
   topic: string;
   questionId?: string;
+  solutionSteps?: string[];
+  finalAnswer?: string;
   onRequestStepSolution?: () => void;
   onResult?: (result: CheckSolutionResponse) => void;
 }
@@ -196,7 +198,7 @@ function MistakeSummaryLine({ summary }: { summary: CheckSolutionResponse["mista
 }
 
 export function SolutionChecker({
-  question, marks, subject, topic, questionId, onRequestStepSolution, onResult,
+  question, marks, subject, topic, questionId, solutionSteps, finalAnswer, onRequestStepSolution, onResult,
 }: SolutionCheckerProps) {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -308,6 +310,8 @@ export function SolutionChecker({
         topic,
         ...(hasImage ? { imageBase64: imageBase64!, imageMimeType } : {}),
         ...(hasText && !hasImage ? { textAnswer: textAnswer.trim() } : {}),
+        ...(solutionSteps && solutionSteps.length > 0 ? { solutionSteps } : {}),
+        ...(finalAnswer ? { finalAnswer } : {}),
       });
 
       if (response.ok) {
@@ -349,7 +353,7 @@ export function SolutionChecker({
     } finally {
       setLoading(false);
     }
-  }, [imageBase64, imageMimeType, textAnswer, question, marks, subject, topic, user, questionId]);
+  }, [imageBase64, imageMimeType, textAnswer, question, marks, subject, topic, user, questionId, solutionSteps, finalAnswer]);
 
   const handleClear = useCallback(() => {
     setImagePreview(null);

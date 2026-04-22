@@ -277,6 +277,8 @@ export async function checkSolutionImage(req: {
   imageBase64?: string;
   imageMimeType?: string;
   textAnswer?: string;
+  solutionSteps?: string[];
+  finalAnswer?: string;
 }): Promise<CheckSolutionResponse> {
   const res = await fetch(`${API_BASE}/check-solution`, {
     method: "POST",

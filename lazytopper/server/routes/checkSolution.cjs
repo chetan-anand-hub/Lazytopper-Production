@@ -61,6 +61,8 @@ function createCheckSolutionRoute(deps) {
     const imageBase64 = String(payload.imageBase64 || '').trim();
     const imageMimeType = String(payload.imageMimeType || 'image/jpeg').trim();
     const textAnswer = String(payload.textAnswer || '').trim();
+    const solutionSteps = Array.isArray(payload.solutionSteps) ? payload.solutionSteps.map(String) : null;
+    const finalAnswer = payload.finalAnswer ? String(payload.finalAnswer).trim() : null;
 
     const isPdf = imageMimeType === 'application/pdf';
     const hasImage = imageBase64.length > 0;
@@ -129,12 +131,20 @@ function createCheckSolutionRoute(deps) {
         '  "teacherNote": "3–4 sentence plain-language teacher summary"\n' +
         '}';
 
+      const markingSchemeBlock = solutionSteps && solutionSteps.length > 0
+        ? '\n\nOFFICIAL CBSE MARKING SCHEME (use this as your reference for grading):\n' +
+          solutionSteps.map((step, i) => '  Step ' + (i + 1) + ': ' + step).join('\n') +
+          (finalAnswer ? '\n  Final answer: ' + finalAnswer : '') +
+          '\n\nGrade the student\'s work step-by-step against these official steps. For each official step, assess whether the student hit it (correct), partially hit it (partial), missed it entirely (missing), or got it wrong (incorrect). Award marks according to the weights shown in [brackets] in each step, or distribute evenly if no brackets are present. Note which official steps the student completed and which they skipped.\n'
+        : '';
+
       const userPrompt =
         'Grade this student\'s answer for the following CBSE board exam question.\n\n' +
         'Question: ' + question + '\n' +
         'Total marks: ' + marks + '\n' +
         'Subject: ' + subject + '\n' +
         (topic ? 'Chapter/Topic: ' + topic + '\n' : '') +
+        markingSchemeBlock +
         '\n' +
         (hasImage
           ? 'The attached ' + (isPdf ? 'PDF (may contain multiple pages of handwritten work)' : 'image') + ' shows the student\'s handwritten answer. Read ALL content carefully and evaluate the complete solution.\n\n'

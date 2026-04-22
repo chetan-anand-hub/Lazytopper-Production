@@ -327,6 +327,8 @@ export function PracticeQuestionCard({
           subject={subjectKey}
           topic={topicLabel}
           questionId={String(q.id)}
+          solutionSteps={q.solutionSteps}
+          finalAnswer={q.finalAnswer}
           onRequestStepSolution={handleRequestStepSolution}
         />
       )}
