@@ -142,7 +142,7 @@ export default function Worksheets() {
       };
 
       /* Navigate to the ready screen — download happens there on user action. */
-      navigate("/app/practice/worksheets/ready", { state: { opts } });
+      navigate("/practice/worksheets/ready", { state: { opts } });
     } catch {
       setError("Worksheet generation failed. Please try again.");
     } finally {
@@ -157,7 +157,7 @@ export default function Worksheets() {
       title="Worksheet Generator"
       subtitle="Powerful but simple"
       showBack
-      onBack={() => navigate("/app/practice")}
+      onBack={() => navigate("/practice-hub")}
       showNav
     >
       {/* Scrollable content — extra bottom padding clears sticky CTA + BottomNav */}

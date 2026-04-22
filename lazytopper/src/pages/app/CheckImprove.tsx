@@ -541,7 +541,7 @@ function GradedResult({
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             <button
-              onClick={() => navigate("/app/topic-hub")}
+              onClick={() => navigate("/topic-hub")}
               style={{
                 width: "100%", height: 48, borderRadius: 14,
                 border: `1px solid var(--mob-card-border)`,
@@ -552,7 +552,7 @@ function GradedResult({
               Revise topic →
             </button>
             <button
-              onClick={() => navigate("/app/practice/worksheets")}
+              onClick={() => navigate("/practice/worksheets")}
               style={{
                 width: "100%", height: 48, borderRadius: 14,
                 border: `1px solid var(--mob-card-border)`,
@@ -568,7 +568,7 @@ function GradedResult({
         {/* ── See progress link ─────────────────────────────────── */}
         <div style={{ textAlign: "center" }}>
           <button
-            onClick={() => navigate("/app/me")}
+            onClick={() => navigate("/profile")}
             style={{ background: "none", border: "none", color: "var(--mob-fg-muted)", fontSize: "0.8rem", cursor: "pointer", textDecoration: "underline" }}
           >
             See full progress in Me →
