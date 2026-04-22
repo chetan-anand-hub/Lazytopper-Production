@@ -6801,6 +6801,11 @@ span.ux-return-bar__chip {
   --mob-muted-border: rgba(0,0,0,0.06);
   --mob-overlay: rgba(0,0,0,0.45);
   --mob-nav-height: 60px;
+
+  /* Mobile typography
+     --font-body is "Inter, ui-sans-serif, ..." already defined in :root above.
+     --mob-font-display adds Fraunces for headings (loaded via index.html). */
+  --mob-font-display: "Fraunces", Georgia, serif;
 }
 
 /* ---- Layout shells ---- */

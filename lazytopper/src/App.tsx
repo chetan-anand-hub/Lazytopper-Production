@@ -718,8 +718,8 @@ export default function App() {
           <Route path="/app/practice" element={withRouteSuspense(<MobileAppPracticePage />)} />
 
           {/* Worksheets flow */}
-          <Route path="/app/worksheets/ready" element={withRouteSuspense(<MobileWorksheetReadyPage />)} />
-          <Route path="/app/worksheets" element={withRouteSuspense(<MobileWorksheetsPage />)} />
+          <Route path="/app/practice/worksheets/ready" element={withRouteSuspense(<MobileWorksheetReadyPage />)} />
+          <Route path="/app/practice/worksheets" element={withRouteSuspense(<MobileWorksheetsPage />)} />
 
           {/* Check & Improve — upload → real grading (Task #437) */}
           <Route path="/app/check-improve" element={withRouteSuspense(<MobileCheckImprovePage />)} />
