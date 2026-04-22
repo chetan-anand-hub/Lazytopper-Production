@@ -118,6 +118,7 @@ export function MobileShell({
                   margin: 0,
                   fontSize: "1rem",
                   fontWeight: 700,
+                  fontFamily: "var(--font-display)",
                   color: "var(--mob-fg)",
                   whiteSpace: "nowrap",
                   overflow: "hidden",
