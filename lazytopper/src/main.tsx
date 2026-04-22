@@ -9,6 +9,9 @@ import { ProfileProvider } from "./context/ProfileContext";
 import { SmartLearningProvider } from "./engine/smartLearningStore";
 import { VibeProvider } from "./context/vibeModeContext";
 import { ThemeProvider } from "./context/ThemeContext";
+import { checkDuplicateQuestionIds } from "./data/checkDuplicateQuestionIds";
+
+checkDuplicateQuestionIds();
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 const clerkProxyUrl = import.meta.env.VITE_CLERK_PROXY_URL || undefined;
