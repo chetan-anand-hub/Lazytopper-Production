@@ -379,6 +379,44 @@ JSON output:
 }
 
 // ---------------------------------------------------------------------------
+// Sanity-check the patched text before writing to disk.
+// Returns { ok: true } or { ok: false, reason: string }.
+// Catches the two classes of corruption seen in task #399:
+//   1. Missing comma before the inserted solutionSteps / finalAnswer field.
+//   2. Structural issues like empty arrays or unclosed strings.
+// ---------------------------------------------------------------------------
+function validatePatchedText(text) {
+  // Check 1: missing comma before a newly inserted solutionSteps field.
+  // A well-formed object has a comma (or { or [ ) before solutionSteps.
+  // Pattern: any non-comma char, optional trailing whitespace, newline, indentation, then solutionSteps:.
+  if (/[^,{\[]\s*\n\s+solutionSteps\s*:/.test(text)) {
+    return { ok: false, reason: 'Missing comma before solutionSteps field — object literal would be corrupted' };
+  }
+
+  // Check 2: missing comma before a newly inserted finalAnswer field.
+  if (/[^,{\[]\s*\n\s+finalAnswer\s*:/.test(text)) {
+    return { ok: false, reason: 'Missing comma before finalAnswer field — object literal would be corrupted' };
+  }
+
+  // Check 3: double-comma anywhere (another separator-related corruption signal).
+  if (/,,/.test(text)) {
+    return { ok: false, reason: 'Double comma (,,) detected — likely duplicate separator insertion' };
+  }
+
+  // Check 4: empty solutionSteps array — we never intentionally write [].
+  if (/solutionSteps\s*:\s*\[\s*\]/.test(text)) {
+    return { ok: false, reason: 'Empty solutionSteps array [] detected — AI response had no steps' };
+  }
+
+  // Check 5: unclosed finalAnswer string (value runs to end-of-line without closing quote).
+  if (/finalAnswer\s*:\s*"[^"\n]*$/.test(text)) {
+    return { ok: false, reason: 'Unclosed finalAnswer string — AI text likely contained a raw newline' };
+  }
+
+  return { ok: true };
+}
+
+// ---------------------------------------------------------------------------
 // Process one file: extract gaps → call Gemini in batches → patch & write.
 // ---------------------------------------------------------------------------
 async function processFile(fileSpec, gemini) {
@@ -479,8 +517,17 @@ async function processFile(fileSpec, gemini) {
       if (patches.length > 0) {
         const currentText = fs.readFileSync(filePath, 'utf8');
         const { result: newText, patchCount } = applyPatches(currentText, patches, fileSpec.closingPattern);
-        fs.writeFileSync(filePath, newText, 'utf8');
-        console.log(`${patches.length} generated & saved (${patchCount} written)`);
+
+        const validation = validatePatchedText(newText);
+        if (!validation.ok) {
+          console.warn(`\n  [SAFETY] ⚠  Write ABORTED for ${fileName}: ${validation.reason}`);
+          console.warn(`  [SAFETY]    File left unchanged. Fix the patching logic and re-run.`);
+          successCount -= patches.length;
+          failedCount  += patches.length;
+        } else {
+          fs.writeFileSync(filePath, newText, 'utf8');
+          console.log(`${patches.length} generated & saved (${patchCount} written)`);
+        }
       } else {
         console.log('0 usable results');
       }
