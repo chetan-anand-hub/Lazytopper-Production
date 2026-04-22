@@ -1,0 +1,129 @@
+Please make the following corrections to **Task #436 only** before moving to `#437`.
+
+Do **not** widen scope.
+Do **not** mix in desktop work.
+Do **not** start `#437` yet.
+This is a **cleanup + alignment pass for #436 only**.
+
+## Status
+
+`#436` direction is correct, but it is **not approved yet**.
+
+## Required fixes
+
+### 1. Clean the PR / branch
+
+Remove all unrelated files from the `#436` PR so the branch contains only genuine mobile-foundation work.
+
+These should not be part of `#436`:
+
+* `attached_assets/Pasted-*.txt`
+* `attached_assets/screenshots/lovable_dev_login.png`
+* `artifacts/mockup-sandbox/src/.generated/mockup-components.ts`
+* any unrelated artifact/binary churn not required for mobile foundation
+
+Goal:
+
+* make the PR a clean, minimum-change mobile-foundation branch
+* no unrelated noise
+* no audit pollution
+
+### 2. Fix worksheet route structure
+
+Approved route structure is:
+
+* `/app/practice/worksheets`
+* `/app/practice/worksheets/ready`
+
+Current implementation uses:
+
+* `/app/worksheets`
+* `/app/worksheets/ready`
+
+Please align to the approved `/app/practice/worksheets*` structure.
+
+Important:
+
+* keep `/app/*` additive
+* do not break existing legacy param routes
+* do not introduce redirect loops
+
+### 3. Fix heading/display typography parity
+
+Approved typography baseline is:
+
+* **Inter** for body
+* **Fraunces** for headings
+
+Important clarification:
+
+* body font wiring is already okay through the active global stylesheet
+* do **not** reopen body font unless truly necessary
+
+The remaining issue is:
+
+* the active display/heading token is still not aligned to **Fraunces**
+
+Please fix this by:
+
+* changing the display/heading font token from **Space Grotesk** to **Fraunces**
+* ensuring new mobile heading/title usage follows that display token where heading parity is expected
+
+Do not treat this as a broad typography redesign.
+Just align display-heading typography to the approved baseline.
+
+### 4. Actually use `MobileShell` in the stub pages
+
+The shared mobile shell/header requirement is only partially met if the new stub pages do not use `MobileShell`.
+
+Please wrap the new mobile stub pages with `MobileShell` now, even if the page content remains placeholder-level.
+
+This applies to the current new mobile pages added in `#436`.
+
+Goal:
+
+* shared mobile shell/header is real in implementation, not just prepared for later
+
+## Please confirm explicitly after the fix
+
+### 5. `/app/topic-hub` alias behavior
+
+Confirm that `/app/topic-hub` lands in a valid entry state and does **not** silently create broken topic state.
+
+Specifically confirm:
+
+* it redirects to `/topic-hub/:grade/:subject`
+* no `topicKey` is guessed silently
+* TopicHub’s own entry/chapter-selection state handles the screen correctly
+
+### 6. BottomNav active-state grouping
+
+Confirm that BottomNav active-state grouping for legacy paths currently included under **Practice** is intentional.
+
+I want the response to explicitly state:
+
+* which legacy paths are grouped under Practice active state
+* why that grouping is intentional
+* that this does not create misleading active-state behavior for Exam Trends or Me
+
+## Output format required
+
+Reply with:
+
+1. exact files changed in this correction pass
+2. exact files removed from the PR/branch
+3. exact route updates made
+4. exact typography token change made
+5. exact stub pages now wrapped with `MobileShell`
+6. explicit confirmation for item 5 (`/app/topic-hub`)
+7. explicit confirmation for item 6 (BottomNav active-state grouping)
+8. updated git ref
+9. updated compare URL
+10. updated PR URL
+
+Again:
+
+* do not start `#437`
+* do not mix desktop work
+* do not add extra improvements beyond the items above
+* this is only the approval-fix pass for `#436`
