@@ -151,7 +151,7 @@ export const class10SciencePredictiveEngine: SciencePredictiveEngineSpec = {
           weightagePercent: 24,
           questions: [
             {
-              id: "2026-MNM-01",
+              id: "2026-MNM-01b",
               type: "MCQ",
               section: "A",
               marks: 1,

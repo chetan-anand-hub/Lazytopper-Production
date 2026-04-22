@@ -140,7 +140,7 @@ export const trigonometryTutorPath: ChapterTutorPath = {
         {
           kind: "stringSearch",
           path: "src/data/highlyProbableQuestions.ts",
-          value: 'questionIds: ["2026-TRIG-SA-01", "2026-TRIG-LA-02"]',
+          value: 'questionIds: ["2026-TRIG-SA-01b", "2026-TRIG-LA-02"]',
           label: "HPQ linkage to trig legacy IDs",
         },
         {

@@ -171,7 +171,7 @@ const predictedQuestionsBase: PredictedQuestion[] = [
   },
 
   {
-    id: "2026-PLE-SA-02",
+    id: "2026-PLE-SA-02b",
     topicKey: "Pair of Linear Equations",
     subtopic: "Word & Application Problems",
     kind: "Short",
@@ -482,7 +482,7 @@ const predictedQuestionsBase: PredictedQuestion[] = [
   // ========== TRIGONOMETRY (MUST-CRACK) ==========
 
   {
-    id: "2026-TRIG-SA-01",
+    id: "2026-TRIG-SA-01b",
     topicKey: "Trigonometry",
     subtopic: "Trig Identities/Proofs",
     kind: "Short",
@@ -621,7 +621,7 @@ const predictedQuestionsBase: PredictedQuestion[] = [
   // ========== CIRCLES (HIGH-ROI) ==========
 
   {
-    id: "2026-CIRC-SA-01",
+    id: "2026-CIRC-SA-01b",
     topicKey: "Circles",
     subtopic: "Tangent Properties",
     kind: "Short",
@@ -653,7 +653,7 @@ const predictedQuestionsBase: PredictedQuestion[] = [
   // ========== AREAS RELATED TO CIRCLES (GOOD-TO-DO) ==========
 
   {
-    id: "2026-ARC-SA-01",
+    id: "2026-ARC-SA-01b",
     topicKey: "Areas Related to Circles",
     subtopic: "Sector & Segment",
     kind: "Short",
@@ -682,7 +682,7 @@ const predictedQuestionsBase: PredictedQuestion[] = [
   // ========== SURFACE AREAS AND VOLUMES (HIGH-ROI) ==========
 
   {
-    id: "2026-SAV-SA-01",
+    id: "2026-SAV-SA-01b",
     topicKey: "Surface Areas and Volumes",
     subtopic: "Combination of Solids",
     kind: "Short",
@@ -1234,7 +1234,7 @@ const predictedQuestionsBase: PredictedQuestion[] = [
 
   // ===== MORE: STATISTICS =====
   {
-    id: "2026-STAT-SA-02",
+    id: "2026-STAT-SA-02b",
     topicKey: "Statistics",
     subtopic: "Median of Grouped Data",
     kind: "Short",
@@ -3762,7 +3762,7 @@ export const predictedQuestions: PredictedQuestion[] = [
 
 export type PredictedQuestionId = (typeof predictedQuestions)[number]["id"];
 
-// Fast lookup by id: predictedQuestionsById["2026-TRIG-SA-01"] → full question object
+// Fast lookup by id: predictedQuestionsById["2026-TRIG-SA-01b"] → full question object
 export const predictedQuestionsById: Record<PredictedQuestionId, PredictedQuestion> =
   predictedQuestions.reduce((acc, q) => {
     acc[q.id as PredictedQuestionId] = q;

@@ -22,8 +22,8 @@ const legacyTrigonometryQuestionTagIndex: Record<string, QuestionMeta> = {
     msAlignment: "template",
     reviewTags: ["case-study", "application"],
   },
-  "2026-TRIG-SA-01": {
-    questionId: "2026-TRIG-SA-01",
+  "2026-TRIG-SA-01b": {
+    questionId: "2026-TRIG-SA-01b",
     cbseFormat: "B",
     skillFamily: "Definition",
     loIds: ["LO_TRIG_01_RATIOS_SETUP", "LO_TRIG_02_STANDARD_VALUES"],

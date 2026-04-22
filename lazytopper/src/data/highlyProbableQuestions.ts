@@ -1538,7 +1538,7 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
 
     // Link this HPQ Trigonometry bucket to the predictive engine
     // (you can expand this list later as you add more trig predicted questions)
-    questionIds: ["2026-TRIG-SA-01", "2026-TRIG-LA-02"],
+    questionIds: ["2026-TRIG-SA-01b", "2026-TRIG-LA-02"],
 
     questions: [
       {
@@ -1774,7 +1774,7 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
     defaultTier: "high-roi",
     questions: [
       {
-        id: "2026-MNM-01",
+        id: "2026-MNM-01b",
         subject: "Science",
         stream: "Chemistry",
         topic: "Metals & Non-metals",
