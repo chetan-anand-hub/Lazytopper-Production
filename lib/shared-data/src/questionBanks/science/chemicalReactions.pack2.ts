@@ -541,7 +541,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Mg(OH)₂ is basic, turns red litmus blue",
       "Shows that MgO is basic/alkaline in nature"
     ],
-    "finalAnswer": "(a) 2Mg + O₂ → 2MgO (b) Combination/exothermic reaction (c) Forms Mg(OH)₂ which is basic (d) Product is basic/alkaline",
+    "finalAnswer": "(a) The balanced equation for burning of magnesium is: 2Mg + O₂ → 2MgO. (b) The burning of magnesium is a combination reaction (two substances combine to form a single product) as well as an exothermic reaction (it releases heat and light energy). (c) When MgO is added to water, it reacts to form magnesium hydroxide (MgO + H₂O → Mg(OH)₂), which is a base that releases hydroxide ions in solution, causing the solution to turn red litmus paper blue. (d) This indicates that the product (MgO) is basic or alkaline in nature.",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "Set-A",
@@ -568,7 +568,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Carbon is reducing agent (reduces CuO)",
       "CO₂ reacts with Ca(OH)₂: CO₂ + Ca(OH)₂ → CaCO₃↓ + H₂O (white precipitate)"
     ],
-    "finalAnswer": "(a) 2CuO + C → 2Cu + CO₂ (b) All are correct (c) Reducing agent (d) CaCO₃ precipitate forms",
+    "finalAnswer": "(a) The balanced equation for the reaction is: 2CuO + C → 2Cu + CO₂. (b) All three students (A, B, and C) are correct; carbon is oxidised (its oxidation state increases from 0 to +4), copper ion in CuO is reduced (from +2 to 0), and since both oxidation and reduction occur simultaneously it is indeed a redox reaction. (c) Carbon acts as the reducing agent because it donates electrons to reduce the copper ion in copper oxide. (d) Limewater becomes turbid (milky white) because the CO₂ gas produced reacts with calcium hydroxide: CO₂ + Ca(OH)₂ → CaCO₃↓ + H₂O, forming an insoluble white precipitate of calcium carbonate.",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "Set-B",
@@ -1059,7 +1059,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Na is the reducing agent (causes reduction, gets oxidized)",
       "Cl₂ is the oxidizing agent (causes oxidation, gets reduced)"
     ],
-    "finalAnswer": "Oxidizing agent: Cl₂; Reducing agent: Na",
+    "finalAnswer": "In the reaction 2Na + Cl₂ → 2NaCl, chlorine (Cl₂) is the oxidising agent because it gains electrons from sodium, causing its oxidation state to change from 0 to −1 (reduction); sodium (Na) is the reducing agent because it loses electrons to chlorine, causing its oxidation state to change from 0 to +1 (oxidation).",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1147,7 +1147,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Process involves oxidation of iron in presence of moisture and oxygen",
       "Called corrosion or rusting"
     ],
-    "finalAnswer": "Fe₂O₃·xH₂O; Corrosion",
+    "finalAnswer": "The chemical formula of rust is Fe₂O₃·xH₂O (hydrated iron(III) oxide); the process by which iron corrodes to form rust in the presence of oxygen and moisture is called corrosion.",
     "isCompetencyBased": false,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1206,7 +1206,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Step 5: Multiply Al and Al₂O₃: 4Al + 3O₂ → 2Al₂O₃",
       "Verify: Al: 4=4 ✓, O: 6=6 ✓"
     ],
-    "finalAnswer": "4Al + 3O₂ → 2Al₂O₃",
+    "finalAnswer": "The balanced equation for the formation of aluminium oxide is derived step by step: starting with the unbalanced equation Al + O₂ → Al₂O₃; since Al₂O₃ has 2 Al atoms on the right, we place 2 in front of Al on the left; since 2 Al₂O₃ has 6 O atoms, we need 3 O₂ on the left and 2 Al₂O₃ on the right, which also requires 4 Al on the left. The final balanced equation is 4Al + 3O₂ → 2Al₂O₃. Verification: left has 4 Al atoms and 6 O atoms; right has 4 Al atoms (2 × 2) and 6 O atoms (2 × 3) — all atoms are balanced, confirming the equation is correct.",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": undefined,
@@ -1234,7 +1234,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "(b) Decomposition - compound breaks into simpler substances",
       "2H₂O₂ → 2H₂O + O₂ (balanced)"
     ],
-    "finalAnswer": "(a) 2C₂H₆ + 7O₂ → 4CO₂ + 6H₂O (Combustion); (b) 2H₂O₂ → 2H₂O + O₂ (Decomposition)",
+    "finalAnswer": "(a) The combustion of ethane is a type of exothermic reaction in which ethane burns completely in excess oxygen to produce carbon dioxide and water vapour; this is classified as a combustion reaction because an organic substance reacts with oxygen and produces heat and light. The balanced equation is: 2C₂H₆ + 7O₂ → 4CO₂ + 6H₂O. (b) The decomposition of hydrogen peroxide is a type of reaction in which a single compound breaks down into two simpler substances upon heating or in the presence of a catalyst (such as MnO₂); it is classified as a decomposition reaction. The balanced equation is: 2H₂O₂ → 2H₂O + O₂.",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": undefined,
@@ -1261,7 +1261,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "Both oxidation and reduction occur = redox reaction",
       "Mg is oxidized (oxidation state increases)"
     ],
-    "finalAnswer": "Mg is oxidized; Mg: 0→+2 (loses electrons), O₂: 0→-2 (gains electrons)",
+    "finalAnswer": "The burning of magnesium in oxygen (2Mg + O₂ → 2MgO) is a redox reaction because both oxidation and reduction occur simultaneously: magnesium is oxidised as its oxidation state increases from 0 to +2 (it loses two electrons), and oxygen is reduced as its oxidation state decreases from 0 to −2 (it gains electrons); since magnesium loses electrons it is the element that is oxidised, making it the reducing agent.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1313,7 +1313,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "(d) Principle: More reactive metal can displace less reactive from salt",
       "Used to extract metals like Cu, Sn, Pb using more reactive metals"
     ],
-    "finalAnswer": "(a) Single/Displacement reaction; (b) Fe + CuSO₄ → FeSO₄ + Cu; (c) Fe = reducing agent, CuSO₄ = oxidizing agent; (d) Basis of metal extraction method",
+    "finalAnswer": "(a) This is a single displacement reaction because iron (a more reactive metal) displaces copper from the copper sulfate solution. (b) The equation is already balanced: Fe + CuSO₄ → FeSO₄ + Cu (Fe:1=1, Cu:1=1, S:1=1, O:4=4). (c) Iron is the reducing agent because it loses electrons (Fe: 0 → +2, oxidised); the copper ions in CuSO₄ act as the oxidising agent because they gain electrons (Cu: +2 → 0, reduced). (d) This reaction is important in extractive metallurgy because it demonstrates the principle that a more reactive metal can displace a less reactive metal from its salt solution, which is used to recover metals such as copper from their salt solutions in industrial extraction processes.",
     "isCompetencyBased": true,
     "pyqYear": "2019",
     "pyqSet": undefined,
@@ -1344,7 +1344,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "(d) Redox because: electron transfer, oxidation state change",
       "(e) Application: Fuel for heating, cooking, vehicles (LPG)"
     ],
-    "finalAnswer": "2C₄H₁₀ + 13O₂ → 8CO₂ + 10H₂O; (a) Combustion/Redox; (b) C:-2.5→+4, O:0→-2; (c) C₄H₁₀ oxidized, O₂ reduced; (d) Electron transfer occurs; (e) Fuel/energy source",
+    "finalAnswer": "The balanced chemical equation for combustion of butane is: 2C₄H₁₀ + 13O₂ → 8CO₂ + 10H₂O. (a) This reaction is classified as a combustion reaction and also a redox reaction. (b) The oxidation states change as follows: carbon in C₄H₁₀ changes from approximately −2.5 to +4 in CO₂ (oxidised); oxygen in O₂ changes from 0 to −2 in the products (reduced). (c) C₄H₁₀ is oxidised (carbon loses electrons) and O₂ is reduced (oxygen gains electrons). (d) This reaction is classified as a redox reaction because electron transfer occurs simultaneously — butane loses electrons to oxygen during combustion. (e) The combustion of butane is used as an energy source; it is the principle behind liquefied petroleum gas (LPG) used in domestic cooking and heating.",
     "isCompetencyBased": true,
     "pyqYear": "2025",
     "pyqSet": undefined,
@@ -1376,7 +1376,7 @@ export const CR2_PACK2: CanonicalQuestion[] = [
       "From equation: 2 mol Na → 2 e⁻ transferred (1e⁻ per Na)",
       "So 1 mol Na → 1 mol e⁻ = 6.022×10²³ electrons"
     ],
-    "finalAnswer": "6.022×10²³ electrons (or 1 mole of electrons transferred)",
+    "finalAnswer": "(a) In the electron dot structure for NaCl formation: each sodium atom (Na, configuration 2,8,1) donates its one valence electron to form Na⁺; each chlorine atom (Cl, configuration 2,8,7) accepts this electron to complete its octet and form Cl⁻; the electrostatic attraction between Na⁺ and Cl⁻ forms the ionic bond. (b) Sodium is oxidised (its oxidation state increases from 0 to +1 as it loses an electron); chlorine is reduced (its oxidation state decreases from 0 to −1 as it gains an electron). (c) The reducing agent is sodium (Na) because it donates electrons and causes reduction of chlorine; the oxidising agent is chlorine (Cl₂) because it accepts electrons and causes oxidation of sodium. (d) This is a redox reaction because oxidation (of Na) and reduction (of Cl₂) occur simultaneously with transfer of electrons; both species change their oxidation states, satisfying the definition of a redox reaction. (e) The molar mass of Na is 23 g/mol, so 23 g of Na = 1 mol; from the balanced equation, each Na atom transfers exactly 1 electron, so 1 mol of Na transfers 1 mol of electrons = 6.022 × 10²³ electrons.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,

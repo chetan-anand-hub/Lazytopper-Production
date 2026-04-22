@@ -488,7 +488,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
       "This reduces response time, protecting the body from injury",
       "Brain processes the stimulus after reflex action, creating sensation of pain"
     ],
-    "finalAnswer": "Reflex arc bypasses brain, spinal cord directly controls response via sensory-motor neuron pathway, faster than conscious decision-making",
+    "finalAnswer": "A reflex arc bypasses the brain by routing the nerve impulse directly through the spinal cord; when a stimulus is detected by a sensory receptor, the impulse travels along a sensory neuron to the spinal cord, where a relay neuron connects it to a motor neuron that sends an impulse to the effector muscle; this spinal pathway is shorter and faster than a pathway involving the brain, making the reflex response much faster than a conscious decision-making response.",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "All India",
@@ -514,7 +514,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
       "Results in ataxia (lack of coordination) and loss of balance",
       "Gross motor movements may remain possible but lack precision"
     ],
-    "finalAnswer": "Balance, coordination, fine motor skills affected; cerebellum essential for movement coordination",
+    "finalAnswer": "If the cerebellum is damaged, the person will experience difficulties with balance, posture, coordination of voluntary movements, and fine motor skills such as writing or picking up small objects, because the cerebellum is essential for integrating sensory information and regulating the precision and timing of muscle contractions to produce smooth, coordinated movement.",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "Delhi",
@@ -541,7 +541,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
       "Growth spurt occurs due to combined effect of growth hormone and testosterone",
       "These changes are normal and occur in all adolescent males"
     ],
-    "finalAnswer": "(i) Testosterone (ii) Testes (iii) Puberty activation (iv) Yes, normal",
+    "finalAnswer": "(i) The hormone primarily responsible for these changes is testosterone, the principal male sex hormone. (ii) The gland that secretes testosterone is the testis (testes); specifically, the hormone is produced by the Leydig cells in the testes. (iii) These changes occur at this age because puberty begins, triggering the hypothalamus to release hormones that stimulate the pituitary gland, which in turn signals the testes to produce testosterone; this causes the secondary sexual characteristics of rapid growth, voice deepening, and increased body hair. (iv) Yes, this is a completely normal process of physical development called puberty that all boys undergo, typically between the ages of 10 and 16 years.",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "Competency Based",
@@ -569,7 +569,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
       "Pruning is mechanical method to control height",
       "Strategic hormone application only to fruits optimizes productivity"
     ],
-    "finalAnswer": "(i) Promotes cell division and fruit enlargement (ii) Pruning + selective gibberellin application (iii) Cytokinins for bushiness, ethylene for height control",
+    "finalAnswer": "(i) Gibberellins play a key role in fruit development by promoting cell division and cell enlargement in the developing fruit; they increase the size and sometimes the number of fruits, which is why they are applied commercially to produce larger seedless fruits. (ii) To control height while maintaining fruit productivity, the farmer can combine selective application of gibberellins directly to the developing fruits (rather than the whole plant) with mechanical pruning of the main stems to restrict upward growth; growth retardants or ethylene can also be applied to limit stem elongation. (iii) The hormone that could help keep plants compact and bushy is cytokinin, which promotes lateral bud growth and cell division in side branches; cytokinin counteracts the apical dominance caused by auxin, encouraging a bushy, compact growth form rather than tall, upward growth.",
     "isCompetencyBased": true,
     "pyqYear": "2025",
     "pyqSet": "Competency Based",
@@ -600,7 +600,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
       "Example—Blood glucose control: Nervous system alerts sympathetic system immediately on sensing low glucose; simultaneously, pancreas (endocrine) adjusts insulin/glucagon secretion for long-term balance",
       "Both systems are integrated and work together for homeostasis"
     ],
-    "finalAnswer": "Nervous: fast, electrical, short-duration, localized; Endocrine: slow, chemical, long-duration, widespread; integrated example: blood glucose regulation",
+    "finalAnswer": "The nervous system and endocrine system differ in their mode of communication, speed, and duration of effects: the nervous system communicates using electrical impulses transmitted along neurons and chemical signals (neurotransmitters) across synapses, producing rapid responses that last milliseconds to seconds and are localised to specific tissues; the endocrine system communicates using chemical messengers called hormones that travel through the bloodstream to target cells, producing slower responses that may last hours to days and have widespread effects throughout the body; an example of integration between both systems is the regulation of blood glucose — when blood sugar drops, the nervous system detects it and signals the adrenal glands to release adrenaline rapidly, while the endocrine system releases glucagon from the pancreas over a longer period to sustain glucose release from the liver.",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "All India",
@@ -1344,7 +1344,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
       "Discuss evolutionary significance of reflexes",
       "Connect to survival and protection mechanisms"
     ],
-    "finalAnswer": "(a) Reflex action / Reflex response. (b) Because reflex actions bypass the brain; the signal is processed by the spinal cord, making the response much faster than conscious pain perception. (c) Diagram showing: Receptor (eye)→Sensory neuron→Spinal cord→Motor neuron→Effector (eyelid muscles). (d) Reflexes protect the body from danger by enabling rapid protective responses without waiting for brain processing, preventing injury.",
+    "finalAnswer": "(a) The type of response that occurred was a reflex action (also called a reflex response). (b) The blink and head movement happened before Rahul felt pain because reflex actions bypass the brain; when the sensory receptor in the eye detects the stimulus, the nerve impulse is routed directly to the spinal cord, where a relay neuron connects to a motor neuron that triggers the effector muscles — this entire pathway is completed before the brain can process the sensation of pain, making the reflex response almost instantaneous. (c) The reflex arc involved is: sensory receptor in the eye detects stimulus → sensory neuron carries impulse to spinal cord → relay neuron in spinal cord → motor neuron carries response signal → effector (eyelid and neck muscles contract). (d) Reflexes are essential for survival because they provide the body with extremely rapid protective responses to potentially harmful stimuli without requiring conscious thought or brain processing, which would take too long; this speed allows the body to avoid or minimise injury from sudden dangers.",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "All India",
@@ -1374,7 +1374,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
       "Conclude about homeostasis and survival benefits",
       "Use diagrams if helpful"
     ],
-    "finalAnswer": "The nervous and endocrine systems are coordinated control systems:\n\n1. NERVOUS SYSTEM ROLE: Detects changes rapidly via sensory receptors, sends quick signals through neurons, enables immediate responses. Example: Sudden heat detection → reflex withdrawal.\n\n2. ENDOCRINE SYSTEM ROLE: Releases hormones into bloodstream for long-term, widespread effects. Example: Temperature regulation maintained by thyroid hormone affecting metabolic rate.\n\nEXAMPLE - BLOOD GLUCOSE REGULATION:\n• Nervous System: Pancreas detects high blood glucose (via sensor neurons).\n• Endocrine System: Beta cells release insulin hormone.\n• Result: Insulin causes cells to absorb glucose, blood glucose decreases.\n• Feedback: When glucose is normal, insulin secretion decreases.\n\nWhen you eat: Nervous system signals pancreas → Pancreatic hormones (insulin/glucagon) regulate blood glucose → Maintains stable glucose level.\n\nCONCLUSION: Nervous system provides rapid responses for immediate threats. Endocrine system provides sustained control. Together they maintain internal stability (homeostasis) essential for life.",
+    "finalAnswer": "The nervous system and endocrine system work together to maintain homeostasis by combining rapid electrical signalling with sustained hormonal regulation; the nervous system detects changes in the internal and external environment through sensory receptors and transmits electrical impulses along neurons to produce immediate responses, while the endocrine system secretes chemical messengers called hormones into the bloodstream that travel to target organs and produce slower but longer-lasting effects throughout the body; taking blood glucose regulation as an example of their coordination: when blood glucose rises after a meal, the nervous system detects this through sensors and signals the pancreas; in response, the beta cells of the pancreas (endocrine function) release insulin into the bloodstream, causing cells to absorb glucose and lowering blood glucose back to normal; when blood glucose falls too low, the alpha cells of the pancreas release glucagon, which stimulates the liver to convert glycogen back into glucose; the nervous system also triggers the adrenal glands to release adrenaline for rapid glucose release in emergency situations; this integrated feedback mechanism ensures that blood glucose is maintained within a narrow range, demonstrating how both systems work cooperatively to sustain homeostasis.",
     "isCompetencyBased": true,
     "pyqYear": "2025",
     "pyqSet": "All India",
@@ -1404,7 +1404,7 @@ export const CNC2_PACK2: CanonicalQuestion[] = [
       "Connect to plant survival and adaptation",
       "Summarize importance for plants"
     ],
-    "finalAnswer": "FIVE MAJOR PLANT HORMONES:\n\n1. AUXIN (Indole-3-acetic acid - IAA)\nSource: Shoot apex, leaf primordia\nFunctions: Cell elongation, apical dominance, phototropism, gravitropism, root initiation\nResponse: Plant bends toward light (phototropism) due to unequal auxin distribution\n\n2. GIBBERELLIN\nSource: Growing tips, roots, seeds\nFunctions: Stem elongation, seed germination, flowering\nResponse: Seeds germinate when exposed to appropriate light/temperature stimuli\n\n3. CYTOKININ\nSource: Root tips\nFunctions: Cell division, delay of senescence, apical dominance\nResponse: Stimulates growth in presence of nutrients\n\n4. ABSCISIC ACID (ABA)\nSource: Leaves, stem, roots\nFunctions: Seed dormancy, stomatal closure during drought stress\nResponse: Stomata close during water stress to conserve water\n\n5. ETHYLENE\nSource: Ripening fruits, aging leaves\nFunctions: Fruit ripening, senescence, flower senescence\nResponse: Fruits ripen and fall (seed dispersal)\n\nPLANT RESPONSES TO ENVIRONMENTAL STIMULI:\n• Light: Phototropism (auxin), photomorphogenesis (light receptors)\n• Gravity: Gravitropism (auxin in roots/shoots)\n• Water stress: Stomatal closure via ABA\n• Temperature: Seed dormancy/germination via gibberellin\n• Mechanical stress: Ethylene production\n\nCONCLUSION: Plant hormones work individually and synergistically to coordinate growth, development, and responses to environment, ensuring plant survival and reproduction.",
+    "finalAnswer": "Plants produce five major hormones that regulate growth, development, and responses to environmental stimuli. (1) Auxin (IAA) is produced at the shoot apex and young leaves; it promotes cell elongation and is responsible for phototropism (plants bending toward light) and gravitropism by redistributing unevenly across tissues in response to directional stimuli. (2) Gibberellins are produced in growing tips, roots, and seeds; they promote stem elongation, break seed dormancy, and stimulate germination and flowering. (3) Cytokinins are produced mainly in root tips; they promote cell division, delay leaf ageing (senescence), and interact with auxin to regulate apical dominance. (4) Abscisic acid (ABA) is produced in leaves, stems, and roots; it inhibits growth, promotes seed dormancy, and causes stomata to close during drought stress to conserve water, making it a stress hormone. (5) Ethylene is produced by ripening fruits and ageing leaves; it promotes fruit ripening, leaf fall (abscission), and senescence of flowers and organs; it also mediates responses to mechanical stress. Plants respond to environmental stimuli through these hormones: auxin drives phototropism and gravitropism; ABA mediates drought response through stomatal closure; gibberellins respond to temperature and light for germination; ethylene facilitates ripening in response to maturity signals; and all five hormones work individually and cooperatively to coordinate the plant's growth and survival.",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "All India",

@@ -675,7 +675,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Filtration occurs in two phases: ultra-filtration and selective reabsorption",
       "Normal kidneys function 24/7 but dialysis is thrice weekly"
     ],
-    "finalAnswer": "See answer field",
+    "finalAnswer": "(i) The principle behind dialysis is selective diffusion: waste products such as urea and excess salts diffuse from the patient's blood across a semipermeable membrane into the dialysate fluid down their concentration gradients. (ii) A semipermeable membrane is used because its pores allow small molecules such as urea, salts, and water to pass through while blocking larger molecules such as proteins and blood cells. (iii) Substances removed during dialysis include urea, creatinine, excess salts, and water — the same metabolic wastes that healthy kidneys normally excrete. (iv) Normal kidney function occurs continuously twenty-four hours a day and also performs hormonal functions such as producing erythropoietin, whereas dialysis is done externally two to three times a week and cannot replace the kidney's hormonal roles.",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "Delhi",
@@ -735,7 +735,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "More aquaporins = more water reabsorption = concentrated urine",
       "This maintains osmoregulation and homeostasis"
     ],
-    "finalAnswer": "See answer field",
+    "finalAnswer": "A nephron consists of a Bowman's capsule, proximal convoluted tubule, loop of Henle, distal convoluted tubule, and collecting duct; ultrafiltration occurs in the glomerulus, where high hydrostatic pressure forces small molecules such as urea, glucose, and ions into the Bowman's capsule while retaining large molecules like proteins and blood cells; selective reabsorption occurs mainly in the proximal convoluted tubule and loop of Henle, where useful substances like glucose, amino acids, and water are reabsorbed back into the blood; osmoregulation is fine-tuned in the collecting duct, where ADH released by the pituitary gland increases the number of aquaporin (water channel) proteins in the duct cells, allowing more water to be reabsorbed and producing more concentrated urine when the body needs to conserve water.",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "All India",
@@ -762,7 +762,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "In darkness: only respiration occurs, so O₂ decreases and CO₂ increases",
       "Transpiration continues in darkness but at lower rate without photosynthetic activity driving it"
     ],
-    "finalAnswer": "See answer field",
+    "finalAnswer": "(i) The life processes responsible are photosynthesis, which produces oxygen and consumes carbon dioxide in the presence of light, and transpiration, which releases water vapour from the leaves. (ii) Condensation forms on the inner walls because transpiration releases water vapour into the sealed air space, and when this water vapour contacts the cooler glass surface it condenses into liquid water droplets. (iii) The gas analysis showing increased oxygen and decreased carbon dioxide indicates that photosynthesis is proceeding faster than respiration, so the net effect is a gain of oxygen and a loss of carbon dioxide in the sealed box. (iv) If the plant is kept in darkness, photosynthesis will stop; only cellular respiration will continue, consuming oxygen and releasing carbon dioxide, so oxygen levels in the box will decrease and carbon dioxide levels will increase.",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "Delhi",
@@ -1403,7 +1403,7 @@ export const LP2_PACK2: CanonicalQuestion[] = [
       "Protein presence indicates glomerular damage (nephrotic syndrome).",
       "Both together suggest serious kidney dysfunction."
     ],
-    "finalAnswer": "Indicates kidney damage or disease; glomerulus filtering proteins or reduced reabsorption.",
+    "finalAnswer": "The presence of both glucose and protein in the patient's urine indicates that the kidneys are not functioning normally. Normally, the glomerulus filters blood under pressure and glucose is completely reabsorbed by the tubules so that no glucose appears in the urine; glucose in urine (glycosuria) indicates either very high blood glucose levels (as in uncontrolled diabetes mellitus, which exceed the tubules' reabsorption capacity) or impaired tubular reabsorption. Protein molecules are normally too large to pass through the glomerular filter, so the presence of protein in urine (proteinuria) indicates damage to the glomerular membrane, which has become abnormally permeable; this is a sign of serious kidney disease such as nephrotic syndrome or glomerulonephritis. Together, these two findings suggest significant kidney damage affecting both filtration and reabsorption.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,

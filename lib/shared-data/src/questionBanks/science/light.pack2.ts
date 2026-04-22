@@ -339,7 +339,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "sin θ₂ = (3/4) × (1/√2) = 3/(4√2) = 0.530",
       "θ₂ = sin⁻¹(0.530) ≈ 32°"
     ],
-    "finalAnswer": "θ₂ ≈ 32°",
+    "finalAnswer": "Applying Snell's law (n₁ sin θ₁ = n₂ sin θ₂) at the air-water interface: n₁ = 1 (air), θ₁ = 45°, n₂ = 4/3 (water). Substituting: 1 × sin 45° = (4/3) × sin θ₂; sin θ₂ = (3/4) × sin 45° = (3/4) × (1/√2) = 3/(4√2) ≈ 0.530; therefore θ₂ = sin⁻¹(0.530) ≈ 32°. The angle of refraction (≈ 32°) is less than the angle of incidence (45°), consistent with Snell's law — light bends towards the normal when it enters a denser medium (water).",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "Delhi",
@@ -456,7 +456,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "v = 30 cm",
       "Since v > 0, image is real and inverted"
     ],
-    "finalAnswer": "v = 30 cm, real and inverted",
+    "finalAnswer": "Using the lens formula (1/f = 1/v − 1/u) with sign convention: f = +10 cm (convex lens), u = −15 cm (object in front of the lens). Substituting: 1/10 = 1/v − 1/(−15) = 1/v + 1/15; 1/v = 1/10 − 1/15 = 3/30 − 2/30 = 1/30; therefore v = +30 cm. The positive value of v indicates the image is formed on the far side of the lens from the object, so it is a real image. The magnification m = v/u = 30/(−15) = −2; the negative sign confirms the image is inverted, and the magnitude shows it is twice the size of the object. In summary, the image is formed 30 cm from the lens on the far side, and it is real, inverted, and magnified.",
     "isCompetencyBased": true,
     "pyqYear": "2019",
     "pyqSet": "All India",
@@ -544,7 +544,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "When viewing angle changes, the light path changes",
       "This results in a different apparent depth at different angles"
     ],
-    "finalAnswer": "(a) Refractive index = 1.25 (b) Apparent position shifts with viewing angle",
+    "finalAnswer": "(a) Using the formula for refractive index: n = Real depth / Apparent depth = 2.5 m / 2 m = 1.25; the refractive index of water is 1.25. (b) When the observer moves to a different viewing angle, the angle of incidence of light rays arriving at the water-air surface changes; because refraction depends on the angle of incidence (Snell's law), a different viewing angle produces a different degree of bending at the surface, which means the apparent depth and apparent position of the fish change — the fish appears to be at a slightly different location when viewed from different angles, with the apparent position shifting closer to the surface at steeper viewing angles.",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "Delhi",
@@ -697,7 +697,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "Object must be placed between the lens and focal point",
       "i.e., u < f = 20 cm"
     ],
-    "finalAnswer": "(a) f = 20 cm (b) Object distance < 20 cm",
+    "finalAnswer": "(a) Using the relation between power and focal length (P = 1/f in metres): P = +5 D, so f = 1/5 = 0.2 m = 20 cm; the focal length of the magnifying glass is 20 cm. (b) For a convex lens to form a virtual, erect, and magnified image (the type used in a magnifying glass), the object must be placed between the optical centre and the principal focus of the lens, i.e., the object distance must be less than the focal length; therefore, the object should be placed at a distance less than 20 cm from the magnifying glass to obtain a virtual magnified image.",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "All India",
@@ -1149,7 +1149,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "θ₂ = sin⁻¹(0.75) ≈ 48.6°",
       "Light bends away from normal when going from denser to rarer medium"
     ],
-    "finalAnswer": "Angle of refraction ≈ 48.6°",
+    "finalAnswer": "Applying Snell's law (n₁ sin θ₁ = n₂ sin θ₂) at the interface between the dense medium and air: n₁ = 1.5 (medium), θ₁ = 30°, n₂ = 1 (air). Substituting: 1.5 × sin 30° = 1 × sin θ₂; sin θ₂ = 1.5 × 0.5 = 0.75; therefore θ₂ = sin⁻¹(0.75) ≈ 48.6°. The angle of refraction (≈ 48.6°) is greater than the angle of incidence (30°), which is consistent with Snell's law — light bends away from the normal when it moves from a denser medium (n = 1.5) to a rarer medium (air, n = 1).",
     "isCompetencyBased": true,
     "pyqYear": "2020",
     "pyqSet": "Set 3",
@@ -1242,7 +1242,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "(iii) At first surface: n₁sinθ₁ = n₂sinθ₂ → 1×sin45° = 1.5×sinθ₂ → 0.707 = 1.5×sinθ₂ → sinθ₂ = 0.471 → θ₂ = 28.1°",
       "(iv) Frequency remains constant (determined by source), but wavelength decreases as λ = v/f and v decreases in glass"
     ],
-    "finalAnswer": "(i) Light bends towards normal when entering denser medium; (ii) 2×10⁸ m/s; (iii) 28.1°; (iv) Frequency constant, wavelength decreases",
+    "finalAnswer": "(i) Light bends towards the normal at the first surface because it is entering a denser medium (glass has a higher refractive index of 1.5 compared to air's refractive index of 1.0); according to the laws of refraction, when light travels from a rarer medium to a denser medium it slows down and the refracted ray bends towards the normal. (ii) The speed of light in glass is calculated using n = c/v: 1.5 = (3 × 10⁸)/v, giving v = 2 × 10⁸ m/s. (iii) Applying Snell's law (n₁ sin θ₁ = n₂ sin θ₂) at the first surface: 1 × sin 45° = 1.5 × sin θ₂, which gives sin θ₂ = 0.707 ÷ 1.5 = 0.471, and therefore the angle of refraction θ₂ = 28.1°. (iv) When light enters glass from air, its frequency remains constant because frequency is a property of the source and does not change as light moves between media; however, the wavelength decreases because the speed of light decreases while the frequency remains the same (since λ = v/f, a decrease in v causes a proportional decrease in λ).",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "Set 2",
@@ -1272,7 +1272,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "Image at infinity with infinite height; rays emerge parallel",
       "Applications: Searchlights use this principle for parallel beam; shaving mirrors use position (i) for magnification"
     ],
-    "finalAnswer": "(i) u=60cm: v=30cm, h=5cm, real inverted diminished; (ii) u=40cm: v=40cm, h=10cm, real inverted same size; (iii) u=20cm: v=∞, h=∞, image at infinity",
+    "finalAnswer": "(i) For object at u = 60 cm (u = −60 cm in sign convention): using the mirror formula 1/f = 1/v + 1/u, we get 1/20 = 1/v + 1/(−60), so 1/v = 1/20 − 1/60 = 2/60 = 1/30, giving v = 30 cm; magnification m = −v/u = −30/(−60) = −0.5, so image height = 10 × 0.5 = 5 cm; the image is real, inverted, and diminished. (ii) For object at u = 40 cm (u = −40 cm): 1/20 = 1/v + 1/(−40), so 1/v = 1/20 − 1/40 = 1/40, giving v = 40 cm; m = −1, so image height = 10 cm; the image is real, inverted, and the same size as the object. (iii) For object at u = 20 cm (at the focal point): 1/20 = 1/v + 1/(−20), so 1/v = 0 and v = infinity; the image is formed at infinity, which means the reflected rays emerge as a parallel beam; this principle is used in searchlights and headlights to produce a parallel beam of light.",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "Set 1",
@@ -1302,7 +1302,7 @@ export const LT2_PACK2: CanonicalQuestion[] = [
       "The sensor/film must be at image distance for sharp focus",
       "(d) Autofocus systems use sensors to detect focus and adjust lens position; Variable aperture increases depth of field"
     ],
-    "finalAnswer": "Image at 6.67cm, magnification -0.33; Image moves farther as object approaches; Focus adjustment needed; Use autofocus or variable aperture",
+    "finalAnswer": "(a) For an object at u = −20 cm from a converging lens of focal length f = 5 cm, using the lens formula 1/f = 1/v − 1/u: 1/5 = 1/v − 1/(−20) = 1/v + 1/20, so 1/v = 1/5 − 1/20 = 3/20, giving v = 6.67 cm; the magnification m = v/u = 6.67/(−20) = −0.33, meaning the image is real, inverted, and diminished. (b) As the object moves closer to the lens, the image distance v increases; when the object is at 10 cm (2f), the image is also at 10 cm (2f); as the object approaches the focal length (5 cm), v approaches infinity and beyond it the image becomes virtual. (c) Adjusting the position of the film or sensor is necessary because the image distance v changes with the object distance u according to the lens formula; for the image to be in sharp focus, the film or sensor must always be placed exactly at the distance v corresponding to the current object position. (d) To photograph both near and distant objects clearly, a camera uses a variable focal-length (zoom) lens or an autofocus mechanism that moves the lens closer to or farther from the film, automatically adjusting v so that the image always falls sharply on the sensor for any object distance.",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "Set 3",

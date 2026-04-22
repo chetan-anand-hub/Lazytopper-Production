@@ -550,7 +550,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "- Acidic solution A + Basic solution B → Salt + Water",
       "- General equation: Acid + Base → Salt + Water"
     ],
-    "finalAnswer": "A: Acidic, B: Basic, C: Neutral; A+B neutralize; Acid + Base → Salt + Water",
+    "finalAnswer": "(a) Solution A is acidic because it turns blue litmus red and has a pH below 7; Solution B is basic because it turns red litmus blue and has a pH above 7; Solution C is neutral with a pH of exactly 7. (b) When Solution A and Solution B are mixed, they undergo a neutralisation reaction in which hydrogen ions from the acid react with hydroxide ions from the base to form water, and the remaining ions combine to form a salt. (c) The general equation for a neutralisation reaction is: Acid + Base → Salt + Water.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -588,7 +588,7 @@ export const ABS2_PACK2: CanonicalQuestion[] = [
       "Part (iv) - Neutralization:",
       "- Yes, it's neutralization: Acid + Base → Salt + Water"
     ],
-    "finalAnswer": "pH<7 acidic; lime (CaO/CaCO₃) neutralizes by reacting with H⁺; ideal pH 6.5-7.5; yes, neutralization reaction",
+    "finalAnswer": "Soil with a pH less than 7 is acidic, which can harm crops by reducing nutrient availability; to treat acidic soil, farmers apply agricultural lime in the form of calcium oxide (CaO) or calcium carbonate (CaCO₃), which reacts with the excess hydrogen ions in the soil to neutralise the acidity and raise the pH; the ideal pH range for most crops is between 6.5 and 7.5, as nutrients are most soluble and available in this range; this treatment works through a neutralisation reaction in which the base (lime) reacts with the acid in the soil to produce water and a salt, making the soil suitable for healthy plant growth.",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "SET-A",

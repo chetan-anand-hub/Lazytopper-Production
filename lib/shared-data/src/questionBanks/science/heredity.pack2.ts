@@ -432,7 +432,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
       "Examples: Bird wing and insect wing (both for flight)",
       "Show adaptation to similar environments (convergent evolution)"
     ],
-    "finalAnswer": "Homologous=similar origin/different function; Analogous=different origin/similar function",
+    "finalAnswer": "Homologous structures are those that have a similar basic structural plan and origin (derived from the same ancestral structure) but may perform different functions in different organisms; for example, the forelimbs of a frog, a lizard, a bird, and a human all share the same basic bone arrangement (humerus, radius, ulna, carpals) but are adapted for different functions. Analogous structures are those that have a different origin and basic structure but perform similar functions and may have a similar appearance due to convergent evolution; for example, the wings of a bird and the wings of an insect look similar and perform the same function (flight) but have entirely different structural origins.",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "Set-II",
@@ -489,7 +489,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
       "Question 3: Rotate different pesticides to prevent resistance buildup in one type",
       "Alternative: Use integrated pest management with multiple control methods"
     ],
-    "finalAnswer": "1) Resistant insects survived and reproduced; 2) Natural Selection; 3) Rotate pesticides",
+    "finalAnswer": "(i) The insects that survived the first pesticide application were those that had a natural genetic variation making them resistant to the pesticide; these resistant individuals survived, reproduced, and passed the resistance genes to their offspring, so the next generation had a higher proportion of resistant insects — this is the process of natural selection acting on pre-existing genetic variation. (ii) This is an example of natural selection, specifically directional selection, where the pesticide acts as the selective pressure favouring resistant individuals. (iii) To manage pest resistance, farmers should rotate between different classes of pesticides with different modes of action, use integrated pest management combining biological and chemical methods, and avoid over-reliance on a single pesticide so that no single resistance gene can become dominant in the population.",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "Set-I",
@@ -603,7 +603,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
       "Example: Darwin's finches in Galápagos - different islands isolated populations",
       "Different beak sizes evolved on different islands (reproductive isolation)"
     ],
-    "finalAnswer": "Reproductive isolation prevents gene flow; accumulated mutations → new species",
+    "finalAnswer": "Speciation is the process by which new species are formed from an existing species; it typically begins with geographical isolation, where a physical barrier such as a mountain range or river separates a population into two groups that can no longer interbreed; over many generations, the two isolated populations accumulate different mutations and undergo different natural selection pressures, leading to genetic divergence; eventually the two populations become so genetically different that even if the barrier is removed they can no longer interbreed successfully, which means reproductive isolation is established and two distinct species have formed.",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "Set-III",
@@ -629,7 +629,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
       "Question 3: Male produces equal numbers of X and Y sperm",
       "Each has 50% chance of fertilizing egg (independent of previous children)"
     ],
-    "finalAnswer": "Man is correct; 50% probability; Independent events due to equal X and Y sperm",
+    "finalAnswer": "The man is correct. Each pregnancy is an independent event and is not influenced by the outcomes of previous pregnancies — the woman's belief is an example of the gambler's fallacy. The probability of their next child being a boy is 50% (or 1/2), because human sex determination depends on which type of sperm fertilises the egg: a sperm carrying a Y chromosome produces a boy (XY) and a sperm carrying an X chromosome produces a girl (XX); since a man produces approximately equal numbers of X-bearing and Y-bearing sperm, and each fertilisation is a separate random event, the probability of a boy or girl is always 50% regardless of the sex of previous children.",
     "isCompetencyBased": true,
     "pyqYear": "2025",
     "pyqSet": "Set-I",
@@ -994,7 +994,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
       "Horse fossil record: Eohippus (small, 4-toed) → Modern horse (large, 1-toed)",
       "Shows gradual adaptation to changing environments"
     ],
-    "finalAnswer": "Fossils show transitional forms and gradual evolutionary change over time",
+    "finalAnswer": "Fossils are the preserved remains or impressions of organisms that lived in the past, and they provide direct evidence of evolution. They tell us about evolution in several ways: they reveal transitional forms — organisms with characteristics intermediate between ancestral and descendant species — demonstrating how one group gradually changed into another over millions of years; the fossil record also shows that simpler life forms appeared first and more complex forms evolved later, consistent with the theory of evolution by natural selection. A classic example is the fossil sequence of horse evolution: Eohippus (approximately 55 million years ago) was small and multi-toed, adapted for forests, while successive fossils show progressive increases in body size, reduction in toes from four to one hoof, and elongated limbs for running on open grassland, culminating in the modern horse (Equus) — this sequence demonstrates gradual, directional evolution over geological time.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1115,7 +1115,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
       "Eventually cannot interbreed = reproductive isolation",
       "Result: two distinct species from one ancestral species"
     ],
-    "finalAnswer": "Geographic isolation causes reproductive isolation leading to speciation",
+    "finalAnswer": "Geographic isolation contributes to speciation by physically separating members of the same species so they can no longer interbreed and exchange genes. When a population is divided by a geographic barrier (such as a mountain range, river, or ocean), the two isolated groups accumulate different random mutations and are subject to different environmental selection pressures; over many generations their gene pools diverge — they develop different allele frequencies, different adaptations, and eventually different morphological and behavioural traits. Reproductive isolation is the key final step: even if the geographic barrier is later removed, the two populations have become so genetically different that they cannot successfully interbreed to produce viable, fertile offspring; barriers may be pre-zygotic (different mating seasons, courtship rituals, or incompatible gametes) or post-zygotic (hybrids that are sterile or inviable). Once reproductive isolation is complete, two distinct species exist where formerly there was one — this process is called allopatric speciation. Darwin's finches on the Galapagos Islands are a well-known example: finch populations that colonised different islands became geographically isolated and evolved into at least 13 distinct species with different beak shapes suited to the specific food sources on each island.",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "Set-3",
@@ -1236,7 +1236,7 @@ export const HE2_PACK2: CanonicalQuestion[] = [
       "Part (iii): Reproductive isolation occurs through behavioral/genetic divergence without geographic barriers. Different alleles become fixed in each population.",
       "Part (iv): Speciation without geographic isolation = sympatric speciation. Reproductive isolation develops through ecological/behavioral isolation."
     ],
-    "finalAnswer": "(i) Poor camouflage increases predation (ii) Different selective pressures (iii) Genetic divergence and reproductive isolation (iv) Sympatric speciation",
+    "finalAnswer": "(i) Light-coloured beetles decreased in Population A because the volcanic ash darkened the background vegetation; against this dark background, light-coloured beetles were more visible to predators and were therefore eaten at a higher rate, while dark-coloured beetles were better camouflaged and survived to reproduce; this is natural selection acting on colouration as a survival trait. (ii) Natural selection differs between the two populations because they experience opposite selective pressures: in Population A, the dark ash environment favours dark colouration, so dark beetles are selected for and light beetles are selected against; in Population B, the original lighter environment is maintained, so light colouration continues to be advantageous and is selected for. (iii) The two populations may eventually become separate species because their different environments drive genetic divergence — each population accumulates different mutations and different allele frequencies over generations; eventually, genetic and behavioural differences may become so pronounced that individuals from the two populations no longer recognise each other as mates or can no longer produce fertile offspring, establishing reproductive isolation and completing speciation. (iv) This type of speciation, occurring without geographical isolation within the same physical area, is called sympatric speciation.",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "Set-2",

@@ -517,7 +517,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
       "Both are ore preparation methods before reduction",
       "Calcination is done in absence of air while roasting is done in presence of air"
     ],
-    "finalAnswer": "Calcination: in absence of air; Roasting: in presence of air",
+    "finalAnswer": "Calcination and roasting are both ore-preparation processes that convert ore into the metal oxide, but they differ in the conditions used and the type of ore they treat. Calcination is the process of strongly heating a carbonate or hydrated ore in the absence or limited supply of air; the heat drives off carbon dioxide or water of crystallisation, leaving behind the metal oxide — for example, zinc carbonate is calcined as: ZnCO₃ → ZnO + CO₂. Roasting, in contrast, is the process of heating a sulphide ore strongly in the presence of excess air (oxygen); the sulphide is oxidised to the metal oxide, with the release of sulphur dioxide gas — for example, zinc sulphide is roasted as: 2ZnS + 3O₂ → 2ZnO + 2SO₂. In summary, the key difference is that calcination uses limited air (for carbonate/hydrate ores) while roasting uses excess air (for sulphide ores).",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "B",
@@ -636,7 +636,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
       "From (iv): A + C⁺ → A⁺ + C, confirms A > C (consistent with A > B > C)",
       "Therefore: A > B > C > D"
     ],
-    "finalAnswer": "Reactivity order: A > B > C > D",
+    "finalAnswer": "From the experimental observations: observation (i) shows that A displaces B from its salt solution, so A is more reactive than B (A > B); observation (ii) shows that B displaces C, so B is more reactive than C (B > C); observation (iii) shows that C displaces D, so C is more reactive than D (C > D); and observation (iv) confirms that A displaces C, which is consistent with A > C. Combining all observations, the metals in decreasing order of reactivity are: A > B > C > D. A is the most reactive (displaces all others) and D is the least reactive (cannot displace any of the others).",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "A",
@@ -702,7 +702,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
       "",
       "Reactivity series determines method choice"
     ],
-    "finalAnswer": "See solution steps for complete explanation of extraction methods and their comparison",
+    "finalAnswer": "(a) Electrolysis method: Used for highly reactive metals such as sodium and potassium that cannot be reduced by carbon, because they are at the top of the reactivity series. Advantage: pure metal is obtained and the method works for very reactive metals. Disadvantage: it is very expensive and requires high electrical energy. Equation: Molten NaCl → Na⁺ + Cl⁻ → Na + Cl₂ (by electrolysis). (b) Carbon reduction method: Used for moderately reactive metals such as iron, zinc, and copper. Advantage: carbon is cheap and readily available, making it suitable for large-scale industrial production. Disadvantage: it cannot extract very reactive metals and some impurities may remain. Equation: 2Fe₂O₃ + 3C → 4Fe + 3CO₂. The position of the metal in the reactivity series determines which method is used for its extraction.",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "A",
@@ -1046,7 +1046,7 @@ export const MNM2_PACK2: CanonicalQuestion[] = [
       "C + O₂ → CO₂ (combustion of coke produces heat)",
       "CO is the actual reducing agent: 3CO + Fe₂O₃ → 2Fe + 3CO₂"
     ],
-    "finalAnswer": "Carbon (in the form of coke) or Carbon monoxide",
+    "finalAnswer": "The reducing agent used in the extraction of iron from its oxide (iron ore, primarily Fe₂O₃) in the blast furnace is carbon in the form of coke, and the actual immediate reducing agent in the reduction of iron oxide is carbon monoxide (CO). The process occurs as follows: coke first burns in the blast of hot air at the base of the furnace to produce carbon dioxide (C + O₂ → CO₂), which then reacts with more coke at high temperatures to form carbon monoxide (CO₂ + C → 2CO). The carbon monoxide then reduces the iron oxide to iron: Fe₂O₃ + 3CO → 2Fe + 3CO₂. The molten iron sinks to the bottom and is tapped off. Therefore, while coke (carbon) is the overall reducing agent added to the furnace, carbon monoxide is the species that directly reduces iron oxide to iron.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,

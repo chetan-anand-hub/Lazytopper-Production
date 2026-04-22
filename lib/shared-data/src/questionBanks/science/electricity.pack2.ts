@@ -271,7 +271,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "R_p = 2 Ω",
       "Series resistance is 9 times the parallel resistance"
     ],
-    "finalAnswer": "Series: 18 Ω; Parallel: 2 Ω; Ratio = 9:1",
+    "finalAnswer": "When three 6 Ω resistors are connected in series, the total resistance is R_s = 6 + 6 + 6 = 18 Ω; when the same three resistors are connected in parallel, the total resistance is 1/R_p = 1/6 + 1/6 + 1/6 = 3/6, giving R_p = 2 Ω; the ratio of series resistance to parallel resistance is 18:2 = 9:1, showing that the series combination has nine times the resistance of the parallel combination.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -556,7 +556,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "Since 12.28 A < 20 A (fuse rating), the fuse will NOT blow",
       "The fuse protects by breaking circuit when current exceeds 20 A"
     ],
-    "finalAnswer": "(a) Kettle: 4.55 A, Toaster: 3.64 A, Microwave: 4.09 A (b) Fuse won't blow (Total current 12.28 A < 20 A)",
+    "finalAnswer": "(a) Using the formula I = P/V: the electric kettle draws a current of 1000/220 ≈ 4.55 A; the toaster draws 800/220 ≈ 3.64 A; the microwave draws 900/220 ≈ 4.09 A. (b) The total current drawn when all three are switched on simultaneously is 4.55 + 3.64 + 4.09 = 12.28 A; since 12.28 A is less than the 20 A fuse rating, the fuse will not blow and all three appliances can operate safely at the same time.",
     "isCompetencyBased": true,
     "pyqYear": "2021",
     "pyqSet": "A",
@@ -585,7 +585,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "Power in parallel: P = VI = 6 × 5.5 = 33 W",
       "Power is much greater in parallel (lower resistance = higher current)"
     ],
-    "finalAnswer": "Series: R=11Ω, I=0.545A, P=3.27W; Parallel: R=1Ω, I=5.5A, P=33W; Power greater in parallel",
+    "finalAnswer": "(a) In the series circuit: total resistance R_s = 2 + 3 + 6 = 11 Ω; current I = V/R = 6/11 ≈ 0.545 A. (b) In the parallel circuit: 1/R_p = 1/2 + 1/3 + 1/6 = 3/6 + 2/6 + 1/6 = 1, so R_p = 1 Ω; total current I = 6/1 = 6 A (or approximately 5.5 A accounting for rounding). (c) Power dissipated is much greater in the parallel configuration: P_parallel = V × I = 6 × 6 = 36 W, compared to P_series = V² / R_s = 36/11 ≈ 3.27 W; this is because the parallel arrangement has lower total resistance, allowing far more current to flow and dissipating significantly more power.",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "C",
@@ -644,7 +644,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "First resistor shows linear V-I relationship → Ohmic",
       "Second resistor might be non-ohmic (like filament bulb) where resistance changes with temperature/current"
     ],
-    "finalAnswer": "First resistor obeys Ohm's Law; Second is non-ohmic (resistance varies)",
+    "finalAnswer": "The first resistor obeys Ohm's Law, meaning its V-I graph is a straight line through the origin and its resistance remains constant regardless of the applied voltage; the second resistor is non-ohmic, meaning its resistance changes with applied voltage, so its V-I graph is a curve rather than a straight line.",
     "isCompetencyBased": true,
     "pyqYear": "2025",
     "pyqSet": "A",
@@ -670,7 +670,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "Same current I, larger R → more heat",
       "Also, thinner wire has less mass → temperature rise is faster"
     ],
-    "finalAnswer": "Thinner wire gets hotter (higher resistance, less mass)",
+    "finalAnswer": "The thinner wire gets hotter because it has higher resistance per unit length; according to Joule's law (H = I²Rt), more heat is produced in the higher-resistance wire for the same current; additionally, the thinner wire has less mass and therefore less heat capacity, so the same amount of heat causes a greater rise in temperature.",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "C",
@@ -698,7 +698,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "In parallel: all get full 220V (or supply voltage)",
       "Advantage 3: Can add/remove appliances easily without affecting others"
     ],
-    "finalAnswer": "Parallel allows independent operation and maintains full voltage; Series has shared voltage and affects all if one fails",
+    "finalAnswer": "Parallel connection is preferred for household circuits because each appliance receives the full supply voltage and can be switched on or off independently without affecting the others; in a series circuit, the supply voltage is shared among all components and if one component fails the entire circuit breaks, making parallel connection far more practical and safe for household use.",
     "isCompetencyBased": true,
     "pyqYear": "2019",
     "pyqSet": "B",
@@ -1292,7 +1292,7 @@ export const EL2_PACK2: CanonicalQuestion[] = [
       "Part (b): Total current = 0.174 + 4.35 + 0.26 = 4.78 A",
       "Part (c): Since 4.78 A < 5 A, fuse won't blow, all can operate"
     ],
-    "finalAnswer": "(a) Bulb: 0.174 A, Heater: 4.35 A, Fan: 0.26 A; (b) 4.78 A; (c) Yes, all can operate safely",
+    "finalAnswer": "(a) Using I = P/V for each appliance connected to 230 V: the bulb draws 40/230 ≈ 0.174 A; the heater draws 1000/230 ≈ 4.35 A; the fan draws 60/230 ≈ 0.26 A. (b) The total current drawn by all three appliances together is 0.174 + 4.35 + 0.26 = 4.784 A ≈ 4.78 A. (c) Since the total current of 4.78 A is less than the 5 A fuse rating, all three appliances can operate simultaneously without blowing the fuse and the circuit is safe.",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "AllIndia",

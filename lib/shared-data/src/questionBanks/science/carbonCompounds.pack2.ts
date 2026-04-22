@@ -621,7 +621,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Don't precipitate with Ca2+/Mg2+ ions",
       "Work effectively in both soft and hard water"
     ],
-    "finalAnswer": "(a) Ca2+ and Mg2+ ions (b) CnH2n+1COONa; forms insoluble scum (c) Works in hard water (d) 2C17H35COO-Na+ + Ca2+ → (C17H35COO-)2Ca↓ + 2Na+",
+    "finalAnswer": "(a) Hard water contains calcium ions (Ca²⁺) and magnesium ions (Mg²⁺) dissolved in it, which interfere with the lathering action of soap. (b) The general formula of a soap molecule is CₙH₂ₙ₊₁COO⁻Na⁺; soap forms an insoluble scum with hard water because its carboxylate ions react with calcium or magnesium ions to form calcium or magnesium stearate, which is insoluble and precipitates as a grey scum. (c) A synthetic detergent (such as a sulphonate-based detergent) works in hard water because its sulphonate group does not react with calcium or magnesium ions to form insoluble salts. (d) The balanced equation for the reaction of sodium stearate (soap) with calcium ions in hard water is: 2C₁₇H₃₅COO⁻Na⁺ + Ca²⁺ → (C₁₇H₃₅COO⁻)₂Ca↓ + 2Na⁺.",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "Set-1",
@@ -650,7 +650,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Addition reaction: Br2 adds across double/triple bonds",
       "Oxidation: combustion with O2"
     ],
-    "finalAnswer": "(a) CH4+2O2→CO2+2H2O; 2C2H4+6O2→4CO2+4H2O; 2C2H2+5O2→4CO2+2H2O (b) CH4: no change; C2H4 & C2H2: brown to colorless (c) Different degrees of unsaturation (d) Combustion=oxidation; Br2=addition",
+    "finalAnswer": "(a) The balanced combustion equations are: CH₄ + 2O₂ → CO₂ + 2H₂O (methane); 2C₂H₄ + 6O₂ → 4CO₂ + 4H₂O (ethene); 2C₂H₂ + 5O₂ → 4CO₂ + 2H₂O (ethyne). (b) When bromine water is added: methane (saturated) shows no change and the bromine water retains its brown colour; ethene and ethyne (both unsaturated) decolourise the bromine water from brown to colourless because they undergo addition reactions with bromine. (c) Methane does not decolourise bromine water because it is a saturated compound with only single bonds and cannot undergo addition reactions, whereas ethene (one double bond) and ethyne (one triple bond) have different degrees of unsaturation and can undergo addition reactions. (d) Combustion is an oxidation reaction in which carbon compounds react with oxygen, while reaction with bromine water is an addition reaction in which bromine atoms add across the double or triple bond of the unsaturated compound.",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "Set-1",
@@ -1451,7 +1451,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "2) CH₃-CH₂-CH₂OH = 1-Propanol (primary alcohol)",
       "Most common is 2-propanol (isopropanol)"
     ],
-    "finalAnswer": "CH₃-CH(OH)-CH₃; 2-Propanol (also CH₃CH₂CH₂OH; 1-Propanol)",
+    "finalAnswer": "The alcohol with three carbon atoms has two structural isomers. The first isomer is 2-Propanol (a secondary alcohol), in which the hydroxyl group is attached to the middle carbon: CH₃-CH(OH)-CH₃; its IUPAC name is propan-2-ol. The second isomer is 1-Propanol (a primary alcohol), in which the hydroxyl group is attached to the terminal carbon: CH₃-CH₂-CH₂OH; its IUPAC name is propan-1-ol. Both isomers share the molecular formula C₃H₇OH but differ in the position of the -OH group on the carbon chain.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -1477,7 +1477,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "Example: CH₄ + Cl₂ → CH₃Cl + HCl (in sunlight)",
       "Alkenes show addition, alkanes show substitution"
     ],
-    "finalAnswer": "Addition involves breaking of double bonds with atoms adding (C₂H₄ + Br₂ → C₂H₄Br₂); Substitution involves replacement of atoms (CH₄ + Cl₂ → CH₃Cl + HCl)",
+    "finalAnswer": "An addition reaction involves the breaking of a double or triple bond in an unsaturated compound and the addition of atoms or groups of atoms across that bond to form a single product; for example, ethene reacts with bromine as follows: C₂H₄ + Br₂ → C₂H₄Br₂ (1,2-dibromoethane). A substitution reaction involves the replacement of one atom or group in a saturated compound by another atom or group; for example, methane reacts with chlorine in sunlight as follows: CH₄ + Cl₂ → CH₃Cl + HCl. Addition reactions are characteristic of unsaturated compounds, while substitution reactions are characteristic of saturated compounds.",
     "isCompetencyBased": true,
     "pyqYear": "2022",
     "pyqSet": "Delhi",
@@ -1506,7 +1506,7 @@ export const CC2_PACK2: CanonicalQuestion[] = [
       "D) Advantages: Works in hard water, better detergency",
       "Disadvantages: Less biodegradable, more expensive, synthetic"
     ],
-    "finalAnswer": "A) Hard water ions form insoluble salts with soap; B) Calcium/magnesium stearate; C) Sulphonate groups don't precipitate; D) Adv-Works in hard water; Disadv-Non-biodegradable",
+    "finalAnswer": "(A) Soap fails in hard water because calcium (Ca²⁺) and magnesium (Mg²⁺) ions in hard water react with the sodium salts of fatty acids in soap to form insoluble calcium and magnesium stearates that precipitate as a grey scum; this scum cannot form a lather and thus cannot lift grease or dirt. (B) The white precipitate formed is calcium stearate and/or magnesium stearate — the insoluble curd-like salts produced when soap reacts with the hard water ions. (C) Detergents work better in hard water because their active cleaning agents contain sulphonate (−SO₃⁻) or sulphate (−OSO₃⁻) groups, which do not react with Ca²⁺ and Mg²⁺ ions to form insoluble precipitates; they remain soluble and effective even in hard water. (D) One advantage of detergents over soaps is that they clean effectively in both hard and soft water without forming scum; one disadvantage is that many detergents are non-biodegradable or slow to biodegrade, causing persistent pollution of water bodies and harm to aquatic life.",
     "isCompetencyBased": true,
     "pyqYear": "2025",
     "pyqSet": "All India",

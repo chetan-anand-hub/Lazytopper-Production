@@ -493,7 +493,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "At destination, step-down transformer reduces voltage for use.",
       "DC cannot be easily transformed, requiring high current for transmission."
     ],
-    "finalAnswer": "Transformers enable voltage step-up/down; high voltage reduces I²R losses",
+    "finalAnswer": "AC (alternating current) is preferred over DC (direct current) for long-distance electrical power transmission because AC voltage can be easily stepped up or down using transformers, whereas DC cannot be transformed efficiently by conventional transformers. Before transmission, a step-up transformer raises the voltage to a very high level (such as hundreds of thousands of volts), which proportionally reduces the current. Since the power lost as heat in the transmission cables is given by P = I²R, reducing the current dramatically reduces the resistive losses in the lines. At the destination, a step-down transformer reduces the voltage to a safe level suitable for domestic and industrial use. This makes AC transmission far more energy-efficient and economical over long distances than DC transmission.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -520,7 +520,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "But they are displaced, forming a couple.",
       "Couple produces torque: τ = NBIA sin θ"
     ],
-    "finalAnswer": "Equal opposite forces form couple producing torque without net force",
+    "finalAnswer": "When a current-carrying circular coil is placed in a uniform magnetic field, the force on each small current element is given by F = BIL sin θ. Opposite sides of the coil carry current in opposite directions; by Fleming's left-hand rule, the forces on opposite sides are equal in magnitude but opposite in direction. Since these two equal and opposite forces are not collinear (they act along parallel lines separated by the diameter of the coil), they form a couple. A couple produces a net torque (rotational turning effect) that tends to rotate the coil about its axis; however, because the two forces are exactly equal and opposite, the net translational (linear) force on the coil as a whole is zero — the coil experiences no net force and will not translate, but it will rotate due to the torque produced by the couple.",
     "isCompetencyBased": true,
     "pyqYear": "2023",
     "pyqSet": "Delhi",
@@ -547,7 +547,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "Show side AB experiences force in one direction, CD in opposite.",
       "This creates net torque causing rotation."
     ],
-    "finalAnswer": "Detailed explanation of motor operation, commutator function, and factors affecting speed",
+    "finalAnswer": "(a) The commutator is essential in a DC motor because at each half rotation of the coil it reverses the direction of current through the coil, ensuring that the force on the coil always acts in the same rotational direction to produce continuous rotation. (b) If the commutator were replaced with slip rings, the current direction would not be reversed at each half rotation, so the force would alternate direction and the coil would oscillate back and forth rather than rotate continuously. (c) The motor's speed can be increased by increasing the current through the coil, increasing the strength of the magnetic field, or increasing the number of turns in the coil, since torque τ = NBIA sin θ depends on all three quantities. (d) Applying Fleming's left-hand rule to the coil sides, side AB experiences a force in one direction (say upward) and side CD experiences an equal and opposite force (downward), creating a net torque that causes the coil to rotate continuously.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -603,7 +603,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "8. Advantages of AC: Easily transformed, less power loss in transmission, cheaper to produce.",
       "9. DC generator requires split-ring commutator, more complex, difficult to transform."
     ],
-    "finalAnswer": "Complete AC generator analysis with diagram, EMF derivation, and advantages over DC",
+    "finalAnswer": "An AC generator consists of a rectangular coil rotating between the poles of a permanent magnet, connected to an external circuit through slip rings and brushes. As the coil rotates, the magnetic flux through it changes as Φ = NAB cos(ωt). By Faraday's law of electromagnetic induction, the induced EMF is ε = −dΦ/dt = NABω sin(ωt), where N is the number of turns, A is the area of the coil, B is the magnetic field strength, and ω is the angular velocity. The induced EMF is zero when the coil lies perpendicular to the field (θ = 0°), rises to a maximum of NABω at θ = 90°, returns to zero at θ = 180°, and reaches a negative maximum at θ = 270°, producing a sinusoidal variation. The main advantages of the AC generator over the DC generator are: (i) AC voltage can be easily stepped up or down using transformers, reducing power loss during long-distance transmission; (ii) AC generators are simpler in construction as they use slip rings instead of the more complex split-ring commutator required in DC generators.",
     "isCompetencyBased": true,
     "pyqYear": "2025",
     "pyqSet": "Delhi",
@@ -696,7 +696,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "Point Middle finger in direction of current.",
       "Thumb points in direction of force."
     ],
-    "finalAnswer": "F = 5 N; direction given by Fleming's left-hand rule",
+    "finalAnswer": "The force on the conductor is calculated using the formula F = BIL sin θ, where B = 2 T (magnetic field), I = 5 A (current), L = 0.5 m (length of conductor, converted from 50 cm), and θ = 90° (since the conductor is perpendicular to the field). Substituting: F = 2 × 5 × 0.5 × sin 90° = 2 × 5 × 0.5 × 1 = 5 N. Therefore, the force acting on the conductor is 5 N. The direction of this force is determined using Fleming's left-hand rule: hold the left hand so that the index finger points in the direction of the magnetic field (B), the middle finger (at right angles to the index finger) points in the direction of conventional current (I), and the thumb then points in the direction of the force (thrust) on the conductor.",
     "isCompetencyBased": true,
     "pyqYear": undefined,
     "pyqSet": undefined,
@@ -725,7 +725,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "(d) Both use rotating coil in magnetic field.",
       "    Both use same principle: F = BIL or EMF = NABω sin(ωt)"
     ],
-    "finalAnswer": "Detailed comparison showing opposite energy conversions, different connector types, and output characteristics",
+    "finalAnswer": "(a) Energy conversion: A DC motor converts electrical energy into mechanical energy (rotation of the coil), whereas an AC generator converts mechanical energy into electrical energy by generating an induced EMF. (b) Role of commutator or slip rings: In a DC motor, a split-ring commutator reverses the current through the coil at every half rotation, ensuring that the torque always acts in the same rotational direction for continuous rotation. In an AC generator, slip rings maintain a continuous electrical connection with the rotating coil without reversing the current, so the output EMF alternates naturally as the coil rotates. (c) Output nature: A DC motor requires a unidirectional (direct) current as its input to produce continuous rotation in one direction, whereas an AC generator produces an alternating EMF as its output since the induced EMF varies sinusoidally as ε = NABω sin(ωt).",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "Delhi",
@@ -1214,7 +1214,7 @@ export const ME2_PACK2: CanonicalQuestion[] = [
       "(b) Change (iv) is counterproductive because air gap increases reluctance and weakens the magnetic field due to air's low permeability compared to iron",
       "(c) If current stays at 2A: Change (ii) doesn't help field strength (no current change), but Change (iii) enables higher current through thicker wire → stronger field"
     ],
-    "finalAnswer": "(a) Changes (i), (ii), and (iii) increase electromagnet strength because: (i) more turns increase coil ampere-turns, (ii) reduced resistance allows higher current, (iii) higher voltage drives more current. (b) Change (iv) is counterproductive as air gap introduces reluctance and breaks the magnetic circuit, significantly weakening the field. (c) Change (iii) is better because increased voltage with thicker wire allows greater current, directly increasing electromagnetic force; Change (ii) alone doesn't help if current remains 2A.",
+    "finalAnswer": "(a) Changes (i), (ii), and (iii) all increase the strength of the electromagnet: increasing the number of turns to 1000 doubles the coil's ampere-turns, which directly increases the magnetic field strength; using thicker wire reduces the circuit resistance, allowing more current to flow and increasing the ampere-turns; increasing the voltage to 24V drives a greater current through the coil, which also increases the magnetic field. (b) Change (iv) — adding an air gap to the core — is counterproductive because air has a very low magnetic permeability compared to soft iron; introducing an air gap creates a region of high magnetic reluctance that reduces the overall magnetic flux through the core, significantly weakening the electromagnet's field strength. (c) If the current is kept constant at 2 A, change (ii) (using thicker wire) does not increase the electromagnet's strength because the field strength depends on the current, not on the wire resistance alone; change (iii) (increasing the voltage) is the better choice because, with thicker wire already reducing resistance, the higher voltage will drive more current through the coil, directly increasing the magnetic force.",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "CBSE",
