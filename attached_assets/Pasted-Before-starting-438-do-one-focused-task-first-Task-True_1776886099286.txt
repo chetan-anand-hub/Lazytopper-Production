@@ -1,0 +1,333 @@
+Before starting `#438`, do **one focused task first**:
+
+# Task: True multi-section worksheet preset/filter support
+
+This is a **product-accuracy + student-value task** that must land **after #437** and **before #438**.
+
+Do **not** widen scope.
+Do **not** start `#438`.
+Do **not** touch desktop.
+Do **not** redesign unrelated mobile screens.
+
+---
+
+## Why this task exists
+
+Right now `#437` is approved because the worksheet preset copy was made honest.
+
+But product-wise, the better student experience is still:
+
+* **Quick drill** should behave like short-answer revision
+* **High-marks focus** should behave like long-answer / high-mark practice
+* presets should not just change count/difficulty
+* they should shape the worksheet meaningfully
+
+So this task is to turn the current worksheet preset/filter system into **true multi-section behavior**, not just truthful copy.
+
+---
+
+## Current state you should assume
+
+Already done:
+
+* `#436` approved
+* `#437` approved
+* mobile baseline lane active
+* desktop still paused
+* `#438` must stay paused until this task is done
+
+Current worksheet state:
+
+* the question model already has a `section` field
+* custom single-section filtering exists
+* preset descriptions were temporarily made honest because presets still use `section: "All"`
+
+Now we want to move from that temporary truthful state to the actual intended behavior.
+
+---
+
+## Goal of this task
+
+Implement **real multi-section worksheet presets and filters** in the mobile worksheet flow.
+
+That means:
+
+* presets should map to real section combinations
+* generation output should actually respect those combinations
+* ready-screen summary should reflect the real section scope
+* UI copy should remain truthful
+* no fake claims
+* no desktop drift
+* no unrelated feature work
+
+---
+
+## Exact desired preset behavior
+
+### Preset 1 — Board exam mix
+
+Keep as:
+
+* **All sections A–E**
+* **All difficulty**
+* **25 questions**
+
+This is the broad balanced preset.
+
+### Preset 2 — Quick drill
+
+Implement as:
+
+* **Sections A + B**
+* **All difficulty**
+* **15 questions**
+
+Intent:
+
+* fast revision
+* lighter / shorter-answer practice
+* useful for momentum-building and quick confidence reps
+
+### Preset 3 — High-marks focus
+
+Implement as:
+
+* **Sections C + D + E**
+* **Hard difficulty**
+* **20 questions**
+
+Intent:
+
+* heavier written-answer practice
+* higher-mark questions
+* exam-prep mode for stronger students or final revision
+
+---
+
+## Product rules
+
+### 1. Preset behavior must be real
+
+Do not leave any preset description implying section behavior unless generation actually respects it.
+
+### 2. Multi-section means actual multiple sections
+
+Do not collapse A+B or C+D+E back into `"All"`.
+
+### 3. Summary must be truthful everywhere
+
+If the selected scope is:
+
+* A + B
+  show that clearly
+  If the selected scope is:
+* C + D + E
+  show that clearly
+  If all sections:
+* say All sections (A–E)
+
+### 4. No degraded student experience
+
+Do not make the user think they got a targeted worksheet if they actually got a generic one.
+
+### 5. Keep this additive and minimal
+
+Only touch the files necessary to support true multi-section worksheet behavior.
+
+---
+
+## Required implementation behavior
+
+### A. Data/config shape
+
+Refactor worksheet preset config so section scope can represent:
+
+* one section
+* all sections
+* multiple sections
+
+You may use whichever implementation is cleanest, for example:
+
+* `sectionFilter: "All" | SectionKey`
+* plus `sectionFilters: SectionKey[]`
+  or
+* a single unified array-based representation
+  or
+* another small explicit structure
+
+Choose the cleanest minimal-change version, but the result must support:
+
+* `["A","B"]`
+* `["C","D","E"]`
+* all sections
+
+### B. Generation logic
+
+When generating a worksheet:
+
+* generate the candidate question set
+* filter it according to the selected section scope
+* preserve difficulty behavior already implemented
+* preserve count behavior
+* do not silently ignore the section scope
+
+### C. Empty / low-result handling
+
+If filtering leaves zero questions:
+
+* show a clear error state
+
+If filtering leaves fewer questions than requested:
+
+* do **not** silently pad with wrong sections
+* either:
+
+  * return the smaller truthful set and communicate it clearly
+  * or implement a clean fallback rule and explain it explicitly in code/comments/output
+
+Preferred behavior:
+
+* keep the set truthful to the chosen sections
+* do not dilute the scope just to hit the count
+
+### D. Ready-screen summary
+
+`WorksheetReady` must accurately show:
+
+* subject
+* topic
+* difficulty
+* section scope
+* question count
+
+Examples:
+
+* `Sections A + B`
+* `Sections C + D + E`
+* `All sections (A–E)`
+
+### E. Preset copy
+
+Update preset descriptions so they match the new real behavior exactly.
+
+Expected copy direction:
+
+* Board exam mix → `All sections A–E · All difficulty · 25 questions`
+* Quick drill → `Sections A–B · All difficulty · 15 questions`
+* High-marks focus → `Sections C–E · Hard difficulty · 20 questions`
+
+You may refine wording slightly, but keep the meaning exact.
+
+### F. Custom mode
+
+Keep custom mode working.
+
+If custom mode currently supports only:
+
+* one section
+  or
+* All sections
+
+that is acceptable unless a very small clean improvement can add custom multi-select without scope creep.
+
+Important:
+this task’s mandatory requirement is **preset multi-section support**.
+Custom multi-select is optional only if it is genuinely small and low-risk.
+
+---
+
+## Scope boundaries
+
+### In scope
+
+* mobile worksheet preset behavior
+* mobile worksheet generation filter logic
+* truthful preset descriptions
+* ready-screen section summary
+* any minimal type/helper changes required for this
+* any small wiring needed so `WorksheetReady` can display multi-section state correctly
+
+### Out of scope
+
+* desktop
+* `#438`
+* Welcome / Intent / PracticeHome unrelated polish
+* Check & Improve changes
+* Topic Hub changes
+* BottomNav changes
+* auth / payments / admin / analytics
+* general worksheet redesign
+* full engine refactor
+
+---
+
+## No-drift rules
+
+Do not:
+
+* redesign the worksheet screen
+* redesign the ready screen
+* rename things casually
+* change navigation structure
+* change mobile shell behavior
+* touch desktop-facing routes
+* expand this into a general worksheet overhaul
+* add speculative features not required for multi-section support
+
+---
+
+## Recommended implementation approach
+
+Use a small, clean sequence:
+
+1. refactor preset config to support true multi-section values
+2. update generation/filter logic to respect those values
+3. update `WorksheetReady` summary rendering
+4. update preset descriptions to match real behavior
+5. verify zero/low-result behavior is truthful
+6. keep all changes confined to the worksheet flow
+
+---
+
+## Acceptance criteria
+
+This task is accepted only if all of the following are true:
+
+1. **Board exam mix** actually generates from all sections A–E
+2. **Quick drill** actually restricts to sections A+B
+3. **High-marks focus** actually restricts to sections C+D+E
+4. ready-screen summary reflects the real section scope
+5. no preset copy overpromises behavior
+6. no wrong-section questions are silently introduced into a targeted preset
+7. mobile layout/composition remains aligned with the approved baseline direction
+8. desktop remains untouched
+9. `#438` has not started
+
+---
+
+## Output format required
+
+When done, reply with:
+
+1. exact files changed
+2. exact data/config shape chosen for multi-section support
+3. exact generation/filter logic change
+4. exact preset behavior now implemented
+5. exact ready-screen summary behavior now implemented
+6. how zero-result and low-result cases are handled
+7. whether custom mode changed or stayed single-section/all-sections
+8. updated git ref
+9. updated compare URL
+10. updated PR URL
+
+Also include a short plain-English confirmation of this:
+
+* Board exam mix = A–E
+* Quick drill = A+B
+* High-marks focus = C+D+E
+
+Again:
+
+* do not start `#438`
+* do not touch desktop
+* do not widen scope beyond true multi-section worksheet preset/filter support
