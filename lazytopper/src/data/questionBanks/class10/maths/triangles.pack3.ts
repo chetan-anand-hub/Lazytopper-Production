@@ -1584,5 +1584,11 @@ export const TR3_PACK3: CanonicalQuestion[] = [
     "pyqSet": undefined,
     "ncertRef": "Ex 6.5"
   },
-  { id: "TR3-064", subject: "Maths", topicKey: "Triangles", subtopic: "Pythagoras Theorem", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "In △ABC, ∠B = 90°. D is the midpoint of BC. Prove that AC² = AD² + 3CD².", solutionSteps: ["Construction: Draw the two triangles with equal corresponding angles or proportional sides as given. Label corresponding vertices.", "Given: △ABC with ∠B = 90°, D is midpoint of BC so BD = DC = CD.","In △ABD (right-angled at B): AD² = AB² + BD² …(1)","In △ABC (right-angled at B): AC² = AB² + BC² = AB² + (BD+DC)² = AB² + (2DC)² = AB² + 4DC² …(2)","From (1): AB² = AD² − BD² = AD² − CD² (since BD = CD).","Substituting into (2): AC² = (AD² − CD²) + 4CD² = AD² + 3CD². ✓"], answer: "AC² = AD² + 3CD² (proved using Pythagoras theorem in △ABD and △ABC).", explanation: "See solution steps for full working.", finalAnswer: "AC² = AD² + 3CD² (proved using Pythagoras theorem in △ABD and △ABC).", visualExplainerId: "maths-triangles-similar-triangles-and-criteria", isCompetencyBased: true }
+  { id: "TR3-064", subject: "Maths", topicKey: "Triangles", subtopic: "Pythagoras Theorem", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "In △ABC, ∠B = 90°. D is the midpoint of BC. Prove that AC² = AD² + 3CD².", solutionSteps: [
+      "Construction: Draw the two triangles with equal corresponding angles or proportional sides as given. Label corresponding vertices.; Given: △ABC with ∠B = 90°, D is midpoint of BC so BD = DC = CD. [1]",
+      "In △ABD (right-angled at B): AD² = AB² + BD² …(1) [1]",
+      "In △ABC (right-angled at B): AC² = AB² + BC² = AB² + (BD+DC)² = AB² + (2DC)² = AB² + 4DC² …(2) [1]",
+      "From (1): AB² = AD² − BD² = AD² − CD² (since BD = CD). [1]",
+      "Substituting into (2): AC² = (AD² − CD²) + 4CD² = AD² + 3CD². ✓ [1]",
+    ], answer: "AC² = AD² + 3CD² (proved using Pythagoras theorem in △ABD and △ABC).", explanation: "See solution steps for full working.", finalAnswer: "AC² = AD² + 3CD² (proved using Pythagoras theorem in △ABD and △ABC).", visualExplainerId: "maths-triangles-similar-triangles-and-criteria", isCompetencyBased: true }
 ];

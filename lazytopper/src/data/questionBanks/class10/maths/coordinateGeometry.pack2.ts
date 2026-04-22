@@ -1090,7 +1090,19 @@ export const CG2_PACK2: CanonicalQuestion[] = [
       "Since Reason (R) provides the correct formula used to verify Assertion (A), R is the correct explanation for A.",
     ],
   },
-  { id: "CG2-056", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Section Formula", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Find the coordinates of the point P which divides the join of A(−1, 7) and B(4, −3) in the ratio 2:3. Also find the distance AP.", solutionSteps: ["P divides AB in ratio m:n = 2:3.","x = (2×4+3×(−1))/(2+3) = (8−3)/5 = 1","y = (2×(−3)+3×7)/5 = (−6+21)/5 = 15/5 = 3","So P = (1, 3).","AP = √((1−(−1))²+(3−7)²) = √(4+16) = √20 = 2√5."], answer: "P = (1, 3); AP = 2√5 units.", explanation: "See solution steps.", finalAnswer: "P = (1, 3); AP = 2√5 units.", isCompetencyBased: false },
-  { id: "CG2-057", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Area of Triangle", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Verify that the points (1, −1), (4, 1), and (−2, −3) are collinear using the area method.", solutionSteps: ["Area = ½|x₁(y₂−y₃) + x₂(y₃−y₁) + x₃(y₁−y₂)|","= ½|1(1−(−3)) + 4((−3)−(−1)) + (−2)(−1−1)|","= ½|1(4) + 4(−2) + (−2)(−2)|","= ½|4 − 8 + 4| = ½|0| = 0","Area = 0 ✓, so the three points are collinear."], answer: "Area = 0, so the points are collinear.", explanation: "See solution steps.", finalAnswer: "Area = 0, so the points are collinear.", isCompetencyBased: false },
-  { id: "CG2-058", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Section Formula", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "The vertices of a triangle are A(2, 4), B(−4, 2) and C(−2, −6). Find the coordinates of the centroid.", solutionSteps: ["Centroid G = ((x₁+x₂+x₃)/3, (y₁+y₂+y₃)/3)","x = (2+(−4)+(−2))/3 = −4/3","y = (4+2+(−6))/3 = 0/3 = 0","G = (−4/3, 0)"], answer: "Centroid G = (−4/3, 0).", explanation: "See solution steps.", finalAnswer: "Centroid G = (−4/3, 0).", isCompetencyBased: false }
+  { id: "CG2-056", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Section Formula", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Find the coordinates of the point P which divides the join of A(−1, 7) and B(4, −3) in the ratio 2:3. Also find the distance AP.", solutionSteps: [
+      "P divides AB in ratio m:n = 2:3.; x = (2×4+3×(−1))/(2+3) = (8−3)/5 = 1 [1]",
+      "y = (2×(−3)+3×7)/5 = (−6+21)/5 = 15/5 = 3; So P = (1, 3). [1]",
+      "AP = √((1−(−1))²+(3−7)²) = √(4+16) = √20 = 2√5. [1]",
+    ], answer: "P = (1, 3); AP = 2√5 units.", explanation: "See solution steps.", finalAnswer: "P = (1, 3); AP = 2√5 units.", isCompetencyBased: false },
+  { id: "CG2-057", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Area of Triangle", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Verify that the points (1, −1), (4, 1), and (−2, −3) are collinear using the area method.", solutionSteps: [
+      "Area = ½|x₁(y₂−y₃) + x₂(y₃−y₁) + x₃(y₁−y₂)|; = ½|1(1−(−3)) + 4((−3)−(−1)) + (−2)(−1−1)| [1]",
+      "= ½|1(4) + 4(−2) + (−2)(−2)|; = ½|4 − 8 + 4| = ½|0| = 0 [1]",
+      "Area = 0 ✓, so the three points are collinear. [1]",
+    ], answer: "Area = 0, so the points are collinear.", explanation: "See solution steps.", finalAnswer: "Area = 0, so the points are collinear.", isCompetencyBased: false },
+  { id: "CG2-058", subject: "Maths", topicKey: "Coordinate Geometry", subtopic: "Section Formula", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "The vertices of a triangle are A(2, 4), B(−4, 2) and C(−2, −6). Find the coordinates of the centroid.", solutionSteps: [
+      "Centroid G = ((x₁+x₂+x₃)/3, (y₁+y₂+y₃)/3); x = (2+(−4)+(−2))/3 = −4/3 [1]",
+      "y = (4+2+(−6))/3 = 0/3 = 0 [1]",
+      "G = (−4/3, 0) [1]",
+    ], answer: "Centroid G = (−4/3, 0).", explanation: "See solution steps.", finalAnswer: "Centroid G = (−4/3, 0).", isCompetencyBased: false }
 ];

@@ -1299,5 +1299,11 @@ export const PLE2_PACK2: CanonicalQuestion[] = [
       "Please provide the complete question text and its corresponding answer.",
     ],
   },
-  { id: "PLE2-R15", subject: "Maths", topicKey: "Pair of Linear Equations", subtopic: "Problem Solving", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Five years hence, the age of Jacob will be three times that of his son. Five years ago, Jacob's age was seven times that of his son. Find their present ages.", solutionSteps: ["Let Jacob's present age = x; son's present age = y.","Five years hence: x+5 = 3(y+5) → x+5 = 3y+15 → x−3y = 10 …(1)","Five years ago: x−5 = 7(y−5) → x−5 = 7y−35 → x−7y = −30 …(2)","Subtracting (2) from (1): 4y = 40 → y = 10.","From (1): x = 10 + 3(10) = 40.","Verification: 5 years hence — 45 = 3×15 ✓. 5 years ago — 35 = 7×5 ✓."], answer: "Jacob is 40 years old; his son is 10 years old.", explanation: "See solution steps for full working.", finalAnswer: "Jacob is 40 years old; his son is 10 years old.", visualExplainerId: "maths-linear-equations-graphical-method", isCompetencyBased: true }
+  { id: "PLE2-R15", subject: "Maths", topicKey: "Pair of Linear Equations", subtopic: "Problem Solving", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Five years hence, the age of Jacob will be three times that of his son. Five years ago, Jacob's age was seven times that of his son. Find their present ages.", solutionSteps: [
+      "Let Jacob's present age = x; son's present age = y.; Five years hence: x+5 = 3(y+5) → x+5 = 3y+15 → x−3y = 10 …(1) [1]",
+      "Five years ago: x−5 = 7(y−5) → x−5 = 7y−35 → x−7y = −30 …(2) [1]",
+      "Subtracting (2) from (1): 4y = 40 → y = 10. [1]",
+      "From (1): x = 10 + 3(10) = 40. [1]",
+      "Verification: 5 years hence — 45 = 3×15 ✓. 5 years ago — 35 = 7×5 ✓. [1]",
+    ], answer: "Jacob is 40 years old; his son is 10 years old.", explanation: "See solution steps for full working.", finalAnswer: "Jacob is 40 years old; his son is 10 years old.", visualExplainerId: "maths-linear-equations-graphical-method", isCompetencyBased: true }
 ];

@@ -1357,6 +1357,18 @@ export const AP2_PACK2: CanonicalQuestion[] = [
       "Determine if Reason (R) correctly explains Assertion (A) based on the calculation and formula.",
     ],
   },
-  { id: "AP2-056", subject: "Maths", topicKey: "Arithmetic Progression", subtopic: "Sum of n Terms", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "The sum of first n terms of an AP is S_n = 3n² + 5n. Find the AP, its first term, common difference, and the 20th term.", solutionSteps: ["S_n = 3n² + 5n. a_n = S_n − S_{n−1} for n ≥ 2.","a_n = 3n²+5n − [3(n−1)²+5(n−1)] = 3n²+5n − [3n²−6n+3+5n−5] = 3n²+5n − 3n²+6n−3−5n+5 = 6n+2","So a_n = 6n + 2. Check: a_1 = 8, a_2 = 14, a_3 = 20 (d = 6). ✓","Also, S_1 = 3(1)+5(1) = 8 = a_1. ✓","First term a = 8, common difference d = 6.","a_20 = 6(20)+2 = 122."], answer: "AP: 8, 14, 20, … with a = 8, d = 6, a_20 = 122.", explanation: "See solution steps for full working.", finalAnswer: "AP: 8, 14, 20, … with a = 8, d = 6, a_20 = 122.", isCompetencyBased: true },
-  { id: "AP2-057", subject: "Maths", topicKey: "Arithmetic Progression", subtopic: "Sum of n Terms", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "200 logs are stacked in a pile with 20 logs in the bottom row, each row having one less log than the row below. How many rows are there? Find the number of logs in the top row.", solutionSteps: ["Let n be the number of rows. Bottom row = 20, d = −1, so a_n = 20 − (n−1) = 21 − n.","Total logs = S_n = (n/2)(a_1 + a_n) = (n/2)(20 + 21 − n) = (n/2)(41 − n).","Set S_n = 200: n(41−n)/2 = 200 → n(41−n) = 400 → 41n − n² = 400 → n² − 41n + 400 = 0.","Discriminant = 1681 − 1600 = 81. n = (41 ± 9)/2. n = 25 or n = 16.","If n = 25: top row = 21 − 25 = −4 (not valid). So n = 16.","Top row = 21 − 16 = 5 logs."], answer: "There are 16 rows; the top row has 5 logs.", explanation: "See solution steps for full working.", finalAnswer: "There are 16 rows; the top row has 5 logs.", isCompetencyBased: true }
+  { id: "AP2-056", subject: "Maths", topicKey: "Arithmetic Progression", subtopic: "Sum of n Terms", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "The sum of first n terms of an AP is S_n = 3n² + 5n. Find the AP, its first term, common difference, and the 20th term.", solutionSteps: [
+      "S_n = 3n² + 5n. a_n = S_n − S_{n−1} for n ≥ 2.; a_n = 3n²+5n − [3(n−1)²+5(n−1)] = 3n²+5n − [3n²−6n+3+5n−5] = 3n²+5n − 3n²+6n−3−5n+5 = 6n+2 [1]",
+      "So a_n = 6n + 2. Check: a_1 = 8, a_2 = 14, a_3 = 20 (d = 6). ✓ [1]",
+      "Also, S_1 = 3(1)+5(1) = 8 = a_1. ✓ [1]",
+      "First term a = 8, common difference d = 6. [1]",
+      "a_20 = 6(20)+2 = 122. [1]",
+    ], answer: "AP: 8, 14, 20, … with a = 8, d = 6, a_20 = 122.", explanation: "See solution steps for full working.", finalAnswer: "AP: 8, 14, 20, … with a = 8, d = 6, a_20 = 122.", isCompetencyBased: true },
+  { id: "AP2-057", subject: "Maths", topicKey: "Arithmetic Progression", subtopic: "Sum of n Terms", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "200 logs are stacked in a pile with 20 logs in the bottom row, each row having one less log than the row below. How many rows are there? Find the number of logs in the top row.", solutionSteps: [
+      "Let n be the number of rows. Bottom row = 20, d = −1, so a_n = 20 − (n−1) = 21 − n.; Total logs = S_n = (n/2)(a_1 + a_n) = (n/2)(20 + 21 − n) = (n/2)(41 − n). [1]",
+      "Set S_n = 200: n(41−n)/2 = 200 → n(41−n) = 400 → 41n − n² = 400 → n² − 41n + 400 = 0. [1]",
+      "Discriminant = 1681 − 1600 = 81. n = (41 ± 9)/2. n = 25 or n = 16. [1]",
+      "If n = 25: top row = 21 − 25 = −4 (not valid). So n = 16. [1]",
+      "Top row = 21 − 16 = 5 logs. [1]",
+    ], answer: "There are 16 rows; the top row has 5 logs.", explanation: "See solution steps for full working.", finalAnswer: "There are 16 rows; the top row has 5 logs.", isCompetencyBased: true }
 ];

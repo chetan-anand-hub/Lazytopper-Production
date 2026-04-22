@@ -1392,5 +1392,11 @@ export const QE2_PACK2: CanonicalQuestion[] = [
       "Reason (R) correctly states that a quadratic equation has real roots if and only if b^2 - 4ac >= 0. Since A is true due to D < 0, R is the correct explanation for A.",
     ],
   },
-  { id: "QE2-058", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Problem Solving", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "A train travels 360 km at a uniform speed. If the speed had been 5 km/h more, it would have taken 1 hour less. Find the speed of the train.", solutionSteps: ["Let speed = x km/h. Time = 360/x hours.","New speed = (x+5) km/h. New time = 360/(x+5) hours.","Given: 360/x − 360/(x+5) = 1.","360(x+5) − 360x = x(x+5)","360x + 1800 − 360x = x² + 5x","x² + 5x − 1800 = 0","Using quadratic formula or factoring: x = (−5 ± √(25+7200))/2 = (−5 ± √7225)/2 = (−5 ± 85)/2.","x = 80/2 = 40 (taking positive value). Speed = 40 km/h.","Verify: Time = 360/40 = 9 h. At 45 km/h: 360/45 = 8 h. Difference = 1 h. ✓"], answer: "The speed of the train is 40 km/h.", explanation: "See solution steps for full working.", finalAnswer: "The speed of the train is 40 km/h.", isCompetencyBased: true }
+  { id: "QE2-058", subject: "Maths", topicKey: "Quadratic Equations", subtopic: "Problem Solving", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "A train travels 360 km at a uniform speed. If the speed had been 5 km/h more, it would have taken 1 hour less. Find the speed of the train.", solutionSteps: [
+      "Let speed = x km/h. Time = 360/x hours.; New speed = (x+5) km/h. New time = 360/(x+5) hours. [1]",
+      "Given: 360/x − 360/(x+5) = 1.; 360(x+5) − 360x = x(x+5) [1]",
+      "360x + 1800 − 360x = x² + 5x; x² + 5x − 1800 = 0 [1]",
+      "Using quadratic formula or factoring: x = (−5 ± √(25+7200))/2 = (−5 ± √7225)/2 = (−5 ± 85)/2.; x = 80/2 = 40 (taking positive value). Speed = 40 km/h. [1]",
+      "Verify: Time = 360/40 = 9 h. At 45 km/h: 360/45 = 8 h. Difference = 1 h. ✓ [1]",
+    ], answer: "The speed of the train is 40 km/h.", explanation: "See solution steps for full working.", finalAnswer: "The speed of the train is 40 km/h.", isCompetencyBased: true }
 ];
