@@ -25,8 +25,6 @@ import { useSubscription } from "./hooks/useSubscription";
 import { ErrorBoundary, SectionErrorBoundary } from "./components/ErrorBoundary";
 import { initPaceProfileFromExamDate } from "./services/paceProfileService";
 import { startTracking, stopTracking, isFocusTrackingEnabled } from "./services/focusTracker";
-import { getGuidedJourneyState, getPhaseRoute } from "./services/guidedJourneyService";
-import { isMissionCompletedToday, getMissionResumeInfo } from "./services/dailyMissionService";
 import { useTheme } from "./context/ThemeContext";
 
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -50,6 +48,7 @@ const LegalPage = lazy(() => import("./pages/LegalPage"));
 const MethodologyPage = lazy(() => import("./pages/MethodologyPage"));
 const TeacherDashboardPage = lazy(() => import("./pages/TeacherDashboardPage"));
 import { captureIncomingReferral } from "./services/referralService";
+import { useSubjectContext } from "./hooks/useSubjectContext";
 const PricingPage = lazy(() => import("./pages/PricingPage"));
 const FunnelPage = lazy(() => import("./pages/FunnelPage"));
 const NightBeforePage = lazy(() => import("./pages/NightBeforePage"));
@@ -64,6 +63,13 @@ const VisualAuditPage = lazy(() => import("./pages/VisualAuditPage"));
 const CacheStatsPage = lazy(() => import("./pages/CacheStatsPage"));
 const DifficultyBreakdownPage = lazy(() => import("./pages/DifficultyBreakdownPage"));
 const QuestionReportsPage = lazy(() => import("./pages/QuestionReportsPage"));
+
+// Mobile baseline pages (#436 stubs — filled in Task #437)
+const MobileIntentPage = lazy(() => import("./pages/mobile/MobileIntentPage"));
+const MobileAppPracticePage = lazy(() => import("./pages/mobile/MobileAppPracticePage"));
+const MobileWorksheetsPage = lazy(() => import("./pages/mobile/MobileWorksheetsPage"));
+const MobileWorksheetReadyPage = lazy(() => import("./pages/mobile/MobileWorksheetReadyPage"));
+const MobileCheckImprovePage = lazy(() => import("./pages/mobile/MobileCheckImprovePage"));
 
 function RouteFallback() {
   return (
@@ -105,10 +111,14 @@ function HomeRedirect() {
 }
 
 /**
- * BottomNav — three tabs: Learn, Practice, Me.
- * Learn uses guided journey / daily mission logic to navigate smartly.
- * Practice navigates directly to the practice page.
- * Me navigates to /profile for logged-in users, or home for guests.
+ * BottomNav — baseline mobile tabs: Practice / Exam Trends / Me.
+ *
+ * Visibility rules (per guardrail #1):
+ *   Hidden on /welcome and any /app/intent* path.
+ *   Shown on all other routes.
+ *
+ * Active state covers both new /app/* paths and existing legacy paths
+ * so the nav stays coherent when users visit old deep-links.
  */
 function BottomNav() {
   const location = useLocation();
@@ -116,109 +126,87 @@ function BottomNav() {
   const { user: navUser } = useAuth();
 
   const current = location.pathname;
-  const go = (path: string) => navigate(path);
 
+  // ── Visibility gate ────────────────────────────────────────────────
+  if (current === "/welcome" || current.startsWith("/app/intent")) {
+    return null;
+  }
+
+  const go = (path: string) => navigate(path);
   const activeColor = "#22c55e";
   const inactiveColor = "var(--text-muted)";
 
-  const isHome = current === "/";
-  const isTrends = current.startsWith("/trends") || current.startsWith("/topic-hub");
-  const isPredictive =
-    current.startsWith("/predictive-papers") ||
-    current.startsWith("/mock-paper") ||
-    current.startsWith("/mock-builder");
-  const isLearn =
-    isTrends ||
-    current.startsWith("/daily-mix") ||
-    current.startsWith("/daily-mission") ||
-    current.startsWith("/study-plan") ||
-    current.startsWith("/planner");
-  const isPractice =
-    isPredictive ||
+  // ── Active-state detection ─────────────────────────────────────────
+  const isPracticeActive =
+    current.startsWith("/app/practice") ||
     current.startsWith("/practice") ||
     current.startsWith("/exam-simulation") ||
     current.startsWith("/highly-probable") ||
     current.startsWith("/weak-area") ||
     current.startsWith("/topic-mock") ||
-    current.startsWith("/chapter-test");
-  const isMe =
-    isHome ||
-    current === "/dashboard" ||
+    current.startsWith("/chapter-test") ||
+    current.startsWith("/mock-paper") ||
+    current.startsWith("/mock-builder") ||
+    current.startsWith("/predictive-papers") ||
+    current.startsWith("/daily-mix") ||
+    current.startsWith("/daily-mission") ||
+    current.startsWith("/study-plan") ||
+    current.startsWith("/planner");
+
+  const isExamTrendsActive =
+    current.startsWith("/app/exam-trends") ||
+    current.startsWith("/app/topic-hub") ||
+    current.startsWith("/trends") ||
+    current.startsWith("/topic-hub");
+
+  const isMeActive =
+    current === "/app/me" ||
     current === "/profile" ||
+    current === "/dashboard" ||
+    current === "/" ||
     current === "/weekly-wrapped" ||
     current === "/parent-dashboard";
 
   const navItems = [
     {
-      label: "Learn",
-      icon: (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-        </svg>
-      ),
-      active: isLearn,
-      onClick: () => {
-        let ctx = { grade: "10", subject: "Maths" };
-        try {
-          const raw = localStorage.getItem("lazytopper.lastSubjectContext");
-          if (raw) { const p = JSON.parse(raw); if (p?.grade && p?.subject) ctx = p; }
-        } catch {}
-        if (navUser) {
-          const resumeInfo = getMissionResumeInfo("Maths") || getMissionResumeInfo("Science");
-          if (resumeInfo) {
-            const subj = getMissionResumeInfo("Maths") ? "Maths" : "Science";
-            go(`/daily-mission/${ctx.grade}/${subj}`);
-            return;
-          }
-          const missionSubj = ctx.subject || "Maths";
-          if (!isMissionCompletedToday(missionSubj as "Maths" | "Science")) {
-            go(`/daily-mission/${ctx.grade}/${missionSubj}`);
-            return;
-          }
-          try {
-            const journey = getGuidedJourneyState(navUser.uid);
-            if (journey.currentChapter && (journey.currentChapter.phase === "practice" || journey.currentChapter.phase === "mock")) {
-              go(getPhaseRoute(journey.currentChapter, ctx.grade));
-              return;
-            }
-          } catch {}
-        }
-        go(`/practice/${ctx.grade}/${ctx.subject}`);
-      },
-    },
-    {
       label: "Practice",
+      // Compass icon
       icon: (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="10"/>
-          <path d="M12 8v4l3 3"/>
+          <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
         </svg>
       ),
-      active: isPractice,
-      onClick: () => {
-        let ctx = { grade: "10", subject: "Maths" };
-        try {
-          const raw = localStorage.getItem("lazytopper.lastSubjectContext");
-          if (raw) { const p = JSON.parse(raw); if (p?.grade && p?.subject) ctx = p; }
-        } catch {}
-        go(`/practice/${ctx.grade}/${ctx.subject}`);
-      },
+      active: isPracticeActive,
+      onClick: () => go("/app/practice"),
+    },
+    {
+      label: "Exam Trends",
+      // LineChart icon
+      icon: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M3 3v18h18"/>
+          <path d="M7 16l4-4 4 4 4-4"/>
+        </svg>
+      ),
+      active: isExamTrendsActive,
+      onClick: () => go("/app/exam-trends"),
     },
     {
       label: "Me",
+      // User icon
       icon: (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
           <circle cx="12" cy="7" r="4"/>
         </svg>
       ),
-      active: isMe,
+      active: isMeActive,
       onClick: () => {
         if (navUser) {
-          go("/profile");
+          go("/app/me");
         } else {
-          window.location.href = "/";
+          go("/welcome");
         }
       },
     },
@@ -254,12 +242,13 @@ function BottomNav() {
             gap: 2,
             color: item.active ? activeColor : inactiveColor,
             fontWeight: item.active ? 800 : 700,
-            fontSize: "0.65rem",
+            fontSize: "0.6rem",
             letterSpacing: "0.02em",
             textTransform: "uppercase",
-            padding: "4px 8px",
+            padding: "4px 6px",
             borderRadius: 8,
             transition: "color 0.15s ease",
+            WebkitTapHighlightColor: "transparent",
           }}
         >
           {item.icon}
@@ -268,6 +257,25 @@ function BottomNav() {
       ))}
     </div>
   );
+}
+
+/**
+ * Alias redirect components for /app/exam-trends and /app/topic-hub.
+ * They resolve grade/subject from localStorage via useSubjectContext
+ * and redirect to the existing param-based routes.
+ * Deep-link compatibility: existing /trends/:g/:s and /topic-hub/:g/:s
+ * routes are never touched.
+ */
+function ExamTrendsAlias() {
+  const ctx = useSubjectContext();
+  return <Navigate to={`/trends/${ctx.grade}/${ctx.subject}`} replace />;
+}
+
+function TopicHubAlias() {
+  const ctx = useSubjectContext();
+  // Navigates to /topic-hub/:grade/:subject with no topicKey,
+  // which renders TopicHub in its chapter-selection entry state.
+  return <Navigate to={`/topic-hub/${ctx.grade}/${ctx.subject}`} replace />;
 }
 
 /**
@@ -700,6 +708,28 @@ export default function App() {
             path="/settings"
             element={<RequireAuth>{withRouteSuspense(<SettingsPage />)}</RequireAuth>}
           />
+
+          {/* ── Mobile baseline /app/* routes (#436 stubs) ─────────────── */}
+
+          {/* Intent screen — BottomNav hidden by visibility gate in BottomNav() */}
+          <Route path="/app/intent" element={withRouteSuspense(<MobileIntentPage />)} />
+
+          {/* Practice hub */}
+          <Route path="/app/practice" element={withRouteSuspense(<MobileAppPracticePage />)} />
+
+          {/* Worksheets flow */}
+          <Route path="/app/practice/worksheets/ready" element={withRouteSuspense(<MobileWorksheetReadyPage />)} />
+          <Route path="/app/practice/worksheets" element={withRouteSuspense(<MobileWorksheetsPage />)} />
+
+          {/* Check & Improve — upload → real grading (Task #437) */}
+          <Route path="/app/check-improve" element={withRouteSuspense(<MobileCheckImprovePage />)} />
+
+          {/* Alias routes: resolve grade/subject from localStorage, redirect to existing param routes */}
+          <Route path="/app/exam-trends" element={<ExamTrendsAlias />} />
+          <Route path="/app/topic-hub" element={<TopicHubAlias />} />
+
+          {/* Me: redirect to profile (auth gate on /profile handles unauthenticated users) */}
+          <Route path="/app/me" element={<Navigate to="/profile" replace />} />
 
           {/* Catch-all: redirect unknown routes to a sensible default */}
           <Route path="*" element={<HomeRedirect />} />

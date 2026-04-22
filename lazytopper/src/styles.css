@@ -55,7 +55,7 @@
   --shadow: none;
   --lt-page-padding: 24px 16px 40px;
   --font-body: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fraunces", Georgia, serif;
   --lt-ux-return-back-padding: 6px 12px;
   --lt-ux-return-back-font-size: 0.84rem;
   --lt-ux-chip-padding: 4px 10px;
@@ -6769,4 +6769,261 @@ span.ux-return-bar__chip {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+
+/* ===================================================================
+   MOBILE BASELINE — Light Theme Tokens & Utility Classes  (#436)
+   All vars prefixed --mob-* to avoid collision with existing dark vars
+   =================================================================== */
+
+:root {
+  --mob-primary: #1a3a5c;
+  --mob-primary-hover: #15304d;
+  --mob-primary-fg: #ffffff;
+  --mob-accent: #22c55e;
+  --mob-accent-hover: #16a34a;
+  --mob-accent-fg: #ffffff;
+  --mob-success: #22c55e;
+  --mob-success-fg: #ffffff;
+  --mob-success-soft: rgba(34,197,94,0.12);
+  --mob-success-grad: linear-gradient(135deg,#22c55e 0%,#16a34a 100%);
+  --mob-warning: #f59e0b;
+  --mob-warning-soft: rgba(245,158,11,0.12);
+  --mob-danger: #ef4444;
+  --mob-danger-soft: rgba(239,68,68,0.10);
+  --mob-bg: #f5f5f7;
+  --mob-card: #ffffff;
+  --mob-card-border: rgba(0,0,0,0.08);
+  --mob-fg: #1e293b;
+  --mob-fg-muted: #64748b;
+  --mob-muted: #f1f5f9;
+  --mob-muted-border: rgba(0,0,0,0.06);
+  --mob-overlay: rgba(0,0,0,0.45);
+  --mob-nav-height: 60px;
+
+  /* Mobile typography
+     --font-body is "Inter, ui-sans-serif, ..." already defined in :root above.
+     --mob-font-display adds Fraunces for headings (loaded via index.html). */
+  --mob-font-display: "Fraunces", Georgia, serif;
+}
+
+/* ---- Layout shells ---- */
+
+.phone-shell {
+  max-width: 440px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  background: var(--mob-bg);
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Full-screen mobile background */
+.mobile-screen {
+  min-height: 100dvh;
+  background: var(--mob-bg);
+  color: var(--mob-fg);
+  font-family: var(--font-body);
+}
+
+/* ---- Cards ---- */
+
+.card-soft {
+  background: var(--mob-card);
+  border: 1px solid var(--mob-card-border);
+  border-radius: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+.card-soft-sm {
+  background: var(--mob-card);
+  border: 1px solid var(--mob-card-border);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+/* ---- Content padding ---- */
+
+.screen-pad {
+  padding: 20px 20px calc(var(--mob-nav-height) + 32px);
+}
+
+.screen-pad-no-nav {
+  padding: 20px 20px 40px;
+}
+
+/* ---- Pill / chip ---- */
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.pill-success {
+  background: var(--mob-success-soft);
+  color: var(--mob-success);
+}
+
+.pill-warning {
+  background: var(--mob-warning-soft);
+  color: var(--mob-warning);
+}
+
+.pill-danger {
+  background: var(--mob-danger-soft);
+  color: var(--mob-danger);
+}
+
+/* ---- Tap / interactive affordance ---- */
+
+.tap {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.07s ease, opacity 0.07s ease;
+}
+.tap:active {
+  transform: scale(0.97);
+  opacity: 0.88;
+}
+
+/* ---- Elevation ---- */
+
+.shadow-elev {
+  box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+}
+
+.shadow-elev-sm {
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+
+/* ---- Background helpers ---- */
+
+.bg-mob        { background: var(--mob-bg); }
+.bg-mob-card   { background: var(--mob-card); }
+.bg-mob-muted  { background: var(--mob-muted); }
+
+.bg-hero {
+  background: var(--mob-primary);
+  color: var(--mob-primary-fg);
+}
+
+.bg-success-soft { background: var(--mob-success-soft); }
+.bg-success-grad { background: var(--mob-success-grad); }
+
+/* ---- Buttons ---- */
+
+.btn-mob-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--mob-accent);
+  color: var(--mob-accent-fg);
+  border: none;
+  border-radius: 14px;
+  padding: 14px 24px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.12s ease, transform 0.07s ease;
+  box-shadow: 0 4px 0 var(--mob-accent-hover);
+}
+.btn-mob-primary:hover  { background: var(--mob-accent-hover); }
+.btn-mob-primary:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--mob-accent-hover); }
+
+.btn-mob-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--mob-card);
+  color: var(--mob-fg);
+  border: 1.5px solid var(--mob-card-border);
+  border-radius: 14px;
+  padding: 13px 22px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.12s ease, transform 0.07s ease;
+}
+.btn-mob-secondary:active { transform: translateY(1px); }
+
+/* ---- Text utilities (mobile-scoped) ---- */
+
+.text-mob-fg      { color: var(--mob-fg); }
+.text-mob-muted   { color: var(--mob-fg-muted); }
+.text-mob-primary { color: var(--mob-primary); }
+.text-mob-accent  { color: var(--mob-accent); }
+.text-mob-success { color: var(--mob-success); }
+.text-mob-danger  { color: var(--mob-danger); }
+
+/* ---- Animation ---- */
+
+@keyframes mobFloatUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-float-up {
+  animation: mobFloatUp 0.25s ease-out both;
+}
+
+@keyframes mobFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: mobFadeIn 0.2s ease-out both;
+}
+
+/* ---- Divider ---- */
+
+.mob-divider {
+  height: 1px;
+  background: var(--mob-card-border);
+  border: none;
+  margin: 0;
+}
+
+/* ---- Sticky bottom CTA bar ---- */
+
+.mob-sticky-cta {
+  position: fixed;
+  bottom: var(--mob-nav-height);
+  left: 0;
+  right: 0;
+  max-width: 440px;
+  margin: 0 auto;
+  padding: 12px 20px;
+  background: rgba(245,245,247,0.92);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--mob-card-border);
+  z-index: 15;
+}
+
+/* ---- Upload dropzone ---- */
+
+.mob-upload-zone {
+  border: 2px dashed var(--mob-card-border);
+  border-radius: 16px;
+  padding: 40px 24px;
+  text-align: center;
+  background: var(--mob-muted);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.mob-upload-zone:hover,
+.mob-upload-zone.drag-over {
+  border-color: var(--mob-accent);
+  background: var(--mob-success-soft);
 }
