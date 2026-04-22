@@ -1,0 +1,74 @@
+I audited PR #2 for #437.
+
+Directionally it is strong, but #437 is **not approved yet**. Please fix these blockers before #438 starts.
+
+### 1. Fix `MobileShell` export/import mismatch
+
+`MobileShell.tsx` currently exports a named export:
+
+* `export function MobileShell(...)`
+
+But the new pages import it as a default import:
+
+* `import MobileShell from "../../components/mobile/MobileShell";`
+
+Please make this consistent everywhere.
+
+### 2. Actually implement the locked light mobile baseline
+
+The new pages are still styled mostly with the existing dark-theme variables:
+
+* `dark-page`
+* `var(--bg)`
+* `var(--bg-card)`
+* `var(--text)`
+* `var(--text-muted)`
+
+This is not acceptable for the locked mobile baseline lane.
+
+Please align these pages to the approved mobile light-theme token family introduced in #436 and remove the dark-theme presentation drift.
+
+### 3. Wire worksheet filters for real
+
+The worksheet UI currently exposes:
+
+* section filter
+* difficulty filter
+* preset/custom modes
+
+But the actual generation call does not use section filtering, and preset behavior appears to mostly collapse to count changes.
+
+Please either:
+
+* wire these filters into actual worksheet generation logic, or
+* reduce the UI so it only promises what is really implemented.
+
+Do not leave the UI overstating functionality.
+
+### 4. Fix worksheet flow order
+
+Current flow appears to:
+
+* download worksheet immediately inside `handleGenerate()`
+* then navigate to `/app/practice/worksheets/ready`
+
+That creates a double-action flow because the ready page still offers Download PDF.
+
+Please change this so the flow is coherent:
+
+* generate
+* navigate to ready
+* let the user explicitly download from ready
+  or explicitly justify a different flow.
+
+### 5. Clarify shared Welcome-page impact
+
+`pages/Welcome.tsx` is a shared route, not mobile-only.
+Because desktop is still paused, please explicitly state whether this rewrite is intended to change desktop entry behavior too.
+
+If desktop should remain untouched for now, do not let the mobile lane silently redefine shared desktop-facing behavior.
+
+After these are fixed, I’ll re-audit #437.
+
+#438 remains paused until #437 is approved.
+Desktop remains paused.
