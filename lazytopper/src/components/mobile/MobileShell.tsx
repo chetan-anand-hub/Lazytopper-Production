@@ -166,3 +166,5 @@ export function MobileShell({
     </div>
   );
 }
+
+export default MobileShell;
