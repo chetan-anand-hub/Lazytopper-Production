@@ -87,6 +87,7 @@ const MobileTopicHub    = lazy(() => import("./pages/app/TopicHub"));
 // Mobile width keeps rendering MobileExamTrends unchanged. /topic-hub
 // remains intentionally NOT shell-wrapped in this phase.
 const DesktopExamTrendsPage = lazy(() => import("./pages/desktop/DesktopExamTrendsPage"));
+const DesktopTopicHubPage = lazy(() => import("./pages/desktop/DesktopTopicHubPage"));
 const MobileMe          = lazy(() => import("./pages/app/Me"));
 
 function RouteFallback() {
@@ -319,6 +320,12 @@ function isDesktopShellRoute(pathname: string): boolean {
   // (/topic-hub, /topic-hub/*), /check-improve, and /me are explicitly
   // NOT shell-wrapped in this phase.
   if (pathname === "/exam-trends") return true;
+  // Desktop Phase 4 — Topic Hub route family.
+  // Matches the bare launcher "/topic-hub" and any deep variant such as
+  // "/topic-hub/:topicName", "/topic-hub/:grade/:subject", and
+  // "/topic-hub/:grade/:subject/:topicKey".  /check-improve and /me remain
+  // explicitly NOT shell-wrapped.
+  if (pathname === "/topic-hub" || pathname.startsWith("/topic-hub/")) return true;
   return false;
 }
 
@@ -650,14 +657,43 @@ export default function App() {
 
 
           {/* Topic Hub entry with grade & subject in path */}
-          <Route path="/topic-hub/:grade/:subject" element={<RequirePremium featureLabel="Chapter Hub (AI Tutor)"><SectionErrorBoundary>{withRouteSuspense(<TopicHub />)}</SectionErrorBoundary></RequirePremium>} />
-          <Route path="/topic-hub/:grade/:subject/:topicKey" element={<RequirePremium featureLabel="Chapter Hub (AI Tutor)"><SectionErrorBoundary>{withRouteSuspense(<TopicHub />)}</SectionErrorBoundary></RequirePremium>} />
+          {/* Topic Hub — Desktop Phase 4: at desktop width (>=1024px) the
+              locked DesktopTopicHubPage renders inside DesktopShell (the
+              conditional shell wrap is applied below). At mobile width, the
+              existing premium-gated TopicHub continues to render unchanged. */}
+          <Route
+            path="/topic-hub/:grade/:subject"
+            element={
+              <RequirePremium featureLabel="Chapter Hub (AI Tutor)">
+                <SectionErrorBoundary>
+                  {isDesktop
+                    ? withRouteSuspense(<DesktopTopicHubPage />)
+                    : withRouteSuspense(<TopicHub />)}
+                </SectionErrorBoundary>
+              </RequirePremium>
+            }
+          />
+          <Route
+            path="/topic-hub/:grade/:subject/:topicKey"
+            element={
+              <RequirePremium featureLabel="Chapter Hub (AI Tutor)">
+                <SectionErrorBoundary>
+                  {isDesktop
+                    ? withRouteSuspense(<DesktopTopicHubPage />)
+                    : withRouteSuspense(<TopicHub />)}
+                </SectionErrorBoundary>
+              </RequirePremium>
+            }
+          />
 
           {/* TopicHub launcher page (desktop fallback — mobile route at line ~724 takes
                precedence for /app/topic-hub because it is defined first in the same
                Routes tree. This desktop launcher remains for any non-mobile direct
                desktop navigation that bypasses the /app/ basename.) */}
-          <Route path="/topic-hub" element={<MobileTopicHub />} />
+          <Route
+            path="/topic-hub"
+            element={isDesktop ? withRouteSuspense(<DesktopTopicHubPage />) : <MobileTopicHub />}
+          />
 
       
 
@@ -808,9 +844,26 @@ export default function App() {
             }
           />
 
-          {/* Mobile Topic Hub — entry picker (no topicName) or topic detail (:topicName) */}
-          <Route path="/topic-hub" element={withRouteSuspense(<MobileTopicHub />)} />
-          <Route path="/topic-hub/:topicName" element={withRouteSuspense(<MobileTopicHub />)} />
+          {/* Mobile Topic Hub — entry picker (no topicName) or topic detail (:topicName).
+              Desktop Phase 4: at desktop width (>=1024px) these mount the locked
+              DesktopTopicHubPage inside DesktopShell. Mobile width keeps the
+              existing MobileTopicHub picker / detail behavior unchanged. */}
+          <Route
+            path="/topic-hub"
+            element={
+              isDesktop
+                ? withRouteSuspense(<DesktopTopicHubPage />)
+                : withRouteSuspense(<MobileTopicHub />)
+            }
+          />
+          <Route
+            path="/topic-hub/:topicName"
+            element={
+              isDesktop
+                ? withRouteSuspense(<DesktopTopicHubPage />)
+                : withRouteSuspense(<MobileTopicHub />)
+            }
+          />
 
           {/* Mobile Me — replaces BottomNav's previous bounce to desktop ProfilePage */}
           <Route path="/me" element={withRouteSuspense(<MobileMe />)} />
