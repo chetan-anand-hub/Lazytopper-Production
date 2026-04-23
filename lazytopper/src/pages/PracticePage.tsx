@@ -579,7 +579,9 @@ const packTopicKey = useMemo(() => {
       subjectKey,
       grade,
       difficulty,
-      sectionFilter,
+      // PracticePage uses PracticeSectionFilter ("A"|"B"|…|"E", never "All").
+      // Convert to SectionScope: single letter → ["X"]; undefined (no filter) → "All".
+      sectionFilter: sectionFilter ? [sectionFilter] : "All",
       questions: filteredQuestions,
     });
   };

@@ -22,6 +22,24 @@ export interface PracticeGenerationRequest {
   topicKey: string;
   count: number;
   difficulty?: DifficultyChoice;
+  /**
+   * Section scope applied BEFORE count sampling so the expansion loop fills
+   * up to `count` from within the target sections only.
+   * undefined / omitted  → no section filter (all sections)
+   * string[]             → restrict to those section letters, e.g. ["A","B"]
+   */
+  sections?: string[];
+  /**
+   * Whether the generator may repeat questions to reach `count` when the
+   * filtered pool is smaller.
+   * true (default) — existing behaviour: expand/repeat the pool.
+   * false          — return the unique filtered set only (up to `count`);
+   *                  a smaller result means the bank genuinely has fewer
+   *                  matching unique questions, no synthetic inflation.
+   * Worksheet generation passes false so sparse section-scoped pools
+   * return a truthful smaller set rather than duplicated questions.
+   */
+  allowRepeats?: boolean;
   subtopicHint?: string;
   focusBankIds?: string[];
 }
@@ -29,7 +47,7 @@ export interface PracticeGenerationRequest {
 export function generatePracticeQuestions(
   req: PracticeGenerationRequest
 ): PracticeQuestion[] {
-  const { subject, topicKey, count, difficulty, subtopicHint, focusBankIds } = req;
+  const { subject, topicKey, count, difficulty, sections, allowRepeats = true, subtopicHint, focusBankIds } = req;
 
   // Fetch all canonical questions for the topic and keep subject-boundary strict.
   let pool = PredictionCore.getLikelyQuestionsForConcept(topicKey);
@@ -41,6 +59,14 @@ export function generatePracticeQuestions(
   if (effectiveDifficulty) {
     // Explicitly type q to avoid implicit any errors.
     pool = pool.filter((q: PracticeQuestion) => q.difficulty === effectiveDifficulty);
+  }
+
+  // Apply section filter BEFORE the expansion/sampling loop so the requested
+  // `count` is filled from within the target sections only.
+  // This ensures Quick drill (A+B) and High-marks focus (C+D+E) actually reach
+  // their target counts when the bank has enough matching questions.
+  if (sections && sections.length > 0) {
+    pool = pool.filter((q: PracticeQuestion) => sections.includes(q.section));
   }
 
   // Bias towards subtopic hints if provided by placing matching questions first.
@@ -63,8 +89,14 @@ export function generatePracticeQuestions(
     }
   }
 
-  // Ensure we have enough questions. If sparse, repeat the pool in a bounded
-  // way so high-demand drills still return the requested count.
+  if (!allowRepeats) {
+    // Unique-only mode: return the filtered pool up to count without repeating.
+    // A smaller result means the bank genuinely has fewer matching unique
+    // questions — no synthetic inflation through duplication.
+    return shuffle(pool).slice(0, count);
+  }
+
+  // Repeat mode (default): expand the pool so high-demand drills reach count.
   const result: PracticeQuestion[] = [];
   let safety = 0;
   while (result.length < count && safety < 5) {

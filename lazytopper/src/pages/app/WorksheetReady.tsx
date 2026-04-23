@@ -2,7 +2,10 @@ import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import MobileShell from "../../components/mobile/MobileShell";
 import { useSubjectContext } from "../../hooks/useSubjectContext";
-import { downloadWorksheet } from "../../components/practice/worksheetGenerator";
+import {
+  downloadWorksheet,
+  sectionScopeLabel,
+} from "../../components/practice/worksheetGenerator";
 import type { WorksheetOptions } from "../../components/practice/worksheetGenerator";
 
 export default function WorksheetReady() {
@@ -79,7 +82,7 @@ export default function WorksheetReady() {
               <Row label="Subject"    value={opts.subjectKey} />
               <Row label="Topic"      value={opts.topicLabel} />
               <Row label="Difficulty" value={opts.difficulty === "All" ? "All levels" : opts.difficulty} />
-              <Row label="Section"    value={opts.sectionFilter === "All" ? "All sections (A–E)" : `Section ${opts.sectionFilter}`} />
+              <Row label="Section"    value={sectionScopeLabel(opts.sectionFilter)} />
               <Row label="Questions"  value={String(opts.questions.length)} />
             </div>
           </div>
