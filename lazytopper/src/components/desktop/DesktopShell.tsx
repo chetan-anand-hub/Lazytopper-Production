@@ -1,0 +1,385 @@
+import type { ReactNode } from "react";
+import { NavLink, Link, useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import { MistakeIntelCard } from "./MistakeIntelCard";
+
+/**
+ * DesktopShell — locked desktop AppShell parity build (Desktop Phase 1).
+ *
+ * Source of truth (locked desktop baseline):
+ *   chetan-anand-hub/lazytopper-desktop-view-e1fc5df7
+ *   src/components/lt/AppShell.tsx
+ *
+ * Composition (matches baseline):
+ *   ┌──────────┬───────────────────────────────────────────┐
+ *   │ Sidebar  │ Top utility / search header (h=64) sticky │
+ *   │  260 px  ├───────────────────────────────────────────┤
+ *   │  · Logo  │                                           │
+ *   │  · Nav   │       Page content (only this scrolls)    │
+ *   │  · Intel │                                           │
+ *   └──────────┴───────────────────────────────────────────┘
+ *
+ * Scroll/layout contract (baseline parity):
+ *   - Outer wrapper is a fixed-height (100vh) flex row with overflow:hidden
+ *     so the document/iframe NEVER becomes the scroll container.
+ *   - Sidebar is a normal flex child — full height comes from flex stretch.
+ *     No sticky needed because the wrapper itself never scrolls.
+ *   - Right column is flex-direction:column. Header is flexShrink:0,
+ *     <main> is flex:1 with overflow-y:auto — only main scrolls.
+ *   - Result: sidebar stays anchored, top bar stays visible, main scrolls.
+ *
+ * No Tailwind / no lucide-react in production — inline styles + inline SVG.
+ */
+
+interface NavItem {
+  to: string;
+  label: string;
+  end?: boolean;
+  icon: React.ReactNode;
+}
+
+const NAV_ITEMS: NavItem[] = [
+  {
+    to: "/",
+    label: "Home",
+    end: true,
+    // LayoutDashboard
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <rect x="3" y="3" width="7" height="9" rx="1" />
+        <rect x="14" y="3" width="7" height="5" rx="1" />
+        <rect x="14" y="12" width="7" height="9" rx="1" />
+        <rect x="3" y="16" width="7" height="5" rx="1" />
+      </svg>
+    ),
+  },
+  {
+    to: "/practice-hub",
+    label: "Practice",
+    // Dumbbell
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M14.4 14.4 9.6 9.6" />
+        <path d="M18.657 21.485a2 2 0 1 1-2.829-2.828l-1.767 1.768a2 2 0 1 1-2.829-2.829l6.364-6.364a2 2 0 1 1 2.829 2.829l-1.768 1.767a2 2 0 1 1 2.828 2.829z" />
+        <path d="m21.5 21.5-1.4-1.4" />
+        <path d="M3.9 3.9 2.5 2.5" />
+        <path d="M6.404 12.768a2 2 0 1 1-2.829-2.829l1.768-1.767a2 2 0 1 1-2.828-2.829l2.828-2.828a2 2 0 1 1 2.829 2.828l1.767-1.768a2 2 0 1 1 2.829 2.829z" />
+      </svg>
+    ),
+  },
+  {
+    to: "/exam-trends",
+    label: "Exam Trends",
+    // TrendingUp
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
+        <polyline points="16 7 22 7 22 13" />
+      </svg>
+    ),
+  },
+  {
+    to: "/check-improve",
+    label: "Check & Improve",
+    // ScanLine
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M3 7V5a2 2 0 0 1 2-2h2" />
+        <path d="M17 3h2a2 2 0 0 1 2 2v2" />
+        <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
+        <path d="M7 21H5a2 2 0 0 1-2-2v-2" />
+        <path d="M7 12h10" />
+      </svg>
+    ),
+  },
+  {
+    to: "/me",
+    label: "Me / Progress",
+    // User
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+        <circle cx="12" cy="7" r="4" />
+      </svg>
+    ),
+  },
+];
+
+interface DesktopShellProps {
+  children: ReactNode;
+  /** Optional handler so the top-bar Search box can open the existing CommandPalette. */
+  onOpenSearch?: () => void;
+}
+
+export function DesktopShell({ children, onOpenSearch }: DesktopShellProps) {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const initials = user
+    ? (user.displayName || user.email || "S").charAt(0).toUpperCase()
+    : null;
+
+  // ── LOCKED DESKTOP BASELINE LIGHT THEME ─────────────────────────
+  // Source: chetan-anand-hub/lazytopper-desktop-view-e1fc5df7/src/index.css
+  // Hard-coded locally (NOT global CSS vars) so the rest of the production
+  // app's existing dark theme on non-/ routes is not perturbed.
+  const SURFACE_BG = "hsl(210, 33%, 98%)";        // --background
+  const SURFACE_TEXT = "hsl(220, 45%, 14%)";      // --foreground
+  const SURFACE_TEXT_MUTED = "hsl(220, 15%, 45%)"; // --muted-foreground
+  const SURFACE_CARD = "hsl(0, 0%, 100%)";        // --card
+  const SURFACE_BORDER = "hsl(215, 25%, 90%)";    // --border
+  const SURFACE_MUTED_BG = "hsl(215, 28%, 95%)";  // --muted (search rest state)
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        height: "100vh",
+        width: "100%",
+        background: SURFACE_BG,
+        color: SURFACE_TEXT,
+        overflow: "hidden",
+      }}
+    >
+      {/* ── SIDEBAR (260px, dark navy per locked baseline) ─────── */}
+      <aside
+        style={{
+          width: 260,
+          flexShrink: 0,
+          background: "hsl(222, 55%, 13%)",
+          color: "rgba(255,255,255,0.85)",
+          display: "flex",
+          flexDirection: "column",
+          borderRight: "1px solid hsl(222, 45%, 22%)",
+        }}
+      >
+        {/* Brand */}
+        <Link
+          to="/"
+          style={{
+            padding: "24px",
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            textDecoration: "none",
+            color: "inherit",
+          }}
+        >
+          <div
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: 10,
+              background: "linear-gradient(135deg, hsl(152,55%,45%), hsl(152,60%,38%))",
+              display: "grid",
+              placeItems: "center",
+              boxShadow: "0 0 32px hsla(152,55%,45%,0.25)",
+            }}
+            aria-hidden="true"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+              <path d="M6 12v5c3 3 9 3 12 0v-5" />
+            </svg>
+          </div>
+          <div>
+            <div
+              style={{
+                fontFamily: "'Fraunces', Georgia, serif",
+                fontSize: 18,
+                fontWeight: 600,
+                color: "#fff",
+                lineHeight: 1,
+              }}
+            >
+              LazyTopper
+            </div>
+            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.55)", marginTop: 4 }}>
+              CBSE · Class 10
+            </div>
+          </div>
+        </Link>
+
+        {/* Nav */}
+        <nav style={{ padding: "0 12px", marginTop: 8, display: "flex", flexDirection: "column", gap: 4 }}>
+          {NAV_ITEMS.map((n) => (
+            <NavLink
+              key={n.to}
+              to={n.to}
+              end={n.end}
+              style={({ isActive }) => ({
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                padding: "10px 12px",
+                borderRadius: 8,
+                fontSize: 14,
+                fontWeight: isActive ? 600 : 500,
+                color: isActive ? "#fff" : "rgba(255,255,255,0.75)",
+                background: isActive ? "hsl(222, 50%, 20%)" : "transparent",
+                textDecoration: "none",
+                transition: "background 0.15s, color 0.15s",
+              })}
+            >
+              {n.icon}
+              <span>{n.label}</span>
+            </NavLink>
+          ))}
+        </nav>
+
+        {/* Mistake Intel block — pushed to bottom of sidebar via marginTop:auto */}
+        <div style={{ marginTop: "auto", padding: 16 }}>
+          <MistakeIntelCard />
+        </div>
+      </aside>
+
+      {/* ── MAIN COLUMN ────────────────────────────────────────── */}
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
+        {/* TOP UTILITY HEADER (h=64) — sticky inside right column */}
+        <header
+          style={{
+            height: 64,
+            flexShrink: 0,
+            borderBottom: `1px solid ${SURFACE_BORDER}`,
+            background: "rgba(255,255,255,0.85)",
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
+            display: "flex",
+            alignItems: "center",
+            padding: "0 32px",
+            gap: 16,
+            color: SURFACE_TEXT,
+          }}
+        >
+          {/* Search input — opens CommandPalette on focus/click */}
+          <div style={{ position: "relative", flex: 1, maxWidth: 480 }}>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              style={{
+                position: "absolute",
+                left: 12,
+                top: "50%",
+                transform: "translateY(-50%)",
+                color: SURFACE_TEXT_MUTED,
+                pointerEvents: "none",
+              }}
+              aria-hidden="true"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.3-4.3" />
+            </svg>
+            <input
+              type="search"
+              placeholder="Search topics, chapters, questions…"
+              readOnly
+              onFocus={onOpenSearch}
+              onClick={onOpenSearch}
+              style={{
+                width: "100%",
+                height: 36,
+                padding: "0 12px 0 36px",
+                borderRadius: 8,
+                background: SURFACE_MUTED_BG,
+                border: "1px solid transparent",
+                outline: "none",
+                fontSize: 14,
+                color: SURFACE_TEXT,
+                cursor: "pointer",
+                transition: "background 0.15s, border-color 0.15s",
+              }}
+              aria-label="Search (opens command palette)"
+            />
+          </div>
+
+          {/* Right utility cluster — restrained per baseline */}
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            {/* Notifications bell */}
+            <button
+              type="button"
+              title="Notifications"
+              style={{
+                width: 36,
+                height: 36,
+                display: "grid",
+                placeItems: "center",
+                borderRadius: 8,
+                background: "transparent",
+                border: "none",
+                color: SURFACE_TEXT_MUTED,
+                cursor: "pointer",
+              }}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+                <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+              </svg>
+            </button>
+
+            {/* Identity / login — kept visually secondary so it doesn't dominate */}
+            {user ? (
+              <button
+                type="button"
+                onClick={() => navigate("/profile")}
+                title={user.displayName || user.email || "Your profile"}
+                aria-label="Your profile"
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: "50%",
+                  background: "linear-gradient(135deg, hsl(152,55%,45%), hsl(152,60%,38%))",
+                  display: "grid",
+                  placeItems: "center",
+                  color: "#fff",
+                  fontWeight: 700,
+                  fontSize: 14,
+                  border: "none",
+                  cursor: "pointer",
+                  padding: 0,
+                }}
+              >
+                {initials}
+              </button>
+            ) : !location.pathname.startsWith("/login") ? (
+              <button
+                type="button"
+                onClick={() => navigate("/login")}
+                style={{
+                  background: SURFACE_CARD,
+                  border: `1px solid ${SURFACE_BORDER}`,
+                  color: SURFACE_TEXT,
+                  borderRadius: 8,
+                  padding: "8px 16px",
+                  fontWeight: 600,
+                  fontSize: 13,
+                  cursor: "pointer",
+                }}
+              >
+                Log in
+              </button>
+            ) : null}
+          </div>
+        </header>
+
+        {/* MAIN WORKSPACE — only scroll container */}
+        <main
+          style={{
+            flex: 1,
+            overflowY: "auto",
+            background: SURFACE_BG,
+            color: SURFACE_TEXT,
+          }}
+        >
+          {children}
+        </main>
+      </div>
+    </div>
+  );
+}

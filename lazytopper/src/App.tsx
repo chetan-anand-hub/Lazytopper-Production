@@ -26,6 +26,11 @@ import { ErrorBoundary, SectionErrorBoundary } from "./components/ErrorBoundary"
 import { initPaceProfileFromExamDate } from "./services/paceProfileService";
 import { startTracking, stopTracking, isFocusTrackingEnabled } from "./services/focusTracker";
 import { useTheme } from "./context/ThemeContext";
+import { useIsDesktop } from "./hooks/useIsDesktop";
+import { DesktopShell } from "./components/desktop/DesktopShell";
+
+// Desktop Phase 1 — locked desktop baseline Home (rendered inside DesktopShell)
+const DesktopHome = lazy(() => import("./pages/desktop/DesktopHome"));
 
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const TrendsPage = lazy(() => import("./pages/TrendsPage"));
@@ -127,11 +132,19 @@ function HomeRedirect() {
 function BottomNav() {
   const location = useLocation();
   const navigate = useNavigate();
+  const isDesktop = useIsDesktop();
 
   const current = location.pathname;
 
   // ── Visibility gate ────────────────────────────────────────────────
   if (current === "/welcome" || current.startsWith("/intent")) {
+    return null;
+  }
+
+  // Desktop Phase 1 — when we render the locked DesktopShell at desktop
+  // width on the shell-eligible routes, hide the mobile BottomNav so the
+  // shell's sidebar nav is the only nav surface. Mobile width unchanged.
+  if (isDesktop && isDesktopShellRoute(current)) {
     return null;
   }
 
@@ -268,6 +281,28 @@ function BottomNav() {
  * A vibe toggle and command palette overlay have been added without altering
  * existing route definitions.  The command palette can be opened via Cmd/Ctrl+K.
  */
+/**
+ * Desktop Phase 1 — STRICT shell + Home only.
+ *
+ * The locked desktop baseline ships only Home for Phase 1. Later destinations
+ * (Practice / Exam Trends / Topic Hub / Check & Improve / Me) are NOT yet
+ * implemented as desktop pages, so wrapping them in DesktopShell would render
+ * a desktop frame around the existing MobileShell page — a hybrid that the
+ * audit explicitly rejected.
+ *
+ * Phase 1 therefore mounts DesktopShell ONLY at the exact "/" route and only
+ * at desktop width (>=1024px). All other routes — including /practice-hub,
+ * /exam-trends, /topic-hub (and any /topic-hub/* deep paths), /check-improve,
+ * /me — render through the legacy mobile baseline at every viewport width,
+ * exactly as they did before this PR. Auth / admin / deep-param routes are
+ * also unchanged.
+ *
+ * Mobile width (<1024px) is unchanged for every route, including "/".
+ */
+function isDesktopShellRoute(pathname: string): boolean {
+  return pathname === "/";
+}
+
 export default function App() {
   const [isPaletteOpen, setPaletteOpen] = useState(false);
   const [headerStreak, setHeaderStreak] = useState(0);
@@ -276,6 +311,7 @@ export default function App() {
   const { user } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { isTrialActive, isTrialExpired, daysLeftInTrial, isPremium } = useSubscription();
+  const isDesktop = useIsDesktop();
 
   useEffect(() => {
     captureIncomingReferral();
@@ -426,7 +462,10 @@ export default function App() {
 
   return (
     <>
-      {/* Top navigation bar — dark premium header */}
+      {/* Top navigation bar — dark premium header
+          Desktop Phase 1: hidden on shell-eligible routes at desktop width
+          (≥1024px). DesktopShell provides its own top utility/search bar. */}
+      {!(isDesktop && isDesktopShellRoute(location.pathname)) && (
       <div className="navbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <div style={{
@@ -546,6 +585,7 @@ export default function App() {
           ) : null}
         </div>
       </div>
+      )}
       {/* Command palette overlay */}
       <CommandPalette
         isOpen={isPaletteOpen}
@@ -555,10 +595,15 @@ export default function App() {
       <TrialBanner />
       <BreakReminder />
       <ErrorBoundary level="global">
-      <div style={{ paddingBottom: '60px' }}>
+      {(() => {
+        const useDesktopShell = isDesktop && isDesktopShellRoute(location.pathname);
+        const routesEl = (
         <Routes>
           {/* Core Routes */}
-          <Route path="/" element={<HomeRedirect />} />
+          {/* Desktop Phase 1 — at desktop width, "/" renders the locked
+              DesktopHome inside DesktopShell. At mobile width, the existing
+              HomeRedirect behavior is preserved (auth → /dashboard, else /welcome). */}
+          <Route path="/" element={isDesktop ? withRouteSuspense(<DesktopHome />) : <HomeRedirect />} />
           <Route path="/welcome" element={<Welcome />} />
           <Route path="/login" element={<Login />} />
           <Route path="/login/*" element={<Login />} />
@@ -733,7 +778,21 @@ export default function App() {
           {/* Catch-all: redirect unknown routes to a sensible default */}
           <Route path="*" element={<HomeRedirect />} />
         </Routes>
-      </div>
+        );
+
+        // Desktop Phase 1 — wrap shell-eligible routes in the locked
+        // DesktopShell at desktop width. Other routes (auth, admin, deep
+        // params) and all mobile widths fall through to the legacy
+        // paddingBottom:60px container so nothing already shipped regresses.
+        if (useDesktopShell) {
+          return (
+            <DesktopShell onOpenSearch={() => setPaletteOpen(true)}>
+              {routesEl}
+            </DesktopShell>
+          );
+        }
+        return <div style={{ paddingBottom: '60px' }}>{routesEl}</div>;
+      })()}
       </ErrorBoundary>
       <BottomNav />
     </>
