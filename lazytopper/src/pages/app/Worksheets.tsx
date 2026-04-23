@@ -4,7 +4,13 @@ import MobileShell from "../../components/mobile/MobileShell";
 import { useSubjectContext } from "../../hooks/useSubjectContext";
 import { generatePracticeQuestions } from "../../data/predictionDataService";
 import type { LTSubjectKey } from "../../data/predictionTypes";
-import type { WorksheetOptions } from "../../components/practice/worksheetGenerator";
+import {
+  sectionScopeLabel,
+} from "../../components/practice/worksheetGenerator";
+import type {
+  WorksheetOptions,
+  SectionScope,
+} from "../../components/practice/worksheetGenerator";
 
 const MATHS_TOPICS = [
   { key: "real-numbers",              label: "Real Numbers" },
@@ -39,35 +45,54 @@ const SCIENCE_TOPICS = [
 
 /*
  * Preset configurations.
- * Each preset maps to a concrete (section, difficulty, count) combination so
- * the UI accurately reflects what will be generated — no UI/behaviour drift.
+ *
+ * Each preset's `sections` field is a SectionScope:
+ *   "All"       = all sections A–E
+ *   string[]    = specific section letters (e.g. ["A","B"])
+ *
+ * Generation is fully gated by this scope — no silent fallback
+ * to other sections if the filtered pool is smaller than `count`.
+ *
+ * Preset behavior:
+ *   board-mix   → All sections A–E · All difficulty · 25 questions
+ *   quick-drill → Sections A + B  · All difficulty · 15 questions
+ *   marks-focus → Sections C+D+E  · Hard difficulty · 20 questions
  */
-const PRESETS = [
+interface PresetConfig {
+  key: string;
+  label: string;
+  desc: string;
+  sections: SectionScope;
+  difficulty: "All" | "Easy" | "Medium" | "Hard";
+  count: number;
+}
+
+const PRESETS: PresetConfig[] = [
   {
     key: "board-mix",
     label: "Board exam mix",
     desc: "All sections A–E · All difficulty · 25 questions",
-    section: "All" as const,
-    difficulty: "All" as const,
+    sections: "All",
+    difficulty: "All",
     count: 25,
   },
   {
     key: "quick-drill",
     label: "Quick drill",
-    desc: "All sections · All difficulty · 15 questions",
-    section: "All" as const,
-    difficulty: "All" as const,
+    desc: "Sections A–B · All difficulty · 15 questions",
+    sections: ["A", "B"],
+    difficulty: "All",
     count: 15,
   },
   {
     key: "marks-focus",
     label: "High-marks focus",
-    desc: "All sections · Hard difficulty · 20 questions",
-    section: "All" as const,
-    difficulty: "Hard" as const,
+    desc: "Sections C–E · Hard difficulty · 20 questions",
+    sections: ["C", "D", "E"],
+    difficulty: "Hard",
     count: 20,
   },
-] as const;
+];
 
 const SECTIONS = ["All", "A", "B", "C", "D", "E"] as const;
 const DIFFICULTIES = ["All", "Easy", "Medium", "Hard"] as const;
@@ -85,7 +110,7 @@ export default function Worksheets() {
 
   const [topicKey, setTopicKey]       = useState(topics[0].key);
   const [mode, setMode]               = useState<Mode>("preset");
-  const [preset, setPreset]           = useState<typeof PRESETS[number]["key"]>("board-mix");
+  const [preset, setPreset]           = useState<string>("board-mix");
   const [section, setSection]         = useState<typeof SECTIONS[number]>("All");
   const [difficulty, setDifficulty]   = useState<typeof DIFFICULTIES[number]>("All");
   const [count, setCount]             = useState(20);
@@ -102,13 +127,22 @@ export default function Worksheets() {
     setError(null);
     setGenerating(true);
     try {
-      /* Resolve effective parameters based on mode. */
       const p = PRESETS.find((x) => x.key === preset)!;
       const effectiveDifficulty = mode === "preset" ? p.difficulty : difficulty;
-      const effectiveSection    = mode === "preset" ? p.section    : section;
       const effectiveCount      = mode === "preset" ? p.count      : count;
 
-      /* Generate questions from the data service. */
+      /*
+       * Resolve the section scope.
+       * Preset:  uses p.sections (SectionScope — "All" or string[])
+       * Custom:  single-section select → "All" stays "All"; any single letter
+       *          becomes ["X"] so the filter path is uniform.
+       */
+      const effectiveSections: SectionScope =
+        mode === "preset"
+          ? p.sections
+          : section === "All" ? "All" : [section];
+
+      /* Generate candidates from the data service (difficulty pre-filter). */
       let questions = generatePracticeQuestions({
         subject: subject as LTSubjectKey,
         topicKey,
@@ -116,16 +150,22 @@ export default function Worksheets() {
         difficulty: effectiveDifficulty === "All" ? undefined : effectiveDifficulty as never,
       });
 
-      /* Wire section filter: PracticeQuestion.section is the A–E key. */
-      if (effectiveSection !== "All") {
-        questions = questions.filter((q) => q.section === effectiveSection);
+      /*
+       * Apply section scope strictly.
+       * Rule: do not pad with wrong-section questions to hit count.
+       * Truthful smaller output > misleading full output.
+       */
+      if (effectiveSections !== "All") {
+        questions = questions.filter((q) =>
+          (effectiveSections as string[]).includes(q.section)
+        );
       }
 
       if (questions.length === 0) {
+        const scopeStr = sectionScopeLabel(effectiveSections).toLowerCase();
         setError(
-          effectiveSection !== "All"
-            ? `No ${effectiveSection}-section questions found for this topic. Try 'All sections' or a different topic.`
-            : "No questions found for this combination. Try different settings."
+          `No questions found for ${scopeStr} in this topic. ` +
+          `Try a different topic or the "Board exam mix" preset for full coverage.`
         );
         setGenerating(false);
         return;
@@ -137,11 +177,10 @@ export default function Worksheets() {
         subjectKey: subject,
         grade: "10",
         difficulty: effectiveDifficulty,
-        sectionFilter: effectiveSection,
+        sectionFilter: effectiveSections,
         questions,
       };
 
-      /* Navigate to the ready screen — download happens there on user action. */
       navigate("/practice/worksheets/ready", { state: { opts } });
     } catch {
       setError("Worksheet generation failed. Please try again.");
@@ -398,7 +437,7 @@ export default function Worksheets() {
           >
             Will generate: <strong style={{ color: "var(--mob-fg)" }}>{activePreset.count} questions</strong> ·{" "}
             {activePreset.difficulty === "All" ? "all difficulty" : activePreset.difficulty.toLowerCase()} ·{" "}
-            {activePreset.section === "All" ? "all sections" : `Section ${activePreset.section}`}
+            {sectionScopeLabel(activePreset.sections).toLowerCase()}
           </div>
         )}
 

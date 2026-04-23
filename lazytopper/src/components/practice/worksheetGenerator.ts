@@ -1,11 +1,18 @@
 import type { PracticeQuestion } from "../../data/predictionDataService";
 
+/**
+ * Section scope for worksheet filtering.
+ *   "All"      = all sections A–E (no filtering applied)
+ *   string[]   = specific section letters, e.g. ["A","B"] or ["C","D","E"]
+ */
+export type SectionScope = "All" | string[];
+
 export interface WorksheetOptions {
   topicLabel: string;
   subjectKey: string;
   grade: string;
   difficulty: string;
-  sectionFilter: string;
+  sectionFilter: SectionScope;
   questions: PracticeQuestion[];
 }
 
@@ -20,6 +27,20 @@ function sectionLabel(s: string): string {
     E: "Section E — Case-Based (4 marks)",
   };
   return map[s] || `Section ${s}`;
+}
+
+/**
+ * Human-readable label for a SectionScope value.
+ * Used on the generator screen, ready screen, and PDF header.
+ *   "All"        → "All sections (A–E)"
+ *   ["A","B"]    → "Sections A + B"
+ *   ["C","D","E"]→ "Sections C + D + E"
+ *   ["A"]        → "Section A"
+ */
+export function sectionScopeLabel(scope: SectionScope): string {
+  if (scope === "All") return "All sections (A–E)";
+  if (scope.length === 1) return sectionLabel(scope[0]);
+  return `Sections ${scope.join(" + ")}`;
 }
 
 function difficultyLabel(d: string): string {
@@ -127,7 +148,7 @@ export async function downloadWorksheetPdf(opts: WorksheetOptions): Promise<void
   setColor(muted);
   doc.setFontSize(9);
   doc.setFont("helvetica", "normal");
-  doc.text(`Class ${grade} · ${subjectKey} · Difficulty: ${difficultyLabel(difficulty)} · ${sectionFilter !== "ALL" ? sectionLabel(sectionFilter) : "All types"}`, marginL, y);
+  doc.text(`Class ${grade} · ${subjectKey} · Difficulty: ${difficultyLabel(difficulty)} · ${sectionScopeLabel(sectionFilter)}`, marginL, y);
   space(4);
 
   doc.setFontSize(9);
