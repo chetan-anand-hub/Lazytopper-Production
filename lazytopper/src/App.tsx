@@ -82,6 +82,11 @@ const CheckImprove      = lazy(() => import("./pages/app/CheckImprove"));
 // Mobile baseline pages (#438 — broken destination repair)
 const MobileExamTrends  = lazy(() => import("./pages/app/ExamTrends"));
 const MobileTopicHub    = lazy(() => import("./pages/app/TopicHub"));
+
+// Desktop Phase 3 — locked desktop Exam Trends page (>=1024px only).
+// Mobile width keeps rendering MobileExamTrends unchanged. /topic-hub
+// remains intentionally NOT shell-wrapped in this phase.
+const DesktopExamTrendsPage = lazy(() => import("./pages/desktop/DesktopExamTrendsPage"));
 const MobileMe          = lazy(() => import("./pages/app/Me"));
 
 function RouteFallback() {
@@ -307,9 +312,13 @@ function isDesktopShellRoute(pathname: string): boolean {
   // Desktop Phase 1 — exact "/" only.
   if (pathname === "/") return true;
   // Desktop Phase 2 — exact "/practice-hub" only. No nested practice paths,
-  // no other future destinations (/exam-trends, /check-improve, /me,
-  // /topic-hub, /topic-hub/*) are added in this phase.
+  // no other future destinations (/check-improve, /me, /topic-hub,
+  // /topic-hub/*) are added in this phase.
   if (pathname === "/practice-hub") return true;
+  // Desktop Phase 3 — exact "/exam-trends" only. Topic Hub
+  // (/topic-hub, /topic-hub/*), /check-improve, and /me are explicitly
+  // NOT shell-wrapped in this phase.
+  if (pathname === "/exam-trends") return true;
   return false;
 }
 
@@ -786,8 +795,18 @@ export default function App() {
                Desktop routes (/trends, /topic-hub/:grade/:subject, /profile)
                are untouched — they remain separate from these mobile screens. */}
 
-          {/* Mobile Exam Trends — replaces ExamTrendsAlias redirect to desktop TrendsPage */}
-          <Route path="/exam-trends" element={withRouteSuspense(<MobileExamTrends />)} />
+          {/* Exam Trends — desktop Phase 3: at desktop width (>=1024px) this
+              renders the locked DesktopExamTrendsPage inside DesktopShell
+              (the conditional shell wrap is applied above). At mobile width,
+              the existing MobileExamTrends renders unchanged. */}
+          <Route
+            path="/exam-trends"
+            element={
+              isDesktop
+                ? withRouteSuspense(<DesktopExamTrendsPage />)
+                : withRouteSuspense(<MobileExamTrends />)
+            }
+          />
 
           {/* Mobile Topic Hub — entry picker (no topicName) or topic detail (:topicName) */}
           <Route path="/topic-hub" element={withRouteSuspense(<MobileTopicHub />)} />
