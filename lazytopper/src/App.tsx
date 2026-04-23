@@ -88,6 +88,7 @@ const MobileTopicHub    = lazy(() => import("./pages/app/TopicHub"));
 // remains intentionally NOT shell-wrapped in this phase.
 const DesktopExamTrendsPage = lazy(() => import("./pages/desktop/DesktopExamTrendsPage"));
 const DesktopTopicHubPage = lazy(() => import("./pages/desktop/DesktopTopicHubPage"));
+const DesktopCheckImprovePage = lazy(() => import("./pages/desktop/DesktopCheckImprovePage"));
 const MobileMe          = lazy(() => import("./pages/app/Me"));
 
 function RouteFallback() {
@@ -323,9 +324,11 @@ function isDesktopShellRoute(pathname: string): boolean {
   // Desktop Phase 4 — Topic Hub route family.
   // Matches the bare launcher "/topic-hub" and any deep variant such as
   // "/topic-hub/:topicName", "/topic-hub/:grade/:subject", and
-  // "/topic-hub/:grade/:subject/:topicKey".  /check-improve and /me remain
-  // explicitly NOT shell-wrapped.
+  // "/topic-hub/:grade/:subject/:topicKey".
   if (pathname === "/topic-hub" || pathname.startsWith("/topic-hub/")) return true;
+  // Desktop Phase 5 — exact "/check-improve" only. /me is explicitly
+  // still NOT shell-wrapped after this phase.
+  if (pathname === "/check-improve") return true;
   return false;
 }
 
@@ -823,8 +826,19 @@ export default function App() {
           <Route path="/practice/worksheets/ready" element={withRouteSuspense(<WorksheetReady />)} />
           <Route path="/practice/worksheets" element={withRouteSuspense(<Worksheets />)} />
 
-          {/* Check & Improve — upload → real AI grading */}
-          <Route path="/check-improve" element={withRouteSuspense(<CheckImprove />)} />
+          {/* Check & Improve — Desktop Phase 5: at desktop width (>=1024px)
+              this renders the locked DesktopCheckImprovePage inside DesktopShell
+              (the conditional shell wrap is applied above by isDesktopShellRoute).
+              At mobile width, the existing CheckImprove (mobile uploader → real
+              AI grading) renders unchanged. */}
+          <Route
+            path="/check-improve"
+            element={
+              isDesktop
+                ? withRouteSuspense(<DesktopCheckImprovePage />)
+                : withRouteSuspense(<CheckImprove />)
+            }
+          />
 
           {/* ── #438 — Mobile destination repairs ────────────────────────
                These replace the previous broken redirects/missing routes.
