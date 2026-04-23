@@ -48,8 +48,12 @@ const ACTION_TILES = [
     title: "Learn",
     sub: "5-min concept rescue",
     iconPath: "M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z",
-    getRoute: (topicName: string, subjectKey: string) =>
-      `/topic-hub/10/${subjectKey}/${encodeURIComponent(topicName)}`,
+    // Routes to the mobile Check & Improve flow — the approved mobile learning
+    // destination.  The desktop route /topic-hub/10/:subject/:topicKey is
+    // intentionally NOT used here; that would fall into the desktop TopicHub shell.
+    // topic= param is forwarded so future mobile learn work can auto-select it.
+    getRoute: (topicName: string, _subjectKey: string) =>
+      `/check-improve?topic=${encodeURIComponent(topicName)}`,
   },
   {
     key: "practice",
