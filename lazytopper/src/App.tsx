@@ -48,7 +48,6 @@ const LegalPage = lazy(() => import("./pages/LegalPage"));
 const MethodologyPage = lazy(() => import("./pages/MethodologyPage"));
 const TeacherDashboardPage = lazy(() => import("./pages/TeacherDashboardPage"));
 import { captureIncomingReferral } from "./services/referralService";
-import { useSubjectContext } from "./hooks/useSubjectContext";
 const PricingPage = lazy(() => import("./pages/PricingPage"));
 const FunnelPage = lazy(() => import("./pages/FunnelPage"));
 const NightBeforePage = lazy(() => import("./pages/NightBeforePage"));
@@ -70,6 +69,11 @@ const PracticeHome      = lazy(() => import("./pages/app/PracticeHome"));
 const Worksheets        = lazy(() => import("./pages/app/Worksheets"));
 const WorksheetReady    = lazy(() => import("./pages/app/WorksheetReady"));
 const CheckImprove      = lazy(() => import("./pages/app/CheckImprove"));
+
+// Mobile baseline pages (#438 — broken destination repair)
+const MobileExamTrends  = lazy(() => import("./pages/app/ExamTrends"));
+const MobileTopicHub    = lazy(() => import("./pages/app/TopicHub"));
+const MobileMe          = lazy(() => import("./pages/app/Me"));
 
 function RouteFallback() {
   return (
@@ -123,7 +127,6 @@ function HomeRedirect() {
 function BottomNav() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user: navUser } = useAuth();
 
   const current = location.pathname;
 
@@ -159,6 +162,7 @@ function BottomNav() {
     current.startsWith("/topic-hub");
 
   const isMeActive =
+    current === "/me" ||
     current === "/profile" ||
     current === "/dashboard" ||
     current === "/" ||
@@ -200,13 +204,7 @@ function BottomNav() {
         </svg>
       ),
       active: isMeActive,
-      onClick: () => {
-        if (navUser) {
-          go("/profile");
-        } else {
-          go("/welcome");
-        }
-      },
+      onClick: () => go("/me"),
     },
   ];
 
@@ -264,18 +262,6 @@ function BottomNav() {
  * Deep-link compatibility: existing /trends/:g/:s and /topic-hub/:g/:s
  * routes are never touched.
  */
-function ExamTrendsAlias() {
-  const ctx = useSubjectContext();
-  return <Navigate to={`/trends/${ctx.grade}/${ctx.subject}`} replace />;
-}
-
-function TopicHubAlias() {
-  const ctx = useSubjectContext();
-  // Navigates to /topic-hub/:grade/:subject with no topicKey,
-  // which renders TopicHub in its chapter-selection entry state.
-  return <Navigate to={`/topic-hub/${ctx.grade}/${ctx.subject}`} replace />;
-}
-
 /**
  * App component defines the top-level routes for the LazyTopper application.
  * It wires all pages together and exposes the AI mentor via /mentor and /ai-mentor.
@@ -724,8 +710,20 @@ export default function App() {
           {/* Check & Improve — upload → real AI grading */}
           <Route path="/check-improve" element={withRouteSuspense(<CheckImprove />)} />
 
-          {/* Alias routes: resolve grade/subject from localStorage, redirect to existing param routes */}
-          <Route path="/exam-trends" element={<ExamTrendsAlias />} />
+          {/* ── #438 — Mobile destination repairs ────────────────────────
+               These replace the previous broken redirects/missing routes.
+               Desktop routes (/trends, /topic-hub/:grade/:subject, /profile)
+               are untouched — they remain separate from these mobile screens. */}
+
+          {/* Mobile Exam Trends — replaces ExamTrendsAlias redirect to desktop TrendsPage */}
+          <Route path="/exam-trends" element={withRouteSuspense(<MobileExamTrends />)} />
+
+          {/* Mobile Topic Hub — entry picker (no topicName) or topic detail (:topicName) */}
+          <Route path="/topic-hub" element={withRouteSuspense(<MobileTopicHub />)} />
+          <Route path="/topic-hub/:topicName" element={withRouteSuspense(<MobileTopicHub />)} />
+
+          {/* Mobile Me — replaces BottomNav's previous bounce to desktop ProfilePage */}
+          <Route path="/me" element={withRouteSuspense(<MobileMe />)} />
 
           {/* Catch-all: redirect unknown routes to a sensible default */}
           <Route path="*" element={<HomeRedirect />} />
