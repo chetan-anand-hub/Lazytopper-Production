@@ -694,8 +694,10 @@ export default function App() {
           />
 
           {/* ── Mobile baseline routes (#437)
-               Note: BrowserRouter basename="/app" strips /app from all URLs.
-               Route paths here are relative to that basename — no /app/ prefix. ─── */}
+               BrowserRouter basename="/app" is ALWAYS active (vite base="/app/" in
+               both dev and prod).  Route paths are relative to that basename —
+               no /app/ prefix needed here.  Browser URLs are consistently
+               /app/exam-trends, /app/topic-hub, /app/me etc. ─── */}
 
           {/* Intent screen — BottomNav hidden by visibility gate when path starts with /intent */}
           <Route path="/intent" element={withRouteSuspense(<Intent />)} />
