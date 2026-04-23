@@ -125,12 +125,9 @@ function TopicMockRedirect() {
 
 function HomeRedirect() {
   const { user, loading } = useAuth();
-  useEffect(() => {
-    if (!loading && !user) window.location.href = "/";
-  }, [user, loading]);
   if (loading) return null;
   if (user) return <Navigate to="/dashboard" replace />;
-  return null;
+  return <Navigate to="/welcome" replace />;
 }
 
 /**
