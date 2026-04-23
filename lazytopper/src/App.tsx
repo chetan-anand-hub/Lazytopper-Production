@@ -31,6 +31,10 @@ import { DesktopShell } from "./components/desktop/DesktopShell";
 
 // Desktop Phase 1 — locked desktop baseline Home (rendered inside DesktopShell)
 const DesktopHome = lazy(() => import("./pages/desktop/DesktopHome"));
+// Desktop Phase 2 — locked desktop baseline Practice page (rendered inside
+// DesktopShell at /practice-hub when viewport is >=1024px). Mobile width
+// keeps rendering the existing PracticeHome (mobile chrome) unchanged.
+const DesktopPracticePage = lazy(() => import("./pages/desktop/DesktopPracticePage"));
 
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const TrendsPage = lazy(() => import("./pages/TrendsPage"));
@@ -300,7 +304,13 @@ function BottomNav() {
  * Mobile width (<1024px) is unchanged for every route, including "/".
  */
 function isDesktopShellRoute(pathname: string): boolean {
-  return pathname === "/";
+  // Desktop Phase 1 — exact "/" only.
+  if (pathname === "/") return true;
+  // Desktop Phase 2 — exact "/practice-hub" only. No nested practice paths,
+  // no other future destinations (/exam-trends, /check-improve, /me,
+  // /topic-hub, /topic-hub/*) are added in this phase.
+  if (pathname === "/practice-hub") return true;
+  return false;
 }
 
 export default function App() {
@@ -750,8 +760,19 @@ export default function App() {
           {/* Intent screen — BottomNav hidden by visibility gate when path starts with /intent */}
           <Route path="/intent" element={withRouteSuspense(<Intent />)} />
 
-          {/* Practice hub — named /practice-hub to avoid ambiguity with /practice/:grade/:subject */}
-          <Route path="/practice-hub" element={withRouteSuspense(<PracticeHome />)} />
+          {/* Practice hub — named /practice-hub to avoid ambiguity with /practice/:grade/:subject.
+              Desktop Phase 2: at desktop width (>=1024px) this renders the locked
+              DesktopPracticePage inside DesktopShell (the conditional shell wrap is
+              applied below). At mobile width, the existing mobile PracticeHome
+              renders unchanged. */}
+          <Route
+            path="/practice-hub"
+            element={
+              isDesktop
+                ? withRouteSuspense(<DesktopPracticePage />)
+                : withRouteSuspense(<PracticeHome />)
+            }
+          />
 
           {/* Worksheets flow — ready must be before the parent to avoid partial match */}
           <Route path="/practice/worksheets/ready" element={withRouteSuspense(<WorksheetReady />)} />
