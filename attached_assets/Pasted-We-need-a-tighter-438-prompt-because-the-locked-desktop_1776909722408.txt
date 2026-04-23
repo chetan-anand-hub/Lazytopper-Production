@@ -1,0 +1,376 @@
+We need a **tighter #438 prompt** because the locked desktop and mobile baselines use **different navigation contracts**.
+
+This task is still **#438 only**.
+Do **not** start the worksheet multi-section task yet.
+Do **not** touch desktop implementation in this task.
+Do **not** widen scope.
+
+---
+
+# TASK #438 — MOBILE PARITY REPAIR FOR THE 3 BROKEN DESTINATIONS
+
+## 0. First principle: desktop and mobile navs are NOT the same
+
+You must treat the locked desktop prototype and locked mobile prototype as two distinct navigation systems.
+
+### Locked desktop nav contract (guardrail only — NOT to be implemented in this task)
+
+From the locked desktop baseline, the core sidebar nav is:
+
+* Home
+* Practice
+* Exam Trends
+* Check & Improve
+* Me / Progress
+
+That is the desktop structure.
+Do **not** “normalize” desktop to mobile.
+Do **not** use mobile nav logic to redesign desktop.
+
+### Locked mobile nav contract (this is the one relevant to #438)
+
+From the locked mobile baseline, the bottom nav is exactly:
+
+1. Practice
+2. Exam Trends
+3. Me
+
+And only those three.
+
+So:
+
+* Learn is **not** a bottom-nav tab
+* Topic Hub is **not** a bottom-nav tab
+* Check & Improve is **not** a bottom-nav tab
+
+They remain important product screens, but not bottom-nav items on mobile.
+
+---
+
+## 1. Why this task is now priority
+
+The current live mobile parity gaps are the 3 broken journeys:
+
+* Exam Trends = wrong page / desktop page
+* Topic Hub = missing route / missing mobile screen
+* Me = wrong destination / desktop page
+
+These are higher-priority than worksheet enhancement because they break the core mobile navigation experience.
+
+So #438 now means:
+
+### Repair these 3 mobile destinations only:
+
+1. `/exam-trends`
+2. `/topic-hub`
+3. `/me`
+
+Nothing broader.
+
+---
+
+## 2. Scope of this task
+
+### In scope
+
+* mobile Exam Trends page
+* mobile Topic Hub page / route
+* mobile Me / Progress page / route
+* minimal route and CTA wiring required to make those three journeys work properly
+* reuse of existing data/hooks/services if safe
+* mobile composition only
+* current mobile shell consistency
+
+### Out of scope
+
+* desktop implementation
+* desktop sidebar changes
+* Welcome changes
+* worksheet redesign
+* worksheet multi-section behavior
+* Check & Improve redesign
+* BottomNav label/order changes
+* auth/payment/admin/analytics changes
+* general UI cleanup
+* any “while I’m here” redesign
+
+---
+
+## 3. Non-negotiable nav rules
+
+### Mobile nav must remain exactly:
+
+* Practice
+* Exam Trends
+* Me
+
+### Desktop nav must remain untouched in this task
+
+Do not:
+
+* add Home to mobile bottom nav
+* add Check & Improve to mobile bottom nav
+* remove Home from desktop sidebar laterally
+* harmonize desktop/mobile nav systems
+* convert desktop sidebar into mobile bottom-nav logic
+* convert mobile to desktop nav logic
+
+This task is **mobile destination repair**, not nav unification.
+
+---
+
+## 4. Exact screen targets for #438
+
+## A. Mobile Exam Trends
+
+### Goal
+
+Tapping the **Exam Trends** bottom-nav tab must open a proper **mobile Exam Trends screen**, not the desktop Trends page.
+
+### Required behavior
+
+Build a dedicated mobile Exam Trends screen that matches the locked mobile baseline direction:
+
+* clear grouped sections:
+
+  * Must-Crack
+  * High-ROI
+  * Good-to-do
+* each group visually separated
+* topic chips / topic rows
+* marks/importance cue visible
+* mobile-friendly card-list composition
+* no desktop full-width charts
+* no desktop sidebar layout
+* no desktop filter-heavy layout dumped into mobile
+
+### Route behavior
+
+* mobile Exam Trends destination must be routed correctly under the current `/app` basename model
+* BottomNav tab 2 must land on the mobile Exam Trends screen
+* do not redirect mobile users into the full desktop `TrendsPage.tsx` layout
+
+### Reuse rule
+
+You may reuse trend data logic, but do not reuse the desktop page shell/composition as-is.
+
+---
+
+## B. Mobile Topic Hub
+
+### Goal
+
+A real mobile Topic Hub screen must exist and be reachable as an internal screen.
+
+### Important rule
+
+Topic Hub is **not** a bottom-nav item.
+
+### Required behavior
+
+Build a dedicated mobile Topic Hub screen aligned to the locked mobile baseline direction:
+
+* top header / topic summary card
+* chapter/topic title
+* priority badge if relevant
+* compact stats block if baseline logic supports it
+* action tiles / primary action cards for:
+
+  * Learn
+  * Practice
+  * Test
+  * Predicted Qs
+
+### Route behavior
+
+* create/fix the mobile route so `/topic-hub` works as a real mobile route
+* do not let it fall into catch-all redirect
+* do not silently dump the user into the desktop topic page shell
+* if topic context is required, resolve it deterministically
+* if context cannot be resolved safely, show a valid mobile entry state instead of guessing a broken topic
+
+### Access paths
+
+Topic Hub can be reached from:
+
+* Exam Trends CTAs
+* Me / progress CTAs
+* other internal mobile journeys if already baseline-consistent
+
+But do not add it to bottom nav.
+
+---
+
+## C. Mobile Me / Progress
+
+### Goal
+
+Tapping the **Me** bottom-nav tab must open a proper **mobile Me / Progress screen**, not the desktop Profile page.
+
+### Required behavior
+
+Build a dedicated mobile Me screen aligned to the locked baseline direction:
+
+* user identity/header block
+* subject/class pill if applicable
+* compact progress analytics
+* “Where you lose marks” block
+* weak-topic / trend summary
+* recommended next action CTA
+* worksheet / improvement CTA if already supported by current data
+
+### Route behavior
+
+* mobile Me destination must no longer bounce users to desktop `/profile`
+* BottomNav tab 3 must land on a dedicated mobile Me screen
+* if auth is required, preserve the existing auth logic
+* but authenticated users must see the proper mobile Me screen
+
+### Reuse rule
+
+You may reuse the underlying mistake/progress data logic.
+Do not reuse the desktop Profile page shell/composition as-is.
+
+---
+
+## 5. Shared implementation rules
+
+### Keep this inside the existing web app
+
+Do not create a separate mobile app.
+
+### Keep using the mobile shell pattern
+
+Use the existing `MobileShell` / current mobile structural pattern where appropriate.
+Do not create ad hoc per-page chrome if it breaks consistency.
+
+### Minimal shared-file changes only
+
+If `App.tsx` or shared navigation files need edits, keep them minimal and directly related to:
+
+* `/exam-trends`
+* `/topic-hub`
+* `/me`
+
+Do not opportunistically refactor other routing.
+
+### No desktop drift
+
+This is critical.
+
+Do not:
+
+* change desktop sidebar labels
+* change desktop route composition
+* change desktop landing
+* restyle desktop pages in this task
+* use #438 as a hidden desktop pass
+
+---
+
+## 6. Basename / routing rule
+
+Use the current app’s existing routing model consistently.
+
+If the app is running under `basename="/app"`, then ensure the internal route definitions and `navigate()` calls are consistent with that model.
+
+Important:
+
+* the route must work in the real app
+* the destination must be the correct mobile screen
+* do not create another `/app/app/*` or similar mismatch
+* do not silently point mobile tabs to legacy desktop pages because it is “easier”
+
+---
+
+## 7. Acceptance criteria
+
+This task is accepted only if all of the following are true:
+
+### Exam Trends
+
+1. tapping bottom-nav **Exam Trends** opens a true mobile Exam Trends screen
+2. it does not dump the user into the desktop Trends page
+3. the mobile screen uses grouped exam-priority presentation
+
+### Topic Hub
+
+4. `/topic-hub` exists as a real mobile route/screen
+5. it does not fall into catch-all redirect
+6. it is reachable through mobile CTAs
+7. it is not added as a bottom-nav tab
+
+### Me
+
+8. tapping bottom-nav **Me** opens a true mobile Me / Progress screen
+9. it does not dump the user into the desktop Profile page
+10. it shows mobile-appropriate progress / mistake / next-step information
+
+### Nav integrity
+
+11. mobile bottom nav remains exactly:
+
+* Practice
+* Exam Trends
+* Me
+
+12. desktop sidebar/nav is untouched in this task
+
+### Scope integrity
+
+13. desktop is not silently changed
+14. Welcome is untouched
+15. worksheet multi-section work is untouched
+16. no unrelated redesign is introduced
+
+---
+
+## 8. Implementation order
+
+Use this order:
+
+1. fix/build mobile `/exam-trends`
+2. fix/build mobile `/topic-hub`
+3. fix/build mobile `/me`
+4. wire only the minimal CTAs/routes needed among those screens
+5. verify bottom-nav destinations
+6. verify no desktop regressions
+
+---
+
+## 9. Required output format when done
+
+Reply with:
+
+1. exact files changed
+2. exact routes added/changed
+3. exact components/pages added/changed
+4. how Exam Trends mobile destination was fixed
+5. how Topic Hub mobile route/screen was implemented
+6. how Me mobile destination was fixed
+7. what existing hooks/services were reused
+8. whether any shared files were touched
+9. explicit statement of desktop side effects (should be none or minimal and named)
+10. git ref
+11. compare URL
+12. PR URL
+
+Also include a short plain-English confirmation of this exact statement:
+
+* desktop nav remains: Home / Practice / Exam Trends / Check & Improve / Me-Progress
+* mobile bottom nav remains: Practice / Exam Trends / Me
+* the two nav systems were intentionally kept different
+
+---
+
+## 10. Final guardrail
+
+Do not interpret this as:
+
+* “make desktop and mobile consistent”
+* “clean up all navigation”
+* “fix anything nearby”
+
+Interpret it only as:
+
+**repair the 3 broken mobile destinations while preserving the locked difference between desktop navigation and mobile navigation**
