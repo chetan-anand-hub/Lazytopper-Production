@@ -80,3 +80,7 @@ attached_assets/*.md
 # Replit
 .cache/
 .local/
+
+# Cleanup proof artifacts (Phase 8) — never commit these
+.review-artifacts/
+attached_assets/
