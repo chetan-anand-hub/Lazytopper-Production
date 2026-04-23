@@ -1,0 +1,424 @@
+TASK TITLE
+Desktop Phase 7 — final desktop stabilization and parity polish only
+
+IMPLEMENTATION REPO
+Lazytopper-Production
+https://github.com/chetan-anand-hub/Lazytopper-Production
+
+MANDATORY PRE-STEP — DO THIS FIRST
+Before writing any new code:
+
+1. PR #13 is already merged in GitHub. Do NOT re-check or re-merge it.
+2. Start Phase 7 from the CURRENT `base/approved-thru-437` head after PR #13 merge.
+3. Use this merged base head:
+   `cfaa11e3b565a2e2138a06aa610eba207062f6fe`
+4. Record the exact base SHA you branched from in the final report.
+5. Do NOT build on stale feature branches.
+6. Do NOT stack on an old Phase 6 branch.
+
+IMPORTANT AUDIT NOTE TO CARRY FORWARD
+Phase 6 is merged, but this project has already shown why strict proof is necessary:
+
+* PR body text can go stale
+* summary text can drift from actual GitHub state
+* screenshots can be claimed but not actually included in review
+
+From here on, your final report must distinguish clearly between:
+
+* actual GitHub PR metadata
+* actual code in the diff
+* actual screenshots captured
+* any narrative summary
+
+If they disagree, the GitHub metadata + diff + screenshots are the truth.
+
+CURRENT APPROVED BASE STATE
+Approved desktop rollout now includes Phases 1 → 6 on `base/approved-thru-437`:
+
+Phase 1
+
+* DesktopShell
+* desktop root surface
+* fixed-height shell
+* independently scrolling right pane
+
+Phase 2
+
+* desktop `/practice-hub`
+
+Phase 3
+
+* desktop `/exam-trends`
+
+Phase 4
+
+* desktop Topic Hub route family
+
+Phase 5
+
+* desktop `/check-improve`
+
+Phase 6
+
+* desktop `/me`
+
+These are already in and must not regress.
+
+LOCKED BASELINE REFERENCES — MANDATORY
+Always check these before changing anything.
+
+1. LOCKED DESKTOP BASELINE — VISUAL SOURCE OF TRUTH
+   https://lovable.dev/projects/e49fe255-d9b4-4d48-b708-31252b7f230a
+
+2. LOCKED DESKTOP BASELINE — GIT / CODE REFERENCE
+   https://github.com/chetan-anand-hub/lazytopper-desktop-view-e1fc5df7
+
+3. LOCKED MOBILE BASELINE — VISUAL SOURCE OF TRUTH
+   https://lovable.dev/projects/18842e8f-6c4b-4505-9eeb-0747e3a33c5a
+
+4. LOCKED MOBILE BASELINE — GIT / CODE REFERENCE
+   https://github.com/chetan-anand-hub/lazytopper-navigator
+
+5. IMPLEMENTATION REPO
+   https://github.com/chetan-anand-hub/Lazytopper-Production
+
+IMPORTANT BASELINE RULE
+From here on:
+
+* desktop work must refer to BOTH the locked desktop Lovable project and the locked desktop baseline Git repo
+* mobile work must refer to BOTH the locked mobile Lovable project and the locked mobile baseline Git repo
+* implementation happens only in Lazytopper-Production
+* do not infer baseline behavior from memory
+* do not invent new product structure
+* do not widen scope beyond stabilization/polish
+
+WHY THIS PHASE EXISTS
+All major desktop destinations now exist.
+
+So Phase 7 is NOT:
+
+* a new feature phase
+* a new destination phase
+* a nav redesign
+* a shell rewrite
+
+Phase 7 IS:
+
+* final desktop stabilization
+* final desktop parity polish
+* consistency corrections
+* screenshot-based proof
+* tiny bug fixes only
+
+TASK OBJECTIVE
+Implement only the final desktop stabilization / parity polish pass across the already-built desktop surfaces.
+
+This phase includes:
+
+1. tiny visual parity fixes
+2. tiny routing correctness fixes
+3. consistency fixes across desktop pages
+4. scroll / spacing / alignment / typography cleanup
+5. screenshot evidence for the full desktop set
+6. clean PR with exact proof of work
+
+This phase does NOT include:
+
+* new desktop destinations
+* mobile redesign
+* nav redesign
+* backend redesign
+* route architecture redesign
+
+IN SCOPE
+Only the following are in scope:
+
+1. final polish on existing desktop pages:
+
+   * `/`
+   * `/practice-hub`
+   * `/exam-trends`
+   * desktop Topic Hub route family
+   * `/check-improve`
+   * `/me`
+2. visual consistency fixes
+3. shell consistency fixes
+4. CTA correctness fixes
+5. spacing / alignment / typography / light-theme consistency
+6. screenshot evidence
+7. clean PR
+8. exact proof of work
+
+OUT OF SCOPE
+Do NOT include any of the following:
+
+1. new desktop destinations
+2. mobile changes
+3. Welcome / landing changes
+4. backend redesign
+5. analytics redesign
+6. prediction engine redesign
+7. auth changes
+8. nav redesign
+9. shell redesign
+10. global theme rewrite
+11. opportunistic refactors
+12. new dependencies
+13. Tailwind conversion
+14. lucide-react introduction
+15. new route architecture
+16. Phase 8 feature work
+
+EXPLICIT DO-NOT-DO LIST
+Do NOT:
+
+1. reopen architecture decisions already approved
+2. change mobile routes or mobile screens
+3. add new desktop destinations
+4. widen scope into a redesign
+5. commit screenshots
+6. add attached_assets or pasted task files
+7. say “merged” unless GitHub confirms merged
+8. submit a vague summary without proof
+9. change approved route gating unless it is a real bug and you explicitly justify it
+10. change shell behavior unless it is a real regression and you explicitly justify it
+
+STABILIZATION / POLISH CONTRACT
+Audit and polish the following areas only if they are actually inconsistent with:
+
+* the locked desktop baseline
+* the locked mobile baseline
+* earlier approved desktop behavior
+
+Allowed fix categories:
+
+1. DesktopShell consistency
+
+   * fixed-height layout
+   * right-pane independent scroll
+   * pinned sidebar behavior
+   * top utility bar consistency
+
+2. Route-gating consistency
+
+   * only approved desktop routes are shell-wrapped
+   * no accidental drift
+   * no stale route conditions
+
+3. Cross-page visual consistency
+
+   * typography
+   * spacing
+   * accent color use
+   * card treatment
+   * section width / layout rhythm
+   * sidebar/nav consistency
+   * header consistency
+
+4. CTA correctness
+
+   * routes must point to real production destinations
+   * no stale or broken desktop CTA targets
+
+5. Documentation truthfulness
+
+   * PR description must match actual code
+   * no stale SHA
+   * no stale route wording
+   * no stale file count wording
+
+IMPORTANT BUG-FIX RULE
+Only fix issues that are:
+
+* real
+* visible
+* verifiable
+* inside the approved desktop scope
+
+Do NOT “clean up” things just because they feel nicer.
+Every change must be justified by parity, correctness, or consistency.
+
+SCREENSHOT REQUIREMENT — STRICT AND NON-OPTIONAL
+I need screenshots for visual review.
+Written claims are not enough.
+
+Store screenshots only in:
+.review-artifacts/screenshots/
+
+Do not commit this folder.
+
+Required screenshots:
+
+1. desktop-root-top-1440x900.png
+2. desktop-root-scrolled-1024x700.png
+3. desktop-practice-top-1440x900.png
+4. desktop-practice-scrolled-1024x700.png
+5. desktop-exam-trends-top-1440x900.png
+6. desktop-exam-trends-scrolled-1024x700.png
+7. desktop-topic-hub-top-1440x900.png
+8. desktop-topic-hub-scrolled-1024x700.png
+9. desktop-check-improve-upload-1440x900.png
+10. desktop-check-improve-graded-top-1440x900.png
+11. desktop-check-improve-graded-scrolled-1024x700.png
+12. desktop-me-top-1440x900.png
+13. desktop-me-scrolled-1024x700.png
+14. mobile-root-390x844.png
+15. mobile-practice-390x844.png
+16. mobile-exam-trends-390x844.png
+17. mobile-topic-hub-390x844.png
+18. mobile-check-improve-390x844.png
+19. mobile-me-390x844.png
+
+Each screenshot entry in the final report must include:
+
+* filename
+* local path
+* exact route
+* viewport
+* exact UI state
+* top-of-page or scrolled
+* desktop shell or legacy mobile rendering
+* short note on what the screenshot proves
+
+Do not skip screenshots.
+Do not say “looks correct” without screenshot evidence.
+
+VERY IMPORTANT SCREENSHOT EMPHASIS
+Screenshots are mandatory because the visual review depends on them.
+
+For every scroll-sensitive desktop page, provide:
+
+* top-of-page screenshot
+* scrolled-lower-in-right-pane screenshot
+
+If a page has multiple meaningful states, capture them.
+Example:
+
+* Check & Improve upload
+* Check & Improve graded top
+* Check & Improve graded scrolled
+
+No exceptions.
+
+PR CLEANLINESS RULE
+If any screenshots, artifacts, pasted task files, or unrelated files appear in the PR diff:
+
+* remove them before requesting audit
+* if necessary, rebuild a clean branch and force-push the PR branch
+* final PR surface must contain implementation files only
+
+REQUIRED OUTPUT FORMAT
+Return the following exactly:
+
+1. Exact task scope completed
+
+2. Base checkpoint and ancestry proof
+
+* base branch name
+* exact base SHA branched from
+* base branch head SHA at branch creation
+* whether branch was rebased
+* whether branch was force-pushed
+* whether branch was rebuilt from clean staging
+
+3. Exact issues found and fixed
+
+* one line per issue
+* include route / page affected
+* include why it mattered
+* include whether it was visual, routing, CTA, shell, or documentation
+
+4. Exact files changed
+
+* exact final file list only
+
+5. Exact desktop surfaces audited
+
+* `/`
+* `/practice-hub`
+* `/exam-trends`
+* Topic Hub route family
+* `/check-improve`
+* `/me`
+
+6. What was intentionally NOT changed
+
+7. Screenshot evidence
+
+* filename
+* local path
+* route
+* viewport
+* state
+* top/scrolled
+* shell/mobile
+* what the screenshot proves
+
+8. Explicit confirmations
+
+* no mobile changes
+* no screenshots committed
+* no new destinations added
+* approved desktop route gating preserved
+* shell scroll behavior preserved
+* earlier phases remain intact
+
+9. PR cleanliness confirmation
+
+* exact final file list
+* explicit confirmation that no screenshots/artifacts are in diff
+
+10. Git evidence
+
+* branch
+* head SHA
+* commit URL
+* compare URL
+* PR URL
+
+11. GitHub merge-state truth
+
+* PR state
+* merged yes/no
+* merged_at timestamp if merged
+* merge commit SHA if merged
+* if not merged, explicitly say NOT MERGED
+
+12. PR body truthfulness
+
+* whether PR description was updated
+* whether PR body matches actual final code
+* if not, what is stale
+
+MANDATORY GIT EVIDENCE
+Do not say “done” without:
+
+1. exact base SHA
+2. head SHA
+3. commit URL
+4. compare URL
+5. PR URL
+6. exact final file list
+7. screenshot metadata
+8. actual GitHub merge state
+
+IMPORTANT APPROVAL RULE
+This will be audited against:
+
+1. actual GitHub diff
+2. locked desktop Lovable baseline
+3. locked desktop baseline Git repo
+4. screenshot pack
+5. approved earlier desktop behavior
+6. actual GitHub PR metadata
+7. actual PR description/body
+
+If the PR body is stale, fix it.
+If screenshots are missing, it is not approved.
+If screenshots leak into the PR diff, it is not approved.
+If merge state is falsely reported, it is not approved.
+If scope widens beyond stabilization/polish, it is not approved.
+
+Please do Desktop Phase 7 only:
+final desktop stabilization / parity polish with strict screenshot proof.
+Do not widen scope.

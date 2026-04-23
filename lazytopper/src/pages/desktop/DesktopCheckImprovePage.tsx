@@ -539,7 +539,7 @@ const DesktopCheckImprovePage: React.FC = () => {
             <button
               type="button"
               style={buttonAccent}
-              onClick={() => navigate("/practice")}
+              onClick={() => navigate("/practice-hub")}
             >
               Practice this mistake type <ChevronRightGlyph />
             </button>
@@ -816,7 +816,7 @@ const DesktopCheckImprovePage: React.FC = () => {
             </p>
             <button
               type="button"
-              onClick={() => navigate("/practice")}
+              onClick={() => navigate("/practice-hub")}
               style={{
                 marginTop: 16,
                 display: "inline-flex",
