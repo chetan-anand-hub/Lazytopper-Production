@@ -72,7 +72,7 @@ export default function WorksheetReady() {
         {/* ── Summary card ──────────────────────────────────────── */}
         {opts && (
           <div className="card-soft" style={{ padding: "16px" }}>
-            <div style={{ fontWeight: 600, fontSize: "0.82rem", color: "var(--mob-fg-muted)", marginBottom: 12, textTransform: "uppercase", letterSpacing: "0.06em", fontSize: "0.7rem" }}>
+            <div style={{ fontWeight: 600, fontSize: "0.7rem", color: "var(--mob-fg-muted)", marginBottom: 12, textTransform: "uppercase", letterSpacing: "0.06em" }}>
               Summary
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
