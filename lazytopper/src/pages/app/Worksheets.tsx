@@ -163,6 +163,10 @@ export default function Worksheets() {
         count: effectiveCount,
         difficulty: effectiveDifficulty === "All" ? undefined : effectiveDifficulty as never,
         sections: sectionsArg,
+        // Worksheets must never repeat questions to inflate count.
+        // A smaller result means the bank genuinely has fewer unique matching
+        // questions — the student gets a truthful set, not duplicated cards.
+        allowRepeats: false,
       });
 
       if (questions.length === 0) {
