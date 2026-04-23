@@ -22,6 +22,13 @@ export interface PracticeGenerationRequest {
   topicKey: string;
   count: number;
   difficulty?: DifficultyChoice;
+  /**
+   * Section scope applied BEFORE count sampling so the expansion loop fills
+   * up to `count` from within the target sections only.
+   * undefined / omitted  → no section filter (all sections)
+   * string[]             → restrict to those section letters, e.g. ["A","B"]
+   */
+  sections?: string[];
   subtopicHint?: string;
   focusBankIds?: string[];
 }
@@ -29,7 +36,7 @@ export interface PracticeGenerationRequest {
 export function generatePracticeQuestions(
   req: PracticeGenerationRequest
 ): PracticeQuestion[] {
-  const { subject, topicKey, count, difficulty, subtopicHint, focusBankIds } = req;
+  const { subject, topicKey, count, difficulty, sections, subtopicHint, focusBankIds } = req;
 
   // Fetch all canonical questions for the topic and keep subject-boundary strict.
   let pool = PredictionCore.getLikelyQuestionsForConcept(topicKey);
@@ -41,6 +48,14 @@ export function generatePracticeQuestions(
   if (effectiveDifficulty) {
     // Explicitly type q to avoid implicit any errors.
     pool = pool.filter((q: PracticeQuestion) => q.difficulty === effectiveDifficulty);
+  }
+
+  // Apply section filter BEFORE the expansion/sampling loop so the requested
+  // `count` is filled from within the target sections only.
+  // This ensures Quick drill (A+B) and High-marks focus (C+D+E) actually reach
+  // their target counts when the bank has enough matching questions.
+  if (sections && sections.length > 0) {
+    pool = pool.filter((q: PracticeQuestion) => sections.includes(q.section));
   }
 
   // Bias towards subtopic hints if provided by placing matching questions first.

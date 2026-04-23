@@ -142,27 +142,31 @@ export default function Worksheets() {
           ? p.sections
           : section === "All" ? "All" : [section];
 
-      /* Generate candidates from the data service (difficulty pre-filter). */
-      let questions = generatePracticeQuestions({
+      /*
+       * Generate questions with section scope applied INSIDE the generation
+       * layer, before the expansion/count-sampling step.
+       *
+       * Passing `sections` as string[] | undefined:
+       *   "All" → undefined (no section filter, all sections available)
+       *   ["A","B"] → ["A","B"] (pool is gated to A+B before sampling to count)
+       *
+       * This guarantees that when the bank has enough A+B (or C+D+E) questions,
+       * the requested count is reached from within the target sections only.
+       * Wrong-section questions are never mixed in silently.
+       */
+      const sectionsArg: string[] | undefined =
+        effectiveSections === "All" ? undefined : (effectiveSections as string[]);
+
+      const questions = generatePracticeQuestions({
         subject: subject as LTSubjectKey,
         topicKey,
         count: effectiveCount,
         difficulty: effectiveDifficulty === "All" ? undefined : effectiveDifficulty as never,
+        sections: sectionsArg,
       });
 
-      /*
-       * Apply section scope strictly.
-       * Rule: do not pad with wrong-section questions to hit count.
-       * Truthful smaller output > misleading full output.
-       */
-      if (effectiveSections !== "All") {
-        questions = questions.filter((q) =>
-          (effectiveSections as string[]).includes(q.section)
-        );
-      }
-
       if (questions.length === 0) {
-        const scopeStr = sectionScopeLabel(effectiveSections).toLowerCase();
+        const scopeStr = sectionScopeLabel(effectiveSections);
         setError(
           `No questions found for ${scopeStr} in this topic. ` +
           `Try a different topic or the "Board exam mix" preset for full coverage.`
