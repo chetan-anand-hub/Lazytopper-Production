@@ -4,7 +4,7 @@ import Login from "./pages/Login";
 import SignUpPage from "./pages/SignUpPage";
 import Onboarding from "./pages/Onboarding";
 import Welcome from "./pages/Welcome";
-import TopicHubHome from "./pages/TopicHubHome";
+
 import { StudyPlannerView } from "./components/planner/StudyPlannerView";
 
 
@@ -589,8 +589,11 @@ export default function App() {
           <Route path="/topic-hub/:grade/:subject" element={<RequirePremium featureLabel="Chapter Hub (AI Tutor)"><SectionErrorBoundary>{withRouteSuspense(<TopicHub />)}</SectionErrorBoundary></RequirePremium>} />
           <Route path="/topic-hub/:grade/:subject/:topicKey" element={<RequirePremium featureLabel="Chapter Hub (AI Tutor)"><SectionErrorBoundary>{withRouteSuspense(<TopicHub />)}</SectionErrorBoundary></RequirePremium>} />
 
-          {/* TopicHub launcher page */}
-          <Route path="/topic-hub" element={<TopicHubHome />} />
+          {/* TopicHub launcher page (desktop fallback — mobile route at line ~724 takes
+               precedence for /app/topic-hub because it is defined first in the same
+               Routes tree. This desktop launcher remains for any non-mobile direct
+               desktop navigation that bypasses the /app/ basename.) */}
+          <Route path="/topic-hub" element={<MobileTopicHub />} />
 
       
 
