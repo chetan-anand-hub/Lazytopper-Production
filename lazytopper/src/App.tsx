@@ -89,6 +89,9 @@ const MobileTopicHub    = lazy(() => import("./pages/app/TopicHub"));
 const DesktopExamTrendsPage = lazy(() => import("./pages/desktop/DesktopExamTrendsPage"));
 const DesktopTopicHubPage = lazy(() => import("./pages/desktop/DesktopTopicHubPage"));
 const DesktopCheckImprovePage = lazy(() => import("./pages/desktop/DesktopCheckImprovePage"));
+// Desktop Phase 6 — locked desktop Me / Progress page (>=1024px only).
+// Mobile width keeps rendering MobileMe unchanged.
+const DesktopMePage = lazy(() => import("./pages/desktop/DesktopMePage"));
 const MobileMe          = lazy(() => import("./pages/app/Me"));
 
 function RouteFallback() {
@@ -326,9 +329,11 @@ function isDesktopShellRoute(pathname: string): boolean {
   // "/topic-hub/:topicName", "/topic-hub/:grade/:subject", and
   // "/topic-hub/:grade/:subject/:topicKey".
   if (pathname === "/topic-hub" || pathname.startsWith("/topic-hub/")) return true;
-  // Desktop Phase 5 — exact "/check-improve" only. /me is explicitly
-  // still NOT shell-wrapped after this phase.
+  // Desktop Phase 5 — exact "/check-improve" only.
   if (pathname === "/check-improve") return true;
+  // Desktop Phase 6 — exact "/me" only. Mobile width continues to render
+  // the legacy MobileMe page unchanged.
+  if (pathname === "/me") return true;
   return false;
 }
 
@@ -879,8 +884,17 @@ export default function App() {
             }
           />
 
-          {/* Mobile Me — replaces BottomNav's previous bounce to desktop ProfilePage */}
-          <Route path="/me" element={withRouteSuspense(<MobileMe />)} />
+          {/* Me — desktop renders the locked DesktopMePage inside DesktopShell
+              at >=1024px (Phase 6); mobile width keeps the legacy MobileMe
+              page unchanged. */}
+          <Route
+            path="/me"
+            element={
+              isDesktop
+                ? withRouteSuspense(<DesktopMePage />)
+                : withRouteSuspense(<MobileMe />)
+            }
+          />
 
           {/* Catch-all: redirect unknown routes to a sensible default */}
           <Route path="*" element={<HomeRedirect />} />
