@@ -239,6 +239,9 @@ export async function fetchStepSolution(req: {
 
 export type MistakeType = "conceptual" | "calculation" | "silly" | "presentation";
 
+import type { ErrorCategory } from "../services/errorCategories";
+export type { ErrorCategory };
+
 export interface CheckSolutionAnnotatedStep {
   stepNumber: number;
   description: string;
@@ -266,6 +269,10 @@ export interface CheckSolutionResponse {
   annotatedSteps: CheckSolutionAnnotatedStep[];
   mistakeSummary: CheckSolutionMistakeSummary;
   teacherNote: string;
+  /** Top-level diagnosis: which of the 6 fixed buckets best explains why marks were lost. Null when no marks were lost. */
+  errorCategory?: ErrorCategory | null;
+  /** One short sentence explaining the diagnosis. Null when no marks were lost. */
+  errorReason?: string | null;
   error?: string;
 }
 

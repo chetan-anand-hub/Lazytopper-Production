@@ -8,6 +8,8 @@ import {
   limit,
 } from "firebase/firestore";
 import { firestoreDb } from "./firebaseClient";
+import type { ErrorCategory } from "./errorCategories";
+import { isErrorCategory } from "./errorCategories";
 
 const LOCAL_KEY_PREFIX = "lazytopper.mistakeLogs.v1";
 const MAX_LOCAL_ENTRIES = 200;
@@ -31,6 +33,61 @@ export interface MistakeLogEntry {
     mistakeType: string;
     marksDeducted: number;
   }>;
+  /** High-level diagnosis from the error diagnosis engine — see errorCategories.ts. */
+  errorCategory?: ErrorCategory | null;
+  /** One-sentence reason produced by the AI examiner. */
+  errorReason?: string | null;
+}
+
+/**
+ * Read mistake log entries from local cache only (no Firestore round-trip),
+ * filtered to entries with a timestamp at or after `sinceIso`.
+ *
+ * Used by the Practice session summary to derive a fast, sync breakdown of
+ * the errors the student made during the current sitting.
+ */
+export function readLocalMistakeLogsSince(
+  uid: string,
+  sinceIso: string
+): MistakeLogEntry[] {
+  if (!uid) return [];
+  const sinceMs = (() => {
+    const t = new Date(sinceIso).getTime();
+    return Number.isFinite(t) ? t : 0;
+  })();
+  return readLocal(uid).filter((entry) => {
+    try {
+      return new Date(entry.timestamp).getTime() >= sinceMs;
+    } catch {
+      return false;
+    }
+  });
+}
+
+/**
+ * Aggregate errorCategory counts across a list of mistake log entries.
+ * Returns the breakdown sorted by count desc, plus the #1 category (or null).
+ */
+export function aggregateErrorCategories(entries: MistakeLogEntry[]): {
+  total: number;
+  byCategory: Array<{ category: ErrorCategory; count: number }>;
+  topCategory: ErrorCategory | null;
+} {
+  const counts = new Map<ErrorCategory, number>();
+  for (const e of entries) {
+    if (e.errorCategory && isErrorCategory(e.errorCategory)) {
+      counts.set(e.errorCategory, (counts.get(e.errorCategory) || 0) + 1);
+    }
+  }
+  const byCategory = Array.from(counts.entries())
+    .map(([category, count]) => ({ category, count }))
+    .sort((a, b) => b.count - a.count);
+  const total = byCategory.reduce((sum, c) => sum + c.count, 0);
+  return {
+    total,
+    byCategory,
+    topCategory: byCategory.length > 0 ? byCategory[0].category : null,
+  };
 }
 
 function localKey(uid: string): string {
