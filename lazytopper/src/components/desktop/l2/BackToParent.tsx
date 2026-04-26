@@ -39,6 +39,25 @@ const isKnownSource = (value: string | null): value is DesktopActionSource => {
   return value in SOURCE_MAP;
 };
 
+/**
+ * Same-origin path guard for `returnTo`.
+ *
+ * Accepts only relative paths that:
+ *   - start with a single "/" (absolute-on-this-origin)
+ *   - do NOT start with "//" or "\\" (which browsers treat as protocol-relative)
+ *   - do NOT contain a scheme like "http:", "https:", "javascript:", "data:", etc.
+ *
+ * Any other input is rejected so a crafted link cannot bounce a user off-app.
+ */
+const isSafeInternalPath = (value: string): boolean => {
+  if (!value) return false;
+  if (!value.startsWith("/")) return false;
+  if (value.startsWith("//") || value.startsWith("/\\") || value.startsWith("\\")) return false;
+  // Reject anything containing a scheme separator before the first slash boundary.
+  if (/[a-zA-Z][a-zA-Z0-9+.-]*:/.test(value)) return false;
+  return true;
+};
+
 function ArrowLeftIcon({ size = 14 }: { size?: number }) {
   return (
     <svg
@@ -62,16 +81,23 @@ export function BackToParent({ fallbackPath, fallbackLabel }: BackToParentProps 
   const location = useLocation();
   const params = new URLSearchParams(location.search);
 
-  const returnTo = params.get("returnTo");
+  const rawReturnTo = params.get("returnTo");
   const sourceParam = params.get("source");
   const source = isKnownSource(sourceParam) ? sourceParam : null;
+
+  // Honour `returnTo` only when (a) `source` is also present (per the documented
+  // priority contract) AND (b) it is a safe same-origin path. Any failure of
+  // these checks falls through to the next priority tier rather than silently
+  // sending the user off-app.
+  const returnTo =
+    rawReturnTo && source && isSafeInternalPath(rawReturnTo) ? rawReturnTo : null;
 
   let path: string | null = null;
   let label: string | null = null;
 
-  if (returnTo) {
+  if (returnTo && source) {
     path = returnTo;
-    label = source ? SOURCE_MAP[source].label : "Back";
+    label = SOURCE_MAP[source].label;
   } else if (source) {
     path = SOURCE_MAP[source].path;
     label = SOURCE_MAP[source].label;

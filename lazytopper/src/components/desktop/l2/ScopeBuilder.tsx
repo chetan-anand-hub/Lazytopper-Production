@@ -49,6 +49,21 @@ export interface DesktopScopeValue {
   selectedTopicSlugs: string[];
 }
 
+/**
+ * Validity rules for a scope value:
+ *   - "topic"        → must have a `topicSlug`
+ *   - "multi-topic"  → must have at least 2 entries in `selectedTopicSlugs`
+ *   - "full-subject" → always valid once subject is chosen
+ *
+ * Exposed as a free helper so parent forms can disable downstream CTAs without
+ * re-deriving the rule.
+ */
+export const isDesktopScopeValueValid = (value: DesktopScopeValue): boolean => {
+  if (value.scope === "topic") return Boolean(value.topicSlug);
+  if (value.scope === "multi-topic") return value.selectedTopicSlugs.length >= 2;
+  return true;
+};
+
 interface ScopeBuilderProps {
   topics: DesktopTopicSummary[];
   value: DesktopScopeValue;
@@ -216,6 +231,21 @@ export function ScopeBuilder({ topics, value, onChange, title = "Study scope" }:
           <div style={labelStyle}>
             {value.scope === "topic" ? "Topic" : "Topics (pick 2 or more)"}
           </div>
+
+          {value.scope === "multi-topic" && value.selectedTopicSlugs.length < 2 ? (
+            <p
+              role="status"
+              style={{
+                margin: 0,
+                marginBottom: 4,
+                fontSize: 12,
+                color: TEXT_MUTED,
+              }}
+            >
+              Select at least <strong style={{ color: TEXT }}>2 topics</strong> to enable
+              multi-topic study.
+            </p>
+          ) : null}
 
           {filteredTopics.length === 0 ? (
             <p style={{ margin: 0, fontSize: 13, color: TEXT_MUTED }}>

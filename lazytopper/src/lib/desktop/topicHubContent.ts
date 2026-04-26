@@ -1,5 +1,5 @@
 import type { DesktopStream, DesktopSubject } from "./navigation";
-import { desktopTopicBySlug, type DesktopTopicSummary } from "./topics";
+import { desktopTopicBySlug, desktopTopicsBySubject, type DesktopTopicSummary } from "./topics";
 
 /**
  * Desktop Level 2 — topic hub content adapter.
@@ -164,11 +164,5 @@ export const desktopTopicHubContentBySubject = (
   subject: DesktopSubject,
   stream: DesktopStream = "All",
 ): DesktopTopicHubContent[] => {
-  // Lazy import-cycle-safe traversal: rebuild from desktopTopicsBySubject by re-exporting
-  // the helper here would create a circular dep; consumer should call
-  // desktopTopicsBySubject(subject, stream).map(buildDesktopTopicHubContent).
-  // This helper is provided for symmetry; it filters on the already-built output.
-  void subject;
-  void stream;
-  return [];
+  return desktopTopicsBySubject(subject, stream).map(buildDesktopTopicHubContent);
 };
