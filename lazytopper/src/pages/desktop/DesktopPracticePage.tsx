@@ -408,20 +408,26 @@ export default function DesktopPracticePage() {
   // Build the legacy `/practice/:grade/:subject` path with optional flags +
   // honest source/returnTo trail. Used for the practice + timed CTAs since
   // the L2 helpers point back at /practice-hub itself.
+  //
+  // IMPORTANT: subject is sourced from the live ScopeBuilder selection
+  // (`scope.subject`), NOT from the initial useSubjectContext value, so
+  // switching subject in the picker actually changes where the CTAs go.
+  // `grade` continues to come from useSubjectContext because the L2 scope
+  // panel does not (yet) expose grade selection.
   const buildLegacyPracticePath = (params: { timed?: boolean; topic?: string }): string => {
     const sp = new URLSearchParams();
     if (params.topic) sp.set("topic", params.topic);
     if (params.timed) sp.set("timed", "1");
     sp.set("source", SOURCE);
     sp.set("returnTo", RETURN_TO);
-    return withQuery(`/practice/${grade}/${subject}`, sp);
+    return withQuery(`/practice/${grade}/${scope.subject}`, sp);
   };
 
   const buildPredictedPath = (): string => {
     const sp = new URLSearchParams();
     sp.set("source", SOURCE);
     sp.set("returnTo", RETURN_TO);
-    return withQuery(`/highly-probable/${grade}/${subject}`, sp);
+    return withQuery(`/highly-probable/${grade}/${scope.subject}`, sp);
   };
 
   const buildMockPath = (): string => {
