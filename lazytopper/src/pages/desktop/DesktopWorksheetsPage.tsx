@@ -671,37 +671,68 @@ export default function DesktopWorksheetsPage() {
     return [...customSections].sort();
   })();
 
-  // Active topic-key list driving the live preview + generate call.
-  // Mistake-aware overrides scope to a focused single topic.
-  const generationTopicKeys: string[] = (() => {
-    if (mistakeAware && mistakeHotspotForActiveScope?.topTopicKey) {
-      return [mistakeHotspotForActiveScope.topTopicKey];
-    }
+  // ── Mistake-aware is ADDITIVE (not a replacement scope) ───────────────
+  //   Locked prototype intent: "Add mistake-focus mini-section" augments
+  //   the user's selected scope with a small extra block of real
+  //   questions from their top-marked-down topic. It MUST NOT replace
+  //   single-topic / multi-topic / full-subject selections.
+  //
+  //   Two parallel scopes are computed below:
+  //     - mainGenerationTopicKeys  → exactly the user's selected scope.
+  //     - mistakeMiniTopicKey      → optional top-mistake topic add-on.
+  //   The Generate handler runs the main scope first, then (if enabled)
+  //   appends a 3–5 question mini-section from mistakeMiniTopicKey,
+  //   de-duplicated against the main set by question.id.
+  const MINI_SECTION_TARGET = 5;
+  const MINI_SECTION_MIN = 3;
+
+  // MAIN scope (driven only by the user's picks; never by mistakeAware).
+  const mainGenerationTopicKeys: string[] = (() => {
     if (paperScope === "topic") return [topicKey];
     if (paperScope === "multi-topic") return selectedTopicKeys;
     // full-subject: every topic in the active subject + stream filter.
     return visibleTopics.map((t) => t.key);
   })();
 
-  const generationTopicLabels = generationTopicKeys
+  const mainGenerationTopicLabels = mainGenerationTopicKeys
     .map((k) => visibleTopics.find((t) => t.key === k)?.label ?? k);
 
-  const previewTopicLabel: string = (() => {
-    if (mistakeAware && mistakeHotspotForActiveScope?.topTopicLabel) {
-      return `${mistakeHotspotForActiveScope.topTopicLabel} (mistake-focused)`;
-    }
+  const mainScopeLabel: string = (() => {
     if (paperScope === "topic") {
       return visibleTopics.find((t) => t.key === topicKey)?.label ?? topicKey;
     }
     if (paperScope === "multi-topic") {
-      if (generationTopicLabels.length === 0) return "—";
-      if (generationTopicLabels.length <= 3) return generationTopicLabels.join(" + ");
-      return `${generationTopicLabels.slice(0, 2).join(" + ")} + ${generationTopicLabels.length - 2} more`;
+      if (mainGenerationTopicLabels.length === 0) return "—";
+      if (mainGenerationTopicLabels.length <= 3) return mainGenerationTopicLabels.join(" + ");
+      return `${mainGenerationTopicLabels.slice(0, 2).join(" + ")} + ${mainGenerationTopicLabels.length - 2} more`;
     }
     // full-subject
     return subject === "Science" && stream !== "All"
       ? `Full ${subject} · ${stream}`
       : `Full ${subject}`;
+  })();
+
+  // Mistake-focus add-on (independent of main scope; only set when the
+  // toggle is on AND a mappable hotspot exists for the active subject +
+  // stream filter).
+  const mistakeMiniTopicKey: string | null =
+    mistakeAware && mistakeHotspotForActiveScope?.topTopicKey
+      ? mistakeHotspotForActiveScope.topTopicKey
+      : null;
+
+  const mistakeMiniTopicLabel: string | null =
+    mistakeAware && mistakeHotspotForActiveScope?.topTopicLabel
+      ? mistakeHotspotForActiveScope.topTopicLabel
+      : null;
+
+  // The preview / WorksheetOptions topicLabel must reflect BOTH the
+  // user's main scope and (if active) the add-on, so WorksheetReady's
+  // single-topic-label slot honestly describes the combined output.
+  const previewTopicLabel: string = (() => {
+    if (mistakeMiniTopicLabel) {
+      return `${mainScopeLabel} + up to ${MINI_SECTION_TARGET} from ${mistakeMiniTopicLabel} (mistake-focus)`;
+    }
+    return mainScopeLabel;
   })();
 
   // Which section IDs should appear "checked" in the preview card.
@@ -710,19 +741,26 @@ export default function DesktopWorksheetsPage() {
     return new Set<string>(effectiveSections as string[]);
   })();
 
-  // Honest preview chip line.
+  // Honest preview chip line. Always shows the main scope first; the
+  // add-on is appended as a separate clause so the user can see at a
+  // glance that the mini-section is additive, not a replacement.
   const previewLine = (() => {
     const scopeStr = sectionScopeLabel(effectiveSections);
-    return `${previewTopicLabel} · ${scopeStr} · up to ${effectiveCount} questions`;
+    const base = `${mainScopeLabel} · ${scopeStr} · up to ${effectiveCount} main question${effectiveCount === 1 ? "" : "s"}`;
+    if (mistakeMiniTopicLabel) {
+      return `${base} + up to ${MINI_SECTION_TARGET} mistake-focus questions from ${mistakeMiniTopicLabel}`;
+    }
+    return base;
   })();
 
   // Validity rules so Generate can short-circuit with a useful message.
+  // Mistake-aware no longer relaxes scope validity — it's an add-on, so
+  // the main scope must still be valid on its own.
   const generationBlockerMessage: string | null = (() => {
-    if (mistakeAware) return null; // already validated by canEnableMistakeAware
-    if (paperScope === "multi-topic" && generationTopicKeys.length < 2) {
+    if (paperScope === "multi-topic" && mainGenerationTopicKeys.length < 2) {
       return "Pick at least 2 topics to build a multi-topic worksheet.";
     }
-    if (paperScope === "full-subject" && generationTopicKeys.length === 0) {
+    if (paperScope === "full-subject" && mainGenerationTopicKeys.length === 0) {
       return "No topics available for this subject + stream combination.";
     }
     return null;
@@ -734,7 +772,7 @@ export default function DesktopWorksheetsPage() {
     { label: "Class 10 · CBSE", tone: "info" as const },
     {
       label: paperScope === "topic" ? "Single topic"
-        : paperScope === "multi-topic" ? `Multi-topic · ${generationTopicKeys.length}`
+        : paperScope === "multi-topic" ? `Multi-topic · ${mainGenerationTopicKeys.length}`
         : "Full subject",
       tone: "neutral" as const,
     },
@@ -742,16 +780,21 @@ export default function DesktopWorksheetsPage() {
       label: mode === "preset" ? `Preset: ${activePreset.label}` : "Custom filters",
       tone: "neutral" as const,
     },
+    ...(mistakeMiniTopicLabel
+      ? [{ label: `+ Mistake-focus: ${mistakeMiniTopicLabel}`, tone: "neutral" as const }]
+      : []),
   ];
 
   // Build the canonical desktop-worksheet path so Upload-your-answers can
   // round-trip the user back to the exact same scope (source + returnTo).
+  // Mistake-aware is now an additive flag, not a scope replacement, so
+  // the path always reflects the MAIN scope keys (not the add-on).
   const currentWorksheetPath = buildDesktopWorksheetPath({
     scope: paperScope,
     subject,
     stream,
     topic: paperScope === "topic" ? topicKey : undefined,
-    topics: paperScope === "multi-topic" ? generationTopicKeys : undefined,
+    topics: paperScope === "multi-topic" ? mainGenerationTopicKeys : undefined,
     mistakeAware,
     source: "worksheet",
   });
@@ -789,12 +832,17 @@ export default function DesktopWorksheetsPage() {
       subject,
       stream,
       scope:        paperScope,
-      topicKeys:    generationTopicKeys,
+      // MAIN scope keys only — the mistake-focus add-on is recorded
+      // separately so the saved entry honestly distinguishes
+      // "what the user picked" from "what the add-on injected".
+      topicKeys:    mainGenerationTopicKeys,
       topicLabel:   previewTopicLabel,
       sections:     sectionsForSave,
       difficulty:   effectiveDifficulty,
       count:        effectiveCount,
       mistakeAware,
+      mistakeFocusTopicKey:   mistakeMiniTopicKey,
+      mistakeFocusTopicLabel: mistakeMiniTopicLabel,
     });
     if (record) {
       setSaveStatus("saved");
@@ -809,7 +857,7 @@ export default function DesktopWorksheetsPage() {
     }
   }
 
-  // ── Generation (real, multi-topic + full-subject aware) ───────────────
+  // ── Generation (additive: main scope + optional mistake-focus add-on) ──
   async function handleGenerate() {
     setError(null);
     setInfo(null);
@@ -824,18 +872,18 @@ export default function DesktopWorksheetsPage() {
       const sectionsArg: string[] | undefined =
         effectiveSections === "All" ? undefined : (effectiveSections as string[]);
 
-      // Multi-topic + full-subject aggregation:
-      //   - Call the production generator once per topic with
+      // ── Step 1: build the MAIN worksheet from the user's selected scope.
+      //   - Call the production generator once per main-scope topic with
       //     allowRepeats:false so each call returns the unique pool for
       //     that topic (truthful sparse counts).
       //   - De-duplicate across topics by question.id.
       //   - Shuffle the combined unique set, then truncate to the
       //     requested count. A smaller result means the bank genuinely
       //     has fewer matching unique questions across the chosen scope.
-      const seenIds = new Set<string>();
-      const collected: PracticeQuestion[] = [];
+      const mainSeenIds = new Set<string>();
+      const mainCollected: PracticeQuestion[] = [];
 
-      for (const tk of generationTopicKeys) {
+      for (const tk of mainGenerationTopicKeys) {
         const perTopic = generatePracticeQuestions({
           subject: subject as LTSubjectKey,
           topicKey: tk,
@@ -850,20 +898,61 @@ export default function DesktopWorksheetsPage() {
           allowRepeats: false,
         });
         for (const q of perTopic) {
-          if (!seenIds.has(q.id)) {
-            seenIds.add(q.id);
-            collected.push(q);
+          if (!mainSeenIds.has(q.id)) {
+            mainSeenIds.add(q.id);
+            mainCollected.push(q);
           }
         }
       }
 
-      // Shuffle the combined unique set so multi-topic / full-subject
+      // Shuffle the combined unique main set so multi-topic / full-subject
       // worksheets aren't visually clumped by topic.
-      for (let i = collected.length - 1; i > 0; i -= 1) {
+      for (let i = mainCollected.length - 1; i > 0; i -= 1) {
         const j = Math.floor(Math.random() * (i + 1));
-        [collected[i], collected[j]] = [collected[j], collected[i]];
+        [mainCollected[i], mainCollected[j]] = [mainCollected[j], mainCollected[i]];
       }
-      const finalSet = collected.slice(0, effectiveCount);
+      const mainFinal = mainCollected.slice(0, effectiveCount);
+
+      // ── Step 2: optional MISTAKE-FOCUS mini-section (additive).
+      //   - Generates from `mistakeMiniTopicKey` only when the toggle is
+      //     on AND a mappable hotspot is available.
+      //   - Uses the SAME difficulty + section filter as the main set so
+      //     the worksheet feels coherent (no surprise hard 5-mark
+      //     questions slipping into a Quick drill).
+      //   - Targets up to MINI_SECTION_TARGET (5) extra questions; falls
+      //     back to fewer when the bank is sparse. Min target
+      //     (MINI_SECTION_MIN, 3) drives the truthful-sparse copy.
+      //   - De-duplicates against the main set by question.id so the
+      //     learner never sees the same question twice in one worksheet.
+      const miniFinal: PracticeQuestion[] = [];
+      let miniRequested = 0;
+      if (mistakeMiniTopicKey) {
+        miniRequested = MINI_SECTION_TARGET;
+        const miniPool = generatePracticeQuestions({
+          subject: subject as LTSubjectKey,
+          topicKey: mistakeMiniTopicKey,
+          // Pull a generous over-sample so dedup against the main set
+          // still leaves room to hit the mini target. allowRepeats:false
+          // keeps this honest — no duplicated questions inside the mini.
+          count: miniRequested * 4,
+          difficulty: effectiveDifficulty === "All"
+            ? undefined
+            : (effectiveDifficulty as never),
+          sections: sectionsArg,
+          allowRepeats: false,
+        });
+        for (const q of miniPool) {
+          if (miniFinal.length >= miniRequested) break;
+          if (!mainSeenIds.has(q.id)) miniFinal.push(q);
+        }
+      }
+
+      // Final question array: main first, then the mini-section appended
+      // at the end. The mini is intentionally NOT shuffled into the main
+      // pool — it stays as a coherent trailing block so a learner can see
+      // the focused questions together. The combined topicLabel above
+      // describes both.
+      const finalSet: PracticeQuestion[] = [...mainFinal, ...miniFinal];
 
       if (finalSet.length === 0) {
         const scopeStr = sectionScopeLabel(effectiveSections);
@@ -875,11 +964,35 @@ export default function DesktopWorksheetsPage() {
         return;
       }
 
-      if (finalSet.length < effectiveCount) {
-        setInfo(
-          `The bank only has ${finalSet.length} unique question${finalSet.length === 1 ? "" : "s"} ` +
-          `matching this scope right now — generating the truthful smaller worksheet (no duplicates).`,
+      // Honest sparse-bank copy. Each clause only fires when relevant so
+      // the user always sees the truth about what was actually generated.
+      const honestyClauses: string[] = [];
+      if (mainFinal.length < effectiveCount) {
+        honestyClauses.push(
+          `the main bank only had ${mainFinal.length} unique question${mainFinal.length === 1 ? "" : "s"} matching this scope`,
         );
+      }
+      if (mistakeMiniTopicKey) {
+        if (miniFinal.length === 0) {
+          honestyClauses.push(
+            `no extra mistake-focus questions could be added (the bank had no unique entries for ${mistakeMiniTopicLabel} after de-duplicating against the main set)`,
+          );
+        } else if (miniFinal.length < MINI_SECTION_MIN) {
+          honestyClauses.push(
+            `only ${miniFinal.length} mistake-focus question${miniFinal.length === 1 ? "" : "s"} could be added (target was ${MINI_SECTION_TARGET})`,
+          );
+        } else if (miniFinal.length < miniRequested) {
+          honestyClauses.push(
+            `${miniFinal.length} mistake-focus question${miniFinal.length === 1 ? "" : "s"} added (target was up to ${MINI_SECTION_TARGET})`,
+          );
+        } else {
+          honestyClauses.push(
+            `${miniFinal.length} mistake-focus question${miniFinal.length === 1 ? "" : "s"} appended from ${mistakeMiniTopicLabel}`,
+          );
+        }
+      }
+      if (honestyClauses.length > 0) {
+        setInfo(`Honest scope: ${honestyClauses.join("; ")}.`);
       }
 
       const opts: WorksheetOptions = {
@@ -1587,7 +1700,7 @@ export default function DesktopWorksheetsPage() {
               </p>
             </div>
 
-            {/* Mistake-aware mini-section banner (real data) */}
+            {/* Mistake-aware mini-section banner (real data, additive). */}
             {mistakeAware && mistakeHotspotForActiveScope ? (
               <div
                 style={{
@@ -1604,15 +1717,24 @@ export default function DesktopWorksheetsPage() {
                 }}
               >
                 <div style={{ display: "inline-flex", alignItems: "center", gap: 6, fontWeight: 700 }}>
-                  <IconSparkles /> Mistake-focus mini-section
+                  <IconSparkles /> Mistake-focus mini-section (additive)
                 </div>
                 <div>
                   <strong>{mistakeHotspotForActiveScope.topTopicLabel}</strong>
                   {" — "}
                   {MISTAKE_KIND_LABEL[mistakeHotspotForActiveScope.topMistakeKind ?? "conceptual"].toLowerCase()} mistakes (last {mistakeHotspotForActiveScope.recentDays} days, {mistakeHotspotForActiveScope.totalEntries} graded entries).
                 </div>
+                <div style={{ fontSize: 12 }}>
+                  Adds up to <strong>{MINI_SECTION_TARGET}</strong> extra
+                  questions on top of your main scope ({mainScopeLabel}).
+                  Your main scope is preserved — this is an add-on, not a
+                  replacement.
+                </div>
                 <div style={{ fontSize: 11, opacity: 0.85 }}>
-                  Recommended, not required. Generation will use this single topic.
+                  Recommended, not required. Mini-section uses the same
+                  difficulty + section filter as the main worksheet, and
+                  is de-duplicated against the main set so no question
+                  appears twice.
                 </div>
               </div>
             ) : null}
@@ -1638,11 +1760,17 @@ export default function DesktopWorksheetsPage() {
                 label="Scope"
                 value={
                   paperScope === "topic" ? "Single topic"
-                    : paperScope === "multi-topic" ? `Multi-topic · ${generationTopicKeys.length}`
-                    : `Full subject · ${generationTopicKeys.length} topics`
+                    : paperScope === "multi-topic" ? `Multi-topic · ${mainGenerationTopicKeys.length}`
+                    : `Full subject · ${mainGenerationTopicKeys.length} topics`
                 }
               />
-              <SummaryRow label="Topic" value={previewTopicLabel} />
+              <SummaryRow label="Main topics" value={mainScopeLabel} />
+              {mistakeMiniTopicLabel ? (
+                <SummaryRow
+                  label="Mistake-focus add-on"
+                  value={`${mistakeMiniTopicLabel} (up to ${MINI_SECTION_TARGET} extra)`}
+                />
+              ) : null}
               <SummaryRow
                 label="Sections"
                 value={sectionScopeLabel(effectiveSections)}
@@ -1651,7 +1779,15 @@ export default function DesktopWorksheetsPage() {
                 label="Difficulty"
                 value={effectiveDifficulty === "All" ? "All levels" : effectiveDifficulty}
               />
-              <SummaryRow label="Question count" value={`up to ${effectiveCount}`} accent />
+              <SummaryRow
+                label="Question count"
+                value={
+                  mistakeMiniTopicLabel
+                    ? `up to ${effectiveCount} main + up to ${MINI_SECTION_TARGET} mistake-focus`
+                    : `up to ${effectiveCount}`
+                }
+                accent
+              />
             </ul>
 
             {error ? (

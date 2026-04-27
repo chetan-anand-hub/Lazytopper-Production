@@ -48,18 +48,24 @@ export interface SavedWorksheet {
   stream: SavedStream;
   scope: SavedScope;
   /**
+   * MAIN scope keys (the user's selected scope, never the mistake add-on).
    * For `topic` scope: single key.
    * For `multi-topic` scope: 2+ keys.
    * For `full-subject` scope: every key the page generated against (the
    * full subject/stream filter at save-time, persisted explicitly so the
    * recovered plan reproduces the exact same scope even if the catalogue
    * changes later).
+   *
+   * The mistake-focus add-on topic (when enabled) is persisted separately
+   * in `mistakeFocusTopicKey` so the saved record honestly distinguishes
+   * "what the user picked" from "what the add-on injected".
    */
   topicKeys: string[];
   /**
    * Human-readable topic display string, persisted at save-time so the
    * saved-list does not need to re-resolve labels after a catalogue
-   * rename.
+   * rename. Reflects the MAIN scope only — the mistake-focus add-on is
+   * captured in `mistakeFocusTopicLabel` instead.
    */
   topicLabel: string;
   sections: SavedSectionFilter;
@@ -67,6 +73,25 @@ export interface SavedWorksheet {
   count: number;
   /** Whether the user had the mistake-focus mini-section toggled on. */
   mistakeAware: boolean;
+  /**
+   * Optional add-on topic key for the mistake-focus mini-section.
+   * - Present (string) when the user toggled "Add mistake-focus
+   *   mini-section" on AND a valid mappable hotspot was available at
+   *   save-time. Mini-section adds extra real questions from this topic
+   *   on top of the main scope; it never replaces it.
+   * - `null` when mistakeAware is true but no mappable hotspot was
+   *   available (e.g. no graded entries yet at the moment of save).
+   * - `undefined` (field omitted) when mistakeAware is false, OR for
+   *   records persisted before this field existed (backwards-compatible
+   *   read — `isSavedWorksheet` accepts missing field).
+   */
+  mistakeFocusTopicKey?: string | null;
+  /**
+   * Optional add-on topic label, persisted alongside
+   * `mistakeFocusTopicKey` so the saved-list can show the human label
+   * without re-resolving against a catalogue that may have shifted.
+   */
+  mistakeFocusTopicLabel?: string | null;
 }
 
 const isBrowser = (): boolean =>
@@ -97,6 +122,17 @@ function isSavedWorksheet(value: unknown): value is SavedWorksheet {
   }
   if (!isNumber(v.count)) return false;
   if (!isBoolean(v.mistakeAware)) return false;
+  // Optional add-on fields — accept missing (older record) / null / string.
+  if (
+    v.mistakeFocusTopicKey !== undefined &&
+    v.mistakeFocusTopicKey !== null &&
+    !isString(v.mistakeFocusTopicKey)
+  ) return false;
+  if (
+    v.mistakeFocusTopicLabel !== undefined &&
+    v.mistakeFocusTopicLabel !== null &&
+    !isString(v.mistakeFocusTopicLabel)
+  ) return false;
   return true;
 }
 
