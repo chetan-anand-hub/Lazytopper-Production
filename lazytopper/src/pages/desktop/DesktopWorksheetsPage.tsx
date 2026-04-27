@@ -1,7 +1,13 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useSubjectContext } from "../../hooks/useSubjectContext";
 import { ContextBar } from "../../components/desktop/l2/ContextBar";
+import { BackToParent } from "../../components/desktop/l2/BackToParent";
+import { MistakeIntelligencePanel } from "../../components/desktop/l2/MistakeIntelligencePanel";
+import {
+  buildDesktopCheckPath,
+  buildDesktopWorksheetPath,
+} from "../../lib/desktop/navigation";
 import { generatePracticeQuestions } from "../../data/predictionDataService";
 import type { LTSubjectKey } from "../../data/predictionTypes";
 import { sectionScopeLabel } from "../../components/practice/worksheetGenerator";
@@ -11,10 +17,10 @@ import type {
 } from "../../components/practice/worksheetGenerator";
 
 /**
- * DesktopWorksheetsPage — Level 2 graduation (PR-D).
+ * DesktopWorksheetsPage — Level 2 graduation (PR-D, parity correction pass).
  *
  * Reference (final desktop prototype):
- *   chetan-anand-hub/topic-focus-lite — worksheet workspace pattern
+ *   chetan-anand-hub/topic-focus-lite — src/pages/WorksheetPage.tsx
  *
  * Mobile parity: this page is a desktop sibling of
  *   lazytopper/src/pages/app/Worksheets.tsx
@@ -26,20 +32,30 @@ import type {
  * so the existing WorksheetReady page works for both desktop and mobile
  * without modification. Mobile Worksheets.tsx is NOT touched.
  *
- * Composition (single file):
- *   1. ContextBar — intent-first header ("What worksheet do you want to build?")
- *   2. Setup panel (left) — Subject toggle (Maths/Science) · Class 10 · CBSE
- *      indicator · Topic select · Preset vs Custom mode tabs · Preset list or
- *      Custom controls (Section / Difficulty / Count)
- *   3. Blueprint preview (right) — truthful summary of what *will be*
- *      generated, plus the Generate CTA and any honest empty/error message
+ * Composition (single file, mirrors prototype shape):
+ *   1. BackToParent — returns to /practice-hub or to ?source/?returnTo if set
+ *   2. ContextBar — intent-first header, with right-slot mistake-aware toggle
+ *      that is honestly disabled because real per-learner mistake data is
+ *      not yet wired into the desktop graduation surface
+ *   3. ScopeBuilder-shaped card (left) — Subject + Stream (Science only) +
+ *      Scope mode (Single topic enabled; Multi-topic & Full subject visible
+ *      but disabled with honest copy) + Topic single-select list
+ *   4. Build-mode card (left) — Preset list OR Custom (difficulty + count)
+ *   5. Worksheet preview card (right) — preview line/chip, Section A–E
+ *      checkbox-style rows (interactive in custom mode, locked in preset
+ *      mode), format chips, honest summary list, error message, Generate
+ *      CTA, Save worksheet (honestly disabled), Upload your answers (links
+ *      to /check-improve with source/returnTo)
+ *   6. MistakeIntelligencePanel (right) — empty-state copy that points to
+ *      Check & Improve to unlock mistake-focus worksheets
  *
  * Production constraints:
  *   - Inline styles only (no Tailwind, no shadcn classes).
  *   - Inline SVG only (no lucide-react).
  *   - Light theme tokens shared with DesktopShell + DesktopHome + DesktopPracticePage.
- *   - No new npm dependency. No PR #17 imports. No new generator — reuses
- *     the exact production generator the mobile Worksheets page already uses.
+ *   - No new npm dependency. No PR #17 imports. No invented learner mistake
+ *     data. No new generator — reuses the exact production generator the
+ *     mobile Worksheets page already uses.
  */
 
 // ── Mirror mobile constants exactly so generation behavior is identical. ──
@@ -60,19 +76,27 @@ const MATHS_TOPICS = [
   { key: "probability",               label: "Probability" },
 ];
 
-const SCIENCE_TOPICS = [
-  { key: "chemical-reactions-equations", label: "Chemical Reactions" },
-  { key: "acids-bases-salts",           label: "Acids, Bases & Salts" },
-  { key: "metals-non-metals",           label: "Metals & Non-Metals" },
-  { key: "carbon-and-its-compounds",    label: "Carbon Compounds" },
-  { key: "life-processes",              label: "Life Processes" },
-  { key: "control-and-coordination",    label: "Control & Coordination" },
-  { key: "reproduction",                label: "Reproduction" },
-  { key: "heredity-and-evolution",      label: "Heredity & Evolution" },
-  { key: "light",                       label: "Light – Reflection & Refraction" },
-  { key: "electricity",                 label: "Electricity" },
-  { key: "magnetic-effects",            label: "Magnetic Effects of Current" },
-  { key: "our-environment",             label: "Our Environment" },
+type ScienceStream = "All" | "Physics" | "Chemistry" | "Biology";
+
+interface ScienceTopic {
+  key: string;
+  label: string;
+  stream: Exclude<ScienceStream, "All">;
+}
+
+const SCIENCE_TOPICS: ScienceTopic[] = [
+  { key: "chemical-reactions-equations", label: "Chemical Reactions",            stream: "Chemistry" },
+  { key: "acids-bases-salts",            label: "Acids, Bases & Salts",          stream: "Chemistry" },
+  { key: "metals-non-metals",            label: "Metals & Non-Metals",           stream: "Chemistry" },
+  { key: "carbon-and-its-compounds",     label: "Carbon Compounds",              stream: "Chemistry" },
+  { key: "life-processes",               label: "Life Processes",                stream: "Biology"   },
+  { key: "control-and-coordination",     label: "Control & Coordination",        stream: "Biology"   },
+  { key: "reproduction",                 label: "Reproduction",                  stream: "Biology"   },
+  { key: "heredity-and-evolution",       label: "Heredity & Evolution",          stream: "Biology"   },
+  { key: "light",                        label: "Light – Reflection & Refraction", stream: "Physics" },
+  { key: "electricity",                  label: "Electricity",                   stream: "Physics"   },
+  { key: "magnetic-effects",             label: "Magnetic Effects of Current",   stream: "Physics"   },
+  { key: "our-environment",              label: "Our Environment",               stream: "Biology"   },
 ];
 
 interface PresetConfig {
@@ -111,10 +135,38 @@ const PRESETS: PresetConfig[] = [
   },
 ];
 
-const SECTIONS = ["All", "A", "B", "C", "D", "E"] as const;
+const ALL_SECTIONS = ["A", "B", "C", "D", "E"] as const;
+type SectionId = typeof ALL_SECTIONS[number];
+
+interface SectionMeta {
+  id: SectionId;
+  label: string;
+}
+
+// Prototype-shape section labels (mark weight + format hint).
+const SECTION_META: SectionMeta[] = [
+  { id: "A", label: "Section A · MCQ / Assertion-Reason (1m)" },
+  { id: "B", label: "Section B · Short Answer I (2m)" },
+  { id: "C", label: "Section C · Short Answer II (3m)" },
+  { id: "D", label: "Section D · Long Answer (5m)" },
+  { id: "E", label: "Section E · Case-based (4m)" },
+];
+
+const FORMAT_CHIPS = [
+  "MCQ",
+  "Short answer",
+  "Long answer",
+  "Case-based",
+  "Assertion-Reason",
+  "Diagram",
+  "Numerical",
+  "Proof",
+];
+
 const DIFFICULTIES = ["All", "Easy", "Medium", "Hard"] as const;
 
 type Mode = "preset" | "custom";
+type PaperScope = "topic" | "multi-topic" | "full-subject";
 
 // ── Tokens (parity with DesktopPracticePage) ──────────────────────────────
 const PRIMARY_GREEN = "hsl(152, 55%, 45%)";
@@ -125,6 +177,7 @@ const TEXT_MUTED = "hsl(220, 15%, 42%)";
 const BORDER = "hsl(220, 18%, 90%)";
 const CARD_BG = "#ffffff";
 const PILL_BG = "hsl(210, 33%, 96%)";
+const DISABLED_FG = "hsl(220, 12%, 60%)";
 const DANGER_FG = "hsl(0, 65%, 38%)";
 const DANGER_BG = "hsl(0, 75%, 96%)";
 const DANGER_BORDER = "hsl(0, 70%, 88%)";
@@ -160,6 +213,23 @@ function IconArrowRight({ size = 16 }: { size?: number }) {
     </svg>
   );
 }
+function IconLock({ size = 12 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" style={IconStroke} aria-hidden>
+      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+    </svg>
+  );
+}
+function IconSave({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" style={IconStroke} aria-hidden>
+      <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+      <polyline points="17 21 17 13 7 13 7 21" />
+      <polyline points="7 3 7 8 15 8" />
+    </svg>
+  );
+}
 
 // ── Small helpers ─────────────────────────────────────────────────────────
 function SectionLabel({ children }: { children: React.ReactNode }) {
@@ -176,6 +246,49 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
     >
       {children}
     </div>
+  );
+}
+
+function ScopeButton({
+  active,
+  disabled,
+  onClick,
+  children,
+  title,
+}: {
+  active: boolean;
+  disabled?: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+  title?: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={disabled ? undefined : onClick}
+      disabled={disabled}
+      title={title}
+      style={{
+        appearance: "none",
+        WebkitAppearance: "none",
+        border: `1px solid ${active ? PRIMARY_GREEN : BORDER}`,
+        background: active ? PRIMARY_GREEN_SOFT : CARD_BG,
+        color: disabled ? DISABLED_FG : (active ? PRIMARY_GREEN_FG : TEXT_FG),
+        padding: "6px 12px",
+        borderRadius: 8,
+        fontSize: 13,
+        fontWeight: active ? 600 : 500,
+        cursor: disabled ? "not-allowed" : "pointer",
+        opacity: disabled ? 0.7 : 1,
+        fontFamily: FONT_BODY,
+        transition: "background 120ms ease, border-color 120ms ease, color 120ms ease",
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 6,
+      }}
+    >
+      {children}
+    </button>
   );
 }
 
@@ -223,38 +336,111 @@ export default function DesktopWorksheetsPage() {
   const [subject, setSubject] = React.useState<"Maths" | "Science">(
     (ctx.subject as "Maths" | "Science") || "Maths",
   );
-  const topics = subject === "Maths" ? MATHS_TOPICS : SCIENCE_TOPICS;
+  const [stream, setStream]   = React.useState<ScienceStream>("All");
+  // Multi-topic and full-subject are honest scope shapes from the prototype.
+  // The production worksheet generator currently only supports a single
+  // topic, so those scope modes are visible but disabled — see ScopeBuilder
+  // section below. Default scope is the supported "topic" mode.
+  const [paperScope, setPaperScope] = React.useState<PaperScope>("topic");
 
-  const [topicKey, setTopicKey]     = React.useState(topics[0].key);
+  const topics = subject === "Maths"
+    ? MATHS_TOPICS
+    : SCIENCE_TOPICS.filter((t) => stream === "All" || t.stream === stream);
+
+  const [topicKey, setTopicKey] = React.useState(topics[0].key);
+
+  // Re-sync topicKey whenever the visible topic list changes (subject or
+  // science stream filter changed) so we never keep a stale slug.
+  React.useEffect(() => {
+    if (!topics.find((t) => t.key === topicKey)) {
+      setTopicKey(topics[0].key);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [subject, stream]);
+
   const [mode, setMode]             = React.useState<Mode>("preset");
   const [preset, setPreset]         = React.useState<string>("board-mix");
-  const [section, setSection]       = React.useState<typeof SECTIONS[number]>("All");
-  const [difficulty, setDifficulty] = React.useState<typeof DIFFICULTIES[number]>("All");
+  const [customSections, setCustomSections] =
+    React.useState<SectionId[]>([...ALL_SECTIONS]);
+  const [difficulty, setDifficulty] =
+    React.useState<typeof DIFFICULTIES[number]>("All");
   const [count, setCount]           = React.useState(20);
   const [generating, setGenerating] = React.useState(false);
   const [error, setError]           = React.useState<string | null>(null);
 
   function switchSubject(s: "Maths" | "Science") {
-    const newTopics = s === "Maths" ? MATHS_TOPICS : SCIENCE_TOPICS;
     setSubject(s);
-    setTopicKey(newTopics[0].key);
+    if (s === "Maths") setStream("All");
   }
 
-  // Mirror mobile handleGenerate exactly so generation behavior is identical.
+  function toggleCustomSection(id: SectionId) {
+    setCustomSections((prev) => {
+      if (prev.includes(id)) {
+        // Always keep at least one section selected so generation never
+        // produces an empty sections filter accidentally.
+        const next = prev.filter((s) => s !== id);
+        return next.length === 0 ? prev : next;
+      }
+      return [...prev, id];
+    });
+  }
+
+  // Compute effective scope for both UI preview and generation.
+  const activePreset = PRESETS.find((p) => p.key === preset)!;
+  const effectiveDifficulty = mode === "preset" ? activePreset.difficulty : difficulty;
+  const effectiveCount      = mode === "preset" ? activePreset.count      : count;
+  const effectiveSections: SectionScope = (() => {
+    if (mode === "preset") return activePreset.sections;
+    if (customSections.length === ALL_SECTIONS.length) return "All";
+    return [...customSections].sort();
+  })();
+
+  const topicLabel = topics.find((t) => t.key === topicKey)?.label ?? topicKey;
+
+  // Which section IDs should appear "checked" in the preview card.
+  const previewActiveSections: Set<string> = (() => {
+    if (effectiveSections === "All") return new Set<string>(ALL_SECTIONS);
+    return new Set<string>(effectiveSections as string[]);
+  })();
+
+  // Honest preview chip line (mirrors prototype previewLine shape).
+  const previewLine = (() => {
+    const scopeStr = sectionScopeLabel(effectiveSections);
+    return `${topicLabel} worksheet · ${scopeStr} · ${effectiveCount} questions`;
+  })();
+
+  // ContextBar chips
+  const chips = [
+    { label: subject, tone: "accent" as const },
+    { label: "Class 10 · CBSE", tone: "info" as const },
+    { label: `Topic: ${topicLabel}`, tone: "neutral" as const },
+    {
+      label: mode === "preset" ? `Preset: ${activePreset.label}` : "Custom filters",
+      tone: "neutral" as const,
+    },
+  ];
+
+  // Build the current desktop-worksheet path so Upload-your-answers can
+  // round-trip the user back to the exact same scope (source + returnTo).
+  const currentWorksheetPath = buildDesktopWorksheetPath({
+    scope: paperScope,
+    subject,
+    stream,
+    topic: paperScope === "topic" ? topicKey : undefined,
+    source: "worksheet",
+  });
+
+  const checkPath = buildDesktopCheckPath(topicKey, {
+    source: "worksheet",
+    returnTo: currentWorksheetPath,
+  });
+
+  // Keep the same generation contract the mobile page uses.
   // Source: lazytopper/src/pages/app/Worksheets.tsx — handleGenerate
   async function handleGenerate() {
     setError(null);
     setGenerating(true);
     try {
-      const p = PRESETS.find((x) => x.key === preset)!;
-      const effectiveDifficulty = mode === "preset" ? p.difficulty : difficulty;
-      const effectiveCount      = mode === "preset" ? p.count      : count;
-
-      const effectiveSections: SectionScope =
-        mode === "preset"
-          ? p.sections
-          : section === "All" ? "All" : [section];
-
       const sectionsArg: string[] | undefined =
         effectiveSections === "All" ? undefined : (effectiveSections as string[]);
 
@@ -265,8 +451,8 @@ export default function DesktopWorksheetsPage() {
         difficulty: effectiveDifficulty === "All" ? undefined : effectiveDifficulty as never,
         sections: sectionsArg,
         // Worksheets must never repeat questions to inflate count — same
-        // contract mobile uses. A smaller result means the bank genuinely has
-        // fewer matching unique questions.
+        // contract mobile uses. A smaller result means the bank genuinely
+        // has fewer matching unique questions.
         allowRepeats: false,
       });
 
@@ -280,7 +466,6 @@ export default function DesktopWorksheetsPage() {
         return;
       }
 
-      const topicLabel = topics.find((t) => t.key === topicKey)?.label ?? topicKey;
       const opts: WorksheetOptions = {
         topicLabel,
         subjectKey: subject,
@@ -298,41 +483,66 @@ export default function DesktopWorksheetsPage() {
     }
   }
 
-  const activePreset = PRESETS.find((p) => p.key === preset)!;
-  const effectiveDifficulty = mode === "preset" ? activePreset.difficulty : difficulty;
-  const effectiveCount      = mode === "preset" ? activePreset.count      : count;
-  const effectiveSections: SectionScope =
-    mode === "preset"
-      ? activePreset.sections
-      : section === "All" ? "All" : [section];
-  const topicLabel = topics.find((t) => t.key === topicKey)?.label ?? topicKey;
+  // Mistake-aware mini-toggle: kept in the prototype's right-of-ContextBar
+  // slot, but honestly disabled because real per-learner mistake intel is
+  // not yet wired into the desktop graduation surface.
+  const mistakeToggleNote =
+    "Grade an answer in Check & Improve to unlock mistake-focus worksheets.";
 
-  // Honest header chips that describe the active scope.
-  const chips = [
-    { label: subject, tone: "accent" as const },
-    { label: "Class 10 · CBSE", tone: "info" as const },
-    { label: `Topic: ${topicLabel}`, tone: "neutral" as const },
-    {
-      label: mode === "preset" ? `Preset: ${activePreset.label}` : "Custom filters",
-      tone: "neutral" as const,
-    },
-  ];
+  const mistakeToggle = (
+    <span
+      title={mistakeToggleNote}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 8,
+        padding: "6px 10px",
+        background: PILL_BG,
+        border: `1px solid ${BORDER}`,
+        borderRadius: 999,
+        color: TEXT_MUTED,
+        fontSize: 12,
+        fontWeight: 500,
+        cursor: "not-allowed",
+        opacity: 0.85,
+        fontFamily: FONT_BODY,
+      }}
+      aria-disabled="true"
+    >
+      <input
+        type="checkbox"
+        checked={false}
+        readOnly
+        disabled
+        style={{ accentColor: PRIMARY_GREEN, cursor: "not-allowed" }}
+        aria-label="Add mistake-focus mini-section (not yet available)"
+      />
+      <IconLock />
+      Add mistake-focus mini-section
+    </span>
+  );
 
   return (
     <div
       style={{
-        padding: "32px 32px 56px",
+        padding: "24px 32px 56px",
         maxWidth: 1180,
         margin: "0 auto",
         fontFamily: FONT_BODY,
         color: TEXT_FG,
       }}
     >
+      <BackToParent
+        fallbackPath="/practice-hub"
+        fallbackLabel="Back to Practice"
+      />
+
       <ContextBar
         eyebrow="Practice · Worksheet"
         title="What worksheet do you want to build?"
         subtitle="Pick a topic, then choose a board-pattern preset or set your own filters. Nothing is generated until you press Generate — the preview on the right shows exactly what will come out."
         chips={chips}
+        right={mistakeToggle}
       />
 
       <div
@@ -346,7 +556,7 @@ export default function DesktopWorksheetsPage() {
         {/* ── LEFT — setup panel ───────────────────────────────────── */}
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
 
-          {/* Subject + class + topic card */}
+          {/* ── ScopeBuilder-shaped card (subject / stream / scope / topic) ── */}
           <section
             style={{
               background: CARD_BG,
@@ -355,49 +565,34 @@ export default function DesktopWorksheetsPage() {
               padding: 20,
               display: "flex",
               flexDirection: "column",
-              gap: 16,
+              gap: 18,
             }}
           >
-            <div>
-              <SectionLabel>Subject &amp; class</SectionLabel>
+            <h3
+              style={{
+                fontFamily: FONT_DISPLAY,
+                fontSize: 17,
+                fontWeight: 600,
+                color: TEXT_FG,
+                margin: 0,
+              }}
+            >
+              Study scope
+            </h3>
 
-              {/* Subject segmented control */}
-              <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+            {/* Subject */}
+            <div>
+              <SectionLabel>Subject</SectionLabel>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                 {(["Maths", "Science"] as const).map((s) => (
-                  <button
+                  <ScopeButton
                     key={s}
-                    type="button"
+                    active={subject === s}
                     onClick={() => switchSubject(s)}
-                    style={{
-                      flex: 1,
-                      height: 38,
-                      borderRadius: 10,
-                      border: subject === s ? "none" : `1px solid ${BORDER}`,
-                      background: subject === s ? PRIMARY_GREEN : PILL_BG,
-                      color: subject === s ? "#ffffff" : TEXT_MUTED,
-                      fontFamily: FONT_BODY,
-                      fontWeight: 600,
-                      fontSize: "0.88rem",
-                      cursor: "pointer",
-                      transition: "background 0.15s, color 0.15s",
-                    }}
                   >
                     {s}
-                  </button>
+                  </ScopeButton>
                 ))}
-              </div>
-
-              {/* Class indicator */}
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  fontSize: 13,
-                  color: TEXT_MUTED,
-                }}
-              >
-                <span>Class</span>
                 <span
                   style={{
                     display: "inline-flex",
@@ -409,6 +604,7 @@ export default function DesktopWorksheetsPage() {
                     border: `1px solid ${BORDER}`,
                     fontSize: 12,
                     fontWeight: 500,
+                    marginLeft: "auto",
                   }}
                 >
                   Class 10 · CBSE
@@ -416,29 +612,114 @@ export default function DesktopWorksheetsPage() {
               </div>
             </div>
 
-            {/* Topic select */}
+            {/* Stream — Science only */}
+            {subject === "Science" ? (
+              <div>
+                <SectionLabel>Stream</SectionLabel>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  {(["All", "Physics", "Chemistry", "Biology"] as ScienceStream[]).map((st) => (
+                    <ScopeButton
+                      key={st}
+                      active={stream === st}
+                      onClick={() => setStream(st)}
+                    >
+                      {st}
+                    </ScopeButton>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
+            {/* Scope mode */}
             <div>
-              <SectionLabel>Topic</SectionLabel>
-              <select
-                value={topicKey}
-                onChange={(e) => setTopicKey(e.target.value)}
+              <SectionLabel>Scope</SectionLabel>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                <ScopeButton
+                  active={paperScope === "topic"}
+                  onClick={() => setPaperScope("topic")}
+                >
+                  Single topic
+                </ScopeButton>
+                <ScopeButton
+                  active={false}
+                  disabled
+                  onClick={() => {}}
+                  title="Multi-topic worksheets aren't available on desktop yet — generation currently uses one topic at a time."
+                >
+                  <IconLock /> Multi-topic
+                </ScopeButton>
+                <ScopeButton
+                  active={false}
+                  disabled
+                  onClick={() => {}}
+                  title="Full-subject worksheets aren't available on desktop yet — generation currently uses one topic at a time."
+                >
+                  <IconLock /> Full subject
+                </ScopeButton>
+              </div>
+              <p
                 style={{
-                  width: "100%",
-                  height: 42,
-                  borderRadius: 10,
-                  border: `1px solid ${BORDER}`,
-                  background: CARD_BG,
-                  color: TEXT_FG,
-                  fontFamily: FONT_BODY,
-                  fontSize: 14,
-                  padding: "0 12px",
-                  cursor: "pointer",
+                  margin: "8px 0 0",
+                  fontSize: 12,
+                  color: TEXT_MUTED,
+                  lineHeight: 1.5,
                 }}
               >
-                {topics.map((t) => (
-                  <option key={t.key} value={t.key}>{t.label}</option>
-                ))}
-              </select>
+                Multi-topic and full-subject worksheets aren&rsquo;t available on
+                desktop yet — generation currently uses the single selected
+                topic from the list below.
+              </p>
+            </div>
+
+            {/* Topic single-select */}
+            <div>
+              <SectionLabel>Topic</SectionLabel>
+              <ul
+                style={{
+                  listStyle: "none",
+                  margin: 0,
+                  padding: 0,
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+                  gap: 8,
+                  maxHeight: 264,
+                  overflowY: "auto",
+                  paddingRight: 4,
+                }}
+              >
+                {topics.map((t) => {
+                  const checked = topicKey === t.key;
+                  return (
+                    <li key={t.key}>
+                      <label
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 8,
+                          padding: "10px 12px",
+                          border: `1px solid ${checked ? PRIMARY_GREEN : BORDER}`,
+                          background: checked ? PRIMARY_GREEN_SOFT : PILL_BG,
+                          borderRadius: 10,
+                          cursor: "pointer",
+                          fontSize: 13,
+                          fontWeight: checked ? 600 : 500,
+                          color: checked ? PRIMARY_GREEN_FG : TEXT_FG,
+                          lineHeight: 1.3,
+                        }}
+                      >
+                        <input
+                          type="radio"
+                          name="desktop-worksheet-topic"
+                          checked={checked}
+                          onChange={() => setTopicKey(t.key)}
+                          style={{ accentColor: PRIMARY_GREEN, marginTop: 0 }}
+                        />
+                        <span style={{ minWidth: 0 }}>{t.label}</span>
+                      </label>
+                    </li>
+                  );
+                })}
+              </ul>
             </div>
           </section>
 
@@ -490,7 +771,7 @@ export default function DesktopWorksheetsPage() {
                   <div style={{ fontSize: 12, color: TEXT_MUTED, lineHeight: 1.5 }}>
                     {m === "preset"
                       ? "Curated board-pattern combinations"
-                      : "You control section, difficulty, and count"}
+                      : "You control sections, difficulty, and count"}
                   </div>
                 </button>
               ))}
@@ -552,17 +833,6 @@ export default function DesktopWorksheetsPage() {
             {mode === "custom" && (
               <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                 <div>
-                  <SectionLabel>Section (filters generated questions)</SectionLabel>
-                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                    {SECTIONS.map((s) => (
-                      <Pill key={s} active={section === s} onClick={() => setSection(s)}>
-                        {s === "All" ? "All sections" : `Section ${s}`}
-                      </Pill>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
                   <SectionLabel>Difficulty</SectionLabel>
                   <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                     {DIFFICULTIES.map((d) => (
@@ -614,13 +884,23 @@ export default function DesktopWorksheetsPage() {
                   >
                     <span>5</span><span>50</span>
                   </div>
+                  <p
+                    style={{
+                      margin: "8px 0 0",
+                      fontSize: 11,
+                      color: TEXT_MUTED,
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    Toggle sections in the worksheet preview on the right.
+                  </p>
                 </div>
               </div>
             )}
           </section>
         </div>
 
-        {/* ── RIGHT — preview / blueprint + generate ──────────────── */}
+        {/* ── RIGHT — preview / blueprint + mistake panel ─────────── */}
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           <section
             style={{
@@ -633,26 +913,138 @@ export default function DesktopWorksheetsPage() {
               gap: 16,
             }}
           >
-            <header style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            <header style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               <SectionLabel>Worksheet preview</SectionLabel>
-              <h2
+              <div
                 style={{
-                  fontFamily: FONT_DISPLAY,
-                  margin: 0,
-                  fontSize: "1.3rem",
-                  fontWeight: 600,
-                  letterSpacing: "-0.005em",
-                  color: TEXT_FG,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: 12,
+                  flexWrap: "wrap",
                 }}
               >
-                Will be generated
-              </h2>
+                <h2
+                  style={{
+                    fontFamily: FONT_DISPLAY,
+                    margin: 0,
+                    fontSize: "1.3rem",
+                    fontWeight: 600,
+                    letterSpacing: "-0.005em",
+                    color: TEXT_FG,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 8,
+                  }}
+                >
+                  <IconWorksheet size={20} />
+                  Will be generated
+                </h2>
+                <span
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    padding: "4px 10px",
+                    borderRadius: 999,
+                    fontSize: 12,
+                    background: PRIMARY_GREEN_SOFT,
+                    color: PRIMARY_GREEN_FG,
+                    border: `1px solid ${BORDER}`,
+                    fontWeight: 500,
+                  }}
+                >
+                  {previewLine}
+                </span>
+              </div>
               <p style={{ margin: 0, fontSize: 13, color: TEXT_MUTED, lineHeight: 1.5 }}>
                 Honest summary of the request. The actual question set is built
                 only when you press Generate.
               </p>
             </header>
 
+            {/* Sections checkbox-style rows (prototype shape) */}
+            <div>
+              <SectionLabel>Sections</SectionLabel>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {SECTION_META.map((s) => {
+                  const checked = previewActiveSections.has(s.id);
+                  const isCustom = mode === "custom";
+                  return (
+                    <label
+                      key={s.id}
+                      title={
+                        isCustom
+                          ? undefined
+                          : "Section selection is locked by the active preset. Switch to Custom filters to edit."
+                      }
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 10,
+                        padding: "10px 12px",
+                        borderRadius: 10,
+                        border: `1px solid ${checked ? PRIMARY_GREEN : BORDER}`,
+                        background: checked ? PRIMARY_GREEN_SOFT : PILL_BG,
+                        cursor: isCustom ? "pointer" : "not-allowed",
+                        opacity: isCustom ? 1 : 0.95,
+                        fontSize: 13,
+                        color: checked ? PRIMARY_GREEN_FG : TEXT_FG,
+                        fontWeight: checked ? 600 : 500,
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        disabled={!isCustom}
+                        onChange={() => {
+                          if (isCustom) toggleCustomSection(s.id);
+                        }}
+                        style={{ accentColor: PRIMARY_GREEN }}
+                      />
+                      <span>{s.label}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Format chips (informational, mirrors prototype) */}
+            <div>
+              <SectionLabel>Formats</SectionLabel>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                {FORMAT_CHIPS.map((f) => (
+                  <span
+                    key={f}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      padding: "4px 10px",
+                      borderRadius: 999,
+                      fontSize: 12,
+                      background: PILL_BG,
+                      color: TEXT_MUTED,
+                      border: `1px solid ${BORDER}`,
+                      fontWeight: 500,
+                    }}
+                  >
+                    {f}
+                  </span>
+                ))}
+              </div>
+              <p
+                style={{
+                  margin: "6px 0 0",
+                  fontSize: 11,
+                  color: TEXT_MUTED,
+                  lineHeight: 1.5,
+                }}
+              >
+                Format mix is set by the question bank for the selected
+                sections — no per-format filter on desktop yet.
+              </p>
+            </div>
+
+            {/* Honest summary list */}
             <ul
               style={{
                 listStyle: "none",
@@ -664,6 +1056,10 @@ export default function DesktopWorksheetsPage() {
               }}
             >
               <SummaryRow label="Subject" value={subject} />
+              <SummaryRow
+                label="Stream"
+                value={subject === "Science" ? stream : "—"}
+              />
               <SummaryRow label="Class" value="Class 10 · CBSE" />
               <SummaryRow label="Topic" value={topicLabel} />
               <SummaryRow
@@ -694,34 +1090,119 @@ export default function DesktopWorksheetsPage() {
               </div>
             ) : null}
 
-            <button
-              type="button"
-              onClick={handleGenerate}
-              disabled={generating}
+            {/* Actions: Generate (primary) · Save (disabled) · Upload (link) */}
+            <div
               style={{
-                appearance: "none",
-                WebkitAppearance: "none",
-                width: "100%",
-                height: 48,
-                borderRadius: 12,
-                border: "none",
-                background: generating ? "hsl(152, 30%, 75%)" : PRIMARY_GREEN,
-                color: "#ffffff",
-                fontFamily: FONT_BODY,
-                fontWeight: 700,
-                fontSize: 15,
-                cursor: generating ? "not-allowed" : "pointer",
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 8,
-                transition: "background 120ms ease",
+                display: "flex",
+                flexDirection: "column",
+                gap: 10,
+                paddingTop: 8,
+                borderTop: `1px solid ${BORDER}`,
               }}
             >
-              <IconWorksheet />
-              {generating ? "Generating…" : "Generate worksheet"}
-              {!generating ? <IconArrowRight /> : null}
-            </button>
+              <button
+                type="button"
+                onClick={handleGenerate}
+                disabled={generating}
+                style={{
+                  appearance: "none",
+                  WebkitAppearance: "none",
+                  width: "100%",
+                  height: 48,
+                  borderRadius: 12,
+                  border: "none",
+                  background: generating ? "hsl(152, 30%, 75%)" : PRIMARY_GREEN,
+                  color: "#ffffff",
+                  fontFamily: FONT_BODY,
+                  fontWeight: 700,
+                  fontSize: 15,
+                  cursor: generating ? "not-allowed" : "pointer",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 8,
+                  transition: "background 120ms ease",
+                }}
+              >
+                <IconWorksheet />
+                {generating ? "Generating…" : `Generate ${topicLabel} worksheet`}
+                {!generating ? <IconArrowRight /> : null}
+              </button>
+
+              <div
+                style={{
+                  display: "flex",
+                  gap: 8,
+                  flexWrap: "wrap",
+                }}
+              >
+                <button
+                  type="button"
+                  disabled
+                  title="Save worksheet is not available yet on desktop."
+                  style={{
+                    appearance: "none",
+                    WebkitAppearance: "none",
+                    flex: "1 1 180px",
+                    height: 40,
+                    borderRadius: 10,
+                    border: `1px solid ${BORDER}`,
+                    background: PILL_BG,
+                    color: DISABLED_FG,
+                    fontFamily: FONT_BODY,
+                    fontWeight: 600,
+                    fontSize: 13,
+                    cursor: "not-allowed",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 6,
+                    opacity: 0.85,
+                  }}
+                  aria-disabled="true"
+                >
+                  <IconLock />
+                  <IconSave />
+                  Save worksheet
+                </button>
+
+                <Link
+                  to={checkPath}
+                  style={{
+                    flex: "1 1 180px",
+                    height: 40,
+                    borderRadius: 10,
+                    border: `1px solid ${BORDER}`,
+                    background: CARD_BG,
+                    color: TEXT_FG,
+                    fontFamily: FONT_BODY,
+                    fontWeight: 600,
+                    fontSize: 13,
+                    textDecoration: "none",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 6,
+                  }}
+                >
+                  Upload your answers
+                  <IconArrowRight size={14} />
+                </Link>
+              </div>
+
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: 11,
+                  color: TEXT_MUTED,
+                  lineHeight: 1.5,
+                }}
+              >
+                Save worksheet isn&rsquo;t wired up on desktop yet. Upload
+                your answers takes you to Check &amp; Improve with this
+                topic pre-selected.
+              </p>
+            </div>
 
             <p
               style={{
@@ -735,6 +1216,13 @@ export default function DesktopWorksheetsPage() {
               where you can download a PDF or jump straight into practice.
             </p>
           </section>
+
+          {/* Mistake intelligence panel — empty-state shape, no invented data. */}
+          <MistakeIntelligencePanel
+            title="Mistake-focus worksheets"
+            insights={[]}
+            emptyMessage="Grade an answer in Check & Improve to unlock mistake-focus worksheets. Once you have graded attempts, your weakest mistake type appears here as a recommended worksheet drill."
+          />
 
           {/* Honest disclaimer mirroring the bridge convention used elsewhere */}
           <p
@@ -755,6 +1243,7 @@ export default function DesktopWorksheetsPage() {
           </p>
         </div>
       </div>
+
     </div>
   );
 }
