@@ -89,6 +89,9 @@ const MobileTopicHub    = lazy(() => import("./pages/app/TopicHub"));
 const DesktopExamTrendsPage = lazy(() => import("./pages/desktop/DesktopExamTrendsPage"));
 const DesktopTopicHubPage = lazy(() => import("./pages/desktop/DesktopTopicHubPage"));
 const DesktopCheckImprovePage = lazy(() => import("./pages/desktop/DesktopCheckImprovePage"));
+// Desktop Phase 7 — locked desktop Worksheet workspace (>=1024px only).
+// Mobile width keeps rendering the existing Worksheets generator unchanged.
+const DesktopWorksheetsPage = lazy(() => import("./pages/desktop/DesktopWorksheetsPage"));
 // Desktop Phase 6 — locked desktop Me / Progress page (>=1024px only).
 // Mobile width keeps rendering MobileMe unchanged.
 const DesktopMePage = lazy(() => import("./pages/desktop/DesktopMePage"));
@@ -331,6 +334,12 @@ function isDesktopShellRoute(pathname: string): boolean {
   // Desktop Phase 6 — exact "/me" only. Mobile width continues to render
   // the legacy MobileMe page unchanged.
   if (pathname === "/me") return true;
+  // Desktop Phase 7 (PR-D) — exact "/practice/worksheets" only. The shared
+  // "/practice/worksheets/ready" route remains intentionally NOT shell-wrapped
+  // (it still renders the existing WorksheetReady mobile screen at every
+  // viewport width). Mobile width continues to render the existing Worksheets
+  // generator unchanged.
+  if (pathname === "/practice/worksheets") return true;
   return false;
 }
 
@@ -824,9 +833,22 @@ export default function App() {
             }
           />
 
-          {/* Worksheets flow — ready must be before the parent to avoid partial match */}
+          {/* Worksheets flow — ready must be before the parent to avoid partial match.
+              Desktop Phase 7 (PR-D): at desktop width (>=1024px) /practice/worksheets
+              renders the locked DesktopWorksheetsPage inside DesktopShell (the
+              conditional shell wrap is applied above by isDesktopShellRoute).
+              At mobile width, the existing mobile Worksheets generator renders
+              unchanged. The /practice/worksheets/ready route is shared by both
+              paths (desktop and mobile both navigate to it with { state: { opts } }). */}
           <Route path="/practice/worksheets/ready" element={withRouteSuspense(<WorksheetReady />)} />
-          <Route path="/practice/worksheets" element={withRouteSuspense(<Worksheets />)} />
+          <Route
+            path="/practice/worksheets"
+            element={
+              isDesktop
+                ? withRouteSuspense(<DesktopWorksheetsPage />)
+                : withRouteSuspense(<Worksheets />)
+            }
+          />
 
           {/* Check & Improve — Desktop Phase 5: at desktop width (>=1024px)
               this renders the locked DesktopCheckImprovePage inside DesktopShell
