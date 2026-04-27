@@ -8,7 +8,7 @@ This document is the durable handoff for GPT, Replit, and future agents working 
 
 - Product repo: `chetan-anand-hub/Lazytopper-Production`
 - Active integration branch: `base/approved-thru-437`
-- Current confirmed product base after PR-C merge: `66fd7d734f0842ccb69eb9eee62f42ce588bde54`
+- Current confirmed product base after PR-D merge: `415386853661fdb831b5615cdcb64dcd8800172c`
 - Final desktop Level 2 prototype: `https://github.com/chetan-anand-hub/topic-focus-lite`
 
 GitHub origin is the source of truth. Local Replit checkpoint commits, preview-only edits, staged leftovers, and task snapshots are not product state unless they have been pushed to GitHub and reviewed as a PR.
@@ -121,15 +121,31 @@ Do not import from PR #17. Do not merge PR #17. Do not use Task #362-only symbol
 
 ### PR-D / PR #22 — Desktop Worksheet Workspace
 
-- Status: open, draft, unmerged.
+- Status: merged
 - Branch: `feat/desktop-pr-d-worksheet-workspace`
-- Base SHA: `66fd7d734f0842ccb69eb9eee62f42ce588bde54`
-- Current head SHA: `86a31cf5c3c96d8a6e19acac6f2dac5029dc274e`
-- Scope issue: PR #22 currently includes `artifacts/lazytopper-app/public/opengraph.jpg`, so it must not be merged as-is.
-- Required before approval/merge:
-  1. Remove scope drift, including `artifacts/lazytopper-app/public/opengraph.jpg`.
-  2. Audit against `topic-focus-lite/src/pages/WorksheetPage.tsx` under the Locked Prototype Parity Rule.
-  3. Decide whether PR-D is mergeable or whether a PR-D2 parity correction is cleaner.
+- Merge SHA: `415386853661fdb831b5615cdcb64dcd8800172c`
+- Final head before merge: `aa8a67f517fccbe81855ee80cca0aa02774abb96`
+- Final diff:
+  - `M lazytopper/src/App.tsx`
+  - `A lazytopper/src/lib/desktop/savedWorksheets.ts`
+  - `A lazytopper/src/pages/desktop/DesktopWorksheetsPage.tsx`
+- `artifacts/lazytopper-app/public/opengraph.jpg` was removed from the PR diff before merge.
+- PR #17 / Task #362 remained untouched.
+- Live preview QA gate was explicitly waived by the user before merge.
+- ### PR-LANDING — Locked Public Landing + Reason-Aware Login Prompting
+
+- Status: next recommended implementation PR
+- Prototype files:
+  - `topic-focus-lite/src/pages/PublicLanding.tsx`
+  - `topic-focus-lite/src/pages/LoginGate.tsx`
+  - `topic-focus-lite/src/context/LazyTopperContext.tsx`
+- Production files likely involved:
+  - `lazytopper/src/pages/Welcome.tsx`
+  - `lazytopper/src/pages/Login.tsx`
+  - optional helper files under `lazytopper/src/lib/desktop/*`
+- Goal: implement locked public landing behavior, memory/resume prompts, and reason-aware login URLs such as `/login?reason=save-worksheet&redirect=/practice/worksheets`.
+- Preserve real Clerk auth and existing `location.state.from` behavior unless explicitly changed.
+- Do not blindly copy prototype `/app/*` routes into production.
 
 ## Obsolete work and stale states
 
@@ -145,25 +161,26 @@ The following are obsolete and must not be used as implementation instructions:
 
 Desktop Phase 1 tasks from `93e739c` remain obsolete.
 
-## Current implementation sequence
-
 Completed:
 
 1. PR-A — Desktop Level 2 foundation
 2. PR-B — Desktop Home Graduation
 3. PR-C — Desktop Practice Hub Graduation
 4. PR #21 — docs handoff
+5. PR #23 — locked prototype parity docs
+6. PR #24 — desktop graduation QA/state rules docs
+7. PR-D / PR #22 — Desktop Worksheet Workspace
 
 Open:
 
-5. PR-D / PR #22 — Desktop Worksheet Workspace, draft, not mergeable for approval until `opengraph.jpg` is removed and parity audited.
+- PR #17 / Task #362 — draft preservation only; do not merge or import from.
 
 Next recommended actions:
 
-1. Clean PR-D scope.
-2. Audit PR-D against `topic-focus-lite/src/pages/WorksheetPage.tsx`.
-3. Then decide whether to merge PR-D or create PR-D2 parity correction.
-4. Add PR-B2 / PR-C2 parity corrections if needed before moving too far ahead.
+1. PR-LANDING — implement locked public landing and reason-aware login prompting.
+2. PR-B2 — Home locked prototype + functional parity correction.
+3. PR-C2 — Practice locked prototype + functional parity correction.
+4. Then resume PR-E onward.
 
 Future sequence after PR-D / parity corrections:
 
@@ -174,8 +191,7 @@ Future sequence after PR-D / parity corrections:
 - PR-I — source/returnTo hardening
 - PR-J — final desktop parity polish
 
-Do not start PR-E until the PR-D scope/parity decision is resolved or the user explicitly changes the sequence.
-
+Do not start PR-E until PR-LANDING, PR-B2, and PR-C2 are resolved or the user explicitly changes the sequence.
 ## Mandatory Git sync rule
 
 Every implementation task must end in GitHub, not just a Replit checkpoint.
