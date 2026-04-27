@@ -8,7 +8,7 @@ This document is the durable handoff for GPT, Replit, and future agents working 
 
 - Product repo: `chetan-anand-hub/Lazytopper-Production`
 - Active integration branch: `base/approved-thru-437`
-- Current confirmed product base at the time this document was created: `fde4ad3ce0dbfd665871454a55dfed9142687efa`
+- Current confirmed product base after PR-C merge: `66fd7d734f0842ccb69eb9eee62f42ce588bde54`
 - Final desktop Level 2 prototype: `https://github.com/chetan-anand-hub/topic-focus-lite`
 
 GitHub origin is the source of truth. Local Replit checkpoint commits, preview-only edits, staged leftovers, and task snapshots are not product state unless they have been pushed to GitHub and reviewed as a PR.
@@ -19,6 +19,42 @@ GitHub origin is the source of truth. Local Replit checkpoint commits, preview-o
 - Mobile Level 1 baseline: `https://github.com/chetan-anand-hub/lazytopper-navigator`
 
 The Level 1 prototypes are historical references. Do not use them as the current desktop target. The current desktop target is the Level 2 `topic-focus-lite` prototype.
+
+## Locked Prototype Parity Rule
+
+The final desktop prototype is not merely inspiration. For each desktop graduation PR, the implementing agent must inspect the exact corresponding file in `topic-focus-lite` before coding.
+
+The implementation prompt and PR report must identify:
+
+1. Prototype file inspected.
+2. Production file(s) changed.
+3. Section-by-section mapping:
+   - prototype section
+   - production implementation section
+   - intentional difference, if any
+4. Any section omitted because production lacks the required data/service.
+5. Honest fallback copy used for omitted/unavailable data.
+6. Whether the PR is:
+   - PASS — mergeable
+   - PASS WITH FOLLOW-UP — acceptable but needs later polish
+   - HOLD — do not merge; correction required
+
+Do not accept vague "topic-focus-lite-style" language. The expected standard is page-by-page parity as closely as production routes and truthful data allow.
+
+If exact parity is impossible, preserve the prototype section shape and use honest empty-state copy rather than fake data.
+
+### Prototype route/file mapping
+
+| Prototype route/file | Production route/file | Status |
+| --- | --- | --- |
+| Public landing: `topic-focus-lite/src/pages/PublicLanding.tsx` | Not part of current desktop app graduation unless explicitly scoped. | Out of current scope. |
+| Home: `topic-focus-lite/src/pages/HomePage.tsx` | `lazytopper/src/pages/desktop/DesktopHome.tsx` | PR-B merged, but parity gap exists; consider PR-B2 Home Lovable Parity Alignment. |
+| Practice: `topic-focus-lite/src/pages/PracticePage.tsx` | `lazytopper/src/pages/desktop/DesktopPracticePage.tsx` | PR-C merged; may need PR-C2 parity audit/polish. |
+| Worksheet: `topic-focus-lite/src/pages/WorksheetPage.tsx` | `lazytopper/src/pages/desktop/DesktopWorksheetsPage.tsx` | PR-D / PR #22 open draft; do not merge until scope drift is removed and parity is reviewed. |
+| Exam Trends: `topic-focus-lite/src/pages/TrendsPage.tsx` | `lazytopper/src/pages/desktop/DesktopExamTrendsPage.tsx` | Future PR-E. |
+| Topic Hub: `topic-focus-lite/src/pages/TopicHubPage.tsx` | `lazytopper/src/pages/desktop/DesktopTopicHubPage.tsx` | Future PR-F. |
+| Check & Improve: `topic-focus-lite/src/pages/CheckPage.tsx` | `lazytopper/src/pages/desktop/DesktopCheckImprovePage.tsx` | Future PR-G or parity-correction pass. |
+| Me / Progress: `topic-focus-lite/src/pages/MePage.tsx` | `lazytopper/src/pages/desktop/DesktopMePage.tsx` | Future PR-H or parity-correction pass. |
 
 ## Already completed
 
@@ -50,6 +86,24 @@ PR-A added shared foundation. It did not mount visible pages.
 - Merge/squash SHA: `fde4ad3ce0dbfd665871454a55dfed9142687efa`
 - Changed file: `lazytopper/src/pages/desktop/DesktopHome.tsx`
 - Scope: graduated desktop Home to a topic-focus-lite-style workspace with honest copy and no Task #362 dependencies.
+- Current parity note: parity gap exists against `topic-focus-lite/src/pages/HomePage.tsx`; consider PR-B2 Home Lovable Parity Alignment.
+
+### PR-C / PR #20 — Desktop Practice Hub Graduation
+
+- Status: merged
+- Branch: `feat/desktop-pr-c-practice-hub-graduation`
+- Merge/squash SHA: `66fd7d734f0842ccb69eb9eee62f42ce588bde54`
+- Changed file: `lazytopper/src/pages/desktop/DesktopPracticePage.tsx`
+- Scope: graduated desktop Practice Hub to the Level 2 workspace with existing production routes and no Task #362 dependencies.
+- Current parity note: may need PR-C2 parity audit/polish against `topic-focus-lite/src/pages/PracticePage.tsx`.
+
+### PR #21 — Desktop graduation state docs handoff
+
+- Status: merged
+- Branch: `docs/desktop-graduation-state`
+- Merge SHA: `fc6d9ba8e448aa6b4da5548c92ddd74888775b34`
+- Changed file: `docs/desktop-graduation-state.md`
+- Scope: docs-only handoff for desktop graduation state and workflow rules.
 
 ## Not merged / do not use without separate review
 
@@ -65,6 +119,18 @@ PR-A added shared foundation. It did not mount visible pages.
 
 Do not import from PR #17. Do not merge PR #17. Do not use Task #362-only symbols such as `aggregateErrorCategories`, `readLocalMistakeLogsSince`, or `ErrorCategory` unless PR #17 is separately reviewed, approved, and merged.
 
+### PR-D / PR #22 — Desktop Worksheet Workspace
+
+- Status: open, draft, unmerged.
+- Branch: `feat/desktop-pr-d-worksheet-workspace`
+- Base SHA: `66fd7d734f0842ccb69eb9eee62f42ce588bde54`
+- Current head SHA: `86a31cf5c3c96d8a6e19acac6f2dac5029dc274e`
+- Scope issue: PR #22 currently includes `artifacts/lazytopper-app/public/opengraph.jpg`, so it must not be merged as-is.
+- Required before approval/merge:
+  1. Remove scope drift, including `artifacts/lazytopper-app/public/opengraph.jpg`.
+  2. Audit against `topic-focus-lite/src/pages/WorksheetPage.tsx` under the Locked Prototype Parity Rule.
+  3. Decide whether PR-D is mergeable or whether a PR-D2 parity correction is cleaner.
+
 ## Obsolete work and stale states
 
 The following are obsolete and must not be used as implementation instructions:
@@ -77,23 +143,38 @@ The following are obsolete and must not be used as implementation instructions:
 - Preview-only local DesktopHome changes
 - Broken PR-B v1 local implementation that imported Task #362-only code
 
+Desktop Phase 1 tasks from `93e739c` remain obsolete.
+
 ## Current implementation sequence
 
 Completed:
 
 1. PR-A — Desktop Level 2 foundation
 2. PR-B — Desktop Home Graduation
-
-Next planned desktop work:
-
 3. PR-C — Desktop Practice Hub Graduation
-4. PR-D — Desktop Worksheet Workspace
-5. PR-E — Desktop Exam Trends Graduation
-6. PR-F — Topic Hub Lite Graduation
-7. PR-G — Desktop Check & Improve Graduation
-8. PR-H — Desktop Me / Progress Graduation
-9. PR-I — source/returnTo hardening
-10. PR-J — final desktop parity polish
+4. PR #21 — docs handoff
+
+Open:
+
+5. PR-D / PR #22 — Desktop Worksheet Workspace, draft, not mergeable for approval until `opengraph.jpg` is removed and parity audited.
+
+Next recommended actions:
+
+1. Clean PR-D scope.
+2. Audit PR-D against `topic-focus-lite/src/pages/WorksheetPage.tsx`.
+3. Then decide whether to merge PR-D or create PR-D2 parity correction.
+4. Add PR-B2 / PR-C2 parity corrections if needed before moving too far ahead.
+
+Future sequence after PR-D / parity corrections:
+
+- PR-E — Desktop Exam Trends Graduation
+- PR-F — Topic Hub Lite Graduation
+- PR-G — Desktop Check & Improve Graduation
+- PR-H — Desktop Me / Progress Graduation
+- PR-I — source/returnTo hardening
+- PR-J — final desktop parity polish
+
+Do not start PR-E until the PR-D scope/parity decision is resolved or the user explicitly changes the sequence.
 
 ## Mandatory Git sync rule
 
@@ -104,22 +185,24 @@ For every implementation task:
 1. Start from a fresh isolated clone or clean branch from the latest `origin/base/approved-thru-437` unless the task explicitly pins a SHA.
 2. Create a task-specific feature branch, for example `feat/desktop-pr-c-practice-hub-graduation`.
 3. Make only the scoped changes.
-4. Run the real product build:
+4. Inspect the exact corresponding file in `topic-focus-lite` and include the Locked Prototype Parity Rule mapping in the implementation prompt and PR report.
+5. Make only the scoped changes.
+6. Run the real product build:
 
    ```bash
    NODE_ENV=production BASE_PATH=/app/ pnpm --filter lazytopper run build
    ```
 
-5. Run the verifier:
+7. Run the verifier:
 
    ```bash
    node scripts/verify-production-build.mjs
    ```
 
-6. Push the feature branch to GitHub.
-7. Open a PR into `base/approved-thru-437`.
-8. Return an audit-ready report with PR URL, compare URL, base/head SHA, exact changed files, build result, verifier result, and explicit confirmations of files not touched.
-9. Do not merge the PR unless the user explicitly asks after GPT/user audit.
+8. Push the feature branch to GitHub.
+9. Open a PR into `base/approved-thru-437`.
+10. Return an audit-ready report with PR URL, compare URL, base/head SHA, exact changed files, build result, verifier result, parity mapping, and explicit confirmations of files not touched.
+11. Do not merge the PR unless the user explicitly asks after GPT/user audit.
 
 An implementation task is not audit-complete until the GitHub PR exists.
 
