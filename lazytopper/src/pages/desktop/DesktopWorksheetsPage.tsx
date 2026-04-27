@@ -1,6 +1,7 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSubjectContext } from "../../hooks/useSubjectContext";
+import { useAuth } from "../../context/AuthContext";
 import { ContextBar } from "../../components/desktop/l2/ContextBar";
 import { BackToParent } from "../../components/desktop/l2/BackToParent";
 import { MistakeIntelligencePanel } from "../../components/desktop/l2/MistakeIntelligencePanel";
@@ -8,23 +9,33 @@ import {
   buildDesktopCheckPath,
   buildDesktopWorksheetPath,
 } from "../../lib/desktop/navigation";
+import {
+  saveWorksheet,
+  countSavedWorksheets,
+} from "../../lib/desktop/savedWorksheets";
+import type { SavedSectionFilter } from "../../lib/desktop/savedWorksheets";
 import { generatePracticeQuestions } from "../../data/predictionDataService";
+import type {
+  PracticeQuestion,
+  DifficultyChoice,
+} from "../../data/predictionDataService";
 import type { LTSubjectKey } from "../../data/predictionTypes";
 import { sectionScopeLabel } from "../../components/practice/worksheetGenerator";
 import type {
   WorksheetOptions,
   SectionScope,
 } from "../../components/practice/worksheetGenerator";
+import type { DesktopMistakeInsight } from "../../lib/desktop/mistakeData";
 
 /**
- * DesktopWorksheetsPage — Level 2 graduation (PR-D, parity correction pass).
+ * DesktopWorksheetsPage — Level 2 graduation (PR-D, functional parity pass).
  *
  * Reference (final desktop prototype):
  *   chetan-anand-hub/topic-focus-lite — src/pages/WorksheetPage.tsx
  *
  * Mobile parity: this page is a desktop sibling of
  *   lazytopper/src/pages/app/Worksheets.tsx
- * It uses the EXACT same generation contract:
+ * and reuses the EXACT same generation primitives:
  *   - same MATHS_TOPICS / SCIENCE_TOPICS / PRESETS / SECTIONS / DIFFICULTIES
  *   - same generatePracticeQuestions argument shape
  *   - same WorksheetOptions output shape
@@ -32,30 +43,39 @@ import type {
  * so the existing WorksheetReady page works for both desktop and mobile
  * without modification. Mobile Worksheets.tsx is NOT touched.
  *
- * Composition (single file, mirrors prototype shape):
- *   1. BackToParent — returns to /practice-hub or to ?source/?returnTo if set
- *   2. ContextBar — intent-first header, with right-slot mistake-aware toggle
- *      that is honestly disabled because real per-learner mistake data is
- *      not yet wired into the desktop graduation surface
- *   3. ScopeBuilder-shaped card (left) — Subject + Stream (Science only) +
- *      Scope mode (Single topic enabled; Multi-topic & Full subject visible
- *      but disabled with honest copy) + Topic single-select list
- *   4. Build-mode card (left) — Preset list OR Custom (difficulty + count)
- *   5. Worksheet preview card (right) — preview line/chip, Section A–E
- *      checkbox-style rows (interactive in custom mode, locked in preset
- *      mode), format chips, honest summary list, error message, Generate
- *      CTA, Save worksheet (honestly disabled), Upload your answers (links
- *      to /check-improve with source/returnTo)
- *   6. MistakeIntelligencePanel (right) — empty-state copy that points to
- *      Check & Improve to unlock mistake-focus worksheets
+ * What is REAL on this surface:
+ *   - Single-topic worksheet generation (production generator).
+ *   - Multi-topic worksheet generation: the user picks 2+ topics, the
+ *     page invokes the production generator once per topic with
+ *     allowRepeats:false, de-dupes by question.id, shuffles, and truncates
+ *     to the requested count. Truthful smaller worksheets when the bank
+ *     genuinely has fewer matching unique questions.
+ *   - Full-subject worksheet generation: same aggregator across every
+ *     topic in the active subject + (Science) stream filter.
+ *   - Save worksheet: persists the current plan to localStorage via
+ *     `lib/desktop/savedWorksheets.ts`. The CTA copy honestly says
+ *     "Saved on this device".
+ *   - Mistake-aware mini-section: reads the user's actual mistake log
+ *     written by the existing Check & Improve flow (mistakeLogService —
+ *     `lazytopper.mistakeLogs.v1:<uid>`). When at least one entry exists,
+ *     the toggle becomes enabled and turning it on auto-focuses the
+ *     worksheet on the user's top-marked-down topic for the requested
+ *     subject + stream. No PR #17 imports. No DESKTOP_MISTAKE_LIBRARY is
+ *     presented as the learner's history.
+ *   - Upload your answers: routes to /check-improve with source=worksheet
+ *     and returnTo=current desktop worksheet path.
+ *
+ * What is HONESTLY not real:
+ *   - Cloud sync of saved worksheets (none — purely local).
+ *   - Mistake-aware mini-section when the learner has not graded any
+ *     answers yet — toggle stays disabled with a clear unlock message.
  *
  * Production constraints:
  *   - Inline styles only (no Tailwind, no shadcn classes).
  *   - Inline SVG only (no lucide-react).
  *   - Light theme tokens shared with DesktopShell + DesktopHome + DesktopPracticePage.
- *   - No new npm dependency. No PR #17 imports. No invented learner mistake
- *     data. No new generator — reuses the exact production generator the
- *     mobile Worksheets page already uses.
+ *   - No new npm dependency. No PR #17 imports. No invented learner
+ *     mistake data.
  */
 
 // ── Mirror mobile constants exactly so generation behavior is identical. ──
@@ -98,6 +118,8 @@ const SCIENCE_TOPICS: ScienceTopic[] = [
   { key: "magnetic-effects",             label: "Magnetic Effects of Current",   stream: "Physics"   },
   { key: "our-environment",              label: "Our Environment",               stream: "Biology"   },
 ];
+
+interface TopicEntry { key: string; label: string; }
 
 interface PresetConfig {
   key: string;
@@ -181,12 +203,206 @@ const DISABLED_FG = "hsl(220, 12%, 60%)";
 const DANGER_FG = "hsl(0, 65%, 38%)";
 const DANGER_BG = "hsl(0, 75%, 96%)";
 const DANGER_BORDER = "hsl(0, 70%, 88%)";
+const ACCENT_BG = "hsl(38, 92%, 95%)";
+const ACCENT_FG = "hsl(38, 65%, 32%)";
+const ACCENT_BORDER = "hsl(38, 70%, 80%)";
 
 const FONT_DISPLAY =
   '"Fraunces", "Source Serif Pro", Georgia, "Times New Roman", serif';
 const FONT_BODY =
   '"Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif';
 
+// ── localStorage key parity (read-only sync) ──────────────────────────────
+// Source of truth: lazytopper/src/services/mistakeLogService.ts
+//   const LOCAL_KEY_PREFIX = "lazytopper.mistakeLogs.v1";
+//   localKey(uid) → `${LOCAL_KEY_PREFIX}:${uid}`
+// Read-only mirror here so the desktop worksheet page can detect whether
+// the learner already has graded mistakes and (if so) auto-focus the
+// worksheet on their top-marked-down topic.
+const MISTAKE_LOG_PREFIX = "lazytopper.mistakeLogs.v1";
+
+interface RawMistakeLogEntry {
+  id: string;
+  timestamp: string;
+  questionText: string;
+  topic: string;
+  subject: string;
+  totalMarks: number;
+  marksLost: number;
+  mistakeCounts?: {
+    conceptual?: number;
+    calculation?: number;
+    silly?: number;
+    presentation?: number;
+  };
+}
+
+function readMistakeLogsLocal(uid: string | null | undefined): RawMistakeLogEntry[] {
+  if (!uid) return [];
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = window.localStorage.getItem(`${MISTAKE_LOG_PREFIX}:${uid}`);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter(
+      (e): e is RawMistakeLogEntry =>
+        !!e && typeof e === "object" &&
+        typeof e.timestamp === "string" &&
+        typeof e.topic === "string" &&
+        typeof e.subject === "string",
+    );
+  } catch {
+    return [];
+  }
+}
+
+type MistakeKind = "conceptual" | "calculation" | "silly" | "presentation";
+
+interface MistakeFocus {
+  hasData: boolean;
+  totalEntries: number;
+  topTopicLabel: string | null;
+  topTopicKey: string | null;
+  topTopicMarksLost: number;
+  topTopicSubject: "Maths" | "Science" | null;
+  topMistakeKind: MistakeKind | null;
+  recentDays: number;
+}
+
+const DEFAULT_MISTAKE_FOCUS: MistakeFocus = {
+  hasData: false,
+  totalEntries: 0,
+  topTopicLabel: null,
+  topTopicKey: null,
+  topTopicMarksLost: 0,
+  topTopicSubject: null,
+  topMistakeKind: null,
+  recentDays: 30,
+};
+
+const MISTAKE_KIND_LABEL: Record<MistakeKind, string> = {
+  conceptual:   "Conceptual",
+  calculation:  "Calculation",
+  silly:        "Silly mistake",
+  presentation: "Presentation",
+};
+
+function normalizeLabel(s: string): string {
+  return s.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+}
+
+function findTopicKeyByName(
+  name: string,
+  subject: "Maths" | "Science",
+): string | null {
+  const target = normalizeLabel(name);
+  const list: TopicEntry[] = subject === "Maths" ? MATHS_TOPICS : SCIENCE_TOPICS;
+  // Exact normalized label match first.
+  const exact = list.find((t) => normalizeLabel(t.label) === target);
+  if (exact) return exact.key;
+  // Fall back to substring match either way.
+  const partial = list.find(
+    (t) => normalizeLabel(t.label).includes(target) || target.includes(normalizeLabel(t.label)),
+  );
+  return partial ? partial.key : null;
+}
+
+function computeMistakeFocus(
+  entries: RawMistakeLogEntry[],
+  recentDays = 30,
+): MistakeFocus {
+  if (entries.length === 0) return DEFAULT_MISTAKE_FOCUS;
+  const cutoff = Date.now() - recentDays * 24 * 60 * 60 * 1000;
+  const recent = entries.filter((e) => {
+    const t = new Date(e.timestamp).getTime();
+    return Number.isFinite(t) && t >= cutoff;
+  });
+  const window = recent.length > 0 ? recent : entries;
+
+  // Topic aggregation by marks lost (fall back to attempt count).
+  type TopicAgg = {
+    topic: string;
+    subject: string;
+    marksLost: number;
+    count: number;
+  };
+  const byTopic = new Map<string, TopicAgg>();
+  const kindTotals: Record<MistakeKind, number> = {
+    conceptual: 0, calculation: 0, silly: 0, presentation: 0,
+  };
+
+  for (const e of window) {
+    const subject = e.subject || "";
+    const subjectNorm: "Maths" | "Science" | "" =
+      /maths|math/i.test(subject) ? "Maths" :
+      /sci|phys|chem|bio/i.test(subject) ? "Science" : "";
+    const key = `${subjectNorm}::${e.topic}`;
+    const prev = byTopic.get(key) ?? {
+      topic: e.topic, subject: subjectNorm, marksLost: 0, count: 0,
+    };
+    prev.marksLost += Number(e.marksLost) || 0;
+    prev.count += 1;
+    byTopic.set(key, prev);
+
+    const c = e.mistakeCounts ?? {};
+    kindTotals.conceptual   += Number(c.conceptual)   || 0;
+    kindTotals.calculation  += Number(c.calculation)  || 0;
+    kindTotals.silly        += Number(c.silly)        || 0;
+    kindTotals.presentation += Number(c.presentation) || 0;
+  }
+
+  let topTopic: TopicAgg | null = null;
+  for (const t of byTopic.values()) {
+    if (
+      !topTopic ||
+      t.marksLost > topTopic.marksLost ||
+      (t.marksLost === topTopic.marksLost && t.count > topTopic.count)
+    ) {
+      topTopic = t;
+    }
+  }
+
+  const topMistakeKind: MistakeKind | null = (() => {
+    let best: MistakeKind | null = null;
+    let max = 0;
+    for (const k of ["conceptual", "calculation", "silly", "presentation"] as MistakeKind[]) {
+      if (kindTotals[k] > max) { max = kindTotals[k]; best = k; }
+    }
+    return best;
+  })();
+
+  if (!topTopic || (topTopic.subject !== "Maths" && topTopic.subject !== "Science")) {
+    return {
+      hasData: window.length > 0,
+      totalEntries: window.length,
+      topTopicLabel: topTopic?.topic ?? null,
+      topTopicKey: null,
+      topTopicMarksLost: topTopic?.marksLost ?? 0,
+      topTopicSubject: null,
+      topMistakeKind,
+      recentDays,
+    };
+  }
+
+  const topKey = findTopicKeyByName(
+    topTopic.topic,
+    topTopic.subject as "Maths" | "Science",
+  );
+
+  return {
+    hasData: true,
+    totalEntries: window.length,
+    topTopicLabel: topTopic.topic,
+    topTopicKey: topKey,
+    topTopicMarksLost: topTopic.marksLost,
+    topTopicSubject: topTopic.subject as "Maths" | "Science",
+    topMistakeKind,
+    recentDays,
+  };
+}
+
+// ── Inline icons (no lucide) ─────────────────────────────────────────────
 const IconStroke: React.CSSProperties = {
   fill: "none",
   stroke: "currentColor",
@@ -227,6 +443,13 @@ function IconSave({ size = 14 }: { size?: number }) {
       <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
       <polyline points="17 21 17 13 7 13 7 21" />
       <polyline points="7 3 7 8 15 8" />
+    </svg>
+  );
+}
+function IconSparkles({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" style={{ ...IconStroke, strokeWidth: 2.4 }} aria-hidden>
+      <path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M5.6 18.4l2.8-2.8M15.6 8.4l2.8-2.8" />
     </svg>
   );
 }
@@ -332,29 +555,29 @@ function Pill({
 export default function DesktopWorksheetsPage() {
   const navigate = useNavigate();
   const ctx = useSubjectContext();
+  const { user } = useAuth();
 
   const [subject, setSubject] = React.useState<"Maths" | "Science">(
     (ctx.subject as "Maths" | "Science") || "Maths",
   );
   const [stream, setStream]   = React.useState<ScienceStream>("All");
-  // Multi-topic and full-subject are honest scope shapes from the prototype.
-  // The production worksheet generator currently only supports a single
-  // topic, so those scope modes are visible but disabled — see ScopeBuilder
-  // section below. Default scope is the supported "topic" mode.
   const [paperScope, setPaperScope] = React.useState<PaperScope>("topic");
 
-  const topics = subject === "Maths"
+  const visibleTopics: TopicEntry[] = subject === "Maths"
     ? MATHS_TOPICS
     : SCIENCE_TOPICS.filter((t) => stream === "All" || t.stream === stream);
 
-  const [topicKey, setTopicKey] = React.useState(topics[0].key);
+  const [topicKey, setTopicKey] = React.useState(visibleTopics[0].key);
+  const [selectedTopicKeys, setSelectedTopicKeys] = React.useState<string[]>([]);
 
-  // Re-sync topicKey whenever the visible topic list changes (subject or
-  // science stream filter changed) so we never keep a stale slug.
   React.useEffect(() => {
-    if (!topics.find((t) => t.key === topicKey)) {
-      setTopicKey(topics[0].key);
+    // Re-sync single-topic and multi-topic selections whenever the visible
+    // catalogue changes (subject or science stream filter changed) so we
+    // never keep stale slugs.
+    if (!visibleTopics.find((t) => t.key === topicKey)) {
+      setTopicKey(visibleTopics[0].key);
     }
+    setSelectedTopicKeys((prev) => prev.filter((k) => visibleTopics.some((t) => t.key === k)));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [subject, stream]);
 
@@ -367,6 +590,45 @@ export default function DesktopWorksheetsPage() {
   const [count, setCount]           = React.useState(20);
   const [generating, setGenerating] = React.useState(false);
   const [error, setError]           = React.useState<string | null>(null);
+  const [info, setInfo]             = React.useState<string | null>(null);
+
+  // ── Mistake-aware (real Check & Improve data, no PR #17 imports) ──────
+  // Sync read of the learner's mistake log from localStorage. Recomputes
+  // when the active uid changes and after a worksheet is generated (which
+  // typically navigates away — the recompute is mostly relevant after a
+  // login state change).
+  const [mistakeFocus, setMistakeFocus] =
+    React.useState<MistakeFocus>(DEFAULT_MISTAKE_FOCUS);
+
+  React.useEffect(() => {
+    const uid = user?.uid ?? null;
+    const entries = readMistakeLogsLocal(uid);
+    setMistakeFocus(computeMistakeFocus(entries));
+  }, [user?.uid]);
+
+  // For the active subject + stream filter, is there a mappable hotspot
+  // we can auto-focus the worksheet on?
+  const mistakeHotspotForActiveScope = (() => {
+    if (!mistakeFocus.hasData) return null;
+    if (!mistakeFocus.topTopicSubject || !mistakeFocus.topTopicKey) return null;
+    if (mistakeFocus.topTopicSubject !== subject) return null;
+    if (subject === "Science" && stream !== "All") {
+      const t = SCIENCE_TOPICS.find((x) => x.key === mistakeFocus.topTopicKey);
+      if (!t) return null;
+      if (t.stream !== stream) return null;
+    }
+    return mistakeFocus;
+  })();
+
+  const canEnableMistakeAware = !!mistakeHotspotForActiveScope;
+  const [mistakeAware, setMistakeAware] = React.useState<boolean>(false);
+
+  // If the toggle becomes invalid (e.g. stream changed away from the
+  // hotspot's stream) silently turn it off so we never claim to be in
+  // mistake-aware mode while we don't have a hotspot.
+  React.useEffect(() => {
+    if (!canEnableMistakeAware && mistakeAware) setMistakeAware(false);
+  }, [canEnableMistakeAware, mistakeAware]);
 
   function switchSubject(s: "Maths" | "Science") {
     setSubject(s);
@@ -376,8 +638,6 @@ export default function DesktopWorksheetsPage() {
   function toggleCustomSection(id: SectionId) {
     setCustomSections((prev) => {
       if (prev.includes(id)) {
-        // Always keep at least one section selected so generation never
-        // produces an empty sections filter accidentally.
         const next = prev.filter((s) => s !== id);
         return next.length === 0 ? prev : next;
       }
@@ -385,9 +645,25 @@ export default function DesktopWorksheetsPage() {
     });
   }
 
+  function setScope(next: PaperScope) {
+    setPaperScope(next);
+    if (next === "multi-topic" && selectedTopicKeys.length === 0) {
+      // Seed multi-topic with the current single topic so the user has a
+      // starting point and the disabled-Generate state has an obvious fix.
+      setSelectedTopicKeys([topicKey]);
+    }
+  }
+
+  function toggleSelectedTopic(key: string) {
+    setSelectedTopicKeys((prev) =>
+      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key],
+    );
+  }
+
   // Compute effective scope for both UI preview and generation.
   const activePreset = PRESETS.find((p) => p.key === preset)!;
-  const effectiveDifficulty = mode === "preset" ? activePreset.difficulty : difficulty;
+  const effectiveDifficulty: DifficultyChoice =
+    mode === "preset" ? activePreset.difficulty : difficulty;
   const effectiveCount      = mode === "preset" ? activePreset.count      : count;
   const effectiveSections: SectionScope = (() => {
     if (mode === "preset") return activePreset.sections;
@@ -395,7 +671,38 @@ export default function DesktopWorksheetsPage() {
     return [...customSections].sort();
   })();
 
-  const topicLabel = topics.find((t) => t.key === topicKey)?.label ?? topicKey;
+  // Active topic-key list driving the live preview + generate call.
+  // Mistake-aware overrides scope to a focused single topic.
+  const generationTopicKeys: string[] = (() => {
+    if (mistakeAware && mistakeHotspotForActiveScope?.topTopicKey) {
+      return [mistakeHotspotForActiveScope.topTopicKey];
+    }
+    if (paperScope === "topic") return [topicKey];
+    if (paperScope === "multi-topic") return selectedTopicKeys;
+    // full-subject: every topic in the active subject + stream filter.
+    return visibleTopics.map((t) => t.key);
+  })();
+
+  const generationTopicLabels = generationTopicKeys
+    .map((k) => visibleTopics.find((t) => t.key === k)?.label ?? k);
+
+  const previewTopicLabel: string = (() => {
+    if (mistakeAware && mistakeHotspotForActiveScope?.topTopicLabel) {
+      return `${mistakeHotspotForActiveScope.topTopicLabel} (mistake-focused)`;
+    }
+    if (paperScope === "topic") {
+      return visibleTopics.find((t) => t.key === topicKey)?.label ?? topicKey;
+    }
+    if (paperScope === "multi-topic") {
+      if (generationTopicLabels.length === 0) return "—";
+      if (generationTopicLabels.length <= 3) return generationTopicLabels.join(" + ");
+      return `${generationTopicLabels.slice(0, 2).join(" + ")} + ${generationTopicLabels.length - 2} more`;
+    }
+    // full-subject
+    return subject === "Science" && stream !== "All"
+      ? `Full ${subject} · ${stream}`
+      : `Full ${subject}`;
+  })();
 
   // Which section IDs should appear "checked" in the preview card.
   const previewActiveSections: Set<string> = (() => {
@@ -403,76 +710,185 @@ export default function DesktopWorksheetsPage() {
     return new Set<string>(effectiveSections as string[]);
   })();
 
-  // Honest preview chip line (mirrors prototype previewLine shape).
+  // Honest preview chip line.
   const previewLine = (() => {
     const scopeStr = sectionScopeLabel(effectiveSections);
-    return `${topicLabel} worksheet · ${scopeStr} · ${effectiveCount} questions`;
+    return `${previewTopicLabel} · ${scopeStr} · up to ${effectiveCount} questions`;
+  })();
+
+  // Validity rules so Generate can short-circuit with a useful message.
+  const generationBlockerMessage: string | null = (() => {
+    if (mistakeAware) return null; // already validated by canEnableMistakeAware
+    if (paperScope === "multi-topic" && generationTopicKeys.length < 2) {
+      return "Pick at least 2 topics to build a multi-topic worksheet.";
+    }
+    if (paperScope === "full-subject" && generationTopicKeys.length === 0) {
+      return "No topics available for this subject + stream combination.";
+    }
+    return null;
   })();
 
   // ContextBar chips
   const chips = [
     { label: subject, tone: "accent" as const },
     { label: "Class 10 · CBSE", tone: "info" as const },
-    { label: `Topic: ${topicLabel}`, tone: "neutral" as const },
+    {
+      label: paperScope === "topic" ? "Single topic"
+        : paperScope === "multi-topic" ? `Multi-topic · ${generationTopicKeys.length}`
+        : "Full subject",
+      tone: "neutral" as const,
+    },
     {
       label: mode === "preset" ? `Preset: ${activePreset.label}` : "Custom filters",
       tone: "neutral" as const,
     },
   ];
 
-  // Build the current desktop-worksheet path so Upload-your-answers can
+  // Build the canonical desktop-worksheet path so Upload-your-answers can
   // round-trip the user back to the exact same scope (source + returnTo).
   const currentWorksheetPath = buildDesktopWorksheetPath({
     scope: paperScope,
     subject,
     stream,
     topic: paperScope === "topic" ? topicKey : undefined,
+    topics: paperScope === "multi-topic" ? generationTopicKeys : undefined,
+    mistakeAware,
     source: "worksheet",
   });
 
-  const checkPath = buildDesktopCheckPath(topicKey, {
-    source: "worksheet",
-    returnTo: currentWorksheetPath,
-  });
+  const checkPath = buildDesktopCheckPath(
+    paperScope === "topic" ? topicKey : undefined,
+    { source: "worksheet", returnTo: currentWorksheetPath },
+  );
 
-  // Keep the same generation contract the mobile page uses.
-  // Source: lazytopper/src/pages/app/Worksheets.tsx — handleGenerate
+  // ── Saved worksheets (local only) ─────────────────────────────────────
+  const [savedCount, setSavedCount] = React.useState<number>(0);
+  const [saveStatus, setSaveStatus] =
+    React.useState<"idle" | "saved" | "failed">("idle");
+
+  React.useEffect(() => {
+    setSavedCount(countSavedWorksheets());
+  }, []);
+
+  function handleSave() {
+    if (generationBlockerMessage) {
+      setError(generationBlockerMessage);
+      setSaveStatus("failed");
+      return;
+    }
+    const sectionsForSave: SavedSectionFilter =
+      effectiveSections === "All" ? "All" : [...(effectiveSections as string[])];
+
+    const savedLabel = (() => {
+      const presetOrCustom = mode === "preset" ? activePreset.label : "Custom";
+      return `${previewTopicLabel} · ${presetOrCustom}`;
+    })();
+
+    const record = saveWorksheet({
+      label:        savedLabel,
+      subject,
+      stream,
+      scope:        paperScope,
+      topicKeys:    generationTopicKeys,
+      topicLabel:   previewTopicLabel,
+      sections:     sectionsForSave,
+      difficulty:   effectiveDifficulty,
+      count:        effectiveCount,
+      mistakeAware,
+    });
+    if (record) {
+      setSaveStatus("saved");
+      setSavedCount(countSavedWorksheets());
+      setError(null);
+      setInfo(null);
+      // Clear the "Saved" badge after a short window so the user can save
+      // another variant and still see fresh feedback.
+      window.setTimeout(() => setSaveStatus((s) => (s === "saved" ? "idle" : s)), 4000);
+    } else {
+      setSaveStatus("failed");
+    }
+  }
+
+  // ── Generation (real, multi-topic + full-subject aware) ───────────────
   async function handleGenerate() {
     setError(null);
+    setInfo(null);
+
+    if (generationBlockerMessage) {
+      setError(generationBlockerMessage);
+      return;
+    }
+
     setGenerating(true);
     try {
       const sectionsArg: string[] | undefined =
         effectiveSections === "All" ? undefined : (effectiveSections as string[]);
 
-      const questions = generatePracticeQuestions({
-        subject: subject as LTSubjectKey,
-        topicKey,
-        count: effectiveCount,
-        difficulty: effectiveDifficulty === "All" ? undefined : effectiveDifficulty as never,
-        sections: sectionsArg,
-        // Worksheets must never repeat questions to inflate count — same
-        // contract mobile uses. A smaller result means the bank genuinely
-        // has fewer matching unique questions.
-        allowRepeats: false,
-      });
+      // Multi-topic + full-subject aggregation:
+      //   - Call the production generator once per topic with
+      //     allowRepeats:false so each call returns the unique pool for
+      //     that topic (truthful sparse counts).
+      //   - De-duplicate across topics by question.id.
+      //   - Shuffle the combined unique set, then truncate to the
+      //     requested count. A smaller result means the bank genuinely
+      //     has fewer matching unique questions across the chosen scope.
+      const seenIds = new Set<string>();
+      const collected: PracticeQuestion[] = [];
 
-      if (questions.length === 0) {
+      for (const tk of generationTopicKeys) {
+        const perTopic = generatePracticeQuestions({
+          subject: subject as LTSubjectKey,
+          topicKey: tk,
+          // Per-topic cap: the full count, so single-topic behavior is
+          // identical to today and multi/full-subject can pull broadly
+          // before we de-dup + shuffle + truncate.
+          count: effectiveCount,
+          difficulty: effectiveDifficulty === "All"
+            ? undefined
+            : (effectiveDifficulty as never),
+          sections: sectionsArg,
+          allowRepeats: false,
+        });
+        for (const q of perTopic) {
+          if (!seenIds.has(q.id)) {
+            seenIds.add(q.id);
+            collected.push(q);
+          }
+        }
+      }
+
+      // Shuffle the combined unique set so multi-topic / full-subject
+      // worksheets aren't visually clumped by topic.
+      for (let i = collected.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [collected[i], collected[j]] = [collected[j], collected[i]];
+      }
+      const finalSet = collected.slice(0, effectiveCount);
+
+      if (finalSet.length === 0) {
         const scopeStr = sectionScopeLabel(effectiveSections);
         setError(
-          `No questions found for ${scopeStr} in this topic. ` +
-          `Try a different topic or the "Board exam mix" preset for full coverage.`,
+          `No questions found for ${scopeStr} in this scope. ` +
+          `Try a different topic, widen the section filter, or choose the "Board exam mix" preset.`,
         );
         setGenerating(false);
         return;
       }
 
+      if (finalSet.length < effectiveCount) {
+        setInfo(
+          `The bank only has ${finalSet.length} unique question${finalSet.length === 1 ? "" : "s"} ` +
+          `matching this scope right now — generating the truthful smaller worksheet (no duplicates).`,
+        );
+      }
+
       const opts: WorksheetOptions = {
-        topicLabel,
+        topicLabel: previewTopicLabel,
         subjectKey: subject,
         grade: "10",
         difficulty: effectiveDifficulty,
         sectionFilter: effectiveSections,
-        questions,
+        questions: finalSet,
       };
 
       navigate("/practice/worksheets/ready", { state: { opts } });
@@ -483,44 +899,115 @@ export default function DesktopWorksheetsPage() {
     }
   }
 
-  // Mistake-aware mini-toggle: kept in the prototype's right-of-ContextBar
-  // slot, but honestly disabled because real per-learner mistake intel is
-  // not yet wired into the desktop graduation surface.
-  const mistakeToggleNote =
-    "Grade an answer in Check & Improve to unlock mistake-focus worksheets.";
+  // ── Mistake-aware mini-toggle (right slot of ContextBar) ───────────────
+  const mistakeToggle = (() => {
+    if (canEnableMistakeAware) {
+      return (
+        <label
+          title={
+            `Auto-focus this worksheet on your top-marked-down topic ` +
+            `("${mistakeHotspotForActiveScope?.topTopicLabel}") from the last ${mistakeHotspotForActiveScope?.recentDays} days.`
+          }
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+            padding: "6px 10px",
+            background: mistakeAware ? PRIMARY_GREEN_SOFT : PILL_BG,
+            border: `1px solid ${mistakeAware ? PRIMARY_GREEN : BORDER}`,
+            borderRadius: 999,
+            color: mistakeAware ? PRIMARY_GREEN_FG : TEXT_FG,
+            fontSize: 12,
+            fontWeight: 600,
+            cursor: "pointer",
+            fontFamily: FONT_BODY,
+          }}
+        >
+          <input
+            type="checkbox"
+            checked={mistakeAware}
+            onChange={(e) => setMistakeAware(e.target.checked)}
+            style={{ accentColor: PRIMARY_GREEN, cursor: "pointer" }}
+            aria-label="Add mistake-focus mini-section"
+          />
+          <IconSparkles />
+          Add mistake-focus mini-section
+        </label>
+      );
+    }
+    return (
+      <span
+        title="Grade an answer in Check & Improve to unlock mistake-focus worksheets."
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 8,
+          padding: "6px 10px",
+          background: PILL_BG,
+          border: `1px solid ${BORDER}`,
+          borderRadius: 999,
+          color: TEXT_MUTED,
+          fontSize: 12,
+          fontWeight: 500,
+          cursor: "not-allowed",
+          opacity: 0.85,
+          fontFamily: FONT_BODY,
+        }}
+        aria-disabled="true"
+      >
+        <input
+          type="checkbox"
+          checked={false}
+          readOnly
+          disabled
+          style={{ accentColor: PRIMARY_GREEN, cursor: "not-allowed" }}
+          aria-label="Add mistake-focus mini-section (not yet available)"
+        />
+        <IconLock />
+        Add mistake-focus mini-section
+      </span>
+    );
+  })();
 
-  const mistakeToggle = (
-    <span
-      title={mistakeToggleNote}
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: 8,
-        padding: "6px 10px",
-        background: PILL_BG,
-        border: `1px solid ${BORDER}`,
-        borderRadius: 999,
-        color: TEXT_MUTED,
-        fontSize: 12,
-        fontWeight: 500,
-        cursor: "not-allowed",
-        opacity: 0.85,
-        fontFamily: FONT_BODY,
-      }}
-      aria-disabled="true"
-    >
-      <input
-        type="checkbox"
-        checked={false}
-        readOnly
-        disabled
-        style={{ accentColor: PRIMARY_GREEN, cursor: "not-allowed" }}
-        aria-label="Add mistake-focus mini-section (not yet available)"
-      />
-      <IconLock />
-      Add mistake-focus mini-section
-    </span>
-  );
+  // ── Mistake intelligence panel insights (real, no fakes) ──────────────
+  const mistakeInsights: DesktopMistakeInsight[] = (() => {
+    if (!mistakeFocus.hasData || !mistakeFocus.topTopicLabel || !mistakeFocus.topMistakeKind) return [];
+    const subjectStr: "Maths" | "Science" =
+      mistakeFocus.topTopicSubject ?? subject;
+    const streamStr =
+      subjectStr === "Science"
+        ? (() => {
+          const t = SCIENCE_TOPICS.find((x) => x.key === mistakeFocus.topTopicKey);
+          return (t?.stream ?? "All") as ScienceStream;
+        })()
+        : "All";
+    const kindLabel = MISTAKE_KIND_LABEL[mistakeFocus.topMistakeKind];
+    const recommendedTopic = mistakeFocus.topTopicKey
+      ? [mistakeFocus.topTopicKey]
+      : [];
+    return [
+      {
+        id: `live-top-${mistakeFocus.topTopicKey ?? "topic"}`,
+        topicSlug: mistakeFocus.topTopicKey ?? "",
+        topicName: mistakeFocus.topTopicLabel,
+        subject: subjectStr,
+        stream: streamStr,
+        mistakeType: mistakeFocus.topMistakeKind,
+        mistakeLabel: `Most-marked-down topic (last ${mistakeFocus.recentDays} days)`,
+        detail:
+          `From your real Check & Improve attempts: ${kindLabel.toLowerCase()} ` +
+          `mistakes on ${mistakeFocus.topTopicLabel} cost the most marks ` +
+          `(${mistakeFocus.topTopicMarksLost} mark${mistakeFocus.topTopicMarksLost === 1 ? "" : "s"} across ${mistakeFocus.totalEntries} graded entries).`,
+        recommendedDrill:
+          `Toggle "Add mistake-focus mini-section" above and press Generate — ` +
+          `the worksheet will auto-focus on this exact topic.`,
+        recommendedMode: "worksheet",
+        recommendedFilters: [],
+        recommendedTopicSlugs: recommendedTopic,
+        createdAt: new Date().toISOString(),
+      },
+    ];
+  })();
 
   return (
     <div
@@ -540,7 +1027,7 @@ export default function DesktopWorksheetsPage() {
       <ContextBar
         eyebrow="Practice · Worksheet"
         title="What worksheet do you want to build?"
-        subtitle="Pick a topic, then choose a board-pattern preset or set your own filters. Nothing is generated until you press Generate — the preview on the right shows exactly what will come out."
+        subtitle="Pick a topic, a topic combination, or the full subject. Choose a board-pattern preset or set your own filters. Nothing is generated until you press Generate — the preview on the right shows exactly what will come out."
         chips={chips}
         right={mistakeToggle}
       />
@@ -630,97 +1117,153 @@ export default function DesktopWorksheetsPage() {
               </div>
             ) : null}
 
-            {/* Scope mode */}
+            {/* Scope mode (all three enabled) */}
             <div>
               <SectionLabel>Scope</SectionLabel>
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                 <ScopeButton
                   active={paperScope === "topic"}
-                  onClick={() => setPaperScope("topic")}
+                  onClick={() => setScope("topic")}
                 >
                   Single topic
                 </ScopeButton>
                 <ScopeButton
-                  active={false}
-                  disabled
-                  onClick={() => {}}
-                  title="Multi-topic worksheets aren't available on desktop yet — generation currently uses one topic at a time."
+                  active={paperScope === "multi-topic"}
+                  onClick={() => setScope("multi-topic")}
                 >
-                  <IconLock /> Multi-topic
+                  Multi-topic
                 </ScopeButton>
                 <ScopeButton
-                  active={false}
-                  disabled
-                  onClick={() => {}}
-                  title="Full-subject worksheets aren't available on desktop yet — generation currently uses one topic at a time."
+                  active={paperScope === "full-subject"}
+                  onClick={() => setScope("full-subject")}
                 >
-                  <IconLock /> Full subject
+                  Full subject
                 </ScopeButton>
               </div>
-              <p
-                style={{
-                  margin: "8px 0 0",
-                  fontSize: 12,
-                  color: TEXT_MUTED,
-                  lineHeight: 1.5,
-                }}
-              >
-                Multi-topic and full-subject worksheets aren&rsquo;t available on
-                desktop yet — generation currently uses the single selected
-                topic from the list below.
-              </p>
+              {paperScope === "multi-topic" ? (
+                <p style={{ margin: "8px 0 0", fontSize: 12, color: TEXT_MUTED, lineHeight: 1.5 }}>
+                  Generation runs once per selected topic (no duplicates), then
+                  shuffles and trims to the question count. Pick 2 or more
+                  topics below.
+                </p>
+              ) : paperScope === "full-subject" ? (
+                <p style={{ margin: "8px 0 0", fontSize: 12, color: TEXT_MUTED, lineHeight: 1.5 }}>
+                  Generation pulls unique questions from <strong>every</strong>{" "}
+                  {subject}{subject === "Science" && stream !== "All" ? ` · ${stream}` : ""}{" "}
+                  topic visible below, then shuffles and trims to the question
+                  count.
+                </p>
+              ) : null}
             </div>
 
-            {/* Topic single-select */}
-            <div>
-              <SectionLabel>Topic</SectionLabel>
-              <ul
-                style={{
-                  listStyle: "none",
-                  margin: 0,
-                  padding: 0,
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
-                  gap: 8,
-                  maxHeight: 264,
-                  overflowY: "auto",
-                  paddingRight: 4,
-                }}
-              >
-                {topics.map((t) => {
-                  const checked = topicKey === t.key;
-                  return (
-                    <li key={t.key}>
-                      <label
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 8,
-                          padding: "10px 12px",
-                          border: `1px solid ${checked ? PRIMARY_GREEN : BORDER}`,
-                          background: checked ? PRIMARY_GREEN_SOFT : PILL_BG,
-                          borderRadius: 10,
-                          cursor: "pointer",
-                          fontSize: 13,
-                          fontWeight: checked ? 600 : 500,
-                          color: checked ? PRIMARY_GREEN_FG : TEXT_FG,
-                          lineHeight: 1.3,
-                        }}
-                      >
-                        <input
-                          type="radio"
-                          name="desktop-worksheet-topic"
-                          checked={checked}
-                          onChange={() => setTopicKey(t.key)}
-                          style={{ accentColor: PRIMARY_GREEN, marginTop: 0 }}
-                        />
-                        <span style={{ minWidth: 0 }}>{t.label}</span>
-                      </label>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
+            {/* Topic picker — single radio for "topic", multi checkbox for
+                "multi-topic", read-only list for "full-subject". */}
+            {paperScope === "full-subject" ? (
+              <div>
+                <SectionLabel>Topics in scope ({visibleTopics.length})</SectionLabel>
+                <div
+                  style={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: 6,
+                    padding: "10px 12px",
+                    border: `1px dashed ${BORDER}`,
+                    background: PILL_BG,
+                    borderRadius: 10,
+                  }}
+                >
+                  {visibleTopics.map((t) => (
+                    <span
+                      key={t.key}
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        padding: "4px 10px",
+                        borderRadius: 999,
+                        fontSize: 12,
+                        background: CARD_BG,
+                        color: TEXT_FG,
+                        border: `1px solid ${BORDER}`,
+                        fontWeight: 500,
+                      }}
+                    >
+                      {t.label}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div>
+                <SectionLabel>
+                  {paperScope === "topic" ? "Topic" : `Topics (pick 2+) · ${selectedTopicKeys.length} selected`}
+                </SectionLabel>
+                {paperScope === "multi-topic" && selectedTopicKeys.length < 2 ? (
+                  <p
+                    role="status"
+                    style={{
+                      margin: "0 0 6px",
+                      fontSize: 12,
+                      color: TEXT_MUTED,
+                    }}
+                  >
+                    Select at least <strong style={{ color: TEXT_FG }}>2 topics</strong> to
+                    enable multi-topic generation.
+                  </p>
+                ) : null}
+                <ul
+                  style={{
+                    listStyle: "none",
+                    margin: 0,
+                    padding: 0,
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+                    gap: 8,
+                    maxHeight: 264,
+                    overflowY: "auto",
+                    paddingRight: 4,
+                  }}
+                >
+                  {visibleTopics.map((t) => {
+                    const checked = paperScope === "topic"
+                      ? topicKey === t.key
+                      : selectedTopicKeys.includes(t.key);
+                    return (
+                      <li key={t.key}>
+                        <label
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 8,
+                            padding: "10px 12px",
+                            border: `1px solid ${checked ? PRIMARY_GREEN : BORDER}`,
+                            background: checked ? PRIMARY_GREEN_SOFT : PILL_BG,
+                            borderRadius: 10,
+                            cursor: "pointer",
+                            fontSize: 13,
+                            fontWeight: checked ? 600 : 500,
+                            color: checked ? PRIMARY_GREEN_FG : TEXT_FG,
+                            lineHeight: 1.3,
+                          }}
+                        >
+                          <input
+                            type={paperScope === "topic" ? "radio" : "checkbox"}
+                            name={paperScope === "topic" ? "desktop-worksheet-topic" : `desktop-worksheet-topics-${t.key}`}
+                            checked={checked}
+                            onChange={() =>
+                              paperScope === "topic"
+                                ? setTopicKey(t.key)
+                                : toggleSelectedTopic(t.key)
+                            }
+                            style={{ accentColor: PRIMARY_GREEN }}
+                          />
+                          <span style={{ minWidth: 0 }}>{t.label}</span>
+                        </label>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            )}
           </section>
 
           {/* Mode tabs */}
@@ -1044,6 +1587,36 @@ export default function DesktopWorksheetsPage() {
               </p>
             </div>
 
+            {/* Mistake-aware mini-section banner (real data) */}
+            {mistakeAware && mistakeHotspotForActiveScope ? (
+              <div
+                style={{
+                  padding: "10px 12px",
+                  borderRadius: 10,
+                  background: ACCENT_BG,
+                  color: ACCENT_FG,
+                  border: `1px solid ${ACCENT_BORDER}`,
+                  fontSize: 13,
+                  lineHeight: 1.5,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 4,
+                }}
+              >
+                <div style={{ display: "inline-flex", alignItems: "center", gap: 6, fontWeight: 700 }}>
+                  <IconSparkles /> Mistake-focus mini-section
+                </div>
+                <div>
+                  <strong>{mistakeHotspotForActiveScope.topTopicLabel}</strong>
+                  {" — "}
+                  {MISTAKE_KIND_LABEL[mistakeHotspotForActiveScope.topMistakeKind ?? "conceptual"].toLowerCase()} mistakes (last {mistakeHotspotForActiveScope.recentDays} days, {mistakeHotspotForActiveScope.totalEntries} graded entries).
+                </div>
+                <div style={{ fontSize: 11, opacity: 0.85 }}>
+                  Recommended, not required. Generation will use this single topic.
+                </div>
+              </div>
+            ) : null}
+
             {/* Honest summary list */}
             <ul
               style={{
@@ -1061,7 +1634,15 @@ export default function DesktopWorksheetsPage() {
                 value={subject === "Science" ? stream : "—"}
               />
               <SummaryRow label="Class" value="Class 10 · CBSE" />
-              <SummaryRow label="Topic" value={topicLabel} />
+              <SummaryRow
+                label="Scope"
+                value={
+                  paperScope === "topic" ? "Single topic"
+                    : paperScope === "multi-topic" ? `Multi-topic · ${generationTopicKeys.length}`
+                    : `Full subject · ${generationTopicKeys.length} topics`
+                }
+              />
+              <SummaryRow label="Topic" value={previewTopicLabel} />
               <SummaryRow
                 label="Sections"
                 value={sectionScopeLabel(effectiveSections)}
@@ -1070,7 +1651,7 @@ export default function DesktopWorksheetsPage() {
                 label="Difficulty"
                 value={effectiveDifficulty === "All" ? "All levels" : effectiveDifficulty}
               />
-              <SummaryRow label="Question count" value={String(effectiveCount)} accent />
+              <SummaryRow label="Question count" value={`up to ${effectiveCount}`} accent />
             </ul>
 
             {error ? (
@@ -1090,7 +1671,24 @@ export default function DesktopWorksheetsPage() {
               </div>
             ) : null}
 
-            {/* Actions: Generate (primary) · Save (disabled) · Upload (link) */}
+            {info ? (
+              <div
+                role="status"
+                style={{
+                  padding: "10px 12px",
+                  borderRadius: 10,
+                  background: PRIMARY_GREEN_SOFT,
+                  border: `1px solid ${BORDER}`,
+                  color: PRIMARY_GREEN_FG,
+                  fontSize: 12.5,
+                  lineHeight: 1.5,
+                }}
+              >
+                {info}
+              </div>
+            ) : null}
+
+            {/* Actions: Generate (primary) · Save (real local) · Upload (link) */}
             <div
               style={{
                 display: "flex",
@@ -1103,7 +1701,8 @@ export default function DesktopWorksheetsPage() {
               <button
                 type="button"
                 onClick={handleGenerate}
-                disabled={generating}
+                disabled={generating || !!generationBlockerMessage}
+                title={generationBlockerMessage ?? undefined}
                 style={{
                   appearance: "none",
                   WebkitAppearance: "none",
@@ -1111,12 +1710,14 @@ export default function DesktopWorksheetsPage() {
                   height: 48,
                   borderRadius: 12,
                   border: "none",
-                  background: generating ? "hsl(152, 30%, 75%)" : PRIMARY_GREEN,
+                  background: (generating || generationBlockerMessage)
+                    ? "hsl(152, 30%, 75%)"
+                    : PRIMARY_GREEN,
                   color: "#ffffff",
                   fontFamily: FONT_BODY,
                   fontWeight: 700,
                   fontSize: 15,
-                  cursor: generating ? "not-allowed" : "pointer",
+                  cursor: (generating || generationBlockerMessage) ? "not-allowed" : "pointer",
                   display: "inline-flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -1125,7 +1726,15 @@ export default function DesktopWorksheetsPage() {
                 }}
               >
                 <IconWorksheet />
-                {generating ? "Generating…" : `Generate ${topicLabel} worksheet`}
+                {generating
+                  ? "Generating…"
+                  : mistakeAware
+                    ? "Generate mistake-aware worksheet"
+                    : paperScope === "full-subject"
+                      ? `Generate full ${subject} worksheet`
+                      : paperScope === "multi-topic"
+                        ? "Generate selected-topic worksheet"
+                        : `Generate ${previewTopicLabel} worksheet`}
                 {!generating ? <IconArrowRight /> : null}
               </button>
 
@@ -1138,32 +1747,33 @@ export default function DesktopWorksheetsPage() {
               >
                 <button
                   type="button"
-                  disabled
-                  title="Save worksheet is not available yet on desktop."
+                  onClick={handleSave}
+                  disabled={!!generationBlockerMessage}
+                  title={generationBlockerMessage ?? "Saved on this device"}
                   style={{
                     appearance: "none",
                     WebkitAppearance: "none",
                     flex: "1 1 180px",
                     height: 40,
                     borderRadius: 10,
-                    border: `1px solid ${BORDER}`,
-                    background: PILL_BG,
-                    color: DISABLED_FG,
+                    border: `1px solid ${saveStatus === "saved" ? PRIMARY_GREEN : BORDER}`,
+                    background: saveStatus === "saved" ? PRIMARY_GREEN_SOFT : CARD_BG,
+                    color: saveStatus === "saved"
+                      ? PRIMARY_GREEN_FG
+                      : (generationBlockerMessage ? DISABLED_FG : TEXT_FG),
                     fontFamily: FONT_BODY,
                     fontWeight: 600,
                     fontSize: 13,
-                    cursor: "not-allowed",
+                    cursor: generationBlockerMessage ? "not-allowed" : "pointer",
                     display: "inline-flex",
                     alignItems: "center",
                     justifyContent: "center",
                     gap: 6,
-                    opacity: 0.85,
+                    opacity: generationBlockerMessage ? 0.7 : 1,
                   }}
-                  aria-disabled="true"
                 >
-                  <IconLock />
                   <IconSave />
-                  Save worksheet
+                  {saveStatus === "saved" ? "Saved on this device" : "Save worksheet"}
                 </button>
 
                 <Link
@@ -1198,10 +1808,17 @@ export default function DesktopWorksheetsPage() {
                   lineHeight: 1.5,
                 }}
               >
-                Save worksheet isn&rsquo;t wired up on desktop yet. Upload
-                your answers takes you to Check &amp; Improve with this
+                {savedCount > 0
+                  ? `${savedCount} worksheet${savedCount === 1 ? "" : "s"} saved on this device. `
+                  : "Save worksheet stores the plan locally on this device only. "}
+                Upload your answers takes you to Check &amp; Improve with this
                 topic pre-selected.
               </p>
+              {saveStatus === "failed" ? (
+                <p style={{ margin: 0, fontSize: 12, color: DANGER_FG, lineHeight: 1.5 }}>
+                  Couldn&rsquo;t save — local storage may be full or unavailable.
+                </p>
+              ) : null}
             </div>
 
             <p
@@ -1217,10 +1834,11 @@ export default function DesktopWorksheetsPage() {
             </p>
           </section>
 
-          {/* Mistake intelligence panel — empty-state shape, no invented data. */}
+          {/* Mistake intelligence panel — real data only. Empty when the
+              learner has not graded any answers yet. */}
           <MistakeIntelligencePanel
             title="Mistake-focus worksheets"
-            insights={[]}
+            insights={mistakeInsights}
             emptyMessage="Grade an answer in Check & Improve to unlock mistake-focus worksheets. Once you have graded attempts, your weakest mistake type appears here as a recommended worksheet drill."
           />
 
@@ -1243,7 +1861,6 @@ export default function DesktopWorksheetsPage() {
           </p>
         </div>
       </div>
-
     </div>
   );
 }
