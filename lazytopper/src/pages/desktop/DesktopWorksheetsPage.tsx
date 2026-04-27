@@ -216,9 +216,6 @@ function Pill({
 }
 
 // ── Page ──────────────────────────────────────────────────────────────────
-const RETURN_TO = "/practice/worksheets";
-const SOURCE = "worksheet" as const;
-
 export default function DesktopWorksheetsPage() {
   const navigate = useNavigate();
   const ctx = useSubjectContext();
@@ -755,23 +752,6 @@ export default function DesktopWorksheetsPage() {
             Topic list mirrors the mobile worksheet generator (Class 10 CBSE
             chapters) so desktop and mobile produce the same worksheets from
             the same question bank — no extra coverage is implied.
-          </p>
-
-          {/* Source/returnTo trail used by outbound deep-links from this page.
-              We do NOT alter the navigate target / state passed to
-              WorksheetReady — the trail is only a hint for surfaces that
-              honor it. */}
-          <p
-            style={{
-              margin: 0,
-              fontSize: 11,
-              color: TEXT_MUTED,
-              fontStyle: "italic",
-            }}
-          >
-            <span style={{ visibility: "hidden" }} aria-hidden>
-              source={SOURCE} returnTo={RETURN_TO}
-            </span>
           </p>
         </div>
       </div>
