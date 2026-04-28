@@ -1,31 +1,61 @@
-import React from "react";
+import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+import {
+  buildDesktopPracticePath,
+  buildDesktopTopicHubPath,
+  buildDesktopWorksheetPath,
+  type DesktopStream,
+  type DesktopSubject,
+} from "../../lib/desktop/navigation";
+import {
+  desktopTopicBySlug,
+  desktopTopicsBySubject,
+  type DesktopTopicSummary,
+  type DesktopTrendTier,
+} from "../../lib/desktop/topics";
+import {
+  getHighlyProbableQuestions,
+  type HPQStream,
+  type HPQTopicBucket,
+} from "../../data/highlyProbableQuestions";
+
 /**
- * DesktopExamTrendsPage — locked desktop baseline Exam Trends surface.
+ * DesktopExamTrendsPage — locked prototype parity build (PR-E).
  *
- * Source of truth: chetan-anand-hub/lazytopper-desktop-view-e1fc5df7
- *   src/pages/ExamTrends.tsx
+ * Source of truth (locked desktop prototype):
+ *   chetan-anand-hub/topic-focus-lite — src/pages/TrendsPage.tsx
+ *   chetan-anand-hub/topic-focus-lite — src/components/ContextBar.tsx
+ *   chetan-anand-hub/topic-focus-lite — src/components/TopicActions.tsx
  *
- * Composition (mirrors the locked baseline exactly):
- *   1. PageHeader  — eyebrow "Exam Trends · Class 10 · 2026 board" /
- *      title "Priority board" /
- *      description "Built from 10 years of CBSE board papers + 2026 sample paper.
- *      Click any topic to open its Topic Hub."
- *   2. Three-column priority board:
- *        - Must Crack    (danger / red accent)
- *        - High ROI      (warning / amber accent)
- *        - Good to do    (info / blue accent)
- *      Each column header has an inline glyph, label, sub-line, and a
- *      count chip. Each column body is a vertical stack of topic cards
- *      with a strong left border in the column accent colour, subject
- *      eyebrow, topic name, "<n>% likely" rating on the right, marks
- *      footer, and "Open Topic Hub →" affordance.
+ * Composition (mirrors the prototype):
+ *   1. ContextBar / page header — "Exam Trends" title, subtitle about
+ *      tier-ranked topics + multi-select.
+ *   2. Filter card — Subject toggle (Maths / Science) and Science stream
+ *      toggle (All / Physics / Chemistry / Biology).  Stream toggle is
+ *      disabled / de-emphasised when subject is Maths.
+ *   3. Selected-topic tray — conditional, only when at least one topic is
+ *      added; multi-topic action buttons + clear.
+ *   4. Topic grid — two columns at desktop width; each card carries the
+ *      topic name, blurb, subject/stream eyebrow, trend chip, marks chip,
+ *      action row (Practice / Worksheet / Predicted Qs / Topic Hub) and
+ *      an Add-to-selection toggle.
  *
- * Routing reuse — topic cards link to the existing production
- * /topic-hub/:topicName route (the same destination the mobile baseline
- * uses). No prediction/data logic is touched. Topic Hub is intentionally
- * NOT shell-wrapped in this phase.
+ * Data honesty:
+ *   - No fabricated "% likely" claims.  Trend tier chips render
+ *     `High trend` / `Medium trend` / `Low trend`.
+ *   - HPQ counts come from `getHighlyProbableQuestions` only and are
+ *     matched by canonical normalised topic name; if no bucket matches
+ *     we render `No matched HPQs yet` instead of inventing a number.
+ *   - Mock / practice-paper CTA is honestly labelled
+ *     `Open existing mock builder` because it routes to the older mock
+ *     builder engine, which is not yet aligned to the locked prototype.
+ *
+ * Routing:
+ *   Uses production routes only — `/practice-hub`, `/practice/worksheets`,
+ *   `/highly-probable/:grade/:subject`, `/topic-hub/:topicSlug` and
+ *   `/mock-builder/:grade/:subject`.  Every CTA preserves
+ *   `source=trends` and `returnTo=/exam-trends`.
  *
  * Production constraints:
  *   - Inline styles only (no Tailwind, no shadcn classes).
@@ -34,26 +64,39 @@ import { useNavigate } from "react-router-dom";
  *     DesktopPracticePage.
  */
 
+// ─── Theme tokens (shared with DesktopHome / DesktopPracticePage) ──────────
 const PRIMARY_GREEN = "hsl(152, 55%, 45%)";
+const PRIMARY_GREEN_SOFT = "hsl(152, 55%, 95%)";
+const PRIMARY_GREEN_DEEP = "hsl(152, 60%, 38%)";
 const TEXT_FG = "hsl(220, 25%, 12%)";
 const TEXT_MUTED = "hsl(220, 15%, 42%)";
 const BORDER = "hsl(220, 18%, 90%)";
 const CARD_BG = "#ffffff";
+const SURFACE_SOFT = "hsl(215, 28%, 96%)";
 
-const DANGER_FG = "hsl(0, 70%, 45%)";
-const DANGER_SOFT = "hsl(0, 80%, 96%)";
-const WARNING_FG = "hsl(35, 80%, 35%)";
-const WARNING_SOFT = "hsl(43, 90%, 92%)";
-const INFO_FG = "hsl(212, 70%, 42%)";
-const INFO_SOFT = "hsl(212, 80%, 95%)";
+const TIER_COLOR: Record<DesktopTrendTier, { fg: string; bg: string }> = {
+  high: { fg: "hsl(152, 60%, 32%)", bg: "hsl(152, 55%, 95%)" },
+  medium: { fg: "hsl(35, 75%, 32%)", bg: "hsl(43, 90%, 94%)" },
+  low: { fg: "hsl(220, 15%, 38%)", bg: "hsl(220, 14%, 94%)" },
+};
+const TIER_LABEL: Record<DesktopTrendTier, string> = {
+  high: "High trend",
+  medium: "Medium trend",
+  low: "Low trend",
+};
+const TIER_SORT: Record<DesktopTrendTier, number> = {
+  high: 0,
+  medium: 1,
+  low: 2,
+};
 
 const FONT_DISPLAY =
   '"Fraunces", "Source Serif Pro", Georgia, "Times New Roman", serif';
 const FONT_BODY =
   '"Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif';
 
-// ── Inline SVG glyphs ──────────────────────────────────────────────────────
-const IconStroke: React.CSSProperties = {
+// ─── Inline SVG glyphs ─────────────────────────────────────────────────────
+const ICON: React.CSSProperties = {
   fill: "none",
   stroke: "currentColor",
   strokeWidth: 2,
@@ -61,199 +104,512 @@ const IconStroke: React.CSSProperties = {
   strokeLinejoin: "round",
 };
 
-function IconFlame({ size = 16 }: { size?: number }) {
+function IconLayers({ size = 14 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" style={IconStroke} aria-hidden>
-      <path d="M12 2c1 4 4 5 4 9a4 4 0 0 1-8 0c0-2 1-3 1-5 2 1 3 0 3-4z" />
-      <path d="M12 22a6 6 0 0 0 6-6c0-3-2-4-3-6 0 3-2 4-3 4-1 0-2-1-2-3-2 2-4 3-4 6a6 6 0 0 0 6 5z" />
+    <svg width={size} height={size} viewBox="0 0 24 24" style={ICON} aria-hidden>
+      <polygon points="12 2 2 7 12 12 22 7 12 2" />
+      <polyline points="2 17 12 22 22 17" />
+      <polyline points="2 12 12 17 22 12" />
     </svg>
   );
 }
-function IconTrendingUp({ size = 16 }: { size?: number }) {
+function IconSparkles({ size = 14 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" style={IconStroke} aria-hidden>
-      <polyline points="3 17 9 11 13 15 21 7" />
-      <polyline points="14 7 21 7 21 14" />
-    </svg>
-  );
-}
-function IconSparkle({ size = 16 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" style={IconStroke} aria-hidden>
+    <svg width={size} height={size} viewBox="0 0 24 24" style={ICON} aria-hidden>
       <path d="M12 3l1.8 4.6L18 9.4l-4.2 1.8L12 15.8l-1.8-4.6L6 9.4l4.2-1.8z" />
-      <path d="M19 14l.9 2.1L22 17l-2.1.9L19 20l-.9-2.1L16 17l2.1-.9z" />
+      <path d="M19 14l.7 1.8L21.5 16.5l-1.8.7L19 19l-.7-1.8L16.5 16.5l1.8-.7z" />
     </svg>
   );
 }
-function IconArrowRight({ size = 14 }: { size?: number }) {
+function IconClipboard({ size = 14 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" style={IconStroke} aria-hidden>
+    <svg width={size} height={size} viewBox="0 0 24 24" style={ICON} aria-hidden>
+      <rect x="8" y="2" width="8" height="4" rx="1" />
+      <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+    </svg>
+  );
+}
+function IconBook({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" style={ICON} aria-hidden>
+      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+    </svg>
+  );
+}
+function IconTimer({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" style={ICON} aria-hidden>
+      <circle cx="12" cy="13" r="8" />
+      <path d="M12 9v4l2 2" />
+      <path d="M9 2h6" />
+    </svg>
+  );
+}
+function IconPlus({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" style={ICON} aria-hidden>
+      <line x1="12" y1="5" x2="12" y2="19" />
       <line x1="5" y1="12" x2="19" y2="12" />
-      <polyline points="12 5 19 12 12 19" />
+    </svg>
+  );
+}
+function IconCheck({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" style={ICON} aria-hidden>
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
+  );
+}
+function IconTrash({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" style={ICON} aria-hidden>
+      <polyline points="3 6 5 6 21 6" />
+      <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+      <path d="M10 11v6M14 11v6" />
+      <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
     </svg>
   );
 }
 
-// ── PageHeader (matches DesktopHome / DesktopPracticePage) ─────────────────
-function PageHeader({
-  eyebrow,
-  title,
-  description,
+// ─── Honest HPQ matching ───────────────────────────────────────────────────
+const normalize = (value: string) =>
+  value
+    .toLowerCase()
+    .replace(/&/g, " and ")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim()
+    .replace(/\s+/g, " ");
+
+const STREAM_TO_HPQ: Record<DesktopStream, HPQStream | undefined> = {
+  All: undefined,
+  Physics: "Physics",
+  Chemistry: "Chemistry",
+  Biology: "Biology",
+};
+
+function countHPQForTopic(topic: DesktopTopicSummary): number {
+  const stream = topic.subject === "Science" ? STREAM_TO_HPQ[topic.stream] : undefined;
+  const buckets: HPQTopicBucket[] = getHighlyProbableQuestions(topic.subject, stream);
+  if (buckets.length === 0) return 0;
+  const slugNorm = normalize(topic.slug);
+  const nameNorm = normalize(topic.name);
+  const match = buckets.find((bucket) => {
+    const t = normalize(bucket.topic);
+    if (t === slugNorm || t === nameNorm) return true;
+    // Looser match: prefix in either direction (covers minor naming differences
+    // such as "Light – Reflection & Refraction" vs "Light Reflection Refraction").
+    return t.startsWith(nameNorm) || nameNorm.startsWith(t);
+  });
+  if (!match) return 0;
+  return match.questions.length;
+}
+
+// ─── Toggle button (used by filter card) ───────────────────────────────────
+function ToggleButton({
+  active,
+  disabled,
+  onClick,
+  children,
 }: {
-  eyebrow: string;
-  title: string;
-  description: string;
+  active: boolean;
+  disabled?: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
 }) {
   return (
-    <div style={{ marginBottom: 32 }}>
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      style={{
+        appearance: "none",
+        border: `1px solid ${active ? PRIMARY_GREEN : BORDER}`,
+        background: active ? PRIMARY_GREEN_SOFT : CARD_BG,
+        color: disabled ? "hsl(220, 14%, 70%)" : active ? PRIMARY_GREEN_DEEP : TEXT_FG,
+        padding: "8px 14px",
+        borderRadius: 999,
+        fontFamily: FONT_BODY,
+        fontSize: 13,
+        fontWeight: 600,
+        cursor: disabled ? "not-allowed" : "pointer",
+        opacity: disabled ? 0.55 : 1,
+        transition: "background 160ms ease, border-color 160ms ease, color 160ms ease",
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
+// ─── Action button (per-card and tray actions) ─────────────────────────────
+function ActionButton({
+  variant,
+  onClick,
+  icon,
+  children,
+  fullWidth,
+}: {
+  variant: "primary" | "secondary" | "ghost";
+  onClick: () => void;
+  icon?: React.ReactNode;
+  children: React.ReactNode;
+  fullWidth?: boolean;
+}) {
+  const [hover, setHover] = useState(false);
+  const palette = (() => {
+    if (variant === "primary") {
+      return {
+        bg: hover ? PRIMARY_GREEN_DEEP : PRIMARY_GREEN,
+        color: "#fff",
+        border: hover ? PRIMARY_GREEN_DEEP : PRIMARY_GREEN,
+      };
+    }
+    if (variant === "secondary") {
+      return {
+        bg: hover ? SURFACE_SOFT : CARD_BG,
+        color: TEXT_FG,
+        border: BORDER,
+      };
+    }
+    return {
+      bg: hover ? SURFACE_SOFT : "transparent",
+      color: TEXT_MUTED,
+      border: "transparent",
+    };
+  })();
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      style={{
+        appearance: "none",
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 6,
+        padding: "8px 12px",
+        borderRadius: 8,
+        border: `1px solid ${palette.border}`,
+        background: palette.bg,
+        color: palette.color,
+        fontFamily: FONT_BODY,
+        fontSize: 12,
+        fontWeight: 600,
+        cursor: "pointer",
+        transition: "background 160ms ease, color 160ms ease, border-color 160ms ease",
+        width: fullWidth ? "100%" : "auto",
+      }}
+    >
+      {icon}
+      <span>{children}</span>
+    </button>
+  );
+}
+
+// ─── Page header (visual cousin of DesktopHome / DesktopPracticePage) ─────
+function PageHeader({
+  subject,
+  stream,
+  selectedCount,
+}: {
+  subject: DesktopSubject;
+  stream: DesktopStream;
+  selectedCount: number;
+}) {
+  const scopeLabel =
+    selectedCount > 0
+      ? `${selectedCount} topic${selectedCount === 1 ? "" : "s"} selected`
+      : "Browse by trend tier";
+  const subjectLabel =
+    subject === "Science" && stream !== "All" ? `Science · ${stream}` : subject;
+  return (
+    <header style={{ marginBottom: 28 }}>
       <div
         style={{
-          display: "inline-flex",
+          display: "flex",
+          flexWrap: "wrap",
           alignItems: "center",
           gap: 8,
-          padding: "4px 10px",
-          borderRadius: 999,
-          background: "hsl(152, 55%, 95%)",
-          color: PRIMARY_GREEN,
-          fontFamily: FONT_BODY,
-          fontSize: 11,
-          fontWeight: 600,
-          letterSpacing: "0.08em",
-          textTransform: "uppercase",
+          marginBottom: 14,
         }}
       >
-        {eyebrow}
+        {[
+          "Class 10",
+          subjectLabel,
+          `Scope: ${scopeLabel}`,
+        ].map((label) => (
+          <span
+            key={label}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              padding: "4px 10px",
+              borderRadius: 999,
+              background: SURFACE_SOFT,
+              color: TEXT_MUTED,
+              fontFamily: FONT_BODY,
+              fontSize: 11,
+              fontWeight: 600,
+              letterSpacing: "0.04em",
+              textTransform: "uppercase",
+            }}
+          >
+            {label}
+          </span>
+        ))}
       </div>
       <h1
         style={{
-          margin: "14px 0 10px 0",
+          margin: "0 0 8px 0",
           fontFamily: FONT_DISPLAY,
-          fontSize: 36,
+          fontSize: 32,
           fontWeight: 600,
           letterSpacing: "-0.01em",
           color: TEXT_FG,
           lineHeight: 1.1,
         }}
       >
-        {title}
+        Exam Trends
       </h1>
       <p
         style={{
           margin: 0,
           maxWidth: 720,
           fontFamily: FONT_BODY,
-          fontSize: 15,
+          fontSize: 14,
           lineHeight: 1.55,
           color: TEXT_MUTED,
         }}
       >
-        {description}
+        Tier-ranked topics. Select multiple to build practice, worksheet, predicted questions, or mock.
       </p>
-    </div>
+    </header>
   );
 }
 
-// ── Locked baseline content (mirrors lazytopper-desktop-view-e1fc5df7) ─────
-type Topic = {
-  name: string;
-  marks: string;
-  prob: number;
-  sub: string;
-};
-
-type Column = {
-  id: "must" | "high" | "good";
-  label: string;
-  sub: string;
-  Icon: React.FC<{ size?: number }>;
-  accentFg: string;
-  accentSoft: string;
-  topics: Topic[];
-};
-
-const COLUMNS: Column[] = [
-  {
-    id: "must",
-    label: "Must Crack",
-    sub: "Appears in 9/10 board years. Don't skip.",
-    Icon: IconFlame,
-    accentFg: DANGER_FG,
-    accentSoft: DANGER_SOFT,
-    topics: [
-      { name: "Quadratic Equations", marks: "12-14 marks", prob: 96, sub: "Maths" },
-      { name: "Trigonometry & Heights", marks: "10-12 marks", prob: 94, sub: "Maths" },
-      { name: "Light – Reflection & Refraction", marks: "8-10 marks", prob: 93, sub: "Science" },
-      { name: "Electricity", marks: "10 marks", prob: 92, sub: "Science" },
-    ],
-  },
-  {
-    id: "high",
-    label: "High ROI",
-    sub: "Short syllabus, big mark return.",
-    Icon: IconTrendingUp,
-    accentFg: WARNING_FG,
-    accentSoft: WARNING_SOFT,
-    topics: [
-      { name: "Probability", marks: "5-6 marks", prob: 81, sub: "Maths" },
-      { name: "Statistics", marks: "5-6 marks", prob: 78, sub: "Maths" },
-      { name: "Acids, Bases & Salts", marks: "6-8 marks", prob: 76, sub: "Science" },
-      { name: "Heredity", marks: "4-5 marks", prob: 72, sub: "Science" },
-    ],
-  },
-  {
-    id: "good",
-    label: "Good to do",
-    sub: "Lower probability, polish-level.",
-    Icon: IconSparkle,
-    accentFg: INFO_FG,
-    accentSoft: INFO_SOFT,
-    topics: [
-      { name: "Coordinate Geometry", marks: "3-4 marks", prob: 58, sub: "Maths" },
-      { name: "Surface Areas & Volumes", marks: "3 marks", prob: 54, sub: "Maths" },
-      { name: "Carbon & Compounds", marks: "4 marks", prob: 51, sub: "Science" },
-      { name: "Our Environment", marks: "2-3 marks", prob: 42, sub: "Science" },
-    ],
-  },
-];
-
-// ── Topic card ─────────────────────────────────────────────────────────────
-function TopicCard({
-  topic,
-  accentFg,
-  onOpen,
+// ─── Filter card ───────────────────────────────────────────────────────────
+function FilterCard({
+  subject,
+  stream,
+  onSubject,
+  onStream,
 }: {
-  topic: Topic;
-  accentFg: string;
-  onOpen: () => void;
+  subject: DesktopSubject;
+  stream: DesktopStream;
+  onSubject: (s: DesktopSubject) => void;
+  onStream: (s: DesktopStream) => void;
 }) {
-  const [hover, setHover] = React.useState(false);
+  const scienceDisabled = subject !== "Science";
   return (
-    <button
-      type="button"
-      onClick={onOpen}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
+    <section
       style={{
-        display: "block",
-        width: "100%",
-        textAlign: "left",
         background: CARD_BG,
         border: `1px solid ${BORDER}`,
-        borderLeft: `4px solid ${accentFg}`,
         borderRadius: 14,
-        padding: "18px 20px",
-        cursor: "pointer",
-        boxShadow: hover
-          ? "0 8px 22px -12px rgba(15, 23, 42, 0.18)"
-          : "0 1px 2px rgba(15, 23, 42, 0.04)",
-        transform: hover ? "translateY(-1px)" : "translateY(0)",
-        transition:
-          "transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease",
-        font: "inherit",
-        color: "inherit",
+        padding: 18,
+        marginBottom: 20,
+        boxShadow: "0 1px 2px rgba(15, 23, 42, 0.04)",
+        display: "flex",
+        flexWrap: "wrap",
+        alignItems: "center",
+        gap: 16,
+      }}
+    >
+      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+        <span
+          style={{
+            fontFamily: FONT_BODY,
+            fontSize: 11,
+            fontWeight: 600,
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+            color: TEXT_MUTED,
+          }}
+        >
+          Subject
+        </span>
+        <div style={{ display: "flex", gap: 8 }}>
+          <ToggleButton active={subject === "Maths"} onClick={() => onSubject("Maths")}>
+            Maths
+          </ToggleButton>
+          <ToggleButton active={subject === "Science"} onClick={() => onSubject("Science")}>
+            Science
+          </ToggleButton>
+        </div>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+        <span
+          style={{
+            fontFamily: FONT_BODY,
+            fontSize: 11,
+            fontWeight: 600,
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+            color: scienceDisabled ? "hsl(220, 14%, 70%)" : TEXT_MUTED,
+          }}
+        >
+          Science stream
+        </span>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {(["All", "Physics", "Chemistry", "Biology"] as DesktopStream[]).map((s) => (
+            <ToggleButton
+              key={s}
+              active={!scienceDisabled && stream === s}
+              disabled={scienceDisabled}
+              onClick={() => onStream(s)}
+            >
+              {s}
+            </ToggleButton>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Selected topic tray ───────────────────────────────────────────────────
+function SelectedTopicTray({
+  selectedSlugs,
+  subject,
+  stream,
+  onPractice,
+  onWorksheet,
+  onPredicted,
+  onMock,
+  onClear,
+}: {
+  selectedSlugs: string[];
+  subject: DesktopSubject;
+  stream: DesktopStream;
+  onPractice: () => void;
+  onWorksheet: () => void;
+  onPredicted: () => void;
+  onMock: () => void;
+  onClear: () => void;
+}) {
+  const names = selectedSlugs
+    .map((slug) => desktopTopicBySlug(slug)?.name)
+    .filter(Boolean) as string[];
+  const subjectLabel =
+    subject === "Science" && stream !== "All" ? `Science · ${stream}` : subject;
+  return (
+    <section
+      style={{
+        background: CARD_BG,
+        border: `1px solid ${PRIMARY_GREEN}`,
+        borderRadius: 14,
+        padding: 18,
+        marginBottom: 20,
+        boxShadow: "0 6px 20px -14px rgba(15, 23, 42, 0.18)",
       }}
     >
       <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "flex-start",
+          justifyContent: "space-between",
+          gap: 14,
+        }}
+      >
+        <div style={{ minWidth: 0, flex: "1 1 280px" }}>
+          <div
+            style={{
+              fontFamily: FONT_BODY,
+              fontSize: 11,
+              fontWeight: 600,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              color: TEXT_MUTED,
+            }}
+          >
+            Selected topics · {subjectLabel}
+          </div>
+          <div
+            style={{
+              marginTop: 6,
+              fontFamily: FONT_DISPLAY,
+              fontSize: 16,
+              fontWeight: 600,
+              color: TEXT_FG,
+              lineHeight: 1.4,
+            }}
+          >
+            {names.join(" + ")}
+          </div>
+        </div>
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: 8,
+            justifyContent: "flex-end",
+          }}
+        >
+          <ActionButton variant="primary" icon={<IconLayers />} onClick={onPractice}>
+            Practice selected topics
+          </ActionButton>
+          <ActionButton variant="secondary" icon={<IconClipboard />} onClick={onWorksheet}>
+            Generate worksheet
+          </ActionButton>
+          <ActionButton variant="secondary" icon={<IconSparkles />} onClick={onPredicted}>
+            Predicted Qs
+          </ActionButton>
+          <ActionButton variant="secondary" icon={<IconTimer />} onClick={onMock}>
+            Open existing mock builder
+          </ActionButton>
+          <ActionButton variant="ghost" icon={<IconTrash />} onClick={onClear}>
+            Clear
+          </ActionButton>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Topic card ────────────────────────────────────────────────────────────
+function TopicCard({
+  topic,
+  hpqCount,
+  selected,
+  onPractice,
+  onWorksheet,
+  onPredicted,
+  onTopicHub,
+  onToggleSelect,
+}: {
+  topic: DesktopTopicSummary;
+  hpqCount: number;
+  selected: boolean;
+  onPractice: () => void;
+  onWorksheet: () => void;
+  onPredicted: () => void;
+  onTopicHub: () => void;
+  onToggleSelect: () => void;
+}) {
+  const tier = TIER_COLOR[topic.trendTier];
+  const subjectLabel =
+    topic.subject === "Science" && topic.stream !== "All"
+      ? `Science · ${topic.stream}`
+      : topic.subject;
+  return (
+    <article
+      style={{
+        background: CARD_BG,
+        border: `1px solid ${selected ? PRIMARY_GREEN : BORDER}`,
+        borderRadius: 14,
+        padding: 20,
+        display: "flex",
+        flexDirection: "column",
+        gap: 14,
+        boxShadow: "0 1px 2px rgba(15, 23, 42, 0.04)",
+        transition: "border-color 160ms ease, box-shadow 160ms ease",
+      }}
+    >
+      <header
         style={{
           display: "flex",
           alignItems: "flex-start",
@@ -272,218 +628,343 @@ function TopicCard({
               color: TEXT_MUTED,
             }}
           >
-            {topic.sub}
+            {subjectLabel}
           </div>
-          <h4
-            style={{
-              margin: "6px 0 0 0",
-              fontFamily: FONT_DISPLAY,
-              fontSize: 16,
-              fontWeight: 600,
-              lineHeight: 1.3,
-              color: TEXT_FG,
-            }}
-          >
-            {topic.name}
-          </h4>
-        </div>
-        <div style={{ textAlign: "right", flexShrink: 0 }}>
-          <div
-            style={{
-              fontFamily: FONT_BODY,
-              fontSize: 16,
-              fontWeight: 700,
-              color: TEXT_FG,
-              lineHeight: 1,
-            }}
-          >
-            {topic.prob}%
-          </div>
-          <div
-            style={{
-              marginTop: 2,
-              fontFamily: FONT_BODY,
-              fontSize: 10,
-              color: TEXT_MUTED,
-            }}
-          >
-            likely
-          </div>
-        </div>
-      </div>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginTop: 16,
-        }}
-      >
-        <span
-          style={{
-            fontFamily: FONT_BODY,
-            fontSize: 12,
-            color: TEXT_MUTED,
-          }}
-        >
-          {topic.marks}
-        </span>
-        <span
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: hover ? 8 : 6,
-            fontFamily: FONT_BODY,
-            fontSize: 12,
-            fontWeight: 600,
-            color: PRIMARY_GREEN,
-            transition: "gap 160ms ease",
-          }}
-        >
-          Open Topic Hub <IconArrowRight />
-        </span>
-      </div>
-    </button>
-  );
-}
-
-// ── Column ─────────────────────────────────────────────────────────────────
-function PriorityColumn({
-  column,
-  onOpenTopic,
-}: {
-  column: Column;
-  onOpenTopic: (t: Topic) => void;
-}) {
-  const Icon = column.Icon;
-  return (
-    <section
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: 12,
-        minWidth: 0,
-      }}
-    >
-      <header
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: "0 4px",
-        }}
-      >
-        <div
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 8,
-            color: TEXT_FG,
-          }}
-        >
-          <Icon size={16} />
           <h3
             style={{
-              margin: 0,
+              margin: "6px 0 0 0",
               fontFamily: FONT_DISPLAY,
               fontSize: 18,
               fontWeight: 600,
               color: TEXT_FG,
-              letterSpacing: "-0.005em",
+              lineHeight: 1.25,
             }}
           >
-            {column.label}
+            {topic.name}
           </h3>
         </div>
         <span
           style={{
             display: "inline-flex",
             alignItems: "center",
-            justifyContent: "center",
-            minWidth: 28,
-            height: 22,
-            padding: "0 8px",
+            flexShrink: 0,
+            padding: "4px 10px",
             borderRadius: 999,
-            background: column.accentSoft,
-            color: column.accentFg,
+            background: tier.bg,
+            color: tier.fg,
             fontFamily: FONT_BODY,
             fontSize: 11,
             fontWeight: 700,
+            letterSpacing: "0.02em",
           }}
         >
-          {column.topics.length}
+          {TIER_LABEL[topic.trendTier]}
         </span>
       </header>
 
       <p
         style={{
-          margin: "0 4px",
+          margin: 0,
           fontFamily: FONT_BODY,
-          fontSize: 12,
+          fontSize: 13,
+          lineHeight: 1.55,
           color: TEXT_MUTED,
         }}
       >
-        {column.sub}
+        {topic.blurb}
       </p>
 
       <div
         style={{
           display: "flex",
-          flexDirection: "column",
-          gap: 12,
-          marginTop: 4,
+          flexWrap: "wrap",
+          gap: 8,
+          alignItems: "center",
         }}
       >
-        {column.topics.map((topic) => (
-          <TopicCard
-            key={topic.name}
-            topic={topic}
-            accentFg={column.accentFg}
-            onOpen={() => onOpenTopic(topic)}
-          />
-        ))}
+        <span
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            padding: "3px 10px",
+            borderRadius: 999,
+            background: SURFACE_SOFT,
+            color: TEXT_FG,
+            fontFamily: FONT_BODY,
+            fontSize: 11,
+            fontWeight: 600,
+          }}
+        >
+          Approx. marks: {topic.marks}
+        </span>
+        <span
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            padding: "3px 10px",
+            borderRadius: 999,
+            background: hpqCount > 0 ? "hsl(212, 80%, 95%)" : SURFACE_SOFT,
+            color: hpqCount > 0 ? "hsl(212, 70%, 35%)" : TEXT_MUTED,
+            fontFamily: FONT_BODY,
+            fontSize: 11,
+            fontWeight: 600,
+          }}
+        >
+          {hpqCount > 0
+            ? `${hpqCount} HPQ${hpqCount === 1 ? "" : "s"} available`
+            : "No matched HPQs yet"}
+        </span>
       </div>
-    </section>
+
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 8,
+        }}
+      >
+        <ActionButton variant="primary" icon={<IconLayers />} onClick={onPractice}>
+          Practice
+        </ActionButton>
+        <ActionButton variant="secondary" icon={<IconClipboard />} onClick={onWorksheet}>
+          Worksheet
+        </ActionButton>
+        <ActionButton variant="secondary" icon={<IconSparkles />} onClick={onPredicted}>
+          Predicted Qs
+        </ActionButton>
+        <ActionButton variant="secondary" icon={<IconBook />} onClick={onTopicHub}>
+          Topic Hub
+        </ActionButton>
+      </div>
+
+      <button
+        type="button"
+        onClick={onToggleSelect}
+        style={{
+          appearance: "none",
+          alignSelf: "flex-start",
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 6,
+          padding: "6px 12px",
+          borderRadius: 999,
+          border: `1px solid ${selected ? PRIMARY_GREEN : BORDER}`,
+          background: selected ? PRIMARY_GREEN_SOFT : CARD_BG,
+          color: selected ? PRIMARY_GREEN_DEEP : TEXT_FG,
+          fontFamily: FONT_BODY,
+          fontSize: 12,
+          fontWeight: 600,
+          cursor: "pointer",
+          transition: "background 160ms ease, border-color 160ms ease, color 160ms ease",
+        }}
+        aria-pressed={selected}
+      >
+        {selected ? <IconCheck /> : <IconPlus />}
+        {selected ? "Added" : "Add to selection"}
+      </button>
+    </article>
   );
 }
 
-// ── Page ───────────────────────────────────────────────────────────────────
+// ─── Page ──────────────────────────────────────────────────────────────────
 export default function DesktopExamTrendsPage() {
   const navigate = useNavigate();
+  const [subject, setSubject] = useState<DesktopSubject>("Maths");
+  const [stream, setStream] = useState<DesktopStream>("All");
+  const [selectedSlugs, setSelectedSlugs] = useState<string[]>([]);
 
-  const openTopic = (topic: Topic) => {
-    // Reuse existing production destination — the same Topic Hub route the
-    // mobile baseline already uses. Topic Hub is intentionally NOT
-    // shell-wrapped in this phase; a future phase will own that surface.
-    navigate(`/topic-hub/${encodeURIComponent(topic.name)}`);
+  // When the subject changes from Science → Maths the stream must reset to "All"
+  // so the (disabled) stream toggle does not appear pre-selected on Physics
+  // when the user toggles back later.
+  const handleSubject = (next: DesktopSubject) => {
+    setSubject(next);
+    if (next === "Maths") setStream("All");
   };
+
+  const sortedTopics = useMemo<DesktopTopicSummary[]>(() => {
+    const list = desktopTopicsBySubject(subject, stream);
+    return [...list].sort((a, b) => {
+      const tierDiff = TIER_SORT[a.trendTier] - TIER_SORT[b.trendTier];
+      if (tierDiff !== 0) return tierDiff;
+      return b.weight - a.weight;
+    });
+  }, [subject, stream]);
+
+  const hpqCounts = useMemo(() => {
+    const map = new Map<string, number>();
+    sortedTopics.forEach((topic) => map.set(topic.slug, countHPQForTopic(topic)));
+    return map;
+  }, [sortedTopics]);
+
+  const toggleSelect = (slug: string) => {
+    setSelectedSlugs((prev) =>
+      prev.includes(slug) ? prev.filter((s) => s !== slug) : [...prev, slug],
+    );
+  };
+
+  const goPracticeTopic = (topic: DesktopTopicSummary) => {
+    navigate(
+      buildDesktopPracticePath({
+        scope: "topic",
+        subject: topic.subject,
+        stream: topic.subject === "Science" ? topic.stream : undefined,
+        topic: topic.slug,
+        mode: "practice-set",
+        source: "trends",
+        returnTo: "/exam-trends",
+      }),
+    );
+  };
+
+  const goWorksheetTopic = (topic: DesktopTopicSummary) => {
+    navigate(
+      buildDesktopWorksheetPath({
+        scope: "topic",
+        subject: topic.subject,
+        stream: topic.subject === "Science" ? topic.stream : undefined,
+        topic: topic.slug,
+        source: "trends",
+        returnTo: "/exam-trends",
+      }),
+    );
+  };
+
+  const goPredictedTopic = (topic: DesktopTopicSummary) => {
+    const params = new URLSearchParams();
+    params.set("topic", topic.slug);
+    params.set("source", "trends");
+    params.set("returnTo", "/exam-trends");
+    navigate(`/highly-probable/10/${topic.subject}?${params.toString()}`);
+  };
+
+  const goTopicHub = (topic: DesktopTopicSummary) => {
+    navigate(
+      buildDesktopTopicHubPath(topic.slug, {
+        source: "trends",
+        returnTo: "/exam-trends",
+      }),
+    );
+  };
+
+  const goPracticeSelected = () => {
+    if (selectedSlugs.length === 0) return;
+    navigate(
+      buildDesktopPracticePath({
+        scope: "multi-topic",
+        subject,
+        stream: subject === "Science" ? stream : undefined,
+        topics: selectedSlugs,
+        mode: "practice-set",
+        source: "trends",
+        returnTo: "/exam-trends",
+      }),
+    );
+  };
+
+  const goWorksheetSelected = () => {
+    if (selectedSlugs.length === 0) return;
+    navigate(
+      buildDesktopWorksheetPath({
+        scope: "multi-topic",
+        subject,
+        stream: subject === "Science" ? stream : undefined,
+        topics: selectedSlugs,
+        source: "trends",
+        returnTo: "/exam-trends",
+      }),
+    );
+  };
+
+  const goPredictedSelected = () => {
+    if (selectedSlugs.length === 0) return;
+    const params = new URLSearchParams();
+    params.set("topics", selectedSlugs.join(","));
+    params.set("source", "trends");
+    params.set("returnTo", "/exam-trends");
+    navigate(`/highly-probable/10/${subject}?${params.toString()}`);
+  };
+
+  const goMockSelected = () => {
+    const params = new URLSearchParams();
+    if (selectedSlugs.length > 0) params.set("topics", selectedSlugs.join(","));
+    if (subject === "Science" && stream !== "All") params.set("stream", stream);
+    params.set("source", "trends");
+    params.set("returnTo", "/exam-trends");
+    navigate(`/mock-builder/10/${subject}?${params.toString()}`);
+  };
+
+  const clearSelection = () => setSelectedSlugs([]);
 
   return (
     <div
       style={{
-        maxWidth: 1500,
-        padding: "32px 40px 56px 40px",
+        maxWidth: 1280,
+        margin: "0 auto",
+        padding: "32px 32px 64px 32px",
         fontFamily: FONT_BODY,
         color: TEXT_FG,
       }}
     >
-      <PageHeader
-        eyebrow="Exam Trends · Class 10 · 2026 board"
-        title="Priority board"
-        description="Built from 10 years of CBSE board papers + 2026 sample paper. Click any topic to open its Topic Hub."
+      <PageHeader subject={subject} stream={stream} selectedCount={selectedSlugs.length} />
+
+      <FilterCard
+        subject={subject}
+        stream={stream}
+        onSubject={handleSubject}
+        onStream={setStream}
       />
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-          gap: 24,
-        }}
-      >
-        {COLUMNS.map((column) => (
-          <PriorityColumn key={column.id} column={column} onOpenTopic={openTopic} />
-        ))}
-      </div>
+      {selectedSlugs.length > 0 && (
+        <SelectedTopicTray
+          selectedSlugs={selectedSlugs}
+          subject={subject}
+          stream={stream}
+          onPractice={goPracticeSelected}
+          onWorksheet={goWorksheetSelected}
+          onPredicted={goPredictedSelected}
+          onMock={goMockSelected}
+          onClear={clearSelection}
+        />
+      )}
+
+      {sortedTopics.length === 0 ? (
+        <div
+          style={{
+            background: CARD_BG,
+            border: `1px solid ${BORDER}`,
+            borderRadius: 14,
+            padding: 28,
+            textAlign: "center",
+            color: TEXT_MUTED,
+            fontFamily: FONT_BODY,
+            fontSize: 14,
+          }}
+        >
+          No topics match this filter yet.
+        </div>
+      ) : (
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
+            gap: 18,
+          }}
+        >
+          {sortedTopics.map((topic) => (
+            <TopicCard
+              key={topic.slug}
+              topic={topic}
+              hpqCount={hpqCounts.get(topic.slug) ?? 0}
+              selected={selectedSlugs.includes(topic.slug)}
+              onPractice={() => goPracticeTopic(topic)}
+              onWorksheet={() => goWorksheetTopic(topic)}
+              onPredicted={() => goPredictedTopic(topic)}
+              onTopicHub={() => goTopicHub(topic)}
+              onToggleSelect={() => toggleSelect(topic.slug)}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
