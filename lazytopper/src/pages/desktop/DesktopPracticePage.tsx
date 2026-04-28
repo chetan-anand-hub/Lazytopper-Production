@@ -26,6 +26,21 @@ import {
   getMistakeLogs,
   type MistakeLogEntry,
 } from "../../services/mistakeLogService";
+import {
+  generatePracticeQuestions,
+  type PracticeQuestion,
+} from "../../data/predictionDataService";
+import {
+  getHighlyProbableQuestions,
+  type HPQTopicBucket,
+  type HPQQuestion,
+  type HPQStream,
+} from "../../data/highlyProbableQuestions";
+import { normalizeTopicKey } from "../../utils/topicResolver";
+import {
+  getRuntimeTopicCandidates,
+  normalizeTopicSlug,
+} from "../../data/syllabus/topicAliasMap";
 
 /**
  * DesktopPracticePage — Level 2 (PR-C2: locked-prototype parity).
@@ -336,6 +351,21 @@ interface PrimaryCardProps {
   onActivate?: (to: string) => void;
   external?: boolean; // honest "Premium" / "Sign-in" lock chip
   lockChip?: string;
+  /**
+   * PR-C2.1 — when provided, the CTA invokes this handler instead of
+   * routing to `to`. Used by Quick Practice to reveal an in-page panel
+   * with real generated questions (no immediate hand-off to the legacy
+   * /practice/:grade/:subject UI). The card is still considered enabled
+   * iff `to` resolves (i.e. the scope is valid).
+   */
+  customClick?: () => void;
+  /**
+   * Optional honest sub-line shown beneath the CTA, e.g. "Opens the
+   * existing worksheet builder with this scope." Helps the learner know
+   * whether the next click is locked-prototype parity or a hand-off to
+   * an existing production engine.
+   */
+  honestNote?: string;
 }
 function PrimaryCard({
   icon,
@@ -349,11 +379,17 @@ function PrimaryCard({
   extra,
   onActivate,
   lockChip,
+  customClick,
+  honestNote,
 }: PrimaryCardProps) {
   const [hover, setHover] = useState(false);
   const disabled = !to;
   const handleClick = () => {
     if (!to) return;
+    if (customClick) {
+      customClick();
+      return;
+    }
     if (onActivate) onActivate(to);
   };
   const cardStyle: React.CSSProperties = {
@@ -495,6 +531,18 @@ function PrimaryCard({
           <IconArrowRight />
         </button>
       )}
+      {honestNote ? (
+        <span
+          style={{
+            fontSize: 11,
+            color: TEXT_MUTED,
+            lineHeight: 1.4,
+            marginTop: -2,
+          }}
+        >
+          {honestNote}
+        </span>
+      ) : null}
     </article>
   );
 }
@@ -1467,6 +1515,96 @@ function MistakeIntelligencePanel({
   );
 }
 
+// ── PR-C2.1 helpers — real-data resolution for in-page Quick Practice + HPQ tabs ──
+
+/**
+ * Build an ordered list of topic-key candidates to try against the
+ * production question bank. Desktop starter slugs (e.g. "acids-bases-salts",
+ * "trigonometry-heights-distances", "light-reflection-refraction") do not
+ * always equal canonical hyphen slugs used by the unified bank. We try, in
+ * order: canonical (`normalizeTopicKey`), runtime aliases, and finally the
+ * raw slug — never invent a key. Order matters because
+ * `generatePracticeQuestions` returns the first non-empty pool.
+ */
+function buildTopicKeyCandidates(rawSlug: string): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  const push = (key: string) => {
+    const clean = (key ?? "").trim();
+    if (!clean || seen.has(clean)) return;
+    seen.add(clean);
+    out.push(clean);
+  };
+  push(normalizeTopicKey(rawSlug));
+  for (const candidate of getRuntimeTopicCandidates(rawSlug)) push(candidate);
+  push(normalizeTopicSlug(rawSlug));
+  push(rawSlug);
+  return out;
+}
+
+/**
+ * Try each candidate topic-key against the production practice generator
+ * and return the first non-empty pool together with the key that matched.
+ * Honest no-data: returns `{ questions: [], matchedKey: null }` — never a
+ * synthetic / fabricated set.
+ */
+function fetchRealQuickPractice(
+  subject: DesktopSubject,
+  rawSlug: string,
+  count = 5,
+): { questions: PracticeQuestion[]; matchedKey: string | null; triedKeys: string[] } {
+  const candidates = buildTopicKeyCandidates(rawSlug);
+  for (const key of candidates) {
+    const pool = generatePracticeQuestions({
+      subject,
+      topicKey: key,
+      count,
+      difficulty: "All",
+      allowRepeats: false,
+    });
+    if (pool.length > 0) {
+      return { questions: pool, matchedKey: key, triedKeys: candidates };
+    }
+  }
+  return { questions: [], matchedKey: null, triedKeys: candidates };
+}
+
+/**
+ * Locate a real Highly-Probable-Questions bucket for a given desktop topic
+ * slug, by matching the bucket's `topic` (display name) against the slug's
+ * canonical / alias / normalized forms. Returns `null` when no bucket
+ * matches — the UI then shows an honest empty state instead of repurposing
+ * topicHubContent reference highlights as "predicted questions".
+ */
+function findHpqBucketForSlug(
+  buckets: HPQTopicBucket[],
+  rawSlug: string,
+): HPQTopicBucket | null {
+  if (!rawSlug) return null;
+  const candidates = new Set<string>();
+  for (const c of buildTopicKeyCandidates(rawSlug)) candidates.add(c);
+  for (const b of buckets) {
+    const bucketSlugs = [
+      normalizeTopicSlug(b.topic),
+      normalizeTopicKey(b.topic),
+      ...buildTopicKeyCandidates(b.topic),
+    ];
+    if (bucketSlugs.some((s) => candidates.has(s))) return b;
+  }
+  return null;
+}
+
+/**
+ * Map a `DesktopStream` ("All" | "Physics" | "Chemistry" | "Biology") onto
+ * the HPQ stream filter (HPQ uses `undefined` for "no stream filter").
+ */
+function toHpqStream(stream: DesktopStream): HPQStream | undefined {
+  if (stream === "Physics" || stream === "Chemistry" || stream === "Biology") {
+    return stream;
+  }
+  return undefined;
+}
+
 // ── Page ──────────────────────────────────────────────────────────────────
 const RETURN_TO = "/practice-hub";
 const SOURCE: DesktopActionSource = "practice";
@@ -1497,6 +1635,25 @@ export default function DesktopPracticePage() {
   const [worksheetMistakeMini, setWorksheetMistakeMini] = useState(false);
   const [mockWeakArea, setMockWeakArea] = useState(false);
   const [drillTargeted, setDrillTargeted] = useState(false);
+
+  // PR-C2.1 — In-page Quick Practice panel state. `null` means the panel is
+  // not visible. The panel reveals only after the learner explicitly clicks
+  // the "Start quick practice" CTA — so the first interaction stays in the
+  // hub instead of immediately landing on the legacy /practice/:grade/:subject
+  // engine. Question data is real (`generatePracticeQuestions`) or honest
+  // empty — never fabricated.
+  interface QuickPracticePanelState {
+    subject: DesktopSubject;
+    scopeKind: DesktopPaperScope;
+    scopeLabel: string;
+    sourceTopicSlug: string | null;
+    sourceTopicName: string | null;
+    matchedKey: string | null;
+    triedKeys: string[];
+    questions: PracticeQuestion[];
+  }
+  const [quickPracticePanel, setQuickPracticePanel] =
+    useState<QuickPracticePanelState | null>(null);
 
   // Real mistake intelligence — last 7 days for the signed-in uid only.
   const [mistakes, setMistakes] = useState<MistakeLogEntry[]>([]);
@@ -1547,6 +1704,90 @@ export default function DesktopPracticePage() {
   );
   const validScope = isDesktopScopeValueValid(scope);
   const selectedTopic = scope.topicSlug ? desktopTopicBySlug(scope.topicSlug) : undefined;
+
+  // PR-C2.1 — Real HPQ buckets for the current subject + Science stream.
+  // Recomputed only when subject/stream changes; small list, no perf risk.
+  const hpqBuckets = useMemo<HPQTopicBucket[]>(
+    () => getHighlyProbableQuestions(scope.subject, toHpqStream(scope.stream)),
+    [scope.subject, scope.stream],
+  );
+
+  // Real HPQ bucket for the single-topic scope, when one matches the
+  // production HPQ catalogue. Otherwise `null` — the UI shows an honest
+  // empty state and never recycles topicHubContent highlights as HPQs.
+  const selectedTopicHpqBucket = useMemo<HPQTopicBucket | null>(
+    () =>
+      scope.scope === "topic" && scope.topicSlug
+        ? findHpqBucketForSlug(hpqBuckets, scope.topicSlug)
+        : null,
+    [hpqBuckets, scope.scope, scope.topicSlug],
+  );
+
+  // PR-C2.1 — Quick Practice in-page panel handler. Resolves the scope to a
+  // single starter topic (single-topic, first of a multi-mix, or first
+  // catalogue topic of the subject for full-subject), then runs the real
+  // production generator (`generatePracticeQuestions`). Reveals the panel
+  // with up to 5 real questions or an honest empty state. Never navigates
+  // away — the legacy /practice/:grade/:subject engine remains as the
+  // secondary "Continue in full practice engine" CTA inside the panel.
+  const handleStartQuickPractice = () => {
+    if (!validScope) return;
+    let sourceTopicSlug: string | null = null;
+    let sourceTopicName: string | null = null;
+    let scopeLabel = "";
+
+    if (scope.scope === "topic" && scope.topicSlug) {
+      sourceTopicSlug = scope.topicSlug;
+      sourceTopicName = selectedTopic?.name ?? null;
+      scopeLabel = `${scope.subject}${
+        scope.subject === "Science" && scope.stream !== "All" ? ` ${scope.stream}` : ""
+      } — ${sourceTopicName ?? sourceTopicSlug}`;
+    } else if (scope.scope === "multi-topic" && scope.selectedTopicSlugs.length) {
+      sourceTopicSlug = scope.selectedTopicSlugs[0];
+      sourceTopicName = desktopTopicBySlug(sourceTopicSlug)?.name ?? null;
+      scopeLabel = `${scope.subject} — ${displayDesktopTopicNames(scope.selectedTopicSlugs).join(
+        " + ",
+      )} (showing first topic)`;
+    } else if (scope.scope === "full-subject") {
+      sourceTopicSlug = topics[0]?.slug ?? null;
+      sourceTopicName = topics[0]?.name ?? null;
+      scopeLabel = `${scope.subject}${
+        scope.subject === "Science" && scope.stream !== "All" ? ` ${scope.stream}` : ""
+      } full subject (showing first starter topic)`;
+    }
+
+    if (!sourceTopicSlug) {
+      setQuickPracticePanel({
+        subject: scope.subject,
+        scopeKind: scope.scope,
+        scopeLabel: scopeLabel || `${scope.subject} — pick a topic to seed practice`,
+        sourceTopicSlug: null,
+        sourceTopicName: null,
+        matchedKey: null,
+        triedKeys: [],
+        questions: [],
+      });
+      return;
+    }
+
+    const result = fetchRealQuickPractice(scope.subject, sourceTopicSlug, 5);
+    setQuickPracticePanel({
+      subject: scope.subject,
+      scopeKind: scope.scope,
+      scopeLabel,
+      sourceTopicSlug,
+      sourceTopicName,
+      matchedKey: result.matchedKey,
+      triedKeys: result.triedKeys,
+      questions: result.questions,
+    });
+  };
+
+  // Reset the Quick Practice panel whenever scope changes — stale questions
+  // for a different topic would be misleading.
+  useEffect(() => {
+    setQuickPracticePanel(null);
+  }, [scope.subject, scope.stream, scope.scope, scope.topicSlug, scope.selectedTopicSlugs]);
 
   // Blueprint preview source: chosen single topic, first selected topic of a
   // multi-mix, or the first catalogue topic of the subject for full-subject.
@@ -1891,12 +2132,14 @@ export default function DesktopPracticePage() {
                 <PrimaryCard
                   icon={<IconLayers />}
                   title="Quick Practice"
-                  desc="A short, focused set of questions tuned to your scope."
+                  desc="A short, focused set of real questions for your scope, shown in-page."
                   preview={previewLine("practice-set")}
                   cta="Start quick practice"
                   to={quickPracticePath}
                   disabledHint="Pick a scope above first"
                   onActivate={(to) => navigate(to)}
+                  customClick={handleStartQuickPractice}
+                  honestNote="Reveals an in-page panel with real generated questions. The full /practice engine is offered as a secondary continue link."
                 />
                 <PrimaryCard
                   icon={<IconClipboard />}
@@ -1907,6 +2150,7 @@ export default function DesktopPracticePage() {
                   to={worksheetPath}
                   disabledHint="Pick a scope above first"
                   onActivate={(to) => navigate(to)}
+                  honestNote="Opens the existing worksheet builder (/practice/worksheets) with this scope."
                   extra={
                     <label
                       style={{
@@ -1937,21 +2181,23 @@ export default function DesktopPracticePage() {
                 <PrimaryCard
                   icon={<IconSparkles />}
                   title="Predicted / HPQs"
-                  desc="Highly probable questions for your scope."
+                  desc="Highly probable questions for your scope, sourced from the production HPQ catalogue."
                   preview={previewLine("predicted")}
-                  cta="See predicted questions"
+                  cta="Open Highly Probable Questions"
                   to={buildPredictedPath()}
                   onActivate={(to) => navigate(to)}
+                  honestNote="Opens the existing /highly-probable page with this scope. Real matched HPQ rows are also previewed in the Predicted-questions tabs below."
                 />
                 <PrimaryCard
                   icon={<IconGraduation />}
                   title="Full Mock"
                   desc={`Full ${scope.subject} mock · 80 marks.`}
                   preview={previewLine("full-mock")}
-                  cta={`Generate ${scope.subject} full mock`}
+                  cta="Open existing full-mock engine"
                   to={fullMockPath}
                   lockChip={!isSignedIn ? "Sign in" : undefined}
                   onActivate={(to) => navigate(to)}
+                  honestNote="Opens the existing /exam-simulation engine. The mock UI is not yet locked-prototype aligned."
                   extra={
                     <label
                       style={{
@@ -1981,6 +2227,265 @@ export default function DesktopPracticePage() {
                 />
               </div>
             </section>
+
+            {/* PR-C2.1 — Generated quick practice (in-page) ────────────────
+                Reveals only after the learner clicks "Start quick practice".
+                Renders real questions from the production unified bank via
+                generatePracticeQuestions, or an honest empty state when no
+                pool matches. Provides "Continue in full practice engine" as
+                the secondary CTA — the page never auto-navigates. */}
+            {quickPracticePanel ? (
+              <section
+                aria-label="Generated quick practice"
+                style={{
+                  background: CARD_BG,
+                  border: `1px solid ${BORDER}`,
+                  borderRadius: 14,
+                  padding: 18,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 12,
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    justifyContent: "space-between",
+                    flexWrap: "wrap",
+                    gap: 8,
+                  }}
+                >
+                  <div style={{ minWidth: 0 }}>
+                    <h3
+                      style={{
+                        fontFamily: FONT_DISPLAY,
+                        fontSize: "1.05rem",
+                        fontWeight: 600,
+                        color: TEXT_FG,
+                        margin: 0,
+                      }}
+                    >
+                      Generated quick practice
+                    </h3>
+                    <p
+                      style={{
+                        margin: "2px 0 0 0",
+                        fontSize: "0.8rem",
+                        color: TEXT_MUTED,
+                        lineHeight: 1.45,
+                      }}
+                    >
+                      {quickPracticePanel.scopeLabel}
+                      {quickPracticePanel.matchedKey ? (
+                        <>
+                          {" · matched topic key "}
+                          <code
+                            style={{
+                              background: PILL_BG,
+                              padding: "1px 6px",
+                              borderRadius: 6,
+                              fontSize: 11,
+                              color: PILL_FG,
+                            }}
+                          >
+                            {quickPracticePanel.matchedKey}
+                          </code>
+                        </>
+                      ) : null}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setQuickPracticePanel(null)}
+                    style={{
+                      appearance: "none",
+                      WebkitAppearance: "none",
+                      border: `1px solid ${BORDER}`,
+                      background: "transparent",
+                      color: TEXT_MUTED,
+                      fontSize: 11,
+                      fontWeight: 600,
+                      padding: "4px 10px",
+                      borderRadius: 8,
+                      cursor: "pointer",
+                    }}
+                    aria-label="Hide generated quick practice panel"
+                  >
+                    Hide
+                  </button>
+                </div>
+
+                {quickPracticePanel.questions.length > 0 ? (
+                  <ol
+                    start={1}
+                    style={{
+                      listStyle: "decimal",
+                      margin: 0,
+                      padding: 0,
+                      paddingLeft: 22,
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 8,
+                    }}
+                  >
+                    {quickPracticePanel.questions.map((q) => (
+                      <li
+                        key={q.id}
+                        style={{
+                          background: PILL_BG,
+                          border: `1px solid ${BORDER}`,
+                          borderRadius: 10,
+                          padding: "10px 12px",
+                          listStylePosition: "outside",
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: "flex",
+                            flexWrap: "wrap",
+                            gap: 6,
+                            marginBottom: 6,
+                          }}
+                        >
+                          <span
+                            style={{
+                              padding: "2px 8px",
+                              borderRadius: 999,
+                              background: CARD_BG,
+                              border: `1px solid ${BORDER}`,
+                              fontSize: 10.5,
+                              color: TEXT_MUTED,
+                              fontWeight: 700,
+                              letterSpacing: "0.04em",
+                              textTransform: "uppercase",
+                            }}
+                          >
+                            Section {q.section} · {q.marks}m
+                          </span>
+                          <span
+                            style={{
+                              padding: "2px 8px",
+                              borderRadius: 999,
+                              background: CARD_BG,
+                              border: `1px solid ${BORDER}`,
+                              fontSize: 10.5,
+                              color: TEXT_MUTED,
+                              fontWeight: 600,
+                            }}
+                          >
+                            {q.format}
+                          </span>
+                          <span
+                            style={{
+                              padding: "2px 8px",
+                              borderRadius: 999,
+                              background: CARD_BG,
+                              border: `1px solid ${BORDER}`,
+                              fontSize: 10.5,
+                              color: TEXT_MUTED,
+                              fontWeight: 600,
+                            }}
+                          >
+                            {q.difficulty}
+                          </span>
+                          {q.subtopic ? (
+                            <span
+                              style={{
+                                padding: "2px 8px",
+                                borderRadius: 999,
+                                background: CARD_BG,
+                                border: `1px solid ${BORDER}`,
+                                fontSize: 10.5,
+                                color: TEXT_MUTED,
+                                fontWeight: 600,
+                              }}
+                            >
+                              {q.subtopic}
+                            </span>
+                          ) : null}
+                        </div>
+                        <div
+                          style={{
+                            fontSize: 13,
+                            color: TEXT_FG,
+                            lineHeight: 1.5,
+                          }}
+                        >
+                          {q.questionText}
+                        </div>
+                      </li>
+                    ))}
+                  </ol>
+                ) : (
+                  <div
+                    style={{
+                      background: PILL_BG,
+                      border: `1px dashed ${BORDER}`,
+                      borderRadius: 10,
+                      padding: 14,
+                      fontSize: 13,
+                      color: TEXT_FG,
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    <strong style={{ display: "block", marginBottom: 4 }}>
+                      No generated questions for this scope yet.
+                    </strong>
+                    <span style={{ color: TEXT_MUTED }}>
+                      The unified question bank doesn&apos;t have a pool for{" "}
+                      <code
+                        style={{
+                          background: CARD_BG,
+                          padding: "1px 5px",
+                          borderRadius: 4,
+                          fontSize: 11,
+                          color: PILL_FG,
+                        }}
+                      >
+                        {quickPracticePanel.sourceTopicSlug ?? "this scope"}
+                      </code>
+                      . Try a different topic, or continue in the full
+                      practice engine which can fall back to broader sources.
+                    </span>
+                  </div>
+                )}
+
+                <div
+                  style={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    alignItems: "center",
+                    gap: 10,
+                  }}
+                >
+                  {quickPracticePath ? (
+                    <Link
+                      to={quickPracticePath}
+                      style={{
+                        background: PRIMARY_GREEN,
+                        color: "#fff",
+                        padding: "8px 14px",
+                        borderRadius: 10,
+                        fontSize: "0.82rem",
+                        fontWeight: 600,
+                        textDecoration: "none",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 6,
+                      }}
+                    >
+                      Continue in full practice engine
+                    </Link>
+                  ) : null}
+                  <span style={{ fontSize: 11, color: TEXT_MUTED }}>
+                    Questions above are real rows from the production bank — no
+                    placeholders. Continuing opens the existing /practice
+                    engine with the same scope.
+                  </span>
+                </div>
+              </section>
+            ) : null}
 
             {/* More practice options — accordion (native <details>) */}
             <details
@@ -2051,22 +2556,24 @@ export default function DesktopPracticePage() {
                   title="Chapter Test"
                   desc="Single-chapter test on the topic you picked."
                   preview={previewLine("chapter-test")}
-                  cta="Start chapter test"
+                  cta="Open existing chapter test"
                   to={chapterTestPath}
                   disabledHint="Pick a single topic above to enable"
                   onActivate={(to) => navigate(to)}
                   ctaTone="secondary"
+                  honestNote="Opens the existing /chapter-test engine on the topic you picked."
                 />
                 <PrimaryCard
                   icon={<IconFileText />}
                   title="Practice Paper"
                   desc="Build a custom paper in the Mock Builder."
                   preview={previewLine("practice-paper")}
-                  cta="Open Mock Builder"
+                  cta="Open existing Mock Builder"
                   to={practicePaperPath}
                   lockChip={!isSignedIn ? "Sign in" : "Premium"}
                   onActivate={(to) => navigate(to)}
                   ctaTone="secondary"
+                  honestNote="Opens the existing /mock-builder. The builder UI is not yet locked-prototype aligned."
                 />
               </div>
             </details>
@@ -2148,74 +2655,169 @@ export default function DesktopPracticePage() {
                 })}
               </div>
 
-              {/* Topic HPQs tab */}
+              {/* Topic HPQs tab — PR-C2.1: real HPQ rows from getHighlyProbableQuestions */}
               {tab === "topic" ? (
-                selectedTopic && blueprintContent ? (
-                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                    <div style={{ fontSize: 13, color: TEXT_FG }}>
-                      <strong>{selectedTopic.name}</strong> —{" "}
-                      <span style={{ color: TEXT_MUTED }}>{selectedTopic.marks}</span>
+                selectedTopic ? (
+                  selectedTopicHpqBucket && selectedTopicHpqBucket.questions.length > 0 ? (
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                      <div style={{ fontSize: 13, color: TEXT_FG }}>
+                        <strong>{selectedTopic.name}</strong> —{" "}
+                        <span style={{ color: TEXT_MUTED }}>
+                          {selectedTopicHpqBucket.questions.length} highly-probable
+                          question{selectedTopicHpqBucket.questions.length === 1 ? "" : "s"} from
+                          the production catalogue
+                        </span>
+                      </div>
+                      <ol
+                        style={{
+                          margin: 0,
+                          padding: 0,
+                          paddingLeft: 22,
+                          listStyle: "decimal",
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 8,
+                        }}
+                      >
+                        {selectedTopicHpqBucket.questions.slice(0, 5).map((q: HPQQuestion) => (
+                          <li
+                            key={q.id}
+                            style={{
+                              background: PILL_BG,
+                              border: `1px solid ${BORDER}`,
+                              borderRadius: 10,
+                              padding: "10px 12px",
+                            }}
+                          >
+                            <div
+                              style={{
+                                display: "flex",
+                                flexWrap: "wrap",
+                                gap: 6,
+                                marginBottom: 6,
+                              }}
+                            >
+                              <span
+                                style={{
+                                  padding: "2px 8px",
+                                  borderRadius: 999,
+                                  background: CARD_BG,
+                                  border: `1px solid ${BORDER}`,
+                                  fontSize: 10.5,
+                                  color: TEXT_MUTED,
+                                  fontWeight: 700,
+                                  letterSpacing: "0.04em",
+                                  textTransform: "uppercase",
+                                }}
+                              >
+                                Section {q.section} · {q.marks}m
+                              </span>
+                              <span
+                                style={{
+                                  padding: "2px 8px",
+                                  borderRadius: 999,
+                                  background: CARD_BG,
+                                  border: `1px solid ${BORDER}`,
+                                  fontSize: 10.5,
+                                  color: TEXT_MUTED,
+                                  fontWeight: 600,
+                                }}
+                              >
+                                {q.type}
+                              </span>
+                              <span
+                                style={{
+                                  padding: "2px 8px",
+                                  borderRadius: 999,
+                                  background: CARD_BG,
+                                  border: `1px solid ${BORDER}`,
+                                  fontSize: 10.5,
+                                  color: TEXT_MUTED,
+                                  fontWeight: 600,
+                                }}
+                              >
+                                {q.difficulty} · {q.likelihood}
+                              </span>
+                            </div>
+                            <div
+                              style={{
+                                fontSize: 13,
+                                color: TEXT_FG,
+                                lineHeight: 1.5,
+                              }}
+                            >
+                              {q.question}
+                            </div>
+                          </li>
+                        ))}
+                      </ol>
+                      <Link
+                        to={buildPredictedPath()}
+                        style={{
+                          alignSelf: "flex-start",
+                          background: PRIMARY_GREEN,
+                          color: "#fff",
+                          padding: "7px 12px",
+                          borderRadius: 10,
+                          fontSize: "0.78rem",
+                          fontWeight: 600,
+                          textDecoration: "none",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 6,
+                        }}
+                      >
+                        <IconSparkles size={14} /> Open full HPQ page for {selectedTopic.name}
+                      </Link>
                     </div>
-                    <p style={{ margin: 0, fontSize: 13, color: PILL_FG, lineHeight: 1.5 }}>
-                      {selectedTopic.blurb}
-                    </p>
-                    <ul
-                      style={{
-                        margin: 0,
-                        padding: "10px 14px",
-                        borderRadius: 10,
-                        background: PILL_BG,
-                        listStyle: "disc",
-                        paddingLeft: 28,
-                        fontSize: 12.5,
-                        color: TEXT_FG,
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: 4,
-                      }}
-                    >
-                      {blueprintContent.highlights.map((h) => (
-                        <li key={h.id}>
-                          <strong style={{ fontWeight: 600 }}>{h.label}.</strong>{" "}
-                          <span style={{ color: TEXT_MUTED }}>{h.rationale}</span>
-                        </li>
-                      ))}
-                    </ul>
-                    <Link
-                      to={buildPredictedPath()}
-                      style={{
-                        alignSelf: "flex-start",
-                        background: PRIMARY_GREEN,
-                        color: "#fff",
-                        padding: "7px 12px",
-                        borderRadius: 10,
-                        fontSize: "0.78rem",
-                        fontWeight: 600,
-                        textDecoration: "none",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 6,
-                      }}
-                    >
-                      <IconSparkles size={14} /> View predicted Qs for {selectedTopic.name}
-                    </Link>
-                  </div>
+                  ) : (
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                      <p style={{ margin: 0, fontSize: 13, color: TEXT_FG }}>
+                        <strong>{selectedTopic.name}</strong> isn&apos;t in the
+                        Highly-Probable-Questions catalogue yet.
+                      </p>
+                      <p style={{ margin: 0, fontSize: 12.5, color: TEXT_MUTED, lineHeight: 1.5 }}>
+                        We don&apos;t fabricate predicted questions from
+                        reference material — open the live HPQ page to see the
+                        full ranked list across topics that are covered.
+                      </p>
+                      <Link
+                        to={buildPredictedPath()}
+                        style={{
+                          alignSelf: "flex-start",
+                          background: PRIMARY_GREEN,
+                          color: "#fff",
+                          padding: "7px 12px",
+                          borderRadius: 10,
+                          fontSize: "0.78rem",
+                          fontWeight: 600,
+                          textDecoration: "none",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 6,
+                        }}
+                      >
+                        <IconSparkles size={14} /> Open Highly Probable Questions
+                      </Link>
+                    </div>
+                  )
                 ) : (
                   <p style={{ margin: 0, fontSize: 13, color: TEXT_MUTED }}>
                     Pick a single topic in the scope builder to see its
-                    Highly Probable Questions.
+                    Highly Probable Questions from the live catalogue.
                   </p>
                 )
               ) : null}
 
-              {/* Selected topics tab */}
+              {/* Selected topics tab — PR-C2.1: real HPQ rows per selected topic */}
               {tab === "selected" ? (
                 scope.selectedTopicSlugs.length >= 2 ? (
                   <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                     {scope.selectedTopicSlugs.map((slug) => {
                       const t = desktopTopicBySlug(slug);
-                      const c = desktopTopicHubContentBySlug(slug);
                       if (!t) return null;
+                      const bucket = findHpqBucketForSlug(hpqBuckets, slug);
+                      const topQ = bucket?.questions[0];
                       return (
                         <div
                           key={slug}
@@ -2231,37 +2833,76 @@ export default function DesktopPracticePage() {
                             <span style={{ color: TEXT_MUTED, fontWeight: 400 }}>
                               · {t.marks}
                             </span>
+                            {bucket ? (
+                              <span style={{ color: TEXT_MUTED, fontWeight: 400 }}>
+                                {" "}· {bucket.questions.length} HPQ
+                                {bucket.questions.length === 1 ? "" : "s"} in catalogue
+                              </span>
+                            ) : null}
                           </div>
-                          <p
-                            style={{
-                              margin: "4px 0 0 0",
-                              fontSize: 12,
-                              color: TEXT_MUTED,
-                              lineHeight: 1.5,
-                            }}
-                          >
-                            {t.blurb}
-                          </p>
-                          {c && c.highlights.length > 0 ? (
-                            <ul
+                          {topQ ? (
+                            <div style={{ marginTop: 6 }}>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  flexWrap: "wrap",
+                                  gap: 6,
+                                  marginBottom: 4,
+                                }}
+                              >
+                                <span
+                                  style={{
+                                    padding: "1px 7px",
+                                    borderRadius: 999,
+                                    background: CARD_BG,
+                                    border: `1px solid ${BORDER}`,
+                                    fontSize: 10,
+                                    color: TEXT_MUTED,
+                                    fontWeight: 700,
+                                    letterSpacing: "0.04em",
+                                    textTransform: "uppercase",
+                                  }}
+                                >
+                                  Section {topQ.section} · {topQ.marks}m
+                                </span>
+                                <span
+                                  style={{
+                                    padding: "1px 7px",
+                                    borderRadius: 999,
+                                    background: CARD_BG,
+                                    border: `1px solid ${BORDER}`,
+                                    fontSize: 10,
+                                    color: TEXT_MUTED,
+                                    fontWeight: 600,
+                                  }}
+                                >
+                                  {topQ.type} · {topQ.likelihood}
+                                </span>
+                              </div>
+                              <div
+                                style={{
+                                  fontSize: 12.5,
+                                  color: TEXT_FG,
+                                  lineHeight: 1.5,
+                                }}
+                              >
+                                {topQ.question}
+                              </div>
+                            </div>
+                          ) : (
+                            <p
                               style={{
-                                margin: "6px 0 0 0",
-                                paddingLeft: 18,
+                                margin: "4px 0 0 0",
                                 fontSize: 12,
-                                color: TEXT_FG,
-                                display: "flex",
-                                flexDirection: "column",
-                                gap: 2,
+                                color: TEXT_MUTED,
+                                lineHeight: 1.5,
                               }}
                             >
-                              {c.highlights.slice(0, 2).map((h) => (
-                                <li key={h.id}>
-                                  <strong style={{ fontWeight: 600 }}>{h.label}.</strong>{" "}
-                                  <span style={{ color: TEXT_MUTED }}>{h.rationale}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          ) : null}
+                              No HPQ catalogue match for this topic — open the
+                              live page for ranked predictions across covered
+                              topics.
+                            </p>
+                          )}
                         </div>
                       );
                     })}
@@ -2281,7 +2922,7 @@ export default function DesktopPracticePage() {
                         gap: 6,
                       }}
                     >
-                      <IconSparkles size={14} /> View predicted Qs for selected topics
+                      <IconSparkles size={14} /> Open Highly Probable Questions
                     </Link>
                   </div>
                 ) : (
@@ -2374,7 +3015,13 @@ export default function DesktopPracticePage() {
               ) : null}
             </section>
 
-            {/* Sample preview — question-row preview from curated highlights */}
+            {/* Topic reference — PR-C2.1: honestly labelled curated highlights.
+                Previously called "Sample preview" with fabricated Section A/B/C
+                chips that implied a paper layout. The chips are removed and the
+                copy makes clear these are reference points (study cues), not
+                generated questions. Real generated questions live in the
+                "Generated quick practice" panel and the Predicted-questions
+                tabs above. */}
             {samplePreview && samplePreview.highlights.length > 0 ? (
               <section
                 style={{
@@ -2396,18 +3043,32 @@ export default function DesktopPracticePage() {
                     gap: 8,
                   }}
                 >
-                  <h3
-                    style={{
-                      fontFamily: FONT_DISPLAY,
-                      fontSize: "1.0rem",
-                      fontWeight: 600,
-                      color: TEXT_FG,
-                      margin: 0,
-                      letterSpacing: "-0.005em",
-                    }}
-                  >
-                    Sample preview
-                  </h3>
+                  <div style={{ minWidth: 0 }}>
+                    <h3
+                      style={{
+                        fontFamily: FONT_DISPLAY,
+                        fontSize: "1.0rem",
+                        fontWeight: 600,
+                        color: TEXT_FG,
+                        margin: 0,
+                        letterSpacing: "-0.005em",
+                      }}
+                    >
+                      Topic reference
+                    </h3>
+                    <p
+                      style={{
+                        margin: "2px 0 0 0",
+                        fontSize: 11.5,
+                        color: TEXT_MUTED,
+                        lineHeight: 1.45,
+                      }}
+                    >
+                      Curated study cues for this topic — not generated
+                      questions. For real questions, use Quick Practice above
+                      or the Predicted tabs.
+                    </p>
+                  </div>
                   <span
                     style={{
                       display: "inline-flex",
@@ -2421,9 +3082,21 @@ export default function DesktopPracticePage() {
                       fontWeight: 600,
                     }}
                   >
-                    {samplePreview.topicName}
+                    {samplePreview.topicName} · {samplePreview.marks}
                   </span>
                 </div>
+                {samplePreview.blurb ? (
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: 12.5,
+                      color: PILL_FG,
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    {samplePreview.blurb}
+                  </p>
+                ) : null}
                 <ul
                   style={{
                     listStyle: "none",
@@ -2434,74 +3107,53 @@ export default function DesktopPracticePage() {
                     gap: 8,
                   }}
                 >
-                  {samplePreview.highlights.slice(0, 3).map((h, idx) => {
-                    const sectionLetters = ["A", "B", "C", "D", "E"] as const;
-                    const sectionMarks = [1, 2, 3, 5, 4] as const;
-                    const i = Math.min(idx, sectionLetters.length - 1);
-                    return (
-                      <li
-                        key={h.id}
-                        style={{
-                          display: "flex",
-                          gap: 10,
-                          alignItems: "flex-start",
-                          padding: "10px 12px",
-                          background: PILL_BG,
-                          border: `1px solid ${BORDER}`,
-                          borderRadius: 10,
-                        }}
-                      >
-                        <span
+                  {samplePreview.highlights.slice(0, 3).map((h) => (
+                    <li
+                      key={h.id}
+                      style={{
+                        display: "flex",
+                        gap: 10,
+                        alignItems: "flex-start",
+                        padding: "10px 12px",
+                        background: PILL_BG,
+                        border: `1px solid ${BORDER}`,
+                        borderRadius: 10,
+                      }}
+                    >
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <div
                           style={{
-                            flexShrink: 0,
-                            padding: "2px 8px",
-                            borderRadius: 999,
-                            background: CARD_BG,
-                            border: `1px solid ${BORDER}`,
-                            fontSize: 10.5,
-                            color: TEXT_MUTED,
-                            fontWeight: 700,
-                            letterSpacing: "0.04em",
-                            textTransform: "uppercase",
+                            fontSize: 13,
+                            fontWeight: 600,
+                            color: TEXT_FG,
+                            lineHeight: 1.4,
                           }}
                         >
-                          Section {sectionLetters[i]} · {sectionMarks[i]}m
-                        </span>
-                        <div style={{ minWidth: 0, flex: 1 }}>
-                          <div
-                            style={{
-                              fontSize: 13,
-                              fontWeight: 600,
-                              color: TEXT_FG,
-                              lineHeight: 1.4,
-                            }}
-                          >
-                            {h.label}
-                          </div>
-                          <div
-                            style={{
-                              fontSize: 12,
-                              color: TEXT_MUTED,
-                              marginTop: 2,
-                              lineHeight: 1.45,
-                            }}
-                          >
-                            {h.rationale}
-                          </div>
+                          {h.label}
                         </div>
-                      </li>
-                    );
-                  })}
+                        <div
+                          style={{
+                            fontSize: 12,
+                            color: TEXT_MUTED,
+                            marginTop: 2,
+                            lineHeight: 1.45,
+                          }}
+                        >
+                          {h.rationale}
+                        </div>
+                      </div>
+                    </li>
+                  ))}
                 </ul>
                 <span style={{ fontSize: 11, color: TEXT_MUTED }}>
-                  Sample preview — illustrative question prompts only. The live{" "}
+                  Reference cues only — no faux paper sections. The live{" "}
                   <Link
                     to={buildPredictedPath()}
                     style={{ color: PRIMARY_GREEN_DARK, textDecoration: "none", fontWeight: 600 }}
                   >
                     Highly Probable
                   </Link>{" "}
-                  page generates the actual ranked questions for your scope.
+                  page produces the actual ranked questions for your scope.
                 </span>
               </section>
             ) : null}
