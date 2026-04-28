@@ -3,18 +3,18 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSubjectContext } from "../../hooks/useSubjectContext";
 import {
-  ScopeBuilder,
   isDesktopScopeValueValid,
   type DesktopScopeValue,
 } from "../../components/desktop/l2/ScopeBuilder";
-import { PaperBlueprint } from "../../components/desktop/l2/PaperBlueprint";
-import { ContextBar } from "../../components/desktop/l2/ContextBar";
 import {
   buildDesktopCheckPath,
   buildDesktopMePath,
   buildDesktopWorksheetPath,
   withQuery,
   type DesktopActionSource,
+  type DesktopPaperScope,
+  type DesktopStream,
+  type DesktopSubject,
 } from "../../lib/desktop/navigation";
 import {
   desktopTopicsBySubject,
@@ -496,6 +496,598 @@ function PrimaryCard({
         </button>
       )}
     </article>
+  );
+}
+
+// ── PracticeContextBar (page-local; chips-first parity with prototype) ───
+interface PracticeChip {
+  label: string;
+  tone: "neutral" | "accent" | "info";
+}
+interface PracticeContextBarProps {
+  title: string;
+  subtitle: string;
+  chips: PracticeChip[];
+}
+function PracticeContextBar({ title, subtitle, chips }: PracticeContextBarProps) {
+  const chipColor = (tone: PracticeChip["tone"]) => {
+    if (tone === "accent") return { bg: ACCENT_SOFT, fg: ACCENT_FG };
+    if (tone === "info") return { bg: INFO_SOFT, fg: INFO_FG };
+    return { bg: PILL_BG, fg: TEXT_MUTED };
+  };
+  return (
+    <header
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 8,
+        marginBottom: 4,
+      }}
+    >
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center" }}>
+        {chips.map((c, i) => {
+          const { bg, fg } = chipColor(c.tone);
+          return (
+            <span
+              key={`${c.label}-${i}`}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4,
+                padding: "3px 10px",
+                borderRadius: 999,
+                fontSize: 11,
+                fontWeight: 500,
+                background: bg,
+                color: fg,
+                whiteSpace: "nowrap",
+              }}
+            >
+              {c.label}
+            </span>
+          );
+        })}
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+        <h1
+          style={{
+            fontFamily: FONT_DISPLAY,
+            fontSize: "1.65rem",
+            fontWeight: 600,
+            color: TEXT_FG,
+            margin: 0,
+            letterSpacing: "-0.01em",
+            lineHeight: 1.2,
+          }}
+        >
+          {title}
+        </h1>
+        <p
+          style={{
+            margin: 0,
+            fontSize: "0.86rem",
+            color: TEXT_MUTED,
+            maxWidth: 640,
+            lineHeight: 1.5,
+          }}
+        >
+          {subtitle}
+        </p>
+      </div>
+    </header>
+  );
+}
+
+// ── PracticeScopeBuilder (page-local; compact 3-col selector + topic chips)
+interface PracticeScopeBuilderProps {
+  value: DesktopScopeValue;
+  onChange: (next: DesktopScopeValue) => void;
+  topics: ReturnType<typeof desktopTopicsBySubject>;
+  summary: string;
+  helper?: string;
+}
+const SCOPE_OPTIONS: { value: DesktopPaperScope; label: string }[] = [
+  { value: "topic", label: "Single topic" },
+  { value: "multi-topic", label: "Multiple topics" },
+  { value: "full-subject", label: "Full subject" },
+];
+const SUBJECT_OPTIONS: DesktopSubject[] = ["Maths", "Science"];
+const STREAM_OPTIONS: DesktopStream[] = ["All", "Physics", "Chemistry", "Biology"];
+
+function PillButton({
+  active,
+  disabled,
+  children,
+  onClick,
+}: {
+  active: boolean;
+  disabled?: boolean;
+  children: React.ReactNode;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={disabled ? undefined : onClick}
+      disabled={disabled}
+      style={{
+        appearance: "none",
+        WebkitAppearance: "none",
+        cursor: disabled ? "not-allowed" : "pointer",
+        background: active ? PRIMARY_GREEN : CARD_BG,
+        color: active ? "#fff" : disabled ? TEXT_MUTED : TEXT_FG,
+        border: `1px solid ${active ? PRIMARY_GREEN : BORDER}`,
+        padding: "6px 12px",
+        borderRadius: 8,
+        fontSize: 12,
+        fontWeight: active ? 600 : 500,
+        opacity: disabled ? 0.55 : 1,
+        whiteSpace: "nowrap",
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
+function ChipToggle({
+  active,
+  multi,
+  children,
+  onClick,
+}: {
+  active: boolean;
+  multi?: boolean;
+  children: React.ReactNode;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        appearance: "none",
+        WebkitAppearance: "none",
+        cursor: "pointer",
+        background: active ? (multi ? ACCENT_SOFT : PRIMARY_GREEN_SOFT) : CARD_BG,
+        color: active ? (multi ? ACCENT_FG : PRIMARY_GREEN_DARK) : TEXT_FG,
+        border: `1px solid ${active ? (multi ? "hsla(35, 80%, 35%, 0.35)" : PRIMARY_GREEN_RING) : BORDER}`,
+        padding: "5px 10px",
+        borderRadius: 999,
+        fontSize: 12,
+        fontWeight: active ? 600 : 500,
+        whiteSpace: "nowrap",
+      }}
+    >
+      {multi && active ? "✓ " : multi ? "+ " : ""}
+      {children}
+    </button>
+  );
+}
+
+function PracticeScopeBuilder({
+  value,
+  onChange,
+  topics,
+  summary,
+  helper,
+}: PracticeScopeBuilderProps) {
+  const setSubject = (subject: DesktopSubject) =>
+    onChange({
+      subject,
+      stream: subject === "Maths" ? "All" : value.stream,
+      scope: value.scope,
+      topicSlug: null,
+      selectedTopicSlugs: [],
+    });
+  const setStream = (stream: DesktopStream) => {
+    if (value.subject !== "Science") return;
+    onChange({ ...value, stream, topicSlug: null, selectedTopicSlugs: [] });
+  };
+  const setScope = (scope: DesktopPaperScope) =>
+    onChange({
+      ...value,
+      scope,
+      topicSlug: scope === "topic" ? value.topicSlug : null,
+      selectedTopicSlugs: scope === "multi-topic" ? value.selectedTopicSlugs : [],
+    });
+  const setSingleTopic = (slug: string) => onChange({ ...value, topicSlug: slug });
+  const toggleTopic = (slug: string) => {
+    const exists = value.selectedTopicSlugs.includes(slug);
+    onChange({
+      ...value,
+      selectedTopicSlugs: exists
+        ? value.selectedTopicSlugs.filter((s) => s !== slug)
+        : [...value.selectedTopicSlugs, slug],
+    });
+  };
+  const clearSelected = () => onChange({ ...value, selectedTopicSlugs: [] });
+
+  return (
+    <section
+      style={{
+        background: CARD_BG,
+        border: `1px solid ${BORDER}`,
+        borderRadius: 14,
+        padding: 18,
+        display: "flex",
+        flexDirection: "column",
+        gap: 16,
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          alignItems: "flex-start",
+          justifyContent: "space-between",
+          gap: 12,
+          flexWrap: "wrap",
+        }}
+      >
+        <div style={{ minWidth: 0 }}>
+          <div
+            style={{
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              color: TEXT_MUTED,
+            }}
+          >
+            What do you want to work on?
+          </div>
+          <div
+            style={{
+              fontFamily: FONT_DISPLAY,
+              fontSize: "1.08rem",
+              fontWeight: 600,
+              color: TEXT_FG,
+              marginTop: 2,
+              letterSpacing: "-0.005em",
+            }}
+          >
+            Choose subject, stream, scope
+          </div>
+        </div>
+        <div
+          style={{
+            background: PILL_BG,
+            color: TEXT_FG,
+            padding: "6px 12px",
+            borderRadius: 8,
+            fontSize: 12.5,
+            fontWeight: 500,
+            maxWidth: 360,
+            lineHeight: 1.4,
+          }}
+        >
+          {summary}
+        </div>
+      </div>
+
+      <div className="lt-practice-scope-grid">
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <label
+            style={{
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              color: TEXT_MUTED,
+            }}
+          >
+            Subject
+          </label>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            {SUBJECT_OPTIONS.map((s) => (
+              <PillButton
+                key={s}
+                active={value.subject === s}
+                onClick={() => setSubject(s)}
+              >
+                {s}
+              </PillButton>
+            ))}
+          </div>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <label
+            style={{
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              color: TEXT_MUTED,
+            }}
+          >
+            Science stream
+          </label>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            {STREAM_OPTIONS.map((s) => (
+              <PillButton
+                key={s}
+                active={value.stream === s}
+                disabled={value.subject !== "Science"}
+                onClick={() => setStream(s)}
+              >
+                {s}
+              </PillButton>
+            ))}
+          </div>
+          {value.subject !== "Science" ? (
+            <div style={{ fontSize: 11, color: TEXT_MUTED }}>
+              Streams apply only to Science.
+            </div>
+          ) : null}
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <label
+            style={{
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              color: TEXT_MUTED,
+            }}
+          >
+            Scope
+          </label>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            {SCOPE_OPTIONS.map((s) => (
+              <PillButton
+                key={s.value}
+                active={value.scope === s.value}
+                onClick={() => setScope(s.value)}
+              >
+                {s.label}
+              </PillButton>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {value.scope === "topic" ? (
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <div
+            style={{
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              color: TEXT_MUTED,
+            }}
+          >
+            Pick a topic
+          </div>
+          {topics.length === 0 ? (
+            <p style={{ margin: 0, fontSize: 12.5, color: TEXT_MUTED }}>
+              No topics available for this subject/stream combination.
+            </p>
+          ) : (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+              {topics.map((t) => (
+                <ChipToggle
+                  key={t.slug}
+                  active={value.topicSlug === t.slug}
+                  onClick={() => setSingleTopic(t.slug)}
+                >
+                  {t.name}
+                </ChipToggle>
+              ))}
+            </div>
+          )}
+        </div>
+      ) : null}
+
+      {value.scope === "multi-topic" ? (
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+            <div
+              style={{
+                fontSize: 10,
+                fontWeight: 700,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                color: TEXT_MUTED,
+              }}
+            >
+              Combine topics (pick 2 or more)
+            </div>
+            {value.selectedTopicSlugs.length > 0 ? (
+              <button
+                type="button"
+                onClick={clearSelected}
+                style={{
+                  appearance: "none",
+                  WebkitAppearance: "none",
+                  border: "none",
+                  background: "transparent",
+                  cursor: "pointer",
+                  fontSize: 11,
+                  color: TEXT_MUTED,
+                  textDecoration: "underline",
+                  padding: 0,
+                }}
+              >
+                Clear all
+              </button>
+            ) : null}
+          </div>
+          {topics.length === 0 ? (
+            <p style={{ margin: 0, fontSize: 12.5, color: TEXT_MUTED }}>
+              No topics available for this subject/stream combination.
+            </p>
+          ) : (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+              {topics.map((t) => (
+                <ChipToggle
+                  key={t.slug}
+                  active={value.selectedTopicSlugs.includes(t.slug)}
+                  multi
+                  onClick={() => toggleTopic(t.slug)}
+                >
+                  {t.name}
+                </ChipToggle>
+              ))}
+            </div>
+          )}
+          {value.selectedTopicSlugs.length < 2 ? (
+            <p style={{ margin: 0, fontSize: 11, color: TEXT_MUTED }}>
+              Pick at least <strong style={{ color: TEXT_FG, fontWeight: 600 }}>2 topics</strong> to enable multi-topic study.
+            </p>
+          ) : null}
+        </div>
+      ) : null}
+
+      {value.scope === "full-subject" ? (
+        <div
+          style={{
+            background: PILL_BG,
+            border: `1px solid ${BORDER}`,
+            borderRadius: 10,
+            padding: "10px 12px",
+            fontSize: 12.5,
+            color: TEXT_FG,
+            lineHeight: 1.5,
+          }}
+        >
+          <strong style={{ fontWeight: 600 }}>Full {value.subject} subject</strong> — questions are drawn across all{" "}
+          {value.subject === "Science" && value.stream !== "All" ? `${value.stream} ` : ""}topics in proportion to exam weight. Use this for full 80-mark mocks or full-subject predicted papers.
+        </div>
+      ) : null}
+
+      {helper ? (
+        <p
+          style={{
+            margin: 0,
+            fontSize: 11,
+            color: TEXT_MUTED,
+            lineHeight: 1.5,
+          }}
+        >
+          {helper}
+        </p>
+      ) : null}
+    </section>
+  );
+}
+
+// ── PracticePaperBlueprint (page-local; 5-section subject-level grid) ─────
+interface PracticePaperBlueprintProps {
+  subject: DesktopSubject;
+  stream: DesktopStream;
+}
+function PracticePaperBlueprint({ subject, stream }: PracticePaperBlueprintProps) {
+  const sections: { id: string; marks: number; hint: string }[] = [
+    { id: "A", marks: 20, hint: "MCQ + Assertion-Reason (1m × 20)" },
+    { id: "B", marks: 10, hint: "Short Answer I (2m × 5)" },
+    { id: "C", marks: 18, hint: "Short Answer II (3m × 6)" },
+    { id: "D", marks: 20, hint: "Long Answer (5m × 4)" },
+    { id: "E", marks: 12, hint: "Case-based (4m × 3)" },
+  ];
+  const subjectLine =
+    subject === "Maths"
+      ? "All questions from CBSE Class 10 Maths topics."
+      : stream && stream !== "All"
+        ? `Questions from CBSE Class 10 ${stream} only.`
+        : "Mix of Physics + Chemistry + Biology — proportional to exam weight.";
+  return (
+    <section
+      style={{
+        background: CARD_BG,
+        border: `1px solid ${BORDER}`,
+        borderRadius: 14,
+        padding: 18,
+        display: "flex",
+        flexDirection: "column",
+        gap: 14,
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <span
+          style={{
+            display: "inline-flex",
+            width: 28,
+            height: 28,
+            borderRadius: 8,
+            background: ACCENT_SOFT,
+            color: ACCENT_FG,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <IconGraduation size={14} />
+        </span>
+        <div style={{ minWidth: 0 }}>
+          <div
+            style={{
+              fontFamily: FONT_DISPLAY,
+              fontSize: "1.0rem",
+              fontWeight: 600,
+              color: TEXT_FG,
+              letterSpacing: "-0.005em",
+            }}
+          >
+            Paper blueprint preview
+          </div>
+          <div style={{ fontSize: 11.5, color: TEXT_MUTED, lineHeight: 1.4 }}>
+            {subject} full mock · 80 marks · 3 hours · {subjectLine}
+          </div>
+        </div>
+      </div>
+      <div className="lt-practice-blueprint-grid">
+        {sections.map((s) => (
+          <div
+            key={s.id}
+            style={{
+              background: PILL_BG,
+              border: `1px solid ${BORDER}`,
+              borderRadius: 10,
+              padding: 12,
+              textAlign: "center",
+              display: "flex",
+              flexDirection: "column",
+              gap: 4,
+            }}
+          >
+            <div
+              style={{
+                fontSize: 9.5,
+                fontWeight: 700,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                color: TEXT_MUTED,
+              }}
+            >
+              Section {s.id}
+            </div>
+            <div
+              style={{
+                fontFamily: FONT_DISPLAY,
+                fontSize: "1.5rem",
+                fontWeight: 600,
+                color: TEXT_FG,
+                lineHeight: 1.1,
+              }}
+            >
+              {s.marks}
+              <span style={{ fontSize: 11, color: TEXT_MUTED, fontWeight: 500 }}> m</span>
+            </div>
+            <div style={{ fontSize: 10, color: TEXT_MUTED, lineHeight: 1.35 }}>{s.hint}</div>
+          </div>
+        ))}
+      </div>
+      <div
+        style={{
+          fontSize: 11,
+          color: TEXT_MUTED,
+          borderTop: `1px solid ${BORDER}`,
+          paddingTop: 10,
+        }}
+      >
+        Total: 80 marks · Duration: 3 hours · Reference blueprint, not a learner-specific paper.
+      </div>
+    </section>
   );
 }
 
@@ -1186,18 +1778,38 @@ export default function DesktopPracticePage() {
     if (mockWeakArea) return "full mock (+ weak area)";
     return "intent-first";
   })();
-  const chips = [
-    { label: `Class ${grade}`, tone: "neutral" as const },
+  const chips: PracticeChip[] = [
+    { label: `Class ${grade}`, tone: "neutral" },
     {
       label:
         scope.subject === "Science" && scope.stream !== "All"
           ? `${scope.subject} · ${scope.stream}`
           : scope.subject,
-      tone: "accent" as const,
+      tone: "neutral",
     },
-    { label: `Scope: ${scopeChipLabel}`, tone: "neutral" as const },
-    { label: `Mode: ${modeChipLabel}`, tone: "info" as const },
+    { label: `Scope: ${scopeChipLabel}`, tone: "neutral" },
+    { label: `Mode: ${modeChipLabel}`, tone: "info" },
   ];
+
+  // ── ScopeBuilder summary (parity with prototype) ─────────────────────
+  const scopeSummary = (() => {
+    if (scope.scope === "full-subject") {
+      if (scope.subject === "Maths") return "Maths full subject — 80 marks";
+      if (scope.stream === "All")
+        return "Science full subject — Physics + Chemistry + Biology, 80 marks";
+      return `Science ${scope.stream} — full stream`;
+    }
+    if (scope.scope === "multi-topic") {
+      const names = displayDesktopTopicNames(scope.selectedTopicSlugs);
+      if (names.length === 0) return `${scope.subject} — pick topics to combine`;
+      return `${scope.subject}${
+        scope.subject === "Science" && scope.stream !== "All" ? ` ${scope.stream}` : ""
+      } — ${names.join(" + ")}`;
+    }
+    return `${scope.subject}${
+      scope.subject === "Science" && scope.stream !== "All" ? ` ${scope.stream}` : ""
+    } — ${selectedTopic?.name ?? "pick a topic"}`;
+  })();
 
   // ── Sample preview ─────────────────────────────────────────────────────
   const samplePreview = blueprintContent
@@ -1232,29 +1844,21 @@ export default function DesktopPracticePage() {
       >
         <BackToParent />
 
-        <ContextBar
-          eyebrow="Practice"
+        <PracticeContextBar
           title="Practice"
           subtitle="Pick a scope, then choose what to do."
           chips={chips}
-          compact
         />
 
-        <ScopeBuilder
-          topics={topics}
+        <PracticeScopeBuilder
           value={scope}
           onChange={setScope}
-          title="Study scope"
+          topics={topics}
+          summary={scopeSummary}
+          helper="Showing a starter set of high-yield topics from the desktop bridge — not the full chapter list. Use the existing chapter pages for anything outside this short list."
         />
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "minmax(0, 1fr) minmax(0, 360px)",
-            gap: 20,
-            alignItems: "start",
-          }}
-        >
+        <div className="lt-practice-main-grid">
           {/* ───────────────────── MAIN COLUMN ───────────────────── */}
           <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
             {/* Choose what to do — 4 primary cards */}
@@ -1283,13 +1887,7 @@ export default function DesktopPracticePage() {
                   generates a new paper on its own.
                 </p>
               </div>
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-                  gap: 12,
-                }}
-              >
+              <div className="lt-practice-card-grid">
                 <PrimaryCard
                   icon={<IconLayers />}
                   title="Quick Practice"
@@ -1411,15 +2009,7 @@ export default function DesktopPracticePage() {
                   Timed · Chapter Test · Practice Paper
                 </span>
               </summary>
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-                  gap: 12,
-                  paddingTop: 12,
-                  paddingBottom: 6,
-                }}
-              >
+              <div className="lt-practice-more-grid">
                 <PrimaryCard
                   icon={<IconTimer />}
                   title="Timed Drill"
@@ -1481,18 +2071,8 @@ export default function DesktopPracticePage() {
               </div>
             </details>
 
-            {/* PaperBlueprint — board-paper preview */}
-            {blueprintContent ? (
-              <PaperBlueprint
-                title={
-                  scope.scope === "full-subject"
-                    ? `Paper blueprint · ${scope.subject} (preview from ${blueprintContent.topic.name})`
-                    : `Paper blueprint · ${blueprintContent.topic.name}`
-                }
-                sections={blueprintContent.blueprint}
-                totalMarks={blueprintContent.totalMarks}
-              />
-            ) : null}
+            {/* PaperBlueprint — 5-section board paper preview (subject-level) */}
+            <PracticePaperBlueprint subject={scope.subject} stream={scope.stream} />
 
             {/* Predicted questions — 3 honest tabs */}
             <section
@@ -1794,14 +2374,14 @@ export default function DesktopPracticePage() {
               ) : null}
             </section>
 
-            {/* Sample preview — curated highlights from the chosen topic */}
-            {samplePreview ? (
+            {/* Sample preview — question-row preview from curated highlights */}
+            {samplePreview && samplePreview.highlights.length > 0 ? (
               <section
                 style={{
                   background: CARD_BG,
                   border: `1px solid ${BORDER}`,
-                  borderRadius: 16,
-                  padding: 20,
+                  borderRadius: 14,
+                  padding: 18,
                   display: "flex",
                   flexDirection: "column",
                   gap: 12,
@@ -1819,10 +2399,11 @@ export default function DesktopPracticePage() {
                   <h3
                     style={{
                       fontFamily: FONT_DISPLAY,
-                      fontSize: "1.05rem",
+                      fontSize: "1.0rem",
                       fontWeight: 600,
                       color: TEXT_FG,
                       margin: 0,
+                      letterSpacing: "-0.005em",
                     }}
                   >
                     Sample preview
@@ -1833,19 +2414,16 @@ export default function DesktopPracticePage() {
                       alignItems: "center",
                       padding: "2px 10px",
                       borderRadius: 999,
-                      background: INFO_SOFT,
-                      color: INFO_FG,
-                      border: `1px solid hsla(215, 65%, 32%, 0.18)`,
+                      background: PILL_BG,
+                      color: PILL_FG,
+                      border: `1px solid ${BORDER}`,
                       fontSize: 11,
                       fontWeight: 600,
                     }}
                   >
-                    {samplePreview.topicName} · {samplePreview.marks}
+                    {samplePreview.topicName}
                   </span>
                 </div>
-                <p style={{ margin: 0, fontSize: 13, color: TEXT_MUTED, lineHeight: 1.5 }}>
-                  {samplePreview.blurb}
-                </p>
                 <ul
                   style={{
                     listStyle: "none",
@@ -1856,63 +2434,81 @@ export default function DesktopPracticePage() {
                     gap: 8,
                   }}
                 >
-                  {samplePreview.resources.map((r) => (
-                    <li
-                      key={r.id}
-                      style={{
-                        display: "flex",
-                        gap: 10,
-                        alignItems: "flex-start",
-                        padding: "8px 12px",
-                        background: PILL_BG,
-                        border: `1px solid ${BORDER}`,
-                        borderRadius: 10,
-                      }}
-                    >
-                      <span
+                  {samplePreview.highlights.slice(0, 3).map((h, idx) => {
+                    const sectionLetters = ["A", "B", "C", "D", "E"] as const;
+                    const sectionMarks = [1, 2, 3, 5, 4] as const;
+                    const i = Math.min(idx, sectionLetters.length - 1);
+                    return (
+                      <li
+                        key={h.id}
                         style={{
-                          flexShrink: 0,
-                          padding: "2px 8px",
-                          borderRadius: 999,
-                          background: CARD_BG,
+                          display: "flex",
+                          gap: 10,
+                          alignItems: "flex-start",
+                          padding: "10px 12px",
+                          background: PILL_BG,
                           border: `1px solid ${BORDER}`,
-                          fontSize: 11,
-                          color: TEXT_MUTED,
-                          fontWeight: 600,
+                          borderRadius: 10,
                         }}
                       >
-                        {r.kind === "concept-note"
-                          ? "Concept"
-                          : r.kind === "quick-refresher"
-                            ? "Refresher"
-                            : r.kind === "drill"
-                              ? "Drill"
-                              : r.kind === "previous-year"
-                                ? "PYQ"
-                                : "Video"}{" "}
-                        · {r.estimatedMinutes}m
-                      </span>
-                      <div style={{ minWidth: 0 }}>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: TEXT_FG, lineHeight: 1.3 }}>
-                          {r.label}
+                        <span
+                          style={{
+                            flexShrink: 0,
+                            padding: "2px 8px",
+                            borderRadius: 999,
+                            background: CARD_BG,
+                            border: `1px solid ${BORDER}`,
+                            fontSize: 10.5,
+                            color: TEXT_MUTED,
+                            fontWeight: 700,
+                            letterSpacing: "0.04em",
+                            textTransform: "uppercase",
+                          }}
+                        >
+                          Section {sectionLetters[i]} · {sectionMarks[i]}m
+                        </span>
+                        <div style={{ minWidth: 0, flex: 1 }}>
+                          <div
+                            style={{
+                              fontSize: 13,
+                              fontWeight: 600,
+                              color: TEXT_FG,
+                              lineHeight: 1.4,
+                            }}
+                          >
+                            {h.label}
+                          </div>
+                          <div
+                            style={{
+                              fontSize: 12,
+                              color: TEXT_MUTED,
+                              marginTop: 2,
+                              lineHeight: 1.45,
+                            }}
+                          >
+                            {h.rationale}
+                          </div>
                         </div>
-                        <div style={{ fontSize: 12, color: TEXT_MUTED, marginTop: 2, lineHeight: 1.45 }}>
-                          {r.blurb}
-                        </div>
-                      </div>
-                    </li>
-                  ))}
+                      </li>
+                    );
+                  })}
                 </ul>
                 <span style={{ fontSize: 11, color: TEXT_MUTED }}>
-                  Curated highlights from this topic — open the Highly Probable
-                  page or the Topic Hub to see full content.
+                  Sample preview — illustrative question prompts only. The live{" "}
+                  <Link
+                    to={buildPredictedPath()}
+                    style={{ color: PRIMARY_GREEN_DARK, textDecoration: "none", fontWeight: 600 }}
+                  >
+                    Highly Probable
+                  </Link>{" "}
+                  page generates the actual ranked questions for your scope.
                 </span>
               </section>
             ) : null}
           </div>
 
           {/* ───────────────────── ASIDE COLUMN ───────────────────── */}
-          <aside style={{ display: "flex", flexDirection: "column", gap: 16, position: "sticky", top: 20 }}>
+          <aside style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <MistakeIntelligencePanel
               isSignedIn={isSignedIn}
               loading={mistakesLoading && isSignedIn}
@@ -2005,33 +2601,69 @@ export default function DesktopPracticePage() {
                 → See progress dashboard
               </Link>
             </section>
-
-            {/* Honest disclaimer about the curated topic catalog */}
-            <p
-              style={{
-                margin: 0,
-                padding: "10px 14px",
-                border: `1px dashed ${BORDER}`,
-                background: PILL_BG,
-                borderRadius: 10,
-                fontSize: "0.78rem",
-                lineHeight: 1.5,
-                color: TEXT_MUTED,
-              }}
-            >
-              Showing a starter set of high-yield topics from the desktop
-              bridge — not the full chapter list. Use the existing chapter
-              pages for anything outside this short list.
-            </p>
           </aside>
         </div>
 
-        {/* Inline keyframes — single shared rule, no global Tailwind */}
+        {/* Inline keyframes + responsive grid rules — no global Tailwind */}
         <style>{`
           .lt-practice-fade-in { animation: lt-practice-fade 220ms ease-out; }
           @keyframes lt-practice-fade {
             from { opacity: 0; transform: translateY(2px); }
             to   { opacity: 1; transform: translateY(0); }
+          }
+          .lt-practice-main-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            gap: 20px;
+            align-items: start;
+          }
+          @media (min-width: 1024px) {
+            .lt-practice-main-grid {
+              grid-template-columns: minmax(0, 1fr) minmax(0, 340px);
+            }
+          }
+          .lt-practice-card-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            gap: 12px;
+          }
+          @media (min-width: 768px) {
+            .lt-practice-card-grid {
+              grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+          }
+          .lt-practice-more-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            gap: 12px;
+            padding-top: 12px;
+            padding-bottom: 6px;
+          }
+          @media (min-width: 768px) {
+            .lt-practice-more-grid {
+              grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+          }
+          .lt-practice-scope-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            gap: 16px;
+          }
+          @media (min-width: 768px) {
+            .lt-practice-scope-grid {
+              grid-template-columns: repeat(3, minmax(0, 1fr));
+              gap: 20px;
+            }
+          }
+          .lt-practice-blueprint-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+          }
+          @media (min-width: 768px) {
+            .lt-practice-blueprint-grid {
+              grid-template-columns: repeat(5, minmax(0, 1fr));
+            }
           }
         `}</style>
       </div>
