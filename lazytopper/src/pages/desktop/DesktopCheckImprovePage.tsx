@@ -799,7 +799,7 @@ const DesktopCheckImprovePage: React.FC = () => {
   }
   function gotoLogin() {
     const params = new URLSearchParams({
-      reason: "save-mistake-history",
+      reason: "grade-answer",
       redirect: "/check-improve",
     });
     navigate(withQuery("/login", params));
