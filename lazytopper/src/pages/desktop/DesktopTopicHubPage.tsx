@@ -14,11 +14,10 @@ import {
   type DesktopTopicSummary,
 } from "../../lib/desktop/topics";
 import {
-  desktopTopicHubContentBySlug,
-  type DesktopHubBlueprintSection,
-  type DesktopHubHighlight,
-  type DesktopHubResource,
-  type DesktopTopicHubContent,
+  buildActionableDesktopTopicHubContent,
+  type ActionableTopicHubContent,
+  type BoardConcept,
+  type FormulaUseCard,
 } from "../../lib/desktop/topicHubContent";
 import {
   getHighlyProbableQuestions,
@@ -32,45 +31,55 @@ import {
 import { useAuth } from "../../context/AuthContext";
 
 /**
- * DesktopTopicHubPage — desktop Topic Hub aligned with the locked
- * topic-focus-lite TopicHubPage prototype.
+ * DesktopTopicHubPage — desktop Topic Hub, locked-prototype parity (PR-I1).
  *
  * Reference (locked prototype, external to this repo):
  *   chetan-anand-hub/topic-focus-lite — src/pages/TopicHubPage.tsx
- *   chetan-anand-hub/topic-focus-lite — src/components/BackToParent.tsx
- *   chetan-anand-hub/topic-focus-lite — src/components/MistakeIntelligencePanel.tsx
  *   chetan-anand-hub/topic-focus-lite — src/lib/topicHubContent.ts
- *   chetan-anand-hub/topic-focus-lite — src/lib/navigation.ts
- *   chetan-anand-hub/topic-focus-lite — src/lib/topics.ts
  *
  * Composition (matches the locked prototype):
- *   1. BackToParent — text return link to /exam-trends (or honour returnTo).
+ *   1. BackToParent — honours an explicit returnTo query param when present;
+ *      otherwise returns to Exam Trends.
  *   2. Topic strip — subject/stream/class chips, serif topic name, blurb,
- *      trend tier chip, marks chip, weight visual.
+ *      trend chip, marks chip, weight visual, sample-preview note when the
+ *      actionable content is a sample-preview fallback.
  *   3. Compact action bar — Practice, Worksheet, Predicted Qs,
- *      Add to selection (page-local), More.
- *   4. Recommended next action — single highlighted CTA derived from real
- *      mistake logs for this topic when available, otherwise fallback to
- *      Predicted Qs / Practice based on HPQ availability and trend.
- *   5. Progressive sections (native <details>):
- *        - Board Essentials   — paper blueprint + reference resources.
- *        - How boards use it  — real HPQ rows or honest empty state.
- *        - Mistakes & next    — personal mistakes + board-prep highlights.
- *   6. Right rail — Topic snapshot, Quick hand (reference resources),
- *      Mistake Intelligence card.
+ *      Add to selection, More.
+ *   4. More menu/panel — Chapter Test, Check answer, mistake-aware worksheet.
+ *   5. Recommended next action — single highlighted CTA derived from real
+ *      mistake logs (when signed in) → real HPQs → focused practice.
+ *   6. Board Essentials — open by default. Concept rows from the actionable
+ *      content with Practise-this CTAs and show-all behaviour over 3 rows.
+ *   7. How boards use it — collapsed by default. Marquee formula/definition
+ *      card + use cases + common trap + the rest of the formula-use map (when
+ *      seeded) + an HPQ compact card driven only by real getHighlyProbableQuestions
+ *      data (or an honest no-HPQ state).
+ *   8. Mistakes & next action — collapsed by default. Reference common mistake
+ *      and examiner warning + targeted drill/worksheet actions. Personal
+ *      mistake rows appear only when getMistakeLogs returns rows for this
+ *      exact topic.
+ *   9. Right rail — Topic snapshot, Need a quick hand (three local support
+ *      panels — Explain concept / Show visual / Mini check), Mistake
+ *      Intelligence (real personal data only).
  *
  * Data honesty:
  *   - HPQ rows/counts come ONLY from getHighlyProbableQuestions.
  *   - Personal mistakes come ONLY from getMistakeLogs(user.uid, 7).
- *   - topicHubContent is used for reference / blueprint / resources only —
- *     never presented as HPQ data or as personalised learner data.
- *   - Signed-out and no-data states are visible and labelled honestly.
- *   - No fake counts, scores, attempts, progress, or tutor output.
+ *   - actionable content is reference / board-prep guidance only — never
+ *     presented as HPQ data or as personalised learner data.
+ *   - Sample-preview content (built from the topic blurb when a topic is not
+ *     hand-seeded) is labelled clearly on screen.
+ *   - Quick-hand support panels (Explain concept / Show visual / Mini check)
+ *     are static reference content and are labelled as optional support —
+ *     never presented as AI tutor output, generated practice, or personalised
+ *     diagnosis.
  *
  * Routing:
- *   - All CTAs preserve source=topicHub and returnTo=current topic hub URL
+ *   - All CTAs preserve source=topicHub and returnTo=current Topic Hub URL
  *     (or the explicit returnTo query param when one is already present).
  *   - Uses production route helpers only; no /app/* React routes.
+ *   - Chapter Test routes to the existing /chapter-test/:grade/:subject/:topicKey
+ *     React route used by DesktopPracticePage and the legacy mobile pages.
  *
  * Production constraints:
  *   - Inline styles only (no Tailwind, no shadcn classes).
@@ -191,6 +200,40 @@ function IconHelp({ size = 14 }: { size?: number }) {
     </svg>
   );
 }
+function IconBook({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" style={IconStroke} aria-hidden>
+      <path d="M4 4h6a4 4 0 0 1 4 4v12a3 3 0 0 0-3-3H4z" />
+      <path d="M20 4h-6a4 4 0 0 0-4 4v12a3 3 0 0 1 3-3h7z" />
+    </svg>
+  );
+}
+function IconEye({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" style={IconStroke} aria-hidden>
+      <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
+function IconQuestion({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" style={IconStroke} aria-hidden>
+      <rect x="3" y="4" width="18" height="14" rx="2" />
+      <path d="M9 10a3 3 0 0 1 6 0c0 1.5-3 2-3 3" />
+      <line x1="12" y1="15" x2="12" y2="15.1" />
+    </svg>
+  );
+}
+function IconClipboardList({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" style={IconStroke} aria-hidden>
+      <rect x="6" y="4" width="12" height="18" rx="2" />
+      <path d="M9 4V3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1" />
+      <path d="M9 11h6M9 15h6M9 19h4" />
+    </svg>
+  );
+}
 
 // ── Helpers ───────────────────────────────────────────────────────────────
 function normalise(value: string): string {
@@ -239,6 +282,14 @@ function trendLabel(tier: DesktopTopicSummary["trendTier"]): string {
   if (tier === "high") return "High trend";
   if (tier === "medium") return "Medium trend";
   return "Low trend";
+}
+
+function formulaCardKindLabel(kind: FormulaUseCard["kind"]): string {
+  if (kind === "identity") return "Identity";
+  if (kind === "definition") return "Definition";
+  if (kind === "law") return "Law";
+  if (kind === "process") return "Process";
+  return "Formula";
 }
 
 // ── Small primitives ──────────────────────────────────────────────────────
@@ -341,6 +392,49 @@ function ButtonLink({
   );
 }
 
+function PlainButton({
+  onClick,
+  active,
+  icon,
+  children,
+  title,
+  ariaPressed,
+}: {
+  onClick: () => void;
+  active?: boolean;
+  icon?: React.ReactNode;
+  children: React.ReactNode;
+  title?: string;
+  ariaPressed?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={ariaPressed}
+      title={title}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 6,
+        padding: "8px 12px",
+        fontSize: 13,
+        fontWeight: 600,
+        lineHeight: 1,
+        color: active ? PRIMARY_GREEN_DARK : TEXT_FG,
+        background: active ? PRIMARY_GREEN_SOFT : CARD_BG,
+        border: `1px solid ${active ? "hsl(152, 55%, 75%)" : BORDER_STRONG}`,
+        borderRadius: 8,
+        cursor: "pointer",
+        fontFamily: FONT_BODY,
+      }}
+    >
+      {icon}
+      <span>{children}</span>
+    </button>
+  );
+}
+
 function Card({
   children,
   padding = 18,
@@ -393,6 +487,14 @@ function MutedNote({ children }: { children: React.ReactNode }) {
     >
       {children}
     </p>
+  );
+}
+
+function SampleNoteChip() {
+  return (
+    <Chip bg={ACCENT_BLUE_SOFT} fg={ACCENT_BLUE} border={"hsl(212, 70%, 85%)"}>
+      Sample preview
+    </Chip>
   );
 }
 
@@ -467,11 +569,24 @@ function TopicNotFound({ rawSlug }: { rawSlug: string }) {
 }
 
 // ── BackToParent ──────────────────────────────────────────────────────────
-function BackToParent({ subject }: { subject: DesktopSubject | null }) {
-  const label = subject ? `Back to ${subject} on Exam Trends` : "Back to Exam Trends";
+function BackToParent({
+  subject,
+  explicitReturnTo,
+}: {
+  subject: DesktopSubject | null;
+  explicitReturnTo: string | null;
+}) {
+  const target = explicitReturnTo && explicitReturnTo.length > 0
+    ? explicitReturnTo
+    : "/exam-trends";
+  const label = explicitReturnTo
+    ? "Back"
+    : subject
+      ? `Back to ${subject} on Exam Trends`
+      : "Back to Exam Trends";
   return (
     <Link
-      to="/exam-trends"
+      to={target}
       style={{
         display: "inline-flex",
         alignItems: "center",
@@ -491,10 +606,10 @@ function BackToParent({ subject }: { subject: DesktopSubject | null }) {
 // ── Topic strip ───────────────────────────────────────────────────────────
 function TopicStrip({
   topic,
-  totalMarks,
+  isSamplePreview,
 }: {
   topic: DesktopTopicSummary;
-  totalMarks: number;
+  isSamplePreview: boolean;
 }) {
   const trendColors = trendChipColors(topic.trendTier);
   const weightPct = Math.max(4, Math.min(100, topic.weight * 5));
@@ -526,6 +641,7 @@ function TopicStrip({
           {trendLabel(topic.trendTier)}
         </Chip>
         <Chip>{topic.marks}</Chip>
+        {isSamplePreview ? <SampleNoteChip /> : null}
       </div>
 
       <h1
@@ -605,9 +721,16 @@ function TopicStrip({
             color: TEXT_FG,
           }}
         >
-          {topic.weight} pts · ~{totalMarks} marks blueprint
+          {topic.weight} pts · {topic.marks} blueprint band
         </span>
       </div>
+
+      {isSamplePreview ? (
+        <p style={{ margin: "12px 0 0", fontSize: 12, color: TEXT_SUBTLE, lineHeight: 1.5 }}>
+          Reference outline derived from this topic&rsquo;s blurb. Hand-curated
+          board guidance is not seeded for this topic yet.
+        </p>
+      ) : null}
     </Card>
   );
 }
@@ -668,66 +791,35 @@ function ActionBar({
       <ButtonLink to={predictedHref} variant="outline" icon={<IconSparkle />}>
         Predicted Qs
       </ButtonLink>
-      <button
-        type="button"
+      <PlainButton
         onClick={onToggleSelected}
-        aria-pressed={selected}
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 6,
-          padding: "8px 12px",
-          fontSize: 13,
-          fontWeight: 600,
-          lineHeight: 1,
-          color: selected ? PRIMARY_GREEN_DARK : TEXT_FG,
-          background: selected ? PRIMARY_GREEN_SOFT : CARD_BG,
-          border: `1px solid ${selected ? "hsl(152, 55%, 75%)" : BORDER_STRONG}`,
-          borderRadius: 8,
-          cursor: "pointer",
-          fontFamily: FONT_BODY,
-        }}
+        active={selected}
+        ariaPressed={selected}
+        icon={selected ? <IconCheck /> : <IconBookmark />}
         title="Mark this topic as part of your current focus selection (page-local)"
       >
-        {selected ? <IconCheck /> : <IconBookmark />}
-        <span>{selected ? "In selection" : "Add to selection"}</span>
-      </button>
+        {selected ? "In selection" : "Add to selection"}
+      </PlainButton>
       <div style={{ flex: 1 }} />
-      <button
-        type="button"
+      <PlainButton
         onClick={onToggleMore}
-        aria-expanded={moreOpen}
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 6,
-          padding: "8px 12px",
-          fontSize: 13,
-          fontWeight: 600,
-          lineHeight: 1,
-          color: TEXT_FG,
-          background: CARD_BG,
-          border: `1px solid ${BORDER_STRONG}`,
-          borderRadius: 8,
-          cursor: "pointer",
-          fontFamily: FONT_BODY,
-        }}
+        ariaPressed={moreOpen}
+        icon={<IconChevron />}
       >
-        <span>More</span>
-        <IconChevron />
-      </button>
+        More
+      </PlainButton>
     </div>
   );
 }
 
 function MoreActionsPanel({
   topic,
+  grade,
   routeContext,
-  predictedHref,
 }: {
   topic: DesktopTopicSummary;
+  grade: string;
   routeContext: DesktopRouteContext;
-  predictedHref: string;
 }) {
   const checkHref = buildDesktopCheckPath(topic.slug, routeContext);
   const mistakeAwareHref = buildDesktopWorksheetPath({
@@ -737,6 +829,12 @@ function MoreActionsPanel({
     topic: topic.slug,
     mistakeAware: true,
     ...routeContext,
+  });
+  const chapterTestHref = buildChapterTestPath({
+    grade,
+    subject: topic.subject,
+    topicSlug: topic.slug,
+    routeContext,
   });
 
   return (
@@ -749,40 +847,34 @@ function MoreActionsPanel({
           alignItems: "center",
         }}
       >
+        <ButtonLink to={chapterTestHref} variant="outline" icon={<IconClipboardList />}>
+          Chapter Test
+        </ButtonLink>
         <ButtonLink to={checkHref} variant="outline" icon={<IconCheck />}>
           Check answer
         </ButtonLink>
         <ButtonLink to={mistakeAwareHref} variant="outline" icon={<IconAlert />}>
           Mistake-aware worksheet
         </ButtonLink>
-        <ButtonLink to={predictedHref} variant="ghost" icon={<IconArrowRight />}>
-          Open full HPQ list
-        </ButtonLink>
       </div>
-      <p
-        style={{
-          margin: "10px 0 0",
-          fontSize: 12,
-          lineHeight: 1.5,
-          color: TEXT_SUBTLE,
-        }}
-      >
-        Chapter Test and Mock Builder are part of the older downstream engines
-        and stay on their existing surfaces — open them from Practice Hub.
+      <p style={{ margin: "10px 0 0", fontSize: 12, color: TEXT_SUBTLE, lineHeight: 1.5 }}>
+        Chapter Test opens the existing /chapter-test engine on this topic.
+        Check answer opens Check &amp; Improve scoped to {topic.name}.
+        Mistake-aware worksheet uses your real Check &amp; Improve history when signed in.
       </p>
     </Card>
   );
 }
 
 // ── Recommended next action ───────────────────────────────────────────────
-type Recommendation = {
-  kind: "mistake-aware" | "predicted" | "practice";
+interface Recommendation {
+  label: string;
+  rationale: string;
   href: string;
-  title: string;
-  body: string;
-  ctaLabel: string;
+  icon: React.ReactNode;
+  variant: "primary" | "outline";
   honestNote?: string;
-};
+}
 
 function buildRecommendation(args: {
   topic: DesktopTopicSummary;
@@ -793,277 +885,405 @@ function buildRecommendation(args: {
   signedIn: boolean;
   mistakeLogsLoading: boolean;
 }): Recommendation {
-  const {
-    topic,
-    routeContext,
-    predictedHref,
-    hpqCount,
-    topicMistakeCount,
-    signedIn,
-    mistakeLogsLoading,
-  } = args;
+  const { topic, routeContext, predictedHref, hpqCount, topicMistakeCount, signedIn, mistakeLogsLoading } = args;
+  const practiceHref = buildDesktopPracticePath({
+    scope: "topic",
+    subject: topic.subject,
+    stream: topic.stream,
+    topic: topic.slug,
+    mode: "practice-set",
+    ...routeContext,
+  });
+  const mistakeWorksheetHref = buildDesktopWorksheetPath({
+    scope: "topic",
+    subject: topic.subject,
+    stream: topic.stream,
+    topic: topic.slug,
+    mistakeAware: true,
+    ...routeContext,
+  });
 
   if (signedIn && !mistakeLogsLoading && topicMistakeCount > 0) {
     return {
-      kind: "mistake-aware",
-      href: buildDesktopWorksheetPath({
-        scope: "topic",
-        subject: topic.subject,
-        stream: topic.stream,
-        topic: topic.slug,
-        mistakeAware: true,
-        ...routeContext,
-      }),
-      title: "Run a mistake-aware worksheet on this topic",
-      body: `You have ${topicMistakeCount} logged mistake${topicMistakeCount === 1 ? "" : "s"} on ${topic.name} in the last 7 days. Drill the patterns you actually got wrong.`,
-      ctaLabel: "Start mistake-aware worksheet",
+      label: "Run a mistake-aware worksheet",
+      rationale: `You have ${topicMistakeCount} logged mistake${topicMistakeCount === 1 ? "" : "s"} on ${topic.name} in the last 7 days. Drill the exact patterns first.`,
+      href: mistakeWorksheetHref,
+      icon: <IconAlert />,
+      variant: "primary",
     };
   }
 
   if (hpqCount > 0) {
     return {
-      kind: "predicted",
+      label: "Open Predicted Questions",
+      rationale: `${hpqCount} highly probable board-style question${hpqCount === 1 ? "" : "s"} are mapped to ${topic.name}.`,
       href: predictedHref,
-      title: "Open the predicted questions for this topic",
-      body: `${hpqCount} highly probable board-style question${hpqCount === 1 ? "" : "s"} are mapped to ${topic.name}. Working through them is the highest-yield next step.`,
-      ctaLabel: "Open predicted questions",
-      honestNote: signedIn
-        ? undefined
-        : "Sign in to also see mistake-aware suggestions tailored to your work.",
+      icon: <IconSparkle />,
+      variant: "primary",
     };
   }
 
   return {
-    kind: "practice",
-    href: buildDesktopPracticePath({
-      scope: "topic",
-      subject: topic.subject,
-      stream: topic.stream,
-      topic: topic.slug,
-      mode: "practice-set",
-      ...routeContext,
-    }),
-    title: "Start a focused practice set",
-    body: `No predicted-question bucket is currently mapped to ${topic.name}. Begin with a focused practice set; we'll add HPQs and mistake-aware drills here as your data grows.`,
-    ctaLabel: "Start practice set",
-    honestNote: signedIn
-      ? undefined
-      : "Sign in to also see mistake-aware suggestions tailored to your work.",
+    label: "Start focused practice",
+    rationale: `${topic.name} doesn't have any matched HPQs yet. Begin with a focused practice set on this topic.`,
+    href: practiceHref,
+    icon: <IconDumbbell />,
+    variant: "primary",
+    honestNote: "No matched HPQs — falling back to topic-level practice.",
   };
 }
 
 function RecommendedNextAction({ rec }: { rec: Recommendation }) {
   return (
-    <Card padding={20} tint>
+    <div
+      style={{
+        display: "flex",
+        gap: 14,
+        alignItems: "center",
+        padding: "14px 18px",
+        background: PRIMARY_GREEN_SOFT,
+        border: `1px solid hsl(152, 55%, 82%)`,
+        borderRadius: 12,
+        flexWrap: "wrap",
+      }}
+    >
+      <div style={{ flex: "1 1 280px", minWidth: 200 }}>
+        <div
+          style={{
+            fontSize: 12,
+            fontWeight: 700,
+            color: PRIMARY_GREEN_DARK,
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
+          }}
+        >
+          Recommended next
+        </div>
+        <div
+          style={{
+            marginTop: 4,
+            fontSize: 14,
+            fontWeight: 600,
+            color: TEXT_FG,
+            lineHeight: 1.4,
+          }}
+        >
+          {rec.rationale}
+        </div>
+        {rec.honestNote ? (
+          <div style={{ marginTop: 4, fontSize: 12, color: TEXT_SUBTLE }}>
+            {rec.honestNote}
+          </div>
+        ) : null}
+      </div>
+      <ButtonLink to={rec.href} variant={rec.variant} icon={rec.icon}>
+        {rec.label}
+      </ButtonLink>
+    </div>
+  );
+}
+
+// ── Board Essentials section ──────────────────────────────────────────────
+function BoardEssentialsPanel({
+  topic,
+  boardEssentials,
+  isSamplePreview,
+  practiceHref,
+}: {
+  topic: DesktopTopicSummary;
+  boardEssentials: BoardConcept[];
+  isSamplePreview: boolean;
+  practiceHref: string;
+}) {
+  const [showAll, setShowAll] = useState(false);
+  const visible = showAll ? boardEssentials : boardEssentials.slice(0, 3);
+  const hasMore = boardEssentials.length > 3;
+  const subtitle = isSamplePreview
+    ? `Reference outline based on the ${topic.name} blurb — sample preview.`
+    : `Concept rows examiners come back to for ${topic.name}.`;
+
+  return (
+    <ProgressiveSection
+      title="Board Essentials"
+      subtitle={subtitle}
+      defaultOpen
+    >
+      <div style={{ display: "grid", gap: 10 }}>
+        {visible.map((concept, idx) => (
+          <BoardConceptRow
+            key={`${concept.name}-${idx}`}
+            concept={concept}
+            practiceHref={practiceHref}
+          />
+        ))}
+      </div>
+      {hasMore ? (
+        <div style={{ marginTop: 12 }}>
+          <PlainButton
+            onClick={() => setShowAll((p) => !p)}
+            icon={<IconChevron />}
+          >
+            {showAll
+              ? "Show fewer concepts"
+              : `Show all ${boardEssentials.length} concepts`}
+          </PlainButton>
+        </div>
+      ) : null}
+      {isSamplePreview ? (
+        <p style={{ margin: "10px 0 0", fontSize: 12, color: TEXT_SUBTLE }}>
+          Sample preview — confirm specific concepts from your textbook before relying on this list.
+        </p>
+      ) : null}
+    </ProgressiveSection>
+  );
+}
+
+function BoardConceptRow({
+  concept,
+  practiceHref,
+}: {
+  concept: BoardConcept;
+  practiceHref: string;
+}) {
+  return (
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "1fr auto",
+        gap: 12,
+        alignItems: "start",
+        padding: "12px 14px",
+        background: CARD_BG,
+        border: `1px solid ${BORDER}`,
+        borderRadius: 10,
+      }}
+    >
+      <div style={{ minWidth: 0 }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            flexWrap: "wrap",
+          }}
+        >
+          <div
+            style={{
+              fontSize: 14,
+              fontWeight: 600,
+              color: TEXT_FG,
+              lineHeight: 1.35,
+            }}
+          >
+            {concept.name}
+          </div>
+          <Chip>{concept.marks} marks</Chip>
+        </div>
+        <div
+          style={{
+            marginTop: 6,
+            fontSize: 13,
+            color: TEXT_MUTED,
+            lineHeight: 1.5,
+          }}
+        >
+          {concept.oneLineUse}
+        </div>
+      </div>
+      <div style={{ alignSelf: "center" }}>
+        <ButtonLink
+          to={practiceHref}
+          variant="outline"
+          icon={<IconDumbbell />}
+          title={`Practise this concept on ${concept.name}`}
+        >
+          Practise this
+        </ButtonLink>
+      </div>
+    </div>
+  );
+}
+
+// ── How boards use it section ─────────────────────────────────────────────
+function HowBoardsUseItPanel({
+  topic,
+  formulaUsePreview,
+  fullFormulaUseMap,
+  hpqQuestions,
+  predictedHref,
+  isSamplePreview,
+}: {
+  topic: DesktopTopicSummary;
+  formulaUsePreview: FormulaUseCard;
+  fullFormulaUseMap: FormulaUseCard[];
+  hpqQuestions: HPQQuestion[];
+  predictedHref: string;
+  isSamplePreview: boolean;
+}) {
+  const subtitle = `How ${topic.name} typically shows up in board questions, plus real predicted questions when available.`;
+
+  return (
+    <ProgressiveSection title="How boards use it" subtitle={subtitle}>
+      <div style={{ display: "grid", gap: 16 }}>
+        <FormulaCardView card={formulaUsePreview} marquee />
+
+        {fullFormulaUseMap.length > 0 ? (
+          <details
+            style={{
+              background: SURFACE_TINT,
+              border: `1px solid ${BORDER}`,
+              borderRadius: 10,
+              padding: "12px 14px",
+            }}
+          >
+            <summary
+              style={{
+                listStyle: "none",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 10,
+                fontSize: 13,
+                fontWeight: 600,
+                color: TEXT_FG,
+              }}
+            >
+              <span>Full formula-use map ({fullFormulaUseMap.length} more)</span>
+              <IconChevron />
+            </summary>
+            <div style={{ display: "grid", gap: 12, marginTop: 12 }}>
+              {fullFormulaUseMap.map((card, idx) => (
+                <FormulaCardView key={`${card.title}-${idx}`} card={card} />
+              ))}
+            </div>
+          </details>
+        ) : null}
+
+        <HPQCompactCard
+          topic={topic}
+          hpqQuestions={hpqQuestions}
+          predictedHref={predictedHref}
+        />
+
+        {isSamplePreview ? (
+          <p style={{ margin: 0, fontSize: 12, color: TEXT_SUBTLE }}>
+            Sample preview formula-use card — verify exact wording and conditions
+            from your textbook.
+          </p>
+        ) : null}
+      </div>
+    </ProgressiveSection>
+  );
+}
+
+function FormulaCardView({
+  card,
+  marquee = false,
+}: {
+  card: FormulaUseCard;
+  marquee?: boolean;
+}) {
+  return (
+    <div
+      style={{
+        background: marquee ? PRIMARY_GREEN_SOFT : CARD_BG,
+        border: `1px solid ${marquee ? "hsl(152, 55%, 82%)" : BORDER}`,
+        borderRadius: 10,
+        padding: 16,
+      }}
+    >
       <div
         style={{
           display: "flex",
           alignItems: "center",
           gap: 8,
           marginBottom: 8,
+          flexWrap: "wrap",
         }}
       >
-        <span
+        <Chip
+          bg={marquee ? PRIMARY_GREEN : MUTED_BG}
+          fg={marquee ? "#ffffff" : TEXT_MUTED}
+          border={marquee ? PRIMARY_GREEN : BORDER}
+        >
+          {formulaCardKindLabel(card.kind)}
+        </Chip>
+        <h3
           style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 6,
-            padding: "2px 10px",
-            fontSize: 11,
-            fontWeight: 700,
-            textTransform: "uppercase",
-            letterSpacing: "0.05em",
-            color: PRIMARY_GREEN_DARK,
-            background: PRIMARY_GREEN_SOFT,
-            border: `1px solid hsl(152, 55%, 80%)`,
-            borderRadius: 999,
+            margin: 0,
+            fontFamily: FONT_DISPLAY,
+            fontSize: 16,
+            fontWeight: 600,
+            color: TEXT_FG,
+            lineHeight: 1.3,
           }}
         >
-          <IconSparkle />
-          Recommended next
-        </span>
+          {card.title}
+        </h3>
       </div>
-      <h3
+      <div>
+        <h4
+          style={{
+            margin: "10px 0 6px",
+            fontSize: 11,
+            fontWeight: 700,
+            color: TEXT_SUBTLE,
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
+          }}
+        >
+          When to use
+        </h4>
+        <ul style={{ margin: "0 0 8px", paddingInlineStart: 18, color: TEXT_MUTED, fontSize: 13, lineHeight: 1.55 }}>
+          {card.whenToUse.map((u, idx) => (
+            <li key={idx} style={{ marginBottom: 2 }}>{u}</li>
+          ))}
+        </ul>
+      </div>
+      {card.directUse ? (
+        <FormulaSubField label="Direct use" value={card.directUse} />
+      ) : null}
+      {card.hiddenUse ? (
+        <FormulaSubField label="Hidden / setup use" value={card.hiddenUse} />
+      ) : null}
+      {card.combinedUse ? (
+        <FormulaSubField label="Combined use" value={card.combinedUse} />
+      ) : null}
+      <div
         style={{
-          margin: 0,
-          fontFamily: FONT_DISPLAY,
-          fontSize: 18,
-          fontWeight: 600,
-          color: TEXT_FG,
+          marginTop: 10,
+          padding: "8px 10px",
+          background: WARNING_SOFT,
+          border: `1px solid ${WARNING_BORDER}`,
+          borderRadius: 8,
         }}
       >
-        {rec.title}
-      </h3>
-      <p
-        style={{
-          margin: "6px 0 14px",
-          fontSize: 13,
-          lineHeight: 1.55,
-          color: TEXT_MUTED,
-        }}
-      >
-        {rec.body}
-      </p>
-      <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
-        <ButtonLink to={rec.href} variant="primary" icon={<IconArrowRight />}>
-          {rec.ctaLabel}
-        </ButtonLink>
-        {rec.honestNote ? (
-          <span style={{ fontSize: 12, color: TEXT_SUBTLE }}>{rec.honestNote}</span>
-        ) : null}
+        <div style={{ fontSize: 11, fontWeight: 700, color: WARNING_FG, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+          Common trap
+        </div>
+        <div style={{ marginTop: 2, fontSize: 13, color: TEXT_FG, lineHeight: 1.5 }}>
+          {card.commonTrap}
+        </div>
       </div>
-    </Card>
+    </div>
   );
 }
 
-// ── Progressive section: Board Essentials ─────────────────────────────────
-function BoardEssentialsPanel({
-  blueprint,
-  totalMarks,
-  resources,
-}: {
-  blueprint: DesktopHubBlueprintSection[];
-  totalMarks: number;
-  resources: DesktopHubResource[];
-}) {
+function FormulaSubField({ label, value }: { label: string; value: string }) {
   return (
-    <ProgressiveSection
-      title="Board Essentials"
-      subtitle={`Reference paper blueprint and topic notes — ${totalMarks} marks total across ${blueprint.length} sections.`}
-      defaultOpen
-    >
-      <div style={{ display: "grid", gap: 16, gridTemplateColumns: "1fr" }}>
-        <div>
-          <h4
-            style={{
-              margin: "0 0 8px",
-              fontSize: 12,
-              fontWeight: 700,
-              color: TEXT_SUBTLE,
-              textTransform: "uppercase",
-              letterSpacing: "0.05em",
-            }}
-          >
-            Paper blueprint (reference)
-          </h4>
-          <div style={{ display: "grid", gap: 8 }}>
-            {blueprint.map((section) => (
-              <div
-                key={section.section}
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "auto 1fr auto",
-                  alignItems: "center",
-                  gap: 12,
-                  padding: "10px 12px",
-                  background: MUTED_BG,
-                  border: `1px solid ${BORDER}`,
-                  borderRadius: 8,
-                }}
-              >
-                <span
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    width: 28,
-                    height: 28,
-                    fontSize: 13,
-                    fontWeight: 700,
-                    color: PRIMARY_GREEN_DARK,
-                    background: PRIMARY_GREEN_SOFT,
-                    border: `1px solid hsl(152, 55%, 80%)`,
-                    borderRadius: 6,
-                  }}
-                >
-                  {section.section}
-                </span>
-                <span style={{ fontSize: 13, color: TEXT_FG }}>{section.description}</span>
-                <span style={{ fontSize: 12, color: TEXT_MUTED, fontVariantNumeric: "tabular-nums" }}>
-                  {section.count} × {section.marksEach}m = {section.count * section.marksEach}m
-                </span>
-              </div>
-            ))}
-          </div>
-          <p style={{ margin: "8px 0 0", fontSize: 12, color: TEXT_SUBTLE }}>
-            Reference distribution scaled from this topic&rsquo;s board weight. Not a generated paper.
-          </p>
-        </div>
-
-        <div>
-          <h4
-            style={{
-              margin: "0 0 8px",
-              fontSize: 12,
-              fontWeight: 700,
-              color: TEXT_SUBTLE,
-              textTransform: "uppercase",
-              letterSpacing: "0.05em",
-            }}
-          >
-            Topic reference resources
-          </h4>
-          <div style={{ display: "grid", gap: 8 }}>
-            {resources.map((resource) => (
-              <div
-                key={resource.id}
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr auto",
-                  alignItems: "start",
-                  gap: 12,
-                  padding: "10px 12px",
-                  background: CARD_BG,
-                  border: `1px solid ${BORDER}`,
-                  borderRadius: 8,
-                }}
-              >
-                <div>
-                  <div
-                    style={{
-                      fontSize: 13,
-                      fontWeight: 600,
-                      color: TEXT_FG,
-                      lineHeight: 1.35,
-                    }}
-                  >
-                    {resource.label}
-                  </div>
-                  <div
-                    style={{
-                      marginTop: 2,
-                      fontSize: 12,
-                      color: TEXT_MUTED,
-                      lineHeight: 1.5,
-                    }}
-                  >
-                    {resource.blurb}
-                  </div>
-                </div>
-                <span
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 600,
-                    color: TEXT_SUBTLE,
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  ~{resource.estimatedMinutes} min
-                </span>
-              </div>
-            ))}
-          </div>
-          <p style={{ margin: "8px 0 0", fontSize: 12, color: TEXT_SUBTLE }}>
-            Reference resources only — not generated practice questions.
-          </p>
-        </div>
+    <div style={{ marginTop: 8 }}>
+      <span style={{ fontSize: 11, fontWeight: 700, color: TEXT_SUBTLE, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+        {label}
+      </span>
+      <div style={{ marginTop: 2, fontSize: 13, color: TEXT_FG, lineHeight: 1.5 }}>
+        {value}
       </div>
-    </ProgressiveSection>
+    </div>
   );
 }
 
-// ── Progressive section: HPQs ─────────────────────────────────────────────
-function HPQPanel({
+function HPQCompactCard({
   topic,
   hpqQuestions,
   predictedHref,
@@ -1072,44 +1292,74 @@ function HPQPanel({
   hpqQuestions: HPQQuestion[];
   predictedHref: string;
 }) {
-  const subtitle =
-    hpqQuestions.length > 0
-      ? `${hpqQuestions.length} highly probable board-style question${hpqQuestions.length === 1 ? "" : "s"} mapped to ${topic.name}.`
-      : `No matched HPQs found for ${topic.name} yet.`;
-
   return (
-    <ProgressiveSection
-      title="How boards use it · Predicted Questions"
-      subtitle={subtitle}
-      defaultOpen
+    <div
+      style={{
+        background: CARD_BG,
+        border: `1px solid ${BORDER}`,
+        borderRadius: 10,
+        padding: 16,
+      }}
     >
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          marginBottom: 8,
+          flexWrap: "wrap",
+        }}
+      >
+        <Chip bg={ACCENT_BLUE_SOFT} fg={ACCENT_BLUE} border={"hsl(212, 70%, 85%)"}>
+          Predicted Questions
+        </Chip>
+        <h3
+          style={{
+            margin: 0,
+            fontFamily: FONT_DISPLAY,
+            fontSize: 15,
+            fontWeight: 600,
+            color: TEXT_FG,
+            lineHeight: 1.3,
+          }}
+        >
+          Real HPQs mapped to {topic.name}
+        </h3>
+      </div>
       {hpqQuestions.length === 0 ? (
-        <Card tint padding={16}>
+        <>
           <MutedNote>
-            No matched HPQs found for this topic yet. Open Highly Probable
-            Questions for the full subject list.
+            No matched HPQs yet for {topic.name}. Open Highly Probable Questions
+            for the full subject list.
           </MutedNote>
-          <div style={{ marginTop: 12 }}>
+          <div style={{ marginTop: 10 }}>
             <ButtonLink to={predictedHref} variant="outline" icon={<IconArrowRight />}>
               Open Highly Probable Questions
             </ButtonLink>
           </div>
-        </Card>
+        </>
       ) : (
-        <div style={{ display: "grid", gap: 8 }}>
-          {hpqQuestions.slice(0, 5).map((q, idx) => (
-            <HPQRow key={q.id || `${idx}-${q.question.slice(0, 20)}`} q={q} />
-          ))}
-          {hpqQuestions.length > 5 ? (
-            <div style={{ marginTop: 4 }}>
-              <ButtonLink to={predictedHref} variant="ghost" icon={<IconArrowRight />}>
-                See all {hpqQuestions.length} predicted questions
-              </ButtonLink>
-            </div>
-          ) : null}
-        </div>
+        <>
+          <MutedNote>
+            {hpqQuestions.length} highly probable board-style question
+            {hpqQuestions.length === 1 ? "" : "s"} mapped to {topic.name}. Showing
+            the first {Math.min(3, hpqQuestions.length)}.
+          </MutedNote>
+          <div style={{ display: "grid", gap: 8, marginTop: 10 }}>
+            {hpqQuestions.slice(0, 3).map((q, idx) => (
+              <HPQRow key={q.id || `${idx}-${q.question.slice(0, 20)}`} q={q} />
+            ))}
+          </div>
+          <div style={{ marginTop: 10 }}>
+            <ButtonLink to={predictedHref} variant="ghost" icon={<IconArrowRight />}>
+              {hpqQuestions.length > 3
+                ? `See all ${hpqQuestions.length} predicted questions`
+                : "Open in Highly Probable Questions"}
+            </ButtonLink>
+          </div>
+        </>
       )}
-    </ProgressiveSection>
+    </div>
   );
 }
 
@@ -1135,7 +1385,7 @@ function HPQRow({ q }: { q: HPQQuestion }) {
         gap: 12,
         alignItems: "start",
         padding: "10px 12px",
-        background: CARD_BG,
+        background: SURFACE_TINT,
         border: `1px solid ${BORDER}`,
         borderRadius: 8,
       }}
@@ -1174,24 +1424,30 @@ function HPQRow({ q }: { q: HPQQuestion }) {
   );
 }
 
-// ── Progressive section: Mistakes & next action ───────────────────────────
+// ── Mistakes & next action section ────────────────────────────────────────
 function MistakesPanel({
   topic,
-  highlights,
+  commonMistake,
+  examinerWarning,
+  isSamplePreview,
   signedIn,
   mistakeLogsLoading,
   topicMistakes,
   mistakeAwareHref,
+  practiceHref,
 }: {
   topic: DesktopTopicSummary;
-  highlights: DesktopHubHighlight[];
+  commonMistake: string;
+  examinerWarning: string;
+  isSamplePreview: boolean;
   signedIn: boolean;
   mistakeLogsLoading: boolean;
   topicMistakes: MistakeLogEntry[];
   mistakeAwareHref: string;
+  practiceHref: string;
 }) {
   const personalSubtitle = (() => {
-    if (!signedIn) return "Sign in to track and review your mistakes on this topic.";
+    if (!signedIn) return "Sign in to see personal mistake suggestions for this topic.";
     if (mistakeLogsLoading) return "Loading your last 7 days of mistakes…";
     if (topicMistakes.length === 0) {
       return `No mistakes logged on ${topic.name} in the last 7 days.`;
@@ -1205,6 +1461,72 @@ function MistakesPanel({
       subtitle={personalSubtitle}
     >
       <div style={{ display: "grid", gap: 16 }}>
+        {/* Reference common mistake + examiner warning */}
+        <div style={{ display: "grid", gap: 10 }}>
+          <div
+            style={{
+              padding: "12px 14px",
+              background: WARNING_SOFT,
+              border: `1px solid ${WARNING_BORDER}`,
+              borderRadius: 10,
+            }}
+          >
+            <div
+              style={{
+                fontSize: 11,
+                fontWeight: 700,
+                color: WARNING_FG,
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+              }}
+            >
+              Common mistake
+            </div>
+            <div style={{ marginTop: 4, fontSize: 13, color: TEXT_FG, lineHeight: 1.5 }}>
+              {commonMistake}
+            </div>
+          </div>
+          <div
+            style={{
+              padding: "12px 14px",
+              background: ACCENT_BLUE_SOFT,
+              border: `1px solid hsl(212, 70%, 85%)`,
+              borderRadius: 10,
+            }}
+          >
+            <div
+              style={{
+                fontSize: 11,
+                fontWeight: 700,
+                color: ACCENT_BLUE,
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+              }}
+            >
+              Examiner warning
+            </div>
+            <div style={{ marginTop: 4, fontSize: 13, color: TEXT_FG, lineHeight: 1.5 }}>
+              {examinerWarning}
+            </div>
+          </div>
+          <p style={{ margin: 0, fontSize: 12, color: TEXT_SUBTLE, lineHeight: 1.5 }}>
+            {isSamplePreview
+              ? "Sample-preview reference content — not your personal data."
+              : "Reference board-prep guidance — not your personal data."}
+          </p>
+        </div>
+
+        {/* Targeted drill / worksheet actions */}
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+          <ButtonLink to={mistakeAwareHref} variant="primary" icon={<IconAlert />}>
+            Drill these patterns
+          </ButtonLink>
+          <ButtonLink to={practiceHref} variant="outline" icon={<IconDumbbell />}>
+            Open focused practice
+          </ButtonLink>
+        </div>
+
+        {/* Personal mistake log */}
         <div>
           <h4
             style={{
@@ -1248,61 +1570,9 @@ function MistakesPanel({
               {topicMistakes.slice(0, 4).map((entry) => (
                 <MistakeRow key={entry.id} entry={entry} />
               ))}
-              <div style={{ marginTop: 4 }}>
-                <ButtonLink to={mistakeAwareHref} variant="primary" icon={<IconAlert />}>
-                  Drill these patterns
-                </ButtonLink>
-              </div>
             </div>
           )}
         </div>
-
-        {highlights.length > 0 ? (
-          <div>
-            <h4
-              style={{
-                margin: "0 0 8px",
-                fontSize: 12,
-                fontWeight: 700,
-                color: TEXT_SUBTLE,
-                textTransform: "uppercase",
-                letterSpacing: "0.05em",
-              }}
-            >
-              Common board prep guidance
-            </h4>
-            <div style={{ display: "grid", gap: 8 }}>
-              {highlights.map((h) => (
-                <div
-                  key={h.id}
-                  style={{
-                    padding: "10px 12px",
-                    background: CARD_BG,
-                    border: `1px solid ${BORDER}`,
-                    borderRadius: 8,
-                  }}
-                >
-                  <div style={{ fontSize: 13, fontWeight: 600, color: TEXT_FG }}>
-                    {h.label}
-                  </div>
-                  <div
-                    style={{
-                      marginTop: 4,
-                      fontSize: 12,
-                      color: TEXT_MUTED,
-                      lineHeight: 1.5,
-                    }}
-                  >
-                    {h.rationale}
-                  </div>
-                </div>
-              ))}
-            </div>
-            <p style={{ margin: "8px 0 0", fontSize: 12, color: TEXT_SUBTLE }}>
-              Common guidance from board prep reference — not your personal mistakes.
-            </p>
-          </div>
-        ) : null}
       </div>
     </ProgressiveSection>
   );
@@ -1440,10 +1710,12 @@ function ProgressiveSection({
 // ── Right rail: Topic snapshot ────────────────────────────────────────────
 function TopicSnapshotCard({
   topic,
-  totalMarks,
+  topicSnapshot,
+  isSamplePreview,
 }: {
   topic: DesktopTopicSummary;
-  totalMarks: number;
+  topicSnapshot: { likelySection: string; examinerNotes: string };
+  isSamplePreview: boolean;
 }) {
   const trendColors = trendChipColors(topic.trendTier);
   const subjectLabel =
@@ -1469,18 +1741,46 @@ function TopicSnapshotCard({
         <SnapshotRow label="Trend" value={trendLabel(topic.trendTier)} valueColor={trendColors.fg} />
         <SnapshotRow label="Weight" value={`${topic.weight} pts`} />
         <SnapshotRow label="Marks band" value={topic.marks} />
-        <SnapshotRow label="Blueprint" value={`${totalMarks} marks reference`} />
       </div>
-      <p
-        style={{
-          margin: "12px 0 0",
-          fontSize: 12,
-          color: TEXT_SUBTLE,
-          lineHeight: 1.5,
-        }}
-      >
-        {topic.blurb}
-      </p>
+      <div style={{ marginTop: 14 }}>
+        <h4
+          style={{
+            margin: "0 0 4px",
+            fontSize: 11,
+            fontWeight: 700,
+            color: TEXT_SUBTLE,
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
+          }}
+        >
+          Likely section
+        </h4>
+        <p style={{ margin: 0, fontSize: 13, color: TEXT_FG, lineHeight: 1.5 }}>
+          {topicSnapshot.likelySection}
+        </p>
+      </div>
+      <div style={{ marginTop: 12 }}>
+        <h4
+          style={{
+            margin: "0 0 4px",
+            fontSize: 11,
+            fontWeight: 700,
+            color: TEXT_SUBTLE,
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
+          }}
+        >
+          Examiner notes
+        </h4>
+        <p style={{ margin: 0, fontSize: 13, color: TEXT_MUTED, lineHeight: 1.5 }}>
+          {topicSnapshot.examinerNotes}
+        </p>
+      </div>
+      {isSamplePreview ? (
+        <p style={{ margin: "12px 0 0", fontSize: 11, color: TEXT_SUBTLE, lineHeight: 1.5 }}>
+          Sample-preview snapshot — not curated board history.
+        </p>
+      ) : null}
     </Card>
   );
 }
@@ -1510,18 +1810,29 @@ function SnapshotRow({
   );
 }
 
-// ── Right rail: Quick hand ────────────────────────────────────────────────
+// ── Right rail: Need a quick hand ─────────────────────────────────────────
+type QuickHandPanel = "explain" | "visual" | "check" | null;
+
 function QuickHandCard({
   topic,
-  resources,
-  routeContext,
+  formulaUsePreview,
+  boardEssentials,
+  isSamplePreview,
 }: {
   topic: DesktopTopicSummary;
-  resources: DesktopHubResource[];
-  routeContext: DesktopRouteContext;
+  formulaUsePreview: FormulaUseCard;
+  boardEssentials: BoardConcept[];
+  isSamplePreview: boolean;
 }) {
-  const conceptResource = resources.find((r) => r.kind === "concept-note") ?? resources[0];
-  const checkHref = buildDesktopCheckPath(topic.slug, routeContext);
+  const [open, setOpen] = useState<QuickHandPanel>(null);
+  const toggle = useCallback(
+    (panel: Exclude<QuickHandPanel, null>) => {
+      setOpen((prev) => (prev === panel ? null : panel));
+    },
+    [],
+  );
+
+  const checkConcept = boardEssentials[0];
 
   return (
     <Card padding={18}>
@@ -1549,33 +1860,147 @@ function QuickHandCard({
           color: TEXT_MUTED,
         }}
       >
-        {conceptResource
-          ? `Skim the ${topic.name} reference notes, then bring a specific question to Check Answer for written feedback.`
-          : `Bring a specific ${topic.name} question to Check Answer for written feedback.`}
+        Three optional reference panels for {topic.name}. Static reference
+        content — not generated tutor output.
       </p>
-      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        {conceptResource ? (
-          <span
-            style={{
-              fontSize: 12,
-              color: TEXT_SUBTLE,
-              padding: "8px 10px",
-              background: MUTED_BG,
-              border: `1px dashed ${BORDER_STRONG}`,
-              borderRadius: 8,
-            }}
-            title="Reference resource preview only"
-          >
-            <strong style={{ color: TEXT_FG }}>{conceptResource.label}</strong>
-            {" · "}
-            ~{conceptResource.estimatedMinutes} min reference
-          </span>
-        ) : null}
-        <ButtonLink to={checkHref} variant="outline" icon={<IconCheck />}>
-          Open Check Answer
-        </ButtonLink>
+      <div style={{ display: "grid", gap: 8 }}>
+        <PlainButton
+          onClick={() => toggle("explain")}
+          active={open === "explain"}
+          ariaPressed={open === "explain"}
+          icon={<IconBook />}
+        >
+          {open === "explain" ? "Hide explain concept" : "Explain concept"}
+        </PlainButton>
+        <PlainButton
+          onClick={() => toggle("visual")}
+          active={open === "visual"}
+          ariaPressed={open === "visual"}
+          icon={<IconEye />}
+        >
+          {open === "visual" ? "Hide show visual" : "Show visual"}
+        </PlainButton>
+        <PlainButton
+          onClick={() => toggle("check")}
+          active={open === "check"}
+          ariaPressed={open === "check"}
+          icon={<IconQuestion />}
+        >
+          {open === "check" ? "Hide mini check" : "Mini check"}
+        </PlainButton>
       </div>
+
+      {open === "explain" ? (
+        <QuickHandPanelView title="Explain concept · reference">
+          <p style={{ margin: "0 0 6px", fontSize: 13, color: TEXT_FG, lineHeight: 1.5, fontWeight: 600 }}>
+            {formulaUsePreview.title}
+          </p>
+          <p style={{ margin: "0 0 8px", fontSize: 12, color: TEXT_MUTED, lineHeight: 1.5 }}>
+            Use this card when:
+          </p>
+          <ul style={{ margin: "0 0 8px", paddingInlineStart: 16, fontSize: 12, color: TEXT_MUTED, lineHeight: 1.5 }}>
+            {formulaUsePreview.whenToUse.slice(0, 3).map((u, idx) => (
+              <li key={idx}>{u}</li>
+            ))}
+          </ul>
+          <p style={{ margin: 0, fontSize: 12, color: TEXT_SUBTLE, lineHeight: 1.5 }}>
+            Common trap: {formulaUsePreview.commonTrap}
+          </p>
+        </QuickHandPanelView>
+      ) : null}
+
+      {open === "visual" ? (
+        <QuickHandPanelView title="Show visual · reference description">
+          <p style={{ margin: "0 0 6px", fontSize: 13, color: TEXT_FG, lineHeight: 1.5 }}>
+            <strong>{formulaUsePreview.title}</strong>
+          </p>
+          <p style={{ margin: 0, fontSize: 12, color: TEXT_MUTED, lineHeight: 1.5 }}>
+            {formulaUsePreview.directUse
+              ? formulaUsePreview.directUse
+              : formulaUsePreview.whenToUse[0]}
+          </p>
+          <p style={{ margin: "8px 0 0", fontSize: 11, color: TEXT_SUBTLE, lineHeight: 1.5 }}>
+            Static description of the typical board diagram for {topic.name}.
+            See your textbook for the actual figure — we don&rsquo;t generate
+            visuals here.
+          </p>
+        </QuickHandPanelView>
+      ) : null}
+
+      {open === "check" ? (
+        <QuickHandPanelView title="Mini check · reference recall">
+          <MiniCheckBlock concept={checkConcept} />
+          <p style={{ margin: "8px 0 0", fontSize: 11, color: TEXT_SUBTLE, lineHeight: 1.5 }}>
+            Static reference recall — not graded and not personalised.
+          </p>
+        </QuickHandPanelView>
+      ) : null}
+
+      {isSamplePreview ? (
+        <p style={{ margin: "10px 0 0", fontSize: 11, color: TEXT_SUBTLE, lineHeight: 1.5 }}>
+          Sample-preview support content — confirm specifics from your textbook.
+        </p>
+      ) : null}
     </Card>
+  );
+}
+
+function QuickHandPanelView({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      style={{
+        marginTop: 10,
+        padding: "10px 12px",
+        background: SURFACE_TINT,
+        border: `1px solid ${BORDER}`,
+        borderRadius: 10,
+      }}
+    >
+      <div
+        style={{
+          fontSize: 11,
+          fontWeight: 700,
+          color: ACCENT_BLUE,
+          textTransform: "uppercase",
+          letterSpacing: "0.05em",
+          marginBottom: 6,
+        }}
+      >
+        {title}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function MiniCheckBlock({ concept }: { concept: BoardConcept | undefined }) {
+  const [revealed, setRevealed] = useState(false);
+  if (!concept) {
+    return (
+      <MutedNote>No reference concept seeded for this topic yet.</MutedNote>
+    );
+  }
+  return (
+    <div>
+      <p style={{ margin: "0 0 6px", fontSize: 13, color: TEXT_FG, lineHeight: 1.5 }}>
+        Quick recall: when does <strong>{concept.name}</strong> apply in a board question?
+      </p>
+      {revealed ? (
+        <p style={{ margin: "6px 0 0", fontSize: 12, color: TEXT_MUTED, lineHeight: 1.5 }}>
+          {concept.oneLineUse}
+        </p>
+      ) : (
+        <PlainButton onClick={() => setRevealed(true)} icon={<IconChevron />}>
+          Reveal reference answer
+        </PlainButton>
+      )}
+    </div>
   );
 }
 
@@ -1712,6 +2137,21 @@ function buildPredictedHref(args: {
   return `/highly-probable/${encodeURIComponent(grade)}/${encodeURIComponent(subject)}?${params.toString()}`;
 }
 
+function buildChapterTestPath(args: {
+  grade: string;
+  subject: DesktopSubject;
+  topicSlug: string;
+  routeContext: DesktopRouteContext;
+}): string {
+  const { grade, subject, topicSlug, routeContext } = args;
+  const params = new URLSearchParams();
+  if (routeContext.source) params.set("source", routeContext.source);
+  if (routeContext.returnTo) params.set("returnTo", routeContext.returnTo);
+  const query = params.toString();
+  const base = `/chapter-test/${encodeURIComponent(grade)}/${encodeURIComponent(subject)}/${encodeURIComponent(topicSlug)}`;
+  return query ? `${base}?${query}` : base;
+}
+
 function findHpqBucketForTopic(
   topic: DesktopTopicSummary,
 ): HPQTopicBucket | undefined {
@@ -1751,8 +2191,8 @@ export default function DesktopTopicHubPage() {
 
   const topic = useMemo(() => (topicSlug ? desktopTopicBySlug(topicSlug) : undefined), [topicSlug]);
 
-  const content: DesktopTopicHubContent | undefined = useMemo(
-    () => (topic ? desktopTopicHubContentBySlug(topic.slug) : undefined),
+  const actionable: ActionableTopicHubContent | undefined = useMemo(
+    () => (topic ? buildActionableDesktopTopicHubContent(topic) : undefined),
     [topic],
   );
 
@@ -1823,7 +2263,7 @@ export default function DesktopTopicHubPage() {
   const handleToggleMore = useCallback(() => setMoreOpen((prev) => !prev), []);
 
   // ── Topic-not-found gate ───────────────────────────────────────────────
-  if (!topic || !content) {
+  if (!topic || !actionable) {
     return (
       <TopicNotFound
         rawSlug={topicSlug || params.topicKey || params.topicName || queryParams.get("topic") || ""}
@@ -1840,6 +2280,15 @@ export default function DesktopTopicHubPage() {
     subject: topic.subject,
     topicSlug: topic.slug,
     routeContext,
+  });
+
+  const practiceHref = buildDesktopPracticePath({
+    scope: "topic",
+    subject: topic.subject,
+    stream: topic.stream,
+    topic: topic.slug,
+    mode: "practice-set",
+    ...routeContext,
   });
 
   const mistakeAwareHref = buildDesktopWorksheetPath({
@@ -1875,7 +2324,7 @@ export default function DesktopTopicHubPage() {
       }}
     >
       <div style={{ marginBottom: 16 }}>
-        <BackToParent subject={backSubject} />
+        <BackToParent subject={backSubject} explicitReturnTo={explicitReturnTo} />
       </div>
 
       {/* Two-column desktop layout collapses to single column under ~960px */}
@@ -1890,7 +2339,7 @@ export default function DesktopTopicHubPage() {
       >
         {/* Main column */}
         <div style={{ display: "grid", gap: 16, minWidth: 0 }}>
-          <TopicStrip topic={topic} totalMarks={content.totalMarks} />
+          <TopicStrip topic={topic} isSamplePreview={actionable.isSamplePreview} />
 
           <ActionBar
             topic={topic}
@@ -1905,42 +2354,54 @@ export default function DesktopTopicHubPage() {
           {moreOpen ? (
             <MoreActionsPanel
               topic={topic}
+              grade={grade}
               routeContext={routeContext}
-              predictedHref={predictedHref}
             />
           ) : null}
 
           <RecommendedNextAction rec={recommendation} />
 
           <BoardEssentialsPanel
-            blueprint={content.blueprint}
-            totalMarks={content.totalMarks}
-            resources={content.resources}
+            topic={topic}
+            boardEssentials={actionable.boardEssentials}
+            isSamplePreview={actionable.isSamplePreview}
+            practiceHref={practiceHref}
           />
 
-          <HPQPanel
+          <HowBoardsUseItPanel
             topic={topic}
+            formulaUsePreview={actionable.formulaUsePreview}
+            fullFormulaUseMap={actionable.fullFormulaUseMap}
             hpqQuestions={hpqQuestions}
             predictedHref={predictedHref}
+            isSamplePreview={actionable.isSamplePreview}
           />
 
           <MistakesPanel
             topic={topic}
-            highlights={content.highlights}
+            commonMistake={actionable.commonMistake}
+            examinerWarning={actionable.examinerWarning}
+            isSamplePreview={actionable.isSamplePreview}
             signedIn={Boolean(user?.uid)}
             mistakeLogsLoading={mistakeLogsLoading}
             topicMistakes={topicMistakes}
             mistakeAwareHref={mistakeAwareHref}
+            practiceHref={practiceHref}
           />
         </div>
 
         {/* Right rail */}
         <aside style={{ display: "grid", gap: 16, minWidth: 0 }}>
-          <TopicSnapshotCard topic={topic} totalMarks={content.totalMarks} />
+          <TopicSnapshotCard
+            topic={topic}
+            topicSnapshot={actionable.topicSnapshot}
+            isSamplePreview={actionable.isSamplePreview}
+          />
           <QuickHandCard
             topic={topic}
-            resources={content.resources}
-            routeContext={routeContext}
+            formulaUsePreview={actionable.formulaUsePreview}
+            boardEssentials={actionable.boardEssentials}
+            isSamplePreview={actionable.isSamplePreview}
           />
           <MistakeIntelligenceCard
             topic={topic}
