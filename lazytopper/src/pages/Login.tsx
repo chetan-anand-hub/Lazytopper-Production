@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { SignIn } from "@clerk/react";
 import { useAuth } from "../context/AuthContext";
 import { trackUxEvent } from "../services/uxTelemetry";
@@ -12,19 +12,28 @@ type LocationState = { from?: string };
  *
  * Reference (final desktop prototype):
  *   chetan-anand-hub/topic-focus-lite — src/pages/LoginGate.tsx
- *   (`?reason=...&redirect=...` URL contract + reason-aware copy).
+ *   (`?reason=...&redirect=...` URL contract + reason-aware copy +
+ *   two-panel cockpit-style layout at desktop width).
+ *
+ * PR-I2 visual parity:
+ *   - At >=1024px we render the prototype's two-panel LoginGate shape:
+ *     a calm brand/value panel on the left, the Clerk sign-in card on
+ *     the right.
+ *   - Below 1024px we collapse to a single-panel sign-in card so the
+ *     existing mobile login experience continues to work without
+ *     horizontal overflow.
  *
  * Production responsibilities preserved unchanged:
  *   - Real Clerk `<SignIn>` widget drives the actual auth flow. We do
- *     NOT modify the Clerk invocation — only the surrounding prompt
- *     copy and the post-auth redirect resolution.
+ *     NOT modify the Clerk invocation — only the surrounding layout
+ *     and the post-auth redirect resolution.
  *   - Existing onboarding / profile redirect chain is preserved: when
  *     no explicit `redirect` is supplied AND there is no
  *     `location.state.from`, we still send returning users to
  *     `/dashboard` and first-time-visitors to `/onboarding`.
  *   - Guest "Explore as Guest" affordance is preserved.
  *
- * Reason-aware additions:
+ * Reason-aware copy:
  *   1. Read `reason` from URLSearchParams (e.g. `save-worksheet`).
  *   2. Read `redirect` from URLSearchParams (e.g. `/practice/worksheets`).
  *   3. Fall back to `location.state.from` for the redirect target when
@@ -43,12 +52,31 @@ export default function Login() {
     () => document.documentElement.getAttribute("data-theme") === "light"
   );
 
+  const [isDesktop, setIsDesktop] = useState(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return false;
+    return window.matchMedia("(min-width: 1024px)").matches;
+  });
+
   useEffect(() => {
     const observer = new MutationObserver(() => {
       setIsLight(document.documentElement.getAttribute("data-theme") === "light");
     });
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
     return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const onChange = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
+    setIsDesktop(mq.matches);
+    if (typeof mq.addEventListener === "function") {
+      mq.addEventListener("change", onChange);
+      return () => mq.removeEventListener("change", onChange);
+    }
+    // Older Safari fallback.
+    mq.addListener(onChange);
+    return () => mq.removeListener(onChange);
   }, []);
 
   // Reason → prompt copy. Unknown / missing reasons fall back to "login".
@@ -97,88 +125,275 @@ export default function Login() {
     navigate(nextPath, { replace: true });
   };
 
-  return (
-    <div style={{
-      minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center",
-      background: "var(--bg)",
-      padding: 16,
-    }}>
-      <div style={{
-        background: isLight ? "rgba(0,0,0,0.03)" : "var(--bg-card)",
-        backdropFilter: "blur(16px)",
-        borderRadius: 20, maxWidth: 420, width: "100%",
-        padding: "36px 28px",
-        border: isLight ? "1px solid rgba(0,0,0,0.06)" : "1px solid var(--bg-card-border)",
-      }}>
-        <div style={{ textAlign: "center", marginBottom: 24 }}>
-          <div style={{
-            width: 56, height: 56, borderRadius: 16,
-            background: "linear-gradient(135deg, #22c55e, #3b82f6)",
-            display: "inline-flex", alignItems: "center", justifyContent: "center",
-            color: "var(--text)", fontWeight: 900, fontSize: 22, marginBottom: 12,
-            boxShadow: "0 0 30px rgba(34,197,94,0.3)",
-          }}>
-            LT
-          </div>
-          <h1 style={{ fontSize: "1.5rem", fontWeight: 900, margin: "0 0 6px", color: "var(--text)", fontFamily: "'Space Grotesk', sans-serif" }}>
-            LazyTopper
-          </h1>
-          <p style={{ fontSize: "0.92rem", color: "var(--text-muted)", margin: 0, lineHeight: 1.4 }}>
-            CBSE Class 10 Board Exam Prep
-          </p>
-          <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", margin: "6px 0 0" }}>
-            Maths & Science — AI-powered, exam-focused
-          </p>
-        </div>
+  // Visual tokens — kept inline so this file is self-contained and
+  // matches the rest of the production page styling convention.
+  const cardBg = isLight ? "rgba(0,0,0,0.03)" : "var(--bg-card)";
+  const cardBorder = isLight ? "1px solid rgba(0,0,0,0.06)" : "1px solid var(--bg-card-border)";
+  const dividerLine = isLight ? "rgba(0,0,0,0.08)" : "var(--bg-card)";
+  const accentChipBg = isLight ? "rgba(34,197,94,0.06)" : "rgba(34,197,94,0.10)";
+  const neutralChipBg = isLight ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.04)";
 
-        {/* Reason-aware prompt block (chip + headline + sub-copy). */}
-        <div
+  // Brand mark used in both layouts.
+  const brandMark = (size: number, fontSize: number) => (
+    <div
+      style={{
+        width: size,
+        height: size,
+        borderRadius: Math.round(size * 0.28),
+        background: "linear-gradient(135deg, #22c55e, #3b82f6)",
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        color: "var(--text)",
+        fontWeight: 900,
+        fontSize,
+        boxShadow: "0 0 30px rgba(34,197,94,0.3)",
+        flexShrink: 0,
+      }}
+    >
+      LT
+    </div>
+  );
+
+  // ---- Left panel (desktop only) — brand / value framing -----------
+  // Static value-proposition copy. Does not claim any user-specific
+  // progress, mistake history, or trial state.
+  const leftPanel = isDesktop ? (
+    <section
+      aria-label="LazyTopper exam companion"
+      style={{
+        flex: "1 1 0",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        padding: "48px 56px",
+        background: isLight
+          ? "linear-gradient(160deg, rgba(34,197,94,0.06), rgba(59,130,246,0.04))"
+          : "linear-gradient(160deg, rgba(34,197,94,0.10), rgba(59,130,246,0.06))",
+        borderRight: cardBorder,
+        minWidth: 0,
+        overflow: "hidden",
+      }}
+    >
+      <Link
+        to="/"
+        aria-label="Back to LazyTopper home"
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 12,
+          textDecoration: "none",
+          color: "var(--text)",
+          alignSelf: "flex-start",
+        }}
+      >
+        {brandMark(40, 16)}
+        <span
           style={{
-            background: isLight ? "rgba(34,197,94,0.06)" : "rgba(34,197,94,0.10)",
-            border: "1px solid rgba(34,197,94,0.25)",
-            borderRadius: 12,
-            padding: "12px 14px",
-            marginBottom: 18,
-            textAlign: "left",
+            fontFamily: "'Space Grotesk', sans-serif",
+            fontSize: "1.25rem",
+            fontWeight: 800,
+            letterSpacing: "-0.01em",
           }}
         >
-          <div
+          LazyTopper
+        </span>
+      </Link>
+
+      <div style={{ maxWidth: 480, display: "flex", flexDirection: "column", gap: 16 }}>
+        <h1
+          style={{
+            fontFamily: "'Space Grotesk', sans-serif",
+            fontSize: "2.25rem",
+            fontWeight: 800,
+            margin: 0,
+            lineHeight: 1.15,
+            color: "var(--text)",
+            letterSpacing: "-0.02em",
+          }}
+        >
+          A calm cockpit for CBSE Class 10.
+        </h1>
+        <p
+          style={{
+            fontSize: "1rem",
+            color: "var(--text-muted)",
+            margin: 0,
+            lineHeight: 1.55,
+          }}
+        >
+          Practice, worksheets, predicted papers and full 80-mark mocks — all
+          powered by your own mistakes. No timetables. No noise.
+        </p>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 4 }}>
+          <span
             style={{
+              display: "inline-flex",
+              alignItems: "center",
+              padding: "6px 12px",
+              borderRadius: 999,
+              background: accentChipBg,
+              color: "#22c55e",
+              border: "1px solid rgba(34,197,94,0.25)",
+              fontSize: "0.78rem",
+              fontWeight: 800,
+              letterSpacing: "0.01em",
+            }}
+          >
+            Mistake-aware
+          </span>
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              padding: "6px 12px",
+              borderRadius: 999,
+              background: neutralChipBg,
+              color: "var(--text)",
+              border: cardBorder,
+              fontSize: "0.78rem",
+              fontWeight: 700,
+            }}
+          >
+            80-mark mocks
+          </span>
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              padding: "6px 12px",
+              borderRadius: 999,
+              background: neutralChipBg,
+              color: "var(--text)",
+              border: cardBorder,
+              fontSize: "0.78rem",
+              fontWeight: 700,
+            }}
+          >
+            Topic combinations
+          </span>
+        </div>
+      </div>
+
+      <div
+        style={{
+          fontSize: "0.75rem",
+          color: "var(--text-muted)",
+          letterSpacing: "0.04em",
+        }}
+      >
+        © LazyTopper
+      </div>
+    </section>
+  ) : null;
+
+  // ---- Right panel — reason-aware sign-in --------------------------
+  const rightPanel = (
+    <section
+      aria-label="Sign in"
+      style={{
+        flex: "1 1 0",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: isDesktop ? "48px 40px" : "32px 16px",
+        minWidth: 0,
+      }}
+    >
+      <div
+        style={{
+          width: "100%",
+          maxWidth: 440,
+          display: "flex",
+          flexDirection: "column",
+          gap: 20,
+          background: isDesktop ? "transparent" : cardBg,
+          backdropFilter: isDesktop ? undefined : "blur(16px)",
+          borderRadius: isDesktop ? 0 : 20,
+          padding: isDesktop ? 0 : "32px 24px",
+          border: isDesktop ? "none" : cardBorder,
+        }}
+      >
+        {/* Mobile-only brand mark + wordmark — left panel is hidden below 1024px. */}
+        {!isDesktop && (
+          <Link
+            to="/"
+            aria-label="Back to LazyTopper home"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 10,
+              textDecoration: "none",
+              color: "var(--text)",
+              alignSelf: "flex-start",
+            }}
+          >
+            {brandMark(44, 18)}
+            <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.15 }}>
+              <span
+                style={{
+                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontSize: "1.1rem",
+                  fontWeight: 800,
+                  letterSpacing: "-0.01em",
+                }}
+              >
+                LazyTopper
+              </span>
+              <span style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>
+                CBSE Class 10 Board Exam Prep
+              </span>
+            </div>
+          </Link>
+        )}
+
+        {/* Reason-aware prompt block (chip + headline + sub-copy). */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <span
+            style={{
+              alignSelf: "flex-start",
               display: "inline-block",
               fontSize: "0.7rem",
               fontWeight: 800,
               textTransform: "uppercase",
               letterSpacing: "0.08em",
               color: "#22c55e",
-              marginBottom: 6,
+              padding: "4px 10px",
+              borderRadius: 999,
+              background: accentChipBg,
+              border: "1px solid rgba(34,197,94,0.25)",
             }}
           >
             {prompt.chip}
-          </div>
-          <div
+          </span>
+          <h2
             style={{
-              fontSize: "1.05rem",
+              fontFamily: "'Space Grotesk', sans-serif",
+              fontSize: isDesktop ? "1.75rem" : "1.4rem",
               fontWeight: 800,
               color: "var(--text)",
-              fontFamily: "'Space Grotesk', sans-serif",
-              lineHeight: 1.25,
+              margin: 0,
+              lineHeight: 1.2,
+              letterSpacing: "-0.01em",
             }}
           >
             {prompt.headline}
-          </div>
-          <div
+          </h2>
+          <p
             style={{
-              fontSize: "0.82rem",
+              fontSize: "0.92rem",
               color: "var(--text-muted)",
-              marginTop: 4,
-              lineHeight: 1.45,
+              margin: 0,
+              lineHeight: 1.5,
             }}
           >
             {prompt.subCopy}
-          </div>
+          </p>
         </div>
 
-        <div style={{ display: "flex", justifyContent: "center", marginBottom: 16 }}>
+        {/* Real Clerk sign-in widget. Config preserved exactly as
+            shipped — only the surrounding layout has changed. */}
+        <div style={{ display: "flex", justifyContent: "center" }}>
           <SignIn
             routing="path"
             path={import.meta.env.BASE_URL + "login"}
@@ -212,42 +427,86 @@ export default function Login() {
                   boxShadow: "0 0 24px rgba(34,197,94,0.3)",
                 },
                 footerActionLink: { color: "#22c55e" },
-                dividerLine: { background: isLight ? "rgba(0,0,0,0.08)" : "var(--bg-card)" },
+                dividerLine: { background: dividerLine },
                 dividerText: { color: "var(--text-muted)" },
               },
             }}
           />
         </div>
 
-        <div style={{
-          display: "flex", alignItems: "center", gap: 12,
-          margin: "0 0 16px", color: "var(--text-muted)", fontSize: "0.82rem",
-        }}>
-          <div style={{ flex: 1, height: 1, background: isLight ? "rgba(0,0,0,0.08)" : "var(--bg-card)" }} />
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+            color: "var(--text-muted)",
+            fontSize: "0.82rem",
+          }}
+        >
+          <div style={{ flex: 1, height: 1, background: dividerLine }} />
           <span>or</span>
-          <div style={{ flex: 1, height: 1, background: isLight ? "rgba(0,0,0,0.08)" : "var(--bg-card)" }} />
+          <div style={{ flex: 1, height: 1, background: dividerLine }} />
         </div>
 
         <button
           type="button"
           onClick={handleGuest}
           style={{
-            width: "100%", border: "none",
-            background: "transparent", color: "#22c55e",
-            fontSize: "0.88rem", fontWeight: 700, cursor: "pointer",
-            padding: "8px 0",
+            width: "100%",
+            border: "1px solid rgba(34,197,94,0.35)",
+            background: accentChipBg,
+            color: "#22c55e",
+            fontSize: "0.92rem",
+            fontWeight: 800,
+            cursor: "pointer",
+            padding: "12px 16px",
+            borderRadius: 14,
           }}
         >
           Explore as Guest →
         </button>
 
-        <p style={{
-          textAlign: "center", marginTop: 20, fontSize: "0.75rem",
-          color: "var(--text-muted)", lineHeight: 1.4,
-        }}>
-          By signing in, you agree to our Terms of Service
-        </p>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: 12,
+            fontSize: "0.78rem",
+            color: "var(--text-muted)",
+          }}
+        >
+          <Link
+            to="/"
+            style={{
+              color: "var(--text-muted)",
+              textDecoration: "none",
+              fontWeight: 700,
+            }}
+          >
+            ← Back to home
+          </Link>
+          <span style={{ textAlign: "right", lineHeight: 1.4 }}>
+            By signing in, you agree to our Terms of Service
+          </span>
+        </div>
       </div>
+    </section>
+  );
+
+  return (
+    <div
+      style={{
+        minHeight: "100vh",
+        width: "100%",
+        display: "flex",
+        flexDirection: isDesktop ? "row" : "column",
+        background: "var(--bg)",
+        color: "var(--text)",
+      }}
+    >
+      {leftPanel}
+      {rightPanel}
     </div>
   );
 }
