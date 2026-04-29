@@ -133,6 +133,21 @@ function HomeRedirect() {
   return <Navigate to="/welcome" replace />;
 }
 
+function RootEntry() {
+  const { user, loading } = useAuth();
+  const isDesktop = useIsDesktop();
+
+  if (loading) return null;
+
+  if (!isDesktop) {
+    if (user) return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/welcome" replace />;
+  }
+
+  if (!user) return <Welcome />;
+  return withRouteSuspense(<DesktopHome />);
+}
+
 /**
  * BottomNav — baseline mobile tabs: Practice / Exam Trends / Me.
  *
@@ -151,14 +166,17 @@ function BottomNav() {
   const current = location.pathname;
 
   // ── Visibility gate ────────────────────────────────────────────────
-  if (current === "/welcome" || current.startsWith("/intent")) {
+  // BottomNav is a mobile-only tab bar. At desktop width (>=1024px) the
+  // app exposes navigation via the top navbar (public routes such as
+  // "/" and "/welcome") or via the DesktopShell sidebar (shell-eligible
+  // cockpit routes). The mobile BottomNav must never render on desktop,
+  // regardless of route or auth state — including the public Welcome
+  // landing rendered by RootEntry at "/" for signed-out desktop users.
+  if (isDesktop) {
     return null;
   }
 
-  // Desktop Phase 1 — when we render the locked DesktopShell at desktop
-  // width on the shell-eligible routes, hide the mobile BottomNav so the
-  // shell's sidebar nav is the only nav surface. Mobile width unchanged.
-  if (isDesktop && isDesktopShellRoute(current)) {
+  if (current === "/welcome" || current.startsWith("/intent")) {
     return null;
   }
 
@@ -313,9 +331,10 @@ function BottomNav() {
  *
  * Mobile width (<1024px) is unchanged for every route, including "/".
  */
-function isDesktopShellRoute(pathname: string): boolean {
-  // Desktop Phase 1 — exact "/" only.
-  if (pathname === "/") return true;
+function isDesktopShellRoute(pathname: string, hasSession: boolean = true): boolean {
+  // Desktop Phase 1 — "/" wraps in the shell only when the visitor has an
+  // active session; signed-out "/" renders the public Welcome instead.
+  if (pathname === "/") return hasSession;
   // Desktop Phase 2 — exact "/practice-hub" only. No nested practice paths,
   // no other future destinations (/check-improve, /me, /topic-hub,
   // /topic-hub/*) are added in this phase.
@@ -505,7 +524,7 @@ export default function App() {
       {/* Top navigation bar — dark premium header
           Desktop Phase 1: hidden on shell-eligible routes at desktop width
           (≥1024px). DesktopShell provides its own top utility/search bar. */}
-      {!(isDesktop && isDesktopShellRoute(location.pathname)) && (
+      {!(isDesktop && isDesktopShellRoute(location.pathname, !!user)) && (
       <div className="navbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <div style={{
@@ -636,14 +655,15 @@ export default function App() {
       <BreakReminder />
       <ErrorBoundary level="global">
       {(() => {
-        const useDesktopShell = isDesktop && isDesktopShellRoute(location.pathname);
+        const useDesktopShell = isDesktop && isDesktopShellRoute(location.pathname, !!user);
         const routesEl = (
         <Routes>
           {/* Core Routes */}
-          {/* Desktop Phase 1 — at desktop width, "/" renders the locked
-              DesktopHome inside DesktopShell. At mobile width, the existing
-              HomeRedirect behavior is preserved (auth → /dashboard, else /welcome). */}
-          <Route path="/" element={isDesktop ? withRouteSuspense(<DesktopHome />) : <HomeRedirect />} />
+          {/* "/" is delegated to RootEntry, which branches on auth +
+              viewport: signed-out desktop → public Welcome landing,
+              signed-in/local-session desktop → DesktopHome cockpit
+              (shell-wrapped above), mobile → HomeRedirect. */}
+          <Route path="/" element={<RootEntry />} />
           <Route path="/welcome" element={<Welcome />} />
           <Route path="/login" element={<Login />} />
           <Route path="/login/*" element={<Login />} />
