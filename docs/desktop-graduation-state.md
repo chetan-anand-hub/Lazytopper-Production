@@ -8,7 +8,10 @@ This document is the durable handoff and operating-rule document for LazyTopper 
 
 - Product repo: `chetan-anand-hub/Lazytopper-Production`
 - Active integration branch: `base/approved-thru-437`
-- Current confirmed product base after PR-I4A / PR #40 merge: `4d3abb2230613f693c18aaa69b57d72b2a538020`
+- Current confirmed product base after PR-I4D / PR #44 merge: `533fba1e82819be3966e2b25824575bba6df03b4`
+- Previous confirmed product base after PR-I4C / PR #43 merge: `0ca7cd63d43f99bfe9ce31662694a61772bc424d`
+- Previous confirmed product base after PR-I4B.1 / PR #42 merge: `2f9fab7b1c5727d7c62975e002f24c859bdfd4d9`
+- Previous confirmed product base after PR-I4A / PR #40 merge: `4d3abb2230613f693c18aaa69b57d72b2a538020`
 - Previous confirmed product base after PR-I3 / PR #39 merge: `1ddc9a00aa383dd8e9094a76da0841b03ad820be`
 - Previous confirmed product base after PR-I2 / PR #38 merge: `a21dc38f9c7ef9aa4b0307ea8d8a19a71fe1a0fa`
 - Previous confirmed product base after the post-PR-I1 docs / PR #37 merge: `91883cc09cc5d029adea38471c476cb720cf6e20`
@@ -25,7 +28,14 @@ GitHub origin is the source of truth. Replit local workspace, local checkpoint c
 
 ## Current status summary
 
-This update brings the previously stale post-PR-I1 state document current through PR-I4A.
+This update brings the desktop graduation state current through PR-I4D / PR #44.
+
+- PR-I4D / PR #44 is merged at `533fba1e82819be3966e2b25824575bba6df03b4`. Start Free Trial login gate now matches the Lovable trial-intent copy: `Free trial`, `Sign in / Start trial`, and `Start your free trial to unlock saved attempts and mistake-aware practice.` The `reason=start-trial` back link now says `Back to landing`. Real Clerk auth, Explore as Guest, redirect handling, `location.state.from`, onboarding/profile chain, PR #42 route fixes, and PR #43 light/cockpit entry behaviour are preserved. No fake trial state was introduced. Final classification: `PASS WITH FOLLOW-UP`.
+- PR-I4C / PR #43 is merged at `0ca7cd63d43f99bfe9ce31662694a61772bc424d`. Desktop `/app/` and `/welcome` now align to the Lovable-style cockpit/home entry, visible theme toggles were removed from public/cockpit UI, and stale localStorage dark values can no longer force the product into dark mode. ThemeProvider/useTheme exports remain for compatibility. Final classification: `PASS`.
+- PR-I4B.1 / PR #42 is merged at `2f9fab7b1c5727d7c62975e002f24c859bdfd4d9`. Route context is preserved across login redirects in `PracticeLimitGate`, `MockViewGate`, and `DesktopTopicHubPage`; changed files were exactly those three files. Final classification: `PASS WITH FOLLOW-UP` because one PracticeLimitGate browser path was not directly reachable in QA but source and visible flows were correct.
+- Docs / operating model update: Replit task-agent is no longer trusted for final clean branch/PR publishing unless it proves exact branch/head/diff and no platform drift. Codespaces/local clean clone is the preferred implementation route for branch creation, commits, pushes, PRs, and public preview URLs. GPT remains product thinker/auditor; Browser Agent remains visual/click QA only.
+- Preview lesson: a black Codespaces screen can be caused by missing `VITE_CLERK_PUBLISHABLE_KEY` at build time. The publishable `pk_...` key must be exported before running the production build. Never paste the secret `sk_...` key into chat, docs, or source.
+
 
 - PR-I4A / PR #40 is merged at `4d3abb2230613f693c18aaa69b57d72b2a538020`. Public desktop `/app/` entry route is fixed: signed-out desktop visitors see the public Welcome landing instead of the cockpit. `RootEntry` now branches route `/` by auth + viewport, `isDesktopShellRoute("/", hasSession)` only shell-wraps when a session exists, and `BottomNav` returns null on desktop. Mobile behaviour is preserved (`HomeRedirect`). Final classification: `PASS WITH FOLLOW-UP`. Follow-up: dark theme / theme toggle differs from the light Lovable prototype; tracked for PR-J visual sweep.
 - PR-I3 / PR #39 is merged at `1ddc9a00aa383dd8e9094a76da0841b03ad820be`. The desktop sidebar `MistakeIntelCard` no longer hard-codes the fake "You lose 38% marks to silly errors in Maths." line. It uses `useAuth()` and `getMistakeLogs(uid, 7)` and renders honest states for loading, signed-out, error, signed-in/no-logs, and signed-in/with-logs. No fake percentages or fake weak subjects.
@@ -43,15 +53,77 @@ This update brings the previously stale post-PR-I1 state document current throug
 Recommended next actions:
 
 1. Merge this docs-only update after user approval.
-2. PR-I4B — Route / gating / source / returnTo hardening across the app.
-3. PR-K0 — Learning Signal / Me / Mistake Intel data contract.
-4. PR-K1 — Practice Level-3 execution and output loop.
-5. PR-K2 — Worksheet Level-3 output loop.
-6. PR-K3 — Topic Hub quick-hand + Tutor Drawer integration.
-7. PR-K4 — HPQ / Chapter Test / Mock execution loop.
-8. PR-K5 — Me / Progress aggregation.
-9. PR-J — Final desktop polish and side-by-side prototype sweep.
-10. Replit main sync/reset only after a stable GitHub checkpoint or before publishing.
+2. PR-K0 — Learning Signal / Me / Mistake Intel data contract. Define the honest data contract connecting Check & Improve, Practice attempts, Worksheet outputs, mistake logs, Me / Progress, Mistake Intel, and Next Action recommendations.
+3. PR-K1 — Practice Level-3 execution and output loop. Preserve existing real practice engines; connect outputs into the learning-signal contract.
+4. PR-K2 — Worksheet Level-3 output loop. Preserve existing worksheet builder/saved worksheet capability; clarify attempt/save/output story.
+5. PR-K3 — Topic Hub quick-hand + Tutor Drawer integration. Adapt existing `TutorDrawerV2` / `TeachFlow` rather than rebuilding from scratch.
+6. PR-K4 — HPQ / Chapter Test / Mock execution loop. Preserve existing HPQ/mock engines and add honest output/mistake pathways.
+7. PR-K5 — Me / Progress aggregation. Aggregate only real signals; no fake time-on-practice, fake scores, fake trends, or fake weak areas.
+8. PR-J — Final desktop polish and side-by-side Lovable sweep, including minor follow-ups from PR #44 (chip capitalization, optional dedicated Start Free Trial CTA outside Clerk, and recurring Codespaces preview/proxy instability).
+9. Replit main sync/reset only after a stable GitHub checkpoint or before publishing.
+
+
+### PR-I4B.1 / PR #42 — Preserve route context across login redirects
+
+- Status: merged at `2f9fab7b1c5727d7c62975e002f24c859bdfd4d9`
+- Previous base: `bee0bf41e7442e791d1f4f6b0f2125a00ac95dcc`
+- Branch: `feat/desktop-pr-i4b-route-gating-source-returnto-hardening`
+- Final head before merge: `32fffa23f4de293869dd6b642aae09700d7e7759`
+- Changed files:
+  - `lazytopper/src/components/auth/MockViewGate.tsx`
+  - `lazytopper/src/components/auth/PracticeLimitGate.tsx`
+  - `lazytopper/src/pages/desktop/DesktopTopicHubPage.tsx`
+
+Key implementation details:
+
+- Preserved route context across signed-out login redirects.
+- `PracticeLimitGate` and `MockViewGate` no longer collapse to bare `/login` when a source/return path exists.
+- Desktop Topic Hub sign-in CTAs preserve `reason=login` and redirect back to `/topic-hub/trigonometry` style routes.
+- No new login reasons introduced.
+- Final classification: `PASS WITH FOLLOW-UP`.
+
+### PR-I4C / PR #43 — Desktop entry journey + visible theme-toggle cleanup
+
+- Status: merged at `0ca7cd63d43f99bfe9ce31662694a61772bc424d`
+- Previous base: `2f9fab7b1c5727d7c62975e002f24c859bdfd4d9`
+- Branch: `feat/desktop-pr-i4c-entry-journey-theme-toggle-cleanup`
+- Final head before merge: `ba347b98cf560923103c6f7ae204ba11f86b5447`
+- Changed files:
+  - `lazytopper/src/App.tsx`
+  - `lazytopper/src/context/ThemeContext.tsx`
+  - `lazytopper/src/components/dashboard/DashboardHeader.tsx`
+
+Key implementation details:
+
+- Desktop `/app/` and `/welcome` align to the Lovable-style cockpit/home entry.
+- Visible Light/Dark and sun/moon theme toggles removed from public/cockpit surfaces.
+- `ThemeContext` now defaults to light and prevents stale localStorage `dark` from forcing a dark UI.
+- ThemeProvider/useTheme exports preserved for compatibility.
+- Final classification: `PASS`.
+
+### PR-I4D / PR #44 — Start Free Trial login gate parity
+
+- Status: merged at `533fba1e82819be3966e2b25824575bba6df03b4`
+- Previous base: `0ca7cd63d43f99bfe9ce31662694a61772bc424d`
+- Branch: `feat/desktop-pr-i4d-trial-login-gate-parity`
+- Final head before merge: `5ea44e58eadd2241e8ade4edc07d06589f5131fc`
+- Changed files:
+  - `lazytopper/src/lib/desktop/loginPrompts.ts`
+  - `lazytopper/src/pages/Login.tsx`
+
+Key implementation details:
+
+- `start-trial` prompt now uses Lovable-aligned copy:
+  - chip: `Free trial`
+  - headline: `Sign in / Start trial`
+  - subcopy: `Start your free trial to unlock saved attempts and mistake-aware practice.`
+  - ctaLabel: `Start free trial`
+- `reason=start-trial` back link now says `Back to landing`.
+- Real Clerk `<SignIn />`, Explore as Guest, redirect query handling, `location.state.from`, and onboarding/profile chain preserved.
+- No fake trial state, fake progress, fake saved attempts, fake mistake intelligence, fake scores, or fake predictions introduced.
+- Final classification: `PASS WITH FOLLOW-UP`.
+- Follow-ups: decide later whether to add a dedicated Start Free Trial CTA outside Clerk; optionally normalize chip capitalization; investigate recurring Codespaces `/api/user/progress` / 502 preview instability.
+
 
 ## How to use this document
 
@@ -83,6 +155,8 @@ These rules apply to every LazyTopper desktop graduation task. They are durable 
 
 - GitHub origin is the source of truth.
 - Replit main is not source of truth.
+- Codespaces/local clean clone is preferred for implementation branches, commits, pushes, draft PRs, and public preview generation. Replit task-agent may draft code only when it can prove exact branch/head/diff and no platform checkpoint drift.
+- Lovable is the north-star UX/journey reference, but production is not disposable. Production already has real engines, auth, services, routes, data flows, and honest states; implementation should adapt and connect those existing capabilities rather than rebuilding from scratch.
 - Every visible task must ask for a public preview URL that the auditor / Agent can open, screenshot, and click.
 - GPT audits GitHub source. Agent Mode can do live browser screenshots and clicks but Agent Mode is not source of truth — see the Agent / Browser QA rules section below.
 - Do not classify a visible PR as `PASS` unless GitHub diff, validations, data honesty, and live output/click evidence all pass — unless the user explicitly waives the gate.
@@ -139,8 +213,8 @@ Doctrine rules:
 
 J0 is the cross-surface audit that ran ahead of the I-series and K-series correction PRs. The findings below are durable and inform PR-I4B and PR-K0..PR-K5 planning.
 
-**J0-A — Landing.**
-A major entry-route mismatch was found: signed-out desktop `/app/` was rendering the cockpit instead of the public landing. PR-I4A / PR #40 fixed this at the route level. Visual polish — including dark theme vs. the light Lovable prototype and the theme toggle — is still tracked for PR-J.
+**J0-A — Landing / entry journey.**
+A major entry-route mismatch was found in the J0 audit. PR-I4A / PR #40 first repaired the signed-out desktop public entry route. PR-I4C / PR #43 then aligned `/app/` and `/welcome` with the Lovable-style cockpit/home entry, removed visible theme toggles, and made the desktop experience deterministic light/calm. PR-I4D / PR #44 aligned the Start Free Trial login gate copy and back-link with the Lovable prototype. Remaining visual follow-ups are minor and tracked for PR-J.
 
 **J0-B — Practice / Worksheets.**
 Production is functionally stronger than the prototype here (real Quick Practice generator, real Worksheet Builder, real saved-worksheet memory). Future work should preserve those engines and focus on:
@@ -168,6 +242,8 @@ For visible visual tasks, the Browser Agent audit must explicitly check, in this
 6. **Learning-signal continuity** (Level 3 only). Does the execution surface produce an output that flows back into Mistake Intelligence and Me / Progress, or honestly state that it does not yet?
 
 Stale preview means HOLD. If the Agent reports PASS while describing stale or wrong UI, GPT overrides to HOLD.
+
+Codespaces preview rule: when a black screen appears, inspect browser console before blaming the PR. If the console says `Missing VITE_CLERK_PUBLISHABLE_KEY`, export the Clerk publishable `pk_...` key before build, rebuild with `NODE_ENV=production BASE_PATH=/app/`, rerun `node scripts/verify-production-build.mjs`, restart preview, and retest. Never share or commit Clerk secret keys.
 
 PR-I4A audit lesson — for any landing / login QA pass, require explicit positive and negative copy gates:
 
@@ -264,8 +340,10 @@ PR-LANDING / PR #26 implemented this foundation. PR-I2 / PR #38 graduated the Lo
 | Me / Progress: `topic-focus-lite/src/pages/MePage.tsx` | `lazytopper/src/pages/desktop/DesktopMePage.tsx` | PR-H / PR #34 merged. PASS WITH FOLLOW-UP — full Me aggregation is scheduled for PR-K5. |
 | Shell / sidebar Mistake Intel | `lazytopper/src/components/desktop/MistakeIntelCard.tsx` | PR-I3 / PR #39 merged at `1ddc9a00aa383dd8e9094a76da0841b03ad820be`. Real `getMistakeLogs(uid, 7)` only, with honest loading / signed-out / error / no-logs / with-logs states. |
 | App-level public route entry + desktop BottomNav scope | `lazytopper/src/App.tsx` | PR-I4A / PR #40 merged at `4d3abb2230613f693c18aaa69b57d72b2a538020`. |
-| Cross-route source/returnTo + gating hardening | App-wide | Pending PR-I4B. |
-| Final desktop polish + Lovable side-by-side | App-wide | Pending PR-J. |
+| Cross-route source/returnTo + gating hardening | `PracticeLimitGate.tsx`, `MockViewGate.tsx`, `DesktopTopicHubPage.tsx` | PR-I4B.1 / PR #42 merged at `2f9fab7b1c5727d7c62975e002f24c859bdfd4d9`. |
+| Desktop entry journey + visible theme toggle cleanup | `App.tsx`, `ThemeContext.tsx`, `DashboardHeader.tsx` | PR-I4C / PR #43 merged at `0ca7cd63d43f99bfe9ce31662694a61772bc424d`. |
+| Start Free Trial login gate parity | `loginPrompts.ts`, `Login.tsx` | PR-I4D / PR #44 merged at `533fba1e82819be3966e2b25824575bba6df03b4`. |
+| Final desktop polish + Lovable side-by-side | App-wide | Pending PR-J after PR-K0..PR-K5 intelligence/output-loop work unless a visual blocker appears earlier. |
 
 ## Completed work
 
