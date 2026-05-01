@@ -1,6 +1,6 @@
 # LazyTopper Desktop Graduation State
 
-Last updated: 2026-04-29
+Last updated: 2026-05-01
 
 This document is the durable handoff and operating-rule document for LazyTopper desktop graduation. Read this from GitHub at the start of every GPT session or Replit task, then verify live GitHub state directly before acting.
 
@@ -8,37 +8,50 @@ This document is the durable handoff and operating-rule document for LazyTopper 
 
 - Product repo: `chetan-anand-hub/Lazytopper-Production`
 - Active integration branch: `base/approved-thru-437`
-- Current confirmed product base after PR-I1 / PR #36 merge: `328667b8f58314e0142cc7c4351187cb6b3e796c`
+- Current confirmed product base after PR-I4A / PR #40 merge: `4d3abb2230613f693c18aaa69b57d72b2a538020`
+- Previous confirmed product base after PR-I3 / PR #39 merge: `1ddc9a00aa383dd8e9094a76da0841b03ad820be`
+- Previous confirmed product base after PR-I2 / PR #38 merge: `a21dc38f9c7ef9aa4b0307ea8d8a19a71fe1a0fa`
+- Previous confirmed product base after the post-PR-I1 docs / PR #37 merge: `91883cc09cc5d029adea38471c476cb720cf6e20`
+- Previous confirmed product base after PR-I1 / PR #36 merge: `328667b8f58314e0142cc7c4351187cb6b3e796c`
 - Previous confirmed product base after PR-I0 / PR #35 merge: `7cf979ee95998fc96f610d0e1cbf1cb5035ebe20`
 - Final locked desktop prototype repo: `https://github.com/chetan-anand-hub/topic-focus-lite`
 - Historical desktop shell prototype repo: `https://github.com/chetan-anand-hub/lazytopper-desktop-view-e1fc5df7`
 - Historical mobile Level 1 prototype: `https://github.com/chetan-anand-hub/lazytopper-navigator`
 - Locked Lovable prototype project: `https://lovable.dev/projects/621ea8b2-041a-4c1a-a1c9-fae3cf9b8a59`
-- Locked Lovable prototype preview: `https://id-preview--621ea8b2-041a-4c1a-a1c9-fae3cf9b8a59.lovable.app/app/`
-- Public possible Lovable prototype URL to verify later: `https://light-topic-pilot.lovable.app`
+- Locked Lovable prototype preview (auth-gated): `https://id-preview--621ea8b2-041a-4c1a-a1c9-fae3cf9b8a59.lovable.app/app/`
+- Published Lovable prototype (public, use this for visual parity): `https://light-topic-pilot.lovable.app/app`
 
-GitHub origin is the source of truth. Replit local workspace, local checkpoint commits, preview-only edits, task snapshots, and Replit "Ready for review" state are not product state unless pushed to GitHub and reviewed as a PR.
+GitHub origin is the source of truth. Replit local workspace, local checkpoint commits, preview-only edits, task snapshots, and Replit "Ready for review" state are not product state unless pushed to GitHub and reviewed as a PR. A Replit dev preview URL is valid only when it is provably serving the exact PR branch and head SHA being audited; otherwise treat it as stale.
 
 ## Current status summary
 
-- PR-I1 / PR #36 is merged. Desktop Topic Hub is now at locked-prototype feature + content parity, including the `ActionableTopicHubContent` contract, BoardConcept rows, FormulaUseCard, TopicSnapshot, common-mistake/examiner-warning copy, and `isSamplePreview` labelling. 14 priority topics are hand-seeded; the remaining catalogue topics fall back to clearly labelled sample-preview content. CTAs preserve `source=topicHub` and `returnTo`. BackToParent honours `?returnTo=...`. The HPQ compact card and personal mistake rows are driven only by real `getHighlyProbableQuestions` and real `getMistakeLogs` respectively. Verdict: PASS WITH FOLLOW-UP.
-- PR-I0 / PR #35 is merged. Desktop topic catalogue is now at locked-prototype parity: 13 Maths + 13 Science = 26 topics, with aliases for `trigonometry-heights-distances`, `light-reflection-refraction`, and `acids-bases-salts`.
-- PR-H / PR #34 is merged. Desktop Me / Progress is on real auth + real `loadInsights` attempts + real `getMistakeLogs`, with all fake metrics removed. Verdict: PASS WITH FOLLOW-UP — time-on-practice, last-5-mock-score, and trend deltas still lack real data paths.
+This update brings the previously stale post-PR-I1 state document current through PR-I4A.
+
+- PR-I4A / PR #40 is merged at `4d3abb2230613f693c18aaa69b57d72b2a538020`. Public desktop `/app/` entry route is fixed: signed-out desktop visitors see the public Welcome landing instead of the cockpit. `RootEntry` now branches route `/` by auth + viewport, `isDesktopShellRoute("/", hasSession)` only shell-wraps when a session exists, and `BottomNav` returns null on desktop. Mobile behaviour is preserved (`HomeRedirect`). Final classification: `PASS WITH FOLLOW-UP`. Follow-up: dark theme / theme toggle differs from the light Lovable prototype; tracked for PR-J visual sweep.
+- PR-I3 / PR #39 is merged at `1ddc9a00aa383dd8e9094a76da0841b03ad820be`. The desktop sidebar `MistakeIntelCard` no longer hard-codes the fake "You lose 38% marks to silly errors in Maths." line. It uses `useAuth()` and `getMistakeLogs(uid, 7)` and renders honest states for loading, signed-out, error, signed-in/no-logs, and signed-in/with-logs. No fake percentages or fake weak subjects.
+- PR-I2 / PR #38 is merged at `a21dc38f9c7ef9aa4b0307ea8d8a19a71fe1a0fa`. `Login.tsx` is a two-panel desktop layout with the line "A calm cockpit for CBSE Class 10." on the left and real Clerk `<SignIn />` on the right. Reason-aware copy is preserved through `loginPrompts`; Explore as Guest is preserved; unknown reasons fall back to login copy. Known caveat: PR-I2 did not fix the App-level public route or the desktop BottomNav regression — those were addressed in PR-I4A.
+- PR-I1 / PR #36 is merged. Desktop Topic Hub is at locked-prototype feature + content parity (`ActionableTopicHubContent` contract, BoardConcept rows, FormulaUseCard, TopicSnapshot, common-mistake / examiner-warning copy, `isSamplePreview` labelling). 14 priority topics hand-seeded; remaining catalogue topics fall back to clearly-labelled sample-preview content. CTAs preserve `source=topicHub` and `returnTo`. PASS WITH FOLLOW-UP.
+- PR-I0 / PR #35 is merged. Desktop topic catalogue is at locked-prototype parity: 13 Maths + 13 Science = 26 topics, with aliases for `trigonometry-heights-distances`, `light-reflection-refraction`, and `acids-bases-salts`.
+- PR-H / PR #34 is merged. Desktop Me / Progress is on real auth + real `loadInsights` attempts + real `getMistakeLogs`; all fake metrics removed. PASS WITH FOLLOW-UP — time-on-practice, last-5-mock-score, and trend deltas still lack real data paths.
 - PR-G / PR #33 is merged. Desktop Check & Improve uses the real `checkSolutionImage` workflow plus real `logMistakes`. The unknown login reason `save-mistake-history` was repaired to `grade-answer`.
 - PR-F / PR #32 was a first parity pass for Desktop Topic Hub. A later audit showed it was not fully prototype-complete; PR-I1 / PR #36 completed feature/content parity.
 - PR-E / PR #31 is merged. Desktop Exam Trends is at locked-prototype parity, removing fake "96% likely / 10 years of papers" certainty claims and using `desktopTopicsBySubject` plus HPQ matching.
-- PR-LANDING / PR #26, PR-B2 / PR #28, PR-C2 / PR #29 form the Landing + Home + Practice foundation. Login visual parity is still pending and is scheduled for PR-I2.
+- PR-LANDING / PR #26, PR-B2 / PR #28, PR-C2 / PR #29 form the Landing + Home + Practice foundation.
 - PR #17 / Task #362 remains draft / preservation only. Do not merge it or import from it.
-- The rendered Lovable prototype side-by-side comparison was deferred to PR-J because the implementing agent could not authenticate into the locked Lovable prototype.
+- The rendered Lovable prototype side-by-side comparison was deferred to PR-J because the implementing agent could not authenticate into the locked Lovable prototype. The published `https://light-topic-pilot.lovable.app/app` URL is now the canonical visual reference for that comparison.
 
 Recommended next actions:
 
-1. Merge this docs-only update (post-PR-I1).
-2. PR-I2 — Login visual parity preserving real Clerk auth.
-3. PR-I3 — Shell/sidebar honest Mistake Intel.
-4. PR-I4 — Cross-route hardening.
-5. PR-J — Final desktop polish/parity sweep, including the rendered Lovable side-by-side comparison.
-6. Replit main sync/reset only after a stable checkpoint or before publishing.
+1. Merge this docs-only update after user approval.
+2. PR-I4B — Route / gating / source / returnTo hardening across the app.
+3. PR-K0 — Learning Signal / Me / Mistake Intel data contract.
+4. PR-K1 — Practice Level-3 execution and output loop.
+5. PR-K2 — Worksheet Level-3 output loop.
+6. PR-K3 — Topic Hub quick-hand + Tutor Drawer integration.
+7. PR-K4 — HPQ / Chapter Test / Mock execution loop.
+8. PR-K5 — Me / Progress aggregation.
+9. PR-J — Final desktop polish and side-by-side prototype sweep.
+10. Replit main sync/reset only after a stable GitHub checkpoint or before publishing.
 
 ## How to use this document
 
@@ -52,7 +65,7 @@ At the start of every LazyTopper desktop task:
    - merged status
    - changed files
    - head SHAs
-3. Inspect the exact locked prototype file in `topic-focus-lite`.
+3. Inspect the exact locked prototype file in `topic-focus-lite`. Cross-check rendered behaviour against the published Lovable prototype at `https://light-topic-pilot.lovable.app/app`.
 4. Write or review the Replit prompt.
 5. Run implementation in Replit background/fresh clone, not Replit main, unless the task is explicitly a main-workspace sync.
 6. Audit GitHub diff, not Replit summary alone.
@@ -71,13 +84,13 @@ These rules apply to every LazyTopper desktop graduation task. They are durable 
 - GitHub origin is the source of truth.
 - Replit main is not source of truth.
 - Every visible task must ask for a public preview URL that the auditor / Agent can open, screenshot, and click.
-- GPT audits GitHub source. Agent Mode can do live browser screenshots and clicks.
+- GPT audits GitHub source. Agent Mode can do live browser screenshots and clicks but Agent Mode is not source of truth — see the Agent / Browser QA rules section below.
 - Do not classify a visible PR as `PASS` unless GitHub diff, validations, data honesty, and live output/click evidence all pass — unless the user explicitly waives the gate.
 - The locked prototype is the target, not inspiration.
 - Production must preserve real auth, services, data, routes, and honest empty states.
 - No fake scores, fake progress, fake prediction certainty, fake mistake intelligence, or fake activity.
 - The mobile app is a later phase. Current work is desktop unless explicitly scoped.
-- The rendered Lovable side-by-side comparison is currently deferred to PR-J because of an auth / unsafe-browser issue. Acceptable resolutions: (a) public read-only Lovable preview, (b) running the exact `topic-focus-lite` source in an accessible preview, or (c) user-provided authenticated screenshots.
+- The published Lovable prototype at `https://light-topic-pilot.lovable.app/app` is the canonical rendered visual reference. The auth-gated locked Lovable preview is fallback only.
 - PR #17 / Task #362 remains preservation-only. Do not import `aggregateErrorCategories`, `readLocalMistakeLogsSince`, or `ErrorCategory`.
 
 ## Durable docs update rule
@@ -94,163 +107,123 @@ Update this file whenever any of these happen:
 
 Use a docs-only branch and PR. Do not edit product code while updating this file.
 
-## Historical prototypes
+## Level definitions and intelligent-loop doctrine
 
-- Desktop Level 1 baseline: `https://github.com/chetan-anand-hub/lazytopper-desktop-view-e1fc5df7`
-- Mobile Level 1 baseline: `https://github.com/chetan-anand-hub/lazytopper-navigator`
+LazyTopper is structured as a single intelligent loop, not a flat collection of pages.
 
-The Level 1 prototypes are historical references. Do not use them as the current desktop target. The current desktop target is the Level 2 `topic-focus-lite` prototype, with the Lovable preview as the rendered visual reference.
+LazyTopper loop:
 
-## Locked Prototype Parity Rule
+`Insight -> Topic -> Action -> Output -> Mistake Intelligence -> Me / Progress -> Next Action`
 
-The final desktop prototype is not inspiration. It is the target. For each desktop graduation PR, the implementing agent must inspect the exact corresponding file in `topic-focus-lite` before coding.
+The product reads at three levels of granularity. Every PR must be classified at the right level before implementation.
 
-Locked prototype parity means:
+**Level 1 — Shell + main destinations.**
+Landing, Login, Home, Practice, Exam Trends, Topic Hub, Worksheets, Check & Improve, Me / Progress, and the desktop shell / sidebar. Level 1 is the route map, the cockpit feel, and the sidebar / nav grammar. Level 1 surfaces should match the locked prototype closely.
 
-1. Visual parity — production preserves the prototype page shape, hierarchy, and key affordances.
-2. Journey parity — the same user intent and flow are available in production, mapped to production routes.
-3. Functional parity — visible actions do real work where production has or can safely build the functionality.
-4. Real-data parity — production uses real LazyTopper data/services, not fake prototype data.
+**Level 2 — Page-level sections and interaction rhythm.**
+Board Essentials and the More menu inside Topic Hub, "Need a quick hand", Practice filters and cards, Worksheet entry, Exam Trends prediction cards, Me cards, Login reason-aware flows. Level 2 surfaces should match the prototype closely in structure and rhythm.
 
-Every implementation prompt and PR report must identify:
+**Level 3 — Execution surfaces (the actual learner work).**
+Practice sessions, generated question sets, worksheet builder / result / attempt, Check & Improve grading result, Tutor drawer / workspace, Mini Check, Chapter Test, Mock Test, HPQ attempt / detail, Explain Concept / Show Visual deep flows. Level 3 is where mistakes are produced, captured, and fed back into Mistake Intelligence and Me / Progress. Level 3 may need product-native design when the prototype does not show the full execution flow, but it must inherit the prototype's grammar (typography, spacing, calm tone) and must produce a real output.
 
-1. Prototype file inspected.
-2. Production file(s) changed.
-3. Section-by-section mapping:
-   - prototype section
-   - production implementation section
-   - intentional difference, if any
-4. Any section omitted because production lacks the required data/service.
-5. Real production data/service used for each functional section.
-6. Honest fallback copy used for omitted/unavailable data.
-7. Whether the PR is:
-   - `PASS — mergeable`
-   - `PASS WITH FOLLOW-UP — acceptable but needs later polish`
-   - `HOLD — do not merge; correction required`
+Doctrine rules:
 
-Do not accept vague "topic-focus-lite-style" language. The expected standard is page-by-page parity as closely as production routes and truthful data allow.
+- Level 1 / Level 2 should match the locked prototype closely.
+- Level 3 may need product-native design but must inherit the prototype grammar.
+- No fake intelligence anywhere — no fake percentages, no fake "weak in X" claims, no fake activity.
+- Every execution surface needs an output story: what gets saved, what gets logged as a mistake, what is surfaced back to Me / Progress.
+- If output is not tracked yet, say so honestly with a labelled empty state.
+- Context must survive across the loop via `source=...` and `returnTo=...` URL parameters.
 
-If exact parity is impossible, preserve the prototype section shape and use honest empty-state copy only as a temporary bridge. In final-stage product development, fallback copy is not the destination. If a missing function is practical to build by reusing existing product functionality, build it or classify the PR as `HOLD`.
+## J0 audit findings
 
-## PR-C2 lesson: visual shell is not enough
+J0 is the cross-surface audit that ran ahead of the I-series and K-series correction PRs. The findings below are durable and inform PR-I4B and PR-K0..PR-K5 planning.
 
-PR-C2 exposed an important product risk: a page can look close to the locked prototype while still failing the student journey if primary CTAs immediately hand the learner to an old-looking production flow.
+**J0-A — Landing.**
+A major entry-route mismatch was found: signed-out desktop `/app/` was rendering the cockpit instead of the public landing. PR-I4A / PR #40 fixed this at the route level. Visual polish — including dark theme vs. the light Lovable prototype and the theme toggle — is still tracked for PR-J.
 
-Durable rule:
+**J0-B — Practice / Worksheets.**
+Production is functionally stronger than the prototype here (real Quick Practice generator, real Worksheet Builder, real saved-worksheet memory). Future work should preserve those engines and focus on:
 
-- A locked-prototype hub is not enough if the first core action immediately exits into an old product surface.
-- For hub pages, at least the primary learner action should either stay inside a prototype-aligned production surface or be honestly labelled as an existing-engine handoff.
-- Visual parity, functional parity, journey parity, and data honesty must be checked together before merge.
-- Real data must be preferred over illustrative copy. If exact real data is unavailable, show an honest empty state, not fake learner or fake prediction data.
+- gating clarity (free vs. trial vs. premium)
+- save / attempt / output loop completeness
+- Me / Mistake Intel connectivity from Practice and Worksheet outputs
 
-For Practice, this rule produced the PR-C2.1 correction:
+**J0-C — Topic Hub / Tutor.**
+Biggest visible Level-3 gap. The prototype expects the "Need a quick hand" actions (Explain concept / Show visual / Mini check) to open as a side drawer / overlay. Production currently exposes them as static inline reference cards. `TutorDrawerV2` and `TeachFlow` already exist in production but are not exposed from Topic Hub. PR-K3 will integrate / adapt the tutor drawer without inventing fake mastery.
 
-- Quick Practice primary action opens an in-page generated practice panel.
-- The panel uses real `generatePracticeQuestions` data or an honest empty state.
-- The legacy `/practice/:grade/:subject` route is secondary only through "Continue in full practice engine".
-- HPQ tabs use real `getHighlyProbableQuestions` data or honest empty states.
-- Worksheet/mock/chapter/paper handoffs are explicitly labelled as existing builders/engines when downstream pages are not yet locked-prototype aligned.
+## Agent / Browser QA rules
 
-## Existing-product-first rule
+The Replit Browser Agent is a visual + click auditor. It is not source of truth.
 
-Desktop graduation is not a rebuild from scratch.
+GitHub is source of truth. The Replit dev preview is valid for visual / click QA only when it provably serves the exact PR branch and head SHA. Any other state must be treated as stale and held.
 
-Most functionality already exists in the product repo and should be reorganized, adapted, and wired into the locked desktop prototype experience.
+For visible visual tasks, the Browser Agent audit must explicitly check, in this order:
 
-For every desktop page or correction PR:
+1. **Source freshness.** Does the preview URL serve the PR branch and head SHA? If unprovable, HOLD.
+2. **Visual parity.** Does the rendered surface match the published Lovable prototype at the agreed level (Level 1 / Level 2 / Level 3 grammar)?
+3. **Functional parity.** Do the visible CTAs do real work, with real data, against real production services?
+4. **Resource / content completeness.** Are required sections, copy lines, and right-rail / drawer content present? Are negative copy gates absent?
+5. **Data honesty.** No fake numbers, no fake "weak in X", no fake percentages or trends.
+6. **Learning-signal continuity** (Level 3 only). Does the execution surface produce an output that flows back into Mistake Intelligence and Me / Progress, or honestly state that it does not yet?
 
-1. Inspect the locked prototype file to understand the target page shape and journey.
-2. Search the production repo for the existing LazyTopper implementation.
-3. Reuse, adapt, or recompose existing production functionality before writing new logic.
-4. Build only the smallest glue needed, such as:
-   - desktop adapters
-   - route helpers
-   - view-model mappers
-   - source/return helpers
-   - local-save helpers
-   - login/reason prompt helpers
-5. Do not replace mature production behavior with shallow prototype imitation.
-6. Do not invent fake learner data.
-7. Do not present static reference data as the learner's own data.
+Stale preview means HOLD. If the Agent reports PASS while describing stale or wrong UI, GPT overrides to HOLD.
 
-Examples of existing production systems to prefer before building new code:
+PR-I4A audit lesson — for any landing / login QA pass, require explicit positive and negative copy gates:
 
-- worksheet generation
-- HPQs and predicted questions
-- practice/question generation
-- Check & Improve
-- mistake logs
-- auth / Clerk
-- trial or premium gates
-- progress / saved attempts
-- mocks / chapter tests
-- Topic Hub data
-- route helpers and source/returnTo handling
+Positive (must be present):
 
-## Live visual and navigation QA rule
+- "Know what matters. Practise what helps. Fix what costs marks." on `/app/` and `/app/welcome`.
+- "A calm cockpit for CBSE Class 10." on `/app/login`.
 
-A static source review plus a passing build is not enough to classify a visible desktop graduation PR as fully merge-ready.
+Negative (must be absent):
 
-Before a visible desktop graduation PR can be classified `PASS — mergeable`, it should have a live preview QA pass from the PR branch, not Replit main/base state.
+- The stale "Score higher in boards. Without the grind." dark landing copy.
+- The old centered dark login card.
+- The desktop `BottomNav` on any of `/app/`, `/app/welcome`, `/app/login`.
 
-The live QA pass should include:
+## Source and prototype usage rule
 
-1. **A public preview URL the auditor / Agent can open in a normal browser.** This is a hard requirement for every visible task. The URL must serve the PR branch and head SHA. If the URL is a Replit dev preview, note that the underlying container can idle and the URL must be re-warmed before each audit window.
-2. Desktop viewport at least 1440px wide.
-3. Screenshots for the initial page and each key state change. Pure-state expansions (More menus, accordions, panel toggles) that cannot be reached by the static screenshot tool must be flagged so the auditor captures them manually from the public URL.
-4. Click-through / navigation checks for every visible CTA, with the observed URL or in-page state recorded.
-5. Confirmation that production routes are used rather than prototype `/app/*` routes unless explicitly scoped. The browser URL may include `/app/` because of `BASE_PATH=/app/`; the React route literals in code must not.
-6. Confirmation that mobile width below 1024px still renders the existing mobile flow when the PR claims mobile is untouched.
-7. Build result.
-8. Verifier result.
-9. Typecheck result when TypeScript changed or when the prompt requires it.
+These four sources have specific roles. Do not blur them.
 
-A user may explicitly waive the live-preview gate. If waived, record that in the PR / state audit.
+- **Production repo (`chetan-anand-hub/Lazytopper-Production`)** is implementation truth. All real auth, services, data, routes, and honest empty states live here.
+- **Published Lovable prototype (`https://light-topic-pilot.lovable.app/app`)** is the visual / journey target — page shape, hierarchy, calm tone, key affordances, navigation grammar.
+- **`topic-focus-lite` repo** is the prototype source reference. Use it to read exact prototype component structure and section order when the published Lovable view is ambiguous.
+- **Historical desktop shell repo (`lazytopper-desktop-view-e1fc5df7`) and the mobile Level 1 prototype (`lazytopper-navigator`)** are fallback references only — useful for AppShell / LoginGate / sidebar references when the locked prototype does not cover them.
 
-For PR-D / PR #22, the user explicitly waived the live-preview gate before merge.
+Translation rules:
 
-For PR-LANDING / PR #26, live visual/navigation QA was completed before merge.
+- Prototype contributes structure / navigation / visual grammar / journey.
+- Production contributes real data / auth / services / routes / honest states.
+- Do not copy prototype fake or demo data into production as if it were real learner data.
+- Do not present static reference content as the learner's own data.
 
-For PR-B2 / PR #28, validation passed; live QA was not fully captured in the PR body, so future Home polish should be screenshot-led if Home changes again.
+## Route, login and source/returnTo rules
 
-For PR-C2 / PR #29, the Practice shell was live-checked and the first-click journey issue was corrected before merge. Future Practice changes must preserve the in-page Quick Practice panel and honest existing-engine handoffs.
+Production route conventions, not prototype `/app/*` literals.
 
-For PR-E / PR #31, PR-G / PR #33, and PR-H / PR #34, validation and data-honesty audits passed; live preview screenshots are recommended for any follow-up polish.
+Canonical known login `reason` values (only these — adding a new one without recognising it on the production login page is a regression):
 
-For PR-I1 / PR #36, live preview / click audit was completed against the dev preview URL. Default-state screenshots, narrow-viewport non-overflow, sample-preview labelling, alias-route resolution, and BackToParent override were captured. Pure-state interactive panels (More menu, formula-use map expansion, Quick-hand panels) require manual click capture by the auditor.
+- `start-trial`
+- `login`
+- `save-worksheet`
+- `upload-answers`
+- `grade-answer`
+- `open-progress`
+- `mistake-aware`
+- `mistake-aware-worksheet`
+- `start-full-mock`
+- `open-check`
 
-## Replit workflow rule
+Route rules:
 
-Use Replit background tasks for implementation work. Background tasks must work from a fresh isolated clone or clean branch and push to GitHub.
-
-Do not click `Apply changes to main version` for PR branch work unless the task is explicitly to sync/reset Replit main.
-
-Before deploying or publishing from Replit, run a dedicated sync/reset task so Replit main exactly matches GitHub `origin/base/approved-thru-437`. Publishing from stale Replit main is unsafe.
-
-### Replit main / main-repl rebase warning
-
-During PR-C2, a system-triggered rebase onto `main-repl/main` polluted the PR branch with unrelated files because `main-repl/main` was behind `base/approved-thru-437`. The branch had to be repaired by rewinding to the clean PR head and reapplying only `DesktopPracticePage.tsx`.
-
-Durable rule:
-
-- Do not rebase PR branches onto Replit main or `main-repl/main`.
-- Replit main is not source of truth.
-- PR branches should be based on latest `origin/base/approved-thru-437`, unless a task explicitly pins a SHA.
-- If a Replit system step tries to rebase onto main and pollutes the branch, stop immediately, create a backup branch, restore the clean PR/base lineage, and verify final GitHub diff against `origin/base/approved-thru-437`.
-- Screenshot artifacts must not be committed unless explicitly requested.
-- Replit's automatic checkpoint commits may add `.agents/`, `screenshots/`, `opengraph.jpg`, or other non-product files to the local branch. These must not be pushed. Verify the GitHub PR file list still shows only the intended product/docs files before requesting an audit.
-
-### Replit main stale-workspace warning
-
-Replit main is occasionally far behind `origin/base/approved-thru-437` (for example, after a sequence of feature merges has happened entirely through GitHub). When Replit main is stale:
-
-- Publishing from Replit will ship stale code and is unsafe.
-- A Replit Deployment from a feature-branch container will deploy the current container's working directory, not stale main, but it will still overwrite the live deployment slot. Use this only when the user has explicitly approved overwriting production.
-- The safe path is to first run a Replit main sync/reset task so Replit main exactly matches `origin/base/approved-thru-437`, then publish.
+- No `/app/*` React route literals in source code. The browser URL may show `/app/...` because of `BASE_PATH=/app/`, but React route literals must be production routes (`/login`, `/practice-hub`, `/topic-hub`, `/me`, `/check-improve`, etc.).
+- `source=...` and `returnTo=...` must be preserved end-to-end across hub → execution → login → return navigation.
+- BackToParent on every hub honours `?returnTo=...` and falls back to a sensible parent route.
 
 ## Landing and login prompting parity rule
 
-The locked prototype includes public landing and reason-aware login prompting. This behavior is part of the desktop product journey.
+The locked prototype includes public landing and reason-aware login prompting. This is part of the desktop product journey.
 
 Locked prototype files:
 
@@ -264,47 +237,34 @@ Expected production mapping:
 
 | Prototype behavior | Production equivalent |
 | --- | --- |
-| `/` public landing | production public landing / `Welcome` route unless explicitly changed |
+| `/` public landing | production public landing / `Welcome` route (PR-I4A: signed-out desktop `/` renders `<Welcome />` directly) |
 | `/app/login?reason=...&redirect=...` | `/login?reason=...&redirect=...` |
-| `/app` cockpit | production desktop Home / cockpit route according to current routing |
+| `/app` cockpit | production desktop Home / cockpit route (signed-in or local-guest only on desktop) |
 | `/app/practice/worksheet` | `/practice/worksheets` |
 | `/app/check` | `/check-improve` |
 | `/app/me` | `/me` |
 
-Production login prompting should support reason-aware copy and redirects for actions such as:
-
-- `start-trial`
-- `login`
-- `save-worksheet`
-- `upload-answers`
-- `grade-answer`
-- `open-progress`
-- `mistake-aware`
-- `mistake-aware-worksheet`
-- `start-full-mock`
-- `open-check`
-
-Do not introduce new login `reason` values without checking that the production login page recognises them. The PR-G `save-mistake-history` → `grade-answer` repair shows what happens when an unknown reason is shipped.
-
 Implementation must preserve real Clerk auth and backward compatibility with existing `location.state.from` behavior unless explicitly changed.
 
-PR-LANDING / PR #26 implemented this foundation. Future pages should use this reason-aware login contract instead of creating ad hoc login prompts. PR-I2 will complete the visual parity pass for the Login surface itself.
+PR-LANDING / PR #26 implemented this foundation. PR-I2 / PR #38 graduated the Login surface to two-panel visual parity. PR-I4A / PR #40 fixed the public landing entry route.
 
 ## Prototype route/file mapping
 
 | Prototype route/file | Production route/file | Status |
 | --- | --- | --- |
-| Public landing: `topic-focus-lite/src/pages/PublicLanding.tsx` | `lazytopper/src/pages/Welcome.tsx` and `lazytopper/src/pages/Login.tsx` | PR-LANDING / PR #26 merged at `5ee8568a330adb931521e6e770d798ae7d2f8671`. Public landing and reason-aware login prompting are implemented. Login visual parity is pending in PR-I2. |
+| Public landing: `topic-focus-lite/src/pages/PublicLanding.tsx` | `lazytopper/src/pages/Welcome.tsx` and `lazytopper/src/App.tsx` route entry | PR-LANDING / PR #26 implemented Welcome + reason-aware login prompting. PR-I4A / PR #40 fixed the route entry so signed-out desktop `/app/` renders the public Welcome landing instead of the cockpit. |
+| Login: `topic-focus-lite/src/pages/LoginGate.tsx` | `lazytopper/src/pages/Login.tsx` | PR-I2 / PR #38 merged at `a21dc38f9c7ef9aa4b0307ea8d8a19a71fe1a0fa`. Two-panel visual parity with real Clerk `<SignIn />`, reason-aware copy, Explore as Guest preserved. |
 | Home: `topic-focus-lite/src/pages/HomePage.tsx` | `lazytopper/src/pages/desktop/DesktopHome.tsx` | PR-B2 / PR #28 merged at `64214acc162b09c2b40c436f955bc5a225e0fd50`. |
 | Practice: `topic-focus-lite/src/pages/PracticePage.tsx` | `lazytopper/src/pages/desktop/DesktopPracticePage.tsx` | PR-C2 / PR #29 merged at `9670db2618f376544c93c890abe5f67f7eb8be3a`. |
 | Worksheet: `topic-focus-lite/src/pages/WorksheetPage.tsx` | `lazytopper/src/pages/desktop/DesktopWorksheetsPage.tsx` | PR-D / PR #22 merged at `415386853661fdb831b5615cdcb64dcd8800172c`. Live preview gate waived by user. |
-| Exam Trends: `topic-focus-lite/src/pages/TrendsPage.tsx` | `lazytopper/src/pages/desktop/DesktopExamTrendsPage.tsx` | PR-E / PR #31 merged. Fake certainty claims removed; uses `desktopTopicsBySubject` and HPQ matching. |
-| Topic Hub: `topic-focus-lite/src/pages/TopicHubPage.tsx` | `lazytopper/src/pages/desktop/DesktopTopicHubPage.tsx` and `lazytopper/src/lib/desktop/topicHubContent.ts` | PR-F / PR #32 first parity pass; PR-I1 / PR #36 completed feature/content parity at `328667b8f58314e0142cc7c4351187cb6b3e796c`. PASS WITH FOLLOW-UP — rendered Lovable side-by-side comparison deferred to PR-J. |
-| Topic catalogue (data layer) | `lazytopper/src/lib/desktop/topics.ts` | PR-I0 / PR #35 merged at `7cf979ee95998fc96f610d0e1cbf1cb5035ebe20`. 13 Maths + 13 Science = 26 topics with three slug aliases. |
-| Check & Improve: `topic-focus-lite/src/pages/CheckPage.tsx` | `lazytopper/src/pages/desktop/DesktopCheckImprovePage.tsx` | PR-G / PR #33 merged. Real `checkSolutionImage` workflow + real `logMistakes`. Login reason `save-mistake-history` repaired to `grade-answer`. |
-| Me / Progress: `topic-focus-lite/src/pages/MePage.tsx` | `lazytopper/src/pages/desktop/DesktopMePage.tsx` | PR-H / PR #34 merged. Real auth + real `loadInsights` + real `getMistakeLogs`. PASS WITH FOLLOW-UP — time-on-practice, last-5-mock-score, and trend deltas still lack real data paths. |
-| Shell / sidebar Mistake Intel | `lazytopper/src/components/desktop/...` (shell components) | Pending PR-I3. |
-| Cross-route source/returnTo hardening | App-wide | Pending PR-I4. |
+| Exam Trends: `topic-focus-lite/src/pages/TrendsPage.tsx` | `lazytopper/src/pages/desktop/DesktopExamTrendsPage.tsx` | PR-E / PR #31 merged. |
+| Topic Hub: `topic-focus-lite/src/pages/TopicHubPage.tsx` | `lazytopper/src/pages/desktop/DesktopTopicHubPage.tsx` and `lazytopper/src/lib/desktop/topicHubContent.ts` | PR-F / PR #32 first parity pass; PR-I1 / PR #36 completed feature/content parity. PASS WITH FOLLOW-UP — Topic Hub Level-3 quick-hand → Tutor Drawer integration is scheduled for PR-K3. |
+| Topic catalogue (data layer) | `lazytopper/src/lib/desktop/topics.ts` | PR-I0 / PR #35 merged. |
+| Check & Improve: `topic-focus-lite/src/pages/CheckPage.tsx` | `lazytopper/src/pages/desktop/DesktopCheckImprovePage.tsx` | PR-G / PR #33 merged. |
+| Me / Progress: `topic-focus-lite/src/pages/MePage.tsx` | `lazytopper/src/pages/desktop/DesktopMePage.tsx` | PR-H / PR #34 merged. PASS WITH FOLLOW-UP — full Me aggregation is scheduled for PR-K5. |
+| Shell / sidebar Mistake Intel | `lazytopper/src/components/desktop/MistakeIntelCard.tsx` | PR-I3 / PR #39 merged at `1ddc9a00aa383dd8e9094a76da0841b03ad820be`. Real `getMistakeLogs(uid, 7)` only, with honest loading / signed-out / error / no-logs / with-logs states. |
+| App-level public route entry + desktop BottomNav scope | `lazytopper/src/App.tsx` | PR-I4A / PR #40 merged at `4d3abb2230613f693c18aaa69b57d72b2a538020`. |
+| Cross-route source/returnTo + gating hardening | App-wide | Pending PR-I4B. |
 | Final desktop polish + Lovable side-by-side | App-wide | Pending PR-J. |
 
 ## Completed work
@@ -326,27 +286,17 @@ Do not revive stale Desktop Phase 1 / Shell + Home tasks.
 - Merge/squash SHA: `99da42d01385084dbda16b9d95fcae8b10d2663e`
 - Scope: additive Level 2 foundation under `lazytopper/src/components/desktop/l2/*` and `lazytopper/src/lib/desktop/*`.
 
-PR-A added shared foundation. It did not mount visible pages.
-
-Final-stage audit note: PR-A is acceptable foundation work, but future visible pages must not present static desktop mistake/reference data as learner history, and bridge topic catalogues must not claim full syllabus coverage unless wired to canonical production data.
-
 ### PR-B / PR #19 — Desktop Home Graduation
 
 - Status: merged, superseded by PR-B2 / PR #28
 - Branch: `feat/desktop-pr-b-home-graduation`
 - Merge/squash SHA: `fde4ad3ce0dbfd665871454a55dfed9142687efa`
-- Changed file: `lazytopper/src/pages/desktop/DesktopHome.tsx`
-
-Final-stage audit note: PR-B was truthful but did not meet locked prototype + functional parity. PR-B2 completed the correction.
 
 ### PR-C / PR #20 — Desktop Practice Hub Graduation
 
 - Status: merged, superseded by PR-C2 / PR #29
 - Branch: `feat/desktop-pr-c-practice-hub-graduation`
 - Merge/squash SHA: `66fd7d734f0842ccb69eb9eee62f42ce588bde54`
-- Changed file: `lazytopper/src/pages/desktop/DesktopPracticePage.tsx`
-
-Final-stage audit note: PR-C was useful as an intent hub but did not meet locked prototype + functional parity. PR-C2 completed the correction.
 
 ### PR #21 — Desktop graduation state docs handoff
 
@@ -378,9 +328,7 @@ Final-stage audit note: PR-C was useful as an intent hub but did not meet locked
   - `M lazytopper/src/App.tsx`
   - `A lazytopper/src/lib/desktop/savedWorksheets.ts`
   - `A lazytopper/src/pages/desktop/DesktopWorksheetsPage.tsx`
-- `artifacts/lazytopper-app/public/opengraph.jpg` was removed from the PR diff before merge.
-- PR #17 / Task #362 remained untouched.
-- Live preview QA gate was explicitly waived by the user before merge.
+- Live preview QA gate explicitly waived by the user before merge.
 
 ### PR #25 — Post-PR-D desktop state docs
 
@@ -400,101 +348,56 @@ Final-stage audit note: PR-C was useful as an intent hub but did not meet locked
   - `M lazytopper/src/pages/Login.tsx`
   - `A lazytopper/src/lib/desktop/landingMemory.ts`
   - `A lazytopper/src/lib/desktop/loginPrompts.ts`
-- Live visual/navigation QA completed. QA verdict: `PASS`.
-- Production reason-aware login route contract implemented: `/login?reason=...&redirect=...`.
-- Real Clerk auth preserved. Existing `location.state.from` fallback preserved.
-- Login visual parity (against the locked prototype) is still pending — scheduled for PR-I2.
-- PR #17 / Task #362 remained untouched.
+- Implemented `/login?reason=...&redirect=...` route contract. Real Clerk auth preserved. Login visual parity completed later in PR-I2 / PR #38.
 
 ### PR-B2 / PR #28 — Home locked prototype parity
 
 - Status: merged
 - Branch: `feat/desktop-pr-b2-home-locked-parity`
 - Merge/squash SHA: `64214acc162b09c2b40c436f955bc5a225e0fd50`
-- Final head before merge: `db40cb98b25eeb90d1624c32994b48c75a55c16e`
 - Changed file: `lazytopper/src/pages/desktop/DesktopHome.tsx`
-- Prototype inspected: `topic-focus-lite/src/pages/HomePage.tsx` plus supporting prototype components/context.
 - Real data only: `useAuth()`, `useSubscription()`, `landingMemory.ts`, saved-worksheet memory, `getMistakeLogs(uid, 7)` with local four-bucket aggregation.
-- No fake score / attempt / progress data introduced.
-- PR #17 / Task #362 remained untouched.
-- Validation: `pnpm --filter lazytopper exec tsc --noEmit` PASS, production build PASS, `node scripts/verify-production-build.mjs` PASS.
-
-Final-stage audit note: Home is now on the corrected locked-prototype path. If Home is touched again, require fresh screenshots because PR-B2 live QA was not fully captured in the PR body.
 
 ### PR-C2 / PR #29 — Practice locked prototype parity + honest end-to-end journey
 
 - Status: merged
 - Branch: `feat/desktop-pr-c2-practice-locked-parity`
 - Merge/squash SHA: `9670db2618f376544c93c890abe5f67f7eb8be3a`
-- Final head before merge: `12555a5500b644fc408a3307c942fc273e923230`
 - Changed file: `lazytopper/src/pages/desktop/DesktopPracticePage.tsx`
-- Prototype inspected: `topic-focus-lite/src/pages/PracticePage.tsx`.
-- Final PR diff was repaired to a single file after a bad Replit rebase temporarily polluted the branch.
-
-Key implementation details:
-
-- Page-local visual components preserve the locked prototype shape (`PracticeContextBar`, `PracticeScopeBuilder`, `PracticePaperBlueprint`).
-- Quick Practice primary action opens an in-page Generated quick practice panel.
-- Generated quick practice uses real `generatePracticeQuestions` data or an honest empty state.
-- The legacy `/practice` engine is secondary only through "Continue in full practice engine".
-- Predicted/HPQ tabs use real `getHighlyProbableQuestions` data or honest empty states.
-- Topic reference copy is clearly labelled as curated study cues, not generated/predicted questions.
-- Mistake Intelligence remains visible and real-data-only through `getMistakeLogs(user.uid, 7)`.
-- PR #17 / Task #362 remained untouched.
-- Validation: tsc PASS, production build PASS, verifier PASS.
+- Quick Practice opens an in-page generated panel using real `generatePracticeQuestions` data; HPQ tabs use real `getHighlyProbableQuestions`; Mistake Intelligence uses real `getMistakeLogs(user.uid, 7)`.
 
 ### Docs PR #30 — Post-PR-B2/PR-C2 docs update
 
 - Status: merged
 - Changed file: `docs/desktop-graduation-state.md`
-- Scope: docs-only update after PR-B2 and PR-C2.
-- Superseded by this post-PR-I1 update.
 
 ### PR-E / PR #31 — Desktop Exam Trends locked prototype parity
 
 - Status: merged
 - Changed file: `lazytopper/src/pages/desktop/DesktopExamTrendsPage.tsx`
-- Prototype inspected: `topic-focus-lite/src/pages/TrendsPage.tsx`.
-- Removed fake certainty claims such as "96% likely / 10 years of papers".
-- Uses `desktopTopicsBySubject` and HPQ matching for real predicted-question counts.
-- PR #17 / Task #362 remained untouched.
+- Removed fake "96% likely / 10 years of papers" certainty claims; uses `desktopTopicsBySubject` and HPQ matching.
 
 ### PR-F / PR #32 — Desktop Topic Hub first parity pass
 
 - Status: merged, superseded for feature/content parity by PR-I1 / PR #36
-- Changed file: `lazytopper/src/pages/desktop/DesktopTopicHubPage.tsx`
-- Prototype inspected: `topic-focus-lite/src/pages/TopicHubPage.tsx`.
-- A later audit showed PR-F was not fully prototype-complete; PR-I1 / PR #36 completed feature/content parity.
 
 ### PR-G / PR #33 — Desktop Check & Improve real grading workflow
 
 - Status: merged
 - Changed file: `lazytopper/src/pages/desktop/DesktopCheckImprovePage.tsx`
-- Prototype inspected: `topic-focus-lite/src/pages/CheckPage.tsx`.
-- Replaced fake graded preview with the real `checkSolutionImage` workflow plus real `logMistakes`.
-- Repaired unknown login reason `save-mistake-history` → `grade-answer`.
-- PR #17 / Task #362 remained untouched.
+- Real `checkSolutionImage` workflow + real `logMistakes`. Repaired unknown login reason `save-mistake-history` → `grade-answer`.
 
 ### PR-H / PR #34 — Desktop Me / Progress real-data + honest states
 
 - Status: merged
 - Changed file: `lazytopper/src/pages/desktop/DesktopMePage.tsx`
-- Prototype inspected: `topic-focus-lite/src/pages/MePage.tsx`.
-- Removed fake metrics: `72/100`, `78%`, `9h24m`, fake weak areas, fake recent activity.
-- Uses real auth, `loadInsights` attempts, and `getMistakeLogs`.
-- Verdict: `PASS WITH FOLLOW-UP` — time-on-practice, last-5-mock-score, and trend deltas still lack real data paths and currently render honest empty/labelled states.
-- PR #17 / Task #362 remained untouched.
+- Real auth, `loadInsights`, and `getMistakeLogs`. PASS WITH FOLLOW-UP — time-on-practice, last-5-mock-score, trend deltas pending PR-K5.
 
 ### PR-I0 / PR #35 — Desktop topic catalogue parity
 
 - Status: merged at `7cf979ee95998fc96f610d0e1cbf1cb5035ebe20`
 - Changed file: `lazytopper/src/lib/desktop/topics.ts`
-- Expanded the catalogue to 13 Maths + 13 Science = 26 topics.
-- Added slug aliases:
-  - `trigonometry-heights-distances` → `trigonometry`
-  - `light-reflection-refraction` → `light-reflection-and-refraction`
-  - `acids-bases-salts` → `acids-bases-and-salts`
-- PR #17 / Task #362 remained untouched.
+- 13 Maths + 13 Science = 26 topics; aliases for `trigonometry-heights-distances`, `light-reflection-refraction`, `acids-bases-salts`.
 
 ### PR-I1 / PR #36 — Desktop Topic Hub feature/content parity
 
@@ -502,29 +405,78 @@ Key implementation details:
 - Changed files:
   - `lazytopper/src/pages/desktop/DesktopTopicHubPage.tsx`
   - `lazytopper/src/lib/desktop/topicHubContent.ts`
-- Prototype inspected: `topic-focus-lite/src/pages/TopicHubPage.tsx` and `topic-focus-lite/src/lib/topicHubContent.ts`.
+- New `ActionableTopicHubContent` contract; 14 priority topics hand-seeded; clearly-labelled sample-preview fallback for the rest. CTAs preserve `source=topicHub` and `returnTo`. PASS WITH FOLLOW-UP.
+
+### PR #37 — Post-PR-I1 docs update
+
+- Status: merged at `91883cc09cc5d029adea38471c476cb720cf6e20`
+- Branch: `docs/post-pr-i1-desktop-state-1`
+- Changed file: `docs/desktop-graduation-state.md`
+- Brought the desktop graduation state doc current through PR-I1.
+
+### PR-I2 / PR #38 — Login visual parity with real Clerk auth
+
+- Status: merged at `a21dc38f9c7ef9aa4b0307ea8d8a19a71fe1a0fa`
+- Branch: `feat/desktop-pr-i2-login-visual-parity`
+- Final head before merge: `e9eb99f04a8647823a4e471be3512f7eb389a756`
+- Changed file: `lazytopper/src/pages/Login.tsx` (+336 / -77)
 
 Key implementation details:
 
-- New `ActionableTopicHubContent` contract: `BoardConcept`, `FormulaUseCard`, `TopicSnapshot`, `commonMistake`, `examinerWarning`, `isSamplePreview`.
-- 14 priority topics hand-seeded.
-- Remaining catalogue topics use clearly-labelled sample-preview fallback content.
-- BackToParent honours `?returnTo=...` and falls back to `/exam-trends?subject=...` otherwise.
-- TopicStrip surfaces the `Sample preview` chip when applicable.
-- Compact action bar: Practice / Worksheet / Predicted Qs / Add to selection / More.
-- More menu includes Chapter Test, Check answer, and Mistake-aware worksheet.
-- Board Essentials open by default with concept rows, marks-band pills, and Practise-this CTAs.
-- "How boards use it" includes a marquee formula card, the full formula-use map (whenToUse / directUse / hiddenUse / combinedUse / commonTrap), and an HPQ compact card driven only by real `getHighlyProbableQuestions`.
-- "Mistakes & next action" uses reference common-mistake / examiner warning copy plus personal mistake rows, where personal rows only render when real `getMistakeLogs(uid, 7)` returns entries.
-- Right rail Topic snapshot rewired (Subject / Trend / Weight / Marks band / Likely section / Examiner notes), with sample-preview disclaimers when applicable.
-- "Need a quick hand" exposes Explain concept / Show visual / Mini check as static reference support, explicitly labelled as "Static reference content — not generated tutor output".
-- All CTAs preserve `source=topicHub` and a URL-encoded `returnTo`.
-- No `/app/*` route literals introduced in code.
-- PR #17 / Task #362 remained untouched.
-- Validation reported green.
-- Agent production browser/click audit passed with follow-up.
-- Rendered Lovable prototype side-by-side comparison was deferred to PR-J because the Agent could not authenticate into the locked Lovable prototype.
-- Verdict: `PASS WITH FOLLOW-UP`.
+- Two-panel desktop layout. Left panel anchors with the line "A calm cockpit for CBSE Class 10."
+- Right panel hosts the real Clerk `<SignIn />` component (Continue with Google, email, Continue, sign-up) — real Clerk auth preserved end-to-end.
+- Reason-aware copy is preserved through the `loginPrompts` helper introduced in PR-LANDING. Unknown reasons fall back to login copy.
+- "Explore as Guest →" affordance is preserved.
+- Existing `location.state.from` fallback is preserved.
+- No new login `reason` values introduced.
+
+Known caveat: PR-I2 did not address the App-level public route entry or the desktop `BottomNav` regression. Those were left for PR-I4A.
+
+### PR-I3 / PR #39 — Sidebar honest Mistake Intel
+
+- Status: merged at `1ddc9a00aa383dd8e9094a76da0841b03ad820be`
+- Branch: `feat/desktop-pr-i3-sidebar-honest-mistake-intel`
+- Final head before merge: `0df1ef2dc63c6ef171f04746181761bcf28f95b8`
+- Changed file: `lazytopper/src/components/desktop/MistakeIntelCard.tsx` (+300 / -66)
+
+Key implementation details:
+
+- Removed the hard-coded fake line "You lose 38% marks to silly errors in Maths." and any related fake percentage / fake weak-subject claims.
+- Now uses `useAuth()` and `getMistakeLogs(uid, 7)` only.
+- Honest states: loading, signed-out, error, signed-in / no logs, signed-in / with logs.
+- No fake percentages, no fake "weakest subject" framing, no fake learner trends.
+
+### PR-I4A / PR #40 — Public landing entry route
+
+- Status: merged at `4d3abb2230613f693c18aaa69b57d72b2a538020`
+- Previous base: `1ddc9a00aa383dd8e9094a76da0841b03ad820be`
+- Branch: `fix/desktop-pr-i4a-public-landing-entry-route`
+- Final head before merge: `1053e654a5df6d96363d02187924dd88ca63e24d`
+- Changed file: `lazytopper/src/App.tsx` only (+34 / -14)
+
+Key implementation details:
+
+- New `RootEntry` for route `/` branches by viewport + auth.
+- Mobile: preserves existing `HomeRedirect` (signed-in → `/dashboard`, else → `/welcome`).
+- Desktop signed-out: renders `<Welcome />` directly — not shell-wrapped — so `/app/` shows the public landing instead of `DesktopHome`.
+- Desktop signed-in or local-guest: renders `DesktopHome` inside `DesktopShell` (unchanged).
+- `isDesktopShellRoute(pathname, hasSession)` is now session-aware: `/` is a shell route only when a session exists.
+- `BottomNav` returns `null` whenever `isDesktop` is true. The mobile tab bar never renders at desktop width on any route or auth state.
+- `!!user` is threaded through every consumer (`BottomNav`, top navbar, `useDesktopShell` guard).
+
+Browser Agent QA:
+
+- `/app/` and `/app/welcome` show the current public Welcome landing with "Know what matters. Practise what helps. Fix what costs marks."
+- `/app/login` shows the PR-I2 two-panel layout with "A calm cockpit for CBSE Class 10."
+- The stale "Score higher in boards. Without the grind." dark landing copy is absent.
+- The old centered dark login card is absent.
+- Desktop `BottomNav` is absent on `/app/`, `/app/welcome`, and `/app/login`.
+- "Start free trial" routes to `/app/login?reason=start-trial&redirect=/onboarding`.
+- "Explore the cockpit" intentionally enters the cockpit / trends flow as a local-guest session.
+
+Verdict: `PASS WITH FOLLOW-UP`.
+
+Follow-up: dark theme / theme toggle differs from the light Lovable prototype; tracked for PR-J visual sweep, not a PR-I4A blocker.
 
 ## Open / do not merge without separate review
 
@@ -549,17 +501,19 @@ Do not use these as implementation instructions:
 - Starting PR-D from old SHA `66fd7d734f0842ccb69eb9eee62f42ce588bde54`
 - Starting PR-E from pre-PR-B2/PR-C2 base
 - Starting PR-I1 from pre-PR-I0 base
-- Recreating `DesktopShell`, DesktopHome Level 1, or `MistakeIntelCard`
+- Starting PR-I4A from pre-PR-I3 base
+- Recreating `DesktopShell`, DesktopHome Level 1, or `MistakeIntelCard` from a pre-PR-I3 baseline
 - Branch `feat/desktop-phase-1-shell-home` as a current implementation base
 - Local Replit checkpoint commits
-- Preview-only local DesktopHome changes
+- Preview-only local DesktopHome / Login / App.tsx changes
 - Broken PR-B v1 local implementation that imported Task #362-only code
 - Replit local main workspace if it does not match GitHub origin
 - Replit `main-repl/main` as a base for feature branches
 - Any branch state polluted by screenshot artifacts, `.agents/` files, `opengraph.jpg`, or unrelated ancestral files
 - The pre-PR-I1 first-pass Topic Hub content layer, which lacked the `ActionableTopicHubContent` contract
-
-Desktop Phase 1 tasks from `93e739c` remain obsolete.
+- The pre-PR-I2 dark centered Login card
+- The pre-PR-I3 `MistakeIntelCard` with the hard-coded "38% silly errors in Maths" line
+- The pre-PR-I4A `RootEntry` that rendered `DesktopHome` for signed-out desktop `/app/`
 
 ## Current implementation sequence
 
@@ -583,6 +537,10 @@ Completed:
 16. PR-H / PR #34 — Desktop Me / Progress real-data + honest states (PASS WITH FOLLOW-UP)
 17. PR-I0 / PR #35 — Desktop topic catalogue parity
 18. PR-I1 / PR #36 — Desktop Topic Hub feature/content parity (PASS WITH FOLLOW-UP)
+19. Docs PR #37 — post-PR-I1 state docs
+20. PR-I2 / PR #38 — Login visual parity with real Clerk auth
+21. PR-I3 / PR #39 — Sidebar honest Mistake Intel
+22. PR-I4A / PR #40 — Public landing entry route (PASS WITH FOLLOW-UP)
 
 Open:
 
@@ -591,13 +549,17 @@ Open:
 Next recommended actions:
 
 1. Merge this docs-only update.
-2. PR-I2 — Login visual parity preserving real Clerk auth.
-3. PR-I3 — Shell/sidebar honest Mistake Intel.
-4. PR-I4 — Cross-route source/returnTo hardening.
-5. PR-J — Final desktop polish/parity sweep, including the rendered Lovable side-by-side comparison.
-6. Replit main sync/reset only after a stable checkpoint or before publishing.
+2. PR-I4B — Route / gating / source / returnTo hardening across the app.
+3. PR-K0 — Learning Signal / Me / Mistake Intel data contract.
+4. PR-K1 — Practice Level-3 execution and output loop.
+5. PR-K2 — Worksheet Level-3 output loop.
+6. PR-K3 — Topic Hub quick-hand + Tutor Drawer integration.
+7. PR-K4 — HPQ / Chapter Test / Mock execution loop.
+8. PR-K5 — Me / Progress aggregation.
+9. PR-J — Final desktop polish and side-by-side prototype sweep.
+10. Replit main sync/reset only after a stable GitHub checkpoint or before publishing.
 
-Do not start PR-I2 until this docs update is merged and the user explicitly approves starting PR-I2.
+Do not start PR-I4B until this docs update is merged and the user explicitly approves starting PR-I4B.
 
 ## Shared desktop data/service/route audit checkpoint
 
@@ -623,12 +585,13 @@ Expected output:
 | Domain | Source of truth | Used by pages | Gaps |
 | --- | --- | --- | --- |
 | Topic identity | `lib/desktop/topics.ts` (PR-I0) | Practice, Trends, Topic Hub, Worksheet | none known |
-| Topic Hub content | `lib/desktop/topicHubContent.ts` (PR-I1) | Topic Hub | sample-preview topics outside the 14 hand-seeded; rendered Lovable side-by-side deferred to PR-J |
-| HPQ / prediction | `data/highlyProbableQuestions.ts`, `predictionDataService.ts` | Practice, Trends, Topic Hub | none known |
-| Mistakes | `services/mistakeLogService` | Home, Practice, Worksheet, Check, Me, Topic Hub | shell/sidebar Mistake Intel pending PR-I3 |
-| Saved worksheets | `lib/desktop/savedWorksheets` (local storage) | Home, Worksheet, Me | none known |
-| Auth/login | AuthContext + `lib/desktop/loginPrompts` | All gated CTAs | login visual parity pending PR-I2 |
-| Time-on-practice / last-5-mock-score / trend deltas | not yet wired | Me | follow-up from PR-H |
+| Topic Hub content | `lib/desktop/topicHubContent.ts` (PR-I1) | Topic Hub | sample-preview topics outside the 14 hand-seeded; rendered Lovable side-by-side deferred to PR-J; quick-hand → Tutor Drawer integration deferred to PR-K3 |
+| HPQ / prediction | `data/highlyProbableQuestions.ts`, `predictionDataService.ts` | Practice, Trends, Topic Hub | full HPQ / Chapter Test / Mock execution loop deferred to PR-K4 |
+| Mistakes | `services/mistakeLogService` | Home, Practice, Worksheet, Check, Me, Topic Hub, sidebar (PR-I3) | Learning Signal data contract deferred to PR-K0 |
+| Saved worksheets | `lib/desktop/savedWorksheets` (local storage) | Home, Worksheet, Me | Worksheet Level-3 output loop deferred to PR-K2 |
+| Auth/login | AuthContext + `lib/desktop/loginPrompts` + `lazytopper/src/pages/Login.tsx` (PR-I2) | All gated CTAs | gating / source / returnTo hardening deferred to PR-I4B |
+| App route entry + BottomNav scope | `lazytopper/src/App.tsx` (PR-I4A) | All routes | follow-up dark theme vs. Lovable prototype tracked in PR-J |
+| Time-on-practice / last-5-mock-score / trend deltas | not yet wired | Me | aggregation deferred to PR-K5 |
 
 ## Mandatory Git sync rule
 
@@ -661,8 +624,37 @@ For every implementation task:
    ```
 
 10. Push to GitHub.
-11. Provide a public preview URL for visible PRs and confirm what branch/SHA it serves.
-12. Return PR URL, base SHA, head SHA, changed files, build/verifier/typecheck results, screenshot paths, observed-CTA URLs, and PASS / PASS WITH FOLLOW-UP / HOLD classification.
+11. Provide a public preview URL for visible PRs and confirm what branch / SHA it serves. If unprovable, treat the preview as stale.
+12. Return PR URL, base SHA, head SHA, changed files, build / verifier / typecheck results, screenshot paths, observed-CTA URLs, and PASS / PASS WITH FOLLOW-UP / HOLD classification.
+
+## Replit workflow rule
+
+Use Replit background tasks for implementation work. Background tasks must work from a fresh isolated clone or clean branch and push to GitHub.
+
+Do not click `Apply changes to main version` for PR branch work unless the task is explicitly to sync/reset Replit main.
+
+Before deploying or publishing from Replit, run a dedicated sync/reset task so Replit main exactly matches GitHub `origin/base/approved-thru-437`. Publishing from stale Replit main is unsafe.
+
+### Replit main / main-repl rebase warning
+
+During PR-C2, a system-triggered rebase onto `main-repl/main` polluted the PR branch with unrelated files because `main-repl/main` was behind `base/approved-thru-437`. The branch had to be repaired by rewinding to the clean PR head and reapplying only the intended file.
+
+Durable rule:
+
+- Do not rebase PR branches onto Replit main or `main-repl/main`.
+- Replit main is not source of truth.
+- PR branches should be based on latest `origin/base/approved-thru-437`, unless a task explicitly pins a SHA.
+- If a Replit system step tries to rebase onto main and pollutes the branch, stop immediately, create a backup branch, restore the clean PR/base lineage, and verify final GitHub diff against `origin/base/approved-thru-437`.
+- Screenshot artifacts must not be committed unless explicitly requested.
+- Replit's automatic checkpoint commits may add `.agents/`, `screenshots/`, `opengraph.jpg`, or other non-product files to the local branch. These must not be pushed. Verify the GitHub PR file list still shows only the intended product/docs files before requesting an audit.
+
+### Replit main stale-workspace warning
+
+Replit main is occasionally far behind `origin/base/approved-thru-437` (for example, after a sequence of feature merges has happened entirely through GitHub). When Replit main is stale:
+
+- Publishing from Replit will ship stale code and is unsafe.
+- A Replit Deployment from a feature-branch container will deploy the current container's working directory, not stale main, but it will still overwrite the live deployment slot. Use this only when the user has explicitly approved overwriting production.
+- The safe path is to first run a Replit main sync/reset task so Replit main exactly matches `origin/base/approved-thru-437`, then publish.
 
 ## Replit main sync/reset checkpoint
 
@@ -689,61 +681,75 @@ Required behavior:
 
 ## Next PR planning notes
 
-### PR-I2 — Login visual parity
-
-Locked prototype:
-
-- `topic-focus-lite/src/pages/LoginGate.tsx` and supporting components.
+### PR-I4B — Route / gating / source / returnTo hardening
 
 Production target:
 
-- `lazytopper/src/pages/Login.tsx` (and, if needed, the supporting `lib/desktop/loginPrompts.ts`).
-
-Current audit expectation:
-
-- Visual parity pass over the Login surface: layout, typography, social/OAuth providers (preserve real Clerk providers), reason-aware copy presentation, redirect handling, and error states.
-- Must preserve the existing `/login?reason=...&redirect=...` route contract introduced in PR-LANDING.
-- Must preserve real Clerk auth and existing `location.state.from` fallback.
-- Do not introduce new login `reason` values that the production page does not recognise.
-- Do not regress the reason-aware copy already wired by PR-G's `grade-answer` repair.
-
-### PR-I3 — Shell/sidebar honest Mistake Intel
-
-Production target:
-
-- The desktop shell/sidebar Mistake Intel surface (under `lazytopper/src/components/desktop/...`).
-
-Current audit expectation:
-
-- The shell/sidebar Mistake Intel must use real `getMistakeLogs(uid, 7)` only.
-- Signed-out and no-data states must be honest — no fake counts, no fake "X of last Y errors" claims, no fake learner trends.
-- Match the locked prototype's shell/sidebar Mistake Intel layout where production has the data; otherwise show a labelled empty/sign-in state.
-- Do not import PR #17-only symbols.
-
-### PR-I4 — Cross-route source/returnTo hardening
-
-Production target:
-
-- App-wide route helpers and CTA wiring.
+- App-wide route helpers, gating wrappers, and CTA wiring across `lazytopper/src/App.tsx`, `lazytopper/src/lib/desktop/navigation.ts`, `lazytopper/src/lib/desktop/loginPrompts.ts`, and consumer pages.
 
 Current audit expectation:
 
 - Audit every desktop CTA that crosses pages (Home, Practice, Worksheet, Trends, Topic Hub, Check, Me, Login).
 - Confirm `source=...` and `returnTo=...` are preserved end-to-end and URL-encoded consistently.
 - Confirm BackToParent on every hub honours an explicit `?returnTo=...` and falls back to a sensible parent route.
+- Confirm gating (free / trial / premium / signed-out / local-guest) is applied consistently and that gated CTAs route through `/login?reason=...&redirect=...` with a recognised `reason`.
 - Confirm no React route literal includes `/app/*` (React routes must be production routes; the browser URL gets `/app/` only via `BASE_PATH`).
 - Add a small shared helper if the same source/returnTo composition is being repeated across files.
+- Do not introduce new login `reason` values without expanding the canonical list above.
+
+### PR-K0 — Learning Signal / Me / Mistake Intel data contract
+
+Define the shared data contract that K1–K5 will write to and read from:
+
+- mistake event shape (existing `mistakeLogService`)
+- attempt / output records produced by Practice, Worksheet, Check, HPQ, Chapter Test, Mock
+- Me aggregation read-model (subject, topic, time-on-practice, last-5-mock-score, trend deltas)
+- learning-signal continuity from execution surfaces back into Mistake Intelligence and Me
+
+Audit-only first; small helpers if explicitly approved.
+
+### PR-K1 — Practice Level-3 execution and output loop
+
+Production target: `DesktopPracticePage` execution surfaces.
+
+- Generated quick practice produces a real attempt record and real mistake events.
+- Outputs flow into Mistake Intelligence and Me.
+
+### PR-K2 — Worksheet Level-3 output loop
+
+Production target: `DesktopWorksheetsPage` builder / result / attempt surfaces.
+
+- Worksheet attempts produce real output and real mistake events.
+- `savedWorksheets` connects to the Me aggregation read-model defined in PR-K0.
+
+### PR-K3 — Topic Hub quick-hand + Tutor Drawer integration
+
+Production target: `DesktopTopicHubPage` "Need a quick hand" cluster.
+
+- Replace the static reference cards with a real side-drawer / overlay backed by existing `TutorDrawerV2` / `TeachFlow`.
+- No fake mastery / fake "you understood X%" claims.
+- Mini Check uses real practice generation.
+
+### PR-K4 — HPQ / Chapter Test / Mock execution loop
+
+Production target: HPQ attempt / detail, Chapter Test, Mock Test execution surfaces.
+
+- Real attempt records, real mistake events, real result surfaces.
+- Connects to PR-K0 contract.
+
+### PR-K5 — Me / Progress aggregation
+
+Production target: `DesktopMePage` and shell sidebar Mistake Intel.
+
+- Wires the Me read-model defined in PR-K0.
+- Resolves the PR-H follow-ups: time-on-practice, last-5-mock-score, trend deltas.
 
 ### PR-J — Final desktop polish + Lovable side-by-side
 
-Production target:
+Production target: all desktop graduation pages.
 
-- All desktop graduation pages.
-
-Current audit expectation:
-
-- Run the rendered Lovable prototype side-by-side comparison that was deferred from PR-I1.
-- Resolve through one of: (a) public read-only Lovable preview, (b) running the exact `topic-focus-lite` source in an accessible preview, (c) user-provided authenticated screenshots.
+- Run the rendered Lovable side-by-side comparison using the public published prototype at `https://light-topic-pilot.lovable.app/app`.
+- Resolve the PR-I4A follow-up (dark theme / theme toggle vs. light Lovable prototype).
 - Capture any final visual / copy / spacing gaps and resolve them.
-- Confirm PASS-WITH-FOLLOW-UP carry-overs from PR-H (time-on-practice, last-5-mock-score, trend deltas) and PR-I1 (sample-preview topics outside the 14 hand-seeded) are either resolved, scoped to a follow-up PR, or explicitly accepted as final empty/labelled states.
+- Confirm PASS-WITH-FOLLOW-UP carry-overs from PR-H, PR-I1, and PR-I4A are either resolved, scoped to a follow-up PR, or explicitly accepted as final empty / labelled states.
 - Mandatory Replit main sync/reset before publish.
