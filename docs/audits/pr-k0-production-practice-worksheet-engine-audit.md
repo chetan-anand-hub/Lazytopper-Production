@@ -22,36 +22,30 @@ PR-K0 must connect and standardize existing engines. It must not rebuild from sc
 
 ## Important production files
 
+This table is recomputed from the actual production filesystem on the PR-K0 audit branch. It intentionally includes the corrected implementation paths discovered by repo scan, not older guessed paths.
 
-## Audit note: corrected implementation paths
-
-The first generated pass looked for several practice/solution files under older guessed paths. This repair updates the important-file table to use the actual production paths found by repo scan:
-
-- `lazytopper/src/components/practice/practiceQuestionBuilder.ts`
-- `lazytopper/src/data/practiceSetGenerator.ts`
-- `lazytopper/server/routes/moreLikeThis.cjs`
-- `lazytopper/server/routes/stepSolution.cjs`
-- `lazytopper/server/scripts/backfillGeneratedQuestionSolutions.cjs`
-
-These files are central to the PR-K0 audit because they contain the real practice-question building, practice-set generation, Gemini More Like This, step-solution generation, and generated-question solution backfill logic.
-
-
-| File | Exists | Lines | Question refs | Solution refs | Gemini refs | Mistake refs |
-| --- | --- | --- | --- | --- | --- | --- |
-| `lazytopper/src/pages/PracticePage.tsx` | YES | 1130 | YES | YES | YES | YES |
-| `lazytopper/src/pages/desktop/DesktopPracticePage.tsx` | YES | 3328 | YES | YES | YES | YES |
-| `lazytopper/src/pages/desktop/DesktopWorksheetsPage.tsx` | YES | 2039 | YES | NO | YES | YES |
-| `lazytopper/src/pages/desktop/DesktopCheckImprovePage.tsx` | YES | 1588 | YES | YES | YES | YES |
-| `lazytopper/src/pages/desktop/DesktopMePage.tsx` | YES | 1696 | YES | NO | YES | YES |
-| `lazytopper/src/components/desktop/MistakeIntelCard.tsx` | YES | 321 | NO | NO | YES | YES |
-| `lazytopper/src/lib/desktop/savedWorksheets.ts` | YES | 220 | YES | NO | YES | YES |
-| `lazytopper/src/lib/desktop/topics.ts` | YES | 361 | NO | NO | YES | NO |
-| `lazytopper/src/lib/desktop/topicHubContent.ts` | YES | 881 | YES | YES | YES | YES |
-| `lazytopper/src/components/practice/practiceQuestionBuilder.ts` | NO | 0 | NO | NO | NO | NO |
-| `lazytopper/src/data/practiceSetGenerator.ts` | NO | 0 | NO | NO | NO | NO |
-| `lazytopper/server/routes/moreLikeThis.cjs` | NO | 0 | NO | NO | NO | NO |
-| `lazytopper/server/routes/stepSolution.cjs` | NO | 0 | NO | NO | NO | NO |
-| `lazytopper/server/scripts/backfillGeneratedQuestionSolutions.cjs` | NO | 0 | NO | NO | NO | NO |
+| File | Exists | Lines | Question refs | Answer refs | Solution refs | Marks refs | Gemini refs | Mistake refs |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `lazytopper/src/pages/PracticePage.tsx` | YES | 1130 | YES | YES | YES | YES | YES | YES |
+| `lazytopper/src/pages/desktop/DesktopPracticePage.tsx` | YES | 3328 | YES | YES | YES | YES | YES | YES |
+| `lazytopper/src/pages/desktop/DesktopWorksheetsPage.tsx` | YES | 2039 | YES | YES | NO | YES | YES | YES |
+| `lazytopper/src/pages/desktop/DesktopCheckImprovePage.tsx` | YES | 1588 | YES | YES | YES | YES | YES | YES |
+| `lazytopper/src/pages/desktop/DesktopMePage.tsx` | YES | 1696 | YES | YES | NO | YES | YES | YES |
+| `lazytopper/src/components/desktop/MistakeIntelCard.tsx` | YES | 321 | NO | YES | NO | YES | YES | YES |
+| `lazytopper/src/lib/desktop/savedWorksheets.ts` | YES | 220 | YES | NO | NO | YES | YES | YES |
+| `lazytopper/src/lib/desktop/topics.ts` | YES | 361 | NO | NO | NO | YES | YES | NO |
+| `lazytopper/src/lib/desktop/topicHubContent.ts` | YES | 881 | YES | YES | YES | YES | YES | YES |
+| `lazytopper/src/components/practice/practiceQuestionBuilder.ts` | YES | 679 | YES | YES | YES | YES | YES | YES |
+| `lazytopper/src/data/practiceSetGenerator.ts` | YES | 373 | YES | NO | NO | YES | YES | NO |
+| `lazytopper/server/routes/moreLikeThis.cjs` | YES | 224 | YES | YES | YES | YES | YES | NO |
+| `lazytopper/server/routes/stepSolution.cjs` | YES | 397 | YES | YES | YES | YES | YES | YES |
+| `lazytopper/server/scripts/backfillGeneratedQuestionSolutions.cjs` | YES | 380 | YES | YES | YES | YES | YES | NO |
+| `lazytopper/src/components/practice/worksheetGenerator.ts` | YES | 364 | YES | YES | YES | YES | YES | NO |
+| `lazytopper/server/services/generatedQuestionPool.cjs` | YES | 201 | YES | YES | YES | YES | YES | NO |
+| `lazytopper/server/services/questionCompleteness.cjs` | YES | 33 | YES | YES | YES | NO | NO | NO |
+| `lazytopper/server/services/warmQuestionPool.cjs` | YES | 523 | YES | YES | YES | YES | YES | NO |
+| `lazytopper/server/routes/checkSolution.cjs` | YES | 225 | YES | YES | YES | YES | YES | YES |
+| `lazytopper/server/routes/userProgress.cjs` | YES | 255 | NO | NO | NO | NO | YES | NO |
 
 ## Repo-wide signal scan
 
