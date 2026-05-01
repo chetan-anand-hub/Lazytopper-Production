@@ -32,9 +32,9 @@ export interface LoginPrompt {
 const PROMPTS: Record<string, LoginPrompt> = {
   "start-trial": {
     chip: "Free trial",
-    headline: "Start your free trial",
+    headline: "Sign in / Start trial",
     subCopy:
-      "Sign in to unlock personalised practice. No card. No timetable.",
+      "Start your free trial to unlock saved attempts and mistake-aware practice.",
     ctaLabel: "Start free trial",
   },
   "login": {
