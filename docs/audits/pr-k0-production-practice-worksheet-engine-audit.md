@@ -22,6 +22,20 @@ PR-K0 must connect and standardize existing engines. It must not rebuild from sc
 
 ## Important production files
 
+
+## Audit note: corrected implementation paths
+
+The first generated pass looked for several practice/solution files under older guessed paths. This repair updates the important-file table to use the actual production paths found by repo scan:
+
+- `lazytopper/src/components/practice/practiceQuestionBuilder.ts`
+- `lazytopper/src/data/practiceSetGenerator.ts`
+- `lazytopper/server/routes/moreLikeThis.cjs`
+- `lazytopper/server/routes/stepSolution.cjs`
+- `lazytopper/server/scripts/backfillGeneratedQuestionSolutions.cjs`
+
+These files are central to the PR-K0 audit because they contain the real practice-question building, practice-set generation, Gemini More Like This, step-solution generation, and generated-question solution backfill logic.
+
+
 | File | Exists | Lines | Question refs | Solution refs | Gemini refs | Mistake refs |
 | --- | --- | --- | --- | --- | --- | --- |
 | `lazytopper/src/pages/PracticePage.tsx` | YES | 1130 | YES | YES | YES | YES |
@@ -33,11 +47,11 @@ PR-K0 must connect and standardize existing engines. It must not rebuild from sc
 | `lazytopper/src/lib/desktop/savedWorksheets.ts` | YES | 220 | YES | NO | YES | YES |
 | `lazytopper/src/lib/desktop/topics.ts` | YES | 361 | NO | NO | YES | NO |
 | `lazytopper/src/lib/desktop/topicHubContent.ts` | YES | 881 | YES | YES | YES | YES |
-| `lazytopper/src/lib/practiceQuestionBuilder.ts` | NO | 0 | NO | NO | NO | NO |
-| `lazytopper/src/lib/practiceSetGenerator.ts` | NO | 0 | NO | NO | NO | NO |
-| `lazytopper/server/moreLikeThis.cjs` | NO | 0 | NO | NO | NO | NO |
-| `lazytopper/server/stepSolution.cjs` | NO | 0 | NO | NO | NO | NO |
-| `scripts/backfillGeneratedQuestionSolutions.mjs` | NO | 0 | NO | NO | NO | NO |
+| `lazytopper/src/components/practice/practiceQuestionBuilder.ts` | NO | 0 | NO | NO | NO | NO |
+| `lazytopper/src/data/practiceSetGenerator.ts` | NO | 0 | NO | NO | NO | NO |
+| `lazytopper/server/routes/moreLikeThis.cjs` | NO | 0 | NO | NO | NO | NO |
+| `lazytopper/server/routes/stepSolution.cjs` | NO | 0 | NO | NO | NO | NO |
+| `lazytopper/server/scripts/backfillGeneratedQuestionSolutions.cjs` | NO | 0 | NO | NO | NO | NO |
 
 ## Repo-wide signal scan
 
