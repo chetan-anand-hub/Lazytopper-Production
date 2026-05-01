@@ -3,7 +3,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
 import { getDailyPracticeCount, incrementDailyPracticeCount } from "../../services/featureGates";
 import { UpgradeModal } from "../UpgradeModal";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 
 const FREE_DAILY_LIMIT = 10;
 
@@ -26,6 +26,7 @@ export function usePracticeLimit() {
 export function PracticeLimitGate({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
   const { isPremium } = useSubscription();
+  const location = useLocation();
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [questionsUsed, setQuestionsUsed] = useState(0);
   const [limitReached, setLimitReached] = useState(false);
@@ -61,7 +62,8 @@ export function PracticeLimitGate({ children }: { children: ReactNode }) {
   }
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    const from = `${location.pathname}${location.search}`;
+    return <Navigate to="/login" replace state={{ from }} />;
   }
 
   if (isPremium) {

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, type ReactNode } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
 import { UpgradeModal } from "../UpgradeModal";
@@ -52,6 +53,7 @@ function incrementWeeklyMockViews(uid: string | null): void {
 export function MockViewGate({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
   const { isPremium, isTrialExpired } = useSubscription();
+  const location = useLocation();
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [limitReached, setLimitReached] = useState(false);
   const [ready, setReady] = useState(false);
@@ -157,8 +159,8 @@ export function MockViewGate({ children }: { children: ReactNode }) {
         <p style={{ color: "var(--text-muted)", fontSize: "0.92rem", marginBottom: 20, lineHeight: 1.5 }}>
           You've viewed your free sample mock paper. Sign in to unlock more.
         </p>
-        <a
-          href={import.meta.env.BASE_URL + "login"}
+        <Link
+          to={`/login?reason=login&redirect=${encodeURIComponent(`${location.pathname}${location.search}`)}`}
           style={{
             display: "inline-block", textDecoration: "none",
             border: "none", borderBottom: "4px solid #46a302", borderRadius: 16,
@@ -168,7 +170,7 @@ export function MockViewGate({ children }: { children: ReactNode }) {
           }}
         >
           Sign In
-        </a>
+        </Link>
       </div>
     );
   }
