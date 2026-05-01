@@ -81,6 +81,7 @@ export default function Login() {
 
   // Reason → prompt copy. Unknown / missing reasons fall back to "login".
   const reason = searchParams.get("reason");
+  const isStartTrial = reason === "start-trial";
   const prompt = useMemo(() => getLoginPrompt(reason), [reason]);
 
   // Resolve post-auth navigation target.
@@ -484,7 +485,7 @@ export default function Login() {
               fontWeight: 700,
             }}
           >
-            ← Back to home
+            {isStartTrial ? "← Back to landing" : "← Back to home"}
           </Link>
           <span style={{ textAlign: "right", lineHeight: 1.4 }}>
             By signing in, you agree to our Terms of Service
