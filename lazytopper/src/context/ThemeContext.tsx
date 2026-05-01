@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
+import { createContext, useContext, useEffect, type ReactNode } from "react";
 
 export type AppTheme = "dark" | "light";
 
@@ -11,27 +11,23 @@ interface ThemeContextValue {
 const STORAGE_KEY = "lazytopper.theme";
 
 const ThemeContext = createContext<ThemeContextValue>({
-  theme: "dark",
+  theme: "light",
   toggleTheme: () => {},
   setTheme: () => {},
 });
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<AppTheme>(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored === "light" || stored === "dark") return stored;
-    } catch {}
-    return "dark";
-  });
+  const theme: AppTheme = "light";
 
   useEffect(() => {
-    try { localStorage.setItem(STORAGE_KEY, theme); } catch {}
-    document.documentElement.setAttribute("data-theme", theme);
-  }, [theme]);
+    try {
+      localStorage.setItem(STORAGE_KEY, "light");
+    } catch {}
+    document.documentElement.setAttribute("data-theme", "light");
+  }, []);
 
-  const toggleTheme = () => setThemeState(t => t === "dark" ? "light" : "dark");
-  const setTheme = (t: AppTheme) => setThemeState(t);
+  const toggleTheme = () => {};
+  const setTheme = (_t: AppTheme) => {};
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>

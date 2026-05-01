@@ -25,7 +25,6 @@ import { useSubscription } from "./hooks/useSubscription";
 import { ErrorBoundary, SectionErrorBoundary } from "./components/ErrorBoundary";
 import { initPaceProfileFromExamDate } from "./services/paceProfileService";
 import { startTracking, stopTracking, isFocusTrackingEnabled } from "./services/focusTracker";
-import { useTheme } from "./context/ThemeContext";
 import { useIsDesktop } from "./hooks/useIsDesktop";
 import { DesktopShell } from "./components/desktop/DesktopShell";
 
@@ -144,7 +143,9 @@ function RootEntry() {
     return <Navigate to="/welcome" replace />;
   }
 
-  if (!user) return <Welcome />;
+  // Desktop graduation: the signed-out desktop entry is now the calm
+  // cockpit/home surface, matching the Lovable /app reference. Auth-specific
+  // prompts still happen inside downstream actions and Login.tsx.
   return withRouteSuspense(<DesktopHome />);
 }
 
@@ -331,10 +332,11 @@ function BottomNav() {
  *
  * Mobile width (<1024px) is unchanged for every route, including "/".
  */
-function isDesktopShellRoute(pathname: string, hasSession: boolean = true): boolean {
-  // Desktop Phase 1 — "/" wraps in the shell only when the visitor has an
-  // active session; signed-out "/" renders the public Welcome instead.
-  if (pathname === "/") return hasSession;
+function isDesktopShellRoute(pathname: string, _hasSession: boolean = true): boolean {
+  // Desktop graduation: "/" and "/welcome" both use the desktop cockpit shell
+  // at desktop width so signed-out entry aligns with the Lovable /app home.
+  if (pathname === "/") return true;
+  if (pathname === "/welcome") return true;
   // Desktop Phase 2 — exact "/practice-hub" only. No nested practice paths,
   // no other future destinations (/check-improve, /me, /topic-hub,
   // /topic-hub/*) are added in this phase.
@@ -368,7 +370,6 @@ export default function App() {
   const navigate = useNavigate();
   const { mode, setMode } = useVibeMode();
   const { user } = useAuth();
-  const { theme, toggleTheme } = useTheme();
   const { isTrialActive, isTrialExpired, daysLeftInTrial, isPremium } = useSubscription();
   const isDesktop = useIsDesktop();
 
@@ -580,23 +581,6 @@ export default function App() {
           )}
           <button
             type="button"
-            onClick={toggleTheme}
-            title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-            style={{
-              display: "flex", alignItems: "center", gap: 5,
-              background: theme === "dark" ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.08)",
-              border: theme === "dark" ? "1px solid rgba(255,255,255,0.22)" : "1px solid rgba(0,0,0,0.18)",
-              borderRadius: 20, padding: "5px 11px",
-              cursor: "pointer", fontWeight: 700, fontSize: "0.75rem",
-              color: theme === "dark" ? "#e2e8f0" : "#334155",
-              letterSpacing: 0.2, transition: "all 0.2s",
-            }}
-          >
-            <span style={{ fontSize: "0.9rem", lineHeight: 1 }}>{theme === "dark" ? "☀️" : "🌙"}</span>
-            <span>{theme === "dark" ? "Light" : "Dark"}</span>
-          </button>
-          <button
-            type="button"
             onClick={() => setPaletteOpen(true)}
             title="Search (Ctrl+K)"
             style={{
@@ -664,7 +648,7 @@ export default function App() {
               signed-in/local-session desktop → DesktopHome cockpit
               (shell-wrapped above), mobile → HomeRedirect. */}
           <Route path="/" element={<RootEntry />} />
-          <Route path="/welcome" element={<Welcome />} />
+          <Route path="/welcome" element={isDesktop ? withRouteSuspense(<DesktopHome />) : <Welcome />} />
           <Route path="/login" element={<Login />} />
           <Route path="/login/*" element={<Login />} />
           <Route path="/sign-up" element={<SignUpPage />} />
