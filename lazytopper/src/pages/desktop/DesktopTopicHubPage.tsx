@@ -1435,6 +1435,7 @@ function MistakesPanel({
   topicMistakes,
   mistakeAwareHref,
   practiceHref,
+  signedOutLoginHref,
 }: {
   topic: DesktopTopicSummary;
   commonMistake: string;
@@ -1445,6 +1446,7 @@ function MistakesPanel({
   topicMistakes: MistakeLogEntry[];
   mistakeAwareHref: string;
   practiceHref: string;
+  signedOutLoginHref: string;
 }) {
   const personalSubtitle = (() => {
     if (!signedIn) return "Sign in to see personal mistake suggestions for this topic.";
@@ -1548,7 +1550,7 @@ function MistakesPanel({
                 don&rsquo;t make up examples.
               </MutedNote>
               <div style={{ marginTop: 10 }}>
-                <ButtonLink to="/login" variant="outline" icon={<IconArrowRight />}>
+                <ButtonLink to={signedOutLoginHref} variant="outline" icon={<IconArrowRight />}>
                   Sign in
                 </ButtonLink>
               </div>
@@ -2012,6 +2014,7 @@ function MistakeIntelligenceCard({
   topicMistakeCount,
   totalMistakeCount,
   mistakeAwareHref,
+  signedOutLoginHref,
 }: {
   topic: DesktopTopicSummary;
   signedIn: boolean;
@@ -2019,6 +2022,7 @@ function MistakeIntelligenceCard({
   topicMistakeCount: number;
   totalMistakeCount: number;
   mistakeAwareHref: string;
+  signedOutLoginHref: string;
 }) {
   const body: React.ReactNode = (() => {
     if (!signedIn) {
@@ -2030,7 +2034,7 @@ function MistakeIntelligenceCard({
             sample mistakes here.
           </MutedNote>
           <div style={{ marginTop: 12 }}>
-            <ButtonLink to="/login" variant="outline" icon={<IconArrowRight />}>
+            <ButtonLink to={signedOutLoginHref} variant="outline" icon={<IconArrowRight />}>
               Sign in
             </ButtonLink>
           </div>
@@ -2205,6 +2209,14 @@ export default function DesktopTopicHubPage() {
   const routeContext: DesktopRouteContext = useMemo(
     () => ({ source: "topicHub", returnTo }),
     [returnTo],
+  );
+
+  // Signed-out sign-in CTAs in the mistake panels must preserve the current
+  // Topic Hub URL so users land back here after login (reason=login is the
+  // canonical known reason for a generic sign-in prompt).
+  const signedOutLoginHref = useMemo(
+    () => `/login?reason=login&redirect=${encodeURIComponent(currentUrl)}`,
+    [currentUrl],
   );
 
   const grade = params.grade && params.grade.length > 0 ? params.grade : "10";
@@ -2387,6 +2399,7 @@ export default function DesktopTopicHubPage() {
             topicMistakes={topicMistakes}
             mistakeAwareHref={mistakeAwareHref}
             practiceHref={practiceHref}
+            signedOutLoginHref={signedOutLoginHref}
           />
         </div>
 
@@ -2410,6 +2423,7 @@ export default function DesktopTopicHubPage() {
             topicMistakeCount={topicMistakes.length}
             totalMistakeCount={mistakeLogs.length}
             mistakeAwareHref={mistakeAwareHref}
+            signedOutLoginHref={signedOutLoginHref}
           />
         </aside>
       </div>
