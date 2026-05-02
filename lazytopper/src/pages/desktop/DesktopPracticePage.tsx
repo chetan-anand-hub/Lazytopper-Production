@@ -1620,6 +1620,8 @@ const SOURCE: DesktopActionSource = "practice";
 type TabId = "topic" | "selected" | "full";
 
 
+const HAS_DURABLE_QUICK_PRACTICE_SIGNAL_PATH = false;
+
 function getQuickPracticeSolutionParts(question: PracticeQuestion): string[] {
   const parts: string[] = [];
 
@@ -1709,11 +1711,15 @@ export default function DesktopPracticePage() {
   ) => {
     if (!assertLearningSignalKindForMode(mode, kind)) return;
 
-    const contractPersistence = getLearningSignalPersistence({
+    const authEligiblePersistence = getLearningSignalPersistence({
       isSignedIn: Boolean(user?.uid),
     });
+    // PR-K1A has no durable save path. Do not mark a signal saved merely
+    // because the learner is signed in; future persistence work must flip
+    // HAS_DURABLE_QUICK_PRACTICE_SIGNAL_PATH only after a real save exists.
     const isLocalOnly =
-      contractPersistence === "local-only" || contractPersistence === "saved";
+      authEligiblePersistence === "local-only" ||
+      !HAS_DURABLE_QUICK_PRACTICE_SIGNAL_PATH;
     const source: LearningSignal["source"] =
       kind === "solution_viewed" ? "solution" : "practice";
 
