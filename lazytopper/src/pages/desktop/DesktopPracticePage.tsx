@@ -41,6 +41,14 @@ import {
   getRuntimeTopicCandidates,
   normalizeTopicSlug,
 } from "../../data/syllabus/topicAliasMap";
+import {
+  LEARNING_SIGNAL_HONESTY_RULES,
+  assertLearningSignalKindForMode,
+  getLearningSignalPersistence,
+  type LearningSignal,
+  type LearningSignalKind,
+  type LearningSignalMode,
+} from "../../lib/desktop/learningSignals";
 
 /**
  * DesktopPracticePage — Level 2 (PR-C2: locked-prototype parity).
@@ -1611,6 +1619,29 @@ const SOURCE: DesktopActionSource = "practice";
 
 type TabId = "topic" | "selected" | "full";
 
+
+const HAS_DURABLE_QUICK_PRACTICE_SIGNAL_PATH = false;
+
+function getQuickPracticeSolutionParts(question: PracticeQuestion): string[] {
+  const parts: string[] = [];
+
+  if (Array.isArray(question.solutionSteps)) {
+    parts.push(...question.solutionSteps.filter((step) => step.trim().length > 0));
+  }
+
+  if (question.explanation?.trim()) {
+    parts.push(question.explanation.trim());
+  }
+
+  if (question.finalAnswer?.trim()) {
+    parts.push(`Final answer: ${question.finalAnswer.trim()}`);
+  } else if (question.answer?.trim()) {
+    parts.push(`Answer: ${question.answer.trim()}`);
+  }
+
+  return parts;
+}
+
 export default function DesktopPracticePage() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -1654,6 +1685,112 @@ export default function DesktopPracticePage() {
   }
   const [quickPracticePanel, setQuickPracticePanel] =
     useState<QuickPracticePanelState | null>(null);
+  const [currentQuickPracticeIndex, setCurrentQuickPracticeIndex] = useState(0);
+  const [quickPracticeAnswerDrafts, setQuickPracticeAnswerDrafts] = useState<
+    Record<string, string>
+  >({});
+  const [quickPracticeAttemptedIds, setQuickPracticeAttemptedIds] = useState<Set<string>>(
+    () => new Set(),
+  );
+  const [quickPracticeSolutionVisibleIds, setQuickPracticeSolutionVisibleIds] =
+    useState<Set<string>>(() => new Set());
+  const [quickPracticeSignals, setQuickPracticeSignals] = useState<LearningSignal[]>([]);
+
+  const resetQuickPracticeRunState = () => {
+    setCurrentQuickPracticeIndex(0);
+    setQuickPracticeAnswerDrafts({});
+    setQuickPracticeAttemptedIds(new Set());
+    setQuickPracticeSolutionVisibleIds(new Set());
+    setQuickPracticeSignals([]);
+  };
+
+  const appendQuickPracticeSignal = (
+    kind: LearningSignalKind,
+    mode: LearningSignalMode,
+    question: PracticeQuestion | null,
+  ) => {
+    if (!assertLearningSignalKindForMode(mode, kind)) return;
+
+    const authEligiblePersistence = getLearningSignalPersistence({
+      isSignedIn: Boolean(user?.uid),
+    });
+    // PR-K1A has no durable save path. Do not mark a signal saved merely
+    // because the learner is signed in; future persistence work must flip
+    // HAS_DURABLE_QUICK_PRACTICE_SIGNAL_PATH only after a real save exists.
+    const isLocalOnly =
+      authEligiblePersistence === "local-only" ||
+      !HAS_DURABLE_QUICK_PRACTICE_SIGNAL_PATH;
+    const source: LearningSignal["source"] =
+      kind === "solution_viewed" ? "solution" : "practice";
+
+    setQuickPracticeSignals((prev) => [
+      ...prev,
+      {
+        id: `${kind}-${question?.id ?? "run"}-${Date.now()}-${Math.random()
+          .toString(36)
+          .slice(2, 8)}`,
+        kind,
+        source,
+        evidenceType: kind === "next_action_clicked" ? "navigation" : "learner_action",
+        isLocalOnly,
+        createdAt: new Date().toISOString(),
+        userId: user?.uid,
+        subject: quickPracticePanel?.subject ?? scope.subject,
+        topicSlug:
+          quickPracticePanel?.sourceTopicSlug ?? scope.topicSlug ?? undefined,
+        topicSlugs:
+          scope.scope === "multi-topic" && scope.selectedTopicSlugs.length > 0
+            ? scope.selectedTopicSlugs
+            : undefined,
+        mode,
+        questionId: question?.id,
+        marksAvailable: question?.marks,
+        sourceRoute: "/practice-hub",
+      },
+    ]);
+  };
+
+  const handleQuickPracticeAttempted = (question: PracticeQuestion) => {
+    const alreadyAttempted = quickPracticeAttemptedIds.has(question.id);
+    setQuickPracticeAttemptedIds((prev) => {
+      const next = new Set(prev);
+      next.add(question.id);
+      return next;
+    });
+    if (!alreadyAttempted) {
+      appendQuickPracticeSignal("question_answered", "quick-practice", question);
+    }
+  };
+
+  const handleQuickPracticeShowSolution = (question: PracticeQuestion) => {
+    const solutionParts = getQuickPracticeSolutionParts(question);
+    const alreadyVisible = quickPracticeSolutionVisibleIds.has(question.id);
+
+    setQuickPracticeSolutionVisibleIds((prev) => {
+      const next = new Set(prev);
+      next.add(question.id);
+      return next;
+    });
+
+    if (solutionParts.length > 0 && !alreadyVisible) {
+      appendQuickPracticeSignal("solution_viewed", "solution-reveal", question);
+    }
+  };
+
+  const handleQuickPracticeNext = (question: PracticeQuestion) => {
+    appendQuickPracticeSignal("next_action_clicked", "quick-practice", question);
+    setCurrentQuickPracticeIndex((prev) =>
+      Math.min(prev + 1, Math.max(quickPracticePanel?.questions.length ?? 1, 1) - 1),
+    );
+  };
+
+  const handleQuickPracticeExitRun = (question?: PracticeQuestion) => {
+    if (question) {
+      appendQuickPracticeSignal("next_action_clicked", "quick-practice", question);
+    }
+    setQuickPracticePanel(null);
+    resetQuickPracticeRunState();
+  };
 
   // Real mistake intelligence — last 7 days for the signed-in uid only.
   const [mistakes, setMistakes] = useState<MistakeLogEntry[]>([]);
@@ -1732,6 +1869,7 @@ export default function DesktopPracticePage() {
   // secondary "Continue in full practice engine" CTA inside the panel.
   const handleStartQuickPractice = () => {
     if (!validScope) return;
+    resetQuickPracticeRunState();
     let sourceTopicSlug: string | null = null;
     let sourceTopicName: string | null = null;
     let scopeLabel = "";
@@ -1787,6 +1925,7 @@ export default function DesktopPracticePage() {
   // for a different topic would be misleading.
   useEffect(() => {
     setQuickPracticePanel(null);
+    resetQuickPracticeRunState();
   }, [scope.subject, scope.stream, scope.scope, scope.topicSlug, scope.selectedTopicSlugs]);
 
   // Blueprint preview source: chosen single topic, first selected topic of a
@@ -2297,7 +2436,7 @@ export default function DesktopPracticePage() {
                   </div>
                   <button
                     type="button"
-                    onClick={() => setQuickPracticePanel(null)}
+                    onClick={() => handleQuickPracticeExitRun()}
                     style={{
                       appearance: "none",
                       WebkitAppearance: "none",
@@ -2317,106 +2456,448 @@ export default function DesktopPracticePage() {
                 </div>
 
                 {quickPracticePanel.questions.length > 0 ? (
-                  <ol
-                    start={1}
-                    style={{
-                      listStyle: "decimal",
-                      margin: 0,
-                      padding: 0,
-                      paddingLeft: 22,
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: 8,
-                    }}
-                  >
-                    {quickPracticePanel.questions.map((q) => (
-                      <li
-                        key={q.id}
+                  (() => {
+                    const activeQuestion =
+                      quickPracticePanel.questions[
+                        Math.min(
+                          currentQuickPracticeIndex,
+                          quickPracticePanel.questions.length - 1,
+                        )
+                      ] ?? quickPracticePanel.questions[0];
+
+                    if (!activeQuestion) return null;
+
+                    const answerDraft =
+                      quickPracticeAnswerDrafts[activeQuestion.id] ?? "";
+                    const attempted = quickPracticeAttemptedIds.has(activeQuestion.id);
+                    const solutionVisible = quickPracticeSolutionVisibleIds.has(
+                      activeQuestion.id,
+                    );
+                    const solutionParts = getQuickPracticeSolutionParts(activeQuestion);
+                    const isLastQuestion =
+                      currentQuickPracticeIndex >= quickPracticePanel.questions.length - 1;
+
+                    return (
+                      <div
                         style={{
-                          background: PILL_BG,
-                          border: `1px solid ${BORDER}`,
-                          borderRadius: 10,
-                          padding: "10px 12px",
-                          listStylePosition: "outside",
+                          display: "grid",
+                          gridTemplateColumns:
+                            "minmax(0, 1.6fr) minmax(260px, 0.8fr)",
+                          gap: 14,
                         }}
                       >
-                        <div
+                        <article
                           style={{
+                            background: PILL_BG,
+                            border: `1px solid ${BORDER}`,
+                            borderRadius: 12,
+                            padding: 14,
                             display: "flex",
-                            flexWrap: "wrap",
-                            gap: 6,
-                            marginBottom: 6,
+                            flexDirection: "column",
+                            gap: 12,
                           }}
                         >
-                          <span
+                          <div
                             style={{
-                              padding: "2px 8px",
-                              borderRadius: 999,
-                              background: CARD_BG,
-                              border: `1px solid ${BORDER}`,
-                              fontSize: 10.5,
-                              color: TEXT_MUTED,
-                              fontWeight: 700,
-                              letterSpacing: "0.04em",
-                              textTransform: "uppercase",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                              flexWrap: "wrap",
+                              gap: 8,
                             }}
                           >
-                            Section {q.section} · {q.marks}m
-                          </span>
-                          <span
+                            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                              <span
+                                style={{
+                                  padding: "2px 8px",
+                                  borderRadius: 999,
+                                  background: CARD_BG,
+                                  border: `1px solid ${BORDER}`,
+                                  fontSize: 10.5,
+                                  color: TEXT_MUTED,
+                                  fontWeight: 700,
+                                  letterSpacing: "0.04em",
+                                  textTransform: "uppercase",
+                                }}
+                              >
+                                Question {currentQuickPracticeIndex + 1} of{" "}
+                                {quickPracticePanel.questions.length}
+                              </span>
+                              <span
+                                style={{
+                                  padding: "2px 8px",
+                                  borderRadius: 999,
+                                  background: CARD_BG,
+                                  border: `1px solid ${BORDER}`,
+                                  fontSize: 10.5,
+                                  color: TEXT_MUTED,
+                                  fontWeight: 700,
+                                  letterSpacing: "0.04em",
+                                  textTransform: "uppercase",
+                                }}
+                              >
+                                Section {activeQuestion.section} · {activeQuestion.marks}m
+                              </span>
+                              <span
+                                style={{
+                                  padding: "2px 8px",
+                                  borderRadius: 999,
+                                  background: CARD_BG,
+                                  border: `1px solid ${BORDER}`,
+                                  fontSize: 10.5,
+                                  color: TEXT_MUTED,
+                                  fontWeight: 600,
+                                }}
+                              >
+                                {activeQuestion.format}
+                              </span>
+                              <span
+                                style={{
+                                  padding: "2px 8px",
+                                  borderRadius: 999,
+                                  background: CARD_BG,
+                                  border: `1px solid ${BORDER}`,
+                                  fontSize: 10.5,
+                                  color: TEXT_MUTED,
+                                  fontWeight: 600,
+                                }}
+                              >
+                                {activeQuestion.difficulty}
+                              </span>
+                              {activeQuestion.subtopic ? (
+                                <span
+                                  style={{
+                                    padding: "2px 8px",
+                                    borderRadius: 999,
+                                    background: CARD_BG,
+                                    border: `1px solid ${BORDER}`,
+                                    fontSize: 10.5,
+                                    color: TEXT_MUTED,
+                                    fontWeight: 600,
+                                  }}
+                                >
+                                  {activeQuestion.subtopic}
+                                </span>
+                              ) : null}
+                            </div>
+                            {attempted ? (
+                              <span
+                                style={{
+                                  padding: "3px 9px",
+                                  borderRadius: 999,
+                                  background: PRIMARY_GREEN_SOFT,
+                                  color: PRIMARY_GREEN_DARK,
+                                  border: `1px solid ${PRIMARY_GREEN_RING}`,
+                                  fontSize: 11,
+                                  fontWeight: 700,
+                                }}
+                              >
+                                Attempt marked
+                              </span>
+                            ) : null}
+                          </div>
+
+                          <div
                             style={{
-                              padding: "2px 8px",
-                              borderRadius: 999,
+                              fontSize: 14,
+                              color: TEXT_FG,
+                              lineHeight: 1.55,
                               background: CARD_BG,
                               border: `1px solid ${BORDER}`,
-                              fontSize: 10.5,
-                              color: TEXT_MUTED,
-                              fontWeight: 600,
+                              borderRadius: 10,
+                              padding: 12,
                             }}
                           >
-                            {q.format}
-                          </span>
-                          <span
-                            style={{
-                              padding: "2px 8px",
-                              borderRadius: 999,
-                              background: CARD_BG,
-                              border: `1px solid ${BORDER}`,
-                              fontSize: 10.5,
-                              color: TEXT_MUTED,
-                              fontWeight: 600,
-                            }}
-                          >
-                            {q.difficulty}
-                          </span>
-                          {q.subtopic ? (
-                            <span
+                            {activeQuestion.questionText}
+                          </div>
+
+                          {Array.isArray(activeQuestion.options) &&
+                          activeQuestion.options.length > 0 ? (
+                            <ul
                               style={{
-                                padding: "2px 8px",
-                                borderRadius: 999,
-                                background: CARD_BG,
-                                border: `1px solid ${BORDER}`,
-                                fontSize: 10.5,
-                                color: TEXT_MUTED,
-                                fontWeight: 600,
+                                margin: 0,
+                                paddingLeft: 18,
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: 4,
+                                fontSize: 12.5,
+                                color: TEXT_FG,
                               }}
                             >
-                              {q.subtopic}
-                            </span>
+                              {activeQuestion.options.map((option, optionIndex) => (
+                                <li key={`${activeQuestion.id}-option-${optionIndex}`}>
+                                  {option}
+                                </li>
+                              ))}
+                            </ul>
                           ) : null}
-                        </div>
-                        <div
+
+                          <label
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: 6,
+                              fontSize: 12,
+                              fontWeight: 700,
+                              color: TEXT_FG,
+                            }}
+                          >
+                            Your working
+                            <textarea
+                              value={answerDraft}
+                              onChange={(event) =>
+                                setQuickPracticeAnswerDrafts((prev) => ({
+                                  ...prev,
+                                  [activeQuestion.id]: event.target.value,
+                                }))
+                              }
+                              placeholder="Type your working here. This stays local in PR-K1A."
+                              rows={4}
+                              style={{
+                                width: "100%",
+                                resize: "vertical",
+                                border: `1px solid ${BORDER}`,
+                                borderRadius: 10,
+                                padding: 10,
+                                fontFamily: FONT_BODY,
+                                fontSize: 13,
+                                color: TEXT_FG,
+                                background: CARD_BG,
+                                outline: "none",
+                                boxSizing: "border-box",
+                              }}
+                            />
+                          </label>
+
+                          {solutionVisible ? (
+                            solutionParts.length > 0 ? (
+                              <div
+                                style={{
+                                  background: CARD_BG,
+                                  border: `1px solid ${PRIMARY_GREEN_RING}`,
+                                  borderRadius: 10,
+                                  padding: 12,
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  gap: 8,
+                                }}
+                              >
+                                <strong style={{ fontSize: 12.5, color: TEXT_FG }}>
+                                  Solution / explanation from the real question row
+                                </strong>
+                                <ol
+                                  style={{
+                                    margin: 0,
+                                    paddingLeft: 18,
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    gap: 6,
+                                    fontSize: 12.5,
+                                    color: TEXT_FG,
+                                    lineHeight: 1.5,
+                                  }}
+                                >
+                                  {solutionParts.map((part, partIndex) => (
+                                    <li key={`${activeQuestion.id}-solution-${partIndex}`}>
+                                      {part}
+                                    </li>
+                                  ))}
+                                </ol>
+                              </div>
+                            ) : (
+                              <div
+                                style={{
+                                  background: CARD_BG,
+                                  border: `1px dashed ${BORDER}`,
+                                  borderRadius: 10,
+                                  padding: 12,
+                                  fontSize: 12.5,
+                                  color: TEXT_MUTED,
+                                  lineHeight: 1.5,
+                                }}
+                              >
+                                Solution is not available for this question yet.
+                              </div>
+                            )
+                          ) : null}
+
+                          <div
+                            style={{
+                              display: "flex",
+                              flexWrap: "wrap",
+                              gap: 8,
+                              alignItems: "center",
+                            }}
+                          >
+                            <button
+                              type="button"
+                              onClick={() => handleQuickPracticeAttempted(activeQuestion)}
+                              style={{
+                                appearance: "none",
+                                WebkitAppearance: "none",
+                                border: "none",
+                                background: PRIMARY_GREEN,
+                                color: "#fff",
+                                padding: "8px 12px",
+                                borderRadius: 10,
+                                fontSize: "0.8rem",
+                                fontWeight: 700,
+                                cursor: "pointer",
+                              }}
+                            >
+                              Mark as attempted
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleQuickPracticeShowSolution(activeQuestion)}
+                              style={{
+                                appearance: "none",
+                                WebkitAppearance: "none",
+                                border: `1px solid ${BORDER}`,
+                                background: CARD_BG,
+                                color: TEXT_FG,
+                                padding: "8px 12px",
+                                borderRadius: 10,
+                                fontSize: "0.8rem",
+                                fontWeight: 700,
+                                cursor: "pointer",
+                              }}
+                            >
+                              {solutionVisible ? "Solution shown" : "Show solution"}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleQuickPracticeNext(activeQuestion)}
+                              disabled={isLastQuestion}
+                              style={{
+                                appearance: "none",
+                                WebkitAppearance: "none",
+                                border: `1px solid ${BORDER}`,
+                                background: isLastQuestion ? PILL_BG : CARD_BG,
+                                color: isLastQuestion ? TEXT_MUTED : TEXT_FG,
+                                padding: "8px 12px",
+                                borderRadius: 10,
+                                fontSize: "0.8rem",
+                                fontWeight: 700,
+                                cursor: isLastQuestion ? "not-allowed" : "pointer",
+                              }}
+                            >
+                              Next question
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleQuickPracticeExitRun(activeQuestion)}
+                              style={{
+                                appearance: "none",
+                                WebkitAppearance: "none",
+                                border: `1px solid ${BORDER}`,
+                                background: "transparent",
+                                color: TEXT_MUTED,
+                                padding: "8px 12px",
+                                borderRadius: 10,
+                                fontSize: "0.8rem",
+                                fontWeight: 700,
+                                cursor: "pointer",
+                              }}
+                            >
+                              Exit run
+                            </button>
+                          </div>
+                        </article>
+
+                        <aside
                           style={{
-                            fontSize: 13,
-                            color: TEXT_FG,
-                            lineHeight: 1.5,
+                            background: CARD_BG,
+                            border: `1px solid ${BORDER}`,
+                            borderRadius: 12,
+                            padding: 14,
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 10,
+                            alignSelf: "start",
                           }}
+                          aria-label="Learning signal summary"
                         >
-                          {q.questionText}
-                        </div>
-                      </li>
-                    ))}
-                  </ol>
+                          <div>
+                            <div
+                              style={{
+                                fontSize: 10,
+                                fontWeight: 800,
+                                letterSpacing: "0.08em",
+                                textTransform: "uppercase",
+                                color: PRIMARY_GREEN_DARK,
+                              }}
+                            >
+                              Learning Signal
+                            </div>
+                            <h4
+                              style={{
+                                margin: "2px 0 0 0",
+                                fontFamily: FONT_DISPLAY,
+                                fontSize: "1rem",
+                                color: TEXT_FG,
+                              }}
+                            >
+                              Local-only run signals
+                            </h4>
+                          </div>
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: 6,
+                              fontSize: 12,
+                              color: TEXT_FG,
+                              lineHeight: 1.45,
+                            }}
+                          >
+                            <span>Signals in this run: {quickPracticeSignals.length}</span>
+                            <span style={{ color: TEXT_MUTED }}>
+                              Local-only · not saved yet · does not count as mastery.
+                            </span>
+                            <span style={{ color: TEXT_MUTED }}>
+                              Quick Practice does not grade answers or log mistakes in PR-K1A.
+                            </span>
+                          </div>
+                          {quickPracticeSignals.length > 0 ? (
+                            <ul
+                              style={{
+                                margin: 0,
+                                paddingLeft: 18,
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: 6,
+                                fontSize: 11.5,
+                                color: TEXT_FG,
+                                lineHeight: 1.45,
+                              }}
+                            >
+                              {quickPracticeSignals.slice(-4).map((signal) => (
+                                <li key={signal.id}>
+                                  <strong>{signal.kind}</strong>
+                                  <br />
+                                  <span style={{ color: TEXT_MUTED }}>
+                                    {LEARNING_SIGNAL_HONESTY_RULES[signal.kind].summary}
+                                  </span>
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <span
+                              style={{
+                                fontSize: 11.5,
+                                color: TEXT_MUTED,
+                                lineHeight: 1.45,
+                              }}
+                            >
+                              Mark an attempt or reveal a real solution to create a local
+                              signal.
+                            </span>
+                          )}
+                        </aside>
+                      </div>
+                    );
+                  })()
                 ) : (
                   <div
                     style={{
@@ -2462,6 +2943,13 @@ export default function DesktopPracticePage() {
                   {quickPracticePath ? (
                     <Link
                       to={quickPracticePath}
+                      onClick={() =>
+                        appendQuickPracticeSignal(
+                          "next_action_clicked",
+                          "quick-practice",
+                          quickPracticePanel.questions[currentQuickPracticeIndex] ?? null,
+                        )
+                      }
                       style={{
                         background: PRIMARY_GREEN,
                         color: "#fff",
