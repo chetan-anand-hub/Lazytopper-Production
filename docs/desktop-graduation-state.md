@@ -1,6 +1,6 @@
 # LazyTopper Desktop Graduation State
 
-Last updated: 2026-05-01
+Last updated: 2026-05-03
 
 This document is the durable handoff and operating-rule document for LazyTopper desktop graduation. Read this from GitHub at the start of every GPT session or Replit task, then verify live GitHub state directly before acting.
 
@@ -8,7 +8,8 @@ This document is the durable handoff and operating-rule document for LazyTopper 
 
 - Product repo: `chetan-anand-hub/Lazytopper-Production`
 - Active integration branch: `base/approved-thru-437`
-- Current confirmed product base after PR-I4D / PR #44 merge: `533fba1e82819be3966e2b25824575bba6df03b4`
+- Current confirmed product base after PR-K1A / PR #49 merge: `7104cb132979b0e2b3686c4c7f823cc06fe84907`
+- Previous confirmed product base after PR-K0 / PR #48 merge: `408d9eebbba70c423d76b6209e64622ce6c8f4da`
 - Previous confirmed product base after PR-I4C / PR #43 merge: `0ca7cd63d43f99bfe9ce31662694a61772bc424d`
 - Previous confirmed product base after PR-I4B.1 / PR #42 merge: `2f9fab7b1c5727d7c62975e002f24c859bdfd4d9`
 - Previous confirmed product base after PR-I4A / PR #40 merge: `4d3abb2230613f693c18aaa69b57d72b2a538020`
@@ -27,6 +28,41 @@ This document is the durable handoff and operating-rule document for LazyTopper 
 GitHub origin is the source of truth. Replit local workspace, local checkpoint commits, preview-only edits, task snapshots, and Replit "Ready for review" state are not product state unless pushed to GitHub and reviewed as a PR. A Replit dev preview URL is valid only when it is provably serving the exact PR branch and head SHA being audited; otherwise treat it as stale.
 
 ## Current status summary
+
+<!-- PR-K0-K1A-UPDATE-START -->
+This update brings the desktop graduation / K-series state current through PR-K1A / PR #49.
+
+- PR-K0 / PR #48 is merged. It added the Learning Signal contract:
+  - `lazytopper/src/lib/desktop/learningSignals.ts`
+  - `docs/audits/pr-k0-contract-notes.md`
+- PR-K1A / PR #49 is merged at `7104cb132979b0e2b3686c4c7f823cc06fe84907`.
+- PR-K1A changed exactly one product file:
+  - `lazytopper/src/pages/desktop/DesktopPracticePage.tsx`
+- PR-K1A upgraded the existing in-page Quick Practice panel into a Level-3 execution loop:
+  - one-question-at-a-time execution
+  - local answer working textarea
+  - Mark as attempted
+  - Show solution from real `solutionSteps`, `explanation`, `finalAnswer`, or `answer` fields only
+  - local-only Learning Signal panel
+  - no persistence
+  - no fake mastery
+  - no fake score
+  - no fake weak areas
+  - no fake Mistake Intel
+  - no fake saved history
+  - no fake generated question content
+  - no fake solution content
+  - full Practice engine fallback preserved
+- Browser Agent QA for PR-K0 + PR-K1A: PASS.
+- Build / verifier gate for PR-K1A: PASS. `node scripts/verify-production-build.mjs` reported 8 passed / 0 failed.
+- Non-blocking follow-ups:
+  - Query URL did not preselect Trigonometry; manual topic chip selection was required.
+  - Continue in full practice engine redirects to login; expected for auth-gated route, but signed-out copy could be clearer.
+  - Chunk-size warning remains a performance/code-splitting follow-up, not a PR-K1A blocker.
+- Next recommended stage:
+  - PR-K2: Worksheet Level-3 execution/save/upload loop using the Learning Signal contract.
+  - Optional before K2: PR-K1B small polish for query preselection and signed-out fallback copy.
+<!-- PR-K0-K1A-UPDATE-END -->
 
 This update brings the desktop graduation state current through PR-I4D / PR #44.
 
