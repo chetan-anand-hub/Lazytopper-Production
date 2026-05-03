@@ -172,3 +172,4 @@ _rollback/**
 /tsc_noemit_stdout.txt
 /tsc_noemit_stderr.txt
 /set
+.env.local
