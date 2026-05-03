@@ -143,10 +143,13 @@ function RootEntry() {
     return <Navigate to="/welcome" replace />;
   }
 
-  // Desktop graduation: the signed-out desktop entry is now the calm
-  // cockpit/home surface, matching the Lovable /app reference. Auth-specific
-  // prompts still happen inside downstream actions and Login.tsx.
-  return withRouteSuspense(<DesktopHome />);
+  // Desktop: signed-in users see the DesktopHome cockpit,
+  // signed-out users see the Welcome landing page.
+  if (user) {
+    return withRouteSuspense(<DesktopHome />);
+  } else {
+    return withRouteSuspense(<Welcome />);
+  }
 }
 
 /**
@@ -332,11 +335,12 @@ function BottomNav() {
  *
  * Mobile width (<1024px) is unchanged for every route, including "/".
  */
-function isDesktopShellRoute(pathname: string, _hasSession: boolean = true): boolean {
-  // Desktop graduation: "/" and "/welcome" both use the desktop cockpit shell
-  // at desktop width so signed-out entry aligns with the Lovable /app home.
-  if (pathname === "/") return true;
-  if (pathname === "/welcome") return true;
+function isDesktopShellRoute(pathname: string, hasSession: boolean = true): boolean {
+  // "/" shell-wraps only when signed in (hasSession), so signed-out Welcome landing
+  // remains public (not wrapped in DesktopShell).
+  if (pathname === "/" && hasSession) return true;
+  // "/welcome" is always a public landing page, never shell-wrapped.
+  if (pathname === "/welcome") return false;
   // Desktop Phase 2 — exact "/practice-hub" only. No nested practice paths,
   // no other future destinations (/check-improve, /me, /topic-hub,
   // /topic-hub/*) are added in this phase.
@@ -648,7 +652,7 @@ export default function App() {
               signed-in/local-session desktop → DesktopHome cockpit
               (shell-wrapped above), mobile → HomeRedirect. */}
           <Route path="/" element={<RootEntry />} />
-          <Route path="/welcome" element={isDesktop ? withRouteSuspense(<DesktopHome />) : <Welcome />} />
+          <Route path="/welcome" element={<Welcome />} />
           <Route path="/login" element={<Login />} />
           <Route path="/login/*" element={<Login />} />
           <Route path="/sign-up" element={<SignUpPage />} />
