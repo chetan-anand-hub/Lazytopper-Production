@@ -1644,6 +1644,7 @@ function getQuickPracticeSolutionParts(question: PracticeQuestion): string[] {
 
 export default function DesktopPracticePage() {
   const navigate = useNavigate();
+  const [params] = useSearchParams();
   const { user } = useAuth();
   const { grade, subject } = useSubjectContext();
   const isSignedIn = !!user;
@@ -1661,6 +1662,80 @@ export default function DesktopPracticePage() {
     topicSlug: null,
     selectedTopicSlugs: [],
   });
+
+  // PR-K1B — Apply URL query parameters on mount to preselect context.
+  // Supports: ?subject=Maths|Science &scope=topic|multi-topic|full-subject
+  // &topic=slug (single topic) &topics=slug1,slug2 (multi-topic)
+  // &stream=All|Physics|Chemistry|Biology (Science only).
+  // Validates against production topic catalogue and falls back gracefully
+  // to component defaults if any param is malformed.
+  useEffect(() => {
+    const urlSubject = params.get("subject");
+    const urlScope = params.get("scope");
+    const urlTopic = params.get("topic");
+    const urlTopics = params.get("topics");
+    const urlStream = params.get("stream");
+
+    // Only proceed if there are URL params to process.
+    if (!urlSubject && !urlScope && !urlTopic && !urlTopics && !urlStream) {
+      return;
+    }
+
+    const parsedSubject = urlSubject === "Science" ? "Science" : "Maths";
+    const parsedStream =
+      parsedSubject === "Science" && ["Physics", "Chemistry", "Biology"].includes(urlStream ?? "")
+        ? urlStream as DesktopStream
+        : "All";
+
+    let newScope: DesktopScopeValue = {
+      subject: parsedSubject,
+      stream: parsedStream,
+      scope: "topic",
+      topicSlug: null,
+      selectedTopicSlugs: [],
+    };
+
+    // Normalize and validate scope kind.
+    const scopeKind = urlScope as DesktopScopeValue["scope"] | undefined;
+    if (scopeKind === "multi-topic" || scopeKind === "full-subject" || scopeKind === "topic") {
+      newScope.scope = scopeKind;
+    }
+
+    // Handle single topic (scope=topic, topic=slug).
+    if (newScope.scope === "topic" && urlTopic) {
+      const resolvedTopic = desktopTopicBySlug(urlTopic);
+      if (resolvedTopic && resolvedTopic.subject === parsedSubject) {
+        newScope.topicSlug = resolvedTopic.slug;
+      }
+    }
+
+    // Handle multi-topic (scope=multi-topic, topics=slug1,slug2).
+    if (newScope.scope === "multi-topic" && urlTopics) {
+      const topicSlugs = urlTopics
+        .split(",")
+        .map((t) => t.trim())
+        .filter((t) => t.length > 0);
+      const validSlugs: string[] = [];
+      for (const slug of topicSlugs) {
+        const resolved = desktopTopicBySlug(slug);
+        if (resolved && resolved.subject === parsedSubject) {
+          validSlugs.push(resolved.slug);
+        }
+      }
+      if (validSlugs.length > 0) {
+        newScope.selectedTopicSlugs = validSlugs;
+      } else {
+        // Fall back to single-topic scope if no valid topics found.
+        newScope.scope = "topic";
+      }
+    }
+
+    // full-subject scope requires no validation — just accept it.
+    // Topic/stream mismatch: if a topic was passed for a different subject,
+    // it stays null/empty (honest fallback).
+
+    setScope(newScope);
+  }, []); // Run once on mount to parse initial URL params.
 
   // Parity options (local UI checkboxes).
   const [worksheetMistakeMini, setWorksheetMistakeMini] = useState(false);
@@ -2816,7 +2891,7 @@ export default function DesktopPracticePage() {
                             gap: 10,
                             alignSelf: "start",
                           }}
-                          aria-label="Learning signal summary"
+                          aria-label="This practice run summary"
                         >
                           <div>
                             <div
@@ -2828,7 +2903,7 @@ export default function DesktopPracticePage() {
                                 color: PRIMARY_GREEN_DARK,
                               }}
                             >
-                              Learning Signal
+                              This practice run
                             </div>
                             <h4
                               style={{
@@ -2838,7 +2913,7 @@ export default function DesktopPracticePage() {
                                 color: TEXT_FG,
                               }}
                             >
-                              Local-only run signals
+                              Local activity summary
                             </h4>
                           </div>
                           <div
@@ -2967,9 +3042,9 @@ export default function DesktopPracticePage() {
                     </Link>
                   ) : null}
                   <span style={{ fontSize: 11, color: TEXT_MUTED }}>
-                    Questions above are real rows from the production bank — no
-                    placeholders. Continuing opens the existing /practice
-                    engine with the same scope.
+                    {isSignedIn
+                      ? "Opens the existing /practice engine with this scope."
+                      : "Quick Practice runs locally here. The full engine may ask you to sign in — signing in starts your free trial and saves future attempts to your profile."}
                   </span>
                 </div>
               </section>
