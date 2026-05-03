@@ -8,7 +8,9 @@ This document is the durable handoff and operating-rule document for LazyTopper 
 
 - Product repo: `chetan-anand-hub/Lazytopper-Production`
 - Active integration branch: `base/approved-thru-437`
-- Current confirmed product base after PR-K1A / PR #49 merge: `7104cb132979b0e2b3686c4c7f823cc06fe84907`
+- Current confirmed product base after PR-K1C / PR #52 merge: `02fba1e140a70b717a9f5ae959955296693ea6e9`
+- Previous confirmed product base after PR-K1B / PR #51 merge: `4e083ecf0a7e47f166ac916e91abddb7e3a1fc81`
+- Previous confirmed product base after PR-K1A / PR #49 merge: `7104cb132979b0e2b3686c4c7f823cc06fe84907`
 - Previous confirmed product base after PR-K0 / PR #48 merge: `408d9eebbba70c423d76b6209e64622ce6c8f4da`
 - Previous confirmed product base after PR-I4C / PR #43 merge: `0ca7cd63d43f99bfe9ce31662694a61772bc424d`
 - Previous confirmed product base after PR-I4B.1 / PR #42 merge: `2f9fab7b1c5727d7c62975e002f24c859bdfd4d9`
@@ -30,15 +32,12 @@ GitHub origin is the source of truth. Replit local workspace, local checkpoint c
 ## Current status summary
 
 <!-- PR-K0-K1A-UPDATE-START -->
-This update brings the desktop graduation / K-series state current through PR-K1A / PR #49.
+This update brings the desktop graduation / K-series state current through PR-K1C / PR #52.
 
 - PR-K0 / PR #48 is merged. It added the Learning Signal contract:
   - `lazytopper/src/lib/desktop/learningSignals.ts`
   - `docs/audits/pr-k0-contract-notes.md`
-- PR-K1A / PR #49 is merged at `7104cb132979b0e2b3686c4c7f823cc06fe84907`.
-- PR-K1A changed exactly one product file:
-  - `lazytopper/src/pages/desktop/DesktopPracticePage.tsx`
-- PR-K1A upgraded the existing in-page Quick Practice panel into a Level-3 execution loop:
+- PR-K1A / PR #49 is merged. It upgraded the existing in-page Quick Practice panel into a Level-3 execution loop:
   - one-question-at-a-time execution
   - local answer working textarea
   - Mark as attempted
@@ -53,15 +52,59 @@ This update brings the desktop graduation / K-series state current through PR-K1
   - no fake generated question content
   - no fake solution content
   - full Practice engine fallback preserved
-- Browser Agent QA for PR-K0 + PR-K1A: PASS.
-- Build / verifier gate for PR-K1A: PASS. `node scripts/verify-production-build.mjs` reported 8 passed / 0 failed.
-- Non-blocking follow-ups:
-  - Query URL did not preselect Trigonometry; manual topic chip selection was required.
-  - Continue in full practice engine redirects to login; expected for auth-gated route, but signed-out copy could be clearer.
-  - Chunk-size warning remains a performance/code-splitting follow-up, not a PR-K1A blocker.
+- Browser Agent QA for PR-K0 + PR-K1A: `PASS`.
+- Build / verifier gate for PR-K1A: `PASS`. `node scripts/verify-production-build.mjs` reported 8 passed / 0 failed.
+- PR-K1B / PR #51 is merged at `4e083ecf0a7e47f166ac916e91abddb7e3a1fc81`.
+- PR-K1B changed exactly one product file:
+  - `lazytopper/src/pages/desktop/DesktopPracticePage.tsx`
+- PR-K1B repaired / polished Practice context:
+  - query preselection for Practice hub context
+  - subject / scope / topic context propagation
+  - Maths vs Science context correctness
+  - signed-out full Practice fallback copy
+  - removed student-facing technical “Learning Signal” language from normal Practice UI
+  - preserved PR-K1A Quick Practice Level-3 loop
+- PR-K1B Browser QA: `PASS WITH FOLLOW-UP`.
+- PR-K1B follow-up note:
+  - Browser Agent could not reliably test some Codespaces alias / mismatch URLs because Codespaces forwarding produced access / certificate / gateway errors. This was classified as preview-access limitation, not product failure.
+  - User manually verified the Practice hub loaded from the Codespaces preview.
+- PR-K1C / PR #52 is merged at `02fba1e140a70b717a9f5ae959955296693ea6e9`.
+- PR-K1C changed:
+  - `lazytopper/src/App.tsx`
+  - `lazytopper/.gitignore`
+- PR-K1C restored public landing connectivity:
+  - signed-out desktop public entry shows `Welcome` landing instead of `DesktopHome` cockpit
+  - `/welcome` renders `Welcome` on desktop and mobile
+  - public landing is not wrapped in `DesktopShell`
+  - signed-in desktop root can still show `DesktopHome` cockpit
+  - real production Login / Clerk auth connectivity is preserved
+  - existing desktop app routes remain unchanged
+  - PR-K1B Practice context routes are preserved
+  - `.env.local` is protected in `.gitignore` so local Clerk publishable-key files are not committed
+- PR-K1C Browser QA: `PASS WITH FOLLOW-UP`.
+- PR-K1C QA confirmed:
+  - `/app/` shows public Welcome landing, no DesktopShell sidebar
+  - `/app/welcome` shows public Welcome landing, no DesktopShell sidebar
+  - Start free trial routes to real Clerk Login
+  - Log in routes to real Clerk Login
+  - `/app/practice-hub` still loads desktop Practice
+  - `/app/check-improve` still loads
+  - `/app/me` loads with honest sign-in / empty-progress state
+  - no fake progress, fake mastery, fake learner mistake history, or hidden persistence was observed
+- PR-K1C follow-ups:
+  - K1B query route may still need a chip-selection polish if direct query preselection intermittently requires one click after local state caching.
+  - `/app/me` shell context should be clarified in a later route/shell consistency pass if direct-load behaviour differs from sidebar navigation.
+  - Development hot-reload / cache blank screens are preview-environment follow-ups, not product blockers.
+- Permanent preview / QA rule added:
+  - Visible UI PRs still require live output QA.
+  - Preferred preview is a deployed public URL that does not require Codespaces forwarding.
+  - Acceptable previews include Lovable / Vercel / Netlify-style public URLs.
+  - Codespaces forwarded URLs are acceptable for manual human QA, but Browser Agent may be unreliable because of certificate, port, forwarding, login, or safe-browsing limits.
+  - If Browser Agent cannot access a Codespaces URL, classify it as `INCONCLUSIVE — preview access limitation`, not as a product failure.
 - Next recommended stage:
-  - PR-K2: Worksheet Level-3 execution/save/upload loop using the Learning Signal contract.
-  - Optional before K2: PR-K1B small polish for query preselection and signed-out fallback copy.
+  - Docs-only update after PR-K1B / PR-K1C.
+  - Then PR-K2A — Worksheet profile-save contract/helper.
+  - Do not start K2A from stale Replit/Codespaces state; verify live GitHub base first.
 <!-- PR-K0-K1A-UPDATE-END -->
 
 This update brings the desktop graduation state current through PR-I4D / PR #44.
@@ -89,14 +132,24 @@ This update brings the desktop graduation state current through PR-I4D / PR #44.
 Recommended next actions:
 
 1. Merge this docs-only update after user approval.
-2. PR-K0 — Learning Signal / Me / Mistake Intel data contract. Define the honest data contract connecting Check & Improve, Practice attempts, Worksheet outputs, mistake logs, Me / Progress, Mistake Intel, and Next Action recommendations.
-3. PR-K1 — Practice Level-3 execution and output loop. Preserve existing real practice engines; connect outputs into the learning-signal contract.
-4. PR-K2 — Worksheet Level-3 output loop. Preserve existing worksheet builder/saved worksheet capability; clarify attempt/save/output story.
-5. PR-K3 — Topic Hub quick-hand + Tutor Drawer integration. Adapt existing `TutorDrawerV2` / `TeachFlow` rather than rebuilding from scratch.
-6. PR-K4 — HPQ / Chapter Test / Mock execution loop. Preserve existing HPQ/mock engines and add honest output/mistake pathways.
-7. PR-K5 — Me / Progress aggregation. Aggregate only real signals; no fake time-on-practice, fake scores, fake trends, or fake weak areas.
-8. PR-J — Final desktop polish and side-by-side Lovable sweep, including minor follow-ups from PR #44 (chip capitalization, optional dedicated Start Free Trial CTA outside Clerk, and recurring Codespaces preview/proxy instability).
-9. Replit main sync/reset only after a stable GitHub checkpoint or before publishing.
+2. PR-K2A — Worksheet profile-save contract/helper.
+   - Define the signed-in profile-save path for worksheet activity.
+   - Keep local-only worksheet save as signed-out/device fallback only.
+   - Make sure worksheet-generated, worksheet-saved, worksheet-attempted, worksheet-check-started, answer-checked, and mistake-logged are separate honest states.
+   - Do not claim mastery, saved progress, Mistake Intelligence, or Me / Progress updates unless the real saved/profile path exists.
+3. PR-K2B — Worksheet Level-3 learner loop UI:
+   - Generate worksheet → ready → attempt → check answer → see result → next practice.
+   - Preserve Level-2 Worksheet structure and carry subject/scope/topic/source context downstream.
+4. PR-K2C — Missing solution AI fallback:
+   - If stored solution is missing, generate a board-style solution through the AI path.
+   - Render generated and stored solutions in a uniform student-facing format.
+   - Do not claim official CBSE answer or verified database truth unless separately validated.
+5. PR-K3 — Check & Improve source-context integration and real mistake-log bridge.
+6. PR-K4 — Mistake Intelligence from saved checked evidence only.
+7. PR-K5 — Me / Progress real aggregation for the 7-day trial.
+8. PR-K6 — Tutor / examiner quality polish.
+9. PR-J — Final desktop polish and side-by-side Lovable / production sweep.
+10. Replit main sync/reset only after a stable GitHub checkpoint or before publishing.
 
 
 ### PR-I4B.1 / PR #42 — Preserve route context across login redirects
