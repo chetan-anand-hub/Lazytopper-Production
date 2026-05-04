@@ -16,7 +16,7 @@ base/approved-thru-437
 
 Latest confirmed merged checkpoint:
 ```
-7518d2fc4a181472b4dafd1969a41d96eec2ec3
+7518d2fc4a181472b4dafd1969a41d96eec2ec3d
 ```
 
 This is the merge commit after PR #54, which added the permanent handoff SOP folder.
@@ -34,10 +34,24 @@ Purpose:
 - Established the operating rule that every future GPT session must update the handoff folder incrementally before ending.
 
 Merge commit:
-7518d2fc4a181472b4dafd1969a41d96eec2ec3
+7518d2fc4a181472b4dafd1969a41d96eec2ec3d
 
 Head SHA:
 b1bdabeb89caf564e548b9d17b8dd90dbc727962
+
+## Handoff folder status
+
+Status:
+Active and mandatory.
+
+Activated by:
+PR #54 — docs: add handoff SOP folder.
+
+Activation merge commit:
+7518d2fc4a181472b4dafd1969a41d96eec2ec3d
+
+Rule:
+Every future GPT session must update the handoff folder incrementally, including timestamped session learnings.
 
 ## Recently completed
 
