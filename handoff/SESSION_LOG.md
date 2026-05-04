@@ -6,6 +6,28 @@ Newest entries should be added at the top under a dated heading.
 
 ---
 
+## 2026-05-04T18:04:56Z — Handoff roadmap and trackers added
+
+### Completed
+
+- Added `NEXT_ACTION.md` for immediate next task.
+- Added `IMPLEMENTATION_ROADMAP.md` for full K2A → K7 → J sequence.
+- Added `DECISION_LOG.md` for permanent project decisions.
+- Added `OPEN_QUESTIONS_AND_FOLLOWUPS.md` for unresolved issues.
+- Updated `README.md` file map and read order.
+- Updated `CURRENT_STATE.md` to point future sessions to the new handoff structure.
+
+### Session learnings
+
+- The handoff system needs both immediate next action and full roadmap; otherwise future GPT sessions may know K2A but lose the larger K2 → K7 → J sequence.
+- Permanent decisions should not be buried in chronological logs.
+- Open questions/follow-ups need a separate file so they do not become accidental blockers or disappear.
+- Revised Level 3 improvements still have no finalized canonical prototype, so implementation must proceed through product-native specs and QA gates.
+
+### Next safe action
+
+Start PR-K2A only after verifying live base and reading all handoff files.
+
 ## 2026-05-04T17:16:38Z — Handoff timestamp and learning rules added
 
 Timestamp:

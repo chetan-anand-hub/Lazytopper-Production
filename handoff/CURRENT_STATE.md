@@ -16,10 +16,23 @@ base/approved-thru-437
 
 Latest confirmed merged checkpoint:
 ```
-7518d2fc4a181472b4dafd1969a41d96eec2ec3d
+82995d6c7d4ab4bd516076b95ce8aa61cca298a0
 ```
 
-This is the merge commit after PR #54, which added the permanent handoff SOP folder.
+This is the latest base before the current docs handoff expansion.
+
+This handoff expansion now includes:
+- `handoff/NEXT_ACTION.md` for immediate next action
+- `handoff/IMPLEMENTATION_ROADMAP.md` for the full staged implementation sequence
+- `handoff/DECISION_LOG.md` for permanent decisions
+- `handoff/OPEN_QUESTIONS_AND_FOLLOWUPS.md` for unresolved issues
+
+The full roadmap now lives in `handoff/IMPLEMENTATION_ROADMAP.md`.
+The immediate action now lives in `handoff/NEXT_ACTION.md`.
+Permanent decisions now live in `handoff/DECISION_LOG.md`.
+Open issues now live in `handoff/OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+
+This file continues to preserve existing K1B / K1C / K2A content.
 
 ### Handoff SOP PR #54
 
