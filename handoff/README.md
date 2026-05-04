@@ -36,8 +36,17 @@ base/approved-thru-437
 
 Current confirmed base:
 ```
-5a1bab9badb451b95d1d00a344421d5965f691c3
+7518d2fc4a181472b4dafd1969a41d96eec2ec3
 ```
+
+## Current activation status
+
+The handoff folder became active after PR #54 merged into base/approved-thru-437.
+
+Current activation merge commit:
+7518d2fc4a181472b4dafd1969a41d96eec2ec3
+
+From this point forward, every GPT session must update handoff/SESSION_LOG.md before ending, and must update handoff/CURRENT_STATE.md whenever the base SHA, active stage, PR status, QA verdict, or next safe action changes.
 
 **GitHub is source of truth.**
 
