@@ -36,7 +36,7 @@ base/approved-thru-437
 
 Current confirmed base:
 ```
-7518d2fc4a181472b4dafd1969a41d96eec2ec3d
+82995d6c7d4ab4bd516076b95ce8aa61cca298a0
 ```
 
 ## Current activation status
@@ -106,7 +106,6 @@ Before ending a GPT session:
 4. Tell the next GPT session to read the GitHub handoff folder first.
 5. Provide the current base SHA, active branch, open PRs, and next safe action.
 6. Do not rely on ChatGPT memory as handoff.
->>>>>>> 5b3979c (docs: add timestamped handoff learning rules)
 
 **GitHub is source of truth.**
 
@@ -158,7 +157,12 @@ git status --short
    - `docs/desktop-graduation-state.md`
    - `handoff/README.md`
    - `handoff/CURRENT_STATE.md`
+   - `handoff/NEXT_ACTION.md`
+   - `handoff/IMPLEMENTATION_ROADMAP.md`
+   - `handoff/DECISION_LOG.md`
+   - `handoff/OPEN_QUESTIONS_AND_FOLLOWUPS.md`
    - `handoff/SESSION_LOG.md`
+   - `handoff/templates/session-update-template.md`
 
 2. **Verify GitHub:**
    - current base SHA
@@ -202,6 +206,17 @@ git status --short
    - HOLD
 
 10. **Update handoff folder** before ending.
+
+## Handoff file map
+
+- `README.md` — SOP and operating model
+- `CURRENT_STATE.md` — latest checkpoint
+- `NEXT_ACTION.md` — immediate next task
+- `IMPLEMENTATION_ROADMAP.md` — full staged implementation sequence
+- `DECISION_LOG.md` — permanent decisions
+- `OPEN_QUESTIONS_AND_FOLLOWUPS.md` — unresolved issues
+- `SESSION_LOG.md` — timestamped session diary
+- `templates/session-update-template.md` — update template
 
 ## Preview and QA rule
 

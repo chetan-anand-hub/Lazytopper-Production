@@ -62,6 +62,13 @@ Timestamp:
 
 -
 
+### Roadmap impact
+
+- Does this session change `NEXT_ACTION.md`?
+- Does this session change `IMPLEMENTATION_ROADMAP.md`?
+- Does this session add a permanent decision to `DECISION_LOG.md`?
+- Does this session add or close an item in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`?
+
 ### Known issues / follow-ups
 
 -
