@@ -4,7 +4,11 @@ Copy this block into `handoff/SESSION_LOG.md` at the end of every GPT session.
 
 ---
 
-## YYYY-MM-DD — <short session title>
+## YYYY-MM-DDTHH:MM:SSZ — <short session title>
+
+Timestamp:
+- UTC:
+- Local/user time if known:
 
 ### Starting state
 
@@ -51,6 +55,10 @@ Copy this block into `handoff/SESSION_LOG.md` at the end of every GPT session.
 - Hidden persistence:
 
 ### Decisions made
+
+-
+
+### Session learnings
 
 -
 

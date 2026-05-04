@@ -6,6 +6,35 @@ Newest entries should be added at the top under a dated heading.
 
 ---
 
+## 2026-05-04T17:16:38Z — Handoff timestamp and learning rules added
+
+Timestamp:
+- UTC: 2026-05-04T17:16:38Z
+- Local/user time if known: 
+
+### Completed
+
+- Updated handoff SOP rules so every future session must timestamp handoff entries.
+- Added requirement that every session log entry includes “Session learnings.”
+- Added requirement that handoff folder is updated at regular checkpoints and at end of session.
+- Confirmed current base remains 7518d2fc4a181472b4dafd1969a41d96eec2ec3d.
+- Confirmed next implementation stage remains PR-K2A.
+
+### Session learnings
+
+- The repo handoff folder is now the primary continuity bridge between GPT sessions.
+- Future GPT sessions must be pointed to GitHub handoff files, not only chat summaries.
+- Time/date stamping prevents ambiguity when multiple docs-only PRs or QA events happen close together.
+- Session learnings must be captured in repo because they often contain the operational lessons that prevent repeated mistakes.
+
+### Next safe action
+
+Start PR-K2A only after verifying live base and reading:
+- docs/desktop-graduation-state.md
+- handoff/README.md
+- handoff/CURRENT_STATE.md
+- handoff/SESSION_LOG.md
+
 ## 2026-05-04 — Handoff SOP folder activated
 
 ### Completed
@@ -18,7 +47,7 @@ Newest entries should be added at the top under a dated heading.
   - handoff/SESSION_LOG.md
   - handoff/templates/session-update-template.md
 - Latest base after PR #54:
-  7518d2fc4a181472b4dafd1969a41d96eec2ec3
+  7518d2fc4a181472b4dafd1969a41d96eec2ec3d
 
 ### Operating rule now active
 
@@ -48,7 +77,7 @@ git status --short
 ```
 
 Expected base:
-7518d2fc4a181472b4dafd1969a41d96eec2ec3
+7518d2fc4a181472b4dafd1969a41d96eec2ec3d
 
 Then create:
 feat/desktop-pr-k2a-worksheet-profile-contract

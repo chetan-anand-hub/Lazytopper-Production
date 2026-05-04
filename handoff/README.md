@@ -36,7 +36,7 @@ base/approved-thru-437
 
 Current confirmed base:
 ```
-7518d2fc4a181472b4dafd1969a41d96eec2ec3
+7518d2fc4a181472b4dafd1969a41d96eec2ec3d
 ```
 
 ## Current activation status
@@ -44,9 +44,69 @@ Current confirmed base:
 The handoff folder became active after PR #54 merged into base/approved-thru-437.
 
 Current activation merge commit:
-7518d2fc4a181472b4dafd1969a41d96eec2ec3
+7518d2fc4a181472b4dafd1969a41d96eec2ec3d
 
 From this point forward, every GPT session must update handoff/SESSION_LOG.md before ending, and must update handoff/CURRENT_STATE.md whenever the base SHA, active stage, PR status, QA verdict, or next safe action changes.
+
+## Timestamp rule
+
+Every handoff update must include a timestamp.
+
+Use:
+- UTC timestamp in ISO format: YYYY-MM-DDTHH:MM:SSZ
+- user-local date/time when known
+
+Example:
+
+`2026-05-04T17:00:55Z UTC / 2026-05-04 22:30 IST`
+
+A handoff update without a timestamp is incomplete.
+
+## Session learnings rule
+
+Every session log entry must include a section called:
+
+### Session learnings
+
+This section must record anything learned during the session that can prevent future confusion, for example:
+- Codespaces preview limitations
+- Browser Agent access limitations
+- GitHub source-of-truth lessons
+- branch hygiene problems
+- product/data-honesty clarifications
+- prototype/reference decisions
+- route/login issues
+- validation/build lessons
+- UI/QA findings
+- what not to repeat
+
+Do not leave important learnings only in chat.
+
+## Regular update rule
+
+The handoff folder must be updated:
+- after any PR is created
+- after any PR is merged
+- after any PR is held
+- after Browser Agent QA returns
+- after manual QA substitutes for Browser Agent
+- after base SHA changes
+- after next implementation stage changes
+- after any important product/data/prototype decision
+- before the GPT session ends
+
+For long sessions, update the handoff folder at meaningful checkpoints rather than waiting until the end.
+
+## End-of-session handoff rule
+
+Before ending a GPT session:
+1. Update `handoff/SESSION_LOG.md`.
+2. Update `handoff/CURRENT_STATE.md` if material state changed.
+3. Create a docs-only PR for handoff updates, unless the update is intentionally deferred and clearly stated.
+4. Tell the next GPT session to read the GitHub handoff folder first.
+5. Provide the current base SHA, active branch, open PRs, and next safe action.
+6. Do not rely on ChatGPT memory as handoff.
+>>>>>>> 5b3979c (docs: add timestamped handoff learning rules)
 
 **GitHub is source of truth.**
 
